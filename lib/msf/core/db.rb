@@ -2,7 +2,6 @@ require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/socket'
 
-
 module Msf
 
 ###
@@ -1144,6 +1143,17 @@ class DBManager
 		return obj
 	end
 
+	def zip_requires
+		begin
+			require 'zip'
+			require 'tmpdir'
+			require 'fileutils'
+		rescue LoadError
+			false
+		end
+		true
+	end
+
 	##
 	#
 	# Import methods
@@ -1160,13 +1170,22 @@ class DBManager
 		wspace = args[:wspace] || args['wspace'] || workspace
 		@import_filedata            = {}
 		@import_filedata[:filename] = filename
+
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
+		if data[0,4] == "PK\x03\x04"
+			if zip_requires()
+				data = Zip::ZipFile.open(filename)
+			else
+				raise DBImportError.new("Could not load zip file")
+			end
+		end
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
 		else
 			import(args.merge(:data => data)) 
 		end
+
 	end
 
 	# A dispatcher method that figures out the data's file type,
@@ -1176,8 +1195,10 @@ class DBManager
 	def import(args={}, &block)
 		data = args[:data] || args['data']
 		wspace = args[:wspace] || args['wspace'] || workspace
-		di = data.index("\n")
-		raise DBImportError.new("Could not automatically determine file type") if not di
+		unless data.kind_of? Zip::ZipFile
+			di = data.index("\n")
+			raise DBImportError.new("Could not automatically determine file type") if not di
+		end
 		ftype = import_filetype_detect(data)
 		yield(:filetype, @import_filedata[:type]) if block
 		self.send "import_#{ftype}".to_sym, args, &block
@@ -1186,9 +1207,19 @@ class DBManager
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_xml :nessus_nbe :amap_mlog 
-	# :amap_log :ip_list
+	# :amap_log :ip_list, :msfx_zip
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
+		if data.kind_of? Zip::ZipFile
+			@import_filedata ||= {}
+			@import_filedata[:zip_filename] = File.split(data.to_s).last
+			@import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
+			@import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
+			@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first
+			@import_filedata[:zip_wspace] = $1
+			@import_filedata[:type] = "Metasploit Express ZIP Report"
+			return :msfx_zip if @import_filedata[:zip_xml]
+		end
 		di = data.index("\n")
 		firstline = data[0, di]
 		@import_filedata ||= {}
@@ -1264,7 +1295,6 @@ class DBManager
 	end
 
 	# Import a Metasploit Express XML file.
-	# TODO: loot, tasks, and reports
 	def import_msfe_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
@@ -1273,6 +1303,79 @@ class DBManager
 		data = f.read(f.stat.size)
 		import_msfe_xml(args.merge(:data => data))
 	end
+
+	# Import a Metasploit Express ZIP file. Note that this requires
+	# a fair bit of filesystem manipulation, and is very much tied
+	# up with the Metasploit Express ZIP file format export (for 
+	# obvious reasons). In the event directories exist, they will
+	# be reused. If target files exist, they will be overwritten.
+	#
+	# XXX: Delete $stderr.puts messages when this is done
+	# XXX: Refactor so it's not quite as sanity-blasting. 
+	def import_msfx_zip(args={}, &block)
+		data = args[:data]
+		wpsace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		
+		new_tmp = File.join(Dir::tmpdir,"msfx",@import_filedata[:zip_basename])
+		# $stderr.puts "Making #{new_tmp}"
+		if File.exists? new_tmp
+			unless (File.directory?(new_tmp) && File.writable?(new_tmp))
+				raise DBImportError.new("Could not extract zip file to #{new_tmp}")
+			end
+		else
+			FileUtils.mkdir_p(new_tmp)
+		end
+		@import_filedata[:zip_tmp] = new_tmp
+		# $stderr.puts "Made #{@import_filedata[:zip_tmp]}"
+
+		@import_filedata[:zip_tmp_sub] = @import_filedata[:zip_entry_names].map {|x| File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
+		# $stderr.puts "Naming subdirs: #{@import_filedata[:zip_tmp_sub]}"
+
+		@import_filedata[:zip_tmp_sub].each {|sub| 
+			tmp_sub = File.join(@import_filedata[:zip_tmp],sub)
+			if File.exists? tmp_sub
+				unless (File.directory?(tmp_sub) && File.writable?(tmp_sub))
+					raise DBImportError.new("Could not extract zip file to #{tmp_sub}")
+				end
+			else
+				FileUtils.mkdir(tmp_sub)
+			end
+			# $stderr.puts "Made #{tmp_sub.inspect}"
+		}
+
+		data.entries.each do |e|
+			target = File.join(@import_filedata[:zip_tmp],e.name)
+			# $stderr.puts "Extracting to #{target}"
+			File.unlink target if File.exists?(target) # Yep. Deleted.
+			data.extract(e,target) 
+			if target =~ /^.*.xml$/
+				@import_filedata[:zip_extracted_xml] = target
+			end
+		end
+
+		# $stderr.puts "Moving on to actually importing now."
+
+		# This will kick the newly-extracted XML file through
+		# the import_file process all over again.
+		if @import_filedata[:zip_extracted_xml]
+			new_args = args.dup
+			new_args[:filename] = @import_filedata[:zip_extracted_xml]
+			new_args[:data] = nil
+			if block
+				import_file(new_args, &block)
+			else
+				import(new_args)
+			end
+		end
+
+		# 
+		# XXX: Now deal with moving all the other collateral to someplace appropriate,
+		# probably should just yield them up to MSFX directly and let the interface
+		# worry about it -- MSF3 mainline users won't care.
+		#
+	end
+
 
 	# For each host, step through services, notes, and vulns, and import
 	# them.

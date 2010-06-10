@@ -1,0 +1,1146 @@
+2010-01-01 13:43  thomas
+
+	* NEWS, lib/zip/zip.rb, test/ziptest.rb: Changed
+	  ZipOutputStream.put_next_entry to make it possible to specifiy
+	  comments, extra field and compression method.
+
+2009-12-31 16:25  thomas
+
+	* Rakefile: Updated publish method.
+
+2009-11-27 22:59  thomas
+
+	* NEWS, lib/zip/zip.rb: Bumped micro number and updated NEWS file.
+
+	* lib/zip/zip.rb: Provide convenience methods for retrieving name
+	  and comments in character encoding of choice (pending ruby
+	  character String class).
+
+2009-04-05 12:28  thomas
+
+	* install.rb, lib/zip/zip.rb, samples/example_filesystem.rb,
+	  test/zipfilesystemtest.rb, test/ziptest.rb: Applied ruby-1.9
+	  compatibility patch from Yuya Nishida.
+
+2008-08-26 20:49  thomas
+
+	* lib/zip/zip.rb: Rewrote fix for rename bug.
+
+2008-08-24 14:34  thomas
+
+	* lib/zip/zip.rb, test/ziptest.rb: Refixed rename to avoid
+	  decompressing and recompressing entry.
+
+2008-08-24 11:43  drylight
+
+	* NEWS, README, Rakefile, lib/zip/zip.rb: Update version number and
+	  minor release note changes.
+
+	* NEWS, README, lib/zip/zip.rb, test/ziptest.rb: Fixed: Renaming an
+	  entry failed if the entry's new name was a different length than
+	  its old name.
+
+2006-12-24 11:42  thomas
+
+	* lib/zip/: ioextras.rb, zip.rb: Added IOExtras.copy_stream_n and
+	  used it to avoid loading large entries into memory when copying
+	  from one stream to another.
+
+2006-12-17 15:03  thomas
+
+	* lib/zip/zip.rb: Bug 1614537 Version needed to extract set.
+
+2006-11-21 09:12  thomas
+
+	* lib/zip/zipfilesystem.rb, test/zipfilesystemtest.rb: Bug 1600222
+	  Fixed it so ZipFsFile#open accepts and ignores b(inary) option.
+
+2006-09-05 22:53  thomas
+
+	* test/zipfilesystemtest.rb: Avoid warnings while running tests.
+
+2006-08-04 19:56  technorama
+
+	* lib/zip/zip.rb: bugfix: :link -> :symlink
+
+2006-07-01 10:04  thomas
+
+	* Rakefile: Don't autorequire zip/zip - autorequire is deprecated.
+
+2006-06-30 09:28  thomas
+
+	* Rakefile: [no log message]
+
+	* NEWS, lib/zip/zip.rb: Bumped version number and reformatted NEWS
+	  a bit.
+
+2006-06-29 22:49  technorama
+
+	* lib/zip/zip.rb, NEWS: documentation additions
+
+2006-04-30 06:25  technorama
+
+	* TODO, lib/zip/zip.rb, test/ziptest.rb: add documentation and test
+	  for new ZipFile::extract
+
+	* lib/zip/zip.rb: add some of the API suggestions from sf.net
+	  #1281314
+
+	* lib/zip/zip.rb: apply patch for bug #1446926
+
+	* lib/zip/zip.rb: apply patch for bug #1459902
+
+2006-04-26 17:17  technorama
+
+	* lib/zip/zip.rb: add ZipFile @restore_*, documentation update
+
+2006-04-07 21:13  technorama
+
+	* test/: gentestfiles.rb, zipfilesystemtest.rb, ziptest.rb:
+	  additional tests
+
+2006-03-28 04:11  technorama
+
+	* lib/zip/zip.rb: start of unix_uid, unix_gid, restore_* support
+
+	* lib/zip/zip.rb: follow_symlinks is now optional
+
+	* lib/zip/zip.rb: add eof? methods
+
+	* test/ziptest.rb: eof? tests
+
+2006-02-26 09:57  technorama
+
+	* README: add to authors
+
+	* TODO: [no log message]
+
+2006-02-25 12:04  thomas
+
+	* lib/zip/zip.rb, test/ziptest.rb: Did away with ZipStreamableFile.
+
+2006-02-23 08:03  technorama
+
+	* lib/zip/zip.rb: unix file permissions.  symlink support.  rework
+	  ZipEntry and delegate classes.  reduce memory usage during
+	  decompression.
+
+2006-02-22 23:44  technorama
+
+	* lib/zip/zipfilesystem.rb: update permissionInt for mkdir
+
+2006-02-04 10:42  thomas
+
+	* lib/zip/: ioextras.rb, zip.rb: Merged patch from oss-ruby.
+
+2005-11-19 16:17  thomas
+
+	* lib/zip/zip.rb: [no log message]
+
+2005-11-08 08:23  thomas
+
+	* lib/zip/ioextras.rb: Accepted patch from oss-ruby
+
+2005-10-07 09:54  thomas
+
+	* TODO: [no log message]
+
+2005-09-06 21:19  thomas
+
+	* lib/zip/zip.rb: [no log message]
+
+	* NEWS: [no log message]
+
+	* lib/zip/zip.rb, test/gentestfiles.rb, test/ziptest.rb: Fixed
+	  problem on windows - tempfile has to be set to binmode again when
+	  it is reopened
+
+2005-09-04 16:45  thomas
+
+	* Rakefile: [no log message]
+
+	* TODO: [no log message]
+
+	* test/ziptest.rb: [no log message]
+
+2005-09-03 10:27  thomas
+
+	* NEWS: [no log message]
+
+	* TODO, lib/zip/zip.rb: [no log message]
+
+	* lib/zip/ioextras.rb, lib/zip/zip.rb, test/ziptest.rb: Merged
+	  patch from oss-ruby at technorama.net
+
+	* test/ziptest.rb: Added failing test that shows that read and gets
+	  don't mix currently
+
+2005-08-29 08:50  thomas
+
+	* lib/zip/: ioextras.rb, zip.rb: [no log message]
+
+	* NEWS, lib/zip/zip.rb: [no log message]
+
+	* lib/zip/zip.rb: [no log message]
+
+	* lib/zip/zip.rb: [no log message]
+
+2005-08-07 14:27  thomas
+
+	* lib/zip/zip.rb, NEWS: [no log message]
+
+2005-08-06 11:12  thomas
+
+	* lib/zip/: ioextras.rb, zip.rb: [no log message]
+
+2005-08-03 18:54  thomas
+
+	* lib/zip/zip.rb: Read/write in chunks to preserve memory
+
+2005-07-02 15:08  thomas
+
+	* lib/zip/zip.rb: Applied received patch concerning FreeBSD 4.5
+	  issue
+
+2005-04-03 16:52  thomas
+
+	* samples/.cvsignore: [no log message]
+
+	* samples/: qtzip.rb, zipdialogui.ui: Added a qt example
+
+2005-03-31 21:58  thomas
+
+	* lib/zip/zip.rb, test/ziptest.rb: [no log message]
+
+	* test/zipfilesystemtest.rb: [no log message]
+
+2005-03-17 18:17  thomas
+
+	* Rakefile: [no log message]
+
+	* NEWS, README, lib/zip/zip.rb: [no log message]
+
+	* install.rb: Fixed install.rb
+
+2005-03-03 18:38  thomas
+
+	* Rakefile: [no log message]
+
+2005-02-27 16:23  thomas
+
+	* lib/zip/ziprequire.rb: Added documentation to ziprequire
+
+	* README, TODO, lib/zip/ziprequire.rb: Added documentation to
+	  ziprequire
+
+	* Rakefile, test/ziptest.rb: [no log message]
+
+2005-02-19 21:30  thomas
+
+	* lib/zip/ioextras.rb, lib/zip/stdrubyext.rb,
+	  lib/zip/tempfile_bugfixed.rb, lib/zip/zip.rb,
+	  lib/zip/ziprequire.rb, test/ioextrastest.rb,
+	  test/stdrubyexttest.rb, test/zipfilesystemtest.rb,
+	  test/ziprequiretest.rb, test/ziptest.rb: Added more rdoc and
+	  changed the remaining tests to Test::Unit
+
+	* lib/zip/: ioextras.rb, zip.rb: Added documentation to
+	  ZipInputStream and ZipOutputStream
+
+2005-02-18 10:27  thomas
+
+	* README: [no log message]
+
+2005-02-17 23:21  thomas
+
+	* README, Rakefile: Added ppackage (publish package) task to
+	  Rakefile
+
+	* README, Rakefile, TODO: Added pdoc (publish doc) task to Rakefile
+
+	* README, Rakefile, TODO, lib/zip/stdrubyext.rb, lib/zip/zip.rb,
+	  lib/zip/zipfilesystem.rb: Added a bunch of documentation
+
+	* test/ziptest.rb: [no log message]
+
+2005-02-16 20:04  thomas
+
+	* NEWS, README, Rakefile: Improved documentation and added rdoc
+	  task to Rakefile
+
+	* NEWS, Rakefile, lib/zip/zip.rb: [no log message]
+
+	* Rakefile, samples/example.rb, samples/example_filesystem.rb,
+	  samples/gtkRubyzip.rb, samples/write_simple.rb,
+	  samples/zipfind.rb, test/.cvsignore, test/gentestfiles.rb:
+	  Improvements to Rakefile
+
+2005-02-15 23:35  thomas
+
+	* NEWS, TODO: [no log message]
+
+	* Rakefile, rubyzip.gemspec: Now uses Rake to build gem
+
+	* Rakefile: [no log message]
+
+	* lib/zip/zip.rb, test/.cvsignore, test/ziptest.rb, NEWS: Fixed
+	  compatibility issue with ruby 1.8.2. Migrated test suite to
+	  Test::Unit
+
+	* NEWS, lib/zip/ioextras.rb, lib/zip/stdrubyext.rb,
+	  lib/zip/tempfile_bugfixed.rb, lib/zip/zip.rb,
+	  lib/zip/zipfilesystem.rb, lib/zip/ziprequire.rb, test/.cvsignore,
+	  test/file1.txt, test/file1.txt.deflatedData, test/file2.txt,
+	  test/gentestfiles.rb, test/ioextrastest.rb,
+	  test/notzippedruby.rb, test/rubycode.zip, test/rubycode2.zip,
+	  test/stdrubyexttest.rb, test/testDirectory.bin,
+	  test/zipWithDirs.zip, test/zipfilesystemtest.rb,
+	  test/ziprequiretest.rb, test/ziptest.rb, test/data/.cvsignore,
+	  test/data/file1.txt, test/data/file1.txt.deflatedData,
+	  test/data/file2.txt, test/data/notzippedruby.rb,
+	  test/data/rubycode.zip, test/data/rubycode2.zip,
+	  test/data/testDirectory.bin, test/data/zipWithDirs.zip: Changed
+	  directory structure
+
+2005-02-13 22:44  thomas
+
+	* Rakefile, TODO: [no log message]
+
+	* rubyzip.gemspec: [no log message]
+
+	* install.rb: Made install.rb independent of the current path
+	  (fixes bug reported by Drew Robinson)
+
+2004-12-12 11:22  thomas
+
+	* NEWS, TODO, samples/write_simple.rb: Fixed 'version needed to
+	  extract'-field wrong in local headers
+
+2004-05-02 15:17  thomas
+
+	* rubyzip.gemspec: Added gemspec contributed by Chad Fowler
+
+2004-04-02 07:25  thomas
+
+	* NEWS: Fix for FreeBSD 4.9
+
+2004-03-29 00:28  thomas
+
+	* NEWS: [no log message]
+
+2004-03-28 17:59  thomas
+
+	* NEWS: [no log message]
+
+2004-03-27 16:09  thomas
+
+	* test/stdrubyexttest.rb: Patch for stdrubyext.rb from Nobu Nakada
+
+	* test/: ioextrastest.rb, stdrubyexttest.rb: converted some files
+	  to unix line-endings
+
+2004-03-25 16:34  thomas
+
+	* NEWS, install.rb: Significantly reduced memory footprint when
+	  modifying zip files
+
+2004-03-16 18:20  thomas
+
+	* install.rb, test/alltests.rb, test/ioextrastest.rb,
+	  test/stdrubyexttest.rb, test/ziptest.rb: IO utility classes moved
+	  to new file ioextras.rb. Tests moved to new file ioextrastest.rb
+
+2004-02-27 13:21  thomas
+
+	* NEWS: Optimization to avoid decompression and recompression
+
+2004-01-30 16:17  thomas
+
+	* NEWS: [no log message]
+
+	* README, test/zipfilesystemtest.rb, test/ziptest.rb: Applied
+	  extra-field patch
+
+2003-12-13 16:57  thomas
+
+	* TODO: [no log message]
+
+2003-12-10 00:25  thomas
+
+	* test/ziptest.rb: (Temporary) fix to bug reported by Takashi Sano
+
+2003-08-23 09:42  thomas
+
+	* test/ziptest.rb, NEWS: Fixed ZipFile.get_ouput_stream bug - data
+	  was never written to zip
+
+2003-08-21 16:05  thomas
+
+	* install.rb: [no log message]
+
+	* alltests.rb, stdrubyexttest.rb, zipfilesystemtest.rb,
+	  ziprequiretest.rb, ziptest.rb, test/alltests.rb,
+	  test/stdrubyexttest.rb, test/zipfilesystemtest.rb,
+	  test/ziprequiretest.rb, test/ziptest.rb: Moved all test ruby
+	  files to test/
+
+	* NEWS, install.rb, stdrubyext.rb, stdrubyexttest.rb, zip.rb,
+	  zipfilesystem.rb, zipfilesystemtest.rb, ziprequire.rb,
+	  ziprequiretest.rb, ziptest.rb, samples/example.rb,
+	  samples/example_filesystem.rb, samples/gtkRubyzip.rb,
+	  samples/zipfind.rb: Moved all production source files to zip/ so
+	  they are in the same dir as when they are installed
+
+	* NEWS, TODO, alltests.rb: [no log message]
+
+	* filearchive.rb, filearchivetest.rb, fileutils.rb: Removed
+	  filearchive.rb, filearchivetest.rb and fileutils.rb
+
+	* samples/.cvsignore, samples/example_filesystem.rb, zip.rb,
+	  samples/example_filesystem.rb: Added
+	  samples/example_filesystem.rb. Fixed Tempfile creation for
+	  entries created with get_output_stream where entries were in a
+	  subdirectory
+
+	* zip.rb, ziptest.rb: Fixed mkdir bug. ZipFile.mkdir didn't work if
+	  the zipfile doesn't exist already
+
+	* ziptest.rb: [no log message]
+
+	* TODO, zipfilesystemtest.rb: Globbing test placeholder commented
+	  out
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented ZipFsDir.new
+	  and open
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented DirFsIterator
+	  and tests
+
+2003-08-20 22:50  thomas
+
+	* NEWS, TODO: [no log message]
+
+	* zipfilesystemtest.rb: [no log message]
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsDir.foreach, ZipFsDir.entries now reimplemented in terms of
+	  it
+
+	* README: [no log message]
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: [no log message]
+
+	* zipfilesystem.rb: All access from ZipFsFile and ZipFsDir to
+	  ZipFile is now routed through ZipFileNameMapper which has the
+	  single responsibility of mapping entry/filenames
+
+	* alltests.rb, stdrubyext.rb, stdrubyexttest.rb: Added
+	  stdrubyexttest.rb and added test test_select_map
+
+	* zipfilesystem.rb: ZipFsDir was in the wrong module. ZipFileSystem
+	  now has a ctor that creates ZipFsDir and ZipFsFile instances,
+	  instead of creating them lazily. It then passes the dir instance
+	  to the file instance and vice versa
+
+	* zip.rb, zipfilesystem.rb, zipfilesystemtest.rb: ZipFsFile.open
+	  honours chdir
+
+	* stdrubyext.rb, zip.rb, zipfilesystem.rb, zipfilesystemtest.rb,
+	  ziptest.rb: Fixed ZipEntry::parent_as_string. Implemented
+	  ZipFsDir.chdir, pwd and entries including test
+
+2003-08-19 15:44  thomas
+
+	* zip.rb, zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsDir.mkdir
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsDir.delete (and aliases rmdir and unlink)
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Another dummy
+	  implementation and commented out a test for select() which can be
+	  added later
+
+2003-08-18 20:40  thomas
+
+	* ziptest.rb: Honoured 1.8.0 Object.to_a deprecation warning
+
+	* zip.rb, ziptest.rb, samples/example.rb, samples/zipfind.rb:
+	  Converted a few more names to ruby underscore style that I missed
+	  with the automated processing the first time around
+
+	* zip.rb, zipfilesystem.rb, zipfilesystemtest.rb, ziptest.rb:
+	  Implemented Zip::ZipFile.get_output_stream
+
+2003-08-17 18:28  thomas
+
+	* README, install.rb, stdrubyext.rb, zipfilesystem.rb,
+	  zipfilesystemtest.rb: Updated README with Documentation section.
+	  Updated install.rb. Fixed three tests that failed on 1.8.0.
+
+2003-08-14 05:40  thomas
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Added empty
+	  implementations of atime and ctime
+
+2003-08-13 17:08  thomas
+
+	* simpledist.rb: Moved simpledist to a separate repository called
+	  'misc'
+
+	* NEWS: [no log message]
+
+	* stdrubyext.rb, zip.rb, zipfilesystem.rb, zipfilesystemtest.rb,
+	  ziprequire.rb, ziprequiretest.rb, ziptest.rb, samples/example.rb,
+	  samples/gtkRubyzip.rb, samples/zipfind.rb: Changed all method
+	  names to the ruby convention underscore style
+
+	* alltests.rb, zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  a lot more of the stat methods. Mostly with dummy implementations
+	  that return values that indicate that these features aren't
+	  supported
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented more methods
+	  and tests in zipfilesystem. Mostly empty methods as permissions
+	  and file types other than files and directories are not supported
+
+	* install.rb, stdrubyext.rb, zip.rb, zipfilesystem.rb,
+	  zipfilesystemtest.rb: Addd file stdrubyext.rb and moved the
+	  modifications to std ruby classes to it. Refactored the ZipFsStat
+	  tests and ZipFsStat. Added Module.forwardMessages and used it to
+	  implement the forwarding of calls in ZipFsStat
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Added
+	  Zip::ZipFsFile::ZipFsStat and started implementing it and its
+	  methods
+
+	* zipfilesystem.rb, zipfilesystemtest.rb, ziptest.rb: Updated and
+	  added missing copyright notices
+
+	* zip.rb, zipfilesystem.rb, zipfilesystemtest.rb: zipfilesystem.rb
+	  is becoming big and not everyone will want to use that code.
+	  Therefore zip.rb no longer requires it. Instead you must require
+	  zipfilesystem.rb itself if you want to use it
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented dummy
+	  permission test methods
+
+	* TODO, zip.rb, ziptest.rb: Merged from patch from Kristoffer
+	  Lunden. Fixed more 1.8.0 incompatibilites - tests run on 1.8.0
+	  now
+
+2003-08-12 19:18  thomas
+
+	* zip.rb: Get rid of 1.8.0 warning
+
+	* ziptest.rb: ruby 1.8.0 compatibility fix
+
+	* NEWS, zip.rb: ruby-zlib 0.6.0 compatibility fix
+
+2002-12-22 20:12  thomas
+
+	* zip.rb: [no log message]
+
+2002-09-16 22:11  thomas
+
+	* NEWS: [no log message]
+
+2002-09-15 17:16  thomas
+
+	* samples/zipfind.rb: [no log message]
+
+	* samples/zipfind.rb: [no log message]
+
+2002-09-14 22:59  thomas
+
+	* samples/zipfind.rb: Added simple zipfind script
+
+2002-09-13 23:53  thomas
+
+	* TODO: Added TODO about openmode for zip entries binary/ascii
+
+	* NEWS: ziptest now runs without errors with ruby-1.7.2-4 (Andy's
+	  latest build)
+
+	* zip.rb, ziprequiretest.rb, ziptest.rb: ziptest now runs without
+	  errors with ruby-1.7.2-4 (Andy's latest build)
+
+2002-09-12 00:20  thomas
+
+	* zipfilesystemtest.rb: Improved ZipFsFile.delete/unlink test
+
+	* test/.cvsignore: [no log message]
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.delete/unlink
+
+2002-09-11 22:22  thomas
+
+	* alltests.rb: [no log message]
+
+	* NEWS, zip.rb, zipfilesystem.rb, zipfilesystemtest.rb: Fixed
+	  AbstractInputStream.each_line ignored its aSeparator argument.
+	  Implemented more ZipFsFile methods
+
+	* zip.rb, zipfilesystem.rb, zipfilesystemtest.rb: ZipFileSystem is
+	  now a module instead of a class, and is mixed into ZipFile,
+	  instead of being made available as a property fileSystem
+
+2002-09-10 23:45  thomas
+
+	* NEWS: Updated NEWS file
+
+	* zip.rb: [no log message]
+
+	* NEWS, zip.rb, ziptest.rb: Fix bug: rewind should reset lineno.
+	  Fix bug: Deflater.read uses separate buffer from produceInput
+	  (feeding gets/readline etc)
+
+2002-09-09 23:48  thomas
+
+	* .cvsignore: [no log message]
+
+2002-09-09 22:55  uid26649
+
+	* zip.rb, ziptest.rb: Implemented ZipInputStream.rewind and
+	  AbstractInputStream.lineno. Tests for both
+
+2002-09-09 20:31  thomas
+
+	* zip.rb, ziptest.rb: ZipInputStream and ZipOutstream (thru their
+	  AbstractInputStream and AbstractOutputStream now lie about being
+	  kind_of?(IO)
+
+2002-09-08 16:38  thomas
+
+	* zipfilesystemtest.rb: [no log message]
+
+	* filearchive.rb, filearchivetest.rb, zip.rb, ziptest.rb: Moved
+	  String additions from filearchive.rb to zip.rb (and moved tests
+	  along too to ziptest.rb). Added ZipEntry.parentAsString and
+	  ZipEntrySet.parent
+
+	* ziptest.rb: Implemented ZipEntrySetTest.testDup and testCompound
+
+	* TODO, zip.rb, ziptest.rb: Replaced Array with EntrySet for
+	  keeping entries in a zip file. Tagged repository before this
+	  commit, so this change can be rolled back, if it stinks
+
+2002-09-07 20:21  thomas
+
+	* zip.rb, ziptest.rb: Implemented ZipEntry.<=>
+
+	* ziptest.rb: Removed unused code
+
+2002-08-11 15:14  thomas
+
+	* zip.rb, ziptest.rb: Made some changes to accomodate ruby 1.7.2
+
+2002-07-27 15:25  thomas
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented ZipFsFile.new
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.pipe
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.link
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.symlink
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.readlink, wrapped ZipFileSystem class in Zip module
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.zero?
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented test for
+	  ZipFsFile.directory?
+
+2002-07-26 23:56  thomas
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.socket?
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.join
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.ftype
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.blockdev?
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.size? (slightly different from size)
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.split
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implemented
+	  ZipFsFile.symlink?
+
+	* alltests.rb, zip.rb, zipfilesystem.rb, zipfilesystemtest.rb:
+	  Implemented ZipFsFile.mtime
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: Implement ZipFsFile.file?
+
+	* zip.rb, ziptest.rb: Implemented ZipEntry.file?
+
+	* alltests.rb, filearchive.rb, filearchivetest.rb, zip.rb,
+	  zipfilesystem.rb, zipfilesystemtest.rb, ziprequire.rb,
+	  ziptest.rb: Implemented ZipFileSystem::ZipFsFile.size
+
+	* zipfilesystem.rb, zipfilesystemtest.rb: [no log message]
+
+	* test/zipWithDirs.zip: Changed zipWithDirs.zip so all the entries
+	  in it have unix file endings
+
+	* alltests.rb, zip.rb, zipfilesystem.rb, zipfilesystemtest.rb:
+	  Started implementing ZipFileSystem
+
+	* test/zipWithDirs.zip: Added a zip file for testing with a
+	  directory structure
+
+2002-07-22 21:40  thomas
+
+	* TODO: [no log message]
+
+	* TODO: [no log message]
+
+2002-07-21 18:20  thomas
+
+	* NEWS: [no log message]
+
+	* TODO: Updated TODO with a refactoring idea for FileArchive
+
+	* filearchive.rb, filearchivetest.rb: Added some FileArchiveAdd
+	  tests and cleaned up some of the FileArchive tests. extract and
+	  add now have individual test fixtures.
+
+	* filearchive.rb, filearchivetest.rb: Added tests for extract
+	  called with regex src arg and Enumerable src arg
+
+	* filearchivetest.rb: Added test for continueOnExistsProc when
+	  extracting from a file archive
+
+2002-07-20 17:13  thomas
+
+	* TODO, filearchivetest.rb, fileutils.rb, ziptest.rb,
+	  test/.cvsignore: Added (failing) tests for FileArchive.add, added
+	  code for creating test files for FileArchive.add tests. Added
+	  fileutils.rb, which is borrowed from ruby 1.7.2
+
+	* filearchive.rb, filearchivetest.rb: [no log message]
+
+	* filearchivetest.rb: Added tests for String extensions
+
+	* alltests.rb, ziprequiretest.rb, ziptest.rb: [no log message]
+
+	* install.rb: [no log message]
+
+	* TODO: Updated TODO
+
+	* filearchive.rb, filearchivetest.rb: All FileArchive.extract tests
+	  run
+
+2002-07-19 23:11  thomas
+
+	* filearchive.rb, filearchivetest.rb: [no log message]
+
+	* filearchivetest.rb: [no log message]
+
+	* filearchive.rb, filearchivetest.rb: [no log message]
+
+	* filearchive.rb, filearchivetest.rb, zip.rb: [no log message]
+
+2002-07-08 13:41  thomas
+
+	* TODO: [no log message]
+
+2002-06-11 19:47  thomas
+
+	* filearchive.rb, filearchivetest.rb, zip.rb, ziptest.rb: [no log
+	  message]
+
+2002-05-25 00:41  thomas
+
+	* simpledist.rb: Added hackish script for creating dist files
+
+2002-04-30 21:22  thomas
+
+	* TODO: [no log message]
+
+	* filearchive.rb, filearchivetest.rb: [no log message]
+
+	* filearchive.rb, filearchivetest.rb: Improved testing and wrote
+	  some of the skeleton of extract. Still to do: Fix glob, so it
+	  returns a hashmap instead of a list. The map will need to map the
+	  full entry name to the last part of the name (which is only
+	  really interesting for recursively extracted entries, otherwise
+	  it is just the name). Glob.expandPathList should also output
+	  directories with a trailing slash, which is doesn't right now.
+
+	* filearchive.rb, filearchivetest.rb: Implemented the first few
+	  tests for FileArchive
+
+2002-04-24 22:06  thomas
+
+	* ziprequire.rb, ziprequiretest.rb: Appended copyright message to
+	  ziprequire.rb and ziprequiretest.rb
+
+	* zip.rb: Made ZipEntry tolerate invalid dates
+
+2002-04-21 00:57  thomas
+
+	* NEWS, TODO, zip.rb, ziptest.rb: Read and write entry modification
+	  date/time correctly
+
+2002-04-20 02:44  thomas
+
+	* ziprequiretest.rb, test/rubycode2.zip: improved ZipRequireTest
+
+	* ziprequire.rb: Made a warning go away
+
+	* ziprequire.rb, ziprequiretest.rb, test/notzippedruby.rb,
+	  test/rubycode.zip: Fixed a bug in ziprequire. Added
+	  ziprequiretest.rb and test data files
+
+2002-04-19 22:43  thomas
+
+	* zip.rb, ziptest.rb: Added recursion support to Glob module
+
+2002-04-18 21:37  thomas
+
+	* NEWS, TODO, zip.rb, ziptest.rb: Added Glob module and GlobTest
+	  unit test suite. This module provides the functionality to expand
+	  a 'glob pattern' given a list of files - Next step is to use this
+	  module in ZipFile
+
+2002-04-01 22:55  thomas
+
+	* NEWS: [no log message]
+
+	* TODO, zip.rb, ziprequire.rb: Added ziprequire.rb which contains a
+	  proof-of-concept implementation of a require implementation that
+	  can load ruby modules from a zip file. Needs unit tests and
+	  polish.
+
+2002-03-31 01:13  thomas
+
+	* README: [no log message]
+
+2002-03-30 16:14  thomas
+
+	* TODO: [no log message]
+
+	* .cvsignore, README, zip.rb: Added rdoc markup (only #:nodoc:all
+	  modifiers) to zip.rb. Made README 'RDoc compliant'
+
+2002-03-29 23:29  thomas
+
+	* TODO: [no log message]
+
+	* example.rb, samples/.cvsignore, samples/example.rb,
+	  samples/gtkRubyzip.rb: Moved example.rb to samples/. Added
+	  another sample gtkRubyzip.rb
+
+	* NEWS, TODO, TODO: [no log message]
+
+	* .cvsignore, file1.txt, file1.txt.deflatedData, testDirectory.bin,
+	  ziptest.rb, test/.cvsignore, test/file1.txt,
+	  test/file1.txt.deflatedData, test/file2.txt,
+	  test/testDirectory.bin: Added test/ directory and moved the
+	  manually created test data files into it. Changed ziptest.rb so
+	  it runs in test/ directory
+
+	* TODO: [no log message]
+
+	* NEWS, zip.rb, ziptest.rb: Don't decompress and recompress zip
+	  entries when changing zip file
+
+	* zip.rb: Performance optimization: Only write new ZipFile, if it
+	  has been changed. The test suite runs in half the time now.
+
+2002-03-28 22:12  thomas
+
+	* TODO: [no log message]
+
+2002-03-23 17:31  thomas
+
+	* TODO: [no log message]
+
+2002-03-22 22:47  thomas
+
+	* NEWS: [no log message]
+
+	* NEWS, TODO: [no log message]
+
+	* ziptest.rb: Found the tests that didn't use blocks to make sure
+	  input streams are closed as soon as they arent used anymore and
+	  got rid of the GC.start
+
+	* ziptest.rb: All tests run on windows ruby 1.6.6
+
+	* zip.rb, ziptest.rb: Windows fixes: Fixed ZipFile.initialize which
+	  needed to open zipfile file in binary mode. Added another
+	  workaround for the return value from File.open(name) where name
+	  is the name of a directory - ruby returns different exceptions in
+	  linux, win/cygwin and windows. A number of tests failed because
+	  in windows you cant delete a file that is open. Fixed by changing
+	  ziptest.rb to use ZipInputStream.getInputStream with blocks a few
+	  places. There is a hack in CommanZipFileFixture.setup where the
+	  GC is explicitly invoked. Should be fixed with blocks instead.
+	  The only currently failing test fails because the test data
+	  creation fails to add a comment to 4entry.zip, because echo eats
+	  the remainder of the line including the pipe character and the
+	  following zip -z 4 entry.zip command
+
+2002-03-21 22:18  thomas
+
+	* NEWS: [no log message]
+
+	* NEWS, README, TODO, install.rb: Added install.rb
+
+	* ziptest.rb: [no log message]
+
+	* NEWS, TODO: [no log message]
+
+	* .cvsignore, TODO, zip.rb, ziptest.rb: Added
+	  test_extractDirectoryExistsAsFileOverwrite and fixed to pass
+
+	* zip.rb, ziptest.rb: Extraction of directory entries is now
+	  supported
+
+2002-03-20 21:59  thomas
+
+	* NEWS: [no log message]
+
+	* COPYING, README, README.txt: Removed COPYING, renamed README.txt
+	  to README. Updated README
+
+	* example.rb: Fixed example.rb added example that shows zip file
+	  manipulation with Zip::ZipFile
+
+	* .cvsignore: [no log message]
+
+	* TODO, zip.rb, ziptest.rb: Directories can now be added (not
+	  recursively, the directory entry itself. Directories are
+	  recognized by a empty entries with a trailing /. The purpose of
+	  storing them explicitly in the zip file is to be able to store
+	  permission and ownership information
+
+	* TODO, zip.rb, ziptest.rb: zip.rb depended on ftools but it was
+	  only included in ziptest.rb
+
+	* zip.rb, ziptest.rb: ZipError is now a subclass of StandardError
+	  instead of RuntimeError. ZipError now has several subclasses.
+
+2002-03-19 22:26  thomas
+
+	* TODO: [no log message]
+
+	* TODO, ziptest.rb: Unit test ZipFile.getInputStream with block
+
+	* TODO, zip.rb, ziptest.rb: Unit test for adding new entry with
+	  name that already exists in archive, and fixed to pass test
+
+	* TODO, zip.rb, ziptest.rb: Added unit tests for rename to existing
+	  entry
+
+	* TODO: [no log message]
+
+	* TODO, zip.rb, ziptest.rb: Unit test calling ZipFile.extract with
+	  block
+
+2002-03-18 21:06  thomas
+
+	* TODO: [no log message]
+
+	* zip.rb, ziptest.rb: ZipFile#commit now reinitializes ZipFile.
+
+	* TODO, zip.rb, ziptest.rb: Refactoring:
+	  
+	  Collapsed ZipEntry and ZipStreamableZipEntry into ZipEntry.
+	  
+	  Collapsed BasicZipFile and ZipFile into ZipFile.
+
+	* zip.rb: Removed method that was never called
+
+2002-03-17 22:33  thomas
+
+	* TODO: [no log message]
+
+	* ziptest.rb: Run tests with =true as default
+
+	* NEWS, TODO, zip.rb, ziptest.rb: Now runs with -w switch without
+	  warnings
+
+	* .cvsignore: [no log message]
+
+	* zip.rb, ziptest.rb: Down to one failing test
+
+	* zip.rb, ziptest.rb: [no log message]
+
+	* TODO, zip.rb, ziptest.rb: [no log message]
+
+2002-02-25 19:42  thomas
+
+	* TODO: Added more todos
+
+2002-02-23 15:51  thomas
+
+	* zip.rb: [no log message]
+
+	* zip.rb, ziptest.rb: [no log message]
+
+	* zip.rb, ziptest.rb: [no log message]
+
+2002-02-03 18:47  thomas
+
+	* ziptest.rb: [no log message]
+
+2002-02-02 15:58  thomas
+
+	* example.rb, zip.rb, ziptest.rb: [no log message]
+
+	* .cvsignore: [no log message]
+
+	* example.rb, zip.rb, ziptest.rb: Renamed SimpleZipFile to
+	  BasicZipFile
+
+	* TODO: [no log message]
+
+	* ziptest.rb: More test cases - all of them failing, so now there
+	  are 18 failing test cases. Three more test cases to implement,
+	  then it is time for the production code
+
+2002-02-01 21:49  thomas
+
+	* ziptest.rb: [no log message]
+
+	* ziptest.rb: Also run SimpleZipFile tests for ZipFile.
+
+	* example.rb, zip.rb, ziptest.rb: ZipFile renamed to SimpleZipFile.
+	  The new ZipFile will have many more methods that are useful for
+	  managing archives.
+
+2002-01-29 20:30  thomas
+
+	* TODO: [no log message]
+
+2002-01-26 00:18  thomas
+
+	* NEWS: [no log message]
+
+	* ziptest.rb: In unit test: work around ruby/cygwin weirdness. You
+	  get an Errno::EEXISTS instead of an Errno::EISDIR if you try to
+	  open a file for writing that is a directory.
+
+	* ziptest.rb: Fixed test that failed on windows because of CRLF
+	  line ending
+
+2002-01-25 23:58  thomas
+
+	* ziptest.rb: [no log message]
+
+	* .cvsignore, example.rb, zip.rb: Fixed bug reading from empty
+	  deflated entry in zip file
+
+	* .cvsignore: [no log message]
+
+	* ziptest.rb: [no log message]
+
+	* NEWS, README.txt, zip.rb, ziptest.rb: Zip write support is now
+	  fully functional in the form of ZipOutputStream.
+
+	* zip.rb, ziptest.rb: [no log message]
+
+	* zip.rb, ziptest.rb: [no log message]
+
+2002-01-20 16:00  thomas
+
+	* zip.rb, ziptest.rb: Added Deflater and DeflaterTest.
+
+	* .cvsignore: [no log message]
+
+	* .cvsignore: Added .cvsignore file
+
+	* zip.rb, ziptest.rb: Added ZipEntry.writeCDirEntry and misc minor
+	  fixes
+
+2002-01-19 23:28  thomas
+
+	* example.rb, zip.rb, ziptest.rb: NOTICE: Not all tests run!!
+	  
+	  ZipOutputStream in progress
+	  
+	  Wrapped rubyzip in namespace module Zip.
+
+2002-01-17 18:52  thomas
+
+	* ziptest.rb: Fail nicely if the user doesn't have info-zip
+	  compatible zip in the path
+
+2002-01-10 18:02  thomas
+
+	* zip.rb: Adjusted chunk size to 32k after a few perf measurements
+
+2002-01-09 22:10  thomas
+
+	* README.txt: License now same as rubys, not just GPL
+
+2002-01-06 00:19  thomas
+
+	* README.txt: [no log message]
+
+2002-01-05 23:09  thomas
+
+	* NEWS, README.txt, NEWS: Updated NEWS file
+
+	* README.txt, zip.rb, ziptest.rb, zlib.c.diff: Added tests for
+	  decompressors and a tests for ZipLocalEntry,
+	  ZipCentralDirectoryEntry and ZipCentralDirectory for handling of
+	  corrupt data
+
+	* file1.txt.deflatedData: deflated data extracted from a zip file.
+	  contains file1.txt
+
+	* zip.rb: Changed references to Inflate to Zlib::inflate for
+	  compatibility with ruby-zlib-0.5
+
+	* README.txt, zip.rb, ziptest.rb: [no log message]
+
+	* example.rb, NEWS: [no log message]
+
+	* COPYING, README.txt: [no log message]
+
+	* ziptest.rb: Fixed problem with test file creation
+
+	* README.txt: Updated README.txt
+
+	* zip.rb, ziptest.rb: ZipFile now works
+
+2002-01-04 21:51  thomas
+
+	* testDirectory.bin, zip.rb, ziptest.rb:
+	  ZipCentralDirectoryEntryTest now runs
+
+	* ziptest.rb: Changed
+	  ZIpLocalNEtryTest::test_ReadLocalEntryHeaderOfFirstTestZipEntry
+	  so it works on both unix too. It only worked on windows because
+	  the test made assumptions about the compressed size and crc of an
+	  entry, but that differs depending on the OS because of the CRLF
+	  thing.
+
+	* README.txt: Added note about zlib.c patch
+
+2002-01-02 18:48  thomas
+
+	* README.txt, example.rb, file1.txt, zip.rb, ziptest.rb,
+	  zlib.c.diff: initial
+
+	* README.txt, example.rb, file1.txt, zip.rb, ziptest.rb,
+	  zlib.c.diff: Initial revision
+
