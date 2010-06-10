@@ -172,6 +172,7 @@ typedef	BOOL *		LPBOOL;
 typedef	char		CHAR;
 typedef	CHAR *		PCHAR;
 typedef	void *		LPVOID;
+typedef	char		BYTE;
 
 
 typedef	uint32_t	ULONG;
@@ -195,22 +196,26 @@ typedef	short		SHORT;
 typedef unsigned short  USHORT;
 
 #ifndef TRUE
-#define	TRUE	(1)
+ #define TRUE (1)
 #endif
 #ifndef FALSE
-#define	FALSE	(0)
+ #define FALSE (0)
 #endif
 
-#define	ERROR_NOT_FOUND		ENOENT
-#define	ERROR_NOT_ENOUGH_MEMORY	ENOMEM
-#define	ERROR_INVALID_PARAMETER	EINVAL
+#define ERROR_NOT_FOUND		ENOENT
+#define ERROR_NOT_ENOUGH_MEMORY	ENOMEM
+#define ERROR_INVALID_PARAMETER	EINVAL
+#define ERROR_INVALID_HANDLE   	EINVAL
+#define ERROR_INVALID_DATA     	EINVAL
+#define ERROR_UNSUPPORTED_COMPRESSION	EINVAL
 #define	ERROR_NOT_SUPPORTED	EOPNOTSUPP
+
 #if defined(__FreeBSD__)
-#define	ERROR_INSTALL_USEREXIT	EPROGUNAVAIL
+ #define	ERROR_INSTALL_USEREXIT	EPROGUNAVAIL
 #elif defined(__linux__)
-#define	ERROR_INSTALL_USEREXIT	ENOPROTOOPT
+ #define	ERROR_INSTALL_USEREXIT	ENOPROTOOPT
 #else
-#error unknown OS
+ #error unknown OS
 #endif
 
 #define	ERROR_SUCCESS		(0)

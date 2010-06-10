@@ -1,5 +1,9 @@
 #include "common.h"
 
+#ifndef _WIN32
+#include "pthread.h"
+#endif
+
 // thread.c contains wrappers for the primitives of locks, events and threads for use in 
 // the multithreaded meterpreter. This is the win32/win64 implementation.
 
@@ -17,7 +21,11 @@ LOCK * lock_create( VOID )
 	{
 		memset( lock, 0, sizeof( LOCK ) );
 
+#ifdef _WIN32
 		lock->handle = CreateMutex( NULL, FALSE, NULL );
+#else
+		pthread_mutex_init(lock->handle, NULL);
+#endif
 	}
 	return lock;
 }
@@ -31,7 +39,11 @@ VOID lock_destroy( LOCK * lock )
 	{
 		lock_release( lock );
 
+#ifdef _WIN32
 		CloseHandle( lock->handle );
+#else
+		pthread_mutex_destroy(lock->handle);
+#endif
 
 		free( lock );
 	}
@@ -42,8 +54,13 @@ VOID lock_destroy( LOCK * lock )
  */
 VOID lock_acquire( LOCK * lock )
 {
-	if( lock != NULL  )
+	if( lock != NULL  ) {
+#ifdef _WIN32
 		WaitForSingleObject( lock->handle, INFINITE );
+#else
+		pthread_mutex_lock(lock->handle);
+#endif
+	}
 }
 
 /*
@@ -51,8 +68,13 @@ VOID lock_acquire( LOCK * lock )
  */
 VOID lock_release( LOCK * lock )
 {
-	if( lock != NULL  )
+	if( lock != NULL  ) {
+#ifdef _WIN32
 		ReleaseMutex( lock->handle );
+#else
+		pthread_mutex_unlock(lock->handle);
+#endif
+	}
 }
 
 /*****************************************************************************************/
@@ -68,6 +90,7 @@ EVENT * event_create( VOID )
 	if( event == NULL )
 		return NULL;
 
+#ifdef _WIN32
 	memset( event, 0, sizeof( EVENT ) );
 
 	event->handle = CreateEvent( NULL, FALSE, FALSE, NULL );
@@ -76,6 +99,7 @@ EVENT * event_create( VOID )
 		free( event );
 		return NULL;
 	}
+#endif
 
 	return event;
 }
@@ -88,7 +112,9 @@ BOOL event_destroy( EVENT * event )
 	if( event == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	CloseHandle( event->handle );
+#endif
 
 	free( event );
 
@@ -103,8 +129,10 @@ BOOL event_signal( EVENT * event )
 	if( event == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	if( SetEvent( event->handle ) == 0 )
 		return FALSE;
+#endif
 
 	return TRUE;
 }
@@ -118,10 +146,17 @@ BOOL event_poll( EVENT * event, DWORD timeout )
 	if( event == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	if( WaitForSingleObject( event->handle, timeout ) == WAIT_OBJECT_0 )
 		return TRUE;
 
 	return FALSE;
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+	return FALSE;
+#endif
 }
 
 /*****************************************************************************************/
@@ -131,6 +166,7 @@ BOOL event_poll( EVENT * event, DWORD timeout )
  */
 THREAD * thread_open( VOID )
 {
+#ifdef _WIN32
 	OPENTHREAD pOpenThread = NULL;
 	HMODULE hKernel32      = NULL;
 	THREAD * thread        = NULL;
@@ -177,6 +213,12 @@ THREAD * thread_open( VOID )
 	}
 
 	return thread;
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+	return NULL;
+#endif
 }
 
 /*
@@ -189,6 +231,7 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 	if( funk == NULL )
 		return NULL;
 
+#ifdef _WIN32
 	thread = (THREAD *)malloc( sizeof( THREAD ) );
 	if( thread == NULL )
 		return NULL;
@@ -214,6 +257,11 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 		return NULL;
 	}
 
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+#endif
 	return thread;
 }
 
@@ -225,9 +273,15 @@ BOOL thread_run( THREAD * thread )
 	if( thread == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	if( ResumeThread( thread->handle ) < 0 )
 		return FALSE;
 
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+#endif
 	return TRUE;
 }
 
@@ -240,7 +294,14 @@ BOOL thread_sigterm( THREAD * thread )
 	if( thread == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	return event_signal( thread->sigterm );
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+	return FALSE;
+#endif
 }
 
 /*
@@ -251,10 +312,17 @@ BOOL thread_kill( THREAD * thread )
 	if( thread == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	if( TerminateThread( thread->handle, -1 ) == 0 )
 		return FALSE;
 
 	return TRUE;
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+	return FALSE;
+#endif
 }
 
 
@@ -266,10 +334,16 @@ BOOL thread_join( THREAD * thread )
 	if( thread == NULL )
 		return FALSE;
 
+#ifdef _WIN32
 	if( WaitForSingleObject( thread->handle, INFINITE ) == WAIT_OBJECT_0 )
 		return TRUE;
 
 	return FALSE;
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+#endif
 }
 
 /*
@@ -283,7 +357,11 @@ BOOL thread_destroy( THREAD * thread )
 	
 	event_destroy( thread->sigterm );
 
+#ifdef _WIN32
 	CloseHandle( thread->handle );
+#else
+	//pthread_detach(thread->handle);
+#endif
 
 	free( thread );
 

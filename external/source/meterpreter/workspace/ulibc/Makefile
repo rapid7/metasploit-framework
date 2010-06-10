@@ -23,11 +23,11 @@ libc_objects = table.o none.o localeconv.o lmonetary.o lnumeric.o \
 	strerror.o strlcpy.o strncpy.o strlcat.o strncat.o \
 	inet_addr.o \
 	_thread_init.o time.o isatty.o termios.o errlst.o sigsetops.o \
-	malloc.o syscalls.o ulibc.o 
+	malloc.o ulibc.o 
 
 ####### check platform
 OSNAME= $(shell uname -s)
-ARCH= $(shell uname -m)
+ARCH= $(shell uname -m | sed 's/i[456]86/i386/g')
 
 ifeq ($(OSNAME), FreeBSD)
 	OS= bsd
@@ -36,6 +36,7 @@ else
 	CFLAGS+= -fno-stack-protector -D__linux__
 	CFLAGS+=  -D_POSIX_C_SOURCE=200809 -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1 
 	OS=$(OSNAME)
+	libc_objects+= syscalls.o 
 #	requires tls - which we don't have
 #	libc_objects+= errno.o
 endif

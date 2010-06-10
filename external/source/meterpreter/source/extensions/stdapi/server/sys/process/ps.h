@@ -2,6 +2,8 @@
 #ifndef _METERPRETER_SOURCE_EXTENSION_STDAPI_STDAPI_SERVER_PROCESS_PS_H
 #define _METERPRETER_SOURCE_EXTENSION_STDAPI_STDAPI_SERVER_PROCESS_PS_H
 //===============================================================================================//
+#ifdef _WIN32
+
 
 typedef DWORD (WINAPI * GETMODULEFILENAMEEXA)( HANDLE hProcess, HMODULE hModule, LPTSTR lpExeName, DWORD dwSize );
 typedef DWORD (WINAPI * GETPROCESSIMAGEFILENAMEA)( HANDLE hProcess, LPTSTR lpExeName, DWORD dwSize );
@@ -76,5 +78,6 @@ DWORD ps_list_via_psapi( Packet * response );
 DWORD ps_list_via_brute( Packet * response );
 
 //===============================================================================================//
+#endif // _WIN32
 #endif
 //===============================================================================================//

@@ -5,7 +5,8 @@ ELFPATH=../../source/server/elf
 SSLPATH=../../source/openssl/include
 ULIBCPATH=../../source/ulibc
 XOR_PATH=../../source/common/crypto
-CFLAGS= -D_UNIX -I$(SRCPATH) -DPIC -I$(SSLPATH) -I$(COMMONPATH) -I$(ULIBCPATH) -I$(ELFPATH) -I.
+ZLIB_PATH=../../source/common/zlib
+CFLAGS= -D_UNIX -I$(SRCPATH) -DPIC -I$(SSLPATH) -I$(COMMONPATH) -I$(ULIBCPATH) -I$(ELFPATH) -I$(ZLIB_PATH) -I.
 CFLAGS+= -fPIC  -g -nostdinc
 #CFLAGS+= -Os
 CPPFLAGS= -I$(COMMONPATH) -DPIC 
@@ -20,10 +21,10 @@ RM=rm
 
 ####### check platform
 OSNAME= $(shell uname -s)
-ARCH= $(shell uname -m)
+ARCH= $(shell uname -m | sed 's/i[456]86/i386/g')
 RARCH=$(ARCH)
 
-ifeq ($(ARCH), i686)
+ifeq ($(ARCH), i386)
 	CFLAGS+= -D__i386__
 	RARCH=i386
 endif
@@ -44,6 +45,8 @@ else
 	DL= -ldl 
 endif
 
+CFLAGS+= -L../../source/openssl/lib/$(OS)/$(RARCH)
+
 ELFARCHPATH=$(ELFPATH)/$(RARCH)
 CFLAGS+= -I$(ELFARCHPATH) -DIN_RTLD
 
@@ -52,7 +55,7 @@ ARCHVPATH= $(OSVPATH)/$(RARCH):$(ELFARCHPATH)
 VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 
 objects = metsrv.o libloader.o zlib.o rtld_late.o rtld_malloc.o rtld_lock.o \
-	map_object.o xmalloc.o reloc.o rtld_start.o $(START)
+	map_object.o xmalloc.o reloc.o rtld_start.o scheduler.o $(START)
 server_objects = server_setup.o remote_dispatch_common.o remote_dispatch.o \
 	metsrv_main.o metsrv_standalone.o 
 other_objects = metsrv_test.o $(CRT1) crtn.o
@@ -91,13 +94,13 @@ metsrv_main: metsrv.o libserver.a ../common/libsupport.a $(CRT1) crtn.o
 else
 metsrv_main: metsrv.o libserver.a ../common/libsupport.a 
 #	$(CC) -pie -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl
-	$(CC) -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl \
+	$(CC) $(CFLAGS) -o $@ libserver.a  ../common/libsupport.a  -lcrypto -lssl \
 	-export-dynamic
 endif
 
 
 metsrv_test: metsrv_test.o $(library_headers)
-	$(CC)  metsrv_test.o metsrv.a $(DL)  -o $@ 
+	$(CC) $(CFLAGS) metsrv_test.o metsrv.a $(DL)  -o $@ 
 
 clean:
 	@echo "ARCHVPATH= " $(ARCHVPATH) " VPATH= " $(VPATH)

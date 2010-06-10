@@ -26,10 +26,11 @@
 
 #include "channel.h"
 #include "scheduler.h"
-
 #include "thread.h"
 
 #include "list.h"
+
+#include "zlib/zlib.h"
 
 
 // #define DEBUGTRACE

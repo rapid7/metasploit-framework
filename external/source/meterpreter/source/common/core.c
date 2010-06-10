@@ -1,5 +1,4 @@
 #include "common.h"
-#include "zlib/zlib.h"
 
 DWORD packet_find_tlv_buf(Packet *packet, PUCHAR payload, DWORD payloadLength, DWORD index,
 		TlvType type, Tlv *tlv);
@@ -60,12 +59,12 @@ DWORD send_core_console_write(Remote *remote, LPCSTR fmt, ...)
 }
 
 /*
- * Transmit a single string to the remote connection with instructions to 
- * print it to the screen or whatever medium has been established.
+ * XXX
  */
 HANDLE core_update_thread_token(Remote *remote, HANDLE token)
 {
 	HANDLE temp = NULL;
+#ifdef _WIN32
 
 	lock_acquire( remote->lock );
 	do {
@@ -86,6 +85,11 @@ HANDLE core_update_thread_token(Remote *remote, HANDLE token)
 	} while(0);
 	
 	lock_release( remote->lock );
+#else
+	/*
+	 * XXX add POSIX implementation
+	 */
+#endif
 	return(token);
 }
 
@@ -97,6 +101,7 @@ HANDLE core_update_thread_token(Remote *remote, HANDLE token)
  */
 VOID core_update_desktop( Remote * remote, DWORD dwSessionID, char * cpStationName, char * cpDesktopName )
 {
+#ifdef _WIN32
 	DWORD temp_session  = -1;
 	char * temp_station = NULL;
 	char * temp_desktop = NULL;
@@ -135,6 +140,7 @@ VOID core_update_desktop( Remote * remote, DWORD dwSessionID, char * cpStationNa
 	} while( 0 );
 	
 	lock_release( remote->lock );
+#endif
 }
 /*******************
  * Packet Routines *

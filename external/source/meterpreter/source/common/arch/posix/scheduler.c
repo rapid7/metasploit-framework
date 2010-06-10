@@ -15,6 +15,16 @@ int ntableentries = 0;
 struct pollfd *polltable;
 LIST_HEAD(_WaitableEntryHead, _WaitableEntry) WEHead;
 					      
+DWORD scheduler_destroy( VOID ) 
+{
+	return 0;
+}
+
+DWORD scheduler_initialize( Remote * remote )
+{
+	return 0;
+}
+
 /*
  * Insert a waitable object for checking and processing
  */

@@ -982,7 +982,7 @@ extern int EXPORT inflateInit2_ OF((z_streamp strm, int  windowBits,
         inflateInit2_((strm), (windowBits), ZLIB_VERSION, sizeof(z_stream))
 
 #if !defined(_Z_UTIL_H) && !defined(NO_DUMMY_DECL)
-    struct internal_state {int dummy;}; /* hack for buggy compilers */
+//    struct internal_state {int dummy;}; /* hack for buggy compilers */
 #endif
 
 uLongf *get_crc_table OF((void)); /* can be used by asm versions of crc32() */

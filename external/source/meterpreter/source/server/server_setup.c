@@ -1,4 +1,5 @@
 #include "metsrv.h"
+#include "common.h"
 
 #ifdef _WIN32
 
@@ -59,7 +60,11 @@ static VOID server_locking_callback( int mode, int type, const char * file, int 
  */
 static DWORD server_threadid_callback( VOID )
 {
+#ifdef _WIN32
 	return GetCurrentThreadId();
+#else
+	return pthread_self();
+#endif
 }
 
 /*
@@ -348,6 +353,7 @@ static DWORD server_dispatch( Remote * remote )
  */
 DWORD server_sessionid( VOID )
 {
+#ifdef _WIN32
 	typedef BOOL (WINAPI * PROCESSIDTOSESSIONID)( DWORD pid, LPDWORD id );
 
 	static PROCESSIDTOSESSIONID pProcessIdToSessionId = NULL;
@@ -375,6 +381,9 @@ DWORD server_sessionid( VOID )
 		FreeLibrary( hKernel );
 
 	return dwSessionId;
+#else
+	return -1;
+#endif
 }
 /*
  * Setup and run the server. This is called from Init via the loader.
@@ -424,6 +433,7 @@ DWORD server_setup( SOCKET fd )
 			// Store our thread handle
 			remote->hServerThread = serverThread->handle;
 
+#ifdef _WIN32
 			// Store our process token
 			if (!OpenThreadToken(remote->hServerThread, TOKEN_ALL_ACCESS, TRUE, &remote->hServerToken))
 				OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &remote->hServerToken);
@@ -440,6 +450,7 @@ DWORD server_setup( SOCKET fd )
 			GetUserObjectInformation( GetThreadDesktop( GetCurrentThreadId() ), UOI_NAME, &cDesktopName, 256, NULL );
 			remote->cpOrigDesktopName    = _strdup( cDesktopName );
 			remote->cpCurrentDesktopName = _strdup( cDesktopName );
+#endif
 
 			dprintf("[SERVER] Flushing the socket handle...");
 			server_socket_flush( remote );

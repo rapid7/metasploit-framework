@@ -1,6 +1,8 @@
 #ifndef _METERPRETER_LIB_THREAD_H
 #define _METERPRETER_LIB_THREAD_H
 
+#ifdef _WIN32
+
 /*****************************************************************************************/
 // Win32/64 specific definitions...
 
@@ -33,9 +35,17 @@ typedef DWORD (WINAPI * NTOPENTHREAD)( PHANDLE, ACCESS_MASK, _POBJECT_ATTRIBUTES
 
 /*****************************************************************************************/
 
+#else
+#include "pthread.h"
+#endif // _WIN32
+
 typedef struct _LOCK
 {
+#ifdef _WIN32
 	HANDLE handle;
+#else
+	pthread_mutex_t *handle;
+#endif // _WIN32
 } LOCK, * LPLOCK;
 
 typedef struct _EVENT
@@ -52,7 +62,11 @@ typedef struct _THREAD
 	LPVOID parameter2;
 } THREAD, * LPTHREAD;
 
+#ifdef __GNUC__
+#define THREADCALL __attribute__((stdcall))
+#else // ! gcc
 #define THREADCALL __stdcall
+#endif
 
 typedef DWORD (THREADCALL * THREADFUNK)( THREAD * thread );
 
