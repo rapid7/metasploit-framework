@@ -27,14 +27,32 @@ class RangeWalker
 		reset
 	end
 
+	#
+	# Calls the instance method
+	#
+	# This is basically only useful for determining if a range can be parsed
+	#
 	def self.parse(parseme)
 		self.new.parse(parseme)
 	end
 
+	#
+	# Turn a human-readable range string into ranges we can step through one address at a time.
+	#
+	# Allow the following formats:
+	#	"a.b.c.d e.f.g.h"
+	#	"a.b.c.d, e.f.g.h"
+	# where each chunk is CIDR notation, (e.g. '10.1.1.0/24') or a range in nmap format (see expand_nmap)
+	#
+	# OR this format
+	#	"a.b.c.d-e.f.g.h"
+	# where a.b.c.d and e.f.g.h are single IPs and the second must be
+	# bigger than the first.
+	#
 	def parse(parseme)
 		return nil if not parseme
 		ranges = []
-		parseme.split(' ').each { |arg|
+		parseme.split(', ').map{ |a| a.split(' ') }.flatten.each { |arg|
 			if arg.include?("/")
 				# Then it's CIDR notation and needs special case
 				return false if arg =~ /[,-]/ # Improper CIDR notation (can't mix with 1,3 or 1-3 style IP ranges)
@@ -292,14 +310,17 @@ class RangeWalker
 	#
 	# The total number of IPs within the range
 	#
-	attr_reader :ranges
 	attr_reader :length
 
 	# for backwards compatibility
 	alias :num_ips :length
 
+private
+	attr_reader :ranges
+
 end
 
+# :nodoc:
 class Range < Array
 	def start; self[0]; end
 	def stop;  self[1]; end
