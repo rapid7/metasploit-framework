@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					print_good("#{ip}:#{datastore['RPORT']} Oracle - Version: " + ora_version)
 				else
-					print_error( "#{ip}:#{datastore['RPORT']} Orcale - Version: Unknown")
+					print_error( "#{ip}:#{datastore['RPORT']} Oracle - Version: Unknown")
 				end
 			disconnect
 		rescue ::Rex::ConnectionError
