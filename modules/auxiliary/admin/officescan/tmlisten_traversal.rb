@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module tests for directory traversal vulnerability in the UpdateAgent
 				function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro
 				OfficeScan. This allows remote attackers to read arbitrary files as SYSTEM
-				via dot dot sequences in a HTTP request.
+				via dot dot sequences in an HTTP request.
 			},
 			'References'  =>
 				[

@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'HTTP Login Utility',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to a HTTP service.',
+			'Description'    => 'This module attempts to authenticate to an HTTP service.',
 			'References'  =>
 				[
 

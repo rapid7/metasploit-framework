@@ -23,7 +23,7 @@ module Metasploit3
 		super(update_info(info,
 			'Name'          => 'PHP Executable Download and Execute',
 			'Version'       => '$Revision$',
-			'Description'   => 'Download an EXE from a HTTP URL and execute it',
+			'Description'   => 'Download an EXE from an HTTP URL and execute it',
 			'Author'        => [ 'egypt' ],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',

@@ -301,7 +301,7 @@ class Client
 	end
 
 	#
-	# Transmit a HTTP request and receive the response
+	# Transmit an HTTP request and receive the response
 	# If persist is set, then the request will attempt
 	# to reuse an existing connection.
 	#
@@ -312,7 +312,7 @@ class Client
 	end
 
 	#
-	# Send a HTTP request to the server
+	# Send an HTTP request to the server
 	#
 	def send_request(req)
 		connect
