@@ -1,6 +1,9 @@
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/socket'
+require 'zip'
+require 'tmpdir'
+require 'fileutils'
 
 module Msf
 
@@ -1255,17 +1258,6 @@ class DBManager
 		return obj
 	end
 
-	def zip_requires
-		begin
-			require 'zip'
-			require 'tmpdir'
-			require 'fileutils'
-		rescue LoadError
-			false
-		end
-		true
-	end
-
 	##
 	#
 	# Import methods
@@ -1286,11 +1278,7 @@ class DBManager
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
 		if data[0,4] == "PK\x03\x04"
-			if zip_requires()
-				data = Zip::ZipFile.open(filename)
-			else
-				raise DBImportError.new("Could not load zip file")
-			end
+			data = Zip::ZipFile.open(filename)
 		end
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
