@@ -39,6 +39,10 @@ class Msf::Module::PlatformList
 		self.new(*ary)
 	end
 
+	def index(needle)
+		self.platforms.index(needle)
+	end
+
 	#
 	# Constructor, takes the entries are arguments
 	#
