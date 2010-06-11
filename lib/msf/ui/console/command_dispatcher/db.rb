@@ -950,6 +950,12 @@ class Db
 								print_status("Importing '#{data}' data")
 							when :address
 								print_status("Importing host #{data}")
+							when :msfx_loot
+								print_status("Importing loot #{data}")
+							when :msfx_task
+								print_status("Importing task #{data}")
+							when :msft_report
+								print_status("Importing report #{data}")
 							end
 						end
 						print_status("Successfully imported #{filename}")

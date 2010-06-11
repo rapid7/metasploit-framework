@@ -833,7 +833,7 @@ class DBManager
 		return if not active
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
-		path = opts.delete(:path)
+		path = opts.delete(:path) || (raise RuntimeError, "A loot :path is required")
 
 		host = nil
 		addr = nil
@@ -875,12 +875,15 @@ class DBManager
 			loot.data  = data
 			loot.name  = name if name
 			loot.info  = info if info
+			msfe_import_timestamps(opts,loot)
 			loot.save!
 
-			if host
-				host.updated_at = host.created_at
-				host.state      = HostState::Alive
-				host.save!
+			if !opts[:created_at]
+				if host
+					host.updated_at = host.created_at
+					host.state      = HostState::Alive
+					host.save!
+				end
 			end
 
 			ret[:loot] = loot
@@ -894,12 +897,119 @@ class DBManager
 	end
 
 	#
-	# This methods returns a list of all notes in the database
+	# This methods returns a list of all loot in the database
 	#
 	def loots(wspace=workspace)
 		wspace.loots
 	end
 
+	#
+	# Find or create a task matching this type/data
+	#
+	def find_or_create_task(opts)
+		report_task(opts.merge({:wait => true}))
+	end
+
+	def report_task(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		path = opts.delete(:path) || (raise RuntimeError, "A task :path is required")
+
+		ret = {}
+		this_task = queue(Proc.new {
+
+			user      = opts.delete(:user)
+			desc      = opts.delete(:desc)
+			error     = opts.delete(:error)
+			info      = opts.delete(:info)
+			mod       = opts.delete(:mod)
+			options   = opts.delete(:options)
+			prog      = opts.delete(:prog)
+			result    = opts.delete(:result)
+			completed_at = opts.delete(:completed_at)
+			task      = wspace.tasks.new
+
+			task.created_by = user
+			task.description = desc
+			task.error = error if error
+			task.info = info
+			task.module = mod
+			task.options = options
+			task.path = path
+			task.progress = prog
+			task.result = result if result
+			msfe_import_timestamps(opts,task)
+			# Having blank completed_ats, while accurate, will cause unstoppable tasks.
+			if completed_at.nil? || completed_at.empty?
+				task.completed_at = opts[:updated_at]
+			else
+				task.completed_at = completed_at
+			end
+			task.save!
+
+			ret[:task] = task
+		})
+
+		if wait
+			return nil if this_task.wait() != :done
+			return ret[:task]
+		end
+		return this_task
+	end
+
+	#
+	# This methods returns a list of all tasks in the database
+	#
+	def tasks(wspace=workspace)
+		wspace.tasks
+	end
+
+
+	#
+	# Find or create a task matching this type/data
+	#
+	def find_or_create_report(opts)
+		report_report(opts.merge({:wait => true}))
+	end
+
+	def report_report(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		path = opts.delete(:path) || (raise RuntimeError, "A report :path is required")
+
+		ret = {}
+		this_task = queue(Proc.new {
+
+			user      = opts.delete(:user)
+			options   = opts.delete(:options)
+			rtype     = opts.delete(:rtype)
+			report    = wspace.reports.new
+
+			report.created_by = user
+			report.options = options
+			report.rtype = rtype
+			report.path = path
+			msfe_import_timestamps(opts,report)
+			report.save!
+
+			ret[:task] = report
+		})
+
+		if wait
+			return nil if this_task.wait() != :done
+			return ret[:task]
+		end
+		return this_task
+	end
+
+	#
+	# This methods returns a list of all tasks in the database
+	#
+	def reports(wspace=workspace)
+		wspace.reports
+	end
 
 	#
 	# WMAP
@@ -1139,7 +1249,9 @@ class DBManager
 	# Handles timestamps from Metasploit Express imports.
 	def msfe_import_timestamps(opts,obj)
 		obj.created_at = opts["created_at"] if opts["created_at"]
+		obj.created_at = opts[:created_at] if opts[:created_at]
 		obj.updated_at = opts["updated_at"] ? opts["updated_at"] : obj.created_at
+		obj.updated_at = opts[:updated_at] ? opts[:updated_at] : obj.created_at
 		return obj
 	end
 
@@ -1310,7 +1422,6 @@ class DBManager
 	# obvious reasons). In the event directories exist, they will
 	# be reused. If target files exist, they will be overwritten.
 	#
-	# XXX: Delete $stderr.puts messages when this is done
 	# XXX: Refactor so it's not quite as sanity-blasting. 
 	def import_msfx_zip(args={}, &block)
 		data = args[:data]
@@ -1318,7 +1429,6 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		
 		new_tmp = File.join(Dir::tmpdir,"msfx",@import_filedata[:zip_basename])
-		# $stderr.puts "Making #{new_tmp}"
 		if File.exists? new_tmp
 			unless (File.directory?(new_tmp) && File.writable?(new_tmp))
 				raise DBImportError.new("Could not extract zip file to #{new_tmp}")
@@ -1327,26 +1437,22 @@ class DBManager
 			FileUtils.mkdir_p(new_tmp)
 		end
 		@import_filedata[:zip_tmp] = new_tmp
-		# $stderr.puts "Made #{@import_filedata[:zip_tmp]}"
 
-		@import_filedata[:zip_tmp_sub] = @import_filedata[:zip_entry_names].map {|x| File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
-		# $stderr.puts "Naming subdirs: #{@import_filedata[:zip_tmp_sub]}"
+		@import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
 
-		@import_filedata[:zip_tmp_sub].each {|sub| 
-			tmp_sub = File.join(@import_filedata[:zip_tmp],sub)
-			if File.exists? tmp_sub
-				unless (File.directory?(tmp_sub) && File.writable?(tmp_sub))
-					raise DBImportError.new("Could not extract zip file to #{tmp_sub}")
+		@import_filedata[:zip_tmp_subdirs].each {|sub| 
+			tmp_subdirs = File.join(@import_filedata[:zip_tmp],sub)
+			if File.exists? tmp_subdirs
+				unless (File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
+					raise DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
 				end
 			else
-				FileUtils.mkdir(tmp_sub)
+				FileUtils.mkdir(tmp_subdirs)
 			end
-			# $stderr.puts "Made #{tmp_sub.inspect}"
 		}
 
 		data.entries.each do |e|
 			target = File.join(@import_filedata[:zip_tmp],e.name)
-			# $stderr.puts "Extracting to #{target}"
 			File.unlink target if File.exists?(target) # Yep. Deleted.
 			data.extract(e,target) 
 			if target =~ /^.*.xml$/
@@ -1354,28 +1460,177 @@ class DBManager
 			end
 		end
 
-		# $stderr.puts "Moving on to actually importing now."
-
 		# This will kick the newly-extracted XML file through
 		# the import_file process all over again.
 		if @import_filedata[:zip_extracted_xml]
 			new_args = args.dup
 			new_args[:filename] = @import_filedata[:zip_extracted_xml]
 			new_args[:data] = nil
+			new_args[:ifd] = @import_filedata.dup
 			if block
 				import_file(new_args, &block)
 			else
-				import(new_args)
+				import_file(new_args)
 			end
 		end
 
-		# 
-		# XXX: Now deal with moving all the other collateral to someplace appropriate,
-		# probably should just yield them up to MSFX directly and let the interface
-		# worry about it -- MSF3 mainline users won't care.
-		#
+		# Kick down to all the MSFX ZIP specific items
+		if block
+			import_msfx_collateral(new_args, &block)
+		else
+			import_msfx_collateral(new_args)
+		end
 	end
 
+	# Imports loot, tasks, and reports from an MSFX ZIP reprot.
+	# XXX: This function is stupidly long. It needs to be refactored.
+	def import_msfx_collateral(args={}, &block)
+		data = File.open(args[:filename], "r") {|f| f.read(f.stat.size)}
+		wspace = args[:wspace] || args['wspace'] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		basedir = args[:basedir] || args['basedir'] || File.join(Msf::Config.install_root, "data", "msfx")
+		doc = rexmlify(data)
+		if doc.elements["MetasploitExpressV1"]
+			m_ver = 1
+		elsif doc.elements["MetasploitExpressV2"]
+			m_ver = 2
+		else
+			m_ver = nil
+		end
+		unless m_ver
+			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
+		end
+
+		host_info = {}
+		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
+			host_info[host.elements["id"].text.to_s.strip] = host.elements["address"].text.to_s.strip
+		end
+
+		# Import Loot
+		doc.elements.each("/MetasploitExpressV#{m_ver}/loots/loot") do |loot|
+			next if bl.include? host_info[loot.elements["host-id"].text.to_s.strip]
+			loot_info = {}
+			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
+			loot_info[:workspace] = args[:wspace]
+			loot_info[:ctype] = loot.elements["content-type"].text.to_s.strip
+			loot_info[:info] = loot.elements["info"].text.to_s.strip
+			loot_info[:ltype] = loot.elements["ltype"].text.to_s.strip
+			loot_info[:name] = loot.elements["name"].text.to_s.strip
+			loot_info[:created_at] = loot.elements["created-at"].text.to_s.strip
+			loot_info[:updated_at] = loot.elements["updated-at"].text.to_s.strip
+			loot_info[:name] = loot.elements["name"].text.to_s.strip
+			loot_info[:orig_path] = loot.elements["path"].text.to_s.strip
+			tmp = args[:ifd][:zip_tmp]
+			loot_info[:orig_path].gsub!(/^\./,tmp)
+			if loot.elements["service-id"].text.to_s.strip.size > 0
+				loot_info[:service] = loot.elements["service-id"].text.to_s.strip
+			end
+
+			# Only report loot if we actually have it.
+			# TODO: Copypasta. Seperate this out.
+			if File.exists? loot_info[:orig_path]
+				loot_dir = File.join(basedir,"loot")
+				loot_file = File.split(loot_info[:orig_path]).last
+				if File.exists? loot_dir
+					unless (File.directory?(loot_dir) && File.writable?(loot_dir))
+						raise DBImportError.new("Could not move files to #{loot_dir}")
+					end
+				else
+					FileUtils.mkdir_p(loot_dir)
+				end
+				new_loot = File.join(loot_dir,loot_file)
+				File.unlink new_loot if File.exists?(new_loot) # Bang.
+				FileUtils.copy(loot_info[:orig_path], new_loot)
+				loot_info[:path] = new_loot
+				yield(:msfx_loot, new_loot) if block
+				report_loot(loot_info)
+			end
+		end
+
+		# Import Tasks
+		doc.elements.each("/MetasploitExpressV#{m_ver}/tasks/task") do |task|
+			task_info = {}
+			task_info[:workspace] = args[:wspace]
+			# Should user be imported (original) or declared (the importing user)?
+			task_info[:user] = task.elements["created-by"].text.to_s.strip
+			task_info[:desc] = task.elements["description"].text.to_s.strip
+			task_info[:info] = task.elements["info"].text.to_s.strip
+			task_info[:mod] = task.elements["module"].text.to_s.strip
+			task_info[:options] = task.elements["options"].text.to_s.strip
+			task_info[:prog] = task.elements["progress"].text.to_i
+			task_info[:created_at] = task.elements["created-at"].text.to_s.strip
+			task_info[:updated_at] = task.elements["updated-at"].text.to_s.strip
+			if !task.elements["completed-at"].text.to_s.empty?
+				task_info[:completed_at] = task.elements["completed-at"].text.to_s.strip
+			end
+			if !task.elements["error"].text.to_s.empty?
+				task_info[:error] = task.elements["error"].text.to_s.strip
+			end
+			if !task.elements["result"].text.to_s.empty?
+				task_info[:result] = task.elements["result"].text.to_s.strip
+			end
+			task_info[:orig_path] = task.elements["path"].text.to_s.strip
+			tmp = args[:ifd][:zip_tmp]
+			task_info[:orig_path].gsub!(/^\./,tmp)
+
+			# Only report a task if we actually have it.
+			# TODO: Copypasta. Seperate this out.
+			if File.exists? task_info[:orig_path]
+				tasks_dir = File.join(basedir,"tasks")
+				task_file = File.split(task_info[:orig_path]).last
+				if File.exists? tasks_dir
+					unless (File.directory?(tasks_dir) && File.writable?(tasks_dir))
+						raise DBImportError.new("Could not move files to #{tasks_dir}")
+					end
+				else
+					FileUtils.mkdir_p(tasks_dir)
+				end
+				new_task = File.join(tasks_dir,task_file)
+				File.unlink new_task if File.exists?(new_task) # Bang.
+				FileUtils.copy(task_info[:orig_path], new_task)
+				task_info[:path] = new_task
+				yield(:msfx_task, new_task) if block
+				report_task(task_info)
+			end
+		end
+
+		# Import Reports
+		doc.elements.each("/MetasploitExpressV#{m_ver}/reports/report") do |report|
+			report_info = {}
+			report_info[:workspace] = args[:wspace]
+			# Should user be imported (original) or declared (the importing user)?
+			report_info[:user] = report.elements["created-by"].text.to_s.strip
+			report_info[:options] = report.elements["options"].text.to_s.strip
+			report_info[:rtype] = report.elements["rtype"].text.to_s.strip
+			report_info[:created_at] = report.elements["created-at"].text.to_s.strip
+			report_info[:updated_at] = report.elements["updated-at"].text.to_s.strip
+
+			report_info[:orig_path] = report.elements["path"].text.to_s.strip
+			tmp = args[:ifd][:zip_tmp]
+			report_info[:orig_path].gsub!(/^\./,tmp)
+
+			# Only report a report if we actually have it.
+			# TODO: Copypasta. Seperate this out.
+			if File.exists? report_info[:orig_path]
+				reports_dir = File.join(basedir,"reports")
+				report_file = File.split(report_info[:orig_path]).last
+				if File.exists? reports_dir
+					unless (File.directory?(reports_dir) && File.writable?(reports_dir))
+						raise DBImportError.new("Could not move files to #{reports_dir}")
+					end
+				else
+					FileUtils.mkdir_p(reports_dir)
+				end
+				new_report = File.join(reports_dir,report_file)
+				File.unlink new_report if File.exists?(new_report) # Bang.
+				FileUtils.copy(report_info[:orig_path], new_report)
+				report_info[:path] = new_report
+				yield(:msfx_report, new_report) if block
+				report_report(report_info)
+			end
+		end
+
+	end
 
 	# For each host, step through services, notes, and vulns, and import
 	# them.
