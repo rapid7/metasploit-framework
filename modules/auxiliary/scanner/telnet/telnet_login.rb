@@ -99,6 +99,9 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_error "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to busy state"
 		when :refused
 			vprint_error "#{rhost}:#{rport} Telnet - Skipping '#{user}':'#{pass}' due to connection refused."
+		when :next_user
+			vprint_status "#{rhost}:#{rport} Telnet - Skipping disallowed user '#{user}' for subsequent requests"
+			return :next_user
 		else
 			if login_succeeded?
 				start_telnet_session(rhost,rport,user,pass)
@@ -179,7 +182,11 @@ class Metasploit3 < Msf::Auxiliary
 				return :success
 			else
 				self.sock.close unless self.sock.closed?
-				return :fail
+				if @recvd =~ /Not on system console/ # Solaris8, user is not allowed
+					return :next_user
+				else
+					return :fail
+				end
 			end
 		else
 			if login_succeeded? && @recvd !~ /^#{user}\x0d*\x0a/
