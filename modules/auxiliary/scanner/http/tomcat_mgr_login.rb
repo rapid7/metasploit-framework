@@ -36,6 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
 					# IBM Cognos Express Default user/pass
 					[ 'BID', '38084' ],
+					[ 'CVE', '2010-0557' ],
 					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
 					# General
 					[ 'URL', 'http://tomcat.apache.org/' ]
