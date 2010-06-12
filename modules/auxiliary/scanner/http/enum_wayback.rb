@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 		clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("web.archive.org")
 		resp, data = clnt.get2("/web/*sr_1nr_1300/http://"+targetdom+"/*",header)
 		response << data
-		response.each do |line|
-				pages << line.gsub!(/(.+>)(.+)(<\/a><br>)\n/, '\2')
+		response.each_line do |line|
+			pages << line.gsub!(/(.+>)(.+)(<\/a><br>)\n/, '\2')
 		end
 
 		pages.delete_if{|x| x==nil}

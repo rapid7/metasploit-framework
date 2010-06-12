@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("delicious.com")
 			resp, data = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
 			response << data
-			response.each do |line|
+			response.each_line do |line|
 				list << line.gsub!(/(.+<a rel)(.+=+\")(.+)(\".+)/, '\3')
 			end
 			if /pn\ next/.match(data)
