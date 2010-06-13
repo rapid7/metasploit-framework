@@ -1095,7 +1095,7 @@ class Core
 				# Run a command on all sessions
 				when "-c"
 					method = 'cmd'
-					if (val)
+					if (val) 
 						cmds << val
 					end
 
@@ -1124,8 +1124,11 @@ class Core
 
 				# Run a script on all meterpreter sessions
 				when "-s"
-					method = 'scriptall'
-					script = val
+					if  not script
+						method = 'scriptall'
+						script = val
+					end
+					
 					
 				# Upload and exec to the specific command session
 				when "-u"
@@ -1240,6 +1243,7 @@ class Core
 
 			when 'scriptall'
 				if (not script.nil?)
+					sleep(0.5)
 					script_path = Msf::Sessions::Meterpreter.find_script_path(script)
 					if (not script_path.nil?)
 						print_status("Running script #{script} on all meterpreter sessions ...")
@@ -1248,7 +1252,7 @@ class Core
 								if (session.type == "meterpreter")
 									print_status("Session #{s} (#{session.tunnel_peer}):")
 									begin
-										session.execute_file(script_path, args)
+										session.execute_file(script_path, args.slice(2,args.length))
 									rescue ::Exception => e
 										log_error("Error executing script: #{e.class} #{e}")
 									end
