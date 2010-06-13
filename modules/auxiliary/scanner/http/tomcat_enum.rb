@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{Apache Tomcat user enumeration utility, for Apache Tomcat servers prior to version 6.0.20, 5.5.28, and 4.1.40.},
 			'Author'         =>
 			[
-				'==[ Alligator Security Team ]==',
+				'Alligator Security Team',
 				'Heyder Andrade <heyder.andrade[at]gmail.com>',
 				'Leandro Oliveira <leandrofernando[at]gmail.com>'
 			],
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['BID', '35196'],
-					['CVE', 'CVE-2009-0580'],
+					['CVE', '2009-0580'],
 					['OSVDB', '55055'],
 				],
 				'License'        =>  MSF_LICENSE
@@ -102,3 +102,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+

@@ -24,13 +24,13 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => 'Wordpress Authentication Brute Force and User Enumeration Utility',
 			'Author'         => [
-				'==[ Alligator Security Team ]==',
+				'Alligator Security Team',
 				'Tiago Ferreira <tiago.ccna[at]gmail.com>'
 		],
 			'References'     =>
 				[
 					['BID', '35581'],
-					['CVE', 'CVE-2009-2335'],
+					['CVE', '2009-2335'],
 					['OSVDB', '55713'],
 				],
 			'License'        =>  MSF_LICENSE
@@ -184,3 +184,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+
