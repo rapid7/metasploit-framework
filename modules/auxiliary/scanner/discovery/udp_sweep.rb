@@ -102,8 +102,20 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			while (r = udp_sock.recvfrom(65535, 3) and r[1])
+			cnt = 0
+			del = 10
+			sts = Time.now.to_i
+			while (r = udp_sock.recvfrom(65535, del) and r[1])
 				parse_reply(r)
+
+				# Prevent an indefinite loop if the targets keep replying
+				cnt += 1
+				break if cnt > run_batch_size
+
+				# Escape after 15 seconds regardless of batch size
+				break if ((sts + 15) < Time.now.to_i)
+
+				del = 1.0
 			end
 
 		rescue ::Interrupt
