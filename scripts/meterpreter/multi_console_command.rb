@@ -7,7 +7,7 @@
 # $Revision$
 
 ################## Variable Declarations ##################
-session = client
+@client = client
 
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -22,13 +22,13 @@ help = 0
 
 ################## Function Declarations ##################
 # Function for running a list of commands stored in a array, returs string
-def list_con_exec(session,cmdlst)
+def list_con_exec(cmdlst)
 	print_status("Running Command List ...")
 	cmdout = ""
 	cmdlst.each do |cmd|
 		begin
 			print_status "\tRunning command #{cmd}"
-			session.console.run_single(cmd)
+			@client.console.run_single(cmd)
 		rescue ::Exception => e
 			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
 		end
@@ -67,7 +67,7 @@ end
 if args.length == 0 or help == 1
 	usage
 else
-	 list_con_exec(session,commands)
+	 list_con_exec(commands)
 	 raise Rex::Script::Completed
 end
 
