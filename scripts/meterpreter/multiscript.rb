@@ -8,7 +8,7 @@ session = client
 
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
-        "-c" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
+        "-cl" => [ true,"Collection of scripts to execute. Each script command must be enclosed in double quotes and separated by a semicolon."],
         "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
