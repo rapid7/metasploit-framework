@@ -813,16 +813,26 @@ function core_channel_interact($req, &$pkt) {
     $c = get_channel_by_id($id);
     if ($c) {
         if ($toggle_tlv['value']) {
+            # Start interacting.  If we're already interacting with this
+            # channel, it's an error and we should return failure.
             if (!in_array($c[1], $readers)) {
+                # stdout
                 add_reader($c[1]);
+                # stderr, don't care if it fails
+                if ($c[1] != $c[2] and !in_array($c[2], $readers)) {
+                    add_reader($c[2]);
+                }
                 $ret = ERROR_SUCCESS;
             } else {
                 # Already interacting
                 $ret = ERROR_FAILURE;
             }
         } else {
+            # Stop interacting.  If we're not interacting yet with this
+            # channel, it's an error and we should return failure.
             if (in_array($c[1], $readers)) {
-                remove_reader($c[1]);
+                remove_reader($c[1]); # stdout
+                remove_reader($c[2]); # stderr
                 $ret = ERROR_SUCCESS;
             } else {
                 # Not interacting
@@ -1061,7 +1071,7 @@ function remove_reader($resource) {
 $resource_type_map = array();
 function register_socket($sock) {
     global $resource_type_map;
-    my_print("Registering socket $socket");
+    my_print("Registering socket $sock");
     $resource_type_map[(int)$sock] = 'socket';
 }
 
