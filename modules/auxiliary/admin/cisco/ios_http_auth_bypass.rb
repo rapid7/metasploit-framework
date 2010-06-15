@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20010627-ios-http-level.shtml'],
 					[ 'OSVDB', '578' ],
 				],
-			'DisclosureDate' => 'June 27 2001'))
+			'DisclosureDate' => 'Jun 27 2001'))
 
 		register_options(
 			[

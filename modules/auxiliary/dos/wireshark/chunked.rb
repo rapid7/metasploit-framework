@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '37643'],
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1394'],
 				],
-			'DisclosureDate' => 'February 22 2007'))
+			'DisclosureDate' => 'Feb 22 2007'))
 
 		register_options([
 			OptInt.new('SPORT', [true, 'The source port used to send the malicious HTTP response', 80]),

@@ -363,7 +363,7 @@ class HttpCrawler
 		hashreq['uri'] = canonicalize(hashreq['uri'])
 
 		if hashreq['rhost'] == self.ctarget and hashreq['rport'] == self.cport
-			if !@ViewedQueue.include?(hashsig(hashreq)) 
+			if !@ViewedQueue.include?(hashsig(hashreq))
 				if @NotViewedQueue.read_all(hashreq).size > 0
 					if $verbose
 						puts "Already in queue to be viewed: #{hashreq['uri']}"
@@ -393,7 +393,7 @@ class HttpCrawler
 			# basepath: base path/uri to determine absolute path when relative
 			# data: body data, nil if GET and query = uri.query
 
-			
+
 			uri = URI.parse(url)
 			uritargetssl = (uri.scheme == "https") ? true : false
 

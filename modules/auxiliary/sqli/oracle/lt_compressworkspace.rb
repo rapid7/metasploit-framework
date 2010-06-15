@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuoct2008.html' ],
 					[ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
 				],
-			'DisclosureDate' => 'Nov 11, 2008'))
+			'DisclosureDate' => 'Oct 13 2008'))
 
 			register_options(
 				[

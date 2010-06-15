@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.appsecinc.com/resources/alerts/oracle/2008-10.shtml' ],
 
 				],
-			'DisclosureDate' => 'Jan 2009'))
+			'DisclosureDate' => 'Oct 13 2008'))
 
 			register_options(
 				[
