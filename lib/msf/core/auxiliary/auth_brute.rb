@@ -69,14 +69,16 @@ def each_user_pass(&block)
 		next if @@credentials_tried[fq_user] == p
 		ret = block.call(u,p)
 		case ret
-		when :abort
+		when :abort # Skip the current host entirely.
 		break
-		when :next_user
+		when :next_user # This means success for that user.
 			@@credentials_skipped[fq_user] = p
-			if datastore['STOP_ON_SUCCESS']
+			if datastore['STOP_ON_SUCCESS'] # See?
 				@@credentials_skipped[fq_rest] = true
 			end
-		when :connection_error
+		when :skip_user # Skip the user in non-success cases. 
+			@@credentials_skipped[fq_user] = p
+		when :connection_error # Report an error, skip this cred, but don't abort.
 			vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}'"
 		end
 	@@credentials_tried[fq_user] = p

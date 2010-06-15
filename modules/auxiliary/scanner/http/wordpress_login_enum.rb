@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 				return :next_user
 			else
 				vprint_error("#{target_url} - WordPress Enumeration - Invalid Username: '#{user}'")
-				return :next_user
+				return :skip_user
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

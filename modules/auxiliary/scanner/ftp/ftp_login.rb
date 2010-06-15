@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 				user_response = send_user(user, @ftp_sock)
 				if user_response !~ /^(331|2)/
 					vprint_error("#{rhost}:#{rport} - The server rejected username: '#{user}'")
-					return :next_user
+					return :skip_user
 				end
 				pass_response = send_pass(pass, @ftp_sock)
 				if pass_response =~ /^2/
