@@ -3,11 +3,33 @@
 # a // for the comment instead of # so that the comment remover doesn't blow it
 # away.
 
+
 function my_print($str) {
     #error_log($str);
     #print($str ."\n");
     #flush();
 }
+
+function dump_array($arr, $name=null) {
+    if (is_null($name)) {
+        my_print(sprintf("Array (%s)", count($arr)));
+    } else {
+        my_print(sprintf("$name (%s)", count($arr)));
+    }
+    foreach ($arr as $key => $val) {
+        $foo = sprintf("    $key ($val)");
+        my_print($foo);
+    }
+}
+function dump_readers() {
+    global $readers;
+    dump_array($readers, 'Readers');
+}
+function dump_resource_map() {
+    global $resource_type_map;
+    dump_array($resource_type_map, 'Resource map');
+}
+
 
 # Doesn't exist before php 4.3
 if (!function_exists("file_get_contents")) {
@@ -665,6 +687,9 @@ function core_channel_open($req, &$pkt) {
     $type_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_TYPE);
 
     my_print("Client wants a ". $type_tlv['value'] ." channel, i'll see what i can do");
+
+    # Doing it this way allows extensions to create new channel types without
+    # needing to modify the core code.
     $handler = "channel_create_". $type_tlv['value'];
     if ($type_tlv['value'] && is_callable($handler)) {
         $ret = $handler($req, $pkt);
@@ -682,6 +707,7 @@ function core_channel_eof($req, &$pkt) {
     $c = get_channel_by_id($chan_tlv['value']);
 
     if ($c) {
+        # XXX Doesn't work with sockets.
         if (@feof($c[1])) {
             packet_add_tlv($pkt, create_tlv(TLV_TYPE_BOOL, 1));
         } else {
@@ -1035,26 +1061,6 @@ function register_stream($stream) {
     global $resource_type_map;
     my_print("Registering stream $stream");
     $resource_type_map[(int)$stream] = 'stream';
-}
-
-function dump_array($arr, $name=null) {
-    if (is_null($name)) {
-        my_print(sprintf("Array (%s)", count($arr)));
-    } else {
-        my_print(sprintf("$name (%s)", count($arr)));
-    }
-    foreach ($arr as $key => $val) {
-        $foo = sprintf("    $key ($val)");
-        my_print($foo);
-    }
-}
-function dump_readers() {
-    global $readers;
-    dump_array($readers, 'Readers');
-}
-function dump_resource_map() {
-    global $resource_type_map;
-    dump_array($resource_type_map, 'Resource map');
 }
 
 function close($resource) {
