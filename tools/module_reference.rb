@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# This script lists each module by its licensing terms
+# This script lists each module with its references
 #
 # $Revision$
 #
@@ -24,8 +24,6 @@ tbl = Rex::Ui::Text::Table.new(
 	'Indent'  => Indent.length,
 	'Columns' => [ 'Module', 'Reference' ]
 )
-
-licenses = {}
 
 $framework.payloads.each_module { |name, mod|
 	x = mod.new

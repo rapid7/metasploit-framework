@@ -3,7 +3,8 @@
 # $Id$
 # $Revision$
 #
-# This script lists each module by its licensing terms
+# This script lists each module by its author(s) and
+# the number of modules per author
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
@@ -24,7 +25,6 @@ tbl = Rex::Ui::Text::Table.new(
 	'Columns' => [ 'Module', 'Reference' ]
 )
 
-licenses = {}
 names = {}
 
 $framework.payloads.each_module { |name, mod|
@@ -72,6 +72,7 @@ $framework.auxiliary.each_module { |name, mod|
 
 puts tbl.to_s
 
+
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module Count by Author',
 	'Indent'  => Indent.length,
@@ -81,6 +82,4 @@ names.keys.sort {|a,b| names[b] <=> names[a] }.each do |name|
 	tbl << [ names[name].to_s, name ]
 end
 
-
 puts tbl.to_s
-

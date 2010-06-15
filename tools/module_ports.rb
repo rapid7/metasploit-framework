@@ -14,38 +14,8 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-def lic_short(l)
-	if (l.class == Array)
-		l = l[0]
-	end
-
-	case l
-	when MSF_LICENSE
-		'MSF'
-	when GPL_LICENSE
-		'GPL'
-	when BSD_LICENSE
-		'BSD'
-	when ARTISTIC_LICENSE
-		'ART'
-	else
-		'UNK'
-	end
-end
-
-Indent = '    '
-
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
-
-
-tbl = Rex::Ui::Text::Table.new(
-	'Header'  => 'Licensed Modules',
-	'Indent'  => Indent.length,
-	'Columns' => [ 'License','Type', 'Name' ]
-)
-
-licenses = {}
 
 all_modules = $framework.exploits.merge($framework.auxiliary)
 all_ports = {}
@@ -74,6 +44,3 @@ all_modules.each_module { |name, mod|
 all_ports.sort.each { |k,v|
 	puts "%5s # %s" % [k,v]
 }
-
-
-

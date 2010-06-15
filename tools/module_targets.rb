@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# This script lists each module by the default ports it uses
+# This script lists all modules with their targets
 #
 # $Revision$
 #
@@ -19,7 +19,6 @@ Indent = '    '
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create
 
-
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module Targets',
 	'Indent'  => Indent.length,
@@ -27,7 +26,6 @@ tbl = Rex::Ui::Text::Table.new(
 )
 
 all_modules = $framework.exploits
-all_targs = {}
 
 all_modules.each_module { |name, mod|
 	x = mod.new
@@ -37,4 +35,3 @@ all_modules.each_module { |name, mod|
 }
 
 puts tbl.to_s
-
