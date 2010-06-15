@@ -32,6 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		print_status("#{rhost}:#{rport} - MSSQL - Starting authentication scanner.")
 		each_user_pass { |user, pass|
 			do_login(user, pass, datastore['VERBOSE'])
 		}
@@ -69,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 		rescue ::Rex::ConnectionError
-			return :done
+			return :abort
 		end
 	end
 end
