@@ -999,7 +999,7 @@ function packet_get_tlv($pkt, $type) {
     while ($offset < strlen($pkt)) {
         $tlv = unpack("Nlen/Ntype", substr($pkt, $offset, 8));
         #my_print("len: {$tlv['len']}, type: {$tlv['type']}");
-        if ($type == $tlv['type']) {
+        if ($type == ($tlv['type'] & ~TLV_META_TYPE_COMPRESSED)) {
             #my_print("Found one at offset $offset");
             if (($type & TLV_META_TYPE_STRING) == TLV_META_TYPE_STRING) {
                 $tlv = unpack("Nlen/Ntype/a*value", substr($pkt, $offset, $tlv['len']));
