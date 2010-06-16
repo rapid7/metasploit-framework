@@ -39,7 +39,7 @@ class IrbShell
 		IRB.conf[:MAIN_CONTEXT] = irb.context
 
 		# Trap interrupt
-		trap("SIGINT") do
+		old_sigint = trap("SIGINT") do
 			irb.signal_handle
 		end
 
@@ -47,6 +47,8 @@ class IrbShell
 		catch(:IRB_EXIT) do
 			irb.eval_input
 		end
+
+		trap("SIGINT", old_sigint)
 	end
 
 end
