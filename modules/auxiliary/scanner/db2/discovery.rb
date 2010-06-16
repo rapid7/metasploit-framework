@@ -51,9 +51,16 @@ class Metasploit3 < Msf::Auxiliary
 						:type   => 'SERVICE_INFO',
 						:data   => res[2] + "_" + res[1]
 					)
-					print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] + "...")
+					report_service(
+						:host => ip,
+						:port => datastore['RPORT'],
+						:proto => 'udp',
+						:name => "ibm-db2",
+						:info => res[2] + "_" + res[1]
+					)
+					print_status("Host #{ip} node name is " + res[2] + " with a product id of " + res[1] )
 				else
-					print_error("Unable to determine version info for #{ip}...")
+					print_error("Unable to determine version info for #{ip}")
 				end
 
 		  disconnect_udp
