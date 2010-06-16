@@ -1998,6 +1998,7 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		fix_services = args[:fix_services]
 
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
@@ -2076,7 +2077,11 @@ class DBManager
 
 				data = {}
 				data[:workspace] = wspace
-				data[:proto] = p["protocol"].downcase
+				if fix_services
+					data[:proto] = p["protocol"].downcase
+				else
+					data[:proto] = nmap_msfx_service_map(p["protocol"])
+				end
 				data[:port]  = p["portid"].to_i
 				data[:state] = p["state"]
 				data[:host]  = addr
@@ -2089,6 +2094,22 @@ class DBManager
 		}
 
 		REXML::Document.parse_stream(data, parser)
+	end
+
+	def nmap_msfx_service_map(proto)
+		return proto unless proto.kind_of? String
+		case proto.downcase
+		when "msrpc", "nfs-or-iis";         "dcerpc"
+		when "netbios-ns";                  "netbios"
+		when "netbios-ssn", "microsoft-ds"; "smb"
+		when "ms-sql-s";                    "mssql"
+		when "ms-sql-m";                    "mssql-m"
+		when "postgresql";                  "postgres"
+		when "http-proxy";                  "http"
+		when "iiimsf";                      "db2"
+		else
+			proto
+		end
 	end
 
 	def report_import_note(wspace,addr)
