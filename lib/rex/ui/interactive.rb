@@ -218,13 +218,14 @@ protected
 	# notifications.
 	#
 	def restore_suspend
-		if (orig_suspend)
-			begin
+		begin
+			if (orig_suspend)
 				Signal.trap("TSTP", orig_suspend)
-			rescue
+			else
+				Signal.trap("TSTP", "DEFAULT")
 			end
-
 			self.orig_suspend = nil
+		rescue
 		end
 	end
 
