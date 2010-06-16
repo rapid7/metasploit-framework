@@ -315,7 +315,6 @@ class RangeWalker
 	# for backwards compatibility
 	alias :num_ips :length
 
-private
 	attr_reader :ranges
 
 end
