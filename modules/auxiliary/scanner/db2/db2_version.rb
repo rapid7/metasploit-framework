@@ -29,18 +29,23 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		register_options(
 			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false])
+				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
+				OptInt.new('TIMEOUT', [true, 'Timeout for the DB2 probe', 5])
 		], self.class)
 
 		deregister_options('USERNAME' , 'PASSWORD')
 	end
 
+	def to
+		return 5 if datastore['TIMEOUT'].to_i.zero?
+		datastore['TIMEOUT'].to_i
+	end
 
 	def run_host(ip)
 		verbose = datastore['VERBOSE']
 		begin
 
-			info = db2_probe(2)
+			info = db2_probe(to)
 			if info[:excsatrd]
 				inst,plat,ver,pta = info[:instance_name],info[:platform],info[:version],info[:plaintext_auth]
 				report_info = "Platform: #{plat}, Version: #{ver}, Instance: #{inst}, Plain-Authentication: #{pta ? "OK" : "NO"}"
@@ -54,6 +59,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			disconnect
 
+		rescue ::Rex::ConnectionRefused
+			print_error("#{rhost}:#{rport} : Cannot connect to host") if verbose
+			return :done
 		rescue ::Rex::ConnectionError
 			print_error("#{rhost}:#{rport} : Unable to attempt probe") if verbose
 			return :done
