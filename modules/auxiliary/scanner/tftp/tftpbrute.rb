@@ -15,7 +15,8 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::Report
+	
 	def initialize
 		super(
 			'Name'        => 'TFTP Brute Forcer',
@@ -59,6 +60,14 @@ class Metasploit3 < Msf::Auxiliary
 				resp = udp_sock.get(1)
 				if resp and resp.length >= 2 and resp[0, 2] == "\x00\x03"
 					print_status("Found #{filename} on #{ip}")
+					#Add Report
+					report_note(
+						:host	=> ip,
+						:proto	=> 'tftp',
+						:port	=> datastore['RPORT'],
+						:type	=> "Found #{filename}",
+						:data	=> "Found #{filename}"
+					)
 				end
 			end
 			fd.close

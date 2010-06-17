@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -98,6 +99,15 @@ class Metasploit3 < Msf::Auxiliary
 		return if ipids.empty?
 
 		print_status("#{ip}'s IPID sequence class: #{analyze(ipids)}")
+		
+		#Add Report
+		report_note(
+			:host	=> ip,
+			:proto	=> 'ip',
+			:port	=> rport,
+			:type	=> 'IPID sequence',
+			:data	=> "IPID sequence class: #{analyze(ipids)}"
+		)
 	end
 
 	# Based on Nmap's get_ipid_sequence() in osscan2.cc

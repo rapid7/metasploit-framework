@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 						:port	=> rport,
 						:proto	=> 'http',
 						:name	=> 'HTTP-TRACE-ENABLED',
-						:data	=> res.headers['Allow'],
+						:info	=> res.headers['Allow'],
 						:refs   =>
 						[
 							[ 'CVE', '2005-3398'],

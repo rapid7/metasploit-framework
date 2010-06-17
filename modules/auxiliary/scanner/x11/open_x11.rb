@@ -16,7 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::Report
+	
 	def initialize
 		super(
 			'Name'		=> 'X11 No-Auth Scanner',
@@ -50,15 +51,24 @@ class Metasploit3 < Msf::Auxiliary
 			response = sock.get_once
 
 			disconnect
-
+											
 			if(response)
 				success = response[0,1].unpack('C')[0]
 			end
+
 
 			if(success == 1)
 				vendor_len = response[24,2].unpack('v')[0]
 				vendor = response[40,vendor_len].unpack('A*')[0]
 				print_status("#{ip} Open X Server (#{vendor})")
+				#Add Report
+				report_note(
+					:host	=> ip,
+					:proto	=> 'x11',
+					:port	=> rport,
+					:type	=> 'Open X Server',
+					:data	=> "Open X Server (#{vendor})"
+			)
 			elsif (success == 0)
 				print_status("#{ip} Access Denied")
 			else

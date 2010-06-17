@@ -18,6 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::DCERPC
 
+	include Msf::Auxiliary::Report
+	
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -109,6 +111,15 @@ class Metasploit3 < Msf::Auxiliary
 
 						print_status(status)
 						print_status("")
+			
+						## Add Report
+						report_note(
+							:host   => ip,
+							:proto  => 'tcp',
+							:port   => datastore['RPORT'],
+							:type   => "DCERPC HIDDEN: UUID #{id[0]} v#{id[1]}",
+							:data   => status
+						)
 
 					end
 				end

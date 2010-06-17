@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Found #{wmap_base_url}#{file}")
 
 				report_note(
-					:host	=> ip,
+					:host	=> rhost,
 					:proto	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'BACKUP_FILE',

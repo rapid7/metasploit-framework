@@ -105,7 +105,14 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(trojan_command(:nop))
 
 		print_status("#{ip}:#{rport} FOUND: #{files.inspect}")
-
+		## Add Report
+		report_note(
+			:host   => ip,
+			:proto  => 'tcp',
+			:port   => datastore['RPORT'],
+			:type   => 'Energizer DUO Trojan',
+			:data   => files.inspect
+		)
 		disconnect
 
 		rescue ::Interrupt

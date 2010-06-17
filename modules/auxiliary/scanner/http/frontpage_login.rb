@@ -18,7 +18,9 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
+	
 
 	def initialize
 		super(
@@ -68,9 +70,18 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
+				report_service(:host => target_host, :port => port, :name => "http", :info => "#{server_version} FrontPage Version: #{fpversion}")
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
+					# Add Report
+					report_note(
+						:host	=> target_host,
+						:proto	=> 'HTTP',
+						:port	=> port,
+						:type	=> 'FrontPage Author',
+						:data	=> "#{info}#{fpauthor}"
+					)
 				end
 				check_account(info, fpversion, target_host)
 			end
@@ -95,14 +106,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		sock.put(req)
 		res = sock.get_once
-
-
-
+		
 		if(res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
 			retcode = $1
 			retmsg  = $2.strip
-
+					
 			if(retcode == "100")
+				## Sometimes doesn't work !!!!!!!!!!!!!!!
 				res = sock.get_once
 				if(res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
 					retcode = $1
@@ -110,10 +120,23 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
+			
 			case retcode
 				when /^200/
 					print_status("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")
 					# Report a note or vulnerability or something
+					# Not really this one, but close
+					report_vuln(
+						:host   => target_host,
+						:port	=> rport,
+						:proto	=> 'http',
+						:name   => 'FrontPage ACCESS ALLOWED',
+						:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
+						:refs   =>
+							[
+								[ 'CVE', '2006-0015'],
+							]
+					)
 				when /^401/
 					print_status("#{info} FrontPage Password Protected [#{retcode}]")
 				when /^403/

@@ -20,7 +20,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::Report
+	
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe Auditor',
@@ -95,6 +96,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(pass.length > 0)
 			print_status("#{ip} - Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}")
+			#Add Report
+			report_note(
+				:host	=> ip,
+				:proto	=> 'smb',
+				:port	=> rport,
+				:type	=> 'Pipes Founded',
+				:data	=> "Pipes: #{pass.map{|c| "\\#{c}"}.join(", ")}"
+			)
 		end
 	end
 

@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> ip,
 						:port	=> rport,
 						:name	=> 'IIS-WEBDAV-UNICODE-BYPASS',
-						:data	=> "#{tpath}#{bogus} / Code: #{res.code}",
+						:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
 						:refs   =>
 						[
 							[ 'CVE', '2009-1122'],

@@ -18,6 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::Report
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -147,24 +148,32 @@ class Metasploit3 < Msf::Auxiliary
 								}
 						}, 15)
 
-
-						if (res.body =~ /method name is not valid/)
-							print_status("Server rejected SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
-						elsif (res.message =~ /Cannot process the message because the content type/)
-							print_status("Server rejected CONTENTTYPE: HTTP: #{res.code} #{res.message}.")
-							res.message =~ /was not the expected type\s\'([^']+)'/
-							print_status("Set CONTENTTYPE to \"#{$1}\"")
-							return false
-						elsif (res.code == 404)
-							return false
-						else
-							print_status("Server responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
-							if datastore['DISPLAYHTML']
-								print_status("The HTML content follows:")
-								print_status(res.body + "\r\n")
+						if (res && !(res.body.empty?))
+							if (res.body =~ /method name is not valid/)
+								print_status("Server rejected SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
+							elsif (res.message =~ /Cannot process the message because the content type/)
+								print_status("Server rejected CONTENTTYPE: HTTP: #{res.code} #{res.message}.")
+								res.message =~ /was not the expected type\s\'([^']+)'/
+								print_status("Set CONTENTTYPE to \"#{$1}\"")
+								return false
+							elsif (res.code == 404)
+								return false
+							else
+								print_status("Server responded to SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}.")
+								## Add Report
+								report_note(
+									:host	=> ip,
+									:proto	=> 'HTTP',
+									:port	=> rport,
+									:type	=> "SOAPAction: #{v}#{n}",
+									:data	=> "SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}."
+								)
+								if datastore['DISPLAYHTML']
+									print_status("The HTML content follows:")
+									print_status(res.body + "\r\n")
+								end
 							end
 						end
-
 					end
 				end
 

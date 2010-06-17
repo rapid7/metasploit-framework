@@ -19,7 +19,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::Report
+	
 	def initialize
 		super(
 			'Name'		=> 'Borland InterBase Services Manager Information',
@@ -217,7 +218,25 @@ class Metasploit3 < Msf::Auxiliary
 			print("Implementation of the InterBase server: #{info_svc_implementation}\n\n")
 
 			# print(Rex::Text.to_hex_dump(response))
-
+			
+			#Add Report
+			report_note(
+				:host	=> ip,
+				:proto	=> 'ib',
+				:port	=> rport,
+				:type	=> 'Version of the InterBase server',
+				:data	=> "Version of the InterBase server: #{info_svc_server_version}"
+			)
+			
+			#Add Report
+			report_note(
+				:host	=> ip,
+				:proto	=> 'ib',
+				:port	=> rport,
+				:type	=> 'Implementation of the InterBase server',
+				:data	=> "Implementation of the InterBase server: #{info_svc_implementation}"
+			)
+			
 		rescue ::Rex::ConnectionError
 		rescue ::Errno::EPIPE
 

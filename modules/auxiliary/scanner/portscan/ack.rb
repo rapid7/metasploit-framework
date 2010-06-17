@@ -16,7 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::Report
+	
 	def initialize
 		super(
 			'Name'        => 'TCP ACK Firewall Scanner',
@@ -84,7 +85,16 @@ class Metasploit3 < Msf::Auxiliary
 					next if not reply
 
 					print_status(" TCP UNFILTERED #{dhost}:#{dport}")
-					# TODO: db reporting
+
+					#Add Report
+					report_note(
+						:host	=> dhost,
+						:proto	=> 'tcp',
+						:port	=> dport,
+						:type	=> "TCP UNFILTERED #{dhost}:#{dport}",
+						:data	=> "TCP UNFILTERED #{dhost}:#{dport}"
+					)
+					
 				rescue ::Exception
 					print_error("Error: #{$!.class} #{$!}")
 				end

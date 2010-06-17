@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
@@ -45,6 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if ( data and data =~ /robotd~robotd~CLIENT/ )
 				print_status("Host #{ip} is running the EMC AlphaStor Library Manager.")
+				report_service(:host => rhost, :port => rport, :name => "EMC AlphaStor Library Manager", :info => data)
 		else
 				print_error("Host #{ip} is not running the service...")
 		end

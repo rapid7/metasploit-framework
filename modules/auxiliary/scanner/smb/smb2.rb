@@ -67,8 +67,24 @@ class Metasploit3 < Msf::Auxiliary
 					btime = Rex::Proto::SMB::Utils.time_smb_to_unix(*(res[116,8].unpack("VV").reverse))
 					utime = ctime - btime
 					print_status("#{ip} supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours")
+					#Add Report
+					report_note(
+						:host	=> ip,
+						:proto	=> 'smb2',
+						:port	=> rport,
+						:type	=> "supports SMB 2 [dialect #{vers}]",
+						:data	=> "supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours"
+					)
 				else
 					print_status("#{ip} supports SMB 2.0")
+					#Add Report
+					report_note(
+						:host	=> ip,
+						:proto	=> 'smb2',
+						:port	=> rport,
+						:type	=> "supports SMB 2.0",
+						:data	=> "supports SMB 2.0"
+					)
 				end
 			end
 
