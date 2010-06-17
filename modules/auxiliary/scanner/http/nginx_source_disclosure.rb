@@ -26,8 +26,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module exploits a nginx source code disclosure/download vulnerability.',
 			'References'     =>
 			[
-				['BID', '40760'],
 				['CVE', '2010-2263'],
+				['OSVDB', '65531'],
+				['BID', '40760'],
 			],
 			'Author'         =>
 			[
