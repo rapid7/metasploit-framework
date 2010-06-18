@@ -35,6 +35,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_range(range)
 		print_status("Working on range #{range}")
+		rw = Rex::Socket::RangeWalker.new(range)
+		print_status("RangeWalker: #{rw.inspect}")
 	end
 
 
