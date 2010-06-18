@@ -81,13 +81,14 @@ class Client
 		self.ext_aliases = ObjectAliases.new
 		self.alive       = true
 		self.target_id   = opts[:target_id]
+		self.capabilities= opts[:capabilities] || {}
 
 		self.response_timeout =  opts[:timeout] || self.class.default_timeout
 		self.send_keepalives  = true
 
 
 		# Switch the socket to SSL mode and receive the hello if needed
-		if not opts[:skip_ssl]
+		if capabilities[:ssl] and not opts[:skip_ssl]
 			swap_sock_plain_to_ssl()
 		end
 
@@ -325,6 +326,10 @@ class Client
 	# The unique target identifier for this payload
 	#
 	attr_accessor :target_id
+	#
+	# The libraries available to this meterpreter server
+	#
+	attr_accessor :capabilities
 
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:

@@ -89,7 +89,7 @@ class ClientCore < Extension
 			}
 
 			if (image != nil)
-				request.add_tlv(TLV_TYPE_DATA, image, false, true)
+				request.add_tlv(TLV_TYPE_DATA, image, false, client.capabilities[:zlib])
 			else
 				raise RuntimeError, "Failed to serialize library #{library_path}.", caller
 			end
@@ -222,7 +222,7 @@ class ClientCore < Extension
 		request = Packet.create_request( 'core_migrate' )
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
 		request.add_tlv( TLV_TYPE_MIGRATE_LEN, payload.length )
-		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, payload, false, true)
+		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, payload, false, client.capabilities[:zlib])
 		if( process['arch'] == ARCH_X86_64 )
 			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
 		else
