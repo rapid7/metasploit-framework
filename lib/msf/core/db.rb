@@ -2070,6 +2070,15 @@ class DBManager
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|
+				# Localhost port results are pretty unreliable -- if it's
+				# unknown, it's no good (possibly Windows-only)
+				if (
+					p["state"] == "unknown" &&
+					h["status_reason"] == "localhost-response"
+				)
+					$stderr.puts "Skipping localhost port"
+					next
+				end
 				extra = ""
 				extra << p["product"]   + " " if p["product"]
 				extra << p["version"]   + " " if p["version"]

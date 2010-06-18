@@ -77,6 +77,7 @@ class NmapXMLStreamParser
 		when "status"
 			# <status> refers to the liveness of the host; values are "up" or "down"
 			@host["status"] = attributes["state"]
+			@host["status_reason"] = attributes["reason"]
 		when "port"
 			@host["ports"].push(attributes)
 		when "state"
