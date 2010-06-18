@@ -1,46 +1,64 @@
 # $Id$
 
-This file contains some brief instructions on contributing to the Metasploit
-Framework.
+This file contains some brief instructions on contributing to the
+Metasploit Framework.
 
-
-General Guidelines
-========================
-Don't print to standard output.  Doing so means that users of interfaces other
-than msfconsole, such as msfrpc and msfweb, won't see your output.  You can use
-print_line to accomplish the same thing as puts.
 
 Code Style
+==========
+
+In order to maintain consistentcy and readability, we ask that you
+adhere to the following style guidlines:
+
  - Hard tabs, not spaces
  - Try to keep your lines under 100 columns (assuming four-space tabs)
  - do; end instead of {} for a block
 
 
-Modules
-=======
-Always use Rex sockets, not ruby sockets.  This includes third-party libraries
-such as Net::Http.  There are several very good reasons for this rule.  First,
-the framework doesn't get notified on the creation of ruby sockets and won't
-know how to clean them up in case your module raises an exception without
-cleaning up after itself.  Secondly, non-Rex sockets do not know about routes
-and therefore can't be used through a meterpreter tunnel.  Lastly, regular
-sockets miss out on msf's proxy and ssl features.  Msf includes many protocols
-already implemented with Rex and if the protocol you need is missing, porting
-another library to use them is straight-forward.  See our Net::SSH
-modifications in lib/net/ssh/ for an example.
+Code No-Nos
+===========
 
-When creating a new module, the simplest way to start is to copy another module
-that uses the same protocol and modify it to your needs.  If you're creating an
-exploit module, generally you'll want to edit the exploit() method.  Auxiliary
-Scanner modules use one of run_host(), run_range(), or run_batch() instead of
-exploit().  Non-scanner aux modules use run().
+1. Don't print to standard output.  Doing so means that users of
+interfaces other than msfconsole, such as msfrpc and msfweb, won't see
+your output.  You can use print_line to accomplish the same thing as
+puts. 
+
+2. Don't use "sleep". It has been known to cause issues with
+multi-threaded programs on various platforms. Instead, we use
+"select(nil, nil, nil, <time>)" throughout the framework. We have
+found this works around the underlying issue.
+
+3. Always use Rex sockets, not ruby sockets.  This includes
+third-party libraries such as Net::Http.  There are several very good
+reasons for this rule.  First, the framework doesn't get notified on
+the creation of ruby sockets and won't know how to clean them up in
+case your module raises an exception without cleaning up after itself.
+Secondly, non-Rex sockets do not know about routes and therefore can't
+be used through a meterpreter tunnel.  Lastly, regular sockets miss
+out on msf's proxy and ssl features.  Msf includes many protocols
+already implemented with Rex and if the protocol you need is missing,
+porting another library to use them is straight-forward.  See our
+Net::SSH modifications in lib/net/ssh/ for an example.
+
+
+Creating New Modules
+====================
+
+When creating a new module, the simplest way to start is to copy
+another module that uses the same protocol and modify it to your
+needs.  If you're creating an exploit module, generally you'll want
+to edit the exploit() method.  Auxiliary Scanner modules use one of
+run_host(), run_range(), or run_batch() instead of exploit().
+Non-scanner aux modules use run().
 
 
 Licensing
 =========
-By submitting code contributions to the Metasploit Project it is assumed that
-you are offering your code under a BSD or similar license.  MIT and Ruby
-Licenses are also fine.  We specifically cannot include GPL code.
+By submitting code contributions to the Metasploit Project it is
+assumed that you are offering your code under a BSD or similar
+license.  MIT and Ruby Licenses are also fine.  We specifically cannot
+include GPL code. 
 
-
+When possible, such as aux and exploit modules, be sure to include
+your license designation in the file in the approriate place.
 
