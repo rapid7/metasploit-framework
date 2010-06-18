@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Platform'       => [ 'win' ],
 			'References'     =>
 				[
+					[ 'OSVDB', '65533'],
 					[ 'URL', 'http://seclists.org/bugtraq/2010/Jun/160' ]
 				],
 			'Privileged'     => true,
