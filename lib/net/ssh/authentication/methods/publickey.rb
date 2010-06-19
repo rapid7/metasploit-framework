@@ -70,6 +70,7 @@ module Net
 					  if session.options[:record_auth_info]
 						session.auth_info[:method] = "publickey"
 						session.auth_info[:user] = username
+						session.auth_info[:pubkey_data] = identity.inspect
 						session.auth_info[:pubkey_id] = identity.fingerprint
 					  end
 						  return true

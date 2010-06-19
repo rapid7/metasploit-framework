@@ -49,13 +49,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(22),
-				OptPath.new('KEY_FILE', [true, 'Filename of one or several cleartext private keys.'])
+				OptPath.new('KEY_FILE', [false, 'Filename of one or several cleartext private keys.'])
 			], self.class
 		)
 
 		register_advanced_options(
 			[
-				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false])
+				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
+				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
 			]
 		)
 
@@ -71,18 +72,25 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def read_keyfile(file)
-		keyfile = File.open(file) {|f| f.read(f.stat.size)}
+		if file == :keyfile_b64
+			keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
+		else
+			keyfile = File.open(file) {|f| f.read(f.stat.size)}
+		end
 		keys = []
 		this_key = []
 		in_key = false
 		keyfile.split("\n").each do |line|
-			in_key = true if(line =~ /^-----BEGIN [RD]SA PRIVATE KEY-----\x0d?$/)
+			in_key = true if(line =~ /^-----BEGIN [RD]SA PRIVATE KEY-----/)
 			this_key << line if in_key
-			if(line =~ /^-----END [RD]SA PRIVATE KEY-----\x0d?$/)
+			if(line =~ /^-----END [RD]SA PRIVATE KEY-----/)
 				in_key = false
 				keys << (this_key.join("\n") + "\n")
 				this_key = []
 			end
+		end
+		if keys.empty?
+			print_error "#{ip}:#{rport} - SSH - No keys found."
 		end
 		return validate_keys(keys)
 	end
@@ -101,6 +109,9 @@ class Metasploit3 < Msf::Auxiliary
 			# Add more tests to taste.
 			keepers << key
 		end
+		if keepers.empty?
+			print_error "#{ip}:#{rport} - SSH - No valid keys found"
+		end
 		return keepers
 	end
 
@@ -109,14 +120,21 @@ class Metasploit3 < Msf::Auxiliary
 		keys.each { |key|
 			cleartext_keys << key unless(key =~ /Proc-Type:.*ENCRYPTED/)
 		}
+		if cleartext_keys.empty?
+			print_error "#{ip}:#{rport} - SSH - No valid cleartext keys found"
+		end
 		return cleartext_keys
 	end
 
 	def do_login(ip,user,port)
-		if File.readable?(datastore['KEY_FILE'])
+		if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
 			keys = read_keyfile(datastore['KEY_FILE'])
 			cleartext_keys = pull_cleartext_keys(keys)
 			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
+		elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
+			keys = read_keyfile(:keyfile_b64)
+			cleartext_keys = pull_cleartext_keys(keys)
+			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
 		else
 			return :missing_keyfile
 		end
@@ -166,7 +184,16 @@ class Metasploit3 < Msf::Auxiliary
 			sess.set_from_exploit(self)
 			sess.info = "SSH #{user}:#{self.good_key} (#{ip}:#{port})"
 
-			# Clean up the stored data
+			# Clean up the stored data - need to stash the keyfile into
+			# a datastore for later reuse.
+			if datastore['KEY_FILE'] and !datastore['KEY_FILE'].empty?
+				keyfile = File.open(datastore['KEY_FILE']) {|f| f.read(f.stat.size)}
+				sess.exploit_datastore['SSH_KEYFILE_B64'] = [keyfile].pack("m*").gsub("\n","")
+				sess.exploit_datastore['KEY_FILE']      = nil
+			end
+			sess.exploit_datastore['USERPASS_FILE'] = nil
+			sess.exploit_datastore['USER_FILE']     = nil
+			sess.exploit_datastore['PASS_FILE']     = nil
 			sess.exploit_datastore['USERNAME']      = user
 
 			framework.sessions.register(sess)
