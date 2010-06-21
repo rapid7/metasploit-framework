@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return :next_user
 			else
-				vprint_status("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
+				vprint_error("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
 				return :fail
 			end
 
