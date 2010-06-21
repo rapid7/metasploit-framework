@@ -351,6 +351,26 @@ require 'metasm'
 		return pe
 	end
 
+	def self.to_win64pe_service(framework, code, name='SERVICENAME')
+		pe = ''
+
+		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service_x64.exe"), "rb")
+		pe = fd.read(fd.stat.size)
+		fd.close
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win64 PE Service EXE template!" if not bo
+		pe[bo, 8192] = [code].pack("a8192")
+
+		bo = pe.index('SERVICENAME')
+		raise RuntimeError, "Invalid Win64 PE Service EXE template!" if not bo
+		pe[bo, 11] = [name].pack('a11')
+
+		pe[136, 4] = [rand(0x100000000)].pack('V')
+
+		return pe
+	end
+
 	def self.to_win32pe_dll(framework, code)
 		pe = ''
 
