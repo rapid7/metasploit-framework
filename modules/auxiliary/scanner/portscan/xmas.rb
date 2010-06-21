@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'TCP "XMas" Port Scanner',
@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 					next if reply # Got a RST back
 
 					print_status(" TCP OPEN|FILTERED #{dhost}:#{dport}")
-					
+
 					#Add Report
 					report_note(
 						:host	=> dhost,
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 						:type	=> "TCP OPEN|FILTERED #{dhost}:#{dport}",
 						:data	=> "TCP OPEN|FILTERED #{dhost}:#{dport}"
 					)
-					
+
 				rescue ::Exception
 					print_error("Error: #{$!.class} #{$!}")
 				end

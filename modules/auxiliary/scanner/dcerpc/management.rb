@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	include Msf::Auxiliary::Report
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			return if not ids
 			ids.each do |id|
 				print_status("UUID #{id[0]} v#{id[1]}")
-				
+
 				reportdata = ""
 
 				stats = dcerpc_mgmt_inq_if_stats(rport)
@@ -59,25 +59,25 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("\t stats: " + stats.map{|i| "0x%.8x" % i}.join(", "))
 					reportdata << "stats: " + stats.map{|i| "0x%.8x" % i}.join(", ") + " "
 				end
-				
+
 				live  = dcerpc_mgmt_is_server_listening(rport)
 				if live
 					print_status("\t listening: %.8x" % live)
 					#reportdata << "listening: %.8x" % live + " "
 				end
-				
+
 				dead  = dcerpc_mgmt_stop_server_listening(rport)
 				if dead
 					print_status("\t killed: %.8x" % dead)
 					#reportdata << "killed: %.8x" % dead + " "
 				end
-				
+
 				princ = dcerpc_mgmt_inq_princ_name(rport)
 				if princ
 					print_status("\t name: #{princ.unpack("H*")[0]}")
 					#reportdata << "name: #{princ.unpack("H*")[0]}"
 				end
-				
+
 				## Add Report
 				report_note(
 					:host   => ip,
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 					:type   => "DCERPC UUID #{id[0]} v#{id[1]}",
 					:data   => reportdata
 				)
-				
+
 			end
 
 		rescue ::Interrupt
@@ -95,6 +95,5 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Error: #{e}")
 		end
 	end
-
 
 end

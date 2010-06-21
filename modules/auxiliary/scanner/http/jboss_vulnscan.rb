@@ -24,6 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'   => %q{
 				This module scans a JBoss instance for vulnerablities.
 			},
+			'Version'               => '$Revision$',
 			'Author'                => [ 'Tyler Krpata' ],
 			'License'               => BSD_LICENSE
 			))

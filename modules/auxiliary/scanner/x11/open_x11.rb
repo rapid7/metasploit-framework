@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'		=> 'X11 No-Auth Scanner',
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			response = sock.get_once
 
 			disconnect
-											
+
 			if(response)
 				success = response[0,1].unpack('C')[0]
 			end

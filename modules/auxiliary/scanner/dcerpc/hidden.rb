@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	include Msf::Auxiliary::Report
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 
 						print_status(status)
 						print_status("")
-			
+
 						## Add Report
 						report_note(
 							:host   => ip,

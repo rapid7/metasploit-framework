@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
+
 
 	def initialize
 		super(
@@ -106,11 +106,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		sock.put(req)
 		res = sock.get_once
-		
+
 		if(res and res.match(/^HTTP\/1\.[01]\s+([^\s]+)\s+(.*)/))
 			retcode = $1
 			retmsg  = $2.strip
-					
+
 			if(retcode == "100")
 				## Sometimes doesn't work !!!!!!!!!!!!!!!
 				res = sock.get_once
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			
+
 			case retcode
 				when /^200/
 					print_status("#{info} FrontPage ACCESS ALLOWED [#{retcode}]")

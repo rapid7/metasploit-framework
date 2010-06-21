@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::DCERPC
 
 	include Msf::Auxiliary::Report
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -297,7 +297,7 @@ class Metasploit3 < Msf::Auxiliary
 						:type   => "DCERPC Service: UUID #{uuid[0]} #{uuid[1]}",
 						:data   => data_report
 					)
-						
+
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception => e
