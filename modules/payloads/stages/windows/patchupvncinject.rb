@@ -107,7 +107,7 @@ module Metasploit3
 		# If the AUTOVNC flag is set, launch VNC viewer.
 		if (datastore['AUTOVNC'] == true)
 			if (session.autovnc)
-				print_status("Launched vnciewer.")
+				print_status("Launched vncviewer.")
 			else
 				print_error("Failed to launch vncviewer.  Is it installed in your path?")
 			end

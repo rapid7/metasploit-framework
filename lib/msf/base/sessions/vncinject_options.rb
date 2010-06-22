@@ -90,9 +90,9 @@ module VncInjectOptions
 		# If the AUTOVNC flag is set, launch VNC viewer.
 		if (datastore['AUTOVNC'] == true)
 			if (session.autovnc)
-				print_status("Launched vnciewer.")
+				print_status("Launched vncviewer.")
 			else
-				print_error("Failed to launch vnciewer.  Is it installed and in your path?")
+				print_error("Failed to launch vncviewer.  Is it installed and in your path?")
 			end
 		end
 
