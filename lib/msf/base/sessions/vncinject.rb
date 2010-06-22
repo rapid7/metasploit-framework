@@ -140,6 +140,10 @@ class VncInject
 	#
 	# Launches VNC viewer against the local relay for this VNC server session.
 	#
+	# Returns true if we were able to find the executable and false otherwise.
+	# Note that this says nothing about whether it worked, only that we found
+	# the file.
+	#
 	def autovnc
 		vnc =
 			Rex::FileUtils::find_full_path('vncviewer') ||
@@ -150,8 +154,9 @@ class VncInject
 				system("vncviewer #{vlhost}::#{vlport}")
 			}
 
-			true
+			return true
 		end
+		false
 	end
 
 protected
