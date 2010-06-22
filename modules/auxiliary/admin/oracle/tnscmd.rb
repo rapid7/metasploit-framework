@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(pkt)
 		print_status("writing #{pkt.length} bytes.")
 
-		sleep(0.5)
+		select(nil,nil,nil,0.5)
 
 		print_status("reading")
 		res = sock.get_once(-1,5)

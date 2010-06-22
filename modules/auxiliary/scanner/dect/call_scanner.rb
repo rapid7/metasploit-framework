@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 				if (datastore['VERBOSE'])
 					print_status("Switching to channel: #{channel}")
 				end
-				sleep(1)
+				select(nil,nil,nil,1)
 			end
 		ensure
 			print_status("Closing interface")

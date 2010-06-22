@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(pkt)
 
 		# try to suck it all in.
-		sleep(5)
+		select(nil,nil,nil,5)
 
 		res = sock.get_once
 

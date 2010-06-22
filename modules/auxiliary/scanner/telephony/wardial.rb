@@ -331,7 +331,7 @@ class Metasploit3 < Msf::Auxiliary
 					when /NO DIAL *TONE/i
 						nextnum = false
 						modem.hangup
-						sleep 1
+						select(nil,nil,nil,1)
 						next
 					when nil
 						modem.hangup
@@ -342,8 +342,8 @@ class Metasploit3 < Msf::Auxiliary
 				Object.save_to_file(dialrange, datfile)
 				#dialrange.save_to_file(datfile)
 				nextnum = true
-				sleep 1 # we need at least a little buffer for the modem to hangup/reset
-				sleep dialdelay - 1 if dialdelay >= 1
+				select(nil,nil,nil,1) # we need at least a little buffer for the modem to hangup/reset
+				select(nil,nil,nil,dialdelay-1) if dialdelay >= 1
 			end
 
 		rescue ::Interrupt
