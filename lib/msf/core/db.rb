@@ -2039,6 +2039,10 @@ class DBManager
 			# Only report alive hosts with ports to speak of.
 			if(data[:state] != Msf::HostState::Dead)
 				if h["ports"].size > 0
+					if fix_services
+						port_states = h["ports"].map {|p| p["state"]}.reject {|p| p == "filtered"}
+						next if port_states.compact.empty?
+					end
 					yield(:address,data[:host]) if block
 					report_host(data) 
 					report_import_note(wspace,addr)
@@ -2085,7 +2089,6 @@ class DBManager
 					p["state"] == "unknown" &&
 					h["status_reason"] == "localhost-response"
 				)
-					$stderr.puts "Skipping localhost port"
 					next
 				end
 				extra = ""
@@ -2096,9 +2099,9 @@ class DBManager
 				data = {}
 				data[:workspace] = wspace
 				if fix_services
-					data[:proto] = p["protocol"].downcase
-				else
 					data[:proto] = nmap_msfx_service_map(p["protocol"])
+				else
+					data[:proto] = p["protocol"].downcase
 				end
 				data[:port]  = p["portid"].to_i
 				data[:state] = p["state"]
@@ -2126,7 +2129,7 @@ class DBManager
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		else
-			proto
+			proto.downcase
 		end
 	end
 
