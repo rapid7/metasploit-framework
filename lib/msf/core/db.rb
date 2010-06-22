@@ -1527,11 +1527,14 @@ class DBManager
 					FileUtils.mkdir_p(loot_dir)
 				end
 				new_loot = File.join(loot_dir,loot_file)
-				File.unlink new_loot if File.exists?(new_loot) # Bang.
-				FileUtils.copy(loot_info[:orig_path], new_loot)
 				loot_info[:path] = new_loot
+				if File.exists?(new_loot)
+					File.unlink new_loot # Delete it, and don't report it. 
+				else
+					report_loot(loot_info) # It's new, so report it.
+				end
+				FileUtils.copy(loot_info[:orig_path], new_loot)
 				yield(:msfx_loot, new_loot) if block
-				report_loot(loot_info)
 			end
 		end
 
@@ -1574,11 +1577,14 @@ class DBManager
 					FileUtils.mkdir_p(tasks_dir)
 				end
 				new_task = File.join(tasks_dir,task_file)
-				File.unlink new_task if File.exists?(new_task) # Bang.
-				FileUtils.copy(task_info[:orig_path], new_task)
 				task_info[:path] = new_task
+				if File.exists?(new_task)
+					File.unlink new_task # Delete it, and don't report it.
+				else
+					report_task(task_info) # It's new, so report it.
+				end
+				FileUtils.copy(task_info[:orig_path], new_task)
 				yield(:msfx_task, new_task) if block
-				report_task(task_info)
 			end
 		end
 
@@ -1610,11 +1616,14 @@ class DBManager
 					FileUtils.mkdir_p(reports_dir)
 				end
 				new_report = File.join(reports_dir,report_file)
-				File.unlink new_report if File.exists?(new_report) # Bang.
-				FileUtils.copy(report_info[:orig_path], new_report)
 				report_info[:path] = new_report
+				if File.exists?(new_report) 
+					File.unlink new_report
+				else
+					report_report(report_info)
+				end
+				FileUtils.copy(report_info[:orig_path], new_report)
 				yield(:msfx_report, new_report) if block
-				report_report(report_info)
 			end
 		end
 
