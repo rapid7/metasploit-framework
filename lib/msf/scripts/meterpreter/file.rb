@@ -13,7 +13,7 @@ module Common
 #
 
 #Writes a given string to a file specified
-def file_local_write2file(file2wrt, data2wrt)
+def file_local_write(file2wrt, data2wrt)
 	if not ::File.exists?(file2wrt)
 		::FileUtils.touch(file2wrt)
 	else

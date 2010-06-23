@@ -1,5 +1,5 @@
 # $Id$
-#
+# $Revision$
 # This is a Meterpreter script designed to be used by the Metasploit Framework
 #
 # The goal of this script is to obtain system information from a victim through
@@ -63,7 +63,7 @@ host,port = session.tunnel_peer.split(':')
 print_status("New session on #{host}:#{port}...")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
+logs = ::File.join(Msf::Config.log_directory, 'scripts','scraper', host + "_" + Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000)) )
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)

@@ -1,15 +1,13 @@
 # $Id$
-#Meterpreter script for monitoring and capturing packets and
-#saving them in to  a PCAP file.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#$Revision$
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
 session = client
 #Get Hostname
 host,port = session.tunnel_peer.split(':')
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'packetrecorder', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'scripts', 'packetrecorder')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name

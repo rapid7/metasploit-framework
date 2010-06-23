@@ -1,10 +1,7 @@
 # $Id$
-#
-#Meterpreter script for basic enumeration of Windows 2003, Windows Vista
-# and Windows XP remote targets using native windows command wmic.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.0
-#Note:
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 session = client
 # Variables for Options
@@ -24,7 +21,7 @@ trg = ""
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'remotewinenum')
+logs = ::File.join(Msf::Config.log_directory, 'scripts', 'remotewinenum')
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -112,15 +109,7 @@ def wmicexec(session,wmic,user,pass,trgt)
 	c.close
 	tmpout
 end
-#-------------------------------------------------------------------------------
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	data2wrt.each_line do |d|
-		output.puts(d)
-	end
-	output.close
-end
+
 #------------------------------------------------------------------------------
 # Function to generate report header
 def headerbuid(session,target,dest)
@@ -188,8 +177,8 @@ if helpcall == 0 and trg != ""
 
 	else trg != nil && helpcall != 1
 
-		filewrt(dest,headerbuid(session,trg,dest))
-		filewrt(dest,wmicexec(session,wmic,rusr,rpass,trg))
+		file_local_write(dest,headerbuid(session,trg,dest))
+		file_local_write(dest,wmicexec(session,wmic,rusr,rpass,trg))
 
 	end
 elsif helpcall == 0 and trg == ""

