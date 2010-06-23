@@ -40,6 +40,10 @@ already implemented with Rex and if the protocol you need is missing,
 porting another library to use them is straight-forward.  See our
 Net::SSH modifications in lib/net/ssh/ for an example.
 
+4. When opening an IO stream, always force binary with "b" mode (or
+using IO#binmode). This not only helps keep Windows and non-Windows
+runtime environments consistent with each other, but also guarantees
+that files will be treated as ASCII-8BIT instead of UTF-8.
 
 Creating New Modules
 ====================
