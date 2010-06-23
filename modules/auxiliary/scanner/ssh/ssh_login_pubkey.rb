@@ -57,6 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptBool.new('SSH_DEBUG', [ false, 'Enable SSH debugging output (Extreme verbosity!)', false]),
 				OptString.new('SSH_KEYFILE_B64', [false, 'Raw data of an unencrypted SSH public key. This should be used by programmatic interfaces to this module only.', '']),
+				OptPath.new('KEY_DIR', [false, 'Directory of several cleartext private keys. Filenames must not begin with a dot, or end in ".pub" in order to be read.'])
 			]
 		)
 
@@ -67,6 +68,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	def key_dir
+		datastore['KEY_DIR']
+	end
+
 	def rport
 		datastore['RPORT']
 	end
@@ -74,8 +79,14 @@ class Metasploit3 < Msf::Auxiliary
 	def read_keyfile(file)
 		if file == :keyfile_b64
 			keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
+		elsif file.kind_of? Array
+			keyfile = ''
+			file.each do |dir_entry|
+				next unless File.readable? dir_entry
+				keyfile << File.open(dir_entry, "rb") {|f| f.read(f.stat.size)}
+			end
 		else
-			keyfile = File.open(file) {|f| f.read(f.stat.size)}
+			keyfile = File.open(file, "rb") {|f| f.read(f.stat.size)}
 		end
 		keys = []
 		this_key = []
@@ -135,10 +146,20 @@ class Metasploit3 < Msf::Auxiliary
 			keys = read_keyfile(:keyfile_b64)
 			cleartext_keys = pull_cleartext_keys(keys)
 			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
+		elsif datastore['KEY_DIR']
+			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
+			unless @key_files
+				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}.sort
+			end
+			these_keys = @key_files.map {|f| File.join(key_dir,f)}
+			keys = read_keyfile(these_keys)
+			cleartext_keys = pull_cleartext_keys(keys)
+			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		else
 			return :missing_keyfile
 		end
-		key_data = cleartext_keys
+		# key_data = cleartext_keys
+		cleartext_keys.each_with_index do |key_data,key_idx|
 
 		opt_hash = {
 			:auth_methods => ['publickey'],
@@ -159,10 +180,20 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		rescue Rex::ConnectionError
 			return :connection_error
-		rescue Net::SSH::Disconnect, ::EOFError
+		rescue Net::SSH::Disconnect, ::EOFError 
 			return :connection_disconnect
-		rescue Net::SSH::Exception
+		rescue Net::SSH::AuthenticationFailed
+			# Try, try, again
+			if @key_files
+				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}... #{Time.now}"
+			else
+				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}... #{Time.now}"
+			end
+			next
+		rescue Net::SSH::Exception => e
 			return [:fail,nil] # For whatever reason.
+		end
+		break
 		end
 
 		if self.ssh_socket
@@ -187,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Clean up the stored data - need to stash the keyfile into
 			# a datastore for later reuse.
 			if datastore['KEY_FILE'] and !datastore['KEY_FILE'].empty?
-				keyfile = File.open(datastore['KEY_FILE']) {|f| f.read(f.stat.size)}
+				keyfile = File.open(datastore['KEY_FILE'], "rb") {|f| f.read(f.stat.size)}
 				sess.exploit_datastore['SSH_KEYFILE_B64'] = [keyfile].pack("m*").gsub("\n","")
 				sess.exploit_datastore['KEY_FILE']      = nil
 			end
