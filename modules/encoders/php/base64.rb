@@ -30,6 +30,12 @@ class Metasploit3 < Msf::Encoder
 	end
 
 	def encode_block(state, buf)
+		# Have to have these for the decoder stub, so if they're not available,
+		# there's nothing we can do here.
+		["(",")",".","_","c","h","r","e","v","a","l","b","s","6","4","d","o"].each do |c|
+			raise EncodeError if state.badchars.include?(c)
+		end
+
 		# PHP escapes quotes by default with magic_quotes_gpc, so we use some
 		# tricks to get around using them.
 		#
@@ -76,6 +82,14 @@ class Metasploit3 < Msf::Encoder
 		# parse errors on the server side, so do the same for them.
 		b64.gsub!("+", ".chr(43).")
 		b64.gsub!("/", ".chr(47).")
+		
+		state.badchars.each_byte do |byte|
+			# Last ditch effort, if any of the 
+			if b64.include?(byte.chr) 
+				b64.gsub!(byte.chr, ".chr(#{byte}).")
+			end
+		end
+
 		# In the case where a plus or slash happened at the end of a chunk,
 		# we'll have two dots next to each other, so fix it up.  Note that this
 		# is searching for literal dots, not a regex matching any two
