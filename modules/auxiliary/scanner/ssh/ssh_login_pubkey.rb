@@ -185,9 +185,9 @@ class Metasploit3 < Msf::Auxiliary
 		rescue Net::SSH::AuthenticationFailed
 			# Try, try, again
 			if @key_files
-				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}... #{Time.now}"
+				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
 			else
-				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}... #{Time.now}"
+				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}"
 			end
 			next
 		rescue Net::SSH::Exception => e
