@@ -1,23 +1,23 @@
 #<?php
 
 # global list of channels
-if (!isset($channels)) {
-    $channels = array();
+if (!isset($GLOBALS['channels'])) {
+    $GLOBALS['channels'] = array();
 }
 
 # global resource map.  This is how we know whether to use socket or stream
 # functions on a channel.
-if (!isset($resource_type_map)) {
-    $resource_type_map = array();
+if (!isset($GLOBALS['resource_type_map'])) {
+    $GLOBALS['resource_type_map'] = array();
 }
 
 # global list of resources we need to watch in the main select loop
-#if (!isset($readers)) {
-    $readers = array();
-#}
+if (!isset($GLOBALS['readers'])) {
+    $GLOBALS['readers'] = array();
+}
 
 function my_print($str) {
-    error_log($str);
+    #error_log($str);
     #print($str ."\n");
     #flush();
 }
@@ -731,8 +731,8 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
     if ($r) {
         foreach ($r as $resource) {
             switch (get_rtype($resource)) {
-            case 'socket': array_push($sockets_r, $resource); break;
-            case 'stream': array_push($streams_r, $resource); break;
+            case 'socket': $sockets_r[] = $resource; break;
+            case 'stream': $streams_r[] = $resource; break;
             default: my_print("Unknown resource type"); break;
             }
         }
@@ -740,8 +740,8 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
     if ($w) {
         foreach ($w as $resource) {
             switch (get_rtype($resource)) {
-            case 'socket': array_push($sockets_w, $resource); break;
-            case 'stream': array_push($streams_w, $resource); break;
+            case 'socket': $sockets_w[] = $resource; break;
+            case 'stream': $streams_w[] = $resource; break;
             default: my_print("Unknown resource type"); break;
             }
         }
@@ -749,8 +749,8 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
     if ($e) {
         foreach ($e as $resource) {
             switch (get_rtype($resource)) {
-            case 'socket': array_push($sockets_e, $resource); break;
-            case 'stream': array_push($streams_e, $resource); break;
+            case 'socket': $sockets_e[] = $resource; break;
+            case 'stream': $streams_e[] = $resource; break;
             default: my_print("Unknown resource type"); break;
             }
         }
@@ -758,7 +758,7 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
 
     $n_sockets = count($sockets_r) + count($sockets_w) + count($sockets_e);
     $n_streams = count($streams_r) + count($streams_w) + count($streams_e);
-    my_print("Selecting $n_sockets sockets and $n_streams streams");
+    my_print("Selecting $n_sockets sockets and $n_streams streams with timeout $tv_sec.$tv_usec");
     $r = array();
     $w = array();
     $e = array();
@@ -802,7 +802,6 @@ function add_reader($resource) {
 
 function remove_reader($resource) {
     global $readers;
-    my_print("Readers $readers");
     if (in_array($resource, $readers)) {
         foreach ($readers as $key => $r) {
             if ($r == $resource) {
@@ -859,11 +858,14 @@ if (!isset($msgsock)) {
 }
 
 switch ($msgsock_type) {
-case 'socket': register_socket($msgsock); break;
+case 'socket':
+    register_socket($msgsock);
+    break;
 case 'stream':
     # fall through
 default: 
-    register_stream($msgsock); break;
+    register_stream($msgsock);
+    break;
 }
 
 add_reader($msgsock);
@@ -871,9 +873,8 @@ add_reader($msgsock);
 #
 # Main dispatch loop
 #
-$r=$readers;
+$r=$GLOBALS['readers'];
 while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
-    dump_array($r);
     my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < $cnt; $i++) {
@@ -914,9 +915,7 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
             }
         }
     }
-    dump_readers();
-    dump_resource_map();
-    $r=$readers;
+    $r = $GLOBALS['readers'];
 } # end main loop
 my_print("Finished");
 close($msgsock);
