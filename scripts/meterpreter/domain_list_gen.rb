@@ -1,7 +1,6 @@
 # $Id$
-#Meterpreter script for generating domain admin list to be used with Token Hunter plugin
-#Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(
@@ -27,25 +26,15 @@ host = @client.sys.config.sysinfo['Computer']
 current_user = client.sys.config.getuid.scan(/\S*\\(.*)/)
 domain = @client.fs.file.expand_path("%USERDOMAIN%")
 # Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+"-"+sprintf("%.5d",rand(100000))
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'domain_admins', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'scripts','domain_admins')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
 dest = logs + "/" + host + filenameinfo + ".txt"
 print_status("found users will be saved to #{dest}")
-#-------------------------------------------------------------------------------
-# Function for writing results of other functions to a file
-def filewrt(file2wrt, data2wrt)
-	output = ::File.open(file2wrt, "a")
-	if data2wrt
-		data2wrt.each_line do |d|
-			output.puts(d)
-		end
-	end
-	output.close
-end
+
 ################## MAIN ##################
 #Run net command to enumerate users and verify that it ran successfully
 cmd = 'net groups "Domain Admins" /domain'
@@ -73,7 +62,7 @@ end
 print_status("Accounts Found:")
 domainadmin_user_list.each do |u|
 	print_status("\t#{domain}\\#{u}")
-	filewrt(dest, "#{domain}\\#{u}")
+	file_local_write(dest, "#{domain}\\#{u}")
 	list << u.downcase
 end
 if list.index(current_user.join.chomp.downcase)
