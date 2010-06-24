@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif datastore['KEY_DIR']
 			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
 			unless @key_files
-				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}.sort
+				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}
 			end
 			these_keys = @key_files.map {|f| File.join(key_dir,f)}
 			keys = read_keyfile(these_keys)
@@ -158,7 +158,6 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			return :missing_keyfile
 		end
-		# key_data = cleartext_keys
 		cleartext_keys.each_with_index do |key_data,key_idx|
 
 		opt_hash = {

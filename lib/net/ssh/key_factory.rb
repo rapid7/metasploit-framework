@@ -35,7 +35,7 @@ module Net; module SSH
       # encrypted (requiring a passphrase to use), the user will be
       # prompted to enter their password unless passphrase works. 
       def load_private_key(filename, passphrase=nil)
-        data = File.read(File.expand_path(filename))
+        data = File.open(File.expand_path(filename), "rb") {|f| f.read(f.stat.size)}
         load_data_private_key(data, passphrase, filename)
       end
 
