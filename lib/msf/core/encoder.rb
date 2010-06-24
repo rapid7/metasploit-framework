@@ -118,6 +118,10 @@ class Encoder < Module
 		# Special Single Static Bit encoder
 		#
 		SingleStaticBit = "single_static_bit"
+		#
+		# Generic printf(1) Command Encoder
+		#
+		PrintfUtil = "printf_util"
 	end
 
 	#
