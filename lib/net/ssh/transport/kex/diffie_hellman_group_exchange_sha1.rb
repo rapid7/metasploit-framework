@@ -37,7 +37,6 @@ module Net::SSH::Transport::Kex
 
 		  # Do we need to use the old request?
 		  do_SSH_OLD_DHGEX = false
-		  puts data[:server_version_string]
 		  if (data[:server_version_string] =~ /OpenSSH_2\.[0-3]/)
 			  do_SSH_OLD_DHGEX = true
 		  elsif (data[:server_version_string] =~ /OpenSSH_2\.5\.[0-2]/)
