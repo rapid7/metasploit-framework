@@ -10,6 +10,7 @@ module Net::SSH::Transport::Kex
     MINIMUM_BITS      = 1024
     MAXIMUM_BITS      = 8192
 
+    KEXDH_GEX_REQUEST_OLD = 30
     KEXDH_GEX_GROUP   = 31
     KEXDH_GEX_INIT    = 32
     KEXDH_GEX_REPLY   = 33
@@ -34,9 +35,25 @@ module Net::SSH::Transport::Kex
       def get_parameters
         compute_need_bits
 
-        # request the DH key parameters for the given number of bits.
-        buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, MINIMUM_BITS,
-          :long, data[:need_bits], :long, MAXIMUM_BITS)
+		  # Do we need to use the old request?
+		  do_SSH_OLD_DHGEX = false
+		  puts data[:server_version_string]
+		  if (data[:server_version_string] =~ /OpenSSH_2\.[0-3]/)
+			  do_SSH_OLD_DHGEX = true
+		  elsif (data[:server_version_string] =~ /OpenSSH_2\.5\.[0-2]/)
+			  do_SSH_OLD_DHGEX = true
+		  end
+
+		  if (do_SSH_OLD_DHGEX)
+			  # request the DH key parameters for the given number of bits.
+			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST_OLD, :long, 
+				  data[:need_bits])
+		  else
+			  # request the DH key parameters for the given number of bits.
+			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, MINIMUM_BITS,
+				  :long, data[:need_bits], :long, MAXIMUM_BITS)
+		  end
+
         connection.send_message(buffer)
 
         buffer = connection.next_message
