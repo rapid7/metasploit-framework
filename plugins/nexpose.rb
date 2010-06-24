@@ -390,9 +390,9 @@ class Plugin::Nexpose < Msf::Plugin
 		def process_nexpose_data(fmt, data)
 			case fmt
 			when 'raw-xml'
-				framework.db.import_nexpose_rawxml(data)
+				framework.db.import({:data => data})
 			when 'ns-xml'
-				framework.db.import_nexpose_simplexml(data)
+				framework.db.import({:data => data})
 			else
 				print_error("Unsupported NeXpose data format: #{fmt}")
 			end
