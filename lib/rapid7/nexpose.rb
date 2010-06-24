@@ -140,7 +140,13 @@ class APIRequest
 				@conn_tries += 1
 				retry
 			end
-		rescue ::Timeout::Error, ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+		rescue ::Timeout::Error
+			if @conn_tries < 5
+				@conn_tries += 1
+				retry
+			end
+			@error = "NeXpose host did not respond"
+		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
 			@error = "NeXpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
