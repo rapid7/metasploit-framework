@@ -454,14 +454,4 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "php"
 	end	
-
-	#
-	# Generic Java
-	#
-
-	class Java < Msf::Module::Platform
-		Rank = 100
-		Alias = "java"
-	end
-
 end
