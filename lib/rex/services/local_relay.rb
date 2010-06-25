@@ -370,8 +370,8 @@ protected
 
 			# Poll all the streams...
 			begin
-				socks = ::IO.select(rfds, nil, nil, 0.25)
-			rescue StreamClosedError => e
+				socks = Rex::ThreadSafe.select(rfds, nil, nil, 0.25)
+			rescue IOError, StreamClosedError => e
 				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
 
 				# Close the relay connection that is associated with the stream
@@ -384,7 +384,7 @@ protected
 
 				next
 			rescue
-				elog("Error in #{self} monitor_relays select: #{$!}", 'rex')
+				elog("Error in #{self} monitor_relays select: #{$!.class} #{$!}", 'rex')
 				return
 			end
 
