@@ -785,6 +785,7 @@ class Db
 				print_status("")
 			end
 
+			ilog("db_autopwn: Matched #{matches.length} modules")
 
 			idx = 0
 			matches.each_key do |xref|
