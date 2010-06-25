@@ -312,6 +312,7 @@ function stdapi_sys_process_kill($req, &$pkt) {
 if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
 function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
     global $channels;
+    my_print("doing stdapi_net_socket_tcp_shutdown");
     $cid_tlv = packet_get_tlv(TLV_TYPE_CHANNEL_ID, $req);
     $c = get_channel_by_id($cid_tlv['value']);
 
@@ -360,26 +361,29 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 
 if (!function_exists('channel_create_stdapi_net_tcp_client')) {
 function channel_create_stdapi_net_tcp_client($req, &$pkt) {
-    global $channels, $readers;
+    global $channels;
+    my_print("creating tcp client");
+
     $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
     $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
     $local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
     $local_port_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_PORT);
     $retries_tlv = packet_get_tlv($req, TLV_TYPE_CONNECT_RETRIES);
-
-    if (is_callable('socket_create')) {
-        $sock=socket_create(AF_INET,SOCK_STREAM,SOL_TCP);
-        $res = socket_connect($sock, $peer_host_tlv['value'], $peer_port_tlv['value']);
-        if (!$res) {
-            return ERROR_FAILURE;
-        }
-        register_socket($sock);
+    if ($retries_tlv['value']) {
+        $retries = $retries_tlv['value'];
     } else {
-        $sock = fsockopen($peer_host_tlv['value'], $peer_port_tlv['value']);
-        if (!$sock) {
-            return ERROR_FAILURE;
+        $retries = 1;
+    }
+
+    for ($i = 0; $i < $retries; $i++) {
+        $sock = connect($peer_host_tlv['value'], $peer_port_tlv['value']);
+        if ($sock) {
+            break;
         }
-        register_stream($sock);
+    }
+
+    if (!$sock) {
+        return ERROR_FAILURE;
     }
 
     #
@@ -390,7 +394,7 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
     $id = count($channels) - 1;
     my_print("Created new channel $sock, with id $id");
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
-    array_push($readers, $sock);
+    add_reader($sock);
     return ERROR_SUCCESS;
 }
 }

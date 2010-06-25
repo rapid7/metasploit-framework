@@ -666,6 +666,33 @@ function register_stream($stream) {
     $resource_type_map[(int)$stream] = 'stream';
 }
 
+function connect($ipaddr, $port) {
+    my_print("Doing connect($ipaddr, $port)");
+    $sock = false;
+    # Prefer the stream versions so we don't have to use both select functions
+    # unnecessarily, but fall back to socket_create if they aren't available.
+    if (is_callable('stream_socket_client')) {
+        my_print("stream_socket_client");
+        $sock = stream_socket_client("tcp://{$ipaddr}:{$port}");
+        if (!$sock) { return false; }
+        register_stream($sock);
+    } else
+    if (is_callable('fsockopen')) {
+        my_print("fsockopen");
+        $sock = fsockopen($ipaddr,$port);
+        if (!$sock) { return false; }
+        register_stream($sock);
+    } elseif (is_callable('socket_create')) {
+        my_print("socket_create");
+        $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        $res = socket_connect($sock, $ipaddr, $port);
+        if (!$res) { return false; }
+        register_socket($sock);
+    }
+
+    return $sock;
+}
+
 function close($resource) {
     my_print("Closing resource $resource");
     global $readers, $resource_type_map;
@@ -758,7 +785,7 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
 
     $n_sockets = count($sockets_r) + count($sockets_w) + count($sockets_e);
     $n_streams = count($streams_r) + count($streams_w) + count($streams_e);
-    my_print("Selecting $n_sockets sockets and $n_streams streams with timeout $tv_sec.$tv_usec");
+    #my_print("Selecting $n_sockets sockets and $n_streams streams with timeout $tv_sec.$tv_usec");
     $r = array();
     $w = array();
     $e = array();
@@ -789,7 +816,7 @@ function select(&$r, &$w, &$e, $tv_sec=0, $tv_usec=0) {
         if (is_array($e) && is_array($streams_e)) { $e = array_merge($e, $streams_e); }
         $count += $res;
     }
-    my_print(sprintf("total: $count, Modified counts: r=%s w=%s e=%s", count($r), count($w), count($e)));
+    #my_print(sprintf("total: $count, Modified counts: r=%s w=%s e=%s", count($r), count($w), count($e)));
     return $count;
 }
 
@@ -839,35 +866,19 @@ if (!isset($msgsock)) {
         # ipv6 requires brackets around the address
         $ipaddr = "[".$ipaddr."]";
     }
-    if (is_callable('stream_socket_client')) {
-        $msgsock = stream_socket_client("tcp://{$ipaddr}:{$port}");
-        if (!$msgsock) { die(); }
-        $msgsock_type = 'stream';
-    } elseif (is_callable('fsockopen')) {
-        $msgsock = fsockopen($ipaddr,$port);
-        if (!$msgsock) { die(); }
-        $msgsock_type = 'stream';
-    } elseif (is_callable('socket_create')) {
-        $msgsock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        $res = socket_connect($msgsock, $ipaddr, $port);
-        if (!$res) { die(); }
-        $msgsock_type = 'socket';
-    } else {
-        die();
+    $msgsock = connect($ipaddr, $port);
+    if (!$msgsock) { die(); }
+} else {
+    switch ($msgsock_type) {
+    case 'socket':
+        register_socket($msgsock);
+        break;
+    case 'stream': 
+        # fall through
+    default:
+        register_stream($msgsock);
     }
 }
-
-switch ($msgsock_type) {
-case 'socket':
-    register_socket($msgsock);
-    break;
-case 'stream':
-    # fall through
-default: 
-    register_stream($msgsock);
-    break;
-}
-
 add_reader($msgsock);
 
 #
@@ -875,7 +886,7 @@ add_reader($msgsock);
 #
 $r=$GLOBALS['readers'];
 while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
-    my_print(sprintf("Returned from select with %s readers", count($r)));
+    #my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < $cnt; $i++) {
         $ready = $r[$i];
