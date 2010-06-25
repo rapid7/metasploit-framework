@@ -42,10 +42,13 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		begin
-			res = send_request_raw({
-				'method'  => 'GET',
-				'uri'     => '/',
-			}, 25)
+			res = send_request_raw(
+				{
+					'method'  => 'GET',
+					'uri'     => '/',
+				}, 25)
+
+			http_fingerprint({ :response => res })
 
 			if (res and res.code == 200)
 
@@ -133,4 +136,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

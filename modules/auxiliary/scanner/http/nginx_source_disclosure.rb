@@ -67,12 +67,16 @@ class Metasploit3 < Msf::Auxiliary
 		get_source = Rex::Text.uri_encode("::$data")
 
 		begin
-			res = send_request_raw({
-				'method'  => 'GET',
-				'uri'     => "/#{uri}#{get_source}",
-			}, 25)
+			res = send_request_raw(
+				{
+					'method'  => 'GET',
+					'uri'     => "/#{uri}#{get_source}",
+				}, 25)
 
-			version = res.headers['Server'] if res
+			if res
+				version = res.headers['Server']
+				http_fingerprint({ :response => res })
+			end
 
 			if vuln_versions.include?(version)
 				print_good("#{target_url} - nginx - Vulnerable version: #{version}")

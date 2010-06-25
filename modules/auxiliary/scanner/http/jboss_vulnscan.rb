@@ -22,10 +22,14 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'                  => 'JBoss Vulnerability Scanner',
 			'Description'   => %q{
-				This module scans a JBoss instance for vulnerablities.
+				This module scans a JBoss instance for a few vulnerablities.
 			},
 			'Version'               => '$Revision$',
 			'Author'                => [ 'Tyler Krpata' ],
+			'References'            => 
+				[
+					[ 'CVE', '2010-0738' ] # VERB auth bypass
+				],
 			'License'               => BSD_LICENSE
 			))
 
@@ -39,14 +43,16 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("Processing IP #{ip}")
 
-		res = send_request_cgi({
-			'uri'       => "/"+Rex::Text.rand_text_alpha(12),
-			'method'    => 'GET',
-			'ctype'     => 'text/plain',
-		}, 20)
-		if (xpb = res.headers['X-Powered-By'])
-			print_status("X-Powered-By: #{xpb}")
-		end
+		res = send_request_cgi(
+			{
+				'uri'       => "/"+Rex::Text.rand_text_alpha(12),
+				'method'    => 'GET',
+				'ctype'     => 'text/plain',
+			}, 20)
+		
+		info = http_fingerprint({ :response => res })
+		print_status(info)
+
 		if(res.body and />(JBoss[^<]+)/.match(res.body) )
 			print_status("JBoss error message: #{$1}")
 		end

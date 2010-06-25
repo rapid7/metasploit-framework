@@ -43,6 +43,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res and res.code == 200
 
+				http_fingerprint({ :response => res })
+
 				tserver = res.headers['Server']
 
 				if (res.headers['DAV'] == '1, 2') and (res.headers['MS-Author-Via'].match('DAV'))
@@ -54,12 +56,13 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("#{target_host} (#{tserver}) has #{wdtype} ENABLED")
 
 					report_note(
-					:host	=> target_host,
-					:proto	=> 'HTTP',
-					:port	=> rport,
-					:type	=> wdtype,
-					:data	=> 'enabled'
-					)
+						{
+							:host	=> target_host,
+							:proto	=> 'HTTP',
+							:port	=> rport,
+							:type	=> wdtype,
+							:data	=> 'enabled'
+						})
 
 				else
 					print_status("#{target_host} (#{tserver}) WebDAV disabled.")

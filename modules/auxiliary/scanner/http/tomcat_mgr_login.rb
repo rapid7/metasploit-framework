@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'     => "/manager/html",
 					'method'  => 'GET'
 				}, 25)
+			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
 			vprint_error("http://#{rhost}:#{rport}/manager/html - #{e}")
 			return
