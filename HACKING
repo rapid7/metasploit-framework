@@ -45,6 +45,14 @@ using IO#binmode). This not only helps keep Windows and non-Windows
 runtime environments consistent with each other, but also guarantees
 that files will be treated as ASCII-8BIT instead of UTF-8.
 
+5. Don't use String#[] for a single character.  This returns a Fixnum in
+ruby 1.8 and a String in 1.9, so it's safer to use the following idiom:
+	str[idx,1]
+which always returns a String.  If you need the ASCII byte, unpack it like
+so: 
+	str[idx,1].unpack("C")
+
+
 Creating New Modules
 ====================
 
