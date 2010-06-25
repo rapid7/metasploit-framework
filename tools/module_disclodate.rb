@@ -26,46 +26,29 @@ tbl = Rex::Ui::Text::Table.new(
 )
 
 
-# fancy monkey patch
-class Msf::Module
-	def disclo_date
-		if (module_info and module_info['DisclosureDate'])
-			begin
-				dt = Date.parse(module_info['DisclosureDate'])
-			rescue ArgumentError
-				return 'Error'
-			end
-
-			return dt.strftime('%b %d %Y')
-		end
-		''
-	end
-end
-
-
 $framework.payloads.each_module { |name, mod|
 	x = mod.new
-	tbl << [ 'payload/' + name, x.disclo_date ]
+	tbl << [ 'payload/' + name, x.disclosure_date ]
 }
 
 $framework.exploits.each_module { |name, mod|
 	x = mod.new
-	tbl << [ 'exploit/' + name, x.disclo_date ]
+	tbl << [ 'exploit/' + name, x.disclosure_date ]
 }
 
 $framework.nops.each_module { |name, mod|
 	x = mod.new
-	tbl << [ 'nop/' + name, x.disclo_date ]
+	tbl << [ 'nop/' + name, x.disclosure_date ]
 }
 
 $framework.encoders.each_module { |name, mod|
 	x = mod.new
-	tbl << [ 'encoder/' + name, x.disclo_date ]
+	tbl << [ 'encoder/' + name, x.disclosure_date ]
 }
 
 $framework.auxiliary.each_module { |name, mod|
 	x = mod.new
-	tbl << [ 'auxiliary/' + name, x.disclo_date ]
+	tbl << [ 'auxiliary/' + name, x.disclosure_date ]
 }
 
 puts tbl.to_s

@@ -283,6 +283,14 @@ class Module
 	end
 
 	#
+	# Returns the disclosure date, if known.
+	#
+	def disclosure_date
+		date_str = module_info['DisclosureDate']
+		date_str ? Date.parse(date_str) : nil
+	end
+
+	#
 	# Returns the hash that describes this module's compatibilities.
 	#
 	def compat
