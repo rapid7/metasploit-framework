@@ -371,7 +371,7 @@ protected
 			# Poll all the streams...
 			begin
 				socks = Rex::ThreadSafe.select(rfds, nil, nil, 0.25)
-			rescue IOError, StreamClosedError => e
+			rescue StreamClosedError => e
 				dlog("monitor_relays: closing stream #{e.stream}", 'rex', LEV_3)
 
 				# Close the relay connection that is associated with the stream
