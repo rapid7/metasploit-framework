@@ -25,24 +25,25 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => 'This module exploits a nginx source code disclosure/download vulnerability.',
 			'References'     =>
-			[
-				['CVE', '2010-2263'],
-				['OSVDB', '65531'],
-				['BID', '40760'],
-			],
+				[
+					['CVE', '2010-2263'],
+					['OSVDB', '65531'],
+					['BID', '40760'],
+				],
 			'Author'         =>
-			[
-				'Alligator Security Team',
-				'Tiago Ferreira <tiago.ccna[at]gmail.com>',
-			],
+				[
+					'Alligator Security Team',
+					'Tiago Ferreira <tiago.ccna[at]gmail.com>',
+				],
 			'License'        =>  MSF_LICENSE
 		)
 
-		register_options([
-						 Opt::RPORT(80),
-						 OptString.new('URI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
-						 OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
-		], self.class)
+		register_options(
+			[
+				Opt::RPORT(80),
+				OptString.new('URI', [true, 'Specify the path to download the file (ex: admin.php)', '/admin.php']),
+				OptString.new('PATH_SAVE', [true, 'The path to save the downloaded source code', '']),
+			], self.class)
 
 	end
 
