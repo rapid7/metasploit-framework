@@ -386,13 +386,13 @@ CONST = Rex::Proto::SMB::Constants
 		win_name = Rex::Text.to_unicode(win_name)
 		decode = Rex::Text.decode_base64(message.strip)
 
-		type = decode[8]
+		type = decode[8,1].unpack("C").first
 
 		if (type == 1)
 			# A type 1 message has been received, lets build a type 2 message response
 
-			reqflags = decode[12..15]
-			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+			reqflags = decode[12,4]
+			reqflags = reqflags.unpack("V").first
 
 			if (reqflags & CONST::REQUEST_TARGET) == CONST::REQUEST_TARGET
 
