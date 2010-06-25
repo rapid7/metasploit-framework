@@ -284,7 +284,7 @@ class FrameworkEventSubscriber
 					:session_uuid => session.uuid,
 					:session_type => session.type,
 					:username     => session.username,
-					:target_host  => session.target_host,
+					:target_host  => address,
 					:via_exploit  => session.via_exploit,
 					:via_payload  => session.via_payload,
 					:tunnel_peer  => session.tunnel_peer,
