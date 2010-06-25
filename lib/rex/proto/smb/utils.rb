@@ -347,26 +347,74 @@ CONST = Rex::Proto::SMB::Constants
 	#
 	# Process Type 3 NTLM Message (in Base64)
 	#
+	# from http://www.innovation.ch/personal/ronald/ntlm.html
+	#
+	#	struct {
+	#		byte  protocol[8];  // 'N', 'T', 'L', 'M', 'S', 'S', 'P', '\0'
+	#		byte  type;         // 0x03
+	#		byte  zero[3];
+	#
+	#		short lm_resp_len;  // LanManager response length (always 0x18)
+	#		short lm_resp_len;  // LanManager response length (always 0x18)
+	#		short lm_resp_off;  // LanManager response offset
+	#		byte  zero[2];
+	#
+	#		short nt_resp_len;  // NT response length (always 0x18)
+	#		short nt_resp_len;  // NT response length (always 0x18)
+	#		short nt_resp_off;  // NT response offset
+	#		byte  zero[2];
+	#
+	#		short dom_len;      // domain string length
+	#		short dom_len;      // domain string length
+	#		short dom_off;      // domain string offset (always 0x40)
+	#		byte  zero[2];
+	#
+	#		short user_len;     // username string length
+	#		short user_len;     // username string length
+	#		short user_off;     // username string offset
+	#		byte  zero[2];
+	#
+	#		short host_len;     // host string length
+	#		short host_len;     // host string length
+	#		short host_off;     // host string offset
+	#		byte  zero[6];
+	#
+	#		short msg_len;      // message length
+	#		byte  zero[2];
+	#
+	#		short flags;        // 0x8201
+	#		byte  zero[2];
+	#
+	#		byte  dom[*];       // domain string (unicode UTF-16LE)
+	#		byte  user[*];      // username string (unicode UTF-16LE)
+	#		byte  host[*];      // host string (unicode UTF-16LE)
+	#		byte  lm_resp[*];   // LanManager response
+	#		byte  nt_resp[*];   // NT response
+	#	} type_3_message
+	#
 	def self.process_type3_message(message)
 		decode = Rex::Text.decode_base64(message.strip)
-		type = decode[8]
+		type = decode[8,1].unpack("C").first
 		if (type == 3)
-			domoff = decode[32]	 # domain offset
-			domlen = decode[28]	 # domain length
-			useroff = decode[40] # username offset
-			userlen = decode[36] # username length
-			hostoff = decode[48] # hostname offset
-			hostlen = decode[44] # hostname length
-			lmoff = decode[16]	 # LM hash offset
-			lmlen = decode[12]	 # LM hash length
-			ntoff = decode[24]	 # NT hash offset
-			ntlen = decode[20]	 # NT hash length
+			lm_len = decode[12,2].unpack("v").first
+			lm_offset = decode[16,2].unpack("v").first
+			lm = decode[lm_offset, lm_len].unpack("H*").first
 
-			domain = decode[domoff..domoff+domlen-1]
-			user = decode[useroff..useroff+userlen-1]
-			host = decode[hostoff..hostoff+hostlen-1]
-			lm = decode[lmoff..lmoff+lmlen-1].unpack("H*")
-			nt = decode[ntoff..ntoff+ntlen-1].unpack("H*")
+			nt_len = decode[20,2].unpack("v").first
+			nt_offset = decode[24,2].unpack("v").first
+			nt = decode[nt_offset, nt_len].unpack("H*").first
+
+			dom_len = decode[28,2].unpack("v").first
+			dom_offset = decode[32,2].unpack("v").first
+			domain = decode[dom_offset, dom_len]
+
+			user_len = decode[36,2].unpack("v").first
+			user_offset = decode[40,2].unpack("v").first
+			user = decode[user_offset, user_len]
+
+			host_len = decode[44,2].unpack("v").first
+			host_offset = decode[48,2].unpack("v").first
+			host = decode[host_offset, host_len]
 		
 			return domain, user, host, lm, nt
 		else
@@ -470,12 +518,12 @@ CONST = Rex::Proto::SMB::Constants
 	def self.downgrade_type_message(message)
 		decode = Rex::Text.decode_base64(message.strip)
 
-		type = decode[8]
+		type = decode[8,1].unpack("C").first
 
 		if (type > 0 and type < 4)
 			reqflags = decode[12..15] if (type == 1 or type == 3)
 			reqflags = decode[20..23] if (type == 2)
-			reqflags = Integer("0x" + reqflags.unpack("h8").to_s.reverse)
+			reqflags = reqflags.unpack("V")
 
 			# Remove NEGOTIATE_NTLMV2_KEY and NEGOTIATE_ALWAYS_SIGN, this lowers the negotiation
 			# down to LMv1/NTLMv1.
@@ -497,9 +545,9 @@ CONST = Rex::Proto::SMB::Constants
 			idx = 0
 			0.upto(3) do |cnt|
 				if (type == 2)
-					decode[23-cnt] = Integer("0x" + flags[idx .. idx + 1])
+					decode[23-cnt] = [flags[idx,1]].pack("C")
 				else
-					decode[15-cnt] = Integer("0x" + flags[idx .. idx + 1])
+					decode[15-cnt] = [flags[idx,1]].pack("C")
 				end
 				idx += 2
 			end
