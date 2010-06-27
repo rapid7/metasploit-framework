@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Version'               => '$Revision$',
 			'Author'                => [ 'Tyler Krpata' ],
-			'References'            => 
+			'References'            =>
 				[
 					[ 'CVE', '2010-0738' ] # VERB auth bypass
 				],
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'    => 'GET',
 				'ctype'     => 'text/plain',
 			}, 20)
-		
+
 		info = http_fingerprint({ :response => res })
 		print_status(info)
 
@@ -57,9 +57,29 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("JBoss error message: #{$1}")
 		end
 
-		apps = [ '/jmx-console/HtmlAdaptor', '/status', '/web-console/ServerInfo.jsp' ]
+		apps = [ '/jmx-console/HtmlAdaptor',
+			'/status',
+			'/web-console/ServerInfo.jsp',
+			# apps added per Patrick Hof
+			'/web-console/Invoker',
+			'/invoker/JMXInvokerServlet'
+		]
+
+		print_status("Checking http...")
 		apps.each do |app|
 			check_app(app)
+		end
+
+		ports = {
+			# 1098i, 1099, and 4444 needed to use twiddle
+			1098 => 'Naming Service',
+			1099 => 'Naming Service',
+			4444 => 'RMI invoker'
+		}
+		print_status("Checking services...")
+		ports.each do |port,service|
+			status = test_connection(ip,port) == :up ? "open" : "closed";
+			print_status("#{service} tcp/#{port}: #{status}")
 		end
 
 	end
@@ -120,6 +140,21 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Could not guess admin credentials")
 		end
 
+	end
+
+	# function stole'd from mssql_ping
+	def test_connection(ip,port)
+		begin
+			sock = Rex::Socket::Tcp.create(
+				'PeerHost' => ip,
+				'PeerPort' => port,
+				'Timeout' => 1
+				)
+		rescue Rex::ConnectionError
+			return :down
+		end
+		sock.close
+		return :up
 	end
 
 end
