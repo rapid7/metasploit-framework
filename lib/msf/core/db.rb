@@ -296,6 +296,7 @@ class DBManager
 		addr  = opts.delete(:host) || return
 		hname = opts.delete(:host_name)
 		hmac  = opts.delete(:host_mac)
+		info  = opts.delete(:info)
 
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
@@ -326,7 +327,7 @@ class DBManager
 					dlog("Unknown attribute for Service: #{k}")
 				end
 			}
-			service.info = service.info[0,Service.columns_hash["info"].limit] if service.info
+			service.info = info.to_yaml if info 
 			if (service.state == nil)
 				service.state = ServiceState::Open
 			end
