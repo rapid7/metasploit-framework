@@ -1380,6 +1380,16 @@ class DBManager
 		raise DBImportError.new("Could not automatically determine file type")
 	end
 
+	# Boils down the validate_import_file to a boolean
+	def validate_import_file(data)
+		begin
+			import_filetype_detect(data)
+		rescue DBImportError
+			return false
+		end
+		return true
+	end
+
 	#
 	# Nexpose Simple XML
 	#
