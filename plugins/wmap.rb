@@ -75,7 +75,7 @@ class Plugin::Wmap < Msf::Plugin
 		def cmd_wmap_attack(*args)
 			aurl = args.shift
 
-			puri = URI.parse(val)
+			puri = URI.parse(aurl)
 			tssl = (puri.scheme == "https") ? true : false
 
 			if (puri.host.nil? or puri.host.empty?)
