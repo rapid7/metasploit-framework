@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module exploits a source code disclosure/download vulnerability in
 				versions of the nginx web server between 0.7.56 and 0.8.40 (inclusive).
-			}
+			},
 			'References'     =>
 				[
 					[ 'CVE', '2010-2263' ],
