@@ -65,10 +65,7 @@ class DataStore < Hash
 			# If the option has a default value, import it, but only if the
 			# datastore doesn't already have a value set for it.
 			if ((opt.default != nil) and (overwrite or self[name] == nil))
-				self.store(name, opt.default.to_s)
-
-				@imported[name]    = true
-				@imported_by[name] = imported_by
+				import_option(name, opt.default, true, imported_by)
 			end
 		}
 	end
@@ -119,11 +116,15 @@ class DataStore < Hash
 	#
 	def import_options_from_hash(option_hash, imported = true, imported_by = nil)
 		option_hash.each_pair { |key, val|
-			self.store(key, val.to_s)
-
-			@imported[key]    = imported
-			@imported_by[key] = imported_by
+			import_option(key, val, imported, imported_by)
 		}
+	end
+
+	def import_option(key, val, imported=true, imported_by=nil)
+		self.store(key, val.to_s)
+
+		@imported[key]    = imported
+		@imported_by[key] = imported_by
 	end
 
 	#
@@ -211,6 +212,17 @@ class DataStore < Hash
 		self
 	end
 
+	#
+	# Return a deep copy of this datastore.
+	#
+	def copy
+		copy = DataStore.new
+		self.keys.each do |k|
+			copy.import_option(k, self[k].to_s.dup, @imported[k], @imported_by[k])
+		end
+		copy
+	end
+
 protected
 
 	#
@@ -278,6 +290,18 @@ class ModuleDataStore < DataStore
 	#
 	def default?(key)
 		(@imported_by[key] == 'self')
+	end
+
+	#
+	# Return a deep copy of this datastore, just like the parent, but retaining
+	# the associated module.
+	#
+	def copy
+		copy = ModuleDataStore.new(@_module)
+		self.keys.each do |k|
+			copy.import_option(k, self[k].to_s.dup, @imported[k], @imported_by[k])
+		end
+		copy
 	end
 end
 
