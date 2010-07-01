@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
 
 	def initialize(info = {})
-		super(update_info(info,	
+		super(update_info(info,
 			'Name'           => 'Motorola WR850G v4.03 Credentials',
 			'Description'    => %q{
 					Login credentials to the Motorola WR850G router with

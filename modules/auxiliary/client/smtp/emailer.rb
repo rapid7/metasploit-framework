@@ -25,9 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Generic Emailer (SMTP)',
 			'Description'    => %q{
-				This module can be used to automate email delivery.
-			This code is based on Joshua Abraham's email script for social
-			engineering.
+					This module can be used to automate email delivery.
+				This code is based on Joshua Abraham's email script for social
+				engineering.
 			},
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 
-		fileconf = File.open(datastore['YAML_CONFIG'])
+		fileconf = File.open(datastore['YAML_CONFIG'], "rb")
 		yamlconf = YAML::load(fileconf)
 
 		fileto = yamlconf['to']
@@ -82,9 +82,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		datastore['MAILFROM'] = from
 
-		msg = File.open(msg_file).read
-
-		email_sig = File.open(sig_file).read
+		msg = File.open(msg_file, 'rb').read
+		email_sig = File.open(sig_file, 'rb').read
 
 		if (type !~ /text/i and type !~ /text\/html/i)
 			print_error("YAML config: #{type}")
@@ -136,7 +135,7 @@ class Metasploit3 < Msf::Auxiliary
         end
 
 
-		File.open(fileto).each do |l|
+		File.open(fileto, 'rb').each do |l|
 			next if l !~ /\@/
 
 			nem = l.split(',')
@@ -153,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if sig
-				data_sig = File.open(sig_file).read
+				data_sig = File.open(sig_file, 'rb').read
 				email_msg_body = "#{email_msg_body}\n#{data_sig}"
 			end
 
@@ -171,7 +170,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if attachment
 				if attachment_file_name
-					data_attachment = File.open(attachment_file).read
+					data_attachment = File.open(attachment_file, 'rb').read
 					mime_msg.add_part(Rex::Text.encode_base64(data_attachment, "\r\n"), attachment_file_type, "base64", "attachment; filename=\"#{attachment_file_name}\"")
 				end
 			end

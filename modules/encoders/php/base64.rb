@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Encoder
 		# parse errors on the server side, so do the same for them.
 		b64.gsub!("+", ".chr(43).")
 		b64.gsub!("/", ".chr(47).")
-		
+
 		state.badchars.each_byte do |byte|
-			# Last ditch effort, if any of the 
-			if b64.include?(byte.chr) 
+			# Last ditch effort, if any of the
+			if b64.include?(byte.chr)
 				b64.gsub!(byte.chr, ".chr(#{byte}).")
 			end
 		end

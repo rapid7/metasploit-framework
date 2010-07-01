@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("OUTFILE did not exist, creating..")
 		end
 
-		File.open(file_name, 'a') do |fd|
+		File.open(file_name, 'ab') do |fd|
 			fd.write(data)
 		end
 

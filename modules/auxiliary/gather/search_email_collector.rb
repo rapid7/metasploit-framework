@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 	#for writing file with all email's found
 	def write_output(data)
 		print_status("Writing email address list to #{datastore['OUTFILE']}...")
-		::File.open(datastore['OUTFILE'], "a") do |fd|
+		::File.open(datastore['OUTFILE'], "ab") do |fd|
 			fd.write(data)
 		end
 	end

@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
 
-				File.open(datastore['HTTP404Sigs']).each do |str|
+				File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
 					if(res.body.index(str))
 						emesg = str
 						break
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 		dm = datastore['NoDetailMessages']
 
 		queue = []
-		File.open(datastore['DICTIONARY']).each_line do |testd|
+		File.open(datastore['DICTIONARY'], 'rb').each_line do |testd|
 			queue << testd.strip + '/'
 		end
 

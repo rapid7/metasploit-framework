@@ -48,27 +48,22 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Starting brute force on #{rhost}, using sids from #{list}...")
 
-		fd = File.open(list).each do |sid|
+		fd = File.open(list, 'rb').each do |sid|
+			login = "(DESCRIPTION=(CONNECT_DATA=(SID=#{sid})(CID=(PROGRAM=)(HOST=MSF)(USER=)))(ADDRESS=(PROTOCOL=tcp)(HOST=#{rhost})(PORT=#{rport})))"
+			pkt = tns_packet(login)
 
-		login = "(DESCRIPTION=(CONNECT_DATA=(SID=#{sid})(CID=(PROGRAM=)(HOST=MSF)(USER=)))(ADDRESS=(PROTOCOL=tcp)(HOST=#{rhost})(PORT=#{rport})))"
+			begin
+				connect
+			rescue => e
+				print_error("#{e}")
+				disconnect
+				return
+			end
 
-		pkt = tns_packet(login)
-
-		begin
-			connect
-		rescue => e
-			print_error("#{e}")
+			sock.put(pkt)
+			select(nil,nil,nil,s.to_i)
+			res = sock.get_once(-1,3)
 			disconnect
-			return
-		end
-
-		sock.put(pkt)
-
-		select(nil,nil,nil,s.to_i)
-
-		res = sock.get_once(-1,3)
-
-		disconnect
 
 		 	if ( res and res =~ /ERROR_STACK/ )
 				''

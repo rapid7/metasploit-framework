@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'SMB Session Pipe Auditor',

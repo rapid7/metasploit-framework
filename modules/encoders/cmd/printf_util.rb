@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Encoder
 			'Name'             => 'Generic printf(1) Utility Command Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-					This encoder uses the printf(1) utility to avoid restricted 
+					This encoder uses the printf(1) utility to avoid restricted
 				characters. Some shell variable substituion may also be used
 				\if needed symbols are blacklisted.
 			},

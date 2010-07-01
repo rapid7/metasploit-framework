@@ -15,7 +15,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::MSSQL
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft SQL Server xp_cmdshell Command Execution',

@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Attempting to retrieve #{datastore['RPATH']}...")
 
-		lfd = File.open(datastore['LPATH'], 'w')
+		lfd = File.open(datastore['LPATH'], 'wb')
 
 		connect
 		data = ndmp_recv()

@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		rescue Rex::ConnectionError
 			return :connection_error
-		rescue Net::SSH::Disconnect, ::EOFError 
+		rescue Net::SSH::Disconnect, ::EOFError
 			return :connection_disconnect
 		rescue Net::SSH::AuthenticationFailed
 			# Try, try, again

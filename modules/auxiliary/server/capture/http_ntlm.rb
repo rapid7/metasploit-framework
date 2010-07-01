@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{cli.peerhost}: #{domain}\\#{user} #{lm_hash}:#{ntlm_hash} on #{host}")
 
 			if(datastore['LOGFILE'])
-				fd = File.open(datastore['LOGFILE'], "a")
+				fd = File.open(datastore['LOGFILE'], "ab")
 				fd.puts(
 					[
 						Time.now.to_s,
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if(datastore['PWFILE'] and user and lm_hash)
-				fd = File.open(datastore['PWFILE'], "a+")
+				fd = File.open(datastore['PWFILE'], "ab+")
 				fd.puts(
 					[
 						user,

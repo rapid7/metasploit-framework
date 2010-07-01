@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if ipids.empty?
 
 		print_status("#{ip}'s IPID sequence class: #{analyze(ipids)}")
-		
+
 		#Add Report
 		report_note(
 			:host	=> ip,
@@ -223,4 +223,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

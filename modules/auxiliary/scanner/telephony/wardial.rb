@@ -29,7 +29,7 @@ class Object
 		begin
 			file = Zlib::GzipReader.open(filename)
 		rescue Zlib::GzipFile::Error
-			file = File.open(filename, 'r')
+			file = File.open(filename, 'rb')
 		ensure
 			return nil if ! file
 			#obj = Marshal.load file.read

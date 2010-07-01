@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		queue = []
 
-		File.open(datastore['VULNCSV']).each do |testf|
+		File.open(datastore['VULNCSV'], 'rb').each do |testf|
 			queue << testf.strip
 		end
 
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
-				File.open(datastore['HTTP404Sigs']).each do |str|
+				File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
 					if(res.body.index(str))
 						emesg = str
 						break

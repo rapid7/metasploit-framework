@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'TFTP Brute Forcer',
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			add_socket(udp_sock)
 
-			fd = File.open(datastore['DICTIONARY'], 'r')
+			fd = File.open(datastore['DICTIONARY'], 'rb')
 			fd.read(fd.stat.size).split("\n").each do |filename|
 				filename.strip!
 				pkt = "\x00\x01" + filename + "\x00" + "netascii" + "\x00"
@@ -78,4 +78,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

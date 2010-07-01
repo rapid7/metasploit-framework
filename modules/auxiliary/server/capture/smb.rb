@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		if(datastore['LOGFILE'])
-			fd = File.open(datastore['LOGFILE'], "a")
+			fd = File.open(datastore['LOGFILE'], "ab")
 			fd.puts(
 				[
 					smb[:nbsrc],

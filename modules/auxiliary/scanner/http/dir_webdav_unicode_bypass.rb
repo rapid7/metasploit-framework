@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Look for a string we can signature on as well
 			if(tcode >= 200 and tcode <= 299)
 
-				File.open(datastore['HTTP404S']).each do |str|
+				File.open(datastore['HTTP404S'], 'rb').each do |str|
 					if(res.body.index(str))
 						emesg = str
 						break
@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		webdav_req = %q|<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>|
 
-		File.open(datastore['DICTIONARY']).each do |testf|
+		File.open(datastore['DICTIONARY'], 'rb').each do |testf|
 			begin
 				testfdir = testf.chomp + '/'
 				res = send_request_cgi({

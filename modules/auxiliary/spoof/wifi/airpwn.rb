@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					r["txresponse"] = ""
 					begin
-					File.open r["file"], File::RDONLY do |io|
+					File.open(r["file"], "rb") do |io|
 						r["txresponse"] += io.read(4096)
 					end
 					rescue EOFError

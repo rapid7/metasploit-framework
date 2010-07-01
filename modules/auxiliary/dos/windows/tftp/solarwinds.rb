@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
-				[ 
+				[
 					[ 'CVE', '2010-2115' ],
 					[ 'OSVDB', '64845' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/12683' ]

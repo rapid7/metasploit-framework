@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def finger_user_common
 		if(! @common)
-			File.open(datastore['USERS_FILE'], "r") do |fd|
+			File.open(datastore['USERS_FILE'], "rb") do |fd|
 				data = fd.read(fd.stat.size)
 				@common = data.split(/\n/).compact.uniq
 				@common.delete("")

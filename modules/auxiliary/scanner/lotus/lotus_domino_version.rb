@@ -1,5 +1,9 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -8,7 +12,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -23,12 +27,12 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		register_options(
 						[
-							OptString.new('PATH', [ true,  "path", '/']), 
+							OptString.new('PATH', [ true,  "path", '/']),
 						] )
 	end
 
 	def run_host(ip)
-		
+
 		path = datastore['PATH']
 		check1 = [
 			'iNotes/Forms5.nsf',
@@ -50,11 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 		baseversion = []
 
 		begin
-			
+
 			check1.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,					
+					'uri'          =>  path+check,
 					'method'       => 'GET',
 					}, 10)
 
@@ -77,18 +81,18 @@ class Metasploit3 < Msf::Auxiliary
 							''
 						else server1.strip != currentversion.last
 							puts "Different current version values" #this shouldnt happen,but just in case
-							currentversion << ' : ' + server1.strip 
+							currentversion << ' : ' + server1.strip
 						end
-					else 
+					else
 						''
-					end 
-				elsif 
+					end
+				elsif
 					if (res.code and res.headers['Location'])
 						print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
 					else
-						''	
-					end		
-				else				
+						''
+					end
+				else
 					''
 				end
 			end
@@ -101,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			check2.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,					
+					'uri'          =>  path+check,
 					'method'       => 'GET',
 					}, 10)
 
@@ -119,24 +123,24 @@ class Metasploit3 < Msf::Auxiliary
 							:type => 'lotusdomino.version.releasenotes',
 							:data => server2.strip
 								)
-					else 
+					else
 						''
-					end 
-				elsif 
+					end
+				elsif
 					if (res.code and res.headers['Location'])
 						print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
 					else
-						''	
-					end		
-				else				
+						''
+					end
+				else
 					''
 				end
 			end
-			
+
 			check3.each do | check |
 
 				res = send_request_raw({
-					'uri'          =>  path+check,					
+					'uri'          =>  path+check,
 					'method'       => 'GET',
 					}, 10)
 
@@ -159,18 +163,18 @@ class Metasploit3 < Msf::Auxiliary
 							''
 						else server3.strip != baseversion.last #this shouldnt happen,but just in case
 							puts "Different base version values"
-							baseversion << ' : ' + server3.strip 
+							baseversion << ' : ' + server3.strip
 						end
-					else 
+					else
 						''
 					end
-				elsif 
+				elsif
 					if (res.code and res.headers['Location'])
 						print_error("#{ip}:#{rport} #{res.code} Redirect to #{res.headers['Location']}")
 					else
 						''
-					end		
-				else				
+					end
+				else
 					''
 				end
 			end

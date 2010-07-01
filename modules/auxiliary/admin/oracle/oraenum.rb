@@ -415,7 +415,7 @@ class Metasploit3 < Msf::Auxiliary
 					user,pass = record.split(",")
 					accts["#{pass.chomp}"] = "#{user}"
 				end
-				::File.open(ordfltpss, "r").each_line do  |l|
+				::File.open(ordfltpss, "rb").each_line do  |l|
 					accrcrd =  l.split(",")
 					if accts.has_key?(accrcrd[2])
 						print_status("\tDefault pass for account #{accrcrd[0]} is #{accrcrd[1]} ")

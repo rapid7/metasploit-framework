@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def configure_wordlist
 		@comms = []
-		File.open(datastore['COMMUNITIES'], "r") do |fd|
+		File.open(datastore['COMMUNITIES'], "rb") do |fd|
 			buff = fd.read(fd.stat.size)
 			buff.split("\n").each do |line|
 				line.strip!
