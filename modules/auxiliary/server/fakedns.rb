@@ -143,8 +143,8 @@ class Metasploit3 < Msf::Auxiliary
 							ip = Resolv::DNS.new().getaddress(name).to_s
 							answer = Resolv::DNS::Resource::IN::A.new( ip )
 							if (@log_console)
-							print_status("DNS bypass domain found: #{ex}")
-							print_status("DNS bypass domain #{ex} resolved #{ip}")
+								print_status("DNS bypass domain found: #{ex}")
+								print_status("DNS bypass domain #{ex} resolved #{ip}")
 							end
 						end
 					end
