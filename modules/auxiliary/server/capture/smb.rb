@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(datastore['PWFILE'] and smb[:username] and lm_hash)
-			fd = File.open(datastore['PWFILE'], "a")
+			fd = File.open(datastore['PWFILE'], "ab")
 			fd.puts(
 				[
 					smb[:username],
