@@ -26,18 +26,28 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module simply attempts to login to a Tomcat Application Manager instance using a specific user/pass.',
 			'References'     =>
 				[
-					# HP Default user/pass
-					[ 'CVE', '2009-3843' ], # Operations Manager
-					[ 'CVE', '2009-4188' ], # Operations Dashboard
-					[ 'CVE', '2009-4189' ],
+					# HP Default Operations Manager user/pass
+					[ 'CVE', '2009-3843' ],
 					[ 'OSVDB', '60317' ],
 					[ 'BID', '37086' ],
+					[ 'CVE', '2009-4189' ],
+               [ 'OSVDB', '60670' ],
 					[ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
+
+					# HP Default Operations Dashboard user/pass
+					[ 'CVE', '2009-4188' ],
+
 					# IBM Cognos Express Default user/pass
 					[ 'BID', '38084' ],
 					[ 'CVE', '2010-0557' ],
 					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
+
+					# 'admin' password is blank in default Windows installer
+					[ 'CVE', '2009-3548' ],
+					[ 'OSVDB', '60176' ],
+					[ 'BID', '36954' ],
+
 					# General
 					[ 'URL', 'http://tomcat.apache.org/' ]
 				],
