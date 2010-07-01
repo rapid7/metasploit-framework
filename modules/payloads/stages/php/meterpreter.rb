@@ -1,5 +1,5 @@
 ##
-# $Id: meterpreter_reverse_tcp.rb 9534 2010-06-16 16:55:05Z egypt $
+# $Id$
 ##
 
 ##
@@ -21,7 +21,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'          => 'PHP Meterpreter',
-			'Version'       => '$Revision: 8984 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Run a meterpreter server in PHP',
 			'Author'        => ['egypt'],
 			'Platform'      => 'php',

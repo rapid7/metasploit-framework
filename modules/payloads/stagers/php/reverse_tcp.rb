@@ -1,5 +1,5 @@
 ##
-# $Id: reverse_php.rb 8615 2010-02-24 01:19:59Z jduck $
+# $Id$
 ##
 
 ##
@@ -23,7 +23,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'PHP Reverse TCP stager',
-			'Version'       => '$Revision: 8615 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Reverse PHP connect back stager with checks for disabled functions',
 			'Author'        => 'egypt',
 			'License'       => MSF_LICENSE,
