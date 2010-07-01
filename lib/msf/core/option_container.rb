@@ -82,13 +82,6 @@ class OptBase
 	end
 
 	#
-	# Returns the value of the option as a string.
-	#
-	def to_s
-		return value.to_s
-	end
-
-	#
 	# The name of the option.
 	#
 	attr_reader   :name
@@ -237,17 +230,14 @@ class OptBool < OptBase
 		end
 	end
 
-	def is_true?
-		return (value.match(/^(y|yes|t|1|true)$/i) != nil) ? true : false
+	def is_true?(value)
+		return normalize(value)
 	end
 
-	def is_false?
-		return !is_true?
+	def is_false?(value)
+		return !is_true?(value)
 	end
 
-	def to_s
-		return is_true?.to_s
-	end
 end
 
 ###
