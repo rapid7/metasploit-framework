@@ -587,16 +587,8 @@ class Core
 		if (dump_info)
 			if (job_id and framework.jobs[job_id.to_s])
 				job = framework.jobs[job_id.to_s]
-				mod_name = job.name.split(": ")[1]
+				mod = job.ctx[0]
 
-				if ((mod = framework.modules.create(mod_name)) == nil)
-					print_error("Failed to load module: #{mod_name}")
-					return false
-				end
-
-				job.info["datastore"].each { |key,val|
-					mod.datastore[key] = val
-				}
 				output  = "\n"
 				output += "Name: #{mod.name}"
 				output += ", started at #{job.start_time}" if job.start_time

@@ -440,9 +440,10 @@ class ReadableText
 		framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
 			row = [ k, framework.jobs[k].name ]
 			if (verbose)
-				row << (framework.jobs[k].info['datastore']['PAYLOAD'] || "")
-				row << (framework.jobs[k].info['datastore']['LPORT']   || "")
-				row << (framework.jobs[k].info['datastore']['URIPATH'] || "")
+				ctx = framework.jobs[k].ctx
+				row << (ctx[0].datastore['PAYLOAD'] || "")
+				row << (ctx[0].datastore['LPORT']   || "")
+				row << (ctx[0].datastore['URIPATH'] || "")
 				row << (framework.jobs[k].start_time || "")
 			end
 

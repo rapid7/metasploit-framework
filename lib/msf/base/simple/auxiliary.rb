@@ -62,16 +62,17 @@ module Auxiliary
 			mod.init_ui(nil, nil)
 		end
 
+		ctx = [ mod ]
 		if(mod.passive? or opts['RunAsJob'])
 			mod.job_id = mod.framework.jobs.start_bg_job(
 				"Auxiliary: #{mod.refname}",
-				mod,
-				Proc.new { |mod_| self.job_run_proc(mod_) },
-				Proc.new { |mod_| self.job_cleanup_proc(mod_) }
+				ctx,
+				Proc.new { |ctx_| self.job_run_proc(ctx_) },
+				Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
 			)
 		else
-			self.job_run_proc(mod)
-			self.job_cleanup_proc(mod)
+			self.job_run_proc(ctx)
+			self.job_cleanup_proc(ctx)
 		end
 	end
 
@@ -87,7 +88,8 @@ protected
 	#
 	# Job run proc, sets up the module and kicks it off.
 	#
-	def self.job_run_proc(mod)
+	def self.job_run_proc(ctx)
+		mod = ctx[0]
 		begin
 			mod.setup
 			mod.framework.events.on_module_run(mod)
@@ -125,7 +127,8 @@ protected
 	#
 	# Clean up the module after the job completes.
 	#
-	def self.job_cleanup_proc(mod)
+	def self.job_cleanup_proc(ctx)
+		mod = ctx[0]
 		mod.framework.events.on_module_complete(mod)
 		# Allow the exploit to cleanup after itself, that messy bugger.
 		mod.cleanup

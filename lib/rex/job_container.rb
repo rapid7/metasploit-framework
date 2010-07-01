@@ -62,50 +62,35 @@ class Job
 	end
 
 	#
-	# Surfaces the setings from the job to determine the current settings
-	#
-	def info
-		ret = {}
-		con = nil
-		ret['jid'] = self.jid
-		ret['name'] = self.name
-		if(self.ctx.class == Array)
-			con  = self.ctx[0]
-
-		else
-			con = self.ctx
-		end
-		ret['datastore'] = con.datastore
-		if(con.kind_of? Msf::Exploit::Remote::HttpServer)
-
-			ret['datastore']['URIPATH'] = con.get_resource()
-		end
-		ret
-	end
-
-	#
 	# The name of the job.
 	#
 	attr_reader :name
+
 	#
 	# The job identifier as assigned by the job container.
 	#
 	attr_reader :jid
 
 	#
-	# The time at which this job was started
+	# The time at which this job was started.
 	#
-	attr_reader   :start_time #:nodoc:
+	attr_reader :start_time
+
+	#
+	# Some job context.
+	#
+	attr_reader :ctx
 
 protected
 
+	attr_writer   :info #:nodoc:
 	attr_writer   :name #:nodoc:
 	attr_writer   :jid #:nodoc:
 	attr_accessor :job_thread #:nodoc:
 	attr_accessor :container #:nodoc:
 	attr_accessor :run_proc #:nodoc:
 	attr_accessor :clean_proc #:nodoc:
-	attr_accessor :ctx #:nodoc:
+	attr_writer   :ctx #:nodoc:
 	attr_writer   :start_time #:nodoc:
 
 end

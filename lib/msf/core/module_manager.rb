@@ -674,10 +674,9 @@ class ModuleManager < ModuleSet
 	#
 	def reload_module(mod)
 		refname = mod.refname
-		ds      = mod.datastore.dup
+		ds      = mod.datastore
 
 		dlog("Reloading module #{refname}...", 'core')
-
 
 		# Set the target file
 		file = mod.file_path
