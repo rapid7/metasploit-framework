@@ -79,6 +79,7 @@ module Session
 	def initialize
 		self.alive = true
 		self.uuid  = Rex::Text.rand_text_alphanumeric(8).downcase
+		self.routes = []
 	end
 
 	# Direct descendents
@@ -306,6 +307,10 @@ module Session
 	# The associated username
 	#
 	attr_accessor :username
+	#
+	# An array of routes associated with this session
+	#
+	attr_accessor :routes
 protected
 
 	attr_accessor :via # :nodoc:

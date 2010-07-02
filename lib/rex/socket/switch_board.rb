@@ -74,7 +74,10 @@ class SwitchBoard
 	# instance.
 	#
 	def self.add_route(subnet, mask, comm)
-		self.instance.add_route(subnet, mask, comm)
+		ret = self.instance.add_route(subnet, mask, comm)
+		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
+			comm.routes << "#{subnet}/#{mask}"
+		end
 	end
 
 	#
@@ -82,14 +85,20 @@ class SwitchBoard
 	# subnet routing through the supplied Comm instance.
 	#
 	def self.remove_route(subnet, mask, comm)
-		self.instance.remove_route(subnet, mask, comm)
+		ret = self.instance.remove_route(subnet, mask, comm)
+		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
+			comm.routes.delete "#{subnet}/#{mask}"
+		end
 	end
 
 	#
 	# Flush all the routes from the switch board routing table.
 	#
 	def self.flush_routes
-		self.instance.flush_routes
+		ret = self.instance.flush_routes
+		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
+			comm.routes.clear
+		end
 	end
 
 	#
