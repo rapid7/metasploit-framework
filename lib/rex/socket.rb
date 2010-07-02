@@ -201,6 +201,18 @@ module Socket
 		addr_ntoi(resolv_nbo(host))
 	end
 
+	def self.resolv_to_cidr(mask)
+		mask_i = resolv_nbo_i(mask)
+		cidr = nil
+		0.upto(32) do |i|
+			if ((1 << i)-1) << (32-i) == mask_i
+				cidr = i
+				break
+			end
+		end
+		return cidr
+	end
+
 	#
 	# Resolves a host to a dotted address.
 	#

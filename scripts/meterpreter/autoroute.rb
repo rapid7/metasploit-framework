@@ -124,7 +124,13 @@ def validate_cmd(subnet=nil,netmask=nil)
 	end
 
 	unless(check_ip(subnet))
-		print_error "Subnet invalid"
+		print_error "Subnet invalid (must be IPv4)"
+		usage
+		return false
+	end
+
+	if(netmask and !(Rex::Socket.resolv_to_cidr(netmask)))
+		print_error "Netmask invalid (must define contiguous IP addressing)"
 		usage
 		return false
 	end
