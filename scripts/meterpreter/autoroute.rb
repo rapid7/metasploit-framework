@@ -28,9 +28,18 @@ remove_route = false
 		usage
 		return false
 	when "-s"
-		subnet = v
+		if v =~ /[0-9\x2e]+\x2f[0-9]{1,2}/
+			subnet,cidr = v.split("\x2f")
+			netmask = Rex::Socket.addr_ctoa(cidr.to_i)
+		else
+			subnet = v
+		end
 	when "-n"
-		netmask = v
+		if (0..32) === v.to_i
+			netmask = Rex::Socket.addr_ctoa(v.to_i)
+		else
+			netmask = v
+		end
 	when "-p"
 		print_only = true
 	when "-d"
@@ -111,6 +120,7 @@ def usage()
 	print_status "Examples:"
 	print_status "  run autoroute -s 10.1.1.0 -n 255.255.255.0  # Add a route to 10.10.10.1/255.255.255.0"
 	print_status "  run autoroute -s 10.10.10.1                 # Netmask defaults to 255.255.255.0"
+	print_status "  run autoroute -s 10.10.10.1/24              # CIDR notation is also okay"
 	print_status "  run autoroute -p                            # Print active routing table"
 	print_status "  run autoroute -d -s 10.10.10.1              # Deletes the 10.10.10.1/255.255.255.0 route"
 	print_status "Use the \"route\" and \"ipconfig\" Meterpreter commands to learn about available routes"
@@ -129,7 +139,7 @@ def validate_cmd(subnet=nil,netmask=nil)
 		return false
 	end
 
-	if(netmask and !(Rex::Socket.resolv_to_cidr(netmask)))
+	if(netmask and !(Rex::Socket.addr_atoc(netmask)))
 		print_error "Netmask invalid (must define contiguous IP addressing)"
 		usage
 		return false
