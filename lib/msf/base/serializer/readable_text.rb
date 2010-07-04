@@ -436,12 +436,13 @@ class ReadableText
 			'Columns' => columns
 			)
 
+
 		# jobs are stored as a hash with the keys being a numeric job_id.
 		framework.jobs.keys.sort{|a,b| a.to_i <=> b.to_i }.each { |k|
 			row = [ k, framework.jobs[k].name ]
 			if (verbose)
 				ctx = framework.jobs[k].ctx
-				row << (ctx[0].datastore['PAYLOAD'] || "")
+				row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
 				row << (ctx[0].datastore['LPORT']   || "")
 				row << (ctx[0].datastore['URIPATH'] || "")
 				row << (framework.jobs[k].start_time || "")
