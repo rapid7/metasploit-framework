@@ -88,7 +88,7 @@ class Mach < MachBase
 	end
 
 	def read(offset, len)
-		isource.read(offset, len)
+		isource.read(fat_offset + offset, len)
 	end
 
 	def index(*args)
