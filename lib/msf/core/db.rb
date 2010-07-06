@@ -1687,7 +1687,11 @@ class DBManager
 				service_data[:proto] = service.elements["proto"].text.to_s.strip
 				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
-						service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
+						if datum == "info"
+							service_data["info"] = unserialize_object(service.elements[datum].text.to_s.strip)
+						else
+							service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
+						end
 					end
 				}
 				report_service(service_data)
@@ -1697,7 +1701,7 @@ class DBManager
 				note_data[:workspace] = wspace
 				note_data[:host] = host_address
 				note_data[:type] = note.elements["ntype"].text.to_s.strip
-				note_data[:data] = YAML.load(note.elements["data"].text.to_s.strip)
+				note_data[:data] = unserialize_object(note.elements["data"].text.to_s.strip)
 				if note.elements["critical"].text
 					note_data[:critical] = true
 				end
@@ -2583,6 +2587,17 @@ class DBManager
 				info[:name] = name
 			end
 			service = find_or_create_service(info)
+		end
+	end
+
+	def unserialize_object(string)
+		return string unless string.is_a?(String)
+		return nil if not string
+		return nil if string.empty?
+		begin
+			Marshal.load(string.unpack("m")[0])
+		rescue ::Exception => e
+			YAML.load(string) rescue string
 		end
 	end
 
