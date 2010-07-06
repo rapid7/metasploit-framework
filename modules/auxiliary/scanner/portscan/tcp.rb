@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 		[
 			OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
-			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000])
+			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
+			OptBool.new('VERBOSE', [false, "Display verbose output", false]),
 		], self.class)
 
 		deregister_options('RPORT')
@@ -62,9 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 						'ConnectTimeout' => (timeout / 1000.0)
 					}
 				)
-				print_status(" TCP OPEN #{ip}:#{port}")
+				print_status("#{ip}:#{port} - TCP OPEN")
 				report_service(:host => ip, :port => port)
 				disconnect(s)
+			rescue ::Rex::ConnectionRefused
+				print_status("#{ip}:#{port} - TCP closed") if datastore['VERBOSE']
+				report_service(:host => ip, :port => port, :state => "closed") 
 			rescue ::Rex::ConnectionError
 			rescue ::TimeoutError
 			rescue ::Interrupt
