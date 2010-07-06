@@ -1687,7 +1687,7 @@ class DBManager
 				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
 						if datum == "info"
-							service_data["info"] = unserialize_object(service.elements[datum].text.to_s.strip)
+							service_data["info"] = unserialize_object(service.elements[datum].text.to_s.strip, false)
 						else
 							service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
 						end
@@ -2589,14 +2589,18 @@ class DBManager
 		end
 	end
 
-	def unserialize_object(string)
+	def unserialize_object(string, allow_yaml = true)
 		return string unless string.is_a?(String)
 		return nil if not string
 		return nil if string.empty?
 		begin
 			Marshal.load(string.unpack("m")[0])
 		rescue ::Exception => e
-			YAML.load(string) rescue string
+			if allow_yaml
+				YAML.load(string) rescue string
+			else
+				string
+			end
 		end
 	end
 
