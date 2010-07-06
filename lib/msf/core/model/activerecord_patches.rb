@@ -9,7 +9,7 @@ class ActiveRecord::Base
 		begin
 			Marshal.load(string.unpack("m")[0])
 		rescue ::Exception => e
-			YAML.load(string)
+			YAML.load(string) rescue string
 		end
 	end
 end

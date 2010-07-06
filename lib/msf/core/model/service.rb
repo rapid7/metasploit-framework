@@ -6,7 +6,10 @@ class Service < ActiveRecord::Base
 	has_many :vulns, :dependent => :destroy
 	has_many :notes, :dependent => :destroy
 	belongs_to :host
+
+	serialize :info
 end
 
 end
 end
+
