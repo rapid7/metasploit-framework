@@ -1646,11 +1646,17 @@ class DBManager
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
+		allow_yaml = false
+
 		doc = rexmlify(data)
 		if doc.elements["MetasploitExpressV1"]
 			m_ver = 1
+			allow_yaml = true
 		elsif doc.elements["MetasploitExpressV2"]
 			m_ver = 2
+			allow_yaml = true
+		elsif doc.elements["MetasploitExpressV3"]
+			m_ver = 3
 		else
 			m_ver = nil
 		end
@@ -1658,6 +1664,7 @@ class DBManager
 			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
 		end
 
+		p [m_ver, allow_yaml]
 		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
@@ -1700,7 +1707,8 @@ class DBManager
 				note_data[:workspace] = wspace
 				note_data[:host] = host_address
 				note_data[:type] = note.elements["ntype"].text.to_s.strip
-				note_data[:data] = unserialize_object(note.elements["data"].text.to_s.strip)
+				note_data[:data] = unserialize_object(note.elements["data"].text.to_s.strip, allow_yaml)
+
 				if note.elements["critical"].text
 					note_data[:critical] = true
 				end
@@ -2589,16 +2597,21 @@ class DBManager
 		end
 	end
 
-	def unserialize_object(string, allow_yaml = true)
+	def unserialize_object(string, allow_yaml = false)
 		return string unless string.is_a?(String)
 		return nil if not string
 		return nil if string.empty?
+
 		begin
 			# Validate that it is properly formed base64 first
 			if string.gsub(/\s+/, '') =~ /^([a-z0-9A-Z\+\/=]+)$/
 				Marshal.load($1.unpack("m")[0])
 			else
-				string
+				if allow_yaml
+					YAML.load(string) rescue string
+				else
+					string
+				end
 			end
 		rescue ::Exception => e
 			if allow_yaml
