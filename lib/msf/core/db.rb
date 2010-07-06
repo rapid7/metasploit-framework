@@ -108,19 +108,19 @@ class DBManager
 		return false unless addr.kind_of? String
 		addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
 	end
-	
+
 	# Takes a space-delimited set of ips and ranges, and subjects
 	# them to RangeWalker for validation. Returns true or false.
 	def validate_ips(ips)
 		ret = true
 		begin
-			ips.split(' ').each {|ip| 
+			ips.split(' ').each {|ip|
 				unless Rex::Socket::RangeWalker.new(ip).ranges
 					ret = false
 					break
 				end
 				}
-		rescue 
+		rescue
 			ret = false
 		end
 		return ret
@@ -327,7 +327,6 @@ class DBManager
 					dlog("Unknown attribute for Service: #{k}")
 				end
 			}
-			service.info = info.to_yaml if info 
 			if (service.state == nil)
 				service.state = ServiceState::Open
 			end
@@ -1244,7 +1243,7 @@ class DBManager
 		ActiveRecord::Base.connection.select_all(sqlquery)
 	end
 
-	
+
 	# Returns a REXML::Document from the given data.
 	def rexmlify(data)
 		doc = data.kind_of?(REXML::Document) ? data : REXML::Document.new(data)
@@ -1284,7 +1283,7 @@ class DBManager
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
 		else
-			import(args.merge(:data => data)) 
+			import(args.merge(:data => data))
 		end
 
 	end
@@ -1307,7 +1306,7 @@ class DBManager
 
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_xml :nessus_nbe :amap_mlog 
+	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msfx_zip
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
@@ -1325,10 +1324,10 @@ class DBManager
 		firstline = data[0, di]
 		@import_filedata ||= {}
 		if (firstline.index("<NeXposeSimpleXML"))
-			@import_filedata[:type] = "NeXpose Simple XML" 
+			@import_filedata[:type] = "NeXpose Simple XML"
 			return :nexpose_simplexml
 		elsif (firstline.index("<NexposeReport"))
-			@import_filedata[:type] = "NeXpose XML Report" 
+			@import_filedata[:type] = "NeXpose XML Report"
 			return :nexpose_rawxml
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
@@ -1337,22 +1336,22 @@ class DBManager
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
 				when "nmaprun"
-					@import_filedata[:type] = "Nmap XML" 
+					@import_filedata[:type] = "Nmap XML"
 					return :nmap_xml
 				when "openvas-report"
-					@import_filedata[:type] = "OpenVAS Report" 
+					@import_filedata[:type] = "OpenVAS Report"
 					return :openvas_xml
 				when "NessusClientData"
-					@import_filedata[:type] = "Nessus XML (v1)" 
+					@import_filedata[:type] = "Nessus XML (v1)"
 					return :nessus_xml
 				when "NessusClientData_v2"
-					@import_filedata[:type] = "Nessus XML (v2)" 
+					@import_filedata[:type] = "Nessus XML (v2)"
 					return :nessus_xml_v2
 				when "SCAN"
-					@import_filedata[:type] = "Qualys XML" 
+					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
 				when /MetasploitExpressV[12]/
-					@import_filedata[:type] = "Metasploit Express XML" 
+					@import_filedata[:type] = "Metasploit Express XML"
 					return :msfe_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
@@ -1361,20 +1360,20 @@ class DBManager
 				line_count += 1
 			}
 		elsif (firstline.index("timestamps|||scan_start"))
-			@import_filedata[:type] = "Nessus NBE Report" 
+			@import_filedata[:type] = "Nessus NBE Report"
 			# then it's a nessus nbe
 			return :nessus_nbe
 		elsif (firstline.index("# amap v"))
 			# then it's an amap mlog
-			@import_filedata[:type] = "Amap Log -m" 
+			@import_filedata[:type] = "Amap Log -m"
 			return :amap_mlog
 		elsif (firstline.index("amap v"))
 			# then it's an amap log
-			@import_filedata[:type] = "Amap Log" 
+			@import_filedata[:type] = "Amap Log"
 			return :amap_log
 		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
 			# then its an IP list
-			@import_filedata[:type] = "IP Address List" 
+			@import_filedata[:type] = "IP Address List"
 			return :ip_list
 		end
 		raise DBImportError.new("Could not automatically determine file type")
@@ -1417,16 +1416,16 @@ class DBManager
 
 	# Import a Metasploit Express ZIP file. Note that this requires
 	# a fair bit of filesystem manipulation, and is very much tied
-	# up with the Metasploit Express ZIP file format export (for 
+	# up with the Metasploit Express ZIP file format export (for
 	# obvious reasons). In the event directories exist, they will
 	# be reused. If target files exist, they will be overwritten.
 	#
-	# XXX: Refactor so it's not quite as sanity-blasting. 
+	# XXX: Refactor so it's not quite as sanity-blasting.
 	def import_msfx_zip(args={}, &block)
 		data = args[:data]
 		wpsace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-		
+
 		new_tmp = File.join(Dir::tmpdir,"msfx",@import_filedata[:zip_basename])
 		if File.exists? new_tmp
 			unless (File.directory?(new_tmp) && File.writable?(new_tmp))
@@ -1439,7 +1438,7 @@ class DBManager
 
 		@import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
 
-		@import_filedata[:zip_tmp_subdirs].each {|sub| 
+		@import_filedata[:zip_tmp_subdirs].each {|sub|
 			tmp_subdirs = File.join(@import_filedata[:zip_tmp],sub)
 			if File.exists? tmp_subdirs
 				unless (File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
@@ -1453,7 +1452,7 @@ class DBManager
 		data.entries.each do |e|
 			target = File.join(@import_filedata[:zip_tmp],e.name)
 			File.unlink target if File.exists?(target) # Yep. Deleted.
-			data.extract(e,target) 
+			data.extract(e,target)
 			if target =~ /^.*.xml$/
 				@import_filedata[:zip_extracted_xml] = target
 			end
@@ -1540,7 +1539,7 @@ class DBManager
 				new_loot = File.join(loot_dir,loot_file)
 				loot_info[:path] = new_loot
 				if File.exists?(new_loot)
-					File.unlink new_loot # Delete it, and don't report it. 
+					File.unlink new_loot # Delete it, and don't report it.
 				else
 					report_loot(loot_info) # It's new, so report it.
 				end
@@ -1628,7 +1627,7 @@ class DBManager
 				end
 				new_report = File.join(reports_dir,report_file)
 				report_info[:path] = new_report
-				if File.exists?(new_report) 
+				if File.exists?(new_report)
 					File.unlink new_report
 				else
 					report_report(report_info)
@@ -2055,7 +2054,7 @@ class DBManager
 						next if port_states.compact.empty?
 					end
 					yield(:address,data[:host]) if block
-					report_host(data) 
+					report_host(data)
 					report_import_note(wspace,addr)
 				end
 			end
@@ -2173,7 +2172,7 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		nbe_copy = data.dup
-		# First pass, just to build the address map. 
+		# First pass, just to build the address map.
 		addr_map = {}
 
 		nbe_copy.each_line do |line|
@@ -2275,7 +2274,7 @@ class DBManager
 			addr = nil
 			hname = nil
 			os = nil
-			# If the name is resolved, the Nessus plugin for DNS 
+			# If the name is resolved, the Nessus plugin for DNS
 			# resolution should be there. If not, fall back to the
 			# HostName
 			host.elements.each('ReportItem') do |item|
@@ -2299,7 +2298,7 @@ class DBManager
 			# Record the hostname
 			hinfo.merge!(:name => hname.to_s.strip) if hname
 			report_host(hinfo)
-			
+
 			# Record the OS
 			os ||= host.elements["os_name"]
 			if os
