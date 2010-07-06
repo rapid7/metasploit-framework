@@ -2594,7 +2594,12 @@ class DBManager
 		return nil if not string
 		return nil if string.empty?
 		begin
-			Marshal.load(string.unpack("m")[0])
+			# Validate that it is properly formed base64 first
+			if string.gsub(/\s+/, '') =~ /^([a-z0-9A-Z\+\/=]+)$/
+				Marshal.load($1.unpack("m")[0])
+			else
+				string
+			end
 		rescue ::Exception => e
 			if allow_yaml
 				YAML.load(string) rescue string
