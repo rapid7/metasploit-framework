@@ -296,7 +296,6 @@ class DBManager
 		addr  = opts.delete(:host) || return
 		hname = opts.delete(:host_name)
 		hmac  = opts.delete(:host_mac)
-		info  = opts.delete(:info)
 
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
