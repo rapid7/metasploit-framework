@@ -7,7 +7,11 @@ class ActiveRecord::Base
 		return nil if not string
 		return nil if string.empty?
 		begin
-			Marshal.load(string.unpack("m")[0])
+			if string.gsub(/\s+/, '') =~ /^([a-z0-9A-Z\+\/=]+)$/
+				Marshal.load($1.unpack("m")[0])
+			else
+				string
+			end
 		rescue ::Exception => e
 			YAML.load(string) rescue string
 		end
