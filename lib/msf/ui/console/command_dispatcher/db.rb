@@ -153,6 +153,7 @@ class Db
 			col_search = nil
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
+			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
@@ -164,8 +165,9 @@ class Db
 					end
 					col_search = list.strip().split(",")
 					col_search.each { |c|
-						if not default_columns.include? c
-							print_error("Invalid column list. Possible values are (#{default_columns.join("|")})")
+						if not default_columns.include?(c) and not virtual_columns.include?(c)
+							all_columns = default_columns + virtual_columns
+							print_error("Invalid column list. Possible values are (#{all_columns.join("|")})")
 							return
 						end
 					}
@@ -198,7 +200,7 @@ class Db
 			ofd = nil
 			ofd = ::File.open(output, "w") if output
 
-			col_names = default_columns
+			col_names = default_columns + virtual_columns
 			if col_search
 				col_names.delete_if {|v| not col_search.include?(v)}
 			end
@@ -210,7 +212,20 @@ class Db
 				if ofd
 					ofd.puts host.address
 				else
-					columns = col_names.map { |n| host.attributes[n] || "" }
+					columns = col_names.map do |n|
+						if virtual_columns.include?(n)
+							case n
+							when "svcs"
+								host.services.length
+							when "vulns"
+								host.vulns.length
+							when "workspace"
+								host.workspace.name
+							end
+						else
+							host.attributes[n] || ""
+						end
+					end
 					tbl << columns
 				end
 			end
