@@ -204,14 +204,13 @@ class Db
 			end
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Hosts",
-					'Columns' => col_names + ["Svcs", "Vulns", "Workspace"],
+					'Columns' => col_names,
 				})
 			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
 				if ofd
 					ofd.puts host.address
 				else
 					columns = col_names.map { |n| host.attributes[n] || "" }
-					columns += [host.services.length, host.vulns.length, host.workspace.name]
 					tbl << columns
 				end
 			end
