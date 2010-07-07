@@ -25,7 +25,7 @@ class SwitchBoard
 	def initialize
 		@_initialized = false
 	end
-	
+
 	###
 	#
 	# This class represents a logical switch board route.
@@ -96,9 +96,6 @@ class SwitchBoard
 	#
 	def self.flush_routes
 		ret = self.instance.flush_routes
-		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
-			comm.routes.clear
-		end
 	end
 
 	#
@@ -232,7 +229,7 @@ class SwitchBoard
 				if (route.bitmask >= msb)
 					comm = route.comm
 					msb  = route.bitmask
-				end		
+				end
 			end
 		}
 
