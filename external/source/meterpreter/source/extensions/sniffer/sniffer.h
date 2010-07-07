@@ -1,6 +1,7 @@
 #ifndef _METERPRETER_SOURCE_EXTENSION_SNIFFER_SNIFFER_H
 #define _METERPRETER_SOURCE_EXTENSION_SNIFFER_SNIFFER_H
 
+#include "../../common/common.h"
 
 #include <winsock2.h>
 #include <ws2tcpip.h>

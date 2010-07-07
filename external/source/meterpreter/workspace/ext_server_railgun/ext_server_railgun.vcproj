@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="ext_server_incognito"
-	ProjectGUID="{C427F6B9-C287-4BDA-A5BB-401FC19E207C}"
-	RootNamespace="ext_server_incognito"
+	Name="ext_server_railgun"
+	ProjectGUID="{488BE203-8407-42D1-B334-8B5C3BC5AB3F}"
+	RootNamespace="ext_server_railgun"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -44,7 +44,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_RAILGUN_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -63,8 +63,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="netapi32.lib mpr.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\metsrv\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -93,8 +93,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory=".\Release"
-			IntermediateDirectory=".\Release"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
 			WholeProgramOptimization="0"
@@ -119,8 +119,10 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\incognito;..\..\source\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
+				FavorSizeOrSpeed="0"
+				OmitFramePointers="false"
+				AdditionalIncludeDirectories="..\..\source\openssl\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_RAILGUN_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -143,22 +145,21 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
-				OutputFile=".\Release/ext_server_incognito.dll"
+				OutputFile=".\Release/ext_server_railgun.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\metsrv\Release;.\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"
 				GenerateMapFile="true"
-				MapFileName=".\Release/ext_server_incognito.map"
+				MapFileName=".\Release/ext_server_railgun.map"
 				SubSystem="0"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/ext_server_incognito.lib"
+				ImportLibrary=".\Release/ext_server_railgun.lib"
 				TargetMachine="1"
-				Profile="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -180,7 +181,7 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\ext_server_incognito.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
+				CommandLine="copy /y &quot;$(ProjectDir)\release\ext_server_railgun.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 		<Configuration
@@ -209,7 +210,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_USRDLL;EXT_SERVER_RAILGUN_EXPORTS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="2"
@@ -228,8 +229,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="netapi32.lib mpr.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="..\metsrv\Release"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="17"
@@ -258,7 +259,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(PlatformName)\$(ConfigurationName)"
 			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -283,10 +284,9 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="2"
-				InlineFunctionExpansion="1"
-				EnableIntrinsicFunctions="false"
-				AdditionalIncludeDirectories="..\..\source\extensions\incognito;..\..\source\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_INCOGNITO_EXPORTS"
+				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\..\source\openssl\include"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_RAILGUN_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -308,23 +308,22 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Netapi32.lib Mpr.lib metsrv.lib"
-				OutputFile=".\Release\ext_server_incognito.x64.dll"
+				AdditionalDependencies="metsrv.lib"
+				OutputFile=".\Release/ext_server_railgun.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\metsrv\Release; ;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateDebugInformation="false"
 				GenerateMapFile="true"
-				MapFileName=".\Release/ext_server_incognito.map"
+				MapFileName=".\Release/ext_server_railgun.map"
 				SubSystem="0"
 				OptimizeReferences="0"
 				EnableCOMDATFolding="0"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/ext_server_incognito.lib"
+				ImportLibrary=".\Release/ext_server_railgun.lib"
 				TargetMachine="17"
-				Profile="false"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -346,7 +345,6 @@
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
-				CommandLine="copy /y &quot;$(ProjectDir)\release\ext_server_incognito.x64.dll&quot; &quot;$(ProjectDir)..\..\output\&quot;"
 			/>
 		</Configuration>
 	</Configurations>
@@ -356,52 +354,14 @@
 		<Filter
 			Name="Source Files"
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
-			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
+			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FA}"
 			>
 			<File
-				RelativePath="..\..\source\extensions\incognito\hash_stealer.c"
+				RelativePath="..\..\source\extensions\railgun\server\railgun.c"
 				>
 			</File>
 			<File
-				RelativePath="..\..\source\extensions\incognito\incognito.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\list_tokens.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\token_info.c"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\user_management.c"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Header Files"
-			Filter="h;hpp;hxx;hm;inl;inc;xsd"
-			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
-			>
-			<File
-				RelativePath="..\..\source\extensions\incognito\hash_stealer.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\incognito.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\list_tokens.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\token_info.h"
-				>
-			</File>
-			<File
-				RelativePath="..\..\source\extensions\incognito\user_management.h"
+				RelativePath="..\..\source\extensions\railgun\server\railgun.h"
 				>
 			</File>
 		</Filter>
