@@ -113,44 +113,46 @@ class CommandShell
 		shell_write(cmd + "\n")
 
 		# wait up to 5 seconds for some data to appear
-		elapsed = 0
 		if (not (::IO.select([rstream], nil, nil, 5)))
 			return nil
 		end
 
 		# get the output that we have ready
-		shell_read(-1, 1)
+		shell_read(-1, 0.01)
 	end
 
 
 	#
 	# Read data until we find the token
 	#
-	def shell_read_until_token(token, wanted_idx = 0)
-		# wait up to 5 seconds for some data to appear
-		elapsed = 0
-		if (not (::IO.select([rstream], nil, nil, 5)))
-			return nil
-		end
+	def shell_read_until_token(token, wanted_idx = 0, timeout = 10)
 		if (wanted_idx == 0)
 			parts_needed = 2
 		else
 			parts_needed = 1 + (wanted_idx * 2)
 		end
 
-		# Read until we get the token or timeout.
-		buf = ''
-		idx = nil
-		while (tmp = shell_read(-1, 1))
-			buf << tmp
+		# Read until we get the data between two tokens or absolute timeout.
+		begin
+			Timeout::timeout(timeout) do
+				buf = ''
+				idx = nil
+				loop do
+					if (tmp = shell_read(-1, 2))
+						buf << tmp
 
-			# see if we have the wanted idx
-			parts = buf.split(token, -1)
-			if (parts.length == parts_needed)
-				# cause another prompt to appear (just in case)
-				shell_write("\n")
-				return parts[wanted_idx]
+						# see if we have the wanted idx
+						parts = buf.split(token, -1)
+						if (parts.length == parts_needed)
+							# cause another prompt to appear (just in case)
+							shell_write("\n")
+							return parts[wanted_idx]
+						end
+					end
+				end
 			end
+		rescue
+			# nothing, just continue
 		end
 
 		# failed to get any data or find the token!
@@ -167,6 +169,7 @@ class CommandShell
 		token = ::Rex::Text.rand_text_alpha(32)
 
 		# Send the command to the session's stdin.
+		# NOTE: if the session echoes input we don't need to echo the token twice.
 		shell_write(cmd + ";echo #{token}\n")
 		shell_read_until_token(token)
 	end
@@ -181,6 +184,7 @@ class CommandShell
 		token = ::Rex::Text.rand_text_alpha(32)
 
 		# Send the command to the session's stdin.
+		# NOTE: if the session echoes input we don't need to echo the token twice.
 		shell_write(cmd + "&echo #{token}\n")
 		shell_read_until_token(token, 1)
 	end
