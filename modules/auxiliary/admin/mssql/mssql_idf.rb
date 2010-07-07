@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 			0.upto(4) { |col|
 				full_table += row[col] + '.' if col < 3
 				column_name = row[col] if col == 3
-				buffer += row[col].ljust(widths[col] + 1))
+				buffer += row[col].ljust(widths[col] + 1)
 			}
 			full_table.slice!(-1, 1)
 			count_sql += full_table
