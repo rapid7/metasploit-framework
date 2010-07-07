@@ -1,12 +1,15 @@
+#$Id$
 ## Crap class which wraps vmrun
 
 #
 # Lower level methods which are ~generic to the vm software
 #
+
+require 'find'
 class VmwareController
 
 	def start(vmx)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws start " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError, "Couldn't find: " + vmx, caller
@@ -14,7 +17,7 @@ class VmwareController
 	end
 
 	def reset(vmx)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws reset " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError, "Couldn't find: " + vmx, caller
@@ -29,7 +32,8 @@ class VmwareController
 		output = get_running
 
 		output.each_line do |line| 
-			if line.to_s.chomp.eql? vmx.to_s then return true end
+			next unless line =~ /^#{@vmbase}(.*)/
+			return true if line.strip == vmx.strip
 		end
 
 		return false
@@ -37,11 +41,11 @@ class VmwareController
 
 
 	def run_command(vmx, command, user, pass, displayParameter=false)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " runProgramInGuest \"" + vmx + "\" " + "\"" + command + "\" -interactive -noWait -activeWindow"
 			
-			if displayParameter then 
+			if displayParameter
 				vmrunstr = vmrunstr + " -display :0"
 			end
 
@@ -85,7 +89,7 @@ class VmwareController
 	end
 
 	def create_snapshot(vmx, snapshot)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws snapshot " + "\"" + vmx + "\" " + snapshot)
 		else
 			raise ArgumentError,"Couldn't find: " + vmx, caller
@@ -93,7 +97,7 @@ class VmwareController
 	end
 
 	def revert_snapshot(vmx, snapshot)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws revertToSnapshot " + "\"" + vmx + "\" " + snapshot)
 		else
 			raise "Couldn't find: " + vmx, caller
@@ -101,7 +105,7 @@ class VmwareController
 	end
 
 	def delete_snapshot(vmx, snapshot)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws deleteSnapshot " + "\"" + vmx + "\" " + snapshot )
 		else
 			raise ArgumentError,"Couldn't find: " + vmx, caller
@@ -109,7 +113,7 @@ class VmwareController
 	end
 
 	def stop(vmx)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws stop " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError,"Couldn't find:  " + vmx, caller
@@ -117,7 +121,7 @@ class VmwareController
 	end
 
 	def suspend(vmx)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws suspend " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError,"Couldn't find: " + vmx, caller
@@ -125,7 +129,7 @@ class VmwareController
 	end
 
 	def pause(vmx)
-		if File.exist?(vmx) then
+		if File.exist?(vmx)
 			system_command("vmrun -T ws pause " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError, "Couldn't find: " + vmx, caller
@@ -150,11 +154,39 @@ class VmwareLabController < VmwareController
 		@lab = Hash.new()
 	end
 
+	attr_accessor :lab, :vmbase
+
+	def build_lab_from_running(basepath=nil)
+		@vmbase = basepath if basepath
+		vm_array = self.get_running.split("\n")
+		vm_array.shift
+		stuff_array_info_lab(vm_array)
+	end
+
+	def build_lab_from_files(basepath=nil)
+		@vmbase = basepath if basepath
+		vm_array = Find.find(@vmbase).select { |f| 
+			f =~ /\.vmx$/ && File.executable?(f)
+		}
+		stuff_array_into_lab(vm_array)
+	end
+
+	def stuff_array_into_lab(arr)
+		return false unless arr.kind_of? Array
+		arr.each_with_index {|v,i| 
+			@lab[i] = File.join(v.split(/[\x5c\x2f]+/))
+			if @lab[i] =~ /^#{@vmbase}(.*)/
+				@lab[i] = $1
+			end
+		}
+		return @lab
+	end
+
 	def run_command_on_lab_vm(vmid,command)
 		begin	
 			## handle linux
 			display = false
-			if (@lab[vmid]["os"] == "linux") then
+			if (@lab[vmid]["os"] == "linux")
 				display=true
 			end
 
@@ -167,7 +199,7 @@ class VmwareLabController < VmwareController
 
 	def start_lab_vm(vmid)
 		begin	
-			start(get_vmx(vmid))
+			start(get_vmx(vmid)) unless running? vmid
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
@@ -183,7 +215,7 @@ class VmwareLabController < VmwareController
 
 	def pause_lab_vm(vmid)
 		begin	
-			pause(get_vmx(vmid))
+			pause(get_vmx(vmid)) if running? vmid
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
@@ -191,9 +223,9 @@ class VmwareLabController < VmwareController
 
 	def suspend_lab_vm(vmid)
 		begin	
-			suspend(get_vmx(vmid))
+			suspend(get_vmx(vmid)) if running? vmid
 		rescue Exception => e
-			puts "error! " + e.to_s
+			puts "error! " + e.inspect
 		end 
 	end
 
@@ -215,7 +247,7 @@ class VmwareLabController < VmwareController
 
 	def stop_lab_vm(vmid)
 		begin	
-			stop(get_vmx(vmid))
+			stop(get_vmx(vmid)) if running? vmid
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
@@ -223,7 +255,7 @@ class VmwareLabController < VmwareController
 
 	def start_lab
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				start_lab_vm(key)
 			end
 		}
@@ -231,7 +263,7 @@ class VmwareLabController < VmwareController
 
 	def reset_lab
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				reset_lab_vm(key)
 			end
 		}
@@ -240,7 +272,7 @@ class VmwareLabController < VmwareController
 
 	def suspend_lab
 		@lab.each { | key, value |
-			if value != nil then
+			if value 
 				suspend_lab_vm(key)
 			end
 		}
@@ -248,7 +280,7 @@ class VmwareLabController < VmwareController
 
 	def snapshot_lab(snapshot)
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				snapshot_lab_vm(key,snapshot)
 			end
 		}
@@ -256,7 +288,7 @@ class VmwareLabController < VmwareController
 
 	def revert_lab(snapshot)
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				revert_lab_vm(key,snapshot)
 			end
 		}
@@ -264,7 +296,7 @@ class VmwareLabController < VmwareController
 
         def run_command_on_lab(command)
                 @lab.each { | key, value |
-                        if value != nil then
+                        if value
                                 run_command_on_lab_vm(key, command)
                         end
                 }
@@ -272,7 +304,7 @@ class VmwareLabController < VmwareController
 
 	def pause_lab
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				pause_lab_vm(key)
 			end
 
@@ -281,7 +313,7 @@ class VmwareLabController < VmwareController
 
 	def stop_lab
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				stop_lab_vm(key)
 			end
 		}
@@ -290,7 +322,7 @@ class VmwareLabController < VmwareController
 
 	def revert_lab(snapshot)
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				revert_lab_vm(key, snapshot)
 			end
 		}
@@ -300,7 +332,7 @@ class VmwareLabController < VmwareController
 
 	def copy_to_lab(file)	
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				copy_to_lab_vm(key,file)
 			end
 		}
@@ -308,7 +340,7 @@ class VmwareLabController < VmwareController
 
 	def copy_from_lab(file)	
 		@lab.each { | key, value |
-			if value != nil then
+			if value
 				copy_from_lab_vm(key,file)
 			end
 		}
@@ -319,13 +351,13 @@ class VmwareLabController < VmwareController
 		
 		guestpath = "C:\\temp2\\"
 
-		if (@lab[vmid]["os"] == "linux") then
+		if (@lab[vmid]["os"] == "linux")
 			guestpath = "/tmp/"
 		end
 		
 		name = File.basename(file) 
 
-		if (@lab[vmid]["tools"] == "true") then
+		if (@lab[vmid]["tools"] == "true")
 			
 			create_directory_in_guest(get_vmx(vmid),@lab[vmid]["user"],@lab[vmid]["pass"], guestpath)
 
@@ -362,7 +394,7 @@ class VmwareLabController < VmwareController
 	def list_lab
 		str = ""
 		@lab.map { |key,val| 
-			if val != nil then
+			if val != nil
 				str = str + key.to_s + ": "  + val["vmx"].to_s + "\n"
 			end
 		 }
@@ -372,8 +404,8 @@ class VmwareLabController < VmwareController
         def find_lab_vm(search)
                 str = ""
                 @lab.map { |key,val|
-                        if val != nil then
-				if (val["vmx"].to_s.downcase.index(search.downcase) != nil) then
+                        if val != nil
+				if (val["vmx"].to_s.downcase.index(search.downcase) != nil)
 	                                str = str + key.to_s + ": "  + val["vmx"].to_s + "\n"
 				end
                         end
@@ -382,19 +414,17 @@ class VmwareLabController < VmwareController
         end
 
 	def running?(vmid)
-		if super(get_vmx(vmid)) then
+		if super(get_vmx(vmid))
 			return true
 		end
 		return false
 	end
 
-	private
-
 	def get_vmx(vmid)
-		if @lab[vmid] != nil then
-			@vmbase.to_s + @lab[vmid]["vmx"].to_s		## handle linux
+		if @lab[vmid]
+			@vmbase.to_s + @lab[vmid].to_s		## handle linux
 		else
-			raise "VM " + vmid + " does not exist!"
+			raise "VM #{vmid} does not exist!"
 		end
 	end
 
