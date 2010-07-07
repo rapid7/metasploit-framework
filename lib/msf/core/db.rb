@@ -698,7 +698,7 @@ class DBManager
 			if opts[:port] and opts[:proto]
 				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], opts[:proto])
 			elsif opts[:port]
-				vuln.service = host.services.find_or_create_by_port(opts[:port])
+				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], "tcp")
 			end
 
 			if rids
@@ -2755,17 +2755,22 @@ protected
 			info[:name] = name
 		end
 
-		report_service(info)
+		if info[:host] && info[:port] && info[:proto]
+			report_service(info)
+		end
 
 		return if qid == 0
 
-		report_vuln(
-			:workspace => wspace,
-			:host => addr,
-			:port => port,
-			:proto => protocol,
-			:name => 'QUALYS-' + qid,
-			:refs => refs)
+		if addr
+			report_vuln(
+				:workspace => wspace,
+				:host => addr,
+				:port => port,
+				:proto => protocol,
+				:name => 'QUALYS-' + qid,
+				:refs => refs
+			)
+		end
 	end
 
 	def process_nexpose_data_sxml_refs(vuln)
