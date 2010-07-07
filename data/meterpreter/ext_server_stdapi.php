@@ -7,6 +7,13 @@
 # eval'd twice
 my_print("Evaling stdapi");
 
+if (!function_exists('cononicalize_path')) {
+function cononicalize_path($path) {
+    $path = str_replace(array("/", "\\"), DIRECTORY_SEPARATOR, $path);
+    return $path;
+}
+}
+
 # Need to nail down what this should actually do.  In ruby, it doesn't expand
 # environment variables but in the windows meterpreter it does
 if (!function_exists('stdapi_fs_expand_path')) {
@@ -22,7 +29,7 @@ if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
     my_print("doing chdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
-    chdir($path_tlv['value']);
+    chdir(cononicalize_path($path_tlv['value']));
     return ERROR_SUCCESS;
 }
 }
@@ -32,7 +39,7 @@ if (!function_exists('stdapi_fs_delete')) {
 function stdapi_fs_delete($req, &$pkt) {
     my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
-    $ret = unlink($path_tlv['value']);
+    $ret = unlink(cononicalize_path($path_tlv['value']));
     return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
 }
 }
@@ -52,7 +59,7 @@ if (!function_exists('stdapi_fs_ls')) {
 function stdapi_fs_ls($req, &$pkt) {
     my_print("doing ls");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
-    $path = $path_tlv['value'];
+    $path = cononicalize_path($path_tlv['value']);
     $dir_handle = @opendir($path);
 
     if ($dir_handle) {
@@ -92,7 +99,7 @@ if (!function_exists('stdapi_fs_stat')) {
 function stdapi_fs_stat($req, &$pkt) {
     my_print("doing stat");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    $path = $path_tlv['value'];
+    $path = cononicalize_path($path_tlv['value']);
 
     $st = stat($path);
     $st_buf = "";
@@ -119,7 +126,7 @@ if (!function_exists('stdapi_fs_delete_file')) {
 function stdapi_fs_delete_file($req, &$pkt) {
     my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
-    $path = $path_tlv['value'];
+    $path = cononicalize_path($path_tlv['value']);
 
     if ($path && is_file($path)) {
         $worked = @unlink($path);
