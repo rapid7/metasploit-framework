@@ -112,17 +112,19 @@ begin
 	cmds.each { |cmd|
 		ret = session.shell_command_token_win32(cmd)
 		if (not ret)
-			print_error("Error: Unable to execute the following command:")
-			print_error(cmd.inspect)
 			aborted = true
 		else
 			ret.strip!
 			if (not ret.empty?)
-				print_error(ret)
 				aborted = true
 			end
 		end
-		break if aborted
+		if aborted
+			print_error("Error: Unable to execute the following command:")
+			print_error(cmd.inspect)
+			print_error('Output: ' + ret.inspect) if ret and not ret.empty?
+			break
+		end
 
 		sent += cmd.length
 
