@@ -152,8 +152,8 @@ class Core
 			return false
 		end
 		args.each do |res| 
-			if not File.exists? res
-				print_error("#{res} does not exist")
+			if not File.file? res
+				print_error("#{res} is not a file")
 				next
 			end
 			driver.load_resource(res)
