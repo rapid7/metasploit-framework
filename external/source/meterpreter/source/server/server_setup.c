@@ -1,5 +1,5 @@
 #include "metsrv.h"
-#include "common.h"
+#include "../../common/common.h"
 
 #ifdef _WIN32
 
