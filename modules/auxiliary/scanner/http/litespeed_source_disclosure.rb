@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 				if version =~ /LiteSpeed/
 					print_error("#{target_url} - LiteSpeed - Cannot exploit: the remote server is not vulnerable - Version #{version}")
 				else
-					print_error("#{target_url} - LiteSpeed - Cannot exploit: the remote server is not ngnix")
+					print_error("#{target_url} - LiteSpeed - Cannot exploit: the remote server is not LiteSpeed")
 				end
 				return
 
