@@ -27,7 +27,7 @@ end
 # The command handler when launched from the console
 #
 def run
-	secs = datastore['RUNTIME']
+	secs = datastore['RUNTIME'].to_i
 	print_status("Running module for #{secs} seconds...")
 	begin
 		Timeout.timeout(secs) {	self.run_timed }
