@@ -153,7 +153,7 @@ class Core
 		end
 		args.each do |res| 
 			if not File.file? res
-				print_error("#{res} is not a file")
+				print_error("#{res} is not a valid resource file")
 				next
 			end
 			driver.load_resource(res)
