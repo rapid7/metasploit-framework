@@ -1349,7 +1349,7 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
-				when /MetasploitExpressV[12]/
+				when /MetasploitExpressV[123]/
 					@import_filedata[:type] = "Metasploit Express XML"
 					return :msfe_xml
 				else
@@ -1486,11 +1486,18 @@ class DBManager
 		wspace = args[:wspace] || args['wspace'] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		basedir = args[:basedir] || args['basedir'] || File.join(Msf::Config.install_root, "data", "msfx")
+
+		allow_yaml = false
+
 		doc = rexmlify(data)
 		if doc.elements["MetasploitExpressV1"]
 			m_ver = 1
+			allow_yaml = true
 		elsif doc.elements["MetasploitExpressV2"]
 			m_ver = 2
+			allow_yaml = true
+		elsif doc.elements["MetasploitExpressV3"]
+			m_ver = 3
 		else
 			m_ver = nil
 		end
@@ -1510,7 +1517,7 @@ class DBManager
 			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
 			loot_info[:workspace] = args[:wspace]
 			loot_info[:ctype] = loot.elements["content-type"].text.to_s.strip
-			loot_info[:info] = loot.elements["info"].text.to_s.strip
+			loot_info[:info] = unserialize_object(loot.elements["info"].text.to_s.strip, allow_yaml)
 			loot_info[:ltype] = loot.elements["ltype"].text.to_s.strip
 			loot_info[:name] = loot.elements["name"].text.to_s.strip
 			loot_info[:created_at] = loot.elements["created-at"].text.to_s.strip
@@ -1554,7 +1561,7 @@ class DBManager
 			# Should user be imported (original) or declared (the importing user)?
 			task_info[:user] = task.elements["created-by"].text.to_s.strip
 			task_info[:desc] = task.elements["description"].text.to_s.strip
-			task_info[:info] = task.elements["info"].text.to_s.strip
+			task_info[:info] = unserialize_object(task.elements["info"].text.to_s.strip, allow_yaml)
 			task_info[:mod] = task.elements["module"].text.to_s.strip
 			task_info[:options] = task.elements["options"].text.to_s.strip
 			task_info[:prog] = task.elements["progress"].text.to_i
@@ -1664,7 +1671,6 @@ class DBManager
 			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
 		end
 
-		p [m_ver, allow_yaml]
 		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
