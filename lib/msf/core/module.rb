@@ -109,7 +109,7 @@ class Module
 	#
 	def initialize(info = {})
 		self.module_info = info
-		self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
+		generate_uuid
 
 		set_defaults
 
@@ -151,7 +151,8 @@ class Module
 	# Creates a fresh copy of an instantiated module
 	#
 	def replicant
-		obj = self.class.new
+		obj = self.dup
+		obj.generate_uuid
 		obj.datastore    = self.datastore.copy
 		obj.user_input   = self.user_input
 		obj.user_output  = self.user_output
@@ -620,10 +621,13 @@ class Module
 	#
 	# A unique identifier for this module instance
 	#
-	attr_accessor :uuid
+	attr_reader :uuid
 
 protected
-
+	attr_writer :uuid
+	def generate_uuid
+		self.uuid = Rex::Text.rand_text_alphanumeric(8).downcase
+	end
 	#
 	# The list of options that support merging in an information hash.
 	#
