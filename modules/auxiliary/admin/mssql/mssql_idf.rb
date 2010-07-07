@@ -117,14 +117,20 @@ class Metasploit3 < Msf::Auxiliary
 		}
 
 		print_line("")
+
+		buffer = ""
 		headings.each { |row|
 			0.upto(5) { |col|
-				print_line(row[col].ljust(widths[col] + 1))
+				buffer += row[col].ljust(widths[col] + 1)
 			}
+			print_line(buffer)
 			print_line("")
+			buffer = ""
+
 			0.upto(5) { |col|
-				print_line(print "=" * widths[col] + " ")
+				buffer += print "=" * widths[col] + " "
 			}
+			print_line(buffer)
 			print_line("")
 		}
 
@@ -133,11 +139,12 @@ class Metasploit3 < Msf::Auxiliary
 			count_sql = "SELECT COUNT(*) AS count FROM "
 
 			full_table = ""
-			column_name = ''
+			column_name = ""
+			buffer = ""
 			0.upto(4) { |col|
 				full_table += row[col] + '.' if col < 3
 				column_name = row[col] if col == 3
-				print_line(row[col].ljust(widths[col] + 1))
+				buffer += row[col].ljust(widths[col] + 1))
 			}
 			full_table.slice!(-1, 1)
 			count_sql += full_table
@@ -147,7 +154,8 @@ class Metasploit3 < Msf::Auxiliary
 			count_data = result[:rows]
 			row_count = count_data[0][0]
 
-			print_line(row_count.to_s)
+			buffer += row_count.to_s
+			print_line(buffer)
 			print_line("")
 
 #			if row_count == 0
