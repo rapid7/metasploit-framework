@@ -173,7 +173,7 @@ module Rex
 						#   3 => 3
 						#   "MB_OK" => 0
 						#   "SOME_CONSTANT | OTHER_CONSTANT" => 17
-						#   "tuna" => !!!!!!!!!!Exception 						
+						#   "tuna" => !!!!!!!!!!Exception
 						def param_to_dword(v)
 							if v.class == Fixnum then
 								return v # ok, it's already a number
@@ -206,7 +206,7 @@ module Rex
 									# Special case:
 									# The user can choose to supply a Null pointer instead of a buffer
 									# in this case we don't need space in any heap buffer
-									if param_desc[0][0] == 'P' # type is a pointer
+									if param_desc[0][0,1] == 'P' # type is a pointer
 										if args[param_idx] == nil
 											next
 										end
@@ -260,7 +260,7 @@ module Rex
 								# Special case:
 								# The user can choose to supply a Null pointer instead of a buffer
 								# in this case we don't need space in any heap buffer
-								if param_desc[0][0] == 'P' # type is a pointer
+								if param_desc[0][0,1] == 'P' # type is a pointer
 									if args[param_idx] == nil
 										next
 									end
@@ -307,7 +307,7 @@ module Rex
 									#puts "   pointer"
 									if args[param_idx] == nil # null pointer?
 										buffer = [0].pack('V') # type: DWORD  (so the dll does not rebase it)
-										buffer += [0].pack('V') # value: 0 
+										buffer += [0].pack('V') # value: 0
 									elsif param_desc[2] == "in"
 										buffer = [1].pack('V')
 										buffer += [in_only_layout[param_desc[1]].addr].pack('V')
@@ -407,7 +407,7 @@ module Rex
 							# process out-only buffers
 							#puts "processing out-only buffers:"
 							out_only_layout.each_pair do |param_name, buffer_item|
-								#puts "   #{param_name}" 
+								#puts "   #{param_name}"
 								buffer = rec_out_only_buffers[buffer_item.addr, buffer_item.length_in_bytes]
 								case buffer_item.datatype
 									when "PDWORD"
@@ -474,26 +474,15 @@ module Rex
 						end
 
 						# converts ruby string to zero-terminated WCHAR string
-						def str_to_uni_z (str)
-							enc = str.encode('UTF-16le').force_encoding("binary")
+						def str_to_uni_z(str)
+							enc = str.unpack("C*").pack("v*")
 							enc += "\x00\x00"
 							return enc
 						end
 
 						# converts 0-terminated UTF16 to ruby string
 						def uniz_to_str(uniz)
-							# cast to UTF16
-							as_utf16 = uniz.force_encoding("UTF-16le")
-							as_utf16_z = nil
-							# find end
-							zero_byte_idx = as_utf16.index("\x00\x00".force_encoding("UTF-16le"))
-							if zero_byte_idx != nil
-								as_utf16_z = as_utf16[0, zero_byte_idx]
-							else
-								as_utf16_z = as_utf16
-							end
-
-							return as_utf16_z
+							uniz.unpack("v*").pack("C*").unpack("A*")[0]
 						end
 					end
 
@@ -559,3 +548,4 @@ module Rex
 		end;
 	end;
 end;
+
