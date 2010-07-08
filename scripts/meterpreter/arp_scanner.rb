@@ -32,7 +32,7 @@ def arp_scan(cidr)
 	ws = client.railgun.ws2_32
 	iphlp = client.railgun.iphlpapi
 	i, a = 0, []
-	iplst,found = [],[]
+	iplst,found = [],""
 	ipadd = Rex::Socket::RangeWalker.new(cidr)
 	numip = ipadd.num_ips
 	while (iplst.length < numip)
@@ -58,7 +58,7 @@ def arp_scan(cidr)
 							  mac[4].ord.to_s(16) + ":" +
 							  mac[5].ord.to_s(16)
 						)
-						found << ip_text
+						found << "#{ip_text}\n"
 					end
 				})
 		        i += 1
