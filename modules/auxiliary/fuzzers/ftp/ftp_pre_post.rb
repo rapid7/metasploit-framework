@@ -41,8 +41,23 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 		deregister_options('RHOST')
 
-		@evilchars = ['A','a','%s','%d','%n','%x','%p','-1','0','0xfffffffe','0xffffffff','A/','//','/..','//..','A%20','./A','.A',',A','A:','!A','&A','?A','\A','../A/','..?','//A:','\\A','{A','$A','A*','cmd','A@a.com','#A','A/../','~','~A','~A/','A`/','>A','<A','A%n','A../','.././','A../','....//','~?*/','.\../','\.//A','-%A','%Y','%H','/1','!','@','%','&','/?(*','*','(',')','`',',','~/','/.','\$:','/A~%n','=','=:;)}','1.2.','41414141','-1234','999999,','%00','+A','+123','..\'','??.','..\.\'','.../','1234123+']
-		@commands = ['ABOR','ACCT','ALLO','APPE','AUTH','CWD','CDUP','DELE','FEAT','HELP','HOST','LANG','LIST','MDTM','MKD','MLST','MODE','NLST','NLST -al','NOOP','OPTS','PASV','PORT','PROT','PWD','REIN','REST','RETR','RMD','RNFR','RNTO','SIZE','SITE','SITE CHMOD','SITE CHOWN','SITE EXEC','SITE MSG','SITE PSWD','SITE ZONE','SITE WHO','SMNT','STAT','STOR','STOU','STRU','SYST','TYPE','XCUP','XCRC','XCWD','XMKD','XPWD','XRMD']
+		@evilchars = [
+			'A','a','%s','%d','%n','%x','%p','-1','0','0xfffffffe','0xffffffff','A/','//','/..','//..',
+			'A%20','./A','.A',',A','A:','!A','&A','?A','\A','../A/','..?','//A:','\\A','{A','$A','A*',
+			'cmd','A@a.com','#A','A/../','~','~A','~A/','A`/','>A','<A','A%n','A../','.././','A../',
+			'....//','~?*/','.\../','\.//A','-%A','%Y','%H','/1','!','@','%','&','/?(*','*','(',')',
+			'`',',','~/','/.','\$:','/A~%n','=','=:;)}','1.2.','41414141','-1234','999999,','%00','+A',
+			'+123','..\'','??.','..\.\'','.../','1234123+',
+			'%Y%%Y%/','%FC%80%80%80%80%AE%FC%80%80%80%80%AE/','????/','\uff0e/','%%32%65%%32%65/',
+			'+B./','%%32%65%%32%65/','..%c0%af','..%e0%80%af','..%c1%9c'
+		]
+		@commands = [
+			'ABOR','ACCT','ALLO','APPE','AUTH','CWD','CDUP','DELE','FEAT','HELP','HOST','LANG','LIST',
+			'MDTM','MKD','MLST','MODE','NLST','NLST -al','NOOP','OPTS','PASV','PORT','PROT','PWD','REIN',
+			'REST','RETR','RMD','RNFR','RNTO','SIZE','SITE','SITE CHMOD','SITE CHOWN','SITE EXEC','SITE MSG',
+			'SITE PSWD','SITE ZONE','SITE WHO','SMNT','STAT','STOR','STOU','STRU','SYST','TYPE','XCUP',
+			'XCRC','XCWD','XMKD','XPWD','XRMD'
+		]
 		@emax = @evilchars.length
 	end
 
