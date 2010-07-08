@@ -18,7 +18,7 @@ remove_route = false
 	"-s" => [true, "Subnet (IPv4, for example, 10.10.10.0)"],
 	"-n" => [true, "Netmask (IPv4, for example, 255.255.255.0"],
 	"-p" => [false, "Print active routing table. All other options are ignored"],
-	"-d" => [false, "Delete the named route instead of adding it"],
+	"-d" => [false, "Delete the named route instead of adding it"]
 )
 
 @@exec_opts.parse(args) { |opt, idx, val|
