@@ -59,12 +59,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-
-	# Define our batch size
-	def run_batch_size
-		datastore['BATCHSIZE'].to_i
-	end
-
 	# Fingerprint a single host
 	def run_host(ip)
 
@@ -72,7 +66,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			udp_sock = nil
-			idx = 0
 
 		@probes.each do |probe|
 
@@ -103,7 +96,6 @@ class Metasploit3 < Msf::Auxiliary
 					udp_sock.close if udp_sock
 				end
 
-				idx += 1
 			end
 		rescue ::Interrupt
 			raise $!
