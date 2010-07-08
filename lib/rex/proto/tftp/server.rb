@@ -30,8 +30,11 @@ class Server
 		self.context = context
 		self.sock = nil
 		@shutting_down = false
+		@output_dir = nil
+		@tftproot = nil
 
 		self.files = []
+		self.uploaded = []
 		self.transfers = []
 	end
 
@@ -75,11 +78,28 @@ class Server
 	#
 	# Register a filename and content for a client to request
 	#
-	def register_file(fn, content)
+	def register_file(fn, content, once = false)
 		self.files << {
 			:name => fn,
-			:data => content
+			:data => content,
+			:once => once
 		}
+	end
+
+
+	#
+	# Register an entire directory to serve files from
+	#
+	def set_tftproot(rootdir)
+		@tftproot = rootdir if File.directory?(rootdir)
+	end
+
+
+	#
+	# Register a directory to write uploaded files to
+	#
+	def set_output_dir(outdir)
+		@output_dir = outdir if File.directory?(outdir)
 	end
 
 
@@ -110,21 +130,93 @@ class Server
 	# Find the hash entry for a file that may be offered
 	#
 	def find_file(fname)
+		# Files served via register_file() take precedence.
 		self.files.each do |f|
 			if (fname == f[:name])
 				return f
+			end
+		end
+
+		# Now, if we have a tftproot, see if it can serve from it
+		if @tftproot
+			return find_file_in_root(fname)
+		end
+
+		nil
+	end
+
+
+	#
+	# Find the file in the specified tftp root and add a temporary
+	# entry to the files hash.
+	#
+	def find_file_in_root(fname)
+		fn = File.expand_path(File.join(@tftproot, fname))
+
+		# Don't allow directory traversal
+		return nil if fn.index(@tftproot) != 0
+
+		return nil if not File.file?(fn) or not File.readable?(fn)
+
+		# Read the file contents, and register it as being served once
+		data = data = File.open(fn, "rb") { |fd| fd.read(fd.stat.size) }
+		register_file(fname, data, true)
+
+		# Return the last file in the array
+		return self.files[-1]
+	end
+
+
+	attr_accessor :listen_host, :listen_port, :context
+	attr_accessor :sock, :files, :transfers, :uploaded
+	attr_accessor :thread
+
+
+protected
+
+	def find_transfer(type, from, block)
+		self.transfers.each do |tr|
+			if (tr[:type] == type and tr[:from] == from and tr[:block] == block)
+				return tr
 			end
 		end
 		nil
 	end
 
 
-	attr_accessor :listen_host, :listen_port, :context
-	attr_accessor :sock, :files, :transfers
-	attr_accessor :thread
+	def save_output(tr)
+		self.uploaded << tr[:file]
+		if @output_dir
+			fn = tr[:file][:name].split(File::SEPARATOR)[-1]
+			if fn
+				fn = File.join(@output_dir, fn)
+				File.open(fn, "wb") { |fd|
+					fd.write(tr[:file][:data])
+				}
+			end
+		end
+	end
 
 
-protected
+	def check_retransmission(tr)
+		elapsed = Time.now - tr[:last_sent]
+		if (elapsed >= 3)
+			# max retries reached?
+			if (tr[:retries] < 3)
+				#if (tr[:type] == OpRead)
+				#	puts "[-] ack timed out, resending block"
+				#else
+				#	puts "[-] block timed out, resending ack"
+				#end
+				tr[:last_sent] = nil
+				tr[:retries] += 1
+			else
+				#puts "[-] maximum tries reached, terminating transfer"
+				self.transfers.delete(tr)
+			end
+		end
+	end
+
 
 	#
 	# See if there is anything to do.. If so, dispatch it.
@@ -154,35 +246,59 @@ protected
 			# Check to see if transfers need maintenance
 			#
 			self.transfers.each do |tr|
-				# Are we awaiting an ack?
-				if (tr[:last_sent])
-					elapsed = Time.now - tr[:last_sent]
-					if (elapsed >= 3)
-						# max retries reached?
-						if (tr[:retries] < 3)
-							#puts "[-] ack timed out, resending block"
-							tr[:last_sent] = nil
-							tr[:retries] += 1
+				# We handle RRQ and WRQ separately
+				#
+				if (tr[:type] == OpRead)
+					# Are we awaiting an ack?
+					if (tr[:last_sent])
+						check_retransmission(tr)
+					elsif (w != nil and w[0] == self.sock)
+						# No ack waiting, send next block..
+						chunk = tr[:file][:data].slice(tr[:offset], 512)
+						if (chunk and chunk.length >= 0)
+							pkt = [OpData, tr[:block]].pack('nn')
+							pkt << chunk
+
+							send_packet(tr[:from], pkt)
+							tr[:last_sent] = Time.now
+
+							# If the file is a one-serve, mark it as started
+							tr[:file][:started] = true if (tr[:file][:once])
 						else
-							#puts "[-] maximum tries reached, terminating transfer"
-							self.transfers.delete(tr)
+							# No more chunks.. transfer is most likely done.
+							# However, we can only delete it once the last chunk has been
+							# acked.
 						end
 					end
-				elsif (w != nil and w[0] == self.sock)
-					# No ack waiting, send next block..
-					chunk = tr[:file][:data].slice(tr[:offset], 512)
-					if (chunk and chunk.length >= 0)
-						pkt = [OpData, tr[:block]].pack('nn')
-						pkt << chunk
+				else
+					# Are we awaiting data?
+					if (tr[:last_sent])
+						check_retransmission(tr)
+					elsif (w != nil and w[0] == self.sock)
+						# Not waiting for data, send an ack..
+						#puts "[*] sending ack for block %d" % [tr[:block]]
+						pkt = [OpAck, tr[:block]].pack('nn')
+
 						send_packet(tr[:from], pkt)
 						tr[:last_sent] = Time.now
-					else
-						# no more chunks.. transfer is most likely done.
-						self.transfers.delete(tr)
+
+						# If we had a 0-511 byte chunk, we're done.
+						if (tr[:last_size] and tr[:last_size] < 512)
+							#puts "[*] Transfer complete, saving output"
+							save_output(tr)
+							self.transfers.delete(tr)
+						end
 					end
 				end
 			end
 		end
+	end
+
+
+	def next_block(tr)
+		tr[:block] += 1
+		tr[:last_sent] = nil
+		tr[:retries] = 0
 	end
 
 
@@ -194,6 +310,7 @@ protected
 		op = buf.unpack('n')[0]
 		buf.slice!(0,2)
 
+		#XXX: todo - create call backs for status
 		#start = "[*] TFTP - %s:%u - %s" % [from[0], from[1], OPCODES[op]]
 
 		case op
@@ -205,32 +322,91 @@ protected
 			#puts "%s %s %s" % [start, fn, mode]
 
 			if (not @shutting_down) and (file = self.find_file(fn))
-				self.transfers << {
-					:from => from,
-					:file => file,
-					:block => 1,
-					:offset => 0,
-					:last_sent => nil,
-					:retries => 0
-				}
+				if (file[:once] and file[:started])
+					send_error(from, ErrFileNotFound)
+				else
+					self.transfers << {
+						:type => OpRead,
+						:from => from,
+						:file => file,
+						:block => 1,
+						:offset => 0,
+						:last_sent => nil,
+						:retries => 0
+					}
+				end
 			else
 				#puts "[-] file not found!"
 				send_error(from, ErrFileNotFound)
 			end
 
+		when OpWrite
+			# Process WRQ packets
+			fn = TFTP::get_string(buf)
+			mode = TFTP::get_string(buf).downcase
+
+			#puts "%s %s %s" % [start, fn, mode]
+
+			if (not @shutting_down) and (@output_dir)
+				self.transfers << {
+					:type => OpWrite,
+					:from => from,
+					:file => { :name => fn, :data => '' },
+					:block => 0, # WRQ starts at 0
+					:last_sent => nil,
+					:retries => 0
+				}
+			else
+				send_error(from, ErrIllegalOperation)
+			end
+
 		when OpAck
 			# Process ACK packets
 			block = buf.unpack('n')[0]
+
 			#puts "%s %d" % [start, block]
 
-			self.transfers.each do |tr|
-				if (from == tr[:from] and block == tr[:block])
-					# acked! send the next block
-					tr[:block] += 1
-					tr[:offset] += 512
-					tr[:last_sent] = nil
-					tr[:retries] = 0
+			tr = find_transfer(OpRead, from, block)
+			if not tr
+				# If we didn't find it, send an error.
+				send_error(from, ErrUnknownTransferId)
+			else
+				# acked! send the next block
+				tr[:offset] += 512
+				next_block(tr)
+
+				# If the transfer is finished, delete it
+				if (tr[:offset] > tr[:file][:data].length)
+					#puts "[*] Transfer complete"
+					self.transfers.delete(tr)
+
+					# if the file is a one-serve, delete it from the files array
+					if tr[:file][:once]
+						#puts "[*] Removed one-serve file: #{tr[:file][:name]}"
+						self.files.delete(tr[:file])
+					end
 				end
+			end
+
+		when OpData
+			# Process Data packets
+			block = buf.unpack('n')[0]
+			data = buf.slice(2, buf.length)
+
+			#puts "%s %d %d bytes" % [start, block, data.length]
+
+			tr = find_transfer(OpWrite, from, (block-1))
+			if not tr
+				# If we didn't find it, send an error.
+				send_error(from, ErrUnknownTransferId)
+			else
+				tr[:file][:data] << data
+				tr[:last_size] = data.length
+				next_block(tr)
+
+				# Similar to RRQ transfers, we cannot detect that the
+				# transfer finished here. We must do so after transmitting
+				# the final ACK.
 			end
 
 		else
@@ -246,4 +422,3 @@ end
 end
 end
 end
-
