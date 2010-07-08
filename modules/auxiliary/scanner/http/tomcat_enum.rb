@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Apache Tomcat User Enumeration',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-					Apache Tomcat user enumeration utility, for Apache Tomcat servers prior to version 
+					Apache Tomcat user enumeration utility, for Apache Tomcat servers prior to version
 				6.0.20, 5.5.28, and 4.1.40.
 			},
 			'Author'         =>
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-			[ 
+			[
 				Opt::RPORT(8080),
 				OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
 				OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),

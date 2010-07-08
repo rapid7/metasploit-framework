@@ -28,15 +28,15 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-		[
-			Opt::CHOST,
-			OptBool.new('VERBOSE', [false, 'Enable verbose output', false])
-		], self.class)
+			[
+				Opt::CHOST,
+				OptBool.new('VERBOSE', [false, 'Enable verbose output', false])
+			], self.class)
 
 		register_advanced_options(
-		[
-			OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
-		], self.class)
+			[
+				OptBool.new('RANDOMIZE_PORTS', [false, 'Randomize the order the ports are probed', true])
+			], self.class)
 
 		# Intialize the probes array
 		@probes = []

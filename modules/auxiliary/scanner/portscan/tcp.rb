@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				disconnect(s)
 			rescue ::Rex::ConnectionRefused
 				print_status("#{ip}:#{port} - TCP closed") if datastore['VERBOSE']
-				report_service(:host => ip, :port => port, :state => "closed") 
+				report_service(:host => ip, :port => port, :state => "closed")
 			rescue ::Rex::ConnectionError
 			rescue ::TimeoutError
 			rescue ::Interrupt
