@@ -422,7 +422,7 @@ class VmwareLabController < VmwareController
 
 	def get_vmx(vmid)
 		if @lab[vmid]
-			@vmbase.to_s + @lab[vmid].to_s		## handle linux
+			@vmbase.to_s + @lab[vmid]["vmx"].to_s		## handle linux
 		else
 			raise "VM #{vmid} does not exist!"
 		end
