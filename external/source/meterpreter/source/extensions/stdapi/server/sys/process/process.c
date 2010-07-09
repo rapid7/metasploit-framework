@@ -3,6 +3,10 @@
 #include "./../session.h"
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
 
+
+typedef BOOL (STDMETHODCALLTYPE FAR * LPFNCREATEENVIRONMENTBLOCK)( LPVOID  *lpEnvironment, HANDLE  hToken, BOOL bInherit );
+typedef BOOL (STDMETHODCALLTYPE FAR * LPFNDESTROYENVIRONMENTBLOCK) ( LPVOID lpEnvironment );
+
 /*
  * Attaches to the supplied process identifier.  If no process identifier is
  * supplied, the handle for the current process is returned to the requestor.
@@ -95,6 +99,10 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	HANDLE token, pToken;
 	char * cpDesktop = NULL;
 	DWORD session = 0;
+	LPVOID pEnvironment = NULL;
+	LPFNCREATEENVIRONMENTBLOCK  lpfnCreateEnvironmentBlock  = NULL;
+	LPFNDESTROYENVIRONMENTBLOCK lpfnDestroyEnvironmentBlock = NULL;
+	HMODULE hUserEnvLib = NULL;
 
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
@@ -246,10 +254,13 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 		if (flags & PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN)
 		{
-			// If there is a thread token use that, otherwise use current process token
-			if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
+			// If there is an impersonated token stored, use that one first, otherwise
+			// try to grab the current thread token, then the process token
+			if (remote->hThreadToken)
+				token = remote->hThreadToken;
+			else if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
 				OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token);
-			
+
 			// Duplicate to make primary token (try delegation first)
 			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityDelegation, TokenPrimary, &pToken))
 			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityImpersonation, TokenPrimary, &pToken))
@@ -258,12 +269,26 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				break;
 			}
 
+			hUserEnvLib = LoadLibrary("userenv.dll");
+			if ( NULL != hUserEnvLib ) {
+				lpfnCreateEnvironmentBlock  = (LPFNCREATEENVIRONMENTBLOCK) GetProcAddress( hUserEnvLib, "CreateEnvironmentBlock" );
+				lpfnDestroyEnvironmentBlock = (LPFNDESTROYENVIRONMENTBLOCK) GetProcAddress( hUserEnvLib, "DestroyEnvironmentBlock" );
+				if (lpfnCreateEnvironmentBlock && lpfnCreateEnvironmentBlock( &pEnvironment, pToken, FALSE)) {
+					createFlags |= CREATE_UNICODE_ENVIRONMENT;
+				} else {
+					pEnvironment = NULL;
+				}
+			}
+
 			// Try to execute the process with duplicated token
-			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, NULL, NULL, &si, &pi))
+			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, pEnvironment, NULL, &si, &pi))
 			{
 				result = GetLastError();
 				break;
 			}
+
+			if (lpfnDestroyEnvironmentBlock && (NULL != pEnvironment)) lpfnDestroyEnvironmentBlock(&pEnvironment);
+			if ( NULL != hUserEnvLib ) FreeLibrary( hUserEnvLib );
 		}
 		else if( flags & PROCESS_EXECUTE_FLAG_SESSION )
 		{

@@ -219,7 +219,7 @@ DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
 			break;
 		}
 
-		if(! OpenProcessToken(handle, TOKEN_QUERY|TOKEN_DUPLICATE|TOKEN_IMPERSONATE, &token)){
+		if(! OpenProcessToken(handle, TOKEN_ALL_ACCESS, &token)){
 			res = GetLastError();
 			dprintf("[STEAL-TOKEN] Failed to open process token for %d (%u)", pid, res);
 			break;
