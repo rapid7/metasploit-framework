@@ -12,7 +12,7 @@ binaries are taken from a standard Cygwin 1.7 installation.
 
 Packages that were not included with Cygwin but are bundled with the installer:
 
-	Ruby 1.9.1p248 (built from source)
+	Ruby 1.9.1p378 (built from source)
 	VNCViewer.exe (from RealVNC)
 	WinVi32 (from www.winvi.de)
 
