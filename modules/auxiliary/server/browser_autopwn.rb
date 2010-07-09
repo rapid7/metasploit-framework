@@ -296,6 +296,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Target'         => targ,
 			'Payload'        => payload,
 			'RunAsJob'       => true)
+		# Since r9714 or so, exploit_simple copies the module instead of
+		# operating on it directly when creating a job.  Put the new copy into
+		# our list of running exploits so we have access to its state.  This
+		# allows us to get the correct URI for each exploit in the same manor
+		# as before, using mod.get_resource().
+		@exploits[name] = framework.jobs[@exploits[name].job_id.to_s].ctx[0]
 
 		# It takes a little time for the resources to get set up, so sleep for
 		# a bit to make sure the exploit is fully working.  Without this,
@@ -370,24 +376,16 @@ class Metasploit3 < Msf::Auxiliary
 				# organize them into requires-scripting and
 				# doesnt-require-scripting, sorted by browser name.
 				if apo[:javascript] && apo[:ua_name]
-					if @js_tests[apo[:ua_name]].nil?
-						@js_tests[apo[:ua_name]] = []
-					end
+					@js_tests[apo[:ua_name]] ||= []
 					@js_tests[apo[:ua_name]].push(apo)
 				elsif apo[:javascript]
-					if @js_tests["generic"].nil?
-						@js_tests["generic"] = []
-					end
+					@js_tests["generic"] ||= []
 					@js_tests["generic"].push(apo)
 				elsif apo[:ua_name]
-					if @noscript_tests[apo[:ua_name]].nil?
-						@noscript_tests[apo[:ua_name]] = []
-					end
+					@noscript_tests[apo[:ua_name]] ||= []
 					@noscript_tests[apo[:ua_name]].push(apo)
 				else
-					if @noscript_tests["generic"].nil?
-						@noscript_tests["generic"] = []
-					end
+					@noscript_tests["generic"] ||= []
 					@noscript_tests["generic"].push(apo)
 				end
 			end
@@ -782,7 +780,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def exploit_resource(name)
 		if (@exploits[name] && @exploits[name].respond_to?("get_resource"))
-			#print_line("Returning '#{@exploits[name].get_resource}', for #{name}")
+			#print_line("Returning #{@exploits[name].get_resource.inspect}, for #{name}")
 			return @exploits[name].get_resource
 		else
 			print_error("Don't have an exploit by that name, returning 404#{name}.html")
