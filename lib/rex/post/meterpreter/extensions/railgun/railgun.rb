@@ -335,10 +335,10 @@ module Rex
 											dw = param_to_dword(args[param_idx])
 											buffer += [dw % 256].pack('V')
 										when "BOOL"
-											case args[param_idx].class
-												when TrueClass
+											case args[param_idx]
+												when true
 													buffer += [1].pack('V')
-												when FalseClass
+												when false
 													buffer += [0].pack('V')
 												else
 													raise "param #{param_desc[1]}: true or false expected"
