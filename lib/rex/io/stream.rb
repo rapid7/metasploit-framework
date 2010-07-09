@@ -72,6 +72,12 @@ module Stream
 	# true if data is available for reading, otherwise false is returned.
 	#
 	def has_read_data?(timeout = nil)
+
+		# Allow a timeout of "0" that waits almost indefinitely for input, this
+		# mimics the behavior of Rex::ThreadSafe.select() and fixes some corner
+		# cases of unintentional no-wait timeouts.
+		timeout = 3600 if (timeout and timeout == 0)
+
 		begin
 			if ((rv = ::IO.select([ fd ], nil, nil, timeout)) and
 			    (rv[0]) and
