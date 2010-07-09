@@ -93,7 +93,7 @@ require 'rex/proto/smb/exceptions'
 						'Context' => ctx,
 						'Timeout' => self.options['connect_timeout']
 					)
-				rescue Timeout::Error, Rex::ConnectionRefused
+				rescue ::Timeout::Error, Rex::ConnectionRefused
 					socket = Rex::Socket.create_tcp(
 						'PeerHost' => self.handle.address,
 						'PeerPort' => 139,
@@ -258,6 +258,7 @@ require 'rex/proto/smb/exceptions'
 
 		self.write(bind)
 		raw_response = self.read()
+
 		response = Rex::Proto::DCERPC::Response.new(raw_response)
 		self.last_response = response
 		if response.type == 12 or response.type == 15
