@@ -149,8 +149,8 @@ DWORD request_incognito_impersonate_token(Remote *remote, Packet *packet)
 					strncat(return_value, "[+] Successfully impersonated user ", sizeof(return_value)-strlen(return_value)-1);
 					strncat(return_value, token_list[i].username, sizeof(return_value)-strlen(return_value)-1);
 					strncat(return_value, "\n", sizeof(return_value)-strlen(return_value)-1);
-					
-					if (!DuplicateToken(token_list[i].token, SecurityImpersonation, &xtoken)) {
+				
+					if (!DuplicateTokenEx(token_list[i].token, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &xtoken)) {
 						dprintf("[INCOGNITO] Failed to duplicate token for %s (%u)", token_list[i].username, GetLastError());
 					} else {
 						core_update_thread_token(remote, xtoken);

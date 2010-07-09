@@ -256,16 +256,21 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 		{
 			// If there is an impersonated token stored, use that one first, otherwise
 			// try to grab the current thread token, then the process token
-			if (remote->hThreadToken)
+			if (remote->hThreadToken){
 				token = remote->hThreadToken;
+				dprintf("[execute] using thread impersonation token");
+			}
 			else if (!OpenThreadToken(GetCurrentThread(), TOKEN_ALL_ACCESS, TRUE, &token))
 				OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &token);
+
+			dprintf("[execute] token is 0x%.8x", token);
 
 			// Duplicate to make primary token (try delegation first)
 			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityDelegation, TokenPrimary, &pToken))
 			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityImpersonation, TokenPrimary, &pToken))
 			{
 				result = GetLastError();
+				dprintf("[execute] failed to duplicate token 0x%.8x", result);
 				break;
 			}
 
@@ -275,6 +280,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				lpfnDestroyEnvironmentBlock = (LPFNDESTROYENVIRONMENTBLOCK) GetProcAddress( hUserEnvLib, "DestroyEnvironmentBlock" );
 				if (lpfnCreateEnvironmentBlock && lpfnCreateEnvironmentBlock( &pEnvironment, pToken, FALSE)) {
 					createFlags |= CREATE_UNICODE_ENVIRONMENT;
+					dprintf("[execute] created a duplicated environment block");
 				} else {
 					pEnvironment = NULL;
 				}
@@ -284,6 +290,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, pEnvironment, NULL, &si, &pi))
 			{
 				result = GetLastError();
+				dprintf("[execute] failed to create the new process 0x%.8x", result);
 				break;
 			}
 

