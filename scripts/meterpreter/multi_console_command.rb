@@ -12,7 +12,7 @@
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
         "-h" => [ false,"Help menu."                        ],
-        "-c" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+        "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
         "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
