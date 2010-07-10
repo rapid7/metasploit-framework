@@ -17,14 +17,18 @@ if (ARGV.empty?)
 	exit
 end
 
+modname = ARGV.shift
 framework = Msf::Simple::Framework.create
 
 begin
 	# Create the module instance.
-	mod = framework.modules.create(ARGV.shift)
-
-	# Dump the module's information in readable text format.
-	puts Msf::Serializer::ReadableText.dump_module(mod)
+	mod = framework.modules.create(modname)
+	if not mod
+		puts "Error: The specified Msf::Module, \"#{modname}\", was not found."
+	else
+		# Dump the module's information in readable text format.
+		puts Msf::Serializer::ReadableText.dump_module(mod)
+	end
 rescue
 	puts "Error: #{$!}\n\n#{$@.join("\n")}"
 end
