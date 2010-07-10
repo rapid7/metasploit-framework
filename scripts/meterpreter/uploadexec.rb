@@ -14,6 +14,7 @@ session = client
 def usage()
 	print_line "UploadExec -- upload a script or executable and run it"
 	print_line(@@exec_opts.usage)
+	raise Rex::Script::Completed
 end
 
 def upload(session,file,trgloc = "")
@@ -44,7 +45,7 @@ def upload(session,file,trgloc = "")
 end
 
 #Function for executing a list of commands
-def cmd_exec(session,cmdexe,opt,verbose)
+def cmd_on_trgt_exec(session,cmdexe,opt,verbose)
 	r=''
 	session.response_timeout=120
 	if verbose == 1
@@ -80,7 +81,7 @@ end
 
 #parsing of Options
 file = ""
-cmdopt = ""
+cmdopt = nil
 helpcall = 0
 path = ""
 verbose = 0
@@ -103,12 +104,12 @@ remove = 0
 
 }
 
-if file == "" || cmdopt == nil || path == nil
+if args.length == 0 || helpcall == 1
 	usage
 end
 print_status("Running Upload and Execute Meterpreter script....")
 exec = upload(session,file,path)
-cmd_exec(session,exec,cmdopt,verbose)
+cmd_on_trgt_exec(session,exec,cmdopt,verbose)
 if remove == 1
 	print_status("\tDeleting #{exec}")
 	m_unlink(session, exec)
