@@ -141,44 +141,19 @@ nowin2kexe = [
 	'wbem\\wmic.exe',
 ]
 ################## Function Declarations ##################
-#Returns the data of a given registry key and value
-def reg_getvaldata(key,valname)
-	value = nil
-	begin
-		root_key, base_key = @client.sys.registry.splitkey(key)
-		open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
-		v = open_key.query_value(valname)
-		value = v.data
-		open_key.close
-	end
-	return value
-end
-#Enumerates the subkeys of a given registry key returns array of subkeys
-def reg_enumkeys(key)
-	subkeys = []
-	begin
-		root_key, base_key = @client.sys.registry.splitkey(key)
-		open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
-		keys = open_key.enum_key
-		keys.each { |subkey|
-			subkeys << subkey
-		}
-		open_key.close
-	end
-	return subkeys
-end
+
 def findprogs()
 	print_status("Extracting software list from registry")
 	proglist = ""
 	threadnum = 0
 	a =[]
 	keyx86 = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
-	reg_enumkeys(keyx86).each do |k|
+	registry_enumkeys(keyx86).each do |k|
 		if threadnum < 10
 			a.push(::Thread.new {
 					begin
-						dispnm = reg_getvaldata("#{keyx86}\\#{k}","DisplayName")
-						dispversion = reg_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
+						dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
+						dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
 					rescue
 					end
 					proglist << "#{dispnm},#{dispversion}\n" if dispnm =~ /[a-z]/
