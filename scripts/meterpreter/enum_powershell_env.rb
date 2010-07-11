@@ -25,7 +25,7 @@ def enum_users
 	path4users = ""
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
 
-	if os =~ /7|Vista|2008/
+	if os =~ /Windows 7|Vista|2008/
 		path4users = sysdrv + "\\Users\\"
 		profilepath = "\\Documents\\WindowsPowerShell\\"
 	else
@@ -91,7 +91,9 @@ def enum_powershell
 			end
 		end
 		tmpout = []
+		print_status("Checking if users have Powershell profiles")
 		enum_users.each do |u|
+			print_status("Checking #{u['username']}")
 			begin
 			@client.fs.dir.foreach(u["userappdata"]) do |p|
 				next if p =~ /^(\.|\.\.)$/
