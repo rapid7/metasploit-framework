@@ -30,15 +30,24 @@ def hkcu_base
 		open_key = @client.sys.registry.open_key(root_key, base_key)
 		keys = open_key.enum_key
 		keys.each do |k|
-			key_base << "HKU\\#{k}" if k =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
+			if k =~ /S-1-5-21-\d*-\d*-\d*-\d*$/
+				key_base << "HKU\\#{k}"
+			end
 		end
 	end
+	return key_base
 end
 def check_putty(reg_key_base)
 	installed = false
 	app_list = []
 	app_list = registry_enumkeys("#{reg_key_base}\\Software")
-	username_profile = registry_getvaldata("#{reg_key_base}\\Volatile Environment","USERNAME")
+	os = @client.sys.config.sysinfo['OS']
+	if os =~ /(Windows 7|2008|Vista)/
+		username_profile = registry_getvaldata("#{reg_key_base}\\Volatile Environment","USERNAME")
+	elsif os =~ /(2000|NET|XP)/
+		appdata_var = registry_getvaldata("#{reg_key_base}\\Volatile Environment","APPDATA")
+		username_profile = appdata_var.scan(/^\w\:\D*\\(\D*)\\\D*$/)
+	end
 	if app_list.index("SimonTatham")
 		print_status("Putty Installed for #{username_profile}")
 		installed = true
