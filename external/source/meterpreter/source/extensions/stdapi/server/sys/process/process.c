@@ -6,6 +6,7 @@
 
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNCREATEENVIRONMENTBLOCK)( LPVOID  *lpEnvironment, HANDLE  hToken, BOOL bInherit );
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNDESTROYENVIRONMENTBLOCK) ( LPVOID lpEnvironment );
+typedef BOOL (WINAPI * LPCREATEPROCESSWITHTOKENW)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
 
 /*
  * Attaches to the supplied process identifier.  If no process identifier is
@@ -107,13 +108,16 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
 	// Initialize the startup information
-	memset(&si, 0, sizeof(si));
+	memset( &pi, 0, sizeof(PROCESS_INFORMATION) );
+	memset( &si, 0, sizeof(STARTUPINFO) );
 
-	si.cb = sizeof(si);
+	si.cb = sizeof(STARTUPINFO);
 
 	// Initialize pipe handles
-	in[0]  = in[1]  = NULL;
-	out[0] = out[1] = NULL;
+	in[0]  = NULL;
+	in[1]  = NULL;
+	out[0] = NULL;
+	out[1] = NULL;
 
 	do
 	{
@@ -191,7 +195,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				break;
 			}
 
-			memset(&chops, 0, sizeof(chops));
+			memset(&chops, 0, sizeof(PoolChannelOps));
 
 			// Initialize the channel operations
 			chops.native.context  = ctx;
@@ -267,11 +271,13 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 			// Duplicate to make primary token (try delegation first)
 			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityDelegation, TokenPrimary, &pToken))
-			if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityImpersonation, TokenPrimary, &pToken))
 			{
-				result = GetLastError();
-				dprintf("[execute] failed to duplicate token 0x%.8x", result);
-				break;
+				if (!DuplicateTokenEx(token, TOKEN_ALL_ACCESS, NULL, SecurityImpersonation, TokenPrimary, &pToken))
+				{
+					result = GetLastError();
+					dprintf("[execute] failed to duplicate token 0x%.8x", result);
+					break;
+				}
 			}
 
 			hUserEnvLib = LoadLibrary("userenv.dll");
@@ -287,15 +293,81 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			}
 
 			// Try to execute the process with duplicated token
-			if (!CreateProcessAsUser(pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, pEnvironment, NULL, &si, &pi))
+			if( !CreateProcessAsUser( pToken, NULL, commandLine, NULL, NULL, inherit, createFlags, pEnvironment, NULL, &si, &pi ) )
 			{
+				LPCREATEPROCESSWITHTOKENW pCreateProcessWithTokenW = NULL;
+				HANDLE hAdvapi32   = NULL;
+				wchar_t * wcmdline = NULL;
+				wchar_t * wdesktop = NULL;
+				int size           = 0;
+
 				result = GetLastError();
-				dprintf("[execute] failed to create the new process 0x%.8x", result);
-				break;
+
+				// sf: If we hit an ERROR_PRIVILEGE_NOT_HELD failure we can fall back to CreateProcessWithTokenW but this is only
+				// available on 2003/Vista/2008/7. CreateProcessAsUser() seems to be just borked on some systems IMHO.
+				if( result == ERROR_PRIVILEGE_NOT_HELD )
+				{
+					do
+					{
+						hAdvapi32 = LoadLibrary( "advapi32.dll" );
+						if( !hAdvapi32 )
+							break;
+
+						pCreateProcessWithTokenW = (LPCREATEPROCESSWITHTOKENW)GetProcAddress( hAdvapi32, "CreateProcessWithTokenW" );
+						if( !pCreateProcessWithTokenW )
+							break;
+
+						// convert the multibyte inputs to wide strings (No CreateProcessWithTokenA available unfortunatly)...
+						size = mbstowcs( NULL, commandLine, 0 );
+						if( size < 0 )
+							break;
+
+						wcmdline = (wchar_t *)malloc( (size+1) * sizeof(wchar_t) );
+						mbstowcs( wcmdline, commandLine, size );
+						
+						if( si.lpDesktop )
+						{
+							size = mbstowcs( NULL, (char *)si.lpDesktop, 0 );
+							if( size > 0 )
+							{
+								wdesktop = (wchar_t *)malloc( (size+1) * sizeof(wchar_t) );
+								mbstowcs( wdesktop, (char *)si.lpDesktop, size );
+								si.lpDesktop = (LPSTR)wdesktop;
+							}
+						}
+
+						if( !pCreateProcessWithTokenW( pToken, LOGON_NETCREDENTIALS_ONLY, NULL, wcmdline, createFlags, pEnvironment, NULL, (LPSTARTUPINFOW)&si, &pi ) )
+						{
+							result = GetLastError();
+							dprintf("[execute] failed to create the new process via CreateProcessWithTokenW 0x%.8x", result);
+							break;
+						}
+
+						result = ERROR_SUCCESS;
+
+					} while( 0 );
+
+					if( hAdvapi32 )
+						FreeLibrary( hAdvapi32 );
+
+					if( wdesktop )
+						free( wdesktop );
+					
+					if( wcmdline )
+						free( wcmdline );
+				}
+				else
+				{
+					dprintf("[execute] failed to create the new process via CreateProcessAsUser 0x%.8x", result);
+					break;
+				}
 			}
 
-			if (lpfnDestroyEnvironmentBlock && (NULL != pEnvironment)) lpfnDestroyEnvironmentBlock(pEnvironment);
-			if ( NULL != hUserEnvLib ) FreeLibrary( hUserEnvLib );
+			if( lpfnDestroyEnvironmentBlock && pEnvironment )
+				lpfnDestroyEnvironmentBlock( pEnvironment );
+
+			if( NULL != hUserEnvLib )
+				FreeLibrary( hUserEnvLib );
 		}
 		else if( flags & PROCESS_EXECUTE_FLAG_SESSION )
 		{
@@ -380,14 +452,17 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 		}
 
-		// Add the process identifier to the response packet
-		packet_add_tlv_uint(response, TLV_TYPE_PID, pi.dwProcessId);
+		// check for failure here otherwise we can get a case where we 
+		// failed but return a process id and this will throw off the ruby side.
+		if( result == ERROR_SUCCESS )
+		{
+			// Add the process identifier to the response packet
+			packet_add_tlv_uint(response, TLV_TYPE_PID, pi.dwProcessId);
 
-		packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,(DWORD)pi.hProcess);
+			packet_add_tlv_uint(response, TLV_TYPE_PROCESS_HANDLE,(DWORD)pi.hProcess);
 
-		CloseHandle(pi.hThread);
-
-		result = ERROR_SUCCESS;
+			CloseHandle(pi.hThread);
+		}
 
 	} while (0);
 
