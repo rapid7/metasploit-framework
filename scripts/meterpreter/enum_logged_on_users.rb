@@ -1,9 +1,9 @@
 # $Id$
-# $Revision$
+# $Revision: 9771 $
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
-
+@client = client
 #-------------------------------------------------------------------------------
 
 ######################## Functions ########################
@@ -47,9 +47,15 @@ def ls_current
 			username = "Network Service"
 			tbl << [sid,username]
 		else
-			if sid =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
-			key_base = "HKU\\#{sid}" 
-			username = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
+			if sid =~ /S-1-5-21-\d*-\d*-\d*-\d*$/
+			key_base = "HKU\\#{sid}"
+			os = @client.sys.config.sysinfo['OS']
+			if os =~ /(Windows 7|2008|Vista)/
+				username = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
+			elsif os =~ /(2000|NET|XP)/
+				appdata_var = registry_getvaldata("#{key_base}\\Volatile Environment","APPDATA")
+				username = appdata_var.scan(/^\w\:\D*\\(\D*)\\\D*$/)
+			end
 			tbl << [sid,username]
 			end
 		end
