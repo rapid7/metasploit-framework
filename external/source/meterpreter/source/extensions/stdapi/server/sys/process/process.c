@@ -294,7 +294,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 				break;
 			}
 
-			if (lpfnDestroyEnvironmentBlock && (NULL != pEnvironment)) lpfnDestroyEnvironmentBlock(&pEnvironment);
+			if (lpfnDestroyEnvironmentBlock && (NULL != pEnvironment)) lpfnDestroyEnvironmentBlock(pEnvironment);
 			if ( NULL != hUserEnvLib ) FreeLibrary( hUserEnvLib );
 		}
 		else if( flags & PROCESS_EXECUTE_FLAG_SESSION )
