@@ -149,7 +149,7 @@ def enum_users(os)
 	path4users = ""
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
 
-	if os =~ /7|Vista|2008/
+	if os =~ /Windows 7|Vista|2008/
 		path4users = sysdrv + "\\users\\"
 		path2purple = "\\AppData\\Roaming\\"
 	else
