@@ -26,7 +26,7 @@ remove_route = false
 	case opt
 	when "-h"
 		usage
-		return false
+		raise Rex::Script::Completed
 	when "-s"
 		if v =~ /[0-9\x2e]+\x2f[0-9]{1,2}/
 			subnet,cidr = v.split("\x2f")
@@ -80,10 +80,10 @@ def print_routes
 	}
 	if Rex::Socket::SwitchBoard.routes.size > 0
 		print tbl.to_s
-		return Rex::Socket::SwitchBoard.routes
+		raise Rex::Script::Completed
 	else
 		print_status "No routes have been added yet"
-		return false
+		raise Rex::Script::Completed
 	end
 end
 
@@ -153,10 +153,11 @@ def validate_cmd(subnet=nil,netmask=nil)
 end
 
 if print_only
-	return print_routes
+	print_routes
+	raise Rex::Script::Completed
 end
 
-return false unless validate_cmd(subnet,netmask)
+raise Rex::Script::Completed unless validate_cmd(subnet,netmask)
 
 if remove_route
 	print_status("Deleting route to %s/%s..." % [subnet,netmask])
@@ -179,4 +180,3 @@ if Rex::Socket::SwitchBoard.routes.size > 0
 	print_status "Use the -p option to list all active routes"
 end
 
-return [subnet,netmask,session]
