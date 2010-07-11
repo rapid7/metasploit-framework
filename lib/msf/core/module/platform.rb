@@ -331,6 +331,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Java
+	#
+	class Java < Msf::Module::Platform
+		Rank = 100
+		Alias = "java"
+	end
+
+	#
 	# Linux
 	#
 	class Linux < Msf::Module::Platform
