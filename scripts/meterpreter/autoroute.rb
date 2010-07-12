@@ -11,6 +11,7 @@ subnet = nil
 netmask = "255.255.255.0"
 print_only = false
 remove_route = false
+remove_all_routes = false
 
 # Options parsing
 @@exec_opts = Rex::Parser::Arguments.new(
@@ -18,7 +19,8 @@ remove_route = false
 	"-s" => [true, "Subnet (IPv4, for example, 10.10.10.0)"],
 	"-n" => [true, "Netmask (IPv4, for example, 255.255.255.0"],
 	"-p" => [false, "Print active routing table. All other options are ignored"],
-	"-d" => [false, "Delete the named route instead of adding it"]
+	"-d" => [false, "Delete the named route instead of adding it"],
+	"-D" => [false, "Delete all routes (does not require a subnet)"]
 )
 
 @@exec_opts.parse(args) { |opt, idx, val|
@@ -44,47 +46,61 @@ remove_route = false
 		print_only = true
 	when "-d"
 		remove_route = true
+	when "-D"
+		remove_all_routes = true
 	end
 }
+
+def delete_all_routes
+	if Rex::Socket::SwitchBoard.routes.size > 0
+		routes = []
+		Rex::Socket::SwitchBoard.each do |route|
+			routes << {:subnet => route.subnet, :netmask => route.netmask}
+		end
+		routes.each {|route_opts| delete_route(route_opts)}
+
+		print_status "Deleted all routes"
+	else
+		print_status "No routes have been added yet"
+	end
+	raise Rex::Script::Completed
+end
 
 # Identical functionality to command_dispatcher/core.rb, and
 # nearly identical code
 def print_routes
-	tbl =	Msf::Ui::Console::Table.new(
-		Msf::Ui::Console::Table::Style::Default,
-		'Header'  => "Active Routing Table",
-		'Prefix'  => "\n",
-		'Postfix' => "\n",
-		'Columns' =>
-			[
-				'Subnet',
-				'Netmask',
-				'Gateway',
-			],
-		'ColProps' =>
-			{
-				'Subnet'  => { 'MaxWidth' => 17 },
-				'Netmask' => { 'MaxWidth' => 17 },
-			})
-	ret = []
-
-	Rex::Socket::SwitchBoard.each { |route|
-
-		if (route.comm.kind_of?(Msf::Session))
-			gw = "Session #{route.comm.sid}"
-		else
-			gw = route.comm.name.split(/::/)[-1]
-		end
-
-		tbl << [ route.subnet, route.netmask, gw ]
-	}
 	if Rex::Socket::SwitchBoard.routes.size > 0
-		print tbl.to_s
-		raise Rex::Script::Completed
+		tbl =	Msf::Ui::Console::Table.new(
+			Msf::Ui::Console::Table::Style::Default,
+			'Header'  => "Active Routing Table",
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
+			'Columns' =>
+				[
+					'Subnet',
+					'Netmask',
+					'Gateway',
+				],
+			'ColProps' =>
+				{
+					'Subnet'  => { 'MaxWidth' => 17 },
+					'Netmask' => { 'MaxWidth' => 17 },
+				})
+		ret = []
+
+		Rex::Socket::SwitchBoard.each { |route|
+			if (route.comm.kind_of?(Msf::Session))
+				gw = "Session #{route.comm.sid}"
+			else
+				gw = route.comm.name.split(/::/)[-1]
+			end
+			tbl << [ route.subnet, route.netmask, gw ]
+		}
+			print tbl.to_s
 	else
 		print_status "No routes have been added yet"
-		raise Rex::Script::Completed
 	end
+	raise Rex::Script::Completed
 end
 
 # Yet another IP validator. I'm sure there's some Rex
@@ -153,7 +169,12 @@ def validate_cmd(subnet=nil,netmask=nil)
 end
 
 if print_only
-	print_routes
+	print_routes()
+	raise Rex::Script::Completed
+end
+
+if remove_all_routes
+	delete_all_routes()
 	raise Rex::Script::Completed
 end
 
