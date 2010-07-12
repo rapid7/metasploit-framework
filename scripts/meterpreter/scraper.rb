@@ -8,7 +8,7 @@
 #
 # hdm[at]metasploit.com
 #
-
+@client = client
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu." ]
 )
@@ -40,14 +40,19 @@ end
 
 # Exec a command and return the results
 def m_exec(session, cmd)
-	r = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-	b = ""
-	while(d = r.channel.read)
-		b << d
+	begin
+		r = @client.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		b = ""
+		while(d = r.channel.read)
+			b << d
+		end
+		r.channel.close
+		r.close
+		b
+	rescue ::Exception => e
+		print_error("Failed to run command #{cmd}")
+		print_error("Error: #{e.class} #{e}")
 	end
-	r.channel.close
-	r.close
-	b
 end
 
 
