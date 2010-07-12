@@ -19,7 +19,7 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 	# We inclue Rex::Socket::Udp as this channel is effectivly a UDP socket.
 	#
 	include Rex::Socket::Udp
-	
+
 	#
 	# We are a datagram channel.
 	#
@@ -28,7 +28,7 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 			return CHANNEL_CLASS_DATAGRAM
 		end
 	end
-	
+
 	#
 	# Open a new UDP channel on the remote end. The local host/port are optional, if none are specified
 	# the remote end will bind to INADDR_ANY with a random port number. The peer host/port are also
@@ -59,9 +59,9 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 		c.params = params
 		c
 	end
-	
+
 	#
-	# Simply initilize this instance.
+	# Simply initialize this instance.
 	#
 	def initialize(client, cid, type, flags)
 		super(client, cid, type, flags)
@@ -75,7 +75,7 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 	#
 	def timed_read( length=65535, timeout=def_read_timeout )
 		result = ''
-		
+
 		begin
 			Timeout.timeout( timeout ) {
 				while( true )
@@ -90,12 +90,12 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 		rescue Timeout::Error
 			result = ''
 		end
-		
+
 		return result
 	end
-	
+
 	#
-	# We overwrite Rex::Socket::Udp.recvfrom in order to correctly hand out the 
+	# We overwrite Rex::Socket::Udp.recvfrom in order to correctly hand out the
 	# datagrams which the remote end of this channel has received and are in the
 	# queue.
 	#
@@ -130,7 +130,7 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 		# return the result in the form [ data, host, port ]
 		return result
 	end
-	
+
 	#
 	# Overwrite the low level sysread to read data off our datagram queue. Calls
 	# to read() will end up calling this.
@@ -139,9 +139,9 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 		result = self.recvfrom( length )
 		return result[0]
 	end
-	
+
 	#
-	# Overwrite the low level syswrite to write data to the remote end of the channel. 
+	# Overwrite the low level syswrite to write data to the remote end of the channel.
 	# Calls to write() will end up calling this.
 	#
 	def syswrite( buf )
@@ -149,12 +149,12 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 	end
 
 	#
-	# This function is called by Rex::Socket::Udp.sendto and writes data to a specified 
+	# This function is called by Rex::Socket::Udp.sendto and writes data to a specified
 	# remote peer host/port via the remote end of the channel.
 	#
 	def send( buf, flags, saddr )
 		af, peerhost, peerport = Rex::Socket.from_sockaddr( saddr )
-		
+
 		addends = [
 			{
 				'type'  => TLV_TYPE_PEER_HOST,
@@ -165,12 +165,12 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 				'value' => peerport
 			}
 		]
-		
+
 		return _write( buf, buf.length, addends )
 	end
 
 	#
-	# The channels direct io write handler for any incoming data from the remote end 
+	# The channels direct io write handler for any incoming data from the remote end
 	# of the channel. We extract the data and peer host/port, and save this to a queue
 	# of incoming datagrams which are passed out via calls to self.recvfrom()
 	#
@@ -178,15 +178,31 @@ class UdpChannel < Rex::Post::Meterpreter::Channel
 
 		peerhost = packet.get_tlv_value( TLV_TYPE_PEER_HOST )
 		peerport = packet.get_tlv_value( TLV_TYPE_PEER_PORT )
-		
+
 		if( peerhost and peerport )
 			@datagrams << [ data, peerhost, peerport ]
 			return true
 		end
-		
+
 		return false
 	end
+
+	#
+	# Wrap the _write() call in order to catch some common, but harmless Windows exceptions
+	#
+	def _write(*args)
+		begin
+			super(*args)
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			case e.result
+			when 10000 .. 10100
+				raise ::Rex::ConnectionError.new
+			end
+		end
+	end
+
 
 end
 
 end; end; end; end; end; end; end
+

@@ -37,14 +37,14 @@ class Socket
 	#
 	def initialize(client)
 		self.client = client
-		
+
 		# register the inbound handler for the tcp server channel (allowing us to receive new client connections to a tcp server channel)
 		client.register_inbound_handler( Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
 
 	end
 
 	#
-	# Deregister the inbound handler for the tcp server channel 
+	# Deregister the inbound handler for the tcp server channel
 	#
 	def shutdown
 		client.deregister_inbound_handler(  Rex::Post::Meterpreter::Extensions::Stdapi::Net::SocketSubsystem::TcpServerChannel )
@@ -63,7 +63,7 @@ class Socket
 	#
 	def create( params )
 		res = nil
-		
+
 		if( params.tcp? )
 			if( params.server? )
 				res = create_tcp_server_channel( params )
@@ -73,7 +73,7 @@ class Socket
 		elsif( params.udp? )
 		  res = create_udp_channel( params )
 		end
-		
+
 		return res
 	end
 
@@ -89,7 +89,7 @@ class Socket
 				raise ::Rex::ConnectionError.new
 			end
 			raise e
-		end 
+		end
 	end
 
 	#
@@ -100,7 +100,7 @@ class Socket
 			channel = SocketSubsystem::TcpClientChannel.open(client, params)
 			if( channel != nil )
 				return channel.lsock
-			end 
+			end
 			return nil
 		rescue ::Rex::Post::Meterpreter::RequestError => e
 			case e.result
@@ -123,7 +123,7 @@ class Socket
 				raise ::Rex::ConnectionError.new
 			end
 			raise e
-		end 
+		end
 	end
 
 
