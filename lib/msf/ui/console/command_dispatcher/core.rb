@@ -55,6 +55,7 @@ class Core
 		"-P" => [ true,  "Specify source port."                           ],
 		"-S" => [ true,  "Specify source address."                        ],
 		"-s" => [ false, "Connect with SSL."                              ],
+		"-u" => [ false, "Switch to a UDP socket."                        ],
 		"-w" => [ true,  "Specify connect timeout."                       ],
 		"-z" => [ false, "Just try to connect, then return."              ])
 
@@ -151,7 +152,7 @@ class Core
 				"Run the commands stored in the supplied files.\n")
 			return false
 		end
-		args.each do |res| 
+		args.each do |res|
 			if not File.file? res
 				print_error("#{res} is not a valid resource file")
 				next
@@ -258,6 +259,7 @@ class Core
 		srcaddr = nil
 		srcport = nil
 		ssl = false
+		udp = false
 		cto = nil
 		justconn = false
 		aidx = 0
@@ -288,6 +290,9 @@ class Core
 				when "-w"
 					cto = val.to_i
 					aidx = idx + 2
+				when "-u"
+					udp = true
+					aidx = idx + 1
 				when "-z"
 					justconn = true
 					aidx = idx + 1
@@ -341,7 +346,8 @@ class Core
 		end
 
 		begin
-			sock = Rex::Socket::Tcp.create({
+			klass = udp ? ::Rex::Socket::Udp : ::Rex::Socket::Tcp
+			sock = klass.create({
 				'Comm'      => comm,
 				'Proxies'   => proxies,
 				'SSL'       => ssl,
@@ -388,7 +394,7 @@ class Core
 			end
 
 			# Network -> Console
-			n2c = Thread.new(sock, cout, c2n) do |input, output, cthr|
+			n2c = ::Thread.new(sock, cout, c2n) do |input, output, cthr|
 				while true
 					begin
 						res = input.read(65535)
@@ -404,12 +410,13 @@ class Core
 
 			c2n.join
 
-		rescue Interrupt
+		rescue ::Interrupt
 			c2n.kill
 			n2c.kill
 		end
 
-		sock.close if not sock.closed?
+
+		sock.close rescue nil
 		infile.close if infile
 
 		true
@@ -1087,7 +1094,7 @@ class Core
 				# Run a command on all sessions
 				when "-c"
 					method = 'cmd'
-					if (val) 
+					if (val)
 						cmds << val
 					end
 
@@ -1120,8 +1127,8 @@ class Core
 						method = 'scriptall'
 						script = val
 					end
-					
-					
+
+
 				# Upload and exec to the specific command session
 				when "-u"
 					method = 'upexec'
@@ -1257,7 +1264,7 @@ class Core
 				else
 					print_error("No script specified!")
 				end
-				
+
 			when 'upexec'
 				if ((session = framework.sessions.get(sid)))
 					if (session.interactive?)
