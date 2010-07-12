@@ -1,16 +1,44 @@
 #$Id$
-## Crap class which wraps vmrun
 
+require 'find'
 #
 # Lower level methods which are ~generic to the vm software
 #
 
-require 'find'
+## Crap class which wraps vmrun and gives us basic vm functionality 
 class VmwareController
+
+	def initialize
+		puts "vmware server / workstations yo"
+	end
 
 	def start(vmx)
 		if File.exist?(vmx)
 			system_command("vmrun -T ws start " + "\"" + vmx + "\"")
+		else
+			raise ArgumentError, "Couldn't find: " + vmx, caller
+		end
+	end
+
+	def stop(vmx)
+		if File.exist?(vmx)
+			system_command("vmrun -T ws stop " + "\"" + vmx + "\"")
+		else
+			raise ArgumentError,"Couldn't find:  " + vmx, caller
+		end
+	end
+
+	def suspend(vmx)
+		if File.exist?(vmx)
+			system_command("vmrun -T ws suspend " + "\"" + vmx + "\"")
+		else
+			raise ArgumentError,"Couldn't find: " + vmx, caller
+		end
+	end
+
+	def pause(vmx)
+		if File.exist?(vmx)
+			system_command("vmrun -T ws pause " + "\"" + vmx + "\"")
 		else
 			raise ArgumentError, "Couldn't find: " + vmx, caller
 		end
@@ -24,27 +52,11 @@ class VmwareController
 		end
 	end
 
-	def get_running
-		output = `vmrun list`
-	end
-
-	def running?(vmx)
-		output = get_running
-
-		output.each_line do |line| 
-			next unless line =~ /^#{@vmbase}(.*)/
-			return true if line.strip == vmx.strip
-		end
-
-		return false
-	end
-
-
 	def run_command(vmx, command, user, pass, displayParameter=false)
 		if File.exist?(vmx)
 
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " runProgramInGuest \"" + vmx + "\" " + "\"" + command + "\" -interactive -noWait -activeWindow"
-			
+			@controller
 			if displayParameter
 				vmrunstr = vmrunstr + " -display :0"
 			end
@@ -61,29 +73,21 @@ class VmwareController
 	end
 
 	def copy_file_to(vmx, user, pass, hostpath, guestpath)
-
-			#puts "Copying " + hostpath + " to " + guestpath + " on " + vmx + "\n"
-
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " copyFileFromHostToGuest \"" + vmx + "\" \"" + hostpath + "\" \"" + guestpath + "\""  
 			system_command(vmrunstr)
 	end
 
 	def scp_copy_file_to(ip, user, pass, hostpath, guestpath)
-
-			#puts "Copying " + hostpath + " to " + guestpath + " on " + vmx + "\n"
-
 			vmrunstr = "scp -r \"" + hostpath + "\" \"" + user + "@" + ip + ":" + guestpath + "\""  
 			system_command(vmrunstr)
 	end
 
 	def check_file_exists(vmx, user, pass, file)
-
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " fileExistsInGuest \"" + vmx + "\" \"" + file + "\" "
 			system_command(vmrunstr)
 	end
 
 	def create_directory_in_guest(vmx, user, pass, directory)
-
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " createDirectoryInGuest \"" + vmx + "\" \"" + directory + "\" "
 			system_command(vmrunstr)
 	end
@@ -112,49 +116,45 @@ class VmwareController
 		end
 	end
 
-	def stop(vmx)
-		if File.exist?(vmx)
-			system_command("vmrun -T ws stop " + "\"" + vmx + "\"")
-		else
-			raise ArgumentError,"Couldn't find:  " + vmx, caller
-		end
+	def get_running
+		output = `vmrun list` ##hackity hack=begin
 	end
 
-	def suspend(vmx)
-		if File.exist?(vmx)
-			system_command("vmrun -T ws suspend " + "\"" + vmx + "\"")
-		else
-			raise ArgumentError,"Couldn't find: " + vmx, caller
-		end
-	end
+	def running?(vmx)
+		output = self.get_running
 
-	def pause(vmx)
-		if File.exist?(vmx)
-			system_command("vmrun -T ws pause " + "\"" + vmx + "\"")
-		else
-			raise ArgumentError, "Couldn't find: " + vmx, caller
+		output.each_line do |line| 
+			next unless line =~ /^#{@vmbase}(.*)/
+			return true if line.strip == vmx.strip
 		end
+
+		return false
 	end
 
 	private
 
 	def system_command(command)
-		puts "Running System Command: " + command 	
 		system(command)
 	end
+
 end
 
 #
-# Higher level methods which are specifc to the types of things we want to do
+# Higher level methods which are more specific to the types of things we want to do with a lab of machines
 #
-class VmwareLabController < VmwareController	
+class LabController 
 
-	def initialize (basepath = "." )
-		@vmbase = basepath
-		@lab = Hash.new()
+	attr_accessor :labdef
+	attr_accessor :vmbase
+	attr_accessor :controller
+
+	def initialize (basepath = ".", labdef = Hash.new)
+		@vmbase = basepath ## set the base directory for the lab (default to local)
+		@labdef = labdef ## assign the lab definition if we were passed one (default to empty)
+
+		## set up the controller. note that this is likely to change in the future (to provide for additional vm tech)
+		@controller = VmwareController.new 
 	end
-
-	attr_accessor :lab, :vmbase
 
 	def build_lab_from_running(basepath=nil)
 		@vmbase = basepath if basepath
@@ -174,23 +174,23 @@ class VmwareLabController < VmwareController
 	def stuff_array_into_lab(arr)
 		return false unless arr.kind_of? Array
 		arr.each_with_index {|v,i| 
-			@lab[i] = File.join(v.split(/[\x5c\x2f]+/))
-			if @lab[i] =~ /^#{@vmbase}(.*)/
-				@lab[i] = $1
+			@labdef[i] = File.join(v.split(/[\x5c\x2f]+/))
+			if @labdef[i] =~ /^#{@vmbase}(.*)/
+				@labdef[i] = $1
 			end
 		}
-		return @lab
+		return @labdef
 	end
 
 	def run_command_on_lab_vm(vmid,command)
 		begin	
 			## handle linux
 			display = false
-			if (@lab[vmid]["os"] == "linux")
+			if (@labdef[vmid]["os"] == "linux")
 				display=true
 			end
 
-			run_command(get_vmx(vmid), command , @lab[vmid]["user"],@lab[vmid]["pass"], display)
+			@controller.run_command(get_vmx(vmid), command , @labdef[vmid]["user"],@labdef[vmid]["pass"], display)
 
 		rescue Exception => e
 			puts "error! " + e.to_s
@@ -198,150 +198,173 @@ class VmwareLabController < VmwareController
 	end
 
 	def start_lab_vm(vmid)
-		begin	
-			start(get_vmx(vmid)) unless running? vmid
-		rescue Exception => e
-			puts "error! " + e.to_s
-		end 
+		if self.running?(vmid)
+			puts vmid + " already started."
+			self.list_running
+		else
+			begin	
+				@controller.start(get_vmx(vmid)) 
+			rescue Exception => e
+				puts "error! " + e.to_s
+			end 
+		end
 	end
 	
 	def reset_lab_vm(vmid)
 		begin	
-			reset(get_vmx(vmid))
+			@controller.reset(get_vmx(vmid))
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
 	end
 
 	def pause_lab_vm(vmid)
-		begin	
-			pause(get_vmx(vmid)) if running? vmid
-		rescue Exception => e
-			puts "error! " + e.to_s
-		end 
+
+		if !self.running?(vmid)
+			puts vmid + " not started."
+			self.list_running
+		else
+			begin	
+				@controller.pause(get_vmx(vmid)) 
+			rescue Exception => e
+				puts "error! " + e.to_s
+			end 
+		end
 	end
 
 	def suspend_lab_vm(vmid)
-		begin	
-			suspend(get_vmx(vmid)) if running? vmid
-		rescue Exception => e
-			puts "error! " + e.inspect
-		end 
+		if !self.running?(vmid)
+			puts vmid + " not started."
+			self.list_running
+		else
+			begin	
+				@controller.suspend(get_vmx(vmid))
+			rescue Exception => e
+				puts "error! " + e.inspect
+			end 
+		end
 	end
 
 	def snapshot_lab_vm(vmid, snapshot)
-		begin	
-			create_snapshot(get_vmx(vmid),snapshot)
-		rescue Exception => e
-			puts "error! " + e.to_s
-		end 
+		if !self.running?(vmid)
+			puts vmid + " not started."
+			self.list_running
+		else
+			begin	
+				@controller.create_snapshot(get_vmx(vmid),snapshot)
+			rescue Exception => e
+				puts "error! " + e.to_s
+			end 
+		end
 	end
 
 	def revert_lab_vm(vmid, snapshot)
-		begin	
-			revert_snapshot(get_vmx(vmid),snapshot)
-		rescue Exception => e
-			puts "error! " + e.to_s
-		end 
+		if !self.running?(vmid)
+			puts vmid + " not started."
+			self.list_running
+		else
+			begin	
+				@controller.revert_snapshot(get_vmx(vmid),snapshot)
+			rescue Exception => e
+				puts "error! " + e.to_s
+			end
+		end
 	end
 
 	def stop_lab_vm(vmid)
-		begin	
-			stop(get_vmx(vmid)) if running? vmid
-		rescue Exception => e
-			puts "error! " + e.to_s
-		end 
+		if !self.running?(vmid)
+			puts vmid + " not started."
+			self.list_running
+		else
+			begin	
+				@controller.stop(get_vmx(vmid))
+			rescue Exception => e
+				puts "error! " + e.to_s
+			end 
+		end
 	end
 
 	def start_lab
-		@lab.each { | key, value |
+		@labdef.each { | key, value |
 			if value
-				start_lab_vm(key)
+				self.start_lab_vm(key)
 			end
 		}
 	end
 
-	def reset_lab
-		@lab.each { | key, value |
+	def pause_lab
+		@labdef.each { | key, value |
 			if value
-				reset_lab_vm(key)
+				self.pause_lab_vm(key)
+			end
+
+		}
+	end
+
+
+	def stop_lab
+		@labdef.each { | key, value |
+			if value
+				self.stop_lab_vm(key)
+			end
+		}
+
+	end
+
+	def reset_lab
+		@labdef.each { | key, value |
+			if value
+				self.reset_lab_vm(key)
 			end
 		}
 	end
 
 
 	def suspend_lab
-		@lab.each { | key, value |
+		@labdef.each { | key, value |
 			if value 
-				suspend_lab_vm(key)
+				self.suspend_lab_vm(key)
 			end
 		}
 	end
 
 	def snapshot_lab(snapshot)
-		@lab.each { | key, value |
+		@labdef.each { | key, value |
 			if value
-				snapshot_lab_vm(key,snapshot)
+				self.snapshot_lab_vm(key,snapshot)
 			end
 		}
 	end
 
 	def revert_lab(snapshot)
-		@lab.each { | key, value |
+		@labdef.each { | key, value |
 			if value
-				revert_lab_vm(key,snapshot)
+				self.revert_lab_vm(key,snapshot)
 			end
 		}
 	end
 
         def run_command_on_lab(command)
-                @lab.each { | key, value |
+                @labdef.each { | key, value |
                         if value
-                                run_command_on_lab_vm(key, command)
+                                self.run_command_on_lab_vm(key, command)
                         end
                 }
         end
 
-	def pause_lab
-		@lab.each { | key, value |
-			if value
-				pause_lab_vm(key)
-			end
-
-		}
-	end
-
-	def stop_lab
-		@lab.each { | key, value |
-			if value
-				stop_lab_vm(key)
-			end
-		}
-
-	end
-
-	def revert_lab(snapshot)
-		@lab.each { | key, value |
-			if value
-				revert_lab_vm(key, snapshot)
-			end
-		}
-	end
-
-
-
 	def copy_to_lab(file)	
-		@lab.each { | key, value |
+		@labdef.each { | key, value |
 			if value
-				copy_to_lab_vm(key,file)
+				self.copy_to_lab_vm(key,file)
 			end
 		}
 	end
 
 	def copy_from_lab(file)	
-		@lab.each { | key, value |
+		@labdef.each { | key, value | 
+			next unless line =~ /^#{@vmbase}(.*)/
 			if value
-				copy_from_lab_vm(key,file)
+				self.copy_from_lab_vm(key,file)
 			end
 		}
 	end
@@ -349,80 +372,79 @@ class VmwareLabController < VmwareController
 	def copy_to_lab_vm(vmid,file)
 		## handle linux
 		
-		guestpath = "C:\\temp2\\"
+		guestpath = "C:\\temp\\"
 
-		if (@lab[vmid]["os"] == "linux")
+		if (@labdef[vmid]["os"] == "linux")
 			guestpath = "/tmp/"
 		end
 		
-		name = File.basename(file) 
-
-		if (@lab[vmid]["tools"] == "true")
-			
-			create_directory_in_guest(get_vmx(vmid),@lab[vmid]["user"],@lab[vmid]["pass"], guestpath)
-
+		name = File.basename(file) 	
+	
+		## if we've installed vm-tools on the box, use that to copy. if not, use scp
+		if (@labdef[vmid]["tools"] == "true")
+			@controller.create_directory_in_guest(get_vmx(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"], guestpath)
 
 			begin	
-				copy_file_to(get_vmx(vmid),@lab[vmid]["user"],@lab[vmid]["pass"],file, guestpath + name)
+				@controller.copy_file_to(get_vmx(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file, guestpath + name)
 			rescue Exception => e
 				puts "error! " + e.to_s
 			end 
 		else
-			scp_copy_file_to(@lab[vmid]["ip"], @lab[vmid]["user"],@lab[vmid]["pass"], file, guestpath + name)
-
+			@controller.scp_copy_file_to(@labdef[vmid]["ip"], @labdef[vmid]["user"],@labdef[vmid]["pass"], file, guestpath + name)
 		end
-
 	end
 	
-
-
 	def copy_from_lab_vm(vmid,file)
 		hostpath = "/tmp/"
 
 		name = File.basename(file.gsub("\\","/")) 
 
-		#puts "filenaem: " + name + "\n"
-
 		begin	
-			copy_file_from(get_vmx(vmid),@lab[vmid]["user"],@lab[vmid]["pass"],file,hostpath + name)
+			@controller.copy_file_from(get_vmx(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file,hostpath + name)
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
 	end
 	
+	def list_running
+		@controller.get_running	
+	end
 
 	def list_lab
 		str = ""
-		@lab.map { |key,val| 
+		@labdef.sort.each { |key,val|
+
 			if val != nil
 				str = str + key.to_s + ": "  + val["vmx"].to_s + "\n"
 			end
 		 }
-	return str
+		return str
 	end
 
         def find_lab_vm(search)
-                str = ""
-                @lab.map { |key,val|
+		str = ""
+                @labdef.sort.each { |key,val|
                         if val != nil
 				if (val["vmx"].to_s.downcase.index(search.downcase) != nil)
 	                                str = str + key.to_s + ": "  + val["vmx"].to_s + "\n"
 				end
                         end
                  }
-        return str
+		return str
         end
 
 	def running?(vmid)
-		if super(get_vmx(vmid))
+		if @controller.running?(get_vmx(vmid))
 			return true
 		end
 		return false
 	end
 
+	private
+
 	def get_vmx(vmid)
-		if @lab[vmid]
-			@vmbase.to_s + @lab[vmid]["vmx"].to_s		## handle linux
+		if @labdef[vmid]
+			@vmbase.to_s + @labdef[vmid]["vmx"].to_s		## handle linux
 		else
 			raise "VM #{vmid} does not exist!"
 		end
