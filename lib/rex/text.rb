@@ -232,6 +232,17 @@ module Text
 	end
 
 	#
+	# Returns the string with nonprintable hex characters sanitized to ascii. Similiar to to_hex,
+	# but regular ASCII is not translated if count is 1.
+	#
+	def self.to_hex_ascii(str, prefix = "\\x", count = 1)
+		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
+		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s| 
+			(0x20..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s
+		}
+	end
+
+	#
 	# Converts standard ASCII text to a unicode string.
 	#
 	# Supported unicode types include: utf-16le, utf16-be, utf32-le, utf32-be, utf-7, and utf-8

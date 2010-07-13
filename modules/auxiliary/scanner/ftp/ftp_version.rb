@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = connect(true, false)
 
 		if(banner)
-			banner_sanitized = self.banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0].ord}
+			banner_sanitized = Rex::Text.to_hex_ascii(self.banner.to_s)
 			print_status("#{rhost}:#{rport} FTP Banner: '#{banner_sanitized}'")
 			report_service(:host => rhost, :port => rport, :name => "ftp", :info => banner_sanitized)
 		end

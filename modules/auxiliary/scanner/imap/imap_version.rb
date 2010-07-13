@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			res = connect
-			banner_sanitized = banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0,1].unpack("C")[0] }
+			banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
 			print_status("#{ip}:#{rport} IMAP #{banner_sanitized}")
 			report_service(:host => rhost, :port => rport, :name => "imap", :info => banner)
 		rescue ::Rex::ConnectionError

@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res    = connect
 			banner = sock.get_once(-1, 30)
-			banner_sanitized = banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0,1].unpack("C")[0] }
+			banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
 			print_status("#{ip}:#{rport} POP3 #{banner_sanitized}")
 			report_service(:host => rhost, :port => rport, :name => "pop3", :info => banner)
 		rescue ::Rex::ConnectionError

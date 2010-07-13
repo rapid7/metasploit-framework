@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Application-level error condition
 		if proto == 255
 			offset += 2
-			err_msg = data[offset..-1].to_s.gsub(/[\x00-\x19\x7f-\xff]/) {|s| "\\x%02x" % s[0].ord}
+			err_msg = Rex::Text.to_hex_ascii(data[offset..-1].to_s)
 			print_status("#{rhost}:#{rport} is running MySQL, but responds with an error: #{err_msg}")
 			report_service(
 				:host => rhost,

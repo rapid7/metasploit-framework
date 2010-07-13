@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = connect
 			# This makes db_services look a lot nicer.
-			banner_santized = banner.to_s.gsub(/[\x00-\x19\x7f-\xff]/) { |s| "\\x%02x" % s[0].ord}
+			banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
 			print_status("#{ip}:#{rport} TELNET #{banner_santized}")
 			report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
 		rescue ::Rex::ConnectionError
