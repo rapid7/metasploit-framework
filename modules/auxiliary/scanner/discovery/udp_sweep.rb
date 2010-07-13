@@ -54,10 +54,14 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_db2disco'
 		@probes << 'probe_pkt_citrix'
 
+	end
+
+	def setup
+		super
+
 		if datastore['RANDOMIZE_PORTS']
 			@probes = @probes.sort_by { rand }
 		end
-
 	end
 
 
