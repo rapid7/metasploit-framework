@@ -418,8 +418,8 @@ function getVersion(){
 				}
 				break;
 		}
-		if (ua_is_lying) { alert("UA is lying"); }
-		alert(ua_version + " vs " + navigator.userAgent);
+		//if (ua_is_lying) { alert("UA is lying"); }
+		//alert(ua_version + " vs " + navigator.userAgent);
 
 		// end navigator.buildID checks
 
