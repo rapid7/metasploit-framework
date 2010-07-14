@@ -43,8 +43,8 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Read a SMB packet from the socket
 	def smb_recv
-		data = socket.get_once(-1, self.read_timeout)
 
+		data = socket.timed_read(4, self.read_timeout)
 		if (data.nil? or data.length < 4)
 			raise XCEPT::NoReply
 		end
