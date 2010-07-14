@@ -108,6 +108,10 @@ class Module
 	# hash.
 	#
 	def initialize(info = {})
+
+		@module_info_copy = info.dup
+
+
 		self.module_info = info
 		generate_uuid
 
@@ -151,8 +155,13 @@ class Module
 	# Creates a fresh copy of an instantiated module
 	#
 	def replicant
+
 		obj = self.class.new
-		obj.generate_uuid
+		self.instance_values.each_pair do |k,v|
+			v = v.dup rescue v
+			obj.instance_variable_set("@#{k}", v)
+		end
+
 		obj.datastore    = self.datastore.copy
 		obj.user_input   = self.user_input
 		obj.user_output  = self.user_output
