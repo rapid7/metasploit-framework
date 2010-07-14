@@ -119,7 +119,11 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 			break
+
+		rescue ::Rex::Proto::SMB::Exceptions::NoReply => e
+			next
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode  => e
+			next
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 			# Vista has 139 open but doesnt like *SMBSERVER
 			if(e.to_s =~ /server refused our NetBIOS/)
@@ -130,6 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Timeout::Error
 		rescue ::Rex::ConnectionError
 			next
+
 		rescue ::Exception => e
 			print_error("#{rhost}: #{e.class} #{e}")
 		ensure
