@@ -13,7 +13,7 @@ class ActiveRecord::Base
 				string
 			end
 		rescue ::Exception => e
-			YAML.load(string) rescue string
+			string
 		end
 	end
 end
