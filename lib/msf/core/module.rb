@@ -165,7 +165,7 @@ class Module
 		obj.datastore    = self.datastore.copy
 		obj.user_input   = self.user_input
 		obj.user_output  = self.user_output
-		obj.module_store = self.module_store
+		obj.module_store = self.module_store.clone
 		obj
 	end
 
