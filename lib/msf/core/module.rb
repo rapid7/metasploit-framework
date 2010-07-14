@@ -151,7 +151,7 @@ class Module
 	# Creates a fresh copy of an instantiated module
 	#
 	def replicant
-		obj = self.dup
+		obj = self.class.new
 		obj.generate_uuid
 		obj.datastore    = self.datastore.copy
 		obj.user_input   = self.user_input

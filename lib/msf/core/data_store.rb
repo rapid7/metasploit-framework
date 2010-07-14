@@ -212,22 +212,6 @@ class DataStore < Hash
 		self
 	end
 
-	#
-	# Return a deep copy of this datastore.
-	#
-	def copy
-		copy = self.dup
-		self.keys.each do |k|
-			if self[k].kind_of? String
-				v = self[k].dup
-			else
-				v = self[k]
-			end
-			copy.import_option(k, v, @imported[k], @imported_by[k])
-		end
-		copy
-	end
-
 protected
 
 	#
@@ -297,6 +281,16 @@ class ModuleDataStore < DataStore
 		(@imported_by[key] == 'self')
 	end
 
+	#
+	# Return a deep copy of this datastore.
+	#
+	def copy
+		clone = self.class.new(@_module)
+		self.keys.each do |k|
+			clone.import_option(k, self[k].kind_of?(String) ? self[k].dup : self[k], @imported[k], @imported_by[k])
+		end
+		clone
+	end
 end
 
 end
