@@ -11,78 +11,177 @@
 
 # $Revision$
 
-require 'packetfu'
-
 module Msf
+
 class Plugin::PcapLog < Msf::Plugin
 
-	include PacketFu
+	# Only little-endian is supported in this implementation.
+	PCAP_FILE_HEADER = "\xD4\xC3\xB2\xA1\x02\x00\x04\x00\x00\x00\x00\x00\x00\x00\x00\x00`\x00\x00\x00\x01\x00\x00\x00"
 
-	def no_pcaprub_error
-		print_error(" -- PcapRub is not installed -- ")
-		print_error("Make sure you have libpcap-dev and try the following commands")
-		print_error("to install it:")
-		print_error("\t$ cd external/pcaprub/")
-		print_error("\t$ ruby extconf.rb && make && sudo make install")
-	end
-	def usage
-		print_error("No interface given")
-		print ("usage: load #{self.name} iface=<iface> [path=<logpath>] [prefix=<logprefix>] [filter=\"<filter>\"]\n")
-	end
+	#
+	# Implements a pcap console command dispatcher.
+	#
+	class PcapLogDispatcher
 
+		include Msf::Ui::Console::CommandDispatcher
+
+		def name
+			"PcapLog"
+		end
+
+		def commands
+			{
+				"pcap_filter" => "Set/Get a BPF-style packet filter",
+				"pcap_dir"    => "Set/Get a directory to log pcaps to",
+				"pcap_prefix" => "Set/Get a filename prefix to log pcaps to",
+				"pcap_iface"  => "Set/Get an interface to capture from",
+				"pcap_start"  => "Start a capture",
+				"pcap_stop"   => "Stop a running capture",
+				
+				"pcap_show_config"  => "Show the current PcapLog configuration"
+			}
+		end
+
+		def cmd_pcap_filter(*args)
+			@filter = args.join(' ') || @filter
+			print_line "#{self.name} BPF filter: #{@filter}"
+		end
+
+		def cmd_pcap_prefix(*args)
+			@prefix = args[0] || @prefix || "msf3-session"
+			print_line "#{self.name} prefix: #{@prefix}"
+		end
+
+		def cmd_pcap_dir(*args)
+			@dir = args[0] || @dir || "/tmp"
+			print_line "#{self.name} Directory: #{@dir}"
+		end
+
+		def cmd_pcap_iface(*args)
+			@iface = args[0] || @iface
+			print_line "#{self.name} Interface: #{@iface}" 
+		end
+
+		def cmd_pcap_start(*args)
+			if @capture_thread && @capture_thread.alive?
+				print_error "Capture already started."
+				return false
+			end
+
+			gen_fname
+			print_line "Starting packet capture from #{@iface} to #{@fname}"
+			okay,msg = validate_options
+			unless okay
+				print_error msg
+				return false
+			end
+			dev = (@iface || ::Pcap.lookupdev)
+			@capture_file.write(PCAP_FILE_HEADER)
+			@capture_file.flush
+			@pcap = ::Pcap.open_live(dev, 65535, true, 1)
+			@pcap.setfilter(@filter) if @filter
+			@capture_thread = Thread.new {
+				@pcap.each do |pkt|
+					@capture_file.write(convert_to_pcap(pkt))
+					@capture_file.flush
+				end
+			}
+		end
+
+		def cmd_pcap_stop(*args)
+			if @capture_thread && @capture_thread.alive?
+				print_line "Stopping packet capture from #{@iface} to #{@fname}"
+				print_line "Capture Stats: #{@pcap.stats.inspect}"
+				@pcap = nil
+				@capture_file.close if @capture_file.respond_to? :close
+				@capture_thread.kill 
+				@capture_thread = nil
+			else
+				print_error "No capture running."
+			end
+		end
+
+		def convert_to_pcap(packet)
+			t = Time.now
+			sz = packet.size
+			[t.to_i, t.usec, sz, sz, packet].pack("V4A*")
+		end
+
+		def gen_fname
+			t = Time.now
+			file_part = "%s_%04d-%02d-%02d_%02d-%02d-%02d.pcap" % [
+				@prefix, t.year, t.month, t.mday, t.hour, t.min, t.sec
+			]
+			@fname = File.join(@dir, file_part)
+		end
+
+		# Check for euid 0 and check for a valid place to write files
+		def validate_options
+
+			# Check for root.
+			unless Process.euid.zero?
+				msg = "You must run as root in order to capture packets."
+				return [false, msg]
+			end
+
+			# Check directory suitability. 
+			unless File.directory? @dir
+				msg = "Invalid pcap directory specified: '#{@dir}'"
+				return [false, msg]
+			end
+
+			unless File.writable? @dir
+				msg = "No write permission to directory: '#{@dir}'"
+				return [false, msg]
+			end
+
+			@capture_file = File.open(@fname, "ab")
+			unless File.writable? @fname
+				msg = "Cannot write to file: '#{@fname}'"
+				return [false, msg]
+			end
+
+			# If you got this far, you're golden.
+			msg = "We're good!"
+			return [true, msg]
+		end
+
+		# Need to pretend to have a datastore for Exploit::Capture to
+		# function.
+		def datastore
+			{}
+		end
+
+		def initialize(*args)
+			super
+			@dir = "/tmp"
+			@prefix = "msf3-session"
+			@filter = nil
+			@pcaprub_loaded = false
+			begin
+				require 'pcaprub'
+				@pcaprub_loaded = true
+				@iface = ::Pcap.lookupdev
+			rescue ::Exception => e
+				print_error "#{e.class}: #{e}"
+				@pcaprub_loaded = false
+				@pcaprub_error = e
+			end
+		end
+
+	end
+	
 	def initialize(framework, opts)
 		super
-		log_path    = opts['path'] || "/tmp"
-		log_prefix  = opts['prefix'] || "msf3-session_"
-		iface       = opts['iface'] || nil
-		filter      = opts['filter']
-
-		begin
-			require 'pcaprub'
-		rescue LoadError
-			self.no_pcaprub_error
-			raise
-		end
-
-		if (iface.nil?)
-			self.usage
-			raise RuntimeError.new("No interface specified")
-		end
-
-		t = Time.now
-		@fname = File.join(log_path, log_prefix).to_s
-		@fname += "%04d-%02d-%02d_%02d-%02d-%02d.pcap" % [t.year, t.month, t.mday, t.hour, t.min, t.sec]
-		print_status("Logs in #{@fname}")
-
-		stream = PacketFu::Capture.new(:iface => iface, :timeout => 0, :start => true, :filter => filter)
-		PacketFu::Write.a2f(:filename => @fname, :arr => [])
-		@capture_file = File.open(@fname, "ab")
-
-		@capture_thread = Thread.new {
-			print_status("Starting capture thread on interface #{iface}")
-			begin
-				while true
-					while (this_pkt = stream.next)
-						if this_pkt
-							PacketFu::Write.append(:file => @capture_file, :pkt => this_pkt)
-						else
-							print_status("No packets")
-						end
-					end
-					@capture_file.flush
-					Rex::ThreadSafe.sleep(1)
-				end
-			rescue
-				print_error($!.message + $!.backtrace.join("\n"))
-			end
-			print_status("Stopping capture thread")
-		}
-		@capture_thread.priority -= 1000
+		add_console_dispatcher(PcapLogDispatcher)
+		print_status "PcapLog plugin loaded."
 	end
 
+	# Kill the background thread
 	def cleanup
-		@capture_file.close
 		@capture_thread.kill if @capture_thread && @capture_thread.alive?
+		@capture_file.close if @capture_file.respond_to? :close
+		remove_console_dispatcher('PcapLog')
 	end
 
 	def name
@@ -95,4 +194,3 @@ class Plugin::PcapLog < Msf::Plugin
 
 end
 end
-
