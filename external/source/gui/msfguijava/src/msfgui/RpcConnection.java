@@ -254,12 +254,12 @@ public class RpcConnection {
 				root.setAttribute("host", "127.0.0.1");
 				root.setAttribute("port", Integer.toString(defaultPort));
 
-				setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -S -U metasploit -a 127.0.0.1\"");
+				setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");
 				setProgress(0.2f);
 				Process proc = null;
 				try {
 					proc = MsfguiApp.startMsfProc(new String[]{
-							"msfrpcd","-P",defaultPass,"-S","-U",defaultUser,"-a","127.0.0.1"});
+							"msfrpcd","-P",defaultPass,"-t","Basic","-S","-U",defaultUser,"-a","127.0.0.1"});
 				} catch (MsfException ex) {
 					setMessage("msfrpcd not found.");
 					setProgress(1f);

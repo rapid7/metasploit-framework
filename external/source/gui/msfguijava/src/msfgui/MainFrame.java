@@ -48,7 +48,7 @@ public class MainFrame extends FrameView {
 	private SessionsTable sessionsTableModel;
 	private JPopupMenu jobPopupMenu, shellPopupMenu, meterpreterPopupMenu, sessionPopupMenu;
 	private String clickedJob;
-	public Map session;
+	public Map[] selectedSessions;
 	private SearchWindow searchWin;
 
 	public MainFrame(SingleFrameApplication app) {
@@ -132,8 +132,10 @@ public class MainFrame extends FrameView {
 		sessionsPollTimer = new SwingWorker(){
 			@Override
 			protected List doInBackground() throws Exception {
+				int delay = 500;
 				while(true){
 					try {
+						Thread.sleep(delay);
 						//update sessions
 						Map slist = (Map) rpcConn.execute("session.list");
 						ArrayList sessionList = new ArrayList();
@@ -165,9 +167,9 @@ public class MainFrame extends FrameView {
 							i++;
 						}
 						publish((Object)jobStrings);
-						Thread.sleep(500);
 					} catch (MsfException xre) {
 						JOptionPane.showMessageDialog(null, xre);
+						delay *= 2;
 					} catch (InterruptedException iex){
 					}
 				}
@@ -209,7 +211,7 @@ public class MainFrame extends FrameView {
 					searchNext = false;
 					Component [] compsCopy = comps;
 					for (Component menu : compsCopy) {
-						if (menu.getName().equals(names[i])) {
+						if (menu.getName().equals(names[i]) && menu instanceof JMenu) {
 							if (i < names.length - 1) 
 								currentMenu = (JMenu) menu;
 							found = true;
@@ -429,6 +431,7 @@ public class MainFrame extends FrameView {
             }
         ));
         sessionsTable.setName("sessionsTable"); // NOI18N
+        sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane2.setViewportView(sessionsTable);
 
         searchButton.setText(resourceMap.getString("searchButton.text")); // NOI18N
@@ -723,9 +726,9 @@ public class MainFrame extends FrameView {
 	private void killSessionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killSessionsMenuItemActionPerformed
 		for( Object sesObj : sessionsTableModel.sessions ){
 			try{
-				rpcConn.execute("session.stop", new Object[]{session.get("id")});
+				rpcConn.execute("session.stop", new Object[]{((Map)sesObj).get("id")});
 			} catch (MsfException xre) {
-				statusMessageLabel.setText("Error killing session "+session.get("id"));
+				statusMessageLabel.setText("Error killing session "+((Map)sesObj).get("id"));
 			}
 		}
 	}//GEN-LAST:event_killSessionsMenuItemActionPerformed
@@ -761,7 +764,8 @@ public class MainFrame extends FrameView {
 		return RpcConnection.startRpcConn(this);
 	}
 	public void showInteractWindow() {
-		((InteractWindow)(sessionPopupMap.get(session.get("uuid")))).setVisible(true);
+		for(Map session : selectedSessions)
+			((InteractWindow)(sessionPopupMap.get(session.get("uuid")))).setVisible(true);
 	}
 	/* Master function to setup popup menus for jobs and sessions
 	 * First handles jobs, then shell sessions, then meterpreter sessions,
@@ -804,18 +808,19 @@ public class MainFrame extends FrameView {
 		//SESSION POPUP MENUS
 		sessionsTable.addMouseListener(new PopupMouseListener() {
 			public void doubleClicked(MouseEvent e){ //show interaction window on double-click
-				int clickedSession = sessionsTable.rowAtPoint(e.getPoint());
-				if (clickedSession == -1)
-					return;
-				session = (Map) sessionsTableModel.getSessionList().get(clickedSession);
-				showInteractWindow();
+				int[] selrows = sessionsTable.getSelectedRows();
+				selectedSessions = new HashMap[selrows.length];
+				for(int i = 0; i < selrows.length; i++)
+					selectedSessions[i] =  (Map)sessionsTableModel.getSessionList().get(selrows[i]);
 			}
 			public void showPopup(MouseEvent e) {
 				//must have a row selected
-				int clickedSession = sessionsTable.rowAtPoint(e.getPoint());
-				if (!e.isPopupTrigger() || clickedSession == -1)
+				if (!e.isPopupTrigger())
 					return;
-				session = (Map) sessionsTableModel.getSessionList().get(clickedSession);
+				doubleClicked(e);
+				if(selectedSessions.length == 0)
+					return;
+				Map session = selectedSessions[0];
 				if (session.get("type").equals("shell"))
 					shellPopupMenu.show(e.getComponent(), e.getX(), e.getY());
 				else if (session.get("type").equals("meterpreter"))
@@ -837,13 +842,13 @@ public class MainFrame extends FrameView {
 
 		//Setup meterpreter menu
 		meterpreterPopupMenu = new JPopupMenu();
-		addSessionItem("Access Filesystem",meterpreterPopupMenu,new RpcAction() {
-			public void action() throws Exception {
+		addSessionItem("Access Filesystem",meterpreterPopupMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
 				new MeterpFileBrowser(rpcConn, session, sessionPopupMap).setVisible(true);
 			}
 		});
-		addSessionItem("Processes",meterpreterPopupMenu,new RpcAction() {
-			public void action() throws Exception {
+		addSessionItem("Processes",meterpreterPopupMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
 				new ProcessList(rpcConn,session,sessionPopupMap).setVisible(true);
 			}
 		});
@@ -863,8 +868,8 @@ public class MainFrame extends FrameView {
 		meterpreterPopupMenu.add(monitorMenu);
 		addScript("Start keylogger",monitorMenu,"keylogrecorder");
 		addScript("Start packet recorder",monitorMenu,"packetrecorder");
-		addScript("Screenshot",monitorMenu,new RpcAction() {
-			public void action() throws Exception {
+		addScript("Screenshot",monitorMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
 				rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),
 						Base64.encode("screenshot\n".getBytes())});
 			}
@@ -896,8 +901,8 @@ public class MainFrame extends FrameView {
 				return "gettelnet.rb "+UserPassDialog.getUserPassOpts(getFrame());
 			}
 		});
-		addScript("Add admin user",accessMenu,new RpcAction() {
-			public void action() throws Exception {
+		addScript("Add admin user",accessMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
 				String[] userPass = UserPassDialog.showUserPassDialog(getFrame());
 				if(userPass == null)
 					return;
@@ -938,6 +943,8 @@ public class MainFrame extends FrameView {
 	}
 	/** Adds a named session menu item to a given popup menu */
 	private void addSessionItem(String name, JComponent menu,ActionListener action) {
+		if(action == null)
+			action = new RpcAction(null,this);
 		JMenuItem tempItem = new JMenuItem(name);
 		menu.add(tempItem);
 		tempItem.addActionListener(action);
@@ -961,8 +968,8 @@ public class MainFrame extends FrameView {
 	}
 	/** Adds a kill session menu item to a given popup menu */
 	private void addSessionKillItem(JComponent popupMenu) throws HeadlessException {
-		addSessionItem("Kill session",popupMenu,new RpcAction() {
-			public void action() throws Exception {
+		addSessionItem("Kill session",popupMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
 				rpcConn.execute("session.stop", new Object[]{session.get("id")});
 			}
 		});

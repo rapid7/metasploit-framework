@@ -11,7 +11,7 @@ public class AutorouteOptionsDialog extends OptionsDialog {
         super(parent.getFrame(), "Autoroute Options", modal);
         initComponents();
 		try{
-			ipField.setText(parent.session.get("tunnel_peer").toString().split(":")[0]+"/24");
+			ipField.setText("192.168.1.1/24");
 		}catch(NullPointerException nex){
 		}
     }
