@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			udp_sock = nil
 
-		@probes.each do |probe|
+			@probes.each do |probe|
 
 			# Send each probe to each host
 
