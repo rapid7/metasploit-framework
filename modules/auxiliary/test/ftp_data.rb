@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'	      => 'FTP Client Exploit Mixin DATA test Exploit',
 			'Version'      => '$Revision$',
 			'Description'  => 'This module tests the "DATA" functionality of the ftp client exploit mixin.',
-			'Author'	      => [ 'Thomas Ring', 'jduck' ]
+			'Author'	      => [ 'Thomas Ring', 'jduck' ],
 			'License'      => MSF_LICENSE
 		)
 	
