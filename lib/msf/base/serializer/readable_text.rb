@@ -442,9 +442,11 @@ class ReadableText
 			row = [ k, framework.jobs[k].name ]
 			if (verbose)
 				ctx = framework.jobs[k].ctx
+				uripath = ctx[0].get_resource if ctx[0].respond_to?(:get_resource)
+				uripath = ctx[0].datastore['URIPATH'] if uripath.nil?
 				row << (ctx[1].nil? ? (ctx[0].datastore['PAYLOAD'] || "") : ctx[1].refname)
-				row << (ctx[0].datastore['LPORT']   || "")
-				row << (ctx[0].datastore['URIPATH'] || "")
+				row << (ctx[0].datastore['LPORT'] || "")
+				row << (uripath || "")
 				row << (framework.jobs[k].start_time || "")
 			end
 
