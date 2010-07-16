@@ -199,6 +199,7 @@ public class MainFrame extends FrameView {
 	private void expandList(Object[] mlist, JMenu rootMenu, RunMenuFactory factory, String type) {
 		if (mlist == null)
 			return;
+                java.util.Arrays.sort(mlist);
 		for (Object fullName : mlist) {
 			String[] names = fullName.toString().split("/");
 			JMenu currentMenu = rootMenu;
