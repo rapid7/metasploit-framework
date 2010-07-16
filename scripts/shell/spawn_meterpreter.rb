@@ -80,8 +80,12 @@ begin
 	#
 	lplat = [Msf::Platform::Windows]
 	larch = [ARCH_X86]
+	linemax = 1700
+	if (session.exploit_datastore['LineMax'])
+		linemax = session.exploit_datastore['LineMax'].to_i
+	end
 	opts = {
-		:linemax => 1700,
+		:linemax => linemax,
 		:decoder => File.join(Msf::Config.install_root, "data", "exploits", "cmdstager", "vbs_b64"),
 		#:nodelete => true # keep temp files (for debugging)
 	}
