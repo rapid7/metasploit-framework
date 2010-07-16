@@ -54,9 +54,8 @@ class VmwareController
 
 	def run_command(vmx, command, user, pass, displayParameter=false)
 		if File.exist?(vmx)
-
 			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " runProgramInGuest \"" + vmx + "\" " + "\"" + command + "\" -interactive -noWait -activeWindow"
-			@controller
+	
 			if displayParameter
 				vmrunstr = vmrunstr + " -display :0"
 			end
@@ -66,30 +65,40 @@ class VmwareController
 			raise ArgumentError,"Couldn't find: " + vmx, caller
 		end
 	end
+	
+	def run_ssh_command(hostname, command, user)
+		ssh_command = "ssh " + user + "@" + hostname + " " + command
+		system_command(ssh_command)
+	end
 
 	def copy_file_from(vmx, user, pass, guestpath, hostpath)
-			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " copyFileFromGuestToHost \"" + vmx + "\" \"" + guestpath + "\" \"" + hostpath + "\"" 
-			system_command(vmrunstr)
+		vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " copyFileFromGuestToHost \"" + vmx + "\" \"" + guestpath + "\" \"" + hostpath + "\"" 
+		system_command(vmrunstr)
+	end
+	
+	def scp_copy_file_from(hostname, user, guestpath, hostpath)
+		vmrunstr = "scp -r \"" + user + "@" + hostname + ":" + guestpath + "\" \"" + hostpath + "\"" ## TODO - setup keys  
+		system_command(vmrunstr)
 	end
 
 	def copy_file_to(vmx, user, pass, hostpath, guestpath)
-			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " copyFileFromHostToGuest \"" + vmx + "\" \"" + hostpath + "\" \"" + guestpath + "\""  
-			system_command(vmrunstr)
+		vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " copyFileFromHostToGuest \"" + vmx + "\" \"" + hostpath + "\" \"" + guestpath + "\""  
+		system_command(vmrunstr)
 	end
 
-	def scp_copy_file_to(ip, user, pass, hostpath, guestpath)
-			vmrunstr = "scp -r \"" + hostpath + "\" \"" + user + "@" + ip + ":" + guestpath + "\""  
-			system_command(vmrunstr)
+	def scp_copy_file_to(hostname, user, hostpath, guestpath)
+		vmrunstr = "scp -r \"" + hostpath + "\" \"" + user + "@" + hostname + ":" + guestpath + "\"" ## TODO - setup keys  
+		system_command(vmrunstr)
 	end
 
 	def check_file_exists(vmx, user, pass, file)
-			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " fileExistsInGuest \"" + vmx + "\" \"" + file + "\" "
-			system_command(vmrunstr)
+		vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " fileExistsInGuest \"" + vmx + "\" \"" + file + "\" "
+		system_command(vmrunstr)
 	end
 
 	def create_directory_in_guest(vmx, user, pass, directory)
-			vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " createDirectoryInGuest \"" + vmx + "\" \"" + directory + "\" "
-			system_command(vmrunstr)
+		vmrunstr = "vmrun -T ws -gu " + user + " -gp " + pass + " createDirectoryInGuest \"" + vmx + "\" \"" + directory + "\" "
+		system_command(vmrunstr)
 	end
 
 	def create_snapshot(vmx, snapshot)
@@ -134,6 +143,7 @@ class VmwareController
 	private
 
 	def system_command(command)
+		puts "Running command: " + command
 		system(command)
 	end
 
@@ -186,12 +196,13 @@ class LabController
 		begin	
 			## handle linux
 			display = false
+			
 			if (@labdef[vmid]["os"] == "linux")
-				display=true
+				#display=true
+				@controller.run_ssh_command(@labdef[vmid]["hostname"], command , @labdef[vmid]["user"])
+			else
+				@controller.run_command(get_vmx(vmid), command , @labdef[vmid]["user"],@labdef[vmid]["pass"], display)
 			end
-
-			@controller.run_command(get_vmx(vmid), command , @labdef[vmid]["user"],@labdef[vmid]["pass"], display)
-
 		rescue Exception => e
 			puts "error! " + e.to_s
 		end 
@@ -372,25 +383,31 @@ class LabController
 	def copy_to_lab_vm(vmid,file)
 		## handle linux
 		
-		guestpath = "C:\\temp\\"
-
+		guestpath  = ""
+		
 		if (@labdef[vmid]["os"] == "linux")
 			guestpath = "/tmp/"
+		else
+			guestpath = "C:\\temp_msf\\\\" ## double-escaping because it's being used in a system command. 
 		end
-		
-		name = File.basename(file) 	
-	
+
+		name = File.basename(file)
+
 		## if we've installed vm-tools on the box, use that to copy. if not, use scp
 		if (@labdef[vmid]["tools"] == "true")
+			
+			puts "creating directory: " + guestpath
 			@controller.create_directory_in_guest(get_vmx(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"], guestpath)
 
 			begin	
+				puts "copying file: " + file + " into " + guestpath + name
 				@controller.copy_file_to(get_vmx(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file, guestpath + name)
 			rescue Exception => e
 				puts "error! " + e.to_s
 			end 
 		else
-			@controller.scp_copy_file_to(@labdef[vmid]["ip"], @labdef[vmid]["user"],@labdef[vmid]["pass"], file, guestpath + name)
+			puts "scp copying file: " + file + " into " + guestpath + name
+			@controller.scp_copy_file_to(@labdef[vmid]["hostname"], @labdef[vmid]["user"], file, guestpath + name)
 		end
 	end
 	
