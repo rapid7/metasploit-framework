@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'	      => [ 'Thomas Ring', 'jduck' ],
 			'License'      => MSF_LICENSE
 		)
-	
-	
+
+
 		register_options(
 			[
 				OptString.new('UPLOADDIR', [ true,  "The directory to use for the upload test", '/incoming' ])

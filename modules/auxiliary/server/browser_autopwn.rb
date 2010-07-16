@@ -696,7 +696,7 @@ class Metasploit3 < Msf::Auxiliary
 				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
-		js << "var noscript_exploits = \"" 
+		js << "var noscript_exploits = \""
 		js << Rex::Text.to_hex(build_noscript_html(cli, request), "%")
 		js << "\";"
 		js << 'noscript_div = document.createElement("div");'
