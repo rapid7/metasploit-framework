@@ -21,9 +21,9 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'PHP Meterpreter',
+			'Name'          => 'PHP Meterpreter, Reverse TCP Inline',
 			'Version'       => '$Revision: 8984 $',
-			'Description'   => 'Run a meterpreter server in PHP that connects to the attacker over TCP',
+			'Description'   => 'Connect back to attacker and spawn a Meterpreter server (PHP)',
 			'Author'        => ['egypt'],
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
