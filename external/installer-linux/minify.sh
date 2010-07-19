@@ -16,6 +16,10 @@ HACKING
 data/templates/src/
 documentation/
 external/
+lib/msf/ui/gtk2
+lib/msf/ui/gtk2.rb
+lib/msf/ui/web
+lib/msf/ui/web.rb
 lib/rex/exploitation/opcodedb.rb
 modules/auxiliary/dos/
 modules/auxiliary/fuzzers/
