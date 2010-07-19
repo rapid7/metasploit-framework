@@ -6,13 +6,22 @@ BASE=`dirname $0`
 ARCHIVE=$1
 if [ -n "${ARCHIVE}" ]; then
     echo "Extracting archive"
-    rm -rf tmp/msf3-*
-    tar -C tmp -xjf "${ARCHIVE}"
-    cp -r tmp/msf3-http tmp/msf3-full
+    rm -rf msf3-*
+    tar -xjf "${ARCHIVE}"
+    if [ ! -d msf3-http ]; then
+        echo "${ARCHIVE} must contain an svn checkout of msf as a single directory called msf3-http"
+        exit 1
+    fi
+    cp -r msf3-http msf3-full
+fi
+
+if [[ ! -d msf3-http ]]; then
+    echo "Cannot continue without an svn checkout of msf as a directory called msf3-http"
+    exit 2
 fi
 
 #
-# Expects tmp/msf3.tar to exist and contain a single directory called msf3
+# Expects msf3.tar to exist and contain a single directory called msf3
 #
 build_makeself() {
     TITLE=$1
@@ -21,7 +30,7 @@ build_makeself() {
 
     TMP=tmp_install_`date +%s1`
     mkdir ${TMP}/
-    cp tmp/msf3.tar ${TMP}/
+    cp msf3.tar ${TMP}/
     cp ${BIN_TARBALL_PATH} ${TMP}/metasploit.tar.bz2
     bunzip2 ${TMP}/metasploit.tar.bz2
     cp -a scripts/*.sh ${TMP}/
@@ -31,7 +40,7 @@ build_makeself() {
 }
 
 # Remove any lingering symlinks from previous builds
-rm tmp/msf3
+rm msf3 2>/dev/null
 
 (cd tmp; ln -sf msf3-full msf3; tar hcf msf3.tar msf3)
 
@@ -52,11 +61,11 @@ if [ -f ${BINPATH} ]; then
     # Uses the same msf3.tar as 64-bit, so we don't need to regenerate it.
     build_makeself "${TITLE}" "${INSTALLER_FILENAME}" "${BINPATH}"
 
-    if [ ! -d tmp/msf3-mini ]; then
-        ./minify.sh tmp/msf3-full
+    if [ ! -d msf3-mini ]; then
+        ./minify.sh msf3-full
     fi
 
-    rm tmp/msf3
+    rm msf3
     (cd tmp; ln -sf msf3-mini msf3; tar hcf msf3.tar msf3)
 
     TITLE="Metasploit Framework v${VERSION} Miniature Installer (32-bit)"
