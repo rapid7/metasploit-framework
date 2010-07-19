@@ -37,8 +37,8 @@ build_makeself() {
     cp msf3.tar ${TMP}/
     cp ${BIN_TARBALL_PATH} ${TMP}/metasploit.tar.bz2
     bunzip2 ${TMP}/metasploit.tar.bz2
-    cp -a scripts/*.sh ${TMP}/
-    cp -a scripts/msfupdate ${TMP}/
+    cp -a ${BASE}/scripts/*.sh ${TMP}/
+    cp -a ${BASE}/scripts/msfupdate ${TMP}/
     makeself "${TMP}" "${INSTALLER_FILENAME}" "${TITLE}" ./installer.sh
     rm -rf ${TMP}
 }
