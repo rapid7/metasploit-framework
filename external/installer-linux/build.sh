@@ -3,7 +3,47 @@
 VERSION="3.4.1-release"
 BASE=`dirname $0`
 
-ARCHIVE=$1
+usage() {
+    echo "MSF Installer Builder"
+    echo "Options:"
+    echo "  -h                 This help message."
+    echo "  -a <archive>       A tar.bz2 archive of msf3. This should be an http repository"
+    echo "                     checked out with an old version of svn (usually 1.3.1) for"
+    echo "                     compatibility reasons.  Note that this will rm any existing"
+    echo "                     msf3-* directory."
+    echo "  -v <version name>  The version name of this release, usually as found in"
+    echo "                     lib/msf/core/framework.rb or something like "
+    echo "                     3.4-nightly-\`date +%F\` for nightlies."
+    echo "                     Defaults to ${VERSION}."
+    exit 1
+}
+
+while getopts ":a:hv:" flag; do
+    case $flag in
+        a)
+            echo archive=$OPTARG
+            [ -z "$OPTARG" ] && exit 1
+            ARCHIVE=$OPTARG
+            shift $(($OPTIND - 1)); OPTIND=1
+            ;;
+        v)
+            echo version=$OPTARG
+            [ -z "$OPTARG" ] && exit 1
+            VERSION=$OPTARG
+            shift $(($OPTIND - 1)); OPTIND=1
+            ;;
+        h)
+            usage
+            ;;
+        :) echo Missing argument to $OPTARG
+            usage
+            ;;
+        *) echo unknown opt $flag
+    esac
+done
+
+echo Building installers for Metasploit Framework v${VERSION}
+
 if [ -n "${ARCHIVE}" ]; then
     echo "Extracting archive"
     rm -rf msf3-*
@@ -20,8 +60,8 @@ if [ -z "$(which makeself)" ]; then
 fi
 
 if [ ! -d msf3-http ]; then
-    echo "Cannot continue without an svn checkout of msf as a directory called msf3-http"
-    exit 2
+    echo "Cannot continue without an svn checkout of msf called msf3-http"
+    exit 3
 fi
 
 #
