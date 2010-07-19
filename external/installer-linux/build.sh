@@ -12,10 +12,14 @@ if [ -n "${ARCHIVE}" ]; then
         echo "${ARCHIVE} must contain an svn checkout of msf as a single directory called msf3-http"
         exit 1
     fi
-    cp -r msf3-http msf3-full
 fi
 
-if [[ ! -d msf3-http ]]; then
+if [ -z "$(which makeself)" ]; then
+    echo "makeself needs to be installed and in the path"
+    exit 2
+fi
+
+if [ ! -d msf3-http ]; then
     echo "Cannot continue without an svn checkout of msf as a directory called msf3-http"
     exit 2
 fi
@@ -42,7 +46,8 @@ build_makeself() {
 # Remove any lingering symlinks from previous builds
 rm msf3 2>/dev/null
 
-(cd tmp; ln -sf msf3-full msf3; tar hcf msf3.tar msf3)
+ln -sf msf3-http msf3
+tar hcf msf3.tar msf3
 
 TITLE="Metasploit Framework v${VERSION} Installer (64-bit)"
 INSTALLER_FILENAME="framework-${VERSION}-linux-x86_64.run"
@@ -61,12 +66,11 @@ if [ -f ${BINPATH} ]; then
     # Uses the same msf3.tar as 64-bit, so we don't need to regenerate it.
     build_makeself "${TITLE}" "${INSTALLER_FILENAME}" "${BINPATH}"
 
-    if [ ! -d msf3-mini ]; then
-        ./minify.sh msf3-full
-    fi
+    ./minify.sh msf3-http
 
-    rm msf3
-    (cd tmp; ln -sf msf3-mini msf3; tar hcf msf3.tar msf3)
+    rm msf3 msf3.tar
+    ln -sf msf3-mini msf3
+    tar hcf msf3.tar msf3
 
     TITLE="Metasploit Framework v${VERSION} Miniature Installer (32-bit)"
     INSTALLER_FILENAME="framework-${VERSION}-mini-linux-i686.run"
@@ -74,4 +78,5 @@ if [ -f ${BINPATH} ]; then
     build_makeself "${TITLE}" "${INSTALLER_FILENAME}" "${BINPATH}"
 fi
 
+rm msf3 msf3.tar
 
