@@ -1591,7 +1591,7 @@ class VulnerabilityListing
 		r = @connection.execute('<VulnerabilityListingRequest session-id="' + @connection.session_id + '"/>')
 
 		if (r.success)
-			response.elements.each('VulnerabilityListingResponse/VulnerabilitySummary') do |v|
+			r.res.elements.each('VulnerabilityListingResponse/VulnerabilitySummary') do |v|
 				@vulnerability_summaries.push(VulnerabilitySummary.new(v.attributes['id'],v.attributes["title"],v.attributes["severity"]))
 			end
 		else
