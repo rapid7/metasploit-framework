@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('SRVHOST',   [ true, "The local host to listen on.", '0.0.0.0' ]),
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
-				OptAddress.new('DOMAINBYPASS', [ true, "The list of domain names we want to fully resolve", 'www.google.com']),
+				OptString.new('DOMAINBYPASS', [ true, "The list of domain names we want to fully resolve", 'www.google.com']),
 
 			], self.class)
 
