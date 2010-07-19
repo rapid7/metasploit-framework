@@ -1,11 +1,12 @@
+
 class Test::Unit::TestCase
 
 	def setup
-		puts "setup - msftest"
+		#puts "setup - msftest"
 	end
 
 	def teardown
-		puts "teardown - msftest"
+		#puts "teardown - msftest"
 	end 
 	
 	# All tests will scan for start and end lines. This ensures the task
@@ -28,12 +29,12 @@ class Test::Unit::TestCase
 			target_successes = regexes[component.to_s + "_successes"].size
 			count = 0
 			regexes[component.to_s + "_successes"].each { |condition|
-				puts " checking for each success condition: " + condition.to_s
+				puts "DEBUG: " +  " checking for each success condition: " + condition.to_s
 				matched = false
 				re = Regexp.new(condition[1])
 				data_lines.each {|line|
 					if line =~ re
-						puts " ... found\n"
+						puts " ... found."
 						count += 1
 						matched = condition[0]
 						break
@@ -44,28 +45,56 @@ class Test::Unit::TestCase
 			}
 			assert_equal target_successes, count, "Didn't get enough successes, somehow.\n"
 		else
-			puts "No success conditions found.\n"
+			puts "DEBUG: " +  "No success conditions found.\n"
 			assert true # No successes are defined, so count this as a pass.
 		end
 	end
 
 	# Tests may scan for failures -- if any failure matches, the test flunks.
-	def scan_for_failures(data,regexes,component)
+	def scan_for_failures(data,regexes,component,exceptions)
 		data_lines = data.split("\n")
 		if regexes[component.to_s + "_failures"]
 			failure = false
 			regexes[component.to_s + "_failures"].each {|condition|
-				puts " checking for failure condition " + condition.to_s + "\n"
+				puts "DEBUG: " + "Checking for failure condition " + condition.to_s + "\n"
 				re = Regexp.new(condition[1])
 				data_lines.each {|line|
 					if line =~ re
-						flunk "Saw failure condition '#{condition[0]}'; regex matched: #{re.inspect}"
+						puts "DEBUG: " + "Potential test failure condition found: "  + line
+						puts "DEBUG: " + "Testing against exceptions: " + exceptions.to_s
+
+						## First check the exceptions to make sure that this wasn't among them. 
+						##  The reason for exceptions is that we may want to check for generic error 
+						##  messages but have specific matched strings which we know are harmless.
+						
+						## Guilty til proven innocent, assume it's not an exception
+						not_excepted = true
+						
+						## But let's check anyway
+						not_excepted = exceptions.map { |exception|				
+							reg_exception = Regexp.new(exception)
+							puts "DEBUG: " + "Testing \'" + exception + "\' against \'" + line + "\'"
+							
+							## if the exception matches here, we'll spare it
+							if line =~ reg_exception 		
+								puts "DEBUG: " + "Found an exception, let's spare " + line
+								return false 			
+							end
+						}
+
+						## If we didn't find an exception, we have to flunk. try again, kid.
+						if not_excepted
+							flunk "Saw failure condition '#{condition[0]}'; regex matched: #{re.inspect}"
+						else 
+							puts "DEBUG: " + line + " is spared"
+						end
 					end
 				}
 			}
 		else
-			puts "No failure conditions found.\n"
+			puts "DEBUG: " + "failure conditions found.\n"
 			assert true # No failures looked for, so count this as a pass.
 		end
 	end
+
 end
