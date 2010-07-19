@@ -380,8 +380,10 @@ require 'metasm'
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template!" if not bo
-
 		pe[bo, 8192] = [code].pack("a8192")
+
+		mt = pe.index('MUTEX!!!')
+		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
 
 		return pe
 	end
