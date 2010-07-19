@@ -66,7 +66,7 @@ if [ -f ${BINPATH} ]; then
     # Uses the same msf3.tar as 64-bit, so we don't need to regenerate it.
     build_makeself "${TITLE}" "${INSTALLER_FILENAME}" "${BINPATH}"
 
-    ./minify.sh msf3-http
+    ${BASE}/minify.sh msf3-http
 
     rm msf3 msf3.tar
     ln -sf msf3-mini msf3
