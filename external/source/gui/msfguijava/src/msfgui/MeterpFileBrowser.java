@@ -63,13 +63,16 @@ public class MeterpFileBrowser extends MsfFrame {
 		final FileSystemView view = FileSystemView.getFileSystemView();
 		folderIcon = view.getSystemIcon(view.getDefaultDirectory());
 		File tempFile = null;
+		Icon tempIcon;
 		try{
 			tempFile = File.createTempFile("temp", ".txt");
+			tempIcon = view.getSystemIcon(tempFile);
 			tempFile.delete();
 		} catch (IOException iox){
+			tempIcon = null;
 			JOptionPane.showMessageDialog(null, "Cannot create temp file. Weird.");
 		}
-		fileIcon = view.getSystemIcon(tempFile);
+		fileIcon = tempIcon;
 		tempFile.delete();
 		mainTable.setDefaultRenderer(Object.class,new DefaultTableCellRenderer(){
 			@Override
