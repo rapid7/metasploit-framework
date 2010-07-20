@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
@@ -37,9 +37,11 @@
                       </Group>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="appVersionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="appVendorLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="appHomepageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="103" alignment="0" groupAlignment="1" max="-2" attributes="0">
+                              <Component id="appVersionLabel" alignment="0" max="32767" attributes="1"/>
+                              <Component id="appVendorLabel" alignment="0" max="32767" attributes="1"/>
+                          </Group>
                       </Group>
                   </Group>
                   <Component id="appTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -73,7 +75,7 @@
                   <Component id="homepageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appHomepageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="117" max="32767" attributes="0"/>
+              <EmptySpace pref="128" max="32767" attributes="0"/>
               <Component id="closeButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
