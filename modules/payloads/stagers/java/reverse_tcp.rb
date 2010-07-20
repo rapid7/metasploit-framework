@@ -41,7 +41,8 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
-		reverse = File.read(File.join(Msf::Config::InstallRoot, 'data', 'java', 'loader.jar'))
+		reverse = File.read(File.join(Msf::Config::InstallRoot, 'data', 'java', 'loader.jar')) rescue ""
+
 		print_status("Generated loader.jar (#{reverse.length} bytes)")
 
 		return super + reverse
@@ -52,3 +53,4 @@ module Metasploit3
 	end
 
 end
+
