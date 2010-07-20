@@ -1,38 +1,40 @@
-
 class Test::Unit::TestCase
 
 	# All tests will scan for start and end lines. This ensures the task
 	# actually completed and didn't hang, and that the start and end lines
 	# are actually at the start and end of the task file.
-	def scan_for_startend(data,regexes,component)
+	def scan_for_startend(data,thestart,theend)
 		data_lines = data.split("\n")
-		regex_start   = Regexp.new(regexes[component.to_s + "_startline"])
-		regex_endline = Regexp.new(regexes[component.to_s + "_endline"])
+		regex_start   = Regexp.new(thestart)
+		regex_endline = Regexp.new(theend)
+
 		assert_match regex_start, data_lines.first
 		assert_match regex_endline, data_lines.last
 	end
 
 	# Tests can scan for any number of success lines. In order to pass,
 	# all successes must match.
-	def scan_for_successes(data,regexes,component)
+	def scan_for_successes(data,regexes)
+
 		data_lines = data.split("\n")
-		if regexes[component.to_s + "_successes"]
+		if regexes
 			success = false
-			target_successes = regexes[component.to_s + "_successes"].size
+			target_successes = regexes.size
 			count = 0
-			regexes[component.to_s + "_successes"].each { |condition|
+			regexes.each { |condition|
 				matched = false
-				re = Regexp.new(condition[1])
+				re = Regexp.new(condition)
 				data_lines.each {|line|
 					if line =~ re
-						puts " ... found."
+						puts re.to_s + " ... matched ... \'" + line + "\'" 
 						count += 1
-						matched = condition[0]
+						matched = true
 						break
 					end
 				}
 				# A way to tell if a match was never found.
-				assert_equal condition[0], matched, "Didn't see success condition '#{condition[0]}'; regex failed: #{re.inspect}\n"
+				assert matched, "Didn't see success condition '#{condition}'"
+				
 			}
 			assert_equal target_successes, count, "Didn't get enough successes, somehow.\n"
 		else
@@ -41,12 +43,13 @@ class Test::Unit::TestCase
 	end
 
 	# Tests may scan for failures -- if any failure matches, the test flunks.
-	def scan_for_failures(data,regexes,component,exceptions)
+	def scan_for_failures(data,regexes,exceptions)
+
 		data_lines = data.split("\n")
-		if regexes[component.to_s + "_failures"]
+		if regexes
 			failure = false
-			regexes[component.to_s + "_failures"].each {|condition|
-				re = Regexp.new(condition[1])
+			regexes.each {|condition|
+				re = Regexp.new(condition)
 				data_lines.each {|line|
 					if line =~ re
 						## First check the exceptions to make sure that this wasn't among them. 
@@ -68,13 +71,13 @@ class Test::Unit::TestCase
 
 						## If we didn't find an exception, we have to flunk. try again, kid.
 						if not_excepted
-							flunk "Saw failure condition '#{condition[0]}'; regex matched: #{re.inspect}"
+							flunk "Saw failure condition '#{condition}' in #{line}; regex matched: #{re.inspect}"
 						end
 					end
 				}
 			}
 		else
-			assert true # No failures looked for, so count this as a pass.
+			assert true # No failures, so count this as a pass.
 		end
 	end
 
