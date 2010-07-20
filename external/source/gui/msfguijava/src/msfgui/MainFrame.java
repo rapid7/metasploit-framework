@@ -199,6 +199,7 @@ public class MainFrame extends FrameView {
 	private void expandList(Object[] mlist, JMenu rootMenu, RunMenuFactory factory, String type) {
 		if (mlist == null)
 			return;
+                statusAnimationLabel.setText(statusAnimationLabel.getText()+mlist.length + " "+type+" ");
                 java.util.Arrays.sort(mlist);
 		for (Object fullName : mlist) {
 			String[] names = fullName.toString().split("/");
@@ -321,7 +322,7 @@ public class MainFrame extends FrameView {
 			@Override
 			protected void succeeded(Void blah) {
 				sessionsPollTimer.execute();
-				statusAnimationLabel.setText("Ready");
+				statusAnimationLabel.setText(statusAnimationLabel.getText()+"modules");
 				setMessage("");
 			}
 		};
@@ -808,18 +809,21 @@ public class MainFrame extends FrameView {
 		});
 		//SESSION POPUP MENUS
 		sessionsTable.addMouseListener(new PopupMouseListener() {
-			public void doubleClicked(MouseEvent e){ //show interaction window on double-click
+			public void doubleClicked(MouseEvent e){
+				getSelected();
+				showInteractWindow();//show interaction window on double-click
+			}
+			private void getSelected() {
 				int[] selrows = sessionsTable.getSelectedRows();
 				selectedSessions = new HashMap[selrows.length];
-				for(int i = 0; i < selrows.length; i++)
-					selectedSessions[i] =  (Map)sessionsTableModel.getSessionList().get(selrows[i]);
+				for (int i = 0; i < selrows.length; i++) 
+					selectedSessions[i] = (Map) sessionsTableModel.getSessionList().get(selrows[i]);
 			}
 			public void showPopup(MouseEvent e) {
-				//must have a row selected
 				if (!e.isPopupTrigger())
 					return;
-				doubleClicked(e);
-				if(selectedSessions.length == 0)
+				getSelected();
+				if(selectedSessions.length == 0) //must have a row selected
 					return;
 				Map session = selectedSessions[0];
 				if (session.get("type").equals("shell"))
