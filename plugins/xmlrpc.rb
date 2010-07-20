@@ -98,7 +98,7 @@ class Plugin::XMLRPC < Msf::Plugin
 		# Initialize the list of authenticated sessions
 		@tokens = {}
 
-		args = [framework,@tokens,@users,self]
+		args = [framework,@tokens,@users]
 
 		# Add handlers for every class
 		self.server.add_handler(::XMLRPC::iPIMethods("auth"),
@@ -145,6 +145,11 @@ class Plugin::XMLRPC < Msf::Plugin
 	# The XMLRPC instance.
 	#
 	attr_accessor :server
+
+	def stop(token)
+		authenticate(token)
+		@plugin.cleanup
+	end
 
 	def stop(token)
 		authenticate(token)
