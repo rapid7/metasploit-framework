@@ -24,12 +24,12 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command Shell, Find Port',
+			'Name'          => 'PHP Command Shell, Find Sock',
 			'Version'       => '$Revision$',
 			'Description'   => %Q{
 				Spawn a shell on the established connection to
 				the webserver.  Unfortunately, this payload
-				leaves conspicuous evil-looking entries in the
+				can leave conspicuous evil-looking entries in the
 				apache error logs, so it is probably a good idea
 				to use a bind or reverse shell unless firewalls
 				prevent them from working.  The issue this
