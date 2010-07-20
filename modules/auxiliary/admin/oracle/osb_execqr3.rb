@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/PHPSESSID=(.*);(.*)/i))
 
 				sessionid = res.headers['Set-Cookie'].split(';')[0]
-					
+
 					print_status("Sending command: #{datastore['CMD']}...")
 
 					send_request_cgi(
