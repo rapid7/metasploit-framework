@@ -7,6 +7,11 @@ class Core < Base
 		{ "version" => ::Msf::Framework::Version }
 	end
 
+	def stop(token)
+		authenticate(token)
+		@plugin.cleanup
+	end
+
 end
 end
 end

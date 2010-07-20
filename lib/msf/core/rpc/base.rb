@@ -2,10 +2,11 @@ module Msf
 module RPC
 class Base
 
-	def initialize(framework,tokens,users)
+	def initialize(framework,tokens,users,plugin)
 		@framework = framework
 		@tokens    = tokens
 		@users     = users
+		@plugin    = plugin
 	end
 
 	def authenticate(token)
@@ -27,6 +28,11 @@ class Base
 		@tokens[token][2] = Time.now.to_i
 	end
 
+
+	def stop(token)
+		authenticate(token)
+		@plugin.cleanup
+	end
 
 end
 end
