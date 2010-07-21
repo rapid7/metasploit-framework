@@ -38,6 +38,7 @@ class Service < ::XMLRPC::BasicServer
 	def stop
 		self.state = {}
 		self.service.stop
+		self.service.close
 	end
 
 	def wait
