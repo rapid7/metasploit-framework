@@ -52,7 +52,7 @@ class Plugin::XMLRPC < Msf::Plugin
 		type = opts['ServerType'] || "Basic"
 		uri  = opts['URI'] || "/RPC2"
 
-		print_status(" XMLRPC Service: #{host}:#{port} #{ssl ? " (SSL)" : ""}")
+		print_status("XMLRPC Service:  #{host}:#{port} #{ssl ? " (SSL)" : ""}")
 		print_status("XMLRPC Username: #{user}")
 		print_status("XMLRPC Password: #{pass}")
 		print_status("XMLRPC Server Type: #{type}")
@@ -70,7 +70,9 @@ class Plugin::XMLRPC < Msf::Plugin
 		# If the run in foreground flag is not specified, then go ahead and fire
 		# it off in a worker thread.
 		if (opts['RunInForeground'] != true)
-			Thread.new {
+			# Store a handle to the thread so we can kill it during
+			# cleanup when we get unloaded.
+			self.thread = Thread.new {
 				run
 			}
 		end
@@ -105,8 +107,12 @@ class Plugin::XMLRPC < Msf::Plugin
 			::Msf::RPC::Auth.new(*args)
 		)
 
+		# Note the extra argument for core as compared to the other
+		# handlers.  This allows rpc clients access to the plugin so
+		# they can shutdown the server.
+		core_args = args + [self]
 		self.server.add_handler(::XMLRPC::iPIMethods("core"),
-			::Msf::RPC::Core.new(*args)
+			::Msf::RPC::Core.new(*core_args)
 		)
 
 		self.server.add_handler(::XMLRPC::iPIMethods("session"),
@@ -138,23 +144,29 @@ class Plugin::XMLRPC < Msf::Plugin
 	#
 	def cleanup
 		self.server.stop if self.server
+		self.thread.kill if self.thread
 		self.server = nil
+		super
+	end
+
+	def stop_rpc
+		print_line
+		print_status("XMLRPC Client requested server stop")
+		# Plugins aren't really meant to be able to unload themselves, so this
+		# is a bit of a corner case.  Unloading ourselves ends up killing the
+		# thread that's doing the unloading so we need to fire off the unload
+		# in a seperate one.
+		Thread.new {
+			framework.plugins.unload(self)
+		}
+		nil
 	end
 
 	#
 	# The XMLRPC instance.
 	#
 	attr_accessor :server
-
-	def stop(token)
-		authenticate(token)
-		@plugin.cleanup
-	end
-
-	def stop(token)
-		authenticate(token)
-		@plugin.cleanup
-	end
+	attr_accessor :thread
 
 end
 

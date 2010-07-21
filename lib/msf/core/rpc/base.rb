@@ -27,12 +27,6 @@ class Base
 		@tokens[token][2] = Time.now.to_i
 	end
 
-
-	def stop(token)
-		authenticate(token)
-		@plugin.cleanup
-	end
-
 end
 end
 end
