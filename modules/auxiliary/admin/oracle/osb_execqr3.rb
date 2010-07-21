@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2010-0904' ],
+					[ 'OSVDB', '66338'],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-118' ],
 				],
 			'DisclosureDate' => 'Jul 13 2010'))
