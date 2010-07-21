@@ -39,6 +39,12 @@ class Handler::Proc < Handler
 			elog("Proc::on_request: Client closed connection prematurely", LogSource)
 		rescue
 			elog("Proc::on_request: #{$!}\n\n#{$@.join("\n")}", LogSource)
+			if self.server and self.server.context
+				exploit = self.server.context['MsfExploit']
+				if exploit 
+					exploit.print_error("Exception handling request: #{$!}\n\n#{$@.join("\n")}")
+				end
+			end
 		end
 	end
 
