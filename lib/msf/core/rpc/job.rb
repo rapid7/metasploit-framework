@@ -28,7 +28,19 @@ class Job < Base
 		if(not obj)
 			raise ::XMLRPC::FaultException.new(404, "no such job")
 		else
-			info = obj.info
+			info = {
+				"jid"  => obj.jid,
+				"name" => obj.name,
+				"start_time" => obj.start_time
+			}
+			if obj.ctx && obj.ctx[0] 
+				if obj.ctx[0].respond_to?(:get_resource)
+					info['uripath'] = obj.ctx[0].get_resource
+				end
+				if obj.ctx[0].respond_to?(:datastore)
+					info['datastore'] = obj.ctx[0].datastore
+				end
+			end
 			{ "result" => "success" , "info" => info}
 		end
 	end

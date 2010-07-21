@@ -83,7 +83,6 @@ class Job
 
 protected
 
-	attr_writer   :info #:nodoc:
 	attr_writer   :name #:nodoc:
 	attr_writer   :jid #:nodoc:
 	attr_accessor :job_thread #:nodoc:
