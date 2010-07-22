@@ -189,7 +189,7 @@ class Db
 					print_line "  -c <col1,col2>    Only show the given columns"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
-					print_line "  -o <file>         Write out a file, one address per line"
+					print_line "  -o <file>         Send output to a file in csv format"
 					print_line
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
@@ -204,28 +204,40 @@ class Db
 			if col_search
 				col_names.delete_if {|v| not col_search.include?(v)}
 			end
-			tbl = Rex::Ui::Text::Table.new({
-					'Header'  => "Hosts",
-					'Columns' => col_names,
-				})
+
+			if ofd
+				ofd.puts col_names.join(',')
+			else
+				tbl = Rex::Ui::Text::Table.new(
+					{
+						'Header'  => "Hosts",
+						'Columns' => col_names,
+					})
+			end
+
 			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-				if ofd
-					ofd.puts host.address
-				else
-					columns = col_names.map do |n|
-						if virtual_columns.include?(n)
-							case n
-							when "svcs"
-								host.services.length
-							when "vulns"
-								host.vulns.length
-							when "workspace"
-								host.workspace.name
-							end
-						else
-							host.attributes[n] || ""
+				columns = col_names.map do |n|
+					if virtual_columns.include?(n)
+						case n
+						when "svcs"
+							host.services.length
+						when "vulns"
+							host.vulns.length
+						when "workspace"
+							host.workspace.name
 						end
+					else
+						host.attributes[n] || ""
 					end
+				end
+
+				if ofd
+					columns.map { |n|
+						n = "#{n}"
+						n = "\"#{n}\"" if n.include?(',')
+					}
+					ofd.puts columns.join(',')
+				else
 					tbl << columns
 				end
 			end
