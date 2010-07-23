@@ -174,14 +174,28 @@ protected
 
 	def _run_payload(mod, opts)
 		badchars = [opts['BadChars'] || ''].pack("H*")
+		fmt = opts['Format'] || 'raw'
+		force = opts['ForceEncode'] || false
+		template = opts['Template'] || nil
+		plat = opts['Platform'] || nil
+		keep = opts['KeepTemplateWorking'] || false
+		force = opts['ForceEncode'] || false
+		sled_size = opts['NopSledSize'].to_i || 0
+		iter = opts['Iterations'].to_i || 0
 
 		begin
 			res = Msf::Simple::Payload.generate_simple(mod, {
 				'BadChars'    => badchars,
 				'Encoder'     => opts['Encoder'],
+				'Format'      => fmt,
 				'NoComment'   => true,
-				'Format'      => 'raw',
-				'Options'     => opts
+				'NopSledSize' => sled_size,
+				'Options'     => opts,
+				'ForceEncode' => force,
+				'Template'    => template,
+				'Platform'    => plat,
+				'KeepTemplateWorking' => keep,
+				'Iterations'  => iter
 			})
 
 			{"result" => "success", "payload" => res.unpack("H*")[0]}

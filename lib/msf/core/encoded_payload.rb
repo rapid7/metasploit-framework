@@ -45,6 +45,7 @@ class EncodedPayload
 		self.nop_sled      = nil
 		self.encoder       = nil
 		self.nop           = nil
+		self.iterations    = (reqs['Iterations'].to_i || 1)
 
 		# Increase thread priority as necessary.  This is done
 		# to ensure that the encoding and sled generation get
@@ -152,35 +153,40 @@ class EncodedPayload
 					
 					next
 				end
-		
-				# Try encoding with the current encoder
-				begin
-					self.encoded = self.encoder.encode(self.raw, reqs['BadChars'], nil, pinst.platform)
-				rescue EncodingError
-					wlog("#{pinst.refname}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
-					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
-					next
-				rescue ::Exception
-					elog("#{pinst.refname}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
-					dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
-					next
-				end
-
-				# Get the minimum number of nops to use
-				min = (reqs['MinNops'] || 0).to_i
-				min = 0 if reqs['DisableNops']
 				
-				# Check to see if we have enough room for the minimum requirements
-				if ((reqs['Space']) and (reqs['Space'] < self.encoded.length + min))
-					wlog("#{pinst.refname}: Encoded payload version is too large with encoder #{encoder.refname}",
-						'core', LEV_1)
+				eout = self.raw.dup
 
-					next
-				end
-
-				ilog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{self.encoded.length})",
+				# Try encoding with the current encoder
+				1.upto(self.iterations) do |iter|
+					begin
+						eout = self.encoder.encode(eout, reqs['BadChars'], nil, pinst.platform)
+					rescue EncodingError
+						wlog("#{pinst.refname}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
+						dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+						next
+					rescue ::Exception
+						elog("#{pinst.refname}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
+						dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
+						next
+					end
+	
+					# Get the minimum number of nops to use
+					min = (reqs['MinNops'] || 0).to_i
+					min = 0 if reqs['DisableNops']
+					
+					# Check to see if we have enough room for the minimum requirements
+					if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
+						wlog("#{pinst.refname}: Encoded payload version is too large with encoder #{encoder.refname}",
+							'core', LEV_1)
+	
+						next
+					end
+	
+					ilog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{eout.length} on iteration #{iter})",
 					 'core', LEV_0)
-
+	
+				end
+				self.encoded = eout
 				break
 			}
 			
@@ -305,6 +311,10 @@ class EncodedPayload
 	# The NOP generator that was used
 	#
 	attr_reader :nop
+	#
+	# The number of encoding iterations used
+	#
+	attr_reader :iterations
 
 protected
 
@@ -315,6 +325,7 @@ protected
 	attr_writer :payload # :nodoc:
 	attr_writer :encoder # :nodoc:
 	attr_writer :nop # :nodoc:
+	attr_writer :iterations # :nodoc:
 
 	#
 	# The payload instance used to generate the payload

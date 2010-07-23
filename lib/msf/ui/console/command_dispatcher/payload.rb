@@ -16,12 +16,18 @@ class Payload
 
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"        ],
+		"-E" => [ false, "Force encoding."                                      ],
 		"-e" => [ true,  "The name of the encoder module to use."               ],
 		"-h" => [ false, "Help banner."                                         ],
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
 		"-s" => [ true,  "NOP sled length."                                     ],
 		"-f" => [ true,  "The output file name (otherwise stdout)"              ],
-		"-t" => [ true,  "The output type: ruby, perl, c, or raw."              ])
+		"-t" => [ true,  "The output type: c, elf, exe, java, js_le, js_be, " +
+				" perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho."        ],
+		"-p" => [ true,  "The Platform for output."                             ],
+		"-k" => [ false, "Keep the template executable functional"              ],
+		"-x" => [ true,  "The executable template to use"                       ],
+		"-i" => [ true,  "the number of encoding iterations."                   ])
 
 	#
 	# Returns the hash of commands specific to payload modules.
@@ -51,6 +57,11 @@ class Payload
 		badchars     = nil
 		type         = "ruby"
 		ofile        = nil
+		iter         = 1
+		force        = nil
+		template     = nil
+		plat         = nil
+		keep         = false
 		
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
@@ -58,6 +69,8 @@ class Payload
 					badchars = Rex::Text.hex_to_raw(val)
 				when '-e'
 					encoder_name = val
+				when '-E'
+					force = true
 				when '-o'
 					option_str = val
 				when '-s'
@@ -66,6 +79,14 @@ class Payload
 					type = val
 				when '-f'
 					ofile = val
+				when '-i'
+					iter = val
+				when '-k'
+					keep = true
+				when '-p'
+					plat = val
+				when '-x'
+					template = val
 				when '-h'
 					print(
 						"Usage: generate [options]\n\n" +
@@ -86,7 +107,12 @@ class Payload
 				'Encoder'     => encoder_name,
 				'Format'      => type,
 				'NopSledSize' => sled_size,
-				'OptionStr'   => option_str)
+				'OptionStr'   => option_str,
+				'ForceEncode' => force,
+				'Template'    => template,
+				'Platform'    => plat,
+				'KeepTemplateWorking' => keep,
+				'Iterations'  => iter)
 		rescue
 			log_error("Payload generation failed: #{$!}")
 			return false
