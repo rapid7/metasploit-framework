@@ -65,6 +65,7 @@ public class RpcConnection {
 	}
 	/** Destructor cleans up. */
 	protected void finalize() throws Throwable{
+		super.finalize();
 		connection.close();
 	}
 
@@ -130,8 +131,11 @@ public class RpcConnection {
 		ByteArrayOutputStream cache = new ByteArrayOutputStream();
 		int val;
 		try{
-		while((val = sin.read()) != 0)
+		while((val = sin.read()) != 0){
+			if(val == -1)
+				throw new MsfException("Stream died.");
 			cache.write(val);
+		}
 		} catch (IOException ex) {
 			throw new MsfException("Error reading response.");
 		}

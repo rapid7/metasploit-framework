@@ -5,6 +5,7 @@ package msfgui;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
+import java.awt.event.WindowEvent;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -13,6 +14,7 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -123,6 +125,27 @@ public class MainFrame extends FrameView {
 		setLnF(false);
 		MsfguiApp.fileChooser = new JFileChooser();
 		connectRpc();
+		getFrame().addWindowListener(new WindowListener(){
+			public void windowOpened(WindowEvent we) {
+			}
+			public void windowClosing(WindowEvent we) {
+				try{
+					if(rpcConn != null && JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
+						rpcConn.execute("core.stop");
+				}catch(Exception ex){
+				}
+			}
+			public void windowClosed(WindowEvent we) {
+			}
+			public void windowIconified(WindowEvent we) {
+			}
+			public void windowDeiconified(WindowEvent we) {
+			}
+			public void windowActivated(WindowEvent we) {
+			}
+			public void windowDeactivated(WindowEvent we) {
+			}
+		});
 		//Setup icon
 		this.getFrame().setIconImage( resourceMap.getImageIcon("main.icon").getImage());
 	}
