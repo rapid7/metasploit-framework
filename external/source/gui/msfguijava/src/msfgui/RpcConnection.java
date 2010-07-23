@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.SecureRandom;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -198,7 +200,14 @@ public class RpcConnection {
 			return new Integer(type.getTextContent());
 		}else if (typeName.equals("boolean")){
 			return new Boolean(type.getTextContent().equals("1"));
-		}else{
+		}else if (typeName.equals("dateTime.iso8601")) {
+			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
+			try{
+				return sdf.parse(type.getTextContent());
+			}catch(ParseException pex){
+				return type.getTextContent();
+			}
+		} else {
 			throw new MsfException("Error reading val: unknown type " + typeName);
 		}
 	}
