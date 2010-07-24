@@ -45,7 +45,8 @@ class EncodedPayload
 		self.nop_sled      = nil
 		self.encoder       = nil
 		self.nop           = nil
-		self.iterations    = (reqs['Iterations'].to_i || 1)
+		self.iterations    = reqs['Iterations'].to_i
+		self.iterations = 1 if self.iterations < 1
 
 		# Increase thread priority as necessary.  This is done
 		# to ensure that the encoding and sled generation get
