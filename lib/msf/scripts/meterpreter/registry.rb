@@ -3,15 +3,6 @@ module Scripts
 module Meterpreter
 module Common
 
-#
-# Commonly used methods and techniques for Meterpreter scripts
-#
-
-#
-# These methods should only print output in the case of an error. All code should be tab indented
-# All methods should follow the naming coventions below (separate words with "_", end queries with a ?, etc)
-#
-
 #Returns the data and type of a given registry key and value
 def registry_getvalinfo(key,valname)
 	value = {}

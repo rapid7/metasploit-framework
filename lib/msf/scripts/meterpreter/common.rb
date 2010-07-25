@@ -12,6 +12,9 @@ module Common
 # All methods should follow the naming coventions below (separate words with "_", end queries with a ?, etc)
 #
 
+# Checks if UAC is enabled, if it is enabled it will return true y running as
+# system or disabled it will return false also if running on a system that does
+# not have UAC it will return false.
 def is_uac_enabled?
 	uac = false
 	winversion = client.sys.config.sysinfo['OS']

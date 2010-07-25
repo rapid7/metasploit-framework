@@ -3,14 +3,7 @@ module Scripts
 module Meterpreter
 module Common
 
-#
-# Commonly used methods and techniques for Meterpreter scripts
-#
 
-#
-# These methods should only print output in the case of an error. All code should be tab indented
-# All methods should follow the naming coventions below (separate words with "_", end queries with a ?, etc)
-#
 
 #List all Windows Services present. Returns an Array containing the names of the services.
 def service_list
@@ -81,14 +74,15 @@ def service_create(name, display_name, executable_on_host,startup=2)
 	manag = adv.OpenSCManagerA(nil,nil,0x13)
 	if(manag["return"] != 0)
 		# SC_MANAGER_CREATE_SERVICE = 0x0002
-		newservice = adv.CreateServiceA(manag["return"],name,display_name,0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
+		newservice = adv.CreateServiceA(manag["return"],name,display_name,
+			0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
 		#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
 		#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
 		if newservice["GetLastError"] == 0
 			return true
-                else
+		else
 			return false
-                end
+		end
 	else
 		raise "Could not open Service Control Manager, Access Denied"
 	end
@@ -115,7 +109,7 @@ def service_start(name)
 		return 0
 	elsif retval["GetLastError"] == 1056
 		return 1
-        elsif retval["GetLastError"] == 1058
+	elsif retval["GetLastError"] == 1058
 		return 2
 	end
 end
@@ -141,11 +135,28 @@ def service_stop(name)
 	adv.CloseServiceHandle(manag["return"])
 	if retval["GetLastError"] == 0
 		return 0
-        elsif retval["GetLastError"] == 1062
+	elsif retval["GetLastError"] == 1062
 		return 1
-        elsif retval["GetLastError"] == 1052
+	elsif retval["GetLastError"] == 1052
 		return 2
-        end
+	end
+end
+
+# Function for deleting service, by deleting the key in the registry.
+def service_delete(name)
+	begin
+		basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
+		if registry_enumkeys(basekey).index(name)
+			servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+			registry_delkey(servicekey)
+			return true
+		else
+			return false
+		end
+	rescue::Exception => e
+		print_error(e)
+		return false
+	end
 end
 end
 end
