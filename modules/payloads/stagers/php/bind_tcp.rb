@@ -1,5 +1,5 @@
 ##
-# $Id: bind_tcp.rb 9179 2010-04-30 08:40:19Z jduck $
+# $Id$
 ##
 
 ##
@@ -21,7 +21,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Bind TCP Stager',
-			'Version'       => '$Revision: 9179 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => ['egypt'],
 			'License'       => MSF_LICENSE,

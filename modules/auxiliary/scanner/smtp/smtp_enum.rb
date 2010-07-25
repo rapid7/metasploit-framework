@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				['OSVDB', '12551'],
 				['CVE', '1999-0531']
 			],
-				'Author'      => 
+				'Author'      =>
 			[
 				'==[ Alligator Security Team ]==',
 				'Heyder Andrade <heyder[at]alligatorteam.org>'
@@ -42,10 +42,10 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(25),
 				OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", false]),
 				OptString.new('USER_FILE',
-					[ 
+					[
 						true, 'The file that contains a list of probable users accounts.',
 						File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
-					]   
+					]
 				)], self.class)
 
 		deregister_options('MAILTO','MAILFROM')
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			@result=''
 			@coderesult=''
-			if (con)  
+			if (con)
 				@connected=false
 				connect
 				select(nil,nil,nil,0.4)
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			if(@users_found.empty?)
 				print_status("#{target} No users or e-mail addresses found.")
 			else
-				print_status("#{target} - SMTP - Trying to get valid e-mail addresses") if (datastore['VERBOSE'])  
+				print_status("#{target} - SMTP - Trying to get valid e-mail addresses") if (datastore['VERBOSE'])
 				@users_found.keys.each {|mails|
 					return finish_host() if((do_get_mails(mails)) == :abort)
 				}
@@ -149,8 +149,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{target} - SMTP - Trying name: '#{user}'") if (datastore['VERBOSE'])
 		case @coderesult.to_i
 		when (250..259)
-			print_good "#{target} - Found user: #{user}" 
-			@users_found[user] = :reported  
+			print_good "#{target} - Found user: #{user}"
+			@users_found[user] = :reported
 			mail = @result.scan(%r{\<(.*)(@)(.*)\>})
 			unless (mail.nil? || mail.empty?)
 				@mails_found[mail.to_s] = :reported
@@ -175,12 +175,12 @@ class Metasploit3 < Msf::Auxiliary
 			return :abort
 		when (250..259)
 			print_good "#{target} - Found user: #{user}"
-			@users_found[user] = :reported  
+			@users_found[user] = :reported
 			mail = @result.scan(%r{\<(.*)(@)(.*)\>})
 			unless (mail.nil? || mail.empty?)
 				@mails_found[mail.to_s] = :reported
-			end 
-		end 
+			end
+		end
 	end
 
 	def do_get_mails(user)
@@ -197,16 +197,16 @@ class Metasploit3 < Msf::Auxiliary
 					@mails_found[mail.to_s] = :reported
 				end
 			end
-		end 
+		end
 	end
 
 	def extract_words(wordfile)
 		return [] unless wordfile && File.readable?(wordfile)
 		begin
-			words = File.open(wordfile) {|f| f.read}
+			words = File.open(wordfile, "rb") {|f| f.read}
 		rescue
 			return
-		end 
+		end
 		save_array = words.split(/\r?\n/)
 		return save_array
 	end
