@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 					injpkt.direction = Lorcon::Packet::LORCON_ADHOC_DS
 				end
 
-				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error)
+				self.wifi.inject(injpkt) or print_error("AIRPWN failed to inject packet: " + tx.error)
 
 				response.l4.seq = response.l4.seq + response.l5.payload.size
 				response.l4.flag_ack = 1
@@ -211,7 +211,7 @@ class Metasploit3 < Msf::Auxiliary
 				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip, "")
 
 				injpkt.dot3 = response.pack
-				self.wifi.inject(injpkt) or print_status("AIRPWN failed to inject packet: " + tx.error)
+				self.wifi.inject(injpkt) or print_error("AIRPWN failed to inject packet: " + tx.error)
 			end
 		end
 

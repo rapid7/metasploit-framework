@@ -352,7 +352,7 @@ class Metasploit3 < Msf::Auxiliary
 			#dialrange.save_to_file(datfile)
 			raise $!
 		rescue ::Exception => e
-			print_status("Error during dial process: #{e.class} #{e} #{e.backtrace}")
+			print_error("Error during dial process: #{e.class} #{e} #{e.backtrace}")
 			return
 		end
 

@@ -138,15 +138,15 @@ class Metasploit3 < Msf::Auxiliary
 							]
 					)
 				when /^401/
-					print_status("#{info} FrontPage Password Protected [#{retcode}]")
+					print_error("#{info} FrontPage Password Protected [#{retcode}]")
 				when /^403/
-					print_status("#{info} FrontPage Authoring Disabled [#{retcode}]")
+					print_error("#{info} FrontPage Authoring Disabled [#{retcode}]")
 				when /^404/
-					print_status("#{info} FrontPage Improper Installation [#{retcode}]")
+					print_error("#{info} FrontPage Improper Installation [#{retcode}]")
 				when /^500/
-					print_status("#{info} FrontPage Server Error [#{retcode}]")
+					print_error("#{info} FrontPage Server Error [#{retcode}]")
 				else
-					print_status("#{info} FrontPage Unknown Response [#{retcode}]")
+					print_error("#{info} FrontPage Unknown Response [#{retcode}]")
 			end
 		end
 

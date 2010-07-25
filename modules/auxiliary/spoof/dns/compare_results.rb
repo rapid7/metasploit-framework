@@ -84,8 +84,8 @@ class Metasploit3 < Msf::Auxiliary
 			targ_res, targ_saddr = targ_sock.recvfrom(65535, 3.0)
 
 			if !(base_res and targ_res and base_res.length > 0 and targ_res.length > 0)
-				print_status("  Error: The baseline server did not respond to our request.") if ! (base_res and base_res.length > 0)
-				print_status("  Error: The target server did not respond to our request.") if ! (targ_res and targ_res.length > 0)
+				print_error("  Error: The baseline server did not respond to our request.") if ! (base_res and base_res.length > 0)
+				print_error("  Error: The target server did not respond to our request.") if ! (targ_res and targ_res.length > 0)
 				next
 			end
 

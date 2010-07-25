@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 
 		rescue ::Exception => e
-			print_status("Error: #{e.class} > #{e}")
+			print_error("Error: #{e.class} > #{e}")
 		end
 
 

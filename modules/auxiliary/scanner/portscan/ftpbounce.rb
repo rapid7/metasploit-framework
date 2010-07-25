@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
 		if ports.empty?
-			print_status("Error: No valid ports specified")
+			print_error("Error: No valid ports specified")
 			return
 		end
 
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_service(:host => ip, :port => port)
 				end
 			rescue ::Exception
-				print_status("Unknown error: #{$!}")
+				print_error("Unknown error: #{$!}")
 			end
 		end
 	end

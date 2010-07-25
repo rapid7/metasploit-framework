@@ -97,14 +97,14 @@ class Metasploit3 < Msf::Auxiliary
 
 							end
 						else
-							print_status("Received a #{tcode} code but upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
+							print_error("Received a #{tcode} code but upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 						end
 
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 					rescue ::Timeout::Error, ::Errno::EPIPE
 					end
 				else
-					print_status("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
+					print_error("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 
 				else
-					print_status("Delete failed on #{wmap_base_url} [#{res.code} #{res.message}]")
+					print_error("Delete failed on #{wmap_base_url} [#{res.code} #{res.message}]")
 				end
 
 			rescue ::Rex::ConnectionError

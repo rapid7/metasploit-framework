@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 			#		when 'n'
 			#			numb << ('a'..'z')+('0'..'9')
 					else
-						print_status("Format string error")
+						print_error("Format string error")
 						return
 					end
 				}

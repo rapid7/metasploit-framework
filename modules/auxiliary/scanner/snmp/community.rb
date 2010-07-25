@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Unknown error: #{e.class} #{e}")
+			print_error("Unknown error: #{e.class} #{e}")
 		end
 	end
 

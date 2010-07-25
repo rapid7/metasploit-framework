@@ -60,10 +60,10 @@ class Metasploit3 < Msf::Auxiliary
 			case ret[:sql_error]
 			when /^C58P01/
 				print_error "#{rhost}:#{rport} Postgres - No such file or directory."
-				print_status "#{rhost}:#{rport} Posgres - #{ret[:sql_error]}" if verbose
+				print_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}" if verbose
 			when /^C42501/
 				print_error "#{rhost}:#{rport} Postgres - Insufficent file permissions."
-				print_status "#{rhost}:#{rport} Posgres - #{ret[:sql_error]}" if verbose
+				print_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}" if verbose
 			else
 				print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 			end

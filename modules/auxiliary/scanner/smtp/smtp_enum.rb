@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 			@result=sock.get_once
 			@coderesult=@result[0..2]
 		rescue ::Exception => e
-			print_status("Error: #{e}")
+			print_error("Error: #{e}")
 			raise e
 		end
 	end

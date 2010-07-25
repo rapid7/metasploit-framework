@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 		srv_sock.close
 
 		if(ports.keys.length == 0)
-			print_status("ERROR: This server is not replying to recursive requests")
+			print_error("ERROR: This server is not replying to recursive requests")
 			return
 		end
 
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("INFO: This server's source ports are not really random and may still be exploitable, but not by this tool.")
 			end
 		else
-			print_status("FAIL: This server uses a static source port and is vulnerable to poisoning")
+			print_error("FAIL: This server uses a static source port and is vulnerable to poisoning")
 		end
 	end
 
@@ -213,8 +213,8 @@ class Metasploit3 < Msf::Auxiliary
 
 						if((name.to_s + ".") == hostname)
 							t = Time.now + ttl
-							print_status("Failure: This hostname is already in the target cache: #{name}")
-							print_status("         Cache entry expires on #{t}... sleeping.")
+							print_error("Failure: This hostname is already in the target cache: #{name}")
+							print_error("         Cache entry expires on #{t}... sleeping.")
 							cached = true
 							select(nil,nil,nil,ttl)
 						end
@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Error checking the DNS name: #{e.class} #{e} #{e.backtrace}")
+			print_error("Error checking the DNS name: #{e.class} #{e} #{e.backtrace}")
 		end
 
 		res0 = Net::DNS::Resolver.new(:nameservers => [recons], :dns_search => false, :recursive => true) # reconnaissance resolver
@@ -387,7 +387,7 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception => e
-					print_status("Error querying the DNS name: #{e.class} #{e} #{e.backtrace}")
+					print_error("Error querying the DNS name: #{e.class} #{e} #{e.backtrace}")
 				end
 			end
 		end

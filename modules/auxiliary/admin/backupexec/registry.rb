@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (data)
 			print_status("DATA: #{deunicode(data)}")
 		else
-			print_status("Failed to read #{hive}\\#{subkey}\\#{subval}...")
+			print_error("Failed to read #{hive}\\#{subkey}\\#{subval}...")
 		end
 
 	end
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (data)
 			print_status("DATA: #{deunicode(data)}")
 		else
-			print_status("Failed to enumerate #{hive}\\#{subkey}...")
+			print_error("Failed to enumerate #{hive}\\#{subkey}...")
 		end
 
 	end

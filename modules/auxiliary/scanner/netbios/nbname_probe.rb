@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			select(nil, nil, nil, 0.25)
 		rescue ::Exception => e
-			print_status("Unknown error: #{e.class} #{e}")
+			print_error("Unknown error: #{e.class} #{e}")
 		end
 
 		@results.keys.each do |ip|

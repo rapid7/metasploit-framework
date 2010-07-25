@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::EOFError, ::Errno::EACCES, ::Errno::ECONNABORTED, ::Errno::ECONNRESET
 		rescue ::OpenSSL::SSL::SSLError
 		rescue ::Exception
-			print_status("Error: #{$!.class} #{$!} #{$!.backtrace}")
+			print_error("Error: #{$!.class} #{$!} #{$!.backtrace}")
 		end
 
 		close_client(cli)

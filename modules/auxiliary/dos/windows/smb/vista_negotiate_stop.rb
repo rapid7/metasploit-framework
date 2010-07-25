@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				raise $!
 
 			rescue ::Exception
-				print_status("Error at iteration #{i}: #{$!.class} #{$!}")
+				print_error("Error at iteration #{i}: #{$!.class} #{$!}")
 				return
 			end
 

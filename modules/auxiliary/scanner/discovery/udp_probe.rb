@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_status("Unknown error: #{@thost}:#{@tport} #{e.class} #{e}")
+			print_error("Unknown error: #{@thost}:#{@tport} #{e.class} #{e}")
 		end
 	end
 

@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 			raise $!
 		rescue ::Rex::Proto::DCERPC::Exceptions::Fault
 		rescue ::Exception => e
-			print_status("#{ip}:#{rport} error: #{e}")
+			print_error("#{ip}:#{rport} error: #{e}")
 		end
 	end
 

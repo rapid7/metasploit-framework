@@ -83,7 +83,7 @@ DECLARE @T varchar(255),@C varchar(255)
 			infstr.unpack("C*").collect! { |i| attstr += i.to_s(base=16).upcase+"00" }
 			gvars[datastore['VULN_PAR']] += prestr + "0x"+attstr + poststr
 		else
-			print_status("Error: Vulnerable parameter is not part of the supplied query string.")
+			print_error("Error: Vulnerable parameter is not part of the supplied query string.")
 		return
 	end
 

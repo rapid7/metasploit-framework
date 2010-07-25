@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Loaded protocol #{proto} from #{f}...")
 				end
 			rescue ::Exception => e
-				print_status("Decoder #{n} failed to load: #{e.class} #{e} #{e.backtrace}")
+				print_error("Decoder #{n} failed to load: #{e.class} #{e} #{e.backtrace}")
 			end
 		end
 	end

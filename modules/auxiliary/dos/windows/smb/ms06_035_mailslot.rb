@@ -85,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Exception => e
 
 					if (i == 1)
-						print_status("Failed to write any data to the mailslot: #{e}")
+						print_error("Failed to write any data to the mailslot: #{e}")
 						break
 					end
-					print_status("Exception occurred on interation #{i}")
-			 		print_status("Error: #{e.class} > #{e}")
+					print_error("Exception occurred on interation #{i}")
+			 		print_error("Error: #{e.class} > #{e}")
 					break
 				end
 			end

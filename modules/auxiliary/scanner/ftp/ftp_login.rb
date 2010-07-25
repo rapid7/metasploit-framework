@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			rescue ::Rex::ConnectionError, EOFError, ::Errno::ECONNRESET => e
 				this_attempt[[user,pass]] += 1
-				vprint_status "#{rhost}:#{rport} - Caught #{e.class}, reconnecting and retrying"
+				vprint_error "#{rhost}:#{rport} - Caught #{e.class}, reconnecting and retrying"
 				disconnect
 				@ftp_sock = nil
 			end

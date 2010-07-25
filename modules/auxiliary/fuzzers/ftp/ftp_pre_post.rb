@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("System does not respond - exiting now\n")
 						return
 					end
-					print_status("Error: #{e.class} #{e} #{e.backtrace}\n")
+					print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
 				end
 			end
 		end
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
                      print_status("System does not respond - exiting now\n")
 							return
 						end
-						print_status("Error: #{e.class} #{e} #{e.backtrace}\n")
+						print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
 					end
 					count += datastore['STEPSIZE']
 				end

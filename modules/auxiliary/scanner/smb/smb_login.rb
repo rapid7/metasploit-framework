@@ -139,7 +139,7 @@ class Metasploit3 < Msf::Auxiliary
 					:update => :unique_data
 				)
 			end
-			print_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+			print_error("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 
 			disconnect()
 			return :skip_user # These reasons are sufficient to stop trying.

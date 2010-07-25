@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status(info)
 
 		if(res.body and />(JBoss[^<]+)/.match(res.body) )
-			print_status("JBoss error message: #{$1}")
+			print_error("JBoss error message: #{$1}")
 		end
 
 		apps = [ '/jmx-console/HtmlAdaptor',

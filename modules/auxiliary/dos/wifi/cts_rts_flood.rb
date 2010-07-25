@@ -41,15 +41,15 @@ class Metasploit3 < Msf::Auxiliary
 		case datastore['TYPE'].upcase
 			when 'RTS'
 				if (!datastore['ADDR_SRC'])
-					print_status("FAILED: RTS Flood selected but ADDR_SRC not set!")
+					print_error("FAILED: RTS Flood selected but ADDR_SRC not set!")
 					return
 				end
 				frame = create_rts()
 			when 'CTS'
 
-				frame =create_cts()
+				frame = create_cts()
 			else
-				print_status("No TYPE selected!!")
+				print_error("No TYPE selected!!")
 				return
 		end
 

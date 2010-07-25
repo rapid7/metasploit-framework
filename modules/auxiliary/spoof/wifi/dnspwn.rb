@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 					injpkt.direction = Lorcon::Packet::LORCON_ADHOC_DS
 				end
 
-				self.wifi.inject(injpkt) or print_status("DNSPWN failed to inject packet: " + tx.error)
+				self.wifi.inject(injpkt) or print_error("DNSPWN failed to inject packet: " + tx.error)
 			end
 		end
 	end
