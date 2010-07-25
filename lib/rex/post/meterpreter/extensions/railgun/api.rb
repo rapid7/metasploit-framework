@@ -9295,116 +9295,116 @@ class ApiDefinitions
                 railgun.kernel32.LoadLibraryA("Advapi32.dll")
 
                 # Function to open the Service Control Database
-                railgun.add_function( 'advapi32', 'OpenSCManagerA','DWORD',[
+		railgun.add_function( 'advapi32', 'OpenSCManagerA','DWORD',[
 
-                                [ "PCHAR", "lpMachineName", "inout" ],
+				[ "PCHAR", "lpMachineName", "inout" ],
 
-                                [ "PCHAR", "lpDatabaseName", "inout" ],
+				[ "PCHAR", "lpDatabaseName", "inout" ],
 
-                                [ "DWORD", "dwDesiredAccess", "in" ]
+				[ "DWORD", "dwDesiredAccess", "in" ]
 
-                        ])
-                # Function for creating a Service
-                railgun.add_function( 'advapi32', 'CreateServiceA','DWORD',[
+			])
+		# Function for creating a Service
+		railgun.add_function( 'advapi32', 'CreateServiceA','DWORD',[
 
-                                [ "DWORD", "hSCManager", "in" ],
+				[ "DWORD", "hSCManager", "in" ],
 
-                                [ "PCHAR", "lpServiceName", "in" ],
+				[ "PCHAR", "lpServiceName", "in" ],
 
-                                [ "PCHAR", "lpDisplayName", "in" ],
+				[ "PCHAR", "lpDisplayName", "in" ],
 
-                                [ "DWORD", "dwDesiredAccess", "in" ],
+				[ "DWORD", "dwDesiredAccess", "in" ],
 
-                                [ "DWORD", "dwServiceType", "in" ],
+				[ "DWORD", "dwServiceType", "in" ],
 
-                                [ "DWORD", "dwStartType", "in" ],
+				[ "DWORD", "dwStartType", "in" ],
 
-                                [ "DWORD", "dwErrorControl", "in" ],
+				[ "DWORD", "dwErrorControl", "in" ],
 
-                                [ "PCHAR", "lpBinaryPathName", "in" ],
+				[ "PCHAR", "lpBinaryPathName", "in" ],
 
-                                [ "PCHAR", "lpLoadOrderGroup", "in" ],
+				[ "PCHAR", "lpLoadOrderGroup", "in" ],
 
-                                [ "PDWORD", "lpdwTagId", "out" ],
+				[ "PDWORD", "lpdwTagId", "out" ],
 
-                                [ "PCHAR", "lpDependencies", "in" ],
+				[ "PCHAR", "lpDependencies", "in" ],
 
-                                [ "PCHAR", "lpServiceStartName", "in" ],
+				[ "PCHAR", "lpServiceStartName", "in" ],
 
-                                [ "PCHAR", "lpPassword", "in" ]
+				[ "PCHAR", "lpPassword", "in" ]
 
-                        ])
+			])
 
-                railgun.add_function( 'advapi32', 'OpenServiceA','DWORD',[
+		railgun.add_function( 'advapi32', 'OpenServiceA','DWORD',[
 
-                                [ "DWORD", "hSCManager", "in" ],
+				[ "DWORD", "hSCManager", "in" ],
 
-                                [ "PCHAR", "lpServiceName", "in" ],
+				[ "PCHAR", "lpServiceName", "in" ],
 
-                                [ "DWORD", "dwDesiredAccess", "in" ]
+				[ "DWORD", "dwDesiredAccess", "in" ]
 
-                        ])
+			])
 
-                #access rights: SERVICE_CHANGE_CONFIG (0x0002)  SERVICE_START (0x0010)
-                #SERVICE_STOP (0x0020)
+		#access rights: SERVICE_CHANGE_CONFIG (0x0002)  SERVICE_START (0x0010)
+		#SERVICE_STOP (0x0020)
 
-                railgun.add_function( 'advapi32', 'StartServiceA','BOOL',[
+		railgun.add_function( 'advapi32', 'StartServiceA','BOOL',[
 
-                                [ "DWORD", "hService", "in" ],
+				[ "DWORD", "hService", "in" ],
 
-                                [ "DWORD", "dwNumServiceArgs", "in" ],
+				[ "DWORD", "dwNumServiceArgs", "in" ],
 
-                                [ "PCHAR", "lpServiceArgVectors", "in" ]
+				[ "PCHAR", "lpServiceArgVectors", "in" ]
 
-                        ])
+			])
 
-                railgun.add_function( 'advapi32', 'ControlService','BOOL',[
+		railgun.add_function( 'advapi32', 'ControlService','BOOL',[
 
-                                [ "DWORD", "hService", "in" ],
+				[ "DWORD", "hService", "in" ],
 
-                                [ "DWORD", "dwControl", "in" ],
+				[ "DWORD", "dwControl", "in" ],
 
-                                [ "PBLOB", "lpServiceStatus", "out" ]
+				[ "PBLOB", "lpServiceStatus", "out" ]
 
-                        ])
+			])
 
-                #SERVICE_CONTROL_STOP = 0x00000001
+		#SERVICE_CONTROL_STOP = 0x00000001
 
-                # _SERVICE_STATUS  is an array of 7 DWORDS -  dwServiceType;
-                #dwCurrentState; dwControlsAccepted; dwWin32ExitCode;
-                #dwServiceSpecificExitCode; dwCheckPoint; dwWaitHint;
+		# _SERVICE_STATUS  is an array of 7 DWORDS -  dwServiceType;
+		#dwCurrentState; dwControlsAccepted; dwWin32ExitCode;
+		#dwServiceSpecificExitCode; dwCheckPoint; dwWaitHint;
 
-                railgun.add_function( 'advapi32', 'ChangeServiceConfigA','BOOL',[
+		railgun.add_function( 'advapi32', 'ChangeServiceConfigA','BOOL',[
 
-                                [ "DWORD", "hService", "in" ],
+				[ "DWORD", "hService", "in" ],
 
-                                [ "DWORD", "dwServiceType", "in" ],
+				[ "DWORD", "dwServiceType", "in" ],
 
-                                [ "DWORD", "dwStartType", "in" ],
+				[ "DWORD", "dwStartType", "in" ],
 
-                                [ "DWORD", "dwErrorControl", "in" ],
+				[ "DWORD", "dwErrorControl", "in" ],
 
-                                [ "PCHAR", "lpBinaryPathName", "in" ],
+				[ "PCHAR", "lpBinaryPathName", "in" ],
 
-                                [ "PCHAR", "lpLoadOrderGroup", "in" ],
+				[ "PCHAR", "lpLoadOrderGroup", "in" ],
 
-                                [ "PDWORD", "lpdwTagId", "out" ],
+				[ "PDWORD", "lpdwTagId", "out" ],
 
-                                [ "PCHAR", "lpDependencies", "in" ],
+				[ "PCHAR", "lpDependencies", "in" ],
 
-                                [ "PCHAR", "lpServiceStartName", "in" ],
+				[ "PCHAR", "lpServiceStartName", "in" ],
 
-                                [ "PCHAR", "lpPassword", "in" ],
+				[ "PCHAR", "lpPassword", "in" ],
 
-                                [ "PCHAR", "lpDisplayName", "in" ]
+				[ "PCHAR", "lpDisplayName", "in" ]
 
-                        ])
+			])
 
-                railgun.add_function( 'advapi32', 'CloseServiceHandle','BOOL',[
+		railgun.add_function( 'advapi32', 'CloseServiceHandle','BOOL',[
 
-                                [ "DWORD", "hSCObject", "in" ]
+				[ "DWORD", "hSCObject", "in" ]
 
-                        ])
+			])
 
 
 	end # method

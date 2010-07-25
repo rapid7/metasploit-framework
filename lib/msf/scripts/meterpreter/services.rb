@@ -76,22 +76,22 @@ end
 # executable on the host that will execute at startup as string and the startup
 # type as an integer of 2 for Auto, 3 for Manual or 4 for Disable, default Auto.
 def service_create(name, display_name, executable_on_host,startup=2)
-        client.core.use("railgun")
-        adv = client.railgun.advapi32
-        manag = adv.OpenSCManagerA(nil,nil,0x13)
-        if(manag["return"] != 0)
-                # SC_MANAGER_CREATE_SERVICE = 0x0002
-                newservice = adv.CreateServiceA(manag["return"],name,display_name,0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
-                #SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
-                #SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
-                if newservice["GetLastError"] == 0
-                        return true
+	client.core.use("railgun")
+	adv = client.railgun.advapi32
+	manag = adv.OpenSCManagerA(nil,nil,0x13)
+	if(manag["return"] != 0)
+		# SC_MANAGER_CREATE_SERVICE = 0x0002
+		newservice = adv.CreateServiceA(manag["return"],name,display_name,0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
+		#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
+		#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
+		if newservice["GetLastError"] == 0
+			return true
                 else
-                        return false
+			return false
                 end
-        else
-                raise "Could not open Service Control Manager, Access Denied"
-        end
+	else
+		raise "Could not open Service Control Manager, Access Denied"
+	end
 end
 # Function for service startup, returns 0 if service started, 1 if service is
 # already started and 2 if service is disabled.
@@ -112,12 +112,12 @@ def service_start(name)
 	adv.CloseServiceHandle(servhandleret["return"])
 	adv.CloseServiceHandle(manag["return"])
 	if retval["GetLastError"] == 0
-                return 0
-        elsif retval["GetLastError"] == 1056
-                return 1
+		return 0
+	elsif retval["GetLastError"] == 1056
+		return 1
         elsif retval["GetLastError"] == 1058
-                return 2
-        end
+		return 2
+	end
 end
 
 
@@ -140,11 +140,11 @@ def service_stop(name)
 	adv.CloseServiceHandle(servhandleret["return"])
 	adv.CloseServiceHandle(manag["return"])
 	if retval["GetLastError"] == 0
-                return 0
+		return 0
         elsif retval["GetLastError"] == 1062
-                return 1
+		return 1
         elsif retval["GetLastError"] == 1052
-                return 2
+		return 2
         end
 end
 end
