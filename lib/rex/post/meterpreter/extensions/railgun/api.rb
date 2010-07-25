@@ -9196,102 +9196,215 @@ class ApiDefinitions
 		railgun.add_function( 'kernel32', 'Process32NextW', 'BOOL',[
 			["DWORD","hSnapshot","in"],
 			["PBLOB","lppe","inout"],
-			])
+                ])
 
 		railgun.add_function( 'kernel32', 'Thread32First', 'BOOL',[
-			["DWORD","hSnapshot","in"],
-			["PBLOB","lpte","inout"],
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
 			])
 
 		railgun.add_function( 'kernel32', 'Thread32Next', 'BOOL',[
-			["DWORD","hSnapshot","in"],
-			["PBLOB","lpte","inout"],
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
 			])
 
 		railgun.add_function( 'kernel32', 'Toolhelp32ReadProcessMemory', 'BOOL',[
-			["DWORD","th32ProcessID","in"],
-			["PBLOB","lpBaseAddress","inout"],
-			["PBLOB","lpBuffer","inout"],
-			["DWORD","cbRead","in"],
-			["PDWORD","lpNumberOfBytesRead","in"],
+                                ["DWORD","th32ProcessID","in"],
+                                ["PBLOB","lpBaseAddress","inout"],
+                                ["PBLOB","lpBuffer","inout"],
+                                ["DWORD","cbRead","in"],
+                                ["PDWORD","lpNumberOfBytesRead","in"],
 			])
 
 
 		railgun.add_dll('Iphlpapi','Iphlpapi')
 		railgun.add_function( 'Iphlpapi', 'CancelIPChangeNotify', 'BOOL',[
-			["PBLOB","notifyOverlapped","in"],
+                                ["PBLOB","notifyOverlapped","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'CreateProxyArpEntry', 'DWORD',[
-			["DWORD","dwAddress","in"],
-			["DWORD","dwMask","in"],
-			["DWORD","dwIfIndex","in"],
+                                ["DWORD","dwAddress","in"],
+                                ["DWORD","dwMask","in"],
+                                ["DWORD","dwIfIndex","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'DeleteIPAddress', 'DWORD',[
-			["DWORD","NTEContext","in"],
+                                ["DWORD","NTEContext","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'DeleteProxyArpEntry', 'DWORD',[
-			["DWORD","dwAddress","in"],
-			["DWORD","dwMask","in"],
-			["DWORD","dwIfIndex","in"],
+                                ["DWORD","dwAddress","in"],
+                                ["DWORD","dwMask","in"],
+                                ["DWORD","dwIfIndex","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'FlushIpNetTable', 'DWORD',[
-			["DWORD","dwIfIndex","in"],
+                                ["DWORD","dwIfIndex","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetAdapterIndex', 'DWORD',[
-			["PWCHAR","AdapterName","in"],
-			["PDWORD","IfIndex","inout"],
+                                ["PWCHAR","AdapterName","in"],
+                                ["PDWORD","IfIndex","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetBestInterface', 'DWORD',[
-			["DWORD","dwDestAddr","in"],
-			["PDWORD","pdwBestIfIndex","inout"],
+                                ["DWORD","dwDestAddr","in"],
+                                ["PDWORD","pdwBestIfIndex","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetBestInterfaceEx', 'DWORD',[
-			["PBLOB","pDestAddr","in"],
-			["PDWORD","pdwBestIfIndex","inout"],
+                                ["PBLOB","pDestAddr","in"],
+                                ["PDWORD","pdwBestIfIndex","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetFriendlyIfIndex', 'DWORD',[
-			["DWORD","IfIndex","in"],
+                                ["DWORD","IfIndex","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetNumberOfInterfaces', 'DWORD',[
-			["PDWORD","pdwNumIf","inout"],
+                                ["PDWORD","pdwNumIf","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'GetRTTAndHopCount', 'BOOL',[
-			["DWORD","DestIpAddress","in"],
-			["PDWORD","HopCount","inout"],
-			["DWORD","MaxHops","in"],
-			["PDWORD","RTT","inout"],
+                                ["DWORD","DestIpAddress","in"],
+                                ["PDWORD","HopCount","inout"],
+                                ["DWORD","MaxHops","in"],
+                                ["PDWORD","RTT","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'NotifyAddrChange', 'DWORD',[
-			["PDWORD","Handle","inout"],
-			["PBLOB","overlapped","in"],
+                                ["PDWORD","Handle","inout"],
+                                ["PBLOB","overlapped","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'NotifyRouteChange', 'DWORD',[
-			["PDWORD","Handle","inout"],
-			["PBLOB","overlapped","in"],
+                                ["PDWORD","Handle","inout"],
+                                ["PBLOB","overlapped","in"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'SendARP', 'DWORD',[
-			["DWORD","DestIP","in"],
-			["DWORD","SrcIP","in"],
-			["PDWORD","pMacAddr","inout"],
-			["PDWORD","PhyAddrLen","inout"],
+                                ["DWORD","DestIP","in"],
+                                ["DWORD","SrcIP","in"],
+                                ["PDWORD","pMacAddr","inout"],
+                                ["PDWORD","PhyAddrLen","inout"],
 			])
 
 		railgun.add_function( 'Iphlpapi', 'SetIpTTL', 'DWORD',[
-			["DWORD","nTTL","in"],
+                                ["DWORD","nTTL","in"],
 			])
+                railgun.kernel32.LoadLibraryA("Advapi32.dll")
+
+                # Function to open the Service Control Database
+                railgun.add_function( 'advapi32', 'OpenSCManagerA','DWORD',[
+
+                                [ "PCHAR", "lpMachineName", "inout" ],
+
+                                [ "PCHAR", "lpDatabaseName", "inout" ],
+
+                                [ "DWORD", "dwDesiredAccess", "in" ]
+
+                        ])
+                # Function for creating a Service
+                railgun.add_function( 'advapi32', 'CreateServiceA','DWORD',[
+
+                                [ "DWORD", "hSCManager", "in" ],
+
+                                [ "PCHAR", "lpServiceName", "in" ],
+
+                                [ "PCHAR", "lpDisplayName", "in" ],
+
+                                [ "DWORD", "dwDesiredAccess", "in" ],
+
+                                [ "DWORD", "dwServiceType", "in" ],
+
+                                [ "DWORD", "dwStartType", "in" ],
+
+                                [ "DWORD", "dwErrorControl", "in" ],
+
+                                [ "PCHAR", "lpBinaryPathName", "in" ],
+
+                                [ "PCHAR", "lpLoadOrderGroup", "in" ],
+
+                                [ "PDWORD", "lpdwTagId", "out" ],
+
+                                [ "PCHAR", "lpDependencies", "in" ],
+
+                                [ "PCHAR", "lpServiceStartName", "in" ],
+
+                                [ "PCHAR", "lpPassword", "in" ]
+
+                        ])
+
+                railgun.add_function( 'advapi32', 'OpenServiceA','DWORD',[
+
+                                [ "DWORD", "hSCManager", "in" ],
+
+                                [ "PCHAR", "lpServiceName", "in" ],
+
+                                [ "DWORD", "dwDesiredAccess", "in" ]
+
+                        ])
+
+                #access rights: SERVICE_CHANGE_CONFIG (0x0002)  SERVICE_START (0x0010)
+                #SERVICE_STOP (0x0020)
+
+                railgun.add_function( 'advapi32', 'StartServiceA','BOOL',[
+
+                                [ "DWORD", "hService", "in" ],
+
+                                [ "DWORD", "dwNumServiceArgs", "in" ],
+
+                                [ "PCHAR", "lpServiceArgVectors", "in" ]
+
+                        ])
+
+                railgun.add_function( 'advapi32', 'ControlService','BOOL',[
+
+                                [ "DWORD", "hService", "in" ],
+
+                                [ "DWORD", "dwControl", "in" ],
+
+                                [ "PBLOB", "lpServiceStatus", "out" ]
+
+                        ])
+
+                #SERVICE_CONTROL_STOP = 0x00000001
+
+                # _SERVICE_STATUS  is an array of 7 DWORDS -  dwServiceType;
+                #dwCurrentState; dwControlsAccepted; dwWin32ExitCode;
+                #dwServiceSpecificExitCode; dwCheckPoint; dwWaitHint;
+
+                railgun.add_function( 'advapi32', 'ChangeServiceConfigA','BOOL',[
+
+                                [ "DWORD", "hService", "in" ],
+
+                                [ "DWORD", "dwServiceType", "in" ],
+
+                                [ "DWORD", "dwStartType", "in" ],
+
+                                [ "DWORD", "dwErrorControl", "in" ],
+
+                                [ "PCHAR", "lpBinaryPathName", "in" ],
+
+                                [ "PCHAR", "lpLoadOrderGroup", "in" ],
+
+                                [ "PDWORD", "lpdwTagId", "out" ],
+
+                                [ "PCHAR", "lpDependencies", "in" ],
+
+                                [ "PCHAR", "lpServiceStartName", "in" ],
+
+                                [ "PCHAR", "lpPassword", "in" ],
+
+                                [ "PCHAR", "lpDisplayName", "in" ]
+
+                        ])
+
+                railgun.add_function( 'advapi32', 'CloseServiceHandle','BOOL',[
+
+                                [ "DWORD", "hSCObject", "in" ]
+
+                        ])
 
 
 	end # method

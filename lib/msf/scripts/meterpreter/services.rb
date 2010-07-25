@@ -11,6 +11,7 @@ module Common
 # These methods should only print output in the case of an error. All code should be tab indented
 # All methods should follow the naming coventions below (separate words with "_", end queries with a ?, etc)
 #
+
 #List all Windows Services present. Returns an Array containing the names of the services.
 def service_list
 	serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
@@ -70,7 +71,82 @@ def service_change_startup(name,mode)
 	end
 end
 
+# Function for the creation of a service that runs it's own process. It takes as
+# values the service name as string, the display name as string, the path of the
+# executable on the host that will execute at startup as string and the startup
+# type as an integer of 2 for Auto, 3 for Manual or 4 for Disable, default Auto.
+def service_create(name, display_name, executable_on_host,startup=2)
+        client.core.use("railgun")
+        adv = client.railgun.advapi32
+        manag = adv.OpenSCManagerA(nil,nil,0x13)
+        if(manag["return"] != 0)
+                # SC_MANAGER_CREATE_SERVICE = 0x0002
+                newservice = adv.CreateServiceA(manag["return"],name,display_name,0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
+                #SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
+                #SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
+                if newservice["GetLastError"] == 0
+                        return true
+                else
+                        return false
+                end
+        else
+                raise "Could not open Service Control Manager, Access Denied"
+        end
+end
+# Function for service startup, returns 0 if service started, 1 if service is
+# already started and 2 if service is disabled.
+def service_start(name)
+	client.core.use("railgun")
+	adv = client.railgun.advapi32
+	manag = adv.OpenSCManagerA(nil,nil,1)
+	if(manag["return"] == 0)
+		raise "Could not open Service Control Manager, Access Denied"
+	end
+	#open with  SERVICE_START (0x0010)
+	servhandleret = adv.OpenServiceA(manag["return"],name,0x10)
+	if(servhandleret["return"] == 0)
+		adv.CloseServiceHandle(manag["return"])
+		raise "Could not Open Service, Access Denied"
+	end
+	retval = adv.StartServiceA(servhandleret["return"],0,nil)
+	adv.CloseServiceHandle(servhandleret["return"])
+	adv.CloseServiceHandle(manag["return"])
+	if retval["GetLastError"] == 0
+                return 0
+        elsif retval["GetLastError"] == 1056
+                return 1
+        elsif retval["GetLastError"] == 1058
+                return 2
+        end
+end
 
+
+# Function for stopping a service, returns 0 if service is stopped successfully,
+# 1 if service is already stopped or disabled and 2 if the service can not be stopped.
+def service_stop(name)
+	client.core.use("railgun")
+	adv = client.railgun.advapi32
+	manag = adv.OpenSCManagerA(nil,nil,1)
+	if(manag["return"] == 0)
+		raise "Could not open Service Control Manager, Access Denied"
+	end
+	#open with  SERVICE_STOP (0x0020)
+	servhandleret = adv.OpenServiceA(manag["return"],name,0x30)
+	if(servhandleret["return"] == 0)
+		adv.CloseServiceHandle(manag["return"])
+		raise "Could not Open Service, Access Denied"
+	end
+	retval = adv.ControlService(servhandleret["return"],1,56)
+	adv.CloseServiceHandle(servhandleret["return"])
+	adv.CloseServiceHandle(manag["return"])
+	if retval["GetLastError"] == 0
+                return 0
+        elsif retval["GetLastError"] == 1062
+                return 1
+        elsif retval["GetLastError"] == 1052
+                return 2
+        end
+end
 end
 end
 end
