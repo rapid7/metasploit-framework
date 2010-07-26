@@ -1,0 +1,6 @@
+--- 
+exploit/windows/smb/psexec: 
+ - lab2k
+ - labxp
+exploit/unix/misc/distcc_exec:
+ - metasploitable

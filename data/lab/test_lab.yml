@@ -1,0 +1,25 @@
+--- 
+lab2k:
+  file: win2k/Windows 2000 AS.vmx
+  user: Administrator
+  pass: 
+  os: windows
+  x64: false
+  tools: true
+  hostname: lab2k 
+labxp:
+  file: xpsp1/Windows XP Professional.vmx
+  user: Administrator
+  pass: administrator
+  os: windows
+  x64: false
+  tools: true
+  hostname: labxp 
+metasploitable: 
+  file: metasploitable/Metasploitable.vmx
+  user: msfadmin
+  pass: msfadmin
+  os: linux
+  x64: false
+  tools: true
+  hostname: metasploitable
