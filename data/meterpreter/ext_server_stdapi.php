@@ -3,6 +3,146 @@
 # STDAPI
 ##
 
+##
+# General
+##
+define("TLV_TYPE_HANDLE",              TLV_META_TYPE_UINT    |  600);
+define("TLV_TYPE_INHERIT",             TLV_META_TYPE_BOOL    |  601);
+define("TLV_TYPE_PROCESS_HANDLE",      TLV_META_TYPE_UINT    |  630);
+define("TLV_TYPE_THREAD_HANDLE",       TLV_META_TYPE_UINT    |  631);
+
+##
+# Fs
+##
+define("TLV_TYPE_DIRECTORY_PATH",      TLV_META_TYPE_STRING  | 1200);
+define("TLV_TYPE_FILE_NAME",           TLV_META_TYPE_STRING  | 1201);
+define("TLV_TYPE_FILE_PATH",           TLV_META_TYPE_STRING  | 1202);
+define("TLV_TYPE_FILE_MODE",           TLV_META_TYPE_STRING  | 1203);
+define("TLV_TYPE_STAT_BUF",            TLV_META_TYPE_COMPLEX | 1220);
+
+##
+# Net
+##
+define("TLV_TYPE_HOST_NAME",           TLV_META_TYPE_STRING  | 1400);
+define("TLV_TYPE_PORT",                TLV_META_TYPE_UINT    | 1401);
+
+define("TLV_TYPE_SUBNET",              TLV_META_TYPE_RAW     | 1420);
+define("TLV_TYPE_NETMASK",             TLV_META_TYPE_RAW     | 1421);
+define("TLV_TYPE_GATEWAY",             TLV_META_TYPE_RAW     | 1422);
+define("TLV_TYPE_NETWORK_ROUTE",       TLV_META_TYPE_GROUP   | 1423);
+
+define("TLV_TYPE_IP",                  TLV_META_TYPE_RAW     | 1430);
+define("TLV_TYPE_MAC_ADDRESS",         TLV_META_TYPE_RAW     | 1431);
+define("TLV_TYPE_MAC_NAME",            TLV_META_TYPE_STRING  | 1432);
+define("TLV_TYPE_NETWORK_INTERFACE",   TLV_META_TYPE_GROUP   | 1433);
+
+define("TLV_TYPE_SUBNET_STRING",       TLV_META_TYPE_STRING  | 1440);
+define("TLV_TYPE_NETMASK_STRING",      TLV_META_TYPE_STRING  | 1441);
+define("TLV_TYPE_GATEWAY_STRING",      TLV_META_TYPE_STRING  | 1442);
+
+# Socket
+define("TLV_TYPE_PEER_HOST",           TLV_META_TYPE_STRING  | 1500);
+define("TLV_TYPE_PEER_PORT",           TLV_META_TYPE_UINT    | 1501);
+define("TLV_TYPE_LOCAL_HOST",          TLV_META_TYPE_STRING  | 1502);
+define("TLV_TYPE_LOCAL_PORT",          TLV_META_TYPE_UINT    | 1503);
+define("TLV_TYPE_CONNECT_RETRIES",     TLV_META_TYPE_UINT    | 1504);
+
+define("TLV_TYPE_SHUTDOWN_HOW",        TLV_META_TYPE_UINT    | 1530);
+
+##
+# Sys
+##
+define("PROCESS_EXECUTE_FLAG_HIDDEN", (1 << 0));
+define("PROCESS_EXECUTE_FLAG_CHANNELIZED", (1 << 1));
+define("PROCESS_EXECUTE_FLAG_SUSPENDED", (1 << 2));
+define("PROCESS_EXECUTE_FLAG_USE_THREAD_TOKEN", (1 << 3));
+
+# Registry
+define("TLV_TYPE_HKEY",                TLV_META_TYPE_UINT    | 1000);
+define("TLV_TYPE_ROOT_KEY",            TLV_TYPE_HKEY);
+define("TLV_TYPE_BASE_KEY",            TLV_META_TYPE_STRING  | 1001);
+define("TLV_TYPE_PERMISSION",          TLV_META_TYPE_UINT    | 1002);
+define("TLV_TYPE_KEY_NAME",            TLV_META_TYPE_STRING  | 1003);
+define("TLV_TYPE_VALUE_NAME",          TLV_META_TYPE_STRING  | 1010);
+define("TLV_TYPE_VALUE_TYPE",          TLV_META_TYPE_UINT    | 1011);
+define("TLV_TYPE_VALUE_DATA",          TLV_META_TYPE_RAW     | 1012);
+
+# Config
+define("TLV_TYPE_COMPUTER_NAME",       TLV_META_TYPE_STRING  | 1040);
+define("TLV_TYPE_OS_NAME",             TLV_META_TYPE_STRING  | 1041);
+define("TLV_TYPE_USER_NAME",           TLV_META_TYPE_STRING  | 1042);
+
+define("DELETE_KEY_FLAG_RECURSIVE", (1 << 0));
+
+# Process
+define("TLV_TYPE_BASE_ADDRESS",        TLV_META_TYPE_UINT    | 2000);
+define("TLV_TYPE_ALLOCATION_TYPE",     TLV_META_TYPE_UINT    | 2001);
+define("TLV_TYPE_PROTECTION",          TLV_META_TYPE_UINT    | 2002);
+define("TLV_TYPE_PROCESS_PERMS",       TLV_META_TYPE_UINT    | 2003);
+define("TLV_TYPE_PROCESS_MEMORY",      TLV_META_TYPE_RAW     | 2004);
+define("TLV_TYPE_ALLOC_BASE_ADDRESS",  TLV_META_TYPE_UINT    | 2005);
+define("TLV_TYPE_MEMORY_STATE",        TLV_META_TYPE_UINT    | 2006);
+define("TLV_TYPE_MEMORY_TYPE",         TLV_META_TYPE_UINT    | 2007);
+define("TLV_TYPE_ALLOC_PROTECTION",    TLV_META_TYPE_UINT    | 2008);
+define("TLV_TYPE_PID",                 TLV_META_TYPE_UINT    | 2300);
+define("TLV_TYPE_PROCESS_NAME",        TLV_META_TYPE_STRING  | 2301);
+define("TLV_TYPE_PROCESS_PATH",        TLV_META_TYPE_STRING  | 2302);
+define("TLV_TYPE_PROCESS_GROUP",       TLV_META_TYPE_GROUP   | 2303);
+define("TLV_TYPE_PROCESS_FLAGS",       TLV_META_TYPE_UINT    | 2304);
+define("TLV_TYPE_PROCESS_ARGUMENTS",   TLV_META_TYPE_STRING  | 2305);
+
+define("TLV_TYPE_IMAGE_FILE",          TLV_META_TYPE_STRING  | 2400);
+define("TLV_TYPE_IMAGE_FILE_PATH",     TLV_META_TYPE_STRING  | 2401);
+define("TLV_TYPE_PROCEDURE_NAME",      TLV_META_TYPE_STRING  | 2402);
+define("TLV_TYPE_PROCEDURE_ADDRESS",   TLV_META_TYPE_UINT    | 2403);
+define("TLV_TYPE_IMAGE_BASE",          TLV_META_TYPE_UINT    | 2404);
+define("TLV_TYPE_IMAGE_GROUP",         TLV_META_TYPE_GROUP   | 2405);
+define("TLV_TYPE_IMAGE_NAME",          TLV_META_TYPE_STRING  | 2406);
+
+define("TLV_TYPE_THREAD_ID",           TLV_META_TYPE_UINT    | 2500);
+define("TLV_TYPE_THREAD_PERMS",        TLV_META_TYPE_UINT    | 2502);
+define("TLV_TYPE_EXIT_CODE",           TLV_META_TYPE_UINT    | 2510);
+define("TLV_TYPE_ENTRY_POINT",         TLV_META_TYPE_UINT    | 2511);
+define("TLV_TYPE_ENTRY_PARAMETER",     TLV_META_TYPE_UINT    | 2512);
+define("TLV_TYPE_CREATION_FLAGS",      TLV_META_TYPE_UINT    | 2513);
+
+define("TLV_TYPE_REGISTER_NAME",       TLV_META_TYPE_STRING  | 2540);
+define("TLV_TYPE_REGISTER_SIZE",       TLV_META_TYPE_UINT    | 2541);
+define("TLV_TYPE_REGISTER_VALUE_32",   TLV_META_TYPE_UINT    | 2542);
+define("TLV_TYPE_REGISTER",            TLV_META_TYPE_GROUP   | 2550);
+
+##
+# Ui
+##
+define("TLV_TYPE_IDLE_TIME",           TLV_META_TYPE_UINT    | 3000);
+define("TLV_TYPE_KEYS_DUMP",           TLV_META_TYPE_STRING  | 3001);
+define("TLV_TYPE_DESKTOP",             TLV_META_TYPE_STRING  | 3002);
+
+##
+# Event Log
+##
+define("TLV_TYPE_EVENT_SOURCENAME",    TLV_META_TYPE_STRING  | 4000);
+define("TLV_TYPE_EVENT_HANDLE",        TLV_META_TYPE_UINT    | 4001);
+define("TLV_TYPE_EVENT_NUMRECORDS",    TLV_META_TYPE_UINT    | 4002);
+
+define("TLV_TYPE_EVENT_READFLAGS",     TLV_META_TYPE_UINT    | 4003);
+define("TLV_TYPE_EVENT_RECORDOFFSET",  TLV_META_TYPE_UINT    | 4004);
+
+define("TLV_TYPE_EVENT_RECORDNUMBER",  TLV_META_TYPE_UINT    | 4006);
+define("TLV_TYPE_EVENT_TIMEGENERATED", TLV_META_TYPE_UINT    | 4007);
+define("TLV_TYPE_EVENT_TIMEWRITTEN",   TLV_META_TYPE_UINT    | 4008);
+define("TLV_TYPE_EVENT_ID",            TLV_META_TYPE_UINT    | 4009);
+define("TLV_TYPE_EVENT_TYPE",          TLV_META_TYPE_UINT    | 4010);
+define("TLV_TYPE_EVENT_CATEGORY",      TLV_META_TYPE_UINT    | 4011);
+define("TLV_TYPE_EVENT_STRING",        TLV_META_TYPE_STRING  | 4012);
+define("TLV_TYPE_EVENT_DATA",          TLV_META_TYPE_RAW     | 4013);
+
+##
+# Power
+##
+define("TLV_TYPE_POWER_FLAGS",         TLV_META_TYPE_UINT    | 4100);
+define("TLV_TYPE_POWER_REASON",        TLV_META_TYPE_UINT    | 4101);
+
 # Wrap everything in checks for existence of the new functions in case we get
 # eval'd twice
 my_print("Evaling stdapi");

