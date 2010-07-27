@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			cmd = 'VRFY' + " " + "root" + "\r\n"
 			smtp_send(cmd,!@connected)
-			if (@result.match(%r{Cannot}).nil?) or (@result.match(%r{recognized}).nil?)
+			unless (@result.match(%r{Cannot}).nil?) or (@result.match(%r{recognized}).nil?)
 				print_status("VRFY command disabled") if datastore['VERBOSE']
 			else
 				print_status("VRFY command enabled") if datastore['VERBOSE']
