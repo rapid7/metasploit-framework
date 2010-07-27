@@ -192,14 +192,13 @@ class ElfBase
 
 	# Program Header
 
-	PROGRAM_HEADER_SIZE = 36
+	PROGRAM_HEADER_SIZE = 32
 
 	ELF32_PHDR_LSB = Rex::Struct2::CStructTemplate.new(
 		[ 'uint32v', 'p_type',   0 ],
 		[ 'uint32v', 'p_offset', 0 ],
 		[ 'uint32v', 'p_vaddr',  0 ],
 		[ 'uint32v', 'p_paddr',  0 ],
-		[ 'uint32v', 'p_filesz', 0 ],
 		[ 'uint32v', 'p_filesz', 0 ],
 		[ 'uint32v', 'p_memsz',  0 ],
 		[ 'uint32v', 'p_flags',  0 ],
@@ -211,7 +210,6 @@ class ElfBase
 		[ 'uint32n', 'p_offset', 0 ],
 		[ 'uint32n', 'p_vaddr',  0 ],
 		[ 'uint32n', 'p_paddr',  0 ],
-		[ 'uint32n', 'p_filesz', 0 ],
 		[ 'uint32n', 'p_filesz', 0 ],
 		[ 'uint32n', 'p_memsz',  0 ],
 		[ 'uint32n', 'p_flags',  0 ],
