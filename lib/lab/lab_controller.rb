@@ -1,8 +1,12 @@
 require 'find'
 require 'yaml'
 require 'vmware_controller'
-require 'qemu_controller'
-require 'ec2_controller'
+
+
+## Not implemented yet!
+##
+#require 'qemu_controller'
+#require 'ec2_controller'
 
 #
 # ~Higher-level lab methods which are generic to the types of things we want to do with a lab of machines
@@ -11,25 +15,19 @@ require 'ec2_controller'
 class LabController 
 
 	attr_accessor :labdef
-	attr_accessor :labbase
 	attr_accessor :controller
 
-	def initialize (labdef = nil, labbase = nil, labtype="vmware")
+	def initialize (labdef = nil, labtype="vmware")
 
-		if !labbase
-			@labbase = "/opt/vm/"  ## set the base directory for the lab (default to local)
-		else
-			@labbase = labbase
-		end
 				
 		if !labdef 
-			 ## assign the default lab definition if we were not passed one
-			@labdef = YAML::load_file(File.join(File.dirname(__FILE__), "..", "..", "data", "lab", "test_lab.yml" ))
+			## Just use a blank lab to start
+			@labdef = {}
 		else
 			@labdef = labdef
-		end
-		
-		## handle yaml nils :/. turn them into blank strings.
+		end		
+
+		### AHH, traverse again, looking for nils, cuz ruby is teh fail - TODO -  value?		
 		@labdef.each do |key,value|
 			@labdef[key].each do |subkey,subvalue|
 				if !subvalue
@@ -38,15 +36,21 @@ class LabController
 			end
 		end
 		
+				
 		## set up the controller. note that this is likely to change in the future (to provide for additional vm libs)
 		if labtype == "vmware"
 			@controller = VmwareController.new
 			@file_extension = "vmx"
-		elsif labtype == "qemu"
-			@controller = QemuController.new
-			@file_extension = "img"
-		elsif labtype == "ec2"
-			@controller = Ec2Controller.new
+
+##	
+##	Not implemented yet!
+##
+##		elsif labtype == "qemu"
+##			@controller = QemuController.new
+##			@file_extension = "img"
+##		elsif labtype == "ec2"
+##			@controller = Ec2Controller.new
+
 		else
 			raise "Invalid Lab Controller"
 		end
@@ -58,48 +62,49 @@ class LabController
 	 	end
 	end 
 	
-##TODO - these methods need some thought
-	def build_lab_from_running(basepath=nil)
-		@vmbase = basepath if basepath
-		vm_array = self.get_running.split("\n") ## this should probably return an array
+	def build_lab_from_running()
+		vm_array = self.list_lab_running.split("\n") ## this should probably return an array
 		vm_array.shift
-		hlp_stuff_array_info_lab(vm_array)
+		hlp_stuff_array_into_lab(vm_array)
 	end
 
 	def build_lab_from_files(basepath=nil)
-		@vmbase = basepath if basepath
-		vm_array = Find.find(@vmbase).select { |f| 
-			f =~ /\.#{file_extension}$/ && File.executable?(f)
+		vm_array = Find.find(basepath).select { |f| 
+			f =~ /\.#{@file_extension}$/ #&& File.executable?(f)
 		}
+
 		hlp_stuff_array_into_lab(vm_array)
 	end
 
 	def hlp_stuff_array_into_lab(arr)
 		return false unless arr.kind_of? Array
-		arr.each_with_index {|v,i| 
-			@labdef[i] = File.join(v.split(/[\x5c\x2f]+/))
-			if @labdef[i] =~ /^#{@vmbase}(.*)/
-				@labdef[i] = $1
+	
+		arr.each_with_index {|v,i|
+			## give us a vmid!
+			index = @labdef.count + 1
+
+			## eliminate dooops
+			fresh = true
+			@labdef.each { |vmid, definition| fresh = false if labdef[vmid]['file'] == 'v' }
+			
+			if fresh
+				@labdef[index.to_s] = {'file' => v }
 			end
+			#end
 		}
 		return @labdef
 	end
-## TODO ^^
 
 	def run_command_on_lab_vm(vmid,command,arguments=nil)
-		begin	
-			if @labdef[vmid]["tools"]
-				@controller.run_command(get_full_path(vmid), command, @labdef[vmid]["user"],@labdef[vmid]["pass"])
+		if @labdef[vmid]["tools"]
+			@controller.run_command(get_full_path(vmid), command, @labdef[vmid]["user"],@labdef[vmid]["pass"])
+		else
+			if @labdef[vmid]["os"] == "linux"
+				@controller.run_ssh_command(@labdef[vmid]["hostname"], command , @labdef[vmid]["user"])
 			else
-				if @labdef[vmid]["os"] == "linux"
-					@controller.run_ssh_command(@labdef[vmid]["hostname"], command , @labdef[vmid]["user"])
-				else
-					raise Exception "OS Not Supported"
-				end
+				raise "OS Not Supported"
 			end
-		rescue Exception => e
-			print_error "error! " + e.to_s
-		end 
+		end
 	end
 
 	def run_browser_on_lab_vm(vmid,uri)
@@ -108,7 +113,7 @@ class LabController
 		elsif @labdef[vmid]['os'] == "windows"
 			command = "C:\\Progra~1\\intern~1\\iexplore.exe " + uri
 		else
-			print_error "Don't know how to browse to '" + uri + "'."
+			raise "Don't know how to browse to '" + uri + "'."
 		end
 		run_command_on_lab_vm(vmid,command)
 	end
@@ -117,31 +122,19 @@ class LabController
 		if running?(vmid)
 			self.list_lab_running
 		else
-			begin	
-				@controller.start(get_full_path(vmid)) 
-			rescue Exception => e
-				print_error "error! " + e.to_s
-			end 
+			@controller.start(get_full_path(vmid)) 
 		end
 	end
 	
 	def reset_lab_vm(vmid)
-		begin	
-			@controller.reset(get_full_path(vmid))
-		rescue Exception => e
-			return "error! " + e.to_s
-		end 
+		@controller.reset(get_full_path(vmid))
 	end
 
 	def pause_lab_vm(vmid)
 		if !running?(vmid)
 			self.list_lab_running
 		else
-			begin	
-				@controller.pause(get_full_path(vmid)) 
-			rescue Exception => e
-				return "error! " + e.to_s
-			end 
+			@controller.pause(get_full_path(vmid)) 
 		end
 	end
 
@@ -149,11 +142,7 @@ class LabController
 		if !running?(vmid)
 			self.list_lab_running
 		else
-			begin	
 				@controller.suspend(get_full_path(vmid))
-			rescue Exception => e
-				return "error! " + e.inspect
-			end 
 		end
 	end
 
@@ -161,22 +150,19 @@ class LabController
 		if !running?(vmid)
 			self.list_lab_running
 		else
-			begin	
-				@controller.create_snapshot(get_full_path(vmid),snapshot)
-			rescue Exception => e
-				return "error! " + e.to_s
-			end 
+			@controller.create_snapshot(get_full_path(vmid),snapshot)
 		end
 	end
 
-	def revert_lab_vm(vmid, snapshot)
+	def revert_lab_vm(vmid, snapshot, run)
 		if !running?(vmid)
 			self.list_lab_running
 		else
-			begin	
-				@controller.revert_snapshot(get_full_path(vmid),snapshot)
-			rescue Exception => e
-				print_error "error! " + e.to_s
+			@controller.revert_snapshot(get_full_path(vmid),snapshot)
+
+			## If you revert w/ vmrun, you need to restart
+			if run 
+				@controller.start_lab_vm(get_full_path(vmid))
 			end
 		end
 	end
@@ -185,11 +171,7 @@ class LabController
 		if !running?(vmid)
 			self.list_lab_running
 		else
-			begin	
-				@controller.stop(get_full_path(vmid))
-			rescue Exception => e
-				print_error "error! " + e.to_s
-			end
+			@controller.stop(get_full_path(vmid))
 		end
 	end
 
@@ -271,7 +253,7 @@ class LabController
 
 	def copy_from_lab(file)	
 		@labdef.each { | key, value | 
-			next unless line =~ /^#{@vmbase}(.*)/
+#			next unless line =~ /^#{@vmbase}(.*)/
 			if value
 				self.copy_from_lab_vm(key,file)
 			end
@@ -292,19 +274,10 @@ class LabController
 		name = File.basename(file)
 
 		## if we've installed vm-tools on the box, use that to copy. if not, use scp
-		if (@labdef[vmid]["tools"] == "true")
-			
-			puts "DEBUG: creating directory: " + guestpath
+		if (@labdef[vmid]["tools"] == "true")			
 			@controller.create_directory_in_guest(get_full_path(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"], guestpath)
-
-			begin	
-				puts "DEBUG: copying file: " + file + " into " + guestpath + name
-				@controller.copy_file_to(get_full_path(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file, guestpath + name)
-			rescue Exception => e
-				print_error "error! " + e.to_s
-			end 
+			@controller.copy_file_to(get_full_path(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file, guestpath + name)
 		else
-			puts "DEBUG: scp copying file: " + file + " into " + guestpath + name
 			@controller.scp_copy_file_to(@labdef[vmid]["hostname"], @labdef[vmid]["user"], file, guestpath + name)
 		end
 	end
@@ -314,11 +287,7 @@ class LabController
 
 		name = File.basename(file.gsub("\\","/")) 
 
-		begin	
-			@controller.copy_file_from(get_full_path(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file,hostpath + name)
-		rescue Exception => e
-			print_error "error! " + e.to_s
-		end 
+		@controller.copy_file_from(get_full_path(vmid),@labdef[vmid]["user"],@labdef[vmid]["pass"],file,hostpath + name)
 	end
 	
 	def list_lab_running
@@ -364,10 +333,9 @@ class LabController
 
 	def get_full_path(vmid)
 		if @labdef[vmid]
-			@labbase.to_s + @labdef[vmid]["file"].to_s		## handle linux
+			@labdef[vmid]["file"].to_s		## handle linux
 		else
 			nil
 		end
 	end
-
 end
