@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: ams_xfr.rb 9179 2010-04-30 08:40:19Z jduck $
 ##
 
 ##
@@ -19,14 +19,14 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Symantec System Center Alert Management System Arbitrary Command Execution',
+			'Name'           => 'Symantec System Center Alert Management System (xfr.exe) Arbitrary Command Execution',
 			'Description'    => %q{
 					Symantec System Center Alert Management System is prone to a remote command-injection vulnerability
 					because the application fails to properly sanitize user-supplied input.
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
+			'Version'        => '$Revision: 9179 $',
 			'References'     =>
 				[
 					[ 'CVE', '2009-1429' ],
