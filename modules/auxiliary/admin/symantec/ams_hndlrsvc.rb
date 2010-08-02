@@ -29,6 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision: $',
 			'References'     =>
 				[
+					[ 'OSVDB', '66807'],
 					[ 'BID', '41959' ],
 					[ 'URL', 'http://www.foofus.net/~spider/code/AMS2_072610.txt' ],
 				],
