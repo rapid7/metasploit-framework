@@ -43,7 +43,7 @@ end
 @@exec_opts.parse(args) do |opt, idx, val|
 	case opt
 
-	when "-c"
+	when "-cl"
 		commands = val.gsub(/;/,"\n")
 	when "-rc"
 		script = val
