@@ -19,8 +19,8 @@ module CommandShellOptions
 
 		register_advanced_options(
 			[
-				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)", '']),
-				OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", ''])
+				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
+				OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", ''])
 			], self.class)
 	end
 

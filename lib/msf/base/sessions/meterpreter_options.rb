@@ -20,8 +20,8 @@ module MeterpreterOptions
 		register_advanced_options(
 			[
 				OptBool.new('AutoLoadStdapi', [true, "Automatically load the Stdapi extension", true]),
-				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)", '']),
-				OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
+				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
+				OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
 				OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 			], self.class)
 	end
