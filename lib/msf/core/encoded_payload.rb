@@ -1,3 +1,5 @@
+# $Id$
+
 require 'msf/core'
 
 module Msf
@@ -46,7 +48,7 @@ class EncodedPayload
 		self.encoder       = nil
 		self.nop           = nil
 		self.iterations    = reqs['Iterations'].to_i
-		self.iterations = 1 if self.iterations < 1
+		self.iterations    = 1 if self.iterations < 1
 
 		# Increase thread priority as necessary.  This is done
 		# to ensure that the encoding and sled generation get
@@ -72,7 +74,7 @@ class EncodedPayload
 
 			# Finally, set the complete payload definition
 			self.encoded = (self.nop_sled || '') + self.encoded
-		ensure	
+		ensure
 			# Restore the thread priority
 			Thread.current.priority = priority
 		end
@@ -125,6 +127,7 @@ class EncodedPayload
 						'core', LEV_1)
 					next
 				end
+
 				# If the exploit did not explicitly request a kind of encoder and
 				# the current encoder has a manual ranking, then it should not be
 				# considered as a valid encoder.  A manual ranking tells the
@@ -135,10 +138,9 @@ class EncodedPayload
 				    (self.encoder.rank == ManualRanking))
 					wlog("#{pinst.refname}: Encoder #{encoder.refname} is manual ranked and was not defined as a preferred encoder.",
 						'core', LEV_1)
-					
 					next
 				end
-	
+
 				# If we have any encoder options, import them into the datastore
 				# of the encoder.
 				if (reqs['EncoderOptions'])
@@ -146,60 +148,73 @@ class EncodedPayload
 				end
 
 				# Validate the encoder to make sure it's properly initialized.
-				begin 
+				begin
 					self.encoder.validate
 				rescue ::Exception
 					wlog("#{pinst.refname}: Failed to validate encoder #{encoder.refname}: #{$!}",
 						'core', LEV_1)
-					
 					next
 				end
-				
+
 				eout = self.raw.dup
 
+				next_encoder = false
+
 				# Try encoding with the current encoder
+				#
+				# NOTE: Using more than one iteration may cause successive iterations to switch
+				# to using a different encoder.
+				#
 				1.upto(self.iterations) do |iter|
+					err_start = "#{pinst.refname}: iteration #{iter}"
+
 					begin
 						eout = self.encoder.encode(eout, reqs['BadChars'], nil, pinst.platform)
 					rescue EncodingError
-						wlog("#{pinst.refname}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
-						dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
-						next
+						wlog("#{err_start}: Encoder #{encoder.refname} failed: #{$!}", 'core', LEV_1)
+						dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_3)
+						next_encoder = true
+						break
+
 					rescue ::Exception
-						elog("#{pinst.refname}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
-						dlog("#{pinst.refname}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
-						next
+						elog("#{err_start}: Broken encoder #{encoder.refname}: #{$!}", 'core', LEV_0)
+						dlog("#{err_start}: Call stack\n#{$@.join("\n")}", 'core', LEV_1)
+						next_encoder = true
+						break
 					end
-	
+
 					# Get the minimum number of nops to use
 					min = (reqs['MinNops'] || 0).to_i
 					min = 0 if reqs['DisableNops']
-					
+
 					# Check to see if we have enough room for the minimum requirements
 					if ((reqs['Space']) and (reqs['Space'] < eout.length + min))
-						wlog("#{pinst.refname}: Encoded payload version is too large with encoder #{encoder.refname}",
+						wlog("#{err_start}: Encoded payload version is too large with encoder #{encoder.refname}",
 							'core', LEV_1)
-	
-						next
+						next_encoder = true
+						break
 					end
-	
-					ilog("#{pinst.refname}: Successfully encoded with encoder #{encoder.refname} (size is #{eout.length} on iteration #{iter})",
-					 'core', LEV_0)
-	
+
+					ilog("#{err_start}: Successfully encoded with encoder #{encoder.refname} (size is #{eout.length})",
+						'core', LEV_0)
 				end
+
+				next if next_encoder
+
 				self.encoded = eout
 				break
 			}
-			
+
 			# If the encoded payload is nil, raise an exception saying that we
 			# suck at life.
 			if (self.encoded == nil)
 				encoder = nil
 
-				raise NoEncodersSucceededError, 
+				raise NoEncodersSucceededError,
 					"#{pinst.refname}: All encoders failed to encode.",
 					caller
 			end
+
 		# If there are no bad characters, then the raw is the same as the
 		# encoded
 		else
@@ -222,7 +237,7 @@ class EncodedPayload
 		# Calculate the number of NOPs to pad out the buffer with based on the
 		# requirements.  If there was a space requirement, check to see if
 		# there's any room at all left for a sled.
-		if ((space) and 
+		if ((space) and
 			 (space > encoded.length))
 			self.nop_sled_size = reqs['Space'] - self.encoded.length
 		end
@@ -276,7 +291,7 @@ class EncodedPayload
 			}
 
 			if (self.nop_sled == nil)
-				raise NoNopsSucceededError, 
+				raise NoNopsSucceededError,
 					"#{pinst.refname}: All NOP generators failed to construct sled for.",
 					caller
 			end
