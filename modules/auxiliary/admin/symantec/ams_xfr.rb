@@ -1,5 +1,5 @@
 ##
-# $Id: ams_xfr.rb 9179 2010-04-30 08:40:19Z jduck $
+# $Id$
 ##
 
 ##
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision: 9179 $',
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					[ 'CVE', '2009-1429' ],
