@@ -14,7 +14,7 @@ import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowListener;
+import java.awt.event.WindowAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -125,31 +125,24 @@ public class MainFrame extends FrameView {
 		setLnF(false);
 		MsfguiApp.fileChooser = new JFileChooser();
 		connectRpc();
-		getFrame().addWindowListener(new WindowListener(){
-			public void windowOpened(WindowEvent we) {
-			}
+		getFrame().addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				try{
-					if(rpcConn != null && JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
-						rpcConn.execute("core.stop");
-				}catch(Exception ex){
-				}
-			}
-			public void windowClosed(WindowEvent we) {
-			}
-			public void windowIconified(WindowEvent we) {
-			}
-			public void windowDeiconified(WindowEvent we) {
-			}
-			public void windowActivated(WindowEvent we) {
-			}
-			public void windowDeactivated(WindowEvent we) {
+				confirmStop();
 			}
 		});
 		//Setup icon
 		this.getFrame().setIconImage( resourceMap.getImageIcon("main.icon").getImage());
 	}
 
+	private void confirmStop() {
+		try {
+			if (rpcConn != null && JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION) {
+				rpcConn.execute("core.stop");
+			}
+		} catch (Exception ex) {
+		}
+	}
+	
 	/** Set up auto session and job refresh */
 	private void setupSessionsPollTimer() throws HeadlessException {
 		sessionsPollTimer = new SwingWorker(){
@@ -703,6 +696,7 @@ public class MainFrame extends FrameView {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
+		confirmStop();
 		System.exit(0);
 	}//GEN-LAST:event_exitMenuItemActionPerformed
 
