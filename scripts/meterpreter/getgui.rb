@@ -92,7 +92,7 @@ def enabletssrv()
 		#Enabling Exception on the Firewall
 		print_status "\tOpening port in local firewall if necessary"
 		cmd_exec('netsh firewall set service type = remotedesktop mode = enable')
-		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'")
+		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'\"")
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
