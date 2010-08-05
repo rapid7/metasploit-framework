@@ -4,7 +4,7 @@
 #
 
 module Msf
-class Plugin::DeprecatedStub < Msf::Plugin
+class Plugin::DeprecatedSqlite2 < Msf::Plugin
 	def name
 		"Deprecated_plugin_stub"
 	end

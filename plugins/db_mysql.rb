@@ -4,7 +4,7 @@
 #
 
 module Msf
-class Plugin::DeprecatedStub < Msf::Plugin
+class Plugin::DeprecatedMysql < Msf::Plugin
 	def name
 		"Deprecated_plugin_stub"
 	end
