@@ -66,6 +66,11 @@ class OptsConsole
 				options['RealReadline'] = true
 			end
 
+			# Boolean switch.
+			opts.on("-n", "--no-database", "Disable database support") do |v|
+				options['DisableDatabase'] = true
+			end
+
 			opts.separator ""
 			opts.separator "Common options:"
 

@@ -18,6 +18,7 @@ class DBManager
 
 	# Returns true if we are ready to load/store data
 	def active
+		return false if not @usable
 		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active?)
 	end
 
@@ -36,11 +37,24 @@ class DBManager
 	# Stores a TaskManager for serializing database events
 	attr_accessor :sink
 
-	def initialize(framework)
+	def initialize(framework, opts = {})
 
 		self.framework = framework
 		@usable = false
 
+		# Don't load the database is the user said they didn't need it.
+		if (opts['DisableDatabase'])
+			self.error = "User Disabled Database Support"
+			return
+		end
+
+		initialize_database_support
+	end
+
+	#
+	# Do what is necessary to load our database support
+	#
+	def initialize_database_support
 		#
 		# Prefer our local copy of active_record and active_support
 		#
@@ -70,7 +84,7 @@ class DBManager
 		rescue ::Exception => e
 			self.error = e
 			elog("DB is not enabled due to load error: #{e}")
-			return
+			return false
 		end
 
 		#
@@ -82,6 +96,8 @@ class DBManager
 		# Instantiate the database sink
 		#
 		initialize_sink
+
+		true
 	end
 
 	#

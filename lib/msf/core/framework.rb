@@ -77,7 +77,7 @@ class Framework
 		self.datastore = DataStore.new
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
-		self.db        = DBManager.new(self)
+		self.db        = DBManager.new(self, opts)
 
 		subscriber = FrameworkEventSubscriber.new(self)
 		events.add_exploit_subscriber(subscriber)

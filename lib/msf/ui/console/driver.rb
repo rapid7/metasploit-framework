@@ -82,7 +82,7 @@ class Driver < Msf::Ui::Driver
 		load_preconfig
 
 		# Initialize attributes
-		self.framework = opts['Framework'] || Msf::Simple::Framework.create
+		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
 
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
@@ -106,7 +106,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Add the database dispatcher if it is usable
-		if(framework.db.usable)
+		if (framework.db.usable)
 			require 'msf/ui/console/command_dispatcher/db'
 			enstack_dispatcher(CommandDispatcher::Db)
 		else
