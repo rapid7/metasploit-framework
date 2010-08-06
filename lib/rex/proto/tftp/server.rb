@@ -10,7 +10,9 @@ module TFTP
 # Little util function
 #
 def self.get_string(data)
-	ret = data.slice!(0,data.index("\x00"))
+	idx = data.index("\x00")
+	return nil if not idx
+	ret = data.slice!(0, idx)
 	# Slice off the nul byte.
 	data.slice!(0,1)
 	ret
@@ -200,7 +202,7 @@ protected
 
 	def check_retransmission(tr)
 		elapsed = Time.now - tr[:last_sent]
-		if (elapsed >= 3)
+		if (elapsed >= tr[:timeout])
 			# max retries reached?
 			if (tr[:retries] < 3)
 				#if (tr[:type] == OpRead)
@@ -254,7 +256,7 @@ protected
 						check_retransmission(tr)
 					elsif (w != nil and w[0] == self.sock)
 						# No ack waiting, send next block..
-						chunk = tr[:file][:data].slice(tr[:offset], 512)
+						chunk = tr[:file][:data].slice(tr[:offset], tr[:blksize])
 						if (chunk and chunk.length >= 0)
 							pkt = [OpData, tr[:block]].pack('nn')
 							pkt << chunk
@@ -283,7 +285,7 @@ protected
 						tr[:last_sent] = Time.now
 
 						# If we had a 0-511 byte chunk, we're done.
-						if (tr[:last_size] and tr[:last_size] < 512)
+						if (tr[:last_size] and tr[:last_size] < tr[:blksize])
 							#puts "[*] Transfer complete, saving output"
 							save_output(tr)
 							self.transfers.delete(tr)
@@ -325,15 +327,21 @@ protected
 				if (file[:once] and file[:started])
 					send_error(from, ErrFileNotFound)
 				else
-					self.transfers << {
+					transfer = {
 						:type => OpRead,
 						:from => from,
 						:file => file,
 						:block => 1,
+						:blksize => 512,
 						:offset => 0,
+						:timeout => 3,
 						:last_sent => nil,
 						:retries => 0
 					}
+
+					process_options(from, buf, transfer)
+
+					self.transfers << transfer
 				end
 			else
 				#puts "[-] file not found!"
@@ -348,14 +356,20 @@ protected
 			#puts "%s %s %s" % [start, fn, mode]
 
 			if (not @shutting_down) and (@output_dir)
-				self.transfers << {
+				transfer = {
 					:type => OpWrite,
 					:from => from,
 					:file => { :name => fn, :data => '' },
 					:block => 0, # WRQ starts at 0
+					:blksize => 512,
+					:timeout => 3,
 					:last_sent => nil,
 					:retries => 0
 				}
+
+				process_options(from, buf, transfer)
+
+				self.transfers << transfer
 			else
 				send_error(from, ErrIllegalOperation)
 			end
@@ -372,7 +386,7 @@ protected
 				send_error(from, ErrUnknownTransferId)
 			else
 				# acked! send the next block
-				tr[:offset] += 512
+				tr[:offset] += tr[:blksize]
 				next_block(tr)
 
 				# If the transfer is finished, delete it
@@ -415,6 +429,58 @@ protected
 			send_error(from, ErrAccessViolation)
 
 		end
+	end
+
+	def process_options(from, buf, tr)
+		found = 0
+		to_ack = []
+		while buf.length >= 4
+			opt = TFTP::get_string(buf)
+			break if not opt
+			val = TFTP::get_string(buf)
+			break if not val
+
+			found += 1
+
+			# Is it one we support?
+			opt.downcase!
+
+			case opt
+			when "blksize"
+				val = val.to_i
+				if val > 0
+					tr[:blksize] = val
+					to_ack << [ opt, val.to_s ]
+				end
+
+			when "timeout"
+				val = val.to_i
+				if val >= 1 and val <= 255
+					tr[:timeout] = val
+					to_ack << [ opt, val.to_s ]
+				end
+
+			when "tsize"
+				if tr[:type] == OpRead
+					len = tr[:file][:data].length
+				else
+					val = val.to_i
+					len = val
+				end
+				to_ack << [ opt, len.to_s ]
+
+			end
+		end
+
+		return if to_ack.length < 1
+
+		# if we have anything to ack, do it
+		data = [OpOptAck].pack('n')
+		to_ack.each { |el|
+			data << el[0] << "\x00" << el[1] << "\x00"
+		}
+
+		send_packet(from, data)
 	end
 
 end
