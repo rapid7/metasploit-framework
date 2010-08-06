@@ -67,7 +67,7 @@ end
 @@exec_opts.parse(args) { |opt, idx, val|
         case opt
 
-        when "-c"
+        when "-cl"
                 commands = val.split(",")
         when "-rc"
                 script = val
