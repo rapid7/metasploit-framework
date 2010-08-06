@@ -22,10 +22,10 @@ session = client
 host,port = session.tunnel_peer.split(':')
 
 # Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")+sprintf("%.5d",rand(100000))
+filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.config_directory, 'logs', 'netenum', host)
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'netenum', host)
 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
