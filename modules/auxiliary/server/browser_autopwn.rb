@@ -31,10 +31,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'HTTP Client Automatic Exploiter',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-				This module uses a combination of client-side and server-side
+					This module uses a combination of client-side and server-side
 				techniques to fingerprint HTTP clients and then automatically
 				exploit them.
-				},
+			},
 			'Author'      =>
 				[
 					# initial concept, integration and extension of Jerome
