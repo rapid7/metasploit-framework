@@ -34,9 +34,9 @@ class Server
 
 		first_ip = hash['DHCPIPSTART'] || "#{self.ipstring[0..2]}\x20" #??
 		self.start_ip = Rex::Socket.addr_atoi(first_ip)
-
 		self.current_ip = start_ip
-		hash['DHCPIPEND'] || "#{self.ipstring[0..2]}\xfe"
+
+		last_ip = hash['DHCPIPEND'] || "#{self.ipstring[0..2]}\xfe"
 		self.end_ip = Rex::Socket.addr_atoi(last_ip)
 
 		# netmask
@@ -51,7 +51,20 @@ class Server
 		else
 			self.serveOnce = false
 		end
+		
+		if (hash['PXE'])
+			self.servePXE = true
+		else
+			self.servePXE = false
+		end
+		
+		self.leasetime = 600
+		self.relayip = "\x00\x00\x00\x00" # relay ip - not currently suported
+		self.pxeconfigfile = "update2"
+		self.pxepathprefix = ""
+		self.pxereboottime = 2000
 	end
+
 
 	# Start the DHCP server
 	def start
@@ -74,6 +87,23 @@ class Server
 		self.sock.close
 	end
 
+
+	# Set an option
+	def set_option(opts)
+		allowed_options = [
+			:serveOnce, :servePXE, :relayip, :leasetime,
+			:pxeconfigfile, :pxepathprefix, :pxereboottime
+		]
+
+		opts.each_pair { |k,v|
+			next if not v
+			if allowed_options.include?(k)
+				self.instance_variable_set("@#{k}", v)
+			end
+		}
+	end
+
+
 	# Send a single packet to the specified host
 	def send_packet(from, pkt)
 		# should be broadcast, but that fails  ...(pkt, "255.255.255.255", from[1])
@@ -81,10 +111,10 @@ class Server
 		#send( pkt, 0, Rex::Socket.to_sockaddr(0xffffffff, from[1]))
 	end
 
-	attr_accessor :listen_host, :listen_port, :context
+	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
-
+	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime
 
 protected
 
@@ -108,14 +138,21 @@ protected
 		end
 	end
 
-	def dhcpoption(type,val)
-		return type+[val.length].pack("C")+val
+	def dhcpoption(type, val = nil)
+		ret = ''
+		ret << [type].pack('C')
+
+		if val
+			ret << [val.length].pack('C') + val
+		end
+
+		ret
 	end
 
 	# Dispatch a packet that we received
 	def dispatch_request(from, buf)
 		type = buf[0]
-		if (type != "\x01")
+		if (type.unpack('C').first != Request)
 			#dlog("Unknown DHCP request type: #{type}")
 			return
 		end
@@ -136,7 +173,7 @@ protected
 		filename = buf[108..235]
 		magic = buf[236..239]
 
-		if (magic != "\x63\x82\x53\x63")
+		if (magic != DHCPMagic)
 			#dlog("Invalid DHCP request - bad magic.")
 			return
 		end
@@ -157,13 +194,14 @@ protected
 				pxeclient = true
 			end
 		end
-		if pxeclient == false
+
+		if pxeclient == false && self.servePXE == true
 			#dlog ("No tftp server request; ignoring (probably not PXE client)")
 			return
 		end
 
 		# prepare response
-		pkt = "\x02"
+		pkt = [Response].pack('C')
 		pkt << buf[1..7] #hwtype, hwlen, hops, txid
 		pkt << "\x00\x00\x00\x00"  #elapsed, flags
 		pkt << clientip
@@ -175,36 +213,41 @@ protected
 		end
 		pkt << Rex::Socket.addr_iton(self.current_ip)
 		pkt << self.ipstring #next server ip
-		pkt << "\x00\x00\x00\x00" #relay ip - not currently supported
+		pkt << self.relayip
 		pkt << buf[28..43] #client hw address
 		pkt << servhostname
 		pkt << self.myfilename
 		pkt << magic
 		pkt << "\x35\x01" #Option
-		if messageType == 1  #DHCP Discover - send DHCP Offer
-			pkt << "\x02"
+
+		if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
+			pkt << [DHCPOffer].pack('C')
 			# check if already served based on hw addr (MAC address)
 			if self.serveOnce == true && self.served[buf[28..43]]
 				#dlog ("Already served; allowing normal boot")
 				return
 			end
-		elsif messageType == 3 #DHCP Request - send DHCP ACK
-			pkt << "\x05"
+		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
+			pkt << [DHCPAck].pack('C')
 			self.served[buf[28..43]] = true  #now we ignore their discovers (but we'll respond to requests in case a packet was lost)
 		else
 			#dlog("ignoring unknown DHCP request - type #{messageType}")
 			return
 		end
-		pkt << dhcpoption("\x36",self.ipstring) #Option DHCP server
-		pkt << dhcpoption("\x33","\x00\x00\x02\x58") #Option Lease Time - 10 minutes
-		pkt << dhcpoption("\x01",self.netmaskn) #Subnet mask
-		pkt << dhcpoption("\x03",self.ipstring) #Option router
-		pkt << dhcpoption("\xD0","\xF1\x00\x74\x7E") #pxelinux.magic
-		pkt << dhcpoption("\xD1","update2") #pxelinux.configfile
-		pkt << dhcpoption("\xD2","") #pxelinux.pathprefix
-		pkt << dhcpoption("\xD3",[20].pack("N")) #pxelinux.reboottime
-		pkt << "\xff" # end option
+
+		# Options!
+		pkt << dhcpoption(OpDHCPServer, self.ipstring)
+		pkt << dhcpoption(OpLeaseTime, [self.leasetime].pack('N'))
+		pkt << dhcpoption(OpSubnetMask, self.netmaskn)
+		pkt << dhcpoption(OpRouter, self.ipstring)
+		pkt << dhcpoption(OpPXEMagic, PXEMagic)
+		pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
+		pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
+		pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
+		pkt << dhcpoption(OpEnd)
+
 		pkt << ("\x00" * 32) #padding
+
 		send_packet(from, pkt)
 	end
 
