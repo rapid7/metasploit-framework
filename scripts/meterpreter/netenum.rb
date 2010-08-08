@@ -199,6 +199,10 @@ def pingsweep(session,iprange,dest)
 		            			print_status "\t#{ip} host found"
 		            			filewrt(dest,"#{ip} host found")
 		            			r.channel.close
+					elsif d =~ /(Antwort)/
+						print_status "\t#{ip} host found"
+						filewrt(dest,"#{ip} host found")
+						r.channel.close
 		          		end
 		        	end
 		        	r.channel.close
