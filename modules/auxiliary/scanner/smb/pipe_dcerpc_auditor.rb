@@ -17,6 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::SMB::Authenticated
 	include Msf::Exploit::Remote::DCERPC
 
 	# Scanner mixin should be near last
@@ -307,3 +308,4 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
+

@@ -18,6 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::DCERPC
 	include Msf::Exploit::Remote::SMB
+	include Msf::Exploit::Remote::SMB::Authenticated
+
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
