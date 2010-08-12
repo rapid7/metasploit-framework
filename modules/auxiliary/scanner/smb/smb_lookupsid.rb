@@ -255,7 +255,7 @@ class Metasploit3 < Msf::Auxiliary
 				:data => domain
 			)
 
-			print_status("#{ip} #{domain.upcase} [ #{users.keys.map{|k| users[k]}.join(", ")} ]")
+			print_status("#{ip} #{domain[:name].upcase} [#{domain[:users].keys.map{|k| domain[:users][k]}.join(", ")} ]")
 
 			# cleanup
 			disconnect
