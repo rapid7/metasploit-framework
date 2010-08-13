@@ -44,7 +44,7 @@ class Session < Base
 		end
 
 		begin
-			if(not s.rstream.has_read_data?(0))
+			if(not s.rstream.has_read_data?(0.001))
 				{ "data" => "", "encoding" => "base64" }
 			else
 				data = s.shell_read
@@ -62,9 +62,10 @@ class Session < Base
 			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
 		end
 		buff = Rex::Text.decode_base64(data)
+		cnt = s.shell_write(buff)
 
 		begin
-			{ "write_count" => s.shell_write(buff) }
+			{ "write_count" => cnt }
 		rescue ::Exception => e
 			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
 		end
