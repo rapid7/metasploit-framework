@@ -783,6 +783,18 @@ class Core
 					return false
 				end
 
+                                # Satisfy check to see that formatting is correct
+                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+                                        print_error "Invalid IP Address"
+                                        return false
+                                end
+
+                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+                                        print_error "Invalid Subnet mask"
+                                        return false
+                                end
+
+
 				gw = nil
 
 				# Satisfy case problems
@@ -815,6 +827,19 @@ class Core
 					print_error("Missing arguments to route remove.")
 					return false
 				end
+
+
+                                # Satisfy check to see that formatting is correct
+                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+                                        print_error "Invalid IP Address"
+                                        return false
+                                end
+
+                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+                                        print_error "Invalid Subnet mask"
+                                        return false
+                                end
+
 
 				gw = nil
 
