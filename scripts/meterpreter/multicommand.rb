@@ -14,8 +14,8 @@ wininfo = client.sys.config.sysinfo
         "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
-commands = []
-script = []
+commands = nil
+script = nil
 outfile = nil
 help = 0
 
@@ -88,15 +88,15 @@ end
 
 if args.length == 0 or help == 1
 	usage
-elsif outfile == nil
-	list_exec(session,commands).each_line do |l|
-		print_status(l.chomp)
+elsif commands or script
+	if outfile
+		filewrt(outfile, list_exec(session,commands))
+	else
+		list_exec(session,commands).each_line do |l|
+			print_status(l.chomp)
+		end
 	end
 	raise Rex::Script::Completed
-
 else
-	print_status("Saving output of Command to #{outfile}")
-	filewrt(outfile, list_exec(session,commands))
-	raise Rex::Script::Completed
-
+	usage
 end
