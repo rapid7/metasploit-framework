@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a source code disclosure/download vulnerability in
-				versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40 
+				versions 0.7 and 0.8 of the nginx web server. Versions 0.7.66 and 0.8.40
 				correct this vulnerability.
 			},
 			'References'     =>
