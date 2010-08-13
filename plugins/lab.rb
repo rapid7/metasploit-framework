@@ -90,11 +90,12 @@ class Plugin::Lab < Msf::Plugin
 			if args[0]
 				labdef = YAML::load_file(args[0])
 				@target_map = {}
+				hlp_print_lab
 			else
 				print_error "Please provide a valid lab file."
 			end
 
-			hlp_print_lab
+
 	        end
 
 		def cmd_lab_load_dir(*args)			
@@ -102,26 +103,23 @@ class Plugin::Lab < Msf::Plugin
 		
 			if args[0]
 				x = @controller.build_lab_from_files(args[0])
-				@target_map = {}	
+				@target_map = {}
+				hlp_print_lab	
 			else
 				print_error "Please provide a valid lab file."
 			end
-
-			hlp_print_lab
-
 	        end
 	        
 	        def cmd_lab_load_running(*args)
 			@controller.build_lab_from_running        
 			@target_map = {}
-			
 			hlp_print_lab
 	        end
 
 
 		def cmd_lab_clear(*args)
 
-			@controller = LabController.new({},"vmware")
+			@controller = LabController.new({})
 			hlp_print_lab		
 	        end
 
@@ -691,7 +689,7 @@ class Plugin::Lab < Msf::Plugin
 		
 		labdef = {}
 		
-		@lab_controller = LabController.new(labdef,"vmware")
+		@lab_controller = LabController.new(labdef)
 
 		## Set up a mapping of exploits -> vms
 		## default_target_map_file = File.join(File.dirname(__FILE__), "..", "data", "lab", "test_targets.yml" )
