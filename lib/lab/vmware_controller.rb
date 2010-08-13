@@ -1,9 +1,9 @@
-#$Id$
 #
-# Lower level methods which are ~generic to vm software
+# $Id$
+# $Revision$
 #
-
-## VmwareController Wraps vmrun and gives us basic vm functionality 
+# Lower level methods which are ~generic to vm software - VmwareController Wraps vmrun and gives us basic vm functionality 
+#
 class VmwareController
 
 	def initialize

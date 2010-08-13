@@ -1,10 +1,11 @@
+#
+# $Id$
+# $Revision$
+#
 require 'find'
 require 'yaml'
 require 'vmware_controller'
-
-
 ## Not implemented yet!
-##
 #require 'qemu_controller'
 #require 'ec2_controller'
 
