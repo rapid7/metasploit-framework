@@ -382,6 +382,10 @@ protected
 
 			tr = find_transfer(OpRead, from, block)
 			if not tr
+				# NOTE: some clients, such as pxelinux, send an ack for block 0.
+				# To deal with this, we simply ignore it as we start with block 1.
+				return if block == 0
+
 				# If we didn't find it, send an error.
 				send_error(from, ErrUnknownTransferId)
 			else
