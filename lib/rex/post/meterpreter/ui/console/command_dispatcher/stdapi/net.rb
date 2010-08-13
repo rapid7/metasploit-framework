@@ -134,10 +134,32 @@ class Console::CommandDispatcher::Stdapi::Net
 					print("\n" + tbl.to_s + "\n")
 				end
 			when "add"
+                        	# Satisfy check to see that formatting is correct
+                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+                                        print_error "Invalid IP Address"
+                                        return false
+                                end
+
+                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+                                        print_error "Invalid Subnet mask"
+                                        return false
+                                end
+			
 				print_line("Creating route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.add_route(*args)
 			when "delete"
+			        # Satisfy check to see that formatting is correct
+                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+                                        print_error "Invalid IP Address"
+                                        return false
+                                end
+
+                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+                                        print_error "Invalid Subnet mask"
+                                        return false
+                                end
+			
 				print_line("Deleting route #{args[0]}/#{args[1]} -> #{args[2]}")
 
 				client.net.config.remove_route(*args)
