@@ -89,6 +89,7 @@ class Plugin::Lab < Msf::Plugin
 
 			if args[0]
 				labdef = YAML::load_file(args[0])
+				@controller = LabController.new(labdef)
 				@target_map = {}
 				hlp_print_lab
 			else
@@ -99,8 +100,6 @@ class Plugin::Lab < Msf::Plugin
 	        end
 
 		def cmd_lab_load_dir(*args)			
-		
-		
 			if args[0]
 				x = @controller.build_lab_from_files(args[0])
 				@target_map = {}
