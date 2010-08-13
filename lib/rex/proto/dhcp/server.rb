@@ -43,6 +43,14 @@ class Server
 		netmask = hash['NETMASK'] || "255.255.255.0"
 		self.netmaskn = Rex::Socket.addr_aton(netmask)
 
+		# router
+		router = hash['ROUTER'] || source
+		self.router = Rex::Socket.addr_aton(router)
+
+		# dns
+		dnsserv = hash['DNSSERVER'] || source
+		self.dnsserv = Rex::Socket.addr_aton(dnsserv)
+
 		self.broadcasta = Rex::Socket.addr_itoa( self.start_ip | (Rex::Socket.addr_ntoi(self.netmaskn) ^ 0xffffffff) )
 
 		self.served = {}
@@ -91,8 +99,8 @@ class Server
 	# Set an option
 	def set_option(opts)
 		allowed_options = [
-			:serveOnce, :servePXE, :relayip, :leasetime,
-			:pxeconfigfile, :pxepathprefix, :pxereboottime
+			:serveOnce, :servePXE, :relayip, :leasetime, :dnsserv,
+			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router
 		]
 
 		opts.each_pair { |k,v|
@@ -111,7 +119,7 @@ class Server
 		#send( pkt, 0, Rex::Socket.to_sockaddr(0xffffffff, from[1]))
 	end
 
-	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip
+	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
 	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime
@@ -239,7 +247,8 @@ protected
 		pkt << dhcpoption(OpDHCPServer, self.ipstring)
 		pkt << dhcpoption(OpLeaseTime, [self.leasetime].pack('N'))
 		pkt << dhcpoption(OpSubnetMask, self.netmaskn)
-		pkt << dhcpoption(OpRouter, self.ipstring)
+		pkt << dhcpoption(OpRouter, self.router)
+		pkt << dhcpoption(OpDns, self.dnsserv)
 		pkt << dhcpoption(OpPXEMagic, PXEMagic)
 		pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
 		pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
