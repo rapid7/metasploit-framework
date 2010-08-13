@@ -17,7 +17,7 @@ class Plugin::Editor < Msf::Plugin
 	# This class implements a single edit command.
 	#
 	###
-	class ConsoleCommandDispatcher
+	class EditorCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
 
 		#
@@ -37,7 +37,7 @@ class Plugin::Editor < Msf::Plugin
 		end
 
 		#
-		# This method handles the sample command.
+		# This method handles the edit command.
 		#
 		def cmd_edit(*args)
 			print_line ("Launching editor...")
@@ -53,30 +53,23 @@ class Plugin::Editor < Msf::Plugin
 		end
 	end
 
-	#
 	def initialize(framework, opts)
 		super
 
 		# console dispatcher commands.
-		add_console_dispatcher(ConsoleCommandDispatcher)
+		add_console_dispatcher(EditorCommandDispatcher)
 
 		print_status("Editor plugin loaded.")
 	end
 
-	#
 	def cleanup
-		# If we had previously registered a console dispatcher with the console,
-		# deregister it now.
 		remove_console_dispatcher('Editor')
 	end
 
-	#
-	#
 	def name
 		"editor"
 	end
 
-	#
 	def desc
 		"Simple Editor Plugin"
 	end

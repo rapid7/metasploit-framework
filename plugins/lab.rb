@@ -1,4 +1,6 @@
 #
+# $Id$
+# $Revision$
 #
 $:.unshift(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'lab'))
 
@@ -125,8 +127,7 @@ class Plugin::Lab < Msf::Plugin
 
 		def cmd_lab_save(*args)		
 			File.open(args[0], 'w')  {|f| f.write(@controller.labdef.to_yaml) }
-			hlp_print_targets
-		
+			hlp_print_lab
 		end
 		
 
