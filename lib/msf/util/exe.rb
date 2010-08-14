@@ -134,9 +134,10 @@ require 'metasm'
 
 			# Create the modified version of the input executable
 			exe = ''
-			File.open(opts[:template], 'rb') do |fd|
-				exe = fd.read( File.size(opts[:template]) )
+			File.open(opts[:template], 'rb') { |fd|
+				exe = fd.read(fd.stat.size)
 			end
+
 			#New file header with updated number of sections and timedatestamp
 			new_filehead = Rex::PeParsey::PeBase::IMAGE_FILE_HEADER.make_struct
 			new_filehead.from_s(exe[pe.hdr.dos.e_lfanew, Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE])
@@ -255,9 +256,10 @@ require 'metasm'
 
 		# Create the modified version of the input executable
 		exe = ''
-		File.open(opts[:template], 'rb') do |fd|
-			exe = fd.read( File.size(opts[:template]) )
-		end
+		File.open(opts[:template], 'rb') { |fd|
+			exe = fd.read(fd.stat.size)
+		}
+
 		exe[ exe.index([pe.hdr.opt.AddressOfEntryPoint].pack('V')), 4] = [ text.base_rva + block[0] + eidx ].pack("V")
 		exe[off_beg, data.length] = data
 
@@ -276,11 +278,14 @@ require 'metasm'
 
 
 	def self.to_win32pe_old(framework, code, opts={})
-		pe = ''
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template-old.exe"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own EXE template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template-old.exe")
+
+		pe = ''
+		File.open(, "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		if(code.length < 2048)
 			code << Rex::Text.rand_text(2048-code.length)
@@ -318,11 +323,14 @@ require 'metasm'
 	end
 
 	def self.to_win64pe(framework, code, opts={})
-		pe = ''
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows.exe"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own EXE template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows.exe")
+
+		pe = ''
+		File.open(, "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE EXE template!" if not bo
@@ -331,12 +339,17 @@ require 'metasm'
 		return pe
 	end
 
-	def self.to_win32pe_service(framework, code, name='SERVICENAME')
-		pe = ''
+	def self.to_win32pe_service(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service.exe"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		name = opts[:servicename] || 'SERVICENAME'
+
+		# Allow the user to specify their own service EXE template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service.exe")
+
+		pe = ''
+		File.open(opts[:template], 'rb') { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
@@ -351,12 +364,15 @@ require 'metasm'
 		return pe
 	end
 
-	def self.to_win64pe_service(framework, code, name='SERVICENAME')
-		pe = ''
+	def self.to_win64pe_service(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service_x64.exe"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own service EXE template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service_x64.exe")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win64 PE Service EXE template!" if not bo
@@ -371,12 +387,15 @@ require 'metasm'
 		return pe
 	end
 
-	def self.to_win32pe_dll(framework, code)
-		pe = ''
+	def self.to_win32pe_dll(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template.dll"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own DLL template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template.dll")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		bo = pe.index('PAYLOAD:')
 		raise RuntimeError, "Invalid Win32 PE DLL template!" if not bo
@@ -388,12 +407,15 @@ require 'metasm'
 		return pe
 	end
 
-	def self.to_osx_arm_macho(framework, code)
-		mo = ''
+	def self.to_osx_arm_macho(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_darwin.bin"), "rb")
-		mo = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_darwin.bin")
+
+		mo = ''
+		File.open(opts[:template], "rb") { |fd|
+			mo = fd.read(fd.stat.size)
+		}
 
 		bo = mo.index('PAYLOAD:')
 		raise RuntimeError, "Invalid OSX ArmLE Mach-O template!" if not bo
@@ -406,12 +428,15 @@ require 'metasm'
 		return mo
 	end
 
-	def self.to_osx_ppc_macho(framework, code)
-		mo = ''
+	def self.to_osx_ppc_macho(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_ppc_darwin.bin"), "rb")
-		mo = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_ppc_darwin.bin")
+
+		mo = ''
+		File.open(opts[:template], "rb") { |fd|
+			mo = fd.read(fd.stat.size)
+		}
 
 		bo = mo.index('PAYLOAD:')
 		raise RuntimeError, "Invalid OSX PPC Mach-O template!" if not bo
@@ -424,12 +449,15 @@ require 'metasm'
 		return mo
 	end
 
-	def self.to_osx_x86_macho(framework, code)
-		mo = ''
+	def self.to_osx_x86_macho(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_darwin.bin"), "rb")
-		mo = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_darwin.bin")
+
+		mo = ''
+		File.open(opts[:template], "rb") { |fd|
+			mo = fd.read(fd.stat.size)
+		}
 
 		bo = mo.index('PAYLOAD:')
 		raise RuntimeError, "Invalid OSX x86 Mach-O template!" if not bo
@@ -442,44 +470,50 @@ require 'metasm'
 		return mo
 	end
 
-	def self.to_linux_x86_elf(framework, code)
-		mo = ''
+	def self.to_linux_x86_elf(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_linux.bin"), "rb")
-		mo = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_linux.bin")
+
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
 
 		# The old way to do it is like other formats, just overwrite a big
 		# block of rwx mem with our shellcode.
-		#bo = mo.index( "\x90\x90\x90\x90" * 1024 )
-		#co = mo.index( " " * 512 )
-		#mo[bo, 2048] = [code].pack('a2048') if bo
+		#bo = elf.index( "\x90\x90\x90\x90" * 1024 )
+		#co = elf.index( " " * 512 )
+		#elf[bo, 2048] = [code].pack('a2048') if bo
 
 		# The new template is just an ELF header with its entry point set to
 		# the end of the file, so just append shellcode to it and fixup
 		# p_filesz and p_memsz in the header for a working ELF executable.
-		mo << code
-		mo[0x44,4] = [mo.length + code.length].pack('V')
-		mo[0x48,4] = [mo.length + code.length].pack('V')
+		elf << code
+		elf[0x44,4] = [elf.length + code.length].pack('V')
+		elf[0x48,4] = [elf.length + code.length].pack('V')
 
-		return mo
+		return elf
 	end
 
-	def self.to_linux_armle_elf(framework, code)
-		mo = ''
+	def self.to_linux_armle_elf(framework, code, opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_linux.bin"), "rb")
-		mo = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_linux.bin")
+
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
 
 		# The template is just an ELF header with its entrypoint set to the
 		# end of the file, so just append shellcode to it and fixup p_filesz
 		# and p_memsz in the header for a working ELF executable.
-		mo << code
-		mo[0x44,4] = [mo.length + code.length].pack('V')
-		mo[0x48,4] = [mo.length + code.length].pack('V')
+		elf << code
+		elf[0x44,4] = [elf.length + code.length].pack('V')
+		elf[0x48,4] = [elf.length + code.length].pack('V')
 
-		return mo
+		return elf
 	end
 
 	def self.to_exe_vba(exes='')
@@ -868,12 +902,15 @@ require 'metasm'
 	# at a specified location with read/execute permissions
 	#    - the data will be loaded at: base+0x2065
 	#    - max size is 0x8000 (32768)
-	def self.to_dotnetmem(base=0x12340000, data="")
-		pe = ''
+	def self.to_dotnetmem(base=0x12340000, data="", opts={})
 
-		fd = File.open(File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "dotnetmem.dll"), "rb")
-		pe = fd.read(fd.stat.size)
-		fd.close
+		# Allow the user to specify their own DLL template
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "dotnetmem.dll")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
 
 		# Configure the image base
 		pe[180, 4] = [base].pack('V')
