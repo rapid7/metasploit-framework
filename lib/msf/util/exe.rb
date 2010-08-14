@@ -136,7 +136,7 @@ require 'metasm'
 			exe = ''
 			File.open(opts[:template], 'rb') { |fd|
 				exe = fd.read(fd.stat.size)
-			end
+			}
 
 			#New file header with updated number of sections and timedatestamp
 			new_filehead = Rex::PeParsey::PeBase::IMAGE_FILE_HEADER.make_struct
@@ -283,7 +283,7 @@ require 'metasm'
 		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template-old.exe")
 
 		pe = ''
-		File.open(, "rb") { |fd|
+		File.open(opts[:template], "rb") { |fd|
 			pe = fd.read(fd.stat.size)
 		}
 
@@ -328,7 +328,7 @@ require 'metasm'
 		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows.exe")
 
 		pe = ''
-		File.open(, "rb") { |fd|
+		File.open(opts[:template], "rb") { |fd|
 			pe = fd.read(fd.stat.size)
 		}
 
