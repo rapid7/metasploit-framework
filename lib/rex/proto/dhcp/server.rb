@@ -20,7 +20,7 @@ class Server
 
 	def initialize(hash, context = {})
 		self.listen_host = '0.0.0.0' # clients don't already have addresses. Needs to be 0.0.0.0
-		self.listen_port = 67 # mandatory
+		self.listen_port = 67 # mandatory (bootps)
 		self.context = context
 		self.sock = nil
 
@@ -32,12 +32,10 @@ class Server
 		source = hash['SRVHOST'] || Rex::Socket.source_address
 		self.ipstring = Rex::Socket.addr_aton(source)
 
-		first_ip = hash['DHCPIPSTART'] || "#{self.ipstring[0..2]}\x20" #??
-		self.start_ip = Rex::Socket.addr_atoi(first_ip)
+		self.start_ip = Rex::Socket.addr_atoi(hash['DHCPIPSTART']) || "#{self.ipstring[0..2]}\x20" #default range x.x.x.32-254
 		self.current_ip = start_ip
 
-		last_ip = hash['DHCPIPEND'] || "#{self.ipstring[0..2]}\xfe"
-		self.end_ip = Rex::Socket.addr_atoi(last_ip)
+		self.end_ip = Rex::Socket.addr_atoi(hash['DHCPIPEND']) || "#{self.ipstring[0..2]}\xfe"
 
 		# netmask
 		netmask = hash['NETMASK'] || "255.255.255.0"
@@ -114,10 +112,11 @@ class Server
 
 	# Send a single packet to the specified host
 	def send_packet(ip, pkt)
+		port = 68 # bootpc
 		if ip
-			self.sock.sendto( pkt, ip, 67 )
+			self.sock.sendto( pkt, ip, port )
 		else
-			self.sock.sendto( pkt, '255.255.255.255', 67 )
+			self.sock.sendto( pkt, '255.255.255.255', port )
 		end
 	end
 
