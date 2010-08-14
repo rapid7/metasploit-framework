@@ -7,8 +7,8 @@ Metasploit Framework.
 Code Style
 ==========
 
-In order to maintain consistentcy and readability, we ask that you
-adhere to the following style guidlines:
+In order to maintain consistency and readability, we ask that you
+adhere to the following style guidelines:
 
  - Hard tabs, not spaces
  - Try to keep your lines under 100 columns (assuming four-space tabs)
@@ -89,5 +89,5 @@ license.  MIT and Ruby Licenses are also fine.  We specifically cannot
 include GPL code. 
 
 When possible, such as aux and exploit modules, be sure to include
-your license designation in the file in the approriate place.
+your license designation in the file in the appropriate place.
 
