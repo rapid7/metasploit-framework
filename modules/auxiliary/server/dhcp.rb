@@ -54,10 +54,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Starting DHCP server...")
 		@dhcp.start
+		add_socket(@dhcp.sock)
 
 		# Wait for finish..
-		@dhcp.thread.join
+		while @dhcp.thread.alive?
+			select(nil, nil, nil, 2)
+		end
+
+		print_status("Stopping DHCP server...")
+		@dhcp.stop
 	end
 
 end
-

@@ -69,12 +69,15 @@ class Metasploit3 < Msf::Auxiliary
 		#@tftp.register_file("ays", "A" * 2048) # multiple of 512 on purpose
 
 		@tftp.start
+		add_socket(@tftp.sock)
 
 		# Wait for finish..
-		@tftp.thread.join
+		while @tftp.thread.alive?
+			select(nil, nil, nil, 2)
+		end
 
-		#print_status("Stopping TFTP server") if datastore['VERBOSE']
-		#@tftp.stop
+		print_status("Stopping TFTP server") if datastore['VERBOSE']
+		@tftp.stop
 	end
 
 end
