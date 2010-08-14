@@ -83,18 +83,23 @@ class Auxiliary
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
-		begin
-			omod = self.mod
-			self.mod = framework.modules.reload_module(mod)
-			if(not self.mod)
-				print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-				self.mod = omod
-				return
-			end
-			cmd_run(*args)
-		rescue
-			log_error("Failed to rerun: #{$!}")
+		if mod.job_id
+			print_status("Stopping existing job...")
+
+			framework.jobs.stop_job(mod.job_id)
+			mod.job_id = nil
 		end
+
+		omod = self.mod
+		self.mod = framework.modules.reload_module(mod)
+
+		if(not self.mod)
+			print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+			self.mod = omod
+			return
+		end
+
+		cmd_run(*args)
 	end
 
 	#
