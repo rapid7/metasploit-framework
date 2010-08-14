@@ -113,10 +113,12 @@ class Server
 
 
 	# Send a single packet to the specified host
-	def send_packet(from, pkt)
-		# should be broadcast, but that fails  ...(pkt, "255.255.255.255", from[1])
-		self.sock.sendto( pkt, self.broadcasta, from[1])
-		#send( pkt, 0, Rex::Socket.to_sockaddr(0xffffffff, from[1]))
+	def send_packet(ip, pkt)
+		if ip
+			self.sock.sendto( pkt, ip, 67 )
+		else
+			self.sock.sendto( pkt, '255.255.255.255', 67 )
+		end
 	end
 
 	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
@@ -159,15 +161,18 @@ protected
 
 	# Dispatch a packet that we received
 	def dispatch_request(from, buf)
-		type = buf[0]
-		if (type.unpack('C').first != Request)
+		type = buf[0].unpack('C').first
+		if (type != Request)
 			#dlog("Unknown DHCP request type: #{type}")
+			#$stdout.puts "ugh not request - #{type}"
 			return
 		end
 
+		#$stdout.puts "request #{type} found"
+
 		# parse out the members
 		hwtype = buf[1]
-		hwlen = buf[2].unpack("C")[0]
+		hwlen = buf[2].unpack("C").first
 		hops = buf[3]
 		txid = buf[4..7]
 		elapsed = buf[8..9]
@@ -183,6 +188,7 @@ protected
 
 		if (magic != DHCPMagic)
 			#dlog("Invalid DHCP request - bad magic.")
+			#$stdout.puts "ugh bad magic"
 			return
 		end
 
@@ -192,12 +198,12 @@ protected
 		# options parsing loop
 		spot = 240
 		while (spot < buf.length - 3 && buf[spot] != 0xff)
-			optionType = buf[spot].unpack("C")[0]
-			optionLen = buf[spot + 1].unpack("C")[0]
+			optionType = buf[spot].unpack("C").first
+			optionLen = buf[spot + 1].unpack("C").first
 			optionValue = buf[(spot + 2)..(spot + optionLen + 1)]
 			spot = spot + optionLen + 2
 			if optionType == 53
-				messageType = optionValue.unpack("C")[0]
+				messageType = optionValue.unpack("C").first
 			elsif optionType == 150
 				pxeclient = true
 			end
@@ -205,6 +211,7 @@ protected
 
 		if pxeclient == false && self.servePXE == true
 			#dlog ("No tftp server request; ignoring (probably not PXE client)")
+			#$stdout.puts "ugh pxe"
 			return
 		end
 
@@ -231,15 +238,18 @@ protected
 		if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
 			pkt << [DHCPOffer].pack('C')
 			# check if already served based on hw addr (MAC address)
-			if self.serveOnce == true && self.served[buf[28..43]]
+			if self.serveOnce == true && self.served.has_key?(buf[28..43])
 				#dlog ("Already served; allowing normal boot")
+				#$stdout.puts "ugh already served"
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
 			pkt << [DHCPAck].pack('C')
-			self.served[buf[28..43]] = true  #now we ignore their discovers (but we'll respond to requests in case a packet was lost)
+			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
+			self.served.merge!( buf[28..43] => true ) 
 		else
 			#dlog("ignoring unknown DHCP request - type #{messageType}")
+			#$stdout.puts "ugh weird type - #{messageType}"
 			return
 		end
 
@@ -257,7 +267,11 @@ protected
 
 		pkt << ("\x00" * 32) #padding
 
-		send_packet(from, pkt)
+		if messageType == DHCPRequest
+			send_packet(Rex::Socket.addr_itoa(self.current_ip), pkt)
+		else
+			send_packet(nil, pkt)
+		end
 	end
 
 end
