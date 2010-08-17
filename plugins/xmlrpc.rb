@@ -127,6 +127,10 @@ class Plugin::XMLRPC < Msf::Plugin
 			::Msf::RPC::Module.new(*args)
 		)
 
+		self.server.add_handler(::XMLRPC::iPIMethods("console"),
+			::Msf::RPC::Console.new(*args)
+		)
+
 		# Set the default/catch-all handler
 		self.server.set_default_handler do |name, *args|
 			raise ::XMLRPC::FaultException.new(-99, "Method #{name} missing or wrong number of parameters!")
@@ -171,3 +175,4 @@ class Plugin::XMLRPC < Msf::Plugin
 end
 
 end
+
