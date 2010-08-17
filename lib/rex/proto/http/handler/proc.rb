@@ -41,8 +41,8 @@ class Handler::Proc < Handler
 			elog("Proc::on_request: #{$!}\n\n#{$@.join("\n")}", LogSource)
 			if self.server and self.server.context
 				exploit = self.server.context['MsfExploit']
-				if exploit 
-					exploit.print_error("Exception handling request: #{$!}\n\n#{$@.join("\n")}")
+				if exploit
+					exploit.print_error("Exception handling request: #{$!}")
 				end
 			end
 		end
