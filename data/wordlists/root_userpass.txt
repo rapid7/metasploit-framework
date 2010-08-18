@@ -37,3 +37,13 @@ root tslinux
 root uClinux
 root vertex25
 root owaspbwa
+root permit
+root ascend
+root ROOT500
+root cms500
+root fivranne
+root davox
+root letmein
+root powerapp
+root dbps
+root ibm
