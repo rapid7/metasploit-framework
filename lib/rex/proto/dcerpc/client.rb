@@ -272,7 +272,7 @@ require 'rex/proto/smb/exceptions'
 	end
 
 	# Perform a DCE/RPC Function Call
-	def call(function, data)
+	def call(function, data, do_recv = true)
 
 		frag_size = data.length
 		if options['frag_size']
@@ -290,6 +290,8 @@ require 'rex/proto/smb/exceptions'
 		call_packets.each { |packet|
 			self.write(packet)
 		}
+
+		return true if not do_recv
 
 		raw_response = ''
 
