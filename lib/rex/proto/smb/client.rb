@@ -407,7 +407,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Request a SMB session over NetBIOS
-	def session_request(name = '*SMBSERVER')
+	def session_request(name = '*SMBSERVER', do_recv = true)
 
 		name ||= '*SMBSERVER'
 
@@ -420,7 +420,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Payload'] = data
 
 		# Most SMB implementations can't handle this being fragmented
-		self.smb_send(pkt.to_s, EVADE::EVASION_NONE)
+		ret = self.smb_send(pkt.to_s, EVADE::EVASION_NONE)
+		return ret if not do_recv
+
 		res = self.smb_recv
 
 		ack = CONST::NBRAW_PKT.make_struct
@@ -434,7 +436,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Negotiate a SMB dialect
-	def negotiate(extended=true)
+	def negotiate(extended=true, do_recv = true)
 
 		dialects = ['LANMAN1.0', 'LM1.2X002' ]
 
@@ -458,7 +460,9 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_NEGOTIATE)
 
 		idx = ack['Payload'].v['Dialect']
@@ -534,7 +538,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Authenticate using clear-text passwords
-	def session_setup_clear(user = '', pass = '', domain = '')
+	def session_setup_clear(user = '', pass = '', domain = '', do_recv = true)
 
 		data = [ pass, user, domain, self.native_os, self.native_lm ].collect{ |a| a + "\x00" }.join('');
 
@@ -554,7 +558,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
 
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
@@ -572,7 +578,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Authenticate using NTLMv1
-	def session_setup_ntlmv1(user = '', pass = '', domain = '')
+	def session_setup_ntlmv1(user = '', pass = '', domain = '', do_recv = true)
 
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 
@@ -609,7 +615,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
 
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
@@ -629,7 +637,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Authenticate using NTLMv1 with a precomputed hash pair
-	def session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt)
+	def session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt, do_recv = true)
 
 		data = ''
 		data << hash_lm
@@ -656,7 +664,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
 
 		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
@@ -675,7 +685,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Authenticate using extended security negotiation (NTLMv2)
-	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = nil)
+	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
@@ -703,7 +713,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = blob + native_data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 
@@ -804,7 +816,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = blob + native_data
 
+		# NOTE: if do_recv is set to false, we cant reach here...
 		self.smb_send(pkt.to_s)
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 		# Make sure that authentication succeeded
@@ -831,7 +845,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_ntlmv2_blob(blob = '')
+	def session_setup_ntlmv2_blob(blob = '', do_recv = true)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -853,13 +867,15 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = blob + native_data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, false)
 	end
 
 
 	# Authenticate using extended security negotiation (NTLMv2), but stop half-way, using the temporary ID
-	def session_setup_ntlmv2_temp(domain = '', name = nil)
+	def session_setup_ntlmv2_temp(domain = '', name = nil, do_recv = true)
 
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
@@ -887,7 +903,9 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = blob + native_data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
@@ -930,7 +948,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Connect to a specified share with an optional password
-	def tree_connect(share = 'IPC$', pass = '')
+	def tree_connect(share = 'IPC$', pass = '', do_recv = true)
 
 		data = [ pass, share, '?????' ].collect{ |a| a + "\x00" }.join('');
 
@@ -946,7 +964,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Capabilities'] = 64
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_TREE_CONNECT_ANDX)
 
@@ -958,7 +977,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Disconnect from the current tree
-	def tree_disconnect(tree_id = self.last_tree_id)
+	def tree_disconnect(tree_id = self.last_tree_id, do_recv = true)
 
 		pkt = CONST::SMB_TREE_DISCONN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -969,7 +988,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload']['SMB'].v['WordCount'] = 0
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_TREE_DISCONNECT)
 
@@ -986,7 +1006,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Creates a file or opens an existing pipe
-	def create(filename, disposition = 1, impersonation = 2)
+	def create(filename, disposition = 1, impersonation = 2, do_recv = true)
 
 		pkt = CONST::SMB_CREATE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1006,7 +1026,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['Disposition'] = disposition
 		pkt['Payload'].v['Payload'] = filename + "\x00"
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_CREATE_ANDX)
 
@@ -1019,7 +1040,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Deletes a file from a share
-	def delete(filename, tree_id = self.last_tree_id)
+	def delete(filename, tree_id = self.last_tree_id, do_recv = true)
 
 		pkt = CONST::SMB_DELETE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1034,7 +1055,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['BufferFormat'] = 4
 		pkt['Payload'].v['Payload'] = filename + "\x00"
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_DELETE)
 
@@ -1042,7 +1064,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Opens an existing file or creates a new one
-	def open(filename, mode = 0x12, access = 0x42)
+	def open(filename, mode = 0x12, access = 0x42, do_recv = true)
 
 		pkt = CONST::SMB_OPEN_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1058,7 +1080,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['OpenFunction'] = mode
 		pkt['Payload'].v['Payload'] = filename + "\x00"
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_OPEN_ANDX)
 
@@ -1071,7 +1094,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Closes an open file handle
-	def close(file_id = self.last_file_id, tree_id = self.last_tree_id)
+	def close(file_id = self.last_file_id, tree_id = self.last_tree_id, do_recv = true)
 
 		pkt = CONST::SMB_CLOSE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1085,7 +1108,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['FileID'] = file_id
 		pkt['Payload'].v['LastWrite'] = -1
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_CLOSE)
 
@@ -1094,7 +1118,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Writes data to an open file handle
-	def write(file_id = self.last_file_id, offset = 0, data = '')
+	def write(file_id = self.last_file_id, offset = 0, data = '', do_recv = true)
 
 		pkt = CONST::SMB_WRITE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1119,7 +1143,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['DataOffset'] = data_offset + filler.length
 		pkt['Payload'].v['Payload'] = filler + data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_WRITE_ANDX)
 
@@ -1128,7 +1153,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Reads data from an open file handle
-	def read(file_id = self.last_file_id, offset = 0, data_length = 64000)
+	def read(file_id = self.last_file_id, offset = 0, data_length = 64000, do_recv = true)
 
 		pkt = CONST::SMB_READ_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1146,7 +1171,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['MinCount'] = data_length
 		pkt['Payload'].v['Reserved2'] = -1
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_READ_ANDX, true)
 
@@ -1182,7 +1208,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Perform a transaction against a given pipe name
-	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
+	def trans(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = false, do_recv = true)
 
 		# Null-terminate the pipe parameter if needed
 		if (pipe[-1,1] != "\x00")
@@ -1242,12 +1268,10 @@ EVADE = Rex::Proto::SMB::Evasions
 			pkt['Payload'].v['Flags'] = 2
 		end
 
-		response = self.smb_send(pkt.to_s)
-		if no_response
-			return response
-		end
+		ret = self.smb_send(pkt.to_s)
+		return ret if no_response or not do_recv
 
-		return self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
+		self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
 	end
 
 
@@ -1255,7 +1279,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	# Perform a transaction against a given pipe name
 	# Difference from trans: sets MaxParam/MaxData to zero
 	# This is required to trigger mailslot bug :-(
-	def trans_maxzero(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
+	def trans_maxzero(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = false, do_recv = true)
 
 		# Null-terminate the pipe parameter if needed
 		if (pipe[-1] != 0)
@@ -1315,17 +1339,15 @@ EVADE = Rex::Proto::SMB::Evasions
 			pkt['Payload'].v['Flags'] = 2
 		end
 
-		response = self.smb_send(pkt.to_s)
-		if no_response
-			return response
-		end
+		ret = self.smb_send(pkt.to_s)
+		return ret if no_response or not do_recv
 
-		return self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
+		self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
 	end
 
 
 	# Perform a transaction against a given pipe name (no null terminator)
-	def trans_nonull(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = nil)
+	def trans_nonull(pipe, param = '', body = '', setup_count = 0, setup_data = '', no_response = false, do_recv = true)
 
 		pkt = CONST::SMB_TRANS_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
@@ -1380,16 +1402,14 @@ EVADE = Rex::Proto::SMB::Evasions
 			pkt['Payload'].v['Flags'] = 2
 		end
 
-		response = self.smb_send(pkt.to_s)
-		if no_response
-			return response
-		end
+		ret = self.smb_send(pkt.to_s)
+		return ret if no_response or not do_recv
 
-		return self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
+		self.smb_recv_parse(CONST::SMB_COM_TRANSACTION)
 	end
 
 	# Perform a transaction2 request using the specified subcommand, parameters, and data
-	def trans2(subcommand, param = '', body = '')
+	def trans2(subcommand, param = '', body = '', do_recv = true)
 
 		setup_count = 1
 		setup_data = [subcommand].pack('v')
@@ -1419,10 +1439,11 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload'].v['SetupCount'] = setup_count
 		pkt['Payload'].v['SetupData'] = setup_data
 
-
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_TRANSACTION2)
 
 		return ack
@@ -1430,7 +1451,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# Perform a nttransaction request using the specified subcommand, parameters, and data
-	def nttrans(subcommand, param = '', body = '', setup_count = 0, setup_data = '')
+	def nttrans(subcommand, param = '', body = '', setup_count = 0, setup_data = '', do_recv = true)
 
 		data = param + body
 
@@ -1460,13 +1481,15 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT)
 		return ack
 	end
 
 	# Perform a nttransaction request using the specified subcommand, parameters, and data
-	def nttrans_secondary(param = '', body = '')
+	def nttrans_secondary(param = '', body = '', do_recv = true)
 
 		data = param + body
 
@@ -1491,7 +1514,9 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload'].v['Payload'] = data
 
-		self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
 		ack = self.smb_recv_parse(CONST::SMB_COM_NT_TRANSACT_SECONDARY)
 		return ack
 	end
