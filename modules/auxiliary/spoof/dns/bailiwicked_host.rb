@@ -332,10 +332,10 @@ class Metasploit3 < Msf::Auxiliary
 			# Reuse our Racket object
 			n.l4.src_port = 53
 			n.l4.dst_port = sport.to_i
-			n.l4.payload  = req.encode
 
 			xidbase.upto(xidbase+numxids-1) do |id|
 				req.id = id
+				n.l4.payload = req.encode
 				barbs.each do |barb|
 					n.l3.src_ip = barb[:addr].to_s
 					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
