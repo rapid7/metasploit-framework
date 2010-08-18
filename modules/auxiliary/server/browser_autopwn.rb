@@ -534,7 +534,7 @@ class Metasploit3 < Msf::Auxiliary
 		response.body  = "<html > <head > <title > Loading </title> </head> "
 		response.body << "<body> "
 		response.body << "Please wait "
-		response.body << build_noscript_html
+		response.body << build_noscript_html(cli, request)
 		response.body << "</body> </html> "
 
 		return response
