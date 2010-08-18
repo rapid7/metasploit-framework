@@ -148,13 +148,12 @@ class Metasploit3 < Msf::Auxiliary
 	def report_ftp_creds(user,pass,access)
 		report_auth_info(
 			:host => rhost,
-			:proto => 'ftp',
+			:port => rport,
+			:sname => 'ftp',
 			:user => user,
 			:pass => pass,
-			:access => access,
-			:target_host => rhost,
-			:target_port => rport,
-			:critical => true
+			:type => "password_#{access == :write ? "rw" : "ro" }",
+			:active => true
 		)
 	end
 

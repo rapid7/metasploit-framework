@@ -140,21 +140,21 @@ class Metasploit3 < Msf::Auxiliary
 				@found[pkt[1]][com] = inf
 			end
 
-			report_auth_info(
-				:host   => pkt[1],
-				:proto  => 'snmp',
-				:user   => '',
-				:pass   => com,
-				:target_host => pkt[1],
-				:target_port => pkt[2]
-			)
-
 			report_service(
 				:host   => pkt[1],
 				:port   => pkt[2],
 				:proto  => 'udp',
 				:name   => 'snmp',
 				:info   => inf
+			)
+
+			report_auth_info(
+				:host   => pkt[1],
+				:port   => pkt[2],
+				:proto  => 'udp',
+				:user   => '',
+				:pass   => com,
+				:active => true
 			)
 
 		end

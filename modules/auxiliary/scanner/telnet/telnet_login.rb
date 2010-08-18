@@ -217,13 +217,12 @@ class Metasploit3 < Msf::Auxiliary
 		print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
 		report_auth_info(
 			:host	=> rhost,
-			:proto	=> 'telnet',
+			:port	=> datastore['RPORT'],
+			:sname	=> 'telnet',
 			:user	=> user,
 			:pass	=> pass,
-			:target_host	=> rhost,
-			:target_port	=> datastore['RPORT'],
 			:proof  => proof,
-			:critical => true
+			:active => true
 		)
 	end
 

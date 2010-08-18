@@ -54,16 +54,19 @@ class Metasploit3 < Msf::Auxiliary
 				send_cmd( ['RMD', dir] , true)
 
 				print_status("#{target_host}:#{rport} Anonymous READ/WRITE (#{banner})")
+				access_type = "rw"
 			else
 				print_status("#{target_host}:#{rport} Anonymous READ (#{banner})")
+				access_type = "ro"
 			end
 			report_auth_info(
 				:host   => target_host,
-				:proto  => 'FTP',
+				:port   => rport,
+				:sname  => 'ftp',
 				:user   => datastore['FTPUSER'],
 				:pass   => datastore['FTPPASS'],
-				:target_host      => target_host,
-				:target_port      => rport
+				:type  => "password_#{access_type}",
+				:active => true
 			)
 		end
 

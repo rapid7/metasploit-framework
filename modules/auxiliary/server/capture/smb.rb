@@ -181,6 +181,12 @@ class Metasploit3 < Msf::Auxiliary
 			smb[:domain] = nil
 		end
 
+		if smb[:domain]
+			smb[:fullname] = "#{smb[:domain]}/#{smb[:username]}"
+		else
+			smb[:fullname] = smb[:username].to_s
+		end
+
 		if (lm_hash == "52d536dbcefa63b9101f9c7a9d0743882f85252cc731bb25" or lm_hash == "" or lm_hash == "00")
 			lm_hash = nil
 		end
@@ -197,13 +203,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		report_auth_info(
 			:host  => smb[:ip],
-			:proto => 'smb_challenge',
-			:target_host => datastore['SRVHOST'],
-			:target_port => datastore['SRVPORT'],
-			:user => smb[:username],
-			:pass =>
-				( nt_hash ? nt_hash : "<NULL>" ) + ":" + (lm_hash ? lm_hash : "<NULL>" ),
-			:extra => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}"
+			:port => datastore['SRVPORT'],
+			:sname => 'smb_challenge',
+			:user => smb[:fullname],
+			:pass => ( nt_hash ? nt_hash : "<NULL>" ) + ":" + (lm_hash ? lm_hash : "<NULL>" ),
+			:type => "smb_hash",
+			:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
+			:active => true
 		)
 
 		report_note(

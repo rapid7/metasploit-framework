@@ -63,10 +63,11 @@ class Metasploit3 < Msf::Auxiliary
 				if (not e)
 					report_auth_info(
 						:host  => "#{datastore['RHOST']}",
-						:proto => 'tns',
 						:port  => "#{datastore['RPORT']}",
-						:type  => 'oracle_bruteforced_account',
-						:data  => "#{datastore['DBUSER']}/#{datastore['DBPASS']} with sid #{datastore['SID']}"
+						:sname => 'tns',
+						:user  => "#{datastore['SID']}/#{datastore['DBUSER']}",
+						:pass  => "#{datastore['DBPASS']}",
+						:active => true
 					)
 						print_status("Found user/pass of: #{datastore['DBUSER']}/#{datastore['DBPASS']} on #{datastore['RHOST']} with sid #{datastore['SID']}")
 				end

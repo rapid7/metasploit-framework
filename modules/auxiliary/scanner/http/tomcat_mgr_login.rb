@@ -135,14 +135,15 @@ class Metasploit3 < Msf::Auxiliary
 		if success
 			print_good("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
 			report_auth_info(
-				:host   => rhost,
-				:proto  => 'tomcat',
-				:user   => user,
-				:pass   => pass,
-				:target_host => rhost,
-				:target_port => rport,
-				:critical => true
+				:host => rhost,
+				:port => rport,
+				:sname => 'http',
+				:user => user,
+				:pass => pass,
+				:proof => "WEBAPP=\"Tomcat Application Manager\"",
+				:active => true
 			)
+
 			return :next_user
 		else
 			vprint_error("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")

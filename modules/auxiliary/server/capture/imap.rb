@@ -79,9 +79,8 @@ class Metasploit3 < Msf::Auxiliary
 			cookie2 = c.get_once
 			report_auth_info(
 				:host      => @state[c][:ip],
-				:proto     => 'imap-yahoo',
-				:target_host => datastore['SRVHOST'],
-				:target_port => datastore['SRVPORT'],
+				:sname     => 'imap-yahoo',
+				:port      => datastore['SRVPORT'],
 				:user      => cookie1,
 				:pass      => cookie2
 			)
@@ -93,11 +92,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_auth_info(
 				:host      => @state[c][:ip],
-				:proto     => 'imap',
-				:target_host => datastore['SRVHOST'],
-				:target_port => datastore['SRVPORT'],
+				:port      => datastore['SRVPORT'],
+				:sname     => 'imap',
 				:user      => @state[c][:user],
-				:pass      => @state[c][:pass]
+				:pass      => @state[c][:pass],
+				:active    => true
 			)
 			print_status("IMAP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 			return

@@ -140,6 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(ip,user,port)
 		if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
 			keys = read_keyfile(datastore['KEY_FILE'])
+			@keyfile_path = datastore['KEY_FILE'].dup
 			cleartext_keys = pull_cleartext_keys(keys)
 			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
@@ -147,6 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 			cleartext_keys = pull_cleartext_keys(keys)
 			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
 		elsif datastore['KEY_DIR']
+			@keyfile_path = datastore['KEY_DIR'].dup
 			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
 			unless @key_files
 				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}
@@ -236,20 +238,15 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_report(ip,user,port,proof)
-		report_service(
-			:host => ip,
-			:port => rport,
-			:name => 'ssh'
-		)
 		report_auth_info(
 			:host => ip,
-			:proto => 'ssh',
+			:port => datastore['RPORT'],
+			:sname => 'ssh',
 			:user => user,
-			:ssh_key => self.good_key,
-			:target_host => ip,
-			:target_port => datastore['RPORT'],
-			:extra => datastore['KEY_FILE'],
-			:proof => proof
+			:pass => @keyfile_path,
+			:type => "ssh_key",
+			:proof => "KEY=#{self.good_key}, PROOF=#{proof}",
+			:active => true
 		)
 	end
 

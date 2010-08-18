@@ -151,16 +151,16 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			report_hash = {
 				:host	=> rhost,
-				:proto	=> 'smb',
+				:port   => datastore['RPORT'],
+				:sname	=> 'smb',
 				:user	=> user,
-				:target_host	=> rhost,
-				:target_port	=> datastore['RPORT'],
-				:critical       => true
+				:pass   => pass,
+				:active => true
 			}
 			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
-				report_hash.merge!({:hash => pass})
+				report_hash.merge!({:type => 'smb_hash'})
 			else
-				report_hash.merge!({:pass => pass})
+				report_hash.merge!({:type => 'password'})
 			end
 			report_auth_info(report_hash)
 		else

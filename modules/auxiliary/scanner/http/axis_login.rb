@@ -69,14 +69,14 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{target_url} - Apache Axis - SUCCESSFUL login for '#{user}' : '#{pass}'")
 				report_auth_info(
 					:host   => rhost,
-					:proto  => 'axis',
+					:port   => rport,
+					:sname  => 'http',
 					:user   => user,
 					:pass   => pass,
-					:target_host => rhost,
-					:target_port => rport,
-					:vhost  => vhost,
-					:critical => true
+					:proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
+					:active => true
 				)
+
 			elsif(res and res.code == 200)
 				vprint_error("#{target_url} - Apache Axis - Failed to login as '#{user}'")
 			else

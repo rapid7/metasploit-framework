@@ -89,11 +89,11 @@ class Metasploit3 < Msf::Auxiliary
 			if self.postgres_conn
 				report_auth_info(
 					:host => rhost,
-					:proto => "postgres",
+					:port => rport,
+					:sname => "postgres",
 					:user => user,
 					:pass => password,
-					:target_host => rhost,
-					:target_port => rport
+					:active => true
 				)
 			end
 

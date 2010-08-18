@@ -179,14 +179,11 @@ class Metasploit3 < Msf::Auxiliary
 				if pass_hash != 'NULL'
 					report_auth_info(
 						:host        => rhost,
-						:proto       => 'domino',
-						:short_name  => short_name,
-						:pass_hash   => pass_hash,
-						:user_mail   => user_mail,
-						:target_host => rhost,
-						:target_port => rport,
-						:vhost  => vhost,
-						:critical => true
+						:port        => rport,
+						:sname       => 'http',
+						:user        => short_name,
+						:proof       => "WEBAPP=\"Lotus Domino\", USER_MAIL=#{user_mail}, HASH=#{pass_hash}, VHOST=#{vhost}",
+						:active      => true
 					)
 				end
 			end

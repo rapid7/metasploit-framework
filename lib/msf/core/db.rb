@@ -443,6 +443,17 @@ class DBManager
 	end
 
 	#
+	# This methods returns a list of all credentials in the database
+	#
+	def creds(wspace=workspace)
+		Cred.find(
+			:all,
+			:include => {:service => :host}, # That's some magic right there.
+			:conditions => ["hosts.workspace_id = ?", wspace.id]
+		)
+	end
+
+	#
 	# This method iterates the notes table calling the supplied block with the
 	# note instance of each entry.
 	#
@@ -561,79 +572,118 @@ class DBManager
 		wspace.notes
 	end
 
-	###
-	# Specific notes
-	###
-
+	# report_auth_info used to create a note, now it creates
+	# an entry in the creds table. It's much more akin to
+	# report_vuln() now.
 	#
 	# opts must contain
-	#	:data    -- a hash containing the authentication info
+	#	:host    -- an IP address 
+	#	:port    -- a port number 
 	#
 	# opts can contain
-	#	:host    -- an ip address or Host
-	#	:service -- a Service
-	#	:proto   -- the protocol
-	#	:port    -- the port
+	#	:user  -- the username
+	#	:pass  -- the password, or path to ssh_key
+	#	:ptype  -- the type of password (password, hash, or ssh_key)
+	#   :proto -- a transport name for the port
+	#   :sname -- service name
+	#	:active -- by default, a cred is active, unless explicitly false
+	#	:proof  -- data used to prove the account is actually active.
 	#
+	# Sources: Credentials can be sourced from another credential, or from
+	# a vulnerability. For example, if an exploit was used to dump the
+	# smb_hashes, and this credential comes from there, the source_id would
+	# be the Vuln id (as reported by report_vuln) and the type would be "Vuln".
+	#
+	#	:source_id   -- The Vuln or Cred id of the source of this cred.
+	#	:source_type -- Either Vuln or Cred
+	#
+	# TODO: This is written somewhat host-centric, when really the 
+	# Service is the thing. Need to revisit someday.
 	def report_auth_info(opts={})
 		return if not active
-		host    = opts.delete(:host)
-		service = opts.delete(:service)
-		wspace  = opts.delete(:workspace) || workspace
-		proto   = opts.delete(:proto) || "generic"
-		crit    = opts.delete(:critical) || true
-		proto   = proto.downcase
+		raise ArgumentError.new("Missing required option :host") if opts[:host].nil? 
+		raise ArgumentError.new("Invalid address for :host") unless validate_ips(opts[:host])
+		raise ArgumentError.new("Missing required option :port") if opts[:port].nil?
+		host = opts.delete(:host)
+		ptype = opts.delete(:type) || "password"
+		token = [opts.delete(:user), opts.delete(:pass)]
+		sname = opts.delete(:sname)
+		port = opts.delete(:port)
+		proto = opts.delete(:proto) || "tcp"
+		proof = opts.delete(:proof)
+		source_id = opts.delete(:source_id)
+		source_type = opts.delete(:source_type)
+		# Nil is true for active.
+		active = (opts[:active] || opts[:active].nil?) ? true : false
 
-		note = {
-			:workspace => wspace,
-			:type      => "auth.#{proto}",
-			:host      => host,
-			:service   => service,
-			:data      => opts,
-			:update    => :insert,
-			:critical  => crit
-		}
-
-		return report_note(note)
-	end
-
-	def get_auth_info(opts={})
-		return if not active
+		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
-		condition = ""
-		condition_values = []
-		if opts[:host]
-			host = get_host(:workspace => wspace, :address => opts[:host])
-			condition = "host_id = ?"
-			condition_values << host[:id]
-		end
-		if opts[:proto]
-			if condition.length > 0
-				condition << " and "
-			end
-			condition << "ntype = ?"
-			condition_values << "auth.#{opts[:proto].downcase}"
-		else
-			if condition.length > 0
-				condition << " and "
-			end
-			condition << "ntype LIKE ?"
-			condition_values << "auth.%"
+
+		# Service management; assume the user knows what
+		# he's talking about.
+		unless service = get_service(wspace, host, proto, port)
+			report_service(:host => host, :port => port, :proto => proto, :name => sname)
 		end
 
-		if condition.length > 0
-			condition << " and "
-		end
-		condition << "workspace_id = ?"
-		condition_values << wspace[:id]
+		ret = {}
+		task = queue( Proc.new {
 
-		conditions = [ condition ] + condition_values
-		info = notes.find(:all, :conditions => conditions )
-		return info.map{|i| i.data} if info
+			# Get the service
+			service ||= get_service(wspace, host, proto, port)
+
+			# Create the cred by username only (so we can change passwords) 
+			cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+
+			# Update with the password
+			cred.pass = (token[1] || "")
+
+			# Annotate the credential
+			cred.ptype = ptype
+			cred.source_id = source_id
+			cred.source_type = source_type
+			cred.active = active
+
+			# Safe proof (lazy way) -- doesn't chop expanded
+			# characters correctly, but shouldn't ever be a problem.
+			unless proof.nil?
+				proof = Rex::Text.to_hex_ascii(proof) 
+				proof = proof[0,4096]
+			end
+			cred.proof = proof
+
+			# Update the timestamp
+			if cred.changed?
+				msfe_import_timestamps(opts,cred)
+				cred.save!
+			end
+
+			ret[:cred] = cred
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:cred]
+		end
+		return task
 	end
 
+	alias :report_cred :report_auth_info
 
+	#
+	# Find or create a credential matching this type/data
+	#
+	def find_or_create_cred(opts)
+		report_auth_info(opts.merge({:wait => true}))
+	end
 
+	#
+	# This method iterates the creds table calling the supplied block with the
+	# cred instance of each entry.
+	#
+	def each_cred(wspace=workspace,&block)
+		wspace.creds.each do |cred|
+			block.call(cred)
+		end
+	end
 
 	#
 	# Find or create a vuln matching this service/name

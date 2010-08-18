@@ -57,14 +57,12 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL login for '#{user}' : '#{pass}'")
 					report_auth_info(
 						:host   => rhost,
-						:proto  => 'domino',
+						:port => rport,
+						:sname  => 'http',
 						:user   => user,
 						:pass   => pass,
-						:target_host => rhost,
-						:target_port => rport,
-						:vhost  => vhost,
-						:proof  => res.headers['Set-Cookie'],
-						:critical => true
+						:proof  => "WEBAPP=\"Lotus Domino\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
+						:active => true
 					)
 					return :next_user
 				end

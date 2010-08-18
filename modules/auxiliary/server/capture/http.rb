@@ -183,12 +183,17 @@ class Metasploit3 < Msf::Auxiliary
 			user,pass  = Rex::Text.decode_base64(auth).split(':', 2)
 			report_auth_info(
 				:host      => cli.peerhost,
-				:proto     => 'http',
-				:target_host => hhead,
-				:target_port => @myport,
+				:port      => @myport,
+				:sname     => 'http',
 				:user      => user,
 				:pass      => pass,
-				:extra     => req.resource.to_s
+				:active    => true
+			)
+
+			report_note(
+				:host     => cli.peerhost,
+				:type     => "http_auth_extra",
+				:data     => req.resource.to_s
 			)
 			print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
 		end

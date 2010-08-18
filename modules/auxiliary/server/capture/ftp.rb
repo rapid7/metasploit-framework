@@ -79,11 +79,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_auth_info(
 				:host      => @state[c][:ip],
-				:proto     => 'ftp',
-				:target_host => datastore['SRVHOST'],
-				:target_port => datastore['SRVPORT'],
+				:port => datastore['SRVPORT'],
+				:sname     => 'ftp',
 				:user      => @state[c][:user],
-				:pass      => @state[c][:pass]
+				:pass      => @state[c][:pass],
+				:active    => true
 			)
 
 			print_status("FTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")

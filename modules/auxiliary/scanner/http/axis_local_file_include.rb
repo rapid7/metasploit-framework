@@ -100,13 +100,12 @@ class Metasploit3 < Msf::Auxiliary
 
 					report_auth_info(
 						:host => rhost,
-						:proto => 'axis',
+						:port => rport,
+						:sname => 'http',
 						:user => username,
 						:pass => password,
-						:target_host => rhost,
-						:target_port => rport,
-						:vhost  => vhost,
-						:critical => true
+						:proof => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
+						:active => true
 					)
 
 				else

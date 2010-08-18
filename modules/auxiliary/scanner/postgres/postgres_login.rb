@@ -119,14 +119,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		result_hash = {
 			:host => rhost,
-			:proto => "postgres",
+			:port => rport,
+			:sname => "postgres",
 			:user => user,
 			:pass => pass,
-			:target_host => rhost,
-			:target_port => rport,
-			:critical => true
+			:active => true
 		}
-		result_hash.merge!({:database => db}) if db_ok
+		result_hash[:user] = "#{db}/#{user}" if db_ok
 		report_auth_info result_hash
 	end
 

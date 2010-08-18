@@ -79,11 +79,11 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_auth_info(
 				:host      => @state[c][:ip],
-				:proto     => 'pop3',
-				:target_host => @myhost,
-				:target_port => @myport,
+				:port      => @myport,
+				:sname     => 'pop3',
 				:user      => @state[c][:user],
-				:pass      => @state[c][:pass]
+				:pass      => @state[c][:pass],
+				:active    => true
 			)
 			print_status("POP3 LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")
 			@state[c][:pass] = data.strip

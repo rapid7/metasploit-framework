@@ -52,9 +52,11 @@ class Db
 				"db_services"   => "List all services in the database",
 				"db_vulns"      => "List all vulnerabilities in the database",
 				"db_notes"      => "List all notes in the database",
+				"db_creds"      => "List all credentials in the database",
 				"db_add_host"   => "Add one or more hosts to the database",
-				"db_add_port"   => "Add a port to host",
-				"db_add_note"   => "Add a note to host",
+				"db_add_port"   => "Add a port to a host",
+				"db_add_note"   => "Add a note to a host",
+				"db_add_cred"   => "Add a credential to a host:port",
 				"db_del_host"   => "Delete one or more hosts from the database",
 				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
@@ -362,6 +364,67 @@ class Db
 			end
 		end
 
+		# Only takes two arguments. Can return return active or all, on a certain 
+		# host or range, on a certain port or range, and/or on a service name. 
+		# E.g., these:
+		#
+		# db_creds     # Default, returns all active credentials)
+		# db_creds all # Returns all credentials, active or not 
+		# db_creds host=10.10.10.0/24
+		# db_creds port=1-1024
+		# db_creds service=ssh,smb,http
+		def cmd_db_creds(*args)
+			return unless active?
+			if args.size > 2
+				print_status "Usage: db_creds [host=1.2.3.4/24|port=1-1024|service=ssh,smb,etc] [all]"
+				print_status "       Note, only one of host, port, or service can be used at a time."
+				print_status "       To display inactive credentials as well, use the 'all' keyword."
+				return
+			end
+			search_term = nil
+			search_param = nil
+			inactive_ok = false
+			creds_returned = 0
+			if args[0] =~ /^[\s]*(host|port|service)=(.*)/i
+				search_term = $1.downcase
+				search_param = $2.downcase
+				if args[1] =~ /^[\s]*all/
+					inactive_ok = true
+				end
+			elsif args[0] =~ /^[\s]*all/
+				inactive_ok = true
+			end
+			framework.db.each_cred(framework.db.workspace) do |cred|
+				if(cred.active | inactive_ok)
+					case search_term
+					when "host"
+						begin
+							rw = Rex::Socket::RangeWalker.new(search_param)
+							next unless rw.include? cred.service.host.address
+						rescue
+							print_error "Invalid host parameter."
+							break
+						end
+					when "port"
+						if search_param =~ /([0-9]+)-([0-9]+)/
+							ports = Range.new($1,$2)
+						else
+							ports = Range.new(search_param,search_param)
+						end
+						next unless ports.include? cred.service.port.to_s
+					when "service"
+						svcs = search_param.split(/[\s]*,[\s]*/)
+						next unless svcs.include? cred.service.name
+					end
+					print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+					creds_returned += 1
+				else
+					next
+				end
+			end
+			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
+		end
+
 		def cmd_db_notes(*args)
 			return unless active?
 			hosts = nil
@@ -469,6 +532,24 @@ class Db
 			print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
 		end
 
+		def cmd_db_add_cred(*args)
+			return unless active?
+			if (!args || args.length < 3)
+				print_status("Usage: db_add_cred [host] [port] [user] [pass] [type] [active]")
+				return
+			else
+				host,port,user,pass,ptype,active = args
+				cred = framework.db.find_or_create_cred(
+					:host => host,
+					:port => port,
+					:user => (user == "NULL" ? nil : user),
+					:pass => (pass == "NULL" ? nil : pass),
+					:ptype => ptype,
+					:active => (active == "false" ? false : true )
+				)
+				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+			end
+		end
 
 		def cmd_db_del_host(*args)
 			return unless active?

@@ -12,6 +12,7 @@ require 'msf/core/model/ref'
 require 'msf/core/model/service'
 require 'msf/core/model/workspace'
 require 'msf/core/model/vuln'
+require 'msf/core/model/cred'
 
 require 'msf/core/model/wmap_target'
 require 'msf/core/model/wmap_request'

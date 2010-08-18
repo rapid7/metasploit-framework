@@ -182,13 +182,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_auth_info(
 				:host   => rhost,
-				:proto  => 'http',
+				:port   => rport,
+				:sname  => 'http',
 				:user   => user,
 				:pass   => pass,
-				:target_host => rhost,
-				:target_port => rport,
-				:proof  => proof.to_s,
-				:critical => true
+				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",
+				:active => true
 			)
 
 			return :abort if ([any_user,any_pass].include? :success)

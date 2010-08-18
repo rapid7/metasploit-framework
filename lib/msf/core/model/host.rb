@@ -12,6 +12,7 @@ class Host < ActiveRecord::Base
 	has_many :loots,    :dependent => :destroy, :order => "loots.created_at desc"
 
 	has_many :service_notes, :through => :services
+	has_many :creds,    :through   => :services
 
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id

@@ -54,16 +54,14 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (success)
 				print_good("#{rhost}:#{rport} - MSSQL - successful login '#{user}' : '#{pass}'")
-				report_auth_info({
+				report_auth_info(
 					:host => rhost,
 					:port => rport,
-					:proto => 'mssql',
+					:sname => 'mssql',
 					:user => user,
 					:pass => pass,
-					:target_host => rhost,
-					:target_port => rport,
-					:critical => true
-				})
+					:active => true
+				)
 				return :next_user
  			else
 				vprint_error("#{rhost}:#{rport} failed to login as '#{user}'")

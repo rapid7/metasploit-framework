@@ -68,8 +68,12 @@ class Metasploit3 < Msf::Auxiliary
 		 	if ( res and res =~ /ERROR_STACK/ )
 				''
 			else
-				report_auth_info(:host => rhost, :proto => 'tns', :port => rport, :type => 'bruteforced_sid', :data => "#{sid.strip}")
-				print_status("Found SID '#{sid.strip!}' for host #{rhost}.")
+				report_note(
+					:host => rhost,
+					:type => 'oracle_sid',
+					:data => "PORT=#{rport}, SID=#{sid.strip}"
+				)
+				print_status("Found SID '#{sid.strip}' for host #{rhost}.")
 			end
 		end
 

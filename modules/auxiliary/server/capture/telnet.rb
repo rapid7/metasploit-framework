@@ -131,11 +131,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		report_auth_info(
 			:host      => @state[c][:ip],
-			:proto     => 'telnet',
-			:target_host => datastore['SRVHOST'],
-			:target_port => datastore['SRVPORT'],
+			:port      => datastore['SRVPORT'],
+			:sname     => 'telnet',
 			:user      => @state[c][:user],
-			:pass      => @state[c][:pass]
+			:pass      => @state[c][:pass],
+			:active    => true
 		)
 
 		print_status("TELNET LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")

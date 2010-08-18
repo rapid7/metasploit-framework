@@ -100,12 +100,11 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("#{rhost}:#{rport} - SUCCESSFUL LOGIN '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host   => rhost,
-				:proto  => 'mysql',
+				:port   => rport,
+				:sname  => 'mysql',
 				:user   => user,
 				:pass   => pass,
-				:target_host => rhost,
-				:target_port => rport,
-				:critical => true
+				:active => true
 			)
       return :next_user
 		rescue ::RbMysql::AccessDeniedError

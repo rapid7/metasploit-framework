@@ -30,9 +30,9 @@ class Plugin::CredCollect < Msf::Plugin
 				print_error("Database not connected")
 				return
 			end
-			framework.db.get_auth_info(:proto=>"smb").each do |info|
-				if info.kind_of? Hash and info.has_key? :hash_string
-					print_line(info[:hash_string])
+			framework.db.get_auth_info(:sname=>"smb").each do |auth|
+				if auth.type = "smb_hash"
+					print_line(auth.pass)
 				end
 			end
 		end
@@ -42,9 +42,9 @@ class Plugin::CredCollect < Msf::Plugin
 				print_error("Database not connected")
 				return
 			end
-			framework.db.get_auth_info(:proto=>"smb").each do |info|
-				if info.kind_of? Hash and info.has_key? :token
-					print_line(info[:target_host] + " - " + info[:token])
+			framework.db.get_auth_info(:sname=>"smb").each do |auth|
+				if auth.type = "token"
+					print_line(auth.host.address + " - " + auth.pass)
 				end
 			end
 		end
