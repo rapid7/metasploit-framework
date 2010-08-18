@@ -7,6 +7,7 @@ package msfgui;
 
 import java.awt.Font;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +25,9 @@ public class InteractWindow extends MsfFrame {
 	public static final char STOP_POLLING = 's';
 	private final Map session;
 	private final RpcConnection rpcConn;
-	private String type;
+	private final String cmdPrefix;
+	private String prompt;
+	private Object sid;
 	private StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
 	private static ArrayList commands;
 	private static int currentCommand = 0;
@@ -33,14 +36,58 @@ public class InteractWindow extends MsfFrame {
 		commands.add("");
 	}
 
-	/** Creates a new window for interacting with shells/meterpreters */
-	public InteractWindow(final RpcConnection rpcConn, final Map session, final String type) {
+	/** Creates a new window for interacting with shells/meterpreters/consoles */
+	public InteractWindow(final RpcConnection rpcConn, final Map session, String type) {
 		super(type+" interaction window");
 		initComponents();
 		this.rpcConn = rpcConn;
 		this.session = session;
-		this.type = type;
+		sid = session.get("id");
+		if(type.equals("console")){ //console stuff
+			cmdPrefix = "console.";
+			inputField.setFocusTraversalKeysEnabled(false);
+			inputField.addKeyListener(new KeyListener(){
+				public void keyTyped(KeyEvent ke) {
+					if(ke.getKeyChar() == '\t'){
+						try{
+							Map res = (Map)rpcConn.execute("console.tabs", new Object[]{sid,inputField.getText()});
+							Object[] tabs = (Object[])res.get("tabs");
+							//one option: use it
+							if(tabs.length == 1){
+								inputField.setText(tabs[0].toString());
+							//more options: display, and use common prefix
+							} else if (tabs.length > 1){
+								String prefix = tabs[0].toString();
+								for(Object o : tabs){
+									String s = o.toString();
+									int len = Math.min(s.length(), prefix.length());
+									for(int i = 0; i < len; i++){
+										if(s.charAt(i) != prefix.charAt(i)){
+											prefix = prefix.substring(0,i);
+											break;
+										}
+										if(s.length()< prefix.length())
+											prefix = s;
+									}
+									outputArea.append("\n"+o.toString());
+								}
+								outputArea.append("\n");
+								inputField.setText(prefix);
+							}
+						}catch(MsfException mex){
+						}// do nothing on error
+					}
+				}
+				public void keyPressed(KeyEvent ke) {
+				}
+				public void keyReleased(KeyEvent ke) {
+				}
+			});
+		} else{
+			cmdPrefix = "session." + type + "_";
+		}
 		timerCommand = new StringBuffer(""+POLL);
+		prompt = ">>>";
 
 		//start new thread polling for input
 		new SwingWorker() {
@@ -54,7 +101,7 @@ public class InteractWindow extends MsfFrame {
 					}
 					try {
 						long start = System.currentTimeMillis();
-						Map received = (Map) rpcConn.execute("session." + type + "_read", new Object[]{session.get("id")});
+						Map received = (Map) rpcConn.execute(cmdPrefix+"read", new Object[]{sid});
 						time = System.currentTimeMillis() - start;
 						if (!received.get("encoding").equals("base64"))
 							throw new MsfException("Uhoh. Unknown encoding. Time to update?");
@@ -64,6 +111,7 @@ public class InteractWindow extends MsfFrame {
 							if(decodedBytes[decodedBytes.length-1] != '\n')
 								outputArea.append("\n");//cause windows is just like that.
 							publish("data");
+							publish(received);
 						}
 					} catch (MsfException ex) {
 						if(!ex.getMessage().equals("unknown session"))
@@ -86,6 +134,8 @@ public class InteractWindow extends MsfFrame {
 					}else if(o.equals("unlocked")){
 						submitButton.setEnabled(true);
 						inputField.setEditable(true);
+					}else if(o instanceof Map){
+						checkPrompt((Map)o);
 					}else{
 						outputArea.setCaretPosition(outputArea.getDocument().getLength());
 					}
@@ -96,8 +146,18 @@ public class InteractWindow extends MsfFrame {
 		if(type.equals("meterpreter"))
 			inputField.setText("help");
 		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), 12));
+		checkPrompt(session);
 	}
-
+	/** Sets the prompt if provided */
+	private void checkPrompt(Map o) {
+		try{
+			Object pobj = o.get("prompt");
+			if (pobj != null)
+				prompt = new String(Base64.decode(pobj.toString()));
+			promptLabel.setText(prompt);
+		}catch (MsfException mex){//bad prompt: do nothing
+		}
+	}
 	/** This method is called from within the constructor to
 	 * initialize the form.
 	 * WARNING: Do NOT modify this code. The content of this method is
@@ -111,6 +171,7 @@ public class InteractWindow extends MsfFrame {
         outputArea = new javax.swing.JTextArea();
         inputField = new javax.swing.JTextField();
         submitButton = new javax.swing.JButton();
+        promptLabel = new javax.swing.JLabel();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosed(java.awt.event.WindowEvent evt) {
@@ -152,6 +213,9 @@ public class InteractWindow extends MsfFrame {
             }
         });
 
+        promptLabel.setText(resourceMap.getString("promptLabel.text")); // NOI18N
+        promptLabel.setName("promptLabel"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -160,7 +224,9 @@ public class InteractWindow extends MsfFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(inputField, javax.swing.GroupLayout.DEFAULT_SIZE, 657, Short.MAX_VALUE)
+                        .addComponent(promptLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(inputField, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(submitButton))
                     .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE))
@@ -174,7 +240,8 @@ public class InteractWindow extends MsfFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(submitButton))
+                    .addComponent(submitButton)
+                    .addComponent(promptLabel))
                 .addContainerGap())
         );
 
@@ -186,10 +253,9 @@ public class InteractWindow extends MsfFrame {
 			String command = inputField.getText();
 			commands.add(command);
 			String data = Base64.encode((command+"\n").getBytes());
-			rpcConn.execute("session."+type+"_write", new Object[]{session.get("id"),data});
-			outputArea.append(">>>"+command+"\n");
+			rpcConn.execute(cmdPrefix+"write", new Object[]{session.get("id"),data});
+			outputArea.append(prompt+command+"\n");
 			outputArea.setCaretPosition(outputArea.getDocument().getLength());
-
 			inputField.setText("");
 			currentCommand = 0;
 		} catch (MsfException ex) {
@@ -223,6 +289,7 @@ public class InteractWindow extends MsfFrame {
     private javax.swing.JTextField inputField;
     private javax.swing.JTextArea outputArea;
     private javax.swing.JScrollPane outputScrollPane;
+    private javax.swing.JLabel promptLabel;
     private javax.swing.JButton submitButton;
     // End of variables declaration//GEN-END:variables
 }

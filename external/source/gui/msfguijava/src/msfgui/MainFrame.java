@@ -384,6 +384,9 @@ public class MainFrame extends FrameView {
         killSessionsMenuItem = new javax.swing.JMenuItem();
         collectedCredsMenuItem = new javax.swing.JMenuItem();
         logGenerateMenuItem = new javax.swing.JMenuItem();
+        consoleMenu = new javax.swing.JMenu();
+        newConsoleItem = new javax.swing.JMenuItem();
+        existingConsoleMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         onlineHelpMenu = new javax.swing.JMenuItem();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -416,7 +419,7 @@ public class MainFrame extends FrameView {
         jobsPanel.setLayout(jobsPanelLayout);
         jobsPanelLayout.setHorizontalGroup(
             jobsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
             .addGroup(jobsPanelLayout.createSequentialGroup()
                 .addComponent(jobsLabel)
                 .addContainerGap())
@@ -427,7 +430,7 @@ public class MainFrame extends FrameView {
                 .addContainerGap()
                 .addComponent(jobsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 411, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -467,9 +470,9 @@ public class MainFrame extends FrameView {
             .addGroup(sessionsPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(sessionsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 710, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 717, Short.MAX_VALUE)
                 .addComponent(searchButton))
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 845, Short.MAX_VALUE)
+            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)
         );
         sessionsPanelLayout.setVerticalGroup(
             sessionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -480,7 +483,7 @@ public class MainFrame extends FrameView {
                         .addComponent(sessionsLabel))
                     .addComponent(searchButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 412, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -498,7 +501,7 @@ public class MainFrame extends FrameView {
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 460, Short.MAX_VALUE)
+                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -637,6 +640,25 @@ public class MainFrame extends FrameView {
 
         menuBar.add(postMenu);
 
+        consoleMenu.setMnemonic('C');
+        consoleMenu.setText(resourceMap.getString("consoleMenu.text")); // NOI18N
+        consoleMenu.setName("consoleMenu"); // NOI18N
+
+        newConsoleItem.setText(resourceMap.getString("newConsoleItem.text")); // NOI18N
+        newConsoleItem.setName("newConsoleItem"); // NOI18N
+        newConsoleItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                newConsoleItemActionPerformed(evt);
+            }
+        });
+        consoleMenu.add(newConsoleItem);
+
+        existingConsoleMenu.setText(resourceMap.getString("existingConsoleMenu.text")); // NOI18N
+        existingConsoleMenu.setName("existingConsoleMenu"); // NOI18N
+        consoleMenu.add(existingConsoleMenu);
+
+        menuBar.add(consoleMenu);
+
         helpMenu.setMnemonic('H');
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
@@ -673,7 +695,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 736, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 725, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -763,6 +785,24 @@ public class MainFrame extends FrameView {
 	private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
 		searchWin.setVisible(true);
 	}//GEN-LAST:event_searchButtonActionPerformed
+
+	private void newConsoleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newConsoleItemActionPerformed
+		try{
+			Map res = (Map)rpcConn.execute("console.create");
+			final InteractWindow iw = new InteractWindow(rpcConn, res, "console");
+			iw.setVisible(true);
+			String id = res.get("id").toString();
+			JMenuItem tempItem = new JMenuItem(id);
+			existingConsoleMenu.add(tempItem);
+			tempItem.addActionListener(new RpcAction() {
+				public void action() throws Exception {
+					iw.setVisible(true);
+				}
+			});
+		}catch(MsfException mex){
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_newConsoleItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1003,6 +1043,8 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem clearHistoryItem;
     private javax.swing.JMenuItem collectedCredsMenuItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
+    private javax.swing.JMenu consoleMenu;
+    private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu historyMenu;
@@ -1017,6 +1059,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuRunAllMeterp;
+    private javax.swing.JMenuItem newConsoleItem;
     private javax.swing.JMenuItem onlineHelpMenu;
     private javax.swing.JMenuItem otherMeterpCommandMenu;
     private javax.swing.JMenu payloadsMenu;

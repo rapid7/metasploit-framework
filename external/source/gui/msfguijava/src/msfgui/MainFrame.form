@@ -376,6 +376,30 @@
             </MenuItem>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="consoleMenu">
+          <Properties>
+            <Property name="mnemonic" type="int" value="67"/>
+            <Property name="text" type="java.lang.String" resourceKey="consoleMenu.text"/>
+            <Property name="name" type="java.lang.String" value="consoleMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="newConsoleItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="newConsoleItem.text"/>
+                <Property name="name" type="java.lang.String" value="newConsoleItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="newConsoleItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <Menu class="javax.swing.JMenu" name="existingConsoleMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="existingConsoleMenu.text"/>
+                <Property name="name" type="java.lang.String" value="existingConsoleMenu" noResource="true"/>
+              </Properties>
+            </Menu>
+          </SubComponents>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
           <Properties>
             <Property name="mnemonic" type="int" value="72"/>
