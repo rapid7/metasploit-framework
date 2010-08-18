@@ -542,10 +542,9 @@ def migrate()
 end
 #---------------------------------------------------------------------------------------------------------
 #Function for Checking for UAC
-def uaccheck()
+def uaccheck(winversion)
 	uac = false
-	winversion = @client.sys.config.sysinfo
-	if winversion['OS']=~ /(Vista|7)/
+	if winversion['OS']=~ /^Windows (Vista|7)/
 		if @client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
 			print_status("Checking if UAC is enabled ...")
 			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
@@ -587,7 +586,7 @@ print_status("Output of each individual command is saved to #{@logfol}")
 file_local_write(@dest,header)
 file_local_write(@dest,chkvm())
 trgtos = info['OS']
-uac = uaccheck()
+uac = uaccheck(info)
 # Run Commands according to OS some commands are not available on all versions of Windows
 if trgtos =~ /(Windows XP)/
 	if trgtos =~ /(2600, \)|2600, Service Pack 1\))/
