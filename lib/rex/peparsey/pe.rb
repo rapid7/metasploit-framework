@@ -202,5 +202,11 @@ class Pe < PeBase
 		_isource.read(offset, len)
 	end
 
+	def size
+		_isource.size
+	end
+	def length
+		_isource.size
+	end
 
 end end end
