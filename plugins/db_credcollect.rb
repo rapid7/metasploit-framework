@@ -20,34 +20,23 @@ class Plugin::CredCollect < Msf::Plugin
 
 		def commands
 			{
-				"db_hashes" => "Dumps hashes collected in the database",
-				"db_tokens" => "Dumps tokens collected in the database with host information"
+				"db_hashes" => "Dumps hashes (deprecated: use 'db_creds service=smb')",
+				"db_tokens" => "Dumps tokens (deprecated: use 'db_notes -t smb_token')"
 			}
 		end
 
 		def cmd_db_hashes()
-			if not self.framework.db.active
-				print_error("Database not connected")
-				return
-			end
-			framework.db.get_auth_info(:sname=>"smb").each do |auth|
-				if auth.type = "smb_hash"
-					print_line(auth.pass)
-				end
-			end
+			print_error ""
+			print_error "db_hashes is deprecated. Use 'db_creds service=smb' instead."
+			print_error ""
 		end
 
 		def cmd_db_tokens()
-			if not self.framework.db.active
-				print_error("Database not connected")
-				return
-			end
-			framework.db.get_auth_info(:sname=>"smb").each do |auth|
-				if auth.type = "token"
-					print_line(auth.host.address + " - " + auth.pass)
-				end
-			end
+			print_error ""
+			print_error "db_tokens is deprecated. Use 'db_notes -t smb_token' instead."
+			print_error ""
 		end
+
 	end
 
 	def on_session_open(session)
@@ -67,20 +56,20 @@ class Plugin::CredCollect < Msf::Plugin
 
 			# Target infos for the db record
 			addr = session.sock.peerhost
-			self.framework.db.report_host(
-				:host => addr,
-				:state => Msf::HostState::Alive
-				)
+			# This ought to read from the exploit's datastore.
+			# Use the meterpreter script if you need to control it. 
+			smb_port = 445 
 
 			# Record hashes to the running db instance
 			hashes.each do |hash|
 				data = {}
-				data[:host]      = addr
-				data[:target_host] = host.address
-				data[:proto]     = 'smb'
-				data[:user]      = hash.user_name
-				data[:hash]      = hash.lanman + ":" + hash.ntlm
-				data[:hash_string] = hash.hash_string
+				data[:host]  = addr
+				data[:port]  = smb_port
+				data[:sname] = 'smb'
+				data[:user]  = hash.user_name
+				data[:pass]  = hash.lanman + ":" + hash.ntlm
+				data[:type]  = "smb_hash"
+				data[:active] = true
 
 				self.framework.db.report_auth_info(data)
 			end
@@ -93,11 +82,11 @@ class Plugin::CredCollect < Msf::Plugin
 			tokens.each do |token|
 				data = {}
 				data[:host]      = addr
-				data[:target_host] = addr
-				data[:proto]     = 'smb'
-				data[:token]     = token
+				data[:type]      = 'smb_token'
+				data[:data]      = token
+				data[:update]    = :unique_data
 
-				self.framework.db.report_auth_info(data)
+				self.framework.db.report_note(data)
 			end
 		end
 	end
