@@ -163,11 +163,8 @@ protected
 		type = buf[0].unpack('C').first
 		if (type != Request)
 			#dlog("Unknown DHCP request type: #{type}")
-			#$stdout.puts "ugh not request - #{type}"
 			return
 		end
-
-		#$stdout.puts "request #{type} found"
 
 		# parse out the members
 		hwtype = buf[1]
@@ -187,7 +184,6 @@ protected
 
 		if (magic != DHCPMagic)
 			#dlog("Invalid DHCP request - bad magic.")
-			#$stdout.puts "ugh bad magic"
 			return
 		end
 
@@ -210,7 +206,6 @@ protected
 
 		if pxeclient == false && self.servePXE == true
 			#dlog ("No tftp server request; ignoring (probably not PXE client)")
-			#$stdout.puts "ugh pxe"
 			return
 		end
 
@@ -239,7 +234,6 @@ protected
 			# check if already served based on hw addr (MAC address)
 			if self.serveOnce == true && self.served.has_key?(buf[28..43])
 				#dlog ("Already served; allowing normal boot")
-				#$stdout.puts "ugh already served"
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
@@ -248,7 +242,6 @@ protected
 			self.served.merge!( buf[28..43] => true ) 
 		else
 			#dlog("ignoring unknown DHCP request - type #{messageType}")
-			#$stdout.puts "ugh weird type - #{messageType}"
 			return
 		end
 
@@ -266,11 +259,7 @@ protected
 
 		pkt << ("\x00" * 32) #padding
 
-		if messageType == DHCPRequest
-			send_packet(Rex::Socket.addr_itoa(self.current_ip), pkt)
-		else
-			send_packet(nil, pkt)
-		end
+		send_packet(nil, pkt)
 	end
 
 end
