@@ -22,13 +22,14 @@ import org.jdesktop.swingworker.SwingWorker;
 public class InteractWindow extends MsfFrame {
 	public final ReentrantLock lock = new ReentrantLock();
 	public static final char POLL = 'r';
+	public static final char PAUSE = 'p';
 	public static final char STOP_POLLING = 's';
 	private final Map session;
 	private final RpcConnection rpcConn;
 	private final String cmdPrefix;
 	private String prompt;
 	private Object sid;
-	private StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
+	private final StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
 	private static ArrayList commands;
 	private static int currentCommand = 0;
 	static{
@@ -93,7 +94,13 @@ public class InteractWindow extends MsfFrame {
 		new SwingWorker() {
 			protected Object doInBackground() throws Exception {
 				long time = 100;
-				while (timerCommand.charAt(0) == POLL) {
+				while (timerCommand.charAt(0) != STOP_POLLING) {
+					if (timerCommand.charAt(0)== PAUSE){
+						synchronized(timerCommand){
+							timerCommand.wait();
+						}
+						continue;
+					}
 					if (lock.tryLock() == false) {
 						this.publish("locked");
 						lock.lock();
@@ -174,11 +181,14 @@ public class InteractWindow extends MsfFrame {
         promptLabel = new javax.swing.JLabel();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                formWindowClosed(evt);
-            }
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
+            }
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+            public void windowActivated(java.awt.event.WindowEvent evt) {
+                formWindowActivated(evt);
             }
         });
 
@@ -267,10 +277,6 @@ public class InteractWindow extends MsfFrame {
 		inputFieldActionPerformed(evt);
 	}//GEN-LAST:event_submitButtonActionPerformed
 
-	private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-		timerCommand.setCharAt(0, STOP_POLLING);
-	}//GEN-LAST:event_formWindowClosed
-
 	private void inputFieldKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_inputFieldKeyPressed
 		if(evt.getKeyCode() == KeyEvent.VK_UP){
 			currentCommand = (currentCommand - 1 + commands.size()) % commands.size();
@@ -284,6 +290,17 @@ public class InteractWindow extends MsfFrame {
 	private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 		inputField.requestFocusInWindow();
 	}//GEN-LAST:event_formWindowOpened
+
+	private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+		timerCommand.setCharAt(0, PAUSE);
+	}//GEN-LAST:event_formWindowClosing
+
+	private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+		timerCommand.setCharAt(0, POLL);
+		synchronized(timerCommand){
+			timerCommand.notify();
+		}
+	}//GEN-LAST:event_formWindowActivated
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField inputField;
