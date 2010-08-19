@@ -78,7 +78,7 @@ require 'metasm'
 	def self.to_win32pe(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template.exe")
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows.exe")
 
 		# Copy the code to a new RWX segment to allow for self-modifying encoders
 		payload = win32_rwx_exec(code)
@@ -170,7 +170,7 @@ require 'metasm'
 		end
 
 		if(not text)
-			raise RuntimeError, "No .text section found in the template exe"
+			raise RuntimeError, "No .text section found in the template_x86_windows.exe"
 		end
 
 		if ! text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
@@ -280,7 +280,7 @@ require 'metasm'
 	def self.to_win32pe_old(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template-old.exe")
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows_old.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -344,7 +344,7 @@ require 'metasm'
 		name = opts[:servicename] || 'SERVICENAME'
 
 		# Allow the user to specify their own service EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service.exe")
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows_svc.exe")
 
 		pe = ''
 		File.open(opts[:template], 'rb') { |fd|
@@ -367,7 +367,7 @@ require 'metasm'
 	def self.to_win64pe_service(framework, code, opts={})
 
 		# Allow the user to specify their own service EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "service_x64.exe")
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows_svc.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -390,7 +390,7 @@ require 'metasm'
 	def self.to_win32pe_dll(framework, code, opts={})
 
 		# Allow the user to specify their own DLL template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template.dll")
+		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows.dll")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|

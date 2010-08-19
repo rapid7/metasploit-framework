@@ -292,7 +292,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="../../../../service_x64.exe"
+				OutputFile="../../../../template_x64_windows_svc.exe"
 				LinkIncremental="1"
 				GenerateManifest="false"
 				GenerateDebugInformation="false"
