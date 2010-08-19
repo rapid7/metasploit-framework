@@ -142,6 +142,31 @@ public class MainFrame extends FrameView {
 		} catch (Exception ex) {
 		}
 	}
+
+	/** Adds menu items for reopening and closing the console */
+	private void registerConsole(Map res, boolean show) {
+		final InteractWindow iw = new InteractWindow(rpcConn, res, "console");
+		iw.setVisible(show);
+		final String id = res.get("id").toString();
+		final JMenuItem openItem = new JMenuItem(id);
+		existingConsoleMenu.add(openItem);
+		openItem.addActionListener(new RpcAction() {
+			public void action() throws Exception {
+				iw.setVisible(true);
+			}
+		});
+		final JMenuItem closeItem = new JMenuItem(id);
+		this.closeConsoleMenu.add(closeItem);
+		closeItem.addActionListener(new RpcAction() {
+			public void action() throws Exception {
+				iw.setVisible(false);
+				iw.dispose();
+				rpcConn.execute("console.destroy", new Object[]{id});
+				existingConsoleMenu.remove(openItem);
+				closeConsoleMenu.remove(closeItem);
+			}
+		});
+	}
 	
 	/** Set up auto session and job refresh */
 	private void setupSessionsPollTimer() throws HeadlessException {
@@ -287,6 +312,15 @@ public class MainFrame extends FrameView {
 	public void getModules() {
 		searchWin = new SearchWindow(rpcConn);
 		MsfguiApp.addRecentModules(recentMenu, rpcConn);
+
+		//Setup consoles
+		try{
+			Object[] consoles = (Object[]) ((Map)rpcConn.execute("console.list")).get("consoles");
+			for (Object console : consoles)
+				registerConsole((Map)console,false);
+		}catch (MsfException mex){
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
 		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
 	}
 
@@ -387,6 +421,7 @@ public class MainFrame extends FrameView {
         consoleMenu = new javax.swing.JMenu();
         newConsoleItem = new javax.swing.JMenuItem();
         existingConsoleMenu = new javax.swing.JMenu();
+        closeConsoleMenu = new javax.swing.JMenu();
         helpMenu = new javax.swing.JMenu();
         onlineHelpMenu = new javax.swing.JMenuItem();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -657,6 +692,10 @@ public class MainFrame extends FrameView {
         existingConsoleMenu.setName("existingConsoleMenu"); // NOI18N
         consoleMenu.add(existingConsoleMenu);
 
+        closeConsoleMenu.setText(resourceMap.getString("closeConsoleMenu.text")); // NOI18N
+        closeConsoleMenu.setName("closeConsoleMenu"); // NOI18N
+        consoleMenu.add(closeConsoleMenu);
+
         menuBar.add(consoleMenu);
 
         helpMenu.setMnemonic('H');
@@ -789,16 +828,7 @@ public class MainFrame extends FrameView {
 	private void newConsoleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newConsoleItemActionPerformed
 		try{
 			Map res = (Map)rpcConn.execute("console.create");
-			final InteractWindow iw = new InteractWindow(rpcConn, res, "console");
-			iw.setVisible(true);
-			String id = res.get("id").toString();
-			JMenuItem tempItem = new JMenuItem(id);
-			existingConsoleMenu.add(tempItem);
-			tempItem.addActionListener(new RpcAction() {
-				public void action() throws Exception {
-					iw.setVisible(true);
-				}
-			});
+			registerConsole(res, true);
 		}catch(MsfException mex){
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
@@ -1041,6 +1071,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu auxiliaryMenu;
     private javax.swing.JMenuItem changeLFMenuItem;
     private javax.swing.JMenuItem clearHistoryItem;
+    private javax.swing.JMenu closeConsoleMenu;
     private javax.swing.JMenuItem collectedCredsMenuItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;

@@ -398,6 +398,12 @@
                 <Property name="name" type="java.lang.String" value="existingConsoleMenu" noResource="true"/>
               </Properties>
             </Menu>
+            <Menu class="javax.swing.JMenu" name="closeConsoleMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="closeConsoleMenu.text"/>
+                <Property name="name" type="java.lang.String" value="closeConsoleMenu" noResource="true"/>
+              </Properties>
+            </Menu>
           </SubComponents>
         </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
