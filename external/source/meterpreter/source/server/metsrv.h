@@ -27,5 +27,11 @@
 
 DWORD server_setup(SOCKET fd);
 
+typedef struct _EXTENSION
+{
+	HMODULE library;
+	DWORD (*init)(Remote *remote);
+	DWORD (*deinit)(Remote *remote);
+} EXTENSION;
 
 #endif

@@ -9,6 +9,8 @@ extern HINSTANCE hAppInstance;
  * Core dispatch routines *
  **************************/
 
+LIST * extension_list = NULL;
+
 // Dispatch table
 Command custom_commands[] = 
 {
@@ -32,21 +34,32 @@ VOID register_dispatch_routines()
 {
 	DWORD index;
 
-	for (index = 0;
-	     custom_commands[index].method;
-	     index++)
-		command_register(&custom_commands[index]);
+	extension_list = list_create();
+
+	for( index=0 ; custom_commands[index].method ; index++ )
+		command_register( &custom_commands[index] );
 }
 
 /*
- * Deregisters previously registered custom commands
+ * Deregisters previously registered custom commands and loaded extensions.
  */
-VOID deregister_dispatch_routines()
+VOID deregister_dispatch_routines( Remote * remote )
 {
 	DWORD index;
 
-	for (index = 0;
-	     custom_commands[index].method;
-	     index++)
-		command_deregister(&custom_commands[index]);
+	while( TRUE )
+	{
+		EXTENSION * extension = list_pop( extension_list );
+		if( !extension )
+			break;
+
+		extension->deinit( remote );
+
+		free( extension );
+	}
+
+	for( index=0 ; custom_commands[index].method ; index++ )
+		command_deregister( &custom_commands[index] );
+
+	list_destroy( extension_list );
 }

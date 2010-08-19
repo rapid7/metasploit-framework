@@ -470,7 +470,7 @@ DWORD server_setup( SOCKET fd )
 			server_dispatch( remote );
 		
 			dprintf("[SERVER] Deregistering dispatch routines...");
-			deregister_dispatch_routines();
+			deregister_dispatch_routines( remote );
 
 		} while (0);
 

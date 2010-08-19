@@ -3,6 +3,9 @@
 // see ReflectiveLoader.c...
 extern HINSTANCE hAppInstance;
 
+// see remote_dispatch_common.c
+extern LIST * extension_list;
+
 DWORD request_core_loadlib(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
@@ -86,24 +89,42 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 		// call its Init routine
 		if ((flags & LOAD_LIBRARY_FLAG_EXTENSION) && (library))
 		{
-			DWORD (*init)(Remote *remote);
+			EXTENSION * exension = (EXTENSION *)malloc( sizeof(EXTENSION) );
+			if( exension )
+			{
+				exension->library = library;
 
-			// if the library was loaded via its reflective loader we must use GetProcAddressR()
-			if( bLibLoadedReflectivly )
-				(LPVOID)init = (LPVOID)GetProcAddressR( library, "InitServerExtension" );
-			else
-				(LPVOID)init = (LPVOID)GetProcAddress( library, "InitServerExtension" );
+				// if the library was loaded via its reflective loader we must use GetProcAddressR()
+				if( bLibLoadedReflectivly )
+				{
+					exension->init   = (LPVOID)GetProcAddressR( exension->library, "InitServerExtension" );
+					exension->deinit = (LPVOID)GetProcAddressR( exension->library, "DeinitServerExtension" );
+				}
+				else
+				{
+					exension->init   = (LPVOID)GetProcAddress( exension->library, "InitServerExtension" );
+					exension->deinit = (LPVOID)GetProcAddress( exension->library, "DeinitServerExtension" );
+				}
 
-			// patch in the metsrv.dll's HMODULE handle, used by the server extensions for delay loading
-			// functions from the metsrv.dll library. We need to do it this way as LoadLibrary/GetProcAddress
-			// wont work if we have used Reflective DLL Injection as metsrv.dll will be 'invisible' to these functions.
-			remote->hMetSrv = hAppInstance;
+				// patch in the metsrv.dll's HMODULE handle, used by the server extensions for delay loading
+				// functions from the metsrv.dll library. We need to do it this way as LoadLibrary/GetProcAddress
+				// wont work if we have used Reflective DLL Injection as metsrv.dll will be 'invisible' to these functions.
+				remote->hMetSrv = hAppInstance;
 
-			dprintf("[SERVER] Calling init()...");
-			// Call the init routine in the library
-			if( init )
-				res = init(remote);
-			dprintf("[SERVER] Called init()...");
+				// Call the init routine in the library
+				if( exension->init )
+				{
+					dprintf("[SERVER] Calling init()...");
+
+					res = exension->init( remote );
+
+					if( res == ERROR_SUCCESS )
+						list_push( extension_list, exension );
+					else
+						free( exension );
+				}
+				dprintf("[SERVER] Called init()...");
+			}
 		}
 
 	} while (0);

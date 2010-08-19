@@ -23,6 +23,6 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet);
 
 
 VOID register_dispatch_routines();
-VOID deregister_dispatch_routines();
+VOID deregister_dispatch_routines( Remote * remote );
 
 #endif
