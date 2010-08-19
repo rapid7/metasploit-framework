@@ -43,7 +43,7 @@ $framework = Msf::Simple::Framework.create(
 
 
 if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]avascript|e[X]ecutable|[V]BA|[W]ar>\n"
+	puts "\n" + "    Usage: #{$0} <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]avascript|e[X]ecutable|[D]ll|[V]BA|[W]ar>\n"
 	puts dump_payloads
 	exit
 end
@@ -68,10 +68,10 @@ cmd = ARGV.pop.downcase
 # Populate the framework datastore
 options = ARGV.join(',')
 
-if (cmd =~ /^(p|y|r|c|j|x|b|v|w)/)
+if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
-	fmt = 'raw' if (cmd =~ /^(r|x)/)
+	fmt = 'raw' if (cmd =~ /^(r|x|d)/)
 	fmt = 'raw' if (cmd =~ /^v/)
 	fmt = 'c' if (cmd == 'c')
 	fmt = 'js_be' if (cmd =~ /^j/ and Rex::Arch.endian(payload.arch) == ENDIAN_BIG)
@@ -125,6 +125,23 @@ if (cmd =~ /^(p|y|r|c|j|x|b|v|w)/)
 		vba = note + "\r\n" + Msf::Util::EXE.to_exe_vba(exe)
 		$stdout.write(vba)
 		exit(0)
+	end
+
+	if(cmd =~ /^d/)
+		dll = Msf::Util::EXE.to_win32pe_dll($framework, buf)
+		note =
+	                "'Created by msfpayload (http://www.metasploit.com).\r\n" +
+                        "'Payload: " + payload.refname + "\r\n" +
+                        "' Length: " + buf.length.to_s + "\r\n" +
+                        "'Options: " + options + "\r\n"
+
+
+		if(dll)
+			$stderr.puts(note)
+			$stdout.write(dll)
+			exit(0)
+		end
+
 	end
 
 	if(cmd =~ /^w/)
