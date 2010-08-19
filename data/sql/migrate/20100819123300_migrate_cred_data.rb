@@ -1,6 +1,7 @@
 class MigrateCredData < ActiveRecord::Migration
 
 	def self.up
+		begin # Wrap the whole thing in a giant rescue.
 		skipped_notes = []
 		new_creds = []
 		Msf::DBManager::Note.find(:all).each do |note|
@@ -137,6 +138,10 @@ class MigrateCredData < ActiveRecord::Migration
 		Msf::DBManager::Note.find(:all).each do |note|
 			next unless note.ntype[/^auth\.(.*)/]
 			note.delete
+		end
+		rescue 
+			say "There was a problem migrating auth credentials. Skipping."
+			return true # Never fail!
 		end
 	end
 
