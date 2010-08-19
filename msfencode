@@ -24,7 +24,7 @@ $args = Rex::Parser::Arguments.new(
 	"-m" => [ true, "Specifies an additional module search path"                         ],
 	"-a" => [ true, "The architecture to encode as"                                      ],
 	"-p" => [ true, "The platform to encode for"                                         ],
-	"-t" => [ true, "The format to display the encoded buffer with (c, elf, exe, java, js_le, js_be, perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho)" ],
+	"-t" => [ true, "The format to display the encoded buffer with (c, dll, elf, exe, java, js_le, js_be, perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho)" ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
 	"-e" => [ true, "The encoder to use"                                                 ],
@@ -87,6 +87,16 @@ def usage
 	exit
 end
 
+def write_encoded(buf)
+	if (not $output)
+		$stdout.write(buf)
+	else
+		File.open($output, "wb") do |fd|
+			fd.write(buf)
+		end
+	end
+end
+
 # Defaults
 cmd      = "encode"
 arch     = nil
@@ -130,14 +140,14 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war|macho)$/)
+			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|dll|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war|macho)$/)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
 				exit
 			end
 		when "-o"
-			output = val
+			$output = val
 		when "-e"
 			encoder = val
 		when "-x"
@@ -219,6 +229,11 @@ case cmd
 				next if skip
 
 				case fmt
+				when 'dll'
+					dll = nil
+					dll = Msf::Util::EXE.to_win32pe_dll($framework, raw)
+
+					write_encoded(dll)
 				when 'exe'
 					exe = nil
 					if(not arch or (arch.index(ARCH_X86)))
@@ -229,100 +244,40 @@ case cmd
 						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:insert => inject, :template => altexe})
 					end
 
-					if(not output)
-						$stdout.write(exe)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(exe)
-						end
-					end
+					write_encoded(exe)
 				when 'exe-small'
 					exe = nil
 					if(not arch or (arch.index(ARCH_X86)))
 						exe = Msf::Util::EXE.to_win32pe_old($framework, raw)
 					end
 
-					if(not output)
-						$stdout.write(exe)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(exe)
-						end
-					end
+					write_encoded(exe)
 				when 'elf'
 					elf = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
-					if(not output)
-						$stdout.write(elf)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(elf)
-						end
-					end
+					write_encoded(elf)
 				when 'macho'
 					macho = Msf::Util::EXE.to_osx_x86_macho($framework, raw)
-					if(not output)
-						$stdout.write(macho)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(macho)
-						end
-					end
+					write_encoded(macho)
 				when 'vba'
 					exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
 					vba = Msf::Util::EXE.to_exe_vba(exe)
-					if(not output)
-						$stdout.write(vba)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(vba)
-						end
-					end
+					write_encoded(vba)
 				when 'vbs'
 					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-					if(not output)
-						$stdout.write(vbs)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(vbs)
-						end
-					end
+					write_encoded(vbs)
 				when 'loop-vbs'
 					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => true, :template => altexe})
-					if(not output)
-						$stdout.write(vbs)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(vbs)
-						end
-					end
+					write_encoded(vbs)
 				when 'asp'
 					asp = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-					if(not output)
-						$stdout.write(asp)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(asp)
-						end
-					end
+					write_encoded(asp)
 				when 'war'
 					tmp_plat = plat.platforms
 					war = Msf::Util::EXE.to_jsp_war($framework, arch, tmp_plat, raw, {:persist => false, :template => altexe})
-					if(not output)
-						$stdout.write(war)
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(war)
-						end
-					end
+					write_encoded(war)
 				else
 					fmt ||= "ruby"
-					if(not output)
-						$stdout.print(Msf::Simple::Buffer.transform(raw, fmt))
-					else
-						File.open(output, "wb") do |fd|
-							fd.write(Msf::Simple::Buffer.transform(raw, fmt))
-						end
-					end
+					write_encoded(Msf::Simple::Buffer.transform(raw, fmt))
 				end
 
 				exit
@@ -334,4 +289,3 @@ case cmd
 
 		$stderr.puts(OutError + "No encoders succeeded.")
 end
-
