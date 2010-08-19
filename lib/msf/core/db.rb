@@ -639,8 +639,8 @@ class DBManager
 
 			# Annotate the credential
 			cred.ptype = ptype
-			cred.source_id = source_id
-			cred.source_type = source_type
+			cred.source_id = source_id if source_id
+			cred.source_type = source_type if source_type
 			cred.active = active
 
 			# Safe proof (lazy way) -- doesn't chop expanded
