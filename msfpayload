@@ -130,11 +130,10 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|)/)
 	if(cmd =~ /^d/)
 		dll = Msf::Util::EXE.to_win32pe_dll($framework, buf)
 		note =
-	                "'Created by msfpayload (http://www.metasploit.com).\r\n" +
-                        "'Payload: " + payload.refname + "\r\n" +
-                        "' Length: " + buf.length.to_s + "\r\n" +
-                        "'Options: " + options + "\r\n"
-
+			"Created by msfpayload (http://www.metasploit.com).\r\n" +
+			"Payload: " + payload.refname + "\r\n" +
+			" Length: " + buf.length.to_s + "\r\n" +
+			"Options: " + options + "\r\n"
 
 		if(dll)
 			$stderr.puts(note)
@@ -142,6 +141,8 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|)/)
 			exit(0)
 		end
 
+		$stderr.puts "Failed to build dll"
+		exit(-1)
 	end
 
 	if(cmd =~ /^w/)
