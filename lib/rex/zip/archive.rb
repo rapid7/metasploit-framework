@@ -9,6 +9,7 @@ module Zip
 # This represents an entire archive.
 #
 class Archive
+	attr_reader :entries
 
 	def initialize(compmeth=CM_DEFLATE)
 		@compmeth = compmeth
@@ -83,6 +84,26 @@ class Archive
 		ret << CentralDirEnd.new(@entries.length, cur_offset, cfd_offset, @comment).pack
 
 		ret
+	end
+
+end
+
+class Jar < Archive
+	attr_accessor :manifest
+
+	def build_manifest(opts={})
+		main_class = opts[:main_class] || nil
+		skip = opts[:skip] || /^$/
+
+		@manifest = ''
+
+		@manifest = "Main-Class: #{main_class}\n\n" if main_class
+		@entries.each { |e|
+			next if e.name =~ skip
+			@manifest << "Name: #{e.name}\n\n"
+		}
+		add_file("META-INF/", '')
+		add_file("META-INF/MANIFEST.MF", @manifest)
 	end
 
 end
