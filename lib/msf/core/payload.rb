@@ -160,7 +160,12 @@ class Payload < Msf::Module
 	# first stage is returned.
 	#
 	def size
-		return (generate() || '').length
+		pl = ''
+		begin
+			pl = generate()
+		rescue NoCompatiblePayloadError
+		end
+		pl.length
 	end
 
 	#
