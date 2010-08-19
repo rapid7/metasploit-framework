@@ -89,6 +89,10 @@ class Entry
 		ret
 	end
 
+	def inspect
+		"#<#{self.class} name:#{name}, data:#{@data.length} bytes>"
+	end
+
 end
 
 end
