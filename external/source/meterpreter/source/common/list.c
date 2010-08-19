@@ -2,9 +2,9 @@
 
 /*
  * An implementation of a simple thread safe double linked list structure. Can be used as either
- * a stack (via pop/push) or an array (via get/add/insert/remove). If performing a group of
- * actions on a list based on results from list actions, acquire the list lock before the group
- * of actions and release lock when done.
+ * a stack (via pop/push), a queue (via push/shift) or an array (via get/add/insert/remove). If
+ * performing a group of actions on a list based on results from list actions, acquire the list 
+ * lock before the group of actions and release lock when done.
  */
 
 /*
@@ -304,6 +304,30 @@ LPVOID list_pop( LIST * list )
 		data = list->end->data;
 
 		list_remove_node( list, list->end );
+	}
+
+	lock_release( list->lock );
+
+	return data;
+}
+
+/*
+ * Pop a data value off the start of the list.
+ */
+LPVOID list_shift( LIST * list )
+{
+	LPVOID data = NULL;
+
+	if( list == NULL )
+		return NULL;
+
+	lock_acquire( list->lock );
+
+	if( list->start != NULL )
+	{
+		data = list->start->data;
+
+		list_remove_node( list, list->start );
 	}
 
 	lock_release( list->lock );

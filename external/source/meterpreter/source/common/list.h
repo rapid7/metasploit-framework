@@ -38,6 +38,8 @@ BOOL list_push( LIST * list, LPVOID data );
 
 LPVOID list_pop( LIST * list );
 
+LPVOID list_shift( LIST * list );
+
 /*****************************************************************************************/
 
 #endif
