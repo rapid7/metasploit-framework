@@ -25,7 +25,7 @@ module Msf::Payload::Java
 		paths.each do |path|
 			1.upto(path.length - 1) do |idx|
 				full = path[0,idx].join("/") + "/"
-				if !(jar.entries.map(&:name).include?(full))
+				if !(jar.entries.map{|e|e.name}.include?(full))
 					jar.add_file(full, '')
 				end
 			end
