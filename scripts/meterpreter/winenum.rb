@@ -599,7 +599,7 @@ elsif trgtos =~ /(Windows 2008)/
 	else
 		gethash()
 	end
-elsif trgtos =~ /(Windows Vista|7)/
+elsif trgtos =~ /Windows (Vista|7)/
 	list_exec(commands + vstwlancmd)
 	wmicexec(wmic)
 	findprogs()
