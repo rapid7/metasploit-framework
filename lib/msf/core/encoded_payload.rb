@@ -302,6 +302,17 @@ class EncodedPayload
 		return self.nop_sled
 	end
 
+
+	def encoded_exe(opts={})
+		# do something with Util::EXE
+	end
+
+	def encoded_jar
+		return pinst.generate_jar if pinst.respond_to? :generate_jar
+		# do something with Util::EXE
+	end
+
+
 	#
 	# The raw version of the payload
 	#

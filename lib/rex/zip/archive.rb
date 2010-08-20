@@ -106,6 +106,13 @@ class Jar < Archive
 		add_file("META-INF/MANIFEST.MF", @manifest)
 	end
 
+	def to_s
+		pack
+	end
+
+	def length
+		pack.length
+	end
 end
 
 end
