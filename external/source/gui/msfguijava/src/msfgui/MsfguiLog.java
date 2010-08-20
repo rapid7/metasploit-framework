@@ -57,7 +57,7 @@ public class MsfguiLog {
 		sessions.put(session.get("id"), session);
 		activityLog.add(now() + "  Session "+session.get("id")+" to "+session.get("tunnel_peer")+" opened.");
 	}
-	/** See if any sessions have been closed. */
+	/** See if any non-console sessions have been closed. */
 	public void checkSessions(Map sessionsActive){
 		for(Object o : sessions.keySet()){
 			Map session = (Map)sessions.get(o);
@@ -69,28 +69,50 @@ public class MsfguiLog {
 		}
 	}
 	/** Logs module runs and console commands */
-	public void logMethodCall(String methodName, Object[] params){
-		if(methodName.startsWith("session.")){
-			try{
-				if (methodName.endsWith("_write"))
+	public void logMethodCall(String methodName, Object[] params) {
+		try {
+			if (methodName.startsWith("session.")) {
+				if (methodName.endsWith("_write")) 
 					logConsole(params[0].toString(), new String(Base64.decode(params[1].toString())), true);
 				else if (methodName.endsWith("_script"))
-					logConsole(params[0].toString(), "run "+params[1].toString(), true);
-			}catch (MsfException mex){
+					logConsole(params[0].toString(), "run " + params[1].toString(), true);
+			} else if (methodName.equals("module.execute")) {
+				activityLog.add(now() + "  " + params[0] + " " + params[1] + " executed with options " + params[2]);
+			} else if (methodName.equals("console.write")) {
+				logConsole("Console " + params[0].toString(), new String(Base64.decode(params[1].toString())), true);
+			} else if (methodName.equals("console.destroy")) {
+				activityLog.add(now() + " Console " + params[0] + " destroyed.");
 			}
-		}else if (methodName.equals("module.execute")){
-			activityLog.add(now() + "  "+params[0]+" "+params[1]+" executed with options "+params[2]);
+		} catch (MsfException mex) {
 		}
 	}
-	/** Logs received console data */
-	public void logMethodReturn(String methodName, Object[] params, Object result){
-		if(!methodName.startsWith("session.") || !methodName.endsWith("_read"))
-			return;
-		try{
-			String resString =  new String(Base64.decode(((Map)result).get("data").toString()));
-			logConsole(params[0].toString(), resString, false);
-			logHashes(resString);
-		}catch (MsfException mex){
+
+	/** Logs received data */
+	public void logMethodReturn(String methodName, Object[] params, Object result) {
+		try {
+			//new consoles are added to the active session list
+			if (methodName.equals("console.create")) {
+				activityLog.add(now() + " Console " + ((Map) result).get("id") + " created.");
+				sessions.put("Console " + ((Map) result).get("id"), result);
+				((Map)result).put("inactive", "console"); // mark consoles as inactive to avoid session checking
+			} else if (methodName.equals("console.list")) {
+				Object[] consoles = ((Object[])((Map)result).get("consoles"));
+				for (Object console : consoles){
+					activityLog.add(now() + " Console " + ((Map) console).get("id") + " discovered.");
+					sessions.put("Console " + ((Map) console).get("id"), result);
+					((Map)console).put("inactive", "console");
+				}
+			//New data on existing sessions
+			} else if (methodName.equals("console.read")) {
+				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
+				logConsole("Console " + params[0], resString, false);
+				logHashes(resString);
+			} else if (methodName.startsWith("session.") && methodName.endsWith("_read")) {
+				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
+				logConsole(params[0].toString(), resString, false);
+				logHashes(resString);
+			}
+		} catch (MsfException mex) {
 		}
 	}
 	/** Record console communication */
@@ -161,13 +183,15 @@ public class MsfguiLog {
 			//Map hosts to sessions by IP
 			for(Object e : sessionsEntrySet){
 				Map session = (Map)((Entry) e).getValue();
-				String host = session.get("tunnel_peer").toString().split(":")[0];
-				Set hostSet = (Set)hosts.get(host);
-				if(hostSet == null){
-					hostSet = new HashSet();
-					hosts.put(host, hostSet);
+				if(session.containsKey("tunnel_peer")){ //actual session; not console
+					String host = session.get("tunnel_peer").toString().split(":")[0];
+					Set hostSet = (Set)hosts.get(host);
+					if(hostSet == null){
+						hostSet = new HashSet();
+						hosts.put(host, hostSet);
+					}
+					hostSet.add(session);
 				}
-				hostSet.add(session);
 			}
 			fout.write("</tr></thead><tbody>\n");
 		
@@ -200,8 +224,10 @@ public class MsfguiLog {
 			if(log == null)
 				continue;
 			Map session = (Map)ent.getValue();
-			fout.write("<div class=\"session\"><h2>Session "+ent.getKey()+"</h2>To " +
-					session.get("tunnel_peer")+"<table><tbody>\n");
+			fout.write("<div class=\"session\"><h2>Session "+ent.getKey()+"</h2>");
+			if(session.containsKey("tunnel_peer"))
+				fout.write("To " +	session.get("tunnel_peer"));
+			fout.write("<table><tbody>\n");
 			for(Object logEntry : (ArrayList)log){
 				String entryString = logEntry.toString();
 
