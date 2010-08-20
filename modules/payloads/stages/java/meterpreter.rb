@@ -19,7 +19,8 @@ require 'msf/base/sessions/meterpreter_options'
 module Metasploit3
 	include Msf::Sessions::MeterpreterOptions
 
-	include Msf::Payload::JavaStage
+	# The stager should have already included this
+	#include Msf::Payload::Java
 
 	def initialize(info = {})
 		super(update_info(info,
