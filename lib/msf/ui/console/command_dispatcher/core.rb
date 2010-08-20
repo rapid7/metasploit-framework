@@ -1494,6 +1494,22 @@ class Core
 
 		args.each { |type|
 			case type
+				when '-h'
+					global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+					opts = ''
+					global_opts.each { |el|
+						opts << ', ' if opts.length > 0
+						opts << el
+					}
+					print_status("Valid parameters for the \"show\" command are: #{opts}")
+					module_opts = %w{ advanced evasion targets actions }
+					opts = ''
+					module_opts.each { |el|
+						opts << ', ' if opts.length > 0
+						opts << el
+					}
+					print_status("Additional module-specific parameters are: #{opts}")
+					
 				when 'all'
 					show_encoders
 					show_nops
@@ -1543,6 +1559,9 @@ class Core
 					else
 						print_error("No auxiliary module selected.")
 					end
+					
+				else
+					print_error("Invalid parameter \"#{type}\", use \"show -h\" for more information")
 			end
 		}
 	end
