@@ -43,7 +43,7 @@ module Metasploit3
 
 	def generate_jar
 		config =  ""
-		#config << "Spawn=2\n"
+		config << "Spawn=2\n"
 		config << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
 		config << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
 
