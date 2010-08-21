@@ -932,12 +932,12 @@ require 'metasm'
 	end
 
 
-	def self.encode_stub(framework, arch, code, platform = nil)
+	def self.encode_stub(framework, arch, code, platform = nil, badchars='')
 		return code if not framework.encoders
 		framework.encoders.each_module_ranked('Arch' => arch) do |name, mod|
 			begin
 				enc = framework.encoders.create(name)
-				raw = enc.encode(code, '', nil, platform)
+				raw = enc.encode(code, badchars, nil, platform)
 				return raw if raw
 			rescue
 			end
