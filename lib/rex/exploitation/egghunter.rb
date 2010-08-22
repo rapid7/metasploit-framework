@@ -115,13 +115,17 @@ class Egghunter
 	#
 	# This method generates an egghunter using the derived hunter stub.
 	#
-	def generate(badchars = '')
+	def generate(badchars = '', marker = nil)
 		return nil if ((opts = hunter_stub) == nil)
 
 		stub  = opts['Stub'].dup
 		esize = opts['EggSize']
 		eoff  = opts['EggOffset']
-		egg   = Rex::Text.rand_text(esize, badchars)
+
+		egg   = marker
+		# NOTE: there is no guarentee this wont exist in memory, even when doubled
+		egg ||= Rex::Text.rand_text(esize, badchars)
+		raise RuntimeError, "Invalid egg string! Need #{esize~p} bytes." if egg.length != esize
 
 		stub[eoff, esize] = egg
 
