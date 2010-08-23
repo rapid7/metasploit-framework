@@ -1,5 +1,5 @@
 ##
-# $Id: reverse_tcp.rb 9927 2010-07-25 19:14:00Z jduck $
+# $Id$
 ##
 
 ##
@@ -22,7 +22,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Java Bind TCP stager',
-			'Version'       => '$Revision: 9927 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Listen for a connection',
 			'Author'        => [
 					'mihi',  # all the hard work
