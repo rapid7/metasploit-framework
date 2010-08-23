@@ -1793,6 +1793,28 @@ class DBManager
 				}
 				report_vuln(vuln_data)
 			end
+			host.elements.each('creds/cred') do |cred|
+				cred_data = {}
+				cred_data[:workspace] = wspace
+				cred_data[:host] = host_address
+				%w{port ptype sname proto proof active user pass}.each {|datum|
+					if cred.elements[datum].respond_to? :text
+						cred_data[datum.intern] = cred.elements[datum].text.to_s.strip
+					end
+				}
+				%w{created-at updated-at}.each { |datum|
+					if cred.elements[datum].respond_to? :text
+						cred_data[datum.gsub("-","_")] = cred.elements[datum].text.to_s.strip
+					end
+				}
+				if cred_data[:pass] == "<masked>"
+					cred_data[:pass] = ""
+					cred_data[:active] = false
+				elsif cred_data[:pass] == "*BLANK PASSWORD*"
+					cred_data[:pass] = ""
+				end
+				report_cred(cred_data.merge(:wait => true))
+			end
 		end
 	end
 
