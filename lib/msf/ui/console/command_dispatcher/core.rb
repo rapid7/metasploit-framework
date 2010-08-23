@@ -91,6 +91,7 @@ class Core
 			"loadpath" => "Searches for and loads modules from a path",
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
+			"makerc"   => "Save commands entered since start to a file",
 			"route"    => "Route traffic through a session",
 			"save"     => "Saves the active datastores",
 			"search"   => "Searches module names and descriptions",
@@ -160,6 +161,18 @@ class Core
 		end
 	end
 
+	#
+	# Saves commands executed since the ui started to the specified msfrc file
+	#
+	def cmd_makerc(*args)
+		if args.empty?
+			print(
+				"Usage: makerc <output rc file>\n\n" +
+				"Save the commands executed since startup to the specified file.\n")
+			return false
+		end
+		driver.save_recent_history(args[0])
+	end
 
 	#
 	# Pop the current dispatcher stack context, assuming it isn't pointed at
@@ -1509,7 +1522,7 @@ class Core
 						opts << el
 					}
 					print_status("Additional module-specific parameters are: #{opts}")
-					
+
 				when 'all'
 					show_encoders
 					show_nops
@@ -1559,7 +1572,7 @@ class Core
 					else
 						print_error("No auxiliary module selected.")
 					end
-					
+
 				else
 					print_error("Invalid parameter \"#{type}\", use \"show -h\" for more information")
 			end

@@ -47,15 +47,17 @@ module Shell
 		self.prompt_char = prompt_char
 
 		self.histfile = histfile
+		self.hist_last_saved = 0
 	end
 
 	def init_tab_complete
 		if (self.input and self.input.supports_readline)
 			self.input = Input::Readline.new(lambda { |str| tab_complete(str) })
 			if Readline::HISTORY.length == 0 and histfile and File.exists?(histfile)
-				File.readlines(histfile).each { |e| 
-					Readline::HISTORY << e.chomp 
-				} 
+				File.readlines(histfile).each { |e|
+					Readline::HISTORY << e.chomp
+				}
+				self.hist_last_saved = Readline::HISTORY.length
 			end
 			self.input.output = self.output
 			update_prompt(input.prompt)
@@ -142,9 +144,9 @@ module Shell
 					# don't bother saving lines that couldn't be found as a
 					# command, create the file if it doesn't exist
 					if ret and self.histfile
-						File.open(self.histfile, "a+") { |f| 
+						File.open(self.histfile, "a+") { |f|
 							f.puts(line)
-						} 
+						}
 					end
 					self.stop_count = 0
 				end
@@ -299,6 +301,7 @@ protected
 	attr_accessor :prompt # :nodoc:
 	attr_accessor :prompt_char, :tab_complete_proc # :nodoc:
 	attr_accessor :histfile # :nodoc:
+	attr_accessor :hist_last_saved # the number of history lines when last saved/loaded
 	attr_accessor :log_source, :stop_count # :nodoc:
 
 end
