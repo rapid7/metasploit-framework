@@ -125,7 +125,7 @@ class Egghunter
 		egg   = marker
 		# NOTE: there is no guarentee this wont exist in memory, even when doubled
 		egg ||= Rex::Text.rand_text(esize, badchars)
-		raise RuntimeError, "Invalid egg string! Need #{esize~p} bytes." if egg.length != esize
+		raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if egg.length != esize
 
 		stub[eoff, esize] = egg
 
