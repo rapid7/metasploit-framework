@@ -77,8 +77,7 @@ class Server
 		self.sock = Rex::Socket::Udp.create(
 			'LocalHost' => listen_host,
 			'LocalPort' => listen_port,
-			'Context'   => context,
-			'IPv6' => false
+			'Context'   => context
 		)
 
 		self.thread = Thread.new {
@@ -160,16 +159,16 @@ protected
 
 	# Dispatch a packet that we received
 	def dispatch_request(from, buf)
-		type = buf[0].unpack('C').first
+		type = buf.unpack('C').first
 		if (type != Request)
 			#dlog("Unknown DHCP request type: #{type}")
 			return
 		end
 
 		# parse out the members
-		hwtype = buf[1]
-		hwlen = buf[2].unpack("C").first
-		hops = buf[3]
+		hwtype = buf[1,1]
+		hwlen = buf[2,1].unpack("C").first
+		hops = buf[3,1]
 		txid = buf[4..7]
 		elapsed = buf[8..9]
 		flags = buf[10..11]
@@ -193,8 +192,8 @@ protected
 		# options parsing loop
 		spot = 240
 		while (spot < buf.length - 3 && buf[spot] != 0xff)
-			optionType = buf[spot].unpack("C").first
-			optionLen = buf[spot + 1].unpack("C").first
+			optionType = buf[spot,1].unpack("C").first
+			optionLen = buf[spot + 1,1].unpack("C").first
 			optionValue = buf[(spot + 2)..(spot + optionLen + 1)]
 			spot = spot + optionLen + 2
 			if optionType == 53
