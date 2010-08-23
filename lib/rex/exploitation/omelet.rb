@@ -48,7 +48,7 @@ class Omelet
 	# architecture.
 	#
 	def initialize(platform, arch = nil)
-		Egghunter.constants.each { |c|
+		Omelet.constants.each { |c|
 			mod = self.class.const_get(c)
 
 			next if ((!mod.kind_of?(::Module)) or (!mod.const_defined?('Alias')))
@@ -166,7 +166,7 @@ protected
 
 	#
 	# Stub method that is meant to be overridden.  It returns the raw stub that
-	# should be used as the egghunter.
+	# should be used as the omelet maker (combine the eggs).
 	#
 	def hunter_stub
 	end
