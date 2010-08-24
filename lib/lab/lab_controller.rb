@@ -2,10 +2,14 @@
 # $Id$
 # $Revision$
 #
+
+#$:.unshift(File.dirname(__FILE__))
+
 require 'find'
-require 'yaml'
 require 'vmware_controller'
+
 ## Not implemented yet!
+#require 'vbox_controller'
 #require 'qemu_controller'
 #require 'ec2_controller'
 
@@ -19,8 +23,7 @@ class LabController
 	attr_accessor :controller
 
 	def initialize (labdef = nil, labtype="vmware")
-
-				
+		
 		if !labdef 
 			## Just use a blank lab to start
 			@labdef = {}
@@ -155,7 +158,7 @@ class LabController
 		end
 	end
 
-	def revert_lab_vm(vmid, snapshot, run)
+	def revert_lab_vm(vmid, snapshot, run=true)
 		if !running?(vmid)
 			self.list_lab_running
 		else
@@ -163,6 +166,7 @@ class LabController
 
 			## If you revert w/ vmrun, you need to restart
 			if run 
+				sleep 5
 				@controller.start_lab_vm(get_full_path(vmid))
 			end
 		end
