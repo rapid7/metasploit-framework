@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		traversal = '/%c0%ae%c0%ae'			
+		traversal = '/%c0%ae%c0%ae'
 
 		begin
 			print_status("Attempting to connect to #{rhost}:#{rport}")
@@ -80,12 +80,12 @@ class Metasploit3 < Msf::Auxiliary
 					print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}")
 				end
 			end
-		
-		
+
+
 		end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
-			
+
 		end
 	end
 end
