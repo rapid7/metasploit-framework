@@ -318,14 +318,32 @@ class FrameworkEventSubscriber
 			# If the exploit used was multi/handler, though, we don't know what
 			# it's vulnerable to, so it isn't really useful to save it.
 			if session.via_exploit and session.via_exploit != "exploit/multi/handler"
+				wspace = framework.db.find_workspace(session.workspace)
+				host = wspace.hosts.find_by_address(address)
+				port = session.exploit_datastore["RPORT"]
+				service = (port ? host.services.find_by_port(port) : nil)
 				mod = framework.modules.create(session.via_exploit)
-				info = {
-					:host => address,
+				vuln_info = {
+					:host => host.address,
 					:name => session.via_exploit,
 					:refs => mod.references,
-					:workspace => framework.db.find_workspace(session.workspace)
+					:workspace => wspace
 				}
-				framework.db.report_vuln(info)
+				framework.db.report_vuln(vuln_info)
+				# Exploit info is like vuln info, except it's /just/ for storing
+				# successful exploits in an unserialized way. Yes, there is
+				# duplication, but it makes exporting a score card about a
+				# million times easier. TODO: See if vuln/exploit can get fixed up
+				# to one useful table.
+				exploit_info = {
+					:name => session.via_exploit,
+					:payload => session.via_payload,
+					:workspace => wspace,
+					:host => host,
+					:service => service,
+					:session_uuid => session.uuid
+				}
+				ret = framework.db.report_exploit(exploit_info)
 			end
 		end
 	end

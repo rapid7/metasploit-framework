@@ -454,6 +454,13 @@ class DBManager
 	end
 
 	#
+	# This method returns a list of all exploited hosts in the database.
+	#
+	def exploited_hosts(wspace=workspace)
+		wspace.exploited_hosts
+	end
+
+	#
 	# This method iterates the notes table calling the supplied block with the
 	# note instance of each entry.
 	#
@@ -685,6 +692,12 @@ class DBManager
 		end
 	end
 
+	def each_exploited_host(wspace=workspace,&block)
+		wspace.exploited_hosts.each do |eh|
+			block.call(eh)
+		end
+	end
+
 	#
 	# Find or create a vuln matching this service/name
 	#
@@ -800,6 +813,70 @@ class DBManager
 	end
 	def get_ref(name)
 		Ref.find_by_name(name)
+	end
+
+	def report_exploit(opts={})
+		return if not active
+		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
+		wait   = opts[:wait]
+		wspace = opts.delete(:workspace) || workspace
+		host = nil
+		addr = nil
+		sname = opts.delete(:sname)
+		port = opts.delete(:port)
+		proto = opts.delete(:proto) || "tcp"
+		name = opts.delete(:name)
+		payload = opts.delete(:payload)
+		session_uuid = opts.delete(:session_uuid) 
+
+		if opts[:host].kind_of? Host
+			host = opts[:host]
+		else
+			report_host({:workspace => wspace, :host => opts[:host]})
+			addr = opts[:host]
+		end
+
+		if opts[:service].kind_of? Service
+			service = opts[:service]
+		elsif port
+			report_service(:host => host, :port => port, :proto => proto, :name => sname)
+			service = get_service(wspace, host, proto, port)
+		else
+			service = nil
+		end
+
+		ret = {}
+
+		task = queue(
+			Proc.new {
+				if host
+					host.updated_at = host.created_at
+					host.state      = HostState::Alive
+					host.save!
+				else
+					host = get_host(:workspace => wspace, :address => addr)
+				end
+				exploit_info = {
+					:workspace => wspace,
+					:host_id => host.id,
+					:name => name,
+					:payload => payload,
+				}
+				exploit_info[:service_id] = service.id if service
+				exploit_info[:session_uuid] = session_uuid if session_uuid 
+				exploit_record = ExploitedHost.create(exploit_info)
+				exploit_record.save!
+
+				ret[:exploit] = exploit_record
+			}
+		)
+
+		if wait
+			return nil if task.wait() != :done
+			return ret[:exploit]
+		end
+		return task
+		
 	end
 
 

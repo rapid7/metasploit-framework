@@ -13,6 +13,7 @@ class Host < ActiveRecord::Base
 
 	has_many :service_notes, :through => :services
 	has_many :creds,    :through   => :services
+	has_many :exploited_hosts, :dependent => :destroy
 
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id

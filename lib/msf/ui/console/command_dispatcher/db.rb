@@ -53,6 +53,7 @@ class Db
 				"db_vulns"      => "List all vulnerabilities in the database",
 				"db_notes"      => "List all notes in the database",
 				"db_creds"      => "List all credentials in the database",
+				"db_exploited"  => "List all exploited hosts in the database",
 				"db_add_host"   => "Add one or more hosts to the database",
 				"db_add_port"   => "Add a port to a host",
 				"db_add_note"   => "Add a note to a host",
@@ -423,6 +424,52 @@ class Db
 				end
 			end
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
+		end
+
+		# Returns exploited hosts. Takes a similiar set of options as db_creds
+		def cmd_db_exploited(*args)
+			return unless active?
+			if args.size > 1
+				print_status "Usage: db_exploited [host=1.2.3.4/24|port=1-1024|service=ssh,smb,etc]"
+				print_status "       Note, only one of host, port, or service can be used at a time."
+				return
+			end
+			search_term = nil
+			search_param = nil
+			exploited_returned = 0
+			if args[0] =~ /^[\s]*(host|port|service)=(.*)/i
+				search_term = $1.downcase
+				search_param = $2.downcase
+			end
+			framework.db.each_exploited_host(framework.db.workspace) do |eh|
+				case search_term
+				when "host"
+					begin
+						rw = Rex::Socket::RangeWalker.new(search_param)
+						next unless rw.include? eh.host.address
+					rescue
+						print_error "Invalid host parameter."
+						break
+					end
+				when "port"
+					if search_param =~ /([0-9]+)-([0-9]+)/
+						ports = Range.new($1,$2)
+					else
+						ports = Range.new(search_param,search_param)
+					end
+					next unless ports.include? eh.service.port.to_s
+				when "service"
+					svcs = search_param.split(/[\s]*,[\s]*/)
+					next unless svcs.include? eh.service.name
+				end
+				if eh.service
+					print_status("Time: #{eh.updated_at} Host Info: host=#{eh.host.address} port=#{eh.service.port} proto=#{eh.service.proto} sname=#{eh.service.name} exploit=#{eh.name}")
+				else
+					print_status("Time: #{eh.updated_at} Host Info: host=#{eh.host.address} exploit=#{eh.name}")
+				end
+				exploited_returned += 1
+			end
+			print_status "Found #{exploited_returned} exploited host#{exploited_returned == 1 ? "" : "s"}."
 		end
 
 		def cmd_db_notes(*args)
