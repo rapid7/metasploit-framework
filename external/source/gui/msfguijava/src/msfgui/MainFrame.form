@@ -10,187 +10,232 @@
       <Layout>
         <DimensionLayout dim="0">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="0" attributes="0">
-                  <EmptySpace max="-2" attributes="0"/>
-                  <Component id="splitPane" pref="887" max="32767" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
+              <Component id="jTabbedPane1" alignment="0" pref="882" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Group type="102" alignment="1" attributes="0">
-                  <Component id="splitPane" pref="462" max="32767" attributes="0"/>
-                  <EmptySpace max="-2" attributes="0"/>
-              </Group>
+              <Component id="jTabbedPane1" alignment="1" pref="532" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
       <SubComponents>
-        <Container class="javax.swing.JSplitPane" name="splitPane">
+        <Container class="javax.swing.JTabbedPane" name="jTabbedPane1">
           <Properties>
-            <Property name="border" type="javax.swing.border.Border" editor="org.netbeans.modules.form.editors2.BorderEditor">
-              <Border info="null"/>
-            </Property>
-            <Property name="lastDividerLocation" type="int" value="250"/>
-            <Property name="name" type="java.lang.String" value="splitPane" noResource="true"/>
-            <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-              <Dimension value="[30, 20]"/>
-            </Property>
+            <Property name="name" type="java.lang.String" value="jTabbedPane1" noResource="true"/>
           </Properties>
 
-          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout"/>
+          <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JPanel" name="jobsPanel">
+            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jobsPanel" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                  <Dimension value="[10, 19]"/>
+                  <Dimension value="[10, 10]"/>
                 </Property>
               </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
               <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
-                  <JSplitPaneConstraints position="left"/>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Jobs">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane1.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
 
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Component id="jScrollPane1" alignment="0" pref="38" max="32767" attributes="0"/>
-                      <Group type="102" alignment="0" attributes="0">
-                          <Component id="jobsLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jobsLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" pref="417" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="jobsLabel">
+                <Component class="javax.swing.JList" name="jobsList">
                   <Properties>
-                    <Property name="text" type="java.lang.String" resourceKey="jobsLabel.text"/>
-                    <Property name="name" type="java.lang.String" value="jobsLabel" noResource="true"/>
+                    <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+                      <StringArray count="0"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="jobsList" noResource="true"/>
                   </Properties>
                 </Component>
-                <Container class="javax.swing.JScrollPane" name="jScrollPane1">
-                  <Properties>
-                    <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
-                    <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
-                      <Dimension value="[10, 10]"/>
-                    </Property>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                  </AuxValues>
-
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                  <SubComponents>
-                    <Component class="javax.swing.JList" name="jobsList">
-                      <Properties>
-                        <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
-                          <StringArray count="0"/>
-                        </Property>
-                        <Property name="name" type="java.lang.String" value="jobsList" noResource="true"/>
-                      </Properties>
-                    </Component>
-                  </SubComponents>
-                </Container>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JPanel" name="sessionsPanel">
+            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
               <Properties>
-                <Property name="name" type="java.lang.String" value="sessionsPanel" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
               </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
               <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JSplitPaneSupportLayout$JSplitPaneConstraintsDescription">
-                  <JSplitPaneConstraints position="right"/>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Sessions">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane2.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
 
-              <Layout>
-                <DimensionLayout dim="0">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="sessionsLabel" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="717" max="32767" attributes="0"/>
-                          <Component id="searchButton" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <Component id="jScrollPane2" alignment="1" pref="843" max="32767" attributes="0"/>
-                  </Group>
-                </DimensionLayout>
-                <DimensionLayout dim="1">
-                  <Group type="103" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <Group type="103" groupAlignment="0" attributes="0">
-                              <Group type="102" attributes="0">
-                                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
-                                  <Component id="sessionsLabel" min="-2" max="-2" attributes="0"/>
-                              </Group>
-                              <Component id="searchButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane2" pref="417" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                </DimensionLayout>
-              </Layout>
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
               <SubComponents>
-                <Component class="javax.swing.JLabel" name="sessionsLabel">
+                <Component class="javax.swing.JTable" name="sessionsTable">
                   <Properties>
-                    <Property name="text" type="java.lang.String" resourceKey="sessionsLabel.text"/>
-                    <Property name="name" type="java.lang.String" value="sessionsLabel" noResource="true"/>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="0" rowCount="0"/>
+                    </Property>
+                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
+                      <TableColumnModel selectionModel="0"/>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="sessionsTable" noResource="true"/>
+                    <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
+                      <JTableSelectionModel selectionMode="2"/>
+                    </Property>
+                    <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
+                      <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
+                    </Property>
                   </Properties>
                 </Component>
-                <Container class="javax.swing.JScrollPane" name="jScrollPane2">
-                  <Properties>
-                    <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-                  </AuxValues>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane3" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Hosts">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane3.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
 
-                  <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-                  <SubComponents>
-                    <Component class="javax.swing.JTable" name="sessionsTable">
-                      <Properties>
-                        <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="0" rowCount="0"/>
-                        </Property>
-                        <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
-                          <TableColumnModel selectionModel="0"/>
-                        </Property>
-                        <Property name="name" type="java.lang.String" value="sessionsTable" noResource="true"/>
-                        <Property name="selectionModel" type="javax.swing.ListSelectionModel" editor="org.netbeans.modules.form.editors2.JTableSelectionModelEditor">
-                          <JTableSelectionModel selectionMode="2"/>
-                        </Property>
-                        <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
-                          <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
-                        </Property>
-                      </Properties>
-                    </Component>
-                  </SubComponents>
-                </Container>
-                <Component class="javax.swing.JButton" name="searchButton">
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="hostsTable">
                   <Properties>
-                    <Property name="text" type="java.lang.String" resourceKey="searchButton.text"/>
-                    <Property name="name" type="java.lang.String" value="searchButton" noResource="true"/>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="13" rowCount="0">
+                        <Column editable="true" title="Created" type="java.lang.Object"/>
+                        <Column editable="true" title="Address" type="java.lang.Object"/>
+                        <Column editable="true" title="Address6" type="java.lang.String"/>
+                        <Column editable="true" title="MAC" type="java.lang.Object"/>
+                        <Column editable="true" title="Name" type="java.lang.Object"/>
+                        <Column editable="true" title="State" type="java.lang.Object"/>
+                        <Column editable="true" title="OS name" type="java.lang.Object"/>
+                        <Column editable="true" title="OS flavor" type="java.lang.Object"/>
+                        <Column editable="true" title="OS SP" type="java.lang.Object"/>
+                        <Column editable="true" title="OS lang" type="java.lang.Object"/>
+                        <Column editable="true" title="Updated" type="java.lang.Object"/>
+                        <Column editable="true" title="Purpose" type="java.lang.Object"/>
+                        <Column editable="true" title="Info" type="java.lang.Object"/>
+                      </Table>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="hostsTable" noResource="true"/>
                   </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchButtonActionPerformed"/>
-                  </Events>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane4" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Services">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane4.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="servicesTable">
+                  <Properties>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="8" rowCount="0">
+                        <Column editable="true" title="Host" type="java.lang.String"/>
+                        <Column editable="true" title="Created" type="java.lang.String"/>
+                        <Column editable="true" title="Updated" type="java.lang.String"/>
+                        <Column editable="true" title="Port" type="java.lang.Integer"/>
+                        <Column editable="true" title="Proto" type="java.lang.String"/>
+                        <Column editable="true" title="State" type="java.lang.String"/>
+                        <Column editable="true" title="Name" type="java.lang.String"/>
+                        <Column editable="true" title="Info" type="java.lang.String"/>
+                      </Table>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="servicesTable" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane5">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane5" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Vulns">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane5.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="vulnsTable">
+                  <Properties>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="6" rowCount="0">
+                        <Column editable="true" title="Port" type="java.lang.String"/>
+                        <Column editable="true" title="Proto" type="java.lang.String"/>
+                        <Column editable="true" title="Time" type="java.lang.String"/>
+                        <Column editable="true" title="Host" type="java.lang.String"/>
+                        <Column editable="true" title="Name" type="java.lang.String"/>
+                        <Column editable="true" title="Refs" type="java.lang.String"/>
+                      </Table>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="vulnsTable" noResource="true"/>
+                  </Properties>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="jScrollPane6">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="jScrollPane6" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Events">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane6.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="eventsTable">
+                  <Properties>
+                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
+                      <Table columnCount="7" rowCount="0">
+                        <Column editable="true" title="Host" type="java.lang.String"/>
+                        <Column editable="true" title="Created" type="java.lang.String"/>
+                        <Column editable="true" title="Updated" type="java.lang.String"/>
+                        <Column editable="true" title="Name" type="java.lang.String"/>
+                        <Column editable="true" title="Critical" type="java.lang.String"/>
+                        <Column editable="true" title="Username" type="java.lang.String"/>
+                        <Column editable="true" title="Info" type="java.lang.String"/>
+                      </Table>
+                    </Property>
+                    <Property name="name" type="java.lang.String" value="eventsTable" noResource="true"/>
+                  </Properties>
                 </Component>
               </SubComponents>
             </Container>
@@ -239,6 +284,15 @@
               <Properties>
                 <Property name="name" type="java.lang.String" value="jSeparator1" noResource="true"/>
               </Properties>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="searchItem">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="searchItem.text"/>
+                <Property name="name" type="java.lang.String" value="searchItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="searchItemActionPerformed"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="changeLFMenuItem">
               <Properties>
@@ -406,6 +460,35 @@
             </Menu>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="databaseMenu">
+          <Properties>
+            <Property name="mnemonic" type="int" value="68"/>
+            <Property name="text" type="java.lang.String" resourceKey="databaseMenu.text"/>
+            <Property name="name" type="java.lang.String" value="databaseMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="connectItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="67"/>
+                <Property name="text" type="java.lang.String" resourceKey="connectItem.text"/>
+                <Property name="name" type="java.lang.String" value="connectItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="connectItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="refreshItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="82"/>
+                <Property name="text" type="java.lang.String" resourceKey="refreshItem.text"/>
+                <Property name="name" type="java.lang.String" value="refreshItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="helpMenu">
           <Properties>
             <Property name="mnemonic" type="int" value="72"/>
@@ -450,7 +533,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusMessageLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="725" max="32767" attributes="0"/>
+                  <EmptySpace pref="698" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusAnimationLabel" min="-2" max="-2" attributes="0"/>
@@ -467,7 +550,7 @@
                       <Component id="statusAnimationLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="progressBar" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <EmptySpace min="-2" pref="3" max="-2" attributes="0"/>
+                  <EmptySpace min="-2" pref="12" max="-2" attributes="0"/>
               </Group>
           </Group>
         </DimensionLayout>
@@ -525,6 +608,6 @@
     <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
     <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
     <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
-    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,2,22,0,0,3,-113"/>
+    <AuxValue name="designerSize" type="java.awt.Dimension" value="-84,-19,0,5,115,114,0,18,106,97,118,97,46,97,119,116,46,68,105,109,101,110,115,105,111,110,65,-114,-39,-41,-84,95,68,20,2,0,2,73,0,6,104,101,105,103,104,116,73,0,5,119,105,100,116,104,120,112,0,0,2,89,0,0,3,114"/>
   </AuxValues>
 </Form>

@@ -4,6 +4,7 @@
 package msfgui;
 
 import java.awt.Component;
+import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import org.jdesktop.application.Action;
@@ -24,6 +25,7 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Vector;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -36,6 +38,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Task;
 import org.jdesktop.swingworker.SwingWorker;
 import org.w3c.dom.Element;
@@ -56,7 +59,6 @@ public class MainFrame extends FrameView {
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
 		initComponents();
-		splitPane.setDividerLocation(200);
 		sessionsTableModel = null;
 		sessionPopupMap = new HashMap();
 
@@ -144,8 +146,8 @@ public class MainFrame extends FrameView {
 	}
 
 	/** Adds menu items for reopening and closing the console */
-	private void registerConsole(Map res, boolean show) {
-		final InteractWindow iw = new InteractWindow(rpcConn, res, "console");
+	private void registerConsole(Map res, boolean show, String initVal) {
+		final InteractWindow iw = new InteractWindow(rpcConn, res, "console", initVal);
 		iw.setVisible(show);
 		final String id = res.get("id").toString();
 		final JMenuItem openItem = new JMenuItem(id);
@@ -317,7 +319,7 @@ public class MainFrame extends FrameView {
 		try{
 			Object[] consoles = (Object[]) ((Map)rpcConn.execute("console.list")).get("consoles");
 			for (Object console : consoles)
-				registerConsole((Map)console,false);
+				registerConsole((Map)console,false, "");
 		}catch (MsfException mex){
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
@@ -389,21 +391,25 @@ public class MainFrame extends FrameView {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        splitPane = new javax.swing.JSplitPane();
-        jobsPanel = new javax.swing.JPanel();
-        jobsLabel = new javax.swing.JLabel();
+        jTabbedPane1 = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jobsList = new javax.swing.JList();
-        sessionsPanel = new javax.swing.JPanel();
-        sessionsLabel = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
         sessionsTable = new javax.swing.JTable();
-        searchButton = new javax.swing.JButton();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        hostsTable = new javax.swing.JTable();
+        jScrollPane4 = new javax.swing.JScrollPane();
+        servicesTable = new javax.swing.JTable();
+        jScrollPane5 = new javax.swing.JScrollPane();
+        vulnsTable = new javax.swing.JTable();
+        jScrollPane6 = new javax.swing.JScrollPane();
+        eventsTable = new javax.swing.JTable();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
         startRpcMenuItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
+        searchItem = new javax.swing.JMenuItem();
         changeLFMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         exploitsMenu = new javax.swing.JMenu();
@@ -422,6 +428,9 @@ public class MainFrame extends FrameView {
         newConsoleItem = new javax.swing.JMenuItem();
         existingConsoleMenu = new javax.swing.JMenu();
         closeConsoleMenu = new javax.swing.JMenu();
+        databaseMenu = new javax.swing.JMenu();
+        connectItem = new javax.swing.JMenuItem();
+        refreshItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         onlineHelpMenu = new javax.swing.JMenuItem();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -432,17 +441,7 @@ public class MainFrame extends FrameView {
 
         mainPanel.setName("mainPanel"); // NOI18N
 
-        splitPane.setBorder(null);
-        splitPane.setLastDividerLocation(250);
-        splitPane.setName("splitPane"); // NOI18N
-        splitPane.setPreferredSize(new java.awt.Dimension(30, 20));
-
-        jobsPanel.setName("jobsPanel"); // NOI18N
-        jobsPanel.setPreferredSize(new java.awt.Dimension(10, 19));
-
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(MainFrame.class);
-        jobsLabel.setText(resourceMap.getString("jobsLabel.text")); // NOI18N
-        jobsLabel.setName("jobsLabel"); // NOI18N
+        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
         jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
@@ -450,31 +449,8 @@ public class MainFrame extends FrameView {
         jobsList.setName("jobsList"); // NOI18N
         jScrollPane1.setViewportView(jobsList);
 
-        javax.swing.GroupLayout jobsPanelLayout = new javax.swing.GroupLayout(jobsPanel);
-        jobsPanel.setLayout(jobsPanelLayout);
-        jobsPanelLayout.setHorizontalGroup(
-            jobsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 38, Short.MAX_VALUE)
-            .addGroup(jobsPanelLayout.createSequentialGroup()
-                .addComponent(jobsLabel)
-                .addContainerGap())
-        );
-        jobsPanelLayout.setVerticalGroup(
-            jobsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jobsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jobsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
-                .addContainerGap())
-        );
-
-        splitPane.setLeftComponent(jobsPanel);
-
-        sessionsPanel.setName("sessionsPanel"); // NOI18N
-
-        sessionsLabel.setText(resourceMap.getString("sessionsLabel.text")); // NOI18N
-        sessionsLabel.setName("sessionsLabel"); // NOI18N
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(MainFrame.class);
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane1.TabConstraints.tabTitle"), jScrollPane1); // NOI18N
 
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
@@ -490,54 +466,109 @@ public class MainFrame extends FrameView {
         sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane2.setViewportView(sessionsTable);
 
-        searchButton.setText(resourceMap.getString("searchButton.text")); // NOI18N
-        searchButton.setName("searchButton"); // NOI18N
-        searchButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                searchButtonActionPerformed(evt);
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane2.TabConstraints.tabTitle"), jScrollPane2); // NOI18N
+
+        jScrollPane3.setName("jScrollPane3"); // NOI18N
+
+        hostsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Created", "Address", "Address6", "MAC", "Name", "State", "OS name", "OS flavor", "OS SP", "OS lang", "Updated", "Purpose", "Info"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
             }
         });
+        hostsTable.setName("hostsTable"); // NOI18N
+        jScrollPane3.setViewportView(hostsTable);
 
-        javax.swing.GroupLayout sessionsPanelLayout = new javax.swing.GroupLayout(sessionsPanel);
-        sessionsPanel.setLayout(sessionsPanelLayout);
-        sessionsPanelLayout.setHorizontalGroup(
-            sessionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sessionsPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(sessionsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 717, Short.MAX_VALUE)
-                .addComponent(searchButton))
-            .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 843, Short.MAX_VALUE)
-        );
-        sessionsPanelLayout.setVerticalGroup(
-            sessionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(sessionsPanelLayout.createSequentialGroup()
-                .addGroup(sessionsPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(sessionsPanelLayout.createSequentialGroup()
-                        .addGap(12, 12, 12)
-                        .addComponent(sessionsLabel))
-                    .addComponent(searchButton))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 417, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane3.TabConstraints.tabTitle"), jScrollPane3); // NOI18N
 
-        splitPane.setRightComponent(sessionsPanel);
+        jScrollPane4.setName("jScrollPane4"); // NOI18N
+
+        servicesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Created", "Updated", "Port", "Proto", "State", "Name", "Info"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        servicesTable.setName("servicesTable"); // NOI18N
+        jScrollPane4.setViewportView(servicesTable);
+
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane4.TabConstraints.tabTitle"), jScrollPane4); // NOI18N
+
+        jScrollPane5.setName("jScrollPane5"); // NOI18N
+
+        vulnsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Port", "Proto", "Time", "Host", "Name", "Refs"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        vulnsTable.setName("vulnsTable"); // NOI18N
+        jScrollPane5.setViewportView(vulnsTable);
+
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane5.TabConstraints.tabTitle"), jScrollPane5); // NOI18N
+
+        jScrollPane6.setName("jScrollPane6"); // NOI18N
+
+        eventsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+        });
+        eventsTable.setName("eventsTable"); // NOI18N
+        jScrollPane6.setViewportView(eventsTable);
+
+        jTabbedPane1.addTab(resourceMap.getString("jScrollPane6.TabConstraints.tabTitle"), jScrollPane6); // NOI18N
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(mainPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 887, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 882, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
-                .addComponent(splitPane, javax.swing.GroupLayout.DEFAULT_SIZE, 462, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -563,6 +594,15 @@ public class MainFrame extends FrameView {
 
         jSeparator1.setName("jSeparator1"); // NOI18N
         fileMenu.add(jSeparator1);
+
+        searchItem.setText(resourceMap.getString("searchItem.text")); // NOI18N
+        searchItem.setName("searchItem"); // NOI18N
+        searchItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                searchItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(searchItem);
 
         changeLFMenuItem.setMnemonic('L');
         changeLFMenuItem.setText(resourceMap.getString("changeLFMenuItem.text")); // NOI18N
@@ -698,6 +738,32 @@ public class MainFrame extends FrameView {
 
         menuBar.add(consoleMenu);
 
+        databaseMenu.setMnemonic('D');
+        databaseMenu.setText(resourceMap.getString("databaseMenu.text")); // NOI18N
+        databaseMenu.setName("databaseMenu"); // NOI18N
+
+        connectItem.setMnemonic('C');
+        connectItem.setText(resourceMap.getString("connectItem.text")); // NOI18N
+        connectItem.setName("connectItem"); // NOI18N
+        connectItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                connectItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(connectItem);
+
+        refreshItem.setMnemonic('R');
+        refreshItem.setText(resourceMap.getString("refreshItem.text")); // NOI18N
+        refreshItem.setName("refreshItem"); // NOI18N
+        refreshItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(refreshItem);
+
+        menuBar.add(databaseMenu);
+
         helpMenu.setMnemonic('H');
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
         helpMenu.setName("helpMenu"); // NOI18N
@@ -734,7 +800,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 725, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 698, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -748,7 +814,7 @@ public class MainFrame extends FrameView {
                     .addComponent(statusMessageLabel)
                     .addComponent(statusAnimationLabel)
                     .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
+                .addGap(12, 12, 12))
         );
 
         setComponent(mainPanel);
@@ -821,18 +887,91 @@ public class MainFrame extends FrameView {
 		new EditorWindow(MsfguiLog.defaultLog.getHashes()).setVisible(true);
 	}//GEN-LAST:event_collectedCredsMenuItemActionPerformed
 
-	private void searchButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchButtonActionPerformed
-		searchWin.setVisible(true);
-	}//GEN-LAST:event_searchButtonActionPerformed
-
 	private void newConsoleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newConsoleItemActionPerformed
 		try{
 			Map res = (Map)rpcConn.execute("console.create");
-			registerConsole(res, true);
+			registerConsole(res, true, "");
 		}catch(MsfException mex){
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
-	}//GEN-LAST:event_newConsoleItemActionPerformed
+}//GEN-LAST:event_newConsoleItemActionPerformed
+
+	private void searchItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_searchItemActionPerformed
+		searchWin.setVisible(true);
+	}//GEN-LAST:event_searchItemActionPerformed
+
+	private void connectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectItemActionPerformed
+		String answer = JOptionPane.showInputDialog(getFrame(), "Enter Connection String", "Connection String", JOptionPane.QUESTION_MESSAGE);
+		if(answer == null)
+			return;
+		try{
+			Map session = (Map)rpcConn.execute("console.create");
+			registerConsole(session, true, "db_connect "+answer);
+		}catch(MsfException mex){
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_connectItemActionPerformed
+
+	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
+		//Hosts
+		try{
+			DefaultTableModel mod = (DefaultTableModel)hostsTable.getModel();
+			while(mod.getRowCount() > 0)
+				mod.removeRow(0);
+			Object[] hosts = (Object[])((Map)rpcConn.execute("db.hosts",new Object[]{new HashMap()})).get("hosts");
+			for (Object hostO : hosts){
+				Map host = (Map)hostO;
+				mod.addRow(new Object[]{host.get("created_at"),host.get("address"),host.get("address6"),
+					host.get("mac"),host.get("name"),host.get("state"),host.get("os_name"),host.get("os_flavor"),
+					host.get("os_sp"),host.get("os_lang"),host.get("updated_at"),host.get("purpose"),host.get("info")});
+			}
+			TableHelper.fitColumnWidths(mod,hostsTable);
+		}catch(MsfException mex){
+		}
+		//Services
+		try{
+			DefaultTableModel mod = (DefaultTableModel)servicesTable.getModel();
+			while(mod.getRowCount() > 0)
+				mod.removeRow(0);
+			Object[] services = (Object[])((Map)rpcConn.execute("db.services",new Object[]{new HashMap()})).get("services");
+			for (Object serviceO : services){
+				Map service = (Map)serviceO;
+				mod.addRow(new Object[]{service.get("host"),service.get("created_at"),service.get("updated_at"),
+					service.get("port"),service.get("proto"),service.get("state"),service.get("name"),service.get("info")});
+			}
+			TableHelper.fitColumnWidths(mod,servicesTable);
+		}catch(MsfException mex){
+		}
+		//Vulns
+		try{
+			DefaultTableModel mod = (DefaultTableModel)vulnsTable.getModel();
+			while(mod.getRowCount() > 0)
+				mod.removeRow(0);
+			Object[] vulns = (Object[])((Map)rpcConn.execute("db.vulns",new Object[]{new HashMap()})).get("vulns");
+			for (Object vulnO : vulns){
+				Map vuln = (Map)vulnO;
+				mod.addRow(new Object[]{vuln.get("port"),vuln.get("proto"),vuln.get("time"),
+						vuln.get("host"),vuln.get("name"),vuln.get("refs")});
+			}
+			TableHelper.fitColumnWidths(mod,vulnsTable);
+		}catch(MsfException mex){
+		}
+		//Events
+		try{
+			DefaultTableModel mod = (DefaultTableModel)eventsTable.getModel();
+			while(mod.getRowCount() > 0)
+				mod.removeRow(0);
+			Object wspace = ((Map)rpcConn.execute("db.current_workspace")).get("workspace");
+			Object[] events = (Object[])((Map)rpcConn.execute("db.events",new Object[]{wspace})).get("events");
+			for (Object eventO : events){
+				Map event = (Map)eventO;
+				mod.addRow(new Object[]{event.get("host"),event.get("created_at"),event.get("updated_at"),
+						event.get("name"),event.get("critical"),event.get("username"),event.get("info")});
+			}
+			TableHelper.fitColumnWidths(mod,eventsTable);
+		}catch(MsfException mex){
+		}
+	}//GEN-LAST:event_refreshItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1073,18 +1212,25 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem clearHistoryItem;
     private javax.swing.JMenu closeConsoleMenu;
     private javax.swing.JMenuItem collectedCredsMenuItem;
+    private javax.swing.JMenuItem connectItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
+    private javax.swing.JMenu databaseMenu;
+    private javax.swing.JTable eventsTable;
     private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu historyMenu;
+    private javax.swing.JTable hostsTable;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
+    private javax.swing.JScrollPane jScrollPane4;
+    private javax.swing.JScrollPane jScrollPane5;
+    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JLabel jobsLabel;
+    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JList jobsList;
-    private javax.swing.JPanel jobsPanel;
     private javax.swing.JMenuItem killSessionsMenuItem;
     private javax.swing.JMenuItem logGenerateMenuItem;
     private javax.swing.JPanel mainPanel;
@@ -1097,15 +1243,15 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu postMenu;
     private javax.swing.JProgressBar progressBar;
     public javax.swing.JMenu recentMenu;
-    private javax.swing.JButton searchButton;
-    private javax.swing.JLabel sessionsLabel;
-    private javax.swing.JPanel sessionsPanel;
+    private javax.swing.JMenuItem refreshItem;
+    private javax.swing.JMenuItem searchItem;
+    private javax.swing.JTable servicesTable;
     private javax.swing.JTable sessionsTable;
-    private javax.swing.JSplitPane splitPane;
     private javax.swing.JMenuItem startRpcMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+    private javax.swing.JTable vulnsTable;
     // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
 	private final Timer busyIconTimer;

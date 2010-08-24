@@ -155,6 +155,11 @@ public class InteractWindow extends MsfFrame {
 		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), 12));
 		checkPrompt(session);
 	}
+	/** Also sets initial command */
+	public InteractWindow(final RpcConnection rpcConn, final Map session, String type, String initVal) {
+		this(rpcConn,session, type);
+		inputField.setText(initVal);
+	}
 	/** Sets the prompt if provided */
 	private void checkPrompt(Map o) {
 		try{
