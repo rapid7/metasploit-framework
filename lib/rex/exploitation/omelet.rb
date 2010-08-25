@@ -225,7 +225,7 @@ find_egg:
 search_next_address:
 	#{searchstub2}		; based on search direction
 	push edx		; save edx
-	push 0x02
+	push 0x02   ; use NtAccessCheckAndAuditAlarm syscall
 	pop eax		; set eax to 0x02
 	int 0x2e
 	cmp al,0x5		; address readable ?
