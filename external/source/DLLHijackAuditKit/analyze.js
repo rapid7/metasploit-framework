@@ -162,7 +162,11 @@ for (var tApp in apps) {
 				nprocs = process_list();
 			}
 
-			WScript.Sleep(500);
+			// If an application spawned, give it three seconds
+			// This helps with ProcMon memory usage as well
+			if (nprocs.length > procs.length) {
+				WScript.Sleep(3000);
+			}
 
 			var killer = "taskkill /F ";
 			for (var i=0; i < nprocs.length; i++) {
