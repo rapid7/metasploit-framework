@@ -84,7 +84,7 @@ for (var i=0; i < bits.length; i++) {
 // Parse the CSV into a map of each application's loads
 while( ! fCSV.AtEndOfStream ) {
 	line = fCSV.ReadLine();
-	bits = line.replace(/"/g, '').split(",")
+	bits = line.replace(/\",/g, "\"||||").replace(/"/g, '').split("||||");
 
 	var vApp = bits[iProc].toLowerCase();
 	var vPath = bits[iPath].toLowerCase();

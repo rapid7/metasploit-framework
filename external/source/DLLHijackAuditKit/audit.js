@@ -14,7 +14,7 @@ function process_list() {
 	var cPID = oWMI.ExecQuery("SELECT * FROM Win32_Process", "WQL", wbemFlagReturnImmediately | wbemFlagForwardOnly);
 	var enumItems = new Enumerator(cPID);
 	for (; !enumItems.atEnd(); enumItems.moveNext()) {
-		var p = enumItems.item(); 
+		var p = enumItems.item();
 		if (p.ExecutablePath && p.ExecutablePath.toLowerCase().indexOf("taskmgr") != -1) continue;
 		res.push(p.ProcessId);
 	}
@@ -115,20 +115,20 @@ for (; !subs.atEnd(); subs.moveNext()) {
 
 	oShl.Run("cmd.exe /c start exploit." + ext, 0);
 	WScript.Sleep(500);
-	
+
 	var nprocs = process_list();
 	var cnt = 0;
-	while(nprocs.length == procs.length && cnt < 1) {
+	while(nprocs.length == procs.length && cnt < 2) {
 		cnt++;
 		WScript.Sleep(500);
 		nprocs = process_list();
 	}
 
-	// If an application spawned, give it another second
+	// If an application spawned, give it three seconds
 	// This helps with ProcMon memory usage as well
 	if (nprocs.length > procs.length) {
-		WScript.Sleep(1000);
-	}	
+		WScript.Sleep(3000);
+	}
 
 	var killer = "taskkill /F ";
 	for (var i=0; i < nprocs.length; i++) {
@@ -154,3 +154,4 @@ for (; !subs.atEnd(); subs.moveNext()) {
 }
 
 print_status("Data collection phase complete, export Logfile.CSV from ProcMon.")
+
