@@ -1,5 +1,5 @@
 ; build with:
-;   nasm elf_template.s -f bin -o template_x86_linux.bin
+;   nasm elf_x86_template.s -f bin -o template_x86_linux.bin
 
 BITS 32
 
