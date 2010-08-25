@@ -19,7 +19,7 @@ function process_list() {
 	var cPID = oWMI.ExecQuery("SELECT * FROM Win32_Process", "WQL", wbemFlagReturnImmediately | wbemFlagForwardOnly);
 	var enumItems = new Enumerator(cPID);
 	for (; !enumItems.atEnd(); enumItems.moveNext()) {
-		var p = enumItems.item(); 
+		var p = enumItems.item();
 		if (p.ExecutablePath && p.ExecutablePath.toLowerCase().indexOf("taskmgr") != -1) continue;
 		res.push(p.ProcessId);
 	}
@@ -56,9 +56,13 @@ function replace_payloads(dir, src) {
 */
 
 
+if (! oFso.FileExists("Logfile.CSV")) {
+	print_status("Please save Logfile.CSV to the current directory first");
+	WScript.Quit();
+}
+
 var procs = process_list();
 print_status("Protecting " + procs.length + " processes");
-
 
 var apps  = new Array();
 var fCSV  = oFso.OpenTextFile("Logfile.CSV");
@@ -89,7 +93,7 @@ while( ! fCSV.AtEndOfStream ) {
 	vTgt.shift();
 
 	var vDll = vTgt.join("\\").toLowerCase();
-	
+
 	if (! apps[vApp]) apps[vApp] = new Array();
 	if (! apps[vApp][vExt]) apps[vApp][vExt] = new Array();
 	apps[vApp][vExt][vDll] = true;
@@ -100,13 +104,13 @@ print_status("Generating and validating test cases...");
 try { oFso.CreateFolder(oCWD + "\\TestCases"); } catch(e) { }
 try { oFso.CreateFolder(oCWD + "\\Exploits"); } catch(e) { }
 
-for (var tApp in apps) { 
+for (var tApp in apps) {
 	print_status(" Application: " + tApp);
-	
+
 	var aBase = oCWD + "\\TestCases\\" + tApp;
 	try { oFso.CreateFolder(aBase); } catch(e) { }
-	
-	for (var tExt in apps[tApp]) { 
+
+	for (var tExt in apps[tApp]) {
 		var eBase = aBase + "\\" + tExt;
 		var aExploited = new Array();
 
@@ -118,7 +122,7 @@ for (var tApp in apps) {
 			try { oFso.CreateFolder(dBase); } catch(e) { }
 
 			if (aExploited[tName]) continue;
-			
+
 			// tDll may be a subdirectory + DLL
 			tPath = dBase;
 			for (var y = 0; y < tBits.length; y++) {
@@ -126,7 +130,7 @@ for (var tApp in apps) {
 				try { oFso.CreateFolder(tPath); } catch(e) { }
 			}
 			tPath = tPath + "\\" + tName;
-			
+
 			try {
 				if (tName.toLowerCase().indexOf(".exe") != -1) {
 					oFso.CopyFile(oCWD + "\\runtest.exe", tPath);
@@ -141,7 +145,7 @@ for (var tApp in apps) {
 				a.WriteLine("HOWDY!");
 				a.Close();
 			} catch(e) { }
-			
+
 
 			try {
 				// Run the test case
@@ -149,7 +153,7 @@ for (var tApp in apps) {
 				oShl.Run("cmd.exe /c start exploit." + tExt, 0);
 			} catch(e) { }
 			WScript.Sleep(500);
-	
+
 			var nprocs = process_list();
 			var cnt = 0;
 			while(nprocs.length == procs.length && cnt < 2) {
