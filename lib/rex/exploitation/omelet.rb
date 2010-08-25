@@ -120,14 +120,14 @@ class Omelet
 			if searchforward
 				# clear direction flag
 				setflag     = "cld"
-				searchstub1 = "dec edx; dec edx; dec edx; dec edx"
+				searchstub1 = "dec edx\n\tdec edx\n\tdec edx\n\tdec edx"
 				searchstub2 = "inc edx"
 			else
 				# set the direction flag
 				setflag      = "std"
-				searchstub1  = "inc edx; inc edx; inc edx; inc edx"
+				searchstub1  = "inc edx\n\tinc edx\n\tinc edx\n\tinc edx"
 				searchstub2  = "dec edx"
-				flipflagpre  = "cld; sub esi,-8"
+				flipflagpre  = "cld\n\tsub esi,-8"
 				flipflagpost = "std"
 			end
 
@@ -137,17 +137,17 @@ class Omelet
 				if startreg.downcase != 'ebp'
 					startstub << "mov ebp,#{startreg}"
 				end
-				startstub << "; " if startstub.length > 0
+				startstub << "\n\t" if startstub.length > 0
 				startstub << "mov edx,ebp"
 			end
 			# a register will be used as start location for the search
-			startstub << "; " if startstub.length > 0
-			startstub << "push esp; pop edi; or di,0xffff"
+			startstub << "\n\t" if startstub.length > 0
+			startstub << "push esp\n\tpop edi\n\tor di,0xffff"
 			# edx will be used, start at end of stack frame
 			if not startreg
-				startstub << "; mov edx,edi"
+				startstub << "\n\tmov edx,edi"
 				if reset
-					startstub << "; push edx; pop ebp"
+					startstub << "\n\tpush edx\n\tpop ebp"
 				end
 			end
 
@@ -155,7 +155,7 @@ class Omelet
 			# will allow to find eggs when they are out of order/sequence
 			resetstart = ''
 			if reset
-				resetstart = "push ebp; pop edx"
+				resetstart = "push ebp\n\tpop edx"
 			end
 
          #checksum code by dijital1 & corelanc0d3r
