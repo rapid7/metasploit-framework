@@ -7,6 +7,7 @@ import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
+import javax.swing.JTable;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -17,6 +18,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowAdapter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -169,7 +171,7 @@ public class MainFrame extends FrameView {
 			}
 		});
 	}
-	
+
 	/** Set up auto session and job refresh */
 	private void setupSessionsPollTimer() throws HeadlessException {
 		sessionsPollTimer = new SwingWorker(){
@@ -431,6 +433,7 @@ public class MainFrame extends FrameView {
         databaseMenu = new javax.swing.JMenu();
         connectItem = new javax.swing.JMenuItem();
         refreshItem = new javax.swing.JMenuItem();
+        importItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         onlineHelpMenu = new javax.swing.JMenuItem();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -488,6 +491,19 @@ public class MainFrame extends FrameView {
         });
         hostsTable.setName("hostsTable"); // NOI18N
         jScrollPane3.setViewportView(hostsTable);
+        hostsTable.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title0")); // NOI18N
+        hostsTable.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title1")); // NOI18N
+        hostsTable.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title2")); // NOI18N
+        hostsTable.getColumnModel().getColumn(3).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title3")); // NOI18N
+        hostsTable.getColumnModel().getColumn(4).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title4")); // NOI18N
+        hostsTable.getColumnModel().getColumn(5).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title5")); // NOI18N
+        hostsTable.getColumnModel().getColumn(6).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title6")); // NOI18N
+        hostsTable.getColumnModel().getColumn(7).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title7")); // NOI18N
+        hostsTable.getColumnModel().getColumn(8).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title8")); // NOI18N
+        hostsTable.getColumnModel().getColumn(9).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title9")); // NOI18N
+        hostsTable.getColumnModel().getColumn(10).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title10")); // NOI18N
+        hostsTable.getColumnModel().getColumn(11).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title11")); // NOI18N
+        hostsTable.getColumnModel().getColumn(12).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title12")); // NOI18N
 
         jTabbedPane1.addTab(resourceMap.getString("jScrollPane3.TabConstraints.tabTitle"), jScrollPane3); // NOI18N
 
@@ -559,6 +575,8 @@ public class MainFrame extends FrameView {
         jScrollPane6.setViewportView(eventsTable);
 
         jTabbedPane1.addTab(resourceMap.getString("jScrollPane6.TabConstraints.tabTitle"), jScrollPane6); // NOI18N
+
+        jTabbedPane1.setSelectedIndex(1);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -762,6 +780,16 @@ public class MainFrame extends FrameView {
         });
         databaseMenu.add(refreshItem);
 
+        importItem.setMnemonic('I');
+        importItem.setText(resourceMap.getString("importItem.text")); // NOI18N
+        importItem.setName("importItem"); // NOI18N
+        importItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                importItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(importItem);
+
         menuBar.add(databaseMenu);
 
         helpMenu.setMnemonic('H');
@@ -800,7 +828,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 698, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -912,66 +940,61 @@ public class MainFrame extends FrameView {
 		}
 	}//GEN-LAST:event_connectItemActionPerformed
 
+	/** Refreshes the database tables. */
+	private void reloadDb() {
+		try {
+			Object[] hosts = (Object[]) ((Map)rpcConn.execute("db.hosts",new Object[]{new HashMap()})).get("hosts");
+			reAdd(hostsTable,hosts,new String[]{"created_at","address","address6","mac","name","state","os_name",
+						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
+		} catch (MsfException mex) {
+		}
+		try {
+			Object[] services = (Object[]) ((Map)rpcConn.execute("db.services",new Object[]{new HashMap()})).get("services");
+			reAdd(servicesTable, services, new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+		} catch (MsfException mex) {
+		}
+		try {
+			Object[] vulns = (Object[]) ((Map)rpcConn.execute("db.vulns",new Object[]{new HashMap()})).get("vulns");
+			reAdd(vulnsTable,vulns,new String[]{"port","proto","time","host","name","refs"});
+		} catch (MsfException mex) {
+		}
+		try {
+			Object wspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace");
+			Object[] events = (Object[]) ((Map)rpcConn.execute("db.events",new Object[]{wspace})).get("events");
+			reAdd(eventsTable,events,new String[]{"host","created_at","updated_at","name","critical","username","info"});
+		} catch (MsfException mex) {
+		}
+	}
+
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
-		//Hosts
-		try{
-			DefaultTableModel mod = (DefaultTableModel)hostsTable.getModel();
-			while(mod.getRowCount() > 0)
-				mod.removeRow(0);
-			Object[] hosts = (Object[])((Map)rpcConn.execute("db.hosts",new Object[]{new HashMap()})).get("hosts");
-			for (Object hostO : hosts){
-				Map host = (Map)hostO;
-				mod.addRow(new Object[]{host.get("created_at"),host.get("address"),host.get("address6"),
-					host.get("mac"),host.get("name"),host.get("state"),host.get("os_name"),host.get("os_flavor"),
-					host.get("os_sp"),host.get("os_lang"),host.get("updated_at"),host.get("purpose"),host.get("info")});
-			}
-			TableHelper.fitColumnWidths(mod,hostsTable);
-		}catch(MsfException mex){
-		}
-		//Services
-		try{
-			DefaultTableModel mod = (DefaultTableModel)servicesTable.getModel();
-			while(mod.getRowCount() > 0)
-				mod.removeRow(0);
-			Object[] services = (Object[])((Map)rpcConn.execute("db.services",new Object[]{new HashMap()})).get("services");
-			for (Object serviceO : services){
-				Map service = (Map)serviceO;
-				mod.addRow(new Object[]{service.get("host"),service.get("created_at"),service.get("updated_at"),
-					service.get("port"),service.get("proto"),service.get("state"),service.get("name"),service.get("info")});
-			}
-			TableHelper.fitColumnWidths(mod,servicesTable);
-		}catch(MsfException mex){
-		}
-		//Vulns
-		try{
-			DefaultTableModel mod = (DefaultTableModel)vulnsTable.getModel();
-			while(mod.getRowCount() > 0)
-				mod.removeRow(0);
-			Object[] vulns = (Object[])((Map)rpcConn.execute("db.vulns",new Object[]{new HashMap()})).get("vulns");
-			for (Object vulnO : vulns){
-				Map vuln = (Map)vulnO;
-				mod.addRow(new Object[]{vuln.get("port"),vuln.get("proto"),vuln.get("time"),
-						vuln.get("host"),vuln.get("name"),vuln.get("refs")});
-			}
-			TableHelper.fitColumnWidths(mod,vulnsTable);
-		}catch(MsfException mex){
-		}
-		//Events
-		try{
-			DefaultTableModel mod = (DefaultTableModel)eventsTable.getModel();
-			while(mod.getRowCount() > 0)
-				mod.removeRow(0);
-			Object wspace = ((Map)rpcConn.execute("db.current_workspace")).get("workspace");
-			Object[] events = (Object[])((Map)rpcConn.execute("db.events",new Object[]{wspace})).get("events");
-			for (Object eventO : events){
-				Map event = (Map)eventO;
-				mod.addRow(new Object[]{event.get("host"),event.get("created_at"),event.get("updated_at"),
-						event.get("name"),event.get("critical"),event.get("username"),event.get("info")});
-			}
-			TableHelper.fitColumnWidths(mod,eventsTable);
-		}catch(MsfException mex){
-		}
+		reloadDb();
 	}//GEN-LAST:event_refreshItemActionPerformed
+
+	private void importItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importItemActionPerformed
+		try {
+			String type = "data";
+			HashMap argHash = new HashMap();
+			if (MsfguiApp.fileChooser.showOpenDialog(getFrame()) == javax.swing.JFileChooser.CANCEL_OPTION)
+				return;
+			int fsize = (int)MsfguiApp.fileChooser.getSelectedFile().length();
+			FileInputStream fin = new FileInputStream(MsfguiApp.fileChooser.getSelectedFile());
+			byte[] data = new byte[fsize];
+			fin.read(data);
+			argHash.put("data", Base64.encode(data));
+			Object res = JOptionPane.showInputDialog(getFrame(), "Select file type", "Type selection", JOptionPane.PLAIN_MESSAGE,
+					null, new Object[]{"autodetect","msfe xml","nexpose simplexml","nexpose rawxml", "nmap xml", "nessuse nbe",
+					"nessus xml", "nessus xml v2","qualsys xml", "ip list", "amap log", "amap mlog"}, onlineHelpMenu);
+			if(res.equals("autodetect"))
+				type = "data";
+			else
+				type = res.toString().replaceAll(" ", "_");
+			rpcConn.execute("db.import_"+type,new Object[]{argHash});
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		} catch (IOException iex) {
+			JOptionPane.showMessageDialog(getFrame(), iex);
+		}
+	}//GEN-LAST:event_importItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1222,6 +1245,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu historyMenu;
     private javax.swing.JTable hostsTable;
+    private javax.swing.JMenuItem importItem;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1281,4 +1305,19 @@ public class MainFrame extends FrameView {
 			JOptionPane.showMessageDialog(getFrame(), e);
 		}
 	}
+
+	/** Clear a table's contents, and replace with contents of data */
+	private void reAdd(JTable table, Object[] data, String[] cols) {
+		DefaultTableModel mod = (DefaultTableModel) table.getModel();
+		while (mod.getRowCount() > 0)
+			mod.removeRow(0);
+		for (Object dataObj : data) {
+			Object[] row = new Object[cols.length];
+			for(int i = 0; i < cols.length; i++)
+				row[i] = ((Map) dataObj).get(cols[i]);
+			mod.addRow(row);
+		}
+		TableHelper.fitColumnWidths(mod, table);
+	}
+
 }
