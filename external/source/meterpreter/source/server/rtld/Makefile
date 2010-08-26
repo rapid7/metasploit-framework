@@ -20,10 +20,13 @@ libcrypto.h: ../../bionic/compiled/libcrypto.so
 libssl.h: ../../bionic/compiled/libssl.so
 	../../../tools/so2h.pl ../../bionic/compiled/libssl.so libssl
 
+libsupport.h: ../../bionic/compiled/libsupport.so
+	../../../tools/so2h.pl ../../bionic/compiled/libsupport.so libsupport
+
 metsrv_main.h: ../../bionic/compiled/metsrv_main
 	../../../tools/so2h.pl ../../bionic/compiled/metsrv_main metsrv_main
 
-metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h metsrv_main.h
+metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h metsrv_main.h libsupport.h
 
 test: $(OBJ) 
 	gcc $(CFLAGS) -o msflinker $(OBJ) -lgcc 

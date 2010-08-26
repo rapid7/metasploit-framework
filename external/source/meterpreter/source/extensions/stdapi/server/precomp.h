@@ -10,9 +10,43 @@
  #include "resource/resource.h"
 #else
  #include "../stdapi.h"
+ #include <unistd.h>
+ #include <stdlib.h>
  #include <sys/socket.h>
  #include <sys/stat.h>
  #include <netdb.h>
+ #include <netinet/in.h>
+ #include <stdarg.h>
+
+#define IN_ADDR struct in_addr
+#define SOCKADDR_IN struct sockaddr_in
+#define SOCKADDR struct sockaddr
+#define WSAEventSelect(a,b,c) (0xcafebabe)
+
+#define SOCKET_ERROR (-1)
+#define WSAGetLastError() errno
+
+#define WSAECONNRESET ECONNRESET
+#define WSAECONNABORTED ECONNABORTED
+
+#define BREAK_WITH_ERROR(format, args...) \
+	do { \
+		dprintf(format, ## args); \
+		exit(0); \
+	} while(0) \
+
+#define BREAK_ON_WSAERROR(format, args...) \
+	do { \
+		dprintf(format, ## args); \
+		abort(); \
+	} while(0) \
+
+#define Sleep(x) usleep(x * 1000)
+#define WSASocket(a,b,c,d,e,f) socket(a,b,c)
+#define WSACreateEvent()  (0x5a5a5a5a)
+#define WSA_INVALID_EVENT (0xa5a5a5a5)
+#define WSAResetEvent(x)
+#define ResetEvent(x)
 #endif
 
 

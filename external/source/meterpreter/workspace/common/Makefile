@@ -52,10 +52,10 @@ VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 CFLAGS+= -I$(ARCHVPATH)
 CPPFLAGS+= -I$(ARCHVPATH)
 
-all: libsupport.a
+all: libsupport.so
 
-libsupport.a: $(objects)
-	$(AR) rc $@ $(objects) 
+libsupport.so: $(objects)
+	$(CC) $(CFLAGS) -shared -o $@ $(objects)  -lc -lssl -lcrypto
 
 clean:
 	$(RM) -f *.o *.a *.so zlib/zlib.o

@@ -18,6 +18,7 @@
 #include "libm.h"
 #include "libcrypto.h"
 #include "libssl.h"
+#include "libsupport.h"
 #include "metsrv_main.h"
 
 struct libs {
@@ -32,11 +33,12 @@ static struct libs libs[] = {
 	{ "libm.so", libm, libm_length, NULL },
 	{ "libcrypto.so.0.9.8", libcrypto, libcrypto_length, NULL },
 	{ "libssl.so.0.9.8", libssl, libssl_length, NULL },
+	{ "libsupport.so", libsupport, libsupport_length, NULL },
 	{ "metsrv_main", metsrv_main, metsrv_main_length, NULL },
 };
 
 #define LIBC_IDX 0
-#define METSRV_IDX  4
+#define METSRV_IDX  5
 
 /*
  * Once the library has been mapped in, this is where code execution needs to

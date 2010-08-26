@@ -302,6 +302,8 @@ void *dlopenbuf(const char *name, void *data, size_t len)
 	void *ret = NULL;
 	int status;
 
+	TRACE("[ dlopenbuf() called with %s/%08x/%08x ]\n", name, data, len);
+
 	memset(&stream, 0, sizeof(z_stream));
 
 	input_buffer = (unsigned char *)(data);
@@ -445,7 +447,7 @@ static Elf32_Sym libdl_symtab[] = {
  * stubbing them out in libdl.
  */
 static unsigned libdl_buckets[1] = { 1 };
-static unsigned libdl_chains[7] = { 0, 2, 3, 4, 5, 6, 7, 0 };
+static unsigned libdl_chains[8] = { 0, 2, 3, 4, 5, 6, 7, 0 };
 
 extern soinfo libcrap_info;
 
@@ -457,7 +459,7 @@ soinfo libdl_info = {
     symtab: libdl_symtab,
 
     nbucket: 1,
-    nchain: 7,
+    nchain: 8,
     bucket: libdl_buckets,
     chain: libdl_chains,
 };

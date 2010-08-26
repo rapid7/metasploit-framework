@@ -24,7 +24,7 @@ objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o # metsrv_mai
 all:  metsrv_main 
 
 metsrv_main: $(objects)
-	$(CC) -pie $(CFLAGS) -o $@ $(objects) ../common/libsupport.a -export-dynamic -lc -lcrypto -lssl -lgcc -ldl
+	$(CC) -pie $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
 
 clean:
 	@echo "ARCHVPATH= " $(ARCHVPATH) " VPATH= " $(VPATH)
