@@ -1,0 +1,11 @@
+This is the runtime linker for the posix meterpreter. It is currently linux/x86
+only, but this will probably change later on once I have meterpreter working 
+in general.
+
+Currently, make test will build a stand alone binary that will unpack/resolve
+libc, libm, libcrypto, libssl, and the metsrv_main binary. It will then call
+the server_setup(fd) code. 
+
+make will build a .so with the above code. It will probably be used for payload
+support, but that is a little while away.
+

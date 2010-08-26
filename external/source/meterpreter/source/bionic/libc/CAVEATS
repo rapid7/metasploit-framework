@@ -1,0 +1,26 @@
+Bionic is a very small C library because we have decided to *not* implement various features
+of the POSIX standard. we only add functions on a as-needed basis, and there are a few things
+we wish we'll never put in there.
+
+this file is here to document explicitely what we don't want to support in Bionic:
+
+- C++ exceptions are not supported. on embedded systems, they lead to extremely larger and
+  slower code for no good reason (even when so-called zero-cost exception schemes are
+  implemented, they enforce very large numbers of registers spills to the stack, even
+  in functions that do not throw an exception themselves).
+
+- pthread cancellation is *not* supported. this seemingly simple "feature" is the source
+  of much bloat and complexity in a C library. Besides, you'd better write correct
+  multi-threaded code instead of relying on this stuff.
+
+- pthread_once() doesn't support C++ exceptions thrown from the init function, or the init
+  function doing a fork().
+
+- locales and wide characters are not supported. we use ICU for all this i18n stuff, which
+  is much better than the ill-designed related C libraries functions.
+
+- at the moment, several user-account-related functions like getpwd are stubbed and return
+  the values corresponding to root. this will be fixed when we'll be able to have distinct
+  users on the Android filesystem. :-(
+
+  see bionic/stubs.c for the details

@@ -26,6 +26,7 @@ int exceptionfilter(unsigned int code, struct _EXCEPTION_POINTERS *ep)
 #define exceptionfilter(a, b)
 #define SetHandleInformation(a, b, c)
 #define ExitThread(x) exit((x))
+const unsigned int hAppInstance = 0x504b5320; // 'PKS '
 #endif
 
 #define PREPEND_ERROR "### Error: "

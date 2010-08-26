@@ -60,6 +60,9 @@ typedef struct _THREAD
 	EVENT * sigterm;
 	LPVOID parameter1;
 	LPVOID parameter2;
+#ifndef _WIN32 
+	void *suspend_thread_data;
+#endif
 } THREAD, * LPTHREAD;
 
 #ifdef __GNUC__

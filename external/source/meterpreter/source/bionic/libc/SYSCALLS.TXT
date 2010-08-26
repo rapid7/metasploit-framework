@@ -1,0 +1,264 @@
+# this file is used to list all the syscalls that will be supported by
+# the Bionic C library. It is used to automatically generate the syscall
+# stubs, the list of syscall constants (__NR_xxxx) and the content of <linux/_unitsd.h>
+#
+# each non comment line has the following format:
+#
+# return_type    func_name[:syscall_name[:call_id]]([parameter_list])  (#syscall_number|stub)
+#
+# note that:
+#      - syscall_name correspond to the name of the syscall, which may differ from
+#        the exported function name (example: the exit syscall is implemented by the _exit()
+#        function, which is not the same as the standard C exit() function which calls it)
+#        The call_id parameter, given that func_name and syscall_name have
+#        been provided, allows the user to specify dispatch style syscalls.
+#        For example, socket() syscall on i386 actually becomes:
+#          socketcall(__NR_socket, 1, *(rest of args on stack)).
+#
+#      - each parameter type is assumed to be stored on 32 bits, there is no plan to support
+#        64-bit architectures at the moment
+#
+#      - it there is "stub" instead of a syscall number, the tool will not generate any
+#        assembler template for the syscall; it's up to the bionic implementation to provide
+#        a relevant C stub
+#
+#      - additionally, if the syscall number is different amoung ARM, x86 and SuperH, use:
+#        return_type funcname[:syscall_name](parameters) arm_number,x86_number,superh_number
+#
+# the file is processed by a python script named gensyscalls.py
+#
+
+# process management
+void    _exit:exit_group (int)      248,252
+void    _exit_thread:exit (int)	    1
+pid_t   __fork:fork (void)           2
+pid_t   _waitpid:waitpid (pid_t, int*, int, struct rusage*)   -1,7
+int     waitid(int, pid_t, struct siginfo_t*, int,void*)          280,284
+
+# NOTE: this system call is never called directly, but we list it there
+#       to have __NR_clone properly defined.
+#
+pid_t   __sys_clone:clone (int, void*, int*, void*, int*) 120
+
+int     execve (const char*, char* const*, char* const*)  11
+
+int     __setuid:setuid32 (uid_t)    213
+uid_t   getuid:getuid32 ()         199
+gid_t   getgid:getgid32 ()         200
+uid_t   geteuid:geteuid32 ()       201
+gid_t   getegid:getegid32 ()       202
+uid_t   getresuid:getresuid32 ()   209
+gid_t   getresgid:getresgid32 ()   211
+pid_t   gettid()                   224
+int     getgroups:getgroups32(int, gid_t *)    205
+pid_t   getpgid(pid_t)             132
+pid_t   getppid()		   64
+pid_t   setsid()                   66
+int     setgid:setgid32(gid_t)     214
+int     seteuid:seteuid32(uid_t)   stub
+int     __setreuid:setreuid32(uid_t, uid_t)   203
+int     __setresuid:setresuid32(uid_t, uid_t, uid_t)   208
+int     setresgid:setresgid32(gid_t, gid_t, gid_t)   210
+void*   __brk:brk(void*)           45
+# see comments in arch-arm/bionic/kill.S to understand why we don't generate an ARM stub for kill/tkill
+int     kill(pid_t, int)           -1,37
+int     tkill(pid_t tid, int sig)  -1,238
+int     __ptrace:ptrace(int request, int pid, void* addr, void* data)  26
+int     __set_thread_area:set_thread_area(void*  user_desc)  -1,243
+int     __getpriority:getpriority(int, int)  96
+int     setpriority(int, int, int)   97
+int     setrlimit(int resource, const struct rlimit *rlp)  75
+int     getrlimit:ugetrlimit(int resource, struct rlimit *rlp)  191
+int     getrusage(int who, struct rusage*  r_usage)  77
+int     setgroups:setgroups32(int, const gid_t *)   206
+pid_t   getpgrp(void)  stub
+int     setpgid(pid_t, pid_t)  57
+pid_t   vfork(void)  190,-1,190
+int     setregid:setregid32(gid_t, gid_t)  204
+int     chroot(const char *)  61
+int     prctl(int option, unsigned int arg2, unsigned int arg3, unsigned int arg4, unsigned int arg5)  172
+int     capget(cap_user_header_t header, cap_user_data_t data) 184
+int     capset(cap_user_header_t header, const cap_user_data_t data) 185
+int     sigaltstack(const stack_t*, stack_t*) 186
+int     acct(const char*  filepath)  51
+
+# file descriptors
+ssize_t     read (int, void*, size_t)        3
+ssize_t     write (int, const void*, size_t)       4
+ssize_t     __pread64:pread64 (int, void *, size_t, off_t, off_t) 180
+ssize_t     __pwrite64:pwrite64 (int, void *, size_t, off_t, off_t) 181
+int         __open:open (const char*, int, mode_t)  5
+int         __openat:openat (int, const char*, int, mode_t)  322,295
+int         close (int)                      6
+int         creat(const char*, mode_t)       stub
+off_t       lseek(int, off_t, int)           19
+int         __llseek:_llseek (int, unsigned long, unsigned long, loff_t*, int)  140
+pid_t       getpid ()    20
+void *      mmap(void *, size_t, int, int, int, long)  stub
+void *      __mmap2:mmap2(void*, size_t, int, int, int, long)   192
+int         munmap(void *, size_t)  91
+void *      mremap(void *, size_t, size_t, unsigned long)  163
+int         msync(const void *, size_t, int)    144
+int         mprotect(const void *, size_t, int)  125
+int         madvise(const void *, size_t, int)  220,219
+int         mlock(const void *addr, size_t len)    150
+int         munlock(const void *addr, size_t len)   151
+int         mincore(void*  start, size_t  length, unsigned char*  vec)   219,218
+int         __ioctl:ioctl(int, int, void *)  54
+int         readv(int, const struct iovec *, int)   145
+int         writev(int, const struct iovec *, int)  146
+int         __fcntl:fcntl(int, int, void*)  55
+int         flock(int, int)   143
+int         fchmod(int, mode_t)  94
+int         dup(int)  41
+int         pipe(int *)  42,42,-1
+int         dup2(int, int)   63
+int         select:_newselect(int, struct fd_set *, struct fd_set *, struct fd_set *, struct timeval *)  142
+int         ftruncate(int, off_t)  93
+int         getdents:getdents64(unsigned int, struct dirent *, unsigned int)   217,220
+int         fsync(int)  118
+int         fchown:fchown32(int, uid_t, gid_t)  207
+void        sync(void)  36
+int         __fcntl64:fcntl64(int, int, void *)  221
+int         fstatfs:fstatfs64(int, size_t, struct statfs *)  267,269
+ssize_t     sendfile(int out_fd, int in_fd, off_t *offset, size_t count)  187
+int         fstatat:fstatat64(int dirfd, const char *path, struct stat *buf, int flags)   327,300
+int         mkdirat(int dirfd, const char *pathname, mode_t mode)  323,296
+int         fchownat(int dirfd, const char *path, uid_t owner, gid_t group, int flags)  325,298
+int         fchmodat(int dirfd, const char *path, mode_t mode, int flags)  333,306
+int         renameat(int olddirfd, const char *oldpath, int newdirfd, const char *newpath)  329,302
+
+# file system
+int     link (const char*, const char*)  9
+int     unlink (const char*)             10
+int     unlinkat (int, const char *, int)   328,301
+int     chdir (const char*)              12
+int     mknod (const char*, mode_t, dev_t)  14
+int     chmod (const char*,mode_t)          15
+int     chown:chown32(const char *, uid_t, gid_t)  212
+int     lchown:lchown32 (const char*, uid_t, gid_t)  198
+int     mount (const char*, const char*, const char*, unsigned long, const void*)  21
+int     umount(const char*)  stub
+int     umount2 (const char*, int)  52
+int     fstat:fstat64(int, struct stat*)    197
+int     stat:stat64(const char *, struct stat *)  195
+int     lstat:lstat64(const char *, struct stat *)  196
+int     mkdir(const char *, mode_t) 39
+int     readlink(const char *, char *, size_t)  85
+int     rmdir(const char *)  40
+int     rename(const char *, const char *)  38
+int     __getcwd:getcwd(char * buf, size_t size)  183
+int     access(const char *, int)  33
+int     symlink(const char *, const char *)  83
+int     fchdir(int)    133
+int     truncate(const char*, off_t)    92
+int     __statfs64:statfs64(const char *, size_t, struct statfs *)  266,268
+# time
+int           pause ()                       29
+int           gettimeofday(struct timeval*, struct timezone*)       78
+int           settimeofday(const struct timeval*, const struct timezone*)   79
+clock_t       times(struct tms *)       43
+int           nanosleep(const struct timespec *, struct timespec *)   162
+int           clock_gettime(clockid_t clk_id, struct timespec *tp)    263,265
+int           clock_settime(clockid_t clk_id, const struct timespec *tp)  262,264
+int           clock_getres(clockid_t clk_id, struct timespec *res)   264,266
+int           clock_nanosleep(const struct timespec *req, struct timespec *rem)  265,267
+int           getitimer(int, const struct itimerval *)   105
+int           setitimer(int, const struct itimerval *, struct itimerval *)  104
+int           __timer_create:timer_create(clockid_t clockid, struct sigevent *evp, timer_t *timerid)    257,259
+int           __timer_settime:timer_settime(timer_t, int, const struct itimerspec*, struct itimerspec*) 258,260
+int           __timer_gettime:timer_gettime(timer_t, struct itimerspec*)                                259,261
+int           __timer_getoverrun:timer_getoverrun(timer_t)                                              260,262
+int           __timer_delete:timer_delete(timer_t)                                                      261,263
+int           utimes(const char*, const struct timeval tvp[2])                          269, 271
+
+# signals
+int     sigaction(int, const struct sigaction *, struct sigaction *)  -1,67,67
+int     sigprocmask(int, const sigset_t *, sigset_t *)  126
+int     __sigsuspend:sigsuspend(int unused1, int unused2, unsigned mask)  72
+int     __rt_sigaction:rt_sigaction (int sig, const struct sigaction *act, struct sigaction *oact, size_t sigsetsize)  174
+int     __rt_sigprocmask:rt_sigprocmask (int  how, const sigset_t *set, sigset_t *oset, size_t sigsetsize)  175
+int     __rt_sigtimedwait:rt_sigtimedwait(const sigset_t *set, struct siginfo_t  *info, struct timespec_t  *timeout, size_t  sigset_size)  177
+int     sigpending(sigset_t *)  73
+
+# special stub for ARM, see arch-arm/bionic/sigaction.c
+int     __sigaction:sigaction(int, const struct sigaction *, struct sigaction *)  67,-1,-1
+
+# sockets
+int           socket(int, int, int)              281,-1
+int           socketpair(int, int, int, int*)    288,-1
+int           bind(int, struct sockaddr *, int)  282,-1
+int           connect(int, struct sockaddr *, socklen_t)   283,-1
+int           listen(int, int)                   284,-1
+int           accept(int, struct sockaddr *, socklen_t *)  285,-1
+int           getsockname(int, struct sockaddr *, socklen_t *)  286,-1
+int           getpeername(int, struct sockaddr *, socklen_t *)  287,-1
+int           sendto(int, const void *, size_t, int, const struct sockaddr *, socklen_t)  290,-1
+int           recvfrom(int, void *, size_t, unsigned int, struct sockaddr *, socklen_t *)  292,-1
+int           shutdown(int, int)  293,-1
+int           setsockopt(int, int, int, const void *, socklen_t)  294,-1
+int           getsockopt(int, int, int, void *, socklen_t *)    295,-1
+int           sendmsg(int, const struct msghdr *, unsigned int)  296,-1
+int           recvmsg(int, struct msghdr *, unsigned int)   297,-1
+
+# sockets for x86. These are done as an "indexed" call to socketcall syscall.
+int           socket:socketcall:1 (int, int, int) -1,102,-1
+int           bind:socketcall:2 (int, struct sockaddr *, int)  -1,102,-1
+int           connect:socketcall:3(int, struct sockaddr *, socklen_t)   -1,102,-1
+int           listen:socketcall:4(int, int)                   -1,102,-1
+int           accept:socketcall:5(int, struct sockaddr *, socklen_t *)  -1,102,-1
+int           getsockname:socketcall:6(int, struct sockaddr *, socklen_t *)  -1,102,-1
+int           getpeername:socketcall:7(int, struct sockaddr *, socklen_t *)  -1,102,-1
+int           socketpair:socketcall:8(int, int, int, int*)    -1,102,-1
+int           sendto:socketcall:11(int, const void *, size_t, int, const struct sockaddr *, socklen_t)  -1,102,-1
+int           recvfrom:socketcall:12(int, void *, size_t, unsigned int, struct sockaddr *, socklen_t *)  -1,102,-1
+int           shutdown:socketcall:13(int, int)  -1,102,-1
+int           setsockopt:socketcall:14(int, int, int, const void *, socklen_t)  -1,102,-1
+int           getsockopt:socketcall:15(int, int, int, void *, socklen_t *)    -1,102,-1
+int           sendmsg:socketcall:16(int, const struct msghdr *, unsigned int)  -1,102,-1
+int           recvmsg:socketcall:17(int, struct msghdr *, unsigned int)   -1,102,-1
+
+# sockets for sh.
+int           __socketcall:__socketcall(int, unsigned long*) -1,-1,102
+
+# scheduler & real-time
+int sched_setscheduler(pid_t pid, int policy, const struct sched_param *param)  156
+int sched_getscheduler(pid_t pid)  157
+int sched_yield(void)  158
+int sched_setparam(pid_t pid, const struct sched_param *param)  154
+int sched_getparam(pid_t pid, struct sched_param *param)  155
+int sched_get_priority_max(int policy)  159
+int sched_get_priority_min(int policy)  160
+int sched_rr_get_interval(pid_t pid, struct timespec *interval)  161
+
+# io priorities
+int ioprio_set(int which, int who, int ioprio) 314,289
+int ioprio_get(int which, int who) 315,290
+
+# other
+int     uname(struct utsname *)  122
+pid_t   __wait4:wait4(pid_t pid, int *status, int options, struct rusage *rusage)   114
+mode_t  umask(mode_t)  60
+int      __reboot:reboot(int, int, int, void *)  88
+int     __syslog:syslog(int, char *, int)  103
+int     init_module(void *, unsigned long, const char *)  128
+int     delete_module(const char*, unsigned int)   129
+int     klogctl:syslog(int, char *, int)   103
+
+# futex
+int	futex(void *, int, int, void *, void *, int) 240
+
+# epoll
+int     epoll_create(int size)     250,254
+int     epoll_ctl(int epfd, int op, int fd, struct epoll_event *event)    251,255
+int     epoll_wait(int epfd, struct epoll_event *events, int max, int timeout)   252,256
+
+int     inotify_init(void)      316,291,290
+int     inotify_add_watch(int, const char *, unsigned int)  317,292,291
+int     inotify_rm_watch(int, unsigned int)  318,293,292
+
+int     poll(struct pollfd *, unsigned int, long)  168
+
+# ARM-specific ARM_NR_BASE == 0x0f0000 == 983040
+int     __set_tls:ARM_set_tls(void*)                                 983045,-1
+int     cacheflush:ARM_cacheflush(long start, long end, long flags)  983042,-1

@@ -1,0 +1,127 @@
+.\" Copyright (c) 1985, 1991 Regents of the University of California.
+.\" All rights reserved.
+.\"
+.\" Redistribution and use in source and binary forms, with or without
+.\" modification, are permitted provided that the following conditions
+.\" are met:
+.\" 1. Redistributions of source code must retain the above copyright
+.\"    notice, this list of conditions and the following disclaimer.
+.\" 2. Redistributions in binary form must reproduce the above copyright
+.\"    notice, this list of conditions and the following disclaimer in the
+.\"    documentation and/or other materials provided with the distribution.
+.\" 3. All advertising materials mentioning features or use of this software
+.\"    must display the following acknowledgement:
+.\"	This product includes software developed by the University of
+.\"	California, Berkeley and its contributors.
+.\" 4. Neither the name of the University nor the names of its contributors
+.\"    may be used to endorse or promote products derived from this software
+.\"    without specific prior written permission.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+.\" ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
+.\" FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+.\" DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+.\" OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+.\" HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+.\" LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+.\" OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+.\" SUCH DAMAGE.
+.\"
+.\"     from: @(#)ieee.3	6.4 (Berkeley) 5/6/91
+.\" $FreeBSD: src/lib/msun/man/ilogb.3,v 1.3 2005/11/17 13:00:00 ru Exp $
+.\"
+.Dd November 6, 2005
+.Dt ILOGB 3
+.Os
+.Sh NAME
+.Nm ilogb ,
+.Nm ilogbf ,
+.Nm ilogbl ,
+.Nm logb ,
+.Nm logbf
+.Nd extract exponent
+.Sh LIBRARY
+.Lb libm
+.Sh SYNOPSIS
+.In math.h
+.Ft int
+.Fn ilogb "double x"
+.Ft int
+.Fn ilogbf "float x"
+.Ft int
+.Fn ilogbl "long double x"
+.Ft double
+.Fn logb "double x"
+.Ft float
+.Fn logbf "float x"
+.Sh DESCRIPTION
+.Fn ilogb ,
+.Fn ilogbf
+and
+.Fn ilogbl
+return
+.Fa x Ns 's exponent
+in integer format.
+.Fn ilogb \*(Pm\*(If
+returns
+.Dv INT_MAX ,
+.Fn ilogb \*(Pm\*(Na
+returns
+.Dv FP_ILOGBNAN ,
+and
+.Fn ilogb 0
+returns
+.Dv FP_ILOGB0 .
+.Pp
+.Fn logb x
+and
+.Fn logbf x
+return
+.Fa x Ns 's exponent
+in floating\-point format with the same precision as
+.Fa x .
+.Fn logb \*(Pm\*(If
+returns +\*(If, and
+.Fn logb 0
+returns -\*(If with a division by zero exception.
+.Sh SEE ALSO
+.Xr frexp 3 ,
+.Xr ieee 3 ,
+.Xr math 3 ,
+.Xr scalbn 3
+.Sh STANDARDS
+The
+.Fn ilogb ,
+.Fn ilogbf ,
+.Fn ilogbl ,
+.Fn logb
+and
+.Fn logbf
+routines conform to
+.St -isoC-99 .
+.Fn logb
+and
+.Fn logbf
+implement the logb function recommended by
+.St -ieee754 .
+.Sh HISTORY
+The
+.Fn logb
+function appeared in
+.Bx 4.3 .
+The
+.Fn ilogb
+function appeared in
+.Fx 1.1.5 .
+The
+.Fn ilogbf
+and
+.Fn logbf
+functions appeared in
+.Fx 2.0 .
+The
+.Fn ilogbl
+function appeared in
+.Fx 5.4 .

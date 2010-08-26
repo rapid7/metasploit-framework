@@ -7,7 +7,15 @@ XOR_PATH=../../source/common/crypto
 STDLIBPATH=../../source/common/stdlib
 ZLIB_PATH=../../source/common/zlib
 
-CFLAGS= -D_UNIX -I$(SOURCEPATH) -I$(MALLOC_PATH) -I$(XOR_PATH) -DMALLOC_PRODUCTION -DNO_TLS -DPIC -I$(SSLPATH) -I$(STDLIBPATH) -I$(ZLIB_PATH)
+
+CFLAGS=-nostdinc -nostdlib
+CFLAGS+= -I ../../source/bionic/libc/include -I ../../source/bionic/libc/kernel/common/linux/ -I ../../source/bionic/libc/kernel/common/ 
+CFLAGS+= -I ../../source/bionic/libc/arch-x86/include/
+CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/ 
+CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t" -D_BYTE_ORDER=_LITTLE_ENDIAN
+CFLAGS+= -lgcc -L../../source/bionic/compiled
+
+CFLAGS+= -D_UNIX -I$(SOURCEPATH) -I$(MALLOC_PATH) -I$(XOR_PATH) -DMALLOC_PRODUCTION -DPIC -I$(SSLPATH) -I$(STDLIBPATH) -I$(ZLIB_PATH)
 CFLAGS+= -g -fPIC -Os -D_POSIX_C_SOURCE=200809 -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1
 
 CPPFLAGS= -I$(SOURCEPATH) -DPIC
@@ -50,7 +58,7 @@ libsupport.a: $(objects)
 	$(AR) rc $@ $(objects) 
 
 clean:
-	$(RM) -f *.o *.a *.so
+	$(RM) -f *.o *.a *.so zlib/zlib.o
 
 .PHONY: clean
 

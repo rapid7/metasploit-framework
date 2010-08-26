@@ -20,10 +20,8 @@ DWORD __declspec(dllexport) Init(SOCKET fd)
 
 }
 #else
-DWORD __declspec(dllexport) Init(SOCKET fd, void *base)
-{
 
-	metsrv_rtld(fd, base);
-}
+// rtld dynamically links libc/libm/libcrypto/libssl/metsrv_main
+// then calls server_setup for us ;D
 
 #endif

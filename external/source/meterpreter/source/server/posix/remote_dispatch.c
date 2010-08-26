@@ -41,7 +41,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 
 			// If the library is not to be stored on disk, 
 			if (!(flags & LOAD_LIBRARY_FLAG_ON_DISK)) {
-				library = _dlopenbuf(NULL, dataTlv.buffer, dataTlv.header.length );
+				library = dlopenbuf(NULL, dataTlv.buffer, dataTlv.header.length );
 				res = (library) ? ERROR_SUCCESS : ERROR_NOT_FOUND;
 				//Taken from buffer_to_file (should be changed to random)
 				targetPath = "/tmp/foo";

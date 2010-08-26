@@ -1,0 +1,1 @@
+NO_LOCAL_SRC = malloc_leak.c malloc_debug_leak.c malloc_debug_qemu.c stubs.c logd_write.c ssp.c malloc_debug_common.c system_properties.c bionic_clone.c ;

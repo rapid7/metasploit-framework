@@ -1,7 +1,14 @@
 #include "common.h"
 
 #ifndef _WIN32
-#include "pthread.h"
+#include <pthread.h>
+
+int __futex_wait(volatile void *ftx, int val, const struct timespec *timeout);
+int __futex_wake(volatile void *ftx, int count);
+
+#include <time.h>
+#include <signal.h>
+
 #endif
 
 // thread.c contains wrappers for the primitives of locks, events and threads for use in 
@@ -132,6 +139,9 @@ BOOL event_signal( EVENT * event )
 #ifdef _WIN32
 	if( SetEvent( event->handle ) == 0 )
 		return FALSE;
+#else 
+	event->handle = (HANDLE)1;
+	__futex_wake(&(event->handle), 1);
 #endif
 
 	return TRUE;
@@ -152,10 +162,29 @@ BOOL event_poll( EVENT * event, DWORD timeout )
 
 	return FALSE;
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
-	return FALSE;
+	// DWORD WINAPI WaitForSingleObject(
+	// __in  HANDLE hHandle,
+	// __in  DWORD dwMilliseconds
+	// );
+	// http://msdn.microsoft.com/en-us/library/ms687032(VS.85).aspx
+
+	struct timespec ts;
+
+	// XXX, need to verify for -1. below modified from bionic/pthread.c
+	ts.tv_sec = timeout / 1000;
+	ts.tv_nsec = (timeout%1000)*1000000;
+	if (ts.tv_nsec >= 1000000000) {
+		ts.tv_sec++;
+		ts.tv_nsec -= 1000000000;
+	}
+
+	// atomically checks if event->handle is 0, if so, 
+	// it sleeps for timeout. if event->handle is 1, it 
+	// returns straight away.
+
+	__futex_wait(&(event->handle), 0, &ts);
+
+	return event->handle ? TRUE : FALSE;
 #endif
 }
 
@@ -166,10 +195,11 @@ BOOL event_poll( EVENT * event, DWORD timeout )
  */
 THREAD * thread_open( VOID )
 {
+	THREAD * thread        = NULL;
 #ifdef _WIN32
 	OPENTHREAD pOpenThread = NULL;
 	HMODULE hKernel32      = NULL;
-	THREAD * thread        = NULL;
+
 
 	thread = (THREAD *)malloc( sizeof( THREAD ) );
 	if( thread != NULL )
@@ -214,12 +244,67 @@ THREAD * thread_open( VOID )
 
 	return thread;
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
-	return NULL;
+	thread = (THREAD *)malloc( sizeof( THREAD ) );
+
+	if( thread != NULL )
+	{
+		memset( thread, 0, sizeof(THREAD) );
+
+		thread->id      = gettid();
+		thread->sigterm = event_create();
+	}
+	return thread;
 #endif
 }
+
+#ifndef _WIN32
+
+struct thread_conditional {
+	pthread_mutex_t suspend_mutex;
+	pthread_cond_t suspend_cond;
+	int engine_running;
+	THREADFUNK (*funk)(void *arg);
+	THREAD *thread;
+};
+
+void __thread_cancelled(int signo)
+{
+	signal(SIGTERM, SIG_DFL);
+	pthread_exit(NULL);
+}
+
+/*
+ * This is the entry point for threads created with thread_create. 
+ * 
+ * To implement suspended threads, we need to do some messing around with
+ * mutexes and conditional broadcasts ;\
+ */
+
+void *__paused_thread(void *req)
+{
+	LPVOID (*funk)(void *arg);
+	THREAD *thread;
+
+	struct thread_conditional *tc = (struct thread_conditional *)(req);
+	tc->thread->id = gettid();
+
+	signal(SIGTERM, __thread_cancelled);
+
+	pthread_mutex_lock(&tc->suspend_mutex);
+
+	while(tc->engine_running == FALSE) {
+		pthread_cond_wait(&tc->suspend_cond, &tc->suspend_mutex);
+	}
+
+	pthread_mutex_unlock(&tc->suspend_mutex);
+
+	funk = tc->funk;
+	thread = tc->thread;
+	free(tc); 
+
+	return funk(thread);	
+}
+#endif
 
 /*
  * Create a new thread in a suspended state.
@@ -231,7 +316,6 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 	if( funk == NULL )
 		return NULL;
 
-#ifdef _WIN32
 	thread = (THREAD *)malloc( sizeof( THREAD ) );
 	if( thread == NULL )
 		return NULL;
@@ -245,11 +329,13 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 		return NULL;
 	}
 
-	thread->parameter1 = param1;
 
+	thread->parameter1 = param1;
 	thread->parameter2 = param2;
 
+#ifdef _WIN32
 	thread->handle = CreateThread( NULL, 0, funk, thread, CREATE_SUSPENDED, &thread->id );
+
 	if( thread->handle == NULL )
 	{
 		event_destroy( thread->sigterm );
@@ -258,10 +344,42 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 	}
 
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
+	// PKS, this is fucky.
+	// we need to use conditionals to implement this. 
+
+	do {
+		pthread_t pid;
+
+		struct thread_conditional *tc;
+		tc = (struct thread_conditional *) malloc(sizeof(struct thread_conditional));
+
+		if( tc == NULL ) {
+			event_destroy(thread->sigterm);
+			free(thread);
+			return NULL;
+		}
+		
+		memset( tc, 0, sizeof(struct thread_conditional));
+
+		pthread_mutex_init(&tc->suspend_mutex, NULL);
+		pthread_cond_init(&tc->suspend_cond, NULL);
+
+		tc->funk = funk;		
+		tc->thread = thread;
+
+		thread->suspend_thread_data = (void *)(tc);
+
+		if(pthread_create(&pid, NULL, __paused_thread, tc) == -1) {
+			free(tc);
+			event_destroy(thread->sigterm);
+			free(thread);
+			return NULL;
+		}
+		// __paused_thread free's the allocated memory.
+
+	} while(0);
 #endif
+
 	return thread;
 }
 
@@ -278,9 +396,12 @@ BOOL thread_run( THREAD * thread )
 		return FALSE;
 
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
+	struct thread_conditional *tc;
+	tc = (struct thread_conditional *)thread->suspend_thread_data;
+	pthread_mutex_lock(&tc->suspend_mutex);
+	tc->engine_running = TRUE;
+	pthread_mutex_unlock(&tc->suspend_mutex);
+	pthread_cond_signal(&tc->suspend_cond);
 #endif
 	return TRUE;
 }
@@ -294,14 +415,7 @@ BOOL thread_sigterm( THREAD * thread )
 	if( thread == NULL )
 		return FALSE;
 
-#ifdef _WIN32
 	return event_signal( thread->sigterm );
-#else
-	/*
-	 * XXX add POSIX implementation
-	 */
-	return FALSE;
-#endif
 }
 
 /*
@@ -318,9 +432,18 @@ BOOL thread_kill( THREAD * thread )
 
 	return TRUE;
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
+	// bionic/libc/bionic/CAVEATS
+	// - pthread cancellation is *not* supported. this seemingly simple "feature" is the source
+	// of much bloat and complexity in a C library. Besides, you'd better write correct
+	// multi-threaded code instead of relying on this stuff.
+
+	// pthread_kill says: Note  that  pthread_kill()  only  causes  the
+	// signal to be handled in the context of the given thread; the signal
+	// action (termination or stopping) affects the process as a whole.
+
+	// We send our thread a SIGTERM, and a signal handler calls pthread_exit().
+
+	pthread_kill(thread->id, SIGTERM);
 	return FALSE;
 #endif
 }
@@ -340,9 +463,10 @@ BOOL thread_join( THREAD * thread )
 
 	return FALSE;
 #else
-	/*
-	 * XXX add POSIX implementation
-	 */
+	if(pthread_join(thread->id, NULL) == 0) 
+		return TRUE;
+
+	return FALSE;
 #endif
 }
 

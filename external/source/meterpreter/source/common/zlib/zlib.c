@@ -64,12 +64,9 @@
 
 #else /* not kernel */
 
-#if defined(MSDOS)||defined(VMS)||defined(CRAY)||defined(WIN32)||defined(RISCOS)
-#   include <stddef.h>
-#   include <errno.h>
-#else
-    extern int errno;
-#endif
+#include <stddef.h>
+#include <errno.h>
+
 #ifdef STDC
 #  include <string.h>
 #  include <stdlib.h>

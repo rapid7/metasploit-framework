@@ -12,8 +12,16 @@
 #include "openssl/ssl.h"
 #ifdef _UNIX
 #include "compat_types.h"
-#endif
 
+
+#include <sys/select.h>
+#include <sys/endian.h>
+#include <netinet/in.h>
+
+// only do debugging on unix side of things for now.
+#define DEBUGTRACE 
+
+#endif
 
 
 #include "linkage.h"
@@ -63,7 +71,16 @@ static void real_dprintf(char *format, ...) {
 
 #else
 
-static void real_dprintf(char *format, ...) {}
+static void real_dprintf(char *format, ...)
+{
+	va_list args;
+	char buffer[1024];
+	va_start(args, format);
+	vsnprintf(buffer, sizeof(buffer)-2, format, args);
+	strcat(buffer, "\n");
+	va_end(args);
+	write(2, buffer, strlen(buffer));
+}
 
 #endif
 
