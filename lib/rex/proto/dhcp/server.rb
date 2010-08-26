@@ -49,7 +49,12 @@ class Server
 		dnsserv = hash['DNSSERVER'] || source
 		self.dnsserv = Rex::Socket.addr_aton(dnsserv)
 
-		self.broadcasta = Rex::Socket.addr_itoa( self.start_ip | (Rex::Socket.addr_ntoi(self.netmaskn) ^ 0xffffffff) )
+		# broadcast
+		if hash['BROADCAST']
+			self.broadcasta = Rex::Socket.addr_aton(hash['BROADCAST'])
+		else
+			self.broadcasta = Rex::Socket.addr_itoa( self.start_ip | (Rex::Socket.addr_ntoi(self.netmaskn) ^ 0xffffffff) )
+		end
 
 		self.served = {}
 		if (hash['SERVEONCE'])
@@ -115,7 +120,9 @@ class Server
 		if ip
 			self.sock.sendto( pkt, ip, port )
 		else
-			self.sock.sendto( pkt, '255.255.255.255', port )
+			if not self.sock.sendto( pkt, '255.255.255.255', port )
+				self.sock.sendto( pkt, self.broadcasta, port )
+			end
 		end
 	end
 
