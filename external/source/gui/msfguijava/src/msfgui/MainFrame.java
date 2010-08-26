@@ -4,7 +4,6 @@
 package msfgui;
 
 import java.awt.Component;
-import java.awt.Graphics;
 import java.awt.HeadlessException;
 import java.awt.event.WindowEvent;
 import javax.swing.JTable;
@@ -27,7 +26,6 @@ import java.util.HashMap;
 import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JComponent;
@@ -136,6 +134,9 @@ public class MainFrame extends FrameView {
 		});
 		//Setup icon
 		this.getFrame().setIconImage( resourceMap.getImageIcon("main.icon").getImage());
+		//Disable tabs by default
+		for(int i = 2; i <= 5; i++)
+			tabbedPane.setEnabledAt(i, false);
 	}
 
 	private void confirmStop() {
@@ -352,10 +353,10 @@ public class MainFrame extends FrameView {
 					//Exploits and auxiliary get modulepopups; payloads get payloadpopups duh
 					setMessage("Getting exploits");
 					expandList((Object[]) ((Map)rpcConn.execute("module.exploits")).get("modules"), exploitsMenu, moduleFactory, "exploit");
-					setProgress(0.33f);
+					setProgress(0.3f);
 					setMessage("Getting auxiliary modules");
 					expandList((Object[]) ((Map)rpcConn.execute("module.auxiliary")).get("modules"), auxiliaryMenu, moduleFactory, "auxiliary");
-					setProgress(0.66f);
+					setProgress(0.5f);
 					setMessage("Getting payloads");
 					expandList((Object[]) ((Map)rpcConn.execute("module.payloads")).get("modules"), payloadsMenu, new RunMenuFactory(){
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
@@ -366,6 +367,9 @@ public class MainFrame extends FrameView {
 							};
 						}
 					}, "payload");
+					setProgress(0.8f);
+					setMessage("Querying database...");
+					reloadDb();
 					setProgress(1.0f);
 				} catch (MsfException ex) {
 					statusAnimationLabel.setText("Error getting module lists. " + ex);
@@ -393,7 +397,7 @@ public class MainFrame extends FrameView {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        jTabbedPane1 = new javax.swing.JTabbedPane();
+        tabbedPane = new javax.swing.JTabbedPane();
         jScrollPane1 = new javax.swing.JScrollPane();
         jobsList = new javax.swing.JList();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -444,7 +448,7 @@ public class MainFrame extends FrameView {
 
         mainPanel.setName("mainPanel"); // NOI18N
 
-        jTabbedPane1.setName("jTabbedPane1"); // NOI18N
+        tabbedPane.setName("tabbedPane"); // NOI18N
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
         jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
@@ -453,7 +457,7 @@ public class MainFrame extends FrameView {
         jScrollPane1.setViewportView(jobsList);
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(MainFrame.class);
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane1.TabConstraints.tabTitle"), jScrollPane1); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane1.TabConstraints.tabTitle"), jScrollPane1); // NOI18N
 
         jScrollPane2.setName("jScrollPane2"); // NOI18N
 
@@ -469,7 +473,7 @@ public class MainFrame extends FrameView {
         sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
         jScrollPane2.setViewportView(sessionsTable);
 
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane2.TabConstraints.tabTitle"), jScrollPane2); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane2.TabConstraints.tabTitle"), jScrollPane2); // NOI18N
 
         jScrollPane3.setName("jScrollPane3"); // NOI18N
 
@@ -505,7 +509,7 @@ public class MainFrame extends FrameView {
         hostsTable.getColumnModel().getColumn(11).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title11")); // NOI18N
         hostsTable.getColumnModel().getColumn(12).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title12")); // NOI18N
 
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane3.TabConstraints.tabTitle"), jScrollPane3); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane3.TabConstraints.tabTitle"), jScrollPane3); // NOI18N
 
         jScrollPane4.setName("jScrollPane4"); // NOI18N
 
@@ -528,7 +532,7 @@ public class MainFrame extends FrameView {
         servicesTable.setName("servicesTable"); // NOI18N
         jScrollPane4.setViewportView(servicesTable);
 
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane4.TabConstraints.tabTitle"), jScrollPane4); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane4.TabConstraints.tabTitle"), jScrollPane4); // NOI18N
 
         jScrollPane5.setName("jScrollPane5"); // NOI18N
 
@@ -551,7 +555,7 @@ public class MainFrame extends FrameView {
         vulnsTable.setName("vulnsTable"); // NOI18N
         jScrollPane5.setViewportView(vulnsTable);
 
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane5.TabConstraints.tabTitle"), jScrollPane5); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane5.TabConstraints.tabTitle"), jScrollPane5); // NOI18N
 
         jScrollPane6.setName("jScrollPane6"); // NOI18N
 
@@ -574,19 +578,19 @@ public class MainFrame extends FrameView {
         eventsTable.setName("eventsTable"); // NOI18N
         jScrollPane6.setViewportView(eventsTable);
 
-        jTabbedPane1.addTab(resourceMap.getString("jScrollPane6.TabConstraints.tabTitle"), jScrollPane6); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jScrollPane6.TabConstraints.tabTitle"), jScrollPane6); // NOI18N
 
-        jTabbedPane1.setSelectedIndex(1);
+        tabbedPane.setSelectedIndex(1);
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 882, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 882, Short.MAX_VALUE)
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jTabbedPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -942,26 +946,14 @@ public class MainFrame extends FrameView {
 
 	/** Refreshes the database tables. */
 	private void reloadDb() {
-		try {
-			Object[] hosts = (Object[]) ((Map)rpcConn.execute("db.hosts",new Object[]{new HashMap()})).get("hosts");
-			reAdd(hostsTable,hosts,new String[]{"created_at","address","address6","mac","name","state","os_name",
+		reAddQuery(hostsTable,2,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
 						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
-		} catch (MsfException mex) {
-		}
-		try {
-			Object[] services = (Object[]) ((Map)rpcConn.execute("db.services",new Object[]{new HashMap()})).get("services");
-			reAdd(servicesTable, services, new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
-		} catch (MsfException mex) {
-		}
-		try {
-			Object[] vulns = (Object[]) ((Map)rpcConn.execute("db.vulns",new Object[]{new HashMap()})).get("vulns");
-			reAdd(vulnsTable,vulns,new String[]{"port","proto","time","host","name","refs"});
-		} catch (MsfException mex) {
-		}
+		reAddQuery(servicesTable, 3, "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+		reAddQuery(vulnsTable,4,"vulns",new String[]{"port","proto","time","host","name","refs"});
 		try {
 			Object wspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace");
 			Object[] events = (Object[]) ((Map)rpcConn.execute("db.events",new Object[]{wspace})).get("events");
-			reAdd(eventsTable,events,new String[]{"host","created_at","updated_at","name","critical","username","info"});
+			reAdd(eventsTable,5,events,new String[]{"host","created_at","updated_at","name","critical","username","info"});
 		} catch (MsfException mex) {
 		}
 	}
@@ -1253,7 +1245,6 @@ public class MainFrame extends FrameView {
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JPopupMenu.Separator jSeparator1;
-    private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JList jobsList;
     private javax.swing.JMenuItem killSessionsMenuItem;
     private javax.swing.JMenuItem logGenerateMenuItem;
@@ -1275,6 +1266,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
+    private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JTable vulnsTable;
     // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
@@ -1306,8 +1298,16 @@ public class MainFrame extends FrameView {
 		}
 	}
 
-	/** Clear a table's contents, and replace with contents of data */
-	private void reAdd(JTable table, Object[] data, String[] cols) {
+	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
+	private void reAddQuery(JTable table, int tabIndex, String call, String[] cols) {
+		try {
+			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,new Object[]{new HashMap()})).get(call);
+			reAdd(hostsTable,tabIndex, data,cols);
+		} catch (MsfException mex) {
+		}
+	}
+	/** Clear a table's contents, reenabling the tab, and replace with contents of data */
+	private void reAdd(JTable table, int tabIndex, Object[] data, String[] cols) {
 		DefaultTableModel mod = (DefaultTableModel) table.getModel();
 		while (mod.getRowCount() > 0)
 			mod.removeRow(0);
@@ -1318,6 +1318,7 @@ public class MainFrame extends FrameView {
 			mod.addRow(row);
 		}
 		TableHelper.fitColumnWidths(mod, table);
+		tabbedPane.setEnabledAt(tabIndex, true);
 	}
 
 }
