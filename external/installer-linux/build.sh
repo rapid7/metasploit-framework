@@ -88,6 +88,9 @@ rm msf3 2>/dev/null
 
 ln -sf msf3-http msf3
 tar hcf msf3.tar msf3
+ln -sf msf3-http framework-${VERSION}
+tar jhcf framework-${VERSION}.tar.bz2 framework-${VERSION}
+rm framework-${VERSION}
 
 TITLE="Metasploit Framework v${VERSION} Installer (64-bit)"
 INSTALLER_FILENAME="framework-${VERSION}-linux-x86_64.run"
