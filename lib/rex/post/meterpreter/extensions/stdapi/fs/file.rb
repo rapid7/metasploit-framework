@@ -31,7 +31,38 @@ Separator = "\\"
 	class <<self
 		attr_accessor :client
 	end
+	
+	#
+	# Search for files.
+	#
+	def File.search( root=nil, glob="*.*", recurse=true, timeout=-1 )
+		
+		files = ::Array.new
+		
+		request = Packet.create_request( 'stdapi_fs_search' )
 
+		root = root.chomp( '\\' ) if root
+		
+		request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
+		request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
+		request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
+
+		# we set the response timeout to -1 to wait indefinatly as a 
+		# search could take an indeterminate ammount of time to complete.
+		response = client.send_request( request, timeout )
+		if( response.result == 0 )
+			response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
+				files << {
+					'path' => results.get_tlv_value( TLV_TYPE_FILE_PATH ),
+					'name' => results.get_tlv_value( TLV_TYPE_FILE_NAME ),
+					'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
+				}
+			end
+		end
+		
+		return files
+	end
+	
 	#
 	# Returns the base name of the supplied file path to the caller.
 	#
