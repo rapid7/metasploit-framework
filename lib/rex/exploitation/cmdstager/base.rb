@@ -127,6 +127,11 @@ class CmdStagerBase
 		new_cmds = []
 		line = ''
 		concat = cmd_concat_operator
+
+		# We cannot compress commands if there is no way to combine commands on
+		# a single line.
+		return cmds if not concat
+
 		cmds.each { |cmd|
 
 			# If this command will fit, concat it and move on.
@@ -162,7 +167,7 @@ class CmdStagerBase
 	# Can be overriden.  For exmaple, use for unix use ";" instead
 	#
 	def cmd_concat_operator
-		""
+		nil
 	end
 
 end
