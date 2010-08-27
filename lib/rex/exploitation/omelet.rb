@@ -86,7 +86,8 @@ class Omelet
 			searchforward = opts[:searchforward] || true
 			reset         = opts[:reset]
 			startreg      = opts[:startreg]
-         usechecksum   = opts[:checksum]
+			usechecksum   = opts[:checksum]
+			adjust        = opts[:adjust] || 0
 
 			return nil if ((opts = hunter_stub) == nil)
 
@@ -131,6 +132,14 @@ class Omelet
 				flipflagpost = "std"
 			end
 
+			# will we have to adjust the destination address ?
+			adjustdest = ''
+			if adjust > 0
+				adjustdest = "\n\tsub edi,#{adjust}"
+			elsif adjust < 0
+				adjustdest = "\n\tadd edi,#{adjust}"
+			end
+
 			# prepare the stub that starts the search
 			startstub = ''
 			if startreg
@@ -143,6 +152,7 @@ class Omelet
 			# a register will be used as start location for the search
 			startstub << "\n\t" if startstub.length > 0
 			startstub << "push esp\n\tpop edi\n\tor di,0xffff"
+			startstub << adjustdest
 			# edx will be used, start at end of stack frame
 			if not startreg
 				startstub << "\n\tmov edx,edi"
@@ -158,7 +168,7 @@ class Omelet
 				resetstart = "push ebp\n\tpop edx"
 			end
 
-         #checksum code by dijital1 & corelanc0d3r
+         		#checksum code by dijital1 & corelanc0d3r
 			if usechecksum
 				checksum = <<EOS
 	xor ecx,ecx
