@@ -73,7 +73,7 @@ class Server
 
 		self.files.clear
 		self.thread.kill
-		self.sock.close
+		self.sock.close rescue nil # might be closed already
 	end
 
 

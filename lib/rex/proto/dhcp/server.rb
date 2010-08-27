@@ -94,7 +94,7 @@ class Server
 	def stop
 		@shutting_down = true
 		self.thread.kill
-		self.sock.close
+		self.sock.close rescue nil
 	end
 
 
