@@ -59,6 +59,10 @@ Command customCommands[] =
 	  { request_fs_file_expand_path,                       { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+	{ "stdapi_fs_search",
+	  { request_fs_search,									{ 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER										},
+	},
 
 	// Process
 	{ "stdapi_sys_process_attach",

@@ -252,7 +252,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS;CINTERFACE;COBJMACROS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -354,7 +354,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS;CINTERFACE;COBJMACROS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -674,6 +674,10 @@
 							PreprocessorDefinitions=""
 						/>
 					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\fs\search.c"
+					>
 				</File>
 			</Filter>
 			<Filter
@@ -1493,6 +1497,10 @@
 				>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\fs\fs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\fs\search.h"
 					>
 				</File>
 			</Filter>
