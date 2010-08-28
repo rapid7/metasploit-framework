@@ -1178,6 +1178,87 @@ public
 			
 	end
 
+	def driver(token,xopts)
+		authenticate(token)
+		opts = fixOpts(xopts)
+		if opts[:driver]
+			if @framework.db.drivers.include?(opts[:driver])
+				@framework.db.driver = opts[:driver]
+				return { :result => 'success' }
+			else
+				return { :result => 'failed' }
+
+			end
+		else
+			return { :driver => @framework.db.driver.to_s }
+		end
+		return { :result => 'failed' }
+	end
+
+	def connect(token,xopts)
+		authenticate(token)
+		opts = fixOpts(xopts)
+		if(not @framework.db.driver and not opts[:driver])
+			return { :result => 'failed' }
+		end
+
+		if opts[:driver]
+			if @framework.db.drivers.include?(opts[:driver])
+				@framework.db.driver = opts[:driver]
+			else
+				return { :result => 'failed' }
+			end
+		end
+		
+		driver = @framework.db.driver
+
+		case driver
+		when 'mysql'
+			opts['adapter'] = 'mysql'
+		when 'postgresql'
+			opts['adapter'] = 'postgresql'
+		when 'sqlite3'
+			opts['adapter'] = 'sqlite3'
+		else
+			return { :result => 'failed' }
+		end
+	
+		if (not @framework.db.connect(opts))		
+			return { :result => 'failed' }
+		end
+		return { :result => 'success' }
+		
+	end
+
+	def status(token)
+		authenticate(token)
+		if (not @framework.db.driver)
+			return {:driver => 'None' }
+		end
+		cdb = ""
+                if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
+                                        if ActiveRecord::Base.connection.respond_to? :current_database
+                                                cdb = ActiveRecord::Base.connection.current_database
+                                        else
+						cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
+					end
+					return {:driver => @framework.db.driver.to_s , :db => cdb }
+		else
+			return {:driver => @framework.db.driver.to_s}
+		end
+		return {:driver => 'None' }
+	end
+	def disconnect(token)
+		authenticate(token)
+		if (@framework.db)
+			@framework.db.disconnect()
+			return { :result => 'success' }
+		else
+			return { :result => 'failed' }
+		end
+	end
+
+
 end
 end
 end
