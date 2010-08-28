@@ -41,8 +41,8 @@ public class SessionCommand {
 					if (!session.get("type").equals("meterpreter"))
 						continue;
 					publish(session);
-					rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),Base64.encode(("\n"
-							+sess.getCommand(session, this)+"\n").getBytes())});
+					rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(("\n"
+							+sess.getCommand(session, this)+"\n").getBytes()));
 				}
 				}catch (RuntimeException rex){
 					if(!rex.getMessage().equals("cancelled"))

@@ -166,7 +166,7 @@ public class MainFrame extends FrameView {
 			public void action() throws Exception {
 				iw.setVisible(false);
 				iw.dispose();
-				rpcConn.execute("console.destroy", new Object[]{id});
+				rpcConn.execute("console.destroy", id);
 				existingConsoleMenu.remove(openItem);
 				closeConsoleMenu.remove(closeItem);
 			}
@@ -1009,7 +1009,7 @@ public class MainFrame extends FrameView {
 	private void killSessionsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killSessionsMenuItemActionPerformed
 		for( Object sesObj : sessionsTableModel.sessions ){
 			try{
-				rpcConn.execute("session.stop", new Object[]{((Map)sesObj).get("id")});
+				rpcConn.execute("session.stop", ((Map)sesObj).get("id"));
 			} catch (MsfException xre) {
 				statusMessageLabel.setText("Error killing session "+((Map)sesObj).get("id"));
 			}
@@ -1050,7 +1050,7 @@ public class MainFrame extends FrameView {
 		reAddQuery(vulnsTable,4,"vulns",new String[]{"port","proto","time","host","name","refs"});
 		try {
 			Object wspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace");
-			Object[] events = (Object[]) ((Map)rpcConn.execute("db.events",new Object[]{wspace})).get("events");
+			Object[] events = (Object[]) ((Map)rpcConn.execute("db.events",wspace)).get("events");
 			reAdd(eventsTable,5,events,new String[]{"host","created_at","updated_at","name","critical","username","info"});
 		} catch (MsfException mex) {
 		}
@@ -1078,7 +1078,7 @@ public class MainFrame extends FrameView {
 				type = "data";
 			else
 				type = res.toString().replaceAll(" ", "_");
-			rpcConn.execute("db.import_"+type,new Object[]{argHash});
+			rpcConn.execute("db.import_"+type,argHash);
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		} catch (IOException iex) {
@@ -1096,7 +1096,7 @@ public class MainFrame extends FrameView {
 
 	private void loadPlugin(String plugin){
 		try {
-			rpcConn.execute("plugin.load",new Object[]{plugin, new HashMap()});
+			rpcConn.execute("plugin.load",plugin, new HashMap());
 			JOptionPane.showMessageDialog(getFrame(), "Plugin "+plugin+" loaded.");
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
@@ -1139,7 +1139,7 @@ public class MainFrame extends FrameView {
 					JOptionPane.PLAIN_MESSAGE, null, plugins, plugins[0]);
 			if(plugin == null)
 				return;
-			rpcConn.execute("plugin.unload",new Object[]{plugin});
+			rpcConn.execute("plugin.unload",plugin);
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
@@ -1176,20 +1176,20 @@ public class MainFrame extends FrameView {
 		jobPopupMenu = new JPopupMenu();
 		addSessionItem("Info",jobPopupMenu,new RpcAction() {
 			public void action() throws Exception {
-				Object obj = ((Map)rpcConn.execute("job.info", new Object[]{clickedJob})).get("info");
+				Object obj = ((Map)rpcConn.execute("job.info", clickedJob)).get("info");
 				(new JobInfoPopup(null, true, obj)).setVisible(true);
 			}
 		});
 		addSessionItem("Stop",jobPopupMenu,new RpcAction() {
 			public void action() throws Exception {
-				if(!((Map)rpcConn.execute("job.stop", new Object[]{clickedJob})).get("result").equals("success"))
+				if(!((Map)rpcConn.execute("job.stop", clickedJob)).get("result").equals("success"))
 					JOptionPane.showMessageDialog(null, "stop failed.");
 			}
 		});
 		jobsList.addMouseListener( new PopupMouseListener() {
 			public void doubleClicked(MouseEvent e){ //show interaction window on double-click
 				try{
-					Object obj = ((Map)rpcConn.execute("job.info", new Object[]{clickedJob})).get("info");
+					Object obj = ((Map)rpcConn.execute("job.info", clickedJob)).get("info");
 					(new JobInfoPopup(null, true, obj)).setVisible(true);
 				}catch (MsfException xre) {
 					JOptionPane.showMessageDialog(null, "info failed " + xre);
@@ -1273,8 +1273,8 @@ public class MainFrame extends FrameView {
 		addScript("Start packet recorder",monitorMenu,"packetrecorder");
 		addScript("Screenshot",monitorMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),
-						Base64.encode("screenshot\n".getBytes())});
+				rpcConn.execute("session.meterpreter_write", session.get("id"),
+						Base64.encode("screenshot\n".getBytes()));
 			}
 		});
 
@@ -1309,9 +1309,9 @@ public class MainFrame extends FrameView {
 				String[] userPass = UserPassDialog.showUserPassDialog(getFrame());
 				if(userPass == null)
 					return;
-				rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),Base64.encode(
+				rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(
 						("execute -H -f cmd -a \"/c net user "+userPass[0]+" "+userPass[1]+" /ADD " +
-						"&& net localgroup Administrators "+userPass[0]+" /ADD\" \n").getBytes())});
+						"&& net localgroup Administrators "+userPass[0]+" /ADD\" \n").getBytes()));
 			}
 		});
 		addScript("Kill AV",accessMenu,"killav");
@@ -1373,7 +1373,7 @@ public class MainFrame extends FrameView {
 	private void addSessionKillItem(JComponent popupMenu) throws HeadlessException {
 		addSessionItem("Kill session",popupMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				rpcConn.execute("session.stop", new Object[]{session.get("id")});
+				rpcConn.execute("session.stop", session.get("id"));
 			}
 		});
 	}
@@ -1468,7 +1468,7 @@ public class MainFrame extends FrameView {
 	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
 	private void reAddQuery(JTable table, int tabIndex, String call, String[] cols) {
 		try {
-			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,new Object[]{new HashMap()})).get(call);
+			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,new HashMap())).get(call);
 			reAdd(hostsTable,tabIndex, data,cols);
 		} catch (MsfException mex) {
 		}

@@ -118,7 +118,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
    /** Displays targetsMap on frame */
 	private void showModuleInfo(final RpcConnection rpcConn, final String fullName) throws HeadlessException {
 		try { //Get info
-			Map info = (Map) rpcConn.execute("module.info", new Object[]{moduleType, fullName});
+			Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
 			//Basic info
 			setTitle(info.get("name") + " " + fullName);
 			titleLabel.setText("<html><h2>"+info.get("name")+ "</h2></html>");
@@ -199,10 +199,10 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			Object[] mlist;
 			try {
 				mlist = (Object[])((Map)rpcConn.execute("module.compatible_payloads",
-					new Object[]{modName,target})).get("payloads"); //WARNING - ALTERED COMPATIBLE PAYLOAD RPC DEF
+					modName,target)).get("payloads"); //WARNING - ALTERED COMPATIBLE PAYLOAD RPC DEF
 			} catch (MsfException ex) {
 				mlist = (Object[])((Map)rpcConn.execute("module.compatible_payloads",
-					new Object[]{modName})).get("payloads"); //old rpc payload def
+					modName)).get("payloads"); //old rpc payload def
 			}
 			//Ok. it worked. now replace the payload list
 
@@ -265,14 +265,14 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		advancedOpts.clear();
 		try{
 			//display options
-			Map options = (Map) rpcConn.execute("module.options", new Object[]{moduleType, fullName});
+			Map options = (Map) rpcConn.execute("module.options", moduleType, fullName);
 			// payload options
 			if(moduleType.equals("exploit")){
 				if(payload.length() <= 0){
 					JOptionPane.showMessageDialog(this, "You must select a payload.");
 					return;
 				}
-				options.putAll((Map) rpcConn.execute("module.options", new Object[]{"payload", payload.toString()}));
+				options.putAll((Map) rpcConn.execute("module.options", "payload", payload.toString()));
 			}
 
 			for (Object optionName : options.keySet()) {
@@ -339,11 +339,10 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					hash.put(optionField.getName().substring("field".length()), optionField.getText());
 			}
 			//Execute and get results
-			final Object[] args =  new Object[]{moduleType, fullName,hash};
-			Map info = (Map) rpcConn.execute("module.execute",args);
+			Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
 			if(!info.get("result").equals("success"))
 				JOptionPane.showMessageDialog(rootPane, info);
-			MsfguiApp.addRecentModule(args, recentMenu, rpcConn);
+			MsfguiApp.addRecentModule(new Object[]{moduleType, fullName,hash}, recentMenu, rpcConn);
 
 			//close out
 			this.setVisible(false);

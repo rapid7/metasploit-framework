@@ -212,12 +212,8 @@ public class RpcConnection {
 		}
 	}
 
-	/** Runs command with no args */
-	public Object execute(String methodName) throws MsfException{
-		return execute(methodName, new Object[]{});
-	}
 	/** Adds token, runs command, and notifies logger on call and return */
-	public Object execute(String methodName, Object[] params) throws MsfException{
+	public Object execute(String methodName, Object... params) throws MsfException{
 		MsfguiLog.defaultLog.logMethodCall(methodName, params);
 		Object[] paramsNew = new Object[params.length+1];
 		paramsNew[0] = rpcToken;

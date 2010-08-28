@@ -118,8 +118,8 @@ public class MeterpFileBrowser extends MsfFrame {
 
 	/** Calls meterpreter_write with the session ID and Base64 encoded text. */
 	private Object executeCommand(String text) throws MsfException{
-		return rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),
-			Base64.encode(text.getBytes())});
+		return rpcConn.execute("session.meterpreter_write", session.get("id"),
+			Base64.encode(text.getBytes()));
 	}
 	/** Handles click events, like popup menu and double-click navigation */
 	protected void setupPopupMenu(final RpcConnection rpcConn, final Map session) {
@@ -183,7 +183,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		readTimer = new Timer(300, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Map received = (Map) rpcConn.execute("session.meterpreter_read", new Object[]{session.get("id")});
+					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
 					if (! received.get("encoding").equals("base64")) {
 						JOptionPane.showMessageDialog(null, "uhoh. encoding changed. Time to update msfgui?");
 						return;
@@ -462,8 +462,8 @@ public class MeterpFileBrowser extends MsfFrame {
 	private void recSearchDownloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recSearchDownloadButtonActionPerformed
 		try{
 			String currentDir = pwdLabel.getText().substring(pwdLabel.getText().indexOf(' ')+1);
-			rpcConn.execute("session.meterpreter_script", new Object[]{session.get("id"),
-				new SearchDwldOptionsDialog(this, currentDir).toString()});
+			rpcConn.execute("session.meterpreter_script", session.get("id"),
+				new SearchDwldOptionsDialog(this, currentDir).toString());
 			setVisible(false);
 			dispose();
 			interactWin.setVisible(true);

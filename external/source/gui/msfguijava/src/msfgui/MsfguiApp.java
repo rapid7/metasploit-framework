@@ -254,9 +254,7 @@ public class MsfguiApp extends SingleFrameApplication {
 					String val = prop.getAttributes().getNamedItem("val").getNodeValue();
 					hash.put(propName, val);
 				}
-				final Object[] args =  new Object[]{moduleType, fullName,hash};
-
-				addRecentModule(args, recentMenu, rpcConn);
+				addRecentModule(new Object[]{moduleType, fullName,hash}, recentMenu, rpcConn);
 			}catch(NullPointerException nex){//if attribute doesn't exist, ignore
 			}
 		}

@@ -249,7 +249,7 @@ public class SearchWindow extends MsfFrame {
 				continue;
 
 			try { //Get info
-				Map info = (Map) rpcConn.execute("module.info", new Object[]{modInfo[0], modInfo[1]});
+				Map info = (Map) rpcConn.execute("module.info", modInfo[0], modInfo[1]);
 				if(detail.equals("reference")){
 					Object references = info.get("references");
 					if(references != null){

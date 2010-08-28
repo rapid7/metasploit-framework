@@ -51,7 +51,7 @@ public class InteractWindow extends MsfFrame {
 				public void keyTyped(KeyEvent ke) {
 					if(ke.getKeyChar() == '\t'){
 						try{
-							Map res = (Map)rpcConn.execute("console.tabs", new Object[]{sid,inputField.getText()});
+							Map res = (Map)rpcConn.execute("console.tabs", sid,inputField.getText());
 							Object[] tabs = (Object[])res.get("tabs");
 							//one option: use it
 							if(tabs.length == 1){
@@ -108,7 +108,7 @@ public class InteractWindow extends MsfFrame {
 					}
 					try {
 						long start = System.currentTimeMillis();
-						Map received = (Map) rpcConn.execute(cmdPrefix+"read", new Object[]{sid});
+						Map received = (Map) rpcConn.execute(cmdPrefix+"read",sid);
 						time = System.currentTimeMillis() - start;
 						if (!received.get("encoding").equals("base64"))
 							throw new MsfException("Uhoh. Unknown encoding. Time to update?");
@@ -268,7 +268,7 @@ public class InteractWindow extends MsfFrame {
 			String command = inputField.getText();
 			commands.add(command);
 			String data = Base64.encode((command+"\n").getBytes());
-			rpcConn.execute(cmdPrefix+"write", new Object[]{session.get("id"),data});
+			rpcConn.execute(cmdPrefix+"write", session.get("id"),data);
 			outputArea.append(prompt+command+"\n");
 			outputArea.setCaretPosition(outputArea.getDocument().getLength());
 			inputField.setText("");

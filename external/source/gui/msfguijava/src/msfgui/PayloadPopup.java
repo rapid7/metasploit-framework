@@ -200,7 +200,7 @@ public class PayloadPopup extends MsfFrame {
    /** Displays payload info and options. */
 	private void showOptions(String fullName) {
 		try {
-			Map info = (Map) rpcConn.execute("module.info", new Object[]{"payload", fullName});
+			Map info = (Map) rpcConn.execute("module.info", "payload", fullName);
 			//Basic info
 			setTitle(info.get("name") + " " + fullName);
 			titleLabel.setText("<html><h2>"+info.get("name")+ "</h2></html>");
@@ -226,7 +226,7 @@ public class PayloadPopup extends MsfFrame {
 			authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
 
 			//display options
-			Map options = (Map) rpcConn.execute("module.options", new Object[]{"payload", fullName});
+			Map options = (Map) rpcConn.execute("module.options", "payload", fullName);
 			for (Object optionName : options.keySet()) 
 				addOption(optionName, (Map)options.get(optionName));
 			resetLayout();
@@ -541,7 +541,7 @@ public class PayloadPopup extends MsfFrame {
 				 if(val.length() > 0)
 					 options.put(name, val);
 			}
-			Map data = (Map) rpcConn.execute("module.execute", new Object[]{"payload", fullName,options});
+			Map data = (Map) rpcConn.execute("module.execute", "payload", fullName,options);
 			//Basic info
 			if(!data.get("result").equals("success"))
 				return;
@@ -645,9 +645,8 @@ public class PayloadPopup extends MsfFrame {
 		options.put("PAYLOAD",fullName);
 		options.put("TARGET","0");
 		try{
-			final Object[] args =  new Object[]{"exploit", "multi/handler", options};
-			Map data = (Map) rpcConn.execute("module.execute",args);
-			MsfguiApp.addRecentModule(args, mainFrame.recentMenu, rpcConn);
+			Map data = (Map) rpcConn.execute("module.execute","exploit", "multi/handler", options);
+			MsfguiApp.addRecentModule(new Object[]{"exploit", "multi/handler", options}, mainFrame.recentMenu, rpcConn);
 		}catch (MsfException ex){
 			JOptionPane.showMessageDialog(this, ex);
 		}

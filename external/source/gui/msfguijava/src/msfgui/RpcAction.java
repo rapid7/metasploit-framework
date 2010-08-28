@@ -44,7 +44,7 @@ public class RpcAction implements ActionListener {
 	/** Default action executes session.meterpreter_script and shows console window. */
 	public void action(Map session) throws Exception{
 		if(arg != null)
-			parent.rpcConn.execute("session.meterpreter_script", new Object[]{session.get("id"), getCmd()});
+			parent.rpcConn.execute("session.meterpreter_script", session.get("id"), getCmd());
 		parent.showInteractWindow();
 	}
 }

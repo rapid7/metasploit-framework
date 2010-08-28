@@ -40,7 +40,7 @@ public class ProcessList extends MsfFrame {
 	/** Lists the processes that are running */
 	protected void listProcs() throws HeadlessException {
 		try {
-			rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"), Base64.encode(("ps\n").getBytes())});
+			rpcConn.execute("session.meterpreter_write", session.get("id"), Base64.encode(("ps\n").getBytes()));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, ex);
 			if (ex.getMessage().equals("unknown session"))
@@ -49,7 +49,7 @@ public class ProcessList extends MsfFrame {
 		readTimer = new Timer(300, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
-					Map received = (Map) rpcConn.execute("session.meterpreter_read", new Object[]{session.get("id")});
+					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
 					if (!received.get("encoding").equals("base64")) {
 						JOptionPane.showMessageDialog(null, "uhoh. encoding changed. Time to update msfgui?");
 						return;
@@ -199,8 +199,8 @@ public class ProcessList extends MsfFrame {
 
 	private void migrateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_migrateButtonActionPerformed
 		try {
-			rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),
-					Base64.encode(("migrate "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes())});
+			rpcConn.execute("session.meterpreter_write", session.get("id"),
+					Base64.encode(("migrate "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes()));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, ex);
 		}
@@ -209,8 +209,8 @@ public class ProcessList extends MsfFrame {
 
 	private void killButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killButtonActionPerformed
 		try {
-			rpcConn.execute("session.meterpreter_write", new Object[]{session.get("id"),
-					Base64.encode(("kill "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes())});
+			rpcConn.execute("session.meterpreter_write", session.get("id"),
+					Base64.encode(("kill "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes()));
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(null, ex);
 		}

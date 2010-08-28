@@ -215,7 +215,7 @@ public class DbConnectDialog extends OptionsDialog {
 		opts.put("driver", typeSpinner.getValue().toString());
 		props.setAttribute("dbdriver", typeSpinner.getValue().toString());
 		try{
-			Map res = (Map)rpcConn.execute("db.connect",new Object[]{opts});
+			Map res = (Map)rpcConn.execute("db.connect",opts);
 			success = "success".equals(res.get("result"));
 			if(!success)
 				JOptionPane.showMessageDialog(myParent, res);
