@@ -9,4 +9,5 @@ require "msf/core/rpc/module"
 require "msf/core/rpc/job"
 require "msf/core/rpc/console"
 require "msf/core/rpc/db"
+require "msf/core/rpc/plugin"
 
