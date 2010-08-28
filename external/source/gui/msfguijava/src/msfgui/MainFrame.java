@@ -436,6 +436,7 @@ public class MainFrame extends FrameView {
         closeConsoleMenu = new javax.swing.JMenu();
         databaseMenu = new javax.swing.JMenu();
         connectItem = new javax.swing.JMenuItem();
+        disconnectItem = new javax.swing.JMenuItem();
         refreshItem = new javax.swing.JMenuItem();
         importItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
@@ -774,6 +775,16 @@ public class MainFrame extends FrameView {
         });
         databaseMenu.add(connectItem);
 
+        disconnectItem.setMnemonic('D');
+        disconnectItem.setText(resourceMap.getString("disconnectItem.text")); // NOI18N
+        disconnectItem.setName("disconnectItem"); // NOI18N
+        disconnectItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                disconnectItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(disconnectItem);
+
         refreshItem.setMnemonic('R');
         refreshItem.setText(resourceMap.getString("refreshItem.text")); // NOI18N
         refreshItem.setName("refreshItem"); // NOI18N
@@ -832,7 +843,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 698, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -933,15 +944,8 @@ public class MainFrame extends FrameView {
 	}//GEN-LAST:event_searchItemActionPerformed
 
 	private void connectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectItemActionPerformed
-		String answer = JOptionPane.showInputDialog(getFrame(), "Enter Connection String", "Connection String", JOptionPane.QUESTION_MESSAGE);
-		if(answer == null)
-			return;
-		try{
-			Map session = (Map)rpcConn.execute("console.create");
-			registerConsole(session, true, "db_connect "+answer);
-		}catch(MsfException mex){
-			JOptionPane.showMessageDialog(getFrame(), mex);
-		}
+		if(DbConnectDialog.connect(getFrame(), rpcConn))
+			reloadDb();
 	}//GEN-LAST:event_connectItemActionPerformed
 
 	/** Refreshes the database tables. */
@@ -987,6 +991,14 @@ public class MainFrame extends FrameView {
 			JOptionPane.showMessageDialog(getFrame(), iex);
 		}
 	}//GEN-LAST:event_importItemActionPerformed
+
+	private void disconnectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disconnectItemActionPerformed
+		try {
+			rpcConn.execute("db.disconnect");
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_disconnectItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1231,6 +1243,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
     private javax.swing.JMenu databaseMenu;
+    private javax.swing.JMenuItem disconnectItem;
     private javax.swing.JTable eventsTable;
     private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
