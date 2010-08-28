@@ -295,6 +295,7 @@ public class MainFrame extends FrameView {
 				}
 			}//end for each subname
 		}//end for each module
+		rootMenu.setEnabled(true);
 	}//end expandList()
 
    /** Displays info including version */
@@ -369,6 +370,11 @@ public class MainFrame extends FrameView {
 					}, "payload");
 					setProgress(0.8f);
 					setMessage("Querying database...");
+					// Enable menus
+					postMenu.setEnabled(true);
+					databaseMenu.setEnabled(true);
+					pluginsMenu.setEnabled(true);
+					consoleMenu.setEnabled(true);
 					reloadDb();
 					setProgress(1.0f);
 				} catch (MsfException ex) {
@@ -660,16 +666,19 @@ public class MainFrame extends FrameView {
 
         exploitsMenu.setMnemonic('E');
         exploitsMenu.setText(resourceMap.getString("exploitsMenu.text")); // NOI18N
+        exploitsMenu.setEnabled(false);
         exploitsMenu.setName("exploitsMenu"); // NOI18N
         menuBar.add(exploitsMenu);
 
         auxiliaryMenu.setMnemonic('A');
         auxiliaryMenu.setText(resourceMap.getString("auxiliaryMenu.text")); // NOI18N
         auxiliaryMenu.setName("auxiliaryMenu"); // NOI18N
+        auxiliaryMenu.setEnabled(false);
         menuBar.add(auxiliaryMenu);
 
         payloadsMenu.setMnemonic('P');
         payloadsMenu.setText(resourceMap.getString("payloadsMenu.text")); // NOI18N
+        payloadsMenu.setEnabled(false);
         payloadsMenu.setName("payloadsMenu"); // NOI18N
         menuBar.add(payloadsMenu);
 
@@ -698,6 +707,7 @@ public class MainFrame extends FrameView {
         postMenu.setMnemonic('t');
         postMenu.setText(resourceMap.getString("postMenu.text")); // NOI18N
         postMenu.setName("postMenu"); // NOI18N
+        postMenu.setEnabled(false);
 
         menuRunAllMeterp.setMnemonic('R');
         menuRunAllMeterp.setText(resourceMap.getString("menuRunAllMeterp.text")); // NOI18N
@@ -748,6 +758,8 @@ public class MainFrame extends FrameView {
         menuBar.add(postMenu);
 
         consoleMenu.setMnemonic('C');
+        consoleMenu.setText(resourceMap.getString("consoleMenu.text")); // NOI18N
+        consoleMenu.setEnabled(false);
         consoleMenu.setName("consoleMenu"); // NOI18N
 
         newConsoleItem.setText(resourceMap.getString("newConsoleItem.text")); // NOI18N
@@ -771,6 +783,7 @@ public class MainFrame extends FrameView {
 
         databaseMenu.setMnemonic('D');
         databaseMenu.setText(resourceMap.getString("databaseMenu.text")); // NOI18N
+        databaseMenu.setEnabled(false);
         databaseMenu.setName("databaseMenu"); // NOI18N
 
         connectItem.setMnemonic('C');
@@ -817,6 +830,7 @@ public class MainFrame extends FrameView {
 
         pluginsMenu.setMnemonic('l');
         pluginsMenu.setText(resourceMap.getString("pluginsMenu.text")); // NOI18N
+        pluginsMenu.setEnabled(false);
         pluginsMenu.setName("pluginsMenu"); // NOI18N
 
         autoAddRouteItem.setMnemonic('A');

@@ -398,6 +398,7 @@
           <Properties>
             <Property name="mnemonic" type="int" value="69"/>
             <Property name="text" type="java.lang.String" resourceKey="exploitsMenu.text"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="exploitsMenu" noResource="true"/>
           </Properties>
         </Menu>
@@ -406,12 +407,14 @@
             <Property name="mnemonic" type="int" value="65"/>
             <Property name="text" type="java.lang.String" resourceKey="auxiliaryMenu.text"/>
             <Property name="name" type="java.lang.String" value="auxiliaryMenu" noResource="true"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Menu>
         <Menu class="javax.swing.JMenu" name="payloadsMenu">
           <Properties>
             <Property name="mnemonic" type="int" value="80"/>
             <Property name="text" type="java.lang.String" resourceKey="payloadsMenu.text"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="payloadsMenu" noResource="true"/>
           </Properties>
         </Menu>
@@ -450,6 +453,7 @@
             <Property name="mnemonic" type="int" value="116"/>
             <Property name="text" type="java.lang.String" resourceKey="postMenu.text"/>
             <Property name="name" type="java.lang.String" value="postMenu" noResource="true"/>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="menuRunAllMeterp">
@@ -506,6 +510,8 @@
         <Menu class="javax.swing.JMenu" name="consoleMenu">
           <Properties>
             <Property name="mnemonic" type="int" value="67"/>
+            <Property name="text" type="java.lang.String" resourceKey="consoleMenu.text"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="consoleMenu" noResource="true"/>
           </Properties>
           <SubComponents>
@@ -536,6 +542,7 @@
           <Properties>
             <Property name="mnemonic" type="int" value="68"/>
             <Property name="text" type="java.lang.String" resourceKey="databaseMenu.text"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="databaseMenu" noResource="true"/>
           </Properties>
           <SubComponents>
@@ -585,6 +592,7 @@
           <Properties>
             <Property name="mnemonic" type="int" value="108"/>
             <Property name="text" type="java.lang.String" resourceKey="pluginsMenu.text"/>
+            <Property name="enabled" type="boolean" value="false"/>
             <Property name="name" type="java.lang.String" value="pluginsMenu" noResource="true"/>
           </Properties>
           <SubComponents>
