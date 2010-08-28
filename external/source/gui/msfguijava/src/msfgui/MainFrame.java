@@ -439,6 +439,15 @@ public class MainFrame extends FrameView {
         disconnectItem = new javax.swing.JMenuItem();
         refreshItem = new javax.swing.JMenuItem();
         importItem = new javax.swing.JMenuItem();
+        pluginsMenu = new javax.swing.JMenu();
+        autoAddRouteItem = new javax.swing.JMenuItem();
+        soundItem = new javax.swing.JMenuItem();
+        dbCredcollectItem = new javax.swing.JMenuItem();
+        dbTrackerItem = new javax.swing.JMenuItem();
+        socketLoggerItem = new javax.swing.JMenuItem();
+        ipsFilterItem = new javax.swing.JMenuItem();
+        otherPluginItem = new javax.swing.JMenuItem();
+        unloadPluginItem = new javax.swing.JMenuItem();
         helpMenu = new javax.swing.JMenu();
         onlineHelpMenu = new javax.swing.JMenuItem();
         javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
@@ -739,7 +748,6 @@ public class MainFrame extends FrameView {
         menuBar.add(postMenu);
 
         consoleMenu.setMnemonic('C');
-        consoleMenu.setText(resourceMap.getString("consoleMenu.text")); // NOI18N
         consoleMenu.setName("consoleMenu"); // NOI18N
 
         newConsoleItem.setText(resourceMap.getString("newConsoleItem.text")); // NOI18N
@@ -806,6 +814,92 @@ public class MainFrame extends FrameView {
         databaseMenu.add(importItem);
 
         menuBar.add(databaseMenu);
+
+        pluginsMenu.setMnemonic('l');
+        pluginsMenu.setText(resourceMap.getString("pluginsMenu.text")); // NOI18N
+        pluginsMenu.setName("pluginsMenu"); // NOI18N
+
+        autoAddRouteItem.setMnemonic('A');
+        autoAddRouteItem.setText(resourceMap.getString("autoAddRouteItem.text")); // NOI18N
+        autoAddRouteItem.setName("autoAddRouteItem"); // NOI18N
+        autoAddRouteItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                autoAddRouteItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(autoAddRouteItem);
+
+        soundItem.setMnemonic('S');
+        soundItem.setText(resourceMap.getString("soundItem.text")); // NOI18N
+        soundItem.setName("soundItem"); // NOI18N
+        soundItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                soundItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(soundItem);
+
+        dbCredcollectItem.setMnemonic('c');
+        dbCredcollectItem.setText(resourceMap.getString("dbCredcollectItem.text")); // NOI18N
+        dbCredcollectItem.setName("dbCredcollectItem"); // NOI18N
+        dbCredcollectItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dbCredcollectItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(dbCredcollectItem);
+
+        dbTrackerItem.setMnemonic('t');
+        dbTrackerItem.setText(resourceMap.getString("dbTrackerItem.text")); // NOI18N
+        dbTrackerItem.setName("dbTrackerItem"); // NOI18N
+        dbTrackerItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dbTrackerItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(dbTrackerItem);
+
+        socketLoggerItem.setMnemonic('k');
+        socketLoggerItem.setText(resourceMap.getString("socketLoggerItem.text")); // NOI18N
+        socketLoggerItem.setName("socketLoggerItem"); // NOI18N
+        socketLoggerItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                socketLoggerItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(socketLoggerItem);
+
+        ipsFilterItem.setMnemonic('I');
+        ipsFilterItem.setText(resourceMap.getString("ipsFilterItem.text")); // NOI18N
+        ipsFilterItem.setName("ipsFilterItem"); // NOI18N
+        ipsFilterItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                ipsFilterItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(ipsFilterItem);
+
+        otherPluginItem.setMnemonic('O');
+        otherPluginItem.setText(resourceMap.getString("otherPluginItem.text")); // NOI18N
+        otherPluginItem.setName("otherPluginItem"); // NOI18N
+        otherPluginItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                otherPluginItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(otherPluginItem);
+
+        unloadPluginItem.setMnemonic('U');
+        unloadPluginItem.setText(resourceMap.getString("unloadPluginItem.text")); // NOI18N
+        unloadPluginItem.setName("unloadPluginItem"); // NOI18N
+        unloadPluginItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                unloadPluginItemActionPerformed(evt);
+            }
+        });
+        pluginsMenu.add(unloadPluginItem);
+
+        menuBar.add(pluginsMenu);
 
         helpMenu.setMnemonic('H');
         helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
@@ -999,6 +1093,57 @@ public class MainFrame extends FrameView {
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
 	}//GEN-LAST:event_disconnectItemActionPerformed
+
+	private void loadPlugin(String plugin){
+		try {
+			rpcConn.execute("plugin.load",new Object[]{plugin, new HashMap()});
+			JOptionPane.showMessageDialog(getFrame(), "Plugin "+plugin+" loaded.");
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}
+	private void otherPluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherPluginItemActionPerformed
+		String plugin = JOptionPane.showInputDialog(getFrame(),"Enter the name of a plugin","Plugin loader",JOptionPane.QUESTION_MESSAGE);
+		if(plugin != null && plugin.length() > 0)
+			loadPlugin(plugin);
+	}//GEN-LAST:event_otherPluginItemActionPerformed
+
+	private void ipsFilterItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_ipsFilterItemActionPerformed
+		loadPlugin("ips_filter");
+	}//GEN-LAST:event_ipsFilterItemActionPerformed
+
+	private void socketLoggerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_socketLoggerItemActionPerformed
+		loadPlugin("socket_logger");
+	}//GEN-LAST:event_socketLoggerItemActionPerformed
+
+	private void dbTrackerItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dbTrackerItemActionPerformed
+		loadPlugin("db_tracker");
+	}//GEN-LAST:event_dbTrackerItemActionPerformed
+
+	private void soundItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_soundItemActionPerformed
+		loadPlugin("sounds");
+	}//GEN-LAST:event_soundItemActionPerformed
+
+	private void autoAddRouteItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autoAddRouteItemActionPerformed
+		loadPlugin("auto_add_route");
+	}//GEN-LAST:event_autoAddRouteItemActionPerformed
+
+	private void dbCredcollectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dbCredcollectItemActionPerformed
+		loadPlugin("db_credcollect");
+	}//GEN-LAST:event_dbCredcollectItemActionPerformed
+
+	private void unloadPluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unloadPluginItemActionPerformed
+		try {
+			Object[] plugins = (Object[])((Map)rpcConn.execute("plugin.loaded")).get("plugins");
+			Object plugin = JOptionPane.showInputDialog(getFrame(), "Choose a plugin to unload", "Unload plugin",
+					JOptionPane.PLAIN_MESSAGE, null, plugins, plugins[0]);
+			if(plugin == null)
+				return;
+			rpcConn.execute("plugin.unload",new Object[]{plugin});
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_unloadPluginItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1234,6 +1379,7 @@ public class MainFrame extends FrameView {
 	}
 	
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem autoAddRouteItem;
     private javax.swing.JMenu auxiliaryMenu;
     private javax.swing.JMenuItem changeLFMenuItem;
     private javax.swing.JMenuItem clearHistoryItem;
@@ -1243,6 +1389,8 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
     private javax.swing.JMenu databaseMenu;
+    private javax.swing.JMenuItem dbCredcollectItem;
+    private javax.swing.JMenuItem dbTrackerItem;
     private javax.swing.JMenuItem disconnectItem;
     private javax.swing.JTable eventsTable;
     private javax.swing.JMenu existingConsoleMenu;
@@ -1251,6 +1399,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu historyMenu;
     private javax.swing.JTable hostsTable;
     private javax.swing.JMenuItem importItem;
+    private javax.swing.JMenuItem ipsFilterItem;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
@@ -1267,7 +1416,9 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem newConsoleItem;
     private javax.swing.JMenuItem onlineHelpMenu;
     private javax.swing.JMenuItem otherMeterpCommandMenu;
+    private javax.swing.JMenuItem otherPluginItem;
     private javax.swing.JMenu payloadsMenu;
+    private javax.swing.JMenu pluginsMenu;
     private javax.swing.JMenu postMenu;
     private javax.swing.JProgressBar progressBar;
     public javax.swing.JMenu recentMenu;
@@ -1275,11 +1426,14 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem searchItem;
     private javax.swing.JTable servicesTable;
     private javax.swing.JTable sessionsTable;
+    private javax.swing.JMenuItem socketLoggerItem;
+    private javax.swing.JMenuItem soundItem;
     private javax.swing.JMenuItem startRpcMenuItem;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     private javax.swing.JTabbedPane tabbedPane;
+    private javax.swing.JMenuItem unloadPluginItem;
     private javax.swing.JTable vulnsTable;
     // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
