@@ -420,6 +420,7 @@ public class MainFrame extends FrameView {
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
         startRpcMenuItem = new javax.swing.JMenuItem();
+        showDetailsItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         searchItem = new javax.swing.JMenuItem();
         changeLFMenuItem = new javax.swing.JMenuItem();
@@ -629,6 +630,16 @@ public class MainFrame extends FrameView {
         startRpcMenuItem.setText(resourceMap.getString("startRpcMenuItem.text")); // NOI18N
         startRpcMenuItem.setName("startRpcMenuItem"); // NOI18N
         fileMenu.add(startRpcMenuItem);
+
+        showDetailsItem.setMnemonic('d');
+        showDetailsItem.setText(resourceMap.getString("showDetailsItem.text")); // NOI18N
+        showDetailsItem.setName("showDetailsItem"); // NOI18N
+        showDetailsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showDetailsItemActionPerformed(evt);
+            }
+        });
+        fileMenu.add(showDetailsItem);
 
         jSeparator1.setName("jSeparator1"); // NOI18N
         fileMenu.add(jSeparator1);
@@ -1159,6 +1170,10 @@ public class MainFrame extends FrameView {
 		}
 	}//GEN-LAST:event_unloadPluginItemActionPerformed
 
+	private void showDetailsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showDetailsItemActionPerformed
+		JOptionPane.showMessageDialog(getFrame(), rpcConn.toString(), "Connection Details", JOptionPane.INFORMATION_MESSAGE);
+	}//GEN-LAST:event_showDetailsItemActionPerformed
+
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
 		SessionCommand.runOnAllMeterpreters(sessionsTableModel, cmd, output, outputLabel, rpcConn);
@@ -1440,6 +1455,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem searchItem;
     private javax.swing.JTable servicesTable;
     private javax.swing.JTable sessionsTable;
+    private javax.swing.JMenuItem showDetailsItem;
     private javax.swing.JMenuItem socketLoggerItem;
     private javax.swing.JMenuItem soundItem;
     private javax.swing.JMenuItem startRpcMenuItem;

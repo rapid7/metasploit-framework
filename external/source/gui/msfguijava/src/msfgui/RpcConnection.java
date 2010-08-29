@@ -43,17 +43,22 @@ public class RpcConnection {
 	private OutputStream sout; //socket output/input
 	private InputStream sin;
 	private final Object lockObject = new Object();//to synchronize one request at a time
+	private String username, password, host;
+	private int port;
 
 	/** Constructor sets up a connection and authenticates. */
 	RpcConnection(String username, char[] password, String host, int port) throws MsfException {
 		boolean haveRpcd=false;
+		this.username = username;
+		this.password = new String(password);
+		this.host = host;
+		this.port = port;
 		String message = "";
 		try {
 			connection = new Socket(host, port);
 			sout = connection.getOutputStream();
 			sin = connection.getInputStream();
-			Object[] params = new Object[]{username, new String(password)};
-			Map results = exec("auth.login",params);
+			Map results = exec("auth.login",new Object[]{username, this.password});
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
 		} catch (MsfException xre) {
@@ -64,6 +69,14 @@ public class RpcConnection {
 		}
 		if(!haveRpcd)
 			throw new MsfException("Error connecting. "+message);
+	}
+
+	public String toString(){
+		return "RPC connection "
+				+ "\nusername: "+username
+				+ "\npassword: " + password
+				+ "\nhost: " + host
+				+ "\nport: " + Integer.toString(port);
 	}
 	/** Destructor cleans up. */
 	protected void finalize() throws Throwable{
