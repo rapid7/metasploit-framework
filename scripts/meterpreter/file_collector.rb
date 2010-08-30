@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 @client = client
 location = nil
-search_blob = nil
+search_blob = []
 input_file = nil
 output_file = nil
 recurse = false
@@ -64,8 +64,9 @@ if client.platform =~ /win32|win64/
 		if input_file and logs
 			if ::File.exists?(input_file)
 				print_status("Reading file #{input_file}")
+				print_status("Downloading to #{logs}")
 				::File.open(input_file, "r").each_line do |line|
-					print_status("Downloading #{line.chomp}")
+					print_status("\tDownloading #{line.chomp}")
 					@client.fs.file.download(logs, line.chomp)
 				end
 			else
