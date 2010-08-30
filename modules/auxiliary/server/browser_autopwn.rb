@@ -408,6 +408,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
+		@handler_job_ids = []
 		# start handlers for each type of payload
 		[@win_lport, @lin_lport, @osx_lport, @gen_lport, @java_lport].each do |lport|
 			if (lport and @payloads[lport])
@@ -428,6 +429,7 @@ class Metasploit3 < Msf::Auxiliary
 					'LocalOutput'    => self.user_output,
 					'Payload'        => @payloads[lport],
 					'RunAsJob'       => true)
+				@handler_job_ids.push(multihandler.job_id)
 			end
 		end
 		# let the handlers get set up
@@ -837,6 +839,17 @@ class Metasploit3 < Msf::Auxiliary
 			return "document.body.innerHTML += #{msg};"
 		end
 		return ""
+	end
+
+	def cleanup
+		print_status("Cleaning up exploits...")
+		@exploits.each_pair do |name, mod|
+			framework.jobs[mod.job_id.to_s].stop if framework.jobs[mod.job_id.to_s]
+		end
+		@handler_job_ids.each do |id|
+			framework.jobs[id.to_s].stop if framework.jobs[id.to_s]
+		end
+		super
 	end
 
 end
