@@ -1,5 +1,7 @@
 package msfgui;
 
+import javax.swing.JFileChooser;
+
 /**
  *
  * @author scriptjunkie
@@ -8,7 +10,7 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
 
     /** Creates new form SearchDwldOptionsDialog */
     public SearchDwldOptionsDialog(java.awt.Frame parent, String currentDir) {
-        super(parent, "Schedule Task Options", true);
+        super(parent, "Search/Download Options", true);
         initComponents();
 		dirField.setText(currentDir);
     }
@@ -27,11 +29,10 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
         jLabel1 = new javax.swing.JLabel();
         dirField = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
-        officeButton = new javax.swing.JRadioButton();
-        win9xButton = new javax.swing.JRadioButton();
-        passButton = new javax.swing.JRadioButton();
-        customButton = new javax.swing.JRadioButton();
-        customField = new javax.swing.JTextField();
+        searchPatternField = new javax.swing.JTextField();
+        outputDirField = new javax.swing.JTextField();
+        outDirButton = new javax.swing.JButton();
+        recursiveBox = new javax.swing.JCheckBox();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent evt) {
@@ -57,25 +58,23 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
         jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
 
-        buttonGroup1.add(officeButton);
-        officeButton.setSelected(true);
-        officeButton.setText(resourceMap.getString("officeButton.text")); // NOI18N
-        officeButton.setName("officeButton"); // NOI18N
+        searchPatternField.setText(resourceMap.getString("searchPatternField.text")); // NOI18N
+        searchPatternField.setName("searchPatternField"); // NOI18N
 
-        buttonGroup1.add(win9xButton);
-        win9xButton.setText(resourceMap.getString("win9xButton.text")); // NOI18N
-        win9xButton.setName("win9xButton"); // NOI18N
+        outputDirField.setText(resourceMap.getString("outputDirField.text")); // NOI18N
+        outputDirField.setName("outputDirField"); // NOI18N
 
-        buttonGroup1.add(passButton);
-        passButton.setText(resourceMap.getString("passButton.text")); // NOI18N
-        passButton.setName("passButton"); // NOI18N
+        outDirButton.setText(resourceMap.getString("outDirButton.text")); // NOI18N
+        outDirButton.setName("outDirButton"); // NOI18N
+        outDirButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                outDirButtonActionPerformed(evt);
+            }
+        });
 
-        buttonGroup1.add(customButton);
-        customButton.setText(resourceMap.getString("customButton.text")); // NOI18N
-        customButton.setName("customButton"); // NOI18N
-
-        customField.setText(resourceMap.getString("customField.text")); // NOI18N
-        customField.setName("customField"); // NOI18N
+        recursiveBox.setSelected(true);
+        recursiveBox.setText(resourceMap.getString("recursiveBox.text")); // NOI18N
+        recursiveBox.setName("recursiveBox"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -85,18 +84,20 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(customButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(customField, javax.swing.GroupLayout.DEFAULT_SIZE, 296, Short.MAX_VALUE))
-                    .addComponent(passButton)
-                    .addComponent(win9xButton)
-                    .addComponent(officeButton)
-                    .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(dirField, javax.swing.GroupLayout.DEFAULT_SIZE, 285, Short.MAX_VALUE))
-                    .addComponent(jLabel2)
-                    .addComponent(okButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(dirField, javax.swing.GroupLayout.DEFAULT_SIZE, 322, Short.MAX_VALUE))
+                    .addComponent(okButton, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 67, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(searchPatternField, javax.swing.GroupLayout.DEFAULT_SIZE, 404, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(recursiveBox))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(outDirButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(outputDirField, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -107,18 +108,15 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
                     .addComponent(jLabel1)
                     .addComponent(dirField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(officeButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(win9xButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(passButton)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(recursiveBox)
+                    .addComponent(jLabel2)
+                    .addComponent(searchPatternField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(customButton)
-                    .addComponent(customField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 7, Short.MAX_VALUE)
+                    .addComponent(outputDirField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(outDirButton))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(okButton)
                 .addContainerGap())
         );
@@ -127,15 +125,16 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
     }// </editor-fold>//GEN-END:initComponents
 
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-		StringBuilder cmd = new StringBuilder("search_dwld \""+MsfguiApp.doubleBackslashes(dirField.getText())+"\"");
-		if(officeButton.isSelected())
-			cmd.append(" office");
-		else if(win9xButton.isSelected())
-			cmd.append(" win9x");
-		else if(passButton.isSelected())
-			cmd.append(" passwd");
-		else if(customButton.isSelected())
-			cmd.append(" free "+customField.getText());
+		StringBuilder cmd = new StringBuilder("file_collector");
+		if(dirField.getText().length() > 0)
+			cmd.append(" -d \'").append(MsfguiApp.doubleBackslashes(dirField.getText())).append("\'");
+		cmd.append(" -l ").append(outputDirField.getText());
+		if(recursiveBox.isSelected())
+			cmd.append(" -r ");
+		cmd.append(" -f ").append(searchPatternField.getText());
+		String tempFileName = MsfguiApp.getTempFilename("foundfiles", ".txt");
+		cmd.append(" -o \"").append(MsfguiApp.doubleBackslashes(tempFileName)).append("\"");
+		cmd.append(" -i \"").append(MsfguiApp.doubleBackslashes(tempFileName)).append("\"");
 		command = cmd.toString();
 		doClose();
     }//GEN-LAST:event_okButtonActionPerformed
@@ -145,6 +144,15 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
         doClose();
     }//GEN-LAST:event_closeDialog
 
+	private void outDirButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_outDirButtonActionPerformed
+		JFileChooser choosy = MsfguiApp.fileChooser;
+		int mode = choosy.getFileSelectionMode();
+		choosy.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		if(choosy.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+			outputDirField.setText(choosy.getCurrentDirectory().getPath());
+		choosy.setFileSelectionMode(mode);
+	}//GEN-LAST:event_outDirButtonActionPerformed
+
     private void doClose() {
         setVisible(false);
         dispose();
@@ -152,15 +160,14 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.ButtonGroup buttonGroup1;
-    private javax.swing.JRadioButton customButton;
-    private javax.swing.JTextField customField;
     private javax.swing.JTextField dirField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JRadioButton officeButton;
     private javax.swing.JButton okButton;
-    private javax.swing.JRadioButton passButton;
-    private javax.swing.JRadioButton win9xButton;
+    private javax.swing.JButton outDirButton;
+    private javax.swing.JTextField outputDirField;
+    private javax.swing.JCheckBox recursiveBox;
+    private javax.swing.JTextField searchPatternField;
     // End of variables declaration//GEN-END:variables
 
 }
