@@ -17,16 +17,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Enumeration Module',
-			'Description'	=> %q{
+				'Name'		   => 'DNS Enumeration Module',
+				'Description'	=> %q{
 					This module can be used to enumerate various types of information
 				about a domain from a specific DNS server.
-			},
-			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
-			'References' 	=>
-				[
+				},
+				'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
+				'License'		=> MSF_LICENSE,
+				'Version'		=> '$Revision$',
+				'References' 	=>
+				  [
 					['CVE', '1999-0532'],
 					['OSVDB', '492'],
 				]
@@ -209,8 +209,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		
 		
+
 	end
-end
 
 	#-------------------------------------------------------------------------------
 	def dnsbrute(target, wordlist, nssrv)
@@ -240,7 +240,7 @@ end
 
 	#-------------------------------------------------------------------------------
 	def bruteipv6(target, wordlist, nssrv)
-	print_status("Brute Forcing IPv6 addresses against Domain #{target}")
+		print_status("Brute Forcing IPv6 addresses against Domain #{target}")
 		arr = []
 		i, a = 0, []
 		arr = IO.readlines(wordlist)
