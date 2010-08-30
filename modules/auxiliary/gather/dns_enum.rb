@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
 			"vg", "vi", "wf", "eh", "ye", "yu", "za", "zr", "zm", "zw", "int",
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
 
-		
+
 		query1 = @res.search("#{target}.#{tld}")
 		if (query1)
 			query1.answer.each do |rr|
@@ -207,8 +207,8 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		
-		
+
+
 
 	end
 
@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Running Brute Force against Domain #{target}")
 		arr = []
 		i, a = 0, []
-		::File.open(wordlist, "r").each_line do |line|
+		::File.open(wordlist, "rb").each_line do |line|
 			if not nssrv.nil?
 				@res.nameserver=(nssrv)
 			end
