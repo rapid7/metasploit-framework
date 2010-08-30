@@ -92,6 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 			OptPort.new('LPORT_GENERIC', [false,
 				'The port to use for generic reverse-connect payloads, default is 6666'
 			]),
+			OptPort.new('LPORT_JAVA', [false,
+				'The port to use for Java reverse-connect payloads, default is 7777'
+			]),
 		], self.class)
 
 		@exploits = Hash.new
