@@ -50,7 +50,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptInt.new('THREADS', [ false, "Number of threads to use when using ENUM_BRT, ENUM_TLD, and ENUM_RVL checks", 10]),
 				OptInt.new('RETRY', [ false, "Number of times to try to resolve a record if no response is received", 2]),
 				OptInt.new('RETRY_INTERVAL', [ false, "Number of seconds to wait before doing a retry", 2]),
 			], self.class)
@@ -83,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 		if query.answer.length != 0
 			print_status("This Domain has Wildcards Enabled!!")
 			query.answer.each do |rr|
-				print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}")
+				print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
 			end
 			return true
 		else
@@ -196,63 +195,47 @@ class Metasploit3 < Msf::Auxiliary
 			"vg", "vi", "wf", "eh", "ye", "yu", "za", "zr", "zm", "zw", "int",
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
 
-		tlds.each do |tld|
-			if i < @threadnum
-				a.push(Thread.new {
-						query1 = @res.search("#{target}.#{tld}")
-						if (query1)
-							query1.answer.each do |rr|
-								print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
-								report_note(:host => rr.address.to_s,
-									:proto => 'DNS', :port => 53 ,
-									:type => 'DNS_ENUM',
-									:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
-							end
-						end
-					})
-				i += 1
-			else
-				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
+		
+		query1 = @res.search("#{target}.#{tld}")
+		if (query1)
+			query1.answer.each do |rr|
+				print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
+				report_note(:host => rr.address.to_s,
+					:proto => 'DNS', :port => 53 ,
+					:type => 'DNS_ENUM',
+					:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
 			end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
+
+		
+		
 	end
+end
 
 	#-------------------------------------------------------------------------------
 	def dnsbrute(target, wordlist, nssrv)
-	print_status("Running Brute Force against Domain #{target}")
+		print_status("Running Brute Force against Domain #{target}")
 		arr = []
 		i, a = 0, []
-		arr = IO.readlines(wordlist)
-		arr.each do |line|
-		if not nssrv.nil?
-			@res.nameserver=(nssrv)
-		end
-			if i < @threadnum
-				a.push(Thread.new {
-						query1 = @res.search("#{line.chomp}.#{target}")
-						if (query1)
-							query1.answer.each do |rr|
-								if rr.class == Net::DNS::RR::A
-									print_status("Host Name: #{line.chomp}.#{target} IP Address: #{rr.address.to_s}")
-									report_note(:host => rr.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
-									next unless rr.class == Net::DNS::RR::CNAME
-								end
-							end
-						end
-					})
-				i += 1
-			else
-				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
+		::File.open(wordlist, "r").each_line do |line|
+			if not nssrv.nil?
+				@res.nameserver=(nssrv)
+			end
+			query1 = @res.search("#{line.chomp}.#{target}")
+			if (query1)
+				query1.answer.each do |rr|
+					if rr.class == Net::DNS::RR::A
+						print_status("Host Name: #{line.chomp}.#{target} IP Address: #{rr.address.to_s}")
+						report_note(:host => rr.address.to_s,
+							:proto => 'DNS',
+							:port => 53 ,
+							:type => 'DNS_ENUM',
+							:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
+						next unless rr.class == Net::DNS::RR::CNAME
+					end
+				end
 			end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
 
 	#-------------------------------------------------------------------------------
@@ -265,30 +248,22 @@ class Metasploit3 < Msf::Auxiliary
 			@res.nameserver=(nssrv)
 		end
 		arr.each do |line|
-			if i < @threadnum
-				a.push(Thread.new {
-						query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
-						if (query1)
-							query1.answer.each do |rr|
-								if rr.class == Net::DNS::RR::AAAA
-									print_status("Host Name: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
-									report_note(:host => rr.address.to_s,
-										:proto => 'DNS',
-										:port => 53 ,
-										:type => 'DNS_ENUM',
-										:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
-									next unless rr.class == Net::DNS::RR::CNAME
-								end
-							end
-						end
-					})
-				i += 1
-			else
-				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
+			query1 = @res.search("#{line.chomp}.#{target}", "AAAA")
+			if (query1)
+				query1.answer.each do |rr|
+					if rr.class == Net::DNS::RR::AAAA
+						print_status("Host Name: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
+						report_note(:host => rr.address.to_s,
+							:proto => 'DNS',
+							:port => 53 ,
+							:type => 'DNS_ENUM',
+							:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
+						next unless rr.class == Net::DNS::RR::CNAME
+					end
+				end
 			end
+
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
 
 
@@ -349,23 +324,16 @@ class Metasploit3 < Msf::Auxiliary
 			"_jabber._tcp.","_xmpp-server._tcp.","_xmpp-client._tcp.","_imap.tcp.","_certificates._tcp.",
 			"_crls._tcp.","_pgpkeys._tcp.","_pgprevokations._tcp.","_cmp._tcp.","_svcp._tcp.","_crl._tcp.",
 			"_ocsp._tcp.","_PKIXREP._tcp.","_smtp._tcp.","_hkp._tcp.","_hkps._tcp.","_jabber._udp.",
-			"_xmpp-server._udp.","_xmpp-client._udp.","_jabber-client._tcp","_jabber-client._udp"]
+			"_xmpp-server._udp.","_xmpp-client._udp.","_jabber-client._tcp.","_jabber-client._udp."]
 		srvrcd.each do |srvt|
-			if i < @threadnum
-				a.push(Thread.new {
-					trg = "#{srvt}#{dom}"
-					query = @res.query(trg , Net::DNS::SRV)
-					query.answer.each do |srv|
-						print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}") if srv.type != "CNAME"
-					end
-					})
-				i += 1
-			else
-				select(nil,nil,nil,0.01) and a.delete_if {|x| not x.alive?} while not a.empty?
-				i = 0
+			trg = "#{srvt}#{dom}"
+			query = @res.query(trg , Net::DNS::SRV)
+			if query
+				query.answer.each do |srv|
+					print_status("SRV Record: #{trg} Host: #{srv.host} Port: #{srv.port} Priority: #{srv.priority}") if srv.type != "CNAME"
+				end
 			end
 		end
-		a.delete_if {|x| not x.alive?} while not a.empty?
 	end
 
 	#-------------------------------------------------------------------------------
