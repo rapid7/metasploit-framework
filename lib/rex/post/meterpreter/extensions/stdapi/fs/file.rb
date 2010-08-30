@@ -53,7 +53,7 @@ Separator = "\\"
 		if( response.result == 0 )
 			response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
 				files << {
-					'path' => results.get_tlv_value( TLV_TYPE_FILE_PATH ),
+					'path' => results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ),
 					'name' => results.get_tlv_value( TLV_TYPE_FILE_NAME ),
 					'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
 				}

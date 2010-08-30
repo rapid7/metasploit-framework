@@ -4,14 +4,31 @@
 #include <shlwapi.h>
 #include <Searchapi.h>
 #include <msdasc.h>
+#include <ntquery.h>
+#include <cmdtree.h>
 
-typedef struct _WDS3_INTERFACE
+// from query.dll for WDS 2 index based searching
+typedef HRESULT (WINAPI * LOCATECATALOGSA)( PCSTR, ULONG, char *, ULONG *, char *, ULONG * );
+typedef HRESULT (WINAPI * CIMAKEICOMMAND)( ICommand **, ULONG, DWORD *  , WCHAR **, WCHAR **, WCHAR ** );
+typedef HRESULT (WINAPI * CITEXTTOFULLTREE)( WCHAR *, WCHAR *, WCHAR *,  WCHAR *, DBCOMMANDTREE **, ULONG , LPVOID *, LCID );
+
+typedef struct _WDS_INTERFACE
 {
+	BOOL bWDS2Available;
 	BOOL bWDS3Available;
+
+	// WDS 3...
 	ISearchManager * pSearchManager;
 	ISearchCatalogManager * pSearchCatalogManager;
 	ISearchCrawlScopeManager * pCrawlScopeManager;
-} WDS3_INTERFACE;
+	
+	// WDS 2...
+	HMODULE hQuery;
+	LOCATECATALOGSA pLocateCatalogsA;
+	CIMAKEICOMMAND pCIMakeICommand;
+	CITEXTTOFULLTREE pCITextToFullTree;
+
+} WDS_INTERFACE;
 
 typedef struct _SEARCH_OPTIONS
 {
@@ -51,5 +68,6 @@ const GUID _IID_IRowset          = { 0x0c733a7c, 0x2a1c, 0x11ce, { 0xad, 0xe5, 0
 const GUID _IID_IMultipleResults = { 0x0c733a90, 0x2a1c, 0x11ce, { 0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d } };
 const GUID _IID_IAccessor        = { 0x0c733a8c, 0x2a1c, 0x11ce, { 0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d } };
 const GUID _IID_IColumnsInfo     = { 0x0c733a11, 0x2a1c, 0x11ce, { 0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d } };
+const GUID _IID_ICommandTree     = { 0x0c733a87, 0x2a1c, 0x11ce, { 0xad, 0xe5, 0x00, 0xaa, 0x00, 0x44, 0x77, 0x3d } };
 
 #endif
