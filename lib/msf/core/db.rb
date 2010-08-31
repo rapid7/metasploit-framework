@@ -650,6 +650,9 @@ class DBManager
 			cred.source_type = source_type if source_type
 			cred.active = active
 
+			# Ensure the updated_at is touched any time report_auth_info is called
+			cred.updated_at = Time.now.utc
+
 			# Safe proof (lazy way) -- doesn't chop expanded
 			# characters correctly, but shouldn't ever be a problem.
 			unless proof.nil?

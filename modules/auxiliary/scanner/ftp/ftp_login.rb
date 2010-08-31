@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 			:sname => 'ftp',
 			:user => user,
 			:pass => pass,
-			:type => "password_#{access == :write ? "rw" : "ro" }",
+			:type => "password#{access == :read ? "_ro" : "" }",
 			:active => true
 		)
 	end
