@@ -78,12 +78,6 @@ $stderr.puts "[*] XMLRPC starting on #{opts['ServerHost']}:#{opts['ServerPort']}
 
 $stderr.puts "[*] URI: #{opts['URI']}" if(opts['URI'])
 
-# Create an instance of the framework
-$framework = Msf::Simple::Framework.create
-
-$stderr.puts "[*] XMLRPC initializing..."
-
-
 # Fork into the background if requested
 begin
 	if (not foreground)
@@ -93,6 +87,9 @@ begin
 rescue ::NotImplementedError
 	$stderr.puts "[-] Background mode is not available on this platform"
 end
+
+# Create an instance of the framework
+$framework = Msf::Simple::Framework.create
 
 # Run the plugin instance in the foreground.
 $framework.plugins.load('xmlrpc', opts).run
