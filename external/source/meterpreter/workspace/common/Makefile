@@ -25,7 +25,7 @@ AR=ar
 RM=rm
 
 objects = args.o base.o base_dispatch.o base_dispatch_common.o buffer.o \
-	channel.o common.o core.o list.o remote.o scheduler.o thread.o xor.o zlib/zlib.o
+	channel.o common.o core.o list.o remote.o thread.o xor.o zlib/zlib.o # scheduler.o
 
 
 

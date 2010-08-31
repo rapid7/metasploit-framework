@@ -21,10 +21,10 @@ VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 objects= metsrv.o scheduler.o 
 objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o # metsrv_main.o 
 
-all:  metsrv_main 
+all:  libmetsrv_main.so 
 
-metsrv_main: $(objects)
-	$(CC) -pie $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
+libmetsrv_main.so: $(objects)
+	$(CC) -shared $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
 
 clean:
 	@echo "ARCHVPATH= " $(ARCHVPATH) " VPATH= " $(VPATH)

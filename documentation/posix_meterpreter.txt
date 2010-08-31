@@ -50,10 +50,14 @@ Edit the Configure file. Locate "linux-elf line, duplicate it, s/-elf/-msf/, s/-
 # cd external/source/meterpreter/workspace/common
 # make
 
+.. copy libsupport.so to source/bionic/compiled ..
+
 6) Build the metsrv_main binary
 
 # cd external/source/meterpreter/workspace/metsrv
 # make
+
+You will need to generate a linker script, and set the location to 0x00040000. -Wl,-verbose >log , edit log for == == 
 
 .. copy metsrv_main to source/bionic/compiled directory
 
@@ -64,4 +68,10 @@ Edit the Configure file. Locate "linux-elf line, duplicate it, s/-elf/-msf/, s/-
 
 (make test will make msflinker, which you can use to test the meterpreter)
 
+8) Compile the ext_server_stdapi 
+
+# external/source/meterpreter/workspace/extensions/stdapi
+# make
+
+copy ext_server_stdapi.so to data/meterpreter/ext_server_stdai.lso <-- notice the .lso
 

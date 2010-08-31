@@ -62,6 +62,7 @@ typedef struct _THREAD
 	LPVOID parameter2;
 #ifndef _WIN32 
 	void *suspend_thread_data;
+	pthread_t pid;
 #endif
 } THREAD, * LPTHREAD;
 

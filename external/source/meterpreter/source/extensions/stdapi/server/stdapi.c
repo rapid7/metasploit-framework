@@ -59,10 +59,12 @@ Command customCommands[] =
 	  { request_fs_file_expand_path,                       { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#ifdef _WIN32
 	{ "stdapi_fs_search",
 	  { request_fs_search,									{ 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER										},
 	},
+#endif
 
 	// Process
 	{ "stdapi_sys_process_attach",
@@ -98,6 +100,7 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+#ifdef _WIN32
 		// Image
 	{ "stdapi_sys_process_image_load",
 	  { request_sys_process_image_load,                    { 0 }, 0 },
@@ -188,6 +191,7 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+
 	// Registry
 	{ "stdapi_registry_open_key",
 	  { request_registry_open_key,                         { 0 }, 0 },
@@ -229,6 +233,7 @@ Command customCommands[] =
 	  { request_registry_delete_value,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+#endif
 
 	// Sys/config
 	{ "stdapi_sys_config_getuid",
@@ -255,6 +260,8 @@ Command customCommands[] =
 	  { request_sys_config_drop_token,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+
+#ifdef _WIN32
 	// Net
 	{ "stdapi_net_config_get_routes",
 	  { request_net_config_get_routes,                     { 0 }, 0 },
@@ -351,7 +358,7 @@ Command customCommands[] =
 	  { request_sys_power_exitwindows,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
-
+#endif
 	// Terminator
 	{ NULL,
 	  { EMPTY_DISPATCH_HANDLER                      },

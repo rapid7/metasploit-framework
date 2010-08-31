@@ -97,9 +97,9 @@ EVENT * event_create( VOID )
 	if( event == NULL )
 		return NULL;
 
-#ifdef _WIN32
 	memset( event, 0, sizeof( EVENT ) );
 
+#ifdef _WIN32
 	event->handle = CreateEvent( NULL, FALSE, FALSE, NULL );
 	if( event->handle == NULL )
 	{
@@ -168,21 +168,25 @@ BOOL event_poll( EVENT * event, DWORD timeout )
 	// );
 	// http://msdn.microsoft.com/en-us/library/ms687032(VS.85).aspx
 
-	struct timespec ts;
+	if(timeout) {
+		struct timespec ts;
 
-	// XXX, need to verify for -1. below modified from bionic/pthread.c
-	ts.tv_sec = timeout / 1000;
-	ts.tv_nsec = (timeout%1000)*1000000;
-	if (ts.tv_nsec >= 1000000000) {
-		ts.tv_sec++;
-		ts.tv_nsec -= 1000000000;
+		// XXX, need to verify for -1. below modified from bionic/pthread.c
+		// and maybe loop if needed ;\
+
+		ts.tv_sec = timeout / 1000;
+		ts.tv_nsec = (timeout%1000)*1000000;
+		if (ts.tv_nsec >= 1000000000) {
+			ts.tv_sec++;
+			ts.tv_nsec -= 1000000000;
+		}
+
+		// atomically checks if event->handle is 0, if so, 
+		// it sleeps for timeout. if event->handle is 1, it 
+		// returns straight away.
+
+		__futex_wait(&(event->handle), 0, &ts);
 	}
-
-	// atomically checks if event->handle is 0, if so, 
-	// it sleeps for timeout. if event->handle is 1, it 
-	// returns straight away.
-
-	__futex_wait(&(event->handle), 0, &ts);
 
 	return event->handle ? TRUE : FALSE;
 #endif
@@ -252,6 +256,7 @@ THREAD * thread_open( VOID )
 
 		thread->id      = gettid();
 		thread->sigterm = event_create();
+		thread->pid	= pthread_self();
 	}
 	return thread;
 #endif
@@ -369,7 +374,7 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 
 		thread->suspend_thread_data = (void *)(tc);
 
-		if(pthread_create(&pid, NULL, __paused_thread, tc) == -1) {
+		if(pthread_create(&(thread->pid), NULL, __paused_thread, tc) == -1) {
 			free(tc);
 			event_destroy(thread->sigterm);
 			free(thread);
@@ -463,7 +468,7 @@ BOOL thread_join( THREAD * thread )
 
 	return FALSE;
 #else
-	if(pthread_join(thread->id, NULL) == 0) 
+	if(pthread_join(thread->pid, NULL) == 0) 
 		return TRUE;
 
 	return FALSE;
@@ -484,7 +489,7 @@ BOOL thread_destroy( THREAD * thread )
 #ifdef _WIN32
 	CloseHandle( thread->handle );
 #else
-	//pthread_detach(thread->handle);
+	pthread_detach(thread->pid);
 #endif
 
 	free( thread );

@@ -96,6 +96,8 @@ static __inline__ int sigfillset(sigset_t *set)
 typedef void  (*sig_t)(int);
 typedef sig_t sighandler_t;
 
+#ifndef METSRV_RTLD
+
 /* differentiater between sysv and bsd behaviour 8*/
 extern __sighandler_t sysv_signal(int, __sighandler_t);
 extern __sighandler_t bsd_signal(int, __sighandler_t);
@@ -105,6 +107,8 @@ static __inline__ __sighandler_t signal(int s, __sighandler_t f)
 {
     return bsd_signal(s,f);
 }
+
+#endif
 
 /* the syscall itself */
 extern __sighandler_t __signal(int, __sighandler_t, int);

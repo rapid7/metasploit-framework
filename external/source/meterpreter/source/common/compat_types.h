@@ -4,11 +4,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 
-#pragma	redefine_extname malloc common_malloc	
-
 #if defined(__FreeBSD__) 
-#undef errno
-extern int errno;
 #include <sys/filio.h>
 #elif defined(__linux__)
 #define __va_list  __ptr_t
@@ -124,7 +120,6 @@ char	*strdup(const char *__restrict);
 
 ssize_t write(int d, const void *buf, size_t nbytes);
 ssize_t read(int d, void *buf, size_t nbytes);
-void	exit(int status);
 
 
 void	abort(void);

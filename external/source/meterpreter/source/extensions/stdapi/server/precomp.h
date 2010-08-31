@@ -17,6 +17,9 @@
  #include <netdb.h>
  #include <netinet/in.h>
  #include <stdarg.h>
+ #include <fcntl.h>
+ #include <sys/wait.h>
+ #include <termios.h>
 
 #define IN_ADDR struct in_addr
 #define SOCKADDR_IN struct sockaddr_in

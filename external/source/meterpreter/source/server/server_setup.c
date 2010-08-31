@@ -161,6 +161,15 @@ static LONG server_socket_poll( Remote * remote, long timeout )
 
 	result = select( fd + 1, &fdread, NULL, NULL, &tv );
 
+#ifndef _WIN32 
+	// Handle EAGAIN, etc.
+	if(result == -1) {
+		if(errno == EINTR || errno == EAGAIN || errno == EWOULDBLOCK) {
+			result = 0;
+		}
+	}
+#endif
+
 	lock_release( remote->lock );
 
 	return result;

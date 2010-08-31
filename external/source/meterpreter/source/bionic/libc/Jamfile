@@ -192,7 +192,7 @@ BIONIC_SRC_SUBDIRS = string ;
 BIONIC_x86_SUBDIRS = ;
 BIONIC_arm_SUBDIRS = ;
 
-CFLAGS   = -O0 -g -W ; 
+CFLAGS   = -O0 -g -W ;
 
 
 
@@ -377,7 +377,7 @@ DEFINES  = USE_LOCKS
            ANDROID
            ;
 
-CFLAGS_x86 = -Iprivate -Ibionic -Ikernel/arch-x86 -Ikernel/common -I../libm/include -fno-stack-protector -fno-pie -DPIC -ffreestanding  -fno-tree-scev-cprop ;
+CFLAGS_x86 = -Iprivate -Ibionic -Ikernel/arch-x86 -Ikernel/common -I../libm/include -fno-stack-protector -fno-pie -DPIC -ffreestanding -fno-tree-scev-cprop ;
 
 
 for arch in $(ARCH)

@@ -1,5 +1,9 @@
 #include "precomp.h"
 
+#ifndef _WIN32
+#include <sys/utsname.h>
+#endif
+
 /*
  * sys_getuid
  * ----------
@@ -10,6 +14,7 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	DWORD res = ERROR_SUCCESS;
+#ifdef _WIN32
 	CHAR username[512], username_only[512], domainname_only[512];
 	LPVOID TokenUserInfo[4096];
 	HANDLE token;
@@ -44,6 +49,19 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 		packet_add_tlv_string(response, TLV_TYPE_USER_NAME, username);
 
 	} while (0);
+#else
+	CHAR info[512];
+	uid_t ru, eu, su;
+	gid_t rg, eg, sg;
+
+	ru = eu = su = rg = eg = sg = 31337;
+
+	getresuid(&ru, &eu, &su);
+	getresgid(&rg, &eg, &sg);
+
+	snprintf(info, sizeof(info)-1, "uid=%d, gid=%d, euid=%d, egid=%d, suid=%d, sgid=%d", ru, rg, eu, eg, su, sg);
+	packet_add_tlv_string(response, TLV_TYPE_USER_NAME, info);
+#endif
 
 	// Transmit the response
 	packet_transmit_response(res, remote, response);
@@ -60,6 +78,7 @@ DWORD request_sys_config_getuid(Remote *remote, Packet *packet)
 DWORD request_sys_config_drop_token(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
+#ifdef _WIN32
 	DWORD res = ERROR_SUCCESS;
 	CHAR username[512], username_only[512], domainname_only[512];
 	LPVOID TokenUserInfo[4096];
@@ -93,7 +112,9 @@ DWORD request_sys_config_drop_token(Remote *remote, Packet *packet)
 		packet_add_tlv_string(response, TLV_TYPE_USER_NAME, username);
 
 	} while (0);
-
+#else
+	DWORD res = ERROR_NOT_SUPPORTED;
+#endif
 	// Transmit the response
 	packet_transmit_response(res, remote, response);
 
@@ -110,6 +131,7 @@ DWORD request_sys_config_drop_token(Remote *remote, Packet *packet)
 DWORD request_sys_config_getprivs(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
+#ifdef _WIN32
 	DWORD res = ERROR_SUCCESS;
 	HANDLE token = NULL;
 	int x;
@@ -171,7 +193,9 @@ DWORD request_sys_config_getprivs(Remote *remote, Packet *packet)
 
 	if(token)
 		CloseHandle(token);
-
+#else
+	DWORD res = ERROR_NOT_SUPPORTED;
+#endif
 	// Transmit the response
 	packet_transmit_response(res, remote, response);
 
@@ -187,6 +211,7 @@ DWORD request_sys_config_getprivs(Remote *remote, Packet *packet)
 DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
+#ifdef _WIN32
 	DWORD res = ERROR_SUCCESS;
 	CHAR username[512], username_only[512], domainname_only[512];
 	LPVOID TokenUserInfo[4096];
@@ -267,7 +292,9 @@ DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
 	
 	if(token)
 		CloseHandle(token);
-
+#else
+	DWORD res = ERROR_NOT_SUPPORTED;
+#endif
 	// Transmit the response
 	packet_transmit_response(res, remote, response);
 
@@ -283,6 +310,7 @@ DWORD request_sys_config_steal_token(Remote *remote, Packet *packet)
 DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
+#ifdef _WIN32
 	CHAR computer[512], buf[512], *osName = NULL, * osArch = NULL, * osWow = NULL;
 	DWORD res = ERROR_SUCCESS;
 	DWORD size = sizeof(computer);
@@ -443,7 +471,27 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 
 			
 	} while (0);
+#else
+	CHAR os[512];
 
+	DWORD res = ERROR_SUCCESS;
+
+	do {
+		struct utsname utsbuf;
+		if( uname( &utsbuf ) == -1) {
+			res = GetLastError();
+			break;
+		}
+
+		snprintf(os, sizeof(os)-1, "%s %s %s %s (%s)", utsbuf.sysname, utsbuf.nodename, utsbuf.release, utsbuf.version, utsbuf.machine, utsbuf.domainname);
+
+		packet_add_tlv_string(response, TLV_TYPE_COMPUTER_NAME, utsbuf.nodename);
+		packet_add_tlv_string(response, TLV_TYPE_OS_NAME, os);
+		packet_add_tlv_string(response, TLV_TYPE_ARCHITECTURE, utsbuf.machine);
+
+	} while(0);
+
+#endif
 	// Transmit the response
 	packet_transmit_response(res, remote, response);
 
@@ -458,6 +506,7 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
  */
 DWORD request_sys_config_rev2self(Remote *remote, Packet *packet)
 {
+#ifdef _WIN32
 	DWORD dwResult    = ERROR_SUCCESS;
 	Packet * response = NULL;
 	
@@ -481,6 +530,10 @@ DWORD request_sys_config_rev2self(Remote *remote, Packet *packet)
 
 	if( response )
 		packet_transmit_response( dwResult, remote, response );
+
+#else
+	DWORD dwResult = ERROR_NOT_SUPPORTED;
+#endif
 
 	return dwResult;
 }

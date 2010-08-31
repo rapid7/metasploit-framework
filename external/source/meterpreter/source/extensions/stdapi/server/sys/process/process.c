@@ -1,4 +1,6 @@
 #include "precomp.h"
+
+#ifdef _WIN32 
 #include "ps.h" // include the code for listing proceses
 #include "./../session.h"
 #include "in-mem-exe.h" /* include skapetastic in-mem exe exec */
@@ -7,6 +9,8 @@
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNCREATEENVIRONMENTBLOCK)( LPVOID  *lpEnvironment, HANDLE  hToken, BOOL bInherit );
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNDESTROYENVIRONMENTBLOCK) ( LPVOID lpEnvironment );
 typedef BOOL (WINAPI * LPCREATEPROCESSWITHTOKENW)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
+
+#endif
 
 /*
  * Attaches to the supplied process identifier.  If no process identifier is
@@ -18,6 +22,7 @@ DWORD request_sys_process_attach(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	HANDLE handle = NULL;
+#ifdef _WIN32
 	DWORD result = ERROR_SUCCESS;
 	DWORD pid;
 
@@ -43,6 +48,9 @@ DWORD request_sys_process_attach(Remote *remote, Packet *packet)
 		packet_add_tlv_uint(response, TLV_TYPE_HANDLE, (DWORD)handle);
 	else
 		result = GetLastError();
+#else
+	DWORD result = ERROR_NOT_SUPPORTED;
+#endif
 
 	// Send the response packet to the requestor
 	packet_transmit_response(result, remote, response);
@@ -59,6 +67,7 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	HANDLE handle;
+#ifdef _WIN32
 	DWORD result = ERROR_SUCCESS;
 
 	handle = (HANDLE)packet_get_tlv_value_uint(packet, TLV_TYPE_HANDLE);
@@ -70,12 +79,69 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
 	}
 	else
 		result = ERROR_INVALID_PARAMETER;
-
+#else
+	DWORD result = ERROR_NOT_SUPPORTED;
+#endif
 	// Send the response packet to the requestor
 	packet_transmit_response(result, remote, response);
 
 	return ERROR_SUCCESS;
 }
+
+#ifndef _WIN32
+
+int try_open_pty(int *master, int *slave)
+{
+	int lmaster, lslave;
+	char path[512];	
+	struct termios newtio;
+
+	lmaster = open("/dev/ptmx", O_RDWR | O_NOCTTY);
+	if(lmaster == -1) return -1;
+	
+	dprintf("master fd is %d", lmaster);
+
+	if(grantpt(lmaster) == -1) {
+		close(lmaster);
+		return -1;
+	}
+
+	if(unlockpt(lmaster) == -1) {
+		close(lmaster);
+		return -1;
+	}
+
+	memset(path, 0, sizeof(path));
+	if(ptsname_r(lmaster, path, sizeof(path)-2) == -1) {
+		close(lmaster);
+		return -1;
+	}
+
+	lslave = open(path, O_RDWR | O_NOCTTY);
+	if(lslave == -1) {
+		close(lmaster);
+		return -1;
+	}
+
+	*master = lmaster;
+	*slave = lslave;
+
+	if(tcgetattr(lmaster, &newtio) == -1) 
+		// oh well
+		return 0;
+
+	// man 3 termios for more information (under linux, at least).
+
+	newtio.c_lflag |= (ISIG|ICANON);
+	newtio.c_lflag &= ~ECHO;
+
+	// can't do anything about it if it fails
+	tcsetattr(lmaster, TCSANOW, &newtio);
+
+	return 0;
+}	
+
+#endif
 
 /*
  * Executes a process using the supplied parameters, optionally creating a
@@ -87,11 +153,12 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
  */
 DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 {
+	Packet *response = packet_create_response(packet);
+	DWORD result = ERROR_SUCCESS;
+#ifdef _WIN32
 	PROCESS_INFORMATION pi;
 	STARTUPINFO si;
-	Packet *response = packet_create_response(packet);
 	HANDLE in[2], out[2];
-	DWORD result = ERROR_SUCCESS;
 	PCHAR path, arguments, commandLine = NULL;
 	DWORD flags = 0, createFlags = 0;
 	BOOL inherit = FALSE;
@@ -478,6 +545,169 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 	if( cpDesktop )
 		free( cpDesktop );
+#else
+	PCHAR path, arguments, commandLine = NULL;
+	DWORD flags;
+	char *argv[64], *p;
+	int in[2] = { -1, -1 }, out[2] = {-1, -1}; // file descriptors
+	int master = -1, slave = -1;
+	int devnull = -1;
+	int idx;
+	pid_t pid;
+	int have_pty = -1;
+
+	dprintf( "[PROCESS] request_sys_process_execute" );
+
+	do {
+                // Get the execution arguments
+                arguments = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_ARGUMENTS);
+                path      = packet_get_tlv_value_string(packet, TLV_TYPE_PROCESS_PATH);
+                flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
+
+		dprintf("path: %s, arguments: %s\n", path ? path : "(null)", arguments ? arguments : "(null)");
+
+		// how to handle a single string argument line? we don't have a lexer/parser to
+		// correctly handle stuff like quotes, etc. could dumbly parse on white space to 
+		// build arguments for execve. revert to /bin/sh -c style execution? 
+		// XXX.. don't feel like messing with it atm	
+
+		idx = 0;
+		if(arguments) {
+			p = arguments;
+			argv[idx++] = path;
+			argv[idx++] = arguments;
+			for(p = strchr(p, ' '); p && idx < 63; p = strchr(p, ' ')) {
+				*p++ = 0;
+				argv[idx++] = p;
+			}
+			argv[idx++] = NULL;
+		} else {
+			argv[idx++] = path;
+			argv[idx++] = NULL;
+		}	
+
+		// If the channelized flag is set, create a pipe for stdin/stdout/stderr
+		// such that input can be directed to and from the remote endpoint
+		if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED)
+		{
+			ProcessChannelContext * ctx = NULL;
+			PoolChannelOps chops;
+			Channel *newChannel;
+
+			// Allocate the channel context
+			if (!(ctx = (ProcessChannelContext *)malloc(sizeof(ProcessChannelContext))))
+			{
+				result = ERROR_NOT_ENOUGH_MEMORY;
+				break;
+			}
+
+			memset(&chops, 0, sizeof(PoolChannelOps));
+
+			// Initialize the channel operations
+			chops.native.context  = ctx;
+			chops.native.write    = process_channel_write;
+			chops.native.close    = process_channel_close;
+			chops.native.interact = process_channel_interact;
+			chops.read            = process_channel_read;
+
+			// Allocate the pool channel
+			if (!(newChannel = channel_create_pool(0, CHANNEL_FLAG_SYNCHRONOUS, &chops)))
+			{
+				result = ERROR_NOT_ENOUGH_MEMORY;
+				break;
+			}
+
+			// Set the channel's type to process
+			channel_set_type(newChannel, "process");
+
+			have_pty = !try_open_pty(&master, &slave);
+
+			if(have_pty)
+			{
+				ctx->pStdin = master;
+				ctx->pStdout = master;
+			} else {
+				// fall back to pipes if there is no tty
+				// Allocate the stdin and stdout pipes
+				if(pipe(&in) || pipe(&out)) 
+				{
+					channel_destroy(newChannel, NULL);
+
+					newChannel = NULL;
+
+					free(ctx);
+
+					result = GetLastError();
+					break;
+				}
+
+				// Set the context to have the write side of stdin and the read side
+				// of stdout
+				ctx->pStdin   = in[1];
+				ctx->pStdout  = out[0];
+			}
+
+			fcntl(ctx->pStdin, F_SETFD, fcntl(ctx->pStdin, F_GETFD) | O_NONBLOCK);
+			fcntl(ctx->pStdout, F_SETFD, fcntl(ctx->pStdout, F_GETFD) | O_NONBLOCK);
+
+			// Add the channel identifier to the response packet
+			packet_add_tlv_uint(response, TLV_TYPE_CHANNEL_ID,channel_get_id(newChannel));
+		} else {
+			// need to /dev/null it all
+			if( (devnull = open("/dev/null", O_RDONLY) ) == -1) {
+				// XXX This is possible, due to chroots etc. We could close
+				// fd 0/1/2 and hope the program isn't buggy.
+ 
+				result = GetLastError();
+				break;
+			}
+		}
+
+		pid = fork();
+		switch(pid) {
+
+			int i;
+		case -1:
+			result = errno;
+			break;
+
+		case 0:
+			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
+				if(have_pty) 
+				{ 
+					dup2(slave, 0);
+					dup2(slave, 1);
+					dup2(slave, 2);
+				} else {
+					dup2(in[0], 0);
+					dup2(out[1], 1);
+					dup2(out[1], 2);
+				}
+			} else {
+				dup2(devnull, 0);
+				dup2(devnull, 1);
+				dup2(devnull, 2);
+			}
+			for(i = 3; i < 1024; i++) close(i);
+
+			execve(path, argv, environ);
+			exit(EXIT_FAILURE);
+
+		default:
+			dprintf("child pid is %d\n", pid);
+			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
+				if(have_pty) {
+					close(slave);
+				} else {
+					close(in[0]);
+					close(out[1]);
+					close(out[2]);
+				}
+			}
+			break;
+		}
+	} while(0);
+#endif
 
 	packet_transmit_response(result, remote, response);
 
@@ -503,6 +733,7 @@ DWORD request_sys_process_kill(Remote *remote, Packet *packet)
 		DWORD pid = ntohl(*(LPDWORD)pidTlv.buffer);
 		HANDLE h = NULL;
 
+#ifdef _WIN32 
 		// Try to attach to the process
 		if (!(h = OpenProcess(PROCESS_TERMINATE, FALSE, pid)))
 		{
@@ -514,6 +745,9 @@ DWORD request_sys_process_kill(Remote *remote, Packet *packet)
 			result = GetLastError();
 
 		CloseHandle(h);
+#else
+		kill(pid, 9);
+#endif
 	}
 
 	// Transmit the response
@@ -528,6 +762,8 @@ DWORD request_sys_process_kill(Remote *remote, Packet *packet)
  */
 DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 {
+
+#ifdef _WIN32
 	Packet * response = NULL;
 	HANDLE hToken     = NULL;
 	DWORD result      = ERROR_SUCCESS;
@@ -570,7 +806,13 @@ DWORD request_sys_process_get_processes( Remote * remote, Packet * packet )
 		packet_transmit_response( result, remote, response );
 
 	} while( 0 );
+#else
+	DWORD result = ERROR_NOT_SUPPORTED;
+	Packet * response = packet_create_response( packet );
 
+	packet_transmit_response( result, remote, response );
+#endif
+	
 	return result;
 }
 
@@ -581,7 +823,11 @@ DWORD request_sys_process_getpid(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 
+#ifdef _WIN32
 	packet_add_tlv_uint(response, TLV_TYPE_PID, GetCurrentProcessId());
+#else
+	packet_add_tlv_uint(response, TLV_TYPE_PID, gettid());
+#endif
 
 	packet_transmit_response(ERROR_SUCCESS, remote, response);
 
@@ -595,13 +841,17 @@ DWORD request_sys_process_getpid(Remote *remote, Packet *packet)
  */
 DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
 {
+	Packet *response = packet_create_response(packet);
+
+
+#ifdef _WIN32 
 	BOOL (WINAPI *enumProcessModules)(HANDLE p, HMODULE *mod, DWORD cb, 
 			LPDWORD needed);
 	DWORD (WINAPI *getModuleBaseName)(HANDLE p, HMODULE mod, LPTSTR base, 
 			DWORD baseSize);
 	DWORD (WINAPI *getModuleFileNameEx)(HANDLE p, HMODULE mod, LPTSTR path,
 			DWORD pathSize);
-	Packet *response = packet_create_response(packet);
+
 	HMODULE mod;
 	HANDLE psapi = NULL;
 	HANDLE handle;
@@ -672,6 +922,9 @@ DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
 	// Close the psapi library and clean up
 	if (psapi)
 		FreeLibrary(psapi);
+#else
+	packet_transmit_response(ERROR_NOT_SUPPORTED, remote, response);
+#endif
 
 	return ERROR_SUCCESS;
 }
@@ -688,14 +941,20 @@ DWORD request_sys_process_get_info(Remote *remote, Packet *packet)
 DWORD process_channel_read(Channel *channel, Packet *request, 
 		LPVOID context, LPVOID buffer, DWORD bufferSize, LPDWORD bytesRead)
 {
-	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
+	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 
 	dprintf( "[PROCESS] process_channel_read. channel=0x%08X, ctx=0x%08X", channel, ctx );
 
+#ifdef _WIN32
 	if (!ReadFile(ctx->pStdout, buffer, bufferSize, bytesRead, NULL))
 		result = GetLastError();
-
+#else
+	if((*bytesRead = read(ctx->pStdout, buffer, bufferSize) < 0)) {
+		result = GetLastError();
+	}
+	
+#endif
 	return result;
 }
 
@@ -710,10 +969,15 @@ DWORD process_channel_write(Channel *channel, Packet *request,
 	DWORD result = ERROR_SUCCESS;
 
 	dprintf( "[PROCESS] process_channel_write. channel=0x%08X, ctx=0x%08X", channel, ctx );
-
+#ifdef _WIN32
 	if (!WriteFile(ctx->pStdin, buffer, bufferSize, bytesWritten, NULL))
 		result = GetLastError();
 
+#else
+	if((*bytesWritten = write(ctx->pStdin, buffer, bufferSize)) < 0) {
+		result = GetLastError();
+	}
+#endif
 	return result;
 }
 
@@ -722,22 +986,25 @@ DWORD process_channel_write(Channel *channel, Packet *request,
  */
 DWORD process_channel_close(Channel *channel, Packet *request, LPVOID context)
 {
-	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 	DWORD result = ERROR_SUCCESS;
+	ProcessChannelContext *ctx = (ProcessChannelContext *)context;
 
 	dprintf( "[PROCESS] process_channel_close. channel=0x%08X, ctx=0x%08X", channel, ctx );
 
 	if (channel_is_interactive(channel))
 		scheduler_remove_waitable(ctx->pStdout);
 
+#ifdef _WIN32
 	// Note: We dont close the handle ctx->pStdout as this will introduce a synchronization
 	// problem with the channels interactive thread, specifically the call to WaitForMultipleObjects
 	// will have undefined behaviour. The interactive thread will close the handle instead.
 
 	CloseHandle(ctx->pStdin);
+#else
+	close(ctx->pStdin);
+#endif
 
 	free(ctx);
-
 	return result;
 }
 
@@ -747,10 +1014,13 @@ DWORD process_channel_close(Channel *channel, Packet *request, LPVOID context)
  */
 DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 {
+
 	ProcessChannelContext *ctx = (ProcessChannelContext *)channel->ops.stream.native.context;
 	DWORD bytesRead, bytesAvail = 0;
 	CHAR buffer[16384];
+	DWORD result = ERROR_SUCCESS;
 
+#ifdef _WIN32
 	if( PeekNamedPipe( ctx->pStdout, NULL, 0, NULL, &bytesAvail, NULL ) )
 	{
 		if( bytesAvail )
@@ -767,14 +1037,38 @@ DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 			Sleep( 100 );
 		}
 	}
+#else
+	bytesRead = read ( ctx->pStdout, buffer, sizeof(buffer) - 1);
 
+	if ( bytesRead > 0 ) 
+
+	{
+		dprintf("[%s] bytesRead: %d, errno: %d", __FUNCTION__, bytesRead, errno);
+
+		result = channel_write ( channel, remote, NULL, 0, buffer, bytesRead, NULL );
+	} 
+
+	if(bytesRead == -1) {
+		if(errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN) {
+			errno = ERROR_SUCCESS;
+		}
+	}
+
+	if(bytesRead == 0) {
+		errno = ECONNRESET;
+	}
+
+	if(bytesRead <= 0) result = errno;
+
+#endif
 	if( GetLastError() != ERROR_SUCCESS )
 	{
+		dprintf("Closing down socket: errno: %d\n", errno);
 		process_channel_close( channel, NULL, ctx );
 		channel_close( channel, remote, NULL, 0, NULL );
 	}
 
-	return ERROR_SUCCESS;
+	return result;
 }
 
 /*
@@ -808,12 +1102,19 @@ DWORD request_sys_process_wait(Remote *remote, Packet *packet)
 	DWORD result      = ERROR_INVALID_PARAMETER;
 
 	handle = (HANDLE)packet_get_tlv_value_uint( packet, TLV_TYPE_HANDLE );
+#ifdef _WIN32
+
 	if( handle )
 	{
 		if( WaitForSingleObject( handle, INFINITE ) == WAIT_OBJECT_0 )
 			result = ERROR_SUCCESS;
 	}
-
+#else
+	if( ! waitpid(handle, NULL, WNOHANG)) 
+	{
+		result = ERROR_SUCCESS;
+	}
+#endif
 	packet_transmit_response( result, remote, response );
 
 	return result;
