@@ -235,10 +235,10 @@ module Text
 	# Returns the string with nonprintable hex characters sanitized to ascii. Similiar to to_hex,
 	# but regular ASCII is not translated if count is 1.
 	#
-	def self.to_hex_ascii(str, prefix = "\\x", count = 1)
+	def self.to_hex_ascii(str, prefix = "\\x", count = 1, suffix=nil)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s| 
-			(0x20..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s
+			(0x20..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s + suffix.to_s
 		}
 	end
 
@@ -474,6 +474,13 @@ module Text
 		else
 			raise TypeError, 'invalid mode'
 		end
+	end
+
+	#
+	# Encode an ASCII string so it's safe for XML. It's a wrapper for to_hex_ascii.
+	#
+	def self.xml_char_encode(str)
+		self.to_hex_ascii(str, "&#", 1, ";")
 	end
 
 	#

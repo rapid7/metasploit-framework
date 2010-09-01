@@ -24,10 +24,10 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 	end
 
     def test_html_encode
-        assert_equal('&#x41', Rex::Text.html_encode('A'), 'html_encode default')
-        assert_equal('&#x41', Rex::Text.html_encode('A','hex'), 'html_encode hex')
-        assert_equal('&#65', Rex::Text.html_encode('A','int'), 'html_encode int')
-        assert_equal('&#0000065', Rex::Text.html_encode('A','int-wide'), 'html_encode int-wide')
+        assert_equal('&#x41;', Rex::Text.html_encode('A'), 'html_encode default')
+        assert_equal('&#x41;', Rex::Text.html_encode('A','hex'), 'html_encode hex')
+        assert_equal('&#65;', Rex::Text.html_encode('A','int'), 'html_encode int')
+        assert_equal('&#0000065;', Rex::Text.html_encode('A','int-wide'), 'html_encode int-wide')
 
         assert_raises(TypeError) {
             Rex::Text.html_encode('a', 'umpa lumpa')
@@ -156,6 +156,11 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 
 		str = "\x05Hello\x06World!\x03\x41\x42\x43"
 		assert_equal("\\x05Hello\\x06World!\\x03ABC", Rex::Text.to_hex_ascii(str))
+	end
+
+	def test_xml_char_encode
+		str = "\x05hello\x06world"
+		assert_equal("&#05;hello&#06;world", Rex::Text.xml_char_encode(str))
 	end
 
 	def test_wordwrap
