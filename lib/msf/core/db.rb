@@ -650,9 +650,6 @@ class DBManager
 			cred.source_type = source_type if source_type
 			cred.active = active
 
-			# Ensure the updated_at is touched any time report_auth_info is called
-			cred.updated_at = Time.now.utc
-
 			# Safe proof (lazy way) -- doesn't chop expanded
 			# characters correctly, but shouldn't ever be a problem.
 			unless proof.nil?
@@ -664,6 +661,13 @@ class DBManager
 			# Update the timestamp
 			if cred.changed?
 				msfe_import_timestamps(opts,cred)
+				cred.save!
+			end
+
+			# Ensure the updated_at is touched any time report_auth_info is called
+			# except when it's set explicitly (as it is for imports)
+			unless opts[:updated_at] || opts["updated_at"]
+				cred.updated_at = Time.now.utc
 				cred.save!
 			end
 
