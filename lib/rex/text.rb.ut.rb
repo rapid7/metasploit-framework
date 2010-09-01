@@ -160,7 +160,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 
 	def test_xml_char_encode
 		str = "\x05hello\x06world"
-		assert_equal("&#05;hello&#06;world", Rex::Text.xml_char_encode(str))
+		assert_equal("&#x05;hello&#x06;world", Rex::Text.xml_char_encode(str))
 	end
 
 	def test_wordwrap

@@ -480,7 +480,7 @@ module Text
 	# Encode an ASCII string so it's safe for XML. It's a wrapper for to_hex_ascii.
 	#
 	def self.xml_char_encode(str)
-		self.to_hex_ascii(str, "&#", 1, ";")
+		self.to_hex_ascii(str, "&#x", 1, ";")
 	end
 
 	#
