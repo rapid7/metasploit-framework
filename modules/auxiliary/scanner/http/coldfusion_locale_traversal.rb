@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 	                                        },
 							}, -1)
 				if (res.nil?)
-					print_error("no response for #{datastore['RHOST']}:#{rport} #{url}")
+					print_error("no response for #{ip}:#{rport} #{url}")
 				elsif (res.code == 200)
 					#print_error("#{res.body}")#debug
 					print_status("URL: #{url}")
