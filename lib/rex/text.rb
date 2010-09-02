@@ -238,7 +238,7 @@ module Text
 	def self.to_hex_ascii(str, prefix = "\\x", count = 1, suffix=nil)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
 		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s| 
-			(0x21..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s + suffix.to_s
+			(0x20..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s + suffix.to_s
 		}
 	end
 
