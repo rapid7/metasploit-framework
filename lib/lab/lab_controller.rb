@@ -167,7 +167,7 @@ class LabController
 			## If you revert w/ vmrun, you need to restart
 			if run 
 				sleep 5
-				@controller.start_lab_vm(get_full_path(vmid))
+				@controller.start(get_full_path(vmid))
 			end
 		end
 	end
