@@ -51,6 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 			"i-2-eye DVC1000 - ARM9TDMI"  => [
 				[0x0040cd68, 0x00000000, 0x01000000],
 				[0x0040af38, 0x00000000, 0x01000000],
+				[0x0040cd00, 0x00000000, 0x01000000]
 			],
 		}
 
