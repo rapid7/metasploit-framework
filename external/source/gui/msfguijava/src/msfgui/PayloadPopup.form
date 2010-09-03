@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
   <NonVisualComponents>
@@ -57,7 +57,7 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="outputScrollPane" pref="1054" max="32767" attributes="0"/>
+                              <Component id="outputScrollPane" pref="1077" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
@@ -90,7 +90,7 @@
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
                                           <Group type="102" alignment="1" attributes="0">
-                                              <Component id="templateField" pref="268" max="32767" attributes="1"/>
+                                              <Component id="templateField" pref="269" max="32767" attributes="1"/>
                                               <EmptySpace max="-2" attributes="0"/>
                                               <Component id="templateButton" min="-2" pref="87" max="-2" attributes="0"/>
                                           </Group>

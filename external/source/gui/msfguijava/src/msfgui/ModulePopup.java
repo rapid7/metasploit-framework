@@ -296,6 +296,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					optionField.setText(option.get("default").toString());
 				} else if (optionName.equals("LHOST")){ //try to find local ip
 					optionField.setText(MsfguiApp.getLocalIp());
+				} else if (optionName.equals("WORKSPACE")){
+					optionField.setText(MsfguiApp.workspace);
 				}
 				optionField.setName("field" + optionName);
 				mainPanel.add(optionField);

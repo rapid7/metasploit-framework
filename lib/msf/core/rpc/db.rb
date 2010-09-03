@@ -22,24 +22,6 @@ private
 		newopts
 	end
 
-
-	def workspaces(token)
-		authenticate(token)
-		if(not db)
-			raise ::XMLRPC::FaultException.new(404, "database not loaded")
-		end
-		res = {}
-		res[:workspaces] = []
-		@framework.db.workspaces.each do |j|
-			ws = {}
-			ws[:name] = j.name
-			ws[:created_at] = j.created_at.to_s
-			ws[:updated_at] = j.updated_at.to_s
-			res[:workspaces] << ws
-		end
-		res
-	end
-
 	def opts2Hosts(opts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
@@ -273,6 +255,23 @@ public
 		ret
 	end
 
+	def workspaces(token)
+		authenticate(token)
+		if(not db)
+			raise ::XMLRPC::FaultException.new(404, "database not loaded")
+		end
+		res = {}
+		res[:workspaces] = []
+		@framework.db.workspaces.each do |j|
+			ws = {}
+			ws[:name] = j.name
+			ws[:created_at] = j.created_at.to_s
+			ws[:updated_at] = j.updated_at.to_s
+			res[:workspaces] << ws
+		end
+		res
+	end
+
 	def current_workspace(token)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -294,6 +293,36 @@ public
 			ret[:workspace] << w
 		end
 		ret
+	end
+
+	def set_workspace(token,wspace)
+		authenticate(token)
+		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
+		workspace = @framework.db.find_workspace(wspace)
+		if(workspace)
+			@framework.db.workspace = workspace
+			return { 'result' => "success" }
+		end
+		{ 'result' => 'failed' }
+	end
+
+	def del_workspace(token,wspace)
+		authenticate(token)
+		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
+		# Delete workspace
+		workspace = @framework.db.find_workspace(wspace)
+		if workspace.nil?
+			raise ::XMLRPC::FaultException.new(404, "Workspace not found: #{wspace}")
+		elsif workspace.default?
+			workspace.destroy
+			workspace = @framework.db.add_workspace(name)
+		else
+			# switch to the default workspace if we're about to delete the current one
+			@framework.db.workspace = @framework.db.default_workspace if @framework.db.workspace.name == workspace.name
+			# now destroy the named workspace
+			workspace.destroy
+		end
+		{ 'result' => "success" }
 	end
 
 	def add_workspace(token,wspace)

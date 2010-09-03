@@ -45,14 +45,12 @@ public class MainFrame extends FrameView {
 	private String clickedJob;
 	public Map[] selectedSessions;
 	private SearchWindow searchWin;
-	private String workspace;
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
 		initComponents();
 		sessionsTableModel = null;
 		sessionPopupMap = new HashMap();
-		workspace = "default";
 
 		//Set up action for starting RPC
 		startRpcMenuItem.setAction(getContext().getActionMap(this).get("startRpc"));
@@ -529,6 +527,9 @@ public class MainFrame extends FrameView {
         disconnectItem = new javax.swing.JMenuItem();
         refreshItem = new javax.swing.JMenuItem();
         importItem = new javax.swing.JMenuItem();
+        currWorkspaceItem = new javax.swing.JMenuItem();
+        addWorkspaceItem = new javax.swing.JMenuItem();
+        delWorkspaceItem = new javax.swing.JMenuItem();
         pluginsMenu = new javax.swing.JMenu();
         autoAddRouteItem = new javax.swing.JMenuItem();
         soundItem = new javax.swing.JMenuItem();
@@ -934,6 +935,36 @@ public class MainFrame extends FrameView {
         });
         databaseMenu.add(importItem);
 
+        currWorkspaceItem.setMnemonic('W');
+        currWorkspaceItem.setText(resourceMap.getString("currWorkspaceItem.text")); // NOI18N
+        currWorkspaceItem.setName("currWorkspaceItem"); // NOI18N
+        currWorkspaceItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                currWorkspaceItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(currWorkspaceItem);
+
+        addWorkspaceItem.setMnemonic('A');
+        addWorkspaceItem.setText(resourceMap.getString("addWorkspaceItem.text")); // NOI18N
+        addWorkspaceItem.setName("addWorkspaceItem"); // NOI18N
+        addWorkspaceItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addWorkspaceItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(addWorkspaceItem);
+
+        delWorkspaceItem.setMnemonic('l');
+        delWorkspaceItem.setText(resourceMap.getString("delWorkspaceItem.text")); // NOI18N
+        delWorkspaceItem.setName("delWorkspaceItem"); // NOI18N
+        delWorkspaceItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                delWorkspaceItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(delWorkspaceItem);
+
         menuBar.add(databaseMenu);
 
         pluginsMenu.setMnemonic('l');
@@ -1167,10 +1198,10 @@ public class MainFrame extends FrameView {
 	/** Refreshes the database tables. */
 	private void reloadDb() {
 		try {
-			workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
-			reAdd(eventsTable,6,(Object[]) ((Map)rpcConn.execute("db.events",workspace)).get("events"),
+			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
+			reAdd(eventsTable,6,(Object[]) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
 					new String[]{"host","created_at","updated_at","name","critical","username","info"});
-			reAdd(lootsTable,8,(Object[]) ((Map)rpcConn.execute("db.loots",workspace)).get("loots"),
+			reAdd(lootsTable,8,(Object[]) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
 					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 		} catch (MsfException mex) {
 		}
@@ -1316,6 +1347,57 @@ public class MainFrame extends FrameView {
 	private void clientsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientsTableKeyReleased
 		tableDelCheck(evt,"client",3,new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
 	}//GEN-LAST:event_clientsTableKeyReleased
+
+	private void currWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_currWorkspaceItemActionPerformed
+		try {
+			Object[] vals = (Object[])((Map)rpcConn.execute("db.workspaces")).get("workspaces");
+			Object[] names = new Object[vals.length];
+			for(int i = 0; i < vals.length; i++)
+				names[i] = ((Map)vals[i]).get("name");
+			Object selected = JOptionPane.showInputDialog(getFrame(),"Select a workspace","Workspace selection",
+					JOptionPane.QUESTION_MESSAGE,null, names, MsfguiApp.workspace);
+			if(selected == null)
+				return;
+			MsfguiApp.workspace = selected.toString();
+			rpcConn.execute("db.set_workspace", MsfguiApp.workspace);
+			reloadDb();
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_currWorkspaceItemActionPerformed
+
+	private void addWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addWorkspaceItemActionPerformed
+		try {
+			String name = JOptionPane.showInputDialog(getFrame(), "Enter a name for the new workspace");
+			if(name != null)
+				rpcConn.execute("db.add_workspace",name);
+			MsfguiApp.workspace = name;
+			rpcConn.execute("db.set_workspace", name);
+			reloadDb();
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_addWorkspaceItemActionPerformed
+
+	private void delWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delWorkspaceItemActionPerformed
+		try {
+			Object[] vals = (Object[])((Map)rpcConn.execute("db.workspaces")).get("workspaces");
+			Object[] names = new Object[vals.length];
+			for(int i = 0; i < vals.length; i++)
+				names[i] = ((Map)vals[i]).get("name");
+			Object selected = JOptionPane.showInputDialog(getFrame(),"Select a workspace to delete","Workspace selection",
+					JOptionPane.QUESTION_MESSAGE,null, names, MsfguiApp.workspace);
+			if(selected == null)
+				return;
+			rpcConn.execute("db.del_workspace", selected.toString());
+			if(MsfguiApp.workspace.equals(selected.toString())){
+				MsfguiApp.workspace = "default";
+				reloadDb();
+			}
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		}
+	}//GEN-LAST:event_delWorkspaceItemActionPerformed
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1551,6 +1633,7 @@ public class MainFrame extends FrameView {
 	}
 	
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JMenuItem addWorkspaceItem;
     private javax.swing.JMenuItem autoAddRouteItem;
     private javax.swing.JMenu auxiliaryMenu;
     private javax.swing.JMenuItem changeLFMenuItem;
@@ -1562,9 +1645,11 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem connectItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
+    private javax.swing.JMenuItem currWorkspaceItem;
     private javax.swing.JMenu databaseMenu;
     private javax.swing.JMenuItem dbCredcollectItem;
     private javax.swing.JMenuItem dbTrackerItem;
+    private javax.swing.JMenuItem delWorkspaceItem;
     private javax.swing.JMenuItem disconnectItem;
     private javax.swing.JScrollPane eventsPane;
     private javax.swing.JTable eventsTable;
@@ -1648,7 +1733,7 @@ public class MainFrame extends FrameView {
 	private void reAddQuery(JTable table, int tabIndex, String call, String[] cols) {
 		try {
 			HashMap arg = new HashMap();
-			arg.put("workspace", workspace);
+			arg.put("workspace", MsfguiApp.workspace);
 			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,arg)).get(call);
 			reAdd(table, tabIndex, data, cols);
 		} catch (MsfException mex) {

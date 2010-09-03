@@ -45,6 +45,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	private static List recentList = new LinkedList();
 	public static JFileChooser fileChooser;
 	protected static Pattern backslash = Pattern.compile("\\\\");
+	public static String workspace = "default";
 
 	static{ //get saved properties file
 		propRoot = null;
