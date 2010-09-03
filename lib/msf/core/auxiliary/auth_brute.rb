@@ -163,7 +163,7 @@ end
 def extract_words(wordfile)
 	return [] unless wordfile && File.readable?(wordfile)
 	begin
-		words = File.open(wordfile) {|f| f.read}
+		words = File.open(wordfile) {|f| f.read(f.stat.size)}
 	rescue
 		return
 	end
@@ -175,7 +175,7 @@ def extract_word_pair(wordfile)
 	return [] unless wordfile && File.readable?(wordfile)
 	creds = []
 	begin
-		upfile_contents = File.open(wordfile) {|f| f.read}
+		upfile_contents = File.open(wordfile) {|f| f.read(f.stat.size)}
 	rescue
 		return []
 	end
