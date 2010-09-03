@@ -22,15 +22,14 @@
       <SubComponents>
         <Container class="javax.swing.JTabbedPane" name="tabbedPane">
           <Properties>
-            <Property name="selectedIndex" type="int" value="1"/>
             <Property name="name" type="java.lang.String" value="tabbedPane" noResource="true"/>
           </Properties>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
           <SubComponents>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+            <Container class="javax.swing.JScrollPane" name="jobsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane1" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="jobsPane" noResource="true"/>
                 <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
                   <Dimension value="[10, 10]"/>
                 </Property>
@@ -41,7 +40,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Jobs">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane1.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="jobsPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -58,9 +57,9 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane2">
+            <Container class="javax.swing.JScrollPane" name="sessionsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane2" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="sessionsPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -68,7 +67,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Sessions">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane2.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="sessionsPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -94,9 +93,9 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane3">
+            <Container class="javax.swing.JScrollPane" name="hostsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane3" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="hostsPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -104,7 +103,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Hosts">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane3.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="hostsPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -113,23 +112,6 @@
               <SubComponents>
                 <Component class="javax.swing.JTable" name="hostsTable">
                   <Properties>
-                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="13" rowCount="0">
-                        <Column editable="true" title="Created" type="java.lang.Object"/>
-                        <Column editable="true" title="Address" type="java.lang.Object"/>
-                        <Column editable="true" title="Address6" type="java.lang.String"/>
-                        <Column editable="true" title="MAC" type="java.lang.Object"/>
-                        <Column editable="true" title="Name" type="java.lang.Object"/>
-                        <Column editable="true" title="State" type="java.lang.Object"/>
-                        <Column editable="true" title="OS name" type="java.lang.Object"/>
-                        <Column editable="true" title="OS flavor" type="java.lang.Object"/>
-                        <Column editable="true" title="OS SP" type="java.lang.Object"/>
-                        <Column editable="true" title="OS lang" type="java.lang.Object"/>
-                        <Column editable="true" title="Updated" type="java.lang.Object"/>
-                        <Column editable="true" title="Purpose" type="java.lang.Object"/>
-                        <Column editable="true" title="Info" type="java.lang.Object"/>
-                      </Table>
-                    </Property>
                     <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                       <TableColumnModel selectionModel="0">
                         <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
@@ -200,16 +182,56 @@
                       </TableColumnModel>
                     </Property>
                     <Property name="name" type="java.lang.String" value="hostsTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
                       <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                     </Property>
                   </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="hostsTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="hostsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;&#x9;new Object [][] {},&#xa;&#x9;new String [] {&#xa;&#x9;&#x9;&quot;Created&quot;, &quot;Address&quot;, &quot;Address6&quot;, &quot;MAC&quot;, &quot;Name&quot;, &quot;State&quot;, &quot;OS name&quot;, &quot;OS flavor&quot;, &quot;OS SP&quot;, &quot;OS lang&quot;, &quot;Updated&quot;, &quot;Purpose&quot;, &quot;Info&quot;&#xa;&#x9;}&#xa;) {&#xa;&#x9;Class[] types = new Class [] {&#xa;&#x9;&#x9;java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class&#xa;&#x9;};&#xa;&#x9;public Class getColumnClass(int columnIndex) {&#xa;&#x9;&#x9;return types [columnIndex];&#xa;&#x9;}&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane4">
+            <Container class="javax.swing.JScrollPane" name="clientsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane4" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="clientsPane" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Clients">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="clientsPane.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="clientsTable">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="clientsTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="clientsTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="clientsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;UA String&quot;, &quot;UA Name&quot;, &quot;UA Ver&quot;, &quot;Created&quot;, &quot;Updated&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="servicesPane">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="servicesPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -217,7 +239,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Services">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane4.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="servicesPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -226,26 +248,22 @@
               <SubComponents>
                 <Component class="javax.swing.JTable" name="servicesTable">
                   <Properties>
-                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="8" rowCount="0">
-                        <Column editable="true" title="Host" type="java.lang.String"/>
-                        <Column editable="true" title="Created" type="java.lang.String"/>
-                        <Column editable="true" title="Updated" type="java.lang.String"/>
-                        <Column editable="true" title="Port" type="java.lang.Integer"/>
-                        <Column editable="true" title="Proto" type="java.lang.String"/>
-                        <Column editable="true" title="State" type="java.lang.String"/>
-                        <Column editable="true" title="Name" type="java.lang.String"/>
-                        <Column editable="true" title="Info" type="java.lang.String"/>
-                      </Table>
-                    </Property>
                     <Property name="name" type="java.lang.String" value="servicesTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="servicesTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="servicesTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;State&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane5">
+            <Container class="javax.swing.JScrollPane" name="vulnsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane5" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="vulnsPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -253,7 +271,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Vulns">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane5.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="vulnsPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -262,24 +280,22 @@
               <SubComponents>
                 <Component class="javax.swing.JTable" name="vulnsTable">
                   <Properties>
-                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="6" rowCount="0">
-                        <Column editable="true" title="Port" type="java.lang.String"/>
-                        <Column editable="true" title="Proto" type="java.lang.String"/>
-                        <Column editable="true" title="Time" type="java.lang.String"/>
-                        <Column editable="true" title="Host" type="java.lang.String"/>
-                        <Column editable="true" title="Name" type="java.lang.String"/>
-                        <Column editable="true" title="Refs" type="java.lang.String"/>
-                      </Table>
-                    </Property>
                     <Property name="name" type="java.lang.String" value="vulnsTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="vulnsTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="vulnsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Port&quot;, &quot;Proto&quot;, &quot;Time&quot;, &quot;Host&quot;, &quot;Name&quot;, &quot;Refs&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane6">
+            <Container class="javax.swing.JScrollPane" name="eventsPane">
               <Properties>
-                <Property name="name" type="java.lang.String" value="jScrollPane6" noResource="true"/>
+                <Property name="name" type="java.lang.String" value="eventsPane" noResource="true"/>
               </Properties>
               <AuxValues>
                 <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -287,7 +303,7 @@
               <Constraints>
                 <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
                   <JTabbedPaneConstraints tabName="Events">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="jScrollPane6.TabConstraints.tabTitle"/>
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="eventsPane.TabConstraints.tabTitle"/>
                   </JTabbedPaneConstraints>
                 </Constraint>
               </Constraints>
@@ -296,19 +312,77 @@
               <SubComponents>
                 <Component class="javax.swing.JTable" name="eventsTable">
                   <Properties>
-                    <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                      <Table columnCount="7" rowCount="0">
-                        <Column editable="true" title="Host" type="java.lang.String"/>
-                        <Column editable="true" title="Created" type="java.lang.String"/>
-                        <Column editable="true" title="Updated" type="java.lang.String"/>
-                        <Column editable="true" title="Name" type="java.lang.String"/>
-                        <Column editable="true" title="Critical" type="java.lang.String"/>
-                        <Column editable="true" title="Username" type="java.lang.String"/>
-                        <Column editable="true" title="Info" type="java.lang.String"/>
-                      </Table>
-                    </Property>
                     <Property name="name" type="java.lang.String" value="eventsTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="eventsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Critical&quot;, &quot;Username&quot;, &quot;Info&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="notesPane">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="notesPane" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Notes">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="notesPane.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="notesTable">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="notesTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="notesTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="notesTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] { },&#xa;    new String [] {&#xa;        &quot;Time&quot;, &quot;Host&quot;, &quot;Service&quot;, &quot;Type&quot;, &quot;Data&quot;&#xa;    }&#xa;) {&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="lootsPane">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="lootsPane" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Loots">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="lootsPane.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="lootsTable">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="lootsTable" noResource="true"/>
+                    <Property name="showHorizontalLines" type="boolean" value="false"/>
+                    <Property name="showVerticalLines" type="boolean" value="false"/>
+                  </Properties>
+                  <Events>
+                    <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="lootsTableKeyReleased"/>
+                  </Events>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="lootsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;            new Object [][] {&#xa;&#xa;            },&#xa;            new String [] {&#xa;                &quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;            }&#xa;        ) {&#xa;            public Class getColumnClass(int columnIndex) {&#xa;                return java.lang.String.class;&#xa;            }&#xa;            public boolean isCellEditable(int i,int j) {&#xa;                return false;&#xa;            }&#xa;        });"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>

@@ -5,20 +5,10 @@ package msfgui;
 
 import java.awt.Component;
 import java.awt.HeadlessException;
-import java.awt.event.WindowEvent;
 import javax.swing.JTable;
-import org.jdesktop.application.Action;
-import org.jdesktop.application.ResourceMap;
-import org.jdesktop.application.SingleFrameApplication;
-import org.jdesktop.application.FrameView;
-import org.jdesktop.application.TaskMonitor;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.WindowAdapter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import org.jdesktop.application.*;
+import java.awt.event.*;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
@@ -55,12 +45,14 @@ public class MainFrame extends FrameView {
 	private String clickedJob;
 	public Map[] selectedSessions;
 	private SearchWindow searchWin;
+	private String workspace;
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
 		initComponents();
 		sessionsTableModel = null;
 		sessionPopupMap = new HashMap();
+		workspace = "default";
 
 		//Set up action for starting RPC
 		startRpcMenuItem.setAction(getContext().getActionMap(this).get("startRpc"));
@@ -135,7 +127,7 @@ public class MainFrame extends FrameView {
 		//Setup icon
 		this.getFrame().setIconImage( resourceMap.getImageIcon("main.icon").getImage());
 		//Disable tabs by default
-		for(int i = 2; i <= 5; i++)
+		for(int i = 2; i < tabbedPane.getTabCount(); i++)
 			tabbedPane.setEnabledAt(i, false);
 	}
 
@@ -147,7 +139,6 @@ public class MainFrame extends FrameView {
 		} catch (Exception ex) {
 		}
 	}
-
 	/** Adds menu items for reopening and closing the console */
 	private void registerConsole(Map res, boolean show, String initVal) {
 		final InteractWindow iw = new InteractWindow(rpcConn, res, "console", initVal);
@@ -404,18 +395,110 @@ public class MainFrame extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         tabbedPane = new javax.swing.JTabbedPane();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jobsPane = new javax.swing.JScrollPane();
         jobsList = new javax.swing.JList();
-        jScrollPane2 = new javax.swing.JScrollPane();
+        sessionsPane = new javax.swing.JScrollPane();
         sessionsTable = new javax.swing.JTable();
-        jScrollPane3 = new javax.swing.JScrollPane();
+        hostsPane = new javax.swing.JScrollPane();
         hostsTable = new javax.swing.JTable();
-        jScrollPane4 = new javax.swing.JScrollPane();
+        hostsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {},
+            new String [] {
+                "Created", "Address", "Address6", "MAC", "Name", "State", "OS name", "OS flavor", "OS SP", "OS lang", "Updated", "Purpose", "Info"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
+            };
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        clientsPane = new javax.swing.JScrollPane();
+        clientsTable = new javax.swing.JTable();
+        clientsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "UA String", "UA Name", "UA Ver", "Created", "Updated"
+            }
+        ) {
+            public Class getColumnClass(int columnIndex) {
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        servicesPane = new javax.swing.JScrollPane();
         servicesTable = new javax.swing.JTable();
-        jScrollPane5 = new javax.swing.JScrollPane();
+        servicesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Created", "Updated", "Port", "Proto", "State", "Name", "Info"
+            }
+        ) {
+            public Class getColumnClass(int columnIndex) {
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        vulnsPane = new javax.swing.JScrollPane();
         vulnsTable = new javax.swing.JTable();
-        jScrollPane6 = new javax.swing.JScrollPane();
+        vulnsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Port", "Proto", "Time", "Host", "Name", "Refs"
+            }
+        ) {
+            public Class getColumnClass(int columnIndex) {
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        eventsPane = new javax.swing.JScrollPane();
         eventsTable = new javax.swing.JTable();
+        eventsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
+            }
+        ) {
+            public Class getColumnClass(int columnIndex) {
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        notesPane = new javax.swing.JScrollPane();
+        notesTable = new javax.swing.JTable();
+        notesTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] { },
+            new String [] {
+                "Time", "Host", "Service", "Type", "Data"
+            }
+        ) {
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        lootsPane = new javax.swing.JScrollPane();
+        lootsTable = new javax.swing.JTable();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
@@ -467,16 +550,16 @@ public class MainFrame extends FrameView {
 
         tabbedPane.setName("tabbedPane"); // NOI18N
 
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
-        jScrollPane1.setPreferredSize(new java.awt.Dimension(10, 10));
+        jobsPane.setName("jobsPane"); // NOI18N
+        jobsPane.setPreferredSize(new java.awt.Dimension(10, 10));
 
         jobsList.setName("jobsList"); // NOI18N
-        jScrollPane1.setViewportView(jobsList);
+        jobsPane.setViewportView(jobsList);
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(MainFrame.class);
-        tabbedPane.addTab(resourceMap.getString("jScrollPane1.TabConstraints.tabTitle"), jScrollPane1); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("jobsPane.TabConstraints.tabTitle"), jobsPane); // NOI18N
 
-        jScrollPane2.setName("jScrollPane2"); // NOI18N
+        sessionsPane.setName("sessionsPane"); // NOI18N
 
         sessionsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -488,30 +571,21 @@ public class MainFrame extends FrameView {
         ));
         sessionsTable.setName("sessionsTable"); // NOI18N
         sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-        jScrollPane2.setViewportView(sessionsTable);
+        sessionsPane.setViewportView(sessionsTable);
 
-        tabbedPane.addTab(resourceMap.getString("jScrollPane2.TabConstraints.tabTitle"), jScrollPane2); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("sessionsPane.TabConstraints.tabTitle"), sessionsPane); // NOI18N
 
-        jScrollPane3.setName("jScrollPane3"); // NOI18N
+        hostsPane.setName("hostsPane"); // NOI18N
 
-        hostsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Created", "Address", "Address6", "MAC", "Name", "State", "OS name", "OS flavor", "OS SP", "OS lang", "Updated", "Purpose", "Info"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+        hostsTable.setName("hostsTable"); // NOI18N
+        hostsTable.setShowHorizontalLines(false);
+        hostsTable.setShowVerticalLines(false);
+        hostsTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                hostsTableKeyReleased(evt);
             }
         });
-        hostsTable.setName("hostsTable"); // NOI18N
-        jScrollPane3.setViewportView(hostsTable);
+        hostsPane.setViewportView(hostsTable);
         hostsTable.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title0")); // NOI18N
         hostsTable.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title1")); // NOI18N
         hostsTable.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title2")); // NOI18N
@@ -526,78 +600,101 @@ public class MainFrame extends FrameView {
         hostsTable.getColumnModel().getColumn(11).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title11")); // NOI18N
         hostsTable.getColumnModel().getColumn(12).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title12")); // NOI18N
 
-        tabbedPane.addTab(resourceMap.getString("jScrollPane3.TabConstraints.tabTitle"), jScrollPane3); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("hostsPane.TabConstraints.tabTitle"), hostsPane); // NOI18N
 
-        jScrollPane4.setName("jScrollPane4"); // NOI18N
+        clientsPane.setName("clientsPane"); // NOI18N
 
-        servicesTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Created", "Updated", "Port", "Proto", "State", "Name", "Info"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+        clientsTable.setName("clientsTable"); // NOI18N
+        clientsTable.setShowHorizontalLines(false);
+        clientsTable.setShowVerticalLines(false);
+        clientsTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                clientsTableKeyReleased(evt);
             }
         });
+        clientsPane.setViewportView(clientsTable);
+
+        tabbedPane.addTab(resourceMap.getString("clientsPane.TabConstraints.tabTitle"), clientsPane); // NOI18N
+
+        servicesPane.setName("servicesPane"); // NOI18N
+
         servicesTable.setName("servicesTable"); // NOI18N
-        jScrollPane4.setViewportView(servicesTable);
-
-        tabbedPane.addTab(resourceMap.getString("jScrollPane4.TabConstraints.tabTitle"), jScrollPane4); // NOI18N
-
-        jScrollPane5.setName("jScrollPane5"); // NOI18N
-
-        vulnsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Port", "Proto", "Time", "Host", "Name", "Refs"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+        servicesTable.setShowHorizontalLines(false);
+        servicesTable.setShowVerticalLines(false);
+        servicesTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                servicesTableKeyReleased(evt);
             }
         });
+        servicesPane.setViewportView(servicesTable);
+
+        tabbedPane.addTab(resourceMap.getString("servicesPane.TabConstraints.tabTitle"), servicesPane); // NOI18N
+
+        vulnsPane.setName("vulnsPane"); // NOI18N
+
         vulnsTable.setName("vulnsTable"); // NOI18N
-        jScrollPane5.setViewportView(vulnsTable);
+        vulnsTable.setShowHorizontalLines(false);
+        vulnsTable.setShowVerticalLines(false);
+        vulnsTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                vulnsTableKeyReleased(evt);
+            }
+        });
+        vulnsPane.setViewportView(vulnsTable);
 
-        tabbedPane.addTab(resourceMap.getString("jScrollPane5.TabConstraints.tabTitle"), jScrollPane5); // NOI18N
+        tabbedPane.addTab(resourceMap.getString("vulnsPane.TabConstraints.tabTitle"), vulnsPane); // NOI18N
 
-        jScrollPane6.setName("jScrollPane6"); // NOI18N
+        eventsPane.setName("eventsPane"); // NOI18N
 
-        eventsTable.setModel(new javax.swing.table.DefaultTableModel(
+        eventsTable.setName("eventsTable"); // NOI18N
+        eventsTable.setShowHorizontalLines(false);
+        eventsTable.setShowVerticalLines(false);
+        eventsPane.setViewportView(eventsTable);
+
+        tabbedPane.addTab(resourceMap.getString("eventsPane.TabConstraints.tabTitle"), eventsPane); // NOI18N
+
+        notesPane.setName("notesPane"); // NOI18N
+
+        notesTable.setName("notesTable"); // NOI18N
+        notesTable.setShowHorizontalLines(false);
+        notesTable.setShowVerticalLines(false);
+        notesTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                notesTableKeyReleased(evt);
+            }
+        });
+        notesPane.setViewportView(notesTable);
+
+        tabbedPane.addTab(resourceMap.getString("notesPane.TabConstraints.tabTitle"), notesPane); // NOI18N
+
+        lootsPane.setName("lootsPane"); // NOI18N
+
+        lootsTable.setName("lootsTable"); // NOI18N
+        lootsTable.setShowHorizontalLines(false);
+        lootsTable.setShowVerticalLines(false);
+        lootsTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
 
             },
             new String [] {
-                "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
+                "Host", "Service", "Ltype", "Ctype", "Data", "Created", "Updated", "Name", "Info"
             }
         ) {
-            Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
-            };
-
             public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
             }
         });
-        eventsTable.setName("eventsTable"); // NOI18N
-        jScrollPane6.setViewportView(eventsTable);
+        lootsTable.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                lootsTableKeyReleased(evt);
+            }
+        });
+        lootsPane.setViewportView(lootsTable);
 
-        tabbedPane.addTab(resourceMap.getString("jScrollPane6.TabConstraints.tabTitle"), jScrollPane6); // NOI18N
-
-        tabbedPane.setSelectedIndex(1);
+        tabbedPane.addTab(resourceMap.getString("lootsPane.TabConstraints.tabTitle"), lootsPane); // NOI18N
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -1069,16 +1166,20 @@ public class MainFrame extends FrameView {
 
 	/** Refreshes the database tables. */
 	private void reloadDb() {
-		reAddQuery(hostsTable,2,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
-						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
-		reAddQuery(servicesTable, 3, "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
-		reAddQuery(vulnsTable,4,"vulns",new String[]{"port","proto","time","host","name","refs"});
 		try {
-			Object wspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace");
-			Object[] events = (Object[]) ((Map)rpcConn.execute("db.events",wspace)).get("events");
-			reAdd(eventsTable,5,events,new String[]{"host","created_at","updated_at","name","critical","username","info"});
+			workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
+			reAdd(eventsTable,6,(Object[]) ((Map)rpcConn.execute("db.events",workspace)).get("events"),
+					new String[]{"host","created_at","updated_at","name","critical","username","info"});
+			reAdd(lootsTable,8,(Object[]) ((Map)rpcConn.execute("db.loots",workspace)).get("loots"),
+					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 		} catch (MsfException mex) {
 		}
+		reAddQuery(hostsTable,2,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
+						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
+		reAddQuery(clientsTable,3,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
+		reAddQuery(servicesTable, 4, "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+		reAddQuery(vulnsTable,5,"vulns",new String[]{"port","proto","time","host","name","refs"});
+		reAddQuery(notesTable,7,"notes",new String[]{"time", "host", "service", "type", "data"});
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
@@ -1173,6 +1274,48 @@ public class MainFrame extends FrameView {
 	private void showDetailsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showDetailsItemActionPerformed
 		JOptionPane.showMessageDialog(getFrame(), rpcConn.toString(), "Connection Details", JOptionPane.INFORMATION_MESSAGE);
 	}//GEN-LAST:event_showDetailsItemActionPerformed
+
+	private String[] tableShortNames = new String[]{"","",};
+	private void tableDelCheck(KeyEvent evt, String name, int tabIndex, String[] colNames){
+		if(evt.getKeyCode() != KeyEvent.VK_DELETE)
+			return;
+		JTable tab = (JTable)evt.getSource();
+		for(int row : tab.getSelectedRows()){
+			try {
+				HashMap map = new HashMap();
+				for(int i = 0; i < colNames.length; i++)
+					map.put(colNames[i], tab.getValueAt(row,i));
+				rpcConn.execute("db.del_"+name,map);
+			} catch (MsfException mex) {
+				JOptionPane.showMessageDialog(getFrame(), mex);
+			}
+		}//delete then readd
+		reAddQuery(tab,tabIndex,name+"s",colNames);
+	}
+	private void hostsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hostsTableKeyReleased
+		tableDelCheck(evt,"host",2,new String[]{"created_at","address","address6","mac","name","state","os_name",
+				"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
+	}//GEN-LAST:event_hostsTableKeyReleased
+
+	private void servicesTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_servicesTableKeyReleased
+		tableDelCheck(evt,"service",4,new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+	}//GEN-LAST:event_servicesTableKeyReleased
+
+	private void vulnsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_vulnsTableKeyReleased
+		tableDelCheck(evt,"vuln",5,new String[]{"port","proto","time","host","name","refs"});
+	}//GEN-LAST:event_vulnsTableKeyReleased
+
+	private void notesTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_notesTableKeyReleased
+		tableDelCheck(evt,"note",7,new String[]{"time", "host", "service", "type", "data"});
+	}//GEN-LAST:event_notesTableKeyReleased
+
+	private void lootsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lootsTableKeyReleased
+		reAddQuery(lootsTable,8,"loots",new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
+	}//GEN-LAST:event_lootsTableKeyReleased
+
+	private void clientsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientsTableKeyReleased
+		tableDelCheck(evt,"client",3,new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
+	}//GEN-LAST:event_clientsTableKeyReleased
 
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
@@ -1412,6 +1555,8 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu auxiliaryMenu;
     private javax.swing.JMenuItem changeLFMenuItem;
     private javax.swing.JMenuItem clearHistoryItem;
+    private javax.swing.JScrollPane clientsPane;
+    private javax.swing.JTable clientsTable;
     private javax.swing.JMenu closeConsoleMenu;
     private javax.swing.JMenuItem collectedCredsMenuItem;
     private javax.swing.JMenuItem connectItem;
@@ -1421,28 +1566,29 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenuItem dbCredcollectItem;
     private javax.swing.JMenuItem dbTrackerItem;
     private javax.swing.JMenuItem disconnectItem;
+    private javax.swing.JScrollPane eventsPane;
     private javax.swing.JTable eventsTable;
     private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu historyMenu;
+    private javax.swing.JScrollPane hostsPane;
     private javax.swing.JTable hostsTable;
     private javax.swing.JMenuItem importItem;
     private javax.swing.JMenuItem ipsFilterItem;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
-    private javax.swing.JScrollPane jScrollPane5;
-    private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JPopupMenu.Separator jSeparator1;
     private javax.swing.JList jobsList;
+    private javax.swing.JScrollPane jobsPane;
     private javax.swing.JMenuItem killSessionsMenuItem;
     private javax.swing.JMenuItem logGenerateMenuItem;
+    private javax.swing.JScrollPane lootsPane;
+    private javax.swing.JTable lootsTable;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuRunAllMeterp;
     private javax.swing.JMenuItem newConsoleItem;
+    private javax.swing.JScrollPane notesPane;
+    private javax.swing.JTable notesTable;
     private javax.swing.JMenuItem onlineHelpMenu;
     private javax.swing.JMenuItem otherMeterpCommandMenu;
     private javax.swing.JMenuItem otherPluginItem;
@@ -1453,7 +1599,9 @@ public class MainFrame extends FrameView {
     public javax.swing.JMenu recentMenu;
     private javax.swing.JMenuItem refreshItem;
     private javax.swing.JMenuItem searchItem;
+    private javax.swing.JScrollPane servicesPane;
     private javax.swing.JTable servicesTable;
+    private javax.swing.JScrollPane sessionsPane;
     private javax.swing.JTable sessionsTable;
     private javax.swing.JMenuItem showDetailsItem;
     private javax.swing.JMenuItem socketLoggerItem;
@@ -1464,6 +1612,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JPanel statusPanel;
     private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JMenuItem unloadPluginItem;
+    private javax.swing.JScrollPane vulnsPane;
     private javax.swing.JTable vulnsTable;
     // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
@@ -1498,19 +1647,21 @@ public class MainFrame extends FrameView {
 	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
 	private void reAddQuery(JTable table, int tabIndex, String call, String[] cols) {
 		try {
-			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,new HashMap())).get(call);
-			reAdd(hostsTable,tabIndex, data,cols);
+			HashMap arg = new HashMap();
+			arg.put("workspace", workspace);
+			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,arg)).get(call);
+			reAdd(table, tabIndex, data, cols);
 		} catch (MsfException mex) {
 		}
 	}
-	/** Clear a table's contents, reenabling the tab, and replace with contents of data */
-	private void reAdd(JTable table, int tabIndex, Object[] data, String[] cols) {
+	private void reAdd(JTable table, int tabIndex, Object[] data, String[] cols) throws MsfException {
 		DefaultTableModel mod = (DefaultTableModel) table.getModel();
-		while (mod.getRowCount() > 0)
+		while (mod.getRowCount() > 0) {
 			mod.removeRow(0);
+		}
 		for (Object dataObj : data) {
 			Object[] row = new Object[cols.length];
-			for(int i = 0; i < cols.length; i++)
+			for (int i = 0; i < cols.length; i++)
 				row[i] = ((Map) dataObj).get(cols[i]);
 			mod.addRow(row);
 		}

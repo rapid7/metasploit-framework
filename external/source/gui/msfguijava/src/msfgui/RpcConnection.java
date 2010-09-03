@@ -155,8 +155,19 @@ public class RpcConnection {
 			throw new MsfException("Error reading response.");
 		}
 		//parse the response: <methodResponse><params><param><value>...
+		ByteArrayInputStream is = new ByteArrayInputStream(cache.toByteArray());
+		StringBuilder sb = new StringBuilder();
+		int a = is.read();
+		while(a != -1){
+			if(!Character.isISOControl(a))
+				sb.append((char)a);
+			//else
+			//	sb.append("&#x").append(Integer.toHexString(a)).append(';');
+			a = is.read();
+		}
 		Document root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.parse(new ByteArrayInputStream(cache.toByteArray()));
+				.parse(new ByteArrayInputStream(sb.toString().getBytes()));
+		
 		if(!root.getFirstChild().getNodeName().equals("methodResponse"))
 			throw new MsfException("Error reading response: not a response.");
 		Node methResp = root.getFirstChild();
