@@ -245,12 +245,12 @@ public
 					nret = h.vulns
 				end
 				next if nret == nil
-				vulns << nret if nret.class == Msf::DBManager::Vulns
+				vulns << nret if nret.class == Msf::DBManager::Vuln
 				vulns |= nret if nret.class == Array
 			end
 		else
 			nret = wspace.vulns
-			vulns << nret if nret.class == Msf::DBManager::Vulns
+			vulns << nret if nret.class == Msf::DBManager::Vuln
 			vulns |= nret if nret.class == Array
 		end
 
