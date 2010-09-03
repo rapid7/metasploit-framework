@@ -2671,13 +2671,14 @@ class DBManager
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		data.each_line do |line|
-			if bl.include? line.strip
+		data.each_line do |ip|
+			ip.strip!
+			if bl.include? ip
 				next
 			else
-				yield(:address,line.strip) if block
+				yield(:address,ip) if block
 			end
-			host = find_or_create_host(:workspace => wspace, :host=> line, :state => Msf::HostState::Alive)
+			host = find_or_create_host(:workspace => wspace, :host=> ip, :state => Msf::HostState::Alive)
 		end
 	end
 
