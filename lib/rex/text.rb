@@ -756,6 +756,8 @@ module Text
 		buf = ''
 		idx = 0
 		offsets = []
+		# Make sure there's something in sets even if we were given an explicit nil
+		sets ||= [ UpperAlpha, LowerAlpha, Numerals ]
 
 		sets.length.times { offsets << 0 }
 
