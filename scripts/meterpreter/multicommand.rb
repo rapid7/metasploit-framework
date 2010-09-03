@@ -30,18 +30,18 @@ def list_exec(session,cmdlst)
 	cmdlst.each do |cmd|
 		begin
 			print_status "\trunning command #{cmd}"
-			tmpout = ""
+			tmpout = "\n"
 			tmpout << "*****************************************\n"
 			tmpout << "      Output of #{cmd}\n"
 			tmpout << "*****************************************\n"
 			r = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
 			while(d = r.channel.read)
-
 				tmpout << d
+				break if d == ""
 			end
 			cmdout << tmpout
 			r.channel.close
-			r.close
+			#r.close
 		rescue ::Exception => e
 			print_status("Error Running Command #{cmd}: #{e.class} #{e}")
 		end
