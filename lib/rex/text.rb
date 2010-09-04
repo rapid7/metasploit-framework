@@ -752,10 +752,11 @@ module Text
 	# supplied number of identifiable characters (slots).  The supplied sets
 	# should not contain any duplicate characters or the logic will fail.
 	#
-	def self.pattern_create(length, sets = [ UpperAlpha, LowerAlpha, Numerals ])
+	def self.pattern_create(length, sets = nil)
 		buf = ''
 		idx = 0
 		offsets = []
+
 		# Make sure there's something in sets even if we were given an explicit nil
 		sets ||= [ UpperAlpha, LowerAlpha, Numerals ]
 
