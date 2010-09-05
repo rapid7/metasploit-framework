@@ -18,7 +18,14 @@ define("TLV_TYPE_DIRECTORY_PATH",      TLV_META_TYPE_STRING  | 1200);
 define("TLV_TYPE_FILE_NAME",           TLV_META_TYPE_STRING  | 1201);
 define("TLV_TYPE_FILE_PATH",           TLV_META_TYPE_STRING  | 1202);
 define("TLV_TYPE_FILE_MODE",           TLV_META_TYPE_STRING  | 1203);
+define("TLV_TYPE_FILE_SIZE",           TLV_META_TYPE_UINT    | 1204);
+
 define("TLV_TYPE_STAT_BUF",            TLV_META_TYPE_COMPLEX | 1220);
+
+define("TLV_TYPE_SEARCH_RECURSE",      TLV_META_TYPE_BOOL    | 1230);
+define("TLV_TYPE_SEARCH_GLOB",         TLV_META_TYPE_STRING  | 1231);
+define("TLV_TYPE_SEARCH_ROOT",         TLV_META_TYPE_STRING  | 1232);
+define("TLV_TYPE_SEARCH_RESULTS",      TLV_META_TYPE_GROUP   | 1233);
 
 ##
 # Net
@@ -146,6 +153,105 @@ define("TLV_TYPE_POWER_REASON",        TLV_META_TYPE_UINT    | 4101);
 # Wrap everything in checks for existence of the new functions in case we get
 # eval'd twice
 my_print("Evaling stdapi");
+
+## 
+# Search Helpers
+##
+
+# Stolen from user comments in http://us2.php.net/manual/en/function.glob.php
+# The recursiveness was busted, fixed it by adding the path to the filename
+# when checking whether we're looking at a directory.
+# Used by stdapi_fs_search
+/**#@+
+ * Extra GLOB constant for safe_glob()
+ */
+define('GLOB_NODIR',256);
+define('GLOB_PATH',512);
+define('GLOB_NODOTS',1024);
+define('GLOB_RECURSE',2048);
+/**#@-*/
+/**
+ * A safe empowered glob().
+ *
+ * Function glob() is prohibited on some server (probably in safe mode)
+ * (Message "Warning: glob() has been disabled for security reasons in
+ * (script) on line (line)") for security reasons as stated on:
+ * http://seclists.org/fulldisclosure/2005/Sep/0001.html
+ *
+ * safe_glob() intends to replace glob() using readdir() & fnmatch() instead.
+ * Supported flags: GLOB_MARK, GLOB_NOSORT, GLOB_ONLYDIR
+ * Additional flags: GLOB_NODIR, GLOB_PATH, GLOB_NODOTS, GLOB_RECURSE
+ * (not original glob() flags)
+ * @author BigueNique AT yahoo DOT ca
+ * @updates
+ * - 080324 Added support for additional flags: GLOB_NODIR, GLOB_PATH,
+ *   GLOB_NODOTS, GLOB_RECURSE
+ */
+if (!function_exists('safe_glob')) {
+function safe_glob($pattern, $flags=0) {
+	$split=explode('/',str_replace('\\','/',$pattern));
+	$mask=array_pop($split);
+	$path=implode('/',$split);
+	if (($dir=opendir($path))!==false) {
+		$glob=array();
+		while (($file=readdir($dir))!==false) {
+			// Recurse subdirectories (GLOB_RECURSE)
+			if( ($flags&GLOB_RECURSE) && is_dir($path."/".$file) && (!in_array($file,array('.','..'))) ) {
+				$glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
+							($flags&GLOB_PATH?'':$file.'/')));
+            }
+			// Match file mask
+			if (fnmatch($mask,$file)) {
+				if ( ( (!($flags&GLOB_ONLYDIR)) || is_dir("$path/$file") )
+						&& ( (!($flags&GLOB_NODIR)) || (!is_dir($path.'/'.$file)) )
+						&& ( (!($flags&GLOB_NODOTS)) || (!in_array($file,array('.','..'))) ) )
+					$glob[] = ($flags&GLOB_PATH?$path.'/':'') . $file . ($flags&GLOB_MARK?'/':'');
+			}
+		}
+		closedir($dir);
+		if (!($flags&GLOB_NOSORT)) sort($glob);
+		return $glob;
+	} else {
+		return false;
+	}   
+}
+}
+/**
+ * A better "fnmatch" alternative for windows that converts a fnmatch
+ * pattern into a preg one. It should work on PHP >= 4.0.0.
+ * @author soywiz at php dot net
+ * @since 17-Jul-2006 10:12
+ */
+if (!function_exists('fnmatch')) {
+function fnmatch($pattern, $string) {
+	return @preg_match('/^' . strtr(addcslashes($pattern, '\\/.+^$(){}=!<>|'), array('*' => '.*', '?' => '.?')) . '$/i', $string);
+}
+}
+
+/**
+ * Prepends $string to each element of $array
+ * If $deep is true, will indeed also apply to sub-arrays
+ * @author BigueNique AT yahoo DOT ca
+ * @since 080324
+ */
+if (!function_exists('array_prepend')) {
+function array_prepend($array, $string, $deep=false) {
+    if(empty($array)||empty($string)) return $array;
+    foreach($array as $key => $element)
+        if(is_array($element))
+            if($deep)
+                $array[$key] = array_prepend($element,$string,$deep);
+            else
+                trigger_error('array_prepend: array element',E_USER_WARNING);
+        else
+            $array[$key] = $string.$element;
+    return $array;
+   
+}
+}
+
+
+## END Search Helpers
 
 if (!function_exists('cononicalize_path')) {
 function cononicalize_path($path) {
@@ -279,6 +385,40 @@ function stdapi_fs_delete_file($req, &$pkt) {
     } else {
         return ERROR_FAILURE;
     }
+}
+}
+
+if (!function_exists('stdapi_fs_search')) {
+function stdapi_fs_search($req, &$pkt) {
+	my_print("doing search");
+
+	$root_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_ROOT);
+	$root = cononicalize_path($root_tlv['value']);
+	$glob_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_GLOB);
+	$glob = cononicalize_path($glob_tlv['value']);
+	$recurse_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_RECURSE);
+	$recurse = $recurse_tlv['value'];
+
+    my_print("glob: $glob, root: $root, recurse: $recurse");
+	$flags = GLOB_PATH;
+	if ($recurse) {
+		$flags |= GLOB_RECURSE;
+	}
+	$files = safe_glob($root ."/". $glob, $flags);
+    if ($files and is_array($files)) {
+        dump_array($files);
+        foreach ($files as $file) {
+            $file_tlvs = "";
+            $s = stat($file);
+            $p = dirname($file);
+            $f = basename($file);
+            $file_tlvs .= tlv_pack(create_tlv(TLV_TYPE_FILE_PATH, $p));
+            $file_tlvs .= tlv_pack(create_tlv(TLV_TYPE_FILE_NAME, $f));
+            $file_tlvs .= tlv_pack(create_tlv(TLV_TYPE_FILE_SIZE, $s['size']));
+            packet_add_tlv($pkt, create_tlv(TLV_TYPE_SEARCH_RESULTS, $file_tlvs));
+        }
+    }
+    return ERROR_SUCCESS;
 }
 }
 
