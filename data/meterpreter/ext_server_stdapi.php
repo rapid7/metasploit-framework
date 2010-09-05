@@ -399,6 +399,10 @@ function stdapi_fs_search($req, &$pkt) {
 	$recurse_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_RECURSE);
 	$recurse = $recurse_tlv['value'];
 
+    if (!$root) {
+        $root = '.';
+    }
+
     my_print("glob: $glob, root: $root, recurse: $recurse");
 	$flags = GLOB_PATH;
 	if ($recurse) {
