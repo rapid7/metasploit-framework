@@ -646,7 +646,7 @@ function read($resource, $len=null) {
     # than all bytes in the buffer or 8192 bytes, the next read will never
     # return.
     if (is_null($len)) { $len = 8192; }
-    my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
+    #my_print(sprintf("Reading from $resource which is a %s", get_rtype($resource)));
     $buff = '';
     switch (get_rtype($resource)) {
     case 'socket': 
@@ -661,14 +661,14 @@ function read($resource, $len=null) {
     case 'stream': $buff = fread($resource, $len); break;
     default: my_print("Wtf don't know how to read from resource $resource"); break;
     }
-    my_print(sprintf("Read %d bytes", strlen($buff)));
+    #my_print(sprintf("Read %d bytes", strlen($buff)));
     return $buff;
 }
 
 function write($resource, $buff, $len=0) {
     global $udp_host_map;
     if ($len == 0) { $len = strlen($buff); }
-    my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
+    #my_print(sprintf("Writing $len bytes to $resource which is a %s", get_rtype($resource)));
     $count = false;
     switch (get_rtype($resource)) {
     case 'socket': 
@@ -683,7 +683,7 @@ function write($resource, $buff, $len=0) {
     case 'stream': $count = fwrite($resource, $buff, $len); break;
     default: my_print("Wtf don't know how to write to resource $resource"); break;
     }
-    my_print("Wrote $count bytes");
+    #my_print("Wrote $count bytes");
     return $count;
 }
 
@@ -840,7 +840,7 @@ add_reader($msgsock);
 #
 $r=$GLOBALS['readers'];
 while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
-    my_print(sprintf("Returned from select with %s readers", count($r)));
+    #my_print(sprintf("Returned from select with %s readers", count($r)));
     $read_failed = false;
     for ($i = 0; $i < $cnt; $i++) {
         $ready = $r[$i];

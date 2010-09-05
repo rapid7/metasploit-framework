@@ -242,22 +242,27 @@ function stdapi_fs_stat($req, &$pkt) {
     $path = cononicalize_path($path_tlv['value']);
 
     $st = stat($path);
-    $st_buf = "";
-    $st_buf .= pack("V", $st['dev']);
-    $st_buf .= pack("v", $st['ino']);
-    $st_buf .= pack("v", $st['mode']);
-    $st_buf .= pack("v", $st['nlink']);
-    $st_buf .= pack("v", $st['uid']);
-    $st_buf .= pack("v", $st['gid']);
-    $st_buf .= pack("v", 0);
-    $st_buf .= pack("V", $st['rdev']);
-    $st_buf .= pack("V", $st['size']);
-    $st_buf .= pack("V", $st['atime']);
-    $st_buf .= pack("V", $st['mtime']);
-    $st_buf .= pack("V", $st['ctime']);
-    $st_buf .= pack("V", $st['blksize']);
-    $st_buf .= pack("V", $st['blocks']);
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
+	if ($st) {
+		$st_buf = "";
+		$st_buf .= pack("V", $st['dev']);
+		$st_buf .= pack("v", $st['ino']);
+		$st_buf .= pack("v", $st['mode']);
+		$st_buf .= pack("v", $st['nlink']);
+		$st_buf .= pack("v", $st['uid']);
+		$st_buf .= pack("v", $st['gid']);
+		$st_buf .= pack("v", 0);
+		$st_buf .= pack("V", $st['rdev']);
+		$st_buf .= pack("V", $st['size']);
+		$st_buf .= pack("V", $st['atime']);
+		$st_buf .= pack("V", $st['mtime']);
+		$st_buf .= pack("V", $st['ctime']);
+		$st_buf .= pack("V", $st['blksize']);
+		$st_buf .= pack("V", $st['blocks']);
+		packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
+        return ERROR_SUCCESS;
+	} else {
+        return ERROR_FAILURE;
+	}
 }
 }
 
@@ -276,6 +281,8 @@ function stdapi_fs_delete_file($req, &$pkt) {
     }
 }
 }
+
+# Sys Config
 
 # works
 if (!function_exists('stdapi_sys_config_getuid')) {
@@ -458,7 +465,7 @@ function stdapi_sys_process_kill($req, &$pkt) {
 if (!function_exists('stdapi_net_socket_tcp_shutdown')) {
 function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
     my_print("doing stdapi_net_socket_tcp_shutdown");
-    $cid_tlv = packet_get_tlv(TLV_TYPE_CHANNEL_ID, $req);
+    $cid_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $c = get_channel_by_id($cid_tlv['value']);
 
     if ($c && $c['type'] == 'socket') {
@@ -470,6 +477,133 @@ function stdapi_net_socket_tcp_shutdown($req, &$pkt) {
     return $ret;
 }
 }
+
+
+
+#
+# Registry
+#
+
+if (!function_exists('register_registry_key')) {
+$_GLOBALS['registry_handles'] = array();
+
+function register_registry_key($key) {
+    global $registry_handles;
+    $registry_handles[] = $key;
+    return count($registry_handles) - 1;
+}
+}
+
+if (!function_exists('deregister_registry_key')) {
+function deregister_registry_key($id) {
+    global $registry_handles;
+    $registry_handles[$id] = null;
+}
+}
+
+
+if (!function_exists('stdapi_registry_create_key')) {
+function stdapi_registry_create_key($req, &$pkt) {
+    my_print("doing stdapi_registry_create_key");
+    if (is_windows() and is_callable('reg_open_key')) {
+        $root_tlv = packet_get_tlv($req, TLV_TYPE_ROOT_KEY);
+        $base_tlv = packet_get_tlv($req, TLV_TYPE_BASE_KEY);
+        $perm_tlv = packet_get_tlv($req, TLV_TYPE_PERMISSION);
+        dump_array($root_tlv);
+        dump_array($base_tlv);
+
+        # For some reason the php constants for registry root keys do not have
+        # the high bit set and are 1 less than the normal Windows constants, so
+        # fix it here.
+        $root = ($root_tlv['value'] & ~0x80000000) + 1;
+        $base = $base_tlv['value'];
+
+        my_print("reg opening '$root', '$base'");
+        $key = reg_open_key($root, $base);
+        if (!$key) {
+            my_print("reg open failed: $key");
+            return ERROR_FAILURE;
+        }
+        $key_id = register_registry_key($key);
+
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_HKEY, $key_id));
+
+        return ERROR_SUCCESS;
+    } else {
+        return ERROR_FAILURE;
+    }
+}
+}
+
+if (!function_exists('stdapi_registry_close_key')) {
+function stdapi_registry_close_key($req, &$pkt) {
+    if (is_windows() and is_callable('reg_open_key')) {
+        global $registry_handles;
+        my_print("doing stdapi_registry_close_key");
+        $key_id_tlv = packet_get_tlv($req, TLV_TYPE_ROOT_KEY);
+        $key_id = $key_id_tlv['value'];
+
+        reg_close_key($registry_handles[$key_id]);
+        deregister_registry_key($key_id);
+
+        return ERROR_SUCCESS;
+    } else {
+        return ERROR_FAILURE;
+    }
+}
+}
+
+if (!function_exists('stdapi_registry_query_value')) {
+function stdapi_registry_query_value($req, &$pkt) {
+    if (is_windows() and is_callable('reg_open_key')) {
+        global $registry_handles;
+        my_print("doing stdapi_registry_query_value");
+        $key_id_tlv = packet_get_tlv($req, TLV_TYPE_HKEY);
+        $key_id = $key_id_tlv['value'];
+        $name_tlv = packet_get_tlv($req, TLV_TYPE_VALUE_NAME);
+        $name = $name_tlv['value'];
+
+        #my_print("Looking up stored key handle $key_id");
+        #dump_array($registry_handles, "Reg handles");
+        $key = $registry_handles[$key_id];
+        if (!$key) {
+            return ERROR_FAILURE;
+        }
+        $data = reg_get_value($key, $name);
+        my_print("Found data for $key\\$name : $data, ". is_int($data));
+        # There doesn't appear to be an API to get the type, all we can do is
+        # infer based on what the value looks like.  =(
+        if (is_int($data)) {
+            $type = REG_DWORD;
+            $data = pack("N", (int)$data);
+        } else {
+            $type = REG_SZ;
+            # The api strips the null for us, so put it back
+            $data = $data ."\x00";
+        }
+
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_VALUE_DATA, $data));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_VALUE_TYPE, $type));
+    } else {
+        return ERROR_FAILURE;
+    }
+}
+}
+
+if (!function_exists('stdapi_registry_set_value')) {
+function stdapi_registry_set_value($req, &$pkt) {
+    if (is_windows() and is_callable('reg_open_key')) {
+        global $registry_handles;
+        my_print("doing stdapi_registry_set_value");
+        $key_id_tlv = packet_get_tlv($req, TLV_TYPE_ROOT_KEY);
+        $key_id = $key_id_tlv['value'];
+    } else {
+        return ERROR_FAILURE;
+    }
+}
+}
+
+
 # END STDAPI
 
 
