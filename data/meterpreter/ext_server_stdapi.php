@@ -196,7 +196,14 @@ function safe_glob($pattern, $flags=0) {
 		$glob=array();
 		while (($file=readdir($dir))!==false) {
 			// Recurse subdirectories (GLOB_RECURSE)
-			if( ($flags&GLOB_RECURSE) && is_dir($path."/".$file) && (!in_array($file,array('.','..'))) ) {
+			if ( 
+				(
+				 $flags&GLOB_RECURSE) && is_dir($path."/".$file) 
+   				 && (!in_array($file,array('.','..'))
+				 # don't follow links to avoid infinite recursion
+				 && (!is_link($path."/".$file))
+				)
+   			) {
 				$glob = array_merge($glob, array_prepend(safe_glob($path.'/'.$file.'/'.$mask, $flags),
 							($flags&GLOB_PATH?'':$file.'/')));
             }
