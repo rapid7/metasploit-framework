@@ -77,5 +77,6 @@ if client.platform =~ /win32|win64/
 		usage
 	end
 else
-	print_error["This script is not supported on this version of Meterpreter."]
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
