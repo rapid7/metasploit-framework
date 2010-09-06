@@ -1076,6 +1076,13 @@ class Db
 			tab_complete_filenames(str, words)
 		end
 
+		# Informs about the superior cmd_db_import function. 
+		def warn_about_db_import(arg)
+			return nil unless caller[0][/:in `cmd_(.*)'/]
+			triggering_function = $1
+			print_error "The command '#{triggering_function}' is deprecated; use 'db_import #{arg}' instead."
+		end
+
 		#
 		# Generic import that automatically detects the file type
 		#
@@ -1134,6 +1141,8 @@ class Db
 				return
 			end
 
+			warn_about_db_import(args[0])
+
 			if (not File.readable?(args[0]))
 				print_status("Could not read the NBE file")
 				return
@@ -1150,6 +1159,8 @@ class Db
 				print_status("Usage: db_import_nessus_xml <nessus.nessus>")
 				return
 			end
+
+			warn_about_db_import(args[0])
 
 			if (not File.readable?(args[0]))
 				print_status("Could not read the NESSUS file")
@@ -1168,6 +1179,8 @@ class Db
 				return
 			end
 
+			warn_about_db_import(args[0])
+
 			if (not File.readable?(args[0]))
 				print_status("Could not read the NMAP file")
 				return
@@ -1185,6 +1198,8 @@ class Db
 				return
 			end
 
+			warn_about_db_import(args[0])
+
 			if not File.readable?(args[0])
 				print_status("Could not read the Qualys file")
 				return
@@ -1200,6 +1215,8 @@ class Db
 				print_status("Usage: db_import_msfe_xml <report.xml>")
 				return
 			end
+
+			warn_about_db_import(args[0])
 
 			if not File.readable?(args[0])
 				print_status("Could not read the Metasploit Express file")
@@ -1217,6 +1234,8 @@ class Db
 				print_error("Usage: db_import_file_list <iplist.txt>")
 				return
 			end
+
+			warn_about_db_import(args[0])
 
 			if (not File.readable?(args[0]))
 				print_status("Could not read the text file")
@@ -1279,6 +1298,8 @@ class Db
 				print_status("Usage: db_import_amap_mlog [logfile]")
 				return
 			end
+
+			warn_about_db_import(args[0])
 
 			if not File.readable?(args[0])
 				print_error("Could not read the log file")
