@@ -105,14 +105,19 @@ cidr2scan = ""
 		save2log = true
 	end
 }
-if args.length > 0
-	if save2log
-		save_found(arp_scan(cidr2scan))
+if client.platform =~ /win32|win64/
+	if args.length > 0
+		if save2log
+			save_found(arp_scan(cidr2scan))
+		else
+			arp_scan(cidr2scan)
+		end
 	else
-		arp_scan(cidr2scan)
+		print_line "Meterpreter Script for performing an ARPS Scan Discovery."
+		print_line(@@exec_opts.usage)
+		raise Rex::Script::Completed
 	end
 else
-	print_line "Meterpreter Script for performing an ARPS Scan Discovery."
-	print_line(@@exec_opts.usage)
+	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
 end
