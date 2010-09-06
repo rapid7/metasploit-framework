@@ -309,12 +309,15 @@ def xenchk(session)
 	end
 	return vm
 end
-
-print_status("Checking if target is a Virtual Machine .....")
-found = hypervchk(session)
-found = vmwarechk(session) if not found
-found = checkvrtlpc(session) if not found
-found = vboxchk(session) if not found
-found = xenchk(session) if not found
-print_status("It appears to be physical host.") if not found
-
+if client.platform =~ /win32|win64/
+	print_status("Checking if target is a Virtual Machine .....")
+	found = hypervchk(session)
+	found = vmwarechk(session) if not found
+	found = checkvrtlpc(session) if not found
+	found = vboxchk(session) if not found
+	found = xenchk(session) if not found
+	print_status("It appears to be physical host.") if not found
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
