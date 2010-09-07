@@ -68,7 +68,7 @@ cmd = ARGV.pop.downcase
 # Populate the framework datastore
 options = ARGV.join(',')
 
-if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w|)/)
+if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	fmt = 'perl' if (cmd =~ /^p/)
 	fmt = 'ruby' if (cmd =~ /^y/)
 	fmt = 'raw' if (cmd =~ /^(r|x|d)/)
