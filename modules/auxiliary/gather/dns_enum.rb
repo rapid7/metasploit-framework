@@ -195,20 +195,18 @@ class Metasploit3 < Msf::Auxiliary
 			"vg", "vi", "wf", "eh", "ye", "yu", "za", "zr", "zm", "zw", "int",
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
 
-
-		query1 = @res.search("#{target}.#{tld}")
-		if (query1)
-			query1.answer.each do |rr|
-				print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
-				report_note(:host => rr.address.to_s,
-					:proto => 'DNS', :port => 53 ,
-					:type => 'DNS_ENUM',
-					:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
+		tlds.each do |tld|
+			query1 = @res.search("#{target}.#{tld}")
+			if (query1)
+				query1.answer.each do |rr|
+					print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
+					report_note(:host => rr.address.to_s,
+						:proto => 'DNS', :port => 53 ,
+						:type => 'DNS_ENUM',
+						:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
+				end
 			end
 		end
-
-
-
 
 	end
 
