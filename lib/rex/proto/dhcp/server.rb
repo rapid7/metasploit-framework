@@ -32,10 +32,20 @@ class Server
 		source = hash['SRVHOST'] || Rex::Socket.source_address
 		self.ipstring = Rex::Socket.addr_aton(source)
 
-		self.start_ip = Rex::Socket.addr_atoi(hash['DHCPIPSTART']) || "#{self.ipstring[0..2]}\x20" #default range x.x.x.32-254
+		ipstart = hash['DHCPIPSTART']
+		if ipstart
+			self.start_ip = Rex::Socket.addr_atoi(ipstart)
+		else
+			self.start_ip = "#{self.ipstring[0..2]}\x20" #default range x.x.x.32-254
+		end
 		self.current_ip = start_ip
 
-		self.end_ip = Rex::Socket.addr_atoi(hash['DHCPIPEND']) || "#{self.ipstring[0..2]}\xfe"
+		ipend = hash['DHCPIPEND']
+		if ipend
+			self.end_ip = Rex::Socket.addr_atoi(ipend)
+		else
+			self.end_ip = "#{self.ipstring[0..2]}\xfe"
+		end
 
 		# netmask
 		netmask = hash['NETMASK'] || "255.255.255.0"
