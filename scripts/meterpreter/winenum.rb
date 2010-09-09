@@ -28,7 +28,7 @@ opts.parse(args) { |opt, idx, val|
 		print_line "Retrieves all kinds of information about the system"
 		print_line "including environment variables, network interfaces,"
 		print_line "routing, user accounts, and much more.  Results are"
-		print_line "stored in #{::File.join(Msf::Config.log_directory, 'winenum')}"
+		print_line "stored in #{::File.join(Msf::Config.log_directory,'scripts', 'winenum')}"
 		print_line(opts.usage)
 		raise Rex::Script::Completed
 	end
