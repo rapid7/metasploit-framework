@@ -17,9 +17,9 @@ opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
 		print_line("Scraper -- harvest system info including network shares, registry hives and password hashes")
-		print_line("Info is stored in " + ::File.join(Msf::Config.log_directory, "scraper"))
+		print_line("Info is stored in " + ::File.join(Msf::Config.log_directory,"scripts", "scraper"))
 		print_line("USAGE: run scraper")
-		print_line(@@exec_opts.usage)
+		print_line(opts.usage)
 		raise Rex::Script::Completed
 	end
 }
