@@ -145,26 +145,20 @@ nowin2kexe = [
 def findprogs()
 	print_status("Extracting software list from registry")
 	proglist = ""
-	threadnum = 0
 	a =[]
-	keyx86 = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall'
-	registry_enumkeys(keyx86).each do |k|
-		if threadnum < 10
-			a.push(::Thread.new {
-					begin
-						dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
-						dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
-					rescue
-					end
-					proglist << "#{dispnm},#{dispversion}\n" if dispnm =~ /[a-z]/
-				})
-			threadnum += 1
-		else
-			sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-			threadnum = 0
+	appkeys = ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+		'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' ]
+	appkeys.each do |keyx86|
+		registry_enumkeys(keyx86).each do |k|
+			begin
+				dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
+				dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
+				proglist << "#{dispnm},#{dispversion}"
+			rescue
+			end
 		end
-
 	end
+	
 	file_local_write("#{@logfol}/programs_list.csv",proglist)
 end
 # Function to check if Target Machine a VM
@@ -548,7 +542,7 @@ def uaccheck()
 	else
 		print_status("\tUAC is Disabled")
 	end
-	file_local_write(@dest,"UAC is Enabled")
+	
 	return uac
 end
 ################## MAIN ##################
@@ -601,6 +595,12 @@ elsif trgtos =~ /(Windows 2008)/
 	end
 elsif trgtos =~ /Windows (Vista|7)/
 	list_exec(commands + vstwlancmd)
+	# Check for UAC and save results
+	if uac
+		file_local_write(@dest,"UAC is Enabled")
+	else
+		file_local_write(@dest,"UAC is Disabled")
+	end
 	wmicexec(wmic)
 	findprogs()
 	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
