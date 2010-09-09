@@ -64,7 +64,7 @@ def enum_users(os)
 	userpath = nil
 	useroffcpath = nil
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
-	if os =~ /7|Vista|2008/
+	if os =~ /Windows 7|Vista|2008/
 		userpath = sysdrv + "\\Users\\"
 		lnkpath = "\\AppData\\Roaming\\Microsoft\\Windows\\Recent\\"
 		officelnkpath = "\\AppData\\Roaming\\Microsoft\\Office\\Recent\\"
@@ -96,7 +96,7 @@ def enum_users(os)
 	return users
 end
 
-# This is a hack because meterpreter doesn't support exists?(file)
+# This is a hack because Meterpreter doesn't support exists?(file)
 def dir_entry_exists(path)
 	files = @client.fs.dir.entries(path)
 rescue
@@ -363,19 +363,22 @@ def get_time(lo_byte, hi_byte)
 	end
 	return time
 end
-
-enum_users(os).each do |user|
-	if user['userpath']
-		print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
-		extract_lnk_info(user['userpath'])
-	else
-		print_status "No Recent directory found for user #{user['username']}. Nothing to do."
+if client.platform =~ /win32|win64/
+	enum_users(os).each do |user|
+		if user['userpath']
+			print_status "Extracting lnk files for user #{user['username']} at #{user['userpath']}..."
+			extract_lnk_info(user['userpath'])
+		else
+			print_status "No Recent directory found for user #{user['username']}. Nothing to do."
+		end
+		if user['useroffcpath']
+			print_status "Extracting lnk files for user #{user['username']} at #{user['useroffcpath']}..."
+			extract_lnk_info(user['useroffcpath'])
+		else
+			print_status "No Recent Office files found for user #{user['username']}. Nothing to do."
+		end
 	end
-	if user['useroffcpath']
-		print_status "Extracting lnk files for user #{user['username']} at #{user['useroffcpath']}..."
-		extract_lnk_info(user['useroffcpath'])
-	else
-		print_status "No Recent Office files found for user #{user['username']}. Nothing to do."
-	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-

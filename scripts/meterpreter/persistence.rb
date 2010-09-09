@@ -4,6 +4,13 @@
 # Meterpreter script for installing a persistent meterpreter
 #
 
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+
 session = client
 key = "HKLM"
 #
@@ -54,7 +61,8 @@ opts.parse(args) do |opt, idx, val|
 		autoconn = true
 	end
 end
-
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 host_name = client.sys.config.sysinfo['Computer']
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")

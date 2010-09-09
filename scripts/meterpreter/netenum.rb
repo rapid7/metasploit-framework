@@ -303,25 +303,30 @@ srvrc = nil
   end
 
 }
+if client.platform =~ /win32|win64/
+	if range != nil && pngsp == 1
+		message(logs)
+		pingsweep(session,range,dest)
+	elsif range != nil && rvrslkp == 1
+		message(logs)
+		reverselookup(session,range,dest)
+	elsif dom != nil && hostlist!= nil && frdlkp == 1
+		message(logs)
+		frwdlp(session,hostlist,dom,dest)
+	elsif dom != nil && stdlkp == 1
+		message(logs)
+		stdlookup(session,dom,dest)
+	elsif dom != nil && srvrc == 1
+		message(logs)
+		srvreclkp(session,dom,dest)
+	elsif helpcall == nil
+		print(
+			"Network Enumerator Meterpreter Script\n" +
+			  "Usage: \n" +
+			  @@exec_opts.usage)
+	end
 
-if range != nil && pngsp == 1
-	message(logs)
-	pingsweep(session,range,dest)
-elsif range != nil && rvrslkp == 1
-	message(logs)
-	reverselookup(session,range,dest)
-elsif dom != nil && hostlist!= nil && frdlkp == 1
-	message(logs)
-	frwdlp(session,hostlist,dom,dest)
-elsif dom != nil && stdlkp == 1
-	message(logs)
-	stdlookup(session,dom,dest)
-elsif dom != nil && srvrc == 1
-	message(logs)
-	srvreclkp(session,dom,dest)
-elsif helpcall == nil
-	print(
-    	"Network Enumerator Meterpreter Script\n" +
-    	"Usage: \n" +
-      @@exec_opts.usage)
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

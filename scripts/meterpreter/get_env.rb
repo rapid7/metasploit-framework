@@ -35,4 +35,9 @@ opts.parse(args) { |opt, idx, val|
 
 	end
 }
-list_env_vars(var_names)
+if client.platform =~ /win32|win64/
+	list_env_vars(var_names)
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end

@@ -107,6 +107,14 @@ def prefetch_dump(options, logging=false)
 end
 
 
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+
+
 ################## MAIN ##################
 
 options       = ""
@@ -132,7 +140,8 @@ check_update  = false
 		raise Rex::Script::Completed
 	end
 }
-
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 prefetch_local = ::File.join(Msf::Config.data_directory, "prefetch.exe")
 
 if !(::File.exist?(prefetch_local))

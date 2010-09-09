@@ -140,49 +140,53 @@ def helpmsg
   )
 end
 ################## MAIN ##################
+if client.platform =~ /win32|win64/
+	localos = session.sys.config.sysinfo
 
-localos = session.sys.config.sysinfo
+	# Check that the command is not being ran on a Win2k host
+	# since wmic is not present in Windows 2000
+	if localos =~ /(Windows 2000)/
+		print_status("This script is not supported to be ran from Windows 2000 servers!!!")
+	else
+		# Parsing of Options
+		@@exec_opts.parse(args) { |opt, idx, val|
+			case opt
 
-# Check that the command is not being ran on a Win2k host
-# since wmic is not present in Windows 2000
-if localos =~ /(Windows 2000)/
-	print_status("This script is not supported to be ran from Windows 2000 servers!!!")
-else
-	# Parsing of Options
-	@@exec_opts.parse(args) { |opt, idx, val|
-		case opt
+			when "-t"
+				trg = val
+			when "-u"
+				rusr = val
+			when "-p"
+				rpass = val
+			when "-h"
+				helpmsg
+				helpcall = 1
+			end
 
-	  when "-t"
-	    trg = val
-	  when "-u"
-	    rusr = val
-	  when "-p"
-	    rpass = val
-	  when "-h"
-	    helpmsg
-	    helpcall = 1
-	  end
+		}
+		#logfile name
+		dest = logs + "/" + trg + filenameinfo
+		# Executing main logic of the script
+		if helpcall == 0 and trg != ""
 
-	}
-#logfile name
-dest = logs + "/" + trg + filenameinfo
-# Executing main logic of the script
-if helpcall == 0 and trg != ""
+			# Making sure that is running as System a Username and Password for target machine must be provided
 
-# Making sure that is running as System a Username and Password for target machine must be provided
+			if session.sys.config.getuid == "NT AUTHORITY\\SYSTEM" && rusr == nil && rpass == nil
 
-	if session.sys.config.getuid == "NT AUTHORITY\\SYSTEM" && rusr == nil && rpass == nil
+				print_status("Stopped: Running as System and no user provided for connecting to target!!")
 
-		print_status("Stopped: Running as System and no user provided for connecting to target!!")
+			else trg != nil && helpcall != 1
 
-	else trg != nil && helpcall != 1
+				file_local_write(dest,headerbuid(session,trg,dest))
+				file_local_write(dest,wmicexec(session,wmic,rusr,rpass,trg))
 
-		file_local_write(dest,headerbuid(session,trg,dest))
-		file_local_write(dest,wmicexec(session,wmic,rusr,rpass,trg))
+			end
+		elsif helpcall == 0 and trg == ""
 
+			helpmsg
+		end
 	end
-elsif helpcall == 0 and trg == ""
-
-	helpmsg
-end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

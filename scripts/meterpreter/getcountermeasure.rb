@@ -357,14 +357,18 @@ killfw = false
 	end
 }
 # get the version of windows
-wnvr = session.sys.config.sysinfo["OS"]
-print_status("Running Getcountermeasure on the target...")
-check(session,avs,killbt)
-if wnvr !~ /Windows 2000/
-	checklocalfw(session, killfw)
-	checkdep(session)
+if client.platform =~ /win32|win64/
+	wnvr = session.sys.config.sysinfo["OS"]
+	print_status("Running Getcountermeasure on the target...")
+	check(session,avs,killbt)
+	if wnvr !~ /Windows 2000/
+		checklocalfw(session, killfw)
+		checkdep(session)
+	end
+	if wnvr =~ /Windows Vista/
+		checkuac(session)
+	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-if wnvr =~ /Windows Vista/
-	checkuac(session)
-end
-

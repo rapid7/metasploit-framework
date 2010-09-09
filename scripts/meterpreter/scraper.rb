@@ -37,7 +37,10 @@ def m_unlink(session, path)
 	end
 	r.close
 end
-
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
 # Exec a command and return the results
 def m_exec(session, cmd)
 	begin
@@ -45,6 +48,7 @@ def m_exec(session, cmd)
 		b = ""
 		while(d = r.channel.read)
 			b << d
+			break if d == ""
 		end
 		r.channel.close
 		r.close
@@ -73,7 +77,8 @@ logs = ::File.join(Msf::Config.log_directory, 'scripts','scraper', host + "_" + 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
-
+platform = client.platform.scan(/(win32|win64|php)/)
+unsupported if not platform
 begin
 
 	tmp = session.fs.file.expand_path("%TEMP%")

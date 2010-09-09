@@ -71,6 +71,13 @@ def filewrt(file2wrt, data2wrt)
 	output.close
 end
 
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+
 def usage
 	print_line("Windows WMIC Command Execution Meterpreter Script ")
 	puts @@exec_opts.usage
@@ -120,6 +127,8 @@ end
 		raise RuntimeError, "Empty command list"
 	end
 }
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 
 if outfile == nil
 	print_status wmicexec(session,commands)

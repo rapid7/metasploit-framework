@@ -119,6 +119,15 @@ def usage
 	print_line(@@exec_opts.usage)
 	raise Rex::Script::Completed
 end
+
+
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+
 ################## MAIN ##################
 # Parsing of Options
 usr = nil
@@ -140,6 +149,9 @@ enbl = nil
 	end
 
 }
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
+
 if enbl
 	message
 	insttlntsrv(session)

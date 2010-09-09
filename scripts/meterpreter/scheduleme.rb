@@ -41,7 +41,7 @@ end
 def checkuac(session)
 	uac = false
         winversion = session.sys.config.sysinfo
-        if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
+        if winversion['OS']=~ /Windows Vista|7/
                 if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
                         begin
                                 print_status("Checking if UAC is enabled .....")
@@ -256,21 +256,26 @@ password = nil
 	end
 
 }
-if helpcall == 1 
-	usage()
-elsif cmd == nil && file == nil
-	usage()
-elsif !checkuac(session)
-	if file == nil
-		if remote == 0
-			scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
+if client.platform =~ /win32|win64/
+	if helpcall == 1
+		usage()
+	elsif cmd == nil && file == nil
+		usage()
+	elsif !checkuac(session)
+		if file == nil
+			if remote == 0
+				scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
+			else
+				scheduleremote(session,schtype,cmd,tmmod,cmdopt,targetsys,username,password)
+			end
 		else
-			scheduleremote(session,schtype,cmd,tmmod,cmdopt,targetsys,username,password)
+			cmd = upload(session,file)
+			scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
 		end
 	else
-		cmd = upload(session,file)
-		scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
+		print_status("Meterpreter is not running under sufficient administrative rights.")
 	end
 else
-	print_status("Meterpreter is not running under sufficient administrative rights.")
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

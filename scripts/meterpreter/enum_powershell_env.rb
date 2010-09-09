@@ -118,4 +118,9 @@ def enum_powershell
 		
 	end
 end
-enum_powershell
+if client.platform =~ /win32|win64/
+	enum_powershell
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end

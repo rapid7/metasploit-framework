@@ -98,6 +98,14 @@ def abuse(session,targets,commands,username,password,delay)
 		end
 	end
 end
+
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 
@@ -134,6 +142,9 @@ end
 	end
 
 }
+
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 print_status("Meterpreter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
 	abuse(session,targets,commands,username,password,delay)

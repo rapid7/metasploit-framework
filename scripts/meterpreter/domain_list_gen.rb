@@ -17,6 +17,11 @@ opts.parse(args) { |opt, idx, val|
 		raise Rex::Script::Completed
 	end
 }
+
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
 #-------------------------------------------------------------------------------
 #Set General Variables used in the script
 @client =  client
@@ -27,6 +32,8 @@ current_user = client.sys.config.getuid.scan(/\S*\\(.*)/)
 domain = @client.fs.file.expand_path("%USERDOMAIN%")
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+platform = client.platform.scan(/(win32|win64|php)/)
+unsupported if not platform
 # Create a directory for the logs
 logs = ::File.join(Msf::Config.log_directory, 'scripts','domain_admins')
 # Create the log directory
@@ -45,6 +52,7 @@ while(d = r.channel.read)
 		print_error("Could not enumerate Domain Admins!")
 		raise Rex::Script::Completed
 	end
+	break if d == ""
 end
 #split output in to lines
 out_lines = users.split("\n")

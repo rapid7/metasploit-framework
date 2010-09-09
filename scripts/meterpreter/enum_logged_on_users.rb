@@ -81,8 +81,13 @@ end
 		ls_current
 	end
 }
-if args.length == 0
-	print_line "Meterpreter Script for enumerating Current logged users and users that have loged in to the system."
-	print_line(@@exec_opts.usage)
+if client.platform =~ /win32|win64/
+	if args.length == 0
+		print_line "Meterpreter Script for enumerating Current logged users and users that have loged in to the system."
+		print_line(@@exec_opts.usage)
+		raise Rex::Script::Completed
+	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
 end

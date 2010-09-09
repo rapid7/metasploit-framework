@@ -292,30 +292,35 @@ def enum_vmwarewrk
 		end
 	end
 end
-if check_vmsoft
-	vmware_products = check_prods()
-	if vmware_products.include?("VMware VirtualCenter")
-		enum_vcenter
-	end
-	if vmware_products.include?("VMware Virtual Infrastructure Client")
-		enum_viclient
-	end
-	if vmware_products.include?("VMware Update Manager")
-		enum_vum
-	end
+if client.platform =~ /win32|win64/
+	if check_vmsoft
+		vmware_products = check_prods()
+		if vmware_products.include?("VMware VirtualCenter")
+			enum_vcenter
+		end
+		if vmware_products.include?("VMware Virtual Infrastructure Client")
+			enum_viclient
+		end
+		if vmware_products.include?("VMware Update Manager")
+			enum_vum
+		end
 
-	if vmware_products.include?("VMware VDM")
-		enum_vdm
-	end
-	if vmware_products.include?("VMware vSphere PowerCLI")
-		enum_powercli
-	end
-	if vmware_products.include?("VMware vSphere Host Update Utility 4.0")
-		enum_vihosupdt
-	end
-	if vmware_products.include?("VMware Workstation")
-		enum_vmwarewrk
+		if vmware_products.include?("VMware VDM")
+			enum_vdm
+		end
+		if vmware_products.include?("VMware vSphere PowerCLI")
+			enum_powercli
+		end
+		if vmware_products.include?("VMware vSphere Host Update Utility 4.0")
+			enum_vihosupdt
+		end
+		if vmware_products.include?("VMware Workstation")
+			enum_vmwarewrk
+		end
+	else
+		print_status("No VMware Products appear to be installed in this host")
 	end
 else
-	print_status("No VMware Products appear to be installed in this host")
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

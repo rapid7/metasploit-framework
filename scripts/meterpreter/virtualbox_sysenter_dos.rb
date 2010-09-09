@@ -17,6 +17,13 @@ opts.parse(args) { |opt, idx, val|
 	end
 }
 
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 
 # Spawn calculator
 pid = client.sys.process.execute("calc.exe", nil, {'Hidden' => 'true'}).pid

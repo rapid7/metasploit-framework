@@ -41,6 +41,13 @@ rport = 4444
 sname = 'WebDriveService'
 pname = 'wdService.exe'
 
+#check for proper Meterpreter Platform
+def unsupported
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+platform = client.platform.scan(/(win32|win64)/)
+unsupported if not platform
 #
 # Option parsing
 #

