@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -56,12 +56,12 @@ class COFF < ExeFormat
 	}
 
 	RELOCATION_TYPE = Hash.new({}).merge(
-		'x64' => { 0 => 'ABSOLUTE', 1 => 'ADDR64', 2 => 'ADDR32', 3 => 'ADDR32NB',
+		'AMD64' => { 0 => 'ABSOLUTE', 1 => 'ADDR64', 2 => 'ADDR32', 3 => 'ADDR32NB',
 			4 => 'REL32', 5 => 'REL32_1', 6 => 'REL32_2', 7 => 'REL32_3',
 			8 => 'REL32_4', 9 => 'REL32_5', 10 => 'SECTION', 11 => 'SECREL',
 			12 => 'SECREL7', 13 => 'TOKEN', 14 => 'SREL32', 15 => 'PAIR',
 			16 => 'SSPAN32' },
-		'arm' => { 0 => 'ABSOLUTE', 1 => 'ADDR32', 2 => 'ADDR32NB', 3 => 'BRANCH24',
+		'ARM' => { 0 => 'ABSOLUTE', 1 => 'ADDR32', 2 => 'ADDR32NB', 3 => 'BRANCH24',
 			4 => 'BRANCH11', 14 => 'SECTION', 15 => 'SECREL' },
 		'I386' => { 0 => 'ABSOLUTE', 1 => 'DIR16', 2 => 'REL16', 6 => 'DIR32',
 			7 => 'DIR32NB', 9 => 'SEG12', 10 => 'SECTION', 11 => 'SECREL',
@@ -69,12 +69,20 @@ class COFF < ExeFormat
 	)
 
 	# lsb of symbol type, unused
-	SYMBOL_TYPE = { 0 => 'NULL', 1 => 'VOID', 2 => 'CHAR', 3 => 'SHORT',
+	SYMBOL_BTYPE = { 0 => 'NULL', 1 => 'VOID', 2 => 'CHAR', 3 => 'SHORT',
 		4 => 'INT', 5 => 'LONG', 6 => 'FLOAT', 7 => 'DOUBLE', 8 => 'STRUCT',
 		9 => 'UNION', 10 => 'ENUM', 11 => 'MOE', 12 => 'BYTE', 13 => 'WORD',
 		14 => 'UINT', 15 => 'DWORD'}
-	# msb of symbol type, only 0x20 used
-	SYMBOL_DTYPE = { 0 => 'NULL', 1 => 'POINTER', 2 => 'FUNCTION', 3 => 'ARRAY' }
+	SYMBOL_TYPE = { 0 => 'NULL', 1 => 'POINTER', 2 => 'FUNCTION', 3 => 'ARRAY' }
+	SYMBOL_SECTION = { 0 => 'UNDEF', 0xffff => 'ABS', 0xfffe => 'DEBUG' }
+	SYMBOL_STORAGE = { 0xff => 'EOF', 0 => 'NULL', 1 => 'AUTO', 2 => 'EXTERNAL',
+		3 => 'STATIC', 4 => 'REGISTER', 5 => 'EXT_DEF', 6 => 'LABEL',
+		7 => 'UNDEF_LABEL', 8 => 'STRUCT_MEMBER', 9 => 'ARGUMENT', 10 => 'STRUCT_TAG',
+		11 => 'UNION_MEMBER', 12 => 'UNION_TAG', 13 => 'TYPEDEF', 14 => 'UNDEF_STATIC',
+		15 => 'ENUM_TAG', 16 => 'ENUM_MEMBER', 17 => 'REG_PARAM', 18 => 'BIT_FIELD',
+		100 => 'BLOCK', 101 => 'FUNCTION', 102 => 'END_STRUCT',
+	       	103 => 'FILE', 104 => 'SECTION', 105 => 'WEAK_EXT',
+	}
 
 	DEBUG_TYPE = { 0 => 'UNKNOWN', 1 => 'COFF', 2 => 'CODEVIEW', 3 => 'FPO', 4 => 'MISC',
 		5 => 'EXCEPTION', 6 => 'FIXUP', 7 => 'OMAP_TO_SRC', 8 => 'OMAP_FROM_SRC',
@@ -107,7 +115,7 @@ class COFF < ExeFormat
 
 	ORDINAL_REGEX = /^Ordinal_(\d+)$/
 
-	class SerialStruct < SerialStruct
+	class SerialStruct < Metasm::SerialStruct
 		new_int_field :xword
 	end
 
@@ -139,6 +147,21 @@ class COFF < ExeFormat
 		words :ldrflags, :numrva
 	end
 
+	# COFF relocatable object symbol (table offset found in the Header.ptr_sym)
+	class Symbol < SerialStruct
+		str :name, 8	# if the 1st 4 bytes are 0, the word at 4...8 is the name index in the string table
+		word :value
+		half :sec_nr
+		fld_enum :sec_nr, SYMBOL_SECTION
+		bitfield :half, 0 => :type_base, 4 => :type
+		fld_enum :type_base, SYMBOL_BTYPE
+		fld_enum :type, SYMBOL_TYPE
+		bytes :storage, :nr_aux
+		fld_enum :storage, SYMBOL_STORAGE
+
+		attr_accessor :aux
+	end
+
 	class Section < SerialStruct
 		str :name, 8
 		words :virtsize, :virtaddr, :rawsize, :rawaddr, :relocaddr, :linenoaddr
@@ -146,7 +169,16 @@ class COFF < ExeFormat
 		word :characteristics
 		fld_bits :characteristics, SECTION_CHARACTERISTIC_BITS
 
-		attr_accessor :encoded
+		attr_accessor :encoded, :relocs
+	end
+
+	# COFF relocatable object relocation (per section, see relocaddr/relocnr)
+	class RelocObj < SerialStruct
+		word :va
+		word :symidx
+		half :type
+		fld_enum(:type) { |coff, rel| RELOCATION_TYPE[coff.header.machine] || {} }
+		attr_accessor :sym
 	end
 
 	# lists the functions/addresses exported to the OS (pendant of ImportDirectory)
@@ -157,7 +189,7 @@ class COFF < ExeFormat
 		attr_accessor :libname, :exports
 
 		class Export
-			attr_accessor :forwarder_lib, :forwarder_ordinal, :forwarder_name, :target, :name_p, :name, :ordinal
+			attr_accessor :forwarder_lib, :forwarder_ordinal, :forwarder_name, :target, :target_rva, :name_p, :name, :ordinal
 		end
 	end
 
@@ -220,7 +252,7 @@ class COFF < ExeFormat
 	class LoadConfig < SerialStruct
 		words :signature, :timestamp
 		halfs :major_version, :minor_version
-		words :globalflags, :critsec_timeout
+		words :globalflags_clear, :globalflags_set, :critsec_timeout
 		# lockpfxtable is an array of VA of LOCK prefixes, to be nopped on singleproc machines (!)
 		xwords :decommitblock, :decommittotal, :lockpfxtable, :maxalloc, :maxvirtmem, :process_affinity_mask
 		word :process_heap_flags
@@ -323,38 +355,39 @@ class COFF < ExeFormat
 		end
 	end
 
-	attr_accessor :header, :optheader, :directory, :sections, :endianness,
+	attr_accessor :header, :optheader, :directory, :sections, :endianness, :symbols,
 		:export, :imports, :resource, :certificates, :relocations, :debug, :tls, :loadconfig, :delayimports
 
-	def initialize(cpu=nil)
+	# boolean, set to true to have #decode() ignore the base_relocs directory
+	attr_accessor :nodecode_relocs
+
+	def initialize(*a)
+		cpu = a.grep(CPU).first
+		@nodecode_relocs = true if a.include? :nodecode_relocs
+
 		@directory = {}	# DIRECTORIES.key => [rva, size]
 		@sections = []
 		@endianness = cpu ? cpu.endianness : :little
 		@header = Header.new
 		@optheader = OptionalHeader.new
-		@header.machine = case cpu
-		when nil; 'UNKNOWN'
-		when Ia32; 'I386'
-		else 'UNKNOWN'
-		end
-
 		super(cpu)
 	end
 end
 
 # the COFF archive file format
 # maybe used in .lib files (they hold binary import information for libraries)
+# used for unix .a static library files (with no 2nd linker and newline-separated longnames)
 class COFFArchive < ExeFormat
 	class Member < SerialStruct
-		str :name, 16
-		str :date, 12
-		str :uid, 6
-		str :gid, 6
-		str :mode, 8
-		str :size, 10
-		str :eoh, 2
+		mem :name, 16
+		mem :date, 12
+		mem :uid, 6
+		mem :gid, 6
+		mem :mode, 8
+		mem :size, 10
+		mem :eoh, 2
 
-		attr_accessor :offset
+		attr_accessor :offset, :encoded
 	end
 
 	class ImportHeader < SerialStruct
@@ -368,43 +401,11 @@ class COFFArchive < ExeFormat
 		strz :libname
 	end
 
-	attr_accessor :members, :signature, :first_linker, :second_linker
-end
-end
-__END__
+	attr_accessor :members, :signature, :first_linker, :second_linker, :longnames
 
-class Symbols
-	attr_accessor :name, :value, :sectionnumber, :type, :storageclass, :nbaux, :aux
-# name: if the first 4 bytes are null, the 4 next are the index to the name in the string table
-
-	def initialize(raw, offset)
-		@name = raw[offset..offset+7].delete("\0")
-		@value = bin(raw[offset+8 ..offset+11])
-		@sectionnumber = bin(raw[offset+12..offset+13])
-		@type = bin(raw[offset+14..offset+15])
-		@storageclass = raw[offset+16]
-		@nbaux = raw[offset+17]
-		@aux = Array.new
-		@nbaux.times { @aux << raw[offset..offset+17] ; offset += 18 }
+	# return the 1st member whose name is name
+	def member(name)
+		@members.find { |m| m.name == name }
 	end
 end
-
-class Strings < Array
-	attr_accessor :size
-
-	def initialize(raw, offset)
-		@size = bin(raw[offset..offset+3])
-		endoffset = offset + @size
-puts "String table: 0x%.8x .. 0x%.8x" % [offset, endoffset]
-		curstring = ''
-		while (offset < endoffset)
-			if raw[offset] != 0
-				curstring << raw[offset]
-			else
-				self << curstring
-				curstring = ''
-			end
-			offset += 1
-		end
-	end
 end

@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -13,7 +13,7 @@ class Ia32
 class ModRM
 	# may return a SegReg
 	# must be called before SegReg parser (which could match only the seg part of a modrm)
-	def self.parse(lexer, otok)
+	def self.parse(lexer, otok, cpu)
 		tok = otok
 
 		# read operand size specifier
@@ -80,10 +80,7 @@ class ModRM
 				o.rexpr = regify[o.rexpr]
 				o
 			when String
-				if Reg.s_to_i.has_key? o
-					Reg.from_str(o)
-				else o
-				end
+				cpu.str_to_reg(o) || o
 			else o
 			end
 		}
@@ -131,7 +128,7 @@ class ModRM
 		raise otok, 'mrm: reg in imm' if imm.kind_of? Expression and not imm.externals.grep(Reg).empty?
 
 		# find default address size
-		adsz = b ? b.sz : i ? i.sz : lexer.program.cpu.size
+		adsz = b ? b.sz : i ? i.sz : nil
 		# ptsz may be nil now, will be fixed up later (in parse_instr_fixup) to match another instruction argument's size
 		new adsz, ptsz, s, i, b, imm, seg
 	end
@@ -164,13 +161,15 @@ end
 		when 'rep';            i.prefix[:rep] = 'rep'
 		when 'repe', 'repz';   i.prefix[:rep] = 'repz'
 		when 'repne', 'repnz'; i.prefix[:rep] = 'repnz'
+		when 'code16';         i.prefix[:sz] = 16
+		when 'code32';         i.prefix[:sz] = 32
 		end
 	end
 
-	# parses a arbitrary ia32 instruction argument
+	# parses an arbitrary ia32 instruction argument
 	def parse_argument(lexer)
 		# reserved names (registers/segments etc)
-		@args_token ||= (Argument.double_list + Argument.simple_list).map { |a| a.s_to_i.keys }.flatten.inject({}) { |h, e| h.update e => true }
+		@args_token ||= [Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg].map { |a| a.s_to_i.keys }.flatten.inject({}) { |h, e| h.update e => true }
 
 		lexer.skip_space
 		return if not tok = lexer.readtok
@@ -179,7 +178,7 @@ end
 			lexer.skip_space
 			if ntok = lexer.readtok and ntok.type == :punct and ntok.raw == '('
 				lexer.skip_space
-				if not nntok = lexer.readtok or nntok.type != :string or nntok.raw != /^[0-9]$/ or
+				if not nntok = lexer.readtok or nntok.type != :string or nntok.raw !~ /^[0-9]$/ or
 						not ntok = (lexer.skip_space; lexer.readtok) or ntok.type != :punct or ntok.raw != ')'
 					raise tok, 'invalid FP register'
 				else
@@ -195,15 +194,11 @@ end
 			end
 		end
 
-		if ret = ModRM.parse(lexer, tok)
+		if ret = ModRM.parse(lexer, tok, self)
 			ret
 		elsif @args_token[tok.raw]
-			# most frequent first: standard register
-			Argument.double_list.each { |a|
-				return a.new(*a.s_to_i[tok.raw]) if a.s_to_i.has_key? tok.raw
-			}
-			Argument.simple_list.each { |a|
-				return a.new( a.s_to_i[tok.raw]) if a.s_to_i.has_key? tok.raw
+			[Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg].each { |a|
+				return a.from_str(tok.raw) if a.s_to_i.has_key? tok.raw
 			}
 			raise tok, 'internal error'
 		else
@@ -239,9 +234,11 @@ end
 			end
 		end
 
+		return false if arg.kind_of? ModRM and arg.adsz and o.props[:adsz] and arg.adsz != o.props[:adsz]
+
 		cond = true
 		if s = o.props[:argsz] and (arg.kind_of? Reg or arg.kind_of? ModRM)
-			cond = (arg.sz == s)
+			cond = (!arg.sz or arg.sz == s)
 		end
 
 		cond and
@@ -287,7 +284,7 @@ end
 		super(i)
 	end
 
-	# fixup the ptsz of a modrm argument, defaults to other argument size or current cpu mode
+	# fixup the sz of a modrm argument, defaults to other argument size or current cpu mode
 	def parse_instruction_fixup(i)
 		if m = i.args.grep(ModRM).first and not m.sz
 			if i.opname == 'movzx' or i.opname == 'movsx'
@@ -298,8 +295,15 @@ end
 				else
 					# this is also the size of ctrlreg/dbgreg etc
 					# XXX fpu/simd ?
-					m.sz = @size
+					m.sz = i.prefix[:sz] || @size
 				end
+			end
+		end
+		if m and not m.adsz
+			if opcode_list_byname[i.opname].all? { |o| o.props[:adsz] }
+				m.adsz = opcode_list_byname[i.opname].first.props[:adsz]
+			else
+				m.adsz = i.prefix[:sz] || @size
 			end
 		end
 	end

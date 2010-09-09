@@ -1,0 +1,146 @@
+Metasm source code organisation
+===============================
+
+The metasm source code takes advantage of the ruby language facilities,
+which allows splitting the definition of a single class in multiple files.
+
+Each file in the source tree holds code related to a particular feature of
+the framework.
+
+Directories
+-----------
+
+The top-level directories are :
+
+* `doc/`: this documentation
+* `metasm/`: the framework core
+* `samples/`: a set of sample scripts showing various functionnalities of the framework
+* `tests/`: a few unit tests (too few..)
+* `misc/`: misc ruby scripts, not directly related to metasm
+
+The core
+--------
+
+The `metasm/` directory holds most of the code of the framework, along with the
+main `metasm.rb` file in the top directory.
+
+The top-level `metasm.rb` has code to load parts of the framework source on demand
+in the ruby interpreter, which is implemented with ruby's <const_missing.txt>
+
+
+Executable formats
+##################
+
+The `exe_format/` subdirectory contains the implementations of the various
+binary file formats supported in the framework.
+
+Three files have a special meaning here:
+
+* `main.rb`: it defines the <core/ExeFormat.txt> class
+* `serialstruct.rb`: here you'll find the definitions of <core/SerialStruct.txt>
+* `autoexe.rb`: the implementation of <core/AutoExe.txt>, which allows the recognition of arbitrary files from their binary signature.
+
+The `main.rb` file is included in all other formats, as all file classes
+are subclasses of `ExeFormat`.
+
+The `serialstruct.rb` implements a helper class to ease the description of
+binary structures, and generate parsing/encoding functions for those.
+
+All other files implement a specific file format handler. The bigger files
+(`ELF` and `PE/COFF`) are split between the parsing/encoding functions and
+decoding/disassembly.
+
+
+CPUs
+####
+
+All supported architectures have a dedicated subdirectory, and a helper file
+that will simply include all the arch-specific files.
+
+All those files will contribute to add functions to the same class implementing
+the CPU interface. Not all CPUs implement all those features. They are:
+
+* `main.rb`: inner classes definitions (for registers etc), generic functions
+* `opcodes.rb`: initializes the opcode list for the architecture
+* `encode.rb`: methods to encode instructions
+* `decode.rb`: methods to decode/emulate instructions
+* `parse.rb`: methods to parse asm instructions from a source file
+* `render.rb`: methods to output an instruction to a string
+* `compile_c.rb`: the C compiler implementation
+* `decompile.rb`: the arch-specific part of the generic decompiler
+* `debug.rb`: arch-specific information used when debugging target of this architecture
+
+In some cases the files are small enough to be all merged into the `main.rb` file.
+
+
+Operating systems
+#################
+
+The `os/` subdirectory holds the code used to abstract an operating systems.
+
+The files here define an API allowing to enumerate running processes, and interact
+with them in various ways. The <core/Debugger.txt> class and subclasses are
+defined there.
+
+Those files also holds the list of known functions and in which system libraries
+they can be found (see <core/WindowsExports.txt> or <core/GNUExports.txt>), which
+are used when linking executable files.
+
+
+Graphical user-interface
+########################
+
+The `gui/` subdirectory contains the code needed by the metasm graphical user-interfaces.
+
+Currently those include the disassembler and the debugger (see the *samples* section).
+
+Those GUI elements are implemented using a custom GUI abstraction, and reside in the
+various `dasm_*.rb` and `debug.rb`.
+
+The actual implementation of the GUI are found in:
+
+* `win32.rb`: the native Win32 API backend
+* `gtk.rb`: a Gtk2 backend, intended for unix platforms
+* `qt.rb`: a Qt backend experiment
+
+Please note that the Qt backend does not work *at all*.
+
+The `gui.rb` file in the main directory is used to chose among the available GUI backend
+the most appropriate for the current session.
+
+
+Others
+######
+
+The other files directly in the `metasm/` directory are either support files
+(eg `encode.rb`, `parse.rb`) that hold generic functions to be used by
+specific cpu/exeformat instances, or implement arch-agnostic features.
+Those include:
+
+* `preprocessor.rb`: the C/asm preprocessor/lexer
+* `parse_c.rb`: this is the implementation of the C parser
+* `compile_c.rb`: this is a C precompiler, it generates a very simplified C from a standard source
+* `decompile.rb`: the generic decompiler code, it uses arch-specific functions defined in the arch folder
+* `dynldr.rb`: this module is used when interacting directly with the host operating system through <core/DynLdr.txt>
+
+
+The samples
+-----------
+
+The `samples/` directory contains a lot of small files that intend to be
+exemples of how to use the framework. It also holds experiments and
+work-in-progress for features that may later be integrated into the main
+framework.
+
+The comment at the beginning of the file should be clear about the purpose
+of the script, and the scripts are expected to be copy/pasted and tweaked
+for the specific task needed by the user (that's you).
+
+Some of those files however are full-featured applications:
+
+* `exeencode.rb`: a shellcode compiler, with its `peencode.rb`, `elfencode.rb`, `machoencode.rb` counterparts
+* `disassemble.rb`: a disassembler
+* `disassemble-gui.rb`: the graphical disassembler / debugger
+
+The `samples/dasm-plugins/` subdirectory holds various plugins for the disassembler.
+

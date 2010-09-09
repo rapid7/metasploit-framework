@@ -1,0 +1,108 @@
+SerialStruct
+============
+
+This is a helper class to handle binary packed data, especially to
+represent <core/ExeFormat.txt> structures.
+
+The implementation is in `metasm/exe_format/serialstruct.rb`.
+
+Basics
+------
+
+The class defines some class methods, such as:
+
+* `dword`
+* `byte`
+* `strz`
+
+These methods can be used directly in subclass definitions, e.g.
+
+  class MyHeader < SerialStruct
+     dword :signature
+     dword :length
+  end
+
+This will associate the sequence of fields to this structure, which
+is used in the `#encode` and `#decode` methods.
+These methods rely on an <core/ExeFormat.txt> instance to define
+the corresponding `decode_dword` and `encode_dword` methods.
+
+You can then simply call:
+
+  hdr = MyHeader.decode(myexefmt)
+
+which will call `myexefmt.decode_word` twice to populate the
+`signature` and `length` fields of the MyHeader.instance.
+
+You can also redefine the `#decode` method to handle special cases.
+
+
+The fields defined this way can be assigned a default value that
+will be used when encoding the structure.  The syntax is:
+
+   dword :fieldname, defaultvalue
+
+If you have a long sequence of identically-typed fields, you can use
+the plural form:
+
+   dwords :f1, :f2, :f3, :f4
+
+To define your own field types, you should create a new subclass and call the
+`new_field` class method. For integral fields, use `new_int_field(fldname)`
+that will automatically define the decode/encode routines, and create the
+plural form.
+
+  class MyStruct < SerialStruct
+    new_int_field :zword
+    zwords :offset, :length
+  end
+
+
+Symbolic constants
+------------------
+
+The class has built-in support for symbolic constants and bit fields.
+
+For exemple, suppose you have a numeric `:type` field, which corresponds
+to a set of numeric constants `TYPE_FOO TYPE_BAR TYPE_LOL`. You can use:
+
+    TYPES = { 2 => 'FOO', 3 => 'BAR', 4 => 'LOL' }
+
+    dword :type
+    fld_enum :type, TYPES
+
+With this, the standard '#decode' method will first decode the numeric value
+of the field, and then lookup the value in the enum hash to find the
+corresponding symbol, and use it as the field value.
+If there is no mapping, the numeric value is retained. The reverse operation
+is done with `#encode`.
+
+For the bitfields, the method is `fld_bits`, and the software will try to
+match *OR-ed* values from the bitfield to generate an array of symbols.
+
+    BITS = { 1 => 'B1', 2 => 'B2', 4 => 'B4' }
+
+    dword :foo
+    fld_bits :foo, BITS
+
+which will give, for the numeric value `0x15`, `["B1", "B4", 0x10]`
+
+The hashes used for fld_bits or fld_enum can be dynamically determined, by
+using the block version of those methods. The block will receive the ExeFormat
+instance and the SerialStruct instance, and should return the Hash.
+This can be useful when a bitfield signification varies given some generic
+property of the exe, eg the target architecture.
+
+
+Hooks
+-----
+
+It is also possible to define a hook that will be called at some point during
+the object binary decoding. It will receive the exe and struct instances.
+
+  class Header < SerialStruct
+    dword :machine
+    decode_hook { |exe, hdr| raise "unknown machine" if hdr.machine > 4 }
+    dword :bodylength
+  end
+

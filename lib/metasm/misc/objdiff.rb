@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -22,7 +22,7 @@ def Object.diff(o1, o2)
 				h["[#{k.inspect}]"] = d if not d.empty?
 			}
 		else
-			a = (@@diff_accessor_cache ||= {})[o1.class] ||= (im = o1.class.public_instance_methods.grep(/^[a-z]/) ; (im & im.map { |m| m + '=' }).map { |m| m.chop })
+			a = (@@diff_accessor_cache ||= {})[o1.class] ||= (im = o1.class.public_instance_methods.grep(/^[a-z]/) ; (im & im.map { |m| m + '=' }).map { |m| m.chop }.find_all { |m| o1.instance_variable_get('@'+m) })
 			if a.empty?
 				return o1 == o2 ? h : [o1, o2]
 			end

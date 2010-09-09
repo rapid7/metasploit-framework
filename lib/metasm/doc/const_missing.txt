@@ -1,0 +1,22 @@
+The const_missing trick
+=======================
+
+Metasm uses a ruby trick to load most of the framework on demand, so that
+*e.g.* the `MIPS`-related classes are never loaded in the ruby interpreter
+unless you use them.
+
+It is setup by the top-level `metasm.rb` file, which will overwrite the
+`const_missing` method for the `Metasm` module, and also for the `Module` module,
+so that the auto-require works even if you use the `include Metasm` ruby statement.
+
+When an unknown constant is used in the ruby program execution, this
+method will be called, and will check if the constant name matches one
+of those defined in the framework, which are stored in the
+`Const_autorequire` hash. If this does, then the corresponding metasm
+source file is loaded, otherwise the control is given back to the original
+`const_missing` handler.
+
+Metasm provides a replacement top-level file, `misc/metasm-all.rb`,
+which will unconditionally load all metasm files, and remove the hook on
+*Module#const_missing*
+

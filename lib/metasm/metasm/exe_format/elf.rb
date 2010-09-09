@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -339,8 +339,9 @@ class ELF < ExeFormat
 	}
 
 	DEFAULT_INTERP = '/lib/ld-linux.so.2'
+	DEFAULT_INTERP64 = '/lib64/ld-linux-x86-64.so.2'
 
-	class SerialStruct < SerialStruct
+	class SerialStruct < Metasm::SerialStruct
 		new_int_field :addr, :off, :xword, :sword, :sxword
 	end
 
@@ -373,6 +374,7 @@ class ELF < ExeFormat
 		attr_accessor :encoded
 
 		def struct_specialized(elf)
+			return Segment32 if not elf
 			case elf.bitsize
 			when 32; Segment32
 			else Segment64
@@ -428,6 +430,7 @@ class ELF < ExeFormat
 
 	class Symbol < SerialStruct
 		def struct_specialized(elf)
+			return Symbol32 if not elf
 			case elf.bitsize
 			when 32; Symbol32
 			else Symbol64
@@ -467,6 +470,7 @@ class ELF < ExeFormat
 	class Relocation < SerialStruct
 		attr_accessor :offset, :type, :symbol
 		def struct_specialized(elf)
+			return Relocation32 if not elf
 			case elf.bitsize
 			when 32; Relocation32
 			else Relocation64
@@ -496,6 +500,7 @@ class ELF < ExeFormat
 	class RelocationAddend < Relocation
 		attr_accessor :addend
 		def struct_specialized(elf)
+			return RelocationAddend32 if not elf
 			case elf.bitsize
 			when 32; RelocationAddend32
 			else RelocationAddend64
@@ -522,6 +527,78 @@ class ELF < ExeFormat
 		sxword :addend
 	end
 
+	class SerialStruct
+		new_int_field :leb
+	end
+
+	# libdwarf/dwarf.h
+	DWARF_TAG = {
+		0x01 => 'ARRAY_TYPE', 0x02 => 'CLASS_TYPE', 0x03 => 'ENTRY_POINT',
+		0x04 => 'ENUMERATION_TYPE', 0x05 => 'FORMAL_PARAMETER',
+		0x08 => 'IMPORTED_DECLARATION', 0x0a => 'LABEL', 0x0b => 'LEXICAL_BLOCK',
+		0x0d => 'MEMBER', 0x0f => 'POINTER_TYPE',
+		0x10 => 'REFERENCE_TYPE', 0x11 => 'COMPILE_UNIT', 0x12 => 'STRING_TYPE', 0x13 => 'STRUCTURE_TYPE',
+		0x15 => 'SUBROUTINE_TYPE', 0x16 => 'TYPEDEF', 0x17 => 'UNION_TYPE',
+		0x18 => 'UNSPECIFIED_PARAMETERS', 0x19 => 'VARIANT', 0x1a => 'COMMON_BLOCK', 0x1b => 'COMMON_INCLUSION',
+		0x1c => 'INHERITANCE', 0x1d => 'INLINED_SUBROUTINE', 0x1e => 'MODULE', 0x1f => 'PTR_TO_MEMBER_TYPE',
+		0x20 => 'SET_TYPE', 0x21 => 'SUBRANGE_TYPE', 0x22 => 'WITH_STMT', 0x23 => 'ACCESS_DECLARATION',
+		0x24 => 'BASE_TYPE', 0x25 => 'CATCH_BLOCK', 0x26 => 'CONST_TYPE', 0x27 => 'CONSTANT',
+		0x28 => 'ENUMERATOR', 0x29 => 'FILE_TYPE', 0x2a => 'FRIEND', 0x2b => 'NAMELIST',
+		0x2c => 'NAMELIST_ITEM', 0x2d => 'PACKED_TYPE', 0x2e => 'SUBPROGRAM', 0x2f => 'TEMPLATE_TYPE_PARAM',
+		0x30 => 'TEMPLATE_VALUE_PARAM', 0x31 => 'THROWN_TYPE', 0x32 => 'TRY_BLOCK', 0x33 => 'VARIANT_PART',
+		0x34 => 'VARIABLE', 0x35 => 'VOLATILE_TYPE',
+	}
+	DWARF_FORM = {
+		0x01 => 'ADDR', 0x03 => 'BLOCK2',
+		0x04 => 'BLOCK4', 0x05 => 'DATA2', 0x06 => 'DATA4', 0x07 => 'DATA8',
+		0x08 => 'STRING', 0x09 => 'BLOCK', 0x0a => 'BLOCK1', 0x0b => 'DATA1',
+		0x0c => 'FLAG', 0x0d => 'SDATA', 0x0e => 'STRP', 0x0f => 'UDATA',
+		0x10 => 'REF_ADDR', 0x11 => 'REF1', 0x12 => 'REF2', 0x13 => 'REF4',
+		0x14 => 'REF8', 0x15 => 'REF_UDATA', 0x16 => 'INDIRECT',
+	}
+	DWARF_AT = {
+		0x01 => 'SIBLING', 0x02 => 'LOCATION', 0x03 => 'NAME',
+		0x09 => 'ORDERING', 0x0a => 'SUBSCR_DATA', 0x0b => 'BYTE_SIZE',
+		0x0c => 'BIT_OFFSET', 0x0d => 'BIT_SIZE', 0x0f => 'ELEMENT_LIST',
+		0x10 => 'STMT_LIST', 0x11 => 'LOW_PC', 0x12 => 'HIGH_PC', 0x13 => 'LANGUAGE',
+		0x14 => 'MEMBER', 0x15 => 'DISCR', 0x16 => 'DISCR_VALUE', 0x17 => 'VISIBILITY',
+		0x18 => 'IMPORT', 0x19 => 'STRING_LENGTH', 0x1a => 'COMMON_REFERENCE', 0x1b => 'COMP_DIR',
+		0x1c => 'CONST_VALUE', 0x1d => 'CONTAINING_TYPE', 0x1e => 'DEFAULT_VALUE',
+		0x20 => 'INLINE', 0x21 => 'IS_OPTIONAL', 0x22 => 'LOWER_BOUND',
+		0x25 => 'PRODUCER', 0x27 => 'PROTOTYPED',
+		0x2a => 'RETURN_ADDR',
+		0x2c => 'START_SCOPE', 0x2e => 'STRIDE_SIZE', 0x2f => 'UPPER_BOUND',
+		0x31 => 'ABSTRACT_ORIGIN', 0x32 => 'ACCESSIBILITY', 0x33 => 'ADDRESS_CLASS',
+		0x34 => 'ARTIFICIAL', 0x35 => 'BASE_TYPES', 0x36 => 'CALLING_CONVENTION', 0x37 => 'COUNT',
+		0x38 => 'DATA_MEMBER_LOCATION', 0x39 => 'DECL_COLUMN', 0x3a => 'DECL_FILE', 0x3b => 'DECL_LINE',
+		0x3c => 'DECLARATION', 0x3d => 'DISCR_LIST', 0x3e => 'ENCODING', 0x3f => 'EXTERNAL',
+		0x40 => 'FRAME_BASE', 0x41 => 'FRIEND', 0x42 => 'IDENTIFIER_CASE', 0x43 => 'MACRO_INFO',
+		0x44 => 'NAMELIST_ITEM', 0x45 => 'PRIORITY', 0x46 => 'SEGMENT', 0x47 => 'SPECIFICATION',
+		0x48 => 'STATIC_LINK', 0x49 => 'TYPE', 0x4a => 'USE_LOCATION', 0x4b => 'VARIABLE_PARAMETER',
+		0x4c => 'VIRTUALITY', 0x4d => 'VTABLE_ELEM_LOCATION',
+	}
+
+	class DwarfDebug < SerialStruct
+		class Node < SerialStruct
+			leb :index
+			leb :tag, 0, DWARF_TAG
+			byte :has_child
+			attr_accessor :parent, :children, :attributes
+			class Attribute < SerialStruct
+				leb :attr, 0, DWARF_AT
+				leb :form, 0, DWARF_FORM
+				attr_accessor :data
+				def to_s(a); "#{@attr}=(#@form)#{dump(@data, a)}" end
+			end
+		end
+
+		word :cu_len
+		half :version, 2
+		word :abbrev_off
+		byte :ptr_sz
+		attr_accessor :tree	# ary of root siblings (Node)
+	end
+
 	def self.hash_symbol_name(name)
 		name.unpack('C*').inject(0) { |hash, char|
 			break hash if char == 0
@@ -535,13 +612,11 @@ class ELF < ExeFormat
 	def self.gnu_hash_symbol_name(name)
 		name.unpack('C*').inject(5381) { |hash, char|
 			break hash if char == 0
-			hash *= 33
-			hash += char
-			hash &= 0xffff_ffff
+			(hash*33 + char) & 0xffff_ffff
 		}
 	end
 
-	attr_accessor :header, :segments, :sections, :tag, :symbols, :relocations, :endianness, :bitsize
+	attr_accessor :header, :segments, :sections, :tag, :symbols, :relocations, :endianness, :bitsize, :debug
 	def initialize(cpu=nil)
 		@header = Header.new
 		@tag = {}
@@ -554,14 +629,109 @@ class ELF < ExeFormat
 		if cpu
 			@endianness = cpu.endianness
 			@bitsize = cpu.size
-			case cpu
-			when Ia32; @header.machine = '386'
-			end
 		else
 			@endianness = :little
 			@bitsize = 32
 		end
 		super(cpu)
+	end
+end
+
+class FatELF < ExeFormat
+	MAGIC = "\xfa\x70\x0e\x1f"	# 0xfat..elf
+
+	class SerialStruct < Metasm::SerialStruct
+		new_int_field :qword
+	end
+
+	class Header < SerialStruct
+		mem :magic, 4, MAGIC
+		word :version, 1
+		byte :nfat_arch
+		byte :reserved
+
+		def decode(fe)
+			super(fe)
+			raise InvalidExeFormat, "Invalid FatELF signature #{@magic.unpack('H*').first.inspect}" if @magic != MAGIC
+		end
+
+		def set_default_values(fe)
+			@nfat_arch ||= fe.list.length
+			super(fe)
+		end
+	end
+	class FatArch < SerialStruct
+		word :machine
+		bytes :abi, :abi_version, :e_class, :data, :res1, :res2
+		qwords :offset, :size
+
+		fld_enum :machine, ELF::MACHINE
+		fld_enum :abi, ELF::ABI
+		fld_enum :e_class, ELF::CLASS
+		fld_enum :data, ELF::DATA
+
+		attr_accessor :encoded
+	end
+
+	def encode_byte(val)         Expression[val].encode(:u8,  @endianness) end
+	def encode_word(val)         Expression[val].encode(:u16, @endianness) end
+	def encode_qword(val)        Expression[val].encode(:u64, @endianness) end
+	def decode_byte(edata = @encoded)  edata.decode_imm(:u8,  @endianness) end
+	def decode_word(edata = @encoded)  edata.decode_imm(:u16, @endianness) end
+	def decode_qword(edata = @encoded) edata.decode_imm(:u64, @endianness) end
+
+	attr_accessor :header, :list
+	def initialize
+		@endianness = :little
+		@list = []
+		super()
+	end
+
+	def decode
+		@header = Header.decode(self)
+		@list = []
+		@header.nfat_arch.times { @list << FatArch.decode(self) }
+		@list.each { |e|
+			e.encoded = @encoded[e.offset, e.size] || EncodedData.new
+		}
+	end
+
+	def encode
+		@header ||= Header.new
+		@encoded = @header.encode(self)
+		@list.map! { |f|
+			if f.kind_of? ExeFormat
+				e = f
+				f = FatArch.new
+				f.encoded = e.encode_string
+				h = e.header
+				f.machine, f.abi, f.abi_version, f.e_class, f.data =
+			 	h.machine, h.abi, h.abi_version, h.e_class, h.data
+			end
+			f.offset = new_label('fat_off')
+			f.size = f.encoded.size
+			@encoded << f.encode(self)
+			f
+		}
+		bd = {}
+		@list.each { |f|
+			@encoded.align 4096
+			bd[f.offset] = @encoded.length if f.offset.kind_of? String
+			@encoded << f.encoded
+		}
+		@encoded.fixup! bd
+	end
+
+	def [](i) AutoExe.decode(@list[i].encoded) if @list[i] end
+	def <<(exe) @list << exe ; self end
+
+	def self.autoexe_load(*a)
+		fe = super(*a)
+		fe.decode
+		# TODO have a global callback or whatever to prompt the user
+		# which file he wants to load in the dasm
+		puts "FatELF: using 1st archive member" if $VERBOSE
+		fe[0]
 	end
 end
 end

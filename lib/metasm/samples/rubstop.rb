@@ -1,16 +1,16 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 #
-# this exemple illustrates the use of the PTrace32 class to implement a pytstop-like functionnality
+# this exemple illustrates the use of the PTrace class to implement a pytstop-like functionnality
 # Works on linux/x86
 #
 
 require 'metasm'
 
-class Rubstop < Metasm::PTrace32
+class Rubstop < Metasm::PTrace
 	EFLAGS = {0 => 'c', 2 => 'p', 4 => 'a', 6 => 'z', 7 => 's', 9 => 'i', 10 => 'd', 11 => 'o'}
 	# define accessors for registers
 	%w[eax ebx ecx edx ebp esp edi esi eip orig_eax eflags dr0 dr1 dr2 dr3 dr6 dr7 cs ds es fs gs].each { |reg|
@@ -75,13 +75,16 @@ class Rubstop < Metasm::PTrace32
 		checkbp
 	end
 
+	def state; :stopped end
+	def ptrace; self end
+
 	attr_accessor :pgm, :regs_cache, :breakpoints, :singleshot, :wantbp,
 		:symbols, :symbols_len, :filemap, :has_pax, :oldregs
 	def initialize(*a)
 		super(*a)
 		@pgm = Metasm::ExeFormat.new Metasm::Ia32.new
 		@pgm.encoded = Metasm::EncodedData.new Metasm::LinuxRemoteString.new(@pid)
-		@pgm.encoded.data.ptrace = self
+		@pgm.encoded.data.dbg = self
 		@regs_cache = {}
 		@oldregs = {}
 		readregs

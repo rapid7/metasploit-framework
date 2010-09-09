@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2009 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -119,7 +119,7 @@ class Rubstop
 
 		if buf =~ /^E(..)$/
 			e = $1.to_i(16)
-			log "error #{e} (#{Metasm::PTrace32::ERRNO.index(e)})"
+			log "error #{e} (#{Metasm::PTrace::ERRNO.index(e)})"
 			return
 		end
 		log "gdb_readresp: got #{buf[0, 64].inspect}#{'...' if buf.length > 64}" if $DEBUG
@@ -234,7 +234,7 @@ class Rubstop
 
 	# read arbitrary blocks of memory (chunks to getmem)
 	def [](addr, len)
-		@pgm.encoded[addr, len].data
+		@pgm.encoded[addr, len].data rescue ''
 	end
 
 	# write arbitrary blocks of memory (chunks to getmem)
@@ -353,7 +353,8 @@ class Rubstop
 	end
 
 	def detach
-		# TODO
+		# TODO clear breakpoints
+		gdb_send('D')
 	end
 
 	attr_accessor :pgm, :breakpoints, :singleshot, :wantbp,
@@ -496,7 +497,7 @@ class Rubstop
 			mod_syms = lambda { int_at[mod, 0x20] }
 
 			read_strz = lambda { |addr|
-				if i = @mem.index(0, addr)
+				if i = @mem.index(?\0, addr)
 					@mem[addr...i]
 				end
 			}

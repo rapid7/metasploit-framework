@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -11,18 +11,10 @@ require 'metasm/mips/main'
 module Metasm
 
 class MIPS
-	private
 	def addop(name, bin, *args)
-		o = Opcode.new name
-
-		o.bin = bin
+		o = Opcode.new name, bin
 		o.args.concat(args & @fields_mask.keys)
 		(args & @valid_props).each { |p| o.props[p] = true }
-if $DEBUG
-a = (args - @valid_props - @fields_mask.keys)
-p ['mips unhandled args',a]	if not a.empty?
-end
-
 		@opcode_list << o
 	end
 
@@ -147,9 +139,9 @@ end
 		addop 'sync', 0b001111, :sa
 
 		addop 'mfhi', 0b010000, :rd				# copies special reg HI to reg
-		addop 'mthi', 0b010001, :rd				# copies reg to special reg HI
+		addop 'mthi', 0b010001, :rs				# copies reg to special reg HI
 		addop 'mflo', 0b010010, :rd				# copies special reg LO to reg
-		addop 'mtlo', 0b010011, :rd				# copies reg to special reg LO
+		addop 'mtlo', 0b010011, :rs				# copies reg to special reg LO
 
 		addop 'mult', 0b011000, :rs, :rt			# multiplies the registers and store the result in HI:LO
 		addop 'multu',0b011001, :rs, :rt
@@ -186,8 +178,9 @@ end
 		addop 'tltiu',(1<<26) | (0b01011<<16), :rs, :i16, :setip
 		addop 'teqi', (1<<26) | (0b01100<<16), :rs, :i16, :setip
 		addop 'tnei', (1<<26) | (0b01110<<16), :rs, :i16, :setip
-		addop 'bltzal', (1<<26) | (0b10000<<16), :rs, :i16, :setip
-		addop 'bgezal', (1<<26) | (0b10001<<16), :rs, :i16, :setip
+		addop 'bltzal', (1<<26) | (0b10000<<16), :rs, :i16, :setip, :saveip
+		addop 'bgezal', (1<<26) | (0b10001<<16), :i16, :setip, :stopexec, :saveip	# bgezal $zero => unconditionnal
+		addop 'bgezal', (1<<26) | (0b10001<<16), :rs, :i16, :setip, :saveip
 
 
 		# special2

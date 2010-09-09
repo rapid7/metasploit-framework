@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2009 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -49,23 +49,18 @@ ARGV.each { |n|
 	end
 }
 
-src = <<EOS
-#ifdef __METASM__
-#{opts[:path].map { |i| ' #pragma include_dir ' + i.inspect }.join("\n")}
-#{'#pragma prepare_visualstudio' if opts[:vs]}
-#{'#pragma prepare_gcc' if opts[:gcc]}
-#pragma no_warn_redefinition
-#endif
-
-#{opts[:defs].map { |k, v| "#define #{k} #{v}" }.join("\n")}
-#{opts[:hdrs].map { |h| "#include <#{h}>" }.join("\n")}
-EOS
+src = opts[:hdrs].map { |h| "#include <#{h}>" }.join("\n")
 
 parser = Ia32.new.new_cparser
+parser.prepare_gcc if opts[:gcc]
+parser.prepare_visualstudio if opts[:vs]
+pp = parser.lexer
+pp.warn_redefinition = false
+pp.include_search_path[0, 0] = opts[:path]
+opts[:defs].each { |k, v| pp.define k, v }
 parser.factorize_init
 parser.parse src
 
-outfd = (opts[:outfile] ? File.open(opts[:outfile], 'w') : $stdout)
 
 # delete imports not present in the header files
 funcnames.delete_if { |f|
@@ -77,5 +72,6 @@ funcnames.delete_if { |f|
 
 parser.parse "void *fnptr[] = { #{funcnames.map { |f| '&'+f }.join(', ')} };"
 
+outfd = (opts[:outfile] ? File.open(opts[:outfile], 'w') : $stdout)
 outfd.puts parser.factorize_final
 outfd.close

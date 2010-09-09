@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -28,7 +28,7 @@ class Shellcode < ExeFormat
 	# allows definition of the base address
 	def parse_parser_instruction(instr)
 		case instr.raw.downcase
-		when '.base_addr'
+		when '.base', '.baseaddr', '.base_addr'
 			# ".base_addr <expression>"
 			# expression should #reduce to integer
 			@lexer.skip_space
@@ -52,20 +52,32 @@ class Shellcode < ExeFormat
 		yield @encoded, (@base_addr || 0)
 	end
 
+	def addr_to_fileoff(addr)
+		addr - (base_addr || 0)
+	end
+
+	def fileoff_to_addr(foff)
+		foff + (base_addr || 0)
+	end
+
 	# encodes the source found in self.source
 	# appends it to self.encoded
 	# clears self.source
 	# the optional parameter may contain a binding used to fixup! self.encoded
 	# uses self.base_addr if it exists
-	def assemble(binding={})
+	def assemble(*a)
+		parse(*a) if not a.empty?
 		@encoded << assemble_sequence(@source, @cpu)
 		@source.clear
+		encode
+	end
+
+	def encode(binding={})
 		@encoded.fixup! binding
 		@encoded.fixup @encoded.binding(@base_addr)
 		@encoded.fill @encoded.rawsize
 		self
 	end
-	alias encode assemble
 
 	def decode
 	end

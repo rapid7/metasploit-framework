@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -9,7 +9,8 @@
 # quick demonstration that the disassembler's backtracker works
 #
 
-require 'metasm-shell'
+require 'metasm'
+Metasm.require 'samples/metasm-shell'
 
 puts <<EOS.encode.decode
 .base_addr 0

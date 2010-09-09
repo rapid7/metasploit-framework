@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -57,9 +57,27 @@ class ELF
 	end
 
 	# transforms a virtual address to a file offset, from mmaped segments addresses
-	def addr_to_off addr
+	def addr_to_off(addr)
 		s = @segments.find { |s_| s_.type == 'LOAD' and s_.vaddr <= addr and s_.vaddr + s_.memsz > addr } if addr
 		addr - s.vaddr + s.offset if s
+	end
+
+	# memory address -> file offset
+	# handles relocated LoadedELF
+	def addr_to_fileoff(addr)
+		la = module_address
+	       	la = (la == 0 ? (@load_address ||= 0) : 0)
+		addr_to_off(addr - la)
+	end
+
+	# file offset -> memory address
+	# handles relocated LoadedELF
+	def fileoff_to_addr(foff)
+		if s = @segments.find { |s_| s_.type == 'LOAD' and s_.offset <= foff and s_.offset + s_.filesz > foff }
+			la = module_address
+	       		la = (la == 0 ? (@load_address ||= 0) : 0)
+			s.vaddr + la + foff - s.offset
+		end
 	end
 
 	# return the address of a label
@@ -85,14 +103,14 @@ class ELF
 	end
 
 	# decodes the elf header, section & program header
-	def decode_header(off = 0)
+	def decode_header(off = 0, decode_phdr=true, decode_shdr=true)
 		@encoded.ptr = off
 		@header.decode self
 		raise InvalidExeFormat, "Invalid elf header size: #{@header.ehsize}" if Header.size(self) != @header.ehsize
-		if @header.phoff != 0
+		if decode_phdr and @header.phoff != 0
 			decode_program_header(@header.phoff+off)
 		end
-		if @header.shoff != 0
+		if decode_shdr and @header.shoff != 0
 			decode_section_header(@header.shoff+off)
 		end
 	end
@@ -162,7 +180,7 @@ class ELF
 	end
 
 	# checks every symbol's accessibility through the gnu_hash table
-	def check_symbols_gnu_hash(off = @tag['GNU_HASH'])
+	def check_symbols_gnu_hash(off = @tag['GNU_HASH'], just_get_count=false)
 		return if not @encoded.ptr = off
 
 		# when present: the symndx first symbols are not sorted (SECTION/LOCAL/FILE/etc) symtable[symndx] is sorted (1st sorted symbol)
@@ -184,11 +202,27 @@ class ELF
 		# gnu_hash(sym[M]) % nbuckets == N
 		# or 0 if none
 
-		symcount = 0			# XXX how do we get symcount ?
-		part4 = [] ; (symcount - symndx).times { part4 << decode_word }
+		hsymcount = 0
+		part4 = []
+		hash_bucket.each { |hmodidx|
+			# for each bucket, walk all the chain
+			# we do not walk the chains in hash_bucket order here, this
+			# is just to read all the part4 as we don't know
+			# beforehand the number of hashed symbols
+			next if hmodidx == 0	# no hash chain for this mod
+			loop do
+				fu = decode_word
+				hsymcount += 1
+				part4 << fu
+				break if fu & 1 == 1
+			end
+		}
+
 		# part4[N] contains
 		# (gnu_hash(sym[N].name) & ~1) | (N == dynsymcount-1 || (gnu_hash(sym[N].name) % nbucket) != (gnu_hash(sym[N+1].name) % nbucket))
 		# that's the hash, with its lower bit replaced by the bool [1 if i am the last sym having my hash as hash]
+
+		return hsymcount+symndx if just_get_count
 
 		# TODO
 	end
@@ -293,6 +327,30 @@ class ELF
 		}
 	end
 
+	# marks a symbol as @encoded.export (from s.value, using segments or sections)
+	def decode_symbol_export(s)
+		if s.name and s.shndx != 'UNDEF' and %w[NOTYPE OBJECT FUNC].include?(s.type)
+			if @header.type == 'REL'
+				sec = @sections[s.shndx]
+				o = sec.offset + s.value
+			elsif not o = addr_to_off(s.value)
+				# allow to point to end of segment
+				if not seg = @segments.find { |seg_| seg_.type == 'LOAD' and seg_.vaddr + seg_.memsz == s.value }	# check end
+					puts "W: Elf: symbol points to unmmaped space (#{s.inspect})" if $VERBOSE and s.shndx != 'ABS'
+					return
+				end
+				# LoadedELF would have returned an addr_to_off = addr
+				o = s.value - seg.vaddr + seg.offset
+			end
+			name = s.name
+			while @encoded.export[name] and @encoded.export[name] != o
+				puts "W: Elf: symbol #{name} already seen at #{'%X' % @encoded.export[name]} - now at #{'%X' % o}) (may be a different version definition)" if $VERBOSE
+				name += '_'	# do not modify inplace
+			end
+			@encoded.add_export name, o
+		end
+	end
+
 	# read symbol table, and mark all symbols found as exports of self.encoded
 	# tables locations are found in self.tags
 	# XXX symbol count is found from the hash table, this may not work with GNU_HASH only binaries
@@ -307,43 +365,78 @@ class ELF
 			decode_word
 			sym_count = decode_word
 		else
-			raise 'metasm internal error: TODO find sym_count from gnu_hash'
-			@encoded.ptr = @tag['GNU_HASH']
-			decode_word
-			sym_count = decode_word	# non hashed symbols
-			# XXX UNDEF symbols are not hashed
+			sym_count = check_symbols_gnu_hash(@tag['GNU_HASH'], true)
 		end
 
-		strtab = @encoded[@tag['STRTAB'], @tag['STRSZ']].data
+		strtab = @encoded[@tag['STRTAB'], @tag['STRSZ']].data.to_str
 
 		@encoded.ptr = @tag['SYMTAB']
 		@symbols.clear
 		sym_count.times {
 			s = Symbol.decode(self, strtab)
 			@symbols << s
-
-			# mark in @encoded.export
-			if s.name and s.shndx != 'UNDEF' and %w[NOTYPE OBJECT FUNC].include?(s.type)
-				if not o = addr_to_off(s.value)
-					# allow to point to end of segment
-					if not seg = @segments.find { |seg_| seg_.type == 'LOAD' and seg_.vaddr + seg_.memsz == s.value }	# check end
-						puts "W: Elf: symbol points to unmmaped space (#{s.inspect})" if $VERBOSE and s.shndx != 'ABS'
-						next
-					end
-					# LoadedELF would have returned an addr_to_off = addr
-					o = s.value - seg.vaddr + seg.offset
-				end
-				name = s.name
-				while @encoded.export[name] and @encoded.export[name] != o
-					puts "W: Elf: symbol #{name} already seen at #{'%X' % @encoded.export[name]} - now at #{'%X' % o}) (may be a different version definition)" if $VERBOSE
-					name += '_'	# do not modify inplace
-				end
-				@encoded.add_export name, o
-			end
+			decode_symbol_export(s)
 		}
 
 		check_symbols_hash if $VERBOSE
 		check_symbols_gnu_hash if $VERBOSE
+	end
+
+	# decode SYMTAB sections
+	def decode_sections_symbols
+		@symbols ||= []
+		@sections.to_a.each { |sec|
+			next if sec.type != 'SYMTAB'
+			next if not strtab = @sections[sec.link]
+			strtab = @encoded[strtab.offset, strtab.size].data
+			@encoded.ptr = sec.offset
+			syms = []
+			raise 'Invalid symbol table' if sec.size > @encoded.length
+			(sec.size / Symbol.size(self)).times { syms << Symbol.decode(self, strtab) }
+			alreadysegs = true if @header.type == 'DYN' or @header.type == 'EXEC'
+			syms.each { |s|
+				if alreadysegs
+					# if we already decoded the symbols from the DYNAMIC segment,
+					# ignore dups and imports from this section
+					next if s.shndx == 'UNDEF'
+					next if @symbols.find { |ss| ss.name == s.name }
+				end
+				@symbols << s
+				decode_symbol_export(s)
+			}
+		}
+	end
+
+	# decode REL/RELA sections
+	def decode_sections_relocs
+		@relocations ||= []
+		@sections.to_a.each { |sec|
+			case sec.type
+			when 'REL'; relcls = Relocation
+			when 'RELA'; relcls = RelocationAddend
+			else next
+			end
+			startidx = @relocations.length
+			@encoded.ptr = sec.offset
+			while @encoded.ptr < sec.offset + sec.size
+				@relocations << relcls.decode(self)
+			end
+
+			# create edata relocs
+			tsec = @sections[sec.info]
+			relocproc = "arch_decode_segments_reloc_#{@header.machine.to_s.downcase}"
+			next if not respond_to? relocproc
+			new_label('pcrel')
+			@relocations[startidx..-1].each { |r|
+				o = @encoded.ptr = tsec.offset + r.offset
+				r = r.dup
+				l = new_label('pcrel')
+				r.offset = Expression[l]
+				if rel = send(relocproc, r)
+					@encoded.reloc[o] = rel
+				end
+			}
+		}
 	end
 
 	# decode relocation tables (REL, RELA, JMPREL) from @tags
@@ -436,7 +529,7 @@ class ELF
 			target = addend
 			if o = addr_to_off(target)
 				if not label = @encoded.inv_export[o]
-					label = new_label('xref_%04x' % target)
+					label = new_label("xref_#{Expression[target]}")
 					@encoded.add_export label, o
 				end
 				target = label
@@ -522,7 +615,7 @@ class ELF
 			target = addend
 			if o = addr_to_off(target)
 				if not label = @encoded.inv_export[o]
-					label = new_label('xref_%04x' % target)
+					label = new_label("xref_#{Expression[target]}")
 					@encoded.add_export label, o
 				end
 				target = label
@@ -554,6 +647,105 @@ class ELF
 		Metasm::Relocation.new(Expression[target], sz, @endianness) if target
 	end
 
+	class DwarfDebug
+		# decode a DWARF2 'compilation unit'
+		def decode(elf, info, abbrev, str)
+			super(elf, info)
+			len = @cu_len-7	# @cu_len is size from end of @cu_len field, so we substract ptsz/tag/abroff
+			info.ptr += len	# advance for caller
+			info = info[info.ptr-len, len]	# we'll work on our segment
+			abbrev.ptr = @abbrev_off
+
+			return if abbrev.ptr >= abbrev.length or info.ptr >= info.length
+
+			idx_abbroff = {}
+
+			# returns a list of siblings at current abbrev.ptr
+			decode_tree = lambda { |parent|
+				siblings = []
+				loop {
+					info_idx = elf.decode_leb(info)
+					break siblings if info_idx == 0
+					abbrev.ptr = idx_abbroff[info_idx] if idx_abbroff[info_idx]
+					idx_abbroff[info_idx] ||= abbrev.ptr
+					n = DwarfDebug::Node.decode(elf, info, abbrev, str, idx_abbroff)
+					idx_abbroff[info_idx+1] ||= abbrev.ptr
+					siblings << n
+					n.children = decode_tree[n] if n.has_child == 1
+					n.parent = parent
+					break n if not parent
+				}
+			}
+			@tree = decode_tree[nil]
+		end
+
+		class Node
+			def decode(elf, info, abbrev, str, idx_abbroff)
+				super(elf, abbrev)
+				return if @index == 0
+				@attributes = []
+				loop {
+					a = Attribute.decode(elf, abbrev)
+					break if a.attr == 0 and a.form == 0
+					if a.form == 'INDIRECT'	# actual form tag is stored in info
+						a.form = elf.decode_leb(info)
+						a.form = DWARF_FORM[a.form] || a.form	# XXX INDIRECT again ?
+					end
+					a.data = case a.form
+					when 'ADDR'; elf.decode_xword(info)	# should use dbg.ptr_sz
+					when 'DATA1', 'REF1', 'BLOCK1', 'FLAG'; elf.decode_byte(info)
+					when 'DATA2', 'REF2', 'BLOCK2'; elf.decode_half(info)
+					when 'DATA4', 'REF4', 'BLOCK4'; elf.decode_word(info)
+					when 'DATA8', 'REF8', 'BLOCK8'; elf.decode_word(info) | (elf.decode_word(info) << 32)
+					when 'SDATA', 'UDATA', 'REF_UDATA', 'BLOCK'; elf.decode_leb(info)
+					when 'STRING'; elf.decode_strz(info)
+					when 'STRP'; str.ptr = elf.decode_word(info) ; elf.decode_strz(str)
+					end
+					case a.form
+					when /^REF/
+					when /^BLOCK/; a.data = info.read(a.data)
+					end
+					@attributes << a
+				}
+			end
+		end
+	end
+
+	# decode an ULEB128 (dwarf2): read bytes while high bit is set, littleendian
+	def decode_leb(ed = @encoded)
+		v = s = 0
+		loop {
+			b = ed.read(1).unpack('C').first.to_i
+			v |= (b & 0x7f) << s
+			s += 7
+			break v if (b&0x80) == 0
+		}
+	end
+
+	# decodes the debugging information if available
+	# only a subset of DWARF2/3 is handled right now
+	# most info taken from http://ratonland.org/?entry=39 & libdwarf/dwarf.h
+	def decode_debug
+		return if not @sections
+
+		# assert presence of DWARF sections
+		info = @sections.find { |sec| sec.name == '.debug_info' }
+		abbrev = @sections.find { |sec| sec.name == '.debug_abbrev' }
+		str = @sections.find { |sec| sec.name == '.debug_str' }
+		return if not info or not abbrev
+
+		# section -> content
+		info = @encoded[info.offset, info.size]
+		abbrev = @encoded[abbrev.offset, abbrev.size]
+		str = @encoded[str.offset, str.size] if str
+
+		@debug = []
+
+		while info.ptr < info.length
+			@debug << DwarfDebug.decode(self, info, abbrev, str)
+		end
+	end
+
 	# decodes the ELF dynamic tags, interpret them, and decodes symbols and relocs
 	def decode_segments_dynamic
 		return if not dynamic = @segments.find { |s| s.type == 'DYNAMIC' }
@@ -568,10 +760,20 @@ class ELF
 	# decodes the dynamic segment, fills segments.encoded
 	def decode_segments
 		decode_segments_dynamic
+		decode_sections_symbols
+		#decode_debug	# too many info, decode on demand
 		@segments.each { |s|
 			case s.type
 			when 'LOAD', 'INTERP'
-				s.encoded = @encoded[s.offset, s.filesz] || EncodedData.new
+				sz = s.filesz
+				pagepad = (-(s.offset + sz)) % 4096
+				s.encoded = @encoded[s.offset, sz] || EncodedData.new
+				if s.type == 'LOAD' and sz > 0 and not s.flags.include?('W')
+					# align loaded data to the next page boundary for readonly mmap
+					# but discard the labels/relocs etc
+					s.encoded << @encoded[s.offset+sz, pagepad].data rescue nil
+					s.encoded.virtsize = sz+pagepad
+				end
 				s.encoded.virtsize = s.memsz if s.memsz > s.encoded.virtsize
 			end
 		}
@@ -579,6 +781,8 @@ class ELF
 
 	# decodes sections, interprets symbols/relocs, fills sections.encoded
 	def decode_sections
+		decode_sections_symbols
+		decode_sections_relocs
 		@sections.each { |s|
 			case s.type
 			when 'PROGBITS', 'NOBITS'
@@ -588,13 +792,17 @@ class ELF
 		@sections.find_all { |s| s.type == 'PROGBITS' or s.type == 'NOBITS' }.each { |s|
 			if s.flags.include? 'ALLOC'
 				if s.type == 'NOBITS'
-					s.encoded = EncodedData.new :virtsize => s.size
+					s.encoded = EncodedData.new '', :virtsize => s.size
 				else
 					s.encoded = @encoded[s.offset, s.size] || EncodedData.new
 					s.encoded.virtsize = s.size
 				end
 			end
 		}
+	end
+
+	def decode_exports
+		decode_segments_dynamic
 	end
 
 	# decodes the elf header, and depending on the elf type, decode segments or sections
@@ -609,14 +817,23 @@ class ELF
 
 	def each_section
 		@segments.each { |s| yield s.encoded, s.vaddr if s.type == 'LOAD' }
-		# @sections ?
+	       	return if @header.type != 'REL'
+		@sections.each { |s|
+			next if not s.encoded
+			l = new_label(s.name)
+			s.encoded.add_export l, 0
+		       	yield s.encoded, l
+		}
 	end
 
 	# returns a metasm CPU object corresponding to +header.machine+
 	def cpu_from_headers
 		case @header.machine
+		when 'X86_64'; X86_64.new
 		when '386'; Ia32.new
 		when 'MIPS'; MIPS.new @endianness
+		when 'PPC'; PPC.new
+		when 'ARM'; ARM.new
 		else raise "unsupported cpu #{@header.machine}"
 		end
 	end
@@ -652,7 +869,7 @@ void *dlsym(int, char *);	// has special callback
 // gcc's entrypoint, need pointers to reach main exe code (last callback)
 void __libc_start_main(void(*)(), int, int, void(*)(), void(*)()) __attribute__((noreturn));
 // standard noreturn, optimized by gcc
-void __attribute__ ((noreturn)) exit(int);
+void __attribute__((noreturn)) exit(int);
 void _exit __attribute__((noreturn))(int);
 void abort(void) __attribute__((noreturn));
 void __stack_chk_fail __attribute__((noreturn))(void);
@@ -667,14 +884,19 @@ EOC
 			dls.btbind_callback = lambda { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
 				sz = @cpu.size/8
 				raise 'dlsym call error' if not dasm.decoded[calladdr]
-				fnaddr = dasm.backtrace(Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr), calladdr, :include_start => true, :maxdepth => maxdepth)
+				if @cpu.kind_of? X86_64
+					arg2 = :rsi
+				else
+					arg2 = Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr)
+				end
+				fnaddr = dasm.backtrace(arg2, calladdr, :include_start => true, :maxdepth => maxdepth)
 				if fnaddr.kind_of? ::Array and fnaddr.length == 1 and s = dasm.get_section_at(fnaddr.first) and fn = s[0].read(64) and i = fn.index(?\0) and i > sz	# try to avoid ordinals
-					bind = bind.merge :eax => Expression[fn[0, i]]
+					bind = bind.merge @cpu.register_symbols[0] => Expression[fn[0, i]]
 				end
 				bind
 			}
 			df = d.function[:default] = @cpu.disassembler_default_func
-			df.backtrace_binding[:esp] = Expression[:esp, :+, 4]
+			df.backtrace_binding[@cpu.register_symbols[4]] = Expression[@cpu.register_symbols[4], :+, @cpu.size/8]
 			df.btbind_callback = nil
 		when MIPS
 			(d.address_binding[@header.entry] ||= {})[:$t9] ||= Expression[@header.entry]
@@ -685,6 +907,44 @@ EOC
 			d.function[:default] = @cpu.disassembler_default_func
 		end
 		d
+	end
+
+	# returns an array of [name, addr, length, info]
+	def section_info
+		if @sections
+			@sections[1..-1].map { |s|
+				[s.name, s.addr, s.size, s.flags.join(',')]
+			}
+		else
+			@segments.map { |s|
+				[nil, s.vaddr, s.memsz, s.flags.join(',')]
+			}
+		end
+	end
+
+	def module_name
+		@tag and @tag['SONAME']
+	end
+
+	def module_address
+		@segments.map { |s_| s_.vaddr if s_.type == 'LOAD' }.compact.min || 0
+	end
+
+	def module_size
+		return 0 if not s = @segments.to_a.reverse.map { |s_| s_.vaddr + s_.memsz if s_.type == 'LOAD' }.compact.max
+		s - module_address
+	end
+
+	def module_symbols
+		syms = []
+		m_addr = module_address
+		syms << ['entrypoint', @header.entry-m_addr] if @header.entry != 0 or @header.type == 'EXEC'
+		@symbols.each { |s|
+			next if not s.name or s.shndx == 'UNDEF'
+			pfx = %w[LOCAL WEAK].include?(s.bind) ? s.bind.downcase + '_' : ''
+			syms << [pfx+s.name, s.value-m_addr, s.size]
+		}
+		syms
 	end
 end
 

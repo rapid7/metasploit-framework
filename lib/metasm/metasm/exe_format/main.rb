@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -13,85 +13,91 @@ require 'metasm/exe_format/serialstruct'
 module Metasm
 class ExeFormat
 	# creates a new instance, populates self.encoded with the supplied string
-	def self.load(str, *a)
-		e = new(*a)
-		e.encoded << str
+	def self.load(str, *a, &b)
+		e = new(*a, &b)
+		if str.kind_of? EncodedData; e.encoded = str
+		else e.encoded << str
+		end
 		e
 	end
 
 	# same as load, used by AutoExe
-	def self.autoexe_load(*x)
-		load(*x)
+	def self.autoexe_load(*x, &b)
+		load(*x, &b)
 	end
+
+	attr_accessor :filename
 
 	# same as +load+, but from a file
 	# uses VirtualFile if available
-	def self.load_file(path, *a)
-		if defined? VirtualFile
-			load(VirtualFile.read(path), *a)
-		else
-			File.open(path, 'rb') { |fd| load(fd.read, *a) }
-		end
+	def self.load_file(path, *a, &b)
+		e = load(VirtualFile.read(path), *a, &b)
+		e.filename ||= path
+		e
 	end
 
 	# +load_file+ then decode
-	def self.decode_file(path, *a)
-		e = load_file(path, *a)
-		e.decode
+	def self.decode_file(path, *a, &b)
+		e = load_file(path, *a, &b)
+		e.decode if not e.instance_variables.map { |iv| iv.to_s }.include?("@disassembler")
 		e
 	end
 
 	# +load_file+ then decode header
-	def self.decode_file_header(path, *a)
-		e = load_file(path, *a)
+	def self.decode_file_header(path, *a, &b)
+		e = load_file(path, *a, &b)
 		e.decode_header
 		e
 	end
 
-	def self.decode(raw, *a)
-		e = load(raw, *a)
+	def self.decode(raw, *a, &b)
+		e = load(raw, *a, &b)
 		e.decode
 		e
 	end
 
-	def self.decode_header(raw, *a)
-		e = load(raw, *a)
+	def self.decode_header(raw, *a, &b)
+		e = load(raw, *a, &b)
 		e.decode_header
 		e
 	end
 
 	# creates a new object using the specified cpu, parses the asm source, and assemble
 	def self.assemble(cpu, source, file='<unk>', lineno=1)
+		source, cpu = cpu, source if source.kind_of? CPU
 		e = new(cpu)
-		puts 'parsing asm' if $VERBOSE
-		e.parse(source, file, lineno)
-		puts 'assembling' if $VERBOSE
-		e.assemble
+		e.assemble(source, file, lineno)
 		e
 	end
 
+	# same as #assemble, reads asm source from the specified file
 	def self.assemble_file(cpu, filename)
+		filename, cpu = cpu, filename if filename.kind_of? CPU
 		assemble(cpu, File.read(filename), filename, 1)
+	end
+
+	# parses a bunch of standalone C code, compile and assemble it
+	def compile_c(source, file='<unk>', lineno=1)
+		cp = @cpu.new_cparser
+		tune_cparser(cp)
+		cp.parse(source, file, lineno)
+		read_c_attrs cp if respond_to? :read_c_attrs
+		asm_source = @cpu.new_ccompiler(cp, self).compile
+		puts asm_source if $DEBUG
+		assemble(asm_source, 'C compiler output', 1)
+		c_set_default_entrypoint
 	end
 
 	# creates a new object using the specified cpu, parse/compile/assemble the C source
 	def self.compile_c(cpu, source, file='<unk>', lineno=1)
+		source, cpu = cpu, source if source.kind_of? CPU
 		e = new(cpu)
-		cp = cpu.new_cparser
-		puts 'parsing C' if $VERBOSE
-		cp.parse(source, file, lineno)
-		puts 'compiling C' if $VERBOSE
-		asm_source = cpu.new_ccompiler(cp, e).compile
-		puts asm_source if $DEBUG
-		puts 'parsing asm' if $VERBOSE
-		e.parse(asm_source, 'C compiler output', 1)
-		puts 'assembling' if $VERBOSE
-		e.assemble
-		e.c_set_default_entrypoint
+		e.compile_c(source, file, lineno)
 		e
 	end
 
 	def self.compile_c_file(cpu, filename)
+		filename, cpu = cpu, filename if filename.kind_of? CPU
 		compile_c(cpu, File.read(filename), filename, 1)
 	end
 
@@ -100,15 +106,33 @@ class ExeFormat
 		src << section
 	end
 
+	# prepare a preprocessor before it reads any source, should define macros to identify the fileformat
+	def tune_prepro(l)
+	end
+
+	# prepare a cparser
+	def tune_cparser(cp)
+		tune_prepro(cp.lexer)
+	end
+
+	# this is called once C code is parsed, to handle C attributes like export/import/init etc
+	def read_c_attrs(cp)
+	end
+
+	# should setup a default entrypoint for C code, including preparing args for main() etc
 	def c_set_default_entrypoint
 	end
 
-	attr_accessor :disassembler
+	attr_writer :disassembler	# custom reader
+	def disassembler
+		@disassembler ||= init_disassembler
+	end
+
 	# returns the exe disassembler
 	# if it does not exist, creates one, and feeds it with the exe sections
 	def init_disassembler
-		@cpu ||= cpu_from_headers
-		@disassembler = Disassembler.new(self)
+		@disassembler ||= Disassembler.new(self)
+		@disassembler.cpu ||= cpu
 		each_section { |edata, base| @disassembler.add_section edata, base }
 		@disassembler
 	end
@@ -118,9 +142,19 @@ class ExeFormat
 	# uses get_default_entrypoints if the argument list is empty
 	# returns the disassembler
 	def disassemble(*entrypoints)
-		init_disassembler if not disassembler
 		entrypoints = get_default_entrypoints if entrypoints.empty?
-		@disassembler.disassemble(*entrypoints)
+		disassembler.disassemble(*entrypoints)
+		@disassembler
+	end
+
+	# disassembles the specified entrypoints without backtracking
+	# initializes the disassembler if needed
+	# uses get_default_entrypoints if the argument list is empty
+	# returns the disassembler
+	def disassemble_fast(*entrypoints)
+		entrypoints = get_default_entrypoints if entrypoints.empty?
+		disassembler.disassemble_fast_deep(*entrypoints)
+		@disassembler
 	end
 
 	# returns a list of entrypoints to disassemble (program entrypoint, exported functions...)
@@ -143,6 +177,17 @@ class ExeFormat
 		encode_string(*a)
 		File.open(path, 'wb') { |fd| fd.write(@encoded.data) }
 	end
+
+	# returns the address at which a given file offset would be mapped
+	def addr_to_fileoff(addr)
+		addr
+	end
+
+	# returns the file offset where a mapped byte comes from
+	def fileoff_to_addr(foff)
+		foff
+	end
+
 module IntToHash
 	# converts a constant name to its numeric value using the hash
 	# {1 => 'toto', 2 => 'tata'}: 'toto' => 1, 42 => 42, 'tutu' => raise

@@ -1,0 +1,50 @@
+The Metasm framework documentation
+==================================
+
+Metasm
+------
+
+The Metasm framework is an opensource software designed to interact with
+the various forms of binary code. It is written in pure Ruby
+(<http://ruby-lang.org/>).
+
+More detailed informations can be found in the <feature_list.txt>.
+
+It is distributed freely under the terms of the LGPL.
+
+Documentation organisation
+--------------------------
+
+This documentation is split in different parts :
+
+* the <core_classes.txt>
+* the major <use_cases.txt>
+* <code_organisation.txt>
+
+The first part describes the internal structure of the framework, the
+second part is a higher level overview of the software and shows how
+the various parts are used and can interract. The last part explains
+the role of the source files and directories.
+
+Install notes
+-------------
+
+See the <install_notes.txt>
+
+Authors
+-------
+
+Metasm is mostly written by Yoann Guillot.
+
+Some parts were added by various contributors, including :
+* Julien Tinnès
+* Raphaël Rigo
+* Arnaud Cornet
+* Alexandre Gazet
+
+Contact
+-------
+
+The latest version of this documentation can be found on the Metasm site: <http://metasm.cr0.org/doc>
+
+Patches, bug reports, feature requests should be sent to metasm@cr0.org

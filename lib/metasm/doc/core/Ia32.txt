@@ -1,0 +1,234 @@
+Ia32
+====
+
+The Ia32 architecture, aka *Intel_x86*, is the most advanced among the
+architectures implemented in the framework. It is a subclass of the
+generic <core/CPU.txt>.
+
+It can handle binary code for the 16 and 32bits modes of the processor.
+
+It is a superclass for the <core/X86_64.txt> object, a distinct processor
+that handles 64-bit *long_mode* (aka *x64*, *amd64*, *em64t*)
+
+The CPU `shortname` is `ia32` (`ia32_16` in 16-bit mode, and a `_be` suffix
+if bigendian)
+
+Opcodes
+-------
+
+The opcodes list can be customized to match that available on a specific
+version of the processor. The possibilities are:
+
+* 386_common
+* 386
+* 387
+* 486
+* pentium
+* p6
+* 3dnow
+* sse
+* sse2
+* sse3
+* vmx
+* sse42
+
+Most opcodes are available in the framework, with the notable exception of:
+
+* most sse2 simd instructions
+* the AVX instructions
+* amd-specific instructions (`syscall`)
+
+The `386_common` family is the subset of 386 instruction that are most
+commonly found in standard usermode programs (no `in`/`out`/bcd
+arithmetic/far call/etc).
+This can be useful when manipulating stuff that in not known to be i386
+binary code.
+
+
+Initialization
+--------------
+
+An Ia32 <core/CPU.txt> object can be created using the following code:
+
+  Metasm::Ia32.new
+
+The `X86` alias may be used in place of `Ia32`.
+
+The constructor accepts optional arguments to specify the CPU size, the
+opcode family, and the endianness of the processor. The arguments can
+be given in any order. For exemple,
+
+  Metasm::Ia32.new(16, 'pentium', :big)
+
+will create a 16-bit mode cpu, with opcodes up to the 'pentium' CPU family,
+in big-endian mode.
+
+The Ia32 initializer has the convenience feature that it will create an
+X86_64 instance when given the 64 bit size (e.g. `Ia32.new(64)` returns an
+X86_64 instance)
+
+
+Assembler
+---------
+
+The parser handles only Intel-style asm syntax, *e.g.*
+
+  some_label:
+    mov eax, 10h
+    mov ecx, fs:[eax+16]
+    push dword ptr fs:[1Ch]
+    call ecx
+    test al, al
+    jnz some_label
+    ret
+    fmulp ST(4)
+
+
+Instruction arguments
+#####################
+
+The parser recognizes standard registers, such as
+
+* `eax`
+* `ah`
+* `mm4` (mmx 64bit register)
+* `xmm2` (xmm 128bit register)
+* `ST` (current top of the FPU stack)
+* `ST(3)` (FPU reg nr.3)
+* `cs` (segment register)
+* `dr3` (debug register)
+* `cr2` (control register)
+
+It also supports inexistant registers, such as
+
+* `cr7`
+* `dr4`
+* `segr6` (segment register nr.6)
+
+The indirections are called `ModRM`. They take the form:
+
+* `[eax]` (memory pointed by `eax`)
+* `byte ptr [eax]` (1-byte memory pointed by `eax`)
+* `byte [eax]` (same as previous)
+* `fs:[eax]` (offset `eax` from the base of the `fs` segment)
+* `[fs:eax]` (same as previous)
+
+The pointer itself can be:
+
+* `[eax]` (any register)
+* `[eax+12]` (base + numeric offset)
+* `[eax+ebx]` (base + register index)
+* `[eax + 4*ebx]` (base + 1,2,4 or 8 * index)
+* `[eax + 2*ebx + 42]` (both)
+
+Note that the form base + index cannot use `esp` as index.
+
+For indirection sizes, the size is taken from the size of other arguments
+if it is not specified (eg `mov eax, [42]` will be 4 bytes, and `mov al, [42]`
+will be 1). The explicit size specifier can be:
+
+* `byte` (8bits)
+* `word` (16)
+* `dword` (32)
+* `qword` (64)
+* `oword` (128)
+* `_12bits` (12, arbitrary numbers can be used)
+
+
+Parser commands
+###############
+
+The following commands are recognized in an asm source:
+
+* `.mode`
+* `.bits`
+
+They are synonymous, and serve to change the mode of the processor to either
+16 or 32bits.
+
+They should be the first instruction in the source, changing the mode during
+parsing is not supported. This would change only the mode for the next
+instructions to be parsed, and for all instructions (incl. those already parsed
+at this point) when encoding, which is likely **not** what you want. See the
+`codeXX` prefixes.
+
+Note that changing the CPU size once it was created may have bad side-effects.
+For exemple, some preprocessor macros may already have been generated according
+to the original size of the CPU and will be incorrect from this point on.
+
+
+Prefixes
+########
+
+The following prefixes are handled:
+
+* `lock`
+* `rep`, `repz`, `repnz`, `repe`, `repne`
+* `code16`, `code32`
+
+The `repXX` prefixes are for string operations (`movsd` etc), but will be set
+for any opcode. Only the last of the family will be encoded.
+
+The `code16` will generate instructions to be run on a CPU in 16bit mode,
+independantly of the global CPU mode. For exemple,
+
+  code16 mov ax, 42h
+
+will generate `"\xb8\x42\x00"` (no opsz override prefix), and will decode or
+run incorrectly on an 32bit CPU.
+
+The encoder also has code to handle `jmp hints` prefixes, but the parser has
+no equivalent prefix support.
+
+There is currently no way to specify a segment-override prefix for instruction
+not using a ModRM argument. Use a `db 26h` style line.
+
+
+Suffixes
+########
+
+The parser implements a specific feature to allow the differenciation of
+otherwise ambiguous opcodes, in the form of instruction suffixes.
+
+By default, the assembler will generate the shortest encoding for a given
+instruction. To force encoding of another form you can add a specific
+suffix to the instruction. In general, metasm will use e.g. register sizes
+when possible to avoid this kind of situations, but with immediate-only
+displacement this is necessary.
+
+  or.a16 [1234h], eax  ; use a 16-bit address
+  or [bx], eax         ; use a 16-bit address (implicit from the bx register)
+  or eax, 1	; "\x83\xc8\x01"
+  or.i8 eax, 1	; "\x83\xc8\x01" (same, shortest encoding)
+  or.i eax, 1   ; "\x81\xc8\x01\x00\x00\x00" (constant stored in a 32bit field)
+  movsd.a16	; use a 16-byte address-size override prefix (copy dword [si] to [di])
+  push.i16 42h  ; push a 16-bit integer (using sp)
+
+The suffixes are available as follow:
+
+* if the opcode takes an integer argument that can be encoded as either a 8bits or <cpu size>bits, the `.i` and `.i8` variants are created
+* if the opcode takes a memory indirection as argument, or is a string operation (`movsd`, `scasb`, etc) the `.a16` and `.a32` variants are created
+* if the opcode takes a single integer argument, a far pointer, or is a return instruction, the `.i16` and `.i32` variants are created
+
+
+C parser
+--------
+
+The Ia32 C parser will initialize the type sizes with the `ilp32` memory
+model, which is:
+
+* short = 16bits
+* int = 32bits
+* long = 32bits
+* long long = 64bits
+* pointer = 32bits
+
+In 16bit mode, the model is `ilp16`, which may not be correct (the 16bits
+compiler has not been tested anyway).
+
+The following macros are defined (in the asm preprocessor too)
+
+* `_M_IX86` = 500
+* `_X86_`
+* `__i386__`
+

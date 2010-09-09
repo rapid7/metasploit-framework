@@ -1,6 +1,6 @@
 #!/usr/bin/ruby
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2009 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -37,14 +37,14 @@ def bouncepkt(clt, srv, timeout=nil)
 
 		if clt and s2c.length > 0 and IO.select(nil, [clt], nil, 0)
 			puts Time.now.strftime('s -> c  %H:%M:%S')
-			s2c.hexdump(['c', 'a'])
+			s2c.hexdump(:fmt => ['c', 'a'])
 			clt.write s2c
 			s2c.replace ''
 		end
 
 		if srv and c2s.length > 0 and IO.select(nil, [srv], nil, 0)
 			puts Time.now.strftime('c -> s  %H:%M:%S')
-			c2s.hexdump(['c', 'a'])
+			c2s.hexdump(:fmt => ['c', 'a'])
 			srv.write c2s
 			c2s.replace ''
 		end

@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2008 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -33,67 +33,6 @@ class NDS < ExeFormat
 	       	mem :ninlogo, 156
 		half :logoCRC, 0xcf56
 		half :headerCRC
-
-		attr_accessor :files, :fat
-
-		def decode(x)
-			super(x)
-
-			# decode the files section
-			# it is just the tree structure of a file hierarchy
-			# no indication whatsoever on where to find individual file content
-			x.encoded.ptr = @fnameoff
-			f = EncodedData.new << x.encoded.read(@fnamesz)
-			idx = []
-			# 1st word = size of index subsection
-			idxsz = x.decode_word(f)
-			f.ptr = 0
-			# index seems to be an array of word, half, half (offset of name, index of name of first file, index of name of first subdir)
-			(idxsz/8).times { idx << [x.decode_word(f), x.decode_half(f), x.decode_half(f)] }
-			# follows a serie of filenames : 1-byte length, name
-			# if length has high bit set, name is a directory, content = index[half following the name]
-			dat = []
-			idx.each { |off, idf, idd|
-				f.ptr = off
-				dat << []
-				while (l = x.decode_byte(f)) > 0
-					name = f.read(l&0x7f)
-					if l & 0x80 > 0
-						i = x.decode_half(f)
-						dat.last << { name => i.to_s(16) }
-					else
-						dat.last << name
-					end
-				end
-			}
-
-			# build the tree from the serialized data
-			# directory = array of [hash (subdirname => directory) or string (filename)]
-			tree = dat.map { |dt| dt.map { |d| d.dup } }
-			tree.each { |br|
-				br.grep(Hash).each { |b|
-					b.each { |k, v| b[k] = tree[v.to_i(16) & 0xfff] }
-				}
-			}
-			tree = tree.first
-
-			# flatten the tree to a list of fullpath
-			iter = lambda { |ar, cur|
-				ret = []
-				ar.each { |elem|
-					case elem
-					when Hash; ret.concat iter[elem.values.first, cur + elem.keys.first + '/']
-					else ret << (cur + elem)
-					end
-				}
-				ret
-			}
-
-			@files = tree #iter[tree, '/']
-
-			x.encoded.ptr = @fatoff
-			@fat = x.encoded.read(@fatsz)
-		end
 	end
 
 	class Icon < SerialStruct
@@ -117,7 +56,7 @@ class NDS < ExeFormat
 			%w[jap eng fre ger ita spa].each { |lang|
 				str = instance_variable_get("@title_#{lang}")
 				uchrs = str.unpack('v*')
-				str = str[0, uchrs.index(?\0)*2]
+				str = str[0, uchrs.index(?\0).to_i*2]
 				instance_variable_set("@title_#{lang}", str)
 				str = str.unpack('v*').pack('C*')
 				instance_variable_set("@title_#{lang}_short", str)
@@ -134,13 +73,14 @@ class NDS < ExeFormat
 
 
 	attr_accessor :header, :icon, :arm9, :arm7
+	attr_accessor :files, :fat
 
 	def initialize(endianness=:little)
 		@endianness = endianness
 		@encoded = EncodedData.new
 	end
 
-	# decodes the MZ header from the current offset in self.encoded
+	# decodes the header from the current offset in self.encoded
 	def decode_header
 		@header = Header.decode(self)
 	end
@@ -155,6 +95,78 @@ class NDS < ExeFormat
 		decode_icon
 		@arm9 = @encoded[@header.arm9off, @header.arm9sz]
 		@arm7 = @encoded[@header.arm7off, @header.arm7sz]
+		@arm9.add_export('entrypoint', @header.arm9entry - @header.arm9addr)
+		@arm7.add_export('entrypoint_arm7', @header.arm7entry - @header.arm7addr)
+	end
+
+	def decode_fat
+		# decode the files section
+		# it is just the tree structure of a file hierarchy
+		# no indication whatsoever on where to find individual file content
+		f = @encoded[@fnameoff, @fnamesz]
+		f.ptr = 0
+		idx = []
+		# 1st word = size of index subsection
+		idxsz = decode_word(f)
+		f.ptr = 0
+		# index seems to be an array of word, half, half (offset of name, index of name of first file, index of name of first subdir)
+		(idxsz/8).times { idx << [decode_word(f), decode_half(f), decode_half(f)] }
+		# follows a serie of filenames : 1-byte length, name
+		# if length has high bit set, name is a directory, content = index[half following the name]
+		dat = []
+		idx.each { |off, idf, idd|
+			f.ptr = off
+			dat << []
+			while (l = decode_byte(f)) > 0
+				name = f.read(l&0x7f)
+				if l & 0x80 > 0
+					i = decode_half(f)
+					dat.last << { name => i.to_s(16) }
+				else
+					dat.last << name
+				end
+			end
+		}
+
+		# build the tree from the serialized data
+		# directory = array of [hash (subdirname => directory) or string (filename)]
+		tree = dat.map { |dt| dt.map { |d| d.dup } }
+		tree.each { |br|
+			br.grep(Hash).each { |b|
+				b.each { |k, v| b[k] = tree[v.to_i(16) & 0xfff] }
+			}
+		}
+		tree = tree.first
+
+		# flatten the tree to a list of fullpath
+		iter = lambda { |ar, cur|
+			ret = []
+			ar.each { |elem|
+				case elem
+				when Hash; ret.concat iter[elem.values.first, cur + elem.keys.first + '/']
+				else ret << (cur + elem)
+				end
+			}
+			ret
+		}
+
+		@files = tree #iter[tree, '/']
+
+		encoded.ptr = @fatoff
+		@fat = encoded.read(@fatsz)
+	end
+
+	def cpu_from_headers
+		ARM.new
+	end
+
+	def each_section
+		yield @arm9, @header.arm9addr
+		yield @arm7, @header.arm7addr
+	end
+
+	def get_default_entrypoints
+		[@header.arm9entry, @header.arm7entry]
 	end
 end
 end

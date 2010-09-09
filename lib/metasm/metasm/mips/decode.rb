@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -85,7 +85,11 @@ class MIPS
 	def decode_instr_interpret(di, addr)
 		if di.opcode.props[:setip] and di.instruction.args.last.kind_of? Expression and di.opcode.name[0] != ?t
 			delta = Expression[di.instruction.args.last, :<<, 2].reduce
-			arg = Expression[[addr, :+, di.bin_length], :+, delta].reduce
+			if di.opcode.args.include? :i26
+				arg = Expression[[[addr, :+, di.bin_length], :&, 0xfc00_0000], :+, delta].reduce
+			else
+				arg = Expression[[addr, :+, di.bin_length], :+, delta].reduce
+			end
 			di.instruction.args[-1] = Expression[arg]
 		end
 
@@ -103,7 +107,7 @@ class MIPS
 		opcode_list.map { |ol| ol.name }.uniq.each { |op|
 			binding = case op
 			when 'break'
-			when /^b.*al$/; lambda { |di, *a|
+			when 'bltzal', 'bgezal'; lambda { |di, *a|
 				# XXX $ra is set only if branch is taken...
 				{ :$ra => Expression[Expression[di.address, :+, 2*di.bin_length].reduce] }
 			}
@@ -131,6 +135,7 @@ class MIPS
 			when 'div';  lambda { |di, a0, a1| { :hi => Expression[a0, :%, a1], :lo => Expression[a0, :/, a1] } }
 			when 'jal', 'jalr'; lambda { |di, a0| { :$ra => Expression[Expression[di.address, :+, 2*di.bin_length].reduce] } }
 			when 'li', 'mov'; lambda { |di, a0, a1| { a0 => Expression[a1] } }
+			when 'syscall'; lambda { |di, *a| { :$v0 => Expression::Unknown } }
 			end
 
 			@backtrace_binding[op] ||= binding if binding
@@ -223,9 +228,10 @@ class MIPS
 		end
 	end
 
-	# branch.*likely has no delay slot
 	def delay_slot(di=nil)
-		(di and di.opcode.name[0] == ?b and di.opcode.name[-1] == ?l) ? 0 : 1
+		# branch.*likely has no delay slot
+		# bltzal/bgezal are 'link', not 'likely', hence the check for -2
+		(di and di.opcode.props[:setip] and (di.opcode.name[-1] != ?l or di.opcode.name[-2] == ?a)) ? 1 : 0
 	end
 
 	def disassembler_default_func

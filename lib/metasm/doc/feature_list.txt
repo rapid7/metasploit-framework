@@ -1,0 +1,53 @@
+Metasm feature list
+===================
+
+Metasm is a cross-architecture assembler, disassembler, compiler, linker and debugger.
+
+See <use_cases.txt>
+
+Architectures
+-------------
+
+It is written in such a way that it is easy to add support for new architectures.
+For now, the following architectures are in:
+
+* Intel <core/Ia32.txt> (16 and 32bits)
+* Intel <core/X86_64.txt> (*aka* Ia32 64bits, X64, AMD64)
+* MIPS
+* PowerPC
+* Sh4
+
+The developpement is generally more focused on Ia32 and X86_64.
+
+
+File formats
+------------
+
+The following executable file formats are supported:
+
+* <core/Shellcode.txt> (raw binary)
+* <core/PE.txt>/<core/COFF.txt> (32/64bits)
+* <core/ELF.txt> (32/64bits)
+
+Those are supported in a more limited way:
+
+* Mach-O, UniversalBinary
+* MZ
+* A.out
+* XCoff
+* NDS
+
+
+Features
+--------
+
+The framework includes
+
+* a graphical <usage/disassembler.txt>
+* a graphical <usage/debugger.txt>
+* low and high-level debugging support (Ia32 only for now) under Windows, Linux and remote (via a GdbServer)
+* an advanced disassembler engine, with limited emulation support
+* a full <usage/C_parser.txt> (with preprocessor)
+* an experimental <usage/C_compiler.txt> (Ia32 only)
+* an experimental <usage/decompiler.txt> (Ia32 only)
+

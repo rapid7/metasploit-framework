@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -69,7 +69,8 @@ class MZ < ExeFormat
 	end
 
 	# assembles the source in the body, clears the source
-	def assemble
+	def assemble(*a)
+		parse(*a) if not a.empty?
 		@body << assemble_sequence(@source, @cpu)
 		@body.fixup @body.binding
 		# XXX should create @relocs here

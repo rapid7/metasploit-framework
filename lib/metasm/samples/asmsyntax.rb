@@ -1,14 +1,13 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 # this script show the assembler syntax understood by the framework
 
 require 'metasm'
-require 'metasm-shell'
 
-edata = <<EOS.encode_edata
+edata = Metasm::Shellcode.assemble(Metasm::Ia32.new, <<EOS).encoded
 #line 12	// preprocessor directive (useful in case of syntax error)
 
 // data specification

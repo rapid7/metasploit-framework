@@ -1,11 +1,10 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
 require 'metasm/ia32/opcodes'
-require 'metasm/ia32/parse'
 require 'metasm/encode'
 
 module Metasm
@@ -23,6 +22,7 @@ class Ia32
 		# caller is responsible for setting the adsz
 		# returns an array, 1 element per possible immediate size (for un-reduce()able Expression)
 		def encode(reg = 0, endianness = :little)
+			reg = reg.val if reg.kind_of? Argument
 			case @adsz
 			when 16; encode16(reg, endianness)
 			when 32; encode32(reg, endianness)
@@ -36,7 +36,7 @@ class Ia32
 				return [EncodedData.new << (6 | (reg << 3)) << @imm.encode(:u16, endianness)]
 			end
 
-			imm = @imm.reduce if @imm
+			imm = @imm.reduce if self.imm
 			imm = nil if imm == 0
 			ret = EncodedData.new
 			ret <<
@@ -59,7 +59,7 @@ class Ia32
 				if ret.data[0].kind_of? Integer
 					ret.data[0] |= v
 				else
-					ret.data[0] = (ret.data[0].ord | v).chr
+					ret.data[0] = (ret.data[0].unpack('C').first | v).chr
 				end
 			}
 
@@ -102,13 +102,13 @@ class Ia32
 				if ret.data[0].kind_of? Integer
 					ret.data[0] |= v
 				else
-					ret.data[0] = (ret.data[0].ord | v).chr
+					ret.data[0] = (ret.data[0].unpack('C').first | v).chr
 				end
 			}
 
 			if not self.b and not self.i
 				or_bits[5]
-				[ret << @imm.encode(:u32, endianness)]
+				[ret << @imm.encode(:a32, endianness)]
 
 			elsif not self.b and self.s != 1
 				# sib with no b
@@ -116,7 +116,9 @@ class Ia32
 				or_bits[4]
 				s = {8=>3, 4=>2, 2=>1}[@s]
 				imm = self.imm || Expression[0]
-				[ret << ((s << 6) | (@i.val << 3) | 5) << imm.encode(:a32, endianness)]
+				fu = (s << 6) | (@i.val << 3) | 5
+				fu = fu.chr if s >= 2	# rb1.9 encoding fix
+				[ret << fu << imm.encode(:a32, endianness)]
 			else
 				imm = @imm.reduce if self.imm
 				imm = nil if imm == 0
@@ -137,7 +139,9 @@ class Ia32
 					raise EncodeError, "Invalid ModRM #{self}" if i.val == 4
 
 					s = {8=>3, 4=>2, 2=>1, 1=>0}[@s]
-					ret << ((s << 6) | (i.val << 3) | b.val)
+					fu = (s << 6) | (i.val << 3) | b.val
+					fu = fu.chr if s >= 2	# rb1.9 encoding fix
+					ret << fu
 				end
 
 				imm ||= 0 if b.val == 5
@@ -181,6 +185,8 @@ class Ia32
 			base[fld[0]] |= v << fld[1]
 		}
 
+		size = i.prefix[:sz] || @size
+
 		#
 		# handle prefixes and bit fields
 		#
@@ -190,11 +196,11 @@ class Ia32
 			when :lock; 0xf0
 			when :rep;  {'repnz' => 0xf2, 'repz' => 0xf3, 'rep' => 0xf2}[v] # TODO
 			end
-		}.pack 'C*'
+		}.compact.pack 'C*'
 		pfx << op.props[:needpfx] if op.props[:needpfx]
 
 		if op.name == 'movsx' or op.name == 'movzx'
-			pfx << 0x66 if @size == 48-i.args[0].sz
+			pfx << 0x66 if size == 48-i.args[0].sz
 		else
 			opsz = op.props[:argsz]
 			oi.each { |oa, ia|
@@ -204,25 +210,26 @@ class Ia32
 					opsz = ia.sz
 				end
 			}
-			pfx << 0x66 if (opsz and @size == 48 - opsz) or (op.props[:opsz] and op.props[:opsz] != @size)
-			if op.props[:opsz] and @size == 48 - op.props[:opsz]
+			pfx << 0x66 if (opsz and size == 48 - opsz) or (op.props[:opsz] and op.props[:opsz] != size)
+			if op.props[:opsz] and size == 48 - op.props[:opsz]
 				opsz = op.props[:opsz]
 			end
 		end
-		opsz ||= @size
+		opsz ||= size
 
+		if op.props[:adsz] and size == 48 - op.props[:adsz]
+			pfx << 0x67
+			adsz = 48 - size
+		end
+		adsz ||= size
 		# addrsize override / segment override
 		if mrm = i.args.grep(ModRM).first
-			if (mrm.b and mrm.b.sz != @size) or (mrm.i and mrm.i.sz != @size)
+			if not op.props[:adsz] and ((mrm.b and mrm.b.sz != adsz) or (mrm.i and mrm.i.sz != adsz))
 				pfx << 0x67
-				adsz = 48 - @size
+				adsz = 48 - adsz
 			end
 			pfx << [0x26, 0x2E, 0x36, 0x3E, 0x64, 0x65][mrm.seg.val] if mrm.seg
-		elsif op.props[:adsz] and @size == 48 - op.props[:adsz]
-			pfx << 0x67
-			adsz = 48 - @size
 		end
-		adsz ||= @size
 
 
 		#

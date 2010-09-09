@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -373,11 +373,11 @@ class LinDebug
 
 		cnt = @win_data_height
 		while (cnt -= 1) > 0
-			raw = @rs[addr, 16]
+			raw = @rs[addr, 16].to_s
 			text << ('%04X' % @rs.regs_cache['ds']) << ':' << ('%08X' % addr) << '  '
 			case @datafmt
 			when 'db'; text << raw[0,8].unpack('C*').map { |c| '%02x ' % c }.join << ' ' <<
-				   raw[8,8].unpack('C*').map { |c| '%02x ' % c }.join
+				   raw[8,8].to_s.unpack('C*').map { |c| '%02x ' % c }.join
 			when 'dw'; text << raw.unpack('S*').map { |c| '%04x ' % c }.join
 			when 'dd'; text << raw.unpack('L*').map { |c| '%08x ' % c }.join
 			end
@@ -791,16 +791,13 @@ class LinDebug
 			sym = ''
 			sym << ntok.raw while ntok = lex.readtok
 			s = []
-			log '0'
 		       	@rs.symbols.each { |k, v|
 				s << k if v =~ /#{sym}/
 			}
-			log '1'
 			if s.empty?
 				log "unknown symbol #{sym}"
 			else
 				s.sort.each { |s_| log "#{'%08x' % s_} #{@rs.symbols_len[s_].to_s.ljust 6} #{@rs.findsymbol(s_)}" }
-				log '2'
 			end
 		}
 		@command['delsym'] = lambda { |lex, int|
@@ -858,6 +855,17 @@ class LinDebug
 			@rs.filemap.sort_by { |f, (b, e)| b }.each { |f, (b, e)|
 				log "#{f.ljust 20} #{'%08x' % b} - #{'%08x' % e}"
 			}
+		}
+		@command['ma'] = lambda { |lex, int|
+			addr = int[]
+			str = ''
+			str << ntok.raw while ntok = lex.readtok
+			@rs[addr, str.length] = str
+		}
+		@command['mx'] = lambda { |lex, int|
+			addr = int[]
+			data = [lex.readtok.raw].pack('H*')
+			@rs[addr, data.length] = data
 		}
 		@command['resize'] = lambda { |lex, int| resize }
 		@command['watch'] = lambda { |lex, int| @watch = ExprParser.parse(lex) ; updatedataptr }

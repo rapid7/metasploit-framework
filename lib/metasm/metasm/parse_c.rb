@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -16,13 +16,16 @@ module C
 			void int float double char  signed unsigned long short
 			case continue break return default  __attribute__
 			asm __asm __asm__ sizeof typeof
-			__declspec __cdecl __stdcall __fastcall
+			__declspec __cdecl __stdcall __fastcall __noreturn
 			inline __inline __inline__ __volatile__
 			__int8 __int16 __int32 __int64
 			__builtin_offsetof
 	].inject({}) { |h, w| h.update w => true }
 
 	class Statement
+	end
+
+	module Typed	# allows quick testing whether an object is an CExpr or a Variable
 	end
 
 	class Block < Statement
@@ -32,10 +35,11 @@ module C
 		attr_accessor :statements	# array of Statement/Declaration
 		attr_accessor :anonymous_enums	# array of anonymous Enum
 
-		def initialize(outer)
-			@symbol, @struct = {}, {}
-			@statements = []
+		def initialize(outer, statements=[], symbol={}, struct={})
 			@outer = outer
+			@statements = statements
+			@symbol = symbol
+			@struct = struct
 		end
 
 		def struct_ancestors
@@ -50,7 +54,7 @@ module C
 	module Attributes
 		attr_accessor :attributes
 
-		PREFIXED = %w[cdecl stdcall fastcall inline]
+		DECLSPECS = %w[cdecl stdcall fastcall inline naked thiscall noreturn]
 
 		# parses a sequence of __attribute__((anything)) into self.attributes (array of string)
 		def parse_attributes(parser, allow_declspec = false)
@@ -73,22 +77,38 @@ module C
 					elsif tok.type == :punct and tok.raw == '('
 						nest += 1
 					elsif nest == 0 and tok.type == :punct and tok.raw == ','
-						raise tok || parser if not allow_declspec and %w[inline stdcall fastcall cdecl naked].include? attrib
-						(@attributes ||= []) << attrib
+						raise tok || parser if not allow_declspec and DECLSPECS.include? attrib
+						add_attribute attrib
 						attrib = ''
 						next
 					end
 					attrib << tok.raw
 				end
-				raise tok || parser if not allow_declspec and %w[inline stdcall fastcall cdecl naked].include? attrib
-			    when 'inline', '__inline', '__inline__', '__stdcall', '__fastcall', '__cdecl'
-				break if not allow_declspec
-				attrib = keyword.delete '_'
-			    else break
+				raise tok || parser, "attr #{attrib.inspect} not allowed here" if not allow_declspec and DECLSPECS.include? attrib
+			    else
+				    if allow_declspec and DECLSPECS.include? keyword.gsub('_', '')
+					    attrib = keyword.gsub('_', '')
+				    else break
+				    end
 			    end
-			    (@attributes ||= []) << attrib
+			    add_attribute(attrib)
 			end
 			parser.unreadtok tok
+		end
+
+		# checks if the object has an attribute in its attribute list
+		def has_attribute(attr)
+			attributes.to_a.include? attr
+		end
+
+		# adds an attribute to the object attribute list if it is not already in it
+		def add_attribute(attr)
+			(@attributes ||= []) << attr  if not has_attribute(attr)
+		end
+
+		# checks if the object has an attributes a la __attribute__((attr(stuff))), returns 'stuff' (raw, no split on ',' or anything)
+		def has_attribute_var(attr)
+			$1 if attributes.to_a.find { |a| a =~ /^#{attr}\((.*)\)$/ }
 		end
 	end
 
@@ -100,6 +120,7 @@ module C
 		def arithmetic? ; false end
 		def integral? ;   false end
 		def float? ;      false end
+		def void? ;       false end
 		def base ;        self  end
 		def untypedef ;   self  end
 
@@ -129,6 +150,7 @@ module C
 		def integral? ; [:char, :short, :int, :long, :longlong, :ptr,
 			:__int8, :__int16, :__int32, :__int64].include? @name end
 		def float? ; [:float, :double, :longdouble].include? @name end
+		def void? ; @name == :void end
 		def align(parser) @name == :double ? 4 : parser.typesize[@name] end
 
 		def initialize(name, *specs)
@@ -144,7 +166,8 @@ module C
 		end
 
 		def ==(o)
-			o.class == self.class and o.name == self.name and o.specifier == self.specifier and o.attributes == self.attributes
+			o.object_id == self.object_id or
+			(o.class == self.class and o.name == self.name and o.specifier == self.specifier and o.attributes == self.attributes)
 		end
 	end
 	class TypeDef < Type
@@ -164,16 +187,19 @@ module C
 		def arithmetic? ; @type.arithmetic?   end
 		def integral? ;   @type.integral?     end
 		def float? ;      @type.float?        end
+		def void? ;       @type.void?         end
 		def untypedef ;   @type.untypedef     end
 		def align(parser) @type.align(parser) end	# XXX __attribute__ ?
+		def pointed ;     @type.pointed       end
 	end
 	class Function < Type
 		attr_accessor :type		# return type
 		attr_accessor :args		# [name, Variable]
 		attr_accessor :varargs		# true/false
 
-		def initialize(type=nil)
+		def initialize(type=nil, args=nil)
 			@type = type
+			@args = args if args
 		end
 
 		def base ; @type.base ; end
@@ -186,8 +212,14 @@ module C
 
 		def align(parser) @members.map { |m| m.type.align(parser) }.max end
 
-		def findmember(name)
-			if m = @members.find { |m_| m_.name == name }
+		def ==(o)
+			# if we dont compare names, infinite recursion on mylinkedlist == otherlinkedlist
+			o.object_id == self.object_id or
+			(o.class == self.class and o.name == self.name and o.members.to_a.map { |m| m.type } == self.members.to_a.map { |m| m.type } and o.attributes == self.attributes)
+		end
+
+		def findmember(name, igncase=false)
+			if m = @members.find { |m_| igncase ? m_.name.to_s.downcase == name.downcase : m_.name == name }
 				return m
 			else
 				@members.each { |m_|
@@ -197,6 +229,19 @@ module C
 				}
 			end
 			nil
+		end
+
+		def offsetof(parser, name)
+			raise parser, 'undefined union' if not @members
+			raise parser, 'unknown union member' if not findmember(name)
+
+			if @members.find { |m| m.name == name }
+				0
+			else
+				@members.find { |m|
+					m.type.untypedef.kind_of? Union and m.type.untypedef.findmember(name)
+				}.type.untypedef.offsetof(parser, name)
+			end
 		end
 
 		def parse_members(parser, scope)
@@ -250,6 +295,7 @@ module C
 						idx = parse_initializer_designator(parser, scope, ret, idx, true)
 						raise tok || parser, '"," or "}" expected' if not tok = parser.skipspaces or tok.type != :punct or (tok.raw != '}' and tok.raw != ',')
 						break if tok.raw == '}'
+						raise tok, 'struct is smaller than that' if idx >= @members.length
 					end
 				end
 				ret
@@ -265,9 +311,12 @@ module C
 					nnt = parser.skipspaces and nnt.type == :string and
 					m = findmember(nnt.raw)
 				raise nnt, 'unhandled indirect initializer' if not nidx = @members.index(@members.find { |m_| m_.name == nnt.raw })	# TODO
-				value = value[idx] ||= [] if not root
+				if not root
+					value[idx] ||= []	# AryRecorder may change [] to AryRec.new, can't do v = v[i] ||= []
+					value = value[idx]
+				end
 				idx = nidx
-				@members[idx].type.parse_initializer_designator(parser, scope, value, idx, false)
+				@members[idx].type.untypedef.parse_initializer_designator(parser, scope, value, idx, false)
 			else
 				parser.unreadtok nnt
 				if root
@@ -289,13 +338,21 @@ module C
 		def offsetof(parser, name)
 			raise parser, 'undefined structure' if not @members
 			raise parser, 'unknown structure member' if not findmember(name)
-			raise parser, 'unhandled indirect offsetof' if not @members.find { |m| m.name == name }	# TODO
+
+			indirect = true if not @members.find { |m| m.name == name }
+
 			al = align(parser)
 			off = 0
 			bit_off = 0
 			@members.each_with_index { |m, i|
-				break if m.name == name
-				if bits and b = @bits[i]
+				if m.name == name
+					mal = [m.type.align(parser), al].min
+					off = (off + mal - 1) / mal * mal
+					break
+				elsif indirect and m.type.untypedef.kind_of? Union and m.type.untypedef.findmember(name)
+					off += m.type.untypedef.offsetof(parser, name)
+					break
+				elsif bits and b = @bits[i]
 					isz = parser.typesize[:int]
 					if bit_off + b > 8*isz
 						bit_off = 0
@@ -314,12 +371,11 @@ module C
 
 		def parse_members(parser, scope)
 			super(parser, scope)
-			if defined? @attributes and @attributes
-				if @attributes.include? 'packed'
-					@pack = 1
-				elsif p = @attributes.grep(/^pack\(\d+\)$/).first
-					@pack = p[/\d+/].to_i
-				end
+			if has_attribute 'packed'
+				@pack = 1
+			elsif p = has_attribute_var('pack')
+				@pack = p[/\d+/].to_i
+				raise parser, "illegal struct pack(#{p})" if @pack == 0
 			end
 		end
 	end
@@ -330,6 +386,9 @@ module C
 		attr_accessor :backtrace
 
 		def align(parser) BaseType.new(:int).align(parser) end
+
+		def arithmetic?; true end
+		def integral?; true end
 
 		def parse_members(parser, scope)
 			val = -1
@@ -372,6 +431,7 @@ module C
 		def arithmetic? ; true ; end
 		def base ; @type.base ; end
 		def align(parser) BaseType.new(:ptr).align(parser) end
+		def pointed ; @type end
 
 		def ==(o)
 			o.class == self.class and o.type == self.type
@@ -379,6 +439,11 @@ module C
 	end
 	class Array < Pointer
 		attr_accessor :length
+
+		def initialize(type=nil, length=nil)
+			super(type)
+			@length = length if length
+		end
 
 		def align(parser) @type.align(parser) end
 
@@ -397,22 +462,79 @@ module C
 						# allow int x[] = {1, 2, 3, };
 						break if tok = parser.skipspaces and tok.type == :punct and tok.raw == '}'
 						parser.unreadtok tok
+						raise tok, 'array is smaller than that' if length and idx >= @length
 					end
 				end
 				ret
 			else
 				parser.unreadtok tok
-				super(parser, scope)
+				i = super(parser, scope)
+				if i.kind_of? CExpression and not i.op and i.rexpr.kind_of? String and @length and i.rexpr.length > @length
+					puts tok.exception("initializer is too long (#{i.rexpr.length} for #@length)").message if $VERBOSE
+					i.rexpr = i.rexpr[0, @length]
+				end
+				i
 			end
 		end
 
-		# parses a designator+initializer eg '[12] = 4' or '[42].bla = 16' or (root ? '4' : '=4')
+		# this class is a hack to support [1 ... 4] array initializer
+		# it stores the effects of subsequent initializers (eg [1 ... 4].toto[48].bla[2 ... 57] = 12)
+		# which are later played back on the range
+		class AryRecorder
+			attr_accessor :log
+			def initialize
+				@log = []
+			end
+
+			def []=(idx, val)
+				val = self.class.new if val == []
+				@log[idx] = val
+			end
+
+			def [](idx)
+				@log[idx]
+			end
+
+			def playback_idx(i)
+				case v = @log[i]
+				when self.class; v.playback
+				else v
+				end
+			end
+
+			def playback(ary=[])
+				@log.each_with_index { |v, i| ary[i] = playback_idx(i) }
+				ary
+			end
+		end
+
+		# parses a designator+initializer eg '[12] = 4' or '[42].bla = 16' or '[3 ... 8] = 28'
 		def parse_initializer_designator(parser, scope, value, idx, root=true)
+			# root = true for 1st invocation (x = { 4 }) => immediate value allowed
+			#  or false for recursive invocations (x = { .y = 4 }) => need '=' sign before immediate
 			if nt = parser.skipspaces and nt.type == :punct and nt.raw == '['
-				value = value[idx] ||= [] if not root
+				if not root
+					value[idx] ||= []	# AryRecorder may change [] to AryRec.new, can't do v = v[i] ||= []
+					value = value[idx]
+				end
 				raise nt, 'const expected' if not idx = CExpression.parse(parser, scope) or not idx.constant? or not idx = idx.reduce(parser) or not idx.kind_of? ::Integer
-				raise nt || parser, '"]" expected' if not nt = parser.skipspaces or nt.type != :punct or nt.raw != ']'
-				@type.parse_initializer_designator(parser, scope, value, idx, false)
+				nt = parser.skipspaces
+				if nt and nt.type == :punct and nt.raw == '.'	# range
+					raise nt || parser, '".." expected' if not nt = parser.skipspaces or nt.type != :punct or nt.raw != '.'
+					raise nt || parser,  '"." expected' if not nt = parser.skipspaces or nt.type != :punct or nt.raw != '.'
+					raise nt, 'const expected' if not eidx = CExpression.parse(parser, scope) or not eidx.constant? or not eidx = eidx.reduce(parser) or not eidx.kind_of? ::Integer
+					raise nt, 'bad range' if eidx < idx
+					nt = parser.skipspaces
+					realvalue = value
+					value = AryRecorder.new
+				end
+				raise nt || parser, '"]" expected' if not nt or nt.type != :punct or nt.raw != ']'
+				raise nt, 'array is smaller than that' if length and (eidx||idx) >= @length
+				@type.untypedef.parse_initializer_designator(parser, scope, value, idx, false)
+				if eidx
+					(idx..eidx).each { |i| realvalue[i] = value.playback_idx(idx) }
+					idx = eidx	# next default value = eidx+1 (eg int x[] = { [1 ... 3] = 4, 5 } => x[4] = 5)
+				end
 			else
 				if root
 					parser.unreadtok nt
@@ -428,11 +550,17 @@ module C
 
 	class Variable
 		include Attributes
+		include Typed
+
 		attr_accessor :type
 		attr_accessor :initializer	# CExpr	/ Block (for Functions)
 		attr_accessor :name
 		attr_accessor :storage		# auto register static extern typedef
 		attr_accessor :backtrace	# definition backtrace info (the name token)
+
+		def initialize(name=nil, type=nil)
+			@name, @type = name, type
+		end
 	end
 
 	# found in a block's Statements, used to know the initialization order
@@ -587,12 +715,13 @@ module C
 
 	# inline asm statement
 	class Asm < Statement
+		include Attributes
 		attr_accessor :body		# asm source (::String)
 		attr_accessor :output, :input, :clobber	# I/O, gcc-style (::Array)
 		attr_accessor :backtrace	# body Token
 		attr_accessor :volatile
 
-		def initialize(body, backtrace, output, input, clobber, volatile)
+		def initialize(body, backtrace, output=nil, input=nil, clobber=nil, volatile=nil)
 			@body, @backtrace, @output, @input, @clobber, @volatile = body, backtrace, output, input, clobber, volatile
 		end
 
@@ -652,51 +781,54 @@ module C
 			raise tok || parser, '"(" expected' if not tok or tok.type != :punct or tok.raw != '('
 			raise tok || parser, 'qstring expected' if not tok = parser.skipspaces or tok.type != :quoted
 			body = tok
+			ret = new body.value, body
 			tok = parser.skipspaces
 			raise tok || parser, '":" or ")" expected' if not tok or tok.type != :punct or (tok.raw != ':' and tok.raw != ')')
 
 			if tok.raw == ':'
-				output = []
+				ret.output = []
 				raise parser if not tok = parser.skipspaces
 				while tok.type == :quoted
 					type = tok.value
 					raise tok, 'expr expected' if not var = CExpression.parse_value(parser, scope)
-					output << [type, var]
+					ret.output << [type, var]
 					raise tok || parser, '":" or "," or ")" expected' if not tok = parser.skipspaces or tok.type != :punct or (tok.raw != ',' and tok.raw != ')' and tok.raw != ':')
 					break if tok.raw == ':' or tok.raw == ')'
 					raise tok || parser, 'qstring expected' if not tok = parser.skipspaces or tok.type != :quoted
 				end
 			end
 			if tok.raw == ':'
-				input = []
+				ret.input = []
 				raise parser if not tok = parser.skipspaces
 				while tok.type == :quoted
 					type = tok.value
 					raise tok, 'expr expected' if not var = CExpression.parse_value(parser, scope)
-					input << [type, var]
+					ret.input << [type, var]
 					raise tok || parser, '":" or "," or ")" expected' if not tok = parser.skipspaces or tok.type != :punct or (tok.raw != ',' and tok.raw != ')' and tok.raw != ':')
 					break if tok.raw == ':' or tok.raw == ')'
 					raise tok || parser, 'qstring expected' if not tok = parser.skipspaces or tok.type != :quoted
 				end
 			end
 			if tok.raw == ':'
-				clobber = []
+				ret.clobber = []
 				raise parser if not tok = parser.skipspaces
 				while tok.type == :quoted
-					clobber << tok.value
+					ret.clobber << tok.value
 					raise tok || parser, '"," or ")" expected' if not tok = parser.skipspaces or tok.type != :punct or (tok.raw != ',' and tok.raw != ')')
 					break if tok.raw == ')'
 					raise tok || parser, 'qstring expected' if not tok = parser.skipspaces or tok.type != :quoted
 				end
 			end
 			raise tok || parser, '")" expected' if not tok or tok.type != :punct or tok.raw != ')'
+			ret.parse_attributes(parser)
 			raise tok || parser, '";" expected' if not tok = parser.skipspaces or tok.type != :punct or tok.raw != ';'
-
-			new body.value, body, output, input, clobber, volatile
+			ret
 		end
 	end
 
 	class CExpression < Statement
+		include Typed
+
 		# may be :,, :., :'->', :funcall (function, [arglist]), :[] (array indexing), nil (cast)
 		attr_accessor :op
 		# nil/CExpr/Variable/Label/::String( = :quoted/struct member name)/::Integer/::Float/Block
@@ -704,7 +836,96 @@ module C
 		# a Type
 		attr_accessor :type
 		def initialize(l, o, r, t)
+			raise "invalid CExpr #{[l, o, r, t].inspect}" if (o and not o.kind_of? ::Symbol) or not t.kind_of? Type
 			@lexpr, @op, @rexpr, @type = l, o, r, t
+		end
+		
+		# overwrites @lexpr @op @rexpr @type from the arg
+		def replace(o)
+			@lexpr, @op, @rexpr, @type = o.lexpr, o.op, o.rexpr, o.type
+			self
+		end
+
+		# deep copy of the object
+		# recurses only within CExpressions, anything else is copied by reference
+		def deep_dup
+			n = dup
+			n.lexpr = n.lexpr.deep_dup if n.lexpr.kind_of? CExpression
+			n.rexpr = n.rexpr.deep_dup if n.rexpr.kind_of? CExpression
+			n.rexpr = n.rexpr.map { |e| e.kind_of?(CExpression) ? e.deep_dup : e } if n.rexpr.kind_of? ::Array
+			n
+		end
+
+		# recursive constructor with automatic type inference
+		# e.g. CExpression[foo, :+, [:*, bar]]
+		# assumes root args are correctly typed (eg *foo => foo must be a pointer)
+		# take care to use [int] with immediates, e.g. CExpression[foo, :+, [2]]
+		# CExpr[some_cexpr] returns some_cexpr
+		def self.[](*args)
+			# sub-arrays in args are to be passed to self.[] recursively (syntaxic sugar)
+			splat = lambda { |e| e.kind_of?(::Array) ? self[*e] : e }
+
+			args.shift while args.first == nil	# CExpr[nil, :&, bla] => CExpr[:&, bla]
+
+			case args.length
+			when 4
+				op = args[1]
+				if op == :funcall or op == :'?:'
+					x2 = args[2].map { |a| splat[a] } if args[2]
+				else
+					x2 = splat[args[2]]
+				end
+ 				new(splat[args[0]], op, x2, args[3])
+			when 3
+				op = args[1]
+				x1 = splat[args[0]]
+				if op == :funcall or op == :'?:'
+					x2 = args[2].map { |a| splat[a] } if args[2]
+				else
+					x2 = splat[args[2]]
+				end
+
+				case op
+				when :funcall
+				       rt = x1.type.untypedef
+				       rt = rt.type.untypedef if rt.pointer?
+			       	       new(x1, op, x2, rt.type)
+				when :[]; new(x1, op, x2, x1.type.untypedef.type)
+				when :+; new(x1, op, x2, (x2.type.pointer? ? x2.type : x1.type))
+				when :-; new(x1, op, x2, ((x1.type.pointer? and x2.type.pointer?) ? BaseType.new(:int) : x2.type.pointer? ? x2.type : x1.type))
+				when :'&&', :'||', :==, :'!=', :>, :<, :<=, :>=; new(x1, op, x2, BaseType.new(:int))
+				when :'.', :'->'
+					t = x1.type.untypedef
+					t = t.type.untypedef if op == :'->' and x1.type.pointer?
+					raise "parse error: #{t} has no member #{x2}" if not t.kind_of? Union or not m = t.findmember(x2)
+					new(x1, op, x2, m.type)
+				when :'?:'; new(x1, op, x2, x2[0].type)
+				when :','; new(x1, op, x2, x2.type)
+				else new(x1, op, x2, x1.type)
+				end
+			when 2
+				x0 = splat[args[0]]
+				x1 = splat[args[1]]
+				x0, x1 = x1, x0 if x0.kind_of? Type
+				if x1.kind_of? Type; new(nil, nil, x0, x1)	# (cast)r
+				elsif x0 == :*; new(nil, x0, x1, x1.type.untypedef.type)	# *r
+				elsif x0 == :& and x1.kind_of? CExpression and x1.type.kind_of? C::Array; new(nil, nil, x1, Pointer.new(x1.type.type))
+				elsif x0 == :&; new(nil, x0, x1, Pointer.new(x1.type))	# &r
+				elsif x0 == :'!'; new(nil, x0, x1, BaseType.new(:int))	# &r
+				elsif x1.kind_of? ::Symbol; new(x0, x1, nil, x0.type)	# l++
+				else new(nil, x0, x1, x1.type)	# +r
+				end
+			when 1
+				x = splat[args[0]]
+				case x
+				when CExpression; x
+				when ::Integer; new(nil, nil, x, BaseType.new(:int))	# XXX range => __int64 ?
+				when ::Float; new(nil, nil, x, BaseType.new(:double))
+				when ::String; new(nil, nil, x, Pointer.new(BaseType.new(:char)))
+				else new(nil, nil, x, x.type)
+				end
+			else raise "parse error CExpr[*#{args.inspect}]"
+			end
 		end
 	end
 
@@ -712,16 +933,14 @@ module C
 	class Parser
 		# creates a new CParser, parses all top-level statements
 		def self.parse(text)
-			c = new
-	                c.parse text
-			raise c.lexer.readtok || c, 'invalid definition' if not c.lexer.eos?
-			c
+			new.parse text
 		end
 
 		# parses the current lexer content (or the text arg) for toplevel definitions
 		def parse(text=nil, filename='<unk>', lineno=1)
 			@lexer.feed text, filename, lineno if text
 			nil while not @lexer.eos? and (parse_definition(@toplevel) or parse_toplevel_statement(@toplevel))
+			raise @lexer.readtok || self, 'invalid definition' if not @lexer.eos?
 			sanity_checks
 			self
 		end
@@ -732,22 +951,33 @@ module C
 		end
 
 		attr_accessor :lexer, :toplevel, :typesize, :pragma_pack
-		def initialize(lexer = nil, model=:ilp32)
-			@lexer = lexer || Preprocessor.new
+		attr_accessor :endianness
+		attr_accessor :allow_bad_c
+		# allowed arguments: ExeFormat, CPU, Preprocessor, Symbol (for the data model)
+		def initialize(*args)
+			model = args.grep(Symbol).first || :ilp32
+			lexer = args.grep(Preprocessor).first || Preprocessor.new
+			exe = args.grep(ExeFormat).first
+			cpu = args.grep(CPU).first
+			cpu ||= exe.cpu if exe
+			@lexer = lexer
 			@prev_pragma_callback = @lexer.pragma_callback
 			@lexer.pragma_callback = lambda { |tok| parse_pragma_callback(tok) }
 			@toplevel = Block.new(nil)
 			@unreadtoks = []
-			@typesize = { :void => 0, :__int8 => 1, :__int16 => 2, :__int32 => 4, :__int64 => 8,
+			@endianness = cpu ? cpu.endianness : :big	# used only to decode multibyte char constants
+			@typesize = { :void => 1, :__int8 => 1, :__int16 => 2, :__int32 => 4, :__int64 => 8,
 				:char => 1, :float => 4, :double => 8, :longdouble => 12 }
 			send model
+			cpu.tune_cparser(self) if cpu
+			exe.tune_cparser(self) if exe
 		end
 
 		def ilp16
-			# XXX check this
 			@typesize.update :short => 2, :ptr => 2,
 				:int => 2, :long => 4, :longlong => 4
 		end
+
 		def lp32
 			@typesize.update :short => 2, :ptr => 4,
 				:int => 2, :long => 4, :longlong => 8
@@ -756,18 +986,18 @@ module C
 			@typesize.update :short => 2, :ptr => 4,
 				:int => 4, :long => 4, :longlong => 8
 		end
+
 		def llp64
-			# longlong should only exist here
 			@typesize.update :short => 2, :ptr => 8,
 				:int => 4, :long => 4, :longlong => 8
-		end
-		def ilp64
-			@typesize.update :short => 2, :ptr => 8,
-				:int => 8, :long => 8, :longlong => 8
 		end
 		def lp64
 			@typesize.update :short => 2, :ptr => 8,
 				:int => 4, :long => 8, :longlong => 8
+		end
+		def ilp64
+			@typesize.update :short => 2, :ptr => 8,
+				:int => 8, :long => 8, :longlong => 8
 		end
 
 		def parse_pragma_callback(otok)
@@ -783,8 +1013,8 @@ module C
 					nil while v2 = @lexer.readtok and v2.type == :space
 					nil while rp = @lexer.readtok and rp.type == :space
 				end
-				raise cmd if not rp or lp.type != :punct or rp.type != :punct or lp.raw != '(' or rp.raw != ')'
-				raise cmd if (v1 and v1.type != :string) or (v2 and (v2.type != :string or v2.raw =~ /[^\d]/))
+				raise otok if not rp or lp.type != :punct or rp.type != :punct or lp.raw != '(' or rp.raw != ')'
+				raise otok if (v1 and v1.type != :string) or (v2 and (v2.type != :string or v2.raw =~ /[^\d]/))
 				if not v1
 					@pragma_pack = nil
 				elsif v1.raw == 'push'
@@ -797,7 +1027,7 @@ module C
 					raise v1, 'pack stack empty' if @pragma_pack_stack.empty?
 					@pragma_pack = @pragma_pack_stack.pop
 					@pragma_pack = v2.raw.to_i if v2 and v2.raw	# #pragma pack(pop, 4) => pop stack, but use 4 as pack value (imho)
-					raise v2, 'bad pack value' if pragma_pack == 0
+					raise v2, 'bad pack value' if @pragma_pack == 0
 				elsif v1.raw =~ /^\d+$/
 					raise v2, '2nd arg unexpected' if v2
 					@pragma_pack = v1.raw.to_i
@@ -817,6 +1047,13 @@ module C
 				prepare_visualstudio
 			when 'prepare_gcc'
 				prepare_gcc
+			when 'data_model'	# XXX use carefully, should be the very first thing parsed
+				nil while lp = @lexer.readtok and lp.type == :space
+				if lp.type != :string or lp.raw !~ /^s?[il]?lp(16|32|64)$/ or not respond_to? lp.raw
+					raise lp, "invalid data model (use lp32/lp64/llp64/ilp64)"
+				else
+					send lp.raw
+				end
 			else @prev_pragma_callback[otok]
 			end
 		end
@@ -841,6 +1078,7 @@ module C
 			@lexer.define_weak('__signed', 'signed')
 			@lexer.define_weak('__volatile', 'volatile')
 			@lexer.nodefine_strong('__REDIRECT_NTH')	# booh gnu
+			@lexer.nodefine_strong('alloca')		# TODO __builtin_alloca
 			@lexer.hooked_include['stddef.h'] = <<EOH
 /* simplified, define all at first invocation. may break things... */
 #undef __need_ptrdiff_t
@@ -875,6 +1113,25 @@ typedef void* va_list;
 #define va_copy(d, s)
 */
 EOH
+			@lexer.hooked_include['limits.h'] = <<EOH
+#define CHAR_BIT      8
+#define SCHAR_MIN     (-128)
+#define SCHAR_MAX     127
+#define UCHAR_MAX     255
+#ifdef __CHAR_UNSIGNED__
+#   define CHAR_MIN     0
+#   define CHAR_MAX     UCHAR_MAX
+#else
+#   define CHAR_MIN     SCHAR_MIN
+#   define CHAR_MAX     SCHAR_MAX
+#endif
+#define UINT_MAX       #{(1 << (8*@typesize[:int]))-1}U
+#define INT_MAX       (UINT_MAX >> 1)
+#define INT_MIN       (-INT_MAX - 1)
+#define ULONG_MAX       #{(1 << (8*@typesize[:long]))-1}UL
+#define LONG_MAX       (ULONG_MAX >> 1L)
+#define LONG_MIN       (-LONG_MAX - 1L)
+EOH
 		end
 
 		# C sanity checks
@@ -885,13 +1142,15 @@ EOH
 
 		# checks that the types are compatible (variable predeclaration, function argument..)
 		# strict = false for func call/assignment (eg char compatible with int -- but int is incompatible with char)
+		# output warnings only
 		def check_compatible_type(tok, oldtype, newtype, strict = false, checked = [])
+			return if not $VERBOSE
 			oldtype = oldtype.untypedef
 			newtype = newtype.untypedef
 			oldtype = BaseType.new(:int) if oldtype.kind_of? Enum
 			newtype = BaseType.new(:int) if newtype.kind_of? Enum
 
-			puts tok.exception('type qualifier mismatch').message if $VERBOSE and oldtype.qualifier.to_a.uniq.length > newtype.qualifier.to_a.uniq.length
+			puts tok.exception('type qualifier mismatch').message if oldtype.qualifier.to_a.uniq.length > newtype.qualifier.to_a.uniq.length
 
 			# avoid infinite recursion
 			return if checked.include? oldtype
@@ -900,12 +1159,12 @@ EOH
 		    begin
 			case newtype
 			when Function
-				raise tok if not oldtype.kind_of? Function
+				raise tok, 'type error' if not oldtype.kind_of? Function
 				check_compatible_type tok, oldtype.type, newtype.type, strict, checked
 				if oldtype.args and newtype.args
 					if oldtype.args.length != newtype.args.length or
 							oldtype.varargs != newtype.varargs
-						raise tok
+						raise tok, 'type error'
 					end
 					oldtype.args.zip(newtype.args) { |oa, na|
 						# begin ; rescue ParseError: raise $!.message + "in parameter #{oa.name}" end
@@ -914,17 +1173,17 @@ EOH
 				end
 			when Pointer
 				if oldtype.kind_of? BaseType and oldtype.integral?
-					puts tok.exception('making pointer from integer without a cast').message if $VERBOSE
+					puts tok.exception('making pointer from integer without a cast').message
 					return
 				end
-				raise tok if not oldtype.kind_of? Pointer
+				raise tok, 'type error' if not oldtype.kind_of? Pointer
 				hasvoid = true if (t = newtype.type.untypedef).kind_of? BaseType and t.name == :void
 				hasvoid = true if (t = oldtype.type.untypedef).kind_of? BaseType and t.name == :void	# struct foo *f = NULL;
 				if strict and not hasvoid
 					check_compatible_type tok, oldtype.type, newtype.type, strict, checked
 				end
 			when Union
-				raise tok if not oldtype.class == newtype.class
+				raise tok, 'type error' if not oldtype.class == newtype.class
 				if oldtype.members and newtype.members
 					if oldtype.members.length != newtype.members.length
 						raise tok, 'bad member count'
@@ -935,22 +1194,23 @@ EOH
 					}
 				end
 			when BaseType
-				raise tok if not oldtype.kind_of? BaseType
+				raise tok, 'type error' if not oldtype.kind_of? BaseType
 				if strict
 					if oldtype.name != newtype.name or
 					oldtype.specifier != newtype.specifier
-						raise tok
+						raise tok, 'type error'
 					end
 				else
-					raise tok if @typesize[newtype.name] == 0 and @typesize[oldtype.name] > 0
-					puts tok.exception('type size mismatch, may lose bits') if $VERBOSE and @typesize[oldtype.name] > @typesize[newtype.name]
-					puts tok.exception('sign mismatch').message if $VERBOSE and oldtype.specifier != newtype.specifier and @typesize[newtype.name] == @typesize[oldtype.name]
+					raise tok, 'type error' if @typesize[newtype.name] == 0 and @typesize[oldtype.name] > 0
+					puts tok.exception('type size mismatch, may lose bits').message if @typesize[oldtype.name] > @typesize[newtype.name]
+					puts tok.exception('sign mismatch').message if oldtype.specifier != newtype.specifier and @typesize[newtype.name] == @typesize[oldtype.name]
 				end
 			end
 		    rescue ParseError
-			oname = oldtype.to_s rescue oldtype.class.name
-			nname = newtype.to_s rescue newtype.class.name
-			raise $!, $!.message + " incompatible type #{oname} to #{nname}"
+			raise $! if checked.length != 1	# bubble up
+			oname = (oldtype.to_s rescue oldtype.class.name)
+			nname = (newtype.to_s rescue newtype.class.name)
+			puts $!.message + " incompatible type #{oname} to #{nname}"
 		    end
 		end
 
@@ -980,7 +1240,7 @@ EOH
 		private :readtok_longstr
 
 		# reads a token from self.lexer
-		# concatenates strings, merges spaces/eol to ' ', handles wchar strings
+		# concatenates strings, merges spaces/eol to ' ', handles wchar strings, allows $@_ in :string
 		def readtok
 			if not t = @unreadtoks.pop
 				return if not t = readtok_longstr
@@ -1010,9 +1270,21 @@ EOH
 						end
 					end
 					@lexer.unreadtok nt
+				else
+					if (t.type == :punct and (t.raw == '_' or t.raw == '@' or t.raw == '$')) or t.type == :string
+						t = t.dup
+						t.type = :string
+						nt = nil
+						t.raw << nt.raw while nt = @lexer.readtok and ((nt.type == :punct and (nt.raw == '_' or nt.raw == '@' or nt.raw == '$')) or nt.type == :string)
+						@lexer.unreadtok nt
+					end
 				end
 			end
 			t
+		end
+
+		def eos?
+			@unreadtoks.empty? and @lexer.eos?
 		end
 
 		def unreadtok(tok)
@@ -1026,7 +1298,9 @@ EOH
 		end
 
 		# returns the size of a type in bytes
-		def sizeof(var, type=var.type)
+		def sizeof(var, type=nil)
+			var, type = nil, var if var.kind_of? Type and not type
+			type ||= var.type
 			# XXX double-check class apparition order ('when' checks inheritance)
 			case type
 			when Array
@@ -1036,14 +1310,16 @@ EOH
 						var = var.rexpr
 					end
 					raise self, 'unknown array size' if not var.kind_of? Variable or not var.initializer
-					case var.initializer
-					when ::String; sizeof(nil, type.type) * var.initializer.length
+					init = var.initializer
+					init = init.rexpr if init.kind_of? C::CExpression and not init.op and init.rexpr.kind_of? ::String
+					case init
+					when ::String; sizeof(nil, type.type) * (init.length + 1)
 					when ::Array
-						v = var.initializer.compact.first
-						v ? (sizeof(nil, type.type) * var.initializer.length) : 0
-					else sizeof(var.initializer)
+						v = init.compact.first
+						v ? (sizeof(nil, type.type) * init.length) : 0
+					else sizeof(init)
 					end
-				when ::Integer; type.length * sizeof(type)
+				when ::Integer; type.length * sizeof(type.type)
 				when CExpression
 					len = type.length.reduce(self)
 					raise self, 'unknown array size' if not len.kind_of? ::Integer
@@ -1051,7 +1327,12 @@ EOH
 				else raise self, 'unknown array size'
 				end
 			when Pointer
-				@typesize[:ptr]
+				if var.kind_of? CExpression and not var.op and var.rexpr.kind_of? ::String
+					# sizeof("lolz") => 5
+					sizeof(nil, type.type) * (var.rexpr.length + 1)
+				else
+					@typesize[:ptr]
+				end
 			when Function
 				# raise
 				1	# gcc
@@ -1102,12 +1383,12 @@ EOH
 						var = prev
 					elsif not prev.kind_of?(Variable) or
 							prev.initializer or
-							prev.storage != var.storage or
+							(prev.storage != :extern and prev.storage != var.storage) or
 							(scope != @toplevel and prev.storage != :static)
 						if prev.kind_of? ::Integer	# enum value
 							prev = (scope.struct.values.grep(Enum) + scope.anonymous_enums.to_a).find { |e| e.members.index(prev) }
 						end
-						raise var.backtrace, "redefinition, previous is #{prev.backtrace.exception(nil).message}"
+						raise var.backtrace, "redefinition, previous is #{prev.backtrace.exception(nil).message rescue :unknown}"
 					else
 						check_compatible_type var.backtrace, prev.type, var.type, true
 						(var.attributes ||= []).concat prev.attributes if prev.attributes
@@ -1132,8 +1413,8 @@ EOH
 						# put func parameters in func body scope
 						# arg redefinition is checked in parse_declarator
 						if not v.name
-							puts "unnamed argument in definition" if $VERBOSE
-							next	# should raise
+							puts "unnamed argument in definition of #{var.name}" if $DEBUG
+							next	# should raise to be compliant
 						end
 						body.symbol[v.name] = v	# XXX will need special check in stack allocator
 					}
@@ -1147,7 +1428,7 @@ EOH
 						end
 					end
 					if $VERBOSE and not body.statements.last.kind_of? Return and not body.statements.last.kind_of? Asm
-						puts tok.exception('missing function return value').message if not var.type.type.kind_of? BaseType or var.type.type.name != :void
+						puts tok.exception('missing function return value').message if not var.type.type.untypedef.kind_of? BaseType or var.type.type.untypedef.name != :void
 					end
 					break
 				when 'asm', '__asm', '__asm__'
@@ -1218,8 +1499,8 @@ EOH
 				raise tok, 'expr expected' if not expr = CExpression.parse(self, scope)
 				raise tok || self, '";" expected' if not tok = skipspaces or tok.type != :punct or tok.raw != ';'
 
-				if $VERBOSE and not nest.include?(:expression) and (expr.op or not expr.type.kind_of? BaseType or expr.type.name != :void) and CExpression.constant?(expr)
-					puts tok.exception("statement with no effect : #{expr}")
+				if $VERBOSE and not nest.include?(:expression) and (expr.op or not expr.type.untypedef.kind_of? BaseType or expr.type.untypedef.name != :void) and CExpression.constant?(expr)
+					puts tok.exception("statement with no effect : #{expr}").message
 				end
 				return expr
 			end
@@ -1268,19 +1549,60 @@ EOH
 				Asm.parse self, scope
 			else
 				if ntok = skipspaces and ntok.type == :punct and ntok.raw == ':'
-					Label.new tok.raw, parse_statement(scope, nest)
+					begin
+						st = parse_statement(scope, nest)
+					rescue ParseError
+						puts "label without statement, #{$!.message}" if $VERBOSE
+					end
+					Label.new tok.raw, st
 				else
 					unreadtok ntok
 					unreadtok tok
 					raise tok, 'expr expected' if not expr = CExpression.parse(self, scope)
 					raise tok || self, '";" expected' if not tok = skipspaces or tok.type != :punct or tok.raw != ';'
 
-					if $VERBOSE and not nest.include?(:expression) and (expr.op or not expr.type.kind_of? BaseType or expr.type.name != :void) and CExpression.constant?(expr)
-						puts tok.exception("statement with no effect : #{expr}")
+					if $VERBOSE and not nest.include?(:expression) and (expr.op or not expr.type.untypedef.kind_of? BaseType or expr.type.untypedef.name != :void) and CExpression.constant?(expr)
+						puts tok.exception("statement with no effect : #{expr}").message
 					end
 					expr
 				end
 			end
+		end
+
+		# check if a macro definition has a numeric value
+		# returns this value or nil
+		def macro_numeric(m)
+			d = @lexer.definition[m]
+			return if not d.kind_of? Preprocessor::Macro or d.args or d.varargs
+			# filter metasm-defined vars (eg __PE__ / _M_IX86)
+			return if not d.name or not bt = d.name.backtrace or (bt[0][0] != ?" and bt[0][0] != ?<)
+			raise 'cannot macro_numeric with unparsed data' if not eos?
+			@lexer.feed m
+			if e = CExpression.parse(self, Block.new(@toplevel)) and eos?
+				v = e.reduce(self)
+				return v if v.kind_of? ::Numeric
+			end
+			readtok until eos?
+			nil
+		rescue ParseError
+			readtok until eos?
+			nil
+		end
+
+		# returns all numeric constants defined with their value, either macros or enums
+		def numeric_constants
+			ret = []
+			# macros
+			@lexer.definition.each_key { |k|
+				if v = macro_numeric(k)
+					ret << [k, v]
+				end
+			}
+			# enums
+			@toplevel.symbol.each { |k, v|
+				ret << [k, v] if v.kind_of? ::Numeric
+			}
+			ret
 		end
 	end
 
@@ -1335,7 +1657,8 @@ EOH
 					end
 					var.type = v.type # TypeDef.new('typeof', v.type, tok)
 				when 'long', 'short', 'signed', 'unsigned', 'int', 'char', 'float', 'double',
-						'void', '__int8', '__int16', '__int32', '__int64'
+						'void', '__int8', '__int16', '__int32', '__int64',
+						'intptr_t', 'uintptr_t'
 					parser.unreadtok tok
 					var.parse_type_base(parser, scope)
 				else
@@ -1353,8 +1676,8 @@ EOH
 				raise tok || parser, 'bad type name' if not qualifier.empty? or var.storage
 				nil
 			else
-				(var.type.qualifier ||= []).concat qualifier if not qualifier.empty?
-				var.type.parse_attributes(parser)
+				var.type.qualifier = var.type.qualifier.to_a | qualifier if not qualifier.empty?
+				var.type.parse_attributes(parser, true)
 				var
 			end
 		end
@@ -1432,6 +1755,10 @@ EOH
 				when 'int', 'char', 'void', 'float', 'double', '__int8', '__int16', '__int32', '__int64'
 					name = tok.raw.to_sym
 					break
+				when 'intptr_t', 'uintptr_t'
+					name = :ptr
+					specifier << :unsigned if tok.raw == 'uintptr_t'
+					break
 				else
 					parser.unreadtok tok
 					break
@@ -1447,8 +1774,9 @@ EOH
 					raise tok || parser, 'invalid specifier list'
 				end
 			when :int	# short, long, long long X signed, unsigned
-				specifier = specifier - [:long] + [:longlong] if (specifier & [:long]).length == 2
-				if (specifier & [:signed, :unsigned]).length > 1 or (specifier & [:short, :long, :longlong]).length > 1
+				# Array#count not available on old ruby (eg 1.8.4), so use ary.len - (ary-stuff).len
+				specifier = specifier - [:long] + [:longlong] if specifier.length - (specifier-[:long]).length == 2
+				if specifier.length - (specifier-[:signed, :unsigned]).length > 1 or specifier.length - (specifier-[:short, :long, :longlong]).length > 1
 					raise tok || parser, 'invalid specifier list'
 				else
 					name = (specifier & [:longlong, :long, :short])[0] || :int
@@ -1460,7 +1788,7 @@ EOH
 				if (specifier & [:signed, :unsigned]).length > 1 or (specifier & [:short, :long]).length > 0
 					raise tok || parser, 'invalid specifier list'
 				end
-			when :__int8, :__int16, :__int32, :__int64
+			when :__int8, :__int16, :__int32, :__int64, :ptr
 				if (specifier & [:signed, :unsigned]).length > 1 or (specifier & [:short, :long]).length > 0
 					raise tok || parser, 'invalid specifier list'
 				end
@@ -1480,9 +1808,9 @@ EOH
 		# rec for internal use only
 		def parse_declarator(parser, scope, rec = false)
 			parse_attributes(parser, true)
-			raise parser if not tok = parser.skipspaces
+			tok = parser.skipspaces
 			# read upto name
-			if tok.type == :punct and tok.raw == '*'
+			if tok and tok.type == :punct and tok.raw == '*'
 				ptr = Pointer.new
 				ptr.parse_attributes(parser)
 				while ntok = parser.skipspaces and ntok.type == :string
@@ -1500,10 +1828,10 @@ EOH
 				ptr.type = t.type
 				t.type = ptr
 				return
-			elsif tok.type == :punct and tok.raw == '('
+			elsif tok and tok.type == :punct and tok.raw == '('
 				parse_declarator(parser, scope, true)
 				raise tok || parser, '")" expected' if not tok = parser.skipspaces or tok.type != :punct or tok.raw != ')'
-			elsif tok.type == :string
+			elsif tok and tok.type == :string
 				case tok.raw
 				when 'const', 'volatile'
 					(@type.qualifier ||= []) << tok.raw.to_sym
@@ -1521,7 +1849,7 @@ EOH
 				parse_attributes(parser, true)
 			else
 				# unnamed
-				raise tok if name or name == false
+				raise tok || parser if name or name == false
 				@name = false
 				@backtrace = tok
 				parser.unreadtok tok
@@ -1530,9 +1858,9 @@ EOH
 			parse_declarator_postfix(parser, scope)
 			if not rec
 				raise @backtrace, 'void type is invalid' if name and (t = @type.untypedef).kind_of? BaseType and
-						t.name == :void and @storage != :typedef
+						t.name == :void and storage != :typedef
 				raise @backtrace, "incomplete type #{@type.name}" if (@type.kind_of? Union or @type.kind_of? Enum) and
-						not @type.members and @storage != :typedef and @storage != :extern	# gcc uses an undefined extern struct just to cast it later (_IO_FILE_plus)
+						not @type.members and storage != :typedef and storage != :extern	# gcc uses an undefined extern struct just to cast it later (_IO_FILE_plus)
 			end
 		end
 
@@ -1556,10 +1884,11 @@ EOH
 			elsif tok and tok.type == :punct and tok.raw == '('
 				# function prototype
 				# void __attribute__((noreturn)) func() => attribute belongs to func
-				if @type and @type.attributes.to_a.include? 'noreturn'
-					@type.attributes.delete 'noreturn'
+				if @type and dspec = @type.attributes.to_a & Attributes::DECLSPECS and not dspec.empty?
+					@type.attributes -= dspec
 					@type.attributes = nil if @type.attributes.empty?
-					(@attributes ||= []) << 'noreturn'
+					@attributes ||= []
+					@attributes |= dspec
 				end
 				t = self
 				t = t.type while t.type and (t.type.kind_of?(Pointer) or t.type.kind_of?(Function))
@@ -1567,6 +1896,7 @@ EOH
 				if not tok = parser.skipspaces or tok.type != :punct or tok.raw != ')'
 					parser.unreadtok tok
 					t.type.args = []
+					oldstyle = false	# int func(a, b) int a; double b; { stuff; }
 					loop do
 						raise parser if not tok = parser.skipspaces
 						if tok.type == :punct and tok.raw == '.'	# variadic function
@@ -1581,27 +1911,60 @@ EOH
 							parser.unreadtok tok
 						end
 
-						raise tok if not v = Variable.parse_type(parser, scope)
-						v.storage = storage if storage
-						v.parse_declarator(parser, scope)
-						v.type = Pointer.new(v.type.type) if v.type.kind_of? Array
-						v.type = Pointer.new(v.type) if v.type.kind_of? Function
+						if oldstyle or not v = Variable.parse_type(parser, scope)
+							raise tok if not @name	# no oldstyle in casts
+							tok = parser.skipspaces
+							oldstyle ||= [tok]	# arg to raise() later
+							oldstyle << tok.raw
+						else
+							v.storage = storage if storage
+							v.parse_declarator(parser, scope)
+							v.type = Pointer.new(v.type.type) if v.type.kind_of? Array
+							v.type = Pointer.new(v.type) if v.type.kind_of? Function
 
-						t.type.args << v if not v.type.kind_of? BaseType or v.type.name != :void
+							t.type.args << v if not v.type.untypedef.kind_of? BaseType or v.type.untypedef.name != :void
+						end
+
 						if tok = parser.skipspaces and tok.type == :punct and tok.raw == ','
-							raise tok, '")" expected' if t.type.args.last != v		# last arg of type :void
+							raise tok, '")" expected' if v and t.type.args.last != v	# last arg of type :void
 						elsif tok and tok.type == :punct and tok.raw == ')'
 							break
 						else raise tok || parser, '"," or ")" expected'
 						end
 					end
+					if oldstyle
+						parse_attributes(parser, true)
+						ra = oldstyle.shift
+						while t.type.args.compact.length != oldstyle.length
+							raise ra, "invalid prototype" if not vb = Variable.parse_type(parser, scope)
+							loop do
+								v = vb.dup
+								v.parse_declarator(parser, scope)
+								v.type = Pointer.new(v.type.type) if v.type.kind_of? Array
+								v.type = Pointer.new(v.type) if v.type.kind_of? Function
+								raise parser, "unknown arg #{v.name.inspect}" if not i = oldstyle.index(v.name)
+								t.type.args[i] = v
+								raise parser, '"," or ";" expected' if not tok = parser.skipspaces or tok.type != :punct or (tok.raw != ';' and tok.raw != ',')
+								break if tok.raw == ';'
+							end
+						end
+						parse_attributes(parser, true)
+						raise parser, '"{" expected' if not tok = parser.skipspaces or tok.type != :punct or tok.raw != '{'
+						parser.unreadtok tok
+					end
 				end
-				parse_attributes(parser)	# should be type.attrs, but this should be more existing-compiler-compatible
+				parse_attributes(parser, true)	# should be type.attrs, but this should be more existing-compiler-compatible
 			else
 				parser.unreadtok tok
 				return
 			end
 			parse_declarator_postfix(parser, scope)
+		end
+	end
+
+	class Variable
+		def ===(o)
+			self == o or (o.class == CExpression and not o.op and o.rexpr == self)
 		end
 	end
 
@@ -1676,14 +2039,18 @@ EOH
 					if @op == :'!='; l != r ? 1 : 0
 					else l.send(@op, r) ? 1 : 0
 					end
-				else CExpression.new(l, @op, r, @type)
+				else
+					l = CExpression.new(nil, nil, l, BaseType.new(:int)) if l.kind_of? ::Integer
+					r = CExpression.new(nil, nil, r, BaseType.new(:int)) if r.kind_of? ::Integer
+				       	CExpression.new(l, @op, r, @type)
 				end
 			when :'.'
 				le = CExpression.reduce(parser, @lexpr)
 				if le.kind_of? Variable and le.initializer.kind_of? ::Array
 					midx = le.type.members.index(le.type.members.find { |m| m.name == @rexpr })
 					CExpression.reduce(parser, le.initializer[midx] || 0)
-				else CExpression.new(le, @op, @rexpr, @type)
+				else
+					CExpression.new(le, @op, @rexpr, @type)
 				end
 			when :'?:'
 				case c = CExpression.reduce(parser, @lexpr)
@@ -1718,7 +2085,11 @@ EOH
 					end
 				else
 					l = CExpression.reduce(parser, @lexpr)
-					return CExpression.new(l, @op, r, @type) if not l.kind_of?(::Numeric) or not r.kind_of?(::Numeric)
+				       	if not l.kind_of?(::Numeric) or not r.kind_of?(::Numeric)
+						l = CExpression.new(nil, nil, l, BaseType.new(:int)) if l.kind_of? ::Integer
+						r = CExpression.new(nil, nil, r, BaseType.new(:int)) if r.kind_of? ::Integer
+						return CExpression.new(l, @op, r, @type)
+					end
 					l.send(@op, r)
 				end
 
@@ -1737,12 +2108,50 @@ EOH
 				end
 			when :funcall
 				l = CExpression.reduce(parser, @lexpr)
-				r = @rexpr.map { |rr| CExpression.reduce(parser, rr) }
+				r = @rexpr.map { |rr|
+					rr = CExpression.reduce(parser, rr)
+					rr = CExpression.new(nil, nil, rr, BaseType.new(:int)) if rr.kind_of? ::Integer
+					rr
+				}
 				CExpression.new(l, @op, r, @type)
 			else
 				l = CExpression.reduce(parser, @lexpr) if @lexpr
 				r = CExpression.reduce(parser, @rexpr) if @rexpr
+				l = CExpression.new(nil, nil, l, BaseType.new(:int)) if l.kind_of? ::Integer
+				r = CExpression.new(nil, nil, r, BaseType.new(:int)) if r.kind_of? ::Integer
 				CExpression.new(l, @op, r, @type)
+			end
+		end
+
+		def ==(o)
+			o.object_id == self.object_id or
+			(self.class == o.class and op == o.op and lexpr == o.lexpr and rexpr == o.rexpr)
+		end
+	
+		def ===(o)
+			(self.class == o.class and op == o.op and lexpr === o.lexpr and rexpr === o.rexpr) or
+			(o.class == Variable and not @op and @rexpr == o)
+		end
+
+		# returns a CExpr negating this one (eg 'x' => '!x', 'a > b' => 'a <= b'...)
+		def self.negate(e)
+			e.kind_of?(self) ? e.negate : CExpression[:'!', e]
+		end
+		def negate
+			if nop = { :== => :'!=', :'!=' => :==, :> => :<=, :>= => :<, :< => :>=, :<= => :>, :'!' => :'!' }[@op]
+				if nop == :'!'
+					CExpression[@rexpr]
+				elsif nop == :== and @rexpr.kind_of? CExpression and not @rexpr.op and @rexpr.rexpr == 0 and
+						@lexpr.kind_of? CExpression and [:==, :'!=', :>, :<, :>=, :<=, :'!'].include? @lexpr.op
+					# (a > b) != 0  =>  (a > b)
+					CExpression[@lexpr]
+				else
+					CExpression.new(@lexpr, nop, @rexpr, @type)
+				end
+			elsif nop = { :'||' => :'&&', :'&&' => :'||' }[@op]
+				CExpression.new(CExpression.negate(@lexpr), nop, CExpression.negate(@rexpr), @type)
+			else
+				CExpression[:'!', self]
 			end
 		end
 
@@ -1757,6 +2166,12 @@ EOH
 				yield @lexpr if @lexpr
 				yield @rexpr if @rexpr
 			end
+		end
+
+		def complexity
+			cx = 1
+			walk { |e| cx += e.complexity if e.kind_of?(CExpression) }
+			cx
 		end
 
 		RIGHTASSOC = [:'=', :'+=', :'-=', :'*=', :'/=', :'%=', :'&=',
@@ -1796,7 +2211,7 @@ EOH
 					return
 				end
 				op.raw << ntok.raw
-			when '+', '-', '*', '/', '%', '^', '=', '&', '|', ',', '?', ':', '>>', '<<', '||', '&&',
+			when '+', '-', '*', '/', '%', '^', '=', ',', '?', ':', '>>', '<<', '||', '&&',
 			     '+=','-=','*=','/=','%=','^=','==','&=','|=','!=' # ok
 			else # bad
 				parser.unreadtok op
@@ -1878,7 +2293,7 @@ EOH
 						when ?f; type = :float
 						end
 					end
-					val = CExpression.new(nil, nil, val, BaseType.new(type))
+					val = CExpression[val, BaseType.new(type)]
 
 				when ::Integer
 					# parse suffix
@@ -1891,17 +2306,16 @@ EOH
 						type = :longlong if suffix.count('l') == 2
 						type = :long if suffix.count('l') == 1
 					end
-					val = CExpression.new(nil, nil, val, BaseType.new(type, *specifier))
+					val = CExpression[val, BaseType.new(type, *specifier)]
 				else raise parser, "internal error #{val.inspect}"
 				end
 
 			when :quoted
 				if tok.raw[0] == ?'
-					# XXX should only warn...
-					raise tok, 'invalid character constant' if tok.value.length > 1
-					val = CExpression.new(nil, nil, tok.value[0], BaseType.new(:int))
+					raise tok, 'invalid character constant' if not [1, 2, 4, 8].include? tok.value.length	# TODO 0fill
+					val = CExpression[Expression.decode_imm(tok.value, tok.value.length, parser.endianness), BaseType.new(:int)]
 				else
-					val = CExpression.new(nil, nil, tok.value, Pointer.new(BaseType.new(tok.raw[0, 2] == 'L"' ? :short : :char)))
+					val = CExpression[tok.value, Pointer.new(BaseType.new(tok.raw[0, 2] == 'L"' ? :short : :char))]
 					val = parse_value_postfix(parser, scope, val)
 				end
 
@@ -1916,16 +2330,15 @@ EOH
 						raise tok, 'bad cast' if v.name != false
 						raise ntok || tok, 'no ")" found' if not ntok = parser.skipspaces or ntok.type != :punct or ntok.raw != ')'
 						raise ntok, 'expr expected' if not val = parse_value(parser, scope)	# parses postfix too
-						raise ntok, 'unable to cast a struct' if val.type.untypedef.kind_of? Union
-						val = CExpression.new(nil, nil, val, val.type) if not val.kind_of? CExpression
-						val = CExpression.new(nil, nil, val, v.type)
+						#raise ntok, 'unable to cast a struct' if val.type.untypedef.kind_of? Union
+						val = CExpression[[val], v.type]
 					# check compound statement expression
 					elsif ntok = parser.skipspaces and ntok.type == :punct and ntok.raw == '{'
 						parser.unreadtok ntok
 						blk = parser.parse_statement(scope, [:expression]) # XXX nesting ?
 						raise ntok || tok, 'no ")" found' if not ntok = parser.skipspaces or ntok.type != :punct or ntok.raw != ')'
 						type = blk.statements.last.kind_of?(CExpression) ? blk.statements.last.type : BaseType.new(:void)
-						val = CExpression.new(nil, nil, blk, type)
+						val = CExpression[blk, type]
 					else
 						parser.unreadtok ntok
 						if not val = parse(parser, scope)
@@ -1947,7 +2360,7 @@ EOH
 					when ?l; type = :longdouble
 					when ?f; type = :float
 					end
-					val = CExpression.new(nil, nil, val, BaseType.new(type))
+					val = CExpression.new[val, BaseType.new(type)]
 
 				when '+', '-', '&', '!', '~', '*', '--', '++', '&&'
 					# unary prefix
@@ -1966,26 +2379,31 @@ EOH
 						val = parse_value(parser, scope)
 						if val.kind_of? CExpression and val.op == :& and not val.lexpr and
 							(val.rexpr.kind_of? Variable or val.rexpr.kind_of? CExpression) and val.rexpr.type.kind_of? Function
-							# function == function pointer
+							# &&function == &function
+						elsif (val.kind_of? CExpression or val.kind_of? Variable) and val.type.kind_of? Array
+							# &ary = ary
 						else
-							raise parser, "invalid lvalue #{val}" if not CExpression.lvalue?(val)
-							raise val.backtrace, 'cannot take addr of register' if val.kind_of? Variable and val.storage == :register
+							raise parser, "invalid lvalue #{val}" if not CExpression.lvalue?(val) and not parser.allow_bad_c
+							raise val.backtrace, 'cannot take addr of register' if val.kind_of? Variable and val.storage == :register and not parser.allow_bad_c
 							val = CExpression.new(nil, tok.raw.to_sym, val, Pointer.new(val.type))
 						end
 					when '++', '--'
 						val = parse_value(parser, scope)
-						raise parser, "invalid lvalue #{val}" if not CExpression.lvalue?(val)
+						raise parser, "invalid lvalue #{val}" if not CExpression.lvalue?(val) and not parser.allow_bad_c
 						val = CExpression.new(nil, tok.raw.to_sym, val, val.type)
 					when '&&'
 						raise tok, 'label name expected' if not val = parser.skipspaces or val.type != :string
 						val = CExpression.new(nil, nil, Label.new(val.raw, nil), Pointer.new(BaseType.new(:void)))
 					when '*'
 						raise tok, 'expr expected' if not val = parse_value(parser, scope)
-						raise tok, 'not a pointer' if not val.type.pointer?
-						val = CExpression.new(nil, tok.raw.to_sym, val, val.type.untypedef.type)
+						raise tok, 'not a pointer' if not val.type.pointer? and not parser.allow_bad_c
+						newtype = val.type.pointer? ? val.type.pointed : BaseType.new(:int)
+						if not newtype.untypedef.kind_of? Function	# *fptr == fptr
+							val = CExpression.new(nil, tok.raw.to_sym, val, newtype)
+						end
 					when '~', '!', '+', '-'
 						raise tok, 'expr expected' if not val = parse_value(parser, scope)
-						raise tok, 'type not arithmetic' if not val.type.arithmetic?
+						raise tok, 'type not arithmetic' if not val.type.arithmetic? and not parser.allow_bad_c
 						val = CExpression.new(nil, tok.raw.to_sym, val, val.type)
 						val.type = BaseType.new(:int) if tok.raw == '!'
 					else raise tok, 'internal error'
@@ -1998,10 +2416,12 @@ EOH
 				parser.unreadtok tok
 				return
 			end
-			if val.kind_of? Variable or val.kind_of? CExpression and val.type.kind_of? Function
-				# function == functionpointer
-				val = CExpression.new(nil, :'&', val, Pointer.new(val.type))
+
+			if val.kind_of? Variable and val.type.kind_of? Function
+				# void (*bla)() = printf;  =>  ...= &printf;
+				val = CExpression[:&, val]
 			end
+
 			val
 		end
 
@@ -2026,8 +2446,9 @@ EOH
 						raise parser, "invalid lvalue #{val}" if not CExpression.lvalue?(val)
 						CExpression.new(val, tok.raw.to_sym, nil, val.type)
 					when '->'
+						# XXX allow_bad_c..
 						raise tok, 'not a pointer' if not val.type.pointer?
-						type = val.type.untypedef.type.untypedef
+						type = val.type.pointed.untypedef
 						raise tok, 'bad pointer' if not type.kind_of? Union
 						raise tok, 'incomplete type' if not type.members
 						raise tok, 'invalid member' if not tok = parser.skipspaces or tok.type != :string or not m = type.findmember(tok.raw)
@@ -2104,13 +2525,14 @@ EOH
 				when :','
 					stack << CExpression.new(l, op, r, r.type)
 				when :'='
+					parser.check_compatible_type(parser, r.type, l.type)
 					stack << CExpression.new(l, op, r, l.type)
 				when :'&&', :'||'
 					stack << CExpression.new(l, op, r, BaseType.new(:int))
 				else
 					# XXX struct == struct ?
-					raise parser, "invalid type #{l.type} #{l} for #{op.inspect}" if not l.type.arithmetic?
-					raise parser, "invalid type #{r.type} #{r} for #{op.inspect}" if not r.type.arithmetic?
+					raise parser, "invalid type #{l.type} #{l} for #{op.inspect}" if not l.type.arithmetic? and not parser.allow_bad_c
+					raise parser, "invalid type #{r.type} #{r} for #{op.inspect}" if not r.type.arithmetic? and not parser.allow_bad_c
 
 					if l.type.pointer? and r.type.pointer?
 						type = \
@@ -2118,10 +2540,10 @@ EOH
 						when :'-'; BaseType.new(:long)	# addr_t or sumthin ?
 						when :'-='; l.type
 						when :'>', :'>=', :'<', :'<=', :'==', :'!='; BaseType.new(:long)
-						else raise parser, "cannot do #{op.inspect} on pointers"
+						else raise parser, "cannot do #{op.inspect} on pointers" unless parser.allow_bad_c ; l.type
 						end
 					elsif l.type.pointer? or r.type.pointer?
-						raise parser, "cannot do #{op.inspect} on pointer" if not [:'+', :'-', :'=', :'+=', :'-='].include? op
+						puts parser.exception("should not #{op.inspect} a pointer").message if $VERBOSE and not [:'+', :'-', :'=', :'+=', :'-=', :==, :'!='].include? op
 						type = l.type.pointer? ? l.type : r.type
 					else
 						# yay integer promotion
@@ -2137,7 +2559,9 @@ EOH
 							lts = parser.typesize[lt.name]
 							rts = parser.typesize[rt.name]
 							its = parser.typesize[:int]
-							if    lts >  rts and lts >= its
+							if not lts or not rts
+								type = BaseType.new(:int)
+							elsif lts >  rts and lts >= its
 								type = lt
 							elsif rts >  lts and rts >= its
 								type = rt
@@ -2170,8 +2594,8 @@ EOH
 					case op
 					when :'>', :'>=', :'<', :'<=', :'==', :'!='
 						# cast both sides
-						l = CExpression.new(nil, nil, l, type) if l.type != type
-						r = CExpression.new(nil, nil, r, type) if r.type != type
+						l = CExpression[l, type] if l.type != type
+						r = CExpression[r, type] if r.type != type
 						stack << CExpression.new(l, op, r, BaseType.new(:int))
 					else
 						# promote result
@@ -2217,7 +2641,7 @@ EOH
 				popstack[]
 			end
 
-			stack.first.kind_of?(CExpression) ? stack.first : CExpression.new(nil, nil, stack.first, stack.first.type)
+			CExpression[stack.first]
 		end
 	end
 	end
@@ -2283,6 +2707,15 @@ EOH
 			r.join("\n")
 		end
 
+		# returns a string containing the C definition of the toplevel function funcname, with its dependencies
+		def dump_definition(funcname)
+			oldst = @toplevel.statements
+			@toplevel.statements = []
+			dump_definitions([@toplevel.symbol[funcname]])
+		ensure
+			@toplevel.statements = oldst
+		end
+
 		def to_s
 			@toplevel.dump(nil)[0].join("\n")
 		end
@@ -2312,6 +2745,8 @@ EOH
 	end
 
 	class Block
+		def to_s() dump(nil)[0].join("\n") end
+
 		# return array of c source lines and array of dependencies (objects)
 		def dump(scp, r=[''], dep=[])
 			mydefs = @symbol.values.grep(TypeDef) + @struct.values + anonymous_enums.to_a
@@ -2414,13 +2849,13 @@ EOH
 	module Attributes
 		def dump_attributes
 			if attributes
-				(attributes - PREFIXED).map { |a| " __attribute__((#{a}))" }.join
+				(attributes - DECLSPECS).map { |a| " __attribute__((#{a}))" }.join
 			else ''
 			end
 		end
 		def dump_attributes_pre
 			if attributes
-				(attributes & PREFIXED).map { |a| "__#{a} " }.join
+				(attributes & DECLSPECS).map { |a| "__#{a} " }.join
 			else ''
 			end
 		end
@@ -2456,8 +2891,12 @@ EOH
 	end
 	class Type
 		def dump_initializer(init, scope, r=[''], dep=[])
-			if init.kind_of? ::Numeric
+			case init
+			when ::Numeric
 				r.last << init.to_s
+				[r, dep]
+			when ::Array
+				r.last << init.inspect
 				[r, dep]
 			else init.dump_inner(scope, r, dep)
 			end
@@ -2503,7 +2942,7 @@ EOH
 		def dump_declarator(decl, scope, r=[''], dep=[])
 			decl.last << '()' if decl.last.empty?
 			decl.last << '['
-			decl, dep = CExpression.dump(@length, scope, decl, dep) if @length
+			decl, dep = CExpression.dump(@length, scope, decl, dep) if length
 			decl.last << ']'
 			@type.dump_declarator(decl, scope, r, dep)
 		end
@@ -2557,10 +2996,11 @@ EOH
 	class BaseType
 		def dump(scope, r=[''], dep=[])
 			r.last << @qualifier.map { |q| q.to_s << ' ' }.join if qualifier
-			r.last << @specifier.to_s << ' ' if specifier
+			r.last << @specifier.to_s << ' ' if specifier and @name != :ptr
 			r.last << case @name
 			when :longlong; 'long long'
 			when :longdouble; 'long double'
+			when :ptr; specifier == :unsigned ? 'uintptr_t' : 'intptr_t'
 			else @name.to_s
 			end
 			[r, dep]
@@ -2645,8 +3085,8 @@ EOH
 			if pack
 				r, dep = super(scope, r, dep)
 				r.last <<
-				if @pack == 1; (attributes and @attributes.include? 'packed') ? '' : " __attribute__((packed))"
-				else (attributes and @attributes.include? "pack(#@pack)") ? '' : " __attribute__((pack(#@pack)))"
+				if @pack == 1; (has_attribute('packed') or has_attribute_var('pack')) ? '' : " __attribute__((packed))"
+				else has_attribute_var('pack') ? '' : " __attribute__((pack(#@pack)))"
 				end
 				[r, dep]
 			else
@@ -2845,20 +3285,22 @@ EOH
 			r.last << '('
 			r.last << @body.inspect
 			if @output or @input or @clobber
-				r << ': '
-				if @output
+				if @output and @output != []
 					# TODO
-					r.last << '/* todo */'
+					r << ': /* todo */'
+				elsif (@input and @input != []) or (@clobber and @clobber != [])
+					r.last << ' :'
 				end
 			end
 			if @input or @clobber
-				r << ': '
-				if @input
+				if @input and @input != []
 					# TODO
-					r.last << '/* todo */'
+					r << ': /* todo */'
+				elsif @clobber and @clobber != []
+					r.last << ' :'
 				end
 			end
-			if @clobber
+			if @clobber and @clobber != []
 				r << (': ' << @clobber.map { |c| c.inspect }.join(', '))
 			end
 			r.last << ');'
@@ -2939,7 +3381,7 @@ EOH
 					end
 				else
 					r.last << @op.to_s
-					r, dep = CExpression.dump(@rexpr, scope, r, dep, true)
+					r, dep = CExpression.dump(@rexpr, scope, r, dep, (@rexpr.kind_of? C::CExpression and @rexpr.lexpr))
 				end
 			elsif not @rexpr
 				r, dep = CExpression.dump(@lexpr, scope, r, dep)
@@ -2952,7 +3394,17 @@ EOH
 				when :'[]'
 					r, dep = CExpression.dump(@lexpr, scope, r, dep, true)
 					r.last << '['
-					r, dep = CExpression.dump(@rexpr, scope, r, dep)
+					l = lexpr if lexpr.kind_of? Variable
+					l = lexpr.lexpr.type.untypedef.findmember(lexpr.rexpr) if lexpr.kind_of? CExpression and lexpr.op == :'.'
+					l = lexpr.lexpr.type.pointed.untypedef.findmember(lexpr.rexpr) if lexpr.kind_of? CExpression and lexpr.op == :'->'
+					# honor __attribute__((indexenum(enumname)))
+					if l and l.attributes and rexpr.kind_of? CExpression and not rexpr.op and rexpr.rexpr.kind_of? ::Integer and
+					       		n = l.has_attribute_var('indexenum') and enum = scope.struct_ancestors[n] and i = enum.members.index(rexpr.rexpr)
+						r.last << i
+						dep |= [enum]
+					else
+						r, dep = CExpression.dump(@rexpr, scope, r, dep)
+					end
 					r.last << ']'
 				when :funcall
 					r, dep = CExpression.dump(@lexpr, scope, r, dep, true)
@@ -2969,12 +3421,9 @@ EOH
 					r.last << ' : '
 					r, dep = CExpression.dump(@rexpr[1], scope, r, dep, true)
 				else
-					r, dep = CExpression.dump(@lexpr, scope, r, dep, (@lexpr.kind_of? CExpression and
-						@lexpr.lexpr and OP_PRIO[@op] != OP_PRIO[@lexpr.op]))
+					r, dep = CExpression.dump(@lexpr, scope, r, dep, (@lexpr.kind_of? CExpression and @lexpr.lexpr and @lexpr.op != @op))
 					r.last << ' ' << @op.to_s << ' '
-					r, dep = CExpression.dump(@rexpr, scope, r, dep, (@rexpr.kind_of? CExpression and
-						OP_PRIO[@op] != OP_PRIO[:'='] and
-						@rexpr.lexpr and OP_PRIO[@op] != OP_PRIO[@rexpr.op]))
+					r, dep = CExpression.dump(@rexpr, scope, r, dep, (@rexpr.kind_of? CExpression and @rexpr.lexpr and @rexpr.op != @op))
 				end
 			end
 			r.last << ')' if brace and @op != :'->' and @op != :'.' and @op != :'[]' and (@op or @rexpr.kind_of? CExpression)

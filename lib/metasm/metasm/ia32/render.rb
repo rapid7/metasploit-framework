@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -12,15 +12,15 @@ module Metasm
 class Ia32
 	class Argument
 		include Renderable
-
-		@simple_list.each { |c| c.class_eval {
-			def render ; [self.class.i_to_s[@val]] end
-		} }
-		@double_list.each { |c| c.class_eval {
-			def render ; [self.class.i_to_s[@sz][@val]] end
-			def context ; {'set sz' => lambda { |s| @sz = s }} end
-		} }
 	end
+
+	[SegReg, DbgReg, CtrlReg, FpReg].each { |c| c.class_eval {
+		def render ; [self.class.i_to_s[@val]] end
+	} }
+	[Reg, SimdReg].each { |c| c.class_eval {
+		def render ; [self.class.i_to_s[@sz][@val]] end
+		def context ; {'set sz' => lambda { |s| @sz = s }} end
+	} }
 
 	class Farptr
 		def render
@@ -39,25 +39,22 @@ class Ia32
 			}.fetch(sz) { |k| "_#{sz}bits" }
 		end
 
+		attr_accessor :instruction
 		def render
 			r = []
-			# is 'dword ptr' needed ?
-#			if not instr or not instr.args.grep(Reg).find {|a| a.sz == @sz}
-			r << ( qualifier(@sz) << ' ptr ' )
-#			end
+			r << ( qualifier(@sz) << ' ptr ' ) if @sz and (not instruction or not @instruction.args.find { |a| a.kind_of? Reg and a.sz == @sz })
 			r << @seg << ':' if seg
 
 			e = nil
 			e = Expression[e, :+, @b] if b
-			e = Expression[e, :+, @imm.reduce] if imm
+			e = Expression[e, :+, @imm] if imm
 			e = Expression[e, :+, (@s == 1 ? @i : [@s, :*, @i])] if s
 			r << '[' << e << ']'
 		end
 
 		def context
 			{'set targetsz' => lambda { |s| @sz = s },
-			 'set seg' => lambda { |s| @seg = Seg.new s }
-			}
+			 'set seg' => lambda { |s| @seg = Seg.new s }}
 		end
 	end
 
@@ -67,6 +64,7 @@ class Ia32
 		r << i.prefix[:rep] << ' ' if i.prefix and i.prefix[:rep]
 		r << i.opname
 		i.args.each { |a|
+			a.instruction = i if a.kind_of? ModRM
 			r << (r.last == i.opname ? ' ' : ', ') << a
 		}
 		r

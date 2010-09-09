@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -27,6 +27,7 @@ def hexdump(ctx={})
 			ctx[:lastdup] = false
 			print '%04x  ' % ctx[:pos]
 			print s.unpack('C*').map { |b| '%02x' % b }.join(' ').ljust(3*16-1) + '  ' if fmt.include? 'c'
+			print s.unpack('v*').map { |b| '%04x' % b }.join(' ').ljust(5*8-1)  + '  ' if fmt.include? 'w'
 			print s.unpack('L*').map { |b| '%08x' % b }.join(' ').ljust(9*4-1)  + '  ' if fmt.include? 'd'
 			print s.tr("\0-\x1f\x7f-\xff", '.') if fmt.include? 'a'
 			puts

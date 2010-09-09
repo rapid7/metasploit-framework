@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -22,7 +22,12 @@ class MIPS
 		if op.props[:setip] and op.name[0] != ?t and instr.args.last.kind_of? Expression
 			postlabel = exe.new_label('jmp_offset')
 			instr = instr.dup
-			instr.args[-1] = Expression[[instr.args[-1], :-, postlabel], :>>, 2]
+			if op.args.include? :i26
+				pl = Expression[postlabel, :&, 0xfc00_0000]
+			else
+				pl = postlabel
+			end
+			instr.args[-1] = Expression[[instr.args[-1], :-, pl], :>>, 2]
 			postdata = EncodedData.new '', :export => {postlabel => 0}
 		else
 			postdata = ''

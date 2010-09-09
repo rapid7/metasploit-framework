@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2008 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -153,10 +153,10 @@ end	# class methods
 	end
 
 	# decodes the fields from the exe
-	def decode(exe)
+	def decode(exe, *args)
 		struct_fields(exe).each { |f|
 			case d = f[DECODE]
-			when Symbol; val = exe.send(d)
+			when Symbol; val = exe.send(d, *args)
 			when Array; val = exe.send(*d)
 			when Proc; val = d[exe, self]
 			when nil; next
@@ -216,20 +216,30 @@ end	# class methods
 		s
 	end
 
+	def dump(e, a)
+		case e
+		when Integer; e >= 0x100 ? '0x%X'%e : e
+		when String; e.length > 64 ? e[0, 62].inspect+'...' : e.inspect
+		when Array; '[' + e.map { |i| dump(i, a) }.join(', ') + ']'
+		when SerialStruct; a.include?(e) ? '...' : e.to_s(a)
+		else e.inspect
+		end
+	end
+
 	# displays the struct content, ordered by fields
-	def to_s
+	def to_s(a=[])
 		ivs = instance_variables.map { |iv| iv.to_sym }
 		ivs = (struct_fields.to_a.map { |f| f[NAME] }.compact & ivs) | ivs
-		"<#{self.class} " + ivs.map { |iv|
-			v = instance_variable_get(iv)
-			case v
-			when Integer; v = '0x%X'%v if v >= 0x100
-			when String; v = (v.length > 64 ? v[0, 62].inspect + '...' : v.inspect)
-			# TODO when EncodedData
-			else v = v.inspect
-			end
-		       	"#{iv}=#{v}"
-		}.join(' ') + ">"
+		"<#{self.class} " + ivs.map { |iv| "#{iv}=#{dump(instance_variable_get(iv), a+[self])}" }.join(' ') + ">"
+	end
+end
+
+class ExeFormat
+	def decode_strz(ed = @encoded)
+		if stop = ed.data.index(?\0, ed.ptr)
+			ed.read(stop - ed.ptr + 1).chop
+		else ''
+		end
 	end
 end
 end

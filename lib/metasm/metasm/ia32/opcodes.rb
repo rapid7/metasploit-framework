@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -41,7 +41,11 @@ class Ia32
 		addop 'call',  [0xE8], nil,  {}, :stopexec, :setip, :i, :saveip
 		addop 'call',  [0xFF], 2,    {}, :stopexec, :setip, :saveip
 		addop('cbw',   [0x98]) { |o| o.props[:opsz] = 16 }
+		addop('cwde',  [0x98]) { |o| o.props[:opsz] = 32 }
+		addop('cdqe',  [0x98]) { |o| o.props[:opsz] = 64 }
+		addop('cwd',   [0x99]) { |o| o.props[:opsz] = 16 }
 		addop('cdq',   [0x99]) { |o| o.props[:opsz] = 32 }
+		addop('cqo',   [0x99]) { |o| o.props[:opsz] = 64 }
 		addop_macro1 'cmp', 7
 		addop_macrostr 'cmps',  [0xA6], :stropz
 		addop 'dec',   [0x48], :reg
@@ -84,7 +88,7 @@ class Ia32
 		addop 'pop',   [0x8F], 0
 		addop 'push',  [0x50], :reg
 		addop 'push',  [0xFF], 6
-		addop 'push',  [0x68], nil,  {:s => [0, 1]}, :i
+		addop 'push',  [0x68], nil,  {:s => [0, 1]}, :u
 		addop 'ret',   [0xC3], nil,  {}, :stopexec, :setip
 		addop 'ret',   [0xC2], nil,  {}, :stopexec, :u16, :setip
 		addop_macro3 'rol', 0
@@ -95,7 +99,7 @@ class Ia32
 		addop_macrotttn('set', [0x0F, 0x90], 0) { |o| o.props[:argsz] = 8 }
 		addop_macrotttn('set', [0x0F, 0x90], :mrm) { |o| o.props[:argsz] = 8 ; o.args.reverse! }	# :reg field is unused
 		addop_macro3 'shl', 4
-		addop_macro3 'sal', 4
+		addop_macro3 'sal', 6
 		addop 'shld',  [0x0F, 0xA4], :mrm, {}, :u8
 		addop 'shld',  [0x0F, 0xA5], :mrm, {}, :reg_cl
 		addop_macro3 'shr', 5
@@ -125,6 +129,7 @@ class Ia32
 		addop_macro2 'btr', 2
 		addop_macro2 'bts', 1
 		addop 'call',  [0x9A], nil,  {}, :stopexec, :setip, :farptr, :saveip
+		addop 'callf', [0x9A], nil,  {}, :stopexec, :setip, :farptr, :saveip
 		addop 'callf', [0xFF], 3,    {}, :stopexec, :setip, :saveip
 		addop 'clc',   [0xF8]
 		addop 'cld',   [0xFC]
@@ -133,8 +138,6 @@ class Ia32
 		addop 'cmc',   [0xF5]
 		addop('cmpxchg',[0x0F, 0xB0], :mrmw) { |o| o.args.reverse! }
 		addop 'cpuid', [0x0F, 0xA2]
-		addop('cwd',   [0x99]) { |o| o.props[:opsz] = 16 }
-		addop('cwde',  [0x98]) { |o| o.props[:opsz] = 32 }
 		addop 'daa',   [0x27]
 		addop 'das',   [0x2F]
 		addop 'hlt',   [0xF4], nil, {}, :stopexec
@@ -147,13 +150,13 @@ class Ia32
 		addop 'into',  [0xCE]
 		addop 'invd',  [0x0F, 0x08]
 		addop 'invlpg',[0x0F, 0x01, 7<<3], :modrmA
-		addop('movd',  [0x0F, 0x6E], :mrmmmx, {:d => [1, 4]}) { |o| o.args[o.args.index(:modrmmmx)] = :modrm }
 		addop 'iret',  [0xCF], nil,  {}, :stopexec, :setip
 		addop 'iretd', [0xCF], nil,  {}, :stopexec, :setip
 		addop('jcxz',  [0xE3], nil,  {}, :setip, :i8) { |o| o.props[:opsz] = 16 }
 		addop('jecxz', [0xE3], nil,  {}, :setip, :i8) { |o| o.props[:opsz] = 32 }
-		addop 'jmp',   [0xEA], nil,  {}, :farptr, :stopexec
-		addop 'jmpf',  [0xFF], 5,    {}, :stopexec		# reg ?
+		addop 'jmp',   [0xEA], nil,  {}, :farptr, :setip, :stopexec
+		addop 'jmpf',  [0xEA], nil,  {}, :farptr, :setip, :stopexec
+		addop 'jmpf',  [0xFF], 5,    {}, :stopexec, :setip		# reg ?
 		addop 'lahf',  [0x9F]
 		addop 'lar',   [0x0F, 0x02], :mrm
 		addop 'lds',   [0xC5], :mrmA
@@ -212,7 +215,7 @@ class Ia32
 		addop 'wait',  [0x9B]
 		addop 'wbinvd',[0x0F, 0x09]
 		addop 'wrmsr', [0x0F, 0x30]
-		addop 'xadd',  [0x0F, 0xC0], :mrmw
+		addop('xadd',  [0x0F, 0xC0], :mrmw) { |o| o.args.reverse! }
 		addop 'xchg',  [0x90], :reg, {}, :reg_eax
 		addop('xchg',  [0x90], :reg, {}, :reg_eax) { |o| o.args.reverse! }	# xchg eax, ebx == xchg ebx, eax)
 		addop 'xchg',  [0x86], :mrmw
@@ -228,7 +231,7 @@ class Ia32
 		addop 'setalc', [0xD6]
 		addop 'salc', [0xD6]
 		addop 'icebp', [0xF1]
-		addop 'loadall',[0x0F, 0x07]
+		#addop 'loadall',[0x0F, 0x07]	# conflict with syscall
 		addop 'ud2',   [0x0F, 0xB9]
 		addop 'umov',  [0x0F, 0x10], :mrmw,{:d => [1, 1]}
 	end
@@ -346,8 +349,8 @@ class Ia32
 
 		# mmx
 		addop 'emms',  [0x0F, 0x77]
-		addop('movd',  [0x0F, 0x6E], :mrmmmx, {:d => [1, 4]}) { |o| o.args[o.args.index(:modrmmmx)] = :modrm }
-		addop('movq',  [0x0F, 0x6F], :mrmmmx, {:d => [1, 4]}) { |o| o.args.reverse! }	# TODO check ohter mrmmmx
+		addop('movd',  [0x0F, 0x6E], :mrmmmx, {:d => [1, 4]}) { |o| o.args[o.args.index(:modrmmmx)] = :modrm ; o.args.reverse! }
+		addop('movq',  [0x0F, 0x6F], :mrmmmx, {:d => [1, 4]}) { |o| o.args.reverse! }
 		addop 'packssdw', [0x0F, 0x6B], :mrmmmx
 		addop 'packsswb', [0x0F, 0x63], :mrmmmx
 		addop 'packuswb', [0x0F, 0x67], :mrmmmx
@@ -386,6 +389,9 @@ class Ia32
 		addop('fxsave',  [0x0F, 0xAE, 0<<3], :modrmA) { |o| o.props[:argsz] = 512*8 }
 		addop 'sysenter',[0x0F, 0x34]
 		addop 'sysexit', [0x0F, 0x35]
+
+		addop 'syscall', [0x0F, 0x05]	# AMD
+		addop 'sysret',  [0x0F, 0x07]	# AMD
 	end
 
 	def init_3dnow_only
@@ -426,7 +432,9 @@ class Ia32
 		addop 'ldmxcsr', [0x0F, 0xAE, 2<<3], :modrmA
 		addop_macrossps 'maxps', [0x0F, 0x5F], :mrmxmm
 		addop_macrossps 'minps', [0x0F, 0x5D], :mrmxmm
-		addop 'movaps',  [0x0F, 0x28], :mrmxmm, {:d => [1, 0]}
+		addop('movaps',  [0x0F, 0x28], :mrmxmm, {:d => [1, 0]}) { |o| o.args.reverse! }
+		addop('movd',    [0x0F, 0x6E], :mrmxmm, {:d => [1, 4]}) { |o| o.args[o.args.index(:modrmxmm)] = :modrm ; o.args.reverse! ; o.props[:needpfx] = 0x66 }
+		addop('movdqa',  [0x0F, 0x6F], :mrmxmm, {:d => [1, 4]}) { |o| o.args.reverse! ; o.props[:needpfx] = 0x66 }
 
 		# movhlps(reg, reg){nomem} == movlps(reg, mrm){no restriction}...
 		addop 'movhlps', [0x0F, 0x12], :mrmxmm, {:d => [1, 0]}
@@ -704,8 +712,7 @@ class Ia32
 	# yields it for further customisation, and append it to the instruction set
 	# is responsible of the creation of disambiguating opcodes if necessary (:s flag hardcoding)
 	def addop(name, bin, hint=nil, fields={}, *argprops)
-		op = Opcode.new name
-		op.bin = bin
+		op = Opcode.new name, bin
 		op.fields.replace fields
 
 		case hint
@@ -822,7 +829,11 @@ class Ia32
 			addop_post dop
 		end
 
-		@opcode_list << op
+		if op.props[:needpfx] and @opcode_list.find { |oo| oo.name == op.name and not oo.props[:needpfx] }
+			@opcode_list.unshift op
+		else
+			@opcode_list << op
+		end
 
 		if op.args == [:i] or op.args == [:farptr] or op.name[0, 3] == 'ret'
 			# define opsz-override version for ambiguous opcodes
@@ -834,7 +845,8 @@ class Ia32
 			op32.name << '.i32'
 			op32.props[:opsz] = 32
 			@opcode_list << op32
-		elsif op.props[:strop] or op.props[:stropz]
+		elsif op.props[:strop] or op.props[:stropz] or op.args.include? :mrm_imm or
+				op.args.include? :modrm or op.args.include? :modrmA
 			# define adsz-override version for ambiguous opcodes (TODO allow movsd edi / movsd di)
 			op16 = dupe[op]
 			op16.name << '.a16'

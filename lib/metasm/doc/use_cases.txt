@@ -1,0 +1,18 @@
+Metasm use cases
+================
+
+Metasm is intended to be a binary manipulation toolbox.
+There are quite a lot of possible usages that can be derived from the
+<feature_list.txt>.
+
+The major would be related to:
+
+* the scriptable <usage/debugger.txt>
+* the <usage/disassembler.txt> (with the optionnal <usage/disassembler_gui.txt>)
+* the <usage/assembler.txt>
+* the <usage/C_parser.txt>
+* the <usage/C_compiler.txt>
+* the <usage/exe_manipulation.txt> facilities
+
+and various interaction between those.
+

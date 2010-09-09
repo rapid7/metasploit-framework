@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -26,6 +26,12 @@ module C
 		attr_accessor :source
 		# list of unique labels generated (to recognize user-defined ones)
 		attr_accessor :auto_label_list
+
+		attr_accessor :curexpr
+		# allows 'raise self' (eg struct.offsetof)
+		def exception(msg='EOF unexpected')
+			ParseError.new "near #@curexpr: #{msg}"
+		end
 
 		# creates a new CCompiler from an ExeFormat and a C Parser
 		def initialize(parser, exeformat=ExeFormat.new, source=[])
@@ -250,9 +256,10 @@ module C
 		# source.last is a label name or is empty before calling here
 		# return the length of the data written
 		def c_idata_inner(type, value)
-			value ||= 0
 			case type
 			when BaseType
+				value ||= 0
+
 				if type.name == :void
 					@source.last << ':' if not @source.last.empty?
 					return 0
@@ -264,6 +271,7 @@ module C
 				when :__int16; ' dw '
 				when :__int32; ' dd '
 				when :__int64; ' dq '
+				when :ptr; " d#{%w[x b w x d x x x q][@parser.typesize[type.name]]} "
 				when :float;   ' df '	# TODO
 				when :double;  ' dfd '
 				when :longdouble; ' dfld '
@@ -275,25 +283,28 @@ module C
 				@parser.typesize[type.name]
 
 			when Struct
+				value ||= []
 				@source.last << ':' if not @source.last.empty?
-				value = [0] * type.members.length if value == 0
+				# could .align here, but if there is our label name just before, it should have been .aligned too..
 				raise "unknown struct initializer #{value.inspect}" if not value.kind_of? ::Array
 				sz = 0
 				type.members.zip(value).each { |m, v|
+					if m.name and wsz = type.offsetof(@parser, m.name) and sz < wsz
+						@source << "db #{wsz-sz} dup(?)"
+					end
 					@source << ''
 					flen = c_idata_inner(m.type, v)
 					sz += flen
-					@source << ".align #{type.align}" if flen % type.align != 0
 				}
 
 				sz
 
 			when Union
+				value ||= []
 				@source.last << ':' if not @source.last.empty?
 				len = sizeof(nil, type)
-				value = [0] if value == 0
 				raise "unknown union initializer #{value.inspect}" if not value.kind_of? ::Array
-				idx = value.rindex(value.compact.last)
+				idx = value.rindex(value.compact.last) || 0
 				raise "empty union initializer" if not idx
 				wlen = c_idata_inner(type.members[idx].type, value[idx])
 				@source << "db #{'0' * (len - wlen) * ', '}" if wlen < len
@@ -301,6 +312,7 @@ module C
 				len
 
 			when Array
+				value ||= []
 				if value.kind_of? CExpression and not value.op and value.rexpr.kind_of? ::String
 					elen = sizeof(nil, value.type.type)
 					@source.last <<
@@ -405,6 +417,9 @@ module C
 			len %= align
 			len == 0 ? align : len
 		end
+
+		def check_reserved_name(var)
+		end
 	end
 
 	class Statement
@@ -424,7 +439,10 @@ module C
 		def precompile(compiler, scope=nil)
 			stmts = @statements.dup
 			@statements.clear
-			stmts.each { |st| st.precompile(compiler, self) }
+			stmts.each { |st|
+				compiler.curexpr = st
+				st.precompile(compiler, self)
+			}
 
 			# cleanup declarations
 			@symbol.delete_if { |n, s| not s.kind_of? Variable }
@@ -460,7 +478,11 @@ module C
 					list << expr.rexpr.name
 				else
 					walk[expr.lexpr]
-					walk[expr.rexpr]
+					if expr.rexpr.kind_of? ::Array
+						expr.rexpr.each { |r| walk[r] }
+					else
+						walk[expr.rexpr]
+					end
 				end
 			}
 			@statements.dup.each { |s|
@@ -515,9 +537,11 @@ module C
 
 	class Declaration
 		def precompile(compiler, scope)
-			if (@var.type.kind_of? Function and @var.initializer and scope != compiler.toplevel) or @var.storage == :static
+			if (@var.type.kind_of? Function and @var.initializer and scope != compiler.toplevel) or @var.storage == :static or compiler.check_reserved_name(@var)
+				# TODO fix label name in export table if __exported
 				scope.symbol.delete @var.name
-				@var.name = compiler.new_label @var.name
+				old = @var.name
+				@var.name = compiler.new_label @var.name until @var.name != old
 				compiler.toplevel.symbol[@var.name] = @var
 				# TODO no pure inline if addrof(func) needed
 				compiler.toplevel.statements << self unless @var.attributes.to_a.include? 'inline'
@@ -658,27 +682,8 @@ module C
 	class If
 		def precompile(compiler, scope)
 			expr = lambda { |e| e.kind_of?(CExpression) ? e : CExpression.new(nil, nil, e, e.type) }
-			neg = lambda { |e|
-				op = e.op if e.kind_of? CExpression
-				case op
-				when :'!'
-					expr[e.rexpr]
-				when :'&&', :'||'
-					break CExpression.new(nil, :'!', e, BaseType.new(:int)) if not e.lexpr
-					e.op = { :'&&' => :'||', :'||' => :'&&' }[op]
-					e.lexpr = neg[e.lexpr]
-					e.rexpr = neg[e.rexpr]
-					e
-				when :>, :<, :>=, :<=, :==, :'!='
-					e.op = { :> => :<=, :< => :>=, :>= => :<, :<= => :>,
-						:== => :'!=', :'!=' => :== }[op]
-					e
-				else
-					CExpression.new(nil, :'!', e, BaseType.new(:int))
-				end
-			}
 
-			if @bthen.kind_of? Goto
+			if @bthen.kind_of? Goto or @bthen.kind_of? Break or @bthen.kind_of? Continue
 				# if () goto l; else b; => if () goto l; b;
 				if belse
 					t1 = @belse
@@ -687,7 +692,7 @@ module C
 
 				# need to convert user-defined Goto target !
 				@bthen.precompile(compiler, scope)
-				scope.statements.pop
+				@bthen = scope.statements.pop	# break => goto break_label
 			elsif belse
 				# if () a; else b; => if () goto then; b; goto end; then: a; end:
 				t1 = @belse
@@ -701,7 +706,7 @@ module C
 				t1 = @bthen
 				l2 = compiler.new_label('if_end')
 				@bthen = Goto.new(l2)
-				@test = neg[@test]
+				@test = CExpression.negate(@test)
 			end
 
 			@test = expr[@test]
@@ -709,7 +714,7 @@ module C
 			when :'&&'
 				# if (c1 && c2) goto a; => if (!c1) goto b; if (c2) goto a; b:
 				l1 = compiler.new_label('if_nand')
-				If.new(neg[@test.lexpr], Goto.new(l1)).precompile(compiler, scope)
+				If.new(CExpression.negate(@test.lexpr), Goto.new(l1)).precompile(compiler, scope)
 				@test = expr[@test.rexpr]
 				precompile(compiler, scope)
 			when :'||'
@@ -727,6 +732,7 @@ module C
 						Label.new(l2, nil).precompile(compiler, scope) if l2
 						Label.new(l3, nil).precompile(compiler, scope) if l3
 					else
+						scope.statements << @bthen
 						Label.new(l1, nil).precompile(compiler, scope) if l1
 						Label.new(l2, nil).precompile(compiler, scope) if l2
 						t2.precompile(compiler, scope) if t2
@@ -760,8 +766,7 @@ module C
 			Label.new(@body.continue_label).precompile(compiler, scope)
 
 			if test
-				nottest = CExpression.new(nil, :'!', @test, BaseType.new(:int))
-				If.new(nottest, Goto.new(@body.break_label)).precompile(compiler, scope)
+				If.new(CExpression.negate(@test), Goto.new(@body.break_label)).precompile(compiler, scope)
 			end
 
 			@body.precompile(compiler, scope)
@@ -783,8 +788,7 @@ module C
 
 			Label.new(@body.continue_label).precompile(compiler, scope)
 
-			nottest = CExpression.new(nil, :'!', @test, BaseType.new(:int))
-			If.new(nottest, Goto.new(@body.break_label)).precompile(compiler, scope)
+			If.new(CExpression.negate(@test), Goto.new(@body.break_label)).precompile(compiler, scope)
 
 			@body.precompile(compiler, scope)
 
@@ -1010,7 +1014,7 @@ module C
 					# union or 1st struct member
 					@rexpr = lexpr
 				end
-				if @type.kind_of? Array # Array member type is already an adress
+				if @type.kind_of? Array # Array member type is already an address
 				else
 					@rexpr = CExpression.new(nil, :*, @rexpr, @rexpr.type)
 				end
@@ -1199,7 +1203,7 @@ module C
 							@op = nil
 							@rexpr = @rexpr.rexpr
 						else
-							@op = :'=='
+							@op = :'!='
 							@lexpr = @rexpr.rexpr
 							@rexpr = CExpression.new(nil, nil, 0, @lexpr.type)
 						end

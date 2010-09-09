@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -31,9 +31,11 @@ class CCompiler < C::Compiler
 		attr_accessor :bound
 		# list of reg values that are not kept across function call
 		attr_accessor :abi_flushregs_call
+		# list of regs we can trash without restoring them
+		attr_accessor :abi_trashregs
 
 		# +used+ includes ebp if true
-		# nil if ebp is not reserved for stack variable adressing
+		# nil if ebp is not reserved for stack variable addressing
 		# Reg if used
 		attr_accessor :saved_ebp
 
@@ -46,6 +48,7 @@ class CCompiler < C::Compiler
 			@inuse = []
 			@bound = {}
 			@abi_flushregs_call = [0, 1, 2]		# eax, ecx, edx (r8 etc ?)
+			@abi_trashregs = [0, 1, 2]
 		end
 	end
 
@@ -65,6 +68,7 @@ class CCompiler < C::Compiler
 			@modrm, @target = modrm, target
 		end
 		def sz; @modrm.adsz end
+		def to_s; "#<Address: #@modrm>" end
 	end
 
 
@@ -164,6 +168,8 @@ class CCompiler < C::Compiler
 			return ret
 		end
 
+		sz = 8*sizeof(var) rescue nil	# extern char foo[];
+
 		case off = @state.offset[var]
 		when C::CExpression
 			# stack, dynamic address
@@ -173,7 +179,7 @@ class CCompiler < C::Compiler
 		when ::Integer
 			# stack
 			# TODO -fomit-frame-pointer ( => state.cache dependant on stack_offset... )
-			v = ModRM.new(@cpusz, 8*sizeof(var), nil, nil, @state.saved_ebp, Expression[-off])
+			v = ModRM.new(@cpusz, sz, nil, nil, @state.saved_ebp, Expression[-off])
 		when nil
 			# global
 			if @exeformat.cpu.generate_PIC
@@ -205,9 +211,9 @@ class CCompiler < C::Compiler
 
 					@state.cache[reg] = 'metasm_intern_geteip'
 				end
-				v = ModRM.new(@cpusz, 8*sizeof(var), nil, nil, reg, Expression[var.name, :-, 'metasm_intern_geteip'])
+				v = ModRM.new(@cpusz, sz, nil, nil, reg, Expression[var.name, :-, 'metasm_intern_geteip'])
 			else
-				v = ModRM.new(@cpusz, 8*sizeof(var), nil, nil, nil, Expression[var.name])
+				v = ModRM.new(@cpusz, sz, nil, nil, nil, Expression[var.name])
 			end
 		end
 
@@ -256,9 +262,10 @@ class CCompiler < C::Compiler
 					unuse e2l, e2h
 				else
 					unuse e
-					if (sz = typesize[type.name]*8) < @cpusz or sz < rsz
+					if (sz = typesize[type.name]*8) < @cpusz or sz < rsz or e.sz < rsz
 						e2 = inuse findreg(rsz)
 						op = ((type.specifier == :unsigned) ? 'movzx' : 'movsx')
+						op = 'mov' if e.sz == e2.sz
 					else
 						e2 = inuse findreg(sz)
 						op = 'mov'
@@ -324,7 +331,7 @@ class CCompiler < C::Compiler
 		[el, eh]
 	end
 
-	# returns the instruction prefix for a comparison operator
+	# returns the instruction suffix for a comparison operator
 	def getcc(op, type)
 		case op
 		when :'=='; 'z'
@@ -344,10 +351,12 @@ class CCompiler < C::Compiler
 		when C::Variable; findvar(expr)
 		when C::CExpression
 			if not expr.lexpr or not expr.rexpr
-				c_cexpr_inner_nol(expr)
+				inuse c_cexpr_inner_nol(expr)
 			else
-				c_cexpr_inner_l(expr)
+				inuse c_cexpr_inner_l(expr)
 			end
+		when C::Label; findvar(C::Variable.new(expr.name, C::Array.new(C::BaseType.new(:void), 1)))
+		else puts "ia32/c_ce_i: unsupported #{expr}" if $VERBOSE
 		end
 	rescue
 		raise if caller[1...-1].grep(/c_cexpr_inner/).first
@@ -359,13 +368,9 @@ class CCompiler < C::Compiler
 		case expr.op
 		when nil
 			r = c_cexpr_inner(expr.rexpr)
-			if expr.rexpr.kind_of? C::CExpression and expr.type.kind_of? C::BaseType and expr.rexpr.type.kind_of? C::BaseType
+			if (expr.rexpr.kind_of? C::CExpression or expr.rexpr.kind_of? C::Variable) and
+					expr.type.kind_of? C::BaseType and expr.rexpr.type.kind_of? C::BaseType
 				r = c_cexpr_inner_cast(expr, r)
-			elsif r.kind_of? ModRM
-				unuse r
-				r = r.dup
-				inuse r
-				r.sz = sizeof(expr)*8
 			end
 			r
 		when :+
@@ -583,7 +588,7 @@ class CCompiler < C::Compiler
 						inuse high
 						low = findreg(32)
 						unuse high
-						op = (r.sz == 32 ? 'mov' : (expr.type.specifier == :unsigned ? 'movzx' : 'movsx'))
+						op = (r.sz == 32 ? 'mov' : (expr.rexpr.type.specifier == :unsigned ? 'movzx' : 'movsx'))
 						instr op, low, r
 						r = low
 					end
@@ -597,7 +602,7 @@ class CCompiler < C::Compiler
 				elsif not r.kind_of? Reg or r.sz != @cpusz
 					unuse r
 					reg = inuse findreg
-					op = (r.sz == reg.sz ? 'mov' : (expr.type.specifier == :unsigned ? 'movzx' : 'movsx'))
+					op = (r.sz == reg.sz ? 'mov' : (expr.rexpr.type.specifier == :unsigned ? 'movzx' : 'movsx'))
 					instr op, reg, r
 					r = reg
 				end
@@ -664,7 +669,8 @@ class CCompiler < C::Compiler
 								end
 							end
 						end
-						r = c_cexpr_inner_arith(r1, :*, r2, rexpr.type)
+						r = make_volatile(r1, rexpr.type)
+						c_cexpr_inner_arith(r, :*, r2, rexpr.type)
 					else
 						r = c_cexpr_inner(rexpr)
 					end
@@ -723,6 +729,7 @@ class CCompiler < C::Compiler
 					end
 				end
 			end
+			l = make_volatile(l, expr.type) if l.kind_of? Address
 			r ||= c_cexpr_inner(expr.rexpr)
 			c_cexpr_inner_arith(l, expr.op, r, expr.type)
 			l
@@ -810,7 +817,13 @@ class CCompiler < C::Compiler
 		@state.abi_flushregs_call.each { |reg|
 			next if reg == 4
 			next if reg == 5 and @state.saved_ebp
-			next if not @state.used.include? reg
+			if not @state.used.include? reg
+				if not @state.abi_trashregs.include? reg
+					# XXX should exclude other code compiled by us (we wont trash reg)
+					@state.dirty |= [reg]
+				end
+				next
+			end
 			backup << reg
 			instr 'push', Reg.new(reg, [@cpusz, 32].max)
 		}
@@ -826,13 +839,15 @@ class CCompiler < C::Compiler
 					unuse a
 					instr 'push', a
 				when :__int16
+					# XXX __int8 unuse, why not here
 					if @cpusz != 16 and a.kind_of? Reg
 						instr 'push', Reg.new(a.val, @cpusz)
 					else
+						a = make_volatile(a, arg.type)
+						unuse a
 						instr 'push', a
 					end
 				when :__int32
-					# XXX 64bits && Reg ?
 					instr 'push', a
 				when :__int64
 					case a
@@ -889,8 +904,11 @@ class CCompiler < C::Compiler
 		else
 			ptr = c_cexpr_inner(expr.lexpr)
 			unuse ptr
+			ptr = make_volatile(ptr, expr.lexpr.type) if ptr.kind_of? Address
 			instr 'call', ptr
-			if not expr.lexpr.type.attributes.to_a.include? 'stdcall' and (not expr.lexpr.kind_of? C::Variable or not expr.lexpr.attributes.to_a.include? 'stdcall')
+			f = expr.lexpr
+			f = f.rexpr while f.kind_of? C::CExpression and not f.op and f.type == f.rexpr.type
+			if not f.type.attributes.to_a.include? 'stdcall' and (not f.kind_of?(C::Variable) or not f.attributes.to_a.include? 'stdcall')
 				al = typesize[:ptr]
 				argsz = expr.rexpr.inject(0) { |sum, a| sum + (sizeof(a) + al - 1) / al * al }
 				instr 'add', Reg.new(4, @cpusz), Expression[argsz] if argsz > 0
@@ -918,9 +936,11 @@ class CCompiler < C::Compiler
 		backup.reverse_each { |reg|
 			sz = [@cpusz, 32].max
 			if    retreg.kind_of? Composite and reg == 0
+				# XXX wtf ?  and what if retreg.low.val == 2 and it was saved too..
 				instr 'pop', Reg.new(retreg.low.val, sz)
 				instr 'xchg', Reg.new(reg, sz), Reg.new(retreg.low.val, sz)
 			elsif retreg.kind_of? Composite and reg == 2
+				# ..boom !
 				instr 'pop', Reg.new(retreg.high.val, sz)
 				instr 'xchg', Reg.new(reg, sz), Reg.new(retreg.high.val, sz)
 			elsif retreg.kind_of? Reg and reg == 0
@@ -951,7 +971,7 @@ class CCompiler < C::Compiler
 					when :%; return c_cexpr_inner_arith(l, :&, Expression[rr-1], type)
 					end
 				else
-					# TODO :/ => *(r^(-1)), *3..
+					# TODO /r => *(r^(-1)), *3 => stuff with magic constants..
 				end
 			elsif type.float?
 				case op
@@ -1013,7 +1033,7 @@ class CCompiler < C::Compiler
 				instr op, l, r
 			else
 				# XXX bouh
-				r = make_volatile(r, type)
+				r = make_volatile(r, C::BaseType.new(:__int8, :unsigned))
 				unuse r
 				if r.val != 1
 					ecx = Reg.new(1, 32)
@@ -1038,10 +1058,49 @@ class CCompiler < C::Compiler
 				instr 'imul', l, r
 			end
 			unuse r
-		when 'div'
-			raise # TODO
-		when 'mod'
-			raise # TODO
+		when 'div', 'mod'
+			lv = l.val if l.kind_of? Reg
+			eax = Reg.from_str 'eax'
+			edx = Reg.from_str 'edx'
+			if @state.used.include? eax.val and lv != eax.val
+				instr 'push', eax
+				saved_eax = true
+			end
+			if @state.used.include? edx.val
+				instr 'push', edx
+				saved_edx = true
+			end
+
+			instr 'mov', eax, l if lv != eax.val
+
+			if r.kind_of? Expression
+				instr 'push', r
+				esp = Reg.from_str 'esp'
+				r = ModRM.new(@cpusz, 32, nil, nil, esp, nil)
+				need_pop = true
+			end
+
+			if type.specifier == :unsigned
+				instr 'mov', edx, Expression[0]
+				instr 'div', r
+			else
+				# XXX cdq ?
+				instr 'mov', edx, eax
+				instr 'sar', edx, Expression[0x1f]
+				instr 'idiv', r
+			end
+			unuse r
+
+			instr 'add', esp, 4 if need_pop
+
+			if op == 'div'
+				instr 'mov', l, eax if lv != eax.val
+			else
+				instr 'mov', l, edx if lv != edx.val
+			end
+
+			instr 'pop', edx if saved_edx
+			instr 'pop', eax if saved_eax
 		end
 	end
 
@@ -1199,13 +1258,16 @@ class CCompiler < C::Compiler
 		if stmt.output or stmt.input or stmt.clobber
 			raise # TODO (handle %%0 => eax, gas, etc)
 		else
-			raise if @state.func.initializer.symbol.keys.find { |sym| stmt.body.include? sym }	# gsub ebp+off ?
+			raise if @state.func.initializer.symbol.keys.find { |sym| stmt.body =~ /\b#{Regexp.escape(sym)}\b/ }	# gsub ebp+off ?
 			@source << stmt.body
 		end
 	end
 
 	def c_init_state(func)
 		@state = State.new(func)
+		# ET_DYN trashes ebx too
+		# XXX hope we're not a Shellcode to be embedded in an ELF..
+		@state.abi_flushregs_call << 3 if @exeformat.kind_of? ELF
 		al = typesize[:ptr]
 		argoff = 2*al
 		func.type.args.each { |a|
@@ -1231,7 +1293,7 @@ class CCompiler < C::Compiler
 			instr 'mov', ebp, esp
 			instr 'sub', esp, Expression[localspc] if localspc > 0
 		end
-		@state.dirty -= @state.abi_flushregs_call	# XXX ABI
+		@state.dirty -= @state.abi_trashregs	# XXX ABI
 		@state.dirty.each { |reg|
 			instr 'push', Reg.new(reg, @cpusz)
 		}
@@ -1257,9 +1319,11 @@ class CCompiler < C::Compiler
 		end
 	end
 
-	# adds the metasm_intern_geteip function, which returns its own adress in eax (used for PIC adressing)
+	# adds the metasm_intern_geteip function, which returns its own address in eax (used for PIC addressing)
 	def c_program_epilog
 		if defined? @need_geteip_stub and @need_geteip_stub
+			return if new_label('metasm_intern_geteip') != 'metasm_intern_geteip'	# already defined elsewhere
+
 			eax = Reg.new(0, @cpusz)
 			label = new_label('geteip')
 
@@ -1273,10 +1337,14 @@ class CCompiler < C::Compiler
 #File.open('m-dbg-precomp.c', 'w') { |fd| fd.puts @parser }
 #File.open('m-dbg-src.asm', 'w') { |fd| fd.puts @source }
 	end
+
+	def check_reserved_name(var)
+		Reg.s_to_i[var.name]
+	end
 end
 
 	def new_ccompiler(parser, exe=ExeFormat.new)
-		exe.cpu ||= self
+		exe.cpu = self if not exe.instance_variable_get("@cpu")
 		CCompiler.new(parser, exe)
 	end
 end

@@ -1,10 +1,10 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
-require 'metasm/pic16c/opcode'
+require 'metasm/pic16c/opcodes'
 require 'metasm/decode'
 
 module Metasm

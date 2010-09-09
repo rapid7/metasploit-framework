@@ -1,3 +1,11 @@
+#    This file is part of Metasm, the Ruby assembly manipulation suite
+#    Copyright (C) 2006-2009 Yoann GUILLOT
+#
+#    Licence is LGPL, see LICENCE in the top-level directory
+
+# searches an object in the attributes of another
+# anyobj.scan_for([obj])  =>  "anyobj.someattr[42]['blabla']"
+
 class Object
 	def scan_iter
 		case self
@@ -11,7 +19,7 @@ class Object
 	end
 
 	# dumps to stdout the path to find some targets ( array of objects to match with == )
-	def scan_for(targets, path, done={})
+	def scan_for(targets, path='', done={})
 		done[object_id] = self if done.empty?
 		if t = targets.find { |t_| self == t_ }
 			puts "found #{t} at #{path}"

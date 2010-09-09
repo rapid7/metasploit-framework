@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -15,8 +15,9 @@ class PE < COFF
 
 	attr_accessor :coff_offset, :signature, :mz
 
-	def initialize(cpu=nil)
-		super(cpu)
+	def initialize(*a)
+		super(*a)
+		cpu = a.grep(CPU).first
 		@mz = MZ.new(cpu).share_namespace(self)
 	end
 
@@ -26,7 +27,7 @@ class PE < COFF
 	def decode_header
 		@cursection ||= self
 		@encoded.ptr = 0x3c
-		@encoded.ptr = decode_word
+		@encoded.ptr = decode_word(@encoded)
 		@signature = @encoded.read(4)
 		raise InvalidExeFormat, "Invalid PE signature #{@signature.inspect}" if @signature != MAGIC
 		@coff_offset = @encoded.ptr
@@ -43,7 +44,7 @@ class PE < COFF
 	def encode_default_mz_header
 		# XXX use single-quoted source, to avoid ruby interpretation of \r\n
 		@mz.cpu = Ia32.new(386, 16)
-		@mz.parse <<'EOMZSTUB'
+		@mz.assemble <<'EOMZSTUB'
 	db "Needs Win32!\r\n$"
 .entrypoint
 	push cs
@@ -54,7 +55,6 @@ class PE < COFF
 	mov  ax, 4c01h    ; exit with code in al
 	int  21h
 EOMZSTUB
-		@mz.assemble
 
 		mzparts = @mz.pre_encode
 
@@ -108,8 +108,11 @@ EOMZSTUB
 		ret = self.class.new(@cpu)
 		ret.share_namespace(self) if share_ns
 		ret.header.machine = @header.machine
+		ret.header.characteristics = @header.characteristics
 		ret.optheader.entrypoint = @optheader.entrypoint
 		ret.optheader.image_base = @optheader.image_base
+		ret.optheader.subsystem  = @optheader.subsystem
+		ret.optheader.dll_characts = @optheader.dll_characts
 		@sections.each { |s|
 			rs = Section.new
 			rs.name = s.name
@@ -138,8 +141,10 @@ EOMZSTUB
 		elsif @sections.find { |s| s.encoded.export['DllEntryPoint'] }
 			@optheader.entrypoint = 'DllEntryPoint'
 		elsif @sections.find { |s| s.encoded.export['DllMain'] }
-			cp = @cpu.new_cparser
-			cp.parse <<EOS
+			case @cpu.shortname
+			when 'ia32'
+				@optheader.entrypoint = 'DllEntryPoint'
+				compile_c <<EOS
 enum { DLL_PROCESS_DETACH, DLL_PROCESS_ATTACH, DLL_THREAD_ATTACH, DLL_THREAD_DETACH, DLL_PROCESS_VERIFIER };
 __stdcall int DllMain(void *handle, unsigned long reason, void *reserved);
 __stdcall int DllEntryPoint(void *handle, unsigned long reason, void *reserved) {
@@ -149,12 +154,14 @@ __stdcall int DllEntryPoint(void *handle, unsigned long reason, void *reserved) 
 	return ret;
 }
 EOS
-			parse(@cpu.new_ccompiler(cp, self).compile)
-			assemble
-			@optheader.entrypoint = 'DllEntryPoint'
+			else
+				@optheader.entrypoint = 'DllMain'
+			end
 		elsif @sections.find { |s| s.encoded.export['WinMain'] }
-			cp = @cpu.new_cparser
-			cp.parse <<EOS
+			case @cpu.shortname
+			when 'ia32'
+				@optheader.entrypoint = 'main'
+				compile_c <<EOS
 #define GetCommandLine GetCommandLineA
 #define GetModuleHandle GetModuleHandleA
 #define GetStartupInfo GetStartupInfoA
@@ -199,9 +206,9 @@ int main(void) {
 	return ret;
 }
 EOS
-			parse(@cpu.new_ccompiler(cp, self).compile)
-			assemble
-			@optheader.entrypoint = 'main'
+			else
+				@optheader.entrypoint = 'WinMain'
+			end
 		end
 	end
 
@@ -232,20 +239,29 @@ EOS
 	def init_disassembler
 		d = super()
 		d.backtrace_maxblocks_data = 4
-		if @cpu.kind_of? Ia32
+		case @cpu
+		when Ia32
 			old_cp = d.c_parser
 			d.c_parser = nil
 			d.parse_c '__stdcall void *GetProcAddress(int, char *);'
+			d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.kind_of? X86_64
 			gpa = @cpu.decode_c_function_prototype(d.c_parser, 'GetProcAddress')
 			d.c_parser = old_cp
+			d.parse_c ''
+			d.c_parser.lexer.define_weak('__MS_X86_64_ABI__') if @cpu.kind_of? X86_64
 			@getprocaddr_unknown = []
 			gpa.btbind_callback = lambda { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
 				break bind if @getprocaddr_unknown.include? [dasm, calladdr] or not Expression[expr].externals.include? :eax
 				sz = @cpu.size/8
 				break bind if not dasm.decoded[calladdr]
-				fnaddr = dasm.backtrace(Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr), calladdr, :include_start => true, :maxdepth => maxdepth)
+				if @cpu.kind_of? X86_64
+					arg2 = :rdx
+				else
+					arg2 = Indirection[[:esp, :+, 2*sz], sz, calladdr]
+				end
+				fnaddr = dasm.backtrace(arg2, calladdr, :include_start => true, :maxdepth => maxdepth)
 				if fnaddr.kind_of? ::Array and fnaddr.length == 1 and s = dasm.get_section_at(fnaddr.first) and fn = s[0].read(64) and i = fn.index(?\0) and i > sz	# try to avoid ordinals
-					bind = bind.merge :eax => Expression[fn[0, i]]
+					bind = bind.merge @cpu.register_symbols[0] => Expression[fn[0, i]]
 				else
 					@getprocaddr_unknown << [dasm, calladdr]
 					puts "unknown func name for getprocaddress from #{Expression[calladdr]}" if $VERBOSE
@@ -257,6 +273,28 @@ EOS
 		end
 		d
 	end
+
+	def module_name
+		export and @export.libname
+	end
+
+	def module_address
+		@optheader.image_base
+	end
+
+	def module_size
+		@sections.map { |s_| s_.virtaddr + s_.virtsize }.max || 0
+	end
+
+	def module_symbols
+		syms = [['entrypoint', @optheader.entrypoint]]
+		@export.exports.to_a.each { |e|
+			next if not e.target
+			name = e.name || "ord_#{e.ordinal}"
+			syms << [name, label_rva(e.target)]
+		} if export
+		syms
+	end
 end
 
 # an instance of a PE file, loaded in memory
@@ -267,6 +305,10 @@ class LoadedPE < PE
 	# use the virtualaddr/virtualsize fields of the section header
 	def decode_section_body(s)
 		s.encoded = @encoded[s.virtaddr, s.virtsize]
+	end
+
+	# no need to decode relocations on an already mapped image
+	def decode_relocs
 	end
 
 	# reads a loaded PE from memory, returns a PE object

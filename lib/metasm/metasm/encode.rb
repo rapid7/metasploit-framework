@@ -1,11 +1,10 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
 require 'metasm/main'
-require 'metasm/parse'
 
 module Metasm
 class ExeFormat
@@ -57,6 +56,9 @@ class ExeFormat
 		ary.each { |elem|
 			case elem
 			when Array
+				if elem.all? { |ed| ed.kind_of? EncodedData and ed.reloc.empty? }
+					elem = [elem.sort_by { |ed| ed.length }.first]
+				end
 				elem.each { |e|
 					e.export.each { |label, off|
 						minbinding[label] = Expression[startlabel, :+, minoff + off]
@@ -224,6 +226,13 @@ class ExeFormat
 		# fills edata with repetitions of data until targetsize
 		fillwith = lambda { |targetsize, data|
 			if data
+				if data.reloc.empty? and not data.data.empty?	# avoid useless iterations
+					nr = (targetsize-edata.virtsize) / data.length - 1
+					if nr > 0
+						dat = data.data.ljust(data.virtsize, 0.chr)
+						edata << (dat * nr)
+					end
+				end
 				while edata.virtsize + data.virtsize <= targetsize
 					edata << data
 				end
@@ -261,12 +270,14 @@ class Expression
 	def encode(type, endianness, backtrace=nil)
 		case val = reduce
 		when Integer; EncodedData.new Expression.encode_imm(val, type, endianness, backtrace)
-		else          EncodedData.new(0.chr*(INT_SIZE[type]/8), :reloc => {0 => Relocation.new(self, type, endianness, backtrace)})
+		else          EncodedData.new([0].pack('C')*(INT_SIZE[type]/8), :reloc => {0 => Relocation.new(self, type, endianness, backtrace)})
 		end
 	end
 
 	class << self
 	def encode_imm(val, type, endianness, backtrace=nil)
+		type = INT_SIZE.keys.find { |k| k.to_s[0] == ?a and INT_SIZE[k] == 8*type } if type.kind_of? ::Integer
+		endianness = endianness.endianness if not endianness.kind_of? ::Symbol
 		raise "unsupported endianness #{endianness.inspect}" unless [:big, :little].include? endianness
 		raise(EncodeError, "immediate overflow #{type.inspect} #{Expression[val]} #{(Backtrace::backtrace_str(backtrace) if backtrace)}") if not in_range?(val, type)
 		s = (0...INT_SIZE[type]/8).map { |i| (val >> (8*i)) & 0xff }.pack('C*')
@@ -286,7 +297,7 @@ class Data
 			# dw 'foo' => "f\0o\0o\0" / "\0f\0o\0o"
 			@data.unpack('C*').inject(EncodedData.new) { |ed, chr| ed << Expression.encode_imm(chr, INT_TYPE[@type], endianness, @backtrace) }
 		when Expression
-			@data.encode INT_TYPE[@type], endianness
+			@data.encode INT_TYPE[@type], endianness, @backtrace
 		when Array
 			@data.inject(EncodedData.new) { |ed, d| ed << d.encode(endianness) }
 		end

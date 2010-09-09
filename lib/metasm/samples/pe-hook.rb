@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -11,7 +11,6 @@
 #
 
 require 'metasm'
-require 'metasm-shell'
 
 # read original file
 raise 'need a target filename' if not target = ARGV.shift
@@ -23,7 +22,7 @@ pe.header.time = pe_orig.header.time
 
 has_mb = pe.imports.find { |id| id.imports.find { |i| i.name == 'MessageBoxA' } } ? 1 : 0
 # hook code to run on start
-newcode = <<EOS.encode_edata
+newcode = Metasm::Shellcode.assemble(pe.cpu, <<EOS).encoded
 hook_entrypoint:
 pushad
 #if ! #{has_mb}
@@ -61,6 +60,7 @@ s.encoded = newcode
 s.characteristics = %w[MEM_READ MEM_WRITE MEM_EXECUTE]
 s.encoded.fixup!('entrypoint' => pe.optheader.image_base + pe.optheader.entrypoint)	# tell the original entrypoint address to our hook
 pe.sections << s
+pe.invalidate_header
 
 # patch entrypoint
 pe.optheader.entrypoint = 'hook_entrypoint'

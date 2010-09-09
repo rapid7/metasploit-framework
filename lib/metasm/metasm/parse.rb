@@ -1,11 +1,10 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
 require 'metasm/main'
-require 'metasm/encode'
 require 'metasm/preprocessor'
 
 module Metasm
@@ -19,7 +18,7 @@ class CPU
 	# returns an +Instruction+ or raise a ParseError
 	# if the parameter is a String, a custom AsmPP is built - XXX it will not be able to create labels (eg jmp 1b / jmp $)
 	def parse_instruction(lexer)
-		lexer = AsmPreprocessor.new(lexer) if lexer.kind_of? String
+		lexer = new_asmprepro(lexer) if lexer.kind_of? String
 
 		i = Instruction.new self
 
@@ -284,7 +283,7 @@ class ExeFormat
 	# parses an asm source file to an array of Instruction/Data/Align/Offset/Padding
 	def parse(text, file='<ruby>', lineno=0)
 		parse_init
-		@lexer ||= AsmPreprocessor.new('', self)
+		@lexer ||= cpu.new_asmprepro('', self)
 		@lexer.feed text, file, lineno
 		lasteol = true
 
@@ -330,6 +329,11 @@ class ExeFormat
 					else
 						@cursource << @cpu.parse_instruction(@lexer)
 					end
+					if lname = @locallabels_fwd.delete('endinstr')
+						l = Label.new(lname)
+						l.backtrace = tok.backtrace.dup
+						@cursource << l
+					end
 				end
 			else
 				raise tok, 'syntax error'
@@ -339,6 +343,16 @@ class ExeFormat
 		puts "Undefined forward reference to anonymous labels #{@locallabels_fwd.keys.inspect}" if $VERBOSE and not @locallabels_fwd.empty?
 
 		self
+	end
+
+	# create a new label from base, parse it (incl optionnal additionnal src)
+	# returns the new label name
+	def parse_new_label(base='', src=nil)
+		parse_init
+		label = new_label(base)
+		@cursource << Label.new(label)
+		parse src
+		label
 	end
 
 	# handles special directives (alignment, changing section, ...)
@@ -662,6 +676,8 @@ class Expression
 					lexer.program.cursource.unshift l
 				end
 				tok.value = l.name
+			elsif not tok.value and tok.raw == '$_'
+				tok.value = lexer.program.locallabels_fwd('endinstr')
 			elsif not tok.value and tok.raw =~ /^([1-9][0-9]*)([fb])$/
 				case $2
 				when 'b'; tok.value = lexer.program.locallabels_bkw($1)	# may fallback to binary parser
@@ -678,6 +694,13 @@ class Expression
 			return if not tok
 			case tok.type
 			when :string
+				# ignores the 'offset' word if followed by a string
+				if not tok.value and tok.raw.downcase == 'offset'
+					nil while ntok = lexer.readtok and ntok.type == :space
+					if ntok.type == :string; tok = ntok
+					else lexer.unreadtok ntok
+					end
+				end
 				parse_intfloat(lexer, tok)
 				val = tok.value || tok.raw
 			when :quoted
@@ -749,6 +772,99 @@ class Expression
 			end
 
 			Expression[stack.first]
+		end
+
+		# parse an expression in a string
+		# updates the string to point after the parsed expression
+		def parse_string(str, &b)
+			pp = Preprocessor.new(str)
+
+			e = parse(pp, &b)
+			
+			# update arg
+			len = pp.pos
+			pp.queue.each { |t| len -= t.raw.length }
+			str[0, len] = ''
+
+			e
+		end
+	end
+end
+
+# an Expression whose ::parser handles indirection (byte ptr [foobar])
+class IndExpression < Expression
+	class << self
+		def parse_value(lexer)
+			sz = nil
+			ptr = nil
+			loop do
+				nil while tok = lexer.readtok and tok.type == :space
+				return if not tok
+				case tok.raw
+				when 'qword'; sz=8
+				when 'dword'; sz=4
+				when 'word'; sz=2
+				when 'byte'; sz=1
+				when 'ptr'
+				when '['
+					ptr = parse(lexer)
+					nil while tok = lexer.readtok and tok.type == :space
+					raise tok || lexer, '] expected' if tok.raw != ']'
+					break
+				when '*'
+					ptr = parse_value(lexer)
+					break
+				when ':'	# symbols, eg ':eax'
+					n = lexer.readtok
+					return n.raw.to_sym
+				else
+					lexer.unreadtok tok
+					break
+				end
+			end
+			raise lexer, 'invalid indirection' if sz and not ptr
+			if ptr; Indirection[ptr, sz]	# if sz is nil, default cpu pointersz is set in resolve_expr
+			else super(lexer)
+			end
+		end
+
+		def parse(*a, &b)
+			# custom decimal converter
+			@parse_cb = b if b
+			e = super(*a)
+			@parse_cb = nil if b
+			e
+		end
+
+		# callback used to customize the parsing of /^([0-9]+)$/ tokens
+		# implicitely set by parse(expr) { cb }
+		# allows eg parsing '40000' as 0x40000 when relevant
+		attr_accessor :parse_cb
+
+		def parse_intfloat(lexer, tok)
+			case tok.raw
+			when /^([0-9]+)$/; tok.value = parse_cb ? @parse_cb[$1] : $1.to_i
+			when /^0x([0-9a-f]+)$/i, /^([0-9a-f]+)h$/i; tok.value = $1.to_i(16)
+			when /^0b([01]+)$/i; tok.value = $1.to_i(2)
+			end
+		end
+
+		def readop(lexer)
+			if t0 = lexer.readtok and t0.raw == '-' and t1 = lexer.readtok and t1.raw == '>'
+				op = t0.dup
+				op.raw << t1.raw
+				op.value = op.raw.to_sym
+				op
+			else
+				lexer.unreadtok t1
+				lexer.unreadtok t0
+				super(lexer)
+			end
+		end
+
+		def new(op, r, l)
+			return Indirection[[l, :+, r], nil] if op == :'->'
+			super(op, r, l)
 		end
 	end
 end

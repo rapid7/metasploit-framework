@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -60,7 +60,6 @@ class MIPS < CPU
 		super()
 		@endianness = endianness
 		@size = 32
-		@fields_shift = {}
 		@family = family
 	end
 

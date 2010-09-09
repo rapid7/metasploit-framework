@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2008 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -117,19 +117,20 @@ class PowerPC
 	end
 
 	# TODO
-	def backtrace_update_function_binding(dasm, faddr, f, retaddrlist)
-		retaddrlist.map! { |retaddr| dasm.decoded[retaddr] ? dasm.decoded[retaddr].block.list.last.address : retaddr }
+	def backtrace_update_function_binding(dasm, faddr, f, retaddrlist, *wantregs)
+		retaddrlist.to_a.map! { |retaddr| dasm.decoded[retaddr] ? dasm.decoded[retaddr].block.list.last.address : retaddr }
 		b = f.backtrace_binding
 
 		bt_val = lambda { |r|
 			bt = []
-			retaddrlist.each { |retaddr|
+			retaddrlist.to_a.each { |retaddr|
 				bt |= dasm.backtrace(Expression[r], retaddr,
 					:include_start => true, :snapshot_addr => faddr, :origin => retaddr)
 			}
 			b[r] = ((bt.length == 1) ? bt.first : Expression::Unknown)
 		}
-		#Reg.i_to_s.values.map { |r| r.to_sym }.each(&bt_val)
+		wantregs = GPR::Sym if wantregs.empty?
+		wantregs.map { |r| r.to_sym }.each(&bt_val)
 
 		#puts "update_func_bind: #{Expression[faddr]} has sp -> #{b[:$sp]}" if not Expression[b[:$sp], :-, :$sp].reduce.kind_of?(::Integer) if $VERBOSE
 	end

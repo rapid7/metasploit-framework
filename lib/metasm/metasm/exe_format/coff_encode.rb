@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -9,18 +9,6 @@ require 'metasm/encode'
 
 module Metasm
 class COFF
-	class Header
-		# finds good default values for header
-		def set_default_values(coff, opth)
-			@machine     ||= 'UNKNOWN'
-			@num_sect    ||= coff.sections.length
-			@time        ||= Time.now.to_i
-			@size_opthdr ||= opth.virtsize
-
-			super(coff)
-		end
-	end
-
 	class OptionalHeader
 		# encodes an Optional header and the directories
 		def encode(coff)
@@ -49,19 +37,14 @@ class COFF
 			@code_size    ||= coff.sections.find_all { |s| s.characteristics.include? 'CONTAINS_CODE' }.inject(0) { |sum, s| sum + align[s.virtsize] }
 			@data_size    ||= coff.sections.find_all { |s| s.characteristics.include? 'CONTAINS_DATA' }.inject(0) { |sum, s| sum + align[s.virtsize] }
 			@udata_size   ||= coff.sections.find_all { |s| s.characteristics.include? 'CONTAINS_UDATA' }.inject(0) { |sum, s| sum + align[s.virtsize] }
-			@entrypoint = Expression[@entrypoint, :-, coff.label_at(coff.encoded, 0)] if @entrypoint and not @entrypoint.kind_of?(::Integer)
+			@entrypoint = Expression[@entrypoint, :-, coff.label_at(coff.encoded, 0)] if entrypoint and not @entrypoint.kind_of?(::Integer)
 			tmp = coff.sections.find { |s| s.characteristics.include? 'CONTAINS_CODE' }
 			@base_of_code ||= (tmp ? Expression[coff.label_at(tmp.encoded, 0), :-, coff.label_at(coff.encoded, 0)] : 0)
 			tmp = coff.sections.find { |s| s.characteristics.include? 'CONTAINS_DATA' }
 			@base_of_data ||= (tmp ? Expression[coff.label_at(tmp.encoded, 0), :-, coff.label_at(coff.encoded, 0)] : 0)
-			@image_base   ||= coff.label_at(coff.encoded, 0)
 			@file_align   ||= 0x200
 			@os_ver_maj   ||= 4
 			@subsys_maj   ||= 4
-			@image_size   ||= coff.new_label('image_size')
-			@headers_size ||= coff.new_label('headers_size')
-			@checksum     ||= coff.new_label('checksum')
-			@subsystem    ||= 'WINDOWS_GUI'
 			@stack_reserve||= 0x100000
 			@stack_commit ||= 0x1000
 			@heap_reserve ||= 0x100000
@@ -96,8 +79,16 @@ class COFF
 			rva = lambda { |n| Expression[label[n], :-, coff.label_at(coff.encoded, 0)] }
 			rva_end = lambda { |n| Expression[[label[n], :-, coff.label_at(coff.encoded, 0)], :+, edata[n].virtsize] }
 
+			# ordinal base: smallest number > 1 to honor ordinals, minimize gaps
+			olist = @exports.map { |e| e.ordinal }.compact
+			# start with lowest ordinal, substract all exports unused to fill ordinal sequence gaps
+			omin = olist.min.to_i
+			gaps = olist.empty? ? 0 : olist.max+1 - olist.min - olist.length
+			noord = @exports.length - olist.length
+			@ordinal_base ||= [omin - (noord - gaps), 1].max
+
 			@libname_p = rva['libname']
-			@num_exports = @exports.length
+			@num_exports = [@exports.length, @exports.map { |e| e.ordinal }.compact.max.to_i - @ordinal_base].max
 			@num_names = @exports.find_all { |e| e.name }.length
 			@func_p = rva['addrtable']
 			@names_p = rva['namptable']
@@ -107,8 +98,15 @@ class COFF
 
 			edata['libname'] << @libname << 0
 
-			# TODO handle e.ordinal (force export table order, or invalidate @ordinal)
-			@exports.sort_by { |e| e.name.to_s }.each { |e|
+			elist = @exports.find_all { |e| e.name and not e.ordinal }.sort_by { |e| e.name }
+			@exports.find_all { |e| e.ordinal }.sort_by { |e| e.ordinal }.each { |e| elist.insert(e.ordinal-@ordinal_base, e) }
+			elist.each { |e|
+				if not e
+					# export by ordinal with gaps
+					# XXX test this value with the windows loader
+					edata['addrtable'] << coff.encode_word(0xffff_ffff)
+					next
+				end
 				if e.forwarder_lib
 					edata['addrtable'] << coff.encode_word(rva_end['nametable'])
 					edata['nametable'] << e.forwarder_lib << ?. <<
@@ -225,7 +223,7 @@ class COFF
 			rel
 		end
 
-		def setup_default_values(coff)
+		def set_default_values(coff)
 			# @base_addr is an rva
 			@base_addr = Expression[@base_addr, :-, coff.label_at(coff.encoded, 0)] if @base_addr.kind_of?(::String)
 
@@ -399,7 +397,7 @@ class COFF
 		encode_append_section s
 
 		if @imports.first and @imports.first.iat_p.kind_of? Integer
-			ordiat = @imports.zip(iat).sort_by { |id, it| id.iat_p }.map { |id, it| it }
+			ordiat = @imports.zip(iat).sort_by { |id, it| id.iat_p.kind_of?(Integer) ? id.iat_p : 1<<65 }.map { |id, it| it }
 		else
 			ordiat = iat
 		end
@@ -443,8 +441,12 @@ class COFF
 	def arch_encode_thunk(edata, import)
 		case @cpu
 		when Ia32
-			shellcode = lambda { |c| Shellcode.new(@cpu).share_namespace(self).parse(c).assemble.encoded }
+			shellcode = lambda { |c| Shellcode.new(@cpu).share_namespace(self).assemble(c).encoded }
 			if @cpu.generate_PIC
+				if @cpu.size == 64
+					edata << shellcode["#{import.thunk}: jmp [rip-$_+#{import.target}]"]
+					return
+				end
 				# sections starts with a helper function that returns the address of metasm_intern_geteip in eax (PIC)
 				if not @sections.find { |s| s.encoded and s.encoded.export['metasm_intern_geteip'] } and edata.empty?
 					edata << shellcode["metasm_intern_geteip: call 42f\n42:\npop eax\nsub eax, 42b-metasm_intern_geteip\nret"]
@@ -556,29 +558,61 @@ class COFF
 		encode_append_section s
 	end
 
-	# appends the header/optheader/directories/section table to @encoded
-	# initializes some flags based on the target arg ('exe' / 'dll' / 'kmod' / 'obj')
-	def encode_header(target = 'dll')
+	# initialize the header from target/cpu/etc, target in ['exe' 'dll' 'kmod' 'obj']
+	def pre_encode_header(target = 'exe', want_relocs=true)
+		target = {:bin => 'exe', :lib => 'dll', :obj => 'obj', 'sys' => 'kmod', 'drv' => 'kmod'}.fetch(target, target)
+
+		@header.machine ||= case @cpu.shortname
+				when 'x64'; 'AMD64'
+				when 'ia32'; 'I386'
+				end
+		@optheader.signature ||= case @cpu.size
+				when 32; 'PE'
+				when 64; 'PE+'
+				end
+
 		# setup header flags
 		tmp = %w[LINE_NUMS_STRIPPED LOCAL_SYMS_STRIPPED DEBUG_STRIPPED] +
 			case target
 			when 'exe';  %w[EXECUTABLE_IMAGE]
 			when 'dll';  %w[EXECUTABLE_IMAGE DLL]
-			when 'kmod', 'sys'; %w[EXECUTABLE_IMAGE]
+			when 'kmod'; %w[EXECUTABLE_IMAGE]
 			when 'obj';  []
 			end
-		tmp << 'x32BIT_MACHINE'		# XXX
-		tmp << 'RELOCS_STRIPPED' # if not @directory['base_relocation_table'] # object relocs
+		if @cpu.size == 32
+			tmp << 'x32BIT_MACHINE'
+		else
+			tmp << 'LARGE_ADDRESS_AWARE'
+		end
+		tmp << 'RELOCS_STRIPPED' if not want_relocs
 		@header.characteristics ||= tmp
 
 		@optheader.subsystem ||= case target
-		when 'exe', 'dll'; 'WINDOWS_GUI'
-		when 'kmod'; 'NATIVE'
-		end
-		@optheader.dll_characts = ['DYNAMIC_BASE'] if @directory['base_relocation_table']
+			when 'exe', 'dll'; 'WINDOWS_GUI'
+			when 'kmod'; 'NATIVE'
+			end
 
+		tmp = []
+		tmp << 'NX_COMPAT'
+		tmp << 'DYNAMIC_BASE' if want_relocs
+		@optheader.dll_characts ||= tmp
+	end
+
+	# resets the values in the header that may have been
+	# modified by your script (eg section count, size, imagesize, etc)
+	# call this whenever you decode a file, modify it, and want to reencode it later
+	def invalidate_header
+		# set those values to nil, they will be
+		# recomputed during encode_header
+		[:code_size, :data_size, :udata_size, :base_of_code, :sect_align, :file_align, :image_size, :headers_size, :checksum].each { |m| @optheader.send("#{m}=", nil) }
+		[:num_sect, :ptr_sym, :num_sym, :size_opthdr].each { |m| @header.send("#{m}=", nil) }
+	end
+
+	# appends the header/optheader/directories/section table to @encoded
+	def encode_header
 		# encode section table, add CONTAINS_* flags from other characteristics flags
 		s_table = EncodedData.new
+
 		@sections.each { |s|
 			if s.characteristics.kind_of? Array and s.characteristics.include? 'MEM_READ'
 				if s.characteristics.include? 'MEM_EXECUTE'
@@ -596,15 +630,20 @@ class COFF
 		}
 
 		# encode optional header
-		@optheader.headers_size = nil
-		@optheader.image_size = nil
+		@optheader.image_size   ||= new_label('image_size')
+		@optheader.image_base   ||= label_at(@encoded, 0)
+		@optheader.headers_size ||= new_label('headers_size')
+		@optheader.checksum     ||= new_label('checksum')
+		@optheader.subsystem    ||= 'WINDOWS_GUI'
 		@optheader.numrva = nil
 		opth = @optheader.encode(self)
 
 		# encode header
-		@header.num_sect = nil
-		@header.size_opthdr = nil
-		@encoded << @header.encode(self, opth) << opth << s_table
+		@header.machine ||= 'UNKNOWN'
+		@header.num_sect ||= sections.length
+		@header.time ||= Time.now.to_i & -255
+		@header.size_opthdr ||= opth.virtsize
+		@encoded << @header.encode(self) << opth << s_table
 	end
 
 	# append the section bodies to @encoded, and link the resulting binary
@@ -652,7 +691,7 @@ class COFF
 			s = sect_at_rva(id.iat_p)
 			@encoded[s.rawaddr + s.encoded.ptr, id.iat.virtsize] = id.iat
 			binding.update id.iat.binding(baseaddr + id.iat_p)
-		} if @imports
+		} if imports
 
 		@encoded.fill
 		@encoded.fixup! binding
@@ -667,9 +706,12 @@ class COFF
 
 	# encode a COFF file, building export/import/reloc tables if needed
 	# creates the base relocation tables (need for references to IAT not known before)
-	def encode(target = 'exe', want_relocs = (target != 'exe'))
+	# defaults to generating relocatable files, eg ALSR-aware
+	# pass want_relocs=false to avoid the file overhead induced by this
+	def encode(target = 'exe', want_relocs = true)
 		@encoded = EncodedData.new
 		label_at(@encoded, 0, 'coff_start')
+		pre_encode_header(target, want_relocs)
 		autoimport
 		encode_exports if export
 		encode_imports if imports
@@ -677,7 +719,7 @@ class COFF
 		encode_tls if tls
 		create_relocation_tables if want_relocs
 		encode_relocs if relocations
-		encode_header(target)
+		encode_header
 		encode_sections_fixup
 		@encoded.data
 	end
@@ -721,15 +763,14 @@ class COFF
 	#    without argument, creates a label used as entrypoint
 	#  .libname "<name>"
 	#    defines the string to be used as exported library name (should be the same as the file name, may omit extension)
-	#  .export "<exported_name>" [<label_name>]
+	#  .export ["<exported_name>"] [<ordinal>] [<label_name>]
 	#    exports the specified label with the specified name (label_name defaults to exported_name)
-	#    TODO export by ordinal
-	#  .import "<libname>" "<import_name>" [<thunk_name>] [<label_name>]
+	#    if exported_name is an unquoted integer, the export is by ordinal. XXX if the ordinal starts with '0', the integer is interpreted as octal
+	#  .import "<libname>" "<import_name|ordinal>" [<thunk_name>] [<label_name>]
 	#    imports a symbol from a library
 	#    if the thunk name is specified and not 'nil', the compiler will generate a thunk that can be called (in ia32, 'call thunk' == 'call [import_name]')
 	#      the thunk is position-independent, and should be used instead of the indirect call form, for imported functions
 	#    label_name is the label to attribute to the location that will receive the address of the imported symbol, defaults to import_name (iat_<import_name> if thunk == iname)
-	#    TODO import by ordinal (now must be done manually, using coff.imports[<n>].imports[<nn>].ordinal = <i>)
 	#  .image_base <base>
 	#    specifies the COFF prefered load address, base is an immediate expression
 	#
@@ -786,8 +827,13 @@ class COFF
 					end
 				when 'base'
 					@lexer.skip_space
-					raise instr, 'invalid base' if not tok = @lexer.readtok or tok.type != :punct or tok.raw != '='
+					@lexer.unreadtok tok if not tok = @lexer.readtok or tok.type != :punct or tok.raw != '='
 					raise instr, 'invalid base' if not s.virtaddr = Expression.parse(@lexer).reduce or not s.virtaddr.kind_of?(::Integer)
+					if not @optheader.image_base
+				       		@optheader.image_base = (s.virtaddr-0x80) & 0xfff00000
+						puts "Warning: no image_base specified, using #{Expression[@optheader.image_base]}" if $VERBOSE
+					end
+					s.virtaddr -= @optheader.image_base
 				else raise instr, 'unknown parameter'
 				end
 			end
@@ -802,13 +848,23 @@ class COFF
 			check_eol[]
 
 		when '.export'
-			# .export <export name|"export name"> [label to export if different]
-			exportname = readstr[]
+			# .export <export name|ordinal|"export name"> [ordinal] [label to export if different]
 			@lexer.skip_space
-			if tok = @lexer.readtok and tok.type == :punct and tok.raw == ','
-				@lexer.skip_space
-				tok = @lexer.readtok
+			raise instr, 'string expected' if not tok = @lexer.readtok or (tok.type != :string and tok.type != :quoted)
+			exportname = tok.value || tok.raw
+			if tok.type == :string and (?0..?9).include? tok.raw[0]
+				exportname = Integer(exportname) rescue raise(tok, "bad ordinal value, try quotes #{' or rm leading 0' if exportname[0] == ?0}")
 			end
+
+			@lexer.skip_space
+			tok = @lexer.readtok
+			if tok and tok.type == :string and (?0..?9).include? tok.raw[0]
+				(eord = Integer(tok.raw)) rescue @lexer.unreadtok(tok)
+			else @lexer.unreadtok(tok)
+			end
+
+			@lexer.skip_space
+			tok = @lexer.readtok
 			if tok and tok.type == :string
 				exportlabel = tok.raw
 			else
@@ -817,9 +873,13 @@ class COFF
 
 			@export ||= ExportDirectory.new
 			@export.exports ||= []
-			@export.libname ||= 'metalib'
 			e = ExportDirectory::Export.new
-			e.name = exportname
+			if exportname.kind_of? Integer
+				e.ordinal = exportname
+			else
+				e.name = exportname
+				e.ordinal = eord if eord
+			end
 			e.target = exportlabel || exportname
 			@export.exports << e
 			check_eol[]
@@ -889,11 +949,77 @@ class COFF
 		end
 	end
 
-	def assemble
+	def assemble(*a)
+		parse(*a) if not a.empty?
 		@source.each { |k, v|
 			raise "no section named #{k} ?" if not s = @sections.find { |s_| s_.name == k }
 			s.encoded << assemble_sequence(v, @cpu)
 			v.clear
+		}
+	end
+
+	# defines __PE__
+	def tune_prepro(l)
+		l.define_weak('__PE__', 1)
+		l.define_weak('__MS_X86_64_ABI__') if @cpu and @cpu.shortname == 'x64'
+	end
+
+	def tune_cparser(cp)
+		super(cp)
+		cp.llp64 if @cpu.size == 64
+	end
+
+	# honors C attributes: export, export_as(foo), import_from(kernel32), entrypoint
+	# import by ordinal: extern __stdcall int anyname(int) __attribute__((import_from(ws2_32:28)));
+	# can alias imports with int mygpaddr_alias() attr(import_from(kernel32:GetProcAddr))
+	def read_c_attrs(cp)
+		cp.toplevel.symbol.each_value { |v|
+			next if not v.kind_of? C::Variable
+			if v.has_attribute 'export' or ea = v.has_attribute_var('export_as')
+				@export ||= ExportDirectory.new
+				@export.exports ||= []
+				e = ExportDirectory::Export.new
+				begin
+					e.ordinal = Integer(ea || v.name)
+				rescue ArgumentError
+					e.name = ea || v.name
+				end
+				e.target = v.name
+				@export.exports << e
+			end
+			if v.has_attribute('import') or ln = v.has_attribute_var('import_from')
+				ln ||= WindowsExports::EXPORT[v.name]
+				raise "unknown library for #{v.name}" if not ln
+				i = ImportDirectory::Import.new
+				if ln.include? ':'
+					ln, name = ln.split(':')
+					begin
+						i.ordinal = Integer(name)
+					rescue ArgumentError
+						i.name = name
+					end
+				else
+					i.name = v.name
+				end
+				if v.type.kind_of? C::Function
+					i.thunk = v.name
+					i.target = 'iat_'+i.thunk
+				else
+					i.target = v.name
+				end
+
+				@imports ||= []
+				if not id = @imports.find { |id_| id_.libname == ln }
+					id = ImportDirectory.new
+					id.libname = ln
+					id.imports = []
+					@imports << id
+				end
+				id.imports << i
+			end
+			if v.has_attribute 'entrypoint'
+				@optheader.entrypoint = v.name
+			end
 		}
 	end
 

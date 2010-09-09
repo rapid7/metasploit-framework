@@ -1,5 +1,5 @@
 #    This file is part of Metasm, the Ruby assembly manipulation suite
-#    Copyright (C) 2007 Yoann GUILLOT
+#    Copyright (C) 2006-2009 Yoann GUILLOT
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
@@ -7,23 +7,21 @@
 require 'metasm/main'
 
 module Metasm
+
+# The ia32 aka x86 CPU
+# currently limited to 16 and 32bit modes
 class Ia32 < CPU
 
-	# some ruby magic
+	# some ruby magic to declare classes with index -> name association (registers)
 	class Argument
-		@simple_list = []
-		@double_list = []
 		class << self
-			# for Argument
-			attr_accessor :simple_list, :double_list
 			# for subclasses
 			attr_accessor :i_to_s, :s_to_i
 		end
 
 		private
+		# index -> name, name -> index
 		def self.simple_map(a)
-			Argument.simple_list << self
-
 			# { 1 => 'dr1' }
 			@i_to_s = Hash[*a.flatten]
 			# { 'dr1' => 1 }
@@ -40,9 +38,8 @@ class Ia32 < CPU
 			}
 		end
 
+		# size -> (index -> name), name -> [index, size]
 		def self.double_map(h)
-			Argument.double_list << self
-
 			# { 32 => { 1 => 'ecx' } }
 			@i_to_s = h
 			# { 'ecx' => [1, 32] }
@@ -66,37 +63,46 @@ class Ia32 < CPU
 	end
 
 
+	# segment register: es, cs, ss, ds, fs, gs and the theoretical segr6/7
 	class SegReg < Argument
-		simple_map((0..5).zip(%w(es cs ss ds fs gs)))
+		simple_map((0..7).zip(%w(es cs ss ds fs gs segr6 segr7)))
 	end
 
+	# debug register (dr0..dr3, dr6, dr7), and theoretical dr4/5
 	class DbgReg < Argument
-		simple_map [0, 1, 2, 3, 6, 7].map { |i| [i, "dr#{i}"] }
+		simple_map((0..7).map { |i| [i, "dr#{i}"] })
 	end
 
+	# control register (cr0, cr2, cr3, cr4) and theoretical cr1/5/6/7
 	class CtrlReg < Argument
-		simple_map [0, 2, 3, 4].map { |i| [i, "cr#{i}"] }
+		simple_map((0..7).map { |i| [i, "cr#{i}"] })
 	end
 
+	# floating point registers
 	class FpReg < Argument
 		simple_map((0..7).map { |i| [i, "ST(#{i})"] } << [nil, 'ST'])
 	end
 
+	# a single operation multiple data register (mm0..mm7, xmm0..xmm7)
 	class SimdReg < Argument
 		double_map  64 => (0..7).map { |n| "mm#{n}" },
 			   128 => (0..7).map { |n| "xmm#{n}" }
-		def symbolic ; to_s.to_sym end
+		def symbolic(di=nil) ; to_s.to_sym end
 	end
 
+	# general purpose registers, all sizes
 	class Reg < Argument
 		double_map  8 => %w{ al  cl  dl  bl  ah  ch  dh  bh},
 			   16 => %w{ ax  cx  dx  bx  sp  bp  si  di},
 			   32 => %w{eax ecx edx ebx esp ebp esi edi}
-			  #64 => %w{rax rcx rdx rbx rsp rbp rsi rdi}
 
 		Sym = @i_to_s[32].map { |s| s.to_sym }
 
-		def symbolic
+		# returns a symbolic representation of the register:
+		# eax => :eax
+		# cx => :ecx & 0xffff
+		# ah => (:eax >> 8) & 0xff
+		def symbolic(di=nil)
 			s = Sym[@val]
 			if @sz == 8 and to_s[-1] == ?h
 				Expression[[Sym[@val-4], :>>, 8], :&, 0xff]
@@ -115,6 +121,8 @@ class Ia32 < CPU
 		end
 	end
 
+	# a far pointer
+	# an immediate (numeric) pointer and an immediate segment selector
 	class Farptr < Argument
 		attr_accessor :seg, :addr
 		def initialize(seg, addr)
@@ -122,7 +130,10 @@ class Ia32 < CPU
 		end
 	end
 
+	# ModRM represents indirections in x86 (eg dword ptr [eax+4*ebx+12h])
 	class ModRM < Argument
+		# valid combinaisons for a modrm
+		# ints are reg indexes, symbols are immediates, except :sib 
 		Sum = {
 		    16 => {
 			0 => [ [3, 6], [3, 7], [5, 6], [5, 7], [6], [7], [:i16], [3] ],
@@ -141,6 +152,10 @@ class Ia32 < CPU
 		attr_accessor :seg
 		attr_accessor :s, :i, :b, :imm
 
+		# creates a new ModRM with the specified attributes:
+		# - adsz (16/32), sz (8/16/32: byte ptr, word ptr, dword ptr)
+		# - s, i, b, imm
+		# - segment selector override
 		def initialize(adsz, sz, s, i, b, imm, seg = nil)
 			@adsz, @sz = adsz, sz
 			@s, @i = s, i if i
@@ -149,34 +164,70 @@ class Ia32 < CPU
 			@seg = seg if seg
 		end
 
-		def symbolic(orig=nil)
+		# returns the symbolic representation of the ModRM (ie an Indirection)
+		# segment selectors are represented as eg "segment_base_fs"
+		# not present when same as implicit (ds:edx, ss:esp)
+		def symbolic(di=nil)
 			p = nil
-			p = Expression[p, :+, @b.symbolic] if b
-			p = Expression[p, :+, [@s, :*, @i.symbolic]] if i
+			p = Expression[p, :+, @b.symbolic(di)] if b
+			p = Expression[p, :+, [@s, :*, @i.symbolic(di)]] if i
 			p = Expression[p, :+, @imm] if imm
 			p = Expression["segment_base_#@seg", :+, p] if seg and seg.val != ((b && (@b.val == 4 || @b.val == 5)) ? 2 : 3)
-			Indirection[p.reduce, @sz/8, orig]
+			Indirection[p.reduce, @sz/8, (di.address if di)]
 		end
 	end
 
-	def initialize(family = :latest, size = 32)
+
+	# Create a new instance of an Ia32 cpu
+	# arguments (any order)
+	# - size in bits (16, 32) [32]
+	# - instruction set (386, 486, pentium...) [latest]
+	# - endianness [:little]
+	def initialize(*a)
 		super()
-		@endianness = :little
-		@size = size
-		@family = family
+		@size = (a & [16, 32]).first || 32
+		a.delete @size
+		@endianness = (a & [:big, :little]).first || :little
+		a.delete @endianness
+		@family = a.pop || :latest
+		raise "Invalid arguments #{a.inspect}" if not a.empty?
+		raise "Invalid Ia32 family #{@family.inspect}" if not respond_to?("init_#@family")
 	end
 
+	# wrapper to transparently forward Ia32.new(64) to X86_64.new
+	def self.new(*a)
+		return X86_64.new(*a) if a.include? 64 and self == Ia32
+		super(*a)
+	end
+
+	# initializes the @opcode_list according to @family
 	def init_opcode_list
 		send("init_#@family")
 		@opcode_list
 	end
 
-	def tune_cparser(cp)
-		super(cp)
-		cp.lexer.define_weak('_M_IX86', 500)
-		cp.lexer.define_weak('_X86_')
-		cp.lexer.define_weak('__i386__')
+	# defines some preprocessor macros to say who we are:
+	# _M_IX86 = 500, _X86_, __i386__
+	# pass any value in nodefine to just call super w/o defining anything of our own
+	def tune_prepro(pp, nodefine = false)
+		super(pp)
+		return if nodefine
+		pp.define_weak('_M_IX86', 500)
+		pp.define_weak('_X86_')
+		pp.define_weak('__i386__')
+	end
+
+	# returns a Reg object if the arg is a valid register (eg 'ax' => Reg.new(0, 16))
+	# returns nil if str is invalid
+	def str_to_reg(str)
+		Reg.from_str(str) if Reg.s_to_i.has_key? str
+	end
+
+	def shortname
+		"ia32#{'_16' if @size == 16}#{'_be' if @endianness == :big}"
 	end
 end
+
+X86 = Ia32
 
 end
