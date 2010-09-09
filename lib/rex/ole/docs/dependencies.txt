@@ -1,0 +1,8 @@
+Object              Dependencies
+------------------  ---------------------
+User Data           None
+Header              Fat, DIFat, Directory, MiniStream
+DIFat               Fat
+Fat                 Directory, *Fat, User Data, MiniStream
+Directory           User Data, MiniStream
+MiniFat             MiniStreams
