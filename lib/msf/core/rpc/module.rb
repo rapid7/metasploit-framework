@@ -126,7 +126,6 @@ class Module < Base
 		authenticate(token)
 
 		mod = _find_module(mtype,mname)
-		begin
 		case mtype
 			when 'exploit'
 				_run_exploit(mod, opts)
@@ -136,9 +135,6 @@ class Module < Base
 				_run_payload(mod, opts)
 		end
 
-		rescue ::Exception => e
-			$stderr.puts "#{e.class} #{e} #{e.backtrace}"
-		end
 	end
 
 protected
@@ -199,8 +195,8 @@ protected
 			})
 
 			{"result" => "success", "payload" => res.unpack("H*")[0]}
-		rescue ::Exception
-			raise ::XMLRPC::FaultException.new(500, "failed to generate")
+		rescue ::Exception => e
+			raise ::XMLRPC::FaultException.new(500, "failed to generate: #{e.message}")
 		end
 	end
 
