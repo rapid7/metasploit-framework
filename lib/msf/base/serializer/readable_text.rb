@@ -406,6 +406,9 @@ class ReadableText
 			session = framework.sessions[k]
 
 			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s ]
+			if session.respond_to? :platform
+				row[1] += " " + session.platform
+			end
 			row << session.via_exploit if verbose and session.via_exploit
 
 			tbl << row
