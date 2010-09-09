@@ -294,11 +294,11 @@ scheduler_run(THREAD *thread)
 
 						LIST_REMOVE(current, link);
 						close(current->waitable);
+						channel_close((Channel *)current->context, remote, NULL, 0, NULL);
 						free(current);
+
 						nentries--;
 
-						// how do we notify remote that we have closed fd?
-						// it just hangs atm :~(
 					}
 				}
 			}

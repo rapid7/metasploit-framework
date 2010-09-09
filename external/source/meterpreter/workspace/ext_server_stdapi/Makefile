@@ -27,7 +27,7 @@ endif
 objects = server/general.o server/stdapi.o server/fs/dir.o server/fs/file.o \
 	server/fs/fs_util.o \
 	server/net/socket/tcp.o server/net/socket/tcp_server.o server/net/socket/udp.o \
-	server/sys/config/config.o server/sys/process/process.o
+	server/sys/config/config.o server/sys/process/process.o server/sys/process/linux-in-mem-exe.o
 	#server/net/config/interface.o \
 	#server/net/config/route.o \
 

@@ -17,6 +17,9 @@
 #include <sys/select.h>
 #include <sys/endian.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
+#include <sys/socket.h>
+#include <unistd.h>
 
 // only do debugging on unix side of things for now.
 #define DEBUGTRACE 

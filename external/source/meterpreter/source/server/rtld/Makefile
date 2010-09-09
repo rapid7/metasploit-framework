@@ -33,7 +33,10 @@ libsupport.h: ../../bionic/compiled/libsupport.so
 libmetsrv_main.h: ../../bionic/compiled/libmetsrv_main.so
 	../../../tools/so2h.pl ../../bionic/compiled/libmetsrv_main.so libmetsrv_main
 
-metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h libmetsrv_main.h libsupport.h
+libpcap.h: ../../bionic/compiled/libpcap.so
+	../../../tools/so2h.pl ../../bionic/compiled/libpcap.so libpcap
+
+metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h libmetsrv_main.h libsupport.h libpcap.h
 
 rtldtest: rtldtest.c msflinker
 	gcc -o rtldtest rtldtest.c -DEP=`objdump -f msflinker | grep start | awk '{ print $$3 }'`

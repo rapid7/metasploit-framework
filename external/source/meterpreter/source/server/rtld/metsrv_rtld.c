@@ -27,6 +27,7 @@
 #include "libssl.h"
 #include "libsupport.h"
 #include "libmetsrv_main.h"
+#include "libpcap.h"
 
 struct libs {
 	char *name;
@@ -42,6 +43,7 @@ static struct libs libs[] = {
 	{ "libssl.so.0.9.8", libssl, libssl_length, NULL },
 	{ "libsupport.so", libsupport, libsupport_length, NULL },
 	{ "libmetsrv_main.so", libmetsrv_main, libmetsrv_main_length, NULL },
+	{ "libpcap.so.1", libpcap, libpcap_length, NULL },
 };
 
 #define LIBC_IDX 0

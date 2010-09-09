@@ -10,6 +10,10 @@ typedef BOOL (STDMETHODCALLTYPE FAR * LPFNCREATEENVIRONMENTBLOCK)( LPVOID  *lpEn
 typedef BOOL (STDMETHODCALLTYPE FAR * LPFNDESTROYENVIRONMENTBLOCK) ( LPVOID lpEnvironment );
 typedef BOOL (WINAPI * LPCREATEPROCESSWITHTOKENW)( HANDLE, DWORD, LPCWSTR, LPWSTR, DWORD, LPVOID, LPCWSTR, LPSTARTUPINFOW, LPPROCESS_INFORMATION );
 
+#else 
+
+#include "linux-in-mem-exe.h"
+
 #endif
 
 /*
@@ -21,8 +25,8 @@ typedef BOOL (WINAPI * LPCREATEPROCESSWITHTOKENW)( HANDLE, DWORD, LPCWSTR, LPWST
 DWORD request_sys_process_attach(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
-	HANDLE handle = NULL;
 #ifdef _WIN32
+	HANDLE handle = NULL;
 	DWORD result = ERROR_SUCCESS;
 	DWORD pid;
 
@@ -67,21 +71,22 @@ DWORD request_sys_process_close(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	HANDLE handle;
-#ifdef _WIN32
 	DWORD result = ERROR_SUCCESS;
-
 	handle = (HANDLE)packet_get_tlv_value_uint(packet, TLV_TYPE_HANDLE);
+
 
 	if (handle)
 	{
+#ifdef _WIN32
 		if (handle != GetCurrentProcess())
 			CloseHandle(handle);
+#else
+	// XXX ... not entirely sure this ports across.
+#endif
 	}
 	else
 		result = ERROR_INVALID_PARAMETER;
-#else
-	DWORD result = ERROR_NOT_SUPPORTED;
-#endif
+
 	// Send the response packet to the requestor
 	packet_transmit_response(result, remote, response);
 
@@ -155,6 +160,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	DWORD result = ERROR_SUCCESS;
+	Tlv inMemoryData;
+	BOOL doInMemory = FALSE;
 #ifdef _WIN32
 	PROCESS_INFORMATION pi;
 	STARTUPINFO si;
@@ -162,8 +169,6 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	PCHAR path, arguments, commandLine = NULL;
 	DWORD flags = 0, createFlags = 0;
 	BOOL inherit = FALSE;
-	Tlv inMemoryData;
-	BOOL doInMemory = FALSE;
 	HANDLE token, pToken;
 	char * cpDesktop = NULL;
 	DWORD session = 0;
@@ -546,7 +551,7 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	if( cpDesktop )
 		free( cpDesktop );
 #else
-	PCHAR path, arguments, commandLine = NULL;
+	PCHAR path, arguments;;
 	DWORD flags;
 	char *argv[64], *p;
 	int in[2] = { -1, -1 }, out[2] = {-1, -1}; // file descriptors
@@ -555,6 +560,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 	int idx;
 	pid_t pid;
 	int have_pty = -1;
+
+	int hidden = (flags & PROCESS_EXECUTE_FLAG_HIDDEN);
 
 	dprintf( "[PROCESS] request_sys_process_execute" );
 
@@ -565,6 +572,11 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
                 flags     = packet_get_tlv_value_uint(packet, TLV_TYPE_PROCESS_FLAGS);
 
 		dprintf("path: %s, arguments: %s\n", path ? path : "(null)", arguments ? arguments : "(null)");
+
+		if (packet_get_tlv(packet, TLV_TYPE_VALUE_DATA, &inMemoryData) == ERROR_SUCCESS)
+		{	
+			doInMemory = TRUE;
+		}
 
 		// how to handle a single string argument line? we don't have a lexer/parser to
 		// correctly handle stuff like quotes, etc. could dumbly parse on white space to 
@@ -663,6 +675,12 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			}
 		}
 
+		/*
+		 * We can create "hidden" processes via clone() instead of fork()
+		 * clone(child_stack, flags = CLONE_THREAD) should do the trick. Probably worth while as well.
+		 * memory / fd's etc won't be shared. linux specific syscall though.
+		 */
+
 		pid = fork();
 		switch(pid) {
 
@@ -672,7 +690,8 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			break;
 
 		case 0:
-			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
+			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED)
+			{
 				if(have_pty) 
 				{ 
 					dup2(slave, 0);
@@ -690,9 +709,16 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 			}
 			for(i = 3; i < 1024; i++) close(i);
 
-			execve(path, argv, environ);
-			exit(EXIT_FAILURE);
+			if(doInMemory) 
+			{
+				perform_in_mem_exe(argv, environ, inMemoryData.buffer);
+			} else {
+				execve(path, argv, environ);
+			}
 
+			dprintf("[%s] failed to execute program, exit(EXIT_FAILURE) time", __FUNCTION__);
+
+			exit(EXIT_FAILURE);
 		default:
 			dprintf("child pid is %d\n", pid);
 			if (flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
@@ -826,7 +852,7 @@ DWORD request_sys_process_getpid(Remote *remote, Packet *packet)
 #ifdef _WIN32
 	packet_add_tlv_uint(response, TLV_TYPE_PID, GetCurrentProcessId());
 #else
-	packet_add_tlv_uint(response, TLV_TYPE_PID, gettid());
+	packet_add_tlv_uint(response, TLV_TYPE_PID, getpid());
 #endif
 
 	packet_transmit_response(ERROR_SUCCESS, remote, response);

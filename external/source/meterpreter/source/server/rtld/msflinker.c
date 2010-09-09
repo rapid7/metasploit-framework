@@ -547,12 +547,6 @@ _do_lookup(soinfo *si, const char *name, unsigned *base)
         }
     }
 
-    if(! strncmp(name, "dl", 2)) {
-        s = _elf_lookup(&libdl_info, elf_hash, name);
-        if((s != NULL) && (s->st_shndx != SHN_UNDEF)) 
-            goto done;
-    }
-
 #if ALLOW_SYMBOLS_FROM_MAIN
     /* If we are resolving relocations while dlopen()ing a library, it's OK for
      * the library to resolve a symbol that's defined in the executable itself,
