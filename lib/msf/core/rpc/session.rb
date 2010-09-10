@@ -12,6 +12,7 @@ class Session < Base
 			i,s = sess
 			res[s.sid] = {
 				'type'        => s.type.to_s,
+				'platform'    => s.platform.to_s,
 				'tunnel_local'=> s.tunnel_local.to_s,
 				'tunnel_peer' => s.tunnel_peer.to_s,
 				'via_exploit' => s.via_exploit.to_s,
