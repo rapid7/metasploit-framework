@@ -12,7 +12,6 @@ class Session < Base
 			i,s = sess
 			res[s.sid] = {
 				'type'        => s.type.to_s,
-				'platform'    => s.platform.to_s,
 				'tunnel_local'=> s.tunnel_local.to_s,
 				'tunnel_peer' => s.tunnel_peer.to_s,
 				'via_exploit' => s.via_exploit.to_s,
@@ -26,6 +25,9 @@ class Session < Base
 				'exploit_uuid' => s.exploit_uuid.to_s,
 				'routes'       => s.routes.join(",")
 			}
+			if(s.type.to_s == "meterpreter")
+				res[s.sid]['platform'] = s.platform.to_s
+			end
 		end
 		res
 	end
