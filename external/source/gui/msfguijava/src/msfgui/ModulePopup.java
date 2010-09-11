@@ -344,7 +344,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				String optVal = optionField.getText();
 				Object defaultVal = ((Map)options.get(optName)).get("default");
 				//only need non-default vals
-				if((defaultVal == null && optVal.length() > 0) || (defaultVal != null &&  ! optVal.equals(defaultVal)))
+				if((defaultVal == null && optVal.length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
+						|| (defaultVal != null &&  ! optVal.equals(defaultVal.toString()))))
 					hash.put(optName, optVal);
 			}
 			//Execute and get results
