@@ -1490,9 +1490,11 @@ public class MainFrame extends FrameView {
 		//Setup shell popup menu
 		shellPopupMenu = new JPopupMenu();
 		addSessionItem("Interact",shellPopupMenu,null);
-		addSessionItem("Upgrade",shellPopupMenu,new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JOptionPane.showMessageDialog(null, "This functionality not yet in msfrpc");
+		addSessionItem("Upgrade",shellPopupMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
+				String[] res = JOptionPane.showInputDialog(getFrame(), "Select host/port for connect back.",
+						session.get("tunnel_local").toString().split(":")[0]+":4444").split(":");
+				rpcConn.execute("session.shell_upgrade", session.get("id"), res[0], res[1]);
 			}
 		});
 		addSessionKillItem(shellPopupMenu);

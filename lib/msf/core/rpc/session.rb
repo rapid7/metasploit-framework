@@ -74,6 +74,18 @@ class Session < Base
 		end
 	end
 
+	def shell_upgrade(token, sid, lhost, lport)
+		authenticate(token)
+		s = _find_session(sid)
+		if(s.type != "shell")
+			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
+		end
+		s.exploit_datastore['LHOST'] = lhost
+		s.exploit_datastore['LPORT'] = lport
+		s.execute_script('spawn_meterpreter', nil)
+		{ "result" => "success" }
+	end
+
 	def meterpreter_read(token, sid)
 		authenticate(token)
 		s = _find_session(sid)
