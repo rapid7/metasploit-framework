@@ -978,7 +978,7 @@ public
 		@framework.db.import_msfe_xml(opts)
 		return { :result => 'success' }
 	end
-	def import_nexpose_simplexml(args={}, &block)
+	def import_nexpose_simplexml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fixOpts(xopts)
@@ -987,7 +987,7 @@ public
 		@framework.db.import_nexpose_simplexml(opts)
 		return { :result => 'success' }
 	end
-	def import_nexpose_rawxml(args={}, &block)
+	def import_nexpose_rawxml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fixOpts(xopts)
@@ -1050,7 +1050,7 @@ public
 		@framework.db.import_ip_list(opts)
 		return { :result => 'success' }
 	end
-	def import_amap_log(args={}, &block)
+	def import_amap_log(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fixOpts(xopts)

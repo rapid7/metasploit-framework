@@ -1226,7 +1226,7 @@ public class MainFrame extends FrameView {
 			String type;
 			if(filetype == null)
 				return;
-			else if(filetype.equals("autodetect"))
+			else if(filetype.equals("Autodetect"))
 				type = "data";
 			else
 				type = filetype.toString().toLowerCase().replaceAll(" ", "_");
