@@ -68,7 +68,7 @@ public class MsfguiLog {
 			}
 		}
 	}
-	/** Logs module runs and console commands */
+	/** Logs method calls, such as module runs, console commands, and plugin actions */
 	public void logMethodCall(String methodName, Object[] params) {
 		try {
 			if (methodName.startsWith("session.")) {
@@ -76,12 +76,20 @@ public class MsfguiLog {
 					logConsole(params[0].toString(), new String(Base64.decode(params[1].toString())), true);
 				else if (methodName.endsWith("_script"))
 					logConsole(params[0].toString(), "run " + params[1].toString(), true);
+				else if (methodName.endsWith("_upgrade"))
+					activityLog.add(now() + " Session " + params[0] + " upgrade initiated.");
 			} else if (methodName.equals("module.execute")) {
 				activityLog.add(now() + "  " + params[0] + " " + params[1] + " executed with options " + params[2]);
 			} else if (methodName.equals("console.write")) {
 				logConsole("Console " + params[0].toString(), new String(Base64.decode(params[1].toString())), true);
 			} else if (methodName.equals("console.destroy")) {
 				activityLog.add(now() + " Console " + params[0] + " destroyed.");
+			} else if (methodName.equals("plugin.load")) {
+				activityLog.add(now() + " Plugin " + params[0] + " loading.");
+			} else if (methodName.equals("plugin.unload")) {
+				activityLog.add(now() + " Plugin " + params[0] + " unloaded.");
+			} else if (methodName.equals("db.connect")) {
+				activityLog.add(now() + " Database connection started with options " + params[0]);
 			}
 		} catch (MsfException mex) {
 		}
