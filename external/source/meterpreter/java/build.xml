@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<project name="Meterpreter" default="jar">
+
+	<target name="clean">
+		<delete dir="build" />
+	</target>
+
+	<target name="compile">
+		<mkdir dir="build/loader" />
+		<mkdir dir="build/meterpreter" />
+		<mkdir dir="build/stdapi" />
+		<javac srcdir="src/loader" destdir="build/loader" source="1.1" target="1.1" debug="no">
+			<include name="**/MemoryBufferURL*.java"/>
+		</javac>
+		<javac srcdir="src/meterpreter" destdir="build/meterpreter" source="1.1" target="1.1" debug="no">
+			<classpath>
+				<pathelement path="build/loader"/>
+			</classpath>
+		</javac>
+		<javac srcdir="src/stdapi" destdir="build/stdapi" source="1.1" target="1.1" debug="no">
+			<classpath>
+				<pathelement path="build/loader"/>
+				<pathelement path="build/meterpreter"/>
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" depends="compile">
+		<mkdir dir="extensions"/>
+		<jar destfile="extensions/meterpreter.jar" basedir="build/meterpreter" />
+		<jar destfile="extensions/ext_server_stdapi.jar" basedir="build/stdapi">
+			<manifest>
+				<attribute name="Extension-Loader" value="com.metasploit.meterpreter.stdapi.Loader"/>
+			</manifest>
+		</jar>
+	</target>
+</project>
