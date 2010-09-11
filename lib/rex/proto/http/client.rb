@@ -8,8 +8,9 @@ module Http
 
 ###
 #
-# Acts as a client to an HTTP server, sending requests and receiving
-# responses.
+# Acts as a client to an HTTP server, sending requests and receiving responses.
+# 
+# See the RFC: http://www.w3.org/Protocols/rfc2616/rfc2616.html 
 #
 ###
 class Client
@@ -171,6 +172,25 @@ class Client
 
 	#
 	# Create a CGI compatible request
+	#
+	# Options:
+	# - agent:         User-Agent header value
+	# - basic_auth:    Basic-Auth header value
+	# - connection:    Connection header value
+	# - cookie:        Cookie header value
+	# - ctype:         Content-Type header value, default: +application/x-www-form-urlencoded+
+	# - data:          HTTP data (only useful with some methods, see rfc2616)
+	# - encode:        URI encode the supplied URI
+	# - headers:       HTTP headers as a hash, e.g. <code>{ "X-MyHeader" => "value" }</code>
+	# - method:        HTTP method to use in the request, not limited to standard methods defined by rfc2616, default: GET
+	# - proto:         protocol, default: HTTP
+	# - query:         raw query string
+	# - raw_headers:   HTTP headers as a hash
+	# - uri:           the URI to request
+	# - vars_get:      GET variables as a hash to be translated into a query string
+	# - vars_post:     POST variables as a hash to be translated into POST data
+	# - version:       version of the protocol, default: 1.1
+	# - vhost:         Host header value
 	#
 	def request_cgi(opts={})
 		c_enc  = opts['encode']     || false
