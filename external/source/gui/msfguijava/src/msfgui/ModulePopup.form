@@ -47,9 +47,6 @@
         <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
         <Property name="name" type="java.lang.String" value="mainScrollPane" noResource="true"/>
       </Properties>
-      <Events>
-        <EventHandler event="componentResized" listener="java.awt.event.ComponentListener" parameters="java.awt.event.ComponentEvent" handler="mainScrollPaneComponentResized"/>
-      </Events>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
       <SubComponents>
@@ -74,8 +71,16 @@
                           <Component id="requiredLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="optionalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="advancedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="exploitButton" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="exploitButton1" alignment="0" min="-2" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="exploitButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="consoleRunButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="exploitButton1" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="consoleRunButton1" min="-2" max="-2" attributes="0"/>
+                          </Group>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
@@ -105,9 +110,15 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="advancedLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
-                      <Component id="exploitButton" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="exploitButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="consoleRunButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="exploitButton1" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
+                          <Component id="exploitButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="consoleRunButton1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      </Group>
                       <EmptySpace pref="95" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -221,6 +232,21 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="exploitButton1ActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="consoleRunButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="consoleRunButton.text"/>
+                <Property name="name" type="java.lang.String" value="consoleRunButton" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="consoleRunButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="consoleRunButton1">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="consoleRunButton1.text"/>
+                <Property name="name" type="java.lang.String" value="consoleRunButton1" noResource="true"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>

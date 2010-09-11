@@ -37,6 +37,52 @@ public class InteractWindow extends MsfFrame {
 		commands.add("");
 	}
 
+	/** Create a new console window to run a module */
+	public InteractWindow(final RpcConnection rpcConn, final Map session, String module, Map opts){
+		this(rpcConn, session, "console");
+		inputField.setEnabled(false);
+		final ArrayList autoCommands = new ArrayList();
+		autoCommands.add("use "+module);
+		if(opts.containsKey("TARGET"))
+			autoCommands.add("set TARGET "+opts.get("TARGET"));
+		if(opts.containsKey("PAYLOAD"))
+			autoCommands.add("set PAYLOAD "+opts.get("PAYLOAD"));
+		for(Object entObj : opts.entrySet()){
+			Map.Entry ent = (Map.Entry)entObj;
+			if(!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
+				autoCommands.add("set "+ent.getKey()+" "+ent.getValue());
+		}
+		autoCommands.add("exploit -j");
+
+		//start new thread auto
+		new SwingWorker() {
+			protected Object doInBackground() throws Exception {
+				//for some reason the first command doesn't usually work. Do first command twice.
+				try {
+					String data = Base64.encode((autoCommands.get(0) + "\n").getBytes());
+					rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
+				} catch (MsfException ex) {
+					JOptionPane.showMessageDialog(null, ex);
+				}
+				for(Object cmd : autoCommands) {
+					try {
+						Thread.sleep(500);// Two commands a second
+					} catch (InterruptedException iex) {
+					}
+					this.publish(cmd);
+				}
+				inputField.setEnabled(true);
+				return null;
+			}
+			protected void process(List l){
+				for(Object cmd : l){
+					inputField.setText(cmd.toString());
+					doInput();
+				}
+			}
+		}.execute();
+	}
+
 	/** Creates a new window for interacting with shells/meterpreters/consoles */
 	public InteractWindow(final RpcConnection rpcConn, final Map session, String type) {
 		super(type+" interaction window");
@@ -164,10 +210,31 @@ public class InteractWindow extends MsfFrame {
 	private void checkPrompt(Map o) {
 		try{
 			Object pobj = o.get("prompt");
-			if (pobj != null)
-				prompt = new String(Base64.decode(pobj.toString()));
+			if (pobj == null)
+				return;
+			prompt = new String(Base64.decode(pobj.toString()));
+			StringBuilder sb = new StringBuilder();
+			for(int i = 0; i < prompt.length(); i++)
+				if(!Character.isISOControl(prompt.charAt(i)))
+					sb.append(prompt.charAt(i));
+			prompt=sb.toString();
 			promptLabel.setText(prompt);
 		}catch (MsfException mex){//bad prompt: do nothing
+		}
+	}
+
+	private void doInput() {
+		try {
+			String command = inputField.getText();
+			commands.add(command);
+			String data = Base64.encode((command + "\n").getBytes());
+			rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
+			outputArea.append(prompt + command + "\n");
+			outputArea.setCaretPosition(outputArea.getDocument().getLength());
+			inputField.setText("");
+			currentCommand = 0;
+		} catch (MsfException ex) {
+			JOptionPane.showMessageDialog(null, ex);
 		}
 	}
 	/** This method is called from within the constructor to
@@ -264,18 +331,7 @@ public class InteractWindow extends MsfFrame {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void inputFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputFieldActionPerformed
-		try {
-			String command = inputField.getText();
-			commands.add(command);
-			String data = Base64.encode((command+"\n").getBytes());
-			rpcConn.execute(cmdPrefix+"write", session.get("id"),data);
-			outputArea.append(prompt+command+"\n");
-			outputArea.setCaretPosition(outputArea.getDocument().getLength());
-			inputField.setText("");
-			currentCommand = 0;
-		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		doInput();
 	}//GEN-LAST:event_inputFieldActionPerformed
 
 	private void submitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_submitButtonActionPerformed

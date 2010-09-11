@@ -647,7 +647,7 @@ public class PayloadPopup extends MsfFrame {
 		options.put("WORKSPACE", MsfguiApp.workspace);
 		try{
 			Map data = (Map) rpcConn.execute("module.execute","exploit", "multi/handler", options);
-			MsfguiApp.addRecentModule(new Object[]{"exploit", "multi/handler", options}, mainFrame.recentMenu, rpcConn);
+			MsfguiApp.addRecentModule(new Object[]{"exploit", "multi/handler", options}, rpcConn, mainFrame);
 		}catch (MsfException ex){
 			JOptionPane.showMessageDialog(this, ex);
 		}

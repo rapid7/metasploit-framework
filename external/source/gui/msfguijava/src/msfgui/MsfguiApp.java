@@ -198,7 +198,8 @@ public class MsfguiApp extends SingleFrameApplication {
 	}
 
 	/** Adds a module run to the recent modules list */
-	public static void addRecentModule(final Object[] args, final JMenu recentMenu, final RpcConnection rpcConn) {
+	public static void addRecentModule(final Object[] args, final RpcConnection rpcConn, final MainFrame mf) {
+		final JMenu recentMenu = mf.recentMenu;
 		recentList.add(args);
 		Map hash = (Map)args[2];
 		StringBuilder name = new StringBuilder(args[0] + " " + args[1]);
@@ -211,7 +212,7 @@ public class MsfguiApp extends SingleFrameApplication {
 		final JMenuItem item = new JMenuItem(name.toString());
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ModulePopup(rpcConn, args, recentMenu).setVisible(true);
+				new ModulePopup(rpcConn, args, mf).setVisible(true);
 				recentMenu.remove(item);
 				recentMenu.add(item);
 				for(int i = 0; i < recentList.size(); i++){
@@ -229,7 +230,7 @@ public class MsfguiApp extends SingleFrameApplication {
 		if(recentList.size() > NUM_REMEMBERED_MODULES)
 			recentList.remove(0);
 	}
-	public static void addRecentModules(JMenu recentMenu, final RpcConnection rpcConn) {
+	public static void addRecentModules(final RpcConnection rpcConn, final MainFrame mf) {
 		Node recentNode = null;
 		for(Node node = propRoot.getFirstChild(); node != null; node = node.getNextSibling())
 			if(node.getNodeName().equals("recent"))
@@ -255,7 +256,7 @@ public class MsfguiApp extends SingleFrameApplication {
 					String val = prop.getAttributes().getNamedItem("val").getNodeValue();
 					hash.put(propName, val);
 				}
-				addRecentModule(new Object[]{moduleType, fullName,hash}, recentMenu, rpcConn);
+				addRecentModule(new Object[]{moduleType, fullName,hash}, rpcConn, mf);
 			}catch(NullPointerException nex){//if attribute doesn't exist, ignore
 			}
 		}

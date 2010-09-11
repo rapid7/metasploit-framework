@@ -137,9 +137,13 @@ public class MainFrame extends FrameView {
 		} catch (Exception ex) {
 		}
 	}
-	/** Adds menu items for reopening and closing the console */
-	private void registerConsole(Map res, boolean show, String initVal) {
+	/** Adds window and menu items for reopening and closing the console */
+	public void registerConsole(Map res, boolean show, String initVal) {
 		final InteractWindow iw = new InteractWindow(rpcConn, res, "console", initVal);
+		registerConsole(res,show,iw);
+	}
+	/** Adds menu items for reopening and closing the console */
+	public void registerConsole(Map res, boolean show, final InteractWindow iw) {
 		iw.setVisible(show);
 		final String id = res.get("id").toString();
 		final JMenuItem openItem = new JMenuItem(id);
@@ -306,7 +310,7 @@ public class MainFrame extends FrameView {
    /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
 	public void getModules() {
 		searchWin = new SearchWindow(rpcConn);
-		MsfguiApp.addRecentModules(recentMenu, rpcConn);
+		MsfguiApp.addRecentModules(rpcConn, this);
 
 		//Setup consoles
 		try{
@@ -335,7 +339,7 @@ public class MainFrame extends FrameView {
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
 							return new ActionListener(){
 								public void actionPerformed(ActionEvent e) {
-									new ModulePopup(modName,rpcConn,type, recentMenu).setVisible(true);
+									new ModulePopup(modName,rpcConn,type, me).setVisible(true);
 								}
 							};
 						}

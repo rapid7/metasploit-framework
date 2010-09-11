@@ -43,10 +43,12 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 	private ArrayList requiredOpts; // I love how these options aren't optional
 	private ArrayList optionalOpts;
 	private ArrayList advancedOpts;
+	private Map options;
+	private MainFrame parentFrame;
 
 	/** Creates new ModulePopup from recent run */
-	public ModulePopup(RpcConnection rpcConn, Object[] args, JMenu recentMenu) {
-		this(args[1].toString(), rpcConn, args[0].toString(), recentMenu);
+	public ModulePopup(RpcConnection rpcConn, Object[] args, MainFrame parentFrame) {
+		this(args[1].toString(), rpcConn, args[0].toString(), parentFrame);
 		Map opts = (Map)args[2];
 		if(args[0].toString().equals("exploit")){
 			//Set target
@@ -74,8 +76,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		}
 	}
 	/** Creates new  ModulePopup */
-	public ModulePopup(String fullName, RpcConnection rpcConn, String moduleType, JMenu recentMenu) {
-		this.recentMenu = recentMenu;
+	public ModulePopup(String fullName, RpcConnection rpcConn, String moduleType, MainFrame parentFrame) {
+		this.parentFrame = parentFrame;
+		this.recentMenu = parentFrame.recentMenu;
 		initComponents();
 		exploitButton.setText("Run "+moduleType);
 		exploitButton1.setText("Run "+moduleType);
@@ -265,7 +268,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		advancedOpts.clear();
 		try{
 			//display options
-			Map options = (Map) rpcConn.execute("module.options", moduleType, fullName);
+			options = (Map) rpcConn.execute("module.options", moduleType, fullName);
 			// payload options
 			if(moduleType.equals("exploit")){
 				if(payload.length() <= 0){
@@ -304,7 +307,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				if(option.get("required").equals(Boolean.TRUE)){
 					requiredOpts.add(containerPane);
 					requiredOpts.add(optionField);
-				}else if (option.get("advanced").equals(Boolean.FALSE)){
+				}else if (option.get("advanced").equals(Boolean.FALSE) && option.get("evasion").equals(Boolean.FALSE)){
 					optionalOpts.add(containerPane);
 					optionalOpts.add(optionField);
 				}else{
@@ -319,7 +322,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 	}
 
    /** Runs the exploit with given options and payload. Closes window if successful. */
-	private void runModule() {
+	private void runModule(boolean console) {
 		try{
 			//Put options into request
 			HashMap hash = new HashMap();
@@ -337,14 +340,24 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				if(!(comp instanceof JTextField))
 					continue;
 				JTextField optionField = (JTextField)comp;
-				if(optionField.getText().length() > 0)
-					hash.put(optionField.getName().substring("field".length()), optionField.getText());
+				String optName = optionField.getName().substring("field".length());
+				String optVal = optionField.getText();
+				Object defaultVal = ((Map)options.get(optName)).get("default");
+				//only need non-default vals
+				if((defaultVal == null && optVal.length() > 0) || (defaultVal != null &&  ! optVal.equals(defaultVal)))
+					hash.put(optName, optVal);
 			}
 			//Execute and get results
-			Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
-			if(!info.get("result").equals("success"))
-				JOptionPane.showMessageDialog(rootPane, info);
-			MsfguiApp.addRecentModule(new Object[]{moduleType, fullName,hash}, recentMenu, rpcConn);
+			if(console){
+				Map res = (Map)rpcConn.execute("console.create");
+				InteractWindow iw = new InteractWindow(rpcConn, res, moduleType+"/"+fullName, hash);
+				parentFrame.registerConsole(res, true, iw);
+			}else{
+				Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
+				if(!info.get("result").equals("success"))
+					JOptionPane.showMessageDialog(rootPane, info);
+			}
+			MsfguiApp.addRecentModule(new Object[]{moduleType, fullName,hash}, rpcConn, parentFrame);
 
 			//close out
 			this.setVisible(false);
@@ -353,35 +366,6 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			JOptionPane.showMessageDialog(rootPane, ex);
 		}
 	}
-	// <editor-fold defaultstate="collapsed" desc="comment">
-/* DELETEME!
-	private void wrapLabelText(JLabel label, String text) {
-	FontMetrics fm = label.getFontMetrics(label.getFont());
-	Container container = label.getParent().getParent();
-	int containerWidth = container.getWidth();
-
-	BreakIterator boundary = BreakIterator.getWordInstance();
-	boundary.setText(text);
-
-	StringBuffer trial = new StringBuffer();
-	StringBuffer real = new StringBuffer("<html>");
-
-	int start = boundary.first();
-	for (int end = boundary.next(); end != BreakIterator.DONE;
-	start = end, end = boundary.next()) {
-	String word = text.substring(start, end);
-	trial.append(word);
-	int trialWidth = SwingUtilities.computeStringWidth(fm, trial.toString());
-	if (trialWidth > containerWidth) {
-	trial = new StringBuffer(word);
-	real.append("<br>");
-	}
-	real.append(word);
-	}
-	real.append("</html>");
-
-	label.setText(real.toString());
-	} */// </editor-fold>
 
    /** Reformats the view based on visible options and targetsMap. */
 	private void reGroup(){
@@ -409,8 +393,14 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		for(Object obj : advancedOpts)
 			horizGroup = horizGroup.addComponent((Component) obj, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE);
 		
-		horizGroup = horizGroup.addComponent(exploitButton)
-				.addComponent(exploitButton1);
+		horizGroup = horizGroup.addGroup(mainPanelLayout.createSequentialGroup()
+				.addComponent(exploitButton)
+				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+				.addComponent(consoleRunButton))
+			.addGroup(mainPanelLayout.createSequentialGroup()
+				.addComponent(exploitButton1)
+				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+				.addComponent(consoleRunButton1));
 		mainPanelLayout.setHorizontalGroup(mainPanelLayout.createSequentialGroup().addContainerGap()
 				.addGroup(horizGroup).addContainerGap());
 
@@ -440,12 +430,16 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		}
 		boolean odd = false;
 		odd = addObjectsToVgroup(vGroup, odd, requiredLabel, requiredOpts);
-		vGroup = vGroup.addComponent(exploitButton1)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
+		vGroup.addGroup(mainPanelLayout.createParallelGroup()
+			.addComponent(exploitButton1)
+			.addComponent(consoleRunButton))
+			.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
 		odd = addObjectsToVgroup(vGroup, odd, optionalLabel, optionalOpts);
 		odd = addObjectsToVgroup(vGroup, odd, advancedLabel, advancedOpts);
-		vGroup = vGroup.addComponent(exploitButton)
-				.addContainerGap();
+		vGroup = vGroup.addGroup(mainPanelLayout.createParallelGroup()
+			.addComponent(exploitButton)
+			.addComponent(consoleRunButton1))
+			.addContainerGap();
 		mainPanelLayout.setVerticalGroup(vGroup);
 	}
 
@@ -488,16 +482,13 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
         descriptionBox = new javax.swing.JEditorPane();
         advancedLabel = new javax.swing.JLabel();
         exploitButton1 = new javax.swing.JButton();
+        consoleRunButton = new javax.swing.JButton();
+        consoleRunButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
         mainScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mainScrollPane.setName("mainScrollPane"); // NOI18N
-        mainScrollPane.addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                mainScrollPaneComponentResized(evt);
-            }
-        });
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -558,6 +549,17 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
             }
         });
 
+        consoleRunButton.setText(resourceMap.getString("consoleRunButton.text")); // NOI18N
+        consoleRunButton.setName("consoleRunButton"); // NOI18N
+        consoleRunButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consoleRunButtonActionPerformed(evt);
+            }
+        });
+
+        consoleRunButton1.setText(resourceMap.getString("consoleRunButton1.text")); // NOI18N
+        consoleRunButton1.setName("consoleRunButton1"); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -575,8 +577,14 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
                     .addComponent(requiredLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(optionalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(advancedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(exploitButton)
-                    .addComponent(exploitButton1))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(exploitButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(consoleRunButton))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(exploitButton1)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(consoleRunButton1)))
                 .addContainerGap())
         );
         mainPanelLayout.setVerticalGroup(
@@ -603,9 +611,13 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(advancedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
-                .addComponent(exploitButton)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(exploitButton)
+                    .addComponent(consoleRunButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(exploitButton1)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(exploitButton1)
+                    .addComponent(consoleRunButton1))
                 .addContainerGap(95, Short.MAX_VALUE))
         );
 
@@ -630,21 +642,23 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
     }// </editor-fold>//GEN-END:initComponents
 
 	private void exploitButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exploitButtonActionPerformed
-		runModule();
+		runModule(false);
 	}//GEN-LAST:event_exploitButtonActionPerformed
-
-	private void mainScrollPaneComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_mainScrollPaneComponentResized
-		//JOptionPane.showMessageDialog(rootPane, "scrollpane size: "+mainScrollPane.getWidth()+" panel size "+mainPanel.getWidth());
-	}//GEN-LAST:event_mainScrollPaneComponentResized
 
 	private void exploitButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exploitButton1ActionPerformed
 		exploitButtonActionPerformed(evt);
 	}//GEN-LAST:event_exploitButton1ActionPerformed
 
+	private void consoleRunButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleRunButtonActionPerformed
+		runModule(true);
+	}//GEN-LAST:event_consoleRunButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel advancedLabel;
     private javax.swing.JLabel authorsLabel;
     private javax.swing.ButtonGroup buttonGroup;
+    private javax.swing.JButton consoleRunButton;
+    private javax.swing.JButton consoleRunButton1;
     private javax.swing.JEditorPane descriptionBox;
     private javax.swing.JScrollPane descriptionPane;
     private javax.swing.JButton exploitButton;

@@ -76,6 +76,8 @@ def service_create(name, display_name, executable_on_host,startup=2)
 		# SC_MANAGER_CREATE_SERVICE = 0x0002
 		newservice = adv.CreateServiceA(manag["return"],name,display_name,
 			0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
+		adv.CloseServiceHandle(newservice["return"])
+		adv.CloseServiceHandle(manag["return"])
 		#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
 		#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
 		if newservice["GetLastError"] == 0
