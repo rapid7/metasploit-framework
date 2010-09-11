@@ -1219,7 +1219,17 @@ public class MainFrame extends FrameView {
 
 	private void importItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importItemActionPerformed
 		try {
-			String type = "data";
+			Object filetype = JOptionPane.showInputDialog(getFrame(), "Select file type. Autodetect recommended.",
+					"Type selection", JOptionPane.PLAIN_MESSAGE,null, new Object[]{"Autodetect","Msfe XML",
+					"Nexpose simpleXML","Nexpose rawXML", "Nmap XML", "Nessuse NBE","Nessus XML", "Nessus XML v2",
+					"Qualsys XML", "IP list", "Amap log", "Amap mlog"}, onlineHelpMenu);
+			String type;
+			if(filetype == null)
+				return;
+			else if(filetype.equals("autodetect"))
+				type = "data";
+			else
+				type = filetype.toString().toLowerCase().replaceAll(" ", "_");
 			HashMap argHash = new HashMap();
 			if (MsfguiApp.fileChooser.showOpenDialog(getFrame()) == javax.swing.JFileChooser.CANCEL_OPTION)
 				return;
@@ -1228,13 +1238,6 @@ public class MainFrame extends FrameView {
 			byte[] data = new byte[fsize];
 			fin.read(data);
 			argHash.put("data", Base64.encode(data));
-			Object res = JOptionPane.showInputDialog(getFrame(), "Select file type", "Type selection", JOptionPane.PLAIN_MESSAGE,
-					null, new Object[]{"autodetect","msfe xml","nexpose simplexml","nexpose rawxml", "nmap xml", "nessuse nbe",
-					"nessus xml", "nessus xml v2","qualsys xml", "ip list", "amap log", "amap mlog"}, onlineHelpMenu);
-			if(res.equals("autodetect"))
-				type = "data";
-			else
-				type = res.toString().replaceAll(" ", "_");
 			rpcConn.execute("db.import_"+type,argHash);
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
