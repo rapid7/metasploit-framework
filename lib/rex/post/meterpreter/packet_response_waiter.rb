@@ -28,7 +28,15 @@ class PacketResponseWaiter
 			self.completion_param   = completion_param
 		else
 			self.done  = false
+			self.wthread = initialize_waiter_thread
 		end
+	end
+
+	#
+	# Create an idle thread we can wait on
+	#
+	def initialize_waiter_thread
+		::Thread.new { loop { ::IO.select(nil,nil,nil,5.0) } }
 	end
 
 	#
@@ -49,6 +57,7 @@ class PacketResponseWaiter
 			self.completion_routine.call(response, self.completion_param)
 		else
 			self.done = true
+			self.wthread.kill
 		end
 	end
 
@@ -58,16 +67,10 @@ class PacketResponseWaiter
 	#
 	def wait(interval)
 		if( interval and interval == -1 )
-			while(not self.done)
-				::IO.select(nil, nil, nil, 0.1)
-			end
+			self.wthread.join
 		else
 			begin
-				Timeout.timeout(interval) {
-					while(not self.done)
-						::IO.select(nil, nil, nil, 0.1)
-					end
-				}
+				Timeout.timeout(interval) { self.wthread.join }
 			rescue Timeout::Error
 				self.response = nil
 			end
@@ -75,7 +78,7 @@ class PacketResponseWaiter
 		return self.response
 	end
 
-	attr_accessor :rid, :done, :response # :nodoc:
+	attr_accessor :rid, :done, :response, :wthread # :nodoc:
 	attr_accessor :completion_routine, :completion_param # :nodoc:
 end
 
