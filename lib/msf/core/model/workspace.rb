@@ -11,6 +11,7 @@ class Workspace < ActiveRecord::Base
 	has_many :loots, :dependent => :destroy
 	has_many :events,:dependent => :destroy
 	has_many :reports, :dependent => :destroy
+	has_many :report_templates, :dependent => :destroy
 	has_many :tasks,   :dependent => :destroy
 
 	has_many :services, :through => :hosts
