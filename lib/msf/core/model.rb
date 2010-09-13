@@ -18,3 +18,8 @@ require 'msf/core/model/exploited_host'
 require 'msf/core/model/wmap_target'
 require 'msf/core/model/wmap_request'
 
+require 'msf/core/model/campaign'
+require 'msf/core/model/email_address'
+require 'msf/core/model/email_template'
+require 'msf/core/model/web_template'
+
