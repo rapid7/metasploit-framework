@@ -265,33 +265,75 @@ check_header(unsigned char **input_buffer, int *input_length)
 }
 
 #define TMPLIBSIZE (4 * 1024 * 1024)
+#define ZALLOC_BUFFER_SIZE (TMPLIBSIZE/8)	// probably no correlation, but it seems to work :-)
 
-// XXX replace with a single mmap, incrementing pointer, no free,
-// and munmap (in dlopenbuf probably.
+/*
+ * In order to help speed up the decompression routines, we implement what's closest to
+ * the simplest malloc allocation routine there is. mmap() a heap of memory, and use an
+ * incrementing pointer. free is not supported, except via munmap() at the end of 
+ * dlopenbuf().
+ *
+ * We keep around the old implementation of one zalloc() == one mmap() in case the 
+ * kernel can't satisfy the allocation at the moment. However, I suspect if that 
+ * is the case, the loading process will not finish successfully.
+ */
+
+unsigned char *zalloc_buffer;
+unsigned char *zalloc_next;
 
 void *zalloc(void *opaque, unsigned int count, unsigned int size)
 {
 	unsigned int *ret;
 	unsigned int tsz;
 
-	tsz = ((count * size) + PAGE_SIZE) & ~PAGE_MASK;
+	tsz = (count * size);
+	// TRACE("[ in zalloc, want %08x bytes ]\n", tsz);
 
-	ret = mmap(0, tsz, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
-	if(ret == MAP_FAILED) return NULL;
+	if(zalloc_buffer) {
+		unsigned char *tmp;
 
-	// TRACE("[ zalloc() allocated %08x bytes @ %08x\n", tsz, ret);
-	ret[0] = tsz;
-	return ++ret;
+		// pointer to be returned 
+		ret = (unsigned int *)zalloc_next;
+
+		// ensure the request is aligned to 16 bytes. 
+		tsz = (tsz + 15) & ~15;
+
+		// test if the allocation size exceeds zalloc_buffer allocation
+		tmp = zalloc_next + tsz;
+		if(tmp >= (zalloc_buffer + ZALLOC_BUFFER_SIZE)) {
+			TRACE("[ zalloc() size too large for %d bytes]\n", tsz);
+			return NULL;		// can't mix and match unfortunately.
+		}
+
+		// if not, we're good to go.
+		zalloc_next = tmp;
+
+		return ret;
+	} else {
+		// insanely wasteful memory allocation system :-)
+		tsz = ((count * size) + PAGE_SIZE) & ~PAGE_MASK;
+
+		ret = mmap(0, tsz, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+		if(ret == MAP_FAILED) return NULL;
+
+		// TRACE("[ zalloc() allocated %08x bytes @ %08x\n", tsz, ret);
+		ret[0] = tsz;
+		return ++ret;
+	}
 }
 
 void zfree(void *opaque, void *addr)
 {
-	unsigned int *ret;
+	if(zalloc_buffer) {
+		// we don't do anything here.
+	} else {
+		unsigned int *ret;
 
-	ret = (unsigned int *)(addr);
-	--ret;
-	// TRACE("[ zfree() called. addr = %08x, ret = %08x, size = %08x ]\n", addr, ret, *ret);
-	munmap(ret, ret[0]);
+		ret = (unsigned int *)(addr);
+		--ret;
+		// TRACE("[ zfree() called. addr = %08x, ret = %08x, size = %08x ]\n", addr, ret, *ret);
+		munmap(ret, ret[0]);
+	}
 }
 
 void *dlopenbuf(const char *name, void *data, size_t len)
@@ -316,6 +358,12 @@ void *dlopenbuf(const char *name, void *data, size_t len)
 		goto uncompressed;
 	}
 	
+	zalloc_next = zalloc_buffer = mmap(0, ZALLOC_BUFFER_SIZE, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+	if(zalloc_buffer == MAP_FAILED) {
+		TRACE("[ falling back to paged mechanism ]\n");
+		zalloc_buffer = NULL;
+	}
+
 	stream.zalloc = zalloc;
 	stream.zfree = zfree;
 	stream.avail_in = input_size;
@@ -340,6 +388,11 @@ out:
 	if(output_buffer) {
 		munmap(output_buffer, TMPLIBSIZE);
 	}
+
+	if(zalloc_buffer) {
+		munmap(zalloc_buffer, ZALLOC_BUFFER_SIZE);
+	}
+
 	return ret;
 
 }

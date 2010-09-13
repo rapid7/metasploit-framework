@@ -9,9 +9,11 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
 	DWORD result = ERROR_SUCCESS;
+	DWORD index;
+
+#ifdef _WIN32
 	PMIB_IPFORWARDTABLE table = NULL;
 	DWORD tableSize = sizeof(MIB_IPFORWARDROW) * 96;
-	DWORD index;
 
 	do
 	{
@@ -52,7 +54,34 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 
 	} while (0);
 
-	if (table)
+#else 
+	struct ipv4_routing_table *table = NULL;
+
+	dprintf("[%s] getting routing table", __FUNCTION__);
+	result = netlink_get_ipv4_routing_table(&table);
+	dprintf("[%s] result = %d, table = %p", __FUNCTION__, result, table);
+
+	for(index = 0; index < table->entries; index++) {
+		Tlv route[3];
+
+		route[0].header.type	= TLV_TYPE_SUBNET;
+		route[0].header.length 	= sizeof(DWORD);
+		route[0].buffer 	= (PUCHAR)&table->routes[index].dest;
+	
+		route[1].header.type	= TLV_TYPE_NETMASK;
+		route[1].header.length	= sizeof(DWORD);
+		route[1].buffer		= (PUCHAR)&table->routes[index].netmask;
+		
+		route[2].header.type	= TLV_TYPE_GATEWAY;
+		route[2].header.length	= sizeof(DWORD);
+		route[2].buffer		= (PUCHAR)&table->routes[index].nexthop;
+		
+		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE, route, 3);
+	}
+
+#endif
+
+	if(table) 
 		free(table);
 
 	packet_transmit_response(result, remote, response);
@@ -97,6 +126,7 @@ DWORD request_net_config_remove_route(Remote *remote, Packet *packet)
  */
 DWORD add_remove_route(Packet *packet, BOOLEAN add)
 {
+#ifdef _WIN32
 	MIB_IPFORWARDROW route;
 	DWORD (WINAPI *LocalGetBestInterface)(IPAddr, LPDWORD) = NULL;
 	LPCSTR subnet;
@@ -134,4 +164,9 @@ DWORD add_remove_route(Packet *packet, BOOLEAN add)
 		return CreateIpForwardEntry(&route);
 	else
 		return DeleteIpForwardEntry(&route);
+
+#else
+	return ERROR_NOT_SUPPORTED;
+#endif
+
 }

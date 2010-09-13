@@ -261,7 +261,7 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
-#ifdef _WIN32
+
 	// Net
 	{ "stdapi_net_config_get_routes",
 	  { request_net_config_get_routes,                     { 0 }, 0 },
@@ -280,6 +280,7 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+#ifdef _WIN32
 	// Socket
 	{ "stdapi_net_socket_tcp_shutdown",
 	  { request_net_socket_tcp_shutdown,                   { 0 }, 0 },

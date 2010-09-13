@@ -16,25 +16,25 @@ msflinker.bin: msflinker elf2bin.c
 	./elf2bin
 
 libc.h: ../../bionic/compiled/libc.so
-	../../../tools/so2h.pl ../../bionic/compiled/libc.so libc
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libc.so libc
 
 libm.h: ../../bionic/compiled/libm.so
-	../../../tools/so2h.pl ../../bionic/compiled/libm.so libm
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libm.so libm
 
 libcrypto.h: ../../bionic/compiled/libcrypto.so
-	../../../tools/so2h.pl ../../bionic/compiled/libcrypto.so libcrypto
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libcrypto.so libcrypto
 
 libssl.h: ../../bionic/compiled/libssl.so
-	../../../tools/so2h.pl ../../bionic/compiled/libssl.so libssl
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libssl.so libssl
 
 libsupport.h: ../../bionic/compiled/libsupport.so
-	../../../tools/so2h.pl ../../bionic/compiled/libsupport.so libsupport
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libsupport.so libsupport
 
 libmetsrv_main.h: ../../bionic/compiled/libmetsrv_main.so
-	../../../tools/so2h.pl ../../bionic/compiled/libmetsrv_main.so libmetsrv_main
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libmetsrv_main.so libmetsrv_main
 
 libpcap.h: ../../bionic/compiled/libpcap.so
-	../../../tools/so2h.pl ../../bionic/compiled/libpcap.so libpcap
+	perl ../../../tools/so2h.pl ../../bionic/compiled/libpcap.so libpcap
 
 metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h libmetsrv_main.h libsupport.h libpcap.h
 

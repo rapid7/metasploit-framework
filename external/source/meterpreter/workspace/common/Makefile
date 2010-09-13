@@ -25,7 +25,7 @@ AR=ar
 RM=rm
 
 objects = args.o base.o base_dispatch.o base_dispatch_common.o buffer.o \
-	channel.o common.o core.o list.o remote.o thread.o xor.o zlib/zlib.o # scheduler.o
+	channel.o common.o core.o list.o remote.o thread.o xor.o zlib.o 
 
 
 
@@ -44,7 +44,7 @@ else
 #	libc_objects+= errno.o
 endif
 
-BASEVPATH=../../source/common:../../source/common/crypto:../../source/common/arch/posix:
+BASEVPATH=../../source/common:../../source/common/crypto:../../source/common/arch/posix:../../source/common/zlib:
 OSVPATH= ../../source/common/arch/$(OS)
 ARCHVPATH= $(OSVPATH)/$(ARCH)
 VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)

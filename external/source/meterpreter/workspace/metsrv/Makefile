@@ -14,12 +14,12 @@ CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
 CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
 
 OS=posix
-OSVPATH=../../source/common/arch/$(OS)
+OSVPATH=../../source/common/arch/$(OS):../../source/server/linux/
 ARCHVPATH=$(OSVPATH)/$(RARCH):$(ELFARCHPATH)
 VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 
 objects= metsrv.o scheduler.o 
-objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o # metsrv_main.o 
+objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o netlink.o
 
 all:  libmetsrv_main.so 
 

@@ -21,6 +21,25 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+#include <linux/if.h>
+#include <linux/netlink.h>
+#include <linux/rtnetlink.h>
+
+#include <sys/atomics.h>
+
+struct ipv4_route_entry {
+	__u32 dest;
+	__u32 netmask;
+	__u32 nexthop;
+};
+
+struct ipv4_routing_table {
+	int entries;
+	struct ipv4_route_entry routes[0];
+};
+
+int netlink_get_ipv4_routing_table(struct ipv4_routing_table **table);
+
 // only do debugging on unix side of things for now.
 #define DEBUGTRACE 
 
@@ -74,16 +93,7 @@ static void real_dprintf(char *format, ...) {
 
 #else
 
-static void real_dprintf(char *format, ...)
-{
-	va_list args;
-	char buffer[1024];
-	va_start(args, format);
-	vsnprintf(buffer, sizeof(buffer)-2, format, args);
-	strcat(buffer, "\n");
-	va_end(args);
-	write(2, buffer, strlen(buffer));
-}
+void real_dprintf(char *format, ...);
 
 #endif
 

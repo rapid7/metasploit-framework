@@ -21,6 +21,11 @@
  #include <sys/wait.h>
  #include <termios.h>
 
+ #include <pcap/pcap.h>
+
+ #include <linux/if.h>
+ #include <linux/netlink.h>
+
 #define IN_ADDR struct in_addr
 #define SOCKADDR_IN struct sockaddr_in
 #define SOCKADDR struct sockaddr
