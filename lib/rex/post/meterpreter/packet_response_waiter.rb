@@ -27,7 +27,7 @@ class PacketResponseWaiter
 			self.completion_routine = completion_routine
 			self.completion_param   = completion_param
 		else
-			self.done  = false
+			self.done    = false
 			self.wthread = initialize_waiter_thread
 		end
 	end
@@ -36,7 +36,11 @@ class PacketResponseWaiter
 	# Create an idle thread we can wait on
 	#
 	def initialize_waiter_thread
-		::Thread.new { loop { ::IO.select(nil,nil,nil,5.0) } }
+		::Thread.new do
+			while (! self.done)
+				::IO.select(nil,nil,nil,5.0)
+			end
+		end
 	end
 
 	#
