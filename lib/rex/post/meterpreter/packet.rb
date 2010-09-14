@@ -20,6 +20,7 @@ TLV_META_TYPE_STRING        = (1 << 16)
 TLV_META_TYPE_UINT          = (1 << 17)
 TLV_META_TYPE_RAW           = (1 << 18)
 TLV_META_TYPE_BOOL          = (1 << 19)
+TLV_META_TYPE_QWORD         = (1 << 20)
 TLV_META_TYPE_COMPRESSED    = (1 << 29)
 TLV_META_TYPE_GROUP         = (1 << 30)
 TLV_META_TYPE_COMPLEX       = (1 << 31)
@@ -31,6 +32,7 @@ TLV_META_MASK = (
 	TLV_META_TYPE_UINT |
 	TLV_META_TYPE_RAW |
 	TLV_META_TYPE_BOOL |
+	TLV_META_TYPE_QWORD |
 	TLV_META_TYPE_GROUP |
 	TLV_META_TYPE_COMPLEX
 )
@@ -132,6 +134,7 @@ class Tlv
 			when TLV_META_TYPE_UINT; "INT"
 			when TLV_META_TYPE_RAW; "RAW"
 			when TLV_META_TYPE_BOOL; "BOOL"
+			when TLV_META_TYPE_QWORD; "QWORD"
 			when TLV_META_TYPE_GROUP; "GROUP"
 			when TLV_META_TYPE_COMPLEX; "COMPLEX"
 			else; 'unknown-meta-type'
@@ -214,7 +217,7 @@ class Tlv
 	# Serializers
 	#
 	##
-
+	
 	#
 	# Converts the TLV to raw.
 	#
@@ -225,6 +228,8 @@ class Tlv
 			raw += "\x00"
 		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
 			raw = [value].pack("N")
+		elsif (self.type & TLV_META_TYPE_QWORD == TLV_META_TYPE_QWORD)
+			raw = [ self.htonq( value.to_i ) ].pack("Q")
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			if (value == true)
 				raw = [1].pack("c")
@@ -284,6 +289,9 @@ class Tlv
 			end
 		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
 			self.value = raw.unpack("NNN")[2]
+		elsif (self.type & TLV_META_TYPE_QWORD == TLV_META_TYPE_QWORD)
+			self.value = raw.unpack("NNQ")[2] 		
+			self.value = self.ntohq( self.value )
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			self.value = raw.unpack("NNc")[2]
 
@@ -298,6 +306,20 @@ class Tlv
 
 		return length;
 	end
+	
+	protected
+	
+	def htonq( value )
+		if( [1].pack( 's' ) == [1].pack( 'n' ) )
+			return value
+		end
+		return [ value ].pack( 'Q' ).reverse.unpack( 'Q' ).first
+	end
+
+	def ntohq( value )
+		return htonq( value )
+	end
+	
 end
 
 ###
