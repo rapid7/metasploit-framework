@@ -298,6 +298,17 @@ DWORD packet_add_tlv_uint(Packet *packet, TlvType type, UINT val)
 }
 
 /*
+ * Add a TLV as a QWORD.
+ */
+DWORD packet_add_tlv_qword(Packet *packet, TlvType type, QWORD val )
+{
+	val = htonq( val );
+
+	return packet_add_tlv_raw( packet, type, (PUCHAR)&val, sizeof(QWORD) );
+}
+
+
+/*
  * Add a TLV as a bool.
  */
 DWORD packet_add_tlv_bool(Packet *packet, TlvType type, BOOL val)
@@ -559,6 +570,29 @@ UINT packet_get_tlv_value_uint(Packet *packet, TlvType type)
 		return 0;
 
 	return ntohl(*(LPDWORD)uintTlv.buffer);
+}
+
+BYTE * packet_get_tlv_value_raw( Packet * packet, TlvType type )
+{
+	Tlv tlv;
+
+	if( packet_get_tlv( packet, type, &tlv ) != ERROR_SUCCESS )
+		return NULL;
+
+	return tlv.buffer;
+}
+
+/*
+ * Get the value of a QWORD TLV
+ */
+QWORD packet_get_tlv_value_qword(Packet *packet, TlvType type)
+{
+	Tlv qwordTlv;
+
+	if( ( packet_get_tlv( packet, type, &qwordTlv ) != ERROR_SUCCESS ) || ( qwordTlv.header.length < sizeof(QWORD) ) )
+		return 0;
+
+	return ntohq( *(QWORD *)qwordTlv.buffer );
 }
 
 /*
@@ -1007,7 +1041,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 					SetLastError(ERROR_NOT_FOUND);
 
 				if(bytesRead < 0) {
-					dprintf("[PACKET] receive header failed with error code %d\n", bytesRead);
+					dprintf("[PACKET] receive header failed with error code %d. SSLerror=%d, WSALastError=%d\n", bytesRead, SSL_get_error( remote->ssl, bytesRead ), WSAGetLastError() );
 					SetLastError(ERROR_NOT_FOUND);
 				}
 
@@ -1051,7 +1085,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 					SetLastError(ERROR_NOT_FOUND);
 
 				if(bytesRead < 0) {
-					dprintf("[PACKET] receive payload of length %d failed with error code %d\n", payloadLength, bytesRead);
+					dprintf("[PACKET] receive payload of length %d failed with error code %d. SSLerror=%d\n", payloadLength, bytesRead, SSL_get_error( remote->ssl, bytesRead ) );
 					SetLastError(ERROR_NOT_FOUND);
 				}
 

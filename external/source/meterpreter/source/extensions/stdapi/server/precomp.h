@@ -62,6 +62,7 @@
 #include "sys/sys.h"
 #include "net/net.h"
 #include "ui/ui.h"
+#include "railgun/railgun.h"
 
 #ifdef _WIN32
  #include "../../../ReflectiveDLLInjection/DelayLoadMetSrv.h"

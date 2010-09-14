@@ -26,6 +26,24 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+	// Railgun
+	{ "stdapi_railgun_api",
+	  { request_railgun_api,                                { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                       },
+	},
+	{ "stdapi_railgun_api_multi",
+	  { request_railgun_api_multi,                          { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                       },
+	},
+	{ "stdapi_railgun_memread",
+	  { request_railgun_memread,                           { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "stdapi_railgun_memwrite",
+	  { request_railgun_memwrite,                           { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                       },
+	},
+
 	// Fs
 	{ "stdapi_fs_ls",
 	  { request_fs_ls,                                     { 0 }, 0 },

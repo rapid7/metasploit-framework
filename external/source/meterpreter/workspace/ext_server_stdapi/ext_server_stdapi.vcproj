@@ -1460,6 +1460,14 @@
 					</FileConfiguration>
 				</File>
 			</Filter>
+			<Filter
+				Name="railgun"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\railgun\railgun.c"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1561,6 +1569,14 @@
 				>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\ui\ui.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="railgun"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\railgun\railgun.h"
 					>
 				</File>
 			</Filter>

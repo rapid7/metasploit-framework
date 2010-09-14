@@ -25,6 +25,7 @@ typedef enum
 #define TLV_META_TYPE_UINT          (1 << 17)
 #define TLV_META_TYPE_RAW           (1 << 18)
 #define TLV_META_TYPE_BOOL          (1 << 19)
+#define TLV_META_TYPE_QWORD         (1 << 20)
 #define TLV_META_TYPE_COMPRESSED    (1 << 29)
 #define TLV_META_TYPE_GROUP         (1 << 30)
 #define TLV_META_TYPE_COMPLEX       (1 << 31)
@@ -97,6 +98,17 @@ typedef enum
 	MAKE_TLV(TEMP,                TLV_META_TYPE_COMPLEX, 60000),
 } TlvType;
 
+#ifdef _WIN32
+
+#ifndef QWORD
+typedef unsigned __int64	QWORD;
+#endif
+
+#define ntohq( qword )		( (QWORD)ntohl( qword & 0xFFFFFFFF ) << 32 ) | ntohl( qword >> 32 )
+#define htonq( qword )		ntohq( qword )
+
+#endif
+
 typedef struct
 {
 	DWORD length;
@@ -148,39 +160,34 @@ LINKAGE VOID packet_destroy(Packet *packet);
 
 LINKAGE DWORD packet_add_tlv_string(Packet *packet, TlvType type, LPCSTR str);
 LINKAGE DWORD packet_add_tlv_uint(Packet *packet, TlvType type, UINT val);
+LINKAGE DWORD packet_add_tlv_qword(Packet *packet, TlvType type, QWORD val );
 LINKAGE DWORD packet_add_tlv_bool(Packet *packet, TlvType type, BOOL val);
-LINKAGE DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries, 
-		DWORD numEntries);
-LINKAGE DWORD packet_add_tlvs(Packet *packet, Tlv *entries, 
-		DWORD numEntries);
-LINKAGE DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf, 
-		DWORD length);
+LINKAGE DWORD packet_add_tlv_group(Packet *packet, TlvType type, Tlv *entries, DWORD numEntries);
+LINKAGE DWORD packet_add_tlvs(Packet *packet, Tlv *entries, DWORD numEntries);
+LINKAGE DWORD packet_add_tlv_raw(Packet *packet, TlvType type, LPVOID buf, DWORD length);
 LINKAGE DWORD packet_is_tlv_null_terminated(Packet *packet, Tlv *tlv);
 LINKAGE PacketTlvType packet_get_type(Packet *packet);
 LINKAGE TlvMetaType packet_get_tlv_meta(Packet *packet, Tlv *tlv);
 LINKAGE DWORD packet_get_tlv(Packet *packet, TlvType type, Tlv *tlv);
 LINKAGE DWORD packet_get_tlv_string(Packet *packet, TlvType type, Tlv *tlv);
-LINKAGE DWORD packet_get_tlv_group_entry(Packet *packet, Tlv *group, TlvType type,
-		Tlv *entry);
-LINKAGE DWORD packet_enum_tlv(Packet *packet, DWORD index, TlvType type, 
-		Tlv *tlv);
+LINKAGE DWORD packet_get_tlv_group_entry(Packet *packet, Tlv *group, TlvType type,Tlv *entry);
+LINKAGE DWORD packet_enum_tlv(Packet *packet, DWORD index, TlvType type, Tlv *tlv);
 
 LINKAGE PCHAR packet_get_tlv_value_string(Packet *packet, TlvType type); 
-LINKAGE UINT packet_get_tlv_value_uint(Packet *packet, TlvType type); 
+LINKAGE UINT packet_get_tlv_value_uint(Packet *packet, TlvType type);
+LINKAGE BYTE * packet_get_tlv_value_raw( Packet * packet, TlvType type );
+LINKAGE QWORD packet_get_tlv_value_qword(Packet *packet, TlvType type);
 LINKAGE BOOL packet_get_tlv_value_bool(Packet *packet, TlvType type); 
 
-LINKAGE DWORD packet_add_exception(Packet *packet, DWORD code,
-		PCHAR string, ...);
+LINKAGE DWORD packet_add_exception(Packet *packet, DWORD code,PCHAR string, ...);
 
 LINKAGE DWORD packet_get_result(Packet *packet);
 
 /*
  * Packet transmission
  */
-LINKAGE DWORD packet_transmit(Remote *remote, Packet *packet,
-		PacketRequestCompletion *completion);
-LINKAGE DWORD packet_transmit_empty_response(Remote *remote, Packet *packet, 
-		DWORD res);
+LINKAGE DWORD packet_transmit(Remote *remote, Packet *packet,PacketRequestCompletion *completion);
+LINKAGE DWORD packet_transmit_empty_response(Remote *remote, Packet *packet, DWORD res);
 LINKAGE DWORD packet_receive(Remote *remote, Packet **packet);
 
 #define packet_transmit_response(result, remote, response)    \
@@ -192,10 +199,8 @@ LINKAGE DWORD packet_receive(Remote *remote, Packet **packet);
 /*
  * Packet completion notification
  */
-LINKAGE DWORD packet_add_completion_handler(LPCSTR requestId, 
-		PacketRequestCompletion *completion);
-LINKAGE DWORD packet_call_completion_handlers(Remote *remote, Packet *response,
-		LPCSTR requestId);
+LINKAGE DWORD packet_add_completion_handler(LPCSTR requestId, PacketRequestCompletion *completion);
+LINKAGE DWORD packet_call_completion_handlers(Remote *remote, Packet *response,LPCSTR requestId);
 LINKAGE DWORD packet_remove_completion_handler(LPCSTR requestId);
 
 /*
