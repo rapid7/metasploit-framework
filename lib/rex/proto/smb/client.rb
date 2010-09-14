@@ -321,7 +321,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 
 		if (pkt['Payload']['SMB'].v['WordCount'] >= 18)
-			res = SMB_NTTRANS_RES_PKT.make_struct
+			res = CONST::SMB_NTTRANS_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
