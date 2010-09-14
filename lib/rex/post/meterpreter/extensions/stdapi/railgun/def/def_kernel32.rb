@@ -2,12 +2,17 @@ module Rex
 module Post
 module Meterpreter
 module Extensions
+module Stdapi
 module Railgun
+module Def
 
 class Def_kernel32
 	def self.add_imports(railgun)
+		
+		railgun.add_dll('kernel32')
+		
 		railgun.add_function('kernel32',  'ActivateActCtx', 'BOOL',[
-			["DWORD","hActCtx","inout"],
+			["HANDLE","hActCtx","inout"],
 			["PBLOB","lpCookie","out"],
 			])
 		
@@ -20,21 +25,21 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'AddRefActCtx', 'VOID',[
-			["DWORD","hActCtx","inout"],
+			["HANDLE","hActCtx","inout"],
 			])
 		
-		railgun.add_function('kernel32',  'AddVectoredContinueHandler', 'PBLOB',[
+		railgun.add_function('kernel32',  'AddVectoredContinueHandler', 'LPVOID',[
 			["DWORD","First","in"],
 			["PBLOB","Handler","in"],
 			])
 		
-		railgun.add_function('kernel32',  'AddVectoredExceptionHandler', 'PBLOB',[
+		railgun.add_function('kernel32',  'AddVectoredExceptionHandler', 'LPVOID',[
 			["DWORD","First","in"],
 			["PBLOB","Handler","in"],
 			])
 		
 		railgun.add_function('kernel32',  'AllocateUserPhysicalPages', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","NumberOfPages","inout"],
 			["PBLOB","PageArray","out"],
 			])
@@ -43,12 +48,12 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'AssignProcessToJobObject', 'BOOL',[
-			["DWORD","hJob","in"],
-			["DWORD","hProcess","in"],
+			["HANDLE","hJob","in"],
+			["HANDLE","hProcess","in"],
 			])
 		
 		railgun.add_function('kernel32',  'BackupRead', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nNumberOfBytesToRead","in"],
 			["PDWORD","lpNumberOfBytesRead","out"],
@@ -58,7 +63,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'BackupSeek', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwLowBytesToSeek","in"],
 			["DWORD","dwHighBytesToSeek","in"],
 			["PDWORD","lpdwLowByteSeeked","out"],
@@ -67,7 +72,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'BackupWrite', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","nNumberOfBytesToWrite","in"],
 			["PDWORD","lpNumberOfBytesWritten","out"],
@@ -140,11 +145,11 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CancelDeviceWakeupRequest', 'BOOL',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			])
 		
 		railgun.add_function('kernel32',  'CancelIo', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'CancelTimerQueueTimer', 'BOOL',[
@@ -153,7 +158,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CancelWaitableTimer', 'BOOL',[
-			["DWORD","hTimer","in"],
+			["HANDLE","hTimer","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ChangeTimerQueueTimer', 'BOOL',[
@@ -180,33 +185,33 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CheckRemoteDebuggerPresent', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","pbDebuggerPresent","out"],
 			])
 		
 		railgun.add_function('kernel32',  'ClearCommBreak', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ClearCommError', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PDWORD","lpErrors","out"],
 			["PBLOB","lpStat","out"],
 			])
 		
 		railgun.add_function('kernel32',  'CloseHandle', 'BOOL',[
-			["DWORD","hObject","in"],
+			["HANDLE","hObject","in"],
 			])
 		
 		railgun.add_function('kernel32',  'CommConfigDialogA', 'BOOL',[
 			["PCHAR","lpszName","in"],
-			["DWORD","hWnd","in"],
+			["HANDLE","hWnd","in"],
 			["PBLOB","lpCC","inout"],
 			])
 		
 		railgun.add_function('kernel32',  'CommConfigDialogW', 'BOOL',[
 			["PWCHAR","lpszName","in"],
-			["DWORD","hWnd","in"],
+			["HANDLE","hWnd","in"],
 			["PBLOB","lpCC","inout"],
 			])
 		
@@ -216,7 +221,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ConnectNamedPipe', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PBLOB","lpOverlapped","inout"],
 			])
 		
@@ -229,11 +234,11 @@ class Def_kernel32
 		railgun.add_function('kernel32',  'ConvertFiberToThread', 'BOOL',[
 			])
 		
-		railgun.add_function('kernel32',  'ConvertThreadToFiber', 'PBLOB',[
+		railgun.add_function('kernel32',  'ConvertThreadToFiber', 'LPVOID',[
 			["PBLOB","lpParameter","in"],
 			])
 		
-		railgun.add_function('kernel32',  'ConvertThreadToFiberEx', 'PBLOB',[
+		railgun.add_function('kernel32',  'ConvertThreadToFiberEx', 'LPVOID',[
 			["PBLOB","lpParameter","in"],
 			["DWORD","dwFlags","in"],
 			])
@@ -312,13 +317,13 @@ class Def_kernel32
 			["PWCHAR","lpName","in"],
 			])
 		
-		railgun.add_function('kernel32',  'CreateFiber', 'PBLOB',[
+		railgun.add_function('kernel32',  'CreateFiber', 'LPVOID',[
 			["DWORD","dwStackSize","in"],
 			["PBLOB","lpStartAddress","in"],
 			["PBLOB","lpParameter","in"],
 			])
 		
-		railgun.add_function('kernel32',  'CreateFiberEx', 'PBLOB',[
+		railgun.add_function('kernel32',  'CreateFiberEx', 'LPVOID',[
 			["DWORD","dwStackCommitSize","in"],
 			["DWORD","dwStackReserveSize","in"],
 			["DWORD","dwFlags","in"],
@@ -333,11 +338,11 @@ class Def_kernel32
 			["PBLOB","lpSecurityAttributes","in"],
 			["DWORD","dwCreationDisposition","in"],
 			["DWORD","dwFlagsAndAttributes","in"],
-			["DWORD","hTemplateFile","in"],
+			["HANDLE","hTemplateFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'CreateFileMappingA', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpFileMappingAttributes","in"],
 			["DWORD","flProtect","in"],
 			["DWORD","dwMaximumSizeHigh","in"],
@@ -346,7 +351,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CreateFileMappingW', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpFileMappingAttributes","in"],
 			["DWORD","flProtect","in"],
 			["DWORD","dwMaximumSizeHigh","in"],
@@ -361,7 +366,7 @@ class Def_kernel32
 			["PBLOB","lpSecurityAttributes","in"],
 			["DWORD","dwCreationDisposition","in"],
 			["DWORD","dwFlagsAndAttributes","in"],
-			["DWORD","hTemplateFile","in"],
+			["HANDLE","hTemplateFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'CreateHardLinkA', 'BOOL',[
@@ -485,7 +490,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CreateRemoteThread', 'DWORD',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpThreadAttributes","in"],
 			["DWORD","dwStackSize","in"],
 			["PBLOB","lpStartAddress","in"],
@@ -509,16 +514,16 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'CreateTapePartition', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwPartitionMethod","in"],
 			["DWORD","dwCount","in"],
 			["DWORD","dwSize","in"],
 			])
 		
-		railgun.add_function('kernel32',  'CreateThread', 'DWORD',[
+		railgun.add_function('kernel32',  'CreateThread', 'HANDLE',[
 			["PBLOB","lpThreadAttributes","in"],
 			["DWORD","dwStackSize","in"],
-			["PBLOB","lpStartAddress","in"],
+			["LPVOID","lpStartAddress","in"],
 			["PBLOB","lpParameter","in"],
 			["DWORD","dwCreationFlags","in"],
 			["PDWORD","lpThreadId","out"],
@@ -573,11 +578,11 @@ class Def_kernel32
 			["BOOL","KillOnExit","in"],
 			])
 		
-		railgun.add_function('kernel32',  'DecodePointer', 'PBLOB',[
+		railgun.add_function('kernel32',  'DecodePointer', 'LPVOID',[
 			["PBLOB","Ptr","in"],
 			])
 		
-		railgun.add_function('kernel32',  'DecodeSystemPointer', 'PBLOB',[
+		railgun.add_function('kernel32',  'DecodeSystemPointer', 'LPVOID',[
 			["PBLOB","Ptr","in"],
 			])
 		
@@ -637,7 +642,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'DeviceIoControl', 'BOOL',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwIoControlCode","in"],
 			["PBLOB","lpInBuffer","in"],
 			["DWORD","nInBufferSize","in"],
@@ -648,11 +653,11 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'DisableThreadLibraryCalls', 'BOOL',[
-			["DWORD","hLibModule","in"],
+			["HANDLE","hLibModule","in"],
 			])
 		
 		railgun.add_function('kernel32',  'DisconnectNamedPipe', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			])
 		
 		railgun.add_function('kernel32',  'DnsHostnameToComputerNameA', 'BOOL',[
@@ -674,30 +679,30 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'DuplicateHandle', 'BOOL',[
-			["DWORD","hSourceProcessHandle","in"],
-			["DWORD","hSourceHandle","in"],
-			["DWORD","hTargetProcessHandle","in"],
+			["HANDLE","hSourceProcessHandle","in"],
+			["HANDLE","hSourceHandle","in"],
+			["HANDLE","hTargetProcessHandle","in"],
 			["PDWORD","lpTargetHandle","out"],
 			["DWORD","dwDesiredAccess","in"],
 			["BOOL","bInheritHandle","in"],
 			["DWORD","dwOptions","in"],
 			])
 		
-		railgun.add_function('kernel32',  'EncodePointer', 'PBLOB',[
+		railgun.add_function('kernel32',  'EncodePointer', 'LPVOID',[
 			["PBLOB","Ptr","in"],
 			])
 		
-		railgun.add_function('kernel32',  'EncodeSystemPointer', 'PBLOB',[
+		railgun.add_function('kernel32',  'EncodeSystemPointer', 'LPVOID',[
 			["PBLOB","Ptr","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EndUpdateResourceA', 'BOOL',[
-			["DWORD","hUpdate","in"],
+			["HANDLE","hUpdate","in"],
 			["BOOL","fDiscard","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EndUpdateResourceW', 'BOOL',[
-			["DWORD","hUpdate","in"],
+			["HANDLE","hUpdate","in"],
 			["BOOL","fDiscard","in"],
 			])
 		
@@ -706,45 +711,45 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceLanguagesA', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PCHAR","lpType","in"],
 			["PCHAR","lpName","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceLanguagesW', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PWCHAR","lpType","in"],
 			["PWCHAR","lpName","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceNamesA', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PCHAR","lpType","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceNamesW', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PWCHAR","lpType","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceTypesA', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumResourceTypesW', 'BOOL',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PBLOB","lpEnumFunc","in"],
-			["PBLOB","lParam","in"],
+			["PBLOB","lparam","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EnumSystemFirmwareTables', 'DWORD',[
@@ -754,13 +759,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'EraseTape', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwEraseType","in"],
 			["BOOL","bImmediate","in"],
 			])
 		
 		railgun.add_function('kernel32',  'EscapeCommFunction', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwFunc","in"],
 			])
 		
@@ -847,11 +852,11 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'FindClose', 'BOOL',[
-			["DWORD","hFindFile","inout"],
+			["HANDLE","hFindFile","inout"],
 			])
 		
 		railgun.add_function('kernel32',  'FindCloseChangeNotification', 'BOOL',[
-			["DWORD","hChangeHandle","in"],
+			["HANDLE","hChangeHandle","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindFirstChangeNotificationA', 'DWORD',[
@@ -924,80 +929,80 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'FindNextChangeNotification', 'BOOL',[
-			["DWORD","hChangeHandle","in"],
+			["HANDLE","hChangeHandle","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextFileA', 'BOOL',[
-			["DWORD","hFindFile","in"],
+			["HANDLE","hFindFile","in"],
 			["PBLOB","lpFindFileData","out"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextFileW', 'BOOL',[
-			["DWORD","hFindFile","in"],
+			["HANDLE","hFindFile","in"],
 			["PBLOB","lpFindFileData","out"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextStreamW', 'BOOL',[
-			["DWORD","hFindStream","in"],
+			["HANDLE","hFindStream","in"],
 			["PBLOB","lpFindStreamData","out"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextVolumeA', 'BOOL',[
-			["DWORD","hFindVolume","inout"],
+			["HANDLE","hFindVolume","inout"],
 			["PCHAR","lpszVolumeName","out"],
 			["DWORD","cchBufferLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextVolumeMountPointA', 'BOOL',[
-			["DWORD","hFindVolumeMountPoint","in"],
+			["HANDLE","hFindVolumeMountPoint","in"],
 			["PCHAR","lpszVolumeMountPoint","out"],
 			["DWORD","cchBufferLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextVolumeMountPointW', 'BOOL',[
-			["DWORD","hFindVolumeMountPoint","in"],
+			["HANDLE","hFindVolumeMountPoint","in"],
 			["PWCHAR","lpszVolumeMountPoint","out"],
 			["DWORD","cchBufferLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindNextVolumeW', 'BOOL',[
-			["DWORD","hFindVolume","inout"],
+			["HANDLE","hFindVolume","inout"],
 			["PWCHAR","lpszVolumeName","out"],
 			["DWORD","cchBufferLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindResourceA', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PCHAR","lpName","in"],
 			["PCHAR","lpType","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindResourceExA', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PCHAR","lpType","in"],
 			["PCHAR","lpName","in"],
 			["WORD","wLanguage","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindResourceExW', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PWCHAR","lpType","in"],
 			["PWCHAR","lpName","in"],
 			["WORD","wLanguage","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindResourceW', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PWCHAR","lpName","in"],
 			["PWCHAR","lpType","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindVolumeClose', 'BOOL',[
-			["DWORD","hFindVolume","in"],
+			["HANDLE","hFindVolume","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FindVolumeMountPointClose', 'BOOL',[
-			["DWORD","hFindVolumeMountPoint","in"],
+			["HANDLE","hFindVolumeMountPoint","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FlsAlloc', 'DWORD',[
@@ -1008,7 +1013,7 @@ class Def_kernel32
 			["DWORD","dwFlsIndex","in"],
 			])
 		
-		railgun.add_function('kernel32',  'FlsGetValue', 'PBLOB',[
+		railgun.add_function('kernel32',  'FlsGetValue', 'LPVOID',[
 			["DWORD","dwFlsIndex","in"],
 			])
 		
@@ -1018,11 +1023,11 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'FlushFileBuffers', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FlushInstructionCache', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpBaseAddress","in"],
 			["DWORD","dwSize","in"],
 			])
@@ -1041,20 +1046,20 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'FreeLibrary', 'BOOL',[
-			["DWORD","hLibModule","in"],
+			["HANDLE","hLibModule","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FreeLibraryAndExitThread', 'VOID',[
-			["DWORD","hLibModule","in"],
+			["HANDLE","hLibModule","in"],
 			["DWORD","dwExitCode","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FreeResource', 'BOOL',[
-			["DWORD","hResData","in"],
+			["HANDLE","hResData","in"],
 			])
 		
 		railgun.add_function('kernel32',  'FreeUserPhysicalPages', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","NumberOfPages","inout"],
 			["PBLOB","PageArray","in"],
 			])
@@ -1082,41 +1087,41 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetCommConfig', 'BOOL',[
-			["DWORD","hCommDev","in"],
+			["HANDLE","hCommDev","in"],
 			["PBLOB","lpCC","out"],
 			["PDWORD","lpdwSize","inout"],
 			])
 		
 		railgun.add_function('kernel32',  'GetCommMask', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PDWORD","lpEvtMask","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetCommModemStatus', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PDWORD","lpModemStat","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetCommProperties', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpCommProp","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetCommState', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpDCB","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetCommTimeouts', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpCommTimeouts","out"],
 			])
 		
-		railgun.add_function('kernel32',  'GetCommandLineA', 'PCHAR',[
-			])
+		#railgun.add_function('kernel32',  'GetCommandLineA', 'PCHAR',[
+		#	])
 		
-		railgun.add_function('kernel32',  'GetCommandLineW', 'PWCHAR',[
-			])
+		#railgun.add_function('kernel32',  'GetCommandLineW', 'PWCHAR',[
+		#	])
 		
 		railgun.add_function('kernel32',  'GetCompressedFileSizeA', 'DWORD',[
 			["PCHAR","lpFileName","in"],
@@ -1164,7 +1169,7 @@ class Def_kernel32
 			["PWCHAR","lpBuffer","out"],
 			])
 		
-		railgun.add_function('kernel32',  'GetCurrentProcess', 'DWORD',[
+		railgun.add_function('kernel32',  'GetCurrentProcess', 'HANDLE',[
 			])
 		
 		railgun.add_function('kernel32',  'GetCurrentProcessId', 'DWORD',[
@@ -1173,7 +1178,7 @@ class Def_kernel32
 		railgun.add_function('kernel32',  'GetCurrentProcessorNumber', 'DWORD',[
 			])
 		
-		railgun.add_function('kernel32',  'GetCurrentThread', 'DWORD',[
+		railgun.add_function('kernel32',  'GetCurrentThread', 'HANDLE',[
 			])
 		
 		railgun.add_function('kernel32',  'GetCurrentThreadId', 'DWORD',[
@@ -1192,7 +1197,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetDevicePowerState', 'BOOL',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["PBLOB","pfOn","out"],
 			])
 		
@@ -1244,10 +1249,10 @@ class Def_kernel32
 			["PWCHAR","lpRootPathName","in"],
 			])
 		
-		railgun.add_function('kernel32',  'GetEnvironmentStrings', 'PBLOB',[
+		railgun.add_function('kernel32',  'GetEnvironmentStrings', 'LPVOID',[
 			])
 		
-		railgun.add_function('kernel32',  'GetEnvironmentStringsW', 'PBLOB',[
+		railgun.add_function('kernel32',  'GetEnvironmentStringsW', 'LPVOID',[
 			])
 		
 		railgun.add_function('kernel32',  'GetEnvironmentVariableA', 'DWORD',[
@@ -1263,12 +1268,12 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetExitCodeProcess', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PDWORD","lpExitCode","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetExitCodeThread', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PDWORD","lpExitCode","out"],
 			])
 		
@@ -1293,29 +1298,29 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetFileInformationByHandle', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpFileInformation","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetFileSize', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PDWORD","lpFileSizeHigh","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetFileSizeEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpFileSize","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetFileTime', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpCreationTime","out"],
 			["PBLOB","lpLastAccessTime","out"],
 			["PBLOB","lpLastWriteTime","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetFileType', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetFirmwareEnvironmentVariableA', 'DWORD',[
@@ -1347,7 +1352,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetHandleInformation', 'BOOL',[
-			["DWORD","hObject","in"],
+			["HANDLE","hObject","in"],
 			["PDWORD","lpdwFlags","out"],
 			])
 		
@@ -1392,7 +1397,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetMailslotInfo', 'BOOL',[
-			["DWORD","hMailslot","in"],
+			["HANDLE","hMailslot","in"],
 			["PDWORD","lpMaxMessageSize","out"],
 			["PDWORD","lpNextSize","out"],
 			["PDWORD","lpMessageCount","out"],
@@ -1400,13 +1405,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetModuleFileNameA', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PBLOB","lpFilename","out"],
 			["DWORD","nSize","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetModuleFileNameW', 'DWORD',[
-			["DWORD","hModule","in"],
+			["HANDLE","hModule","in"],
 			["PBLOB","lpFilename","out"],
 			["DWORD","nSize","in"],
 			])
@@ -1432,7 +1437,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetNamedPipeHandleStateA', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PDWORD","lpState","out"],
 			["PDWORD","lpCurInstances","out"],
 			["PDWORD","lpMaxCollectionCount","out"],
@@ -1442,7 +1447,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetNamedPipeHandleStateW', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PDWORD","lpState","out"],
 			["PDWORD","lpCurInstances","out"],
 			["PDWORD","lpMaxCollectionCount","out"],
@@ -1452,7 +1457,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetNamedPipeInfo', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PDWORD","lpFlags","out"],
 			["PDWORD","lpOutBufferSize","out"],
 			["PDWORD","lpInBufferSize","out"],
@@ -1483,14 +1488,14 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetOverlappedResult', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpOverlapped","in"],
 			["PDWORD","lpNumberOfBytesTransferred","out"],
 			["BOOL","bWait","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetPriorityClass', 'DWORD',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetPrivateProfileIntA', 'DWORD',[
@@ -1567,19 +1572,19 @@ class Def_kernel32
 			["PWCHAR","szFile","in"],
 			])
 		
-		railgun.add_function('kernel32',  'GetProcAddress', 'PBLOB',[
-			["DWORD","hModule","in"],
+		railgun.add_function('kernel32',  'GetProcAddress', 'LPVOID',[
+			["HANDLE","hModule","in"],
 			["PCHAR","lpProcName","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessAffinityMask', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpProcessAffinityMask","out"],
 			["PBLOB","lpSystemAffinityMask","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessHandleCount', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PDWORD","pdwHandleCount","out"],
 			])
 		
@@ -1600,12 +1605,12 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessIoCounters', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpIoCounters","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessPriorityBoost', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","pDisablePriorityBoost","out"],
 			])
 		
@@ -1615,7 +1620,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessTimes', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpCreationTime","out"],
 			["PBLOB","lpExitTime","out"],
 			["PBLOB","lpKernelTime","out"],
@@ -1627,13 +1632,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessWorkingSetSize', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PDWORD","lpMinimumWorkingSetSize","out"],
 			["PDWORD","lpMaximumWorkingSetSize","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetProcessWorkingSetSizeEx', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PDWORD","lpMinimumWorkingSetSize","out"],
 			["PDWORD","lpMaximumWorkingSetSize","out"],
 			["PDWORD","Flags","out"],
@@ -1788,14 +1793,14 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetTapeParameters', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwOperation","in"],
 			["PDWORD","lpdwSize","inout"],
 			["PBLOB","lpTapeInformation","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetTapePosition', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwPositionType","in"],
 			["PDWORD","lpdwPartition","out"],
 			["PDWORD","lpdwOffsetLow","out"],
@@ -1803,7 +1808,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetTapeStatus', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetTempFileNameA', 'DWORD',[
@@ -1831,12 +1836,12 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadContext', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PBLOB","lpContext","inout"],
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadIOPendingFlag', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PBLOB","lpIOIsPending","out"],
 			])
 		
@@ -1845,22 +1850,22 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadPriority', 'DWORD',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadPriorityBoost', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PBLOB","pDisablePriorityBoost","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadSelectorEntry', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["DWORD","dwSelector","in"],
 			["PBLOB","lpSelectorEntry","out"],
 			])
 		
 		railgun.add_function('kernel32',  'GetThreadTimes', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PBLOB","lpCreationTime","out"],
 			["PBLOB","lpExitTime","out"],
 			["PBLOB","lpKernelTime","out"],
@@ -1994,15 +1999,15 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GlobalFix', 'VOID',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalFlags', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalFree', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalGetAtomNameA', 'DWORD',[
@@ -2021,8 +2026,8 @@ class Def_kernel32
 			["PBLOB","pMem","in"],
 			])
 		
-		railgun.add_function('kernel32',  'GlobalLock', 'PBLOB',[
-			["DWORD","hMem","in"],
+		railgun.add_function('kernel32',  'GlobalLock', 'LPVOID',[
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalMemoryStatus', 'VOID',[
@@ -2034,39 +2039,39 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'GlobalReAlloc', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			["DWORD","dwBytes","in"],
 			["DWORD","uFlags","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalSize', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalUnWire', 'BOOL',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalUnfix', 'VOID',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'GlobalUnlock', 'BOOL',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
-		railgun.add_function('kernel32',  'GlobalWire', 'PBLOB',[
-			["DWORD","hMem","in"],
+		railgun.add_function('kernel32',  'GlobalWire', 'LPVOID',[
+			["HANDLE","hMem","in"],
 			])
 		
-		railgun.add_function('kernel32',  'HeapAlloc', 'PBLOB',[
-			["DWORD","hHeap","in"],
+		railgun.add_function('kernel32',  'HeapAlloc', 'LPVOID',[
+			["HANDLE","hHeap","in"],
 			["DWORD","dwFlags","in"],
 			["DWORD","dwBytes","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapCompact', 'DWORD',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			["DWORD","dwFlags","in"],
 			])
 		
@@ -2077,59 +2082,59 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'HeapDestroy', 'BOOL',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapFree', 'BOOL',[
-			["DWORD","hHeap","inout"],
+			["HANDLE","hHeap","inout"],
 			["DWORD","dwFlags","in"],
-			["PBLOB","lpMem","in"],
+			["LPVOID","lpMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapLock', 'BOOL',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapQueryInformation', 'BOOL',[
-			["DWORD","HeapHandle","in"],
+			["HANDLE","heapHandle","in"],
 			["PDWORD","HeapInformationClass","in"],
 			["PBLOB","HeapInformation","out"],
-			["DWORD","HeapInformationLength","in"],
+			["HANDLE","heapInformationLength","in"],
 			["PDWORD","ReturnLength","out"],
 			])
 		
-		railgun.add_function('kernel32',  'HeapReAlloc', 'PBLOB',[
-			["DWORD","hHeap","inout"],
+		railgun.add_function('kernel32',  'HeapReAlloc', 'LPVOID',[
+			["HANDLE","hHeap","inout"],
 			["DWORD","dwFlags","in"],
-			["PBLOB","lpMem","in"],
+			["LPVOID","lpMem","in"],
 			["DWORD","dwBytes","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapSetInformation', 'BOOL',[
-			["DWORD","HeapHandle","in"],
+			["HANDLE","heapHandle","in"],
 			["PDWORD","HeapInformationClass","in"],
 			["PBLOB","HeapInformation","in"],
-			["DWORD","HeapInformationLength","in"],
+			["HANDLE","heapInformationLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapSize', 'DWORD',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			["DWORD","dwFlags","in"],
-			["PBLOB","lpMem","in"],
+			["LPVOID","lpMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapUnlock', 'BOOL',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapValidate', 'BOOL',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			["DWORD","dwFlags","in"],
-			["PBLOB","lpMem","in"],
+			["LPVOID","lpMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'HeapWalk', 'BOOL',[
-			["DWORD","hHeap","in"],
+			["HANDLE","hHeap","in"],
 			["PBLOB","lpEntry","inout"],
 			])
 		
@@ -2156,7 +2161,7 @@ class Def_kernel32
 			["DWORD","Comperand","in"],
 			])
 		
-		railgun.add_function('kernel32',  'InterlockedCompareExchange64', 'PBLOB',[
+		railgun.add_function('kernel32',  'InterlockedCompareExchange64', 'LPVOID',[
 			["PBLOB","Destination","inout"],
 			["PBLOB","ExChange","in"],
 			["PBLOB","Comperand","in"],
@@ -2176,7 +2181,7 @@ class Def_kernel32
 			["DWORD","Value","in"],
 			])
 		
-		railgun.add_function('kernel32',  'InterlockedFlushSList', 'PBLOB',[
+		railgun.add_function('kernel32',  'InterlockedFlushSList', 'LPVOID',[
 			["PBLOB","ListHead","inout"],
 			])
 		
@@ -2184,11 +2189,11 @@ class Def_kernel32
 			["PDWORD","lpAddend","inout"],
 			])
 		
-		railgun.add_function('kernel32',  'InterlockedPopEntrySList', 'PBLOB',[
+		railgun.add_function('kernel32',  'InterlockedPopEntrySList', 'LPVOID',[
 			["PBLOB","ListHead","inout"],
 			])
 		
-		railgun.add_function('kernel32',  'InterlockedPushEntrySList', 'PBLOB',[
+		railgun.add_function('kernel32',  'InterlockedPushEntrySList', 'LPVOID',[
 			["PBLOB","ListHead","inout"],
 			["PBLOB","ListEntry","inout"],
 			])
@@ -2242,7 +2247,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'IsWow64Process', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","Wow64Process","out"],
 			])
 		
@@ -2256,13 +2261,13 @@ class Def_kernel32
 		
 		railgun.add_function('kernel32',  'LoadLibraryExA', 'DWORD',[
 			["PCHAR","lpLibFileName","in"],
-			["DWORD","hFile","inout"],
+			["HANDLE","hFile","inout"],
 			["DWORD","dwFlags","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LoadLibraryExW', 'DWORD',[
 			["PWCHAR","lpLibFileName","in"],
-			["DWORD","hFile","inout"],
+			["HANDLE","hFile","inout"],
 			["DWORD","dwFlags","in"],
 			])
 		
@@ -2276,8 +2281,8 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'LoadResource', 'DWORD',[
-			["DWORD","hModule","in"],
-			["DWORD","hResInfo","in"],
+			["HANDLE","hModule","in"],
+			["HANDLE","hResInfo","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalAlloc', 'DWORD',[
@@ -2295,42 +2300,42 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'LocalFlags', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalFree', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalHandle', 'DWORD',[
 			["PBLOB","pMem","in"],
 			])
 		
-		railgun.add_function('kernel32',  'LocalLock', 'PBLOB',[
-			["DWORD","hMem","in"],
+		railgun.add_function('kernel32',  'LocalLock', 'LPVOID',[
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalReAlloc', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			["DWORD","uBytes","in"],
 			["DWORD","uFlags","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalShrink', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			["DWORD","cbNewSize","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalSize', 'DWORD',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LocalUnlock', 'BOOL',[
-			["DWORD","hMem","in"],
+			["HANDLE","hMem","in"],
 			])
 		
 		railgun.add_function('kernel32',  'LockFile', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwFileOffsetLow","in"],
 			["DWORD","dwFileOffsetHigh","in"],
 			["DWORD","nNumberOfBytesToLockLow","in"],
@@ -2338,7 +2343,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'LockFileEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwFlags","in"],
 			["DWORD","dwReserved","inout"],
 			["DWORD","nNumberOfBytesToLockLow","in"],
@@ -2346,8 +2351,8 @@ class Def_kernel32
 			["PBLOB","lpOverlapped","inout"],
 			])
 		
-		railgun.add_function('kernel32',  'LockResource', 'PBLOB',[
-			["DWORD","hResData","in"],
+		railgun.add_function('kernel32',  'LockResource', 'LPVOID',[
+			["HANDLE","hResData","in"],
 			])
 		
 		railgun.add_function('kernel32',  'MapUserPhysicalPages', 'BOOL',[
@@ -2362,16 +2367,16 @@ class Def_kernel32
 			["PBLOB","PageArray","in"],
 			])
 		
-		railgun.add_function('kernel32',  'MapViewOfFile', 'PBLOB',[
-			["DWORD","hFileMappingObject","in"],
+		railgun.add_function('kernel32',  'MapViewOfFile', 'LPVOID',[
+			["HANDLE","hFileMappingObject","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["DWORD","dwFileOffsetHigh","in"],
 			["DWORD","dwFileOffsetLow","in"],
 			["DWORD","dwNumberOfBytesToMap","in"],
 			])
 		
-		railgun.add_function('kernel32',  'MapViewOfFileEx', 'PBLOB',[
-			["DWORD","hFileMappingObject","in"],
+		railgun.add_function('kernel32',  'MapViewOfFileEx', 'LPVOID',[
+			["HANDLE","hFileMappingObject","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["DWORD","dwFileOffsetHigh","in"],
 			["DWORD","dwFileOffsetLow","in"],
@@ -2530,7 +2535,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'PeekNamedPipe', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nBufferSize","in"],
 			["PDWORD","lpBytesRead","out"],
@@ -2546,7 +2551,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'PrepareTape', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwOperation","in"],
 			["BOOL","bImmediate","in"],
 			])
@@ -2557,17 +2562,17 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'PulseEvent', 'BOOL',[
-			["DWORD","hEvent","in"],
+			["HANDLE","hEvent","in"],
 			])
 		
 		railgun.add_function('kernel32',  'PurgeComm', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwFlags","in"],
 			])
 		
 		railgun.add_function('kernel32',  'QueryActCtxW', 'BOOL',[
 			["DWORD","dwFlags","in"],
-			["DWORD","hActCtx","in"],
+			["HANDLE","hActCtx","in"],
 			["PBLOB","pvSubInstance","in"],
 			["DWORD","ulInfoClass","in"],
 			["PBLOB","pvBuffer","out"],
@@ -2592,7 +2597,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'QueryInformationJobObject', 'BOOL',[
-			["DWORD","hJob","in"],
+			["HANDLE","hJob","in"],
 			["PBLOB","JobObjectInformationClass","in"],
 			["PBLOB","lpJobObjectInformation","out"],
 			["DWORD","cbJobObjectInformationLength","in"],
@@ -2614,7 +2619,7 @@ class Def_kernel32
 		
 		railgun.add_function('kernel32',  'QueueUserAPC', 'DWORD',[
 			["PBLOB","pfnAPC","in"],
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PDWORD","dwData","in"],
 			])
 		
@@ -2632,14 +2637,14 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReOpenFile', 'DWORD',[
-			["DWORD","hOriginalFile","in"],
+			["HANDLE","hOriginalFile","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["DWORD","dwShareMode","in"],
 			["DWORD","dwFlagsAndAttributes","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ReadDirectoryChangesW', 'BOOL',[
-			["DWORD","hDirectory","in"],
+			["HANDLE","hDirectory","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nBufferLength","in"],
 			["BOOL","bWatchSubtree","in"],
@@ -2650,7 +2655,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReadFile', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nNumberOfBytesToRead","in"],
 			["PDWORD","lpNumberOfBytesRead","out"],
@@ -2658,7 +2663,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReadFileEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nNumberOfBytesToRead","in"],
 			["PBLOB","lpOverlapped","inout"],
@@ -2666,7 +2671,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReadFileScatter', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","aSegmentArray[]","in"],
 			["DWORD","nNumberOfBytesToRead","in"],
 			["PDWORD","lpReserved","inout"],
@@ -2674,7 +2679,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReadProcessMemory', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpBaseAddress","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","nSize","in"],
@@ -2683,7 +2688,7 @@ class Def_kernel32
 		
 		railgun.add_function('kernel32',  'RegisterWaitForSingleObject', 'BOOL',[
 			["PDWORD","phNewWaitObject","out"],
-			["DWORD","hObject","in"],
+			["HANDLE","hObject","in"],
 			["PBLOB","Callback","in"],
 			["PBLOB","Context","in"],
 			["DWORD","dwMilliseconds","in"],
@@ -2691,7 +2696,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'RegisterWaitForSingleObjectEx', 'DWORD',[
-			["DWORD","hObject","in"],
+			["HANDLE","hObject","in"],
 			["PBLOB","Callback","in"],
 			["PBLOB","Context","in"],
 			["DWORD","dwMilliseconds","in"],
@@ -2699,15 +2704,15 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ReleaseActCtx', 'VOID',[
-			["DWORD","hActCtx","inout"],
+			["HANDLE","hActCtx","inout"],
 			])
 		
 		railgun.add_function('kernel32',  'ReleaseMutex', 'BOOL',[
-			["DWORD","hMutex","in"],
+			["HANDLE","hMutex","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ReleaseSemaphore', 'BOOL',[
-			["DWORD","hSemaphore","in"],
+			["HANDLE","hSemaphore","in"],
 			["DWORD","lReleaseCount","in"],
 			["PBLOB","lpPreviousCount","out"],
 			])
@@ -2747,7 +2752,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'RequestDeviceWakeup', 'BOOL',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			])
 		
 		railgun.add_function('kernel32',  'RequestWakeupLatency', 'BOOL',[
@@ -2755,7 +2760,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ResetEvent', 'BOOL',[
-			["DWORD","hEvent","in"],
+			["HANDLE","hEvent","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ResetWriteWatch', 'DWORD',[
@@ -2768,7 +2773,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'ResumeThread', 'DWORD',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SearchPathA', 'DWORD',[
@@ -2790,27 +2795,27 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetCommBreak', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetCommConfig', 'BOOL',[
-			["DWORD","hCommDev","in"],
+			["HANDLE","hCommDev","in"],
 			["PBLOB","lpCC","in"],
 			["DWORD","dwSize","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetCommMask', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwEvtMask","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetCommState', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpDCB","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetCommTimeouts', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpCommTimeouts","in"],
 			])
 		
@@ -2866,7 +2871,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetEndOfFile', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetEnvironmentStringsA', 'BOOL',[
@@ -2892,7 +2897,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetEvent', 'BOOL',[
-			["DWORD","hEvent","in"],
+			["HANDLE","hEvent","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFileApisToANSI', 'VOID',[
@@ -2912,38 +2917,38 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetFilePointer', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","lDistanceToMove","in"],
 			["PDWORD","lpDistanceToMoveHigh","in"],
 			["DWORD","dwMoveMethod","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFilePointerEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","liDistanceToMove","in"],
 			["PBLOB","lpNewFilePointer","out"],
 			["DWORD","dwMoveMethod","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFileShortNameA', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PCHAR","lpShortName","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFileShortNameW', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PWCHAR","lpShortName","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFileTime', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpCreationTime","in"],
 			["PBLOB","lpLastAccessTime","in"],
 			["PBLOB","lpLastWriteTime","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetFileValidData', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","ValidDataLength","in"],
 			])
 		
@@ -2966,13 +2971,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetHandleInformation', 'BOOL',[
-			["DWORD","hObject","in"],
+			["HANDLE","hObject","in"],
 			["DWORD","dwMask","in"],
 			["DWORD","dwFlags","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetInformationJobObject', 'BOOL',[
-			["DWORD","hJob","in"],
+			["HANDLE","hJob","in"],
 			["PBLOB","JobObjectInformationClass","in"],
 			["PBLOB","lpJobObjectInformation","in"],
 			["DWORD","cbJobObjectInformationLength","in"],
@@ -2987,34 +2992,34 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetMailslotInfo', 'BOOL',[
-			["DWORD","hMailslot","in"],
+			["HANDLE","hMailslot","in"],
 			["DWORD","lReadTimeout","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetMessageWaitingIndicator', 'BOOL',[
-			["DWORD","hMsgIndicator","in"],
+			["HANDLE","hMsgIndicator","in"],
 			["DWORD","ulMsgCount","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetNamedPipeHandleState', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PDWORD","lpMode","in"],
 			["PDWORD","lpMaxCollectionCount","in"],
 			["PDWORD","lpCollectDataTimeout","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetPriorityClass', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["DWORD","dwPriorityClass","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetProcessAffinityMask', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PDWORD","dwProcessAffinityMask","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetProcessPriorityBoost', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["BOOL","bDisablePriorityBoost","in"],
 			])
 		
@@ -3024,13 +3029,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetProcessWorkingSetSize', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["DWORD","dwMinimumWorkingSetSize","in"],
 			["DWORD","dwMaximumWorkingSetSize","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetProcessWorkingSetSizeEx', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["DWORD","dwMinimumWorkingSetSize","in"],
 			["DWORD","dwMaximumWorkingSetSize","in"],
 			["DWORD","Flags","in"],
@@ -3038,7 +3043,7 @@ class Def_kernel32
 		
 		railgun.add_function('kernel32',  'SetStdHandle', 'BOOL',[
 			["DWORD","nStdHandle","in"],
-			["DWORD","hHandle","in"],
+			["HANDLE","hHandle","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetSystemFileCacheSize', 'BOOL',[
@@ -3062,13 +3067,13 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetTapeParameters', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwOperation","in"],
 			["PBLOB","lpTapeInformation","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetTapePosition', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwPositionMethod","in"],
 			["DWORD","dwPartition","in"],
 			["DWORD","dwOffsetLow","in"],
@@ -3076,13 +3081,13 @@ class Def_kernel32
 			["BOOL","bImmediate","in"],
 			])
 		
-		railgun.add_function('kernel32',  'SetThreadAffinityMask', 'PDWORD',[
-			["DWORD","hThread","in"],
-			["PDWORD","dwThreadAffinityMask","in"],
-			])
+		#railgun.add_function('kernel32',  'SetThreadAffinityMask', 'PDWORD',[
+		#	["HANDLE","hThread","in"],
+		#	["PDWORD","dwThreadAffinityMask","in"],
+		#	])
 		
 		railgun.add_function('kernel32',  'SetThreadContext', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["PBLOB","lpContext","in"],
 			])
 		
@@ -3091,17 +3096,17 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetThreadIdealProcessor', 'DWORD',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["DWORD","dwIdealProcessor","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetThreadPriority', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["DWORD","nPriority","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SetThreadPriorityBoost', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["BOOL","bDisablePriorityBoost","in"],
 			])
 		
@@ -3122,7 +3127,7 @@ class Def_kernel32
 			["BOOL","PreferIo","in"],
 			])
 		
-		railgun.add_function('kernel32',  'SetUnhandledExceptionFilter', 'PBLOB',[
+		railgun.add_function('kernel32',  'SetUnhandledExceptionFilter', 'LPVOID',[
 			["PBLOB","lpTopLevelExceptionFilter","in"],
 			])
 		
@@ -3147,7 +3152,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetWaitableTimer', 'BOOL',[
-			["DWORD","hTimer","in"],
+			["HANDLE","hTimer","in"],
 			["PBLOB","lpDueTime","in"],
 			["DWORD","lPeriod","in"],
 			["PBLOB","pfnCompletionRoutine","in"],
@@ -3156,21 +3161,21 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SetupComm', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwInQueue","in"],
 			["DWORD","dwOutQueue","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SignalObjectAndWait', 'DWORD',[
-			["DWORD","hObjectToSignal","in"],
-			["DWORD","hObjectToWaitOn","in"],
+			["HANDLE","hObjectToSignal","in"],
+			["HANDLE","hObjectToWaitOn","in"],
 			["DWORD","dwMilliseconds","in"],
 			["BOOL","bAlertable","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SizeofResource', 'DWORD',[
-			["DWORD","hModule","in"],
-			["DWORD","hResInfo","in"],
+			["HANDLE","hModule","in"],
+			["HANDLE","hResInfo","in"],
 			])
 		
 		railgun.add_function('kernel32',  'Sleep', 'VOID',[
@@ -3183,7 +3188,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'SuspendThread', 'DWORD',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			])
 		
 		railgun.add_function('kernel32',  'SwitchToFiber', 'VOID',[
@@ -3205,17 +3210,17 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'TerminateJobObject', 'BOOL',[
-			["DWORD","hJob","in"],
+			["HANDLE","hJob","in"],
 			["DWORD","uExitCode","in"],
 			])
 		
 		railgun.add_function('kernel32',  'TerminateProcess', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["DWORD","uExitCode","in"],
 			])
 		
 		railgun.add_function('kernel32',  'TerminateThread', 'BOOL',[
-			["DWORD","hThread","in"],
+			["HANDLE","hThread","in"],
 			["DWORD","dwExitCode","in"],
 			])
 		
@@ -3226,7 +3231,7 @@ class Def_kernel32
 			["DWORD","dwTlsIndex","in"],
 			])
 		
-		railgun.add_function('kernel32',  'TlsGetValue', 'PBLOB',[
+		railgun.add_function('kernel32',  'TlsGetValue', 'LPVOID',[
 			["DWORD","dwTlsIndex","in"],
 			])
 		
@@ -3236,7 +3241,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'TransactNamedPipe', 'BOOL',[
-			["DWORD","hNamedPipe","in"],
+			["HANDLE","hNamedPipe","in"],
 			["PBLOB","lpInBuffer","in"],
 			["DWORD","nInBufferSize","in"],
 			["PBLOB","lpOutBuffer","out"],
@@ -3246,7 +3251,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'TransmitCommChar', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["BYTE","cChar","in"],
 			])
 		
@@ -3265,7 +3270,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'UnlockFile', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwFileOffsetLow","in"],
 			["DWORD","dwFileOffsetHigh","in"],
 			["DWORD","nNumberOfBytesToUnlockLow","in"],
@@ -3273,7 +3278,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'UnlockFileEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","dwReserved","inout"],
 			["DWORD","nNumberOfBytesToUnlockLow","in"],
 			["DWORD","nNumberOfBytesToUnlockHigh","in"],
@@ -3294,7 +3299,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'UpdateResourceA', 'BOOL',[
-			["DWORD","hUpdate","in"],
+			["HANDLE","hUpdate","in"],
 			["PCHAR","lpType","in"],
 			["PCHAR","lpName","in"],
 			["WORD","wLanguage","in"],
@@ -3303,7 +3308,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'UpdateResourceW', 'BOOL',[
-			["DWORD","hUpdate","in"],
+			["HANDLE","hUpdate","in"],
 			["PWCHAR","lpType","in"],
 			["PWCHAR","lpName","in"],
 			["WORD","wLanguage","in"],
@@ -3323,69 +3328,69 @@ class Def_kernel32
 			["PBLOB","dwlConditionMask","in"],
 			])
 		
-		railgun.add_function('kernel32',  'VirtualAlloc', 'PBLOB',[
-			["PBLOB","lpAddress","in"],
+		railgun.add_function('kernel32',  'VirtualAlloc', 'LPVOID',[
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","flAllocationType","in"],
 			["DWORD","flProtect","in"],
 			])
 		
-		railgun.add_function('kernel32',  'VirtualAllocEx', 'PBLOB',[
-			["DWORD","hProcess","in"],
-			["PBLOB","lpAddress","in"],
+		railgun.add_function('kernel32',  'VirtualAllocEx', 'LPVOID',[
+			["HANDLE","hProcess","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","flAllocationType","in"],
 			["DWORD","flProtect","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualFree', 'BOOL',[
-			["PBLOB","lpAddress","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","dwFreeType","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualFreeEx', 'BOOL',[
-			["DWORD","hProcess","in"],
-			["PBLOB","lpAddress","in"],
+			["HANDLE","hProcess","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","dwFreeType","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualLock', 'BOOL',[
-			["PBLOB","lpAddress","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualProtect', 'BOOL',[
-			["PBLOB","lpAddress","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","flNewProtect","in"],
 			["PDWORD","lpflOldProtect","out"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualProtectEx', 'BOOL',[
-			["DWORD","hProcess","in"],
-			["PBLOB","lpAddress","in"],
+			["HANDLE","hProcess","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			["DWORD","flNewProtect","in"],
 			["PDWORD","lpflOldProtect","out"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualQuery', 'DWORD',[
-			["PBLOB","lpAddress","in"],
+			["LPVOID","lpAddress","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","dwLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualQueryEx', 'DWORD',[
-			["DWORD","hProcess","in"],
-			["PBLOB","lpAddress","in"],
+			["HANDLE","hProcess","in"],
+			["LPVOID","lpAddress","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","dwLength","in"],
 			])
 		
 		railgun.add_function('kernel32',  'VirtualUnlock', 'BOOL',[
-			["PBLOB","lpAddress","in"],
+			["LPVOID","lpAddress","in"],
 			["DWORD","dwSize","in"],
 			])
 		
@@ -3393,7 +3398,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WaitCommEvent', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PDWORD","lpEvtMask","inout"],
 			["PBLOB","lpOverlapped","inout"],
 			])
@@ -3419,12 +3424,12 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WaitForSingleObject', 'DWORD',[
-			["DWORD","hHandle","in"],
+			["HANDLE","hHandle","in"],
 			["DWORD","dwMilliseconds","in"],
 			])
 		
 		railgun.add_function('kernel32',  'WaitForSingleObjectEx', 'DWORD',[
-			["DWORD","hHandle","in"],
+			["HANDLE","hHandle","in"],
 			["DWORD","dwMilliseconds","in"],
 			["BOOL","bAlertable","in"],
 			])
@@ -3457,7 +3462,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WriteFile', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","nNumberOfBytesToWrite","in"],
 			["PDWORD","lpNumberOfBytesWritten","out"],
@@ -3465,7 +3470,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WriteFileEx', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","nNumberOfBytesToWrite","in"],
 			["PBLOB","lpOverlapped","inout"],
@@ -3473,7 +3478,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WriteFileGather', 'BOOL',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","aSegmentArray[]","in"],
 			["DWORD","nNumberOfBytesToWrite","in"],
 			["PDWORD","lpReserved","inout"],
@@ -3523,7 +3528,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WriteProcessMemory', 'BOOL',[
-			["DWORD","hProcess","in"],
+			["HANDLE","hProcess","in"],
 			["PBLOB","lpBaseAddress","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","nSize","in"],
@@ -3553,30 +3558,30 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  'WriteTapemark', 'DWORD',[
-			["DWORD","hDevice","in"],
+			["HANDLE","hDevice","in"],
 			["DWORD","dwTapemarkType","in"],
 			["DWORD","dwTapemarkCount","in"],
 			["BOOL","bImmediate","in"],
 			])
 		
 		railgun.add_function('kernel32',  'ZombifyActCtx', 'BOOL',[
-			["DWORD","hActCtx","inout"],
+			["HANDLE","hActCtx","inout"],
 			])
 		
 		railgun.add_function('kernel32',  '_hread', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","lBytes","in"],
 			])
 		
 		railgun.add_function('kernel32',  '_hwrite', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","lBytes","in"],
 			])
 		
 		railgun.add_function('kernel32',  '_lclose', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			])
 		
 		railgun.add_function('kernel32',  '_lcreat', 'DWORD',[
@@ -3585,7 +3590,7 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  '_llseek', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["DWORD","lOffset","in"],
 			["DWORD","iOrigin","in"],
 			])
@@ -3596,26 +3601,26 @@ class Def_kernel32
 			])
 		
 		railgun.add_function('kernel32',  '_lread', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","out"],
 			["DWORD","uBytes","in"],
 			])
 		
 		railgun.add_function('kernel32',  '_lwrite', 'DWORD',[
-			["DWORD","hFile","in"],
+			["HANDLE","hFile","in"],
 			["PBLOB","lpBuffer","in"],
 			["DWORD","uBytes","in"],
 			])
 		
-		railgun.add_function('kernel32',  'lstrcatA', 'PCHAR',[
-			["PCHAR","lpString1","inout"],
-			["PCHAR","lpString2","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcatA', 'PCHAR',[
+		#	["PCHAR","lpString1","inout"],
+		#	["PCHAR","lpString2","in"],
+		#	])
 		
-		railgun.add_function('kernel32',  'lstrcatW', 'PWCHAR',[
-			["PWCHAR","lpString1","inout"],
-			["PWCHAR","lpString2","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcatW', 'PWCHAR',[
+		#	["PWCHAR","lpString1","inout"],
+		#	["PWCHAR","lpString2","in"],
+		#	])
 		
 		railgun.add_function('kernel32',  'lstrcmpA', 'DWORD',[
 			["PCHAR","lpString1","in"],
@@ -3637,27 +3642,27 @@ class Def_kernel32
 			["PWCHAR","lpString2","in"],
 			])
 		
-		railgun.add_function('kernel32',  'lstrcpyA', 'PCHAR',[
-			["PCHAR","lpString1","out"],
-			["PCHAR","lpString2","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcpyA', 'PCHAR',[
+		#	["PCHAR","lpString1","out"],
+		#	["PCHAR","lpString2","in"],
+		#	])
 		
-		railgun.add_function('kernel32',  'lstrcpyW', 'PWCHAR',[
-			["PWCHAR","lpString1","out"],
-			["PWCHAR","lpString2","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcpyW', 'PWCHAR',[
+		#	["PWCHAR","lpString1","out"],
+		#	["PWCHAR","lpString2","in"],
+		#	])
 		
-		railgun.add_function('kernel32',  'lstrcpynA', 'PCHAR',[
-			["PCHAR","lpString1","out"],
-			["PCHAR","lpString2","in"],
-			["DWORD","iMaxLength","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcpynA', 'PCHAR',[
+		#	["PCHAR","lpString1","out"],
+		#	["PCHAR","lpString2","in"],
+		#	["DWORD","iMaxLength","in"],
+		#	])
 		
-		railgun.add_function('kernel32',  'lstrcpynW', 'PWCHAR',[
-			["PWCHAR","lpString1","out"],
-			["PWCHAR","lpString2","in"],
-			["DWORD","iMaxLength","in"],
-			])
+		#railgun.add_function('kernel32',  'lstrcpynW', 'PWCHAR',[
+		#	["PWCHAR","lpString1","out"],
+		#	["PWCHAR","lpString2","in"],
+		#	["DWORD","iMaxLength","in"],
+		#	])
 		
 		railgun.add_function('kernel32',  'lstrlenA', 'DWORD',[
 			["PCHAR","lpString","in"],
@@ -3666,13 +3671,178 @@ class Def_kernel32
 		railgun.add_function('kernel32',  'lstrlenW', 'DWORD',[
 			["PWCHAR","lpString","in"],
 			])
-	end # method
-end #class
+			
 
-end # 5x module
+		railgun.add_function( 'kernel32', 'CreateToolhelp32Snapshot', 'DWORD',[
+			["DWORD","dwFlags","in"],
+			["DWORD","th32ProcessID","in"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32First', 'BOOL',[
+			["PBLOB","lphe","inout"],
+			["DWORD","th32ProcessID","in"],
+			["PDWORD","th32HeapID","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32ListFirst', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lphl","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32ListNext', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lphl","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32Next', 'BOOL',[
+			["PBLOB","lphe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32First', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32FirstW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32Next', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32NextW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32First', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32FirstW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32Next', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32NextW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+                ])
+
+		railgun.add_function( 'kernel32', 'Thread32First', 'BOOL',[
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Thread32Next', 'BOOL',[
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Toolhelp32ReadProcessMemory', 'BOOL',[
+                                ["DWORD","th32ProcessID","in"],
+                                ["PBLOB","lpBaseAddress","inout"],
+                                ["PBLOB","lpBuffer","inout"],
+                                ["DWORD","cbRead","in"],
+                                ["PDWORD","lpNumberOfBytesRead","in"],
+			])
+
+		railgun.add_function( 'kernel32', 'CreateToolhelp32Snapshot', 'DWORD',[
+			["DWORD","dwFlags","in"],
+			["DWORD","th32ProcessID","in"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32First', 'BOOL',[
+			["PBLOB","lphe","inout"],
+			["DWORD","th32ProcessID","in"],
+			["PDWORD","th32HeapID","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32ListFirst', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lphl","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32ListNext', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lphl","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Heap32Next', 'BOOL',[
+			["PBLOB","lphe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32First', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32FirstW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32Next', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Module32NextW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lpme","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32First', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32FirstW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32Next', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Process32NextW', 'BOOL',[
+			["DWORD","hSnapshot","in"],
+			["PBLOB","lppe","inout"],
+                ])
+
+		railgun.add_function( 'kernel32', 'Thread32First', 'BOOL',[
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Thread32Next', 'BOOL',[
+                                ["DWORD","hSnapshot","in"],
+                                ["PBLOB","lpte","inout"],
+			])
+
+		railgun.add_function( 'kernel32', 'Toolhelp32ReadProcessMemory', 'BOOL',[
+                                ["DWORD","th32ProcessID","in"],
+                                ["PBLOB","lpBaseAddress","inout"],
+                                ["PBLOB","lpBuffer","inout"],
+                                ["DWORD","cbRead","in"],
+                                ["PDWORD","lpNumberOfBytesRead","in"],
+			])
+
+	end
+	
 end
-end
-end
-end
+
+end; end; end; end; end; end; end
 
 

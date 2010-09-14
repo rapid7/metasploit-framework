@@ -14,6 +14,7 @@ require 'rex/post/meterpreter/extensions/stdapi/sys/process'
 require 'rex/post/meterpreter/extensions/stdapi/sys/registry'
 require 'rex/post/meterpreter/extensions/stdapi/sys/event_log'
 require 'rex/post/meterpreter/extensions/stdapi/sys/power'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
 
 module Rex
@@ -69,6 +70,10 @@ class Stdapi < Extension
 							'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client)
 						})
 				},	
+				{
+					'name' => 'railgun',
+					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)
+				},
 				{
 					'name' => 'ui',
 					'ext'  => UI.new(client)

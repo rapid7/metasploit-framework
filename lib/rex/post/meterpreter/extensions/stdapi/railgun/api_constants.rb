@@ -3,8 +3,11 @@ module Rex
 module Post
 module Meterpreter
 module Extensions
+module Stdapi
 module Railgun
+
 class ApiConstants
+
 	def self.add_constants(win_const_mgr)
 		win_const_mgr.add_const('MCI_DGV_SETVIDEO_TINT',0x00004003)
 		win_const_mgr.add_const('EVENT_TRACE_FLAG_PROCESS',0x00000001)
@@ -38096,10 +38099,8 @@ class ApiConstants
 		win_const_mgr.add_const('LINETONEMODE_BUSY',0x00000004)
 		win_const_mgr.add_const('MCI_DGV_MONITOR_METHOD',0x00010000)
 
-	end # method
-end #class
-end # 5x module
+	end
+	
 end
-end
-end
-end
+
+end; end; end; end; end; end
