@@ -27,8 +27,6 @@ def enum_int
 end
 def arp_scan(cidr)
 	print_status("ARP Scanning #{cidr}")
-	client.core.use("railgun")
-	rail = client.railgun
 	ws = client.railgun.ws2_32
 	iphlp = client.railgun.iphlpapi
 	i, a = 0, []
@@ -48,7 +46,7 @@ def arp_scan(cidr)
 					h = ws.inet_addr(ip_text)
 					ip = h["return"]
 					h = iphlp.SendARP(ip,0,6,6)
-					if h["return"] == rail.const("NO_ERROR")
+					if h["return"] == client.railgun.const("NO_ERROR")
 						mac = h["pMacAddr"]
 						print_status("IP: #{ip_text} MAC " +
 							  mac[0].ord.to_s(16) + ":" +

@@ -42,7 +42,6 @@ captype = 0
 # Function for locking the screen -- Thanks for the idea and API call Mubix
 def lock_screen
 	print_status("Locking Screen...")
-	client.core.use("railgun")
 	lock_info = client.railgun.user32.LockWorkStation()
 	if lock_info["GetLastError"] == 0
 		print_status("Screen has been locked")
