@@ -69,12 +69,12 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			if result[:auth]
 				print_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" if verbose
-				print_good "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
+				print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
 			elsif result[:preauth]
-				print_good "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
+				print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
 			else # It's something we don't know yet
 				print_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}" if datastore['VERBOSE']
-				print_error "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
+				print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
 			end
 
 			# Reporting
