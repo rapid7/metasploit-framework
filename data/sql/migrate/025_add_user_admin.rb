@@ -2,7 +2,7 @@ class AddUserAdmin < ActiveRecord::Migration
 
 	# Add user admin flag and project member list.
 	def self.up
-		add_column :users, :admin, :boolean, :null => false, :default => true
+		add_column :users, :admin, :boolean, :default => true
 
 		create_table :project_members, :id => false do |t|
 			t.integer :workspace_id, :null => false
