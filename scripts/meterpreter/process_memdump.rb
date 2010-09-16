@@ -70,8 +70,13 @@ def dump_mem(pid,name, toggle)
 	::FileUtils.mkdir_p(logs)
 	#Dump file name
 	dumpfile = logs + ::File::Separator + host + filenameinfo + ".dmp"
-	print_status("Dumpimn Memory of with PID: #{pid.to_s}")
-	dump_process = client.sys.process.open(pid.to_i, PROCESS_READ)
+	print_status("Dumpping Memory of with PID: #{pid.to_s}")
+	begin
+		dump_process = client.sys.process.open(pid.to_i, PROCESS_READ)
+	rescue
+		print_error("Could not open process for reading memory!")
+		raise Rex::Script::Completed
+	end
 	# MaximumApplicationAddress for 32bit or close enough
 	maximumapplicationaddress = 2147418111
 	base_size = 0
