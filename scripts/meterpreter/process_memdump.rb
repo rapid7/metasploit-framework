@@ -70,7 +70,7 @@ def dump_mem(pid,name, toggle)
 	::FileUtils.mkdir_p(logs)
 	#Dump file name
 	dumpfile = logs + ::File::Separator + host + filenameinfo + ".dmp"
-	print_status("Dumpping Memory of with PID: #{pid.to_s}")
+	print_status("Dumping Memory of with PID: #{pid.to_s}")
 	begin
 		dump_process = client.sys.process.open(pid.to_i, PROCESS_READ)
 	rescue
