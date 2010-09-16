@@ -43,7 +43,7 @@ module MeterpreterOptions
 				session.load_session_info
 			end
 			
-			if session.railgun.shell32.IsUserAnAdmin()["return"] == true then
+			if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
 				session.load_priv
 				session.info += " (ADMIN)"
 			end
