@@ -629,7 +629,7 @@ class DBManager
 		# Service management; assume the user knows what
 		# he's talking about.
 		unless service = get_service(wspace, host, proto, port)
-			report_service(:host => host, :port => port, :proto => proto, :name => sname)
+			report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
 		end
 
 		ret = {}
@@ -646,9 +646,13 @@ class DBManager
 
 			# Annotate the credential
 			cred.ptype = ptype
-			cred.source_id = source_id if source_id
-			cred.source_type = source_type if source_type
 			cred.active = active
+
+			# Update the source ID only if there wasn't already one.
+			if source_id and !cred.source_id
+				cred.source_id = source_id 
+				cred.source_type = source_type if source_type
+			end
 
 			# Safe proof (lazy way) -- doesn't chop expanded
 			# characters correctly, but shouldn't ever be a problem.
