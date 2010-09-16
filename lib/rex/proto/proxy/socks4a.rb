@@ -157,14 +157,13 @@ class Socks4a
 		# A mixin for a socket to perform a relay to another socket.
 		#
 		module Relay
-			
+
 			#
 			# Relay data coming in from relay_sock to this socket.
 			#
-			def relay( relay_client, relay_sock, relay_type )
+			def relay( relay_client, relay_sock )
 				@relay_client = relay_client
 				@relay_sock   = relay_sock
-				@relay_type = relay_type
 				# start the relay thread (modified from Rex::IO::StreamAbstraction)
 				@relay_thread = ::Thread.new do
 					loop do
@@ -246,7 +245,12 @@ class Socks4a
 						# handle socks4a conenct requests
 						if( request.is_connect? )
 							# perform the connection request
-							@rsock = Rex::Socket::Tcp.create( 'PeerHost' => request.dest_ip, 'PeerPort' => request.dest_port )
+							params = { 
+								'PeerHost' => request.dest_ip,
+								'PeerPort' => request.dest_port,
+								'Comm'     => @server.opts['Comm']
+							}
+							@rsock = Rex::Socket::Tcp.create( params )
 							# and send back success to the client
 							response         = Packet.new
 							response.version = REPLY_VERSION
@@ -255,7 +259,12 @@ class Socks4a
 						# handle socks4a bind requests
 						elsif( request.is_bind? )
 							# create a server socket for this request
-							bsock = Rex::Socket::TcpServer.create( 'LocalHost' => '0.0.0.0', 'LocalPort' => 0 )
+							params = { 
+								'LocalHost' => '0.0.0.0',
+								'LocalPort' => 0,
+								'Comm'      => @server.opts['Comm']
+							}
+							bsock = Rex::Socket::TcpServer.create( params )
 							# send back the bind success to the client
 							response           = Packet.new
 							response.version   = REPLY_VERSION
@@ -303,8 +312,8 @@ class Socks4a
 					@lsock.extend( Relay )
 					@rsock.extend( Relay )
 					# start the socket relays...
-					@lsock.relay( self, @rsock, 'lsock' )
-					@rsock.relay( self, @lsock, 'rsock' )
+					@lsock.relay( self, @rsock )
+					@rsock.relay( self, @lsock )
 				rescue
 					wlog( "Client.start - #{$!}" )
 					self.stop
@@ -344,7 +353,7 @@ class Socks4a
 	# Create a new Socks4a server.
 	#
 	def initialize( opts={} )
-		@opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080 }
+		@opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080, 'Comm' => nil }
 		@opts          = @opts.merge( opts )
 		@server        = nil
 		@clients       = ::Array.new
@@ -371,10 +380,14 @@ class Socks4a
 				# start the servers main thread to pick up new clients
 				@server_thread = ::Thread.new do
 					while( @running ) do
-						# accept the client connection
-						sock = @server.accept
-						# and fire off a new client instance to handle it
-						Client.new( self, sock ).start
+						begin
+							# accept the client connection
+							sock = @server.accept
+							# and fire off a new client instance to handle it
+							Client.new( self, sock ).start
+						rescue
+							wlog( "Socks4a.start - server_thread - #{$!}" )
+						end
 					end
 				end
 			rescue
@@ -382,6 +395,13 @@ class Socks4a
 				return false
 			end
 			return true
+	end
+	
+	#
+	# Block while the server is running.
+	#
+	def join
+		@server_thread.join
 	end
 	
 	#
@@ -399,16 +419,8 @@ class Socks4a
 			end
 			# close the server socket
 			@server.close if @server
-			# wait for the server main thread to terminate gracefully
-			begin
-				::Timeout.timeout( 30 ) do
-					@server_thread.join if @server_thread.alive?
-				end
-			rescue ::Timeout::Error
-				wlog( "Socks4a.stop - #{$!}" )
-			end
 			# if the server thread did not terminate gracefully, kill it.
-			@server_thread.kill if @server_thread.alive?
+			@server_thread.kill if( @server_thread and @server_thread.alive? )
 		end
 		return !@running
 	end
@@ -420,6 +432,8 @@ class Socks4a
 	def remove_client( client )
 		@clients.delete( client )
 	end
+	
+	attr_reader :opts
 	
 end
 
