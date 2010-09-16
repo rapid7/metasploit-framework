@@ -9,7 +9,7 @@ require 'fileutils'
 pid = nil
 name = nil
 toggle = nil
-resource = ""
+resource = nil
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-p" => [ true, "PID of process to dump."],
@@ -35,6 +35,7 @@ opts.parse(args) { |opt, idx, val|
 		toggle = true
 	when "-r"
                 list = val
+		resource = ""
                 if not ::File.exists?(list)
                         raise "Command List File does not exists!"
                 else
