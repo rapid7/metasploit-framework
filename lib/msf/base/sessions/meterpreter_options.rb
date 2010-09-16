@@ -38,13 +38,16 @@ module MeterpreterOptions
 		if (datastore['AutoLoadStdapi'] == true)
 			session.load_stdapi
 			mod = framework.modules.create(session.via_exploit)
-			if (mod and mod.privileged?)
-				session.load_priv
-			end
-
+			
 			if datastore['AutoSystemInfo']
 				session.load_session_info
 			end
+			
+			if session.railgun.shell32.IsUserAnAdmin()["return"] == true then
+				session.load_priv
+				session.info += " (ADMIN)"
+			end
+
 		end
 
 		if (datastore['InitialAutoRunScript'].empty? == false)

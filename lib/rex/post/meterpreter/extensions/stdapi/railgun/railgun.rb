@@ -143,6 +143,9 @@ class Railgun
 				when 'advapi32'
 					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_advapi32'
 					Def::Def_advapi32.add_imports(self)
+				when 'shell32'
+					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_shell32'
+					Def::Def_shell32.add_imports(self)
 			end
 			
 			if( @dll.has_key?( dll_name ) )
