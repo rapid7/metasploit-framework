@@ -20,7 +20,7 @@ opts.parse(args) { |opt, idx, val|
 # Function for enumerating recent mapped drives on target machine
 def enum_recent_mounts(base_key)
 	recent_mounts = []
-	partial_path = "#{base_key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
+	partial_path = base_key + '\Software\\Microsoft\Windows\CurrentVersion\Explorer'
 	full_path = "#{partial_path}\\Map Network Drive MRU"
 	explorer_keys = registry_enumkeys(partial_path)
 	if explorer_keys.include?("Map Network Drive MRU")
@@ -36,7 +36,7 @@ end
 # Function for enumerating UNC Paths entered in run dialog box
 def enum_run_unc(base_key)
 	unc_paths = []
-	full_path = "#{base_key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU"
+	full_path = base_key + '\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU'
 	registry_enumvals(full_path).each do |k|
 		if k =~ /./
 			run_entrie = registry_getvaldata(full_path,k)
@@ -90,8 +90,8 @@ if client.platform =~ /win32|64/
 			user_sid << k if k =~ /S-1-5-21-\d*-\d*-\d*-\d{3,6}$/
 		end
 		user_sid.each do |us|
-			mount_history +  enum_recent_mounts("HKCU\\#{us.chomp}")
-			run_history + enum_run_unc("HKCU\\#{us.chomp}")
+			mount_history = mount_history + enum_recent_mounts("HKU\\#{us.chomp}")
+			run_history = run_history + enum_run_unc("HKU\\#{us.chomp}")
 		end
 	end
 
