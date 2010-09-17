@@ -38,9 +38,9 @@ def enum_run_unc(base_key)
 	unc_paths = []
 	full_path = "#{base_key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU"
 	registry_enumvals(full_path).each do |k|
-		if not k =~ /MRUList/
+		if k =~ /./
 			run_entrie = registry_getvaldata(full_path,k)
-			unc_paths << run_entrie if run_entrie =~ /^\\\\*/
+			unc_paths << run_entrie if run_entrie =~ /^\\\\/
 		end
 	end
 	return unc_paths
@@ -78,8 +78,8 @@ if client.platform =~ /win32|64/
 	enum_conf_shares()
 	user = client.sys.config.getuid
 	if user != "NT AUTHORITY\\SYSTEM"
-		mount_history + enum_recent_mounts("HKEY_CURRENT_USER")
-		run_history + enum_run_unc("HKEY_CURRENT_USER")
+		mount_history = enum_recent_mounts("HKEY_CURRENT_USER")
+		run_history = enum_run_unc("HKEY_CURRENT_USER")
 	else
 		user_sid = []
 		key = "HKU\\"
@@ -107,7 +107,7 @@ if client.platform =~ /win32|64/
 	#Enumerate UNC Paths entered in the Dialog box
 	if run_history.length > 0
 		print_status("Recent UNC paths entered in Run Dialog found:")
-		mount_history.each do |i|
+		run_history.each do |i|
 			print_status("\t#{i}")
 		end
 		print_status()
