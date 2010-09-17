@@ -29,9 +29,10 @@ class Plugin::Lab < Msf::Plugin
 			{
 			
 				### Lab Management!
-				"lab_load_file" => "lab_load_file - load a lab definition from disk.", 			
+				"lab_help" => "lab_help <lab command> - Show that command's description.",
+				"lab_load_file" => "lab_load_file [file] - load a lab definition from disk.", 			
 				"lab_load_running" => "lab_load_running - use the running vms to create a lab definition.", 
-				"lab_load_dir" => "lab_load_dir - load a lab definition from a directory.", 			
+				"lab_load_dir" => "lab_load_dir [file] - load a lab definition from a directory.", 			
 				"lab_clear" => "lab_clear - clear the running lab_definition.",	
 				"lab_save" => "lab_save [filename] - save a lab_definition to filename.",
 				"lab_show" => "lab_show - show all vms in the lab.",
@@ -75,29 +76,60 @@ class Plugin::Lab < Msf::Plugin
 			"Lab"
 		end
 
+
 		##
-		## Commands for Lab Management
+		## Commands for help
 		##
+		
+		def longest_cmd_size
+			commands.keys.map {|x| x.size}.sort.last
+		end
 
+		# No extended help yet, but this is where more detailed documentation
+		# on particular commands would live. Key is command, (not cmd_command),
+		# value is the documentation.
+		def extended_help
+			{
+				"lab_fake_cmd" =>              "This is a fake command. It's got its own special docs.\n" +
+					(" " * longest_cmd_size) + "It might be long so so deal with formatting somehow."
+			}
+		end
 
+		# Map for usages
+		def lab_usage
+			caller[0][/`cmd_(.*)'/]
+			cmd = $1
+			if extended_help[cmd] || commands[cmd]
+				cmd_lab_help cmd
+			else # Should never really get here...
+				print_error "Unknown command. Try 'help'"
+			end
+		end
 
-		def cmd_lab_save(*args)
-			print_error "Not currently supported."		
-	        end
+		def cmd_lab_help(*args)
+			if args.empty?
+				commands.each_pair {|k,v| print_line "%-#{longest_cmd_size}s - %s" % [k,v] }
+			else
+				args.each do |c|
+					if extended_help[c] || commands[c]
+						print_line "%-#{longest_cmd_size}s - %s" % [c,extended_help[c] || commands[c]]
+					else
+						print_error "Unknown command '#{c}'"
+					end
+				end
+			end
+		end
 		
 		def cmd_lab_load_file(*args)
-
 			if args[0]
 				labdef = YAML::load_file(args[0])
 				@controller = LabController.new(labdef)
 				@target_map = {}
 				hlp_print_lab
 			else
-				print_error "Please provide a valid lab file."
+				lab_usage
 			end
-
-
-	        end
+		end
 
 		def cmd_lab_load_dir(*args)			
 			if args[0]
@@ -105,15 +137,15 @@ class Plugin::Lab < Msf::Plugin
 				@target_map = {}
 				hlp_print_lab	
 			else
-				print_error "Please provide a valid lab file."
+				lab_usage
 			end
-	        end
+		end
 	        
-	        def cmd_lab_load_running(*args)
+		def cmd_lab_load_running(*args)
 			@controller.build_lab_from_running        
 			@target_map = {}
 			hlp_print_lab
-	        end
+		end
 
 
 		def cmd_lab_clear(*args)
@@ -123,6 +155,7 @@ class Plugin::Lab < Msf::Plugin
 	        end
 
 		def cmd_lab_save(*args)		
+			return lab_usage if args.empty?
 			File.open(args[0], 'w')  {|f| f.write(@controller.labdef.to_yaml) }
 			hlp_print_lab
 		end
@@ -140,7 +173,8 @@ class Plugin::Lab < Msf::Plugin
 			hlp_print_lab_running
 	        end
 	        
-	        def cmd_lab_start(*args)
+		def cmd_lab_start(*args)
+			return lab_usage if args.empty?
 		
 			if args[0] == "all"
 				print_line "Starting all lab vms.\n"
@@ -159,9 +193,10 @@ class Plugin::Lab < Msf::Plugin
 			end
 
 			hlp_print_lab_running
-	        end
+		end
 	     
 		def cmd_lab_stop(*args)
+			return lab_usage if args.empty?
 		
 			if args[0] == "all"
 				print_line "Stopping all running lab vms.\n"
@@ -183,6 +218,7 @@ class Plugin::Lab < Msf::Plugin
 	        end
 
 		def cmd_lab_suspend(*args)
+			return lab_usage if args.empty?
 		
 			if args[0] == "all"
 				print_line "Suspending all running lab vms.\n"
@@ -204,6 +240,7 @@ class Plugin::Lab < Msf::Plugin
 	        end
 
 		def cmd_lab_reset(*args)
+			return lab_usage if args.empty?
 		
 			if args[0] == "all"
 				print_line "Resetting all running lab vms.\n"
@@ -226,6 +263,7 @@ class Plugin::Lab < Msf::Plugin
 
 
 		def cmd_lab_snapshot(*args)
+			return lab_usage if args.empty?
 
 			snapshot = args[args.count-1] 	
 		
@@ -244,6 +282,7 @@ class Plugin::Lab < Msf::Plugin
 
 
 		def cmd_lab_revert(*args)
+			return lab_usage if args.empty?
 		
 			snapshot = args[args.count-1] 		
 
@@ -262,6 +301,7 @@ class Plugin::Lab < Msf::Plugin
 
 
 		def cmd_lab_run_command(*args)
+			return lab_usage if args.empty?
 
 			command = args[args.count-1] 
 		
@@ -289,6 +329,7 @@ class Plugin::Lab < Msf::Plugin
 	        end
 
 		def cmd_lab_browse_to(*args)
+			return lab_usage if args.empty?
 
 			uri = args[args.count-1] ## where's that final argument, that's our command, boiiii
 		
@@ -312,12 +353,11 @@ class Plugin::Lab < Msf::Plugin
 			end
 
 #			hlp_print_lab_running
-	        end
+		end
 
 		##
 		## Commands for dealing with a target map
 		## 
-
 
 
 		def cmd_target_map_show(*args)
@@ -662,7 +702,6 @@ class Plugin::Lab < Msf::Plugin
 			end					
 			print_line tbl.to_s
 		end		
-
 
 	end
 	
