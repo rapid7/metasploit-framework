@@ -536,8 +536,8 @@
           <Properties>
             <Property name="mnemonic" type="int" value="116"/>
             <Property name="text" type="java.lang.String" resourceKey="postMenu.text"/>
-            <Property name="name" type="java.lang.String" value="postMenu" noResource="true"/>
             <Property name="enabled" type="boolean" value="false"/>
+            <Property name="name" type="java.lang.String" value="postMenu" noResource="true"/>
           </Properties>
           <SubComponents>
             <Menu class="javax.swing.JMenu" name="menuRunAllMeterp">
@@ -546,18 +546,6 @@
                 <Property name="text" type="java.lang.String" resourceKey="menuRunAllMeterp.text"/>
                 <Property name="name" type="java.lang.String" value="menuRunAllMeterp" noResource="true"/>
               </Properties>
-              <SubComponents>
-                <MenuItem class="javax.swing.JMenuItem" name="otherMeterpCommandMenu">
-                  <Properties>
-                    <Property name="mnemonic" type="int" value="79"/>
-                    <Property name="text" type="java.lang.String" resourceKey="otherMeterpCommandMenu.text"/>
-                    <Property name="name" type="java.lang.String" value="otherMeterpCommandMenu" noResource="true"/>
-                  </Properties>
-                  <Events>
-                    <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="otherMeterpCommandMenuActionPerformed"/>
-                  </Events>
-                </MenuItem>
-              </SubComponents>
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="killSessionsMenuItem">
               <Properties>

