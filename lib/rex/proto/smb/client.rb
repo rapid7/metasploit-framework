@@ -514,6 +514,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		if (ack['Payload'].v['ServerDate'] > 0)
 			stamp = UTILS.time_smb_to_unix(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
 			self.server_date = ::Time.at(stamp)
+			self.server_zone = ack['Payload'].v['Timezone'] 
 		end
 
 		return ack
@@ -1733,7 +1734,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 # public read/write methods
-	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts, :server_date
+	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts, :server_date, :server_zone
 
 # public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
