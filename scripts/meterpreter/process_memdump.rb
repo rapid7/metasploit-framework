@@ -67,7 +67,7 @@ end
 def find_pids(name)
 	proc_pid = []
 	client.sys.process.get_processes.each do |proc|
-		if proc['name'] == name
+		if proc['name'].downcase == name.downcase
 			proc_pid << proc['pid']
 		end
 	end
@@ -109,6 +109,7 @@ def dump_mem(pid,name, toggle)
 	
 end
 
+# Function to query process Size
 def get_mem_usage( pid )
 	p = client.sys.process.open( pid.to_i, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ )
 	if( p )
@@ -152,7 +153,7 @@ def get_mem_usage( pid )
 	return nil
 end
 
-
+# Main
 if client.platform =~ /win32|win64/
 	if resource
 		resource.each do |r|
