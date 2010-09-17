@@ -124,7 +124,7 @@ def enum_viclient
 		open_key = @client.sys.registry.open_key(root_key, base_key)
 		keys = open_key.enum_key
 		keys.each do |k|
-			user_sid << k if k =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
+			user_sid << k if k =~ /S-1-5-21-\d*-\d*-\d*-\d{3,6}$/
 		end
 		user_sid.each do |us|
 			begin
