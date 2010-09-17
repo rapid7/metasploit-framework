@@ -128,11 +128,14 @@ public class MainFrame extends FrameView {
 		for(int i = 2; i < tabbedPane.getTabCount(); i++)
 			tabbedPane.setEnabledAt(i, false);
 	}
-
+	/** Before exit, check whether the daemon should be stopped or just the session terminated */
 	private void confirmStop() {
 		try {
-			if (rpcConn != null && JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION) {
-				rpcConn.execute("core.stop");
+			if (rpcConn != null){
+				if(JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
+					rpcConn.execute("core.stop");
+				else
+					rpcConn.execute("auth.logout");
 			}
 		} catch (Exception ex) {
 		}
