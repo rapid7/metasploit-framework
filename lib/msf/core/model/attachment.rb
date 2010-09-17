@@ -2,7 +2,7 @@
 class Msf::DBManager
 
 class Attachment < ActiveRecord::Base
-	belongs_to :email_template
+	has_and_belongs_to_many :email_template
 end
 
 end
