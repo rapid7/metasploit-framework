@@ -37,7 +37,7 @@ import org.w3c.dom.Node;
 public class RpcConnection {
 	private String rpcToken;
 	private Map callCache = new HashMap();
-	public static String defaultUser = "msf",defaultPass = null;
+	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1";
 	public static int defaultPort = 55553;
 	private Socket connection;
 	private OutputStream sout; //socket output/input
@@ -284,7 +284,7 @@ public class RpcConnection {
 				Element root = MsfguiApp.getPropertiesNode();
 				root.setAttribute("username", defaultUser);
 				root.setAttribute("password", defaultPass);
-				root.setAttribute("host", "127.0.0.1");
+				root.setAttribute("host", defaultHost);
 				root.setAttribute("port", Integer.toString(defaultPort));
 
 				setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");

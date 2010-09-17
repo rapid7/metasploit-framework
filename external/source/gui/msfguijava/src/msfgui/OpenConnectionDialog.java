@@ -238,12 +238,12 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		} catch (MsfException mex) {
 			rpcConn = null;
 		}
-		this.setVisible(false);
+		setVisible(false);
 	}//GEN-LAST:event_connectButtonActionPerformed
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
 		rpcConn = null;
-		this.setVisible(false);
+		setVisible(false);
 	}//GEN-LAST:event_cancelButtonActionPerformed
 
 	private void usernameFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_usernameFieldActionPerformed
@@ -264,12 +264,14 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 
 	private void startNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startNewButtonActionPerformed
 		//Setup defaults
-		RpcConnection.defaultUser = this.usernameField.getText();
-		if(this.passwordField.getPassword().length > 0)
-			RpcConnection.defaultPass = new String(this.passwordField.getPassword());
-		//do the action. There's probably a "right" way to do this. Oh well.
+		RpcConnection.defaultUser = usernameField.getText();
+		if(passwordField.getPassword().length > 0)
+			RpcConnection.defaultPass = new String(passwordField.getPassword());
+		if(hostField.getText().length() > 0)
+			RpcConnection.defaultHost = hostField.getText();
+		//do the action. There's probably a "right" way to do  Oh well.
 		mainframe.getContext().getActionMap(mainframe).get("startRpc").actionPerformed(new java.awt.event.ActionEvent(startNewButton,1234,""));
-		this.setVisible(false);
+		setVisible(false);
 	}//GEN-LAST:event_startNewButtonActionPerformed
 
 	private void pathButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pathButtonActionPerformed
