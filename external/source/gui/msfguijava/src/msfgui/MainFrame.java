@@ -314,7 +314,13 @@ public class MainFrame extends FrameView {
 	public void getModules() {
 		searchWin = new SearchWindow(rpcConn);
 		MsfguiApp.addRecentModules(rpcConn, this);
+		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
+	}
 
+   /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
+	public void refreshConsoles(){
+		existingConsoleMenu.removeAll();
+		closeConsoleMenu.removeAll();
 		//Setup consoles
 		try{
 			Object[] consoles = (Object[]) ((Map)rpcConn.execute("console.list")).get("consoles");
@@ -323,7 +329,6 @@ public class MainFrame extends FrameView {
 		}catch (MsfException mex){
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
-		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
 	}
 
 	/** helper for getModules - does the work */
@@ -372,6 +377,9 @@ public class MainFrame extends FrameView {
 					pluginsMenu.setEnabled(true);
 					consoleMenu.setEnabled(true);
 					reloadDb();
+					setProgress(0.95f);
+					setMessage("Finding open consoles");
+					refreshConsoles();
 					setProgress(1.0f);
 				} catch (MsfException ex) {
 					statusAnimationLabel.setText("Error getting module lists. " + ex);
@@ -529,6 +537,7 @@ public class MainFrame extends FrameView {
         newConsoleItem = new javax.swing.JMenuItem();
         existingConsoleMenu = new javax.swing.JMenu();
         closeConsoleMenu = new javax.swing.JMenu();
+        refreshConsolesItem = new javax.swing.JMenuItem();
         databaseMenu = new javax.swing.JMenu();
         connectItem = new javax.swing.JMenuItem();
         disconnectItem = new javax.swing.JMenuItem();
@@ -895,6 +904,15 @@ public class MainFrame extends FrameView {
         closeConsoleMenu.setName("closeConsoleMenu"); // NOI18N
         consoleMenu.add(closeConsoleMenu);
 
+        refreshConsolesItem.setText(resourceMap.getString("refreshConsolesItem.text")); // NOI18N
+        refreshConsolesItem.setName("refreshConsolesItem"); // NOI18N
+        refreshConsolesItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshConsolesItemActionPerformed(evt);
+            }
+        });
+        consoleMenu.add(refreshConsolesItem);
+
         menuBar.add(consoleMenu);
 
         databaseMenu.setMnemonic('D');
@@ -1097,7 +1115,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 698, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -1409,6 +1427,10 @@ public class MainFrame extends FrameView {
 		}
 	}//GEN-LAST:event_delWorkspaceItemActionPerformed
 
+	private void refreshConsolesItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshConsolesItemActionPerformed
+		refreshConsoles();
+	}//GEN-LAST:event_refreshConsolesItemActionPerformed
+
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
 		SessionCommand.runOnAllMeterpreters(sessionsTableModel, cmd, output, outputLabel, rpcConn);
@@ -1694,6 +1716,7 @@ public class MainFrame extends FrameView {
     private javax.swing.JMenu postMenu;
     private javax.swing.JProgressBar progressBar;
     public javax.swing.JMenu recentMenu;
+    private javax.swing.JMenuItem refreshConsolesItem;
     private javax.swing.JMenuItem refreshItem;
     private javax.swing.JMenuItem searchItem;
     private javax.swing.JScrollPane servicesPane;

@@ -133,7 +133,7 @@ public class InteractWindow extends MsfFrame {
 		} else{
 			cmdPrefix = "session." + type + "_";
 		}
-		timerCommand = new StringBuffer(""+POLL);
+		timerCommand = new StringBuffer(""+PAUSE);
 		prompt = ">>>";
 
 		//start new thread polling for input
