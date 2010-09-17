@@ -27,7 +27,7 @@ module FileUtils
 			path.split(::File::PATH_SEPARATOR).each { |base|
 				begin
 					path = base + ::File::SEPARATOR + file_name
-					if (::File::Stat.new(path))
+					if (::File::Stat.new(path) and not ::File.directory?(path))
 						return path
 					end
 				rescue
