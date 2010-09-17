@@ -10,12 +10,15 @@ pid = nil
 name = nil
 toggle = nil
 resource = nil
+query = false
+
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-p" => [ true, "PID of process to dump."],
 	"-n" => [ true, "Name of process to dump."],
 	"-r" => [ true, "Text file wih list of process names to dump memory for, one per line."],
-	"-t" => [ false, "toggle location information in dump."]
+	"-t" => [ false, "toggle location information in dump."],
+	"-q" => [false, "Query the size of the Process that would be dump in bytes."]
 )
 
 opts.parse(args) { |opt, idx, val|
@@ -33,6 +36,8 @@ opts.parse(args) { |opt, idx, val|
 		name = val
 	when "-t"
 		toggle = true
+	when "-q"
+		query = true
 	when "-r"
                 list = val
 		resource = ""
@@ -96,7 +101,7 @@ def dump_mem(pid,name, toggle)
 		if mbi["Available"].to_s == "false"
 			file_local_write(dumpfile,mbi.inspect) if toggle
 			file_local_write(dumpfile,dump_process.memory.read(mbi["BaseAddress"],mbi["RegionSize"]))
-			print_status("\tbase size = #{base_size}")
+			print_status("\tbase size = #{base_size/1024}")
 		end
 		base_size += mbi["RegionSize"]
 	end
@@ -104,27 +109,74 @@ def dump_mem(pid,name, toggle)
 	
 end
 
+def get_mem_usage( pid )
+	p = client.sys.process.open( pid.to_i, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ )
+	if( p )
+		begin
+
+			if( not client.railgun.get_dll( 'psapi' ) )
+				client.railgun.add_dll( 'psapi' )
+			end
+
+			# http://msdn.microsoft.com/en-us/library/ms683219%28v=VS.85%29.aspx
+			if( not client.railgun.psapi.functions['GetProcessMemoryInfo'] )
+				client.railgun.psapi.add_function( 'GetProcessMemoryInfo', 'BOOL', [
+					[ "HANDLE", "hProcess", "in" ],
+					[ "PBLOB", "ProcessMemoryCounters", "out" ],
+					[ "DWORD", "Size", "in" ]
+					]
+				)
+			end
+
+			r = client.railgun.psapi.GetProcessMemoryInfo( p.handle, 72, 72 )
+			if( r['return'] )
+				pmc = r['ProcessMemoryCounters']
+				# unpack the PROCESS_MEMORY_COUNTERS structure (http://msdn.microsoft.com/en-us/library/ms684877%28v=VS.85%29.aspx)
+				# Note: As we get the raw structure back from railgun we need to account
+				#       for SIZE_T variables being 32bit on x86 and 64bit on x64
+				mem = nil
+				if( client.platform =~ /win32/ )
+					mem = pmc[12..15].unpack('V').first
+				elsif( client.platform =~ /win64/ )
+					mem = pmc[16..23].unpack('Q').first
+				end
+				return (mem/1024)
+			end
+		rescue
+			p "Exception - #{$!}"
+		end
+
+		p.close
+	end
+
+	return nil
+end
+
+
 if client.platform =~ /win32|win64/
 	if resource
 		resource.each do |r|
-			print_status("Dumping memory for #{r.chomp}")
+			print_status("Dumping memory for #{r.chomp}") if not query
 			pids = find_pids(r.chomp)
 			if pids.length == 0
 				print_status("\tProcess #{r.chomp} not found!")
 				next
 			end
 			pids.each do |p|
-				dump_mem(p,r.chomp,toggle)
+				print_status("\tsize for #{r.chomp} in PID #{p} is #{get_mem_usage(p)}K") if query
+				dump_mem(p,r.chomp,toggle) if not query
 			end
 		end
 	elsif pid
-		proc_name = find_procname(pid)
-		print_status("Dumping memory for #{proc_name}")
-		dump_mem(pid,proc_name,toggle)
+		name = find_procname(pid)
+		print_status("\tsize for #{name} in PID #{pid} is #{get_mem_usage(p)}K") if query
+		print_status("Dumping memory for #{name}") if not query
+		dump_mem(pid,name,toggle) if not query
 	elsif name
-		print_status("Dumping memory for #{name}")
+		print_status("Dumping memory for #{name}") if not query
 		find_pids(name).each do |p|
-			dump_mem(p,name,toggle)
+			print_status("\tsize for #{name} in PID #{p} is #{get_mem_usage(p)}K") if query
+			dump_mem(p,name,toggle) if not query
 		end
 	end
 else
