@@ -523,10 +523,16 @@ EVADE = Rex::Proto::SMB::Evasions
 			system_zone &= 0x7fff
 			system_zone *= -1
 		end
-		system_zone *= 60
+		self.system_zone = system_zone * 60
 
+		# XXX: this is being commented out because ruby prior to 1.9.2 doesn't
+		# seem to support representing non-utc or local times (eg, a time in
+		# another timezone)  If you know a way to do it in pre-1.9.2 please
+		# tell us!
+=begin
 		# Adjust the system_time object to reflect the remote timezone
 		self.system_time = self.system_time.utc.localtime(system_zone)
+=end
 
 		return ack
 	end
@@ -1746,7 +1752,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 # public read/write methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-	attr_accessor  :system_time
+	attr_accessor  :system_time, :system_zone
 
 # public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
