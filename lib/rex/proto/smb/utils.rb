@@ -54,6 +54,8 @@ CONST = Rex::Proto::SMB::Constants
 		return CONST::CREATE_ACCESS_OPENCREATE
 	end
 
+	# NOTE: the difference below came from: Time.utc("1970-1-1") - Time.utc("1601-1-1")
+
 	# Convert a 64-bit signed SMB time to a unix timestamp
 	def self.time_smb_to_unix(thi, tlo)
 		(((thi << 32) + tlo) / 10000000) - 11644473600

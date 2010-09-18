@@ -511,11 +511,22 @@ EVADE = Rex::Proto::SMB::Evasions
 			# buf[16, buf.length - 16]
 		end
 
-		if (ack['Payload'].v['ServerDate'] > 0)
-			stamp = UTILS.time_smb_to_unix(ack['Payload'].v['ServerDate'],ack['Payload'].v['ServerTime'])
-			self.server_date = ::Time.at(stamp)
-			self.server_zone = ack['Payload'].v['Timezone'] 
+		# The number of 100-nanosecond intervals that have elapsed since January 1, 1601, in
+		# Coordinated Universal Time (UTC) format.
+		# We convert it to a friendly Time object here
+		self.system_time = UTILS.time_smb_to_unix(ack['Payload'].v['SystemTimeHigh'],ack['Payload'].v['SystemTimeLow'])
+		self.system_time = ::Time.at( self.system_time )
+
+		# Convert the ServerTimeZone to seconds and back into a signed integer :-/
+		system_zone = ack['Payload'].v['ServerTimeZone']
+		if system_zone & 0x8000
+			system_zone &= 0x7fff
+			system_zone *= -1
 		end
+		system_zone *= 60
+
+		# Adjust the system_time object to reflect the remote timezone
+		self.system_time = self.system_time.utc.localtime(system_zone)
 
 		return ack
 	end
@@ -1734,7 +1745,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 # public read/write methods
-	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts, :server_date, :server_zone
+	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
+	attr_accessor  :system_time
 
 # public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os

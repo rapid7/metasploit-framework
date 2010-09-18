@@ -470,9 +470,9 @@ SMB_NEG_RES_NT_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32v', 'MaxRaw',               0 ],
 	[ 'uint32v', 'SessionKey',           0 ],
 	[ 'uint32v', 'Capabilities',         0 ],
-	[ 'uint32v', 'ServerTime',           0 ],
-	[ 'uint32v', 'ServerDate',           0 ],
-	[ 'uint16v', 'Timezone',             0 ],
+	[ 'uint32v', 'SystemTimeLow',        0 ],
+	[ 'uint32v', 'SystemTimeHigh',       0 ],
+	[ 'uint16v', 'ServerTimeZone',       0 ],
 	[ 'uint8',   'KeyLength',            0 ],
 	[ 'uint16v', 'ByteCount',            0 ],
 	[ 'string',  'Payload', nil,        '' ]
