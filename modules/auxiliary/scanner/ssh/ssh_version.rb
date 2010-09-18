@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(target_host)
 		begin
-			timeout(to) do
+			::Timeout.timeout(to) do
 
 				connect
 

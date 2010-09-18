@@ -39,12 +39,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
-			timeout(to) do
-			res = connect
-			# This makes db_services look a lot nicer.
-			banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
-			print_status("#{ip}:#{rport} TELNET #{banner_santized}")
-			report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
+			::Timeout.timeout(to) do
+				res = connect
+				# This makes db_services look a lot nicer.
+				banner_santized = Rex::Text.to_hex_ascii(banner.to_s)
+				print_status("#{ip}:#{rport} TELNET #{banner_santized}")
+				report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_santized)
+			end
 		rescue ::Rex::ConnectionError
 		rescue Timeout::Error
 			print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
