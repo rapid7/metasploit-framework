@@ -34,23 +34,37 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 		[
 			Opt::RPORT(22),
+			OptInt.new('TIMEOUT', [true, 'Timeout for the SSH probe', 30])
 		], self.class)
 	end
 
+	def to
+		return 30 if datastore['TIMEOUT'].to_i.zero?
+		datastore['TIMEOUT'].to_i
+	end
+
 	def run_host(target_host)
-		connect
+		begin
+			timeout(to) do
 
-		ver = sock.get_once(-1, 5)
+				connect
 
-		if (ver and ver =~ /SSH/)
-			ver,msg = (ver.split(/(\n|\r)/))
-			print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
-			report_service(:host => rhost, :port => rport, :name => "ssh", :info => ver)
-		else
-			print_error("#{target_host}:#{rport}, SSH server version detection failed!")
+				ver = sock.get_once(-1, 5)
+
+				if (ver and ver =~ /SSH/)
+					ver,msg = (ver.split(/(\n|\r)/))
+					print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
+					report_service(:host => rhost, :port => rport, :name => "ssh", :info => ver)
+				else
+					print_error("#{target_host}:#{rport}, SSH server version detection failed!")
+				end
+
+				disconnect
+			end
+
+		rescue Timeout::Error
+			print_error("#{target_host}:#{rport}, Server timed out after #{to} seconds. Skipping.")
 		end
-
-		disconnect
 	end
 end
 
