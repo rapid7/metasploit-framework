@@ -551,40 +551,24 @@ public class PayloadPopup extends MsfFrame {
 				byte[] buffer = new byte[rawHex.length() / 2];
 				for (int i = 0; i < rawHex.length(); i += 2) 
 					buffer[i/2] = (byte)Integer.parseInt(rawHex.substring(i, i + 2),16);
-				File tmpFile = File.createTempFile("msftmp",".raw");
-				String path = tmpFile.getAbsolutePath();
-				FileOutputStream fout = new FileOutputStream(tmpFile);
-				fout.write(buffer);
-				fout.close();
-				
-				ArrayList commandBuilder = new ArrayList();
-				commandBuilder.add("msfencode");
-				commandBuilder.add("-o");
-				commandBuilder.add(outputPathField.getText());
-				commandBuilder.add("-e");
-				commandBuilder.add(encoderCombo.getSelectedItem());
-				commandBuilder.add("-t");
-				commandBuilder.add(outputCombo.getSelectedItem());
-				commandBuilder.add("-i");
-				commandBuilder.add(path);
-				if(timesField.getText().length() > 0){
-					commandBuilder.add("-c");
-					commandBuilder.add(timesField.getText());
-				}
-				if(archField.getText().length() > 0){
-					commandBuilder.add("-a");
-					commandBuilder.add(archField.getText());
-				}
+
+				options.put("format", outputCombo.getSelectedItem().toString());
+				if(timesField.getText().length() > 0)
+					options.put("ecount", timesField.getText());
+				if(archField.getText().length() > 0)
+					options.put("arch", archField.getText());
 				if(templateField.getText().length() > 0){
-					commandBuilder.add("-x");
-					commandBuilder.add(templateField.getText());
+					options.put("altexe", templateField.getText());
 					if(templateWorkingCheck.isSelected())
-						commandBuilder.add("-k");
+						options.put("inject", true);
 				}
-				new ProcessWindow(MsfguiApp.startMsfProc(commandBuilder)).setVisible(true);
+				Map encoded = (Map) rpcConn.execute("module.encode", Base64.encode(buffer), 
+						encoderCombo.getSelectedItem().toString(),options);
+				FileOutputStream fout = new FileOutputStream(outputPathField.getText());
+				fout.write(Base64.decode(encoded.get("encoded").toString()));
+				fout.close();
 				return;
 			}
-
 
 			outputPane.setText("Payload "+fullName+" "+options+" "+(rawHex.length()/2)+" bytes.");
 			boolean isPlain = true;
