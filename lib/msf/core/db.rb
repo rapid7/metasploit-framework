@@ -1181,7 +1181,7 @@ class DBManager
 	end
 
 	#
-	# This methods returns a list of all tasks in the database
+	# This methods returns a list of all reports in the database
 	#
 	def reports(wspace=workspace)
 		wspace.reports
