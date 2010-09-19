@@ -125,7 +125,7 @@ begin
 		begin
 			return sslsock.sysread(length)
 		rescue EOFError, ::Errno::EPIPE
-			return nil
+			raise EOFError
 		end
 	end
 
