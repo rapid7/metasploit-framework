@@ -173,7 +173,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => cli.peerhost,
 				:type => "http_cookies",
-				:data => hhead + " " + cookies
+				:data => hhead + " " + cookies,
+				:update => :unique_data
 			)
 		end
 
@@ -193,7 +194,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host     => cli.peerhost,
 				:type     => "http_auth_extra",
-				:data     => req.resource.to_s
+				:data     => req.resource.to_s,
+				:update => :unique_data
 			)
 			print_status("HTTP LOGIN #{cli.peerhost} > #{hhead}:#{@myport} #{user} / #{pass} => #{req.resource}")
 		end
@@ -219,7 +221,8 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host => cli.peerhost,
 				:type => "http_formdata",
-				:data => hhead + " " + data
+				:data => hhead + " " + data,
+				:update => :unique_data
 			)
 
 			res =
@@ -237,7 +240,8 @@ class Metasploit3 < Msf::Auxiliary
 		report_note(
 			:host => cli.peerhost,
 			:type => "http_request",
-			:data => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}"
+			:data => "#{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers}",
+			:update => :unique_data
 		)
 
 		print_status("HTTP REQUEST #{cli.peerhost} > #{hhead}:#{@myport} #{req.method} #{req.resource} #{os_name} #{ua_name} #{ua_vers} cookies=#{cookies}")

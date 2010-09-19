@@ -477,6 +477,30 @@ class DBManager
 		report_note(opts.merge({:wait => true}))
 	end
 
+	#
+	# Report a Note to the database.  Notes can be tied to a Workspace, Host, or Service.
+	#
+	# opts MUST contain
+	#  :data  -- whatever it is you're making a note of
+	#  :type  -- The type of note, e.g. smb_peer_os
+	#
+	# opts can contain
+	#  :workspace  -- the workspace to associate with this Note
+	#  :host       -- an IP address or a Host object to associate with this Note
+	#  :service    -- a Service object to associate with this Note
+	#  :port       -- along with :host and proto, a service to associate with this Note
+	#  :proto      -- along with :host and port, a service to associate with this Note
+	#  :update     -- what to do in case a similar Note exists, see below
+	#
+	# The :update option can have the following values:
+	#  :unique       -- allow only a single Note per +host+/+type+ pair
+	#  :unique_data  -- like :uniqe, but also compare +data+
+	#  :insert       -- always insert a new Note even if one with identical values exists
+	#
+	# If the provided :host is an IP address and does not exist in the
+	# database, it will be created.  If :workspace, :host and :service are all
+	# omitted, the new Note will be associated with the current workspace.
+	#
 	def report_note(opts)
 		return if not active
 		wait = opts.delete(:wait)
@@ -494,7 +518,16 @@ class DBManager
 				addr = opts[:host]
 			end
 		end
-
+		# Do the same for a service
+		if (opts[:proto] and opts[:port])
+			report_service(
+				:workspace => wspace,
+				:host  => opts[:host],
+				:proto => opts[:proto],
+				:port  => opts[:port],
+				:name  => opts[:sname]
+			)
+		end
 		# Update Modes can be :unique, :unique_data, :insert
 		mode = opts[:update] || :unique
 
@@ -502,6 +535,9 @@ class DBManager
 		task = queue(Proc.new {
 			if addr and not host
 				host = get_host(:workspace => wspace, :host => addr)
+			end
+			if not opts[:service] and (opts[:port] and opts[:proto])
+				opts[:service] = get_service(wspace, host, opts[:proto], opts[:port])
 			end
 
 			if host
@@ -522,7 +558,7 @@ class DBManager
 				args = [ ntype ]
 			when :unique_data
 				method = "find_or_initialize_by_ntype_and_data"
-				args = [ ntype, data.to_yaml ]
+				args = [ ntype, data ]
 			end
 
 			# Find and update a record by type

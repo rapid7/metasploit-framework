@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			turl = tpath+'robots.txt'
 
-			res = send_request_cgi({
+			res = send_request_raw({
 				'uri'          => turl,
 				'method'       => 'GET',
 				'version' => '1.0',
@@ -66,13 +66,13 @@ class Metasploit3 < Msf::Auxiliary
 
 				print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(", ")}")
 				result.each do |u|
-
 					report_note(
 						:host	=> target_host,
-						:proto	=> 'HTTP',
 						:port	=> rport,
+						:proto	=> (ssl ? 'https' : 'http'),
 						:type	=> 'ROBOTS_TXT',
-						:data	=> "#{u}"
+						:data	=> "#{u}",
+						:update => :unique_data
 					)
 
 				end

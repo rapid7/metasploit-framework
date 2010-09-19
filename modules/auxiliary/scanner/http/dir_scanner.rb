@@ -146,10 +146,11 @@ class Metasploit3 < Msf::Auxiliary
 					else
 						report_note(
 							:host	=> ip,
-							:proto	=> 'HTTP',
 							:port	=> rport,
+							:proto	=> (ssl ? 'https' : 'http'),
 							:type	=> 'DIRECTORY',
-							:data	=> "#{tpath}#{testfdir} Code: #{res.code}"
+							:data	=> "#{tpath}#{testfdir} Code: #{res.code}",
+							:update => :unique_data
 						)
 
 						print_status("Found #{wmap_base_url}#{tpath}#{testfdir} #{res.code} (#{wmap_target_host})")
@@ -159,10 +160,11 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
 								:port	=> rport,
+								:proto	=> (ssl ? 'https' : 'http'),
 								:type	=> 'WWW_AUTHENTICATE',
-								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}"
+								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
+								:update => :unique_data
 							)
 						end
 					end
