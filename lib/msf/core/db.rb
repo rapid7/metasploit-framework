@@ -1653,7 +1653,7 @@ class DBManager
 		end
 	end
 
-	# Imports loot, tasks, and reports from an MSFX ZIP reprot.
+	# Imports loot, tasks, and reports from an MSFX ZIP report.
 	# XXX: This function is stupidly long. It needs to be refactored.
 	def import_msfx_collateral(args={}, &block)
 		data = File.open(args[:filename], "r") {|f| f.read(f.stat.size)}
