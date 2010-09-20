@@ -504,15 +504,16 @@ class Db
 			framework.db.each_note(framework.db.workspace) do |note|
 				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
 				next if(types and types.index(note.ntype) == nil)
-				if (note.host and note.service)
-					print_status("Time: #{note.created_at} Note: host=#{note.host.address} service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
-				elsif (note.host)
-					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data.inspect}")
-				elsif (note.service)
-					print_status("Time: #{note.created_at} Note: service=#{note.service.name} type=#{note.ntype} data=#{note.data.inspect}")
-				else
-					print_status("Time: #{note.created_at} Note: type=#{note.ntype} data=#{note.data.inspect}")
+				msg = "Time: #{note.created_at} Note:"
+				if (note.host)
+					msg << " host=#{note.host.address}"
 				end
+				if (note.service)
+					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
+					msg << "service=#{name}"
+				end
+				msg << " type=#{note.ntype} data=#{note.data.inspect}"
+				print_status(msg)
 			end
 		end
 
