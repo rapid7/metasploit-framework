@@ -206,7 +206,7 @@ module Session
 
 	#
 	# Configures via_payload, via_payload, workspace, target_host from an
-	# exploit instance.
+	# exploit instance. Store references from and to the exploit module.
 	#
 	def set_from_exploit(m)
 		self.via = { 'Exploit' => m.fullname }
@@ -219,6 +219,7 @@ module Session
 		self.user_input = m.user_input if m.user_input
 		self.user_output = m.user_output if m.user_output
 		self.exploit_uuid = m.uuid
+		self.exploit = m
 	end
 
 	#
@@ -303,6 +304,10 @@ module Session
 	# The unique identifier of exploit that created this session
 	#
 	attr_accessor :exploit_uuid
+	#
+	# The actual exploit module instance that created this session
+	#
+	attr_accessor :exploit
 	#
 	# The associated username
 	#
