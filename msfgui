@@ -7,5 +7,5 @@
 # $Revision$
 #
 
-java -jar `dirname $0`/data/gui/msfgui.jar
+java -jar $(dirname $(readlink -f $0))/data/gui/msfgui.jar
 
