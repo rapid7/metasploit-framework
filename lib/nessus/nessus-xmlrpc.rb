@@ -205,6 +205,9 @@ class NessusXMLRPC
 			entry=Hash.new
 			entry['id']=scan.elements['uuid'].text
 			entry['name']=scan.elements['readableName'].text
+			entry['owner']=scan.elements['owner'].text
+			entry['start']=scan.elements['start_time'].text
+			entry['status']=scan.elements['status'].text
 			entry['current']=scan.elements['completion_current'].text;
 			entry['total']=scan.elements['completion_total'].text;		
 			scans.push(entry) 
@@ -212,9 +215,45 @@ class NessusXMLRPC
 		return scans
 	end
 	
-	# get hash of reports
+	# get hash of policies
 	# 
-	# returns: array of hash of reports
+	# returns: array of hash of policies
+	def policy_list_hash
+		post= { "token" => @token } 
+		docxml=nessus_request('scan/list', post)
+		scans=Array.new
+		docxml.root.elements['policies'].elements['policies'].each_element('//policy') {|scan| 
+			entry=Hash.new
+			entry['id']=scan.elements['uuid'].text
+			entry['name']=scan.elements['readableName'].text
+			entry['current']=scan.elements['completion_current'].text;
+			entry['total']=scan.elements['completion_total'].text;		
+			scans.push(entry) 
+		}
+		return scans
+	end
+	
+	# get hash of templates
+	# 
+	# returns: array of hash of templates
+	def template_list_hash
+		post= { "token" => @token } 
+		docxml=nessus_request('scan/list', post)
+		scans=Array.new
+		docxml.root.elements['contents'].elements['scans'].elements['scanList'].each_element('//scan') {|scan| 
+			entry=Hash.new
+			entry['id']=scan.elements['uuid'].text
+			entry['name']=scan.elements['readableName'].text
+			entry['current']=scan.elements['completion_current'].text;
+			entry['total']=scan.elements['completion_total'].text;		
+			scans.push(entry) 
+		}
+		return scans
+	end
+	
+	# get hash of templates
+	# 
+	# returns: array of hash of templates
 	def report_list_hash
 		post= { "token" => @token } 
 		docxml=nessus_request('report/list', post)
