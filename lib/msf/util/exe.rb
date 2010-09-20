@@ -995,7 +995,8 @@ require 'metasm'
 		not_lowercase:           ;
 		  ror edi, 13            ; Rotate right our hash value
 		  add edi, eax           ; Add the next byte of the name
-		  loop loop_modname      ; Loop untill we have read enough
+		  dec ecx
+		  jnz loop_modname      ; Loop untill we have read enough
 		  ; We now have the module hash computed
 		  push edx               ; Save the current position in the module list for later
 		  push edi               ; Save the current module hash for later
@@ -1198,7 +1199,8 @@ require 'metasm'
 		not_lowercase:           ;
 		  ror edi, 13            ; Rotate right our hash value
 		  add edi, eax           ; Add the next byte of the name
-		  loop loop_modname      ; Loop untill we have read enough
+		  dec ecx
+		  jnz loop_modname      ; Loop untill we have read enough
 		  ; We now have the module hash computed
 		  push edx               ; Save the current position in the module list for later
 		  push edi               ; Save the current module hash for later
