@@ -320,7 +320,7 @@ class Plugin::Nessus < Msf::Plugin
 			end
 			
 			#Versions
-			cmd_nserver_feed
+			cmd_nessus_server_feed
 			
 			tbl = Rex::Ui::Text::Table.new(
 				'Columns' =>
