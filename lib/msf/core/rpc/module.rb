@@ -216,7 +216,8 @@ class Module < Base
 				output = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
 			when 'war'
 				tmp_plat = plat.platforms
-				output = Msf::Util::EXE.to_jsp_war($framework, arch, tmp_plat, raw, {:persist => false, :template => altexe})
+				exe = Msf::Util::EXE.to_executable($framework, arch, tmp_plat, raw, { :template => altexe})
+				output = Msf::Util::EXE.to_jsp_war(exe, { :persist => false })
 			else
 				fmt ||= "ruby"
 				output = Msf::Simple::Buffer.transform(raw, fmt)

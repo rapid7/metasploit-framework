@@ -813,9 +813,7 @@ require 'metasm'
 	# Creates a Web Archive (WAR) file containing a jsp page and hexdump of a payload.
 	# The jsp page converts the hexdump back to a normal .exe file and places it in
 	# the temp directory. The payload .exe file is then executed.
-	def self.to_jsp_war(framework, arch, plat, code='', opts={})
-
-		exe = to_executable(framework, arch, plat, code, opts)
+	def self.to_jsp_war(exe, opts={})
 
 		# begin <payload>.jsp
 		var_hexpath       = Rex::Text.rand_text_alpha(rand(8)+8)

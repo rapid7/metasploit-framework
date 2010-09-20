@@ -273,8 +273,11 @@ case cmd
 					asp = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
 					write_encoded(asp)
 				when 'war'
-					tmp_plat = plat.platforms
-					war = Msf::Util::EXE.to_jsp_war($framework, arch, tmp_plat, raw, {:persist => false, :template => altexe})
+					arch ||= [ ARCH_X86 ]
+					tmp_plat = plat.platforms if plat
+					tmp_plat ||= Msf::Module::PlatformList.transform('win')
+					exe = Msf::Util::EXE.to_executable($framework, arch, tmp_plat, raw, { :insert => inject, :template => altexe })
+					war = Msf::Util::EXE.to_jsp_war(exe, { :persist => false })
 					write_encoded(war)
 				else
 					fmt ||= "ruby"

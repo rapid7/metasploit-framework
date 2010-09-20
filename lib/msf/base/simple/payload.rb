@@ -97,7 +97,8 @@ module Payload
 			plat = Msf::Module::PlatformList.transform(opts['Platform'])
 
 			tmp_plat = plat.platforms
-			buf = Msf::Util::EXE.to_jsp_war(framework, arch, tmp_plat, e.encoded, {:persist => false, :template => altexe})
+			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, e.encoded, { :template => altexe})
+			buf = Msf::Util::EXE.to_jsp_war(exe, {:persist => false })
 		else
 			# Serialize the generated payload to some sort of format
 			buf = Buffer.transform(e.encoded, fmt)
