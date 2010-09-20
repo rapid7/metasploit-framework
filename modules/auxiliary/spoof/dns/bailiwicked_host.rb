@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		return {
 			"check" => "Determine if the specified DNS server (RHOST) is vulnerable",
 			"racer" => "Determine the size of the window for the target server",
-		 }
+		}
 	end
 
 	def cmd_racer(*args)

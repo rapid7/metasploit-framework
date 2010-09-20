@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x01" + "\x08" + "\x82\x84\x8b\x96\x0c\x18\x30\x48" +
 
 			# current channel
-			 "\x03" + "\x01" + channel.chr
+			"\x03" + "\x01" + channel.chr
 
 		1.upto(ies) do |i|
 			max = mtu - frame.length

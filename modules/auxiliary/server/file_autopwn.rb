@@ -371,7 +371,7 @@ class Metasploit3 < Msf::Auxiliary
 				src = nil
 			else
 				print_status("404ing #{request.uri}")
-			    send_not_found(cli)
+				send_not_found(cli)
 			end
 			cli.send_response(response)
 		else
@@ -427,7 +427,7 @@ class Metasploit3 < Msf::Auxiliary
 			aret['ctype'] = "text/html"
 			aret['cdisp'] = false
 		when ".exe" then
-		 	aret['ctype'] = "application/octet-stream"
+			aret['ctype'] = "application/octet-stream"
 			aret['cdisp'] = false
 		when ".pdf" then
 			#

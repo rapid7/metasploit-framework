@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'MC' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
-                        'References'     =>
+			'References'     =>
 				[
 					[ 'URL', 'https://www.metasploit.com/users/mc' ],
 					[ 'URL' , 'http://www.red-database-security.com/scripts/sid.txt' ],
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 			res = sock.get_once(-1,3)
 			disconnect
 
-		 	if ( res and res =~ /ERROR_STACK/ )
+			if ( res and res =~ /ERROR_STACK/ )
 				''
 			else
 				report_note(

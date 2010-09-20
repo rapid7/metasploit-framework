@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		$uri =  datastore['URI'].to_s
 
 		if (user.length == 0 and pass.length == 0)
-		 	print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs without credentials")
+			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs without credentials")
 
 			begin
 				res = send_request_raw({
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		else
-		 	print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs with given credentials")
+			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs with given credentials")
 			do_login(user, pass)
 
 		end

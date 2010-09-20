@@ -124,13 +124,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (startstage == 2)
 			process_phase(2, "Fuzzing USER", 'USER ')
-         startstage += 1
+			startstage += 1
 		end
 
 		if (startstage == 3)
 			process_phase(3, "Fuzzing PASS", 'PASS ',
 				[ "USER " + datastore['USER'] + "\n" ])
-         startstage += 1
+			startstage += 1
 		end
 
 		if (startstage == 4)
@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Fuzz other commands, all command combinations in one session
 		if startstage == 5
-         print_status("[Phase 5] Fuzzing other commands - Part 2 - #{Time.now.localtime}")
+			print_status("[Phase 5] Fuzzing other commands - Part 2 - #{Time.now.localtime}")
 			@commands.each do |cmd|
 				ecount = 1
 				count = datastore['STARTSIZE']
@@ -172,8 +172,8 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					rescue ::Exception => e
 						if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET') or (e.class.name == 'Errno::EPIPE')
-                     print_status("Crash string : #{cmd} #{evilchr} x #{count}")
-                     print_status("System does not respond - exiting now\n")
+							print_status("Crash string : #{cmd} #{evilchr} x #{count}")
+							print_status("System does not respond - exiting now\n")
 							return
 						end
 						print_error("Error: #{e.class} #{e} #{e.backtrace}\n")

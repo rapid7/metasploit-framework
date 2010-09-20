@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'  =>
 				[
 					[ 'URL', 'http://dsecrg.com/files/pub/pdf/Different_ways_to_guess_Oracle_database_SID_(eng).pdf' ],
-  					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
+					[ 'URL', 'http://www.petefinnigan.com/default/oracle_default_passwords.csv'],
 				],
 			'Author'      => [ 'nebulus' ],
 			'License'     => MSF_LICENSE

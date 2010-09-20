@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Service' ]
+					[ 'Service' ]
 				],
 			'PassiveActions' =>
 				[

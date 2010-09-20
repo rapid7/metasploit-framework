@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			'iNotes/Forms5.nsf',
 			'iNotes/Forms6.nsf',
 			'iNotes/Forms7.nsf',
-			 ]
+			]
 
 		check2 = [
 			'help/readme.nsf?OpenAbout'

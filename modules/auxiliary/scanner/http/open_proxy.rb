@@ -22,8 +22,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'        => 'HTTP Open Proxy Detection',
 			'Version'     => '$Revision$',
-			'Description' => 'Checks if an HTTP proxy is open. False positive are avoided
-					  verifing the HTTP return code and matching a pattern.',
+			'Description' => %q{
+					Checks if an HTTP proxy is open. False positive are avoided
+				verifing the HTTP return code and matching a pattern.
+			},
 			'References'  =>
 				[
 					['URL', 'http://en.wikipedia.org/wiki/Open_proxy'],

@@ -26,14 +26,14 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => ['MC'],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
-			'DisclosureDate' => 'Feb 1 2009'))
+			'DisclosureDate' => 'Feb 1 2009'
+		))
 
-                        register_options(
-                                [
-					Opt::RPORT(1521),
-					OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
-                                ], self.class)
-
+		register_options(
+			[
+				Opt::RPORT(1521),
+				OptString.new('CMD', [ false, 'Something like ping, version, status, etc..', '(CONNECT_DATA=(COMMAND=VERSION))']),
+			], self.class)
 	end
 
 	def run

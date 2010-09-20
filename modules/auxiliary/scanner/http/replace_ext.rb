@@ -55,19 +55,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
- 		conn = false
+		conn = false
 
 		dm = datastore['NoDetailMessages']
 
 		extensions= [
 			'bak',
- 			'txt',
- 			'tmp',
- 			'old',
- 			'temp',
- 			'java',
- 			'doc',
- 			'log'
+			'txt',
+			'tmp',
+			'old',
+			'temp',
+			'java',
+			'doc',
+			'log'
 		]
 
 		tpathfile = Pathname.new(datastore['PATH'])

@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Nop
 	end
 
 	def ins_sethi(ref, len=0)
-		 [(get_dst_reg() << 25) | (4 << 22) | rand(1 << 22)].pack('N')
+		[(get_dst_reg() << 25) | (4 << 22) | rand(1 << 22)].pack('N')
 	end
 
 	def ins_arithmetic(ref, len=0)

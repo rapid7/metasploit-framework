@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Service' ]
+					[ 'Service' ]
 				],
 			'PassiveActions' =>
 				[
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			if(@log_console)
-				  print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+				print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
 			end
 
 			if(@log_database)

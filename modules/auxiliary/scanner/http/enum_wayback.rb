@@ -18,11 +18,14 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name' => 'Pull Archive.org stored URLs for a domain',
-			'Description' => %q{ This module pulls and parses the URLs stored by Archive.org for the purpose of
-			                     replaying during a web assessment. Finding unlinked and old pages. },
+			'Description' => %q{
+					This module pulls and parses the URLs stored by Archive.org for the purpose of
+				replaying during a web assessment. Finding unlinked and old pages.
+			},
 			'Author' => [ 'Rob Fuller <mubix [at] hak5.org>' ],
 			'License' => MSF_LICENSE,
-			'Version' => '$Revision$'))
+			'Version' => '$Revision$'
+		))
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "Domain to request URLS for"]),

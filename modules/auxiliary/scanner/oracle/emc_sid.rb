@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Oracle Enterprise Manager Control SID Discovery',
 			'Description' => %q{
 					This module makes a request to the Oracle  Enterprise Manager Control Console
-					 in an attempt to discover the SID.
+				in an attempt to discover the SID.
 			},
 			'Version'     => '$Revision$',
 			'References'  =>

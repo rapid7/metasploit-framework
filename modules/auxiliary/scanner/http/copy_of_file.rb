@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 						'Copy_',
 						'Copy',
 						'_'
-				 ]
+					]
 
 
 		tpathf = datastore['PATH']

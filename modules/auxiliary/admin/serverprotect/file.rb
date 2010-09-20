@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 			"download" => "Download a file",
 			"upload" => "Upload a file",
 			"list" => "List files (not recommended - will crash the driver)",
-		 }
+		}
 	end
 
 	def run

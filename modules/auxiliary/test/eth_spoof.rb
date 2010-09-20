@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Spoofer' ]
+					[ 'Spoofer' ]
 				],
 			'DefaultAction'  => 'Spoofer'
 		)

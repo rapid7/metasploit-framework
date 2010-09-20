@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 		fd = simple.open("\\#{datastore['RPATH']}", 'rwct')
 		fd.write(data)
 		fd.close
-		
+
 		print_status("The file has been uploaded to #{datastore['RPATH']}...")
 	end
 

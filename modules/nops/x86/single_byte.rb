@@ -136,8 +136,8 @@ SINGLE_BYTE_SLED =
 				end
 
 			end while ((badchars.include?(cur_char)) or
-			           ((sled_hash[cur_char]) and
-			            ((sled_hash[cur_char] & badregs).length > 0)))
+				((sled_hash[cur_char]) and
+					((sled_hash[cur_char] & badregs).length > 0)))
 
 			# Add the character to the sled now that it's passed our checks
 			out_sled += cur_char

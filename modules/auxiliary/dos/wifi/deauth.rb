@@ -20,14 +20,15 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		=> 'Wireless DEAUTH Flooder',
 			'Description' 	=> %q{
-	      				This module sends 802.11 DEAUTH requests to a specific wireless peer,
-					using the specified source address and source BSSID.
-					},
+					This module sends 802.11 DEAUTH requests to a specific wireless peer,
+				using the specified source address and source BSSID.
+			},
 
 			'Author'	=> [ 'Brad Antoniewicz' ],
 			'License'	=> MSF_LICENSE,
 			'Version'	=> '$Revision$'
-				 ))
+		))
+
 		register_options(
 			[
 				OptString.new('ADDR_DST',[true, "TARGET MAC (e.g 00:DE:AD:BE:EF:00)"]),

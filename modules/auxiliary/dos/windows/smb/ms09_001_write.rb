@@ -11,10 +11,10 @@
 
 class Metasploit3 < Msf::Auxiliary
 
-    include Msf::Exploit::Remote::SMB
-    include Msf::Auxiliary::Dos
+	include Msf::Exploit::Remote::SMB
+	include Msf::Auxiliary::Dos
 
-    def initialize(info = {})
+	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft SRV.SYS WriteAndX Invalid DataOffset',
 			'Description'    => %q{
@@ -27,13 +27,15 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'j.v.vallejo[at]gmail.com' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
-        	'References' =>
+			'References' =>
 				[
 					['MSB', 'MS09-001'],
 					['OSVDB', '48153'],
 					['CVE', '2008-4114'],
 					['BID', '31179'],
-				]))
+				]
+			)
+		)
 	end
 
 

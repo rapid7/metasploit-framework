@@ -80,6 +80,6 @@ class Metasploit3 < Msf::Auxiliary
 			"\xff\x7f" +			# Duration
 			eton(datastore['ADDR_DST'])	# dst addr
 
-	     return frame
+		return frame
 	end
 end

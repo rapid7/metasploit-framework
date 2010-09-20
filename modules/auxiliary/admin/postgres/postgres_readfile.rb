@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-			   OptString.new('RFILE', [ true, 'The remote file', '/etc/passwd'])
+				OptString.new('RFILE', [ true, 'The remote file', '/etc/passwd'])
 			], self.class)
 
 		deregister_options( 'SQL', 'RETURN_ROWSET' )

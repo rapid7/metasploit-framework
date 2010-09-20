@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 						break
 					end
 					print_error("Exception occurred on interation #{i}")
-			 		print_error("Error: #{e.class} > #{e}")
+					print_error("Error: #{e.class} > #{e}")
 					break
 				end
 			end

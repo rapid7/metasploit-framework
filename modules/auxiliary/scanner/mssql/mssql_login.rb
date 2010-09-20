@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					:active => true
 				)
 				return :next_user
- 			else
+			else
 				vprint_error("#{rhost}:#{rport} failed to login as '#{user}'")
 				return
 			end

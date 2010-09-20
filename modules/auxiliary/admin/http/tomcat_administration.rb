@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 								res = send_request_cgi({
 									'uri'          => '/admin/j_security_check',
 									'method'       => 'POST',
-               	 	       		 				'content-type' => 'application/x-www-form-urlencoded',
+									'content-type' => 'application/x-www-form-urlencoded',
 									'cookie'       => "JSESSIONID=#{jsessionid}",
 									'data'         => post_data,
 								}, 25)

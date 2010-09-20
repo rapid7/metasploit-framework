@@ -82,10 +82,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Deleting #{datstore['RPATH']}...")
 		if !(
-			send_file(sock1, 2, "cfA" + jid + r_hostname, control) and
-			send_file(sock1, 3, "dfa" + jid + r_hostname, dataf)
-		   )
-		   	sock1.close
+				send_file(sock1, 2, "cfA" + jid + r_hostname, control) and
+				send_file(sock1, 3, "dfa" + jid + r_hostname, dataf)
+			)
+			sock1.close
 			return
 		end
 

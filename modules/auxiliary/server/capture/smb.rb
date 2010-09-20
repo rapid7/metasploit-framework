@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Sniffer' ]
+					[ 'Sniffer' ]
 				],
 			'PassiveActions' =>
 				[

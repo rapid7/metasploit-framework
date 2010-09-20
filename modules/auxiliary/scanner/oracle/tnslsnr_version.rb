@@ -28,9 +28,12 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'DisclosureDate' => 'Jan 7 2009'))
 
-                        register_options([Opt::RPORT(1521),], self.class)
+		register_options(
+			[
+				Opt::RPORT(1521)
+			], self.class)
 
-			deregister_options('RHOST')
+		deregister_options('RHOST')
 	end
 
 	def run_host(ip)

@@ -77,7 +77,7 @@ module Metasploit3
 
 		if(datastore['PrependFork'])
 			# fork() / parent does exit_group() (for threads)
-			midstager << 
+			midstager <<
 			"\x6a\x02\x58\xcd\x80\x85\xc0\x74\x06\x31\xc0\xb0\xfc\xcd\x80"
 		end
 

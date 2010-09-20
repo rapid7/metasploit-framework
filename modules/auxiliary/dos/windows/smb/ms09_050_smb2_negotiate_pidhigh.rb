@@ -11,10 +11,10 @@
 
 class Metasploit3 < Msf::Auxiliary
 
-    include Msf::Exploit::Remote::Tcp
-    include Msf::Auxiliary::Dos
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Dos
 
-    def initialize(info = {})
+	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference',
 			'Description'    => %q{

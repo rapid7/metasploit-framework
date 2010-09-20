@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Actions'     =>
 				[
-				 	[ 'Service' ]
+					[ 'Service' ]
 				],
 			'PassiveActions' =>
 				[

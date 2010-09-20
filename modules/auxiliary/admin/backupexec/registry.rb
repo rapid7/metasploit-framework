@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
-	  				[ 'OSVDB', '17627' ],
+					[ 'OSVDB', '17627' ],
 					[ 'CVE', '2005-0771' ],
 					[ 'URL', 'http://www.idefense.com/application/poi/display?id=269&type=vulnerabilities'],
 				],
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 		return {
 			"regread" => "Read a registry value",
 			# "regenum" => "Enumerate registry keys",
-		 }
+		}
 	end
 
 	def run

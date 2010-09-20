@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '60317' ],
 					[ 'BID', '37086' ],
 					[ 'CVE', '2009-4189' ],
-               [ 'OSVDB', '60670' ],
+					[ 'OSVDB', '60670' ],
 					[ 'URL', 'http://www.harmonysecurity.com/blog/2009/11/hp-operations-manager-backdoor-account.html' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-09-085/' ],
 

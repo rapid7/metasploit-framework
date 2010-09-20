@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Airpwn' ]
+					[ 'Airpwn' ]
 				],
 			'PassiveActions' =>
 				[
@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 					rescue EOFError
 					rescue ::Exception => e
 						print_error("AIRPWN: failed to parse response file " \
-								    "#{r['file']}, #{e.class} #{e} #{e.backtrace}")
+							"#{r['file']}, #{e.class} #{e} #{e.backtrace}")
 					end
 				end
 			else

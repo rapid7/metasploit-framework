@@ -31,22 +31,21 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE
 		)
 
-    register_options(
-      [
+		register_options(
+			[
 				OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_userpass.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_user.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_user.txt") ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
-          File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "db2_default_pass.txt") ]),
 			], self.class)
-
 	end
 
 	def run_host(ip)
-			each_user_pass { |user, pass|
-        do_login(user,pass,datastore['DATABASE'])
-			}
+		each_user_pass { |user, pass|
+			do_login(user,pass,datastore['DATABASE'])
+		}
 	end
 
 	def do_login(user=nil,pass=nil,db=nil)
@@ -64,24 +63,25 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
 			return :abort
 		end
-			disconnect
 
-			if info[:db_login_success]
-				print_good("#{rhost}:#{rport} - DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
-				# Report credentials
-				report_auth_info(
-					:host => rhost,
-					:port => rport,
-					:sname => "db2",
-					:user => "#{db}/#{user}",
-					:pass => pass,
-					:active => true
+		disconnect
+
+		if info[:db_login_success]
+			print_good("#{rhost}:#{rport} - DB2 - successful login for '#{user}' : '#{pass}' against database '#{db}'")
+			# Report credentials
+			report_auth_info(
+				:host => rhost,
+				:port => rport,
+				:sname => "db2",
+				:user => "#{db}/#{user}",
+				:pass => pass,
+				:active => true
 				)
-				return :next_user
-			else
-				vprint_error("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
-				return :fail
-			end
+			return :next_user
+		else
+			vprint_error("#{rhost}:#{rport} - DB2 - failed login for '#{user}' : '#{pass}' against database '#{db}'")
+			return :fail
+		end
 
 	end
 end

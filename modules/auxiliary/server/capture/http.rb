@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Capture' ]
+					[ 'Capture' ]
 				],
 			'PassiveActions' =>
 				[
@@ -340,10 +340,10 @@ class Metasploit3 < Msf::Auxiliary
 		# Handle image requests
 		ctypes  =
 		{
-    		   "jpg"   => "image/jpeg",
-    		   "jpeg"  => "image/jpeg",
-    		   "png"   => "image/png",
-    		   "gif"   => "image/gif",
+			"jpg"   => "image/jpeg",
+			"jpeg"  => "image/jpeg",
+			"png"   => "image/png",
+			"gif"   => "image/gif",
 		}
 
 		req_ext = req.resource.split(".")[-1].downcase
@@ -357,11 +357,11 @@ class Metasploit3 < Msf::Auxiliary
 				"\x01\x00\x01\x00\x00\x02\x02\x44\x01\x00\x3b"
 
 			res =
-    			   "HTTP/1.1 200 OK\r\n" +
-    			   "Host: #{mysrc}\r\n" +
-    			   "Content-Type: #{ctype}\r\n" +
-    			   "Content-Length: #{data.length}\r\n" +
-    			   "Connection: Close\r\n\r\n#{data}"
+				"HTTP/1.1 200 OK\r\n" +
+				"Host: #{mysrc}\r\n" +
+				"Content-Type: #{ctype}\r\n" +
+				"Content-Length: #{data.length}\r\n" +
+				"Connection: Close\r\n\r\n#{data}"
 			cli.put(res)
 			return
 		end

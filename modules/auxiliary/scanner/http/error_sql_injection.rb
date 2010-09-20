@@ -103,18 +103,17 @@ class Metasploit3 < Msf::Auxiliary
 		# Send normal request to check if error is generated
 		# (means the error is caused by other means)
 		#
-   		#
+		#
 
 		begin
 			normalres = send_request_cgi({
-				'uri'  		=>  datastore['PATH'],
-				'vars_get' 	=>  gvars,
-				'method'   	=>  datastore['METHOD'],
+				'uri'  		=> datastore['PATH'],
+				'vars_get' 	=> gvars,
+				'method'   	=> datastore['METHOD'],
 				'ctype'		=> 'application/x-www-form-urlencoded',
-	            'cookie'    => datastore['COOKIE'],
-	            'data'      => datastore['DATA']
-				}, 20)
-
+				'cookie'    => datastore['COOKIE'],
+				'data'      => datastore['DATA']
+			}, 20)
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
@@ -161,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#
 		# Test URI Query parameters
-   		#
+		#
 
 		found = false
 
@@ -230,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#
 		# Test DATA parameters
-   		#
+		#
 
 		found = false
 
@@ -307,7 +306,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#
 		# Test COOKIE parameters
-   		#
+		#
 
 		found = false
 

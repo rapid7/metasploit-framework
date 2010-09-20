@@ -83,11 +83,13 @@ class Metasploit3 < Msf::Auxiliary
 						}, 10)
 
 						if res
-							reg_info = [ /<td>UserId<\/td><td>(\w+.*)<\/td>/, /<td>Password<\/td><td>(\w+.*)<\/td>/,
-									 /<td>APPL_PHYSICAL_PATH<\/td><td>(\w+.*)<\/td>/,
-									 /<td>AspFilterSessionId<\/td><td>(\w+.*)<\/td>/,
-									 /<td>Via<\/td><td>(\w+.*)<\/td>/,/<td>LOCAL_ADDR<\/td><td>(\w+.*)<\/td>/,
-									  /<td>ALL_RAW<\/td><td>((.+\n)+)<\/td>/
+							reg_info = [
+								/<td>UserId<\/td><td>(\w+.*)<\/td>/,
+								/<td>Password<\/td><td>(\w+.*)<\/td>/,
+								/<td>APPL_PHYSICAL_PATH<\/td><td>(\w+.*)<\/td>/,
+								/<td>AspFilterSessionId<\/td><td>(\w+.*)<\/td>/,
+								/<td>Via<\/td><td>(\w+.*)<\/td>/,/<td>LOCAL_ADDR<\/td><td>(\w+.*)<\/td>/,
+								/<td>ALL_RAW<\/td><td>((.+\n)+)<\/td>/
 							]
 							print_status ("DETAIL: #{turl}")
 							reg_info.each do |reg|

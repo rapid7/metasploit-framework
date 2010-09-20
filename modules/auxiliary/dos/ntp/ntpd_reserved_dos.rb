@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				a single packet to a vulnerable ntpd server (Victim A),
 				spoofed from the IP address of another vulnerable ntpd server
 				(Victim B), both victims will enter an infinite response loop.
-			 	Note, unless you control the spoofed source host or the real
+				Note, unless you control the spoofed source host or the real
 				remote host(s), you will not be able to halt the DoS condition
 				once begun!
 			},

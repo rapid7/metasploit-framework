@@ -301,7 +301,7 @@ class Metasploit3 < Msf::Auxiliary
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception => e
-					 #print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
+					#print_line("UUID #{uuid[0]} #{uuid[1]} ERROR #{$!}")
 				end
 				disconnect()
 			end

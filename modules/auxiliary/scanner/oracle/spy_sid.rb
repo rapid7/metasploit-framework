@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Oracle Application Server Spy Servlet SID Enumeration.',
 			'Description' => %q{
 					This module makes a request to the Oracle Application Server
-					 in an attempt to discover the SID.
+				in an attempt to discover the SID.
 			},
 			'Version'     => '$Revision$',
 			'References'  =>
@@ -33,7 +33,10 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
-		register_options([Opt::RPORT(1158),], self.class)
+		register_options(
+			[
+				Opt::RPORT(1158)
+			], self.class)
 	end
 
 	def run_host(ip)

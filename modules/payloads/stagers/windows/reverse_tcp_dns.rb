@@ -38,7 +38,7 @@ module Metasploit3
 				{
 					'RequiresMidstager' => false,
 					'Offsets' => { 'LPORT' => [ 212, 'n' ], 'ReverseConnectRetries' => [ 207, 'C'] },
-	 				'Payload' =>
+					'Payload' =>
 						# Name: stager_reverse_tcp_dns
 						# Length: 367 bytes
 						# Port Offset: 212

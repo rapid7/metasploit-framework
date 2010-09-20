@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (res and res.code >= 200 and res.code < 300)
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
-	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
+					print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
 					report_note(
 						:host	=> ip,
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				if res.to_s.include? "[To Parent Directory]</A>" and res.to_s.include? "#{tpath}</H1><hr>"
-	 				print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
+					print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
 					report_note(
 						:host	=> ip,

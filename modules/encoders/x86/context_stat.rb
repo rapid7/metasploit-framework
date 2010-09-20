@@ -38,12 +38,11 @@ class Metasploit3 < Msf::Encoder::XorAdditiveFeedback
 
 		register_options(
 			[
-				OptString.new('STAT_KEY',
-					[ true,
+				OptString.new('STAT_KEY', [ true,
 					"STAT key from target host (see tools/context/stat-key utility)",
-					"0x00000000"]),
-			OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls"]),
-                                ], self.class)
+					"0x00000000" ]),
+				OptString.new('STAT_FILE', [ true, "name of file to stat(2)", "/bin/ls" ]),
+			], self.class)
 	end
 
 	def obtain_key(buf, badchars, state)

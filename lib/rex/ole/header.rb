@@ -91,7 +91,7 @@ class Header
 		ret << ",\n"
 
 		if (@_csectFat)
-	  		ret << "  _csectFat => 0x%08x" % @_csectFat
+			ret << "  _csectFat => 0x%08x" % @_csectFat
 		else
 			ret << "  _csectFat => UNALLOCATED"
 		end

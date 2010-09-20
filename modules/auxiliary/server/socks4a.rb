@@ -16,7 +16,7 @@ require 'rex/proto/proxy/socks4a'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
-	
+
 	def initialize
 		super(
 			'Name'        => 'Socks4a Proxy Server',
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Proxy' ]
+					[ 'Proxy' ]
 				],
 			'PassiveActions' =>
 				[
@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Auxiliary
 				OptPort.new( 'SRVPORT', [ true,  "The port to listen on.", 1080 ] )
 			], self.class )
 	end
-	
+
 	def setup
 		super
 		@mutex = ::Mutex.new
 		@socks4a = nil
 	end
-	
+
 	def cleanup
 		@mutex.synchronize do
 			if( @socks4a )
@@ -58,19 +58,19 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		super
 	end
-	
+
 	def run
 		opts = {
 			'ServerHost' => datastore['SRVHOST'],
 			'ServerPort' => datastore['SRVPORT']
 		}
-		
+
 		@socks4a = Rex::Proto::Proxy::Socks4a.new( opts )
-		
+
 		print_status( "Starting the socks4a proxy server" )
-		
+
 		@socks4a.start
-		
+
 		@socks4a.join
 	end
 

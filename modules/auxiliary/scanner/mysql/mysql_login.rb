@@ -106,17 +106,22 @@ class Metasploit3 < Msf::Auxiliary
 				:pass   => pass,
 				:active => true
 			)
-      return :next_user
+			return :next_user
+
 		rescue ::RbMysql::AccessDeniedError
 			vprint_status("#{rhost}:#{rport} failed to login as '#{user}' with password '#{pass}'")
 			return :fail
+
 		rescue ::RbMysql::Error => e
 			vprint_error("#{rhost}:#{rport} failed to login: #{e.class} #{e}")
 			return :error
+
 		rescue ::Interrupt
 			raise $!
+
 		rescue ::Rex::ConnectionError
 			return :abort
+
 		end
 	end
 

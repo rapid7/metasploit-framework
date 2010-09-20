@@ -99,12 +99,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			normalres = send_request_cgi({
-				'uri'  		=>  datastore['PATH'],
-				'vars_get' 	=>  gvars,
-				'method'   	=>  datastore['METHOD'],
+				'uri'  		=> datastore['PATH'],
+				'vars_get' 	=> gvars,
+				'method'   	=> datastore['METHOD'],
 				'ctype'		=> 'application/x-www-form-urlencoded',
-	            'cookie'    => datastore['COOKIE'],
-	            'data'      => datastore['DATA']
+				'cookie'    => datastore['COOKIE'],
+				'data'      => datastore['DATA']
 			}, 20)
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -183,15 +183,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 							if falseres
-  								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-  								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
-  								#true_false_dist = edit_distance(falseres.body,trueres.body)
+								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
+								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
+								#true_false_dist = edit_distance(falseres.body,trueres.body)
 
+								#print_status("rellenf #{relfalsesize}")
 
-  								#print_status("rellenf #{relfalsesize}")
-
-  								if reltruesize > relfalsesize
- 									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+								if reltruesize > relfalsesize
+									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 
 									report_note(
 										:host	=> ip,
@@ -200,9 +199,8 @@ class Metasploit3 < Msf::Auxiliary
 										:type	=> 'BLIND_SQL_INJECTION',
 										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
 									)
-
-  								else
- 									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+								else
+									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
 								end
 							else
 								print_status("NO False Response.")
@@ -289,15 +287,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 							if falseres
-  								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-  								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
-  								#true_false_dist = edit_distance(falseres.body,trueres.body)
+								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
+								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
+								#true_false_dist = edit_distance(falseres.body,trueres.body)
 
+								#print_status("rellenf #{relfalsesize}")
 
-  								#print_status("rellenf #{relfalsesize}")
-
-  								if reltruesize > relfalsesize
- 									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+								if reltruesize > relfalsesize
+									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 
 									report_note(
 										:host	=> ip,
@@ -307,8 +304,8 @@ class Metasploit3 < Msf::Auxiliary
 										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
 									)
 
-  								else
- 									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+								else
+									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
 								end
 							else
 								print_status("NO False Response.")

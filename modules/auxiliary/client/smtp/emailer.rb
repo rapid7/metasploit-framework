@@ -67,15 +67,15 @@ class Metasploit3 < Msf::Auxiliary
 		attachment_file_type = yamlconf['attachment_file_type']
 		attachment_file_name = yamlconf['attachment_file_name']
 
-        ### payload options ###
-        make_payload    = yamlconf['make_payload']
-        zip_payload     = yamlconf['zip_payload']
-        msf_port        = yamlconf['msf_port']
-        msf_ip          = yamlconf['msf_ip']
-        msf_payload     = yamlconf['msf_payload']
-        msf_filename    = yamlconf['msf_filename']
-        msf_change_ext  = yamlconf['msf_change_ext']
-        msf_payload_ext = yamlconf['msf_payload_ext']
+		### payload options ###
+		make_payload    = yamlconf['make_payload']
+		zip_payload     = yamlconf['zip_payload']
+		msf_port        = yamlconf['msf_port']
+		msf_ip          = yamlconf['msf_ip']
+		msf_payload     = yamlconf['msf_payload']
+		msf_filename    = yamlconf['msf_filename']
+		msf_change_ext  = yamlconf['msf_change_ext']
+		msf_payload_ext = yamlconf['msf_payload_ext']
 
 
 		tmp = Dir.tmpdir
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("YAML config: #{type}")
 		end
 
-        if  make_payload
+		if make_payload
 			attachment_file = File.join(tmp, msf_filename)
 			attachment_file_name = msf_filename
 
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 				attachment_file_type = 'application/exe'
 			end
 
-        end
+		end
 
 
 		File.open(fileto, 'rb').each do |l|

@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_login(user=nil,pass=nil)
 		post_data = "username=#{Rex::Text.uri_encode(user.to_s)}&password=#{Rex::Text.uri_encode(pass.to_s)}&RedirectTo=%2Fnames.nsf"
-	 	vprint_status("http://#{vhost}:#{rport} - Lotus Domino - Trying username:'#{user}' with password:'#{pass}'")
+		vprint_status("http://#{vhost}:#{rport} - Lotus Domino - Trying username:'#{user}' with password:'#{pass}'")
 
 		begin
 

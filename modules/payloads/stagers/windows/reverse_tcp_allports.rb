@@ -34,7 +34,7 @@ module Metasploit3
 				{
 					'RequiresMidstager' => false,
 					'Offsets' => { 'LHOST' => [ 195, 'ADDR' ], 'LPORT' => [ 202, 'n' ], },
-	 				'Payload' =>
+					'Payload' =>
 						# Length: 294 bytes
 						# Port Offset: 202
 						# Host Offset: 195
