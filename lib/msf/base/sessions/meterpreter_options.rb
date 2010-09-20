@@ -36,18 +36,22 @@ module MeterpreterOptions
 		session.init_ui(self.user_input, self.user_output)
 
 		if (datastore['AutoLoadStdapi'] == true)
+
 			session.load_stdapi
-			mod = framework.modules.create(session.via_exploit)
-			
+	
 			if datastore['AutoSystemInfo']
 				session.load_session_info
 			end
 			
-			if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
-				session.load_priv
-				session.info += " (ADMIN)"
+			begin
+				::Timeout.timeout(10) do 
+					if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
+						session.load_priv
+						session.info += " (ADMIN)"
+					end
+				end
+			rescue ::Exception
 			end
-
 		end
 
 		if (datastore['InitialAutoRunScript'].empty? == false)
