@@ -29,13 +29,13 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
-				 	[ 'Capture' ]
+					[ 'Service' ]
 				],
 			'PassiveActions' =>
 				[
-					'Capture'
+					'Service'
 				],
-			'DefaultAction'  => 'Capture'
+			'DefaultAction'  => 'Service'
 		)
 
 		register_options(
