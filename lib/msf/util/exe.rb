@@ -133,7 +133,7 @@ require 'metasm'
 		end
 
 		#try to inject code into executable by adding a section without affecting executable behavior
-		if(opts[:insert])
+		if(opts[:inject])
 			if endjunk
 				raise RuntimeError, "Junk at end of file. Is this a packed exe?"
 			end
