@@ -53,13 +53,16 @@ static struct libs libs[] = {
 #define LIBC_IDX 0
 #define METSRV_IDX  5
 
-/*
- * Once the library has been mapped in, this is where code execution needs to
- * begin payload wise. I'm not sure why we have base, I kept it because
- * that's what the API has.
- */
+#include <pthread.h>
+
+extern int (*pthread_mutex_lock_fp)(pthread_mutex_t *mutex);
+extern int (*pthread_mutex_unlock_fp)(pthread_mutex_t *mutex);
 
 int dlsocket(void *libc);
+
+/*
+ * Map in libraries, and hand off execution to the meterpreter server
+ */
 
 unsigned metsrv_rtld(int fd)
 {
@@ -81,6 +84,25 @@ unsigned metsrv_rtld(int fd)
 	libc_init_common = dlsym(libs[LIBC_IDX].handle, "__libc_init_common");
 	TRACE("[ __libc_init_common is at %08x, calling ]\n", libc_init_common);
 	libc_init_common();
+
+	{
+		int (*lock_sym)(pthread_mutex_t *mutex);
+		int (*unlock_sym)(pthread_mutex_t *mutex);
+
+		TRACE("[ setting pthread_mutex_lock_fp / pthread_mutex_unlock_fp ]\n");
+
+		lock_sym = dlsym(libs[LIBC_IDX].handle, "pthread_mutex_lock");
+		unlock_sym = dlsym(libs[LIBC_IDX].handle, "pthread_mutex_unlock");
+
+		if(! lock_sym || !unlock_sym)
+		{
+			TRACE("[ libc mapping seems to be broken. exit()'ing ]");
+			exit(-1);
+		}
+
+		pthread_mutex_lock_fp = lock_sym;
+		pthread_mutex_unlock_fp = unlock_sym;
+	}
 
 	if(fstat(fd, &statbuf) == -1) {
 		TRACE("[ supplied fd fails fstat() check, using dlsocket() ]\n");

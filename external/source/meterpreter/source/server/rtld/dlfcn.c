@@ -45,8 +45,15 @@ static const char *dl_errors[] = {
 #define likely(expr)   __builtin_expect (expr, 1)
 #define unlikely(expr) __builtin_expect (expr, 0)
 
-// pks, no mutexes now
-// static pthread_mutex_t dl_lock = PTHREAD_MUTEX_INITIALIZER;
+int do_absolutely_nothing(pthread_mutex_t *mutex)
+{
+	return 0;
+}
+
+int (*pthread_mutex_lock_fp)(pthread_mutex_t *mutex) = do_absolutely_nothing;
+int (*pthread_mutex_unlock_fp)(pthread_mutex_t *mutex) = do_absolutely_nothing;
+
+static pthread_mutex_t dl_lock = PTHREAD_MUTEX_INITIALIZER;
 
 static void set_dlerror(int err)
 {
@@ -59,14 +66,14 @@ void *dlopen(const char *filename, int flag)
 {
     soinfo *ret;
 
-    // pthread_mutex_lock(&dl_lock);
+    pthread_mutex_lock_fp(&dl_lock);
     ret = find_library(filename);
     if (unlikely(ret == NULL)) {
         set_dlerror(DL_ERR_CANNOT_LOAD_LIBRARY);
     } else {
         ret->refcount++;
     }
-    // pthread_mutex_unlock(&dl_lock);
+    pthread_mutex_unlock_fp(&dl_lock);
     return ret;
 }
 
@@ -83,7 +90,7 @@ void *dlsym(void *handle, const char *symbol)
     Elf32_Sym *sym;
     unsigned bind;
 
-    // pthread_mutex_lock(&dl_lock);
+    pthread_mutex_lock_fp(&dl_lock);
 
     if(unlikely(handle == 0)) { 
         set_dlerror(DL_ERR_INVALID_LIBRARY_HANDLE);
@@ -114,7 +121,7 @@ void *dlsym(void *handle, const char *symbol)
 
         if(likely((bind == STB_GLOBAL) && (sym->st_shndx != 0))) {
             unsigned ret = sym->st_value + found->base;
-            // pthread_mutex_unlock(&dl_lock);
+            pthread_mutex_unlock_fp(&dl_lock);
             return (void*)ret;
         }
 
@@ -124,7 +131,7 @@ void *dlsym(void *handle, const char *symbol)
         set_dlerror(DL_ERR_SYMBOL_NOT_FOUND);
 
 err:
-    // pthread_mutex_unlock(&dl_lock);
+    pthread_mutex_unlock_fp(&dl_lock);
     return 0;
 }
 
@@ -132,7 +139,7 @@ int dladdr(void *addr, Dl_info *info)
 {
     int ret = 0;
 
-    // pthread_mutex_lock(&dl_lock);
+    pthread_mutex_lock_fp(&dl_lock);
 
     /* Determine if this address can be found in any library currently mapped */
     soinfo *si = find_containing_library(addr);
@@ -154,16 +161,16 @@ int dladdr(void *addr, Dl_info *info)
         ret = 1;
     }
 
-    // pthread_mutex_unlock(&dl_lock);
+    pthread_mutex_unlock_fp(&dl_lock);
 
     return ret;
 }
 
 int dlclose(void *handle)
 {
-    // pthread_mutex_lock(&dl_lock);
+    pthread_mutex_lock_fp(&dl_lock);
     (void)unload_library((soinfo*)handle);
-    // pthread_mutex_unlock(&dl_lock);
+    pthread_mutex_unlock_fp(&dl_lock);
     return 0;
 }
 
@@ -346,6 +353,8 @@ void *dlopenbuf(const char *name, void *data, size_t len)
 
 	TRACE("[ dlopenbuf() called with %s/%08x/%08x ]\n", name, data, len);
 
+	pthread_mutex_lock_fp(&dl_lock);
+
 	memset(&stream, 0, sizeof(z_stream));
 
 	input_buffer = (unsigned char *)(data);
@@ -391,7 +400,10 @@ out:
 
 	if(zalloc_buffer) {
 		munmap(zalloc_buffer, ZALLOC_BUFFER_SIZE);
+		zalloc_buffer = NULL;
 	}
+
+	pthread_mutex_unlock_fp(&dl_lock);
 
 	return ret;
 
