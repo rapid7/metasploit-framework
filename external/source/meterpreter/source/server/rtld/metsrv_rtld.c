@@ -17,6 +17,10 @@
 #include <sys/socket.h>
 #include <endian.h>
 
+#include <asm/sigcontext.h>
+#include <asm/ucontext.h>
+
+
 #include "linker.h"
 #include "linker_debug.h"
 #include "linker_format.h"
@@ -133,23 +137,210 @@ int dlsocket(void *libc)
 
 }
 
-/* 
- * If we are compiled into an executable, we'll start here.  I can't be
- * bothered adding socketcall() wrappers for bind / accept / connect / crap, so
- * use bash / nc / whatever to put a socket on fd 5 for now.
- *
+extern soinfo *solist;
+
+/*
+ * This can't handle PROT_WRITE only memory :-)
  */
+
+void dump_memory(char **ptr, int *len, char *prefix, long unsigned int location, size_t count)
+{
+	unsigned char discard[count];
+
+	int fds[2];
+	int rc;
+	size_t n;
+
+	if(pipe(fds) == -1) return;
+
+	if(write(fds[1], location, count) == count) {
+		if(read(fds[0], discard, count) == count) {
+			n = 0;
+			while(n < count) {
+
+				rc = format_buffer(*ptr, *len, "%s+%4d: %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x %02x%02x%02x%02x\n",
+					prefix, n, discard[n + 0], discard[n + 1], discard[n + 2], discard[n + 3], 
+					discard[n + 4], discard[n + 5], discard[n + 6], discard[n + 7],
+					discard[n + 8], discard[n + 9], discard[n + 10], discard[n + 11],
+					discard[n + 12], discard[n + 13], discard[n + 14], discard[n + 15]
+				);
+			
+				*ptr += rc;
+				*len -= rc;
+
+				n += 16;
+			}
+
+			rc = format_buffer(*ptr, *len, "\n");
+			*ptr += rc;
+			*len -= rc;
+		}
+	}	
+
+	close(fds[0]);
+	close(fds[1]);
+}
+
+
+void *special_sig_stack;
+
+void sigcrash(int signo, siginfo_t *info, void *context)
+{
+	struct ucontext *uc = (struct ucontext *)(context);
+	struct sigcontext *sg = (struct sigcontext *)(& uc->uc_mcontext);
+	char buf[8192], *p;
+	int len, rc;
+	int fd;
+	soinfo *si;
+
+	char filename[64];
+
+	// reset signal handler, in case of another crash
+	signal(signo, SIG_DFL);
+
+	memset(buf, 0, sizeof(buf));
+
+	p = buf;
+	len = sizeof(buf);
+
+	rc = format_buffer(p, len, "\n[ meterpreter crash -- caught signal %d ]\n\n", signo);
+	p += rc;
+	len -= rc;
+
+	rc = format_buffer(p, len, "Special registers:\nEIP: 0x%08x ESP: 0x%08x EBP: 0x%08x\n\n", 
+		sg->eip, sg->esp, sg->ebp);
+	p += rc;
+	len -= rc;
+
+	rc = format_buffer(p, len, "General registers:\nEAX: 0x%08x EBX: 0x%08x ECX: 0x%08x" \
+		" EDX: 0x%08x ESI: 0x%08x EDI: 0x%08x\n\n", 
+		sg->eax, sg->ebx, sg->ecx, sg->edx, sg->esi, sg->edi);
+	p += rc;
+	len -= rc;
+
+	rc = format_buffer(p, len, "Loaded libraries:\n");
+	p += rc;
+	len -= rc;
+
+	for(si = solist; si; si = si->next) {
+		rc = format_buffer(p, len, "%s %08x - %08x", si->name, si->base, si->base + si->size);
+		p += rc;
+		len -= rc;
+
+		if(sg->eip >= si->base && sg->eip <= (si->base + si->size)) {
+			rc = format_buffer(p, len, " [eip offset: %08x]", sg->eip - si->base);
+			p += rc;
+			len -= rc;
+		}
+
+		rc = format_buffer(p, len, "\n");
+		p += rc;
+		len -= rc;
+	}
+
+	rc = format_buffer(p, len, "\nRegister pointer contents:\n");
+	p += rc;
+	len -= rc;
+
+	dump_memory(&p, &len, "EAX", sg->eax, 32);
+	dump_memory(&p, &len, "EBX", sg->ebx, 32);
+	dump_memory(&p, &len, "ECX", sg->ecx, 32);
+	dump_memory(&p, &len, "EDX", sg->edx, 32);
+	dump_memory(&p, &len, "ESI", sg->esi, 32);
+	dump_memory(&p, &len, "EDI", sg->edi, 32);
+	dump_memory(&p, &len, "EBP", sg->ebp, 64);
+	dump_memory(&p, &len, "ESP", sg->esp, 64);
+	dump_memory(&p, &len, "EIP", sg->eip, 16);
+
+	fd = open("/proc/self/maps", O_RDONLY);
+	if(fd != -1) {
+		rc = read(fd, p, len);
+		if(rc != -1) {
+			p += rc;
+			len -= rc;
+		}
+		close(fd);
+	}
+
+	memset(filename, 0, sizeof(filename));
+	format_buffer(filename, sizeof(filename) - 1, "/tmp/meterpreter.crash.%d", getpid());
+
+	fd = open(filename, O_WRONLY|O_TRUNC|O_CREAT, 0644);
+	if(fd) {
+		write(fd, buf, 8192 - len);
+		close(fd);
+	}
+
+	write(2, buf, 8192 - len);
+
+}
 
 void sigchld(int signo)
 {
 	waitpid(-1, NULL, WNOHANG);
 }
 
+#define NEWSTKSIZE (4096 * 32)
+
+
+void handle_crashes()
+{
+	struct sigaction sa;
+
+	memset(&sa, 0, sizeof(struct sigaction));
+	sa.sa_sigaction = sigcrash;
+	sa.sa_flags = SA_SIGINFO | SA_ONSTACK;
+
+	/*
+	 * We set up a special signal handler stack on the chance that
+	 * if our thread's esp is corrupt / too long, we can still execute 
+	 * the crash handler.
+	 */
+
+	special_sig_stack = mmap(NULL, NEWSTKSIZE, PROT_READ|PROT_WRITE, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
+
+	if(special_sig_stack == MAP_FAILED) {
+		TRACE("[ (%s) unable to mmap for special stack. ]", __FUNCTION__);
+
+		sa.sa_flags &= ~SA_ONSTACK;
+		special_sig_stack = NULL;
+	} else {
+		stack_t newstk;
+
+		newstk.ss_sp = special_sig_stack;
+		newstk.ss_flags = 0;
+		newstk.ss_size = NEWSTKSIZE;
+
+		if(sigaltstack(&newstk, NULL) == -1) {
+			TRACE("[ (%s) unable to sigaltstack. errno = %d ]", __FUNCTION__, errno);
+			munmap(special_sig_stack, NEWSTKSIZE);
+			special_sig_stack = NULL;
+			sa.sa_flags &= ~SA_ONSTACK;
+		}
+	}
+
+	sigaction(SIGSEGV, &sa, NULL); sigaction(SIGILL, &sa, NULL);
+	sigaction(SIGFPE, &sa, NULL); sigaction(SIGSYS, &sa, NULL);
+	sigaction(SIGABRT, &sa, NULL);
+
+}
+
+/*
+ * This is the entry point for the meterpreter payload, either as a stand alone executable, or a 
+ * payload executing on the remote machine.
+ *
+ * If executed as a stand alone, int fd will be invalid. Later on, once libc has been loaded,
+ * it will connect to the metasploit meterpreter server.
+ */
+
 void _start(int fd)
 {
-	signal(SIGCHLD, sigchld);
-	signal(SIGPIPE, SIG_IGN);
+	alarm(0);			// clear out any pending alarms.
 
-	// we can't run ./msflinker directly. Use rtldtest to test the code 
-	metsrv_rtld(fd);
+	signal(SIGCHLD, sigchld);	// reap pids
+	signal(SIGPIPE, SIG_IGN);	// ignore read/write pipe errors, make them return -1.
+
+	handle_crashes();		// try to make debugging a little easier.
+
+	metsrv_rtld(fd);		
 }

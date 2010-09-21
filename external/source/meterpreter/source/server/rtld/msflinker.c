@@ -105,7 +105,7 @@ static int link_image(soinfo *si, unsigned wr_offset);
 static int socount = 0;
 static soinfo sopool[SO_MAX];
 static soinfo *freelist = NULL;
-static soinfo *solist = &libdl_info;
+soinfo *solist = &libdl_info;
 static soinfo *sonext = &libdl_info;
 #if ALLOW_SYMBOLS_FROM_MAIN
 static soinfo *somain; /* main process, always the one after libdl_info */
