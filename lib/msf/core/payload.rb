@@ -447,7 +447,11 @@ class Payload < Msf::Module
 			# Signal that a new session is created by calling the exploit's
 			# on_new_session handler. The default behavior is to set an
 			# instance variable, which the exploit will have to check.
-			assoc_exploit.on_new_session(session)
+			begin
+				assoc_exploit.on_new_session(session)
+			rescue ::Exception => e
+				dlog("#{assoc_exploit.refname}: on_new_session handler triggered exception: #{e.class} #{e} #{e.backtrace}", 'core', LEV_1)	rescue nil		
+			end
 
 			# Set the abort sockets flag only if the exploit is not passive
 			# and the connection type is not 'find'
