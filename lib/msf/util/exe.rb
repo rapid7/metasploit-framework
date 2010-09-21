@@ -116,14 +116,14 @@ require 'metasm'
 
 	def self.to_win32pe(framework, code, opts={})
 
-		# For backward compatability, this is the equivalent of 'exe-small' fmt
-		if opts[:dll_method]
+		# For backward compatability, this is roughly equivalent to 'exe-small' fmt
+		if opts[:sub_method]
 			if opts[:inject]
-				raise RuntimeError, 'NOTE: using the old method means no inject support'
+				raise RuntimeError, 'NOTE: using the substitution method means no inject support'
 			end
 
 			# use 
-			return self.to_win32pe_dll(framework, code, opts)
+			return self.to_win32pe_exe_sub(framework, code, opts)
 		end
 
 		# Allow the user to specify their own EXE template
@@ -372,6 +372,24 @@ require 'metasm'
 
 		return pe
 	end
+
+	def self.to_win32pe_exe_sub(framework, code, opts={})
+
+		# Allow the user to specify their own DLL template
+		set_template_default(opts, "template_x86_windows_old.exe")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win32 PE EXE subst template: missing \"PAYLOAD:\" tag" if not bo
+		pe[bo, 8192] = [code].pack("a8192")
+
+		return pe
+	end
+
 
 	def self.to_win64pe(framework, code, opts={})
 
