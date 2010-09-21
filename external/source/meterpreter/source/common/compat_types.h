@@ -189,6 +189,7 @@ typedef	VOID *		PVOID;
 typedef	void *		HMODULE;
 typedef	short		SHORT;
 typedef unsigned short  USHORT;
+typedef uint64_t	QWORD;
 
 #ifndef TRUE
  #define TRUE (1)
@@ -227,6 +228,7 @@ typedef unsigned short  USHORT;
 
 int local_error;
 
+#define WSAGetLastError()	GetLastError()
 #define	GetLastError()		(local_error != -1 ? local_error : errno)
 #define	SetLastError(x)		(local_error = (x))
 #define	__declspec(x) 

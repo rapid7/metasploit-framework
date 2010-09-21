@@ -63,6 +63,7 @@ typedef struct _THREAD
 #ifndef _WIN32 
 	void *suspend_thread_data;
 	pthread_t pid;
+	int thread_started;
 #endif
 } THREAD, * LPTHREAD;
 

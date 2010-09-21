@@ -307,6 +307,13 @@ void *__paused_thread(void *req)
 	thread = tc->thread;
 	free(tc); 
 
+	if(event_poll(thread->sigterm, 0) == TRUE) {
+		/*
+		 * In some cases, we might want to stop a thread before it does anything :/
+		 */
+		return NULL;
+	}
+
 	return funk(thread);	
 }
 #endif
@@ -351,6 +358,8 @@ THREAD * thread_create( THREADFUNK funk, LPVOID param1, LPVOID param2 )
 #else
 	// PKS, this is fucky.
 	// we need to use conditionals to implement this. 
+
+	thread->thread_started = FALSE;
 
 	do {
 		pthread_t pid;
@@ -407,6 +416,8 @@ BOOL thread_run( THREAD * thread )
 	tc->engine_running = TRUE;
 	pthread_mutex_unlock(&tc->suspend_mutex);
 	pthread_cond_signal(&tc->suspend_cond);
+
+	thread->thread_started = TRUE;
 #endif
 	return TRUE;
 }
@@ -417,10 +428,26 @@ BOOL thread_run( THREAD * thread )
  */
 BOOL thread_sigterm( THREAD * thread )
 {
+	BOOL ret;
+
 	if( thread == NULL )
 		return FALSE;
 
-	return event_signal( thread->sigterm );
+	ret = event_signal( thread->sigterm );
+
+#ifndef _WIN32
+	/* 
+	 * If we sig term a thread before it's started execution, we will leak memory / not be 
+	 * able to join on the thread, etc.
+	 * 
+	 * Therefore, we need to start the thread executing before calling thread_join
+	 */
+	if(thread->thread_started != TRUE) {
+		thread_run(thread);
+	}
+#endif
+
+	return ret;
 }
 
 /*
