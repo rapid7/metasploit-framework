@@ -1,13 +1,25 @@
 #ifndef _METERPRETER_SOURCE_EXTENSION_SNIFFER_SNIFFER_H
 #define _METERPRETER_SOURCE_EXTENSION_SNIFFER_SNIFFER_H
 
-#include "../../common/common.h"
+#ifdef _WIN32
 
 #include <winsock2.h>
 #include <ws2tcpip.h>
 
 #include "HNPsSdkUser.h"
 #include "dnet.h"
+
+#else
+
+#include <pcap/pcap.h>
+
+#ifndef ERROR_ACCESS_DENIED
+ #define ERROR_ACCESS_DENIED EACCES
+#endif
+
+#endif
+
+#include "../../common/common.h"
 
 typedef struct capturejob
 {
@@ -23,6 +35,10 @@ typedef struct capturejob
 	unsigned char *dbuf;
 	unsigned int dlen;
 	unsigned int didx;
+#ifndef _WIN32
+	THREAD *thread;
+	pcap_t *pcap;
+#endif
 } CaptureJob;
 
 #define TLV_TYPE_EXTENSION_SNIFFER	0
@@ -81,5 +97,11 @@ typedef struct capturejob
 				TLV_META_TYPE_RAW,  				\
 				TLV_TYPE_EXTENSION_SNIFFER,	    	\
 				TLV_EXTENSIONS + 9)
+
+#define TLV_TYPE_SNIFFER_ADDITIONAL_FILTER				\
+		MAKE_CUSTOM_TLV(					\
+			TLV_META_TYPE_STRING,				\
+			TLV_TYPE_EXTENSION_SNIFFER,			\
+			TLV_EXTENSIONS + 10)	
 
 #endif

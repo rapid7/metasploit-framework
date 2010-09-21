@@ -6,6 +6,8 @@
 
 #include "sniffer.h"
 
+#ifdef _WIN32
+
 #include "../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
 // include the Reflectiveloader() function, we end up linking back to the metsrv.dll's Init function
 // but this doesnt matter as we wont ever call DLL_METASPLOIT_ATTACH as that is only used by the 
@@ -15,39 +17,10 @@
 // this sets the delay load hook function, see DelayLoadMetSrv.h
 EnableDelayLoadMetSrv();
 
+#define check_pssdk(); if(!hMgr && pktsdk_initialize()!=0){packet_transmit_response(hErr, remote, response);return(hErr);}
+
 HANDLE hMgr;
 DWORD hErr;
-
-struct sockaddr peername;
-int peername_len;
-
-struct sockaddr_in *peername4;
-struct sockaddr_in6 *peername6;
-
-int sniffer_includeports[1024];
-int sniffer_excludeports[1024];
-
-/* mutex */
-HANDLE snifferm;
-
-#define SNIFFER_MAX_INTERFACES 128
-#define SNIFFER_MAX_QUEUE  210000 // ~300Mb @ 1514 bytes
-
-CaptureJob open_captures[SNIFFER_MAX_INTERFACES];
-
-DWORD request_sniffer_interfaces(Remote *remote, Packet *packet);
-DWORD request_sniffer_capture_start(Remote *remote, Packet *packet);
-DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet);
-DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet);
-DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet);
-DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet);
-HANDLE pktsdk_interface_by_index(unsigned int fidx);
-DWORD pktsdk_initialize(void);
-
-void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize);
-
-
-#define check_pssdk(); if(!hMgr && pktsdk_initialize()!=0){packet_transmit_response(hErr, remote, response);return(hErr);}
 
 DWORD pktsdk_initialize(void) {
 	hMgr = MgrCreate();
@@ -80,7 +53,104 @@ HANDLE pktsdk_interface_by_index(unsigned int fidx) {
 	return NULL;
 }
 
+int sniffer_includeports[1024];
+int sniffer_excludeports[1024];
 
+void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize);
+
+#else // posix side
+
+#define check_pssdk()
+
+char *get_interface_name_by_index(unsigned int fidx)
+{
+	unsigned idx = 1;
+	char errbuf[PCAP_ERRBUF_SIZE+4];
+	static char device_name[64];				// PKS, probably safe, due to snifferm mutex
+	pcap_if_t *interfaces, *int_iter;
+
+	memset(device_name, 0, sizeof(device_name));	
+
+	interfaces = int_iter = NULL;
+
+	if(pcap_findalldevs(&interfaces, errbuf) == -1) {
+		dprintf("[%s] Hmm, out of memory? (errno = %d, but probably not useful)", errno);
+		return NULL;
+	} 
+
+	for(int_iter = interfaces; int_iter; int_iter = int_iter->next) {
+		if(fidx == idx++) {
+			strncpy(device_name, int_iter->name, sizeof(device_name)-1);
+			break;
+		}
+	}
+
+	pcap_freealldevs(interfaces);
+
+	return device_name[0] ? device_name : NULL;
+
+}
+
+// http://www.google.com/#q=peter+packet
+
+typedef struct PeterPacket
+{
+	struct pcap_pkthdr h;
+	unsigned char bytes[0];
+} PeterPacket;
+
+char *packet_filter;
+
+#define PktDestroy(x) free((void *)(x))
+#define PktGetPacketSize(x) (((PeterPacket *)(x))->h.caplen)
+
+DWORD PktGetId(DWORD handle, DWORD *thi)
+{
+	PeterPacket *pp = (PeterPacket *)(handle);
+	*thi = pp->h.ts.tv_sec;
+	return pp->h.ts.tv_usec;
+}
+
+DWORD PktGetTimeStamp(DWORD handle, DWORD *thi)
+{
+	__int64_t i64;
+	PeterPacket *pp = (PeterPacket *)(handle);
+
+	i64 = (pp->h.ts.tv_sec + 11644473600) * 10000000;
+
+	*thi = (i64 & 0xffffffff00000000) >> 32;
+	return (i64 & 0x00000000ffffffff);
+}
+
+#define PktGetPacketData(x) (&((PeterPacket *)(x))->bytes)
+
+#define AdpCfgGetMaxPacketSize(x) (1514)
+
+#endif
+
+struct sockaddr peername;
+int peername_len;
+
+struct sockaddr_in *peername4;
+struct sockaddr_in6 *peername6;
+
+/* mutex */
+LOCK *snifferm;
+
+#define SNIFFER_MAX_INTERFACES 128
+#define SNIFFER_MAX_QUEUE  210000 // ~300Mb @ 1514 bytes
+
+CaptureJob open_captures[SNIFFER_MAX_INTERFACES];
+
+DWORD request_sniffer_interfaces(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_start(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet);
+DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet);
+HANDLE pktsdk_interface_by_index(unsigned int fidx);
+DWORD pktsdk_initialize(void);
+ 
 DWORD request_sniffer_interfaces(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
@@ -97,8 +167,11 @@ DWORD request_sniffer_interfaces(Remote *remote, Packet *packet)
 		7: DHCP?
 	*/
 	unsigned int idx = 1;
+	DWORD result = ERROR_SUCCESS;
+
+#ifdef _WIN32
 	HANDLE hCfg;
-	
+
 	check_pssdk();
 
 	hCfg = MgrGetFirstAdapterCfg(hMgr);
@@ -157,11 +230,75 @@ DWORD request_sniffer_interfaces(Remote *remote, Packet *packet)
 		idx++;
 	}while((hCfg = MgrGetNextAdapterCfg(hMgr,hCfg)) != NULL);
 
-	packet_transmit_response(ERROR_SUCCESS, remote, response);
+#else 
+	char errbuf[PCAP_ERRBUF_SIZE+4];
+	int aidx = htonl(1);				// :~(
+
+	int yes_int = htonl(1);
+	int no_int = 0;
+	int mtu_int = htonl(1514);
+
+	pcap_if_t *interfaces, *int_iter;
+
+	interfaces = int_iter = NULL;	
+
+	do {
+		result = pcap_findalldevs(&interfaces, errbuf);
+		if(result) {
+			dprintf("[%s] pcap_findalldevs() failed, errbuf is %s", __FUNCTION__, errbuf);
+			break;
+		}
+
+		for(int_iter = interfaces; int_iter; int_iter = int_iter->next)
+		{	
+			entries[0].header.type   = TLV_TYPE_UINT;
+			entries[0].header.length = sizeof(unsigned int);
+			entries[0].buffer        = (PUCHAR)&aidx;
+
+			entries[1].header.type   = TLV_TYPE_STRING;
+			entries[1].header.length = strlen(int_iter->name)+1;
+			entries[1].buffer        = int_iter->name;
+
+			entries[2].header.type   = TLV_TYPE_STRING;
+			entries[2].header.length = strlen(int_iter->name)+1;
+			entries[2].buffer        = int_iter->name;
+
+			entries[3].header.type   = TLV_TYPE_UINT;
+			entries[3].header.length = sizeof(unsigned int);
+			entries[3].buffer        = (PUCHAR)&no_int;		// xxx, get encapsulation type?
+
+			entries[4].header.type   = TLV_TYPE_UINT;
+			entries[4].header.length = sizeof(unsigned int);
+			entries[4].buffer        = (PUCHAR)&mtu_int;		// PKS :-(
+
+			entries[5].header.type   = TLV_TYPE_BOOL;
+			entries[5].header.length = sizeof(BOOL);
+			entries[5].buffer        = (PUCHAR)&no_int;		// check encaps options / crap
+
+			entries[6].header.type   = TLV_TYPE_BOOL;
+			entries[6].header.length = sizeof(BOOL);
+			entries[6].buffer        = (PUCHAR)&yes_int;		// sure, why not.
+
+			entries[7].header.type   = TLV_TYPE_BOOL;
+			entries[7].header.length = sizeof(BOOL);
+			entries[7].buffer        = (PUCHAR)&no_int;		// hrm. not worth it.
+
+			packet_add_tlv_group(response, TLV_TYPE_SNIFFER_INTERFACES, entries, 8);
+			aidx = htonl(ntohl(aidx)+1);	// :~(
+		}
+
+	} while(0);
+
+	if(interfaces)
+		pcap_freealldevs(interfaces);
+
+#endif
+
+	packet_transmit_response(result, remote, response);
 	return ERROR_SUCCESS;
 }
 
-
+#ifdef _WIN32
 
 void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacket, LPVOID pPacketData, DWORD IncPacketSize) {
 	CaptureJob *j;
@@ -173,11 +310,9 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
  	struct tcp_hdr *tcp;
 //	struct udp_hdr *udp;
 
-
 	j = (CaptureJob *)Param;
 	pktbuf = (unsigned char *)pPacketData;
 	pktmax = pktbuf + IncPacketSize;
-
 
 	// Only process active jobs
 	if(!j->active) return;
@@ -228,9 +363,12 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 		// All done matching exclusions
 	} while(0);
 
-
 	// Thread-synchronized access to the queue
-	WaitForSingleObject(snifferm, INFINITE);
+
+	//    -- PKS, per job locking would be finer grained.
+	//       however, it probably doesn't matter.
+
+	lock_acquire(snifferm);
 
 	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
 	j->cur_pkts++;
@@ -243,16 +381,103 @@ void __stdcall sniffer_receive(DWORD_PTR Param, DWORD_PTR ThParam, HANDLE hPacke
 	j->pkts[j->idx_pkts] = pkt;
 	j->idx_pkts++;
 
-	ReleaseMutex(snifferm);
+	lock_release(snifferm);
 }
+
+#else
+
+void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
+{
+	CaptureJob *j = (CaptureJob *)(user);
+	PeterPacket *pkt;
+
+	if(! j->active) {
+		dprintf("[%s] calling pcap_breakloop because job is no longer active", __FUNCTION__);
+		pcap_breakloop(j->pcap);
+		return;
+	}
+
+	pkt = calloc(sizeof(PeterPacket) + h->caplen, 1);
+	if(! pkt) {
+		dprintf("[%s] ho hum, no memory. maybe a pcap_breakloop / stop running?");
+		return;
+	}
+
+	memcpy(&(pkt->h), h, sizeof(struct pcap_pkthdr));
+	memcpy(&(pkt->bytes), bytes, h->caplen);
+
+	// PKS, so tempted to implement per job locks.
+	// must fight temptation. :-)
+
+	// could be interesting to try and find a lockless way of implementing it.
+	// though the j->idx_pkts >= j->max_pkts is annoying :p
+	
+	lock_release(snifferm);	
+
+	j->cur_pkts ++;
+	j->cur_bytes += h->caplen;	
+
+	if(j->idx_pkts >= j->max_pkts) j->idx_pkts = 0;
+
+	if(j->pkts[j->idx_pkts]) free(j->pkts[j->idx_pkts]);
+
+	j->pkts[j->idx_pkts++] = pkt;
+
+	lock_release(snifferm);
+	
+	dprintf("[%s] new packet inserted. now pkts %d / bytes %d", __FUNCTION__, j->cur_pkts, j->cur_bytes);
+
+}
+
+DWORD sniffer_thread(THREAD *thread)
+{
+	int fd;
+	fd_set rfds;
+	struct timeval tv;
+	int count;
+
+	CaptureJob *j = (CaptureJob *)(thread->parameter1);
+	fd = pcap_get_selectable_fd(j->pcap);
+
+	dprintf("[%s] pcap @ %p, selectable fd is %d", __FUNCTION__, j->pcap, fd);
+
+	while(event_poll(thread->sigterm, 0) == FALSE && j->active) {
+		tv.tv_sec = 0;
+		tv.tv_usec = 5000;
+
+		FD_ZERO(&rfds);
+		FD_SET(pcap_get_selectable_fd(j->pcap), &rfds);
+
+		select(fd+1, &rfds, NULL, NULL, &tv);
+
+		count = pcap_dispatch(j->pcap, 100, packet_handler, (u_char *)(j));
+
+		if(count <= 0) continue;
+		if(count) dprintf("[%s] dispatched %d packets", __FUNCTION__, count);
+	}
+
+	dprintf("[%s] and we're done", __FUNCTION__);
+	return 0;
+}
+
+#define min(a,b) (a < b ? a : b)
+#define max(a,b) (a > b ? a : b)
+
+#endif
 
 DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 	Packet *response = packet_create_response(packet);
 	unsigned int ifid;
+	char *ifn;
 	unsigned int maxp;
 	CaptureJob *j;
 	DWORD result;
 	HANDLE ifh;
+
+#ifndef _WIN32
+	char errbuf[PCAP_ERRBUF_SIZE+4];
+	char *name;
+#endif
 
 	check_pssdk();
 	dprintf("sniffer>> start_capture()");
@@ -271,11 +496,15 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			break;
 		}
 
+#ifdef _WIN32
 		ifh = pktsdk_interface_by_index(ifid);
 		if(ifh == NULL) {
 			result = ERROR_INVALID_PARAMETER;
 			break;		
 		}
+#else
+		ifh = ifid;
+#endif
 
 		j = &open_captures[ifid];
 
@@ -285,6 +514,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			break;
 		}
 
+#ifdef _WIN32
 		j->adp = AdpCreate();
 		dprintf("sniffer>> capture_start() AdpCreate: 0x%.8x", j->adp);
 
@@ -296,11 +526,83 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			result = hErr;
 			break;
 		}
-		
+#else 
+		name = get_interface_name_by_index(ifid);
+
+		if(! name) {
+			result = ERROR_INVALID_PARAMETER;
+			break;
+		}
+
+		j->pcap = pcap_open_live(name, 1514, 1, 1000, errbuf);
+		if(! j->pcap) {
+			result = EACCES;
+			break;
+		}
+
+		if(packet_filter) {
+			struct bpf_program bpf;
+			char *add_filter;
+			char *real_filter = NULL;
+			int rc;
+
+			dprintf("[%s] handling packet_filter", __FUNCTION__);
+
+			add_filter = packet_get_tlv_value_string(packet,TLV_TYPE_SNIFFER_ADDITIONAL_FILTER);
+
+			dprintf("[%s] add_filter = %p (%s)", __FUNCTION__, add_filter, add_filter ? add_filter : "");
+
+			if(add_filter) {
+				asprintf(&real_filter, "%s and (%s)", packet_filter, add_filter);
+			} else {
+				real_filter = strdup(packet_filter);
+			}
+
+			dprintf("[%s] the real filter string we'll be using is '%s'", __FUNCTION__, real_filter);
+
+			rc = pcap_compile(j->pcap, &bpf, real_filter, 1, 0);
+			free(real_filter);
+
+			if(rc == -1) {
+				dprintf("[%s] pcap compile reckons '%s' is a failure because of '%s'", 
+					__FUNCTION__, real_filter, pcap_geterr(j->pcap));
+
+				result = ERROR_INVALID_PARAMETER;
+				break;
+			}
+
+			dprintf("[%s] compiled filter, now setfilter()'ing", __FUNCTION__);
+
+			rc = pcap_setfilter(j->pcap, &bpf);
+			pcap_freecode(&bpf);
+
+			if(rc == -1) {
+				dprintf("[%s] can't set filter because '%s'", __FUNCTION__,
+					pcap_geterr(j->pcap));
+
+				result = ERROR_INVALID_PARAMETER;
+				break;
+			}
+
+			dprintf("[%s] filter applied successfully", __FUNCTION__);
+		}
+
+		j->thread = thread_create((THREADFUNK) sniffer_thread, j, NULL);
+		if(! j->thread) {
+			pcap_close(j->pcap);
+			break;
+		}
+
+#endif
+
 		j->pkts = calloc(maxp, sizeof(HANDLE));
 		if(j->pkts == NULL) {
+#ifdef _WIN32
 			AdpCloseAdapter(j->adp);
 			AdpDestroy(j->adp);
+#else
+			pcap_close(j->pcap);
+#endif
 			result = ERROR_ACCESS_DENIED;
 			break;
 		}
@@ -311,8 +613,13 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 		j->cur_pkts = 0;
 		j->mtu      = AdpCfgGetMaxPacketSize(AdpGetConfig(j->adp));
 
+#ifdef _WIN32
 		AdpSetOnPacketRecv(j->adp, (FARPROC) sniffer_receive, (DWORD_PTR)j);
 		AdpSetMacFilter(j->adp, mfAll);
+#else
+		thread_run(j->thread);
+#endif
+
 	} while(0);
 	
 	packet_transmit_response(result, remote, response);
@@ -343,18 +650,27 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 		j = &open_captures[ifid];
 
 		// the interface is not being captured
-		if(! j->adp) {
+#ifdef _WIN32
+		if(! j->adp) 
+#else
+		if(! j->pcap)
+#endif
+		{
 			result = ERROR_INVALID_PARAMETER;
 			break;
 		}
-
 		
-		WaitForSingleObject(snifferm, INFINITE);
+		lock_acquire(snifferm);
 
 		j->active = 0;
+#ifdef _WIN32
 		AdpSetMacFilter(j->adp, 0);
 		AdpCloseAdapter(j->adp);
 		AdpDestroy(j->adp);
+#else
+		thread_sigterm(j->thread);
+		thread_join(j->thread);		// should take less than 1 second :p
+#endif
 		
 		for(i=0; i<j->max_pkts; i++) {
 			if(!j->pkts[i]) break;
@@ -364,7 +680,7 @@ DWORD request_sniffer_capture_stop(Remote *remote, Packet *packet) {
 		free(j->pkts);
 		memset(j, 0, sizeof(CaptureJob));
 		
-		ReleaseMutex(snifferm);
+		lock_release(snifferm);
 
 		dprintf("sniffer>> stop_capture() interface %d processed %d packets/%d bytes", j->intf, j->cur_pkts, j->cur_bytes); 
 	} while(0);
@@ -399,7 +715,12 @@ DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet) {
 		j = &open_captures[ifid];
 
 		// the interface was not captured
-		if(! j->adp) {
+#ifdef _WIN32
+		if(! j->adp) 
+#else
+		if(! j->pcap)
+#endif 
+		{
 			result = ERROR_INVALID_PARAMETER;
 			break;
 		}
@@ -412,7 +733,7 @@ DWORD request_sniffer_capture_stats(Remote *remote, Packet *packet) {
 	return ERROR_SUCCESS;
 }
 
-static DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet) {
+DWORD request_sniffer_capture_dump_read(Remote *remote, Packet *packet) {
 	Packet *response = packet_create_response(packet);
 	unsigned int ifid;
 	unsigned int bcnt;
@@ -483,7 +804,7 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 
 	result = ERROR_SUCCESS;
 
-	WaitForSingleObject(snifferm, INFINITE);
+	lock_acquire(snifferm);
 
 	do {
 		// the interface is invalid
@@ -495,7 +816,12 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 		j = &open_captures[ifid];
 
 		// the interface was not captured
-		if(! j->adp) {
+#ifdef _WIN32
+		if(! j->adp) 
+#else
+		if(! j->pcap)
+#endif
+		{
 			result = ERROR_INVALID_PARAMETER;
 			break;
 		}
@@ -565,7 +891,7 @@ DWORD request_sniffer_capture_dump(Remote *remote, Packet *packet) {
 		j->idx_pkts  = 0;
 	} while(0);
 
-	ReleaseMutex(snifferm);
+	lock_release(snifferm);
 	packet_transmit_response(result, remote, response);
 	return ERROR_SUCCESS;
 }
@@ -616,24 +942,26 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 {
 	DWORD index;
 
-	hMetSrv = remote->hMetSrv;
-
 	for (index = 0;
 	     customCommands[index].method;
 	     index++)
 		command_register(&customCommands[index]);
 
+
+	memset(open_captures, 0, sizeof(open_captures));
+
+#ifdef _WIN32
 	// initialize structures for the packet sniffer sdk
 	hMgr = NULL;
 	hErr = 0;
-	memset(open_captures, 0, sizeof(open_captures));
 
 	// wipe the include/exclude ports empty
 	memset(sniffer_includeports, 0, sizeof(sniffer_includeports));
 	memset(sniffer_excludeports, 0, sizeof(sniffer_excludeports));
 	sniffer_includeports[0] = -1;
 	sniffer_excludeports[0] = -1;	
-	
+#endif	
+
 	// get the address/port of the connected control socket
 	peername4 = NULL;
 	peername6 = NULL;
@@ -642,8 +970,34 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 	if(peername.sa_family == PF_INET)  peername4 = (struct sockaddr_in *)&peername;
 	if(peername.sa_family == PF_INET6) peername6 = (struct sockaddr_in6 *)&peername;
 
-	snifferm = CreateMutex(NULL, FALSE, NULL);
+	snifferm = lock_create();
+
+#ifdef _WIN32
 	return hErr;
+#else
+	if(peername4 || peername6) {
+		int port;
+		char buf[256];		// future proof :-)
+
+		memset(buf, 0, sizeof(buf));
+		
+		if(peername4) {
+			inet_ntop(AF_INET, &peername4->sin_addr, buf, sizeof(buf)-1);
+			port = ntohs(peername4->sin_port);
+		} else {
+			inet_ntop(AF_INET6, &peername6->sin6_addr, buf, sizeof(buf)-1);
+			port = ntohs(peername6->sin6_port);
+		}
+
+		asprintf(&packet_filter, "not (ip%s host %s and tcp port %d)", peername4 ? "" : "6", buf, port);
+		dprintf("[%s] so our filter is '%s'", __FUNCTION__, packet_filter);
+	} else {
+		dprintf("[%s] hold on to your seats. no filter applied :~(", __FUNCTION__);
+	}
+
+	return ERROR_SUCCESS;
+#endif
+
 }
 
 /*
@@ -657,7 +1011,16 @@ DWORD __declspec(dllexport) DeinitServerExtension(Remote *remote)
 	     customCommands[index].method;
 	     index++)
 		command_deregister(&customCommands[index]);
+
+#ifdef _WIN32
 	MgrDestroy(hMgr);
-	CloseHandle(snifferm);
+#else
+	if(packet_filter) {
+		free(packet_filter);
+		packet_filter = NULL;
+	}
+#endif
+
+	lock_destroy(snifferm);
 	return ERROR_SUCCESS;
 }

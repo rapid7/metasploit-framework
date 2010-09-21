@@ -47,10 +47,11 @@ class Sniffer < Extension
 	end
 	
 	# Start a packet capture on an opened interface
-	def capture_start(intf,maxp=200000)
+	def capture_start(intf,maxp=200000,filter="")
 		request = Packet.create_request('sniffer_capture_start')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
 		request.add_tlv(TLV_TYPE_SNIFFER_PACKET_COUNT, maxp.to_i)
+		request.add_tlv(TLV_TYPE_SNIFFER_ADDITIONAL_FILTER, filter) if filter.length
 		response = client.send_request(request)	
 	end
 	
