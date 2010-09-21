@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 require 'rex/parser/arguments'
 
 module Msf
@@ -14,6 +18,9 @@ class Payload
 
 	include Msf::Ui::Console::ModuleCommandDispatcher
 
+	# Load supported formats
+	supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
+
 	@@generate_opts = Rex::Parser::Arguments.new(
 		"-b" => [ true,  "The list of characters to avoid: '\\x00\\xff'"        ],
 		"-E" => [ false, "Force encoding."                                      ],
@@ -22,8 +29,7 @@ class Payload
 		"-o" => [ true,  "A comma separated list of options in VAR=VAL format." ],
 		"-s" => [ true,  "NOP sled length."                                     ],
 		"-f" => [ true,  "The output file name (otherwise stdout)"              ],
-		"-t" => [ true,  "The output type: c, elf, exe, java, js_le, js_be, " +
-				" perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho."        ],
+		"-t" => [ true,  "The output format: #{supported_formats.join(',')}"    ],
 		"-p" => [ true,  "The Platform for output."                             ],
 		"-k" => [ false, "Keep the template executable functional"              ],
 		"-x" => [ true,  "The executable template to use"                       ],

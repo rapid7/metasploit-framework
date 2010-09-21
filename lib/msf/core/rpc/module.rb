@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 module Msf
 module RPC
 class Module < Base
@@ -141,87 +145,66 @@ class Module < Base
 		authenticate(token)
 		buf = Rex::Text.decode_base64(data)
 
-		fmt = options['format']
-		if (options['format'] and options['format'] =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|dll|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war|macho)$/)
-			fmt = options['format']
-		elsif options['format']
-			raise ::XMLRPC::FaultException.new(500, "failed to generate: invalid format")
+		# Load supported formats
+		supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
+
+		if (fmt = options['format'])
+			if not supported_formats.include?(fmt)
+				raise ::XMLRPC::FaultException.new(500, "failed to generate: invalid format: #{fmt}")
+			end
 		end
+
 		badchars = ''
 		if options['badchars']
 			badchars = Rex::Text.hex_to_raw(options['badchars'])
 		end
+
 		plat = nil
 		if options['plat']
 			plat = Msf::Module::PlatformList.transform(val)
-		end
-		inject = false
-		if options['inject']
-			altexe = true
-		end
-		altexe = nil
-		if options['altexe']
-			altexe = options['altexe']
 		end
 		arch = nil
 		if options['arch']
 			arch = options['arch']
 		end
+
 		ecount = 1
 		if options['ecount']
 			ecount = options['ecount'].to_i
 		end
+
+		exeopts = {
+			:inject => options['inject'],
+			:template => options['altexe'],
+			:template_path => options['exedir']
+		}
+
 		enc = $framework.encoders.create(encoder)
+
 		begin
 			# Imports options
 			enc.datastore.update(options)
 
 			eout = buf.dup
 			raw  = nil
-			output = nil
 
 			1.upto(ecount) do |iteration|
 				# Encode it up
 				raw = enc.encode(eout, badchars, nil, plat)
 			end
 
-			case fmt
-			when 'dll'
-				output = Msf::Util::EXE.to_win32pe_dll($framework, raw)
-			when 'exe'
-				if(not arch or (arch.index(ARCH_X86)))
-					output = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
-				end
+			output = Msf::Util::EXE.to_executable_fmt($framework, arch, plat, raw, fmt, exeopts)
 
-				if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-					output = Msf::Util::EXE.to_win64pe($framework, raw, {:insert => inject, :template => altexe})
-				end
-			when 'exe-small'
-				if(not arch or (arch.index(ARCH_X86)))
-					output = Msf::Util::EXE.to_win32pe_old($framework, raw)
-				end
-			when 'elf'
-				output = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
-			when 'macho'
-				output = Msf::Util::EXE.to_osx_x86_macho($framework, raw)
-			when 'vba'
-				exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
-				output = Msf::Util::EXE.to_exe_vba(exe)
-			when 'vbs'
-				vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-				output = vbs
-			when 'loop-vbs'
-				output = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => true, :template => altexe})
-			when 'asp'
-				output = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-			when 'war'
-				tmp_plat = plat.platforms
-				exe = Msf::Util::EXE.to_executable($framework, arch, tmp_plat, raw, { :template => altexe})
-				output = Msf::Util::EXE.to_jsp_war(exe, { :persist => false })
-			else
+			if not output
 				fmt ||= "ruby"
 				output = Msf::Simple::Buffer.transform(raw, fmt)
 			end
+
+			# How to warn?
+			#if exeopts[:fellback]
+			#	$stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
+			#end
+
 			{"encoded" => Rex::Text.encode_base64(output.to_s)}
 		rescue => e
 			raise ::XMLRPC::FaultException.new(500, "#{enc.refname} failed: #{e} #{e.backtrace}")

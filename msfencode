@@ -19,22 +19,32 @@ require 'msf/base'
 OutStatus = "[*] "
 OutError  = "[-] "
 
+# Load supported formats
+supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
+
 $args = Rex::Parser::Arguments.new(
+	"-h" => [ false, "Help banner"                                                       ],
+	"-l" => [ false, "List available encoders"                                           ],
+	# input/output
 	"-i" => [ true, "Encode the contents of the supplied file path"                      ],
 	"-m" => [ true, "Specifies an additional module search path"                         ],
+	"-o" => [ true, "The output file"                                                    ],
+	# architecture/platform
 	"-a" => [ true, "The architecture to encode as"                                      ],
 	"-p" => [ true, "The platform to encode for"                                         ],
-	"-t" => [ true, "The format to display the encoded buffer with (c, dll, elf, exe, java, js_le, js_be, perl, raw, ruby, vba, vbs, loop-vbs, asp, war, macho)" ],
+	# format options
+	"-t" => [ true, "The output format: #{supported_formats.join(',')}"                  ],
+	# encoder options
+	"-e" => [ true, "The encoder to use"                                                 ],
+	"-n" => [ false, "Dump encoder information"                                          ],
 	"-b" => [ true, "The list of characters to avoid: '\\x00\\xff'"                      ],
 	"-s" => [ true, "The maximum size of the encoded data"                               ],
-	"-e" => [ true, "The encoder to use"                                                 ],
-	"-o" => [ true, "The output file"                                                    ],
 	"-c" => [ true, "The number of times to encode the data"                             ],
-	"-n" => [ false, "Dump encoder information"                                          ],
-	"-h" => [ false, "Help banner"                                                       ],
-	"-x" => [ true, "Specify an alternate win32 executable template"                     ],
-	"-k" => [ false, "Keep template working; run payload in new thread (use with -x)"    ],
-	"-l" => [ false, "List available encoders"                                           ])
+	# EXE generation options
+	"-d" => [ true, "Specify the directory in which to look for EXE templates"           ],
+	"-x" => [ true, "Specify an alternate executable template"                           ],
+	"-k" => [ false, "Keep template working; run payload in new thread (use with -x)"    ]
+)
 
 #
 # Dump the list of encoders
@@ -109,9 +119,11 @@ options  = ''
 delim    = '_|_'
 output   = nil
 ecount   = 1
+plat     = nil
+
 altexe   = nil
 inject   = false
-plat     = nil
+exedir   = nil  # use default
 
 # Parse the argument and rock that shit.
 $args.parse(ARGV) { |opt, idx, val|
@@ -140,7 +152,7 @@ $args.parse(ARGV) { |opt, idx, val|
 		when "-s"
 			space = val.to_i
 		when "-t"
-			if (val =~ /^(perl|ruby|rb|raw|c|js_le|js_be|java|dll|exe|exe-small|elf|vba|vbs|loop-vbs|asp|war|macho)$/)
+			if supported_formats.include?(val)
 				fmt = val
 			else
 				$stderr.puts(OutError + "Invalid format: #{val}")
@@ -150,10 +162,14 @@ $args.parse(ARGV) { |opt, idx, val|
 			$output = val
 		when "-e"
 			encoder = val
+
+		when "-d"
+			exedir = val
 		when "-x"
 			altexe = val
 		when "-k"
 			inject = true
+
 		when "-h"
 			usage
 		else
@@ -175,6 +191,11 @@ if inject and not altexe
 	$stderr.puts "[*] Error: the injection option must use a custom EXE template via -x, otherwise the injected payload will immediately exit when the main process dies."
 	exit(1)
 end
+exeopts = {
+	:inject => inject,
+	:template => altexe,
+	:template_path => exedir
+}
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
@@ -229,60 +250,18 @@ case cmd
 
 				next if skip
 
-				case fmt
-				when 'dll'
-					dll = nil
-					dll = Msf::Util::EXE.to_win32pe_dll($framework, raw)
+				output = Msf::Util::EXE.to_executable_fmt($framework, arch, plat, raw, fmt, exeopts)
 
-					write_encoded(dll)
-				when 'exe'
-					exe = nil
-					if(not arch or (arch.index(ARCH_X86)))
-						exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
-					end
-
-					if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-						exe = Msf::Util::EXE.to_win64pe($framework, raw, {:insert => inject, :template => altexe})
-					end
-
-					write_encoded(exe)
-				when 'exe-small'
-					exe = nil
-					if(not arch or (arch.index(ARCH_X86)))
-						exe = Msf::Util::EXE.to_win32pe_old($framework, raw)
-					end
-
-					write_encoded(exe)
-				when 'elf'
-					elf = Msf::Util::EXE.to_linux_x86_elf($framework, raw)
-					write_encoded(elf)
-				when 'macho'
-					macho = Msf::Util::EXE.to_osx_x86_macho($framework, raw)
-					write_encoded(macho)
-				when 'vba'
-					exe = Msf::Util::EXE.to_win32pe($framework, raw, {:insert => inject, :template => altexe})
-					vba = Msf::Util::EXE.to_exe_vba(exe)
-					write_encoded(vba)
-				when 'vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-					write_encoded(vbs)
-				when 'loop-vbs'
-					vbs = Msf::Util::EXE.to_win32pe_vbs($framework, raw, {:insert => inject, :persist => true, :template => altexe})
-					write_encoded(vbs)
-				when 'asp'
-					asp = Msf::Util::EXE.to_win32pe_asp($framework, raw, {:insert => inject, :persist => false, :template => altexe})
-					write_encoded(asp)
-				when 'war'
-					arch ||= [ ARCH_X86 ]
-					tmp_plat = plat.platforms if plat
-					tmp_plat ||= Msf::Module::PlatformList.transform('win')
-					exe = Msf::Util::EXE.to_executable($framework, arch, tmp_plat, raw, { :insert => inject, :template => altexe })
-					war = Msf::Util::EXE.to_jsp_war(exe, { :persist => false })
-					write_encoded(war)
-				else
+				if not output
 					fmt ||= "ruby"
-					write_encoded(Msf::Simple::Buffer.transform(raw, fmt))
+					output = Msf::Simple::Buffer.transform(raw, fmt)
 				end
+
+				if exeopts[:fellback]
+					$stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
+				end
+
+				write_encoded(output)
 
 				exit
 

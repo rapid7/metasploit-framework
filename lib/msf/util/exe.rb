@@ -25,6 +25,45 @@ require 'metasm'
 
 	##
 	#
+	# Helper functions common to multiple generators
+	#
+	##
+
+	def self.set_template_default(opts, exe = nil, path = nil)
+		# If no path specified, use the default one.
+		path ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates")
+
+		# If there's no default name, we must blow it up.
+		if not exe
+			raise RuntimeError, 'Ack! Msf::Util::EXE.set_template_default called w/o default exe name!'
+		end
+
+		# Use defaults only if nothing is specified
+		opts[:template_path] ||= path
+		opts[:template] ||= exe
+
+		# Only use the path when the filename contains no separators.
+		if not opts[:template].include?(File::SEPARATOR)
+			opts[:template] = File.join(opts[:template_path], opts[:template])
+		end
+
+		# Check if it exists now
+		return if File.file?(opts[:template])
+
+		# If it failed, try the default...
+		if opts[:fallback]
+			default_template = File.join(path, exe)
+			if File.file?(default_template)
+				# Perhaps we should warn about falling back to the default?
+				opts.merge!({ :fellback => default_template })
+				opts[:template] = default_template
+			end
+		end
+	end
+
+
+	##
+	#
 	# Executable generators
 	#
 	##
@@ -78,7 +117,7 @@ require 'metasm'
 	def self.to_win32pe(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows.exe")
+		set_template_default(opts, "template_x86_windows.exe")
 
 		# Copy the code to a new RWX segment to allow for self-modifying encoders
 		payload = win32_rwx_exec(code)
@@ -170,7 +209,7 @@ require 'metasm'
 		end
 
 		if(not text)
-			raise RuntimeError, "No .text section found in the template_x86_windows.exe"
+			raise RuntimeError, "No .text section found in the template"
 		end
 
 		if ! text.contains_rva?(pe.hdr.opt.AddressOfEntryPoint)
@@ -247,7 +286,7 @@ require 'metasm'
 
 		# Mangle 25% of the original executable
 		1.upto(block[1] / 4) do
-		 	data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
+			data[ block[0] + rand(block[1]), 1] = [rand(0x100)].pack("C")
 		end
 
 		# Patch the payload and the new entry point into the .text
@@ -280,7 +319,7 @@ require 'metasm'
 	def self.to_win32pe_old(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows_old.exe")
+		set_template_default(opts, "template_x86_windows_old.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -296,7 +335,7 @@ require 'metasm'
 		end
 
 		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE OLD EXE template!" if not bo
+		raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, code.length] = code
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
@@ -325,7 +364,7 @@ require 'metasm'
 	def self.to_win64pe(framework, code, opts={})
 
 		# Allow the user to specify their own EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows.exe")
+		set_template_default(opts, "template_x64_windows.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -333,7 +372,7 @@ require 'metasm'
 		}
 
 		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win64 PE EXE template!" if not bo
+		raise RuntimeError, "Invalid Win64 PE EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, code.length] = code
 
 		return pe
@@ -344,7 +383,7 @@ require 'metasm'
 		name = opts[:servicename] || 'SERVICENAME'
 
 		# Allow the user to specify their own service EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows_svc.exe")
+		set_template_default(opts, "template_x86_windows_svc.exe")
 
 		pe = ''
 		File.open(opts[:template], 'rb') { |fd|
@@ -352,11 +391,11 @@ require 'metasm'
 		}
 
 		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
+		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, 8192] = [code].pack("a8192")
 
 		bo = pe.index('SERVICENAME')
-		raise RuntimeError, "Invalid Win32 PE Service EXE template!" if not bo
+		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
 		pe[bo, 11] = [name].pack('a11')
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
@@ -367,7 +406,7 @@ require 'metasm'
 	def self.to_win64pe_service(framework, code, opts={})
 
 		# Allow the user to specify their own service EXE template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x64_windows_svc.exe")
+		set_template_default(opts, "template_x64_windows_svc.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -375,11 +414,11 @@ require 'metasm'
 		}
 
 		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win64 PE Service EXE template!" if not bo
+		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, 8192] = [code].pack("a8192")
 
 		bo = pe.index('SERVICENAME')
-		raise RuntimeError, "Invalid Win64 PE Service EXE template!" if not bo
+		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
 		pe[bo, 11] = [name].pack('a11')
 
 		pe[136, 4] = [rand(0x100000000)].pack('V')
@@ -390,7 +429,7 @@ require 'metasm'
 	def self.to_win32pe_dll(framework, code, opts={})
 
 		# Allow the user to specify their own DLL template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_windows.dll")
+		set_template_default(opts, "template_x86_windows.dll")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -398,9 +437,31 @@ require 'metasm'
 		}
 
 		bo = pe.index('PAYLOAD:')
-		raise RuntimeError, "Invalid Win32 PE DLL template!" if not bo
+		raise RuntimeError, "Invalid Win32 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, 8192] = [code].pack("a8192")
 
+		# optional mutex
+		mt = pe.index('MUTEX!!!')
+		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
+
+		return pe
+	end
+
+	def self.to_win64pe_dll(framework, code, opts={})
+
+		# Allow the user to specify their own DLL template
+		set_template_default(opts, "template_x64_windows.dll")
+
+		pe = ''
+		File.open(opts[:template], "rb") { |fd|
+			pe = fd.read(fd.stat.size)
+		}
+
+		bo = pe.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Win64 PE DLL template: missing \"PAYLOAD:\" tag" if not bo
+		pe[bo, 8192] = [code].pack("a8192")
+
+		# optional mutex
 		mt = pe.index('MUTEX!!!')
 		pe[mt,8] = Rex::Text.rand_text_alpha(8) if mt
 
@@ -410,7 +471,7 @@ require 'metasm'
 	def self.to_osx_arm_macho(framework, code, opts={})
 
 		# Allow the user to specify their own template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_darwin.bin")
+		set_template_default(opts, "template_armle_darwin.bin")
 
 		mo = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -418,12 +479,8 @@ require 'metasm'
 		}
 
 		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX ArmLE Mach-O template!" if not bo
+		raise RuntimeError, "Invalid OSX ArmLE Mach-O template: missing \"PAYLOAD:\" tag" if not bo
 		mo[bo, code.length] = code
-
-		# Not used?
-		#co = mo.index('COMMENT:')
-		#mo[co, comment.length] = comment
 
 		return mo
 	end
@@ -431,7 +488,7 @@ require 'metasm'
 	def self.to_osx_ppc_macho(framework, code, opts={})
 
 		# Allow the user to specify their own template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_ppc_darwin.bin")
+		set_template_default(opts, "template_ppc_darwin.bin")
 
 		mo = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -439,12 +496,8 @@ require 'metasm'
 		}
 
 		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX PPC Mach-O template!" if not bo
+		raise RuntimeError, "Invalid OSX PPC Mach-O template: missing \"PAYLOAD:\" tag" if not bo
 		mo[bo, code.length] = code
-
-		# Not used?
-		#co = mo.index('COMMENT:')
-		#mo[co, comment.length] = comment
 
 		return mo
 	end
@@ -452,7 +505,7 @@ require 'metasm'
 	def self.to_osx_x86_macho(framework, code, opts={})
 
 		# Allow the user to specify their own template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_darwin.bin")
+		set_template_default(opts, "template_x86_darwin.bin")
 
 		mo = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -460,12 +513,8 @@ require 'metasm'
 		}
 
 		bo = mo.index('PAYLOAD:')
-		raise RuntimeError, "Invalid OSX x86 Mach-O template!" if not bo
+		raise RuntimeError, "Invalid OSX x86 Mach-O template: missing \"PAYLOAD:\" tag" if not bo
 		mo[bo, code.length] = code
-
-		# Not used?
-		#co = mo.index('COMMENT:')
-		#mo[co, comment.length] = comment
 
 		return mo
 	end
@@ -473,7 +522,7 @@ require 'metasm'
 	def self.to_linux_x86_elf(framework, code, opts={})
 
 		# Allow the user to specify their own template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_x86_linux.bin")
+		set_template_default(opts, "template_x86_linux.bin")
 
 		elf = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -499,7 +548,7 @@ require 'metasm'
 	def self.to_linux_armle_elf(framework, code, opts={})
 
 		# Allow the user to specify their own template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "template_armle_linux.bin")
+		set_template_default(opts, "template_armle_linux.bin")
 
 		elf = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -780,13 +829,13 @@ require 'metasm'
 		manifest = "Manifest-Version: 1.0\r\nCreated-By: 1.6.0_17 (Sun Microsystems Inc.)\r\n\r\n"
 		web_xml = %q{<?xml version="1.0"?>
 <!DOCTYPE web-app PUBLIC
- "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
- "http://java.sun.com/dtds/web-app_2_3.dtd">
+"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+"http://java.sun.com/dtds/web-app_2_3.dtd">
 <web-app>
- <servlet>
-  <servlet-name>NAME</servlet-name>
-  <jsp-file>/PAYLOAD.jsp</jsp-file>
- </servlet>
+<servlet>
+<servlet-name>NAME</servlet-name>
+<jsp-file>/PAYLOAD.jsp</jsp-file>
+</servlet>
 </web-app>
 }
 		web_xml.gsub!(/NAME/, app_name)
@@ -903,7 +952,7 @@ require 'metasm'
 	def self.to_dotnetmem(base=0x12340000, data="", opts={})
 
 		# Allow the user to specify their own DLL template
-		opts[:template] ||= File.join(File.dirname(__FILE__), "..", "..", "..", "data", "templates", "dotnetmem.dll")
+		set_template_default(opts, "dotnetmem.dll")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
@@ -1388,6 +1437,76 @@ require 'metasm'
 		res[soff,4] = [block_offset - (soff + 4)].pack('V')
 		res
 	end
+
+
+	#
+	# This routine is shared between msfencode, rpc, and payload modules (use <payload>)
+	#
+	# It will return nil if it wasn't able to generate any output.
+	#
+	def self.to_executable_fmt(framework, arch, plat, code, fmt, exeopts)
+
+		output = nil
+
+		case fmt
+		when 'dll'
+			if (not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_dll(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_win64pe_dll(framework, code, exeopts)
+			end
+
+		when 'exe'
+			if (not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+			end
+
+			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_win64pe(framework, code, exeopts)
+			end
+
+		when 'exe-small'
+			if(not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_win32pe_old(framework, code, exeopts)
+			end
+
+		when 'elf'
+			output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
+
+		when 'macho'
+			output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
+
+		when 'vba'
+			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
+			output = Msf::Util::EXE.to_exe_vba(exe)
+
+		when 'vbs'
+			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => false }))
+
+		when 'loop-vbs'
+			output = Msf::Util::EXE.to_win32pe_vbs(framework, code, exeopts.merge({ :persist => true }))
+
+		when 'asp'
+			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
+
+		when 'war'
+			arch ||= [ ARCH_X86 ]
+			tmp_plat = plat.platforms if plat
+			tmp_plat ||= Msf::Module::PlatformList.transform('win')
+			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
+			output = Msf::Util::EXE.to_jsp_war(exe)
+
+		end
+
+		output
+	end
+
+	def self.to_executable_fmt_formats
+		['dll','exe','exe-small','elf','macho','vba','vbs','loop-vbs','asp','war']
+	end
+
 
 end
 end

@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 require 'msf/base'
 
 module Msf
@@ -19,9 +23,9 @@ module Buffer
 	def self.transform(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
-			when 'ruby'
+			when 'ruby', 'rb'
 				buf = Rex::Text.to_ruby(buf)
-			when 'perl'
+			when 'perl', 'pl'
 				buf = Rex::Text.to_perl(buf)
 			when 'c'
 				buf = Rex::Text.to_c(buf)
@@ -45,9 +49,9 @@ module Buffer
 	def self.comment(buf, fmt = "ruby")
 		case fmt
 			when 'raw'
-			when 'ruby'
+			when 'ruby', 'rb'
 				buf = Rex::Text.to_ruby_comment(buf)
-			when 'perl'
+			when 'perl', 'pl'
 				buf = Rex::Text.to_perl_comment(buf)
 			when 'c'
 				buf = Rex::Text.to_c_comment(buf)
@@ -60,6 +64,13 @@ module Buffer
 		end
 
 		return buf
+	end
+
+	#
+	# Returns the list of supported formats
+	#
+	def self.transform_formats
+		['raw','ruby','rb','perl','pl','c','js_be','js_le','java']
 	end
 
 end

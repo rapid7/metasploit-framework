@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 require 'msf/base'
 
 module Msf
@@ -52,86 +56,66 @@ module Payload
 				'Space'    => opts['MaxSize'])
 
 		fmt = opts['Format'] || 'raw'
-		inject = opts['KeepTemplateWorking'] || false
-		altexe = opts['Template'] || nil
+
+		exeopts = {
+			:inject => opts['KeepTemplateWorking'],
+			:template => opts['Template'],
+			:template_path => opts['ExeDir']
+		}
 
 		arch = payload.arch
+		plat = opts['Platform'] || payload.platform
 
 		# Save off the original payload length
 		len = e.encoded.length
 
 
-		
-		case fmt
-		when 'exe'
-			buf = nil
-			if(not arch or (arch.index(ARCH_X86)))
-				buf = Msf::Util::EXE.to_win32pe(framework, e.encoded , {:insert => inject, :template => altexe})
-			end
+		output = Msf::Util::EXE.to_executable_fmt(framework, arch, plat, e.encoded, fmt, exeopts)
 
-			if(arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
-				buf = Msf::Util::EXE.to_win64pe(framework, e.encoded, {:insert => inject, :template => altexe})
-			end
-
-		when 'exe-small'
-			buf = nil
-			if(not arch or (arch.index(ARCH_X86)))
-				buf = Msf::Util::EXE.to_win32pe_old(framework, e.encoded)
-			end
-
-		when 'elf'
-			buf = Msf::Util::EXE.to_linux_x86_elf(framework, e.encoded)
-		when 'macho'
-			buf = Msf::Util::EXE.to_osx_x86_macho(framework, e.encoded)
-		when 'vba'
-			exe = nil
-			exe = Msf::Util::EXE.to_win32pe(framework, e.encoded , {:insert => inject, :template => altexe})
-			buf = Msf::Util::EXE.to_exe_vba(exe)
-		when 'vbs'
-			buf = Msf::Util::EXE.to_win32pe_vbs(framework, e.encoded, {:insert => inject, :persist => false, :template => altexe})
-		when 'loop-vbs'
-			buf = Msf::Util::EXE.to_win32pe_vbs(framework, e.encoded, {:insert => inject, :persist => true, :template => altexe})
-		when 'asp'
-			buf = Msf::Util::EXE.to_win32pe_asp(framework, e.encoded , {:insert => inject, :persist => false, :template => altexe})
-		when 'war'
-			plat = Msf::Module::PlatformList.transform(opts['Platform'])
-
-			tmp_plat = plat.platforms
-			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, e.encoded, { :template => altexe})
-			buf = Msf::Util::EXE.to_jsp_war(exe, {:persist => false })
-		else
+		if not output
 			# Serialize the generated payload to some sort of format
-			buf = Buffer.transform(e.encoded, fmt)
+			fmt ||= "ruby"
+			output = Buffer.transform(e.encoded, fmt)
 
 			# Prepend a comment
 			if (fmt != 'raw' and opts['NoComment'] != true)
 				((ou = payload.options.options_used_to_s(payload.datastore)) and ou.length > 0) ? ou += "\n" : ou = ''
-				buf = Buffer.comment(
-					"#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
-					"http://www.metasploit.com\n" +
-					((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
-					((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
-					"#{ou}",
-					fmt) + buf
+				output =
+					Buffer.comment(
+						"#{payload.refname} - #{len} bytes#{payload.staged? ? " (stage 1)" : ""}\n" +
+						"http://www.metasploit.com\n" +
+						((e.encoder) ? "Encoder: #{e.encoder.refname}\n" : '') +
+						((e.nop) ?     "NOP gen: #{e.nop.refname}\n" : '') +
+						"#{ou}",
+						fmt) +
+					output
 
 				# If it's multistage, include the second stage too
 				if payload.staged?
 					stage = payload.generate_stage
-	
+
 					# If a stage was generated, then display it
 					if stage and stage.length > 0
-						buf +=
+						output +=
 							"\n" +
 							Buffer.comment(
-							"#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
-							"http://www.metasploit.com\n",
-							fmt) + Buffer.transform(stage, fmt)
+								"#{payload.refname} - #{stage.length} bytes (stage 2)\n" +
+								"http://www.metasploit.com\n",
+								fmt) +
+							Buffer.transform(stage, fmt)
 					end
 				end
-			end	
+
+			end
+
 		end
 
-		return buf
+		# How to warn?
+		#if exeopts[:fellback]
+		#	$stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
+		#end
+
+		return output
 	end
 
 	#
