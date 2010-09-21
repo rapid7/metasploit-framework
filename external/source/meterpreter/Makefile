@@ -2,7 +2,7 @@
 # associated stuff (openssl, libpcap, etc) this is going to get very messy,
 # very quickly.
 
-all: external/source/meterpreter/source/bionic/compiled/libc.so external/source/meterpreter/source/bionic/compiled/libm.so external/source/meterpreter/source/bionic/compiled/libdl.so external/source/meterpreter/source/bionic/compiled/libcrypto.so external/source/meterpreter/source/bionic/compiled/libssl.so external/source/meterpreter/source/bionic/compiled/libsupport.so external/source/meterpreter/source/bionic/compiled/libmetsrv_main.so external/source/meterpreter/source/bionic/compiled/libpcap.so data/meterpreter/msflinker_linux_x86.bin data/meterpreter/ext_server_stdapi.lso
+all: external/source/meterpreter/source/bionic/compiled/libc.so external/source/meterpreter/source/bionic/compiled/libm.so external/source/meterpreter/source/bionic/compiled/libdl.so external/source/meterpreter/source/bionic/compiled/libcrypto.so external/source/meterpreter/source/bionic/compiled/libssl.so external/source/meterpreter/source/bionic/compiled/libsupport.so external/source/meterpreter/source/bionic/compiled/libmetsrv_main.so external/source/meterpreter/source/bionic/compiled/libpcap.so data/meterpreter/msflinker_linux_x86.bin data/meterpreter/ext_server_stdapi.lso data/meterpreter/ext_server_networkpug.lso
 
 external/source/meterpreter/source/bionic/compiled/libc.so: external/source/meterpreter/source/bionic/compiled
 	(cd external/source/meterpreter/source/bionic/libc && ARCH=x86 TOP=${PWD} jam && cd out/x86/ && sh make.sh && [ -f libbionic.so ] )
@@ -69,3 +69,7 @@ external/source/meterpreter/source/bionic/compiled/libsupport.so:
 data/meterpreter/ext_server_stdapi.lso:
 	(cd external/source/meterpreter/workspace/ext_server_stdapi && make)
 	cp external/source/meterpreter/workspace/ext_server_stdapi/ext_server_stdapi.so data/meterpreter/ext_server_stdapi.lso
+
+data/meterpreter/ext_server_networkpug.lso:
+	(cd external/source/meterpreter/workspace/ext_server_networkpug && make)
+	cp external/source/meterpreter/workspace/ext_server_networkpug/ext_server_networkpug.so data/meterpreter/ext_server_networkpug.lso
