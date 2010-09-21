@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
 				OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-				OptString.new('CHALLENGE',  [ false, "The 8 byte challenge ", "0011223344556677" ])
+				OptString.new('CHALLENGE',  [ true, "The 8 byte challenge ", "0011223344556677" ])
 			], self.class )
 
 	end

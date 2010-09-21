@@ -519,12 +519,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Convert the ServerTimeZone to seconds and back into a signed integer :-/
 		system_zone = ack['Payload'].v['ServerTimeZone']
-		if system_zone & 0x8000
-			system_zone &= 0x7fff
-			system_zone *= -1
-		end
-		self.system_zone = system_zone * 60
 
+		#we will transform system_zone into the number of seconds to add/remove to the UTC time (system_time) 
+		#to get the local time 
+		if system_zone & 0x8000 == 0x8000
+			self.system_zone = (( (~system_zone)  & 0x0FFF ) + 1 )  * 60
+		else
+			self.system_zone = -system_zone * 60
+		end
 		# XXX: this is being commented out because ruby prior to 1.9.2 doesn't
 		# seem to support representing non-utc or local times (eg, a time in
 		# another timezone)  If you know a way to do it in pre-1.9.2 please
