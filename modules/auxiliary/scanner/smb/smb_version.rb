@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				conf = {
 					:os_flavor => res['os'],
-					:os_name => os
+					:os_name => os,
 				}
 
 				conf[:os_sp]   = res['sp']   if res['sp']
@@ -109,8 +109,6 @@ class Metasploit3 < Msf::Auxiliary
 					:ntype => 'smb.fingerprint',
 					:data  => conf
 				)
-
-				report_host(conf)
 
 			else
 				report_service(:host => ip, :port => info[0], :name => 'smb')
