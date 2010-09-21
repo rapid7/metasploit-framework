@@ -517,16 +517,19 @@ EVADE = Rex::Proto::SMB::Evasions
 		self.system_time = UTILS.time_smb_to_unix(ack['Payload'].v['SystemTimeHigh'],ack['Payload'].v['SystemTimeLow'])
 		self.system_time = ::Time.at( self.system_time )
 
-		# Convert the ServerTimeZone to seconds and back into a signed integer :-/
+		# A signed 16-bit signed integer that represents the server's time zone, in minutes, 
+		# from UTC. The time zone of the server MUST be expressed in minutes, plus or minus, 
+		# from UTC.
+		# NOTE: althought the spec says +/- it doesn't say that it should be inverted :-/
 		system_zone = ack['Payload'].v['ServerTimeZone']
-
-		#we will transform system_zone into the number of seconds to add/remove to the UTC time (system_time) 
-		#to get the local time 
-		if system_zone & 0x8000 == 0x8000
-			self.system_zone = (( (~system_zone)  & 0x0FFF ) + 1 )  * 60
+		# Convert the ServerTimeZone to _seconds_ and back into a signed integer :-/
+		if (system_zone & 0x8000) == 0x8000
+			system_zone = (( (~system_zone)  & 0x0FFF ) + 1 )
 		else
-			self.system_zone = -system_zone * 60
+			system_zone *= -1
 		end
+		self.system_zone = system_zone * 60
+
 		# XXX: this is being commented out because ruby prior to 1.9.2 doesn't
 		# seem to support representing non-utc or local times (eg, a time in
 		# another timezone)  If you know a way to do it in pre-1.9.2 please
@@ -1777,4 +1780,3 @@ end
 end
 end
 end
-
