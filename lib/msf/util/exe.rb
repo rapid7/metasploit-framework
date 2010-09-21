@@ -116,6 +116,16 @@ require 'metasm'
 
 	def self.to_win32pe(framework, code, opts={})
 
+		# For backward compatability, this is the equivalent of 'exe-small' fmt
+		if opts[:dll_method]
+			if opts[:inject]
+				raise RuntimeError, 'NOTE: using the old method means no inject support'
+			end
+
+			# use 
+			return self.to_win32pe_dll(framework, code, opts)
+		end
+
 		# Allow the user to specify their own EXE template
 		set_template_default(opts, "template_x86_windows.exe")
 
@@ -341,7 +351,9 @@ require 'metasm'
 		pe[136, 4] = [rand(0x100000000)].pack('V')
 
 		ci = pe.index("\x31\xc9" * 160)
+		raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing first \"\\x31\\xc9\"" if not ci
 		cd = pe.index("\x31\xc9" * 160, ci + 320)
+		raise RuntimeError, "Invalid Win32 PE OLD EXE template: missing second \"\\x31\\xc9\"" if not cd
 		rc = pe[ci+320, cd-ci-320]
 
 		# 640 + rc.length bytes of room to store an encoded rc at offset ci
