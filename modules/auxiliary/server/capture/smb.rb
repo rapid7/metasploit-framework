@@ -53,13 +53,20 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
-				OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ])
+				OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
+				OptString.new('CHALLENGE',  [ false, "The 8 byte challenge ", "0011223344556677" ])
 			], self.class )
 
 	end
 
 	def run
-		@challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
+		unless (datastore['CHALLENGE'] =~ /^([a-fA-F0-9]{16})$/).nil?
+			@challenge = datastore['CHALLENGE'].to_a.pack("H*")
+		else
+			print_error("CHALLENGE syntax must be like 0011223344556677")
+			return
+		end
+
 		exploit()
 	end
 
