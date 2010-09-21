@@ -101,6 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 		@payloads = Hash.new
 		@targetcache = Hash.new
 		@current_victim = Hash.new
+		@handler_job_ids = []
 	end
 
 
@@ -408,7 +409,6 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-		@handler_job_ids = []
 		# start handlers for each type of payload
 		[@win_lport, @lin_lport, @osx_lport, @gen_lport, @java_lport].each do |lport|
 			if (lport and @payloads[lport])
