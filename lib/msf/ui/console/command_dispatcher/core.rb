@@ -1972,7 +1972,7 @@ class Core
 		if (mport)
 			mport = mport.to_i
 			hosts = {}
-			framework.db.each_service do |service|
+			framework.db.each_service(framework.db.workspace) do |service|
 				if (service.port == mport)
 					hosts[ service.host.address ] = true
 				end
@@ -1984,7 +1984,7 @@ class Core
 
 		# List all hosts in the database
 		else
-			framework.db.each_host do |host|
+			framework.db.each_host(framework.db.workspace) do |host|
 				res << host.address
 			end
 		end
@@ -1999,10 +1999,10 @@ class Core
 		res = [ ]
 		return res if not framework.db.active
 		return res if not self.active_module.datastore['RHOST']
-		host = framework.db.has_host?(self.active_module.datastore['RHOST'])
+		host = framework.db.has_host?(framework.db.workspace, self.active_module.datastore['RHOST'])
 		return res if not host
 
-		framework.db.each_service do |service|
+		framework.db.each_service(framework.db.workspace) do |service|
 			if (service.host_id == host.id)
 				res << service.port.to_s
 			end
