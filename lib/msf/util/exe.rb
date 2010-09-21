@@ -376,7 +376,7 @@ require 'metasm'
 	def self.to_win32pe_exe_sub(framework, code, opts={})
 
 		# Allow the user to specify their own DLL template
-		set_template_default(opts, "template_x86_windows_old.exe")
+		set_template_default(opts, "template_x86_windows.exe")
 
 		pe = ''
 		File.open(opts[:template], "rb") { |fd|
