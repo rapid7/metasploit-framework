@@ -26,6 +26,7 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+#ifdef WIN32
 	// Railgun
 	{ "stdapi_railgun_api",
 	  { request_railgun_api,                                { 0 }, 0 },
@@ -43,6 +44,7 @@ Command customCommands[] =
 	  { request_railgun_memwrite,                           { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                       },
 	},
+#endif
 
 	// Fs
 	{ "stdapi_fs_ls",

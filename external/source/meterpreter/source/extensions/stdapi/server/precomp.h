@@ -32,7 +32,6 @@
 #define WSAEventSelect(a,b,c) (0xcafebabe)
 
 #define SOCKET_ERROR (-1)
-#define WSAGetLastError() errno
 
 #define WSAECONNRESET ECONNRESET
 #define WSAECONNABORTED ECONNABORTED
@@ -62,9 +61,10 @@
 #include "sys/sys.h"
 #include "net/net.h"
 #include "ui/ui.h"
-#include "railgun/railgun.h"
 
 #ifdef _WIN32
+ #include "railgun/railgun.h"	// PKS, win32 specific at the moment.
+
  #include "../../../ReflectiveDLLInjection/DelayLoadMetSrv.h"
  #include "../../../ReflectiveDLLInjection/GetProcAddressR.h"
  #include "../../../ReflectiveDLLInjection/ReflectiveLoader.h"
