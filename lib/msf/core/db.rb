@@ -536,8 +536,8 @@ class DBManager
 			if addr and not host
 				host = get_host(:workspace => wspace, :host => addr)
 			end
-			if not opts[:service] and (opts[:port] and opts[:proto])
-				opts[:service] = get_service(wspace, host, opts[:proto], opts[:port])
+			if host and (opts[:port] and opts[:proto])
+				service = get_service(wspace, host, opts[:proto], opts[:port])
 			end
 
 			if host
@@ -552,38 +552,41 @@ class DBManager
 			args   = []
 			note   = nil
 
+			conditions = { :ntype => ntype }
+			conditions[:host_id] = host[:id] if host
+			conditions[:service_id] = service[:id] if service
+
+			notes = wspace.notes.find(:all, :conditions => conditions)
+
 			case mode
 			when :unique
-				method = "find_or_initialize_by_ntype"
-				args = [ ntype ]
-			when :unique_data
-				method = "find_or_initialize_by_ntype_and_data"
-				args = [ ntype, data ]
-			end
-
-			# Find and update a record by type
-			if(method)
-				if host
-					method << "_and_host_id"
-					args.push(host[:id])
-				end
-				if opts[:service] and opts[:service].kind_of? Service
-					method << "_and_service_id"
-					args.push(opts[:service][:id])
-				end
-
-				note = wspace.notes.send(method, *args)
-				if (note.changed?)
-					note.data    = data
-					msfe_import_timestamps(opts,note)
-					note.save!
+				# Only one note of this type should exist, make a new one if it
+				# isn't there. If it is, grab it and overwrite its data.
+				if notes.empty?
+					note = wspace.notes.new(conditions)
 				else
-					note.updated_at = note.created_at
-					msfe_import_timestamps(opts,note)
-					note.save!
+					note = notes[0]
 				end
-			# Insert a brand new note record no matter what
+				note.data = data
+			when :unique_data
+				# Don't make a new Note with the same data as one that already
+				# exists for the given: type and (host or service)
+				notes.each do |n|
+					# Compare the deserialized data from the table to the raw
+					# data we're looking for.  Because of the serialization we
+					# can't do this easily or reliably in SQL.
+					if n.data == data
+						note = n
+						break
+					end
+				end
+				if not note
+					# We didn't find one with the data we're looking for, make
+					# a new one.
+					note = wspace.notes.new(conditions.merge(:data => data))
+				end
 			else
+				# Otherwise, assume :insert, which means always make a new one
 				note = wspace.notes.new
 				if host
 					note.host_id = host[:id]
@@ -595,9 +598,9 @@ class DBManager
 				note.critical = crit
 				note.ntype    = ntype
 				note.data     = data
-				msfe_import_timestamps(opts,note)
-				note.save!
 			end
+			msfe_import_timestamps(opts,note)
+			note.save!
 
 			ret[:note] = note
 		})
