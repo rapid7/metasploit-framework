@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 			if(not res)
 				print_error("NO Response.")
 			elsif (res.code.to_i == 401)
-				print_status("Comfirmed protected folder #{wmap_base_url}#{tpath} #{res.code} (#{wmap_target_host})")
+				print_status("Confirmed protected folder #{wmap_base_url}#{tpath} #{res.code} (#{wmap_target_host})")
 				print_status("\tTesting for unicode bypass in IIS6 with WebDAV enabled using PROPFIND request.")
 
 				cset  = %W{ & ^ % $ # @ ! }
