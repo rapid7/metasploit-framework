@@ -179,7 +179,15 @@ class Module
 			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
 		)
-			return "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
+			prefix = "[#{Time.now.strftime("%Y.%m.%d-%H:%M:%S")}] "
+
+			xn ||= datastore['ExploitNumber']
+			xn ||= framework.datastore['ExploitNumber']
+			if xn.is_a?(Fixnum)
+				prefix << "[%04d] " % xn
+			end
+
+			return prefix
 		end
 		""
 	end
