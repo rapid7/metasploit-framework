@@ -104,7 +104,7 @@ class NessusXMLRPC
 		begin 
 		status = docxml.root.elements['status'].text
 		rescue
-			puts "[e] error in XML parsing"
+			print("Error connecting/logging to the server!")
 		end
 		if status == "OK"
 			return docxml 
@@ -155,9 +155,10 @@ class NessusXMLRPC
 	
 	#checks to see if the user is an admin
 	def is_admin
-		if @admin
+		if @admin == "TRUE"
 			return true
 		end
+		return false
 	end
 	
 	# initiate new scan with policy id, descriptive name and list of targets
@@ -435,17 +436,100 @@ class NessusXMLRPC
 		return list
 	end
 
-	# get hosts for particular report
+	# get data for each host for a particular report
 	#
-	# returns: array of hosts
+	#
+	# returns: array of hashes:
+	#		hostname
+	#		severity
+	#		severityCount0
+	#		severityCount1
+	#		severityCount2
+	#		severityCount3
+	#		scanProgressCurrent
+	#		scanprogressTotal
 	def report_hosts(report_id)
 		post= { "token" => @token, "report" => report_id } 
 		docxml=nessus_request('report/hosts', post)
-		list = Array.new
-		docxml.root.elements['contents'].elements['hostList'].each_element('//host') { |host| 
-			list.push host.elements['hostname'].text
-		}
-		return list
+		hosts=Array.new
+		docxml.elements.each('/reply/contents/hostList/host') do |host|
+			entry=Hash.new
+			entry['hostname'] = host.elements['hostname'].text
+			entry['severity'] = host.elements['severity'].text
+			sevs=Array.new
+			host.elements.each('severityCount/item') do |item|
+				sevs.push item.elements['count'].text
+			end
+			entry['sev0'] = sevs[0]
+			entry['sev1'] = sevs[1]
+			entry['sev2'] = sevs[2]
+			entry['sev3'] = sevs[3]
+			entry['current'] = host.elements['scanProgressCurrent'].text
+			entry['total'] = host.elements['scanProgressTotal'].text
+			hosts.push(entry)
+		end
+		return hosts
+	end
+	
+	def report_host_ports(report_id,host)
+		post= { "token" => @token, "report" => report_id, "hostname" => host } 
+		docxml=nessus_request('report/ports', post)
+		ports=Array.new
+		docxml.elements.each('/reply/contents/portList/port') do |port|
+			entry=Hash.new
+			entry['portnum'] = port.elements['portNum'].text
+			entry['protocol'] = port.elements['protocol'].text
+			entry['severity'] = port.elements['severity'].text
+			entry['svcname'] = port.elements['svcName'].text
+			sevs=Array.new
+			port.elements.each('severityCount/item') do |item|
+				sevs.push item.elements['count'].text
+			end
+			entry['sev0'] = sevs[0]
+			entry['sev1'] = sevs[1]
+			entry['sev2'] = sevs[2]
+			entry['sev3'] = sevs[3]
+			ports.push(entry)
+		end
+		return ports
+	end
+	
+	def report_host_port_details(report_id,host,port,protocol)
+		post= { "token" => @token, "report" => report_id, "hostname" => host, "port" => port, "protocol" => protocol } 
+		docxml=nessus_request('report/details', post)
+		reportitems=Array.new
+		docxml.elements.each('/reply/contents/portDetails/ReportItem') do |rpt|
+			entry=Hash.new
+			entry['port'] = rpt.elements['port'].text
+			entry['severity'] = rpt.elements['severity'].text
+			entry['pluginID'] = rpt.elements['pluginID'].text
+			entry['pluginName'] = rpt.elements['pluginName'].text
+			if rpt.elements['data'].elements['cvss_base_score']
+				entry['cvss_base_score'] = rpt.elements['data'].elements['cvss_base_score'].text
+			end
+			if rpt.elements['data'].elements['exploit_available']
+				entry['exploit_available'] = rpt.elements['data'].elements['exploit_available'].text
+			end
+			if rpt.elements['data'].elements['cve']
+				entry['cve'] = rpt.elements['data'].elements['cve'].text
+			end
+			if rpt.elements['data'].elements['risk_factor']
+				entry['risk_factor'] = rpt.elements['data'].elements['risk_factor'].text
+			end
+			if rpt.elements['data'].elements['cvss_vector']
+				entry['cvss_vector'] = rpt.elements['data'].elements['cvss_vector'].text
+			end
+			
+			#entry['solution'] = rpt.elements['data/solution'].text #not important right now
+			#entry['description'] = rpt.elements['data/description'].text #not important right now
+			#entry['synopsis'] = rpt.elements['data/synopsis'].text #not important right now
+			#entry['see_also'] = rpt.elements['data/see_also'].text # multiple of these
+			#entry['bid'] = rpt.elements['data/bid'].text multiple of these
+			#entry['xref'] = rpt.elements['data/xref'].text # multiple of these
+			#entry['plugin_output'] = rpt.elements['data/plugin_output'].text #not important right now
+			reportitems.push(entry)
+		end
+		return reportitems
 	end
 
 	# get host details for particular host identified by report id
@@ -503,6 +587,38 @@ class NessusXMLRPC
 		version = docxml.root.elements['contents'].elements['server_version'].text
 		web_version = docxml.root.elements['contents'].elements['web_server_version'].text
 		return feed, version, web_version
+	end
+	
+	def user_add(user,pass)
+		post= { "token" => @token, "login" => user, "password" => pass }
+		docxml = nessus_request('users/add', post)
+		return docxml
+	end
+	
+	def user_del(user)
+		post= { "token" => @token, "login" => user }
+		docxml = nessus_request('users/delete', post)
+		return docxml
+	end
+	
+	def user_pass(user,pass)
+		post= { "token" => @token, "login" => user, "password" => pass }
+		docxml = nessus_request('users/chpasswd', post)
+		return docxml
+	end
+	
+	def plugin_family(fam)
+		post = { "token" => @token, "family" => fam }
+		docxml = nessus_request('plugins/list/family', post)
+		family=Array.new
+		docxml.elements.each('/reply/contents/pluginList/plugin') { |plugin|
+			entry=Hash.new
+			entry['filename'] = plugin.elements['pluginFileName'].text
+			entry['id'] = plugin.elements['pluginID'].text
+			entry['name'] = plugin.elements['pluginName'].text
+			family.push(entry)
+		}
+		return family
 	end
 end # end of NessusXMLRPC::Class
 

@@ -1,3 +1,5 @@
+require 'rex/ui'
+
 module Rex
 module Ui
 module Text
