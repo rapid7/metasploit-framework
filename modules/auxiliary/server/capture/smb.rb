@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
-			@challenge = datastore['CHALLENGE'].to_a.pack("H*")
+			@challenge = [ datastore['CHALLENGE'] ].pack("H*")
 		else
 			print_error("CHALLENGE syntax must match 0011223344556677")
 			return
