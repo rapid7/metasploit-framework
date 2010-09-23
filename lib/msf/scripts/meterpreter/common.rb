@@ -59,7 +59,7 @@ def eventlog_list
 	else
 		key = "#{key}eventlog"
 	end
-	eventlogs = reg_enumkeys(key)
+	eventlogs = registry_enumkeys(key)
 	return eventlogs
 end
 
