@@ -44,6 +44,7 @@ def cmd_exec(cmd)
 	o = ""
 	while(d = cmd.channel.read)
 		o << d
+		break if d == ""
 	end
 	cmd.channel.close
 	cmd.close
@@ -52,7 +53,12 @@ end
 
 #enumerate eventlogs
 def eventlog_list
-	key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Eventlog"
+	key = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\"
+	if client.sys.config.sysinfo['OS'] =~ /Windows 2003|.Net|XP|2000/
+		key = "#{key}Eventlog"
+	else
+		key = "#{key}eventlog"
+	end
 	eventlogs = reg_enumkeys(key)
 	return eventlogs
 end
