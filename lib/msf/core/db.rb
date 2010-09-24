@@ -517,15 +517,24 @@ class DBManager
 				report_host({:workspace => wspace, :host => opts[:host]})
 				addr = opts[:host]
 			end
-		end
-		# Do the same for a service
-		if (opts[:proto] and opts[:port])
-			report_service(
-				:workspace => wspace,
-				:host  => opts[:host],
-				:proto => opts[:proto],
-				:port  => opts[:port]
-			)
+			# Do the same for a service if that's also included.
+			if (opts[:port])
+				proto = nil
+				case opts[:proto].to_s.downcase # Catch incorrect usages
+				when 'tcp','udp'
+					proto = opts[:proto]
+				when 'dns','snmp','dhcp'
+					proto = 'udp'
+				else
+					proto = 'tcp'
+				end
+				report_service(
+					:workspace => wspace,
+					:host  => opts[:host],
+					:port  => opts[:port],
+					:proto => proto
+				)
+			end
 		end
 		# Update Modes can be :unique, :unique_data, :insert
 		mode = opts[:update] || :unique
