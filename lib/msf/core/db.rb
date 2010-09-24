@@ -524,8 +524,7 @@ class DBManager
 				:workspace => wspace,
 				:host  => opts[:host],
 				:proto => opts[:proto],
-				:port  => opts[:port],
-				:name  => opts[:sname]
+				:port  => opts[:port]
 			)
 		end
 		# Update Modes can be :unique, :unique_data, :insert
