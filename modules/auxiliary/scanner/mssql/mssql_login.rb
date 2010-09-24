@@ -68,6 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 		rescue ::Rex::ConnectionError
+			vprint_error("#{rhost}:#{rport} connection failed")
 			return :abort
 		end
 	end
