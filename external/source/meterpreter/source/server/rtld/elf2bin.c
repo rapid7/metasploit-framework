@@ -13,7 +13,7 @@
 
 #define EIGHTMEM (32 * 1024 * 1024)
 
-#define BASE 0x90040000
+#define BASE 0x20040000
 
 int main(int argc, char **argv)
 {
