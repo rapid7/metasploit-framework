@@ -525,15 +525,19 @@ class DBManager
 					proto = opts[:proto]
 				when 'dns','snmp','dhcp'
 					proto = 'udp'
+					sname = opts[:proto]
 				else
 					proto = 'tcp'
+					sname = opts[:proto]
 				end
-				report_service(
+				sopts = {
 					:workspace => wspace,
 					:host  => opts[:host],
 					:port  => opts[:port],
 					:proto => proto
-				)
+				}
+				sopts[:name] = sname if sname
+				report_service(sopts)
 			end
 		end
 		# Update Modes can be :unique, :unique_data, :insert
