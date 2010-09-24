@@ -354,18 +354,23 @@ class Console::CommandDispatcher::Core
 	end
 
 	def cmd_run_tabs(str, words)
+		tabs = []
 		if(not words[1] or not words[1].match(/^\//))
 			begin
-				my_directory = Msf::Config.script_directory + ::File::SEPARATOR + "meterpreter"
-				return ::Dir.new(my_directory).find_all { |e|
-					path = my_directory + ::File::SEPARATOR + e
-					::File.file?(path) and ::File.readable?(path)
-				}.map { |e|
-					e.sub!(/\.rb$/, '')
-				}
+				[
+					::Msf::Sessions::Meterpreter::ScriptBase,
+					::Msf::Sessions::Meterpreter::UserScriptBase 
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + ::File::SEPARATOR + e
+						::File.file?(path) and ::File.readable?(path)
+					}
+				end
 			rescue Exception
 			end
 		end
+		return tabs.map { |e| e.sub!(/\.rb$/, '') }
 	end
 
 
