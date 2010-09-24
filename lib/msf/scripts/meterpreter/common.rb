@@ -78,6 +78,10 @@ def eventlog_clear(evt = "")
 	return evntlog
 end
 
+#Returns true if user is admin and false if not.
+def is_admin?
+	return client.railgun.shell32.IsUserAnAdmin()["return"]
+end
 
 end
 end
