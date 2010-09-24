@@ -38,27 +38,6 @@ def usage()
 end
 
 #---------------------------------------------------------------------------------------------------------
-def checkuac(session)
-	uac = false
-        winversion = session.sys.config.sysinfo
-        if winversion['OS']=~ /Windows Vista|7/
-                if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
-                        begin
-                                print_status("Checking if UAC is enabled .....")
-                                key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System')
-                                if key.query_value('Identifier') == 1
-                                        print_status("UAC is Enabled")
-                                        uac = true
-                                end
-                                key.close
-                        rescue::Exception => e
-                                print_status("Error Checking UAC: #{e.class} #{e}")
-                        end
-                end
-        end
-        return uac
-end
-#---------------------------------------------------------------------------------------------------------
 def scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
 	execmd = ""
 	success = false
@@ -261,7 +240,7 @@ if client.platform =~ /win32|win64/
 		usage()
 	elsif cmd == nil && file == nil
 		usage()
-	elsif !checkuac(session)
+	elsif !is_uac_enabled? and is_admin?
 		if file == nil
 			if remote == 0
 				scheduleme(session,schtype,cmd,tmmod,cmdopt,username,password)
