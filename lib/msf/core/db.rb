@@ -289,7 +289,10 @@ class DBManager
 	# opts must contain
 	#	:host  -- the host where this service is running
 	#	:port  -- the port where this service listens
-	#	:proto -- the protocol (e.g. tcp, udp...)
+	#	:proto -- the transport layer protocol (e.g. tcp, udp)
+	#
+	# opts may contain
+	#	:name  -- the application layer protocol (e.g. ssh, mssql, smb)
 	#
 	def report_service(opts)
 		return if not active
