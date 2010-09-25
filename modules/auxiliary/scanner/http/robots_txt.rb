@@ -50,32 +50,40 @@ class Metasploit3 < Msf::Auxiliary
 			turl = tpath+'robots.txt'
 
 			res = send_request_raw({
-				'uri'          => turl,
-				'method'       => 'GET',
+				'uri'     => turl,
+				'method'  => 'GET',
 				'version' => '1.0',
 			}, 10)
 
 
-			if res and res.body.include?("llow:")
-				print_status("[#{target_host}] #{tpath}robots.txt found")
+			if not res
+				print_error("[#{target_host}] #{tpath}robots.txt - No response")
+				return
+			end
 
-				# short url regex
-				aregex = /llow:[ ]{0,2}(.*?)$/i
+			if not res.body.include?("llow:")
+				print_status("[#{target_host}] #{tpath}robots.txt - Doesn't contain \"llow:\"") if datastore['VERBOSE']
+				print_status(res.body.inspect) if datastore['DEBUG']
+				return
+			end
 
-				result = res.body.scan(aregex).flatten.map{|s| s.strip}.uniq
+			print_status("[#{target_host}] #{tpath}robots.txt found") if datastore['VERBOSE']
 
-				print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(", ")}")
-				result.each do |u|
-					report_note(
-						:host	=> target_host,
-						:port	=> rport,
-						:proto	=> (ssl ? 'https' : 'http'),
-						:type	=> 'ROBOTS_TXT',
-						:data	=> "#{u}",
-						:update => :unique_data
-					)
+			# short url regex
+			aregex = /llow:[ ]{0,2}(.*?)$/i
 
-				end
+			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
+
+			print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}")
+			result.each do |u|
+				report_note(
+					:host	=> target_host,
+					:port	=> rport,
+					:proto	=> (ssl ? 'https' : 'http'),
+					:type	=> 'ROBOTS_TXT',
+					:data	=> "#{u}",
+					:update => :unique_data
+				)
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
