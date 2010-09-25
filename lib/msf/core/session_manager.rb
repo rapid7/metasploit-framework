@@ -21,21 +21,25 @@ class SessionManager < Hash
 		self.framework = framework
 		self.sid_pool  = 0
 		self.reaper_thread = Thread.new do
-			while ! true
+			begin
+			while true
 				::IO.select(nil, nil, nil, 0.5)
 				each_value do |s|
 					if not s.alive?
 						deregister(s, "Died")
-						dlog("Session #{s.sid} has died")
+						wlog("Session #{s.sid} has died")
 						next
 					end
 
-					if s.respond_to?('rstream') and s.rstream.eof?
+					if s.respond_to?('rstream') and s.rstream and s.rstream.eof?
 						deregister(s, "Died - EOF")
-						dlog("Session #{s.sid} has died - EOF")
+						wlog("Session #{s.sid} has died - EOF")
 						next
 					end
 				end
+			end
+			rescue ::Exception => e
+				wlog("Exception in the session manager reaper thread: #{e.class} #{e} #{e.backtrace}")
 			end
 		end
 	end

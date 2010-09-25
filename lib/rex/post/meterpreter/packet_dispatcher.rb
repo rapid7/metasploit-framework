@@ -58,7 +58,18 @@ module PacketDispatcher
 		raw   = packet.to_r
 
 		if (raw)
-			bytes = self.sock.write(raw)
+			begin
+				bytes = self.sock.write(raw)
+			rescue ::Exception => e
+				# Mark the session itself as dead
+				self.alive = false
+				
+				# Indicate that the dispatcher should shut down too
+				@finish = true
+				
+				# Reraise the error to the top-level caller
+				raise e		
+			end
 		end
 
 		return bytes
@@ -129,7 +140,7 @@ module PacketDispatcher
 
 		# Spawn a thread for receiving packets
 		self.receiver_thread = ::Thread.new do
-			while (true)
+			while (self.alive)
 				begin
 					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
 					ping_time = 60
