@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 
 			case e.error_reason
-			when 'STATUS_LOGON_FAILURE'
+			when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 				# Nothing interesting
 				vprint_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 				disconnect()
