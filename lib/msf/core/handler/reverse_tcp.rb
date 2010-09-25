@@ -44,12 +44,13 @@ module ReverseTcp
 			[
 				Opt::LHOST,
 				Opt::LPORT(4444)
-			], Msf::Handler::ReverseTcp)
+			], Msf::Handler::ReverseTcp)	
 
 		# XXX: Not supported by all modules
 		register_advanced_options(
 			[
-				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ])
+				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
+				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system'])
 			], Msf::Handler::ReverseTcp)
 
 			
@@ -72,7 +73,14 @@ module ReverseTcp
 		# First attempt to bind LHOST. If that fails, the user probably has
 		# something else listening on that interface. Try again with ANY_ADDR.
 		any = (addr.length == 4) ? "0.0.0.0" : "::0"
-		[ Rex::Socket.addr_ntoa(addr), any  ].each { |ip|
+		
+		addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
+		
+		if not datastore['ReverseListenerBindAddress'].to_s.empty?
+			addrs = [ datastore['ReverseListenerBindAddress'] ]
+		end
+		
+		addrs.each { |ip|
 			begin
 
 				self.listener_sock = Rex::Socket::TcpServer.create(
