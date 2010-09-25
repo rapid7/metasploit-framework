@@ -77,9 +77,12 @@ module ReverseTcp
 		addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
 		
 		if not datastore['ReverseListenerBindAddress'].to_s.empty?
+			# Only try to bind to this specific interface
 			addrs = [ datastore['ReverseListenerBindAddress'] ]
+
+			# Pick the right "any" address if either wildcard is used
+			addrs[0] = any if (addrs[0] == "0.0.0.0" or addrs == "::0")
 		end
-		
 		addrs.each { |ip|
 			begin
 
