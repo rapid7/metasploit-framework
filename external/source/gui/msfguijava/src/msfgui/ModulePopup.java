@@ -276,6 +276,12 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					return;
 				}
 				options.putAll((Map) rpcConn.execute("module.options", "payload", payload.toString()));
+				Map encodingOpt = new HashMap();
+				encodingOpt.put("desc", "Preferred encoding or encodings for the payload.");
+				encodingOpt.put("required", Boolean.FALSE);
+				encodingOpt.put("advanced", Boolean.TRUE);
+				encodingOpt.put("evasion", Boolean.TRUE);
+				options.put("Encoding", encodingOpt);
 			}
 
 			for (Object optionName : options.keySet()) {
