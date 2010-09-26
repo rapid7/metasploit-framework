@@ -47,7 +47,7 @@ class Console::CommandDispatcher::NetworkPug
 
 		tapdev = ::File.open("/dev/net/tun", "wb+")
 
-		0.upto(16) { |idx| 
+		0.upto(16) { |idx|
 			name = "npug#{idx}"
 
 			ifreq = [ name, 0x1000 | 0x02, "" ].pack("a16va14")
@@ -97,7 +97,7 @@ class Console::CommandDispatcher::NetworkPug
 
 					@tapdev.syswrite(packet)
 
-				elsif(s == @tapdev) 
+				elsif(s == @tapdev)
 					# Packet from tapdev to remote host network
 
 					packet = @tapdev.sysread(1514)
@@ -108,7 +108,7 @@ class Console::CommandDispatcher::NetworkPug
 				end
 			} if(sd)
 
-			if(not sd) 
+			if(not sd)
 				print_line("hmmm. ")
 			end
 		end
@@ -125,7 +125,7 @@ class Console::CommandDispatcher::NetworkPug
 			args.unshift("-h")
 		end
 
-		@@options.parse(args) { |opt, idx, val| 
+		@@options.parse(args) { |opt, idx, val|
 			# print_line("before: #{opt} #{idx} #{val} || virtual nic: #{virtual_nic}, filter: #{filter}, interface: #{interface}")
 			case opt
 				when "-v"
@@ -160,9 +160,9 @@ class Console::CommandDispatcher::NetworkPug
 			return
 		end
 
-		# PKS, we should implement multiple filter strings and let the 
+		# PKS, we should implement multiple filter strings and let the
 		# remote host build it properly.
-		# not (our conn) and (virtual nic filter) and (custom filter) 
+		# not (our conn) and (virtual nic filter) and (custom filter)
 		# print_line("before virtual, filter is #{filter}")
 
 		if(filter == nil and virtual_nic == true)

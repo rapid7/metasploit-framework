@@ -13,6 +13,7 @@
 #ifdef _UNIX
 #include "compat_types.h"
 
+#include <fcntl.h>
 
 #include <sys/select.h>
 #include <sys/endian.h>
@@ -40,8 +41,11 @@ struct ipv4_routing_table {
 
 int netlink_get_ipv4_routing_table(struct ipv4_routing_table **table);
 
-// only do debugging on unix side of things for now.
-#define DEBUGTRACE 
+extern int debugging_enabled;
+
+#define dprintf(...) if(debugging_enabled) { real_dprintf(__FILE__, __LINE__, __FUNCTION__, __VA_ARGS__); }
+
+void real_dprintf(char *filename, int line, const char *function, char *format, ...);
 
 #endif
 
@@ -62,6 +66,7 @@ int netlink_get_ipv4_routing_table(struct ipv4_routing_table **table);
 
 #include "zlib/zlib.h"
 
+#ifdef _WIN32
 
 //#define DEBUGTRACE
 
@@ -70,8 +75,6 @@ int netlink_get_ipv4_routing_table(struct ipv4_routing_table **table);
 #else
 #define dprintf(...) do{}while(0);
 #endif
-
-#ifdef _WIN32
 
 #define BREAK_ON_ERROR( str ) { dwResult = GetLastError(); dprintf( "%s. error=%d", str, dwResult ); break; }
 #define BREAK_WITH_ERROR( str, err ) { dwResult = err; dprintf( "%s. error=%d", str, dwResult ); break; }
@@ -91,12 +94,6 @@ static void real_dprintf(char *format, ...) {
 	OutputDebugString(buffer);
 }
 
-#else
-
-void real_dprintf(char *format, ...);
-
 #endif
-
-	
 
 #endif

