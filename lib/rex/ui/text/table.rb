@@ -139,6 +139,9 @@ class Table
 	# Adds a row with the supplied fields.
 	#
 	def add_row(fields = [])
+		if fields.length != self.columns.length
+			raise RuntimeError, 'Invalid number of columns!'
+		end
 		fields.each_with_index { |field, idx|
 			if (colprops[idx]['MaxWidth'] < field.to_s.length)
 				colprops[idx]['MaxWidth'] = field.to_s.length
