@@ -132,7 +132,7 @@ NetworkPug *allocate_networkpug(char *interface)
  * Needs to be active for cleanup to proceed.
  */
 
-void free_networkpug(NetworkPug *np, int close_channel)
+void free_networkpug(NetworkPug *np, int close_channel, int destroy_channel)
 {
 	int cont;
 
@@ -175,9 +175,14 @@ void free_networkpug(NetworkPug *np, int close_channel)
 		if(close_channel == TRUE) {
 			// Tell the remote side we've shut down for now.
 			channel_close(np->channel, np->remote, NULL, 0, NULL);
+		} 
+
+		if(destroy_channel == TRUE) {
+			// the channel handler code will destroy it.
+			// if we destroy it, it will end up double freeing
+			// and calling abort :~(
+			channel_destroy(np->channel, NULL);
 		}
-		
-		channel_destroy(np->channel, NULL);	// channel_destroy does not look at packet it seems
 	}	
 
 	if(np->interface) {
@@ -234,13 +239,24 @@ DWORD networkpug_channel_write(Channel *channel, Packet *request,
 DWORD networkpug_channel_close(Channel *channel, Packet *request, LPVOID context)
 {
 	int result = ERROR_SUCCESS;
+	NetworkPug *np;
 
-	dprintf("[%s] Channel shutdown requested. context = %p", __FUNCTION__, context);
-	dprintf("[%s] pugs is at %p, and pugs[MAX_PUGS] is %p", __FUNCTION__, pugs, pugs + MAX_PUGS);
+	lock_acquire(pug_lock);
 
-	free_networkpug((NetworkPug *)(context), FALSE);
+	np = (NetworkPug *)(context);
 
-	dprintf("[%s] closed channel successfully", __FUNCTION__);
+	if(np->active) {
+		dprintf("[%s] Channel shutdown requested. context = %p", __FUNCTION__, context);
+		dprintf("[%s] pugs is at %p, and pugs[MAX_PUGS] is %p", __FUNCTION__, pugs, pugs + MAX_PUGS);
+
+		free_networkpug((NetworkPug *)(context), FALSE, FALSE);
+
+		dprintf("[%s] closed channel successfully", __FUNCTION__);
+	} else {
+		dprintf("[%s] Already closed down context %p", __FUNCTION__, context);
+	}
+
+	lock_release(pug_lock);
 
 	return result;
 }
@@ -342,7 +358,7 @@ DWORD request_networkpug_start(Remote *remote, Packet *packet)
 
 	if(result != ERROR_SUCCESS) {
 		np->active = 1;
-		free_networkpug(np, FALSE);
+		free_networkpug(np, FALSE, TRUE);
 	}
 
 	lock_release(pug_lock);
@@ -379,7 +395,7 @@ DWORD request_networkpug_stop(Remote *remote, Packet *packet)
 		}
 
 		dprintf("[%s] calling free_networkpug", __FUNCTION__);
-		free_networkpug(np, TRUE);
+		free_networkpug(np, TRUE, FALSE);
 
 		result = ERROR_SUCCESS;
 	} while(0);

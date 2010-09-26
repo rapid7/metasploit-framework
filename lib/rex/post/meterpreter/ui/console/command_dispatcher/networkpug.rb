@@ -20,8 +20,17 @@ class Console::CommandDispatcher::NetworkPug
 	)
 
 	def initialize(shell)
+		@thread_stuff = nil
+		@tapdev = nil
+		@channel = nil
+
 		super
 	end
+
+	attr_accessor :thread_stuff
+	attr_accessor :tapdev
+	attr_accessor :channel
+
 
 	#
 	# List of supported commands.
@@ -64,43 +73,46 @@ class Console::CommandDispatcher::NetworkPug
 		return nil, nil, nil
 	end
 
-	def proxy_packets(tapdev, channel)
+	def proxy_packets()
 		while 1
 			# Ghetto :\
 
-			sd = Rex::ThreadSafe.select([ channel.lsock, tapdev ], nil, nil)
+			sd = Rex::ThreadSafe.select([ @channel.lsock, @tapdev ], nil, nil)
 
 			sd[0].each { |s|
-				if(s == channel.lsock)	# Packet from remote host to local TAP dev
-					len = channel.lsock.read(2)
+				if(s == @channel.lsock)	# Packet from remote host to local TAP dev
+					len = @channel.lsock.read(2)
 					len = len.unpack('n')[0]
 
-					# print_line("Got #{len} bytes from remote host's network")
+					#print_line("Got #{len} bytes from remote host's network")
 					
 					if(len > 1514 or len == 0)
-						tapdev.close()
+						@tapdev.close()
 						print_line("length is invalid .. #{len} ?, de-synchronized ? ")
 					end
 
-					packet = channel.lsock.read(len)
+					packet = @channel.lsock.read(len)
 
-					# print_line("remote from remote host:\n" + Rex::Text.hexify(packet))
+					print_line("packet from remote host:\n" + Rex::Text.hexify(packet))
 
-					tapdev.syswrite(packet)
+					@tapdev.syswrite(packet)
 
-				elsif(s == tapdev) 
+				elsif(s == @tapdev) 
 					# Packet from tapdev to remote host network
 
-					packet = tapdev.sysread(1514)
+					packet = @tapdev.sysread(1514)
 
-					# print_line("packet to remote host:\n" + Rex::Text.hexify(packet))
+					print_line("packet to remote host:\n" + Rex::Text.hexify(packet))
 
-					channel.write(packet)
+					@channel.write(packet)
 				end
 			} if(sd)
+
+			if(not sd) 
+				print_line("hmmm. ")
+			end
 		end
 	end
-
 
 	def cmd_networkpug_start(*args)
 		# PKS - I suck at ruby ;\
@@ -114,7 +126,6 @@ class Console::CommandDispatcher::NetworkPug
 		end
 
 		@@options.parse(args) { |opt, idx, val| 
-
 			# print_line("before: #{opt} #{idx} #{val} || virtual nic: #{virtual_nic}, filter: #{filter}, interface: #{interface}")
 			case opt
 				when "-v"
@@ -142,9 +153,9 @@ class Console::CommandDispatcher::NetworkPug
 			return
 		end
 
-		tapdev, tapname, mac = setup_tapdev
+		@tapdev, tapname, mac = setup_tapdev
 
-		if(tapdev == nil)
+		if(@tapdev == nil)
 			print_status("Failed to create tapdev")
 			return
 		end
@@ -152,35 +163,25 @@ class Console::CommandDispatcher::NetworkPug
 		# PKS, we should implement multiple filter strings and let the 
 		# remote host build it properly.
 		# not (our conn) and (virtual nic filter) and (custom filter) 
-
 		# print_line("before virtual, filter is #{filter}")
 
 		if(filter == nil and virtual_nic == true)
 			filter = "ether host #{mac}"
 		elsif(filter != nil and virtual_nic == true)
 			filter += " and ether host #{mac}"
-			print_line("Adjusted filter is #{filter}")
+			#print_line("Adjusted filter is #{filter}")
 		end
-
-		# print_line("after virtual, filter is #{filter}")
 
 		print_line("#{tapname} created with a hwaddr of #{mac}, ctrl-c when done")
 
-		begin
-			response, channel = client.networkpug.networkpug_start(interface, filter)
+		response, @channel = client.networkpug.networkpug_start(interface, filter)
 
-			if(not channel)
-				print_line("No channel? bailing")
-				return
-			end
+		if(@channel)
+			@thread_stuff = ::Thread.new {
+				proxy_packets()
+			}
 
-
-			print_line("Forwarding packets between #{tapname} and remote host")
-			proxy_packets(tapdev, channel)
-		ensure
-			tapdev.close()
-			print_line("don't forget to networkpug_stop remote host as well")
-			
+			print_line("Packet slinger for #{interface} has a thread structure of #{@thread_stuff}")
 		end
 
 		return true
@@ -191,8 +192,18 @@ class Console::CommandDispatcher::NetworkPug
 		if (interface == nil)
 			print_error("Usage: networkpug_stop [interface]")
 			return
+		end		
+
+		if(@thread_stuff)
+			::Thread.kill(@thread_stuff)
+			::Thread.join(@thread_stuff)
+
+			@thread_stuff = nil
+
+			@channel.close
+			@tapdev.close
 		end
-		
+
 		client.networkpug.networkpug_stop(interface)
 		print_status("Packet slinging stopped on #{interface}")
 		return true
