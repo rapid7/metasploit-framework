@@ -18,20 +18,30 @@ def app_list
 		])
 	appkeys = ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
 		'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' ]
+	threadnum = 0
+	a = []
 	appkeys.each do |keyx86|
-	
+
 		registry_enumkeys(keyx86).each do |k|
-			begin
-				dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
-				dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
-				tbl << [dispnm,dispversion]
-			rescue
+			if threadnum < 10
+				a.push(::Thread.new {
+						begin
+							dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
+							dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
+							tbl << [dispnm,dispversion]
+						rescue
+						end
+					})
+				threadnum += 1
+			else
+				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+				threadnum = 0
 			end
 		end
 				
 	
 	end
-	print("\n" + tbl.to_s + "\n")
+	print_line("\n" + tbl.to_s + "\n")
 end
 
 opts.parse(args) { |opt, idx, val|
