@@ -28,6 +28,10 @@ class Metasploit3 < Msf::Auxiliary
 		'smb'
 	end
 
+	def smbhost
+		"#{rhost}:#{rport}"
+	end
+
 	def initialize
 		super(
 			'Name'        => 'SMB Login Check Scanner',
@@ -107,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 			case e.error_reason
 			when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 				# Nothing interesting
-				vprint_status("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+				vprint_status("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 				disconnect()
 				return
 
@@ -141,14 +145,14 @@ class Metasploit3 < Msf::Auxiliary
 					:update => :unique_data
 				)
 			end
-			print_error("#{rhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+			print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 
 			disconnect()
 			return :skip_user # These reasons are sufficient to stop trying.
 		end
 
 		if(simple.client.auth_user)
-			print_good("#{rhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
+			print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
 			report_hash = {
 				:host	=> rhost,
 				:port   => datastore['RPORT'],
