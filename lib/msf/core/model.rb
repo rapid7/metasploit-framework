@@ -1,3 +1,6 @@
+
+require 'msf/core/model/serialized_prefs'
+
 require 'msf/core/model/activerecord_patches'
 
 require 'msf/core/model/user'
@@ -24,4 +27,3 @@ require 'msf/core/model/campaign'
 require 'msf/core/model/email_address'
 require 'msf/core/model/email_template'
 require 'msf/core/model/web_template'
-
