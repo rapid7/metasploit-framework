@@ -553,6 +553,8 @@ class DBManager
 			end
 			if host and (opts[:port] and opts[:proto])
 				service = get_service(wspace, host, opts[:proto], opts[:port])
+			elsif opts[:service] and opts[:service].kind_of? Service
+				service = opts[:service]
 			end
 
 			if host
