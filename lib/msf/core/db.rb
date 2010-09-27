@@ -1927,7 +1927,14 @@ class DBManager
 				vuln_data[:workspace] = wspace
 				vuln_data[:host] = host_address
 				if vuln.elements["info"].text
-					vuln_data[:info] = YAML.load(vuln.elements["info"].text.to_s.strip)
+					info = vuln.elements["info"].text.to_s.strip
+					begin
+						vuln_data[:info] = YAML.load(info)
+					rescue ::Exception # Oops, badly formed info.
+						dlog("Badly formatted vuln.info data from #{host_address} : '#{info}'")
+						vuln_data[:info] = nil
+						next
+					end
 				end
 				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
 				%w{created-at updated-at}.each { |datum|
