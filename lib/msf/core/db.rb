@@ -2246,6 +2246,7 @@ class DBManager
 		import_nmap_xml(args.merge(:data => data))
 	end
 
+	# Too many functions in one def! Refactor this.
 	def import_nmap_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace

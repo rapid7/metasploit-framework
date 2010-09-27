@@ -1127,6 +1127,12 @@ class Db
 						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
 						dlog("Call stack: #{$@.join("\n")}", LEV_3)
 						next
+					rescue REXML::ParseException => e
+						print_error("Failed to import #{filename} due to malformed XML:")
+						print_error "#{$!.class}: #{$!}"
+						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
+						dlog("Call stack: #{$@.join("\n")}", LEV_3)
+						next
 					end
 				}
 			}
