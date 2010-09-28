@@ -281,7 +281,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				encodingOpt.put("required", Boolean.FALSE);
 				encodingOpt.put("advanced", Boolean.TRUE);
 				encodingOpt.put("evasion", Boolean.TRUE);
-				options.put("Encoding", encodingOpt);
+				options.put("Encoder", encodingOpt);
 			}
 
 			for (Object optionName : options.keySet()) {
