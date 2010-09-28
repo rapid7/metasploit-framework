@@ -1711,7 +1711,7 @@ class DBManager
 			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
 			loot_info[:workspace] = args[:wspace]
 			loot_info[:ctype] = loot.elements["content-type"].text.to_s.strip
-			loot_info[:info] = unserialize_object(loot.elements["info"].text.to_s.strip, allow_yaml)
+			loot_info[:info] = unserialize_object(loot.elements["info"], allow_yaml)
 			loot_info[:ltype] = loot.elements["ltype"].text.to_s.strip
 			loot_info[:name] = loot.elements["name"].text.to_s.strip
 			loot_info[:created_at] = loot.elements["created-at"].text.to_s.strip
@@ -1755,7 +1755,7 @@ class DBManager
 			# Should user be imported (original) or declared (the importing user)?
 			task_info[:user] = task.elements["created-by"].text.to_s.strip
 			task_info[:desc] = task.elements["description"].text.to_s.strip
-			task_info[:info] = unserialize_object(task.elements["info"].text.to_s.strip, allow_yaml)
+			task_info[:info] = unserialize_object(task.elements["info"], allow_yaml)
 			task_info[:mod] = task.elements["module"].text.to_s.strip
 			task_info[:options] = task.elements["options"].text.to_s.strip
 			task_info[:prog] = task.elements["progress"].text.to_i
@@ -1894,7 +1894,7 @@ class DBManager
 				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
 						if datum == "info"
-							service_data["info"] = unserialize_object(service.elements[datum].text.to_s.strip, false)
+							service_data["info"] = unserialize_object(service.elements[datum], false)
 						else
 							service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
 						end
@@ -1907,7 +1907,7 @@ class DBManager
 				note_data[:workspace] = wspace
 				note_data[:host] = host_address
 				note_data[:type] = note.elements["ntype"].text.to_s.strip
-				note_data[:data] = unserialize_object(note.elements["data"].text.to_s.strip, allow_yaml)
+				note_data[:data] = unserialize_object(note.elements["data"], allow_yaml)
 
 				if note.elements["critical"].text
 					note_data[:critical] = true
@@ -1926,16 +1926,7 @@ class DBManager
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
 				vuln_data[:host] = host_address
-				if vuln.elements["info"].text
-					info = vuln.elements["info"].text.to_s.strip
-					begin
-						vuln_data[:info] = YAML.load(info)
-					rescue ::Exception # Oops, badly formed info.
-						dlog("Badly formatted vuln.info data from #{host_address} : '#{info}'")
-						vuln_data[:info] = nil
-						next
-					end
-				end
+				vuln_data[:info] = unserialize_object(vuln.elements["info"], allow_yaml)
 				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
 				%w{created-at updated-at}.each { |datum|
 					if vuln.elements[datum].text
@@ -2828,7 +2819,8 @@ class DBManager
 		end
 	end
 
-	def unserialize_object(string, allow_yaml = false)
+	def unserialize_object(xml_elem, allow_yaml = false)
+		string = xml_elem.text.to_s.strip
 		return string unless string.is_a?(String)
 		return nil if not string
 		return nil if string.empty?
@@ -2839,7 +2831,12 @@ class DBManager
 				Marshal.load($1.unpack("m")[0])
 			else
 				if allow_yaml
-					YAML.load(string) rescue string
+					begin
+						YAML.load(string)
+					rescue
+						dlog("Badly formatted YAML: '#{string}'")
+						string
+					end
 				else
 					string
 				end
