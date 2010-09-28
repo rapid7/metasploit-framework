@@ -30,12 +30,6 @@ class SessionManager < Hash
 						wlog("Session #{s.sid} has died")
 						next
 					end
-
-					if s.respond_to?('rstream') and s.rstream and s.rstream.eof?
-						deregister(s, "Died - EOF")
-						wlog("Session #{s.sid} has died - EOF")
-						next
-					end
 				end
 			end
 			rescue ::Exception => e
