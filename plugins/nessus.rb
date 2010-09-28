@@ -195,7 +195,16 @@ module Msf
 				end
 			end
 		
-			def cmd_nessus_server_feed
+			def cmd_nessus_server_feed(*args)
+				
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_server_feed")
+					print_status(" Example:> nessus_server_feed")
+					print_status()
+					print_status("Returns information about the feed type and server version.")
+					return
+				end
 			
 				if nessus_verify_token
 					@feed, @version, @web_version = @n.feed
@@ -549,6 +558,7 @@ module Msf
 				#Check if we are an admin
 				if ! @n.is_admin
 					print_status("You need to be an admin for this.")
+					return
 				end
 			
 				#Versions
@@ -623,7 +633,7 @@ module Msf
 				print_good("Plugins By Family")
 				$stdout.puts "\n"
 				$stdout.puts tbl.to_s + "\n"
-				print_status("List plugins for a family : nessus_report_get <family name>")
+				print_status("List plugins for a family : nessus_plugin_family <family name>")
 			end
 		
 			def cmd_nessus_scan_new(*args)
@@ -1015,6 +1025,7 @@ module Msf
 					print_status()
 					print_status("Only dels non admin users. Must be an admin to del users.")
 					print_status("use nessus_user_list to list all users")
+					return
 				end
 			
 				if ! nessus_verify_token
@@ -1115,7 +1126,7 @@ module Msf
 					print_status(" Example:> nessus_plugin_family \"Windows : Microsoft Bulletins\" ")
 					print_status()
 					print_status("Returns a list of all plugins in that family.")
-					print_status("use nessus_plugin_list to list all users")
+					print_status("use nessus_plugin_list to list all plugins")
 				end
 			
 				if ! nessus_verify_token
