@@ -1,5 +1,6 @@
 # $Id$
-#
+# $Revision$
+# Author: Scriptjunkie
 # Uses a meterpreter session to spawn a new meterpreter session in a different process. 
 # A new process allows the session to take "risky" actions that might get the process killed by
 # A/V, giving a meterpreter session to another controller, or start a keylogger on another 
@@ -16,7 +17,7 @@ opts = Rex::Parser::Arguments.new(
 	"-w"  => [ false,  "Write and execute an exe instead of injecting into a process"],
 	"-P"  => [ true,   "Executable to inject into. Default notepad.exe, will fall back to spawn if not found."],
 	"-s"  => [ false,  "Spawn new executable to inject to.  Only useful with -P."],
-	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"],
+	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"]
 )
 
 #
