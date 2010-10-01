@@ -19,6 +19,9 @@ class Campaign < ActiveRecord::Base
 	serialized_prefs_attr_accessor :web_uripath, :web_srvport, :web_srvhost
 	serialized_prefs_attr_accessor :web_ssl
 
+	serialized_prefs_attr_accessor :do_web
+	serialized_prefs_attr_accessor :do_email
+
 end
 
 end
