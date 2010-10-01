@@ -302,6 +302,8 @@ class Metasploit3 < Msf::Auxiliary
 			@exploits[name].datastore['URIPATH'] = nil
 		end
 
+		@exploits[name].datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
+		@exploits[name].datastore['MODULE_OWNER'] = self.owner
 		@exploits[name].datastore['LPORT'] = lport
 		@exploits[name].datastore['LHOST'] = @lhost
 		@exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
@@ -414,6 +416,8 @@ class Metasploit3 < Msf::Auxiliary
 			if (lport and @payloads[lport])
 				print_status("Starting handler for #{@payloads[lport]} on port #{lport}")
 				multihandler = framework.modules.create("exploit/multi/handler")
+				multihandler.datastore['MODULE_OWNER'] = self.datastore['MODULE_OWNER']
+				multihandler.datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
 				multihandler.datastore['LPORT'] = lport
 				multihandler.datastore['LHOST'] = @lhost
 				multihandler.datastore['ExitOnSession'] = false
