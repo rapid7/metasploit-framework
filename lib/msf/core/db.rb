@@ -2951,7 +2951,7 @@ class DBManager
 	#  :web_site* -- the web site object that this page should be associated with
 	#  :path      -- the virtual host name for this particular web site
 	#  :code      -- the http status code from requesting this page
-	#  :headers   -- an ARRAY of all headers returned from the server
+	#  :headers   -- this is a HASH of headers (lowercase name as key) of ARRAYs of values
 	#  :body      -- the document body of the server response
 	#  :query     -- the query string after the path 	
 	
@@ -3032,6 +3032,7 @@ class DBManager
 	# opts MUST contain
 	#  :web_site* -- the web site object that this page should be associated with
 	#  :path      -- the virtual host name for this particular web site
+	#  :query     -- the query string that is appended to the path (not valid for GET)
 	#  :method    -- the form method, one of GET, POST, or PATH
 	#  :params    -- an ARRAY of all parameters and values specified in the form
 	#
@@ -3053,6 +3054,7 @@ class DBManager
 		path    = opts[:path]
 		meth    = opts[:method].to_s.upcase
 		para    = opts[:params]
+		quer    = opts[:query].to_s
 		site    = nil
 
 		if not (path and meth)
@@ -3083,7 +3085,7 @@ class DBManager
 			# comparisons through ruby and not SQL.
 			
 			form = nil
-			WebForm.find_all_by_web_site_id_and_path_and_method(site[:id], path, meth).each do |xform|
+			WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
 				if xform.params == para
 					form = xform
 					break
@@ -3096,6 +3098,7 @@ class DBManager
 				form.path        = path
 				form.method      = meth
 				form.params      = para
+				form.query       = quer
 			end 
 			
 			msfe_import_timestamps(opts, form)
@@ -3117,6 +3120,7 @@ class DBManager
 	# opts MUST contain
 	#  :web_site* -- the web site object that this page should be associated with
 	#  :path      -- the virtual host name for this particular web site
+	#  :query     -- the query string appended to the path (not valid for GET method flaws)
 	#  :method    -- the form method, one of GET, POST, or PATH
 	#  :params    -- an ARRAY of all parameters and values specified in the form
 	#  :pname     -- the specific field where the vulnerability occurs
@@ -3142,6 +3146,7 @@ class DBManager
 		path    = opts[:path]
 		meth    = opts[:method].to_s.upcase
 		para    = opts[:params]
+		quer    = opts[:query].to_s
 		pname   = opts[:pname]
 		proof   = opts[:proof]
 		risk    = opts[:risk].to_i
@@ -3179,7 +3184,7 @@ class DBManager
 
 		ret = {}
 		task = queue(Proc.new {
-			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name(site[:id], path, meth, pname, name)
+			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, query)
 			msfe_import_timestamps(opts, vuln)
 			vuln.save!
 
