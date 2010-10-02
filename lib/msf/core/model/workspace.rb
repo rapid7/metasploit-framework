@@ -7,20 +7,21 @@ class Workspace < ActiveRecord::Base
 	DEFAULT = "default"
 
 	has_many :hosts, :dependent => :destroy
+	has_many :services, :through => :hosts
 	has_many :notes, :dependent => :destroy
 	has_many :loots, :dependent => :destroy
 	has_many :events,:dependent => :destroy
 	has_many :reports, :dependent => :destroy
 	has_many :report_templates, :dependent => :destroy
 	has_many :tasks,   :dependent => :destroy
-
-	has_many :services, :through => :hosts
 	has_many :clients,  :through => :hosts
 	has_many :vulns,    :through => :hosts
 	has_many :creds,    :dependent => :destroy
 	has_many :exploited_hosts, :through => :hosts
-
-	#has_many :notes,    :through => :hosts
+	
+	def web_sites
+		hosts.map{|host| host.web_sites}.flatten.uniq
+	end
 
 	validates_uniqueness_of :name
 	validates_presence_of :name

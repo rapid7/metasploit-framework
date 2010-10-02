@@ -12,6 +12,7 @@ class Host < ActiveRecord::Base
 	has_many :loots,    :dependent => :destroy, :order => "loots.created_at desc"
 
 	has_many :service_notes, :through => :services
+	has_many :web_sites, :through => :services
 	has_many :creds,    :through   => :services
 	has_many :exploited_hosts, :dependent => :destroy
 

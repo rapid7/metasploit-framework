@@ -104,6 +104,30 @@ module Auxiliary::Report
 		framework.db.report_loot(opts)
 	end
 
+	def report_web_site(opts={})
+		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
+		framework.db.report_web_site(opts)
+	end
+	
+	def report_web_page(opts={})
+		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
+		framework.db.report_web_page(opts)
+	end	
+	
+	def report_web_form(opts={})
+		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
+		framework.db.report_web_form(opts)
+	end	
+	
+	def report_web_vuln(opts={})
+		return if not db
+		opts = {:workspace => myworkspace}.merge(opts)
+		framework.db.report_web_vuln(opts)
+	end	
+			
 end
 end
 

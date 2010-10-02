@@ -27,3 +27,9 @@ require 'msf/core/model/campaign'
 require 'msf/core/model/email_address'
 require 'msf/core/model/email_template'
 require 'msf/core/model/web_template'
+
+require 'msf/core/model/web_site'
+require 'msf/core/model/web_page'
+require 'msf/core/model/web_form'
+require 'msf/core/model/web_vuln'
+

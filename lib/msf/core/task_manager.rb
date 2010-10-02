@@ -76,10 +76,15 @@ class TaskManager
 	end
 
 	#
-	# Add a new task to the queue
+	# Add a new task to the queue unless we are called
+	# by the queue thread itself. 
 	#
 	def queue_task(task)
-		self.queue.push(task)
+		if Thread.current[:task_manager]
+			process_task(task)
+		else
+			self.queue.push(task)
+		end
 	end
 
 	#
@@ -123,6 +128,12 @@ class TaskManager
 				retry
 			end
 		end
+		
+		# Mark this thread as the task manager
+		self.thread[:task_manager] = true
+		
+		# Return the thread object to the caller
+		self.thread
 	end
 
 	#
