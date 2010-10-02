@@ -18,10 +18,7 @@ class Workspace < ActiveRecord::Base
 	has_many :vulns,    :through => :hosts
 	has_many :creds,    :dependent => :destroy
 	has_many :exploited_hosts, :through => :hosts
-	
-	def web_sites
-		hosts.map{|host| host.web_sites}.flatten.uniq
-	end
+
 
 	validates_uniqueness_of :name
 	validates_presence_of :name
@@ -52,6 +49,30 @@ class Workspace < ActiveRecord::Base
 		end
 	end
 
+	def web_sites
+		hosts.map{|host| host.web_sites}.flatten
+	end
+		
+	def web_pages
+		web_sites.map{|w| w.web_pages}.flatten
+	end
+
+	def web_forms
+		web_sites.map{|w| w.web_forms}.flatten
+	end
+
+	def web_vulns
+		web_sites.map{|w| w.web_vulns}.flatten
+	end
+	
+	def web_unique_forms
+		cache = {}
+		web_forms.each do |form|
+			ckey = [ form.web_site.id, form.path, form.method, form.query].join("|")
+			cache[ckey] = form
+		end
+		cache.values
+	end
 
 end
 
