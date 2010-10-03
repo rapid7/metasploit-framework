@@ -52,7 +52,7 @@ class Workspace < ActiveRecord::Base
 	def web_sites
 		hosts.map{|host| host.web_sites}.flatten
 	end
-		
+
 	def web_pages
 		web_sites.map{|w| w.web_pages}.flatten
 	end
