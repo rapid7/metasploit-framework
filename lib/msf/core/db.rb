@@ -3145,7 +3145,7 @@ class DBManager
 		
 		path    = opts[:path]
 		meth    = opts[:method].to_s.upcase
-		para    = opts[:params]
+		para    = opts[:params] || []
 		quer    = opts[:query].to_s
 		pname   = opts[:pname]
 		proof   = opts[:proof]
@@ -3187,7 +3187,7 @@ class DBManager
 			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, quer)
 			vuln.risk   = risk
 			vuln.params = para
-			vuln.proof  = proof	
+			vuln.proof  = proof.to_s	
 			msfe_import_timestamps(opts, vuln)
 			vuln.save!
 
