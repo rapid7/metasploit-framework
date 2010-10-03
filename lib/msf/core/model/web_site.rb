@@ -14,7 +14,11 @@ class WebSite < ActiveRecord::Base
 		proto = self.service.name == "https" ? "https" : "http"
 		host  = ignore_vhost ? self.service.host.address : self.vhost
 		port  = self.service.port
-		"#{proto}://#{host}:#{port}"	
+		url   = "#{proto}://#{host}"
+		if not ((proto == "http" and port == 80) or (proto == "https" and port == 443))
+			url += ":#{port}"
+		end
+		url
 	end
 	
 	def page_count
