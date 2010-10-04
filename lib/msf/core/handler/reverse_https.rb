@@ -41,17 +41,35 @@ module ReverseHttps
 				OptPort.new('LPORT', [ true, "The local listener port", 8443 ]),
 				OptString.new('TARGETID', [ false, "The ID of this specific payload instance (4 bytes max)", Rex::Text.rand_text_alphanumeric(4)]),
 			], Msf::Handler::ReverseHttps)
+			
+		register_advanced_options(
+			[
+				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
+			], Msf::Handler::ReverseHttps)			
 	end
 
 	#
 	# Create an HTTPS listener
 	#
 	def setup_handler
+	
+		comm = datastore['ReverseListenerComm']
+		if (comm.to_s == "local")
+			comm = ::Rex::Socket::Comm::Local
+		else
+			comm = nil
+		end
+			
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
 			'0.0.0.0',
-			true
+			true,
+			{
+				'Msf'        => framework,
+				'MsfExploit' => self,
+			},
+			comm			
 		)
 
 		# Create a reference to ourselves

@@ -229,6 +229,11 @@ module PassiveX
 				OptString.new('PXAXCLSID', [ true, "ActiveX CLSID", "B3AC7307-FEAE-4e43-B2D6-161E68ABA838" ]),
 				OptString.new('PXAXVER', [ true, "ActiveX DLL Version", "-1,-1,-1,-1" ]),
 			], Msf::Handler::PassiveX)
+			
+		register_advanced_options(
+			[
+				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
+			], Msf::Handler::PassiveX)			
 
 		# Initialize the start of the localized SID pool
 		self.sid_pool = 0
@@ -246,9 +251,25 @@ module PassiveX
 	# purposes.
 	#
 	def setup_handler
+	
+		comm = datastore['ReverseListenerComm']
+		if (comm.to_s == "local")
+			comm = ::Rex::Socket::Comm::Local
+		else
+			comm = nil
+		end
+				
 		# Start the HTTP server service on this host/port
-		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
-			datastore['PXPORT'].to_i, datastore['PXHOST'])
+		self.service = Rex::ServiceManager.start(
+			Rex::Proto::Http::Server,
+			datastore['PXPORT'].to_i, datastore['PXHOST'],
+			datastore['SSL'],
+			{
+				'Msf'        => framework,
+				'MsfExploit' => self,
+			},
+			comm
+		)
 
 		# Add the new resource
 		service.add_resource(datastore['PXURI'],
