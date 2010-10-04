@@ -22,6 +22,7 @@ require 'rex/peparsey'
 require 'rex/pescan'
 require 'rex/zip'
 require 'metasm'
+require 'digest/sha1'
 
 	##
 	#
@@ -1537,6 +1538,25 @@ require 'metasm'
 		['dll','exe','exe-small','elf','macho','vba','vbs','loop-vbs','asp','war']
 	end
 
+	#
+	# EICAR Canary: https://www.metasploit.com/redmine/projects/framework/wiki/EICAR
+	#
+	def self.is_eicar_corrupted?
+		path = ::File.expand_path(::File.join(::File.dirname(__FILE__), "..", "..", "..", "data", "eicar.com"))
+		return true if not ::File.exists?(path)
+
+		begin
+			data = ::File.read(path)	
+			if Digest::SHA1.hexdigest(data) != "3395856ce81f2b7382dee72602f798b642f14140"
+				return true
+			end
+		
+		rescue ::Exception
+			return true
+		end
+	
+		false
+	end
 
 end
 end

@@ -36,6 +36,9 @@ class Framework
 	RepoUpdatedDaysNote = ::Msf::Util::SVN.last_updated_friendly
 	RepoUpdatedDate     = ::Msf::Util::SVN.last_updated_date
 	RepoRoot            = ::Msf::Util::SVN.root
+	
+	# EICAR canary
+	EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
 
 	# API Version
 	APIMajor = 1

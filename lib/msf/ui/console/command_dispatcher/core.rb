@@ -231,6 +231,7 @@ class Core
 		banner << "+ -- --=[ "
 
 		oldwarn = nil
+		avdwarn = nil
 		banner << "#{framework.stats.num_payloads} payloads - #{framework.stats.num_encoders} encoders - #{framework.stats.num_nops} nops\n"
 		if ( ::Msf::Framework::RepoRevision.to_i > 0 and ::Msf::Framework::RepoUpdatedDate)
 			tstamp = ::Msf::Framework::RepoUpdatedDate.strftime("%Y.%m.%d")
@@ -245,12 +246,25 @@ class Core
 			end
 		end
 
+		if ::Msf::Framework::EICARCorrupted
+			avdwarn = []
+			avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
+			avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
+			avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
+			avdwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/EICAR"			
+			avdwarn << ""
+		end
+		
 		# Display the banner
 		print_line(banner)
 
 		if(oldwarn)
 			oldwarn.map{|line| print_line(line) }
 		end
+		
+		if(avdwarn)
+			avdwarn.map{|line| print_error(line) }
+		end		
 	end
 
 	#
