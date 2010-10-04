@@ -2905,6 +2905,11 @@ class DBManager
 				:state     => Msf::HostState::Alive
 			)
 			
+			if host.name.to_s.empty?
+				host.name = vhost
+				host.save!
+			end
+			
 			serv = serv ? serv : find_or_create_service(
 				:workspace => wspace,
 				:host      => host, 

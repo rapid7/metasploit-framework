@@ -50,7 +50,8 @@ module ReverseTcp
 		register_advanced_options(
 			[
 				OptInt.new('ReverseConnectRetries', [ true, 'The number of connection attempts to try before exiting the process', 5 ]),
-				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system'])
+				OptAddress.new('ReverseListenerBindAddress', [ false, 'The specific IP address to bind to on the local system']),
+				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
 			], Msf::Handler::ReverseTcp)
 
 			
@@ -76,6 +77,13 @@ module ReverseTcp
 		
 		addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
 		
+		comm  = datastore['ReverseListenerComm']
+		if comm.to_s == "local"
+			comm = ::Rex::Socket::Comm::Local
+		else
+			comm = nil
+		end
+		
 		if not datastore['ReverseListenerBindAddress'].to_s.empty?
 			# Only try to bind to this specific interface
 			addrs = [ datastore['ReverseListenerBindAddress'] ]
@@ -89,6 +97,7 @@ module ReverseTcp
 				self.listener_sock = Rex::Socket::TcpServer.create(
 					'LocalHost' => ip,
 					'LocalPort' => datastore['LPORT'].to_i,
+					'Comm'      => comm,
 					'Context'   =>
 						{
 							'Msf'        => framework,
@@ -98,7 +107,7 @@ module ReverseTcp
 			
 				ex = false
 			
-				comm_used = Rex::Socket::SwitchBoard.best_comm( ip )
+				comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
 				comm_used = Rex::Socket::Comm::Local if comm_used == nil
 				
 				if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )

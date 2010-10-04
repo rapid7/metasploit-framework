@@ -99,7 +99,7 @@ class Server
 	# Initializes an HTTP server as listening on the provided port and
 	# hostname.
 	#
-	def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {})
+	def initialize(port = 80, listen_host = '0.0.0.0', ssl = false, context = {}, comm = nil)
 		self.listen_host = listen_host
 		self.listen_port = port
 		self.context     = context
@@ -107,6 +107,7 @@ class Server
 		self.resources   = {}
 		self.server_name = DefaultServer
 		self.ssl         = ssl
+		self.comm        = comm
 	end
 
 	#
@@ -132,7 +133,8 @@ class Server
 			'LocalHost' => self.listen_host,
 			'LocalPort' => self.listen_port,
 			'Context'   => self.context,
-			'SSL'		=> self.ssl
+			'SSL'		=> self.ssl,
+			'Comm'      => self.comm
 		)
 
 		# Register callbacks
@@ -254,7 +256,7 @@ class Server
 		cli.send_response(resp)
 	end
 
-	attr_accessor :listen_port, :listen_host, :server_name, :context, :ssl
+	attr_accessor :listen_port, :listen_host, :server_name, :context, :ssl, :comm
 	attr_accessor :listener, :resources
 
 protected

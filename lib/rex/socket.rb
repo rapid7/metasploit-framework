@@ -440,11 +440,12 @@ module Socket
 	#
 	##
 
-	def self.source_address(dest='50.50.50.50')
+	def self.source_address(dest='50.50.50.50', comm = ::Rex::Socket::Comm::Local)
 		begin
 			s = self.create_udp(
 				'PeerHost' => dest,
-				'PeerPort' => 31337
+				'PeerPort' => 31337,
+				'Comm'     => comm
 			)
 			r = s.getsockname[1]
 			s.close
