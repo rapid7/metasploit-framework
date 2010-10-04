@@ -165,7 +165,7 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-		nopts['pool'] = 256
+		nopts['pool'] = 100
 
 		begin
 			create_db(nopts)
