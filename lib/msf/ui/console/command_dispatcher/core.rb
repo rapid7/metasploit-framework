@@ -2203,7 +2203,7 @@ protected
 				o.author.to_s.match(regex)
 			)
 				if (not minrank or minrank <= o.rank)
-					tbl << [ refname, o.rank_to_s, o.name ]
+					tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
 				end
 			end
 		}
@@ -2217,7 +2217,7 @@ protected
 			'Header'  => type,
 			'Prefix'  => "\n",
 			'Postfix' => "\n",
-			'Columns' => [ 'Name', 'Rank', 'Description' ]
+			'Columns' => [ 'Name', 'Disclosure Date', 'Rank', 'Description' ]
 			)
 	end
 end
