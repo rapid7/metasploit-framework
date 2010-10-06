@@ -1905,9 +1905,12 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
-				when /Metasploit(Express|)V[1234]/
+				when /MetasploitExpressV[1234]/
 					@import_filedata[:type] = "Metasploit XML"
 					return :msf_xml
+				when /MetasploitV4/
+					@import_filedata[:type] = "Metasploit XML"
+					return :msf_xml					
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
