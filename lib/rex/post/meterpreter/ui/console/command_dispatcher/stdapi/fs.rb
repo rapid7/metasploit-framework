@@ -247,7 +247,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 		end
 
 		# Get a temporary file path
-		temp_path = Tempfile.new('meterp').path
+		meterp_temp = Tempfile.new('meterp')
+		temp_path = meterp_temp.path
 
 		begin
 			# Download the remote file to the temporary file
