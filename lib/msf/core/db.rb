@@ -1710,7 +1710,7 @@ class DBManager
 
 		host_info = {}
 		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
-			host_info[host.elements["id"].text.to_s.strip] = host.elements["address"].text.to_s.strip
+			host_info[host.elements["id"].text.to_s.strip] = nils_for_nulls(host.elements["address"].text.to_s.strip)
 		end
 
 		# Import Loot
@@ -1719,18 +1719,20 @@ class DBManager
 			loot_info = {}
 			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
 			loot_info[:workspace] = args[:wspace]
-			loot_info[:ctype] = loot.elements["content-type"].text.to_s.strip
-			loot_info[:info] = unserialize_object(loot.elements["info"], allow_yaml)
-			loot_info[:ltype] = loot.elements["ltype"].text.to_s.strip
-			loot_info[:name] = loot.elements["name"].text.to_s.strip
-			loot_info[:created_at] = loot.elements["created-at"].text.to_s.strip
-			loot_info[:updated_at] = loot.elements["updated-at"].text.to_s.strip
-			loot_info[:name] = loot.elements["name"].text.to_s.strip
-			loot_info[:orig_path] = loot.elements["path"].text.to_s.strip
+			loot_info[:ctype] = nils_for_nulls(loot.elements["content-type"].text.to_s.strip)
+			loot_info[:info] = nils_for_nulls(unserialize_object(loot.elements["info"], allow_yaml))
+			loot_info[:ltype] = nils_for_nulls(loot.elements["ltype"].text.to_s.strip)
+			loot_info[:name] = nils_for_nulls(loot.elements["name"].text.to_s.strip)
+			loot_info[:created_at] = nils_for_nulls(loot.elements["created-at"].text.to_s.strip)
+			loot_info[:updated_at] = nils_for_nulls(loot.elements["updated-at"].text.to_s.strip)
+			loot_info[:name] = nils_for_nulls(loot.elements["name"].text.to_s.strip)
+			loot_info[:orig_path] = nils_for_nulls(loot.elements["path"].text.to_s.strip)
 			tmp = args[:ifd][:zip_tmp]
-			loot_info[:orig_path].gsub!(/^\./,tmp)
-			if loot.elements["service-id"].text.to_s.strip.size > 0
-				loot_info[:service] = loot.elements["service-id"].text.to_s.strip
+			loot_info[:orig_path].gsub!(/^\./,tmp) if loot_info[:orig_path]
+			if !loot.elements["service-id"].text.to_s.strip.empty?
+				unless loot.elements["service-id"].text.to_s.strip == "NULL"
+					loot_info[:service] = loot.elements["service-id"].text.to_s.strip
+				end
 			end
 
 			# Only report loot if we actually have it.
@@ -1762,26 +1764,26 @@ class DBManager
 			task_info = {}
 			task_info[:workspace] = args[:wspace]
 			# Should user be imported (original) or declared (the importing user)?
-			task_info[:user] = task.elements["created-by"].text.to_s.strip
-			task_info[:desc] = task.elements["description"].text.to_s.strip
-			task_info[:info] = unserialize_object(task.elements["info"], allow_yaml)
-			task_info[:mod] = task.elements["module"].text.to_s.strip
-			task_info[:options] = task.elements["options"].text.to_s.strip
-			task_info[:prog] = task.elements["progress"].text.to_i
-			task_info[:created_at] = task.elements["created-at"].text.to_s.strip
-			task_info[:updated_at] = task.elements["updated-at"].text.to_s.strip
+			task_info[:user] = nils_for_nulls(task.elements["created-by"].text.to_s.strip)
+			task_info[:desc] = nils_for_nulls(task.elements["description"].text.to_s.strip)
+			task_info[:info] = nils_for_nulls(unserialize_object(task.elements["info"], allow_yaml))
+			task_info[:mod] = nils_for_nulls(task.elements["module"].text.to_s.strip)
+			task_info[:options] = nils_for_nulls(task.elements["options"].text.to_s.strip)
+			task_info[:prog] = nils_for_nulls(task.elements["progress"].text.to_s.strip).to_i
+			task_info[:created_at] = nils_for_nulls(task.elements["created-at"].text.to_s.strip)
+			task_info[:updated_at] = nils_for_nulls(task.elements["updated-at"].text.to_s.strip)
 			if !task.elements["completed-at"].text.to_s.empty?
-				task_info[:completed_at] = task.elements["completed-at"].text.to_s.strip
+				task_info[:completed_at] = nils_for_nulls(task.elements["completed-at"].text.to_s.strip)
 			end
 			if !task.elements["error"].text.to_s.empty?
-				task_info[:error] = task.elements["error"].text.to_s.strip
+				task_info[:error] = nils_for_nulls(task.elements["error"].text.to_s.strip)
 			end
 			if !task.elements["result"].text.to_s.empty?
-				task_info[:result] = task.elements["result"].text.to_s.strip
+				task_info[:result] = nils_for_nulls(task.elements["result"].text.to_s.strip)
 			end
-			task_info[:orig_path] = task.elements["path"].text.to_s.strip
+			task_info[:orig_path] = nils_for_nulls(task.elements["path"].text.to_s.strip)
 			tmp = args[:ifd][:zip_tmp]
-			task_info[:orig_path].gsub!(/^\./,tmp)
+			task_info[:orig_path].gsub!(/^\./,tmp) if task_info[:orig_path]
 
 			# Only report a task if we actually have it.
 			# TODO: Copypasta. Seperate this out.
@@ -1812,15 +1814,15 @@ class DBManager
 			report_info = {}
 			report_info[:workspace] = args[:wspace]
 			# Should user be imported (original) or declared (the importing user)?
-			report_info[:user] = report.elements["created-by"].text.to_s.strip
-			report_info[:options] = report.elements["options"].text.to_s.strip
-			report_info[:rtype] = report.elements["rtype"].text.to_s.strip
-			report_info[:created_at] = report.elements["created-at"].text.to_s.strip
-			report_info[:updated_at] = report.elements["updated-at"].text.to_s.strip
+			report_info[:user] = nils_for_nulls(report.elements["created-by"].text.to_s.strip)
+			report_info[:options] = nils_for_nulls(report.elements["options"].text.to_s.strip)
+			report_info[:rtype] = nils_for_nulls(report.elements["rtype"].text.to_s.strip)
+			report_info[:created_at] = nils_for_nulls(report.elements["created-at"].text.to_s.strip)
+			report_info[:updated_at] = nils_for_nulls(report.elements["updated-at"].text.to_s.strip)
 
-			report_info[:orig_path] = report.elements["path"].text.to_s.strip
+			report_info[:orig_path] = nils_for_nulls(report.elements["path"].text.to_s.strip)
 			tmp = args[:ifd][:zip_tmp]
-			report_info[:orig_path].gsub!(/^\./,tmp)
+			report_info[:orig_path].gsub!(/^\./,tmp) if report_info[:orig_path]
 
 			# Only report a report if we actually have it.
 			# TODO: Copypasta. Seperate this out.
@@ -1877,19 +1879,19 @@ class DBManager
 		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
-			host_data[:host] = host.elements["address"].text.to_s.strip
+			host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
 			if bl.include? host_data[:host]
 				next
 			else
 				yield(:address,host_data[:host]) if block
 			end
-			host_data[:host_mac] = host.elements["mac"].text.to_s.strip
+			host_data[:host_mac] = nils_for_nulls(host.elements["mac"].text.to_s.strip)
 			if host.elements["comm"].text
-				host_data[:comm] = host.elements["comm"].text.to_s.strip
+				host_data[:comm] = nils_for_nulls(host.elements["comm"].text.to_s.strip)
 			end
 			%w{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
 				if host.elements[datum].text
-					host_data[datum.gsub('-','_')] = host.elements[datum].text.to_s.strip
+					host_data[datum.gsub('-','_')] = nils_for_nulls(host.elements[datum].text.to_s.strip)
 				end
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
@@ -1898,14 +1900,14 @@ class DBManager
 				service_data = {}
 				service_data[:workspace] = wspace
 				service_data[:host] = host_address
-				service_data[:port] = service.elements["port"].text.to_i
-				service_data[:proto] = service.elements["proto"].text.to_s.strip
+				service_data[:port] = nils_for_nulls(service.elements["port"].text.to_s.strip).to_i
+				service_data[:proto] = nils_for_nulls(service.elements["proto"].text.to_s.strip)
 				%w{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
 						if datum == "info"
-							service_data["info"] = unserialize_object(service.elements[datum], false)
+							service_data["info"] = nils_for_nulls(unserialize_object(service.elements[datum], false))
 						else
-							service_data[datum.gsub("-","_")] = service.elements[datum].text.to_s.strip
+							service_data[datum.gsub("-","_")] = nils_for_nulls(service.elements[datum].text.to_s.strip)
 						end
 					end
 				}
@@ -1915,18 +1917,18 @@ class DBManager
 				note_data = {}
 				note_data[:workspace] = wspace
 				note_data[:host] = host_address
-				note_data[:type] = note.elements["ntype"].text.to_s.strip
-				note_data[:data] = unserialize_object(note.elements["data"], allow_yaml)
+				note_data[:type] = nils_for_nulls(note.elements["ntype"].text.to_s.strip)
+				note_data[:data] = nils_for_nulls(unserialize_object(note.elements["data"], allow_yaml))
 
 				if note.elements["critical"].text
-					note_data[:critical] = true
+					note_data[:critical] = true unless note.elements["critical"].text.to_s.strip == "NULL"
 				end
 				if note.elements["seen"].text
-					note_data[:seen] = true
+					note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
 				end
 				%w{created-at updated-at}.each { |datum|
 					if note.elements[datum].text
-						note_data[datum.gsub("-","_")] = note.elements[datum].text.to_s.strip
+						note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
 					end
 				}
 				report_note(note_data)
@@ -1935,11 +1937,11 @@ class DBManager
 				vuln_data = {}
 				vuln_data[:workspace] = wspace
 				vuln_data[:host] = host_address
-				vuln_data[:info] = unserialize_object(vuln.elements["info"], allow_yaml)
-				vuln_data[:name] = vuln.elements["name"].text.to_s.strip
+				vuln_data[:info] = nils_for_nulls(unserialize_object(vuln.elements["info"], allow_yaml))
+				vuln_data[:name] = nils_for_nulls(vuln.elements["name"].text.to_s.strip)
 				%w{created-at updated-at}.each { |datum|
 					if vuln.elements[datum].text
-						vuln_data[datum.gsub("-","_")] = vuln.elements[datum].text.to_s.strip
+						vuln_data[datum.gsub("-","_")] = nils_for_nulls(vuln.elements[datum].text.to_s.strip)
 					end
 				}
 				report_vuln(vuln_data)
@@ -1950,12 +1952,12 @@ class DBManager
 				cred_data[:host] = host_address
 				%w{port ptype sname proto proof active user pass}.each {|datum|
 					if cred.elements[datum].respond_to? :text
-						cred_data[datum.intern] = cred.elements[datum].text.to_s.strip
+						cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
 				}
 				%w{created-at updated-at}.each { |datum|
 					if cred.elements[datum].respond_to? :text
-						cred_data[datum.gsub("-","_")] = cred.elements[datum].text.to_s.strip
+						cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
 				}
 				if cred_data[:pass] == "<masked>"
@@ -1967,6 +1969,10 @@ class DBManager
 				report_cred(cred_data.merge(:wait => true))
 			end
 		end
+	end
+
+	def nils_for_nulls(str)
+		str == "NULL" ? nil : str
 	end
 
 	def import_nexpose_simplexml(args={}, &block)
