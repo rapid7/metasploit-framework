@@ -8,8 +8,12 @@ module RPC
 class Service < ::XMLRPC::BasicServer
 
 	attr_accessor :service, :state, :on_input, :on_output, :on_error
+	attr_accessor :dispatcher_timeout
 
 	def initialize(srvhost, srvport, ssl=false, cert=nil, ckey=nil)
+	
+		self.dispatcher_timeout  = 0
+	
 		self.service = Rex::Socket::TcpServer.create(
 			'LocalHost' => srvhost,
 			'LocalPort' => srvport,
@@ -20,7 +24,18 @@ class Service < ::XMLRPC::BasicServer
 			on_client_connect(client)
 		}
 		self.service.on_client_data_proc = Proc.new { |client|
-			on_client_data(client)
+			Thread.new(client) do |client_copy|
+				begin
+					Timeout.timeout(self.dispatcher_timeout) do
+						on_client_data(client)
+					end
+				rescue ::EOFError  => e
+					raise e
+				rescue ::Exception => e
+					wlog("XMLRPC Server Error: #{client.inspect} #{e.class} #{e} #{e.backtrace}")
+					raise e
+				end
+			end
 		}
 		self.service.on_client_close_proc = Proc.new { |client|
 			on_client_close(client)
