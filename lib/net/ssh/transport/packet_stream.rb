@@ -121,11 +121,6 @@ module Net; module SSH; module Transport
       # compute the packet length (sans the length field itself)
       packet_length = payload.length + padding_length + 1
 
-      if packet_length < 16
-        padding_length += client.cipher.block_size
-        packet_length = payload.length + padding_length + 1
-      end
-
       padding = Array.new(padding_length) { rand(256) }.pack("C*")
 
       unencrypted_data = [packet_length, padding_length, payload, padding].pack("NCA*A*")
