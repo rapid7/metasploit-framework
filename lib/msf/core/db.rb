@@ -1905,7 +1905,7 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
-				when /MetasploitExpressV[1234]/
+				when /Metasploit(Express|)V[1234]/
 					@import_filedata[:type] = "Metasploit XML"
 					return :msf_xml
 				else
@@ -2044,32 +2044,40 @@ class DBManager
 		basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
 
 		allow_yaml = false
+		btag = nil
 
 		doc = rexmlify(data)
 		if doc.elements["MetasploitExpressV1"]
 			m_ver = 1
 			allow_yaml = true
+			btag = "MetasploitExpressV1"
 		elsif doc.elements["MetasploitExpressV2"]
 			m_ver = 2
 			allow_yaml = true
+			btag = "MetasploitExpressV2"
 		elsif doc.elements["MetasploitExpressV3"]
 			m_ver = 3
+			btag = "MetasploitExpressV3"
 		elsif doc.elements["MetasploitExpressV4"]
-			m_ver = 4			
+			m_ver = 4
+			btag = "MetasploitExpressV4"
+		elsif doc.elements["MetasploitV4"]
+			m_ver = 4
+			btag = "MetasploitV4"			
 		else
 			m_ver = nil
 		end
-		unless m_ver
-			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
+		unless m_ver and btag
+			raise DBImportError.new("Unsupported Metasploit XML document format")
 		end
 
 		host_info = {}
-		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
+		doc.elements.each("/#{btag}/hosts/host") do |host|
 			host_info[host.elements["id"].text.to_s.strip] = nils_for_nulls(host.elements["address"].text.to_s.strip)
 		end
 
 		# Import Loot
-		doc.elements.each("/MetasploitExpressV#{m_ver}/loots/loot") do |loot|
+		doc.elements.each("/#{btag}/loots/loot") do |loot|
 			next if bl.include? host_info[loot.elements["host-id"].text.to_s.strip]
 			loot_info = {}
 			loot_info[:host] = host_info[loot.elements["host-id"].text.to_s.strip]
@@ -2115,7 +2123,7 @@ class DBManager
 		end
 
 		# Import Tasks
-		doc.elements.each("/MetasploitExpressV#{m_ver}/tasks/task") do |task|
+		doc.elements.each("/#{btag}/tasks/task") do |task|
 			task_info = {}
 			task_info[:workspace] = args[:wspace]
 			# Should user be imported (original) or declared (the importing user)?
@@ -2165,7 +2173,7 @@ class DBManager
 		end
 
 		# Import Reports
-		doc.elements.each("/MetasploitExpressV#{m_ver}/reports/report") do |report|
+		doc.elements.each("/#{btag}/reports/report") do |report|
 			report_info = {}
 			report_info[:workspace] = args[:wspace]
 			# Should user be imported (original) or declared (the importing user)?
@@ -2214,26 +2222,34 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		allow_yaml = false
-
+		btag       = nil
+		
 		doc = rexmlify(data)
 		if doc.elements["MetasploitExpressV1"]
 			m_ver = 1
 			allow_yaml = true
+			btag = "MetasploitExpressV1"
 		elsif doc.elements["MetasploitExpressV2"]
 			m_ver = 2
 			allow_yaml = true
+			btag = "MetasploitExpressV2"			
 		elsif doc.elements["MetasploitExpressV3"]
 			m_ver = 3
+			btag = "MetasploitExpressV3"			
 		elsif doc.elements["MetasploitExpressV4"]
 			m_ver = 4			
+			btag = "MetasploitExpressV4"
+		elsif doc.elements["MetasploitV4"]
+			m_ver = 4			
+			btag = "MetasploitV4"						
 		else
 			m_ver = nil
 		end
-		unless m_ver
-			raise DBImportError.new("Unknown version for MetasploitExpress XML document")
+		unless m_ver and btag
+			raise DBImportError.new("Unsupported Metasploit XML document format")
 		end
 
-		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
+		doc.elements.each("/#{btag}/hosts/host") do |host|
 			host_data = {}
 			host_data[:workspace] = wspace
 			host_data[:host] = nils_for_nulls(host.elements["address"].text.to_s.strip)
@@ -2328,7 +2344,7 @@ class DBManager
 		end
 		
 		# Import web sites
-		doc.elements.each("/MetasploitExpressV#{m_ver}/web_sites") do |web|
+		doc.elements.each("/#{btag}/web_sites") do |web|
 			info = {}
 			info[:workspace] = wspace
 			info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
@@ -2345,7 +2361,7 @@ class DBManager
 		end
 		
 		%W{page form vuln}.each do |wtype|
-			doc.elements.each("/MetasploitExpressV#{m_ver}/web_#{wtype}s") do |web|
+			doc.elements.each("/#{btag}/web_#{wtype}s") do |web|
 				info = {}
 				info[:workspace] = wspace
 				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
