@@ -191,7 +191,12 @@ module Net
       user = options.fetch(:user, user)
       if auth.authenticate("ssh-connection", user, options[:password])
         connection = Connection::Session.new(transport, options)
-		connection.auth_info = auth.auth_info
+        connection.auth_info = auth.auth_info
+
+        # Tell MSF not to auto-close this socket anymore...
+        # This allows the transport socket to surive with the session.
+        options[:msfmodule].remove_socket(transport.socket)
+
         if block_given?
           yield connection
           connection.close
