@@ -1524,6 +1524,15 @@ public class MainFrame extends FrameView {
 				new ProcessList(rpcConn,session,sessionPopupMap).setVisible(true);
 			}
 		});
+		addSessionItem("Shell",meterpreterPopupMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
+				Map res = (Map)rpcConn.execute("console.create");
+				InteractWindow iw = new InteractWindow(rpcConn, res, java.util.Arrays.asList(new String[]{
+					"sessions","sessions -i "+session.get("id"),  "shell"}));
+				registerConsole(res, true, iw);
+			}
+		});
+
 		addSessionItem("Console",meterpreterPopupMenu,null);
 		addScript("Get hashes",meterpreterPopupMenu,
 				"multi_console_command -cl \"use priv\",\"getsystem\",\"run hashdump.rb\"");

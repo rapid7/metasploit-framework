@@ -38,21 +38,9 @@ public class InteractWindow extends MsfFrame {
 	}
 
 	/** Create a new console window to run a module */
-	public InteractWindow(final RpcConnection rpcConn, final Map session, String module, Map opts){
+	public InteractWindow(final RpcConnection rpcConn, final Map session, final List autoCommands){
 		this(rpcConn, session, "console");
 		inputField.setEnabled(false);
-		final ArrayList autoCommands = new ArrayList();
-		autoCommands.add("use "+module);
-		if(opts.containsKey("TARGET"))
-			autoCommands.add("set TARGET "+opts.get("TARGET"));
-		if(opts.containsKey("PAYLOAD"))
-			autoCommands.add("set PAYLOAD "+opts.get("PAYLOAD"));
-		for(Object entObj : opts.entrySet()){
-			Map.Entry ent = (Map.Entry)entObj;
-			if(!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
-				autoCommands.add("set "+ent.getKey()+" "+ent.getValue());
-		}
-		autoCommands.add("exploit -j");
 
 		//start new thread auto
 		new SwingWorker() {
@@ -60,7 +48,8 @@ public class InteractWindow extends MsfFrame {
 				//for some reason the first command doesn't usually work. Do first command twice.
 				try {
 					String data = Base64.encode((autoCommands.get(0) + "\n").getBytes());
-					rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
+					if(autoCommands.get(0).toString().startsWith("use"))
+						rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
 				} catch (MsfException ex) {
 					JOptionPane.showMessageDialog(null, ex);
 				}

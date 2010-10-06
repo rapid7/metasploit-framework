@@ -357,7 +357,20 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			//Execute and get results
 			if(console){
 				Map res = (Map)rpcConn.execute("console.create");
-				InteractWindow iw = new InteractWindow(rpcConn, res, moduleType+"/"+fullName, hash);
+
+				ArrayList autoCommands = new ArrayList();
+				autoCommands.add("use "+moduleType+"/"+fullName);
+				if(hash.containsKey("TARGET"))
+					autoCommands.add("set TARGET "+hash.get("TARGET"));
+				if(hash.containsKey("PAYLOAD"))
+					autoCommands.add("set PAYLOAD "+hash.get("PAYLOAD"));
+				for(Object entObj : hash.entrySet()){
+					Map.Entry ent = (Map.Entry)entObj;
+					if(!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
+						autoCommands.add("set "+ent.getKey()+" "+ent.getValue());
+				}
+				autoCommands.add("exploit -j");
+				InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);
 				parentFrame.registerConsole(res, true, iw);
 			}else{
 				Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
