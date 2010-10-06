@@ -245,7 +245,7 @@ class DBManager
 			host.workspace   = wspace    if not host.workspace
 
 			# Always save the host, helps track updates
-			msfe_import_timestamps(opts,host)
+			msf_import_timestamps(opts,host)
 			host.save!
 
 			ret[:host] = host
@@ -333,7 +333,7 @@ class DBManager
 				service.state = ServiceState::Open
 			end
 			if (service and service.changed?)
-				msfe_import_timestamps(opts,service)
+				msf_import_timestamps(opts,service)
 				service.save!
 			end
 			ret[:service] = service
@@ -616,7 +616,7 @@ class DBManager
 				note.ntype    = ntype
 				note.data     = data
 			end
-			msfe_import_timestamps(opts,note)
+			msf_import_timestamps(opts,note)
 			note.save!
 
 			ret[:note] = note
@@ -720,7 +720,7 @@ class DBManager
 
 			# Update the timestamp
 			if cred.changed?
-				msfe_import_timestamps(opts,cred)
+				msf_import_timestamps(opts,cred)
 				cred.save!
 			end
 
@@ -845,7 +845,7 @@ class DBManager
 			end
 
 			if vuln.changed?
-				msfe_import_timestamps(opts,vuln)
+				msf_import_timestamps(opts,vuln)
 				vuln.save!
 			end
 			ret[:vuln] = vuln
@@ -1080,7 +1080,7 @@ class DBManager
 			loot.data  = data
 			loot.name  = name if name
 			loot.info  = info if info
-			msfe_import_timestamps(opts,loot)
+			msf_import_timestamps(opts,loot)
 			loot.save!
 
 			if !opts[:created_at]
@@ -1144,7 +1144,7 @@ class DBManager
 			task.path = path
 			task.progress = prog
 			task.result = result if result
-			msfe_import_timestamps(opts,task)
+			msf_import_timestamps(opts,task)
 			# Having blank completed_ats, while accurate, will cause unstoppable tasks.
 			if completed_at.nil? || completed_at.empty?
 				task.completed_at = opts[:updated_at]
@@ -1196,7 +1196,7 @@ class DBManager
 			report.options = options
 			report.rtype = rtype
 			report.path = path
-			msfe_import_timestamps(opts,report)
+			msf_import_timestamps(opts,report)
 			report.save!
 
 			ret[:task] = report
@@ -1452,7 +1452,7 @@ class DBManager
 	end
 
 	# Handles timestamps from Metasploit Express imports.
-	def msfe_import_timestamps(opts,obj)
+	def msf_import_timestamps(opts,obj)
 		obj.created_at = opts["created_at"] if opts["created_at"]
 		obj.created_at = opts[:created_at] if opts[:created_at]
 		obj.updated_at = opts["updated_at"] ? opts["updated_at"] : obj.created_at
@@ -1508,8 +1508,8 @@ class DBManager
 
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-	# :nessus_xml :nessus_xml_v2 :qualys_xml :msfe_xml :nessus_nbe :amap_mlog
-	# :amap_log :ip_list, :msfx_zip
+	# :nessus_xml :nessus_xml_v2 :qualys_xml :msf_xml :nessus_nbe :amap_mlog
+	# :amap_log :ip_list, :msf_zip
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 		if data.kind_of? Zip::ZipFile
@@ -1519,8 +1519,8 @@ class DBManager
 			@import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
 			@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first
 			@import_filedata[:zip_wspace] = $1
-			@import_filedata[:type] = "Metasploit Express ZIP Report"
-			return :msfx_zip if @import_filedata[:zip_xml]
+			@import_filedata[:type] = "Metasploit ZIP Report"
+			return :msf_zip if @import_filedata[:zip_xml]
 		end
 		di = data.index("\n")
 		firstline = data[0, di]
@@ -1553,8 +1553,8 @@ class DBManager
 					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
 				when /MetasploitExpressV[123]/
-					@import_filedata[:type] = "Metasploit Express XML"
-					return :msfe_xml
+					@import_filedata[:type] = "Metasploit XML"
+					return :msf_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1606,14 +1606,14 @@ class DBManager
 		import_nexpose_simplexml(args.merge(:data => data))
 	end
 
-	# Import a Metasploit Express XML file.
-	def import_msfe_file(args={})
+	# Import a Metasploit XML file.
+	def import_msf_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
 		f = File.open(filename, 'rb')
 		data = f.read(f.stat.size)
-		import_msfe_xml(args.merge(:data => data))
+		import_msf_xml(args.merge(:data => data))
 	end
 
 	# Import a Metasploit Express ZIP file. Note that this requires
@@ -1623,12 +1623,12 @@ class DBManager
 	# be reused. If target files exist, they will be overwritten.
 	#
 	# XXX: Refactor so it's not quite as sanity-blasting.
-	def import_msfx_zip(args={}, &block)
+	def import_msf_zip(args={}, &block)
 		data = args[:data]
 		wpsace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		new_tmp = File.join(Dir::tmpdir,"msfx",@import_filedata[:zip_basename])
+		new_tmp = File.join(Dir::tmpdir,"msf",@import_filedata[:zip_basename])
 		if File.exists? new_tmp
 			unless (File.directory?(new_tmp) && File.writable?(new_tmp))
 				raise DBImportError.new("Could not extract zip file to #{new_tmp}")
@@ -1676,19 +1676,19 @@ class DBManager
 
 		# Kick down to all the MSFX ZIP specific items
 		if block
-			import_msfx_collateral(new_args, &block)
+			import_msf_collateral(new_args, &block)
 		else
-			import_msfx_collateral(new_args)
+			import_msf_collateral(new_args)
 		end
 	end
 
-	# Imports loot, tasks, and reports from an MSFX ZIP report.
+	# Imports loot, tasks, and reports from an MSF ZIP report.
 	# XXX: This function is stupidly long. It needs to be refactored.
-	def import_msfx_collateral(args={}, &block)
+	def import_msf_collateral(args={}, &block)
 		data = File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
 		wspace = args[:wspace] || args['wspace'] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-		basedir = args[:basedir] || args['basedir'] || File.join(Msf::Config.install_root, "data", "msfx")
+		basedir = args[:basedir] || args['basedir'] || File.join(Msf::Config.install_root, "data", "msf")
 
 		allow_yaml = false
 
@@ -1755,7 +1755,7 @@ class DBManager
 					report_loot(loot_info) # It's new, so report it.
 				end
 				FileUtils.copy(loot_info[:orig_path], new_loot)
-				yield(:msfx_loot, new_loot) if block
+				yield(:msf_loot, new_loot) if block
 			end
 		end
 
@@ -1805,7 +1805,7 @@ class DBManager
 					report_task(task_info) # It's new, so report it.
 				end
 				FileUtils.copy(task_info[:orig_path], new_task)
-				yield(:msfx_task, new_task) if block
+				yield(:msf_task, new_task) if block
 			end
 		end
 
@@ -1844,7 +1844,7 @@ class DBManager
 					report_report(report_info)
 				end
 				FileUtils.copy(report_info[:orig_path], new_report)
-				yield(:msfx_report, new_report) if block
+				yield(:msf_report, new_report) if block
 			end
 		end
 
@@ -1853,7 +1853,7 @@ class DBManager
 	# For each host, step through services, notes, and vulns, and import
 	# them.
 	# TODO: loot, tasks, and reports
-	def import_msfe_xml(args={}, &block)
+	def import_msf_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -1873,7 +1873,7 @@ class DBManager
 			m_ver = nil
 		end
 		unless m_ver
-			raise DBImportError.new("Unknown verion for MetasploitExpress XML document")
+			raise DBImportError.new("Unknown version for MetasploitExpress XML document")
 		end
 
 		doc.elements.each("/MetasploitExpressV#{m_ver}/hosts/host") do |host|
@@ -2356,7 +2356,7 @@ class DBManager
 				data = {}
 				data[:workspace] = wspace
 				if fix_services
-					data[:proto] = nmap_msfx_service_map(p["protocol"])
+					data[:proto] = nmap_msf_service_map(p["protocol"])
 				else
 					data[:proto] = p["protocol"].downcase
 				end
@@ -2374,7 +2374,7 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
-	def nmap_msfx_service_map(proto)
+	def nmap_msf_service_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
 		when "msrpc", "nfs-or-iis";         "dcerpc"
@@ -2951,7 +2951,7 @@ class DBManager
 			site.options = opts[:options] if opts[:options]
 			
 			# XXX:
-			msfe_import_timestamps(opts, site)
+			msf_import_timestamps(opts, site)
 			site.save!
 
 			ret[:web_site] = site
@@ -3033,7 +3033,7 @@ class DBManager
 			page.mtime    = opts[:mtime]  if opts[:mtime]
 			page.ctype    = opts[:ctype]  if opts[:ctype]
 			page.location = opts[:location] if opts[:location]
-			msfe_import_timestamps(opts, page)
+			msf_import_timestamps(opts, page)
 			page.save!
 
 			ret[:web_page] = page
@@ -3121,7 +3121,7 @@ class DBManager
 				form.query       = quer
 			end 
 			
-			msfe_import_timestamps(opts, form)
+			msf_import_timestamps(opts, form)
 			form.save!
 
 			ret[:web_form] = form
@@ -3208,7 +3208,7 @@ class DBManager
 			vuln.risk   = risk
 			vuln.params = para
 			vuln.proof  = proof.to_s	
-			msfe_import_timestamps(opts, vuln)
+			msf_import_timestamps(opts, vuln)
 			vuln.save!
 
 			ret[:web_vuln] = vuln
