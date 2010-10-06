@@ -40,7 +40,7 @@ module Net; module SSH; module Transport
     # version.
     attr_reader :server_version
 
-    # Internal compatability flags (hacks/tweaks/etc)
+    # Internal compatibility flags (hacks/tweaks/etc)
     attr_reader :compat_flags
 
     # The Algorithms instance used to perform key exchanges.
@@ -95,7 +95,7 @@ module Net; module SSH; module Transport
 
       @server_version = ServerVersion.new(socket, logger)
 
-      # Compatability settings
+      # Compatibility settings
       ver = @server_version.version
       @compat_flags = 0
       if ver =~ /OpenSSH_2\.[0-3]/ or ver =~ /OpenSSH_2\.5\.[0-2]/
