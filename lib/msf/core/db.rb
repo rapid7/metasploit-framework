@@ -825,10 +825,19 @@ class DBManager
 				vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
 			end
 
-			if opts[:port] and opts[:proto]
-				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], opts[:proto])
-			elsif opts[:port]
-				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], "tcp")
+			if opts[:port]
+				proto = nil
+				case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
+				when 'tcp','udp'
+					proto = opts[:proto]
+				when 'dns','snmp','dhcp'
+					proto = 'udp'
+					sname = opts[:proto]
+				else
+					proto = 'tcp'
+					sname = opts[:proto]
+				end
+				vuln.service = host.services.find_or_create_by_port_and_proto(opts[:port], proto)
 			end
 
 			if rids
