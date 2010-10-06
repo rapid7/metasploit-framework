@@ -35,20 +35,11 @@ module Net::SSH::Transport::Kex
       def get_parameters
         compute_need_bits
 
-		  # Do we need to use the old request?
-		  do_SSH_OLD_DHGEX = false
-		  if (data[:server_version_string] =~ /OpenSSH_2\.[0-3]/)
-			  do_SSH_OLD_DHGEX = true
-		  elsif (data[:server_version_string] =~ /OpenSSH_2\.5\.[0-2]/)
-			  do_SSH_OLD_DHGEX = true
-		  end
-
-		  if (do_SSH_OLD_DHGEX)
-			  # request the DH key parameters for the given number of bits.
-			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST_OLD, :long, 
+		  # request the DH key parameters for the given number of bits.
+		  if connection.compat_flags & COMPAT_OLD_DHGEX
+			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST_OLD, :long,
 				  data[:need_bits])
 		  else
-			  # request the DH key parameters for the given number of bits.
 			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, MINIMUM_BITS,
 				  :long, data[:need_bits], :long, MAXIMUM_BITS)
 		  end
@@ -80,9 +71,11 @@ module Net::SSH::Transport::Kex
                               data[:client_algorithm_packet],
                               data[:server_algorithm_packet],
                               result[:key_blob]
-        response.write_long MINIMUM_BITS,
-                            data[:need_bits],
-                            MAXIMUM_BITS
+
+        response.write_long MINIMUM_BITS if not connection.compat_flags & COMPAT_OLD_DHGEX
+        response.write_long data[:need_bits]
+        response.write_long MAXIMUM_BITS if not connection.compat_flags & COMPAT_OLD_DHGEX
+
         response.write_bignum dh.p, dh.g, dh.pub_key,
                               result[:server_dh_pubkey],
                               result[:shared_secret]
