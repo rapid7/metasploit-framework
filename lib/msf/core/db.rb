@@ -1367,9 +1367,10 @@ class DBManager
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
+				:workspace => wspace,
+				:host      => opts[:host], :port => opts[:port], 
+				:vhost     => opts[:host], :ssl  => opts[:ssl], 
+				:wait      => true
 			)
 			if not site
 				raise ArgumentError, "report_web_page was unable to create the associated web site"
@@ -1443,9 +1444,10 @@ class DBManager
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
+				:workspace => wspace,
+				:host      => opts[:host], :port => opts[:port], 
+				:vhost     => opts[:host], :ssl  => opts[:ssl], 
+				:wait      => true
 			)
 			if not site
 				raise ArgumentError, "report_web_form was unable to create the associated web site"
@@ -1547,9 +1549,10 @@ class DBManager
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
+				:workspace => wspace,
+				:host      => opts[:host], :port => opts[:port], 
+				:vhost     => opts[:host], :ssl  => opts[:ssl], 
+				:wait      => true
 			)
 			if not site
 				raise ArgumentError, "report_web_form was unable to create the associated web site"
@@ -1558,6 +1561,8 @@ class DBManager
 
 		ret = {}
 		task = queue(Proc.new {
+		
+		
 			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, quer)
 			vuln.risk   = risk
 			vuln.params = para
@@ -1910,7 +1915,7 @@ class DBManager
 					return :msf_xml
 				when /MetasploitV4/
 					@import_filedata[:type] = "Metasploit XML"
-					return :msf_xml					
+					return :msf_xml		
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -2265,7 +2270,7 @@ class DBManager
 			if host.elements["comm"].text
 				host_data[:comm] = nils_for_nulls(host.elements["comm"].text.to_s.strip)
 			end
-			%w{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
+			%W{created-at updated-at name state os-flavor os-lang os-name os-sp purpose}.each { |datum|
 				if host.elements[datum].text
 					host_data[datum.gsub('-','_')] = nils_for_nulls(host.elements[datum].text.to_s.strip)
 				end
@@ -2278,7 +2283,7 @@ class DBManager
 				service_data[:host] = host_address
 				service_data[:port] = nils_for_nulls(service.elements["port"].text.to_s.strip).to_i
 				service_data[:proto] = nils_for_nulls(service.elements["proto"].text.to_s.strip)
-				%w{created-at updated-at name state info}.each { |datum|
+				%W{created-at updated-at name state info}.each { |datum|
 					if service.elements[datum].text
 						if datum == "info"
 							service_data["info"] = nils_for_nulls(unserialize_object(service.elements[datum], false))
@@ -2302,7 +2307,7 @@ class DBManager
 				if note.elements["seen"].text
 					note_data[:seen] = true unless note.elements["critical"].text.to_s.strip == "NULL"
 				end
-				%w{created-at updated-at}.each { |datum|
+				%W{created-at updated-at}.each { |datum|
 					if note.elements[datum].text
 						note_data[datum.gsub("-","_")] = nils_for_nulls(note.elements[datum].text.to_s.strip)
 					end
@@ -2315,7 +2320,7 @@ class DBManager
 				vuln_data[:host] = host_address
 				vuln_data[:info] = nils_for_nulls(unserialize_object(vuln.elements["info"], allow_yaml))
 				vuln_data[:name] = nils_for_nulls(vuln.elements["name"].text.to_s.strip)
-				%w{created-at updated-at}.each { |datum|
+				%W{created-at updated-at}.each { |datum|
 					if vuln.elements[datum].text
 						vuln_data[datum.gsub("-","_")] = nils_for_nulls(vuln.elements[datum].text.to_s.strip)
 					end
@@ -2326,12 +2331,12 @@ class DBManager
 				cred_data = {}
 				cred_data[:workspace] = wspace
 				cred_data[:host] = host_address
-				%w{port ptype sname proto proof active user pass}.each {|datum|
+				%W{port ptype sname proto proof active user pass}.each {|datum|
 					if cred.elements[datum].respond_to? :text
 						cred_data[datum.intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
 				}
-				%w{created-at updated-at}.each { |datum|
+				%W{created-at updated-at}.each { |datum|
 					if cred.elements[datum].respond_to? :text
 						cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
@@ -2347,61 +2352,70 @@ class DBManager
 		end
 		
 		# Import web sites
-		doc.elements.each("/#{btag}/web_sites") do |web|
+		doc.elements.each("/#{btag}/web_sites/web_site") do |web|
 			info = {}
 			info[:workspace] = wspace
-			info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
-			info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)
-			info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)
-			info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip)
+			
+			%W{host port vhost ssl comments}.each do |datum|
+				if web.elements[datum].respond_to? :text
+					info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+				end					
+			end
+								
+			info[:options]   = nils_for_nulls(unserialize_object(web.elements["options"], allow_yaml)) if web.elements["options"].respond_to?(:text)
+			info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
 									
-			%w{created-at updated-at}.each { |datum|
+			%W{created-at updated-at}.each { |datum|
 				if web.elements[datum].text
-					vinfo[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+					info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 				end
 			}
+			
 			report_web_site(info)
 		end
 		
 		%W{page form vuln}.each do |wtype|
-			doc.elements.each("/#{btag}/web_#{wtype}s") do |web|
+			doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |web|
 				info = {}
 				info[:workspace] = wspace
-				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
-				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)
-				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)
-				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip)
+				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)  if web.elements["host"].respond_to?(:text)
+				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)  if web.elements["port"].respond_to?(:text)
+				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)   if web.elements["ssl"].respond_to?(:text)
+				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip) if web.elements["vhost"].respond_to?(:text)
+				
+				info[:ssl] = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
 				
 				case wtype
 				when "page"
-					%{path code body query cookie auth ctype mtime location}.each do |datum|
+					%W{path code body query cookie auth ctype mtime location}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 						end					
 					end
 					info[:headers] = nils_for_nulls(unserialize_object(web.elements["headers"], allow_yaml))
 				when "form"
-					%{path query method}.each do |datum|
+					%W{path query method}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 						end					
 					end
 					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))				
 				when "vuln"
-					%{path query method pname proof risk name}.each do |datum|
+					%W{path query method pname proof risk name}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 						end					
 					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))					
+					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))		
+					info[:risk]   = info[:risk].to_i			
 				end
 									
-				%w{created-at updated-at}.each { |datum|
+				%W{created-at updated-at}.each { |datum|
 					if web.elements[datum].text
-						vinfo[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+						info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 					end
 				}
-				self.send("report_web_#{wtype}", info)		
+				self.send("report_web_#{wtype}", info)
 			end
 		end
 	end
