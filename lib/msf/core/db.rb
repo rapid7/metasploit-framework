@@ -1222,6 +1222,359 @@ class DBManager
 	#
 
 	#
+	# Report a Web Site to the database.  WebSites must be tied to an existing Service
+	#
+	# opts MUST contain
+	#  :service* -- the service object this site should be associated with
+	#  :vhost    -- the virtual host name for this particular web site`
+	
+	# If service is NOT specified, the following values are mandatory
+	#  :host     -- the ip address of the server hosting the web site
+	#  :port     -- the port number of the associated web site
+	#  :ssl      -- whether or not SSL is in use on this port
+	#
+	# These values will be used to create new host and service records
+	
+	#
+	# opts can contain
+	#  :options    -- a hash of options for accessing this particular web site
+
+	# 
+	# Duplicate records for a given host, port, vhost combination will be overwritten
+	#
+	
+	def report_web_site(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		vhost  = opts.delete(:vhost)
+
+		addr = nil
+		port = nil
+		name = nil		
+		serv = nil
+		
+		if opts[:service] and opts[:service].kind_of?(Service)
+			serv = opts[:service]
+		else
+			addr = opts[:host]
+			port = opts[:port]
+			name = opts[:ssl] ? 'https' : 'http'
+			if not (addr and port)
+				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
+			end
+		end
+
+		ret = {}
+		task = queue(Proc.new {
+			
+			host = serv ? serv.host : find_or_create_host(
+				:workspace => wspace,
+				:host      => addr, 
+				:state     => Msf::HostState::Alive
+			)
+			
+			if host.name.to_s.empty?
+				host.name = vhost
+				host.save!
+			end
+			
+			serv = serv ? serv : find_or_create_service(
+				:workspace => wspace,
+				:host      => host, 
+				:port      => port, 
+				:proto     => 'tcp',
+				:state     => 'open'
+			)
+			
+			# Change the service name if it is blank or it has
+			# been explicitly specified.
+			if opts.keys.include?(:ssl) or serv.name.to_s.empty?
+				name = opts[:ssl] ? 'https' : 'http'
+				serv.name = name
+				serv.save!
+			end
+			
+			host.updated_at = host.created_at
+			host.state      = HostState::Alive
+			host.save!
+	
+			vhost ||= host.address
+
+			site = WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
+			site.options = opts[:options] if opts[:options]
+			
+			# XXX:
+			msf_import_timestamps(opts, site)
+			site.save!
+
+			ret[:web_site] = site
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:web_site]
+		end
+		return task
+	end
+
+
+	#
+	# Report a Web Page to the database.  WebPage must be tied to an existing Web Site
+	#
+	# opts MUST contain
+	#  :web_site* -- the web site object that this page should be associated with
+	#  :path      -- the virtual host name for this particular web site
+	#  :code      -- the http status code from requesting this page
+	#  :headers   -- this is a HASH of headers (lowercase name as key) of ARRAYs of values
+	#  :body      -- the document body of the server response
+	#  :query     -- the query string after the path 	
+	
+	# If web_site is NOT specified, the following values are mandatory
+	#  :host     -- the ip address of the server hosting the web site
+	#  :port     -- the port number of the associated web site
+	#  :vhost    -- the virtual host for this particular web site
+	#  :ssl      -- whether or not SSL is in use on this port
+	#
+	# These values will be used to create new host, service, and web_site records
+	#
+	# opts can contain
+	#  :cookie   -- the Set-Cookie headers, merged into a string
+	#  :auth     -- the Authorization headers, merged into a string
+	#  :ctype    -- the Content-Type headers, merged into a string
+	#  :mtime    -- the timestamp returned from the server of the last modification time
+	#  :location -- the URL that a redirect points to
+	# 
+	# Duplicate records for a given web_site, path, and query combination will be overwritten
+	#
+	
+	def report_web_page(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		
+		path    = opts[:path]
+		code    = opts[:code].to_i
+		body    = opts[:body].to_s
+		query   = opts[:query].to_s
+		headers = opts[:headers]		
+		site    = nil
+		
+		if not (path and code and body and headers)
+			raise ArgumentError, "report_web_page requires the path, query, code, body, and headers parameters"
+		end
+		
+		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+			site = opts.delete(:web_site)
+		else
+			site = report_web_site(
+				:host  => opts[:host], :port => opts[:port], 
+				:vhost => opts[:host], :ssl  => opts[:ssl], 
+				:wait => true
+			)
+			if not site
+				raise ArgumentError, "report_web_page was unable to create the associated web site"
+			end
+		end
+
+		ret = {}
+		task = queue(Proc.new {
+			page = WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
+			page.code     = code
+			page.body     = body
+			page.headers  = headers	
+			page.cookie   = opts[:cookie] if opts[:cookie]
+			page.auth     = opts[:auth]   if opts[:auth]
+			page.mtime    = opts[:mtime]  if opts[:mtime]
+			page.ctype    = opts[:ctype]  if opts[:ctype]
+			page.location = opts[:location] if opts[:location]
+			msf_import_timestamps(opts, page)
+			page.save!
+
+			ret[:web_page] = page
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:web_page]
+		end
+		return task
+	end
+	
+			
+	#
+	# Report a Web Form to the database.  WebForm must be tied to an existing Web Site
+	#
+	# opts MUST contain
+	#  :web_site* -- the web site object that this page should be associated with
+	#  :path      -- the virtual host name for this particular web site
+	#  :query     -- the query string that is appended to the path (not valid for GET)
+	#  :method    -- the form method, one of GET, POST, or PATH
+	#  :params    -- an ARRAY of all parameters and values specified in the form
+	#
+	# If web_site is NOT specified, the following values are mandatory
+	#  :host     -- the ip address of the server hosting the web site
+	#  :port     -- the port number of the associated web site
+	#  :vhost    -- the virtual host for this particular web site
+	#  :ssl      -- whether or not SSL is in use on this port
+	#
+	# 
+	# Duplicate records for a given web_site, path, method, and params combination will be overwritten
+	#
+	
+	def report_web_form(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		
+		path    = opts[:path]
+		meth    = opts[:method].to_s.upcase
+		para    = opts[:params]
+		quer    = opts[:query].to_s
+		site    = nil
+
+		if not (path and meth)
+			raise ArgumentError, "report_web_form requires the path and method parameters"
+		end
+		
+		if not %W{GET POST PATH}.include?(meth)
+			raise ArgumentError, "report_web_form requires the method to be one of GET, POST, PATH"
+		end
+
+		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+			site = opts.delete(:web_site)
+		else
+			site = report_web_site(
+				:host  => opts[:host], :port => opts[:port], 
+				:vhost => opts[:host], :ssl  => opts[:ssl], 
+				:wait => true
+			)
+			if not site
+				raise ArgumentError, "report_web_form was unable to create the associated web site"
+			end
+		end
+
+		ret = {}
+		task = queue(Proc.new {
+		
+			# Since one of our serialized fields is used as a unique parameter, we must do the final
+			# comparisons through ruby and not SQL.
+			
+			form = nil
+			WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
+				if xform.params == para
+					form = xform
+					break
+				end 
+			end
+
+			if not form
+				form = WebForm.new
+				form.web_site_id = site[:id]
+				form.path        = path
+				form.method      = meth
+				form.params      = para
+				form.query       = quer
+			end 
+			
+			msf_import_timestamps(opts, form)
+			form.save!
+
+			ret[:web_form] = form
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:web_form]
+		end
+		return task
+	end
+
+
+	#
+	# Report a Web Vuln to the database.  WebVuln must be tied to an existing Web Site
+	#
+	# opts MUST contain
+	#  :web_site* -- the web site object that this page should be associated with
+	#  :path      -- the virtual host name for this particular web site
+	#  :query     -- the query string appended to the path (not valid for GET method flaws)
+	#  :method    -- the form method, one of GET, POST, or PATH
+	#  :params    -- an ARRAY of all parameters and values specified in the form
+	#  :pname     -- the specific field where the vulnerability occurs
+	#  :proof     -- the string showing proof of the vulnerability
+	#  :risk      -- an INTEGER value from 0 to 5 indicating the risk (5 is highest)
+	#  :name      -- the string indicating the type of vulnerability
+	#
+	# If web_site is NOT specified, the following values are mandatory
+	#  :host     -- the ip address of the server hosting the web site
+	#  :port     -- the port number of the associated web site
+	#  :vhost    -- the virtual host for this particular web site
+	#  :ssl      -- whether or not SSL is in use on this port
+	#
+	# 
+	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
+	#
+	
+	def report_web_vuln(opts)
+		return if not active
+		wait = opts.delete(:wait)
+		wspace = opts.delete(:workspace) || workspace
+		
+		path    = opts[:path]
+		meth    = opts[:method].to_s.upcase
+		para    = opts[:params] || []
+		quer    = opts[:query].to_s
+		pname   = opts[:pname]
+		proof   = opts[:proof]
+		risk    = opts[:risk].to_i
+		name    = opts[:name].to_s.strip
+		site    = nil
+
+		if not (path and meth and proof and pname)
+			raise ArgumentError, "report_web_vuln requires the path, method, proof, risk, name, params, and pname parameters"
+		end
+		
+		if not %W{GET POST PATH}.include?(meth)
+			raise ArgumentError, "report_web_vuln requires the method to be one of GET, POST, PATH"
+		end
+		
+		if risk < 0 or risk > 5
+			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive)"
+		end
+		
+		if name.empty?
+			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
+		end
+		
+		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
+			site = opts.delete(:web_site)
+		else
+			site = report_web_site(
+				:host  => opts[:host], :port => opts[:port], 
+				:vhost => opts[:host], :ssl  => opts[:ssl], 
+				:wait => true
+			)
+			if not site
+				raise ArgumentError, "report_web_form was unable to create the associated web site"
+			end
+		end
+
+		ret = {}
+		task = queue(Proc.new {
+			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, quer)
+			vuln.risk   = risk
+			vuln.params = para
+			vuln.proof  = proof.to_s	
+			msf_import_timestamps(opts, vuln)
+			vuln.save!
+
+			ret[:web_vuln] = vuln
+		})
+		if wait
+			return nil if task.wait() != :done
+			return ret[:web_vuln]
+		end
+		return task
+	end
+
+	#
 	# WMAP
 	# Selected host
 	#
@@ -1552,7 +1905,7 @@ class DBManager
 				when "SCAN"
 					@import_filedata[:type] = "Qualys XML"
 					return :qualys_xml
-				when /MetasploitExpressV[123]/
+				when /MetasploitExpressV[1234]/
 					@import_filedata[:type] = "Metasploit XML"
 					return :msf_xml
 				else
@@ -1628,9 +1981,9 @@ class DBManager
 		wpsace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		new_tmp = File.join(Dir::tmpdir,"msf",@import_filedata[:zip_basename])
-		if File.exists? new_tmp
-			unless (File.directory?(new_tmp) && File.writable?(new_tmp))
+		new_tmp = ::File.join(Dir::tmpdir,"msf",@import_filedata[:zip_basename])
+		if ::File.exists? new_tmp
+			unless (::File.directory?(new_tmp) && ::File.writable?(new_tmp))
 				raise DBImportError.new("Could not extract zip file to #{new_tmp}")
 			end
 		else
@@ -1638,22 +1991,22 @@ class DBManager
 		end
 		@import_filedata[:zip_tmp] = new_tmp
 
-		@import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
+		@import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| ::File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
 
 		@import_filedata[:zip_tmp_subdirs].each {|sub|
-			tmp_subdirs = File.join(@import_filedata[:zip_tmp],sub)
+			tmp_subdirs = ::File.join(@import_filedata[:zip_tmp],sub)
 			if File.exists? tmp_subdirs
-				unless (File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
+				unless (::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
 					raise DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
 				end
 			else
-				FileUtils.mkdir(tmp_subdirs)
+				::FileUtils.mkdir(tmp_subdirs)
 			end
 		}
 
 		data.entries.each do |e|
-			target = File.join(@import_filedata[:zip_tmp],e.name)
-			File.unlink target if File.exists?(target) # Yep. Deleted.
+			target = ::File.join(@import_filedata[:zip_tmp],e.name)
+			::File.unlink target if ::File.exists?(target) # Yep. Deleted.
 			data.extract(e,target)
 			if target =~ /^.*.xml$/
 				@import_filedata[:zip_extracted_xml] = target
@@ -1685,10 +2038,10 @@ class DBManager
 	# Imports loot, tasks, and reports from an MSF ZIP report.
 	# XXX: This function is stupidly long. It needs to be refactored.
 	def import_msf_collateral(args={}, &block)
-		data = File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
+		data = ::File.open(args[:filename], "rb") {|f| f.read(f.stat.size)}
 		wspace = args[:wspace] || args['wspace'] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-		basedir = args[:basedir] || args['basedir'] || File.join(Msf::Config.install_root, "data", "msf")
+		basedir = args[:basedir] || args['basedir'] || ::File.join(Msf::Config.install_root, "data", "msf")
 
 		allow_yaml = false
 
@@ -1701,6 +2054,8 @@ class DBManager
 			allow_yaml = true
 		elsif doc.elements["MetasploitExpressV3"]
 			m_ver = 3
+		elsif doc.elements["MetasploitExpressV4"]
+			m_ver = 4			
 		else
 			m_ver = nil
 		end
@@ -1737,24 +2092,24 @@ class DBManager
 
 			# Only report loot if we actually have it.
 			# TODO: Copypasta. Seperate this out.
-			if File.exists? loot_info[:orig_path]
-				loot_dir = File.join(basedir,"loot")
-				loot_file = File.split(loot_info[:orig_path]).last
-				if File.exists? loot_dir
-					unless (File.directory?(loot_dir) && File.writable?(loot_dir))
+			if ::File.exists? loot_info[:orig_path]
+				loot_dir = ::File.join(basedir,"loot")
+				loot_file = ::File.split(loot_info[:orig_path]).last
+				if ::File.exists? loot_dir
+					unless (::File.directory?(loot_dir) && ::File.writable?(loot_dir))
 						raise DBImportError.new("Could not move files to #{loot_dir}")
 					end
 				else
-					FileUtils.mkdir_p(loot_dir)
+					::FileUtils.mkdir_p(loot_dir)
 				end
-				new_loot = File.join(loot_dir,loot_file)
+				new_loot = ::File.join(loot_dir,loot_file)
 				loot_info[:path] = new_loot
-				if File.exists?(new_loot)
-					File.unlink new_loot # Delete it, and don't report it.
+				if ::File.exists?(new_loot)
+					::File.unlink new_loot # Delete it, and don't report it.
 				else
 					report_loot(loot_info) # It's new, so report it.
 				end
-				FileUtils.copy(loot_info[:orig_path], new_loot)
+				::FileUtils.copy(loot_info[:orig_path], new_loot)
 				yield(:msf_loot, new_loot) if block
 			end
 		end
@@ -1787,24 +2142,24 @@ class DBManager
 
 			# Only report a task if we actually have it.
 			# TODO: Copypasta. Seperate this out.
-			if File.exists? task_info[:orig_path]
-				tasks_dir = File.join(basedir,"tasks")
-				task_file = File.split(task_info[:orig_path]).last
-				if File.exists? tasks_dir
-					unless (File.directory?(tasks_dir) && File.writable?(tasks_dir))
+			if ::File.exists? task_info[:orig_path]
+				tasks_dir = ::File.join(basedir,"tasks")
+				task_file = ::File.split(task_info[:orig_path]).last
+				if ::File.exists? tasks_dir
+					unless (::File.directory?(tasks_dir) && ::File.writable?(tasks_dir))
 						raise DBImportError.new("Could not move files to #{tasks_dir}")
 					end
 				else
-					FileUtils.mkdir_p(tasks_dir)
+					::FileUtils.mkdir_p(tasks_dir)
 				end
-				new_task = File.join(tasks_dir,task_file)
+				new_task = ::File.join(tasks_dir,task_file)
 				task_info[:path] = new_task
-				if File.exists?(new_task)
-					File.unlink new_task # Delete it, and don't report it.
+				if ::File.exists?(new_task)
+					::File.unlink new_task # Delete it, and don't report it.
 				else
 					report_task(task_info) # It's new, so report it.
 				end
-				FileUtils.copy(task_info[:orig_path], new_task)
+				::FileUtils.copy(task_info[:orig_path], new_task)
 				yield(:msf_task, new_task) if block
 			end
 		end
@@ -1826,24 +2181,24 @@ class DBManager
 
 			# Only report a report if we actually have it.
 			# TODO: Copypasta. Seperate this out.
-			if File.exists? report_info[:orig_path]
-				reports_dir = File.join(basedir,"reports")
-				report_file = File.split(report_info[:orig_path]).last
-				if File.exists? reports_dir
-					unless (File.directory?(reports_dir) && File.writable?(reports_dir))
+			if ::File.exists? report_info[:orig_path]
+				reports_dir = ::File.join(basedir,"reports")
+				report_file = ::File.split(report_info[:orig_path]).last
+				if ::File.exists? reports_dir
+					unless (::File.directory?(reports_dir) && ::File.writable?(reports_dir))
 						raise DBImportError.new("Could not move files to #{reports_dir}")
 					end
 				else
-					FileUtils.mkdir_p(reports_dir)
+					::FileUtils.mkdir_p(reports_dir)
 				end
-				new_report = File.join(reports_dir,report_file)
+				new_report = ::File.join(reports_dir,report_file)
 				report_info[:path] = new_report
-				if File.exists?(new_report)
-					File.unlink new_report
+				if ::File.exists?(new_report)
+					::File.unlink new_report
 				else
 					report_report(report_info)
 				end
-				FileUtils.copy(report_info[:orig_path], new_report)
+				::FileUtils.copy(report_info[:orig_path], new_report)
 				yield(:msf_report, new_report) if block
 			end
 		end
@@ -1869,6 +2224,8 @@ class DBManager
 			allow_yaml = true
 		elsif doc.elements["MetasploitExpressV3"]
 			m_ver = 3
+		elsif doc.elements["MetasploitExpressV4"]
+			m_ver = 4			
 		else
 			m_ver = nil
 		end
@@ -1969,8 +2326,68 @@ class DBManager
 				report_cred(cred_data.merge(:wait => true))
 			end
 		end
+		
+		# Import web sites
+		doc.elements.each("/MetasploitExpressV#{m_ver}/web_sites") do |web|
+			info = {}
+			info[:workspace] = wspace
+			info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
+			info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)
+			info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)
+			info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip)
+									
+			%w{created-at updated-at}.each { |datum|
+				if web.elements[datum].text
+					vinfo[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+				end
+			}
+			report_web_site(info)
+		end
+		
+		%W{page form vuln}.each do |wtype|
+			doc.elements.each("/MetasploitExpressV#{m_ver}/web_#{wtype}s") do |web|
+				info = {}
+				info[:workspace] = wspace
+				info[:host]      = nils_for_nulls(web.elements["host"].text.to_s.strip)
+				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)
+				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)
+				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip)
+				
+				case wtype
+				when "page"
+					%{path code body query cookie auth ctype mtime location}.each do |datum|
+						if web.elements[datum].respond_to? :text
+							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+						end					
+					end
+					info[:headers] = nils_for_nulls(unserialize_object(web.elements["headers"], allow_yaml))
+				when "form"
+					%{path query method}.each do |datum|
+						if web.elements[datum].respond_to? :text
+							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+						end					
+					end
+					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))				
+				when "vuln"
+					%{path query method pname proof risk name}.each do |datum|
+						if web.elements[datum].respond_to? :text
+							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+						end					
+					end
+					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))					
+				end
+									
+				%w{created-at updated-at}.each { |datum|
+					if web.elements[datum].text
+						vinfo[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
+					end
+				}
+				self.send("report_web_#{wtype}", info)		
+			end
+		end
 	end
 
+	# Convert the string "NULL" to actual nil
 	def nils_for_nulls(str)
 		str == "NULL" ? nil : str
 	end
@@ -2865,360 +3282,6 @@ class DBManager
 		end
 	end
 
-
-
-	#
-	# Report a Web Site to the database.  WebSites must be tied to an existing Service
-	#
-	# opts MUST contain
-	#  :service* -- the service object this site should be associated with
-	#  :vhost    -- the virtual host name for this particular web site`
-	
-	# If service is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :ssl      -- whether or not SSL is in use on this port
-	#
-	# These values will be used to create new host and service records
-	
-	#
-	# opts can contain
-	#  :options    -- a hash of options for accessing this particular web site
-
-	# 
-	# Duplicate records for a given host, port, vhost combination will be overwritten
-	#
-	
-	def report_web_site(opts)
-		return if not active
-		wait = opts.delete(:wait)
-		wspace = opts.delete(:workspace) || workspace
-		vhost  = opts.delete(:vhost)
-
-		addr = nil
-		port = nil
-		name = nil		
-		serv = nil
-		
-		if opts[:service] and opts[:service].kind_of?(Service)
-			serv = opts[:service]
-		else
-			addr = opts[:host]
-			port = opts[:port]
-			name = opts[:ssl] ? 'https' : 'http'
-			if not (addr and port)
-				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
-			end
-		end
-
-		ret = {}
-		task = queue(Proc.new {
-			
-			host = serv ? serv.host : find_or_create_host(
-				:workspace => wspace,
-				:host      => addr, 
-				:state     => Msf::HostState::Alive
-			)
-			
-			if host.name.to_s.empty?
-				host.name = vhost
-				host.save!
-			end
-			
-			serv = serv ? serv : find_or_create_service(
-				:workspace => wspace,
-				:host      => host, 
-				:port      => port, 
-				:proto     => 'tcp',
-				:state     => 'open'
-			)
-			
-			# Change the service name if it is blank or it has
-			# been explicitly specified.
-			if opts.keys.include?(:ssl) or serv.name.to_s.empty?
-				name = opts[:ssl] ? 'https' : 'http'
-				serv.name = name
-				serv.save!
-			end
-			
-			host.updated_at = host.created_at
-			host.state      = HostState::Alive
-			host.save!
-	
-			vhost ||= host.address
-
-			site = WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
-			site.options = opts[:options] if opts[:options]
-			
-			# XXX:
-			msf_import_timestamps(opts, site)
-			site.save!
-
-			ret[:web_site] = site
-		})
-		if wait
-			return nil if task.wait() != :done
-			return ret[:web_site]
-		end
-		return task
-	end
-
-
-	#
-	# Report a Web Page to the database.  WebPage must be tied to an existing Web Site
-	#
-	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :code      -- the http status code from requesting this page
-	#  :headers   -- this is a HASH of headers (lowercase name as key) of ARRAYs of values
-	#  :body      -- the document body of the server response
-	#  :query     -- the query string after the path 	
-	
-	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
-	#
-	# These values will be used to create new host, service, and web_site records
-	#
-	# opts can contain
-	#  :cookie   -- the Set-Cookie headers, merged into a string
-	#  :auth     -- the Authorization headers, merged into a string
-	#  :ctype    -- the Content-Type headers, merged into a string
-	#  :mtime    -- the timestamp returned from the server of the last modification time
-	#  :location -- the URL that a redirect points to
-	# 
-	# Duplicate records for a given web_site, path, and query combination will be overwritten
-	#
-	
-	def report_web_page(opts)
-		return if not active
-		wait = opts.delete(:wait)
-		wspace = opts.delete(:workspace) || workspace
-		
-		path    = opts[:path]
-		code    = opts[:code].to_i
-		body    = opts[:body].to_s
-		query   = opts[:query].to_s
-		headers = opts[:headers]		
-		site    = nil
-		
-		if not (path and code and body and headers)
-			raise ArgumentError, "report_web_page requires the path, query, code, body, and headers parameters"
-		end
-		
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
-			site = opts.delete(:web_site)
-		else
-			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
-			)
-			if not site
-				raise ArgumentError, "report_web_page was unable to create the associated web site"
-			end
-		end
-
-		ret = {}
-		task = queue(Proc.new {
-			page = WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
-			page.code     = code
-			page.body     = body
-			page.headers  = headers	
-			page.cookie   = opts[:cookie] if opts[:cookie]
-			page.auth     = opts[:auth]   if opts[:auth]
-			page.mtime    = opts[:mtime]  if opts[:mtime]
-			page.ctype    = opts[:ctype]  if opts[:ctype]
-			page.location = opts[:location] if opts[:location]
-			msf_import_timestamps(opts, page)
-			page.save!
-
-			ret[:web_page] = page
-		})
-		if wait
-			return nil if task.wait() != :done
-			return ret[:web_page]
-		end
-		return task
-	end
-	
-			
-	#
-	# Report a Web Form to the database.  WebForm must be tied to an existing Web Site
-	#
-	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :query     -- the query string that is appended to the path (not valid for GET)
-	#  :method    -- the form method, one of GET, POST, or PATH
-	#  :params    -- an ARRAY of all parameters and values specified in the form
-	#
-	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
-	#
-	# 
-	# Duplicate records for a given web_site, path, method, and params combination will be overwritten
-	#
-	
-	def report_web_form(opts)
-		return if not active
-		wait = opts.delete(:wait)
-		wspace = opts.delete(:workspace) || workspace
-		
-		path    = opts[:path]
-		meth    = opts[:method].to_s.upcase
-		para    = opts[:params]
-		quer    = opts[:query].to_s
-		site    = nil
-
-		if not (path and meth)
-			raise ArgumentError, "report_web_form requires the path and method parameters"
-		end
-		
-		if not %W{GET POST PATH}.include?(meth)
-			raise ArgumentError, "report_web_form requires the method to be one of GET, POST, PATH"
-		end
-
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
-			site = opts.delete(:web_site)
-		else
-			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
-			)
-			if not site
-				raise ArgumentError, "report_web_form was unable to create the associated web site"
-			end
-		end
-
-		ret = {}
-		task = queue(Proc.new {
-		
-			# Since one of our serialized fields is used as a unique parameter, we must do the final
-			# comparisons through ruby and not SQL.
-			
-			form = nil
-			WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
-				if xform.params == para
-					form = xform
-					break
-				end 
-			end
-
-			if not form
-				form = WebForm.new
-				form.web_site_id = site[:id]
-				form.path        = path
-				form.method      = meth
-				form.params      = para
-				form.query       = quer
-			end 
-			
-			msf_import_timestamps(opts, form)
-			form.save!
-
-			ret[:web_form] = form
-		})
-		if wait
-			return nil if task.wait() != :done
-			return ret[:web_form]
-		end
-		return task
-	end
-
-
-	#
-	# Report a Web Vuln to the database.  WebVuln must be tied to an existing Web Site
-	#
-	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :query     -- the query string appended to the path (not valid for GET method flaws)
-	#  :method    -- the form method, one of GET, POST, or PATH
-	#  :params    -- an ARRAY of all parameters and values specified in the form
-	#  :pname     -- the specific field where the vulnerability occurs
-	#  :proof     -- the string showing proof of the vulnerability
-	#  :risk      -- an INTEGER value from 0 to 5 indicating the risk (5 is highest)
-	#  :name      -- the string indicating the type of vulnerability
-	#
-	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
-	#
-	# 
-	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
-	#
-	
-	def report_web_vuln(opts)
-		return if not active
-		wait = opts.delete(:wait)
-		wspace = opts.delete(:workspace) || workspace
-		
-		path    = opts[:path]
-		meth    = opts[:method].to_s.upcase
-		para    = opts[:params] || []
-		quer    = opts[:query].to_s
-		pname   = opts[:pname]
-		proof   = opts[:proof]
-		risk    = opts[:risk].to_i
-		name    = opts[:name].to_s.strip
-		site    = nil
-
-		if not (path and meth and proof and pname)
-			raise ArgumentError, "report_web_vuln requires the path, method, proof, risk, name, params, and pname parameters"
-		end
-		
-		if not %W{GET POST PATH}.include?(meth)
-			raise ArgumentError, "report_web_vuln requires the method to be one of GET, POST, PATH"
-		end
-		
-		if risk < 0 or risk > 5
-			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive)"
-		end
-		
-		if name.empty?
-			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
-		end
-		
-		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
-			site = opts.delete(:web_site)
-		else
-			site = report_web_site(
-				:host  => opts[:host], :port => opts[:port], 
-				:vhost => opts[:host], :ssl  => opts[:ssl], 
-				:wait => true
-			)
-			if not site
-				raise ArgumentError, "report_web_form was unable to create the associated web site"
-			end
-		end
-
-		ret = {}
-		task = queue(Proc.new {
-			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, quer)
-			vuln.risk   = risk
-			vuln.params = para
-			vuln.proof  = proof.to_s	
-			msf_import_timestamps(opts, vuln)
-			vuln.save!
-
-			ret[:web_vuln] = vuln
-		})
-		if wait
-			return nil if task.wait() != :done
-			return ret[:web_vuln]
-		end
-		return task
-	end
 		
 protected
 
