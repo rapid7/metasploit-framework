@@ -1,5 +1,6 @@
 require 'find'
 require 'rex/compat'
+require 'tempfile'
 
 module Rex
 
@@ -37,6 +38,13 @@ module FileUtils
 		return nil
 	end
 
+end
+
+class Quickfile < ::Tempfile
+	def initialize(*args)
+		super(*args)
+		ObjectSpace.undefine_finalizer(self)	
+	end
 end
 
 module Find
