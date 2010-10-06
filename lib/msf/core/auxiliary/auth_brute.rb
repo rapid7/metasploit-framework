@@ -20,7 +20,13 @@ def initialize(info = {})
 	OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
 	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true]),
-	OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false])
+	OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
+	], Auxiliary::AuthBrute)
+	
+	register_advanced_options([
+		OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
+		OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
+		OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false])
 	], Auxiliary::AuthBrute)
 
 end
@@ -40,6 +46,8 @@ def each_user_pass(&block)
 	credentials = extract_word_pair(datastore['USERPASS_FILE'])
 	users       = extract_words(datastore['USER_FILE'])
 	passwords   = extract_words(datastore['PASS_FILE'])
+
+	cleanup_files()
 
 	translate_proto_datastores()
 
@@ -211,6 +219,25 @@ end
 def vprint_good(msg='')
 	return if not datastore['VERBOSE']
 	print_good(msg)
+end
+
+
+# This method deletes the dictionary files if requested
+def cleanup_files
+	path = datastore['USERPASS_FILE']
+	if path and datastore['REMOVE_USERPASS_FILE']
+		::File.unlink(path) rescue nil
+	end
+	
+	path = datastore['USER_FILE']
+	if path and datastore['REMOVE_USER_FILE']
+		::File.unlink(path) rescue nil
+	end
+	
+	path = datastore['PASS_FILE']
+	if path and datastore['REMOVE_PASS_FILE']
+		::File.unlink(path) rescue nil
+	end
 end
 
 end

@@ -1861,6 +1861,7 @@ class DBManager
 		end
 		ftype = import_filetype_detect(data)
 		yield(:filetype, @import_filedata[:type]) if block
+		
 		self.send "import_#{ftype}".to_sym, args, &block
 	end
 
