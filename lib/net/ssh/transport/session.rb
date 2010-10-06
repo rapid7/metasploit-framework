@@ -76,6 +76,7 @@ module Net; module SSH; module Transport
             }
           )
         }
+        options[:msfmodule].add_socket(@socket)
       end
 
       @socket.extend(PacketStream)
