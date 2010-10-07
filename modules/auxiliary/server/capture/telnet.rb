@@ -100,8 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if @state[c][:user].nil?
-			c.put "\x01"
-			c.put "\x00Login: "
+			c.put "Login: "
 			@state[c][:user] = ""
 			return
 		end
@@ -117,8 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if @state[c][:pass].nil?
-			c.put "\x01"
-			c.put "\x00Password: "
+			c.put "Password: "
 			@state[c][:pass] = ""
 			return
 		end
