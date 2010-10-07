@@ -25,58 +25,60 @@ class CommandStream
 		self.thread = Thread.new(ssh,cmd,cleanup) do |rssh,rcmd,rcleanup|
 
 			begin
+				info = rssh.transport.socket.getpeername
+				self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
 
-			info = ssh.transport.socket.getpeername
-			self.lsock.peerinfo  = "#{info[1]}:#{info[2]}"
+				info = rssh.transport.socket.getsockname
+				self.lsock.localinfo = "#{info[1]}:#{info[2]}"
 
-			info = ssh.transport.socket.getsockname
-			self.lsock.localinfo = "#{info[1]}:#{info[2]}"
+				rssh.open_channel do |rch|
+					rch.exec(rcmd) do |c, success|
+						raise "could not execute command: #{rcmd.inspect}" unless success
 
-			rssh.open_channel do |rch|
-				rch.exec(rcmd) do |c, success|
-					raise "could not execute command: #{rcmd.inspect}" unless success
+						c[:data] = ''
 
-					c[:data] = ''
+						c.on_eof do
+							self.rsock.close rescue nil
+							self.ssh.close rescue nil
+							self.thread.kill
+						end
 
-					c.on_eof do
-						self.rsock.close
-						self.thread.kill
+						c.on_close do
+							self.rsock.close rescue nil
+							self.ssh.close rescue nil
+							self.thread.kill
+						end
+
+						c.on_data do |ch,data|
+							self.rsock.write(data)
+						end
+
+						c.on_extended_data do |ch, ctype, data|
+							self.rsock.write(data)
+						end
+
+						self.channel = c
 					end
-
-					c.on_close do
-						self.rsock.close
-						self.thread.kill
-					end
-
-					c.on_data do |ch,data|
-						self.rsock.write(data)
-					end
-
-					c.on_extended_data do |ch, ctype, data|
-						self.rsock.write(data)
-					end
-
-					self.channel = c
-
 				end
-			end
 
-			self.monitor = Thread.new do
-				while(true)
-					next if not self.rsock.has_read_data?(1.0)
-					buff = self.rsock.sysread(16384)
-					break if not buff
-					verify_channel
-					self.channel.send_data(buff) if buff
+				self.monitor = Thread.new do
+					while(true)
+						next if not self.rsock.has_read_data?(1.0)
+						buff = self.rsock.sysread(16384)
+						break if not buff
+						verify_channel
+						self.channel.send_data(buff) if buff
+					end
 				end
-			end
 
-			while true
-				rssh.process(0.5) { true }
-			end
+				while true
+					rssh.process(0.5) { true }
+				end
 
 			rescue ::Exception => e
 				self.error = e
+				#::Kernel.warn "BOO: #{e.inspect}"
+				#::Kernel.warn e.backtrace.join("\n")
 			ensure
 				self.monitor.kill if self.monitor
 			end
