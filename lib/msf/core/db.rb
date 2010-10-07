@@ -1,8 +1,11 @@
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/parser/retina_xml'
+require 'rex/parser/netsparker_xml'
+
 require 'rex/socket'
 require 'zip'
+require 'uri'
 require 'tmpdir'
 require 'fileutils'
 
@@ -1921,6 +1924,9 @@ class DBManager
 				when /MetasploitV4/
 					@import_filedata[:type] = "Metasploit XML"
 					return :msf_xml		
+				when /netsparker/
+					@import_filedata[:type] = "NetSparker XML"
+					return :netsparker_xml			
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -1943,7 +1949,11 @@ class DBManager
 			# then its an IP list
 			@import_filedata[:type] = "IP Address List"
 			return :ip_list
+		elsif (data[0,1024].index("<netsparker"))
+			@import_filedata[:type] = "NetSparker XML"
+			return :netsparker_xml				
 		end
+		
 		raise DBImportError.new("Could not automatically determine file type")
 	end
 
@@ -2723,13 +2733,7 @@ class DBManager
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 	
-
-		# Use a stream parser instead of a tree parser so we can deal with
-		# huge results files without running out of memory.
 		parser = Rex::Parser::RetinaXMLStreamParser.new
-
-		# Whenever the parser pulls a host out of the nmap results, store
-		# it, along with any associated services, in the database.
 		parser.on_found_host = Proc.new do |host|
 			data = {:workspace => wspace}
 			addr = host['address']
@@ -2791,6 +2795,223 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
+	#
+	# NetSparker XML
+	#
+
+	# Process a NetSparker XML file
+	def import_netsparker_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		f = File.open(filename, 'rb')
+		data = f.read(f.stat.size)
+		import_netsparker_xml(args.merge(:data => data))
+	end
+
+	# Process Retina XML
+	def import_netsparker_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		addr = nil
+		parser = Rex::Parser::NetSparkerXMLStreamParser.new
+		parser.on_found_vuln = Proc.new do |vuln|
+			data = {:workspace => wspace}
+
+			# Parse the URL
+			url  = vuln['url']
+			return if not url
+
+			# Crack the URL into a URI			
+			uri = URI(url) rescue nil
+			return if not uri
+			
+			# Resolve the host and cache the IP
+			if not addr
+				baddr = Rex::Socket.addr_aton(uri.host) rescue nil
+				if baddr
+					addr = Rex::Socket.addr_ntoa(baddr)
+					yield(:address, data[:host]) if block
+				end
+			end
+			
+			# Bail early if we have no IP address
+			if not addr
+				raise Interrupt, "Not a valid IP address"
+			end
+			
+			if bl.include?(addr)
+				raise Interrupt, "IP address is on the blacklist"
+			end
+
+			data[:host]  = addr
+			data[:vhost] = uri.host
+			data[:port]  = uri.port
+			data[:ssl]   = (uri.scheme == "ssl")
+
+			msf_vrisk,msf_vtype = netsparker_vuln_map(vuln['type'])
+			
+			body = nil
+			# First report a web page
+			if vuln['response']
+				headers = {}
+				code    = 200
+				head,body = vuln['response'].to_s.split(/\r?\n\r?\n/, 2)
+				if body
+				
+					if head =~ /^HTTP\d+\.\d+\s+(\d+)\s*/
+						code = $1.to_i
+					end
+				
+					headers = {}
+					head.split(/\r?\n/).each do |line|
+						hname,hval = line.strip.split(/\s*:\s*/, 2)
+						next if hval.to_s.strip.empty?
+						headers[hname.downcase] ||= []
+						headers[hname.downcase] << hval
+					end
+					
+					info = { 
+						:path     => uri.path,
+						:query    => uri.query,
+						:code     => code,
+						:body     => body,
+						:headers  => headers
+					}
+					info.merge!(data)
+					
+					if headers['content-type']
+						info[:ctype] = headers['content-type'][0]
+					end
+		
+					if headers['set-cookie']
+						info[:cookie] = headers['set-cookie'].join("\n")
+					end
+
+					if headers['authorization']
+						info[:auth] = headers['authorization'].join("\n")
+					end
+
+					if headers['location']
+						info[:location] = headers['location'][0]
+					end
+		
+					if headers['last-modified']
+						info[:mtime] = headers['last-modified'][0]
+					end
+									
+					# Report the web page to the database
+					report_web_page(info)
+					
+					yield(:web_page, url) if block
+				end
+			end # End web_page reporting
+			
+			method = netsparker_method_map(vuln)
+			pname  = netsparker_pname_map(vuln)
+			params = netsparker_params_map(vuln)
+
+		
+			info = {
+				:path     => uri.path,
+				:query    => uri.query,
+				:method   => method,
+				:params   => params,
+				:pname    => pname.to_s,
+				:proof    => vuln['info'] || body || "",
+				:risk     => web_lookup_risk_value(msf_vrisk),
+				:name     => vuln['type'] || ""
+			}
+			info.merge!(data)
+			
+			next if vuln['type'].to_s.empty?
+			report_web_vuln(info)
+			yield(:web_vuln, url) if block			
+		end
+
+		# We throw interrupts in our parser when the job is hopeless
+		begin
+			REXML::Document.parse_stream(data, parser)
+		rescue ::Interrupt
+			wlog("The netsparker_xml_import() job was interrupted: #{e}")
+		end
+	end
+	
+	def web_lookup_risk_value(rname)
+		%W{none info disclosure low medium high}.index(rname.to_s.downcase) || 0
+	end
+	
+	def netsparker_method_map(vuln)
+		case vuln['vparam_type']
+		when "FullQueryString"
+			"GET"
+		when "Querystring"
+			"GET"
+		when "Post"
+			"POST"
+		when "RawUrlInjection"
+			"GET"
+		else
+			"GET"
+		end
+	end
+	
+	def netsparker_pname_map(vuln)
+		case vuln['vparam_name']
+		when "URI-BASED"
+		when "Query Based"
+		else
+			vuln['vparam_name']
+		end
+	end
+	
+	def netsparker_params_map(vuln)
+		[]
+	end
+	
+	def netsparker_vuln_map(vtype)
+		case vtype
+		when "ApacheDirectoryListing"
+			[:low, :info]
+		when "ApacheMultiViewsEnabled"
+			[:low, :info]		
+		when "ApacheVersion"
+			[:none, :info]
+		when "AutoCompleteEnabled"
+			[:low, :info]		
+		when "ConfirmedBlindSQLInjection"
+			[:high, :sql]		
+		when "ConfirmedSQLInjection"
+			[:high, :sql]				
+		when "CookieNotMarkedAsHttpOnly"
+			[:none, :info]		
+		when "DatabaseErrorMessages"
+			[:medium, :info]		
+		when "EmailDisclosure"
+			[:none, :info]		
+		when "FileUploadFound"
+			[:none, :info]			
+		when "ForbiddenResource"
+			[:none, :info]			
+		when "HighlyPossibleSqlInjection"
+			[:medium, :sql]	 
+		when "MySQL5Identified"
+			[:none, :info]		
+		when "PHPVersion"
+			[:none, :info]		
+		when "PasswordOverHTTP"
+			[:medium, :info]			
+		when "PossibleInternalWindowsPathLeakage"
+			[:medium, :info]		
+		when "PossibleXSS", "LowPossibilityPermanentXSS"
+			[:low, :xss]
+		when "XSS", "PermanentXSS"
+			[:medium, :xss]
+		else
+			[:none, :info]
+		end
+	end
 	
 	#
 	# Import Nmap's -oX xml output
