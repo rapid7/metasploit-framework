@@ -6,9 +6,9 @@ class RetinaXMLStreamParser
 
 	attr_accessor :on_found_host
 
-	def initialize(callback = nil)
+	def initialize(on_found_host = nil)
 		reset_state
-		self.callback = callback if callback
+		self.on_found_host = on_found_host if on_found_host
 	end
 
 	def reset_state
