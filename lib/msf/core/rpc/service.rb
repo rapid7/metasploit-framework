@@ -23,18 +23,16 @@ class Service < ::XMLRPC::BasicServer
 		self.service.on_client_connect_proc = Proc.new { |client|
 			on_client_connect(client)
 		}
-		self.service.on_client_data_proc = Proc.new { |client|
-			Thread.new(client) do |client_copy|
-				begin
-					Timeout.timeout(self.dispatcher_timeout) do
-						on_client_data(client)
-					end
-				rescue ::EOFError  => e
-					raise e
-				rescue ::Exception => e
-					wlog("XMLRPC Server Error: #{client.inspect} #{e.class} #{e} #{e.backtrace}")
-					raise e
+		self.service.on_client_data_proc = Proc.new { |client|	
+			begin
+				Timeout.timeout(self.dispatcher_timeout) do
+					on_client_data(client)
 				end
+			rescue ::EOFError  => e
+				raise e
+			rescue ::Exception => e
+				wlog("XMLRPC Server Error: #{client.inspect} #{e.class} #{e} #{e.backtrace}")
+				raise e
 			end
 		}
 		self.service.on_client_close_proc = Proc.new { |client|
