@@ -17,6 +17,8 @@
 #include <sys/socket.h>
 #include <endian.h>
 
+#include <sys/sysmacros.h>
+
 #include <asm/sigcontext.h>
 #include <asm/ucontext.h>
 
@@ -60,8 +62,10 @@ extern int (*pthread_mutex_lock_fp)(pthread_mutex_t *mutex);
 extern int (*pthread_mutex_unlock_fp)(pthread_mutex_t *mutex);
 
 int dlsocket(void *libc);
+void perform_fd_cleanup(int *fd);
 
-#define OPT_DEBUG_ENABLE (1 << 0)
+#define OPT_DEBUG_ENABLE	(1 << 0)
+#define OPT_NO_FD_CLEANUP	(1 << 1)
 
 /*
  * Map in libraries, and hand off execution to the meterpreter server
@@ -130,12 +134,68 @@ unsigned metsrv_rtld(int fd, int options)
 		enable_debugging();
 	}
 
+	if(!(options & OPT_NO_FD_CLEANUP)) {
+		perform_fd_cleanup(&fd);
+	}
+
 	server_setup = dlsym(libs[METSRV_IDX].handle, "server_setup");
 	TRACE("[ metsrv server_setup is at %08x, calling ]\n", server_setup);
 	server_setup(fd);
 
 	TRACE("[ metsrv_rtld(): server_setup() returned, exit()'ing ]\n");
 	exit(1);
+}
+
+/*
+ * Clean up the file descriptors associated with this process. If we hold fd's for server sockets, we can
+ * interfere with process restarts, amongst other things.
+ */
+
+void perform_fd_cleanup(int *fd)
+{
+	int i, new_fd;
+	struct stat statbuf;
+	int dev_null = -1;
+
+	for(i = 0; i < 1024; i++) {
+		if(i == *fd) continue;
+		if(fstat(i, &statbuf) == -1) continue;
+
+		if(major(statbuf.st_rdev) == 1 && minor(statbuf.st_rdev) == 3) {
+			dev_null = i;
+			continue;
+		}
+
+		close(i);
+	}
+
+	// move server fd if <= 2
+
+	if(*fd <= 2) {
+		if((new_fd = dup2(*fd, dev_null == -1 ? 3 : dev_null == 3 ? 4 : 3)) == -1) {
+			TRACE("[ unable to dup2 new fd ? should be fine. returning ]\n");
+			return;
+		}
+		close(*fd);
+		*fd = new_fd;
+	}
+
+	// try to open /dev/null if it does not exist atm.
+
+	if(dev_null == -1) {
+		dev_null = open("/dev/null", O_WRONLY);
+
+		if(dev_null == -1) {
+			TRACE("[ unable to open new /dev/null cause existing one doesn't exist ]\n");
+			return;
+		}
+	}
+
+	dup2(dev_null, 0);
+	dup2(dev_null, 1);
+	dup2(dev_null, 2);
+
+	if(dev_null > 2) close(dev_null);
 }
 
 /*
