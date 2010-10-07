@@ -1,5 +1,6 @@
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
+require 'rex/parser/retina_xml'
 require 'rex/socket'
 require 'zip'
 require 'tmpdir'
@@ -1890,6 +1891,9 @@ class DBManager
 		elsif (firstline.index("<NexposeReport"))
 			@import_filedata[:type] = "NeXpose XML Report"
 			return :nexpose_rawxml
+		elsif (firstline.index("<scanJob>"))
+			@import_filedata[:type] = "Retina XML"
+			return :retina_xml		
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
@@ -2698,6 +2702,96 @@ class DBManager
 		}
 	end
 
+
+	#
+	# Retina XML
+	#
+
+	# Process a Retina XML file
+	def import_retina_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		f = File.open(filename, 'rb')
+		data = f.read(f.stat.size)
+		import_retina_xml(args.merge(:data => data))
+	end
+
+	# Process Retina XML
+	def import_retina_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+	
+
+		# Use a stream parser instead of a tree parser so we can deal with
+		# huge results files without running out of memory.
+		parser = Rex::Parser::RetinaXMLStreamParser.new
+
+		# Whenever the parser pulls a host out of the nmap results, store
+		# it, along with any associated services, in the database.
+		parser.on_found_host = Proc.new do |host|
+			data = {:workspace => wspace}
+			addr = host['address']
+			next if not addr
+			
+			next if bl.include? addr
+			data[:host] = addr
+			
+			if host['mac']
+				data[:mac] = host['mac']
+			end
+			
+			data[:state] = Msf::HostState::Alive
+
+			if host['hostname']
+				data[:name] = host['hostname']
+			end
+
+			if host['netbios']
+				data[:name] = host['netbios']
+			end
+			
+			yield(:address, data[:host]) if block
+			
+			# Import Host
+			report_host(data)
+			report_import_note(wspace, addr)
+			
+			# Import OS fingerprint
+			if host["os"]
+				note = {
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.retina_fingerprint',
+					:data => {
+						:os => host["os"]
+					}
+				}
+				report_note(note)
+			end
+			
+			# Import vulnerabilities
+			host['vulns'].each do |vuln|
+				refs = vuln['refs'].map{|v| v.join("-")}
+				refs << "RETINA-#{vuln['rthid']}" if vuln['rthid']
+
+				vuln_info = {
+					:workspace => wspace,
+					:host => addr,
+					:name => vuln['name'],
+					:info => vuln['description'],
+					:refs => refs
+				}
+				
+				report_vuln(vuln_info)
+			end
+		end
+
+		REXML::Document.parse_stream(data, parser)
+	end
+
+	
 	#
 	# Import Nmap's -oX xml output
 	#
