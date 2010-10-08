@@ -39,6 +39,7 @@ def upload(session,file,trgloc = "")
 			print_status("\tUploaded as #{fileontrgt}")
 		rescue ::Exception => e
 			print_status("Error uploading file #{file}: #{e.class} #{e}")
+			raise e
 		end
 	end
 	return fileontrgt
@@ -59,6 +60,7 @@ def cmd_on_trgt_exec(session,cmdexe,opt,verbose)
 			r.close
 		rescue ::Exception => e
 			print_status("Error Running Command #{cmdexe}: #{e.class} #{e}")
+			raise e
 		end
 	else
 		begin
@@ -67,6 +69,7 @@ def cmd_on_trgt_exec(session,cmdexe,opt,verbose)
 			r.close
 		rescue ::Exception => e
 			print_status("Error Running Command #{cmdexe}: #{e.class} #{e}")
+			raise e
 		end
 	end
 end
