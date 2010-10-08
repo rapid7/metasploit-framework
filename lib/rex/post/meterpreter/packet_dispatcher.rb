@@ -38,7 +38,7 @@ end
 ###
 module PacketDispatcher
 
-	PacketTimeout = 30
+	PacketTimeout = 600
 
 	##
 	#
