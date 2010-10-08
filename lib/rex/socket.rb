@@ -463,6 +463,8 @@ module Socket
 	# on Windows where ::Socket.pair is not implemented.
 	# Note: OpenSSL requires native ruby sockets for its io.
 	#
+	# Note: Even though sub-threads are smashing the parent threads local, there
+	#       is no concurrent use of the same locals and this is safe.
 	def self.tcp_socket_pair
 		lsock   = nil
 		rsock   = nil
