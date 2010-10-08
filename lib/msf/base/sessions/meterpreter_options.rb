@@ -43,16 +43,21 @@ module MeterpreterOptions
 				session.load_session_info
 			end
 			
+			admin = false
 			begin
 				::Timeout.timeout(30) do 
 					if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
-						session.load_priv
+						admin = true
 						session.info += " (ADMIN)"
 					end
 				end
 			rescue ::Exception
 			end
+			
+			session.load_priv if admin
 		end
+		
+		
 
 		if (datastore['InitialAutoRunScript'].empty? == false)
 			args = datastore['InitialAutoRunScript'].split
