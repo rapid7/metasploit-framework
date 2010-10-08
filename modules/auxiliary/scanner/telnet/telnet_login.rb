@@ -65,8 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 			datastore['TelnetTimeout'].to_i
 		].sort.last
 
+		# Check for a password-only prompt for this machine.
 		self.password_only = []
-
 		if connect_reset_safe == :connected
 			@strip_usernames = true if password_prompt?
 			self.sock.close
@@ -85,7 +85,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	def try_user_pass(user, pass)
 		vprint_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'"
-		ret = do_login(user,pass)
+		this_attempt ||= 0 
+		ret = nil
+		while this_attempt <=3 and (ret.nil? or ret == :refused) 
+			if this_attempt > 0
+				select(nil,nil,nil,2**this_attempt) 
+				vprint_error "#{rhost}:#{rport} Telnet - Retrying '#{user}':'#{pass}' due to reset"
+			end
+			ret = do_login(user,pass)
+			this_attempt += 1
+		end
 		case ret
 		when :no_auth_required
 			print_good "#{rhost}:#{rport} Telnet - No authentication required!"
