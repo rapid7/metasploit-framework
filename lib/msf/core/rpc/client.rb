@@ -24,15 +24,19 @@ class Client < ::XMLRPC::Client
 
 	# This override hooks into the RPCXML library
 	def do_rpc(request,async)
+
 		self.sock.put(request + "\x00")
-
-		while(not @buff.index("\x00"))
-			resp = self.sock.get
-			if ( (!resp or resp == "") and @buff.index("\x00").nil?)
-				raise RuntimeError, "XMLRPC connection closed: #{resp.inspect}"
+		
+		begin
+			while(not @buff.index("\x00"))
+				if ::IO.select([self.sock], nil, nil, 30)
+					resp = self.sock.sysread(32768)
+					@buff << resp if resp
+				end
 			end
-
-			@buff << resp if resp
+		rescue ::Exception => e
+			self.sock.close rescue nil
+			raise EOFError, "XMLRPC connection closed"
 		end
 
 		mesg,left = @buff.split("\x00", 2)
