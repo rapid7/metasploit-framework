@@ -690,7 +690,7 @@ class WindowsError
 		when INVALID_ADDRESS
 			"Attempt to access invalid address."
 		else
-			"#{num}"
+			"#{code}"
 		end
 	end
 
