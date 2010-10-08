@@ -1,14 +1,6 @@
 ##
-# $Id: meterpreter_options.rb 9332 2010-05-20 23:47:49Z egypt $
+# $Id$
 ##
-
-##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
-##
-
 
 module Msf
 module Sessions

@@ -84,7 +84,8 @@ module PacketDispatcher
 		if (response == nil)
 			raise TimeoutError.new("Send timed out")
 		elsif (response.result != 0)
-			e = RequestError.new(packet.method, response.result)
+			result = lookup_error(response.result)
+			e = RequestError.new(packet.method, result)
 
 			e.set_backtrace(caller)
 

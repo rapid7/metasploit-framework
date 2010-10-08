@@ -61,7 +61,7 @@ class ArgumentError < ::ArgumentError
 	def to_s
 		str = 'An invalid argument was specified.'
 		if @message
-			str += " #{@message}"
+			str << " #{@message}"
 		end
 		str
 	end

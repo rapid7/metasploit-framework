@@ -52,6 +52,13 @@ class Client
 	@@ssl_mutex = ::Mutex.new
 
 	#
+	# Lookup the error that occurred
+	#
+	def self.lookup_error(code)
+		code
+	end
+
+	#
 	# Checks the extension hash to see if a class has already been associated
 	# with the supplied extension name.
 	#

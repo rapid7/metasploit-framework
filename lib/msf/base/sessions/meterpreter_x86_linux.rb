@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 require 'msf/base/sessions/meterpreter'
 
 module Msf

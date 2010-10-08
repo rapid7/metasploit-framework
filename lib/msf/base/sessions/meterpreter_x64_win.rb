@@ -1,4 +1,9 @@
+##
+# $Id: meterpreter_options.rb 10595 2010-10-08 04:11:47Z hdm $
+##
+
 require 'msf/base/sessions/meterpreter'
+require 'msf/windows_error'
 
 module Msf
 module Sessions
@@ -14,8 +19,11 @@ class Meterpreter_x64_Win < Msf::Sessions::Meterpreter
 		self.platform      = 'x64/win64'
 		self.binary_suffix = 'x64.dll'
 	end
+
+	def lookup_error(code)
+		Msf::WindowsError.description(code)
+	end
 end
 
 end
 end
-

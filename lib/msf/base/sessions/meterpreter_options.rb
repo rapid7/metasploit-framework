@@ -2,14 +2,6 @@
 # $Id$
 ##
 
-##
-# This file is part of the Metasploit Framework and may be subject to
-# redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
-##
-
-
 module Msf
 module Sessions
 module MeterpreterOptions
@@ -38,14 +30,14 @@ module MeterpreterOptions
 		if (datastore['AutoLoadStdapi'] == true)
 
 			session.load_stdapi
-	
+
 			if datastore['AutoSystemInfo']
 				session.load_session_info
 			end
-			
+
 			admin = false
 			begin
-				::Timeout.timeout(30) do 
+				::Timeout.timeout(30) do
 					if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
 						admin = true
 						session.info += " (ADMIN)"

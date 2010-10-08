@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 require 'msf/base'
 require 'rex/post/meterpreter'
 
