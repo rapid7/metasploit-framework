@@ -5,6 +5,7 @@ class Campaign < ActiveRecord::Base
 	has_one :email_template
 	has_one :web_template
 	has_many :email_addresses
+	has_many :clients
 
 	extend SerializedPrefs
 
