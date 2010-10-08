@@ -455,9 +455,9 @@ if (marker == false) {
 				# that we've found a new session.  We call handle_connection using
 				# the lsock of the local stream.
 				if (s = find_session_channel(sid))
-					Thread.new {
+					Thread.new(cli) { |cli_copy|
 						begin
-							s.remote = cli
+							s.remote = cli_copy
 							handle_connection(s.lsock)
 						rescue ::Exception
 							elog("Exception raised during PX handle connection: #{$!}", 'core', LEV_1)

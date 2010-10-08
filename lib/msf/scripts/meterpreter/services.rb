@@ -13,11 +13,11 @@ def service_list
 	services = []
 	registry_enumkeys(serviceskey).each do |s|
 		if threadnum < 10
-			a.push(::Thread.new {
+			a.push(::Thread.new(s) { |sk|
 					begin
-						srvtype = registry_getvaldata("#{serviceskey}\\#{s}","Type").to_s
+						srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
 						if srvtype =~ /32|16/
-							services << s
+							services << sk
 						end
 					rescue
 					end

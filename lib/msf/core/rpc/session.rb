@@ -128,7 +128,7 @@ class Session < Base
 		# so don't do it here
 		#@framework.events.on_session_command(s, buff)
 
-		Thread.new { s.console.run_single(buff) }
+		Thread.new(s) { |sess| sess.console.run_single(buff) }
 
 		{}
 	end
