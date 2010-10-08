@@ -47,8 +47,7 @@ module Metasm
 		'X86_64' => 'x86_64', 'Sh4' => 'sh4', 'Dalvik' => 'dalvik',
 		'C' => ['parse_c', 'compile_c'],
 		'MZ' => 'exe_format/mz', 'PE' => 'exe_format/pe',
-		'ELF' => ['exe_format/elf_encode', 'exe_format/elf_decode'],
-		'COFF' => ['exe_format/coff_encode', 'exe_format/coff_decode'],
+		'ELF' => 'exe_format/elf', 'COFF' => 'exe_format/coff',
 		'Shellcode' => 'exe_format/shellcode', 'AutoExe' => 'exe_format/autoexe',
 		'AOut' => 'exe_format/a_out', 'MachO' => 'exe_format/macho',
 		'DEX' => 'exe_format/dex',
@@ -75,7 +74,6 @@ def self.autorequire_const_missing(c)
 
 	const_get c
 end
-
 
 def self.require(f)
 	# temporarily put the current file directory in the ruby include path
@@ -121,6 +119,10 @@ require 'metasm/os/main'
 
 # remove an 1.9 warning, couldn't find a compatible way...
 if {}.respond_to? :key
-	puts "using ruby1.9 workaround for Hash.index" if $DEBUG
-	class Hash ; alias index key end
+	puts "using ruby1.9 workaround for Hash#index warning" if $DEBUG
+	class Hash
+		alias index_premetasm index rescue nil
+		undef index rescue nil
+		alias index key
+	end
 end

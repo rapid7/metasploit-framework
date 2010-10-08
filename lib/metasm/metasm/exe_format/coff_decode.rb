@@ -76,7 +76,7 @@ class COFF
 			if coff.sect_at_rva(@func_p)
 				@exports = []
 				addrs = []
-				@num_exports.times { |i| addrs << coff.decode_word }
+				@num_exports.times { addrs << coff.decode_word }
 				@num_exports.times { |i|
 					e = Export.new
 					e.ordinal = i + @ordinal_base

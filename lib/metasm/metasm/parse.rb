@@ -40,7 +40,7 @@ class CPU
 		raise tok, 'invalid opcode' if not opcode_list_byname[tok.raw]
 
 		i.opname = tok.raw
-		i.backtrace = tok.backtrace.dup
+		i.backtrace = tok.backtrace
 		lexer.skip_space
 
 		# find arguments list
@@ -317,7 +317,7 @@ class ExeFormat
 						raise tok, "label redefinition" if new_label(lname) != lname
 					end
 					l = Label.new(lname)
-					l.backtrace = tok.backtrace.dup
+					l.backtrace = tok.backtrace
 					@cursource << l
 					lasteol = false
 				else
@@ -331,7 +331,7 @@ class ExeFormat
 					end
 					if lname = @locallabels_fwd.delete('endinstr')
 						l = Label.new(lname)
-						l.backtrace = tok.backtrace.dup
+						l.backtrace = tok.backtrace
 						@cursource << l
 					end
 				end
@@ -377,7 +377,7 @@ class ExeFormat
 				@lexer.unreadtok ntok
 			end
 			raise tok, 'syntax error' if ntok = @lexer.nexttok and ntok.type != :eol
-			@cursource << Align.new(e, fillwith, tok.backtrace.dup)
+			@cursource << Align.new(e, fillwith, tok.backtrace)
 
 		when '.pad'
 			@lexer.skip_space
@@ -394,12 +394,12 @@ class ExeFormat
 				@lexer.unreadtok ntok
 			end
 			raise tok, 'syntax error' if ntok = @lexer.nexttok and ntok.type != :eol
-			@cursource << Padding.new(fillwith, tok.backtrace.dup)
+			@cursource << Padding.new(fillwith, tok.backtrace)
 
 		when '.offset'
 			e = Expression.parse(@lexer)
 			raise tok, 'syntax error' if ntok = @lexer.nexttok and ntok.type != :eol
-			@cursource << Offset.new(e, tok.backtrace.dup)
+			@cursource << Offset.new(e, tok.backtrace)
 
 		when '.padto'
 			e = Expression.parse(@lexer)
@@ -418,7 +418,7 @@ class ExeFormat
 				@lexer.unreadtok ntok
 			end
 			raise tok, 'syntax error' if ntok = @lexer.nexttok and ntok.type != :eol
-			@cursource << Padding.new(fillwith, tok.backtrace.dup) << Offset.new(e, tok.backtrace.dup)
+			@cursource << Padding.new(fillwith, tok.backtrace) << Offset.new(e, tok.backtrace)
 
 		else
 			@cpu.parse_parser_instruction(self, tok)
@@ -441,15 +441,15 @@ class ExeFormat
 				break
 			end
 		end
-		Data.new(type, arr, 1, tok.backtrace.dup)
+		Data.new(type, arr, 1, tok.backtrace)
 	end
 
 	def parse_data_data(type)
 		raise ParseError, 'need data content' if not tok = @lexer.readtok
 		if tok.type == :punct and tok.raw == '?'
-			Data.new type, :uninitialized, 1, tok.backtrace.dup
+			Data.new type, :uninitialized, 1, tok.backtrace
 		elsif tok.type == :quoted
-			Data.new type, tok.value, 1, tok.backtrace.dup
+			Data.new type, tok.value, 1, tok.backtrace
 		else
 			@lexer.unreadtok tok
 			raise tok, 'invalid data' if not i = Expression.parse(@lexer)
@@ -470,10 +470,10 @@ class ExeFormat
 					end
 				end
 				raise ntok, 'syntax error, ) expected' if not ntok = @lexer.readtok or ntok.type != :punct or ntok.raw != ')'
-				Data.new type, content, count, tok.backtrace.dup
+				Data.new type, content, count, tok.backtrace
 			else
 				@lexer.unreadtok ntok
-				Data.new type, i, 1, tok.backtrace.dup
+				Data.new type, i, 1, tok.backtrace
 			end
 		end
 	end
@@ -664,7 +664,7 @@ class Expression
 				l = lexer.program.cursource.last
 				if not l.kind_of? Label
 					l = Label.new(lexer.program.new_label('instr_start'))
-					l.backtrace = tok.backtrace.dup
+					l.backtrace = tok.backtrace
 					lexer.program.cursource << l
 				end
 				tok.value = l.name
@@ -672,7 +672,7 @@ class Expression
 				l = lexer.program.cursource.first
 				if not l.kind_of? Label
 					l = Label.new(lexer.program.new_label('section_start'))
-					l.backtrace = tok.backtrace.dup
+					l.backtrace = tok.backtrace
 					lexer.program.cursource.unshift l
 				end
 				tok.value = l.name

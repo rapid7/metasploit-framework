@@ -572,6 +572,9 @@ class DisasmWidget < ContainerChoiceWidget
 		return if not popup = DasmWindow.new
 		popup.display(@dasm, @entrypoints)
 		w = popup.dasm_widget
+		w.bg_color_callback = @bg_color_callback if bg_color_callback
+		w.keyboard_callback = @keyboard_callback
+		w.keyboard_callback_ctrl = @keyboard_callback_ctrl
 		w.clones = @clones.concat w.clones
 		w.focus_addr(*focus)
 		popup

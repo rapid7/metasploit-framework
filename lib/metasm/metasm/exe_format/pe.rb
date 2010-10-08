@@ -6,8 +6,7 @@
 
 require 'metasm/exe_format/main'
 require 'metasm/exe_format/mz'
-require 'metasm/exe_format/coff_encode'
-require 'metasm/exe_format/coff_decode'
+require 'metasm/exe_format/coff'
 
 module Metasm
 class PE < COFF
@@ -216,7 +215,7 @@ EOS
 	# TODO seh prototype (args => context)
 	# TODO hook on (non)resolution of :w xref
 	def get_xrefs_x(dasm, di)
-		if @cpu.kind_of? Ia32 and a = di.instruction.args.first and a.kind_of? Ia32::ModRM and a.seg and a.seg.val == 4 and
+		if @cpu.shortname =~ /ia32|x64/ and a = di.instruction.args.first and a.kind_of? Ia32::ModRM and a.seg and a.seg.val == 4 and
 				w = get_xrefs_rw(dasm, di).find { |type, ptr, len| type == :w and ptr.externals.include? 'segment_base_fs' } and
 				dasm.backtrace(Expression[w[1], :-, 'segment_base_fs'], di.address) == [Expression[0]]
 			sehptr = w[1]
@@ -239,8 +238,8 @@ EOS
 	def init_disassembler
 		d = super()
 		d.backtrace_maxblocks_data = 4
-		case @cpu
-		when Ia32
+		case @cpu.shortname
+		when 'ia32', 'x64'
 			old_cp = d.c_parser
 			d.c_parser = nil
 			d.parse_c '__stdcall void *GetProcAddress(int, char *);'

@@ -52,7 +52,12 @@ extern VALUE *rb_eArgError __attribute__((import));
 #define Qtrue  ((VALUE)2)
 #define Qnil   ((VALUE)4)
 
-#if #{RUBY_VERSION >= '1.9' ? 1 : 0}
+// allows generating a ruby1.9 dynldr.so from ruby1.8
+#ifndef DYNLDR_RUBY_19
+#define DYNLDR_RUBY_19 #{RUBY_VERSION >= '1.9' ? 1 : 0}
+#endif
+
+#if DYNLDR_RUBY_19
  #define T_STRING 0x05
  #define T_ARRAY  0x07
  #define T_FIXNUM 0x15
@@ -78,7 +83,7 @@ extern VALUE *rb_eArgError __attribute__((import));
 VALUE rb_uint2inum(VALUE);
 VALUE rb_ull2inum(unsigned long long);
 VALUE rb_num2ulong(VALUE);
-VALUE rb_str_new(const char* ptr, unsigned long len);	// alloc + memcpy + 0term
+VALUE rb_str_new(const char* ptr, long len);	// alloc + memcpy + 0term
 VALUE rb_ary_new2(int len);
 VALUE rb_float_new(double);
 
@@ -128,7 +133,7 @@ static VALUE dynldr;
 
 static VALUE memory_read(VALUE self, VALUE addr, VALUE len)
 {
-	return rb_str_new((char*)VAL2INT(addr), (unsigned long)VAL2INT(len));
+	return rb_str_new((char*)VAL2INT(addr), (long)VAL2INT(len));
 }
 
 static VALUE memory_read_int(VALUE self, VALUE addr)
@@ -162,18 +167,34 @@ static VALUE str_ptr(VALUE self, VALUE str)
 	return INT2VAL((uintptr_t)STR_PTR(str));
 }
 
+// return the VALUE of an object (different of .object_id for Symbols, maybe others)
+static VALUE rb_obj_to_value(VALUE self, VALUE obj)
+{
+	return INT2VAL((uintptr_t)obj);
+}
+
+// return the ruby object at VALUE
+// USE WITH CAUTION, passing invalid values will segfault the interpreter/GC
+static VALUE rb_value_to_obj(VALUE self, VALUE val)
+{
+	return VAL2INT(val);
+}
+
 // load a symbol from a lib byname, byordinal if integral
 static VALUE sym_addr(VALUE self, VALUE lib, VALUE func)
 {
 	uintptr_t h, p;
 
-	if (TYPE(lib) != T_STRING)
+	if (TYPE(lib) == T_STRING)
+		h = os_load_lib(STR_PTR(lib));
+	else if (TYPE(lib) == T_FIXNUM)
+		h = VAL2INT(lib);
+	else
 		rb_raise(*rb_eArgError, "Invalid lib");
+
 	if (TYPE(func) != T_STRING && TYPE(func) != T_FIXNUM)
 		rb_raise(*rb_eArgError, "Invalid func");
 	
-	h = os_load_lib(STR_PTR(lib));
-
 	if (TYPE(func) == T_FIXNUM)
 		p = os_load_sym_ord(h, VAL2INT(func));
 	else
@@ -322,6 +343,8 @@ int Init_dynldr(void) __attribute__((export_as(Init_<insertfilenamehere>)))	// t
 	rb_define_singleton_method(dynldr, "memory_write", memory_write, 2);
 	rb_define_singleton_method(dynldr, "memory_write_int", memory_write_int, 2);
 	rb_define_singleton_method(dynldr, "str_ptr", str_ptr, 1);
+	rb_define_singleton_method(dynldr, "rb_obj_to_value", rb_obj_to_value, 1);
+	rb_define_singleton_method(dynldr, "rb_value_to_obj", rb_value_to_obj, 1);
 	rb_define_singleton_method(dynldr, "sym_addr", sym_addr, 2);
 	rb_define_singleton_method(dynldr, "raw_invoke", invoke, 3);
 	rb_define_const(dynldr, "CALLBACK_TARGET", INT2VAL((VALUE)&callback_handler));
@@ -462,13 +485,9 @@ do_invoke_fastcall:
 	add eax, 8
 	mov [ebp+16], eax
 
-	mov eax,[ebp+12]
-	test eax, eax
-	jz _do_invoke_call
-	dec eax
-	test eax, eax
-	jz _do_invoke_call
-	dec eax
+	mov eax, [ebp+12]
+	sub eax, 2
+	jb _do_invoke_call
 	jmp _do_invoke_copy
 
 do_invoke:
@@ -583,7 +602,7 @@ EOS
 	def self.compile_binary_module_hack(bin)
 		# this is a hack
 		# we need the module to use ruby symbols
-		# but we don't know the actual lib filename (depends on ruby version,
+		# but we don't know the actual ruby lib filename (depends on ruby version,
 		# platform, ...)
 		case bin.class.name.gsub(/.*::/, '')
 		when 'ELF'
@@ -626,7 +645,7 @@ EOS
 				bin.arch_encode_thunk(text, i)	# encode a jmp [importtable]
 			end
 
-			# update to the offset table
+			# update the offset table
 			asm_table << "#{sym} #{dd} #{str_label} - ruby_import_table"
 		}
 		# dont forget the final 0
@@ -701,13 +720,12 @@ EOS
 
 	# parse a C string into the @cp parser, create it if needed
 	def self.parse_c(src)
-		@cp ||= C::Parser.new(host_exe.new(host_cpu))
-		@cp.parse(src)
+		cp.parse(src)
 	end
 
 	# compile a C fragment into a Shellcode, honors the host ABI
 	def self.compile_c(src)
-		# XXX could we reuse @cp ? (for its macros etc)
+		# XXX could we reuse self.cp ? (for its macros etc)
 		cp = C::Parser.new(host_exe.new(host_cpu))
 		cp.parse(src)
 		sc = Shellcode.new(host_cpu)
@@ -733,9 +751,9 @@ EOS
 		proto += "\n;"	# allow 'int foo()' and '#include <bar>'
 		parse_c(proto)
 
-		@cp.toplevel.symbol.dup.each_value { |v|
+		cp.toplevel.symbol.dup.each_value { |v|
 			next if not v.kind_of? C::Variable	# enums
-			@cp.toplevel.symbol.delete v.name
+			cp.toplevel.symbol.delete v.name
 			lib = fromlib || lib_from_sym(v.name)
 			addr = sym_addr(lib, v.name)
 		       	if addr == 0 or addr == -1 or addr == 0xffff_ffff or addr == 0xffffffff_ffffffff
@@ -756,7 +774,7 @@ EOS
 		}
 
 		# constant definition from macro/enum
-		@cp.numeric_constants.each { |k, v|
+		cp.numeric_constants.each { |k, v|
 			n = k.upcase
 			n = "C#{n}" if n !~ /^[A-Z]/
 			const_set(n, v) if v.kind_of? Integer and not constants.map { |c| c.to_s }.include?(n)
@@ -773,7 +791,7 @@ EOS
 		flags = 0
 		flags |= 1 if proto.has_attribute('stdcall')
 		flags |= 2 if proto.has_attribute('fastcall')
-		flags |= 4 if proto.type.type.integral? and @cp.sizeof(nil, proto.type.type) == 8
+		flags |= 4 if proto.type.type.integral? and cp.sizeof(nil, proto.type.type) == 8
 		flags |= 8 if proto.type.type.float?
 		class << self ; self ; end.send(:define_method, name) { |*a|
 			raise ArgumentError, "bad arg count for #{name}: #{a.length} for #{proto.type.args.length}" if a.length != proto.type.args.length and not proto.type.varargs
@@ -792,10 +810,10 @@ EOS
 		when String; str_ptr(val)
 		when Proc; cb = callback_alloc_cobj(formal, val) ; (opts[:cb_list] ||= []) << cb ; cb
 		# TODO when Hash, Array; if formal.type.pointed.kind_of? C::Struct; yadda yadda ; end
-		else val.to_i
+		else val.to_i rescue 0	# NaN, Infinity, etc
 		end
 
-		if opts[:expand_i64] and formal and formal.type.integral? and @cp.sizeof(formal) == 8 and host_cpu.size == 32
+		if opts[:expand_i64] and formal and formal.type.integral? and cp.sizeof(formal) == 8 and host_cpu.size == 32
 			val = [val & 0xffff_ffff, (val >> 32) & 0xffff_ffff]
 			val.reverse! if host_cpu.endianness != :little
 		end
@@ -822,7 +840,7 @@ EOS
 	# C raw cb arg -> ruby object
 	def self.convert_arg_c2rb(formal, rawargs)
 		val = rawargs.shift
-		if formal.type.integral? and @cp.sizeof(formal) == 64 and host_cpu.size == 32
+		if formal.type.integral? and cp.sizeof(formal) == 64 and host_cpu.size == 32
 			if host.cpu.endianness == :little
 				val |= rawargs.shift << 32
 			else
@@ -841,7 +859,7 @@ EOS
 		ret
 	end
 
-	def self.cp; @cp ||= nil ; end
+	def self.cp ; @cp ||= C::Parser.new(host_exe.new(host_cpu)) ; end
 	def self.cp=(c); @cp = c ; end
 
 	# allocate a callback for a given C prototype (string)
@@ -849,10 +867,10 @@ EOS
 	def self.callback_alloc_c(proto, &b)
 		proto += ';'	# allow 'int foo()'
 		parse_c(proto)
-		v = @cp.toplevel.symbol.values.find_all { |v_| v_.kind_of? C::Variable and v_.type.kind_of? C::Function }.first
-		if (v and v.initializer) or @cp.toplevel.statements.find { |st| st.kind_of? C::Asm }
-			@cp.toplevel.statements.delete_if { |st| st.kind_of? C::Asm }
-			@cp.toplevel.symbol.delete v.name if v
+		v = cp.toplevel.symbol.values.find_all { |v_| v_.kind_of? C::Variable and v_.type.kind_of? C::Function }.first
+		if (v and v.initializer) or cp.toplevel.statements.find { |st| st.kind_of? C::Asm }
+			cp.toplevel.statements.delete_if { |st| st.kind_of? C::Asm }
+			cp.toplevel.symbol.delete v.name if v
 			sc = compile_c(proto)
 			ptr = memory_alloc(sc.encoded.length)
 			sc.base_addr = ptr
@@ -863,7 +881,7 @@ EOS
 		elsif not v
 			raise 'empty prototype'
 		else
-			@cp.toplevel.symbol.delete v.name
+			cp.toplevel.symbol.delete v.name
 			callback_alloc_cobj(v, b)
 		end
 	end
@@ -878,8 +896,8 @@ EOS
 		cb[:id] = id
 		cb[:proc] = b
 		cb[:proto] = proto
-		cb[:abi_stackfix] = proto.args.inject(0) { |s, a| s + [@cp.sizeof(a), @cp.typesize[:ptr]].max } if ori and ori.has_attribute('stdcall')
-		cb[:abi_stackfix] = proto.args[2..-1].to_a.inject(0) { |s, a| s + [@cp.sizeof(a), @cp.typesize[:ptr]].max } if ori and ori.has_attribute('fastcall')	# supercedes stdcall
+		cb[:abi_stackfix] = proto.args.inject(0) { |s, a| s + [cp.sizeof(a), cp.typesize[:ptr]].max } if ori and ori.has_attribute('stdcall')
+		cb[:abi_stackfix] = proto.args[2..-1].to_a.inject(0) { |s, a| s + [cp.sizeof(a), cp.typesize[:ptr]].max } if ori and ori.has_attribute('fastcall')	# supercedes stdcall
 		@@callback_table[id] = cb
 		id
 	end
@@ -914,19 +932,21 @@ EOS
 
 	# compile a bunch of C functions, defines methods in this module to call them
 	# returns the raw pointer to the code page
-	# if given a block, run the block and then undefine all the C functions
+	# if given a block, run the block and then undefine all the C functions & free memory
 	def self.new_func_c(src)
 		sc = compile_c(src)
 		ptr = memory_alloc(sc.encoded.length)
 		sc.base_addr = ptr
-		# TODO fixup external calls - this will need OS ABI compat (eg win64)
+		bd = sc.encoded.binding(ptr)
+		sc.encoded.reloc_externals.uniq.each { |ext| bd[ext] = sym_addr(lib_from_sym(ext), ext) or raise "unknown symbol #{ext}" }
+		sc.encoded.fixup(bd)
 		memory_write ptr, sc.encode_string
 		memory_perm ptr, sc.encoded.length, 'rwx'
 		parse_c(src)	# XXX the Shellcode parser may have defined stuff / interpreted C another way...
 		defs = []
-		@cp.toplevel.symbol.dup.each_value { |v|
+		cp.toplevel.symbol.dup.each_value { |v|
 			next if not v.kind_of? C::Variable
-			@cp.toplevel.symbol.delete v.name
+			cp.toplevel.symbol.delete v.name
 			next if not v.type.kind_of? C::Function or not v.initializer
 			next if not off = sc.encoded.export[v.name]
 			new_caller_for(v, v.name, ptr+off)
@@ -1116,6 +1136,9 @@ EOS
 		# on PaX-enabled systems, this may need a non-mprotect-restricted ruby interpreter
 		def self.memory_perm(addr, len, perm)
 			perm = perm.to_s.downcase
+			len += (addr & 0xfff) + 0xfff
+			len &= ~0xfff
+			addr &= ~0xfff
 			p = 0
 			p |= PROT_READ if perm.include? 'r'
 			p |= PROT_WRITE if perm.include? 'w'

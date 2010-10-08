@@ -85,9 +85,20 @@ class Graph
 		@madetree = false
 	end
 
+	# gives a text representation of the current graph state
+	def dump_layout(groups=@groups)
+		groups.map { |g| "#{groups.index(g)} -> #{g.to.map { |t| groups.index(t) }.sort.inspect}" }
+	end
+
 	def auto_arrange_step
+		# TODO fix
+		#  0->[1, 2] 1->[3] 2->[3, 4] 3->[] 4->[1]
+		#  push 0 jz l3  push 1 jz l4  push 2  l3: push 3  l4: hlt
+		# and more generally all non-looping graphs where this algo creates backward links
+
 		groups = @groups
 		return if groups.length <= 1
+
 		maketree = lambda { |roots|
 			next if @madetree
 			@madetree = true
@@ -116,7 +127,7 @@ class Graph
 				g.to.each { |gg| walk[gg] }
 			}
 
-			roots.each { |g| trim[g, g.from] }
+			roots.each { |g| trim[g, g.from] unless g.from.empty? }
 			roots.each { |g| walk[g] }
 			
 			# handle loops now (unmarked nodes)
@@ -319,7 +330,7 @@ class Graph
 
 		# unknown pattern, group as we can..
 		group_other = lambda {
-puts 'graph arrange: unknown configuration', groups.map { |g| "#{groups.index(g)} -> #{g.to.map { |t| groups.index(t) }.inspect}" }
+puts 'graph arrange: unknown configuration', dump_layout
 			g1 = groups.find_all { |g| g.from.empty? }
 			g1 << groups[rand(groups.length)] if g1.empty?
 			g2 = g1.map { |g| g.to }.flatten.uniq - g1
@@ -408,8 +419,28 @@ puts 'graph arrange: unknown configuration', groups.map { |g| "#{groups.index(g)
 			end
 		}
 
+		boxxy = @box.sort_by { |bb| bb.y }
+		# fill gaps that we created
+		@box.each { |b|
+			bottom = b.y+b.h
+			next if not follower = boxxy.find { |bb| bb.y+bb.h > bottom }
+
+			# preserve line[] constructs margins
+			gap = follower.y-16*follower.from.length - (bottom+16*b.to.length)
+			next if gap <= 0
+
+			@box.each { |bb|
+				if bb.y+bb.h <= bottom
+					bb.y += gap/2
+				else
+					bb.y -= gap/2
+				end
+			}
+			boxxy = @box.sort_by { |bb| bb.y }
+		}
+
 		@box[0,0].each { |b|
-			# TODO elastic positionning (ignore up arrows ?) & collision detection (box vs box and box vs arrow)
+			# TODO elastic positionning (ignore up arrows ?) & collision detection (box/box + box/arrow)
 			f = b.from[0]
 			t = b.to[0]
 			if b.to.length == 1 and b.from.length == 1 and b.y+b.h<t.y and b.y>f.y+f.h
@@ -672,21 +703,32 @@ class GraphViewWidget < DrawableWidget
 	def paint_arrow(b1, b2)
 		x1, y1 = b1.x+b1.w/2-@curcontext.view_x, b1.y+b1.h-@curcontext.view_y
 		x2, y2 = b2.x+b2.w/2-@curcontext.view_x, b2.y-1-@curcontext.view_y
+		x1o, x2o = x1, x2
 		margin = @margin
 		x1 += (-(b1.to.length-1)/2 + b1.to.index(b2)) * margin/2
 		x2 += (-(b2.from.length-1)/2 + b2.from.index(b1)) * margin/2
 		return if (y1+margin < 0 and y2 < 0) or (y1 > height/@zoom and y2-margin > height/@zoom)	# just clip on y
-		margin, x1, y1, x2, y2, b1w, b2w = [margin, x1, y1, x2, y2, b1.w, b2.w].map { |v| v*@zoom }
+		margin, x1, y1, x2, y2, b1w, b2w, x1o, x2o = [margin, x1, y1, x2, y2, b1.w, b2.w, x1o, x2o].map { |v| v*@zoom }
 
 
-		# gtk wraps coords around 0x8000
+		# XXX gtk wraps coords around 0x8000
 		if x1.abs > 0x7000 ; y1 /= x1.abs/0x7000 ; x1 /= x1.abs/0x7000 ; end
 		if y1.abs > 0x7000 ; x1 /= y1.abs/0x7000 ; y1 /= y1.abs/0x7000 ; end
 		if x2.abs > 0x7000 ; y2 /= x2.abs/0x7000 ; x2 /= x2.abs/0x7000 ; end
 		if y2.abs > 0x7000 ; x2 /= y2.abs/0x7000 ; y2 /= y2.abs/0x7000 ; end
 
+		# straighten vertical arrows if possible
+		if y2 > y1 and (x1-x2).abs <= margin
+			if b1.to.length == 1
+				x1 = x2
+			elsif b2.from.length == 1
+				x2 = x1
+			end
+		end
+
 		set_color_arrow(b1, b2)
 		if margin > 1
+			# draw arrow tip
 			draw_line(x1, y1, x1, y1+margin)
 			draw_line(x2, y2-margin+1, x2, y2)
 			draw_line(x2-margin/2, y2-margin/2, x2, y2)
@@ -695,23 +737,26 @@ class GraphViewWidget < DrawableWidget
 			y2 -= margin-1
 		end
 		if y2+margin >= y1-margin-1
+			# straight vertical down arrow
 			draw_line(x1, y1, x2, y2) if x1 != y1 or x2 != y2
-		elsif x1-b1w/2-margin >= x2+b2w/2+margin	# z
-			draw_line(x1, y1, x1-b1w/2-margin, y1)
-			draw_line(x1-b1w/2-margin, y1, x2+b2w/2+margin, y2)
-			draw_line(x2+b2w/2+margin, y2, x2, y2)
-			draw_line(x1, y1+1, x1-b1w/2-margin, y1+1) # double
-			draw_line(x1-b1w/2-margin+1, y1, x2+b2w/2+margin+1, y2)
-			draw_line(x2+b2w/2+margin, y2+1, x2, y2+1)
+
+		# else arrow up, need to sneak around boxes
+		elsif x1o-b1w/2-margin >= x2o+b2w/2+margin	# z
+			draw_line(x1, y1, x1o-b1w/2-margin, y1)
+			draw_line(x1o-b1w/2-margin, y1, x2o+b2w/2+margin, y2)
+			draw_line(x2o+b2w/2+margin, y2, x2, y2)
+			draw_line(x1, y1+1, x1o-b1w/2-margin, y1+1) # double
+			draw_line(x1o-b1w/2-margin+1, y1, x2o+b2w/2+margin+1, y2)
+			draw_line(x2o+b2w/2+margin, y2+1, x2, y2+1)
 		elsif x1+b1w/2+margin <= x2-b2w/2-margin	# invert z
-			draw_line(x1, y1, x1+b1w/2+margin, y1)
-			draw_line(x1+b1w/2+margin, y1, x2-b2w/2-margin, y2)
-			draw_line(x2-b2w/2-margin, y2, x2, y2)
+			draw_line(x1, y1, x1o+b1w/2+margin, y1)
+			draw_line(x1o+b1w/2+margin, y1, x2o-b2w/2-margin, y2)
+			draw_line(x2o-b2w/2-margin, y2, x2, y2)
 			draw_line(x1, y1+1, x1+b1w/2+margin, y1+1) # double
-			draw_line(x1+b1w/2+margin+1, y1, x2-b2w/2-margin+1, y2)
-			draw_line(x2-b2w/2-margin, y2+1, x2, y2+1)
+			draw_line(x1o+b1w/2+margin+1, y1, x2o-b2w/2-margin+1, y2)
+			draw_line(x2o-b2w/2-margin, y2+1, x2, y2+1)
 		else						# turn around
-			x = (x1 <= x2 ? [x1-b1w/2-margin, x2-b2w/2-margin].min : [x1+b1w/2+margin, x2+b2w/2+margin].max)
+			x = (x1 <= x2 ? [x1o-b1w/2-margin, x2o-b2w/2-margin].min : [x1o+b1w/2+margin, x2o+b2w/2+margin].max)
 			draw_line(x1, y1, x, y1)
 			draw_line(x, y1, x, y2)
 			draw_line(x, y2, x2, y2)
@@ -936,8 +981,8 @@ class GraphViewWidget < DrawableWidget
 
 	def keypress_ctrl(key)
 		case key
-		when ?f
-			@parent_widget.inputbox('text to search (regex)') { |pat|
+		when ?F
+			@parent_widget.inputbox('text to search in curfunc (regex)') { |pat|
 				re = /#{pat}/i
 				list = [['addr', 'instr']]
 				@curcontext.box.each { |b|
@@ -1089,41 +1134,57 @@ class GraphViewWidget < DrawableWidget
 			puts 'autoarrange done'
 		when ?u
 			gui_update
+
 		when ?R
 			load __FILE__
-		when ?S
+		when ?S	# reset
 			@curcontext.auto_arrange_init(@selected_boxes.empty? ? @curcontext.box : @selected_boxes)
+			puts 'reset', @curcontext.dump_layout, ''
 			zoom_all
 			redraw
-		when ?T
+		when ?T	# step auto_arrange
 			@curcontext.auto_arrange_step
+			puts @curcontext.dump_layout, ''
 			zoom_all
 			redraw
-		when ?L
+		when ?L	# post auto_arrange
 			@curcontext.auto_arrange_post
 			zoom_all
 			redraw
-		when ?V
+		when ?V	# shrink
 			@selected_boxes.each { |b_|
-				dx = (b_.from+b_.to).map { |bb| bb.x+bb.w/2 - b_.x-b_.w/2 }
+				dx = (b_.from + b_.to).map { |bb| bb.x+bb.w/2 - b_.x-b_.w/2 }
 				dx = dx.inject(0) { |s, xx| s+xx }/dx.length
-				if dx > 0
-					xmax = b_.from.map { |bb| bb.x if b_.from.find { |bbb|
-						bbb.x+bbb.w/2 < bb.x+bb.w/2 and bbb.y+bbb.h < bb.y
-					} }.compact.min
-					bx = b_.x+dx
-					bx = [bx, xmax-b_.w/2-@margin].min if xmax
-					b_.x = bx if bx > b_.x
-				else
-					xmin = b_.from.map { |bb| bb.x+bb.w if b_.from.find { |bbb|
-						bbb.x+bbb.w/2 < bb.x+bb.w/2 and bbb.y+bbb.h < bb.y
-					} }.compact.max
-					bx = b_.x+dx
-					bx = [bx, xmin+b_.w/2+@margin].max if xmin
-					b_.x = bx if bx < b_.x
-				end
+				b_.x += dx
 			}
 			redraw
+		when ?I	# create arbitrary boxes/links
+			if @selected_boxes.empty?
+				@fakebox ||= 0
+				b = @curcontext.new_box "id_#@fakebox",
+					:addresses => [], :line_address => [],
+					:line_text_col => [[["  blublu #@fakebox", :text]]]
+				b.w = @font_width * 15
+				b.h = @font_height * 2
+				b.x = rand(200) - 100
+				b.y = rand(200) - 100
+				
+				@fakebox += 1
+			else
+				b1, *bl = @selected_boxes
+				bl = [b1] if bl.empty?	# loop
+				bl.each { |b2|
+					if b1.to.include? b2
+						b1.to.delete b2
+						b2.from.delete b1
+					else
+						b1.to << b2
+						b2.from << b1
+				end
+			}
+			end
+			redraw
+
 		when ?1	# (numeric) zoom to 1:1
 			if @zoom == 1.0
 				zoom_all

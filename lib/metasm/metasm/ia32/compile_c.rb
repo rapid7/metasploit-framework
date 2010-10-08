@@ -907,7 +907,7 @@ class CCompiler < C::Compiler
 			ptr = make_volatile(ptr, expr.lexpr.type) if ptr.kind_of? Address
 			instr 'call', ptr
 			f = expr.lexpr
-			f = f.rexpr while f.kind_of? C::CExpression and not f.op and f.type == f.rexpr.type
+			f = f.rexpr while f.kind_of? C::CExpression and not f.op and f.rexpr.kind_of? C::Typed and f.type == f.rexpr.type
 			if not f.type.attributes.to_a.include? 'stdcall' and (not f.kind_of?(C::Variable) or not f.attributes.to_a.include? 'stdcall')
 				al = typesize[:ptr]
 				argsz = expr.rexpr.inject(0) { |sum, a| sum + (sizeof(a) + al - 1) / al * al }

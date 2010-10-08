@@ -9,6 +9,7 @@ require 'metasm/parse'
 require 'metasm/encode'
 require 'metasm/decode'
 require 'metasm/exe_format/serialstruct'
+require 'metasm/os/main'	# VirtualFile
 
 module Metasm
 class ExeFormat

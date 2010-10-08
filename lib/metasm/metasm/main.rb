@@ -341,17 +341,29 @@ class Expression < ExpressionType
 	# in operands order, and allows nesting using sub-arrays
 	# ex: Expression[[:-, 42], :*, [1, :+, [4, :*, 7]]]
 	# with a single argument, return it if already an Expression, else construct a new one (using unary +/-)
-	def self.[](l, op = nil, r = nil)
-		raise ArgumentError, 'invalid Expression[nil]' if not l and not r and not op
-		return l if l.kind_of? Expression and not op
-		l, op, r = nil, :-, -l if not op and l.kind_of? ::Numeric and l < 0
-		l, op, r = nil, :+, l  if not op
-		l, op, r = nil, l, op  if not r
+	def self.[](l, op=nil, r=nil)
+		if not r	# need to shift args
+			if not op
+				raise ArgumentError, 'invalid Expression[nil]' if not l
+				return l if l.kind_of? Expression
+				if l.kind_of? ::Numeric and l < 0
+					r = -l
+					op = :'-'
+				else
+					r = l
+					op = :'+'
+				end
+			else
+				r = op
+				op = l
+			end
+			l = nil
+		else
 		l = self[*l] if l.kind_of? ::Array
+		end
 		r = self[*r] if r.kind_of? ::Array
 		new(op, r, l)
 	end
-
 
 	# checks if a given Expression/Integer is in the type range
 	# returns true if it is, false if it overflows, and nil if cannot be determined (eg unresolved variable)
@@ -391,7 +403,7 @@ class Expression < ExpressionType
 	# will not match 1+2 and 2+1
 	def ==(o)
 		# shortcircuit recursion
-		o.object_id == object_id or (o.class == self.class and @op == o.op and @lexpr == o.lexpr and @rexpr == o.rexpr)
+		o.object_id == object_id or (o.kind_of?(Expression) and @op == o.op and @lexpr == o.lexpr and @rexpr == o.rexpr)
 	end
 
 	# make it useable as Hash key (see +==+)
@@ -517,18 +529,8 @@ class Expression < ExpressionType
 				0
 			elsif l == 1
 				Expression[r, :'!=', 0].reduce_rec
-			elsif r == 0	# (no sideeffects) && 0 => 0
-				sideeffect = lambda { |e|
-					if e.kind_of? Expression
-						not [:+, :-, :*, :/, :&, :|, :^, :>, :<, :>>, :<<, :'==', :'!=', :<=, :>=, :'&&', :'||'].include?(e.op) or
-						sideeffect[e.lexpr] or sideeffect[e.rexpr]
-					elsif e.kind_of? ExpressionType
-						true	# fail safe
-					else
-						false
-					end
-				}
-				0 if not sideeffect[l]
+			elsif r == 0
+				0	# XXX l could be a special ExprType with sideeffects ?
 			end
 		elsif @op == :'||'
 			if l.kind_of? ::Numeric and l != 0	# shortcircuit eval
@@ -599,26 +601,7 @@ class Expression < ExpressionType
 				Expression[[l.lexpr, :&, r], l.op, [l.rexpr, :&, r]].reduce_rec
 			# rol/ror composition
 			elsif r.kind_of? ::Integer and l.kind_of? Expression and l.op == :|
-				m = Expression[[['var', :sh_op, 'amt'], :|, ['var', :inv_sh_op, 'inv_amt']], :&, 'mask']
-				if vars = Expression[l, :&, r].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and vars[:sh_op] == {:>> => :<<, :<< => :>>}[ vars[:inv_sh_op]] and
-				   ((vars['amt'].kind_of?(::Integer) and  vars['inv_amt'].kind_of?(::Integer) and ampl = vars['amt'] + vars['inv_amt']) or
-				    (vars['amt'].kind_of? Expression and vars['amt'].op == :% and vars['amt'].rexpr.kind_of? ::Integer and
-				     vars['inv_amt'].kind_of? Expression and vars['inv_amt'].op == :% and vars['amt'].rexpr == vars['inv_amt'].rexpr and ampl = vars['amt'].rexpr)) and
-				   vars['mask'].kind_of?(::Integer) and vars['mask'] == (1<<ampl)-1 and vars['var'].kind_of? Expression and	# it's a rotation
-				  ivars = vars['var'].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and ivars[:sh_op] == {:>> => :<<, :<< => :>>}[ivars[:inv_sh_op]] and
-				   ((ivars['amt'].kind_of?(::Integer) and  ivars['inv_amt'].kind_of?(::Integer) and ampl = ivars['amt'] + ivars['inv_amt']) or
-				    (ivars['amt'].kind_of? Expression and ivars['amt'].op == :% and ivars['amt'].rexpr.kind_of? ::Integer and
-				     ivars['inv_amt'].kind_of? Expression and ivars['inv_amt'].op == :% and ivars['amt'].rexpr == ivars['inv_amt'].rexpr and ampl = ivars['amt'].rexpr)) and
-				   ivars['mask'].kind_of?(::Integer) and ivars['mask'] == (1<<ampl)-1 and ivars['mask'] == vars['mask']		# it's a composed rotation
-					if ivars[:sh_op] != vars[:sh_op]
-						# ensure the rotations are the same orientation
-						ivars[:sh_op], ivars[:inv_sh_op] = ivars[:inv_sh_op], ivars[:sh_op]
-						ivars['amt'],  ivars['inv_amt']  = ivars['inv_amt'],  ivars['amt']
-					end
-					amt = Expression[[vars['amt'], :+, ivars['amt']], :%, ampl]
-					invamt = Expression[[vars['inv_amt'], :+, ivars['inv_amt']], :%, ampl]
-					Expression[[[ivars['var'], vars[:sh_op], amt], :|, [ivars['var'], vars[:inv_sh_op], invamt]], :&, vars['mask']].reduce_rec
-				end
+				reduce_rec_composerol r, l
 			end
 		elsif @op == :|
 			if    l == 0; r
@@ -675,28 +658,7 @@ class Expression < ExpressionType
 			elsif l.kind_of? Expression and r.kind_of? Expression and l.op == :% and r.op == :% and l.rexpr.kind_of?(::Integer) and l.rexpr == r.rexpr
 				Expression[[l.lexpr, :+, r.lexpr], :%, l.rexpr].reduce_rec
 			else
-				# a+(b+(c+(-a))) => b+c+0
-				# a+((-a)+(b+c)) => 0+b+c
-				neg_l = l.rexpr if l.kind_of? Expression and l.op == :-
-
-				# recursive search & replace -lexpr by 0
-				simplifier = lambda { |cur|
-					if (neg_l and neg_l == cur) or (cur.kind_of? Expression and cur.op == :- and not cur.lexpr and cur.rexpr == l)
-						# -l found
-						0
-					else
-						# recurse
-						if cur.kind_of? Expression and cur.op == :+
-							if newl = simplifier[cur.lexpr]
-								Expression[newl, cur.op, cur.rexpr].reduce_rec
-							elsif newr = simplifier[cur.rexpr]
-								Expression[cur.lexpr, cur.op, newr].reduce_rec
-							end
-						end
-					end
-				}
-
-				simplifier[r]
+				reduce_rec_add(l, r)
 			end
 		end
 
@@ -717,6 +679,60 @@ class Expression < ExpressionType
 			end
 		end
 		ret
+	end
+
+
+				# a+(b+(c+(-a))) => b+c+0
+				# a+((-a)+(b+c)) => 0+b+c
+	def reduce_rec_add(l, r)
+		if l.kind_of? Expression and l.op == :- and not l.lexpr
+			neg_l = l.rexpr
+		else
+			neg_l = Expression[:-, l]
+		end
+
+				# recursive search & replace -lexpr by 0
+				simplifier = lambda { |cur|
+			if neg_l == cur
+						# -l found
+						0
+			elsif cur.kind_of? Expression and cur.op == :+
+						# recurse
+							if newl = simplifier[cur.lexpr]
+								Expression[newl, cur.op, cur.rexpr].reduce_rec
+							elsif newr = simplifier[cur.rexpr]
+								Expression[cur.lexpr, cur.op, newr].reduce_rec
+							end
+						end
+				}
+
+				simplifier[r]
+			end
+
+	# a check to see if an Expr is the composition of two rotations (rol eax, 4 ; rol eax, 6 => rol eax, 10)
+	# this is a bit too ugly to stay in the main reduce_rec body.
+	def reduce_rec_composerol
+		m = Expression[[['var', :sh_op, 'amt'], :|, ['var', :inv_sh_op, 'inv_amt']], :&, 'mask']
+		if vars = Expression[l, :&, r].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and vars[:sh_op] == {:>> => :<<, :<< => :>>}[ vars[:inv_sh_op]] and
+		   ((vars['amt'].kind_of?(::Integer) and  vars['inv_amt'].kind_of?(::Integer) and ampl = vars['amt'] + vars['inv_amt']) or
+		    (vars['amt'].kind_of? Expression and vars['amt'].op == :% and vars['amt'].rexpr.kind_of? ::Integer and
+		     vars['inv_amt'].kind_of? Expression and vars['inv_amt'].op == :% and vars['amt'].rexpr == vars['inv_amt'].rexpr and ampl = vars['amt'].rexpr)) and
+		   vars['mask'].kind_of?(::Integer) and vars['mask'] == (1<<ampl)-1 and vars['var'].kind_of? Expression and	# it's a rotation
+
+		  ivars = vars['var'].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and ivars[:sh_op] == {:>> => :<<, :<< => :>>}[ivars[:inv_sh_op]] and
+		   ((ivars['amt'].kind_of?(::Integer) and  ivars['inv_amt'].kind_of?(::Integer) and ampl = ivars['amt'] + ivars['inv_amt']) or
+		    (ivars['amt'].kind_of? Expression and ivars['amt'].op == :% and ivars['amt'].rexpr.kind_of? ::Integer and
+		     ivars['inv_amt'].kind_of? Expression and ivars['inv_amt'].op == :% and ivars['amt'].rexpr == ivars['inv_amt'].rexpr and ampl = ivars['amt'].rexpr)) and
+		   ivars['mask'].kind_of?(::Integer) and ivars['mask'] == (1<<ampl)-1 and ivars['mask'] == vars['mask']		# it's a composed rotation
+			if ivars[:sh_op] != vars[:sh_op]
+				# ensure the rotations are the same orientation
+				ivars[:sh_op], ivars[:inv_sh_op] = ivars[:inv_sh_op], ivars[:sh_op]
+				ivars['amt'],  ivars['inv_amt']  = ivars['inv_amt'],  ivars['amt']
+			end
+			amt = Expression[[vars['amt'], :+, ivars['amt']], :%, ampl]
+			invamt = Expression[[vars['inv_amt'], :+, ivars['inv_amt']], :%, ampl]
+			Expression[[[ivars['var'], vars[:sh_op], amt], :|, [ivars['var'], vars[:inv_sh_op], invamt]], :&, vars['mask']].reduce_rec
+		end
 	end
 
 	# a pattern-matching method
@@ -900,11 +916,11 @@ class EncodedData
 	# base defaults to the first export name + its offset
 	def binding(base = nil)
 		if not base
-			key = @export.keys.sort_by { |k| @export[k] }.first
+			key = @export.index(@export.values.min)
 			return {} if not key
 			base = (@export[key] == 0 ? key : Expression[key, :-, @export[key]])
 		end
-		@export.inject({}) { |binding, (n, o)| binding.update n => Expression[base, :+, o] }
+		@export.inject({}) { |binding, (n, o)| binding.update n => Expression.new(:+, o, base) }
 	end
 
 	# returns an array of variables that needs to be defined for a complete #fixup
@@ -940,36 +956,35 @@ class EncodedData
 
 	# concatenation of another +EncodedData+ (or nil/Fixnum/anything supporting String#<<)
 	def << other
-	
-		
 		case other
 		when nil
 		when ::Fixnum
 			fill
-			@data = @data.realstring if defined? VirtualString and @data.kind_of? VirtualString
+			@data = @data.to_str if not @data.kind_of? String
 			@data << other
 			@virtsize += 1
 		when EncodedData
 			fill if not other.data.empty?
-			other.reloc.each  { |k, v| @reloc[k + @virtsize] = v  }
-			cf = (other.export.keys & @export.keys).find_all { |k| other.export[k] != @export[k] - @virtsize }
-			raise "edata merge: label conflict #{cf.inspect}" if not cf.empty?
-			other.export.each { |k, v| @export[k] = v + @virtsize }
+			other.reloc.each  { |k, v| @reloc[k + @virtsize] = v  } if not other.reloc.empty?
+			if not other.export.empty?
+				other.export.each { |k, v|
+					if @export[k] and @export[k] != v + @virtsize
+						cf = (other.export.keys & @export.keys).find_all { |k_| other.export[k_] != @export[k_] - @virtsize }
+						raise "edata merge: label conflict #{cf.inspect}"
+					end
+					@export[k] = v + @virtsize
+				}
 			other.inv_export.each { |k, v| @inv_export[@virtsize + k] = v }
-			if @data.empty?; @data = other.data.dup
-			elsif defined? VirtualString and @data.kind_of? VirtualString; @data = @data.realstring << other.data
-			else
-				if(other.data.respond_to?('force_encoding'))
-					other.data.force_encoding("binary")
 				end
-				
-				@data << other.data
+			if @data.empty?; @data = other.data.dup
+			elsif not @data.kind_of?(String); @data = @data.to_str << other.data
+			else @data << other.data
 			end
 			@virtsize += other.virtsize
 		else
 			fill
 			if @data.empty?; @data = other.dup
-			elsif defined? VirtualString and @data.kind_of? VirtualString; @data = @data.realstring << other
+			elsif not @data.kind_of?(String); @data = @data.to_str << other
 			else @data << other
 			end
 			@virtsize += other.length
@@ -1094,6 +1109,32 @@ class EncodedData
 		raise "invalid offset specification #{to}" if not to.kind_of? Integer
 		raise EncodeError, 'cannot patch data: new content too long' if to - from < content.length
 		self[from, content.length] = content
+	end
+
+	# returns a list of offsets where /pat/ can be found inside @data
+	# scan is done per chunk of chunksz bytes, with a margin for chunk-overlapping patterns
+	# yields each offset found, and only include it in the result if the block returns !false
+	def pattern_scan(pat, chunksz=nil, margin=nil)
+		chunksz ||= 4*1024*1024 # scan 4MB at a time
+		margin  ||= 65536        # add this much bytes at each chunk to find /pat/ over chunk boundaries
+		pat = Regexp.new(Regexp.escape(pat)) if pat.kind_of? ::String
+
+		found = []
+		chunkoff = 0
+		while chunkoff < @data.length
+			chunk = @data[chunkoff, chunksz+margin].to_str
+			off = 0
+			while match_off = (chunk[off..-1] =~ pat)
+				break if off+match_off >= chunksz	# match fully in margin
+				match_addr = chunkoff + off + match_off
+				found << match_addr if not block_given? or yield(match_addr)
+				off += match_off + 1
+				# XXX +1 or +lastmatch.length ?
+				# 'aaaabc'.pattern_scan(/a*bc/) will match 5 times here
+			end
+			chunkoff += chunksz
+		end
+     		found
 	end
 end
 end

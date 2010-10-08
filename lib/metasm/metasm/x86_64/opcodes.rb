@@ -42,6 +42,7 @@ class X86_64
 		@opcode_list.delete_if { |o|
 			o.args.include? :modrmmmx or	# mmx is dead!
 			o.args.include? :regmmx or	# movd
+			o.args.include? :regfp or	# no fpu beyond this line
 			o.name == 'loadall' or
 			o.name == 'arpl'
 		}

@@ -551,6 +551,7 @@ class Preprocessor
 	def ungetchar
 		@pos = @ungetcharpos
 		@lineno = @ungetcharlineno
+		nil
 	end
 
 	# returns true if no more data is available
@@ -562,6 +563,7 @@ class Preprocessor
 	# lifo
 	def unreadtok(tok)
 		@queue << tok if tok
+		nil
 	end
 
 	# calls readtok_nopp and handles preprocessor directives
@@ -622,17 +624,88 @@ class Preprocessor
 	def readtok_nopp
 		return @queue.pop unless @queue.empty?
 
-		tok = Token.new((@backtrace.map { |bt| bt[0, 2] } + [@filename, @lineno]).flatten)
+		nbt = []
+		@backtrace.each { |bt| nbt << bt[0] << bt[1] }
+		tok = Token.new(nbt << @filename << @lineno)
 
 		case c = getchar
 		when nil
 			return nil
 		when ?', ?"
 			# read quoted string value
-			tok.type = :quoted
-			delimiter = c
+			readtok_nopp_str(tok, c)
+		when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
+			tok.type = :string
+			raw = tok.raw << c
+			loop do
+				case c = getchar
+				when nil; ungetchar; break		# avoids 'no method "coerce" for nil' warning
+				when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
+					raw << c
+				else ungetchar; break
+				end
+			end
+
+		when ?\ , ?\t, ?\r, ?\n, ?\f
+			tok.type = ((c == ?\  || c == ?\t) ? :space : :eol)
+			raw = tok.raw << c
+			loop do
+				case c = getchar
+				when nil; break
+				when ?\ , ?\t
+				when ?\n, ?\f, ?\r; tok.type = :eol
+				else break
+				end
+				raw << c
+			end
+			ungetchar
+
+		when ?/
+			raw = tok.raw << c
+			# comment
+			case c = getchar
+			when ?/
+				# till eol
+				tok.type = :eol
+				raw << c
+				while c = getchar
+					raw << c
+					break if c == ?\n
+				end
+			when ?*
+				tok.type = :space
+				raw << c
+				seenstar = false
+				loop do
+					raise tok, 'unterminated c++ comment' if not c = getchar
+					raw << c
+					case c
+					when ?*; seenstar = true
+					when ?/; break if seenstar	# no need to reset seenstar, already false
+					else seenstar = false
+					end
+				end
+			else
+				# just a slash
+				ungetchar
+				tok.type = :punct
+			end
+
+		else
+			tok.type = :punct
 			tok.raw << c
+		end
+
+		tok
+	end
+
+	# we just read a ' or a ", read until the end of the string
+	# tok.value will contain the raw string (with escapes interpreted etc)
+	def readtok_nopp_str(tok, delimiter)
+		tok.type = :quoted
+		tok.raw << delimiter
 			tok.value = ''
+		c = nil
 			loop do
 				raise tok, 'unterminated string' if not c = getchar
 				tok.raw << c
@@ -685,71 +758,9 @@ class Preprocessor
 				end
 			end
 
-		when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
-			tok.type = :string
-			tok.raw << c
-			loop do
-				case c = getchar
-				when nil; ungetchar; break		# avoids 'no method "coerce" for nil' warning
-				when ?a..?z, ?A..?Z, ?0..?9, ?$, ?_
-					tok.raw << c
-				else ungetchar; break
-				end
-			end
-
-		when ?\ , ?\t, ?\r, ?\n, ?\f
-			tok.type = :space
-			tok.raw << c
-			loop do
-				case c = getchar
-				when nil; break
-				when ?\ , ?\t
-				when ?\n, ?\f, ?\r; tok.type = :eol
-				else break
-				end
-				tok.raw << c
-			end
-			ungetchar
-			tok.type = :eol if tok.raw.index(?\n) or tok.raw.index(?\f)
-
-		when ?/
-			tok.raw << c
-			# comment
-			case c = getchar
-			when ?/
-				# till eol
-				tok.type = :eol
-				tok.raw << c
-				while c = getchar
-					tok.raw << c
-					break if c == ?\n
-				end
-			when ?*
-				tok.type = :space
-				tok.raw << c
-				seenstar = false
-				loop do
-					raise tok, 'unterminated c++ comment' if not c = getchar
-					tok.raw << c
-					case c
-					when ?*; seenstar = true
-					when ?/; break if seenstar	# no need to reset seenstar, already false
-					else seenstar = false
-					end
-				end
-			else
-				# just a slash
-				ungetchar
-				tok.type = :punct
-			end
-
-		else
-			tok.type = :punct
-			tok.raw << c
-		end
-
 		tok
 	end
+
 
 	# defines a simple preprocessor macro (expands to 0 or 1 token)
 	# does not check overwriting

@@ -204,6 +204,9 @@ class Decompiler
 	def new_global_var(addr, type, scope=nil)
 		addr = @dasm.normalize(addr)
 
+		# (almost) NULL ptr
+		return if addr.kind_of? Fixnum and addr >= 0 and addr < 32
+
 		# check preceding structure we're hitting
 		# TODO check what we step over when defining a new static struct
 		0x100.times { |i_|
@@ -485,7 +488,7 @@ class Decompiler
 			when C::Goto
 				if jumpto[s.target]
 					r = jumpto[s.target].dup
-					r.value = C::CExpression[r.value.reduce(@c_parser)] if r.kind_of? C::Return and r.value	# deep_dup
+					r.value = r.value.deep_dup if r.kind_of? C::Return and r.value.kind_of? C::CExpression
 					r
 				end
 			when C::Return

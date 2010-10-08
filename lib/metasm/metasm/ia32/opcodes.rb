@@ -176,6 +176,7 @@ class Ia32
 		addop('mov',   [0x8C], 0,    {:d => [0, 1], :seg3 => [1, 3]}, :seg3) { |op| op.args.reverse! }
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :reg_eax, :u8
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :u8
+		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_dx, :reg_eax
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_eax, :reg_dx
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_eax			# implicit arguments
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}

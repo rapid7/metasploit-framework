@@ -439,11 +439,11 @@ class COFF
 
 	# encodes a thunk to imported function
 	def arch_encode_thunk(edata, import)
-		case @cpu
-		when Ia32
+		case @cpu.shortname
+		when 'ia32', 'x64'
 			shellcode = lambda { |c| Shellcode.new(@cpu).share_namespace(self).assemble(c).encoded }
 			if @cpu.generate_PIC
-				if @cpu.size == 64
+				if @cpu.shortname == 'x64'
 					edata << shellcode["#{import.thunk}: jmp [rip-$_+#{import.target}]"]
 					return
 				end

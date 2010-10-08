@@ -860,8 +860,13 @@ class ELF
 	def init_disassembler
 		d = super()
 		d.backtrace_maxblocks_data = 4
-		case @cpu
-		when Ia32
+		if d.get_section_at(0)
+			# fixes call [constructor] => 0
+			d.decoded[0] = true
+			d.function[0] = @cpu.disassembler_default_func
+		end
+		case @cpu.shortname
+		when 'ia32', 'x64'
 			old_cp = d.c_parser
 			d.c_parser = nil
 			d.parse_c <<EOC
@@ -884,7 +889,7 @@ EOC
 			dls.btbind_callback = lambda { |dasm, bind, funcaddr, calladdr, expr, origin, maxdepth|
 				sz = @cpu.size/8
 				raise 'dlsym call error' if not dasm.decoded[calladdr]
-				if @cpu.kind_of? X86_64
+				if @cpu.shortname == 'x64'
 					arg2 = :rsi
 				else
 					arg2 = Indirection.new(Expression[:esp, :+, 2*sz], sz, calladdr)
@@ -898,7 +903,7 @@ EOC
 			df = d.function[:default] = @cpu.disassembler_default_func
 			df.backtrace_binding[@cpu.register_symbols[4]] = Expression[@cpu.register_symbols[4], :+, @cpu.size/8]
 			df.btbind_callback = nil
-		when MIPS
+		when 'mips'
 			(d.address_binding[@header.entry] ||= {})[:$t9] ||= Expression[@header.entry]
 			@symbols.each { |s|
 				next if s.shndx == 'UNDEF' or s.type != 'FUNC'

@@ -181,6 +181,7 @@ class Ia32
 		base      = op.bin.dup
 		oi        = op.args.zip(i.args)
 		set_field = lambda { |f, v|
+			v ||= 0		# ST => ST(0)
 			fld = op.fields[f]
 			base[fld[0]] |= v << fld[1]
 		}

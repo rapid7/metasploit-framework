@@ -409,3 +409,6 @@ class COFFArchive < ExeFormat
 	end
 end
 end
+
+require 'metasm/exe_format/coff_encode'
+require 'metasm/exe_format/coff_decode'

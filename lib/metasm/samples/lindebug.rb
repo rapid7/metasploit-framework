@@ -258,7 +258,7 @@ class LinDebug
 			text << '  '
 			x += r.length + 11
 		}
-		text << (' '*(@console_width-x)) << "\n" << ' '
+		text << (' '*([@console_width-x, 0].max)) << "\n" << ' '
 		x = 1
 		%w[esi edi ebp esp].each { |r|
 			text << Color[:changed] if @rs.regs_cache[r] != @rs.oldregs[r]
@@ -281,7 +281,7 @@ class LinDebug
 			text << ' '
 			x += 2
 		}
-		text << (' '*(@console_width-x)) << "\n"
+		text << (' '*([@console_width-x, 0].max)) << "\n"
 	end
 
 	def updatecode
@@ -342,7 +342,7 @@ class LinDebug
 			if di
 				text <<
 				if addr == @rs.regs_cache['eip']
-					"*#{di.instruction}".ljust(@console_width-37)
+					"*#{di.instruction}".ljust([@console_width-37, 0].max)
 				else
 					" #{di.instruction}" << Ansi::ClearLineAfter
 				end
@@ -368,7 +368,7 @@ class LinDebug
 		text << Color[:border]
 		title = @rs.findsymbol(addr)
 		pre  = [@console_width-100, 6].max
-		post = @console_width - (pre + title.length + 2)
+		post = [@console_width - (pre + title.length + 2), 0].max
 		text << Ansi.hline(pre) << ' ' << title << ' ' << Ansi.hline(post) << Color[:normal] << "\n"
 
 		cnt = @win_data_height

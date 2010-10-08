@@ -736,6 +736,9 @@ class FatELF < ExeFormat
 end
 end
 
+require 'metasm/exe_format/elf_encode'
+require 'metasm/exe_format/elf_decode'
+
 # TODO symbol version info
 __END__
 /*
@@ -905,6 +908,4 @@ typedef struct {
 #define	SYMINFO_NONE		0	/* Syminfo version */
 #define	SYMINFO_CURRENT		1
 #define	SYMINFO_NUM		2
-
- P
 

@@ -227,10 +227,11 @@ class VirtualString
 	# returns a new VirtualString (using dup) if the request is bigger than @pagelength bytes
 	def read_range(from, len)
 		from += @addr_start
-		base, page = cache_get_page(from)
 		if not len
+			base, page = cache_get_page(from)
 			page[from - base]
 		elsif len <= @pagelength
+			base, page = cache_get_page(from)
 			s = page[from - base, len]
 			if from+len-base > @pagelength		# request crosses a page boundary
 				base, page = cache_get_page(from+len)
@@ -845,6 +846,19 @@ class Debugger
 		end
 
 		instance_eval File.read(plugin_filename)
+	end
+
+	# see EData#pattern_scan
+	# scans only mapped areas of @memory, using os_process.mappings
+	def pattern_scan(pat)
+		ret = []
+		os_process.mappings.each { |a, l, *o|
+			EncodedData.new(@memory[a, l]).pattern_scan(pat) { |o|
+				o += a
+				ret << o if not block_given? or yield(o)
+			}
+		}
+		ret
 	end
 end
 end

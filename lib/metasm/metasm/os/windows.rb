@@ -22,7 +22,7 @@ typedef unsigned int UINT;
 typedef long LONG;
 typedef unsigned long ULONG, DWORD, *LPDWORD;
 typedef int BOOL;
-typedef unsigned long long DWORD64;
+typedef unsigned long long DWORD64, ULONGLONG;
 
 typedef intptr_t INT_PTR, LONG_PTR;
 typedef uintptr_t UINT_PTR, ULONG_PTR, DWORD_PTR, SIZE_T;
@@ -665,6 +665,38 @@ Thread32Next(
 	LPTHREADENTRY32 lpte
 );
 
+typedef struct _MEMORY_BASIC_INFORMATION32 {
+	DWORD BaseAddress;
+	DWORD AllocationBase;
+	DWORD AllocationProtect;	// initial (alloc time) prot
+	DWORD RegionSize;
+	DWORD State;	// MEM_FREE/COMMIT/RESERVE
+	DWORD Protect;	// PAGE_EXECUTE_READWRITE etc
+	DWORD Type;	// MEM_IMAGE/MAPPED/PRIVATE
+} MEMORY_BASIC_INFORMATION32, *PMEMORY_BASIC_INFORMATION32;
+
+typedef struct _MEMORY_BASIC_INFORMATION64 {
+	ULONGLONG BaseAddress;
+	ULONGLONG AllocationBase;
+	DWORD     AllocationProtect;
+	DWORD     __alignment1;
+	ULONGLONG RegionSize;
+	DWORD     State;
+	DWORD     Protect;
+	DWORD     Type;
+	DWORD     __alignment2;
+} MEMORY_BASIC_INFORMATION64, *PMEMORY_BASIC_INFORMATION64;
+
+SIZE_T
+WINAPI
+VirtualQueryEx(
+	HANDLE hProcess,
+	LPVOID lpAddress,
+	PMEMORY_BASIC_INFORMATION32 lpBuffer,
+	SIZE_T dwLength	// sizeof lpBuffer
+);
+
+
 EOS
 
 	new_api_c <<EOS, 'advapi32'
@@ -860,6 +892,35 @@ class WinOS < OS
 			WinAPI.closehandle(h)
 			list
 		end
+
+		# return a list of [addr_start, length, perms]
+		def mappings
+			addr = 0
+			list = []
+			info = WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{addrsz}")
+
+			while WinAPI.virtualqueryex(handle, addr, info, info.length)
+				addr += info[:regionsize]
+				next unless info[:state] & WinAPI::MEM_COMMIT > 0
+
+				prot = {
+					WinAPI::PAGE_NOACCESS => '---',
+					WinAPI::PAGE_READONLY => 'r--',
+					WinAPI::PAGE_READWRITE => 'rw-',
+					WinAPI::PAGE_WRITECOPY => 'rw-',
+					WinAPI::PAGE_EXECUTE => '--x',
+					WinAPI::PAGE_EXECUTE_READ => 'r-x',
+					WinAPI::PAGE_EXECUTE_READWRITE => 'rwx',
+					WinAPI::PAGE_EXECUTE_WRITECOPY => 'rwx'
+				}[info[:protect] & 0xff]
+				prot << 'g' if info[:protect] & WinAPI::PAGE_GUARD > 0
+				prot << 'p' if info[:type]    & WinAPI::MEM_PRIVATE > 0
+
+				list << [info[:baseaddress], info[:regionsize], prot]
+			end
+
+			list
+		end
 	end
 
 class << self
@@ -1004,12 +1065,6 @@ class WindowsRemoteString < VirtualString
 		page = [0].pack('C')*len
 		return if WinAPI.readprocessmemory(@handle, addr, page, len, 0) == 0
 		page
-	end
-
-	def realstring
-		s = [0].pack('C') * @length
-		WinAPI.readprocessmemory(@handle, @addr_start, s, @length, 0)
-		s
 	end
 end
 

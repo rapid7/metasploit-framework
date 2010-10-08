@@ -168,6 +168,8 @@ end
 
 	# parses an arbitrary ia32 instruction argument
 	def parse_argument(lexer)
+		lexer = AsmPreprocessor.new(lexer) if lexer.kind_of? String
+
 		# reserved names (registers/segments etc)
 		@args_token ||= [Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg].map { |a| a.s_to_i.keys }.flatten.inject({}) { |h, e| h.update e => true }
 
@@ -238,7 +240,7 @@ end
 
 		cond = true
 		if s = o.props[:argsz] and (arg.kind_of? Reg or arg.kind_of? ModRM)
-			cond = (!arg.sz or arg.sz == s)
+			cond = (!arg.sz or arg.sz == s or spec == :reg_dx)
 		end
 
 		cond and

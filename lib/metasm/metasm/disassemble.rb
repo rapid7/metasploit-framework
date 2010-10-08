@@ -657,6 +657,8 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 				split_block(di.block, di.address) if not di.block_head?	# this updates di.block
 				di.block.add_from(from, from_subfuncret ? :subfuncret : :normal) if from and from != :default
 				bf = di.block
+			elsif di == true
+				bf = @function[addr]
 			end
 		elsif bf = @function[addr]
 			detect_function_thunk_noreturn(from) if bf.noreturn
@@ -1943,20 +1945,23 @@ puts "   backtrace_indirection for #{ind.target} failed: #{ev}" if debug_backtra
 		vals = []
 		edata.ptr = off
 		dups = dumplen/elemlen
+		elemsym = "u#{elemlen*8}".to_sym
 		while edata.ptr < edata.data.length
-			if vals.length > dups and vals.uniq.length > 1
+			if vals.length > dups and vals.last != vals.first
+				# we have a dup(), unread the last element which is different
 				vals.pop
 				addr = Expression[addr, :-, elemlen].reduce
 				edata.ptr -= elemlen
 				break
 			end
 			break if vals.length == dups and vals.uniq.length > 1
-			vals << edata.decode_imm("u#{elemlen*8}".to_sym, @cpu.endianness)
+			vals << edata.decode_imm(elemsym, @cpu.endianness)
 			addr += elemlen
 			if i = (1-elemlen..0).find { |i_|
 				t = addr + i_
 				@xrefs[t] or @decoded[t] or edata.reloc[edata.ptr+i_] or edata.inv_export[edata.ptr+i_]
 			}
+				# i < 0
 				edata.ptr += i
 				addr += i
 				break

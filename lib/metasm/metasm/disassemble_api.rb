@@ -700,18 +700,11 @@ class Disassembler
 
 		found = []
 		@sections.each { |sec_addr, e|
-			chunkoff = 0
-			while chunkoff < e.data.length
-				chunk = e.data[chunkoff, chunksz+margin].to_str
-				off = 0
-				while match_off = (chunk[off..-1] =~ pat)
-					break if off+match_off >= chunksz
-					match_addr = sec_addr + chunkoff + off + match_off
+			e.pattern_scan(pat, chunksz, margin) { |eo|
+				match_addr = sec_addr + eo
 					found << match_addr if not block_given? or yield(match_addr)
-					off += match_off + 1
-				end
-				chunkoff += chunksz
-			end
+				false
+			}
 		}
 		found
 	end
