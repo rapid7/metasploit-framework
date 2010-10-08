@@ -44,7 +44,7 @@ module MeterpreterOptions
 			end
 			
 			begin
-				::Timeout.timeout(10) do 
+				::Timeout.timeout(30) do 
 					if session.railgun and session.railgun.shell32.IsUserAnAdmin()["return"] == true
 						session.load_priv
 						session.info += " (ADMIN)"

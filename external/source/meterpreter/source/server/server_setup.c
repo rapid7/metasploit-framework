@@ -251,7 +251,8 @@ static BOOL server_negotiate_ssl(Remote *remote)
 {
 	BOOL success = TRUE;
 	SOCKET fd    = 0;
-    DWORD ret    = 0;
+	DWORD ret    = 0;
+	DWORD res    = 0;
 
 	lock_acquire( remote->lock );
 
@@ -274,12 +275,23 @@ static BOOL server_negotiate_ssl(Remote *remote)
 			break;
 		}
 		
-		if( (ret = SSL_connect(remote->ssl)) != 1 )
-		{
-			dprintf("[SERVER] connect failed %d\n", SSL_get_error(remote->ssl, ret));
-			success = FALSE;
-			break;
-		}
+		do {
+			if( (ret = SSL_connect(remote->ssl)) != 1 )
+			{
+				res = SSL_get_error(remote->ssl, ret);
+				dprintf("[SERVER] connect failed %d\n", res);
+
+				if (res == SSL_ERROR_WANT_READ || res == SSL_ERROR_WANT_WRITE) {
+					// Catch non-blocking socket errors and retry
+					continue;
+				}
+
+				success = FALSE;
+				break;
+			}
+		} while(ret != 1);
+		
+		if (success == FALSE) break;
 
 		dprintf("[SERVER] Sending a HTTP GET request to the remote side...");
 

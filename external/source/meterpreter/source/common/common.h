@@ -68,7 +68,7 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #ifdef _WIN32
 
-//#define DEBUGTRACE
+// #define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)

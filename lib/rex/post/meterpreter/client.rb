@@ -42,6 +42,16 @@ class Client
 	@@ext_hash = {}
 
 	#
+	# Cached SSL certificate (required to scale)
+	#
+	@@ssl_ctx = nil
+	
+	#
+	# Mutex to synchronize class-wide operations
+	#
+	@@ssl_mutex = ::Mutex.new
+
+	#
 	# Checks the extension hash to see if a class has already been associated
 	# with the supplied extension name.
 	#
@@ -133,6 +143,11 @@ class Client
 	end
 
 	def generate_ssl_context
+		@@ssl_mutex.synchronize do 
+		if not @@ssl_ctx
+		
+		wlog("Generating SSL certificate for Meterpreter sessions")
+	
 		key  = OpenSSL::PKey::RSA.new(1024){ }
 		cert = OpenSSL::X509::Certificate.new
 		cert.version = 2
@@ -175,7 +190,14 @@ class Client
 
 		ctx.session_id_context = Rex::Text.rand_text(16)
 
-		return ctx
+		wlog("Generated SSL certificate for Meterpreter sessions")
+		
+		@@ssl_ctx = ctx
+		
+		end # End of if not @ssl_ctx
+		end # End of mutex.synchronize
+		
+		@@ssl_ctx
 	end
 
 	#
@@ -197,7 +219,7 @@ class Client
 	# waiting for a response.
 	#
 	def Client.default_timeout
-		return 30
+		return 300
 	end
 
 	##

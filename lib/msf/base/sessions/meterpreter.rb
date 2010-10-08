@@ -187,7 +187,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def load_stdapi()
 		original = console.disable_output
-
 		console.disable_output = true
 		console.run_single('use stdapi')
 		console.disable_output = original
@@ -209,7 +208,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def load_session_info()
 		begin
-			::Timeout.timeout(20) do
+			::Timeout.timeout(60) do
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
 				self.info = "#{username} @ #{sysinfo['Computer']}"
