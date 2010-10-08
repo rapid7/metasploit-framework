@@ -206,7 +206,7 @@ class Rex::Socket::Comm::Local
 
 		# If a server TCP instance is being created...
 		if (param.server?)
-			sock.listen(32)
+			sock.listen(128)
 
 			if (param.bare? == false)
 				klass = Rex::Socket::TcpServer
