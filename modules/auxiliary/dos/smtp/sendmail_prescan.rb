@@ -14,7 +14,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Smtp
+	include Msf::Exploit::Remote::Smtp
 	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})

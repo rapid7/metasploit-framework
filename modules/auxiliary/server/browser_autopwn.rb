@@ -734,8 +734,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	# consider abstracting this out to a method (probably
-	# with a different name) of Auxiliary::Report or
-	# Exploit::Remote::HttpServer
+	# with a different name) of Msf::Auxiliary::Report or
+	# Msf::Exploit::Remote::HttpServer
 	def record_detection(cli, request)
 		os_name = nil
 		os_flavor = nil

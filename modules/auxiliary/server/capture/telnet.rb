@@ -14,8 +14,8 @@ require 'msf/core'
 # Fake Telnet Service - Kris Katterjohn 09/28/2008
 class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::TcpServer
-	include Auxiliary::Report
+	include Msf::Exploit::Remote::TcpServer
+	include Msf::Auxiliary::Report
 
 	def initialize
 		super(

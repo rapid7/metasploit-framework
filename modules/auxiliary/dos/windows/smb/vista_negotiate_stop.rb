@@ -11,8 +11,8 @@
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Exploit::Remote::Tcp
-	include Auxiliary::Dos
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Dos
 
 	def initialize(info = {})
 		super(update_info(info,
