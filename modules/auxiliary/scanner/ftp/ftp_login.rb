@@ -55,8 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 		if check_banner
 			each_user_pass { |user, pass|
 				next if user.nil? || user.empty?
-				do_login(user,pass)
+				ret = do_login(user,pass)
 				ftp_quit if datastore['SINGLE_SESSION']
+				return ret
 			}
 			check_anonymous
 		else
