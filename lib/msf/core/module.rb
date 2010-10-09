@@ -340,10 +340,24 @@ class Module
 	end
 
 	#
-	# Returns the username that instantiated this module
+	# Returns the username that instantiated this module, this tries a handful of methods
+	# to determine what actual user ran this module. 
 	#
 	def owner
-		self.datastore['MODULE_OWNER']
+		# Generic method to configure a module owner
+		username = self.datastore['MODULE_OWNER'].to_s.strip
+		
+		# Specific method used by the commercial products
+		if username.empty?
+			username = self.datastore['PROUSER'].to_s.strip
+		end
+		
+		# Fallback when neither prior method is available, common for msfconsole
+		if username.empty?
+			username = (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_.strip
+		end
+
+		username
 	end
 
 	#
