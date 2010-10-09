@@ -16,7 +16,6 @@ end
 $:.unshift(File.join(File.expand_path(File.dirname(msfbase)), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-require 'rex'
 require 'optparse'
 
 if(RUBY_PLATFORM =~ /mswin32/)
@@ -93,12 +92,13 @@ end
 
 options = OptsConsole.parse(ARGV)
 
-
 #
 # NOTE: we don't require this until down here since we may not need it
 # when processing certain options (currently only -h)
 #
+require 'rex'
 require 'msf/ui'
+
 #
 # Everything below this line requires the framework.
 #
