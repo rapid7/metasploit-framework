@@ -354,7 +354,7 @@ class Module
 		
 		# Fallback when neither prior method is available, common for msfconsole
 		if username.empty?
-			username = (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_.strip
+			username = (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip
 		end
 
 		username
