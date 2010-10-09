@@ -2946,7 +2946,7 @@ class DBManager
 		# We throw interrupts in our parser when the job is hopeless
 		begin
 			REXML::Document.parse_stream(data, parser)
-		rescue ::Interrupt
+		rescue ::Interrupt => e
 			wlog("The netsparker_xml_import() job was interrupted: #{e}")
 		end
 	end
