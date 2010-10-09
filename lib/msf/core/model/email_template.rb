@@ -10,7 +10,7 @@ class EmailTemplate < ActiveRecord::Base
 	serialize :prefs
 
 	serialized_prefs_attr_accessor :exploit_name, :exploit_opts
-	serialized_prefs_attr_accessor :generate_exe, :exe_filename
+	serialized_prefs_attr_accessor :attach_exe
 end
 
 end
