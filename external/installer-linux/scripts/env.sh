@@ -8,5 +8,5 @@ unset MY_RUBY_HOME
 unset RUBY_VERSION
 unset RUBY_OPTS
 
-$@
+"$@"
 

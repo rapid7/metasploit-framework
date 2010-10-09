@@ -24,8 +24,8 @@ unset RUBY_VERSION
 unset RUBY_OPTS
 
 if [ -f "${BASE}/msf3/${NAME}" ]; then
-	exec ${BASE}/msf3/${NAME} $@
+	exec ${BASE}/msf3/${NAME} "$@"
 fi
 
-exec ${NAME} $@
+exec ${NAME} "$@"
 
