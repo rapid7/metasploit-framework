@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 				next if user.nil? || user.empty?
 				ret = do_login(user,pass)
 				ftp_quit if datastore['SINGLE_SESSION']
-				return ret
+				ret
 			}
 			check_anonymous
 		else
