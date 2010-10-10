@@ -1,9 +1,12 @@
-#
-# $Id$
-# $Revision$
-#
-
-#$:.unshift(File.dirname(__FILE__))
+##
+## $Id$
+##
+## This is the main lab controller which will call out to other controller
+## libraries. Requiring this file and specifying the type of VM at initialization
+## will allow you to start/stop/snapshot/revert & run commands on VMs
+##
+## $Revision$
+##
 
 require 'find'
 require 'vmware_controller'

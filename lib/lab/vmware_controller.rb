@@ -1,9 +1,13 @@
-#
-# $Id$
-# $Revision$
-#
-# Lower level methods which are ~generic to vm software - VmwareController Wraps vmrun and gives us basic vm functionality 
-#
+##
+## $Id$
+##
+## This class contains lower-level methods (than the lab_controller) and is specific
+## to vmware. Do not require this file directly. Instead, require the lab_controller, 
+## and specify the type of VM at initialization. 
+##
+## $Revision$
+##
+
 class VmwareController
 
 	def initialize

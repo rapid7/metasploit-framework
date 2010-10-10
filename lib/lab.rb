@@ -1,4 +1,11 @@
-## requring this module will give access to all lab-specific functionality
+##
+## $Id$
+##
+## Requiring this file will give access to lab functionality. Specifically
+##  the ability to start/stop/snapshot/revert & run commands on VMs
+##
+## $Revision$
+##
 
 # Controllers
-require 'lab/vmware_lab_controller'
+require 'lab/lab_controller'
