@@ -1,84 +1,27 @@
-class Test::Unit::TestCase
+## This class consists of assert helper methods for regexing logs
+##
+## $id$
+$:.unshift(File.expand_path(File.dirname(__FILE__)) 
 
-	@case_insensitive = true
+require 'regexr'
+require 'test/unit'
 
-	# All tests will scan for start and end lines. This ensures the task
-	# actually completed and didn't hang, and that the start and end lines
-	# are actually at the start and end of the task file.
-	def scan_for_startend(data,thestart,theend)
-		data_lines = data.split("\n")
-		regex_start   = Regexp.new(thestart, @case_insensitive)
-		regex_endline = Regexp.new(theend, @case_insensitive)
+class MSFTest < Test::Unit::TestCase
 
-		assert_match regex_start, data_lines.first
-		assert_match regex_endline, data_lines.last
+	def initialize 
+		@case_insensitive = true
+		@regexr = Regexr.new
 	end
 
-	# Tests can scan for any number of success lines. In order to pass,
-	# all successes must match.
-	def scan_for_successes(data,regexes)
-		data_lines = data.split("\n")
-		if regexes
-			success = false
-			target_successes = regexes.size
-			count = 0
-			regexes.each { |condition|
-				matched = false
-				re = Regexp.new(condition, @case_insensitive)
-				data_lines.each {|line|
-					if line =~ re
-						count += 1
-						matched = true
-						break
-					end
-				}
-				# A way to tell if a match was never found.
-				assert matched, "Didn't see success condition '#{condition}'"
-				
-			}
-			assert_equal target_successes, count, "Didn't get enough successes, somehow.\n"
-		else
-			assert true # No successes are defined, so count this as a pass.
-		end
+	def assert_complete(data,thestart,theend)
+		assert_true @regexr.verify_start_and_end(data,thestart,theend), "The start or end did not match the expected string"
 	end
 
-	# Tests may scan for failures -- if any failure matches, the test flunks.
-	def scan_for_failures(data,regexes,exceptions)
-		data_lines = data.split("\n")
-		if regexes
-			regexes.each {|condition|
-				## for each failure condition that we've been passed 
-				re = Regexp.new(condition, @case_insensitive)
-				## we'll look at the whole doc
-				data_lines.each {|line|
-					if line =~ re
-						## First check the exceptions to make sure that this wasn't among them. 
-						##  The reason for exceptions is that we may want to check for generic error 
-						##  messages but have specific matched strings which we know are harmless.
-						
-						## Guilty til proven innocent, assume it's not an exception
-						guilty = true
-				
-						## But let's check anyway
-						exceptions.map { |exception|
-							reg_exception = Regexp.new(exception, @case_insensitive)
-							## if the exception matches here, we'll spare it
-							if line =~ reg_exception 
-								guilty = false
-								break
-							end
-						}
-
-						## If we didn't find an exception, we have to flunk. do not pass go. 
-						if guilty
-							flunk "Saw failure condition '#{condition}' in #{line}; regex matched: #{re.inspect}"
-						end
-					end
-				}
-			}
-		else
-			assert true # No failures, so count this as a pass.
-		end
+	def assert_all_successes(data, regexes)
+		assert_true @regexr.scan_for_successes(data,regexes), "All strings were found in the data"
 	end
 
+	def assert_no_failures(data, regexes, exceptions)
+		assert_true @regexr.scan_for_failures(data,regexes,exceptions), "A non-exccepted failure was found in the data"
+	end
 end
