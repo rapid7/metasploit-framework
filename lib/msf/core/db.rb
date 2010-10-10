@@ -1537,13 +1537,18 @@ class DBManager
 		wspace = opts.delete(:workspace) || workspace
 		
 		path    = opts[:path]
-		meth    = opts[:method].to_s.upcase
+		meth    = opts[:method]
 		para    = opts[:params] || []
 		quer    = opts[:query].to_s
 		pname   = opts[:pname]
 		proof   = opts[:proof]
 		risk    = opts[:risk].to_i
 		name    = opts[:name].to_s.strip
+		blame   = opts[:blame].to_s.strip
+		desc    = opts[:description].to_s.strip
+		conf    = opts[:confidence].to_i
+		cat     = opts[:category].to_s.strip			
+		
 		site    = nil
 
 		if not (path and meth and proof and pname)
@@ -1557,7 +1562,15 @@ class DBManager
 		if risk < 0 or risk > 5
 			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive)"
 		end
-		
+
+		if conf < 0 or conf > 100
+			raise ArgumentError, "report_web_vuln requires the confidence to be between 1 and 100 (inclusive)"
+		end
+
+		if cat.empty?
+			raise ArgumentError, "report_web_vuln requires the category to be a valid string"
+		end
+						
 		if name.empty?
 			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
 		end
@@ -1579,11 +1592,17 @@ class DBManager
 		ret = {}
 		task = queue(Proc.new {
 		
-		
-			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_query(site[:id], path, meth, pname, name, quer)
-			vuln.risk   = risk
-			vuln.params = para
-			vuln.proof  = proof.to_s	
+			meth = meth.to_s.upcase
+			
+			vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_category_and_query(site[:id], path, meth, pname, cat, quer)
+			vuln.name     = name			
+			vuln.risk     = risk
+			vuln.params   = para
+			vuln.proof    = proof.to_s	
+			vuln.category = cat
+			vuln.blame    = blame
+			vuln.description = desc
+			vuln.confidence  = conf
 			msf_import_timestamps(opts, vuln)
 			vuln.save!
 
