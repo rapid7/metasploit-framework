@@ -8,6 +8,8 @@
 ## $Revision$
 ##
 
+$:.unshift(File.expand_path(File.dirname(__FILE__))) ## Msf Test libraries
+
 require 'find'
 require 'vmware_controller'
 
