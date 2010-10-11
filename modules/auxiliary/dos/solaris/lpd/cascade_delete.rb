@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		dataf = Rex::Text.rand_text_alpha(100)+1
 
-		print_status("Deleting #{datstore['RPATH']}...")
+		print_status("Deleting #{datastore['RPATH']}...")
 		if !(
 				send_file(sock1, 2, "cfA" + jid + r_hostname, control) and
 				send_file(sock1, 3, "dfa" + jid + r_hostname, dataf)
