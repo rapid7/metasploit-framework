@@ -334,6 +334,18 @@ public class InteractWindow extends MsfFrame {
 		}else if(evt.getKeyCode() == KeyEvent.VK_DOWN){
 			currentCommand = (currentCommand + 1) % commands.size();
 			inputField.setText(commands.get(currentCommand).toString());
+		}else if (evt.isControlDown() && cmdPrefix.equals("console.")) {
+			try {
+				if (evt.getKeyCode() == KeyEvent.VK_C){
+					rpcConn.execute("console.session_kill", session.get("id"));
+					outputArea.append("killing session...\n");
+				}else  if (evt.getKeyCode() == KeyEvent.VK_Z){
+					rpcConn.execute("console.session_detach", session.get("id"));
+					outputArea.append("backgrounding session...\n");
+				}
+			} catch (MsfException ex) {
+				JOptionPane.showMessageDialog(null, ex);
+			}
 		}
 	}//GEN-LAST:event_inputFieldKeyPressed
 
