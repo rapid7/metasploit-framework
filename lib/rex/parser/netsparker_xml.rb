@@ -13,7 +13,7 @@ class NetSparkerXMLStreamParser
 
 	def reset_state
 		@state = :generic_state
-		@vuln  = {}
+		@vuln  = {'info' => []}
 		@attr  = {}
 	end
 
@@ -54,8 +54,10 @@ class NetSparkerXMLStreamParser
 			@vuln["response"] ||= ""
 			@vuln["response"]  += str
 		when :in_info
-			@vuln['info'] ||= ""		
-			@vuln['info']  += str
+			# <info name="Identified Internal Path(s)">C:\AppServ\www\test-apps\dokeos\main\inc\banner.inc.php</info>
+			if not str.to_s.strip.empty?
+				@vuln['info'] << [@attr['name'] || "Information", str]
+			end
 		when :in_netsparker
 		when :in_target
 		when :in_scantime
@@ -71,7 +73,7 @@ class NetSparkerXMLStreamParser
 		case name
 		when "vulnerability"
 			@vuln.keys.each do |k|
-				@vuln[k] = @vuln[k].strip
+				@vuln[k] = @vuln[k].strip if @vuln[k].kind_of?(::String)
 			end
 			on_found_vuln.call(@vuln) if on_found_vuln
 			reset_state

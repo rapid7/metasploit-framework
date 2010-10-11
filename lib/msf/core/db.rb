@@ -1552,19 +1552,19 @@ class DBManager
 		site    = nil
 
 		if not (path and meth and proof and pname)
-			raise ArgumentError, "report_web_vuln requires the path, method, proof, risk, name, params, and pname parameters"
+			raise ArgumentError, "report_web_vuln requires the path, method, proof, risk, name, params, and pname parameters. Received #{opts.inspect}"
 		end
 		
 		if not %W{GET POST PATH}.include?(meth)
-			raise ArgumentError, "report_web_vuln requires the method to be one of GET, POST, PATH"
+			raise ArgumentError, "report_web_vuln requires the method to be one of GET, POST, PATH. Received '#{meth}'"
 		end
 		
 		if risk < 0 or risk > 5
-			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive)"
+			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive). Received '#{risk}'"
 		end
 
 		if conf < 0 or conf > 100
-			raise ArgumentError, "report_web_vuln requires the confidence to be between 1 and 100 (inclusive)"
+			raise ArgumentError, "report_web_vuln requires the confidence to be between 1 and 100 (inclusive). Received '#{conf}'"
 		end
 
 		if cat.empty?
@@ -2448,13 +2448,14 @@ class DBManager
 					end
 					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))				
 				when "vuln"
-					%W{path query method pname proof risk name}.each do |datum|
+					%W{path query method pname proof risk name blame description category}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 						end					
 					end
 					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))		
 					info[:risk]   = info[:risk].to_i			
+					info[:confidence] = info[:confidence].to_i							
 				end
 									
 				%W{created-at updated-at}.each { |datum|
@@ -2841,7 +2842,7 @@ class DBManager
 		import_netsparker_xml(args.merge(:data => data))
 	end
 
-	# Process Retina XML
+	# Process NetSparker XML
 	def import_netsparker_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
@@ -2881,9 +2882,7 @@ class DBManager
 			data[:vhost] = uri.host
 			data[:port]  = uri.port
 			data[:ssl]   = (uri.scheme == "ssl")
-
-			msf_vrisk,msf_vtype = netsparker_vuln_map(vuln['type'])
-			
+		
 			body = nil
 			# First report a web page
 			if vuln['response']
@@ -2940,24 +2939,49 @@ class DBManager
 				end
 			end # End web_page reporting
 			
+			
+			details = netsparker_vulnerability_map(vuln)
+			
 			method = netsparker_method_map(vuln)
 			pname  = netsparker_pname_map(vuln)
 			params = netsparker_params_map(vuln)
+			
+			proof  = ''
+			
+			if vuln['info'] and vuln['info'].length > 0
+				proof << vuln['info'].map{|x| "#{x[0]}: #{x[1]}\n" }.join + "\n"
+			end
+			
+			if proof.empty?
+				if body
+					proof << body + "\n"
+				else
+					proof << vuln['response'].to_s + "\n"
+				end
+			end
+			
+			if params.empty? and pname
+				params = [[pname, vuln['vparam_name'].to_s]]
+			end
 
-		
 			info = {
 				:path     => uri.path,
 				:query    => uri.query,
 				:method   => method,
 				:params   => params,
 				:pname    => pname.to_s,
-				:proof    => vuln['info'] || body || "",
-				:risk     => web_lookup_risk_value(msf_vrisk),
-				:name     => vuln['type'] || ""
+				:proof    => proof,
+				:risk     => details[:risk],
+				:name     => details[:name],
+				:blame    => details[:blame],
+				:category => details[:category],
+				:description => details[:description],
+				:confidence  => details[:confidence],				
 			}
 			info.merge!(data)
 			
 			next if vuln['type'].to_s.empty?
+			
 			report_web_vuln(info)
 			yield(:web_vuln, url) if block			
 		end
@@ -2968,10 +2992,6 @@ class DBManager
 		rescue ::Interrupt => e
 			wlog("The netsparker_xml_import() job was interrupted: #{e}")
 		end
-	end
-	
-	def web_lookup_risk_value(rname)
-		%W{none info disclosure low medium high}.index(rname.to_s.downcase) || 0
 	end
 	
 	def netsparker_method_map(vuln)
@@ -2991,8 +3011,8 @@ class DBManager
 	
 	def netsparker_pname_map(vuln)
 		case vuln['vparam_name']
-		when "URI-BASED"
-		when "Query Based"
+		when "URI-BASED", "Query Based"
+			"PATH"
 		else
 			vuln['vparam_name']
 		end
@@ -3002,48 +3022,196 @@ class DBManager
 		[]
 	end
 	
-	def netsparker_vuln_map(vtype)
-		case vtype
+	def netsparker_vulnerability_map(vuln)
+		res = {
+			:risk => 1,
+			:name  => 'Information Disclosure',
+			:blame => 'System Administrator',
+			:category => 'info',
+			:description => "This is an information leak",
+			:confidence => 100
+		}
+		
+		# Risk is a value from 1-5 indicating the severity of the issue
+		#	Examples: 1, 4, 5
+		
+		# Name is a descriptive name for this vulnerability.
+		#	Examples: XSS, ReflectiveXSS, PersistentXSS
+		
+		# Blame indicates who is at fault for the vulnerability
+		#	Examples: App Developer, Server Developer, System Administrator
+
+		# Category indicates the general class of vulnerability
+		#	Examples: info, xss, sql, rfi, lfi, cmd
+		
+		# Description is a textual summary of the vulnerability
+		#	Examples: "A reflective cross-site scripting attack"
+		#             "The web server leaks the internal IP address"
+		#             "The cookie is not set to HTTP-only"
+		
+		#
+		# Confidence is a value from 1 to 100 indicating how confident the 
+		# software is that the results are valid.
+		#	Examples: 100, 90, 75, 15, 10, 0
+
+		case vuln['type'].to_s
 		when "ApacheDirectoryListing"
-			[:low, :info]
+			res = {
+				:risk => 1,
+				:name  => 'Directory Listing',
+				:blame => 'System Administrator',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
 		when "ApacheMultiViewsEnabled"
-			[:low, :info]		
+			res = {
+				:risk => 1,
+				:name  => 'Apache MultiViews Enabled',
+				:blame => 'System Administrator',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
 		when "ApacheVersion"
-			[:none, :info]
-		when "AutoCompleteEnabled"
-			[:low, :info]		
-		when "ConfirmedBlindSQLInjection"
-			[:high, :sql]		
-		when "ConfirmedSQLInjection"
-			[:high, :sql]				
-		when "CookieNotMarkedAsHttpOnly"
-			[:none, :info]		
-		when "DatabaseErrorMessages"
-			[:medium, :info]		
-		when "EmailDisclosure"
-			[:none, :info]		
-		when "FileUploadFound"
-			[:none, :info]			
-		when "ForbiddenResource"
-			[:none, :info]			
-		when "HighlyPossibleSqlInjection"
-			[:medium, :sql]	 
-		when "MySQL5Identified"
-			[:none, :info]		
+			res = {
+				:risk => 1,
+				:name  => 'Web Server Version',
+				:blame => 'System Administrator',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
 		when "PHPVersion"
-			[:none, :info]		
+			res = {
+				:risk => 1,
+				:name  => 'PHP Module Version',
+				:blame => 'System Administrator',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "AutoCompleteEnabled"
+			res = {
+				:risk => 1,
+				:name  => 'Form AutoComplete Enabled',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "CookieNotMarkedAsHttpOnly"
+			res = {
+				:risk => 1,
+				:name  => 'Cookie Not HttpOnly',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "EmailDisclosure"
+			res = {
+				:risk => 1,
+				:name  => 'Email Address Disclosure',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "ForbiddenResource"
+			res = {
+				:risk => 1,
+				:name  => 'Forbidden Resource',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "FileUploadFound"
+			res = {
+				:risk => 1,
+				:name  => 'File Upload Form',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
 		when "PasswordOverHTTP"
-			[:medium, :info]			
+			res = {
+				:risk => 2,
+				:name  => 'Password Over HTTP',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "MySQL5Identified"
+			res = {
+				:risk => 1,
+				:name  => 'MySQL 5 Identified',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
 		when "PossibleInternalWindowsPathLeakage"
-			[:medium, :info]		
-		when "PossibleXSS", "LowPossibilityPermanentXSS"
-			[:low, :xss]
-		when "XSS", "PermanentXSS"
-			[:medium, :xss]
+			res = {
+				:risk => 1,
+				:name  => 'Path Leakage - Windows',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}
+		when "PossibleInternalUnixPathLeakage"
+			res = {
+				:risk => 1,
+				:name  => 'Path Leakage - Unix',
+				:blame => 'App Developer',
+				:category => 'info',
+				:description => "",
+				:confidence => 100
+			}			
+		when "PossibleXSS", "LowPossibilityPermanentXSS", "XSS", "PermanentXSS"																																
+			conf = 100
+			conf = 25  if vuln['type'].to_s == "LowPossibilityPermanentXSS"
+			conf = 50  if vuln['type'].to_s == "PossibleXSS"
+			res = {
+				:risk => 3,
+				:name  => 'Cross-Site Scripting',
+				:blame => 'App Developer',
+				:category => 'xss',
+				:description => "",
+				:confidence => conf
+			}						
+		
+		when "ConfirmedBlindSQLInjection", "ConfirmedSQLInjection", "HighlyPossibleSqlInjection", "DatabaseErrorMessages"
+			conf = 100
+			conf = 90  if vuln['type'].to_s == "HighlyPossibleSqlInjection"
+			conf = 25  if vuln['type'].to_s == "DatabaseErrorMessages"
+			res = {
+				:risk => 5,
+				:name  => 'SQL Injection',
+				:blame => 'App Developer',
+				:category => 'sql',
+				:description => "",
+				:confidence => conf
+			}		
 		else
-			[:none, :info]
+		conf = 100
+		res = {
+			:risk => 1,
+			:name  => vuln['type'].to_s,
+			:blame => 'App Developer',
+			:category => 'info',
+			:description => "",
+			:confidence => conf
+		}			
 		end
+		
+		res
 	end
+
 	
 	#
 	# Import Nmap's -oX xml output
