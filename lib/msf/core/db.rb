@@ -2448,7 +2448,7 @@ class DBManager
 					end
 					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))				
 				when "vuln"
-					%W{path query method pname proof risk name blame description category}.each do |datum|
+					%W{path query method pname proof risk name blame description category confidence}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 						end					
