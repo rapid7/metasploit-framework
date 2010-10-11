@@ -20,7 +20,7 @@ class Campaign < ActiveRecord::Base
 
 	# Web settings
 	serialized_prefs_attr_accessor :do_web
-	serialized_prefs_attr_accessor :web_uripath, :web_srvport, :web_srvhost
+	serialized_prefs_attr_accessor :web_uripath, :web_urihost, :web_srvport, :web_srvhost
 	serialized_prefs_attr_accessor :web_ssl
 
 	# Executable settings
