@@ -6,22 +6,22 @@
 
 class Regexr
 
-	def initialize 
-		@verbose = true
+	def initialize(verbose=false)
+		@verbose = verbose
 	end
 
 	# Check for the beginning line. Handy when you need to ensure a log has started
 	def verify_start(data,the_start)
 		data_lines = data.split("\n")
 		regex_start = Regexp.new(the_start, @case_insensitive)
-		return regex_start.match(data_lines.first)
+		return regex_start =~ data_lines.first
 	end
 
 	# Check for end line. Handy when you need to ensure a log has completed.
 	def verify_end(data,the_end)
 		data_lines = data.split("\n")
 		regex_end = Regexp.new(the_end, @case_insensitive)
-		return regex_end.match(data_lines.last)
+		return regex_end =~ data_lines.last
 	end
 
 	# Check for the beginning and end lines. Handy when you need to ensure a log has started & completed
@@ -32,26 +32,71 @@ class Regexr
 
 
 		## yuck, refactor this - TODO
-		if regex_start.match == data_lines.first
+		if regex_start =~ data_lines.first
 			return regex_endline == data_lines.last
 		end
 		
 		return false
 	end
 
+	# Scan for a success line. In order to pass, the string must exist in the data
+	def ensure_exists_in_data(data,regex_string)
+			data_lines = data.split("\n")
+			re = Regexp.new(regex_string, @case_insensitive)
+	
+			data_lines.each {|line|
+				if line =~ re
+					return true
+				end
+			}
+
+		return false
+	end
+
+	# Scan for a fail line. In order to pass, the string must not exist in the data
+	def ensure_doesnt_exist_in_data(data,regex_string)
+			data_lines = data.split("\n")
+			re = Regexp.new(regex_string, @case_insensitive)
+	
+			data_lines.each {|line|
+				if line =~ re
+					return false
+				end
+			}
+
+		return true
+	end
+
+	# Scan for a fail line. In order to pass, the string must not exist in the data
+	def ensure_doesnt_exist_in_data_unless(data,regex_string, exceptions)
+			data_lines = data.split("\n")
+			re = Regexp.new(regex_string, @case_insensitive)
+	
+			data_lines.each {|line|
+				if line =~ re
+					exceptions.each { |exception|
+						if line =~ exception
+							return true
+						end
+					}
+					return false
+				end
+			}
+		return true
+	end
+
 	# Scan for any number of success lines. In order to pass, all successes must match.
 	def ensure_all_exist_in_data(data,regexes=[])
 		data_lines = data.split("\n")
 		if regexes
-			success = false
 			target_successes = regexes.size
-			count = 0
+			success_count = 0
 			regexes.each { |condition|
 				matched = false
 				re = Regexp.new(condition, @case_insensitive)
 				data_lines.each {|line|
 					if line =~ re
-						count += 1
+						success_count += 1
 						matched = true
 						break
 					end
@@ -66,7 +111,7 @@ class Regexr
 				end
 			}
 			
-			if target_successes == count
+			if target_successes == success_count
 				if @verbose 
 					puts "DEBUG: woot, got all successes"
 				end
@@ -94,7 +139,7 @@ class Regexr
 
 				data_lines.each { |line|
 
-					if re.match(line)
+					if re =~ line
 						okay = false # oh, we found a match
 
 						if @verbose
@@ -107,7 +152,7 @@ class Regexr
 							reg_exception = Regexp.new(exception, @case_insensitive)
 
 							# If the exception matches here, we'll spare it
-							if reg_exception.match(line) 
+							if reg_exception =~ line 
 								if @verbose
 									puts "\'" + line + "\' is an exception, we can ignore it."
 								end									
