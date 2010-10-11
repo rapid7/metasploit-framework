@@ -208,13 +208,22 @@ class DBManager
 				# all happens during establish_connection(), so we don't need to
 				# bother with creating anything here.
 			when 'postgresql','mysql'
-				ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
-				ActiveRecord::Base.connection.create_database(opts['database'])
-				ActiveRecord::Base.remove_connection
+				# Try to force a connection to be made to the database, if it succeeds
+				# then we know we don't need to create it :)
+				ActiveRecord::Base.establish_connection(opts)
+				conn = ActiveRecord::Base.connection
 			end
 		rescue ::Exception => e
-			ilog("Trying to continue despite failed database creation: #{e}")
+			errstr = e.to_s
+			if errstr =~ /does not exist/i or errstr =~ /Unknown database/
+				ilog("Database doesn't exist \"#{opts['database']}\", attempting to create it.")
+				ActiveRecord::Base.establish_connection(opts.merge('database' => nil))
+				ActiveRecord::Base.connection.create_database(opts['database'])
+			else
+				ilog("Trying to continue despite failed database creation: #{e}")
+			end
 		end
+		ActiveRecord::Base.remove_connection
 	end
 
 	#
