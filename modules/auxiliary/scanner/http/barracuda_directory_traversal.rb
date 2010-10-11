@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 					'==[ Alligator Security Team ]==',
 					'Tiago Ferreira <tiago.ccna[at]gmail.com>'
 				],
+			'DisclosureDate' => 'Oct 08 2010',
 			'License'        =>  MSF_LICENSE
 		)
 
