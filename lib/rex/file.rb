@@ -43,6 +43,7 @@ end
 class Quickfile < ::Tempfile
 	def initialize(*args)
 		super(*args)
+		self.binmode
 		ObjectSpace.undefine_finalizer(self)	
 	end
 end
