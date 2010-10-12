@@ -165,7 +165,9 @@ class Packet
 	# Converts the packet to a string.
 	#
 	def to_s
-		content = self.body.dup
+		# Duplicate and make sure this is 8BIT safe for Ruby 1.9
+		content = self.body.unpack("C*").pack("C*")
+		
 		# Update the content length field in the header with the body length.
 		if (content)
 			if !self.compress.nil?
