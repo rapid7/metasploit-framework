@@ -1271,7 +1271,10 @@ class Db
 			end
 
 			fd = Tempfile.new('dbnmap')
+			fd.binmode
+			
 			fo = Tempfile.new('dbnmap')
+			fo.binmode
 
 			# When executing native Nmap in Cygwin, expand the Cygwin path to a Win32 path
 			if(Rex::Compat.is_cygwin and nmap =~ /cygdrive/)

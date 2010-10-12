@@ -23,6 +23,7 @@ class Key
 		format = args[:format] 
 		if data
 			fd = Tempfile.new("msf3-sshkey-temp-")
+			fd.binmode
 			fd.write data
 			fd.flush
 			file = fd.path

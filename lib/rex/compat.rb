@@ -231,6 +231,7 @@ def self.temp_copy(path)
 	raise RuntimeError,"missing Tempfile" if not @@loaded_tempfile
 	fd = File.open(path, "rb")
 	tp = Tempfile.new("msftemp")
+	tp.binmode
 	tp.write(fd.read(File.size(path)))
 	tp.close
 	fd.close
