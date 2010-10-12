@@ -15,7 +15,7 @@ require 'msf/ui'
 require 'msf/base'
 
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create
+$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 
 all_modules = $framework.exploits.merge($framework.auxiliary)
 all_ports = {}

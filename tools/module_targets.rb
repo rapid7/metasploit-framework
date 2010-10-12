@@ -17,7 +17,7 @@ require 'msf/base'
 Indent = '    '
 
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create
+$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
 
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module Targets',
