@@ -55,7 +55,7 @@ opts.parse(args) { |opt, idx, val|
 	when "-h"
 		print_line("")
 		print_line("DESCRIPTION: Script for enumerating preferences and extracting")
-		print_line("information from the Google Chrome Browser on a target System.")
+		print_line("information from the Google Chrome Browser on a target system.")
 		print_line("Decryption of creditcard information and passwords only supported")
 		print_line("on 32bit Windows Operating Systems.")
 		print_line("")
