@@ -4326,33 +4326,36 @@ module RbReadline
       # Cygwin will look like Windows, but we want to treat it like a Posix OS:
       raise LoadError, "Cygwin is a Posix OS." if RUBY_PLATFORM =~ /\bcygwin\b/i
 
-      if RUBY_VERSION < '1.9.1'
+	  # Try to use win32api regardless of version.  This allows us to correctly
+	  # fall back to unixy stuff when not on Windows.  Requires some testing on
+	  # 1.8 for Windows, but msf ships 1.9, so don't worry about it for now.
+      #if RUBY_VERSION < '1.9.1'
          require 'Win32API'
-      else
-         require 'dl'
-         class Win32API
-            DLL = {}
-            TYPEMAP = {"0" => DL::TYPE_VOID, "S" => DL::TYPE_VOIDP, "I" => DL::TYPE_LONG}
-
-            def initialize(dllname, func, import, export = "0")
-               @proto = [import].join.tr("VPpNnLlIi", "0SSI").sub(/^(.)0*$/, '\1')
-               handle = DLL[dllname] ||= DL.dlopen(dllname)
-               @func = DL::CFunc.new(handle[func], TYPEMAP[export.tr("VPpNnLlIi", "0SSI")], func)
-            end
-
-            def call(*args)
-               import = @proto.split("")
-               args.each_with_index do |x, i|
-                  args[i], = [x == 0 ? nil : x].pack("p").unpack("l!*") if import[i] == "S"
-                  args[i], = [x].pack("I").unpack("i") if import[i] == "I"
-               end
-               ret, = @func.call(args)
-               return ret || 0
-            end
-
-            alias Call call
-         end
-      end
+      #else
+      #   require 'dl'
+      #   class Win32API
+      #      DLL = {}
+      #      TYPEMAP = {"0" => DL::TYPE_VOID, "S" => DL::TYPE_VOIDP, "I" => DL::TYPE_LONG}
+      #
+      #      def initialize(dllname, func, import, export = "0")
+      #         @proto = [import].join.tr("VPpNnLlIi", "0SSI").sub(/^(.)0*$/, '\1')
+      #         handle = DLL[dllname] ||= DL.dlopen(dllname)
+      #         @func = DL::CFunc.new(handle[func], TYPEMAP[export.tr("VPpNnLlIi", "0SSI")], func)
+      #      end
+      #
+      #      def call(*args)
+      #         import = @proto.split("")
+      #         args.each_with_index do |x, i|
+      #            args[i], = [x == 0 ? nil : x].pack("p").unpack("l!*") if import[i] == "S"
+      #            args[i], = [x].pack("I").unpack("i") if import[i] == "I"
+      #         end
+      #         ret, = @func.call(args)
+      #         return ret || 0
+      #      end
+      #
+      #      alias Call call
+      #   end
+      #end
 
       STD_OUTPUT_HANDLE = -11
       STD_INPUT_HANDLE  = -10
