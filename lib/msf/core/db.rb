@@ -2,7 +2,7 @@ require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/parser/retina_xml'
 require 'rex/parser/netsparker_xml'
-
+require 'rex/parser/nessus_xml'
 require 'rex/socket'
 require 'zip'
 require 'uri'
@@ -3540,70 +3540,96 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-
-		doc = rexmlify(data)
-		doc.elements.each('/NessusClientData_v2/Report/ReportHost') do |host|
-			# if Nessus resovled the host, its host-ip tag should be set
-			# otherwise, fall back to the name attribute which would
-			# logically need to be an IP address
-			begin
-				addr = host.elements["HostProperties/tag[@name='host-ip']"].text
-			rescue
-				addr = host.attribute("name").value
-			end
-
+		
+		#@host = {
+				#'hname'             => nil,
+				#'addr'              => nil,
+				#'mac'               => nil,
+				#'os'                => nil,
+				#'ports'             => [ 'port' => {    'port'              	=> nil,
+				#					'svc_name'              => nil,
+				#					'proto'              	=> nil,
+				#					'severity'              => nil,
+				#					'nasl'              	=> nil,
+				#					'description'           => nil,
+				#					'cve'                   => [],
+				#					'bid'                   => [],
+				#					'xref'                  => []
+				#				}
+				#			]
+				#}
+		parser = Rex::Parser::NessusXMLStreamParser.new
+		parser.on_found_host = Proc.new { |host|
+			
+			addr = host['addr'] || host['hname']
+			
 			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			
 			if bl.include? addr
 				next
 			else
 				yield(:address,addr) if block
 			end
-
-			os = host.elements["HostProperties/tag[@name='operating-system']"]
+			
+	
+			os = host['os']
+			yield(:os,os) if block
 			if os
+				
 				report_note(
 					:workspace => wspace,
 					:host => addr,
 					:type => 'host.os.nessus_fingerprint',
 					:data => {
-						:os => os.text.to_s.strip
+						:os => os.to_s.strip
 					}
 				)
 			end
-
-			hname = host.elements["HostProperties/tag[@name='host-fqdn']"]
+	
+			hname = host['hname']
+			
 			if hname
 				report_host(
 					:workspace => wspace,
 					:host => addr,
-					:name => hname.text.to_s.strip
+					:name => hname.to_s.strip
 				)
 			end
-
-			mac = host.elements["HostProperties/tag[@name='mac-address']"]
+	
+			mac = host['mac']
+			
 			if mac
 				report_host(
 					:workspace => wspace,
 					:host => addr,
-					:mac  => mac.text.to_s.strip.upcase
+					:mac  => mac.to_s.strip.upcase
 				)
 			end
-
-			host.elements.each('ReportItem') do |item|
-				nasl = item.attribute('pluginID').value
-				port = item.attribute('port').value
-				proto = item.attribute('protocol').value
-				name = item.attribute('svc_name').value
-				severity = item.attribute('severity').value
-				description = item.elements['plugin_output']
-				cve = item.elements['cve']
-				bid = item.elements['bid']
-				xref = item.elements['xref']
-
-				handle_nessus_v2(wspace, addr, port, proto, name, nasl, severity, description, cve, bid, xref)
-
+			
+			host['ports'].each do |item|
+				next if item['port'] == 0
+				msf = nil
+				nasl = item['nasl'].to_s
+				port = item['port'].to_s
+				proto = item['proto'] || "tcp"
+				name = item['svc_name']
+				severity = item['severity']
+				description = item['description']
+				cve = item['cve'] 
+				bid = item['bid']
+				xref = item['xref']
+				msf = item['msf']
+				
+				yield(:port,port) if block
+				
+				handle_nessus_v2(wspace, addr, port, proto, hname, nasl, severity, description, cve, bid, xref, msf)
+	
 			end
-		end
+			yield(:end,hname) if block
+		}
+		
+		REXML::Document.parse_stream(data, parser)
+		
 	end
 
 	#
@@ -3898,7 +3924,7 @@ protected
 	# NESSUS v2 file format has a dramatically different layout
 	# for ReportItem data
 	#
-	def handle_nessus_v2(wspace,addr,port,proto,name,nasl,severity,description,cve,bid,xref)
+	def handle_nessus_v2(wspace,addr,port,proto,name,nasl,severity,description,cve,bid,xref,msf)
 
 		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 
@@ -3915,27 +3941,30 @@ protected
 
 		refs = []
 
-		cve.collect do |r|
+		cve.each do |r|
 			r.to_s.gsub!(/C(VE|AN)\-/, '')
 			refs.push('CVE-' + r.to_s)
 		end if cve
 
-		bid.collect do |r|
+		bid.each do |r|
 			refs.push('BID-' + r.to_s)
 		end if bid
 
-		xref.collect do |r|
+		xref.each do |r|
 			ref_id, ref_val = r.to_s.split(':')
 			ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
 		end if xref
-
+		
+		msfref = "MSF-" << msf if msf
+		refs.push msfref if msfref
+		
 		nss = 'NSS-' + nasl
 
 		vuln = {
 			:workspace => wspace,
 			:host => addr,
 			:name => nss,
-			:info => description ? description.text : "",
+			:info => description ? description : "",
 			:refs => refs
 		}
 
@@ -3946,6 +3975,7 @@ protected
 
 		report_vuln(vuln)
 	end
+
 
 	#
 	# Qualys report parsing/handling
