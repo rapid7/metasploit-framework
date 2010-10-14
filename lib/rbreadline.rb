@@ -4325,7 +4325,6 @@ module RbReadline
    begin
       # Cygwin will look like Windows, but we want to treat it like a Posix OS:
       raise LoadError, "Cygwin is a Posix OS." if RUBY_PLATFORM =~ /\bcygwin\b/i
-      raise LoadError, "Not Windows" if RUBY_PLATFORM !~ /mswin|mingw/
 
       if RUBY_VERSION < '1.9.1'
          require 'Win32API'
@@ -4399,9 +4398,17 @@ module RbReadline
       end
 
       def rl_getc(stream)
+         while (@kbhit.Call == 0)
+            # if there is no data to read, yeild the processor for other
+            # threads until there is
+            sleep(0.001)
+         end
          c = @getch.Call
          alt = (@GetKeyState.call(VK_LMENU) & 0x80) != 0
          if c==0 || c==0xE0
+            while (@kbhit.Call == 0)
+               sleep(0.001)
+            end
             r = c.chr + @getch.Call.chr
          else
             r = c.chr
