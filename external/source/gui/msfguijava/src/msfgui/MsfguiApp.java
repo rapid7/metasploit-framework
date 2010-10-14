@@ -46,13 +46,13 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static JFileChooser fileChooser;
 	protected static Pattern backslash = Pattern.compile("\\\\");
 	public static String workspace = "default";
+	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf3"+File.separatorChar+"msfgui";
 
 	static{ //get saved properties file
 		propRoot = null;
 		try{
-			String fname = System.getProperty("user.home")+File.separatorChar+".msfgui";
 			propRoot = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.parse(new File(fname)).getDocumentElement();
+					.parse(new File(confFilename)).getDocumentElement();
 		} catch (Exception ex) { //if anything goes wrong, make new (IOException, SAXException, ParserConfigurationException, NullPointerException
 			propRoot = getPropertiesNode();//ensure existence
 		}
@@ -60,7 +60,6 @@ public class MsfguiApp extends SingleFrameApplication {
 			@Override
 			public void run() {
 				//Output the XML
-				String fname = System.getProperty("user.home")+File.separatorChar+".msfgui";
 				try{
 					if(recentList != null){ //if we have a new list to save
 						//save recent
@@ -85,7 +84,7 @@ public class MsfguiApp extends SingleFrameApplication {
 						propRoot.appendChild(recentNode);
 					}
 					TransformerFactory.newInstance().newTransformer().transform(
-							new DOMSource(propRoot), new StreamResult(new FileOutputStream(fname)));
+							new DOMSource(propRoot), new StreamResult(new FileOutputStream(confFilename)));
 				}catch (Exception ex){
 				}
 			}

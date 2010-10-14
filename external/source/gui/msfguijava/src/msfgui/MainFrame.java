@@ -1539,6 +1539,12 @@ public class MainFrame extends FrameView {
 		addSessionItem("Unlock screen",meterpreterPopupMenu,"screen_unlock");
 		addScript("Upload + execute",meterpreterPopupMenu,new UploadexecOptionsDialog(getFrame()));
 		addSessionItem("Ping/DNS sweep",meterpreterPopupMenu,new NetenumOptionsDialog(getFrame()));
+		addScript("ARP sweep",meterpreterPopupMenu,new Object(){
+			public String toString(){
+				return "arp_scanner.rb -r "+JOptionPane.showInputDialog(getFrame(),
+							"Enter Target list as address or CIDR","Enter Target", JOptionPane.QUESTION_MESSAGE);
+			}
+		});
 		addScript("Run shell commands",meterpreterPopupMenu,new MulticommandOptionsDialog(getFrame()));
 		addSessionItem("VirtualBox sysenter DoS",meterpreterPopupMenu,"virtualbox_sysenter_dos");
 
@@ -1590,6 +1596,7 @@ public class MainFrame extends FrameView {
 			}
 		});
 		addScript("Kill AV",accessMenu,"killav");
+		addScript("Duplicate",accessMenu,"duplicate");
 
 		JMenu infoPopupMenu = new JMenu("System Information");
 		meterpreterPopupMenu.add(infoPopupMenu);
@@ -1599,17 +1606,20 @@ public class MainFrame extends FrameView {
 		addSessionItem("Domain admins",infoPopupMenu,"domain_list_gen");
 		addSessionItem("Recent documents",infoPopupMenu,"dumplinks -e");
 		addSessionItem("Recent programs (by prefetch)",infoPopupMenu,"prefetchtool -p -i");
+		addSessionItem("Installed programs",infoPopupMenu,"get_application_list");
 		addSessionItem("Countermeasures",infoPopupMenu,
 				"multi_console_command -cl \"run getcountermeasure -h\",\"run getcountermeasure\"");
 		addSessionItem("Environment variables",infoPopupMenu,"get_env");
 		addSessionItem("Powershell Environment",infoPopupMenu,"enum_powershell_env");
 		addSessionItem("Subnets",infoPopupMenu,"get_local_subnets");
 		addSessionItem("Firefox credentials and profile info", infoPopupMenu, "enum_firefox");
+		addSessionItem("Google Chrome info", infoPopupMenu, "enum_chrome");
 		addSessionItem("Pidgin credentials",infoPopupMenu,
 				"multi_console_command -cl \"run get_pidgin_creds -h\",\"run get_pidgin_creds\"");
 		addSessionItem("Filezilla credentials",infoPopupMenu,"get_filezilla_creds");
 		addSessionItem("VNC credentials",infoPopupMenu,"getvncpw");
 		addSessionItem("Putty credentials",infoPopupMenu,"enum_putty");
+		addSessionItem("Shares",infoPopupMenu,"enum_shares");
 		addSessionItem("winenum: env vars, interfaces, routing, users, processes, tokens...",infoPopupMenu,"winenum");
 		addSessionItem("Remote winenum: most of the above run against a different system",infoPopupMenu,
 				new RemoteWinenumOptionsDialog(getFrame()));
