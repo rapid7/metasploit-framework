@@ -32,7 +32,6 @@ msfopcode
 msfpescan
 msfrpc
 msfrpcd
-msfweb
 test
 test/
 $(find $MINI_PATH -name '*.rb.ut.rb')
