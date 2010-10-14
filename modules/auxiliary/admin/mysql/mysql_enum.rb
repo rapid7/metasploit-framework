@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("\tLogging of queries and logins: OFF")
 		else
 			print_status("\tLogging of queries and logins: ON")
-			print_status("\tLog Files Location: #{varm["log_bin"]}")
+			print_status("\tLog Files Location: #{vparm["log_bin"]}")
 		end
 		print_status("\tOld Password Hashing Algorithm #{vparm["old_passwords"]}")
 		print_status("\tLoading of local files: #{vparm["local_infile"]}")
