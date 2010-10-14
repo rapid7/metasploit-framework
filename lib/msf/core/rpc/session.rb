@@ -94,7 +94,7 @@ class Session < Base
 		end
 
 		if not s.user_output.respond_to? :dump_buffer
-			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
+			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
 		end
 
 		data = s.user_output.dump_buffer
@@ -120,16 +120,22 @@ class Session < Base
 		end
 
 		if not s.user_output.respond_to? :dump_buffer
-			s.init_ui(nil, Rex::Ui::Text::Output::Buffer.new)
+			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
 		end
 
 		buff = Rex::Text.decode_base64(data)
 		# This is already covered by the meterpreter console's on_command_proc
 		# so don't do it here
 		#@framework.events.on_session_command(s, buff)
-
-		Thread.new(s) { |sess| sess.console.run_single(buff) }
-
+		interacting = false
+		s.channels.each_value do |ch|
+			interacting ||= ch.interacting
+		end
+		if interacting
+			s.user_input.put(buff+"\n")
+		else
+			Thread.new(s) { |sess| sess.console.run_single(buff) }
+		end
 		{}
 	end
 
