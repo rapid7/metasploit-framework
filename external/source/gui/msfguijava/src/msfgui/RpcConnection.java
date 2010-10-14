@@ -69,6 +69,11 @@ public class RpcConnection {
 		}
 		if(!haveRpcd)
 			throw new MsfException("Error connecting. "+message);
+		Element root = MsfguiApp.getPropertiesNode();
+		root.setAttribute("username", this.username);
+		root.setAttribute("password", this.password);
+		root.setAttribute("host", this.host);
+		root.setAttribute("port", Integer.toString(this.port));
 	}
 
 	public String toString(){
@@ -281,11 +286,6 @@ public class RpcConnection {
 						password.append((char) ('a'+secrand.nextInt(26)));
 					defaultPass = password.toString();
 				}
-				Element root = MsfguiApp.getPropertiesNode();
-				root.setAttribute("username", defaultUser);
-				root.setAttribute("password", defaultPass);
-				root.setAttribute("host", defaultHost);
-				root.setAttribute("port", Integer.toString(defaultPort));
 
 				setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");
 				setProgress(0.2f);

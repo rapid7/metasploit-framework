@@ -269,6 +269,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			RpcConnection.defaultPass = new String(passwordField.getPassword());
 		if(hostField.getText().length() > 0)
 			RpcConnection.defaultHost = hostField.getText();
+		RpcConnection.defaultPort  = Integer.parseInt(portField.getText());
 		//do the action. There's probably a "right" way to do  Oh well.
 		mainframe.getContext().getActionMap(mainframe).get("startRpc").actionPerformed(new java.awt.event.ActionEvent(startNewButton,1234,""));
 		setVisible(false);

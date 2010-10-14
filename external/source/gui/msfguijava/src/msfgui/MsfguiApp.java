@@ -42,7 +42,7 @@ import org.w3c.dom.NodeList;
 public class MsfguiApp extends SingleFrameApplication {
 	public static final int NUM_REMEMBERED_MODULES = 20;
 	private static Element propRoot;
-	private static List recentList = new LinkedList();
+	private static List recentList = null;
 	public static JFileChooser fileChooser;
 	protected static Pattern backslash = Pattern.compile("\\\\");
 	public static String workspace = "default";
@@ -62,26 +62,28 @@ public class MsfguiApp extends SingleFrameApplication {
 				//Output the XML
 				String fname = System.getProperty("user.home")+File.separatorChar+".msfgui";
 				try{
-					//save recent
-					for(Node node = propRoot.getFirstChild(); node != null; node = node.getNextSibling())
-						if(node.getNodeName().equals("recent"))
-							propRoot.removeChild(node);
-					Document doc = propRoot.getOwnerDocument();
-					Node recentNode = doc.createElement("recent");
-					for(Object o : recentList){
-						Object[] args = (Object[])o;
-						Element recentItem = doc.createElement("recentItem");
-						recentItem.setAttribute("moduleType",args[0].toString());
-						recentItem.setAttribute("fullName",args[1].toString());
-						for(Object p : ((Map)args[2]).entrySet()){
-							Map.Entry prop = (Map.Entry)p;
-							Element propItem = doc.createElement(prop.getKey().toString());
-							propItem.setAttribute("val",prop.getValue().toString());
-							recentItem.appendChild(propItem);
+					if(recentList != null){ //if we have a new list to save
+						//save recent
+						for(Node node = propRoot.getFirstChild(); node != null; node = node.getNextSibling())
+							if(node.getNodeName().equals("recent"))
+								propRoot.removeChild(node);
+						Document doc = propRoot.getOwnerDocument();
+						Node recentNode = doc.createElement("recent");
+						for(Object o : recentList){
+							Object[] args = (Object[])o;
+							Element recentItem = doc.createElement("recentItem");
+							recentItem.setAttribute("moduleType",args[0].toString());
+							recentItem.setAttribute("fullName",args[1].toString());
+							for(Object p : ((Map)args[2]).entrySet()){
+								Map.Entry prop = (Map.Entry)p;
+								Element propItem = doc.createElement(prop.getKey().toString());
+								propItem.setAttribute("val",prop.getValue().toString());
+								recentItem.appendChild(propItem);
+							}
+							recentNode.appendChild(recentItem);
 						}
-						recentNode.appendChild(recentItem);
+						propRoot.appendChild(recentNode);
 					}
-					propRoot.appendChild(recentNode);
 					TransformerFactory.newInstance().newTransformer().transform(
 							new DOMSource(propRoot), new StreamResult(new FileOutputStream(fname)));
 				}catch (Exception ex){
@@ -200,6 +202,8 @@ public class MsfguiApp extends SingleFrameApplication {
 	/** Adds a module run to the recent modules list */
 	public static void addRecentModule(final Object[] args, final RpcConnection rpcConn, final MainFrame mf) {
 		final JMenu recentMenu = mf.recentMenu;
+		if(recentList == null)
+			recentList = new LinkedList();
 		recentList.add(args);
 		Map hash = (Map)args[2];
 		StringBuilder name = new StringBuilder(args[0] + " " + args[1]);
