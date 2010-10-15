@@ -7,6 +7,20 @@ require 'rex/text'
 require 'rex/exceptions'
 class Rex::Text::UnitTest < Test::Unit::TestCase
 
+	def test_pattern_create
+		set1 = %w{AB ab 12}
+		assert_equal 'Aa1Aa2', Rex::Text.pattern_create(6,set1)
+		set2 = %w{ABC abc 123}
+		assert_equal 'Aa1Aa2Aa3Ab1Ab2Ab3', Rex::Text.pattern_create(18,set2)
+		assert_equal 'Zz8Zz9', Rex::Text.pattern_create(20280)[-6,6] # Bug #2952
+	end
+
+	def test_pattern_create_silly
+		assert_equal "", Rex::Text.pattern_create(nil)
+		assert_equal "", Rex::Text.pattern_create(0)
+		assert_equal 'AAAAAAAAA', Rex::Text.pattern_create(9,['A'])
+	end
+
 	def test_uri_encode
 		srand(0)
 		assert_equal('A1%21', Rex::Text.uri_encode('A1!'), 'uri encode')

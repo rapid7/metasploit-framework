@@ -760,13 +760,15 @@ module Text
 		# Make sure there's something in sets even if we were given an explicit nil
 		sets ||= [ UpperAlpha, LowerAlpha, Numerals ]
 
+		# Return stupid uses
+		return "" if length.to_i < 1
+		return sets[0][0] * length if sets.size == 1 and sets[0].size == 1
+
 		sets.length.times { offsets << 0 }
 
 		until buf.length >= length
 			begin
 				buf << converge_sets(sets, 0, offsets, length)
-			rescue RuntimeError
-				break
 			end
 		end
 
@@ -776,6 +778,28 @@ module Text
 		end
 
 		buf[0,length]
+	end
+
+	# Step through an arbitrary number of sets of bytes to build up a findable pattern.
+	# This is mostly useful for experimentially determining offset lengths into memory
+	# structures. Note that the supplied sets should never contain duplicate bytes, or
+	# else it can become impossible to measure the offset accurately.
+	def self.patt2(len, sets = nil)
+		buf = ""
+		counter = []
+		sets ||= [ UpperAlpha, LowerAlpha, Numerals ]
+		len ||= len.to_i
+		return "" if len.zero?
+
+		sets = sets.map {|a| a.split(//)}
+		sets.size.times { counter << 0}
+		0.upto(len-1) do |i|
+			setnum = i % sets.size
+			
+			puts counter.inspect
+		end
+
+		return buf
 	end
 
 	#
@@ -1029,8 +1053,9 @@ protected
 			# If we reached the point where the idx fell below zero, then that
 			# means we've reached the maximum threshold for permutations.
 			if (idx < 0)
-				raise RuntimeError, "Maximum permutations reached"
+				return buf
 			end
+
 		end
 
 		buf
