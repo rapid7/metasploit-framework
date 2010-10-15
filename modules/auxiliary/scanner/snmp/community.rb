@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
 			add_socket(udp_sock)
 
-			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
+			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...") if datastore['ShowProgress']
 			@comms.each do |comm|
 
 				data1 = create_probe_snmp1(comm)
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end
 
-					if( (idx+=1) % 1000 == 0)
+					if( (idx+=1) % 1000 == 0) and datastore['ShowProgress']
 						print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
 					end
 				end
