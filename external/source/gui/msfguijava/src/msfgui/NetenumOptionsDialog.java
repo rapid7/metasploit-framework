@@ -154,7 +154,7 @@ public class NetenumOptionsDialog extends OptionsDialog {
 	private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
 		StringBuilder cmd = new StringBuilder("netenum ");
 		if(addressField.getText().length() > 0)
-			cmd.append(" -r "+addressField.getText());
+			cmd.append(" -r ").append(addressField.getText());
 		if(pingBox.isSelected())
 			cmd.append(" -ps");
 		if(reverseDnsBox.isSelected())
@@ -162,9 +162,9 @@ public class NetenumOptionsDialog extends OptionsDialog {
 		if(forwardBox.isSelected())
 			cmd.append(" -fl");
 		if(fileField.getText().length() > 0)
-			cmd.append(" -hl \""+MsfguiApp.doubleBackslashes(fileField.getText())+"\"");
+			cmd.append(" -hl \"").append(MsfguiApp.doubleBackslashes(fileField.getText())).append("\"");
 		if(domainField.getText().length() > 0)
-			cmd.append(" -d "+domainField.getText());
+			cmd.append(" -d ").append(domainField.getText());
 		if(mxNsBox.isSelected())
 			cmd.append(" -st");
 		if(serviceBox.isSelected())

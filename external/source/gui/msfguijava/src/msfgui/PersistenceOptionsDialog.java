@@ -175,9 +175,9 @@ public class PersistenceOptionsDialog extends OptionsDialog {
 			cmd.append(" -X ");
 		if(loginRestartBox.isSelected())
 			cmd.append(" -U ");
-		cmd.append(" -i "+Integer.parseInt(intervalField.getText()));
-		cmd.append(" -p "+Integer.parseInt(portField.getText()));
-		cmd.append(" -r "+ipField.getText());
+		cmd.append(" -i ").append(Integer.parseInt(intervalField.getText()));
+		cmd.append(" -p ").append(Integer.parseInt(portField.getText()));
+		cmd.append(" -r ").append(ipField.getText());
 		command = cmd.toString();
 		this.setVisible(false);
 	}//GEN-LAST:event_okButtonActionPerformed

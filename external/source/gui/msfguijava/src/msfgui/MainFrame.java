@@ -31,7 +31,6 @@ import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Task;
 import org.jdesktop.swingworker.SwingWorker;
-import org.w3c.dom.Element;
 
 /** The application's main frame. */
 public class MainFrame extends FrameView {
@@ -130,13 +129,13 @@ public class MainFrame extends FrameView {
 	}
 	/** Before exit, check whether the daemon should be stopped or just the session terminated */
 	private void confirmStop() {
+		if (rpcConn == null)
+			return;
 		try {
-			if (rpcConn != null){
-				if(JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
-					rpcConn.execute("core.stop");
-				else
-					rpcConn.execute("auth.logout");
-			}
+			if(JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
+				rpcConn.execute("core.stop");
+			else
+				rpcConn.execute("auth.logout");
 		} catch (Exception ex) {
 		}
 	}
@@ -210,7 +209,8 @@ public class MainFrame extends FrameView {
 						}
 						publish((Object)jobStrings);
 					} catch (MsfException xre) {
-						JOptionPane.showMessageDialog(null, xre);
+						if(JOptionPane.showConfirmDialog(null, "Error: "+xre+"\nContinue?") != JOptionPane.YES_OPTION)
+							throw xre;
 						delay *= 2;
 					} catch (InterruptedException iex){
 					}
@@ -238,28 +238,42 @@ public class MainFrame extends FrameView {
 	* @param rootMenu Base menu to build tree off of.
 	* @param factory Factory to generate handlers to do the actions.
 	*/
-	private void expandList(Object[] mlist, JMenu rootMenu, RunMenuFactory factory, String type) {
+	private void expandList(List mlist, JMenu rootMenu, RunMenuFactory factory, String type) {
 		if (mlist == null)
 			return;
-                statusAnimationLabel.setText(statusAnimationLabel.getText()+mlist.length + " "+type+" ");
-                java.util.Arrays.sort(mlist);
+		long currentTime = java.util.Calendar.getInstance().getTimeInMillis();
+		Map modDates;
+		Object mdo = MsfguiApp.getPropertiesNode().get("modDates");
+		if(mdo == null){
+			modDates = new HashMap();
+			MsfguiApp.getPropertiesNode().put("modDates", modDates);
+		}else{
+			modDates = (Map)mdo;
+		}
+		statusAnimationLabel.setText(statusAnimationLabel.getText()+mlist.size() + " "+type+" ");
+		java.util.Collections.sort(mlist);
 		for (Object fullName : mlist) {
+			Object time = modDates.get(fullName);
+			if(time == null)
+				modDates.put(fullName, currentTime);
+			boolean recentlyAdded = Long.parseLong(modDates.get(fullName).toString()) >= currentTime - 604800000;//one week
 			String[] names = fullName.toString().split("/");
 			JMenu currentMenu = rootMenu;
-			for (int i = 0; i < names.length; i++) {
+nameloop:	for (int i = 0; i < names.length; i++) {
 				boolean found = false;
 				Component[] comps = currentMenu.getMenuComponents();
 
 				boolean searchNext = true;
-				while(!found && searchNext){ //if "More..." listed, search through more list
+				while(searchNext){ //if "More..." listed, search through more list
 					searchNext = false;
 					Component [] compsCopy = comps;
 					for (Component menu : compsCopy) {
 						if (menu.getName().equals(names[i]) && menu instanceof JMenu) {
 							if (i < names.length - 1) 
 								currentMenu = (JMenu) menu;
-							found = true;
-							break;
+							if(recentlyAdded)
+								currentMenu.setFont(currentMenu.getFont().deriveFont(currentMenu.getFont().getStyle() | java.awt.Font.BOLD));
+							continue nameloop;
 						}else if (menu.getName().equals("More...")){
 							searchNext = true;
 							comps = ((JMenu)menu).getMenuComponents();
@@ -268,26 +282,28 @@ public class MainFrame extends FrameView {
 					}
 				}
 
-				if (!found) {
-					if(comps.length > MENU_SIZE_LIMIT){ //extend if necessary
-						JMenu extention = new JMenu("More...");
-						extention.setName("More...");
-						currentMenu.add(extention);
-						currentMenu = extention;
-					}
-					if (i < names.length - 1) {
-						JMenu men = new JMenu(names[i]);
-						men.setName(names[i]);
-						currentMenu.add(men);
-						currentMenu = (JMenu) men;
-					} else {
-						JMenuItem men = new JMenuItem(names[i]);
-						men.setName(names[i]);
-						currentMenu.add(men);
-						ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
-						men.addActionListener(actor);
-						searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
-					}
+				if(comps.length > MENU_SIZE_LIMIT){ //extend if necessary
+					JMenu extention = new JMenu("More...");
+					extention.setName("More...");
+					currentMenu.add(extention);
+					currentMenu = extention;
+				}
+				if (i < names.length - 1) {
+					JMenu men = new JMenu(names[i]);
+					if(recentlyAdded)
+						men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
+					men.setName(names[i]);
+					currentMenu.add(men);
+					currentMenu = (JMenu) men;
+				} else {
+					JMenuItem men = new JMenuItem(names[i]);
+					if(recentlyAdded)
+						men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
+					men.setName(names[i]);
+					currentMenu.add(men);
+					ActionListener actor = factory.getActor(fullName.toString(),type,rpcConn);
+					men.addActionListener(actor);
+					searchWin.modules.add(new Object[]{type, fullName.toString(),actor});
 				}
 			}//end for each subname
 		}//end for each module
@@ -323,7 +339,7 @@ public class MainFrame extends FrameView {
 		closeConsoleMenu.removeAll();
 		//Setup consoles
 		try{
-			Object[] consoles = (Object[]) ((Map)rpcConn.execute("console.list")).get("consoles");
+			List consoles = (List) ((Map)rpcConn.execute("console.list")).get("consoles");
 			for (Object console : consoles)
 				registerConsole((Map)console,false, "");
 		}catch (MsfException mex){
@@ -354,13 +370,13 @@ public class MainFrame extends FrameView {
 					};
 					//Exploits and auxiliary get modulepopups; payloads get payloadpopups duh
 					setMessage("Getting exploits");
-					expandList((Object[]) ((Map)rpcConn.execute("module.exploits")).get("modules"), exploitsMenu, moduleFactory, "exploit");
+					expandList((List) ((Map)rpcConn.execute("module.exploits")).get("modules"), exploitsMenu, moduleFactory, "exploit");
 					setProgress(0.3f);
 					setMessage("Getting auxiliary modules");
-					expandList((Object[]) ((Map)rpcConn.execute("module.auxiliary")).get("modules"), auxiliaryMenu, moduleFactory, "auxiliary");
+					expandList((List) ((Map)rpcConn.execute("module.auxiliary")).get("modules"), auxiliaryMenu, moduleFactory, "auxiliary");
 					setProgress(0.5f);
 					setMessage("Getting payloads");
-					expandList((Object[]) ((Map)rpcConn.execute("module.payloads")).get("modules"), payloadsMenu, new RunMenuFactory(){
+					expandList((List) ((Map)rpcConn.execute("module.payloads")).get("modules"), payloadsMenu, new RunMenuFactory(){
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
 							return new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
@@ -1102,7 +1118,7 @@ public class MainFrame extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 698, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -1203,9 +1219,9 @@ public class MainFrame extends FrameView {
 	private void reloadDb() {
 		try {
 			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
-			reAdd(eventsTable,6,(Object[]) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
+			reAdd(eventsTable,6,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
 					new String[]{"host","created_at","updated_at","name","critical","username","info"});
-			reAdd(lootsTable,8,(Object[]) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
+			reAdd(lootsTable,8,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
 					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 		} catch (MsfException mex) {
 		}
@@ -1298,7 +1314,7 @@ public class MainFrame extends FrameView {
 
 	private void unloadPluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_unloadPluginItemActionPerformed
 		try {
-			Object[] plugins = (Object[])((Map)rpcConn.execute("plugin.loaded")).get("plugins");
+			Object[] plugins = ((List)((Map)rpcConn.execute("plugin.loaded")).get("plugins")).toArray();
 			Object plugin = JOptionPane.showInputDialog(getFrame(), "Choose a plugin to unload", "Unload plugin",
 					JOptionPane.PLAIN_MESSAGE, null, plugins, plugins[0]);
 			if(plugin == null)
@@ -1357,7 +1373,7 @@ public class MainFrame extends FrameView {
 
 	private void currWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_currWorkspaceItemActionPerformed
 		try {
-			Object[] vals = (Object[])((Map)rpcConn.execute("db.workspaces")).get("workspaces");
+			Object[] vals = ((List)((Map)rpcConn.execute("db.workspaces")).get("workspaces")).toArray();
 			Object[] names = new Object[vals.length];
 			for(int i = 0; i < vals.length; i++)
 				names[i] = ((Map)vals[i]).get("name");
@@ -1388,7 +1404,7 @@ public class MainFrame extends FrameView {
 
 	private void delWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_delWorkspaceItemActionPerformed
 		try {
-			Object[] vals = (Object[])((Map)rpcConn.execute("db.workspaces")).get("workspaces");
+			Object[] vals = ((List)((Map)rpcConn.execute("db.workspaces")).get("workspaces")).toArray();
 			Object[] names = new Object[vals.length];
 			for(int i = 0; i < vals.length; i++)
 				names[i] = ((Map)vals[i]).get("name");
@@ -1751,17 +1767,17 @@ public class MainFrame extends FrameView {
 	/** Sets look and feel of UI */
 	private void setLnF(boolean toggle) {
 		try {
-			Element info = MsfguiApp.getPropertiesNode();
-			boolean system = !info.getAttribute("LnF").equals("Metal");
+			Map info = MsfguiApp.getPropertiesNode();
+			boolean system = !"Metal".equals(info.get("LnF"));
 			if (toggle) 
 				system = !system;
 			if (system) {
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				info.setAttribute("LnF", "system");
+				info.put("LnF", "system");
 			} else {
 				// Set cross-platform Java L&F (also called "Metal")
 				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-				info.setAttribute("LnF", "Metal");
+				info.put("LnF", "Metal");
 			}
 			SwingUtilities.updateComponentTreeUI(this.getFrame());
 			this.getFrame().pack();
@@ -1775,16 +1791,15 @@ public class MainFrame extends FrameView {
 		try {
 			HashMap arg = new HashMap();
 			arg.put("workspace", MsfguiApp.workspace);
-			Object[] data = (Object[]) ((Map)rpcConn.execute("db."+call,arg)).get(call);
+			List data = (List) ((Map)rpcConn.execute("db."+call,arg)).get(call);
 			reAdd(table, tabIndex, data, cols);
 		} catch (MsfException mex) {
 		}
 	}
-	private void reAdd(JTable table, int tabIndex, Object[] data, String[] cols) throws MsfException {
+	private void reAdd(JTable table, int tabIndex, List data, String[] cols) throws MsfException {
 		DefaultTableModel mod = (DefaultTableModel) table.getModel();
-		while (mod.getRowCount() > 0) {
+		while (mod.getRowCount() > 0)
 			mod.removeRow(0);
-		}
 		for (Object dataObj : data) {
 			Object[] row = new Object[cols.length];
 			for (int i = 0; i < cols.length; i++)

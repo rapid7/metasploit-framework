@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -104,7 +105,7 @@ public class MsfguiLog {
 				sessions.put("Console " + ((Map) result).get("id"), result);
 				((Map)result).put("inactive", "console"); // mark consoles as inactive to avoid session checking
 			} else if (methodName.equals("console.list")) {
-				Object[] consoles = ((Object[])((Map)result).get("consoles"));
+				List consoles = ((List)((Map)result).get("consoles"));
 				for (Object console : consoles){
 					activityLog.add(now() + " Console " + ((Map) console).get("id") + " discovered.");
 					sessions.put("Console " + ((Map) console).get("id"), result);

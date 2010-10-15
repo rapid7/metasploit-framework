@@ -27,13 +27,13 @@ public class JobInfoPopup extends javax.swing.JDialog {
 		for(Object oEntry : myMap.entrySet()){
 			Map.Entry entry = (Map.Entry)oEntry;
 			if(entry.getValue() instanceof Map){
-				sb.append(entry.getKey()+"\n");
+				sb.append(entry.getKey()).append("\n");
 				for(Object osubEntry : ((Map)entry.getValue()).entrySet()){
 					Map.Entry subEntry = (Map.Entry)osubEntry;
-					sb.append("  "+subEntry.getKey()+ " = " + subEntry.getValue()+"\n");
+					sb.append("  ").append(subEntry.getKey()).append(" = ").append(subEntry.getValue()).append("\n");
 				}
 			}else {
-				sb.append(entry.getKey()+ " = " + entry.getValue()+"\n");
+				sb.append(entry.getKey()).append(" = ").append(entry.getValue()).append("\n");
 			}
 		}
 		textArea.setText(sb.toString());

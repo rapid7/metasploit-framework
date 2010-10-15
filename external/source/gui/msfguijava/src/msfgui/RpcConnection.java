@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,11 +70,11 @@ public class RpcConnection {
 		}
 		if(!haveRpcd)
 			throw new MsfException("Error connecting. "+message);
-		Element root = MsfguiApp.getPropertiesNode();
-		root.setAttribute("username", this.username);
-		root.setAttribute("password", this.password);
-		root.setAttribute("host", this.host);
-		root.setAttribute("port", Integer.toString(this.port));
+		Map root = MsfguiApp.getPropertiesNode();
+		root.put("username", this.username);
+		root.put("password", this.password);
+		root.put("host", this.host);
+		root.put("port", Integer.toString(this.port));
 	}
 
 	public String toString(){
@@ -90,7 +91,7 @@ public class RpcConnection {
 	}
 
 	/** Method that sends a call to the server and received a response; only allows one at a time */
-	protected Map exec (String methname, Object[] params) throws MsfException{
+	private Map exec (String methname, Object[] params) throws MsfException{
 		try{
 			synchronized(lockObject){ //Only one method call at a time!
 				writeCall(methname, params);
@@ -115,35 +116,53 @@ public class RpcConnection {
 		//Add each parameter by type. Usually just the maps are difficult
 		for(Object param : params){
 			Element paramEl = doc.createElement("param");
-			Node valEl = doc.createElement("value");
-			if(param instanceof Map){ //Reverse of the parseVal() struct-to-HashMap code
-				Element structEl = doc.createElement("struct");
-				for(Object entryObj : ((Map)param).entrySet()){
-					Map.Entry ent = (Map.Entry)entryObj;
-					Element membEl = doc.createElement("member");
-					Element nameEl = doc.createElement("name");
-					nameEl.appendChild(doc.createTextNode(ent.getKey().toString()));
-					membEl.appendChild(nameEl);
-					Element subvalEl = doc.createElement("value");
-					subvalEl.appendChild(doc.createTextNode(ent.getValue().toString()));
-					membEl.appendChild(subvalEl);
-					structEl.appendChild(membEl);
-				}
-				valEl.appendChild(structEl);
-			}else if(param instanceof Integer){ //not sure I even need this
-				Element i4El = doc.createElement("i4");
-				i4El.appendChild(doc.createTextNode(param.toString()));
-				valEl.appendChild(i4El);
-			}else{
-				valEl.appendChild(doc.createTextNode(param.toString()));
-			}
-			paramEl.appendChild(valEl);
+			paramEl.appendChild(objectToNode(doc,param));
 			paramsEl.appendChild(paramEl);
 		}
 		ByteArrayOutputStream bout = new  ByteArrayOutputStream();
 		TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(bout));
 		sout.write(bout.toByteArray());
 		sout.write(0);
+	}
+	public static Node objectToNode(Document doc, Object param){
+		Node valEl = doc.createElement("value");
+		if(param instanceof Map){ //Reverse of the parseVal() struct-to-HashMap code
+			Element structEl = doc.createElement("struct");
+			for(Object entryObj : ((Map)param).entrySet()){
+				Map.Entry ent = (Map.Entry)entryObj;
+				Element membEl = doc.createElement("member");
+				Element nameEl = doc.createElement("name");
+				nameEl.appendChild(doc.createTextNode(ent.getKey().toString()));
+				membEl.appendChild(nameEl);
+				membEl.appendChild(objectToNode(doc,ent.getValue()));
+				structEl.appendChild(membEl);
+			}
+			valEl.appendChild(structEl);
+		}else if(param instanceof List || param instanceof Object[]){ //Reverse of the parseVal() array-to-HashMap code
+			Element arrayEl = doc.createElement("array");
+			Element dataEl = doc.createElement("data");
+			if(param instanceof Object[])
+				for(Object obj : (Object[])param)
+					dataEl.appendChild(objectToNode(doc,obj));
+			else
+				for(Object obj : (List)param)
+					dataEl.appendChild(objectToNode(doc,obj));
+			arrayEl.appendChild(dataEl);
+			valEl.appendChild(arrayEl);
+		}else if(param instanceof Integer){ //not sure I even need this
+			Element i4El = doc.createElement("i4");
+			i4El.appendChild(doc.createTextNode(param.toString()));
+			valEl.appendChild(i4El);
+		}else if(param instanceof Boolean){ //not sure I even need this
+			Element boolEl = doc.createElement("boolean");
+			boolEl.appendChild(doc.createTextNode(param.toString()));
+			valEl.appendChild(boolEl);
+		}else{
+			Element strEl = doc.createElement("string");
+			strEl.appendChild(doc.createTextNode(param.toString()));
+			valEl.appendChild(strEl);
+		}
+		return valEl;
 	}
 	/** Receives an XMLRPC response and converts to an object */
 	protected Object readResp() throws Exception{
@@ -196,19 +215,19 @@ public class RpcConnection {
 		return parseVal(value);
 	}
 	/** Takes an XMLRPC DOM value node and creates a java object out of it recursively */
-	private Object parseVal(Node submemb) throws MsfException {
+	public static Object parseVal(Node submemb) throws MsfException {
 		Node type = submemb.getFirstChild();
 		String typeName = type.getNodeName();
 		if(typeName.equals("string")){//<struct><member><name>jobs</name><value><struct/></value></member></struct>
 			return type.getTextContent(); //String returns java string
-		}else if (typeName.equals("array")){ //Array returns Object[]
+		}else if (typeName.equals("array")){ //Array returns List
 			ArrayList arrgh = new ArrayList();
 			Node data = type.getFirstChild();
 			if(!data.getNodeName().equals("data"))
 				throw new MsfException("Error reading array: no data.");
 			for(Node val = data.getFirstChild(); val != null; val = val.getNextSibling())
 				arrgh.add(parseVal(val));
-			return arrgh.toArray();
+			return arrgh;
 		}else if (typeName.equals("struct")){ //Struct returns a HashMap of name->value member pairs
 			HashMap structmembs = new HashMap();
 			for(Node member = type.getFirstChild(); member != null; member = member.getNextSibling()){
@@ -228,7 +247,7 @@ public class RpcConnection {
 		}else if (typeName.equals("i4")){
 			return new Integer(type.getTextContent());
 		}else if (typeName.equals("boolean")){
-			return new Boolean(type.getTextContent().equals("1"));
+			return type.getTextContent().equals("1");
 		}else if (typeName.equals("dateTime.iso8601")) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
 			try{

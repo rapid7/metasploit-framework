@@ -132,15 +132,15 @@ public class MulticommandOptionsDialog extends OptionsDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         StringBuilder cmd = new StringBuilder("multicommand ");
 		if(outputFileField.getText().length() > 0)
-			cmd.append(" -f \""+MsfguiApp.doubleBackslashes(outputFileField.getText())+"\"");
+			cmd.append(" -f \"").append(MsfguiApp.doubleBackslashes(outputFileField.getText())).append("\"");
 		String commandList = commandsArea.getText();
 		if(commandFileField.getText().length() > 0){
-			cmd.append(" -rc \""+MsfguiApp.doubleBackslashes(commandFileField.getText())+"\"");
+			cmd.append(" -rc \"").append(MsfguiApp.doubleBackslashes(commandFileField.getText())).append("\"");
 		}else if(commandList.length() > 0){
 			String [] cmds = commandList.split("\n");
 			cmd.append(" -cl ");
 			for(int i = 0; i < cmds.length; i++){
-				cmd.append("\""+MsfguiApp.doubleBackslashes(cmds[i].trim())+"\"");
+				cmd.append("\"").append(MsfguiApp.doubleBackslashes(cmds[i].trim())).append("\"");
 				if (i < cmds.length - 1)
 					cmd.append(',');
 			}

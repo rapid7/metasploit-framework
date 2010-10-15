@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -16,7 +15,7 @@ public class DbConnectDialog extends OptionsDialog {
 	private RpcConnection rpcConn;
 	private Frame myParent;
 	private boolean success;
-	private Element props;
+	private Map props;
 
 	//Opens dialog to get options
 	public static boolean connect(Frame parent, RpcConnection rpcConn){
@@ -32,12 +31,15 @@ public class DbConnectDialog extends OptionsDialog {
 		myParent = parent;
 		success = false;
 		props = MsfguiApp.getPropertiesNode();
-		hostField.setText(props.getAttribute("dbhost"));
-		portField.setText(props.getAttribute("dbport"));
-		usernameField.setText(props.getAttribute("dbusername"));
-		passwordField.setText(props.getAttribute("dbpassword"));
-		dbNameField.setText(props.getAttribute("dbdatabase"));
-		String driver = props.getAttribute("dbdriver");
+		try{
+			hostField.setText(props.get("dbhost").toString());
+			portField.setText(props.get("dbport").toString());
+			usernameField.setText(props.get("dbusername").toString());
+			passwordField.setText(props.get("dbpassword").toString());
+			dbNameField.setText(props.get("dbdatabase").toString());
+		}catch(NullPointerException nex){
+		}
+		Object driver = props.get("dbdriver");
 		List l = ((javax.swing.SpinnerListModel)typeSpinner.getModel()).getList();
 		for ( Object o : l )
 			if(o.equals(driver))
@@ -202,7 +204,7 @@ public class DbConnectDialog extends OptionsDialog {
 		String val = text.getText();
 		if (val.length() > 0)
 			opts.put(key, val);
-		props.setAttribute("db"+key, val);
+		props.put("db"+key, val);
 	}
 
 	private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
@@ -213,7 +215,7 @@ public class DbConnectDialog extends OptionsDialog {
 		addNonempty("password", passwordField, opts);
 		addNonempty("database", dbNameField, opts);
 		opts.put("driver", typeSpinner.getValue().toString());
-		props.setAttribute("dbdriver", typeSpinner.getValue().toString());
+		props.put("dbdriver", typeSpinner.getValue().toString());
 		try{
 			Map res = (Map)rpcConn.execute("db.connect",opts);
 			success = "success".equals(res.get("result"));

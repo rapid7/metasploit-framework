@@ -260,19 +260,19 @@ public class ScheduleTaskOptionsDialog extends OptionsDialog {
 		else if(startupButton.isSelected())
 			cmd.append(" -s");
 		else if(dailyButton.isSelected())
-			cmd.append(" -d "+howManyField.getText());
+			cmd.append(" -d ").append(howManyField.getText());
 		else if(hourlyButton.isSelected())
-			cmd.append(" -hr "+howManyField.getText());
+			cmd.append(" -hr ").append(howManyField.getText());
 		else if(minuteButton.isSelected())
-			cmd.append(" -m "+howManyField.getText());
+			cmd.append(" -m ").append(howManyField.getText());
 		if(remoteScheduleBox.isSelected())
-			cmd.append(" -r -t "+remoteSystemField.getText());
+			cmd.append(" -r -t ").append(remoteSystemField.getText());
 		if(usernameField.getText().length() > 0)
-			cmd.append(" -u "+usernameField.getText()+" -p "+passwordField.getText());
+			cmd.append(" -u ").append(usernameField.getText()).append(" -p ").append(passwordField.getText());
 		if(uploadField.getText().length() > 0)
-			cmd.append(" -e \"" + MsfguiApp.doubleBackslashes(uploadField.getText()) + "\" -o \""
-					+ MsfguiApp.doubleBackslashes(uploadedArgs.getText()) + "\"");
-		cmd.append(" -c \"" + MsfguiApp.doubleBackslashes(commandField.getText()) + "\"");
+			cmd.append(" -e \"").append(MsfguiApp.doubleBackslashes(uploadField.getText())).append("\" -o \"")
+					.append(MsfguiApp.doubleBackslashes(uploadedArgs.getText())).append("\"");
+		cmd.append(" -c \"").append(MsfguiApp.doubleBackslashes(commandField.getText())).append("\"");
 		command = cmd.toString();
 		setVisible(false);
 	}//GEN-LAST:event_goButtonActionPerformed

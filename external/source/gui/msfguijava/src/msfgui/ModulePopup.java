@@ -12,6 +12,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
@@ -128,11 +129,11 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			Object references = info.get("references");
 			StringBuilder referenceString = new StringBuilder();
 			if(references != null){
-				Object[] refArray = (Object[])references;
+				List refList = (List)references;
 				referenceString.append("<br>References:<br>");
-				for(int i = 0; i < refArray.length; i++){
-					Object[] ref = (Object[])refArray[i];
-					referenceString.append(ref[0]+": "+ref[1]+"<br> ");
+				for(Object refo : refList){
+					List ref = (List)refo;
+					referenceString.append(ref.get(0)).append(": ").append(ref.get(1)).append("<br> ");
 				}
 				referenceString.append("<br>");
 			}
@@ -140,20 +141,20 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			if(info.get("license") instanceof String){
 				licenseLabel.setText("<html><b>License:</b> "+ info.get("license")+"</html>");
 			}else{
-				Object [] license = (Object[]) info.get("license");
+				List license = (List) info.get("license");
 				StringBuilder licenseString = new StringBuilder();
-				for(int i = 0; i < license.length; i++)
-					licenseString.append(license[i]+" ");
+				for(Object lic : license)
+					licenseString.append(lic).append(" ");
 				licenseLabel.setText("<html><b>License:</b> "+ licenseString+"</html>");
 			}
 			versionLabel.setText("<html><b>Version:</b> "+ info.get("version")+"</html>");
 			//Authors
-			Object[] authors = (Object[]) info.get("authors");
+			List authors = (List) info.get("authors");
 			StringBuilder authorLine = new StringBuilder();
-			if (authors.length > 0) 
-				authorLine.append(authors[0].toString());
-			for (int i = 1; i < authors.length; i++) 
-				authorLine.append(", " + authors[i]);
+			if (authors.size() > 0)
+				authorLine.append(authors.get(0).toString());
+			for (int i = 1; i < authors.size(); i++)
+				authorLine.append(", ").append(authors.get(i));
 			authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
 			if(moduleType.equals("exploit")){
 				//Targets
@@ -199,12 +200,12 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
    /** Creates payload menu. */
 	private void showPayloads(RpcConnection rpcConn, String modName, String target, String defaultPayload) throws HeadlessException {
 		try { //Get info
-			Object[] mlist;
+			List mlist;
 			try {
-				mlist = (Object[])((Map)rpcConn.execute("module.compatible_payloads",
+				mlist = (List)((Map)rpcConn.execute("module.compatible_payloads",
 					modName,target)).get("payloads"); //WARNING - ALTERED COMPATIBLE PAYLOAD RPC DEF
 			} catch (MsfException ex) {
-				mlist = (Object[])((Map)rpcConn.execute("module.compatible_payloads",
+				mlist = (List)((Map)rpcConn.execute("module.compatible_payloads",
 					modName)).get("payloads"); //old rpc payload def
 			}
 			//Ok. it worked. now replace the payload list
@@ -369,7 +370,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					if(!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
 						autoCommands.add("set "+ent.getKey()+" "+ent.getValue());
 				}
-				autoCommands.add("exploit -j");
+				autoCommands.add("exploit");
 				InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);
 				parentFrame.registerConsole(res, true, iw);
 			}else{
@@ -377,7 +378,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				if(!info.get("result").equals("success"))
 					JOptionPane.showMessageDialog(rootPane, info);
 			}
-			MsfguiApp.addRecentModule(new Object[]{moduleType, fullName,hash}, rpcConn, parentFrame);
+			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{moduleType, fullName,hash}), rpcConn, parentFrame);
 
 			//close out
 			this.setVisible(false);

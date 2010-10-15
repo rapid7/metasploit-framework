@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
@@ -41,12 +41,12 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="domainField" pref="292" max="32767" attributes="0"/>
+                      <Component id="domainField" pref="297" max="32767" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="chooseButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="fileField" pref="198" max="32767" attributes="0"/>
+                      <Component id="fileField" pref="229" max="32767" attributes="0"/>
                   </Group>
                   <Component id="okButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>

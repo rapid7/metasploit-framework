@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.List;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
@@ -43,7 +44,7 @@ public class PayloadPopup extends MsfFrame {
 
 		//get encoders
 		try{
-			Object[] encoders = (Object[])((Map) rpcConn.execute("module.encoders")).get("modules");
+			Object[] encoders = ((List)((Map) rpcConn.execute("module.encoders")).get("modules")).toArray();
 			int defaultEncoder = 0;
 			for(int i = 0; i < encoders.length; i++)
 				if(encoders[i].toString().equals("generic/none"))
@@ -209,20 +210,20 @@ public class PayloadPopup extends MsfFrame {
 			if(info.get("license") instanceof String){
 				licenseLabel.setText("<html><b>License:</b> "+ info.get("license")+"</html>");
 			}else{
-				Object [] license = (Object[]) info.get("license");
+				List license = (List) info.get("license");
 				StringBuilder licenseString = new StringBuilder();
-				for(int i = 0; i < license.length; i++)
-					licenseString.append(license[i]+" ");
+				for(Object lic : license)
+					licenseString.append(lic).append(" ");
 				licenseLabel.setText("<html><b>License:</b> "+ licenseString+"</html>");
 			}
 			versionLabel.setText("<html><b>Version:</b> "+ info.get("version")+"</html>");
 			//Authors
-			Object[] authors = (Object[]) info.get("authors");
+			List authors = (List) info.get("authors");
 			StringBuilder authorLine = new StringBuilder();
-			if (authors.length > 0)
-				authorLine.append(authors[0].toString());
-			for (int i = 1; i < authors.length; i++)
-				authorLine.append(", " + authors[i]);
+			if (authors.size() > 0)
+				authorLine.append(authors.get(0).toString());
+			for (int i = 1; i < authors.size(); i++)
+				authorLine.append(", ").append(authors.get(i));
 			authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
 
 			//display options
@@ -631,7 +632,7 @@ public class PayloadPopup extends MsfFrame {
 		options.put("WORKSPACE", MsfguiApp.workspace);
 		try{
 			Map data = (Map) rpcConn.execute("module.execute","exploit", "multi/handler", options);
-			MsfguiApp.addRecentModule(new Object[]{"exploit", "multi/handler", options}, rpcConn, mainFrame);
+			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{"exploit", "multi/handler", options}), rpcConn, mainFrame);
 		}catch (MsfException ex){
 			JOptionPane.showMessageDialog(this, ex);
 		}

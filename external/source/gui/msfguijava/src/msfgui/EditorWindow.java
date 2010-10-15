@@ -21,7 +21,7 @@ public class EditorWindow extends MsfFrame {
         this("");
 		StringBuilder sb = new StringBuilder();
 		for(Object o : info)
-			sb.append(o+"\n");
+			sb.append(o).append("\n");
 		textBox.setText(sb.toString());
 		setTitle("Collected hashes");
     }

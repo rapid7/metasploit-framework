@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <NonVisualComponents>
@@ -41,28 +41,28 @@
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="remoteScheduleBox" alignment="0" pref="513" max="32767" attributes="1"/>
+                          <Component id="remoteScheduleBox" alignment="0" pref="560" max="32767" attributes="1"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel4" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="remoteSystemField" pref="420" max="32767" attributes="0"/>
+                              <Component id="remoteSystemField" pref="447" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="jLabel3" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="uploadedArgs" pref="363" max="32767" attributes="0"/>
+                              <Component id="uploadedArgs" pref="387" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" attributes="0">
                               <Component id="uploadButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="jLabel8" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="uploadField" pref="250" max="32767" attributes="0"/>
+                              <Component id="uploadField" pref="277" max="32767" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="howManyField" pref="442" max="32767" attributes="0"/>
+                              <Component id="howManyField" pref="474" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -78,7 +78,7 @@
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="commandField" pref="553" max="32767" attributes="0"/>
+                      <Component id="commandField" pref="610" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="goButton" min="-2" max="-2" attributes="0"/>
                   </Group>

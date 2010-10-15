@@ -7,6 +7,7 @@ package msfgui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -26,14 +27,10 @@ import javax.swing.JOptionPane;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 /**
  * The main class of the application. Handles global settings and system functions.
@@ -41,51 +38,33 @@ import org.w3c.dom.NodeList;
  */
 public class MsfguiApp extends SingleFrameApplication {
 	public static final int NUM_REMEMBERED_MODULES = 20;
-	private static Element propRoot;
-	private static List recentList = null;
+	private static final Map propRoot;
 	public static JFileChooser fileChooser;
 	protected static Pattern backslash = Pattern.compile("\\\\");
 	public static String workspace = "default";
 	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf3"+File.separatorChar+"msfgui";
 
 	static{ //get saved properties file
-		propRoot = null;
+		Map props;
 		try{
-			propRoot = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-					.parse(new File(confFilename)).getDocumentElement();
+			props = (Map)RpcConnection.parseVal(DocumentBuilderFactory.newInstance().newDocumentBuilder()
+					.parse(new FileInputStream(confFilename)).getDocumentElement());
 		} catch (Exception ex) { //if anything goes wrong, make new (IOException, SAXException, ParserConfigurationException, NullPointerException
-			propRoot = getPropertiesNode();//ensure existence
+			props = new HashMap();//ensure existence
 		}
+		propRoot = props;
+		if(propRoot.get("recentList") == null)
+			propRoot.put("recentList", new LinkedList());
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override
 			public void run() {
-				//Output the XML
-				try{
-					if(recentList != null){ //if we have a new list to save
-						//save recent
-						for(Node node = propRoot.getFirstChild(); node != null; node = node.getNextSibling())
-							if(node.getNodeName().equals("recent"))
-								propRoot.removeChild(node);
-						Document doc = propRoot.getOwnerDocument();
-						Node recentNode = doc.createElement("recent");
-						for(Object o : recentList){
-							Object[] args = (Object[])o;
-							Element recentItem = doc.createElement("recentItem");
-							recentItem.setAttribute("moduleType",args[0].toString());
-							recentItem.setAttribute("fullName",args[1].toString());
-							for(Object p : ((Map)args[2]).entrySet()){
-								Map.Entry prop = (Map.Entry)p;
-								Element propItem = doc.createElement(prop.getKey().toString());
-								propItem.setAttribute("val",prop.getValue().toString());
-								recentItem.appendChild(propItem);
-							}
-							recentNode.appendChild(recentItem);
-						}
-						propRoot.appendChild(recentNode);
-					}
+				try {
+					Document docElement = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+					docElement.appendChild(RpcConnection.objectToNode(docElement, propRoot));
 					TransformerFactory.newInstance().newTransformer().transform(
-							new DOMSource(propRoot), new StreamResult(new FileOutputStream(confFilename)));
-				}catch (Exception ex){
+							new DOMSource(docElement), new StreamResult(new FileOutputStream(confFilename)));
+				} catch (Exception ex) {
+					JOptionPane.showMessageDialog(null,"Error saving properties. Cannot make new properties node.");
 				}
 			}
 		});
@@ -134,7 +113,7 @@ public class MsfguiApp extends SingleFrameApplication {
 		String msfCommand = args[0];
 		String prefix;
 		try{
-			prefix = getPropertiesNode().getAttributeNode("commandPrefix").getValue();
+			prefix = getPropertiesNode().get("commandPrefix").toString();
 		}catch(Exception ex){
 			prefix = "";
 		}
@@ -184,42 +163,34 @@ public class MsfguiApp extends SingleFrameApplication {
 	}
 
 	/** Get root node of xml saved options file */
-	public static Element getPropertiesNode(){
-		if(propRoot == null){
-			try {
-				Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-				Element root = doc.createElement("root");
-				doc.appendChild(root);
-				propRoot = root;
-			} catch (ParserConfigurationException ex) {
-				JOptionPane.showMessageDialog(null,"Error saving properties. Cannot make new properties node.");
-			}
-		}
+	public static Map getPropertiesNode(){
 		return propRoot;
 	}
 
 	/** Adds a module run to the recent modules list */
-	public static void addRecentModule(final Object[] args, final RpcConnection rpcConn, final MainFrame mf) {
+	public static void addRecentModule(final List args, final RpcConnection rpcConn, final MainFrame mf) {
 		final JMenu recentMenu = mf.recentMenu;
-		if(recentList == null)
-			recentList = new LinkedList();
+		List recentList = (List)propRoot.get("recentList");
+		if(recentList.contains(args))
+			return;
 		recentList.add(args);
-		Map hash = (Map)args[2];
-		StringBuilder name = new StringBuilder(args[0] + " " + args[1]);
+		Map hash = (Map)args.get(2);
+		StringBuilder name = new StringBuilder(args.get(0) + " " + args.get(1));
 		for(Object ento : hash.entrySet()){
 			Entry ent = (Entry)ento;
 			String propName = ent.getKey().toString();
 			if(propName.endsWith("HOST") || propName.endsWith("PORT") || propName.equals("PAYLOAD"))
-				name.append(" "+propName+"-"+ent.getValue());
+				name.append(" ").append(propName).append("-").append(ent.getValue());
 		}
 		final JMenuItem item = new JMenuItem(name.toString());
 		item.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new ModulePopup(rpcConn, args, mf).setVisible(true);
+				new ModulePopup(rpcConn, args.toArray(), mf).setVisible(true);
 				recentMenu.remove(item);
 				recentMenu.add(item);
+				List recentList = (List)propRoot.get("recentList");
 				for(int i = 0; i < recentList.size(); i++){
-					if(Arrays.equals((Object[])recentList.get(i), args)){
+					if(recentList.get(i).equals(args)){
 						recentList.add(recentList.remove(i));
 						break;
 					}
@@ -234,40 +205,14 @@ public class MsfguiApp extends SingleFrameApplication {
 			recentList.remove(0);
 	}
 	public static void addRecentModules(final RpcConnection rpcConn, final MainFrame mf) {
-		Node recentNode = null;
-		for(Node node = propRoot.getFirstChild(); node != null; node = node.getNextSibling())
-			if(node.getNodeName().equals("recent"))
-				recentNode = node;
-		
-		if(recentNode == null)
-			return;
-		NodeList recentItems = recentNode.getChildNodes();
-		int len = recentItems.getLength();
-		for(int i = 0; i < len; i++){
-			HashMap hash = new HashMap();
-			Node recentItem = recentItems.item(i);
-
-			try{
-				String moduleType = recentItem.getAttributes().getNamedItem("moduleType").getNodeValue();
-				String fullName = recentItem.getAttributes().getNamedItem("fullName").getNodeValue();
-
-				NodeList recentItemProps = recentItem.getChildNodes();
-				int propslen = recentItemProps.getLength();
-				for(int j = 0; j < propslen; j++){
-					Node prop = recentItemProps.item(j);
-					String propName = prop.getNodeName();
-					String val = prop.getAttributes().getNamedItem("val").getNodeValue();
-					hash.put(propName, val);
-				}
-				addRecentModule(new Object[]{moduleType, fullName,hash}, rpcConn, mf);
-			}catch(NullPointerException nex){//if attribute doesn't exist, ignore
-			}
-		}
+		List recentList = (List)propRoot.get("recentList");
+		for(Object item : recentList)
+			addRecentModule((List)item, rpcConn, mf);
 	}
 
 	/** Clear history of run modules */
 	public static void clearHistory(JMenu recentMenu){
-		recentList.clear();
+		((List)propRoot.get("recentList")).clear();
 		recentMenu.removeAll();
 		recentMenu.setEnabled(false);
 	}

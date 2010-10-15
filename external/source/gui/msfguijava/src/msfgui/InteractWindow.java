@@ -30,7 +30,7 @@ public class InteractWindow extends MsfFrame {
 	private String prompt;
 	private Object sid;
 	private final StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
-	private static ArrayList commands;
+	private static final ArrayList commands;
 	private static int currentCommand = 0;
 	static{
 		commands = new ArrayList();
@@ -87,13 +87,13 @@ public class InteractWindow extends MsfFrame {
 					if(ke.getKeyChar() == '\t'){
 						try{
 							Map res = (Map)rpcConn.execute("console.tabs", sid,inputField.getText());
-							Object[] tabs = (Object[])res.get("tabs");
+							List tabs = (List)res.get("tabs");
 							//one option: use it
-							if(tabs.length == 1){
-								inputField.setText(tabs[0].toString());
+							if(tabs.size() == 1){
+								inputField.setText(tabs.get(0).toString());
 							//more options: display, and use common prefix
-							} else if (tabs.length > 1){
-								String prefix = tabs[0].toString();
+							} else if (tabs.size() > 1){
+								String prefix = tabs.get(0).toString();
 								for(Object o : tabs){
 									String s = o.toString();
 									int len = Math.min(s.length(), prefix.length());

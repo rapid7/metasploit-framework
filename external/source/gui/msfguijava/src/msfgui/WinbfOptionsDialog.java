@@ -141,13 +141,13 @@ public class WinbfOptionsDialog extends OptionsDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         StringBuilder cmd = new StringBuilder("winbf ");
 		if(targetField.getText().length() > 0)
-			cmd.append(" -t \""+MsfguiApp.doubleBackslashes(targetField.getText())+"\"");
+			cmd.append(" -t \"").append(MsfguiApp.doubleBackslashes(targetField.getText())).append("\"");
 		if(userField.getText().length() > 0)
-			cmd.append(" -L \""+MsfguiApp.doubleBackslashes(userField.getText())+"\"");
+			cmd.append(" -L \"").append(MsfguiApp.doubleBackslashes(userField.getText())).append("\"");
 		if(passwordField.getText().length() > 0)
-			cmd.append(" -p \""+MsfguiApp.doubleBackslashes(passwordField.getText())+"\"");
+			cmd.append(" -p \"").append(MsfguiApp.doubleBackslashes(passwordField.getText())).append("\"");
 		if(loginField.getText().length() > 0)
-			cmd.append(" -l \""+MsfguiApp.doubleBackslashes(loginField.getText())+"\"");
+			cmd.append(" -l \"").append(MsfguiApp.doubleBackslashes(loginField.getText())).append("\"");
 		if(checkPolicyBox.isSelected())
 			cmd.append(" -cp");
 		command = cmd.toString();

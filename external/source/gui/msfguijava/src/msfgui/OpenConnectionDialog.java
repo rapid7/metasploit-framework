@@ -5,9 +5,9 @@
  */
 package msfgui;
 import java.io.File;
+import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
-import org.w3c.dom.Element;
 
 /**
  *
@@ -32,11 +32,11 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 	public static RpcConnection getConnection(MainFrame mainframe) {
 		//try saved connection credentials
 		try{
-			Element info = MsfguiApp.getPropertiesNode();
-			String username = info.getAttributeNode("username").getValue();
-			String password = info.getAttributeNode("password").getValue();
-			String host = info.getAttributeNode("host").getValue();
-			int port = Integer.parseInt(info.getAttributeNode("port").getValue());
+			Map info = MsfguiApp.getPropertiesNode();
+			String username = info.get("username").toString();
+			String password = info.get("password").toString();
+			String host = info.get("host").toString();
+			int port = Integer.parseInt(info.get("port").toString());
 			return new RpcConnection(username, password.toCharArray(), host, port);
 		} catch (MsfException mex) {
 		} catch (NullPointerException nex) {//generated when attributes dont exist.
@@ -279,16 +279,17 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		File dir =new File("/opt/metasploit3/msf3/");
 		if(dir.isDirectory())
 			MsfguiApp.fileChooser.setCurrentDirectory(dir);
-		dir =new File(MsfguiApp.getPropertiesNode().getAttribute("commandPrefix"));
+		if(MsfguiApp.getPropertiesNode().get("commandPrefix") != null)
+			dir =new File(MsfguiApp.getPropertiesNode().get("commandPrefix").toString());
 		if(dir.isDirectory())
 			MsfguiApp.fileChooser.setCurrentDirectory(dir);
 		if (MsfguiApp.fileChooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
-		MsfguiApp.getPropertiesNode().setAttribute("commandPrefix",
+		MsfguiApp.getPropertiesNode().put("commandPrefix",
 				MsfguiApp.fileChooser.getCurrentDirectory().getPath()+File.separator);
 		JOptionPane.showMessageDialog(this, "Will now try running \n"
-				+MsfguiApp.getPropertiesNode().getAttribute("commandPrefix")+"msfrpcd\n"
-				+"and "+ MsfguiApp.getPropertiesNode().getAttribute("commandPrefix")+"ruby /msf3/msfrpcd\n"
+				+MsfguiApp.getPropertiesNode().get("commandPrefix")+"msfrpcd\n"
+				+"and "+ MsfguiApp.getPropertiesNode().get("commandPrefix")+"ruby /msf3/msfrpcd\n"
 				+ "when starting new daemon. Note: for the second to work on Windows,\n"
 				+ "use something like Framework3\\bin not Framework3\\msf3");
 	}//GEN-LAST:event_pathButtonActionPerformed

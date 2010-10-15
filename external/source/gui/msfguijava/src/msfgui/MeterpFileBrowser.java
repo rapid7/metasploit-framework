@@ -122,7 +122,7 @@ public class MeterpFileBrowser extends MsfFrame {
 			Base64.encode(text.getBytes()));
 	}
 	/** Handles click events, like popup menu and double-click navigation */
-	protected void setupPopupMenu(final RpcConnection rpcConn, final Map session) {
+	private void setupPopupMenu(final RpcConnection rpcConn, final Map session) {
 		mainTable.addMouseListener(new PopupMouseListener() {
 			public void doubleClicked(MouseEvent e) {
 				//show interaction window on double-click
