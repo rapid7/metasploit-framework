@@ -69,7 +69,7 @@ end
 # executable on the host that will execute at startup as string and the startup
 # type as an integer of 2 for Auto, 3 for Manual or 4 for Disable, default Auto.
 def service_create(name, display_name, executable_on_host,startup=2)
-	adv = client.railgun.advapi32
+	adv = client.railgun.get_dll('advapi32')
 	manag = adv.OpenSCManagerA(nil,nil,0x13)
 	if(manag["return"] != 0)
 		# SC_MANAGER_CREATE_SERVICE = 0x0002
@@ -91,7 +91,7 @@ end
 # Function for service startup, returns 0 if service started, 1 if service is
 # already started and 2 if service is disabled.
 def service_start(name)
-	adv = client.railgun.advapi32
+	adv = client.railgun.get_dll('advapi32')
 	manag = adv.OpenSCManagerA(nil,nil,1)
 	if(manag["return"] == 0)
 		raise "Could not open Service Control Manager, Access Denied"
@@ -118,7 +118,7 @@ end
 # Function for stopping a service, returns 0 if service is stopped successfully,
 # 1 if service is already stopped or disabled and 2 if the service can not be stopped.
 def service_stop(name)
-	adv = client.railgun.advapi32
+	adv = client.railgun.get_dll('advapi32')
 	manag = adv.OpenSCManagerA(nil,nil,1)
 	if(manag["return"] == 0)
 		raise "Could not open Service Control Manager, Access Denied"
