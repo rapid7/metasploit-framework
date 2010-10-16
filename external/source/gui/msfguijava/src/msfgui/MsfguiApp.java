@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -63,7 +64,16 @@ public class MsfguiApp extends SingleFrameApplication {
 					TransformerFactory.newInstance().newTransformer().transform(
 							new DOMSource(docElement), new StreamResult(new FileOutputStream(confFilename)));
 				} catch (Exception ex) {
-					JOptionPane.showMessageDialog(null,"Error saving properties. Cannot make new properties node.");
+					//fail
+					try{ //Problem saving conf file; we are closing here, so we shouldn't try to pop up a message box
+						FileWriter fout = new FileWriter(confFilename+"ERROR.log", true);
+						fout.write(java.util.Calendar.getInstance().getTime().toString());
+						fout.write(" Error saving properties. Check "+confFilename+" file permissions.\n");
+						fout.write(ex.toString()+"\n");
+						fout.close();
+					} catch (Exception exc) {
+						 //epic fail
+					}
 				}
 			}
 		});
