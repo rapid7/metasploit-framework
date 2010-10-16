@@ -22,7 +22,7 @@ module Sys
 ###
 class EventLog
 
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 
@@ -60,6 +60,11 @@ class EventLog
 	def initialize(hand)
 		self.client = self.class.client
 		self.handle = hand
+		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
+	end
+
+	def self.finalize(client,handle)
+		proc { self.close(client,handle) }
 	end
 
 	#
@@ -169,15 +174,18 @@ class EventLog
 	end
 
 	#
-	# Return the record number of the oldest event (not necessarily 1).
+	# Close the event log
 	#
-	def close
+	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_eventlog_close')
-
-		request.add_tlv(TLV_TYPE_EVENT_HANDLE, self.handle);
-
+		request.add_tlv(TLV_TYPE_EVENT_HANDLE, handle);
 		response = client.send_request(request)
 		return nil
+	end
+	
+	# Instance method
+	def close
+		self.class.close(self.client, self.handle)
 	end
 end
 

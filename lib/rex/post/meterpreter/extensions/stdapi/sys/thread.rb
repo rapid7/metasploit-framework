@@ -34,6 +34,11 @@ class Thread < Rex::Post::Thread
 		self.process = process
 		self.handle  = handle
 		self.tid     = tid
+		ObjectSpace.define_finalizer( self, self.class.finalize(self.process.client, self.handle) )
+	end
+
+	def self.finalize(client,handle)
+		proc { self.close(client,handle) }
 	end
 
 	##
@@ -153,16 +158,17 @@ class Thread < Rex::Post::Thread
 	#
 	# Closes the thread handle.
 	#
-	def close
+	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_process_thread_close')
-
 		request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
-
-		process.client.send_request(request)
-
+		client.send_request(request)
 		handle = nil
-
 		return true
+	end
+	
+	# Instance method
+	def self.close
+		self.class.close(self.process.client, self.handle)
 	end
 
 	attr_reader :process, :handle, :tid # :nodoc:

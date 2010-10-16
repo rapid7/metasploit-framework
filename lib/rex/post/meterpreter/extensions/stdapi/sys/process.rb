@@ -284,8 +284,14 @@ class Process < Rex::Post::Process
 				'memory' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Memory.new(self),
 				'thread' => Rex::Post::Meterpreter::Extensions::Stdapi::Sys::ProcessSubsystem::Thread.new(self),
 			})
+
+		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.handle) )
 	end
 
+	def self.finalize(client,handle)
+		proc { self.close(client,handle) }
+	end
+	
 	#
 	# Returns the executable name of the process.
 	#
@@ -303,20 +309,23 @@ class Process < Rex::Post::Process
 	#
 	# Closes the handle to the process that was opened.
 	#
-	def close
+	def self.close(client,handle)
 		request = Packet.create_request('stdapi_sys_process_close')
-
 		request.add_tlv(TLV_TYPE_HANDLE, handle)
-
 		response = client.send_request(request)
-
 		handle = nil;
-
 		return true
+	end
+	
+	#
+	# Instance method
+	#
+	def close(handle)
+		self.class.close(self.client, handle)
 	end
 
 	#
-	# Block untill this process terminates on the remote side.
+	# Block until this process terminates on the remote side.
 	# By default we choose not to allow a packet responce timeout to
 	# occur as we may be waiting indefinatly for the process to terminate.
 	#

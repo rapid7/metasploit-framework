@@ -141,6 +141,11 @@ class Channel
 		if (cid and client)
 			client.add_channel(self)
 		end
+		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.cid) )
+	end
+
+	def self.finalize(client,cid)
+		proc { self._close(client,cid) }
 	end
 
 	##
@@ -262,27 +267,29 @@ class Channel
 	#
 	# Closes the channel.
 	#
-	def _close(addends = nil)
-		if (self.cid == nil)
+	def self._close(client, cid, addends=nil)
+		if (cid == nil)
 			raise IOError, "Channel has been closed.", caller
 		end
 
 		request = Packet.create_request('core_channel_close')
 
 		# Populate the request
-		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
+		request.add_tlv(TLV_TYPE_CHANNEL_ID, cid)
 		request.add_tlvs(addends)
 
-		self.client.send_request(request)
+		client.send_request(request)
 
 		# Disassociate this channel instance
-		self.client.remove_channel(self.cid)
-
-		self.cid = nil
+		client.remove_channel(cid)
 
 		return true
 	end
-
+	
+	def _close(addends = nil)
+		self.class._close(self.client, self.cid, addends)
+		self.cid = nil
+	end
 	#
 	# Enables or disables interactive mode.
 	#

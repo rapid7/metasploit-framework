@@ -29,6 +29,12 @@ class RegistryKey
 		self.base_key = base_key
 		self.perm     = perm
 		self.hkey     = hkey
+		
+		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.hkey) )
+	end
+
+	def self.finalize(client,hkey)
+		proc { self.close(client,hkey) }
 	end
 
 	##
@@ -99,12 +105,17 @@ class RegistryKey
 	# Closes the open key.  This must be called if the registry
 	# key was opened.
 	#
-	def close()
-		if (self.hkey != nil)
-			return self.client.sys.registry.close_key(hkey)
+	def self.close(client, hkey)
+		if hkey != nil
+			return client.sys.registry.close_key(hkey)
 		end
 
-		return false
+		return false	
+	end
+	
+	# Instance method for the same
+	def close()
+		self.class.close(self.client, self.hkey)
 	end
 
 	##
