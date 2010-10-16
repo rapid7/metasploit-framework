@@ -34,19 +34,27 @@ module Stream
 	def write(buf, opts = {})
 		total_sent   = 0
 		total_length = buf.length
+		block_size   = 32768
 		begin
 			while( total_sent < total_length )
 				s = Rex::ThreadSafe.select( nil, [ fd ], nil, 0.2 )
 				if( s == nil || s[0] == nil )
 					next
 				end
-				data = buf[0, 32768]
+				data = buf[0, block_size]
 				sent = fd.write_nonblock( data )
 				if sent > 0
 					total_sent += sent
 					buf[0, sent] = ""
 				end
 			end
+		rescue ::Errno::EAGAIN
+			# Sleep for a half a second, or until we can write again
+			Rex::ThreadSafe.select( nil, [ fd ], nil, 0.5 )
+			# Decrement the block size to handle full sendQs better
+			block_size = 1024
+			# Try to write the data again
+			retry
 		rescue ::IOError, ::Errno::EPIPE
 			return nil if (fd.abortive_close == true)
 			raise $!
