@@ -107,7 +107,7 @@ class WebConsole
 			#background interactive meterpreter channel
 			if(self.console.active_session.channels)
 				self.console.active_session.channels.each_value do |ch|
-					if(ch.interacting)
+					if(ch.respond_to?('interacting') && ch.interacting)
 						ch.detach()
 						return
 					end
@@ -124,7 +124,7 @@ class WebConsole
 			#close interactive meterpreter channel
 			if(self.console.active_session.channels)
 				self.console.active_session.channels.each_value do |ch|
-					if(ch.interacting)
+					if(ch.respond_to?('interacting') && ch.interacting)
 						ch.close()
 						return
 					end

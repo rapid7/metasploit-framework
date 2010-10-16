@@ -129,7 +129,7 @@ class Session < Base
 		#@framework.events.on_session_command(s, buff)
 		interacting = false
 		s.channels.each_value do |ch|
-			interacting ||= ch.interacting
+			interacting ||= ch.respond_to?('interacting') && ch.interacting
 		end
 		if interacting
 			s.user_input.put(buff+"\n")
