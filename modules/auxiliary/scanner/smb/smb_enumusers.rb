@@ -221,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
 				# Open
 				stub =
 					phandle +
-					NDR.long(0x00000304) +
+					NDR.long(0x00000305) +
 					NDR.long(4) +
 					[1,4,0].pack('CvC') +
 					domains[domain][:sid_raw]
