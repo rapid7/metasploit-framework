@@ -209,9 +209,8 @@ public class MainFrame extends FrameView {
 						}
 						publish((Object)jobStrings);
 					} catch (MsfException xre) {
-						if(JOptionPane.showConfirmDialog(null, "Error: "+xre+"\nContinue?") != JOptionPane.YES_OPTION)
-							throw xre;
-						delay *= 2;
+						publish("Error getting session list"+xre);
+						return new ArrayList();
 					} catch (InterruptedException iex){
 					}
 				}
@@ -225,6 +224,8 @@ public class MainFrame extends FrameView {
 						sessionsTable.updateUI();
 					}else if (o instanceof String[]){
 						jobsList.setListData((String[])o);
+					}else if (o instanceof String){
+						statusMessageLabel.setText(o.toString());
 					}
 				}
 			}
