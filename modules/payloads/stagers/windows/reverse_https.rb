@@ -34,7 +34,8 @@ module Metasploit3
 				{
 					'Offsets' =>
 						{
-							'EXITFUNC' => [ 290, 'V' ],
+							# Disabled since it MUST be ExitProcess to work on WoW64 unless we add EXITFUNK support (too big right now)
+							# 'EXITFUNC' => [ 290, 'V' ], 
 							'LPORT'    => [ 190, 'v' ], # Not a typo, really little endian
 						},
 					'Payload' =>
