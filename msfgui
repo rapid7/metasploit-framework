@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env ruby
 #
 # $Id$
 #
@@ -7,5 +7,12 @@
 # $Revision$
 #
 
-java -jar $(dirname $(readlink $0))/data/gui/msfgui.jar
+#java -jar $(dirname $(readlink -n $0))/data/gui/msfgui.jar
+
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+exec "java -jar #{File.dirname(msfbase)}/data/gui/msfgui.jar"
 
