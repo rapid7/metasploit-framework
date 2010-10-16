@@ -48,6 +48,7 @@ def langdetect(lang)
 			lang = "en_EN"
 		end
 	end
+	return lang
 rescue::Exception => e
 	print_status("The following Error was encountered: #{e.class} #{e}")
 end
@@ -138,7 +139,7 @@ end
 # Parsing of Options
 usr = nil
 pass = nil
-lang = "en_EN"
+lang = nil
 lport = 1024 + rand(1024)
 enbl = nil
 frwrd = nil
@@ -170,7 +171,7 @@ if client.platform =~ /win32|win64/
 				enabletssrv()
 			end
 			if usr and pass
-				langdetect(lang)
+				lang = langdetect(lang)
 				addrdpusr(session, usr, pass, lang)
 			end
 			if frwrd == true
