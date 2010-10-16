@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -169,11 +168,17 @@ public class MsfguiApp extends SingleFrameApplication {
 
 	/** Adds a module run to the recent modules list */
 	public static void addRecentModule(final List args, final RpcConnection rpcConn, final MainFrame mf) {
+		addRecentModule(args, rpcConn, mf, true);
+	}
+	public static void addRecentModule(final List args, final RpcConnection rpcConn, final MainFrame mf, boolean ignoreDups) {
 		final JMenu recentMenu = mf.recentMenu;
 		List recentList = (List)propRoot.get("recentList");
-		if(recentList.contains(args))
-			return;
-		recentList.add(args);
+		if(recentList.contains(args)){
+			if(ignoreDups)
+				return;
+		}else{
+			recentList.add(args);
+		}
 		Map hash = (Map)args.get(2);
 		StringBuilder name = new StringBuilder(args.get(0) + " " + args.get(1));
 		for(Object ento : hash.entrySet()){
@@ -207,7 +212,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static void addRecentModules(final RpcConnection rpcConn, final MainFrame mf) {
 		List recentList = (List)propRoot.get("recentList");
 		for(Object item : recentList)
-			addRecentModule((List)item, rpcConn, mf);
+			addRecentModule((List)item, rpcConn, mf, false);
 	}
 
 	/** Clear history of run modules */
