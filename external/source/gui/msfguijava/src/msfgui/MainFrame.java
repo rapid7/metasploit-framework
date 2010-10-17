@@ -1578,6 +1578,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 		JMenu escalateMenu = new JMenu("Privilege escalation");
 		meterpreterPopupMenu.add(escalateMenu);
+		addSessionItem("Find and exploit a weak service permissions vulnerability",escalateMenu,
+				"service_permissions_escalate");
 		addSessionItem("Start system session with HP PML Driver permission vulnerability",escalateMenu,
 				"pml_driver_config");
 		addSessionItem("Start system session with Panda Antivirus permission vulnerability",escalateMenu,
