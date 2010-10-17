@@ -23,11 +23,6 @@ require 'msf/base'
 
 Indent = '   '
 
-if(RUBY_PLATFORM =~ /mswin32/)
-	$stderr.puts "[*] The msfcli interface is not supported on the native Windows Ruby\n"
-	$stderr.puts "    interpreter. Things will break, exploits will fail, payloads will not\n"
-	$stderr.puts "    be handled correctly. Please install Cygwin or use Linux in VMWare.\n\n"
-end
 
 def usage (str = nil, extra = nil)
 	tbl = Rex::Ui::Text::Table.new(
@@ -230,47 +225,29 @@ case mode.downcase
 			$stdout.puts("\nError: This type of module does not support the check feature")
 		end
 	when "e"
-
-		case module_class
-		when 'exploit'
-			begin
-				session = exploit.exploit_simple(
-					'Encoder'       => exploit.datastore['ENCODER'],
-					'Target'        => exploit.datastore['TARGET'],
-					'Payload'       => exploit.datastore['PAYLOAD'],
-					'Nop'           => exploit.datastore['NOP'],
-					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
-					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
-					'ForceBlocking' => true)
-
-				if (session)
-					$stdout.puts("[*] #{session.desc} session #{session.name} opened (#{session.tunnel_to_s})\n\n")
-
-					session.interact(
-						Rex::Ui::Text::Input::Stdio.new,
-						Rex::Ui::Text::Output::Stdio.new
-					)
-				end
-
-			rescue
-				$stderr.puts("Exploit failed: #{$!}")
-				$stderr.puts("Backtrace:")
-				$stderr.puts($!.backtrace.join("\n"))
+			con = Msf::Ui::Console::Driver.new(
+				Msf::Ui::Console::Driver::DefaultPrompt,
+				Msf::Ui::Console::Driver::DefaultPromptChar,
+				{ 
+					'Framework' => $framework
+				}
+			)
+			con.run_single("use #{module_class}/#{exploit.refname}")
+			
+			ARGV.each do |arg|
+				k,v = arg.split("=", 2)
+				con.run_single("set #{k} #{v}")
 			end
-		when 'auxiliary'
-			begin
-				exploit.run_simple(
-					'Encoder'       => exploit.datastore['ENCODER'],
-					'Action'        => exploit.datastore['ACTION'],
-					'LocalInput'    => Rex::Ui::Text::Input::Stdio.new,
-					'LocalOutput'   => Rex::Ui::Text::Output::Stdio.new,
-					'ForceBlocking' => true)
-			rescue
-				$stderr.puts("Auxiliary failed: #{$!}")
-				$stderr.puts("Backtrace:")
-				$stderr.puts($!.backtrace.join("\n"))
+
+			con.run_single("exploit")
+			
+			# If we have sessions or jobs, keep running
+			if $framework.sessions.length > 0 or $framework.jobs.length > 0
+				con.run
+			else
+				con.run_single("quit")
 			end
-		end
+
 	else
 		usage("Invalid mode #{mode}")
 end
