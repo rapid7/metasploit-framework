@@ -18,6 +18,7 @@ module Msf::Payload::Windows
 			'seh'     => 0xEA320EFE, # SetUnhandledExceptionFilter
 			'thread'  => 0x0A2A1DE0, # ExitThread
 			'process' => 0x56A2B5F0, # ExitProcess
+			'none'    => 0x5DE2C5AA, # GetLastError
 		}
 
 	#
