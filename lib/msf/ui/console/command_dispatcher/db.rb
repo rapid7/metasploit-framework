@@ -1,6 +1,7 @@
 
 require 'rexml/document'
 require 'rex/parser/nmap_xml'
+require 'msf/core/db_export'
 
 module Msf
 module Ui
@@ -62,6 +63,7 @@ class Db
 				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
+				"db_export"     => "Export a file containing the contents of the database",				
 				"db_import_ip_list" => "Import a list of line seperated IPs",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
 				"db_import_amap_log"   => "Import a THC-Amap scan results file (-o )",
@@ -1087,7 +1089,7 @@ class Db
 
 		# Informs about the superior cmd_db_import function. 
 		def warn_about_db_import(arg)
-			return nil unless caller[0][/:in `cmd_(.*)'/]
+			return nil unless caller[0][/:in `cmd_(.*)'/] # `fix higlighting
 			triggering_function = $1
 			print_error "The command '#{triggering_function}' is deprecated; use 'db_import #{arg}' instead."
 		end
@@ -1146,6 +1148,52 @@ class Db
 			}
 		end
 
+		#
+		# Export an XML
+		#
+		def cmd_db_export(*args)
+			return unless active?
+
+			format = 'xml'
+			output = nil
+			
+			while (arg = args.shift)
+				case arg
+				when '-h','--help'
+					print_line("Usage:")
+					print_line("    db_export -f <format> [filename]")
+				when '-f','--format'
+					format = args.shift.to_s.downcase
+				else
+					output = arg
+				end
+			end
+			
+			if not output
+				print_error("No output file was specified")
+				return
+			end
+			
+			if not %W{xml}.include?(format)
+				print_error("Unsupported file format: #{format}")
+				return
+			end
+			
+			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
+			exporter = Msf::DBManager::Export.new(framework.db.workspace)
+			exporter.to_xml_file(output) do |mtype, mstatus, mname|
+				if mtype == :status
+					if mstatus == "start"
+						print_status("    >> Starting export of #{mname}")
+					end
+					if mstatus == "complete"
+						print_status("    >> Finished export of #{mname}")
+					end					
+				end
+			end
+			print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
+		end
+		
 		#
 		# Import Nessus NBE files
 		#
@@ -1237,7 +1285,7 @@ class Db
 				print_status("Could not read the Metasploit Express file")
 				return
 			end
-			framework.db.import_msfe_file(:filename => args[0])
+			framework.db.import_msf_file(:filename => args[0])
 		end
 
 		#
