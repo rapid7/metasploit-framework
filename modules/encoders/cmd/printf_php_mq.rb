@@ -23,16 +23,18 @@ class Metasploit3 < Msf::Encoder
 
 	def initialize
 		super(
-			'Name'             => 'Generic printf(1) Utility Command Encoder',
+			'Name'             => 'printf(1) via PHP magic_quotes Utility Command Encoder',
 			'Version'          => '$Revision$',
 			'Description'      => %q{
 					This encoder uses the printf(1) utility to avoid restricted
 				characters. Some shell variable substituion may also be used
-				\if needed symbols are blacklisted.
+				if needed symbols are blacklisted. Some characters are intentionally
+				left unescaped since it is assummed that PHP with magic_quotes_gpc
+				enabled will escape them during request handling.
 			},
 			'Author'           => 'jduck',
 			'Arch'             => ARCH_CMD,
-			'EncoderType'      => Msf::Encoder::Type::PrintfUtil)
+			'EncoderType'      => Msf::Encoder::Type::PrintfPHPMagicQuotes)
 	end
 
 

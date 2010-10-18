@@ -119,9 +119,9 @@ class Encoder < Module
 		#
 		SingleStaticBit = "single_static_bit"
 		#
-		# Generic printf(1) Command Encoder
+		# Special printf(1) via PHP magic_quotes Command Encoder
 		#
-		PrintfUtil = "printf_util"
+		PrintfPHPMagicQuotes = "printf_php_mq"
 	end
 
 	#
