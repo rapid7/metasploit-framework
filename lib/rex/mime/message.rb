@@ -83,14 +83,15 @@ class Message
 
 	def add_part(data='', content_type='text/plain', transfer_encoding="8bit", content_disposition=nil)
 		part = Rex::MIME::Part.new
+
+		if (content_disposition)
+			part.header.set("Content-Disposition", content_disposition)
+		end
+
 		part.header.set("Content-Type", content_type)
 
 		if (transfer_encoding)
 			part.header.set("Content-Transfer-Encoding", transfer_encoding)
-		end
-
-		if (content_disposition)
-			part.header.set("Content-Disposition", content_disposition)
 		end
 
 		part.content = data
