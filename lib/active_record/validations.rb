@@ -109,9 +109,8 @@ module ActiveRecord
         keys = [
           :"full_messages.#{@message}",
           :'full_messages.format',
-          '{{attribute}} {{message}}'
+		  '%{attribute} %{message}'
         ]
-
         options.merge!(:default => keys, :message => self.message)
         I18n.translate(keys.shift, options)
       end
