@@ -220,8 +220,8 @@ open_key = client.sys.registry.open_key(root_key, base_key)
 keys = open_key.enum_key
 if ( keys.length > 0)
 	if not forced
-      print_error(warning)
-      raise Rex::Script::Completed
+		print_error(warning)
+		raise Rex::Script::Completed
 	end
 end
 
@@ -230,7 +230,7 @@ end
 #
 
 if manual == false
-  	if not ::File.exists?(extractfilename)
+	if not ::File.exists?(extractfilename)
 		print_status("openssh-extract.sfx could not be found. Downloading it now...")
 		print_status(license)
 		extractexe = Net::HTTP.get URI.parse(downloadurl)
@@ -318,8 +318,8 @@ client.sys.process.execute("cacls.exe", "#{dirname} /E /T /G SYSTEM:F")
 #
 unless username == "none"
 	if password == nil
-      print_error("You need to provide a nonempty password for the user with the \"-p\"-parameter!")
-      usage
+		print_error("You need to provide a nonempty password for the user with the \"-p\"-parameter!")
+		usage
 	end
 	
 	#Get localized name for windows-admin-grp
