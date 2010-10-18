@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION="3.4.1-release"
+VERSION="3.5.0-beta"
 BASE=`dirname $0`
 
 usage() {
