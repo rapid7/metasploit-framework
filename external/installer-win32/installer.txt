@@ -1,2 +1,0 @@
-The installer is written using the Nullsoft Scriptable Installer System (NSIS).
-
