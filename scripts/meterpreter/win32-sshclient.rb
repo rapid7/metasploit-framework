@@ -62,7 +62,8 @@ end
 plink = File.join(Msf::Config.data_directory, "plink.exe")
 
 #plinkurl = 'http://the.earth.li/~sgtatham/putty/latest/x86/plink.exe'
-plinkurl = 'http://the.earth.li/~sgtatham/putty/0.60/x86/plink.exe'
+#plinkurl = 'http://the.earth.li/~sgtatham/putty/0.60/x86/plink.exe'
+plunkurl = 'http://updates.metasploit.com/data/win32-ssh/plink.exe'
 license = <<-EOS
 PuTTY is copyright 1997-2010 Simon Tatham.
 Portions copyright Robert de Bath, Joris van Rantwijk, Delian Delchev, Andreas Schultz, Jeroen Massar, Wez Furlong, Nicolas Barry, Justin Bradford, Ben Harris, Malcolm Smith, Ahmad Khalifa, Markus Kuhn, Colin Watson, and CORE SDI S.A.
