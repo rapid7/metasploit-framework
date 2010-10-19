@@ -25,7 +25,7 @@ if (!isset($GLOBALS['readers'])) {
 }
 
 function my_print($str) {
-    error_log($str);
+    #error_log($str);
 }
 
 my_print("Evaling main meterpreter stage");
