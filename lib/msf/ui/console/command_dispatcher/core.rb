@@ -2172,7 +2172,13 @@ protected
 	end
 
 	def show_plugins # :nodoc:
-		tbl = generate_module_table("Plugins")
+		tbl = Table.new(
+			Table::Style::Default,
+			'Header'  => 'Plugins',
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
+			'Columns' => [ 'Name', 'Description' ]
+		)
 
 		framework.plugins.each { |plugin|
 			tbl << [ plugin.name, plugin.desc ]
