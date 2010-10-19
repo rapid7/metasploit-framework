@@ -54,6 +54,14 @@ class OptsConsole
 				options['ModulePath'] = m
 			end
 
+			opts.on("-y", "--yaml <database.yml>", "Specify a YAML file containing database settings") do |m|
+				options['DatabaseYAML'] = m
+			end
+
+			opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
+				options['DatabaseEnv'] = m
+			end
+						
 			# Boolean switch.
 			opts.on("-v", "--version", "Show version") do |v|
 				options['Version'] = true

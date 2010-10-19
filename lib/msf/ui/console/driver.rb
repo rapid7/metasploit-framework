@@ -147,6 +147,22 @@ class Driver < Msf::Ui::Driver
 		if @defanged
 			self.command_passthru = false
 		end
+		
+		# Parse any specified database.yml file
+		if framework.db.usable and opts['DatabaseYAML']
+			dbinfo = YAML.load(File.read(opts['DatabaseYAML']))
+			dbenv  = opts['DatabaseEnv'] || "production"
+			db     = dbinfo[dbenv]
+			
+			if not db
+				print_error("No database definition for environment #{dbenv}")
+			else
+				if not framework.db.connect(db)
+					print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+				end
+			end		
+		end
+		
 
 		# Process things before we actually display the prompt and get rocking
 		on_startup
