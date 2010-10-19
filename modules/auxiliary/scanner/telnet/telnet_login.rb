@@ -85,11 +85,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def try_user_pass(user, pass)
 		vprint_status "#{rhost}:#{rport} Telnet - Attempting: '#{user}':'#{pass}'"
-		this_attempt ||= 0 
+		this_attempt ||= 0
 		ret = nil
-		while this_attempt <=3 and (ret.nil? or ret == :refused) 
+		while this_attempt <=3 and (ret.nil? or ret == :refused)
 			if this_attempt > 0
-				select(nil,nil,nil,2**this_attempt) 
+				select(nil,nil,nil,2**this_attempt)
 				vprint_error "#{rhost}:#{rport} Telnet - Retrying '#{user}':'#{pass}' due to reset"
 			end
 			ret = do_login(user,pass)
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 		recvd_sample = @recvd.dup
 		# Allow for slow echos
 		1.upto(10) do
-			recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/] 
+			recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
 		end
 
 		vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")

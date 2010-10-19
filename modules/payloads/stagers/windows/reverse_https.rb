@@ -35,7 +35,7 @@ module Metasploit3
 					'Offsets' =>
 						{
 							# Disabled since it MUST be ExitProcess to work on WoW64 unless we add EXITFUNK support (too big right now)
-							# 'EXITFUNC' => [ 290, 'V' ], 
+							# 'EXITFUNC' => [ 290, 'V' ],
 							'LPORT'    => [ 190, 'v' ], # Not a typo, really little endian
 						},
 					'Payload' =>
@@ -80,7 +80,7 @@ module Metasploit3
 	def wfs_delay
 		20
 	end
-	
+
 	#
 	# Generate the first stage
 	#
@@ -95,7 +95,7 @@ module Metasploit3
 		p[i, u.length] = u
 		p + datastore['LHOST'].to_s + "\x00"
 	end
-	
+
 	#
 	# Generate the second stage
 	#

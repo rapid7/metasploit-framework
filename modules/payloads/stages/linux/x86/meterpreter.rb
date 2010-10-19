@@ -81,9 +81,9 @@ module Metasploit3
 
 			# If the target process is threaded, this means the thread
 			# will exit. exit_group() will try to close the process down
-			# completely.. and if we do that, it may not be reaped 
-			# correctly. 
-			# 
+			# completely.. and if we do that, it may not be reaped
+			# correctly.
+			#
 			# Plus, depending on the vuln, we might get multiple shots at
 			# owning a finite amount of threads.
 
@@ -104,7 +104,7 @@ module Metasploit3
 		# Patch in debug options
 		midstager = midstager.sub("Y", [ datastore['DebugOptions'] ].pack('C'))
 
-		# Patch entry point 
+		# Patch entry point
 		midstager = midstager.sub("ZZZZ", [ elf_ep(payload) ].pack('V'))
 
 		# Maybe in the future patch in base.

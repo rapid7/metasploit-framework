@@ -47,12 +47,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch(hosts)
 		print_status("IPv4 Hosts Discovery")
 
-		shost = datastore['SHOST'] 
+		shost = datastore['SHOST']
 		smac  = datastore['SMAC']
 
 		addrs = []
 
-		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})	
+		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		begin
 			hosts.each do |dhost|
@@ -86,19 +86,19 @@ class Metasploit3 < Msf::Auxiliary
 			close_pcap()
 		end
 
-		neighbor_discovery(addrs) 				
+		neighbor_discovery(addrs)
 	end
 
 
-	def map_neighbor(nodes, adv)	
+	def map_neighbor(nodes, adv)
 		nodes.each do |node|
-			ipv4_addr, mac_addr = node	
-			next if not adv[:eth].src_mac.eql? mac_addr			
+			ipv4_addr, mac_addr = node
+			next if not adv[:eth].src_mac.eql? mac_addr
 
-			ipv6_addr = Racket::L3::Misc.long2ipv6(adv[:ipv6].src_ip)			
+			ipv6_addr = Racket::L3::Misc.long2ipv6(adv[:ipv6].src_ip)
 			return {:eth => mac_addr, :ipv4 => ipv4_addr, :ipv6 => ipv6_addr}
 
-		end				
+		end
 
 		nil
 	end
@@ -107,10 +107,10 @@ class Metasploit3 < Msf::Auxiliary
 	def neighbor_discovery(neighs)
 		print_status("IPv6 Neighbor Discovery")
 
-		smac  = datastore['SMAC']			
-		open_pcap({'SNAPLEN' => 68, 'FILTER' => "icmp6"})	
+		smac  = datastore['SMAC']
+		open_pcap({'SNAPLEN' => 68, 'FILTER' => "icmp6"})
 
-		begin		
+		begin
 			neighs.each do |neigh|
 				host, dmac = neigh
 
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				capture.inject(probe)
 
-				while(adv = getadvertisement())				
+				while(adv = getadvertisement())
 					next if not adv[:icmpv6]
 
 					addr = map_neighbor(neighs, adv)
@@ -212,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if not eth.ethertype == 0x86dd
 
 		ipv6 = Racket::L3::IPv6.new(eth.payload)
-		return if not ipv6.nhead == 0x3a		
+		return if not ipv6.nhead == 0x3a
 
 		icmpv6 = Racket::L4::ICMPv6.new(ipv6.payload)
 		return if not icmpv6.type == Racket::L4::ICMPv6::ICMPv6_TYPE_NEIGHBOR_ADVERTISEMENT
