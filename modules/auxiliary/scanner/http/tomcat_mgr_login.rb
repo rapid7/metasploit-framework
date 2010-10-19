@@ -43,6 +43,10 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2010-0557' ],
 					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
 
+					# IBM Rational Quality Manager and Test Lab Manager
+					# [ 'CVE', '??' ],
+					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-214/' ],
+
 					# 'admin' password is blank in default Windows installer
 					[ 'CVE', '2009-3548' ],
 					[ 'OSVDB', '60176' ],
@@ -68,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 
-		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 19300 ])
+		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])
 	end
 
 	def run_host(ip)
