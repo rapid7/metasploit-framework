@@ -1842,7 +1842,18 @@ class DBManager
 
 	# Returns a REXML::Document from the given data.
 	def rexmlify(data)
-		doc = data.kind_of?(REXML::Document) ? data : REXML::Document.new(data)
+		if data.kind_of?(REXML::Document)
+			return data
+		else
+			# Make an attempt to recover from a REXML import fail, since
+			# it's better than dying outright.
+			begin
+				return REXML::Document.new(data)
+			rescue REXML::ParseException => e
+				dlog("REXML error: Badly formatted XML, attempting to recover. Error was: #{e.inspect}")
+				return REXML::Document.new(data.gsub(/([\x00-\x08\x0b\x0c\x0e-\x19\x80-\xff])/){ |x| "\\x%.2x" % x.unpack("C*")[0] })
+			end
+		end
 	end
 
 	# Handles timestamps from Metasploit Express imports.
