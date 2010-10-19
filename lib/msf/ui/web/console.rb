@@ -105,7 +105,7 @@ class WebConsole
 	def session_detach
 		if(self.console.active_session)
 			#background interactive meterpreter channel
-			if(self.console.active_session.channels)
+			if(self.console.active_session.respond_to?('channels'))
 				self.console.active_session.channels.each_value do |ch|
 					if(ch.respond_to?('interacting') && ch.interacting)
 						ch.detach()
@@ -122,7 +122,7 @@ class WebConsole
 	def session_kill
 		if(self.console.active_session)
 			#close interactive meterpreter channel
-			if(self.console.active_session.channels)
+			if(self.console.active_session.respond_to?('channels'))
 				self.console.active_session.channels.each_value do |ch|
 					if(ch.respond_to?('interacting') && ch.interacting)
 						ch.close()
