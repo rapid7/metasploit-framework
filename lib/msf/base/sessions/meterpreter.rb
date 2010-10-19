@@ -96,6 +96,14 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		"meterpreter"
 	end
 
+	#
+	# Called by PacketDispatcher to resolve error codes to names.
+	# This is the default version (return the number itself)
+	#
+	def lookup_error(code)
+		"#{code}"
+	end
+
 	##
 	#
 	# Msf::Session overrides
