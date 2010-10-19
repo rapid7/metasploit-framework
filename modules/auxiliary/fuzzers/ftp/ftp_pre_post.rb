@@ -90,9 +90,9 @@ class Metasploit3 < Msf::Auxiliary
 					initial_cmds.each do |cmd|
 						send_pkt(cmd, true)
 					end
-					pkt = prepend + evil + "\n"
+					pkt = prepend + evil + "\r\n"
 					send_pkt(pkt, true)
-					sock.put("QUIT\n")
+					sock.put("QUIT\r\n")
 					select(nil, nil, nil, datastore['DELAY'])
 					disconnect
 
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (startstage == 3)
 			process_phase(3, "Fuzzing PASS", 'PASS ',
-				[ "USER " + datastore['USER'] + "\n" ])
+				[ "USER " + datastore['USER'] + "\r\n" ])
 			startstage += 1
 		end
 
@@ -137,8 +137,8 @@ class Metasploit3 < Msf::Auxiliary
 			@commands.each do |cmd|
 				process_phase(4, "Fuzzing command: #{cmd}", "#{cmd} ",
 					[
-						"USER " + datastore['USER'] + "\n",
-						"PASS " + datastore['PASS'] + "\n"
+						"USER " + datastore['USER'] + "\r\n",
+						"PASS " + datastore['PASS'] + "\r\n"
 					])
 			end
 			# Don't progress into stage 5, it must be selected manually.
@@ -154,9 +154,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Fuzzing command #{cmd} - #{Time.now.localtime}" )
 
 				connect
-				pkt = "USER " + datastore['USER'] + "\n"
+				pkt = "USER " + datastore['USER'] + "\r\n"
 				send_pkt(pkt, true)
-				pkt = "PASS " + datastore['PASS'] + "\n"
+				pkt = "PASS " + datastore['PASS'] + "\r\n"
 				send_pkt(pkt, true)
 
 				while count < datastore['ENDSIZE']
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
 							ecount += 1
 							evil = evilstr * count
-							pkt = cmd + " " + evil + "\n"
+							pkt = cmd + " " + evil + "\r\n"
 							send_pkt(pkt, true)
 							select(nil, nil, nil, datastore['DELAY'])
 						end
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 					count += datastore['STEPSIZE']
 				end
-				sock.put("QUIT\n")
+				sock.put("QUIT\r\n")
 				select(nil, nil, nil, datastore['DELAY'])
 				disconnect
 			end
