@@ -27,6 +27,10 @@ module FileUtils
 		if (path)
 			path.split(::File::PATH_SEPARATOR).each { |base|
 				begin
+					# Deal with Windows paths surrounded by quotes.  Prevents
+					# silliness like trying to look for
+					# '"C:\\framework\\nmap"\\nmap.exe' which will always fail.
+					base = $1 if base =~ /^"(.*)"$/
 					path = base + ::File::SEPARATOR + file_name
 					if (::File::Stat.new(path) and not ::File.directory?(path))
 						return path
