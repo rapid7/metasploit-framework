@@ -70,6 +70,20 @@ private
 		return services
 	end
 
+	def clean_nils(obj)
+		return '' if obj == nil
+		if obj.is_a? Hash
+			obj.each_key do |key| 
+				obj[key] = clean_nils(obj[key])
+			end
+		elsif obj.is_a? Array
+			obj.each_with_index do |ob, i|
+				obj[i] = clean_nils(ob)
+			end
+		end
+		obj
+	end
+
 public
 
 	def hosts(token,xopts)
@@ -909,11 +923,11 @@ public
 			event[:updated_at] = e.updated_at
 			event[:name] = e.name
 			event[:critical] = e.critical if(e.critical)	
-			event[:username] = e.critical if(e.username)	
+			event[:username] = e.username if(e.username)	
 			event[:info] = e.info
 			ret[:events] << event
 		end
-		ret
+		clean_nils(ret)
 	end
 	def report_event(token,xopts)
 		authenticate(token)
