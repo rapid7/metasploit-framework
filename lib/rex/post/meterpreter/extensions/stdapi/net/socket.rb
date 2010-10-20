@@ -84,7 +84,7 @@ class Socket
 		begin
 			return SocketSubsystem::TcpServerChannel.open(client, params)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			case e.result
+			case e.code
 			when 10000 .. 10100
 				raise ::Rex::ConnectionError.new
 			end
@@ -103,7 +103,7 @@ class Socket
 			end
 			return nil
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			case e.result
+			case e.code
 			when 10000 .. 10100
 				raise ::Rex::ConnectionError.new
 			end
@@ -118,7 +118,7 @@ class Socket
 		begin
 			return SocketSubsystem::UdpChannel.open(client, params)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			case e.result
+			case e.code
 				when 10000 .. 10100
 				raise ::Rex::ConnectionError.new
 			end

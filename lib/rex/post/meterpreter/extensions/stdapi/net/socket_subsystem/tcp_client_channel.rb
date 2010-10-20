@@ -168,7 +168,7 @@ class TcpClientChannel < Rex::Post::Meterpreter::Stream
 		begin
 			super(*args)
 		rescue ::Rex::Post::Meterpreter::RequestError => e
-			case e.result
+			case e.code
 			when 10000 .. 10100
 				raise ::Rex::ConnectionError.new
 			end

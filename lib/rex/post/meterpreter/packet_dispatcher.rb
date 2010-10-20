@@ -14,9 +14,10 @@ module Meterpreter
 #
 ###
 class RequestError < ArgumentError
-	def initialize(method, result)
+	def initialize(method, einfo, ecode=nil)
 		@method = method
-		@result = result
+		@result = einfo
+		@code   = ecode || einfo
 	end
 
 	def to_s
@@ -26,8 +27,11 @@ class RequestError < ArgumentError
 	# The method that failed.
 	attr_reader :method
 
-	# The error result that occurred, typically a windows error code.
+	# The error result that occurred, typically a windows error message.
 	attr_reader :result
+	
+	# The error result that occurred, typically a windows error code.
+	attr_reader :code	
 end
 
 ###
@@ -84,8 +88,8 @@ module PacketDispatcher
 		if (response == nil)
 			raise TimeoutError.new("Send timed out")
 		elsif (response.result != 0)
-			result = lookup_error(response.result)
-			e = RequestError.new(packet.method, result)
+			einfo = lookup_error(response.result)
+			e = RequestError.new(packet.method, einfo, response.result)
 
 			e.set_backtrace(caller)
 
