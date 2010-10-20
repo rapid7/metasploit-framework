@@ -36,8 +36,10 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('DELAY', [ false, "Delay between connections",0.5]),
 				OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize",10]),
 				OptInt.new('ENDSIZE', [ false, "Fuzzing string endsize",20000]),
+				OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
 				OptString.new('USER', [ false, "Username",'anonymous']),
-				OptString.new('PASS', [ false, "Password",'anonymous@test.com'])
+				OptString.new('PASS', [ false, "Password",'anonymous@test.com']),
+				OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true])
 			], self.class)
 		deregister_options('RHOST')
 
@@ -79,32 +81,42 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("[Phase #{phase_num}] #{phase_name} - #{Time.now.localtime}")
 		ecount = 1
 		@evilchars.each do |evilstr|
-			count = datastore['STARTSIZE']
-			print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
-			ecount += 1
-			while count < datastore['ENDSIZE']
-				begin
-					connect
-					print_status("  -> Fuzzing size set to #{count}")
-					evil = evilstr * count
-					initial_cmds.each do |cmd|
-						send_pkt(cmd, true)
-					end
-					pkt = prepend + evil + "\r\n"
-					send_pkt(pkt, true)
-					sock.put("QUIT\r\n")
-					select(nil, nil, nil, datastore['DELAY'])
-					disconnect
+			if (@stopprocess == false)
+				count = datastore['STARTSIZE']
+				print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
+				ecount += 1
+				while count <= datastore['ENDSIZE']
+					begin
+						connect
+						print_status("  -> Fuzzing size set to #{count}")
+						evil = evilstr * count
+						initial_cmds.each do |cmd|
+							send_pkt(cmd, true)
+						end
+						pkt = prepend + evil + "\r\n"
+						send_pkt(pkt, true)
+						sock.put("QUIT\r\n")
+						select(nil, nil, nil, datastore['DELAY'])
+						disconnect
 
-					count += datastore['STEPSIZE']
+						count += datastore['STEPSIZE']
 
-				rescue ::Exception => e
-					if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET') or (e.class.name == 'Errno::EPIPE')
-						print_status("Crash string : #{prepend}#{evilstr} x #{count}")
-						print_status("System does not respond - exiting now\n")
-						return
+					rescue ::Exception => e
+						@error_cnt += 1
+						print_status("Exception #{@error_cnt} of #{@nr_errors}")
+						if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET' and datastore['CONNRESET']) or (e.class.name == 'Errno::EPIPE')
+							print_status("Crash string : #{prepend}#{evilstr} x #{count}")
+							if @error_cnt >= @nr_errors
+								print_status("System does not respond - exiting now\n")
+								@stopprocess = true
+								print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
+								return
+							else
+								print_status("Exception triggered, need #{@nr_errors - @error_cnt} more exception(s) before interrupting process")
+								select(nil,nil,nil,3)  #wait 3 seconds
+							end
+						end
 					end
-					print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
 				end
 			end
 		end
@@ -115,6 +127,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		startstage = datastore['STARTATSTAGE']
 
+		@nr_errors = datastore['STOPAFTER']
+		@error_cnt = 0
+		@stopprocess = false
+
 		print_status("Connecting to host " + ip + " on port " + datastore['RPORT'])
 
 		if (startstage == 1)
@@ -122,12 +138,12 @@ class Metasploit3 < Msf::Auxiliary
 			startstage += 1
 		end
 
-		if (startstage == 2)
+		if (startstage == 2) and (@stopprocess == false)
 			process_phase(2, "Fuzzing USER", 'USER ')
 			startstage += 1
 		end
 
-		if (startstage == 3)
+		if (startstage == 3) and (@stopprocess == false)
 			process_phase(3, "Fuzzing PASS", 'PASS ',
 				[ "USER " + datastore['USER'] + "\r\n" ])
 			startstage += 1
@@ -135,54 +151,67 @@ class Metasploit3 < Msf::Auxiliary
 
 		if (startstage == 4)
 			@commands.each do |cmd|
-				process_phase(4, "Fuzzing command: #{cmd}", "#{cmd} ",
-					[
-						"USER " + datastore['USER'] + "\r\n",
-						"PASS " + datastore['PASS'] + "\r\n"
-					])
+				if (@stopprocess == false)
+					process_phase(4, "Fuzzing command: #{cmd}", "#{cmd} ",
+						[
+							"USER " + datastore['USER'] + "\r\n",
+							"PASS " + datastore['PASS'] + "\r\n"
+						])
+				end
 			end
 			# Don't progress into stage 5, it must be selected manually.
 			#startstage += 1
 		end
 
 		# Fuzz other commands, all command combinations in one session
-		if startstage == 5
+		if (startstage == 5)
 			print_status("[Phase 5] Fuzzing other commands - Part 2 - #{Time.now.localtime}")
 			@commands.each do |cmd|
-				ecount = 1
-				count = datastore['STARTSIZE']
-				print_status("Fuzzing command #{cmd} - #{Time.now.localtime}" )
+				if (@stopprocess == false)
+					ecount = 1
+					count = datastore['STARTSIZE']
+					print_status("Fuzzing command #{cmd} - #{Time.now.localtime}" )
 
-				connect
-				pkt = "USER " + datastore['USER'] + "\r\n"
-				send_pkt(pkt, true)
-				pkt = "PASS " + datastore['PASS'] + "\r\n"
-				send_pkt(pkt, true)
+					connect
+					pkt = "USER " + datastore['USER'] + "\r\n"
+					send_pkt(pkt, true)
+					pkt = "PASS " + datastore['PASS'] + "\r\n"
+					send_pkt(pkt, true)
 
-				while count < datastore['ENDSIZE']
-					print_status("  -> Fuzzing size set to #{count}")
-					begin
-						@evilchars.each do |evilstr|
-							print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
-							ecount += 1
-							evil = evilstr * count
-							pkt = cmd + " " + evil + "\r\n"
-							send_pkt(pkt, true)
-							select(nil, nil, nil, datastore['DELAY'])
+					while count <= datastore['ENDSIZE']
+						print_status("  -> Fuzzing size set to #{count}")
+						begin
+							@evilchars.each do |evilstr|
+								print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
+								ecount += 1
+								evil = evilstr * count
+								pkt = cmd + " " + evil + "\r\n"
+								send_pkt(pkt, true)
+								select(nil, nil, nil, datastore['DELAY'])
+								@error_cnt = 0
+							end
+						rescue ::Exception => e
+							@error_cnt += 1
+							print_status("Exception #{@error_cnt} of #{@nr_errors}")
+							if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET' and datastore['CONNRESET']) or (e.class.name == 'Errno::EPIPE')
+								print_status("Crash string : #{cmd} #{evilchr} x #{count}")
+								if @error_cnt >= @nr_errors
+									print_status("System does not respond - exiting now\n")
+									@stopprocess = true
+									print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
+									return
+								else
+									print_status("Exception triggered, need #{@nr_errors - @error_cnt} more exception(s) before interrupting process")
+									select(nil,nil,nil,3)  #wait 3 seconds
+								end
+							end
 						end
-					rescue ::Exception => e
-						if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET') or (e.class.name == 'Errno::EPIPE')
-							print_status("Crash string : #{cmd} #{evilchr} x #{count}")
-							print_status("System does not respond - exiting now\n")
-							return
-						end
-						print_error("Error: #{e.class} #{e} #{e.backtrace}\n")
+						count += datastore['STEPSIZE']
 					end
-					count += datastore['STEPSIZE']
+					sock.put("QUIT\r\n")
+					select(nil, nil, nil, datastore['DELAY'])
+					disconnect
 				end
-				sock.put("QUIT\r\n")
-				select(nil, nil, nil, datastore['DELAY'])
-				disconnect
 			end
 		end
 	end
