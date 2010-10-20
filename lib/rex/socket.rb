@@ -138,9 +138,31 @@ module Socket
 	# These calls can be quite slow. This also fixes an issue with the
 	# Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
 	#
-	def self.getaddress(addr)
+	def self.getaddress(addr, accept_ipv6 = true)
 		begin
-			dotted_ip?(addr) ? addr : self.addr_ntoa( ::Socket.gethostbyname(addr)[3] )
+		
+			if dotted_ip?(addr)
+				return addr
+			end
+			
+			res = ::Socket.gethostbyname(addr)
+			return nil if not res
+			
+			# Shift the first three elements out
+			rname  = res.shift
+			ralias = res.shift
+			rtype  = res.shift
+			
+			# Reject IPv6 addresses if we don't accept them			
+			if not accept_ipv6
+				res.reject!{|nbo| nbo.length != 4}
+			end
+			
+			# Make sure we have at least one name
+			return nil if res.length == 0			
+			
+			# Return the first address of the result
+			self.addr_ntoa( res[0] )
 		rescue ::ArgumentError # Win32 bug
 			nil
 		end
