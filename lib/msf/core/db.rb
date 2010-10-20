@@ -2430,6 +2430,7 @@ class DBManager
 			}
 			
 			report_web_site(info)
+			yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
 		end
 		
 		%W{page form vuln}.each do |wtype|
@@ -2475,6 +2476,8 @@ class DBManager
 					end
 				}
 				self.send("report_web_#{wtype}", info)
+				
+				yield("web_#{wtype}".intern, info[:path]) if block
 			end
 		end
 	end
