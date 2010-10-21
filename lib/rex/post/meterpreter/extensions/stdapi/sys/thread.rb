@@ -167,7 +167,7 @@ class Thread < Rex::Post::Thread
 	end
 	
 	# Instance method
-	def self.close
+	def close
 		self.class.close(self.process.client, self.handle)
 	end
 

@@ -309,7 +309,7 @@ class Process < Rex::Post::Process
 	#
 	# Closes the handle to the process that was opened.
 	#
-	def self.close(client,handle)
+	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_process_close')
 		request.add_tlv(TLV_TYPE_HANDLE, handle)
 		response = client.send_request(request)
@@ -320,7 +320,7 @@ class Process < Rex::Post::Process
 	#
 	# Instance method
 	#
-	def close(handle)
+	def close(handle=self.handle)
 		self.class.close(self.client, handle)
 	end
 
