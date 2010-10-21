@@ -797,7 +797,7 @@ ob_implicit_flush();
 # Turn off error reporting so we don't leave any ugly logs.  Why make an
 # administrator's job easier if we don't have to?  =)
 error_reporting(0);
-error_reporting(E_ALL);
+#error_reporting(E_ALL);
 
 @ignore_user_abort(true);
 # Has no effect in safe mode, but try anyway
