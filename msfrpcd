@@ -16,8 +16,7 @@ end
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-require 'msf/base'
-require 'msf/ui'
+require 'rex/parser/arguments'
 
 # Declare the argument parser for msfrpcd
 arguments = Rex::Parser::Arguments.new(
@@ -77,6 +76,9 @@ $0 = "msfrpcd"
 $stderr.puts "[*] XMLRPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
 
 $stderr.puts "[*] URI: #{opts['URI']}" if(opts['URI'])
+
+require 'msf/base'
+require 'msf/ui'
 
 # Create an instance of the framework
 $framework = Msf::Simple::Framework.create

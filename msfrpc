@@ -16,8 +16,7 @@ end
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
-require 'msf/core/rpc'
-require 'rex/ui'
+require 'rex/parser/arguments'
 
 # Declare the argument parser for msfrpc
 arguments = Rex::Parser::Arguments.new(
@@ -69,6 +68,9 @@ end
 
 $0 = "msfrpc"
 
+
+require 'msf/core/rpc'
+require 'rex/ui'
 
 rpc = Msf::RPC::Client.new(
 	:host => opts['ServerHost'],
