@@ -56,16 +56,15 @@ class Console::CommandDispatcher::Sniffer
 	end
 	
 	def cmd_sniffer_start(*args)
-		intf = args[0].to_i
+		intf = args.shift.to_i
 		if (intf == 0)
 			print_error("Usage: sniffer_start [interface-id] [packet-buffer (1-200000)] [bpf filter (posix meterpreter only)]")
 			return
 		end
-		maxp = args[1].to_i
-		maxp = 50000 if maxp == 0
-		filter = args[2..-1].join(" ")
+		maxp = (args.shift || 50000).to_i
+		bpf  = args.join(" ")
 		
-		client.sniffer.capture_start(intf, maxp, filter)
+		client.sniffer.capture_start(intf, maxp, bpf)
 		print_status("Capture started on interface #{intf} (#{maxp} packet buffer)")
 		return true
 	end

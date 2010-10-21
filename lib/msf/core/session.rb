@@ -116,7 +116,7 @@ module Session
 	# Brief and to the point
 	#
 	def inspect
-		"#<Session:#{self.type} #{self.tunnel_peer} #{self.info ? "\"#{self.info.to_s}\"" : nil}>"
+		"#<Session:#{self.type} #{self.tunnel_peer} #{self.info ? "\"#{self.info.to_s}\"" : nil}>"  # " Fixes highlighting
 	end
 
 	#

@@ -51,7 +51,7 @@ class Sniffer < Extension
 		request = Packet.create_request('sniffer_capture_start')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
 		request.add_tlv(TLV_TYPE_SNIFFER_PACKET_COUNT, maxp.to_i)
-		request.add_tlv(TLV_TYPE_SNIFFER_ADDITIONAL_FILTER, filter) if filter.length
+		request.add_tlv(TLV_TYPE_SNIFFER_ADDITIONAL_FILTER, filter) if filter.length > 0
 		response = client.send_request(request)	
 	end
 	
