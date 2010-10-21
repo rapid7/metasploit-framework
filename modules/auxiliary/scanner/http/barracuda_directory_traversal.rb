@@ -19,18 +19,19 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Barracuda Spam / Virus Firewall "locale" Directory Traversal',
+			'Name'           => 'Barracuda Multiple Product "locale" Directory Traversal',
 			'Version'        => '$Revision$',
 			'Description'    => %q{
 					This module exploits a directory traversal vulnerability present in
-				Barracuda Spam and Virus Firewall version 4.x. By default, this module
-				will attempt to download the Barracuda configuration file.
+				serveral Barracuda products, including the Barracuda Spam and Virus Firewall,
+				Barracuda SSL VPN, and the Barracuda Web Application Firewall. By default, 
+				this module will attempt to download the Barracuda configuration file.
 			},
 			'References'     =>
 				[
 					['OSVDB', '68301'],
 					['URL', 'http://secunia.com/advisories/41609/'],
-					['URL', 'http://www.exploit-db.com/exploits/15130/'],
+					['URL', 'http://www.exploit-db.com/exploits/15130/']
 				],
 			'Author'         =>
 				[
