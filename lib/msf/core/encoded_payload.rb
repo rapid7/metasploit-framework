@@ -305,11 +305,19 @@ class EncodedPayload
 
 	def encoded_exe(opts={})
 		# do something with Util::EXE
+		raise NotImplementedError
 	end
 
-	def encoded_jar
+	def encoded_war(opts={})
+		return pinst.generate_war if pinst.respond_to? :generate_war
+		# do something with Util::EXE
+		raise NotImplementedError
+	end
+
+	def encoded_jar(opts={})
 		return pinst.generate_jar if pinst.respond_to? :generate_jar
 		# do something with Util::EXE
+		raise NotImplementedError
 	end
 
 
