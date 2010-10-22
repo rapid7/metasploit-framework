@@ -14,17 +14,14 @@ module Msf::Payload::Java
 	#	[ 32-bit null ]
 	#
 	def generate_stage
-		$stdout.puts("Generating default stage")
 		stage = ''
 		@stage_class_files.each do |path|
-			$stdout.puts("Adding raw class: #{path}")
 			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
 			data = fd.read(fd.stat.size)
 			stage << ([data.length].pack("N") + data)
 		end
 		stage << [0].pack("N")
 
-		$stdout.puts("Done, final length of class files: #{stage.length}")
 		stage
 	end
 
@@ -39,7 +36,6 @@ module Msf::Payload::Java
 	# Returns a jar file as a +Rex::Zip::Archive+
 	#
 	def generate_jar
-		$stdout.puts("Generating jar")
 		raise if not respond_to? :config
 		paths = [
 			[ "metasploit", "Payload.class" ],
@@ -54,7 +50,6 @@ module Msf::Payload::Java
 	end
 
 	def generate_war(opts={})
-		$stdout.puts("Generating war")
 		zip = Rex::Zip::Archive.new
 
 		web_xml = %q{<?xml version="1.0"?>
@@ -88,7 +83,6 @@ module Msf::Payload::Java
 		zip.add_file("metasploit.dat", config)
 		zip.add_file("WEB-INF/metasploit.dat", config)
 		zip.add_file("WEB-INF/classes/metasploit.dat", config)
-		$stdout.puts("config: #{config}")
 
 		zip
 	end
@@ -96,7 +90,6 @@ module Msf::Payload::Java
 protected
 	def add_class_files(zip, paths, base_dir="")
 		paths.each do |path|
-			$stdout.puts("Adding file: #{path}")
 			1.upto(path.length - 1) do |idx|
 				full = base_dir + path[0,idx].join("/") + "/"
 				if !(zip.entries.map{|e|e.name}.include?(full))

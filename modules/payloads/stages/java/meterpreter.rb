@@ -57,7 +57,6 @@ module Metasploit3
 	# used as the final stage; calls super to get the intermediate stager.
 	#
 	def generate_stage
-		$stdout.puts("Generating meterpreter stage with #{@stage_class_files.length} class files")
 		file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.jar")
 		met = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
