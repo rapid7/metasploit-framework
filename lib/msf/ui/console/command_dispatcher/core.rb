@@ -61,6 +61,7 @@ class Core
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-t" => [ true, "Type of module to search for (all|auxiliary|encoder|exploit|nop|payload)" ],
 		"-r" => [ true, "Minimum rank to return (#{RankingName.sort.map{|r|r[1]}.join("|")})" ],
+		"-o" => [ true, "Options or default values to search for (e.g. URIPATH,RPORT=80)" ],
 		"-h" => [ false, "Help banner."                                   ])
 
 
@@ -1058,6 +1059,7 @@ class Core
 		section = 'all'
 		rank    = 'manual'
 		match   = nil
+		opts = {}
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-h"
@@ -1068,6 +1070,11 @@ class Core
 				section = val
 			when "-r"
 				rank = val
+			when "-o"
+				val.split(',').each do |optstring|
+					opt, val = optstring.split('=',2)
+					opts[opt] = val
+				end
 			else
 				match = val
 			end
@@ -1091,24 +1098,23 @@ class Core
 			print_error("Invalid rank, should be one of: " + RankingName.sort.map{|r| r[1]}.join(", "))
 			return
 		end
-
 		case section
 		when 'all'
-			show_auxiliary(regex, rank)
-			show_encoders(regex, rank)
-			show_exploits(regex, rank)
+			show_auxiliary(regex, rank, opts)
+			show_encoders(regex, rank, opts)
+			show_exploits(regex, rank, opts)
 			show_nops(regex)
-			show_payloads(regex)
+			show_payloads(regex, opts)
 		when 'auxiliary'
-			show_auxiliary(regex, rank)
+			show_auxiliary(regex, rank, opts)
 		when 'encoder'
-			show_encoders(regex, rank)
+			show_encoders(regex, rank, opts)
 		when 'exploit'
-			show_exploits(regex, rank)
+			show_exploits(regex, rank, opts)
 		when 'nop'
 			show_nops(regex)
 		when 'payload'
-			show_payloads(regex)
+			show_payloads(regex, opts)
 		end
 	end
 
@@ -2031,13 +2037,13 @@ protected
 	# Module list enumeration
 	#
 
-	def show_encoders(regex = nil, minrank = nil) # :nodoc:
+	def show_encoders(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible encoders and display them
 		if (active_module and active_module.exploit? == true)
-			show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank)
+			show_module_set("Compatible Encoders", active_module.compatible_encoders, regex, minrank, opts)
 		else
-			show_module_set("Encoders", framework.encoders, regex, minrank)
+			show_module_set("Encoders", framework.encoders, regex, minrank, opts)
 		end
 	end
 
@@ -2045,22 +2051,22 @@ protected
 		show_module_set("NOP Generators", framework.nops, regex)
 	end
 
-	def show_exploits(regex = nil, minrank = nil) # :nodoc:
-		show_module_set("Exploits", framework.exploits, regex, minrank)
+	def show_exploits(regex = nil, minrank = nil, opts = nil) # :nodoc:
+		show_module_set("Exploits", framework.exploits, regex, minrank, opts)
 	end
 
-	def show_payloads(regex = nil) # :nodoc:
+	def show_payloads(regex = nil, opts = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible payloads and display them
 		if (active_module and active_module.exploit? == true)
-			show_module_set("Compatible Payloads", active_module.compatible_payloads, regex)
+			show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, opts = nil)
 		else
-			show_module_set("Payloads", framework.payloads, regex)
+			show_module_set("Payloads", framework.payloads, regex, opts = nil)
 		end
 	end
 
-	def show_auxiliary(regex = nil, minrank = nil) # :nodoc:
-		show_module_set("Auxiliary", framework.auxiliary, regex, minrank)
+	def show_auxiliary(regex = nil, minrank = nil, opts = nil) # :nodoc:
+		show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts = nil)
 	end
 
 	def show_options(mod) # :nodoc:
@@ -2187,9 +2193,8 @@ protected
 		print(tbl.to_s)
 	end
 
-	def show_module_set(type, module_set, regex = nil, minrank = nil) # :nodoc:
+	def show_module_set(type, module_set, regex = nil, minrank = nil, opts = nil) # :nodoc:
 		tbl = generate_module_table(type)
-
 		module_set.sort.each { |refname, mod|
 			o = nil
 
@@ -2209,7 +2214,17 @@ protected
 				o.author.to_s.match(regex)
 			)
 				if (not minrank or minrank <= o.rank)
-					tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+					show = true
+					if opts
+						opts.each do |opt,val|
+							if o.options.has_key?(opt) == false or (val != nil and o.datastore[opt] != val)
+								show = false
+							end
+						end
+					end
+					if (opts == nil or show == true)
+						tbl << [ refname, o.disclosure_date||"", o.rank_to_s, o.name ]
+					end
 				end
 			end
 		}
