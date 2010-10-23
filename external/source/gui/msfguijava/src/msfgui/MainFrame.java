@@ -266,14 +266,14 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 				boolean searchNext = true;
 				while(searchNext){ //if "More..." listed, search through more list
+					if(recentlyAdded)
+						currentMenu.setFont(currentMenu.getFont().deriveFont(currentMenu.getFont().getStyle() | java.awt.Font.BOLD));
 					searchNext = false;
 					Component [] compsCopy = comps;
 					for (Component menu : compsCopy) {
 						if (menu.getName().equals(names[i]) && menu instanceof JMenu) {
 							if (i < names.length - 1) 
 								currentMenu = (JMenu) menu;
-							if(recentlyAdded)
-								currentMenu.setFont(currentMenu.getFont().deriveFont(currentMenu.getFont().getStyle() | java.awt.Font.BOLD));
 							continue nameloop;
 						}else if (menu.getName().equals("More...")){
 							searchNext = true;
@@ -291,8 +291,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				}
 				if (i < names.length - 1) {
 					JMenu men = new JMenu(names[i]);
-					if(recentlyAdded)
-						men.setFont(men.getFont().deriveFont(men.getFont().getStyle() | java.awt.Font.BOLD));
 					men.setName(names[i]);
 					currentMenu.add(men);
 					currentMenu = (JMenu) men;
