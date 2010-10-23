@@ -31,6 +31,7 @@ public class PayloadPopup extends MsfFrame {
 	private ArrayList elementVector;
 	private String fullName;
 	private MainFrame mainFrame;
+	private Map options;
 	
 	/** Creates new form PayloadPopup */
 	public PayloadPopup(String fullName, RpcConnection rpcConn, MainFrame frame) {
@@ -227,7 +228,7 @@ public class PayloadPopup extends MsfFrame {
 			authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
 
 			//display options
-			Map options = (Map) rpcConn.execute("module.options", "payload", fullName);
+			options = (Map) rpcConn.execute("module.options", "payload", fullName);
 			for (Object optionName : options.keySet()) 
 				addOption(optionName, (Map)options.get(optionName));
 			resetLayout();
@@ -620,19 +621,21 @@ public class PayloadPopup extends MsfFrame {
 	}//GEN-LAST:event_templateButtonActionPerformed
 
 	private void handleButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_handleButtonActionPerformed
-		Map options = new HashMap();
+		Map hash = new HashMap();
 		for(Object obj : elementVector){
-			 String name = ((JLabel)((Component[])obj)[0]).getName();
-			 String val = ((JTextField)((Component[])obj)[1]).getText();
-			 if(val.length() > 0)
-				 options.put(name, val);
+			String optName = ((JLabel)((Component[])obj)[0]).getName();
+			String optVal = ((JTextField)((Component[])obj)[1]).getText();
+			Object defaultVal = ((Map)options.get(optName)).get("default");
+			//only need non-default vals
+			if(defaultVal == null && optVal.length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
+					|| (defaultVal != null && !optVal.equals(defaultVal.toString())))
+				hash.put(optName, optVal);
 		}
-		options.put("PAYLOAD",fullName);
-		options.put("TARGET","0");
-		options.put("WORKSPACE", MsfguiApp.workspace);
+		hash.put("PAYLOAD",fullName);
+		hash.put("WORKSPACE", MsfguiApp.workspace);
 		try{
-			Map data = (Map) rpcConn.execute("module.execute","exploit", "multi/handler", options);
-			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{"exploit", "multi/handler", options}), rpcConn, mainFrame);
+			rpcConn.execute("module.execute","exploit", "multi/handler", hash);
+			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{"exploit", "multi/handler", hash}), rpcConn, mainFrame);
 		}catch (MsfException ex){
 			JOptionPane.showMessageDialog(this, ex);
 		}

@@ -351,8 +351,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				String optVal = optionField.getText();
 				Object defaultVal = ((Map)options.get(optName)).get("default");
 				//only need non-default vals
-				if((defaultVal == null && optVal.length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
-						|| (defaultVal != null &&  ! optVal.equals(defaultVal.toString()))))
+				if(defaultVal == null && optVal.length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
+						|| (defaultVal != null &&  ! optVal.equals(defaultVal.toString())))
 					hash.put(optName, optVal);
 			}
 			//Execute and get results
@@ -361,7 +361,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 
 				ArrayList autoCommands = new ArrayList();
 				autoCommands.add("use "+moduleType+"/"+fullName);
-				if(hash.containsKey("TARGET"))
+				//Add target if it is set and not zero if there is no default or non-default if there is a default
+				if(hash.containsKey("TARGET") && ((!options.containsKey("TARGET") && !hash.get("TARGET").equals("0")) 
+						|| (options.containsKey("TARGET") && !hash.get("TARGET").equals(((Map)options.get("TARGET")).get("default")))))
 					autoCommands.add("set TARGET "+hash.get("TARGET"));
 				if(hash.containsKey("PAYLOAD"))
 					autoCommands.add("set PAYLOAD "+hash.get("PAYLOAD"));
