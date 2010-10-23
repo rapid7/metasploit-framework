@@ -144,24 +144,28 @@ public class MsfguiApp extends SingleFrameApplication {
 						System.arraycopy(args, 0, winArgs, 3, args.length);
 						winArgs[0] = "cmd";
 						winArgs[1] = "/c";
-						File dir = new File(System.getenv("PROGRAMFILES") + "\\Metasploit\\Framework3\\bin\\");
 						if (msfCommand.equals("msfencode"))
 							winArgs[2] = "ruby.exe";
 						else
 							winArgs[2] = "rubyw.exe";
-						winArgs[3] = "/msf3/" + msfCommand;
-						proc = Runtime.getRuntime().exec(winArgs, null, dir);
-					} catch (IOException ex4) {
-						try {
-							File dir = new File(System.getenv("PROGRAMFILES(x86)")
-									+ "\\Metasploit\\Framework3\\bin\\");
+						winArgs[3] = msfCommand;
+						proc = Runtime.getRuntime().exec(winArgs);
+					} catch (IOException ex4){
+						try{
+							winArgs[3] = "/msf3/" + msfCommand;
+							File dir = new File(System.getenv("PROGRAMFILES") + "\\Metasploit\\Framework3\\bin\\");
 							proc = Runtime.getRuntime().exec(winArgs, null, dir);
 						} catch (IOException ex5) {
 							try {
-								File dir = new File(prefix);
+								File dir = new File(System.getenv("PROGRAMFILES(x86)") + "\\Metasploit\\Framework3\\bin\\");
 								proc = Runtime.getRuntime().exec(winArgs, null, dir);
 							} catch (IOException ex6) {
-								throw new MsfException("Executable not found for "+msfCommand);
+								try {
+									File dir = new File(prefix);
+									proc = Runtime.getRuntime().exec(winArgs, null, dir);
+								} catch (IOException ex7) {
+									throw new MsfException("Executable not found for "+msfCommand);
+								}
 							}
 						}
 					}
