@@ -34,17 +34,16 @@ class Session < Base
 
 	def stop(token, sid)
 		authenticate(token)
-		s = _find_session(sid)
+		s = @framework.sessions[sid.to_i]
+		if(not s)
+			raise ::XMLRPC::FaultException.new(404, "unknown session")
+		end
 		s.kill
 		{ "result" => "success" }
 	end
 
 	def shell_read(token, sid)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "shell")
-			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
-		end
+		s = _valid_session(token,sid,"shell")
 
 		begin
 			if(not s.rstream.has_read_data?(0.001))
@@ -59,11 +58,7 @@ class Session < Base
 	end
 
 	def shell_write(token, sid, data)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "shell")
-			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
-		end
+		s = _valid_session(token,sid,"shell")
 		buff = Rex::Text.decode_base64(data)
 		cnt = s.shell_write(buff)
 
@@ -75,11 +70,7 @@ class Session < Base
 	end
 
 	def shell_upgrade(token, sid, lhost, lport)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "shell")
-			raise ::XMLRPC::FaultException.new(403, "session is not a shell")
-		end
+		s = _valid_session(token,sid,"shell")
 		s.exploit_datastore['LHOST'] = lhost
 		s.exploit_datastore['LPORT'] = lport
 		s.execute_script('spawn_meterpreter', nil)
@@ -87,11 +78,7 @@ class Session < Base
 	end
 
 	def meterpreter_read(token, sid)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "meterpreter")
-			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
-		end
+		s = _valid_session(token,sid,"meterpreter")
 
 		if not s.user_output.respond_to? :dump_buffer
 			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -113,11 +100,7 @@ class Session < Base
 	# Run a single meterpreter console command
 	#
 	def meterpreter_write(token, sid, data)
-		authenticate(token)
-		s = _find_session(sid)
-		if(s.type != "meterpreter")
-			raise ::XMLRPC::FaultException.new(403, "session is not meterpreter")
-		end
+		s = _valid_session(token,sid,"meterpreter")
 
 		if not s.user_output.respond_to? :dump_buffer
 			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
@@ -139,16 +122,42 @@ class Session < Base
 		{}
 	end
 
+	def meterpreter_session_detach(token,sid)
+		s = _valid_session(token,sid,"meterpreter")
+		s.channels.each_value do |ch|
+			if(ch.respond_to?('interacting') && ch.interacting)
+				ch.detach()
+				return { "result" => "success" }
+			end
+		end
+		{ "result" => "failure" }
+	end
+
+	def meterpreter_session_kill(token,sid)
+		s = _valid_session(token,sid,"meterpreter")
+		s.channels.each_value do |ch|
+			if(ch.respond_to?('interacting') && ch.interacting)
+				ch._close
+				return { "result" => "success" }
+			end
+		end
+		{ "result" => "failure" }
+	end
+
 	def meterpreter_script(token, sid, data)
 		meterpreter_write(token, sid, ["run #{data}"].pack("m*"))
 	end
 
 protected
 
-	def _find_session(sid)
+	def _valid_session(token,sid,type)
+		authenticate(token)
 		s = @framework.sessions[sid.to_i]
 		if(not s)
 			raise ::XMLRPC::FaultException.new(404, "unknown session")
+		end
+		if(s.type != type)
+			raise ::XMLRPC::FaultException.new(403, "session is not "+type)
 		end
 		s
 	end

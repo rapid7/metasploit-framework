@@ -125,7 +125,7 @@ class WebConsole
 			if(self.console.active_session.respond_to?('channels'))
 				self.console.active_session.channels.each_value do |ch|
 					if(ch.respond_to?('interacting') && ch.interacting)
-						ch.close()
+						ch._close
 						return
 					end
 				end
