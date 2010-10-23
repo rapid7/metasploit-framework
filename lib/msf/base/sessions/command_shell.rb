@@ -89,7 +89,7 @@ class CommandShell
 	end
 
 	#
-	# Executes the supplied script.
+	# Executes the supplied script, will search the script path.
 	#
 	def execute_script(script, args)
 		full_path = self.class.find_script_path(script)
@@ -99,7 +99,13 @@ class CommandShell
 			print_error("The specified script could not be found: #{script}")
 			return true
 		end
+		execute_file(full_path, args)
+	end
 
+	#
+	# Executes the supplied script, must be specified as full path.
+	#
+	def execute_file(full_path, args)
 		o = Rex::Script::Shell.new(self, full_path)
 		o.run(args)
 	end

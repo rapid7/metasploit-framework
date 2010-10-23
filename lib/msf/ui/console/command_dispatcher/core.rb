@@ -20,16 +20,16 @@ class Core
 
 	# Session command options
 	@@sessions_opts = Rex::Parser::Arguments.new(
-		"-c" => [ true,  "Run a command on all live sessions"             ],
-		"-h" => [ false, "Help banner."                                   ],
-		"-i" => [ true,  "Interact with the supplied session identifier." ],
-		"-l" => [ false, "List all active sessions."                      ],
-		"-v" => [ false, "List verbose fields."                           ],
-		"-q" => [ false, "Quiet mode."                                    ],
+		"-c" => [ true,  "Run a command on the session given with -i, or all" ],
+		"-h" => [ false, "Help banner"                                    ],
+		"-i" => [ true,  "Interact with the supplied session ID"          ],
+		"-l" => [ false, "List all active sessions"                       ],
+		"-v" => [ false, "List verbose fields"                            ],
+		"-q" => [ false, "Quiet mode"                                     ],
 		"-d" => [ true,  "Detach an interactive session"                  ],
-		"-k" => [ true,  "Terminate session."                             ],
-		"-K" => [ false, "Terminate all sessions."                        ],
-		"-s" => [ true,  "Run a script on all live meterpreter sessions"  ],
+		"-k" => [ true,  "Terminate session"                              ],
+		"-K" => [ false, "Terminate all sessions"                         ],
+		"-s" => [ true,  "Run a script on the session given with -i, or all"  ],
 		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
@@ -1130,17 +1130,19 @@ class Core
 	end
 
 	#
-	#
 	# Provides an interface to the sessions currently active in the framework.
 	#
 	def cmd_sessions(*args)
 		begin
-		method  = 'list'
+		method  = nil
 		quiet   = false
 		verbose = false
 		sid     = nil
 		cmds    = []
 		script  = nil
+		# any arguments that don't correspond to an option or option arg will
+		# be put in here
+		extra   = []
 
 		# Parse the command options
 		@@sessions_opts.parse(args) { |opt, idx, val|
@@ -1148,7 +1150,7 @@ class Core
 				when "-q"
 					quiet = true
 
-				# Run a command on all sessions
+				# Run a command on all sessions, or the session given with -i
 				when "-c"
 					method = 'cmd'
 					if (val)
@@ -1158,9 +1160,9 @@ class Core
 				when "-v"
 					verbose = true
 
-				# Interact with the supplied session identifier
+				# Do something with the supplied session identifier instead of
+				# all sessions.
 				when "-i"
-					method = 'interact'
 					sid = val
 
 				# Display the list of active sessions
@@ -1169,7 +1171,11 @@ class Core
 
 				when "-k"
 					method = 'kill'
-					sid = val
+					sid = val if val
+					if not sid
+						print_error("Specify a session to kill")
+						return false
+					end
 
 				when "-K"
 					method = 'killall'
@@ -1185,7 +1191,6 @@ class Core
 						script = val
 					end
 
-
 				# Upload and exec to the specific command session
 				when "-u"
 					method = 'upexec'
@@ -1198,51 +1203,67 @@ class Core
 						"Active session manipulation and interaction.\n" +
 						@@sessions_opts.usage())
 					return false
+				else
+					extra << val
 			end
 		}
+
+		if sid and not framework.sessions.get(sid)
+			print_error("Invalid session id")
+			return false
+		end
+
+		if method.nil? and sid
+			method = 'interact'
+		end
 
 		# Now, perform the actual method
 		case method
 
 			when 'cmd'
-				if (cmds.length > 0)
-					cmds.each do |cmd|
-						framework.sessions.each_sorted do |s|
-							session = framework.sessions.get(s)
-							print_status("Running '#{cmd}' on session #{s} (#{session.tunnel_peer})")
-
-							if (session.type == "meterpreter")
-								# If session.sys is nil, dont even try..
-								if not (session.sys)
-									print_error("Session #{s} does not have stdapi loaded, skipping...")
-									next
-								end
-								c,args = cmd.split(' ', 2)
-								begin
-									process = session.sys.process.execute(c, args,
-										{
-											'Channelized' => true,
-											'Hidden'      => true
-										})
-								rescue ::Rex::Post::Meterpreter::RequestError
-									print_error("Failed: #{$!.class} #{$!}")
-								end
-								if process and process.channel and (data = process.channel.read)
-									print_line(data)
-								end
-							elsif session.type == "shell"
-								if (output = session.shell_command(cmd))
-									print_line(output)
-								end
-							end
-							# If the session isn't a meterpreter or shell type, it
-							# could be a VNC session (which can't run commands) or
-							# something custom (which we don't know how to run
-							# commands on), so don't bother.
-						end
-					end
-				else
+				if (cmds.length < 1)
 					print_error("No command specified!")
+					return false
+				end
+				cmds.each do |cmd|
+					if sid
+						sessions = [ sid ]
+					else
+						sessions = framework.sessions.keys.sort
+					end
+					sessions.each do |s|
+						session = framework.sessions.get(s)
+						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.tunnel_peer})")
+
+						if (session.type == "meterpreter")
+							# If session.sys is nil, dont even try..
+							if not (session.sys)
+								print_error("Session #{s} does not have stdapi loaded, skipping...")
+								next
+							end
+							c, c_args = cmd.split(' ', 2)
+							begin
+								process = session.sys.process.execute(c, c_args,
+									{
+										'Channelized' => true,
+										'Hidden'      => true
+									})
+							rescue ::Rex::Post::Meterpreter::RequestError
+								print_error("Failed: #{$!.class} #{$!}")
+							end
+							if process and process.channel and (data = process.channel.read)
+								print_line(data)
+							end
+						elsif session.type == "shell"
+							if (output = session.shell_command(cmd))
+								print_line(output)
+							end
+						end
+						# If the session isn't a meterpreter or shell type, it
+						# could be a VNC session (which can't run commands) or
+						# something custom (which we don't know how to run
+						# commands on), so don't bother.
+					end
 				end
 
 			when 'kill'
@@ -1293,33 +1314,35 @@ class Core
 					print_error("Invalid session identifier: #{sid}")
 				end
 
-			when 'list'
-				print("\n" +
-					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
-
 			when 'scriptall'
-				if (not script.nil?)
-					sleep(0.5)
-					script_path = Msf::Sessions::Meterpreter.find_script_path(script)
-					if (not script_path.nil?)
-						print_status("Running script #{script} on all meterpreter sessions ...")
-						framework.sessions.each_sorted do |s|
-							if ((session = framework.sessions.get(s)))
-								if (session.type == "meterpreter")
-									print_status("Session #{s} (#{session.tunnel_peer}):")
-									begin
-										session.execute_file(script_path, args.slice(2,args.length))
-									rescue ::Exception => e
-										log_error("Error executing script: #{e.class} #{e}")
-									end
-								end
+				if (script.nil?)
+					print_error("No script specified!")
+					return false
+				end
+
+				script_paths = {}
+				script_paths['meterpreter'] = Msf::Sessions::Meterpreter.find_script_path(script)
+				script_paths['shell'] = Msf::Sessions::CommandShell.find_script_path(script)
+
+				if sid
+					print_status("Running script #{script} on session #{sid}...")
+					sessions = [ sid ]
+				else
+					print_status("Running script #{script} on all sessions...")
+					sessions = framework.sessions.keys.sort
+				end
+
+				sessions.each do |s|
+					if ((session = framework.sessions.get(s)))
+						if (script_paths[session.type])
+							print_status("Session #{s} (#{session.tunnel_peer}):")
+							begin
+								session.execute_file(script_paths[session.type], extra)
+							rescue ::Exception => e
+								log_error("Error executing script: #{e.class} #{e}")
 							end
 						end
-					else
-						print_error("The specified script \"#{script}\" does not exist.")
 					end
-				else
-					print_error("No script specified!")
 				end
 
 			when 'upexec'
@@ -1338,6 +1361,11 @@ class Core
 				else
 					print_error("Invalid session identifier: #{sid}")
 				end
+
+			when 'list',nil
+				print("\n" +
+					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
+
 
 		end
 
@@ -1360,7 +1388,7 @@ class Core
 	#
 	def cmd_sessions_tabs(str, words)
 		if (not words[1])
-			return %w{-q -i -l -h}
+			return @@sessions_opts.fmt.keys
 		end
 	end
 
