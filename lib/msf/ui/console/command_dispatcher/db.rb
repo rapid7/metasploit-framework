@@ -1499,6 +1499,19 @@ class Db
 
 		def cmd_db_connect(*args)
 			return if not db_check_driver
+			if (args[0] == "-y")
+				if (args[1] and not File.exists? File.expand_path(args[1]))
+					print_error("File not found")
+					return
+				end
+				file = args[1] || File.join(Msf::Config.get_config_root, "database.yml")
+				if (File.exists? File.expand_path(file))
+					db = YAML.load(File.read(file))['production']
+					cmd_db_driver(db['adapter'])
+					framework.db.connect(db)
+					return
+				end
+			end
 			meth = "db_connect_#{framework.db.driver}"
 			if(self.respond_to?(meth))
 				self.send(meth, *args)
@@ -1629,6 +1642,7 @@ class Db
 		def db_connect_mysql(*args)
 			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
 				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
+				print_status("      OR: db_connect -y [path/to/database.yml]")
 				print_status("Examples:")
 				print_status("       db_connect user@metasploit3")
 				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
@@ -1788,6 +1802,7 @@ class Db
 		def db_connect_postgresql(*args)
 			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
 				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
+				print_status("      OR: db_connect -y [path/to/database.yml]")
 				print_status("Examples:")
 				print_status("       db_connect user@metasploit3")
 				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
