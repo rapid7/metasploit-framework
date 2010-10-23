@@ -149,16 +149,19 @@ class Driver < Msf::Ui::Driver
 		end
 		
 		# Parse any specified database.yml file
-		if framework.db.usable and opts['DatabaseYAML']
-			dbinfo = YAML.load(File.read(opts['DatabaseYAML']))
-			dbenv  = opts['DatabaseEnv'] || "production"
-			db     = dbinfo[dbenv]
-			
-			if not db
-				print_error("No database definition for environment #{dbenv}")
-			else
-				if not framework.db.connect(db)
-					print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+		if framework.db.usable
+			dbfile = opts['DatabaseYAML'] || File.join(Msf::Config.get_config_root, "database.yml")
+			if (dbfile and File.exists? dbfile)
+				dbinfo = YAML.load(File.read(dbfile))
+				dbenv  = opts['DatabaseEnv'] || "production"
+				db     = dbinfo[dbenv]
+				
+				if not db
+					print_error("No database definition for environment #{dbenv}")
+				else
+					if not framework.db.connect(db)
+						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
+					end
 				end
 			end		
 		end
