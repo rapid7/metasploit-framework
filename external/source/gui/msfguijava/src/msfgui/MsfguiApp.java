@@ -144,14 +144,15 @@ public class MsfguiApp extends SingleFrameApplication {
 						System.arraycopy(args, 0, winArgs, 3, args.length);
 						winArgs[0] = "cmd";
 						winArgs[1] = "/c";
-						if (msfCommand.equals("msfencode"))
-							winArgs[2] = "ruby.exe";
-						else
-							winArgs[2] = "rubyw.exe";
+						winArgs[2] = "ruby.exe";
 						winArgs[3] = msfCommand;
 						proc = Runtime.getRuntime().exec(winArgs);
 					} catch (IOException ex4){
 						try{
+							if (msfCommand.equals("msfencode"))
+								winArgs[2] = "ruby.exe";
+							else
+								winArgs[2] = "rubyw.exe";
 							winArgs[3] = "/msf3/" + msfCommand;
 							File dir = new File(System.getenv("PROGRAMFILES") + "\\Metasploit\\Framework3\\bin\\");
 							proc = Runtime.getRuntime().exec(winArgs, null, dir);
