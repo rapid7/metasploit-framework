@@ -375,6 +375,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				autoCommands.add("exploit");
 				InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);
 				parentFrame.registerConsole(res, true, iw);
+				MsfguiLog.defaultLog.logMethodCall("module.execute", new Object[]{moduleType,fullName,hash});
 			}else{
 				Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
 				if(!info.get("result").equals("success"))
