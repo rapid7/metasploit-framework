@@ -318,10 +318,8 @@ public class RpcConnection {
 					throw new MsfException("Could not find or start msfrpcd"); //darn
 				}
 
-				setMessage("Started msfrpcd. Waiting for initialization to finish.");
-				proc.waitFor();
 				//Connect to started daemon
-				setMessage("Connecting to new msfrpcd...");
+				setMessage("Started msfrpcd. Connecting to new msfrpcd...");
 				setProgress(0.7f);
 				boolean connected = false;
 				for (int tries = 0; tries < 1000; tries++) { //it usually takes a minute to get started
