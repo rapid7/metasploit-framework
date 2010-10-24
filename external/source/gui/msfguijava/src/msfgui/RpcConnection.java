@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,6 +16,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -40,23 +46,44 @@ public class RpcConnection {
 	private Map callCache = new HashMap();
 	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1";
 	public static int defaultPort = 55553;
+	public static boolean defaultSsl = false;
 	private Socket connection;
 	private OutputStream sout; //socket output/input
 	private InputStream sin;
 	private final Object lockObject = new Object();//to synchronize one request at a time
 	private String username, password, host;
 	private int port;
+	private boolean ssl;
 
 	/** Constructor sets up a connection and authenticates. */
-	RpcConnection(String username, char[] password, String host, int port) throws MsfException {
+	RpcConnection(String username, char[] password, String host, int port, boolean ssl) throws MsfException {
 		boolean haveRpcd=false;
 		this.username = username;
 		this.password = new String(password);
 		this.host = host;
 		this.port = port;
+		this.ssl = ssl;
 		String message = "";
 		try {
-			connection = new Socket(host, port);
+			if(ssl){
+				TrustManager[] trustAllCerts = new TrustManager[]{
+					new X509TrustManager() {
+						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+							return null;
+						}
+						public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+						}
+						public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+						}
+					}
+				};
+				// Let us create the factory where we can set some parameters for the connection
+				SSLContext sc = SSLContext.getInstance("SSL");
+				sc.init(null, trustAllCerts, new java.security.SecureRandom());
+				connection = sc.getSocketFactory().createSocket(host,port);
+			} else {
+				connection = new Socket(host, port);
+			}
 			sout = connection.getOutputStream();
 			sin = connection.getInputStream();
 			Map results = exec("auth.login",new Object[]{username, this.password});
@@ -67,6 +94,8 @@ public class RpcConnection {
 		} catch (IOException io){
 			 message = io.getLocalizedMessage();
 		} catch (NullPointerException nex){
+		} catch (NoSuchAlgorithmException nsax){
+		} catch (KeyManagementException kmx){
 		}
 		if(!haveRpcd)
 			throw new MsfException("Error connecting. "+message);
@@ -75,6 +104,7 @@ public class RpcConnection {
 		root.put("password", this.password);
 		root.put("host", this.host);
 		root.put("port", Integer.toString(this.port));
+		root.put("ssl", Boolean.toString(this.ssl));
 	}
 
 	public String toString(){
@@ -306,12 +336,19 @@ public class RpcConnection {
 					defaultPass = password.toString();
 				}
 
-				setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");
+				if (defaultSsl)
+					setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -U metasploit -a 127.0.0.1\"");
+				else
+					setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");
 				setProgress(0.2f);
 				Process proc = null;
 				try {
-					proc = MsfguiApp.startMsfProc(new String[]{
-							"msfrpcd","-P",defaultPass,"-t","Basic","-S","-U",defaultUser,"-a","127.0.0.1"});
+					if(defaultSsl)
+						proc = MsfguiApp.startMsfProc(new String[]{
+								"msfrpcd","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"});
+					else
+						proc = MsfguiApp.startMsfProc(new String[]{
+								"msfrpcd","-P",defaultPass,"-t","Basic","-S","-U",defaultUser,"-a","127.0.0.1"});
 				} catch (MsfException ex) {
 					setMessage("msfrpcd not found.");
 					setProgress(1f);
@@ -324,7 +361,7 @@ public class RpcConnection {
 				boolean connected = false;
 				for (int tries = 0; tries < 1000; tries++) { //it usually takes a minute to get started
 					try {
-						myRpcConn = new RpcConnection(defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort);
+						myRpcConn = new RpcConnection(defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
 						connected = true;
 						break;
 					} catch (MsfException mex) {

@@ -29,29 +29,31 @@
                   <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Group type="102" attributes="0">
+                          <Component id="usernameLabel" min="-2" pref="67" max="-2" attributes="0"/>
+                          <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="jLabel1" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Component id="hostLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Component id="passwordLabel" alignment="1" min="-2" max="-2" attributes="0"/>
                                   <Component id="portLabel" min="-2" max="-2" attributes="0"/>
                               </Group>
                           </Group>
-                          <Component id="usernameLabel" min="-2" pref="67" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="usernameField" alignment="0" pref="431" max="32767" attributes="0"/>
-                          <Component id="hostField" pref="431" max="32767" attributes="0"/>
-                          <Component id="passwordField" alignment="0" pref="431" max="32767" attributes="0"/>
-                          <Component id="portField" alignment="0" pref="431" max="32767" attributes="0"/>
+                          <Component id="sslBox" pref="372" max="32767" attributes="0"/>
+                          <Component id="usernameField" alignment="0" pref="372" max="32767" attributes="0"/>
+                          <Component id="hostField" alignment="0" pref="372" max="32767" attributes="0"/>
+                          <Component id="passwordField" alignment="0" pref="372" max="32767" attributes="0"/>
+                          <Component id="portField" alignment="0" pref="372" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
                       <Component id="startNewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pathButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="134" max="32767" attributes="0"/>
+                      <EmptySpace pref="61" max="32767" attributes="0"/>
                       <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="connectButton" min="-2" max="-2" attributes="0"/>
@@ -86,7 +88,12 @@
                   <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace type="unrelated" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="jLabel1" max="32767" attributes="1"/>
+                  <Component id="sslBox" alignment="0" max="32767" attributes="1"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Group type="103" alignment="1" groupAlignment="3" attributes="0">
                       <Component id="startNewButton" alignment="3" pref="37" max="32767" attributes="0"/>
@@ -219,6 +226,18 @@
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="pathButtonActionPerformed"/>
       </Events>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="sslBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="sslBox.text"/>
+        <Property name="name" type="java.lang.String" value="sslBox" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="jLabel1">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="jLabel1.text"/>
+        <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
