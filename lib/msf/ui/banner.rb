@@ -112,7 +112,11 @@ _|  _|  _|\___|\__|\__,_|____/ .__/ _|\___/ _|\__|
 	# Returns a random metasploit logo.
 	#
 	def self.to_s
-		Logos[rand(Logos.length)]
+		if ENV['GOCOW']
+			Logos[6]
+		else
+			Logos[rand(Logos.length)]
+		end
 	end
 
 end
