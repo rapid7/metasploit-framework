@@ -55,6 +55,12 @@ def usage
 	raise Rex::Script::Completed
 end
 
+# Wrong Meterpreter Version Message Function
+#-------------------------------------------------------------------------------
+def wrong_meter_version(meter = meter_type)
+	print_error("#{meter} version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
 #
 # Default parameters
 #
@@ -295,6 +301,10 @@ downloaded = nil
 		usage
 	end
 }
+
+# Check for Version of Meterpreter
+wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+
 
 if not rhost or not username
 	print_status("You must specify a hostname (-H) and username (-u)")
