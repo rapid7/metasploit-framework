@@ -10,7 +10,7 @@
 #
 require 'net/http'
 require 'uri'
-
+meter_type = client.platform
 
 #
 # Options

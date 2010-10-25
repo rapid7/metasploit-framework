@@ -10,7 +10,7 @@
 #
 
 require 'net/http'
-
+meter_type = client.platform
 #
 # Options
 #
