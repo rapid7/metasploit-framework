@@ -61,6 +61,13 @@ def queryval(key, value)
 	return valdata.data
 end
 
+# Wrong Meterpreter Version Message Function
+#-------------------------------------------------------------------------------
+def wrong_meter_version(meter = meter_type)
+	print_error("#{meter} version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
 #
 # Default values
 #
@@ -166,6 +173,9 @@ type = "auto"
 		usage
 	end
 }
+
+# Check for Version of Meterpreter
+wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 
 #
 # Uninstall if selected
