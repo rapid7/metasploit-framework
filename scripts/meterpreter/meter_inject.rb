@@ -148,8 +148,7 @@ wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
 create_multi_hadler(payload_type) if start_handler
 
 # Check to make sure a PID or Program name where provided
-puts multi_pid.inspect
-puts multi_ip.inspect
+
 if pid or multi_pid.length > 0
 	if multi_ip.length > 0
 		if multi_ip.length == multi_pid.length
