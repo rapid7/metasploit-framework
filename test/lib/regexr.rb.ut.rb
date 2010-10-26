@@ -1,6 +1,6 @@
 ##
 ## Tests for the regexr library
-## $id$
+## $Id$
 
 $:.unshift(File.expand_path(File.dirname(__FILE__)) )
 

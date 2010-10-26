@@ -2,18 +2,22 @@
 ##
 ## TODO - clean up the style. looks like it was written in the early 90s
 ##
-## $id$
+## $Id$
 
 class Regexr
 
-	def initialize(verbose=false)
+	def initialize(verbose=false, case_insensitive=true)
 		@verbose = verbose
+		@case_insensitive = case_insensitive
 	end
 
 	# Check for the beginning line. Handy when you need to ensure a log has started
 	def verify_start(data,the_start)
 		data_lines = data.split("\n")
 		regex_start = Regexp.new(the_start, @case_insensitive)
+		if @verbose
+			puts "testing: " + the_start + " =~ " + data_lines.first
+		end
 		return regex_start =~ data_lines.first
 	end
 
@@ -21,6 +25,9 @@ class Regexr
 	def verify_end(data,the_end)
 		data_lines = data.split("\n")
 		regex_end = Regexp.new(the_end, @case_insensitive)
+		if @verbose
+			puts "testing: " + the_end + " =~ " + data_lines.last
+		end
 		return regex_end =~ data_lines.last
 	end
 
@@ -28,12 +35,15 @@ class Regexr
 	def verify_start_and_end(data,the_start,the_end)
 		data_lines = data.split("\n")
 		regex_start   = Regexp.new(the_start, @case_insensitive)
-		regex_endline = Regexp.new(the_end, @case_insensitive)
+		regex_end = Regexp.new(the_end, @case_insensitive)
 
+		if @verbose
+			puts "testing: " + the_start + " =~ " + data_lines.first
+			puts "testing: " + the_end + " =~ " + data_lines.last
+		end
 
-		## yuck, refactor this - TODO
 		if regex_start =~ data_lines.first
-			return regex_endline == data_lines.last
+			return regex_end =~ data_lines.last
 		end
 		
 		return false
@@ -68,14 +78,12 @@ class Regexr
 	end
 
 	# Scan for a fail line. In order to pass, the string must not exist in the data
-	def ensure_doesnt_exist_in_data_unless(data,regex_string, exceptions)
+	def ensure_doesnt_exist_in_data_unless(data, regex_string, exceptions)
 			data_lines = data.split("\n")
-			re = Regexp.new(regex_string, @case_insensitive)
-	
 			data_lines.each {|line|
-				if line =~ re
+				if line =~ Regexp.new(regex_string, @case_insensitive)
 					exceptions.each { |exception|
-						if line =~ exception
+						if line =~ Regexp.new(exception, @case_insensitive)
 							return true
 						end
 					}
