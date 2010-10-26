@@ -83,8 +83,6 @@ if client.platform =~ /win32|win64/
 	server = client.sys.process.open
 
 	print_status("Current server process: #{server.name} (#{server.pid})")
-
-	target_pid = nil
 	
 	if ! inject
 		exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
