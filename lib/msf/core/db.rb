@@ -1919,6 +1919,7 @@ class DBManager
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 		if data.kind_of? Zip::ZipFile
+			raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
 			@import_filedata ||= {}
 			@import_filedata[:zip_filename] = File.split(data.to_s).last
 			@import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
@@ -1926,7 +1927,11 @@ class DBManager
 			@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first
 			@import_filedata[:zip_wspace] = $1
 			@import_filedata[:type] = "Metasploit ZIP Report"
-			return :msf_zip if @import_filedata[:zip_xml]
+			if @import_filedata[:zip_xml]
+				return :msf_zip
+			else
+				raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
+			end
 		end
 		di = data.index("\n")
 		firstline = data[0, di]
