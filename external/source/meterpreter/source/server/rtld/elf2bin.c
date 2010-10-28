@@ -13,8 +13,6 @@
 
 #define EIGHTMEM (32 * 1024 * 1024)
 
-#define BASE 0x20040000
-
 int main(int argc, char **argv)
 {
 	int fd;
@@ -27,9 +25,14 @@ int main(int argc, char **argv)
 	int used = 0;
 	unsigned char *source, *dest;
 	int len;
-	int (*fp)();
+	Elf32_Addr base = NULL;
 
-	fd = open("msflinker", O_RDONLY);
+	if(argc < 3) {
+		printf("elf2bin [input file] [output file]\n");
+		exit(EXIT_FAILURE);
+	}
+
+	fd = open(argv[1], O_RDONLY);
 	if(fd == -1) {
 		printf("Failed to open msflinker: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
@@ -48,7 +51,7 @@ int main(int argc, char **argv)
 
 	close(fd);
 
-	mapping = mmap(BASE, EIGHTMEM, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE|MAP_FIXED, -1, 0);
+	mapping = mmap(NULL, EIGHTMEM, PROT_READ|PROT_WRITE|PROT_EXEC, MAP_ANONYMOUS|MAP_PRIVATE, -1, 0);
 	if(mapping == MAP_FAILED) {
 		printf("Failed to mmap(): %s\n", strerror(errno));
 		exit(EXIT_FAILURE);
@@ -61,8 +64,12 @@ int main(int argc, char **argv)
 
 	for(i = 0; i < ehdr->e_phnum; i++, phdr++) {
 		if(phdr->p_type == PT_LOAD) {
+			if(base == NULL) {
+				base = phdr->p_vaddr & ~4095;
+			}
+
 			source = data + (phdr->p_offset & ~4095);
-			dest = mapping + ((phdr->p_vaddr - BASE) & ~4095);
+			dest = mapping + ((phdr->p_vaddr - base) & ~4095);
 			len = phdr->p_filesz + (phdr->p_vaddr & 4095);	
 			printf("memcpy(%08x, %08x, %08x)\n", dest, source, len);
 			memcpy(dest, source, len);
@@ -71,7 +78,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	fd = open("msflinker.bin", O_RDWR|O_TRUNC|O_CREAT, 0644);
+	fd = open(argv[2], O_RDWR|O_TRUNC|O_CREAT, 0644);
 	if(fd == -1) {
 		printf("Unable to dump memory: %s\n", strerror(errno));
 		exit(EXIT_FAILURE);

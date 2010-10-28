@@ -711,12 +711,26 @@ DWORD request_sys_process_execute(Remote *remote, Packet *packet)
 
 			if(doInMemory) 
 			{
-				perform_in_mem_exe(argv, environ, inMemoryData.buffer);
+				int found;
+				Elf32_Ehdr *ehdr = (Elf32_Ehdr *)inMemoryData.buffer;
+				Elf32_Phdr *phdr = (Elf32_Phdr *)(inMemoryData.buffer + ehdr->e_phoff);
+
+				for(found = 0, i = 0; i < ehdr->e_phnum; i++, phdr++) {
+					if(phdr->p_type == PT_LOAD) {
+						found = 1;
+						break;
+					}
+				}
+			
+				if(! found) return; // XXX, not too much we can do in this case ?
+
+				perform_in_mem_exe(argv, environ, inMemoryData.buffer, inMemoryData.header.length, phdr->p_vaddr & ~4095, ehdr->e_entry);
 			} else {
 				execve(path, argv, environ);
 			}
 
-			dprintf("[%s] failed to execute program, exit(EXIT_FAILURE) time", __FUNCTION__);
+			dprintf("failed to execute program, exit(EXIT_FAILURE) time");
+			dprintf("doInMemory = %d, hidden = %d", doInMemory, hidden);
 
 			exit(EXIT_FAILURE);
 		default:
@@ -1069,7 +1083,7 @@ DWORD process_channel_interact_notify(Remote *remote, Channel *channel)
 	if ( bytesRead > 0 ) 
 
 	{
-		dprintf("[%s] bytesRead: %d, errno: %d", __FUNCTION__, bytesRead, errno);
+		dprintf("bytesRead: %d, errno: %d", bytesRead, errno);
 
 		result = channel_write ( channel, remote, NULL, 0, buffer, bytesRead, NULL );
 	} 

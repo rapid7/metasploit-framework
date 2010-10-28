@@ -15,9 +15,11 @@
 
 #define NULL	((void *)0)
 
+#if 0
+// PKS, should use system headers.
 #define	PAGE_SIZE	4096
 #define PAGE_SHIFT	12
-
+#endif
 
 /*
  * need to separate out platform types
@@ -35,10 +37,20 @@ typedef	uint32_t	uintmax_t;
 #endif
 #endif
 
+#if 0
 #define	PAGE_MASK	(PAGE_SIZE-1)
+#endif
+
 #define trunc_page(x)   ((unsigned long)(x) & ~(PAGE_MASK))
 
 
+#define	_strdup				strdup
+#define	_vsnprintf			vsnprintf
+
+#define	strcat_s(buf1, len, buf2)	strcat((buf1), (buf2))
+#define	closesocket			close
+
+#if 0
 /*
  * Protections are chosen from these bits, or-ed together
  */
@@ -81,10 +93,6 @@ typedef	uint32_t	uintmax_t;
 #define MADV_DONTNEED   _MADV_DONTNEED
 #define MADV_FREE       5       /* dont need these pages, and junk contents */
 
-
-
-
-
 void *memcpy(void *idst, const void *isrc, size_t n);
 
 int strcmp (const char *s1, const char *s2);
@@ -107,20 +115,12 @@ void bzero(void *b, size_t len);
 
 char	*strdup(const char *__restrict);
 
-#define	_strdup				strdup
-#define	_vsnprintf			vsnprintf
-#define	strcat_s(buf1, len, buf2)	strcat((buf1), (buf2))
-#define	closesocket			close
-
 #define	STDIN_FILENO    0       /* standard input file descriptor */
 #define	STDOUT_FILENO   1       /* standard output file descriptor */
 #define STDERR_FILENO   2       /* standard error file descriptor */
 
-
-
 ssize_t write(int d, const void *buf, size_t nbytes);
 ssize_t read(int d, void *buf, size_t nbytes);
-
 
 void	abort(void);
 
@@ -128,6 +128,7 @@ void  free(void *ptr);
 
 void *malloc(size_t size);
 
+#endif
 
 #ifdef __GNUCLIKE_BUILTIN_STDARG
 

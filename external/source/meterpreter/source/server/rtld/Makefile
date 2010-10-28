@@ -13,7 +13,7 @@ msflinker: $(OBJ)
 
 msflinker.bin: msflinker elf2bin.c
 	gcc -o elf2bin elf2bin.c
-	./elf2bin
+	./elf2bin msflinker msflinker.bin
 
 libc.h: ../../bionic/compiled/libc.so
 	strip --strip-debug ../../bionic/compiled/libc.so

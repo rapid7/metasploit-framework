@@ -284,12 +284,10 @@ static int log_vprint(int prio, const char *tag, const char *fmt, va_list  args)
         ssize_t ret;
         struct iovec vec[3];
 
-        vec[0].iov_base = (unsigned char *) &prio;
-        vec[0].iov_len = 1;
-        vec[1].iov_base = (void *) tag;
-        vec[1].iov_len = strlen(tag) + 1;
-        vec[2].iov_base = (void *) buf;
-        vec[2].iov_len = strlen(buf) + 1;
+        vec[0].iov_base = (void *) tag;
+        vec[0].iov_len = strlen(tag);
+        vec[1].iov_base = (void *) buf;
+        vec[1].iov_len = strlen(buf);
 
         do {
             ret = writev(log_fd, vec, 3);

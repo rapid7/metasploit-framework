@@ -29,7 +29,7 @@
 #ifndef _LINKER_DEBUG_H_
 #define _LINKER_DEBUG_H_
 
-#define LINKER_DEBUG 1
+#define LINKER_DEBUG 0
 
 #include <stdio.h>
 

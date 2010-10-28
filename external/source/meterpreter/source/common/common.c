@@ -15,7 +15,9 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 	char buffer[2048];
 	int size;
 	static int fd;
+	int retried = 0;
 
+	filename = basename(filename);
 	size = snprintf(buffer, sizeof(buffer), "[%s:%d (%s)] ", filename, line, function);
 
 	va_start(args, format);
@@ -23,16 +25,21 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 	strcat(buffer, "\n");
 	va_end(args);
 
+retry_log:
 	if(fd <= 0) {
 		char filename[128];
-		sprintf(filename, "/tmp/meterpreter.log.%d", getpid());
+		sprintf(filename, "/tmp/meterpreter.log.%d%s", getpid(), retried ? ".retry" : "" );
 		
 		fd = open(filename, O_RDWR|O_TRUNC|O_CREAT|O_SYNC, 0644);
 		
 		if(fd <= 0) return;
 	}
 
-	write(fd, buffer, strlen(buffer));
+	if(write(fd, buffer, strlen(buffer)) == -1 && (errno == EBADF)) {
+		fd = -1;
+		retried++;
+		goto retry_log;
+	}
 }
 
 void enable_debugging()

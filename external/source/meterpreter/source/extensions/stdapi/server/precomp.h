@@ -9,6 +9,7 @@
  #include <iphlpapi.h>
  #include "resource/resource.h"
 #else
+ #include <sys/mman.h>
  #include "../stdapi.h"
  #include <unistd.h>
  #include <stdlib.h>
@@ -25,6 +26,8 @@
 
  #include <linux/if.h>
  #include <linux/netlink.h>
+ #include <linux/elf.h>
+
 
 #define IN_ADDR struct in_addr
 #define SOCKADDR_IN struct sockaddr_in
