@@ -2,7 +2,7 @@
 * Metasploit Framework Windows Installer *
 ******************************************
 
-The Metasploit installer for Linux provides a self-contained execution
+The Metasploit installer for Windows provides a self-contained execution
 environment for the Metasploit Framework. This includes the Ruby interpreter,
 the RubyGems package, PostgreSQL, and Subversion. The package also includes
 binary copies of the libraries needed to support these tools.
