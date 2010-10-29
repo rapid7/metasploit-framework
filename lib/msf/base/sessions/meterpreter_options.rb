@@ -35,6 +35,7 @@ module MeterpreterOptions
 				session.load_session_info
 			end
 
+=begin
 			admin = false
 			begin
 				::Timeout.timeout(30) do
@@ -45,8 +46,9 @@ module MeterpreterOptions
 				end
 			rescue ::Exception
 			end
+=end
 			
-			session.load_priv if admin
+			session.load_priv
 		end
 		
 		
