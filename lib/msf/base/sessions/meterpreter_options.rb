@@ -48,7 +48,7 @@ module MeterpreterOptions
 			end
 =end
 			
-			session.load_priv
+			session.load_priv rescue nil
 		end
 		
 		
