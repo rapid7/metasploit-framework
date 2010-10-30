@@ -165,17 +165,31 @@ public class MsfguiLog {
 				 "h1.header  {font-size:3em;\n" +
 				 "margin:20px 0 30px;\n" +
 				 "text-align:center;}\n" +
-				 "tr.sent td {background-color: #EEFFEE; color: black;}\n" +
-				 "tr.recv td {background-color: #EEEEFF; color: black;}\n" +
+				 "tr.sent td {background-color: #EEEEEE; color: black;}\n" +
+				 "tr.recv td {background-color: #FFFFFF; color: black;}\n" +
 				 "div.session {float: left; padding-right: 10px;}\n" +
-				 "#page{margin:0 auto; padding:30px 200px;}\n" +
+				 "#page{margin:0 auto; padding:30px 150px;}\n" +
 				"</style></head>\n<body>\n<div id=\"page\"><h1 class=\"header\">msfgui</h1>");
 		
 		//Host summary
 		//Add headers
 		fout.write("<h1>Hosts</h1>");
 		Set sessionsEntrySet = sessions.entrySet();
-		if(sessions.isEmpty()){
+		HashMap hosts = new HashMap();
+		//Map hosts to sessions by IP
+		for(Object e : sessionsEntrySet){
+			Map session = (Map)((Entry) e).getValue();
+			if(session.containsKey("tunnel_peer")){ //actual session; not console
+				String host = session.get("tunnel_peer").toString().split(":")[0];
+				Set hostSet = (Set)hosts.get(host);
+				if(hostSet == null){
+					hostSet = new HashSet();
+					hosts.put(host, hostSet);
+				}
+				hostSet.add(session);
+			}
+		}
+		if(hosts.isEmpty()){
 			fout.write("<p>None. Go exploit something next time.</p>");
 		}else{
 			fout.write("<table><thead><tr><td>host</td>\n");
@@ -186,22 +200,7 @@ public class MsfguiLog {
 			headers.add("tunnel_peer");
 			headers.add("tunnel_local");
 			headers.add("desc");
-			fout.write("<td>type</td><td>via_exploit</td><td>via_payload</td><td>tunnel_peer</td><td>tunnel_local</td><td>desc</td>");
-		
-			HashMap hosts = new HashMap();
-			//Map hosts to sessions by IP
-			for(Object e : sessionsEntrySet){
-				Map session = (Map)((Entry) e).getValue();
-				if(session.containsKey("tunnel_peer")){ //actual session; not console
-					String host = session.get("tunnel_peer").toString().split(":")[0];
-					Set hostSet = (Set)hosts.get(host);
-					if(hostSet == null){
-						hostSet = new HashSet();
-						hosts.put(host, hostSet);
-					}
-					hostSet.add(session);
-				}
-			}
+			fout.write("<td>type</td><td>via exploit</td><td>via payload</td><td>tunnel peer</td><td>tunnel local</td><td>desc</td>");
 			fout.write("</tr></thead><tbody>\n");
 		
 			for(Object e : hosts.entrySet()){
