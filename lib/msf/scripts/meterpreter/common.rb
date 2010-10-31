@@ -47,7 +47,6 @@ def cmd_exec(cmd)
 		break if d == ""
 	end
 	cmd.channel.close
-	cmd.close
 	return o
 end
 
