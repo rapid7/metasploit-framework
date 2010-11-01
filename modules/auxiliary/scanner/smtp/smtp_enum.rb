@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 			@connected=true
 			sock.put("#{data}")
 			@result=sock.get_once
-			@coderesult=@result[0..2]
+			@coderesult=@result[0..2] if @result
 		rescue ::Exception => e
 			print_error("Error: #{e}")
 			raise e
