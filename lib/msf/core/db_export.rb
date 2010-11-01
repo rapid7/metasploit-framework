@@ -162,14 +162,16 @@ class Export
 			[Marshal.dump(obj)].pack("m").gsub(/\s+/,"")
 		end
 	end
-
+	
 	def create_xml_element(key,value)
 		tag = key.gsub("_","-")
 		el = REXML::Element.new(tag)
-		data = marshalize(value)
-		data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
-		data.gsub!(/([\x00\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
-		el << REXML::Text.new(data)
+		if value
+			data = marshalize(value)
+			data.force_encoding(Encoding::BINARY) if data.respond_to?('force_encoding')
+			data.gsub!(/([\x00-\x08\x0b\x0c\x0e-\x19\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+			el << REXML::Text.new(data)
+		end
 		return el
 	end
 
