@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{ip}:#{rport} - Starting FTP login sweep")
 		if check_banner
 			each_user_pass { |user, pass|
-				next if user.nil? 
+				next if user.nil?
 				ret = do_login(user,pass)
 				ftp_quit if datastore['SINGLE_SESSION']
 				ret
