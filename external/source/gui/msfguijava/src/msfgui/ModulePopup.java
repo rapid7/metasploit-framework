@@ -53,7 +53,12 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		Map opts = (Map)args[2];
 		if(args[0].toString().equals("exploit")){
 			//Set target
-			target = opts.get("TARGET").toString();
+			if(opts.get("TARGET") != null)
+				target = opts.get("TARGET").toString();
+			else if (options.containsKey("TARGET") && ((Map)options.get("TARGET")).containsKey("default"))
+				target = ((Map)options.get("TARGET")).get("default").toString();
+			else
+				target = "0";
 			for (Component comp : mainPanel.getComponents()){
 				if(comp instanceof JRadioButton){
 					JRadioButton but = (JRadioButton)comp;
