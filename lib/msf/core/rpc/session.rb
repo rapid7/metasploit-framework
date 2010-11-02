@@ -145,7 +145,14 @@ class Session < Base
 	end
 
 	def meterpreter_script(token, sid, data)
-		meterpreter_write(token, sid, ["run #{data}"].pack("m*"))
+		s = _valid_session(token,sid,"meterpreter")
+
+		if not s.user_output.respond_to? :dump_buffer
+			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
+		end
+
+		Thread.new(s) { |sess| sess.console.run_single("run #{data}") }
+		{}
 	end
 
 protected
