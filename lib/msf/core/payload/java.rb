@@ -16,8 +16,9 @@ module Msf::Payload::Java
 	def generate_stage
 		stage = ''
 		@stage_class_files.each do |path|
-			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
+			fd = File.open(File.join( Msf::Config.data_directory, "java", path ), "rb")
 			data = fd.read(fd.stat.size)
+			fd.close
 			stage << ([data.length].pack("N") + data)
 		end
 		stage << [0].pack("N")
@@ -33,7 +34,7 @@ module Msf::Payload::Java
 	end
 
 	#
-	# Returns a jar file as a +Rex::Zip::Archive+
+	# Returns a jar file as a +Rex::Zip::Jar+
 	#
 	def generate_jar
 		raise if not respond_to? :config
@@ -42,7 +43,8 @@ module Msf::Payload::Java
 		] + @class_files
 
 		jar = Rex::Zip::Jar.new
-		add_class_files(jar, paths)
+		#add_class_files(jar, paths)
+		jar.add_files(paths, File.join(Msf::Config.data_directory, "java"))
 		jar.build_manifest(:main_class => "metasploit.Payload")
 		jar.add_file("metasploit.dat", config)
 
@@ -50,7 +52,7 @@ module Msf::Payload::Java
 	end
 
 	def generate_war(opts={})
-		zip = Rex::Zip::Archive.new
+		zip = Rex::Zip::Jar.new
 
 		web_xml = %q{<?xml version="1.0"?>
 <!DOCTYPE web-app PUBLIC
@@ -79,7 +81,7 @@ module Msf::Payload::Java
 		zip.add_file('WEB-INF/', '')
 		zip.add_file('WEB-INF/web.xml', web_xml)
 		zip.add_file("WEB-INF/classes/", "")
-		add_class_files(zip, paths, "WEB-INF/classes/")
+		zip.add_files(paths, File.join(Msf::Config.data_directory, "java"), "WEB-INF/classes/")
 		zip.add_file("metasploit.dat", config)
 		zip.add_file("WEB-INF/metasploit.dat", config)
 		zip.add_file("WEB-INF/classes/metasploit.dat", config)
@@ -87,20 +89,5 @@ module Msf::Payload::Java
 		zip
 	end
 
-protected
-	def add_class_files(zip, paths, base_dir="")
-		paths.each do |path|
-			1.upto(path.length - 1) do |idx|
-				full = base_dir + path[0,idx].join("/") + "/"
-				if !(zip.entries.map{|e|e.name}.include?(full))
-					zip.add_file(full, '')
-				end
-			end
-			fd = File.open(File.join( Msf::Config.install_root, "data", "java", path ), "rb")
-			data = fd.read(fd.stat.size)
-			zip.add_file(base_dir + path.join("/"), data)
-			fd.close
-		end
-	end
 end
 

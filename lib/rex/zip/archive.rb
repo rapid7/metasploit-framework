@@ -113,6 +113,60 @@ class Jar < Archive
 	def length
 		pack.length
 	end
+
+	#
+	# Add multiple files from an array
+	#
+	# +files+ should be structured like so:
+	#   [
+	#     [ "path", "to", "file1" ],
+	#     [ "path", "to", "file2" ]
+	#   ]
+	# and +path+ should be the location on the file system to find the files to
+	# add.  +base_dir+ will be prepended to the path inside the jar.
+	#
+	# Example:
+	# <code>
+	# war = Rex::Zip::Jar.new
+	# war.add_file("WEB-INF/", '')
+	# war.add_file("WEB-INF/", "web.xml", web_xml)
+	# war.add_file("WEB-INF/classes/", '')
+	# files = [
+	#	[ "servlet", "examples", "HelloWorld.class" ],
+	#	[ "Foo.class" ],
+	#	[ "servlet", "Bar.class" ],
+	# ]
+	# war.add_files(files, "./class_files/", "WEB-INF/classes/")
+	# </code>
+	#
+	# The above code would create a jar with the following structure from files
+	# found in ./class_files/ :
+	#
+	# +- WEB-INF/
+	#   +- web.xml
+	#   +- classes/
+	#     +- Foo.class
+	#     +- servlet/
+	#       +- Bar.class
+	#       +- examples/
+	#         +- HelloWorld.class
+	#
+	def add_files(files, path, base_dir="")
+		files.each do |file|
+			# Add all of the subdirectories if they don't already exist
+			1.upto(file.length - 1) do |idx|
+				full = base_dir + file[0,idx].join("/") + "/"
+				if !(entries.map{|e|e.name}.include?(full))
+					add_file(full, '')
+				end
+			end
+			# Now add the actual file, grabbing data from the filesystem
+			fd = File.open(File.join( path, file ), "rb")
+			data = fd.read(fd.stat.size)
+			fd.close
+			add_file(base_dir + file.join("/"), data)
+		end
+	end
 end
 
 end
