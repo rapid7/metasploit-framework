@@ -2047,6 +2047,7 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		last_host = nil
 
 		addr  = nil
 		port  = nil
@@ -2088,7 +2089,8 @@ class DBManager
 			if bl.include? addr
 				next
 			else
-				yield(:address,addr) if block
+				yield(:address,addr) if block and addr != last_host
+				last_host = addr
 			end
 
 			cred_info = {

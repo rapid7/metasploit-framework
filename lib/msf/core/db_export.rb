@@ -75,6 +75,12 @@ class Export
 		return sz
 	end
 
+	# Converts binary and whitespace characters to a hex notation.
+	def ascii_safe_hex(str)
+		str.gsub!(/([\x00-\x20\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+		return str
+	end
+
 	# Formats credentials according to their type, and writes it out to the
 	# supplied report file. Note for reimporting: Blank values are <BLANK>
 	def write_credentials(ptype,creds,report_file)
@@ -106,8 +112,8 @@ class Export
 					end
 				else "text" 
 					data.each do |c| 
-						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
-						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
+						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : ascii_safe_hex(c.user)
+						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : ascii_safe_hex(c.pass)
 						report_file.write "%s %s\n" % [user,pass]
 					end
 				end
@@ -136,7 +142,7 @@ class Export
 			next unless host_allowed?(cred.service.host.address)
 			# Skip anything that's not associated with a specific host and port
 			next unless (cred.service && cred.service.host && cred.service.host.address && cred.service.port)
-			# Skip anything that's not active.
+			# TODO: Toggle active/all
 			next unless cred.active
 			svc = "%s:%d/%s (%s)" % [cred.service.host.address,cred.service.port,cred.service.proto,cred.service.name]
 			case cred.ptype
