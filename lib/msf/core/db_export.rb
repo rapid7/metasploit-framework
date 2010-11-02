@@ -293,7 +293,7 @@ class Export
 			[Marshal.dump(obj)].pack("m").gsub(/\s+/,"")
 		end
 	end
-	
+
 	def create_xml_element(key,value)
 		tag = key.gsub("_","-")
 		el = REXML::Element.new(tag)
