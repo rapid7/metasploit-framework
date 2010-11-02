@@ -82,7 +82,6 @@ class Module < Base
 
 	def compatible_payloads(token, mname)
 		authenticate(token)
-		#m = @framework.exploits[mname]
 		m = _find_module('exploit',mname)
 		if(not m)
 			raise ::XMLRPC::FaultException.new(404, "unknown module")
@@ -90,6 +89,23 @@ class Module < Base
 
 		res = {}
 		res['payloads'] = []
+		m.compatible_payloads.each do |k|
+			res['payloads'] << k[0]
+		end
+
+		res
+	end
+
+	def target_compatible_payloads(token, mname, target)
+		authenticate(token)
+		m = _find_module('exploit',mname)
+		if(not m)
+			raise ::XMLRPC::FaultException.new(404, "unknown module")
+		end
+
+		res = {}
+		res['payloads'] = []
+		m.datastore['TARGET'] = target.to_i
 		m.compatible_payloads.each do |k|
 			res['payloads'] << k[0]
 		end

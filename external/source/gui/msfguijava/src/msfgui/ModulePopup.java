@@ -205,14 +205,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
    /** Creates payload menu. */
 	private void showPayloads(RpcConnection rpcConn, String modName, String target, String defaultPayload) throws HeadlessException {
 		try { //Get info
-			List mlist;
-			try {
-				mlist = (List)((Map)rpcConn.execute("module.compatible_payloads",
-					modName,target)).get("payloads"); //WARNING - ALTERED COMPATIBLE PAYLOAD RPC DEF
-			} catch (MsfException ex) {
-				mlist = (List)((Map)rpcConn.execute("module.compatible_payloads",
-					modName)).get("payloads"); //old rpc payload def
-			}
+			List mlist = (List)((Map)rpcConn.execute("module.target_compatible_payloads",
+					modName,target)).get("payloads");
 			//Ok. it worked. now replace the payload list
 
 			DefaultTreeModel payloadModel = (DefaultTreeModel)payloadTree.getModel();
