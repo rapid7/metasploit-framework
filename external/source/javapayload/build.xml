@@ -7,7 +7,7 @@
 
 	<target name="compile">
 		<mkdir dir="build" />
-		<javac srcdir="src" destdir="build" source="1.1" target="1.1" debug="no" />
+		<javac srcdir="src" destdir="build" source="1.1" target="1.1" classpath="lib/servlet-api-2.2.jar" debug="no" />
 	</target>
 
 	<target name="jar" depends="compile">
@@ -64,5 +64,15 @@
 			</fileset>
 		</jar>
 		<delete file="build/metasploit.dat"/>
+	</target>
+	
+	<target name="deploy" depends="compile">
+		<copy todir="../../../data/java">
+			<fileset dir="build">
+				<exclude name="javapayload/stage/JSh*.class" />
+				<exclude name="javapayload/stage/SendParameters.class" />
+				<exclude name="javapayload/stage/SystemInfo.class" />
+			</fileset>
+		</copy>
 	</target>
 </project>
