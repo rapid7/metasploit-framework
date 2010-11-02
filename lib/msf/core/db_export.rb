@@ -21,6 +21,137 @@ class Export
 	def myusername
 		@username ||= (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip.gsub(/[^A-Za-z0-9\x20]/,"_")
 	end
+
+	# Hosts are always allowed. This is really just a stub.
+	def host_allowed?(arg)
+		true
+	end
+
+	# Creates the PWDUMP text file. smb_hash and ssh_key credentials are
+	# treated specially -- all other ptypes are treated as plain text.
+	#
+	# Some day in the very near future, this file format will be importable --
+	# the comment preceding the credential is always in the format of IPAddr:Port/Proto (name),
+	# so it should be a simple matter to read them back in and store credentials
+	# in the right place. Finally, this format is already parsable by John the Ripper,
+	# so hashes can be bruteforced offline.
+	def to_pwdump_file(path, &block)
+		yield(:status, "start", "password dump") if block_given?
+		creds = extract_credentials
+		report_file = ::File.open(path, "wb")
+		report_file.write "# Metasploit PWDump Export v1\n"
+		report_file.write "# Generated: #{Time.now.utc}\n"
+		report_file.write "# Project: #{myworkspace.name}\n"
+		report_file.write "#\n"
+		report_file.write "#" * 40; report_file.write "\n"
+
+		count = count_credentials("smb_hash",creds)
+		yield(:status, "start", "SMB Hash dump") if block_given?
+		report_file.write "# SMB Hashes (%d services, %d hashes)\n" % [creds["smb_hash"].size, count]
+		write_credentials("smb_hash",creds,report_file)
+
+		count = count_credentials("ssh_key",creds)
+		yield(:status, "start", "SSH Key dump") if block_given?
+		report_file.write "# SSH Private Keys (%d services, %d hashes)\n" % [creds["ssh_key"].size, count]
+		write_credentials("ssh_key",creds,report_file)
+
+		count = count_credentials("text",creds)
+		yield(:status, "start", "Plaintext Credential dump") if block_given?
+		report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [creds["text"].size, count]
+		write_credentials("text",creds,report_file)
+
+		report_file.flush
+		report_file.close
+		yield(:status, "complete", "password dump") if block_given?		
+		true
+	end
+
+	# Counts the total number of credentials for its type.
+	def count_credentials(ptype,creds)
+		sz = 0
+		if creds[ptype]
+			creds[ptype].each_pair { |svc, data| data.each { |c| sz +=1 } }
+		end
+		return sz
+	end
+
+	# Formats credentials according to their type, and writes it out to the
+	# supplied report file. Note for reimporting: Blank values are <BLANK>
+	def write_credentials(ptype,creds,report_file)
+		if creds[ptype]
+			creds[ptype].each_pair do |svc, data|
+				report_file.write "# #{svc}\n"
+				case ptype
+				when "smb_hash"
+					data.each do |c| 
+						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
+						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
+						report_file.write "%s:%d:%s:::\n" % [user,c.id,pass]
+					end
+				when "ssh_key"
+					data.each do |c|
+						if ::File.exists?(c.pass) && ::File.readable?(c.pass)
+							user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
+							key = ::File.open(c.pass) {|f| f.read f.stat.size}
+							key_id = (c.proof && c.proof[/^KEY=/]) ? c.proof[4,47] : "<NO-ID>"
+							report_file.write "#{user} '#{key_id}'\n"
+							report_file.write key
+							report_file.write "\n" unless key[-1,1] == "\n"
+						# Report file missing / permissions issues in the report itself.
+						elsif !::File.exists?(c.pass)
+							report_file.puts "Warning: missing private key file '#{c.pass}'."
+						else
+							report_file.puts "Warning: could not read the private key '#{c.pass}'."
+						end
+					end
+				else "text" 
+					data.each do |c| 
+						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
+						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
+						report_file.write "%s %s\n" % [user,pass]
+					end
+				end
+				report_file.flush
+			end
+		else
+			report_file.write "# No credentials for this type were discovered.\n"
+		end
+		report_file.write "#" * 40; report_file.write "\n"
+	end
+
+	# Extracts credentials and organizes by type, then by host, and finally by individual
+	# credential data. Will look something like:
+	#
+	#   {"smb_hash" => {"host1:445" => [user1,user2,user3], "host2:445" => [user4,user5]}},
+	#   {"ssh_key" => {"host3:22" => [user10,user20]}},
+	#   {"text" => {"host4:23" => [user100,user101]}}
+	#
+	# This hash of hashes of arrays is, in turn, consumed by gen_export_pwdump.
+	def extract_credentials
+		creds = Hash.new
+		creds["ssh_key"] = {}
+		creds["smb_hash"] = {}
+		creds["text"] = {}
+		myworkspace.each_cred do |cred|
+			next unless host_allowed?(cred.service.host.address)
+			# Skip anything that's not associated with a specific host and port
+			next unless (cred.service && cred.service.host && cred.service.host.address && cred.service.port)
+			# Skip anything that's not active.
+			next unless cred.active
+			svc = "%s:%d/%s (%s)" % [cred.service.host.address,cred.service.port,cred.service.proto,cred.service.name]
+			case cred.ptype
+			when "smb_hash", "ssh_key"
+				ptype = cred.ptype
+			else
+				ptype = "text"
+			end
+			creds[ptype] ||= {}
+			creds[ptype][svc] ||= []
+			creds[ptype][svc] << cred
+		end
+		return creds
+	end
+
 	
 	def to_xml_file(path, &block)
 
