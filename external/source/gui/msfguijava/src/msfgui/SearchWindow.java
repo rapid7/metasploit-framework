@@ -13,7 +13,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author osama
+ * @author scriptjunkie
  */
 public class SearchWindow extends MsfFrame {
 	public List modules; //list of type, name actor
@@ -253,12 +253,12 @@ public class SearchWindow extends MsfFrame {
 				if(detail.equals("reference")){
 					Object references = info.get("references");
 					if(references != null){
-						Object[] refArray = (Object[])references;
-						for(int i = 0; i < refArray.length; i++){
-							Object[] ref = (Object[])refArray[i];
-							if(ref[1].toString().toLowerCase().contains(toSearch) 
-									|| (ref[0].toString().toLowerCase()+"-"+ref[1]).contains(toSearch)){
-								mod.addElement(modInfo[1]);
+						List refArray = (List)references;
+						for(int i = 0; i < refArray.size(); i++){
+							List ref = (List)refArray.get(i);
+							if(ref.get(1).toString().toLowerCase().contains(toSearch)
+									|| (ref.get(0).toString().toLowerCase()+"-"+ref.get(1)).contains(toSearch)){
+								mod.addElement(modInfo[1]+" - "+Rank.toString(info.get("rank")));
 								break;
 							}
 						}
@@ -266,7 +266,7 @@ public class SearchWindow extends MsfFrame {
 				}else{
 					if(info.get("name").toString().toLowerCase().contains(toSearch)
 							|| info.get("description").toString().toLowerCase().contains(toSearch))
-						mod.addElement(modInfo[1]);
+						mod.addElement(modInfo[1]+" - "+Rank.toString(info.get("rank")));
 				}
 			} catch (MsfException ex) {
 				JOptionPane.showMessageDialog(rootPane, ex);

@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 import javax.xml.parsers.DocumentBuilderFactory;

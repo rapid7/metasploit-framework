@@ -43,6 +43,7 @@ class Module < Base
 		res['license'] = m.license
 		res['filepath'] = m.file_path
 		res['version'] = m.version
+		res['rank'] = m.rank.to_i
 
 		res['references'] = []
 		m.references.each do |r|

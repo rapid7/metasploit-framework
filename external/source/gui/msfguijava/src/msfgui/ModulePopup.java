@@ -130,7 +130,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
 			//Basic info
 			setTitle(info.get("name") + " " + fullName);
-			titleLabel.setText("<html><h2>"+info.get("name")+ "</h2></html>");
+			titleLabel.setText("<html><h2>"+info.get("name")+ "</h2> <b>Rank:</b> "+Rank.toString(info.get("rank"))+"</html>");
 			Object references = info.get("references");
 			StringBuilder referenceString = new StringBuilder();
 			if(references != null){
