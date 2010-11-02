@@ -52,7 +52,7 @@ class Export
 
 		count = count_credentials("ssh_key",creds)
 		yield(:status, "start", "SSH Key dump") if block_given?
-		report_file.write "# SSH Private Keys (%d services, %d hashes)\n" % [creds["ssh_key"].size, count]
+		report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [creds["ssh_key"].size, count]
 		write_credentials("ssh_key",creds,report_file)
 
 		count = count_credentials("text",creds)
