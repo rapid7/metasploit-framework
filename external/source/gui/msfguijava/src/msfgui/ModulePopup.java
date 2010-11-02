@@ -363,7 +363,6 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			//Execute and get results
 			if(console){
 				Map res = (Map)rpcConn.execute("console.create");
-
 				ArrayList autoCommands = new ArrayList();
 				autoCommands.add("use "+moduleType+"/"+fullName);
 				//Add target if it is set and not zero if there is no default or non-default if there is a default
@@ -588,6 +587,11 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 
         consoleRunButton1.setText(resourceMap.getString("consoleRunButton1.text")); // NOI18N
         consoleRunButton1.setName("consoleRunButton1"); // NOI18N
+        consoleRunButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                consoleRunButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
@@ -675,12 +679,16 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 	}//GEN-LAST:event_exploitButtonActionPerformed
 
 	private void exploitButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exploitButton1ActionPerformed
-		exploitButtonActionPerformed(evt);
+		runModule(false);
 	}//GEN-LAST:event_exploitButton1ActionPerformed
 
 	private void consoleRunButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleRunButtonActionPerformed
 		runModule(true);
 	}//GEN-LAST:event_consoleRunButtonActionPerformed
+
+	private void consoleRunButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleRunButton1ActionPerformed
+		runModule(true);
+	}//GEN-LAST:event_consoleRunButton1ActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel advancedLabel;
