@@ -305,8 +305,7 @@ class Module
 	# Returns the disclosure date, if known.
 	#
 	def disclosure_date
-		date_str = module_info['DisclosureDate']
-		date_str ? Date.parse(date_str) : nil
+		date_str = Date.parse(module_info['DisclosureDate'].to_s) rescue nil
 	end
 
 	#
