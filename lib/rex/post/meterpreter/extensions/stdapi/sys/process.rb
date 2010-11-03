@@ -312,7 +312,7 @@ class Process < Rex::Post::Process
 	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_process_close')
 		request.add_tlv(TLV_TYPE_HANDLE, handle)
-		response = client.send_request(request)
+		response = client.send_request(request, nil)
 		handle = nil;
 		return true
 	end

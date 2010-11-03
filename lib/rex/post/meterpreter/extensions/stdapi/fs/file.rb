@@ -28,7 +28,7 @@ Separator = "\\"
 
 	include Rex::Post::File
 	
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 	

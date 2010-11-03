@@ -83,6 +83,12 @@ module PacketDispatcher
 	# Sends a packet and waits for a timeout for the given time interval.
 	#
 	def send_request(packet, t = self.response_timeout)
+		
+		if not t
+			send_packet(packet)
+			return nil
+		end
+	
 		response = send_packet_wait_response(packet, t)
 
 		if (response == nil)

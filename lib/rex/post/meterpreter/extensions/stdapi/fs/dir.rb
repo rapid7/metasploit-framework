@@ -18,7 +18,7 @@ module Fs
 ###
 class Dir < Rex::Post::Dir
 
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 

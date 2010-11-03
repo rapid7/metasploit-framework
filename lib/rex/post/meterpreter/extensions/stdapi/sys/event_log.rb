@@ -179,7 +179,7 @@ class EventLog
 	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_eventlog_close')
 		request.add_tlv(TLV_TYPE_EVENT_HANDLE, handle);
-		response = client.send_request(request)
+		response = client.send_request(request, nil)
 		return nil
 	end
 	

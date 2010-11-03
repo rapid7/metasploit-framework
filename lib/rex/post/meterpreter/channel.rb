@@ -278,7 +278,7 @@ class Channel
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, cid)
 		request.add_tlvs(addends)
 
-		client.send_request(request)
+		client.send_request(request, nil)
 
 		# Disassociate this channel instance
 		client.remove_channel(cid)

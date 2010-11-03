@@ -161,7 +161,7 @@ class Thread < Rex::Post::Thread
 	def self.close(client, handle)
 		request = Packet.create_request('stdapi_sys_process_thread_close')
 		request.add_tlv(TLV_TYPE_THREAD_HANDLE, handle)
-		client.send_request(request)
+		client.send_request(request, nil)
 		handle = nil
 		return true
 	end
