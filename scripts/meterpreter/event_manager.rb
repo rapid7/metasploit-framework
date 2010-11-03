@@ -17,7 +17,7 @@ meter_type = client.platform
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu" ],
 	"-i" => [ false, "Show information about Event Logs on the System and their configuration"],
-	"-l" => [ true,  "List a given Event Log (or ALL if no argument specified)"],
+	"-l" => [ true,  "List a given Event Log."],
 	"-c" => [ true,  "Clear a given Event Log (or ALL if no argument specified)"],
 	"-f" => [ true,  "Event ID to filter events on"],
 	"-s" => [ true,  "Save logs to local CSV file, optionally specify alternate folder in which to save logs"],
@@ -227,25 +227,21 @@ if local_log
 end
 
 # List the logs if the user desires
-if list_logs
-	if eventlog_name
-		list_logs(eventlog_name,filter,filter_string,logs,local_log,supress_print)
-	else
-		eventlog_list.each { |eventlog_name|
-			print_status eventlog_name + ": "
-			list_logs(eventlog_name,filter,filter_string,logs,local_log,supress_print)
-		}
-	end
+if list_logs and eventlog_name
+	list_logs(eventlog_name,filter,filter_string,logs,local_log,supress_print)
+else
+	print_error("You must specify and eventlog to query!")
 end
+
 
 # Finally, clear the specified logs if the user desires
 if clear_logs
 	if eventlog_name
 		clear_logs(eventlog_name)
 	else
-		eventlog_list.each { |eventlog_name|
+		eventlog_list.each do |eventlog_name|
 			print_status eventlog_name + ": "
 			clear_logs(eventlog_name)
-		}
+		end
 	end				
 end
