@@ -107,7 +107,7 @@ class RegistryKey
 	#
 	def self.close(client, hkey)
 		if hkey != nil
-			return client.sys.registry.close_key(hkey, nil)
+			return client.sys.registry.close_key(hkey)
 		end
 
 		return false	
