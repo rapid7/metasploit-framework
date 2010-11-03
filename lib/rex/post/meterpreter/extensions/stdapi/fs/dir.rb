@@ -192,7 +192,7 @@ class Dir < Rex::Post::Dir
 	# Downloads the contents of a remote directory a 
 	# local directory, optionally in a recursive fashion.
 	#
-	def Dir.download(dst, src, recursive = false, &stat)
+	def Dir.download(dst, src, recursive = false, force = true, &stat)
 		self.entries(src).each { |src_sub|
 			dst_item = dst + ::File::SEPARATOR + src_sub
 			src_item = src + File::SEPARATOR + src_sub
@@ -205,8 +205,17 @@ class Dir < Rex::Post::Dir
 
 			if (src_stat.file?)
 				stat.call('downloading', src_item, dst_item) if (stat)
-				client.fs.file.download(dst_item, src_item)
-				stat.call('downloaded', src_item, dst_item) if (stat)
+				begin 
+					client.fs.file.download(dst_item, src_item)
+					stat.call('downloaded', src_item, dst_item) if (stat)
+				rescue ::Rex::Post::Meterpreter::RequestError => e
+					if force
+						stat.call('failed', src_item, dst_item) if (stat)
+					else
+						raise e
+					end
+				end
+				
 			elsif (src_stat.directory?)
 				if (recursive == false)
 					next
@@ -218,7 +227,7 @@ class Dir < Rex::Post::Dir
 				end
 
 				stat.call('mirroring', src_item, dst_item) if (stat)
-				download(dst_item, src_item, recursive, &stat)
+				download(dst_item, src_item, recursive, force, &stat)
 				stat.call('mirrored', src_item, dst_item) if (stat)
 			end
 		}

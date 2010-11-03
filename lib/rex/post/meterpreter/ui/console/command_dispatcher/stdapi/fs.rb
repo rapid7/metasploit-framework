@@ -223,7 +223,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			stat = client.fs.file.stat(src)
 
 			if (stat.directory?)
-				client.fs.dir.download(dest, src, recursive) { |step, src, dst|
+				client.fs.dir.download(dest, src, recursive, true) { |step, src, dst|
 					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
 				}
 			elsif (stat.file?)
