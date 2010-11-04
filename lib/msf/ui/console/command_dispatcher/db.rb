@@ -69,6 +69,7 @@ class Db
 				"db_import_amap_log"   => "Import a THC-Amap scan results file (-o )",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
+				"db_import_ip360_xml"	=> "Import an IP360 scan result file (XML)",
 				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
 				"db_import_qualys_xml"  => "Import a Qualys scan results file (XML)",
 				"db_import_msfe_xml"    => "Import a Metasploit Express report (XML)",
@@ -1234,6 +1235,26 @@ class Db
 				return
 			end
 			framework.db.import_nessus_xml_file(:filename => args[0])
+		end
+
+		#
+		# Import IP360 XML files
+		#
+		def cmd_db_import_ip360_xml(*args)
+			return unless active?
+			if (not (args and args.length == 1))
+				print_status("Usage: db_import_ip360_xml <ip360.xml>")
+				return
+			end
+
+			warn_about_db_import(args[0])
+
+			if (not File.readable?(args[0]))
+				print_status("Could not read the IP360 Scan file provided")
+				return
+			end
+
+			framework.db.import_ip360_xml_file(:filename => args[0])
 		end
 
 		#

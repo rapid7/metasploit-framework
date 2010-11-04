@@ -3,6 +3,8 @@ require 'rex/parser/nexpose_xml'
 require 'rex/parser/retina_xml'
 require 'rex/parser/netsparker_xml'
 require 'rex/parser/nessus_xml'
+require 'rex/parser/ip360_xml'
+require 'rex/parser/ip360_aspl_xml'
 require 'rex/socket'
 require 'zip'
 require 'uri'
@@ -1883,8 +1885,11 @@ class DBManager
 		@import_filedata            = {}
 		@import_filedata[:filename] = filename
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		
 		if data[0,4] == "PK\x03\x04"
 			data = Zip::ZipFile.open(filename)
 		end
@@ -1909,7 +1914,7 @@ class DBManager
 		end
 		ftype = import_filetype_detect(data)
 		yield(:filetype, @import_filedata[:type]) if block
-		
+
 		self.send "import_#{ftype}".to_sym, args, &block
 	end
 
@@ -1976,6 +1981,9 @@ class DBManager
 				when /netsparker/
 					@import_filedata[:type] = "NetSparker XML"
 					return :netsparker_xml			
+				when /audits/
+					@import_filedata[:type] = "IP360 XML v3"
+					return :ip360_xml_v3
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -2131,8 +2139,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_nexpose_simplexml(args.merge(:data => data))
 	end
 
@@ -2141,8 +2151,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_msf_xml(args.merge(:data => data))
 	end
 
@@ -2707,8 +2719,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_nexpose_rawxml(args.merge(:data => data))
 	end
 
@@ -2880,8 +2894,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_retina_xml(args.merge(:data => data))
 	end
 
@@ -2962,8 +2978,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_netsparker_xml(args.merge(:data => data))
 	end
 
@@ -3345,8 +3363,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_nmap_xml(args.merge(:data => data))
 	end
 
@@ -3499,8 +3519,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_nessus_nbe(args.merge(:data => data))
 	end
 
@@ -3583,6 +3605,20 @@ class DBManager
 	end
 
 	#
+	# Import IP360 XML v3 output
+	#
+	def import_ip360_xml_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		import_ip360_xml_v3(args.merge(:data => data))
+	end
+
+	#
 	# Import Nessus XML v1 and v2 output
 	#
 	# Old versions of openvas exported this as well
@@ -3591,8 +3627,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 
 		if data.index("NessusClientData_v2")
 			import_nessus_xml_v2(args.merge(:data => data))
@@ -3758,14 +3796,135 @@ class DBManager
 	end
 
 	#
+	# Import IP360's xml output
+	#
+	def import_ip360_xml_v3(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		
+		# @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } } 
+		# 'oses' => {'name' } }
+
+		aspl_path = File.join(Msf::Config.data_directory, "data", "ncircle", "ip360.aspl")
+		
+		if not ::File.exist?(aspl_path)
+			raise DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and save it as " + aspl_path)
+		end
+		
+		if not ::File.readable?(aspl_path)
+			raise DBImportError.new("Could not read the IP360 ASPL XML file provided at " + aspl_path)
+		end
+
+		# parse nCircle ASPL file
+		aspl = ""
+		::File.open(aspl_path, "rb") do |f|
+			aspl = f.read(f.stat.size)
+		end
+	
+		@asplhash = nil
+		parser = Rex::Parser::IP360ASPLXMLStreamParser.new
+		parser.on_found_aspl = Proc.new { |asplh| 
+			@asplhash = asplh
+		}
+		REXML::Document.parse_stream(aspl, parser)
+
+		#@host = {'hname' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil, 'hid' => nil,
+                #         'vulns' => ['vuln' => {'vulnid' => nil, 'port' => nil, 'proto' => nil	} ],
+                #         'apps' => ['app' => {'appid' => nil, 'svcid' => nil, 'port' => nil, 'proto' => nil } ],
+                #         'shares' => []
+                #        }
+
+		# nCircle has some quotes escaped which causes the parser to break
+		# we don't need these lines so just replace \" with "
+		data.gsub!(/\\"/,'"')
+
+		# parse nCircle Scan Output
+		parser = Rex::Parser::IP360XMLStreamParser.new
+		parser.on_found_host = Proc.new { |host|
+
+			addr = host['addr'] || host['hname']
+			
+			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			
+			if bl.include? addr
+				next
+			else
+				yield(:address,addr) if block
+			end
+	
+			os = host['os']
+			yield(:os, os) if block
+			if os
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.os.ip360_fingerprint',
+					:data => {
+						:os => @asplhash['oses'][os].to_s.strip
+					}
+				)
+			end
+	
+			hname = host['hname']
+			
+			if hname
+				report_host(
+					:workspace => wspace,
+					:host => addr,
+					:name => hname.to_s.strip
+				)
+			end
+	
+			mac = host['mac']
+			
+			if mac
+				report_host(
+					:workspace => wspace,
+					:host => addr,
+					:mac  => mac.to_s.strip.upcase
+				)
+			end
+
+			host['apps'].each do |item|
+				port = item['port'].to_s
+				proto = item['proto'].to_s
+
+				handle_ip360_v3_svc(wspace, addr, port, proto, hname)
+			end
+
+			
+			host['vulns'].each do |item|
+				vulnid = item['vulnid'].to_s
+				port = item['port'].to_s
+				proto = item['proto'] || "tcp"
+				vulnname = @asplhash['vulns']['name'][vulnid]
+				cves = @asplhash['vulns']['cve'][vulnid]
+				bids = @asplhash['vulns']['bid'][vulnid]
+				
+				yield(:port, port) if block
+				
+				handle_ip360_v3_vuln(wspace, addr, port, proto, hname, vulnid, vulnname, cves, bids)
+	
+			end
+
+			yield(:end, hname) if block
+		}
+		
+		REXML::Document.parse_stream(data, parser)
+	end
+
+	#
 	# Import Qualys' xml output
 	#
 	def import_qualys_xml_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_qualys_xml(args.merge(:data => data))
 	end
 
@@ -3852,8 +4011,10 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
 		import_ip_list(args.merge(:data => data))
 	end
 
@@ -3876,8 +4037,11 @@ class DBManager
 	def import_amap_log_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
-		f = File.open(filename, 'rb')
-		data = f.read(f.stat.size)
+		data = ""
+		::File.open(filename, 'rb') do |f|
+			data = f.read(f.stat.size)
+		end
+		
 		case import_filetype_detect(data)
 		when :amap_log
 			import_amap_log(args.merge(:data => data))
@@ -4101,6 +4265,65 @@ protected
 		report_vuln(vuln)
 	end
 
+	#
+	# IP360 v3 vuln  
+	#
+	def handle_ip360_v3_svc(wspace,addr,port,proto,hname)
+
+		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
+
+		info = { :workspace => wspace, :host => addr, :port => port, :proto => proto }
+		if hname != "unknown" and hname[-1,1] != "?"
+			info[:name] = hname
+		end
+
+		if port.to_i != 0
+			report_service(info)
+		end
+	end  #handle_ip360_v3_svc
+
+	#
+	# IP360 v3 vuln  
+	#
+	def handle_ip360_v3_vuln(wspace,addr,port,proto,hname,vulnid,vulnname,cves,bids)
+
+		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
+
+		info = { :workspace => wspace, :host => addr, :port => port, :proto => proto }
+		if hname != "unknown" and hname[-1,1] != "?"
+			info[:name] = hname
+		end
+
+		if port.to_i != 0
+			report_service(info)
+		end
+
+		refs = []
+
+		cves.split(/,/).each do |cve|
+			refs.push(cve.to_s)
+		end if cves
+
+		bids.split(/,/).each do |bid|
+			refs.push('BID-' + bid.to_s)
+		end if bids
+
+		description = nil   # not working yet
+		vuln = {
+			:workspace => wspace,
+			:host => addr,
+			:name => vulnname,
+			:info => description ? description : "",
+			:refs => refs
+		}
+
+		if port.to_i != 0
+			vuln[:port]  = port
+			vuln[:proto] = proto
+		end
+
+		report_vuln(vuln)
+	end  #handle_ip360_v3_vuln
 
 	#
 	# Qualys report parsing/handling
