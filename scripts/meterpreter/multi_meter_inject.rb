@@ -142,7 +142,6 @@ if multi_ip
 		end
 	end
 else
-	payload = create_payload(payload_type,lhost,lport)
-	inject(pid,payload)
+	print_error("You must provide at least one IP!")
 end
 
