@@ -146,7 +146,7 @@ class Session < Base
 
 	def meterpreter_tabs(token,sid, line)
 		s = _valid_session(token,sid,"meterpreter")
-		{ "tabs" => s.tab_complete(line) }
+		{ "tabs" => s.console.tab_complete(line) }
 	end
 
 	def meterpreter_script(token, sid, data)
