@@ -90,6 +90,9 @@ class WebConsole
 	end
 
 	def tab_complete(cmd)
+		if(self.console.active_session)
+			return self.console.active_session.console.tab_complete(cmd)
+		end
 		self.console.tab_complete(cmd)
 	end
 
