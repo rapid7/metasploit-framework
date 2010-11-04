@@ -3806,7 +3806,7 @@ class DBManager
 		# @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } } 
 		# 'oses' => {'name' } }
 
-		aspl_path = File.join(Msf::Config.data_directory, "data", "ncircle", "ip360.aspl")
+		aspl_path = File.join(Msf::Config.data_directory, "ncircle", "ip360.aspl")
 		
 		if not ::File.exist?(aspl_path)
 			raise DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and save it as " + aspl_path)
