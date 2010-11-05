@@ -21,14 +21,14 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
-	def initialize
-		super(
+	def initialize(info = {})
+		super(update_info(info,
 			'Name'			=> 'Metasploit Web Crawler',
 			'Version'           => '$Revision: 9929 $',
 			'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
 			'Author'			=> 'et',
-			'License'			=> MSF_LICENSE,
-		)
+			'License'			=> MSF_LICENSE
+		))
 
 		register_options([
 			OptString.new('PATH',	[true,	"Starting crawling path", '/']),
