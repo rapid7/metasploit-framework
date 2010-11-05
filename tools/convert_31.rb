@@ -47,6 +47,6 @@ end
 outp.rstrip!
 outp << "\n"
 
-fd = File.open(path, "w")
+fd = File.open(path, "wb")
 fd.write(outp)
 fd.close

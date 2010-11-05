@@ -15,10 +15,10 @@
 # $Revision$
 #
 
-infile = ARGV[0] 
+infile = ARGV[0]
 unless(infile && File.readable?(infile))
 	puts "Usage: #{$0} /path/to/module.rb"
-	exit(1) 
+	exit(1)
 end
 
 verbose = false
@@ -55,7 +55,7 @@ mod.each_line do |line|
 	next unless in_opts
 	if line.match regex[:is_opt]
 		# Assumes only one!
-		declared_datastores[$2] ||= $1 
+		declared_datastores[$2] ||= $1
 	end
 end
 
@@ -81,7 +81,7 @@ end
 class Fakemod < $class
 	$mixins.each {|m| include m}
 end
-fakemod = Fakemod.new 
+fakemod = Fakemod.new
 inhereted_datastores = fakemod.options.keys
 
 undeclared_datastores = referenced_datastores - (declared_datastores.keys + inhereted_datastores)
@@ -89,7 +89,7 @@ undeclared_datastores = referenced_datastores - (declared_datastores.keys + inhe
 # It's common to not use some inhereted datastores, don't bother talking about them
 unused_datastores = declared_datastores.keys - referenced_datastores
 
-if verbose 
+if verbose
 	puts "[+] --- Referenced datastore keys for #{infile}"
 	referenced_datastores.uniq.sort.each {|ds| puts ds}
 	puts "[+] --- Declared datastore keys for #{infile}"

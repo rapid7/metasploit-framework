@@ -59,7 +59,7 @@ insert_statement = database.prepare("INSERT INTO requests(host,port,ssl,meth,pat
 target_ips = {}
 
 # Try to open the conversationlog file
-File.open("#{ws_directory+File::SEPARATOR}conversationlog", "r") do |log|
+File.open("#{ws_directory+File::SEPARATOR}conversationlog", "rb") do |log|
 
 	# regulare expressions to extract the stuff that we really need
 	# i know that the url stuff can be handeled in one request but
@@ -175,7 +175,3 @@ File.open("#{ws_directory+File::SEPARATOR}conversationlog", "r") do |log|
 		end
 	end
 end
-
-
-
-

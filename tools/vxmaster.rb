@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+# $Id$
+
 #
 # This script calculates all possible password hashes for the vxworks platform.
 # The generated list can be used to bruteforce authentication to any service

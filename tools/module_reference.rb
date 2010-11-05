@@ -14,7 +14,7 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
-Indent = '    ' 
+Indent = '    '
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create('DisableDatabase' => true)

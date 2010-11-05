@@ -1,3 +1,4 @@
+# $Id$
 #
 # This script can be used to calculate hash values for VxWorks passwords.
 #

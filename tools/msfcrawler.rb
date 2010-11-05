@@ -204,7 +204,7 @@ class HttpCrawler
 						#puts "URI LIMIT Reached: #{$maxurilimit} for uri #{hashreq['uri']}"
 						ul = true
 					end
- 				else
+				else
 					@UriLimits[hashreq['uri']] = 0
 				end
 
@@ -449,17 +449,17 @@ class HttpCrawler
 
 	# Taken from http://www.ruby-forum.com/topic/140101 by  Rob Biedenharn
 	def canonicalize(uri)
-   		u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
-   		u.normalize!
-   		newpath = u.path
-   		while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
-              		$1 == '..' ? match : ''
-            	} do end
-   		newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
-   		u.path = newpath
+		u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
+		u.normalize!
+		newpath = u.path
+		while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
+			$1 == '..' ? match : ''
+		} do end
+		newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
+		u.path = newpath
 		# Ugly fix
 		u.path = u.path.gsub("\/..\/","\/")
-   		u.to_s
+		u.to_s
 	end
 
 
@@ -535,24 +535,24 @@ end
 
 turl = nil
 $args.parse(ARGV) { |opt, idx, val|
-        case opt
-		when "-d"
-			$dbs = true
- 		when "-t"
-			$crun = true
-			turl = val
-		when "-u"
-			$useproxy = true
-		when "-v"
-			$verbose = true
-		when "-x"
-			$proxyhost = val
-		when "-p"
-			$proxyposrt = val
-        when "-h"
-			puts("\n" + "    Usage: #{$0} <options>\n" + $args.usage)
-			exit
-        end
+	case opt
+	when "-d"
+		$dbs = true
+	when "-t"
+		$crun = true
+		turl = val
+	when "-u"
+		$useproxy = true
+	when "-v"
+		$verbose = true
+	when "-x"
+		$proxyhost = val
+	when "-p"
+		$proxyposrt = val
+	when "-h"
+		puts("\n" + "    Usage: #{$0} <options>\n" + $args.usage)
+		exit
+	end
 }
 
 if $crun
