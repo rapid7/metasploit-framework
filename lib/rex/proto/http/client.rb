@@ -363,7 +363,7 @@ class Client
 		          )
 				begin
 					buff = conn.get_once(-1, 1)
-					rv   = resp.parse( buff || '')
+					rv   = resp.parse( buff || '' )
 
 				##########################################################################
 				# XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
@@ -390,7 +390,7 @@ class Client
 					rblob = rbody.to_s + rbufq.to_s
 					tries = 0
 					begin
-						# XXX This doesn't deal with chunked encoding or "Content-type: text/html; charset=..."
+						# XXX: This doesn't deal with chunked encoding or "Content-type: text/html; charset=..."
 						while tries < 1000 and resp.headers["Content-Type"]== "text/html" and rblob !~ /<\/html>/i
 							buff = conn.get_once(-1, 0.05)
 							break if not buff
@@ -405,50 +405,20 @@ class Client
 				end
 			end
 		end
-		resp
-	end
 
-	#
-	# Read a response from the server (starting with existing data)
-	#
-	def reread_response(resp, t = -1)
+		return resp if not resp
 
-		resp.max_data = config['read_max_data']
-		resp.reset_except_queue
-		resp.parse('')
-
-		# Wait at most t seconds for the full response to be read in.  We only
-		# do this if t was specified as a negative value indicating an infinite
-		# wait cycle.  If t were specified as nil it would indicate that no
-		# response parsing is required.
-
-		return resp if not t
-
-		Timeout.timeout((t < 0) ? nil : t) do
-
-			rv = resp.state
-
-			while (
-			         rv != Packet::ParseCode::Completed and
-			         rv != Packet::ParseCode::Error
-		          )
-				begin
-					buff = conn.get
-					rv   = resp.parse( buff || '')
-
-				# Handle unexpected disconnects
-				rescue ::Errno::EPIPE, ::EOFError, ::IOError
-					case resp.state
-					when Packet::ParseState::ProcessingHeader
-						resp = nil
-					when Packet::ParseState::ProcessingBody
-						# truncated request, good enough
-						resp.error = :truncated
-					end
-					break
-				end
-			end
+		# As a last minute hack, we check to see if we're dealing with a 100 Continue here.
+		if resp.proto == '1.1' and resp.code == 100
+			# If so, our real response becaome the body, so we re-parse it.
+			body = resp.body
+			resp = Response.new
+			resp.max_data = config['read_max_data']
+			rv = resp.parse(body)
+			# XXX: At some point, this may benefit from processing post-completion code
+			# as seen above.
 		end
+
 		resp
 	end
 
