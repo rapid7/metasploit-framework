@@ -255,9 +255,6 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			r = nclient.request_raw(reqopts)
 			resp = nclient.send_recv(r, datastore['ReadTimeout'])
-			while(resp and resp.code == 100)
-				resp = nclient.reread_response(resp, datastore['ReadTimeout'])
-			end
 
 			if resp
 				#
