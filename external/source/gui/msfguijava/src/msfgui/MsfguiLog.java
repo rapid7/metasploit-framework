@@ -75,6 +75,8 @@ public class MsfguiLog {
 			if (methodName.startsWith("session.")) {
 				if (methodName.endsWith("_write")) 
 					logConsole(params[0].toString(), new String(Base64.decode(params[1].toString())), true);
+				else if (methodName.endsWith("_run_single"))
+					logConsole(params[0].toString(), params[1].toString(), true);
 				else if (methodName.endsWith("_script"))
 					logConsole(params[0].toString(), "run " + params[1].toString(), true);
 				else if (methodName.endsWith("_upgrade"))
