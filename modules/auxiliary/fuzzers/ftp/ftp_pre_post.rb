@@ -39,6 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
 				OptString.new('USER', [ false, "Username",'anonymous']),
 				OptString.new('PASS', [ false, "Password",'anonymous@test.com']),
+				OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
 				OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true])
 			], self.class)
 		deregister_options('RHOST')
@@ -81,6 +82,12 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("[Phase #{phase_num}] #{phase_name} - #{Time.now.localtime}")
 		ecount = 1
 		@evilchars.each do |evilstr|
+
+			if datastore['FASTFUZZ']
+				evilstr = "Cyclic"
+				@emax = 1
+			end
+
 			if (@stopprocess == false)
 				count = datastore['STARTSIZE']
 				print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
@@ -88,8 +95,12 @@ class Metasploit3 < Msf::Auxiliary
 				while count <= datastore['ENDSIZE']
 					begin
 						connect
-						print_status("  -> Fuzzing size set to #{count}")
-						evil = evilstr * count
+						if datastore['FASTFUZZ']
+							evil = Rex::Text.pattern_create(count)
+						else
+							evil = evilstr * count
+						end
+						print_status("  -> Fuzzing size set to #{count} (#{prepend}#{evilstr})")
 						initial_cmds.each do |cmd|
 							send_pkt(cmd, true)
 						end
@@ -116,6 +127,10 @@ class Metasploit3 < Msf::Auxiliary
 								select(nil,nil,nil,3)  #wait 3 seconds
 							end
 						end
+						if @error_cnt >= @nr_errors
+							count += datastore['STEPSIZE']
+							@error_cnt = 0
+						end
 					end
 				end
 			end
@@ -130,6 +145,10 @@ class Metasploit3 < Msf::Auxiliary
 		@nr_errors = datastore['STOPAFTER']
 		@error_cnt = 0
 		@stopprocess = false
+
+		if datastore['FASTFUZZ']
+			@evilchars = ['']
+		end
 
 		print_status("Connecting to host " + ip + " on port " + datastore['RPORT'])
 
@@ -182,9 +201,16 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("  -> Fuzzing size set to #{count}")
 						begin
 							@evilchars.each do |evilstr|
-								print_status(" Character : #{evilstr} (#{ecount}/#{@emax})")
+								if datastore['FASTFUZZ']
+									evilstr = "Cyclic"
+									evil = Rex::Text.pattern_create(count)
+									@emax = 1
+									ecount = 1
+								else
+									evil = evilstr * count
+								end
+								print_status(" Command : #{cmd}, Character : #{evilstr} (#{ecount}/#{@emax})")
 								ecount += 1
-								evil = evilstr * count
 								pkt = cmd + " " + evil + "\r\n"
 								send_pkt(pkt, true)
 								select(nil, nil, nil, datastore['DELAY'])
@@ -204,6 +230,9 @@ class Metasploit3 < Msf::Auxiliary
 									print_status("Exception triggered, need #{@nr_errors - @error_cnt} more exception(s) before interrupting process")
 									select(nil,nil,nil,3)  #wait 3 seconds
 								end
+							end
+							if @error_cnt >= @nr_errors
+								@error_cnt = 0
 							end
 						end
 						count += datastore['STEPSIZE']
