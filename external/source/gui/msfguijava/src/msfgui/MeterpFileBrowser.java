@@ -117,9 +117,12 @@ public class MeterpFileBrowser extends MsfFrame {
 	}
 
 	/** Calls meterpreter_write with the session ID and Base64 encoded text. */
-	private Object executeCommand(String text) throws MsfException{
-		return rpcConn.execute("session.meterpreter_write", session.get("id"),
-			Base64.encode(text.getBytes()));
+	private void executeCommand(String cmd){
+		try{
+			rpcConn.execute("session.meterpreter_run_single", session.get("id"), cmd);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, ex);
+		}
 	}
 	/** Handles click events, like popup menu and double-click navigation */
 	private void setupPopupMenu(final RpcConnection rpcConn, final Map session) {
@@ -131,11 +134,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					return;
 				String clickedFile = mainTable.getValueAt(indx, 0).toString();
 				if (files.get(clickedFile).equals("dir")) {
-					try {
-						executeCommand("cd \"" + clickedFile + "\"\n");
-					} catch (Exception ex) {
-						JOptionPane.showMessageDialog(null, ex);
-					}
+					executeCommand("cd \"" + clickedFile + "\"");
 					getFiles();
 				} else {
 					download();
@@ -158,14 +157,10 @@ public class MeterpFileBrowser extends MsfFrame {
 		if (indx == -1)
 			return;
 		String clickedFile = mainTable.getValueAt(indx, 0).toString();
-		try {
-			if (files.get(clickedFile).equals("dir")) 
-				executeCommand("rmdir \"" + clickedFile + "\"\n");
-			else
-				executeCommand("rm \"" + clickedFile + "\"\n");
-		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		if (files.get(clickedFile).equals("dir"))
+			executeCommand("rmdir \"" + clickedFile + "\"");
+		else
+			executeCommand("rm \"" + clickedFile + "\"");
 		getFiles();
 	}
 
@@ -173,11 +168,7 @@ public class MeterpFileBrowser extends MsfFrame {
 	protected void getFiles() {
 		while(model.getRowCount() > 0)
 			model.removeRow(0);
-		try {
-			executeCommand("ls\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("ls");
 		if(readTimer != null && readTimer.isRunning())
 			return;
 		readTimer = new Timer(300, new ActionListener() {
@@ -404,11 +395,7 @@ public class MeterpFileBrowser extends MsfFrame {
 	private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
 		lock.lock();
 		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
-		try {
-			executeCommand("cd \"C:\\\\\"\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("cd \"C:\\\\\"");
 		getFiles();
 	}//GEN-LAST:event_formWindowOpened
 
@@ -421,12 +408,8 @@ public class MeterpFileBrowser extends MsfFrame {
 		fchooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if(fchooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
-		try {
-			executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().getParent()) + "\"\n");
-			executeCommand("upload \""+fchooser.getSelectedFile().getName() + "\"\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().getParent()) + "\"");
+		executeCommand("upload \""+fchooser.getSelectedFile().getName() + "\"");
 		getFiles();
 	}//GEN-LAST:event_uploadButtonActionPerformed
 
@@ -438,11 +421,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		String newDir = JOptionPane.showInputDialog(this,"New directory name","Choose Directory Name",JOptionPane.QUESTION_MESSAGE);
 		if(newDir == null)
 			return;
-		try {
-			executeCommand("mkdir \""+newDir + "\"\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("mkdir \""+newDir + "\"");
 		getFiles();
 	}//GEN-LAST:event_dirButtonActionPerformed
 
@@ -451,11 +430,7 @@ public class MeterpFileBrowser extends MsfFrame {
 	}//GEN-LAST:event_refreshButtonActionPerformed
 
 	private void upButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_upButtonActionPerformed
-		try {
-			executeCommand("cd ..\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("cd ..");
 		getFiles();
 	}//GEN-LAST:event_upButtonActionPerformed
 
@@ -496,11 +471,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		fchooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		if(fchooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
-		try {
-			executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().toString()) + "\"\n");
-			executeCommand("download \""+clickedFile + "\"\n");
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().toString()) + "\"");
+		executeCommand("download \""+clickedFile + "\"");
 	}
 }

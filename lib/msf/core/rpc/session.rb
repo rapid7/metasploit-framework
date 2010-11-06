@@ -149,15 +149,20 @@ class Session < Base
 		{ "tabs" => s.console.tab_complete(line) }
 	end
 
-	def meterpreter_script(token, sid, data)
+	# runs a meterpreter command even if interacting with a shell or other channel
+	def meterpreter_run_single(token, sid, data)
 		s = _valid_session(token,sid,"meterpreter")
 
 		if not s.user_output.respond_to? :dump_buffer
 			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
 		end
 
-		Thread.new(s) { |sess| sess.console.run_single("run #{data}") }
+		Thread.new(s) { |sess| sess.console.run_single(data) }
 		{}
+	end
+
+	def meterpreter_script(token, sid, data)
+		meterpreter_run_single(token, sid, "run #{data}")
 	end
 
 protected

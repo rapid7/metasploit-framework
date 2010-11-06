@@ -79,49 +79,48 @@ public class InteractWindow extends MsfFrame {
 		this.rpcConn = rpcConn;
 		this.session = session;
 		sid = session.get("id");
-		if(type.equals("console")){ //console stuff
+		if(type.equals("console")) //console stuff
 			cmdPrefix = "console.";
-			inputField.setFocusTraversalKeysEnabled(false);
-			inputField.addKeyListener(new KeyListener(){
-				public void keyTyped(KeyEvent ke) {
-					if(ke.getKeyChar() == '\t'){
-						try{
-							Map res = (Map)rpcConn.execute("console.tabs", sid,inputField.getText());
-							List tabs = (List)res.get("tabs");
-							//one option: use it
-							if(tabs.size() == 1){
-								inputField.setText(tabs.get(0).toString());
-							//more options: display, and use common prefix
-							} else if (tabs.size() > 1){
-								String prefix = tabs.get(0).toString();
-								for(Object o : tabs){
-									String s = o.toString();
-									int len = Math.min(s.length(), prefix.length());
-									for(int i = 0; i < len; i++){
-										if(s.charAt(i) != prefix.charAt(i)){
-											prefix = prefix.substring(0,i);
-											break;
-										}
-										if(s.length()< prefix.length())
-											prefix = s;
-									}
-									outputArea.append("\n"+o.toString());
-								}
-								outputArea.append("\n");
-								inputField.setText(prefix);
-							}
-						}catch(MsfException mex){
-						}// do nothing on error
-					}
-				}
-				public void keyPressed(KeyEvent ke) {
-				}
-				public void keyReleased(KeyEvent ke) {
-				}
-			});
-		} else{
+		else
 			cmdPrefix = "session." + type + "_";
-		}
+		inputField.setFocusTraversalKeysEnabled(false);
+		inputField.addKeyListener(new KeyListener(){
+			public void keyTyped(KeyEvent ke) {
+				if(ke.getKeyChar() == '\t'){
+					try{
+						Map res = (Map)rpcConn.execute(cmdPrefix+"tabs", sid,inputField.getText());
+						List tabs = (List)res.get("tabs");
+						//one option: use it
+						if(tabs.size() == 1){
+							inputField.setText(tabs.get(0).toString());
+						//more options: display, and use common prefix
+						} else if (tabs.size() > 1){
+							String prefix = tabs.get(0).toString();
+							for(Object o : tabs){
+								String s = o.toString();
+								int len = Math.min(s.length(), prefix.length());
+								for(int i = 0; i < len; i++){
+									if(s.charAt(i) != prefix.charAt(i)){
+										prefix = prefix.substring(0,i);
+										break;
+									}
+									if(s.length()< prefix.length())
+										prefix = s;
+								}
+								outputArea.append("\n"+o.toString());
+							}
+							outputArea.append("\n");
+							inputField.setText(prefix);
+						}
+					}catch(MsfException mex){
+					}// do nothing on error
+				}
+			}
+			public void keyPressed(KeyEvent ke) {
+			}
+			public void keyReleased(KeyEvent ke) {
+			}
+		});
 		timerCommand = new StringBuffer(""+PAUSE);
 		prompt = ">>>";
 

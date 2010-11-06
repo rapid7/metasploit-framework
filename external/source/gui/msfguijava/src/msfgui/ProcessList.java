@@ -39,13 +39,8 @@ public class ProcessList extends MsfFrame {
 
 	/** Lists the processes that are running */
 	protected void listProcs() throws HeadlessException {
-		try {
-			rpcConn.execute("session.meterpreter_write", session.get("id"), Base64.encode(("ps\n").getBytes()));
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-			if (ex.getMessage().equals("unknown session"))
-				return;
-		}
+		if (runCommand("ps"))
+			return;
 		readTimer = new Timer(300, new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
@@ -83,6 +78,18 @@ public class ProcessList extends MsfFrame {
 			}
 		});
 		readTimer.start();
+	}
+
+	//Runs command, returning whether error was found
+	private boolean runCommand(String cmd) throws HeadlessException {
+		try {
+			rpcConn.execute("session.meterpreter_run_single", session.get("id"),cmd);
+		} catch (Exception ex) {
+			JOptionPane.showMessageDialog(this, ex);
+			if (ex.getMessage().equals("unknown session"))
+				return true;
+		}
+		return false;
 	}
 
 	/** This method is called from within the constructor to
@@ -198,22 +205,12 @@ public class ProcessList extends MsfFrame {
 	}//GEN-LAST:event_formWindowOpened
 
 	private void migrateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_migrateButtonActionPerformed
-		try {
-			rpcConn.execute("session.meterpreter_write", session.get("id"),
-					Base64.encode(("migrate "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes()));
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		runCommand("migrate "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0));
 		listProcs();
 	}//GEN-LAST:event_migrateButtonActionPerformed
 
 	private void killButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_killButtonActionPerformed
-		try {
-			rpcConn.execute("session.meterpreter_write", session.get("id"),
-					Base64.encode(("kill "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0) + "\n").getBytes()));
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(null, ex);
-		}
+		runCommand("kill "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0));
 		listProcs();
 	}//GEN-LAST:event_killButtonActionPerformed
 
