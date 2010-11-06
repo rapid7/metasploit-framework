@@ -1,5 +1,6 @@
 This snapshot of Anemone has been modified for use within the Metasploit Framework
 
  * Extract links from additional elements in page.links()
+ * Insert a callback to use a custom Net::HTTP factory
  * Insert a callback to tweak HTTP requests before they are sent
  * Addition of core.shutdown() to stop all background threads
