@@ -17,6 +17,7 @@ class Workspace < ActiveRecord::Base
 	has_many :clients,  :through => :hosts
 	has_many :vulns,    :through => :hosts
 	has_many :creds,    :dependent => :destroy
+	has_many :imported_creds,  :dependent => :destroy
 	has_many :exploited_hosts, :through => :hosts
 
 

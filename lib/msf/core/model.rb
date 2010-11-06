@@ -33,3 +33,5 @@ require 'msf/core/model/web_page'
 require 'msf/core/model/web_form'
 require 'msf/core/model/web_vuln'
 
+require 'msf/core/model/imported_cred'
+
