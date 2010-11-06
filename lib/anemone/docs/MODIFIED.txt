@@ -1,0 +1,3 @@
+This snapshot of Anemone has been modified for use within the Metasploit Framework
+
+ * None yet, this is the initial import

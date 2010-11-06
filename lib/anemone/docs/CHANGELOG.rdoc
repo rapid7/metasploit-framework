@@ -1,0 +1,75 @@
+== 0.5.0 / 2010-09-01
+
+* Major enhancements
+
+  * Added page storage engines for MongoDB and Redis
+
+* Minor enhancements
+
+  * Use xpath for link parsing instead of CSS (faster) (Marc Seeger)
+  * Added skip_query_strings option to skip links with query strings (Joost Baaij)
+
+* Bug fixes
+
+  * Only consider status code 300..307 a redirect (Marc Seeger)
+  * Canonicalize redirect links (Marc Seeger)
+
+== 0.4.0 / 2010-04-08
+
+* Major enchancements
+
+  * Cookies can be accepted and sent with each HTTP request.
+
+== 0.3.2 / 2010-02-04
+
+* Bug fixes
+
+  * Fixed issue that allowed following redirects off the original domain
+
+== 0.3.1 / 2010-01-22
+
+* Minor enhancements
+
+  * Added an attr_accessor to Page for the HTTP response body
+
+* Bug fixes
+
+  * Fixed incorrect method calls in CLI scripts
+
+== 0.3.0 / 2009-12-15
+
+* Major enchancements
+
+  * Option for persistent storage of pages during crawl with TokyoCabinet or PStore
+
+* Minor enhancements
+
+  * Options can be set via methods on the Core object in the crawl block
+
+== 0.2.3 / 2009-11-01
+
+* Minor enhancements
+
+  * Options are now applied per-crawl, rather than module-wide.
+
+* Bug fixes
+
+  * Fixed a bug which caused deadlock if an exception occurred when crawling the last page in the queue.
+
+== 0.2.2 / 2009-10-26
+
+* Minor enhancements
+
+  * When the :verbose option is set to true, exception backtraces are printed to aid debugging.
+
+== 0.2.1 / 2009-10-24
+
+* Major enhancements
+
+  * Added HTTPS support.
+  * CLI program 'anemone', which is a frontend for several tasks.
+
+* Minor enhancements
+
+  * HTTP request response time recorded in Page.
+  * Use of persistent HTTP connections.
