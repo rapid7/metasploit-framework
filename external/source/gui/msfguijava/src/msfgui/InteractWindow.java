@@ -151,9 +151,9 @@ public class InteractWindow extends MsfFrame {
 							outputArea.append(new String(decodedBytes));
 							if(decodedBytes[decodedBytes.length-1] != '\n')
 								outputArea.append("\n");//cause windows is just like that.
-							publish("data");
-							publish(received);
 						}
+						publish("data");
+						publish(received);
 					} catch (MsfException ex) {
 						if(!ex.getMessage().equals("unknown session"))
 							JOptionPane.showMessageDialog(null, ex);
