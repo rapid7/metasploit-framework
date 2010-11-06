@@ -1,3 +1,5 @@
 This snapshot of Anemone has been modified for use within the Metasploit Framework
 
- * None yet, this is the initial import
+ * Extract links from additional elements in page.links()
+ * Insert a callback to tweak HTTP requests before they are sent
+ * Addition of core.shutdown() to stop all background threads

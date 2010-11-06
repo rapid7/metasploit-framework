@@ -290,5 +290,13 @@ module Anemone
       @skip_link_patterns.any? { |pattern| link.path =~ pattern }
     end
 
+    #
+    # Kills all active threads
+    #
+	def shutdown
+      @tentacles.each {|t| t.kill rescue nil }
+      @pages = nil
+	end
+	
   end
 end

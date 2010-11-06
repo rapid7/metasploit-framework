@@ -100,6 +100,9 @@ module Anemone
     #
     # Get an HTTPResponse for *url*, sending the appropriate User-Agent string
     #
+    # MODIFIED: Change get_response to allow fine tuning of the HTTP request before
+    #           it is sent to the remote system.
+    #
     def get_response(url, referer = nil)
       full_path = url.query.nil? ? url.path : "#{url.path}?#{url.query}"
 
@@ -111,7 +114,12 @@ module Anemone
       retries = 0
       begin
         start = Time.now()
-        response = connection(url).get(full_path, opts)
+        response = nil
+        if @opts[:request_factory]
+          response = @opts[:request_factory].call(connection(url), full_path, opts)
+        else
+          response = connection(url).get(full_path, opts)
+        end
         finish = Time.now()
         response_time = ((finish - start) * 1000).round
         @cookie_store.merge!(response['Set-Cookie']) if accept_cookies?
@@ -119,7 +127,7 @@ module Anemone
       rescue EOFError
         refresh_connection(url)
         retries += 1
-        retry unless retries > 3
+        retry unless retries > (@opts[:retry_limit] || 3)
       end
     end
 
@@ -133,11 +141,21 @@ module Anemone
       refresh_connection url
     end
 
+    #
+    # MODIFIED: Change refresh_connection to allow a HTTP factory to be used to
+    #           create the Net::HTTP object. This allows much more granular
+    #           control over the requests.
+    #
     def refresh_connection(url)
-      http = Net::HTTP.new(url.host, url.port)
-      if url.scheme == 'https'
-        http.use_ssl = true
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      http = nil
+      if @opts[:http_factory]
+        http = @opts[:http_factory].call(url)
+      else
+        http = Net::HTTP.new(url.host, url.port)
+        if url.scheme == 'https'
+          http.use_ssl = true
+          http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+        end
       end
       @connections[url.host][url.port] = http.start
     end
