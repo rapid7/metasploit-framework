@@ -1,10 +1,83 @@
 
 require 'nessus/nessus-xmlrpc'
+require 'rex/parser/nessus_xml'
 
 module Msf
+	
+	#constants
+	NBVer = "1.0" # Nessus Plugin Version.  Increments each time we commit to msf
+	Xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
 
 	class Plugin::Nessus < Msf::Plugin
-	
+		
+		#creates the index of exploit details to make searching for exploits much faster.
+		def create_xindex
+			start = Time.now
+				print_status("Creating Exploit Search Index - (#{Xindex}) - this wont take long.")
+				print("%grn[*]")
+				count = 0
+				# use Msf::Config.get_config_root as the location.
+				File.open("#{Xindex}", "w+") do |f|
+				#need to add version line.
+				f.puts(Msf::Framework::RepoRevision)
+				framework.exploits.sort.each { |refname, mod|
+					case count
+					when 0
+						print("\b\b\b[|]")
+						count += 1
+					when 1
+						print("\b\b\b[/]")
+						count += 1
+					when 2
+						print("\b\b\b[-]")
+						count += 1
+					when 3
+						print("\b\b\b[\\]")
+						count =0
+					end
+					stuff = ""
+					o = nil
+					begin
+						o = mod.new
+					rescue ::Exception
+					end
+					stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
+					next if not o
+					o.references.map do |x|
+						if !(x.ctx_id == "URL")
+							if (x.ctx_id == "MSB")
+								stuff << "|#{x.ctx_val}"
+							else
+								stuff << "|#{x.ctx_id}-#{x.ctx_val}"
+							end
+						end
+					end
+					stuff << "\n"
+					f.puts(stuff)
+				}
+				end
+				total = Time.now - start
+				print("\b\b\b[*]%clr")
+				print("\n")
+				print_status("It has taken : #{total} seconds to build the exploits search index")
+		end
+		
+		def nessus_index
+			if File.exist?("#{Xindex}")
+				#check if it's version line matches current version.
+				File.open("#{Xindex}") {|f|
+					line = f.readline
+					line.chomp!
+					if line.to_i == Msf::Framework::RepoRevision
+						print_good("Exploit Index - (#{Xindex}) -  is valid.")
+					else
+						create_xindex
+					end
+				}
+			else
+				create_xindex
+			end
+		end
 		###
 		#
 		# This class implements a sample console command dispatcher.
@@ -52,45 +125,285 @@ module Msf
 					"nessus_plugin_prefs" => "Display Plugin Prefs",
 					"nessus_policy_list" => "List all polciies",
 					"nessus_policy_del" => "Delete a policy",
-					"nessus_exploits" => "Generates a search index for exploits.",
-					"nessus_template_list" => "List all the templates on the server"
-				}
+					"nessus_index" => "Manually generates a search index for exploits.",
+					"nessus_template_list" => "List all the templates on the server",
+					"nessus_db_scan" => "Create a scan of all ips in db_hosts",
+					"nessus_report_exploits" => "Shows a summary of all the vulns in a scan that have a msf exploit."
+					}
 			end
 			
-			def cmd_nessus_exploits
-				#need to expand this to index all modules.  What kind of info is needed?
-				#find a better place to keep the indexes and a way to name them
-				#put in version checking:
-				#check if exists and is a valid readable file (read first line)
-				#If the version line at start of current index doesnt match rev number of msf, rebuild index
+		
+			def cmd_nessus_index
+				Msf::Plugin::Nessus.nessus_index
+			end
+			
+			def cmd_nessus_report_exploits(*args)
 				
-				start = Time.now
-				File.open("xindex", "w+") do |f|
-				framework.exploits.sort.each { |refname, mod|
-					stuff = ""
-					o = nil
-					begin
-						o = mod.new
-					rescue ::Exception
-					end
-					stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
-					next if not o
-					o.references.map do |x|
-						if !(x.ctx_id == "URL")
-							if (x.ctx_id == "MSB")
-								stuff << "|#{x.ctx_val}"
-							else
-								stuff << "|#{x.ctx_id}-#{x.ctx_val}"
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_report_summary <report id>")
+					print_status(" Example:> nessus_report_summary 33ebfd80-5e6f-348d-8f15-04628b5f5ca789bb25241af01698")
+					print_status()
+					print_status("Parses your report and just shows you exploitable vulns.")
+					print_status("%redThis plugin is experimental%clr")
+					return
+				end
+				
+				if ! nessus_verify_db
+					print_error("You need a database configured for this command.")
+					print_error("Connect to a db with \"db_connect\"")
+					print_error("Then import scan with nessus_report_get")
+					return
+				end
+				
+				if ! nessus_verify_token
+					return
+				end
+				
+				rid = nil
+			
+				case args.length
+				when 1
+					rid = args[0]
+				else
+					print_status("Usage: ")
+					print_status("       nessus_report_summary <report id>")
+					print_status("Parses your report and just shows you exploitable vulns.")
+					return
+				end
+				
+				if check_scan(rid)
+					print_error("That scan is still running.")
+					return
+				end
+				
+				#streaming parser ftw.
+				content = nil
+				content=@n.report_file_download(rid)
+				if content.nil?
+					print_error("Failed, please reauthenticate")
+					return
+				end
+				print_status("Examining " + rid)
+				print_error("Experimental, trust but verify")
+				print("\n")
+				parser = Rex::Parser::NessusXMLStreamParser.new
+				parser.on_found_host = Proc.new { |host|
+					addr = host['addr'] || host['hname']
+					addr.gsub!(/[\n\r]/," or ") if addr
+					
+					os = host['os']
+					os.gsub!(/[\n\r]/," or ") if os
+					
+					hname = host['hname']
+					hname.gsub!(/[\n\r]/," or ") if hname
+					
+					mac = host['mac']
+					mac.gsub!(/[\n\r]/," or ") if mac
+					
+					host['ports'].each do |item|
+						
+						next if item['port'] == 0
+						
+						exp = []
+						msf = nil
+						nasl = item['nasl'].to_s
+						port = item['port'].to_s
+						proto = item['proto'] || "tcp"
+						name = item['svc_name']
+						severity = item['severity']
+						description = item['description']
+						cve = item['cve'] 
+						bid = item['bid']
+						xref = item['xref']
+						msf = item['msf']
+						
+						# find exploits based on the msf plugin name from the report output.
+						if msf
+							regex = Regexp.new(msf, true, 'n')
+							File.open("#{Xindex}", "r") do |m|
+								while line = m.gets
+									exp.push line.split("|").first if (line.match(regex))
+								end  
 							end
 						end
+						
+						# find exploits based on CVE
+						if cve
+							cve.each do |c|
+								regex = Regexp.new(c, true, 'n')
+								File.open("#{Xindex}", "r") do |m|
+									while line = m.gets
+										exp.push line.split("|").first if (line.match(regex))
+									end  
+								end
+							end
+						end
+						
+						#find exploits based on BID
+						if bid
+							bid.each do |c|
+								r = "BID-"
+								r << c
+								regex = Regexp.new(r, true, 'n')
+								File.open("#{Xindex}", "r") do |m|
+									while line = m.gets
+										exp.push line.split("|").first if (line.match(regex))
+									end  
+								end
+							end
+						end
+						
+						#find exploits based on OSVDB entry
+						
+						#find exploits based on MSB
+						if xref
+							xref.each do |c|
+								if c =~ /OSVDB/
+									c.gsub!(/:/, "-")
+									regex = Regexp.new(c, true, 'n')
+									File.open("#{Xindex}", "r") do |m|
+										while line = m.gets
+											exp.push line.split("|").first if (line.match(regex))
+										end  
+									end
+								end
+							end
+						end
+						
+						#make sure we only report a exploit once in exp. We should evaluate the accuracy of the exploit suggested too, weed out some obvious non starters.
+						
+						#refs = []
+						#
+						#cve.each do |r|
+						#	r.to_s.gsub!(/C(VE|AN)\-/, '')
+						#	refs.push('CVE-' + r.to_s)
+						#end if cve
+						#
+						#bid.each do |r|
+						#	refs.push('BID-' + r.to_s)
+						#end if bid
+						#
+						#xref.each do |r|
+						#	ref_id, ref_val = r.to_s.split(':')
+						#	ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
+						#end if xref
+			
+						#msfref = "MSF-" << exp if exp
+						#refs.push msfref if msfref
+						nss = 'NSS-' + nasl
+						next if exp.empty?
+						print("#{addr} | #{os} | #{port} | #{nss} | Sev #{severity} | %bld%red#{exp.uniq}%clr\n")
 					end
-					stuff << "\n"
-					f.puts(stuff)
 				}
-				end
-				total = Time.now - start
-				print_status("It has taken : #{total} seconds to build the exploits search index")
+				REXML::Document.parse_stream(content, parser)
 			end
+
+			def cmd_nessus_db_scan(*args)
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_db_scan <policy id> <scan name>")
+					print_status(" Example:> nessus_db_scan 1 \"My Scan\"")
+					print_status()
+					print_status("Creates a scan based on all the hosts listed in db_hosts.")
+					print_status("use nessus_policy_list to list all available policies")
+					return
+				end
+			
+				if ! nessus_verify_token
+					return
+				end
+			
+				case args.length
+				when 2
+					pid = args[0].to_i
+					name = args[1]
+				else
+					print_status("Usage: ")
+					print_status("       nessus_db_scan <policy id> <scan name>")
+					print_status("       use nessus_policy_list to list all available policies")
+					return
+				end
+				
+				if check_policy(pid)
+					print_error("That policy does not exist.")
+					return
+				end
+				
+				tgts = ""
+				framework.db.hosts(framework.db.workspace).each do |host|
+					
+					tgts << host.address
+					tgts << ","
+				end
+				
+				tgts.chop!
+			
+				print_status("Creating scan from policy number #{pid}, called \"#{name}\" and scanning all hosts in workspace")
+			
+				scan = @n.scan_new(pid, name, tgts)
+				
+				if scan
+					print_status("Scan started.  uid is #{scan}")
+				end
+				
+			end
+			
+			
+			#def cmd_nessus_exploits
+			#	#need to expand this to index all modules.  What kind of info is needed?
+			#	#find a better place to keep the indexes and a way to name them
+			#	#put in version checking:
+			#	#check if exists and is a valid readable file (read first line)
+			#	#If the version line at start of current index doesnt match rev number of msf, rebuild index
+			#	
+			#	start = Time.now
+			#	@count = 0
+			#	print_status("Building the exploits search index")
+			#	print("%bld%grn[")
+			#	File.open("xindex", "w+") do |f|
+			#	framework.exploits.sort.each { |refname, mod|
+			#		stuff = ""
+			#		o = nil
+			#		begin
+			#			o = mod.new
+			#		rescue ::Exception
+			#		end
+			#		stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
+			#		next if not o
+			#		o.references.map do |x|
+			#			if !(x.ctx_id == "URL")
+			#				if (x.ctx_id == "MSB")
+			#					stuff << "|#{x.ctx_val}"
+			#				else
+			#					stuff << "|#{x.ctx_id}-#{x.ctx_val}"
+			#				end
+			#			end
+			#		end
+			#		stuff << "\n"
+			#		f.puts(stuff)
+			#		
+			#		case @count
+			#		when 0
+			#			print("%bld%grn|]\b\b")
+			#			@count += 1
+			#		when 1
+			#			print("%bld%grn/]\b\b")
+			#			@count += 1
+			#		when 2
+			#			print("%bld%grn-]\b\b")
+			#			@count += 1
+			#		when 3
+			#			print("%bld%grn/]\b\b")
+			#			@count = 0
+			#		end
+			#		$stdout.flush
+			#	}
+			#	end
+			#	total = Time.now - start
+			#	print("%bld%grn*] Done!\n")
+			#	print_status("It has taken : #{total} seconds to build the exploits search index")
+			#end
 		
 			def cmd_nessus_logout
 				@token = nil
@@ -1536,9 +1849,9 @@ module Msf
 			# that uses the framework's console user interface driver, register
 			# console dispatcher commands.
 			add_console_dispatcher(ConsoleCommandDispatcher)
-
-			print_status("Nessus Bridge for Nessus 4.2.x")
+			print_status("Nessus Bridge for Metasploit #{NBVer}")
 			print_good("Type %bldnessus_help%clr for a command listing")
+			nessus_index
 		end
 
 		#
@@ -1556,7 +1869,7 @@ module Msf
 		# This method returns a short, friendly name for the plugin.
 		#
 		def name
-			"nessus"
+			"nessus bridge"
 		end
 
 		#
@@ -1564,7 +1877,7 @@ module Msf
 		# more than 60 characters, but there are no hard limits.
 		#
 		def desc
-			"HTTP Bridge to control a Nessus 4.2 scanner."
+			"Nessus Bridge for Metasploit #{NBVer}"
 		end
 		protected
 	end
