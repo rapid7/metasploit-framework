@@ -6,6 +6,7 @@
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 require 'fileutils'
+@client = client
 pid = nil
 name = nil
 toggle = nil
@@ -55,7 +56,7 @@ opts.parse(args) { |opt, idx, val|
 # Function for finding the name of a process given it's PID
 def find_procname(pid)
 	name = nil
-	client.sys.process.get_processes.each do |proc|
+	@client.sys.process.get_processes.each do |proc|
 		if proc['pid'] == pid.to_i
 			name = proc['name']
 		end
@@ -66,7 +67,7 @@ end
 # Find all PID's for a given process name
 def find_pids(name)
 	proc_pid = []
-	client.sys.process.get_processes.each do |proc|
+	@client.sys.process.get_processes.each do |proc|
 		if proc['name'].downcase == name.downcase
 			proc_pid << proc['pid']
 		end
@@ -76,7 +77,7 @@ end
 
 # Dumps the memory for a given PID
 def dump_mem(pid,name, toggle)
-	host,port = client.tunnel_peer.split(':')
+	host,port = @client.tunnel_peer.split(':')
 	# Create Filename info to be appended to created files
 	filenameinfo = "_#{name}_#{pid}_" + ::Time.now.strftime("%Y%m%d.%M%S")
 	# Create a directory for the logs
@@ -87,7 +88,7 @@ def dump_mem(pid,name, toggle)
 	dumpfile = logs + ::File::Separator + host + filenameinfo + ".dmp"
 	print_status("\tDumping Memory of #{name} with PID: #{pid.to_s}")
 	begin
-		dump_process = client.sys.process.open(pid.to_i, PROCESS_READ)
+		dump_process = @client.sys.process.open(pid.to_i, PROCESS_READ)
 	rescue
 		print_error("Could not open process for reading memory!")
 		raise Rex::Script::Completed
@@ -111,17 +112,17 @@ end
 
 # Function to query process Size
 def get_mem_usage( pid )
-	p = client.sys.process.open( pid.to_i, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ )
+	p = @client.sys.process.open( pid.to_i, PROCESS_QUERY_INFORMATION | PROCESS_VM_READ )
 	if( p )
 		begin
 
-			if( not client.railgun.get_dll( 'psapi' ) )
-				client.railgun.add_dll( 'psapi' )
+			if( not @client.railgun.get_dll( 'psapi' ) )
+				@client.railgun.add_dll( 'psapi' )
 			end
 
 			# http://msdn.microsoft.com/en-us/library/ms683219%28v=VS.85%29.aspx
-			if( not client.railgun.psapi.functions['GetProcessMemoryInfo'] )
-				client.railgun.psapi.add_function( 'GetProcessMemoryInfo', 'BOOL', [
+			if( not @client.railgun.psapi.functions['GetProcessMemoryInfo'] )
+				@client.railgun.psapi.add_function( 'GetProcessMemoryInfo', 'BOOL', [
 					[ "HANDLE", "hProcess", "in" ],
 					[ "PBLOB", "ProcessMemoryCounters", "out" ],
 					[ "DWORD", "Size", "in" ]
@@ -129,16 +130,16 @@ def get_mem_usage( pid )
 				)
 			end
 
-			r = client.railgun.psapi.GetProcessMemoryInfo( p.handle, 72, 72 )
+			r = @client.railgun.psapi.GetProcessMemoryInfo( p.handle, 72, 72 )
 			if( r['return'] )
 				pmc = r['ProcessMemoryCounters']
 				# unpack the PROCESS_MEMORY_COUNTERS structure (http://msdn.microsoft.com/en-us/library/ms684877%28v=VS.85%29.aspx)
 				# Note: As we get the raw structure back from railgun we need to account
 				#       for SIZE_T variables being 32bit on x86 and 64bit on x64
 				mem = nil
-				if( client.platform =~ /win32/ )
+				if( @client.platform =~ /win32/ )
 					mem = pmc[12..15].unpack('V').first
-				elsif( client.platform =~ /win64/ )
+				elsif( @client.platform =~ /win64/ )
 					mem = pmc[16..23].unpack('Q').first
 				end
 				return (mem/1024)
