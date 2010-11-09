@@ -131,25 +131,27 @@ class Metasploit3 < Msf::Auxiliary
 
 			data = pkt[0]
 			info = []
-			if data =~ /^Server:[\s]*(.*)/m
-				info << "\"#{$1.strip}\""
+			if data =~ /^Server:[\s]*(.*)/
+				server_string = $1
+				info << "\"#{server_string.to_s.strip}\""
 			end
 
 			ssdp_host = nil
 			ssdp_port = 80
-			if data =~ /^Location:[\s]*(.*)/m
-				location_string = $1.strip
-				info << location_string
+			if data =~ /^Location:[\s]*(.*)/
+				location_string = $1
+				info << location_string.to_s.strip
 				if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
-					ssdp_host,ssdp_port = $2.split(":")
+					ssdp_host,ssdp_port = $2.split(":") if $2.respond_to?(:split)
 					if ssdp_port.nil?
 						ssdp_port = ($1 == "http" ? 80 : 443)
 					end
 				end
 			end
 
-			if data =~ /^USN:[\s]*(.*)/m
-				info << $1.strip
+			if data =~ /^USN:[\s]*(.*)/
+				usn_string = $1
+				info << usn_string.to_s.strip
 			end
 			
 			report_service(
@@ -159,7 +161,11 @@ class Metasploit3 < Msf::Auxiliary
 				:name  => 'ssdp',
 				:info  => info.join("|")
 			)
-			print_good "#{addr}:#{port}: Got an SSDP response from #{info.first}"
+			if info.first.nil? || info.first.empty?
+				print_status "#{addr}:#{port}: Got an incomplete response."
+			else
+				print_good "#{addr}:#{port}: Got an SSDP response from #{info.first}"
+			end
 
 			if ssdp_host
 				report_service(
