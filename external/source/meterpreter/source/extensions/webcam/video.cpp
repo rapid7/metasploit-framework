@@ -47,9 +47,11 @@ IBaseFilter* g_pIBaseFilterSampleGrabber = NULL;
 IBaseFilter* g_pIBaseFilterNullRenderer = NULL;
 
 PBYTE imgdata = NULL;
-UINT imgsize = 0;
+long imgsize = 0;
 UINT bmpsize = 0;
 PBYTE bmpdata = NULL;
+DWORD jpgsize = 0;
+PBYTE jpgarray = NULL; //shouldn't be bigger, right?
 
 // SampleGrabber callback interface
 class MySampleGrabberCB : public ISampleGrabberCB{
@@ -373,13 +375,16 @@ DWORD request_webcam_get_frame(Remote *remote, Packet *packet){
 	memcpy(bmpdata + sizeof(bfh) + sizeof(bih), imgdata, imgsize);
 
 	// Now convert to JPEG
-	DWORD jpgsize = 0;
-	PBYTE jpgarray = NULL; //shouldn't be bigger, right?
 	bmp2jpeg(bmpdata, quality, &jpgarray, &jpgsize );
 
 	//And send
 	packet_add_tlv_raw(response, TLV_TYPE_WEBCAM_IMAGE, jpgarray, jpgsize);
 	packet_transmit_response(dwResult, remote, response);
+
+	PBYTE tmparray = jpgarray;
+	jpgsize = 0;
+	jpgarray = NULL;
+	free(tmparray);
 	return dwResult;
 }
 
