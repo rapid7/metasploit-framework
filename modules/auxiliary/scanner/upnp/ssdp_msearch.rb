@@ -14,7 +14,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
-	include Msf::Exploit::Remote::Udp
 
 	def initialize
 		super(
@@ -132,26 +131,46 @@ class Metasploit3 < Msf::Auxiliary
 
 			data = pkt[0]
 			info = []
-			if data[/Server:[\s]*(.*)/]
+			if data[/^Server:[\s]*(.*)/]
 				info << "\"#{$1.strip}\""
 			end
 
-			if data[/Location:[\s]*(.*)/] || 
-				info << $1.strip
+			ssdp_host = nil
+			ssdp_port = 80
+			if data[/^Location:[\s]*(.*)/]
+				location_string = $1.strip
+				info << location_string
+				if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
+					ssdp_host,ssdp_port = $2.split(":")
+					if ssdp_port.nil?
+						ssdp_port = ($1 == "http" ? 80 : 443)
+					end
+				end
 			end
 
-			if data[/USN:[\s]*(.*)/]
+			if data[/^USN:[\s]*(.*)/]
 				info << $1.strip
 			end
-
+			
 			report_service(
 				:host  => addr,
 				:port  => port,
 				:proto => 'udp',
-				:name  => 'SSDP',
+				:name  => 'ssdp',
 				:info  => info.join("|")
 			)
 			print_good "#{addr}:#{port}: Got an SSDP response from #{info.first}"
+
+			if ssdp_host
+				report_service(
+					:host  => ssdp_host,
+					:port  => ssdp_port,
+					:proto => 'tcp',
+					:name  => 'upnp',
+					:info  => location_string
+				)
+				print_good "#{ssdp_host}:#{ssdp_port}: UPnP services advertised at #{info.grep(/#{ssdp_host}/).first}"
+			end
 		end
 	end
 
