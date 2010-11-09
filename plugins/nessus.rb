@@ -1869,7 +1869,7 @@ module Msf
 		# This method returns a short, friendly name for the plugin.
 		#
 		def name
-			"nessus bridge"
+			"nessus"
 		end
 
 		#
