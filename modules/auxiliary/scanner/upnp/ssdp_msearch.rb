@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				Timeout.timeout(6) do
 					while @result.size.zero?
-						select(nil, nil, nil, 1.9)
+						select(nil, nil, nil, 0.25)
 						parse_reply @result
 					end
 				end
@@ -131,13 +131,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			data = pkt[0]
 			info = []
-			if data[/^Server:[\s]*(.*)/]
+			if data =~ /^Server:[\s]*(.*)/m
 				info << "\"#{$1.strip}\""
 			end
 
 			ssdp_host = nil
 			ssdp_port = 80
-			if data[/^Location:[\s]*(.*)/]
+			if data =~ /^Location:[\s]*(.*)/m
 				location_string = $1.strip
 				info << location_string
 				if location_string[/(https?):\x2f\x2f([^\x5c\x2f]+)/]
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			if data[/^USN:[\s]*(.*)/]
+			if data =~ /^USN:[\s]*(.*)/m
 				info << $1.strip
 			end
 			
