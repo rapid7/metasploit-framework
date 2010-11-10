@@ -86,6 +86,10 @@ class Archive
 		ret
 	end
 
+	def inspect
+		"#<#{self.class} entries = [#{@entries.map{|e| e.name}.join(",")}]>"
+	end
+
 end
 
 class Jar < Archive
