@@ -69,7 +69,7 @@ module Msf::Payload::Java
 </servlet-mapping>
 </web-app>
 }
-		app_name = opts[:app_name] || "notrandom" #Rex::Text.rand_text_alpha_lower(rand(8)+8)
+		app_name = opts[:app_name] || Rex::Text.rand_text_alpha_lower(rand(8)+8)
 
 		web_xml.gsub!(/NAME/, app_name)
 
