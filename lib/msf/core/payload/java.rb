@@ -82,8 +82,6 @@ module Msf::Payload::Java
 		zip.add_file('WEB-INF/web.xml', web_xml)
 		zip.add_file("WEB-INF/classes/", "")
 		zip.add_files(paths, File.join(Msf::Config.data_directory, "java"), "WEB-INF/classes/")
-		zip.add_file("metasploit.dat", config)
-		zip.add_file("WEB-INF/metasploit.dat", config)
 		zip.add_file("WEB-INF/classes/metasploit.dat", config)
 
 		zip
