@@ -335,4 +335,4 @@ Opcodes
    interface in the future by third parties. This can be accomplished by
    specifying the -x parameter.
 
-More information online at: http://metasploit.com/framwork/
+More information online at: http://metasploit.com/framework/
