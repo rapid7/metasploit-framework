@@ -24,12 +24,18 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
 
+	attr_reader :accepts_bogus_domains
+
 	def proto
 		'smb'
 	end
 
+	def domain
+		datastore['SMBDomain']
+	end
+
 	def smbhost
-		"#{rhost}:#{rport}"
+		"#{rhost}:#{rport}|#{domain}"
 	end
 
 	def initialize
@@ -47,6 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		deregister_options('RHOST','USERNAME','PASSWORD')
 
+		@accepts_bogus_domains = []
+
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
 		register_options(
@@ -55,7 +63,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
 			], self.class)
-
 	end
 
 	def run_host(ip)
@@ -95,11 +102,35 @@ class Metasploit3 < Msf::Auxiliary
 		simple.client.auth_user ? true : false
 	end
 
+	def accepts_bogus_domains?(addr)
+		if @accepts_bogus_domains.include? addr
+			return true
+		end
+		orig_domain = datastore['SMBDomain']
+		datastore['SMBDomain'] = Rex::Text.rand_text_alpha(8)
+
+		connect()
+		begin
+			smb_login()
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		end
+		disconnect
+		datastore['SMBDomain'] = orig_domain
+
+		if simple.client.auth_user
+			@accepts_bogus_domains << addr
+			return true
+		else
+			return false
+		end
+	end
+
 	def try_user_pass(user, pass)
 		# The SMB mixins require the datastores "SMBUser" and
 		# "SMBPass" to be populated.
 		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
+		dom = datastore["SMBDomain"]
 
 		# Connection problems are dealt with at a higher level
 		connect()
@@ -157,10 +188,15 @@ class Metasploit3 < Msf::Auxiliary
 				:host	=> rhost,
 				:port   => datastore['RPORT'],
 				:sname	=> 'smb',
-				:user	=> user,
 				:pass   => pass,
 				:active => true
 			}
+			if accepts_bogus_domains? rhost
+				report_hash[:user] = "#{user}"
+			else
+				report_hash[:user] = "#{dom}/#{user}"
+			end
+
 			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
 				report_hash.merge!({:type => 'smb_hash'})
 			else
