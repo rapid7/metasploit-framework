@@ -108,8 +108,8 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	show_count(f, 'carriage return EOL', cr)
-	show_missing(f, 'missing $Id$', has_id)
-	show_missing(f, 'missing $Revision$', has_rev)
+	show_missing(f, 'missing $'+'Id: $', has_id)
+	show_missing(f, 'missing $'+'Revision: $', has_rev)
 	show_count(f, 'File.open without binary mode', nbo)
 end
 
