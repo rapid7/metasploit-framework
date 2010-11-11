@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
-				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", false]),
+				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
 			], self.class)
 	end
 
