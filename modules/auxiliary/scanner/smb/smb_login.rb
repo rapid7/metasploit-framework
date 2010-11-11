@@ -62,6 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBPass', [ false, "SMB Password" ]),
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
+				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", false]),
 			], self.class)
 	end
 
@@ -125,12 +126,34 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	# If the username contains a / slash, then
+	# split it as a domain/username. NOTE: this
+	# is predicated on forward slashes, and not
+	# Microsoft's backwards slash convention.
+	def domain_username_split(user)
+		return user if(user.nil? || user.empty?)
+		if !user[/\//] # Only /, not \! 
+			return [nil,user]
+		else
+			return user.split("/",2)
+		end
+	end
+
 	def try_user_pass(user, pass)
 		# The SMB mixins require the datastores "SMBUser" and
 		# "SMBPass" to be populated.
-		datastore["SMBUser"] = user
 		datastore["SMBPass"] = pass
-		dom = datastore["SMBDomain"]
+		orig_domain = datastore["SMBDomain"]
+		# Note that unless PRESERVE_DOMAINS is true, we're more
+		# than happy to pass illegal usernames that contain
+		# slashes.
+		if datastore["PRESERVE_DOMAINS"]
+			d,u = domain_username_split(user)
+			datastore["SMBUser"] = u
+			datastore["SMBDomain"] = d if d
+		else
+			datastore["SMBUser"] = user
+		end
 
 		# Connection problems are dealt with at a higher level
 		connect()
@@ -144,6 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 				# Nothing interesting
 				vprint_status("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 				disconnect()
+				datastore["SMBDomain"] = orig_domain
 				return
 
 			when 'STATUS_ACCOUNT_DISABLED'
@@ -179,6 +203,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
 
 			disconnect()
+			datastore["SMBDomain"] = orig_domain
 			return :skip_user # These reasons are sufficient to stop trying.
 		end
 
@@ -192,9 +217,19 @@ class Metasploit3 < Msf::Auxiliary
 				:active => true
 			}
 			if accepts_bogus_domains? rhost
-				report_hash[:user] = "#{user}"
+				if datastore["PRESERVE_DOMAINS"]
+					d,u = domain_username_split(user)
+					report_hash[:user] = u
+				else
+					report_hash[:user] = "#{datastore["SMBUser"]}"
+				end
 			else
-				report_hash[:user] = "#{dom}/#{user}"
+				if datastore["PRESERVE_DOMAINS"]
+					d,u = domain_username_split(user)
+					report_hash[:user] = "#{datastore["SMBDomain"]}/#{u}"
+				else
+					report_hash[:user] = "#{datastore["SMBDomain"]}/#{datastore["SMBUser"]}"
+				end
 			end
 
 			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
@@ -216,6 +251,7 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect()
 		# If we get here then we've found the password for this user, move on
 		# to the next one.
+		datastore["SMBDomain"] = orig_domain
 		return :next_user
 	end
 
