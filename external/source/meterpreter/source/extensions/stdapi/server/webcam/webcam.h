@@ -1,5 +1,5 @@
-#ifndef _METERPRETER_SOURCE_EXTENSION_WEBCAM_WEBCAM_H
-#define _METERPRETER_SOURCE_EXTENSION_WEBCAM_WEBCAM_H
+#ifndef _METERPRETER_SOURCE_EXTENSION_WEBCAM_SERVER_VIDEO_H
+#define _METERPRETER_SOURCE_EXTENSION_WEBCAM_SERVER_VIDEO_H
 
 #define TLV_TYPE_EXTENSION_WEBCAM	0
 
@@ -27,10 +27,8 @@
 				TLV_TYPE_EXTENSION_WEBCAM,	\
 				TLV_EXTENSIONS + 4)
 
-#define TLV_TYPE_WEBCAM_SOUND				\
-		MAKE_CUSTOM_TLV(					\
-				TLV_META_TYPE_RAW,			\
-				TLV_TYPE_EXTENSION_WEBCAM,	\
-				TLV_EXTENSIONS + 5)
-
+DWORD request_webcam_list(Remote *remote, Packet *packet);
+DWORD request_webcam_start(Remote *remote, Packet *packet);
+DWORD request_webcam_get_frame(Remote *remote, Packet *packet);
+DWORD request_webcam_stop(Remote *remote, Packet *packet);
 #endif

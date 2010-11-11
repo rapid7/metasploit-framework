@@ -379,6 +379,28 @@ Command customCommands[] =
 	  { request_sys_power_exitwindows,                     { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
+
+	// Webcam
+	{ "webcam_list",
+	  { request_webcam_list,                               { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
+	{ "webcam_start",
+	  { request_webcam_start,                              { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
+	{ "webcam_get_frame",
+	  { request_webcam_get_frame,                          { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
+	{ "webcam_stop",
+	  { request_webcam_stop,                               { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
 #endif
 	// Terminator
 	{ NULL,

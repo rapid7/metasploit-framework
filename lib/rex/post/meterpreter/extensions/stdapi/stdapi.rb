@@ -16,6 +16,7 @@ require 'rex/post/meterpreter/extensions/stdapi/sys/event_log'
 require 'rex/post/meterpreter/extensions/stdapi/sys/power'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/ui'
+require 'rex/post/meterpreter/extensions/stdapi/webcam/webcam'
 
 module Rex
 module Post
@@ -73,6 +74,10 @@ class Stdapi < Extension
 				{
 					'name' => 'railgun',
 					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)
+				},
+				{
+					'name' => 'webcam',
+					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Webcam::Webcam.new(client)
 				},
 				{
 					'name' => 'ui',

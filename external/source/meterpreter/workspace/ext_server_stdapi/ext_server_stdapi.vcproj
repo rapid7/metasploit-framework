@@ -251,7 +251,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include"
+				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include;..\..\source\jpeg-8"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS;CINTERFACE;COBJMACROS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -279,11 +279,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib"
+				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib jpeg.lib"
 				OutputFile=".\Release\ext_server_stdapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win;&quot;..\..\source\jpeg-8\lib\win\x86&quot;"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateMapFile="true"
@@ -353,7 +353,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include"
+				AdditionalIncludeDirectories="..\..\source\extensions\stdapi\server;..\..\source\openssl\include;..\..\source\jpeg-8"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SYS_EXPORTS;_CRT_SECURE_NO_WARNINGS;CINTERFACE;COBJMACROS"
 				StringPooling="true"
 				RuntimeLibrary="0"
@@ -385,7 +385,7 @@
 				OutputFile=".\Release\ext_server_stdapi.x64.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\..\source\jpeg-8\lib\win\x64;..\metsrv\Release;..\..\source\openssl\lib\win"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateMapFile="true"
@@ -1468,6 +1468,58 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="webcam"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\bmp2jpeg.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\webcam.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -1499,18 +1551,6 @@
 						>
 					</File>
 				</Filter>
-			</Filter>
-			<Filter
-				Name="fs"
-				>
-				<File
-					RelativePath="..\..\source\extensions\stdapi\server\fs\fs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\source\extensions\stdapi\server\fs\search.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="sys"
@@ -1577,6 +1617,30 @@
 				>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\railgun\railgun.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="webcam"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\bmp2jpeg.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\webcam.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="fs"
+				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\fs\fs.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\fs\search.h"
 					>
 				</File>
 			</Filter>

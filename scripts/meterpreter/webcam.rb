@@ -45,11 +45,6 @@ if !(client.platform =~ /win32|win64/)
 	raise Rex::Script::Completed
 end
 begin
-	if not client.ext.aliases.include?( "webcam" )
-		print_status("Loading webcam extension")
-		@client.console.run_single("use webcam")
-		#client.core.use( "webcam" ) 
-	end
 	camlist = client.webcam.webcam_list
 	if camlist.length == 0
 		print_error("Error: no webcams found!")

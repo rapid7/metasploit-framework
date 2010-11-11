@@ -64,6 +64,7 @@
 #include "sys/sys.h"
 #include "net/net.h"
 #include "ui/ui.h"
+#include "webcam/webcam.h"
 
 #ifdef _WIN32
  #include "railgun/railgun.h"	// PKS, win32 specific at the moment.

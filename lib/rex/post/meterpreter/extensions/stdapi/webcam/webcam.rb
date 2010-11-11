@@ -1,11 +1,10 @@
 #!/usr/bin/env ruby
 
-require 'rex/post/meterpreter/extensions/webcam/tlv'
-
 module Rex
 module Post
 module Meterpreter
 module Extensions
+module Stdapi
 module Webcam
 
 ###
@@ -13,19 +12,10 @@ module Webcam
 # This meterpreter extension can list and capture from webcams
 #
 ###
-class Webcam < Extension
-
+class Webcam
 
 	def initialize(client)
-		super(client, 'webcam')
-
-		client.register_extension_aliases(
-			[
-				{ 
-					'name' => 'webcam',
-					'ext'  => self
-				},
-			])
+		@client = client
 	end
 
 	def webcam_list
@@ -56,6 +46,8 @@ class Webcam < Extension
 		true
 	end
 
+	attr_accessor :client
+
 end
 
-end; end; end; end; end
+end; end; end; end; end; end

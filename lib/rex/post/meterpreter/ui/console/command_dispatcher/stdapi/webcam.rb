@@ -10,18 +10,11 @@ module Ui
 # Webcam - Capture video from the remote system
 #
 ###
-class Console::CommandDispatcher::Webcam
+class Console::CommandDispatcher::Stdapi::Webcam
 
-	Klass = Console::CommandDispatcher::Webcam
+	Klass = Console::CommandDispatcher::Stdapi::Webcam
 
 	include Console::CommandDispatcher
-
-	#
-	# Initializes an instance of the webcam command interaction.
-	#
-	def initialize(shell)
-		super
-	end
 
 	#
 	# List of supported commands.
@@ -31,6 +24,13 @@ class Console::CommandDispatcher::Webcam
 			"webcam_list"   => "List webcams",
 			"webcam_snap"   => "Take a snapshot from the specified webcam"
 		}
+	end
+
+	#
+	# Name for this dispatcher
+	#
+	def name
+		"Stdapi: Webcam"
 	end
 
 	def cmd_webcam_list
@@ -88,13 +88,6 @@ class Console::CommandDispatcher::Webcam
 			Rex::Compat.open_file( path ) if view
 		end
 		return true
-	end
-
-	#
-	# Name for this dispatcher
-	#
-	def name
-		"Webcam"
 	end
 
 end

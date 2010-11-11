@@ -1,12 +1,14 @@
 //This software is based on Touchless, which is released under the Microsoft Public License (Ms-PL) 
+#ifdef CINTERFACE
+#undef CINTERFACE
+#endif
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <dshow.h>
 #pragma comment(lib, "strmiids")
 extern "C" {
 #include "../../common/common.h"
-#include "main.h"
-#include "video.h"
+#include "webcam.h"
 #include "bmp2jpeg.h"
 }
 
