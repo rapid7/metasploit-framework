@@ -59,7 +59,7 @@ class Console::CommandDispatcher::Webcam
 				when "-h"
 					print_line( "Usage: webcam_snap [options]\n" )
 					print_line( "Grab a frame from the specified webcam." )
-					print_line( webcam_frame_opts.usage )
+					print_line( webcam_snap_opts.usage )
 					return
 				when "-i"
 					index = val.to_i
