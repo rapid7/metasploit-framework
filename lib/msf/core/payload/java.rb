@@ -36,16 +36,19 @@ module Msf::Payload::Java
 	#
 	# Returns a jar file as a +Rex::Zip::Jar+
 	#
-	def generate_jar
+	def generate_jar(opts={})
 		raise if not respond_to? :config
+		# Allow changing the jar's Main Class in the manifest so wrappers
+		# around metasploit.Payload will work.
+		main_class = opts[:main_class] || "metasploit.Payload"
+
 		paths = [
 			[ "metasploit", "Payload.class" ],
 		] + @class_files
 
 		jar = Rex::Zip::Jar.new
-		#add_class_files(jar, paths)
 		jar.add_files(paths, File.join(Msf::Config.data_directory, "java"))
-		jar.build_manifest(:main_class => "metasploit.Payload")
+		jar.build_manifest(:main_class => main_class)
 		jar.add_file("metasploit.dat", config)
 
 		jar

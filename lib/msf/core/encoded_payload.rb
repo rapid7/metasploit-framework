@@ -303,23 +303,74 @@ class EncodedPayload
 	end
 
 
+	#
+	# Convert the payload to an executable appropriate for its arch and
+	# platform.
+	#
+	# +opts+ are passed directly to +Msf::Util::EXE.to_executable+
+	#
 	def encoded_exe(opts={})
-		# do something with Util::EXE
-		raise NotImplementedError
+		# Ensure arch and platform are in the format that to_executable expects
+		if not opts[:arch].kind_of? Array
+			opts[:arch] = [ opts[:arch] ]
+		end
+		if (opts[:platform].kind_of? Msf::Module::PlatformList)
+			opts[:platform] = opts[:platform].platforms
+		end
+
+		emod = pinst.assoc_exploit
+
+		if emod
+			# This is a little ghetto, grabbing datastore options from the
+			# associated exploit, but it doesn't really make sense for the
+			# payload to have exe options if the exploit doesn't need an exe.
+			# Msf::Util::EXE chooses reasonable defaults if these aren't given,
+			# so it's not that big of an issue.
+			opts.merge!({
+				:template_path => emod.datastore['EXE::Path'],
+				:template => emod.datastore['EXE::Template'],
+				:inject => emod.datastore['EXE::Inject'],
+				:fallback => emod.datastore['EXE::FallBack'],
+				:sub_method => emod.datastore['EXE::OldMethod']
+			})
+			# Prefer the target's platform/architecture information, but use
+			# the exploit module's if no target specific information exists.
+			# Lastly, try the payload's.
+			opts[:platform] ||= emod.target_platform  if emod.respond_to? :target_platform
+			opts[:platform] ||= emod.platform         if emod.respond_to? :platform
+			opts[:platform] ||= pinst.platform        if pinst.respond_to? :platform
+			opts[:arch] ||= emod.target_arch          if emod.respond_to? :target_arch
+			opts[:arch] ||= emod.arch                 if emod.respond_to? :arch
+			opts[:arch] ||= pinst.arch                if pinst.respond_to? :arch
+		end
+
+		Msf::Util::EXE.to_executable(framework, opts[:arch], opts[:platform], encoded, opts)
 	end
 
-	def encoded_war(opts={})
-		return pinst.generate_war if pinst.respond_to? :generate_war
-		# do something with Util::EXE
-		raise NotImplementedError
-	end
-
+	#
+	# Generate a jar file containing the encoded payload.
+	#
+	# Uses the payload's +generate_jar+ method if it is implemented (Java
+	# payloads should all have it).  Otherwise, converts the payload to an
+	# executable and uses Msf::Util::EXE.to_jar to create a jar file that dumps
+	# the exe out to a random file name in the system's temporary directory and
+	# executes it.
+	#
 	def encoded_jar(opts={})
-		return pinst.generate_jar if pinst.respond_to? :generate_jar
-		# do something with Util::EXE
-		raise NotImplementedError
+		return pinst.generate_jar(opts) if pinst.respond_to? :generate_jar
+
+		Msf::Util::EXE.to_jar(encoded_exe(opts), opts)
 	end
 
+	#
+	# Similar to +encoded_jar+ but builds a web archive for use in servlet
+	# containers such as Tomcat.
+	#
+	def encoded_war(opts={})
+		return pinst.generate_war(opts) if pinst.respond_to? :generate_war
+
+		Msf::Util::EXE.to_jsp_war(encoded_exe(opts), opts)
+	end
 
 	#
 	# The raw version of the payload

