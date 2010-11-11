@@ -47,8 +47,9 @@ module MeterpreterOptions
 			rescue ::Exception
 			end
 =end
-			
-			session.load_priv rescue nil
+			if session.platform =~ /win32|win64/i
+				session.load_priv rescue nil
+			end
 		end
 		
 		
