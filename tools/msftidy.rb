@@ -68,6 +68,7 @@ def check_single_file(dparts, fparts, f_rel)
 	cr = 0
 	has_rev = false
 	has_id = false
+	url_ok = true
 	nbo = 0 # non-bin open
 
 	in_comment = false
@@ -90,6 +91,7 @@ def check_single_file(dparts, fparts, f_rel)
 		cr += 1 if ln =~ /\r$/
 		has_id = true if ln =~ /\$Id:.*\$/
 		has_rev = true if ln =~ /\$Revision:.*\$/
+		url_ok = false if ln =~ /\.com\/projects\/Framework/
 		if ln =~ /File\.open/ and ln =~ /[\"\'][arw]/
 			if not ln =~ /[\"\'][wra]b\+?[\"\']/
 				nbo += 1
@@ -110,6 +112,7 @@ def check_single_file(dparts, fparts, f_rel)
 	show_count(f, 'carriage return EOL', cr)
 	show_missing(f, 'missing $'+'Id: $', has_id)
 	show_missing(f, 'missing $'+'Revision: $', has_rev)
+	show_missing(f, 'incorrect URL to framework site', url_ok)
 	show_count(f, 'File.open without binary mode', nbo)
 end
 
