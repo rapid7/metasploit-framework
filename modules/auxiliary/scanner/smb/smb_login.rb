@@ -1,4 +1,3 @@
-
 ##
 # $Id$
 ##
@@ -132,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Microsoft's backwards slash convention.
 	def domain_username_split(user)
 		return user if(user.nil? || user.empty?)
-		if !user[/\//] # Only /, not \! 
+		if !user[/\//] # Only /, not \!
 			return [nil,user]
 		else
 			return user.split("/",2)

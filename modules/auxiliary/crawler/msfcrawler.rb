@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 #
-# $Id: msfcrawler.rb 9525 2010-06-15 07:18:08Z et $
+# $Id$
 #
 # Web Crawler.
 #
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'			=> 'Metasploit Web Crawler',
-			'Version'           => '$Revision: 9929 $',
+			'Version'           => '$Revision$',
 			'Description'       => 'This auxiliary module is a modular web crawler, to be used in conjuntion with wmap (someday) or standalone.',
 			'Author'			=> 'et',
 			'License'			=> MSF_LICENSE
@@ -55,12 +55,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		i, a = 0, []
-		
+
 		self.ctarget = datastore['RHOSTS']
 		self.cport = datastore['RPORT']
 		self.cssl = datastore['SSL']
 		inipath = datastore['PATH']
-		
+
 		cinipath = (inipath.nil? or inipath.empty?) ? '/' : inipath
 
 		inireq = {
@@ -84,14 +84,14 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Loading modules: #{datastore['CrawlerModulesDir']}")
 		load_modules(datastore['CrawlerModulesDir'])
 		print_status("OK")
-				
+
 		if datastore['EnableUl']
 			print_status("URI LIMITS ENABLED: #{datastore['MaxUriLimit']} (Maximum number of requests per uri)")
 		end
 
 		print_status("Target: #{self.ctarget} Port: #{self.cport} Path: #{cinipath} SSL: #{self.cssl}")
-		
-		
+
+
 		begin
 			reqfilter = reqtemplate(self.ctarget,self.cport,self.cssl)
 
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 						#puts "URI LIMIT Reached: #{$maxurilimit} for uri #{hashreq['uri']}"
 						ul = true
 					end
- 				else
+				else
 					@UriLimits[hashreq['uri']] = 0
 				end
 
@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Finished crawling")
 	end
-		
+
 	def reqtemplate(target,port,ssl)
 		hreq = {
 			'rhost'		=> target,
@@ -184,12 +184,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def storedb(hashreq,response,dbpath)
-		
-		info = { 
+
+		info = {
 			:web_site => @current_site,
 			:path     => hashreq['uri'],
 			:query    => hashreq['query'],
-			:data	=> hashreq['data'],	
+			:data	=> hashreq['data'],
 			:code     => response['code'],
 			:body     => response['body'],
 			:headers  => response['headers']
@@ -198,7 +198,7 @@ class Metasploit3 < Msf::Auxiliary
 		#if response['content-type']
 		#	info[:ctype] = response['content-type'][0]
 		#end
-		
+
 		#if response['set-cookie']
 		#	info[:cookie] = page.headers['set-cookie'].join("\n")
 		#end
@@ -210,11 +210,11 @@ class Metasploit3 < Msf::Auxiliary
 		#if page.headers['location']
 		#	info[:location] = page.headers['location'][0]
 		#end
-		
+
 		#if page.headers['last-modified']
 		#	info[:mtime] = page.headers['last-modified'][0]
 		#end
-									
+
 		# Report the web page to the database
 		report_web_page(info)
 	end
@@ -405,23 +405,23 @@ class Metasploit3 < Msf::Auxiliary
 	# Taken from http://www.ruby-forum.com/topic/140101 by  Rob Biedenharn
 	def canonicalize(uri)
 
-   		u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
-   		u.normalize!
-   		newpath = u.path
-   		while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
-              		$1 == '..' ? match : ''
-            	} do end
-   		newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
-   		u.path = newpath
+		u = uri.kind_of?(URI) ? uri : URI.parse(uri.to_s)
+		u.normalize!
+		newpath = u.path
+		while newpath.gsub!(%r{([^/]+)/\.\./?}) { |match|
+			$1 == '..' ? match : ''
+		} do end
+		newpath = newpath.gsub(%r{/\./}, '/').sub(%r{/\.\z}, '/')
+		u.path = newpath
 		# Ugly fix
 		u.path = u.path.gsub("\/..\/","\/")
-   		u.to_s
+		u.to_s
 	end
 
 	def hashsig(hashreq)
 		hashreq.to_s
 	end
-		
+
 end
 
 class BaseParser
