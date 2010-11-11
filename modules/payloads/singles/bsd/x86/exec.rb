@@ -36,7 +36,7 @@ module Metasploit3
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86))
 
-		# Register adduser options
+		# Register exec options
 		register_options(
 			[
 				OptString.new('CMD',  [ true,  "The command string to execute" ]),
@@ -44,7 +44,7 @@ module Metasploit3
 	end
 
 	#
-	# Dynamically builds the adduser payload based on the user's options.
+	# Dynamically builds the exec payload based on the user's options.
 	#
 	def generate_stage
 		cmd     = datastore['CMD'] || ''
