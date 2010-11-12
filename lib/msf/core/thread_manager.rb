@@ -92,6 +92,30 @@ class ThreadManager < Array
 	end
 	
 	#
+	# Updates an existing thread
+	#
+	def update(ut, name, crit)
+		ti = nil
+		self.each_index do |i|
+			tt = self[i]
+			next if not tt
+			if ut.__id__ == tt.__id__
+				ti = i
+				break
+			end
+		end
+		
+		t = self[ti]
+		if not t
+			raise RuntimeError, "Thread not found"
+		end
+
+		t[:tm_name] = name
+		t[:tm_crit] = crit
+		t
+	end	
+
+	#
 	# Kills a thread by index
 	#
 	def kill(idx)

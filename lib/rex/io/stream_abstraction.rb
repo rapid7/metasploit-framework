@@ -122,7 +122,7 @@ module StreamAbstraction
 protected
 
 	def monitor_rsock
-		self.monitor_thread = Rex::ThreadFactory.spawn("StreamMonitorRemote-#{self.peerinfo}", false) {
+		self.monitor_thread = Rex::ThreadFactory.spawn("StreamMonitorRemote", false) {
 			loop do
 				closed = false
 				buf    = nil
