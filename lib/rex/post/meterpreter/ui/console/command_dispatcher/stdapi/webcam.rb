@@ -34,10 +34,15 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	end
 
 	def cmd_webcam_list
-		client.webcam.webcam_list.each_with_index { |name, indx| 
-			print_line("#{indx + 1}: #{name}")
-		}
-		return true
+		begin
+			client.webcam.webcam_list.each_with_index { |name, indx| 
+				print_line("#{indx + 1}: #{name}")
+			}
+			return true
+		rescue
+			print_error("No webcams where found")
+			return false
+		end
 	end
 
 	def cmd_webcam_snap(*args)
@@ -45,7 +50,8 @@ class Console::CommandDispatcher::Stdapi::Webcam
 		quality = 50
 		view    = true
 		index   = 1
-		
+		wc_list = []		
+
 		webcam_snap_opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner" ],
 			"-i" => [ true, "The index of the webcam to use (Default: 1)" ],
@@ -71,23 +77,31 @@ class Console::CommandDispatcher::Stdapi::Webcam
 					view = false if ( val =~ /^(f|n|0)/i )
 			end
 		}
-
-		print_line("[*] Starting...")
-		client.webcam.webcam_start(index)
-		data = client.webcam.webcam_get_frame(quality)
-		print_line("[*] Got frame")
-		client.webcam.webcam_stop
-		print_line("[*] Stopped")
-
-		if( data )
-			::File.open( path, 'wb' ) do |fd|
-				fd.write( data )
-			end
-			path = ::File.expand_path( path )
-			print_line( "Webcam shot saved to: #{path}" )
-			Rex::Compat.open_file( path ) if view
+		begin 
+			wc_list << client.webcam.webcam_list
+		rescue
 		end
-		return true
+		if wc_list.length > 0
+			print_status("Starting...")
+			client.webcam.webcam_start(index)
+			data = client.webcam.webcam_get_frame(quality)
+			print_good("Got frame")
+			client.webcam.webcam_stop
+			print_status("Stopped")
+
+			if( data )
+				::File.open( path, 'wb' ) do |fd|
+					fd.write( data )
+				end
+				path = ::File.expand_path( path )
+				print_line( "Webcam shot saved to: #{path}" )
+				Rex::Compat.open_file( path ) if view
+			end
+			return true
+		else
+			print_error("No webcams where found")
+			return false
+		end
 	end
 
 end
