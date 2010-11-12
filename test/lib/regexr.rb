@@ -16,7 +16,7 @@ class Regexr
 		data_lines = data.split("\n")
 		regex_start = Regexp.new(the_start, @case_insensitive)
 		if @verbose
-			puts "testing: " + the_start + " =~ " + data_lines.first
+			puts "Testing: " + the_start + " =~ " + data_lines.first
 		end
 		return regex_start =~ data_lines.first
 	end
@@ -26,7 +26,7 @@ class Regexr
 		data_lines = data.split("\n")
 		regex_end = Regexp.new(the_end, @case_insensitive)
 		if @verbose
-			puts "testing: " + the_end + " =~ " + data_lines.last
+			puts "Testing: " + the_end + " =~ " + data_lines.last
 		end
 		return regex_end =~ data_lines.last
 	end
@@ -38,8 +38,8 @@ class Regexr
 		regex_end = Regexp.new(the_end, @case_insensitive)
 
 		if @verbose
-			puts "testing: " + the_start + " =~ " + data_lines.first
-			puts "testing: " + the_end + " =~ " + data_lines.last
+			puts "Testing: " + the_start + " =~ " + data_lines.first
+			puts "Testing: " + the_end + " =~ " + data_lines.last
 		end
 
 		if regex_start =~ data_lines.first
