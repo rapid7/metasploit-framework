@@ -37,7 +37,7 @@ ENABLE_PROCESSED_INPUT = 1
 
 def self.is_windows
 	return @@is_windows if @@is_windows
-	@@is_windows = (RUBY_PLATFORM =~ /mswin32/) ? true : false
+	@@is_windows = (RUBY_PLATFORM =~ /mswin32|mingw32/) ? true : false
 end
 
 def self.is_cygwin
