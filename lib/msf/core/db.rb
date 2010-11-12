@@ -211,6 +211,11 @@ class DBManager
 		return if not active
 		addr = opts.delete(:host) || return
 
+		# Sometimes a host setup through a pivot will see the address as "Remote Pipe"
+		if addr.eql? "Remote Pipe"
+			return
+		end
+
 		# Ensure the host field updated_at is changed on each report_host()
 		if addr.kind_of? Host
 			queue( Proc.new { addr.updated_at = addr.created_at; addr.save! } )
