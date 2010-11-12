@@ -150,7 +150,7 @@ module PacketDispatcher
 		self.alive = true
 
 		# Spawn a thread for receiving packets
-		self.receiver_thread = ::Thread.new do
+		self.receiver_thread = Rex::ThreadFactory.spawn("MeterpreterReceiver", false) do
 			while (self.alive)
 				begin
 					rv = Rex::ThreadSafe.select([ self.sock.fd ], nil, nil, 0.25)
@@ -202,7 +202,7 @@ module PacketDispatcher
 		end
 
 		# Spawn a new thread that monitors the socket
-		self.dispatcher_thread = ::Thread.new do
+		self.dispatcher_thread = Rex::ThreadFactory.spawn("MeterpreterDispatcher", false) do
 			begin
 			# Whether we're finished or not is determined by the receiver
 			# thread above.

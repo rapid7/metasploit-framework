@@ -40,6 +40,14 @@ class Core
 		"-l" => [ false, "List all running jobs."                         ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
+	@@threads_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner."                                   ],
+		"-k" => [ true,  "Terminate the specified thread ID."             ],
+		"-K" => [ false, "Terminate all non-critical threads."            ],
+		"-i" => [ true, "Lists detailed information about a thread."      ],
+		"-l" => [ false, "List all background threads."                   ],
+		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
+		
 	@@persist_opts = Rex::Parser::Arguments.new(
 		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
 		"-r" => [ false, "Restore framework state."                       ],
@@ -83,7 +91,7 @@ class Core
 			"info"     => "Displays information about one or more module",
 			"irb"      => "Drop into irb scripting mode",
 			"jobs"     => "Displays and manages jobs",
-			"kill"     => "kill a job",
+			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 
 # XXX complete this before re-enabling
@@ -101,6 +109,7 @@ class Core
 			"setg"     => "Sets a global variable to a value",
 			"show"     => "Displays modules of a given type, or all modules",
 			"sleep"    => "Do nothing for the specified number of seconds",
+			"threads"  => "View and manipulate background threads",
 			"unload"   => "Unload a framework plugin",
 			"unset"    => "Unsets one or more variables",
 			"unsetg"   => "Unsets one or more global variables",
@@ -405,7 +414,7 @@ class Core
 
 		begin
 			# Console -> Network
-			c2n = Thread.new(cin, sock) do |input, output|
+			c2n = framework.threads.spawn("ConnectConsole2Network", false, cin, sock) do |input, output|
 				while true
 					begin
 						res = input.gets
@@ -421,7 +430,7 @@ class Core
 			end
 
 			# Network -> Console
-			n2c = ::Thread.new(sock, cout, c2n) do |input, output, cthr|
+			n2c = framework.threads.spawn("ConnectNetwork2Console", false, sock, cout, c2n) do |input, output, cthr|
 				while true
 					begin
 						res = input.read(65535)
@@ -664,6 +673,125 @@ class Core
 	end
 
 	#
+	# Displays and manages running background threads
+	#
+	def cmd_threads(*args)
+		# Make the default behavior listing all jobs if there were no options
+		# or the only option is the verbose flag
+		if (args.length == 0 or args == ["-v"])
+			args.unshift("-l")
+		end
+
+		verbose = false
+		dump_list = false
+		dump_info = false
+		thread_id = nil
+
+		# Parse the command options
+		@@threads_opts.parse(args) { |opt, idx, val|
+			case opt
+				when "-v"
+					verbose = true
+				when "-l"
+					dump_list = true
+
+				# Terminate the supplied thread id
+				when "-k"
+					val = val.to_i
+					if not framework.threads[val]
+						print_error("No such thread")
+					else
+						print_line("Terminating thread: #{val}...")
+						framework.threads.kill(val)
+					end
+				when "-K"
+					print_line("Killing all non-critical threads...")
+					framework.threads.each_index do |i|
+						t = framework.threads[i]
+						next if not t
+						next if t[:tm_crit]
+						framework.threads.kill(i)
+					end
+				when "-i"
+					# Defer printing anything until the end of option parsing
+					# so we can check for the verbose flag.
+					dump_info = true
+					thread_id = val.to_i
+				when "-h"
+					print(
+						"Usage: threads [options]\n\n" +
+						"Background thread management.\n" +
+						@@threads_opts.usage())
+					return false
+			end
+		}
+
+		if (dump_list)
+			tbl = Table.new(
+				Table::Style::Default,
+				'Header'  => "Background Threads",
+				'Prefix'  => "\n",
+				'Postfix' => "\n",
+				'Columns' =>
+					[
+						'ID',
+						'Status',
+						'Critical',
+						'Name',
+						'Started'
+					]
+			)
+								
+			framework.threads.each_index do |i|
+				t = framework.threads[i]
+				next if not t
+				tbl << [ i.to_s, t.status || "dead", t[:tm_crit] ? "True" : "False", t[:tm_name].to_s, t[:tm_time].to_s ]				
+			end
+			print(tbl.to_s)
+		end
+		
+		if (dump_info)
+			thread = framework.threads[thread_id]
+			
+			if (thread)
+				
+
+				output  = "\n"
+				output += "  ID: #{thread_id}\n"
+				output += "Name: #{thread[:tm_name]}\n"
+				output += "Info: #{thread.status || "dead"}\n"
+				output += "Crit: #{thread[:tm_crit] ? "True" : "False"}\n"
+				output += "Time: #{thread[:tm_time].to_s}\n"
+				
+				if (verbose)
+					output += "\n"
+					output += "Thread Source\n"
+					output += "=============\n"					
+					thread[:tm_call].each do |c|
+						output += "      #{c.to_s}\n"
+					end
+					output += "\n"
+				end
+				
+				print(output +"\n")
+			else
+				print_line("Invalid Thread ID")
+			end
+		end
+	end
+
+	#
+	# Tab completion for the threads command
+	#
+	def cmd_threads_tabs(str, words)
+		if(not words[1])
+			return %w{-l -k -K -h -v}
+		end
+		if (words[1] == '-k' and not words[2])
+			return framework.threads.each_index.map{|idx| idx}
+		end
+	end
+
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
 	# the framework root plugin directory is used.
 	#

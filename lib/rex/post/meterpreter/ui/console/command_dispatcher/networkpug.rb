@@ -177,7 +177,7 @@ class Console::CommandDispatcher::NetworkPug
 		response, @channel = client.networkpug.networkpug_start(interface, filter)
 
 		if(@channel)
-			@thread_stuff = ::Thread.new {
+			@thread_stuff = Rex::ThreadFactory.spawn("MeterpreterNetworkPUGReceiver", false) {
 				proxy_packets()
 			}
 

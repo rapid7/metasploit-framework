@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 		while(not queue.empty?)
 			t = []
 			1.upto(nt) do
-				t << Thread.new(queue.shift) do |testf|
+				t << framework.threads.spawn("Module(#{self.refname})-#{rhost}", false, queue.shift) do |testf|
 					Thread.current.kill if not testf
 
 					testfext = testf.chomp + datastore['EXT']

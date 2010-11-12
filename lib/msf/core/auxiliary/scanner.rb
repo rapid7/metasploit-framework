@@ -83,7 +83,7 @@ def run
 				ip = ar.next_ip
 				break if not ip
 
-				tl << Thread.new(ip.dup) do |tip|
+				tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
 					targ = tip
 					nmod = self.replicant
 					nmod.datastore['RHOST'] = targ
@@ -155,7 +155,7 @@ def run
 
 				# Create a thread for each batch
 				if (batch.length > 0)
-					thread = Thread.new(batch) do |bat|
+					thread = framework.threads.spawn("ScannerBatch(#{self.refname})", false, batch) do |bat|
 						nmod = self.replicant
 						mybatch = bat.dup
 						begin

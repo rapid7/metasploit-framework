@@ -342,7 +342,7 @@ protected
 			# If we found the resource handler for this resource, call its
 			# procedure.
 			if (p[1] == true)
-				Thread.new {
+				Rex::ThreadFactory.spawn("HTTPServerRequestHandler", false) {
 					handler.on_request(cli, request)
 				}
 			else

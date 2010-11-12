@@ -20,20 +20,16 @@ class SessionManager < Hash
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
-		self.reaper_thread = Thread.new do
-			begin
+		self.reaper_thread = framework.threads.spawn("SessionManager", true, self) do |manager|
 			while true
 				::IO.select(nil, nil, nil, 0.5)
-				each_value do |s|
+				manager.each_value do |s|
 					if not s.alive?
-						deregister(s, "Died")
+						manager.deregister(s, "Died")
 						wlog("Session #{s.sid} has died")
 						next
 					end
 				end
-			end
-			rescue ::Exception => e
-				wlog("Exception in the session manager reaper thread: #{e.class} #{e} #{e.backtrace}")
 			end
 		end
 	end

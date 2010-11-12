@@ -279,7 +279,7 @@ class Metasploit3 < Msf::Auxiliary
 			while (tl.length < @threadnum)
 				ip = ar.next_ip
 				break if not ip
-				tl << Thread.new(ip.dup) do |tip|
+				tl << framework.threads.spawn("Module(#{self.refname})-#{ip}", false, ip.dup) do |tip|
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|

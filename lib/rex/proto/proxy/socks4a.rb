@@ -165,7 +165,7 @@ class Socks4a
 				@relay_client = relay_client
 				@relay_sock   = relay_sock
 				# start the relay thread (modified from Rex::IO::StreamAbstraction)
-				@relay_thread = ::Thread.new do
+				@relay_thread = Rex::ThreadFactory.spawn("SOCKS4AProxyServerRelay", false) do
 					loop do
 						closed = false
 						buf    = nil
@@ -234,7 +234,7 @@ class Socks4a
 		#
 		def start
 			# create a thread to handle this client request so as to not block the socks4a server
-			@client_thread = ::Thread.new do
+			@client_thread = Rex::ThreadFactory.spawn("SOCKS4AProxyClient", false) do
 				begin
 					@server.add_client( self )
 					# get the initial client request packet
@@ -378,7 +378,7 @@ class Socks4a
 				# signal we are now running
 				@running = true
 				# start the servers main thread to pick up new clients
-				@server_thread = ::Thread.new do
+				@server_thread = Rex::ThreadFactory.spawn("SOCKS4AProxyServer", false) do
 					while( @running ) do
 						begin
 							# accept the client connection

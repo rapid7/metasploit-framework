@@ -128,7 +128,7 @@ class Driver < Msf::Ui::Driver
 		# Create a read subscriber
 		spipe.create_subscriber('session_reader')
 
-		Thread.new do
+		framework.threads.spawn("ConnectSessionInteraction", false) do
 			ses.interact(spipe.input, spipe)
 		end
 	end

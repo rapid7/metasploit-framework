@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			1.upto(datastore['CONCURRENCY']) do
 				this_port = ports.shift
 				break if not this_port
-				t << Thread.new(this_port) do |port|
+				t << framework.threads.spawn("Module(#{self.refname})-#{ip}:#{this_port}", false, this_port) do |port|
 					begin
 						s = connect(false,
 							{

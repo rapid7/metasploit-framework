@@ -28,7 +28,7 @@ class Job
 	def start(async = false)
 		self.start_time = Time.now
 		if (async)
-			self.job_thread = Thread.new {
+			self.job_thread = Rex::ThreadFactory.spawn("JobID(#{jid})-#{name}", false) {
 				# Deschedule our thread momentarily
 				::IO.select(nil, nil, nil, 0.01)
 

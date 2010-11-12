@@ -61,10 +61,12 @@ class Framework
 		attr_accessor :framework
 	end
 
+	require 'msf/core/thread_manager'
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
 	require 'msf/core/db_manager'
 	require 'msf/core/event_dispatcher'
+
 
 	#
 	# Creates an instance of the framework context.
@@ -74,6 +76,7 @@ class Framework
 		# Allow specific module types to be loaded
 		types = opts[:module_types] || MODULE_TYPES
 
+		self.threads   = ThreadManager.new(self)
 		self.events    = EventDispatcher.new(self)
 		self.modules   = ModuleManager.new(self,types)
 		self.sessions  = SessionManager.new(self)
@@ -81,6 +84,10 @@ class Framework
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
 		self.db        = DBManager.new(self, opts)
+		
+		# Configure the thread factory
+		Rex::ThreadFactory.provider = self.threads
+		
 
 		subscriber = FrameworkEventSubscriber.new(self)
 		events.add_exploit_subscriber(subscriber)
@@ -177,7 +184,12 @@ class Framework
 	# maintains the database db and handles db events
 	#
 	attr_reader   :db
-
+	#
+	# The framework instance's thread manager. The thread manager
+	# provides a cleaner way to manage spawned threads
+	#
+	attr_reader   :threads
+	
 protected
 
 	attr_writer   :events # :nodoc:
@@ -188,6 +200,7 @@ protected
 	attr_writer   :jobs # :nodoc:
 	attr_writer   :plugins # :nodoc:
 	attr_writer   :db # :nodoc:
+	attr_writer   :threads # :nodoc:
 end
 
 class FrameworkEventSubscriber

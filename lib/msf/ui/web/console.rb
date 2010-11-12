@@ -62,7 +62,7 @@ class WebConsole
 		self.console.extend(WebConsoleShell)
 		self.console.block_command('irb')
 
-		self.thread = Thread.new { self.console.run }
+		self.thread = framework.threads.spawn("WebConsoleShell", false) { self.console.run }
 
 		update_access()
 	end

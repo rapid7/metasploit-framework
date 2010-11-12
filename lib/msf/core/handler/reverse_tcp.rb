@@ -143,7 +143,7 @@ module ReverseTcp
 	# Starts monitoring for an inbound connection.
 	#
 	def start_handler
-		self.listener_thread = Thread.new {
+		self.listener_thread = framework.threads.spawn("ReverseTcpHandlerListener-#{datastore['LPORT']}", false) {
 			client = nil
 
 			begin
@@ -161,7 +161,7 @@ module ReverseTcp
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
-				conn_threads << Thread.new(client) { |client_copy|
+				conn_threads << framework.threads.spawn("ReverseTcpHandlerSession", false, client) { |client_copy|
 					begin
 						handle_connection(client_copy)
 					rescue ::Exception

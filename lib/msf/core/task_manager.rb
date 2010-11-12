@@ -120,7 +120,7 @@ class TaskManager
 	def start
 		return if self.thread
 		self.processing = true
-		self.thread     = Thread.new do
+		self.thread     = framework.threads.spawn("TaskManager", true) do
 			begin
 				process_tasks
 			rescue ::Exception => e

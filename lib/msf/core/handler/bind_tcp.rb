@@ -98,7 +98,7 @@ module BindTcp
 		self.listener_pairs[phash] = true
 
 		# Start a new handling thread
-		self.listener_threads << Thread.new {
+		self.listener_threads << framework.threads.spawn("BindTcpHandlerListener-#{lport}", false) {
 			client = nil
 			
 			print_status("Started bind handler")
@@ -144,7 +144,7 @@ module BindTcp
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
-				conn_threads << Thread.new(client) { |client_copy|
+				conn_threads << framework.threads.spawn("BindTcpHandlerSession", false, client) { |client_copy|
 					begin
 						handle_connection(client_copy)
 					rescue

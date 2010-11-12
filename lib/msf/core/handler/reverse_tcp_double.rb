@@ -86,7 +86,7 @@ module ReverseTcpDouble
 	# Starts monitoring for an inbound connection.
 	#
 	def start_handler
-		self.listener_thread = Thread.new {
+		self.listener_thread = framework.threads.spawn("ReverseTcpDoubleHandlerListener", false) {
 			sock_inp = nil
 			sock_out = nil
 
@@ -114,7 +114,7 @@ module ReverseTcpDouble
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
-				conn_threads << Thread.new(sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
+				conn_threads << framework.threads.spawn("ReverseTcpDoubleHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
 					begin
 						chan = TcpReverseDoubleSessionChannel.new(sock_inp_copy, sock_out_copy)
 						handle_connection(chan.lsock)
@@ -231,7 +231,7 @@ protected
 			self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
 			# Start a thread to pipe data between stdin/stdout and the two sockets
-			@monitor_thread = Thread.new {
+			@monitor_thread = framework.threads.spawn("ReverseTcpDoubleHandlerMonitor", false) {
 				begin
 					begin
 

@@ -99,7 +99,7 @@ class Server
 			'Context'   => context
 		)
 
-		self.thread = Thread.new {
+		self.thread = Rex::ThreadFactory.spawn("DHCPServerMonitor", false) {
 			monitor_socket
 		}
 	end

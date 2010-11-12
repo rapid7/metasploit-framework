@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			udp_send_sock = nil
 
-			server_thread = Thread.new { upnp_client_listener }
+			server_thread = framework.threads.spawn("Module(#{self.refname})-Listener", false) { upnp_client_listener }
 
 			# TODO: Test to see if this scheme will work when pivoted.
 			

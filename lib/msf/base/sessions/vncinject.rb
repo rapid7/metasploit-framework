@@ -150,7 +150,7 @@ class VncInject
 			Rex::FileUtils::find_full_path('vncviewer.exe')
 
 		if (vnc)
-			self.view = Thread.new {
+			self.view = framework.threads.spawn("VncViewerWrapper", false) {
 				system("vncviewer #{vlhost}::#{vlport}")
 			}
 

@@ -117,7 +117,7 @@ class Session < Base
 		if interacting
 			s.user_input.put(buff+"\n")
 		else
-			Thread.new(s) { |sess| sess.console.run_single(buff) }
+			@framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(buff) }
 		end
 		{}
 	end
@@ -157,7 +157,7 @@ class Session < Base
 			s.init_ui(Rex::Ui::Text::Input::Buffer.new, Rex::Ui::Text::Output::Buffer.new)
 		end
 
-		Thread.new(s) { |sess| sess.console.run_single(data) }
+		@framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(data) }
 		{}
 	end
 

@@ -455,7 +455,7 @@ if (marker == false) {
 				# that we've found a new session.  We call handle_connection using
 				# the lsock of the local stream.
 				if (s = find_session_channel(sid))
-					Thread.new(cli) { |cli_copy|
+					framework.threads.spawn("PassiveXClient-#{sid}", false, cli) { |cli_copy|
 						begin
 							s.remote = cli_copy
 							handle_connection(s.lsock)

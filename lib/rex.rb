@@ -2,7 +2,7 @@
 
 The Metasploit Rex library is provided under the 3-clause BSD license.
 
-Copyright (c) 2005-2006, Rapid7 LLC
+Copyright (c) 2005-2010, Rapid7 LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -48,6 +48,9 @@ require 'rex/file'
 
 # Thread safety and synchronization
 require 'rex/sync'
+
+# Thread factory
+require 'rex/thread_factory'
 
 # Encoding
 require 'rex/encoder/xor'

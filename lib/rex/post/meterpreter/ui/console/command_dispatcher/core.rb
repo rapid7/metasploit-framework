@@ -389,7 +389,7 @@ class Console::CommandDispatcher::Core
 		self.bgjob_id += 1
 
 		# Get the script name
-		self.bgjobs[jid] = ::Thread.new(jid,args) do |myjid,xargs|
+		self.bgjobs[jid] = Rex::ThreadFactory.spawn("MeterpreterBGRun(#{args[0]})-#{jid}", false, jid, args) do |myjid,xargs|
 			::Thread.current[:args] = xargs.dup
 			begin
 				# the rest of the arguments get passed in through the binding

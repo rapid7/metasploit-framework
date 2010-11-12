@@ -51,7 +51,7 @@ class Server
 			'Context'   => context
 			)
 
-		self.thread = Thread.new {
+		self.thread = Rex::ThreadFactory.spawn("TFTPServerMonitor", false) {
 			monitor_socket
 		}
 	end

@@ -141,7 +141,7 @@ class LocalRelay
 	#
 	def start
 		if (!self.relay_thread)
-			self.relay_thread = Thread.new {
+			self.relay_thread = Rex::ThreadFactory.spawn("LocalRelay", false) {
 				begin
 					monitor_relays
 				rescue ::Exception

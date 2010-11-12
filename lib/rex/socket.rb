@@ -495,10 +495,10 @@ module Socket
 		threads = []
 		mutex   = ::Mutex.new
 
-		threads << ::Thread.new {
+		threads << Rex::ThreadFactory.spawn('TcpSocketPair', false) {
 			server = nil
 			mutex.synchronize {
-				threads << ::Thread.new {
+				threads << Rex::ThreadFactory.spawn('TcpSocketPairClient', false) {
 					mutex.synchronize {
 						rsock = ::TCPSocket.new( laddr, lport )
 					}

@@ -62,10 +62,10 @@ module StreamServer
 	def start
 		self.clients = []
 
-		self.listener_thread = Thread.new {
+		self.listener_thread = Rex::ThreadFactory.spawn("StreamServerListener", false) {
 			monitor_listener
 		}
-		self.clients_thread = Thread.new {
+		self.clients_thread = Rex::ThreadFactory.spawn("StreamServerClientMonitor", false) {
 			monitor_clients
 		}
 	end

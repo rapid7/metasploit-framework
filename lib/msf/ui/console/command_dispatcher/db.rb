@@ -1012,7 +1012,7 @@ class Db
 
 						print_status("(#{idx}/#{matches.length} [#{framework.sessions.length} sessions]): Launching #{xref[3]} against #{xref[2]}:#{mod.datastore['RPORT']}...")
 
-						autopwn_jobs << Thread.new(mod) do |xmod|
+						autopwn_jobs << framework.threads.spawn("AutoPwnJob#{xref[3]}", false, mod) do |xmod|
 							begin
 							stime = Time.now.to_f
 							::Timeout.timeout(maxtime) do
