@@ -328,7 +328,9 @@ class Client
 	def send_recv(req, t = -1, persist=false)
 		@pipeline = persist
 		send_request(req)
-		read_response(t)
+		res = read_response(t)
+		res.request = req.to_s
+		res
 	end
 
 	#

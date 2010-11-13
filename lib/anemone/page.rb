@@ -29,7 +29,9 @@ module Anemone
     attr_accessor :referer
     # Response time of the request for this page in milliseconds
     attr_accessor :response_time
-
+    # Storage for the original HTTP request that generated this response
+    attr_accessor :request
+    
     #
     # Create a new page
     #

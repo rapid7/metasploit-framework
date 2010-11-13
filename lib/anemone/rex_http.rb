@@ -40,13 +40,16 @@ module Anemone
         pages = []
         get(url, referer) do |response, code, location, redirect_to, response_time|
  
-          pages << Page.new(location, :body => response.body.dup,
+          page = Page.new(location, :body => response.body.dup,
                                       :code => code,
                                       :headers => response.headers,
                                       :referer => referer,
                                       :depth => depth,
                                       :redirect_to => redirect_to,
                                       :response_time => response_time)
+          # Store the associated raw HTTP request
+          page.request = response.request
+		  pages << page
         end
 
         return pages

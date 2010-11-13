@@ -74,10 +74,15 @@ class Response < Packet
 		"HTTP\/#{proto} #{code}#{(message and message.length > 0) ? ' ' + message : ''}\r\n"
 	end
 
-	attr_accessor :code
+	#
+	# Used to store a copy of the original request
+	#
+	attr_accessor :request 
+	
+	
+	attr_accessor :code 
 	attr_accessor :message
 	attr_accessor :proto
-
 end
 
 end

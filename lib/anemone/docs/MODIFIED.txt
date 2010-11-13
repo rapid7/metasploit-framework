@@ -7,3 +7,4 @@ This snapshot of Anemone has been modified for use within the Metasploit Framewo
  * Addition of a Rex::Proto::HTTP version of anemone/http
  * Handle Rex::Proto::HTTP headers (not arrays)
  * Disable freeze_options() since it can recurse into the framework/module options
+ * Addition of a page.request accessor to store the associated raw request
