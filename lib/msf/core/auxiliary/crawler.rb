@@ -88,10 +88,8 @@ module Auxilliary::HttpCrawler
 
 
 	# Entry point for the crawler code
-	def run_host(ip)
+	def run
 
-		print_status("Testing #{ip}...")
-		
 		self.request_count = 0
 		self.form_count  = 0
 		self.url_count   = 0

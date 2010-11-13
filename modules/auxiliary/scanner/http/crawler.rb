@@ -15,14 +15,13 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
-	include Msf::Exploit::Remote::HttpCrawler
-	include Msf::Auxiliary::Scanner
+	include Msf::Auxiliary::HttpCrawler
 
 	def initialize
 		super(
 			'Name'        => 'Web Site Crawler',
 			'Version'     => '$Revision$',
-			'Description' => 'Crawl one or more web sites and store information about what was found',
+			'Description' => 'Crawl a web site and store information about what was found',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
