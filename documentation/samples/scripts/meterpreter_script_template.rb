@@ -8,7 +8,7 @@
 sample_option_var = nil
 @exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
-	"-o" => [ true , "Option that requieres a value]
+	"-o" => [ true , "Option that requieres a value"]
 	)
 meter_type = client.platform
 
