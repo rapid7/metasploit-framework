@@ -64,6 +64,7 @@ class ThreadManager < Array
 					argv.shift.call(*argv)
 				rescue ::Exception => e
 					elog("thread exception: #{::Thread.current[:tm_name]}  critical=#{::Thread.current[:tm_crit]}  error:#{e.class} #{e} #{e.backtrace} source:#{::Thread.current[:tm_call].inspect}")
+					raise e
 				end
 			end
 		else
