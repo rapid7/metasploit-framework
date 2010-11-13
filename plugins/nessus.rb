@@ -5,9 +5,10 @@ require 'rex/parser/nessus_xml'
 module Msf
 	
 	#constants
-	NBVer = "1.0" # Nessus Plugin Version.  Increments each time we commit to msf
+	NBVer = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
 	Xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
-
+	Nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml" #location of the nessus.yml containing saved nessus creds
+	
 	class Plugin::Nessus < Msf::Plugin
 		
 		#creates the index of exploit details to make searching for exploits much faster.
@@ -78,20 +79,13 @@ module Msf
 				create_xindex
 			end
 		end
-		###
-		#
-		# This class implements a sample console command dispatcher.
-		#
-		###
+		
 		class ConsoleCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
 			def name
 				"Nessus"
 			end
 
-			#
-			# Returns the hash of commands supported by this dispatcher.
-			#
 			def commands
 				{
 					"nessus_connect" => "Connect to a nessus server: nconnect username:password@hostname:port <ssl ok>",
@@ -128,13 +122,43 @@ module Msf
 					"nessus_index" => "Manually generates a search index for exploits.",
 					"nessus_template_list" => "List all the templates on the server",
 					"nessus_db_scan" => "Create a scan of all ips in db_hosts",
+					"nessus_save" => "Save username/passowrd/server/port details",
 					"nessus_report_exploits" => "Shows a summary of all the vulns in a scan that have a msf exploit."
 					}
 			end
 			
-		
 			def cmd_nessus_index
 				Msf::Plugin::Nessus.nessus_index
+			end
+			
+			def cmd_nessus_save(*args)
+				#if we are logged in, save session details to nessus.yaml
+				if args[0] == "-h"
+					print_status("Usage: ")
+					print_status("       nessus_save")
+					return
+				end
+				
+				if args[0]
+					print_status("Usage: ")
+					print_status("       nessus_save")
+					return
+				end
+				
+				group = "default"
+				
+				if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+					config = Hash.new
+					config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
+					File.open("#{Nessus_yaml}", "w+") do |f|
+						f.puts YAML.dump(config)
+					end
+					print_good("#{Nessus_yaml} created.")
+					
+				else
+					print_error("Missing username/password/server/port - relogin and then try again.")
+					return
+				end
 			end
 			
 			def cmd_nessus_report_exploits(*args)
@@ -271,26 +295,6 @@ module Msf
 							end
 						end
 						
-						#make sure we only report a exploit once in exp. We should evaluate the accuracy of the exploit suggested too, weed out some obvious non starters.
-						
-						#refs = []
-						#
-						#cve.each do |r|
-						#	r.to_s.gsub!(/C(VE|AN)\-/, '')
-						#	refs.push('CVE-' + r.to_s)
-						#end if cve
-						#
-						#bid.each do |r|
-						#	refs.push('BID-' + r.to_s)
-						#end if bid
-						#
-						#xref.each do |r|
-						#	ref_id, ref_val = r.to_s.split(':')
-						#	ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
-						#end if xref
-			
-						#msfref = "MSF-" << exp if exp
-						#refs.push msfref if msfref
 						nss = 'NSS-' + nasl
 						next if exp.empty?
 						print("#{addr} | #{os} | #{port} | #{nss} | Sev #{severity} | %bld%red#{exp.uniq}%clr\n")
@@ -332,7 +336,6 @@ module Msf
 				
 				tgts = ""
 				framework.db.hosts(framework.db.workspace).each do |host|
-					
 					tgts << host.address
 					tgts << ","
 				end
@@ -348,66 +351,12 @@ module Msf
 				end
 				
 			end
-			
-			
-			#def cmd_nessus_exploits
-			#	#need to expand this to index all modules.  What kind of info is needed?
-			#	#find a better place to keep the indexes and a way to name them
-			#	#put in version checking:
-			#	#check if exists and is a valid readable file (read first line)
-			#	#If the version line at start of current index doesnt match rev number of msf, rebuild index
-			#	
-			#	start = Time.now
-			#	@count = 0
-			#	print_status("Building the exploits search index")
-			#	print("%bld%grn[")
-			#	File.open("xindex", "w+") do |f|
-			#	framework.exploits.sort.each { |refname, mod|
-			#		stuff = ""
-			#		o = nil
-			#		begin
-			#			o = mod.new
-			#		rescue ::Exception
-			#		end
-			#		stuff << "#{refname}|#{o.name}|#{o.platform_to_s}|#{o.arch_to_s}"
-			#		next if not o
-			#		o.references.map do |x|
-			#			if !(x.ctx_id == "URL")
-			#				if (x.ctx_id == "MSB")
-			#					stuff << "|#{x.ctx_val}"
-			#				else
-			#					stuff << "|#{x.ctx_id}-#{x.ctx_val}"
-			#				end
-			#			end
-			#		end
-			#		stuff << "\n"
-			#		f.puts(stuff)
-			#		
-			#		case @count
-			#		when 0
-			#			print("%bld%grn|]\b\b")
-			#			@count += 1
-			#		when 1
-			#			print("%bld%grn/]\b\b")
-			#			@count += 1
-			#		when 2
-			#			print("%bld%grn-]\b\b")
-			#			@count += 1
-			#		when 3
-			#			print("%bld%grn/]\b\b")
-			#			@count = 0
-			#		end
-			#		$stdout.flush
-			#	}
-			#	end
-			#	total = Time.now - start
-			#	print("%bld%grn*] Done!\n")
-			#	print_status("It has taken : #{total} seconds to build the exploits search index")
-			#end
 		
 			def cmd_nessus_logout
 				@token = nil
 				print_status("Logged out")
+				system("rm #{Nessus_yaml}")
+				print_good("#{Nessus_yaml} removed.")
 				return
 			end
 		
@@ -421,6 +370,7 @@ module Msf
 				tbl << [ "Generic Commands", "" ]
 				tbl << [ "-----------------", "-----------------"]
 				tbl << [ "nessus_connect", "Connect to a nessus server" ]
+				tbl << [ "nessus_save", "Save nessus login info between sessions" ]
 				tbl << [ "nessus_logout", "Logout from the nessus server" ]
 				tbl << [ "nessus_help", "Listing of available nessus commands" ]
 				tbl << [ "nessus_server_status", "Check the status of your Nessus Server" ]
@@ -465,8 +415,8 @@ module Msf
 				tbl << [ "-----------------", "-----------------"]
 				tbl << [ "nessus_policy_list", "List all polciies" ]
 				tbl << [ "nessus_policy_del", "Delete a policy" ]
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_server_feed(*args)
@@ -491,8 +441,8 @@ module Msf
 						])
 					tbl << [@feed, @version, @web_version]
 					print_good("Nessus Status")
-					$stdout.puts "\n"
-					$stdout.puts tbl.to_s + "\n"
+					puts "\n"
+					puts tbl.to_s + "\n"
 				end
 			end
 		
@@ -524,11 +474,29 @@ module Msf
 				print_status("          OR")
 				print_status("       nessus_connect hostname:port <ssl ok>")
 				print_status(" Example:> nessus_connect 192.168.1.10:8834 ok")
+				print_status("          OR")
+				print_status("       nessus_connect")
+				print_status(" Example:> nessus_connect")
+				print_status("This only works after you have saved creds with nessus_save")
 				return
 			end
-
-		
+			
 			def cmd_nessus_connect(*args)
+				
+				if ! args[0]
+					if File.exist?("#{Nessus_yaml}")
+						lconfig = YAML.load_file("#{Nessus_yaml}")
+						@user = lconfig['default']['username']
+						@pass = lconfig['default']['password']
+						@host = lconfig['default']['server']
+						@port = lconfig['default']['port']
+						nessus_login
+						return
+					else
+						ncusage
+						return
+					end
+				end
 			
 				if args[0] == "-h"
 					print_status("%redYou must do this before any other commands.%clr")
@@ -541,6 +509,10 @@ module Msf
 					print_status("		OR")
 					print_status("       nessus_connect hostname:port <ssl ok>")
 					print_status(" Example:> nessus_connect 192.168.1.10:8834 ok")
+					print_status("          OR")
+					print_status("       nessus_connect")
+					print_status(" Example:> nessus_connect")
+					print_status("This only works after you have saved creds with nessus_save")
 					print_status()
 					print_status("%bldusername%clr and %bldpassword%clr are the ones you use to login to the nessus web front end")
 					print_status("%bldhostname%clr can be an ip address or a dns name of the web front end.")
@@ -603,7 +575,6 @@ module Msf
 					$stdout.flush
 					@user = gets
 					@user.chomp!
-				
 				end
 			
 				if ! @pass
@@ -611,14 +582,12 @@ module Msf
 					$stdout.flush
 					@pass = gets
 					@pass.chomp!
-				
 				end
 			
 				if ! ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
 					ncusage
 					return
 				end
-			
 				nessus_login
 			end
 		
@@ -631,7 +600,6 @@ module Msf
 				end
 			
 				@url = "https://#{@host}:#{@port}/"
-			
 				print_status("Connecting to #{@url} as #{@user}")
 				@n=NessusXMLRPC::NessusXMLRPC.new(@url,@user,@pass)
 				@token=@n.login(@user,@pass)
@@ -639,9 +607,8 @@ module Msf
 					print_status("Authenticated")
 				else
 					print_error("Error connecting/logging to the server!")
-					exit 2
+					return
 				end
-			
 			end
 		
 			def cmd_nessus_report_list(*args)
@@ -675,8 +642,8 @@ module Msf
 					tbl << [ report['id'], report['name'], report['status'], t.strftime("%H:%M %b %d %Y") ]
 				}
 				print_good("Nessus Report List")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 				print_status("You can:")
 				print_status("        Get a list of hosts from the report:          nessus_report_hosts <report id>")
 			end
@@ -784,7 +751,6 @@ module Msf
                     end
 				end
 				print_good("Done")
-			
 			end
 		
 			def cmd_nessus_scan_status(*args)
@@ -828,9 +794,9 @@ module Msf
 					tbl << [ scan['id'], scan['name'], scan['owner'], t.strftime("%H:%M %b %d %Y"), scan['status'], scan['current'], scan['total'] ]
 				}
 				print_good("Running Scans")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
-				$stdout.puts "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
+				puts "\n"
 				print_status("You can:")
 				print_good("		Import Nessus report to database : 	nessus_report_get <reportid>")
 				print_good("		Pause a nessus scan : 			nessus_scan_pause <scanid>")
@@ -875,9 +841,9 @@ module Msf
 					tbl << [ template['name'], template['pid'], template['rname'], template['owner'], template['target'] ]
 				}
 				print_good("Templates")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
-				$stdout.puts "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
+				puts "\n"
 				print_status("You can:")
 				print_good("		Import Nessus report to database : 	nessus_report_get <reportid>")
 			end
@@ -916,8 +882,8 @@ module Msf
 					tbl << [ user['name'], user['admin'], t.strftime("%H:%M %b %d %Y") ]
 				}
 				print_good("Nessus users")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_server_status(*args)
@@ -977,8 +943,8 @@ module Msf
 				}
 				plugins = total.sum
 				tbl << [users, policies, scans, reports, plugins]
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_plugin_list(*args)
@@ -1012,8 +978,8 @@ module Msf
 				tbl << [ '', '']
 				tbl << [ 'Total Plugins', plugins ]
 				print_good("Plugins By Family")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 				print_status("List plugins for a family : nessus_plugin_family <family name>")
 			end
 			
@@ -1183,8 +1149,8 @@ module Msf
 					tbl << [ host['hostname'], host['severity'], host['sev0'], host['sev1'], host['sev2'], host['sev3'], host['current'], host['total'] ]
 				}
 				print_good("Report Info")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 				print_status("You can:")
 				print_status("        Get information from a particular host:          nessus_report_host_ports <hostname> <report id>")
 			end
@@ -1232,8 +1198,8 @@ module Msf
 					tbl << [ port['portnum'], port['protocol'], port['severity'], port['svcname'], port['sev0'], port['sev1'], port['sev2'], port['sev3'] ]
 				}
 				print_good("Host Info")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 				print_status("You can:")
 				print_status("        Get detailed scan infromation about a specfic port: nessus_report_host_detail <hostname> <port> <protocol> <report id>")
 			end
@@ -1285,8 +1251,8 @@ module Msf
 					tbl << [ detail['port'], detail['severity'], detail['pluginID'], detail['pluginName'], detail['cvss_base_score'] || 'none', detail['exploit_available'] || '.', detail['cve'] || '.', detail['risk_factor'] || '.', detail['cvss_vector'] || '.' ]
 				}
 				print_good("Port Info")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_scan_pause_all(*args)
@@ -1575,8 +1541,8 @@ module Msf
 					tbl << [ plugin['id'], plugin['name'], plugin['filename'] ]
 				}
 				print_good("#{fam} Info")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_policy_list(*args)
@@ -1606,8 +1572,8 @@ module Msf
 					tbl << [ policy['id'], policy['name'], policy['comments'] ]
 				}
 				print_good("Nessus Policy List")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_policy_del(*args)
@@ -1707,8 +1673,8 @@ module Msf
 				tbl << [ "Solution", entry['solution'] ]
 				tbl << [ "Plugin Pub Date", entry['plugin_publication_date'] ]
 				tbl << [ "Plugin Modification Date", entry['plugin_modification_date'] ]
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		
 			def cmd_nessus_report_del(*args)
@@ -1792,8 +1758,8 @@ module Msf
 					tbl << [ pref['name'], pref['value'] ]
 				}
 				print_good("Nessus Server Pref List")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			
 			end
 		
@@ -1829,53 +1795,28 @@ module Msf
 					tbl << [ pref['prefname'], pref['prefvalues'], pref['preftype'] ]
 				}
 				print_good("Nessus Plugins Pref List")
-				$stdout.puts "\n"
-				$stdout.puts tbl.to_s + "\n"
+				puts "\n"
+				puts tbl.to_s + "\n"
 			end
 		end
 	
-	
-		#
-		# The constructor is called when an instance of the plugin is created.  The
-		# framework instance that the plugin is being associated with is passed in
-		# the framework parameter.  Plugins should call the parent constructor when
-		# inheriting from Msf::Plugin to ensure that the framework attribute on
-		# their instance gets set.
-		#
 		def initialize(framework, opts)
 			super
 
-			# If this plugin is being loaded in the context of a console application
-			# that uses the framework's console user interface driver, register
-			# console dispatcher commands.
 			add_console_dispatcher(ConsoleCommandDispatcher)
 			print_status("Nessus Bridge for Metasploit #{NBVer}")
 			print_good("Type %bldnessus_help%clr for a command listing")
 			nessus_index
 		end
 
-		#
-		# The cleanup routine for plugins gives them a chance to undo any actions
-		# they may have done to the framework.  For instance, if a console
-		# dispatcher was added, then it should be removed in the cleanup routine.
-		#
 		def cleanup
-			# If we had previously registered a console dispatcher with the console,
-			# deregister it now.
 			remove_console_dispatcher('Nessus')
 		end
 
-		#
-		# This method returns a short, friendly name for the plugin.
-		#
 		def name
 			"nessus"
 		end
 
-		#
-		# This method returns a brief description of the plugin.  It should be no
-		# more than 60 characters, but there are no hard limits.
-		#
 		def desc
 			"Nessus Bridge for Metasploit #{NBVer}"
 		end
