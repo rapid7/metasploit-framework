@@ -105,14 +105,16 @@ module Anemone
           loc = url.merge(loc) if loc.relative?
 
           response, response_time = get_response(loc, referer)
-          code = Integer(response.code)
-          
+          code = response.code.to_i
+                  
           redirect_to = nil
           if code >= 300 and code <= 310
           	redirect_to = URI(response['location']).normalize
           end
                     
           yield response, code, loc, redirect_to, response_time
+          
+          
           limit -= 1
       end while (loc = redirect_to) && allowed?(redirect_to, url) && limit > 0
     end
@@ -126,11 +128,18 @@ module Anemone
     def get_response(url, referer = nil)
       full_path = url.query.nil? ? url.path : "#{url.path}?#{url.query}"
 
-      opts = {}
-      opts['User-Agent'] = user_agent if user_agent
-      opts['Referer'] = referer.to_s if referer
-      opts['Cookie'] = @cookie_store.to_s unless @cookie_store.empty? || (!accept_cookies? && @opts[:cookies].nil?)
+      opts = {
+      	'uri' => url.path
+      }
+      
+      opts['agent']   = user_agent if user_agent
+      opts['cookie']  = @cookie_store.to_s unless @cookie_store.empty? || (!accept_cookies? && @opts[:cookies].nil?)
 
+      head = {}
+      if referer
+      	head['Referer'] = referer.to_s
+      end
+      
       retries = 0
       begin
         start = Time.now()

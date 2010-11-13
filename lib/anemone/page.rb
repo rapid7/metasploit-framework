@@ -85,7 +85,7 @@ module Anemone
         abs = to_absolute(URI(u)) rescue next
         @links << abs if in_domain?(abs)
       end
-      
+    
       nlinks = []
       @links.each do |u|
       	bits = u.path.split('/')
@@ -97,7 +97,7 @@ module Anemone
       
       @links.push(nlinks)
       @links.flatten!
-      @links.uniq!      
+      @links.uniq!
       @links
     end
 
@@ -137,7 +137,7 @@ module Anemone
     #
     def content_type
       res = headers['content-type']
-      res = res.first if res.respond_to?(:first)
+      res = res.first if res.kind_of?(::Array)
       res
     end
 
