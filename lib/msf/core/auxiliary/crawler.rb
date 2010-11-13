@@ -5,7 +5,7 @@ module Msf
 # This module provides methods for implementing a web crawler
 #
 ###
-module Auxilliary::HttpCrawler
+module Auxiliary::HttpCrawler
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
