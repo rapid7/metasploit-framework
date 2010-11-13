@@ -136,7 +136,9 @@ module Anemone
     # The content-type returned by the HTTP request for this page
     #
     def content_type
-      headers['content-type'].first
+      res = headers['content-type']
+      res = res.first if res.respond_to?(:first)
+      res
     end
 
     #
