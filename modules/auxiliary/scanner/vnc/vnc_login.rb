@@ -1,9 +1,9 @@
 ##
-# $Id: $
+# $Id$
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
@@ -22,11 +22,11 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'VNC Authentication Scanner',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module will test a VNC server on a range of machines and
-				report successful logins. Currently it supports RFB protocol 
-				version 3.3, 3.7, and 3.8 using the VNC challenge response 
+				report successful logins. Currently it supports RFB protocol
+				version 3.3, 3.7, and 3.8 using the VNC challenge response
 				authentication method.
 			},
 			'Author'      =>
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ false, 'The password to test' ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
-			], self.class)	
+			], self.class)
 	end
 
 	def run_host(ip)
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_pass { |user, pass|
-				do_login(user, pass) 
+				do_login(user, pass)
 			}
 		rescue ::Rex::ConnectionError
 			nil
