@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 			'Name'             => "Alpha2 Alphanumeric Unicode Uppercase Encoder",
 			'Version'          => '$Revision$',
 			'Description'      => %q{
-				Encodes payloas as unicode-safe uppercase text.  This encoder uses
+				Encodes payload as unicode-safe uppercase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
 			},
 			'Author'           => [ 'pusscat', 'skylined' ],
