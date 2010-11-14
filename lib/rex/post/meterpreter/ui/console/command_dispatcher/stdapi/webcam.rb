@@ -40,7 +40,7 @@ class Console::CommandDispatcher::Stdapi::Webcam
 			}
 			return true
 		rescue
-			print_error("No webcams where found")
+			print_error("No webcams were found")
 			return false
 		end
 	end
