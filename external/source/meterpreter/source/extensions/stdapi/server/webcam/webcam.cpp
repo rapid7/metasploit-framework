@@ -189,7 +189,7 @@ DWORD request_webcam_start(Remote *remote, Packet *packet){
 		UINT nCount = 0;
 		IUnknown* pUnk = NULL;
 		if (pclassEnum == NULL)
-			break;// Error!
+			BREAK_WITH_ERROR("No webcams found", ERROR_FILE_NOT_FOUND) // Error!
 		IMoniker* apIMoniker[1];
 		ULONG ulCount = 0;
 		while (SUCCEEDED(hr) && nCount < index && pclassEnum->Next(1, apIMoniker, &ulCount) == S_OK){
