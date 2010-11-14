@@ -63,6 +63,24 @@ def check_single_file(dparts, fparts, f_rel)
 	# check various properties based on content
 	content = File.open(f_rel, "rb").read
 
+
+	# check criteria based on whole content
+	has_rank = false
+	bad_term = true
+	if content =~ /\< Msf::Exploit/
+		has_rank = true if content =~ /Rank =/
+	else
+		has_rank = true
+	end
+	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+	end
+
+	show_missing(f, 'missing exploit ranking', has_rank)
+	show_missing(f, 'contains "stack overflow"', bad_term)
+
+
+	# check criteria based on individual lines
 	spaces = 0
 	bi = []
 	cr = 0
