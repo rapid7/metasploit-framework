@@ -55,8 +55,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			//Set target
 			if(opts.get("TARGET") != null)
 				target = opts.get("TARGET").toString();
-			else if (options.containsKey("TARGET") && ((Map)options.get("TARGET")).containsKey("default"))
-				target = ((Map)options.get("TARGET")).get("default").toString();
+			else if (opts.containsKey("TARGET") && ((Map)opts.get("TARGET")).containsKey("default"))
+				target = ((Map)opts.get("TARGET")).get("default").toString();
 			else
 				target = "0";
 			for (Component comp : mainPanel.getComponents()){
