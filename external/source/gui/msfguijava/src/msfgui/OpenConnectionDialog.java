@@ -30,6 +30,11 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 	}
 
 	public static RpcConnection getConnection(MainFrame mainframe) {
+		if(mainframe.rpcConn != null){
+			JOptionPane.showMessageDialog(mainframe.getFrame(), "You are already connected!\n"
+					+ "Exit before making a new connection.");
+			throw new RuntimeException("Already connected");
+		}
 		//try saved connection credentials
 		try{
 			Map info = MsfguiApp.getPropertiesNode();
