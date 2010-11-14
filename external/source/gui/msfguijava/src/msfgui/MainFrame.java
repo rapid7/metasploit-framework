@@ -1518,10 +1518,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Interact",shellPopupMenu,null);
 		addSessionItem("Upgrade",shellPopupMenu,new RpcAction(this) {
 			String[] vals = null;
-			public void action(Map session) throws Exception {
+			public void prepare() throws Exception {
+				vals = JOptionPane.showInputDialog(getFrame(), "Select host/port for connect back.",
+						MsfguiApp.getLocalIp()+":4444").split(":");
 				if(vals == null)
-					vals = JOptionPane.showInputDialog(getFrame(), "Select host/port for connect back.",
-							session.get("tunnel_local").toString().split(":")[0]+":4444").split(":");
+					throw new MsfException("cancelled");
+			}
+			public void action(Map session) throws Exception {
 				rpcConn.execute("session.shell_upgrade", session.get("id"), vals[0], vals[1]);
 			}
 		});
@@ -1556,8 +1559,11 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Ping/DNS sweep",meterpreterPopupMenu,new NetenumOptionsDialog(getFrame()));
 		addScript("ARP sweep",meterpreterPopupMenu,new Object(){
 			public String toString(){
-				return "arp_scanner.rb -r "+JOptionPane.showInputDialog(getFrame(),
-							"Enter Target list as address or CIDR","Enter Target", JOptionPane.QUESTION_MESSAGE);
+				String target = JOptionPane.showInputDialog(getFrame(),
+						"Enter Target list as address or CIDR","Enter Target", JOptionPane.QUESTION_MESSAGE);
+				if(target == null)
+					throw new RuntimeException("cancelled");
+				return "arp_scanner.rb -r "+ target;
 			}
 		});
 		addScript("Run shell commands",meterpreterPopupMenu,new MulticommandOptionsDialog(getFrame()));
@@ -1635,11 +1641,14 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 		addSessionItem("Other",meterpreterPopupMenu,new RpcAction(this) {
 			String command = null;
-			public void action(Map session) throws Exception {
+			public void prepare() throws Exception {
+				command = JOptionPane.showInputDialog(getFrame(),
+						"Enter a command","Run command on selected meterpreter sessions", JOptionPane.QUESTION_MESSAGE);
 				if(command == null)
-					command = JOptionPane.showInputDialog(getFrame(),
-							"Enter a command","Run command on selected meterpreter sessions", JOptionPane.QUESTION_MESSAGE);
-				rpcConn.execute("session.meterpreter_write", session.get("id"),Base64.encode(command.getBytes()));
+					throw new MsfException("cancelled");
+			}
+			public void action(Map session) throws Exception {
+				rpcConn.execute("session.meterpreter_run_single", session.get("id"),command);
 			}
 		});
 		addSessionKillItem(meterpreterPopupMenu);

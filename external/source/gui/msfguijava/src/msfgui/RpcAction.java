@@ -26,6 +26,7 @@ public class RpcAction implements ActionListener {
 	}
 	public void actionPerformed(ActionEvent e){
 		try{
+			prepare();
 			if(parent == null)
 				action();
 			else
@@ -35,6 +36,10 @@ public class RpcAction implements ActionListener {
 			if(!ex.getMessage().equals("cancelled"))
 				JOptionPane.showMessageDialog(null, "Error in RPC call: "+ex);
 		}
+	}
+	/** prepare() is provided to prepare state of action handler
+	 * such as preparing a command that will be run on all selected sessions. */
+	public void prepare() throws Exception{
 	}
 	/** action() with no args provided as an exception-handling action listener. */
 	public void action() throws Exception{
