@@ -65,18 +65,22 @@ def check_single_file(dparts, fparts, f_rel)
 
 
 	# check criteria based on whole content
-	has_rank = false
-	bad_term = true
-	if content =~ /\< Msf::Exploit/
+	if content =~ / \< Msf::Exploit/
+		has_rank = false
+		has_dd = false
+
 		has_rank = true if content =~ /Rank =/
-	else
-		has_rank = true
+		has_dd = true if content =~ /DisclosureDate/
+
+		show_missing(f, 'missing exploit ranking', has_rank)
+		show_missing(f, 'missing disclosure date', has_dd)
 	end
+
+	bad_term = true
 	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
 		bad_term = false
 	end
 
-	show_missing(f, 'missing exploit ranking', has_rank)
 	show_missing(f, 'contains "stack overflow"', bad_term)
 
 
