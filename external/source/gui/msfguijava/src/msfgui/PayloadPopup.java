@@ -632,7 +632,7 @@ public class PayloadPopup extends MsfFrame {
 				hash.put(optName, optVal);
 		}
 		hash.put("PAYLOAD",fullName);
-		hash.put("WORKSPACE", MsfguiApp.workspace);
+		hash.put("TARGET","0");
 		try{
 			rpcConn.execute("module.execute","exploit", "multi/handler", hash);
 			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{"exploit", "multi/handler", hash}), rpcConn, mainFrame);
