@@ -1,0 +1,2 @@
+javac -sourcepath ../../javapayload/src/ *.java
+cp -f *.class ../../../../data/exploits/cve-2010-3563/
