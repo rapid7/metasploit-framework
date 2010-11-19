@@ -245,7 +245,7 @@ class Rex::Socket::Comm::Local
 				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
-					
+
 				rescue ::Errno::EADDRNOTAVAIL,::Errno::EADDRINUSE
 					sock.close
 					raise Rex::AddressInUse.new(param.peerhost, param.peerport), caller
