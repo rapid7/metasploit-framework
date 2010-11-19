@@ -344,6 +344,16 @@ class OptAddressRange < OptBase
 			path = $1
 			return false if not File.exists?(path) or File.directory?(path)
 			return File.readlines(path).map{ |s| s.strip}.join(" ")
+		elsif (value =~ /^rand:(.*)/)
+			count = $1.to_i
+			return false if count < 1
+			ret = ''
+			count.times {
+				ret << " " if not ret.empty?
+				ip = "%u.%u.%u.%u" % [1+rand(0xfe),1+rand(0xfe),1+rand(0xfe),1+rand(0xfe)]
+				ret << ip
+			}
+			return ret
 		end
 		return value
 	end
