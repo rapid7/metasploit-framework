@@ -410,4 +410,3 @@ class Rex::Socket::Comm::Local
 	end
 
 end
-
