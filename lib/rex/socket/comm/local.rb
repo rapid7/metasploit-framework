@@ -193,7 +193,7 @@ class Rex::Socket::Comm::Local
 
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
 
-			rescue Errno::EADDRINUSE
+			rescue ::Errno::EADDRNOTAVAIL,::Errno::EADDRINUSE
 				sock.close
 				raise Rex::AddressInUse.new(param.localhost, param.localport), caller
 			end
@@ -242,9 +242,13 @@ class Rex::Socket::Comm::Local
 						raise ::Errno::ETIMEDOUT
 					end
 
-				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
+				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
+					
+				rescue ::Errno::EADDRNOTAVAIL,::Errno::EADDRINUSE
+					sock.close
+					raise Rex::AddressInUse.new(param.peerhost, param.peerport), caller
 
 				rescue Errno::ETIMEDOUT
 					sock.close
