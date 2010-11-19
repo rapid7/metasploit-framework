@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			datastore['TIMEOUT'].to_i,
 			datastore['TelnetBannerTimeout'].to_i,
 			datastore['TelnetTimeout'].to_i
-		].sort.last
+		].max
 
 		# Check for a password-only prompt for this machine.
 		self.password_only = []
