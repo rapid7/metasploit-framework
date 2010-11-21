@@ -31,7 +31,7 @@ end
 
 if not vuln
 	print_error("#{winver} is not vulnerable.")
-	return Rex::Script::Completed
+	raise Rex::Script::Completed
 end
 
 #
