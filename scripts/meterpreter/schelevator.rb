@@ -75,6 +75,10 @@ upload_fn = nil
 # Must have at least one of -c or -u
 usage if not cmd and not upload_fn
 
+if cmd
+	print_status("Using command: #{cmd}")
+end
+
 #
 # Upload the payload command if needed
 #
@@ -214,7 +218,7 @@ end
 #
 taskname = Rex::Text.rand_text_alphanumeric(8+rand(8))
 print_status("Creating task: #{taskname}")
-cmdline = "schtasks.exe /create /tn #{taskname} /tr #{cmd} /sc monthly /f"
+cmdline = "schtasks.exe /create /tn #{taskname} /tr \"#{cmd}\" /sc monthly /f"
 exec_schtasks(cmdline, "create the task")
 
 #
