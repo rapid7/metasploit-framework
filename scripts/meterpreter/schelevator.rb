@@ -18,6 +18,7 @@ require 'zlib'
 # Filter out sessions that this definitely won't work on.
 #
 vuln = false
+winver = "Unknown"
 if session.platform =~ /win32|win64/
 	winver = session.sys.config.sysinfo["OS"]
 	affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008' ]
