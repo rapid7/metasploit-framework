@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'SSH Version Scannner',
+			'Name'        => 'SSH Version Scanner',
 			'Version'     => '$Revision$',
 			'Description' => 'Detect SSH Version.',
 			'References'  =>
