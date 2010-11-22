@@ -31,14 +31,22 @@ class Metasploit3 < Msf::Auxiliary
 		))
 	end
 
+	def target
+		[rhost,rport].join(":")
+	end
+
 
 	def run_host(ip)
-		if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
-			each_user_pass { |user, pass|
-				do_login(user, pass)
-			}
-		else
-			print_error "#{rhost}:#{rport} - Unsupported target version of MySQL detected. Skipping."
+		begin
+			if mysql_version_check("4.1.1") # Pushing down to 4.1.1.
+				each_user_pass { |user, pass|
+					do_login(user, pass)
+				}
+			else
+				print_error "#{target} - Unsupported target version of MySQL detected. Skipping."
+			end
+		rescue ::Rex::ConnectionError, ::EOFError => e
+			print_error "#{target} - Unable to connect: #{e.to_s}"
 		end
 	end
 
@@ -52,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 			s = connect(false)
 			data = s.get
 			disconnect(s)
-		rescue ::Rex::ConnectionError, ::EOFError
-			return false
+		rescue ::Rex::ConnectionError, ::EOFError => e
+			raise e
 		rescue ::Exception => e
 			vprint_error("#{rhost}:#{rport} error checking version #{e.class} #{e}")
 			return false
