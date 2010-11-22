@@ -1472,6 +1472,26 @@
 				Name="webcam"
 				>
 				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\audio.c"
+					>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|x64"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							UsePrecompiledHeader="0"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath="..\..\source\extensions\stdapi\server\webcam\bmp2jpeg.c"
 					>
 					<FileConfiguration
@@ -1623,6 +1643,10 @@
 			<Filter
 				Name="webcam"
 				>
+				<File
+					RelativePath="..\..\source\extensions\stdapi\server\webcam\audio.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\source\extensions\stdapi\server\webcam\bmp2jpeg.h"
 					>

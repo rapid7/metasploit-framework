@@ -22,7 +22,8 @@ class Console::CommandDispatcher::Stdapi::Webcam
 	def commands
 		{
 			"webcam_list"   => "List webcams",
-			"webcam_snap"   => "Take a snapshot from the specified webcam"
+			"webcam_snap"   => "Take a snapshot from the specified webcam",
+			"record_mic"    => "Record audio from the default microphone for X seconds"
 		}
 	end
 
@@ -102,6 +103,49 @@ class Console::CommandDispatcher::Stdapi::Webcam
 			print_error("No webcams where found")
 			return false
 		end
+	end
+
+	def cmd_record_mic(*args)
+		path    = Rex::Text.rand_text_alpha(8) + ".wav"
+		play    = true
+		duration   = 1	
+
+		record_mic_opts = Rex::Parser::Arguments.new(
+			"-h" => [ false, "Help Banner" ],
+			"-d" => [ true, "Number of seconds to record (Default: 1)" ],
+			"-f" => [ true, "The wav file path (Default: '#{::File.expand_path( "[randomname].wav" )}')" ],
+			"-p" => [ true, "Automatically play the captured audio (Default: '#{play}')" ]
+		)
+
+		record_mic_opts.parse( args ) { | opt, idx, val |
+			case opt
+				when "-h"
+					print_line( "Usage: record_mic [options]\n" )
+					print_line( "Records audio from the default microphone." )
+					print_line( record_mic_opts.usage )
+					return
+				when "-d"
+					duration = val.to_i
+				when "-f"
+					path = val
+				when "-p"
+					play = false if ( val =~ /^(f|n|0)/i )
+			end
+		}
+
+		print_status("Starting...")
+		data = client.webcam.record_mic(duration)
+		print_status("Stopped")
+
+		if( data )
+			::File.open( path, 'wb' ) do |fd|
+				fd.write( data )
+			end
+			path = ::File.expand_path( path )
+			print_line( "Audio saved to: #{path}" )
+			Rex::Compat.play_sound( path ) if play
+		end
+		return true
 	end
 
 end

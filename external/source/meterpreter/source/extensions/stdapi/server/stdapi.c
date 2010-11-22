@@ -401,6 +401,12 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 
+	// Audio
+	{ "webcam_audio_record",
+	  { request_ui_record_mic,						       { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+
 #endif
 	// Terminator
 	{ NULL,
