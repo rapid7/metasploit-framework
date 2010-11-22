@@ -309,9 +309,11 @@ class EncodedPayload
 	#
 	# +opts+ are passed directly to +Msf::Util::EXE.to_executable+
 	#
+	# see +Msf::Exploit::EXE+
+	#
 	def encoded_exe(opts={})
 		# Ensure arch and platform are in the format that to_executable expects
-		if not opts[:arch].kind_of? Array
+		if opts[:arch] and not opts[:arch].kind_of? Array
 			opts[:arch] = [ opts[:arch] ]
 		end
 		if (opts[:platform].kind_of? Msf::Module::PlatformList)
