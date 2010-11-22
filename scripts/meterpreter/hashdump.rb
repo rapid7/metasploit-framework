@@ -8,12 +8,6 @@ opts = Rex::Parser::Arguments.new(
 	"-p" => [ true, "The SMB port used to associated credentials."]
 )
 
-os = client.sys.config.sysinfo["OS"].downcase
-unless (os =~ /win/)
-	print_error("Not a windows system")
-	raise Rex::Script::Completed
-end
-
 smb_port = 445
 
 opts.parse(args) { |opt, idx, val|
