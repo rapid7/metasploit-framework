@@ -116,7 +116,7 @@ module ReverseTcpDouble
 				# to implement the Stream interface.
 				conn_threads << framework.threads.spawn("ReverseTcpDoubleHandlerSession", false, sock_inp, sock_out) { | sock_inp_copy, sock_out_copy|
 					begin
-						chan = TcpReverseDoubleSessionChannel.new(sock_inp_copy, sock_out_copy)
+						chan = TcpReverseDoubleSessionChannel.new(framework, sock_inp_copy, sock_out_copy)
 						handle_connection(chan.lsock)
 					rescue
 						elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
@@ -220,9 +220,10 @@ protected
 
 		include Rex::IO::StreamAbstraction
 
-		def initialize(inp, out)
-			@sock_inp = inp
-			@sock_out = out
+		def initialize(framework, inp, out)
+			@framework = framework
+			@sock_inp  = inp
+			@sock_out  = out
 
 			initialize_abstraction
 
@@ -231,7 +232,7 @@ protected
 			self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
 			# Start a thread to pipe data between stdin/stdout and the two sockets
-			@monitor_thread = framework.threads.spawn("ReverseTcpDoubleHandlerMonitor", false) {
+			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleHandlerMonitor", false) {
 				begin
 					begin
 
