@@ -1,4 +1,6 @@
-# $Id$
+#  $Id$
+#  $Revision$
+#  Author: scriptjunkie
 #
 # Simplify running webcam, whether grabbing a single frame or running 
 # a continous loop.
@@ -86,6 +88,7 @@ begin
 				select(nil, nil, nil, interval/1000.0)
 			end
 		end
+	rescue ::Interrupt
 	rescue ::Exception => e
 		print_error("Error getting frame: #{e.class} #{e} #{e.backtrace}")
 	end
