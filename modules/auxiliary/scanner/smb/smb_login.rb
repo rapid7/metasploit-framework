@@ -34,7 +34,20 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def smbhost
-		"#{rhost}:#{rport}|#{domain}"
+		if domain == "."
+			"#{rhost}:#{rport}"
+		else
+			"#{rhost}:#{rport}|#{domain}"
+		end
+	end
+
+	def displayname(uname)
+		if datastore["PRESERVE_DOMAINS"]
+			d,u = domain_username_split(uname)
+			return u
+		else
+			return uname
+		end
 	end
 
 	def initialize
@@ -164,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
 			case e.error_reason
 			when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 				# Nothing interesting
-				vprint_status("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+				vprint_status("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{displayname(user)} : #{pass} (#{e.error_reason})")
 				disconnect()
 				datastore["SMBDomain"] = orig_domain
 				return
@@ -199,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 					:update => :unique_data
 				)
 			end
-			print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{user} : #{pass} (#{e.error_reason})")
+			print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{displayname(user)} : #{pass} (#{e.error_reason})")
 
 			disconnect()
 			datastore["SMBDomain"] = orig_domain
@@ -207,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(simple.client.auth_user)
-			print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{user}' : '#{pass}'")
+			print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{displayname(user)}' : '#{pass}'")
 			report_hash = {
 				:host	=> rhost,
 				:port   => datastore['RPORT'],
@@ -243,7 +256,7 @@ class Metasploit3 < Msf::Auxiliary
 			# 2) Valid users return a STATUS_LOGON_FAILURE
 			unless(smb_peer_os == 'Unix')
 				# Print the guest login message only for non-Samba
-				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{user} : #{pass}")
+				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{displayname(user)} : #{pass}")
 			end
 		end
 
