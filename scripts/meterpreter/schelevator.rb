@@ -58,7 +58,7 @@ end
 	"-h" => [ false, "Help menu." ],
 	"-c" => [ true, "Execute the specified command" ],
 	"-u" => [ true, "Upload and execute the specified file" ],
-	"-t" => [ true, "Use the specified task name" ],
+	"-t" => [ true, "Use the specified task name" ]
 )
 
 def usage
