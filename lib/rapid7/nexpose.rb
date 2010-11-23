@@ -153,6 +153,8 @@ class APIRequest
 			@error = "received a user interrupt"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
 			@error = "NeXpose service is not available"
+		rescue ::REXML::ParseException
+			@error = "NeXpose has not been properly licensed"
 		end
 
 		if ! (@success or @error)
