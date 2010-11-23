@@ -113,6 +113,14 @@ will spawn twice (on certain popular operating systems it is impossible
 to obtain parent process informaion if the parent process has already
 died).</p>
 
+<h3><tt>Executable</tt>(<tt>=</tt>)</h3>
+
+<p>Points to an executable in the class path (next to
+metasploit.dat), which will be extracted to a temporary directory (with
+original filename), made executable (if needed by the OS) and executed.
+When this option is present, no staging will be performed and all
+options documented below are ignored.</p>
+
 <h3><tt>EmbeddedStage</tt>(<tt>=</tt>)</h3>
 
 <p><b>Note: </b> this option will not work with the <tt>Spawn</tt>
