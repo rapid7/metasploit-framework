@@ -337,14 +337,15 @@ class EncodedPayload
 			})
 			# Prefer the target's platform/architecture information, but use
 			# the exploit module's if no target specific information exists.
-			# Lastly, try the payload's.
 			opts[:platform] ||= emod.target_platform  if emod.respond_to? :target_platform
 			opts[:platform] ||= emod.platform         if emod.respond_to? :platform
-			opts[:platform] ||= pinst.platform        if pinst.respond_to? :platform
 			opts[:arch] ||= emod.target_arch          if emod.respond_to? :target_arch
 			opts[:arch] ||= emod.arch                 if emod.respond_to? :arch
-			opts[:arch] ||= pinst.arch                if pinst.respond_to? :arch
 		end
+		# Lastly, try the payload's. This always happens if we don't have an
+		# associated exploit module.
+		opts[:platform] ||= pinst.platform if pinst.respond_to? :platform
+		opts[:arch] ||= pinst.arch         if pinst.respond_to? :arch
 
 		Msf::Util::EXE.to_executable(framework, opts[:arch], opts[:platform], encoded, opts)
 	end
