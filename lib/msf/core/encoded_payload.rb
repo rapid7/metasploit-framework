@@ -320,7 +320,7 @@ class EncodedPayload
 			opts[:platform] = opts[:platform].platforms
 		end
 
-		emod = pinst.assoc_exploit
+		emod = pinst.assoc_exploit if pinst.respond_to? :assoc_exploit
 
 		if emod
 			# This is a little ghetto, grabbing datastore options from the
