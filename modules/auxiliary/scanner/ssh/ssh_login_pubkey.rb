@@ -11,15 +11,13 @@
 
 require 'msf/core'
 require 'net/ssh'
-require 'msf/base/sessions/command_shell_options'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
-
-	include Msf::Sessions::CommandShellOptions
+	include Msf::Auxiliary::CommandShell
 
 	attr_accessor :ssh_socket, :good_credentials, :good_key
 
@@ -212,24 +210,24 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Create a new session
 			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
-			sess = Msf::Sessions::CommandShell.new(conn.lsock)
-			sess.set_from_exploit(self)
-			sess.info = "SSH #{user}:#{self.good_key} (#{ip}:#{port})"
 
 			# Clean up the stored data - need to stash the keyfile into
 			# a datastore for later reuse.
+			merge_me = {
+				'USERPASS_FILE'  => nil,
+				'USER_FILE'      => nil,
+				'PASS_FILE'      => nil,
+				'USERNAME'       => user
+			}
 			if datastore['KEY_FILE'] and !datastore['KEY_FILE'].empty?
 				keyfile = File.open(datastore['KEY_FILE'], "rb") {|f| f.read(f.stat.size)}
-				sess.exploit_datastore['SSH_KEYFILE_B64'] = [keyfile].pack("m*").gsub("\n","")
-				sess.exploit_datastore['KEY_FILE']      = nil
+				merge_me.merge!(
+					'SSH_KEYFILE_B64' => [keyfile].pack("m*").gsub("\n",""),
+					'KEY_FILE'        => nil
+					)
 			end
-			sess.exploit_datastore['USERPASS_FILE'] = nil
-			sess.exploit_datastore['USER_FILE']     = nil
-			sess.exploit_datastore['PASS_FILE']     = nil
-			sess.exploit_datastore['USERNAME']      = user
 
-			framework.sessions.register(sess)
-			sess.process_autoruns(datastore)
+			start_session(self, "SSH #{user}:#{self.good_key} (#{ip}:#{port})", merge_me, false, conn.lsock)
 
 			return [:success, proof]
 		else

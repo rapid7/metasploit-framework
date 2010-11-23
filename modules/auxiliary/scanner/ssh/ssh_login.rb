@@ -11,15 +11,13 @@
 
 require 'msf/core'
 require 'net/ssh'
-require 'msf/base/sessions/command_shell_options'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::AuthBrute
 	include Msf::Auxiliary::Report
-
-	include Msf::Sessions::CommandShellOptions
+	include Msf::Auxiliary::CommandShell
 
 	attr_accessor :ssh_socket, :good_credentials
 
@@ -98,19 +96,15 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Create a new session
 			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
-			sess = Msf::Sessions::CommandShell.new(conn.lsock)
-			sess.set_from_exploit(self)
-			sess.info = "SSH #{user}:#{pass} (#{ip}:#{port})"
 
-			# Clean up the stored data
-			sess.exploit_datastore['USERPASS_FILE'] = nil
-			sess.exploit_datastore['USER_FILE']     = nil
-			sess.exploit_datastore['PASS_FILE']     = nil
-			sess.exploit_datastore['USERNAME']      = user
-			sess.exploit_datastore['PASSWORD']      = pass
-
-			framework.sessions.register(sess)
-			sess.process_autoruns(datastore)
+			merge_me = {
+				'USERPASS_FILE' => nil,
+				'USER_FILE'     => nil,
+				'PASS_FILE'     => nil,
+				'USERNAME'      => user,
+				'PASSWORD'      => pass
+			}
+			start_session(self, "SSH #{user}:#{pass} (#{ip}:#{port})", merge_me, false, conn.lsock)
 
 			return [:success, proof]
 		else

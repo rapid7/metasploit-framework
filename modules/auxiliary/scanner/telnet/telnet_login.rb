@@ -10,27 +10,14 @@
 ##
 
 require 'msf/core'
-require 'msf/base/sessions/command_shell_options'
-
-#
-# Ghetto
-#
-module CRLFLineEndings
-	def put(str)
-		return super if not str
-		super(str.strip + "\r\n")
-	end
-end
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Telnet
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
-
 	include Msf::Auxiliary::Scanner
-
-	include Msf::Sessions::CommandShellOptions
+	include Msf::Auxiliary::CommandShell
 
 	def initialize
 		super(
@@ -223,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def report_telnet(user,pass,proof)
+	def report_telnet(user, pass, proof)
 		print_good("#{rhost} - SUCCESSFUL LOGIN #{user} : #{pass}")
 		report_auth_info(
 			:host	=> rhost,
@@ -236,27 +223,16 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	def start_telnet_session(host,port,user,pass)
-		# Windows telnet server requires \r\n line endings and it doesn't
-		# seem to affect anything else.
-		sock.extend(CRLFLineEndings)
-		sess = Msf::Sessions::CommandShell.new(sock)
-		sess.set_from_exploit(self)
-		sess.info = "TELNET #{user}:#{pass} (#{host}:#{port})"
+	def start_telnet_session(host, port, user, pass)
+		merge_me = {
+			'USERPASS_FILE' => nil,
+			'USER_FILE'     => nil,
+			'PASS_FILE'     => nil,
+			'USERNAME'      => user,
+			'PASSWORD'      => pass
+		}
 
-		# Clean up the stored data
-		sess.exploit_datastore['USERPASS_FILE'] = nil
-		sess.exploit_datastore['USER_FILE']     = nil
-		sess.exploit_datastore['PASS_FILE']     = nil
-		sess.exploit_datastore['USERNAME']      = user
-		sess.exploit_datastore['PASSWORD']      = pass
-
-		# Prevent the socket from being closed
-		self.sockets.delete(self.sock)
-		self.sock = nil
-
-		framework.sessions.register(sess)
-		sess.process_autoruns(datastore)
+		start_session(self, "TELNET #{user}:#{pass} (#{host}:#{port})", merge_me, true)
 	end
 
 end

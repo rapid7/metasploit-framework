@@ -1,3 +1,7 @@
+##
+# $Id$
+##
+
 #
 # Auxiliary mixins
 #
@@ -9,3 +13,5 @@ require 'msf/core/auxiliary/scanner'
 require 'msf/core/auxiliary/timed'
 require 'msf/core/auxiliary/wmapmodule'
 require 'msf/core/auxiliary/crawler'
+require 'msf/core/auxiliary/commandshell'
+require 'msf/core/auxiliary/login'
