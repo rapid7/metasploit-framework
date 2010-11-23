@@ -48,11 +48,11 @@ class Metasploit3 < Msf::Auxiliary
 		while lastpage == 0
 			print_status("Page number: " + pagenum.to_s)
 			header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
-			clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("delicious.com")
+			clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("www.delicious.com")
 			resp, data = clnt.get2("/search?p=site%3A"+targetdom+"&page="+pagenum.to_s,header)
 			response << data
 			response.each_line do |line|
-				list << line.gsub!(/(.+<a rel)(.+=+\")(.+)(\".+)/, '\3')
+				list << line.gsub!(/(.+<a rel=\"nofollow)(.+=+\")(.+)(\".+)/, '\3')
 			end
 			if /pn\ next/.match(data)
 				pagenum += 1
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Located #{urls.count} addresses for #{target}")
 
 		if datastore['OUTFILE']
-			write_output(urls.join("\n") + "\n")
+			write_output(urls.join)
 		else
 			urls.each do |i|
 				puts(i)
