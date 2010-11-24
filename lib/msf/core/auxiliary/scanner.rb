@@ -44,7 +44,7 @@ def run
 	@range_percent = 0
 
 	threads_max = datastore['THREADS'].to_i
-	tl = []
+	@tl = []
 
 	#
 	# Sanity check threading on different platforms
@@ -75,15 +75,15 @@ def run
 
 	if (self.respond_to?('run_host'))
 
-		tl = []
+		@tl = []
 
 		while (true)
 			# Spawn threads for each host
-			while (tl.length < threads_max)
+			while (@tl.length < threads_max)
 				ip = ar.next_ip
 				break if not ip
 
-				tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
+				@tl << framework.threads.spawn("ScannerHost(#{self.refname})-#{ip}", false, ip.dup) do |tip|
 					targ = tip
 					nmod = self.replicant
 					nmod.datastore['RHOST'] = targ
@@ -103,7 +103,7 @@ def run
 			end
 
 			# Exit once we run out of hosts
-			if(tl.length == 0)
+			if(@tl.length == 0)
 				break
 			end
 
@@ -112,10 +112,10 @@ def run
 			# done, remove any finished threads from the list
 			# and continue on.  This will open up at least one
 			# spot for a new thread
-			tla = tl.length
-			tl.first.join
-			tl.delete_if { |t| not t.alive? }
-			tlb = tl.length
+			tla = @tl.length
+			@tl.first.join
+			@tl.delete_if { |t| not t.alive? }
+			tlb = @tl.length
 
 			@range_done += tla - tlb
 			scanner_show_progress()
@@ -135,11 +135,11 @@ def run
 
 		ar = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 
-		tl = []
+		@tl = []
 
 		while(true)
 			nohosts = false
-			while (tl.length < threads_max)
+			while (@tl.length < threads_max)
 
 				batch = []
 
@@ -170,17 +170,17 @@ def run
 						end
 					end
 					thread[:batch_size] = batch.length
-					tl << thread
+					@tl << thread
 				end
 
 				# Exit once we run out of hosts
-				if (tl.length == 0 or nohosts)
+				if (@tl.length == 0 or nohosts)
 					break
 				end
 			end
 
 			# Exit if there are no more pending threads
-			if (tl.length == 0)
+			if (@tl.length == 0)
 				break
 			end
 
@@ -190,11 +190,11 @@ def run
 			# and continue on.  This will open up at least one
 			# spot for a new thread
 			tla = 0
-			tl.map {|t| tla += t[:batch_size] }
-			tl.first.join
-			tl.delete_if { |t| not t.alive? }
+			@tl.map {|t| tla += t[:batch_size] }
+			@tl.first.join
+			@tl.delete_if { |t| not t.alive? }
 			tlb = 0
-			tl.map {|t| tlb += t[:batch_size] }
+			@tl.map {|t| tlb += t[:batch_size] }
 
 			@range_done += tla - tlb
 			scanner_show_progress()
@@ -209,11 +209,15 @@ def run
 		print_status("Caught interrupt from the console...")
 		return
 	ensure
-		tl.each do |t|
-			begin
-				t.kill
-			rescue ::Exception
-			end
+		seppuko!()
+	end
+end
+
+def seppuko!
+	@tl.each do |t|
+		begin
+			t.kill if t.alive?
+		rescue ::Exception
 		end
 	end
 end
