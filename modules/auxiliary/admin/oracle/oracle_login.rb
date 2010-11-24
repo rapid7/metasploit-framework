@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Oracle Account Discovery.',
+			'Name'           => 'Oracle Account Discovery',
 			'Description'    => %q{
 				This module uses a list of well known default authentication credentials
 				to discover easily guessed accounts.

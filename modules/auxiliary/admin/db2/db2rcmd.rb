@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'IBM DB2 db2rcmd.exe Command Execution Vulnerability.',
+			'Name'           => 'IBM DB2 db2rcmd.exe Command Execution Vulnerability',
 			'Description'    => %q{
 					This module exploits a vulnerability in the Remote Command Server
 					component in IBM's DB2 Universal Database 8.1. An authenticated

@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft Host Integration Server 2006 Command Execution Vulnerability.',
+			'Name'           => 'Microsoft Host Integration Server 2006 Command Execution Vulnerability',
 			'Description'    => %q{
 					This module exploits a command-injection vulnerability in Microsoft Host Integration Server 2006.
 			},

@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Motorola Timbuktu Service Detection.',
+			'Name'           => 'Motorola Timbuktu Service Detection',
 			'Description'    => %q{
 				This module simply sends a packet to the Motorola Timbuktu service for detection.
 			},
