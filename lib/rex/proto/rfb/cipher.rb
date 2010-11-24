@@ -33,6 +33,9 @@ class Cipher
 	
 	def self.mangle_password(password)
 		key = password || ''
+		key.slice!(8,key.length) if key.length > 8
+		key << "\x00" * (8 - key.length) if key.length < 8
+
 		# We have to mangle the key so the LSB are kept vs the MSB
 		[key.unpack('B*').first.scan(/.{8}/).map! { |e| e.reverse }.join].pack('B*')
 	end
