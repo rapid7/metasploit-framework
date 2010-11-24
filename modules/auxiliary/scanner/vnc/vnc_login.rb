@@ -51,7 +51,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_pass { |user, pass|
-				do_login(user, pass)
+				ret = nil
+				attempts = 5
+				attempts.times { |n|
+					ret = do_login(user, pass)
+					break if ret != :retry
+
+					delay = 2**(n+1)
+					vprint_status("Retrying in #{delay} seconds...")
+					select(nil, nil, nil, delay)
+				}
+				ret
 			}
 		rescue ::Rex::ConnectionError
 			nil
@@ -82,6 +92,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			if not vnc.authenticate(pass)
 				vprint_error("#{target_host}:#{rport}, #{vnc.error}")
+				if vnc.error =~ /connection has been rejected/
+					return :retry
+				end
 				return :next_user
 			end
 
@@ -101,6 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# For debugging only.
 		#rescue ::Exception
+		#	raise $!
 		#	print_error("#{$!}")
 
 		ensure
