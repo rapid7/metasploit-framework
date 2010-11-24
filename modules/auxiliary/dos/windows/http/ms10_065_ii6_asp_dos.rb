@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Alligator Security Team',
-					'Heyder Andrade <heyder[at]alligatorteam.org>'
+					'Heyder Andrade <heyder[at]alligatorteam.org>',
 					'Leandro Oliveira <leadro[at]alligatorteam.org>'
 				],
 			'License'        => MSF_LICENSE,
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2010-1899' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/15167/' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/15167/' ]
 				],
 			'DisclosureDate' => 'Out 01 2010'))
 
