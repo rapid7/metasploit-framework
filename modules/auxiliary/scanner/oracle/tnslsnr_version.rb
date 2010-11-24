@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Oracle tnslsnr Service Version Query',
+			'Name'           => 'Oracle TNS Listener Service Version Query',
 			'Description'    => %q{
 				This module simply queries the tnslsnr service for the Oracle build.
 			},

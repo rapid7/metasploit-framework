@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'TNSLsnr Command Issuer',
+			'Name'           => 'Oracle TNS Listener Command Issuer',
 			'Description'    => %q{
 				This module allows for the sending of arbitrary TNS commands in order
 				to gather information.

@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'ORACLE SID Brute Forcer',
+			'Name'           => 'Oracle TNS Listener SID Brute Forcer',
 			'Description'    => %q{
 				This module simply attempts to discover the protected SID.
 			},
