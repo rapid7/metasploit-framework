@@ -14,6 +14,8 @@ require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Capture
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'Forge Cisco DTP Packets',
