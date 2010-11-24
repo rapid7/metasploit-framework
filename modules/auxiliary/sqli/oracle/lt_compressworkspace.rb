@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection via SYS.LT.COMPRESSWORKSPACE.',
+			'Name'           => 'Oracle DB SQL Injection via SYS.LT.COMPRESSWORKSPACE',
 			'Description'    => %q{
 				This module exploits an sql injection flaw in the COMPRESSWORKSPACE
 				procedure of the PL/SQL package SYS.LT. Any user with execute

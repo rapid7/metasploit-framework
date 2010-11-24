@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection via SYS.DBMS_CDC_PUBLISH.CREATE_CHANGE_SET',
+			'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_CDC_PUBLISH.CREATE_CHANGE_SET',
 			'Description'    => %q{
 					The module exploits an sql injection flaw in the CREATE_CHANGE_SET
 				procedure of the PL/SQL package DBMS_CDC_PUBLISH. Any user with execute privilege

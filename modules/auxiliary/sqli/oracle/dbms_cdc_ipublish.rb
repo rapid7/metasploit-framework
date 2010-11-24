@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection via SYS.DBMS_CDC_IPUBLISH.ALTER_HOTLOG_INTERNAL_CSOURCE',
+			'Name'           => 'Oracle DB SQL Injection via SYS.DBMS_CDC_IPUBLISH.ALTER_HOTLOG_INTERNAL_CSOURCE',
 			'Description'    => %q{
 					The module exploits an sql injection flaw in the ALTER_HOTLOG_INTERNAL_CSOURCE
 					procedure of the PL/SQL package DBMS_CDC_IPUBLISH. Any user with execute privilege

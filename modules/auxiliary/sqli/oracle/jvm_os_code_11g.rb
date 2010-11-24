@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => ' DBMS_JVM_EXP_PERMS 11g R1/R2 OS Code Execution',
+			'Name'           => 'Oracle DB 11g R1/R2 DBMS_JVM_EXP_PERMS OS Code Execution',
 			'Description'    => %q{
 				This module exploits a flaw (0 day) in DBMS_JVM_EXP_PERMS package that allows
 					any user with create session privilege to grant themselves java IO privileges.

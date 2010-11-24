@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection via DBMS_EXPORT_EXTENSION.',
+			'Name'           => 'Oracle DB SQL Injection via DBMS_EXPORT_EXTENSION',
 			'Description'    => %q{
 				This module will escalate a Oracle DB user to DBA by exploiting an
 				sql injection bug in the DBMS_EXPORT_EXTENSION.GET_DOMAIN_INDEX_METADATA package.

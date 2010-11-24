@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'Oracle Application Server Spy Servlet SID Enumeration.',
+			'Name'        => 'Oracle Application Server Spy Servlet SID Enumeration',
 			'Description' => %q{
 					This module makes a request to the Oracle Application Server
 				in an attempt to discover the SID.

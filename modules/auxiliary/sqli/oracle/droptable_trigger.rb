@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'SQL Injection in  MDSYS.SDO_TOPO_DROP_FTBL Trigger.',
+			'Name'           => 'Oracle DB SQL Injection in MDSYS.SDO_TOPO_DROP_FTBL Trigger',
 			'Description'    => %q{
 					This module will escalate a Oracle DB user to MDSYS by exploiting an sql injection bug in
 					the MDSYS.SDO_TOPO_DROP_FTBL trigger. After that exploit escalate user to DBA using "CREATE ANY TRIGGER" privilege
