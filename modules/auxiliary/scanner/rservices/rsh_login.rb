@@ -78,8 +78,13 @@ class Metasploit3 < Msf::Auxiliary
 		# Class variables to track credential use (for threading)
 		@@credentials_tried = {}
 		@@credentials_skipped = {}
-		
+
+		credentials = extract_word_pair(datastore['USERPASS_FILE'])
+
 		users = load_user_vars()
+		credentials.each { |u,p| users << u }
+		users.uniq!
+
 		fromusers = load_fromuser_vars()
 
 		cleanup_files()
