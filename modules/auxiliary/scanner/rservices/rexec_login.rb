@@ -90,10 +90,6 @@ class Metasploit3 < Msf::Auxiliary
 			stderr_sock = nil
 		end
 
-		# Read the expected nul byte response.
-		buf = sock.get_once(1)
-		return :abort if buf != "\x00"
-
 		# NOTE: We report this here, since we are awfully convinced now that this is really
 		# an rexec service.
 		report_service(
@@ -102,6 +98,14 @@ class Metasploit3 < Msf::Auxiliary
 			:proto => 'tcp',
 			:name => 'rexec'
 		)
+
+		# Read the expected nul byte response.
+		buf = sock.get_once(1)
+		if buf != "\x00"
+			buf = sock.get_once(-1)
+			vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
+			return :failed
+		end
 
 		# should we report a vuln here? rexec allowed w/o password?!
 		print_good("#{target_host}:#{rport}, rexec '#{user}' : '#{pass}'")
