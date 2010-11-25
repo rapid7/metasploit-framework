@@ -43,56 +43,77 @@ def each_user_pass(&block)
 	# Class variables to track credential use (for threading)
 	@@credentials_tried = {}
 	@@credentials_skipped = {}
-	credentials = extract_word_pair(datastore['USERPASS_FILE'])
-	users       = extract_words(datastore['USER_FILE'])
-	passwords   = extract_words(datastore['PASS_FILE'])
 
-	cleanup_files()
+	credentials = extract_word_pair(datastore['USERPASS_FILE'])
 
 	translate_proto_datastores()
 
-	if datastore['USERNAME']
-		users.unshift datastore['USERNAME']
-		credentials = prepend_chosen_username(datastore['USERNAME'],credentials)
-	end
+	users = load_user_vars(credentials)
+	passwords = load_password_vars(credentials)
 
-	if datastore['PASSWORD']
-		passwords.unshift datastore['PASSWORD']
-		credentials = prepend_chosen_password(datastore['PASSWORD'],credentials)
-	end
+	cleanup_files()
 
 	if datastore['BLANK_PASSWORDS']
-		credentials = gen_blank_passwords(users,credentials)
+		credentials = gen_blank_passwords(users, credentials)
 	end
 
-	credentials.concat(combine_users_and_passwords(users,passwords))
+	credentials.concat(combine_users_and_passwords(users, passwords))
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
+
 	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
 
-	credentials.each do |u,p|
+	credentials.each do |u, p|
 		break if @@credentials_skipped[fq_rest]
+
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
+
 		userpass_sleep_interval unless @@credentials_tried.empty?
+
 		next if @@credentials_skipped[fq_user]
 		next if @@credentials_tried[fq_user] == p
-		ret = block.call(u,p)
+
+		ret = block.call(u, p)
+
 		case ret
 		when :abort # Skip the current host entirely.
-		break
+			break
+
 		when :next_user # This means success for that user.
 			@@credentials_skipped[fq_user] = p
 			if datastore['STOP_ON_SUCCESS'] # See?
 				@@credentials_skipped[fq_rest] = true
 			end
+
 		when :skip_user # Skip the user in non-success cases. 
 			@@credentials_skipped[fq_user] = p
+
 		when :connection_error # Report an error, skip this cred, but don't abort.
 			vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}'"
+
 		end
-	@@credentials_tried[fq_user] = p
+		@@credentials_tried[fq_user] = p
 	end
-	return
 end
+
+
+def load_user_vars(credentials = nil)
+	users = extract_words(datastore['USER_FILE'])
+	if datastore['USERNAME']
+		users.unshift datastore['USERNAME']
+		credentials = prepend_chosen_username(datastore['USERNAME'], credentials) if credentials
+	end
+	users
+end
+
+def load_password_vars(credentials = nil)
+	passwords = extract_words(datastore['PASS_FILE'])
+	if datastore['PASSWORD']
+		passwords.unshift datastore['PASSWORD']
+		credentials = prepend_chosen_password(datastore['PASSWORD'], credentials) if credentials
+	end
+	passwords
+end
+
 
 # Takes protocol-specific username and password fields, and,
 # if present, prefer those over any given USERNAME or PASSWORD.
@@ -136,10 +157,10 @@ def gen_blank_passwords(user_array,cred_array)
 end
 
 def combine_users_and_passwords(user_array,pass_array)
-	combined_array = []
-	if (user_array + pass_array).empty?
+	if (user_array.length + pass_array.length) < 1
 		return []
 	end
+	combined_array = []
 	if pass_array.empty?
 		combined_array = user_array.map {|u| [u,""] }
 	elsif user_array.empty?
@@ -158,9 +179,9 @@ def combine_users_and_passwords(user_array,pass_array)
 		if pair == [datastore['USERNAME'],datastore['PASSWORD']]
 			creds[0] << pair
 		elsif pair[1] == datastore['PASSWORD']
-			creds[1] <<  pair
+			creds[1] << pair
 		elsif pair[0] == datastore['USERNAME']
-			creds[2] <<  pair
+			creds[2] << pair
 		else
 			creds[3] << pair
 		end
