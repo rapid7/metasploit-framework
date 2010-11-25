@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 				if vnc.error =~ /connection has been rejected/
 					return :retry
 				end
-				return :next_user
+				return :fail
 			end
 
 			print_good("#{target_host}:#{rport}, VNC server password : \"#{pass}\"")
