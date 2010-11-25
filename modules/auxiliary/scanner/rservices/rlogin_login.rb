@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 			:host => rhost,
 			:port => rport,
 			:proto => 'tcp',
-			:name => 'rlogin'
+			:name => 'login'
 		)
 
 		# Receive the initial response
@@ -291,7 +291,7 @@ class Metasploit3 < Msf::Auxiliary
 		auth_info = {
 			:host	=> host,
 			:port	=> port,
-			:sname => 'rlogin',
+			:sname => 'login',
 			:user	=> user,
 			:proof  => proof,
 			:active => true

@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 			:host => rhost,
 			:port => rport,
 			:proto => 'tcp',
-			:name => 'rsh'
+			:name => 'shell'
 		)
 
 		# Read the expected nul byte response.
@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
 		report_auth_info(
 			:host	=> host,
 			:port	=> port,
-			:sname => 'rsh',
+			:sname => 'shell',
 			:user	=> user,
 			:luser => luser,
 			:proof  => proof,
