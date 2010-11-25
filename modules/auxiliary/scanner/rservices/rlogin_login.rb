@@ -237,7 +237,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		# no password to try, give up if luser isnt enough.
-		return :fail if not pass
+		if not pass
+			vprint_error("#{target_host}:#{rport}, rlogin '#{user}' from '#{luser}' failed (no password to try)")
+			return :fail
+		end
 
 		recvd_sample = @recvd.dup
 		# Allow for slow echos
