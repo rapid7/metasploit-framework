@@ -81,17 +81,25 @@ class Metasploit3 < Msf::Auxiliary
 			credentials = gen_blank_passwords(users, credentials)
 		end
 
-		# pair up fromusers 1:1 with passwords, turning each password into an array
-		passwords.map! { |p|
-			fu = fromusers.shift
-			p = [ fu, p ]
+		# user+pass pairs, don't set the fromuser
+		credentials.map! { |c|
+			u,p = c
+			[ u, [ nil, p ] ]
 		}
-		# more fromusers than passwords? append nil passwords, which will be handled specially
-		# by the login processing.
-		fromusers.each { |fu|
-			passwords << [ fu, nil ]
-		}
-		
+
+		if passwords.length > 0
+			# pair up fromusers 1:1 with passwords, turning each password into an array
+			passwords.map! { |p|
+				fu = fromusers.shift
+				p = [ fu, p ]
+			}
+			# more fromusers than passwords? append nil passwords, which will be handled specially
+			# by the login processing.
+			fromusers.each { |fu|
+				passwords << [ fu, nil ]
+			}
+		end
+
 		credentials.concat(combine_users_and_passwords(users, passwords))
 		#credentials = just_uniq_passwords(credentials) if @strip_usernames
 
@@ -133,6 +141,8 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def try_user_pass(user, luser, pass)
+		luser ||= 'root'
+
 		vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass}' from '#{luser}'"
 		#vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass.inspect}' from '#{luser.inspect}'"
 		this_attempt ||= 0
