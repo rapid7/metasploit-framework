@@ -32,7 +32,8 @@ module RFB
 class Cipher
 	
 	def self.mangle_password(password)
-		key = password || ''
+		key = ''
+		key = password.dup if password
 		key.slice!(8,key.length) if key.length > 8
 		key << "\x00" * (8 - key.length) if key.length < 8
 
