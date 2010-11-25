@@ -44,6 +44,10 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
 			], self.class)
+
+		# We don't currently support an auth mechanism that uses usernames, so we'll ignore any
+		# usernames that are passed in.
+		@strip_usernames = true
 	end
 
 	def run_host(ip)
