@@ -1574,6 +1574,11 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addScript("Start keylogger",monitorMenu,"keylogrecorder");
 		addScript("Start packet recorder",monitorMenu,"packetrecorder");
 		addScript("Screenshot",monitorMenu,"multi_console_command -cl \"screenshot\"");
+		addSessionItem("View webcam",monitorMenu,new RpcAction(this) {
+			public void action(Map session) throws Exception {
+				new WebcamFrame(rpcConn,session).setVisible(true);
+			}
+		});
 
 		JMenu escalateMenu = new JMenu("Privilege escalation");
 		meterpreterPopupMenu.add(escalateMenu);

