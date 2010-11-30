@@ -83,6 +83,25 @@ run_host(), run_range(), or run_batch() instead of exploit().
 Non-scanner aux modules use run().
 
 
+Submitting Your Code
+====================
+
+When you've finished fixing a bug, adding a feature, or creating a
+new module, build a patch by using the following command from the
+base installation directory: 
+    svn diff > something-descriptive.patch
+Make sure you add any new files with 'svn add filename' first.  If
+you have just a single new file (such as when creating a new module)
+feel free to just send that file.  Once you've created the patch,
+there are a couple ways to submit it.  The first is to add it as an
+attachment to a ticket in our Redmine tracker
+(https://www.metasploit.com/redmine/projects/framework); you can
+create a ticket if one does not exist.  Secondly, you can email it
+framework@metasploit.com, which is the main mailinglist for
+framework users, or msfdev@metasploit.com which only goes to
+developers.
+
+
 Licensing
 =========
 By submitting code contributions to the Metasploit Project it is
