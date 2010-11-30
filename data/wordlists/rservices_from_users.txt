@@ -1,5 +1,3 @@
--froot
--fbin
 root
 daemon
 bin
