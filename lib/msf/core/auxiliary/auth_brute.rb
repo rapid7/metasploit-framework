@@ -58,6 +58,7 @@ def each_user_pass(&block)
 	end
 
 	credentials.concat(combine_users_and_passwords(users, passwords))
+	credentials.uniq!
 	credentials = just_uniq_passwords(credentials) if @strip_usernames
 
 	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
