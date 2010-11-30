@@ -30,25 +30,21 @@ module Auxiliary::RServices
 
 	def connect_from_privileged_port(start_port = 1023)
 		cport = start_port
+		sd = nil
 		while cport > 512
 			#vprint_status("Trying to connect from port #{cport} ...")
 			sd = nil
 			begin
 				sd = connect(true, { 'CPORT' => cport })
 
-			#
-			# XXX: This is NOT optimal. Unfortunately, unreachable hosts will be
-			# retried around 512 times :-/ Ticket #3206 tracks this.
-			#
-			rescue Rex::HostUnreachable
-				# Ignore and try again
-
 			rescue Rex::AddressInUse
 				# Ignore and try again
+				#vprint_error("Unable to connect: #{$!}")
 
-			rescue Rex::ConnectionError
+			rescue Rex::ConnectionError => e
 				vprint_error("Unable to connect: #{$!}")
-				return false
+				return :refused if e.class == Rex::ConnectionRefused
+				return :connection_error
 
 			end
 
@@ -56,13 +52,13 @@ module Auxiliary::RServices
 			cport -= 1
 		end
 
-		if not sock
+		if not sd
 			print_error("#{target_host}:#{rport} - Unable to bind to privileged port")
-			return false
+			return :bind_error
 		end
 
 		#vprint_status("Connected from #{cport}")
-		return true
+		return :connected
 	end
 
 

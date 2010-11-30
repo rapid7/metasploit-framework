@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{target_host}:#{rport} - Attempting rsh with username '#{user}' from '#{luser}'")
 
 		# We must connect from a privileged port.
-		return :abort if not connect_from_privileged_port(1022)
+		return :abort if connect_from_privileged_port(1022) != :connected
 
 		sock.put("#{lport}\x00#{luser}\x00#{user}\x00#{cmd}\x00")
 
