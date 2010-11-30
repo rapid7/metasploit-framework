@@ -429,7 +429,9 @@ require 'digest/sha1'
 		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
 		pe[bo, 11] = [name].pack('a11')
 
-		pe[136, 4] = [rand(0x100000000)].pack('V')
+		if not opts[:sub_method]
+			pe[136, 4] = [rand(0x100000000)].pack('V')
+		end
 
 		return pe
 	end
@@ -452,7 +454,9 @@ require 'digest/sha1'
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
 		pe[bo, 11] = [name].pack('a11')
 
-		pe[136, 4] = [rand(0x100000000)].pack('V')
+		if not opts[:sub_method]
+			pe[136, 4] = [rand(0x100000000)].pack('V')
+		end
 
 		return pe
 	end
