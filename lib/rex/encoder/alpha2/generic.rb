@@ -54,20 +54,21 @@ class Generic
 		gen_base_set(block).each do |randbase_|
 			second   = gen_second(block, randbase_)
 			next if second < 0
-			if(accepted_chars.include?([second].pack('C')))
+			if accepted_chars.include?([second].pack('C'))
 				found    = second
 				randbase = randbase_
 				break
 			end
 		end
 
-		if(not found)
-			raise RuntimeError, "No valid base found for #{"0x%.2x" % block}"
-		end
-
-		raise RuntimeError, "Negative" if second < 0
-		if !(accepted_chars.include?([second].pack('C')))
-			raise RuntimeError, "BadChar; #{block} to #{second}"
+		if not found
+			msg = "No valid base found for #{"0x%.2x" % block}"
+			if not accepted_chars.include?([second].pack('C'))
+				msg << ": BadChar to #{second}"
+			elsif second < 1
+				msg << ": Negative"
+			end
+			raise RuntimeError, msg
 		end
 
 		if (randbase > 0xa0)
@@ -79,10 +80,10 @@ class Generic
 		else
 			# pick one at "random"
 			first = (randbase/0x10)
-			if (first % 2)
+			if (first % 2) > 0
 				first += 0x40
 			else
-				randbase += 0x50
+				first += 0x50
 			end
 		end
 
