@@ -97,17 +97,24 @@ class Jar < Archive
 
 	def build_manifest(opts={})
 		main_class = opts[:main_class] || nil
-		skip = opts[:skip] || /^$/
+		existing_manifest = nil
 
-		@manifest = ''
-
-		@manifest = "Main-Class: #{main_class}\n\n" if main_class
+		@manifest =  "Manifest-Version: 1.0\r\n"
+		@manifest << "Main-Class: #{main_class}\r\n" if main_class
+		@manifest << "\r\n"
 		@entries.each { |e|
-			next if e.name =~ skip
-			@manifest << "Name: #{e.name}\n\n"
+			existing_manifest = e if e.name == "META-INF/MANIFEST.MF" 
+			next unless e.name =~ /\.class$/
+			@manifest << "Name: #{e.name}\r\n"
+			#@manifest << "SHA1-Digest: #{Digest::SHA1.base64digest(e.data)}\r\n"
+			@manifest << "\r\n"
 		}
-		add_file("META-INF/", '')
-		add_file("META-INF/MANIFEST.MF", @manifest)
+		if existing_manifest
+			existing_manifest.data = @manifest
+		else
+			add_file("META-INF/", '')
+			add_file("META-INF/MANIFEST.MF", @manifest)
+		end
 	end
 
 	def to_s
