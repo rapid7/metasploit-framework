@@ -1,9 +1,12 @@
 package msfgui;
 
 import java.awt.Frame;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
@@ -32,12 +35,35 @@ public class DbConnectDialog extends OptionsDialog {
 		success = false;
 		props = MsfguiApp.getPropertiesNode();
 		try{
+			//If we don't have saved creds, look for them
+			if(!props.containsKey("dbusername")){
+				Scanner s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
+				String token = s.next();
+				while(!token.equals("production:"))
+					token = s.next();
+				while(s.hasNext()){
+					if(token.equals("adapter:"))
+						props.put("dbdriver", s.next());
+					else if(token.equals("database:"))
+						props.put("dbdatabase", s.next());
+					else if(token.equals("username:"))
+						props.put("dbusername", s.next());
+					else if(token.equals("password:"))
+						props.put("dbpassword", s.next().replace("'", ""));
+					else if(token.equals("host:"))
+						props.put("dbhost", s.next());
+					else if(token.equals("port:"))
+						props.put("dbport", s.next());
+					token = s.next();
+				}
+			}
 			hostField.setText(props.get("dbhost").toString());
 			portField.setText(props.get("dbport").toString());
 			usernameField.setText(props.get("dbusername").toString());
 			passwordField.setText(props.get("dbpassword").toString());
 			dbNameField.setText(props.get("dbdatabase").toString());
 		}catch(NullPointerException nex){
+		}catch(FileNotFoundException fedex){
 		}
 		Object driver = props.get("dbdriver");
 		List l = ((javax.swing.SpinnerListModel)typeSpinner.getModel()).getList();
