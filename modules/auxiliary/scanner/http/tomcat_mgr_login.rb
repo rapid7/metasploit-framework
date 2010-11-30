@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www-01.ibm.com/support/docview.wss?uid=swg21419179' ],
 
 					# IBM Rational Quality Manager and Test Lab Manager
-					# [ 'CVE', '??' ],
+					[ 'CVE', '2010-4094' ],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-10-214/' ],
 
 					# 'admin' password is blank in default Windows installer
