@@ -36,5 +36,7 @@ phdr:                            ; Elf32_Phdr
 
 phdrsize equ  $ - phdr
 
+global _start
+
 _start:
 
