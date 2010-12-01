@@ -329,7 +329,7 @@ class Client
 		@pipeline = persist
 		send_request(req)
 		res = read_response(t)
-		res.request = req.to_s
+		res.request = req.to_s if res
 		res
 	end
 
