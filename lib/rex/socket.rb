@@ -503,10 +503,17 @@ module Socket
 						rsock = ::TCPSocket.new( laddr, lport )
 					}
 				}
-				server = ::Socket.new( ::Socket::AF_INET, ::Socket::SOCK_STREAM, 0 )
-				server.bind( ::Socket.sockaddr_in( 0, laddr ) )
-				lport, caddr = ::Socket.unpack_sockaddr_in( server.getsockname )
-				server.listen( 1 )
+				server = ::TCPServer.new(laddr, 0)
+				if (server.getsockname =~ /127\.0\.0\.1:/)
+					# JRuby ridiculousness
+					caddr, lport = server.getsockname.split(":")
+					caddr = caddr[1,caddr.length]
+					lport = lport.to_i
+				else
+					# Sane implementations where Socket#getsockname returns a
+					# sockaddr
+					lport, caddr = ::Socket.unpack_sockaddr_in( server.getsockname )
+				end
 			}
 			lsock, saddr = server.accept
 			server.close
