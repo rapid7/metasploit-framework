@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 				select(nil, nil, nil, 2**this_attempt)
 				vprint_error "#{rhost}:#{rport} rsh - Retrying '#{user}' from '#{luser}' due to reset"
 			end
-			ret = conect_from_privileged_port
+			ret = connect_from_privileged_port
 			break if ret == :connected
 			this_attempt += 1
 		end
