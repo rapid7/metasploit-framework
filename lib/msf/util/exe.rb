@@ -411,7 +411,7 @@ require 'digest/sha1'
 
 	def self.to_win32pe_service(framework, code, opts={})
 
-		name = opts[:servicename] || 'SERVICENAME'
+		name = opts[:servicename]
 
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x86_windows_svc.exe")
@@ -425,9 +425,11 @@ require 'digest/sha1'
 		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, 8192] = [code].pack("a8192")
 
-		bo = pe.index('SERVICENAME')
-		raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
-		pe[bo, 11] = [name].pack('a11')
+		if name
+			bo = pe.index('SERVICENAME')
+			raise RuntimeError, "Invalid Win32 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
+			pe[bo, 11] = [name].pack('a11')
+		end
 
 		if not opts[:sub_method]
 			pe[136, 4] = [rand(0x100000000)].pack('V')
@@ -437,6 +439,8 @@ require 'digest/sha1'
 	end
 
 	def self.to_win64pe_service(framework, code, opts={})
+
+		name = opts[:servicename]
 
 		# Allow the user to specify their own service EXE template
 		set_template_default(opts, "template_x64_windows_svc.exe")
@@ -450,9 +454,11 @@ require 'digest/sha1'
 		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"PAYLOAD:\" tag" if not bo
 		pe[bo, 8192] = [code].pack("a8192")
 
-		bo = pe.index('SERVICENAME')
-		raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
-		pe[bo, 11] = [name].pack('a11')
+		if name
+			bo = pe.index('SERVICENAME')
+			raise RuntimeError, "Invalid Win64 PE Service EXE template: missing \"SERVICENAME\" tag" if not bo
+			pe[bo, 11] = [name].pack('a11')
+		end
 
 		if not opts[:sub_method]
 			pe[136, 4] = [rand(0x100000000)].pack('V')
