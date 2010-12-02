@@ -132,7 +132,20 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{target_host}:#{rport} - Attempting rsh with username '#{user}' from '#{luser}'")
 
 		# We must connect from a privileged port.
-		return :abort if connect_from_privileged_port(1022) != :connected
+		this_attempt ||= 0
+		ret = nil
+		while this_attempt <= 3 and (ret.nil? or ret == :refused)
+			if this_attempt > 0
+				# power of 2 back-off
+				select(nil, nil, nil, 2**this_attempt)
+				vprint_error "#{rhost}:#{rport} rsh - Retrying '#{user}' from '#{luser}' due to reset"
+			end
+			ret = conect_from_privileged_port
+			break if ret == :connected
+			this_attempt += 1
+		end
+
+		return :abort if ret != :connected
 
 		sock.put("#{lport}\x00#{luser}\x00#{user}\x00#{cmd}\x00")
 
