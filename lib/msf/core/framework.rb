@@ -319,7 +319,7 @@ class FrameworkEventSubscriber
 		if framework.db.active
 			framework.db.sync
 			# Copy/paste ftw
-			if session.respond_to? :peerhost and session.peerhot
+			if session.respond_to? :peerhost and session.peerhost
 				address = session.peerhost
 			elsif session.respond_to? :tunnel_peer and session.tunnel_peer
 				address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
