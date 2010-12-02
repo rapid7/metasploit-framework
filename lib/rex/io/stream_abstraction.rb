@@ -53,8 +53,7 @@ module StreamAbstraction
 		self.lsock.extend(Ext)
 		self.rsock.extend(Rex::IO::Stream)
 
-    self.monitor_rsock
-
+		self.monitor_rsock
 	end
 
 	#
