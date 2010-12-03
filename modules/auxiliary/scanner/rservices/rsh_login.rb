@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 					@@credentials_skipped[fq_rest] = true
 				end
 
-			when :skip_user # Skip the user in non-success cases. 
+			when :skip_user # Skip the user in non-success cases.
 				@@credentials_skipped[fq_user] = fu
 
 			when :connection_error # Report an error, skip this cred, but don't abort.
@@ -169,7 +169,9 @@ class Metasploit3 < Msf::Auxiliary
 		buf = sock.get_once(1)
 		if buf != "\x00"
 			buf = sock.get_once(-1)
-			vprint_error("Result: #{buf.gsub(/[[:space:]]+/, ' ')}")
+			result = buf.gsub(/[[:space:]]+/, ' ')
+			vprint_error("Result: #{result}")
+			return :skip_user if result =~ /locuser too long/
 			return :failed
 		end
 
