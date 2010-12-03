@@ -16,6 +16,9 @@ adhere to the following style guidelines:
  - Always use str[0,1] instead of str[0]
    (This avoids a known ruby 1.8/1.9 incompatability.)
 
+You can use the the "./tools/msftidy.rb" script to do some rudimentary
+checking for various violations.
+
 
 Code No-Nos
 ===========
