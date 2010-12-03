@@ -58,7 +58,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_fromuser_pass { |user, fromuser, pass|
-				try_user_pass(user, fromuser, pass, status)
+				ret = try_user_pass(user, fromuser, pass, status)
+				status = nil
+				ret
 			}
 		rescue ::Rex::ConnectionError
 			nil
@@ -278,7 +280,7 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 			if login_succeeded?
-				print_good("#{target_host}:#{rport}, rlogin '#{user}' : #{pass.inspect}")
+				print_good("#{target_host}:#{rport}, rlogin '#{user}' successful with password #{pass.inspect}")
 				start_rlogin_session(rhost, rport, user, nil, pass, @trace)
 				return :success
 			else
