@@ -12,14 +12,14 @@ class AddWebTables < ActiveRecord::Migration
 		create_table :web_pages do |t|
 			t.integer   :web_site_id, :null => false
 			t.timestamps 
-			t.string    :path, :limit => 65535
-			t.string    :query, :limit => 65535
+			t.string    :path, :limit => 4096
+			t.string    :query, :limit => 4096
 			t.integer   :code, :null => false
-			t.string    :cookie, :limit => 65535
-			t.string    :auth, :limit => 65535
-			t.string    :ctype, :limit => 65535
+			t.string    :cookie, :limit => 4096
+			t.string    :auth, :limit => 4096
+			t.string    :ctype, :limit => 4096
 			t.timestamp :mtime				
-			t.string    :location, :limit => 65535
+			t.string    :location, :limit => 4096
 			t.text      :body
 			t.text      :headers
 		end	
@@ -27,7 +27,7 @@ class AddWebTables < ActiveRecord::Migration
 		create_table :web_forms do |t|
 			t.integer   :web_site_id, :null => false
 			t.timestamps 
-			t.string    :path,   :limit => 65535
+			t.string    :path,   :limit => 4096
 			t.string    :method, :limit => 1024
 			t.text      :params
 		end	
@@ -35,10 +35,10 @@ class AddWebTables < ActiveRecord::Migration
 		create_table :web_vulns do |t|
 			t.integer   :web_site_id, :null => false
 			t.timestamps 
-			t.string    :path,   :limit => 65535
+			t.string    :path,   :limit => 4096
 			t.string    :method, :limit => 1024
 			t.text      :params
-			t.string    :pname,   :limit => 65535
+			t.string    :pname,   :limit => 4096
 			t.text      :proof
 			t.integer   :risk
 			t.string    :name,    :limit => 1024	
