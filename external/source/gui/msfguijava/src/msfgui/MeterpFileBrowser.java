@@ -188,7 +188,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					for(String line : lines){
 						line = line.trim();
 						if(line.startsWith("Listing")){
-							pwdLabel.setText(line);
+							addressField.setText(line.substring(line.indexOf(' ')+1));
 						}else if(line.startsWith("Mode")){
 							headerNames = line;
 						}else if(line.startsWith("-")){
@@ -255,6 +255,8 @@ public class MeterpFileBrowser extends MsfFrame {
         mainTable = new javax.swing.JTable();
         upButton = new javax.swing.JButton();
         recSearchDownloadButton = new javax.swing.JButton();
+        addressField = new javax.swing.JTextField();
+        goButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         addWindowListener(new java.awt.event.WindowAdapter() {
@@ -339,6 +341,22 @@ public class MeterpFileBrowser extends MsfFrame {
             }
         });
 
+        addressField.setText(resourceMap.getString("addressField.text")); // NOI18N
+        addressField.setName("addressField"); // NOI18N
+        addressField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addressFieldActionPerformed(evt);
+            }
+        });
+
+        goButton.setText(resourceMap.getString("goButton.text")); // NOI18N
+        goButton.setName("goButton"); // NOI18N
+        goButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                goButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -346,10 +364,10 @@ public class MeterpFileBrowser extends MsfFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 731, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 739, Short.MAX_VALUE)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(refreshButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 69, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
                         .addComponent(recSearchDownloadButton)
                         .addGap(18, 18, 18)
                         .addComponent(dirButton)
@@ -360,9 +378,13 @@ public class MeterpFileBrowser extends MsfFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(downloadButton))
                     .addGroup(layout.createSequentialGroup()
+                        .addComponent(upButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pwdLabel)
-                        .addGap(18, 18, 18)
-                        .addComponent(upButton)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(addressField, javax.swing.GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(goButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -370,8 +392,10 @@ public class MeterpFileBrowser extends MsfFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(upButton)
                     .addComponent(pwdLabel)
-                    .addComponent(upButton))
+                    .addComponent(goButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -436,7 +460,7 @@ public class MeterpFileBrowser extends MsfFrame {
 
 	private void recSearchDownloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_recSearchDownloadButtonActionPerformed
 		try{
-			String currentDir = pwdLabel.getText().substring(pwdLabel.getText().indexOf(' ')+1);
+			String currentDir = addressField.getText();
 			rpcConn.execute("session.meterpreter_script", session.get("id"),
 				new SearchDwldOptionsDialog(this, currentDir).toString());
 			setVisible(false);
@@ -448,10 +472,28 @@ public class MeterpFileBrowser extends MsfFrame {
 		}
 	}//GEN-LAST:event_recSearchDownloadButtonActionPerformed
 
+	//Applies given directory change
+	private void applyDirectoryChange(){
+		if(addressField.getText().equals("/"))
+			executeCommand("cd /../"); //Weird annonying bug. "cd /" doesn't work
+		else
+			executeCommand("cd \"" + MsfguiApp.doubleBackslashes(addressField.getText()) + "\"");
+		getFiles();
+	}
+	private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
+		applyDirectoryChange();
+	}//GEN-LAST:event_goButtonActionPerformed
+
+	private void addressFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addressFieldActionPerformed
+		applyDirectoryChange();
+	}//GEN-LAST:event_addressFieldActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTextField addressField;
     private javax.swing.JButton deleteButton;
     private javax.swing.JButton dirButton;
     private javax.swing.JButton downloadButton;
+    private javax.swing.JButton goButton;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable mainTable;
     private javax.swing.JLabel pwdLabel;
@@ -461,17 +503,14 @@ public class MeterpFileBrowser extends MsfFrame {
     private javax.swing.JButton uploadButton;
     // End of variables declaration//GEN-END:variables
 
+	//Downloads selected files, and folders recursively if desired.
 	private void download() {
-		int indx = mainTable.getSelectedRow();
-		if (indx == -1)
-			return;
-		Object o = mainTable.getValueAt(indx, 0);
-		String clickedFile = o.toString();
 		fchooser.setDialogTitle("Select destination folder");
 		fchooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		if(fchooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
 		executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().toString()) + "\"");
-		executeCommand("download \""+clickedFile + "\"");
+		for(int indx : mainTable.getSelectedRows())
+			executeCommand("download \""+mainTable.getValueAt(indx, 0) + "\"");
 	}
 }
