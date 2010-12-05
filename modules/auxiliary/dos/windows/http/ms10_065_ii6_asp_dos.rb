@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '67978'],
 					[ 'URL', 'http://www.exploit-db.com/exploits/15167/' ]
 				],
-			'DisclosureDate' => 'Out 01 2010'))
+			'DisclosureDate' => 'Sep 14 2010'))
 
 		register_options(
 			[
