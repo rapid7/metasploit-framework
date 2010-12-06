@@ -19,7 +19,7 @@ class AddWebTables < ActiveRecord::Migration
 			t.string    :auth, :limit => 4096
 			t.string    :ctype, :limit => 4096
 			t.timestamp :mtime				
-			t.string    :location, :limit => 4096
+			t.string    :location, :limit => 1300
 			t.text      :body
 			t.text      :headers
 		end	

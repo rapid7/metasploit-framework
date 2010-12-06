@@ -21,7 +21,7 @@ class FixWebTables < ActiveRecord::Migration
 		change_column :web_pages, :cookie, :string, :limit => 4096
 		change_column :web_pages, :auth, :string, :limit => 4096
 		change_column :web_pages, :ctype, :string, :limit => 4096
-		change_column :web_pages, :location, :string, :limit => 4096
+		change_column :web_pages, :location, :string, :limit => 1300
 		change_column :web_pages, :path, :string, :limit => 4096
 		change_column :web_vulns, :path, :string, :limit => 4096
 		change_column :web_vulns, :pname, :string, :limit => 4096
