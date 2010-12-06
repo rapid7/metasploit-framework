@@ -321,6 +321,7 @@ def gethash()
 	begin
 		hash = ''
 		@client.core.use("priv")
+		select(nil, nil, nil, 3)
 		hashes = @client.priv.sam_hashes
 		hashes.each do |h|
 			hash << h.to_s+"\n"
