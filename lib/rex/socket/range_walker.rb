@@ -157,6 +157,19 @@ class RangeWalker
 		return false
 	end
 
+	#
+	# Returns true if this RangeWalker includes all of the addresses in the
+	# given RangeWalker 
+	#
+	def include_range?(range_walker)
+		range_walker.ranges.all? do |start, stop|
+			ranges.any? do |self_start, self_stop|
+				r = (self_start..self_stop)
+				r.include?(start) and r.include?(stop)
+			end
+		end
+	end
+
 	# 
 	# Calls the given block with each address
 	#
