@@ -262,7 +262,7 @@ class Client
 
 			# No new constants added?
 			if ((diff = new - old).empty?)
-				return false
+				diff = [ name.capitalize ]
 			end
 
 			klass = Rex::Post::Meterpreter::Extensions.const_get(diff[0]).const_get(diff[0])
