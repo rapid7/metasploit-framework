@@ -44,9 +44,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptInt.new('ErrorCode', [ true, "Error code for non existent directory", 404]),
+				OptInt.new('ErrorCode', [ false, "Error code for non existent directory" ]),
 				OptPath.new('HTTP404Sigs',   [ false, "Path of 404 signatures to use",
-						File.join(Msf::Config.install_root, "data", "wmap", "wmap_404s.txt")
+						File.join(Msf::Config.data_directory, "wmap", "wmap_404s.txt")
 					]
 				),
 				OptBool.new('NoDetailMessages', [ false, "Do not display detailed test messages", true ]),
@@ -71,46 +71,49 @@ class Metasploit3 < Msf::Auxiliary
 		prot  = datastore['SSL'] ? 'https' : 'http'
 
 
-		#
-		# Detect error code
-		#
-		begin
-			randdir = Rex::Text.rand_text_alpha(5).chomp + '/'
-			res = send_request_cgi({
-				'uri'  		=>  tpath+randdir,
-				'method'   	=> 'GET',
-				'ctype'		=> 'text/html'
-			}, 20)
+		if (ecode == 0)
+			# Then the user didn't specify one, go request a (probably)
+			# nonexistent file to detect what to use.
+			begin
+				#
+				# Detect error code
+				#
+				print_status("Detecting error code")
+				randdir = Rex::Text.rand_text_alpha(5).chomp + '/'
+				res = send_request_cgi({
+					'uri'  		=>  tpath+randdir,
+					'method'   	=> 'GET',
+					'ctype'		=> 'text/html'
+				}, 20)
 
-			return if not res
+				return if not res
 
-			tcode = res.code.to_i
+				tcode = res.code.to_i
 
+				# Look for a string we can signature on as well
+				if(tcode >= 200 and tcode <= 299)
 
-			# Look for a string we can signature on as well
-			if(tcode >= 200 and tcode <= 299)
-
-				File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
-					if(res.body.index(str))
-						emesg = str
-						break
+					File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
+						if(res.body.index(str))
+							emesg = str
+							break
+						end
 					end
-				end
 
-				if(not emesg)
-					print_status("Using first 256 bytes of the response as 404 string for #{wmap_target_host}")
-					emesg = res.body[0,256]
+					if(not emesg)
+						print_status("Using first 256 bytes of the response as 404 string for #{wmap_target_host}")
+						emesg = res.body[0,256]
+					else
+						print_status("Using custom 404 string of '#{emesg}' for #{wmap_target_host}")
+					end
 				else
-					print_status("Using custom 404 string of '#{emesg}' for #{wmap_target_host}")
+					ecode = tcode
+					print_status("Using code '#{ecode}' as not found for #{wmap_target_host}")
 				end
-			else
-				ecode = tcode
-				print_status("Using code '#{ecode}' as not found for #{wmap_target_host}")
+			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				conn = false
+			rescue ::Timeout::Error, ::Errno::EPIPE
 			end
-
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			conn = false
-		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 
 		return if not conn
