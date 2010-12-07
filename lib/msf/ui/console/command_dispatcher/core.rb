@@ -1231,8 +1231,8 @@ class Core
 			show_auxiliary(regex, rank, opts)
 			show_encoders(regex, rank, opts)
 			show_exploits(regex, rank, opts)
-			show_nops(regex)
-			show_payloads(regex, opts)
+			show_nops(regex, rank, opts)
+			show_payloads(regex, rank, opts)
 		when 'auxiliary'
 			show_auxiliary(regex, rank, opts)
 		when 'encoder'
@@ -1240,9 +1240,11 @@ class Core
 		when 'exploit'
 			show_exploits(regex, rank, opts)
 		when 'nop'
-			show_nops(regex)
+			show_nops(regex, rank, opts)
 		when 'payload'
-			show_payloads(regex, opts)
+			show_payloads(regex, rank, opts)
+		else
+			print_error("Unknown type '#{section}'")
 		end
 	end
 
@@ -2203,26 +2205,26 @@ protected
 		end
 	end
 
-	def show_nops(regex = nil) # :nodoc:
-		show_module_set("NOP Generators", framework.nops, regex)
+	def show_nops(regex = nil, minrank = nil, opts = nil) # :nodoc:
+		show_module_set("NOP Generators", framework.nops, regex, minrank, opts)
 	end
 
 	def show_exploits(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		show_module_set("Exploits", framework.exploits, regex, minrank, opts)
 	end
 
-	def show_payloads(regex = nil, opts = nil) # :nodoc:
+	def show_payloads(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		# If an active module has been selected and it's an exploit, get the
 		# list of compatible payloads and display them
 		if (active_module and active_module.exploit? == true)
-			show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, opts = nil)
+			show_module_set("Compatible Payloads", active_module.compatible_payloads, regex, minrank, opts)
 		else
-			show_module_set("Payloads", framework.payloads, regex, opts = nil)
+			show_module_set("Payloads", framework.payloads, regex, minrank, opts)
 		end
 	end
 
 	def show_auxiliary(regex = nil, minrank = nil, opts = nil) # :nodoc:
-		show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts = nil)
+		show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts)
 	end
 
 	def show_options(mod) # :nodoc:
@@ -2372,8 +2374,10 @@ protected
 				if (not minrank or minrank <= o.rank)
 					show = true
 					if opts
+						mod_opt_keys = o.options.keys.map { |x| x.downcase }
+
 						opts.each do |opt,val|
-							if o.options.has_key?(opt) == false or (val != nil and o.datastore[opt] != val)
+							if mod_opt_keys.include?(opt.downcase) == false or (val != nil and o.datastore[opt] != val)
 								show = false
 							end
 						end
