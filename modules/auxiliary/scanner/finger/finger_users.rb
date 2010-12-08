@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			finger_zero
 			finger_dot
 			finger_chars
-			print_status "#{rhost}:#{rport} - Fingering user list: #{finger_user_common.join(", ")}" if datastore['VERBOSE']
+			print_status "#{rhost}:#{rport} - Sending finger request for user list: #{finger_user_common.join(", ")}" if datastore['VERBOSE']
 			finger_list
 
 		rescue ::Rex::ConnectionError
@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			finger_user_common.each do |user|
 				next if @users[user]
 				connect
-				print_status "#{rhost}:#{rport} - Fingering #{user}..." if datastore['VERBOSE']
+				print_status "#{rhost}:#{rport} - Sending finger request for #{user}..." if datastore['VERBOSE']
 				sock.put("#{user}\r\n")
 				buff = finger_slurp_data
 				parse_users(buff)
@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 					user_batch << new_user
 				end
 				connect
-				print_status "#{rhost}:#{rport} - Fingering #{user_batch.join(", ")}..." if datastore['VERBOSE']
+				print_status "#{rhost}:#{rport} - Sending finger request for #{user_batch.join(", ")}..." if datastore['VERBOSE']
 				sock.put("#{user_batch.join(" ")}\r\n")
 				buff = finger_slurp_data
 				parse_users(buff)
