@@ -139,6 +139,8 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("#{pkt[1]} '#{com}' '#{inf}'")
 				@found[pkt[1]][com] = inf
 			end
+			
+			return if inf.to_s.length == 0
 
 			report_service(
 				:host   => pkt[1],
