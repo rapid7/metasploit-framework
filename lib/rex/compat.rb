@@ -80,6 +80,18 @@ def self.is_java
 	@@is_java = (RUBY_PLATFORM =~ /java/) ? true : false
 end
 
+def self.is_wow64
+	return false if not is_windows
+	is64 = false
+	begin
+		buff = "\x00" * 4
+		Win32API.new("kernel32","IsWow64Process",['L','P'],'L').call(-1, buff)
+		is64 = (buff.unpack("V")[0]) == 1 ? true : false
+	rescue ::Exception
+	end
+	is64
+end
+
 def self.cygwin_to_win32(path)
 	if(path !~ /^\/cygdrive/)
 		return ::IO.popen("cygpath -w #{path}", "rb").read.strip
