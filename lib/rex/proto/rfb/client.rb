@@ -180,7 +180,7 @@ class Client
 		end
 
 		# For 3.7 and later, clients must state which security-type to use
-		@sock.put(type.chr) if @minver >= 7
+		@sock.put([selected].pack('C')) if @minver >= 7
 
 		selected
 	end
