@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 					ret = do_login(user, pass)
 					break if ret != :retry
 
-					delay = 2**(n+1)
+					delay = (2**(n+1)) + 1
 					vprint_status("Retrying in #{delay} seconds...")
 					select(nil, nil, nil, delay)
 				}
