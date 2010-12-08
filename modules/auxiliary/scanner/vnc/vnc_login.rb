@@ -67,6 +67,10 @@ class Metasploit3 < Msf::Auxiliary
 					vprint_status("Retrying in #{delay} seconds...")
 					select(nil, nil, nil, delay)
 				}
+				# If we tried all these attempts, and we still got a retry condition,
+				# we'll just give up.. Must be that nasty blacklist algorithm kicking
+				# our butt.
+				return :abort if ret == :retry
 				ret
 			}
 		rescue ::Rex::ConnectionError
