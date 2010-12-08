@@ -98,9 +98,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			if not vnc.authenticate(pass)
 				vprint_error("#{target_host}:#{rport}, #{vnc.error}")
-				if vnc.error =~ /connection has been rejected/
-					return :retry
-				end
+				return :retry if vnc.error =~ /connection has been rejected/ # UltraVNC
+				return :retry if vnc.error =~ /Too many security failures/   # vnc4server
 				return :fail
 			end
 
