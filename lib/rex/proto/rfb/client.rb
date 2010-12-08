@@ -155,7 +155,7 @@ class Client
 				return nil
 			end
 
-			buf = sock.get_once(num_types)
+			buf = @sock.get_once(num_types)
 			if not buf or buf.length != num_types
 				@error = "Unable to read authentication types"
 				return nil
