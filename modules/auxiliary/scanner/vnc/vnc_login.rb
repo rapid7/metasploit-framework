@@ -45,6 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
 			], self.class)
 
+		register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
+
 		# We don't currently support an auth mechanism that uses usernames, so we'll ignore any
 		# usernames that are passed in.
 		@strip_usernames = true
