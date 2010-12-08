@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				tserver = res.headers['Server']
 
-				if (res.headers['DAV'].to_s == '1, 2') and (res.headers['MS-Author-Via'].to_s =~ /DAV/)
+				if (res.headers['DAV'].to_s == '1, 2')
 					wdtype = 'WEBDAV'
 					if res.headers['X-MSDAVEXT']
 						wdtype = 'SHAREPOINT DAV'
