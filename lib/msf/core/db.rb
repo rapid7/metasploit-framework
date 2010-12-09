@@ -700,6 +700,7 @@ class DBManager
 		proof = opts.delete(:proof)
 		source_id = opts.delete(:source_id)
 		source_type = opts.delete(:source_type)
+		duplicate_ok = opts.delete(:duplicate_ok)
 		# Nil is true for active.
 		active = (opts[:active] || opts[:active].nil?) ? true : false
 
@@ -718,8 +719,14 @@ class DBManager
 			# Get the service
 			service ||= get_service(wspace, host, proto, port)
 
-			# Create the cred by username only (so we can change passwords) 
-			cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+			# If duplicate usernames are okay, find by both user and password (allows
+			# for actual duplicates to get modified updated_at, sources, etc)
+			if duplicate_ok
+				cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+			else
+				# Create the cred by username only (so we can change passwords) 
+				cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+			end
 
 			# Update with the password
 			cred.pass = (token[1] || "")

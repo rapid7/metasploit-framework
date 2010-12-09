@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
 			add_socket(udp_sock)
 
-			print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...") if datastore['ShowProgress']
+			print_status("SNMP scan progress (#{batch[0]}-#{batch[-1]}): #{idx}/#{@comms.length * batch.length}...") if datastore['ShowProgress']
 			@comms.each do |comm|
 
 				data1 = create_probe_snmp1(comm)
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					if( (idx+=1) % 1000 == 0) and datastore['ShowProgress']
-						print_status(">> progress (#{batch[0]}-#{batch[-1]}) #{idx}/#{@comms.length * batch.length}...")
+						print_status("SNMP scan progress (#{batch[0]}-#{batch[-1]}): #{idx}/#{@comms.length * batch.length}...")
 					end
 				end
 			end
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 		if(com)
 			@found[pkt[1]]||={}
 			if(not @found[pkt[1]][com])
-				print_status("#{pkt[1]} '#{com}' '#{inf}'")
+				print_status("SNMP: #{pkt[1]} community string: '#{com}' info: '#{inf}'")
 				@found[pkt[1]][com] = inf
 			end
 			
@@ -154,8 +154,10 @@ class Metasploit3 < Msf::Auxiliary
 				:host   => pkt[1],
 				:port   => pkt[2],
 				:proto  => 'udp',
+				:sname  => 'snmp',
 				:user   => '',
 				:pass   => com,
+				:duplicate_ok => true,
 				:active => true
 			)
 
