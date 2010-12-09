@@ -118,13 +118,19 @@ class CommandShell
 		# Send the command to the session's stdin.
 		shell_write(cmd + "\n")
 
-		# wait up to 5 seconds for some data to appear
-		if (not (::IO.select([rstream], nil, nil, 5)))
-			return nil
+		timeo = 5
+		etime = Time.now.to_f + timeo
+		buff = ""
+		
+		# Keep reading data until no more data is available or the timeout is 
+		# reached. 
+		while (Time.now.to_f < etime and ::IO.select([rstream], nil, nil, timeo))
+			res = shell_read(-1, 0.01)
+			buff << res if res
+			timeo = etime - Time.now.to_f
 		end
 
-		# get the output that we have ready
-		shell_read(-1, 0.01)
+		buff
 	end
 
 
