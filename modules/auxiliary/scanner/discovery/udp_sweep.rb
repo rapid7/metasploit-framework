@@ -232,7 +232,8 @@ class Metasploit3 < Msf::Auxiliary
 						:port => rec[4],
 						:proto => (rec[3] == 0x06 ? "tcp" : "udp"),
 						:name => "sunrpc",
-						:info => "#{rec[1]} v#{rec[2]}"
+						:info => "#{rec[1]} v#{rec[2]}",
+						:state => "open"
 					)
 				end
 				inf = svc.join(", ")
@@ -283,7 +284,8 @@ class Metasploit3 < Msf::Auxiliary
 			:port  => pkt[2],
 			:proto => 'udp',
 			:name  => app,
-			:info  => inf
+			:info  => inf,
+			:state => "open"
 		)
 
 		print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")

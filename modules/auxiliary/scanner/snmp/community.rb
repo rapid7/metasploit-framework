@@ -146,8 +146,9 @@ class Metasploit3 < Msf::Auxiliary
 				:host   => pkt[1],
 				:port   => pkt[2],
 				:proto  => 'udp',
-				:name   => 'snmp',
-				:info   => inf
+				:name  => 'snmp',
+				:info   => inf,
+				:state => "open"
 			)
 
 			report_auth_info(
