@@ -50,7 +50,8 @@ class Config < Hash
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
 			'PluginDirectory'     => "plugins",
-			'DataDirectory'       => "data"
+			'DataDirectory'       => "data",
+			'LootDirectory'       => "loot"
 		}
 
 	##
@@ -113,6 +114,13 @@ class Config < Hash
 	#
 	def self.session_log_directory
 		self.new.session_log_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
+	def self.loot_directory
+		self.new.loot_directory
 	end
 	
 	#
@@ -240,7 +248,14 @@ class Config < Hash
 	def session_log_directory
 		config_directory + FileSep + self['SessionLogDirectory']
 	end
-
+	
+	#
+	# Returns the directory in which captured data will reside.
+	#
+	def loot_directory
+		config_directory + FileSep + self['LootDirectory']
+	end
+	
 	#
 	# Returns the user-specific module base path
 	#
@@ -276,6 +291,7 @@ class Config < Hash
 		FileUtils.mkdir_p(config_directory)
 		FileUtils.mkdir_p(log_directory)
 		FileUtils.mkdir_p(session_log_directory)
+		FileUtils.mkdir_p(loot_directory)		
 		FileUtils.mkdir_p(user_module_directory)
 		FileUtils.mkdir_p(user_plugin_directory)
 	end
