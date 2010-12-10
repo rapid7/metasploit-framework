@@ -112,8 +112,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status "#{rhost}:#{rport} - Sending finger request for #{user}..." if datastore['VERBOSE']
 				sock.put("#{user}\r\n")
 				buff = finger_slurp_data
-				parse_users(buff)
+				ret = parse_users(buff)
 				disconnect
+				break if not ret
 			end
 		else
 			while !finger_user_common.empty?
@@ -127,8 +128,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_status "#{rhost}:#{rport} - Sending finger request for #{user_batch.join(", ")}..." if datastore['VERBOSE']
 				sock.put("#{user_batch.join(" ")}\r\n")
 				buff = finger_slurp_data
-				parse_users(buff)
+				ret = parse_users(buff)
 				disconnect
+				break if not ret
 			end
 		end
 	end
@@ -164,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if line.strip.empty?
 
 			# Ignore Cisco systems
-			break if line =~ /Line.*User.*Host.*Location/
+			return if line =~ /Line.*User.*Host.*Location/
 
 			next if line =~ /user not found/i
 			next if line =~ /no such user/i
@@ -202,8 +204,8 @@ class Metasploit3 < Msf::Auxiliary
 				@users[uid] = :reported
 				next
 			end
-
 		end
+		return true
 	end
 
 end
