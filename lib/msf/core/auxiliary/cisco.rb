@@ -52,18 +52,33 @@ module Auxiliary::Cisco
 
 		config.each_line do |line|
 			case line
+
+#
+# Enable passwords
+#
 				when /^\s*enable secret (\d+) (.*)/i
 					stype = $1.to_i
 					shash = $2.strip
 				
 					if stype == 5
-						print_good("MD5 Encrypted Enable Password: #{shash}")
+						print_good("#{thost}:#{tport} MD5 Encrypted Enable Password: #{shash}")
 						store_loot("cisco.ios.enable_hash", "text/plain", thost, shash, "enable_password_hash.txt", "Cisco IOS Enable Password Hash (MD5)")
 					end
-
+					
+					if stype == 0
+						print_good("#{thost}:#{tport} Enable Password: #{shash}")
+						store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
+					
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "cisco_enable"
+						cred[:collect_type] = "cisco_enable"
+						store_cred(cred)		
+					end	
+					
 					if stype == 7
-						shash = cisco_decrypt7(shash) rescue shash
-						print_good("Decrypted Enable Password: #{shash}")
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} Decrypted Enable Password: #{shash}")
 						store_loot("cisco.ios.enable_pass", "text/plain", thost, shash, "enable_password.txt", "Cisco IOS Enable Password")
 					
 						cred = cred_info.dup
@@ -75,18 +90,21 @@ module Auxiliary::Cisco
 				
 				when /^\s*enable password (.*)/i
 					spass = $1.strip
-					print_good("Unencrypted Enable Password: #{spass}")
+					print_good("#{thost}:#{tport} Unencrypted Enable Password: #{spass}")
 			
 					cred = cred_info.dup
 					cred[:pass] = spass
 					cred[:type] = "cisco_enable"
 					cred[:collect_type] = "cisco_enable"
 					store_cred(cred)
-							
-				when /\s*snmp-server community ([^\s]+) (RO|RW)/i
+
+#
+# SNMP
+#							
+				when /^\s*snmp-server community ([^\s]+) (RO|RW)/i
 					stype = $2.strip
 					scomm = $1.strip
-					print_good("SNMP Community (#{stype}): #{scomm}")
+					print_good("#{thost}:#{tport} SNMP Community (#{stype}): #{scomm}")
 			
 					cred = cred_info.dup
 					cred[:sname] = "snmp"
@@ -96,15 +114,194 @@ module Auxiliary::Cisco
 					cred[:proto] = "udp"
 					cred[:port]  = 161
 					store_cred(cred)	
-					
-				when /\s*password ([^\s]+)/i
+
+#
+# VTY Passwords
+# 
+				when /^\s*password 7 ([^\s]+)/i
 					spass = $1.strip
-					print_good("Unencrypted VTY Password: #{spass}")
+					spass = cisco_ios_decrypt7(spass) rescue spass
+					
+					print_good("#{thost}:#{tport} Decrypted VTY Password: #{spass}")
+					cred = cred_info.dup
+					
+					cred[:pass] = spass
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+					store_cred(cred)
+
+				when /^\s*(password|secret) 5 (.*)/i
+					shash = $1.strip
+					print_good("#{thost}:#{tport} MD5 Encrypted VTY Password: #{shash}")
+					store_loot("cisco.ios.vty_password", "text/plain", thost, shash, "vty_password_hash.txt", "Cisco IOS VTY Password Hash (MD5)")
+												
+				when /^\s*password (0 |)([^\s]+)/i
+					spass = $2.strip
+					print_good("#{thost}:#{tport} Unencrypted VTY Password: #{spass}")
 					cred = cred_info.dup
 					cred[:pass] = spass
 					cred[:type] = "password"
 					cred[:collect_type] = "password"
-					store_cred(cred)			
+					store_cred(cred)	
+
+#
+# WiFi Passwords
+#
+				when /^\s*wpa-psk (ascii|hex) (\d+) ([^\s]+)/i
+
+					stype = $2.to_i
+					spass = $3.strip
+
+					if stype == 5
+						print_good("#{thost}:#{tport} Wireless WPA-PSK MD5 Password Hash: #{spass}")
+						store_loot("cisco.ios.wireless_wpapsk_hash", "text/plain", thost, spass, "wireless_wpapsk_hash.txt", "Cisco IOS Wireless WPA-PSK Password Hash (MD5)")
+					end
+										
+					if stype == 0
+						print_good("#{thost}:#{tport} Wireless WPA-PSK Password: #{spass}")
+						cred = cred_info.dup
+						cred[:pass] = spass
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					
+						store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Password")
+					end
+
+					if stype == 7
+						spass = cisco_ios_decrypt7(spass) rescue spass
+						print_good("#{thost}:#{tport} Wireless WPA-PSK Decrypted Password: #{spass}")
+						cred = cred_info.dup
+						cred[:pass] = spass
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					
+						store_loot("cisco.ios.wireless_wpapsk", "text/plain", thost, spass, "wireless_wpapsk.txt", "Cisco IOS Wireless WPA-PSK Decrypted Password")
+					end
+					
+#
+# VPN Passwords
+#
+				when /^\s*crypto isakmp key ([^\s]+) address ([^\s]+)/i
+					spass  = $1
+					shost  = $2
+					
+					print_good("#{thost}:#{tport} VPN IPSEC ISAKMP Key '#{spass}' Host '#{shost}'")
+					store_loot("cisco.ios.vpn_ipsec_key", "text/plain", thost, "#{spass}", "vpn_ipsec_key.txt", "Cisco VPN IPSEC Key")
+
+					cred = cred_info.dup
+					cred[:pass] = spass
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
+					store_cred(cred)
+#
+# Various authentication secretss
+# 
+				when /^\s*username ([^\s]+) privilege (\d+) (secret|password) (\d+) ([^\s]+)/i
+					user  = $1
+					priv  = $2
+					stype = $4.to_i
+					shash = $5
+					
+					if stype == 5
+						print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{shash}")
+						store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
+					end
+
+					if stype == 0
+						print_good("#{thost}:#{tport} Username '#{user}' with Password: #{shash}")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+					
+						cred = cred_info.dup
+						cred[:user] = user
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end
+					
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} Username '#{user}' with Decrypted Password: #{shash}")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+					
+						cred = cred_info.dup
+						cred[:user] = user
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end	
+
+
+				when /^\s*ppp.*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
+					
+					suser = $1
+					stype = $3.to_i
+					shash = $4
+					
+					if stype == 5
+						print_good("#{thost}:#{tport} PPP Username #{suser} MD5 Encrypted Password: #{shash}")
+						store_loot("cisco.ios.ppp_username_password_hash", "text/plain", thost, "#{suser}:#{shash}", "ppp_username_password_hash.txt", "Cisco IOS PPP Username and Password Hash (MD5)")
+					end
+
+					if stype == 0
+						print_good("#{thost}:#{tport} PPP Username: #{suser} Password: #{shash}")
+						store_loot("cisco.ios.ppp_username_password", "text/plain", thost, "#{suser}:#{shash}", "ppp_username_password.txt", "Cisco IOS PPP Username and Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:user] = suser
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end
+					
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} PPP Username: #{suser} Decrypted Password: #{shash}")
+						store_loot("cisco.ios.ppp_username_password", "text/plain", thost, "#{suser}:#{shash}", "ppp_username_password.txt", "Cisco IOS PPP Username and Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:user] = suser
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end	
+					
+				when /^\s*ppp chap (secret|password) (\d+) ([^\s]+)/i
+					stype = $2.to_i
+					shash = $3
+					
+					if stype == 5
+						print_good("#{thost}:#{tport} PPP CHAP MD5 Encrypted Password: #{shash}")
+						store_loot("cisco.ios.ppp_password_hash", "text/plain", thost, shash, "ppp_password_hash.txt", "Cisco IOS PPP Password Hash (MD5)")
+					end
+
+					if stype == 0
+						print_good("#{thost}:#{tport} Password: #{shash}")
+						store_loot("cisco.ios.ppp_password", "text/plain", thost, shash, "ppp_password.txt", "Cisco IOS PPP Password")
+
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end
+					
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} PPP Decrypted Password: #{shash}")
+						store_loot("cisco.ios.ppp_password", "text/plain", thost, shash, "ppp_password.txt", "Cisco IOS PPP Password")
+					
+						cred = cred_info.dup
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)		
+					end						
 			end
 		end
 	end

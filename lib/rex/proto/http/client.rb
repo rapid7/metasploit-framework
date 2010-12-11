@@ -364,20 +364,10 @@ class Client
 			         rv != Packet::ParseCode::Error
 		          )
 
-				buff = ""
 				begin
 
-					# This dreary loop handles web servers that like to
-					# send their responses in lots of little bits.
-					pass = 0
-					buff = conn.get_once(-1, 1) || ""
-					while (more = conn.get_once(-1, 0.25) and pass < 8)
-						buff << more
-						pass += 1
-					end
-
+					buff = conn.get_once(-1, 1)
 					rv   = resp.parse( buff || '' )
-					buff = ""
 		
 				##########################################################################
 				# XXX: NOTE: BUG: get_once currently (as of r10042) rescues "Exception"
@@ -386,9 +376,6 @@ class Client
 
 				# Handle unexpected disconnects
 				rescue ::Errno::EPIPE, ::EOFError, ::IOError
-					# Process any buffered data on disconnect
-					resp.parse(buff) if buff.length > 0
-					
 					case resp.state
 					when Packet::ParseState::ProcessingHeader
 						resp = nil

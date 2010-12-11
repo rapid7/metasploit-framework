@@ -85,7 +85,8 @@ class Packet
 
 			# Continue on to the body if the header was processed
 			if(self.state == ParseState::ProcessingBody)
-				if (self.body_bytes_left == 0)
+				# Chunked encoding sets the parsing state on its own
+				if (self.body_bytes_left == 0 and not self.transfer_chunked)
 					self.state = ParseState::Completed
 				else
 					parse_body
@@ -266,6 +267,7 @@ protected
 	def parse_header
 
 		head,data = self.bufq.split(/\r?\n\r?\n/, 2)
+		
 		return if not data
 
 		self.headers.from_s(head)
@@ -348,7 +350,7 @@ protected
 			clen = self.bufq.slice!(/^[a-fA-F0-9]+\r?\n/)
 
 			clen.rstrip! if (clen)
-
+			
 			# if we happen to fall upon the end of the buffer for the next chunk len and have no data left, go get some more...
 			if clen.nil? and self.bufq.length == 0
 				return
@@ -360,7 +362,7 @@ protected
 				return
 			end
 
-			self.body_bytes_left = clen.hex
+			self.body_bytes_left = clen.to_i(16)
 
 			if (self.body_bytes_left == 0)
 				self.bufq.sub!(/^\r?\n/s,'')
@@ -375,7 +377,6 @@ protected
 		# to our body state.
 		if (self.body_bytes_left > 0)
 			part = self.bufq.slice!(0, self.body_bytes_left)
-
 			self.body += part
 			self.body_bytes_left -= part.length
 		# Otherwise, just read it all.
