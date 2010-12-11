@@ -52,7 +52,6 @@ module Auxiliary::Cisco
 
 		config.each_line do |line|
 			case line
-
 #
 # Enable passwords
 #
@@ -71,8 +70,8 @@ module Auxiliary::Cisco
 					
 						cred = cred_info.dup
 						cred[:pass] = shash
-						cred[:type] = "cisco_enable"
-						cred[:collect_type] = "cisco_enable"
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
 						store_cred(cred)		
 					end	
 					
@@ -83,8 +82,8 @@ module Auxiliary::Cisco
 					
 						cred = cred_info.dup
 						cred[:pass] = shash
-						cred[:type] = "cisco_enable"
-						cred[:collect_type] = "cisco_enable"
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
 						store_cred(cred)		
 					end		
 				
@@ -94,8 +93,8 @@ module Auxiliary::Cisco
 			
 					cred = cred_info.dup
 					cred[:pass] = spass
-					cred[:type] = "cisco_enable"
-					cred[:collect_type] = "cisco_enable"
+					cred[:type] = "password"
+					cred[:collect_type] = "password"
 					store_cred(cred)
 
 #
@@ -147,6 +146,11 @@ module Auxiliary::Cisco
 #
 # WiFi Passwords
 #
+				when /^\s*encryption key \d+ size \d+bit (\d+) ([^\s]+)/
+					spass = $2.strip
+					print_good("#{thost}:#{tport} Wireless WEP Key: #{spass}")
+					store_loot("cisco.ios.wireless_wep", "text/plain", thost, spass, "wireless_wep.txt", "Cisco IOS Wireless WEP Key")
+										
 				when /^\s*wpa-psk (ascii|hex) (\d+) ([^\s]+)/i
 
 					stype = $2.to_i
