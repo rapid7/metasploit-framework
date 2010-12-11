@@ -19,10 +19,9 @@ serv = false
 altexe = nil
 target_dir = nil
 payload_type = "windows/meterpreter/reverse_tcp"
-mhandler = false
 script = nil
 script_on_target = nil
-agent_pid = nil
+
 
 @exec_opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
@@ -224,7 +223,7 @@ if autoconn
 end
 
 # Execute on target host
-agent_pid = targets_exec(script_on_target)
+targets_exec(script_on_target)
 
 # Install in registry
 if install
