@@ -47,6 +47,11 @@ module Auxiliary::Cisco
 			:collect_type => "",
 			:active => true
 		}
+		
+		# Default SNMP to UDP
+		if tport == 161
+			cred_info[:proto] = 'udp'
+		end
 
 		store_loot("cisco.ios.config", "text/plain", thost, config.strip, "config.txt", "Cisco IOS Configuration")
 
