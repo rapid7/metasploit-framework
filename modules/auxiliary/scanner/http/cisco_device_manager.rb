@@ -1,5 +1,5 @@
 ##
-# $Id: cisco_ios_auth_bypass.rb 11271 2010-12-10 05:47:33Z hdm $
+# $Id$
 ##
 
 ##
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'		=> [ 'hdm' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision: 11271 $',
+			'Version'		=> '$Revision$',
 			'References'	=>
 				[
 					[ 'BID', '1846'],
