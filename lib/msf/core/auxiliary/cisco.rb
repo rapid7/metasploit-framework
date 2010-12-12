@@ -60,7 +60,7 @@ module Auxiliary::Cisco
 #
 # Enable passwords
 #
-				when /^\s*enable secret (\d+) (.*)/i
+				when /^\s*enable (password|secret) (\d+) (.*)/i
 					stype = $1.to_i
 					shash = $2.strip
 				
