@@ -7,6 +7,7 @@ require 'rex/parser/ip360_xml'
 require 'rex/parser/ip360_aspl_xml'
 require 'rex/socket'
 require 'zip'
+require 'packetfu'
 require 'uri'
 require 'tmpdir'
 require 'fileutils'
@@ -109,6 +110,35 @@ end
 #
 ###
 class DBManager
+
+	def rfc3330_reserved(ip)
+		case ip.class.to_s
+		when "PacketFu::Octets"
+			ip_x = ip.to_x
+			ip_i = ip.to_i
+		when "String"
+			if ipv4_validator(ip)
+				ip_x = ip
+				ip_i = Rex::Socket.addr_atoi(ip)
+			else
+				raise ArgumentError, "Invalid IP address: #{ip.inspect}"
+			end
+		when "Fixnum"
+			if (0..2**32-1).include? ip
+				ip_x = Rex::Socket.addr_itoa(ip)
+				ip_i = ip
+			else
+				raise ArgumentError, "Invalid IP address: #{ip.inspect}"
+			end
+		else
+			raise ArgumentError, "Invalid IP address: #{ip.inspect}"
+		end
+		return true if Rex::Socket::RangeWalker.new("0.0.0.0-0.255.255.255").include? ip_x
+		return true if Rex::Socket::RangeWalker.new("127.0.0.0-127.255.255.255").include? ip_x
+		return true if Rex::Socket::RangeWalker.new("169.254.0.0-169.254.255.255").include? ip_x
+		return true if Rex::Socket::RangeWalker.new("224.0.0.0-239.255.255.255").include? ip_x
+		return false
+	end
 
 	def ipv4_validator(addr)
 		return false unless addr.kind_of? String
@@ -1901,9 +1931,12 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
-		
-		if data[0,4] == "PK\x03\x04"
+
+		case data[0,4]
+		when "PK\x03\x04"
 			data = Zip::ZipFile.open(filename)
+		when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
+			data = PacketFu::PcapFile.new.readfile(filename)
 		end
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
@@ -1920,20 +1953,14 @@ class DBManager
 	def import(args={}, &block)
 		data = args[:data] || args['data']
 		wspace = args[:wspace] || args['wspace'] || workspace
-		unless data.kind_of? Zip::ZipFile
-			di = data.index("\n")
-			raise DBImportError.new("Could not automatically determine file type") if not di
-		end
 		ftype = import_filetype_detect(data)
 		yield(:filetype, @import_filedata[:type]) if block
-
 		self.send "import_#{ftype}".to_sym, args, &block
 	end
 
-
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_xml :msf_xml :nessus_nbe :amap_mlog
-	# :amap_log :ip_list, :msf_zip
+	# :amap_log :ip_list, :msf_zip, :libpcap
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 		if data.kind_of? Zip::ZipFile
@@ -1951,6 +1978,15 @@ class DBManager
 				raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
 			end
 		end
+
+		if data.kind_of? PacketFu::PcapFile
+			raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
+			@import_filedata ||= {}
+			@import_filedata[:type] = "Libpcap Packet Capture"
+			return :libpcap
+		end
+
+		# Text string kinds of data.
 		di = data.index("\n")
 		firstline = data[0, di]
 		@import_filedata ||= {}
@@ -2038,6 +2074,109 @@ class DBManager
 			return false
 		end
 		return true
+	end
+
+	def import_libpcap_file(args={})
+		filename = args[:filename]
+		wspace = args[:wspace] || workspace
+
+		data = PacketFu::PcapFile.new.readfile(filename)
+		import_libpcap(args.merge(:data => data))
+	end
+
+	# The libpcap file format is handled by PacketFu for data
+	# extraction. TODO: Make this its own mixin, and possibly
+	# extend PacketFu to do better stream analysis on the fly.
+	def import_libpcap(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		# seen_hosts is only used for determining when to yield an address. Once we get
+		# some packet analysis going, the values will have all sorts of info. The plan
+		# is to ru through all the packets as a first pass and report host and service,
+		# then, once we have everything parsed, we can reconstruct sessions and ngrep
+		# out things like authentication sequences, examine ttl's and window sizes, all
+		# kinds of crazy awesome stuff like that.
+		seen_hosts = {} 
+		data.body.map {|p| p.data}.each do |p|
+			pkt = PacketFu::Packet.parse(p) rescue next # Just silently skip bad packets
+			if pkt.is_ip?
+				saddr = pkt.ip_saddr
+				daddr = pkt.ip_daddr
+
+				# Handle blacklists and obviously useless IP addresses, and report the host.
+				next if (bl | [saddr,daddr]).size == bl.size # Both hosts are blacklisted, skip everything.
+				unless( bl.include?(saddr) || rfc3330_reserved(saddr))
+					yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr) 
+					report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
+					seen_hosts[saddr] ||= [] # Right here is where we'll save off the real packet for analysis
+				end
+				unless( bl.include?(daddr) || rfc3330_reserved(daddr))
+					yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
+					report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
+					seen_hosts[daddr] ||= [] # Here too
+				end
+
+				# First pass on TCP packets
+				if pkt.is_tcp?
+					if pkt.tcp_flags.syn == 1 and pkt.tcp_flags.ack == 1 # Oh, this kills me
+						if seen_hosts[saddr]
+							unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
+								report_service(
+									:workspace => wspace, :host => saddr, 
+									:proto => "tcp", :port => pkt.tcp_src, 
+									:state => Msf::ServiceState::Open
+								) 
+								seen_hosts[saddr] << [pkt.tcp_src,"tcp"]
+								yield(:service,"%s:%d/%s" % [saddr,pkt.tcp_src,"tcp"])
+							end
+						end
+					end
+
+				# First pass on UDP packets
+				elsif pkt.is_udp?
+					if pkt.udp_src == pkt.udp_dst # Very basic p2p detection.
+						[saddr,daddr].each do |xaddr|
+							if seen_hosts[xaddr]
+								unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
+									report_service(
+										:workspace => wspace, :host => xaddr, 
+										:proto => "udp", :port => pkt.udp_src, 
+										:state => Msf::ServiceState::Open
+									)
+									seen_hosts[xaddr] << [pkt.udp_src,"udp"]
+									yield(:service,"%s:%d/%s" % [xaddr,pkt.udp_src,"udp"])
+								end
+							end
+						end
+					elsif pkt.udp_src < 1024 # Probably a service 
+						if seen_hosts[saddr]
+							unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
+								report_service(
+									:workspace => wspace, :host => saddr, 
+									:proto => "udp", :port => pkt.udp_src, 
+									:state => Msf::ServiceState::Open
+								)
+								seen_hosts[saddr] << [pkt.udp_src,"udp"]
+								yield(:service,"%s:%d/%s" % [saddr,pkt.udp_src,"udp"])
+							end
+						end
+					end
+				end
+
+			end # if pkt.is_ip?
+		end # data.body.map
+
+		if seen_hosts.empty?
+			raise DBImportError.new("No valid IP traffic detected in '#{args[:filename]}'")
+		end
+
+		# Perform some better analysis here. Check for service banners, credential
+		# attempts, fingerprint OS'es, stuff like that. In order to actually perform
+		# this work, seen_hosts needs a lot more data than just port numbers -- it'll
+		# likely be a struct of things like port, proto, the data portion of the packet,
+		# reassembly info (sequence and ack numbers, ipids, etc)
+		# seen_hosts.each_pair { |host,packet_data| #awesomesauce }
 	end
 
 	# 

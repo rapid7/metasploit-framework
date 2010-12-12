@@ -150,7 +150,7 @@ class RangeWalker
 			addr = Rex::Socket.addr_atoi(addr)
 		end
 		@ranges.map { |r| 
-			if r.start <= addr and addr <= r.stop
+			if r[0] <= addr and addr <= r[1]
 				return true
 			end
 		}

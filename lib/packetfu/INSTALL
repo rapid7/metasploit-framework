@@ -1,0 +1,40 @@
+== INSTALL
+
+Installation is pretty straightforward -- it's a gem now!
+
+$ rvm gem install packetfu
+
+Not using rvm? For shame! Get it now, it will make your life 100x better.
+
+$ links http://rvm.beginrescueend.com/
+
+If you are installing from a source checkout, just run (as root / rvmsudo):
+
+$ rvmsudo ./setup.rb
+$ sudo ruby ./setup.rb # If not on rvm, and seriously what is wrong with you?
+
+== Testing
+
+The easiest way to test the installation is to run PacketFu via
+irb, using the example shell in the "examples" directory:
+
+% sudo irb -r packetfu-shell.rb
+
+After the banner, you should see something like:
+
+>>> Use $packetfu_default.config for salient networking details.
+IP:  192.168.1.100   Mac: 00:1d:e0:54:2f:7e   Gateway: 00:03:2f:32:a5:3c
+Net: 192.168.1.0                              Iface:   wlan0
+>>> Packet capturing/injecting enabled.
+<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><>
+
+If not, then Something Went Wrong. It's most likely that you have either
+an older or broken version of pcaprub (try installing the version provided
+with Metasploit), or you have a very, very old version of libpcap (version
+0.9.4 is the oldest tested version, and there's really no reason to not
+be at least on 1.0.0).
+
+== Complaints
+
+If things don't work out, please contact todb@planb-security.net, and I'll
+try to get you all sorted out.

@@ -1124,11 +1124,13 @@ class Db
 								print_status("Importing '#{data}' data")
 							when :address
 								print_status("Importing host #{data}")
-							when :msfx_loot
+							when :service
+								print_status("Importing service #{data}")
+							when :msf_loot
 								print_status("Importing loot #{data}")
-							when :msfx_task
+							when :msf_task
 								print_status("Importing task #{data}")
-							when :msft_report
+							when :msf_report
 								print_status("Importing report #{data}")
 							end
 						end
