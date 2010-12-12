@@ -17,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-
+	include Msf::Auxiliary::AuthBrute
+	
 	def initialize
 		super(
 			'Name'        => 'SNMP Community Scanner',
@@ -29,13 +30,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 		[
+			Opt::RPORT(161),
 			Opt::CHOST,
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-			OptPath.new('COMMUNITIES',   [ false, "The list of communities that should be attempted per host",
-					File.join(Msf::Config.install_root, "data", "wordlists", "snmp.txt")
-				]
-			),
-			Opt::RPORT(161),
+			OptString.new('PASSWORD', [ false, 'The password to test' ]),
+			OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
+				File.join(Msf::Config.install_root, "data", "wordlists", "snmp.txt")
+			])
 		], self.class)
 	end
 
@@ -45,24 +46,10 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['BATCHSIZE'].to_i
 	end
 
-	def configure_wordlist
-		@comms = []
-		File.open(datastore['COMMUNITIES'], "rb") do |fd|
-			buff = fd.read(fd.stat.size)
-			buff.split("\n").each do |line|
-				line.strip!
-				next if line =~ /^#/
-				next if line.empty?
-				@comms << line if not @comms.include?(line)
-			end
-		end
-	end
-
 	# Operate on an entire batch of hosts at once
 	def run_batch(batch)
 
 		@found = {}
-		configure_wordlist if not @comms
 
 		begin
 			udp_sock = nil
@@ -73,8 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 			udp_sock = Rex::Socket::Udp.create( { 'LocalHost' => datastore['CHOST'] || nil, 'Context' => {'Msf' => framework, 'MsfExploit' => self} })
 			add_socket(udp_sock)
 
-			print_status("SNMP scan progress (#{batch[0]}-#{batch[-1]}): #{idx}/#{@comms.length * batch.length}...") if datastore['ShowProgress']
-			@comms.each do |comm|
+			each_user_pass do |user, pass|
+				comm = pass
 
 				data1 = create_probe_snmp1(comm)
 				data2 = create_probe_snmp2(comm)
@@ -96,9 +83,6 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end
 
-					if( (idx+=1) % 1000 == 0) and datastore['ShowProgress']
-						print_status("SNMP scan progress (#{batch[0]}-#{batch[-1]}): #{idx}/#{@comms.length * batch.length}...")
-					end
 				end
 			end
 

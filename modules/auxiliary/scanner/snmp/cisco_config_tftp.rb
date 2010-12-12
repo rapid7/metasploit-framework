@@ -177,7 +177,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect_snmp
 			
 		# No need to make noise about timeouts
-		rescue ::SNMP::RequestTimeout
+		rescue ::SNMP::RequestTimeout, ::Rex::ConnectionRefused
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
