@@ -43,7 +43,7 @@ meter_type = client.platform
 # Usage Message Function
 #-------------------------------------------------------------------------------
 def usage
-	print_line "Meterpreter Script for INSERT PURPOSE."
+	print_line "Meterpreter Script for creating a persistent backdoor on a target host."
 	print_line(@exec_opts.usage)
 	raise Rex::Script::Completed
 end
