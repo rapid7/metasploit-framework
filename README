@@ -44,6 +44,7 @@ This license does not apply to the following components:
  - The PcapRub library located under external/pcaprub
  - The Rabal library located under lib/rabal
  - The Racket library located under lib/racket
+ - The PacketFu library located under lib/packetfu
  - The Ruby-Lorcon library located under external/ruby-lorcon
  - The SNMP library located under lib/snmp
  - The Zip library located under lib/zip
