@@ -3,6 +3,9 @@
 #include <windows.h>
 #include "audio.h"
 
+//Handle used for synchronization. Main thread waits for event to be signalled to clean up
+HANDLE recordMicEvent;
+
 //All these default values should be overwritten
 UINT buffersize = 0;
 UINT riffsize = 0;
@@ -15,6 +18,7 @@ void CALLBACK waveInProc(HWAVEIN hwi, UINT uMsg, DWORD_PTR dwInstance, DWORD_PTR
 	if(uMsg != WIM_DATA)
 		return;
 	memcpy(dataBuffer, recordBuffer, buffersize);
+	SetEvent(recordMicEvent);
 }
 
 /*
@@ -91,9 +95,15 @@ DWORD request_ui_record_mic( Remote * remote, Packet * request ){
 		wh.dwFlags = 0;
 		waveInPrepareHeader(hWavIn, &wh, sizeof(wh));
 		waveInAddBuffer(hWavIn, &wh, sizeof(wh));
+		recordMicEvent = CreateEvent( 
+			NULL,               // default security attributes
+			FALSE,               // auto-reset event
+			FALSE,              // initial state is nonsignaled
+			NULL);  // no object name
 		dwResult = waveInStart(hWavIn);
 		if(dwResult != MMSYSERR_NOERROR)
 			BREAK_WITH_ERROR("request_ui_record_mic: WaveInStart failed", dwResult)
+		WaitForSingleObject(recordMicEvent, seconds * 1000 + 1000);
 		dwResult = waveInStop(hWavIn);//seems to wait for buffer to complete
 		if(dwResult != MMSYSERR_NOERROR)
 			BREAK_WITH_ERROR("request_ui_record_mic: WaveInStop failed", dwResult)
