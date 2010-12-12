@@ -215,12 +215,12 @@ module Auxiliary::Cisco
 					
 					if stype == 5
 						print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{shash}")
-						store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
+						store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}_level#{priv}:#{shash}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
 					end
 
 					if stype == 0
 						print_good("#{thost}:#{tport} Username '#{user}' with Password: #{shash}")
-						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}_level#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
 					
 						cred = cred_info.dup
 						cred[:user] = user
@@ -233,7 +233,7 @@ module Auxiliary::Cisco
 					if stype == 7
 						shash = cisco_ios_decrypt7(shash) rescue shash
 						print_good("#{thost}:#{tport} Username '#{user}' with Decrypted Password: #{shash}")
-						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}_level#{priv}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
 					
 						cred = cred_info.dup
 						cred[:user] = user
