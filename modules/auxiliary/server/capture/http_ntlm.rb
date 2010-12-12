@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Client MS Credential Catcher',
-			'Version'     => '$$',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 					This module attempts to quietly catch NTLM/LM Challenge hashes.
 				},
