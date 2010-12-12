@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
 			OptString.new('PASSWORD', [ false, 'The password to test' ]),
 			OptPath.new('PASS_FILE',  [ false, "File containing communities, one per line",
-				File.join(Msf::Config.install_root, "data", "wordlists", "snmp.txt")
+				File.join(Msf::Config.install_root, "data", "wordlists", "snmp_default_pass.txt")
 			])
 		], self.class)
 	end
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 		if(com)
 			@found[pkt[1]]||={}
 			if(not @found[pkt[1]][com])
-				print_status("SNMP: #{pkt[1]} community string: '#{com}' info: '#{inf}'")
+				print_good("SNMP: #{pkt[1]} community string: '#{com}' info: '#{inf}'")
 				@found[pkt[1]][com] = inf
 			end
 			
