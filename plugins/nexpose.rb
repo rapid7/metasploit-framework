@@ -41,7 +41,7 @@ class Plugin::Nexpose < Msf::Plugin
 				return false
 			end
 
-			if ! (framework.db and framework.db.usable)
+			if ! (framework.db and framework.db.active)
 				print_error("No database has been configured, please use db_create/db_connect first")
 				return false
 			end
@@ -50,7 +50,7 @@ class Plugin::Nexpose < Msf::Plugin
 		end
 
 		def cmd_nexpose_connect(*args)
-			if ! (framework.db and framework.db.usable)
+			if ! (framework.db and framework.db.active)
 				print_error("No database has been configured, please use db_create/db_connect first")
 				return false
 			end
