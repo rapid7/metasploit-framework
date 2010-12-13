@@ -37,7 +37,10 @@ module PacketFu
 		require "packetfu/capture" 
 		require "packetfu/inject"
 	else
-		warn "Warning: Missing pcaprub, cannot load PacketFu::Capture or PacketFu::Inject"
+		# At this moment, we don't care about missing pcaprub for PacketFu; we do need to deal
+		# with this eventually if we unseat Racket, but for now, PacketFu is just being used
+		# to read/write libpcap files, which doesn't require pcaprub.
+		# warn "Warning: Missing pcaprub, cannot load PacketFu::Capture or PacketFu::Inject"
 	end
 
 end
