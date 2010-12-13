@@ -35,13 +35,8 @@ class Plugin::Nexpose < Msf::Plugin
 			}
 		end
 
-		def nexpose_verify
-			if ! @nsc
-				print_error("No active NeXpose instance has been configured, please use 'nexpose_connect'")
-				return false
-			end
-
-			if ! (framework.db and framework.db.usable)
+		def nexpose_verify_db
+			if ! (framework.db and framework.db.usable and framework.db.active)
 				print_error("No database has been configured, please use db_create/db_connect first")
 				return false
 			end
@@ -49,11 +44,19 @@ class Plugin::Nexpose < Msf::Plugin
 			true
 		end
 
-		def cmd_nexpose_connect(*args)
-			if ! (framework.db and framework.db.usable)
-				print_error("No database has been configured, please use db_create/db_connect first")
+		def nexpose_verify
+			return false if not nexpose_verify_db
+
+			if ! @nsc
+				print_error("No active NeXpose instance has been configured, please use 'nexpose_connect'")
 				return false
 			end
+
+			true
+		end
+
+		def cmd_nexpose_connect(*args)
+			return if not nexpose_verify_db
 
 			if(args.length == 0 or args[0].empty? or args[0] == "-h")
 				print_status("Usage: ")
@@ -122,6 +125,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 		def cmd_nexpose_activity(*args)
 			return if not nexpose_verify
+
 			scans = @nsc.scan_activity || []
 			case scans.length
 			when 0
