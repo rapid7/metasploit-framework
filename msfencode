@@ -132,7 +132,7 @@ $args.parse(ARGV) { |opt, idx, val|
 	case opt
 		when "-i"
 			begin
-				input = File.new(val)
+				input = File.open(val, 'rb')
 			rescue
 				$stderr.puts(OutError + "Failed to open file #{val}: #{$!}")
 				exit
@@ -225,6 +225,7 @@ case cmd
 			$stderr.puts(OutError + "Invalid encoder specified.")
 		end
 	when "encode"
+		input.binmode  # ensure its in binary mode
 		buf = input.read
 
 		encoders.each { |enc|
