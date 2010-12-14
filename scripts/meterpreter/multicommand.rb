@@ -63,27 +63,28 @@ def usage
 	raise Rex::Script::Completed
 
 end
+
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
-        case opt
+	case opt
 
-        when "-cl"
-                commands = val.split(",")
-        when "-rc"
-                script = val
-                if not ::File.exists?(script)
-                        raise "Command List File does not exists!"
-                else
-                        ::File.open(script, "r").each_line do |line|
-                                commands << line.chomp
-                        end
-                end
-        when "-f"
-                outfile = val
-        when "-h"
-                help = 1
-        end
-
+	when "-cl"
+		commands = val.split(",")
+	when "-rc"
+		script = val
+		if not ::File.exists?(script)
+			raise "Command List File does not exists!"
+		else
+			commands ||= ''
+			::File.open(script, "r").each_line do |line|
+				commands << line.chomp
+			end
+		end
+	when "-f"
+		outfile = val
+	when "-h"
+		help = 1
+	end
 }
 
 if args.length == 0 or help == 1
