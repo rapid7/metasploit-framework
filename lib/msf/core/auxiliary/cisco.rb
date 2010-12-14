@@ -110,11 +110,17 @@ module Auxiliary::Cisco
 					scomm = $1.strip
 					print_good("#{thost}:#{tport} SNMP Community (#{stype}): #{scomm}")
 			
+					if stype.downcase == "ro"
+						ptype = "password_ro" 
+					else
+						ptype = "password"
+					end
+					
 					cred = cred_info.dup
 					cred[:sname] = "snmp"
 					cred[:pass] = scomm
-					cred[:type] = "password"
-					cred[:collect_type] = "password"
+					cred[:type] = ptype
+					cred[:collect_type] = ptype
 					cred[:proto] = "udp"
 					cred[:port]  = 161
 					store_cred(cred)	
