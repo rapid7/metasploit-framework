@@ -13,6 +13,9 @@
 # NOTE: Thanks to webDEViL for the information about disable/enable.
 # http://www.exploit-db.com/exploits/15589/
 #
+# CVE 2010-3338
+# MSB MS10-092
+#
 ##
 
 require 'zlib'
