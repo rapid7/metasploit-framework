@@ -2097,7 +2097,8 @@ class DBManager
 		# then, once we have everything parsed, we can reconstruct sessions and ngrep
 		# out things like authentication sequences, examine ttl's and window sizes, all
 		# kinds of crazy awesome stuff like that.
-		seen_hosts = {} 
+		seen_hosts = {}
+		decoded_packets = []	
 		data.body.map {|p| p.data}.each do |p|
 			pkt = PacketFu::Packet.parse(p) rescue next # Just silently skip bad packets
 			if pkt.is_ip?
@@ -2109,12 +2110,15 @@ class DBManager
 				unless( bl.include?(saddr) || rfc3330_reserved(saddr))
 					yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr) 
 					report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
-					seen_hosts[saddr] ||= [] # Right here is where we'll save off the real packet for analysis
+					seen_hosts[saddr] ||= []
+					decoded_packets << pkt
+
 				end
 				unless( bl.include?(daddr) || rfc3330_reserved(daddr))
 					yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
 					report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
-					seen_hosts[daddr] ||= [] # Here too
+					seen_hosts[daddr] ||= [] 
+					decoded_packets << pkt
 				end
 
 				# First pass on TCP packets
@@ -2168,15 +2172,83 @@ class DBManager
 		end # data.body.map
 
 		if seen_hosts.empty?
-			raise DBImportError.new("No valid IP traffic detected in '#{args[:filename]}'")
+			raise DBImportError.new("No valid Ethernet IP traffic detected in '#{args[:filename]}'")
 		end
 
-		# Perform some better analysis here. Check for service banners, credential
-		# attempts, fingerprint OS'es, stuff like that. In order to actually perform
-		# this work, seen_hosts needs a lot more data than just port numbers -- it'll
-		# likely be a struct of things like port, proto, the data portion of the packet,
-		# reassembly info (sequence and ack numbers, ipids, etc)
-		# seen_hosts.each_pair { |host,packet_data| #awesomesauce }
+		analyze_packets(decoded_packets,wspace)
+	end
+
+	# This is pretty much a stub, but demonstrates the kinds of things we can do once we
+	# have a full set of decoded packets. TODO: Tons! More OS fingerprinting, banner
+	# grabbing, session reconstruction, credential sequence parsing, etc etc etc
+	def analyze_packets(decoded_packets,wspace)
+
+		decoded_packets.each do |pkt|
+			inspect_single_packets_http(pkt,wspace)
+			# TODO: Something with return values to know when to skip future packets
+			# or do extra stuff to them, like bother to put together a stream or not
+		end
+	end
+
+	# Checks for packets that are headed towards port 80, are tcp, contain an HTTP/1.0
+	# line, contains an Authorization line, contains a b64-encoded credential, and
+	# extracts it. Reports this credential and solidifies the service as HTTP.
+	def inspect_single_packets_http(pkt,wspace)
+		# First, check the server side (data from port 80).
+		if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
+			if pkt.payload =~ /^HTTP\x2f1\x2e[01]/
+				http_server_match = pkt.payload.match(/\nServer:\s+([^\r\n]+)[\r\n]/)
+				if http_server_match.kind_of?(MatchData) and http_server_match[1]
+					report_service(
+						:workspace => wspace,
+						:host => pkt.ip_saddr,
+						:port => pkt.tcp_src,
+						:proto => "tcp",
+						:name => "http",
+						:info => http_server_match[1],
+						:state => Msf::ServiceState::Open
+					)
+					# That's all we want to know from this service.
+					return :something_significant
+				end
+			end
+		end
+
+		# Next, check the client side (data to port 80)
+		if pkt.is_tcp? and pkt.tcp_dst == 80 and !pkt.payload.nil? and !pkt.payload.empty?
+			if pkt.payload.match(/[\x00-\x20]HTTP\x2f1\x2e[10]/)
+				auth_match = pkt.payload.match(/\nAuthorization:\s+Basic\s+([A-Za-z0-9=\x2b]+)/)
+				if auth_match.kind_of?(MatchData) and auth_match[1]
+					b64_cred = auth_match[1] 
+				else
+					return false
+				end
+				# If we're this far, we can surmise that at least the client is a web browser,
+				# he thinks the server is HTTP and he just made an authentication attempt. At
+				# this point, we'll just believe everything the packet says -- validation ought
+				# to come later.
+				user,pass = b64_cred.unpack("m*").first.split(/:/,2)
+				report_service(
+					:workspace => wspace,
+					:host => pkt.ip_daddr,
+					:port => pkt.tcp_dst,
+					:proto => "tcp",
+					:name => "http"
+				)
+				report_auth_info(
+					:workspace => wspace,
+					:host => pkt.ip_daddr,
+					:port => pkt.tcp_dst,
+					:proto => "tcp",
+					:type => "password",
+					:active => true, # Once we can build a stream, determine if the auth was successful. For now, assume it is.
+					:user => user,
+					:pass => pass
+				)
+				# That's all we want to know from this service.
+				return :something_significant
+			end
+		end
 	end
 
 	# 
