@@ -150,7 +150,13 @@ class Driver < Msf::Ui::Driver
 		
 		# Parse any specified database.yml file
 		if framework.db.usable
-			dbfile = opts['DatabaseYAML'] || File.join(Msf::Config.get_config_root, "database.yml")
+			# Look for our database configuration in the following places, in order:
+			#	command line arguments
+			#	environment variable
+			#	configuration directory (usually ~/.msf3)
+			dbfile = opts['DatabaseYAML']
+			dbfile ||= ENV["MSF_DATABASE_CONFIG"]
+			dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
 			if (dbfile and File.exists? dbfile)
 				dbinfo = YAML.load(File.read(dbfile))
 				dbenv  = opts['DatabaseEnv'] || "production"
