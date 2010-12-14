@@ -11,7 +11,7 @@
 
 
 require 'msf/core'
-
+require 'snmp'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -89,14 +89,127 @@ class Metasploit3 < Msf::Auxiliary
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r)
 			end
+			
+
+			if @found.keys.length > 0
+				print_status("Validating scan results from #{@found.keys.length} hosts...")
+			end
+						
+			# Review all successful communities and determine write access
+			@found.keys.sort.each do |host|
+				fake_comm  = Rex::Text.rand_text_alphanumeric(8)
+				anycomm_ro = false
+				anycomm_rw = false
+				comms_ro   = []
+				comms_rw   = []
+				finished   = false
+				versions = ["1", "2"]
+				
+				versions.each do |version|
+				comms_todo = @found[host].keys.sort
+				comms_todo.unshift(fake_comm)
+				
+				comms_todo.each do |comm|
+					begin
+						sval = nil
+						snmp = snmp_client(host, datastore['RPORT'].to_i, version, udp_sock, comm)
+						resp = snmp.get("sysName.0")
+						resp.each_varbind { |var| sval = var.value }
+						next if not sval
+						
+						svar = ::SNMP::VarBind.new("1.3.6.1.2.1.1.5.0", ::SNMP::OctetString.new(sval))
+						resp = snmp.set(svar)
+
+						if resp.error_status == :noError
+							comms_rw << comm
+							print_status("Host #{host} provides READ-WRITE access with community '#{comm}'")
+							if comm == fake_comm
+								anycomm_rw = true
+								finished   = true
+								break
+							end
+						else
+							comms_ro << comm
+							print_status("Host #{host} provides READ-ONLY access with community '#{comm}'")	
+							if comm == fake_comm
+								anycomm_ro = true
+								finished   = true
+								break
+							end													
+						end
+						
+						# Used to flag whether this version was compatible
+						finished = true
+
+					rescue ::SNMP::UnsupportedVersion
+						break
+					rescue ::SNMP::RequestTimeout
+						next
+					end				
+				end
+				
+				break if finished
+				end
+				
+				# Report on the results
+				comms_ro = ["anything"] if anycomm_ro
+				comms_rw = ["anything"] if anycomm_rw
+				
+				comms_rw.each do |comm|
+					report_auth_info(
+						:host   => host,
+						:port   => datastore['RPORT'].to_i,
+						:proto  => 'udp',
+						:sname  => 'snmp',
+						:user   => '',
+						:pass   => comm,
+						:duplicate_ok => true,
+						:active => true,
+						:type   => "password"
+					)
+				end
+
+				comms_ro.each do |comm|
+					report_auth_info(
+						:host   => host,
+						:port   => datastore['RPORT'].to_i,
+						:proto  => 'udp',
+						:sname  => 'snmp',
+						:user   => '',
+						:pass   => comm,
+						:duplicate_ok => true,
+						:active => true,
+						:type   => "password_ro"
+					)
+				end
+			end
 
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e}")
 		end
+
 	end
 
+	#
+	# Allocate a SNMP client using the existing socket
+	#
+	def snmp_client(host, port, version, socket, community)
+		version = :SNMPv1  if version == "1"
+		version = :SNMPv2c if version == "2c"
+
+		snmp = ::SNMP::Manager.new(
+			:Host      => host,
+			:Port      => port,
+			:Community => community,
+			:Version => version,
+			:Timeout => 1,
+			:Retries => 2,
+			:Transport => SNMP::RexUDPTransport,
+			:Socket => socket
+		)	
+	end
 
 	#
 	# The response parsers
@@ -123,8 +236,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("SNMP: #{pkt[1]} community string: '#{com}' info: '#{inf}'")
 				@found[pkt[1]][com] = inf
 			end
-			
-			return if inf.to_s.length == 0
 
 			report_service(
 				:host   => pkt[1],
@@ -134,18 +245,6 @@ class Metasploit3 < Msf::Auxiliary
 				:info   => inf,
 				:state => "open"
 			)
-
-			report_auth_info(
-				:host   => pkt[1],
-				:port   => pkt[2],
-				:proto  => 'udp',
-				:sname  => 'snmp',
-				:user   => '',
-				:pass   => com,
-				:duplicate_ok => true,
-				:active => true
-			)
-
 		end
 	end
 

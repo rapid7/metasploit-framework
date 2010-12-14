@@ -61,8 +61,8 @@ module Auxiliary::Cisco
 # Enable passwords
 #
 				when /^\s*enable (password|secret) (\d+) (.*)/i
-					stype = $1.to_i
-					shash = $2.strip
+					stype = $2.to_i
+					shash = $3.strip
 				
 					if stype == 5
 						print_good("#{thost}:#{tport} MD5 Encrypted Enable Password: #{shash}")
