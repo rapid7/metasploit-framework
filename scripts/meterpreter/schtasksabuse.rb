@@ -39,8 +39,12 @@ end
 def abuse(session,targets,commands,username,password,delay)
 	#for each target
 	targets.each do |t|
+		next if t.strip.length < 1
+		next if t[0,1] == "#"
 		#for eacg command
 		commands.each do |c|
+			next if c.strip.length < 1
+			next if c[0,1] == "#"
 			taskname = "syscheck#{rand(100)}"
 			success = false
 			#check if user name and password where given, if not credential of running process used

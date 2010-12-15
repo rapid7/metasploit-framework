@@ -82,6 +82,8 @@ if client.platform =~ /win32|win64/
 			else
 				backuphosts(session,hosts)
 				::File.open(val, "r").each_line do |line|
+					next if line.strip.length < 1
+					next if line[0,1] == "#"
 					add2hosts(session,line.chomp,hosts)
 				end
 				cleardnscach(session)

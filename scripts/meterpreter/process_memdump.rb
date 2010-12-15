@@ -158,6 +158,8 @@ end
 if client.platform =~ /win32|win64/
 	if resource
 		resource.each do |r|
+			next if r.strip.length < 1
+			next if r[0,1] == "#"
 			print_status("Dumping memory for #{r.chomp}") if not query
 			pids = find_pids(r.chomp)
 			if pids.length == 0

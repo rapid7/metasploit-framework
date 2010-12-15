@@ -26,6 +26,8 @@ def list_con_exec(cmdlst)
 	print_status("Running Command List ...")
 	cmdout = ""
 	cmdlst.each do |cmd|
+		next if cmd.strip.length < 1
+		next if cmd[0,1] == "#"
 		begin
 			print_status "\tRunning command #{cmd}"
 			@client.console.run_single(cmd)

@@ -104,6 +104,8 @@ end
 			raise "Command List File does not exists!"
 		else
 			::File.open(script, "r").each_line do |line|
+				next if line.strip.length < 1
+				next if line[0,1] == "#"
 				commands << line.chomp
 			end
 		end
