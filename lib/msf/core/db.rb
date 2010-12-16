@@ -1963,6 +1963,11 @@ class DBManager
 	# :amap_log :ip_list, :msf_zip, :libpcap
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
+	
+		if not (data and data.length > 0)
+			raise DBImportError.new("The data provided to the import function was empty")
+		end
+	
 		if data.kind_of? Zip::ZipFile
 			raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
 			@import_filedata ||= {}
