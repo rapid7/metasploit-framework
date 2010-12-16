@@ -1132,6 +1132,10 @@ class Db
 								print_status("Importing task #{data}")
 							when :msf_report
 								print_status("Importing report #{data}")
+							when :pcap_count
+								print_status("Import: #{data} packets processed")
+							when :record_count
+								print_status("Import: #{data[1]} records processed")
 							end
 						end
 						print_status("Successfully imported #{filename}")

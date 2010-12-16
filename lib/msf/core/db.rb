@@ -2103,9 +2103,17 @@ class DBManager
 		# out things like authentication sequences, examine ttl's and window sizes, all
 		# kinds of crazy awesome stuff like that.
 		seen_hosts = {}
-		decoded_packets = []	
+		decoded_packets = []
+		last_count = 0	
 		data.body.map {|p| p.data}.each do |p|
+			this_count = decoded_packets.size
+			if (this_count >= last_count + 1000) and block
+				yield(:pcap_count, this_count) 
+				last_count = this_count
+			end
+
 			pkt = PacketFu::Packet.parse(p) rescue next # Just silently skip bad packets
+
 			if pkt.is_ip?
 				saddr = pkt.ip_saddr
 				daddr = pkt.ip_daddr
