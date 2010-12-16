@@ -38,16 +38,6 @@ class Console::CommandDispatcher::Priv::Passwd
 	def cmd_hashdump(*args)
 		client.priv.sam_hashes.each { |user|
 			print_line("#{user}")
-			returned_hash = user.to_s.split(":")
-			client.framework.db.report_auth_info(
-				:host  => client.sock.peerhost,
-				:port  => 445,
-				:sname => 'smb',
-				:user  => returned_hash[0],
-				:pass  => returned_hash[2] +":"+ returned_hash[3],
-				:type  => "smb_hash"
-			)
-
 		}
 		
 		return true
