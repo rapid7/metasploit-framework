@@ -137,6 +137,7 @@ class DBManager
 		return true if Rex::Socket::RangeWalker.new("127.0.0.0-127.255.255.255").include? ip_x
 		return true if Rex::Socket::RangeWalker.new("169.254.0.0-169.254.255.255").include? ip_x
 		return true if Rex::Socket::RangeWalker.new("224.0.0.0-239.255.255.255").include? ip_x
+		return true if Rex::Socket::RangeWalker.new("255.255.255.255-255.255.255.255").include? ip_x
 		return false
 	end
 
@@ -2103,110 +2104,107 @@ class DBManager
 		# out things like authentication sequences, examine ttl's and window sizes, all
 		# kinds of crazy awesome stuff like that.
 		seen_hosts = {}
-		decoded_packets = []
+		decoded_packets = 0
 		last_count = 0	
 		data.body.map {|p| p.data}.each do |p|
-			this_count = decoded_packets.size
-			if (this_count >= last_count + 1000) and block
-				yield(:pcap_count, this_count) 
-				last_count = this_count
+			if (decoded_packets >= last_count + 1000) and block
+				yield(:pcap_count, decoded_packets) 
+				last_count = decoded_packets
 			end
+			decoded_packets += 1
 
 			pkt = PacketFu::Packet.parse(p) rescue next # Just silently skip bad packets
 
-			if pkt.is_ip?
-				saddr = pkt.ip_saddr
-				daddr = pkt.ip_daddr
+			next unless pkt.is_ip? # Skip anything that's not IP. Technically, not Ethernet::Ip
+			saddr = pkt.ip_saddr
+			daddr = pkt.ip_daddr
 
-				# Handle blacklists and obviously useless IP addresses, and report the host.
-				next if (bl | [saddr,daddr]).size == bl.size # Both hosts are blacklisted, skip everything.
-				unless( bl.include?(saddr) || rfc3330_reserved(saddr))
-					yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr) 
-					report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
-					seen_hosts[saddr] ||= []
-					decoded_packets << pkt
+			# Handle blacklists and obviously useless IP addresses, and report the host.
+			next if (bl | [saddr,daddr]).size == bl.size # Both hosts are blacklisted, skip everything.
+			unless( bl.include?(saddr) || rfc3330_reserved(saddr))
+				yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr) 
+				report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
+				seen_hosts[saddr] ||= []
 
-				end
-				unless( bl.include?(daddr) || rfc3330_reserved(daddr))
-					yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
-					report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
-					seen_hosts[daddr] ||= [] 
-					decoded_packets << pkt
-				end
+			end
+			unless( bl.include?(daddr) || rfc3330_reserved(daddr))
+				yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
+				report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
+				seen_hosts[daddr] ||= [] 
+			end
 
-				# First pass on TCP packets
-				if pkt.is_tcp?
-					if pkt.tcp_flags.syn == 1 and pkt.tcp_flags.ack == 1 # Oh, this kills me
-						if seen_hosts[saddr]
-							unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
-								report_service(
-									:workspace => wspace, :host => saddr, 
-									:proto => "tcp", :port => pkt.tcp_src, 
-									:state => Msf::ServiceState::Open
-								) 
-								seen_hosts[saddr] << [pkt.tcp_src,"tcp"]
-								yield(:service,"%s:%d/%s" % [saddr,pkt.tcp_src,"tcp"])
-							end
+			if pkt.is_tcp? # First pass on TCP packets
+				if (pkt.tcp_flags.syn == 1 and pkt.tcp_flags.ack == 1) or # Oh, this kills me
+					pkt.tcp_src < 1024 # If it's a low port, assume it's a proper service.
+					if seen_hosts[saddr]
+						unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
+							report_service(
+								:workspace => wspace, :host => saddr, 
+								:proto => "tcp", :port => pkt.tcp_src, 
+								:state => Msf::ServiceState::Open
+							) 
+							seen_hosts[saddr] << [pkt.tcp_src,"tcp"]
+							yield(:service,"%s:%d/%s" % [saddr,pkt.tcp_src,"tcp"])
 						end
 					end
-
-				# First pass on UDP packets
-				elsif pkt.is_udp?
-					if pkt.udp_src == pkt.udp_dst # Very basic p2p detection.
-						[saddr,daddr].each do |xaddr|
-							if seen_hosts[xaddr]
-								unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
-									report_service(
-										:workspace => wspace, :host => xaddr, 
-										:proto => "udp", :port => pkt.udp_src, 
-										:state => Msf::ServiceState::Open
-									)
-									seen_hosts[xaddr] << [pkt.udp_src,"udp"]
-									yield(:service,"%s:%d/%s" % [xaddr,pkt.udp_src,"udp"])
-								end
-							end
-						end
-					elsif pkt.udp_src < 1024 # Probably a service 
-						if seen_hosts[saddr]
-							unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
+				end
+			elsif pkt.is_udp? # First pass on UDP packets
+				if pkt.udp_src == pkt.udp_dst # Very basic p2p detection.
+					[saddr,daddr].each do |xaddr|
+						if seen_hosts[xaddr]
+							unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
 								report_service(
-									:workspace => wspace, :host => saddr, 
+									:workspace => wspace, :host => xaddr, 
 									:proto => "udp", :port => pkt.udp_src, 
 									:state => Msf::ServiceState::Open
 								)
-								seen_hosts[saddr] << [pkt.udp_src,"udp"]
-								yield(:service,"%s:%d/%s" % [saddr,pkt.udp_src,"udp"])
+								seen_hosts[xaddr] << [pkt.udp_src,"udp"]
+								yield(:service,"%s:%d/%s" % [xaddr,pkt.udp_src,"udp"])
 							end
 						end
 					end
+				elsif pkt.udp_src < 1024 # Probably a service 
+					if seen_hosts[saddr]
+						unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
+							report_service(
+								:workspace => wspace, :host => saddr, 
+								:proto => "udp", :port => pkt.udp_src, 
+								:state => Msf::ServiceState::Open
+							)
+							seen_hosts[saddr] << [pkt.udp_src,"udp"]
+							yield(:service,"%s:%d/%s" % [saddr,pkt.udp_src,"udp"])
+						end
+					end
 				end
+			end # tcp or udp
 
-			end # if pkt.is_ip?
+			inspect_single_packet(pkt,wspace)
+
 		end # data.body.map
+
+		# Right about here, we should have built up some streams for some stream analysis.
+		# Not sure what form that will take, but people like shoving many hundreds of
+		# thousands of packets through this thing, so it'll need to be memory efficient.
 
 		if seen_hosts.empty?
 			raise DBImportError.new("No valid Ethernet IP traffic detected in '#{args[:filename]}'")
 		end
 
-		analyze_packets(decoded_packets,wspace)
 	end
 
-	# This is pretty much a stub, but demonstrates the kinds of things we can do once we
-	# have a full set of decoded packets. TODO: Tons! More OS fingerprinting, banner
-	# grabbing, session reconstruction, credential sequence parsing, etc etc etc
-	def analyze_packets(decoded_packets,wspace)
-
-		decoded_packets.each do |pkt|
-			inspect_single_packets_http(pkt,wspace)
-			# TODO: Something with return values to know when to skip future packets
-			# or do extra stuff to them, like bother to put together a stream or not
+	# Do all the single packet analysis we can while churning through the pcap
+	# the first time. Multiple packet inspection will come later, where we can
+	# do stream analysis, compare requests and responses, etc.
+	def inspect_single_packet(pkt,wspace)
+		if pkt.is_tcp? or pkt.is_udp?
+			inspect_single_packet_http(pkt,wspace)
 		end
 	end
 
 	# Checks for packets that are headed towards port 80, are tcp, contain an HTTP/1.0
 	# line, contains an Authorization line, contains a b64-encoded credential, and
 	# extracts it. Reports this credential and solidifies the service as HTTP.
-	def inspect_single_packets_http(pkt,wspace)
+	def inspect_single_packet_http(pkt,wspace)
 		# First, check the server side (data from port 80).
 		if pkt.is_tcp? and pkt.tcp_src == 80 and !pkt.payload.nil? and !pkt.payload.empty?
 			if pkt.payload =~ /^HTTP\x2f1\x2e[01]/
