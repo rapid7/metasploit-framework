@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("#{rhost}:#{rport} Successfully authenticated to this device")
 	
 			# Report a vulnerability only if no password was specified		
-			if datastore['BasicAuthPass'].to_s.length > 0
+			if datastore['BasicAuthPass'].to_s.length == 0
 				report_vuln(
 					:host	=> rhost,
 					:port	=> rport,
