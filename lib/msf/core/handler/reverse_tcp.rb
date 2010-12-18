@@ -152,7 +152,7 @@ module ReverseTcp
 					client = self.listener_sock.accept	
 				rescue
 					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
-					return nil
+					break
 				end
 
 				# Increment the has connection counter

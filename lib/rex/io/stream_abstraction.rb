@@ -126,21 +126,32 @@ protected
 				closed = false
 				buf    = nil
 
+				if not self.rsock
+					wlog("monitor_rsock: the remote socket is nil, exiting loop")
+					break
+				end
+
 				begin
 					s = Rex::ThreadSafe.select( [ self.rsock ], nil, nil, 0.2 )
 					if( s == nil || s[0] == nil )
 						next
 					end
 				rescue Exception => e
+					wlog("monitor_rsock: exception during select: #{e.class} #{e}")
 					closed = true
 				end
 
 				if( closed == false )
 					begin
 						buf = self.rsock.sysread( 32768 )
-						closed = true if( buf == nil )
-					rescue
+						if buf == nil
+							closed = true
+							wlog("monitor_rsock: closed remote socket due to nil read")
+						end
+
+					rescue ::Exception
 						closed = true
+						wlog("monitor_rsock: exception during read: #{e.class} #{e}")						
 					end
 				end
 
@@ -161,14 +172,15 @@ protected
 							end
 						rescue ::IOError => e
 							closed = true
+							wlog("monitor_rsock: exception during write: #{e.class} #{e}")
 							break
 						end
 					end
 				end
 
 				if( closed )
-					self.close_write
-					::Thread.exit
+					self.close_write if self.respond_to?('close_write')
+					break
 				end
 			end
 		}
