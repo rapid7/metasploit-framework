@@ -235,10 +235,7 @@ class CommandShell
 	# Closes the shell.
 	#
 	def shell_close()
-		begin
-			rstream.close
-		rescue ::Exception
-		end
+		rstream.close rescue nil
 		self.kill
 	end
 

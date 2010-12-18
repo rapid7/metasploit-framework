@@ -275,11 +275,13 @@ class FrameworkEventSubscriber
 	# Generic handler for session events
 	#
 	def session_event(name, session, opts={})
-		if session.respond_to? :peerhost and session.peerhost
+		address = nil
+			
+		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
 			address = session.peerhost
-		elsif session.respond_to? :tunnel_peer and session.tunnel_peer
+		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
 			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-		elsif session.respond_to? :target_host and session.target_host
+		elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
 			address = session.target_host
 		else
 			elog("Session with no peerhost/tunnel_peer")
@@ -312,24 +314,29 @@ class FrameworkEventSubscriber
 	end
 
 	require 'msf/core/session'
+	
 	include ::Msf::SessionEvent
+	
 	def on_session_open(session)
 		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
 		session_event('session_open', session, opts)
 		if framework.db.active
 			framework.db.sync
-			# Copy/paste ftw
-			if session.respond_to? :peerhost and session.peerhost
+			
+			address = nil
+			
+			if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
 				address = session.peerhost
-			elsif session.respond_to? :tunnel_peer and session.tunnel_peer
+			elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
 				address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-			elsif session.respond_to? :target_host and session.target_host
+			elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
 				address = session.target_host
 			else
 				elog("Session with no peerhost/tunnel_peer")
 				dlog("#{session.inspect}", LEV_3)
 				return
 			end
+
 			# Since we got a session, we know the host is vulnerable to something.
 			# If the exploit used was multi/handler, though, we don't know what
 			# it's vulnerable to, so it isn't really useful to save it.
