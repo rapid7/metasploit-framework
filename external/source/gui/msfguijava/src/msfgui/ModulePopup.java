@@ -62,7 +62,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			for (Component comp : mainPanel.getComponents()){
 				if(comp instanceof JRadioButton){
 					JRadioButton but = (JRadioButton)comp;
-					if(but.getName().equals("targetsButton"+target)){
+					if(but.getName().equals("targetButton"+target)){
 						but.setSelected(true);
 						break;
 					}
