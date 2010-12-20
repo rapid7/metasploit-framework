@@ -139,6 +139,7 @@ public class MsfguiLog {
 			consoleLog = new ArrayList(30);
 			session.put("console",consoleLog);
 		}
+		message = htmlEntities(message); // Fix dangerous characters XSS-wise
 		if(sending)
 			consoleLog.add(now() + " >>>" + message);
 		else
@@ -151,6 +152,10 @@ public class MsfguiLog {
 					new Date()).replaceAll("[, :]+","-"))+".html";
 		save(destination);
 		return destination;
+	}
+	public String htmlEntities(String input){
+		return input.replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;")
+				.replaceAll("\"", "&quot;");
 	}
 	/** Saves the file and returns where */
 	public String save(String filename) throws IOException{
@@ -223,7 +228,7 @@ public class MsfguiLog {
 		//Activity log
 		fout.write("<h1>Activities</h1><table><tbody>\n");
 		for(Object o : activityLog)
-			fout.write("<tr><td>"+o.toString()+"</td></tr>\n");
+			fout.write("<tr><td>"+htmlEntities(o.toString())+"</td></tr>\n");
 		fout.write("</tbody></table>\n\n");
 		
 		//Complete console logs

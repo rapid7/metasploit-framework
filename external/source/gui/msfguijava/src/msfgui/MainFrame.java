@@ -34,7 +34,7 @@ import org.jdesktop.swingworker.SwingWorker;
 
 /** The application's main frame. */
 public class MainFrame extends FrameView {
-	public static final int MENU_SIZE_LIMIT = 30;
+	public static final int MENU_SIZE_LIMIT = 25;
 
 	public HashMap sessionPopupMap;
 	public RpcConnection rpcConn;
