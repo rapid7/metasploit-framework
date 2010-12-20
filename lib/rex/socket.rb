@@ -463,7 +463,14 @@ module Socket
 	#
 	##
 
-	def self.source_address(dest='50.50.50.50', comm = ::Rex::Socket::Comm::Local)
+	#
+	# This method does NOT send any traffic to the destination, instead, it uses a 
+	# "bound" UDP socket to determine what source address we would use to
+	# communicate with the specified destination. The destination defaults to
+	# Google's DNS server to make the standard behavior determine which IP
+	# we would use to communicate with the internet.
+	#
+	def self.source_address(dest='8.8.8.8', comm = ::Rex::Socket::Comm::Local)
 		begin
 			s = self.create_udp(
 				'PeerHost' => dest,
