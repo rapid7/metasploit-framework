@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			select(nil, nil, nil, 0.25)
 		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e}")
+			print_error("Unknown error: #{e.class} #{e} #{e.backtrace}")
 		end
 
 		@results.keys.each do |ip|
@@ -228,6 +228,8 @@ class Metasploit3 < Msf::Auxiliary
 		hname = nil
 		uname = nil
 
+		@results[addr] ||= {}
+
 		case rtype
 		when 0x21
 			rcnt = buff.slice!(0,1).unpack("C")[0]
@@ -241,11 +243,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
 
-			@results[addr] = {
-				:names => names,
-				:mac   => maddr
-			}
-
+			@results[addr][:names] = names
+			@results[addr][:mac]   = maddr			
+			
 			if (!hname and @results[addr][:names].length > 0)
 				@results[addr][:name] = @results[addr][:names][0][0]
 			end
