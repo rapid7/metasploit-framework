@@ -38,6 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 				File.join(Msf::Config.install_root, "data", "wordlists", "snmp_default_pass.txt")
 			])
 		], self.class)
+		
+		deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
 	end
 
 
