@@ -436,7 +436,7 @@ class Manager
             break if EndOfMibView == index_vb.value
             stop_oid = index_vb.name
             if stop_oid <= last_oid
-                warn "OIDs are not increasing, #{last_oid} followed by #{stop_oid}"
+                # warn "OIDs are not increasing, #{last_oid} followed by #{stop_oid}"
                 break
             end
             break unless stop_oid.subtree_of?(start_oid)
