@@ -27,7 +27,7 @@ internetopen:
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 
-  jmp dbl_get_server_host
+  jmp short dbl_get_server_host
 
 internetconnect:
   pop ebx                ; Save the hostname pointer
