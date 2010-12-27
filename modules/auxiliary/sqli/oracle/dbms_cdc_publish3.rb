@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2010-2415' ],
+					[ 'OSVDB', '70078'],
 					[ 'URL', 'http://www.oracle.com/technetwork/topics/security/cpuoct2010-175626.html' ],
 				],
 			'DisclosureDate' => 'Oct 13 2010'))
