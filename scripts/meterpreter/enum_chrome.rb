@@ -142,10 +142,10 @@ def process_files(username)
 				res = Hash[*columns.zip(row).flatten]
 				if item[:encrypted_fields] && client.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
 					if @host_info['Architecture'] !~ /x64/
-					item[:encrypted_fields].each do |field|
-						print_good("decrypting field '#{field}'...")
-						res[field + "_decrypted"] = decrypt_data(res[field])
-					end
+						item[:encrypted_fields].each do |field|
+							print_good("decrypting field '#{field}'...")
+							res[field + "_decrypted"] = decrypt_data(res[field])
+						end
 					else
 						print_error("Can not decrypt #{item[:out_file]}, decryption only supported in 32bit OS")
 					end
