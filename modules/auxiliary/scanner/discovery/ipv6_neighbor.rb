@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('SHOST', [true, "Source IP Address"]),
+				OptString.new('SHOST', [false, "Source IP Address"]),
 				OptString.new('SMAC', [true, "Source MAC Address"]),
 		], self.class)
 
@@ -45,7 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
-		print_status("IPv4 Hosts Discovery")
+		print_status("Discovering IPv4 nodes via ARP...")
+		print_status("")
 
 		shost = datastore['SHOST']
 		smac  = datastore['SMAC']
@@ -55,31 +56,37 @@ class Metasploit3 < Msf::Auxiliary
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		begin
+			found = {}
 			hosts.each do |dhost|
+				shost = datastore['SHOST'] || Rex::Socket.source_address(dhost)
 
 				probe = buildprobe(datastore['SHOST'], datastore['SMAC'], dhost)
 				capture.inject(probe)
-
 				while(reply = getreply())
 					next if not reply[:arp]
-					print_status("#{reply[:arp].spa} is alive.")
-
-					addrs << [reply[:arp].spa, reply[:arp].sha]
-					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+					if not found[reply[:arp].spa]
+						print_status(sprintf("  %16s ALIVE",reply[:arp].spa))
+						addrs << [reply[:arp].spa, reply[:arp].sha]
+						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+						found[reply[:arp].spa] = true
+					end
 				end
 			end
 
-			etime = Time.now.to_f + (hosts.length * 0.05)
+			etime = ::Time.now.to_f + (hosts.length * 0.05)
 
-			while (Time.now.to_f < etime)
+			while (::Time.now.to_f < etime)
 				while(reply = getreply())
 					next if not reply[:arp]
-					print_status("#{reply[:arp].spa} is alive.")
-
-					addrs << [reply[:arp].spa, reply[:arp].sha]
+					if not found[reply[:arp].spa]
+						print_status(sprintf("  %16s ALIVE",reply[:arp].spa))
+						addrs << [reply[:arp].spa, reply[:arp].sha]
+						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+						found[reply[:arp].spa] = true
+					end
 				end
 
-				Kernel.select(nil, nil, nil, 0.50)
+				::IO.select(nil, nil, nil, 0.50)
 			end
 
 		ensure
@@ -88,7 +95,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		neighbor_discovery(addrs)
 	end
-
 
 	def map_neighbor(nodes, adv)
 		nodes.each do |node|
@@ -103,10 +109,10 @@ class Metasploit3 < Msf::Auxiliary
 		nil
 	end
 
-
 	def neighbor_discovery(neighs)
-		print_status("IPv6 Neighbor Discovery")
-
+		print_status("Discovering IPv6 addresses for IPv4 nodes...")
+		print_status("")
+		
 		smac  = datastore['SMAC']
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "icmp6"})
 
@@ -127,22 +133,22 @@ class Metasploit3 < Msf::Auxiliary
 					addr = map_neighbor(neighs, adv)
 					next if not addr
 
-					print_status("#{addr[:ipv4]} maps to IPv6 link local address #{addr[:ipv6]}")
+					print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
 				end
 			end
 
-			etime = Time.now.to_f + (neighs.length * 0.5)
+			etime = ::Time.now.to_f + (neighs.length * 0.5)
 
-			while (Time.now.to_f < etime)
+			while (::Time.now.to_f < etime)
 				while(adv = getadvertisement())
 					next if not adv[:icmpv6]
 
 					addr = map_neighbor(neighs, adv)
 					next if not addr
 
-					print_status("#{addr[:ipv4]} maps to IPv6 link local address #{addr[:ipv6]}")
+					print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
 				end
-				Kernel.select(nil, nil, nil, 0.50)
+				::IO.select(nil, nil, nil, 0.50)
 			end
 
 		ensure

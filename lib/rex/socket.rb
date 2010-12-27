@@ -479,10 +479,31 @@ module Socket
 			)
 			r = s.getsockname[1]
 			s.close
-			return r
+			
+			# Trim off the trailing interface ID for link-local IPv6
+			return r.split('%').first
 		rescue ::Exception
 			return '127.0.0.1'
 		end
+	end
+	
+	#
+	# Identifies the link-local address of a given interface (if IPv6 is enabled)
+	#
+	def self.ipv6_link_address(intf)
+		r = source_address("FF02::1%#{intf}")
+		return if not (r and r =~ /^fe80/i)
+		r
+	end
+	
+	#
+	# Identifies the mac address of a given interface (if IPv6 is enabled)
+	#	
+	def self.ipv6_mac(intf)
+		r = ipv6_link_address(intf)
+		return if not r
+		raw = addr_aton(r)[-8, 8]
+		(raw[0,3] + raw[5,3]).unpack("C*").map{|c| "%.2x" % c}.join(":")
 	end
 
 	#
