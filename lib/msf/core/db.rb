@@ -1965,11 +1965,7 @@ class DBManager
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 	
-		if not (data and data.length > 0)
-			raise DBImportError.new("The data provided to the import function was empty")
-		end
-	
-		if data.kind_of? Zip::ZipFile
+		if data and data.kind_of? Zip::ZipFile
 			raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
 			@import_filedata ||= {}
 			@import_filedata[:zip_filename] = File.split(data.to_s).last
@@ -1985,7 +1981,7 @@ class DBManager
 			end
 		end
 
-		if data.kind_of? PacketFu::PcapFile
+		if data and data.kind_of? PacketFu::PcapFile
 			raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
 			@import_filedata ||= {}
 			@import_filedata[:type] = "Libpcap Packet Capture"
@@ -1993,6 +1989,10 @@ class DBManager
 		end
 
 		# Text string kinds of data.
+		if data and data.to_s.strip.size.zero? 
+			raise DBImportError.new("The data provided to the import function was empty")
+		end
+
 		di = data.index("\n")
 		firstline = data[0, di]
 		@import_filedata ||= {}
