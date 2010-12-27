@@ -9,6 +9,7 @@ require 'msf/base/simple/exploit'
 require 'msf/base/simple/nop'
 require 'msf/base/simple/payload'
 require 'msf/base/simple/auxiliary'
+require 'msf/base/simple/post'
 
 # Simplified framework interface
 require 'msf/base/simple/framework'

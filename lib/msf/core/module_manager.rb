@@ -410,6 +410,13 @@ class ModuleManager < ModuleSet
 	end
 
 	#
+	# Returns the set of loaded auxiliary module classes.
+	#
+	def post
+		return module_sets[MODULE_POST]
+	end
+
+	#
 	# Returns the set of modules that failed to load.
 	#
 	def failed

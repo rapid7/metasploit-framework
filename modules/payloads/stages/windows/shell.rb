@@ -27,7 +27,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellWindows,
 			'PayloadCompat' =>
 				{
 					'Convention' => 'sockedi -https'
@@ -58,5 +58,9 @@ module Metasploit3
 			))
 	end
 
+	# Stage encoding is safe for this payload
+	def encode_stage?
+		true
+	end
 end
 

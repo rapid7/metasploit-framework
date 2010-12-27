@@ -26,7 +26,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'bsd',
 			'Arch'          => ARCH_X86,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellUnix,
 			'Stage'         =>
 				{
 					'Payload' =>

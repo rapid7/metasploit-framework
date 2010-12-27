@@ -52,6 +52,7 @@ require 'msf/core/auxiliary'
 require 'msf/core/exploit'
 require 'msf/core/nop'
 require 'msf/core/payload'
+require 'msf/core/post'
 
 
 # Drivers

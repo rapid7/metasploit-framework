@@ -59,6 +59,11 @@ class CommandShell
 		full_path
 	end
 
+	def initialize(*args)
+		self.platform ||= ""
+		self.arch     ||= ""
+		super
+	end
 
 	#
 	# Returns the session description.
@@ -268,6 +273,9 @@ class CommandShell
 		end
 	end
 
+	attr_accessor :arch
+	attr_accessor :platform
+
 protected
 
 	# Override the basic session interaction to use shell_read and
@@ -287,6 +295,26 @@ protected
 				shell_write(user_input.gets)
 			end
 		end
+	end
+end
+
+class CommandShellWindows < CommandShell
+	def initialize(*args)
+		self.platform = "windows"
+		super
+	end
+	def shell_command_token(cmd)
+		shell_command_token_win32(cmd)
+	end
+end
+
+class CommandShellUnix < CommandShell
+	def initialize(*args)
+		self.platform = "unix"
+		super
+	end
+	def shell_command_token(cmd)
+		shell_command_token_unix(cmd)
 	end
 end
 

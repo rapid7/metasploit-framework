@@ -36,7 +36,7 @@ class Framework
 	RepoUpdatedDaysNote = ::Msf::Util::SVN.last_updated_friendly
 	RepoUpdatedDate     = ::Msf::Util::SVN.last_updated_date
 	RepoRoot            = ::Msf::Util::SVN.root
-	
+
 	# EICAR canary
 	EICARCorrupted      = ::Msf::Util::EXE.is_eicar_corrupted?
 
@@ -84,10 +84,9 @@ class Framework
 		self.jobs      = Rex::JobContainer.new
 		self.plugins   = PluginManager.new(self)
 		self.db        = DBManager.new(self, opts)
-		
+
 		# Configure the thread factory
 		Rex::ThreadFactory.provider = self.threads
-		
 
 		subscriber = FrameworkEventSubscriber.new(self)
 		events.add_exploit_subscriber(subscriber)
@@ -134,6 +133,13 @@ class Framework
 	#
 	def auxiliary
 		return modules.auxiliary
+	end
+
+	#
+	# Returns the module set for post modules
+	#
+	def post
+		return modules.post
 	end
 
 	#
@@ -189,7 +195,7 @@ class Framework
 	# provides a cleaner way to manage spawned threads
 	#
 	attr_reader   :threads
-	
+
 protected
 
 	attr_writer   :events # :nodoc:
@@ -276,7 +282,7 @@ class FrameworkEventSubscriber
 	#
 	def session_event(name, session, opts={})
 		address = nil
-			
+
 		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
 			address = session.peerhost
 		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
@@ -314,17 +320,17 @@ class FrameworkEventSubscriber
 	end
 
 	require 'msf/core/session'
-	
+
 	include ::Msf::SessionEvent
-	
+
 	def on_session_open(session)
 		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
 		session_event('session_open', session, opts)
 		if framework.db.active
 			framework.db.sync
-			
+
 			address = nil
-			
+
 			if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
 				address = session.peerhost
 			elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
@@ -343,6 +349,7 @@ class FrameworkEventSubscriber
 			if session.via_exploit and session.via_exploit != "exploit/multi/handler"
 				wspace = framework.db.find_workspace(session.workspace)
 				host = wspace.hosts.find_by_address(address)
+				return unless host
 				port = session.exploit_datastore["RPORT"]
 				service = (port ? host.services.find_by_port(port) : nil)
 				mod = framework.modules.create(session.via_exploit)

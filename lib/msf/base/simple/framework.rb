@@ -56,6 +56,7 @@ module Framework
 			MODULE_NOP     => Msf::Simple::Nop,
 			MODULE_PAYLOAD => Msf::Simple::Payload,
 			MODULE_AUX     => Msf::Simple::Auxiliary,
+			MODULE_POST    => Msf::Simple::Post,
 		}
 
 	#

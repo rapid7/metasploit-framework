@@ -27,7 +27,7 @@ module Metasploit3
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86_64,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellWindows,
 			'PayloadCompat' =>
 				{
 					'Convention' => 'sockrdi'

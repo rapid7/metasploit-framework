@@ -30,7 +30,7 @@ module Metasploit3
 			'Platform'      => 'linux',
 			'Arch'          => [ ARCH_PPC, ARCH_CBEA ],
 			'Handler'       => Msf::Handler::FindPort,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellUnix,
 			'Payload'       =>
 				{
 					'Offsets' =>

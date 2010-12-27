@@ -32,7 +32,7 @@ module Metasploit3
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_MIPSLE,
 			'Handler'       => Msf::Handler::ReverseTcp,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellUnix,
 			'Payload'       =>
 				{
 					'Offsets' =>

@@ -386,7 +386,12 @@ class ReadableText
 	#
 	# Dumps the list of active sessions.
 	#
-	def self.dump_sessions(framework, verbose = false, indent = DefaultIndent, col = DefaultColumnWrap)
+	def self.dump_sessions(framework, opts={})
+		ids = (opts[:session_ids] || framework.sessions.keys).sort
+		verbose = opts[:verbose] || false
+		indent = opts[:indent] || DefaultIndent
+		col = opts[:col] || DefaultColumnWrap
+
 		columns =
 			[
 				'Id',

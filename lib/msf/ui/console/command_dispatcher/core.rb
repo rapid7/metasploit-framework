@@ -2,6 +2,7 @@ require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
 require 'msf/ui/console/command_dispatcher/auxiliary'
+require 'msf/ui/console/command_dispatcher/post'
 
 module Msf
 module Ui
@@ -47,7 +48,7 @@ class Core
 		"-i" => [ true, "Lists detailed information about a thread."      ],
 		"-l" => [ false, "List all background threads."                   ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
-		
+
 	@@persist_opts = Rex::Parser::Arguments.new(
 		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
 		"-r" => [ false, "Restore framework state."                       ],
@@ -126,7 +127,6 @@ class Core
 
 		@dscache = {}
 		@cache_payloads = nil
-		@cache_active_module = nil
 	end
 
 	#
@@ -261,20 +261,20 @@ class Core
 			avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
 			avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
 			avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
-			avdwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/EICAR"			
+			avdwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/EICAR"
 			avdwarn << ""
 		end
-		
+
 		# Display the banner
 		print_line(banner)
 
 		if(oldwarn)
 			oldwarn.map{|line| print_line(line) }
 		end
-		
+
 		if(avdwarn)
 			avdwarn.map{|line| print_error(line) }
-		end		
+		end
 	end
 
 	#
@@ -741,38 +741,36 @@ class Core
 						'Started'
 					]
 			)
-								
+
 			framework.threads.each_index do |i|
 				t = framework.threads[i]
 				next if not t
-				tbl << [ i.to_s, t.status || "dead", t[:tm_crit] ? "True" : "False", t[:tm_name].to_s, t[:tm_time].to_s ]				
+				tbl << [ i.to_s, t.status || "dead", t[:tm_crit] ? "True" : "False", t[:tm_name].to_s, t[:tm_time].to_s ]
 			end
 			print(tbl.to_s)
 		end
-		
+
 		if (dump_info)
 			thread = framework.threads[thread_id]
-			
-			if (thread)
-				
 
+			if (thread)
 				output  = "\n"
 				output += "  ID: #{thread_id}\n"
 				output += "Name: #{thread[:tm_name]}\n"
 				output += "Info: #{thread.status || "dead"}\n"
 				output += "Crit: #{thread[:tm_crit] ? "True" : "False"}\n"
 				output += "Time: #{thread[:tm_time].to_s}\n"
-				
+
 				if (verbose)
 					output += "\n"
 					output += "Thread Source\n"
-					output += "=============\n"					
+					output += "=============\n"
 					thread[:tm_call].each do |c|
 						output += "      #{c.to_s}\n"
 					end
 					output += "\n"
 				end
-				
+
 				print(output +"\n")
 			else
 				print_line("Invalid Thread ID")
@@ -938,17 +936,16 @@ class Core
 					return false
 				end
 
-                                # Satisfy check to see that formatting is correct
-                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-                                        print_error "Invalid IP Address"
-                                        return false
-                                end
+				# Satisfy check to see that formatting is correct
+				unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+					print_error "Invalid IP Address"
+					return false
+				end
 
-                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-                                        print_error "Invalid Subnet mask"
-                                        return false
-                                end
-
+				unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+					print_error "Invalid Subnet mask"
+					return false
+				end
 
 				gw = nil
 
@@ -984,91 +981,90 @@ class Core
 				end
 
 
-                                # Satisfy check to see that formatting is correct
-                                unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-                                        print_error "Invalid IP Address"
-                                        return false
-                                end
+			# Satisfy check to see that formatting is correct
+			unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+				print_error "Invalid IP Address"
+				return false
+			end
 
-                                unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-                                        print_error "Invalid Subnet mask"
-                                        return false
-                                end
+			unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+				print_error "Invalid Subnet mask"
+				return false
+			end
 
+			gw = nil
 
-				gw = nil
+			# Satisfy case problems
+			args[2] = "Local" if (args[2] =~ /local/i)
 
-				# Satisfy case problems
-				args[2] = "Local" if (args[2] =~ /local/i)
-
-				begin
-					# If the supplied gateway is a global Comm, use it.
-					if (Rex::Socket::Comm.const_defined?(args[2]))
-						gw = Rex::Socket::Comm.const_get(args[2])
-					end
-				rescue NameError
+			begin
+				# If the supplied gateway is a global Comm, use it.
+				if (Rex::Socket::Comm.const_defined?(args[2]))
+					gw = Rex::Socket::Comm.const_get(args[2])
 				end
+			rescue NameError
+			end
 
-				# If we still don't have a gateway, check if it's a session.
-				if ((gw == nil) and
-						(session = framework.sessions.get(args[2])) and
-						(session.kind_of?(Msf::Session::Comm)))
-					gw = session
-				elsif (gw == nil)
-					print_error("Invalid gateway specified.")
-					return false
-				end
+			# If we still don't have a gateway, check if it's a session.
+			if ((gw == nil) and
+					(session = framework.sessions.get(args[2])) and
+					(session.kind_of?(Msf::Session::Comm)))
+				gw = session
+			elsif (gw == nil)
+				print_error("Invalid gateway specified.")
+				return false
+			end
 
-				Rex::Socket::SwitchBoard.remove_route(
-					args[0],
-					args[1],
-					gw)
-			when "get"
-				if (args.length == 0)
-					print_error("You must supply an IP address.")
-					return false
-				end
+			Rex::Socket::SwitchBoard.remove_route(
+				args[0],
+				args[1],
+				gw)
+		when "get"
+			if (args.length == 0)
+				print_error("You must supply an IP address.")
+				return false
+			end
 
-				comm = Rex::Socket::SwitchBoard.best_comm(args[0])
+			comm = Rex::Socket::SwitchBoard.best_comm(args[0])
 
-				if ((comm) and
-						(comm.kind_of?(Msf::Session)))
-					print_line("#{args[0]} routes through: Session #{comm.sid}")
+			if ((comm) and
+					(comm.kind_of?(Msf::Session)))
+				print_line("#{args[0]} routes through: Session #{comm.sid}")
+			else
+				print_line("#{args[0]} routes through: Local")
+			end
+		when "flush"
+			Rex::Socket::SwitchBoard.flush_routes
+		when "print"
+			tbl =	Table.new(
+				Table::Style::Default,
+				'Header'  => "Active Routing Table",
+				'Prefix'  => "\n",
+				'Postfix' => "\n",
+				'Columns' =>
+					[
+						'Subnet',
+						'Netmask',
+						'Gateway',
+					],
+				'ColProps' =>
+					{
+						'Subnet'  => { 'MaxWidth' => 17 },
+						'Netmask' => { 'MaxWidth' => 17 },
+					})
+
+			Rex::Socket::SwitchBoard.each { |route|
+
+				if (route.comm.kind_of?(Msf::Session))
+					gw = "Session #{route.comm.sid}"
 				else
-					print_line("#{args[0]} routes through: Local")
+					gw = route.comm.name.split(/::/)[-1]
 				end
-			when "flush"
-				Rex::Socket::SwitchBoard.flush_routes
-			when "print"
-				tbl =	Table.new(
-					Table::Style::Default,
-					'Header'  => "Active Routing Table",
-					'Prefix'  => "\n",
-					'Postfix' => "\n",
-					'Columns' =>
-						[
-							'Subnet',
-							'Netmask',
-							'Gateway',
-						],
-					'ColProps' =>
-						{
-							'Subnet'  => { 'MaxWidth' => 17 },
-							'Netmask' => { 'MaxWidth' => 17 },
-						})
 
-				Rex::Socket::SwitchBoard.each { |route|
+				tbl << [ route.subnet, route.netmask, gw ]
+			}
 
-					if (route.comm.kind_of?(Msf::Session))
-						gw = "Session #{route.comm.sid}"
-					else
-						gw = route.comm.name.split(/::/)[-1]
-					end
-
-					tbl << [ route.subnet, route.netmask, gw ]
-				}
-
-				print(tbl.to_s)
+			print(tbl.to_s)
 		end
 	end
 
@@ -1493,8 +1489,9 @@ class Core
 				end
 
 			when 'list',nil
-				print("\n" +
-					Serializer::ReadableText.dump_sessions(framework, verbose) + "\n")
+				print_line
+				print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
+				print_line
 
 
 		end
@@ -1575,6 +1572,12 @@ class Core
 		# Set the supplied name to the supplied value
 		name  = args[0]
 		value = args[1, args.length-1].join(' ')
+		if (name.upcase == "TARGET")
+			# Different targets can have different architectures and platforms
+			# so we need to rebuild the payload list whenever the target
+			# changes.
+			@cache_payloads = nil
+		end
 
 		# Security check -- make sure the data store element they are setting
 		# is not prohibited
@@ -1707,6 +1710,7 @@ class Core
 					show_exploits
 					show_payloads
 					show_auxiliary
+					show_post
 					show_plugins
 				when 'encoders'
 					show_encoders
@@ -1718,6 +1722,8 @@ class Core
 					show_payloads
 				when 'auxiliary'
 					show_auxiliary
+				when 'post'
+					show_post
 				when 'options'
 					if (mod)
 						show_options(mod)
@@ -1736,6 +1742,15 @@ class Core
 					else
 						print_error("No module selected.")
 					end
+				when 'sessions'
+					if (active_module and active_module.respond_to?(:compatible_sessions))
+						sessions = active_module.compatible_sessions 
+					else
+						sessions = framework.sessions.keys.sort
+					end
+					print_line
+					print(Serializer::ReadableText.dump_sessions(framework, :session_ids => sessions))
+					print_line
 				when "plugins"
 					show_plugins
 				when "targets"
@@ -1761,9 +1776,12 @@ class Core
 	# Tab completion for the show command
 	#
 	def cmd_show_tabs(str, words)
-		res = %w{all encoders nops exploits payloads auxiliary plugins options}
+		res = %w{all encoders nops exploits payloads auxiliary post plugins options}
 		if (active_module)
 			res.concat(%w{ advanced evasion targets actions })
+			if (active_module.respond_to? :compatible_sessions)
+				res << "sessions"
+			end
 		end
 		return res
 	end
@@ -1922,6 +1940,8 @@ class Core
 				dispatcher = Payload
 			when MODULE_AUX
 				dispatcher = Auxiliary
+			when MODULE_POST
+				dispatcher = Post
 			else
 				print_error("Unsupported module type: #{mod.type}")
 				return false
@@ -1944,6 +1964,7 @@ class Core
 			active_module.datastore.update(@dscache[active_module.fullname])
 		end
 
+		@cache_payloads = nil
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
@@ -2006,6 +2027,11 @@ class Core
 		# The ENCODER option works for payloads and exploits
 		if ((mod.exploit? or mod.payload?) and opt.upcase == 'ENCODER')
 			return option_values_encoders()
+		end
+
+		# Well-known option names specific to post-exploitation
+		if (mod.post?)
+			return option_values_sessions() if opt.upcase == 'SESSION'
 		end
 
 		# Is this option used by the active module?
@@ -2090,14 +2116,20 @@ class Core
 	# Provide valid payload options for the current exploit
 	#
 	def option_values_payloads
+		return @cache_payloads if @cache_payloads
 
-		# Module caching for significant speed improvement
-		if (not (@cache_active_module and @cache_active_module == active_module.refname))
-			@cache_active_module = active_module.refname
-			@cache_payloads = active_module.compatible_payloads.map { |refname, payload| refname }
-		end
+		@cache_payloads = active_module.compatible_payloads.map { |refname, payload|
+			refname
+		}
 
 		@cache_payloads
+	end
+
+	#
+	# Provide valid session options for the current post-exploit module
+	#
+	def option_values_sessions
+		active_module.compatible_sessions.map { |sid| sid.to_s }
 	end
 
 	#
@@ -2225,6 +2257,10 @@ protected
 
 	def show_auxiliary(regex = nil, minrank = nil, opts = nil) # :nodoc:
 		show_module_set("Auxiliary", framework.auxiliary, regex, minrank, opts)
+	end
+
+	def show_post(regex = nil, minrank = nil, opts = nil) # :nodoc:
+		show_module_set("Post", framework.post, regex, minrank, opts)
 	end
 
 	def show_options(mod) # :nodoc:

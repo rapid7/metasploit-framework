@@ -30,7 +30,7 @@ module Metasploit3
 			'Platform'      => 'aix',
 			'Arch'          => ARCH_PPC,
 			'Handler'       => Msf::Handler::ReverseTcp,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellUnix,
 			'Payload'       =>
 				{
 					'Offsets' =>

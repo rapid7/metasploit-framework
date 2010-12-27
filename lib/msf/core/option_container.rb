@@ -136,6 +136,7 @@ end
 # OptInt     - An integer value
 # OptEnum    - Select from a set of valid values
 # OptAddressRange - A subnet or range of addresses
+# OptSession - A session identifier
 #
 ###
 

@@ -31,6 +31,11 @@ class Module < Base
 		{ "modules" => @framework.nops.keys }
 	end
 
+	def post(token)
+		authenticate(token)
+		{ "modules" => @framework.post.keys }
+	end
+
 
 	def info(token, mtype, mname)
 		authenticate(token)
@@ -97,6 +102,22 @@ class Module < Base
 		res
 	end
 
+	def compatible_sessions(token, mname)
+		authenticate(token)
+		m = _find_module('exploit',mname)
+		if(not m)
+			raise ::XMLRPC::FaultException.new(404, "unknown module")
+		end
+
+		res = {}
+		res['sessions'] = []
+		m.compatible_sessions.each do |k|
+			res['sessions'] << k[0]
+		end
+
+		res
+	end
+
 	def target_compatible_payloads(token, mname, target)
 		authenticate(token)
 		m = _find_module('exploit',mname)
@@ -154,6 +175,8 @@ class Module < Base
 				_run_auxiliary(mod, opts)
 			when 'payload'
 				_run_payload(mod, opts)
+			when 'post'
+				_run_post(mod, opts)
 		end
 
 	end
@@ -291,6 +314,13 @@ protected
 		end
 	end
 
+	def _run_post(mod, opts)
+		Msf::Simple::Post.run_simple(mod, {
+			'RunAsJob' => true,
+			'Options'  => opts
+		})
+		{"result" => "success"}
+	end
 end
 end
 end

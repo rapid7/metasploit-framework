@@ -30,7 +30,7 @@ module Metasploit3
 			'Platform'      => 'linux',
 			'Arch'          => ARCH_X86,
 			'Handler'       => Msf::Handler::BindTcp,
-			'Session'       => Msf::Sessions::CommandShell,
+			'Session'       => Msf::Sessions::CommandShellUnix,
 			'Payload'       =>
 				{
 					'Offsets' =>

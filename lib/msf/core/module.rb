@@ -581,6 +581,13 @@ class Module
 	end
 
 	#
+	# Returns true if this module is an post-exploitation module.
+	#
+	def post?
+		return (type == MODULE_POST)
+	end
+
+	#
 	# Returns false since this is the real module
 	#
 	def self.cached?
