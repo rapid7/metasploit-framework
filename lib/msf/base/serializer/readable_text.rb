@@ -29,6 +29,8 @@ class ReadableText
 				return dump_exploit_module(mod, indent)
 			when MODULE_AUX
 				return dump_auxiliary_module(mod, indent)
+			when MODULE_POST
+				return dump_basic_module(mod, indent)
 			else
 				return dump_generic_module(mod, indent)
 		end
