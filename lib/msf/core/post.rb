@@ -46,7 +46,8 @@ class Post < Msf::Module
 	end
 
 	def platform
-		session.platform
+		return session.platform if session
+		super
 	end
 
 	# 
