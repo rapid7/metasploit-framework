@@ -104,6 +104,9 @@ class Regexr
 				re = Regexp.new(condition, @case_insensitive)
 				data_lines.each {|line|
 					if line =~ re
+						if @verbose
+							puts "DEBUG: matched success: " + line
+						end
 						success_count += 1
 						matched = true
 						break
@@ -120,14 +123,15 @@ class Regexr
 			}
 			
 			if target_successes == success_count
-				if @verbose 
-					puts "DEBUG: woot, got all successes"
+				if @verbose 	
+					puts "DEBUG: Woot, got all successes"
 				end
 				return true
 			else 
 				if @verbose
-					 puts "DEBUG: Didn't get enough successes, somehow. (" + count + "/" + target_successes + ")"
+					 puts "DEBUG: Didn't get enough successes, failing. (" + count + "/" + target_successes + ")"
 				end
+				return false
 			end
 		else
 			return true # No successes are defined, so count this as a pass (true).
@@ -151,7 +155,7 @@ class Regexr
 						okay = false # oh, we found a match
 
 						if @verbose
-							puts "found " + line
+							puts "DEBUG: Matched failure: " + line
 						end									
 
 
@@ -162,7 +166,7 @@ class Regexr
 							# If the exception matches here, we'll spare it
 							if reg_exception =~ line 
 								if @verbose
-									puts "\'" + line + "\' is an exception, we can ignore it."
+									puts "DEBUG: but \'" + line + "\' is an exception, we can ignore it."
 								end									
 								okay = true
 								break
