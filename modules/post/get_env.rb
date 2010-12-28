@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Get environment',
 			'Description'   => %q{ Print out environment variables },
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'egypt' ],
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux', 'windows' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
