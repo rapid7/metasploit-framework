@@ -46,6 +46,10 @@ class OptsConsole
 				options['Resource'] << r
 			end
 
+			opts.on("-o", "-o <filename>", "Output to the specified file") do |o|
+				options['LocalOutput'] = o
+			end
+
 			opts.on("-c", "-c <filename>", "Load the specified configuration file") do |c|
 				options['Config'] = c
 			end

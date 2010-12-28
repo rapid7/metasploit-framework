@@ -86,11 +86,20 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
-		if (opts['LocalInput'] or opts['LocalOutput'])
-			init_ui( opts['LocalInput'], opts['LocalOutput'])
+
+		if (opts['LocalInput'])
+			input = Rex::Ui::Text::Input::File.new(opts['LocalInput'])
 		else
-			init_ui(Rex::Ui::Text::Input::Stdio.new, Rex::Ui::Text::Output::Stdio.new)
+			input = Rex::Ui::Text::Input::Stdio.new
 		end
+		
+		if (opts['LocalOutput'])
+			output = Rex::Ui::Text::Output::File.new(opts['LocalOutput'])
+		else
+			output = Rex::Ui::Text::Output::Stdio.new
+		end
+		
+		init_ui(input, output)
 		init_tab_complete
 
 		# Add the core command dispatcher as the root of the dispatcher

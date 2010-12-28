@@ -14,7 +14,7 @@ class Output::File < Rex::Ui::Text::Output
 	attr_accessor :fd
 
 	def initialize(path)
-		self.fd = ::File.open(path, "wb")
+		self.fd = ::File.open(path, "w")
 	end
 
 	def supports_color?
