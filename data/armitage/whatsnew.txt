@@ -1,0 +1,111 @@
+Armitage Changelog
+==================
+
+22 Dec 10 Changes
+---------
+- Updated meterpreter shell and command shell console to honor your set
+  preferences. I forgot to pass $preferences to the console constructor. Doh!
+- Added a -d/--debug command line option. This will dump System.getProperties()
+  and a log of all exchanges with the MSF server to debug.log in the current
+  working directory.
+- To play nice with existing conventions, Armitage is now licensed under the
+  BSD license. Distribute, use, reuse, recycle.... have fun.
+- Fixed a deadlock condition that arose when a large nmap scan is imported
+- About dialog now shows up centered.
+- Armitage now has a graphic for Cisco IOS. You can mark a host as a Cisco IOS 
+  device. Also Armitage recognizes IOS from an NMAP Scan.	
+- Fixed Armitage "crash" due to read timeouts. This would occur for those of
+  you who ran a really taxing operation (e.g., db_autopwn).
+- Added a time limit flag to db_autopwn (20s)
+- Ctrl+R is now even more aggressive clearing internal data structures.
+- Shell N -> Meterpreter... no longer blocks waiting for the operation to
+  complete.
+
+13 Dec 10 Changes
+---------
+
+- Added Meterpreter -> Browse -> Webcam Shot to grab webcam snap shots.
+- You may now click the image in the webcam/screenshot view to save it.
+- Workspace -> Create menu now automatically switches you to the net workspace.
+- UNIX shell sessions now have an Upload... menu. This item will open a local
+  file and use the printf command on the remote host to put it together. It's 
+  slow but it works. 
+- Removed the rename file menu item from the file browser. It turns out I had 
+  my Windows command shell vs. meterpreter command interface crossed. The 
+  command doesn't exist in Meterpreter.
+- Upload button now waits until file is uploaded to refresh file listing
+- Added Timestomp item to File Browser popup menu. This works like a clipboard.
+  Select Get MACE to capture the MACE values of the current file. Use Set MACE
+  on another file to set the MACE values to the currently known attributes.
+- Dump hashes menu item no longer pulls up a new credentials tab. 
+- Added a Refresh button to the credentials tab.
+- Updated db refresh code to be a little smarter about when it needs to merge
+  db_notes hints into the MSF database.
+
+6 Dec 10 Changes
+--------
+
+- added -y filename.yml command line option for specifying a YAML file with
+  database parameters
+- updated "Start MSF" to launch "ruby msfrpcd" on Windows. This requires the 
+  current working directory of Armitage be set to the Metasploit base directory.
+- jobs view now parses job output with only 3 columns of information.
+- connect dialog is now centered on your screen when you start Armitage
+- Armitage now saves your settings when you use Start MSF.
+- Armitage now forces cells in editor mode to save before launching a module or
+  an exploit. This should prevent a few surprises where things seemed like they
+  weren't working for a few of you.
+- MSF Discovery Scans are now started from a separate thread, preventing 
+  Armitage from "locking up" while the scans launch. A dialog also comes up to
+  state how many scans were launched.
+- MSF Discovery Scans are now limited to 2 threads/scan on Windows and 8 on
+  other operating systems. This prevents serious lag issues caused by 
+  starting too many threads.
+- connect dialog is now a window, meaning it has an icon in whatever your 
+  window manager is and if you close it Armitage exits.
+- updated DB Connect String helper dialog to ask for DB user, DB pass, DB host, 
+  and DB name. This should prevent some of you from confusing the database 
+  user/pass with the MSFRPCD user/pass.
+- Current environment variables are now passed to msfrpcd when executed from
+  Armitage. This will allow msfrpcd to inherit any PATH changes and other 
+  necessary things when Armitage is run from a shell script or batch file.
+- Added .svn folders to the Armitage distribution. Now you can use svn update .
+  to keep your install of Armitage up to date.
+- File browser upload and make directory commands now allow files with spaces
+  in them.
+- Armitage will now exit if it takes longer than 5 seconds to shutdown msfrpcd
+  when cancel is pressed during the connecting phase.
+
+25 Nov 10
+---------
+- start msf button now kills msfrpcd session if db_connect fails
+- set default database options to mysql with BackTrack 4 R2 settings.
+- Armitage -> Exit menu now kills msfrpcd, if the "Start MSF" button was used
+- Added ability to set up a multi/handler from Payload launch dialog
+
+13 Nov 10
+---------
+- fixed file browser directory icon showing up in every field within Windows L&F
+- added an export button to the credentials view. This will save the credentials to 
+  a pwdump format file.
+- fixed console highlighting issue, sadly you'll need to click in the console input 
+  box for it to have focus again. Write once, debug everywhere.
+- added "hail mary" attack option--this launches db_autopwn
+- attack menus now honor the armitage.required_exploit_rank.string setting
+- added Ctrl+R shortcut for refreshing the target view (esp. OS info)
+- fixed db_notes parsing for latest version of MSF (3.5.x?)
+- fixed how auxiliary scans are displayed in the jobs table.
+- db connect helper now prepopulates fields with info taken from connect string
+- added an 8s timeout to abort the database connect if it fails.
+- OS from db_notes to db_hosts refresh is now guaranteed on connect
+- Packaged everything into a single jar file, now I can code in what I like 
+  without hassle from people who are too lazy to look at the code.
+- SSL handshake now fails after 8 seconds (should give those of you trying
+  an SSL connect to a non-SSL server an idea that something is up)
+- added an executable to launch Armitage on Windows
+- fixed command shell interaction bug caused by directories with spaces.
+- Start MSF button now reports an error if it couldn't start MSF-RPC
+
+2 Nov 10
+--------
+- Initial (priv8) release.
