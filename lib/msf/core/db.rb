@@ -2005,6 +2005,9 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml		
+		elsif (firstline.index("<NessusClientData>"))
+			@import_filedata[:type] = "Nessus XML (v1)"
+			return :nessus_xml
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
