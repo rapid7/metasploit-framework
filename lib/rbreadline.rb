@@ -1148,7 +1148,7 @@ module RbReadline
             @directory = nil
          end
          text.delete!(0.chr)
-         @filename = text.dup
+         @filename = File.basename(text)
          if text.length == 0
             text = "."
          end
@@ -1168,11 +1168,17 @@ module RbReadline
             @users_dirname = @dirname.dup
          elsif (@rl_completion_found_quote && @rl_filename_dequoting_function)
             # delete single and double quotes
-            @temp = send(@rl_filename_dequoting_function,@users_dirname, @rl_completion_quote_character)
+            temp = send(@rl_filename_dequoting_function,@users_dirname, @rl_completion_quote_character)
             @users_dirname = temp
          end
 
-         @directory = Dir.new(@dirname)
+         if File.directory?(@dirname)
+            @directory = Dir.new(@dirname)
+         elsif File.directory?(File.dirname(@dirname))
+            @directory = Dir.new(File.dirname(@dirname))
+         else
+            @directory = nil
+         end
 
          # Now dequote a non-null filename.
          if (@filename && @filename.length>0 && @rl_completion_found_quote && @rl_filename_dequoting_function)
@@ -1198,7 +1204,7 @@ module RbReadline
          # Special case for no filename.  If the user has disabled the
          #   `match-hidden-files' variable, skip filenames beginning with `.'.
          #All other entries except "." and ".." match.
-         if (@filename_len == 0)
+         if (@filename_len == 0 || @filename == "/")
             next if (!@_rl_match_hidden_files && d_name[0,1] == '.')
             break if (d_name != '.' && d_name != '..')
          else
@@ -1227,18 +1233,19 @@ module RbReadline
          if (@dirname != '.')
             if (@rl_complete_with_tilde_expansion && @users_dirname[0,1] == "~")
                temp = @dirname
-               if(temp[-1,1] != '/')
-                  temp += '/'
-               end
             else
                temp = @users_dirname
-               if(temp[-1,1] != '/')
-                  temp += '/'
-               end
             end
+
+            # make sure the directory name has a trailing slash before
+            # appending the file name
+            temp += '/' if (temp[-1,1] != '/')
             temp += entry
          else
             temp = entry.dup
+         end
+         if (@_rl_complete_mark_directories && File.directory?(temp) && temp[-1,1] != '/')
+            temp += "/" 
          end
          return (temp)
       end
@@ -6292,7 +6299,6 @@ module RbReadline
             end
          end
       end
-
       matchesp = matches
       1
    end
