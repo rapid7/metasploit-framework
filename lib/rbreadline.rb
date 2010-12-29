@@ -1148,36 +1148,42 @@ module RbReadline
             @directory = nil
          end
          text.delete!(0.chr)
-         @filename = File.basename(text)
          if text.length == 0
             text = "."
          end
-         @dirname = File.dirname(text)
-         # We aren't done yet.  We also support the "~user" syntax.
-
-         # Save the version of the directory that the user typed.
-         @users_dirname = @dirname.dup
-
-         if (@dirname[0,1] == '~')
-            @dirname = File.expand_path(@dirname)
+         @filename = ''
+         @directory = nil
+         dir = text.dup
+         # We also support "~user" and "~/" syntax.
+         if (dir[0,1] == '~')
+            @users_dirname = dir.dup
+            dir = File.expand_path(dir)
          end
+
+         # Try the whole thing as a directory and if that fails, try dirname
+         # and basename.  If that doesn't work either, then it wasn't meant to
+         # be; we don't have a directory to open or a filename to complete.
+         if File.directory?(dir) and File.readable?(dir)
+            @directory = Dir.new(dir)
+            @dirname = dir.dup
+         elsif File.directory?(File.dirname(dir)) and File.readable?(File.dirname(dir))
+            @directory = Dir.new(File.dirname(dir))
+            @dirname = File.dirname(dir)
+            @filename = File.basename(dir)
+         end
+
+         # Save the version of the directory that the user typed if we didn't
+         # have a reason to do so before
+         @users_dirname ||= @dirname.dup
 
          # The directory completion hook should perform any necessary
          #   dequoting.
-         if (@rl_directory_completion_hook && send(rl_directory_completion_hook,@dirname))
-            @users_dirname = @dirname.dup
+         if (@rl_directory_completion_hook)
+            send(rl_directory_completion_hook,@dirname)
          elsif (@rl_completion_found_quote && @rl_filename_dequoting_function)
             # delete single and double quotes
             temp = send(@rl_filename_dequoting_function,@users_dirname, @rl_completion_quote_character)
             @users_dirname = temp
-         end
-
-         if File.directory?(@dirname)
-            @directory = Dir.new(@dirname)
-         elsif File.directory?(File.dirname(@dirname))
-            @directory = Dir.new(File.dirname(@dirname))
-         else
-            @directory = nil
          end
 
          # Now dequote a non-null filename.
@@ -1204,7 +1210,7 @@ module RbReadline
          # Special case for no filename.  If the user has disabled the
          #   `match-hidden-files' variable, skip filenames beginning with `.'.
          #All other entries except "." and ".." match.
-         if (@filename_len == 0 || @filename == "/")
+         if (@filename_len == 0)
             next if (!@_rl_match_hidden_files && d_name[0,1] == '.')
             break if (d_name != '.' && d_name != '..')
          else
@@ -1243,9 +1249,6 @@ module RbReadline
             temp += entry
          else
             temp = entry.dup
-         end
-         if (@_rl_complete_mark_directories && File.directory?(temp) && temp[-1,1] != '/')
-            temp += "/" 
          end
          return (temp)
       end
@@ -2444,6 +2447,7 @@ module RbReadline
 
       if string =~ /"(.*)"\s*:\s*(.*)$/
 		   key, funname = $1, $2
+
          rl_bind_key(key, rl_named_function(funname))
       end
 
@@ -3335,7 +3339,6 @@ module RbReadline
             @cpos_buffer_position = out
             lb_linenum = newlines
          end
-
          if (false && meta_char(c))
             if (!@_rl_output_meta_chars && false)
                line[out,4] = "\\%03o" % c.ord
@@ -4080,8 +4083,8 @@ module RbReadline
          if (cxt.search_string_index == 0)
             rl_ding()
          else
-				cxt.search_string_index -= 1
-				cxt.search_string.chop!
+            cxt.search_string_index -= 1
+            cxt.search_string.chop!
          end
       when -4  # C-G, abort
          rl_replace_line(cxt.lines[cxt.save_line], false)
@@ -6299,6 +6302,7 @@ module RbReadline
             end
          end
       end
+
       matchesp = matches
       1
    end
@@ -8731,4 +8735,3 @@ module RbReadline
   private :no_terminal?
 
 end
-
