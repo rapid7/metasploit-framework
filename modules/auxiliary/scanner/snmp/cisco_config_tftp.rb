@@ -143,7 +143,6 @@ class Metasploit3 < Msf::Auxiliary
 			cccopyserveraddress  = "1.3.6.1.4.1.9.9.96.1.1.1.1.5."
 			cccopyfilename       = "1.3.6.1.4.1.9.9.96.1.1.1.1.6."
 			cccopyentryrowstatus = "1.3.6.1.4.1.9.9.96.1.1.1.1.14."
-			cccopyentryrowstatus = "1.3.6.1.4.1.9.9.96.1.1.1.1.14."
 
 			session = rand(255) + 1
 
