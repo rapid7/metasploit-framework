@@ -102,15 +102,14 @@ module CommandDispatcher
 	#
 	# Provide a generic tab completion for file names.
 	#
-	# This currently works with the system readline (i.e. when msfconsole was
-	# invoked with -i) for everything but doesn't do more than files the
-	# current directory in the bundled rbreadline.  In rbreadline anything with
-	# a / will fail to complete.
+	# If the only completion is a directory, this descends into that directory
+	# and continues completions with filenames contained within.
 	#
 	def tab_complete_filenames(str, words)
 		matches = ::Readline::FILENAME_COMPLETION_PROC.call(str)
 		if matches and matches.length == 1 and File.directory?(matches[0])
-			dir = (matches[0] + File::SEPARATOR)
+			dir = matches[0]
+			dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
 			matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir) 
 		end
 		matches
@@ -120,7 +119,7 @@ module CommandDispatcher
 	# The driver that this command dispatcher is associated with.
 	#
 	attr_accessor :driver
-	
+
 end 
 
 ###
