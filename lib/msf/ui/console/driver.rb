@@ -86,27 +86,19 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
+		input = opts['LocalInput']
+		input ||= Rex::Ui::Text::Input::Stdio.new
 
-		if (opts['LocalInput'])
-			if (opts['LocalInput'].kind_of?(String))
-				input = Rex::Ui::Text::Input::File.new(opts['LocalInput'])
-			else
-				input = opts['LocalInput']
-			end
-		else
-			input = Rex::Ui::Text::Input::Stdio.new
-		end
-		
 		if (opts['LocalOutput'])
 			if (opts['LocalOutput'].kind_of?(String))
 				output = Rex::Ui::Text::Output::File.new(opts['LocalOutput'])
-			else 
+			else
 				output = opts['LocalOutput']
 			end
 		else
 			output = Rex::Ui::Text::Output::Stdio.new
 		end
-		
+
 		init_ui(input, output)
 		init_tab_complete
 
@@ -164,7 +156,7 @@ class Driver < Msf::Ui::Driver
 		if @defanged
 			self.command_passthru = false
 		end
-		
+
 		# Parse any specified database.yml file
 		if framework.db.usable
 			# Look for our database configuration in the following places, in order:
@@ -178,7 +170,7 @@ class Driver < Msf::Ui::Driver
 				dbinfo = YAML.load(File.read(dbfile))
 				dbenv  = opts['DatabaseEnv'] || "production"
 				db     = dbinfo[dbenv]
-				
+
 				if not db
 					print_error("No database definition for environment #{dbenv}")
 				else
@@ -186,9 +178,9 @@ class Driver < Msf::Ui::Driver
 						print_error("Failed to connect to the database: #{framework.db.error} #{db.inspect} #{framework.db.error.backtrace}")
 					end
 				end
-			end		
+			end
 		end
-		
+
 
 		# Process things before we actually display the prompt and get rocking
 		on_startup
