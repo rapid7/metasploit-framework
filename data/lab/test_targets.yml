@@ -1,6 +1,27 @@
---- 
-exploit/windows/smb/psexec: 
- - lab2k
- - labxp
-exploit/unix/misc/distcc_exec:
- - metasploitable
+ - vmid: metasploitable
+   driver: Workstation
+   location: /opt/vm/msf_lab/user/Metasploitable/Metasploitable.vmx
+   tools: false
+   credentials: 
+     - user: msfadmin
+       pass: msfadmin
+       admin: true
+     - user: user
+       pass: user
+       admin: false
+ - vmid: lab2k
+   driver: Workstation
+   location: /opt/vm/msf_lab/vuln/msf_Win2000SP4/Windows 2000 AS.vmx
+   tools: true
+   credentials: 
+     - user: administrator
+       pass: 
+       admin: true
+ - vmid: labxp
+   driver: Workstation
+   location: /opt/vm/msf_lab/vuln/msf_WinXPSP1/Windows XP Professional.vmx
+   tools: true
+   credentials: 
+     - user: administrator
+       pass: administrator
+       admin: true
