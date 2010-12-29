@@ -88,13 +88,21 @@ class Driver < Msf::Ui::Driver
 		# handle if one is supplied
 
 		if (opts['LocalInput'])
-			input = Rex::Ui::Text::Input::File.new(opts['LocalInput'])
+			if (opts['LocalInput'].kind_of?(String))
+				input = Rex::Ui::Text::Input::File.new(opts['LocalInput'])
+			else
+				input = opts['LocalInput']
+			end
 		else
 			input = Rex::Ui::Text::Input::Stdio.new
 		end
 		
 		if (opts['LocalOutput'])
-			output = Rex::Ui::Text::Output::File.new(opts['LocalOutput'])
+			if (opts['LocalOutput'].kind_of?(String))
+				output = Rex::Ui::Text::Output::File.new(opts['LocalOutput'])
+			else 
+				output = opts['LocalOutput']
+			end
 		else
 			output = Rex::Ui::Text::Output::Stdio.new
 		end
