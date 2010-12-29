@@ -30,6 +30,7 @@
 #  8. R/W substorages (including nesting)
 #  9. full directory support (hierarchal and flattened access)
 # 10. big and little endian files (although only little endian was tested)
+# 11. PropertySet streams (except .to_s)
 #
 #
 # TODO (in order of priority):
@@ -40,10 +41,9 @@
 #     - may lead to allocating more fat sectors :-/
 #  4. properly support mode params for open_stream/open_storage/etc
 #  5. optimize to prevent unecessary loading/writing
-#  6. support for auxillary streams (DocumentSummaryInformation and SummaryInformation)
-#  7. support non-committal editing (open, change, close w/o save)
-#  8. support timestamps
-#  9. provide interface to change paramters (endian, etc)
+#  6. support non-committal editing (open, change, close w/o save)
+#  7. support timestamps
+#  8. provide interface to change paramters (endian, etc)
 #
 #
 # TO INVESTIGATE:
@@ -122,6 +122,83 @@ require 'rex/ole/storage'
 require 'rex/ole/substorage'
 # defines Stream class
 require 'rex/ole/stream'
+
+
+# constants for property sets
+# PropertyIds
+PID_DICTIONARY  = 0x00000000
+PID_CODEPAGE    = 0x00000001
+PID_LOCALE      = 0x80000000
+PID_BEHAVIOR    = 0x80000003
+# Well-known PropertyIds
+PIDSI_TITLE        = 0x02
+PIDSI_SUBJECT      = 0x03
+PIDSI_AUTHOR       = 0x04
+PIDSI_KEYWORDS     = 0x05
+PIDSI_COMMENTS     = 0x06
+PIDSI_TEMPLATE     = 0x07
+PIDSI_LASTAUTHOR   = 0x08
+PIDSI_REVNUMBER    = 0x09
+PIDSI_EDITTIME     = 0x0a
+PIDSI_LASTPRINTED  = 0x0b
+PIDSI_CREATE_DTM   = 0x0c
+PIDSI_LASTSAVE_DTM = 0x0d
+PIDSI_PAGECOUNT    = 0x0e
+PIDSI_WORDCOUNT    = 0x0f
+PIDSI_CHARCOUNT    = 0x10
+PIDSI_THUMBNAIL    = 0x11
+PIDSI_APPNAME      = 0x12
+PIDSI_DOC_SECURITY = 0x13
+# PropertyTypes
+VT_EMPTY        = 0x00
+VT_NULL         = 0x01
+VT_I2           = 0x02
+VT_I4           = 0x03
+VT_R4           = 0x04
+VT_R8           = 0x05
+VT_CY           = 0x06
+VT_DATE         = 0x07
+VT_BSTR         = 0x08
+VT_ERROR        = 0x0a
+VT_BOOL         = 0x0b
+VT_VARIANT      = 0x0c # used with VT_VECTOR
+# 0xd
+VT_DECIMAL      = 0x0e
+# 0xf
+VT_I1           = 0x10
+VT_UI1          = 0x11
+VT_UI2          = 0x12
+VT_UI4          = 0x13
+VT_I8           = 0x14
+VT_UI8          = 0x15
+VT_INT          = 0x16
+VT_UINT         = 0x17
+VT_LPSTR        = 0x1e
+VT_LPWSTR       = 0x1f
+# 0x20-0x3f
+VT_FILETIME     = 0x40
+VT_BLOB         = 0x41
+VT_STREAM       = 0x42
+VT_STORAGE      = 0x43
+VT_STREAMED_OBJ = 0x44
+VT_STORED_OBJ   = 0x45
+VT_BLOB_OBJ     = 0x46
+VT_CF           = 0x47 # Clipboard Format
+VT_CLSID        = 0x48
+VT_VERSIONED_STREAM = 0x49
+# Flags
+VT_VECTOR       = 0x1000
+VT_ARRAY        = 0x2000 # Requires OLE version >= 1
+# Format IDs
+FMTID_SummaryInformation    = "\xe0\x85\x9f\xf2\xf9\x4f\x68\x10\xab\x91\x08\x00\x2b\x27\xb3\xd9"
+FMTID_DocSummaryInformation = "\x02\xd5\xcd\xd5\x9c\x2e\x1b\x10\x93\x97\x08\x00\x2b\x2c\xf9\xae"
+FMTID_UserDefinedProperties = "\x05\xd5\xcd\xd5\x9c\x2e\x1b\x10\x93\x97\x08\x00\x2b\x2c\xf9\xae"
+FMTID_GlobalInfo            = "\x00\x6f\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b"
+FMTID_ImageContents         = "\x00\x64\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b"
+FMTID_ImageInfo             = "\x00\x65\x61\x56\x54\xc1\xce\x11\x85\x53\x00\xaa\x00\xa1\xf9\x5b"
+FMTID_PropertyBag           = "\x01\x18\x00\x20\xe6\x5d\xd1\x11\x8e\x38\x00\xc0\x4f\xb9\x38\x6d"
+# defines PropertySet class
+require 'rex/ole/propset'
 
 
 end
