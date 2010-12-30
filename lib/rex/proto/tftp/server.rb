@@ -64,10 +64,10 @@ class Server
 		@shutting_down = true
 
 		# Wait a maximum of 30 seconds for all transfers to finish.
-		start = Time.now
+		start = ::Time.now
 		while (self.transfers.length > 0)
 			::IO.select(nil, nil, nil, 0.5)
-			dur = Time.now - start
+			dur = ::Time.now - start
 			break if (dur > 30)
 		end
 
@@ -93,7 +93,7 @@ class Server
 	# Register an entire directory to serve files from
 	#
 	def set_tftproot(rootdir)
-		@tftproot = rootdir if File.directory?(rootdir)
+		@tftproot = rootdir if ::File.directory?(rootdir)
 	end
 
 
@@ -101,7 +101,7 @@ class Server
 	# Register a directory to write uploaded files to
 	#
 	def set_output_dir(outdir)
-		@output_dir = outdir if File.directory?(outdir)
+		@output_dir = outdir if ::File.directory?(outdir)
 	end
 
 
@@ -153,15 +153,15 @@ class Server
 	# entry to the files hash.
 	#
 	def find_file_in_root(fname)
-		fn = File.expand_path(File.join(@tftproot, fname))
+		fn = ::File.expand_path(::File.join(@tftproot, fname))
 
 		# Don't allow directory traversal
 		return nil if fn.index(@tftproot) != 0
 
-		return nil if not File.file?(fn) or not File.readable?(fn)
+		return nil if not ::File.file?(fn) or not ::File.readable?(fn)
 
 		# Read the file contents, and register it as being served once
-		data = data = File.open(fn, "rb") { |fd| fd.read(fd.stat.size) }
+		data = data = ::File.open(fn, "rb") { |fd| fd.read(fd.stat.size) }
 		register_file(fname, data, true)
 
 		# Return the last file in the array
@@ -172,7 +172,8 @@ class Server
 	attr_accessor :listen_host, :listen_port, :context
 	attr_accessor :sock, :files, :transfers, :uploaded
 	attr_accessor :thread
-
+	
+	attr_accessor :incoming_file_hook
 
 protected
 
@@ -185,14 +186,16 @@ protected
 		nil
 	end
 
-
 	def save_output(tr)
 		self.uploaded << tr[:file]
+		
+		return incoming_file_hook.call(tr) if incoming_file_hook
+		
 		if @output_dir
 			fn = tr[:file][:name].split(File::SEPARATOR)[-1]
 			if fn
-				fn = File.join(@output_dir, fn)
-				File.open(fn, "wb") { |fd|
+				fn = ::File.join(@output_dir, fn)
+				::File.open(fn, "wb") { |fd|
 					fd.write(tr[:file][:data])
 				}
 			end
@@ -201,7 +204,7 @@ protected
 
 
 	def check_retransmission(tr)
-		elapsed = Time.now - tr[:last_sent]
+		elapsed = ::Time.now - tr[:last_sent]
 		if (elapsed >= tr[:timeout])
 			# max retries reached?
 			if (tr[:retries] < 3)
@@ -262,7 +265,7 @@ protected
 							pkt << chunk
 
 							send_packet(tr[:from], pkt)
-							tr[:last_sent] = Time.now
+							tr[:last_sent] = ::Time.now
 
 							# If the file is a one-serve, mark it as started
 							tr[:file][:started] = true if (tr[:file][:once])
@@ -282,7 +285,7 @@ protected
 						pkt = [OpAck, tr[:block]].pack('nn')
 
 						send_packet(tr[:from], pkt)
-						tr[:last_sent] = Time.now
+						tr[:last_sent] = ::Time.now
 
 						# If we had a 0-511 byte chunk, we're done.
 						if (tr[:last_size] and tr[:last_size] < tr[:blksize])
@@ -355,7 +358,7 @@ protected
 
 			#puts "%s %s %s" % [start, fn, mode]
 
-			if (not @shutting_down) and (@output_dir)
+			if not @shutting_down
 				transfer = {
 					:type => OpWrite,
 					:from => from,

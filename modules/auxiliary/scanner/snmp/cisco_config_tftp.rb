@@ -42,25 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('LHOST', [ false, "The IP address of the system running this module" ])
 		], self.class)
 	end
-	
-	
-	#
-	# Hook for the TFTP Server to save incoming files via Proc
-	#
-	module TFTPCapture
-		attr_accessor :incoming_file_hook
-		def save_output(*args)
-			if incoming_file_hook
-				incoming_file_hook.call(*args)
-			else
-				super(*args)
-			end
-		end
-		
-		def fake_output_dir
-			@output_dir = "/" + Rex::Text.rand_text_alphanumeric(128)
-		end
-	end
+
 
 	#
 	# Start the TFTP Server
@@ -69,9 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Setup is called only once
 		print_status("Starting TFTP server...")
 		@tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
-		@tftp.extend(TFTPCapture)
 		@tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
-		@tftp.fake_output_dir
 		@tftp.start
 		add_socket(@tftp.sock)
 		
