@@ -96,4 +96,8 @@ end
 $framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/
 
 # Run the plugin instance in the foreground.
-$framework.plugins.load('xmlrpc', opts).run
+begin
+	$framework.plugins.load('xmlrpc', opts).run
+rescue ::Interrupt
+	$stderr.puts "[*] Shutting down"
+end
