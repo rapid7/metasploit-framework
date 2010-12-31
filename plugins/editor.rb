@@ -45,11 +45,15 @@ class Plugin::Editor < Msf::Plugin
 			e = Rex::Compat.getenv("EDITOR") || "vi"
 
 			if (not active_module) or (not (path = active_module.file_path))
-				$stderr.puts "no active module selected"
+				print_line("Error: No active module selected")
 				return nil
 			end
 
-			system(e + " " + path)
+			ret = system(e + " " + path)
+			if not ret
+				print_line("Failed to execute your editor (#{e})")
+			end
+			ret
 		end
 	end
 
@@ -58,8 +62,6 @@ class Plugin::Editor < Msf::Plugin
 
 		# console dispatcher commands.
 		add_console_dispatcher(EditorCommandDispatcher)
-
-		print_status("Editor plugin loaded.")
 	end
 
 	def cleanup
