@@ -82,7 +82,7 @@ public class PayloadPopup extends MsfFrame {
 		ParallelGroup labelGroup = mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
 		//make label group
 		for(int i = 0; i < elementVector.size(); i++)
-			labelGroup = labelGroup.addComponent(((Component[])elementVector.get(i))[0]);
+			labelGroup = labelGroup.addComponent(((Component[])elementVector.get(i))[0], javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE);
 		//make text box group
 		ParallelGroup textBoxGroup = mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING);
 		for(int i = 0; i < elementVector.size(); i++)
@@ -240,7 +240,7 @@ public class PayloadPopup extends MsfFrame {
 	private void addOption(Object optionName, Map option) {
 		JLabel lab = new JLabel();
 		mainPanel.add(lab);
-		lab.setText(optionName + " " + option.get("desc"));
+		lab.setText("<html><b>"+optionName.toString()+"</b> " + option.get("desc") + "</html>");
 		lab.setName(optionName.toString());
 		JTextField optionField = new JTextField();
 		if (option.get("default") != null) 

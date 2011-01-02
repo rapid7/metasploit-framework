@@ -3,6 +3,7 @@ package msfgui;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JOptionPane;
@@ -20,6 +21,16 @@ public class ProcessList extends MsfFrame {
 	protected final DefaultTableModel model;
 	protected Timer readTimer = null;
 
+	/** Shows process list window for a session, creating one if necessary */
+	static void showList(RpcConnection rpcConn, Map session, Map sessionWindowMap) {
+		Object processListWindow = sessionWindowMap.get(session.get("id")+"procList");
+		if(processListWindow == null){
+			processListWindow = new ProcessList(rpcConn,session,sessionWindowMap);
+			sessionWindowMap.put(session.get("id")+"procList",processListWindow);
+		}
+		((MsfFrame)processListWindow).setVisible(true);
+	}
+
 	/** Creates new form ProcessList */
 	public ProcessList(final RpcConnection rpcConn, final Map session, Map sessionPopupMap) {
 		super("Meterpreter remote process list");
@@ -34,7 +45,7 @@ public class ProcessList extends MsfFrame {
 		processTable.setShowVerticalLines(false);
 		this.rpcConn = rpcConn;
 		this.session = session;
-		this.lock = ((InteractWindow)sessionPopupMap.get(session.get("uuid"))).lock;
+		this.lock = ((InteractWindow)sessionPopupMap.get(session.get("id")+"console")).lock;
 	}
 
 	/** Lists the processes that are running */

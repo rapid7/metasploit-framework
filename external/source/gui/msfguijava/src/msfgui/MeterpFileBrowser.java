@@ -40,12 +40,22 @@ public class MeterpFileBrowser extends MsfFrame {
 	protected final DefaultTableModel model;
 	protected InteractWindow interactWin;
 
+	/** Shows file interaction window for a session, creating one if necessary */
+	static void showBrowser(RpcConnection rpcConn, Map session, Map sessionWindowMap) {
+		Object browserWindow = sessionWindowMap.get(session.get("id")+"fileBrowser");
+		if(browserWindow == null){
+			browserWindow = new MeterpFileBrowser(rpcConn,session,sessionWindowMap);
+			sessionWindowMap.put(session.get("id")+"fileBrowser",browserWindow);
+		}
+		((MsfFrame)browserWindow).setVisible(true);
+	}
+
 	/** Creates a new window for interacting with filesystem */
 	public MeterpFileBrowser(final RpcConnection rpcConn, final Map session, Map sessionPopupMap) {
 		super("Meterpreter remote file browsing");
 		this.rpcConn = rpcConn;
 		this.session = session;
-		this.interactWin = ((InteractWindow)sessionPopupMap.get(session.get("uuid")));
+		this.interactWin = ((InteractWindow)sessionPopupMap.get(session.get("id")+"console"));
 		this.lock = interactWin.lock;
 		files = new HashMap();
 		fileVector = new Vector(100);
@@ -207,12 +217,14 @@ public class MeterpFileBrowser extends MsfFrame {
 					}
 					readTimer.stop();
 					TableHelper.fitColumnWidths(model, mainTable);
-					int nameColumn = mainTable.getColumnCount()-1;
+					int nameColumn = -1;
 					for(int i = 0; i < mainTable.getColumnCount(); i++)
 						if(mainTable.getColumnName(i).equals("Name"))
 							nameColumn = i;
-					mainTable.moveColumn(nameColumn, 0);
-					readTimer.stop();
+					if(nameColumn != -1){
+						mainTable.moveColumn(nameColumn, 0);
+						readTimer.stop();
+					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					if(ex.getMessage().equals("unknown session"))
@@ -259,12 +271,19 @@ public class MeterpFileBrowser extends MsfFrame {
         goButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                formWindowClosed(evt);
+        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
+            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
+                formWindowGainedFocus(evt);
             }
+            public void windowLostFocus(java.awt.event.WindowEvent evt) {
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
                 formWindowOpened(evt);
+            }
+            public void windowClosed(java.awt.event.WindowEvent evt) {
+                formWindowClosed(evt);
             }
         });
 
@@ -487,6 +506,11 @@ public class MeterpFileBrowser extends MsfFrame {
 	private void addressFieldActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addressFieldActionPerformed
 		applyDirectoryChange();
 	}//GEN-LAST:event_addressFieldActionPerformed
+
+	private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
+		if(!lock.isHeldByCurrentThread())
+			lock.lock();
+	}//GEN-LAST:event_formWindowGainedFocus
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressField;

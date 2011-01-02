@@ -17,11 +17,9 @@ import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
-import javax.swing.JEditorPane;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -283,22 +281,15 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				encodingOpt.put("evasion", Boolean.TRUE);
 				options.put("Encoder", encodingOpt);
 			}
-
+			//Display each option
 			for (Object optionName : options.keySet()) {
 				Map option = (Map)options.get(optionName); //{desc=blah, evasion=fals, advanced=false, required=true, type=port, default=blah}
-				JScrollPane containerPane = new JScrollPane();
-				containerPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-
-				JEditorPane tempText = new JEditorPane();
-				tempText.setContentType("text/html");
-				tempText.setEditable(false);
+				javax.swing.JLabel tempText = new javax.swing.JLabel();
 				tempText.setText("<html><b>"+optionName.toString()+"</b> " + option.get("desc") + "</html>");
-				containerPane.setViewportView(tempText);
-				containerPane.setViewportBorder(null);
-				containerPane.setBorder(null);
 				tempText.setBorder(null);
-				mainPanel.add(containerPane);
-				tempText.setBackground(authorsLabel.getBackground());
+				tempText.setPreferredSize(new java.awt.Dimension(descriptionBox.getWidth(),authorsLabel.getHeight()*2));
+				tempText.setVerticalAlignment(javax.swing.JLabel.BOTTOM);
+				mainPanel.add(tempText);//mainPanel.add(containerPane);
 				tempText.setFont(authorsLabel.getFont());
 				JTextField optionField = new JTextField();
 				if (option.get("default") != null) {
@@ -311,13 +302,13 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				optionField.setName("field" + optionName);
 				mainPanel.add(optionField);
 				if(option.get("required").equals(Boolean.TRUE)){
-					requiredOpts.add(containerPane);
+					requiredOpts.add(tempText);
 					requiredOpts.add(optionField);
 				}else if (option.get("advanced").equals(Boolean.FALSE) && option.get("evasion").equals(Boolean.FALSE)){
-					optionalOpts.add(containerPane);
+					optionalOpts.add(tempText);
 					optionalOpts.add(optionField);
 				}else{
-					advancedOpts.add(containerPane);
+					advancedOpts.add(tempText);
 					advancedOpts.add(optionField);
 				}
 			}
@@ -394,14 +385,14 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		GroupLayout mainPanelLayout = (GroupLayout)mainPanel.getLayout();
 		ParallelGroup horizGroup = mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
 			.addComponent(titleLabel)
-			.addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 526, Short.MAX_VALUE)
+			.addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 300, Short.MAX_VALUE)
 			.addComponent(authorsLabel)
 			.addComponent(licenseLabel)
 			.addComponent(versionLabel);
 			//Exploit only stuff
 			if(moduleType.equals("exploit")){
-				horizGroup.addComponent(targetsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
-					.addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 529, Short.MAX_VALUE);
+				horizGroup.addComponent(targetsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
+					.addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 200, Short.MAX_VALUE);
 			}
 		horizGroup.addComponent(requiredLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
 			.addComponent(optionalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE);
@@ -429,13 +420,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		SequentialGroup vGroup = mainPanelLayout.createSequentialGroup()
 				.addContainerGap()
 				.addComponent(titleLabel)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 				.addComponent(descriptionPane, javax.swing.GroupLayout.PREFERRED_SIZE, 200, javax.swing.GroupLayout.PREFERRED_SIZE)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 				.addComponent(authorsLabel)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 				.addComponent(licenseLabel)
-				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
 				.addComponent(versionLabel)
 				.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
 		//Exploit only stuff
@@ -450,15 +437,15 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			vGroup = vGroup.addComponent(payloadScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
 					.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
 		}
-		boolean odd = false;
-		odd = addObjectsToVgroup(vGroup, odd, requiredLabel, requiredOpts);
+		addObjectsToVgroup(vGroup, requiredLabel, requiredOpts);
 		vGroup.addGroup(mainPanelLayout.createParallelGroup()
 			.addComponent(exploitButton1)
 			.addComponent(consoleRunButton))
 			.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
-		odd = addObjectsToVgroup(vGroup, odd, optionalLabel, optionalOpts);
-		odd = addObjectsToVgroup(vGroup, odd, advancedLabel, advancedOpts);
-		vGroup = vGroup.addGroup(mainPanelLayout.createParallelGroup()
+		addObjectsToVgroup(vGroup, optionalLabel, optionalOpts);
+		addObjectsToVgroup(vGroup, advancedLabel, advancedOpts);
+		vGroup = vGroup.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+			.addGroup(mainPanelLayout.createParallelGroup()
 			.addComponent(exploitButton)
 			.addComponent(consoleRunButton1))
 			.addContainerGap();
@@ -466,16 +453,10 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 	}
 
 	//helper for grouping
-	private boolean addObjectsToVgroup(SequentialGroup vGroup, boolean odd, Component label, ArrayList opts) {
-		vGroup = vGroup.addComponent(label, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-			.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
-		for (Object obj : opts) {
+	private void addObjectsToVgroup(SequentialGroup vGroup, Component label, ArrayList opts) {
+		vGroup = vGroup.addComponent(label, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE);
+		for (Object obj : opts)
 			vGroup.addComponent((Component) obj, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE);
-			if (odd) 
-				vGroup.addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED);
-			odd = !odd;
-		}
-		return odd;
 	}
 
 	/** This method is called from within the constructor to
@@ -509,7 +490,6 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        mainScrollPane.setHorizontalScrollBarPolicy(javax.swing.ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         mainScrollPane.setName("mainScrollPane"); // NOI18N
 
         mainPanel.setName("mainPanel"); // NOI18N
@@ -594,12 +574,12 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
+                    .addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
                     .addComponent(authorsLabel)
                     .addComponent(licenseLabel)
                     .addComponent(versionLabel)
                     .addComponent(targetsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 906, Short.MAX_VALUE)
+                    .addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
                     .addComponent(titleLabel)
                     .addComponent(requiredLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(optionalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -645,7 +625,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(exploitButton1)
                     .addComponent(consoleRunButton1))
-                .addContainerGap(95, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         mainScrollPane.setViewportView(mainPanel);
@@ -654,15 +634,11 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 919, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 884, Short.MAX_VALUE)
-                .addContainerGap())
+            .addComponent(mainScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 536, Short.MAX_VALUE)
         );
 
         pack();

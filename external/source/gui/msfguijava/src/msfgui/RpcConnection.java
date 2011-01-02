@@ -19,6 +19,7 @@ import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -195,29 +196,34 @@ public class RpcConnection {
 	}
 	/** Receives an XMLRPC response and converts to an object */
 	protected Object readResp() throws Exception{
-		//read bytes
-		ByteArrayOutputStream cache = new ByteArrayOutputStream();
-		int val;
-		try{
-		while((val = sin.read()) != 0){
-			if(val == -1)
-				throw new MsfException("Stream died.");
-			cache.write(val);
-		}
-		} catch (IOException ex) {
-			throw new MsfException("Error reading response.");
-		}
-		//parse the response: <methodResponse><params><param><value>...
-		ByteArrayInputStream is = new ByteArrayInputStream(cache.toByteArray());
+		//Will store our response
 		StringBuilder sb = new StringBuilder();
-		int a = is.read();
-		while(a != -1){
-			if(!Character.isISOControl(a))
-				sb.append((char)a);
-			//else
-			//	sb.append("&#x").append(Integer.toHexString(a)).append(';');
-			a = is.read();
-		}
+		int len;
+		do{
+			//read bytes
+			ByteArrayOutputStream cache = new ByteArrayOutputStream();
+			int val;
+			try{
+				while((val = sin.read()) != 0){
+					if(val == -1)
+						throw new MsfException("Stream died.");
+					cache.write(val);
+				}
+			} catch (IOException ex) {
+				throw new MsfException("Error reading response.");
+			}
+			//parse the response: <methodResponse><params><param><value>...
+			ByteArrayInputStream is = new ByteArrayInputStream(cache.toByteArray());
+			int a = is.read();
+			while(a != -1){
+				if(!Character.isISOControl(a) || a == '\t')
+					sb.append((char)a);
+				//else
+				//	sb.append("&#x").append(Integer.toHexString(a)).append(';');
+				a = is.read();
+			}
+			len = sb.length();//Check to make sure we aren't stopping on an embedded null
+		} while (sb.lastIndexOf("</methodResponse>") < len - 20 || len < 30);
 		Document root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
 				.parse(new ByteArrayInputStream(sb.toString().getBytes()));
 		
@@ -309,10 +315,15 @@ public class RpcConnection {
 				keysb.append(params[i].toString());
 			String key = keysb.toString();
 			Object result = callCache.get(key);
-			if(result != null)
-				return result;
-			result = exec(methodName, params);
-			callCache.put(key, result);
+			if(result == null){
+				result = exec(methodName, params);
+				callCache.put(key, result);
+			}
+			if(result instanceof Map){
+				HashMap clone = new HashMap();
+				clone.putAll((Map)result);
+				return clone;
+			}
 			return result;
 		}
 		return exec(methodName, params);
@@ -320,6 +331,11 @@ public class RpcConnection {
 
 	/** Attempts to start msfrpcd and connect to it.*/
 	public static Task startRpcConn(final MainFrame mainFrame){
+		if(mainFrame.rpcConn != null){
+			JOptionPane.showMessageDialog(mainFrame.getFrame(), "You are already connected!\n"
+					+ "Exit before making a new connection.");
+			throw new RuntimeException("Already connected");
+		}
 		return new Task<RpcConnection, Void>(mainFrame.getApplication()){
 			private RpcConnection myRpcConn;
 			@Override

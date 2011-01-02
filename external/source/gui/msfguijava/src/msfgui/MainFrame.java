@@ -36,7 +36,7 @@ import org.jdesktop.swingworker.SwingWorker;
 public class MainFrame extends FrameView {
 	public static final int MENU_SIZE_LIMIT = 25;
 
-	public HashMap sessionPopupMap;
+	public HashMap sessionWindowMap;
 	public RpcConnection rpcConn;
 	private SwingWorker sessionsPollTimer;
 	private SessionsTable sessionsTableModel;
@@ -49,7 +49,7 @@ public class MainFrame extends FrameView {
 		super(app);
 		initComponents();
 		sessionsTableModel = null;
-		sessionPopupMap = new HashMap();
+		sessionWindowMap = new HashMap();
 
 		//Set up action for starting RPC
 		startRpcMenuItem.setAction(getContext().getActionMap(this).get("startRpc"));
@@ -118,7 +118,8 @@ public class MainFrame extends FrameView {
 		connectRpc();
 		getFrame().addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				confirmStop();
+				if(!confirmStop())
+					throw new RuntimeException("Closing aborted.");
 			}
 		});
 		//Setup icon
@@ -128,16 +129,20 @@ public class MainFrame extends FrameView {
 			tabbedPane.setEnabledAt(i, false);
 	}
 	/** Before exit, check whether the daemon should be stopped or just the session terminated */
-	private void confirmStop() {
+	private boolean confirmStop() {
 		if (rpcConn == null)
-			return;
+			return true;
 		try {
-			if(JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?") == JOptionPane.YES_OPTION)
+			int choice = JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?");
+			if(choice == JOptionPane.YES_OPTION)
 				rpcConn.execute("core.stop");
-			else
+			else if(choice == JOptionPane.NO_OPTION)
 				rpcConn.execute("auth.logout");
+			else
+				return false;
 		} catch (Exception ex) {
 		}
+		return true;
 	}
 	/** Adds window and menu items for reopening and closing the console */
 	public void registerConsole(Map res, boolean show, String initVal) {
@@ -186,8 +191,8 @@ public class MainFrame extends FrameView {
 							MsfguiLog.defaultLog.logSession(session);
 							sessionList.add(slist.get(sid));
 							if((session.get("type").equals("meterpreter") || session.get("type").equals("shell"))
-									&& sessionPopupMap.get(session.get("uuid")) == null)
-								sessionPopupMap.put(session.get("uuid"), new InteractWindow(
+									&& sessionWindowMap.get(session.get("id")+"console") == null)
+								sessionWindowMap.put(session.get("id")+"console", new InteractWindow(
 										rpcConn, session, session.get("type").toString()));
 						}
 						MsfguiLog.defaultLog.checkSessions(slist);//Alert the logger
@@ -1141,8 +1146,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     }// </editor-fold>//GEN-END:initComponents
 
 	private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
-		confirmStop();
-		System.exit(0);
+		if(confirmStop())
+			System.exit(0);
 	}//GEN-LAST:event_exitMenuItemActionPerformed
 
 	private void connectRpcMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectRpcMenuItemActionPerformed
@@ -1446,7 +1451,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 	public void showInteractWindow() {
 		for(Map session : selectedSessions)
-			((InteractWindow)(sessionPopupMap.get(session.get("uuid")))).setVisible(true);
+			((InteractWindow)(sessionWindowMap.get(session.get("id")+"console"))).setVisible(true);
 	}
 	/* Master function to setup popup menus for jobs and sessions
 	 * First handles jobs, then shell sessions, then meterpreter sessions,
@@ -1535,12 +1540,12 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		meterpreterPopupMenu = new JPopupMenu();
 		addSessionItem("Access Filesystem",meterpreterPopupMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				new MeterpFileBrowser(rpcConn, session, sessionPopupMap).setVisible(true);
+				MeterpFileBrowser.showBrowser(rpcConn, session, sessionWindowMap);
 			}
 		});
 		addSessionItem("Processes",meterpreterPopupMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				new ProcessList(rpcConn,session,sessionPopupMap).setVisible(true);
+				ProcessList.showList(rpcConn,session,sessionWindowMap);
 			}
 		});
 		addScript("Shell",meterpreterPopupMenu,new RpcAction(this) {
@@ -1577,7 +1582,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addScript("Screenshot",monitorMenu,"multi_console_command -cl \"screenshot\"");
 		addSessionItem("View webcam",monitorMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				new WebcamFrame(rpcConn,session).setVisible(true);
+				WebcamFrame.showWebcam(rpcConn,session,sessionWindowMap);
 			}
 		});
 

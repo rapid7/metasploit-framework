@@ -29,6 +29,16 @@ public class WebcamFrame extends MsfFrame {
 		imageCommand = new StringBuffer("r");
 	}
 
+	/** Shows webcam window for a session, creating one if necessary */
+	static void showWebcam(RpcConnection rpcConn, Map session, Map sessionWindowMap) {
+		Object webcamWindow = sessionWindowMap.get(session.get("id")+"webcam");
+		if(webcamWindow == null){
+			webcamWindow = new WebcamFrame(rpcConn,session);
+			sessionWindowMap.put(session.get("id")+"webcam",webcamWindow);
+		}
+		((MsfFrame)webcamWindow).setVisible(true);
+	}
+
 	/** This method is called from within the constructor to
 	 * initialize the form.
 	 * WARNING: Do NOT modify this code. The content of this method is

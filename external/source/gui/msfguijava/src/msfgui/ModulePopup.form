@@ -26,25 +26,18 @@
   <Layout>
     <DimensionLayout dim="0">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Component id="mainScrollPane" pref="919" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-          </Group>
+          <Component id="mainScrollPane" alignment="0" pref="539" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
-          <Group type="102" alignment="0" attributes="0">
-              <Component id="mainScrollPane" pref="884" max="32767" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-          </Group>
+          <Component id="mainScrollPane" alignment="0" pref="536" max="32767" attributes="0"/>
       </Group>
     </DimensionLayout>
   </Layout>
   <SubComponents>
     <Container class="javax.swing.JScrollPane" name="mainScrollPane">
       <Properties>
-        <Property name="horizontalScrollBarPolicy" type="int" value="31"/>
         <Property name="name" type="java.lang.String" value="mainScrollPane" noResource="true"/>
       </Properties>
 
@@ -61,12 +54,12 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="descriptionPane" alignment="0" pref="906" max="32767" attributes="0"/>
+                          <Component id="descriptionPane" alignment="0" pref="497" max="32767" attributes="0"/>
                           <Component id="authorsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="licenseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="targetsLabel" alignment="0" min="-2" pref="431" max="-2" attributes="0"/>
-                          <Component id="payloadScrollPane" alignment="0" pref="906" max="32767" attributes="0"/>
+                          <Component id="payloadScrollPane" alignment="0" pref="497" max="32767" attributes="0"/>
                           <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="requiredLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="optionalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -119,7 +112,7 @@
                           <Component id="exploitButton1" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="consoleRunButton1" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="95" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
