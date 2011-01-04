@@ -39,6 +39,10 @@ class Metasploit3 < Msf::Auxiliary
 				logins and hosts so you can track your access.
 			},
 			'Author'      => 'tebo <tebo [at] attackresearch [dot] com>',
+			'References'     =>
+				[
+					[ 'CVE', '1999-0506'] # Weak password
+				],
 			'License'     => MSF_LICENSE
 		)
 		deregister_options('RHOST','USERNAME','PASSWORD')

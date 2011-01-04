@@ -32,6 +32,10 @@ class Metasploit3 < Msf::Auxiliary
 
 				],
 			'Author'         => [ 'hdm' ],
+			'References'     =>
+				[
+					[ 'CVE', '1999-0502'] # Weak password
+				],
 			'License'        => MSF_LICENSE
 		)
 

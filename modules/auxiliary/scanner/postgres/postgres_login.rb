@@ -32,7 +32,8 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					[ 'URL', 'http://www.postgresql.org' ]
+					[ 'URL', 'http://www.postgresql.org' ],
+					[ 'CVE', '1999-0502'] # Weak password
 				],
 			'Version'        => '$Revision$'
 		))

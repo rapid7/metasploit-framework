@@ -34,6 +34,10 @@ class Metasploit3 < Msf::Auxiliary
 					'carstein <carstein.sec [at] gmail [dot] com>',
 					'jduck'
 				],
+			'References'     =>
+				[
+					[ 'CVE', '1999-0506'] # Weak password
+				],
 			'License'     => MSF_LICENSE
 		)
 

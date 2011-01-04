@@ -53,7 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'BID', '36954' ],
 
 					# General
-					[ 'URL', 'http://tomcat.apache.org/' ]
+					[ 'URL', 'http://tomcat.apache.org/' ],
+					[ 'CVE', '1999-0502'] # Weak password
 				],
 			'Author'         => [ 'MC', 'Matteo Cantoni <goony[at]nothink.org>', 'jduck' ],
 			'License'        => MSF_LICENSE

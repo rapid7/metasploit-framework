@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'References' =>
 				[
-					[ 'CVE', '1999-0651' ]
+					[ 'CVE', '1999-0651' ],
+					[ 'CVE', '1999-0502'] # Weak password
 				],
 			'Author'      => [ 'jduck' ],
 			'License'     => MSF_LICENSE

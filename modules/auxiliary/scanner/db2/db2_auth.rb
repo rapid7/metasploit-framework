@@ -28,6 +28,10 @@ class Metasploit3 < Msf::Auxiliary
 				instance using username and password combinations indicated by the
 				USER_FILE, PASS_FILE, and USERPASS_FILE options.},
 			'Author'         => ['todb'],
+			'References'     =>
+				[
+					[ 'CVE', '1999-0502'] # Weak password
+				],
 			'License'        => MSF_LICENSE
 		)
 

@@ -27,6 +27,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => 'This module simply queries the MSSQL instance for a specific user/pass (default is sa with blank).',
 			'Author'         => 'MC',
+			'References'     =>
+				[
+					[ 'CVE', '1999-0506'] # Weak password
+				],
 			'License'        => MSF_LICENSE
 		)
 	end

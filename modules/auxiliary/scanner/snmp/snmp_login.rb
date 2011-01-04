@@ -25,6 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$',
 			'Description' => 'Scan for SNMP devices using common community names',
 			'Author'      => 'hdm',
+			'References'     =>
+				[
+					[ 'CVE', '1999-0508'] # Weak password
+				],
 			'License'     => MSF_LICENSE
 		)
 
