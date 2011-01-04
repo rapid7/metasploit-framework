@@ -14,8 +14,6 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-	include Post::Registry
-
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Get environment',
@@ -67,6 +65,21 @@ class Metasploit3 < Msf::Post
 			chan = session.sys.process.execute("/bin/sh -c env", nil, {"Channelized" => true})
 			print_line chan.read
 		end
+	end
+
+	def registry_enumvals(key)
+		values = []
+		begin
+			vals = {}
+			root_key, base_key = session.sys.registry.splitkey(key)
+			open_key = session.sys.registry.open_key(root_key, base_key, KEY_READ)
+			vals = open_key.enum_value
+			vals.each { |val|
+				values <<  val.name
+			}
+			open_key.close
+		end
+		return values
 	end
 end
 
