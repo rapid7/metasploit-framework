@@ -12,6 +12,9 @@ class Campaign < ActiveRecord::Base
 
 	serialize :prefs
 
+	# General settings
+	serialized_prefs_attr_accessor :payload_lhost, :listener_lhost
+
 	# Email settings
 	serialized_prefs_attr_accessor :do_email
 	serialized_prefs_attr_accessor :smtp_server, :smtp_port, :smtp_ssl
@@ -25,7 +28,7 @@ class Campaign < ActiveRecord::Base
 
 	# Executable settings
 	serialized_prefs_attr_accessor :do_exe_gen
-	serialized_prefs_attr_accessor :exe_lhost, :exe_lport
+	serialized_prefs_attr_accessor :exe_lport
 	serialized_prefs_attr_accessor :exe_name
 
 end
