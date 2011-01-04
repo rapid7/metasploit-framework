@@ -921,11 +921,11 @@ class Core
 	# which session a given subnet should route through.
 	#
 	def cmd_route(*args)
-		if (args.length == 0)
-			print(
-				"Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]\n\n" +
+		usage = "Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]\n\n" +
 				"Route traffic destined to a given subnet through a supplied session. \n" +
-				"The default comm is Local.\n")
+				"The default comm is Local.\n"
+		if (args.length == 0)
+			print(usage)
 			return false
 		end
 
@@ -1065,6 +1065,8 @@ class Core
 			}
 
 			print(tbl.to_s)
+		else
+			print(usage)
 		end
 	end
 
