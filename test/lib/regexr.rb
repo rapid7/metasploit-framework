@@ -18,6 +18,7 @@ class Regexr
 		if @verbose
 			puts "Testing: " + the_start + " =~ " + data_lines.first
 		end
+		
 		return regex_start =~ data_lines.first
 	end
 
