@@ -30,12 +30,8 @@ public class InteractWindow extends MsfFrame {
 	private String prompt;
 	private Object sid;
 	private final StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
-	private static final ArrayList commands;
-	private static int currentCommand = 0;
-	static{
-		commands = new ArrayList();
-		commands.add("");
-	}
+	private final ArrayList commands;
+	private int currentCommand = 0;
 
 	/** Create a new console window to run a module */
 	public InteractWindow(final RpcConnection rpcConn, final Map session, final List autoCommands){
@@ -79,6 +75,8 @@ public class InteractWindow extends MsfFrame {
 		this.rpcConn = rpcConn;
 		this.session = session;
 		sid = session.get("id");
+		commands = new ArrayList();
+		commands.add("");
 		if(type.equals("console")) //console stuff
 			cmdPrefix = "console.";
 		else

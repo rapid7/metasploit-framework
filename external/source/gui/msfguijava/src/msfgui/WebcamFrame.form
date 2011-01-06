@@ -38,6 +38,8 @@
                       <Component id="startButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="stopButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="frameButton" min="-2" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -53,6 +55,7 @@
                   <Component id="delayField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="startButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="stopButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="frameButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="imageLabel" pref="249" max="32767" attributes="0"/>
@@ -97,6 +100,15 @@
         <Property name="text" type="java.lang.String" resourceKey="imageLabel.text"/>
         <Property name="name" type="java.lang.String" value="imageLabel" noResource="true"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="frameButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="frameButton.text"/>
+        <Property name="name" type="java.lang.String" value="frameButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="frameButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

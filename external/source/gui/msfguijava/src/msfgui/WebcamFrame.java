@@ -1,5 +1,6 @@
 package msfgui;
 
+import java.io.FileOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
@@ -20,6 +21,7 @@ public class WebcamFrame extends MsfFrame {
 	public static final char POLL = 'r';
 	public static final char STOP_POLLING = 's';
 	private final StringBuffer imageCommand;//synchronized mutable object as command placeholder for polling thread
+	private byte[] imageData;
 
 	/** Creates new form WebcamFrame */
 	public WebcamFrame(final RpcConnection rpcConn, final Map session) {
@@ -53,6 +55,7 @@ public class WebcamFrame extends MsfFrame {
         delayLabel = new javax.swing.JLabel();
         delayField = new javax.swing.JTextField();
         imageLabel = new javax.swing.JLabel();
+        frameButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -88,6 +91,14 @@ public class WebcamFrame extends MsfFrame {
         imageLabel.setText(resourceMap.getString("imageLabel.text")); // NOI18N
         imageLabel.setName("imageLabel"); // NOI18N
 
+        frameButton.setText(resourceMap.getString("frameButton.text")); // NOI18N
+        frameButton.setName("frameButton"); // NOI18N
+        frameButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                frameButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -103,7 +114,9 @@ public class WebcamFrame extends MsfFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(startButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(stopButton)))
+                        .addComponent(stopButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(frameButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -114,7 +127,8 @@ public class WebcamFrame extends MsfFrame {
                     .addComponent(delayLabel)
                     .addComponent(delayField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(startButton)
-                    .addComponent(stopButton))
+                    .addComponent(stopButton)
+                    .addComponent(frameButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(imageLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 249, Short.MAX_VALUE)
                 .addContainerGap())
@@ -136,7 +150,7 @@ public class WebcamFrame extends MsfFrame {
 				while (true) {
 					//Get each picture and send it to label to be displayed
 					camSock.receive(dp);
-					byte[] imageData = new byte[dp.getLength()];
+					imageData = new byte[dp.getLength()];
 					System.arraycopy(dp.getData(), 0, imageData, 0, imageData.length);
 					this.publish(imageData);
 					if (imageCommand.charAt(0) != POLL){
@@ -171,9 +185,21 @@ public class WebcamFrame extends MsfFrame {
 		imageCommand.setCharAt(0, STOP_POLLING);
 	}//GEN-LAST:event_formWindowClosing
 
+	private void frameButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_frameButtonActionPerformed
+		if(MsfguiApp.fileChooser.showSaveDialog(this) != javax.swing.JFileChooser.APPROVE_OPTION)
+			return;
+		try{
+			FileOutputStream fout = new FileOutputStream(MsfguiApp.fileChooser.getSelectedFile());
+			fout.write(imageData);
+			fout.close();
+		}catch(java.io.IOException ix){
+		}
+	}//GEN-LAST:event_frameButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField delayField;
     private javax.swing.JLabel delayLabel;
+    private javax.swing.JButton frameButton;
     private javax.swing.JLabel imageLabel;
     private javax.swing.JButton startButton;
     private javax.swing.JButton stopButton;
