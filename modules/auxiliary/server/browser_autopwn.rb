@@ -420,6 +420,7 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler.datastore['LHOST'] = @lhost
 				multihandler.datastore['ExitOnSession'] = false
 				multihandler.datastore['EXITFUNC'] = datastore['EXITFUNC'] || 'thread'
+				multihandler.datastore["ReverseListenerBindAddress"] = datastore["ReverseListenerBindAddress"]
 				# XXX: Revisit this when we have meterpreter working on more than just windows
 				if (lport == @win_lport)
 					multihandler.datastore['AutoRunScript'] = datastore['AutoRunScript']
