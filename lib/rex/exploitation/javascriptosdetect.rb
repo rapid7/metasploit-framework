@@ -91,10 +91,21 @@ function getVersion(){
 		// Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.27.1 (KHTML, like Gecko) Version/3.2.1 Safari/525.27.1
 		// Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/532.5 (KHTML, like Gecko) Chrome/4.0.249.78 Safari/532.5
 
-		// Google Chrome has window.google (all versions), window.chromium (all versions), and window.window.chrome (3+)
-		if (window.chromium || window.google) {
+		// Google Chrome has window.google (older versions), window.chromium (older versions), and window.window.chrome (3+)
+		if (window.chromium || window.google || window.chrome) {
 			ua_name = "#{clients::CHROME}";
 			search = "Chrome";
+			if (navigator.platform.match(/macintel/)) {
+				os_name = "#{oses::MAC_OSX}";
+				arch = "#{ARCH_X86}";
+			} else if (navigator.platform.match(/linux/)) {
+				os_name = "#{oses::LINUX}";
+				if (navigator.platform.match(/x86_64/)) {
+					arch = "#{ARCH_X86_64}";
+				}
+			} else if (navigator.platform.match(/windows/)) {
+				os_name = "#{oses::WINDOWS}";
+			}
 		} else {
 			// navigator.language for;
 			// Safari on Mac (OS X, iPod, and iPhone): lower case language & lower case country code (en-us)
