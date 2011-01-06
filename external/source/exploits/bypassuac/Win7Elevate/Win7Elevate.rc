@@ -1,0 +1,82 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#ifndef APSTUDIO_INVOKED
+#include "targetver.h"
+#endif
+#define APSTUDIO_HIDDEN_SYMBOLS
+#include "windows.h"
+#undef APSTUDIO_HIDDEN_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#ifndef APSTUDIO_INVOKED\r\n"
+    "#include ""targetver.h""\r\n"
+    "#endif\r\n"
+    "#define APSTUDIO_HIDDEN_SYMBOLS\r\n"
+    "#include ""windows.h""\r\n"
+    "#undef APSTUDIO_HIDDEN_SYMBOLS\r\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "#include ""Win7Elevate.rc2\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifdef _DEBUG
+
+#ifdef _WIN64
+IDD_EMBEDDED_DLL        BINARY  MOVEABLE PURE   "..\\x64\\Debug\\Win7ElevateDll64.dll"
+IDD_EMBEDDED_TIOR        BINARY  MOVEABLE PURE   "..\\x64\\Debug\\TIOR64.exe"
+#else
+IDD_EMBEDDED_DLL        BINARY  MOVEABLE PURE   "..\\Win32\\Debug\\Win7ElevateDll32.dll"
+IDD_EMBEDDED_TIOR        BINARY  MOVEABLE PURE   "..\\Win32\\Debug\\TIOR32.exe"
+#endif
+
+#else // _DEBUG
+
+#ifdef _WIN64
+IDD_EMBEDDED_DLL        BINARY  MOVEABLE PURE   "..\\x64\\Release\\Win7ElevateDll64.dll"
+IDD_EMBEDDED_TIOR        BINARY  MOVEABLE PURE   "..\\x64\\Release\\TIOR64.exe"
+#else
+IDD_EMBEDDED_DLL        BINARY  MOVEABLE PURE   "..\\Win32\\Release\\Win7ElevateDll32.dll"
+IDD_EMBEDDED_TIOR        BINARY  MOVEABLE PURE   "..\\Win32\\Release\\TIOR32.exe"
+#endif
+
+#endif
