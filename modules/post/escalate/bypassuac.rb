@@ -123,7 +123,6 @@ class Metasploit3 < Msf::Post
 		end
 		
 		print_status("Uploaded the agent to the filesystem....")
-		print_status("Executing the agent with endpoint #{rhost}:#{rport} with UACBypass in effect...")
 		
 		# execute the payload
 		session.sys.process.execute(cmd, nil, {'Hidden' => true})
