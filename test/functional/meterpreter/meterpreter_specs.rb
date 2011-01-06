@@ -4,38 +4,7 @@ module MeterpreterSpecs
 	def self.included(base)
         	base.class_eval do
 
-			it "should not error when running help" do
-				success_strings = [ 	'Core Commands',
-							'Stdapi: File system Commands',
-							'Stdapi: Networking Commands',
-							'Stdapi: System Commands',
-							'Stdapi: User interface Commands',
-							'Priv: Elevate Commands',
-							'Priv: Password database Commands',
-							'Priv: Timestomp Commands' ]
-					
-				hlp_run_command_check_output("help","help", success_strings)
-			end
-	
-			it "should not error when running the help shortcut" do
-				success_strings = [ 	'Core Commands',
-							'Stdapi: File system Commands',
-							'Stdapi: Networking Commands',
-							'Stdapi: System Commands',
-							'Stdapi: User interface Commands',
-							'Priv: Elevate Commands',
-							'Priv: Password database Commands',
-							'Priv: Timestomp Commands' ]
-					
-				hlp_run_command_check_output("help_shortcut","?", success_strings)
-			end	
-		
-			it "should not error when taking a screenshot" do
-				success_strings = [ 'Screenshot saved to' ]
-				hlp_run_command_check_output("screenshot","screenshot", success_strings)
-			end
-			
-			it "should not error when running each command" do
+		it "should not error when running each command" do
 				commands = [ 	"?",
 						"background",
 						"bgkill",
@@ -103,9 +72,36 @@ module MeterpreterSpecs
 
 				## Run each command, check for execeptions
 				commands.each do |command|
-					hlp_run_command_check_output("#{command}_basic",command)
+					hlp_run_command_check_output("basic_#{command}",command)
 				end
 			end	
+
+			it "should not error when running help" do
+				success_strings = [ 	'Core Commands',
+							'Stdapi: File system Commands',
+							'Stdapi: Networking Commands',
+							'Stdapi: System Commands',
+							'Stdapi: User interface Commands']
+					
+				hlp_run_command_check_output("help","help", success_strings)
+			end
+	
+			it "should not error when running the help shortcut" do
+				success_strings = [ 	'Core Commands',
+							'Stdapi: File system Commands',
+							'Stdapi: Networking Commands',
+							'Stdapi: System Commands',
+							'Stdapi: User interface Commands' ]
+					
+				hlp_run_command_check_output("help_shortcut","?", success_strings)
+			end	
+		
+			it "should not error when taking a screenshot" do
+				success_strings = [ 'Screenshot saved to' ]
+				hlp_run_command_check_output("screenshot","screenshot", success_strings)
+			end
+			
+	
 
 			it "should not error when checking for background channels" do
 				success_strings = [ 'No active channels.' ]

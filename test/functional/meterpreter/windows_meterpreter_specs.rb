@@ -25,6 +25,17 @@ module WindowsMeterpreterSpecs
 				## clean up
 				FileUtils.rm(filename)
 			end
+				
+				
+			it "should show the priv commands when running help" do
+			
+			success_strings =	['Priv: Elevate Commands',
+						 'Priv: Password database Commands',
+						 'Priv: Timestomp Commands' ]
+					
+				hlp_run_command_check_output("help_shortcut","help", success_strings)
+
+			end
 						
 		end
 	end
