@@ -350,7 +350,6 @@ class Console::CommandDispatcher::Core
 			# fall back to using the scripting interface.
 			if (client.framework and mod = client.framework.modules.create(script_name))
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
-				print_status opts.inspect
 				mod.run_simple(
 					#'RunAsJob' => true,
 					'LocalInput'  => shell.input,
@@ -372,6 +371,19 @@ class Console::CommandDispatcher::Core
 		tabs = []
 		if(not words[1] or not words[1].match(/^\//))
 			begin
+				if (client.framework)
+					# XXX This might get slow with a large number of post
+					# modules.  The proper solution is probably to implement a
+					# Module::Post#session_compatible?(session_object_or_int) method
+					tabs += client.framework.modules.post.map { |name,klass|
+						mod = klass.new
+						if mod.compatible_sessions.include?(client.sid)
+							mod.fullname.dup
+						else
+							nil
+						end
+					}.compact
+				end
 				[
 					::Msf::Sessions::Meterpreter::ScriptBase,
 					::Msf::Sessions::Meterpreter::UserScriptBase 
@@ -385,7 +397,7 @@ class Console::CommandDispatcher::Core
 			rescue Exception
 			end
 		end
-		return tabs.map { |e| e.sub!(/\.rb$/, '') }
+		return tabs.map { |e| e.sub(/\.rb$/, '') }
 	end
 
 
