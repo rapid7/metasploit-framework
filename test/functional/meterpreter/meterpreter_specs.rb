@@ -35,8 +35,7 @@ module MeterpreterSpecs
 				hlp_run_command_check_output("screenshot","screenshot", success_strings)
 			end
 			
-			def test_all_commands
-				success_strings = [ '' ]		
+			it "should not error when running each command" do
 				commands = [ 	"?",
 						"background",
 						"bgkill",
@@ -84,7 +83,7 @@ module MeterpreterSpecs
 						#"reboot",
 						"reg",
 						"rev2self",
-						"shell",
+						#"shell",
 						#"shutdown",
 						"steal_token",
 						"sysinfo",
@@ -104,13 +103,8 @@ module MeterpreterSpecs
 
 				## Run each command, check for execeptions
 				commands.each do |command|
-					hlp_run_command_check_output(command,command, success_strings)
+					hlp_run_command_check_output("#{command}_basic",command)
 				end
-			end	
-
-			it "should not error when listing background jobs" do
-				success_strings = [ '' ]
-				hlp_run_command_check_output("bglist_no_bg_script_running_empty","bglist", success_strings)
 			end	
 
 			it "should not error when checking for background channels" do

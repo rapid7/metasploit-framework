@@ -13,12 +13,16 @@ module MeterpreterSpecHelper
 				@session.init_ui(@input, command_output)
 	
 				command_output.print_line("meterpreter_functional_test_start")
-				puts "Running Command: " + command
+				
+				if @verbose
+					puts "Running Command: " + command
+				end
+				
 				@session.run_cmd(command)
 				command_output.print_line("meterpreter_functional_test_end")		
 				data = hlp_file_to_string(temp_command_file)
 		
-				## Ugh, this is ghetto. test unit sucks so baddd.
+				## Ugh, this is ghetto.
 				x = MsfTestCaseHelper.new
 				x.complete?(data,"meterpreter_functional_test_start","meterpreter_functional_test_end").should be_true
 				x.all_successes_exist?(data, success_strings).should be_true

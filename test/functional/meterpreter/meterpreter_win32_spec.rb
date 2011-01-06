@@ -24,6 +24,8 @@ describe "Win32Meterpreter" do
 	include MsfTest::WindowsMeterpreterSpecs
 
 	before :all do
+		@verbose = true
+	
 		@meterpreter_type = "win32"
 		
 		## Set up an outupt directory
