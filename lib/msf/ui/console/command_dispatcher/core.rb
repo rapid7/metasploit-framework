@@ -1241,6 +1241,8 @@ class Core
 			show_nops(regex, rank, opts)
 		when 'payload'
 			show_payloads(regex, rank, opts)
+		when 'post'
+			show_post(regex, rank, opts)
 		else
 			print_error("Unknown type '#{section}'")
 		end
