@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'snmp'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -24,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'SNMP Enumeration Module',
 			'Version'     => '$Revision$',
 			'Description' => 'This module allows enumeration of any devices with SNMP
-				protocol support. It supports hardware, software, and network.
+				protocol support. It supports hardware, software, and network information.
 				The default community used is "public".',
 			'References'  =>
 				[
@@ -71,13 +70,25 @@ class Metasploit3 < Msf::Auxiliary
 			
 			hrSystemUptime = snmp.get_value('1.3.6.1.2.1.25.1.1.0')
 			hrSystemUptime = '-' if hrSystemUptime.to_s =~ /Null/
-			
+
+
+			year = month = day = hour = minutes = seconds = tenths = 0
+							
 			systemDate = snmp.get_value('1.3.6.1.2.1.25.1.2.0')
 			if (systemDate.to_s.empty? or systemDate.to_s =~ /Null/)
 				systemDate = '-'
 			else
-				dtm = systemDate.unpack("NCCCCCC")
-				systemDate = "#{dtm[0]}-#{dtm[1]}-#{dtm[2]} #{dtm[3]}:#{dtm[4]}:#{dtm[5]}"
+
+				# RFC 2579 - Textual Conventions for SMIv2
+				# http://www.faqs.org/rfcs/rfc2579.html
+
+				year    = systemDate[0] * 256 + systemDate[1]
+				month   = systemDate[2]
+				day     = systemDate[3]
+				hour    = systemDate[4]
+				minutes = systemDate[5]
+				seconds = systemDate[6]
+				tenths  = systemDate[7]
 			end
 
 			#
@@ -87,10 +98,9 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("System information")
 			print_line("")
 
-
-			sysName = sysName.strip
-			sysDesc = sysDesc.strip
-			sysContact = sysContact.strip
+			sysName     = sysName.strip
+			sysDesc     = sysDesc.strip
+			sysContact  = sysContact.strip
 			sysLocation = sysLocation.strip
 
 			print_line("Hostname                : #{sysName}")
@@ -99,16 +109,16 @@ class Metasploit3 < Msf::Auxiliary
 			print_line("Location                : #{sysLocation}")
 			print_line("Uptime snmp             : #{sysUpTimeInstance}")
 			print_line("Uptime system           : #{hrSystemUptime}")
-			print_line("System date             : #{systemDate}")
-		
 			
+			print_line(sprintf("System date             : %d-%d-%d %02d:%02d:%02d.%d", year, month, day, hour, minutes, seconds, tenths))
+		
 			if sysName.length > 0
 				report_note(
 					:host  => ip,
 					:proto => 'snmp',
 					:port  => datastore['RPORT'].to_i,
 					:type  => 'snmp.sysName',
-				:data  => sysName.strip
+					:data  => sysName.strip
 				)
 			end
 			
@@ -124,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			if (sysDesc =~ /Windows/)
 				
-				domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1')
+				domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1.0')
 				domPrimaryDomain = '-' if domPrimaryDomain.to_s =~ /Null/
 				print_line("Domain                  : #{domPrimaryDomain}")
 			
@@ -176,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 				network_information.push([["TCP segments sent       : "],[tcpOutSegs]])
 			end
 			
-			tcpRetransSegs = snmp.get_value('1.3.6.1.2.1.6.11.0')
+			tcpRetransSegs = snmp.get_value('1.3.6.1.2.1.6.12.0')
 			if tcpRetransSegs.to_s !~ /Null/
 				network_information.push([["TCP segments retrans.   : "],[tcpRetransSegs]])
 			end
@@ -209,7 +219,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			network_interfaces = []
 
-			snmp.walk(["1.3.6.1.2.1.2.2.1.1","1.3.6.1.2.1.2.2.1.2","1.3.6.1.2.1.2.2.1.6","1.3.6.1.2.1.2.2.1.3","1.3.6.1.2.1.2.2.1.4","1.3.6.1.2.1.2.2.1.5","1.3.6.1.2.1.2.2.1.10","1.3.6.1.2.1.2.2.1.16","1.3.6.1.2.1.2.2.1.7"]) do |index,descr,mac,type,mtu,speed,inoc,outoc,status|
+			snmp.walk( ["1.3.6.1.2.1.2.2.1.1", "1.3.6.1.2.1.2.2.1.2", "1.3.6.1.2.1.2.2.1.6", "1.3.6.1.2.1.2.2.1.3", "1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.2.2.1.5", "1.3.6.1.2.1.2.2.1.10", "1.3.6.1.2.1.2.2.1.16", "1.3.6.1.2.1.2.2.1.7"]) do |index,descr,mac,type,mtu,speed,inoc,outoc,status|
 					
 				ifindex  = index.value
 				ifdescr  = descr.value
@@ -655,8 +665,8 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				allocation.value = "unknown" if allocation.value.to_s =~ /noSuchInstance/
-				size.value = "unknown" if size.value.to_s =~ /noSuchInstance/
-				used.value = "unknown" if used.value.to_s =~ /noSuchInstance/
+				size.value       = "unknown" if size.value.to_s =~ /noSuchInstance/
+				used.value       = "unknown" if used.value.to_s =~ /noSuchInstance/
 
 				storage_information.push([[descr.value],[index.value],[type.value],[allocation.value],[size.value],[used.value]])
 			end
@@ -698,6 +708,9 @@ class Metasploit3 < Msf::Auxiliary
 			
 			hrFSRemoteMountPoint = snmp.get_value('1.3.6.1.2.1.25.3.8.1.3.1')
 			if hrFSRemoteMountPoint.to_s !~ /Null/
+				if hrFSRemoteMountPoint.empty?
+					hrFSRemoteMountPoint = '-'
+				end
 				file_system.push([["Remote mount point        : "],[hrFSRemoteMountPoint]])
 			end
 			
@@ -782,8 +795,8 @@ class Metasploit3 < Msf::Auxiliary
 			device_information = []
 
 			snmp.walk(["1.3.6.1.2.1.25.3.2.1.1","1.3.6.1.2.1.25.3.2.1.2","1.3.6.1.2.1.25.3.2.1.5","1.3.6.1.2.1.25.3.2.1.3"]) do |index,type,status,descr|
-				
-				case type.value
+			
+				case type.value.to_s
 				when /^1.3.6.1.2.1.25.3.1.1$/
 					type.value = "Other"
 				when /^1.3.6.1.2.1.25.3.1.2$/
