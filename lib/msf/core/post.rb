@@ -21,6 +21,10 @@ class Post < Msf::Module
 		] , Msf::Post)
 	end
 
+	#
+	# Grabs a session object from the framework or raises OptionValidateError
+	# if one doesn't exist.
+	#
 	def setup
 		@sysinfo = nil
 		@session = framework.sessions[datastore["SESSION"].to_i]

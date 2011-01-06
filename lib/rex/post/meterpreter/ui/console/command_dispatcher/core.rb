@@ -344,8 +344,23 @@ class Console::CommandDispatcher::Core
 
 		# Get the script name
 		begin
-			# the rest of the arguments get passed in through the binding
-			client.execute_script(args.shift, args)
+			script_name = args.shift
+			# First try it as a Post module if we have access to the Metasploit
+			# Framework instance.  If we don't, or if no such module exists,
+			# fall back to using the scripting interface.
+			if (client.framework and mod = client.framework.modules.create(script_name))
+				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
+				print_status opts.inspect
+				mod.run_simple(
+					#'RunAsJob' => true,
+					'LocalInput'  => shell.input,
+					'LocalOutput' => shell.output,
+					'OptionStr'   => opts
+				)
+			else
+				# the rest of the arguments get passed in through the binding
+				client.execute_script(script_name, args)
+			end
 		rescue
 			print_error("Error in script: #{$!.class} #{$!}")
 			elog("Error in script: #{$!.class} #{$!}")
