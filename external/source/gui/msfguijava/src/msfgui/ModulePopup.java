@@ -301,12 +301,14 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				}
 				optionField.setName("field" + optionName);
 				mainPanel.add(optionField);
-				if(option.get("required").equals(Boolean.TRUE)){
-					requiredOpts.add(tempText);
-					requiredOpts.add(optionField);
-				}else if (option.get("advanced").equals(Boolean.FALSE) && option.get("evasion").equals(Boolean.FALSE)){
-					optionalOpts.add(tempText);
-					optionalOpts.add(optionField);
+				if (option.get("advanced").equals(Boolean.FALSE) && option.get("evasion").equals(Boolean.FALSE)){
+					if(option.get("required").equals(Boolean.TRUE)){
+						requiredOpts.add(tempText);
+						requiredOpts.add(optionField);
+					}else {
+						optionalOpts.add(tempText);
+						optionalOpts.add(optionField);
+					}
 				}else{
 					advancedOpts.add(tempText);
 					advancedOpts.add(optionField);
