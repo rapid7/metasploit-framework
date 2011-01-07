@@ -15,7 +15,7 @@ require 'msf/core/post/registry'
 
 class Metasploit3 < Msf::Post
 
-	include Post::Registry
+	include Msf::Post::Registry
 
 	def initialize(info={})
 		super( update_info( info,
