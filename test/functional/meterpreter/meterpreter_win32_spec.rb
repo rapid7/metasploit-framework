@@ -19,7 +19,7 @@ describe "Win32Meterpreter" do
 	# meterpreter platforms
 	include MsfTest::MeterpreterSpecs
 
-	# This include brings in all the specs that are generic across the 
+	# This include brings in all the specs that are specific to the 
 	# windows meterpreter platforms
 	include MsfTest::WindowsMeterpreterSpecs
 
@@ -52,6 +52,10 @@ describe "Win32Meterpreter" do
 		#FileUtils.rm_rf(@output_directory)
 	end
 
+	after :all do
+		FileUtils.rm_rf("*.jpeg")		
+		FileUtils.rm_rf(@output_directory)
+	end
 	
 	def create_session_windows_x32
 

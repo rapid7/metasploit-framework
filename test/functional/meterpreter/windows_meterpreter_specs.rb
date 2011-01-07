@@ -36,6 +36,11 @@ module WindowsMeterpreterSpecs
 				hlp_run_command_check_output("help_shortcut","help", success_strings)
 
 			end
+			
+			it "should not error when taking a screenshot" do
+				success_strings = [ 'Screenshot saved to' ]
+				hlp_run_command_check_output("screenshot","screenshot", success_strings)
+			end
 						
 		end
 	end

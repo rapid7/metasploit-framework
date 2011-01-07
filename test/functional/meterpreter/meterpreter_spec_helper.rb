@@ -9,7 +9,7 @@ module MeterpreterSpecHelper
 			end
 			
 			def generic_failure_exception_strings
-				['nserror.dll'] ##ugh, this is dependent on the target
+				['nserror.dll', 'tiki-error.php','tiki-error_simple.php','tiki-rss_error.php'] ##ugh, this is dependent on the target
 			end
 
 			def hlp_run_command_check_output(name,command,success_strings=[],fail_strings=[], fail_exception_strings=[])

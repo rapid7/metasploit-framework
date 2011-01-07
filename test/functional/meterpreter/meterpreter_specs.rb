@@ -96,13 +96,6 @@ module MeterpreterSpecs
 				hlp_run_command_check_output("help_shortcut","?", success_strings)
 			end	
 		
-			it "should not error when taking a screenshot" do
-				success_strings = [ 'Screenshot saved to' ]
-				hlp_run_command_check_output("screenshot","screenshot", success_strings)
-			end
-			
-	
-
 			it "should not error when checking for background channels" do
 				success_strings = [ 'No active channels.' ]
 				hlp_run_command_check_output("channel_list_empty","channel -l", success_strings)
