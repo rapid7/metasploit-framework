@@ -44,36 +44,36 @@ class Metasploit3 < Msf::Auxiliary
 			#
 			#
 			#
-		
+
 			sysName = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
 			if (sysName.to_s.empty? or sysName.to_s =~ /Null/)
 				sysName = '-'
 			end
-			
+
 			sysDesc = snmp.get_value('1.3.6.1.2.1.1.1.0').to_s
 			if (sysDesc.to_s.empty? or sysDesc.to_s =~ /Null/)
 				sysDesc = '-'
 			end
 			sysDesc.gsub!(/^\s+|\s+$|\n+|\r+/, ' ')
-			
+
 			sysContact = snmp.get_value('1.3.6.1.2.1.1.4.0').to_s
 			if (sysContact.to_s.empty? or sysContact.to_s =~ /Null/)
 				sysContact = '-'
 			end
-			
+
 			sysLocation = snmp.get_value('1.3.6.1.2.1.1.6.0').to_s
 			if (sysLocation.to_s.empty? or sysLocation.to_s =~ /Null/)
 				sysLocation = '-'
 			end
-			
+
 			sysUpTimeInstance = snmp.get_value('1.3.6.1.2.1.1.3.0')
-			
+
 			hrSystemUptime = snmp.get_value('1.3.6.1.2.1.25.1.1.0')
 			hrSystemUptime = '-' if hrSystemUptime.to_s =~ /Null/
 
 
 			year = month = day = hour = minutes = seconds = tenths = 0
-							
+
 			systemDate = snmp.get_value('1.3.6.1.2.1.25.1.2.0')
 			if (systemDate.to_s.empty? or systemDate.to_s =~ /Null/)
 				systemDate = '-'
@@ -109,9 +109,9 @@ class Metasploit3 < Msf::Auxiliary
 			print_line("Location                : #{sysLocation}")
 			print_line("Uptime snmp             : #{sysUpTimeInstance}")
 			print_line("Uptime system           : #{hrSystemUptime}")
-			
+
 			print_line(sprintf("System date             : %d-%d-%d %02d:%02d:%02d.%d", year, month, day, hour, minutes, seconds, tenths))
-		
+
 			if sysName.length > 0
 				report_note(
 					:host  => ip,
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 					:data  => sysName.strip
 				)
 			end
-			
+
 			if sysDesc.length > 0
 				report_note(
 					:host  => ip,
@@ -131,30 +131,30 @@ class Metasploit3 < Msf::Auxiliary
 					:data  => sysDesc.strip
 				)
 			end
-			
+
 			if (sysDesc =~ /Windows/)
-				
+
 				domPrimaryDomain = snmp.get_value('1.3.6.1.4.1.77.1.4.1.0')
 				domPrimaryDomain = '-' if domPrimaryDomain.to_s =~ /Null/
 				print_line("Domain                  : #{domPrimaryDomain}")
-			
+
 				#
 				#
 				#
-		
+
 				users = []
 
 				snmp.walk(["1.3.6.1.4.1.77.1.2.25.1.1","1.3.6.1.4.1.77.1.2.25.1"]) do |user,entry|
 					users.push([[user.value]])
 				end
-			
+
 				if not users.empty?
 					print_line('')
 					print_status("User accounts\n")
 					users.each {|a| print_line("#{a}")}
 				end
 			end
-			
+
 			#
 			#
 			#
@@ -162,57 +162,57 @@ class Metasploit3 < Msf::Auxiliary
 			network_information = []
 
 			ipForwarding = snmp.get_value('1.3.6.1.2.1.4.1.0')
-			
-			if ipForwarding == 0 || ipForwarding == 2 
+
+			if ipForwarding == 0 || ipForwarding == 2
 				ipForwarding = "no"
 				network_information.push([["IP forwarding enabled   : "],[ipForwarding]])
 			elsif ipForwarding == 1
 				ipForwarding = "yes"
 				network_information.push([["IP forwarding enabled   : "],[ipForwarding]])
 			end
-			
+
 			ipDefaultTTL = snmp.get_value('1.3.6.1.2.1.4.2.0')
 			if ipDefaultTTL.to_s !~ /Null/
 				network_information.push([["Default TTL             : "],[ipDefaultTTL]])
 			end
-			
+
 			tcpInSegs = snmp.get_value('1.3.6.1.2.1.6.10.0')
 			if tcpInSegs.to_s !~ /Null/
 				network_information.push([["TCP segments received   : "],[tcpInSegs]])
 			end
-			
+
 			tcpOutSegs = snmp.get_value('1.3.6.1.2.1.6.11.0')
 			if tcpOutSegs.to_s !~ /Null/
 				network_information.push([["TCP segments sent       : "],[tcpOutSegs]])
 			end
-			
+
 			tcpRetransSegs = snmp.get_value('1.3.6.1.2.1.6.12.0')
 			if tcpRetransSegs.to_s !~ /Null/
 				network_information.push([["TCP segments retrans.   : "],[tcpRetransSegs]])
 			end
-			
+
 			ipInReceives = snmp.get_value('1.3.6.1.2.1.4.3.0')
 			if ipInReceives.to_s !~ /Null/
 				network_information.push([["Input datagrams         : "],[ipInReceives]])
 			end
-			
+
 			ipInDelivers = snmp.get_value('1.3.6.1.2.1.4.9.0')
 			if ipInDelivers.to_s !~ /Null/
 				network_information.push([["Delivered datagrams     : "],[ipInDelivers]])
 			end
-			
+
 			ipOutRequests = snmp.get_value('1.3.6.1.2.1.4.10.0')
 			if ipOutRequests.to_s !~ /Null/
 				network_information.push([["Output datagrams        : "],[ipOutRequests]])
 			end
-			
+
 			if not network_information.empty?
 				print_line('')
 				print_status("Network information")
 				print_line('')
 				network_information.each {|a,b| print_line("#{a} #{b}")}
 			end
-			
+
 			#
 			#
 			#
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Auxiliary
 			network_interfaces = []
 
 			snmp.walk( ["1.3.6.1.2.1.2.2.1.1", "1.3.6.1.2.1.2.2.1.2", "1.3.6.1.2.1.2.2.1.6", "1.3.6.1.2.1.2.2.1.3", "1.3.6.1.2.1.2.2.1.4", "1.3.6.1.2.1.2.2.1.5", "1.3.6.1.2.1.2.2.1.10", "1.3.6.1.2.1.2.2.1.16", "1.3.6.1.2.1.2.2.1.7"]) do |index,descr,mac,type,mtu,speed,inoc,outoc,status|
-					
+
 				ifindex  = index.value
 				ifdescr  = descr.value
 				ifmac    = mac.value.unpack("H2H2H2H2H2H2").join(":")
@@ -230,11 +230,11 @@ class Metasploit3 < Msf::Auxiliary
 				ifinoc   = inoc.value
 				ifoutoc  = outoc.value
 				ifstatus = status.value
-				
+
 				case iftype
 				when 1
 					iftype = "other"
-				when 2 
+				when 2
 					iftype = "regular1822"
 				when 3
 					iftype = "hdh1822"
@@ -315,7 +315,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				network_interfaces.push([[ifstatus],[ifdescr],[ifindex],[ifmac],[iftype],[ifspeed],[ifmtu],[ifinoc],[ifoutoc]])
 			end
-			
+
 			if not network_interfaces.empty?
 				print_line('')
 				print_status("Network interfaces")
@@ -333,7 +333,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_line('')
 				}
 			end
-			
+
 			#
 			#
 			#
@@ -343,7 +343,7 @@ class Metasploit3 < Msf::Auxiliary
 			snmp.walk(["1.3.6.1.2.1.4.20.1.2","1.3.6.1.2.1.4.20.1.1","1.3.6.1.2.1.4.20.1.3","1.3.6.1.2.1.4.20.1.4"]) do |ifid,ipaddr,netmask,bcast|
 				network_ip.push([[ifid.value],[ipaddr.value],[netmask.value],[bcast.value]])
 			end
-			
+
 			if not network_ip.empty?
 				print_line('')
 				print_status("Network IP")
@@ -352,7 +352,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_line('')
 				network_ip.each {|a,b,c,d| print_line(sprintf("%16s %16s %16s %16s",a,b,c,d))}
 			end
-			
+
 			#
 			#
 			#
@@ -365,7 +365,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				routing.push([[dest.value],[hop.value],[mask.value],[metric.value]])
 			end
-			
+
 			if not routing.empty?
 				print_line('')
 				print_status("Routing information")
@@ -374,7 +374,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_line('')
 				routing.each {|a,b,c,d| print_line(sprintf("%16s %16s %16s %16s",a,b,c,d))}
 			end
-			
+
 			#
 			#
 			#
@@ -382,7 +382,7 @@ class Metasploit3 < Msf::Auxiliary
 			tcp = []
 
 			snmp.walk(["1.3.6.1.2.1.6.13.1.2","1.3.6.1.2.1.6.13.1.3","1.3.6.1.2.1.6.13.1.4","1.3.6.1.2.1.6.13.1.5","1.3.6.1.2.1.6.13.1.1"]) do |ladd,lport,radd,rport,state|
-				
+
 				if (ladd.value.to_s.empty?  or ladd.value.to_s =~ /noSuchInstance/)
 					ladd = "-"
 				else
@@ -406,7 +406,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					rport = rport.value
 				end
-			
+
 				case state.value
 				when 1
 					state = "closed"
@@ -438,7 +438,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				tcp.push([[ladd],[lport],[radd],[rport],[state]])
 			end
-			
+
 			if not tcp.empty?
 				print_line('')
 				print_status("TCP connections and listening ports")
@@ -447,7 +447,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_line('')
 				tcp.each {|a,b,c,d,e| print_line(sprintf("%16s %16s %16s %16s %16s",a,b,c,d,e))}
 			end
-			
+
 			#
 			#
 			#
@@ -457,8 +457,8 @@ class Metasploit3 < Msf::Auxiliary
 			snmp.walk(["1.3.6.1.2.1.7.5.1.1","1.3.6.1.2.1.7.5.1.2"]) do |ladd,lport|
 				udp.push([[ladd.value],[lport.value]])
 			end
-		
-			if not udp.empty? 
+
+			if not udp.empty?
 				print_line('')
 				print_status("Listening UDP ports")
 				print_line('')
@@ -466,13 +466,13 @@ class Metasploit3 < Msf::Auxiliary
 				print_line('')
 				udp.each {|a,b| print_line(sprintf("%16s %16s",a,b))}
 			end
-			
+
 			#
 			#
 			#
-			
+
 			if (sysDesc =~ /Windows/)
-				
+
 				#
 				#
 				#
@@ -480,13 +480,13 @@ class Metasploit3 < Msf::Auxiliary
 				network_services = []
 
 				n = 0
-				
+
 				snmp.walk(["1.3.6.1.4.1.77.1.2.3.1.1","1.3.6.1.4.1.77.1.2.3.1.2"]) do |name,installed|
 					network_services.push([[n],[name.value]])
 					n+=1
 				end
-			
-				if not network_services.empty? 
+
+				if not network_services.empty?
 					print_line('')
 					print_status("Network services")
 					print_line('')
@@ -494,29 +494,29 @@ class Metasploit3 < Msf::Auxiliary
 					print_line('')
 					network_services.each {|a,b| print_line(sprintf("%10s %s",a,b))}
 				end
-			
+
 				#
 				#
 				#
-		
+
 				share = []
 
 				snmp.walk(["1.3.6.1.4.1.77.1.2.27.1.1","1.3.6.1.4.1.77.1.2.27.1.2","1.3.6.1.4.1.77.1.2.27.1.3"]) do |name,path,comment|
 					share.push([[name.value],[path.value],[comment.value]])
 				end
-				
-				if not share.empty? 
+
+				if not share.empty?
 					print_line('')
 					print_status("Share")
 					print_line('')
 					share.each {|a,b,c|
-						print_line("Name                      : #{a}") 
+						print_line("Name                      : #{a}")
 						print_line("Path                      : #{b}")
 						print_line("Comment                   : #{c}")
 						print_line('')
 					}
 				end
-				
+
 				#
 				#
 				#
@@ -527,17 +527,17 @@ class Metasploit3 < Msf::Auxiliary
 				if http_totalBytesSentLowWord.to_s !~ /Null/
 					iis.push([["TotalBytesSentLowWord     : "],[http_totalBytesSentLowWord]])
 				end
-				
+
 				http_totalBytesReceivedLowWord = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.4.0')
 				if http_totalBytesReceivedLowWord.to_s !~ /Null/
 					iis.push([["TotalBytesReceivedLowWord : "],[http_totalBytesReceivedLowWord]])
 				end
-				
+
 				http_totalFilesSent = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.5.0')
 				if http_totalFilesSent.to_s !~ /Null/
 					iis.push([["TotalFilesSent            : "],[http_totalFilesSent]])
 				end
-				
+
 				http_currentAnonymousUsers = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.6.0')
 				if http_currentAnonymousUsers.to_s !~ /Null/
 					iis.push([["CurrentAnonymousUsers     : "],[http_currentAnonymousUsers]])
@@ -577,7 +577,7 @@ class Metasploit3 < Msf::Auxiliary
 				if http_maxConnections.to_s !~ /Null/
 					iis.push([["MaxConnections            : "],[http_maxConnections]])
 				end
-				
+
 				http_connectionAttempts = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.14.0')
 				if http_connectionAttempts.to_s !~ /Null/
 					iis.push([["ConnectionAttempts        : "],[http_connectionAttempts]])
@@ -607,34 +607,34 @@ class Metasploit3 < Msf::Auxiliary
 				if http_totalOthers.to_s !~ /Null/
 					iis.push([["Others                    : "],[http_totalOthers]])
 				end
-				
+
 				http_totalCGIRequests = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.20.0')
 				if http_totalCGIRequests.to_s !~ /Null/
 					iis.push([["CGIRequests               : "],[http_totalCGIRequests]])
 				end
-				
+
 				http_totalBGIRequests = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.21.0')
 				if http_totalBGIRequests.to_s !~ /Null/
 					iis.push([["BGIRequests               : "],[http_totalBGIRequests]])
 				end
-				
+
 				http_totalNotFoundErrors = snmp.get_value('1.3.6.1.4.1.311.1.7.3.1.22.0')
 				if http_totalNotFoundErrors.to_s !~ /Null/
 					iis.push([["NotFoundErrors            : "],[http_totalNotFoundErrors]])
 				end
-				
-				if not iis.empty? 
+
+				if not iis.empty?
 					print_line('')
 					print_status("IIS server information")
 					print_line('')
 					iis.each {|a,b| print_line("#{a} #{b}")}
 				end
 			end
-			
+
 			#
 			#
 			#
-			
+
 			storage_information = []
 
 			snmp.walk(["1.3.6.1.2.1.25.2.3.1.1","1.3.6.1.2.1.25.2.3.1.2","1.3.6.1.2.1.25.2.3.1.3","1.3.6.1.2.1.25.2.3.1.4","1.3.6.1.2.1.25.2.3.1.5","1.3.6.1.2.1.25.2.3.1.6"]) do |index,type,descr,allocation,size,used|
@@ -670,16 +670,16 @@ class Metasploit3 < Msf::Auxiliary
 
 				storage_information.push([[descr.value],[index.value],[type.value],[allocation.value],[size.value],[used.value]])
 			end
-			
-			if not storage_information.empty? 
+
+			if not storage_information.empty?
 				print_line('')
 				print_status("Storage information")
 				print_line('')
 				storage_information.each {|a,b,c,d,e,f|
-					
+
 					e = number_to_human_size(e,d)
 					f = number_to_human_size(f,d)
-					
+
 					print_line("#{a}")
 					print_line("\tDevice id         : #{b}")
 					print_line("\tFilesystem type   : #{c}")
@@ -689,23 +689,23 @@ class Metasploit3 < Msf::Auxiliary
 					print_line('')
 				}
 			end
-			
+
 			#
 			#
 			#
-		
+
 			file_system = []
 
 			hrFSIndex = snmp.get_value('1.3.6.1.2.1.25.3.8.1.1.1')
 			if hrFSIndex.to_s !~ /Null/
 				file_system.push([["Index                     : "],[hrFSIndex]])
 			end
-			
+
 			hrFSMountPoint = snmp.get_value('1.3.6.1.2.1.25.3.8.1.2.1')
 			if hrFSMountPoint.to_s !~ /Null/
 				file_system.push([["Mount point               : "],[hrFSMountPoint]])
 			end
-			
+
 			hrFSRemoteMountPoint = snmp.get_value('1.3.6.1.2.1.25.3.8.1.3.1')
 			if hrFSRemoteMountPoint.to_s !~ /Null/
 				if hrFSRemoteMountPoint.empty?
@@ -713,7 +713,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				file_system.push([["Remote mount point        : "],[hrFSRemoteMountPoint]])
 			end
-			
+
 			hrFSType = snmp.get_value('1.3.6.1.2.1.25.3.8.1.4.1')
 
 			case hrFSType.to_s
@@ -766,7 +766,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				hrFSType = "Null"
 			end
-			
+
 			if hrFSType.to_s !~ /Null/
 				file_system.push([["Type                      : "],[hrFSType]])
 			end
@@ -775,12 +775,12 @@ class Metasploit3 < Msf::Auxiliary
 			if hrFSAccess.to_s !~ /Null/
 				file_system.push([["Access                    : "],[hrFSAccess]])
 			end
-			
+
 			hrFSBootable = snmp.get_value('1.3.6.1.2.1.25.3.8.1.6.1')
 			if hrFSBootable.to_s !~ /Null/
 				file_system.push([["Bootable                  : "],[hrFSBootable]])
 			end
-			
+
 			if not file_system.empty?
 				print_line('')
 				print_status("File system information")
@@ -795,7 +795,7 @@ class Metasploit3 < Msf::Auxiliary
 			device_information = []
 
 			snmp.walk(["1.3.6.1.2.1.25.3.2.1.1","1.3.6.1.2.1.25.3.2.1.2","1.3.6.1.2.1.25.3.2.1.5","1.3.6.1.2.1.25.3.2.1.3"]) do |index,type,status,descr|
-			
+
 				case type.value.to_s
 				when /^1.3.6.1.2.1.25.3.1.1$/
 					type.value = "Other"
@@ -836,7 +836,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					type.value = "unknown"
 				end
-	
+
 				case status.value
 				when 1
 					status.value = "unknown"
@@ -856,8 +856,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				device_information.push([[index.value],[type.value],[status.value],[descr.value]])
 			end
-			
-			if not device_information.empty? 
+
+			if not device_information.empty?
 				print_line('')
 				print_status("Device information")
 				print_line('')
@@ -876,7 +876,7 @@ class Metasploit3 < Msf::Auxiliary
 				software_list.push([[index.value],[name.value]])
 			end
 
-			if not software_list.empty? 
+			if not software_list.empty?
 				print_line('')
 				print_status("Software components")
 				print_line('')
@@ -900,11 +900,11 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					status.value = "unknown"
 				end
-				
+
 				process_interfaces.push([[id.value],[status.value],[name.value],[path.value],[param.value]])
 			end
-			
-			if not process_interfaces.empty? 
+
+			if not process_interfaces.empty?
 				print_line('')
 				print_status("Process interfaces")
 				print_line('')
@@ -912,7 +912,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_line('')
 				process_interfaces.each {|a,b,c,d,e| print_line(sprintf("%10s %10s %22s %30s %s",a,b,c,d,e))}
 			end
-			
+
 			#
 			#
 			#
@@ -935,7 +935,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def number_to_human_size(size,unit)
-		size = size.first.to_i * unit.first.to_i 
+		size = size.first.to_i * unit.first.to_i
 
 		if size < 1024
 			"#{size} bytes"
