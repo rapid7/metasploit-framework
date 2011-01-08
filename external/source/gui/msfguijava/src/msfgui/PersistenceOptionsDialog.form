@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.1" encoding="UTF-8" ?>
 
 <Form version="1.5" maxVersion="1.7" type="org.netbeans.modules.form.forminfo.JDialogFormInfo">
   <Properties>
@@ -38,20 +38,22 @@
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Group type="103" groupAlignment="1" attributes="0">
-                              <Component id="portField" pref="338" max="32767" attributes="1"/>
-                              <Component id="ipField" alignment="0" pref="338" max="32767" attributes="1"/>
-                              <Component id="intervalField" alignment="0" pref="338" max="32767" attributes="0"/>
+                              <Component id="portField" pref="424" max="32767" attributes="1"/>
+                              <Component id="ipField" alignment="0" pref="424" max="32767" attributes="1"/>
+                              <Component id="intervalField" alignment="0" pref="424" max="32767" attributes="0"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                       </Group>
                       <Group type="102" alignment="0" attributes="0">
                           <Group type="103" groupAlignment="1" max="-2" attributes="0">
                               <Component id="handlerBox" alignment="0" max="32767" attributes="1"/>
-                              <Component id="autostartBox" alignment="0" max="32767" attributes="1"/>
+                              <Component id="serviceRestartBox" alignment="0" max="32767" attributes="1"/>
                           </Group>
                           <EmptySpace max="-2" attributes="0"/>
                           <Component id="loginRestartBox" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="177" max="32767" attributes="0"/>
+                          <EmptySpace max="-2" attributes="0"/>
+                          <Component id="anyLoginRestartBox" min="-2" max="-2" attributes="0"/>
+                          <EmptySpace max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
@@ -71,8 +73,9 @@
               <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="autostartBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="serviceRestartBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="loginRestartBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="anyLoginRestartBox" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="handlerBox" min="-2" max="-2" attributes="0"/>
@@ -157,15 +160,12 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="cancelButtonActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JCheckBox" name="autostartBox">
+    <Component class="javax.swing.JCheckBox" name="serviceRestartBox">
       <Properties>
         <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" resourceKey="autostartBox.text"/>
-        <Property name="name" type="java.lang.String" value="autostartBox" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="serviceRestartBox.text"/>
+        <Property name="name" type="java.lang.String" value="serviceRestartBox" noResource="true"/>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="autostartBoxActionPerformed"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JCheckBox" name="handlerBox">
       <Properties>
@@ -193,6 +193,15 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="loginRestartBoxActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="anyLoginRestartBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="anyLoginRestartBox.text"/>
+        <Property name="name" type="java.lang.String" value="anyLoginRestartBox" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="anyLoginRestartBoxActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

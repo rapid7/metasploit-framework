@@ -29,11 +29,12 @@ public class PersistenceOptionsDialog extends OptionsDialog {
         okButton = new javax.swing.JButton();
         jLabel1 = new javax.swing.JLabel();
         cancelButton = new javax.swing.JButton();
-        autostartBox = new javax.swing.JCheckBox();
+        serviceRestartBox = new javax.swing.JCheckBox();
         handlerBox = new javax.swing.JCheckBox();
         intervalField = new javax.swing.JTextField();
         intervalLabel = new javax.swing.JLabel();
         loginRestartBox = new javax.swing.JCheckBox();
+        anyLoginRestartBox = new javax.swing.JCheckBox();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -72,14 +73,9 @@ public class PersistenceOptionsDialog extends OptionsDialog {
             }
         });
 
-        autostartBox.setSelected(true);
-        autostartBox.setText(resourceMap.getString("autostartBox.text")); // NOI18N
-        autostartBox.setName("autostartBox"); // NOI18N
-        autostartBox.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                autostartBoxActionPerformed(evt);
-            }
-        });
+        serviceRestartBox.setSelected(true);
+        serviceRestartBox.setText(resourceMap.getString("serviceRestartBox.text")); // NOI18N
+        serviceRestartBox.setName("serviceRestartBox"); // NOI18N
 
         handlerBox.setText(resourceMap.getString("handlerBox.text")); // NOI18N
         handlerBox.setName("handlerBox"); // NOI18N
@@ -96,6 +92,14 @@ public class PersistenceOptionsDialog extends OptionsDialog {
         loginRestartBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 loginRestartBoxActionPerformed(evt);
+            }
+        });
+
+        anyLoginRestartBox.setText(resourceMap.getString("anyLoginRestartBox.text")); // NOI18N
+        anyLoginRestartBox.setName("anyLoginRestartBox"); // NOI18N
+        anyLoginRestartBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                anyLoginRestartBoxActionPerformed(evt);
             }
         });
 
@@ -117,17 +121,19 @@ public class PersistenceOptionsDialog extends OptionsDialog {
                                 .addComponent(portLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
-                                .addComponent(ipField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE)
-                                .addComponent(intervalField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 338, Short.MAX_VALUE))
+                                .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                                .addComponent(ipField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
+                                .addComponent(intervalField, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE))
                             .addContainerGap())
                         .addGroup(layout.createSequentialGroup()
                             .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
                                 .addComponent(handlerBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(autostartBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(serviceRestartBox, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                             .addComponent(loginRestartBox)
-                            .addContainerGap(177, Short.MAX_VALUE)))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(anyLoginRestartBox)
+                            .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -141,8 +147,9 @@ public class PersistenceOptionsDialog extends OptionsDialog {
                 .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(autostartBox)
-                    .addComponent(loginRestartBox))
+                    .addComponent(serviceRestartBox)
+                    .addComponent(loginRestartBox)
+                    .addComponent(anyLoginRestartBox))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(handlerBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -171,7 +178,9 @@ public class PersistenceOptionsDialog extends OptionsDialog {
 		StringBuilder cmd = new StringBuilder("persistence ");
 		if(handlerBox.isSelected())
 			cmd.append(" -A ");
-		if(autostartBox.isSelected())
+		if(serviceRestartBox.isSelected())
+			cmd.append(" -S ");
+		if(anyLoginRestartBox.isSelected())
 			cmd.append(" -X ");
 		if(loginRestartBox.isSelected())
 			cmd.append(" -U ");
@@ -187,18 +196,18 @@ public class PersistenceOptionsDialog extends OptionsDialog {
 		this.setVisible(false);
 	}//GEN-LAST:event_cancelButtonActionPerformed
 
-	private void autostartBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_autostartBoxActionPerformed
-		if(autostartBox.isSelected())
-			loginRestartBox.setSelected(false);
-	}//GEN-LAST:event_autostartBoxActionPerformed
-
 	private void loginRestartBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loginRestartBoxActionPerformed
 		if(loginRestartBox.isSelected())
-			autostartBox.setSelected(false);
+			anyLoginRestartBox.setSelected(false);
 	}//GEN-LAST:event_loginRestartBoxActionPerformed
 
+	private void anyLoginRestartBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_anyLoginRestartBoxActionPerformed
+		if(anyLoginRestartBox.isSelected())
+			loginRestartBox.setSelected(false);
+	}//GEN-LAST:event_anyLoginRestartBoxActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JCheckBox autostartBox;
+    private javax.swing.JCheckBox anyLoginRestartBox;
     private javax.swing.JButton cancelButton;
     private javax.swing.JCheckBox handlerBox;
     private javax.swing.JTextField intervalField;
@@ -210,6 +219,7 @@ public class PersistenceOptionsDialog extends OptionsDialog {
     private javax.swing.JButton okButton;
     private javax.swing.JTextField portField;
     private javax.swing.JLabel portLabel;
+    private javax.swing.JCheckBox serviceRestartBox;
     // End of variables declaration//GEN-END:variables
 
 }
