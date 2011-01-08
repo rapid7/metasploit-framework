@@ -12,8 +12,8 @@ class MsfTestCaseHelper
 	## This module consists of assert helper methods for regexing logs
 	##  Use it in conjunction with test/unit
 	
-	def initialize
-		@debug = false
+	def initialize(debug=false)
+		@debug = debug
 		@regexr = Regexr.new(@debug)
 	end
 	
