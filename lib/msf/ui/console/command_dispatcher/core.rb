@@ -153,6 +153,8 @@ class Core
 	end
 
 	def cmd_resource_tabs(str, words)
+		return [] if words.length > 1
+
 		tab_complete_filenames(str, words)
 	end
 	def cmd_resource(*args)
@@ -513,6 +515,8 @@ class Core
 		end
 	end
 	def cmd_help_tabs(str, words)
+		return [] if words.length > 1
+
 		return commands.keys
 	end
 
@@ -655,13 +659,15 @@ class Core
 	# Tab completion for the jobs command
 	#
 	def cmd_jobs_tabs(str, words)
-		if(not words[1])
-			return %w{-l -k -K -h -v}
+		if words.length == 1
+			return @@jobs_opts.fmt.keys
 		end
-		if (words[1] == '-k' and not words[2])
-			# XXX return the list of job values
+
+		if @@jobs_opts.fmt[words[1]][0] and (words.length == 2)
 			return framework.jobs.keys
 		end
+
+		[]
 	end
 
 	def cmd_kill(*args)
@@ -669,7 +675,8 @@ class Core
 	end
 
 	def cmd_kill_tabs(str, words)
-		return framework.jobs.keys if not words[1]
+		return [] if words.length > 1
+		framework.jobs.keys
 	end
 
 	#
@@ -782,12 +789,15 @@ class Core
 	# Tab completion for the threads command
 	#
 	def cmd_threads_tabs(str, words)
-		if(not words[1])
-			return %w{-l -k -K -h -v}
+		if words.length == 1
+			return @@threads_opts.fmt.keys
 		end
-		if (words[1] == '-k' and not words[2])
-			return framework.threads.each_index.map{|idx| idx}
+
+		if @@threads_opts.fmt[words[1]][0] and (words.length == 2)
+			return framework.threads.each_index.map{ |idx| idx.to_s }
 		end
+
+		[]
 	end
 
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
@@ -848,16 +858,16 @@ class Core
 	# Tab completion for the load command
 	#
 	def cmd_load_tabs(str, words)
-		if(not words[1] or not words[1].match(/^\//))
-			begin
-				return Dir.new(Msf::Config.plugin_directory).find_all { |e|
-					path = Msf::Config.plugin_directory + File::SEPARATOR + e
-					File.file?(path) and File.readable?(path)
-				}.map { |e|
-					e.sub!(/\.rb$/, '')
-				}
-			rescue Exception
-			end
+		return [] if words.length > 1
+
+		begin
+			return Dir.new(Msf::Config.plugin_directory).find_all { |e|
+				path = Msf::Config.plugin_directory + File::SEPARATOR + e
+				File.file?(path) and File.readable?(path)
+			}.map { |e|
+				e.sub!(/\.rb$/, '')
+			}
+		rescue Exception
 		end
 	end
 
@@ -911,9 +921,9 @@ class Core
 	# Tab completion for the persist command
 	#
 	def cmd_persist_tabs(str, words)
-		if (not words[1])
-			return %w{-s -r -h}
-		end
+		return [] if words.length > 1
+
+		@@persist_opts.fmt.keys
 	end
 
 	#
@@ -930,56 +940,57 @@ class Core
 		end
 
 		case args.shift
-			when "add"
-				if (args.length < 3)
-					print_error("Missing arguments to route add.")
-					return false
+
+		when "add"
+			if (args.length < 3)
+				print_error("Missing arguments to route add.")
+				return false
+			end
+
+			# Satisfy check to see that formatting is correct
+			unless Rex::Socket::RangeWalker.new(args[0]).length == 1
+				print_error "Invalid IP Address"
+				return false
+			end
+
+			unless Rex::Socket::RangeWalker.new(args[1]).length == 1
+				print_error "Invalid Subnet mask"
+				return false
+			end
+
+			gw = nil
+
+			# Satisfy case problems
+			args[2] = "Local" if (args[2] =~ /local/i)
+
+			begin
+				# If the supplied gateway is a global Comm, use it.
+				if (Rex::Socket::Comm.const_defined?(args[2]))
+					gw = Rex::Socket::Comm.const_get(args[2])
 				end
+			rescue NameError
+			end
 
-				# Satisfy check to see that formatting is correct
-				unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-					print_error "Invalid IP Address"
-					return false
-				end
+			# If we still don't have a gateway, check if it's a session.
+			if ((gw == nil) and
+					(session = framework.sessions.get(args[2])) and
+					(session.kind_of?(Msf::Session::Comm)))
+				gw = session
+			elsif (gw == nil)
+				print_error("Invalid gateway specified.")
+				return false
+			end
 
-				unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-					print_error "Invalid Subnet mask"
-					return false
-				end
+			Rex::Socket::SwitchBoard.add_route(
+				args[0],
+				args[1],
+				gw)
 
-				gw = nil
-
-				# Satisfy case problems
-				args[2] = "Local" if (args[2] =~ /local/i)
-
-				begin
-					# If the supplied gateway is a global Comm, use it.
-					if (Rex::Socket::Comm.const_defined?(args[2]))
-						gw = Rex::Socket::Comm.const_get(args[2])
-					end
-				rescue NameError
-				end
-
-				# If we still don't have a gateway, check if it's a session.
-				if ((gw == nil) and
-						(session = framework.sessions.get(args[2])) and
-						(session.kind_of?(Msf::Session::Comm)))
-					gw = session
-				elsif (gw == nil)
-					print_error("Invalid gateway specified.")
-					return false
-				end
-
-				Rex::Socket::SwitchBoard.add_route(
-					args[0],
-					args[1],
-					gw)
-			when "remove"
-				if (args.length < 3)
-					print_error("Missing arguments to route remove.")
-					return false
-				end
-
+		when "remove"
+			if (args.length < 3)
+				print_error("Missing arguments to route remove.")
+				return false
+			end
 
 			# Satisfy check to see that formatting is correct
 			unless Rex::Socket::RangeWalker.new(args[0]).length == 1
@@ -1019,6 +1030,7 @@ class Core
 				args[0],
 				args[1],
 				gw)
+
 		when "get"
 			if (args.length == 0)
 				print_error("You must supply an IP address.")
@@ -1033,8 +1045,11 @@ class Core
 			else
 				print_line("#{args[0]} routes through: Local")
 			end
+
+
 		when "flush"
 			Rex::Socket::SwitchBoard.flush_routes
+
 		when "print"
 			tbl =	Table.new(
 				Table::Style::Default,
@@ -1074,9 +1089,16 @@ class Core
 	# Tab completion for the route command
 	#
 	def cmd_route_tabs(str, words)
-		if (not words[1])
+		if words.length == 1
 			return %w{add remove get flush print}
 		end
+
+		# The "add" and "remove" options take 3+ args,
+		# but we can't really complete them well.
+
+		# The "get" command takes one arg, but we can't complete it either...
+
+		[]
 	end
 
 	#
@@ -1149,6 +1171,11 @@ class Core
 	end
 
 	def cmd_loadpath_tabs(str, words)
+		return [] if words.length > 1
+
+		# This custom completion might better than Readline's... We'll leave it for now.
+		#tab_complete_filenames(str,words)
+
 		paths = []
 		if (File.directory?(str))
 			paths = Dir.entries(str)
@@ -1249,14 +1276,18 @@ class Core
 	end
 
 	def cmd_search_tabs(str, words)
+		if words.length == 1
+			return @@search_opts.fmt.keys
+		end
+
 		case (words[-1])
 		when "-r"
 			return RankingName.sort.map{|r| r[1]}
 		when "-t"
 			return %w{auxiliary encoder exploit nop payload}
-		else
-			return ["-h", "-r", "-t"]
 		end
+
+		[]
 	end
 
 	#
@@ -1518,9 +1549,23 @@ class Core
 	# Tab completion for the sessions command
 	#
 	def cmd_sessions_tabs(str, words)
-		if (not words[1])
+		if words.length == 1
 			return @@sessions_opts.fmt.keys
 		end
+
+		case words[-1]
+		when "-i", "-k", "-d", "-u"
+			return framework.sessions.keys.map { |k| k.to_s }
+
+		when "-c"
+			# Can't really complete commands hehe
+
+		when "-s"
+			# XXX: Complete scripts
+
+		end
+
+		[]
 	end
 
 	#
@@ -1606,12 +1651,10 @@ class Core
 	def cmd_set_tabs(str, words)
 
 		# A value has already been specified
-		if (words[2])
-			return nil
-		end
+		return [] if words.length > 2
 
 		# A value needs to be specified
-		if(words[1])
+		if words.length == 2
 			return tab_complete_option(str, words)
 		end
 
@@ -1678,7 +1721,7 @@ class Core
 	# Tab completion for the setg command
 	#
 	def cmd_setg_tabs(str, words)
-		res = cmd_set_tabs(str, words) || [ ]
+		cmd_set_tabs(str, words)
 	end
 
 	#
@@ -1780,6 +1823,8 @@ class Core
 	# Tab completion for the show command
 	#
 	def cmd_show_tabs(str, words)
+		return [] if words.length > 1
+
 		res = %w{all encoders nops exploits payloads auxiliary post plugins options}
 		if (active_module)
 			res.concat(%w{ advanced evasion targets actions })
@@ -1817,6 +1862,8 @@ class Core
 	# Tab completion for the unload command
 	#
 	def cmd_unload_tabs(str, words)
+		return [] if words.length > 1
+
 		tabs = []
 		framework.plugins.each { |k| tabs.push(k.name) }
 		return tabs
@@ -1980,6 +2027,7 @@ class Core
 	#
 	def cmd_use_tabs(str, words)
 		res = []
+		return res if words.length > 1
 
 		framework.modules.module_types.each do |mtyp|
 			mset = framework.modules.module_names(mtyp)
