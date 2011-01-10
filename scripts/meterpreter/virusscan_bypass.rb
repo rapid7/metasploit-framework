@@ -12,7 +12,7 @@ session = client
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu." ],
 	"-k" => [ false,"Only kills VirusScan processes"],
-	"-e" => [ true,"Executable to upload to target host. (modifies registry and exclusion list)" ],
+	"-e" => [ true,"Executable to upload to target host. (modifies registry and exclusion list)" ]
 )
 
 ################## function declaration Declarations ##################
