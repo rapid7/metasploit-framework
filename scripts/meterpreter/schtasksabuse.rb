@@ -147,8 +147,7 @@ end
 
 }
 
-platform = client.platform.scan(/(win32|win64)/)
-unsupported if not platform
+unsupported if client.platfom !~ /win32|win64/i
 print_status("Meterpreter session running as #{session.sys.config.getuid}")
 if help == 0 && commands.length != 0
 	abuse(session,targets,commands,username,password,delay)

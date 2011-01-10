@@ -35,8 +35,7 @@ def unsupported
 	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
 end
-platform = client.platform.scan(/(win32|win64)/)
-unsupported if not platform
+unsupported if client.platfom !~ /win32|win64/i
 os = client.sys.config.sysinfo['OS']
 
 targets.each do |t|

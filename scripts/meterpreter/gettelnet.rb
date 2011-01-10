@@ -149,8 +149,8 @@ enbl = nil
 	end
 
 }
-platform = client.platform.scan(/(win32|win64)/)
-unsupported if not platform
+
+unsupported if client.platfom !~ /win32|win64/i
 
 if enbl
 	message

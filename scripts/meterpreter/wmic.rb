@@ -126,8 +126,7 @@ end
 		raise RuntimeError, "Empty command list"
 	end
 }
-platform = client.platform.scan(/(win32|win64)/)
-unsupported if not platform
+unsupported if client.platfom !~ /win32|win64/i
 
 if outfile == nil
 	print_status wmicexec(session,commands)

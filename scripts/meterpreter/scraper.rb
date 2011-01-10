@@ -72,8 +72,7 @@ logs = ::File.join(Msf::Config.log_directory, 'scripts','scraper', host + "_" + 
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
-platform = client.platform.scan(/(win32|win64|php)/)
-unsupported if not platform
+unsupported if client.platfom !~ /win32|win64/i
 begin
 
 	tmp = client.fs.file.expand_path("%TEMP%")
