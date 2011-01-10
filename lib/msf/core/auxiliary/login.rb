@@ -81,15 +81,15 @@ module Auxiliary::Login
 		data = ''
 
 		begin
-		data = fd.get_once(-1, timeout.to_i)
-		return nil if not data or data.length == 0
+			data = fd.get_once(-1, timeout)
+			return nil if not data or data.length == 0
 
-		# combine EOL into "\n"
-		data.gsub!(/#{EOL}/no, "\n")
+			# combine EOL into "\n"
+			data.gsub!(/#{EOL}/no, "\n")
 
-		@trace << data
-		@recvd << data
-		fd.flush
+			@trace << data
+			@recvd << data
+			fd.flush
 
 		rescue ::EOFError, ::Errno::EPIPE
 		end
