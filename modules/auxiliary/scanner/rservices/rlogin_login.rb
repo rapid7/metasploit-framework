@@ -275,7 +275,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Allow for slow echos
 			1.upto(10) do
-				recv(self.sock, 0.10) if @recvd == recvd_sample
+				recv(self.sock, 0.10)
+				break if login_succeeded?
 			end
 
 			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
