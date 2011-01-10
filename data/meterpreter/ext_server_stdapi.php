@@ -150,6 +150,14 @@ define("TLV_TYPE_EVENT_DATA",          TLV_META_TYPE_RAW     | 4013);
 define("TLV_TYPE_POWER_FLAGS",         TLV_META_TYPE_UINT    | 4100);
 define("TLV_TYPE_POWER_REASON",        TLV_META_TYPE_UINT    | 4101);
 
+##
+# Errors
+##
+
+# Special return value to match up with Windows error codes for network
+# errors.
+define("ERROR_CONNECTION_ERROR", 10000);
+
 # Wrap everything in checks for existence of the new functions in case we get
 # eval'd twice
 my_print("Evaling stdapi");
@@ -888,7 +896,7 @@ function channel_create_stdapi_net_tcp_client($req, &$pkt) {
     }
 
     if (!$sock) {
-        return ERROR_FAILURE;
+        return ERROR_CONNECTION_ERROR;
     }
 
     #
@@ -919,7 +927,7 @@ function channel_create_stdapi_net_udp_client($req, &$pkt) {
     my_print("UDP channel on {$sock}");
 
     if (!$sock) {
-        return ERROR_FAILURE;
+        return ERROR_CONNECTION_ERROR;
     }
 
     #
