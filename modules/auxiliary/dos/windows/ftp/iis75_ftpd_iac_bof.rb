@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft IIS FTP Server Encoded Response Overflow',
+			'Name'           => 'Microsoft IIS FTP Server Encoded Response Overflow Trigger',
 			'Description'    => %q{
 					This module triggers a heap overflow when processing a specially crafted
 				FTP request containing Telnet IAC (0xff) bytes. When constructing the response,
@@ -73,6 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(buf)
 
 		disconnect
+	rescue ::Rex::ConnectionError
 	end
 
 end
