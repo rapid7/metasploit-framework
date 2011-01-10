@@ -179,6 +179,8 @@ class Plugin::XMLRPC < Msf::Plugin
 	#
 	attr_accessor :server
 	attr_accessor :thread
+	attr_accessor :users
+	attr_accessor :tokens
 
 end
 
