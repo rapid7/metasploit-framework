@@ -26,6 +26,21 @@ class Console::CommandDispatcher::Core
 		self.extensions = []
 		self.bgjobs     = []
 		self.bgjob_id   = 0
+
+		@msf_loaded = nil
+	end
+
+	def msf_loaded?
+		return @msf_loaded unless @msf_loaded.nil?
+		# if we get here we must not have initialized yet
+
+		if client.framework
+			# We have a framework instance so the msf libraries should be
+			# available.  Load up the ones we're going to use
+			require 'msf/base/serializer/readable_text'
+		end
+		@msf_loaded = !!(client.framework)
+		@msf_loaded
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(
@@ -36,7 +51,7 @@ class Console::CommandDispatcher::Core
 	# List of supported commands.
 	#
 	def commands
-		{
+		c = {
 			"?"          => "Help menu",
 			"background" => "Backgrounds the current session",
 			"close"      => "Closes a channel",
@@ -49,12 +64,17 @@ class Console::CommandDispatcher::Core
 			"use"        => "Load a one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
 			"read"       => "Reads data from a channel",
-			"run"        => "Executes a meterpreter script",
+			"run"        => "Executes a meterpreter script or Post module",
 			"bgrun"      => "Executes a meterpreter script as a background thread",
 			"bgkill"     => "Kills a background meterpreter script",
 			"bglist"     => "Lists running background scripts",
 			"write"      => "Writes data to a channel",
 		}
+		if (msf_loaded?)
+			c["info"] = "Displays information about a Post module"
+		end
+
+		c
 	end
 
 	#
@@ -348,7 +368,7 @@ class Console::CommandDispatcher::Core
 			# First try it as a Post module if we have access to the Metasploit
 			# Framework instance.  If we don't, or if no such module exists,
 			# fall back to using the scripting interface.
-			if (client.framework and mod = client.framework.modules.create(script_name))
+			if (msf_loaded? and mod = client.framework.modules.create(script_name))
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
 				mod.run_simple(
 					#'RunAsJob' => true,
@@ -371,18 +391,8 @@ class Console::CommandDispatcher::Core
 		tabs = []
 		if(not words[1] or not words[1].match(/^\//))
 			begin
-				if (client.framework)
-					# XXX This might get slow with a large number of post
-					# modules.  The proper solution is probably to implement a
-					# Module::Post#session_compatible?(session_object_or_int) method
-					tabs += client.framework.modules.post.map { |name,klass|
-						mod = klass.new
-						if mod.compatible_sessions.include?(client.sid)
-							mod.fullname.dup
-						else
-							nil
-						end
-					}.compact
+				if (msf_loaded?)
+					tabs += tab_complete_postmods
 				end
 				[
 					::Msf::Sessions::Meterpreter::ScriptBase,
@@ -470,6 +480,25 @@ class Console::CommandDispatcher::Core
 				print_status("Job #{jid}: #{self.bgjobs[jid][:args].inspect}")
 			end
 		end
+	end
+
+	#
+	# Show info for a given Post module.  
+	#
+	# See also +cmd_info+ in lib/msf/ui/console/command_dispatcher/core.rb
+	#
+	def cmd_info(*args)
+		return unless msf_loaded?
+
+		mod = client.framework.modules.create(args.shift)
+		if (mod)
+			print ::Msf::Serializer::ReadableText.dump_module(mod)
+		end
+	end
+
+	def cmd_info_tabs(*args)
+		return unless msf_loaded?
+		tab_complete_postmods
 	end
 
 	#
@@ -618,6 +647,24 @@ protected
 		# Insert the module into the list of extensions
 		self.extensions << mod
 	end
+
+	def tab_complete_postmods
+		# XXX This might get slow with a large number of post
+		# modules.  The proper solution is probably to implement a
+		# Module::Post#session_compatible?(session_object_or_int) method
+		tabs = client.framework.modules.post.map { |name,klass|
+			mod = klass.new
+			if mod.compatible_sessions.include?(client.sid)
+				mod.fullname.dup
+			else
+				nil
+			end
+		}
+
+		# nils confuse readline
+		tabs.compact
+	end
+
 end
 
 end
