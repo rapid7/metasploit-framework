@@ -8,6 +8,12 @@ if (!isset($GLOBALS['channels'])) {
     $GLOBALS['channels'] = array();
 }
 
+# global mapping of channels to channelized processes.  This is how we know
+# if we need to kill a process when it's channel has been closed.
+if (!isset($GLOBALS['channel_process_map'])) {
+    $GLOBALS['channel_process_map'] = array();
+}
+
 # global resource map.  This is how we know whether to use socket or stream
 # functions on a channel.
 if (!isset($GLOBALS['resource_type_map'])) {
@@ -204,7 +210,7 @@ function core_channel_eof($req, &$pkt) {
 
 # Works
 function core_channel_read($req, &$pkt) {
-    my_print("doing channel read");
+    #my_print("doing channel read");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $len_tlv = packet_get_tlv($req, TLV_TYPE_LENGTH);
     $id = $chan_tlv['value'];
@@ -221,7 +227,7 @@ function core_channel_read($req, &$pkt) {
 
 # Works
 function core_channel_write($req, &$pkt) {
-    my_print("doing channel write");
+    #my_print("doing channel write");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $data_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_DATA);
     $len_tlv = packet_get_tlv($req, TLV_TYPE_LENGTH);
@@ -239,7 +245,7 @@ function core_channel_write($req, &$pkt) {
 }
 
 function core_channel_close($req, &$pkt) {
-    global $processes;
+    global $channel_process_map;
     # XXX remove the closed channel from $readers
     my_print("doing channel close");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
@@ -254,9 +260,10 @@ function core_channel_close($req, &$pkt) {
                 close($c[$i]);
             }
         }
-        if (array_key_exists($id, $processes)) {
-            @proc_close($processes[$id]);
-            unset($processes[$id]);
+        # Make sure the stdapi function for closing a process handle is
+        # available before trying to clean up
+        if (array_key_exists($id, $channel_process_map) and is_callable('close_process')) {
+            close_process($channel_process_map[$id]);
         }
         return ERROR_SUCCESS;
     }
@@ -299,12 +306,17 @@ function core_channel_interact($req, &$pkt) {
                 remove_reader($c[2]); # stderr
                 $ret = ERROR_SUCCESS;
             } else {
-                # Not interacting
-                $ret = ERROR_FAILURE;
+                # Not interacting.  This is technically failure, but it seems
+                # the client sends us two of these requests in quick succession
+                # causing the second one to always return failure.  When that
+                # happens we fail to clean up properly, so always return
+                # success here.
+                $ret = ERROR_SUCCESS;
             }
         }
     } else {
         # Not a valid channel
+        my_print("Trying to interact with an invalid channel");
         $ret = ERROR_FAILURE;
     }
     return $ret;
@@ -794,10 +806,11 @@ function remove_reader($resource) {
 
 ob_implicit_flush();
 
+# For debugging
+#error_reporting(E_ALL);
 # Turn off error reporting so we don't leave any ugly logs.  Why make an
 # administrator's job easier if we don't have to?  =)
 error_reporting(0);
-#error_reporting(E_ALL);
 
 @ignore_user_abort(true);
 # Has no effect in safe mode, but try anyway
@@ -866,9 +879,9 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
 
             write($msgsock, $response);
         } else {
-            my_print("not Msgsock: $ready");
+            #my_print("not Msgsock: $ready");
             $data = read($ready);
-            my_print(sprintf("Read returned %s bytes", strlen($data)));
+            #my_print(sprintf("Read returned %s bytes", strlen($data)));
             if (false === $data) {
                 $request = handle_dead_resource_channel($ready);
                 write($msgsock, $request);
@@ -877,7 +890,7 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
                 remove_reader($ready);
             } else {
                 $request = handle_resource_read_channel($ready, $data);
-                my_print("Got some data from a channel that needs to be passed back to the msgsock");
+                #my_print("Got some data from a channel that needs to be passed back to the msgsock");
                 write($msgsock, $request);
             }
         }

