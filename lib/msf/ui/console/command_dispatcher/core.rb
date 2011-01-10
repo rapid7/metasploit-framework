@@ -2317,7 +2317,7 @@ protected
 
 	def show_options(mod) # :nodoc:
 		mod_opt = Serializer::ReadableText.dump_options(mod, '   ')
-		print("\nModule options:\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
+		print("\nModule options (#{mod.fullname}):\n\n#{mod_opt}\n") if (mod_opt and mod_opt.length > 0)
 
 		# If it's an exploit and a payload is defined, create it and
 		# display the payload's options
