@@ -1585,6 +1585,11 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				WebcamFrame.showWebcam(rpcConn,session,sessionWindowMap);
 			}
 		});
+		addScript("Record Microphone",monitorMenu,new Object(){
+			public String toString(){
+				return "sound_recorder.rb "+JOptionPane.showInputDialog(getFrame(), "Number of 30 second intervals to record","20");
+			}
+		});
 
 		JMenu escalateMenu = new JMenu("Privilege escalation");
 		meterpreterPopupMenu.add(escalateMenu);
