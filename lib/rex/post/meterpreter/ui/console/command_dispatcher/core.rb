@@ -595,11 +595,11 @@ class Console::CommandDispatcher::Core
 		if (commands.include?(words[0]))
 			if (self.respond_to?('cmd_'+words[0]+'_tabs'))
 				res = self.send('cmd_'+words[0]+'_tabs', str, words)
-				return nil if res.nil?
+				return [] if res.nil?
 				items.concat(res)
 			else
 				# Avoid the default completion list for known commands
-				return nil
+				return []
 			end
 		end
 
