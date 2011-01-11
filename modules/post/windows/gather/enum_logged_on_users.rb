@@ -35,9 +35,9 @@ class Metasploit3 < Msf::Post
 
 
 	def ls_logged
-        sids = []
-        sids << registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
-        tbl = Rex::Ui::Text::Table.new(
+		sids = []
+		sids << registry_enumkeys("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList")
+		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
 				"SID",
 				"Profile Path"
 			])
-        sids.flatten.each do |sid|
+		sids.flatten.each do |sid|
 			profile_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{sid}","ProfileImagePath")
 			tbl << [sid,profile_path]
         end
@@ -53,8 +53,8 @@ class Metasploit3 < Msf::Post
 	end
 
 	def ls_current
-        key_base, username = "",""
-        tbl = Rex::Ui::Text::Table.new(
+		key_base, username = "",""
+		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Current Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
