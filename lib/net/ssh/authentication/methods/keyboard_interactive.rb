@@ -8,7 +8,7 @@ module Net
 
         # Implements the "keyboard-interactive" SSH authentication method.
         class KeyboardInteractive < Abstract
-          include Prompt
+          include Prompt # Or not - Prompt depends on stdin/stdout ATM. -todb
 
           USERAUTH_INFO_REQUEST  = 60
           USERAUTH_INFO_RESPONSE = 61
@@ -44,7 +44,9 @@ module Net
                 message.read_long.times do
                   text = message.read_string
                   echo = message.read_bool
-                  responses << (password || prompt(text, echo))
+                  responses << (password || "")
+				  # Avoid actually prompting.
+                  # responses << (password || prompt(text, echo))
                 end
 
                 # if the password failed the first time around, don't try
