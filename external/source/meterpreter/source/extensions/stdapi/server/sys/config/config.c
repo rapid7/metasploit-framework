@@ -381,8 +381,10 @@ DWORD request_sys_config_sysinfo(Remote *remote, Packet *packet)
 		if (!osName)
 			osName = "Unknown";
 		
-		_snprintf(buf, sizeof(buf) - 1, "%s (Build %lu, %s).", osName, 
-				v.dwBuildNumber, v.szCSDVersion, osArch, osWow );
+		if( strlen( v.szCSDVersion ) > 0 )
+			_snprintf(buf, sizeof(buf) - 1, "%s (Build %lu, %s).", osName, v.dwBuildNumber, v.szCSDVersion );
+		else
+			_snprintf(buf, sizeof(buf) - 1, "%s (Build %lu).", osName, v.dwBuildNumber );
 
 		packet_add_tlv_string(response, TLV_TYPE_OS_NAME, buf);
 
