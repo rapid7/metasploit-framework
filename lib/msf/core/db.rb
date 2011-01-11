@@ -2189,10 +2189,6 @@ class DBManager
 		# Not sure what form that will take, but people like shoving many hundreds of
 		# thousands of packets through this thing, so it'll need to be memory efficient.
 
-		if seen_hosts.empty?
-			raise DBImportError.new("No valid Ethernet IP traffic detected in '#{args[:filename]}'")
-		end
-
 	end
 
 	# Do all the single packet analysis we can while churning through the pcap
