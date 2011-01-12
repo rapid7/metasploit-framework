@@ -41,29 +41,30 @@ class Metasploit3 < Msf::Post
 			])
 		appkeys = ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
 			'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' ]
-		threadnum = 0
-		a = []
+		apps = []
 		appkeys.each do |keyx86|
-
-			registry_enumkeys(keyx86).each do |k|
-				if threadnum < 10
-					a.push(::Thread.new {
-							begin
-								dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
-								dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
-								tbl << [dispnm,dispversion]
-							rescue
-							end
-						})
-					threadnum += 1
-				else
-					sleep(0.5) and a.delete_if {|x| not x.alive?} while not a.empty?
-					threadnum = 0
-				end
+			registry_enumkeys(keyx86).each do |ak|
+				apps << keyx86 +"\\" + ak
 			end
-
-
 		end
+
+		t = []
+		while(not apps.empty?)
+			
+			1.upto(16) do
+				t << framework.threads.spawn("Module(#{self.refname})", false, apps.shift) do |k|
+					begin
+						dispnm = registry_getvaldata("#{k}","DisplayName")
+						dispversion = registry_getvaldata("#{k}","DisplayVersion")
+						tbl << [dispnm,dispversion]
+					rescue
+					end
+				end
+
+			end
+			t.map{|x| x.join }
+		end
+		
 		print_line("\n" + tbl.to_s + "\n")
 	end
 
