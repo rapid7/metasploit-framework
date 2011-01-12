@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Post
 
 		end
 	end
-        #-----------------------------------------------------------------------
+	#-----------------------------------------------------------------------
 	# Run Method
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
