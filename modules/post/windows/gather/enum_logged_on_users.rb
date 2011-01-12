@@ -41,15 +41,15 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
-				[
+			  [
 				"SID",
 				"Profile Path"
 			])
 		sids.flatten.each do |sid|
 			profile_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{sid}","ProfileImagePath")
 			tbl << [sid,profile_path]
-        end
-        print_line("\n" + tbl.to_s + "\n")
+		end
+		print_line("\n" + tbl.to_s + "\n")
 	end
 
 	def ls_current
@@ -58,11 +58,11 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Current Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
-				[
+			  [
 				"SID",
 				"User"
 			])
-        registry_enumkeys("HKU").each do |sid|
+		registry_enumkeys("HKU").each do |sid|
 			case sid
 			when "S-1-5-18"
 				username = "SYSTEM"
@@ -86,8 +86,8 @@ class Metasploit3 < Msf::Post
 					tbl << [sid,username]
 				end
 			end
-        end
-        print_line("\n" + tbl.to_s + "\n")
+		end
+		print_line("\n" + tbl.to_s + "\n")
 	end
 
 
