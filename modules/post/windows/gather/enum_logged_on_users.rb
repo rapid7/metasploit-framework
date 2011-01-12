@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"SID",
 				"Profile Path"
 			])
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Current Logged Users",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"SID",
 				"User"
 			])
