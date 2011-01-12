@@ -148,20 +148,22 @@ module DispatcherShell
 		
 			# If no command is set and it supports commands, add them all
 			if (tab_words.empty? and dispatcher.respond_to?('commands'))
-				items.concat(dispatcher.commands.to_a.map { |x| x[0] })
+				items.concat(dispatcher.commands.keys)
 			end
 
 			# If the dispatcher exports a tab completion function, use it
 			if(dispatcher.respond_to?('tab_complete_helper'))
 				res = dispatcher.tab_complete_helper(str, tab_words)
+			else
+				res = tab_complete_helper(dispatcher, str, tab_words)
+			end
 
-				if (res.nil?)
-					# A nil response indicates no optional arguments
-					return [''] if items.empty?
-				else
-					# Otherwise we add the completion items to the list
-					items.concat(res)
-				end
+			if (res.nil?)
+				# A nil response indicates no optional arguments
+				return [''] if items.empty?
+			else
+				# Otherwise we add the completion items to the list
+				items.concat(res)
 			end
 		}
 
@@ -182,6 +184,44 @@ module DispatcherShell
 		}.map { |e| 
 			tab_words.dup.push(e).join(' ')
 		}
+	end
+
+	#
+	# Provide command-specific tab completion
+	#
+	def tab_complete_helper(dispatcher, str, words)
+		items = []
+
+		tabs_meth = "cmd_#{words[0]}_tabs"
+		# Is the user trying to tab complete one of our commands?
+		if (dispatcher.commands.include?(words[0]) and dispatcher.respond_to?(tabs_meth))
+			res = dispatcher.send(tabs_meth, str, words)
+			return [] if res.nil?
+			items.concat(res)
+			regexp = /^#{Regexp.quote(str)}/
+			items.select! { |i| i =~ regexp  }
+		else
+			# Avoid the default completion list for known commands
+			return []
+		end
+
+		return items
+	end
+
+	#
+	# Provide a generic tab completion for file names.
+	#
+	# If the only completion is a directory, this descends into that directory
+	# and continues completions with filenames contained within.
+	#
+	def tab_complete_filenames(str, words)
+		matches = ::Readline::FILENAME_COMPLETION_PROC.call(str)
+		if matches and matches.length == 1 and File.directory?(matches[0])
+			dir = matches[0]
+			dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
+			matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir) 
+		end
+		matches
 	end
 
 	#

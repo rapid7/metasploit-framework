@@ -79,43 +79,6 @@ module CommandDispatcher
 	end
 
 	#
-	# Provide command-specific tab completion
-	#
-	def tab_complete_helper(str, words)
-		items = []
-
-		# Is the user trying to tab complete one of our commands?
-		if (commands.include?(words[0]))
-			if (self.respond_to?('cmd_'+words[0]+'_tabs')) 
-				res = self.send('cmd_'+words[0]+'_tabs', str, words)
-				return [] if res.nil?
-				items.concat(res)
-			else
-				# Avoid the default completion list for known commands
-				return []
-			end
-		end
-
-		return items
-	end
-		
-	#
-	# Provide a generic tab completion for file names.
-	#
-	# If the only completion is a directory, this descends into that directory
-	# and continues completions with filenames contained within.
-	#
-	def tab_complete_filenames(str, words)
-		matches = ::Readline::FILENAME_COMPLETION_PROC.call(str)
-		if matches and matches.length == 1 and File.directory?(matches[0])
-			dir = matches[0]
-			dir += File::SEPARATOR if dir[-1,1] != File::SEPARATOR
-			matches = ::Readline::FILENAME_COMPLETION_PROC.call(dir) 
-		end
-		matches
-	end
-
-	#
 	# The driver that this command dispatcher is associated with.
 	#
 	attr_accessor :driver

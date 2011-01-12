@@ -583,29 +583,6 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
-	#
-	# Provide command-specific tab completion
-	# Stolen directly from msf/ui/console/command_dispatcher/core.rb
-	# perhaps this should be moved into rex/ui/text/dispatcher_shell.rb ?
-	#
-	def tab_complete_helper(str, words)
-		items = []
-
-		# Is the user trying to tab complete one of our commands?
-		if (commands.include?(words[0]))
-			if (self.respond_to?('cmd_'+words[0]+'_tabs'))
-				res = self.send('cmd_'+words[0]+'_tabs', str, words)
-				return [] if res.nil?
-				items.concat(res)
-			else
-				# Avoid the default completion list for known commands
-				return []
-			end
-		end
-
-		return items
-	end
-
 protected
 
 	attr_accessor :extensions # :nodoc:
