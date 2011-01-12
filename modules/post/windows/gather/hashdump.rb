@@ -11,7 +11,7 @@
 
 require 'msf/core'
 require 'rex'
-require 'msf/core/post/registry'
+require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
