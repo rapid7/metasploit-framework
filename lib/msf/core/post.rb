@@ -74,7 +74,7 @@ class Post < Msf::Module
 	end
 
 	#
-	# Default stance is passive
+	# Default stance is active
 	#
 	def passive
 		false
