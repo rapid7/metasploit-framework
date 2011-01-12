@@ -1,4 +1,4 @@
-require 'msf/core/post/registry'
+require 'msf/core/post/windows/registry'
 
 module Msf
 module Scripts
