@@ -1,10 +1,13 @@
-#
-# $Id$ ##
+##
+# $Id$
+##
 
-# ## This file is part of the Metasploit Framework and may be subject to
+##
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/ ##
+# http://metasploit.com/framework/
+##
 
 require 'msf/core'
 require 'rex'
@@ -28,7 +31,6 @@ class Metasploit3 < Msf::Post
 			[
 				OptBool.new('CURRENT', [ true, 'Enumerate currently logged on users', true]),
 				OptBool.new('RECENT' , [ true, 'Enumerate Recently logged on users' , true])
-
 			], self.class)
 
 	end
