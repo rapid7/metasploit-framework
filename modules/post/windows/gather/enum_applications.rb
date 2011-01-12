@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Installed Applications",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Name",
 				"Version"
 			])
