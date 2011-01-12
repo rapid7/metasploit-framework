@@ -133,7 +133,7 @@ class Post
 					print(
 						"Usage: run [options]\n\n" +
 						"Launches a post module.\n" +
-						@@auxiliary_opts.usage)
+						@@post_opts.usage)
 					return false
 			end
 		}
