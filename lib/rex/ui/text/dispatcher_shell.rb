@@ -198,8 +198,6 @@ module DispatcherShell
 			res = dispatcher.send(tabs_meth, str, words)
 			return [] if res.nil?
 			items.concat(res)
-			regexp = /^#{Regexp.quote(str)}/
-			items = items.select { |i| i =~ regexp  }
 		else
 			# Avoid the default completion list for known commands
 			return []
