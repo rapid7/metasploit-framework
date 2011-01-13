@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Schelevator',
 			'Description'   => %q{
 					This module exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet.
-				When processing task files, the Windows Task Scheduler only uses a CRC32 
+				When processing task files, the Windows Task Scheduler only uses a CRC32
 				checksum to validate that the file has not been tampered with. Also, In a default
 				configuration, normal users can read and write the task files that they have
 				created. By modifying the task file and creating a CRC32 collision, an attacker
