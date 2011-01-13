@@ -428,6 +428,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 		return true
 	end
 
+	def cmd_upload_tabs(str, words)
+		return [] if words.length > 1
+
+		tab_complete_filenames(str, words)
+	end
+
 end
 
 end
