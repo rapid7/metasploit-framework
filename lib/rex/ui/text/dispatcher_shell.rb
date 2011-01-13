@@ -199,7 +199,7 @@ module DispatcherShell
 			return [] if res.nil?
 			items.concat(res)
 			regexp = /^#{Regexp.quote(str)}/
-			items.select! { |i| i =~ regexp  }
+			items = items.select { |i| i =~ regexp  }
 		else
 			# Avoid the default completion list for known commands
 			return []
