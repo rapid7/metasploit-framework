@@ -13,7 +13,7 @@ while File.symlink?(msfbase)
 end
 
 if RUBY_PLATFORM =~ /mswin|mingw/i
-	exec "javaw -jar #{File.dirname(msfbase)}/data/armitage/armitage.jar"
+	exec "javaw", "-jar", "#{File.dirname(msfbase)}/data/armitage/armitage.jar", *ARGV
 else
-	exec "java -jar #{File.dirname(msfbase)}/data/armitage/armitage.jar"
+	exec "java", "-jar", "#{File.dirname(msfbase)}/data/armitage/armitage.jar", *ARGV
 end
