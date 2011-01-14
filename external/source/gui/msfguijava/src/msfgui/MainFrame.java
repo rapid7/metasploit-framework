@@ -1556,7 +1556,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		});
 		addSessionItem("Console",meterpreterPopupMenu,null);
 		addScript("Get hashes",meterpreterPopupMenu,
-				"multi_console_command -cl \"use priv\",\"getsystem\",\"run hashdump.rb\"");
+				"multi_console_command -cl \"use priv\",\"getsystem\",\"run post/windows/gather/hashdump\"");
 		final MainFrame mf = this;
 		addSessionItem("Route through this session",meterpreterPopupMenu,new AutorouteOptionsDialog(mf, true));
 		addScript("Schedule command",meterpreterPopupMenu,new ScheduleTaskOptionsDialog(getFrame()));
@@ -1577,7 +1577,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 		JMenu monitorMenu = new JMenu("Monitor");
 		meterpreterPopupMenu.add(monitorMenu);
-		addScript("Start keylogger",monitorMenu,"keylogrecorder");
+		addScript("Start keylogger",monitorMenu,"post/windows/capture/keylog_recorder");
 		addScript("Start packet recorder",monitorMenu,"packetrecorder");
 		addScript("Screenshot",monitorMenu,"multi_console_command -cl \"screenshot\"");
 		addSessionItem("View webcam",monitorMenu,new RpcAction(this) {
@@ -1593,16 +1593,15 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 		JMenu escalateMenu = new JMenu("Privilege escalation");
 		meterpreterPopupMenu.add(escalateMenu);
-		addSessionItem("Find and exploit a weak service permissions vulnerability",escalateMenu,
+		addScript("Bypass UAC", escalateMenu, "post/windows/escalate/bypassuac");
+		addScript("Getsystem via windows API or KiTrap0D exploit",escalateMenu,
+				"multi_console_command -cl \"use priv\",\"getsystem\"");
+		addSessionItem("Find and exploit weak service permissions",escalateMenu,
 				"service_permissions_escalate");
-		addSessionItem("Start system session with task scheduler vulnerability",escalateMenu,"schelevator");
-		addSessionItem("Start system session with HP PML Driver permission vulnerability",escalateMenu,
-				"pml_driver_config");
-		addSessionItem("Start system session with Panda Antivirus permission vulnerability",escalateMenu,
-				"panda_2007_pavsrv51");
-		addSessionItem("Start system session with SRT WebDrive permission vulnerability",escalateMenu,
-				"srt_webdrive_priv");
-		addScript("Get system privs",escalateMenu,"multi_console_command -cl \"use priv\",\"getsystem\"");
+		addSessionItem("MS10-092 task scheduler",escalateMenu,"post/windows/escalate/schelevator");
+		addSessionItem("HP PML Driver permissions",escalateMenu,"pml_driver_config");
+		addSessionItem("Panda Antivirus permissions",escalateMenu,"panda_2007_pavsrv51");
+		addSessionItem("SRT WebDrive permissions",escalateMenu,"srt_webdrive_priv");
 		addSessionItem("Brute force user/pass",escalateMenu,new WinbfOptionsDialog(getFrame()));
 
 		JMenu accessMenu = new JMenu("Maintaining access");
@@ -1632,17 +1631,18 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 		JMenu infoPopupMenu = new JMenu("System Information");
 		meterpreterPopupMenu.add(infoPopupMenu);
-		addSessionItem("Check if in VM",infoPopupMenu,"checkvm");
+		addSessionItem("Check if in VM",infoPopupMenu,"post/windows/gather/checkvm");
 		addSessionItem("VMWare configurations",infoPopupMenu,"enum_vmware");
-		addSessionItem("Past and current logged on users", infoPopupMenu, "enum_logged_on_users -l -c");
+		addSessionItem("Past and current logged on users", infoPopupMenu, "post/windows/gather/enum_logged_on_users");
 		addSessionItem("Domain admins",infoPopupMenu,"domain_list_gen");
 		addSessionItem("Recent documents",infoPopupMenu,"dumplinks -e");
 		addSessionItem("Recent programs (by prefetch)",infoPopupMenu,"prefetchtool -p -i");
-		addSessionItem("Installed programs",infoPopupMenu,"get_application_list");
+		addSessionItem("Installed programs",infoPopupMenu,"post/windows/gather/enum_applications");
 		addSessionItem("Countermeasures",infoPopupMenu,
 				"multi_console_command -cl \"run getcountermeasure -h\",\"run getcountermeasure\"");
-		addSessionItem("Environment variables",infoPopupMenu,"get_env");
-		addSessionItem("Powershell Environment",infoPopupMenu,"enum_powershell_env");
+		addSessionItem("Environment variables",infoPopupMenu,"post/multi/gather/env");
+		addSessionItem("Powershell Environment",infoPopupMenu,"post/windows/gather/enum_powershell_env");
+		addSessionItem("SNMP",infoPopupMenu,"post/windows/gather/enum_snmp");
 		addSessionItem("Subnets",infoPopupMenu,"get_local_subnets");
 		addSessionItem("Firefox credentials and profile info", infoPopupMenu, "enum_firefox");
 		addSessionItem("Google Chrome info", infoPopupMenu, "enum_chrome");
@@ -1651,7 +1651,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Filezilla credentials",infoPopupMenu,"get_filezilla_creds");
 		addSessionItem("VNC credentials",infoPopupMenu,"getvncpw");
 		addSessionItem("Putty credentials",infoPopupMenu,"enum_putty");
-		addSessionItem("Shares",infoPopupMenu,"enum_shares");
+		addSessionItem("Shares",infoPopupMenu,"post/windows/gather/enum_shares");
 		addSessionItem("winenum: env vars, interfaces, routing, users, processes, tokens...",infoPopupMenu,"winenum");
 		addSessionItem("Remote winenum: most of the above run against a different system",infoPopupMenu,
 				new RemoteWinenumOptionsDialog(getFrame()));
