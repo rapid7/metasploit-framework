@@ -42,25 +42,35 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_to_sockaddr
-		assert_equal("\x00" * 16, Rex::Socket.to_sockaddr(nil, 0, 0), "null sockaddr")
-		assert_equal([2].pack('s') + "\x00\x16" + "\x00" * 12, Rex::Socket.to_sockaddr(nil, 22), "default addr, port 22 sockaddr")
-		assert_equal([2].pack('s') + "\x00\x16\x01\x02\x03\x04" + "\x00" * 8, Rex::Socket.to_sockaddr("1.2.3.4", 22), "1.2.3.4 addr, port 22 sockaddr")
+		assert_equal(([2] + [0]*14).pack("sC*"), Rex::Socket.to_sockaddr(0, 0), "null sockaddr")
+=begin
+# This is platform dependent, pain to test
+		if (Rex::Socket.support_ipv6?)
+			# Use the constant for AF_INET6 since it is different per platform
+			# (10 on linux and 28 on BSD)
+			inaddr_any_sockaddr = ([::Socket::AF_INET6, 22] + [0]*24).pack('sSC*')
+		else
+			inaddr_any_sockaddr = ([2, 22] + [0]*12).pack('snC*')
+		end
+=end
+		assert_equal(([2, 0x16, 1, 2, 3, 4] + [0]*8).pack('snC*'), Rex::Socket.to_sockaddr("1.2.3.4", 22), "1.2.3.4 addr, port 22 sockaddr")
 	end
 
 	def test_from_sockaddr
-		af, host, port = Rex::Socket.from_sockaddr("\x00" * 16)
-		assert_equal(0, af, "zero af")
+		# 1.9.1 raises ArgumentError if we don't have an af == AF_INET or AF_INET6
+		af, host, port = Rex::Socket.from_sockaddr(([2, 0] + [0]*12).pack('snC*'))
+		assert_equal(2, af, "af = 2")
 		assert_equal('0.0.0.0', host, "zero host")
 		assert_equal(0, port, "zero port")
 
-		af, host, port = Rex::Socket.from_sockaddr([2].pack('s') + "\x00\x16" + "\x00" * 12)
+		af, host, port = Rex::Socket.from_sockaddr(([2, 22]+[0]*12).pack('snC*'))
 		assert_equal(2, af, "af = 2")
-		assert_equal('0.0.0.0', host, "zero host")
 		assert_equal(22, port, "port = 22")
+		assert_equal('0.0.0.0', host, "zero host")
 
-		af, host, port = Rex::Socket.from_sockaddr([2].pack('s') + "\x00\x16\x01\x02\x03\x04" + "\x00" * 8)
+		af, host, port = Rex::Socket.from_sockaddr(([2, 22, 1, 2, 3, 4] + [0]*8).pack('snC*') )
 		assert_equal(2, af, "af = 2")
-		assert_equal('1.2.3.4', host, "zero host")
+		assert_equal('1.2.3.4', host, "host = '1.2.3.4'")
 		assert_equal(22, port, "port = 22")
 	end
 
@@ -81,6 +91,17 @@ class Rex::Socket::UnitTest < Test::Unit::TestCase
 		assert_equal("255.255.255.240", Rex::Socket.bit2netmask(28))
 		assert_equal("255.255.255.0", Rex::Socket.bit2netmask(24))
 		assert_equal("255.255.0.0", Rex::Socket.bit2netmask(16))
+	end
+
+	def test_is_internal
+		assert( ! Rex::Socket.is_internal?("1.2.3.4"))
+		assert( ! Rex::Socket.is_internal?("172.15.3.4"))
+		assert( ! Rex::Socket.is_internal?("172.32.3.4"))
+		assert(Rex::Socket.is_internal?("10.2.3.4"))
+		assert(Rex::Socket.is_internal?("192.168.3.4"))
+		16.upto(31) do |octet|
+			assert(Rex::Socket.is_internal?("172.#{octet}.3.4"))
+		end
 	end
 
 end

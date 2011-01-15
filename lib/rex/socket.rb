@@ -132,6 +132,18 @@ module Socket
 	end
 
 	#
+	# Return true if +addr+ is within the ranges specified in RFC1918, or
+	# RFC5735/RFC3927
+	#
+	def self.is_internal?(addr)
+		if self.dotted_ip?(addr)
+			addr =~ /^(?:10\.|192\.168|172.(?:1[6-9]|2[0-9]|3[01])\.|169\.254)/
+		else
+			false
+		end
+	end
+
+	#
 	# Wrapper for Resolv.getaddress that takes special care to see if the
 	# supplied address is already a dotted quad, for instance.  This is
 	# necessary to prevent calls to gethostbyaddr (which occurs on windows).
