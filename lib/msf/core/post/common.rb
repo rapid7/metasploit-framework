@@ -3,10 +3,11 @@ class Post
 
 module Common
 
-	#Execute given command as hidden and channelized, output of command given as a multiline string.
-	def cmd_exec(cmd)
+	# Execute given command as hidden and channelized, output of command given as a multiline string.
+	# For certain versions of Meterpreter options can not be included in the cmd var
+	def cmd_exec(cmd,opts = nil)
 		session.response_timeout=120
-		cmd = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		cmd = session.sys.process.execute(cmd, opts, {'Hidden' => true, 'Channelized' => true})
 		o = ""
 		while(d = cmd.channel.read)
 			o << d
