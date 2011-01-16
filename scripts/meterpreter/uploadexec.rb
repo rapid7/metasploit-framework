@@ -86,7 +86,7 @@ def unsupported
 	print_error("This version of Meterpreter is not supported with this Script!")
 	raise Rex::Script::Completed
 end
-unsupported if client.platfom !~ /win32|win64/i
+unsupported if client.platform !~ /win32|win64/i
 #parsing of Options
 file = ""
 cmdopt = nil

@@ -51,7 +51,7 @@ end
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
-unsupported if client.platfom !~ /win32|win64/i
+unsupported if client.platform !~ /win32|win64/i
 
 # Create a directory for the logs
 logs = ::File.join(Msf::Config.log_directory, 'scripts','domain_admins')

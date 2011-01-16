@@ -150,7 +150,7 @@ enbl = nil
 
 }
 
-unsupported if client.platfom !~ /win32|win64/i
+unsupported if client.platform !~ /win32|win64/i
 
 if enbl
 	message

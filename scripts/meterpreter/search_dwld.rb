@@ -71,7 +71,7 @@ def unsupported
 end
 
 
-unsupported if client.platfom !~ /win32|win64/i
+unsupported if client.platform !~ /win32|win64/i
 # Get arguments
 basedir = args[0] || "C:\\"
 filter  = args[1] || "office"
