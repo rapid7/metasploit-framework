@@ -1,7 +1,7 @@
 package msfgui;
 
 /**
- *
+ * Basic options dialog for msfgui; includes icon
  * @author scriptjunkie
  */
 public class OptionsDialog extends javax.swing.JDialog {

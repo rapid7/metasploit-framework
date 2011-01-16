@@ -3,13 +3,13 @@ package msfgui;
 import javax.swing.JFileChooser;
 
 /**
- *
+ * Options dialog for the multicommand script
  * @author scriptjunkie
  */
 public class MulticommandOptionsDialog extends OptionsDialog {
     /** Creates new form UploadexecOptionsDialog */
     public MulticommandOptionsDialog(java.awt.Frame parent) {
-        super(parent, "Upload Exec Options", true);
+        super(parent, "Multicommand Options", true);
         initComponents();
     }
 

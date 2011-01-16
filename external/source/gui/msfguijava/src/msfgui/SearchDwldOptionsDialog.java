@@ -3,7 +3,7 @@ package msfgui;
 import javax.swing.JFileChooser;
 
 /**
- *
+ * Options dialog for file collector script
  * @author scriptjunkie
  */
 public class SearchDwldOptionsDialog extends OptionsDialog {

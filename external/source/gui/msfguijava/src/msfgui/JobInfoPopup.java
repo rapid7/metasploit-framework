@@ -1,15 +1,9 @@
-/*
- * JobInfoPopup.java
- *
- * Created on May 19, 2010, 2:25:40 AM
- */
-
 package msfgui;
 
 import java.util.Map;
 
 /**
- *
+ * Popup to show info from a job
  * @author scriptjunkie
  */
 public class JobInfoPopup extends javax.swing.JDialog {

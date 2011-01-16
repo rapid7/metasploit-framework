@@ -54,12 +54,12 @@
                   <Group type="102" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="descriptionPane" alignment="0" pref="497" max="32767" attributes="0"/>
+                          <Component id="descriptionPane" alignment="0" pref="500" max="32767" attributes="0"/>
                           <Component id="authorsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="licenseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="targetsLabel" alignment="0" min="-2" pref="431" max="-2" attributes="0"/>
-                          <Component id="payloadScrollPane" alignment="0" pref="497" max="32767" attributes="0"/>
+                          <Component id="payloadScrollPane" alignment="0" pref="500" max="32767" attributes="0"/>
                           <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="requiredLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="optionalLabel" alignment="0" min="-2" max="-2" attributes="0"/>

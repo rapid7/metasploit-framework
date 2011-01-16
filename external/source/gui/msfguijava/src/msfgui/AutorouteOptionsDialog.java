@@ -1,7 +1,7 @@
 package msfgui;
 
 /**
- *
+ * Options dialog to get options for autoroute script
  * @author scriptjunkie
  */
 public class AutorouteOptionsDialog extends OptionsDialog {
@@ -10,10 +10,6 @@ public class AutorouteOptionsDialog extends OptionsDialog {
     public AutorouteOptionsDialog(MainFrame parent, boolean modal) {
         super(parent.getFrame(), "Autoroute Options", modal);
         initComponents();
-		try{
-			ipField.setText("192.168.1.1/24");
-		}catch(NullPointerException nex){
-		}
     }
 
     /** This method is called from within the constructor to

@@ -1,10 +1,10 @@
 package msfgui;
 
 /**
- *
+ * General exception for Metasploit
  * @author scriptjunkie
  */
-class MsfException extends Exception{
+class MsfException extends RuntimeException{
 
 	public MsfException(Throwable cause) {
 		super(cause);

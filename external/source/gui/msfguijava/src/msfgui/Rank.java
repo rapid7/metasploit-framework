@@ -1,11 +1,8 @@
-/*
- * Represents a module rank. Immutable, like an integer.
- */
-
 package msfgui;
 
 /**
  *
+ * Represents a module rank. Immutable, like an integer.
  * @author scriptjunkie
  */
 public final class Rank {

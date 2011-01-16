@@ -3,7 +3,7 @@ package msfgui;
 import javax.swing.JFileChooser;
 
 /**
- *
+ * Options dialog for uploading and executing a file
  * @author scriptjunkie
  */
 public class UploadexecOptionsDialog extends OptionsDialog {

@@ -5,15 +5,17 @@ import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Convenient handler for showing popup windows from mouse clicks
  * @author scriptjunkie
  */
 public abstract class PopupMouseListener extends MouseAdapter{
 		public void mousePressed(MouseEvent e) {
-			showPopup(e);
+			if (e.isPopupTrigger())
+				showPopup(e);
 		}
 		public void mouseReleased(MouseEvent e) {
-			showPopup(e);
+			if (e.isPopupTrigger())
+				showPopup(e);
 		}
 		public void mouseClicked(MouseEvent e){ //show interaction window on double-click
 			try{

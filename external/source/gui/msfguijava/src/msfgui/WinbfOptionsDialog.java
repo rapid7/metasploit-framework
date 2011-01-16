@@ -3,11 +3,11 @@ package msfgui;
 import javax.swing.JFileChooser;
 
 /**
- *
+ * Options dialog to provide to winbf password brute-forcing script.
  * @author scriptjunkie
  */
 public class WinbfOptionsDialog extends OptionsDialog {
-    /** Creates new form UploadexecOptionsDialog */
+    /** Creates new winbf dialog */
     public WinbfOptionsDialog(java.awt.Frame parent) {
         super(parent, "Winbf Options", true);
         initComponents();

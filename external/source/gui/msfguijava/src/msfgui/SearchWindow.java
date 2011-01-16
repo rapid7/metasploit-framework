@@ -1,4 +1,3 @@
-
 package msfgui;
 
 import java.awt.event.ActionEvent;
@@ -12,7 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Window for searching for modules by name or details
  * @author scriptjunkie
  */
 public class SearchWindow extends MsfFrame {

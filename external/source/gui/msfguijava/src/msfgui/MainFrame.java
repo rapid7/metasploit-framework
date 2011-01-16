@@ -245,9 +245,9 @@ public class MainFrame extends FrameView {
 	* @param factory Factory to generate handlers to do the actions.
 	*/
 	private void expandList(List mlist, JMenu rootMenu, RunMenuFactory factory, String type) {
-		if (mlist == null)
-			return;
 		long currentTime = java.util.Calendar.getInstance().getTimeInMillis();
+
+		//Make sure modDates object is initialized
 		Map modDates;
 		Object mdo = MsfguiApp.getPropertiesNode().get("modDates");
 		if(mdo == null){
@@ -256,13 +256,20 @@ public class MainFrame extends FrameView {
 		}else{
 			modDates = (Map)mdo;
 		}
+
+		//Update status bar
 		statusAnimationLabel.setText(statusAnimationLabel.getText()+mlist.size() + " "+type+" ");
+
+		//Display sorted list
 		java.util.Collections.sort(mlist);
 		for (Object fullName : mlist) {
+			//add to dates hash
 			Object time = modDates.get(fullName);
 			if(time == null)
 				modDates.put(fullName, currentTime);
 			boolean recentlyAdded = Long.parseLong(modDates.get(fullName).toString()) >= currentTime - 604800000;//one week
+
+			//Create or find menu for each element of module name
 			String[] names = fullName.toString().split("/");
 			JMenu currentMenu = rootMenu;
 nameloop:	for (int i = 0; i < names.length; i++) {
@@ -287,7 +294,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 						}
 					}
 				}
-
+				//Create new menu element
 				if(comps.length > MENU_SIZE_LIMIT){ //extend if necessary
 					JMenu extention = new JMenu("More...");
 					extention.setName("More...");
@@ -331,13 +338,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 
    /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
-	public void getModules() {
-		searchWin = new SearchWindow(rpcConn);
-		MsfguiApp.addRecentModules(rpcConn, this);
-		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
-	}
-
-   /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
 	public void refreshConsoles(){
 		existingConsoleMenu.removeAll();
 		closeConsoleMenu.removeAll();
@@ -349,6 +349,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		}catch (MsfException mex){
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		}
+	}
+
+   /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
+	public void getModules() {
+		searchWin = new SearchWindow(rpcConn);
+		MsfguiApp.addRecentModules(rpcConn, this);
+		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
 	}
 
 	/** helper for getModules - does the work */
@@ -389,10 +396,16 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 							};
 						}
 					}, "payload");
-					setProgress(0.8f);
+					setProgress(0.7f);
+					setMessage("Getting post modules");
+					JMenu postModMenu = new JMenu("Modules");
+					meterpreterPopupMenu.add(postModMenu,4);
+					expandList((List) ((Map)rpcConn.execute("module.post")).get("modules"), postModMenu, moduleFactory, "post");
+					setProgress(0.85f);
 					setMessage("Querying database...");
 					// Enable menus
 					postMenu.setEnabled(true);
+
 					databaseMenu.setEnabled(true);
 					pluginsMenu.setEnabled(true);
 					consoleMenu.setEnabled(true);
@@ -740,7 +753,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -816,8 +829,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
         auxiliaryMenu.setMnemonic('A');
         auxiliaryMenu.setText(resourceMap.getString("auxiliaryMenu.text")); // NOI18N
-        auxiliaryMenu.setName("auxiliaryMenu"); // NOI18N
         auxiliaryMenu.setEnabled(false);
+        auxiliaryMenu.setName("auxiliaryMenu"); // NOI18N
         menuBar.add(auxiliaryMenu);
 
         payloadsMenu.setMnemonic('P');
@@ -1123,7 +1136,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 712, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -1487,8 +1500,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					return;
 				jobsList.setSelectedIndex(indx);
 				clickedJob = jobsList.getSelectedValue().toString().split(" ")[0];
-				if(e.isPopupTrigger())
-					jobPopupMenu.show(jobsList, e.getX(), e.getY() );
+				jobPopupMenu.show(jobsList, e.getX(), e.getY() );
 			}
 		});
 		//SESSION POPUP MENUS
@@ -1504,8 +1516,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					selectedSessions[i] = (Map) sessionsTableModel.getSessionList().get(selrows[i]);
 			}
 			public void showPopup(MouseEvent e) {
-				if (!e.isPopupTrigger())
-					return;
 				getSelected();
 				if(selectedSessions.length == 0) //must have a row selected
 					return;
@@ -1548,7 +1558,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				ProcessList.showList(rpcConn,session,sessionWindowMap);
 			}
 		});
-		addScript("Shell",meterpreterPopupMenu,new RpcAction(this) {
+		addSessionItem("Shell",meterpreterPopupMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
 				rpcConn.execute("session.meterpreter_write", session.get("id"),
 						Base64.encode("shell\n".getBytes()));
@@ -1563,7 +1573,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Unlock screen",meterpreterPopupMenu,"screen_unlock");
 		addScript("Upload + execute",meterpreterPopupMenu,new UploadexecOptionsDialog(getFrame()));
 		addSessionItem("Ping/DNS sweep",meterpreterPopupMenu,new NetenumOptionsDialog(getFrame()));
-		addScript("ARP sweep",meterpreterPopupMenu,new Object(){
+		addSessionItem("ARP sweep",meterpreterPopupMenu,new Object(){
 			public String toString(){
 				String target = JOptionPane.showInputDialog(getFrame(),
 						"Enter Target list as address or CIDR","Enter Target", JOptionPane.QUESTION_MESSAGE);
@@ -1682,22 +1692,21 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		menu.add(tempItem);
 		tempItem.addActionListener(action);
 	}
+	/** Adds a named session menu item to a given popup menu */
 	private void addSessionItem(String name, JComponent menu, Object action){
 		addSessionItem(name, menu, new RpcAction(action,this));
 	}
-	private void addScript(final String name, JComponent menu, final RpcAction action){
+	/** Adds a named session menu item to both a given popup menu and the run on all menu */
+	private void addScript(final String name, JComponent menu, final Object action){
 		addSessionItem(name,menu,action);
 		JMenuItem menuItem = new JMenuItem(name);
         menuItem.setName(name);
         menuItem.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent evt) {
-                runOnAllMeterpreters("run "+action.getCmd(),name,statusMessageLabel);
+                runOnAllMeterpreters("run "+action.toString(),name,statusMessageLabel);
             }
         });
         menuRunAllMeterp.add(menuItem);
-	}
-	private void addScript(String name, JComponent menu, Object action){
-		addScript(name, menu, new RpcAction(action,this));
 	}
 	/** Adds a kill session menu item to a given popup menu */
 	private void addSessionKillItem(JComponent popupMenu) throws HeadlessException {

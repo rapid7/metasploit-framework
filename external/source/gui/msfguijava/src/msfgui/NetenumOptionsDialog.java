@@ -3,16 +3,16 @@ package msfgui;
 import javax.swing.JFileChooser;
 
 /**
- *
+ * Options dialog for the netenum script
  * @author scriptjunkie
  */
 public class NetenumOptionsDialog extends OptionsDialog {
-
     /** Creates new form NetenumOptionsDialog */
     public NetenumOptionsDialog(java.awt.Frame parent) {
         super(parent, "Netenum options", true);
         initComponents();
     }
+
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is

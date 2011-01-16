@@ -6,7 +6,7 @@ import javax.swing.JLabel;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
- *
+ * A class to simplify running a command on a collection of sessions and reporting progress.
  * @author scriptjunkie
  */
 public class SessionCommand {
@@ -29,6 +29,8 @@ public class SessionCommand {
 	public void processResult(Map m) {
 		label.setText("Running "+outputPrefix + " on " + m.get("tunnel_peer") + ", session " + m.get("id"));
 	}
+	/** Starts a thread to iterate across active sessions, executing the given command on each,
+	 * and updating the output label as progress is made. */
 	public static void runOnAllMeterpreters(final SessionsTable sessionsTableModel, String cmd, String output,
 			JLabel outputLabel, final RpcConnection rpcConn) {
 		final SessionCommand sess =  new SessionCommand(cmd,output,outputLabel);

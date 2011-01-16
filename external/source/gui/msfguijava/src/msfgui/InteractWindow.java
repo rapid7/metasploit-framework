@@ -1,13 +1,8 @@
-/*
- * InteractWindow.java
- *
- * Created on May 15, 2010, 5:46:53 PM
- */
 package msfgui;
 
 import java.awt.Font;
+import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -16,19 +11,21 @@ import javax.swing.JOptionPane;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
- *
+ * Window to interact with shells/meterpreters/consoles. Interacts with tab completion and holds command 
+ * history. Also allows synchronization with other threads or windows interacting with the same console.
+ * Only polls for output when open.
  * @author scriptjunkie
  */
 public class InteractWindow extends MsfFrame {
 	public final ReentrantLock lock = new ReentrantLock();
-	public static final char POLL = 'r';
-	public static final char PAUSE = 'p';
-	public static final char STOP_POLLING = 's';
 	private final Map session;
 	private final RpcConnection rpcConn;
 	private final String cmdPrefix;
 	private String prompt;
 	private Object sid;
+	public static final char POLL = 'r';
+	public static final char PAUSE = 'p';
+	public static final char STOP_POLLING = 's';
 	private final StringBuffer timerCommand;//synchronized mutable object as command placeholder for polling thread
 	private final ArrayList commands;
 	private int currentCommand = 0;
@@ -82,41 +79,36 @@ public class InteractWindow extends MsfFrame {
 		else
 			cmdPrefix = "session." + type + "_";
 		inputField.setFocusTraversalKeysEnabled(false);
-		inputField.addKeyListener(new KeyListener(){
+		//Add tab completion handler
+		inputField.addKeyListener(new KeyAdapter(){
 			public void keyTyped(KeyEvent ke) {
-				if(ke.getKeyChar() == '\t'){
-					try{
-						Map res = (Map)rpcConn.execute(cmdPrefix+"tabs", sid,inputField.getText());
-						List tabs = (List)res.get("tabs");
-						//one option: use it
-						if(tabs.size() == 1){
-							inputField.setText(tabs.get(0).toString());
-						//more options: display, and use common prefix
-						} else if (tabs.size() > 1){
-							String prefix = tabs.get(0).toString();
-							for(Object o : tabs){
-								String s = o.toString();
-								int len = Math.min(s.length(), prefix.length());
-								for(int i = 0; i < len; i++){
-									if(s.charAt(i) != prefix.charAt(i)){
-										prefix = prefix.substring(0,i);
-										break;
-									}
-									if(s.length()< prefix.length())
-										prefix = s;
-								}
-								outputArea.append("\n"+o.toString());
+				//ignore other keys
+				if(ke.getKeyChar() != '\t')
+					return;
+				Map res = (Map)rpcConn.execute(cmdPrefix+"tabs", sid,inputField.getText());
+				List tabs = (List)res.get("tabs");
+				//one option: use it
+				if(tabs.size() == 1){
+					inputField.setText(tabs.get(0).toString());
+				//more options: display, and use common prefix
+				} else if (tabs.size() > 1){
+					String prefix = tabs.get(0).toString();
+					for(Object o : tabs){
+						String s = o.toString();
+						int len = Math.min(s.length(), prefix.length());
+						for(int i = 0; i < len; i++){
+							if(s.charAt(i) != prefix.charAt(i)){
+								prefix = prefix.substring(0,i);
+								break;
 							}
-							outputArea.append("\n");
-							inputField.setText(prefix);
+							if(s.length()< prefix.length())
+								prefix = s;
 						}
-					}catch(MsfException mex){
-					}// do nothing on error
+						outputArea.append("\n"+o.toString());
+					}
+					outputArea.append("\n");
+					inputField.setText(prefix);
 				}
-			}
-			public void keyPressed(KeyEvent ke) {
-			}
-			public void keyReleased(KeyEvent ke) {
 			}
 		});
 		timerCommand = new StringBuffer(""+PAUSE);

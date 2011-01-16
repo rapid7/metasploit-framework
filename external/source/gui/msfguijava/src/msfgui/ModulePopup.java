@@ -1,8 +1,3 @@
-/*
- * ModulePopup.java
- *
- * Created on May 15, 2010, 12:32:03 AM
- */
 package msfgui;
 
 import java.awt.Component;
@@ -29,7 +24,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 /**
- *
+ * Displays a window showing options for a module, and support for running the module.
  * @author scriptjunkie
  */
 public class ModulePopup extends MsfFrame implements TreeSelectionListener{
@@ -58,12 +53,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			else
 				target = "0";
 			for (Component comp : mainPanel.getComponents()){
-				if(comp instanceof JRadioButton){
-					JRadioButton but = (JRadioButton)comp;
-					if(but.getName().equals("targetButton"+target)){
-						but.setSelected(true);
-						break;
-					}
+				if(comp.getName().equals("targetButton"+target)){
+					((JRadioButton)comp).setSelected(true);
+					break;
 				}
 			}
 			//Set payload
@@ -122,7 +114,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		showOptions();
 	}
 
-   /** Displays targetsMap on frame */
+    /** Displays targetsMap on frame */
 	private void showModuleInfo(final RpcConnection rpcConn, final String fullName) throws HeadlessException {
 		try { //Get info
 			Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
@@ -265,7 +257,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 			mainPanel.remove((Component)o);
 		advancedOpts.clear();
 		try{
-			//display options
+			//get options
 			options = (Map) rpcConn.execute("module.options", moduleType, fullName);
 			// payload options
 			if(moduleType.equals("exploit")){
@@ -298,6 +290,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					optionField.setText(MsfguiApp.getLocalIp());
 				} else if (optionName.equals("WORKSPACE")){
 					optionField.setText(MsfguiApp.workspace);
+				} else if (optionName.equals("SESSION") && moduleType.equals("post")
+						&& parentFrame.selectedSessions.length > 0){
+					optionField.setText(parentFrame.selectedSessions[0].get("id").toString());
 				}
 				optionField.setName("field" + optionName);
 				mainPanel.add(optionField);

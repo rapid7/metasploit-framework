@@ -1,8 +1,3 @@
-/*
- * UserPassDialog.java
- *
- * Created on May 15, 2010, 12:53:23 PM
- */
 package msfgui;
 import java.io.File;
 import java.util.Map;
@@ -10,7 +5,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Options dialog for opening a connection the rpc daemon
  * @author scriptjunkie
  */
 public class OpenConnectionDialog extends javax.swing.JDialog {

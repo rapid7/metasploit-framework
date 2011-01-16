@@ -120,6 +120,40 @@ public class RpcConnection {
 		connection.close();
 	}
 
+	/** Adds token, runs command, and notifies logger on call and return */
+	public Object execute(String methodName, Object... params) throws MsfException{
+		MsfguiLog.defaultLog.logMethodCall(methodName, params);
+		Object[] paramsNew = new Object[params.length+1];
+		paramsNew[0] = rpcToken;
+		System.arraycopy(params, 0, paramsNew, 1, params.length);
+		Object result = cacheExecute(methodName, paramsNew);
+		MsfguiLog.defaultLog.logMethodReturn(methodName, params, result);
+		return result;
+	}
+	/** Caches certain calls and checks cache for re-executing them.
+	 * If not cached or not cacheable, calls exec. */
+	private Object cacheExecute(String methodName, Object[] params) throws MsfException{
+		if(methodName.equals("module.info") || methodName.equals("module.options")
+				|| methodName.equals("module.compatible_payloads") || methodName.equals("module.post")){
+			StringBuilder keysb = new StringBuilder(methodName);
+			for(int i = 1; i < params.length; i++)
+				keysb.append(params[i].toString());
+			String key = keysb.toString();
+			Object result = callCache.get(key);
+			if(result == null){
+				result = exec(methodName, params);
+				callCache.put(key, result);
+			}
+			if(result instanceof Map){
+				HashMap clone = new HashMap();
+				clone.putAll((Map)result);
+				return clone;
+			}
+			return result;
+		}
+		return exec(methodName, params);
+	}
+
 	/** Method that sends a call to the server and received a response; only allows one at a time */
 	private Map exec (String methname, Object[] params) throws MsfException{
 		try{
@@ -293,40 +327,6 @@ public class RpcConnection {
 		} else {
 			throw new MsfException("Error reading val: unknown type " + typeName);
 		}
-	}
-
-	/** Adds token, runs command, and notifies logger on call and return */
-	public Object execute(String methodName, Object... params) throws MsfException{
-		MsfguiLog.defaultLog.logMethodCall(methodName, params);
-		Object[] paramsNew = new Object[params.length+1];
-		paramsNew[0] = rpcToken;
-		System.arraycopy(params, 0, paramsNew, 1, params.length);
-		Object result = cacheExecute(methodName, paramsNew);
-		MsfguiLog.defaultLog.logMethodReturn(methodName, params, result);
-		return result;
-	}
-	/** Caches certain calls and checks cache for re-executing them.
-	 * If not cached or not cacheable, calls exec. */
-	private Object cacheExecute(String methodName, Object[] params) throws MsfException{
-		if(methodName.equals("module.info") || methodName.equals("module.options")
-				|| methodName.equals("module.compatible_payloads")){
-			StringBuilder keysb = new StringBuilder(methodName);
-			for(int i = 1; i < params.length; i++)
-				keysb.append(params[i].toString());
-			String key = keysb.toString();
-			Object result = callCache.get(key);
-			if(result == null){
-				result = exec(methodName, params);
-				callCache.put(key, result);
-			}
-			if(result instanceof Map){
-				HashMap clone = new HashMap();
-				clone.putAll((Map)result);
-				return clone;
-			}
-			return result;
-		}
-		return exec(methodName, params);
 	}
 
 	/** Attempts to start msfrpcd and connect to it.*/

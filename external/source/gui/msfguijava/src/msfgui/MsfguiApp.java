@@ -1,7 +1,3 @@
-/*
- * MsfguiApp.java
- */
-
 package msfgui;
 
 import java.awt.event.ActionEvent;

@@ -10,7 +10,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /**
- *
+ * Frame to display images from a webcam.
  * @author scriptjunkie
  */
 public class WebcamFrame extends MsfFrame {

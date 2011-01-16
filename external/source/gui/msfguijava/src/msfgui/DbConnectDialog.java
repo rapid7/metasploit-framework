@@ -11,7 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
- *
+ * Options dialog to get database connection options.
  * @author scriptjunkie
  */
 public class DbConnectDialog extends OptionsDialog {

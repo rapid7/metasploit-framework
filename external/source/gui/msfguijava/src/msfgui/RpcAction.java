@@ -6,22 +6,22 @@ import java.util.Map;
 import javax.swing.JOptionPane;
 
 /**
- *
+ * Provides an ActionListener for running a meterpreter script on each selected session. Each time
+ * the action is executed, the command is retrieved from the toString() method of commandGenerator
+ * and executed on each session.
  * @author scriptjunkie
  */
 public class RpcAction implements ActionListener {
-	protected Object arg = null;
+	protected Object commandGenerator = null;
+	protected String command = null;
 	protected MainFrame parent = null;
-	public String getCmd(){
-		return arg.toString();
-	}
 	public RpcAction(){
 	}
 	public RpcAction( MainFrame parent){
 		this.parent = parent;
 	}
-	public RpcAction(Object arg, MainFrame parent){
-		this.arg = arg;
+	public RpcAction(Object commandGenerator, MainFrame parent){
+		this.commandGenerator = commandGenerator;
 		this.parent = parent;
 	}
 	public void actionPerformed(ActionEvent e){
@@ -40,6 +40,8 @@ public class RpcAction implements ActionListener {
 	/** prepare() is provided to prepare state of action handler
 	 * such as preparing a command that will be run on all selected sessions. */
 	public void prepare() throws Exception{
+		if(commandGenerator != null)
+			command = commandGenerator.toString();
 	}
 	/** action() with no args provided as an exception-handling action listener. */
 	public void action() throws Exception{
@@ -48,8 +50,8 @@ public class RpcAction implements ActionListener {
 	}
 	/** Default action executes session.meterpreter_script and shows console window. */
 	public void action(Map session) throws Exception{
-		if(arg != null)
-			parent.rpcConn.execute("session.meterpreter_script", session.get("id"), getCmd());
+		if(commandGenerator != null)
+			parent.rpcConn.execute("session.meterpreter_script", session.get("id"), command);
 		parent.showInteractWindow();
 	}
 }

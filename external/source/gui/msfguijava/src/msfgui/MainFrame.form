@@ -15,7 +15,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="tabbedPane" alignment="1" pref="530" max="32767" attributes="0"/>
+              <Component id="tabbedPane" alignment="1" pref="543" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -493,8 +493,8 @@
           <Properties>
             <Property name="mnemonic" type="int" value="65"/>
             <Property name="text" type="java.lang.String" resourceKey="auxiliaryMenu.text"/>
-            <Property name="name" type="java.lang.String" value="auxiliaryMenu" noResource="true"/>
             <Property name="enabled" type="boolean" value="false"/>
+            <Property name="name" type="java.lang.String" value="auxiliaryMenu" noResource="true"/>
           </Properties>
         </Menu>
         <Menu class="javax.swing.JMenu" name="payloadsMenu">
@@ -836,7 +836,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusMessageLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="696" max="32767" attributes="0"/>
+                  <EmptySpace pref="712" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusAnimationLabel" min="-2" max="-2" attributes="0"/>

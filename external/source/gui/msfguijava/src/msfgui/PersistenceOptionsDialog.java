@@ -1,7 +1,7 @@
 package msfgui;
 
 /**
- *
+ * Options dialog for persistence
  * @author scriptjunkie
  */
 public class PersistenceOptionsDialog extends OptionsDialog {

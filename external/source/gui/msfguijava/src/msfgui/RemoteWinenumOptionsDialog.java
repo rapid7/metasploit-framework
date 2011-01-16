@@ -1,12 +1,12 @@
 package msfgui;
 
 /**
- *
+ * Options dialog for remote winenum script
  * @author scriptjunkie
  */
 public class RemoteWinenumOptionsDialog extends OptionsDialog {
 
-    /** Creates new form NetenumOptionsDialog */
+    /** Creates new OptionsDialog */
     public RemoteWinenumOptionsDialog(java.awt.Frame parent) {
         super(parent, "Remote winenum options", true);
         initComponents();

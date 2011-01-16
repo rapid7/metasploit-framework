@@ -6,7 +6,7 @@ import javax.swing.JTable;
 import javax.swing.table.*;
 
 /**
- *
+ * Provides methods to help format tables from data
  * @author scriptjunkie
  */
 public class TableHelper {

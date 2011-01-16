@@ -3,7 +3,7 @@ package msfgui;
 import java.awt.HeadlessException;
 
 /**
- *
+ * Basic frame; shows default icon
  * @author scriptjunkie
  */
 public class MsfFrame extends javax.swing.JFrame{

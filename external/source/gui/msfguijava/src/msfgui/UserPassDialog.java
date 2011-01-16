@@ -3,10 +3,10 @@ package msfgui;
 import java.awt.Frame;
 
 /**
- *
+ * Options dialog for username/password input
  * @author scriptjunkie
  */
-public class UserPassDialog extends javax.swing.JDialog {
+public class UserPassDialog extends OptionsDialog {
 	public boolean okd;
 
 	//Opens dialog to get options for a persistence
@@ -32,8 +32,7 @@ public class UserPassDialog extends javax.swing.JDialog {
 
 	/** Creates new form UserPassDialog */
 	public UserPassDialog(java.awt.Frame parent, boolean modal) {
-		super(parent, modal);
-		setTitle("Enter username and password");
+		super(parent, "Enter username and password", modal);
 		initComponents();
 	}
 

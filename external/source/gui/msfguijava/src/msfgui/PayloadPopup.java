@@ -1,8 +1,3 @@
-/*
- * PayloadPopup.java
- *
- * Created on May 16, 2010, 12:17:16 AM
- */
 package msfgui;
 
 import java.awt.Component;
@@ -23,7 +18,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
- *
+ * Popup for generating payloads and starting handlers.
  * @author scriptjunkie
  */
 public class PayloadPopup extends MsfFrame {

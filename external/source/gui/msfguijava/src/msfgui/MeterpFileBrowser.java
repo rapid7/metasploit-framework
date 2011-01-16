@@ -1,4 +1,3 @@
-
 package msfgui;
 
 import java.awt.Component;
@@ -25,6 +24,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 
 /**
+ * Provides a file browser for meterpreter sessions. Synchronizes with other windows.
  * @author scriptjunkie
  */
 public class MeterpFileBrowser extends MsfFrame {
@@ -155,22 +155,21 @@ public class MeterpFileBrowser extends MsfFrame {
 				int indx = mainTable.getSelectedRow();
 				if (indx == -1)
 					return;
-				if (e.isPopupTrigger()) 
-					popupMenu.show(mainTable, e.getX(), e.getY());
+				popupMenu.show(mainTable, e.getX(), e.getY());
 			}
 		});
 	}
 
 	/** Deletes selected file */
 	protected void delete() {
-		int indx = mainTable.getSelectedRow();
-		if (indx == -1)
-			return;
-		String clickedFile = mainTable.getValueAt(indx, 0).toString();
-		if (files.get(clickedFile).equals("dir"))
-			executeCommand("rmdir \"" + clickedFile + "\"");
-		else
-			executeCommand("rm \"" + clickedFile + "\"");
+		int[] indxs = mainTable.getSelectedRows();
+		for(int indx : indxs){
+			String clickedFile = mainTable.getValueAt(indx, 0).toString();
+			if (files.get(clickedFile).equals("dir"))
+				executeCommand("rmdir \"" + clickedFile + "\"");
+			else
+				executeCommand("rm \"" + clickedFile + "\"");
+		}
 		getFiles();
 	}
 

@@ -3,7 +3,6 @@ package msfgui;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JOptionPane;
@@ -11,7 +10,7 @@ import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
 /**
- *
+ * Window displaying a process list for meterpreter sessions.
  * @author scriptjunkie
  */
 public class ProcessList extends MsfFrame {
@@ -62,7 +61,7 @@ public class ProcessList extends MsfFrame {
 					}
 					byte[] decodedBytes = Base64.decode(received.get("data").toString());
 					if (decodedBytes.length == 0)
-						return;
+						return; //no data
 					String[] lines = new String(decodedBytes).split("\n");
 					String headerRow = null;
 					for (String line : lines) {

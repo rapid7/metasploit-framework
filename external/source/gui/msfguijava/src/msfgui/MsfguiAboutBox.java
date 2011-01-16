@@ -1,11 +1,11 @@
-/*
- * MsfguiAboutBox.java
- */
-
 package msfgui;
 
 import org.jdesktop.application.Action;
 
+/**
+ * Provides an about box for msfgui.
+ * @author scriptjunkie
+ */
 public class MsfguiAboutBox extends javax.swing.JDialog {
 
 	public MsfguiAboutBox(java.awt.Frame parent, String version) {
