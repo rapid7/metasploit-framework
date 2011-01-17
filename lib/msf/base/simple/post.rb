@@ -54,19 +54,19 @@ module Post
 		#
 		# Disable this until we can test background stuff a little better
 		#
-		#if(mod.passive? or opts['RunAsJob'])
-		#	ctx = [ mod.replicant ]
-		#	mod.job_id = mod.framework.jobs.start_bg_job(
-		#		"Post: #{mod.refname}",
-		#		ctx,
-		#		Proc.new { |ctx_| self.job_run_proc(ctx_) },
-		#		Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
-		#	)
-		#else
+		if(mod.passive? or opts['RunAsJob'])
+			ctx = [ mod.replicant ]
+			mod.job_id = mod.framework.jobs.start_bg_job(
+				"Post: #{mod.refname}",
+				ctx,
+				Proc.new { |ctx_| self.job_run_proc(ctx_) },
+				Proc.new { |ctx_| self.job_cleanup_proc(ctx_) }
+			)
+		else
 			ctx = [ mod ]
 			self.job_run_proc(ctx)
 			self.job_cleanup_proc(ctx)
-		#end
+		end
 	end
 
 	#
