@@ -19,6 +19,9 @@ class Post < Msf::Module
 		register_options( [
 			OptInt.new('SESSION', [ true, "The session to run this module on." ])
 		] , Msf::Post)
+
+		# Default stance is active
+		self.passive = (info['Passive'] and info['Passive'] == true) || false
 	end
 
 	#
@@ -73,11 +76,8 @@ class Post < Msf::Module
 		{}
 	end
 
-	#
-	# Default stance is active
-	#
-	def passive
-		false
+	def passive?
+		self.passive
 	end
 
 	def compatible_sessions
@@ -89,6 +89,9 @@ class Post < Msf::Module
 		sessions
 	end
 
+	attr_reader :passive
+protected
+	attr_writer :passive
 
 end
 end
