@@ -1,6 +1,47 @@
 Armitage Changelog
 ==================
 
+18 Jan 11 Changes
+---------
+- Added a Migrate Now! item to Meterpreter Access menu. Runs migrate -f.
+- Right-click in Meterpreter console now shows menu as before (silly bugs).
+- Armitage now detects hashdump failure and reports possible causes to you.
+- Armitage now binds default handler to 0.0.0.0. 
+- Added a table view for the targets area. Go to View -> Targets to change the
+  setting. If you're working with many hosts, table view may be better for you.
+- Added preliminary support for Metasploit post/ modules. You can launch them 
+  and if a host is highlighted, Armitage will populate the SESSION var for you.
+- Armitage now uses the sysinfo command in a meterpreter session to pull host
+  OS info if it doesn't know it. This also means Armitage will auto-populate
+  the host OS when a client-side attack is successful.
+- Tab completion is now ignored when input field is empty
+
+13 Jan 11 Changes
+---------
+- Hosts reported as Windows Me now display W2K era Windows logo.
+- "Hail Mary" attack is now launched and managed by Armitage. Exploits are 
+  selected using the output of db_autopwn AND the operating system information
+  Armitage knows. Also attacks are launched in a more optimal order (sorted by 
+  exploit rank/age). This is a big improvement over db_autopwn by itself. 
+- Added a link to the Armitage Issue Tracker in the Help menu.
+- Updated remote exploit payload selection to choose Java payloads or Windows 
+  shell payloads before resorting to the generic/* payloads.
+- Updated client-side exploit launcher to let you select the target. Armitage 
+  uses this target (plus the exploit name) to determine which payload to use.
+  multi/java_signed_applet works very nicely now ;)
+- Fixed (once and for all now) the mysterious OS info not refreshing bug.
+  Now those pretty OS pictures will show up if Metasploit knows about the OS.
+- Added a 52 character length limit to a target's description in the target
+  dropdown. This stops weird GUI layouts caused by long target descriptions.
+- Exploit recommendations now take into account FreeBSD hosts.
+- Added an OpenBSD option to the hosts menu.
+- Armitage now does a setg AutoLoadStdapi true when setting up MSF.
+- Last modified field of file browser now sorts properly.
+- Jobs console and its kill feature should now work in all circumstances.
+- Session menus for meterpreter now limited for non-Win meterp sessions.
+- Updated Armitage/Windows to provide a better startup experience. Simply
+  extract the archive over your MSF install and rock n' roll.
+
 22 Dec 10 Changes
 ---------
 - Updated meterpreter shell and command shell console to honor your set

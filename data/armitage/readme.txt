@@ -38,15 +38,12 @@ http://code.google.com/p/armitage/
 5. Disclaimer
    ----------
 
-Armitage is not affiliated with Rapid7 or the Metasploit project. Use this 
-code for your development and don't hack systems that you don't have 
-permission to hack. The existence of this software does not reflect the 
+Use this code for your development and don't hack systems that you don't 
+have permission to hack. The existence of this software does not reflect the 
 opinions or beliefs of my current employers, past employers, future 
-employers, or any small animals I come into contact with. If you're part of
-the MSF crew, I hope you take this project as a show of respect for what 
-you've built and as my attempt to give something back to the community. If 
-you're not, then enjoy this software with my blessing. I hope it helps you 
-learn and become a better security professional.
+employers, or any small animals I come into contact with. Enjoy this 
+software with my blessing. I hope it helps you learn and become a better 
+security professional.
 
 6. Contact
    -------
@@ -60,7 +57,7 @@ sure you peruse the FAQ and Manual first.
 7. License
    -------
 
-(c) 2010 Raphael Mudge. This project is licensed under the BSD license. 
+(c) 2010-2011 Raphael Mudge. This project is licensed under the BSD license. 
 See section 8 for more information.
 
 lib/jgraphx.jar is used here within the terms of the BSD license offered by
