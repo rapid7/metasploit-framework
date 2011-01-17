@@ -54,7 +54,10 @@ def ls_current
 				username = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
 			elsif os =~ /(2000|NET|XP)/
 				appdata_var = registry_getvaldata("#{key_base}\\Volatile Environment","APPDATA")
-				username = appdata_var.scan(/^\w\:\D*\\(\D*)\\\D*$/)
+				username = ''
+				if appdata_var =~ /^\w\:\D*\\(\D*)\\\D*$/
+					username = $1
+				end
 			end
 			tbl << [sid,username]
 			end
