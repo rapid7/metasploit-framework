@@ -53,20 +53,33 @@ module MeterpreterOptions
 		end
 		
 		
-
-		if (datastore['InitialAutoRunScript'].empty? == false)
-			args = datastore['InitialAutoRunScript'].split
-			print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
-			session.execute_script(args.shift, args)
+		[ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|
+			if (datastore[key].empty? == false)
+				args = datastore[key].split
+				print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
+				run_script(session, args.shift, *args)
+			end
 		end
 
-		if (datastore['AutoRunScript'].empty? == false)
-			args = datastore['AutoRunScript'].split
-			print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
-			session.execute_script(args.shift, args)
-		end
 	end
 
+	def run_script(session, script_name, *args)
+		mod = session.framework.modules.create(script_name)
+		if (mod and mod.type == "post")
+			opts = (args + [ "SESSION=#{session.sid}" ]).join(',')
+			mod.run_simple(
+				# Run with whatever the default stance is for now.  At some
+				# point in the future, we'll probably want a way to force a
+				# module to run in the background
+				#'RunAsJob' => true,
+				'LocalInput'  => session.user_input,
+				'LocalOutput' => session.user_output,
+				'OptionStr'   => opts
+			)
+		else
+			session.execute_script(script_name, args)
+		end
+	end
 end
 end
 end
