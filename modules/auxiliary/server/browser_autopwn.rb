@@ -300,6 +300,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		@exploits[name].datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
 		@exploits[name].datastore['MODULE_OWNER'] = self.owner
+		@exploits[name].datastore['ParentUUID'] = datastore["ParentUUID"] if datastore["ParentUUID"]
+		@exploits[name].datastore['AutopwnUUID'] = self.uuid
 		@exploits[name].datastore['LPORT'] = lport
 		@exploits[name].datastore['LHOST'] = @lhost
 		@exploits[name].datastore['SSL'] = datastore['SSL']
@@ -416,6 +418,8 @@ class Metasploit3 < Msf::Auxiliary
 				multihandler = framework.modules.create("exploit/multi/handler")
 				multihandler.datastore['MODULE_OWNER'] = self.datastore['MODULE_OWNER']
 				multihandler.datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
+				multihandler.datastore['ParentUUID'] = datastore["ParentUUID"] if datastore["ParentUUID"]
+				multihandler.datastore['AutopwnUUID'] = self.uuid
 				multihandler.datastore['LPORT'] = lport
 				multihandler.datastore['LHOST'] = @lhost
 				multihandler.datastore['ExitOnSession'] = false
