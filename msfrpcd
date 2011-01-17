@@ -28,6 +28,7 @@ arguments = Rex::Parser::Arguments.new(
 	"-u" => [ true,  "URI for Web server"                                   ],
 	"-S" => [ false, "Disable SSL on the XMLRPC socket"                     ],
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
+	"-n" => [ false, "Disable database"                     ],
 	"-h" => [ false, "Help banner"                                          ])
 
 opts = {
@@ -39,6 +40,7 @@ opts = {
 }
 
 foreground = false
+frameworkOpts = {}
 
 
 # Parse command line arguments.
@@ -60,6 +62,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['ServerType'] = val
 		when "-u"
 			opts['URI'] = val
+		when "-n"
+			frameworkOpts['DisableDatabase'] = true
 		when "-h"
 			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
 			exit
@@ -81,7 +85,7 @@ require 'msf/base'
 require 'msf/ui'
 
 # Create an instance of the framework
-$framework = Msf::Simple::Framework.create
+$framework = Msf::Simple::Framework.create(frameworkOpts)
 
 # Fork into the background if requested
 begin
@@ -93,7 +97,7 @@ rescue ::NotImplementedError
 	$stderr.puts "[-] Background mode is not available on this platform"
 end
 
-$framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/
+$framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/ and not frameworkOpts['DisableDatabase']
 
 # Run the plugin instance in the foreground.
 begin
