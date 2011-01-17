@@ -128,6 +128,23 @@ module Auxiliary::Report
 		framework.db.report_web_vuln(opts)
 	end	
 
+	#
+	# Store some data stolen from a session as a file
+	#
+	# Also stores metadata about the file in the database when available
+	# +ltype+ is an OID-style loot type, e.g. "cisco.ios.config".  Ignored when
+	# no database is connected.
+	#
+	# +ctype+ is the Content-Type, e.g. "text/plain".  Affects the extension
+	# the file will be saved with.
+	#
+	# +host+ can be an String address or a Session object
+	#
+	# +data+ is the actual contents of the file
+	#
+	# +filename+ and +info+ are only stored as metadata, and therefore both are
+	# ignored if there is no database
+	#
 	def store_loot(ltype, ctype, host, data, filename=nil, info=nil)
 		if ! ::File.directory?(Msf::Config.loot_directory)
 			FileUtils.mkdir_p(Msf::Config.loot_directory)
@@ -145,9 +162,9 @@ module Auxiliary::Report
 		
 		ext = 'bin'
 		if filename
-			exts = filename.to_s.split('.')
-			if exts.length > 1 and exts[-1].length < 4
-				ext = exts[-1]
+			parts = filename.to_s.split('.')
+			if parts.length > 1 and parts[-1].length < 4
+				ext = parts[-1]
 			end
 		end
 
@@ -156,32 +173,37 @@ module Auxiliary::Report
 			ext = "txt"
 		end
 
+		ws = (db ? myworkspace.name[0,16] : 'default')
 		name =
-			Time.now.strftime("%Y%m%d%H%M%S") + "_" +
-			myworkspace.name[0,16] + "_" + (host || 'unknown') + '_' +
-			ltype[0,16] + '_' + Rex::Text.rand_text_numeric(6) + '.' + ext
-
+			Time.now.strftime("%Y%m%d%H%M%S") + "_" + ws + "_" +
+			(host || 'unknown') + '_' + ltype[0,16] + '_' +
+			Rex::Text.rand_text_numeric(6) + '.' + ext
 
 		name.gsub!(/[^a-z0-9\.\_]+/i, '')
 
 		path = File.join(Msf::Config.loot_directory, name)
-		conf = {}
-		conf[:host] = host if host
-		conf[:type] = ltype
-		conf[:content_type] = ctype
-		conf[:path] = ::File.expand_path(path)
-		conf[:workspace] = myworkspace
-		conf[:name] = filename if filename
-		conf[:info] = info if info
-
-		print_status("Writing #{ltype} (#{ctype}) for #{host}: (#{filename} - #{info})...")
-		File.open(conf[:path], "wb") do |fd|
+		full_path = ::File.expand_path(path)
+		print_status("Writing #{ltype} (#{ctype}) for #{host}: (#{filename} - #{info})")
+		File.open(full_path, "wb") do |fd|
 			fd.write(data)
 		end
-		ret_path = conf[:path].dup
 
-		framework.db.report_loot(conf)
-		return ret_path
+		if (db)
+			# If we have a database we need to store it with all the available
+			# metadata.
+			conf = {}
+			conf[:host] = host if host
+			conf[:type] = ltype
+			conf[:content_type] = ctype
+			conf[:path] = full_path
+			conf[:workspace] = myworkspace
+			conf[:name] = filename if filename
+			conf[:info] = info if info
+
+			framework.db.report_loot(conf)
+		end
+
+		return full_path.dup
 	end
 
 	# Takes a credential from a script (shell or meterpreter), and
