@@ -16,7 +16,7 @@ logs = ::File.join(Msf::Config.log_directory,'scripts', 'gettelnet')
 
 # Cleaup script file name
 @dest = logs + "/clean_up_" + filenameinfo + ".rc"
-session = client
+
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-e" => [ false, "Enable Telnet Server only."  ],
@@ -154,13 +154,13 @@ unsupported if client.platform !~ /win32|win64/i
 
 if enbl
 	message
-	insttlntsrv(session)
+	insttlntsrv()
 	enabletlntsrv()
 	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
 
 elsif usr!= nil && pass != nil
 	message
-	insttlntsrv(session)
+	insttlntsrv()
 	enabletlntsrv()
 	addrdpusr(usr, pass)
 	print_status("For cleanup use command: run multi_console_command -rc #{@dest}")
