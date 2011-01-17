@@ -1,11 +1,8 @@
 ##
 ## $Id$
 ##
-## This is the main lab controller which will call out to other controller
-## libraries. Requiring this file and specifying the type of VM at initialization
-## will allow you to start/stop/snapshot/revert & run commands on VMs
+## This is the main lab controller. Require this file to create a lab of vms
 ##
-## $Revision$
 ##
 
 $:.unshift(File.expand_path(File.dirname(__FILE__))) ## Msf Test libraries
@@ -14,112 +11,149 @@ require 'find'
 require 'enumerator'
 require 'vm'
 require 'yaml'
+require 'workstation_controller'
+require 'remote_workstation_controller'
 
-#
-# ~Higher-level lab methods which are generic to the types of things we want to do with a lab of machines
-#  Note that any generic vm functionality should be pushed down into the controller class. 
+#require 'amazon_controller'
+#require 'virtualbox_controller'
+#require 'dynagen_controller'
 
-class VmController 
+module Lab
+module Controllers
+	class VmController 
 
-	include Enumerable
+		include Enumerable
+		include Lab::Controllers::WorkstationController 		## gives access to workstation-specific controller methods
+		include Lab::Controllers::RemoteWorkstationController 	## gives access to workstation-specific controller methods
 
-	def initialize (labdef = nil)
+#		include Lab::AmazonController 		## gives access to amazon-specific controller methods
+#		include Lab::VirtualBoxController 	## gives access to virtualbox-specific controller methods
+#		include Lab::DynagenController 		## gives access to dynagen-specific controller methods
+
+
+		def initialize (labdef = nil)
 		
-		@vms = [] ## Start with an empty array of vms
+			@vms = [] ## Start with an empty array of vms
 
-		## labdef is a big array of hashes (vms) - generally loaded from yaml
-		if !labdef 
-			labdef = [] ## Just use a blank lab to start
-		else
-			labdef = labdef
+			## labdef is a big array of hashes (vms) - generally loaded from yaml
+			if !labdef 
+				labdef = [] ## Just use a blank lab to start
+			else
+				labdef = labdef
+			end
+
+			## Create vm objects from the lab definition
+			labdef.each do |item|
+				begin
+					@vms << Vm.new(item)
+				rescue Exception => e
+					puts e.to_s
+				end  
+			end
+
 		end
-
-		## Create vm objects from the lab definition
-		labdef.each do |item|
-			begin
-				@vms << Vm.new(item)
-			rescue Exception => e
-				puts e.to_s
-			end  
-		end
-
-	end
 	
-	def clear!
-		@vms = []
-	end
+		def clear!
+			@vms = []
+		end
 
-	def find_by_vmid(vmid)
-		@vms.each do |vm|
+		def find_by_vmid(vmid)
+			@vms.each do |vm|
 
-			if (vm.vmid.to_s == vmid.to_s)
-				return vm
+				if (vm.vmid.to_s == vmid.to_s)
+					return vm
+				end
+			end
+			return nil
+		end
+
+		def from_file(file)
+			labdef = YAML::load_file(file)
+
+			labdef.each do |item|
+				#puts "Lab item: " + item.inspect
+				@vms << Vm.new(item)
 			end
 		end
-		return nil
-	end
 
-	def from_file(file)
-		labdef = YAML::load_file(file)
-
-		labdef.each do |item|
-			puts "Lab item: " + item.inspect
-			@vms << Vm.new(item)
+		def to_file(file)
+			File.open(file, 'w') do |f|
+				@vms.each { |vm| f.puts vm.to_yaml }
+			end
 		end
-	end
 
-	def to_file(file)
-		File.open(file, 'w') do |f|
-			@vms.each { |vm| f.puts vm.to_yaml }
+		def each
+			@vms.each { |vm| yield vm }
 		end
-	end
 
-	def each
-		@vms.each { |vm| yield vm }
-	end
-
-#	def includes?(vm)
-#		@vms.each { |vm| if (vm.vmid.to_ == vmid.to_s) then return true end  }
-#	end
-
-	def includes_vmid?(vmid)
-		@vms.each { |vm| if (vm.vmid.to_s == vmid.to_s) then return true end  }
-	end
-
-	def running?(vmid)
-		if exists?(vmid)
-			return self.find_by_vmid(vmid).running?
+		def includes?(specified_vm)
+			@vms.each { |vm| if (vm == specified_vm) then return true end  }
 		end
-		return false 
-	end
 
-	## Might want to mix this (workstation) functionality in?
-	def build_from_running_workstation(clear=false)
-
-		if clear
-			@vms = []
+		def includes_vmid?(vmid)
+			@vms.each { |vm| if (vm.vmid.to_s == vmid.to_s) then return true end  }
 		end
+
+		def build_from_dir(dir, type, clear=false)
 		
-		vm_list = `vmrun list`.split("\n")
-		vm_list.shift
-		vm_list.each do |vmx|
-			index = @vms.count + 1 ## give us a vmid!
-			@vms << Vm.new( {"vmid" => index, "driver" => "workstation", 
-					"location" => vmx})
+			if clear
+				@vms = []
+			end
+
+			if type.downcase == "workstation"
+				vm_list = WorkstationController::workstation_dir_list(dir)
+			elsif type.downcase == "remote_workstation"	
+				vm_list = RemoteWorkstationController::workstation_dir_list(dir)
+			else
+				raise TypeError, "Unsupported VM Type"
+			end
+			
+			vm_list.each do |item|
+				index = @vms.count + 1
+				@vms << Vm.new( {"vmid" => index, "driver" => type, "location" => item} )
+			end
+		end
+
+		def build_from_running(type, user=nil, host=nil, clear=false)
+		
+			if clear
+				@vms = []
+			end
+
+			if type.downcase == "workstation"
+				vm_list = WorkstationController::workstation_running_list
+			elsif type.downcase == "remote_workstation"
+				vm_list = RemoteWorkstationController::workstation_running_list(user, host)
+			else
+				raise TypeError, "Unsupported VM Type"
+			end
+			
+			vm_list.each do |item|
+				index = @vms.count + 1
+				@vms << Vm.new( {"vmid" => index, "driver" => type, "location" => item} )
+			end
+		end
+
+		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
+			@vms << Vm.new( {	"vmid" => vmid, 
+						"driver" => type, 
+						"location" => location, 
+						"credentials" => credentials,
+						"user" => user,
+						"host" => host
+						} )
+		end
+
+		def remove_by_vmid(vmid)
+			@vms.delete(self.find_by_vmid(vmid))
+		end		
+
+		def running?(vmid)
+			if exists?(vmid)
+				return self.find_by_vmid(vmid).running?
+			end
+			return false 
 		end
 	end
-
-	def build_from_dir_workstation(basepath=nil, clear=false)
-	
-		if clear
-			@vms = []
-		end
-
-		vm_list = Find.find(basepath).select { |f| f =~ /\.vmx$/ }
-		vm_list.each do |vmx|
-			index = @vms.count + 1 ## give us a vmid!
-			@vms << Vm.new( {"vmid" => index, "driver" => "workstation",
-					"location" => vmx})
-		end
-	end
+end
 end

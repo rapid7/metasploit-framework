@@ -3,11 +3,14 @@
 ##
 
 require 'workstation_driver'
+require 'remote_workstation_driver'
 #require 'server_driver'
 #require 'qemu_driver'
-#require 'vbox_driver'
+#require 'virtualbox_driver'
 #require 'ec2_driver'
 #require 'azure_driver'
+
+module Lab
 
 class Vm
 	
@@ -18,10 +21,12 @@ class Vm
 	attr_accessor :tools
 
 	## Initialize takes a vm configuration hash of the form
-	##  - driver (vm technology)
 	##  - vmid (unique identifier)
-	##  - location (file / uri)
-	##  - credentials (of the form [ {'user'=>"user",'pass'=>"pass", 'admin' => false}, ... ])
+	##    driver (vm technology)
+	##    user (if applicable)
+	##    host (if applicable)
+	##    location (file / uri)
+	##    credentials (of the form [ {'user'=>"user",'pass'=>"pass", 'admin' => false}, ... ])
 	def initialize(config = {})	
 		@driver = nil
 		driver_type = config['driver']
@@ -37,8 +42,13 @@ class Vm
 		@ports = nil					## TODO
 		@vulns = nil					## TODO
 
+		@user = config['user'] || nil
+		@host = config['host'] || nil
+
 		if driver_type == "workstation"
-			@driver = WorkstationDriver.new(@location)
+			@driver = Lab::Drivers::WorkstationDriver.new(@location, @credentials)
+		elsif driver_type == "remote_workstation"
+			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@location,@user, @host, @credentials)	
 		#elsif driver_type == "server"
 		#	@driver = ServerDriver.new
 		#elsif driver_type == "virtualbox"
@@ -75,6 +85,10 @@ class Vm
 		@driver.suspend
 	end
 	
+	def reset
+		@driver.reset
+	end
+	
 	def resume
 		@driver.resume
 	end
@@ -83,8 +97,20 @@ class Vm
 		@driver.snapshot(name)
 	end
 
+	## revert needs to restore the current state of the machine
+	##   meaning, if it's running when revert is called
+	##   we'll want to restart it after reverting it. 
 	def revert(name)
+		start = false
+		if running?
+			start = true
+		end
+
 		@driver.revert(name)
+
+		if start
+			@driver.start
+		end
 	end
 
 	def copy_to(from_file,to_file)
@@ -108,17 +134,24 @@ class Vm
 	end
 
 	def to_yaml
-		out =  " - vmid: #{vmid}\n"
-		out += "   driver: #{driver.type}\n"
-		out += "   location: #{location}\n"
-		out += "   tools: #{tools}\n"
+		out =  " - vmid: #{@vmid}\n"
+		out += "   driver: #{@driver.type}\n"
+		out += "   location: #{@location}\n"
+		out += "   tools: #{@tools}\n"
 		out += "   credentials:\n"
 		@credentials.each do |credential|		
 			out += "     - user: #{credential['user']}\n"
 			out += "       pass: #{credential['pass']}\n"
 			out += "       admin: #{credential['admin']}\n"
 		end
+		
+		if @server_user or @server_host
+			out += "   server_user: #{@server_user}\n"
+			out += "   server_host: #{@server_host}\n"
+		end
 
 	 	return out
 	end		
+end
+
 end

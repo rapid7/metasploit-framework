@@ -7,53 +7,61 @@ require 'vm_driver'
 module Lab
 module Drivers
 
-class WorkstationDriver < VmDriver
+class RemoteWorkstationDriver < VmDriver
 
 	attr_accessor :type
 	attr_accessor :location
 
-	def initialize(location, credentials=nil)
-		if !File.exist?(location)
-			raise ArgumentError,"Couldn't find: " + location
-		end
+	def initialize(location, user=nil, host=nil, credentials=nil)
 
-		@location = location
-		@credentials = credentials
-		@type = "Workstation"
+		## Can we check file existence?		
 		
+		#if !File.exist?(location)
+		#	raise ArgumentError,"Couldn't find: " + location
+		#end
+
+		unless user then raise ArgumentError, "Must provide a username" end
+		unless host then raise ArgumentError, "Must provide a hostname" end
+		
+		@location = location
+		@host = host
+		@user = user
+		@credentials = credentials
+		@type = "RemoteWorkstation"
 	end
 
 	def start
-		system_command("vmrun -T ws start " + "\"#{@location}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws start \\\'#{@location}\\\' nogui")
 	end
 
 	def stop
-		system_command("vmrun -T ws stop " + "\"#{@location}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws stop \\\'#{@location}\\\' nogui")
 	end
 
 	def suspend
-		system_command("vmrun -T ws suspend " + "\"#{@location}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws suspend \\\'#{@location}\\\' nogui")
 	end
 
 	def pause
-		system_command("vmrun -T ws pause " + "\"#{@location}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws pause \\\'#{@location}\\\' nogui")
 	end
 
 	def reset
-		system_command("vmrun -T ws reset " + "\"#{@location}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws reset \\\'#{@location}\\\' nogui")
 	end
 
 	def create(snapshot)
-		system_command("vmrun -T ws snapshot " + "\"#{@location}\" \"#{@snapshot}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 
 	def revert(snapshot)
-		system_command("vmrun -T ws revertToSnapshot " + "\"#{@location}\" \"#{@snapshot}\"")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 
 	def delete_snapshot(snapshot)
-		system_command("vmrun -T ws deleteSnapshot " + "\"#{@location}\" \"#{@snapshot}\"" )
+		system_command("ssh #{@user}@#{@host} vmrun -T ws deleteSnapshot \\\'#{@location}\\\' #{snapshot} nogui" )
 	end
+
 
 	def run_command(command, named_user=nil)
 	
@@ -65,7 +73,7 @@ class WorkstationDriver < VmDriver
 		pass = cred['pass']
 		admin = cred['admin']
 	
-		vmrunstr = "vmrun -T ws -gu \"{user}\" -gp \"{pass}\" runProgramInGuest \"#{@location}\" \"{command}\" -noWait -activeWindow"
+		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu \\\'{user}\\\' -gp \\\'{pass}\\\' runProgramInGuest \\\'#{@location}\\\' \\\'{command}\\\' -noWait -activeWindow nogui"
 
 		system_command(vmrunstr)
 	end
@@ -80,7 +88,7 @@ class WorkstationDriver < VmDriver
 		pass = cred['pass']
 		admin = cred['admin']
 		
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} copyFileFromGuestToHost \"#{@location}\" \"{from}\" \"{to}\"" 
+		vmrunstr = "ssh #{@user}@#{@host}  vmrun -T ws -gu {user} -gp {pass} copyFileFromGuestToHost \\\'#{@location}\\\' \\\'{from}\\\' \\\'{to}\\\' nogui" 
 		system_command(vmrunstr)
 	end
 
@@ -95,7 +103,7 @@ class WorkstationDriver < VmDriver
 		admin = cred['admin']
 
 	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} copyFileFromHostToGuest \"#{@location}\" \"{from}\" \"{to}\""  
+		vmrunstr = "ssh #{@user}@#{@host}  vmrun -T ws -gu {user} -gp {pass} copyFileFromHostToGuest \\\'#{@location}\\\' \\\'{from}\\\' \\\'{to}\\\' nogui"  
 		system_command(vmrunstr)
 	end
 
@@ -110,7 +118,7 @@ class WorkstationDriver < VmDriver
 		admin = cred['admin']
 
 	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} fileExistsInGuest \"#{@location}\" \"{file}\" "
+		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu {user} -gp {pass} fileExistsInGuest \\\'#{@location}\\\' \\\'{file}\\\' nogui"
 		system_command(vmrunstr)
 	end
 
@@ -124,9 +132,10 @@ class WorkstationDriver < VmDriver
 		pass = cred['pass']
 		admin = cred['admin']
 	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} createDirectoryInGuest \"#{@location}\" \"#{directory}\" "
+		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu {user} -gp {pass} createDirectoryInGuest \\\'#{@location}\\\' \\\'#{directory}\\\' nogui"
 		system_command(vmrunstr)
 	end
+
 
 	def cleanup
 
@@ -134,7 +143,7 @@ class WorkstationDriver < VmDriver
 
 	def running?
 		## Get running Vms
-		running = `vmrun list`
+		running = `ssh #{@user}@#{@host} vmrun list nogui`
 		running_array = running.split("\n")
 		running_array.shift
 
