@@ -36,11 +36,13 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    =>
 				[
+					[ 'OSVDB', '68518' ],
 					[ 'CVE', '2010-3338' ],
+					[ 'BID', '44357' ],
 					[ 'MSB', 'MS10-092' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/15589/' ]
 				],
-			'DisclosureDate'=> "Oct 22 2010"
+			'DisclosureDate'=> 'Sep 13 2010'
 		))
 
 		register_options([
@@ -364,17 +366,4 @@ class Metasploit3 < Msf::Post
 		content
 	end
 
-	def cmd_exec(cmd)
-		session.response_timeout=120
-		cmd = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-		o = ""
-		while(d = cmd.channel.read)
-			o << d
-			break if d == ""
-		end
-		cmd.channel.close
-		return o
-	end
-
 end
-
