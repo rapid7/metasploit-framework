@@ -35,8 +35,8 @@ class Base
 		raise Rex::Script::Completed
 	end
 
-	def run(args)
-		self.args = args
+	def run(args=[])
+		self.args = args = args.flatten
 		begin
 			eval(::File.read(self.path, ::File.size(self.path)), binding )
 		rescue ::Interrupt
