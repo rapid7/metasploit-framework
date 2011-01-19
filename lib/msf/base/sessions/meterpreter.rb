@@ -3,6 +3,7 @@
 ##
 
 require 'msf/base'
+require 'msf/base/sessions/scriptable'
 require 'rex/post/meterpreter'
 
 module Msf
@@ -24,35 +25,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	include Msf::Session::Interactive
 	include Msf::Session::Comm
 
-	#
-	# Find out of the script exists (and if so, which path)
-	#
-	ScriptBase     = Msf::Config.script_directory + Msf::Config::FileSep + "meterpreter"
-	UserScriptBase = Msf::Config.user_script_directory + Msf::Config::FileSep + "meterpreter"
-
-	def self.find_script_path(script)
-		# Find the full file path of the specified argument
-		check_paths =
-			[
-				script,
-				ScriptBase + Msf::Config::FileSep + "#{script}",
-				ScriptBase + Msf::Config::FileSep + "#{script}.rb",
-				UserScriptBase + Msf::Config::FileSep + "#{script}",
-				UserScriptBase + Msf::Config::FileSep + "#{script}.rb"
-			]
-
-		full_path = nil
-
-		# Scan all of the path combinations
-		check_paths.each { |path|
-			if ::File.exists?(path)
-				full_path = path
-				break
-			end
-		}
-
-		full_path
-	end
+	include Msf::Session::Scriptable
 
 	# Override for server implementations that can't do ssl
 	def supports_ssl?
@@ -92,8 +65,15 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	# Returns the session type as being 'meterpreter'.
 	#
-	def type
+	def self.type
 		"meterpreter"
+	end
+
+	#
+	# Calls the class method
+	#
+	def type
+		self.class.type
 	end
 
 	#
@@ -125,6 +105,22 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def desc
 		"Meterpreter"
 	end
+
+
+	##
+	#
+	# Msf::Session::Scriptable implementors
+	#
+	##
+
+	#
+	# Runs the meterpreter script in the context of a script container
+	#
+	def execute_file(full_path, args)
+		o = Rex::Script::Meterpreter.new(self, full_path)
+		o.run(args)
+	end
+
 
 	##
 	#
@@ -176,22 +172,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def run_cmd(cmd)
 		console.run_single(cmd)
-	end
-
-	#
-	# Executes the supplied script.
-	#
-	def execute_script(script, args)
-
-		full_path = self.class.find_script_path(script)
-
-		# No path found?  Weak.
-		if full_path.nil?
-			print_error("The specified script could not be found: #{script}")
-			return true
-		end
-
-		execute_file(full_path, args)
 	end
 
 	#

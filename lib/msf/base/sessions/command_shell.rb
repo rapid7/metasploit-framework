@@ -1,4 +1,5 @@
 require 'msf/base'
+require 'msf/base/sessions/scriptable'
 
 module Msf
 module Sessions
@@ -22,41 +23,24 @@ class CommandShell
 	#
 	include Msf::Session::Provider::SingleCommandShell
 
+	include Msf::Session::Scriptable
+
+
+	#
+	# Executes the supplied script, must be specified as full path.
+	#
+	# Msf::Session::Scriptable implementor
+	#
+	def execute_file(full_path, args)
+		o = Rex::Script::Shell.new(self, full_path)
+		o.run(args)
+	end
+
 	#
 	# Returns the type of session.
 	#
 	def self.type
 		"shell"
-	end
-
-	#
-	# Find out of the script exists (and if so, which path)
-	#
-	ScriptBase     = Msf::Config.script_directory + Msf::Config::FileSep + "shell"
-	UserScriptBase = Msf::Config.user_script_directory + Msf::Config::FileSep + "shell"
-
-	def self.find_script_path(script)
-		# Find the full file path of the specified argument
-		check_paths =
-			[
-				script,
-				ScriptBase + Msf::Config::FileSep + "#{script}",
-				ScriptBase + Msf::Config::FileSep + "#{script}.rb",
-				UserScriptBase + Msf::Config::FileSep + "#{script}",
-				UserScriptBase + Msf::Config::FileSep + "#{script}.rb"
-			]
-
-		full_path = nil
-
-		# Scan all of the path combinations
-		check_paths.each { |path|
-			if ::File.exists?(path)
-				full_path = path
-				break
-			end
-		}
-
-		full_path
 	end
 
 	def initialize(*args)
@@ -92,29 +76,6 @@ class CommandShell
 	def shell_init
 		return true
 	end
-
-	#
-	# Executes the supplied script, will search the script path.
-	#
-	def execute_script(script, args)
-		full_path = self.class.find_script_path(script)
-
-		# No path found?  Weak.
-		if full_path.nil?
-			print_error("The specified script could not be found: #{script}")
-			return true
-		end
-		execute_file(full_path, args)
-	end
-
-	#
-	# Executes the supplied script, must be specified as full path.
-	#
-	def execute_file(full_path, args)
-		o = Rex::Script::Shell.new(self, full_path)
-		o.run(args)
-	end
-
 
 	#
 	# Explicitly run a single command, return the output.
@@ -263,13 +224,13 @@ class CommandShell
 		if (datastore['InitialAutoRunScript'] && datastore['InitialAutoRunScript'].empty? == false)
 			args = datastore['InitialAutoRunScript'].split
 			print_status("Session ID #{sid} (#{tunnel_to_s}) processing InitialAutoRunScript '#{datastore['InitialAutoRunScript']}'")
-			execute_script(args.shift, args)
+			execute_script(args.shift, *args)
 		end
 
 		if (datastore['AutoRunScript'] && datastore['AutoRunScript'].empty? == false)
 			args = datastore['AutoRunScript'].split
 			print_status("Session ID #{sid} (#{tunnel_to_s}) processing AutoRunScript '#{datastore['AutoRunScript']}'")
-			execute_script(args.shift, args)
+			execute_script(args.shift, *args)
 		end
 	end
 

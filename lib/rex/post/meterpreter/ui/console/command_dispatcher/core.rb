@@ -395,8 +395,8 @@ class Console::CommandDispatcher::Core
 					tabs += tab_complete_postmods
 				end
 				[
-					::Msf::Sessions::Meterpreter::ScriptBase,
-					::Msf::Sessions::Meterpreter::UserScriptBase 
+					::Msf::Sessions::Meterpreter.script_base,
+					::Msf::Sessions::Meterpreter.user_script_base
 				].each do |dir|
 					next if not ::File.exist? dir
 					tabs += ::Dir.new(dir).find_all { |e|

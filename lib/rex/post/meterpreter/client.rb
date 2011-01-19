@@ -207,14 +207,6 @@ class Client
 		@@ssl_ctx
 	end
 
-	#
-	# Runs the meterpreter script in the context of a script container
-	#
-	def execute_file(file, args)
-		o = Rex::Script::Meterpreter.new(self, file)
-		o.run(args)
-	end
-
 	##
 	#
 	# Accessors
