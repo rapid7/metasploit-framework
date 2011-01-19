@@ -940,6 +940,16 @@ class Def_advapi32
 			["PBLOB","GenericMapping","in"],
 			])
 
+		railgun.add_function( 'advapi32', 'ConvertStringSidToSidA', 'BOOL',[
+			["PCHAR","StringSid","in"],
+			["PBLOB","pSid","out"],
+			])
+
+		railgun.add_function( 'advapi32', 'ConvertStringSidToSidW', 'BOOL',[
+			["PWCHAR","StringSid","in"],
+			["PBLOB","pSid","out"],
+			])
+
 		railgun.add_function( 'advapi32', 'CopySid', 'BOOL',[
 			["DWORD","nDestinationSidLength","in"],
 			["PBLOB","pDestinationSid","out"],
