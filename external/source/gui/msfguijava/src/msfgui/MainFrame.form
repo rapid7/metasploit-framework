@@ -15,7 +15,7 @@
         </DimensionLayout>
         <DimensionLayout dim="1">
           <Group type="103" groupAlignment="0" attributes="0">
-              <Component id="tabbedPane" alignment="1" pref="543" max="32767" attributes="0"/>
+              <Component id="tabbedPane" alignment="1" pref="530" max="32767" attributes="0"/>
           </Group>
         </DimensionLayout>
       </Layout>
@@ -385,6 +385,33 @@
                   </Events>
                   <AuxValues>
                     <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="lootsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;            new Object [][] {&#xa;&#xa;            },&#xa;            new String [] {&#xa;                &quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;            }&#xa;        ) {&#xa;            public Class getColumnClass(int columnIndex) {&#xa;                return java.lang.String.class;&#xa;            }&#xa;            public boolean isCellEditable(int i,int j) {&#xa;                return false;&#xa;            }&#xa;        });"/>
+                  </AuxValues>
+                </Component>
+              </SubComponents>
+            </Container>
+            <Container class="javax.swing.JScrollPane" name="credsPane">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="credsPane" noResource="true"/>
+              </Properties>
+              <AuxValues>
+                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+              </AuxValues>
+              <Constraints>
+                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
+                  <JTabbedPaneConstraints tabName="Creds">
+                    <Property name="tabTitle" type="java.lang.String" resourceKey="credsPane.TabConstraints.tabTitle"/>
+                  </JTabbedPaneConstraints>
+                </Constraint>
+              </Constraints>
+
+              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+              <SubComponents>
+                <Component class="javax.swing.JTable" name="credsTable">
+                  <Properties>
+                    <Property name="name" type="java.lang.String" value="credsTable" noResource="true"/>
+                  </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="credsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;            new Object [][] {&#xa;&#xa;            },&#xa;            new String [] {&#xa;                &quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            }&#xa;        ) {&#xa;            public Class getColumnClass(int columnIndex) {&#xa;                return java.lang.String.class;&#xa;            }&#xa;            public boolean isCellEditable(int i,int j) {&#xa;                return false;&#xa;            }&#xa;        });"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -836,7 +863,7 @@
               <Group type="102" alignment="0" attributes="0">
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusMessageLabel" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace pref="712" max="32767" attributes="0"/>
+                  <EmptySpace pref="696" max="32767" attributes="0"/>
                   <Component id="progressBar" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="statusAnimationLabel" min="-2" max="-2" attributes="0"/>

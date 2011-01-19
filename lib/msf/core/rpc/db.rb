@@ -948,7 +948,7 @@ public
 			opts[:service] = @framework.db.find_or_create_service(opts)
 		end
 
-		ret = @framework.db.report_loot(opts)
+		res = @framework.db.report_loot(opts)
 		return { :result => 'success' } if(res)
 	end
 
@@ -971,6 +971,39 @@ public
 			loot[:name] = l.name
 			loot[:info] = l.info
 			ret[:loots] << loot
+		end
+		ret
+	end
+
+	# requires host, port, user, pass, ptype, and active
+	def report_cred(token,xopts)
+		authenticate(token)
+		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
+		opts = fixOpts(xopts)
+		res = framework.db.find_or_create_cred(opts)
+		return { :result => 'success' } if(res)
+		{ :result => 'failed' }
+	end
+	#right now workspace is the only option supported
+	def creds(token,xopts)
+		authenticate(token)
+		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
+		opts = fixOpts(xopts)
+		wspace = workspace(opts[:workspace])
+		ret = {}
+		ret[:creds] = []
+		@framework.db.creds(wspace).each do |c|
+			cred = {}
+			cred[:host] = cred.service.host.address || cred.service.host.address6 if(cred.service.host)
+			cred[:time] = cred.updated_at
+			cred[:port] = cred.service.port
+			cred[:proto] = cred.service.proto
+			cred[:sname] = cred.service.name
+			cred[:type] = cred.ptype
+			cred[:user] = cred.user
+			cred[:pass] = cred.pass
+			cred[:active] = cred.active
+			ret[:creds] << cred
 		end
 		ret
 	end

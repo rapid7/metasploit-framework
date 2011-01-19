@@ -544,6 +544,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         });
         lootsPane = new javax.swing.JScrollPane();
         lootsTable = new javax.swing.JTable();
+        credsPane = new javax.swing.JScrollPane();
+        credsTable = new javax.swing.JTable();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
@@ -745,6 +747,28 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
         tabbedPane.addTab(resourceMap.getString("lootsPane.TabConstraints.tabTitle"), lootsPane); // NOI18N
 
+        credsPane.setName("credsPane"); // NOI18N
+
+        credsTable.setName("credsTable"); // NOI18N
+        credsTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Host", "Time", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
+            }
+        ) {
+            public Class getColumnClass(int columnIndex) {
+                return java.lang.String.class;
+            }
+            public boolean isCellEditable(int i,int j) {
+                return false;
+            }
+        });
+        credsPane.setViewportView(credsTable);
+
+        tabbedPane.addTab(resourceMap.getString("credsPane.TabConstraints.tabTitle"), credsPane); // NOI18N
+
         javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
         mainPanel.setLayout(mainPanelLayout);
         mainPanelLayout.setHorizontalGroup(
@@ -753,7 +777,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         );
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 543, Short.MAX_VALUE)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 530, Short.MAX_VALUE)
         );
 
         menuBar.setName("menuBar"); // NOI18N
@@ -1136,7 +1160,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 712, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 696, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -1249,6 +1273,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		reAddQuery(servicesTable, 4, "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
 		reAddQuery(vulnsTable,5,"vulns",new String[]{"port","proto","time","host","name","refs"});
 		reAddQuery(notesTable,7,"notes",new String[]{"time", "host", "service", "type", "data"});
+		reAddQuery(credsTable,9,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
@@ -1730,6 +1755,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem connectItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
+    private javax.swing.JScrollPane credsPane;
+    private javax.swing.JTable credsTable;
     private javax.swing.JMenuItem currWorkspaceItem;
     private javax.swing.JMenu databaseMenu;
     private javax.swing.JMenuItem dbCredcollectItem;
