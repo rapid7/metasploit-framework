@@ -85,20 +85,18 @@ def usage
 	print_line("for output retrieval. Arguments must be encased in double quotes and special characters escaped\n")
 	print_line("Example:")
 	print_line("run wmic -c \"useraccount where (name = \\\'Administrator\\\') get name, sid\"\n")
+	raise Rex::Script::Completed
 end
 
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-c"
-		if !val
-			raise "-c requires an argument"
-		end
+
 		commands.concat(val.split("/"))
+
 	when "-s"
-		if !val
-			raise "-s requires an argument"
-		end
+
 		script = val
 		if not ::File.exists?(script)
 			raise "Command List File does not exists!"
@@ -110,22 +108,20 @@ end
 			end
 		end
 	when "-f"
-		if !val
-			raise "-f requires an argument"
-		end
+
 		outfile = val
 	when "-h"
 		usage
-		raise RuntimeError, "Usage"
 	else
-		raise RuntimeError, "Unknown option: #{opt}"
+		print_error "Unknown option: #{opt}"
+		usage
 	end
 
-	if commands.empty?
-		usage
-		raise RuntimeError, "Empty command list"
-	end
 }
+
+if args.length == 0
+	usage
+end
 unsupported if client.platform !~ /win32|win64/i
 
 if outfile == nil
