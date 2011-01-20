@@ -274,7 +274,7 @@ class DBManager
 
 			opts.each { |k,v|
 				if (host.attribute_names.include?(k.to_s))
-					host[k] = v
+					host[k] = v unless host.attribute_locked?(k.to_s)
 				else
 					dlog("Unknown attribute for Host: #{k}")
 				end
