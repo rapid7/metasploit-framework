@@ -1972,7 +1972,7 @@ class DBManager
 			@import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
 			@import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
 			@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first
-			@import_filedata[:zip_wspace] = $1
+			@import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
 			@import_filedata[:type] = "Metasploit ZIP Report"
 			if @import_filedata[:zip_xml]
 				return :msf_zip
@@ -2403,7 +2403,7 @@ class DBManager
 		wpsace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
-		new_tmp = ::File.join(Dir::tmpdir,"msf",@import_filedata[:zip_basename])
+		new_tmp = ::File.join(Dir::tmpdir,"msf","imp_#{Rex::Text::rand_text_alphanumeric(4)}",@import_filedata[:zip_basename])
 		if ::File.exists? new_tmp
 			unless (::File.directory?(new_tmp) && ::File.writable?(new_tmp))
 				raise DBImportError.new("Could not extract zip file to #{new_tmp}")
@@ -2426,12 +2426,17 @@ class DBManager
 			end
 		}
 
+
 		data.entries.each do |e|
 			target = ::File.join(@import_filedata[:zip_tmp],e.name)
 			::File.unlink target if ::File.exists?(target) # Yep. Deleted.
 			data.extract(e,target)
 			if target =~ /^.*.xml$/
-				@import_filedata[:zip_extracted_xml] = target
+				target_data = ::File.open(target) {|f| f.read 1024}
+				if import_filetype_detect(target_data) == :msf_xml
+					@import_filedata[:zip_extracted_xml] = target
+					break
+				end
 			end
 		end
 
