@@ -48,7 +48,14 @@ end
 }
 
 def scan(path)
-	client.fs.dir.foreach(path) {|x|
+	begin
+		dirs = client.fs.dir.foreach(path)
+	rescue ::Rex::Post::Meterpreter::RequestError => e
+		print_error("Error scanning #{path}: #{$!}")
+		return
+	end
+
+	dirs.each {|x|
 		next if x =~ /^(\.|\.\.)$/
 		fullpath = path + '\\' + x
 
