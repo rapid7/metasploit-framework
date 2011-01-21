@@ -33,14 +33,14 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(21),
 				OptInt.new('STARTATSTAGE', [ false, "Start at this test stage",1]),
 				OptInt.new('STEPSIZE', [ false, "Increase string size each iteration with this number of chars",10]),
-				OptInt.new('DELAY', [ false, "Delay between connections",0.5]),
+				OptInt.new('DELAY', [ false, "Delay between connections in seconds",1]),
 				OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize",10]),
 				OptInt.new('ENDSIZE', [ false, "Fuzzing string endsize",20000]),
 				OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
 				OptString.new('USER', [ false, "Username",'anonymous']),
-				OptString.new('PASS', [ false, "Password",'anonymous@test.com']),
+				OptString.new('PASS', [ false, "Password",'mozilla@example.com']),
 				OptBool.new('FASTFUZZ', [ false, "Only fuzz with cyclic pattern",true]),
-				OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true])
+				OptBool.new('CONNRESET', [ false, "Break on CONNRESET error",true]),
 			], self.class)
 		deregister_options('RHOST')
 
@@ -62,6 +62,12 @@ class Metasploit3 < Msf::Auxiliary
 			'XCRC','XCWD','XMKD','XPWD','XRMD'
 		]
 		@emax = @evilchars.length
+
+		register_advanced_options(
+			[
+				OptString.new('FtpCommands', [ false, "Commands to fuzz at stages 4 and 5",@commands.join(" ")]),
+				OptBool.new('ExpandCrash', [ false, "Expand any crash strings",false]),
+		], self.class)
 	end
 
 
@@ -116,7 +122,11 @@ class Metasploit3 < Msf::Auxiliary
 						@error_cnt += 1
 						print_status("Exception #{@error_cnt} of #{@nr_errors}")
 						if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET' and datastore['CONNRESET']) or (e.class.name == 'Errno::EPIPE')
-							print_status("Crash string : #{prepend}#{evilstr} x #{count}")
+							if datastore['ExpandCrash']
+								print_status("Crash string : #{prepend}#{evil}")
+							else
+								print_status("Crash string : #{prepend}#{evilstr} x #{count}")
+							end
 							if @error_cnt >= @nr_errors
 								print_status("System does not respond - exiting now\n")
 								@stopprocess = true
@@ -137,6 +147,13 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	def ftp_commands
+		if datastore['FtpCommands'].to_s.upcase == "DEFAULT"
+			@commands
+		else
+			datastore['FtpCommands'].split(/[\s,]+/)
+		end
+	end
 
 	def run_host(ip)
 
@@ -169,7 +186,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if (startstage == 4)
-			@commands.each do |cmd|
+			print_status "[Phase 4] Fuzzing commands: #{ftp_commands.join(", ")}"
+			ftp_commands().each do |cmd|
 				if (@stopprocess == false)
 					process_phase(4, "Fuzzing command: #{cmd}", "#{cmd} ",
 						[
@@ -184,8 +202,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Fuzz other commands, all command combinations in one session
 		if (startstage == 5)
-			print_status("[Phase 5] Fuzzing other commands - Part 2 - #{Time.now.localtime}")
-			@commands.each do |cmd|
+			print_status("[Phase 5] Fuzzing other commands (Part 2, #{Time.now.localtime}): #{ftp_commands.join(", ")}")
+			ftp_commands().each do |cmd|
 				if (@stopprocess == false)
 					ecount = 1
 					count = datastore['STARTSIZE']
@@ -220,7 +238,6 @@ class Metasploit3 < Msf::Auxiliary
 							@error_cnt += 1
 							print_status("Exception #{@error_cnt} of #{@nr_errors}")
 							if (e.class.name == 'Rex::ConnectionRefused') or (e.class.name == 'EOFError') or (e.class.name == 'Errno::ECONNRESET' and datastore['CONNRESET']) or (e.class.name == 'Errno::EPIPE')
-								print_status("Crash string : #{cmd} #{evilchr} x #{count}")
 								if @error_cnt >= @nr_errors
 									print_status("System does not respond - exiting now\n")
 									@stopprocess = true
