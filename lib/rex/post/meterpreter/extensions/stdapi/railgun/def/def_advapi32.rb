@@ -620,7 +620,7 @@ class Def_advapi32
 
 		railgun.add_function( 'advapi32', 'AccessCheckByType', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","ClientToken","in"],
 			["DWORD","DesiredAccess","in"],
 			["PBLOB","ObjectTypeList","inout"],
@@ -638,7 +638,7 @@ class Def_advapi32
 			["PCHAR","ObjectTypeName","in"],
 			["PCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -657,7 +657,7 @@ class Def_advapi32
 			["PWCHAR","ObjectTypeName","in"],
 			["PWCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -672,7 +672,7 @@ class Def_advapi32
 
 		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultList', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","ClientToken","in"],
 			["DWORD","DesiredAccess","in"],
 			["PBLOB","ObjectTypeList","inout"],
@@ -690,7 +690,7 @@ class Def_advapi32
 			["PCHAR","ObjectTypeName","in"],
 			["PCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -710,7 +710,7 @@ class Def_advapi32
 			["PCHAR","ObjectTypeName","in"],
 			["PCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -730,7 +730,7 @@ class Def_advapi32
 			["PWCHAR","ObjectTypeName","in"],
 			["PWCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -749,7 +749,7 @@ class Def_advapi32
 			["PWCHAR","ObjectTypeName","in"],
 			["PWCHAR","ObjectName","in"],
 			["PBLOB","SecurityDescriptor","in"],
-			["PBLOB","PrincipalSelfSid","in"],
+			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","DesiredAccess","in"],
 			["DWORD","AuditType","in"],
 			["DWORD","Flags","in"],
@@ -766,7 +766,7 @@ class Def_advapi32
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAccessAllowedAceEx', 'BOOL',[
@@ -774,7 +774,7 @@ class Def_advapi32
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
 			["DWORD","AccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAccessAllowedObjectAce', 'BOOL',[
@@ -784,14 +784,14 @@ class Def_advapi32
 			["DWORD","AccessMask","in"],
 			["PBLOB","ObjectTypeGuid","in"],
 			["PBLOB","InheritedObjectTypeGuid","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAccessDeniedAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAccessDeniedAceEx', 'BOOL',[
@@ -799,7 +799,7 @@ class Def_advapi32
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
 			["DWORD","AccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAccessDeniedObjectAce', 'BOOL',[
@@ -809,7 +809,7 @@ class Def_advapi32
 			["DWORD","AccessMask","in"],
 			["PBLOB","ObjectTypeGuid","in"],
 			["PBLOB","InheritedObjectTypeGuid","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'AddAce', 'BOOL',[
@@ -824,7 +824,7 @@ class Def_advapi32
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","dwAccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			["BOOL","bAuditSuccess","in"],
 			["BOOL","bAuditFailure","in"],
 			])
@@ -834,7 +834,7 @@ class Def_advapi32
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
 			["DWORD","dwAccessMask","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			["BOOL","bAuditSuccess","in"],
 			["BOOL","bAuditFailure","in"],
 			])
@@ -846,7 +846,7 @@ class Def_advapi32
 			["DWORD","AccessMask","in"],
 			["PBLOB","ObjectTypeGuid","in"],
 			["PBLOB","InheritedObjectTypeGuid","in"],
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			["BOOL","bAuditSuccess","in"],
 			["BOOL","bAuditFailure","in"],
 			])
@@ -953,7 +953,7 @@ class Def_advapi32
 		railgun.add_function( 'advapi32', 'CopySid', 'BOOL',[
 			["DWORD","nDestinationSidLength","in"],
 			["PBLOB","pDestinationSid","out"],
-			["PBLOB","pSourceSid","in"],
+			["LPVOID","pSourceSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'CreatePrivateObjectSecurity', 'BOOL',[
@@ -1108,19 +1108,19 @@ class Def_advapi32
 			])
 
 		railgun.add_function( 'advapi32', 'EqualDomainSid', 'BOOL',[
-			["PBLOB","pSid1","in"],
-			["PBLOB","pSid2","in"],
+			["LPVOID","pSid1","in"],
+			["LPVOID","pSid2","in"],
 			["PBLOB","pfEqual","out"],
 			])
 
 		railgun.add_function( 'advapi32', 'EqualPrefixSid', 'BOOL',[
-			["PBLOB","pSid1","in"],
-			["PBLOB","pSid2","in"],
+			["LPVOID","pSid1","in"],
+			["LPVOID","pSid2","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'EqualSid', 'BOOL',[
-			["PBLOB","pSid1","in"],
-			["PBLOB","pSid2","in"],
+			["LPVOID","pSid1","in"],
+			["LPVOID","pSid2","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'FileEncryptionStatusA', 'BOOL',[
@@ -1192,7 +1192,7 @@ class Def_advapi32
 			])
 
 		railgun.add_function( 'advapi32', 'GetLengthSid', 'DWORD',[
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'GetNumberOfEventLogRecords', 'BOOL',[
@@ -1277,7 +1277,7 @@ class Def_advapi32
 			])
 
 		railgun.add_function( 'advapi32', 'GetWindowsAccountDomainSid', 'BOOL',[
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			["PBLOB","pDomainSid","out"],
 			["PDWORD","cbDomainSid","inout"],
 			])
@@ -1337,11 +1337,11 @@ class Def_advapi32
 			])
 
 		railgun.add_function( 'advapi32', 'IsValidSid', 'BOOL',[
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'IsWellKnownSid', 'BOOL',[
-			["PBLOB","pSid","in"],
+			["LPVOID","pSid","in"],
 			["DWORD","WellKnownSidType","in"],
 			])
 
@@ -1411,7 +1411,7 @@ class Def_advapi32
 
 		railgun.add_function( 'advapi32', 'LookupAccountSidA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
-			["PBLOB","Sid","in"],
+			["LPVOID","Sid","in"],
 			["PCHAR","Name","out"],
 			["PDWORD","cchName","inout"],
 			["PCHAR","ReferencedDomainName","out"],
@@ -1421,7 +1421,7 @@ class Def_advapi32
 
 		railgun.add_function( 'advapi32', 'LookupAccountSidW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
-			["PBLOB","Sid","in"],
+			["LPVOID","Sid","in"],
 			["PWCHAR","Name","out"],
 			["PDWORD","cchName","inout"],
 			["PWCHAR","ReferencedDomainName","out"],
@@ -1686,7 +1686,7 @@ class Def_advapi32
 			["WORD","wType","in"],
 			["WORD","wCategory","in"],
 			["DWORD","dwEventID","in"],
-			["PBLOB","lpUserSid","in"],
+			["LPVOID","lpUserSid","in"],
 			["WORD","wNumStrings","in"],
 			["DWORD","dwDataSize","in"],
 			["PBLOB","lpStrings","in"],
@@ -1698,7 +1698,7 @@ class Def_advapi32
 			["WORD","wType","in"],
 			["WORD","wCategory","in"],
 			["DWORD","dwEventID","in"],
-			["PBLOB","lpUserSid","in"],
+			["LPVOID","lpUserSid","in"],
 			["WORD","wNumStrings","in"],
 			["DWORD","dwDataSize","in"],
 			["PBLOB","lpStrings","in"],
