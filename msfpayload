@@ -170,7 +170,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 		exit(-1)
 	end
 
-	$stdout.puts(buf)
+	$stdout.write(buf)
 
 elsif (cmd =~ /^(s|o)/)
 	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
