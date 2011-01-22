@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 				"'%s'" % e
 			}.join(',')
 
-			upload_url = get_uri
+			upload_url = get_uri(cli)
 			upload_url << '/' if upload_url[-1,1] != '/'
 			upload_url << 'q'
 
