@@ -1,6 +1,15 @@
 Armitage Changelog
 ==================
 
+21 Jan 11 Changes
+--------- 
+- Increased wait time between connection attempts to MSF RPC
+- Fixed bug with Windows command shell not working when using Armitage from a
+  Windows host. 
+- Host refresh using sysinfo now only happens when no OS is set for the host.
+- Fixed a deadlock condition caused when an automatic sysinfo request was 
+  made while a Meterpreter tab for the same host was open.
+
 18 Jan 11 Changes
 ---------
 - Added a Migrate Now! item to Meterpreter Access menu. Runs migrate -f.
