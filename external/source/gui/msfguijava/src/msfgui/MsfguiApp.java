@@ -108,10 +108,7 @@ public class MsfguiApp extends SingleFrameApplication {
 
 	/** Application helper to launch msfrpcd or msfencode, etc. */
 	public static Process startMsfProc(List command) throws MsfException{
-		String[] args = new String[command.size()];
-		for(int i = 0; i < args.length; i++)
-			args[i] = command.get(i).toString();
-		return startMsfProc(args);
+		return startMsfProc((String[])command.toArray(new String[command.size()]));
 	}
 	/** Application helper to launch msfrpcd or msfencode, etc. */
 	public static Process startMsfProc(String[] args) throws MsfException {

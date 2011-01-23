@@ -47,6 +47,7 @@ public class RpcConnection {
 	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1";
 	public static int defaultPort = 55553;
 	public static boolean defaultSsl = false;
+	public static boolean disableDb = false;
 	private Socket connection;
 	private OutputStream sout; //socket output/input
 	private InputStream sin;
@@ -100,11 +101,12 @@ public class RpcConnection {
 		if(!haveRpcd)
 			throw new MsfException("Error connecting. "+message);
 		Map root = MsfguiApp.getPropertiesNode();
-		root.put("username", this.username);
-		root.put("password", this.password);
-		root.put("host", this.host);
-		root.put("port", Integer.toString(this.port));
-		root.put("ssl", Boolean.toString(this.ssl));
+		root.put("username", username);
+		root.put("password", password);
+		root.put("host", host);
+		root.put("port", port);
+		root.put("ssl", ssl);
+		root.put("disableDb", disableDb);
 	}
 
 	public String toString(){
@@ -112,7 +114,8 @@ public class RpcConnection {
 				+ "\nusername: "+username
 				+ "\npassword: " + password
 				+ "\nhost: " + host
-				+ "\nport: " + Integer.toString(port);
+				+ "\nport: " + Integer.toString(port)
+				+ "\nssl: " + ssl;
 	}
 	/** Destructor cleans up. */
 	protected void finalize() throws Throwable{
@@ -316,7 +319,7 @@ public class RpcConnection {
 		}else if (typeName.equals("i4")){
 			return new Integer(type.getTextContent());
 		}else if (typeName.equals("boolean")){
-			return type.getTextContent().equals("1");
+			return type.getTextContent().equals("1") || Boolean.valueOf(type.getTextContent());
 		}else if (typeName.equals("dateTime.iso8601")) {
 			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
 			try{
@@ -351,19 +354,17 @@ public class RpcConnection {
 					defaultPass = password.toString();
 				}
 
-				if (defaultSsl)
-					setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -U metasploit -a 127.0.0.1\"");
-				else
-					setMessage("Starting msfrpcd. \"msfrpcd -P " + defaultPass + " -t Basic -S -U metasploit -a 127.0.0.1\"");
+				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
+						"msfrpcd","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"}));
+				if(!defaultSsl)
+					args.add("-S");
+				if(disableDb)
+					args.add("-n");
+				setMessage("Starting msfrpcd.");
 				setProgress(0.2f);
 				Process proc = null;
 				try {
-					if(defaultSsl)
-						proc = MsfguiApp.startMsfProc(new String[]{
-								"msfrpcd","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"});
-					else
-						proc = MsfguiApp.startMsfProc(new String[]{
-								"msfrpcd","-P",defaultPass,"-t","Basic","-S","-U",defaultUser,"-a","127.0.0.1"});
+					proc = MsfguiApp.startMsfProc(args);
 				} catch (MsfException ex) {
 					setMessage("msfrpcd not found.");
 					setProgress(1f);
