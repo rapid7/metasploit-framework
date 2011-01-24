@@ -880,7 +880,7 @@ class Def_advapi32
 			["DWORD","nSubAuthority5","in"],
 			["DWORD","nSubAuthority6","in"],
 			["DWORD","nSubAuthority7","in"],
-			["PBLOB","pSid","out"],
+			["PDWORD","pSid","out"],
 			])
 
 		railgun.add_function( 'advapi32', 'AllocateLocallyUniqueId', 'BOOL',[
@@ -942,12 +942,12 @@ class Def_advapi32
 
 		railgun.add_function( 'advapi32', 'ConvertStringSidToSidA', 'BOOL',[
 			["PCHAR","StringSid","in"],
-			["PBLOB","pSid","out"],
+			["PDWORD","pSid","out"],
 			])
 
 		railgun.add_function( 'advapi32', 'ConvertStringSidToSidW', 'BOOL',[
 			["PWCHAR","StringSid","in"],
-			["PBLOB","pSid","out"],
+			["PDWORD","pSid","out"],
 			])
 
 		railgun.add_function( 'advapi32', 'CopySid', 'BOOL',[
@@ -1136,6 +1136,10 @@ class Def_advapi32
 		railgun.add_function( 'advapi32', 'FindFirstFreeAce', 'BOOL',[
 			["PBLOB","pAcl","in"],
 			["PBLOB","pAce","out"],
+			])
+
+		railgun.add_function( 'advapi32', 'FreeSid', 'LPVOID',[
+			["LPVOID","pSid","in"],
 			])
 
 		railgun.add_function( 'advapi32', 'GetAce', 'BOOL',[
@@ -1361,7 +1365,7 @@ class Def_advapi32
 			["DWORD","dwLogonType","in"],
 			["DWORD","dwLogonProvider","in"],
 			["PDWORD","phToken","out"],
-			["PBLOB","ppLogonSid","out"],
+			["PDWORD","ppLogonSid","out"],
 			["PBLOB","ppProfileBuffer","out"],
 			["PDWORD","pdwProfileLength","out"],
 			["PBLOB","pQuotaLimits","out"],
@@ -1374,7 +1378,7 @@ class Def_advapi32
 			["DWORD","dwLogonType","in"],
 			["DWORD","dwLogonProvider","in"],
 			["PDWORD","phToken","out"],
-			["PBLOB","ppLogonSid","out"],
+			["PDWORD","ppLogonSid","out"],
 			["PBLOB","ppProfileBuffer","out"],
 			["PDWORD","pdwProfileLength","out"],
 			["PBLOB","pQuotaLimits","out"],
