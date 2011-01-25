@@ -42,13 +42,13 @@ info = @client.sys.config.sysinfo
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory,'scripts', 'winenum',info['Computer'] + filenameinfo)
+logs = ::File.join(Msf::Config.log_directory,'scripts', 'winenum',Rex::FileUtils.clean_path(info['Computer'] + filenameinfo))
 @logfol = logs
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 
 #log file name
-@dest = logs + "/" + info['Computer'] + filenameinfo + ".txt"
+@dest = logs + "/" + Rex::FileUtils.clean_path(info['Computer'] + filenameinfo) + ".txt"
 
 # Commands that will be ran on the Target
 commands = [

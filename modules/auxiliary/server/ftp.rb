@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		path = ::File.join(datastore['FTPROOT'], arg.gsub("../", '').gsub("..\\", ''))
+		path = ::File.join(datastore['FTPROOT'], Rex::FileUtils.clean_path(arg))
 		if(not ::File.exists?(path))
 			c.put "550 File does not exist\r\n"
 			return

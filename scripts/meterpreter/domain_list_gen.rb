@@ -58,7 +58,7 @@ logs = ::File.join(Msf::Config.log_directory, 'scripts','domain_admins')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
-dest = logs + "/" + host + filenameinfo + ".txt"
+dest = Rex::FileUtils.clean_path(logs + "/" + host + filenameinfo + ".txt")
 print_status("found users will be saved to #{dest}")
 
 ################## MAIN ##################

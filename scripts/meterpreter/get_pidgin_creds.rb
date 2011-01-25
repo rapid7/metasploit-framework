@@ -48,7 +48,7 @@ logs = ::File.join(Msf::Config.log_directory,'scripts', 'pidgin_creds')
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
-dest = logs + "/" + host + filenameinfo + ".txt"
+dest = Rex::FileUtils.clean_path(logs + "/" + host + filenameinfo + ".txt")
 
 #-------------------------------------------------------------------------------
 #function for checking of Pidgin profile is present

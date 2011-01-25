@@ -89,16 +89,16 @@ def log_file(log_path = nil)
 
 	# Create a directory for the logs
 	if log_path
-		logs = ::File.join(log_path, 'logs', 'persistence', host + filenameinfo )
+		logs = ::File.join(log_path, 'logs', 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
 	else
-		logs = ::File.join(Msf::Config.log_directory, "scripts", 'persistence', host + filenameinfo )
+		logs = ::File.join(Msf::Config.log_directory, 'persistence', Rex::FileUtils.clean_path(host + filenameinfo) )
 	end
 
 	# Create the log directory
 	::FileUtils.mkdir_p(logs)
 
 	#logfile name
-	logfile = logs + ::File::Separator + host + filenameinfo + ".rc"
+	logfile = logs + ::File::Separator + Rex::FileUtils.clean_path(host + filenameinfo) + ".rc"
 	return logfile
 end
 

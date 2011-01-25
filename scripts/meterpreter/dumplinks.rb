@@ -48,7 +48,7 @@ if @output_dir
 	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d")
 
 	# Create a directory for the output
-	@logs = ::File.join(@output_dir, info['Computer'] + filenameinfo)
+	@logs = ::File.join(@output_dir, Rex::FileUtils.clean_path(info['Computer'] + filenameinfo))
 
 	# Create output directory
 	::FileUtils.mkdir_p(@logs)

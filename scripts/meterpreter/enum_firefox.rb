@@ -253,7 +253,7 @@ if client.platform =~ /win32|win64/
 	if frfxchk
 		user = @client.sys.config.getuid
 		if user != "NT AUTHORITY\\SYSTEM"
-			usrname = @client.fs.file.expand_path("%USERNAME%")
+			usrname = Rex::FileUtils.clean_path(@client.fs.file.expand_path("%USERNAME%"))
 			db_path = @client.fs.file.expand_path("%APPDATA%") + "\\Mozilla\\Firefox\\Profiles"
 			if kill_frfx
 				kill_firefox
@@ -266,7 +266,7 @@ if client.platform =~ /win32|win64/
 			registry_enumkeys("HKU").each do |sid|
 				if sid =~ /S-1-5-21-\d*-\d*-\d*-\d{4}$/
 					key_base = "HKU\\#{sid}"
-					usrname = registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME")
+					usrname = Rex::FileUtils.clean_path(registry_getvaldata("#{key_base}\\Volatile Environment","USERNAME"))
 					db_path = registry_getvaldata("#{key_base}\\Volatile Environment","APPDATA") + "\\Mozilla\\Firefox\\Profiles"
 					if kill_frfx
 						kill_firefox

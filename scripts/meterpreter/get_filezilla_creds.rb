@@ -37,11 +37,11 @@ host = @client.sys.config.sysinfo['Computer']
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 # Create a directory for the logs
-logs = ::File.join(Msf::Config.log_directory, 'filezilla', host + filenameinfo )
+logs = ::File.join(Msf::Config.log_directory, 'filezilla', Rex::FileUtils.clean_path(host + filenameinfo) )
 # Create the log directory
 ::FileUtils.mkdir_p(logs)
 #logfile name
-dest = logs + "/" + host + filenameinfo + ".txt"
+dest = Rex::FileUtils.clean_path(logs + "/" + host + filenameinfo + ".txt")
 
 #-------------------------------------------------------------------------------
 #function for checking of FileZilla profile is present

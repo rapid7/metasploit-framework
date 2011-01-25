@@ -64,7 +64,7 @@ def scan(path)
 		elsif fullpath =~ /#{$motif}/i
 			# Replace ':' or '%' or '\' by '_'
 			dst = fullpath.tr_s(":|\%|\\", "_")
-			dst = ::Dir.tmpdir + ::File::Separator + dst
+			dst = Rex::FileUtils.clean_path(::Dir.tmpdir + ::File::Separator + dst)
 			print_line("Downloading '#{fullpath}' to '#{dst}'")
 			client.fs.file.download_file(dst, fullpath)
 		end

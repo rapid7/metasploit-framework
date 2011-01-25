@@ -65,7 +65,7 @@ def log_file(log_path = nil)
 
 	#logfile name
 	logfile = logs + ::File::Separator + host + filenameinfo + ".cap"
-	return logfile
+	return Rex::FileUtils.clean_path(logfile)
 end
 
 #Function for Starting Capture

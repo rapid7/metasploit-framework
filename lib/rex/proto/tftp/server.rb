@@ -194,7 +194,7 @@ protected
 		if @output_dir
 			fn = tr[:file][:name].split(File::SEPARATOR)[-1]
 			if fn
-				fn = ::File.join(@output_dir, fn)
+				fn = ::File.join(@output_dir, Rex::FileUtils.clean_path(fn))
 				::File.open(fn, "wb") { |fd|
 					fd.write(tr[:file][:data])
 				}

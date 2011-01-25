@@ -75,12 +75,12 @@ def save_found(found_ip)
 	filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 
 	# Create a directory for the logs
-	logs = ::File.join(Msf::Config.log_directory,'scripts', 'arp_scanner',info['Computer'] + filenameinfo)
+	logs = ::File.join(Msf::Config.log_directory,'scripts', 'arp_scanner',Rex::FileUtils.clean_path(info['Computer'] + filenameinfo))
 	# Create the log directory
 	::FileUtils.mkdir_p(logs)
 
 	#log file name
-	dest = logs + "/" + info['Computer'] + filenameinfo + ".txt"
+	dest = Rex::FileUtils.clean_path(logs + "/" + info['Computer'] + filenameinfo + ".txt")
 
 	print_status("Saving found IP's to #{dest}")
 	file_local_write(dest,found_ip)

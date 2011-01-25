@@ -73,7 +73,7 @@ Separator = "\\"
 		# I suck at regex.
 		path =~ /(.*)#{sep}(.*)$/
 
-		return $2 || path
+		Rex::FileUtils.clean_path($2 || path)
 	end
 
 	#

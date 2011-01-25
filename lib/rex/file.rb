@@ -13,6 +13,21 @@ module Rex
 module FileUtils
 
 	#
+	# This methods cleans the supplied path of directory traversal sequences
+	# It must accept path/with/..a/folder../starting/or/ending/in/two/dots
+	# but clean ../something as well as path/with/..\traversal
+	#
+	def self.clean_path(old)
+		path = old
+		while(path.index(/\/..\/|\/..\\|\\..\\|\\..\/|\A..\\|\A..\//) != nil)
+			path.gsub!(/\A..\\|\A..\//,'') #eliminate starting ..\ or ../
+			path.gsub!(/\/..\/|\/..\\/,'/') #clean linux style
+			path.gsub!(/\\..\\|\\..\//,'\\') #clean windows style
+		end
+		path
+	end
+
+	#
 	# This method searches the PATH environment variable for
 	# a fully qualified path to the supplied file name.
 	#
