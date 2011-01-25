@@ -140,6 +140,9 @@ class Railgun
 				when 'iphlpapi'
 					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_iphlpapi'
 					Def::Def_iphlpapi.add_imports(self)
+				when 'netapi32'
+					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_netapi32'
+					Def::Def_netapi32.add_imports(self)
 				when 'advapi32'
 					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_advapi32'
 					Def::Def_advapi32.add_imports(self)

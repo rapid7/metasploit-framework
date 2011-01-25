@@ -2,6 +2,60 @@ module Msf
 class Post
 
 module Accounts
+	
+	##
+	# delete_user(username, server_name = nil)
+	#
+	# Summary:
+	#   Deletes a user account from the given server (or local if none given)
+	#
+	# Parameters
+	#   username    - The username of the user to delete (not-qualified, e.g. BOB)
+	#   server_name - DNS or NetBIOS name of remote server on which to delete user
+	#
+	# Returns:
+	#   One of the following:
+	#      :success          - Everything went as planned
+	#      :invalid_server   - The server name provided was invalid
+	#      :not_on_primary   - Operation allowed only on domain controller
+	#      :user_not_found   - User specified does not exist on the given server
+	#      :access_denied    - You do not have permission to delete the given user
+	#
+	#   OR nil if there was an exceptional windows error (example: ran out of memory)
+	# 
+	# Caveats:
+	#   nil is returned if there is an *exceptional* windows error. That error is printed.
+	#   Everything other than ':success' signifies failure
+	##
+	def delete_user(username, server_name = nil)
+		deletion = client.railgun.netapi32.NetUserDel(server_name, username) 
+		 
+		#http://msdn.microsoft.com/en-us/library/aa370674.aspx
+		case deletion['return']
+		when 2221 # NERR_UserNotFound
+			return :user_not_found
+		when 2351 # NERR_InvalidComputer 
+			return :invalid_server	
+		when 2226 # NERR_NotPrimary
+			return :not_on_primary
+		when client.railgun.const('ERROR_ACCESS_DENIED')
+			return :access_denied
+		when 0 
+			return :success	
+		else
+			error = deletion['GetLastError']
+			if error != 0 
+				print_error "Unexpected Windows System Error #{error}"
+			else
+				# Uh... we shouldn't be here
+				print_error "DeleteUser unexpectedly returned #{deletion['return']}"
+			end
+		end
+		
+		# If we got here, then something above failed
+		return nil
+	end	
+
 
 	##
 	# resolve_sid(sid, system_name = nil)
