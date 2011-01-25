@@ -237,7 +237,7 @@ module Text
 	#
 	def self.to_hex_ascii(str, prefix = "\\x", count = 1, suffix=nil)
 		raise ::RuntimeError, "unable to chunk into #{count} byte chunks" if ((str.length % count) > 0)
-		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s| 
+		return str.unpack('H*')[0].gsub(Regexp.new(".{#{count * 2}}", nil, 'n')) { |s|
 			(0x20..0x7e) === s.to_i(16) ? s.to_i(16).chr : prefix + s + suffix.to_s
 		}
 	end
@@ -795,7 +795,7 @@ module Text
 		sets.size.times { counter << 0}
 		0.upto(len-1) do |i|
 			setnum = i % sets.size
-			
+
 			puts counter.inspect
 		end
 
@@ -891,7 +891,8 @@ module Text
 		raise RuntimeError, "Invalid gzip compression level" if (level < 1 or level > 9)
 
 		s = ""
-		gz = Zlib::GzipWriter.new(StringIO.new(s), level)
+		s.force_encoding('ASCII-8BIT')
+		gz = Zlib::GzipWriter.new(StringIO.new(s, 'wb'), level)
 		gz << str
 		gz.close
 		return s
@@ -904,7 +905,8 @@ module Text
 		raise RuntimeError, "Gzip support is not present." if (!zlib_present?)
 
 		s = ""
-		gz = Zlib::GzipReader.new(StringIO.new(str))
+		s.force_encoding('ASCII-8BIT')
+		gz = Zlib::GzipReader.new(StringIO.new(str, 'rb'))
 		s << gz.read
 		gz.close
 		return s

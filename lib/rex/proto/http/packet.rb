@@ -166,9 +166,8 @@ class Packet
 	# Converts the packet to a string.
 	#
 	def to_s
-		# Duplicate and make sure this is 8BIT safe for Ruby 1.9
-		content = self.body.unpack("C*").pack("C*")
-		
+		content = self.body.dup
+
 		# Update the content length field in the header with the body length.
 		if (content)
 			if !self.compress.nil?
@@ -267,7 +266,7 @@ protected
 	def parse_header
 
 		head,data = self.bufq.split(/\r?\n\r?\n/, 2)
-		
+
 		return if not data
 
 		self.headers.from_s(head)
@@ -339,7 +338,7 @@ protected
 
 			# If we didn't get a newline, then this might not be the full
 			# length, go back and get more.
-			# e.g. 
+			# e.g.
 			#  first packet: "200"
 			#  second packet: "0\r\n\r\n<html>..."
 			if not bufq.index("\n")
@@ -350,7 +349,7 @@ protected
 			clen = self.bufq.slice!(/^[a-fA-F0-9]+\r?\n/)
 
 			clen.rstrip! if (clen)
-			
+
 			# if we happen to fall upon the end of the buffer for the next chunk len and have no data left, go get some more...
 			if clen.nil? and self.bufq.length == 0
 				return
