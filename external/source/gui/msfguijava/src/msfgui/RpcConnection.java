@@ -102,7 +102,7 @@ public class RpcConnection {
 			throw new MsfException("Error connecting. "+message);
 		Map root = MsfguiApp.getPropertiesNode();
 		root.put("username", username);
-		root.put("password", password);
+		root.put("password", this.password);
 		root.put("host", host);
 		root.put("port", port);
 		root.put("ssl", ssl);
