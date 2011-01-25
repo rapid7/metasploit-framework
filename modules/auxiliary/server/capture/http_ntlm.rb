@@ -10,12 +10,12 @@
 ##
 
 require 'msf/core'
-require 'rex/proto/smb/utils'
+
 require 'rex/proto/smb/constants'
-
-
-UTILS = Rex::Proto::SMB::Utils
 CONST = Rex::Proto::SMB::Constants
+
+require 'rex/proto/smb/utils'
+UTILS = Rex::Proto::SMB::Utils
 
 class Metasploit3 < Msf::Auxiliary
 
