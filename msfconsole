@@ -65,20 +65,22 @@ class OptsConsole
 			opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
 				options['DatabaseEnv'] = m
 			end
-						
-			# Boolean switch.
+
+			# Boolean switches
 			opts.on("-v", "--version", "Show version") do |v|
 				options['Version'] = true
 			end
 
-			# Boolean switch.
 			opts.on("-L", "--real-readline", "Use the system Readline library instead of RbReadline") do |v|
 				options['RealReadline'] = true
 			end
 
-			# Boolean switch.
 			opts.on("-n", "--no-database", "Disable database support") do |v|
 				options['DisableDatabase'] = true
+			end
+
+			opts.on("-q", "--quiet", "Do not print the banner on start up") do |v|
+				options['DisableBanner'] = true
 			end
 
 			opts.separator ""
@@ -114,11 +116,6 @@ require 'msf/ui'
 # Everything below this line requires the framework.
 #
 
-
-#
-# XXX: It would be nice to not have to load the entire framework just to get 
-# the version number.
-#
 if (options['Version'])
 	$stderr.puts 'Framework Version: ' + Msf::Framework::Version
 	exit

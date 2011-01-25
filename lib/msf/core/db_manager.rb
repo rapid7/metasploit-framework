@@ -42,9 +42,9 @@ class DBManager
 		self.framework = framework
 		@usable = false
 
-		# Don't load the database is the user said they didn't need it.
+		# Don't load the database if the user said they didn't need it.
 		if (opts['DisableDatabase'])
-			self.error = "User Disabled Database Support"
+			self.error = "disabled"
 			return
 		end
 

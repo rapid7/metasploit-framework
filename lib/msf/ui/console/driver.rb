@@ -120,7 +120,11 @@ class Driver < Msf::Ui::Driver
 			enstack_dispatcher(CommandDispatcher::Db)
 		else
 			print_error("***")
-			print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}")
+			if framework.db.error == "disabled"
+				print_error("* WARNING: Database support has been disabled")
+			else
+				print_error("* WARNING: No database support: #{framework.db.error.class} #{framework.db.error}")
+			end
 			print_error("***")
 		end
 
@@ -183,7 +187,7 @@ class Driver < Msf::Ui::Driver
 
 
 		# Process things before we actually display the prompt and get rocking
-		on_startup
+		on_startup(opts)
 
 		# Process the resource script
 		if opts['Resource'] and opts['Resource'].kind_of? Array
@@ -338,7 +342,7 @@ class Driver < Msf::Ui::Driver
 	# Called before things actually get rolling such that banners can be
 	# displayed, scripts can be processed, and other fun can be had.
 	#
-	def on_startup
+	def on_startup(opts = {})
 		# Check for modules that failed to load
 		if (framework.modules.failed.length > 0)
 			print_error("WARNING! The following modules could not be loaded!")
@@ -348,8 +352,8 @@ class Driver < Msf::Ui::Driver
 		end
 		framework.events.on_ui_start(Msf::Framework::Revision)
 
-		# Build the banner message
-		run_single("banner")
+		run_single("banner") unless opts['DisableBanner']
+
 		self.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
 	end
 
