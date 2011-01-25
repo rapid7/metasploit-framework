@@ -1151,6 +1151,7 @@ module RbReadline
          if text.length == 0
             text = "."
          end
+
          @filename = ''
          @directory = nil
          dir = text.dup
@@ -1167,8 +1168,8 @@ module RbReadline
             @directory = Dir.new(dir)
             @dirname = dir.dup
          elsif File.directory?(File.dirname(dir)) and File.readable?(File.dirname(dir))
-            @directory = Dir.new(File.dirname(dir))
             @dirname = File.dirname(dir)
+            @directory = Dir.new(@dirname)
             @filename = File.basename(dir)
          end
 
