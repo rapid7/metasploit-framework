@@ -427,36 +427,6 @@ end
 
 ###
 #
-# Float option.
-#
-###
-class OptFloat < OptBase
-	def type
-		return 'float'
-	end
-
-	def normalize(value)
-		if (value.to_s.match(/^0x[a-fA-F\d]+$/))
-			value.to_i(16).to_f
-		else
-			value.to_f
-		end
-	end
-
-	def valid?(value)
-		return false if empty_required_value?(value)
-
-		if value and not normalize(value).to_s.match(/^\d+\.\d+$/)
-			return false
-		end
-
-		return super
-	end
-end
-
-
-###
-#
 # The options purpose in life is to associate named options
 # with arbitrary values at the most simplistic level.  Each
 # module contains a OptionContainer that is used to hold the
