@@ -90,7 +90,7 @@ rbpcap_s_lookupnet(VALUE self, VALUE dev)
 	VALUE list;
 	
     Check_Type(dev, T_STRING);
-    if (pcap_lookupnet(STR2CSTR(dev), &net, &mask, eb) == -1) {
+    if (pcap_lookupnet(StringValuePtr(dev), &net, &mask, eb) == -1) {
 		rb_raise(rb_eRuntimeError, "%s", eb);
     }
 
