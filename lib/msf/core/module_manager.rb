@@ -61,9 +61,9 @@ class ModuleSet < Hash
 	# Create an instance of the supplied module by its name
 	#
 	def create(name)
-		
+
 		# if (mod_ambiguous[name])
-		#	raise Rex::AmbiguousArgumentError.new(name), 
+		#	raise Rex::AmbiguousArgumentError.new(name),
 		#		"The module name #{name} is ambiguous.", caller
 		# end
 
@@ -116,7 +116,7 @@ class ModuleSet < Hash
 		demand_load_modules
 
 		self.mod_sorted = self.sort if (mod_sorted == nil)
-		
+
 		each_module_list(mod_sorted, opts, &block)
 	end
 
@@ -213,7 +213,7 @@ protected
 				end
 
 				next if ((mod_arch_hash[mod] & opts['Arch']).empty? == true)
-			end		
+			end
 
 			# Filter out incompatible platforms
 			if (opts['Platform'])
@@ -230,7 +230,7 @@ protected
 			block.call(name, mod)
 		}
 	end
-	
+
 
 	#
 	# Ranks modules based on their constant rank value, if they have one.
@@ -250,7 +250,7 @@ protected
 
 			# Compare their relevant rankings.  Since we want highest to lowest,
 			# we compare b_rank to a_rank in terms of higher/lower precedence
-			b_rank <=> a_rank	
+			b_rank <=> a_rank
 		}
 	end
 
@@ -280,7 +280,7 @@ protected
 
 		# Add this module to the module cache for this type
 		framework.modules.cache_module(mod) if (noup != true)
-	
+
 		# Invalidate the sorted array
 		invalidate_sorted_cache
 
@@ -307,7 +307,7 @@ end
 #
 # Upper management decided to throw in some middle management
 # because the modules were getting out of hand.  This bad boy
-# takes care of the work of managing the interaction with 
+# takes care of the work of managing the interaction with
 # modules in terms of loading and instantiation.
 #
 # TODO:
@@ -340,7 +340,7 @@ class ModuleManager < ModuleSet
 		}
 
 		super(nil)
-		
+
 		@modcache_invalidated = false
 		@cached_counts = false
 	end
@@ -440,7 +440,7 @@ class ModuleManager < ModuleSet
 	def failed
 		return module_failed
 	end
-	
+
 	##
 	#
 	# Module cache management to support demand loaded modules.
@@ -472,7 +472,7 @@ class ModuleManager < ModuleSet
 			@modcache[type].each_key { |name|
 				next if not @modcache[type]
 				next if not module_sets[type]
-				
+
 				fullname = type + '/' + name
 
 				# Make sure the files associated with this module exist.  If it
@@ -487,18 +487,18 @@ class ModuleManager < ModuleSet
 						File::Stat.new(f)
 					}
 				rescue Errno::ENOENT
-					dlog("File requirement does not exist for #{fullname}", 'core', 
+					dlog("File requirement does not exist for #{fullname}", 'core',
 						LEV_1);
 					next
 				end
 				module_sets[type][name] = SymbolicModule
 			}
 		}
-		
+
 		if !(@modcache['ModuleTypeCounts'] and @modcache['ModuleTypeCounts'].keys.length > 0)
 			@modcache_invalidated = true
 		end
-						
+
 	end
 
 	#
@@ -515,7 +515,7 @@ class ModuleManager < ModuleSet
 		if (using_cache and @modcache.group?('ModuleTypeCounts'))
 			if (! @cached_counts)
 				@cached_counts = {}
-	
+
 				@modcache['ModuleTypeCounts'].each_pair { |type, count|
 					@cached_counts[type] = count.to_i
 				}
@@ -565,7 +565,7 @@ class ModuleManager < ModuleSet
 				no_exist = true
 			end
 
-			if (no_exist or 
+			if (no_exist or
 			    @modcache['FileModificationTimes'][file].nil? or
 			    @modcache['FileModificationTimes'][file].to_s != curr_mtime.to_i.to_s)
 				raise ModuleCacheInvalidated, "File #{file} has a new mtime or did not exist"
@@ -585,7 +585,7 @@ class ModuleManager < ModuleSet
 		if (@modcache)
 			@modcache['FileModificationTimes'].clear
 			@modcache['ModuleTypeCounts'].clear
-			
+
 			MODULE_TYPES.each { |type|
 				@modcache[type].clear
 			}
@@ -593,25 +593,25 @@ class ModuleManager < ModuleSet
 	end
 
 	#
-	# Synchronizes the module cache information 
+	# Synchronizes the module cache information
 	#
 	def update_module_cache_info(fullname, mod, modinfo)
 		return if (modinfo and modinfo['noup'] == true)
-		
+
 		if (@modcache)
 			if (fullname)
 				@modcache.add_group(fullname)
 				@modcache[fullname].clear
-				@modcache[fullname]['FileNames'] = modinfo['files'].join(',') 
-				@modcache[fullname]['FilePaths'] = modinfo['paths'].join(',') 
+				@modcache[fullname]['FileNames'] = modinfo['files'].join(',')
+				@modcache[fullname]['FilePaths'] = modinfo['paths'].join(',')
 				@modcache[fullname]['Type']      = modinfo['type']
-				
-				
+
+
 				# Deep cache classes (ignore payloads)
 				# if(mod.class == ::Class and mod.cached?)
 				# 	@modcache[fullname]['CacheData'] = [Marshal.dump(mod.infos)].pack("m").gsub(/\s+/, '')
 				# end
-				
+
 			end
 
 			modinfo['files'].each do |f|
@@ -669,7 +669,7 @@ class ModuleManager < ModuleSet
 		# first place.  By default, check_cache will be true.  One scenario
 		# where it will be false is from the loadpath command in msfconsole.
 		if !using_cache and check_cache
-			save_module_cache 
+			save_module_cache
 		# If we're by default using the cache and we were told not to
 		# invalidate/use it, then we should update the cached counts to include
 		# what we've just added so that the banner will reflect the changes
@@ -712,7 +712,7 @@ class ModuleManager < ModuleSet
 			wrap.module_eval(File.read(file, File.size(file)))
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
-				if( mins[0] > ::Msf::Framework::VersionCore or 
+				if( mins[0] > ::Msf::Framework::VersionCore or
 				    mins[1] > ::Msf::Framework::VersionAPI
 				  )
 					errmsg = "Failed to load module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
@@ -720,22 +720,22 @@ class ModuleManager < ModuleSet
 					self.module_failed[mod.file_path] = errmsg
 					return false
 				end
-			end				
+			end
 		rescue ::Exception => e
-		
+
 			# Hide eval errors when the module version is not compatible
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
-				if( mins[0] > ::Msf::Framework::VersionCore or 
+				if( mins[0] > ::Msf::Framework::VersionCore or
 				    mins[1] > ::Msf::Framework::VersionAPI
 				  )
 					errmsg = "Failed to reload module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
 					elog(errmsg)
 					self.module_failed[mod.file_path] = errmsg
 					return
-				end 
+				end
 			end
-		
+
 			errmsg = "Failed to reload module from #{file}: #{e.class} #{e}"
 			elog(errmsg)
 			self.module_failed[mod.file_path] = errmsg
@@ -830,20 +830,20 @@ class ModuleManager < ModuleSet
 		end
 	end
 
-	
+
 	#
 	# Provide a list of the types of modules in the set
 	#
 	def module_types
 		module_sets.keys.dup
 	end
-	
+
 	#
 	# Provide a list of module names of a specific type
 	#
 	def module_names(set)
 		module_sets[set] ? module_sets[set].keys.dup : []
-	end	
+	end
 
 protected
 
@@ -857,11 +857,11 @@ protected
 		counts = {}
 		delay  = {}
 		ks     = true
-		
+
 		dbase  = Dir.new(bpath)
 		dbase.entries.each do |ent|
 			next if ent.downcase == '.svn'
-			
+
 			path  = File.join(bpath, ent)
 			mtype = ent.gsub(/s$/, '')
 
@@ -899,7 +899,7 @@ protected
 	# Loads a module from the supplied file.
 	#
 	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
-	
+
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
 		if (!has_module_file_changed?(file))
@@ -916,23 +916,23 @@ protected
 		# Chop off the file name
 		path_base.sub!(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
 
-		if (m = path_base.match(/^(.+?)#{File::SEPARATOR}+?/)) 
+		if (m = path_base.match(/^(.+?)#{File::SEPARATOR}+?/))
 			type = m[1]
 		else
 			type = path_base
 		end
-		
+
 		type.sub!(/s$/, '')
 
-		
+
 		added = nil
-		
+
 		begin
 			wrap = ::Module.new
 			wrap.module_eval(File.read(file, File.size(file)))
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
-				if( mins[0] > ::Msf::Framework::VersionCore or 
+				if( mins[0] > ::Msf::Framework::VersionCore or
 				    mins[1] > ::Msf::Framework::VersionAPI
 				  )
 					errmsg = "Failed to load module from #{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
@@ -940,21 +940,21 @@ protected
 					self.module_failed[file] = errmsg
 					return false
 				end
-			end		
+			end
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			# Hide eval errors when the module version is not compatible
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
-				if( mins[0] > ::Msf::Framework::VersionCore or 
+				if( mins[0] > ::Msf::Framework::VersionCore or
 				    mins[1] > ::Msf::Framework::VersionAPI
 				  )
 					errmsg = "Failed to load module from #{file} due to error and failed version check (requires Core:#{mins[0]} API:#{mins[1]})"
 					elog(errmsg)
 					self.module_failed[file] = errmsg
 					return false
-				end 
+				end
 			end
 			errmsg = "#{e.class} #{e}"
 			self.module_failed[file] = errmsg
@@ -970,7 +970,7 @@ protected
 		end
 		added = wrap.const_get('Metasploit3')
 
-		# If the module indicates that it is not usable on this system, then we 
+		# If the module indicates that it is not usable on this system, then we
 		# will not try to use it.
 		usable = false
 
@@ -979,12 +979,12 @@ protected
 		rescue
 			elog("Exception caught during is_usable check: #{$!}")
 		end
-			
+
 		# Synchronize the modification time for this file.
 		update_module_cache_info(nil, added, {
 			'paths' => [ path ],
 			'files' => [ file ],
-			'type'  => type}) if (!using_cache)	
+			'type'  => type}) if (!using_cache)
 
 		if (usable == false)
 			ilog("Skipping module in #{file} because is_usable returned false.", 'core', LEV_1)
@@ -993,7 +993,7 @@ protected
 
 		ilog("Loaded #{type} module #{added} from #{file}.", 'core', LEV_2)
 		self.module_failed.delete(file)
-		
+
 		# Do some processing on the loaded module to get it into the
 		# right associations
 		on_module_load(added, type, name, {
@@ -1006,7 +1006,7 @@ protected
 
 		# Append the added module to the hash of file->module
 		loaded[file] = added if (loaded)
-	
+
 		# Track module load history for future reference
 		module_history[file]       = added
 		module_history_mtime[file] = File::Stat.new(file).mtime.to_i
@@ -1037,8 +1037,8 @@ protected
 	#
 	def on_module_load(mod, type, name, modinfo)
 		# Payload modules require custom loading as the individual files
-		# may not directly contain a logical payload that a user would 
-		# reference, such as would be the case with a payload stager or 
+		# may not directly contain a logical payload that a user would
+		# reference, such as would be the case with a payload stager or
 		# stage.  As such, when payload modules are loaded they are handed
 		# off to a special payload set.  The payload set, in turn, will
 		# automatically create all the permutations after all the payload
