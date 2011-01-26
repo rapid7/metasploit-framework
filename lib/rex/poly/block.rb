@@ -289,6 +289,15 @@ class LogicalBlock
 		(@state.first_phase) ? 0 : reg.regnum
 	end
 
+	def size_of(lblock)
+		@state.block_list.map { |b, p|
+			if b == lblock
+				return p.length
+			end
+		}
+		0
+	end
+
 	#
 	# This attributes contains the currently assigned offset of the permutation
 	# associated with this block into the polymorphic buffer that is being
