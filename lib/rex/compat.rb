@@ -121,7 +121,7 @@ def self.open_browser(url='http://metasploit.com/')
 		end
 		return if not @@loaded_win32api
 		Win32API.new("shell32.dll", "ShellExecute", ["PPPPPL"], "L").call(nil, "open", url, nil, nil, 0)
-	when /mswin32/
+	when /mswin32|mingw/
 		return if not @@loaded_win32api
 		Win32API.new("shell32.dll", "ShellExecute", ["PPPPPL"], "L").call(nil, "open", url, nil, nil, 0)
 	when /darwin/
