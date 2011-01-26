@@ -21,45 +21,35 @@ class Statistics
 	# Returns the number of encoders in the framework.
 	#
 	def num_encoders
-		framework.modules.using_cache ?
-			framework.modules.cached_counts[MODULE_ENCODER] :
-			framework.encoders.length
+		framework.encoders.length
 	end
 
 	#
 	# Returns the number of exploits in the framework.
 	#
 	def num_exploits
-		framework.modules.using_cache ?
-			framework.modules.cached_counts[MODULE_EXPLOIT] :
-			framework.exploits.length
+		framework.exploits.length
 	end
 
 	#
 	# Returns the number of NOP generators in the framework.
 	#
 	def num_nops
-		framework.modules.using_cache ?
-			framework.modules.cached_counts[MODULE_NOP] :
-			framework.nops.length
+		framework.nops.length
 	end
 
 	#
 	# Returns the number of payloads in the framework.
 	#
 	def num_payloads
-		framework.modules.using_cache ?
-			framework.modules.cached_counts[MODULE_PAYLOAD] :
-			framework.payloads.length
+		framework.payloads.length
 	end
 
 	#
 	# Returns the number of auxiliary modules in the framework.
 	#
 	def num_auxiliary
-		framework.modules.using_cache ?
-			framework.modules.cached_counts[MODULE_AUX] :
-			framework.auxiliary.length
+		framework.auxiliary.length
 	end
 
 	#

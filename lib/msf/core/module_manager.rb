@@ -336,24 +336,28 @@ class ModuleManager < ModuleSet
 		self.framework            = framework
 
 		types.each { |type|
-			self.enabled_types[type] = true
-			case type
-				when MODULE_PAYLOAD
-					instance = PayloadSet.new(self)
-				else
-					instance = ModuleSet.new(type)
-			end
-
-			self.module_sets[type] = instance
-
-			# Set the module set's framework reference
-			instance.framework = framework
+			init_module_set(type)
 		}
 
 		super(nil)
 		
 		@modcache_invalidated = false
 		@cached_counts = false
+	end
+
+	def init_module_set(type)
+		self.enabled_types[type] = true
+		case type
+		when MODULE_PAYLOAD
+			instance = PayloadSet.new(self)
+		else
+			instance = ModuleSet.new(type)
+		end
+
+		self.module_sets[type] = instance
+
+		# Set the module set's framework reference
+		instance.framework = self.framework
 	end
 
 	#
@@ -375,45 +379,59 @@ class ModuleManager < ModuleSet
 	#
 
 	#
+	# Returns all of the modules of the specified type
+	#
+	def module_set(type)
+		ret = nil
+		if using_cache
+			ret = self.cached_counts[type]
+		else
+			ret = module_sets[type]
+		end
+		ret || []
+	end
+
+	#
 	# Returns the set of loaded encoder module classes.
 	#
 	def encoders
-		return module_sets[MODULE_ENCODER]
+		module_set(MODULE_ENCODER)
 	end
+
 
 	#
 	# Returns the set of loaded exploit module classes.
 	#
 	def exploits
-		return module_sets[MODULE_EXPLOIT]
+		module_set(MODULE_EXPLOIT)
 	end
 
 	#
 	# Returns the set of loaded nop module classes.
 	#
 	def nops
-		return module_sets[MODULE_NOP]
+		module_set(MODULE_NOP)
 	end
 
 	#
 	# Returns the set of loaded payload module classes.
 	#
 	def payloads
-		return module_sets[MODULE_PAYLOAD]
+		module_set(MODULE_PAYLOAD)
 	end
 
 	#
 	# Returns the set of loaded auxiliary module classes.
 	#
 	def auxiliary
-		return module_sets[MODULE_AUX]
+		module_set(MODULE_AUX)
 	end
 
 	#
 	# Returns the set of loaded auxiliary module classes.
 	#
 	def post
-		return module_sets[MODULE_POST]
+		module_set(MODULE_POST)
 	end
 
 	#
