@@ -50,13 +50,8 @@ class Metasploit3 < Msf::Post
 				"Profile Path"
 			])
 		sids.flatten.map do |sid|
-			info = resolve_sid(sid)
-
-			if !info.nil? && info[:type] == :user
-				profile_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{sid}","ProfileImagePath")
-
-				tbl << [sid,profile_path]
-			end
+			profile_path = registry_getvaldata("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{sid}","ProfileImagePath")
+			tbl << [sid,profile_path]
 		end
 		print_line("\n" + tbl.to_s + "\n")
 	end
