@@ -13,7 +13,6 @@ require 'vm'
 require 'yaml'
 require 'workstation_controller'
 require 'remote_workstation_controller'
-
 #require 'amazon_controller'
 #require 'virtualbox_controller'
 #require 'dynagen_controller'
@@ -25,10 +24,9 @@ module Controllers
 		include Enumerable
 		include Lab::Controllers::WorkstationController 		## gives access to workstation-specific controller methods
 		include Lab::Controllers::RemoteWorkstationController 	## gives access to workstation-specific controller methods
-
-#		include Lab::AmazonController 		## gives access to amazon-specific controller methods
-#		include Lab::VirtualBoxController 	## gives access to virtualbox-specific controller methods
-#		include Lab::DynagenController 		## gives access to dynagen-specific controller methods
+		#include Lab::AmazonController 		## gives access to amazon-specific controller methods
+		#include Lab::VirtualBoxController 	## gives access to virtualbox-specific controller methods
+		#include Lab::DynagenController 		## gives access to dynagen-specific controller methods
 
 
 		def initialize (labdef = nil)
