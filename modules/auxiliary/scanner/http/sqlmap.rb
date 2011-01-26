@@ -45,12 +45,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
+				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap' ]),
 				OptString.new('METHOD', [ true,  "HTTP Method", 'GET' ]),
 				OptString.new('PATH', [ true,  "The path/file to test for SQL injection", 'index.php' ]),
 				OptString.new('QUERY', [ false, "HTTP GET query", 'id=1' ]),
-				OptString.new('DATA', [ false, "The data string to be sent through POST", '' ]),
-				OptString.new('OPTS', [ false,  "The sqlmap options to use", ' ' ]),
-				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap/sqlmap.py' ]),
+				OptString.new('DATA', [ false, "The data string to be sent through POST" ]),
+				OptString.new('OPTS', [ false,  "The sqlmap options to use" ]),
 				OptBool.new('BATCH', [ true,  "Never ask for user input, use the default behaviour", true ])
 			], self.class)
 	end
@@ -63,14 +63,14 @@ class Metasploit3 < Msf::Auxiliary
 	# Test a single host
 	def run_host(ip)
 
-		sqlmap = datastore['SQLMAP_PATH']
-
-		if not sqlmap
+		sqlmap = File.join(datastore['SQLMAP_PATH'], 'sqlmap.py')
+		if not File.file?(sqlmap)
 			print_error("The sqlmap script could not be found")
 			return
 		end
 
 		data = datastore['DATA']
+		opts = datastore['OPTS']
 		method = datastore['METHOD'].upcase
 
 		sqlmap_url  = (datastore['SSL'] ? "https" : "http")
@@ -81,24 +81,21 @@ class Metasploit3 < Msf::Auxiliary
 			sqlmap_url += '?' + datastore['QUERY']
 		end
 
-		cmd  = sqlmap + ' -u \'' + sqlmap_url + '\''
-		cmd += ' --method ' + method
-		cmd += ' ' + datastore['OPTS']
-
-		if not data.empty?
-			cmd += ' --data \'' + data + '\''
+		cmd = [ sqlmap ]
+		cmd += [ '-u', sqlmap_url ]
+		cmd += [ '--method', method ]
+		if opts
+			cmd << opts
 		end
-
+		if data
+			cmd += [ '--data', data ]
+		end
 		if datastore['BATCH'] == true
-			cmd += ' --batch'
+			cmd << '--batch'
 		end
 
-		print_status("exec: #{cmd}")
-		IO.popen( cmd ) do |io|
-			io.each_line do |line|
-				print_line("SQLMAP: " + line.strip)
-			end
-		end
+		print_status("exec: #{cmd.inspect}")
+		system(*cmd)
 	end
 
 end
