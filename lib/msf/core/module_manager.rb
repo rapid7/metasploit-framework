@@ -342,7 +342,6 @@ class ModuleManager < ModuleSet
 		super(nil)
 
 		@modcache_invalidated = false
-		@cached_counts = false
 	end
 
 	def init_module_set(type)
@@ -382,13 +381,7 @@ class ModuleManager < ModuleSet
 	# Returns all of the modules of the specified type
 	#
 	def module_set(type)
-		ret = nil
-		if using_cache
-			ret = self.cached_counts[type]
-		else
-			ret = module_sets[type]
-		end
-		ret || []
+		module_sets[type]
 	end
 
 	#
@@ -464,7 +457,6 @@ class ModuleManager < ModuleSet
 
 		# Initialize the standard groups
 		@modcache.add_group('FileModificationTimes', false)
-		@modcache.add_group('ModuleTypeCounts', false)
 
 		MODULE_TYPES.each { |type|
 			@modcache.add_group(type, false)
@@ -495,10 +487,6 @@ class ModuleManager < ModuleSet
 			}
 		}
 
-		if !(@modcache['ModuleTypeCounts'] and @modcache['ModuleTypeCounts'].keys.length > 0)
-			@modcache_invalidated = true
-		end
-
 	end
 
 	#
@@ -509,38 +497,10 @@ class ModuleManager < ModuleSet
 	end
 
 	#
-	# Returns the cached module counts by type if the cache is being used.
-	#
-	def cached_counts
-		if (using_cache and @modcache.group?('ModuleTypeCounts'))
-			if (! @cached_counts)
-				@cached_counts = {}
-
-				@modcache['ModuleTypeCounts'].each_pair { |type, count|
-					@cached_counts[type] = count.to_i
-				}
-			end
-
-			return @cached_counts
-		end
-
-		return nil
-	end
-
-	#
 	# Persists the current contents of the module cache to disk.
 	#
 	def save_module_cache
 		if (@modcache)
-			if (@modcache.group?('ModuleTypeCounts'))
-				@modcache['ModuleTypeCounts'].clear
-
-				MODULE_TYPES.each { |type|
-					next if not @modcache['ModuleTypeCounts'][type]
-					@modcache['ModuleTypeCounts'][type] = module_sets[type].length.to_s
-				}
-			end
-
 			@modcache.to_file(@modcache_file)
 		end
 	end
@@ -584,7 +544,6 @@ class ModuleManager < ModuleSet
 		# Clear the module cache.
 		if (@modcache)
 			@modcache['FileModificationTimes'].clear
-			@modcache['ModuleTypeCounts'].clear
 
 			MODULE_TYPES.each { |type|
 				@modcache[type].clear
@@ -670,14 +629,6 @@ class ModuleManager < ModuleSet
 		# where it will be false is from the loadpath command in msfconsole.
 		if !using_cache and check_cache
 			save_module_cache
-		# If we're by default using the cache and we were told not to
-		# invalidate/use it, then we should update the cached counts to include
-		# what we've just added so that the banner will reflect the changes
-		# correctly.
-		elsif using_cache and !check_cache
-			cached_counts.each_key { |k|
-				cached_counts[k] += counts[k] if counts[k]
-			}
 		end
 
 		return counts
