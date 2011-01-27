@@ -7,6 +7,11 @@ module Msf
 class Plugin::AutoAddRoute < Msf::Plugin
 	include Msf::SessionEvent
 	def name; 'auto_add_route'; end
+
+	def desc
+		"Adds routes for any new subnets whenever a session opens"
+	end
+
 	def on_session_open(session)
 		return if not session.type == 'meterpreter'
 		session.load_stdapi
