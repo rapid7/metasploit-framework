@@ -121,7 +121,11 @@ class Metasploit3 < Msf::Auxiliary
 				os = "Unix"
 			end
 
-			names = " Names:(" + host[:names].map{|n| n[0]}.uniq.join(", ") + ")"
+			names = ""
+			if host[:names]
+				names = " Names:(" + host[:names].map{|n| n[0]}.uniq.join(", ") + ")"
+			end
+
 			addrs = ""
 			if(host[:addrs])
 				addrs = "Addresses:(" + host[:addrs].map{|n| n[0]}.uniq.join(", ") + ")"
