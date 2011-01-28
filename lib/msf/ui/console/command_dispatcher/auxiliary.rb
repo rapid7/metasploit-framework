@@ -25,13 +25,13 @@ class Auxiliary
 	# Returns the hash of commands specific to auxiliary modules.
 	#
 	def commands
-		{
+		super.update({
 			"run"   => "Launches the auxiliary module",
 			"rerun" => "Reloads and launches the auxiliary module",
 			"exploit" => "This is an alias for the run command",
 			"rexploit" => "This is an alias for the rerun command",
 			"reload"   => "Reloads the auxiliary module"
-		}.merge( (mod ? mod.auxiliary_commands : {}) )
+		}).merge( (mod ? mod.auxiliary_commands : {}) )
 	end
 
 	#
@@ -57,57 +57,15 @@ class Auxiliary
 	end
 
 	#
-	# This is an alias for 'rerun'
-	#
-	def cmd_rexploit(*args)
-		cmd_rerun(*args)
-	end
-
-	#
-	# Reloads an auxiliary module
-	#
-	def cmd_reload(*args)
-		begin
-			omod = self.mod
-			self.mod = framework.modules.reload_module(mod)
-			if(not self.mod)
-				print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-				self.mod = omod
-			end
-		rescue
-			log_error("Failed to reload: #{$!}")
-		end
-	end
-
-	#
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
-		if mod.job_id
-			print_status("Stopping existing job...")
-
-			framework.jobs.stop_job(mod.job_id)
-			mod.job_id = nil
-		end
-
-		omod = self.mod
-		self.mod = framework.modules.reload_module(mod)
-
-		if(not self.mod)
-			print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-			self.mod = omod
-			return
-		end
+		reload(true)
 
 		cmd_run(*args)
 	end
 
-	#
-	# This is an alias for 'run'
-	#
-	def cmd_exploit(*args)
-		cmd_run(*args)
-	end
+	alias cmd_rexploit cmd_rerun
 
 	#
 	# Executes an auxiliary module
@@ -131,10 +89,7 @@ class Auxiliary
 				when '-q'
 					quiet  = true
 				when '-h'
-					print(
-						"Usage: run [options]\n\n" +
-						"Launches an auxiliary module.\n" +
-						@@auxiliary_opts.usage)
+					cmd_run_help
 					return false
 			end
 		}
@@ -176,6 +131,17 @@ class Auxiliary
 			print_status("Auxiliary module execution completed")
 		end
 	end
+
+	alias cmd_exploit cmd_run
+
+	def cmd_run_help
+		print_line "Usage: run [options]"
+		print_line
+		print_line "Launches an auxiliary module."
+		print @@auxiliary_opts.usage
+	end
+
+	alias cmd_exploit_help cmd_run_help
 
 end
 

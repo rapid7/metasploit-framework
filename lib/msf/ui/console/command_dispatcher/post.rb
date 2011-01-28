@@ -24,20 +24,18 @@ class Post
 	# Returns the hash of commands specific to post modules.
 	#
 	def commands
-		{
+		super.update({
 			"run"   => "Launches the post exploitation module",
 			"rerun" => "Reloads and launches the module",
 			"exploit"  => "This is an alias for the run command",
 			"rexploit" => "This is an alias for the rerun command",
-			"reload"   => "Reloads the post exploitation module"
-		}.merge( (mod ? mod.post_commands : {}) )
+		}).merge( (mod ? mod.post_commands : {}) )
 	end
 
 	#
 	# Allow modules to define their own commands
 	#
 	def method_missing(meth, *args)
-		$stdout.puts("Post#method_missing")
 		if (mod and mod.respond_to?(meth.to_s))
 
 			# Initialize user interaction
@@ -64,22 +62,6 @@ class Post
 	end
 
 	#
-	# Reloads an auxiliary module
-	#
-	def cmd_reload(*args)
-		begin
-			omod = self.mod
-			self.mod = framework.modules.reload_module(mod)
-			if(not self.mod)
-				print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-				self.mod = omod
-			end
-		rescue
-			log_error("Failed to reload: #{$!}")
-		end
-	end
-
-	#
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
@@ -102,12 +84,7 @@ class Post
 		cmd_run(*args)
 	end
 
-	#
-	# This is an alias for 'run'
-	#
-	def cmd_exploit(*args)
-		cmd_run(*args)
-	end
+	alias cmd_rexploit cmd_rerun
 
 	#
 	# Executes an auxiliary module
@@ -174,6 +151,15 @@ class Post
 			print_status("Post module execution completed")
 		end
 	end
+
+	def cmd_run_help
+		print_line "Usage: run [options]"
+		print_line
+		print_line "Launches a post module."
+		print @@auxiliary_opts.usage
+	end
+
+	alias cmd_exploit_help cmd_run_help
 
 end
 

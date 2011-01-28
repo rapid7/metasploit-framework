@@ -1,4 +1,5 @@
 require 'rex/ui'
+require 'pp'
 
 module Rex
 module Ui
@@ -78,6 +79,54 @@ module DispatcherShell
 		def update_prompt(prompt=nil)
 			shell.update_prompt(prompt)
 		end
+
+		#
+		# Displays the help banner.  With no arguments, this is just a list of
+		# all commands grouped by dispatcher.  Otherwise, tries to use a method
+		# named cmd_#{+cmd+}_help for the first dispatcher that has a command
+		# named +cmd+.
+		#
+		def cmd_help(cmd=nil, *ignored)
+			if cmd
+				help_found = false
+				cmd_found = false
+				shell.dispatcher_stack.each do |dispatcher|
+					next unless dispatcher.respond_to?(:commands)
+					next if (dispatcher.commands.nil?)
+					next if (dispatcher.commands.length == 0)
+
+					if dispatcher.respond_to?("cmd_#{cmd}")
+						cmd_found = true
+						break unless dispatcher.respond_to? "cmd_#{cmd}_help"
+						dispatcher.send("cmd_#{cmd}_help")
+						help_found = true
+						break
+					end
+				end
+				print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
+				print_error("No such command") if not cmd_found
+			else
+				print(driver.help_to_s)
+			end
+		end
+
+		#
+		# Tab completion for the help command
+		#
+		# By default just returns a list of all commands in all dispatchers.
+		#
+		def cmd_help_tabs(str, words)
+			return [] if words.length > 1
+
+			tabs = []
+			shell.dispatcher_stack.each { |dispatcher|
+				tabs += dispatcher.commands.keys
+			}
+			return tabs
+		end
+
+		alias cmd_? cmd_help
+
 
 		#
 		# No tab completion items by default

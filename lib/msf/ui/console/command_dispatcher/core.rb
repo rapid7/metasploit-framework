@@ -284,9 +284,7 @@ class Core
 	#
 	def cmd_connect(*args)
 		if args.length < 2 or args.include?("-h")
-			print(  "Usage: connect [options] <host> <port>\n\n" +
-				"Communicate with a host, similar to interacting via netcat.\n" +
-				@@connect_opts.usage)
+			cmd_connect_help
 			return false
 		end
 
@@ -460,6 +458,14 @@ class Core
 		true
 	end
 
+	def cmd_connect_help
+		print_line "Usage: connect [options] <host> <port>"
+		print_line
+		print_line "Communicate with a host, similar to interacting via netcat, taking advantage of"
+		print_line "any configured session pivoting."
+		print @@connect_opts.usage
+	end
+
 	#
 	# Instructs the driver to stop executing.
 	#
@@ -484,44 +490,6 @@ class Core
 		return if not (args and args.length == 1)
 		Rex::ThreadSafe.sleep(args[0].to_f)
 	end
-
-	#
-	# Displays the command help banner or an individual command's help banner
-	# if we can figure out how to invoke it.
-	#
-	def cmd_help(*args)
-		if args and args.length > 0 and commands.include?(args[0])
-			if self.respond_to? "cmd_"+ args[0] + "_help"
-				self.send("cmd_"+ args[0] + "_help")
-			else
-				#
-				# This part is done in a hackish way because not all of the
-				# usage info is available from self.commands() or @@*_opts, so
-				# we check @@<cmd>_opts for "-h".  It's non-optimal because
-				# several commands have usage info, but don't use -h to invoke
-				# it.
-				begin
-					opts = eval("@@" + args[0] + "_opts")
-				rescue
-				end
-				if opts and opts.include?("-h")
-					self.send("cmd_" + args[0], "-h")
-				else
-					print_line("No help available for #{args[0]}")
-				end
-			end
-		else
-			print(driver.help_to_s)
-		end
-	end
-	def cmd_help_tabs(str, words)
-		return [] if words.length > 1
-
-		return commands.keys
-	end
-
-
-	alias cmd_? cmd_help
 
 	#
 	# Displays information about one or more module.
@@ -620,10 +588,7 @@ class Core
 					dump_info = true
 					job_id = val
 				when "-h"
-					print(
-						"Usage: jobs [options]\n\n" +
-						"Active job manipulation and interaction.\n" +
-						@@jobs_opts.usage())
+					cmd_jobs_help
 					return false
 			end
 		}
@@ -670,6 +635,13 @@ class Core
 		[]
 	end
 
+	def cmd_jobs_help
+		print_line "Usage: jobs [options]"
+		print_line
+		print_line "Active job manipulation and interaction."
+		print @@jobs_opts.usage()
+	end
+
 	def cmd_kill(*args)
 		cmd_jobs("-k", *args)
 	end
@@ -677,6 +649,13 @@ class Core
 	def cmd_kill_tabs(str, words)
 		return [] if words.length > 1
 		framework.jobs.keys
+	end
+
+	def cmd_kill_help
+		print_line "Usage: kill <job1> [job2 ...]"
+		print_line
+		print_line "Equivalent to 'jobs -k job1 -k job2 ...'"
+		print @@jobs_opts.usage()
 	end
 
 	#
@@ -725,10 +704,7 @@ class Core
 					dump_info = true
 					thread_id = val.to_i
 				when "-h"
-					print(
-						"Usage: threads [options]\n\n" +
-						"Background thread management.\n" +
-						@@threads_opts.usage())
+					cmd_threads_help
 					return false
 			end
 		}
@@ -798,6 +774,13 @@ class Core
 		end
 
 		[]
+	end
+
+	def cmd_threads_help
+		print(
+			"Usage: threads [options]\n\n" +
+			"Background thread management.\n" +
+			@@threads_opts.usage())
 	end
 
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
@@ -1132,8 +1115,8 @@ class Core
 	def cmd_loadpath(*args)
 		defanged?
 
-		if (args.length == 0)
-			print_error("No search paths were provided.")
+		if (args.length == 0 or args.include? "-h")
+			cmd_loadpath_help
 			return true
 		end
 
@@ -1205,6 +1188,13 @@ class Core
 		return paths
 	end
 
+	def cmd_loadpath_help
+		print_line "Usage: loadpath /path/to/modules"
+		print_line
+		print_line "Loads modules from the given directory which should contain subdirectories for"
+		print_line "module types, e.g. /path/to/modules/exploits"
+	end
+
 	#
 	# Searches modules (name and description) for specified regex
 	#
@@ -1216,8 +1206,7 @@ class Core
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-h"
-				print_line("Usage: search [options] [regex]")
-				print(@@search_opts.usage)
+				cmd_search_help
 				return
 			when "-t"
 				section = val
@@ -1284,10 +1273,16 @@ class Core
 		when "-r"
 			return RankingName.sort.map{|r| r[1]}
 		when "-t"
-			return %w{auxiliary encoder exploit nop payload}
+			return %w{auxiliary encoder exploit nop payload post}
 		end
 
 		[]
+	end
+
+	def cmd_search_help
+		print_line "Usage: search [options] [regex]"
+		print_line
+		print @@search_opts.usage
 	end
 
 	#
@@ -1359,10 +1354,7 @@ class Core
 
 				# Display help banner
 				when "-h"
-					print(
-						"Usage: sessions [options]\n\n" +
-						"Active session manipulation and interaction.\n" +
-						@@sessions_opts.usage())
+					cmd_sessions_help
 					return false
 				else
 					extra << val
@@ -1568,6 +1560,13 @@ class Core
 		[]
 	end
 
+	def cmd_sessions_help
+		print_line "Usage: sessions [options]"
+		print_line
+		print_line "Active session manipulation and interaction."
+		print(@@sessions_opts.usage())
+	end
+
 	#
 	# Sets a name to a value in a context aware environment.
 	#
@@ -1736,21 +1735,7 @@ class Core
 		args.each { |type|
 			case type
 				when '-h'
-					global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
-					opts = ''
-					global_opts.each { |el|
-						opts << ', ' if opts.length > 0
-						opts << el
-					}
-					print_status("Valid parameters for the \"show\" command are: #{opts}")
-					module_opts = %w{ advanced evasion targets actions }
-					opts = ''
-					module_opts.each { |el|
-						opts << ', ' if opts.length > 0
-						opts << el
-					}
-					print_status("Additional module-specific parameters are: #{opts}")
-
+					cmd_show_help
 				when 'all'
 					show_encoders
 					show_nops
@@ -1835,6 +1820,14 @@ class Core
 		return res
 	end
 
+	def cmd_show_help
+		global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+		print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
+
+		module_opts = %w{ advanced evasion targets actions }
+		print_status("Additional module-specific parameters are: #{module_opts.join(", ")}")
+	end
+
 	#
 	# Unloads a plugin by its name.
 	#
@@ -1891,11 +1884,7 @@ class Core
 
 		# No arguments?  No cookie.
 		if (args.length == 0)
-			print(
-				"Usage: unset var1 var2 var3 ...\n\n" +
-				"The unset command is used to unset one or more variables.\n" +
-				"To flush all entires, specify 'all' as the variable name\n")
-
+			cmd_unset_help
 			return false
 		end
 
@@ -1934,6 +1923,14 @@ class Core
 		datastore.keys
 	end
 
+	def cmd_unset_help
+		print_line "Usage: unset [-g] var1 var2 var3 ..."
+		print_line
+		print_line "The unset command is used to unset one or more variables."
+		print_line "To flush all entires, specify 'all' as the variable name."
+		print_line "With -g, operates on global datastore variables."
+	end
+
 	#
 	# Unsets variables in the global data store.
 	#
@@ -1949,6 +1946,8 @@ class Core
 	def cmd_unsetg_tabs(str, words)
 		self.framework.datastore.keys
 	end
+
+	alias cmd_unsetg_help cmd_unset_help
 
 	#
 	# Uses a module.

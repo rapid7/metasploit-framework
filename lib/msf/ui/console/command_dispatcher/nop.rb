@@ -24,9 +24,9 @@ class Nop
 	# Returns the hash of supported commands.
 	#
 	def commands
-		{
+		super.update({
 			"generate" => "Generates a NOP sled",
-		}
+		})
 	end
 
 	#

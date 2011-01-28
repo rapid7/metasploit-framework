@@ -39,9 +39,9 @@ class Payload
 	# Returns the hash of commands specific to payload modules.
 	#
 	def commands
-		{
+		super.update({
 			"generate" => "Generates a payload",	
-		}
+		})
 	end
 
 	#
