@@ -65,23 +65,10 @@ class Post
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
-		if mod.job_id
-			print_status("Stopping existing job...")
-
-			framework.jobs.stop_job(mod.job_id)
-			mod.job_id = nil
+		# Stop existing job and reload the module
+		if reload(true)
+			cmd_run(*args)
 		end
-
-		omod = self.mod
-		self.mod = framework.modules.reload_module(mod)
-
-		if(not self.mod)
-			print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
-			self.mod = omod
-			return
-		end
-
-		cmd_run(*args)
 	end
 
 	alias cmd_rexploit cmd_rerun
@@ -134,7 +121,7 @@ class Post
 			print_error("Post interrupted by the console user")
 		rescue ::Exception => e
 			print_error("Post failed: #{e.class} #{e}")
-			if(e.class.to_s != 'Msf::OptionValidateError')
+			if (e.class.to_s != 'Msf::OptionValidateError')
 				print_error("Call stack:")
 				e.backtrace.each do |line|
 					break if line =~ /lib.msf.base.simple/

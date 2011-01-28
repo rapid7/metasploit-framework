@@ -369,6 +369,12 @@ class Console::CommandDispatcher::Core
 			# Framework instance.  If we don't, or if no such module exists,
 			# fall back to using the scripting interface.
 			if (msf_loaded? and mod = client.framework.modules.create(script_name))
+				omod = mod
+				mod = framework.modules.reload_module(mod)
+				if (not mod)
+					print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+					return
+				end
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
 				mod.run_simple(
 					#'RunAsJob' => true,

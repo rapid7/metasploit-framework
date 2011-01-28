@@ -60,9 +60,9 @@ class Auxiliary
 	# Reloads an auxiliary module and executes it
 	#
 	def cmd_rerun(*args)
-		reload(true)
-
-		cmd_run(*args)
+		if reload(true)
+			cmd_run(*args)
+		end
 	end
 
 	alias cmd_rexploit cmd_rerun

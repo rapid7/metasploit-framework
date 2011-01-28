@@ -153,6 +153,7 @@ module ModuleCommandDispatcher
 		end
 
 		self.mod.init_ui(driver.input, driver.output)
+		mod
 	end
 
 end
