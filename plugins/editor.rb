@@ -18,7 +18,7 @@ class Plugin::Editor < Msf::Plugin
 	#
 	###
 	class EditorCommandDispatcher
-		include Msf::Ui::Console::CommandDispatcher
+		include Msf::Ui::Console::ModuleCommandDispatcher
 
 		#
 		# The dispatcher's name.
@@ -31,6 +31,8 @@ class Plugin::Editor < Msf::Plugin
 		# Returns the hash of commands supported by this dispatcher.
 		#
 		def commands
+			# Don't update super here since we don't want the commands from
+			# super, just the methods
 			{
 				"edit" => "A handy editor commmand"
 			}
@@ -44,15 +46,18 @@ class Plugin::Editor < Msf::Plugin
 
 			e = Rex::Compat.getenv("EDITOR") || "vi"
 
-			if (not active_module) or (not (path = active_module.file_path))
+			if (not mod) or (not (path = mod.file_path))
 				print_line("Error: No active module selected")
 				return nil
 			end
 
-			ret = system(e + " " + path)
+			ret = system(e, path)
 			if not ret
 				print_line("Failed to execute your editor (#{e})")
+				return
 			end
+
+			reload
 			ret
 		end
 	end
