@@ -3686,6 +3686,28 @@ class DBManager
 				)
 			end
 
+			if (h["trace"])
+				hops = []
+				h["trace"]["hops"].each do |hop|
+					hops << { 
+						"ttl"     => hop["ttl"].to_i,
+						"address" => hop["ipaddr"].to_s,
+						"rtt"     => hop["rtt"].to_f,
+						"name"    => hop["host"].to_s
+					}
+				end
+				report_note(
+					:workspace => wspace,
+					:host => addr,
+					:type => 'host.nmap.traceroute',
+					:data => {
+						'port'  => h["trace"]["port"].to_i,
+						'proto' => h["trace"]["proto"].to_s,
+						'hops'  => hops
+					}
+				)
+			end
+			
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|

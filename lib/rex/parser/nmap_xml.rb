@@ -87,6 +87,12 @@ class NmapXMLStreamParser
 			# Store any service info with the associated port.  There shouldn't
 			# be any collisions on attribute names here, so just merge them.
 			@host["ports"].last.merge!(attributes)
+		when "trace"
+			@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
+		when "hop"
+			if @host["trace"]
+				@host["trace"]["hops"].push(attributes)
+			end
 		end
 	end
 
