@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'pathname'
 
 module Msf
 
@@ -602,6 +603,12 @@ class ModuleManager < ModuleSet
 	#
 	def add_module_path(path, check_cache = true)
 		path.sub!(/#{File::SEPARATOR}$/, '')
+
+		# Make the path completely canonical
+		path = File.expand_path(path)
+		path = Pathname.new(path).realpath.to_s
+
+		$stderr.puts "[*] Adding module path #{path.inspect} ..."
 
 		# Make sure the path is a valid directory before we try to rock the
 		# house
