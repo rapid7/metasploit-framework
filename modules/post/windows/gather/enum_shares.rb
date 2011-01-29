@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate Shares',
-				'Description'   => %q{ This module will enumerate recent and configured file shares},
+				'Name'          => 'Local SMB Share Enumeration',
+				'Description'   => %q{ This module will enumerate configured and recently used file shares},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
@@ -29,19 +29,29 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptBool.new('CURRENT' , [ true, 'Enumerate currently configured shares'                  , true]),
-				OptBool.new('RECENT'  , [ true, 'Enumerate Recently mapped shares'                       , true]),
-				OptBool.new('ENTERED' , [ true, 'Enumerate Recently entered UNC Paths in the Run Dialog' , true])
-
+				OptBool.new("CURRENT" , [ true, "Enumerate currently configured shares"                  , true]),
+				OptBool.new("RECENT"  , [ true, "Enumerate Recently mapped shares"                       , true]),
+				OptBool.new("ENTERED" , [ true, "Enumerate Recently entered UNC Paths in the Run Dialog" , true])
 			], self.class)
 
 	end
 
+	# Stolen from modules/auxiliary/scanner/smb/smb_enumshares.rb
+	def share_type(val)
+		[  
+			'DISK',
+			'PRINTER',
+			'DEVICE',
+			'IPC',
+			'SPECIAL',
+			'TEMPORARY'
+		][val]
+	end
 
 	# Method for enumerating recent mapped drives on target machine
 	def enum_recent_mounts(base_key)
 		recent_mounts = []
-		partial_path = base_key + '\Software\\Microsoft\Windows\CurrentVersion\Explorer'
+		partial_path = base_key + "\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer"
 		full_path = "#{partial_path}\\Map Network Drive MRU"
 		explorer_keys = registry_enumkeys(partial_path)
 		if explorer_keys.include?("Map Network Drive MRU")
@@ -57,7 +67,7 @@ class Metasploit3 < Msf::Post
 	# Method for enumerating UNC Paths entered in run dialog box
 	def enum_run_unc(base_key)
 		unc_paths = []
-		full_path = base_key + '\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU'
+		full_path = base_key + "\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU"
 		registry_enumvals(full_path).each do |k|
 			if k =~ /./
 				run_entrie = registry_getvaldata(full_path,k)
@@ -70,40 +80,58 @@ class Metasploit3 < Msf::Post
 
 	# Method for enumerating configured shares on a target box
 	def enum_conf_shares()
-		target_os = session.sys.config.sysinfo['OS']
-		if target_os =~ /Windows 7|Vista|2008/
-			shares_key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\LanmanServer\\Shares'
+		if sysinfo["OS"] =~ /Windows 7|Vista|2008/
+			shares_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\LanmanServer\\Shares"
 		else
-			shares_key = 'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\lanmanserver\\Shares'
+			shares_key = "HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\services\\lanmanserver\\Shares"
 		end
-		shares = registry_enumvals(shares_key)
-		print_status("The following shares where found:")
-		if shares.length > 0
-			shares.each do |s|
-				share_info = registry_getvaldata(shares_key,s).split("\000")
-				print_status("\tName: #{s}")
+		share_names = registry_enumvals(shares_key)
+
+		if share_names.length > 0
+			shares = []
+			print_status("The following shares where found:")
+			share_names.each do |sname|
+				share_info = registry_getvaldata(shares_key,sname).split("\000")
+				print_status("\tName: #{sname}")
+				stype = remark = path = nil
 				share_info.each do |e|
 					name,val = e.split("=")
-					print_status("\t#{name}: #{val}") if name =~ /Path|Type/
+					case name
+					when "Path"
+						print_status "\tPath: #{val}"
+						path = val
+					when "Type"
+						print_status "\tType: #{val}"
+						stype = share_type(val.to_i)
+					when "Remark"
+						remark = val
+					end
 				end
+				# Match the format used by auxiliary/scanner/smb/smb_enumshares
+				# with an added field for path
+				shares << [ sname, stype, remark, path ]
 				print_status()
 			end
+			report_note(
+				:host => session.peerhost,
+				:type => 'smb.shares',
+				:data => { :shares => shares },
+				:update => :unique_data
+			)
 		else
 			print_status("No Shares where found")
 		end
 	end
 
-
-
 	def run
-		print_status("Running against session #{datastore['SESSION']}")
+		print_status("Running against session #{datastore["SESSION"]}")
 
 		# Variables to hold info
 		mount_history = []
 		run_history = []
 
 		# Enumerate shares being offered
-		enum_conf_shares() if datastore['CURRENT']
+		enum_conf_shares() if datastore["CURRENT"]
 		user = session.sys.config.getuid
 		if user != "NT AUTHORITY\\SYSTEM"
 			mount_history = enum_recent_mounts("HKEY_CURRENT_USER")
@@ -118,8 +146,8 @@ class Metasploit3 < Msf::Post
 				user_sid << k if k =~ /S-1-5-21-\d*-\d*-\d*-\d{3,6}$/
 			end
 			user_sid.each do |us|
-				mount_history = mount_history + enum_recent_mounts("HKU\\#{us.chomp}") if datastore['RECENT']
-				run_history = run_history + enum_run_unc("HKU\\#{us.chomp}") if datastore['ENTERED']
+				mount_history = mount_history + enum_recent_mounts("HKU\\#{us.chomp}") if datastore["RECENT"]
+				run_history = run_history + enum_run_unc("HKU\\#{us.chomp}") if datastore["ENTERED"]
 			end
 		end
 
@@ -132,7 +160,7 @@ class Metasploit3 < Msf::Post
 			print_status()
 		end
 
-		# #Enumerate UNC Paths entered in the Dialog box
+		# Enumerate UNC Paths entered in the Dialog box
 		if run_history.length > 0
 			print_status("Recent UNC paths entered in Run Dialog found:")
 			run_history.each do |i|
@@ -142,4 +170,5 @@ class Metasploit3 < Msf::Post
 		end
 
 	end
+
 end
