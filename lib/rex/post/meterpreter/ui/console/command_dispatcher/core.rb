@@ -370,9 +370,9 @@ class Console::CommandDispatcher::Core
 			# fall back to using the scripting interface.
 			if (msf_loaded? and mod = client.framework.modules.create(script_name))
 				omod = mod
-				mod = framework.modules.reload_module(mod)
+				mod = client.framework.modules.reload_module(mod)
 				if (not mod)
-					print_error("Failed to reload module: #{framework.modules.failed[omod.file_path]}")
+					print_error("Failed to reload module: #{client.framework.modules.failed[omod.file_path]}")
 					return
 				end
 				opts = (args + [ "SESSION=#{client.sid}" ]).join(',')
