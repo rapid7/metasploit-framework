@@ -496,9 +496,20 @@ class Console::CommandDispatcher::Core
 	def cmd_info(*args)
 		return unless msf_loaded?
 
-		mod = client.framework.modules.create(args.shift)
+		if args.length != 1
+			print_error 'Usage: info <module>'
+			return
+		end
+		
+		module_name = args.shift
+		mod = client.framework.modules.create(module_name);
+		
+		if mod.nil?
+			print_error 'Invalid module: ' << module_name
+		end
+
 		if (mod)
-			print ::Msf::Serializer::ReadableText.dump_module(mod)
+			print_line ::Msf::Serializer::ReadableText.dump_module(mod)
 		end
 	end
 
