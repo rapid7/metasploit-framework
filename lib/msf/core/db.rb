@@ -253,6 +253,8 @@ class DBManager
 			return addr
 		end
 
+		addr = normalize_host(addr)
+
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
 
@@ -573,7 +575,7 @@ class DBManager
 				host = opts[:host]
 			else
 				report_host({:workspace => wspace, :host => opts[:host]})
-				addr = opts[:host]
+				addr = normalize_host(opts[:host])
 			end
 			# Do the same for a service if that's also included.
 			if (opts[:port])
@@ -869,7 +871,7 @@ class DBManager
 			host = opts[:host]
 		else
 			report_host({:workspace => wspace, :host => opts[:host]})
-			addr = opts[:host]
+			addr = normalize_host(opts[:host])
 		end
 
 		ret = {}
@@ -972,7 +974,7 @@ class DBManager
 			host = opts[:host]
 		else
 			report_host({:workspace => wspace, :host => opts[:host]})
-			addr = opts[:host]
+			addr = normalize_host(opts[:host])
 		end
 
 		if opts[:service].kind_of? Service
@@ -1112,7 +1114,7 @@ class DBManager
 				host = opts[:host]
 			else
 				report_host({:workspace => wspace, :host => opts[:host]})
-				addr = opts[:host]
+				addr = normalize_host(opts[:host])
 			end
 		end
 
@@ -4681,6 +4683,18 @@ protected
 		end
 	end
 
+	def normalize_host(host)
+		# If the host parameter is a Session, try to extract its address
+		if host.respond_to?('target_host')
+			thost = host.target_host
+			tpeer = host.tunnel_peer
+			if tpeer and (!thost or thost.empty?)
+				thost = tpeer.split(":")[0]
+			end
+			host = thost
+		end
+		host
+	end
 end
 
 end
