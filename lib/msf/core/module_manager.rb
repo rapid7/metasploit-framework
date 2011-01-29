@@ -608,8 +608,6 @@ class ModuleManager < ModuleSet
 		path = File.expand_path(path)
 		path = Pathname.new(path).realpath.to_s
 
-		$stderr.puts "[*] Adding module path #{path.inspect} ..."
-
 		# Make sure the path is a valid directory before we try to rock the
 		# house
 		if (File.directory?(path) == false)
