@@ -150,16 +150,6 @@ module Auxiliary::Report
 			FileUtils.mkdir_p(Msf::Config.loot_directory)
 		end
 
-		# Allow either a session or host to be specified
-		if host.respond_to?('target_host')
-			thost = host.target_host
-			tpeer = host.tunnel_peer
-			if tpeer and (!thost or thost.empty?)
-				thost = tpeer.split(":")[0]
-			end
-			host = thost
-		end
-		
 		ext = 'bin'
 		if filename
 			parts = filename.to_s.split('.')
