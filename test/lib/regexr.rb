@@ -50,142 +50,106 @@ class Regexr
 		return false
 	end
 
-	# Scan for a success line. In order to pass, the string must exist in the data
-	def ensure_exists_in_data(data,regex_string)
-			data_lines = data.split("\n")
-			re = Regexp.new(regex_string, @case_insensitive)
-	
-			data_lines.each {|line|
-				if line =~ re
-					return true
-				end
-			}
-
-		return false
-	end
-
-	# Scan for a fail line. In order to pass, the string must not exist in the data
-	def ensure_doesnt_exist_in_data(data,regex_string)
-			data_lines = data.split("\n")
-			re = Regexp.new(regex_string, @case_insensitive)
-	
-			data_lines.each {|line|
-				if line =~ re
-					return false
-				end
-			}
-
-		return true
-	end
-
-	# Scan for a fail line. In order to pass, the string must not exist in the data
-	def ensure_doesnt_exist_in_data_unless(data, regex_string, exceptions)
-			data_lines = data.split("\n")
-			data_lines.each {|line|
-				if line =~ Regexp.new(regex_string, @case_insensitive)
-					exceptions.each { |exception|
-						if line =~ Regexp.new(exception, @case_insensitive)
-							return true
-						end
-					}
-					return false
-				end
-			}
-		return true
-	end
-
 	# Scan for any number of success lines. In order to pass, all successes must match.
-	def ensure_all_exist_in_data(data,regexes=[])
+	def find_strings_that_dont_exist_in_data(data,regexes=[])
 		data_lines = data.split("\n")
 		if regexes
 			target_successes = regexes.size
 			success_count = 0
 			regexes.each { |condition|
+				if @verbose
+					puts "DEBUG: testing regex for existence: #{condition}"
+				end
+
+				## assume we haven't got it
 				matched = false
+				 
 				re = Regexp.new(condition, @case_insensitive)
+				
+				## for each of our data lines
 				data_lines.each {|line|
+				
+					## if it's a match
 					if line =~ re
+					
 						if @verbose
-							puts "DEBUG: matched success: " + line
+							puts "DEBUG: matched regex #{re.to_s}: with #{line}"
 						end
-						success_count += 1
+
+						## and set matched properly
 						matched = true
-						break
+						
+						break ## greedy success!
 					end
 				}
 				
-				# A way to tell if a match was never found.
 				if !matched
-					if @verbose 
-						puts "DEBUG: Didn't see success condition '#{condition}'"
-					end
-					return false
+					return condition ## return this string, it wasn't found.
 				end
+				
+				
 			}
-			
-			if target_successes == success_count
-				if @verbose 	
-					puts "DEBUG: Woot, got all successes"
-				end
-				return true
-			else 
-				if @verbose
-					 puts "DEBUG: Didn't get enough successes, failing. (" + count + "/" + target_successes + ")"
-				end
-				return false
-			end
 		else
-			return true # No successes are defined, so count this as a pass (true).
+			nil # No successes are defined, so count this as a pass (nil).
 		end
+		
+		nil ## got all successes, woot!
 	end
 
 	# Scan for failures -- if any single failure matches, the test returns true.
-	def ensure_none_exist_in_data(data,regexes=[],exceptions=[])
+	def find_strings_that_exist_in_data_except(data,regexes=[],exceptions=[])
 		data_lines = data.split("\n")
 		if regexes
 			regexes.each { |condition|
+				if @verbose
+					puts "DEBUG: testing regex for existence: #{condition}"
+				end
+
 				## for each failure condition that we've been passed 
 				re = Regexp.new(condition, @case_insensitive)
 
 				## assume we're okay
-				okay = true				
+				match = false				
 
 				data_lines.each { |line|
 
 					if re =~ line
-						okay = false # oh, we found a match
-
+					
 						if @verbose
-							puts "DEBUG: Matched failure: " + line
-						end									
-
-
+							puts "DEBUG: matched #{re.to_s} in #{line}"
+						end	
+	
+						match = true # oh, we found a match
+						
 						# but let's check the exceptions
 						exceptions.map { |exception|
 							reg_exception = Regexp.new(exception, @case_insensitive)
 
 							# If the exception matches here, we'll spare it
-							if reg_exception =~ line 
+							if reg_exception =~ line
 								if @verbose
-									puts "DEBUG: but \'" + line + "\' is an exception, we can ignore it."
+									puts "DEBUG: but #{line} is an exception, we can ignore it."
 								end									
-								okay = true
+								match = false
 								break
 							end
 						}
 
 						# If we didn't find an exception, we have to fail it. do not pass go. 
-						if !okay
+						if match
 							if @verbose
-								puts "DEBUG: Saw failure condition '#{condition}' in #{line}; regex matched: #{re.inspect}"
+								puts "DEBUG: Saw failure condition '#{condition}' in #{line}; regex matched: #{re.inspect}. no exceptions found."
 							end
-							return false 
+							
+							return condition ## fail early
 						end
 					end
 				}
 			}
 		else
-			return false # we gots no failures, so count this as a pass.
+			nil # we gots no failures, so count this as a pass.
 		end
+		
+		nil ## no failures found!
 	end
 end
