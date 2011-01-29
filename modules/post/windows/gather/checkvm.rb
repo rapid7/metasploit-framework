@@ -36,10 +36,8 @@ class Metasploit3 < Msf::Post
 			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft', KEY_READ)
 			sfmsvals = key.enum_key
 			if sfmsvals.include?("Hyper-V")
-				print_status("This is a Hyper-V Virtual Machine")
 				vm = true
 			elsif sfmsvals.include?("VirtualMachine")
-				print_status("This is a Hyper-V Virtual Machine")
 				vm = true
 			end
 			key.close
@@ -50,21 +48,18 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("vmicheartbeat")
-					print_status("This is a Hyper-V Virtual Machine")
 					vm = true
 				elsif srvvals.include?("vmicvss")
-					print_status("This is a Hyper-V Virtual Machine")
 					vm = true
 				elsif srvvals.include?("vmicshutdown")
-					print_status("This is a Hyper-V Virtual Machine")
 					vm = true
 				elsif srvvals.include?("vmicexchange")
-					print_status("This is a Hyper-V Virtual Machine")
 					vm = true
 				end
 			rescue
 			end
 		end
+		print_status("This is a Hyper-V Virtual Machine") if vm
 		return vm
 	end
 
@@ -75,16 +70,12 @@ class Metasploit3 < Msf::Post
 			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 			srvvals = key.enum_key
 			if srvvals.include?("vmdebug")
-				print_status("This is a VMware Virtual Machine")
 				vm = true
 			elsif srvvals.include?("vmmouse")
-				print_status("This is a VMware Virtual Machine")
 				vm = true
 			elsif srvvals.include?("VMTools")
-				print_status("This is a VMware Virtual Machine")
 				vm = true
 			elsif srvvals.include?("VMMEMCTL")
-				print_status("This is a VMware Virtual Machine")
 				vm = true
 			end
 			key.close
@@ -94,27 +85,26 @@ class Metasploit3 < Msf::Post
 			begin
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
 				if key.query_value('Identifier').data.downcase =~ /vmware/
-					print_status("This is a VMware Virtual Machine")
 					vm = true
 				end
 			rescue
 			end
+			key.close
 		end
 		if not vm
 			vmwareprocs = [
 				"vmwareuser.exe",
 				"vmwaretray.exe"
 			]
-			vmwareprocs.each do |p|
-				session.sys.process.get_processes().each do |x|
+			session.sys.process.get_processes().each do |x|
+				vmwareprocs.each do |p|
 					if p == (x['name'].downcase)
-						print_status("This is a VMware Virtual Machine") if not vm
 						vm = true
 					end
 				end
 			end
 		end
-		key.close
+		print_status("This is a VMware Virtual Machine") if vm
 		return vm
 
 	end
@@ -126,10 +116,9 @@ class Metasploit3 < Msf::Post
 			"vmusrvc.exe",
 			"vmsrvc.exe"
 		]
-		vpcprocs.each do |p|
-			session.sys.process.get_processes().each do |x|
+		session.sys.process.get_processes().each do |x|
+			vpcprocs.each do |p|
 				if p == (x['name'].downcase)
-					print_status("This is a VirtualPC Virtual Machine") if not vm
 					vm = true
 				end
 			end
@@ -139,22 +128,19 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("vpcbus")
-					print_status("This is a VirtualPC Virtual Machine")
 					vm = true
 				elsif srvvals.include?("vpc-s3")
-					print_status("This is a VirtualPC Virtual Machine")
 					vm = true
 				elsif srvvals.include?("vpcuhub")
-					print_status("This is a VirtualPC Virtual Machine")
 					vm = true
 				elsif srvvals.include?("msvmmouf")
-					print_status("This is a VirtualPC Virtual Machine")
 					vm = true
 				end
 				key.close
 			rescue
 			end
 		end
+		print_status("This is a VirtualPC Virtual Machine") if vm
 		return vm
 	end
 
@@ -165,10 +151,9 @@ class Metasploit3 < Msf::Post
 			"vboxservice.exe",
 			"vboxtray.exe"
 		]
-		vboxprocs.each do |p|
-			session.sys.process.get_processes().each do |x|
+		session.sys.process.get_processes().each do |x|
+			vboxprocs.each do |p|
 				if p == (x['name'].downcase)
-					print_status("This is a Sun VirtualBox Virtual Machine") if not vm
 					vm = true
 				end
 			end
@@ -178,7 +163,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("VBOX__")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -189,7 +173,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("VBOX__")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -200,7 +183,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("VBOX__")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -210,7 +192,6 @@ class Metasploit3 < Msf::Post
 			begin
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
 				if key.query_value('Identifier').data.downcase =~ /vbox/
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -220,7 +201,6 @@ class Metasploit3 < Msf::Post
 			begin
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System')
 				if key.query_value('SystemBiosVersion').data.downcase =~ /vbox/
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -231,22 +211,19 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("VBoxMouse")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				elsif srvvals.include?("VBoxGuest")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				elsif srvvals.include?("VBoxService")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				elsif srvvals.include?("VBoxSF")
-					print_status("This is a Sun VirtualBox Virtual Machine")
 					vm = true
 				end
 				key.close
 			rescue
 			end
 		end
+		print_status("This is a Sun VirtualBox Virtual Machine") if vm
 		return vm
 	end
 
@@ -256,10 +233,9 @@ class Metasploit3 < Msf::Post
 		xenprocs = [
 			"xenservice.exe"
 		]
-		xenprocs.each do |p|
-			session.sys.process.get_processes().each do |x|
+		session.sys.process.get_processes().each do |x|
+			xenprocs.each do |p|
 				if p == (x['name'].downcase)
-					print_status("This is a Xen Virtual Machine") if not vm
 					vm = true
 				end
 			end
@@ -269,7 +245,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\DSDT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("Xen")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -280,7 +255,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\FADT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("Xen")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -291,7 +265,6 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\ACPI\RSDT', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("Xen")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				end
 			rescue
@@ -302,25 +275,21 @@ class Metasploit3 < Msf::Post
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 				srvvals = key.enum_key
 				if srvvals.include?("xenevtchn")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				elsif srvvals.include?("xennet")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				elsif srvvals.include?("xennet6")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				elsif srvvals.include?("xensvc")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				elsif srvvals.include?("xenvdb")
-					print_status("This is a Xen Virtual Machine")
 					vm = true
 				end
 				key.close
 			rescue
 			end
 		end
+		print_status("This is a Xen Virtual Machine") if vm
 		return vm
 	end
 
