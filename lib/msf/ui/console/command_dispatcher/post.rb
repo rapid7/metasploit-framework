@@ -139,6 +139,8 @@ class Post
 		end
 	end
 
+	alias cmd_exploit cmd_run
+
 	def cmd_run_help
 		print_line "Usage: run [options]"
 		print_line
