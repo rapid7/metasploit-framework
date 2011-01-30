@@ -149,7 +149,7 @@ describe "Msfconsole" do
 		File.open("#{@input_directory}/#{test_case.name}.rc", 'w') { |f|  f.puts test_case.commands } 
 		
 		## Create the rspec Test Case
-		it "should not error on commands in: #{test_case.name}" do
+		it "should #{test_case.name}" do
 			
 			## Gather the success / failure strings, and combine with the generics
 			success_strings = test_case.expected_successes

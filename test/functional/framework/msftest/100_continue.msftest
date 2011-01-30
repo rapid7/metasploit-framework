@@ -25,7 +25,7 @@
 		<failures>
 		</failures>
 		<failure_exceptions>
-			<success>Exploit exception: The connection was refused by the remote host</success>
+			<failure_exception>Exploit exception: The connection was refused by the remote host</failure_exception>
 		</failure_exceptions>
 	</output>
 <msf_test>
