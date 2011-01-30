@@ -102,7 +102,10 @@ SMB2_OP_GETINFO   = 0x10
 SMB2_OP_SETINFO   = 0x11
 SMB2_OP_BREAK     = 0x12
 
-
+# NTLM Response Type
+NTLM_V1_RESPONSE =		1
+NTLM_V2_RESPONSE =		2
+NTLM_2_SESSION_RESPONSE = 	3
 # SMB_COM_NT_TRANSACT Subcommands
 NT_TRANSACT_CREATE                   = 1 # File open/create
 NT_TRANSACT_IOCTL                    = 2 # Device IOCTL
@@ -263,7 +266,11 @@ FILE_VOLUME_IS_COMPRESSED = 0x00008000
 
 
 # SMB Error Codes
-SMB_ERROR_BUFFER_OVERFLOW = 0x80000005
+SMB_STATUS_SUCCESS =			0x00000000
+SMB_ERROR_BUFFER_OVERFLOW =		0x80000005
+SMB_STATUS_MORE_PROCESSING_REQUIRED =	0xC0000016 
+SMB_STATUS_ACCESS_DENIED =		0xC0000022
+SMB_STATUS_LOGON_FAILURE =		0xC000006D
 
 # SMB Dialect Compatibility
 DIALECT = {}
@@ -548,7 +555,7 @@ SMB_SETUP_NTLMV1_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 SMB_SETUP_NTLMV1_PKT = self.make_nbs(SMB_SETUP_NTLMV1_HDR_PKT)
 
 
-# A SMB template for SMB Session Setup requests (NTLMV2)
+# A SMB template for SMB Session Setup requests (When extended security is being used)
 SMB_SETUP_NTLMV2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'template', 'SMB',                 SMB_HDR ],
 	[ 'uint8',   'AndX',                 0 ],
@@ -569,7 +576,7 @@ SMB_SETUP_NTLMV2_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 SMB_SETUP_NTLMV2_PKT = self.make_nbs(SMB_SETUP_NTLMV2_HDR_PKT)
 
 
-# A SMB template for SMB Session Setup responses (NTLMV2)
+# A SMB template for SMB Session Setup responses (When extended security is being used)
 SMB_SETUP_NTLMV2_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'template', 'SMB',                 SMB_HDR ],
 	[ 'uint8',   'AndX',                 0 ],

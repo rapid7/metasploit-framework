@@ -164,6 +164,7 @@ CONST = Rex::Proto::SMB::Constants
 		return blob	
 	end
 
+
 	def self.make_ntlmv2_secblob_auth(domain, name, user, lmv2, ntlm, flags = 0x080201)
 		
 		lmv2 ||= "\x00" * 24
@@ -234,8 +235,42 @@ CONST = Rex::Proto::SMB::Constants
 		)
 		return blob
 	end
+	#This function will create a GSS Sec blob compatible for SMB_NEGOCIATE_RESPONSE packet of this kind : 
+	#mechTypes: 2 items :
+	#	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
+	#	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
+	#
+	#this is the default on Win7
+	def self.make_simple_negotiate_secblob_resp
+		blob = 
+		"\x60" + self.asn1encode(		
+			"\x06" + self.asn1encode(
+				"\x2b\x06\x01\x05\x05\x02"
+			) +	
+			"\xa0" + self.asn1encode(
+				"\x30" + self.asn1encode(
+					"\xa0" + self.asn1encode(
+						"\x30" + self.asn1encode(	
+							"\x06" + self.asn1encode(
+								"\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a"
+							)																						
+						)
+					) 
+				)
+			)
+		)
 
+		return blob	
+	end	
 
+	#This function will create a GSS Sec blob compatible for SMB_NEGOCIATE_RESPONSE packet of this kind : 
+	#mechTypes: 4 items :
+	#	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5)
+	#	MechType: 1.2.840.113554.1.2.2 (KRB5 - Kerberos 5)
+	#	MechType: 1.2.840.113554.1.2.2.3 (KRB5 - Kerberos 5 - User to User)
+	#	MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
+	#mechListMIC: 
+	#	principal: account@domain
 	def self.make_negotiate_secblob_resp(account, domain)
 		blob = 
 		"\x60" + self.asn1encode(		
@@ -276,22 +311,8 @@ CONST = Rex::Proto::SMB::Constants
 		return blob	
 	end	
 
-	def self.make_ntlmv2_secblob_chall(win_domain, dns_domain, win_name, dns_name, chall, flags)
+	def self.make_ntlmv2_secblob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
 		
-		win_domain = Rex::Text.to_unicode(win_domain)
-		dns_domain = Rex::Text.to_unicode(dns_domain)
-		win_name = Rex::Text.to_unicode(win_name)
-		dns_name = Rex::Text.to_unicode(dns_name)
-		
-		addr_list  = ''
-		addr_list  << [2, win_domain.length].pack('vv') + win_domain
-		addr_list  << [1, win_name.length].pack('vv') + win_name
-		addr_list  << [4, dns_domain.length].pack('vv') + dns_domain
-		addr_list  << [3, dns_name.length].pack('vv') + dns_name
-		addr_list  << [5, dns_domain.length].pack('vv') + dns_domain
-		addr_list  << [0, 0].pack('vv')
-
-		ptr  = 0 
 		blob =
 			"\xa1" + self.asn1encode(
 				"\x30" + self.asn1encode(
@@ -307,23 +328,7 @@ CONST = Rex::Proto::SMB::Constants
 					) +
 					"\xa2" + self.asn1encode(
 						"\x04" + self.asn1encode(
-							"NTLMSSP\x00" +
-							[2].pack('V') +
-							[
-								win_domain.length,  # length
-								win_domain.length,  # max length
-								(ptr += 48)
-							].pack('vvV') +
-							[ flags ].pack('V') +
-							chall + 
-							"\x00\x00\x00\x00\x00\x00\x00\x00" +
-							[
-								addr_list.length,  # length
-								addr_list.length,  # max length
-								(ptr += win_domain.length) 
-							].pack('vvV') +
-							win_domain + 
-							addr_list
+							make_ntlm_type2_blob(win_domain, win_name, dns_domain, dns_name, chall, flags)
 						)
 					)
 				)	
@@ -331,6 +336,38 @@ CONST = Rex::Proto::SMB::Constants
 
 		return blob
 	end
+
+	def self.make_ntlm_type2_blob(win_domain, win_name, dns_domain, dns_name, chall, flags)
+
+		addr_list  = ''
+		addr_list  << [2, win_domain.length].pack('vv') + win_domain
+		addr_list  << [1, win_name.length].pack('vv') + win_name
+		addr_list  << [4, dns_domain.length].pack('vv') + dns_domain
+		addr_list  << [3, dns_name.length].pack('vv') + dns_name
+		addr_list  << [0, 0].pack('vv')
+
+		ptr  = 0 
+		blob =	"NTLMSSP\x00" +
+				[2].pack('V') +
+				[
+					win_domain.length,  # length
+					win_domain.length,  # max length
+					(ptr += 48) # offset
+				].pack('vvV') +
+				[ flags ].pack('V') +
+				chall + 
+				"\x00\x00\x00\x00\x00\x00\x00\x00" +
+				[
+					addr_list.length,  # length
+					addr_list.length,  # max length
+					(ptr += win_domain.length) 
+				].pack('vvV') +
+				win_domain + 
+				addr_list
+		return blob
+	end
+
+
 
 	def self.make_ntlmv2_secblob_success
 		blob =

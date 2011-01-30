@@ -136,8 +136,9 @@ module Net  #:nodoc:
         }
       end
       
-      def lm_hash(password)
-        keys = gen_keys password.upcase.ljust(14, "\0")
+      def lm_hash(password, half = false)
+	if half then size = 7 else  size = 14 end
+        keys = gen_keys password.upcase.ljust(size, "\0")
         apply_des(LM_MAGIC, keys).join
       end   
       
@@ -149,9 +150,10 @@ module Net  #:nodoc:
         OpenSSL::Digest::MD4.digest pwd
       end
 
-      def ntlmv2_hash(user, password, target, opt={})
+      def ntlmv2_hash(user, password, domain, opt={})
         ntlmhash = ntlm_hash(password, opt)
-        userdomain = (user + target).upcase
+	#With Win 7 and maybe other OSs i sometimes get my domain not uppercased, so the domain does not always need to be in uppercase
+        userdomain = user.upcase  + domain
         unless opt[:unicode]
           userdomain = encode_utf16le(userdomain)
         end
@@ -159,7 +161,7 @@ module Net  #:nodoc:
       end
 
       # responses
-      def lm_response(arg)
+      def lm_response(arg, half = false)
         begin
           hash = arg[:lm_hash]
           chal = arg[:challenge]
@@ -167,14 +169,15 @@ module Net  #:nodoc:
           raise ArgumentError
         end
         chal = NTL::pack_int64le(chal) if chal.is_a?(Integer)
-        keys = gen_keys hash.ljust(21, "\0")
+	if half then size = 7 else  size = 21 end
+        keys = gen_keys hash.ljust(size, "\0")
         apply_des(chal, keys).join
       end
       
       def ntlm_response(arg)
         hash = arg[:ntlm_hash]
         chal = arg[:challenge]
-        chal = NTL::pack_int64le(chal) if chal.is_a?(Integer)
+        chal = NTL::pack_int64le(chal) if chal.is_a?(::Integer)
         keys = gen_keys hash.ljust(21, "\0")
         apply_des(chal, keys).join
       end
@@ -183,48 +186,60 @@ module Net  #:nodoc:
         begin
           key = arg[:ntlmv2_hash]
           chal = arg[:challenge]
-          ti = arg[:target_info]
         rescue
-          raise ArgumentError
+          raise ArgumentError , 'ntlmv2_hash and challenge are mandatory'
         end
-        chal = NTL::pack_int64le(chal) if chal.is_a?(Integer)
-        
-        if opt[:client_challenge]
-          cc  = opt[:client_challenge]
-        else
-          cc = rand(MAX64)
-        end
-        cc = NTLM::pack_int64le(cc) if cc.is_a?(Integer)
+        chal = NTL::pack_int64le(chal) if chal.is_a?(::Integer)
+        if opt[:nt_client_challenge]
+		unless   opt[:nt_client_challenge].is_a?(::String) && opt[:nt_client_challenge].length > 24
+			raise ArgumentError,"nt_client_challenge is not in a correct format " 
+		end
+		bb = opt[:nt_client_challenge]
+	else
+		begin
+			ti = arg[:target_info]
+		rescue
+			raise ArgumentError, "target_info is mandatory in this case"
+		end
+		if opt[:client_challenge]
+		  cc  = opt[:client_challenge]
+		else
+		  cc = rand(MAX64)
+		end
+		cc = NTLM::pack_int64le(cc) if cc.is_a?(::Integer)
 
-        if opt[:timestamp]
-          ts = opt[:timestamp]
-        else
-          ts = Time.now.to_i
-        end
-        # epoch -> milsec from Jan 1, 1601
-        ts = 10000000 * (ts + TIME_OFFSET)
+		if opt[:timestamp]
+		  ts = opt[:timestamp]
+		else
+		  ts = Time.now.to_i
+		end
+		# epoch -> milsec from Jan 1, 1601
+		ts = 10000000 * (ts + TIME_OFFSET)
 
-        blob = Blob.new
-        blob.timestamp = ts
-        blob.challenge = cc
-        blob.target_info = ti
-        
-        bb = blob.serialize
-        OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
+		blob = Blob.new
+		blob.timestamp = ts
+		blob.challenge = cc
+		blob.target_info = ti
+		
+		bb = blob.serialize
+	end
+
+	OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
+
       end
+
       
       def lmv2_response(arg, opt = {})
         key = arg[:ntlmv2_hash]
         chal = arg[:challenge]
         
-        chal = NTLM::pack_int64le(chal) if chal.is_a?(Integer)
-
+        chal = NTLM::pack_int64le(chal) if chal.is_a?(::Integer)
         if opt[:client_challenge]
           cc  = opt[:client_challenge]
         else
           cc = rand(MAX64)
         end
-        cc = NTLM::pack_int64le(cc) if cc.is_a?(Integer)
+        cc = NTLM::pack_int64le(cc) if cc.is_a?(::Integer)
 
         OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + cc) + cc
       end
