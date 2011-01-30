@@ -4421,7 +4421,6 @@ class DBManager
 		host
 	end
 
-		
 protected
 
 	#
