@@ -4408,6 +4408,19 @@ class DBManager
 		end
 	end
 
+	def normalize_host(host)
+		# If the host parameter is a Session, try to extract its address
+		if host.respond_to?('target_host')
+			thost = host.target_host
+			tpeer = host.tunnel_peer
+			if tpeer and (!thost or thost.empty?)
+				thost = tpeer.split(":")[0]
+			end
+			host = thost
+		end
+		host
+	end
+
 		
 protected
 
@@ -4681,19 +4694,6 @@ protected
 
 			vuln.refs << (rids - vuln.refs)
 		end
-	end
-
-	def normalize_host(host)
-		# If the host parameter is a Session, try to extract its address
-		if host.respond_to?('target_host')
-			thost = host.target_host
-			tpeer = host.tunnel_peer
-			if tpeer and (!thost or thost.empty?)
-				thost = tpeer.split(":")[0]
-			end
-			host = thost
-		end
-		host
 	end
 end
 
