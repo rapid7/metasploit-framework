@@ -22,17 +22,16 @@ class Plugin < Base
 				# If the following "path" doesn't exist it will be caught when we attempt to load
 				path = Msf::Config.plugin_directory + File::SEPARATOR + plugin_file_name
 			end
-
-                end
+		end
 
 		begin
 			if (inst = @framework.plugins.load(path, opts))
 				return 	{ "result" => "success" }
-                        end
-                rescue ::Exception => e
-                        elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
-				return 	{ "result" => "failure" }
-                end
+			end
+		rescue ::Exception => e
+			elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
+			return 	{ "result" => "failure" }
+		end
 		
 	end
 
