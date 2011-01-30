@@ -41,7 +41,7 @@ module MultiCommandShell
 	# Writes data to a command shell.  If shell is nil, the default
 	# command shell from shell_init is used.
 	#
-	def shell_read(buf, shell = nil)
+	def shell_write(buf, shell = nil)
 		raise NotImplementedError
 	end
 
