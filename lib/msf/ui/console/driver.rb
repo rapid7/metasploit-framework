@@ -276,12 +276,12 @@ class Driver < Msf::Ui::Driver
 			line.strip!
 			next if line.length == 0
 			next if line =~ /^#/
-			if line =~ /^<ruby>/
+			if line =~ /<ruby>/
 				buff = ''
 				while lines.length > 0
 					line = lines.shift
 					break if not line
-					break if line =~ /^<\/ruby>/
+					break if line =~ /<\/ruby>/
 					buff << line
 				end
 				if ! buff.empty?
