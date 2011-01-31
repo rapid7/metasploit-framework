@@ -105,7 +105,7 @@ elsif type == "HALFNETLMv1" or type == "NETLMv1" or type == "NETNTLMv1" then
 	end
 elsif type == "NETNTLM2_SESSION"  then
 	if user != nil or domain != nil then
-		$stderr.puts "[*] Client challenge, user or domain must not be provided with this type"
+		$stderr.puts "[*] User or domain must not be provided with this type"
 		exit
 	end
 end
