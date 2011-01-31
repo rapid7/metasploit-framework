@@ -12,12 +12,13 @@ module MsfMatchers
 
 		def matches?(data)
 			@data = data
-			@actual = @r.find_strings_that_dont_exist_in_data(@data,@successes)
-			return true if !@actual
+			@string = @r.find_strings_that_dont_exist_in_data(@data,@successes)
+			return true if !@string
+			nil
 		end
 
 		def failure_message
-			"expected all successes, but didn't find '#{@actual}'"
+			"expected all successes, but didn't find '#{@string}'"
 		end
 
 		def negative_failure_message
@@ -41,12 +42,13 @@ module MsfMatchers
 
 		def matches?(data)
 			@data = data
-			@actual = @r.find_strings_that_exist_in_data_except(@data,@failures,@exceptions)
-			return false if @actual
+			@string = @r.find_strings_that_exist_in_data_except(@data,@failures,@exceptions)
+			return true if !@string
+			nil
 		end
 
 		def failure_message
-			"expected no failure to be found, but found this: '#{@actual}'"
+			"expected no failure to be found, but found this: '#{@string}'"
 		end
 
 		def negative_falure_message
