@@ -67,7 +67,7 @@ module Net; module SSH; module Transport
       factory = options[:proxy]
 
       if (factory)
-        @socket = timeout(options[:timeout] || 0) { factory.connect(@host, @port) }
+        @socket = timeout(options[:timeout] || 0) { factory.open(@host, @port) }
       else
         @socket = timeout(options[:timeout] || 0) {
           Rex::Socket::Tcp.create(
@@ -81,7 +81,7 @@ module Net; module SSH; module Transport
         }
         # Tell MSF to automatically close this socket on error or completion...
 		  # This prevents resource leaks.
-		  options[:msfmodule].add_socket(@socket)
+		  options[:msfmodule].add_socket(@socket) if options[:msfmodule]
       end
 
       @socket.extend(PacketStream)

@@ -386,7 +386,7 @@ module Net; module SSH; module Connection
     #     ch.exec "/some/process/that/wants/input" do |ch, success|
     #       abort "can't execute!" unless success
     #
-    #       io = Rex::Socket::Tcp.connect(somewhere, port)
+    #       io = Rex::Socket::Tcp.create( ... somewhere, ... port ... )
     #       io.extend(Net::SSH::BufferedIo)
     #       ssh.listen_to(io)
     #

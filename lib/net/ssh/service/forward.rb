@@ -241,7 +241,16 @@ module Net; module SSH; module Service
           raise Net::SSH::ChannelOpenFailed.new(1, "unknown request from remote forwarded connection on #{connected_address}:#{connected_port}")
         end
 
-        client = Rex::Socket::Tcp.connect(remote.host, remote.port)
+        client = Rex::Socket::Tcp.create(
+          'PeerHost' => remote.host,
+          'PeerPort' => remote.port,
+          'Context'  => {
+             'Msf'        => options[:msframework],
+             'MsfExploit' => options[:msfmodule]
+          }
+        )
+        options[:msfmodule].add_socket(client) if options[:msfmodule]
+
         info { "connected #{connected_address}:#{connected_port} originator #{originator_address}:#{originator_port}" }
 
         prepare_client(client, channel, :remote)

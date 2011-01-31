@@ -63,7 +63,17 @@ module Net
         # Return a new socket connected to the given host and port via the
         # proxy that was requested when the socket factory was instantiated.
         def open(host, port)
-			socket = Rex::Socket::Tcp.connect(proxy_host, proxy_port)
+          socket = Rex::Socket::Tcp.create(
+            'PeerHost' => proxy_host,
+            'PeerPort' => proxy_port,
+            'Context'  => {
+               'Msf'        => options[:msframework],
+               'MsfExploit' => options[:msfmodule]
+            }
+          )
+          # Tell MSF to automatically close this socket on error or completion...
+		    # This prevents resource leaks.
+		    options[:msfmodule].add_socket(@socket) if options[:msfmodule]
 
           methods = [METHOD_NO_AUTH]
           methods << METHOD_PASSWD if options[:user]
