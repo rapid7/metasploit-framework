@@ -94,13 +94,18 @@ end
 
 
 if type == "HALFLM" or type == "LM" or type == "NTLM" then
-	if srvchal != nil or clichal != nil  then
-		$stderr.puts "[*] No challenge must be provided with this type"
+	if srvchal != nil or clichal != nil or user != nil or domain != nil  then
+		$stderr.puts "[*] No challenge, user or domain must be provided with this type"
 		exit
 	end
 elsif type == "HALFNETLMv1" or type == "NETLMv1" or type == "NETNTLMv1" then
-	if clichal != nil  then
-		$stderr.puts "[*] Client challenge must not be provided with this type"
+	if clichal != nil  or user != nil or domain != nil then
+		$stderr.puts "[*] Client challenge, user or domain must not be provided with this type"
+		exit
+	end
+elsif type == "NETNTLM2_SESSION"  then
+	if user != nil or domain != nil then
+		$stderr.puts "[*] Client challenge, user or domain must not be provided with this type"
 		exit
 	end
 end
