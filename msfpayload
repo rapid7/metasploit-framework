@@ -105,6 +105,10 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 
 		exe  = Msf::Util::EXE.to_executable($framework, arch, plat, buf)
 
+		if(!exe and plat.index(Msf::Module::Platform::Java))
+			exe = payload.generate_jar.pack
+		end
+
 		if(exe)
 			$stderr.puts(note)
 			$stdout.write(exe)
