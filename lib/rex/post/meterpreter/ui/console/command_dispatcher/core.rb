@@ -180,15 +180,6 @@ class Console::CommandDispatcher::Core
 	alias cmd_quit cmd_exit
 
 	#
-	# Displays the help menu.
-	#
-	def cmd_help(*args)
-		print(shell.help_to_s)
-	end
-
-	alias cmd_? cmd_help
-
-	#
 	# Interacts with a channel.
 	#
 	def cmd_interact(*args)

@@ -106,7 +106,7 @@ module DispatcherShell
 				print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
 				print_error("No such command") if not cmd_found
 			else
-				print(driver.help_to_s)
+				print(shell.help_to_s)
 			end
 		end
 
