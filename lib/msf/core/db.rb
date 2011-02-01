@@ -3033,7 +3033,7 @@ class DBManager
 					# value is CVE-$ID
 					refs[vuln['id']].push(ref["value"])
 				elsif ref['source'] == 'MS'
-					refs[vuln['id']].push('MSB-MS-' + ref["value"])
+					refs[vuln['id']].push('MSB-' + ref["value"])
 				elsif ref['source'] == 'URL'
 					refs[vuln['id']].push('URL-' + ref["value"])
 				#else
