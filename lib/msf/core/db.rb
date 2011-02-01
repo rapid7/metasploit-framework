@@ -2991,6 +2991,7 @@ class DBManager
 			when :host
 				hosts.push(value)
 			when :vuln
+				value["id"] = value["id"].downcase if value["id"]
 				vulns.push(value)
 			end
 		}
@@ -3003,7 +3004,6 @@ class DBManager
 				next
 			else
 				yield(:address,host["addr"]) if block
-				#
 			end
 			nexpose_host(host, vuln_refs, wspace)
 		end
@@ -3111,15 +3111,14 @@ class DBManager
 		}
 
 		h["vulns"].each_pair { |k,v|
-			next if v["status"] != "vulnerable-exploited" and v["status"] != "vulnerable-version"
-
+			next if v["status"] !~ /^vulnerable/
 			data = {}
 			data[:workspace] = wspace
 			data[:host] = addr
 			data[:proto] = v["protocol"].downcase if v["protocol"]
 			data[:port] = v["port"].to_i if v["port"]
 			data[:name] = "NEXPOSE-" + v["id"]
-			data[:refs] = vuln_refs[v["id"]]
+			data[:refs] = vuln_refs[v["id"].to_s.downcase]
 			report_vuln(data)
 		}
 	end
