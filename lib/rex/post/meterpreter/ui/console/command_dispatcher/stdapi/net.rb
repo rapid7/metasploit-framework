@@ -185,9 +185,7 @@ class Console::CommandDispatcher::Stdapi::Net
 		@@portfwd_opts.parse(args) { |opt, idx, val|
 			case opt
 				when "-h"
-					print(
-						"Usage: portfwd [-h] [add / delete / list] [args]\n\n" +
-						@@portfwd_opts.usage)
+					cmd_portfwd_help
 					return true
 				when "-l"
 					lport = val.to_i
@@ -265,7 +263,15 @@ class Console::CommandDispatcher::Stdapi::Net
 					print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
 				end
 
+			else
+				cmd_portfwd_help
 		end
+	end
+
+	def cmd_portfwd_help
+		print_line "Usage: portfwd [-h] [add / delete / list] [args]"
+		print_line
+		print @@portfwd_opts.usage
 	end
 
 protected
