@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 							:host	=> ip,
 							:port	=> rport,
 							:proto	=> 'tcp',
-							:name	=> 'IIS-WEBDAV-UNICODE-BYPASS',
+							:name	=> self.fullname,
 							:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
 							:refs   => self.references
 						}

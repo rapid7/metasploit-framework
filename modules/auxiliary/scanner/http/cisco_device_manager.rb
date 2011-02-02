@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> rhost,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> 'IOS-HTTP-NO-AUTH',
+						:name	=> self.fullname,
 						:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
 						:refs   => self.references
 					}

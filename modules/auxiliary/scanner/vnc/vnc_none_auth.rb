@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host => rhost,
 						:port => rport,
 						:proto => 'tcp',
-						:name => 'VNC-NONE-AUTH-ALLOWED',
+						:name	=> self.fullname,
 						:info => sec_type.join(","),
 						:refs => self.references
 					})

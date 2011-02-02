@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Auxiliary
 							:host   => target_host,
 							:port	=> rport,
 							:proto	=> 'tcp',
-							:name   => 'FrontPage ACCESS ALLOWED',
+							:name	=> self.fullname,
 							:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
 							:refs   => self.references
 						}

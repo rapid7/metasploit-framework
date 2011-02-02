@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host   => target_host,
 						:port	=> rport,
 						:proto  => 'tcp',
-						:name   => 'VMWARE-DIRECTORY-TRAVERSAL',
+						:name	=> self.fullname,
 						:info   => res.code,
 						:refs   => self.references
 					}
