@@ -54,7 +54,7 @@ module WindowsServices
 			service["Startup"] = "Disabled"
 		end
 		service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
-		service["Creentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
+		service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
 		return service
 	end
 

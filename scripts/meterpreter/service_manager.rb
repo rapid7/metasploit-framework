@@ -156,7 +156,7 @@ elsif srv_info
 			print_good("\tName: #{srv_conf['Name']}")
 			print_good("\tStartup: #{srv_conf['Startup']}")
 			print_good("\tCommand: #{srv_conf['Command']}")
-			print_good("\tCredentials: #{srv_conf['Creentials']}")
+			print_good("\tCredentials: #{srv_conf['Credentials']}")
 		rescue
 			print_error("A Service Name must be provided, service names are case sensitive.")
 		end
