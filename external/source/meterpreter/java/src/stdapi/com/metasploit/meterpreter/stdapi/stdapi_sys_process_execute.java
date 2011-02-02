@@ -21,7 +21,7 @@ public class stdapi_sys_process_execute implements Command {
 		StringTokenizer st = new StringTokenizer(argsString);
 		String[] cmdarray = new String[st.countTokens() + 1];
 		cmdarray[0] = cmd;
-		for (int i = 0; i < st.countTokens(); i++) {
+		for (int i = 0; i < cmdarray.length - 1; i++) {
 			cmdarray[i + 1] = st.nextToken();
 		}
 		int flags = request.getIntValue(TLVType.TLV_TYPE_PROCESS_FLAGS);
