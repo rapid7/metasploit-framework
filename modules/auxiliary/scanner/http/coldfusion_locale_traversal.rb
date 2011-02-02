@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("no response for #{ip}:#{rport} #{url}")
 		elsif (res.code == 200)
 			#print_error("#{res.body}")#debug
-			print_status("URL: #{url}")
+			print_status("URL: #{ip}#{url}")
 			if match = res.body.match(/\<title\>(.*)\<\/title\>/im);
 				fileout = $1
 				print_status("FILE OUTPUT:\n" + fileout + "\r\n")
