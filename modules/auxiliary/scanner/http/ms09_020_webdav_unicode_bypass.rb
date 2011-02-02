@@ -102,18 +102,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 					report_vuln(
-						:host	=> ip,
-						:port	=> rport,
-						:name	=> 'IIS-WEBDAV-UNICODE-BYPASS',
-						:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
-						:refs   =>
-						[
-							[ 'CVE', '2009-1122'],
-							[ 'CVE', '2009-1535'],
-							[ 'MSB', 'MS09-020'],
-							[ 'OSVDB', '54555'],
-							[ 'BID', '34993']
-						]
+						{
+							:host	=> ip,
+							:port	=> rport,
+							:proto	=> 'tcp',
+							:name	=> 'IIS-WEBDAV-UNICODE-BYPASS',
+							:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
+							:refs   => self.references
+						}
 					)
 
 				end

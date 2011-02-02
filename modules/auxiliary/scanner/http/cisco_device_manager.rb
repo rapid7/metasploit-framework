@@ -67,18 +67,18 @@ class Metasploit3 < Msf::Auxiliary
 	
 			# Report a vulnerability only if no password was specified		
 			if datastore['BasicAuthPass'].to_s.length == 0
+
 				report_vuln(
-					:host	=> rhost,
-					:port	=> rport,
-					:name	=> 'IOS-HTTP-NO-AUTH',
-					:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
-					:refs   =>
-					[
-						[ 'BID', '1846'],
-						[ 'CVE', '2000-0945'],
-						[ 'OSVDB', '444'],
-					]
+					{
+						:host	=> rhost,
+						:port	=> rport,
+						:proto  => 'tcp',
+						:name	=> 'IOS-HTTP-NO-AUTH',
+						:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
+						:refs   => self.references
+					}
 				)
+
 			end
 				
 			res = send_request_cgi({

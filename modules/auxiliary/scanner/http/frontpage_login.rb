@@ -127,15 +127,14 @@ class Metasploit3 < Msf::Auxiliary
 					# Report a note or vulnerability or something
 					# Not really this one, but close
 					report_vuln(
-						:host   => target_host,
-						:port	=> rport,
-						:proto	=> 'http',
-						:name   => 'FrontPage ACCESS ALLOWED',
-						:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
-						:refs   =>
-							[
-								[ 'CVE', '2006-0015'],
-							]
+						{
+							:host   => target_host,
+							:port	=> rport,
+							:proto	=> 'tcp',
+							:name   => 'FrontPage ACCESS ALLOWED',
+							:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
+							:refs   => self.references
+						}
 					)
 				when /^401/
 					print_error("#{info} FrontPage Password Protected [#{retcode}]")

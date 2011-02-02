@@ -81,7 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 						:port => rport,
 						:proto => 'tcp',
 						:name => 'VNC-NONE-AUTH-ALLOWED',
-						:data => sec_type.join(",")
+						:info => sec_type.join(","),
+						:refs => self.references
 					})
 			end
 

