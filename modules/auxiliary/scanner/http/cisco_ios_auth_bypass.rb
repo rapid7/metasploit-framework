@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 					:port	=> rport,
 					:proto  => 'tcp',
 					:name	=> 'IOS-HTTP-AUTH-BYPASS',
-					:data	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR",
+					:data	=> "http://#{rhost}:#{rport}/level/#{level}/exec/show/version/CR"
 				)
 				
 				res = send_request_cgi({
