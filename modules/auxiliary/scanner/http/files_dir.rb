@@ -55,6 +55,33 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+		extensions = [
+			'.null',
+			'.backup',
+			'.bak',
+			'.c',
+			'.cfg',
+			'.class',
+			'.copy',
+			'.conf',
+			'.exe',
+			'.html',
+			'.htm',
+			'.log',
+			'.old',
+			'.orig',
+			'.php',
+			'.tar',
+			'.tar.gz',
+			'.tgz',
+			'.tmp',
+			'.temp',
+			'.txt',
+			'.zip',
+			'~',
+			''
+		]
+	
 		conn = false
 
 		tpath = datastore['PATH']
@@ -67,94 +94,100 @@ class Metasploit3 < Msf::Auxiliary
 
 		dm = datastore['NoDetailMessages']
 
-		queue = []
+		
 
-		File.open(datastore['DICTIONARY'], 'rb').each do |testf|
-			queue << testf.strip
-		end
+		extensions << datastore['EXT']
 
-		#
-		# Detect error code
-		#
-		ecode = datastore['ErrorCode'].to_i
-		begin
-			randfile = Rex::Text.rand_text_alpha(5).chomp
+		extensions.each do |ext|
+			queue = []
 
-			res = send_request_cgi({
-				'uri'  		=>  tpath+randfile+ datastore['EXT'],
-				'method'   	=> 'GET',
-				'ctype'		=> 'text/html'
-			}, 20)
-
-			return if not res
-
-			tcode = res.code.to_i
-
-			# Look for a string we can signature on as well
-			if(tcode >= 200 and tcode <= 299)
-				File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
-					if(res.body.index(str))
-						emesg = str
-						break
-					end
-				end
-
-				if(not emesg)
-					print_status("Using first 256 bytes of the response as 404 string")
-					emesg = res.body[0,256]
-				else
-					print_status("Using custom 404 string of '#{emesg}'")
-				end
-			else
-				ecode = tcode
-				print_status("Using code '#{ecode}' as not found.")
+			File.open(datastore['DICTIONARY'], 'rb').each do |testf|
+				queue << testf.strip
 			end
+		
+			#
+			# Detect error code
+			#
+			ecode = datastore['ErrorCode'].to_i
+			begin
+				randfile = Rex::Text.rand_text_alpha(5).chomp
 
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			conn = false
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
+				res = send_request_cgi({
+					'uri'  		=>  tpath+randfile+ext,
+					'method'   	=> 'GET',
+					'ctype'		=> 'text/html'
+				}, 20)
 
+				return if not res
 
-		while(not queue.empty?)
-			t = []
-			1.upto(nt) do
-				t << framework.threads.spawn("Module(#{self.refname})-#{rhost}", false, queue.shift) do |testf|
-					Thread.current.kill if not testf
+				tcode = res.code.to_i
 
-					testfext = testf.chomp + datastore['EXT']
-					res = send_request_cgi({
-						'uri'  		=>  tpath+testfext,
-						'method'   	=> 'GET',
-						'ctype'		=> 'text/plain'
-					}, 20)
-
-					if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
-						if dm == false
-							print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}  #{res.code.to_i}")
-							#blah
+				# Look for a string we can signature on as well
+				if(tcode >= 200 and tcode <= 299)
+					File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
+						if(res.body.index(str))
+							emesg = str
+							break
 						end
+					end
+
+					if(not emesg)
+						print_status("Using first 256 bytes of the response as 404 string for files with extension #{ext}")
+						emesg = res.body[0,256]
 					else
-						if res.code.to_i == 400  and ecode != 400
-							print_error("Server returned an error code. #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
+						print_status("Using custom 404 string of '#{emesg}'")
+					end
+				else
+					ecode = tcode
+					print_status("Using code '#{ecode}' as not found for files with extension #{ext}")
+				end
+
+			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+				conn = false
+			rescue ::Timeout::Error, ::Errno::EPIPE
+			end
+
+
+			while(not queue.empty?)
+				t = []
+				1.upto(nt) do
+					t << framework.threads.spawn("Module(#{self.refname})-#{rhost}", false, queue.shift) do |testf|
+						Thread.current.kill if not testf
+
+						testfext = testf.chomp + ext
+						res = send_request_cgi({
+							'uri'  		=>  tpath+testfext,
+							'method'   	=> 'GET',
+							'ctype'		=> 'text/plain'
+						}, 20)
+
+						if(not res or ((res.code.to_i == ecode) or (emesg and res.body.index(emesg))))
+							if dm == false
+								print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}  #{res.code.to_i}")
+								#blah
+							end
 						else
-							print_status("Found #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
+							if res.code.to_i == 400  and ecode != 400
+								print_error("Server returned an error code. #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
+							else
+								print_status("Found #{wmap_base_url}#{tpath}#{testfext} #{res.code.to_i}")
 
-							report_note(
-								:host	=> ip,
-								:proto => 'tcp',
-							   	:sname	=> (ssl ? 'https' : 'http'),
-								:port	=> rport,
-								:type	=> 'FILE',
-								:data	=> "#{tpath}#{testfext} Code: #{res.code}",
-								:update => :unique_data
-							)
+								report_note(
+									:host	=> ip,
+									:proto => 'tcp',
+									:sname	=> (ssl ? 'https' : 'http'),
+									:port	=> rport,
+									:type	=> 'FILE',
+									:data	=> "#{tpath}#{testfext} Code: #{res.code}",
+									:update => :unique_data
+								)
 
+							end
 						end
 					end
 				end
+				t.map{|x| x.join }
 			end
-			t.map{|x| x.join }
 		end
 	end
 end

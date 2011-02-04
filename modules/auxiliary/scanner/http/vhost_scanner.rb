@@ -45,6 +45,7 @@ require 'cgi'
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DOMAIN', [ true,  "Domain name", '']),
 				OptString.new('HEADERS', [ false,  "HTTP Headers", '']),
+				OptBool.new('VERBOSE', [ true,  "Detailed output", false]),
 			], self.class)
 
 		end
@@ -132,7 +133,7 @@ require 'cgi'
 							)
 
 						else
-							print_status("NOT Found #{thost}")
+							print_status("NOT Found #{thost}") if datastore['VERBOSE']
 						end
 					else
 						print_status("[#{ip}] NO Response")

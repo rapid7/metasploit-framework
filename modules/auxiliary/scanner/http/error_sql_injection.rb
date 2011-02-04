@@ -38,9 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
-				OptString.new('DATA', [ false, "HTTP Body Data", '']),
-				OptString.new('COOKIE',[ false, "HTTP Cookies", ''])
+				OptString.new('QUERY', [ false,  "HTTP URI Query", ''])
 			], self.class)
 
 		register_advanced_options(
@@ -52,11 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		gvars = nil
-		pvars = nil
-		cvars = nil
-
-
+		qvars = nil
 
 		sqlinj = [
 			[ "'" ,'Single quote'],
@@ -70,7 +64,10 @@ class Metasploit3 < Msf::Auxiliary
 			["Syntax error in string in query expression",'MSSQL','string'],
 			["Microsoft OLE DB Provider",'MSSQL','unknown'],
 			["You have an error in your SQL syntax",'MySQL','unknown'],
-			["java.sql.SQLException",'unknown','unknown']
+			["java.sql.SQLException",'unknown','unknown'],
+			["ORA-",'ORACLE','unknown'],
+			["PLS-",'ORACLE','unknown'],
+			["Syntax error",'unknown','unknown'],
 		]
 
 		#
@@ -78,26 +75,10 @@ class Metasploit3 < Msf::Auxiliary
 		#
 
 		if  !datastore['QUERY'] or datastore['QUERY'].empty?
-			datastore['QUERY'] = nil
-			gvars = nil
+			return
 		else
-			gvars = queryparse(datastore['QUERY']) #Now its a Hash
+			qvars = queryparse(datastore['QUERY']) #Now its a Hash
 		end
-
-		if  !datastore['DATA'] or datastore['DATA'].empty?
-			datastore['DATA'] = nil
-			pvars = nil
-		else
-			pvars = queryparse(datastore['DATA'])
-		end
-
-		if  !datastore['COOKIE'] or datastore['COOKIE'].empty?
-			datastore['COOKIE'] = nil
-			cvars = nil
-		else
-			cvars = queryparse(datastore['COOKIE'])
-		end
-
 
 		#
 		# Send normal request to check if error is generated
@@ -105,15 +86,24 @@ class Metasploit3 < Msf::Auxiliary
 		#
 		#
 
-		begin
-			normalres = send_request_cgi({
+		if datastore['METHOD'] == 'POST'
+			reqinfo = {
 				'uri'  		=> datastore['PATH'],
-				'vars_get' 	=> gvars,
+				'vars_post' => qvars,
 				'method'   	=> datastore['METHOD'],
-				'ctype'		=> 'application/x-www-form-urlencoded',
-				'cookie'    => datastore['COOKIE'],
-				'data'      => datastore['DATA']
-			}, 20)
+				'ctype'		=> 'application/x-www-form-urlencoded'
+			}
+		else
+			reqinfo = {
+				'uri'  		=> datastore['PATH'],
+				'vars_get' 	=> qvars,
+				'method'   	=> datastore['METHOD'],
+				'ctype'		=> 'application/x-www-form-urlencoded'
+			}
+		end
+		
+		begin
+			normalres = send_request_cgi(reqinfo, 20)
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
@@ -145,8 +135,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_note(
 					:host	=> ip,
-					:proto => 'tcp',
-				   	:sname	=> 'HTTP',
+					:proto  => 'tcp',
+					:sname	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'DATABASE_ERROR',
 					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
@@ -165,30 +155,40 @@ class Metasploit3 < Msf::Auxiliary
 
 		found = false
 
-		if gvars
+		if qvars
 			sqlinj.each do |istr,idesc|
 
 				if found
 					break
 				end
 
-				gvars.each do |key,value|
-					gvars = queryparse(datastore['QUERY']) #Now its a Hash
-					gvars[key] = gvars[key]+istr
+				qvars.each do |key,value|
+					qvars = queryparse(datastore['QUERY']) #Now its a Hash
+					qvars[key] = qvars[key]+istr
 
 					if !datastore['NoDetailMessages']
 						print_status("- Testing query with #{idesc}. Parameter #{key}:")
 					end
+					
+					if datastore['METHOD'] == 'POST'
+						reqinfo = {
+							'uri'  		=> datastore['PATH'],
+							'vars_post' => qvars,
+							'method'   	=> datastore['METHOD'],
+							'ctype'		=> 'application/x-www-form-urlencoded'
+						}
+					else
+						reqinfo = {
+							'uri'  		=> datastore['PATH'],
+							'vars_get' 	=> qvars,
+							'method'   	=> datastore['METHOD'],
+							'ctype'		=> 'application/x-www-form-urlencoded'
+						}
+					end
 
 					begin
-						testres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
-							'vars_get' 	=>  gvars,
-							'method'   	=>  datastore['METHOD'],
-							'ctype'		=> 'application/x-www-form-urlencoded',
-							'cookie'    => datastore['COOKIE'],
-							'data'      => datastore['DATA']
-						}, 20)
+						
+						testres = send_request_cgi(reqinfo, 20)
 
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 					rescue ::Timeout::Error, ::Errno::EPIPE
@@ -206,19 +206,19 @@ class Metasploit3 < Msf::Auxiliary
 
 						if found
 							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{gvars[key]}")
+							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
 							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
 							report_note(
 								:host	=> ip,
-								:proto => 'tcp',
-							   	:sname	=> 'HTTP',
+								:proto  => 'tcp',
+								:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
 							)
 
-							break
+							return
 						end
 					else
 						print_error("[#{wmap_target_host}] No response")
@@ -226,163 +226,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-			gvars = queryparse(datastore['QUERY'])
+			qvars = queryparse(datastore['QUERY'])
 		end
-
-		#
-		# Test DATA parameters
-		#
-
-		found = false
-
-		if pvars
-			sqlinj.each do |istr,idesc|
-
-				if found
-					break
-				end
-
-				pvars.each do |key,value|
-					pvars = queryparse(datastore['DATA']) #Now its a Hash
-
-					if !datastore['NoDetailMessages']
-						print_status("- Testing data with #{idesc}. Parameter #{key}:")
-					end
-
-					pvars[key] = pvars[key]+istr
-
-					pvarstr = ""
-					pvars.each do |tkey,tvalue|
-						if pvarstr
-							pvarstr << '&'
-						end
-						pvarstr << tkey+'='+tvalue
-					end
-
-					begin
-						testres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
-							'vars_get' 	=>  gvars,
-							'method'   	=>  datastore['METHOD'],
-							'ctype'		=> 'application/x-www-form-urlencoded',
-							'cookie'    => datastore['COOKIE'],
-							'data'      => pvarstr
-						}, 20)
-
-					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-					rescue ::Timeout::Error, ::Errno::EPIPE
-					end
-
-					if testres
-						errorstr.each do |estr,dbtype,injtype|
-							if testres.body.include? estr
-								found = true
-								inje = estr
-								dbt = dbtype
-								injt = injtype
-							end
-						end
-
-						if found
-							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}")
-							print_status("[#{wmap_target_host}] Vuln data parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
-
-							report_note(
-								:host	=> ip,
-								:proto => 'tcp',
-							   	:sname	=> 'HTTP',
-								:port	=> rport,
-								:type	=> 'SQL_INJECTION',
-								:data	=> "#{datastore['PATH']} Location: DATA Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
-							)
-
-							break
-						end
-					else
-						print_error("[#{wmap_target_host}] No response")
-						return
-					end
-				end
-			end
-		end
-
-		#
-		# Test COOKIE parameters
-		#
-
-		found = false
-
-		if datastore['COOKIE']
-			sqlinj.each do |istr,idesc|
-
-				if found
-					break
-				end
-
-				cvars.each do |key,value|
-					cvars = queryparse(datastore['COOKIE']) #Now its a Hash
-
-					if !datastore['NoDetailMessages']
-						print_status("- Testing cookie with #{idesc}. Parameter #{key}:")
-					end
-
-					cvars[key] = cvars[key]+istr
-
-					cvarstr = ""
-					cvars.each do |tkey,tvalue|
-						if cvarstr
-							cvarstr << ';'
-						end
-						cvarstr << tkey+'='+tvalue
-					end
-
-					begin
-						testres = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
-							'vars_get' 	=>  gvars,
-							'method'   	=>  datastore['METHOD'],
-							'ctype'		=> 'application/x-www-form-urlencoded',
-							'cookie'    => cvarstr,
-							'data'      => datastore['DATA']
-						}, 20)
-
-					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-					rescue ::Timeout::Error, ::Errno::EPIPE
-					end
-
-					if testres
-						errorstr.each do |estr,dbtype,injtype|
-							if testres.body.include? estr
-								found = true
-								inje = estr
-								dbt = dbtype
-								injt = injtype
-							end
-						end
-
-						if found
-							print_status("[#{wmap_target_host}] SQL Injection found. (#{idesc}) (#{datastore['PATH']})")
-							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{istr}")
-							print_status("[#{wmap_target_host}] Vuln cookie parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
-
-							report_note(
-								:host	=> ip,
-								:proto => 'tcp',
-							   	:sname	=> 'HTTP',
-								:port	=> rport,
-								:type	=> 'SQL_INJECTION',
-								:data	=> "#{datastore['PATH']} Location: COOKIE Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
-							)
-
-							break
-						end
-					else
-						print_error("[#{wmap_target_host}] No response")
-						return
-					end
-				end
-			end
-		end
-	end
+	end	
 end

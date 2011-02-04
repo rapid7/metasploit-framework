@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path/file to identify additional files", '/default.asp']),
-				OptString.new('EXT', [ false, "File extension to replace (blank for automatic replacement of extension)", '']),
 			], self.class)
 
 		register_advanced_options(
@@ -60,22 +59,37 @@ class Metasploit3 < Msf::Auxiliary
 		dm = datastore['NoDetailMessages']
 
 		extensions= [
-			'bak',
-			'txt',
-			'tmp',
-			'old',
-			'temp',
-			'java',
-			'doc',
-			'log'
+			'.bak',
+			'.txt',
+			'.tmp',
+			'.old',
+			'.htm',
+			'.html',
+			'.php',
+			'.temp',
+			'.tmp',
+			'.java',
+			'.doc',
+			'.log'
 		]
 
+		 
 		tpathfile = Pathname.new(datastore['PATH'])
-		tpathnoext = tpathfile.to_s[0..datastore['PATH'].rindex(tpathfile.extname)]
+		oldext = tpathfile.extname
+		tpathnoext = tpathfile.to_s[0..(datastore['PATH'].rindex(oldext)-1)]
 
+		#print_status ("Old extension: #{oldext}")
 
 		extensions.each { |testext|
-
+		
+		if oldext == testext
+			next
+		end
+		
+		#print_status ("Test extension: #{testext}")
+		
+		
+		
 			#
 			# Detect error code. This module is a special case as each extension
 			# usually is handled diferently by the server with different error codes
@@ -108,14 +122,14 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					if(not emesg)
-						print_status("Using first 256 bytes of the response as 404 string")
+						print_status("Using first 256 bytes of the response as 404 string for #{testext} files.")
 						emesg = res.body[0,256]
 					else
-						print_status("Using custom 404 string of '#{emesg}'")
+						print_status("Using custom 404 string of '#{emesg}' for #{testext} files.")
 					end
 				else
 					ecode = tcode
-					print_status("Using code '#{ecode}' as not found.")
+					print_status("Using code '#{ecode}' as not found for #{testext} files.")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

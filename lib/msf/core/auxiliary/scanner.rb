@@ -118,7 +118,7 @@ def run
 			tlb = @tl.length
 
 			@range_done += tla - tlb
-			scanner_show_progress()
+			scanner_show_progress() if @show_progress
 		end
 
 		return
@@ -197,7 +197,7 @@ def run
 			@tl.map {|t| tlb += t[:batch_size] }
 
 			@range_done += tla - tlb
-			scanner_show_progress()
+			scanner_show_progress() if @show_progress
 		end
 
 		return

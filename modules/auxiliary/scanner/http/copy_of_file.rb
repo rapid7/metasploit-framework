@@ -56,6 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		ecode = datastore['ErrorCode'].to_i
 		dm = datastore['NoDetailMessages']
+		
+		# Required to calculate error code for each case as special charcters amd spaces 
+		# trigger different responses
 
 		prestr = [
 						'Copy_(1)_of_',
@@ -71,54 +74,56 @@ class Metasploit3 < Msf::Auxiliary
 		tpathf = datastore['PATH']
 		testf = tpathf.split('/').last
 
-		#
-		# Detect error code
-		#
-		begin
-			randfile = Rex::Text.rand_text_alpha(5).chomp
-			filec = tpathf.sub(testf,randfile + testf)
-
-			res = send_request_cgi({
-				'uri'  		=>  filec,
-				'method'   	=> 'GET',
-				'ctype'		=> 'text/html'
-			}, 20)
-
-			return if not res
-
-			tcode = res.code.to_i
-
-
-			# Look for a string we can signature on as well
-			if(tcode >= 200 and tcode <= 299)
-
-				File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
-					if(res.body.index(str))
-						emesg = str
-						break
-					end
-				end
-
-				if(not emesg)
-					print_status("Using first 256 bytes of the response as 404 string")
-					emesg = res.body[0,256]
-				else
-					print_status("Using custom 404 string of '#{emesg}'")
-				end
-			else
-				ecode = tcode
-				print_status("Using code '#{ecode}' as not found.")
-			end
-
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-			conn = false
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
-
-		return if not conn
 
 		if testf
 			prestr.each do |pre|
+				#
+				# Detect error code
+				#
+				begin
+					randfile = Rex::Text.rand_text_alpha(5).chomp
+					
+					filec = tpathf.sub(testf,pre + randfile + testf)
+
+					res = send_request_cgi({
+						'uri'  		=>  filec,
+						'method'   	=> 'GET',
+						'ctype'		=> 'text/html'
+					}, 20)
+
+					return if not res
+
+					tcode = res.code.to_i
+
+
+					# Look for a string we can signature on as well
+					if(tcode >= 200 and tcode <= 299)
+
+						File.open(datastore['HTTP404Sigs'], 'rb').each do |str|
+							if(res.body.index(str))
+								emesg = str
+								break
+							end
+						end
+
+						if(not emesg)
+							print_status("Using first 256 bytes of the response as 404 string")
+							emesg = res.body[0,256]
+						else
+							print_status("Using custom 404 string of '#{emesg}'")
+						end
+					else
+						ecode = tcode
+						print_status("Using code '#{ecode}' as not found.")
+					end
+
+				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					conn = false
+				rescue ::Timeout::Error, ::Errno::EPIPE
+				end
+
+				return if not conn
+			
 				filec = tpathf.sub(testf,pre + testf)
 
 				begin

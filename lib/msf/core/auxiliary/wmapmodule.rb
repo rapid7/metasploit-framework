@@ -36,6 +36,10 @@ module Auxiliary::WMAPModule
 		datastore['SSL']
 	end
 	
+	def wmap_target_vhost
+		datastore['VHOST']
+	end
+	
 	def wmap_base_url
 		res = (ssl ? "https://" : "http://")
 		if datastore['VHOST'].nil?
@@ -48,16 +52,6 @@ module Auxiliary::WMAPModule
 	end
 
 
-		
-	#
-	# This method allows wmap modules to access  
-	# requests table. The extra condition requires to start with a logical
-	# operator like AND, OR. Not tied to a specific host,port to be able to use data from other targets. 
-	#
-	def wmap_request_sql(host,port,extra_condition)
-			return framework.db.request_sql(host,port,extra_condition)
-	end
-	
 	#
 	# Modified from CGI.rb as we dont use arrays
 	#
@@ -104,6 +98,20 @@ module Auxiliary::WMAPModule
    		end
    	end
 				
+end
+
+###
+#
+# This module provides methods for WMAP SSL Scanner modules
+#
+###
+
+module Auxiliary::WMAPScanSSL
+	include Auxiliary::WMAPModule
+
+	def wmap_type
+		:WMAP_SSL
+	end 
 end
 
 ###
@@ -193,39 +201,6 @@ module Auxiliary::WMAPScanUniqueQuery
 	end
 end
 
-###
-#
-# This module provides methods for WMAP Body Scanner modules
-#
-###
-
-module Auxiliary::WMAPScanBody
-	include Auxiliary::WMAPModule
-
-	def wmap_type
-		:WMAP_BODY
-	end 
-end
-
-###
-#
-# This module provides methods for WMAP Headers Scanner modules
-#
-###
-
-module Auxiliary::WMAPScanHeaders
-	include Auxiliary::WMAPModule
-
-	def wmap_type
-		:WMAP_HEADERS
-	end 
-end
-
-###
-#
-# This module provides methods for WMAP Generic Scanner modules
-#
-###
 
 module Auxiliary::WMAPScanGeneric
 	include Auxiliary::WMAPModule

@@ -33,7 +33,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/'])
+				OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/']),
+				OptBool.new('VERBOSE', [ true,  "Display verbose messages", true])
 
 			], self.class)
 
@@ -67,14 +68,14 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 
-			print_status("[#{target_host}] #{tpath}robots.txt found") if datastore['VERBOSE']
+			print_status("[#{target_host}] #{tpath}robots.txt found") 
 
 			# short url regex
 			aregex = /llow:[ ]{0,2}(.*?)$/i
 
 			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
 
-			print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}")
+			print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}") if datastore['VERBOSE']
 			result.each do |u|
 				report_note(
 					:host	=> target_host,

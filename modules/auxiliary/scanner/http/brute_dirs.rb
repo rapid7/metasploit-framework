@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a'])
+				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'aaa'])
 			], self.class)
 
 		register_advanced_options(

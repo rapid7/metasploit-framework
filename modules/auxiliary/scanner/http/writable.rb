@@ -45,7 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to attempt to write or delete", '/http_write.txt']),
-				OptString.new('DATA', [ false,  "The data to upload into the file", ' '])
+				OptString.new('DATA', [ false,  "The data to upload into the file", 'blahblah']),
+				OptBool.new('VERBOSE', [ true,  "Display detailed messages", false]),
 			], self.class)
 	end
 
@@ -105,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 					rescue ::Timeout::Error, ::Errno::EPIPE
 					end
 				else
-					print_error("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]")
+					print_error("Upload failed on #{wmap_base_url} [#{res.code} #{res.message}]") if datastore['VERBOSE']
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

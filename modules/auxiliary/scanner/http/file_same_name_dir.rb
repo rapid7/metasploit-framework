@@ -37,7 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The directory path  to identify files", '/']),
-				OptString.new('EXT', [ true, "File extension to use", '.aspx'])
+				OptString.new('EXT', [ true, "File extension to use", '.aspx']),
+				OptBool.new('VERBOSE', [ true,  "Display verbose messages", true])
 
 			], self.class)
 
@@ -49,6 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.backup',
 			'.bak',
 			'.c',
+			'.cfg',
 			'.class',
 			'.copy',
 			'.conf',
@@ -58,9 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 			'.log',
 			'.old',
 			'.orig',
+			'.php',
 			'.tar',
 			'.tar.gz',
 			'.tgz',
+			'.tmp',
 			'.temp',
 			'.txt',
 			'.zip',
@@ -105,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 
 				else
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}")
+					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}") if datastore['VERBOSE']
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
