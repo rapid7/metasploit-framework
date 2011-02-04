@@ -97,20 +97,13 @@ class Vm
 		@driver.snapshot(name)
 	end
 
-	## revert needs to restore the current state of the machine
-	##   meaning, if it's running when revert is called
-	##   we'll want to restart it after reverting it. 
-	def revert(name)
-		start = false
-		if running?
-			start = true
-		end
-
-		@driver.revert(name)
-
-		if start
-			@driver.start
-		end
+	def revert(snapshot)
+		@driver.revert(snapshot)
+	end
+	
+	def revert_and_start(snapshot)
+		self.revert(snapshot)
+		self.start
 	end
 
 	def copy_to(from_file,to_file)

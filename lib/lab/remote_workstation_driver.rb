@@ -153,7 +153,7 @@ class RemoteWorkstationDriver < VmDriver
 			end
 		end
 
-		return false
+		false
 	end
 
 end

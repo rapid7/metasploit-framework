@@ -110,9 +110,6 @@ class VmDriver
 
 		def system_command(command)
 			## TODO - filter here
-			
-			puts "DEBUG: running system command: #{command}"
-			
 			system(command)
 		end
 
