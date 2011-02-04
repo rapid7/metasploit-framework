@@ -99,9 +99,9 @@ module Controllers
 			end
 
 			if type.downcase == "workstation"
-				vm_list = WorkstationController::workstation_dir_list(dir)
+				vm_list = ::Lab::Controllers::WorkstationController::workstation_dir_list(dir)
 			elsif type.downcase == "remote_workstation"	
-				vm_list = RemoteWorkstationController::workstation_dir_list(dir)
+				vm_list = ::Lab::Controllers::RemoteWorkstationController::workstation_dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
@@ -112,34 +112,45 @@ module Controllers
 			end
 		end
 
-		def build_from_running(type, user=nil, host=nil, clear=false)
+		def build_from_running(type=nil, user=nil, host=nil, clear=false)
 		
 			if clear
 				@vms = []
 			end
 
-			if type.downcase == "workstation"
-				vm_list = WorkstationController::workstation_running_list
-			elsif type.downcase == "remote_workstation"
-				vm_list = RemoteWorkstationController::workstation_running_list(user, host)
+			case type.intern
+			when :workstation
+				vm_list = ::Lab::Controllers::WorkstationController::workstation_running_list
+			when :remote_workstation
+				vm_list = ::Lab::Controllers::RemoteWorkstationController::workstation_running_list(user, host)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
-			
+
+
 			vm_list.each do |item|
+			
+				## Name the VM
 				index = @vms.count + 1
-				@vms << Vm.new( {"vmid" => index, "driver" => type, "location" => item} )
+	
+				## Add it to the vm list
+				@vms << Vm.new( {	'vmid' => index,
+							'driver' => type, 
+							'location' => item, 
+							'user' => user,
+							'host' => host } )
 			end
+			
+
 		end
 
 		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
-			@vms << Vm.new( {	"vmid" => vmid, 
-						"driver" => type, 
-						"location" => location, 
-						"credentials" => credentials,
-						"user" => user,
-						"host" => host
-						} )
+			@vms << Vm.new( {	'vmid' => vmid, 
+						'driver' => type, 
+						'location' => location, 
+						'credentials' => credentials,
+						'user' => user,
+						'host' => host} )
 		end
 
 		def remove_by_vmid(vmid)

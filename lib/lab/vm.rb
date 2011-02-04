@@ -48,7 +48,7 @@ class Vm
 		if driver_type == "workstation"
 			@driver = Lab::Drivers::WorkstationDriver.new(@location, @credentials)
 		elsif driver_type == "remote_workstation"
-			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@location,@user, @host, @credentials)	
+			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@location, @user, @host, @credentials)	
 		#elsif driver_type == "server"
 		#	@driver = ServerDriver.new
 		#elsif driver_type == "virtualbox"
