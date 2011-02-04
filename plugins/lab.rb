@@ -30,7 +30,7 @@ class Plugin::Lab < Msf::Plugin
 			"lab_show_running" => "lab_show_running - show running vms.",
 			"lab_load" => "lab_load [file] - load a lab definition from disk.", 			
 			"lab_save" => "lab_save [filename] - persist a lab definition in a file.",
-			"lab_load_running" => "lab_load_running - use the running vms to create a lab.", 
+			"lab_load_running" => "lab_load_running [type] [user] [host] - use the running vms to create a lab.", 
 			"lab_add_running" => "lab_add_running - add the running vms to the current lab.", 
 			"lab_load_dir" => "lab_load_dir [directory] - create a lab from a specified directory.",
 			"lab_add_dir" => "lab_add_dir [directory] - add vms in a specified directory.",
@@ -109,7 +109,15 @@ class Plugin::Lab < Msf::Plugin
 		end
 
 		def cmd_lab_load_running(*args)
-			@controller.build_from_running_workstation(true)
+			return lab_usage if args.empty?
+			
+			puts "Args: " + args.inspect
+			
+			if args[0] == "remote_workstation"
+				@controller.build_from_running(args[0], args[1], args[2])
+			else
+				@controller.build_from_running(args[0])
+			end
 		end
 
 		def cmd_lab_add_running(*args)
@@ -346,7 +354,7 @@ class Plugin::Lab < Msf::Plugin
 		## Register the commands above
 		console_dispatcher = add_console_dispatcher(LabCommandDispatcher)
 
-		@controller = VmController.new
+		@controller = ::Lab::Controllers::VmController.new
 
 		## Share the vms
 		console_dispatcher.controller = @controller
