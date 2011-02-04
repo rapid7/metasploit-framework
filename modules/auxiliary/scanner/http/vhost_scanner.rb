@@ -124,7 +124,8 @@ require 'cgi'
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'VHOST',
 								:data	=> "#{thost}"

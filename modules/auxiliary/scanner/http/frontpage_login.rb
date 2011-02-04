@@ -77,7 +77,8 @@ class Metasploit3 < Msf::Auxiliary
 					# Add Report
 					report_note(
 						:host	=> target_host,
-						:proto	=> 'HTTP',
+						:proto => 'tcp',
+					   	:sname	=> 'HTTP',
 						:port	=> port,
 						:type	=> 'FrontPage Author',
 						:data	=> "#{info}#{fpauthor}"

@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{ip} #{@shares.map{|x| "\n\t#{x[0]} - #{x[2]} (#{x[1]})" }.join}") #"
 				report_note(
 					:host => ip,
-					:proto => 'snmp',
+					:proto => 'udp',
 					:port => datastore['RPORT'],
-					:sname => 'smb',
+					:sname => 'snmp',
 					:type => 'smb.shares',
 					:data => { :shares => @shares },
 					:update => :unique_data

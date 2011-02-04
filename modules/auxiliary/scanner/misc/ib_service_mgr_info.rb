@@ -222,7 +222,8 @@ class Metasploit3 < Msf::Auxiliary
 			#Add Report
 			report_note(
 				:host	=> ip,
-				:proto	=> 'ib',
+				:sname	=> 'ib',
+				:proto	=> 'tcp',
 				:port	=> rport,
 				:type	=> 'Version of the InterBase server',
 				:data	=> "Version of the InterBase server: #{info_svc_server_version}"
@@ -231,7 +232,8 @@ class Metasploit3 < Msf::Auxiliary
 			#Add Report
 			report_note(
 				:host	=> ip,
-				:proto	=> 'ib',
+				:sname	=> 'ib',
+				:proto	=> 'tcp',
 				:port	=> rport,
 				:type	=> 'Implementation of the InterBase server',
 				:data	=> "Implementation of the InterBase server: #{info_svc_implementation}"

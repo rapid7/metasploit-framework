@@ -63,7 +63,8 @@ class Metasploit3 < Msf::Auxiliary
 					#Add Report
 					report_note(
 						:host	=> ip,
-						:proto	=> 'tftp',
+						:proto => 'udp',
+					   	:sname	=> 'tftp',
 						:port	=> datastore['RPORT'],
 						:type	=> "Found #{filename}",
 						:data	=> "Found #{filename}"

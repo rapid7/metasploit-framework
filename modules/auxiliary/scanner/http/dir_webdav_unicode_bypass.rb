@@ -172,7 +172,8 @@ class Metasploit3 < Msf::Auxiliary
 
 						report_note(
 							:host	=> ip,
-							:proto	=> 'HTTP',
+							:proto => 'tcp',
+						   	:sname	=> 'HTTP',
 							:port	=> rport,
 							:type	=> 'UNICODE_WEBDAV_BYPASS',
 							:data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}"

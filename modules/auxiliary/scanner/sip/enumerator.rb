@@ -141,7 +141,8 @@ class Metasploit3 < Msf::Auxiliary
 			#Add Report
 			report_note(
 				:host	=> rhost,
-				:proto	=> 'sip',
+				:proto => 'udp',
+			   	:sname	=> 'sip',
 				:port	=> rport,
 				:type	=> "Found user: #{testn} [Auth]",
 				:data	=> "Found user: #{testn} [Auth]"
@@ -151,7 +152,8 @@ class Metasploit3 < Msf::Auxiliary
 			#Add Report
 			report_note(
 				:host	=> rhost,
-				:proto	=> 'sip',
+				:proto => 'udp',
+			   	:sname	=> 'sip',
 				:port	=> rport,
 				:type	=> "Found user: #{testn} [Open]",
 				:data	=> "Found user: #{testn} [Open]"

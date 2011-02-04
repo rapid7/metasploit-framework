@@ -64,7 +64,8 @@ class Metasploit3 < Msf::Auxiliary
 				#Add Report
 				report_note(
 					:host	=> ip,
-					:proto	=> 'x11',
+					:proto => 'tcp',
+				   	:sname	=> 'x11',
 					:port	=> rport,
 					:type	=> 'Open X Server',
 					:data	=> "Open X Server (#{vendor})"

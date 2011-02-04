@@ -154,7 +154,8 @@ class Metasploit3 < Msf::Auxiliary
 			when 'STATUS_ACCOUNT_DISABLED'
 				report_note(
 					:host	=> rhost,
-					:proto	=> 'smb',
+					:proto => 'tcp',
+				   	:sname	=> 'smb',
 					:port   =>  datastore['RPORT'],
 					:type   => 'smb.account.info',
 					:data   => {:user => user, :status => "disabled"},
@@ -164,7 +165,8 @@ class Metasploit3 < Msf::Auxiliary
 			when 'STATUS_PASSWORD_EXPIRED'
 				report_note(
 					:host	=> rhost,
-					:proto	=> 'smb',
+					:proto => 'tcp',
+				   	:sname	=> 'smb',
 					:port   =>  datastore['RPORT'],
 					:type   => 'smb.account.info',
 					:data   => {:user => user, :status => "expired password"},
@@ -174,7 +176,8 @@ class Metasploit3 < Msf::Auxiliary
 			when 'STATUS_ACCOUNT_LOCKED_OUT'
 				report_note(
 					:host	=> rhost,
-					:proto	=> 'smb',
+					:proto => 'tcp',
+				   	:sname	=> 'smb',
 					:port   =>  datastore['RPORT'],
 					:type   => 'smb.account.info',
 					:data   => {:user => user, :status => "locked out"},

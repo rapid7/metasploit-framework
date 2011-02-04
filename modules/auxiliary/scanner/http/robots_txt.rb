@@ -79,7 +79,8 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> target_host,
 					:port	=> rport,
-					:proto	=> (ssl ? 'https' : 'http'),
+					:proto => 'tcp',
+				   	:sname	=> (ssl ? 'https' : 'http'),
 					:type	=> 'ROBOTS_TXT',
 					:data	=> "#{u}",
 					:update => :unique_data

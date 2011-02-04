@@ -102,7 +102,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("#{rhost}:#{rport} - Successful login '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host   => rhost,
-				:proto  => 'sap-businessobjects',
+				:proto => 'tcp',
+			   	:sname  => 'sap-businessobjects',
 				:user   => user,
 				:pass   => pass,
 				:target_host => rhost,

@@ -126,7 +126,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_note(
 					:host	=> target_host,
-					:proto	=> 'HTTP',
+					:proto => 'tcp',
+				   	:sname	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'SVN_ENTRIES',
 					:data	=> "#{turl}"
@@ -164,7 +165,8 @@ class Metasploit3 < Msf::Auxiliary
 					if slastauthor and slastauthor.length > 0
 						report_note(
 							:host	=> target_host,
-							:proto	=> 'HTTP',
+							:proto => 'tcp',
+						   	:sname	=> 'HTTP',
 							:port	=> rport,
 							:type	=> 'USERNAME',
 							:data	=> "#{slastauthor}"
@@ -176,7 +178,8 @@ class Metasploit3 < Msf::Auxiliary
 						if skind == 'dir'
 							report_note(
 								:host	=> target_host,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'DIRECTORY',
 								:data	=> "#{sname}"
@@ -186,7 +189,8 @@ class Metasploit3 < Msf::Auxiliary
 						if skind == 'file'
 							report_note(
 								:host	=> target_host,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'FILE',
 								:data	=> "#{sname}"
@@ -212,7 +216,8 @@ class Metasploit3 < Msf::Auxiliary
 
 										report_note(
 											:host	=> target_host,
-											:proto	=> 'HTTP',
+											:proto => 'tcp',
+										   	:sname	=> 'HTTP',
 											:port	=> rport,
 											:type	=> 'SOURCE_CODE',
 											:data	=> "#{sname} Code: #{srcres.body}"

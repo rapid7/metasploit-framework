@@ -70,7 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 					#Add Report
 					report_note(
 						:host	=> ip,
-						:proto	=> 'smb2',
+						:proto => 'tcp',
+					   	:sname	=> 'smb2',
 						:port	=> rport,
 						:type	=> "supports SMB 2 [dialect #{vers}]",
 						:data	=> "supports SMB 2 [dialect #{vers}] and has been online for #{utime/3600} hours"
@@ -80,7 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 					#Add Report
 					report_note(
 						:host	=> ip,
-						:proto	=> 'smb2',
+						:proto => 'tcp',
+					   	:sname	=> 'smb2',
 						:port	=> rport,
 						:type	=> "supports SMB 2.0",
 						:data	=> "supports SMB 2.0"

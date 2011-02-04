@@ -150,7 +150,8 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:port	=> rport,
-							:proto	=> (ssl ? 'https' : 'http'),
+							:proto => 'tcp',
+						   	:sname	=> (ssl ? 'https' : 'http'),
 							:type	=> 'DIRECTORY',
 							:data	=> "#{tpath}#{testfdir} Code: #{res.code}",
 							:update => :unique_data
@@ -164,7 +165,8 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> ip,
 								:port	=> rport,
-								:proto	=> (ssl ? 'https' : 'http'),
+								:proto => 'tcp',
+							   	:sname	=> (ssl ? 'https' : 'http'),
 								:type	=> 'WWW_AUTHENTICATE',
 								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
 								:update => :unique_data

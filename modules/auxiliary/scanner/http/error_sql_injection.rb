@@ -145,7 +145,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_note(
 					:host	=> ip,
-					:proto	=> 'HTTP',
+					:proto => 'tcp',
+				   	:sname	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'DATABASE_ERROR',
 					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
@@ -210,7 +211,8 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
@@ -288,7 +290,8 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: DATA Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
@@ -365,7 +368,8 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: COOKIE Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"

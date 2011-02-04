@@ -70,7 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 						server1 = $1
 						report_note(
 							:host	=> ip,
-							:proto => 'HTTP',
+							:proto => 'tcp',
+							:sname => 'HTTP',
 							:port	=> rport,
 							:type => 'lotusdomino.version.current',
 							:data => server1.strip
@@ -118,7 +119,8 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("#{ip}:#{rport} Lotus Domino Release Notes Version: " + $2)
 						report_note(
 							:host	=> ip,
-							:proto => 'HTTP',
+							:proto => 'tcp',
+							:sname => 'HTTP',
 							:port	=> rport,
 							:type => 'lotusdomino.version.releasenotes',
 							:data => server2.strip
@@ -152,7 +154,8 @@ class Metasploit3 < Msf::Auxiliary
 						server3 = $1
 						report_note(
 							:host	=> ip,
-							:proto => 'HTTP',
+							:proto => 'tcp',
+							:sname => 'HTTP',
 							:port	=> rport,
 							:type => 'lotusdomino.version.base',
 							:data => server3.strip

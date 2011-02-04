@@ -100,7 +100,8 @@ class Metasploit3 < Msf::Auxiliary
 			if result[:unknown]
 				report_note(
 					:host => rhost,
-					:proto => 'postgres',
+					:proto => 'tcp',
+				   	:sname => 'postgres',
 					:port => rport,
 					:data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
 				)

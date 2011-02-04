@@ -142,7 +142,8 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> (ssl ? 'https' : 'http'),
+								:proto => 'tcp',
+							   	:sname	=> (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'FILE',
 								:data	=> "#{tpath}#{testfext} Code: #{res.code}",

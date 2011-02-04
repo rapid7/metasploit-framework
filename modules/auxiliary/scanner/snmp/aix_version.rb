@@ -56,7 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_note(
 						:host   => ip,
-						:proto  => 'SNMP',
+						:proto => 'udp',
+					   	:sname  => 'SNMP',
 						:port   => datastore['RPORT'],
 						:type   => 'AIX',
 						:data   => version

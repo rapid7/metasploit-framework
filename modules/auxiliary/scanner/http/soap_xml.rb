@@ -163,7 +163,8 @@ class Metasploit3 < Msf::Auxiliary
 								## Add Report
 								report_note(
 									:host	=> ip,
-									:proto	=> 'HTTP',
+									:proto => 'tcp',
+								   	:sname	=> 'HTTP',
 									:port	=> rport,
 									:type	=> "SOAPAction: #{v}#{n}",
 									:data	=> "SOAPAction: #{v}#{n} with HTTP: #{res.code} #{res.message}."

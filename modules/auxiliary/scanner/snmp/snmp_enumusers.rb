@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => rhost,
 					:port => datastore['RPORT'],
-					:proto => 'snmp',
-					:sname => 'smb',
+					:proto => 'udp',
+					:sname => 'snmp',
 					:update => :unique_data,
 					:type => 'smb.username',
 					:data => user

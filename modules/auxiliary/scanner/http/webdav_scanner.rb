@@ -58,7 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						{
 							:host	=> target_host,
-							:proto	=> 'HTTP',
+							:proto => 'tcp',
+							:sname	=> 'HTTP',
 							:port	=> rport,
 							:type	=> wdtype,
 							:data	=> 'enabled'

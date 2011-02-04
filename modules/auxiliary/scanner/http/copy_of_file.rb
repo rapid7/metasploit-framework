@@ -140,7 +140,8 @@ class Metasploit3 < Msf::Auxiliary
 
 							report_note(
 								:host	=> ip,
-								:proto	=> 'HTTP',
+								:proto => 'tcp',
+							   	:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'COPY_FILE',
 								:data	=> "#{filec}"

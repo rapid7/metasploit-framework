@@ -58,7 +58,8 @@ class Metasploit3 < Msf::Auxiliary
 
 					report_note(
 						:host	=> ip,
-						:proto	=> 'HTTP',
+						:proto => 'tcp',
+					   	:sname	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'DIR_LISTING',
 						:data	=> "#{tpath}"
@@ -71,7 +72,8 @@ class Metasploit3 < Msf::Auxiliary
 
 					report_note(
 						:host	=> ip,
-						:proto	=> 'HTTP',
+						:proto => 'tcp',
+					   	:sname	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'DIR_LISTING',
 						:data	=> "#{tpath}"
