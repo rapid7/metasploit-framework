@@ -580,6 +580,7 @@ class DBManager
 			# Do the same for a service if that's also included.
 			if (opts[:port])
 				proto = nil
+				sname = nil
 				case opts[:proto].to_s.downcase # Catch incorrect usages
 				when 'tcp','udp'
 					proto = opts[:proto]
