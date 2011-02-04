@@ -11,20 +11,6 @@ class Regexr
 		@case_insensitive = case_insensitive
 	end
 
-	# Check for the beginning line. Handy when you need to ensure a log has started
-	def verify_start(data,the_start)
-		data_lines = data.split("\n")
-		regex_start = Regexp.new(the_start, @case_insensitive)
-		return regex_start =~ data_lines.first
-	end
-
-	# Check for end line. Handy when you need to ensure a log has completed.
-	def verify_end(data,the_end)
-		data_lines = data.split("\n")
-		regex_end = Regexp.new(the_end, @case_insensitive)
-		return regex_end =~ data_lines.last
-	end
-
 	# Check for the beginning and end lines. Handy when you need to ensure a log has started & completed
 	def verify_start_and_end(data,the_start,the_end)
 		data_lines = data.split("\n")
