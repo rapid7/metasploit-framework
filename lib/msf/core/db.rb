@@ -583,6 +583,7 @@ class DBManager
 				case opts[:proto].to_s.downcase # Catch incorrect usages
 				when 'tcp','udp'
 					proto = opts[:proto]
+					sname = opts[:sname] if opts[:sname]
 				when 'dns','snmp','dhcp'
 					proto = 'udp'
 					sname = opts[:proto]
