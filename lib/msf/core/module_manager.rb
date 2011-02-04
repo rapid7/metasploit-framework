@@ -605,15 +605,17 @@ class ModuleManager < ModuleSet
 		path.sub!(/#{File::SEPARATOR}$/, '')
 
 		# Make the path completely canonical
-		path = File.expand_path(path)
-		path = Pathname.new(path).realpath.to_s
+		path = Pathname.new(File.expand_path(path))
 
 		# Make sure the path is a valid directory before we try to rock the
 		# house
-		if (File.directory?(path) == false)
+		unless (path.directory?)
 			raise RuntimeError, "The path supplied is not a valid directory.",
 				caller
 		end
+
+		# Now that we've confirmed it exists, get the full, cononical path
+		path = path.realpath.to_s
 
 		module_paths << path
 
