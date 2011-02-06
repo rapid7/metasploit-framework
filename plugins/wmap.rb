@@ -159,6 +159,8 @@ class Plugin::Wmap < Msf::Plugin
 
 			eprofile = []
 			using_p = false
+			using_m = false
+			mname = ''
 
 			args.push("-h") if args.length == 0
 
@@ -192,13 +194,23 @@ class Plugin::Wmap < Msf::Plugin
 					else
 						print_status("Using ALL wmap enabled modules.")
 					end
+				when '-m'
+					mode |= wmap_expl
+
+					mname = args.shift
+
+					if mname
+						print_status("Using module #{mname}.")
+					end
+					using_m = true
+						
 				when '-h'
 					print_status("Usage: wmap_run [options]")
-					print_line("\t-h		Display this help text")
-					print_line("\t-t		Show all enabled modules")
-					print_line("\t-e [profile]	Launch profile test modules against all matched targets.")
-					print_line("\t		        No profile runs all enabled modules.")
-
+					print_line("\t-h			Display this help text")
+					print_line("\t-t			Show all enabled modules")
+					print_line("\t-m [regex]	Launch only modules that name match provided regex.")
+					print_line("\t-e [/path/to/profile]		Launch profile modules against all matched targets.")
+					print_line("\t		        			No file runs all enabled modules.")
 					print_line("")
 					return
 				end
@@ -266,7 +278,8 @@ class Plugin::Wmap < Msf::Plugin
 							penabled = e.wmap_enabled
 
 							if penabled
-								if not using_p or eprofile.include? n.split('/').last
+								#if ( not using_p or eprofile.include? n.split('/').last ) or (using_m and n.match(mname))
+								if ( using_p and eprofile.include? n.split('/').last ) or (using_m and n.to_s.match(mname)) or (not using_m and not using_p) 
 									#
 									# First run the WMAP_SERVER plugins
 									#
@@ -1125,6 +1138,8 @@ class Plugin::Wmap < Msf::Plugin
 				if (mode & wmap_show != 0)
 					print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")
 					print_status("Done.")
+					puts "+" * sizeline
+					puts "\n"
 				end
 			end
 
