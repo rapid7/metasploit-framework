@@ -50,20 +50,36 @@ module Controllers
 			end
 
 		end
-	
+		
 		def clear!
 			@vms = []
 		end
 
+		def [](x)
+			find_by_vmid(x)
+		end
+
 		def find_by_vmid(vmid)
 			@vms.each do |vm|
-
 				if (vm.vmid.to_s == vmid.to_s)
 					return vm
 				end
 			end
 			return nil
 		end
+
+		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
+			@vms << Vm.new( {	'vmid' => vmid, 
+						'driver' => type, 
+						'location' => location, 
+						'credentials' => credentials,
+						'user' => user,
+						'host' => host} )
+		end
+
+		def remove_by_vmid(vmid)
+			@vms.delete(self.find_by_vmid(vmid))
+		end	
 
 		def from_file(file)
 			labdef = YAML::load_file(file)
@@ -80,7 +96,7 @@ module Controllers
 			end
 		end
 
-		def each
+		def each &block
 			@vms.each { |vm| yield vm }
 		end
 
@@ -142,23 +158,10 @@ module Controllers
 			end
 			
 
-		end
-
-		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
-			@vms << Vm.new( {	'vmid' => vmid, 
-						'driver' => type, 
-						'location' => location, 
-						'credentials' => credentials,
-						'user' => user,
-						'host' => host} )
-		end
-
-		def remove_by_vmid(vmid)
-			@vms.delete(self.find_by_vmid(vmid))
-		end		
+		end	
 
 		def running?(vmid)
-			if exists?(vmid)
+			if includes_vmid?(vmid)
 				return self.find_by_vmid(vmid).running?
 			end
 			return false 
