@@ -85,6 +85,7 @@ public class RpcConnection {
 			} else {
 				connection = new Socket(host, port);
 			}
+			connection.setSoTimeout(5000); //Five second timeout
 			sout = connection.getOutputStream();
 			sin = connection.getInputStream();
 			Map results = exec("auth.login",new Object[]{username, this.password});

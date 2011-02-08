@@ -49,6 +49,7 @@ public class MsfguiApp extends SingleFrameApplication {
 			props = new HashMap();//ensure existence
 		}
 		propRoot = props;
+		RpcConnection.disableDb = Boolean.TRUE.equals(propRoot.get("disableDb")); //restore this, since it can't be checked on connect
 		if(propRoot.get("recentList") == null)
 			propRoot.put("recentList", new LinkedList());
 		Runtime.getRuntime().addShutdownHook(new Thread(){
