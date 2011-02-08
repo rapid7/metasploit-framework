@@ -13,12 +13,14 @@ class WorkstationDriver < VmDriver
 	attr_accessor :location
 
 	def initialize(location, credentials=nil)
-		if !File.exist?(location)
+		@location = filter_input(location)
+
+		if !File.exist?(@location)
 			raise ArgumentError,"Couldn't find: " + location
 		end
 
-		@location = location
-		@credentials = credentials
+		@credentials = filter_input_credentials(credentials)
+
 		@type = "Workstation"
 		
 	end

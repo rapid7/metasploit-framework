@@ -2,8 +2,11 @@ module Lab
 module Controllers
 module RemoteWorkstationController
 
-	def self.workstation_running_list(user,host)
-		vm_list = `ssh #{user}@#{host} vmrun list nogui`.split("\n")
+	def self.workstation_running_list(user, host)
+		user.gsub!(/^[[:alnum:]_-]*$/, '')
+		host.gsub!(/^[[:alnum:]_-]*$/, '')
+
+		vm_list = `ssh #{@user}@#{@host} vmrun list nogui`.split("\n")
 		vm_list.shift
 
 		return vm_list

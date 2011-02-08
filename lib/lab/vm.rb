@@ -4,11 +4,9 @@
 
 require 'workstation_driver'
 require 'remote_workstation_driver'
-#require 'server_driver'
-#require 'qemu_driver'
+#require 'dynagen_driver'
 #require 'virtualbox_driver'
-#require 'ec2_driver'
-#require 'azure_driver'
+#require 'amazon_driver'
 
 module Lab
 
@@ -32,16 +30,19 @@ class Vm
 		driver_type = config['driver']
 		driver_type.downcase!
 
-		@vmid = config['vmid']
+		## Mandatory
+		@vmid = config['vmid'] 
 		@location = config['location']
 
-		## Internals
-		@credentials = config['credentials'] || []
+		## Optional
+		@type = config['type'] || nil
 		@tools = config['tools'] || false		## TODO
+		@credentials = config['credentials'] || []
 		@operating_system = nil				## TODO
 		@ports = nil					## TODO
 		@vulns = nil					## TODO
 
+		## Remote
 		@user = config['user'] || nil
 		@host = config['host'] || nil
 
@@ -49,16 +50,12 @@ class Vm
 			@driver = Lab::Drivers::WorkstationDriver.new(@location, @credentials)
 		elsif driver_type == "remote_workstation"
 			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@location, @user, @host, @credentials)	
-		#elsif driver_type == "server"
-		#	@driver = ServerDriver.new
-		#elsif driver_type == "virtualbox"
-		#	@driver = VirtualBoxDriver.new	
-		#elsif driver_type == "qemu"
-		#	@driver = QemuDriver.new	
-		#elsif driver_type == "ec2"
-		#	@driver = Ec2Driver.new	
-		#elsif driver_type == "azure"
-		#	@driver = AzureDriver.new	
+		elsif driver_type == "dynagen"
+			@driver = Lab::Drivers::DynagenDriver.new	
+		elsif driver_type == "virtualbox"
+			@driver = Lab::Drivers::VirtualBoxDriver.new	
+		elsif driver_type == "amazon"
+			@driver = Lab::Drivers::AmazonDriver.new	
 		else
 			raise Exception, "Unknown Driver Type"
 		end
@@ -130,6 +127,7 @@ class Vm
 		out =  " - vmid: #{@vmid}\n"
 		out += "   driver: #{@driver.type}\n"
 		out += "   location: #{@location}\n"
+		out =  "   type: #{@type}\n"
 		out += "   tools: #{@tools}\n"
 		out += "   credentials:\n"
 		@credentials.each do |credential|		

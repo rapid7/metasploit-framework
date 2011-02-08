@@ -23,10 +23,10 @@ class RemoteWorkstationDriver < VmDriver
 		unless user then raise ArgumentError, "Must provide a username" end
 		unless host then raise ArgumentError, "Must provide a hostname" end
 		
-		@location = location
-		@host = host
-		@user = user
-		@credentials = credentials
+		@location = filter_input(location)
+		@host = filter_input(host)
+		@user = filter_input(user)
+		@credentials = filter_input_credentials(credentials)
 		@type = "RemoteWorkstation"
 	end
 

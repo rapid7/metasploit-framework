@@ -65,17 +65,17 @@ class VmDriver
 
 =begin
 	def ssh_exec(host, command, user)
-		ssh_command = "ssh " + user + "@" + host + " " + command
+		ssh_command = "ssh " + @user + "@" + @host + " " + command
 		system_command(ssh_command)
 	end
 
 	def scp_from(host, user, from, to)
-		vmrunstr = "scp -r \"" + user + "@" + host + ":" + from + "\" \"" + to + "\""  
+		vmrunstr = "scp -r \"" + @user + "@" + @host + ":" + from + "\" \"" + to + "\""  
 		system_command(vmrunstr)
 	end
 
 	def scp_to(host, user, from, to)
-		vmrunstr = "scp -r \"" + from + "\" \"" + user + "@" + host + ":" + to + "\""
+		vmrunstr = "scp -r \"" + from + "\" \"" + @user + "@" + @host + ":" + to + "\""
 		system_command(vmrunstr)
 	end
 =end
@@ -85,6 +85,24 @@ class VmDriver
 
 	private
 	
+		def filter_input(string)
+		
+			if !(string =~ /^[[:alnum:]\/\\\-\.\(\)\ _]*$/)
+				raise Exception, "Invalid character in: #{string}"
+			end
+
+			return string.gsub(/^[^[:alnum:]\/\\\-\.\(\)\ _]*$/, '')
+		end
+
+		def filter_input_credentials(credentials)
+			credentials.each { |credential|
+				credential['user'] = filter_input(credential['user'])
+				credential['pass'] = filter_input(credential['pass'])
+			}
+
+			return credentials
+		end
+
 		
 		## Takes a username in the form of a string
 		## and returns a credentials hash
@@ -109,7 +127,7 @@ class VmDriver
 		end
 
 		def system_command(command)
-			## TODO - filter here
+			puts "DEBUG: #{command}"
 			system(command)
 		end
 
