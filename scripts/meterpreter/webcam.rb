@@ -117,7 +117,7 @@ begin
 	end
 	print_line("[*] Stopping webcam")
 	client.webcam.webcam_stop
-	sock.close
+	sock.close if sock != nil
 rescue ::Exception => e
 	print_error("Error: #{e.class} #{e} #{e.backtrace}")
 end
