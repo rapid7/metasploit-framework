@@ -1330,6 +1330,9 @@ class DBManager
 			if not (addr and port)
 				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
 			end
+			
+			# Force addr to be the address and not hostname
+			addr = Rex::Socket.getaddress(addr)
 		end
 
 		ret = {}

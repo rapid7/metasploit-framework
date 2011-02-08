@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 	# - The occurence of any form (web.form :path, :type (get|post|path_info), :params)
 	#
 	def crawler_process_page(t, page, cnt)
-		msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{@current_site.vhost} - #{page.url}"
+		msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{t[:vhost]} - #{page.url}"
 		case page.code
 			when 301,302
 				if page.headers and page.headers["location"]
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 		#
 
 		info = {
-			:web_site => @current_site,
+			:web_site => t[:site],
 			:path     => page.url.path,
 			:query    => page.url.query,
 			:code     => page.code,
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Continue processing forms
 		#
 		forms = []
-		form_template = { :web_site => @current_site }
+		form_template = { :web_site => t[:site] }
 		form  = {}.merge(form_template)
 
 		# This page has a query parameter we can test with GET parameters

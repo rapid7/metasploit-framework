@@ -111,10 +111,11 @@ module Auxiliary::HttpCrawler
 			:pass     => datastore['BasicAuthPass'],
 			:info     => ""
 		})
-		
+
 		t[:site] = report_web_site(:wait => true, :host => t[:host], :port => t[:port], :vhost => t[:vhost], :ssl => t[:ssl])
 
 		print_status("Crawling #{t.to_url}...")
+
 		begin
 			@current_vhost = t[:vhost]
 			@current_site  = t[:site]
