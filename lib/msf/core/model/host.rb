@@ -5,6 +5,7 @@ class Host < ActiveRecord::Base
 	include DBSave
 
 	belongs_to :workspace
+	has_and_belongs_to_many :tags, :join_table => :hosts_tags
 	has_many :services, :dependent => :destroy
 	has_many :clients,  :dependent => :destroy
 	has_many :vulns,    :dependent => :destroy

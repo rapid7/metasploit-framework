@@ -34,4 +34,5 @@ require 'msf/core/model/web_form'
 require 'msf/core/model/web_vuln'
 
 require 'msf/core/model/imported_cred'
+require 'msf/core/model/tag'
 
