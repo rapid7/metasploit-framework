@@ -59,6 +59,8 @@ class WorkstationDriver < VmDriver
 
 	def run_command(command, named_user=nil)
 	
+		command = filter_input(command)
+
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
 		cred = get_best_credentials(named_user)
@@ -74,6 +76,9 @@ class WorkstationDriver < VmDriver
 	
 	def copy_from(from, to, named_user=nil)
 
+		from = filter_input(from)
+		to = filter_input(to)
+
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
 		cred = get_best_credentials(named_user)
@@ -88,6 +93,9 @@ class WorkstationDriver < VmDriver
 
 	def copy_to(from, to, named_user=nil)
 	
+		from = filter_input(from)
+		to = filter_input(to)
+
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
 		cred = get_best_credentials(named_user)
@@ -103,6 +111,8 @@ class WorkstationDriver < VmDriver
 
 	def check_file_exists(file, named_user=nil)
 	
+		file = filter_input(file)
+
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
 		cred = get_best_credentials(named_user)
@@ -118,6 +128,8 @@ class WorkstationDriver < VmDriver
 
 	def create_directory(directory, named_user=nil)
 	
+		directory = filter_input(directory)
+
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
 		cred = get_best_credentials(named_user)
