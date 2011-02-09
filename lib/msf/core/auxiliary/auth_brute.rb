@@ -20,6 +20,7 @@ def initialize(info = {})
 	OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
 	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true]),
+	OptBool.new('USER_AS_PASS', [ true, "Try the username as the password for all users", true]),
 	OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
 	], Auxiliary::AuthBrute)
 	
@@ -52,6 +53,10 @@ def each_user_pass(&block)
 	passwords = load_password_vars(credentials)
 
 	cleanup_files()
+
+	if datastore['USER_AS_PASS']
+		credentials = gen_user_as_password(users, credentials)
+	end
 
 	if datastore['BLANK_PASSWORDS']
 		credentials = gen_blank_passwords(users, credentials)
@@ -155,6 +160,17 @@ def gen_blank_passwords(user_array,cred_array)
 		cred_array.each {|u,p| blank_passwords << [u,""]}
 	end
 	return(blank_passwords + cred_array)
+end
+
+def gen_user_as_password(user_array,cred_array)
+	user_as_passwords = []
+	unless user_array.empty?
+		user_as_passwords.concat(user_array.map {|u| [u,u]})
+	end
+	unless cred_array.empty?
+		cred_array.each {|u,p| user_as_passwords << [u,u]}
+	end
+	return(user_as_passwords + cred_array)
 end
 
 def combine_users_and_passwords(user_array,pass_array)
