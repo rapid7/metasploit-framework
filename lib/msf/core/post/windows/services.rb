@@ -4,6 +4,7 @@ class Post
 
 module WindowsServices
 
+	include ::Msf::Post::Registry
 	#
 	# List all Windows Services present. Returns an Array containing the names
 	# of the services.
