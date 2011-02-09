@@ -120,20 +120,19 @@ describe "Msfconsole" do
 	###
 
 	## PRE_TEST WORKING DIR SETUP`
-	@working_directory= File.dirname(__FILE__)
-
+	@working_directory = File.dirname(__FILE__)
 	@temp_directory = "#{@working_directory}/msfconsole_spec_working"
+	@temp_output_directory = "#{@temp_directory}/output"
+	@temp_input_directory = "#{@temp_directory}/input"
+	@default_file = "#{@temp_output_directory}/default"
+
 	if File.directory? @temp_directory
 		FileUtils.rm_rf(@temp_directory)
 	end
 
 	Dir.mkdir(@temp_directory)
-	@temp_input_directory = "#{@temp_directory}/input"
 	Dir.mkdir(@temp_input_directory)
-	@temp_output_directory = "#{@temp_directory}/output"
 	Dir.mkdir(@temp_output_directory)
-
-	## INPUT
 	## END PRE_TEST WORKING DIR SETUP
 
 	Dir.glob("#{@working_directory}/msftest/*.msftest").each do |filename|
@@ -190,9 +189,7 @@ describe "Msfconsole" do
 
 	def hlp_run_command_check_output(name,rc_file, database_file=false)
 
-
-		temp_output_file  = "#{@temp_output_directory}/#{name}"
-		#puts "Setting output to: #{@temp_output_directory}/#{name}"
+		temp_output_file = "#{@temp_output_directory}/#{name}"
 
 		if database_file
 			msfconsole_string = "#{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file} -y #{database_file}"
@@ -205,8 +202,8 @@ describe "Msfconsole" do
 		puts "Output File: #{temp_output_file}"	
 		puts "System Command: #{msfconsole_string}"	
 		
-		system(msfconsole_string)
-		data = hlp_file_to_string(temp_output_file)			
+		system("#{msfconsole_string}")
+		data = hlp_file_to_string("#{temp_output_file}")			
 	end
   
   	
