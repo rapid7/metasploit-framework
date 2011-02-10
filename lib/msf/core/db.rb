@@ -694,6 +694,44 @@ class DBManager
 		wspace.notes
 	end
 
+	# This is only exercised by MSF3 XML importing for now. Needs the wait
+	# conditions and return hash as well.
+	def report_host_tag(opts)
+		name = opts.delete(:name)
+		raise DBImportError.new("Missing required option :name") unless name
+		addr = opts.delete(:addr) 
+		raise DBImportError.new("Missing required option :addr") unless addr
+		wspace = opts.delete(:wspace)
+		raise DBImportError.new("Missing required option :wspace") unless wspace
+
+		host = nil
+		report_host(:workspace => wspace, :address => addr)
+
+		task = queue( Proc.new {
+			host = get_host(:workspace => wspace, :address => addr)
+			desc = opts.delete(:desc)
+			summary = opts.delete(:summary)
+			detail = opts.delete(:detail)
+			crit = opts.delete(:crit)
+			possible_tag = Tag.find(:all,
+				:include => :hosts,
+				:conditions => ["hosts.workspace_id = ? and tags.name = ?",
+					wspace.id,
+					name
+				]
+			).first
+			tag = possible_tag || Tag.new
+			tag.name = name
+			tag.desc = desc
+			tag.report_summary = !!summary
+			tag.report_detail = !!detail
+			tag.critical = !!crit
+			tag.hosts = tag.hosts | [host]
+			tag.save! if tag.changed?
+		})
+		return task
+	end
+
 	# report_auth_info used to create a note, now it creates
 	# an entry in the creds table. It's much more akin to
 	# report_vuln() now.
@@ -2739,6 +2777,23 @@ class DBManager
 					end
 				}
 				report_note(note_data)
+			end
+			host.elements.each('tags/tag') do |tag|
+				tag_data = {}
+				tag_data[:addr] = host_address
+				tag_data[:wspace] = wspace
+				tag_data[:name] = tag.elements["name"].text.to_s.strip
+				tag_data[:desc] = tag.elements["desc"].text.to_s.strip
+				if tag.elements["report-summary"].text
+					tag_data[:summary] = tag.elements["report-summary"].text.to_s.strip
+				end
+				if tag.elements["report-detail"].text
+					tag_data[:detail] = tag.elements["report-detail"].text.to_s.strip
+				end
+				if tag.elements["critical"].text
+					tag_data[:crit] = true unless tag.elements["critical"].text.to_s.strip == "NULL"
+				end
+				report_host_tag(tag_data)
 			end
 			host.elements.each('vulns/vuln') do |vuln|
 				vuln_data = {}

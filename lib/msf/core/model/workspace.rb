@@ -40,6 +40,14 @@ class Workspace < ActiveRecord::Base
 		)
 	end
 
+	def host_tags
+		Tag.find(
+			:all,
+			:include => :hosts,
+			:conditions => ["hosts.workspace_id = ?", self.id]
+		)
+	end
+
 	#
 	# This method iterates the creds table calling the supplied block with the
 	# cred instance of each entry.
@@ -47,6 +55,12 @@ class Workspace < ActiveRecord::Base
 	def each_cred(&block)
 		creds.each do |cred|
 			block.call(cred)
+		end
+	end
+
+	def each_host_tag(&block)
+		host_tags.each do |host_tag|
+			block.call(host_tag)
 		end
 	end
 
