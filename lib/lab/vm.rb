@@ -17,6 +17,7 @@ class Vm
 	attr_accessor :location
 	attr_accessor :credentials
 	attr_accessor :tools
+	attr_accessor :type
 
 	## Initialize takes a vm configuration hash of the form
 	##  - vmid (unique identifier)
@@ -35,7 +36,7 @@ class Vm
 		@location = config['location']
 
 		## Optional
-		@type = config['type'] || nil
+		@type = config['type'] || "unspecified"
 		@tools = config['tools'] || false		## TODO
 		@credentials = config['credentials'] || []
 		@operating_system = nil				## TODO
