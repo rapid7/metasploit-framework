@@ -3,6 +3,31 @@ require 'regexr'
 
 module MsfMatchers
 
+	class ContainACompleteTest
+
+		def initialize()
+			@r = Regexr.new(true)
+		end
+
+		def matches?(data)
+			@data = data
+			return @r.verify_start_and_end(@data,"meterpreter_functional_test_start", "meterpreter_functional_test_end")
+		end
+
+		def failure_message
+			"Beginning or end was incorrect."
+		end
+
+		def negative_failure_message
+			"Expected to find a no beginning or end, but it matched."
+		end
+
+	end
+	
+	def contain_a_complete_test
+		ContainACompleteTest.new
+	end
+
 	class ContainAllSuccesses
 
 		def initialize(successes)
