@@ -55,11 +55,11 @@ module Drivers
 			raise Exception, "Unsupported Command"
 		end
 
-		def snapshot(name)
+		def create_snapshot(name)
 			raise Exception, "Unsupported Command"
 		end
 
-		def revert(name)
+		def revert_snapshot(name)
 			raise Exception, "Unsupported Command"
 		end
 

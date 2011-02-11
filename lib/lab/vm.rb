@@ -91,16 +91,20 @@ class Vm
 		@driver.resume
 	end
 
-	def snapshot(name)
-		@driver.snapshot(name)
+	def create_snapshot(snapshot)
+		@driver.create_snapshot(snapshot)
 	end
 
-	def revert(snapshot)
-		@driver.revert(snapshot)
+	def revert_snapshot(snapshot)
+		@driver.revert_snapshot(snapshot)
 	end
-	
+
+	def delete_snapshot(snapshot)
+		@driver.delete_snapshot(snapshot)
+	end
+
 	def revert_and_start(snapshot)
-		self.revert(snapshot)
+		self.revert_snapshot(snapshot)
 		self.start
 	end
 

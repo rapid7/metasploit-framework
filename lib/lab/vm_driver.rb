@@ -39,10 +39,10 @@ class VmDriver
 	def reset
 	end
 
-	def snapshot(snapshot)
+	def create_snapshot(snapshot)
 	end
 
-	def revert(snapshot)
+	def revert_snapshot(snapshot)
 	end
 
 	def delete_snapshot(snapshot)

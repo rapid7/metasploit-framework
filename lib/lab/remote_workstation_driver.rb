@@ -50,11 +50,11 @@ class RemoteWorkstationDriver < VmDriver
 		system_command("ssh #{@user}@#{@host} vmrun -T ws reset \\\'#{@location}\\\' nogui")
 	end
 
-	def create(snapshot)
+	def create_snapshot(snapshot)
 		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 
-	def revert(snapshot)
+	def revert_snapshot(snapshot)
 		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 

@@ -13,6 +13,7 @@ require 'vm'
 require 'yaml'
 require 'workstation_controller'
 require 'remote_workstation_controller'
+#require 'qemu_controller'
 #require 'amazon_controller'
 #require 'virtualbox_controller'
 #require 'dynagen_controller'
@@ -23,10 +24,11 @@ module Controllers
 
 		include Enumerable
 		include Lab::Controllers::WorkstationController 		## gives access to workstation-specific controller methods
-		include Lab::Controllers::RemoteWorkstationController 	## gives access to workstation-specific controller methods
-		#include Lab::AmazonController 		## gives access to amazon-specific controller methods
-		#include Lab::VirtualBoxController 	## gives access to virtualbox-specific controller methods
-		#include Lab::DynagenController 		## gives access to dynagen-specific controller methods
+		include Lab::Controllers::RemoteWorkstationController 		## gives access to workstation-specific controller methods
+		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
+		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
+		#include Lab::Controllers::VirtualBoxController 		## gives access to virtualbox-specific controller methods
+		#include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
 
 
 		def initialize (labdef = nil)
@@ -115,9 +117,9 @@ module Controllers
 			end
 
 			if type.downcase == "workstation"
-				vm_list = ::Lab::Controllers::WorkstationController::workstation_dir_list(dir)
+				vm_list = ::Lab::Controllers::WorkstationController::dir_list(dir)
 			elsif type.downcase == "remote_workstation"	
-				vm_list = ::Lab::Controllers::RemoteWorkstationController::workstation_dir_list(dir)
+				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
@@ -136,9 +138,9 @@ module Controllers
 
 			case type.intern
 			when :workstation
-				vm_list = ::Lab::Controllers::WorkstationController::workstation_running_list
+				vm_list = ::Lab::Controllers::WorkstationController::running_list
 			when :remote_workstation
-				vm_list = ::Lab::Controllers::RemoteWorkstationController::workstation_running_list(user, host)
+				vm_list = ::Lab::Controllers::RemoteWorkstationController::running_list(user, host)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end

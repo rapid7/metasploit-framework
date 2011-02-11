@@ -2,7 +2,7 @@ module Lab
 module Controllers
 module RemoteWorkstationController
 
-	def self.workstation_running_list(user, host)
+	def self.running_list(user, host)
 		user.gsub!(/^[[:alnum:]_-]*$/, '')
 		host.gsub!(/^[[:alnum:]_-]*$/, '')
 
@@ -12,7 +12,7 @@ module RemoteWorkstationController
 		return vm_list
 	end
 
-	def self.workstation_dir_list(basepath=nil)
+	def self.dir_list(basepath=nil)
 		vm_list = Find.find(basepath).select { |f| f =~ /\.vmx$/ }
 
 		return vm_list

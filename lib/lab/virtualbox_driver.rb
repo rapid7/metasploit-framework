@@ -52,11 +52,11 @@ module Drivers
 			system_command("VBoxManage controlvm #{@name} reset")
 		end
 
-		def snapshot(name)
+		def create_snapshot(name)
 			system_command("VBoxManage snapshot #{@name} take " + name)
 		end
 
-		def revert(name)
+		def revert_snapshot(name)
 			system_command("VBoxManage snapshot #{@name} restore " + name)
 		end
 

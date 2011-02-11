@@ -58,10 +58,10 @@ module Drivers
 		def reset
 		end
 
-		def snapshot(name)
+		def create_snapshot(name)
 		end
 
-		def revert(name)
+		def revert_snapshot(name)
 		end
 
 		def delete_snapshot(name)

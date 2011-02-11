@@ -45,11 +45,11 @@ class WorkstationDriver < VmDriver
 		system_command("vmrun -T ws reset " + "\"#{@location}\"")
 	end
 
-	def create(snapshot)
+	def create_snapshot(snapshot)
 		system_command("vmrun -T ws snapshot " + "\"#{@location}\" \"#{@snapshot}\"")
 	end
 
-	def revert(snapshot)
+	def revert_snapshot(snapshot)
 		system_command("vmrun -T ws revertToSnapshot " + "\"#{@location}\" \"#{@snapshot}\"")
 	end
 
