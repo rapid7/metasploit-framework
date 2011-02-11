@@ -32,11 +32,9 @@ module MeterpreterSpecHelper
 				command_output.print_line("meterpreter_functional_test_end")		
 				data = hlp_file_to_string(temp_command_file)
 		
-				## Ugh, this is ghetto.
-				x = MsfTestCaseHelper.new(@debug)
-				x.complete?(data,"meterpreter_functional_test_start","meterpreter_functional_test_end").should be_true
-				x.all_successes_exist?(data, success_strings).should be_true
-				x.no_failures_exist?(data, fail_strings, fail_exception_strings ).should be_true
+				data.should contain_a_complete_test
+				data.should contain_all_successes
+				data.should contain_no_failures_except
 			end
 	
 			def hlp_file_to_string(filename)

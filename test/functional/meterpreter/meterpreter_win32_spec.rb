@@ -2,7 +2,6 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
 require 'fileutils'
-require 'msftest'
 require 'msf/base'
 require 'meterpreter_spec_helper'
 require 'meterpreter_specs'
@@ -49,11 +48,10 @@ describe "Win32Meterpreter" do
 		@session.init_ui(@input, @output)
 		
 		## Clean Up
-		#FileUtils.rm_rf(@output_directory)
+		FileUtils.rm_rf(@output_directory)
 	end
 
 	after :all do
-		FileUtils.rm_rf("*.jpeg")		
 		FileUtils.rm_rf(@output_directory)
 	end
 	
