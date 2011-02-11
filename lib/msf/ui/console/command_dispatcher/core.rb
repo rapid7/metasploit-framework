@@ -1949,14 +1949,18 @@ class Core
 
 	alias cmd_unsetg_help cmd_unset_help
 
+	def cmd_use_help
+		print_line "Usage: use module_name"
+		print_line
+		print_line "The use command is used to interact with a module of a given name."
+	end
+
 	#
 	# Uses a module.
 	#
 	def cmd_use(*args)
 		if (args.length == 0)
-			print(
-				"Usage: use module_name\n\n" +
-				"The use command is used to interact with a module of a given name.\n")
+			cmd_use_help
 			return false
 		end
 
