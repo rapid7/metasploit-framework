@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'DHCP File Server',
+			'Name'        => 'DHCP Server',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
 				This module provides a DHCP service
