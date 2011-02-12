@@ -212,8 +212,10 @@ protected
 
 		# options parsing loop
 		spot = 240
-		while (spot < buf.length - 3 && buf[spot] != 0xff)
+		while (spot < buf.length - 3)
 			optionType = buf[spot,1].unpack("C").first
+			break if optionType == 0xff
+
 			optionLen = buf[spot + 1,1].unpack("C").first
 			optionValue = buf[(spot + 2)..(spot + optionLen + 1)]
 			spot = spot + optionLen + 2
