@@ -183,21 +183,16 @@ module Auxiliary::WMAPScanUniqueQuery
 		:WMAP_UNIQUE_QUERY
 	end 
 	
-	def signature(path,query)
+	def signature(fpath,fquery)
 		hsig = Hash.new()
 		
-		hsig = queryparse(query)
+		hsig = queryparse(fquery)
 		
 		#
 		# Signature of the form ',p1,p2,pn' then to be appended to path: path,p1,p2,pn
 		#
 		
-		sig = path
-		hsig.each_pair do |par, val|
-			sig << ","
-			sig << par
-		end
-		sig
+		sigstr = fpath + "," + hsig.map{|p| p[0].to_s}.join(",")
 	end
 end
 

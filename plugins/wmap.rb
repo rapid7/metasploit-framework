@@ -886,16 +886,38 @@ class Plugin::Wmap < Msf::Plugin
 							s = h.services.find_by_port(selected_port)
 							w = s.web_sites.find_by_vhost(selected_vhost)
 							
-							w.web_forms.each do |req|
+							w.web_forms.each do |form|
 								#
 								# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn'
 								#
-								if (utest_query.has_key?(mod.signature(req.path,req.query)) == false)
-		
-									mod.datastore['METHOD'] = req.method.upcase
-									mod.datastore['PATH'] =  req.path
-									mod.datastore['QUERY'] = req.query
-									mod.datastore['DATA'] = req.query if req.method.upcase == 'POST'
+							
+								datastr = ""
+								typestr = "" 
+								
+								temparr = []
+								
+								#puts "---------"
+								#puts form.params
+								#puts "+++++++++"
+											
+								form.params.each do |p|
+									pn, pv, pt = p
+									temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
+								end
+								
+								datastr = temparr.join("&")	if (temparr and not temparr.empty?)	
+											
+								if (utest_query.has_key?(mod.signature(form.path,datastr)) == false)
+									
+									mod.datastore['METHOD'] = form.method.upcase
+									mod.datastore['PATH'] =  form.path
+									mod.datastore['QUERY'] = form.query
+									if form.method.upcase == 'GET'
+										mod.datastore['QUERY'] = datastr
+										mod.datastore['DATA'] = ""	
+									end	
+									mod.datastore['DATA'] = datastr if form.method.upcase == 'POST'
+									mod.datastore['TYPES'] = typestr
 									
 									#
 									# TODO: Add headers, etc.
@@ -930,8 +952,11 @@ class Plugin::Wmap < Msf::Plugin
 									#
 									# Unique query tested, actually the value does not matter
 									#
-									# print_status("#{mod.signature(req.path,req.query)}")
-									utest_query[mod.signature(req.path,req.query)]=1
+									#print_status("sig: #{mod.signature(form.path,varnarr.join(','))}")
+									
+									utest_query[mod.signature(form.path,datastr)]=1
+								else
+									#print_status("Already tested")
 								end
 							end
 						end
