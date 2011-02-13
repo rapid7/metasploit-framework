@@ -354,6 +354,10 @@ class Driver < Msf::Ui::Driver
 
 		run_single("banner") unless opts['DisableBanner']
 
+		opts["Plugins"].each do |plug|
+			run_single("load #{plug}") unless opts['DisableBanner']
+		end if opts["Plugins"]
+
 		self.on_command_proc = Proc.new { |command| framework.events.on_ui_command(command) }
 	end
 

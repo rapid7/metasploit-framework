@@ -58,6 +58,11 @@ class OptsConsole
 				options['ModulePath'] = m
 			end
 
+			opts.on("-p", "-p <plugin>", "Load a plugin on startup") do |p|
+				options['Plugins'] ||= []
+				options['Plugins'] << p
+			end
+
 			opts.on("-y", "--yaml <database.yml>", "Specify a YAML file containing database settings") do |m|
 				options['DatabaseYAML'] = m
 			end
