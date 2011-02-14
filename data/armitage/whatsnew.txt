@@ -1,6 +1,28 @@
 Armitage Changelog
 ==================
 
+13 Feb 11 Changes
+---------
+- Organized View menu (it was getting out of control)
+- Added RPC Console item to view menu (Start MSF only). This item will show
+  the STDOUT for msfrpcd. Use this to watch nmap's output.
+- Added Ctrl+A shortcut to select all text in a console tab
+- Kill meterpreter, kill pivots, and credential dumps now use fresh 
+  consoles to execute. This ensures they will execute even if the global
+  console is stale (this sometimes happens.)
+- Added tab completion to Meterpreter window.
+- Hosts -> Import Hosts now lets you select multiple files to import at once.
+- Use SSL is now checked by default on Linux (and unchecked by def. on Win)
+- Updated Armitage to remove or alter some UI options when connected to a 
+  remote Metasploit RPC instance. 
+
+  -- Meterpreter shell is the only interact option 
+  -- Webcam and Screenshot menu items are gone
+  -- Upload asks for a full file name rather than show a file chooser dialog
+
+  These adjustments are necessary during remote connections as Armitage does
+  not have access to the local file system of the Metasploit RPC daemon.
+
 21 Jan 11 Changes
 --------- 
 - Increased wait time between connection attempts to MSF RPC
