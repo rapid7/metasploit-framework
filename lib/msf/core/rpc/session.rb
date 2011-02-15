@@ -85,14 +85,6 @@ class Session < Base
 		end
 
 		data = s.user_output.dump_buffer
-		# XXX Ghetto
-		#
-		# This should really be handled on the sessions' input/output handles
-		# but this gets it working for right now.
-		#
-		if data.length > 0
-			@framework.events.on_session_output(s, data)
-		end
 		{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
 	end
 
@@ -107,9 +99,7 @@ class Session < Base
 		end
 
 		buff = Rex::Text.decode_base64(data)
-		# This is already covered by the meterpreter console's on_command_proc
-		# so don't do it here
-		#@framework.events.on_session_command(s, buff)
+		
 		interacting = false
 		s.channels.each_value do |ch|
 			interacting ||= ch.respond_to?('interacting') && ch.interacting

@@ -204,6 +204,7 @@ module Shell
 	def print_error(msg='')
 		return if (output.nil?)
 
+		self.on_print_proc.call(msg) if self.on_print_proc
 		# Errors are not subject to disabled output
 		log_output(output.print_error(msg))
 	end
@@ -214,6 +215,7 @@ module Shell
 	def print_status(msg='')
 		return if (disable_output == true)
 
+		self.on_print_proc.call(msg) if self.on_print_proc
 		log_output(output.print_status(msg))
 	end
 
@@ -223,6 +225,7 @@ module Shell
 	def print_good(msg='')
 		return if (disable_output == true)
 
+		self.on_print_proc.call(msg) if self.on_print_proc
 		log_output(output.print_good(msg))
 	end
 
@@ -232,6 +235,7 @@ module Shell
 	def print_line(msg='')
 		return if (disable_output == true)
 
+		self.on_print_proc.call(msg) if self.on_print_proc
 		log_output(output.print_line(msg))
 	end
 
@@ -240,6 +244,7 @@ module Shell
 	#
 	def print(msg='')
 		return if (disable_output == true)
+		self.on_print_proc.call(msg) if self.on_print_proc
 		log_output(output.print(msg))
 	end
 
@@ -255,6 +260,9 @@ module Shell
 	# The output handle to write output to.
 	#
 	attr_reader   :output
+
+	attr_accessor :on_command_proc
+	attr_accessor :on_print_proc
 
 protected
 

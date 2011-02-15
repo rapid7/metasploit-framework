@@ -156,8 +156,6 @@ module DispatcherShell
 	#
 	include Shell
 
-	attr_accessor :on_command_proc
-
 	#
 	# Initialize the dispatcher shell.
 	#
