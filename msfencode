@@ -174,7 +174,7 @@ $args.parse(ARGV) { |opt, idx, val|
 
 		when "-h"
 			usage
-			
+
 		when "-v"
 			verbose += 1
 
@@ -271,6 +271,14 @@ case cmd
 				write_encoded(output)
 
 				exit
+
+			#
+			# These exception codes are fatal, we shouldn't expect them to succeed on the next
+			# iteration, nor the next encoder.
+			#
+			rescue ::Errno::ENOENT, ::Errno::EINVAL
+				$stderr.puts(OutError + "#{enc.refname} failed: #{$!}")
+				break
 
 			rescue => e
 				$stderr.puts(OutError + "#{enc.refname} failed: #{e}")
