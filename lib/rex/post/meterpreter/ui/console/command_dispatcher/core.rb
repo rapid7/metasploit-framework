@@ -342,14 +342,21 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
+	def cmd_run_help
+		print_line "Usage: run <script> [arguments]"
+		print_line 
+		print_line "Executes a ruby script or Metasploit Post module in the context of the"
+		print_line "meterpreter session.  Post modules can take arguments in var=val format."
+		print_line "Example: run post/foo/bar BAZ=abcd"
+		print_line 
+	end
+
 	#
 	# Executes a script in the context of the meterpreter session.
 	#
 	def cmd_run(*args)
 		if args.length == 0
-			print_line(
-				"Usage: run <script> [arguments]\n\n" +
-				"Executes a ruby script in the context of the meterpreter session.")
+			cmd_run_help
 			return true
 		end
 
