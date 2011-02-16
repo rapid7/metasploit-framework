@@ -598,6 +598,15 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
+	@@client_extension_search_paths = [ ::File.join(Rex::Root, "post", "meterpreter", "ui", "console", "command_dispatcher") ]
+
+	def self.add_client_extension_search_path(path)
+		@@client_extension_search_paths << path unless @@client_extension_search_paths.include?(path)
+	end
+	def self.client_extension_search_paths
+		@@client_extension_search_paths
+	end
+
 protected
 
 	attr_accessor :extensions # :nodoc:
@@ -609,28 +618,41 @@ protected
 	# Loads the client extension specified in mod
 	#
 	def add_extension_client(mod)
-		path = "post/meterpreter/ui/console/command_dispatcher/#{mod}.rb"
+		loaded = false
+		klass = nil
+		self.class.client_extension_search_paths.each do |path|
+			$stdout.puts("Trying #{path}")
+			path = ::File.join(path, "#{mod}.rb")
+			$stdout.puts("Path with mod: #{path}")
+			klass = CommDispatcher.check_hash(path)
+			$stdout.puts("klass #{klass.inspect}")
+			if (klass == nil)
+				old   = CommDispatcher.constants
+				$stdout.puts("File.exist?: #{::File.exist?(path).inspect}")
+				next unless ::File.exist? path
 
-		if ((klass = CommDispatcher.check_hash(path)) == nil)
-			clirb = File.join(Rex::Root, path)
-			old   = CommDispatcher.constants
+				if (require(path))
+					new  = CommDispatcher.constants
+					diff = new - old
 
-			if (require(clirb))
-				new  = CommDispatcher.constants
-				diff = new - old
+					$stdout.puts("diff.empty? #{diff.empty?.inspect}")
+					next if (diff.empty?)
 
-				if (diff.empty? == true)
-					print_error("Failed to load client portion of #{mod}.")
+					klass = CommDispatcher.const_get(diff[0])
+					$stdout.puts("klass #{klass.inspect}")
+
+					CommDispatcher.set_hash(path, klass)
+					loaded = true
+					break
+				else
+					print_error("Failed to load client script file: #{path}")
 					return false
 				end
-
-				klass = CommDispatcher.const_get(diff[0])
-
-				CommDispatcher.set_hash(path, klass)
-			else
-				print_error("Failed to load client script file: #{clirb}")
-				return false
 			end
+		end
+		unless loaded
+			print_error("Failed to load client portion of #{mod}.")
+			return false
 		end
 
 		# Enstack the dispatcher
