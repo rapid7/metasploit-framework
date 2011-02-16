@@ -92,9 +92,7 @@ class VmDriver
 				raise Exception, "Invalid character in: #{string}"
 			end
 
-			return string
-
-			return string.gsub(/^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/, "Invalid String")
+			#return string.gsub(/^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/, "Invalid String")
 		end
 
 		def filter_input_credentials(credentials)
