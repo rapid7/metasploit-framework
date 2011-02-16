@@ -1,9 +1,12 @@
+
 module Msf
 class Post
 
 module Registry
 
-	#Returns the data and type of a given registry key and value
+	#
+	# Return the data and type of a given registry key and value
+	#
 	def registry_getvalinfo(key,valname)
 		value = {}
 		begin
@@ -16,7 +19,10 @@ module Registry
 		end
 		return value
 	end
-	#Returns the data of a given registry key and value
+
+	#
+	# Return the data of a given registry key and value
+	#
 	def registry_getvaldata(key,valname)
 		value = nil
 		begin
@@ -28,7 +34,12 @@ module Registry
 		end
 		return value
 	end
-	#Sets the data for a given value and type of data on the target registry returns true if succesful
+
+	#
+	# Sets the data for a given value and type of data on the target registry
+	#
+	# returns true if succesful
+	#
 	def registry_setvaldata(key,valname,data,type)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -38,7 +49,12 @@ module Registry
 			return true
 		end
 	end
-	#Deletes a registry value given the key and value name returns true if succesful
+
+	#
+	# Deletes a registry value given the key and value name
+	#
+	# returns true if succesful
+	#
 	def registry_deleteval(key,valname)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -48,7 +64,10 @@ module Registry
 			return true
 		end
 	end
-	#Enumerates the values of a given registry key returns array of value names
+
+	#
+	# Return an array of value names for the given registry key
+	#
 	def registry_enumvals(key)
 		values = []
 		begin
@@ -63,7 +82,10 @@ module Registry
 		end
 		return values
 	end
-	#Enumerates the subkeys of a given registry key returns array of subkeys
+
+	#
+	# Return an array of subkeys for the given registry key
+	#
 	def registry_enumkeys(key)
 		subkeys = []
 		begin
@@ -78,7 +100,9 @@ module Registry
 		return subkeys
 	end
 
-	# Create a given registry key returns true if succesful
+	#
+	# Create the given registry key
+	#
 	def registry_createkey(key)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
@@ -89,7 +113,11 @@ module Registry
 
 	end
 
-	# Delete a given registry key returns true if succesful
+	#
+	# Delete a given registry key
+	#
+	# returns true if succesful
+	#
 	def registry_delkey(key)
 		begin
 			root_key, base_key = session.sys.registry.splitkey(key)
