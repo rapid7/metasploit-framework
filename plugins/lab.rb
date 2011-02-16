@@ -31,9 +31,7 @@ class Plugin::Lab < Msf::Plugin
 			"lab_load" => "lab_load [file] - load a lab definition from disk.", 			
 			"lab_save" => "lab_save [filename] - persist a lab definition in a file.",
 			"lab_load_running" => "lab_load_running [type] [user] [host] - use the running vms to create a lab.", 
-			"lab_add_running" => "lab_add_running - add the running vms to the current lab.", 
-			"lab_load_dir" => "lab_load_dir [directory] - create a lab from a specified directory.",
-			"lab_add_dir" => "lab_add_dir [directory] - add vms in a specified directory.",
+			"lab_load_dir" => "lab_load_dir [type] [directory] - create a lab from a specified directory.",
 			"lab_clear" => "lab_clear - clear the running lab.",	
 			"lab_start" => "lab_start [vmid+|all] start the specified vm.",
 			"lab_reset" => "lab_reset [vmid+|all] reset the specified vm.",
@@ -98,46 +96,26 @@ class Plugin::Lab < Msf::Plugin
 		## 
 
 		def cmd_lab_load(*args)
-			if args[0]
-				filename = args[0]
-
-				## TODO - check for existence	
-				@controller.from_file(filename)
-			else
-				lab_usage
-			end
+			return lab_usage unless args.count == 1 
+			@controller.from_file(args[0])
 		end
 
 		def cmd_lab_load_running(*args)
 			return lab_usage if args.empty?
 			
-			puts "Args: " + args.inspect
-			
-			if args[0] == "remote_workstation"
+			if args[0] =~ /^remote_/
+				return lab_usage unless args.count == 3 
+				## Expect a username & password
 				@controller.build_from_running(args[0], args[1], args[2])
 			else
+				return lab_usage unless args.count == 1 
 				@controller.build_from_running(args[0])
 			end
 		end
 
-		def cmd_lab_add_running(*args)
-			@controller.build_from_running_workstation
-		end
-
-		def cmd_lab_load_dir(*args)			
-			if args[0]
-				@controller.build_from_dir_workstation(args[0],true)
-			else
-				lab_usage
-			end
-		end
-
-		def cmd_lab_add_dir(*args)			
-			if args[0]
-				@controller.build_from_dir_workstation(args[0])
-			else
-				lab_usage
-			end
+		def cmd_lab_load_dir(*args)	
+			return lab_usage unless args.count == 2
+			@controller.build_from_dir(args[0],args[1],true)
 		end
 
 		def cmd_lab_clear(*args)
@@ -254,15 +232,12 @@ class Plugin::Lab < Msf::Plugin
 		
 			if args[0] == "all"
 				print_line "Snapshotting all lab vms to snapshot: #{snapshot}."
-				@controller.each{ |vm| vm.snapshot(snapshot) }
+				@controller.each{ |vm| vm.create_snapshot(snapshot) }
 			else
-				args.each_index do |index|
-					if !index == args.count-1 ##skip the last argument
-						if @controller.includes_vmid? args[index]
-							print_line "Snapshotting #{args[index]} to snapshot: #{snapshot}."
-							@controller.find_by_vmid(args[index]).snapshot(snapshot)	
-						end	
-					end
+				args[0..-2].each_index do |vmid_arg|
+					next unless @controller.includes_vmid? vmid_arg
+					print_line "Snapshotting #{vmid_arg} to snapshot: #{snapshot}."
+					@controller[vmid_arg].create_snapshot(snapshot)
 				end
 			end
 	        end
@@ -274,15 +249,12 @@ class Plugin::Lab < Msf::Plugin
 
 			if args[0] == "all"
 				print_line "Reverting all lab vms to snapshot: #{snapshot}."
-				@controller.each{ |vm| vm.revert(snapshot) }
+				@controller.each{ |vm| vm.revert_snapshot(snapshot) }
 			else
-				args.each_index do |index|
-					if !index == args.count-1 ##skip the last argument
-						if @controller.includes_vmid? args[index]
-							print_line "Reverting #{args[index]} to snapshot: #{snapshot}."
-							@controller.find_by_vmid(args[index]).revert(snapshot)	
-						end
-					end	
+				args[0..-2].each_index do |vmid_arg|
+					next unless @controller.includes_vmid? vmid_arg
+					print_line "Reverting #{vmid_arg} to snapshot: #{snapshot}."
+					@controller[vmid_arg].revert_snapshot(snapshot)	
 				end
 			end
 	        end
@@ -290,13 +262,13 @@ class Plugin::Lab < Msf::Plugin
 
 		def cmd_lab_run_command(*args)
 			return lab_usage if args.empty?
-			command = args[args.count-1] ## gimmie the loot
+			command = args[args.count-1]
 			print_line "not implemented"
 	        end
 
 		def cmd_lab_browse_to(*args)
 			return lab_usage if args.empty?
-			uri = args[args.count-1] ## gimmie the loot
+			uri = args[args.count-1]
 			print_line "not implemented"
 		end
 	
@@ -325,7 +297,7 @@ class Plugin::Lab < Msf::Plugin
 				tbl = Rex::Ui::Text::Table.new(
 					'Header'  => 'Running Lab VMs',
 					'Indent'  => indent.length,
-					'Columns' => [ 'vmid', 'file', 'powered on' ]
+					'Columns' => [ 'Vmid', 'Location', 'Powered On' ]
 				)
 
 				@controller.each do |vm|
