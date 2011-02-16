@@ -14,20 +14,16 @@ class RemoteWorkstationDriver < VmDriver
 
 	def initialize(location, user=nil, host=nil, credentials=nil)
 
-		## Can we check file existence?		
-		
-		#if !File.exist?(location)
-		#	raise ArgumentError,"Couldn't find: " + location
-		#end
+		## TODO - Should proabably check file existence?	
 
 		unless user then raise ArgumentError, "Must provide a username" end
 		unless host then raise ArgumentError, "Must provide a hostname" end
 		
 		@location = filter_input(location)
-		@host = filter_input(host)
 		@user = filter_input(user)
+		@host = filter_input(host)
 		@credentials = filter_input_credentials(credentials)
-		@type = "RemoteWorkstation"
+		@type = "remote_workstation"
 	end
 
 	def start
@@ -51,14 +47,17 @@ class RemoteWorkstationDriver < VmDriver
 	end
 
 	def create_snapshot(snapshot)
+		snapshot = filter_input(snapshot)
 		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 
 	def revert_snapshot(snapshot)
+		snapshot = filter_input(snapshot)
 		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \\\'#{@location}\\\' #{snapshot} nogui")
 	end
 
 	def delete_snapshot(snapshot)
+		snapshot = filter_input(snapshot)
 		system_command("ssh #{@user}@#{@host} vmrun -T ws deleteSnapshot \\\'#{@location}\\\' #{snapshot} nogui" )
 	end
 
@@ -69,7 +68,7 @@ class RemoteWorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -87,7 +86,7 @@ class RemoteWorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -104,7 +103,7 @@ class RemoteWorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -121,7 +120,7 @@ class RemoteWorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -138,7 +137,7 @@ class RemoteWorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']

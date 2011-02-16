@@ -88,7 +88,6 @@ module Drivers
 		end
 
 		def cleanup
-
 			`killall dynagen`
 			`killall dynamips`
 			@running = false

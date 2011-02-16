@@ -15,7 +15,7 @@ require 'workstation_controller'
 require 'remote_workstation_controller'
 #require 'qemu_controller'
 #require 'amazon_controller'
-#require 'virtualbox_controller'
+require 'virtualbox_controller'
 #require 'dynagen_controller'
 
 module Lab
@@ -27,7 +27,7 @@ module Controllers
 		include Lab::Controllers::RemoteWorkstationController 		## gives access to workstation-specific controller methods
 		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
 		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
-		#include Lab::Controllers::VirtualBoxController 		## gives access to virtualbox-specific controller methods
+		include Lab::Controllers::VirtualBoxController 		## gives access to virtualbox-specific controller methods
 		#include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
 
 
@@ -47,7 +47,7 @@ module Controllers
 				begin
 					@vms << Vm.new(item)
 				rescue Exception => e
-					puts e.to_s
+					puts "Invalid VM definition"
 				end  
 			end
 
@@ -110,7 +110,7 @@ module Controllers
 			@vms.each { |vm| if (vm.vmid.to_s == vmid.to_s) then return true end  }
 		end
 
-		def build_from_dir(dir, type, clear=false)
+		def build_from_dir(type, dir, clear=false)
 		
 			if clear
 				@vms = []
@@ -120,13 +120,15 @@ module Controllers
 				vm_list = ::Lab::Controllers::WorkstationController::dir_list(dir)
 			elsif type.downcase == "remote_workstation"	
 				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
+			elsif type.downcase == "virtualbox"	
+				vm_list = ::Lab::Controllers::VirtualBoxController::dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
 			
-			vm_list.each do |item|
-				index = @vms.count + 1
-				@vms << Vm.new( {"vmid" => index, "driver" => type, "location" => item} )
+			vm_list.each_index do |index|
+				puts "Creating VM object for: " + vm_list[index]
+				@vms << Vm.new( {'vmid' => index.to_s, 'driver' => type, 'location' => vm_list[index]} )
 			end
 		end
 
@@ -137,28 +139,53 @@ module Controllers
 			end
 
 			case type.intern
-			when :workstation
-				vm_list = ::Lab::Controllers::WorkstationController::running_list
-			when :remote_workstation
-				vm_list = ::Lab::Controllers::RemoteWorkstationController::running_list(user, host)
-			else
-				raise TypeError, "Unsupported VM Type"
-			end
-
-
-			vm_list.each do |item|
+				when :workstation
+					vm_list = ::Lab::Controllers::WorkstationController::running_list
+					
+					vm_list.each do |item|
 			
-				## Name the VM
-				index = @vms.count + 1
+						## Name the VM
+						index = @vms.count + 1
 	
-				## Add it to the vm list
-				@vms << Vm.new( {	'vmid' => index,
-							'driver' => type, 
-							'location' => item, 
-							'user' => user,
-							'host' => host } )
-			end
+						## Add it to the vm list
+						@vms << Vm.new( {	'vmid' => index.to_s,
+									'driver' => type, 
+									'location' => item, 
+									'user' => user,
+									'host' => host } )
+					end
+					
+				when :remote_workstation
+					vm_list = ::Lab::Controllers::RemoteWorkstationController::running_list(user, host)
+					
+					vm_list.each do |item|
 			
+						## Name the VM
+						index = @vms.count + 1
+	
+						## Add it to the vm list
+						@vms << Vm.new( {	'vmid' => "#{index}",
+									'driver' => type, 
+									'location' => item, 
+									'user' => user,
+									'host' => host } )
+					end
+					
+				when :virtualbox
+					vm_list = ::Lab::Controllers::VirtualBoxController::running_list
+					
+					vm_list.each do |item|
+						## Add it to the vm list
+						@vms << Vm.new( {	'vmid' => "#{item}",
+									'driver' => type, 
+									'location' => nil, 
+									'user' => user,
+									'host' => host } )
+					end
+						
+				else
+					raise TypeError, "Unsupported VM Type"
+				end
 
 		end	
 

@@ -3,6 +3,7 @@ require 'vm_driver'
 ##
 ## $Id$
 ##
+
 module Lab
 module Drivers
 	class AmazonDriver < VmDriver
@@ -21,16 +22,7 @@ module Drivers
 			@access_key = key
 			@secret_access_key = secret_key
 			@location = filter_input(location)
-			@type = "ec2"
-		end
-
-		def filter_input(string)
-		
-			if !(string =~ /^[[:alnum:]\/\\\-\.\(\)\ _]*$/)
-				raise ArgumentError,"Invalid character in: #{string}"
-			end
-
-			return string.gsub(/^[^[:alnum:]\/\\\-\.\(\)\ _]*$/, '')
+			@type = "amazon"
 		end
 
 		def register
@@ -86,19 +78,6 @@ module Drivers
 		end
 
 		def running?
-			## Get running Vms
-			running = `dynagen ?` #TODO
-			running_array = running.split("\n")
-
-			## Skip the first 4 lines of output
-			4.times { running_array.shift } 
-
-			running_array.each do |vmx|
-				if vmx.to_s == @location.to_s
-					return true
-				end
-			end
-
 			return false
 		end
 	end

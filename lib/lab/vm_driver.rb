@@ -86,15 +86,20 @@ class VmDriver
 	private
 	
 		def filter_input(string)
-		
-			if !(string =~ /^[[:alnum:]\/\\\-\.\(\)\ _]*$/)
+			return unless string
+					
+			if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
 				raise Exception, "Invalid character in: #{string}"
 			end
 
-			return string.gsub(/^[^[:alnum:]\/\\\-\.\(\)\ _]*$/, '')
+			return string
+
+			return string.gsub(/^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/, "Invalid String")
 		end
 
 		def filter_input_credentials(credentials)
+			return unless credentials
+		
 			credentials.each { |credential|
 				credential['user'] = filter_input(credential['user'])
 				credential['pass'] = filter_input(credential['pass'])

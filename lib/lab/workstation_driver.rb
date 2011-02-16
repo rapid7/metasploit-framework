@@ -21,7 +21,7 @@ class WorkstationDriver < VmDriver
 
 		@credentials = filter_input_credentials(credentials)
 
-		@type = "Workstation"
+		@type = "workstation"
 		
 	end
 
@@ -46,15 +46,18 @@ class WorkstationDriver < VmDriver
 	end
 
 	def create_snapshot(snapshot)
-		system_command("vmrun -T ws snapshot " + "\"#{@location}\" \"#{@snapshot}\"")
+		snapshot = filter_input(snapshot)
+		system_command("vmrun -T ws snapshot " + "\"#{@location}\" \"#{snapshot}\"")
 	end
 
 	def revert_snapshot(snapshot)
-		system_command("vmrun -T ws revertToSnapshot " + "\"#{@location}\" \"#{@snapshot}\"")
+		snapshot = filter_input(snapshot)
+		system_command("vmrun -T ws revertToSnapshot " + "\"#{@location}\" \"#{snapshot}\"")
 	end
 
 	def delete_snapshot(snapshot)
-		system_command("vmrun -T ws deleteSnapshot " + "\"#{@location}\" \"#{@snapshot}\"" )
+		snapshot = filter_input(snapshot)
+		system_command("vmrun -T ws deleteSnapshot " + "\"#{@location}\" \"#{snapshot}\"" )
 	end
 
 	def run_command(command, named_user=nil)
@@ -63,7 +66,7 @@ class WorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -81,7 +84,7 @@ class WorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -98,7 +101,7 @@ class WorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -115,7 +118,7 @@ class WorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
@@ -132,7 +135,7 @@ class WorkstationDriver < VmDriver
 
 		## this will return the first user if named_user doesn't exist
 		##  -- that may not be entirely obvious...
-		cred = get_best_credentials(named_user)
+		cred = get_best_creds(named_user)
 	
 		user = cred['user']
 		pass = cred['pass']
