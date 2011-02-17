@@ -621,25 +621,19 @@ protected
 		loaded = false
 		klass = nil
 		self.class.client_extension_search_paths.each do |path|
-			$stdout.puts("Trying #{path}")
 			path = ::File.join(path, "#{mod}.rb")
-			$stdout.puts("Path with mod: #{path}")
 			klass = CommDispatcher.check_hash(path)
-			$stdout.puts("klass #{klass.inspect}")
 			if (klass == nil)
 				old   = CommDispatcher.constants
-				$stdout.puts("File.exist?: #{::File.exist?(path).inspect}")
 				next unless ::File.exist? path
 
 				if (require(path))
 					new  = CommDispatcher.constants
 					diff = new - old
 
-					$stdout.puts("diff.empty? #{diff.empty?.inspect}")
 					next if (diff.empty?)
 
 					klass = CommDispatcher.const_get(diff[0])
-					$stdout.puts("klass #{klass.inspect}")
 
 					CommDispatcher.set_hash(path, klass)
 					loaded = true
