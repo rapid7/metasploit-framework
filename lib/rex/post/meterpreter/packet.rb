@@ -184,7 +184,7 @@ class Tlv
 		if val.length > 50
 			val = val[0,50] + ' ..."'
 		end
-		"#<#{self.class} type=#{stype} meta-type=#{meta} #{self.class.to_s =~ /Packet/ ? "tlvs=#{@tlvs.inspect}" : "value=#{val}"} >"
+		"#<#{self.class} type=#{stype} #{self.class.to_s =~ /Packet/ ? "tlvs=#{@tlvs.inspect}" : "meta-type=#{meta} value=#{val}"} >"
 	end
 
 	##
