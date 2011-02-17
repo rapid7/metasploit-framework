@@ -140,6 +140,8 @@ class Tlv
 			else; 'unknown-meta-type'
 			end
 		stype = case type
+			when PACKET_TYPE_REQUEST; "Request"
+			when PACKET_TYPE_RESPONSE; "Response"
 			when TLV_TYPE_REQUEST_ID; "REQUEST-ID"
 			when TLV_TYPE_METHOD; "METHOD"
 			when TLV_TYPE_RESULT; "RESULT"
