@@ -38,7 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'References'     =>
 				[
-					#[ 'CVE', '2011-XXXX' ],
+					[ 'CVE', '2011-0654' ],
+					[ 'BID', '46360' ],
 					#[ 'OSVDB', 'XXXX' ],
 					#[ 'MSB', 'MS11-XXX' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/16166/' ],
