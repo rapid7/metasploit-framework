@@ -74,7 +74,8 @@ module Auxiliary::HttpCrawler
 	class WebTarget < ::Hash
 		def to_url
 			proto = self[:ssl] ? "https" : "http"
-			"#{proto}://#{self[:host]}:#{self[:port]}#{self[:path]}"
+			host = self[:vhost] ? self[:vhost] : self[:host]
+			"#{proto}://#{host}:#{self[:port]}#{self[:path]}"
 		end
 	end
 	
