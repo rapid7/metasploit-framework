@@ -642,6 +642,10 @@ protected
 					print_error("Failed to load client script file: #{path}")
 					return false
 				end
+			else
+				# the klass is already loaded, from a previous invocation
+				loaded = true
+				break
 			end
 		end
 		unless loaded
