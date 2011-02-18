@@ -189,6 +189,31 @@ module Controllers
 
 		end	
 
+		def build_from_config(type=nil, user=nil, host=nil, clear=false)
+		
+			if clear
+				@vms = []
+			end
+
+			case type.intern
+				when :virtualbox
+					vm_list = ::Lab::Controllers::VirtualBoxController::config_list
+					
+					vm_list.each do |item|
+						## Add it to the vm list
+						@vms << Vm.new( {	'vmid' => "#{item}",
+									'driver' => type, 
+									'location' => nil, 
+									'user' => user,
+									'host' => host } )
+					end
+						
+				else
+					raise TypeError, "Unsupported VM Type"
+				end
+
+		end	
+
 		def running?(vmid)
 			if includes_vmid?(vmid)
 				return self.find_by_vmid(vmid).running?

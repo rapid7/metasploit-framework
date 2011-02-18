@@ -89,10 +89,10 @@ class VmDriver
 			return unless string
 					
 			if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
-				raise Exception, "Invalid character in: #{string}"
+				raise Exception, "WARNING! Invalid character in: #{string}"
 			end
 
-			#return string.gsub(/^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/, "Invalid String")
+			string
 		end
 
 		def filter_input_credentials(credentials)
@@ -121,7 +121,7 @@ class VmDriver
 		## Checks the array of credentials to see if we have one
 		## with this user's username. returns the first.
 		def get_named_user_creds(user)
-			cretdentials.each do |credential|
+			@credentials.each do |credential|
 				if credential['user'].downcase == user.downcase
 					return credential
 				end
@@ -130,7 +130,6 @@ class VmDriver
 		end
 
 		def system_command(command)
-			puts "DEBUG: #{command}"
 			system(command)
 		end
 

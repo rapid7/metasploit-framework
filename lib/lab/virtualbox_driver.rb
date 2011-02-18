@@ -19,7 +19,7 @@ module Drivers
 			@type = "virtualbox"
 			
 			## Check to see if we already know this vm, if not, go on location
-			vmid_list = get_vm_names
+			vmid_list = ::Lab::Controllers::VirtualBoxController::config_list
 			unless vmid_list.include? @vmid
 				raise "Error, no such vm: #{@vmid}" unless @location
 				
@@ -32,7 +32,7 @@ module Drivers
 			end
 			
 			vmInfo = `VBoxManage showvminfo \"#{@vmid}\" --machinereadable`
-			@location = vmInfo.scan(/CfgFile=\"(.*?)\"/).flatten.to_s
+			@location = vmInfo.scan(/CfgFile=\"(.*?)\"/).flatten[0].to_s
 		end
 
 		def register_and_return_vmid
@@ -41,7 +41,7 @@ module Drivers
 			vmid = xml.root.xpath("//Machine[@name]")
 			
 			## only register if we don't already know the vmid
-			if !get_vm_names.include? vmid
+			if !::Lab::Controllers::VirtualBoxController::config_list.include? vmid
 				system_command("VBoxManage registervm \"#{@location}\"")
 			end
 			
@@ -120,49 +120,9 @@ module Drivers
 
 		def running?
 			## Get running Vms
-			get_running_vm_names.include? @vmid
+			::Lab::Controllers::VirtualBoxController::running_list.include? @vmid
 		end
 		
-		private
-		
-		def get_vm_names
-			## Get Known VMs
-			vm_names_and_uuids = `VBoxManage list vms`.split("\n")
-			4.times { vm_names_and_uuids.shift }
-
-			vm_names = []
-			vm_names_and_uuids.each do |entry|
-				vm_names << entry.split('"')[1]
-			end			
-			
-			return vm_names
-		end
-
-		def get_vm_uuids
-			## Get Known VMs
-			vm_names_and_uuids = `VBoxManage list vms`.split("\n")
-			4.times { vm_names_and_uuids.shift }
-
-			vm_uuids = []
-			vm_names_and_uuids.each do |entry|
-				vm_names << entry.split('"')[2]
-			end
-			
-			return vm_uuids
-		end
-		
-		def get_running_vm_names
-			## Get Known VMs
-			vm_names_and_uuids = `VBoxManage list runningvms`.split("\n")
-			4.times { vm_names_and_uuids.shift }
-
-			vm_names = []
-			vm_names_and_uuids.each do |entry|
-				vm_names << entry.split('"')[1]
-			end
-			
-			return vm_names
-		end
 	end
 end
 end
