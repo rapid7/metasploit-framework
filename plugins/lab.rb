@@ -249,7 +249,6 @@ class Plugin::Lab < Msf::Plugin
 				@controller.each{ |vm| vm.create_snapshot(snapshot) }
 			else
 				args[0..-2].each do |vmid_arg|
-					puts "args:" + args.to_s
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "Snapshotting #{vmid_arg} to snapshot: #{snapshot}."
 					@controller[vmid_arg].create_snapshot(snapshot)
@@ -267,7 +266,6 @@ class Plugin::Lab < Msf::Plugin
 				@controller.each{ |vm| vm.revert_snapshot(snapshot) }
 			else
 				args[0..-2].each do |vmid_arg|
-					puts "args:" + args.to_s
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "Reverting #{vmid_arg} to snapshot: #{snapshot}."
 					@controller[vmid_arg].revert_snapshot(snapshot)	
