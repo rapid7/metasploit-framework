@@ -158,7 +158,7 @@ class APIRequest
 		end
 
 		if ! (@success or @error)
-			@error = "NeXpose service returned an unrecognized response"
+			@error = "NeXpose service returned an unrecognized response: #{data}"
 		end
 
 		@sid
@@ -182,7 +182,7 @@ end
 
 module NexposeAPI
 
-	def make_xml(name, opts={})
+	def make_xml(name, opts={}, data='')
 		xml = REXML::Element.new(name)
 		if(@session_id)
 			xml.attributes['session-id'] = @session_id
@@ -191,6 +191,8 @@ module NexposeAPI
 		opts.keys.each do |k|
 			xml.attributes[k] = "#{opts[k]}"
 		end
+		
+		xml.text = data
 
 		xml
 	end
@@ -295,11 +297,6 @@ module NexposeAPI
 		r.success
 	end
 
-	def site_delete(param)
-		r = execute(make_xml('SiteDeleteRequest', { 'site-id' => param }))
-		r.success
-	end
-
 	def device_delete(param)
 		r = execute(make_xml('DeviceDeleteRequest', { 'site-id' => param }))
 		r.success
@@ -310,6 +307,108 @@ module NexposeAPI
 		r.success
 	end
 
+	def site_delete(param)
+		r = execute(make_xml('SiteDeleteRequest', { 'site-id' => param }))
+		r.success
+	end
+		
+	def site_listing
+		r = execute(make_xml('SiteListingRequest', { }))
+		
+		if(r.success)
+			res = []
+			r.res.elements.each("//SiteSummary") do |site|
+				res << {
+					:site_id       => site.attributes['id'].to_i,
+					:name          => site.attributes['name'].to_s,
+					:risk_factor   => site.attributes['risk_factor'].to_f,
+					:risk_score    => site.attributes['risk_score'].to_f,
+				}
+			end
+			return res
+		else
+			return false
+		end
+	end	
+
+	def site_device_listing(site_id)
+		r = execute(make_xml('SiteDeviceListingRequest', { 'site-id' => site_id.to_s }))
+	
+		if(r.success)
+			res = []
+			r.res.elements.each("//device") do |device|
+				res << {
+					:device_id     => device.attributes['id'].to_i,
+					:address       => device.attributes['address'].to_s,
+					:risk_factor   => device.attributes['risk_factor'].to_f,
+					:risk_score    => device.attributes['risk_score'].to_f,
+				}
+			end
+			return res
+		else
+			return false
+		end
+	end
+
+	def report_template_listing
+		r = execute(make_xml('ReportTemplateListingRequest', { }))
+
+		if(r.success)
+			res = []
+			r.res.elements.each("//ReportTemplateSummary") do |template|
+				desc = ''
+				template.elements.each("//description") do |ent|
+					desc = ent.text
+				end
+				
+				res << {
+					:template_id   => template.attributes['id'].to_s,
+					:name          => template.attributes['name'].to_s,
+					:description   => desc.to_s
+				}
+			end
+			return res
+		else
+			return false
+		end
+	end	
+
+
+	def console_command(cmd_string)
+		xml = make_xml('ConsoleCommandRequest', {  })
+		cmd = REXML::Element.new('Command')
+		cmd.text = cmd_string
+		xml << cmd
+		
+		r = execute(xml)
+
+		if(r.success)
+			res = ""
+			r.res.elements.each("//Output") do |out|
+				res << out.text.to_s
+			end
+			
+			return res
+		else
+			return false
+		end
+	end	
+
+	def system_information
+		r = execute(make_xml('SystemInformationRequest', { }))
+
+		if(r.success)
+			res = {}
+			r.res.elements.each("//Statistic") do |stat|
+				res[ stat.attributes['name'].to_s ] = stat.text.to_s
+			end
+			
+			return res
+		else
+			return false
+		end
+	end		
+		
 end
 
 # === Description
