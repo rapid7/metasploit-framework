@@ -458,10 +458,11 @@ class Console::CommandDispatcher::Stdapi::Sys
 	def cmd_sysinfo(*args)
 		info = client.sys.config.sysinfo
 
-		print_line("Computer: " + info['Computer'])
-		print_line("OS      : " + info['OS'])
-		print_line("Arch    : " + info['Architecture']) if info['Architecture']
-		print_line("Language: " + info['System Language']) if info['System Language']
+		print_line("Computer   : " + info['Computer'])
+		print_line("OS         : " + info['OS'])
+		print_line("Arch       : " + info['Architecture']) if info['Architecture']
+		print_line("Language   : " + info['System Language']) if info['System Language']
+		print_line("Meterpreter: " + client.platform)
 
 		return true
 	end
