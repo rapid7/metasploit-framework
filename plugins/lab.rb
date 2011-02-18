@@ -31,6 +31,7 @@ class Plugin::Lab < Msf::Plugin
 			"lab_load" => "lab_load [file] - load a lab definition from disk.", 			
 			"lab_save" => "lab_save [filename] - persist a lab definition in a file.",
 			"lab_load_running" => "lab_load_running [type] [user] [host] - use the running vms to create a lab.", 
+			"lab_load_config" => "lab_load_config [type] [user] [host] - use the vms in the config to create a lab.", 
 			"lab_load_dir" => "lab_load_dir [type] [directory] - create a lab from a specified directory.",
 			"lab_clear" => "lab_clear - clear the running lab.",	
 			"lab_start" => "lab_start [vmid+|all] start the specified vm.",
@@ -110,6 +111,19 @@ class Plugin::Lab < Msf::Plugin
 			else
 				return lab_usage unless args.count == 1 
 				@controller.build_from_running(args[0])
+			end
+		end
+
+		def cmd_lab_load_config(*args)
+			return lab_usage if args.empty?
+			
+			if args[0] =~ /^remote_/
+				return lab_usage unless args.count == 3 
+				## Expect a username & password
+				@controller.build_from_config(args[0], args[1], args[2])
+			else
+				return lab_usage unless args.count == 1 
+				@controller.build_from_config(args[0])
 			end
 		end
 
@@ -234,7 +248,8 @@ class Plugin::Lab < Msf::Plugin
 				print_line "Snapshotting all lab vms to snapshot: #{snapshot}."
 				@controller.each{ |vm| vm.create_snapshot(snapshot) }
 			else
-				args[0..-2].each_index do |vmid_arg|
+				args[0..-2].each do |vmid_arg|
+					puts "args:" + args.to_s
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "Snapshotting #{vmid_arg} to snapshot: #{snapshot}."
 					@controller[vmid_arg].create_snapshot(snapshot)
@@ -251,7 +266,8 @@ class Plugin::Lab < Msf::Plugin
 				print_line "Reverting all lab vms to snapshot: #{snapshot}."
 				@controller.each{ |vm| vm.revert_snapshot(snapshot) }
 			else
-				args[0..-2].each_index do |vmid_arg|
+				args[0..-2].each do |vmid_arg|
+					puts "args:" + args.to_s
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "Reverting #{vmid_arg} to snapshot: #{snapshot}."
 					@controller[vmid_arg].revert_snapshot(snapshot)	
