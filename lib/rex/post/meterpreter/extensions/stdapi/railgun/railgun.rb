@@ -30,6 +30,7 @@ require 'pp'
 require 'enumerator'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/model'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
 
@@ -56,6 +57,9 @@ class Railgun
 
 		# Load the multi-caller
 		@multicaller = MultiCaller.new( @client, self, @win_consts )
+
+		# Load utility class
+		@util = Util.new( self, @client.platform )
 	end
 	
 	# read data from a memory address on the host (useful for working with LPVOID parameters)
@@ -192,7 +196,7 @@ class Railgun
 		@multicaller.call(functions)
 	end
 
-	attr_accessor :client, :dll, :multicaller, :win_consts
+	attr_accessor :client, :dll, :multicaller, :win_consts, :util
 	
 end
 
