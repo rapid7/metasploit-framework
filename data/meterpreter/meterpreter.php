@@ -254,12 +254,10 @@ function core_channel_close($req, &$pkt) {
     $c = get_channel_by_id($id);
     if ($c) {
         # We found a channel, close its stdin/stdout/stderr
-        for($i = 0; $i < 3; $i++) {
-            #my_print("closing channel fd $i, {$c[$i]}");
-            if (array_key_exists($i, $c) && is_resource($c[$i])) {
-                close($c[$i]);
-            }
-        }
+        channel_close_handles($id);
+
+        # if the channel we're closing is associated with a process, kill the
+        # process
         # Make sure the stdapi function for closing a process handle is
         # available before trying to clean up
         if (array_key_exists($id, $channel_process_map) and is_callable('close_process')) {
@@ -267,8 +265,35 @@ function core_channel_close($req, &$pkt) {
         }
         return ERROR_SUCCESS;
     }
+    dump_array($channels, "Channel list after close");
 
     return ERROR_FAILURE;
+}
+
+# 
+# Destroy a channel and all associated handles.
+#
+function channel_close_handles($cid) {
+    global $channels;
+
+    # Sanity check - make sure a channel with the given cid exists
+    if (!array_key_exists($cid, $channels)) {
+        return;
+    }
+    $c = $channels[$cid];
+    for($i = 0; $i < 3; $i++) {
+        #my_print("closing channel fd $i, {$c[$i]}");
+        if (array_key_exists($i, $c) && is_resource($c[$i])) {
+            my_print("Closing handle {$c[$i]}");
+            close($c[$i]);
+            # Make sure the main loop doesn't select on this resource after we
+            # close it.
+            remove_reader($c[$i]);
+        }
+    }
+    # After closing all the channel's handlers, the channel itself isn't very
+    # useful, axe it from the list.
+    unset($channels[$cid]);
 }
 
 function core_channel_interact($req, &$pkt) {
@@ -289,8 +314,10 @@ function core_channel_interact($req, &$pkt) {
             if (!in_array($c[1], $readers)) {
                 # stdout
                 add_reader($c[1]);
-                # stderr, don't care if it fails
+                # Make sure we don't add the same resource twice in the case
+                # that stdin == stderr
                 if (array_key_exists(2, $c) && $c[1] != $c[2]) {
+                    # stderr
                     add_reader($c[2]);
                 }
                 $ret = ERROR_SUCCESS;
@@ -358,8 +385,8 @@ function register_channel($in, $out=null, $err=null) {
 
 function get_channel_id_from_resource($resource) {
     global $channels;
-    #my_print("Looking up channel from resource $resource");
     for ($i = 0; $i < count($channels); $i++) {
+        #dump_array($channels[$i], "channels[$i]");
         if (in_array($resource, $channels[$i])) {
             #my_print("Found channel id $i");
             return $i;
@@ -408,27 +435,44 @@ function generate_req_id() {
     $rid = '';
 
     for ($p = 0; $p < 32; $p++) {
-        $rid .= $characters[rand(0, strlen($characters))];
+        $rid .= $characters[rand(0, strlen($characters)-1)];
     }
 
     return $rid;
 }
 
 function handle_dead_resource_channel($resource) {
+    global $msgsock;
+
+    if (!is_resource($resource)) {
+        return;
+    }
+
     $cid = get_channel_id_from_resource($resource);
-    my_print("Handling dead resource: {$resource}");
-    close($resource);
-    $pkt = pack("N", PACKET_TYPE_REQUEST);
+    if ($cid === false) {
+        my_print("Resource has no channel: {$resource}");
 
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
-    $req_id = generate_req_id();
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
+        # Make sure the provided resource gets closed regardless of it's status
+        # as a channel
+        remove_reader($resource); 
+        close($resource);
+    } else {
+        my_print("Handling dead resource: {$resource}, for channel: {$cid}");
+        # Make sure we close other handles associated with this channel as well
+        channel_close_handles($cid);
 
-    # Add the length to the beginning of the packet
-    $pkt = pack("N", strlen($pkt) + 4) . $pkt;
-    return $pkt;
+        $pkt = pack("N", PACKET_TYPE_REQUEST);
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, generate_req_id()));
+        packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
+        # Add the length to the beginning of the packet
+        $pkt = pack("N", strlen($pkt) + 4) . $pkt;
+        write($msgsock, $pkt);
+    }
+
+    return;
 }
+
 function handle_resource_read_channel($resource, $data) {
     global $udp_host_map;
     $cid = get_channel_id_from_resource($resource);
@@ -437,7 +481,6 @@ function handle_resource_read_channel($resource, $data) {
     # Build a new Packet
     $pkt = pack("N", PACKET_TYPE_REQUEST);
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_write'));
-    $req_id = generate_req_id();
     if (array_key_exists((int)$resource, $udp_host_map)) {
         list($h,$p) = $udp_host_map[(int)$resource];
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_PEER_HOST, $h));
@@ -446,7 +489,7 @@ function handle_resource_read_channel($resource, $data) {
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_ID, $cid));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_CHANNEL_DATA, $data));
     packet_add_tlv($pkt, create_tlv(TLV_TYPE_LENGTH, strlen($data)));
-    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, $req_id));
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, generate_req_id()));
 
     # Add the length to the beginning of the packet
     $pkt = pack("N", strlen($pkt) + 4) . $pkt;
@@ -667,10 +710,16 @@ function read($resource, $len=null) {
             list($host,$port) = $udp_host_map[(int)$resource];
             socket_recvfrom($resource, $buff, $len, PHP_BINARY_READ, $host, $port);
         } else {
+            my_print("Reading TCP socket");
             $buff = socket_read($resource, $len, PHP_BINARY_READ);
         }
         break;
-    case 'stream': $buff = fread($resource, $len); break;
+    case 'stream':
+        #my_print("Reading stream");
+        $md = stream_get_meta_data($resource);
+        #dump_array($md, "Meta data for $resource");
+        $buff = fread($resource, $len);
+        break;
     default: my_print("Wtf don't know how to read from resource $resource"); break;
     }
     #my_print(sprintf("Read %d bytes", strlen($buff)));
@@ -790,6 +839,8 @@ function add_reader($resource) {
 
 function remove_reader($resource) {
     global $readers;
+    #my_print("Removing reader: $resource");
+    #dump_readers();
     if (in_array($resource, $readers)) {
         foreach ($readers as $key => $r) {
             if ($r == $resource) {
@@ -815,6 +866,8 @@ error_reporting(0);
 @ignore_user_abort(true);
 # Has no effect in safe mode, but try anyway
 @set_time_limit(0);
+@ignore_user_abort(1);
+@ini_set('max_execution_time',0);
 
 
 # If we don't have a socket we're standalone, setup the connection here.
@@ -881,20 +934,16 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
         } else {
             #my_print("not Msgsock: $ready");
             $data = read($ready);
-            #my_print(sprintf("Read returned %s bytes", strlen($data)));
-            if (false === $data) {
-                $request = handle_dead_resource_channel($ready);
-                write($msgsock, $request);
-                remove_reader($ready);
-            } elseif (strlen($data) == 0) {
-                remove_reader($ready);
+            if (false === $data || strlen($data) == 0) {
+                handle_dead_resource_channel($ready);
             } else {
+                my_print(sprintf("Read returned %s bytes", strlen($data)));
                 $request = handle_resource_read_channel($ready, $data);
-                #my_print("Got some data from a channel that needs to be passed back to the msgsock");
                 write($msgsock, $request);
-            }
+            } 
         }
     }
+    # $r is modified by select, so reset it
     $r = $GLOBALS['readers'];
 } # end main loop
 my_print("Finished");
