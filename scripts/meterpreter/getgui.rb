@@ -106,12 +106,19 @@ def addrdpusr(session, username, password, lang)
 	when "en_EN"
 		rdu = "Remote Desktop Users"
 		admin = "Administrators"
+	when "en_US"
+		rdu = "Remote Desktop Users"
+		admin = "Administrators"
 	when "de_DE"
 		rdu = "Remotedesktopbenutzer"
 		admin = "Administratoren"
 	when "fr_FR"
 		rdu = "Utilisateurs du Bureau � distance"
 		admin = "Administrateurs"
+	else
+		print_error("Could not determine lenguage, defaulting to English!")
+		rdu = "Remote Desktop Users"
+		admin = "Administrators"
 	end
 
 	print_status "Setting user account for logon"
