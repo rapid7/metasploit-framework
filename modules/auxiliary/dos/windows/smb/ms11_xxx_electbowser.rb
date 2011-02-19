@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2011-0654' ],
 					[ 'BID', '46360' ],
-					#[ 'OSVDB', 'XXXX' ],
+					[ 'OSVDB', '70881' ],
 					#[ 'MSB', 'MS11-XXX' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/16166/' ],
 					[ 'URL', 'http://seclists.org/fulldisclosure/2011/Feb/285' ]
