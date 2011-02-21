@@ -4,6 +4,7 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -12,6 +13,10 @@ import java.util.Map;
 import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JComponent;
+import javax.swing.JFormattedTextField;
 import javax.swing.JMenu;
 import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
@@ -63,12 +68,17 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		}
 		//Set options
 		for(Component comp : mainPanel.getComponents()){
-			if(!(comp instanceof JTextField))
+			Object optionVal = null;
+			if(comp.getName() != null && comp.getName().startsWith("field"))
+				optionVal = opts.get(comp.getName().substring("field".length()));
+			if(optionVal == null)
 				continue;
-			JTextField optionField = (JTextField)comp;
-			Object optionVal = opts.get(optionField.getName().substring("field".length()));
-			if(optionVal != null)
-				optionField.setText(optionVal.toString());
+			if(comp instanceof JCheckBox)
+				((JCheckBox)comp).setSelected(Boolean.TRUE.equals(optionVal));
+			else if(comp instanceof JComboBox)
+				((JComboBox)comp).setSelectedItem(optionVal);
+			else if(comp instanceof JTextField)
+				((JTextField)comp).setText(optionVal.toString());
 		}
 	}
 	/** Creates new  ModulePopup */
@@ -283,16 +293,39 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				tempText.setVerticalAlignment(javax.swing.JLabel.BOTTOM);
 				mainPanel.add(tempText);//mainPanel.add(containerPane);
 				tempText.setFont(authorsLabel.getFont());
-				JTextField optionField = new JTextField();
-				if (option.get("default") != null) {
-					optionField.setText(option.get("default").toString());
-				} else if (optionName.equals("LHOST")){ //try to find local ip
-					optionField.setText(MsfguiApp.getLocalIp());
-				} else if (optionName.equals("WORKSPACE")){
-					optionField.setText(MsfguiApp.workspace);
-				} else if (optionName.equals("SESSION") && moduleType.equals("post")
-						&& parentFrame.selectedSessions.length > 0){
-					optionField.setText(parentFrame.selectedSessions[0].get("id").toString());
+				JComponent optionField;
+				Object type = option.get("type");
+
+				//Add different types of input elements for the different types of options
+				if ("bool".equals(type)){ //bool options get checkboxes
+					optionField = new JCheckBox("",Boolean.TRUE.equals(option.get("default")));
+				} else if ("enum".equals(type)){ //enum options get combo boxes
+					JComboBox optionCombo = new JComboBox();
+					List enums = (List)option.get("enums");
+					for(Object opt : enums)
+						optionCombo.addItem(opt);
+					optionCombo.setSelectedItem(option.get("default"));
+					optionField = optionCombo;
+				} else {
+					JTextField optionTextField;
+					if("port".equals(type) || "integer".equals(type)){
+						NumberFormat nf = NumberFormat.getIntegerInstance();
+						nf.setGroupingUsed(false);
+						optionTextField = new JFormattedTextField(nf);
+					} else {// "address"  "string"
+						optionTextField = new JTextField();
+					}
+					if (option.get("default") != null) {
+						optionTextField.setText(option.get("default").toString());
+					} else if (optionName.equals("LHOST")){ //try to find local ip
+						optionTextField.setText(MsfguiApp.getLocalIp());
+					} else if (optionName.equals("WORKSPACE")){
+						optionTextField.setText(MsfguiApp.workspace);
+					} else if (optionName.equals("SESSION") && moduleType.equals("post")
+							&& parentFrame.selectedSessions.length > 0){
+						optionTextField.setText(parentFrame.selectedSessions[0].get("id").toString());
+					}
+					optionField = optionTextField;
 				}
 				optionField.setName("field" + optionName);
 				mainPanel.add(optionField);
@@ -330,17 +363,24 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				target = buttonGroup.getSelection().getActionCommand();
 				hash.put("TARGET",target);
 			}
+			//Get all options by looping over all components, and checking name
 			for(Component comp : mainPanel.getComponents()){
-				if(!(comp instanceof JTextField))
+				if(!(comp instanceof JTextField) && !(comp instanceof JCheckBox))
 					continue;
-				JTextField optionField = (JTextField)comp;
+				JComponent optionField = (JComponent)comp;
 				String optName = optionField.getName().substring("field".length());
-				String optVal = optionField.getText();
+				Object optVal;
+				if(comp instanceof JCheckBox)
+					optVal = ((JCheckBox)comp).isSelected();
+				else if(comp instanceof JComboBox)
+					optVal = ((JComboBox)comp).getSelectedItem();
+				else
+					optVal = ((JTextField)comp).getText();
 				Object defaultVal = ((Map)options.get(optName)).get("default");
 				//only need non-default vals
-				if(defaultVal == null && optVal.length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
-						|| (defaultVal != null &&  ! optVal.equals(defaultVal.toString())))
-					hash.put(optName, optVal);
+				if(defaultVal == null && optVal.toString().length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
+						|| (defaultVal != null &&  ! optVal.toString().equals(defaultVal.toString())))
+					hash.put(optName, optVal.toString()); //msfrpcd likes strings. Give them strings.
 			}
 			//Execute and get results
 			if(console){

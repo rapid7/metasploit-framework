@@ -36,8 +36,6 @@ public class SearchWindow extends MsfFrame {
 				if (evt.getKeyChar() == KeyEvent.CHAR_UNDEFINED || typed.equals(searchBox.getItemAt(0).toString()))
 					return;
 				//display items
-				searchBox.hidePopup();
-				searchBox.showPopup();
 				searchBox.removeAllItems();
 				searchBox.addItem(typed);
 				for (int i = 0; i < modules.size(); i++)
@@ -45,6 +43,8 @@ public class SearchWindow extends MsfFrame {
 						searchBox.addItem(((Object[])modules.get(i))[1]);
 				((javax.swing.JTextField) (searchBox.getEditor().getEditorComponent())).select(typed.length(),
 						typed.length());
+				searchBox.hidePopup();
+				searchBox.showPopup();
 			}
 		});
     }
