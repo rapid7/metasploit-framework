@@ -10,14 +10,17 @@ module Priv
 		return session.railgun.shell32.IsUserAnAdmin()["return"]
 	end
 
-	# Checks if UAC is enabled, if it is enabled it will return true y running as
-	# system or disabled it will return false also if running on a system that does
-	# not have UAC it will return false.
+	#
+	# Returns true if UAC is enabled
+	#
+	# Returns false if the session is running as system, if uac is disabled or
+	# if running on a system that does not have UAC 
+	#
 	def is_uac_enabled?
 		uac = false
-		winversion = session.sys.config.sysinfo['OS']
+		winversion = sysinfo['OS']
 
-		if winversion =~ /Windows (Vista|7)/
+		if winversion =~ /Windows (Vista|7|2008)/
 			if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
 				begin
 					key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System',KEY_READ)
