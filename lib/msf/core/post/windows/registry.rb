@@ -261,7 +261,7 @@ protected
 		return value
 	end
 
-	def shell_registry_setvaldata(key, valname)
+	def shell_registry_setvaldata(key, valname, data, type)
 		key = normalize_key(key)
 		boo = false
 		begin
@@ -391,6 +391,46 @@ protected
 			return true
 		rescue Rex::Post::Meterpreter::RequestError => e
 			return nil
+		end
+	end
+
+	#
+	# Normalize the supplied full registry key string so the root key is sane.  For
+	# instance, passing "HKLM\Software\Dog" will return 'HKEY_LOCAL_MACHINE\Software\Dog'
+	#
+	def normalize_key(key)
+		keys = split_key(key)
+		if (keys[0] =~ /HKLM|HKEY_LOCAL_MACHINE/)
+			keys[0] = 'HKEY_LOCAL_MACHINE'
+		elsif (keys[0] =~ /HKCU|HKEY_CURRENT_USER/)
+			keys[0] = 'HKEY_CURRENT_USER'
+		elsif (keys[0] =~ /HKU|HKEY_USERS/)
+			keys[0] = 'HKEY_USERS'
+		elsif (keys[0] =~ /HKCR|HKEY_CLASSES_ROOT/)
+			keys[0] = 'HKEY_CLASSES_ROOT'
+		elsif (keys[0] =~ /HKCC|HKEY_CURRENT_CONFIG/)
+			keys[0] = 'HKEY_CURRENT_CONFIG'
+		elsif (keys[0] =~ /HKPD|HKEY_PERFORMANCE_DATA/)
+			keys[0] = 'HKEY_PERFORMANCE_DATA'
+		elsif (keys[0] =~ /HKDD|HKEY_DYN_DATA/)
+			keys[0] = 'HKEY_DYN_DATA'
+		else
+			raise ArgumentError, "Cannot normalize unknown key: #{key}"
+		end
+		print_status("Normalized #{key} to #{keys.join("\\")}") if $blab
+		return keys.join("\\")
+	end
+
+	#
+	# Split the supplied full registry key string into its root key and base key.  For
+	# instance, passing "HKLM\Software\Dog" will return [ 'HKEY_LOCAL_MACHINE',
+	# 'Software\Dog' ]
+	#
+	def split_key(str)
+		if (str =~ /^(.+?)\\(.*)$/)
+			[ $1, $2 ]
+		else
+			[ str, nil ]
 		end
 	end
 
