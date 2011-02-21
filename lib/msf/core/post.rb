@@ -83,7 +83,9 @@ class Post < Msf::Module
 	def compatible_sessions
 		sessions = []
 		framework.sessions.each do |sid, s|
-			next unless self.module_info["SessionTypes"].include?(s.type)
+			if self.module_info["SessionTypes"]
+				next unless self.module_info["SessionTypes"].include?(s.type)
+			end
 			sessions << sid
 		end
 		sessions
