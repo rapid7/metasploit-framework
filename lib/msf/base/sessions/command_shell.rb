@@ -195,8 +195,8 @@ class CommandShellWindows < CommandShell
 		self.platform = "windows"
 		super
 	end
-	def shell_command_token(cmd)
-		shell_command_token_win32(cmd)
+	def shell_command_token(cmd,timeout = 10)
+		shell_command_token_win32(cmd,timeout)
 	end
 end
 
@@ -205,8 +205,8 @@ class CommandShellUnix < CommandShell
 		self.platform = "unix"
 		super
 	end
-	def shell_command_token(cmd)
-		shell_command_token_unix(cmd)
+	def shell_command_token(cmd,timeout = 10)
+		shell_command_token_unix(cmd,timeout)
 	end
 end
 

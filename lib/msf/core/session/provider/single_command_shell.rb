@@ -75,11 +75,11 @@ module SingleCommandShell
 		nil
 	end
 
-	def shell_command_token(cmd)
+	def shell_command_token(cmd,timeout = 10)
 		if platform =~ /win/
-			output = shell_command_token_win32(cmd)
+			output = shell_command_token_win32(cmd,timeout)
 		else
-			output = shell_command_token_unix(cmd)
+			output = shell_command_token_unix(cmd,timeout)
 		end
 		output
 	end
@@ -88,7 +88,7 @@ module SingleCommandShell
 	# Explicitly run a single command and return the output.
 	# This version uses a marker to denote the end of data (instead of a timeout).
 	#
-	def shell_command_token_unix(cmd)
+	def shell_command_token_unix(cmd,timeout)
 		# read any pending data
 		buf = shell_read(-1, 0.01)
 		token = ::Rex::Text.rand_text_alpha(32)
@@ -96,14 +96,14 @@ module SingleCommandShell
 		# Send the command to the session's stdin.
 		# NOTE: if the session echoes input we don't need to echo the token twice.
 		shell_write(cmd + ";echo #{token}\n")
-		shell_read_until_token(token)
+		shell_read_until_token(token,0,timeout)
 	end
 
 	#
 	# Explicitly run a single command and return the output.
 	# This version uses a marker to denote the end of data (instead of a timeout).
 	#
-	def shell_command_token_win32(cmd)
+	def shell_command_token_win32(cmd,timeout)
 		# read any pending data
 		buf = shell_read(-1, 0.01)
 		token = ::Rex::Text.rand_text_alpha(32)
@@ -111,7 +111,7 @@ module SingleCommandShell
 		# Send the command to the session's stdin.
 		# NOTE: if the session echoes input we don't need to echo the token twice.
 		shell_write(cmd + "&echo #{token}\n")
-		shell_read_until_token(token, 1)
+		shell_read_until_token(token, 1,timeout)
 	end
 
 
