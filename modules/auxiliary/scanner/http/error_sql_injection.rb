@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Dealing with empty query/data and making them hashes.
 		#
 
-		if  datastore['METHOD'] =='GET' 
+		if  datastore['METHOD'] =='GET'
 			if not datastore['QUERY'].empty?
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash
 			else
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 				qvars = queryparse(datastore['DATA']) #Now its a Hash
 			else
 				return
-			end	
+			end
 		end
 
 		#
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 				'encode'	=> false
 			}
 		end
-		
+
 		begin
 			normalres = send_request_raw(reqinfo, 20)
 
@@ -192,12 +192,12 @@ class Metasploit3 < Msf::Auxiliary
 					if !datastore['NoDetailMessages']
 						print_status("- Testing query with #{idesc}. Parameter #{key}:")
 					end
-					
+
 					fstr = ""
-					qvars.each_pair do |var,val| 
+					qvars.each_pair do |var,val|
 						fstr += var+"="+val+"&"
 					end
-					
+
 					if datastore['METHOD'] == 'POST'
 						reqinfo = {
 							'uri'  		=> datastore['PATH'],
@@ -218,7 +218,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					begin
-						
+
 						testres = send_request_raw(reqinfo, 20)
 
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
@@ -257,12 +257,12 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-			
+
 			if datastore['METHOD'] == 'POST'
 				qvars = queryparse(datastore['DATA']) #Now its a Hash
 			else
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash
 			end
 		end
-	end	
+	end
 end

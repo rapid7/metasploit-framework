@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Local SMB Share Enumeration',
+				'Name'          => 'Windows Local SMB Share Enumeration via Registry',
 				'Description'   => %q{ This module will enumerate configured and recently used file shares},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 
 	# Stolen from modules/auxiliary/scanner/smb/smb_enumshares.rb
 	def share_type(val)
-		[  
+		[
 			'DISK',
 			'PRINTER',
 			'DEVICE',

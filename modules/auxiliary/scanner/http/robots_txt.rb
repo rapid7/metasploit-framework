@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 
-			print_status("[#{target_host}] #{tpath}robots.txt found") 
+			print_status("[#{target_host}] #{tpath}robots.txt found")
 
 			# short url regex
 			aregex = /llow:[ ]{0,2}(.*?)$/i
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 					:host	=> target_host,
 					:port	=> rport,
 					:proto => 'tcp',
-				   	:sname	=> (ssl ? 'https' : 'http'),
+					:sname	=> (ssl ? 'https' : 'http'),
 					:type	=> 'ROBOTS_TXT',
 					:data	=> "#{u}",
 					:update => :unique_data

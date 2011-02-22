@@ -30,7 +30,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision $',
 			'Description' => 'Determine what domain users are logged into a remote system via a DCERPC to NetWkstaUserEnum.',
 			'Author'      => 'natron',
-			'References'  => 
+			'Version'     => '$Revision$',
+			'References'  =>
 				[
 					[ 'URL', 'http://msdn.microsoft.com/en-us/library/aa370669%28VS.85%29.aspx' ]
 				],
@@ -48,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 	def parse_value(resp, idx)
 		#val_length  = resp[idx,4].unpack("V")[0]
 		idx += 4
-		#val_offset = resp[idx,4].unpack("V")[0] 
+		#val_offset = resp[idx,4].unpack("V")[0]
 		idx += 4
 		val_actual = resp[idx,4].unpack("V")[0]
 		idx += 4
@@ -70,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 		idx += 4
 		#print_debug "Max Count  : " + count.to_s
 
-		1.upto(count) do 
+		1.upto(count) do
 			# wkssvc_NetWkstaEnumUsersInfo -> Info -> PtrCt0 -> User() -> Ptr -> Ref ID
 			# print_debug "Ref ID#{account.to_s}: " + resp[idx,4].unpack("H*").to_s
 			idx += 4 # ref id name
@@ -116,14 +117,14 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			begin
 				dcerpc_bind(handle)
-				stub = 
+				stub =
 					NDR.uwstring("\\\\" + ip) +	# Server Name
 					NDR.long(1) +						# Level
 					NDR.long(1) +						# Ctr
 					NDR.long(rand(0xffffffff)) +	# ref id
 					NDR.long(0) +						# entries read
 					NDR.long(0) +						# null ptr to user0
-					
+
 					NDR.long(0xffffffff) +			# Prefmaxlen
 					NDR.long(rand(0xffffffff)) +	# ref id
 					NDR.long(0)							# null ptr to resume handle
@@ -137,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				if datastore['VERBOSE']
 					accounts.each do |x|
-						print_status ip + " : " + x[:logon_domain] + "\\" + x[:account_name] + 
+						print_status ip + " : " + x[:logon_domain] + "\\" + x[:account_name] +
 							"\t(logon_server: #{x[:logon_server]}, other_domains: #{x[:other_domains]})"
 					end
 				else

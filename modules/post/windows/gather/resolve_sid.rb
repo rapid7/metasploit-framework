@@ -1,3 +1,14 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'msf/core/post/windows/accounts'
 
@@ -7,10 +18,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Resolve SID',
+				'Name'          => 'Windows Account SID Resolver',
 				'Description'   => %q{ This module prints information about a given SID from the perspective of this session },
 				'License'       => BSD_LICENSE,
 				'Author'        => [ 'chao-mu'],
+				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -27,7 +39,7 @@ class Metasploit3 < Msf::Post
 		target_system = datastore['SYSTEM_NAME']
 
 		info = resolve_sid(sid, target_system ? target_system : nil)
-		
+
 		if info.nil?
 			print_error 'Unable to resolve SID. Giving up.'
 			return
@@ -45,8 +57,8 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		print_status "SID Type: #{sid_type.to_s}" 
-		print_status "Name:     #{info[:name]}" 
-		print_status "Domain:   #{info[:domain]}" 
+		print_status "SID Type: #{sid_type.to_s}"
+		print_status "Name:     #{info[:name]}"
+		print_status "Domain:   #{info[:domain]}"
 	end
 end

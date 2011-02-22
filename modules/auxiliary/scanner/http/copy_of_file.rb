@@ -56,8 +56,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		ecode = datastore['ErrorCode'].to_i
 		dm = datastore['NoDetailMessages']
-		
-		# Required to calculate error code for each case as special charcters amd spaces 
+
+		# Required to calculate error code for each case as special charcters amd spaces
 		# trigger different responses
 
 		prestr = [
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 				#
 				begin
 					randfile = Rex::Text.rand_text_alpha(5).chomp
-					
+
 					filec = tpathf.sub(testf,pre + randfile + testf)
 
 					res = send_request_cgi({
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				return if not conn
-			
+
 				filec = tpathf.sub(testf,pre + testf)
 
 				begin
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> ip,
 								:proto => 'tcp',
-							   	:sname	=> 'HTTP',
+								:sname	=> 'HTTP',
 								:port	=> rport,
 								:type	=> 'COPY_FILE',
 								:data	=> "#{filec}"

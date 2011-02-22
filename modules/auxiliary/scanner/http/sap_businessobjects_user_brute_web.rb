@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host   => rhost,
 				:proto => 'tcp',
-			   	:sname  => 'sap-businessobjects',
+				:sname  => 'sap-businessobjects',
 				:user   => user,
 				:pass   => pass,
 				:target_host => rhost,

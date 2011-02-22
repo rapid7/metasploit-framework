@@ -286,7 +286,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> ip,
 						:proto => 'tcp',
-					   	:sname	=> 'smb',
+						:sname	=> 'smb',
 						:port	=> rport,
 						:type	=> "UUID #{uuid[0]} #{uuid[1]}",
 						:data	=> "UUID #{uuid[0]} #{uuid[1]} OPEN VIA #{datastore['SMBPIPE']}"

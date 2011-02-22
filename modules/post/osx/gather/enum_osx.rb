@@ -19,12 +19,15 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	include Msf::Auxiliary::Report 
+	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'OSX Enumertaion Module',
-				'Description'   => %q{ Post Exploitation module to do initial gathering of information out of an OSX Tiger, Leopard and Snow Leopard System},
+				'Name'          => 'Mac OS X Information Enumeration',
+				'Description'   => %q{
+						This module does initial gathering of information from OSX Tiger, Leopard
+					and Snow Leopard System
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
@@ -166,7 +169,7 @@ class Metasploit3 < Msf::Post
 			print_status("\tEnumerating #{name}")
 
 			# Run commands according to the session type
-			
+
 				if session_type =~ /meterpreter/
 
 					returned_data = cmd_exec("system_profiler",profile_datatypes)
@@ -226,7 +229,7 @@ class Metasploit3 < Msf::Post
 			"Groups" => ["/usr/sbin/lookupd","-q group"]
 
 			}
-		if ver_num =~ /10\.(6|5)\.\d/
+		if ver_num =~ /10\.(6|5)/
 			shell_commands = leopard_commands
 		else
 			shell_commands = tiger_commands
@@ -299,7 +302,7 @@ class Metasploit3 < Msf::Post
 
 	# Method  for capturing screenshot of targets
 	def screenshot(log_folder, ver_num)
-		if ver_num =~ /10\.(6|5)\.\d/
+		if ver_num =~ /10\.(6|5)/
 			print_status("Capturing screenshot")
 
 			# Run commands according to the session type

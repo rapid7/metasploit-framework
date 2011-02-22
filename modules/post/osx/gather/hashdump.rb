@@ -19,12 +19,14 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	include Msf::Auxiliary::Report 
+	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Module for dumping OSX saved hashes',
-				'Description'   => %q{ Post Exploitation module to dump SHA1, LM and NT Hashes of an OSX Tiger, Leopard and Snow Leopard System},
+				'Name'          => 'Mac OS X Password Hash Collector',
+				'Description'   => %q{
+						This module dumps SHA1, LM and NT Hashes of Mac OS X Tiger, Leopard and Snow Leopard Systems.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',

@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Auxiliary
 									report_note(
 										:host	=> ip,
 										:proto => 'tcp',
-									   	:sname	=> 'HTTP',
+										:sname	=> 'HTTP',
 										:port	=> rport,
 										:type	=> 'BLIND_SQL_INJECTION',
 										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
@@ -300,7 +300,7 @@ class Metasploit3 < Msf::Auxiliary
 									report_note(
 										:host	=> ip,
 										:proto => 'tcp',
-									   	:sname	=> 'HTTP',
+										:sname	=> 'HTTP',
 										:port	=> rport,
 										:type	=> 'BLIND_SQL_INJECTION',
 										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"

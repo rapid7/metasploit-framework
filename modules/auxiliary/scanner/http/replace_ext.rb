@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.log'
 		]
 
-		 
+
 		tpathfile = Pathname.new(datastore['PATH'])
 		oldext = tpathfile.extname
 		tpathnoext = tpathfile.to_s[0..(datastore['PATH'].rindex(oldext)-1)]
@@ -81,15 +81,15 @@ class Metasploit3 < Msf::Auxiliary
 		#print_status ("Old extension: #{oldext}")
 
 		extensions.each { |testext|
-		
+
 		if oldext == testext
 			next
 		end
-		
+
 		#print_status ("Test extension: #{testext}")
-		
-		
-		
+
+
+
 			#
 			# Detect error code. This module is a special case as each extension
 			# usually is handled diferently by the server with different error codes
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-						   	:sname	=> 'HTTP',
+							:sname	=> 'HTTP',
 							:port	=> rport,
 							:type	=> 'FILE',
 							:data	=> "#{tpath} Code: #{res.code}"

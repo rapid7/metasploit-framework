@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> target_host,
 					:proto => 'tcp',
-				   	:sname	=> 'HTTP',
+					:sname	=> 'HTTP',
 					:port	=> rport,
 					:type	=> 'HTTP_OPTIONS',
 					:data	=> res.headers['Allow']
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> target_host,
 						:port	=> rport,
 						:proto => 'tcp',
-					   	:sname	=> 'http',
+						:sname	=> 'http',
 						:name	=> 'HTTP-TRACE-ENABLED',
 						:info	=> res.headers['Allow'],
 						:refs   =>

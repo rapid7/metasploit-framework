@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-								   	:sname	=> 'HTTP',
+									:sname	=> 'HTTP',
 									:port	=> rport,
 									:type	=> 'PUT_ENABLED',
 									:data	=> "#{datastore['PATH']}"
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> ip,
 						:proto => 'tcp',
-					   	:sname	=> 'HTTP',
+						:sname	=> 'HTTP',
 						:port	=> rport,
 						:type	=> 'DELETE_ENABLED',
 						:data	=> "#{datastore['PATH']}"

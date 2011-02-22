@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-								   	:sname	=> 'HTTP',
+									:sname	=> 'HTTP',
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-								   	:sname	=> 'HTTP',
+									:sname	=> 'HTTP',
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
