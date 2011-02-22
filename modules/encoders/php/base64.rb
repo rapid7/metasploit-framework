@@ -85,7 +85,9 @@ class Metasploit3 < Msf::Encoder
 		b64.gsub!("/", ".chr(47).")
 
 		state.badchars.each_byte do |byte|
-			# Last ditch effort, if any of the
+			# Last ditch effort, if any of the normal characters used by base64
+			# are badchars, try to replace them with something that will become
+			# the appropriate thing on the other side.
 			if b64.include?(byte.chr)
 				b64.gsub!(byte.chr, ".chr(#{byte}).")
 			end
@@ -97,6 +99,9 @@ class Metasploit3 < Msf::Encoder
 		# characters
 		b64.gsub!("..", ".")
 
+		# Some of the shenanigans above could have appended a dot, which will
+		# cause a syntax error.  Remove any trailing dots.
+		b64.chomp!(".")
 
 		return "eval(base64_decode(" + b64 + "));"
 	end
