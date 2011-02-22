@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Schelevator',
+			'Name'          => 'Schelevator Task Scheduler XML Privilege Escalation',
 			'Description'   => %q{
 					This module exploits the Task Scheduler 2.0 XML 0day exploited by Stuxnet.
 				When processing task files, the Windows Task Scheduler only uses a CRC32
