@@ -1,6 +1,49 @@
 Armitage Changelog
 ==================
 
+22 Feb 11 Changes
+---------
+- Improved shell "when should I read more data from this channel" heuristic. 
+  This means command shell sessions should not freeze on an errant Meterp.
+  read command that blocks until the universe is recreated.
+- Fixed a potential deadlock using Armitage's meterpreter dialogs with a 
+  meterpreter tab open.
+- Command shell tab now only opens when Armitage knows channel and PID 
+  settings
+- Rewrote how Armitage interfaces with Meterpreter. This has a few impacts:
+  -- Armitage now waits for a command to execute and reads its output
+     before executing another command. This prevents Armitage from getting
+     confused when you're doing a lot of stuff at once.
+  -- You can now open multiple meterpreter console tabs for a session 
+  -- Commands executed by Armitage's dialogs will not show up in your 
+     Meterpreter tab(s).
+- File browser now does a cd "current directory" before each action. 
+- Added a network attack collaboration feature to Armitage. This is as 
+  beta as it gets (although it *should* work). To use it, start msfrpcd
+  and connect Armitage's collaboration server (on the same box as msfrcpd!)
+
+  ./armitage --server host port user pass [ssl? 1 or 0]
+
+  This will connect Armitage's collaboration server to the Metasploit RPC 
+  daemon you specify. This server will then bind port+1 and tell future 
+  Armitage clients to use it for extra collaboration features.
+
+  Connect one or more remote Armitage clients as normal. Some of the 
+  features you get in this mode:
+
+  1. View -> Event Log for chatting and watching major events
+  2. Command shell and webcam/screenshot features work for remote clients
+  3. Armitage clients automatically lock a shell session when they're in use
+     and notify other clients that it's locked if they try to use it.
+  4. Transparent real-time sharing of meterpreter amongst multiple clients.
+- Payload generation now works on Windows (I wasn't escaping the backslashes
+  in the paths... doh!)
+- Armitage now prompts you for a path (and not a file chooser) when generating
+  a payload using a remote connection to Metasploit.
+- Armitage now loads database settings from file in MSF_DATABASE_CONFIG env var
+- You can now highlight text in the Armitage console tabs on MacOS X.
+- Fixed a potential deadlock when opening a Windows command shell tab
+
 13 Feb 11 Changes
 ---------
 - Organized View menu (it was getting out of control)
