@@ -44,6 +44,12 @@ Armitage Changelog
 - You can now highlight text in the Armitage console tabs on MacOS X.
 - Fixed a potential deadlock when opening a Windows command shell tab
 
+Update 9am EST
+- Removed a remnant of my development environment from server.sl. If you see:
+  jar file to import package from was not found! at line 25
+
+  Then you need to update.
+
 13 Feb 11 Changes
 ---------
 - Organized View menu (it was getting out of control)
