@@ -38,7 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-				OptString.new('QUERY', [ false,  "HTTP URI Query", ''])
+				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
+				OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
 			], self.class)
 
 		register_advanced_options(
@@ -56,6 +57,13 @@ class Metasploit3 < Msf::Auxiliary
 			[ "'" ,'Single quote'],
 			[ "')",'Single quote and parenthesis'],
 			[ "\"",'Double quote'],
+			[ "%u0027",'unicode single quote'],
+			[ "%u02b9",'unicode single quote'],
+			[ "%u02bc",'unicode single quote'],
+			[ "%u02c8",'unicode single quote'],
+			[ "%c0%27",'unicode single quote'],
+			[ "%c0%a7",'unicode single quote'],
+			[ "%e0%80%a7",'unicode single quote'],
 			[ "#{rand(10)}'", 'Random value with single quote']
 		]
 
@@ -74,10 +82,18 @@ class Metasploit3 < Msf::Auxiliary
 		# Dealing with empty query/data and making them hashes.
 		#
 
-		if  !datastore['QUERY'] or datastore['QUERY'].empty?
-			return
+		if  datastore['METHOD'] =='GET' 
+			if not datastore['QUERY'].empty?
+				qvars = queryparse(datastore['QUERY']) #Now its a Hash
+			else
+				return
+			end
 		else
-			qvars = queryparse(datastore['QUERY']) #Now its a Hash
+			if not datastore['DATA'].empty?
+				qvars = queryparse(datastore['DATA']) #Now its a Hash
+			else
+				return
+			end	
 		end
 
 		#
@@ -89,21 +105,24 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['METHOD'] == 'POST'
 			reqinfo = {
 				'uri'  		=> datastore['PATH'],
-				'vars_post' => qvars,
+				'query' 	=> datastore['QUERY'],
+				'data' 		=> datastore['DATA'],
 				'method'   	=> datastore['METHOD'],
-				'ctype'		=> 'application/x-www-form-urlencoded'
+				'ctype'		=> 'application/x-www-form-urlencoded',
+				'encode'	=> false
 			}
 		else
 			reqinfo = {
 				'uri'  		=> datastore['PATH'],
-				'vars_get' 	=> qvars,
+				'query' 	=> datastore['QUERY'],
 				'method'   	=> datastore['METHOD'],
-				'ctype'		=> 'application/x-www-form-urlencoded'
+				'ctype'		=> 'application/x-www-form-urlencoded',
+				'encode'	=> false
 			}
 		end
 		
 		begin
-			normalres = send_request_cgi(reqinfo, 20)
+			normalres = send_request_raw(reqinfo, 20)
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
@@ -163,32 +182,44 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				qvars.each do |key,value|
-					qvars = queryparse(datastore['QUERY']) #Now its a Hash
+					if datastore['METHOD'] == 'POST'
+						qvars = queryparse(datastore['DATA']) #Now its a Hash
+					else
+						qvars = queryparse(datastore['QUERY']) #Now its a Hash
+					end
 					qvars[key] = qvars[key]+istr
 
 					if !datastore['NoDetailMessages']
 						print_status("- Testing query with #{idesc}. Parameter #{key}:")
 					end
 					
+					fstr = ""
+					qvars.each_pair do |var,val| 
+						fstr += var+"="+val+"&"
+					end
+					
 					if datastore['METHOD'] == 'POST'
 						reqinfo = {
 							'uri'  		=> datastore['PATH'],
-							'vars_post' => qvars,
+							'query'		=> datastore['QUERY'],
+							'data' 		=> fstr,
 							'method'   	=> datastore['METHOD'],
-							'ctype'		=> 'application/x-www-form-urlencoded'
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'encode'	=> false
 						}
 					else
 						reqinfo = {
 							'uri'  		=> datastore['PATH'],
-							'vars_get' 	=> qvars,
+							'query' 	=> fstr,
 							'method'   	=> datastore['METHOD'],
-							'ctype'		=> 'application/x-www-form-urlencoded'
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'encode'	=> false
 						}
 					end
 
 					begin
 						
-						testres = send_request_cgi(reqinfo, 20)
+						testres = send_request_raw(reqinfo, 20)
 
 					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 					rescue ::Timeout::Error, ::Errno::EPIPE
@@ -226,7 +257,12 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-			qvars = queryparse(datastore['QUERY'])
+			
+			if datastore['METHOD'] == 'POST'
+				qvars = queryparse(datastore['DATA']) #Now its a Hash
+			else
+				qvars = queryparse(datastore['QUERY']) #Now its a Hash
+			end
 		end
 	end	
 end

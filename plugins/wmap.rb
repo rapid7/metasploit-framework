@@ -1028,11 +1028,28 @@ class Plugin::Wmap < Msf::Plugin
 							w = s.web_sites.find_by_vhost(selected_vhost)
 							
 							w.web_forms.each do |req|
-
+							
+								datastr = ""
+								typestr = "" 
+								
+								temparr = []
+											
+								req.params.each do |p|
+									pn, pv, pt = p
+									temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
+								end
+								
+								datastr = temparr.join("&")	if (temparr and not temparr.empty?)	
+				
 								mod.datastore['METHOD'] = req.method.upcase
 								mod.datastore['PATH'] =  req.path
-								mod.datastore['QUERY'] = req.query
-								mod.datastore['DATA'] = req.query if req.method.upcase == 'POST'
+								if req.method.upcase == 'GET'
+									mod.datastore['QUERY'] = datastr
+									mod.datastore['DATA'] = ""	
+								end	
+								mod.datastore['DATA'] = datastr if req.method.upcase == 'POST'
+								mod.datastore['TYPES'] = typestr
+								
 							
 								#
 								# TODO: Add method, headers, etc.
