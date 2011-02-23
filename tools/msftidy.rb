@@ -92,6 +92,8 @@ def check_single_file(dparts, fparts, f_rel)
 	has_id = false
 	url_ok = true
 	nbo = 0 # non-bin open
+	long_lines = 0
+	no_stdio = true
 
 	in_comment = false
 	idx = 0
@@ -106,6 +108,10 @@ def check_single_file(dparts, fparts, f_rel)
 		in_comment = true if ln =~ /^=begin$/
 		next if in_comment
 
+		if (ln.length > 100)
+			long_lines += 1
+		end
+
 		spaces += 1 if ln =~ / $/
 		if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.include?(' '))
 			bi << [ idx, ln ]
@@ -119,6 +125,11 @@ def check_single_file(dparts, fparts, f_rel)
 				nbo += 1
 			end
 		end
+
+		# The rest of these only count if it's not a comment line
+		next if ln =~ /[[:space:]]*#/
+
+		no_stdio = false if ln =~ /puts/
 	}
 
 	# report information for this file
@@ -135,7 +146,9 @@ def check_single_file(dparts, fparts, f_rel)
 	show_missing(f, 'missing $'+'Id: $', has_id)
 	show_missing(f, 'missing $'+'Revision: $', has_rev)
 	show_missing(f, 'incorrect URL to framework site', url_ok)
+	show_missing(f, 'writes to stdout', no_stdio)
 	show_count(f, 'File.open without binary mode', nbo)
+	show_count(f, 'Lines longer than 100 columns', long_lines)
 end
 
 
