@@ -19,8 +19,14 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Check if VM',
-				'Description'   => %q{ This module will check if target host is a virtual machine.},
+				'Name'          => 'Determine whether the session is a virtual machine',
+				'Description'   => %q{ 
+						Examines various attributes of the victim host to
+						determine if it is a virtual machine and if so displays
+						what kind.  Currently supports checks for the following
+						virtualization software: Hyper-V, VMWare, Virtual PC,
+						VirtualBox, and Xen.
+					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
