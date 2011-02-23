@@ -104,16 +104,13 @@ class Module < Base
 
 	def compatible_sessions(token, mname)
 		authenticate(token)
-		m = _find_module('exploit',mname)
+		m = _find_module('post',mname)
 		if(not m)
 			raise ::XMLRPC::FaultException.new(404, "unknown module")
 		end
 
 		res = {}
-		res['sessions'] = []
-		m.compatible_sessions.each do |k|
-			res['sessions'] << k[0]
-		end
+		res['sessions'] = m.compatible_sessions
 
 		res
 	end
