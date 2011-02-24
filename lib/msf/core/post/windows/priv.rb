@@ -18,7 +18,7 @@ module Priv
 	#
 	def is_uac_enabled?
 		uac = false
-		winversion = sysinfo['OS']
+		winversion = session.sys.config.sysinfo['OS']
 
 		if winversion =~ /Windows (Vista|7|2008)/
 			if session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
