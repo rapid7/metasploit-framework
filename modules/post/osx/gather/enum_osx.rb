@@ -52,11 +52,11 @@ class Metasploit3 < Msf::Post
 		end
 		ver_num = get_ver
 		log_folder = log_folder_create()
-		#enum_conf(log_folder)
-		#enum_accounts(log_folder, ver_num)
-		#get_crypto_keys(log_folder)
-		#screenshot(log_folder, ver_num)
-		#dump_hash(log_folder,ver_num) if running_root
+		enum_conf(log_folder)
+		enum_accounts(log_folder, ver_num)
+		get_crypto_keys(log_folder)
+		screenshot(log_folder, ver_num)
+		dump_hash(log_folder,ver_num) if running_root
 		dump_bash_history(log_folder)
 		get_keychains(log_folder)
 
