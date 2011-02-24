@@ -12,7 +12,7 @@ module Registry
 	# Create the given registry key
 	#
 	def registry_createkey(key)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_createkey(key)
 		else
 			shell_registry_createkey(key)
@@ -25,7 +25,7 @@ module Registry
 	# returns true if succesful
 	#
 	def registry_deleteval(key, valname)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_deleteval(key, valname)
 		else
 			shell_registry_deleteval(key, valname)
@@ -38,7 +38,7 @@ module Registry
 	# returns true if succesful
 	#
 	def registry_deletekey(key)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_deletekey(key)
 		else
 			shell_registry_deletekey(key)
@@ -49,7 +49,7 @@ module Registry
 	# Return an array of subkeys for the given registry key
 	#
 	def registry_enumkeys(key)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_enumkeys(key)
 		else
 			shell_registry_enumkeys(key)
@@ -60,7 +60,7 @@ module Registry
 	# Return an array of value names for the given registry key
 	#
 	def registry_enumvals(key)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_enumvals(key)
 		else
 			shell_registry_enumvals(key)
@@ -71,7 +71,7 @@ module Registry
 	# Return the data of a given registry key and value
 	#
 	def registry_getvaldata(key, valname)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_getvaldata(key, valname)
 		else
 			shell_registry_getvaldata(key, valname)
@@ -82,7 +82,7 @@ module Registry
 	# Return the data and type of a given registry key and value
 	#
 	def registry_getvalinfo(key,valname)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_getvalinfo(key, valname)
 		else
 			shell_registry_getvalinfo(key, valname)
@@ -95,7 +95,7 @@ module Registry
 	# returns true if succesful
 	#
 	def registry_setvaldata(key, valname, data, type)
-		if session_has_registry_ext?
+		if session_has_registry_ext
 			meterpreter_registry_setvaldata(key, valname, data, type)
 		else
 			shell_registry_setvaldata(key, valname, data, type)
@@ -107,7 +107,7 @@ protected
 	#
 	# Determines whether the session can use meterpreter registry methods
 	#
-	def session_has_registry_ext?
+	def session_has_registry_ext
 		begin
 			return !!(session.sys and session.sys.registry)
 		rescue NoMethodError
