@@ -376,7 +376,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def dump_bash_history(log_folder)
-		print_status("Extracting bash history")
+		print_status("Extracting history files")
 		# Run commands according to the session type
 		users = []
 		case session.type
