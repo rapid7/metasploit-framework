@@ -49,12 +49,21 @@ class Metasploit3 < Msf::Auxiliary
 
 				connect
 
-				ver = sock.get_once(-1, 5)
+				resp = sock.get_once(-1, 5)
 
-				if (ver and ver =~ /SSH/)
-					ver,msg = (ver.split(/(\n|\r)/))
+				if (resp and resp =~ /SSH/)
+					ver,msg = (resp.split(/[\r\n]+/))
+					# Check to see if this is Kippo, which sends a premature
+					# key init exchange right on top of the SSH version without
+					# waiting for the required client identification string.
+					if msg and msg.size >= 5
+						extra = msg.unpack("NCCA*") # sz, pad_sz, code, data
+						if (extra.last.size+2 == extra[0]) and extra[2] == 20
+							ver << " (Kippo Honeypot)"
+						end
+					end
 					print_status("#{target_host}:#{rport}, SSH server version: #{ver}")
-					report_service(:host => rhost, :port => rport, :name => "ssh", :info => ver)
+					report_service(:host => rhost, :port => rport, :name => "ssh", :proto => "tcp", :info => ver)
 				else
 					print_error("#{target_host}:#{rport}, SSH server version detection failed!")
 				end
