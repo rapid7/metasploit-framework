@@ -69,6 +69,10 @@ def each_user_pass(&block)
 	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
 
 	credentials.each do |u, p|
+		# Explicitly be able to set a blank (zero-byte) username by setting the
+		# username to <BLANK>. It's up to the caller to handle this if it's not
+		# allowed or if there's any special handling needed (such as smb_login).
+		u = "" if u =~ /^<BLANK>$/i
 		break if @@credentials_skipped[fq_rest]
 
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
