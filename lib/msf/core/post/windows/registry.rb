@@ -108,7 +108,11 @@ protected
 	# Determines whether the session can use meterpreter registry methods
 	#
 	def session_has_registry_ext?
-		(session.sys and session.sys.respond_to?(:registry))
+		begin
+			return !!(session.sys and session.sys.registry)
+		rescue NoMethodError
+			return false
+		end
 	end
 
 
