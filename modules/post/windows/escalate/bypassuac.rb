@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows UAC Protection Bypass',
+			'Name'          => 'Microsoft Windows UAC Protection Bypass',
 			'Description'   => %q{
 				This module will bypass Windows UAC by utilizing the trusted publisher
 				certificate through process injection. It will spawn a second shell that

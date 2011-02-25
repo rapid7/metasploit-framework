@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate Powershell Enviroment',
+				'Name'          => 'Microsoft Windows Powershell Enviroment Setting Enumeration',
 				'Description'   => %q{ This module will enumerate Microsofts Powershell Settings on a target host},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

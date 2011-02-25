@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Determine whether the session is a virtual machine',
+				'Name'          => 'Microsoft Windows Virtual Environment Detection',
 				'Description'   => %q{ 
 						Examines various attributes of the victim host to
 						determine if it is a virtual machine and if so displays

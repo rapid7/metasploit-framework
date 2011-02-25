@@ -23,10 +23,10 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Mac OS X Information Enumeration',
+				'Name'          => 'Mac OS X System Information Enumeration',
 				'Description'   => %q{
-						This module does initial gathering of information from OSX Tiger, Leopard
-					and Snow Leopard System
+						This module gathers basic system information from Mac OS X Tiger, Leopard
+					and Snow Leopard systems.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

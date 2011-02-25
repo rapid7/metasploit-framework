@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Hashdump',
+			'Name'          => 'Microsoft Windows Local User Account Password Hashes (Registry)',
 			'Description'   => %q{ Pull the syskey out of the remote registry and decrypt the SAM database },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'hdm' ],

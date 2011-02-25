@@ -21,8 +21,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'           => 'Keylog Recorder',
-				'Description'    => %q{ Records keyloger data to a log file.},
+				'Name'           => 'Microsoft Windows Keystroke Recorder',
+				'Description'    => %q{ Records keystroke logs to a file.},
 				'License'        => MSF_LICENSE,
 				'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'        => '$Revision$',

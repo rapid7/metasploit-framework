@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate Installed Applications',
-				'Description'   => %q{ This module will enumerate installed application on a target host},
+				'Name'          => 'Microsoft Windows Installed Application Enumeration',
+				'Description'   => %q{ This module will enumerate installed applications on a target host},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',

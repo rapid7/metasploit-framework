@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate logged on users',
+				'Name'          => 'Microsoft Windows Logged On User Enumeration (Registry)',
 				'Description'   => %q{ This module will enumerate current and recent logged on users},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

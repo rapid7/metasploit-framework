@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 	include ::Msf::Post::WindowsServices
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Service Permissions Local Privilege Escalation',
+			'Name'          => 'Microsoft Windows Service Permissions Local Privilege Escalation',
 			'Description'   => %q{
 				Many services are configured with insecure permissions. This
 				module attempts to create a service, then searches through a list of

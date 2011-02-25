@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate SNMP Configuration',
+				'Name'          => 'Microsoft Windows SNMP Settings Enumeration (registry)',
 				'Description'   => %q{ This module will enumerate the SNMP Configuration on a target host.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'Tebo <tebo[at]attackresearch.com>'],
