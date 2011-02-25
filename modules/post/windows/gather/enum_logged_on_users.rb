@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Post
 			tbl << [sid,profile_path]
 		end
 		print_line("\n" + tbl.to_s + "\n")
+		store_loot("host.users.recent", "text/plain", session, tbl.to_s, "recent_users.txt", "Recent Users")		
 	end
 
 
@@ -81,6 +82,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		print_line("\n" + tbl.to_s + "\n")
+		store_loot("host.users.active", "text/plain", session, tbl.to_s, "active_users.txt", "Active Users")		
 	end
 
 	def run

@@ -66,6 +66,8 @@ class Metasploit3 < Msf::Post
 		end
 		
 		print_line("\n" + tbl.to_s + "\n")
+		
+		store_loot("host.applications", "text/plain", session, tbl.to_s, "applications.txt", "Installed Applications")
 	end
 
 	def run
