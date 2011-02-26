@@ -185,7 +185,7 @@ class Metasploit3 < Msf::Post
 
 		sleep(2)
 		if not outp.empty?
-			print_good("keystrokes captured #{outp}") if datatstore['ShowKeystrokes']
+			print_good("keystrokes captured #{outp}") if datastore['ShowKeystrokes']
 			file_local_write(logfile,"#{outp}\n")
 		end
 	end
