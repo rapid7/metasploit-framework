@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+25 Feb 11 Changes
+---------
+
+This release is primarily bug fixes. The network attack collaboration 
+feature is further tested and ready for your use.
+
+See: http://www.youtube.com/watch?v=coF8dVLBnOQ
+
+- Armitage now consumes data from msfrpcd's stderr when Start MSF button is
+  used. This means Armitage won't lock up when database tables are 
+  initialized during the first run on Windows.
+- pivoting, logins, hail mary, and pass-the-hash now print to the event log.
+- Pass-the-hash dialog is now available via [host] -> Login -> psexec.
+- Fixed bug causing Event Log menu to be present outside of collab mode.
+- armitage.sh start-up shell script is now named armitage
+- Console destroy and shell unlocking commands on tab close now happen in a
+  new thread to prevent the GUI from blocking.
+- Armitage now stops meterpreter read thread when it detects a dead session.
+- Replaced jyaml with a quick and dirty parser that doesn't mistake ####e#
+  for a double number. This was screwing up connecting to postgres for some
+  of you.
+- Upload button in file browser now works through Armitage's collab server
+- Added Ctrl+P shortcut to save screen capture of hosts graph view 
+  
 22 Feb 11 Changes
 ---------
 - Improved shell "when should I read more data from this channel" heuristic. 
