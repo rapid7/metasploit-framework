@@ -179,7 +179,7 @@ module Auxiliary::Report
 			fd.write(data)
 		end
 
-		if (db)G
+		if (db)
 			# If we have a database we need to store it with all the available
 			# metadata.
 			conf = {}
