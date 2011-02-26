@@ -171,11 +171,10 @@ class Module
 	end
 
 	#
-	# Overwrite the Subscriber print_line to do time stamps
+	# Overwrite the Subscriber print_(status|error|good) to do time stamps
 	#
 
 	def print_prefix 
-		custom_prefix = datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''
 		if(
 			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
@@ -188,9 +187,9 @@ class Module
 				prefix << "[%04d] " % xn
 			end
 
-			return prefix + custom_prefix
+			return prefix
 		end
-		custom_prefix
+		''
 	end
 
 	def print_status(msg='')
@@ -204,6 +203,20 @@ class Module
 	def print_good(msg='')
 		super(print_prefix + msg)
 	end
+
+
+	#
+	# Overwrite the Subscriber print_line to do custom prefixes
+	#
+
+	def print_line_prefix
+		datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''	
+	end
+		
+	def print_line(msg='')
+		super(print_line_prefix + msg)
+	end
+	
 	#
 	# Returns the module's framework full reference name.  This is the
 	# short name that end-users work with (refname) plus the type
