@@ -164,10 +164,13 @@ class Db
 			return unless active?
 			onlyup = false
 			host_search = nil
-			col_search = nil
+
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
 			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
+
+			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments' ]			
+						
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
@@ -179,7 +182,7 @@ class Db
 					end
 					col_search = list.strip().split(",")
 					col_search.each { |c|
-						if not default_columns.include?(c) and not virtual_columns.include?(c)
+						if not host_columns.include?(c) and not virtual_columns.include?(c)
 							all_columns = default_columns + virtual_columns
 							print_error("Invalid column list. Possible values are (#{all_columns.join("|")})")
 							return
@@ -216,7 +219,7 @@ class Db
 
 			col_names = default_columns + virtual_columns
 			if col_search
-				col_names.delete_if {|v| not col_search.include?(v)}
+				col_names = col_search
 			end
 
 			if ofd
@@ -278,7 +281,7 @@ class Db
 			port_search = nil
 			proto_search = nil
 			name_search = nil
-			col_search = nil
+			col_search = ['host', 'port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
@@ -347,16 +350,15 @@ class Db
 
 			col_names = default_columns
 			if col_search
-				col_names.delete_if {|v| not col_search.include?(v)}
+				col_names = col_search
 			end
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Services",
-					'Columns' => col_names + ["Host", "Workspace"],
+					'Columns' => ['host'] + col_names,
 				})
 			framework.db.services(framework.db.workspace, onlyup, proto, addrs, ports, names).each do |service|
-				columns = col_names.map { |n| service.attributes[n] || "" }
 				host = service.host
-				columns += [host.address, host.workspace.name]
+				columns = [host.address] + col_names.map { |n| service.attributes[n] || "" }
 				tbl << columns
 			end
 			print_line
