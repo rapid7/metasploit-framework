@@ -1,3 +1,4 @@
+require 'msf/core/post/windows/registry'
 
 module Msf
 class Post
