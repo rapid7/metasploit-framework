@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Microsoft Windows Local User Account Deletion',
-				'Description'   => %q{ Deletes a user account from the given server (or local if none given)},
+				'Description'   => %q{ This module deletes a local user account from the specified server (or local if none given)},
 				'License'       => BSD_LICENSE,
 				'Author'        => [ 'chao-mu'],
 				'Version'       => '$Revision$',

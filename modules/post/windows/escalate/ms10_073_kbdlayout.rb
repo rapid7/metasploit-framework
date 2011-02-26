@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'Microsoft Windows NtUserLoadKeyboardLayoutEx Privilege Escalation',
 			'Description'   => %q{
-					This module exploits the keyboard layout 0day exploited by Stuxnet. When
+					This module exploits the keyboard layout vulnerability exploited by Stuxnet. When
 				processing specially crafted keyboard layout files (DLLs), the Windows kernel fails
 				to validate that an array index is within the bounds of the array. By loading
 				a specially crafted keyboard layout, an attacker can execute code in Ring 0.

@@ -20,12 +20,11 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Microsoft Windows Virtual Environment Detection',
-				'Description'   => %q{ 
-						Examines various attributes of the victim host to
-						determine if it is a virtual machine and if so displays
-						what kind.  Currently supports checks for the following
-						virtualization software: Hyper-V, VMWare, Virtual PC,
-						VirtualBox, and Xen.
+				'Description'   => %q{
+					This module attempts to determine whether the system is running
+					inside of a virtual environment and if so, which one. This
+					module supports detectoin of Hyper-V, VMWare, Virtual PC,
+					VirtualBox, and Xen.
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

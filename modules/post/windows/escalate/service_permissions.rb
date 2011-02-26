@@ -20,13 +20,14 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Microsoft Windows Service Permissions Local Privilege Escalation',
 			'Description'   => %q{
-				Many services are configured with insecure permissions. This
-				module attempts to create a service, then searches through a list of
-				existing services to look for insecure file or configuration
-				permissions that will let it replace the executable with a payload.
-				It will then attempt to restart the replaced service to run the
-				payload. If that fails, the next time the service is started (such as
-				on reboot) the attacker will gain elevated privileges.
+				This module attempts to exploit existing administrative privileges to obtain
+				a SYSTEM session. If directly creating a service fails, this module will inspect 
+				existing services to look for insecure file or configuration permissions that may
+				be hijacked. It will then attempt to restart the replaced service to run the
+				payload. This will result in a new session when this succeeds. If the module is
+				able to modify the service but does not have permission to start and stop the
+				affected service, the attacker must wait for the system to restart before a
+				session will be created.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'scriptjunkie' ],

