@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Post
 							adv.CloseServiceHandle(servhandleret["return"])
 						end
 					else
-						print_status("Could not restart #{serv}. Wait for a reboot. (or force one yourself)")
+						print_status("Could not restart #{serv}. Wait for a reboot or force one yourself.")
 					end
 					adv.CloseServiceHandle(servhandleret["return"])
 					if datastore['AGGRESSIVE'] != true

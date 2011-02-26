@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Generic Operating System Environment Settings',
-			'Description'   => %q{ Print out environment variables },
+			'Description'   => %q{ This module prints out the operating system environment variables },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],
 			'Version'       => '$Revision$',
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 			var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
 			var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
 			var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
-			var_names.flatten.each do |v|
+			var_names.flatten.uniq.sort.each do |v|
 				print_line "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
 			end
 		else

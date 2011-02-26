@@ -174,7 +174,8 @@ class Module
 	# Overwrite the Subscriber print_line to do time stamps
 	#
 
-	def print_prefix
+	def print_prefix 
+		custom_prefix = datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''
 		if(
 			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
@@ -187,9 +188,9 @@ class Module
 				prefix << "[%04d] " % xn
 			end
 
-			return prefix
+			return prefix + custom_prefix
 		end
-		""
+		custom_prefix
 	end
 
 	def print_status(msg='')
