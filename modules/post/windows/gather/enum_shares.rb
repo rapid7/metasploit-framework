@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 
 		if share_names.length > 0
 			shares = []
-			print_status("The following shares where found:")
+			print_status("The following shares were found:")
 			share_names.each do |sname|
 				share_info = registry_getvaldata(shares_key,sname).split("\000")
 				print_status("\tName: #{sname}")
@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Post
 				:update => :unique_data
 			)
 		else
-			print_status("No Shares where found")
+			print_status("No shares were found")
 		end
 	end
 
