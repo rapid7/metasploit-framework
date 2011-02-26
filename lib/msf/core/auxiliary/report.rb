@@ -175,7 +175,7 @@ module Auxiliary::Report
 
 		path = File.join(Msf::Config.loot_directory, name)
 		full_path = ::File.expand_path(path)
-		print_status("Writing #{ltype} (#{ctype}) for #{host}: (#{filename} - #{info})")
+		print_good("Writing #{ltype} (#{ctype}) for #{host}: (#{filename} - #{info})")
 		File.open(full_path, "wb") do |fd|
 			fd.write(data)
 		end

