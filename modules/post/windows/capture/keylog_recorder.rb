@@ -125,7 +125,7 @@ class Metasploit3 < Msf::Post
 		mypid = session.sys.process.getpid
 		session.sys.process.get_processes().each do |x|
 			if (process2mig.index(x['name'].downcase) and x['pid'] != mypid)
-				print_status("\t#{process2mig} Process found, migrating into #{x['pid']...}")
+				print_status("\t#{process2mig} Process found, migrating into #{x['pid']}...")
 				session.core.migrate(x['pid'].to_i)
 				print_status("Migration successful!!")
 			end
