@@ -155,7 +155,31 @@ class Session < Base
 		meterpreter_run_single(token, sid, "run #{data}")
 	end
 
+	def compatible_modules(token, sid)
+		authenticate(token)
+		ret = []
+
+		mtype = "post"
+		names = @framework.post.keys.map{ |x| "post/#{x}" }
+		names.each do |mname|
+			m = _find_module(mtype, mname)
+			next if not m.session_compatible?(sid)
+			ret << m.fullname
+		end
+		ret
+	end
+	
 protected
+
+	def _find_module(mtype,mname)
+		mod = @framework.modules.create(mname)
+
+		if(not mod)
+			raise ::XMLRPC::FaultException.new(404, "unknown module")
+		end
+
+		mod
+	end
 
 	def _valid_session(token,sid,type)
 		authenticate(token)
