@@ -281,7 +281,7 @@ class Db
 			port_search = nil
 			proto_search = nil
 			name_search = nil
-			col_search = ['host', 'port', 'proto', 'name', 'state', 'info']
+			col_search = ['port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
