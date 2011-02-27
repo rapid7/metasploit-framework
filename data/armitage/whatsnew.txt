@@ -1,6 +1,18 @@
 Armitage Changelog
 ==================
 
+27 Feb 11 Changes
+---------
+- Webcam snap features works again. Sorry about that. :)
+- Download file button in file browser now works through the collaboration
+  server. This feature has a few limitations / requirements:
+
+  1) Armitage server must have the same $PWD as msfrpcd
+  2) Files must download in less than 12s or else you'll need to retrieve
+     them from the msfrpcd host.
+  3) Recursive downloads of files from a directory are kept on the host with
+     msfrpcd. You'll need to retrieve them with sftp or something else.
+
 25 Feb 11 Changes
 ---------
 
