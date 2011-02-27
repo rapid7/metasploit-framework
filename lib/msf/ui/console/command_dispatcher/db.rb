@@ -53,6 +53,7 @@ class Db
 				"db_services"   => "List all services in the database",
 				"db_vulns"      => "List all vulnerabilities in the database",
 				"db_notes"      => "List all notes in the database",
+				"db_loot"       => "List all loot in the database",				
 				"db_creds"      => "List all credentials in the database",
 				"db_exploited"  => "List all exploited hosts in the database",
 				"db_add_host"   => "Add one or more hosts to the database",
@@ -530,6 +531,53 @@ class Db
 			end
 		end
 
+
+		def cmd_db_loot(*args)
+			return unless active?
+			hosts = nil
+			types = nil
+			while (arg = args.shift)
+				case arg
+				when '-a'
+					hostlist = args.shift
+					if(!hostlist)
+						print_status("Invalid host list")
+						return
+					end
+					hosts = hostlist.strip().split(",")
+				when '-t'
+					typelist = args.shift
+					if(!typelist)
+						print_status("Invalid host list")
+						return
+					end
+					types = typelist.strip().split(",")
+				when '-h','--help'
+					print_status("Usage: db_loot [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]")
+					print_line("  -a <addr1,addr2>  Search for a list of addresses")
+					print_line("  -t <type1,type2>  Search for a list of types")
+					print_line("  -h,--help         Show this help information")
+					return
+				end
+
+			end
+			framework.db.each_loot(framework.db.workspace) do |loot|
+				next if(hosts and (loot.host == nil or hosts.index(loot.host.address) == nil))
+				next if(types and types.index(loot.ltype) == nil)
+				msg = "Time: #{loot.created_at} Loot:"
+				if (loot.host)
+					msg << " host=#{loot.host.address}"
+				end
+				if (loot.service)
+					name = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+					msg << "service=#{name}"
+				end				
+
+				msg << " type=#{loot.ltype} name=#{loot.name} content=#{loot.content_type} info='#{loot.info}' path=#{loot.path}"
+				print_status(msg)
+			end
+		end
+		
 		def cmd_db_add_host(*args)
 			return unless active?
 			print_status("Adding #{args.length} hosts...")
