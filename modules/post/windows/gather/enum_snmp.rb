@@ -17,7 +17,8 @@ require 'msf/core/post/windows/registry'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Registry
-
+	include Msf::Auxiliary::Report
+	
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Microsoft Windows SNMP Settings Enumeration (Registry)',
@@ -86,7 +87,7 @@ class Metasploit3 < Msf::Post
 				tbl << [c,comm_type]
 
 				# Save Community Strings to DB
-				session.framework.db.report_auth_info(
+				report_auth_info(
 					:host	=> session.sock.peerhost,
 					:port	=> 161,
 					:proto	=> 'udp',

@@ -15,6 +15,8 @@ require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Auxiliary::Report
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Microsoft Windows Local User Account Password Hashes (Registry)',
@@ -75,7 +77,7 @@ class Metasploit3 < Msf::Post
 			print_line()
 			users.keys.sort{|a,b| a<=>b}.each do |rid|
 				hashstring = "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::"
-				session.framework.db.report_auth_info(
+				report_auth_info(
 					:host  => session.sock.peerhost,
 					:port  => 445,
 					:sname => 'smb',
