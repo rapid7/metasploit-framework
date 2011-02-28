@@ -372,7 +372,18 @@ class Module
 
 		username
 	end
-
+	
+	#
+	# Scans the parent module reference to populate additional information. This
+	# is used to inherit common settings (owner, workspace, parent uuid, etc).
+	#
+	def register_parent(ref)
+		self.datastore['WORKSPACE']    = ref.datastore['WORKSPACE'].dup
+		self.datastore['PROUSER']      = ref.datastore['PROUSER'].dup
+		self.datastore['MODULE_OWNER'] = ref.owner.dup
+		self.datastore['ParentUUID']   = ref.uuid.dup
+	end
+	
 	#
 	# Returns whether or not this module is compatible with the supplied
 	# module.
