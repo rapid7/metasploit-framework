@@ -281,7 +281,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 			::Timeout.timeout(60) do
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
-				self.info = "#{username} @ #{sysinfo['Computer']}"
+				safe_info = "#{username} @ #{sysinfo['Computer']}"
+				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
+				self.info = safe_info
 			end
 		rescue ::Interrupt
 			raise $!

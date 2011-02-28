@@ -144,6 +144,8 @@ class CommandShell
 		if (not self.info or self.info.empty?)
 			initial_output = shell_read(-1, 0.01)
 			if (initial_output)
+				initial_output.force_encoding("ASCII-8BIT") if initial_output.respond_to?(:force_encoding)
+				initial_output.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				initial_output.gsub!(/[\r\n\t]+/, ' ')
 				initial_output.strip!
 
