@@ -110,8 +110,10 @@ class Metasploit3 < Msf::Post
 			handler.datastore['LHOST']   = rhost
 			handler.datastore['LPORT']   = rport
 			handler.datastore['InitialAutoRunScript'] = "migrate -f"
-			#handler.datastore['ExitOnSession'] = false
+
 			handler.datastore['ExitOnSession'] = true
+			handler.datastore['ListenerTimeout'] = 300
+			
 			#start a handler to be ready
 			handler.exploit_module = self
 			handler.exploit_simple(

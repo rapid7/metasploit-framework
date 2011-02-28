@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
 
 	# Returns the path name to the stored loot filename 
 	def set_log
-		store_loot("host.windows.keystrokes", "text/plain", session, "", "keystrokes.txt", "User Keystrokes")	
+		store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log started at #{Time.now.to_s}\n", "keystrokes.txt", "User Keystrokes")	
 	end
 
 	def lock_screen
