@@ -57,7 +57,8 @@ class Table
 		self.header   = opts['Header']
 		self.headeri  = opts['HeaderIndent'] || 0
 		self.columns  = opts['Columns'] || []
-		self.rows     = opts['Rows']    || []
+		# updated below if we got a "Rows" option
+		self.rows     = []
 
 		self.width    = opts['Width']   || 80
 		self.indent   = opts['Indent']  || 0
@@ -71,6 +72,10 @@ class Table
 			self.colprops[idx] = {}
 			self.colprops[idx]['MaxWidth'] = self.columns[idx].length
 		}
+
+		# ensure all our internal state gets updated with the given rows by
+		# using add_row instead of just adding them to self.rows.  See #3825.
+		opts['Rows'].each { |row| add_row(row) } if opts['Rows']
 
 		# Merge in options
 		if (opts['ColProps'])
