@@ -22,7 +22,11 @@ class Metasploit3 < Msf::Post
 			'Name'           => 'Pidgin Credential Collection',
 			'Description'    => %q{ This module will collect credentials from the pidgin IM client if installed. },
 			'License'        => MSF_LICENSE,
-			'Author'         => ['bannedit'],
+			'Author'         => 
+				[
+					'bannedit', # post port, added support for shell sessions
+					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
+				],
 			'Version'        => '$Revision$',
 			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'windows'],
 			'SessionTypes'   => ['shell', 'meterpreter' ]
