@@ -15,6 +15,11 @@ def usage
 	exit
 end
 
+# Force binary encoding for Ruby versions that support it
+if(Object.const_defined?('Encoding') and Encoding.respond_to?('default_external='))
+	Encoding.default_external = Encoding.default_internal = "binary"
+end
+
 dump = ARGV.shift || usage()
 list = ARGV.shift || File.join(File.dirname(__FILE__), "..", "data", "wordlists", "vxworks_collide_20.txt")
 
