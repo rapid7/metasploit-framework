@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 ##
@@ -19,18 +19,18 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-						'Name'				=> 'Pidgin Credential Collection',
-						'Description'		=> %q{ This module will collect credentials from the pidgin IM client if installed. },
-						'License'			=> MSF_LICENSE,
-						'Author'			=> ['bannedit'],
-						'Version'			=> '$Revision:$',
-						'Platform'			=> ['unix', 'bsd', 'linux', 'osx', 'windows'],
-						'SessionTypes'		=> ['shell', 'meterpreter' ]
+			'Name'           => 'Pidgin Credential Collection',
+			'Description'    => %q{ This module will collect credentials from the pidgin IM client if installed. },
+			'License'        => MSF_LICENSE,
+			'Author'         => ['bannedit'],
+			'Version'        => '$Revision$',
+			'Platform'       => ['unix', 'bsd', 'linux', 'osx', 'windows'],
+			'SessionTypes'   => ['shell', 'meterpreter' ]
 		))
 		register_options(
 			[
 				OptBool.new('CONTACTS', [false, 'Collect contact lists?', false]),
-				# Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]), 
+				# Not supported yet OptBool.new('LOGS', [false, 'Gather log files?', false]),
 			], self.class)
 	end
 
