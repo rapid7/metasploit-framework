@@ -149,9 +149,9 @@ class Metasploit3 < Msf::Post
 
 		data = ""
 		credentials = Rex::Ui::Text::Table.new(
-		'Header'	=> "Pidgin Credentials",
-		'Indent'	=> 1,
-		'Columns'	=>
+		'Header'    => "Pidgin Credentials",
+		'Indent'    => 1,
+		'Columns'   =>
 		[
 			"Username",
 			"Password",
@@ -161,9 +161,9 @@ class Metasploit3 < Msf::Post
 		])
 
 		buddylists = Rex::Ui::Text::Table.new(
-		'Header'	=> "Pidgin Contact List",
-		'Indent'	=> 1,
-		'Columns'	=>
+		'Header'    => "Pidgin Contact List",
+		'Indent'    => 1,
+		'Columns'   =>
 		[
 			"Buddy Name",
 			"Alias",
