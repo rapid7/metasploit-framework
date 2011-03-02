@@ -111,6 +111,21 @@ class Table
 
 		return str
 	end
+	
+	#
+	# Converts table contents to a csv
+	#
+	def to_csv
+		str = ''
+		str << ( columns.join(",") + "\n" )
+		rows.each { |row|
+			next if is_hr(row)
+			str << ( row.map{|x| 
+				x.gsub(/[\r\n]/, ' ').gsub(/\s+/, ' ').gsub('"', '""')
+			}.map{|x| "\"#{x}\"" }.join(",") + "\n" )
+		}
+		str
+	end
 
 	#
 	#
