@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('LFILE', [false, 'Set path to save output to file', '']),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
-		deregister_options('RHOST')
+		deregister_options('RHOST', 'LFILE')
 	end
 
 	def rport
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def getEnvironment(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface ")
 		success = false
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -112,37 +112,32 @@ class Metasploit3 < Msf::Auxiliary
 			else res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
-					faultcode = "#{$1}"
+					faultcode = $1.strip
 					fault = true
 				end
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP #{rhost}] Unable to attempt authentication")
+			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
 			return
 		end
 
 		if success
-			print_good("[SAP] Environment Extracted: #{env.length} entries extracted")
-
-			if datastore['LFILE'] != ''
-				outputfile = datastore['LFILE'] + "_" + datastore['RHOST']
-				print_good("Writing local file " + outputfile + " in XML format.")
-				File.open(outputfile,'ab') do |f|
-					f << res.body
-				end
-			else
-				env.each do |output|
-					print_status("#{output}")
-				end
-				return
-			end
+			print_good("#{rhost}:#{rport} [SAP] Environment Extracted: #{env.length} entries extracted")
+			report_note(
+				:host => rhost,
+				:proto => 'tcp',
+				:port => rport,
+				:type => 'sap.env',
+				:data => {:proto => "soap", :env => env},
+				:update => :unique_data )
+			)
 
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rhost} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("[SAP] failed to request environment")
+			print_error("#{rhost}:#{rhost} [SAP] failed to request environment")
 			return
 		end
 	end

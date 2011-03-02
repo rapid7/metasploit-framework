@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def getStartProfile(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+		print_status("#{rhost}: #{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 		soapenv ='http://schemas.xmlsoap.org/soap/envelope/'
 		xsi ='http://www.w3.org/2001/XMLSchema-instance'
@@ -103,7 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 				when nil
 					# Nothing
 				when /<name>([^<]+)<\/name>/i
-					name = "#{$1}"
+					name = $1.strip
 					success = true
 				end
 
@@ -120,33 +120,20 @@ class Metasploit3 < Msf::Auxiliary
 			elsif res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
-					faultcode = "#{$1}"
+					faultcode = $1.strip
 					fault = true
 				end
 
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] Unable to attempt authentication")
-			return :abort
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
 		end
 
 		if success
-			print_good("[SAP] Startup Profile Extracted: #{name} from #{rhost}:#{rport}")
-
-			if datastore['LFILE'] != ''
-				outputfile = datastore['LFILE'] + "_" + datastore['RHOST']
-				print_good("Writing local file " + outputfile + " in XML format")
-				File.open(outputfile,'ab') do |f|
-					f << res.body
-				end
-			else
-				env.each do |output|
-					print_status("#{output}")
-				end
-				return
-			end
-
+			print_good("#{rhost}:#{rport} [SAP] Startup Profile Extracted: #{name}")
+			store_loot("sap.profile", "text/xml", rhost, res.body, "sap_profile.xml", "SAP Profile XML")
 		elsif fault
 			print_error("[SAP] Errorcode: #{faultcode}")
 			return

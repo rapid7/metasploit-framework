@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def extractusers(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -100,16 +100,12 @@ class Metasploit3 < Msf::Auxiliary
 			env = []
 
 			if res.code == 200
-				case res.body
-				when nil
-					# Nothing
-				when /<User>([^<]+)<\/User>/i
-					body = []
-					body = res.body
-					users = body.scan(/<User>([^<]+)<\/User>/i)
-					users = users.uniq
-					success = true
-				end
+				body = []
+				body = res.body unless res.body.nil?
+				users = body.scan(/<User>([^<]+)<\/User>/i)
+				users = users.uniq
+				success = true
+
 			else res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
@@ -119,27 +115,26 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] Unable to attempt authentication")
+			print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication on #{rhost}:#{rport}")
 			return
 		end
 
 		if success
-			print_good("[SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
-			users.each do |output|
-				print_good("#{output}")
-				report_note(
-						:host => '#{rhost}',
-						:proto => 'SOAP',
-						:port => '#{rport}',
-						:type => 'SAP',
-						:data => "#{output}")
+			print_good("#{rhost}#{rport} [SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
+			report_note(
+				:host => rhost,
+				:proto => 'tcp',
+				:port => rport,
+				:type => 'sap.users',
+				:data => {:proto => "soap", :users => users},
+				:update => :unique_data )
 			end
 			return
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("[SAP] failed to access ABAPSyslog")
+			print_error("#{rhost}#{rport} [SAP] failed to access ABAPSyslog on #{rhost}:#{rport}")
 			return
 		end
 	end

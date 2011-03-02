@@ -110,48 +110,46 @@ class Metasploit3 < Msf::Auxiliary
 				when /<file>(.*)<\/file>/i
 					body = []
 					body = res.body
-					env =body.scan(/<filename>(.*?)<\/filename><size>(.*?)<\/size><modtime>(.*?)<\/modtime>/i)
+					env = body.scan(/<filename>(.*?)<\/filename><size>(.*?)<\/size><modtime>(.*?)<\/modtime>/i)
 					success = true
 				end
 			elsif res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
-					faultcode = "#{$1}"
+					faultcode = $1.strip
 					fault = true
 				end
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] Unable to attempt authentication")
+			print_error("#{rhost}:#{rport} [SAP] Unable to attempt authentication")
 			return
 		end
 
 		if success
-			print_good("[SAP] #{datastore['FILETYPE']}: #{env.length} entries extracted from #{rhost}:#{rport}")
+			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
 
-			saptbl = Msf::Ui::Console::Table.new(
-				Msf::Ui::Console::Table::Style::Default,
-					'Header'  => 'SAP Logfiles',
-					'Prefix'  => "\n",
-					'Postfix' => "\n",
-					'Columns' => [ 'Filename', 'Size', 'Date/Time' ]
-				)
-
-			env.each do |output|
-				#print_status("Filename: #{output[0]}\tSize: #{output[1]}\tDate: #{output[2]}")
-				saptbl << [ output[0], output[1], output[2] ]
-			end
-
-			print(saptbl.to_s)
+			saptbl = Rex::Ui::Text::Table.new(
+			'Header'    => "SAP Log Files",
+			'Indent'    => 1,
+			'Columns'   =>
+			[
+				"Filename",
+				"Size",
+				"Timestamp"
+			])
+			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, saptbl.to_s, "sap_#{datastore['RFILE'].downcase}.xml",
+			 	"SAP #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase}")
+				
 
 			return
 
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 
 		else
-			print_error("[SAP] failed to request environment")
+			print_error("#{rhost}:#{rport} [SAP] failed to request environment")
 			return
 		end
 	end

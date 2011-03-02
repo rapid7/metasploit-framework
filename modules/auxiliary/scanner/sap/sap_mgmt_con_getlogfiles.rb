@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def gettfiles(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
+		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -122,43 +122,32 @@ class Metasploit3 < Msf::Auxiliary
 				when nil
 					# Nothing
 				when /<name>([^<]+)<\/name>/i
-					name = "#{$1}"
+					name = $1.strip
 					success = true
 				end
 
 			else res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
-					faultcode = "#{$1}"
+					faultcode = $1.strip
 					fault = true
 				end
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP] Unable to attempt authentication")
+			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
 			return
 		end
 
 		if success
-			print_good("[SAP] #{datastore['FILETYPE']}: #{datastore['RFILE']} downloaded from #{rhost}:#{rport}")
-
-			if datastore['LFILE'] != ''
-				outputfile = datastore['LFILE'] + "_" + datastore['RHOST']
-				print_status("Writing local file " + outputfile + " in XML format")
-				File.open(outputfile,'ab') do |f|
-					f << res.body
-				end
-			else
-				env.each do |output|
-					print_status("#{output}")
-				end
-				return
-			end
+			print_good("#{rhost}:#{rhost} [SAP] #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase} looted")
+			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, res.body, "sap_#{datastore['RFILE'].downcase}.xml",
+			 	"SAP Get Logfile")
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rhost} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("[SAP] failed to request environment")
+			print_error("#{rhost}:#{rhost} [SAP] failed to request environment")
 			return
 		end
 	end

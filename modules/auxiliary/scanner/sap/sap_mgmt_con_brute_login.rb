@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist without modification")
 			else
 				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Setting default SAP wordlist")
-				datastore['USER_FILE'] = '/opt/metasploit3/msf3/data/wordlists/sap_common.txt'
+				datastore['USER_FILE'] = Msf::Config.data_directory + '/wordlists/sap_common.txt'
 			end
 		end
 
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user, pass)
-		if datastore['USER_FILE'] == '/opt/metasploit3/msf3/data/wordlists/sap_common.txt' and datastore['SAP_SID']
+		if datastore['USER_FILE'] == Msf::Config.data_directory + '/wordlists/sap_common.txt' and datastore['SAP_SID']
 			user = user.gsub("<SAPSID>", datastore["SAP_SID"].downcase)
 			pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
 		end
@@ -132,31 +132,32 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("[SAP #{rhost}] Unable to attempt authentication")
+			print_error("#{rhost}:#{rport} [SAP #{rhost}] Unable to connect")
 			return
 		end
 
 		if success
-			print_good("[SAP Management Console] Successful login '#{user}' password: '#{pass}'")
+			print_good("#{rhost}:#{rport} [SAP Management Console] Successful login '#{user}' password: '#{pass}'")
 
 			if permission
-				vprint_good("[SAP Management Console] Login '#{user}' authorized to perform OSExecute calls")
+				vprint_good("#{rhost}:#{rport} [SAP Management Console] Login '#{user}' authorized to perform OSExecute calls")
 			else
-				vprint_error("[SAP Management Console] Login '#{user}' NOT authorized to perform OSExecute calls")
+				vprint_error("#{rhost}:#{rport} [SAP Management Console] Login '#{user}' NOT authorized to perform OSExecute calls")
 			end
 
 			report_auth_info(
 				:host => rhost,
-				:proto => 'tcp',
 				:sname => 'sap-managementconsole',
+				:proto => 'tcp',
+				:port => rport,
 				:user => user,
 				:pass => pass,
 				:target_host => rhost,
 				:target_port => rport
 			)
-			return :next_user
+			return
 		else
-			vprint_error("[SAP Management Console] failed to login as '#{user}' password: '#{pass}'")
+			vprint_error("#{rhost}:#{rport} [SAP Management Console] failed to login as '#{user}' password: '#{pass}'")
 			return
 		end
 	end
