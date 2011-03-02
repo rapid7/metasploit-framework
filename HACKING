@@ -74,6 +74,9 @@ following table approximates the underlying implementation:
 Note that the original value of 'b' is lost in the second case. Care
 must be taken to duplicate strings that you do not want to modify.
 
+7. For other Ruby 1.8.x/1.9.x compat issues, please see Sam Ruby's
+excellent slide show at <http://slideshow.rubyforge.org/ruby19.html>
+for an overview of common and not-so-common Ruby version related gotchas.
 
 Creating New Modules
 ====================
