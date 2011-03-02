@@ -127,8 +127,8 @@ class Metasploit3 < Msf::Auxiliary
 				:port => rport,
 				:type => 'sap.users',
 				:data => {:proto => "soap", :users => users},
-				:update => :unique_data )
-			end
+				:update => :unique_data 
+			)
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
