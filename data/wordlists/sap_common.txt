@@ -1,0 +1,10 @@
+sapservice<SAPSID>
+sapadm
+<SAPSID>adm
+sqd<SAPSID>
+sap<SAPSID>db
+<SAPSID>
+sapservice<SAPSID>
+sapr3
+sapsr3
+ora<SAPSID>
