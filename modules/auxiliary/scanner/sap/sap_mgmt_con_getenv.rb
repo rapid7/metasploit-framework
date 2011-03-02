@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 				:port => rport,
 				:type => 'sap.env',
 				:data => {:proto => "soap", :env => env},
-				:update => :unique_data )
+				:update => :unique_data
 			)
 
 		elsif fault
