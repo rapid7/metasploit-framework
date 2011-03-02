@@ -183,7 +183,7 @@ class Db
 					end
 					col_search = list.strip().split(",")
 					col_search.each { |c|
-						if not host_columns.include?(c) and not virtual_columns.include?(c)
+						if not default_columns.include?(c) and not virtual_columns.include?(c)
 							all_columns = default_columns + virtual_columns
 							print_error("Invalid column list. Possible values are (#{all_columns.join("|")})")
 							return
