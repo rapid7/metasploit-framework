@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Post
 			handler.datastore['ListenerComm'] = 'local'			
 			
 			#start a handler to be ready
-			handler.exploit_module = self
+			# handler.exploit_module
 			handler.exploit_simple(
 				'LocalInput'  => self.user_input,
 				'LocalOutput' => self.user_output,
