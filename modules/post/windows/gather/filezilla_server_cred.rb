@@ -96,8 +96,8 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
-			"User",
 			"Host",
+			"User",
 			"Dir",
 			"FileRead",
 			"FileDelete",
@@ -151,8 +151,19 @@ class Metasploit3 < Msf::Post
 		end
 
 		perms.each do |perm|
-		permissions << [perm['user'], perm['host'], perm['dir'], perm['fileread'], perm['filewrite'], perm['filedelete'], perm['fileappend'],
+		permissions << [perm['host'], perm['user'], perm['dir'], perm['fileread'], perm['filewrite'], perm['filedelete'], perm['fileappend'],
 			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate']]
+		end
+
+		if datastore['VERBOSE']
+			print_status("    Collected the following configuration details:")
+			print_status("       FTP Port: %s" % config['ftp_port'])
+			print_status("    FTP Bind IP: %s" % config['ftp_bindip'])
+			print_status("            SSL: %s" % config['ssl'])
+			print_status("     Admin Port: %s" % config['admin_port'])
+			print_status("  Admin Bind IP: %s" % config['admin_bindip'])
+			print_status("     Admin Pass: %s" % config['admin_pass'])
+			print_line("")
 		end
 
 		configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'], 
@@ -188,24 +199,33 @@ class Metasploit3 < Msf::Post
 		users = 0
 		passwords = 0
 		groups = []
+		perm = {}
 
 		doc = REXML::Document.new(data).root
 
 		items = doc.elements.to_a("//Settings//Item/")
 		settings['ftp_port'] = items[0].text
-		settings['admin_port'] = items[15].text
-		settings['admin_pass'] = items[16].text
+		settings['admin_port'] = items[16].text
+		settings['admin_pass'] = items[17].text
 
-		if items[17].text # empty means localhost only * is 0.0.0.0
-			settings['admin_bindip'] = items[17].text
+		if items[18].text # empty means localhost only * is 0.0.0.0
+			settings['admin_bindip'] = items[18].text
 		else
 			settings['admin_bindip'] = "127.0.0.1"
 		end
-
+		if settings['admin_bindip'] = "*"
+			settings['admin_bindip'] = "0.0.0.0"
+		end
+		
 		if items[38].text
 			settings['ftp_bindip'] = items[38].text
 		else
 			settings['ftp_bindip'] = "127.0.0.1"
+		end
+
+		# make the bindip a little easier to understand
+		if settings['ftp_bindip'] == "*"
+			settings['ftp_bindip'] = "0.0.0.0"
 		end
 
 		if items[42].text == "1"
@@ -241,7 +261,6 @@ class Metasploit3 < Msf::Post
 			groups << account['group']
 
 			user.elements.to_a("//User//Permissions//Permission").each do |permission|
-				perm = {}
 				perm['user'] = account['user'] # give some context as to which user has these permissions
 				perm['dir'] = permission.attributes['Dir']
 				opt = permission.elements.to_a("//User//Permissions//Permission//Option")
@@ -254,7 +273,6 @@ class Metasploit3 < Msf::Post
 				perm['dirlist']    = opt[6].text rescue "<unknown>"
 				perm['dirsubdirs'] = opt[7].text rescue "<unknown>"
 				perm['autocreate'] = opt[9].text rescue
-				perm['host'] = settings['ftp_bindip']
 
 				if opt[8].text == "1"
 					perm['home'] = true
@@ -271,8 +289,9 @@ class Metasploit3 < Msf::Post
 			end
 
 			account['host'] = settings['ftp_bindip']
+			perm['host']    = settings['ftp_bindip']
 			account['port'] = settings['ftp_port']
-			account['ssl'] = settings['ssl']
+			account['ssl']  = settings['ssl']
 			creds << account
 
 			if datastore['VERBOSE']
