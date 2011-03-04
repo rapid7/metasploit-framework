@@ -87,6 +87,7 @@ def check_single_file(dparts, fparts, f_rel)
 	# check criteria based on individual lines
 	spaces = 0
 	bi = []
+	ll = []
 	cr = 0
 	has_rev = false
 	has_id = false
@@ -109,7 +110,7 @@ def check_single_file(dparts, fparts, f_rel)
 		next if in_comment
 
 		if (ln.length > 100)
-			long_lines += 1
+			ll << [ idx, ln ]
 		end
 
 		spaces += 1 if ln =~ / $/
@@ -141,14 +142,19 @@ def check_single_file(dparts, fparts, f_rel)
 			puts '  %8d: %s' % el
 		}
 	end
-
+	if ll.length > 0
+		puts '%s ... lines longer than 100 columns: %u' % [f, ll.length]
+		ll.each { |el|
+			el[1] = el[1].inspect
+			puts '  %8d: %s' % el
+		}
+	end
 	show_count(f, 'carriage return EOL', cr)
 	show_missing(f, 'missing $'+'Id: $', has_id)
 	show_missing(f, 'missing $'+'Revision: $', has_rev)
 	show_missing(f, 'incorrect URL to framework site', url_ok)
 	show_missing(f, 'writes to stdout', no_stdio)
 	show_count(f, 'File.open without binary mode', nbo)
-	show_count(f, 'Lines longer than 100 columns', long_lines)
 end
 
 
