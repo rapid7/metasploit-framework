@@ -378,8 +378,8 @@ class Module
 	# is used to inherit common settings (owner, workspace, parent uuid, etc).
 	#
 	def register_parent(ref)
-		self.datastore['WORKSPACE']    = ref.datastore['WORKSPACE'].dup
-		self.datastore['PROUSER']      = ref.datastore['PROUSER'].dup
+		self.datastore['WORKSPACE']    = (ref.datastore['WORKSPACE'] ? ref.datastore['WORKSPACE'].dup : nil)
+		self.datastore['PROUSER']      = (ref.datastore['PROUSER']   ? ref.datastore['PROUSER'].dup   : nil)
 		self.datastore['MODULE_OWNER'] = ref.owner.dup
 		self.datastore['ParentUUID']   = ref.uuid.dup
 	end
