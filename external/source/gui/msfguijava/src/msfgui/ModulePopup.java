@@ -322,6 +322,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 					} else if (optionName.equals("WORKSPACE")){
 						optionTextField.setText(MsfguiApp.workspace);
 					} else if (optionName.equals("SESSION") && moduleType.equals("post")
+							&& parentFrame.selectedSessions != null
 							&& parentFrame.selectedSessions.length > 0){
 						optionTextField.setText(parentFrame.selectedSessions[0].get("id").toString());
 					}

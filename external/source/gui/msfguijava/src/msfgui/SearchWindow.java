@@ -278,8 +278,13 @@ public class SearchWindow extends MsfFrame {
 		String name = resultList.getSelectedValue().toString();
 		for(Object module : modules){
 			Object[] modInfo = (Object[])module;
-			if(modInfo[0].equals(type) && modInfo[1].equals(name))
-				((ActionListener) modInfo[2]).actionPerformed(null);
+			if(modInfo[0].equals(type) && name.contains(modInfo[1].toString())){
+				Map info = (Map) rpcConn.execute("module.info", modInfo[0], modInfo[1]);
+				if(name.equals(modInfo[1].toString()+" - "+Rank.toString(info.get("rank")))){
+					((ActionListener) modInfo[2]).actionPerformed(null);
+					break;
+				}
+			}
 		}
 	}//GEN-LAST:event_launchButtonActionPerformed
 
