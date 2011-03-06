@@ -24,7 +24,7 @@ Code No-Nos
 ===========
 
 1. Don't print to standard output.  Doing so means that users of
-interfaces other than msfconsole, such as msfrpc and msfweb, won't see
+interfaces other than msfconsole, such as msfrpc and msfgui, won't see
 your output.  You can use print_line to accomplish the same thing as
 puts. 
 
