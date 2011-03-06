@@ -1,6 +1,14 @@
 Armitage Changelog
 ==================
 
+In Progress
+---------
+
+- Armitage YAML parser now accepts quoted strings in the YAML fields
+- Added caching of sessions.list, db.hosts, and db.services to Armitage 
+  collaboration server. This should help prevent msfrpcd from overloading
+  when many clients are connected and owning at once.
+
 27 Feb 11 Changes
 ---------
 - Webcam snap features works again. Sorry about that. :)
