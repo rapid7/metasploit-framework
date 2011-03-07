@@ -829,6 +829,18 @@ class NTLM2MissingChallenge < Error
 	end
 end
 
+class SigningError < Error
+	def to_s
+		"Unable to handle signing in this situation"
+	end
+end
+
+class IncorrectSigningError < Error
+	def to_s
+		"The signature sent by the server is not correct"
+	end
+end
+
 class SimpleClientError < Error
 	attr_accessor :source, :fatal
 end

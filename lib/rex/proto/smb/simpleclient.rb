@@ -179,14 +179,24 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		self.shares = { }
 	end
 	
-	def login(name = '', user = '', pass = '', domain = '')
+	def login(	name = '', user = '', pass = '', domain = '',
+			verify_signature = false, usentlmv2 = false, usentlm2_session = true, 
+			send_lm = true, use_lanman_key = false, send_ntlm = true,
+			native_os = 'Windows 2000 2195', native_lm = 'Windows 2000 5.0')
 
 		begin
 			
 			if (self.direct != true)
 				self.client.session_request(name)
 			end
-		
+			self.client.native_os = native_os 
+			self.client.native_lm = native_lm
+			self.client.verify_signature = verify_signature
+			self.client.use_ntlmv2 = usentlmv2
+			self.client.usentlm2_session = usentlm2_session
+			self.client.send_lm = send_lm
+			self.client.use_lanman_key =  use_lanman_key
+			self.client.send_ntlm = send_ntlm 
 			self.client.negotiate
 			ok = self.client.session_setup(user, pass, domain)
 		rescue ::Interrupt
@@ -233,7 +243,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 	
 	def login_split_next_ntlm1(user, domain, hash_lm, hash_nt)
 		begin
-			ok = self.client.session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt)
+			ok = self.client.session_setup_no_ntlmssp_prehash(user, domain, hash_lm, hash_nt)
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
@@ -261,14 +271,16 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 		self.shares.delete(share)
 	end	
 	
-	def open(path, perm)		
+
+	def open(path, perm, chunk_size = 48000)		
 		mode   = UTILS.open_mode_to_mode(perm)
 		access = UTILS.open_mode_to_access(perm)
 		
 		ok = self.client.open(path, mode, access)
 		file_id = ok['Payload'].v['FileID']
-		
 		fh = OpenFile.new(self.client, path, self.client.last_tree_id, file_id)
+		fh.chunk_size = chunk_size
+		fh
 	end
 	
 	def delete(*args)

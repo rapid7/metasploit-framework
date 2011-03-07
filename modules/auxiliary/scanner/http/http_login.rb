@@ -11,7 +11,7 @@
 
 
 require 'msf/core'
-require 'net/ntlm'
+require 'rex/proto/ntlm/message'
 
 
 class Metasploit3 < Msf::Auxiliary

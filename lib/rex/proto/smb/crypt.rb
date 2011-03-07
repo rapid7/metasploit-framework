@@ -15,76 +15,23 @@ class Crypt
 	
 begin
 
-	def self.lanman_des(pass, chal)
-		e_p24( [ e_p16( [ pass.upcase()[0,14] ].pack('a14') ) ].pack('a21'), chal)
+	#return a smb packet signed
+	def self.sign_smb_packet(mackey, sequence_counter, data)
+		seq = Rex::Text::pack_int64le(sequence_counter)
+		netbios_hdr = data.slice!(0,4)
+		data[14,8] = seq 
+		signature = OpenSSL::Digest::MD5.digest(mackey + data)[0,8]
+		data[14,8] = signature
+		netbios_hdr + data
 	end
 
-	def self.e_p16(pass)
-		stat = "\x4b\x47\x53\x21\x40\x23\x24\x25"
-		des_hash(stat, pass[0,7]) << des_hash(stat, pass[7,7])
+	def self.is_signature_correct?(mackey, sequence_counter, data)
+		signature1 = data[18,8]
+		signature2 = sign_smb_packet(mackey, sequence_counter, data.dup)[18,8]
+		return signature1 == signature2
 	end
 
-	def self.e_p24(pass, chal)
-		des_hash(chal, pass[0,7]) << des_hash(chal, pass[7,7]) << des_hash(chal, pass[14,7])
-	end
-
-	def self.des_hash(data, ckey)
-		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		cipher = OpenSSL::Cipher::Cipher.new('des-ecb')
-		cipher.encrypt
-		cipher.key = des_56_to_64(ckey)
-		cipher.update(data)
-	end
-
-	def self.des_56_to_64(ckey56s)
-		ckey64 = []
-		ckey56 = ckey56s.unpack('C*')
-		ckey64[0] = ckey56[0]
-		ckey64[1] = ((ckey56[0] << 7) & 0xFF) | (ckey56[1] >> 1)
-		ckey64[2] = ((ckey56[1] << 6) & 0xFF) | (ckey56[2] >> 2)
-		ckey64[3] = ((ckey56[2] << 5) & 0xFF) | (ckey56[3] >> 3)
-		ckey64[4] = ((ckey56[3] << 4) & 0xFF) | (ckey56[4] >> 4)
-		ckey64[5] = ((ckey56[4] << 3) & 0xFF) | (ckey56[5] >> 5)
-		ckey64[6] = ((ckey56[5] << 2) & 0xFF) | (ckey56[6] >> 6)
-		ckey64[7] =  (ckey56[6] << 1) & 0xFF
-		ckey64.pack('C*')
-	end
-
-	def self.ntlm_md4(pass, chal)
-		e_p24( [ md4_hash(Rex::Text.to_unicode(pass)) ].pack('a21'), chal)
-	end
 	
-	def self.md4_hash(data)
-		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		digest = OpenSSL::Digest::MD4.digest(data)
-	end
-	
-	def self.md5_hash(data)
-		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		digest = OpenSSL::Digest::MD5.digest(data)
-	end
-	
-	def self.lm2nt(pass, ntlm)
-		res = nil
-		Rex::Text.permute_case( pass.upcase ).each do |word|
-			if(md4_hash(Rex::Text.to_unicode(word)) == ntlm)
-				res = word
-				break
-			end
-		end
-		res
-	end
-
-	def self.lmchal2ntchal(pass, ntlm, challenge)
-		res = nil
-		Rex::Text.permute_case( pass.upcase ).each do |word|
-			if(ntlm_md4(word,challenge) == ntlm)
-				res = word
-				break
-			end
-		end
-		res
-	end
 
 rescue LoadError
 end

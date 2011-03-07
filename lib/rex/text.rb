@@ -415,6 +415,33 @@ module Text
 	end
 
 	#
+	# Converts a unicode string to standard ASCII text.
+	#
+	def self.to_ascii(str='', type = 'utf-16le', mode = '', size = '')
+		return '' if not str
+		case type
+		when 'utf-16le'
+			return str.unpack('v*').pack('C*')
+		when 'utf-16be'
+			return str.unpack('n*').pack('C*')
+		when 'utf-32le'
+			return str.unpack('V*').pack('C*')
+		when 'utf-32be'
+			return str.unpack('N*').pack('C*')
+		when 'utf-7'
+			raise TypeError, 'invalid utf type, not yet implemented'
+		when 'utf-8'
+			raise TypeError, 'invalid utf type, not yet implemented'
+		when 'uhwtfms' # suggested name from HD :P
+			raise TypeError, 'invalid utf type, not yet implemented'
+		when 'uhwtfms-half' # suggested name from HD :P
+			raise TypeError, 'invalid utf type, not yet implemented'
+		else
+			raise TypeError, 'invalid utf type'
+		end
+	end
+
+	#
 	# Encode a string in a manor useful for HTTP URIs and URI Parameters.
 	#
 	def self.uri_encode(str, mode = 'hex-normal')
@@ -1036,6 +1063,28 @@ module Text
 		[bits.join].pack("B32").unpack("N")[0]
 	end
 
+	#
+	# Split a string by n charachter into an array
+	#
+	def self.split_to_a(str, n)
+		if n > 0
+			s = str.dup
+			until s.empty?
+				(ret ||= []).push s.slice!(0, n)
+			end
+		else
+			ret = str
+		end
+       		ret
+	end
+
+	#
+	#Pack a value as 64 bit litle endian; does not exist for Array.pack
+	#
+	def self.pack_int64le(val)
+		[val & 0x00000000ffffffff, val >> 32].pack("V2")
+	end
+	
 
 protected
 

@@ -12,7 +12,9 @@ msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
 $:.unshift(File.join(File.dirname(msfbase), '..', 'lib'))
 
 require 'rex'
-require 'net/ntlm'
+require 'rex/proto/ntlm/crypt'
+
+CRYPT = Rex::Proto::NTLM::Crypt
 
 BRUTE_MODE = 1
 HASH_MODE  = 2
@@ -125,7 +127,7 @@ when "HALFLM"
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,7}$/	
 					puts password
-					calculatedhash = Net::NTLM::lm_hash(password,true).unpack("H*")[0].upcase	
+					calculatedhash = CRYPT::lm_hash(password,true).unpack("H*")[0].upcase	
 					if calculatedhash == hash.upcase
 						found = true
 						match_password = password
@@ -146,7 +148,7 @@ when "HALFLM"
 			$stderr.puts "[*] LM password can not be bigger then 7 characters"
 			exit
 		end
-		calculatedhash = Net::NTLM::lm_hash(pass,true).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_hash(pass,true).unpack("H*")[0].upcase
 		puts "[*] The LM hash for #{pass.upcase} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -158,7 +160,7 @@ when "HALFLM"
 			$stderr.puts "[*] LM HASH must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		calculatedhash = Net::NTLM::lm_hash(pass,true).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_hash(pass,true).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass.upcase}"
 			exit
@@ -182,7 +184,7 @@ when "LM"
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,14}$/
 					puts password
-					calculatedhash = Net::NTLM::lm_hash(password.upcase).unpack("H*")[0].upcase
+					calculatedhash = CRYPT::lm_hash(password.upcase).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
 						found = true
 						match_password = password
@@ -203,7 +205,7 @@ when "LM"
 			$stderr.puts "[*] LM password can not be bigger then 14 characters"
 			exit
 		end
-		calculatedhash = Net::NTLM::lm_hash(pass.upcase).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_hash(pass.upcase).unpack("H*")[0].upcase
 		puts "[*] The LM hash for #{pass.upcase} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -215,7 +217,7 @@ when "LM"
 			$stderr.puts "[*] LM HASH must be exactly 32 bytes of hexadecimal"
 			exit
 		end
-		calculatedhash = Net::NTLM::lm_hash(pass.upcase).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_hash(pass.upcase).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass.upcase}"
 			exit
@@ -238,7 +240,7 @@ when "NTLM"
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
-				calculatedhash = Net::NTLM::ntlm_hash(password).unpack("H*")[0].upcase
+				calculatedhash = CRYPT::ntlm_hash(password).unpack("H*")[0].upcase
 				if calculatedhash == hash.upcase
 					found = true
 					match_password = password
@@ -254,7 +256,7 @@ when "NTLM"
 			exit
 		end
 	when HASH_MODE
-		calculatedhash = Net::NTLM::ntlm_hash(pass).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm_hash(pass).unpack("H*")[0].upcase
 		puts "[*] The NTLM hash for #{pass} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -262,7 +264,7 @@ when "NTLM"
 			$stderr.puts "[*] NTLM HASH must be exactly 32 bytes of hexadecimal"
 			exit
 		end
-		calculatedhash = Net::NTLM::ntlm_hash(pass).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm_hash(pass).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass}"
 			exit
@@ -294,9 +296,9 @@ when  "HALFNETLMv1"
 				if password =~ /^.{1,7}$/
 					puts password
 					#Rem : cause of the [0,7] there is only 1/256 chance that the guessed password will be the good one
-					arglm = { 	:lm_hash => Net::NTLM::lm_hash(password,true)[0,7],
+					arglm = { 	:lm_hash => CRYPT::lm_hash(password,true)[0,7],
 							:challenge => [ srvchal ].pack("H*") }
-					calculatedhash = Net::NTLM::lm_response(arglm,true).unpack("H*")[0].upcase
+					calculatedhash = CRYPT::lm_response(arglm,true).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
 						found = true
 						match_password = password
@@ -325,10 +327,10 @@ when  "HALFNETLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		arglm = { 	:lm_hash => Net::NTLM::lm_hash(pass,true)[0,7],
+		arglm = { 	:lm_hash => CRYPT::lm_hash(pass,true)[0,7],
 				:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = Net::NTLM::lm_response(arglm,true).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_response(arglm,true).unpack("H*")[0].upcase
 		puts "[*] The HALFNETLMv1 hash for #{pass.upcase} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -349,10 +351,10 @@ when  "HALFNETLMv1"
 			exit
 		end
 		#Rem : cause of the [0,7] there is only 1/256 chance that the guessed password will be the good one
-		arglm = { 	:lm_hash => Net::NTLM::lm_hash(pass,true)[0,7],
+		arglm = { 	:lm_hash => CRYPT::lm_hash(pass,true)[0,7],
 				:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = Net::NTLM::lm_response(arglm,true).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_response(arglm,true).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass.upcase}"
 			exit
@@ -383,9 +385,9 @@ when  "NETLMv1"
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,14}$/
 					puts password
-					arglm = { 	:lm_hash => Net::NTLM::lm_hash(password),
+					arglm = { 	:lm_hash => CRYPT::lm_hash(password),
 							:challenge => [ srvchal ].pack("H*") }
-					calculatedhash = Net::NTLM::lm_response(arglm).unpack("H*")[0].upcase
+					calculatedhash = CRYPT::lm_response(arglm).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
 						found = true
 						match_password = password
@@ -414,10 +416,10 @@ when  "NETLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		arglm = { 	:lm_hash => Net::NTLM::lm_hash(pass),
+		arglm = { 	:lm_hash => CRYPT::lm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = Net::NTLM::lm_response(arglm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_response(arglm).unpack("H*")[0].upcase
 		puts "[*] The NETLMv1 hash for #{pass.upcase} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -437,10 +439,10 @@ when  "NETLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		arglm = { 	:lm_hash => Net::NTLM::lm_hash(pass),
+		arglm = { 	:lm_hash => CRYPT::lm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = Net::NTLM::lm_response(arglm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lm_response(arglm).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass.upcase}"
 			exit
@@ -470,9 +472,9 @@ when "NETNTLMv1"
 			password_list.each_line do |line|
 			password = line.gsub("\r\n",'').gsub("\n",'')
 			puts password
-			argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(password), 
+			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password), 
 					:challenge => [ srvchal ].pack("H*") }
-			calculatedhash = Net::NTLM::ntlm_response(argntlm).unpack("H*")[0].upcase
+			calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
 				if calculatedhash == hash.upcase
 					found = true
 					match_password = password
@@ -496,9 +498,9 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
 				:challenge => [ srvchal ].pack("H*") }
-		calculatedhash = Net::NTLM::ntlm_response(argntlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
 		puts "[*] The NETNTLMv1 hash for #{pass} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -514,10 +516,10 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
 				:challenge => [ srvchal ].pack("H*") }
 
-		calculatedhash = Net::NTLM::ntlm_response(argntlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass}"
 			exit
@@ -556,11 +558,11 @@ when  "NETNTLM2_SESSION"
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
-				argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(password), 
+				argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password), 
 						:challenge => [ srvchal ].pack("H*") }
 				optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
-				calculatedhash = Net::NTLM::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
+				calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
 		
 				if calculatedhash == hash.upcase
 					found = true
@@ -593,11 +595,11 @@ when  "NETNTLM2_SESSION"
 			$stderr.puts "[*] Client challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
-		calculatedhash = Net::NTLM::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
 		puts "[*] The NETNTLM2_SESSION hash for #{pass} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
@@ -621,11 +623,11 @@ when  "NETNTLM2_SESSION"
 			$stderr.puts "[*] Client challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  Net::NTLM::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
-		calculatedhash = Net::NTLM::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
 
 		if hash.upcase == calculatedhash
 			puts "[*] Correct password provided : #{pass}"
@@ -673,10 +675,10 @@ when  "NETLMv2"
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
-				arglm = {	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user,password, domain),
+				arglm = {	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user,password, domain),
 						:challenge => [ srvchal ].pack("H*") }
 				optlm = {	:client_challenge => [ clichal ].pack("H*")}
-				calculatedhash = Net::NTLM::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
+				calculatedhash = CRYPT::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
 				if calculatedhash.slice(0,32) == hash.upcase
 					found = true
 					match_password = password
@@ -717,10 +719,10 @@ when  "NETLMv2"
 			exit
 		end
 
-		arglm = {	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user,pass, domain),
+		arglm = {	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user,pass, domain),
 				:challenge => [ srvchal ].pack("H*") }
 		optlm = {	:client_challenge => [ clichal ].pack("H*")}
-		calculatedhash = Net::NTLM::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
 
 		puts "[*] The NETLMv2 hash for #{pass} is : #{calculatedhash.slice(0,32)}"
 		exit
@@ -753,10 +755,10 @@ when  "NETLMv2"
 			$stderr.puts "[*] Domain name must be provided with this type"
 			exit
 		end
-		arglm = {	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user,pass, domain),
+		arglm = {	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user,pass, domain),
 				:challenge => [ srvchal ].pack("H*") }
 		optlm = {	:client_challenge => [ clichal ].pack("H*")}
-		calculatedhash = Net::NTLM::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::lmv2_response(arglm, optlm).unpack("H*")[0].upcase
 		if hash.upcase == calculatedhash.slice(0,32)
 			puts "[*] Correct password provided : #{pass}"
 			exit
@@ -804,10 +806,10 @@ when "NETNTLMv2"
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
-				argntlm = { 	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user, password, domain),
+				argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, password, domain),
 						:challenge => [ srvchal ].pack("H*") }
 				optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
-				calculatedhash = Net::NTLM::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
+				calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
 
 				if calculatedhash.slice(0,32) == hash.upcase
 					found = true
@@ -849,10 +851,10 @@ when "NETNTLMv2"
 			exit
 		end
 
-		argntlm = { 	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user, pass, domain),
+		argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, pass, domain),
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
-		calculatedhash = Net::NTLM::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
 
 		puts "[*] The NETNTLMv2 hash for #{pass} is : #{calculatedhash.slice(0,32)}"
 		exit
@@ -886,10 +888,10 @@ when "NETNTLMv2"
 			exit
 		end
 
-		argntlm = { 	:ntlmv2_hash =>  Net::NTLM::ntlmv2_hash(user, pass, domain),
+		argntlm = { 	:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, pass, domain),
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = { 	:nt_client_challenge => [ clichal ].pack("H*")}
-		calculatedhash = Net::NTLM::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
+		calculatedhash = CRYPT::ntlmv2_response(argntlm,optntlm).unpack("H*")[0].upcase
 
 		if hash.upcase == calculatedhash.slice(0,32)
 			puts "[*] Correct password provided : #{pass}"

@@ -50,7 +50,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Authenticating with NTLMv2..."
-		ok = c.session_setup_ntlmv2($_REX_TEXT_SMB_USER, $_REX_TEXT_SMB_PASS)
+		ok = c.session_setup_with_ntlmssp($_REX_TEXT_SMB_USER, $_REX_TEXT_SMB_PASS)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.auth_user_id, 0)
 
@@ -122,7 +122,7 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Authenticating with NTLMv2..."
-		ok = c.session_setup_ntlmv2($_REX_TEXT_SMB_USER, $_REX_TEXT_SMB_PASS)
+		ok = c.session_setup_with_ntlmssp($_REX_TEXT_SMB_USER, $_REX_TEXT_SMB_PASS)
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 		assert_not_equal(c.auth_user_id, 0)
 
@@ -171,11 +171,11 @@ class Rex::Proto::SMB::Client::UnitTest < Test::Unit::TestCase
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Authenticating with NTLMv2..."
-		ok = c.session_setup_ntlmv2
+		ok = c.session_setup_with_ntlmssp
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Authenticating with NTLMv1..."
-		ok = c.session_setup_ntlmv1
+		ok = c.session_setup_no_ntlmssp
 		assert_kind_of(Rex::Struct2::CStruct, ok)
 
 		# puts "[*] Authenticating with clear text passwords..."

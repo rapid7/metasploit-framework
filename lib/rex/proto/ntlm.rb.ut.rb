@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
-require 'net/ntlm'
+require 'rex/proto/ntlm'
 require 'rex/socket'
 
 class ConnectionTest < Test::Unit::TestCase
@@ -35,7 +35,7 @@ class ConnectionTest < Test::Unit::TestCase
 	end
 
 	def client_auth(pw)
-		msg_1 = Net::NTLM::Message::Type1.new
+		msg_1 = Rex::Proto::NTLM::Message::Type1.new
 		get_req = http_message(msg_1)
 		socket = Rex::Socket.create_tcp(
 			'PeerHost' => @host,
@@ -46,7 +46,7 @@ class ConnectionTest < Test::Unit::TestCase
 		assert res =~ /WWW-Authenticate: NTLM TlRM/
 			res_ntlm = res.match(/WWW-Authenticate: NTLM ([A-Z0-9\x2b\x2f=]+)/i)[1]
 		assert_operator res_ntlm.size, :>=, 24
-		msg_2 = Net::NTLM::Message.decode64(res_ntlm)
+		msg_2 = Rex::Proto::NTLM::Message.decode64(res_ntlm)
 		assert msg_2
 		msg_3 = msg_2.response({:user => @user, :password => pw}, {:ntlmv2 => true})
 		assert msg_3
@@ -90,24 +90,24 @@ class FunctionTest < Test::Unit::TestCase #:nodoc:
 
 	def test_lm_hash
 		ahash = ["ff3750bcc2b22412c2265b23734e0dac"].pack("H*")
-		assert_equal ahash, Net::NTLM::lm_hash(@passwd)
+		assert_equal ahash, Rex::Proto::NTLM::Crypt::lm_hash(@passwd)
 	end
 
 	def test_ntlm_hash
 		ahash = ["cd06ca7c7e10c99b1d33b7485a2ed808"].pack("H*")
-		assert_equal ahash, Net::NTLM::ntlm_hash(@passwd)
+		assert_equal ahash, Rex::Proto::NTLM::Crypt::ntlm_hash(@passwd)
 	end
 
 	def test_ntlmv2_hash
 		ahash = ["04b8e0ba74289cc540826bab1dee63ae"].pack("H*")
-		assert_equal ahash, Net::NTLM::ntlmv2_hash(@user, @passwd, @domain)
+		assert_equal ahash, Rex::Proto::NTLM::Crypt::ntlmv2_hash(@user, @passwd, @domain)
 	end
 
 	def test_lm_response
 		ares = ["c337cd5cbd44fc9782a667af6d427c6de67c20c2d3e77c56"].pack("H*")
-		assert_equal ares, Net::NTLM::lm_response(
+		assert_equal ares, Rex::Proto::NTLM::Crypt::lm_response(
 			{
-			:lm_hash => Net::NTLM::lm_hash(@passwd),
+			:lm_hash => Rex::Proto::NTLM::Crypt::lm_hash(@passwd),
 			:challenge => @challenge
 		}
 		)
@@ -115,8 +115,8 @@ class FunctionTest < Test::Unit::TestCase #:nodoc:
 
 	def test_ntlm_response
 		ares = ["25a98c1c31e81847466b29b2df4680f39958fb8c213a9cc6"].pack("H*")
-		ntlm_hash = Net::NTLM::ntlm_hash(@passwd)
-		assert_equal ares, Net::NTLM::ntlm_response(
+		ntlm_hash = Rex::Proto::NTLM::Crypt::ntlm_hash(@passwd)
+		assert_equal ares, Rex::Proto::NTLM::Crypt::ntlm_response(
 			{
 			:ntlm_hash => ntlm_hash,
 			:challenge => @challenge
@@ -126,9 +126,9 @@ class FunctionTest < Test::Unit::TestCase #:nodoc:
 
 	def test_lmv2_response
 		ares = ["d6e6152ea25d03b7c6ba6629c2d6aaf0ffffff0011223344"].pack("H*")
-		assert_equal ares, Net::NTLM::lmv2_response(
+		assert_equal ares, Rex::Proto::NTLM::Crypt::lmv2_response(
 			{
-			:ntlmv2_hash => Net::NTLM::ntlmv2_hash(@user, @passwd, @domain),
+			:ntlmv2_hash => Rex::Proto::NTLM::Crypt::ntlmv2_hash(@user, @passwd, @domain),
 			:challenge => @challenge
 		},
 			{ :client_challenge => @client_ch }
@@ -148,9 +148,9 @@ class FunctionTest < Test::Unit::TestCase #:nodoc:
 			"6e002e0063006f006d00000000000000" +
 			"0000"
 		].pack("H*")
-		assert_equal ares, Net::NTLM::ntlmv2_response(
+		assert_equal ares, Rex::Proto::NTLM::Crypt::ntlmv2_response(
 			{
-			:ntlmv2_hash => Net::NTLM::ntlmv2_hash(@user, @passwd, @domain),
+			:ntlmv2_hash => Rex::Proto::NTLM::Crypt::ntlmv2_hash(@user, @passwd, @domain),
 			:challenge => @challenge,
 			:target_info => @trgt_info
 		},
@@ -164,9 +164,9 @@ class FunctionTest < Test::Unit::TestCase #:nodoc:
 	def test_ntlm2_session
 		acha = ["ffffff001122334400000000000000000000000000000000"].pack("H*")
 		ares = ["10d550832d12b2ccb79d5ad1f4eed3df82aca4c3681dd455"].pack("H*")
-		session = Net::NTLM::ntlm2_session(
+		session = Rex::Proto::NTLM::Crypt::ntlm2_session(
 			{
-			:ntlm_hash => Net::NTLM::ntlm_hash(@passwd),
+			:ntlm_hash => Rex::Proto::NTLM::Crypt::ntlm_hash(@passwd),
 			:challenge => @challenge
 		},
 			{ :client_challenge => @client_ch }

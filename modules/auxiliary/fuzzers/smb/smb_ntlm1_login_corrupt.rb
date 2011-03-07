@@ -93,8 +93,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		user = "USER"
 		domain = "DOMAIN"
-		hash_lm = Rex::Proto::SMB::Crypt.lanman_des("X", "X" * 8)
-		hash_nt = Rex::Proto::SMB::Crypt.ntlm_md4("X", "X" * 8)
+		hash_lm = Rex::Proto::NTLM::Crypt.lanman_des("X", "X" * 8)
+		hash_nt = Rex::Proto::NTLM::Crypt.ntlm_md4("X", "X" * 8)
 
 		data = ''
 		data << hash_lm

@@ -8,8 +8,11 @@ require 'rex/struct2'
 require 'rex/proto/smb/constants'
 require 'rex/proto/smb/exceptions'
 require 'rex/proto/smb/evasions'
-require 'rex/proto/smb/crypt'
 require 'rex/proto/smb/utils'
+require 'rex/proto/smb/crypt'
+require 'rex/proto/ntlm/crypt'
+require 'rex/proto/ntlm/constants'
+require 'rex/proto/ntlm/utils'
 
 
 # Some short-hand class aliases
@@ -18,6 +21,9 @@ CRYPT = Rex::Proto::SMB::Crypt
 UTILS = Rex::Proto::SMB::Utils
 XCEPT = Rex::Proto::SMB::Exceptions
 EVADE = Rex::Proto::SMB::Evasions
+NTLM_CRYPT = Rex::Proto::NTLM::Crypt
+NTLM_CONST = Rex::Proto::NTLM::Constants
+NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 	def initialize(socket)
 		self.socket = socket
@@ -39,6 +45,17 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Modify the \PIPE\ string in trans_named_pipe calls
 		'obscure_trans_pipe' => EVADE::EVASION_NONE,
 		}
+		self.verify_signature = false
+		self.use_ntlmv2 = false
+		self.usentlm2_session = true
+		self.send_lm = true
+		self.use_lanman_key = false
+		self.send_ntlm  = true
+		#signing
+		self.sequence_counter  	= 0
+		self.signing_key  	= ''
+		self.require_signing	= false
+		
 	end
 
 	# Read a SMB packet from the socket
@@ -73,7 +90,17 @@ EVADE = Rex::Proto::SMB::Evasions
 			data << buff
 		end
 
+		#signing
+		if self.require_signing && self.signing_key != ''
+			if self.verify_signature		
+				raise XCEPT::IncorrectSigningError if not CRYPT::is_signature_correct?(self.signing_key,self.sequence_counter,data)			
+			end
+			self.sequence_counter += 1
+		end
+
 		return data
+
+
 	end
 
 	# Send a SMB packet down the socket
@@ -84,6 +111,12 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		size = 0
 		wait = 0
+
+		#signing
+		if self.require_signing && self.signing_key != ''
+			data = CRYPT::sign_smb_packet(self.signing_key, self.sequence_counter, data)
+			self.sequence_counter += 1
+		end
 
 		begin
 			# Just send the packet and return
@@ -121,7 +154,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt = CONST::SMB_BASE_PKT.make_struct
 		pkt.from_s(data)
 		res  = pkt
-
+		
 		begin
 			case pkt['Payload']['SMB'].v['Command']
 
@@ -219,14 +252,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 	# Process incoming SMB_COM_SESSION_SETUP_ANDX packets
 	def smb_parse_session_setup(pkt, data)
-		# Process NTLMv2 negotiate responses
+		# Process NTLMSSP negotiate responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 4)
 			res = CONST::SMB_SETUP_NTLMV2_RES_PKT.make_struct
 			res.from_s(data)
 			return res
 		end
 
-		# Process NTLMv1 and LANMAN responses
+		# Process LANMAN responses
 		if (pkt['Payload']['SMB'].v['WordCount'] == 3)
 			res = CONST::SMB_SETUP_RES_PKT.make_struct
 			res.from_s(data)
@@ -436,7 +469,7 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 	# Negotiate a SMB dialect
-	def negotiate(extended=true, do_recv = true)
+	def negotiate(smb_extended_security=true, do_recv = true)
 
 		dialects = ['LANMAN1.0', 'LM1.2X002' ]
 
@@ -452,7 +485,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NEGOTIATE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
 
-		if(extended)
+		if(smb_extended_security)
 			pkt['Payload']['SMB'].v['Flags2'] = 0x2801
 		else
 			pkt['Payload']['SMB'].v['Flags2'] = 0xc001
@@ -460,7 +493,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload'].v['Payload'] = data
 
-		ret = self.smb_send(pkt.to_s)
+		ret = self.smb_send(pkt.to_s, EVADE::EVASION_NONE)
 		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_NEGOTIATE)
@@ -482,6 +515,11 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# Set the security mode
 		self.security_mode = ack['Payload'].v['SecurityMode']
+
+		#set require_signing
+		if (ack['Payload'].v['SecurityMode'] & 0x08 != 0)
+			self.require_signing	= true
+		end
 
 		# Set the challenge key
 		if (ack['Payload'].v['EncryptionKey'] != nil)
@@ -530,15 +568,6 @@ EVADE = Rex::Proto::SMB::Evasions
 		end
 		self.system_zone = system_zone * 60
 
-		# XXX: this is being commented out because ruby prior to 1.9.2 doesn't
-		# seem to support representing non-utc or local times (eg, a time in
-		# another timezone)  If you know a way to do it in pre-1.9.2 please
-		# tell us!
-=begin
-		# Adjust the system_time object to reflect the remote timezone
-		self.system_time = self.system_time.utc.localtime(system_zone)
-=end
-
 		return ack
 	end
 
@@ -547,15 +576,15 @@ EVADE = Rex::Proto::SMB::Evasions
 	def session_setup(*args)
 
 		if (self.dialect =~ /^(NT LANMAN 1.0|NT LM 0.12)$/)
-
-
+			
 			if (self.challenge_key)
-				return self.session_setup_ntlmv1(*args)
+				return self.session_setup_no_ntlmssp(*args)
 			end
 
 			if ( self.extended_security )
-				return self.session_setup_ntlmv2(*args)
+				return self.session_setup_with_ntlmssp(*args)
 			end
+
 		end
 
 		return self.session_setup_clear(*args)
@@ -571,7 +600,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 10
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
@@ -601,121 +637,146 @@ EVADE = Rex::Proto::SMB::Evasions
 		return ack
 	end
 
-	# Authenticate using NTLMv1
-	def session_setup_ntlmv1(user = '', pass = '', domain = '', do_recv = true)
+	# Authenticate without NTLMSSP
+	def session_setup_no_ntlmssp(user = '', pass = '', domain = '', do_recv = true)
 
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
+		#we can not yet handle signing in this situation
+		raise XCEPT::NTLM2MissingChallenge if self.require_signing
 
-		if (pass.length == 65)
-			hash_lm = CRYPT.e_p24( [ pass.upcase()[0,32] ].pack('H42'), self.challenge_key)
-			hash_nt = CRYPT.e_p24( [ pass.upcase()[33,65] ].pack('H42'), self.challenge_key)
+		hash_lm = pass.length > 0 ? NTLM_CRYPT.lanman_des(pass, self.challenge_key) : ''
+		hash_nt = pass.length > 0 ? NTLM_CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+
+		data = ''
+		data << hash_lm
+		data << hash_nt
+		data << user + "\x00"
+		data << domain + "\x00"
+		data << self.native_os + "\x00"
+		data << self.native_lm + "\x00"
+
+		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 13
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1
+		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
+		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = data
+
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
+		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
+
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end
+
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		self.default_domain = info[2]
+
+		return ack
+	end
+
+
+	# Authenticate without ntlmssp with a precomputed hash pair
+	def session_setup_no_ntlmssp_prehash(user, domain, hash_lm, hash_nt, do_recv = true)
+
+		raise XCEPT::NTLM2MissingChallenge if self.require_signing
+
+		data = ''
+		data << hash_lm
+		data << hash_nt
+		data << user + "\x00"
+		data << domain + "\x00"
+		data << self.native_os + "\x00"
+		data << self.native_lm + "\x00"
+
+		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
+		self.smb_defaults(pkt['Payload']['SMB'])
+
+		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
+		pkt['Payload']['SMB'].v['Flags1'] = 0x18
+		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		pkt['Payload']['SMB'].v['WordCount'] = 13
+		pkt['Payload'].v['AndX'] = 255
+		pkt['Payload'].v['MaxBuff'] = 0xffdf
+		pkt['Payload'].v['MaxMPX'] = 2
+		pkt['Payload'].v['VCNum'] = 1
+		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
+		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
+		pkt['Payload'].v['Capabilities'] = 64
+		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['Payload'] = data
+
+		ret = self.smb_send(pkt.to_s)
+		return ret if not do_recv
+
+		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
+
+		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
+			self.auth_user = user
+		end
+
+		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
+
+		info = ack['Payload'].v['Payload'].split(/\x00/)
+
+		self.peer_native_os = info[0]
+		self.peer_native_lm = info[1]
+		self.default_domain = info[2]
+
+		return ack
+	end
+
+	# Authenticate using extended security negotiation 
+	def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
+
+		if require_signing 
+			ntlmssp_flags = 0xe2088215
 		else
-			hash_lm = pass.length > 0 ? CRYPT.lanman_des(pass, self.challenge_key) : ''
-			hash_nt = pass.length > 0 ? CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+
+			ntlmssp_flags = 0xa2080205
 		end
 
-		data = ''
-		data << hash_lm
-		data << hash_nt
-		data << user + "\x00"
-		data << domain + "\x00"
-		data << self.native_os + "\x00"
-		data << self.native_lm + "\x00"
+		if self.usentlm2_session
+			if self.use_ntlmv2
+				#set Negotiate Target Info
+				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_TARGET_INFO	
+			end
 
-		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
-		pkt['Payload']['SMB'].v['WordCount'] = 13
-		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['MaxBuff'] = 0xffdf
-		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1
-		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
-		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
-		pkt['Payload'].v['Capabilities'] = 64
-		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = data
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
-
-		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
-
-		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
-			self.auth_user = user
+		else
+			#remove the ntlm2_session flag
+			ntlmssp_flags &= 0xfff7ffff
+			#set lanmanflag only when lm and ntlm are sent
+			if self.send_lm
+				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_LMKEY if self.use_lanman_key
+			end
 		end
+	
+		#we can also downgrade ntlm2_session when we send only lmv1
+		ntlmssp_flags &= 0xfff7ffff if self.usentlm2_session && (not self.use_ntlmv2) && (not self.send_ntlm)
 
-		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
-
-		info = ack['Payload'].v['Payload'].split(/\x00/)
-
-		self.peer_native_os = info[0]
-		self.peer_native_lm = info[1]
-		self.default_domain = info[2]
-
-		return ack
-	end
-
-
-	# Authenticate using NTLMv1 with a precomputed hash pair
-	def session_setup_ntlmv1_prehash(user, domain, hash_lm, hash_nt, do_recv = true)
-
-		data = ''
-		data << hash_lm
-		data << hash_nt
-		data << user + "\x00"
-		data << domain + "\x00"
-		data << self.native_os + "\x00"
-		data << self.native_lm + "\x00"
-
-		pkt = CONST::SMB_SETUP_NTLMV1_PKT.make_struct
-		self.smb_defaults(pkt['Payload']['SMB'])
-
-		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
-		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
-		pkt['Payload']['SMB'].v['WordCount'] = 13
-		pkt['Payload'].v['AndX'] = 255
-		pkt['Payload'].v['MaxBuff'] = 0xffdf
-		pkt['Payload'].v['MaxMPX'] = 2
-		pkt['Payload'].v['VCNum'] = 1
-		pkt['Payload'].v['PasswordLenLM'] = hash_lm.length
-		pkt['Payload'].v['PasswordLenNT'] = hash_nt.length
-		pkt['Payload'].v['Capabilities'] = 64
-		pkt['Payload'].v['SessionKey'] = self.session_id
-		pkt['Payload'].v['Payload'] = data
-
-		ret = self.smb_send(pkt.to_s)
-		return ret if not do_recv
-
-		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX)
-
-		if (ack['Payload'].v['Action'] != 1 and user.length > 0)
-			self.auth_user = user
-		end
-
-		self.auth_user_id = ack['Payload']['SMB'].v['UserID']
-
-		info = ack['Payload'].v['Payload'].split(/\x00/)
-
-		self.peer_native_os = info[0]
-		self.peer_native_lm = info[1]
-		self.default_domain = info[2]
-
-		return ack
-	end
-
-	# Authenticate using extended security negotiation (NTLMv2)
-	def session_setup_ntlmv2(user = '', pass = '', domain = '', name = nil, do_recv = true)
 
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
 		end
 
-		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
+		blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name, ntlmssp_flags)
 
 		native_data = ''
 		native_data << self.native_os + "\x00"
@@ -726,26 +787,33 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
+		if require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
 		pkt['Payload']['SMB'].v['WordCount'] = 12
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
 		pkt['Payload'].v['VCNum'] = 1
 		pkt['Payload'].v['SecurityBlobLen'] = blob.length
-		pkt['Payload'].v['Capabilities'] = 0x8000d05c
+		pkt['Payload'].v['Capabilities'] = 0x800000d4
 		pkt['Payload'].v['SessionKey'] = self.session_id
 		pkt['Payload'].v['Payload'] = blob + native_data
 
 		ret = self.smb_send(pkt.to_s)
+
 		return ret if not do_recv
 
 		ack = self.smb_recv_parse(CONST::SMB_COM_SESSION_SETUP_ANDX, true)
 
 
-		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
+		# The server doesn't know about NTLM_NEGOTIATE
 		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
-			return session_setup_ntlmv1(user, pass, domain)
+			return session_setup_no_ntlmssp(user, pass, domain)
 		end
 
 		# Make sure the error code tells us to continue processing
@@ -782,62 +850,208 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Extract the address list from the blob
 		alist_len,alist_mlen,alist_off = blob[cidx + 40, 8].unpack("vvV")
 		alist_buf = blob[cidx + alist_off, alist_len]
-
+		chall_MsvAvTimestamp = nil
 		while(alist_buf.length > 0)
 			atype, alen = alist_buf.slice!(0,4).unpack('vv')
 			break if atype == 0x00
 			addr = alist_buf.slice!(0, alen)
 			case atype
 			when 1
+				#netbios name
 				self.default_name =  addr.gsub("\x00", '')
 			when 2
+				#netbios domain
 				self.default_domain = addr.gsub("\x00", '')
 			when 3
+				#dns name
 				self.dns_host_name =  addr.gsub("\x00", '')
 			when 4
+				#dns domain
 				self.dns_domain_name =  addr.gsub("\x00", '')
 			when 5
-				# unknown
+				#The FQDN of the forest.
+			when 6
+				#A 32-bit value indicating server or client configuration
 			when 7
 				# client time
+				chall_MsvAvTimestamp = addr
+			when 8
+				#A Restriction_Encoding structure 
+			when 9
+				#The SPN of the target server. 
+			when 10
+				#A channel bindings hash.
 			end
 		end
+	
+		#calculate the lm/ntlm response
+		resp_lm = "\x00" * 24
+		resp_ntlm = "\x00" * 24
 
-
-		# Generate a random client-side challenge
 		client_challenge = Rex::Text.rand_text(8)
+		ntlm_cli_challenge = ''
+		if self.send_ntlm  #should be default
+			if self.usentlm2_session
 
-		# Generate the nonce
-		nonce = CRYPT.md5_hash(self.challenge_key + client_challenge)
+				if self.use_ntlmv2
+				#This is only a partial implementation, in some situation servers may send STATUS_INVALID_PARAMETER 
+				#answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 
-		# Generate the NTLM hash
-		if (pass.length == 65)
-			resp_ntlm = CRYPT.e_p24( [ pass.upcase()[33,65] ].pack('H42'), nonce[0, 8])
-		else
-			resp_ntlm = CRYPT.ntlm_md4(pass, nonce[0, 8])
+					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
+												dns_host_name,client_challenge , chall_MsvAvTimestamp)
+					argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
+							:challenge => self.challenge_key }
+					optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
+					ntlmv2_response = NTLM_CRYPT::ntlmv2_response(argntlm,optntlm)
+					resp_ntlm = ntlmv2_response 
+					if self.send_lm
+						arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+								:challenge => self.challenge_key }
+						optlm = {	:client_challenge => client_challenge}
+						resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
+					else
+						resp_lm = "\x00" * 24
+					end
+
+				else # ntlm2_session	
+
+					argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+							:challenge => self.challenge_key }
+					optntlm = {	:client_challenge => client_challenge}
+
+					resp_ntlm = NTLM_CRYPT::ntlm2_session(argntlm,optntlm).join[24,24]
+					# Generate the fake LANMAN hash
+					resp_lm = client_challenge + ("\x00" * 16)
+				end
+
+			else #we use lmv1/ntlmv1
+
+				argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+						:challenge =>  self.challenge_key }
+			
+				resp_ntlm = NTLM_CRYPT::ntlm_response(argntlm)
+				if self.send_lm
+					arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
+							:challenge =>  self.challenge_key }
+					resp_lm = NTLM_CRYPT::lm_response(arglm)
+				else
+					#when windows does not send lm in ntlmv1 type response,
+					# it gives lm response the same value as ntlm response
+					resp_lm  = resp_ntlm
+				end
+			end
+		else #send_ntlm = false 
+			#lmv2
+			if self.usentlm2_session && self.use_ntlmv2
+				arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+						:challenge => self.challenge_key }
+				optlm = {	:client_challenge => client_challenge}
+				resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
+			else
+				arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
+						:challenge =>  self.challenge_key }
+				resp_lm = NTLM_CRYPT::lm_response(arglm)
+			end
+			resp_ntlm = ""
 		end
 
-		# Generate the fake LANMAN hash
-		resp_lmv2 = client_challenge + ("\x00" * 16)
 
-		# Create the ntlmv2 security blob data
-		blob = UTILS.make_ntlmv2_secblob_auth(domain, name, user, resp_lmv2, resp_ntlm)
+		#create the sessionkey (aka signing key, aka mackey) and encrypted session key
+		#server will decide for key_size and key_exchange
+		enc_session_key = ''
+		if self.require_signing
+			server_ntlmssp_flags = blob[cidx + 20, 4].unpack("V")[0]
+			#set default key size and key exchange values
+			key_size = 40
+			key_exchange = false
+			#remove ntlmssp.negotiate56
+			ntlmssp_flags &= 0x7fffffff
+			#remove ntlmssp.negotiatekeyexch
+			ntlmssp_flags &= 0xbfffffff
+			#remove ntlmssp.negotiate128
+			ntlmssp_flags &= 0xdfffffff
+			#check the keyexchange
+			if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_KEY_EXCH != 0 then
+				key_exchange = true
+				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_KEY_EXCH
+			end
+			#check 128bits
+			if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_128 != 0 then
+				key_size = 128
+				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_128
+				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_56
+			#check 56bits
+			else
+				if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_56 != 0 then
+					key_size = 56
+					ntlmssp_flags |= NTLM_CONST::NEGOTIATE_56
+				end
+			end
+
+			#generate the user session key
+			lanman_weak = false
+			if self.send_ntlm  #should be default
+				if self.usentlm2_session
+					if self.use_ntlmv2
+						user_session_key = NTLM_CRYPT::ntlmv2_user_session_key(user, pass, domain, 
+												self.challenge_key, ntlm_cli_challenge)
+					else
+						user_session_key = NTLM_CRYPT::ntlm2_session_user_session_key(pass, self.challenge_key, client_challenge)
+					end
+				else #lmv1 / ntlmv1
+					if self.send_lm
+						if self.use_lanman_key
+							user_session_key = NTLM_CRYPT::lanman_session_key(pass, self.challenge_key)
+							lanman_weak = true
+						else
+							user_session_key = NTLM_CRYPT::ntlmv1_user_session_key(pass )
+						end
+					end
+				end
+			else
+					if self.usentlm2_session && self.use_ntlmv2
+						user_session_key = NTLM_CRYPT::lmv2_user_session_key(user, pass, domain, 
+												self.challenge_key, client_challenge)
+					else
+						user_session_key = NTLM_CRYPT::lmv1_user_session_key(pass )
+					end
+			end
+
+			user_session_key = NTLM_CRYPT::make_weak_sessionkey(user_session_key,key_size, lanman_weak)			
+			self.sequence_counter = 0
+			#sessionkey and encrypted session key
+			if key_exchange
+				self.signing_key = Rex::Text.rand_text(16)
+				enc_session_key = NTLM_CRYPT::encrypt_sessionkey(self.signing_key, user_session_key)
+			else
+				self.signing_key = user_session_key
+			end
+	
+		end
+		# Create the security blob data
+		blob = NTLM_UTILS.make_ntlmssp_secblob_auth(domain, name, user, resp_lm, resp_ntlm, enc_session_key, ntlmssp_flags)
 
 		pkt = CONST::SMB_SETUP_NTLMV2_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_SESSION_SETUP_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2801
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
 		pkt['Payload']['SMB'].v['WordCount'] = 12
 		pkt['Payload']['SMB'].v['UserID'] = temp_user_id
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['MaxBuff'] = 0xffdf
 		pkt['Payload'].v['MaxMPX'] = 2
 		pkt['Payload'].v['VCNum'] = 1
-		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Capabilities'] = 0x8000d05c
 		pkt['Payload'].v['SessionKey'] = self.session_id
+		pkt['Payload'].v['SecurityBlobLen'] = blob.length
 		pkt['Payload'].v['Payload'] = blob + native_data
 
 		# NOTE: if do_recv is set to false, we cant reach here...
@@ -848,7 +1062,7 @@ EVADE = Rex::Proto::SMB::Evasions
 		# Make sure that authentication succeeded
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
 			if (user.length == 0)
-				return self.session_setup_ntlmv1(user, pass, domain)
+				return self.session_setup_no_ntlmssp(user, pass, domain)
 			end
 
 			failure = XCEPT::ErrorCode.new
@@ -869,7 +1083,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 
 	# An exploit helper function for sending arbitrary SPNEGO blobs
-	def session_setup_ntlmv2_blob(blob = '', do_recv = true)
+	def session_setup_with_ntlmssp_blob(blob = '', do_recv = true)
 		native_data = ''
 		native_data << self.native_os + "\x00"
 		native_data << self.native_lm + "\x00"
@@ -898,14 +1112,14 @@ EVADE = Rex::Proto::SMB::Evasions
 	end
 
 
-	# Authenticate using extended security negotiation (NTLMv2), but stop half-way, using the temporary ID
-	def session_setup_ntlmv2_temp(domain = '', name = nil, do_recv = true)
+	# Authenticate using extended security negotiation (NTLMSSP), but stop half-way, using the temporary ID
+	def session_setup_with_ntlmssp_temp(domain = '', name = nil, do_recv = true)
 
 		if (name == nil)
 			name = Rex::Text.rand_text_alphanumeric(16)
 		end
 
-		blob = UTILS.make_ntlmv2_secblob_init(domain, name)
+		blob = NTLM_UTILS.make_ntlmssp_secblob_init(domain, name)
 
 		native_data = ''
 		native_data << self.native_os + "\x00"
@@ -934,7 +1148,7 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		# The server doesn't know about NTLM_NEGOTIATE, try ntlmv1
 		if (ack['Payload']['SMB'].v['ErrorClass'] == 0x00020002)
-			return session_setup_ntlmv1(user, pass, domain)
+			return session_setup_no_ntlmssp(user, pass, domain)
 		end
 
 		# Make sure the error code tells us to continue processing
@@ -981,7 +1195,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_CONNECT_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 4
 		pkt['Payload'].v['AndX'] = 255
 		pkt['Payload'].v['PasswordLen'] = pass.length + 1
@@ -1008,7 +1229,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TREE_DISCONNECT
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 0
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 
@@ -1037,7 +1265,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_CREATE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 24
 
 		pkt['Payload'].v['AndX'] = 255
@@ -1071,7 +1306,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_DELETE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 		pkt['Payload']['SMB'].v['WordCount'] = 1
 
@@ -1095,7 +1337,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_OPEN_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 15
 
 		pkt['Payload'].v['AndX'] = 255
@@ -1125,7 +1374,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_CLOSE
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['TreeID'] = tree_id
 		pkt['Payload']['SMB'].v['WordCount'] = 3
 
@@ -1140,10 +1396,8 @@ EVADE = Rex::Proto::SMB::Evasions
 		return ack
 	end
 
-
 	# Writes data to an open file handle
 	def write(file_id = self.last_file_id, offset = 0, data = '', do_recv = true)
-
 		pkt = CONST::SMB_WRITE_PKT.make_struct
 		self.smb_defaults(pkt['Payload']['SMB'])
 
@@ -1153,7 +1407,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_WRITE_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2805
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 14
 
 		pkt['Payload'].v['AndX'] = 255
@@ -1184,7 +1445,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_READ_ANDX
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 10
 
 		pkt['Payload'].v['AndX'] = 255
@@ -1272,7 +1540,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1343,7 +1618,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1406,7 +1688,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1449,7 +1738,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_TRANSACTION2
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 14 + setup_count
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1488,7 +1784,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 19 + setup_count
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1526,7 +1829,14 @@ EVADE = Rex::Proto::SMB::Evasions
 
 		pkt['Payload']['SMB'].v['Command'] = CONST::SMB_COM_NT_TRANSACT_SECONDARY
 		pkt['Payload']['SMB'].v['Flags1'] = 0x18
-		pkt['Payload']['SMB'].v['Flags2'] = 0x2001
+		if self.require_signing
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] = 0x2807
+		else
+			#ascii
+			pkt['Payload']['SMB'].v['Flags2'] =  0x2801
+		end
+
 		pkt['Payload']['SMB'].v['WordCount'] = 18
 
 		pkt['Payload'].v['ParamCountTotal'] = param.length
@@ -1757,7 +2067,8 @@ EVADE = Rex::Proto::SMB::Evasions
 
 # public read/write methods
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
-	attr_accessor  :system_time, :system_zone
+	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm 
+	attr_accessor  	:system_time, :system_zone
 
 # public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
@@ -1765,6 +2076,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	attr_reader		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_reader		:dns_host_name, :dns_domain_name
 	attr_reader		:security_mode, :server_guid
+	#signing related 
+	attr_reader		:sequence_counter,:signing_key, :require_signing
 
 # private methods
 	attr_writer		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os
@@ -1772,6 +2085,8 @@ EVADE = Rex::Proto::SMB::Evasions
 	attr_writer		:dns_host_name, :dns_domain_name
 	attr_writer		:multiplex_id, :last_tree_id, :last_file_id, :process_id, :last_search_id
 	attr_writer		:security_mode, :server_guid
+	#signing related 
+	attr_writer		:sequence_counter,:signing_key, :require_signing
 
 	attr_accessor	:socket
 

@@ -20,16 +20,17 @@ def usage
 	exit
 end
 
-def try(word)
-	buf = ::Rex::Proto::SMB::Crypt.lanman_des(word, "\x11\x22\x33\x44\x55\x66\x77\x88")
+def try(word,challenge)
+	buf = ::Rex::Proto::NTLM::Crypt.lanman_des(word, challenge)
 	buf.unpack("H*")[0]
 end
 
-hash = pass = nil
+hash = pass = chall = nil
 
 $args = Rex::Parser::Arguments.new(
 	"-n" => [ true,  "The encypted LM hash to crack"                                    ],
-	"-p" => [ true,  "The decrypted LANMAN password for bytes 1-7"                                      ],
+	"-p" => [ true,  "The decrypted LANMAN password for bytes 1-7"                      ],
+	"-s" => [ true,  "The server challenge (default value 1122334455667788)"            ],
 	"-h" => [ false, "Display this help information"                                      ])
 
 
@@ -39,6 +40,8 @@ $args.parse(ARGV) { |opt, idx, val|
 			hash = val
 		when "-p"
 			pass = val
+		when "-s"
+			chall = val
 		when "-h"
 			usage
 		else
@@ -50,6 +53,18 @@ if (not (hash and pass))
 	usage
 end
 
+if (not chall)
+	chall = ["1122334455667788"].pack("H*")
+else
+	if not chall =~ /^([a-fA-F0-9]{16})$/
+		$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
+		exit
+	else
+		chall = [chall].pack("H*")
+	end
+end
+
+
 if(hash.length != 48)
 	$stderr.puts "[*] LANMAN should be exactly 48 bytes of hexadecimal"
 	exit
@@ -60,6 +75,8 @@ if(pass.length != 7)
 	exit
 end
 
+
+
 pass = pass.upcase
 hash = hash.downcase
 
@@ -69,7 +86,7 @@ stime = Time.now.to_f
 puts "[*] Trying one character..."
 0.upto(cset.length-1) do |c1|
 	test = pass + cset[c1].chr
-	if(try(test) == hash)
+	if(try(test, chall) == hash)
 		puts "[*] Cracked: #{test}"
 		exit
 	end
@@ -80,7 +97,7 @@ puts "[*] Trying two characters (eta: #{etime * cset.length} seconds)..."
 0.upto(cset.length-1) do |c1|
 0.upto(cset.length-1) do |c2|
 	test = pass + cset[c1].chr + cset[c2].chr
-	if(try(test) == hash)
+	if(try(test, chall) == hash)
 		puts "[*] Cracked: #{test}"
 		exit
 	end
@@ -92,7 +109,7 @@ puts "[*] Trying three characters (eta: #{etime * cset.length * cset.length} sec
 0.upto(cset.length-1) do |c2|
 0.upto(cset.length-1) do |c3|
 	test = pass + cset[c1].chr + cset[c2].chr + cset[c3].chr
-	if(try(test) == hash)
+	if(try(test, chall) == hash)
 		puts "[*] Cracked: #{test}"
 		exit
 	end
@@ -107,7 +124,7 @@ puts "[*] Trying four characters (eta: #{etime * cset.length * cset.length * cse
 0.upto(cset.length-1) do |c3|
 0.upto(cset.length-1) do |c4|
 	test = pass + cset[c1].chr + cset[c2].chr + cset[c3].chr + cset[c4].chr
-	if(try(test) == hash)
+	if(try(test, chall) == hash)
 		puts "[*] Cracked: #{test}"
 		exit
 	end
