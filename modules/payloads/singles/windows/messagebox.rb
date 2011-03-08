@@ -85,7 +85,6 @@ module Metasploit3
 	;store function address at ebx+08
 	mov [ebp+0x8],eax
 EOS
-
 		doexit = <<EOS
 	xor eax,eax		;zero out eax
 	push eax		;put 0 on stack
@@ -100,6 +99,12 @@ EOS
 	call eax
 EOS
 			getexitfunc = ''
+		end
+		
+		# if exit is set to none, then make exit empty
+		if datastore['EXITFUNC'].upcase.strip == "NONE"
+			getexitfunc = ''
+			doexit = ''
 		end
 
 		# Generate code to get ptr to Title
