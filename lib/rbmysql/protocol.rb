@@ -235,7 +235,8 @@ class RbMysql
           header = @sock.read(4)
           len1, len2, seq = header.unpack("CvC")
           len = (len2 << 8) + len1
-          raise ProtocolError, "invalid packet: sequence number mismatch(#{seq} != #{@seq}(expected))" if @seq != seq
+					# Ignore the sequence number -- protocol differences between 4.x and 5.x
+          # raise ProtocolError, "invalid packet: sequence number mismatch(#{seq} != #{@seq}(expected))" if @seq != seq
           @seq = (@seq + 1) % 256
           ret.concat @sock.read(len)
         end
@@ -295,7 +296,8 @@ class RbMysql
     # ProtocolError :: packet is not EOF
     def read_eof_packet
       data = read
-      raise ProtocolError, "packet is not EOF" unless Protocol.eof_packet? data
+			# EOF packet is different between MySQL 4.x and 5.x, so ignore.
+      # raise ProtocolError, "packet is not EOF" unless Protocol.eof_packet? data
     end
 
     # Read initial packet
