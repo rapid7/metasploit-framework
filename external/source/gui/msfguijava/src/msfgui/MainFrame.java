@@ -1511,20 +1511,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			}
 		});
 		jobsList.addMouseListener( new PopupMouseListener() {
-			public void doubleClicked(MouseEvent e){ //show interaction window on double-click
-				try{
-					Object obj = ((Map)rpcConn.execute("job.info", clickedJob)).get("info");
-					(new JobInfoPopup(null, true, obj)).setVisible(true);
-				}catch (MsfException xre) {
-					JOptionPane.showMessageDialog(null, "info failed " + xre);
-				}
-			}
-			public void showPopup(MouseEvent e) {
+			public void mouseClicked(MouseEvent e){
 				int indx = jobsList.locationToIndex(e.getPoint());
-				if(indx == -1)
+				if (indx == -1)
 					return;
 				jobsList.setSelectedIndex(indx);
 				clickedJob = jobsList.getSelectedValue().toString().split(" ")[0];
+				if(e.getClickCount() > 1)
+					(new JobInfoPopup(null, true,
+							((Map)rpcConn.execute("job.info", clickedJob)).get("info"))).setVisible(true);
+			}
+			public void doubleClicked(MouseEvent e){
+			}
+			public void showPopup(MouseEvent e) {
 				jobPopupMenu.show(jobsList, e.getX(), e.getY() );
 			}
 		});
@@ -1725,13 +1724,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private void addScript(final String name, JComponent menu, final Object action){
 		addSessionItem(name,menu,action);
 		JMenuItem menuItem = new JMenuItem(name);
-        menuItem.setName(name);
-        menuItem.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent evt) {
-                runOnAllMeterpreters("run "+action.toString(),name,statusMessageLabel);
-            }
-        });
-        menuRunAllMeterp.add(menuItem);
+		menuItem.setName(name);
+		menuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent evt) {
+				runOnAllMeterpreters("run "+action.toString(),name,statusMessageLabel);
+			}
+		});
+		menuRunAllMeterp.add(menuItem);
 	}
 	/** Adds a kill session menu item to a given popup menu */
 	private void addSessionKillItem(JComponent popupMenu) throws HeadlessException {

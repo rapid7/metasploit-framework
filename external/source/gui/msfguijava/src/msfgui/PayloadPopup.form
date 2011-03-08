@@ -57,16 +57,12 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="outputScrollPane" pref="1077" max="32767" attributes="0"/>
+                              <Component id="outputScrollPane" pref="1115" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="1" attributes="0">
                               <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="descriptionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="authorsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="licenseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                                  <Component id="descriptionBox" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Component id="generateButton" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
@@ -75,6 +71,8 @@
                                       <Component id="saveButton" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="handleButton" min="-2" max="-2" attributes="0"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="handleConsoleButton" min="-2" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" alignment="1" attributes="0">
                                       <Group type="103" groupAlignment="0" attributes="0">
@@ -118,22 +116,15 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="descriptionLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="authorsLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="licenseLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="versionLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
+                      <Component id="descriptionBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="generateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="displayButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="saveButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="handleButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="handleConsoleButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="outputScrollPane" pref="437" max="32767" attributes="0"/>
@@ -259,17 +250,14 @@
                 <Property name="name" type="java.lang.String" value="archField" noResource="true"/>
               </Properties>
             </Component>
-            <Component class="javax.swing.JLabel" name="descriptionLabel">
+            <Component class="javax.swing.JLabel" name="descriptionBox">
               <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="descriptionLabel.text"/>
-                <Property name="name" type="java.lang.String" value="descriptionLabel" noResource="true"/>
+                <Property name="text" type="java.lang.String" resourceKey="descriptionBox.text"/>
+                <Property name="name" type="java.lang.String" value="descriptionBox" noResource="true"/>
               </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="titleLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="titleLabel.text"/>
-                <Property name="name" type="java.lang.String" value="titleLabel" noResource="true"/>
-              </Properties>
+              <AuxValues>
+                <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+              </AuxValues>
             </Component>
             <Component class="javax.swing.JLabel" name="encoderLabel">
               <Properties>
@@ -285,24 +273,6 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="generateButtonActionPerformed"/>
               </Events>
-            </Component>
-            <Component class="javax.swing.JLabel" name="versionLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="versionLabel.text"/>
-                <Property name="name" type="java.lang.String" value="versionLabel" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="licenseLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="licenseLabel.text"/>
-                <Property name="name" type="java.lang.String" value="licenseLabel" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="authorsLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="authorsLabel.text"/>
-                <Property name="name" type="java.lang.String" value="authorsLabel" noResource="true"/>
-              </Properties>
             </Component>
             <Container class="javax.swing.JScrollPane" name="outputScrollPane">
               <Properties>
@@ -389,6 +359,15 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="handleButtonActionPerformed"/>
+              </Events>
+            </Component>
+            <Component class="javax.swing.JButton" name="handleConsoleButton">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="handleConsoleButton.text"/>
+                <Property name="name" type="java.lang.String" value="handleConsoleButton" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="handleConsoleButtonActionPerformed"/>
               </Events>
             </Component>
           </SubComponents>

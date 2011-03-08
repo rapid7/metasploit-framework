@@ -32,18 +32,10 @@ import javax.swing.tree.TreeSelectionModel;
  * Displays a window showing options for a module, and support for running the module.
  * @author scriptjunkie
  */
-public class ModulePopup extends MsfFrame implements TreeSelectionListener{
+public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListener{
 	private JMenu recentMenu;
-	private String moduleType;
-	private String fullName;
-	private RpcConnection rpcConn;
 	private String payload;
 	private String target;
-	private ArrayList requiredOpts; // I love how these options aren't optional
-	private ArrayList optionalOpts;
-	private ArrayList advancedOpts;
-	private Map options;
-	private MainFrame parentFrame;
 
 	/** Creates new ModulePopup from recent run */
 	public ModulePopup(RpcConnection rpcConn, Object[] args, MainFrame parentFrame) {
@@ -88,6 +80,10 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 		initComponents();
 		exploitButton.setText("Run "+moduleType);
 		exploitButton1.setText("Run "+moduleType);
+		exploitButton.setEnabled(false);
+		exploitButton1.setEnabled(false);
+		consoleRunButton.setEnabled(false);
+		consoleRunButton1.setEnabled(false);
 		this.moduleType = moduleType;
 		requiredOpts = new ArrayList();
 		optionalOpts = new ArrayList();
@@ -127,40 +123,7 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
     /** Displays targetsMap on frame */
 	private void showModuleInfo(final RpcConnection rpcConn, final String fullName) throws HeadlessException {
 		try { //Get info
-			Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
-			//Basic info
-			setTitle(info.get("name") + " " + fullName);
-			titleLabel.setText("<html><h2>"+info.get("name")+ "</h2> <b>Rank:</b> "+Rank.toString(info.get("rank"))+"</html>");
-			Object references = info.get("references");
-			StringBuilder referenceString = new StringBuilder();
-			if(references != null){
-				List refList = (List)references;
-				referenceString.append("<br>References:<br>");
-				for(Object refo : refList){
-					List ref = (List)refo;
-					referenceString.append(ref.get(0)).append(": ").append(ref.get(1)).append("<br> ");
-				}
-				referenceString.append("<br>");
-			}
-			descriptionBox.setText("<html><b>Description</b> "+info.get("description").toString().replaceAll("\\s+", " ")+referenceString+"</html>");
-			if(info.get("license") instanceof String){
-				licenseLabel.setText("<html><b>License:</b> "+ info.get("license")+"</html>");
-			}else{
-				List license = (List) info.get("license");
-				StringBuilder licenseString = new StringBuilder();
-				for(Object lic : license)
-					licenseString.append(lic).append(" ");
-				licenseLabel.setText("<html><b>License:</b> "+ licenseString+"</html>");
-			}
-			versionLabel.setText("<html><b>Version:</b> "+ info.get("version")+"</html>");
-			//Authors
-			List authors = (List) info.get("authors");
-			StringBuilder authorLine = new StringBuilder();
-			if (authors.size() > 0)
-				authorLine.append(authors.get(0).toString());
-			for (int i = 1; i < authors.size(); i++)
-				authorLine.append(", ").append(authors.get(i));
-			authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
+			Map info = showBasicInfo(rpcConn, fullName);
 			if(moduleType.equals("exploit")){
 				//Targets
 				Map targetsMap = (Map) info.get("targets");
@@ -257,104 +220,20 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 
    /** Displays exploit and payload options. */
 	private void showOptions() {
-		for(Object o : requiredOpts)
-			mainPanel.remove((Component)o);
-		requiredOpts.clear();
-		for(Object o : optionalOpts)
-			mainPanel.remove((Component)o);
-		optionalOpts.clear();
-		for(Object o : advancedOpts)
-			mainPanel.remove((Component)o);
-		advancedOpts.clear();
-		try{
-			//get options
-			options = (Map) rpcConn.execute("module.options", moduleType, fullName);
-			// payload options
-			if(moduleType.equals("exploit")){
-				if(payload.length() <= 0){
-					JOptionPane.showMessageDialog(this, "You must select a payload.");
-					return;
-				}
-				options.putAll((Map) rpcConn.execute("module.options", "payload", payload.toString()));
-				Map encodingOpt = new HashMap();
-				encodingOpt.put("desc", "Preferred encoding or encodings for the payload.");
-				encodingOpt.put("required", Boolean.FALSE);
-				encodingOpt.put("advanced", Boolean.TRUE);
-				encodingOpt.put("evasion", Boolean.TRUE);
-				options.put("Encoder", encodingOpt);
-			}
-			//Display each option
-			for (Object optionName : options.keySet()) {
-				Map option = (Map)options.get(optionName); //{desc=blah, evasion=fals, advanced=false, required=true, type=port, default=blah}
-				javax.swing.JLabel tempText = new javax.swing.JLabel();
-				tempText.setText("<html><b>"+optionName.toString()+"</b> " + option.get("desc") + "</html>");
-				tempText.setBorder(null);
-				tempText.setPreferredSize(new java.awt.Dimension(descriptionBox.getWidth(),authorsLabel.getHeight()*2));
-				tempText.setVerticalAlignment(javax.swing.JLabel.BOTTOM);
-				mainPanel.add(tempText);//mainPanel.add(containerPane);
-				tempText.setFont(authorsLabel.getFont());
-				JComponent optionField;
-				Object type = option.get("type");
-
-				//Add different types of input elements for the different types of options
-				if ("bool".equals(type)){ //bool options get checkboxes
-					optionField = new JCheckBox("",Boolean.TRUE.equals(option.get("default")));
-				} else if ("enum".equals(type)){ //enum options get combo boxes
-					JComboBox optionCombo = new JComboBox();
-					List enums = (List)option.get("enums");
-					for(Object opt : enums)
-						optionCombo.addItem(opt);
-					optionCombo.setSelectedItem(option.get("default"));
-					optionField = optionCombo;
-				} else {
-					JTextField optionTextField;
-					if("port".equals(type) || "integer".equals(type)){
-						NumberFormat nf = NumberFormat.getIntegerInstance();
-						nf.setGroupingUsed(false);
-						optionTextField = new JFormattedTextField(nf);
-					} else {// "address"  "string"
-						optionTextField = new JTextField();
-					}
-					if (option.get("default") != null) {
-						optionTextField.setText(option.get("default").toString());
-					} else if (optionName.equals("LHOST")){ //try to find local ip
-						optionTextField.setText(MsfguiApp.getLocalIp());
-					} else if (optionName.equals("WORKSPACE")){
-						optionTextField.setText(MsfguiApp.workspace);
-					} else if (optionName.equals("SESSION") && moduleType.equals("post")
-							&& parentFrame.selectedSessions != null
-							&& parentFrame.selectedSessions.length > 0){
-						optionTextField.setText(parentFrame.selectedSessions[0].get("id").toString());
-					}
-					optionField = optionTextField;
-				}
-				optionField.setName("field" + optionName);
-				mainPanel.add(optionField);
-				if (option.get("advanced").equals(Boolean.FALSE) && option.get("evasion").equals(Boolean.FALSE)){
-					if(option.get("required").equals(Boolean.TRUE)){
-						requiredOpts.add(tempText);
-						requiredOpts.add(optionField);
-					}else {
-						optionalOpts.add(tempText);
-						optionalOpts.add(optionField);
-					}
-				}else{
-					advancedOpts.add(tempText);
-					advancedOpts.add(optionField);
-				}
-			}
-		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(rootPane, ex);
-		}
+		exploitButton.setEnabled(true);
+		exploitButton1.setEnabled(true);
+		consoleRunButton.setEnabled(true);
+		consoleRunButton1.setEnabled(true);
+		showOptions(mainPanel, payload);
 		reGroup();
 	}
 
    /** Runs the exploit with given options and payload. Closes window if successful. */
 	private void runModule(boolean console) {
-		try{
-			//Put options into request
-			HashMap hash = new HashMap();
-			//Exploit only stuff
+		try{// Get options
+			HashMap hash = getOptions(mainPanel);
+
+			//Add exploit only options
 			if(moduleType.equals("exploit")){
 				if(payload.length() <= 0){
 					JOptionPane.showMessageDialog(rootPane, "You must select a payload");
@@ -364,51 +243,8 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 				target = buttonGroup.getSelection().getActionCommand();
 				hash.put("TARGET",target);
 			}
-			//Get all options by looping over all components, and checking name
-			for(Component comp : mainPanel.getComponents()){
-				if(!(comp instanceof JTextField) && !(comp instanceof JCheckBox))
-					continue;
-				JComponent optionField = (JComponent)comp;
-				String optName = optionField.getName().substring("field".length());
-				Object optVal;
-				if(comp instanceof JCheckBox)
-					optVal = ((JCheckBox)comp).isSelected();
-				else if(comp instanceof JComboBox)
-					optVal = ((JComboBox)comp).getSelectedItem();
-				else
-					optVal = ((JTextField)comp).getText();
-				Object defaultVal = ((Map)options.get(optName)).get("default");
-				//only need non-default vals
-				if(defaultVal == null && optVal.toString().length() > 0 && (!optName.equals("WORKSPACE") || !optVal.equals("default"))
-						|| (defaultVal != null &&  ! optVal.toString().equals(defaultVal.toString())))
-					hash.put(optName, optVal.toString()); //msfrpcd likes strings. Give them strings.
-			}
-			//Execute and get results
-			if(console){
-				Map res = (Map)rpcConn.execute("console.create");
-				ArrayList autoCommands = new ArrayList();
-				autoCommands.add("use "+moduleType+"/"+fullName);
-				//Add target if it is set and not zero if there is no default or non-default if there is a default
-				if(hash.containsKey("TARGET") && ((!options.containsKey("TARGET") && !hash.get("TARGET").equals("0")) 
-						|| (options.containsKey("TARGET") && !hash.get("TARGET").equals(((Map)options.get("TARGET")).get("default")))))
-					autoCommands.add("set TARGET "+hash.get("TARGET"));
-				if(hash.containsKey("PAYLOAD"))
-					autoCommands.add("set PAYLOAD "+hash.get("PAYLOAD"));
-				for(Object entObj : hash.entrySet()){
-					Map.Entry ent = (Map.Entry)entObj;
-					if(!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
-						autoCommands.add("set "+ent.getKey()+" "+ent.getValue());
-				}
-				autoCommands.add("exploit");
-				InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);
-				parentFrame.registerConsole(res, true, iw);
-				MsfguiLog.defaultLog.logMethodCall("module.execute", new Object[]{moduleType,fullName,hash});
-			}else{
-				Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
-				if(!info.get("result").equals("success"))
-					JOptionPane.showMessageDialog(rootPane, info);
-			}
-			MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{moduleType, fullName,hash}), rpcConn, parentFrame);
+			//Actually run the module
+			run(console, hash);
 
 			//close out
 			this.setVisible(false);
@@ -509,10 +345,6 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
         buttonGroup = new javax.swing.ButtonGroup();
         mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
-        titleLabel = new javax.swing.JLabel();
-        authorsLabel = new javax.swing.JLabel();
-        licenseLabel = new javax.swing.JLabel();
-        versionLabel = new javax.swing.JLabel();
         targetsLabel = new javax.swing.JLabel();
         payloadScrollPane = new javax.swing.JScrollPane();
         payloadTree = new javax.swing.JTree();
@@ -533,18 +365,6 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
         mainPanel.setName("mainPanel"); // NOI18N
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(ModulePopup.class);
-        titleLabel.setText(resourceMap.getString("titleLabel.text")); // NOI18N
-        titleLabel.setName("titleLabel"); // NOI18N
-
-        authorsLabel.setText(resourceMap.getString("authorsLabel.text")); // NOI18N
-        authorsLabel.setName("authorsLabel"); // NOI18N
-
-        licenseLabel.setText(resourceMap.getString("licenseLabel.text")); // NOI18N
-        licenseLabel.setName("licenseLabel"); // NOI18N
-
-        versionLabel.setText(resourceMap.getString("versionLabel.text")); // NOI18N
-        versionLabel.setName("versionLabel"); // NOI18N
-
         targetsLabel.setText(resourceMap.getString("targetsLabel.text")); // NOI18N
         targetsLabel.setName("targetsLabel"); // NOI18N
 
@@ -612,13 +432,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
             .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
-                    .addComponent(authorsLabel)
-                    .addComponent(licenseLabel)
-                    .addComponent(versionLabel)
+                    .addComponent(descriptionPane, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
                     .addComponent(targetsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 431, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 497, Short.MAX_VALUE)
-                    .addComponent(titleLabel)
+                    .addComponent(payloadScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 500, Short.MAX_VALUE)
                     .addComponent(requiredLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(optionalLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(advancedLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -635,17 +451,9 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
         mainPanelLayout.setVerticalGroup(
             mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(mainPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(titleLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(36, 36, 36)
                 .addComponent(descriptionPane, javax.swing.GroupLayout.PREFERRED_SIZE, 122, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(authorsLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(licenseLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(versionLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(78, 78, 78)
                 .addComponent(targetsLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(payloadScrollPane, javax.swing.GroupLayout.PREFERRED_SIZE, 296, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -700,15 +508,13 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel advancedLabel;
-    private javax.swing.JLabel authorsLabel;
     private javax.swing.ButtonGroup buttonGroup;
     private javax.swing.JButton consoleRunButton;
     private javax.swing.JButton consoleRunButton1;
-    private javax.swing.JEditorPane descriptionBox;
+    public javax.swing.JEditorPane descriptionBox;
     private javax.swing.JScrollPane descriptionPane;
     private javax.swing.JButton exploitButton;
     private javax.swing.JButton exploitButton1;
-    private javax.swing.JLabel licenseLabel;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JLabel optionalLabel;
@@ -716,7 +522,5 @@ public class ModulePopup extends MsfFrame implements TreeSelectionListener{
     private javax.swing.JTree payloadTree;
     private javax.swing.JLabel requiredLabel;
     private javax.swing.JLabel targetsLabel;
-    private javax.swing.JLabel titleLabel;
-    private javax.swing.JLabel versionLabel;
     // End of variables declaration//GEN-END:variables
 }

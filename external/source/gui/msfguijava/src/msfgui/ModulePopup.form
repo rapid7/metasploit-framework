@@ -55,12 +55,8 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="descriptionPane" alignment="0" pref="500" max="32767" attributes="0"/>
-                          <Component id="authorsLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="licenseLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="targetsLabel" alignment="0" min="-2" pref="431" max="-2" attributes="0"/>
                           <Component id="payloadScrollPane" alignment="0" pref="500" max="32767" attributes="0"/>
-                          <Component id="titleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="requiredLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="optionalLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="advancedLabel" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -82,17 +78,9 @@
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="titleLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="36" max="-2" attributes="0"/>
                       <Component id="descriptionPane" min="-2" pref="122" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="authorsLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="licenseLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="versionLabel" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
                       <Component id="targetsLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="payloadScrollPane" min="-2" pref="296" max="-2" attributes="0"/>
@@ -118,30 +106,6 @@
             </DimensionLayout>
           </Layout>
           <SubComponents>
-            <Component class="javax.swing.JLabel" name="titleLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="titleLabel.text"/>
-                <Property name="name" type="java.lang.String" value="titleLabel" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="authorsLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="authorsLabel.text"/>
-                <Property name="name" type="java.lang.String" value="authorsLabel" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="licenseLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="licenseLabel.text"/>
-                <Property name="name" type="java.lang.String" value="licenseLabel" noResource="true"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="versionLabel">
-              <Properties>
-                <Property name="text" type="java.lang.String" resourceKey="versionLabel.text"/>
-                <Property name="name" type="java.lang.String" value="versionLabel" noResource="true"/>
-              </Properties>
-            </Component>
             <Component class="javax.swing.JLabel" name="targetsLabel">
               <Properties>
                 <Property name="text" type="java.lang.String" resourceKey="targetsLabel.text"/>
@@ -206,6 +170,9 @@
                     <Property name="editable" type="boolean" value="false"/>
                     <Property name="name" type="java.lang.String" value="descriptionBox" noResource="true"/>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
