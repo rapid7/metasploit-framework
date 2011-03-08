@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		print_status("Processing IP #{ip}")
 
 		res = send_request_cgi(
 			{
@@ -54,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status(info)
 
 		if(res.body and />(JBoss[^<]+)/.match(res.body) )
-			print_error("JBoss error message: #{$1}")
+			print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
 		end
 
 		apps = [ '/jmx-console/HtmlAdaptor',
@@ -65,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			'/invoker/JMXInvokerServlet'
 		]
 
-		print_status("Checking http...")
+		print_status("#{rhost}:#{rport} Checking http...")
 		apps.each do |app|
 			check_app(app)
 		end
@@ -76,10 +75,10 @@ class Metasploit3 < Msf::Auxiliary
 			1099 => 'Naming Service',
 			4444 => 'RMI invoker'
 		}
-		print_status("Checking services...")
+		print_status("#{rhost}:#{rport} Checking services...")
 		ports.each do |port,service|
 			status = test_connection(ip,port) == :up ? "open" : "closed";
-			print_status("#{service} tcp/#{port}: #{status}")
+			print_status("#{rhost}:#{rport} #{service} tcp/#{port}: #{status}")
 		end
 
 	end
@@ -95,27 +94,27 @@ class Metasploit3 < Msf::Auxiliary
 		if (res)
 			case
 			when res.code == 200
-				print_status("#{app} does not require authentication (200)")
+				print_good("#{rhost}:#{rport} #{app} does not require authentication (200)")
 			when res.code == 403
-				print_status("#{app} restricted (403)")
+				print_status("#{rhost}:#{rport} #{app} restricted (403)")
 			when res.code == 401
-				print_status("#{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
+				print_status("#{rhost}:#{rport} #{app} requires authentication (401): #{res.headers['WWW-Authenticate']}")
 				bypass_auth(app)
 			when res.code == 404
-				print_status("#{app} not found (404)")
+				print_status("#{rhost}:#{rport} #{app} not found (404)")
 			when res.code == 301, res.code == 302
-				print_status("#{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
+				print_status("#{rhost}:#{rport} #{app} is redirected (#{res.code}) to #{res.headers['Location']} (not following)")
 			else
-				print_status("Don't know how to handle response code #{res.code}")
+				print_status("#{rhost}:#{rport} Don't know how to handle response code #{res.code}")
 			end
 		else
-			print_status("#{app} not found")
+			print_status("#{rhost}:#{rport} #{app} not found")
 		end
 	end
 
 	def bypass_auth(app)
 
-		print_status("Check for verb tampering (HEAD)")
+		print_status("#{rhost}:#{rport} Check for verb tampering (HEAD)")
 
 		res = send_request_raw({
 			'uri'       => app,
@@ -123,9 +122,9 @@ class Metasploit3 < Msf::Auxiliary
 			'version'   => '1.0' # 1.1 makes the head request wait on timeout for some reason
 		}, 20)
 		if (res and res.code == 200)
-			print_status("Got authentication bypass via HTTP verb tampering")
+			print_good("#{rhost}:#{rport} Got authentication bypass via HTTP verb tampering")
 		else
-			print_status("Could not get authentication bypass via HTTP verb tampering")
+			print_status("#{rhost}:#{rport} Could not get authentication bypass via HTTP verb tampering")
 		end
 
 		res = send_request_cgi({
@@ -135,9 +134,9 @@ class Metasploit3 < Msf::Auxiliary
 			'basic_auth' => 'admin:admin'
 		}, 20)
 		if (res and res.code == 200)
-			print_status("Authenticated using admin:admin")
+			print_good("#{rhost}:#{rport} Authenticated using admin:admin")
 		else
-			print_status("Could not guess admin credentials")
+			print_status("#{rhost}:#{rport} Could not guess admin credentials")
 		end
 
 	end
