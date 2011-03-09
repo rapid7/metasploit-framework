@@ -645,8 +645,14 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		# Requires a challenge key to have been seen during negotiation
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 
+		#
 		# We can not yet handle signing in this situation
-		raise XCEPT::SigningError if self.require_signing
+		# But instead of throwing an exception,we will disable signing, continue and hope for the best.
+		#
+
+		#raise XCEPT::SigningError if self.require_signing
+		self.require_signing = false if self.require_signing
+
 		
 		if UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
