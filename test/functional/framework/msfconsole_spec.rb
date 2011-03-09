@@ -1,3 +1,5 @@
+$:.unshift(File.join(File.dirname(__FILE__)))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
@@ -7,11 +9,14 @@ require 'msf_matchers'
 require 'singleton'
 require 'nokogiri'
 
-Spec::Runner.configure do |config|  
-  config.include(MsfMatchers)  
-end
+#Spec::Runner.configure do |config|  
+#  config.include(MsfMatchers)  
+#end
+
 
 module MsfTest
+
+include MsfTest::MsfMatchers
 
 class MsfTestCase
 	
