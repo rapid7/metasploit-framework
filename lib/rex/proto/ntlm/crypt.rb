@@ -88,10 +88,10 @@ BASE = Rex::Proto::NTLM::Base
 	def self.apply_des(plain, keys)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		dec = OpenSSL::Cipher::DES.new
-		keys.map {|k|
+		keys.map do |k|
 			dec.key = k
 			dec.encrypt.update(plain)
-		}
+		end
 	end
       
 	def self.lm_hash(password, half = false)
@@ -241,28 +241,41 @@ BASE = Rex::Proto::NTLM::Base
 	#
 	
 	# Used when only the LMv1 response is provided (i.e., with Win9x clients)
-	def self.lmv1_user_session_key(pass )
-		self.lm_hash(pass.upcase[0,7],true).ljust(16,"\x00")
+	def self.lmv1_user_session_key(pass, opt = {})
+		if opt[:pass_is_hash]
+			usk = pass[0,8]
+		else
+			usk = self.lm_hash(pass.upcase[0,7],true)
+		end
+		usk.ljust(16,"\x00")
 	end
 		
 	# This variant is used when the client sends the NTLMv1 response
-	def self.ntlmv1_user_session_key(pass )
+	def self.ntlmv1_user_session_key(pass, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		OpenSSL::Digest::MD4.digest(self.ntlm_hash(pass))
+
+		if opt[:pass_is_hash]
+			usk = pass
+		else
+			usk = self.ntlm_hash(pass)
+		end
+		OpenSSL::Digest::MD4.digest(usk)
 	end
 
 	# Used when NTLMv1 authentication is employed with NTLM2 session security
-	def self.ntlm2_session_user_session_key(pass, srv_chall, cli_chall)
+	def self.ntlm2_session_user_session_key(pass, srv_chall, cli_chall, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		ntlm_key = self.ntlmv1_user_session_key(pass )
+
+		ntlm_key = self.ntlmv1_user_session_key(pass, opt )
 		session_chal = srv_chall + cli_chall
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlm_key, session_chal)
 	end
 
 	# Used when the LMv2 response is sent
-	def self.lmv2_user_session_key(user, pass, domain, srv_chall, cli_chall)
+	def self.lmv2_user_session_key(user, pass, domain, srv_chall, cli_chall, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		ntlmv2_key = self.ntlmv2_hash(user, pass, domain)
+
+		ntlmv2_key = self.ntlmv2_hash(user, pass, domain, opt)
 		hash1 = OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmv2_key, srv_chall + cli_chall)
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmv2_key, hash1)
 	end
@@ -271,8 +284,12 @@ BASE = Rex::Proto::NTLM::Base
 	class << self; alias_method :ntlmv2_user_session_key, :lmv2_user_session_key; end
 
 	# Used when LanMan Key flag is set
-	def self.lanman_session_key(pass, srvchall)
-		halfhash = lm_hash(pass.upcase[0,7],true)
+	def self.lanman_session_key(pass, srvchall, opt = {})
+		if opt[:pass_is_hash]
+			halfhash = pass[0,8]
+		else
+			halfhash = lm_hash(pass.upcase[0,7],true)
+		end
 		plain = self.lm_response({
 			:lm_hash => halfhash[0,7],
 			:challenge => srvchall

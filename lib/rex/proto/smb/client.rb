@@ -764,15 +764,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	# Authenticate using extended security negotiation 
 	def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
 			
-		#
-		# If the user provided a raw LM/NTLM hash as the password and signing is mandatory,
-		# we will have to disable signing to continue and hope for the best.
-		#
-		if UTILS.is_pass_ntlm_hash?(pass) and self.require_signing
-			# Disable signing for now to enable pass-the-hash
-			self.require_signing = false
-		end
-
 		if require_signing 
 			ntlmssp_flags = 0xe2088215
 		else
@@ -1063,9 +1054,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		# Server will decide for key_size and key_exchange
 		enc_session_key = ''
 		if self.require_signing
-			if UTILS.is_pass_ntlm_hash?(pass)
-				raise ArgumentError, "Sorry, pass-the-hash is not yet implemented when signing is required by server, coming soon"
-			end
 			
 			server_ntlmssp_flags = blob[cidx + 20, 4].unpack("V")[0]
 			# Set default key size and key exchange values
@@ -1097,30 +1085,71 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 			# Generate the user session key
 			lanman_weak = false
+
 			if self.send_ntlm  # Should be default
 				if self.usentlm2_session
 					if self.use_ntlmv2
-						user_session_key = NTLM_CRYPT::ntlmv2_user_session_key(user, pass, domain, 
+						if UTILS.is_pass_ntlm_hash?(pass)
+							user_session_key = NTLM_CRYPT::ntlmv2_user_session_key(user, 
+													[ pass.upcase()[33,65] ].pack('H32'),
+											 		domain, 
+													self.challenge_key, ntlm_cli_challenge, 
+													{:pass_is_hash => true})
+						else
+							user_session_key = NTLM_CRYPT::ntlmv2_user_session_key(user, pass, domain, 
 												self.challenge_key, ntlm_cli_challenge)
+						end
 					else
-						user_session_key = NTLM_CRYPT::ntlm2_session_user_session_key(pass, self.challenge_key, client_challenge)
+						if UTILS.is_pass_ntlm_hash?(pass)
+							user_session_key = NTLM_CRYPT::ntlm2_session_user_session_key([ pass.upcase()[33,65] ].pack('H32'), 
+															self.challenge_key, 
+															client_challenge, 
+															{:pass_is_hash => true})
+						else
+							user_session_key = NTLM_CRYPT::ntlm2_session_user_session_key(pass, self.challenge_key, 
+															client_challenge)
+						end
 					end
 				else # lmv1/ntlmv1
 					if self.send_lm
 						if self.use_lanman_key
-							user_session_key = NTLM_CRYPT::lanman_session_key(pass, self.challenge_key)
+							if UTILS.is_pass_ntlm_hash?(pass)
+								user_session_key = NTLM_CRYPT::lanman_session_key([ pass.upcase()[0,32] ].pack('H32'), 
+														self.challenge_key, 
+														{:pass_is_hash => true})
+							else
+								user_session_key = NTLM_CRYPT::lanman_session_key(pass, self.challenge_key)
+							end
 							lanman_weak = true
 						else
-							user_session_key = NTLM_CRYPT::ntlmv1_user_session_key(pass )
+							if UTILS.is_pass_ntlm_hash?(pass)
+								user_session_key = NTLM_CRYPT::ntlmv1_user_session_key([ pass.upcase()[33,65] ].pack('H32'),
+															{:pass_is_hash => true})
+							else
+								user_session_key = NTLM_CRYPT::ntlmv1_user_session_key(pass)
+							end
+
 						end
 					end
 				end
 			else
 					if self.usentlm2_session && self.use_ntlmv2
-						user_session_key = NTLM_CRYPT::lmv2_user_session_key(user, pass, domain, 
-												self.challenge_key, client_challenge)
+						if UTILS.is_pass_ntlm_hash?(pass)
+							user_session_key = NTLM_CRYPT::lmv2_user_session_key(user, [ pass.upcase()[33,65] ].pack('H32'), 
+													domain, 
+													self.challenge_key, client_challenge, 
+													{:pass_is_hash => true})
+						else
+							user_session_key = NTLM_CRYPT::lmv2_user_session_key(user, pass, domain, 
+													self.challenge_key, client_challenge)
+						end
 					else
-						user_session_key = NTLM_CRYPT::lmv1_user_session_key(pass )
+						if UTILS.is_pass_ntlm_hash?(pass)
+							user_session_key = NTLM_CRYPT::lmv1_user_session_key([ pass.upcase()[0,32] ].pack('H32'), 
+														{:pass_is_hash => true})
+						else
+							user_session_key = NTLM_CRYPT::lmv1_user_session_key(pass)
+						end
 					end
 			end
 
