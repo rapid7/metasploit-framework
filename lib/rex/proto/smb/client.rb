@@ -646,7 +646,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 
 		# We can not yet handle signing in this situation
-		raise XCEPT::NTLM2MissingChallenge if self.require_signing
+		raise XCEPT::SigningError if self.require_signing
 		
 		if UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
@@ -900,7 +900,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			when 6
 				#A 32-bit value indicating server or client configuration
 			when 7
-				# client time
+				#Client time
 				chall_MsvAvTimestamp = addr
 			when 8
 				#A Restriction_Encoding structure 
@@ -921,8 +921,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			if self.usentlm2_session
 
 				if self.use_ntlmv2
-				#This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER 
-				#answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
+				# This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER 
+				# answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
 												dns_host_name,client_challenge , chall_MsvAvTimestamp)
 					if UTILS.is_pass_ntlm_hash?(pass)
@@ -988,7 +988,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					resp_lm = client_challenge + ("\x00" * 16)
 				end
 
-			else #we use lmv1/ntlmv1
+			else # we use lmv1/ntlmv1
 				if UTILS.is_pass_ntlm_hash?(pass)
 					argntlm = {
 						:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
@@ -1059,8 +1059,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		end
 
 
-		#create the sessionkey (aka signing key, aka mackey) and encrypted session key
-		#server will decide for key_size and key_exchange
+		# Create the sessionkey (aka signing key, aka mackey) and encrypted session key
+		# Server will decide for key_size and key_exchange
 		enc_session_key = ''
 		if self.require_signing
 			if UTILS.is_pass_ntlm_hash?(pass)
@@ -1068,26 +1068,26 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			end
 			
 			server_ntlmssp_flags = blob[cidx + 20, 4].unpack("V")[0]
-			#set default key size and key exchange values
+			# Set default key size and key exchange values
 			key_size = 40
 			key_exchange = false
-			#remove ntlmssp.negotiate56
+			# Remove ntlmssp.negotiate56
 			ntlmssp_flags &= 0x7fffffff
-			#remove ntlmssp.negotiatekeyexch
+			# Remove ntlmssp.negotiatekeyexch
 			ntlmssp_flags &= 0xbfffffff
-			#remove ntlmssp.negotiate128
+			# Remove ntlmssp.negotiate128
 			ntlmssp_flags &= 0xdfffffff
-			#check the keyexchange
+			# Check the keyexchange
 			if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_KEY_EXCH != 0 then
 				key_exchange = true
 				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_KEY_EXCH
 			end
-			#check 128bits
+			# Check 128bits
 			if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_128 != 0 then
 				key_size = 128
 				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_128
 				ntlmssp_flags |= NTLM_CONST::NEGOTIATE_56
-			#check 56bits
+			# Check 56bits
 			else
 				if server_ntlmssp_flags & NTLM_CONST::NEGOTIATE_56 != 0 then
 					key_size = 56
@@ -1095,9 +1095,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				end
 			end
 
-			#generate the user session key
+			# Generate the user session key
 			lanman_weak = false
-			if self.send_ntlm  #should be default
+			if self.send_ntlm  # Should be default
 				if self.usentlm2_session
 					if self.use_ntlmv2
 						user_session_key = NTLM_CRYPT::ntlmv2_user_session_key(user, pass, domain, 
@@ -1105,7 +1105,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					else
 						user_session_key = NTLM_CRYPT::ntlm2_session_user_session_key(pass, self.challenge_key, client_challenge)
 					end
-				else #lmv1 / ntlmv1
+				else # lmv1/ntlmv1
 					if self.send_lm
 						if self.use_lanman_key
 							user_session_key = NTLM_CRYPT::lanman_session_key(pass, self.challenge_key)
@@ -1126,7 +1126,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 			user_session_key = NTLM_CRYPT::make_weak_sessionkey(user_session_key,key_size, lanman_weak)			
 			self.sequence_counter = 0
-			#sessionkey and encrypted session key
+			# Sessionkey and encrypted session key
 			if key_exchange
 				self.signing_key = Rex::Text.rand_text(16)
 				enc_session_key = NTLM_CRYPT::encrypt_sessionkey(self.signing_key, user_session_key)
