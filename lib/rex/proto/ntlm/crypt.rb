@@ -97,12 +97,16 @@ begin
 		end
 		OpenSSL::Digest::MD4.digest pwd
 	end
-
+	
+	#this hash is used for lmv2/ntlmv2 response calculation
 	def self.ntlmv2_hash(user, password, domain, opt={})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		ntlmhash = ntlm_hash(password, opt)
-		#With Win 7 and maybe other OSs we sometimes get my domain not uppercased,
-		#so the domain does not need to be uppercased
+		if opt[:pass_is_hash]
+			ntlmhash = password
+		else
+			ntlmhash = ntlm_hash(password, opt)
+		end
+		#With Win 7 and maybe other OSs we sometimes get the domain not uppercased
 		userdomain = user.upcase  + domain
 		unless opt[:unicode]
 			userdomain = Rex::Text.to_unicode(userdomain)

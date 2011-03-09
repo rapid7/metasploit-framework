@@ -903,22 +903,32 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			if self.usentlm2_session
 
 				if self.use_ntlmv2
-				#This is only a partial implementation, in some situation servers may send STATUS_INVALID_PARAMETER 
+				#This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER 
 				#answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
 												dns_host_name,client_challenge , chall_MsvAvTimestamp)
 					if (pass.length == 65)
-						raise ArgumentError, "pth not yet implemented for ntlmv2, coming soon"
+						argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
+													[ pass.upcase()[33,65] ].pack('H32'), 
+													domain,{:pass_is_hash => true}),
+								:challenge => self.challenge_key }
 					else
 						argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
 								:challenge => self.challenge_key }
-						optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
 					end
+						optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
 					ntlmv2_response = NTLM_CRYPT::ntlmv2_response(argntlm,optntlm)
 					resp_ntlm = ntlmv2_response 
 					if self.send_lm
-						arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
-								:challenge => self.challenge_key }
+						if (pass.length == 65)
+							arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
+													[ pass.upcase()[33,65] ].pack('H32'), 
+													domain,{:pass_is_hash => true}),
+									:challenge => self.challenge_key }
+						else
+							arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+									:challenge => self.challenge_key }
+						end
 						optlm = {	:client_challenge => client_challenge}
 						resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
 					else
@@ -967,12 +977,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			#lmv2
 			if self.usentlm2_session && self.use_ntlmv2
 				if (pass.length == 65)
-					raise ArgumentError, "pth not yet implemented for ntlmv2, coming soon"
+					arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
+												[ pass.upcase()[33,65] ].pack('H32'), 
+												domain,{:pass_is_hash => true}),
+							:challenge => self.challenge_key }
 				else
 					arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
 							:challenge => self.challenge_key }
-					optlm = {	:client_challenge => client_challenge}
 				end
+				optlm = {	:client_challenge => client_challenge}
 				resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
 			else
 				if (pass.length == 65)
