@@ -197,9 +197,9 @@ describe "Msfconsole" do
 		temp_output_file = "#{@temp_output_directory}/#{name}"
 
 		if database_file
-			msfconsole_string = "#{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file} -y #{database_file}"
+			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file} -y #{database_file}"
 		else
-			msfconsole_string = "#{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file}"
+			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file}"
 		end
 
 		puts "\n\nName: #{name}"
