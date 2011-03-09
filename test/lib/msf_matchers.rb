@@ -1,6 +1,8 @@
 $:.unshift(File.join((File.dirname(__FILE__))))
 require 'regexr'
 
+module MsfTest
+
 module MsfMatchers
 
 	class ContainACompleteTest
@@ -30,7 +32,7 @@ module MsfMatchers
 
 	class ContainAllSuccesses
 
-		def initialize(successes)
+		def initialize(successes=[])
 			@successes = successes
 			@r = Regexr.new(true)
 		end
@@ -53,13 +55,13 @@ module MsfMatchers
 		#alias :have_all_successes :contain_all_successes
 	end
 	
-	def contain_all_successes(successes)
+	def contain_all_successes(successes=[])
 		ContainAllSuccesses.new(successes)
 	end
 	
 	class ContainNoFailuresExcept
 
-		def initialize(failures,exceptions)
+		def initialize(failures=[],exceptions=[])
 			@failures = failures
 			@exceptions = exceptions
 			@r = Regexr.new(true)
@@ -83,9 +85,10 @@ module MsfMatchers
 		#alias :have_no_failures :contain_no_failures
 	end
 
-	def contain_no_failures_except(failures,exceptions)
+	def contain_no_failures_except(failures=[],exceptions=[])
 		ContainNoFailuresExcept.new(failures,exceptions)
 	end
 
 	
+end
 end

@@ -1,3 +1,4 @@
+$:.unshift(File.join(File.dirname(__FILE__)))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
@@ -23,7 +24,7 @@ describe "PhpMeterpreter" do
 		@meterpreter_type = "php"
 		
 		## Set up an outupt directory
-		@output_directory = "test_output_#{@meterpreter_type}"
+		@output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meterpreter_type}")
 
 		if File.directory? @output_directory
 			FileUtils.rm_rf(@output_directory)

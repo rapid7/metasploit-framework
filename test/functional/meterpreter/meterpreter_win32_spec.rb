@@ -1,15 +1,22 @@
+$:.unshift(File.join(File.dirname(__FILE__)))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
 require 'fileutils'
 require 'msf/base'
 require 'meterpreter_spec_helper'
+require 'msf_matchers'
 require 'meterpreter_specs'
 require 'windows_meterpreter_specs'
 
 module MsfTest
 
 describe "Win32Meterpreter" do
+
+	# Include Custom Matchers
+	include MsfTest::MsfMatchers
+
 	
 	# This include brings in all the spec helper methods
 	include MsfTest::MeterpreterSpecHelper
@@ -28,7 +35,7 @@ describe "Win32Meterpreter" do
 		@meterpreter_type = "win32"
 		
 		## Set up an outupt directory
-		@output_directory = "test_output_#{@meterpreter_type}"
+		@output_directory = File.join(File.dirname(__FILE__), "test_output_#{@meterpreter_type}")
 
 		if File.directory? @output_directory
 			FileUtils.rm_rf(@output_directory)
@@ -46,13 +53,22 @@ describe "Win32Meterpreter" do
 
 	after :each do
 		@session.init_ui(@input, @output)
-		
-		## Clean Up
-		FileUtils.rm_rf(@output_directory)
-	end
+	end		
 
 	after :all do
+		
+		## Clean up test output
 		FileUtils.rm_rf(@output_directory)
+
+		## Screenshot command leaves .jpegs :(
+		## TODO - fix the meterpreter command to write to
+		## TODO - an arbitrary file.
+		Dir.new(File.dirname(__FILE__)).each do |file|
+			if file =~ /.jpeg/
+				File.delete(file)
+			end
+		end
+	
 	end
 	
 	def create_session_windows_x32
@@ -76,9 +92,11 @@ describe "Win32Meterpreter" do
 
 		## If a session came back, try to interact with it.
 		if @session
+			puts "got a session"
 			@session.load_stdapi
 		else
-			flunk "Couldn't get a session!"
+			puts "unable to get session"		
+			#flunk "Couldn't get a session!"
 		end
 	end
   
