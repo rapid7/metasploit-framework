@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'todb' ],
 			'License'        => MSF_LICENSE,
-			'Version'        => '$$'
+			'Version'        => '$Revision$'
 		))
 
 		register_options(
