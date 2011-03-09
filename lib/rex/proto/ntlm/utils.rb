@@ -38,14 +38,14 @@ class Utils
 		return res
 	end
 
-	#GSS functions
+	# GSS functions
 
-	#GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
-	#mechTypes: 2 items :
-	#	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
-	#	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
-	#
-	#this is the default on Win7
+	# GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
+	# mechTypes: 2 items :
+	# 	-MechType: 1.3.6.1.4.1.311.2.2.30 (SNMPv2-SMI::enterprises.311.2.2.30)
+	# 	-MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
+	# 
+	# this is the default on Win7
 	def self.make_simple_negotiate_secblob_resp
 		blob = 
 		"\x60" + self.asn1encode(		
@@ -68,14 +68,14 @@ class Utils
 		return blob	
 	end	
 
-	#GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
-	#mechTypes: 4 items :
-	#	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5)
-	#	MechType: 1.2.840.113554.1.2.2 (KRB5 - Kerberos 5)
-	#	MechType: 1.2.840.113554.1.2.2.3 (KRB5 - Kerberos 5 - User to User)
-	#	MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
-	#mechListMIC: 
-	#	principal: account@domain
+	# GSS BLOB usefull for SMB_NEGOCIATE_RESPONSE message
+	# mechTypes: 4 items :
+	# 	MechType: 1.2.840.48018.1.2.2 (MS KRB5 - Microsoft Kerberos 5)
+	# 	MechType: 1.2.840.113554.1.2.2 (KRB5 - Kerberos 5)
+	# 	MechType: 1.2.840.113554.1.2.2.3 (KRB5 - Kerberos 5 - User to User)
+	# 	MechType: 1.3.6.1.4.1.311.2.2.10 (NTLMSSP - Microsoft NTLM Security Support Provider)
+	# mechListMIC: 
+	# 	principal: account@domain
 	def self.make_negotiate_secblob_resp(account, domain)
 		blob = 
 		"\x60" + self.asn1encode(		
@@ -117,7 +117,7 @@ class Utils
 	end	
 
 
-	#GSS BLOB usefull for ntlmssp type 1 message
+	# GSS BLOB usefull for ntlmssp type 1 message
 	def self.make_ntlmssp_secblob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
 		blob = 
 		"\x60" + self.asn1encode(		
@@ -161,7 +161,7 @@ class Utils
 	end
 
 
-	#GSS BLOB usefull for ntlmssp type 2 message
+	# GSS BLOB usefull for ntlmssp type 2 message
 	def self.make_ntlmssp_secblob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
 		
 		blob =
@@ -188,7 +188,7 @@ class Utils
 		return blob
 	end
 
-	#BLOB without GSS usefull for ntlm type 2 message 
+	# BLOB without GSS usefull for ntlm type 2 message 
 	def self.make_ntlmssp_blob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
 
 		addr_list  = ''
@@ -220,7 +220,7 @@ class Utils
 	end
 
 
-	#GSS BLOB Usefull for ntlmssp type 3 message
+	# GSS BLOB Usefull for ntlmssp type 3 message
 	def self.make_ntlmssp_secblob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
 
 		lm ||= "\x00" * 24
@@ -307,22 +307,20 @@ class Utils
 			)
 		return blob
 	end
-	
-	#others
 
-	#this function return an ntlmv2 client challenge
+	# This function return an ntlmv2 client challenge
 	def self.make_ntlmv2_clientchallenge(win_domain, win_name, dns_domain, dns_name, client_challenge = nil, chall_MsvAvTimestamp = nil)
 		
 		client_challenge ||= Rex::Text.rand_text(8)
-		#we have to set the timestamps here to the one in the challenge message from server if present
-		#if we don't do that, recent server like seven will send a STATUS_INVALID_PARAMETER error packet
+		# We have to set the timestamps here to the one in the challenge message from server if present
+		# If we don't do that, recent server like seven will send a STATUS_INVALID_PARAMETER error packet
 		timestamp = chall_MsvAvTimestamp != nil ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
-		#make those values unicode as requested
+		# Make those values unicode as requested
 		win_domain = Rex::Text.to_unicode(win_domain)
 		win_name = Rex::Text.to_unicode(win_name)
 		dns_domain = Rex::Text.to_unicode(dns_domain)
 		dns_name = Rex::Text.to_unicode(dns_name)
-		#make the AV_PAIRs
+		# Make the AV_PAIRs
 		addr_list  = ''
 		addr_list  << [2, win_domain.length].pack('vv') + win_domain
 		addr_list  << [1, win_name.length].pack('vv') + win_name
@@ -330,18 +328,20 @@ class Utils
 		addr_list  << [3, dns_name.length].pack('vv') + dns_name
 		addr_list  << [7, 8].pack('vv') + timestamp
 
-		#MAY BE USEFUL FOR FUTURE
-		#seven (client) add at least one more av that is of type MsAvRestrictions (8)	
-		#maybe this will be usefull with future windows OSs but has no use at all for the moment afaik		
-		#restriction_encoding = 	[48,0,0,0].pack("VVV") + # Size, Z4, IntegrityLevel, SubjectIntegrityLevel
-		#			Rex::Text.rand_text(32)	 # MachineId generated on startup on win7 and above
-		#addr_list  << [8, restriction_encoding.length].pack('vv') + restriction_encoding
-		#seven (client) and maybe others versions also add an av of type MsvChannelBindings (10) but the hash is "\x00" * 16
-		#addr_list  << [10, 16].pack('vv') + "\x00" * 16
-		#seven and maybe other versions also add an av of type MsvAvTargetName(9) with value cifs/target(_ip)
-		#implementing it will necessary require knowing the target here, todo... :-/
-		#spn= Rex::Text.to_unicode("cifs/RHOST")
-		#addr_list  << [9, spn.length].pack('vv') + spn
+		# MAY BE USEFUL FOR FUTURE
+		# Seven (client) add at least one more av that is of type MsAvRestrictions (8)	
+		# maybe this will be usefull with future windows OSs but has no use at all for the moment afaik		
+		# restriction_encoding = 	[48,0,0,0].pack("VVV") + # Size, Z4, IntegrityLevel, SubjectIntegrityLevel
+		# 			Rex::Text.rand_text(32)	 # MachineId generated on startup on win7 and above
+		# addr_list  << [8, restriction_encoding.length].pack('vv') + restriction_encoding
+		
+		# Seven (client) and maybe others versions also add an av of type MsvChannelBindings (10) but the hash is "\x00" * 16
+		# addr_list  << [10, 16].pack('vv') + "\x00" * 16
+		
+		# Seven and maybe other versions also add an av of type MsvAvTargetName(9) with value cifs/target(_ip)
+		# implementing it will necessary require knowing the target here, todo... :-/
+		# spn= Rex::Text.to_unicode("cifs/RHOST")
+		# addr_list  << [9, spn.length].pack('vv') + spn
 
 		addr_list  << [0, 0].pack('vv')
 		ntlm_clientchallenge = 	[1,1,0,0].pack("CCvV") + #RespType, HiRespType, Reserved1, Reserved2

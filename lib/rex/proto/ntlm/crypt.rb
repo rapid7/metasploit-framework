@@ -177,7 +177,7 @@ BASE = Rex::Proto::NTLM::Base
 		bb   = nil
 		
 		if opt[:nt_client_challenge]
-			if opt[:nt_client_challenge].to_s.length > 24
+			if opt[:nt_client_challenge].to_s.length <= 24
 				raise ArgumentError,"nt_client_challenge is not in a correct format " 
 			end
 			bb = opt[:nt_client_challenge]
@@ -223,7 +223,7 @@ BASE = Rex::Proto::NTLM::Base
 	def self.ntlm2_session(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		passwd_hash,chal = arg[:ntlm_hash],arg[:challenge]
-		if not passwd_hash and chal
+		if not (passwd_hash and chal)
 			raise RuntimeError, "ntlm_hash and challenge are required"
 		end
 
