@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ],
 			'References'    => 
 				[
+					[ 'OSVDB', '71013' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/16940/' ]
 				]
 		))
