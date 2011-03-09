@@ -1109,7 +1109,12 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 		# Make sure that authentication succeeded
 		if (ack['Payload']['SMB'].v['ErrorClass'] != 0)
+		
 			if (user.length == 0)
+				# Ensure that signing is disabled when we hit this corner case
+				self.require_signing = false
+				
+				# Fall back to the non-ntlmssp authentication method
 				return self.session_setup_no_ntlmssp(user, pass, domain)
 			end
 
