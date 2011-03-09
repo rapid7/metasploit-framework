@@ -643,9 +643,18 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 		#we can not yet handle signing in this situation
 		raise XCEPT::NTLM2MissingChallenge if self.require_signing
+		if (pass.length == 65)
+			arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+					:challenge =>  self.challenge_key }
+			hash_lm = NTLM_CRYPT::lm_response(arglm)
 
-		hash_lm = pass.length > 0 ? NTLM_CRYPT.lanman_des(pass, self.challenge_key) : ''
-		hash_nt = pass.length > 0 ? NTLM_CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+			argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+					:challenge =>  self.challenge_key }
+			hash_nt = NTLM_CRYPT::ntlm_response(argntlm)
+		else
+			hash_lm = pass.length > 0 ? NTLM_CRYPT.lanman_des(pass, self.challenge_key) : ''
+			hash_nt = pass.length > 0 ? NTLM_CRYPT.ntlm_md4(pass, self.challenge_key)   : ''
+		end
 
 		data = ''
 		data << hash_lm
@@ -896,12 +905,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				if self.use_ntlmv2
 				#This is only a partial implementation, in some situation servers may send STATUS_INVALID_PARAMETER 
 				#answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
-
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
 												dns_host_name,client_challenge , chall_MsvAvTimestamp)
-					argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
-							:challenge => self.challenge_key }
-					optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
+					if (pass.length == 65)
+						raise ArgumentError, "pth not yet implemented for ntlmv2, coming soon"
+					else
+						argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
+								:challenge => self.challenge_key }
+						optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
+					end
 					ntlmv2_response = NTLM_CRYPT::ntlmv2_response(argntlm,optntlm)
 					resp_ntlm = ntlmv2_response 
 					if self.send_lm
@@ -914,25 +926,36 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 					end
 
 				else # ntlm2_session	
-
-					argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
-							:challenge => self.challenge_key }
+					if (pass.length == 65)
+						argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+								:challenge => self.challenge_key }
+					else
+						argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+								:challenge => self.challenge_key }
+					end
 					optntlm = {	:client_challenge => client_challenge}
-
 					resp_ntlm = NTLM_CRYPT::ntlm2_session(argntlm,optntlm).join[24,24]
 					# Generate the fake LANMAN hash
 					resp_lm = client_challenge + ("\x00" * 16)
 				end
 
 			else #we use lmv1/ntlmv1
-
-				argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
-						:challenge =>  self.challenge_key }
-			
+				if (pass.length == 65)
+					argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+							:challenge =>  self.challenge_key }
+				else
+					argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+							:challenge =>  self.challenge_key }
+				end
 				resp_ntlm = NTLM_CRYPT::ntlm_response(argntlm)
 				if self.send_lm
-					arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
-							:challenge =>  self.challenge_key }
+					if (pass.length == 65)
+						arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+								:challenge =>  self.challenge_key }
+					else
+						arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
+								:challenge =>  self.challenge_key }
+					end
 					resp_lm = NTLM_CRYPT::lm_response(arglm)
 				else
 					#when windows does not send lm in ntlmv1 type response,
@@ -943,13 +966,22 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		else #send_ntlm = false 
 			#lmv2
 			if self.usentlm2_session && self.use_ntlmv2
-				arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
-						:challenge => self.challenge_key }
-				optlm = {	:client_challenge => client_challenge}
+				if (pass.length == 65)
+					raise ArgumentError, "pth not yet implemented for ntlmv2, coming soon"
+				else
+					arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+							:challenge => self.challenge_key }
+					optlm = {	:client_challenge => client_challenge}
+				end
 				resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
 			else
-				arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
-						:challenge =>  self.challenge_key }
+				if (pass.length == 65)
+					arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+							:challenge =>  self.challenge_key }
+				else
+					arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
+							:challenge =>  self.challenge_key }
+				end
 				resp_lm = NTLM_CRYPT::lm_response(arglm)
 			end
 			resp_ntlm = ""
@@ -960,6 +992,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		#server will decide for key_size and key_exchange
 		enc_session_key = ''
 		if self.require_signing
+			if (pass.length == 65)
+				raise ArgumentError, "pth not yet implemented when signing is required by server, coming soon"
+			end
 			server_ntlmssp_flags = blob[cidx + 20, 4].unpack("V")[0]
 			#set default key size and key exchange values
 			key_size = 40
