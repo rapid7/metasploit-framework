@@ -12,11 +12,10 @@ class Crypt
 		@@loaded_openssl = true
 	rescue ::Exception
 	end
-	
-begin
 
-	#return a smb packet signed
+	# Return a signed SMB packet
 	def self.sign_smb_packet(mackey, sequence_counter, data)
+		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		seq = Rex::Text::pack_int64le(sequence_counter)
 		netbios_hdr = data.slice!(0,4)
 		data[14,8] = seq 
@@ -30,11 +29,6 @@ begin
 		signature2 = sign_smb_packet(mackey, sequence_counter, data.dup)[18,8]
 		return signature1 == signature2
 	end
-
-	
-
-rescue LoadError
-end
 
 end
 end

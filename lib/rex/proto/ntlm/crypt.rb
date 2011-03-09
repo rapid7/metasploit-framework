@@ -11,6 +11,9 @@
 # You can distribute/modify this program under the terms of the
 # Ruby License.
 #
+# 2011-03-08 improved through a code merge with Metasploit's SMB::Crypt
+# -------------------------------------------------------------
+#
 # 2011-02-23 refactored and improved by Alexandre Maloteaux for Metasploit Project
 # -------------------------------------------------------------
 #
@@ -63,17 +66,25 @@ BASE = Rex::Proto::NTLM::Base
 		@@loaded_openssl = true
 	rescue ::Exception
 	end
-	
-begin
 
 	def self.gen_keys(str)
-		Rex::Text::split_to_a(str, 7).map{ |str7| 
-				bits = Rex::Text::split_to_a(str7.unpack("B*")[0], 7).inject('')\
-				{|ret, tkn| ret += tkn + (tkn.gsub('1', '').size % 2).to_s }
-				[bits].pack("B*")
-				}
+		str.scan(/.{7}/).map{ |key| des_56_to_64(key) }
 	end
-      
+ 
+	def self.des_56_to_64(ckey56s)
+		ckey64 = []
+		ckey56 = ckey56s.unpack('C*')
+		ckey64[0] = ckey56[0]
+		ckey64[1] = ((ckey56[0] << 7) & 0xFF) | (ckey56[1] >> 1)
+		ckey64[2] = ((ckey56[1] << 6) & 0xFF) | (ckey56[2] >> 2)
+		ckey64[3] = ((ckey56[2] << 5) & 0xFF) | (ckey56[3] >> 3)
+		ckey64[4] = ((ckey56[3] << 4) & 0xFF) | (ckey56[4] >> 4)
+		ckey64[5] = ((ckey56[4] << 3) & 0xFF) | (ckey56[5] >> 5)
+		ckey64[6] = ((ckey56[5] << 2) & 0xFF) | (ckey56[6] >> 6)
+		ckey64[7] =  (ckey56[6] << 1) & 0xFF
+		ckey64.pack('C*')
+	end
+	     
 	def self.apply_des(plain, keys)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		dec = OpenSSL::Cipher::DES.new
@@ -84,8 +95,8 @@ begin
 	end
       
 	def self.lm_hash(password, half = false)
-		if half then size = 7 else  size = 14 end
-		keys = gen_keys password.upcase.ljust(size, "\0")
+		size = half ? 7 : 14
+		keys = gen_keys(password.upcase.ljust(size, "\0"))
 		apply_des(CONST::LM_MAGIC, keys).join
 	end   
       
@@ -95,18 +106,20 @@ begin
 		unless opt[:unicode]
 			pwd = Rex::Text.to_unicode(pwd)
 		end
-		OpenSSL::Digest::MD4.digest pwd
+		OpenSSL::Digest::MD4.digest(pwd)
 	end
 	
-	#this hash is used for lmv2/ntlmv2 response calculation
+	# This hash is used for lmv2/ntlmv2 response calculation
 	def self.ntlmv2_hash(user, password, domain, opt={})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
+		
 		if opt[:pass_is_hash]
 			ntlmhash = password
 		else
 			ntlmhash = ntlm_hash(password, opt)
 		end
-		#With Win 7 and maybe other OSs we sometimes get the domain not uppercased
+		
+		# With Win 7 and maybe other OSs we sometimes get the domain not uppercased
 		userdomain = user.upcase  + domain
 		unless opt[:unicode]
 			userdomain = Rex::Text.to_unicode(userdomain)
@@ -114,7 +127,7 @@ begin
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmhash, userdomain)
 	end
 
-	# responses
+	# Create the LANMAN response
 	def self.lm_response(arg, half = false)
 		begin
 			hash = arg[:lm_hash]
@@ -128,61 +141,59 @@ begin
 		apply_des(chal, keys).join
 	end
 
-	#synonym of lm_response for old compatibility with lib/rex/proto/smb/crypt
-	def self.lanman_des(password, challenge)
-		arglm = { 	:lm_hash => self.lm_hash(password),
-				:challenge => challenge }
-		self.lm_response(arglm)
+	# Synonym of lm_response for old compatibility with lib/rex/proto/smb/crypt
+	def self.lanman_des(password, challenge)		
+		lm_response({
+			:lm_hash => self.lm_hash(password),
+			:challenge => challenge
+		})
 	end
       
 	def self.ntlm_response(arg)
 		hash = arg[:ntlm_hash]
 		chal = arg[:challenge]
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
-		keys = gen_keys hash.ljust(21, "\0")
+		keys = gen_keys(hash.ljust(21, "\0"))
 		apply_des(chal, keys).join
 	end
 
 	#synonym of ntlm_response for old compatibility with lib/rex/proto/smb/crypt
 	def self.ntlm_md4(password, challenge)
-		argntlm = { 	:ntlm_hash =>  self.ntlm_hash(password), 
-				:challenge => challenge }
-		self.ntlm_response(argntlm)
+		ntlm_response({
+			:ntlm_hash =>  self.ntlm_hash(password), 
+			:challenge => challenge
+		})
 	end
 
 	def self.ntlmv2_response(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		begin
-			key = arg[:ntlmv2_hash]
-			chal = arg[:challenge]
-		rescue
+		
+		key, chal = arg[:ntlmv2_hash], arg[:challenge]
+		if not (key and chal)
 			raise ArgumentError , 'ntlmv2_hash and challenge are mandatory'
 		end
+		
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
+		bb   = nil
+		
 		if opt[:nt_client_challenge]
-			unless   opt[:nt_client_challenge].is_a?(::String) && opt[:nt_client_challenge].length > 24
+			if opt[:nt_client_challenge].to_s.length > 24
 				raise ArgumentError,"nt_client_challenge is not in a correct format " 
 			end
 			bb = opt[:nt_client_challenge]
 		else
-			begin
-				ti = arg[:target_info]
-			rescue
+			if not arg[:target_info]
 				raise ArgumentError, "target_info is mandatory in this case"
 			end
-			if opt[:client_challenge]
-				cc  = opt[:client_challenge]
-			else
-				cc = rand(CONST::MAX64)
-			end
-				cc = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
 
-			if opt[:timestamp]
-				ts = opt[:timestamp]
-			else
-				ts = Time.now.to_i
-			end
-			# epoch -> milsec from Jan 1, 1601
+			ti = arg[:target_info]
+			cc = opt[:client_challenge] || rand(CONST::MAX64)
+			cc = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
+
+			ts = opt[:timestamp] || Time.now.to_i
+
+			# Convert the unix timestamp to windows format
+			#   epoch -> milsec from Jan 1, 1601
 			ts = 10000000 * (ts + CONST::TIME_OFFSET)
 
 			blob = BASE::Blob.new
@@ -196,7 +207,6 @@ begin
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
 
 	end
-
       
 	def self.lmv2_response(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
@@ -204,52 +214,44 @@ begin
 		chal = arg[:challenge]
         
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
-		if opt[:client_challenge]
-			cc  = opt[:client_challenge]
-		else
-			cc = rand(CONST::MAX64)
-		end
-		cc = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
+		cc   = opt[:client_challenge] || rand(CONST::MAX64)
+		cc   = BASE::pack_int64le(cc) if cc.is_a?(::Integer)
 
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + cc) + cc
 	end
       
 	def self.ntlm2_session(arg, opt = {})
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		begin
-			passwd_hash = arg[:ntlm_hash]
-			chal = arg[:challenge]
-		rescue
-			raise ArgumentError
+		passwd_hash,chal = arg[:ntlm_hash],arg[:challenge]
+		if not passwd_hash and chal
+			raise RuntimeError, "ntlm_hash and challenge are required"
 		end
 
-		if opt[:client_challenge]
-			cc  = opt[:client_challenge]
-		else
-			cc = rand(CONST::MAX64)
-		end
+		cc = opt[:client_challenge] || rand(CONST::MAX64)
 		cc = BASE::pack_int64le(cc) if cc.is_a?(Integer)
 
-		keys = gen_keys passwd_hash.ljust(21, "\0")
-		session_hash = OpenSSL::Digest::MD5.digest(chal + cc).slice(0, 8)
+		keys = gen_keys(passwd_hash.ljust(21, "\0"))
+		session_hash = OpenSSL::Digest::MD5.digest(chal + cc)[0,8]
 		response = apply_des(session_hash, keys).join
 		[cc.ljust(24, "\0"), response]
 	end
 
-	#signing method added for metasploit project
-
-	#Used when only the LMv1 response is provided (i.e., with Win9x clients)
+	#
+	# Signing method added for metasploit project
+	#
+	
+	# Used when only the LMv1 response is provided (i.e., with Win9x clients)
 	def self.lmv1_user_session_key(pass )
 		self.lm_hash(pass.upcase[0,7],true).ljust(16,"\x00")
 	end
 		
-	#This variant is used when the client sends the NTLMv1 response
+	# This variant is used when the client sends the NTLMv1 response
 	def self.ntlmv1_user_session_key(pass )
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		OpenSSL::Digest::MD4.digest(self.ntlm_hash(pass))
 	end
 
-	#Used when NTLMv1 authentication is employed with NTLM2 session security
+	# Used when NTLMv1 authentication is employed with NTLM2 session security
 	def self.ntlm2_session_user_session_key(pass, srv_chall, cli_chall)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		ntlm_key = self.ntlmv1_user_session_key(pass )
@@ -257,7 +259,7 @@ begin
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlm_key, session_chal)
 	end
 
-	#Used when the LMv2 response is sent
+	# Used when the LMv2 response is sent
 	def self.lmv2_user_session_key(user, pass, domain, srv_chall, cli_chall)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
 		ntlmv2_key = self.ntlmv2_hash(user, pass, domain)
@@ -265,20 +267,20 @@ begin
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, ntlmv2_key, hash1)
 	end
 
-	#Used when the NTLMv2 response is sent
-	 class << self; alias_method :ntlmv2_user_session_key, :lmv2_user_session_key; end
+	# Used when the NTLMv2 response is sent
+	class << self; alias_method :ntlmv2_user_session_key, :lmv2_user_session_key; end
 
-	#Used when LAnMan Key flag is set
+	# Used when LanMan Key flag is set
 	def self.lanman_session_key(pass, srvchall)
-		halfhash =self.lm_hash(pass.upcase[0,7],true)
-   		arglm = { 	:lm_hash => halfhash[0,7],
-				:challenge => srvchall }
-		plain = self.lm_response(arglm,true)
+		halfhash = lm_hash(pass.upcase[0,7],true)
+		plain = self.lm_response({
+			:lm_hash => halfhash[0,7],
+			:challenge => srvchall
+		}, true )
 		key = halfhash  + ["bdbdbdbdbdbd"].pack("H*")
-	        keys = self.gen_keys(key)
-        	self.apply_des(plain, keys).join
+        keys = self.gen_keys(key)
+       	apply_des(plain, keys).join
 	end
-
 
 	def self.encrypt_sessionkey(session_key, user_session_key)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
@@ -314,9 +316,6 @@ begin
 			return session_key[0,16]
 		end
 	end
-
-rescue LoadError
-end
 
 end
 end

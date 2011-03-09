@@ -642,9 +642,12 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	# Authenticate without NTLMSSP
 	def session_setup_no_ntlmssp(user = '', pass = '', domain = '', do_recv = true)
 
+		# Requires a challenge key to have been seen during negotiation
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
-		#we can not yet handle signing in this situation
+
+		# We can not yet handle signing in this situation
 		raise XCEPT::NTLM2MissingChallenge if self.require_signing
+		
 		if UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
 				:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
