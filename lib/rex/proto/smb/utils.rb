@@ -96,6 +96,10 @@ CONST = Rex::Proto::SMB::Constants
 		return decoded
 	end
 
+	# Determine whether the password is a known hash format
+	def self.is_pass_ntlm_hash?(str)
+		str.downcase =~ /^[0-9a-f]{32}:[0-9a-f]{32}$/
+	end
 
 end
 end

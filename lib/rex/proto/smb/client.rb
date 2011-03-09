@@ -36,25 +36,27 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.read_timeout = 10
 		self.evasion_opts = {
 
-		# Padding is performed between packet headers and data
-		'pad_data' => EVADE::EVASION_NONE,
+			# Padding is performed between packet headers and data
+			'pad_data' => EVADE::EVASION_NONE,
 
-		# File path padding is performed on all open/create calls
-		'pad_file' => EVADE::EVASION_NONE,
+			# File path padding is performed on all open/create calls
+			'pad_file' => EVADE::EVASION_NONE,
 
-		# Modify the \PIPE\ string in trans_named_pipe calls
-		'obscure_trans_pipe' => EVADE::EVASION_NONE,
+			# Modify the \PIPE\ string in trans_named_pipe calls
+			'obscure_trans_pipe' => EVADE::EVASION_NONE,
 		}
+
 		self.verify_signature = false
 		self.use_ntlmv2 = false
 		self.usentlm2_session = true
 		self.send_lm = true
 		self.use_lanman_key = false
 		self.send_ntlm  = true
-		#signing
-		self.sequence_counter  	= 0
-		self.signing_key  	= ''
-		self.require_signing	= false
+
+		# Signing
+		self.sequence_counter = 0
+		self.signing_key      = ''
+		self.require_signing  = false
 		
 	end
 
@@ -643,13 +645,17 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		raise XCEPT::NTLM1MissingChallenge if not self.challenge_key
 		#we can not yet handle signing in this situation
 		raise XCEPT::NTLM2MissingChallenge if self.require_signing
-		if (pass.length == 65)
-			arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
-					:challenge =>  self.challenge_key }
+		if UTILS.is_pass_ntlm_hash?(pass)
+			arglm = {
+				:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+				:challenge =>  self.challenge_key 
+			}
 			hash_lm = NTLM_CRYPT::lm_response(arglm)
 
-			argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
-					:challenge =>  self.challenge_key }
+			argntlm = {
+				:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+				:challenge =>  self.challenge_key 
+			}
 			hash_nt = NTLM_CRYPT::ntlm_response(argntlm)
 		else
 			hash_lm = pass.length > 0 ? NTLM_CRYPT.lanman_des(pass, self.challenge_key) : ''
@@ -754,6 +760,15 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 
 	# Authenticate using extended security negotiation 
 	def session_setup_with_ntlmssp(user = '', pass = '', domain = '', name = nil, do_recv = true)
+			
+		#
+		# If the user provided a raw LM/NTLM hash as the password and signing is mandatory,
+		# we will have to disable signing to continue and hope for the best.
+		#
+		if UTILS.is_pass_ntlm_hash?(pass) and self.require_signing
+			# Disable signing for now to enable pass-the-hash
+			self.require_signing = false
+		end
 
 		if require_signing 
 			ntlmssp_flags = 0xe2088215
@@ -907,64 +922,94 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 				#answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
 												dns_host_name,client_challenge , chall_MsvAvTimestamp)
-					if (pass.length == 65)
-						argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
-													[ pass.upcase()[33,65] ].pack('H32'), 
-													domain,{:pass_is_hash => true}),
-								:challenge => self.challenge_key }
+					if UTILS.is_pass_ntlm_hash?(pass)
+						argntlm = { 	
+							:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(
+												user, 
+												[ pass.upcase()[33,65] ].pack('H32'), 
+												domain,{:pass_is_hash => true}
+											),
+							:challenge   => self.challenge_key 
+						}
 					else
-						argntlm = { 	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
-								:challenge => self.challenge_key }
+						argntlm = {
+							:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, pass, domain),
+							:challenge   => self.challenge_key 
+						}
 					end
-						optntlm = { 	:nt_client_challenge => ntlm_cli_challenge}
+
+					optntlm = { :nt_client_challenge => ntlm_cli_challenge}
 					ntlmv2_response = NTLM_CRYPT::ntlmv2_response(argntlm,optntlm)
 					resp_ntlm = ntlmv2_response 
+					
 					if self.send_lm
-						if (pass.length == 65)
-							arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
+						if UTILS.is_pass_ntlm_hash?(pass)
+							arglm = {
+								:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(
+													user, 								
 													[ pass.upcase()[33,65] ].pack('H32'), 
-													domain,{:pass_is_hash => true}),
-									:challenge => self.challenge_key }
+													domain,{:pass_is_hash => true}
+												),
+								:challenge   => self.challenge_key 
+							}
 						else
-							arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
-									:challenge => self.challenge_key }
+							arglm = {
+								:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+								:challenge   => self.challenge_key 
+							}
 						end
-						optlm = {	:client_challenge => client_challenge}
+						
+						optlm = { :client_challenge => client_challenge }
 						resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
 					else
 						resp_lm = "\x00" * 24
 					end
 
 				else # ntlm2_session	
-					if (pass.length == 65)
-						argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
-								:challenge => self.challenge_key }
+					if UTILS.is_pass_ntlm_hash?(pass)
+						argntlm = { 
+							:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+							:challenge => self.challenge_key 
+						}
 					else
-						argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
-								:challenge => self.challenge_key }
+						argntlm = {
+							:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+							:challenge => self.challenge_key 
+						}
 					end
+					
 					optntlm = {	:client_challenge => client_challenge}
 					resp_ntlm = NTLM_CRYPT::ntlm2_session(argntlm,optntlm).join[24,24]
+					
 					# Generate the fake LANMAN hash
 					resp_lm = client_challenge + ("\x00" * 16)
 				end
 
 			else #we use lmv1/ntlmv1
-				if (pass.length == 65)
-					argntlm = { 	:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
-							:challenge =>  self.challenge_key }
+				if UTILS.is_pass_ntlm_hash?(pass)
+					argntlm = {
+						:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+						:challenge =>  self.challenge_key 
+					}
 				else
-					argntlm = { 	:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
-							:challenge =>  self.challenge_key }
+					argntlm = {
+						:ntlm_hash =>  NTLM_CRYPT::ntlm_hash(pass), 
+						:challenge =>  self.challenge_key 
+					}
 				end
+				
 				resp_ntlm = NTLM_CRYPT::ntlm_response(argntlm)
 				if self.send_lm
-					if (pass.length == 65)
-						arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
-								:challenge =>  self.challenge_key }
+					if UTILS.is_pass_ntlm_hash?(pass)
+						arglm = {
+							:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+							:challenge =>  self.challenge_key 
+						}
 					else
-						arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
-								:challenge =>  self.challenge_key }
+						arglm = {
+							:lm_hash => NTLM_CRYPT::lm_hash(pass),
+							:challenge =>  self.challenge_key 
+						}
 					end
 					resp_lm = NTLM_CRYPT::lm_response(arglm)
 				else
@@ -976,24 +1021,34 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		else #send_ntlm = false 
 			#lmv2
 			if self.usentlm2_session && self.use_ntlmv2
-				if (pass.length == 65)
-					arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user, 
-												[ pass.upcase()[33,65] ].pack('H32'), 
-												domain,{:pass_is_hash => true}),
-							:challenge => self.challenge_key }
+				if UTILS.is_pass_ntlm_hash?(pass)
+					arglm = {
+						:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(
+											user, 
+											[ pass.upcase()[33,65] ].pack('H32'), 
+											domain,{:pass_is_hash => true}
+										),
+						:challenge => self.challenge_key 
+					}
 				else
-					arglm = {	:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
-							:challenge => self.challenge_key }
+					arglm = {
+						:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(user,pass, domain),
+						:challenge => self.challenge_key 
+					}
 				end
-				optlm = {	:client_challenge => client_challenge}
+				optlm = { :client_challenge => client_challenge }
 				resp_lm = NTLM_CRYPT::lmv2_response(arglm, optlm)
 			else
-				if (pass.length == 65)
-					arglm = { 	:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
-							:challenge =>  self.challenge_key }
+				if UTILS.is_pass_ntlm_hash?(pass)
+					arglm = {
+						:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+						:challenge =>  self.challenge_key 
+					}
 				else
-					arglm = { 	:lm_hash => NTLM_CRYPT::lm_hash(pass),
-							:challenge =>  self.challenge_key }
+					arglm = {
+						:lm_hash => NTLM_CRYPT::lm_hash(pass),
+						:challenge =>  self.challenge_key 
+					}
 				end
 				resp_lm = NTLM_CRYPT::lm_response(arglm)
 			end
@@ -1005,9 +1060,10 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		#server will decide for key_size and key_exchange
 		enc_session_key = ''
 		if self.require_signing
-			if (pass.length == 65)
-				raise ArgumentError, "pth not yet implemented when signing is required by server, coming soon"
+			if UTILS.is_pass_ntlm_hash?(pass)
+				raise ArgumentError, "Sorry, pass-the-hash is not yet implemented when signing is required by server, coming soon"
 			end
+			
 			server_ntlmssp_flags = blob[cidx + 20, 4].unpack("V")[0]
 			#set default key size and key exchange values
 			key_size = 40
