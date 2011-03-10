@@ -457,12 +457,13 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_sysinfo(*args)
 		info = client.sys.config.sysinfo
+		width = 0
+		info.keys.each { |k| width = k.length if k.length > width }
 
-		print_line("Computer   : " + info['Computer'])
-		print_line("OS         : " + info['OS'])
-		print_line("Arch       : " + info['Architecture']) if info['Architecture']
-		print_line("Language   : " + info['System Language']) if info['System Language']
-		print_line("Meterpreter: " + client.platform)
+		info.each_pair do |key, value|
+			print_line("#{key.ljust(width+1)}: #{value}") if value
+		end
+		print_line("#{"Meterpreter".ljust(width+1)}: #{client.platform}")
 
 		return true
 	end
