@@ -40,9 +40,11 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(1521)
 			], self.class)
 
-		deregister_options("RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE", 
-											 "BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
-											 "REMOVE_USERPASS_FILE")
+		deregister_options(
+			"RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE", 
+			"BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
+			"REMOVE_USERPASS_FILE"
+		)
 	end
 
 	def build_sid_request(sid,ip)
@@ -55,10 +57,6 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(pkt)
 		data = sock.get_once
 		parse_response(data)
-	end
-
-	def target_host
-		"#{rhost}:#{rport}"
 	end
 
 	def parse_response(data)
