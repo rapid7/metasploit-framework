@@ -1,13 +1,47 @@
 Armitage Changelog
 ==================
 
-In Progress
+10 Mar 11 Update (2230h EST)
 ---------
+- Fixed race condition importing manual list of hosts (sometimes the file
+  would get deleted). Grr.
+- Added a lock to prevent multiple Armitage clients from trying to 
+  determine what OS a box has. This should help in CTF situations.
+
+10 Mar 11 Changes
+---------
+
+Quick story: NECCDC 2011 Red Team. TJ launches a script that lands 70
+sessions in the first few seconds. 11 red team members are connected to
+Armitage eager to carry out their pieces of pwnage. The Ruby process pegs
+the CPU and Armitage fails spectacularly. Very funny. This releases fixes
+that. 
 
 - Armitage YAML parser now accepts quoted strings in the YAML fields
 - Added caching of sessions.list, db.hosts, and db.services to Armitage 
   collaboration server. This should help prevent msfrpcd from overloading
-  when many clients are connected and owning at once.
+  when many clients are connected and owning boxen at one time.
+- Improved GUI responsiveness by making several parts of the Armitage GUI
+  spawn a new thread to avoid blocking while communicating with Metasploit
+- Added a tooltip to the "Start MSF" and "Connect" buttons to clarify use
+- Export credentials button now prompts for a remote file when connected 
+  to a remote Metasploit instance.
+- Export credentials and payload generate output now transparently  
+  downloads to your local host when connected to Armitage's collab server.
+- Armitage now loads stdapi in Meterpreter if it finds it's not loaded. 
+  Armitage also prompts you to rerun the failed command when this happens.
+- Right-click in services now shows popup for taking actions against 
+  selected hosts. Now you can do mass actions against hosts sorted by port.
+- Added Access -> Persist to Meterpreter menu. This will run Meterpreter's
+  persistence script using the default Armitage handler. Meterpreter will
+  start at boot and at login.
+- Added an Armitage.app file for MacOS X. Use Armitage from OS X as a
+  client to connect to Metasploit hosted in other places.
+- Added a check for whether current working directory is writeable or not.  
+  If it's not, Armitage does all of its read/write operations in home dir.
+
+Tested with 10 concurrent Armitage clients from four boxes with 140+ shell 
+sessions and a few meterpreter sessions. I think we're ready to rock now.
 
 27 Feb 11 Changes
 ---------
