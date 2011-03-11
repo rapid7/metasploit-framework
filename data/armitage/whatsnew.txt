@@ -1,6 +1,11 @@
 Armitage Changelog
 ==================
 
+11 Mar 11 Update (0100h EST)
+---------
+- Fixed a deadlock condition in the module launcher (caused by the changes
+  to increase responsiveness... oops).
+
 10 Mar 11 Update (2230h EST)
 ---------
 - Fixed race condition importing manual list of hosts (sometimes the file
