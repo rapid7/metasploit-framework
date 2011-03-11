@@ -59,7 +59,7 @@ Msf::Ui::Common.process_cli_arguments($framework, ARGV)
 payload = $framework.payloads.create(payload_name)
 
 if (payload == nil)
-	puts "Invalid payload: #{payload_name}"
+	$stderr.puts "Invalid payload: #{payload_name}"
 	exit
 end
 
@@ -87,7 +87,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 				'OptionStr' => options,
 				'Encoder'   => enc)
 	rescue
-		puts "Error generating payload: #{$!}"
+		$stderr.puts "Error generating payload: #{$!}"
 		exit
 	end
 
