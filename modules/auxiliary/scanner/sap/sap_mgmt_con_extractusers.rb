@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def extractusers(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
+		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -100,13 +100,17 @@ class Metasploit3 < Msf::Auxiliary
 			env = []
 
 			if res.code == 200
-				body = []
-				body = res.body unless res.body.nil?
-				users = body.scan(/<User>([^<]+)<\/User>/i)
-				users = users.uniq
-				success = true
-
-			else res.code == 500
+				case res.body
+				when nil
+					# Nothing
+				when/<User>([^<]+)<\/User>/i
+					body = []
+					body = res.body unless res.body.nil?
+					users = body.scan(/<User>([^<]+)<\/User>/i)
+					users = users.uniq
+					success = true
+				end
+			elsif res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = "#{$1}"
@@ -120,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if success
-			print_good("#{rhost}#{rport} [SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
+			print_good("#{rhost}:#{rport} [SAP] Users Extracted: #{users.length} entries extracted from #{rhost}:#{rport}")
 			report_note(
 				:host => rhost,
 				:proto => 'tcp',
@@ -129,6 +133,10 @@ class Metasploit3 < Msf::Auxiliary
 				:data => {:proto => "soap", :users => users},
 				:update => :unique_data 
 			)
+	
+			users.each do |output|
+				print_good("#{rhost}:#{rport} [SAP] Extracted User: #{output}")
+			end	
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")

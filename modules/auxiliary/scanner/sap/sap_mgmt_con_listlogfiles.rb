@@ -71,9 +71,9 @@ class Metasploit3 < Msf::Auxiliary
 		sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
 
 		case "#{datastore['FILETYPE']}"
-		when /LOGFILE/i
+		when /^LOG/i
 			ns1 = 'ns1:ListLogFiles'
-		when /TRACEFILE/i
+		when /^TRACE/i
 			ns1 = 'ns1:ListDeveloperTraces'
 		end
 
@@ -129,8 +129,11 @@ class Metasploit3 < Msf::Auxiliary
 		if success
 			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}: #{env.length} entries extracted")
 
-			saptbl = Rex::Ui::Text::Table.new(
-			'Header'    => "SAP Log Files",
+			saptbl = Msf::Ui::Console::Table.new(
+				Msf::Ui::Console::Table::Style::Default,
+			'Header'    => "[SAP] Log Files",
+			'Prefix'  => "\n",
+			'Postfix' => "\n",
 			'Indent'    => 1,
 			'Columns'   =>
 			[
@@ -138,10 +141,14 @@ class Metasploit3 < Msf::Auxiliary
 				"Size",
 				"Timestamp"
 			])
-			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, saptbl.to_s, "sap_#{datastore['RFILE'].downcase}.xml",
-			 	"SAP #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase}")
-				
+			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, saptbl.to_s, "sap_listlogfiles.xml",
+			 	"SAP #{datastore['FILETYPE'].downcase}")
 
+			env.each do |output|
+				saptbl << [ output[0], output[1], output[2] ]
+			end
+
+			print(saptbl.to_s)				
 			return
 
 		elsif fault

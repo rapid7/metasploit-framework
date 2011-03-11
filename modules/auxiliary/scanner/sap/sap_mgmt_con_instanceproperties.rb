@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def enum_instance(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
+		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'
 		xsi='http://www.w3.org/2001/XMLSchema-instance'
@@ -138,17 +138,17 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
 			return
 		end
 
 		if success
-			print_good("#{rhost}:#{rhost} [SAP] Instance Properties Extracted")
+			print_good("#{rhost}:#{rport} [SAP] Instance Properties Extracted")
 			if centralservices
-				print_good("#{rhost}:#{rhost} [SAP] Central Services: #{centralservices}")
+				print_good("#{rhost}:#{rport} [SAP] Central Services: #{centralservices}")
 			end
 			if sapsystem
-				print_good("#{rhost}:#{rhost} [SAP] SAP System Number: #{sapsystem}")
+				print_good("#{rhost}:#{rport} [SAP] SAP System Number: #{sapsystem}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 							:data => {:proto => "soap", :sapsystem => sapsystem})
 			end
 			if sapsystemname
-				print_good("#{rhost}:#{rhost} [SAP] SAP System Name: #{sapsystemname}")
+				print_good("#{rhost}:#{rport} [SAP] SAP System Name: #{sapsystemname}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 							:data => {:proto => "soap", :sapsystemname => sapsystemname})
 			end
 			if saplocalhost
-				print_good("#{rhost}:#{rhost} [SAP] SAP Localhost: #{saplocalhost}")
+				print_good("#{rhost}:#{rport} [SAP] SAP Localhost: #{saplocalhost}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Auxiliary
 							:data => {:proto => "soap", :saplocalhost => saplocalhost})
 			end
 			if instancename
-				print_good("#{rhost}:#{rhost} [SAP] Instance Name: #{instancename}")
+				print_good("#{rhost}:#{rport} [SAP] Instance Name: #{instancename}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Auxiliary
 							:data => {:proto => "soap", :instancename => instancename})
 			end
 			if icmurl
-				print_good("#{rhost}:#{rhost} [SAP] ICM URL: #{icmurl}")
+				print_good("#{rhost}:#{rport} [SAP] ICM URL: #{icmurl}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if dbstring
-				print_good("#{rhost}:#{rhost} [SAP] DATABASE: #{dbstring}")
+				print_good("#{rhost}:#{rport} [SAP] DATABASE: #{dbstring}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if protectedweb
-				print_good("#{rhost}:#{rhost} [SAP] protectedweb Webmethods: #{protectedweb}")
+				print_good("#{rhost}:#{rport} [SAP] protectedweb Webmethods: #{protectedweb}")
 				report_note(:host => '#{rhost}',
 							:proto => 'tcp',
 							:port => '#{rport}',
@@ -209,10 +209,10 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return
 		elsif fault
-			print_error("#{rhost}:#{rhost} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("#{rhost}:#{rhost} [SAP] failed to identify instance properties")
+			print_error("#{rhost}:#{rport} [SAP] failed to identify instance properties")
 			return
 		end
 	end

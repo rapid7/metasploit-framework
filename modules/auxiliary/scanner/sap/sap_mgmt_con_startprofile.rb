@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 				'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
-				OptString.new('LFILE', [false, 'Set path to save output to file', '']),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')
@@ -63,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def getStartProfile(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("#{rhost}: #{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
+		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 		soapenv ='http://schemas.xmlsoap.org/soap/envelope/'
 		xsi ='http://www.w3.org/2001/XMLSchema-instance'
@@ -134,11 +133,17 @@ class Metasploit3 < Msf::Auxiliary
 		if success
 			print_good("#{rhost}:#{rport} [SAP] Startup Profile Extracted: #{name}")
 			store_loot("sap.profile", "text/xml", rhost, res.body, "sap_profile.xml", "SAP Profile XML")
+
+			env.each do |output|
+				print_status("#{output}")
+			end
+
+			
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return
 		else
-			print_error("[SAP] failed to request environment")
+			print_error("#{rhost}:#{rport} [SAP] failed to request environment")
 			return
 		end
 	end

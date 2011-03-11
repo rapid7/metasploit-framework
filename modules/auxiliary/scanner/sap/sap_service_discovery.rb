@@ -16,7 +16,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Exploit::Capture
-
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -25,7 +24,12 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'         => 'SAP Service Discovery',
 			'Version'      => '$Revision$',
-			'Description'  => 'Scans for listening SAP services',
+			'Description'  => %q{ Scans for listening SAP services. },
+			'References'   =>
+				[
+					# General
+					[ 'URL', 'http://blog.c22.cc' ]
+				],
 			'Author'       => [ 'Chris John Riley' ],
 			'License'      => MSF_LICENSE
 		)

@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'         => 'SAP Management Console ABAP syslog',
 			'Version'      => '$Revision$',
-			'Description'  => 'This module simply attempts to extract the ABAP syslog through the SAP Management Console SOAP Interface.',
+			'Description'  => %q{ This module simply attempts to extract the ABAP syslog through the SAP Management Console SOAP Interface. },
 			'References'   =>
 				[
 					# General
@@ -37,10 +37,9 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 				'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
-				OptString.new('LFILE', [true, 'Set path to save output to file', 'abapsyslog']),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
-		deregister_options('RHOST', 'LFILE')
+		deregister_options('RHOST')
 	end
 
 	def rport
@@ -60,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def extractabap(rhost)
 		verbose = datastore['VERBOSE']
-		print_status("#{rhost}:#{rhost} [SAP] Connecting to SAP Management Console SOAP Interface")
+		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 		
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
@@ -105,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError
-			print_error("#{rhost}:#{rhost} [SAP] Unable to connect")
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
 			return
 		end
 
