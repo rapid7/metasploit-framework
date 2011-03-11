@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['OSVDB', '70762'],
-					['OSVDB', 'tocome'],
 					['CVE', '2011-0049'],
 					['CVE', '2011-0063'],
 					['URL', 'https://sitewat.ch/en/Advisory/View/1'],
