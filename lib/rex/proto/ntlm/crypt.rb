@@ -117,8 +117,7 @@ BASE = Rex::Proto::NTLM::Base
 			ntlmhash = password
 		else
 			ntlmhash = ntlm_hash(password, opt)
-		end
-		
+		end	
 		# With Win 7 and maybe other OSs we sometimes get the domain not uppercased
 		userdomain = user.upcase  + domain
 		unless opt[:unicode]
@@ -172,12 +171,12 @@ BASE = Rex::Proto::NTLM::Base
 		if not (key and chal)
 			raise ArgumentError , 'ntlmv2_hash and challenge are mandatory'
 		end
-		
+
 		chal = BASE::pack_int64le(chal) if chal.is_a?(::Integer)
 		bb   = nil
 		
 		if opt[:nt_client_challenge]
-			if opt[:nt_client_challenge].to_s.length <= 24
+			if opt[:nt_client_challenge].to_s.length <= 8
 				raise ArgumentError,"nt_client_challenge is not in a correct format " 
 			end
 			bb = opt[:nt_client_challenge]
@@ -205,7 +204,6 @@ BASE = Rex::Proto::NTLM::Base
 		end
 
 		OpenSSL::HMAC.digest(OpenSSL::Digest::MD5.new, key, chal + bb) + bb
-
 	end
       
 	def self.lmv2_response(arg, opt = {})
@@ -235,6 +233,83 @@ BASE = Rex::Proto::NTLM::Base
 		response = apply_des(session_hash, keys).join
 		[cc.ljust(24, "\0"), response]
 	end
+
+	#this function will check if the net lm response provided correspond to en empty password 
+	def self.is_hash_from_empty_pwd?(arg)
+		hash_type = arg[:type]
+		raise ArgumentError,"arg[:type] is mandatory" if not hash_type 
+		raise ArgumentError,"arg[:type] must be lm or ntlm" if not hash_type  =~ /^((lm)|(ntlm))$/
+
+		ntlm_ver = arg[:ntlm_ver]
+		raise ArgumentError,"arg[:ntlm_ver] is mandatory" if not ntlm_ver
+ 
+		hash = arg[:hash]
+		raise ArgumentError,"arg[:hash] is mandatory" if not hash
+
+		srv_chall = arg[:srv_challenge] 
+		raise ArgumentError,"arg[:srv_challenge] is mandatory" if not srv_chall		
+		raise ArgumentError,"Server challenge length must be exactly 8 bytes" if srv_chall.length != 8
+
+		#calculate responses for empty pwd
+		case ntlm_ver
+		when CONST::NTLM_V1_RESPONSE 
+			if hash.length != 24
+				raise ArgumentError,"hash length must be exactly 24 bytes "
+			end
+			case hash_type
+			when 'lm'	
+				arglm = { 	:lm_hash => self.lm_hash(''),
+						:challenge => srv_chall}
+				calculatedhash = self.lm_response(arglm)
+			when 'ntlm'
+				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''), 
+						:challenge => srv_chall }
+				calculatedhash = self.ntlm_response(argntlm)
+			end
+		when CONST::NTLM_V2_RESPONSE
+			raise ArgumentError,"hash length must be exactly 16 bytes " if hash.length != 16
+			cli_chall = arg[:cli_challenge] 
+			raise ArgumentError,"arg[:cli_challenge] is mandatory in this case" if not cli_chall
+			user = arg[:user] 
+			raise ArgumentError,"arg[:user] is mandatory in this case" if not user
+			domain = arg[:domain]
+			raise ArgumentError,"arg[:domain] is mandatory in this case" if not domain
+
+			case hash_type
+			when 'lm'
+				raise ArgumentError,"Client challenge length must be exactly 8 bytes " if cli_chall.length != 8
+				arglm = {	:ntlmv2_hash =>  self.ntlmv2_hash(user,'', domain),
+						:challenge => srv_chall }
+				optlm = {	:client_challenge => cli_chall}
+				calculatedhash = self.lmv2_response(arglm, optlm)[0,16]
+			when 'ntlm'
+				raise ArgumentError,"Client challenge length must be bigger then 8 bytes " if cli_chall.length <= 8
+				argntlm = { 	:ntlmv2_hash =>  self.ntlmv2_hash(user, '', domain),
+						:challenge => srv_chall }
+				optntlm = { 	:nt_client_challenge => cli_chall}
+				calculatedhash = self.ntlmv2_response(argntlm,optntlm)[0,16]
+			end
+		when CONST::NTLM_2_SESSION_RESPONSE
+			raise ArgumentError,"hash length must be exactly 16 bytes " if hash.length != 24
+			cli_chall = arg[:cli_challenge] 
+			raise ArgumentError,"arg[:cli_challenge] is mandatory in this case" if not cli_chall
+			raise ArgumentError,"Client challenge length must be exactly 8 bytes " if cli_chall.length != 8
+			case hash_type
+			when 'lm'
+				raise ArgumentError, "ntlm2_session is incompatible with lm"
+			when 'ntlm'
+				argntlm = { 	:ntlm_hash =>  self.ntlm_hash(''), 
+						:challenge => srv_chall }
+				optntlm = {	:client_challenge => cli_chall}
+			end
+			calculatedhash = self.ntlm2_session(argntlm,optntlm).join[24,24]
+		else
+			raise ArgumentError,"ntlm_ver is of unknow type"
+		end
+		hash == calculatedhash
+	end
+
+
 
 	#
 	# Signing method added for metasploit project
