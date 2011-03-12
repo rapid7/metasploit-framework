@@ -23,6 +23,7 @@ public class SearchWindow extends MsfFrame {
 		super("Module search window");
 		this.rpcConn = rpcConn;
         initComponents();
+		loadSavedSize();
 		modules = new ArrayList(600);
 		mod =new DefaultListModel();
 		resultList.setModel(mod);

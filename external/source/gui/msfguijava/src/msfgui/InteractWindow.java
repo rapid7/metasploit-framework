@@ -69,6 +69,7 @@ public class InteractWindow extends MsfFrame {
 	public InteractWindow(final RpcConnection rpcConn, final Map session, String type) {
 		super(type+" interaction window");
 		initComponents();
+		loadSavedSize();
 		this.rpcConn = rpcConn;
 		this.session = session;
 		sid = session.get("id");

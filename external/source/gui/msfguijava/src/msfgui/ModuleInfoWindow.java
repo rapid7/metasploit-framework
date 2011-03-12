@@ -127,8 +127,17 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 				javax.swing.JLabel tempText = new javax.swing.JLabel();
 				tempText.setText("<html><b>"+optionName.toString()+"</b> " + option.get("desc") + "</html>");
 				tempText.setBorder(null);
-				if(licenseLabel.getWidth() > 0)
-					tempText.setPreferredSize(new java.awt.Dimension(licenseLabel.getWidth(),authorsLabel.getHeight()*2));
+				//Width calculation; some of these descriptions are pretty long
+				//so we need to limit to the size of elements already on the page
+				//like licenseLabel unless it doesn't exist, then guess based on parent
+				int mywidth = licenseLabel.getWidth();
+				java.awt.Dimension tempsize = tempText.getPreferredSize();
+				if(mywidth == 0)
+					mywidth = mainPanel.getParent().getWidth() * 2 / 3;
+				//if we are going to squish it, give it room to wrap vertically
+				if(mywidth < tempsize.width)
+					tempText.setPreferredSize(new java.awt.Dimension(mywidth,tempsize.height
+							*(1+tempsize.width/mywidth)));
 				tempText.setVerticalAlignment(javax.swing.JLabel.BOTTOM);
 				mainPanel.add(tempText);//mainPanel.add(containerPane);
 				tempText.setFont(authorsLabel.getFont());

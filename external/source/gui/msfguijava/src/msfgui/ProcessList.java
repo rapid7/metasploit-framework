@@ -34,6 +34,7 @@ public class ProcessList extends MsfFrame {
 	public ProcessList(final RpcConnection rpcConn, final Map session, Map sessionPopupMap) {
 		super("Meterpreter remote process list");
 		initComponents();
+		loadSavedSize();
 		model = new DefaultTableModel(){
 			public boolean isCellEditable(int row, int col){
 				return false;

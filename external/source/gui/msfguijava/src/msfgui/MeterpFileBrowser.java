@@ -60,6 +60,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		files = new HashMap();
 		fileVector = new Vector(100);
 		initComponents();
+		loadSavedSize();
 		model = new DefaultTableModel(){
 			public boolean isCellEditable(int row, int col){
 				return false;
