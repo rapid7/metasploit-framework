@@ -1,6 +1,13 @@
 Armitage Changelog
 ==================
 
+12 Mar 11 (MACCDC Post Day 1 Update)
+---------
+- Fixed a bug preventing host import from working with a remote connection
+- Armitage client now increases default wait for meterpreter commands to
+  complete when in teaming mode.
+- Increased wait time to download a generated payload file to 8s.
+
 11 Mar 11 Update (0100h EST)
 ---------
 - Fixed a deadlock condition in the module launcher (caused by the changes
