@@ -333,9 +333,9 @@ class Metasploit3 < Msf::Auxiliary
 					# do nothing
 				else
 					if !datastore['USEIFRAMES']
-						response.body << "<a href= #{self.get_resource+'/'+entry}>#{entry}</a><br>"
+						response.body << "<a href= #{self.get_resource+entry}>#{entry}</a><br>"
 					else
-						response.body << "<iframe style=\"width:0px; height:0px; border: 0px\" src=#{self.get_resource+'/'+entry}><b>#{entry}</b></iframe><br>"
+						response.body << "<iframe style=\"width:0px; height:0px; border: 0px\" src=#{self.get_resource+entry}><b>#{entry}</b></iframe><br>"
 					end
 				end
 			end
