@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptPort.new("CPORT", [true, "The source port for the TCP SYN packet", 13832]),
 			OptInt.new("ECHOID", [true, "The unique ICMP ECHO ID to embed into the packet", 7893]),
 		])
+		deregister_options('RHOST')
 	end
 
 	def build_filter
