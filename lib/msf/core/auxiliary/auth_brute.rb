@@ -19,8 +19,8 @@ def initialize(info = {})
 	OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line" ]),
 	OptInt.new('BRUTEFORCE_SPEED', [ true, "How fast to bruteforce, from 0 to 5", 5]),
 	OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
-	OptBool.new('BLANK_PASSWORDS', [ true, "Try blank passwords for all users", true]),
-	OptBool.new('USER_AS_PASS', [ true, "Try the username as the password for all users", true]),
+	OptBool.new('BLANK_PASSWORDS', [ false, "Try blank passwords for all users", true]),
+	OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", true]),
 	OptBool.new('STOP_ON_SUCCESS', [ true, "Stop guessing when a credential works for a host", false]),
 	], Auxiliary::AuthBrute)
 	
@@ -40,7 +40,11 @@ end
 # to :next_user (which will cause that username to be skipped for subsequent
 # password guesses). Other return values won't affect the processing of the
 # list.
-def each_user_pass(&block)
+#
+# The 'noconn' argument should be set to true if each_user_pass is merely
+# iterating over the usernames and passwords and should not respect 
+# bruteforce_speed as a delaying factor.
+def each_user_pass(noconn=false,&block)
 	# Class variables to track credential use (for threading)
 	@@credentials_tried = {}
 	@@credentials_skipped = {}
@@ -77,7 +81,12 @@ def each_user_pass(&block)
 
 		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
 
-		userpass_sleep_interval unless @@credentials_tried.empty?
+		# Set noconn to indicate that in this case, each_user_pass
+		# is not actually kicking off a connection, so the
+		# bruteforce_speed datastore should be ignored.
+		if not noconn
+			userpass_sleep_interval unless @@credentials_tried.empty?
+		end
 
 		next if @@credentials_skipped[fq_user]
 		next if @@credentials_tried[fq_user] == p

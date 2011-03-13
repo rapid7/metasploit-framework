@@ -84,9 +84,12 @@ class NmapXMLStreamParser
 			# <state> refers to the state of a port; values are "open", "closed", or "filtered"
 			@host["ports"].last["state"] = attributes["state"]
 		when "service"
-			# Store any service info with the associated port.  There shouldn't
+			# Store any service and script info with the associated port.  There shouldn't
 			# be any collisions on attribute names here, so just merge them.
 			@host["ports"].last.merge!(attributes)
+		when "script"
+			@host["ports"].last["scripts"] ||= {}
+			@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
 		when "trace"
 			@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
 		when "hop"
