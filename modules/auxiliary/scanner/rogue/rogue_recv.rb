@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def build_filter
-		"icmp or (" +
+		"(icmp and icmp[0] == 0) or (" +
 			"tcp and (tcp[13] == 0x12 or (tcp[13] & 0x04) != 0) and " +
 			"src port #{datastore['RPORT']} and dst port #{datastore['CPORT']} " +
 		")"
@@ -76,8 +76,8 @@ class Metasploit3 < Msf::Auxiliary
 			icmp = Racket::L4::ICMP.new(ip.payload)
 			reply = {:raw => r, :eth => eth, :ip => ip, :icmp => icmp}
 			reply[:type]     = :icmp
-			return if(icmp.payload[4,2] != [datastore['ECHOID']].pack('n'))
-			reply[:internal] = Rex::Socket.addr_ntoa(icmp.payload[0,4])
+			return if(icmp.payload[0,2] != [datastore['ECHOID']].pack('n'))
+			reply[:internal] = Rex::Socket.addr_ntoa(icmp.payload[4,4])
 			reply[:external] = ip.src_ip
 			return reply
 		when 6

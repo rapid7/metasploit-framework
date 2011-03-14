@@ -89,8 +89,9 @@ class Metasploit3 < Msf::Auxiliary
 		n.l3.id = rand(0x10000)
 		n.l3.ttl = 255
 
-		n.l4 = Racket::L4::ICMP.new
-		n.l4.type = 8
+		n.l4 = Racket::L4::ICMPEcho.new
+		n.l4.id = datastore['ECHOID']
+		n.l4.sequence = 1
 		n.l4.payload = Rex::Socket.addr_aton(dst) + [datastore['ECHOID']].pack('n') + Rex::Text.rand_text(26)
 
 		n.l4.fix!
