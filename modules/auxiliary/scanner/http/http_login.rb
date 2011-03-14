@@ -50,12 +50,14 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
 				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
 					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
-				OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ])
+				OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
+				OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth (default:GET)", "GET" ])
 			], self.class)
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
 	def find_auth_uri_and_scheme
+		
 		path_and_scheme = []
 		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
 			paths = [datastore['AUTH_URI']]
@@ -68,35 +70,22 @@ class Metasploit3 < Msf::Auxiliary
 				/Management.asp
 			}
 		end
-
+		
 		paths.each do |path|
 			res = send_request_cgi({
 				'uri'     => path,
-				'method'  => 'GET',
-				'headers' => { }
+				'method'  => datastore['REQUESTTYPE'],
 			}, 10)
 
 			next if not res
 			if res.code == 301 or res.code == 302 and res.headers['Location'] and res.headers['Location'] !~ /^http/
 				path = res.headers['Location']
+				vprint_status("Following redirect: #{path}")
 				res = send_request_cgi({
 					'uri'     => path,
-					'method'  => 'GET',
-					'headers' => {
-						'User-Agent' => datastore['UserAgent']
-					}
+					'method'  => datastore['REQUESTTYPE'],
 				}, 10)
 				next if not res
-				next if not res.code == 401
-				next if not res.headers['WWW-Authenticate']
-				path_and_scheme << path
-				case res.headers['WWW-Authenticate']
-				when /Basic/i
-					path_and_scheme << "Basic"
-				when /NTLM/i
-					path_and_scheme << "NTLM"
-				end
-				return path_and_scheme
 			end
 
 			next if not res.code == 401
@@ -107,6 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 				path_and_scheme << "Basic"
 			when /NTLM/i
 				path_and_scheme << "NTLM"
+			when /Digest/i
+				path_and_scheme << "Digest"
 			end
 			return path_and_scheme
 		end
@@ -123,8 +114,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-
-		@uri = find_auth_uri_and_scheme()[0]
+		
+		if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
+			print_error("You need need to set AUTH_URI when using PUT Method !")
+			return
+		end
+		@uri, @scheme = find_auth_uri_and_scheme()
 		if ! @uri
 			print_error("#{target_url} No URI found that asks for HTTP authentication")
 			return
@@ -132,7 +127,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		@uri = "/#{@uri}" if @uri[0,1] != "/"
 
-		@scheme = find_auth_uri_and_scheme()[1]
 		if ! @scheme
 			print_error("#{target_url} Incompatible authentication scheme")
 			return
@@ -150,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		proof   = ""
-
+		
 		ret  = do_http_login(user,pass,@scheme)
 		return :abort if ret == :abort
 		if ret == :success
@@ -204,10 +198,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_http_login(user,pass,scheme)
 		case scheme
-		when /Basic/i
-			do_http_auth_basic(user,pass)
 		when /NTLM/i
 			do_http_auth_ntlm(user,pass)
+		when /Digest/i
+			do_http_auth_digest(user,pass,datastore['REQUESTTYPE'])
+		when /Basic/i
+			do_http_auth_basic(user,pass)
 		else
 			vprint_error("#{target_url}: Unknown authentication scheme")
 			return :abort
@@ -269,5 +265,60 @@ class Metasploit3 < Msf::Auxiliary
 
 		return :fail
 	end
+	
+	def do_http_auth_digest(user,pass,requesttype)
+		path = datastore['AUTH_URI'] || "/"
+		begin
+			if requesttype == "PUT"
+				res,c = send_digest_request_cgi({
+					'uri'     => path,
+					'method'  => requesttype,
+					'data'	=> 'Test123\r\n',
+					#'DigestAuthIIS' => false,
+					'DigestAuthUser' => user,
+					'DigestAuthPassword' => pass
+				}, 25)
+			else
+				res,c = send_digest_request_cgi({
+					'uri'     => path,
+					'method'  => requesttype,
+					#'DigestAuthIIS' => false,
+					'DigestAuthUser' => user,
+					'DigestAuthPassword' => pass
+				}, 25)				
+			end
+
+			unless (res.kind_of? Rex::Proto::Http::Response)
+				vprint_error("#{target_url} not responding")
+				return :abort
+			end
+			
+			return :abort if (res.code == 404)
+
+			if (res.code == 200) or (res.code == 201)
+				if ((res.code == 201) and (requesttype == "PUT"))
+					print_good("Trying to delete #{path}")
+					del_res,c = send_digest_request_cgi({
+						'uri' => path,
+						'method' => 'DELETE',
+						'DigestAuthUser' => user,
+						'DigestAuthPassword' => pass
+						}, 25)
+					if not (del_res.code == 204)
+						print_error("#{path} could be created, but not deleted again. This may have been noisy ...")
+					end
+				end
+				@proof   = res
+				return :success
+			end
+
+		rescue ::Rex::ConnectionError
+			vprint_error("#{target_url} - Failed to connect to the web server")
+			return :abort
+		end
+
+		return :fail
+	end
+
 end
 
