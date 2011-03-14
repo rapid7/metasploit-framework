@@ -52,6 +52,10 @@ class Metasploit3 < Msf::Auxiliary
 		pkt = tns_packet(connect_data)
 	end
 
+	def hostport
+		[target_host,rport].join(":")
+	end
+
 	def check_sid(sid,ip)
 		pkt = build_sid_request(sid,ip)
 		sock.put(pkt)
@@ -70,10 +74,10 @@ class Metasploit3 < Msf::Auxiliary
 			connect
 			response_code = check_sid(sid,ip)
 			if response_code.nil?
-				print_status "#{target_host} - Oracle - No response given, something is wrong."
+				print_status "#{hostport} Oracle - No response given, something is wrong."
 				return :abort
 			elsif response_code != 4
-				print_good "#{target_host} - Oracle - '#{sid}' is valid"
+				print_good "#{hostport} Oracle - '#{sid}' is valid"
 				report_note(
 					:host => ip,
 					:proto => 'tcp',
@@ -85,12 +89,12 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return :success
 			else
-				vprint_status "#{target_host} - Oracle - Refused '#{sid}'"
+				vprint_status "#{hostport} Oracle - Refused '#{sid}'"
 				return :fail
 			end
 			disconnect
 		rescue ::Rex::ConnectionError, ::Errno::EPIPE
-			print_error("#{target_host} - Oracle - unable to connect to a TNS listener")
+			print_error("#{hostport} Oracle - unable to connect to a TNS listener")
 			return :abort
 		end
 	end
@@ -104,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			sids = [datastore['SID'].to_s.strip.upcase]
 		end
-		print_status "Checking #{sids.size} SID#{sids.size != 1 && "s"} against #{target_host}"
+		print_status "Checking #{sids.size} SID#{sids.size != 1 && "s"} against #{hostport}"
 		sids.each do |s|
 			userpass_sleep_interval unless (@@oracle_sid_fail | @@oracle_sid_success).empty?
 			next if @@oracle_sid_fail.include?(s) || @@oracle_sid_success.include?(s)
@@ -123,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		each_sid do |sid|
-			vprint_status "#{target_host} - Oracle - Checking '#{sid}'..."
+			vprint_status "#{hostport} Oracle - Checking '#{sid}'..."
 			do_sid_check(sid,ip)
 		end
 	end
