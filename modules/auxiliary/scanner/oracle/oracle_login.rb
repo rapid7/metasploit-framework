@@ -126,11 +126,12 @@ class Metasploit3 < Msf::Auxiliary
 			print_status "#{msg} No valid accounts found"
 		else
 			output.each_line do |oline|
-				report_service(:host => addr, :port => port,
-					:proto => "tcp", :name => "oracle")
-				report_note(:host => addr, :port => port, :proto => "tcp", 
-					:type => "oracle.sid", :data => sid, :update => :unique_data)
 				if oline =~ /Login correct/
+					if not @oracle_reported
+						report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
+						report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+						@oracle_reported = true
+					end
 					user,pass = extract_creds(oline)
 					pass = "" if pass == "<empty>"
 					print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
@@ -139,6 +140,11 @@ class Metasploit3 < Msf::Auxiliary
 						:user => "#{sid}/#{user}", :pass => pass, :active => true
 					)
 				elsif oline =~ /Account locked/
+					if not @oracle_reported
+						report_service(:host => addr, :port => port, :proto => "tcp", :name => "oracle")
+						report_note(:host => addr, :port => port, :proto => "tcp", :type => "oracle.sid", :data => sid, :update => :unique_data)
+						@oracle_reported = true
+					end
 					user = extract_creds(oline)[0]
 					print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
 					report_auth_info(
