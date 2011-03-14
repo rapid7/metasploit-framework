@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -7,7 +11,6 @@
 
 require 'msf/core'
 require 'rex'
-require 'sqlite3'
 require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
@@ -19,6 +22,7 @@ class Metasploit3 < Msf::Post
 			'Name'                 => "Google Chrome User Data Enumeration",
 			'Description'          => %q{This module will collect user data from Google Chrome, and attempt to decrypt sensitive information},
 			'License'              => MSF_LICENSE,
+			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['Sven Taute']
@@ -67,6 +71,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def process_files(username)
+		begin
+			require 'sqlite3'
+		rescue ::Exception => e
+			print_error(e)
+			return
+		end
 		secrets = ""
 		decrypt_table = Rex::Ui::Text::Table.new(
 			"Header"  => "Decrypted data",
