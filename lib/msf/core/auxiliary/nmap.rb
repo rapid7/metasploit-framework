@@ -93,7 +93,12 @@ end
 def nmap_binary_path
 	ret = Rex::FileUtils.find_full_path("nmap") || Rex::FileUtils.find_full_path("nmap.exe")
 	if ret
-		return ::File.expand_path(ret)
+		fullpath = ::File.expand_path(ret)
+		if fullpath =~ /\s/ # Thanks, "Program Files"
+			return "\"#{fullpath}\""
+		else
+			return fullpath
+		end
 	else
 		raise RuntimeError, "Cannot locate the nmap binary"
 	end
