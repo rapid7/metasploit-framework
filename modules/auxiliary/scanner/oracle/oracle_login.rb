@@ -18,6 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Nmap
 	include Msf::Auxiliary::AuthBrute
+	include Msf::Auxiliary::Scanner
 
 	# Creates an instance of this module.
 	def initialize(info = {})
