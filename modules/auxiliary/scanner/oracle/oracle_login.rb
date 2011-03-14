@@ -120,6 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse_script_output(addr,port,output)
 		msg = "#{addr}:#{port} - Oracle -"
+		@oracle_reported = false
 		if output =~ /TNS: The listener could not resolve \x22/n
 			print_error "#{msg} Invalid SID: #{sid}"
 		elsif output =~ /Accounts[\s]+No valid accounts found/nm
