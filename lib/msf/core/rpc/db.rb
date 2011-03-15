@@ -1208,7 +1208,7 @@ public
 			client[:updated_at] = c.updated_at.to_s
 			ret[:clients] << client
 		end
-		ret
+		clean_nils(ret)
 	end
 
 	def del_client(token,xopts)

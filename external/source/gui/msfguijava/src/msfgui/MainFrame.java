@@ -1846,6 +1846,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			HashMap arg = new HashMap();
 			arg.put("workspace", MsfguiApp.workspace);
 			List data = (List) ((Map)rpcConn.execute("db."+call,arg)).get(call);
+			if(data == null)
+				return;
 			reAdd(table, tabIndex, data, cols);
 		} catch (MsfException mex) {
 		}
