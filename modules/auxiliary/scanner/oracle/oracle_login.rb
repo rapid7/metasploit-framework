@@ -39,20 +39,21 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
+				OptPath.new('USERPASS_FILE',  [ false, "File containing (space-seperated) users and passwords, one pair per line",
+					File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
 				OptString.new('SID', [ true, 'The instance (SID) to authenticate against', 'XE'])
 			], self.class)
-
-		deregister_options("USERPASS_FILE")
 
 	end
 
 	def run
 		print_status "Nmap: Setting up credential file..."
 		credfile = create_credfile
-		each_user_pass(true) {|user, pass| credfile[0].puts "%s/%s" % [user,pass] }
+		cred_count = 0
+		each_user_pass(true) {|user, pass| credfile[0].puts "%s/%s" % [user,pass]; cred_count += 1 }
 		credfile[0].flush
 		nmap_build_args(credfile[1])
-		print_status "Nmap: Starting Oracle bruteforce..."
+		print_status "Nmap: Starting Oracle bruteforce with #{cred_count} credentials against SID '#{sid}'..."
 		nmap_run
 		credfile[0].unlink
 		nmap_hosts {|host| process_host(host)}
