@@ -10,8 +10,6 @@
 ##
 
 require 'msf/core'
-require 'rex/parser/nmap_xml'
-require 'open3'
 
 class Metasploit3 < Msf::Auxiliary
 
