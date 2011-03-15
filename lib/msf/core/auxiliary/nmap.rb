@@ -10,6 +10,7 @@ module Msf
 module Auxiliary::Nmap
 
 attr_accessor :nmap_args, :nmap_bin, :nmap_log
+attr_reader :nmap_pid
 
 def initialize(info = {})
 	super
@@ -66,6 +67,8 @@ def nmap_run
 	nmap_cmd = set_nmap_cmd
 	begin
 		nmap_pipe = ::Open3::popen3(nmap_cmd)
+		@nmap_pid = nmap_pipe.last.pid
+		print_status "Nmap: Starting nmap with pid #{@nmap_pid}"
 		temp_nmap_threads = []
 		temp_nmap_threads << framework.threads.spawn("Module(#{self.refname})-NmapStdout", false, nmap_pipe[1]) do |np_1|
 			np_1.each_line do |nmap_out|
