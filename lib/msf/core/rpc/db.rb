@@ -266,7 +266,7 @@ public
 			vuln[:refs] = reflist.join(',')
 			ret[:vulns] << vuln
 		end
-		ret
+		clean_nils(ret)
 	end
 
 	def workspaces(token)
