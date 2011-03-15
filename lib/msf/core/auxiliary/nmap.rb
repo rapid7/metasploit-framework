@@ -6,6 +6,10 @@ module Msf
 ###
 #
 # This module provides methods for interacting with nmap.
+# Modules that include this should define their own nmap_build_args()
+# function, and usually should have some method for dealing with
+# the data yielded from nmap_hosts(). See auxiliary/scanner/oracle/oracle_login
+# for an example implementation.
 #
 ###
 
@@ -127,7 +131,7 @@ def nmap_show_args
 end
 
 def nmap_append_arg(str)
-	if validate_nmap(str)
+	if nmap_validate_arg(str)
 		self.nmap_args << str
 	end
 end

@@ -65,8 +65,8 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def nmap_build_args(credpath)
 		nmap_reset_args
-		self.nmap_args << "-P0"
-		self.nmap_args << "--script oracle-brute"
+		nmap_append_arg "-P0"
+		nmap_append_arg "--script oracle-brute"
 		script_args = [
 			"tns.sid=#{sid}",
 			"brute.mode=creds",
@@ -74,9 +74,9 @@ class Metasploit3 < Msf::Auxiliary
 			"brute.threads=1"
 		]
 		script_args << "brute.delay=#{set_brute_delay}"
-		self.nmap_args << "--script-args \"#{script_args.join(",")}\""
-		self.nmap_args << "-n"
-		self.nmap_args << "-v" if datastore['VERBOSE']
+		nmap_append_arg "--script-args \"#{script_args.join(",")}\""
+		nmap_append_arg "-n"
+		nmap_append_arg "-v" if datastore['VERBOSE']
 	end
 
 	# Sometimes with weak little 10g XE databases, you will exhaust
