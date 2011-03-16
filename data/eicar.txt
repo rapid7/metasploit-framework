@@ -6,7 +6,7 @@ not an installed anti-virus program is interfering with the operation of Metaspl
 A number of files within the Metasploit Framework source tree are often flagged by
 anti-virus and anti-malware programs. All of these files are completely safe to the user
 operating the framework. However, when anti-virus programs try to quarantine these files
-they often leave the framework is a broken state, leading to a poor user experience.
+they often leave the framework in a broken state, leading to a poor user experience.
 
 The EICAR file is used as a canary to determine whether an anti-virus program is
 responsible for corrupting the Metasploit Framework installation.
