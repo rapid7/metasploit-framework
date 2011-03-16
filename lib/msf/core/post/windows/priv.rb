@@ -1,15 +1,27 @@
 
+require 'msf/core/post/windows/accounts'
+
 module Msf
 class Post
 
 module Priv
 
-
-	#Returns true if user is admin and false if not.
+	include ::Msf::Post::Accounts
+	# Returns true if user is admin and false if not.
 	def is_admin?
 		return session.railgun.shell32.IsUserAnAdmin()["return"]
 	end
 
+	# Returns true if running as Local System
+	def is_system?
+		local_sys = resolve_sid("S-1-5-18")
+		if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
+			return true
+		else
+			return false
+		end
+
+	end
 	#
 	# Returns true if UAC is enabled
 	#
