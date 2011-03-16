@@ -12,10 +12,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/accounts'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Registry
+	include Msf::Post::Priv
 
 	def initialize(info={})
 		super( update_info( info,
@@ -132,8 +134,7 @@ class Metasploit3 < Msf::Post
 
 		# Enumerate shares being offered
 		enum_conf_shares() if datastore["CURRENT"]
-		user = session.sys.config.getuid
-		if user != "NT AUTHORITY\\SYSTEM"
+		if is_system?
 			mount_history = enum_recent_mounts("HKEY_CURRENT_USER")
 			run_history = enum_run_unc("HKEY_CURRENT_USER")
 		else

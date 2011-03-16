@@ -12,10 +12,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/accounts'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Registry
+	include Msf::Post::Priv
 
 	def initialize(info={})
 		super( update_info( info,
@@ -45,7 +47,7 @@ class Metasploit3 < Msf::Post
 			profilepath = "\\My Documents\\WindowsPowerShell\\"
 		end
 
-		if user == "NT AUTHORITY\\SYSTEM"
+		if is_system?
 			print_status("Running as SYSTEM extracting user list..")
 			session.fs.dir.foreach(path4users) do |u|
 				userinfo = {}

@@ -12,10 +12,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
+require 'msf/core/post/windows/accounts'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
+	include Msf::Post::Priv
 
 	def initialize(info={})
 		super(update_info(info,
@@ -239,7 +241,8 @@ class Metasploit3 < Msf::Post
 
 		#Get user(s)
 		usernames = []
-		if (uid = session.sys.config.getuid) == "NT AUTHORITY\\SYSTEM"
+		uid = session.sys.config.getuid
+		if is_system?
 			print_status("running as SYSTEM, extracting user list...")
 			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or \"set MIGRATE true\")")
 			session.fs.dir.foreach(@profiles_path) do |u|
