@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 				ColdFusion 7.
 			},
 			'Author'      => [ 'CG' ],
-			'License'     => MSF_LICENSE
+			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
 					[ 'CVE', '2010-2861' ],
