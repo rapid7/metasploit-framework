@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Post
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => sha1_hash,
+					:pass   => nt_hash,
 					:active => true
 				}
 			end
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Post
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => sha1_hash,
+					:pass   => lm_hash,
 					:active => true
 				}
 			end
