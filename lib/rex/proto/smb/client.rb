@@ -58,6 +58,9 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.signing_key      = ''
 		self.require_signing  = false
 		
+		#Misc
+		self.spnopt = {}
+		
 	end
 
 	# Read a SMB packet from the socket
@@ -918,10 +921,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 			if self.usentlm2_session
 
 				if self.use_ntlmv2
-				# This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER 
-				# answer must then be somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
+				# This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER, STATUS_ACCESS_DENIED, ...
+				# answer is then maybe somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
-												dns_host_name,client_challenge , chall_MsvAvTimestamp)
+												dns_host_name,client_challenge , chall_MsvAvTimestamp,
+												self.spnopt)
 					if UTILS.is_pass_ntlm_hash?(pass)
 						argntlm = { 	
 							:ntlmv2_hash =>  NTLM_CRYPT::ntlmv2_hash(
@@ -2216,6 +2220,8 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	attr_accessor	:native_os, :native_lm, :encrypt_passwords, :extended_security, :read_timeout, :evasion_opts
 	attr_accessor	:verify_signature, :use_ntlmv2, :usentlm2_session, :send_lm, :use_lanman_key, :send_ntlm 
 	attr_accessor  	:system_time, :system_zone
+	#misc
+	attr_accessor   :spnopt # used for SPN
 
 # public read methods
 	attr_reader		:dialect, :session_id, :challenge_key, :peer_native_lm, :peer_native_os

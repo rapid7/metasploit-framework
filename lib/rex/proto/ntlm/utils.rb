@@ -309,7 +309,8 @@ class Utils
 	end
 
 	# This function return an ntlmv2 client challenge
-	def self.make_ntlmv2_clientchallenge(win_domain, win_name, dns_domain, dns_name, client_challenge = nil, chall_MsvAvTimestamp = nil)
+	def self.make_ntlmv2_clientchallenge(win_domain, win_name, dns_domain, dns_name, 
+						client_challenge = nil, chall_MsvAvTimestamp = nil, spnopt = {})
 		
 		client_challenge ||= Rex::Text.rand_text(8)
 		# We have to set the timestamps here to the one in the challenge message from server if present
@@ -328,6 +329,13 @@ class Utils
 		addr_list  << [3, dns_name.length].pack('vv') + dns_name
 		addr_list  << [7, 8].pack('vv') + timestamp
 
+		# Windows Seven / 2008 Request this type if in local security policies
+		# Microsoft network server : Server SPN target name validation level is set to <Required from client>
+		if spnopt[:use_spn]
+			spn= Rex::Text.to_unicode("cifs/#{spnopt[:name] || 'unknow'}")
+			addr_list  << [9, spn.length].pack('vv') + spn
+		end
+		
 		# MAY BE USEFUL FOR FUTURE
 		# Seven (client) add at least one more av that is of type MsAvRestrictions (8)	
 		# maybe this will be usefull with future windows OSs but has no use at all for the moment afaik		
@@ -338,10 +346,7 @@ class Utils
 		# Seven (client) and maybe others versions also add an av of type MsvChannelBindings (10) but the hash is "\x00" * 16
 		# addr_list  << [10, 16].pack('vv') + "\x00" * 16
 		
-		# Seven and maybe other versions also add an av of type MsvAvTargetName(9) with value cifs/target(_ip)
-		# implementing it will necessary require knowing the target here, todo... :-/
-		# spn= Rex::Text.to_unicode("cifs/RHOST")
-		# addr_list  << [9, spn.length].pack('vv') + spn
+
 
 		addr_list  << [0, 0].pack('vv')
 		ntlm_clientchallenge = 	[1,1,0,0].pack("CCvV") + #RespType, HiRespType, Reserved1, Reserved2
