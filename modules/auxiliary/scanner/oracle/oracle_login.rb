@@ -27,7 +27,10 @@ class Metasploit3 < Msf::Auxiliary
 				instance using username and password combinations indicated
 				by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
 			},
-			'Author'         => [ 'todb' ],
+			'Author'         => [
+				'Patrik Karlsson', # the nmap NSE script, oracle-brute.nse
+				'todb' # this Metasploit module
+				],
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
