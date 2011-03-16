@@ -35,16 +35,17 @@ class Metasploit3 < Msf::Auxiliary
 				work against ColdFusion 9.  Adobe did not release patches for ColdFusion 6.1 or
 				ColdFusion 7.
 			},
+			'Author'      => [ 'CG' ],
+			'License'     => MSF_LICENSE
 			'References'  =>
 				[
 					[ 'CVE', '2010-2861' ],
 					[ 'BID', '42342' ],
-					[ 'URL' 'http://www.procheckup.com/vulnerability_manager/vulnerabilities/pr10-07' ],
+					[ 'OSVDB', '67047' ],
+					[ 'URL', 'http://www.procheckup.com/vulnerability_manager/vulnerabilities/pr10-07' ],
 					[ 'URL', 'http://www.gnucitizen.org/blog/coldfusion-directory-traversal-faq-cve-2010-2861' ],
 					[ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb10-18.html' ],
 				],
-			'Author'      => [ 'CG' ],
-			'License'     => MSF_LICENSE
 		)
 
 		register_options(
