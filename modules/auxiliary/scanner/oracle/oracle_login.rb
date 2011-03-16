@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				by the USER_FILE, PASS_FILE, and USERPASS_FILE options.
 			},
 			'Author'         => [
-				'Patrik Karlsson', # the nmap NSE script, oracle-brute.nse
+				'Patrik Karlsson <patrik[at]cqure.net>', # the nmap NSE script, oracle-brute.nse
 				'todb' # this Metasploit module
 				],
 			'License'        => MSF_LICENSE,
