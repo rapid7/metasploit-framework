@@ -35,7 +35,8 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://www.oracle.com/us/products/database/index.html' ],
-					[ 'CVE', '1999-0502'] # Weak password
+					[ 'CVE', '1999-0502'],
+					[ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']	# Weak password
 				],
 			'Version'        => '$Revision$'
 		))
