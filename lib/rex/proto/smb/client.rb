@@ -919,10 +919,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		ntlm_cli_challenge = ''
 		if self.send_ntlm  #should be default
 			if self.usentlm2_session
-
 				if self.use_ntlmv2
-				# This is only a partial implementation, in some situation recent servers may send STATUS_INVALID_PARAMETER, STATUS_ACCESS_DENIED, ...
-				# answer is then maybe somewhere in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 					ntlm_cli_challenge = NTLM_UTILS::make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
 												dns_host_name,client_challenge , chall_MsvAvTimestamp,
 												self.spnopt)
