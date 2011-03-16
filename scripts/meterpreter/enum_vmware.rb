@@ -101,8 +101,8 @@ def enum_viclient
 			end
 		end
 	end
-	user = @client.sys.config.getuid
-	if user != "NT AUTHORITY\\SYSTEM"
+	
+	if is_system?
 		recentconns = registry_getvaldata("HKCU\\Software\\VMware\\VMware Infrastructure Client\\Preferences","RecentConnections").split(",")
 		print_status("Recent VI Client Connections:")
 		recentconns.each do |c|

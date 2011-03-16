@@ -171,7 +171,7 @@ if client.platform =~ /win32|win64/
 
 			# Making sure that is running as System a Username and Password for target machine must be provided
 
-			if session.sys.config.getuid == "NT AUTHORITY\\SYSTEM" && rusr == nil && rpass == nil
+			if is_system? && rusr == nil && rpass == nil
 
 				print_status("Stopped: Running as System and no user provided for connecting to target!!")
 

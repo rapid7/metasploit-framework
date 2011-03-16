@@ -76,8 +76,8 @@ if client.platform =~ /win32|64/
 
 	# Enumerate shares being offered
 	enum_conf_shares()
-	user = client.sys.config.getuid
-	if user != "NT AUTHORITY\\SYSTEM"
+	
+	if is_system?
 		mount_history = enum_recent_mounts("HKEY_CURRENT_USER")
 		run_history = enum_run_unc("HKEY_CURRENT_USER")
 	else

@@ -145,7 +145,7 @@ end
 #Function to enumerate the users if running as SYSTEM
 def enum_users(os)
 	users = []
-	user = @client.sys.config.getuid
+	
 	path4users = ""
 	sysdrv = @client.fs.file.expand_path("%SystemDrive%")
 
@@ -157,7 +157,7 @@ def enum_users(os)
 		path2purple = "\\Application Data\\"
 	end
 
-	if user == "NT AUTHORITY\\SYSTEM"
+	if is_system?
 		print_status("Running as SYSTEM extracting user list..")
 		@client.fs.dir.foreach(path4users) do |u|
 			userinfo = {}

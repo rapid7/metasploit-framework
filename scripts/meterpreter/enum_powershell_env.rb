@@ -33,7 +33,7 @@ def enum_users
 		profilepath = "\\My Documents\\WindowsPowerShell\\"
 	end
 
-	if user == "NT AUTHORITY\\SYSTEM"
+	if is_system?
 		print_status("Running as SYSTEM extracting user list..")
 		@client.fs.dir.foreach(path4users) do |u|
 			userinfo = {}

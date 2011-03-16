@@ -21,8 +21,8 @@ opts.parse(args) { |opt, idx, val|
 
 def hkcu_base
 	key_base = []
-	user = @client.sys.config.getuid
-	if user != "NT AUTHORITY\\SYSTEM"
+	
+	if is_system?
 		key_base << "HKCU"
 	else
 		key = "HKU\\"

@@ -606,7 +606,7 @@ elsif trgtos =~ /(Windows 2008)/
 	list_exec(commands + win2k8cmd)
 	wmicexec(wmic)
 	findprogs()
-	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+	if not is_system?
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows 2008 if not System.")
 	else
 		gethash()
@@ -621,7 +621,7 @@ elsif trgtos =~ /Windows (Vista|7)/
 	end
 	wmicexec(wmic)
 	findprogs()
-	if (client.sys.config.getuid != "NT AUTHORITY\\SYSTEM")
+	if not is_system?
 		print_line("[-] Not currently running as SYSTEM, not able to dump hashes in Windows Vista or Windows 7 if not System.")
 	else
 		gethash()

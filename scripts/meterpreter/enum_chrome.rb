@@ -208,7 +208,10 @@ elsif os =~ /(2000|NET|XP)/
 end
 
 usernames = []
-if (uid = client.sys.config.getuid) == "NT AUTHORITY\\SYSTEM"
+
+uid = client.sys.config.getuid
+
+if is_system?
 	print_status "running as SYSTEM, extracting user list..."
 	print_status "(decryption of passwords and credit card numbers will not be possible)"
 	client.fs.dir.foreach(@profiles_path) do |u|
