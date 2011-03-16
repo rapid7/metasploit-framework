@@ -1,6 +1,18 @@
 Armitage Changelog
 ==================
 
+16 Mar 11
+---------
+- Shell -> Disconnect now executes in a separate thread.
+- Armitage now creates ~/armitage-tmp and writes there if the current dir
+  is /Applications or it can't write to the current directory.
+- Fixed a potential deadlock issue in the file browser
+- Directory up button in file browser now shows that it has been pressed
+- Added Execute option to file browser (now you can run a program by
+  right-clicking on it and selecting Execute--for Jesse)
+- Multiple improvements to responsiveness of command shell and meterpreter
+  tabs. This should benefit collaboration mode too.
+
 12 Mar 11 (MACCDC Post Day 1 Update)
 ---------
 - Fixed a bug preventing host import from working with a remote connection
