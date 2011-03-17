@@ -6,6 +6,8 @@ class Post < Msf::Module
 
 	include Msf::Auxiliary::Report
 
+	include Msf::Module::HasActions
+
 	def self.type
 		MODULE_POST
 	end
@@ -153,8 +155,13 @@ class Post < Msf::Module
 		return true
 	end
 
+	#
+	# True when this module is passive, false when active
+	#
 	attr_reader :passive
+
 protected
+
 	attr_writer :passive
 
 	def session_changed?
