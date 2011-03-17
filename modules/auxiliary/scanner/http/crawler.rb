@@ -28,11 +28,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	# Scrub links that end in these extensions
-	def get_link_filter
-		/\.(js|png|jpe?g|bmp|gif|swf|jar|zip|gz|bz2|rar|pdf|docx?|pptx?)$/i
-	end
-
 =begin
 	# Prefer dynamic content over non-dynamic
 	def focus_crawl(page)
@@ -41,7 +36,8 @@ class Metasploit3 < Msf::Auxiliary
 =end
 
 	#
-	# The main callback from the crawler
+	# The main callback from the crawler, redefines crawler_process_page() as
+	# defined by Msf::Auxiliary::HttpCrawler
 	#
 	# Data we will report:
 	# - The path of any URL found by the crawler (web.uri, :path => page.path)

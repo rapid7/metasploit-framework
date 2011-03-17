@@ -145,6 +145,8 @@ module Auxiliary::HttpCrawler
 		datastore['MAX_THREADS']
 	end
 	
+	# Scrub links that end in these extensions. If more or less is
+	# desired by a particular module, this should get redefined.
 	def get_link_filter
 		/\.(js|png|jpe?g|bmp|gif|swf|jar|zip|gz|bz2|rar|pdf|docx?|pptx?)$/i
 	end
@@ -204,6 +206,8 @@ module Auxiliary::HttpCrawler
 		end
 	end
 	
+	# Specific module implementations should redefine this method
+	# with whatever is meaningful to them.
 	def crawler_process_page(t, page, cnt)	
 		msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{@current_site.vhost} - #{page.url}"
 		case page.code
