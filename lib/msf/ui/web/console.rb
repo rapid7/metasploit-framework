@@ -54,7 +54,7 @@ class WebConsole
 				'Framework'   => self.framework,
 				'LocalInput'  => self.pipe,
 				'LocalOutput' => self.pipe,
-				'AllowCommandPassthru' => false,
+				'AllowCommandPassthru' => true,
 				'Resource'    => [],
 			}
 		)
