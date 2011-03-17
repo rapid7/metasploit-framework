@@ -994,15 +994,15 @@ public
 		ret[:creds] = []
 		@framework.db.creds(wspace).each do |c|
 			cred = {}
-			cred[:host] = cred.service.host.address || cred.service.host.address6 if(cred.service.host)
-			cred[:time] = cred.updated_at
-			cred[:port] = cred.service.port
-			cred[:proto] = cred.service.proto
-			cred[:sname] = cred.service.name
-			cred[:type] = cred.ptype
-			cred[:user] = cred.user
-			cred[:pass] = cred.pass
-			cred[:active] = cred.active
+			cred[:host] = c.service.host.address || c.service.host.address6 if(c.service.host)
+			cred[:time] = c.updated_at
+			cred[:port] = c.service.port
+			cred[:proto] = c.service.proto
+			cred[:sname] = c.service.name
+			cred[:type] = c.ptype
+			cred[:user] = c.user
+			cred[:pass] = c.pass
+			cred[:active] = c.active
 			ret[:creds] << cred
 		end
 		ret
