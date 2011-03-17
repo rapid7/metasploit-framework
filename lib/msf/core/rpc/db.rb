@@ -329,7 +329,7 @@ public
 			raise ::XMLRPC::FaultException.new(404, "Workspace not found: #{wspace}")
 		elsif workspace.default?
 			workspace.destroy
-			workspace = @framework.db.add_workspace(name)
+			workspace = @framework.db.add_workspace(workspace.name)
 		else
 			# switch to the default workspace if we're about to delete the current one
 			@framework.db.workspace = @framework.db.default_workspace if @framework.db.workspace.name == workspace.name
