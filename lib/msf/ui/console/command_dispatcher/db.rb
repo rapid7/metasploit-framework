@@ -1424,12 +1424,28 @@ class Db
 				args.push('-oX', fd.path)
 				args.push('-oN', fo.path)
 			end
-			system([nmap, "nmap"], *args)
 
-			# Until we hide stdout above, this is pointless
-			# fo.each_line do |line|
-			#	print_status("NMAP: #{line.strip}")
-			# end
+			begin
+				nmap_pipe = ::Open3::popen3([nmap, "nmap"], *args)
+				temp_nmap_threads = []
+				temp_nmap_threads << framework.threads.spawn("db_nmap-Stdout", false, nmap_pipe[1]) do |np_1|
+					np_1.each_line do |nmap_out|
+						next if nmap_out.strip.empty?
+						print_status "Nmap: #{nmap_out.strip}"
+					end
+				end
+
+				temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
+					np_2.each_line do |nmap_err| 
+						next if nmap_err.strip.empty?
+						print_status  "Nmap: '#{nmap_err.strip}'" 
+					end
+				end
+
+				temp_nmap_threads.map {|t| t.join rescue nil}
+				nmap_pipe.each {|p| p.close rescue nil}
+			rescue ::IOError
+			end
 
 			fo.close(true)
 			framework.db.import_nmap_xml_file(:filename => fd.path)
