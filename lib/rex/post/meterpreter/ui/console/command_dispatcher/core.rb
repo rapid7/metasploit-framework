@@ -608,7 +608,7 @@ class Console::CommandDispatcher::Core
 	def cmd_resource(*args)
 		if args.empty?
 			print(
-				"Usage: resource file" +
+				"Usage: resource path1 path2" +
 				  "Run the commands stored in the supplied files.\n")
 			return false
 		end
