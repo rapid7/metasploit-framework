@@ -252,7 +252,7 @@ end
 if client.platform =~ /win32|win64/
 	if frfxchk
 		user = @client.sys.config.getuid
-		if is_system?
+		if not is_system?
 			usrname = Rex::FileUtils.clean_path(@client.fs.file.expand_path("%USERNAME%"))
 			db_path = @client.fs.file.expand_path("%APPDATA%") + "\\Mozilla\\Firefox\\Profiles"
 			if kill_frfx
