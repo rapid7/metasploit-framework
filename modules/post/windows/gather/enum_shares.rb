@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
 				print_status()
 			end
 			report_note(
-				:host => session.peerhost,
+				:host => session,
 				:type => 'smb.shares',
 				:data => { :shares => shares },
 				:update => :unique_data
