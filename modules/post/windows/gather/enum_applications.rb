@@ -39,8 +39,12 @@ class Metasploit3 < Msf::Post
 				"Name",
 				"Version"
 			])
-		appkeys = ['HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
-			'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall' ]
+		appkeys = [
+			'HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+			'HKCU\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+			'HKLM\\SOFTWARE\\WOW6432NODE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+			'HKCU\\SOFTWARE\\WOW6432NODE\\Microsoft\\Windows\\CurrentVersion\\Uninstall',
+			]
 		apps = []
 		appkeys.each do |keyx86|
 			registry_enumkeys(keyx86).each do |ak|
@@ -56,7 +60,7 @@ class Metasploit3 < Msf::Post
 					begin
 						dispnm = registry_getvaldata("#{k}","DisplayName")
 						dispversion = registry_getvaldata("#{k}","DisplayVersion")
-						tbl << [dispnm,dispversion]
+						tbl << [dispnm,dispversion] if dispnm and dispversion
 					rescue
 					end
 				end
