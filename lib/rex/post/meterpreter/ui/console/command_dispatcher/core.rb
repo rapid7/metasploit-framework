@@ -63,6 +63,7 @@ class Console::CommandDispatcher::Core
 			"migrate"    => "Migrate the server to another process",
 			"use"        => "Load a one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
+			"resource"   => "Run the commands stored in a file",
 			"read"       => "Reads data from a channel",
 			"run"        => "Executes a meterpreter script or Post module",
 			"bgrun"      => "Executes a meterpreter script as a background thread",
@@ -597,6 +598,49 @@ class Console::CommandDispatcher::Core
 
 		return true
 	end
+
+	def cmd_resource_tabs(str, words)
+		return [] if words.length > 1
+
+		tab_complete_filenames(str, words)
+	end
+	
+	def cmd_resource(*args)
+		if args.empty?
+			print(
+				"Usage: resource file" +
+				  "Run the commands stored in the supplied files.\n")
+			return false
+		end
+		args.each do |glob|
+			files = ::Dir.glob(::File.expand_path(glob))
+			if files.empty?
+				print_error("No such file #{glob}")
+				next
+			end
+			files.each do |filename|
+				print_status("Reading #{filename}")
+				if (not ::File.readable?(filename))
+					print_error("Could not read file #{filename}")
+					next
+				else
+					::File.open(filename, "r").each_line do |line|
+						next if line.strip.length < 1
+						next if line[0,1] == "#"
+						begin
+							print_status("Running #{line}")
+							client.console.run_single(line)
+						rescue ::Exception => e
+							print_error("Error Running Command #{line}: #{e.class} #{e}")
+						end
+
+					end
+				end
+			end
+		end
+	end
+
+
 
 	@@client_extension_search_paths = [ ::File.join(Rex::Root, "post", "meterpreter", "ui", "console", "command_dispatcher") ]
 
