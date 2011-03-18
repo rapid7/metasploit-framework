@@ -77,7 +77,7 @@ if client.platform =~ /win32|64/
 	# Enumerate shares being offered
 	enum_conf_shares()
 	
-	if is_system?
+	if not is_system?
 		mount_history = enum_recent_mounts("HKEY_CURRENT_USER")
 		run_history = enum_run_unc("HKEY_CURRENT_USER")
 	else

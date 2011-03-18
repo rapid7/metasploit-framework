@@ -102,7 +102,7 @@ def enum_viclient
 		end
 	end
 	
-	if is_system?
+	if not is_system?
 		recentconns = registry_getvaldata("HKCU\\Software\\VMware\\VMware Infrastructure Client\\Preferences","RecentConnections").split(",")
 		print_status("Recent VI Client Connections:")
 		recentconns.each do |c|

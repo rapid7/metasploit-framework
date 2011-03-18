@@ -22,7 +22,7 @@ opts.parse(args) { |opt, idx, val|
 def hkcu_base
 	key_base = []
 	
-	if is_system?
+	if not is_system?
 		key_base << "HKCU"
 	else
 		key = "HKU\\"
