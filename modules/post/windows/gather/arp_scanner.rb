@@ -33,8 +33,8 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptString.new('RHOSTS', [true, 'Description', nil]),
-				OptInt.new('THREADS', [false, 'Description', 10])
+				OptString.new('RHOSTS', [true, 'The target address range or CIDR identifier', nil]),
+				OptInt.new('THREADS', [false, 'The number of concurrent threads', 10])
 
 			], self.class)
 	end
