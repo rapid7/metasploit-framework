@@ -121,7 +121,8 @@ class Metasploit3 < Msf::Auxiliary
 				:sname => 'vnc',
 				:pass => pass,
 				:type => access_type,
-				:active => "true",
+				:duplicate_ok => true,
+				:active => true
 			})
 			return :next_user
 
