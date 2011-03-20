@@ -44,6 +44,9 @@ class Cipher
 	def self.encrypt(plain, password)
 		key = self.mangle_password(password)
 
+		# pad the plain to 16 chars
+		plain << ("\x00" * (16 - plain.length)) if plain.length < 16
+
 		# VNC auth does two 8-byte blocks individually instead supporting some block mode
 		cipher = ''
 		2.times { |x|
@@ -62,6 +65,9 @@ class Cipher
 	#
 	def self.decrypt(cipher, password = "\x17\x52\x6b\x06\x23\x4e\x58\x07")
 		key = self.mangle_password(password)
+
+		# pad the cipher text to 9 bytes
+		cipher << ("\x00" * (9 - cipher.length)) if cipher.length < 9
 
 		# NOTE: This only does one 8 byte block
 		plain = ''
