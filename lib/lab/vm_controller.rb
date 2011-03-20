@@ -27,30 +27,18 @@ module Controllers
 		include Lab::Controllers::RemoteWorkstationController 		## gives access to workstation-specific controller methods
 		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
 		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
-		include Lab::Controllers::VirtualBoxController 		## gives access to virtualbox-specific controller methods
+		include Lab::Controllers::VirtualBoxController 			## gives access to virtualbox-specific controller methods
 		#include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
 
 
 		def initialize (labdef = nil)
-		
 			@vms = [] ## Start with an empty array of vms
 
-			## labdef is a big array of hashes (vms) - generally loaded from yaml
-			if !labdef 
-				labdef = [] ## Just use a blank lab to start
-			else
-				labdef = labdef
-			end
-
+			## labdef is a big array of hashes, use yaml to store
+			labdef = [] unless labdef 
+			
 			## Create vm objects from the lab definition
-			labdef.each do |item|
-				begin
-					@vms << Vm.new(item)
-				rescue Exception => e
-					puts "Invalid VM definition"
-				end  
-			end
-
+			load_vms(labdef)
 		end
 		
 		def clear!
@@ -85,17 +73,22 @@ module Controllers
 
 		def from_file(file)
 			labdef = YAML::load_file(file)
+			load_vms(labdef)
+		end
 
-			labdef.each do |item|
-				#puts "Lab item: " + item.inspect
-				@vms << Vm.new(item)
+		def load_vms(vms)
+			vms.each do |item|
+				begin
+					vm = Vm.new(item)
+					@vms << vm unless includes_vmid? vm.vmid
+				rescue Exception => e
+					puts "Invalid VM definition"
+				end 
 			end
 		end
 
 		def to_file(file)
-			File.open(file, 'w') do |f|
-				@vms.each { |vm| f.puts vm.to_yaml }
-			end
+			File.open(file, 'w') { |f| @vms.each { |vm| f.puts vm.to_yaml } } 
 		end
 
 		def each &block
@@ -107,7 +100,10 @@ module Controllers
 		end
 
 		def includes_vmid?(vmid)
-			@vms.each { |vm| if (vm.vmid.to_s == vmid.to_s) then return true end  }
+			@vms.each do |vm| 
+				return true if (vm.vmid == vmid)
+			end
+			return false
 		end
 
 		def build_from_dir(type, dir, clear=false)

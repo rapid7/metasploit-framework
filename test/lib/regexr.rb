@@ -13,9 +13,12 @@ class Regexr
 
 	# Check for the beginning and end lines. Handy when you need to ensure a log has started & completed
 	def verify_start_and_end(data,the_start,the_end)
+		return false unless data
+		
 		data_lines = data.split("\n")
 		regex_start   = Regexp.new(the_start, @case_insensitive)
 		regex_end = Regexp.new(the_end, @case_insensitive)
+
 		if regex_start =~ data_lines.first
 			return regex_end =~ data_lines.last
 		end
@@ -25,6 +28,8 @@ class Regexr
 
 	# Scan for any number of success lines. In order to pass, all successes must match.
 	def find_strings_that_dont_exist_in_data(data,regexes=[])
+		return false unless data
+
 		data_lines = data.split("\n")
 		
 		return nil unless regexes ## count as a pass
@@ -60,6 +65,9 @@ class Regexr
 
 	# Scan for failures -- if any single failure matches, the test returns true.
 	def find_strings_that_exist_in_data_except(data,regexes=[],exceptions=[])
+
+		return false unless data
+
 		data_lines = data.split("\n")
 		
 		return nil unless regexes ## count as a pass
