@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Task;
 import org.jdesktop.swingworker.SwingWorker;
@@ -47,7 +48,7 @@ public class MainFrame extends FrameView {
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
-		setLnF(false);
+		setLnF();
 		initComponents();
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
@@ -504,7 +505,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         showDetailsItem = new javax.swing.JMenuItem();
         jSeparator1 = new javax.swing.JPopupMenu.Separator();
         searchItem = new javax.swing.JMenuItem();
-        changeLFMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         viewPrefsItem = new javax.swing.JMenuItem();
@@ -730,16 +730,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
             }
         });
         fileMenu.add(searchItem);
-
-        changeLFMenuItem.setMnemonic('L');
-        changeLFMenuItem.setText(resourceMap.getString("changeLFMenuItem.text")); // NOI18N
-        changeLFMenuItem.setName("changeLFMenuItem"); // NOI18N
-        changeLFMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                changeLFMenuItemActionPerformed(evt);
-            }
-        });
-        fileMenu.add(changeLFMenuItem);
 
         javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getActionMap(MainFrame.class, this);
         exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
@@ -1265,10 +1255,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		}
 	}//GEN-LAST:event_killSessionsMenuItemActionPerformed
 
-	private void changeLFMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_changeLFMenuItemActionPerformed
-		setLnF(true);
-	}//GEN-LAST:event_changeLFMenuItemActionPerformed
-
 	private void newConsoleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newConsoleItemActionPerformed
 		try{
 			Map res = (Map)rpcConn.execute("console.create");
@@ -1295,15 +1281,17 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					new String[]{"host","created_at","updated_at","name","critical","username","info"});
 			reAdd(lootsTable,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
 					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
+			reAddQuery(hostsTable,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
+							"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
+			reAddQuery(clientsTable,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
+			reAddQuery(servicesTable,  "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+			reAddQuery(vulnsTable,"vulns",new String[]{"port","proto","time","host","name","refs"});
+			reAddQuery(notesTable,"notes",new String[]{"time", "host", "service", "type", "data"});
+			reAddQuery(credsTable,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
 		} catch (MsfException mex) {
+			if(!mex.getMessage().equals("database not loaded"))
+				mex.printStackTrace();
 		}
-		reAddQuery(hostsTable,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
-						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
-		reAddQuery(clientsTable,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
-		reAddQuery(servicesTable,  "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
-		reAddQuery(vulnsTable,"vulns",new String[]{"port","proto","time","host","name","refs"});
-		reAddQuery(notesTable,"notes",new String[]{"time", "host", "service", "type", "data"});
-		reAddQuery(credsTable,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
@@ -1850,7 +1838,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem addWorkspaceItem;
     private javax.swing.JMenuItem autoAddRouteItem;
     private javax.swing.JMenu auxiliaryMenu;
-    private javax.swing.JMenuItem changeLFMenuItem;
     private javax.swing.JMenuItem clearHistoryItem;
     private javax.swing.JScrollPane clientsPane;
     private javax.swing.JTable clientsTable;
@@ -1936,25 +1923,27 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private int busyIconIndex = 0;
 	private JDialog aboutBox;
 
+	/** Sets look and feel to preset or default */
+	private void setLnF(){
+		setLnF(MsfguiApp.getPropertiesNode().get("LnF").toString());
+	}
 	/** Sets look and feel of UI */
-	private void setLnF(boolean toggle) {
+	private void setLnF(String classname) {
+		Map info = MsfguiApp.getPropertiesNode();
 		try {
-			Map info = MsfguiApp.getPropertiesNode();
 			boolean system = !"Metal".equals(info.get("LnF"));
-			if (toggle) 
-				system = !system;
-			if (system) {
+			try{
+				UIManager.setLookAndFeel(classname);
+				info.put("LnF", classname);
+			}catch(Exception ulafex){
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				info.put("LnF", "system");
-			} else {
-				// Set cross-platform Java L&F (also called "Metal")
-				UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-				info.put("LnF", "Metal");
+				info.put("LnF", UIManager.getSystemLookAndFeelClassName());
 			}
 			SwingUtilities.updateComponentTreeUI(this.getFrame());
 			this.getFrame().pack();
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(getFrame(), e);
+			e.printStackTrace();
 		}
 	}
 
@@ -1969,6 +1958,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			reAdd(table, data, cols);
 		} catch (MsfException mex) {
 			mex.printStackTrace();
+			if(mex.getMessage().equals("database not loaded"))
+				throw mex;
 		}
 	}
 	private void reAdd(JTable table, List data, String[] cols) throws MsfException {

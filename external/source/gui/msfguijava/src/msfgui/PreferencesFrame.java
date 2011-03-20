@@ -1,6 +1,8 @@
 package msfgui;
 
 import java.util.Map;
+import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 
 /**
  * Preferences form to see/save preferences.
@@ -9,12 +11,17 @@ import java.util.Map;
  */
 public class PreferencesFrame extends javax.swing.JFrame {
 	private final Map prefs;
+	private String[] lookNFeels;
 
     /** Creates new form viewPrefs */
     public PreferencesFrame() {
+		LookAndFeelInfo[] infoArray = UIManager.getInstalledLookAndFeels();
+		lookNFeels = new String[infoArray.length];
+		for(int i = 0; i < infoArray.length; i++)
+			lookNFeels[i] = infoArray[i].getClassName();
         initComponents();
 		prefs = MsfguiApp.getPropertiesNode();
-		systemLnFBox.setSelected(!"Metal".equals(prefs.get("LnF")));
+		setLnFBox.setSelectedItem(prefs.get("LnF"));
 		tabWindowBox.setSelected(!"window".equals(prefs.get("tabWindowPreference")));
 		tableLineBox.setSelected(Boolean.TRUE.equals(prefs.get("tableShowLines")));
 		tableExpandBox.setSelected(!"off".equals(prefs.get("tableResize")));
@@ -32,11 +39,12 @@ public class PreferencesFrame extends javax.swing.JFrame {
         tabWindowBox = new javax.swing.JCheckBox();
         tableLineBox = new javax.swing.JCheckBox();
         tableExpandBox = new javax.swing.JCheckBox();
-        systemLnFBox = new javax.swing.JCheckBox();
         headerLabel = new javax.swing.JLabel();
         okButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
         restartLabel = new javax.swing.JLabel();
+        setLnFBox = new javax.swing.JComboBox();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -50,9 +58,6 @@ public class PreferencesFrame extends javax.swing.JFrame {
 
         tableExpandBox.setText(resourceMap.getString("tableExpandBox.text")); // NOI18N
         tableExpandBox.setName("tableExpandBox"); // NOI18N
-
-        systemLnFBox.setText(resourceMap.getString("systemLnFBox.text")); // NOI18N
-        systemLnFBox.setName("systemLnFBox"); // NOI18N
 
         headerLabel.setText(resourceMap.getString("headerLabel.text")); // NOI18N
         headerLabel.setName("headerLabel"); // NOI18N
@@ -76,6 +81,12 @@ public class PreferencesFrame extends javax.swing.JFrame {
         restartLabel.setText(resourceMap.getString("restartLabel.text")); // NOI18N
         restartLabel.setName("restartLabel"); // NOI18N
 
+        setLnFBox.setModel(new javax.swing.DefaultComboBoxModel(lookNFeels));
+        setLnFBox.setName("setLnFBox"); // NOI18N
+
+        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
+        jLabel1.setName("jLabel1"); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -83,37 +94,49 @@ public class PreferencesFrame extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(tabWindowBox)
-                    .addComponent(tableLineBox)
-                    .addComponent(tableExpandBox)
-                    .addComponent(systemLnFBox)
-                    .addComponent(headerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 278, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(headerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addComponent(setLnFBox, 0, 286, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jLabel1))
+                            .addComponent(tabWindowBox))
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tableLineBox)
+                        .addContainerGap(238, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tableExpandBox)
+                        .addContainerGap(76, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(cancelButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(okButton)))
-                .addContainerGap())
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(okButton)
+                        .addGap(18, 18, 18))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(16, 16, 16)
+                .addContainerGap()
                 .addComponent(headerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(systemLnFBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(setLnFBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tabWindowBox)
                 .addGap(18, 18, 18)
                 .addComponent(tableLineBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tableExpandBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(okButton)
+                    .addComponent(restartLabel)
                     .addComponent(cancelButton)
-                    .addComponent(restartLabel))
+                    .addComponent(okButton))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -126,7 +149,7 @@ public class PreferencesFrame extends javax.swing.JFrame {
 	}//GEN-LAST:event_cancelButtonActionPerformed
 
 	private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
-		prefs.put("LnF", systemLnFBox.isSelected() ? "System" : "Metal");
+		prefs.put("LnF", setLnFBox.getSelectedItem().toString());
 		prefs.put("tabWindowPreference", tabWindowBox.isSelected() ? "tab" : "window");
 		prefs.put("tableShowLines", tableLineBox.isSelected());
 		prefs.put("tableResize", tableExpandBox.isSelected() ? "on" : "off");
@@ -137,9 +160,10 @@ public class PreferencesFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JLabel headerLabel;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JButton okButton;
     private javax.swing.JLabel restartLabel;
-    private javax.swing.JCheckBox systemLnFBox;
+    private javax.swing.JComboBox setLnFBox;
     private javax.swing.JCheckBox tabWindowBox;
     private javax.swing.JCheckBox tableExpandBox;
     private javax.swing.JCheckBox tableLineBox;
