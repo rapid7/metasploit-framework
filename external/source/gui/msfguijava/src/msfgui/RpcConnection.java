@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
@@ -66,28 +67,7 @@ public class RpcConnection {
 		this.ssl = ssl;
 		String message = "";
 		try {
-			if(ssl){
-				TrustManager[] trustAllCerts = new TrustManager[]{
-					new X509TrustManager() {
-						public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-							return null;
-						}
-						public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-						}
-						public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-						}
-					}
-				};
-				// Let us create the factory where we can set some parameters for the connection
-				SSLContext sc = SSLContext.getInstance("SSL");
-				sc.init(null, trustAllCerts, new java.security.SecureRandom());
-				connection = sc.getSocketFactory().createSocket(host,port);
-			} else {
-				connection = new Socket(host, port);
-			}
-			connection.setSoTimeout(5000); //Five second timeout
-			sout = connection.getOutputStream();
-			sin = connection.getInputStream();
+			connect();
 			Map results = exec("auth.login",new Object[]{username, this.password});
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
@@ -108,6 +88,50 @@ public class RpcConnection {
 		root.put("port", port);
 		root.put("ssl", ssl);
 		root.put("disableDb", disableDb);
+	}
+
+	/**
+	 * Disconnects then reconnects.
+	 *
+	 * @throws SocketException
+	 * @throws KeyManagementException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void reconnect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
+		connection.close();
+		connect();
+	}
+
+	/**
+	 * Connects the TCP stream, setting up SSL if necessary.
+	 *
+	 * @throws SocketException
+	 * @throws KeyManagementException
+	 * @throws IOException
+	 * @throws NoSuchAlgorithmException
+	 */
+	private void connect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
+		if (ssl) {
+			TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
+				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+					return null;
+				}
+				public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+				}
+				public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
+				}
+			}};
+			// Let us create the factory where we can set some parameters for the connection
+			SSLContext sc = SSLContext.getInstance("SSL");
+			sc.init(null, trustAllCerts, new java.security.SecureRandom());
+			connection = sc.getSocketFactory().createSocket(host, port);
+		} else {
+			connection = new Socket(host, port);
+		}
+		connection.setSoTimeout(5000); //Five second timeout
+		sout = connection.getOutputStream();
+		sin = connection.getInputStream();
 	}
 
 	public String toString(){
@@ -134,6 +158,7 @@ public class RpcConnection {
 		MsfguiLog.defaultLog.logMethodReturn(methodName, params, result);
 		return result;
 	}
+
 	/** Caches certain calls and checks cache for re-executing them.
 	 * If not cached or not cacheable, calls exec. */
 	private Object cacheExecute(String methodName, Object[] params) throws MsfException{
@@ -166,11 +191,20 @@ public class RpcConnection {
 				return (Map)readResp();
 			}
 		}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
-			if(! (ex instanceof MsfException))
+			try{
+				if(ex instanceof java.net.SocketTimeoutException) //reconnect on socket timeout
+					reconnect();
+			}catch (Exception ex2){
+				ex = ex2;
+			}
+			if(! (ex instanceof MsfException)){
+				ex.printStackTrace();
 				throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
+			}
 			throw (MsfException)ex;
 		}
 	}
+
 	/** Creates an XMLRPC call from the given method name and parameters and sends it */
 	protected void writeCall(String methname, Object[] params) throws Exception{
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
@@ -192,6 +226,14 @@ public class RpcConnection {
 		sout.write(bout.toByteArray());
 		sout.write(0);
 	}
+
+	/**
+	 * Takes the object provided and recursively creates a node out of it suitable
+	 * for xmlrpc transmission.
+	 * @param doc
+	 * @param param
+	 * @return
+	 */
 	public static Node objectToNode(Document doc, Object param){
 		Node valEl = doc.createElement("value");
 		if(param instanceof Map){ //Reverse of the parseVal() struct-to-HashMap code
@@ -232,6 +274,7 @@ public class RpcConnection {
 		}
 		return valEl;
 	}
+
 	/** Receives an XMLRPC response and converts to an object */
 	protected Object readResp() throws Exception{
 		//Will store our response
@@ -241,14 +284,10 @@ public class RpcConnection {
 			//read bytes
 			ByteArrayOutputStream cache = new ByteArrayOutputStream();
 			int val;
-			try{
-				while((val = sin.read()) != 0){
-					if(val == -1)
-						throw new MsfException("Stream died.");
-					cache.write(val);
-				}
-			} catch (IOException ex) {
-				throw new MsfException("Error reading response.");
+			while((val = sin.read()) != 0){
+				if(val == -1)
+					throw new MsfException("Stream died.");
+				cache.write(val);
 			}
 			//parse the response: <methodResponse><params><param><value>...
 			ByteArrayInputStream is = new ByteArrayInputStream(cache.toByteArray());
@@ -287,6 +326,7 @@ public class RpcConnection {
 			throw new MsfException("Error reading response: no value.");
 		return parseVal(value);
 	}
+
 	/** Takes an XMLRPC DOM value node and creates a java object out of it recursively */
 	public static Object parseVal(Node submemb) throws MsfException {
 		Node type = submemb.getFirstChild();

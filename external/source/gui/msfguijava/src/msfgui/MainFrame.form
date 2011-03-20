@@ -27,6 +27,10 @@
             </Property>
             <Property name="name" type="java.lang.String" value="tabbedPane" noResource="true"/>
           </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new DraggableTabbedPane()"/>
+            <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="1"/>
+          </AuxValues>
 
           <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
           <SubComponents>
@@ -93,6 +97,9 @@
                       <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                     </Property>
                   </Properties>
+                  <AuxValues>
+                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="sessionsTable.setAutoCreateRowSorter(true);"/>
+                  </AuxValues>
                 </Component>
               </SubComponents>
             </Container>
@@ -115,78 +122,7 @@
               <SubComponents>
                 <Component class="javax.swing.JTable" name="hostsTable">
                   <Properties>
-                    <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
-                      <TableColumnModel selectionModel="0">
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title0"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title1"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title2"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title3"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title4"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title5"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title6"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title7"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title8"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title9"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title10"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title11"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                        <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                          <Title resourceKey="hostsTable.columnModel.title12"/>
-                          <Editor/>
-                          <Renderer/>
-                        </Column>
-                      </TableColumnModel>
-                    </Property>
                     <Property name="name" type="java.lang.String" value="hostsTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                     <Property name="tableHeader" type="javax.swing.table.JTableHeader" editor="org.netbeans.modules.form.editors2.JTableHeaderEditor">
                       <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                     </Property>
@@ -195,7 +131,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="hostsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="hostsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;&#x9;new Object [][] {},&#xa;&#x9;new String [] {&#xa;&#x9;&#x9;&quot;Created&quot;, &quot;Address&quot;, &quot;Address6&quot;, &quot;MAC&quot;, &quot;Name&quot;, &quot;State&quot;, &quot;OS name&quot;, &quot;OS flavor&quot;, &quot;OS SP&quot;, &quot;OS lang&quot;, &quot;Updated&quot;, &quot;Purpose&quot;, &quot;Info&quot;&#xa;&#x9;}&#xa;) {&#xa;&#x9;Class[] types = new Class [] {&#xa;&#x9;&#x9;java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class&#xa;&#x9;};&#xa;&#x9;public Class getColumnClass(int columnIndex) {&#xa;&#x9;&#x9;return types [columnIndex];&#xa;&#x9;}&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;&#x9;&#x9;&quot;Created&quot;, &quot;Address&quot;, &quot;Address6&quot;, &quot;MAC&quot;, &quot;Name&quot;, &quot;State&quot;, &quot;OS name&quot;, &quot;OS flavor&quot;, &quot;OS SP&quot;, &quot;OS lang&quot;, &quot;Updated&quot;, &quot;Purpose&quot;, &quot;Info&quot;&#xa;&#x9;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -220,14 +156,12 @@
                 <Component class="javax.swing.JTable" name="clientsTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="clientsTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="clientsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="clientsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;UA String&quot;, &quot;UA Name&quot;, &quot;UA Ver&quot;, &quot;Created&quot;, &quot;Updated&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Host&quot;, &quot;UA String&quot;, &quot;UA Name&quot;, &quot;UA Ver&quot;, &quot;Created&quot;, &quot;Updated&quot;&#xa;    })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -252,14 +186,12 @@
                 <Component class="javax.swing.JTable" name="servicesTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="servicesTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="servicesTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="servicesTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;State&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;State&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;    })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -284,14 +216,12 @@
                 <Component class="javax.swing.JTable" name="vulnsTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="vulnsTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="vulnsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="vulnsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Port&quot;, &quot;Proto&quot;, &quot;Time&quot;, &quot;Host&quot;, &quot;Name&quot;, &quot;Refs&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Port&quot;, &quot;Proto&quot;, &quot;Time&quot;, &quot;Host&quot;, &quot;Name&quot;, &quot;Refs&quot;&#xa;    })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -316,11 +246,9 @@
                 <Component class="javax.swing.JTable" name="eventsTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="eventsTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="eventsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] {&#xa;&#xa;    },&#xa;    new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Critical&quot;, &quot;Username&quot;, &quot;Info&quot;&#xa;    }&#xa;) {&#xa;    public Class getColumnClass(int columnIndex) {&#xa;        return java.lang.String.class;&#xa;    }&#xa;&#x9;public boolean isCellEditable(int i,int j) {&#xa;&#x9;&#x9;return false;&#xa;&#x9;}&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;&#x9;&#x9;&quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Critical&quot;, &quot;Username&quot;, &quot;Info&quot;&#xa;&#x9;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -345,14 +273,12 @@
                 <Component class="javax.swing.JTable" name="notesTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="notesTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="notesTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodePost" type="java.lang.String" value="notesTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;    new Object [][] { },&#xa;    new String [] {&#xa;        &quot;Time&quot;, &quot;Host&quot;, &quot;Service&quot;, &quot;Type&quot;, &quot;Data&quot;&#xa;    }&#xa;) {&#xa;    public boolean isCellEditable(int i,int j) {&#xa;        return false;&#xa;    }&#xa;});"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Time&quot;, &quot;Host&quot;, &quot;Service&quot;, &quot;Type&quot;, &quot;Data&quot;&#xa;    })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -377,14 +303,12 @@
                 <Component class="javax.swing.JTable" name="lootsTable">
                   <Properties>
                     <Property name="name" type="java.lang.String" value="lootsTable" noResource="true"/>
-                    <Property name="showHorizontalLines" type="boolean" value="false"/>
-                    <Property name="showVerticalLines" type="boolean" value="false"/>
                   </Properties>
                   <Events>
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="lootsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="lootsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;            new Object [][] {&#xa;&#xa;            },&#xa;            new String [] {&#xa;                &quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;            }&#xa;        ) {&#xa;            public Class getColumnClass(int columnIndex) {&#xa;                return java.lang.String.class;&#xa;            }&#xa;            public boolean isCellEditable(int i,int j) {&#xa;                return false;&#xa;            }&#xa;        });"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;                &quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;            })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -411,7 +335,7 @@
                     <Property name="name" type="java.lang.String" value="credsTable" noResource="true"/>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_InitCodePost" type="java.lang.String" value="credsTable.setModel(new javax.swing.table.DefaultTableModel(&#xa;            new Object [][] {&#xa;&#xa;            },&#xa;            new String [] {&#xa;                &quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            }&#xa;        ) {&#xa;            public Class getColumnClass(int columnIndex) {&#xa;                return java.lang.String.class;&#xa;            }&#xa;            public boolean isCellEditable(int i,int j) {&#xa;                return false;&#xa;            }&#xa;        });"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;                &quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            })"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -508,6 +432,125 @@
             </MenuItem>
           </SubComponents>
         </Menu>
+        <Menu class="javax.swing.JMenu" name="viewMenu">
+          <Properties>
+            <Property name="mnemonic" type="int" value="86"/>
+            <Property name="text" type="java.lang.String" resourceKey="viewMenu.text"/>
+            <Property name="name" type="java.lang.String" value="viewMenu" noResource="true"/>
+          </Properties>
+          <SubComponents>
+            <MenuItem class="javax.swing.JMenuItem" name="viewPrefsItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="80"/>
+                <Property name="text" type="java.lang.String" resourceKey="viewPrefsItem.text"/>
+                <Property name="name" type="java.lang.String" value="viewPrefsItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="viewPrefsItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="jobViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="74"/>
+                <Property name="text" type="java.lang.String" resourceKey="jobViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="jobViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jobViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="sessionsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="115"/>
+                <Property name="text" type="java.lang.String" resourceKey="sessionsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="sessionsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="sessionsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="hostsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="104"/>
+                <Property name="text" type="java.lang.String" resourceKey="hostsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="hostsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="hostsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="clientsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="99"/>
+                <Property name="text" type="java.lang.String" resourceKey="clientsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="clientsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clientsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="servicesViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="114"/>
+                <Property name="text" type="java.lang.String" resourceKey="servicesViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="servicesViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="servicesViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="vulnsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="118"/>
+                <Property name="text" type="java.lang.String" resourceKey="vulnsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="vulnsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="vulnsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="eventsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="101"/>
+                <Property name="text" type="java.lang.String" resourceKey="eventsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="eventsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="eventsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="notesViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="110"/>
+                <Property name="text" type="java.lang.String" resourceKey="notesViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="notesViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="notesViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="credsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="67"/>
+                <Property name="text" type="java.lang.String" resourceKey="credsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="credsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="credsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="lootsViewItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="108"/>
+                <Property name="text" type="java.lang.String" resourceKey="lootsViewItem.text"/>
+                <Property name="name" type="java.lang.String" value="lootsViewItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="lootsViewItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+          </SubComponents>
+        </Menu>
         <Menu class="javax.swing.JMenu" name="exploitsMenu">
           <Properties>
             <Property name="mnemonic" type="int" value="69"/>
@@ -585,16 +628,6 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="killSessionsMenuItemActionPerformed"/>
-              </Events>
-            </MenuItem>
-            <MenuItem class="javax.swing.JMenuItem" name="collectedCredsMenuItem">
-              <Properties>
-                <Property name="mnemonic" type="int" value="83"/>
-                <Property name="text" type="java.lang.String" resourceKey="collectedCredsMenuItem.text"/>
-                <Property name="name" type="java.lang.String" value="collectedCredsMenuItem" noResource="true"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="collectedCredsMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="logGenerateMenuItem">
@@ -687,6 +720,16 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="refreshItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="nmapItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="78"/>
+                <Property name="text" type="java.lang.String" resourceKey="nmapItem.text"/>
+                <Property name="name" type="java.lang.String" value="nmapItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="nmapItemActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="importItem">
               <Properties>
                 <Property name="mnemonic" type="int" value="73"/>
@@ -695,6 +738,16 @@
               </Properties>
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="importItemActionPerformed"/>
+              </Events>
+            </MenuItem>
+            <MenuItem class="javax.swing.JMenuItem" name="dbExportItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="69"/>
+                <Property name="text" type="java.lang.String" resourceKey="dbExportItem.text"/>
+                <Property name="name" type="java.lang.String" value="dbExportItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="dbExportItemActionPerformed"/>
               </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="currWorkspaceItem">

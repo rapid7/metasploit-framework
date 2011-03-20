@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * This class keeps a record of activities taken, sessions run, and
@@ -23,8 +22,6 @@ public class MsfguiLog {
 	final protected Map sessions; // maps session ids to sessions
 	final protected ArrayList activityLog; // list of strings denoting major activities
 	final protected DateFormat formatter;
-	final protected Set hashes;
-	final protected Pattern hashPattern;
 	public static MsfguiLog defaultLog;
 
 	/** Sets up default log */
@@ -36,20 +33,8 @@ public class MsfguiLog {
 	public MsfguiLog() {
 		sessions = new HashMap();
 		activityLog = new ArrayList();
-		hashes = new HashSet();
 		formatter = DateFormat.getDateTimeInstance();
 		activityLog.add(now()+" msfgui started.");
-		hashPattern = Pattern.compile("\\w+:[0-9]+:\\w+:\\w+:::");
-	}
-	/** Records hashes in string */
-	public void logHashes(String hashString){
-		for(String line : hashString.split("\n"))
-			if(hashPattern.matcher(line).matches()) // we are done.
-				hashes.add(line);
-	}
-	/** Returns a list of hashes. */
-	public Set getHashes(){
-		return hashes;
 	}
 	/** Ensure that a session is recorded in the sessions map */
 	public void logSession(Map session){
@@ -117,11 +102,9 @@ public class MsfguiLog {
 			} else if (methodName.equals("console.read")) {
 				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
 				logConsole("Console " + params[0], resString, false);
-				logHashes(resString);
 			} else if (methodName.startsWith("session.") && methodName.endsWith("_read")) {
 				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
 				logConsole(params[0].toString(), resString, false);
-				logHashes(resString);
 			}
 		} catch (MsfException mex) {
 		}

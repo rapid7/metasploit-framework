@@ -47,6 +47,7 @@ public class MainFrame extends FrameView {
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
+		setLnF(false);
 		initComponents();
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
@@ -113,7 +114,6 @@ public class MainFrame extends FrameView {
 		//Set up GUI, RPC connection, and recent modules
 		setupSessionsPollTimer();
 		setupPopupMenus();
-		setLnF(false);
 		MsfguiApp.fileChooser = new JFileChooser();
 		connectRpc();
 		getFrame().addWindowListener(new WindowAdapter() {
@@ -127,6 +127,10 @@ public class MainFrame extends FrameView {
 		//Disable tabs by default
 		for(int i = 2; i < tabbedPane.getTabCount(); i++)
 			tabbedPane.setEnabledAt(i, false);
+		((DraggableTabbedPane)tabbedPane).addWindowFocusListener(); //tabs listen for focus events
+		Map props = MsfguiApp.getPropertiesNode();
+		if(!props.containsKey("tabWindowPreference"))
+			props.put("tabWindowPreference", "tab");
 	}
 	/** Before exit, check whether the daemon should be stopped or just the session terminated */
 	private boolean confirmStop() {
@@ -146,18 +150,22 @@ public class MainFrame extends FrameView {
 	}
 	/** Adds window and menu items for reopening and closing the console */
 	public void registerConsole(Map res, boolean show, String initVal) {
-		final InteractWindow iw = new InteractWindow(rpcConn, res, "console", initVal);
-		registerConsole(res,show,iw);
+		registerConsole(res,show,new InteractWindow(rpcConn, res, "console", initVal));
 	}
 	/** Adds menu items for reopening and closing the console */
 	public void registerConsole(Map res, boolean show, final InteractWindow iw) {
-		iw.setVisible(show);
+		if(show){
+			DraggableTabbedPane.show(iw.mainPanel);
+			if(MsfguiApp.getPropertiesNode().get("tabWindowPreference").equals("tab"))
+				((DraggableTabbedPane)iw.tabbedPane).moveTabTo(0, (DraggableTabbedPane)tabbedPane);
+			iw.activate();
+		}
 		final String id = res.get("id").toString();
 		final JMenuItem openItem = new JMenuItem(id);
 		existingConsoleMenu.add(openItem);
 		openItem.addActionListener(new RpcAction() {
 			public void action() throws Exception {
-				iw.setVisible(true);
+				DraggableTabbedPane.show(iw.mainPanel);
 			}
 		});
 		final JMenuItem closeItem = new JMenuItem(id);
@@ -190,10 +198,17 @@ public class MainFrame extends FrameView {
 							session.put("id", sid);
 							MsfguiLog.defaultLog.logSession(session);
 							sessionList.add(slist.get(sid));
+							//Make a window for the console if we need one and don't have it
 							if((session.get("type").equals("meterpreter") || session.get("type").equals("shell"))
-									&& sessionWindowMap.get(session.get("id")+"console") == null)
-								sessionWindowMap.put(session.get("id")+"console", new InteractWindow(
-										rpcConn, session, session.get("type").toString()));
+									&& sessionWindowMap.get(session.get("id")+"console") == null){
+								InteractWindow win = new InteractWindow(rpcConn, session, session.get("type").toString());
+								if(MsfguiApp.getPropertiesNode().get("tabWindowPreference").equals("tab")){
+									((DraggableTabbedPane)win.tabbedPane).moveTabTo(0, (DraggableTabbedPane)tabbedPane);
+									win.activate();
+								}
+								sessionWindowMap.put(session.get("id")+"console", win.mainPanel);
+								sessionWindowMap.put(session.get("id")+"lock", win.lock);
+							}
 						}
 						MsfguiLog.defaultLog.checkSessions(slist);//Alert the logger
 						if (sessionsTableModel == null) {
@@ -220,6 +235,7 @@ public class MainFrame extends FrameView {
 					}
 				}
 			}
+			// Receives data from polling thread and updates sessions and jobs.
 			@Override
 			protected void process(List lis){
 				for(Object o : lis){
@@ -228,7 +244,9 @@ public class MainFrame extends FrameView {
 						TableHelper.fitColumnWidths(sessionsTableModel,sessionsTable);
 						sessionsTable.updateUI();
 					}else if (o instanceof String[]){
+						int indx = jobsList.getSelectedIndex();
 						jobsList.setListData((String[])o);
+						jobsList.setSelectedIndex(indx);
 					}else if (o instanceof String){
 						statusMessageLabel.setText(o.toString());
 					}
@@ -361,7 +379,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	/** helper for getModules - does the work */
 	@Action
 	public Task moduleTask(){
-		final MainFrame me = this;
 		return new Task<Void, Void>(getApplication()){
 			@Override
 			protected Void doInBackground() throws Exception {
@@ -374,7 +391,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
 							return new ActionListener(){
 								public void actionPerformed(ActionEvent e) {
-									new ModulePopup(modName,rpcConn,type, me).setVisible(true);
+									new ModulePopup(modName,rpcConn,type, MainFrame.this).setVisible(true);
 								}
 							};
 						}
@@ -391,7 +408,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 						public ActionListener getActor(final String modName, final String type, final RpcConnection rpcConn) {
 							return new ActionListener() {
 								public void actionPerformed(ActionEvent e) {
-									new PayloadPopup(modName, rpcConn, me).setVisible(true);
+									new PayloadPopup(modName, rpcConn, MainFrame.this).setVisible(true);
 								}
 							};
 						}
@@ -413,6 +430,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					setProgress(0.95f);
 					setMessage("Finding open consoles");
 					refreshConsoles();
+					if(MainFrame.this.closeConsoleMenu.getItemCount() == 0 && !tabbedPane.isEnabledAt(3)){
+						registerConsole( (Map)rpcConn.execute("console.create"), false, "");
+						reloadDb();
+					}
 					setProgress(1.0f);
 				} catch (MsfException ex) {
 					statusAnimationLabel.setText("Error getting module lists. " + ex);
@@ -439,113 +460,43 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        tabbedPane = new javax.swing.JTabbedPane();
+        tabbedPane = new DraggableTabbedPane();
         jobsPane = new javax.swing.JScrollPane();
         jobsList = new javax.swing.JList();
         sessionsPane = new javax.swing.JScrollPane();
         sessionsTable = new javax.swing.JTable();
         hostsPane = new javax.swing.JScrollPane();
-        hostsTable = new javax.swing.JTable();
-        hostsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {},
-            new String [] {
-                "Created", "Address", "Address6", "MAC", "Name", "State", "OS name", "OS flavor", "OS SP", "OS lang", "Updated", "Purpose", "Info"
-            }
-        ) {
-            Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.Object.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
-            };
-            public Class getColumnClass(int columnIndex) {
-                return types [columnIndex];
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        hostsTable = new MsfTable(new String [] {
+            "Created", "Address", "Address6", "MAC", "Name", "State", "OS name", "OS flavor", "OS SP", "OS lang", "Updated", "Purpose", "Info"
         });
         clientsPane = new javax.swing.JScrollPane();
-        clientsTable = new javax.swing.JTable();
-        clientsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "UA String", "UA Name", "UA Ver", "Created", "Updated"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        clientsTable = new MsfTable(new String [] {
+            "Host", "UA String", "UA Name", "UA Ver", "Created", "Updated"
         });
         servicesPane = new javax.swing.JScrollPane();
-        servicesTable = new javax.swing.JTable();
-        servicesTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Created", "Updated", "Port", "Proto", "State", "Name", "Info"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        servicesTable = new MsfTable(new String [] {
+            "Host", "Created", "Updated", "Port", "Proto", "State", "Name", "Info"
         });
         vulnsPane = new javax.swing.JScrollPane();
-        vulnsTable = new javax.swing.JTable();
-        vulnsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Port", "Proto", "Time", "Host", "Name", "Refs"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        vulnsTable = new MsfTable(new String [] {
+            "Port", "Proto", "Time", "Host", "Name", "Refs"
         });
         eventsPane = new javax.swing.JScrollPane();
-        eventsTable = new javax.swing.JTable();
-        eventsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        eventsTable = new MsfTable(new String [] {
+            "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
         });
         notesPane = new javax.swing.JScrollPane();
-        notesTable = new javax.swing.JTable();
-        notesTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] { },
-            new String [] {
-                "Time", "Host", "Service", "Type", "Data"
-            }
-        ) {
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
+        notesTable = new MsfTable(new String [] {
+            "Time", "Host", "Service", "Type", "Data"
         });
         lootsPane = new javax.swing.JScrollPane();
-        lootsTable = new javax.swing.JTable();
+        lootsTable = new MsfTable(new String [] {
+            "Host", "Service", "Ltype", "Ctype", "Data", "Created", "Updated", "Name", "Info"
+        });
         credsPane = new javax.swing.JScrollPane();
-        credsTable = new javax.swing.JTable();
+        credsTable = new MsfTable(new String [] {
+            "Host", "Time", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
+        });
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         connectRpcMenuItem = new javax.swing.JMenuItem();
@@ -555,6 +506,18 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         searchItem = new javax.swing.JMenuItem();
         changeLFMenuItem = new javax.swing.JMenuItem();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
+        viewMenu = new javax.swing.JMenu();
+        viewPrefsItem = new javax.swing.JMenuItem();
+        jobViewItem = new javax.swing.JMenuItem();
+        sessionsViewItem = new javax.swing.JMenuItem();
+        hostsViewItem = new javax.swing.JMenuItem();
+        clientsViewItem = new javax.swing.JMenuItem();
+        servicesViewItem = new javax.swing.JMenuItem();
+        vulnsViewItem = new javax.swing.JMenuItem();
+        eventsViewItem = new javax.swing.JMenuItem();
+        notesViewItem = new javax.swing.JMenuItem();
+        credsViewItem = new javax.swing.JMenuItem();
+        lootsViewItem = new javax.swing.JMenuItem();
         exploitsMenu = new javax.swing.JMenu();
         auxiliaryMenu = new javax.swing.JMenu();
         payloadsMenu = new javax.swing.JMenu();
@@ -564,7 +527,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         postMenu = new javax.swing.JMenu();
         menuRunAllMeterp = new javax.swing.JMenu();
         killSessionsMenuItem = new javax.swing.JMenuItem();
-        collectedCredsMenuItem = new javax.swing.JMenuItem();
         logGenerateMenuItem = new javax.swing.JMenuItem();
         consoleMenu = new javax.swing.JMenu();
         newConsoleItem = new javax.swing.JMenuItem();
@@ -575,7 +537,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         connectItem = new javax.swing.JMenuItem();
         disconnectItem = new javax.swing.JMenuItem();
         refreshItem = new javax.swing.JMenuItem();
+        nmapItem = new javax.swing.JMenuItem();
         importItem = new javax.swing.JMenuItem();
+        dbExportItem = new javax.swing.JMenuItem();
         currWorkspaceItem = new javax.swing.JMenuItem();
         addWorkspaceItem = new javax.swing.JMenuItem();
         delWorkspaceItem = new javax.swing.JMenuItem();
@@ -622,6 +586,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         ));
         sessionsTable.setName("sessionsTable"); // NOI18N
         sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        sessionsTable.setAutoCreateRowSorter(true);
         sessionsPane.setViewportView(sessionsTable);
 
         tabbedPane.addTab(resourceMap.getString("sessionsPane.TabConstraints.tabTitle"), sessionsPane); // NOI18N
@@ -629,35 +594,18 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         hostsPane.setName("hostsPane"); // NOI18N
 
         hostsTable.setName("hostsTable"); // NOI18N
-        hostsTable.setShowHorizontalLines(false);
-        hostsTable.setShowVerticalLines(false);
         hostsTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 hostsTableKeyReleased(evt);
             }
         });
         hostsPane.setViewportView(hostsTable);
-        hostsTable.getColumnModel().getColumn(0).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title0")); // NOI18N
-        hostsTable.getColumnModel().getColumn(1).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title1")); // NOI18N
-        hostsTable.getColumnModel().getColumn(2).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title2")); // NOI18N
-        hostsTable.getColumnModel().getColumn(3).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title3")); // NOI18N
-        hostsTable.getColumnModel().getColumn(4).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title4")); // NOI18N
-        hostsTable.getColumnModel().getColumn(5).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title5")); // NOI18N
-        hostsTable.getColumnModel().getColumn(6).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title6")); // NOI18N
-        hostsTable.getColumnModel().getColumn(7).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title7")); // NOI18N
-        hostsTable.getColumnModel().getColumn(8).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title8")); // NOI18N
-        hostsTable.getColumnModel().getColumn(9).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title9")); // NOI18N
-        hostsTable.getColumnModel().getColumn(10).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title10")); // NOI18N
-        hostsTable.getColumnModel().getColumn(11).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title11")); // NOI18N
-        hostsTable.getColumnModel().getColumn(12).setHeaderValue(resourceMap.getString("hostsTable.columnModel.title12")); // NOI18N
 
         tabbedPane.addTab(resourceMap.getString("hostsPane.TabConstraints.tabTitle"), hostsPane); // NOI18N
 
         clientsPane.setName("clientsPane"); // NOI18N
 
         clientsTable.setName("clientsTable"); // NOI18N
-        clientsTable.setShowHorizontalLines(false);
-        clientsTable.setShowVerticalLines(false);
         clientsTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 clientsTableKeyReleased(evt);
@@ -670,8 +618,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         servicesPane.setName("servicesPane"); // NOI18N
 
         servicesTable.setName("servicesTable"); // NOI18N
-        servicesTable.setShowHorizontalLines(false);
-        servicesTable.setShowVerticalLines(false);
         servicesTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 servicesTableKeyReleased(evt);
@@ -684,8 +630,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         vulnsPane.setName("vulnsPane"); // NOI18N
 
         vulnsTable.setName("vulnsTable"); // NOI18N
-        vulnsTable.setShowHorizontalLines(false);
-        vulnsTable.setShowVerticalLines(false);
         vulnsTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 vulnsTableKeyReleased(evt);
@@ -698,8 +642,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         eventsPane.setName("eventsPane"); // NOI18N
 
         eventsTable.setName("eventsTable"); // NOI18N
-        eventsTable.setShowHorizontalLines(false);
-        eventsTable.setShowVerticalLines(false);
         eventsPane.setViewportView(eventsTable);
 
         tabbedPane.addTab(resourceMap.getString("eventsPane.TabConstraints.tabTitle"), eventsPane); // NOI18N
@@ -707,8 +649,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         notesPane.setName("notesPane"); // NOI18N
 
         notesTable.setName("notesTable"); // NOI18N
-        notesTable.setShowHorizontalLines(false);
-        notesTable.setShowVerticalLines(false);
         notesTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 notesTableKeyReleased(evt);
@@ -721,23 +661,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         lootsPane.setName("lootsPane"); // NOI18N
 
         lootsTable.setName("lootsTable"); // NOI18N
-        lootsTable.setShowHorizontalLines(false);
-        lootsTable.setShowVerticalLines(false);
-        lootsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Service", "Ltype", "Ctype", "Data", "Created", "Updated", "Name", "Info"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
-        });
         lootsTable.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 lootsTableKeyReleased(evt);
@@ -750,21 +673,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         credsPane.setName("credsPane"); // NOI18N
 
         credsTable.setName("credsTable"); // NOI18N
-        credsTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Host", "Time", "Port", "Proto", "Sname", "Type", "User", "Pass", "Active"
-            }
-        ) {
-            public Class getColumnClass(int columnIndex) {
-                return java.lang.String.class;
-            }
-            public boolean isCellEditable(int i,int j) {
-                return false;
-            }
-        });
         credsPane.setViewportView(credsTable);
 
         tabbedPane.addTab(resourceMap.getString("credsPane.TabConstraints.tabTitle"), credsPane); // NOI18N
@@ -845,6 +753,122 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
         menuBar.add(fileMenu);
 
+        viewMenu.setMnemonic('V');
+        viewMenu.setText(resourceMap.getString("viewMenu.text")); // NOI18N
+        viewMenu.setName("viewMenu"); // NOI18N
+
+        viewPrefsItem.setMnemonic('P');
+        viewPrefsItem.setText(resourceMap.getString("viewPrefsItem.text")); // NOI18N
+        viewPrefsItem.setName("viewPrefsItem"); // NOI18N
+        viewPrefsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewPrefsItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(viewPrefsItem);
+
+        jobViewItem.setMnemonic('J');
+        jobViewItem.setText(resourceMap.getString("jobViewItem.text")); // NOI18N
+        jobViewItem.setName("jobViewItem"); // NOI18N
+        jobViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jobViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(jobViewItem);
+
+        sessionsViewItem.setMnemonic('s');
+        sessionsViewItem.setText(resourceMap.getString("sessionsViewItem.text")); // NOI18N
+        sessionsViewItem.setName("sessionsViewItem"); // NOI18N
+        sessionsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sessionsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(sessionsViewItem);
+
+        hostsViewItem.setMnemonic('h');
+        hostsViewItem.setText(resourceMap.getString("hostsViewItem.text")); // NOI18N
+        hostsViewItem.setName("hostsViewItem"); // NOI18N
+        hostsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                hostsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(hostsViewItem);
+
+        clientsViewItem.setMnemonic('c');
+        clientsViewItem.setText(resourceMap.getString("clientsViewItem.text")); // NOI18N
+        clientsViewItem.setName("clientsViewItem"); // NOI18N
+        clientsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                clientsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(clientsViewItem);
+
+        servicesViewItem.setMnemonic('r');
+        servicesViewItem.setText(resourceMap.getString("servicesViewItem.text")); // NOI18N
+        servicesViewItem.setName("servicesViewItem"); // NOI18N
+        servicesViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                servicesViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(servicesViewItem);
+
+        vulnsViewItem.setMnemonic('v');
+        vulnsViewItem.setText(resourceMap.getString("vulnsViewItem.text")); // NOI18N
+        vulnsViewItem.setName("vulnsViewItem"); // NOI18N
+        vulnsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vulnsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(vulnsViewItem);
+
+        eventsViewItem.setMnemonic('e');
+        eventsViewItem.setText(resourceMap.getString("eventsViewItem.text")); // NOI18N
+        eventsViewItem.setName("eventsViewItem"); // NOI18N
+        eventsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                eventsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(eventsViewItem);
+
+        notesViewItem.setMnemonic('n');
+        notesViewItem.setText(resourceMap.getString("notesViewItem.text")); // NOI18N
+        notesViewItem.setName("notesViewItem"); // NOI18N
+        notesViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                notesViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(notesViewItem);
+
+        credsViewItem.setMnemonic('C');
+        credsViewItem.setText(resourceMap.getString("credsViewItem.text")); // NOI18N
+        credsViewItem.setName("credsViewItem"); // NOI18N
+        credsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                credsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(credsViewItem);
+
+        lootsViewItem.setMnemonic('l');
+        lootsViewItem.setText(resourceMap.getString("lootsViewItem.text")); // NOI18N
+        lootsViewItem.setName("lootsViewItem"); // NOI18N
+        lootsViewItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                lootsViewItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(lootsViewItem);
+
+        menuBar.add(viewMenu);
+
         exploitsMenu.setMnemonic('E');
         exploitsMenu.setText(resourceMap.getString("exploitsMenu.text")); // NOI18N
         exploitsMenu.setEnabled(false);
@@ -904,16 +928,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
             }
         });
         postMenu.add(killSessionsMenuItem);
-
-        collectedCredsMenuItem.setMnemonic('S');
-        collectedCredsMenuItem.setText(resourceMap.getString("collectedCredsMenuItem.text")); // NOI18N
-        collectedCredsMenuItem.setName("collectedCredsMenuItem"); // NOI18N
-        collectedCredsMenuItem.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                collectedCredsMenuItemActionPerformed(evt);
-            }
-        });
-        postMenu.add(collectedCredsMenuItem);
 
         logGenerateMenuItem.setMnemonic('G');
         logGenerateMenuItem.setText(resourceMap.getString("logGenerateMenuItem.text")); // NOI18N
@@ -995,6 +1009,16 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         });
         databaseMenu.add(refreshItem);
 
+        nmapItem.setMnemonic('N');
+        nmapItem.setText(resourceMap.getString("nmapItem.text")); // NOI18N
+        nmapItem.setName("nmapItem"); // NOI18N
+        nmapItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                nmapItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(nmapItem);
+
         importItem.setMnemonic('I');
         importItem.setText(resourceMap.getString("importItem.text")); // NOI18N
         importItem.setName("importItem"); // NOI18N
@@ -1004,6 +1028,16 @@ nameloop:	for (int i = 0; i < names.length; i++) {
             }
         });
         databaseMenu.add(importItem);
+
+        dbExportItem.setMnemonic('E');
+        dbExportItem.setText(resourceMap.getString("dbExportItem.text")); // NOI18N
+        dbExportItem.setName("dbExportItem"); // NOI18N
+        dbExportItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dbExportItemActionPerformed(evt);
+            }
+        });
+        databaseMenu.add(dbExportItem);
 
         currWorkspaceItem.setMnemonic('W');
         currWorkspaceItem.setText(resourceMap.getString("currWorkspaceItem.text")); // NOI18N
@@ -1235,10 +1269,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		setLnF(true);
 	}//GEN-LAST:event_changeLFMenuItemActionPerformed
 
-	private void collectedCredsMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_collectedCredsMenuItemActionPerformed
-		new EditorWindow(MsfguiLog.defaultLog.getHashes()).setVisible(true);
-	}//GEN-LAST:event_collectedCredsMenuItemActionPerformed
-
 	private void newConsoleItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_newConsoleItemActionPerformed
 		try{
 			Map res = (Map)rpcConn.execute("console.create");
@@ -1261,19 +1291,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private void reloadDb() {
 		try {
 			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
-			reAdd(eventsTable,6,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
+			reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
 					new String[]{"host","created_at","updated_at","name","critical","username","info"});
-			reAdd(lootsTable,8,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
+			reAdd(lootsTable,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
 					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 		} catch (MsfException mex) {
 		}
-		reAddQuery(hostsTable,2,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
+		reAddQuery(hostsTable,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
 						"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
-		reAddQuery(clientsTable,3,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
-		reAddQuery(servicesTable, 4, "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
-		reAddQuery(vulnsTable,5,"vulns",new String[]{"port","proto","time","host","name","refs"});
-		reAddQuery(notesTable,7,"notes",new String[]{"time", "host", "service", "type", "data"});
-		reAddQuery(credsTable,9,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
+		reAddQuery(clientsTable,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
+		reAddQuery(servicesTable,  "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+		reAddQuery(vulnsTable,"vulns",new String[]{"port","proto","time","host","name","refs"});
+		reAddQuery(notesTable,"notes",new String[]{"time", "host", "service", "type", "data"});
+		reAddQuery(credsTable,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
@@ -1373,7 +1403,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}//GEN-LAST:event_showDetailsItemActionPerformed
 
 	private String[] tableShortNames = new String[]{"","",};
-	private void tableDelCheck(KeyEvent evt, String name, int tabIndex, String[] colNames){
+	private void tableDelCheck(KeyEvent evt, String name, String[] colNames){
+		if(evt.getKeyCode() == KeyEvent.VK_F5)
+			reloadDb();
 		if(evt.getKeyCode() != KeyEvent.VK_DELETE)
 			return;
 		JTable tab = (JTable)evt.getSource();
@@ -1387,31 +1419,31 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				JOptionPane.showMessageDialog(getFrame(), mex);
 			}
 		}//delete then readd
-		reAddQuery(tab,tabIndex,name+"s",colNames);
+		reAddQuery(tab,name+"s",colNames);
 	}
 	private void hostsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hostsTableKeyReleased
-		tableDelCheck(evt,"host",2,new String[]{"created_at","address","address6","mac","name","state","os_name",
+		tableDelCheck(evt,"host",new String[]{"created_at","address","address6","mac","name","state","os_name",
 				"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
 	}//GEN-LAST:event_hostsTableKeyReleased
 
 	private void servicesTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_servicesTableKeyReleased
-		tableDelCheck(evt,"service",4,new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
+		tableDelCheck(evt,"service",new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
 	}//GEN-LAST:event_servicesTableKeyReleased
 
 	private void vulnsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_vulnsTableKeyReleased
-		tableDelCheck(evt,"vuln",5,new String[]{"port","proto","time","host","name","refs"});
+		tableDelCheck(evt,"vuln",new String[]{"port","proto","time","host","name","refs"});
 	}//GEN-LAST:event_vulnsTableKeyReleased
 
 	private void notesTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_notesTableKeyReleased
-		tableDelCheck(evt,"note",7,new String[]{"time", "host", "service", "type", "data"});
+		tableDelCheck(evt,"note",new String[]{"time", "host", "service", "type", "data"});
 	}//GEN-LAST:event_notesTableKeyReleased
 
 	private void lootsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lootsTableKeyReleased
-		reAddQuery(lootsTable,8,"loots",new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
+		reAddQuery(lootsTable,"loots",new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 	}//GEN-LAST:event_lootsTableKeyReleased
 
 	private void clientsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientsTableKeyReleased
-		tableDelCheck(evt,"client",3,new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
+		tableDelCheck(evt,"client",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
 	}//GEN-LAST:event_clientsTableKeyReleased
 
 	private void currWorkspaceItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_currWorkspaceItemActionPerformed
@@ -1469,6 +1501,82 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		refreshConsoles();
 	}//GEN-LAST:event_refreshConsolesItemActionPerformed
 
+	private void jobViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jobViewItemActionPerformed
+		DraggableTabbedPane.show(jobsPane);
+	}//GEN-LAST:event_jobViewItemActionPerformed
+
+	private void sessionsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sessionsViewItemActionPerformed
+		DraggableTabbedPane.show(sessionsPane);
+	}//GEN-LAST:event_sessionsViewItemActionPerformed
+
+	private void hostsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_hostsViewItemActionPerformed
+		DraggableTabbedPane.show(hostsPane);
+	}//GEN-LAST:event_hostsViewItemActionPerformed
+
+	private void clientsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clientsViewItemActionPerformed
+		DraggableTabbedPane.show(clientsPane);
+	}//GEN-LAST:event_clientsViewItemActionPerformed
+
+	private void servicesViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_servicesViewItemActionPerformed
+		DraggableTabbedPane.show(servicesPane);
+	}//GEN-LAST:event_servicesViewItemActionPerformed
+
+	private void vulnsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vulnsViewItemActionPerformed
+		DraggableTabbedPane.show(vulnsPane);
+	}//GEN-LAST:event_vulnsViewItemActionPerformed
+
+	private void eventsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsViewItemActionPerformed
+		DraggableTabbedPane.show(eventsPane);
+	}//GEN-LAST:event_eventsViewItemActionPerformed
+
+	private void notesViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_notesViewItemActionPerformed
+		DraggableTabbedPane.show(notesPane);
+	}//GEN-LAST:event_notesViewItemActionPerformed
+
+	private void credsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_credsViewItemActionPerformed
+		DraggableTabbedPane.show(credsPane);
+	}//GEN-LAST:event_credsViewItemActionPerformed
+
+	private void lootsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_lootsViewItemActionPerformed
+		DraggableTabbedPane.show(lootsPane);
+	}//GEN-LAST:event_lootsViewItemActionPerformed
+
+	private void nmapItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_nmapItemActionPerformed
+		//Get db_nmap options
+		String opts = JOptionPane.showInputDialog(getFrame(),"Enter arguments to nmap",
+				"db_nmap options",JOptionPane.QUESTION_MESSAGE);
+		if(opts == null)
+			return;
+		//Start console
+		Map res = (Map) rpcConn.execute("console.create");
+		registerConsole(res, true, InteractWindow.runCmdWindow(rpcConn, res, "db_nmap "+opts));
+	}//GEN-LAST:event_nmapItemActionPerformed
+
+	private void viewPrefsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_viewPrefsItemActionPerformed
+		new PreferencesFrame().setVisible(true);
+	}//GEN-LAST:event_viewPrefsItemActionPerformed
+
+	private void dbExportItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_dbExportItemActionPerformed
+		try {
+			Object filetype = JOptionPane.showInputDialog(getFrame(), "Select file type. ",
+					"Type selection", JOptionPane.PLAIN_MESSAGE,null, new Object[]{"XML","pwdump"}, "XML");
+			if(filetype == null)
+				return;
+			String type = filetype.toString().toLowerCase();
+			HashMap argHash = new HashMap();
+			if (MsfguiApp.fileChooser.showSaveDialog(getFrame()) == javax.swing.JFileChooser.CANCEL_OPTION)
+				return;
+			Map res = (Map) rpcConn.execute("console.create");
+			registerConsole(res, true, InteractWindow.runCmdWindow(rpcConn, res,
+					"db_export -f "+type+" \""+MsfguiApp.doubleBackslashes(
+					MsfguiApp.fileChooser.getSelectedFile().getCanonicalPath())+"\""));
+		} catch (MsfException mex) {
+			JOptionPane.showMessageDialog(getFrame(), mex);
+		} catch (IOException iex) {
+			JOptionPane.showMessageDialog(getFrame(), iex);
+		}
+	}//GEN-LAST:event_dbExportItemActionPerformed
+
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
 		SessionCommand.runOnAllMeterpreters(sessionsTableModel, cmd, output, outputLabel, rpcConn);
@@ -1489,7 +1597,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 	public void showInteractWindow() {
 		for(Map session : selectedSessions)
-			((InteractWindow)(sessionWindowMap.get(session.get("id")+"console"))).setVisible(true);
+			DraggableTabbedPane.show((Component)sessionWindowMap.get(session.get("id")+"console"));
 	}
 	/* Master function to setup popup menus for jobs and sessions
 	 * First handles jobs, then shell sessions, then meterpreter sessions,
@@ -1520,8 +1628,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				if(e.getClickCount() > 1)
 					(new JobInfoPopup(null, true,
 							((Map)rpcConn.execute("job.info", clickedJob)).get("info"))).setVisible(true);
-			}
-			public void doubleClicked(MouseEvent e){
 			}
 			public void showPopup(MouseEvent e) {
 				jobPopupMenu.show(jobsList, e.getX(), e.getY() );
@@ -1591,8 +1697,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Console",meterpreterPopupMenu,null);
 		addScript("Get hashes",meterpreterPopupMenu,
 				"multi_console_command -cl \"use priv\",\"getsystem\",\"run post/windows/gather/hashdump\"");
-		final MainFrame mf = this;
-		addSessionItem("Route through this session",meterpreterPopupMenu,new AutorouteOptionsDialog(mf, true));
+		addSessionItem("Route through this session",meterpreterPopupMenu,new AutorouteOptionsDialog(this, true));
 		addScript("Schedule command",meterpreterPopupMenu,new ScheduleTaskOptionsDialog(getFrame()));
 		addSessionItem("Unlock screen",meterpreterPopupMenu,"screen_unlock");
 		addScript("Upload + execute",meterpreterPopupMenu,new UploadexecOptionsDialog(getFrame()));
@@ -1749,42 +1854,50 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem clearHistoryItem;
     private javax.swing.JScrollPane clientsPane;
     private javax.swing.JTable clientsTable;
+    private javax.swing.JMenuItem clientsViewItem;
     private javax.swing.JMenu closeConsoleMenu;
-    private javax.swing.JMenuItem collectedCredsMenuItem;
     private javax.swing.JMenuItem connectItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
     private javax.swing.JScrollPane credsPane;
     private javax.swing.JTable credsTable;
+    private javax.swing.JMenuItem credsViewItem;
     private javax.swing.JMenuItem currWorkspaceItem;
     private javax.swing.JMenu databaseMenu;
     private javax.swing.JMenuItem dbCredcollectItem;
+    private javax.swing.JMenuItem dbExportItem;
     private javax.swing.JMenuItem dbTrackerItem;
     private javax.swing.JMenuItem delWorkspaceItem;
     private javax.swing.JMenuItem disconnectItem;
     private javax.swing.JScrollPane eventsPane;
     private javax.swing.JTable eventsTable;
+    private javax.swing.JMenuItem eventsViewItem;
     private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
     private javax.swing.JMenu helpMenu;
     private javax.swing.JMenu historyMenu;
     private javax.swing.JScrollPane hostsPane;
     private javax.swing.JTable hostsTable;
+    private javax.swing.JMenuItem hostsViewItem;
     private javax.swing.JMenuItem importItem;
     private javax.swing.JMenuItem ipsFilterItem;
     private javax.swing.JPopupMenu.Separator jSeparator1;
+    private javax.swing.JMenuItem jobViewItem;
     private javax.swing.JList jobsList;
     private javax.swing.JScrollPane jobsPane;
     private javax.swing.JMenuItem killSessionsMenuItem;
     private javax.swing.JMenuItem logGenerateMenuItem;
     private javax.swing.JScrollPane lootsPane;
     private javax.swing.JTable lootsTable;
+    private javax.swing.JMenuItem lootsViewItem;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JMenu menuRunAllMeterp;
     private javax.swing.JMenuItem newConsoleItem;
+    private javax.swing.JMenuItem nmapItem;
     private javax.swing.JScrollPane notesPane;
     private javax.swing.JTable notesTable;
+    private javax.swing.JMenuItem notesViewItem;
     private javax.swing.JMenuItem onlineHelpMenu;
     private javax.swing.JMenuItem otherPluginItem;
     private javax.swing.JMenu payloadsMenu;
@@ -1797,8 +1910,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem searchItem;
     private javax.swing.JScrollPane servicesPane;
     private javax.swing.JTable servicesTable;
+    private javax.swing.JMenuItem servicesViewItem;
     private javax.swing.JScrollPane sessionsPane;
     private javax.swing.JTable sessionsTable;
+    private javax.swing.JMenuItem sessionsViewItem;
     private javax.swing.JMenuItem showDetailsItem;
     private javax.swing.JMenuItem socketLoggerItem;
     private javax.swing.JMenuItem soundItem;
@@ -1806,10 +1921,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
-    private javax.swing.JTabbedPane tabbedPane;
+    public javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JMenuItem unloadPluginItem;
+    private javax.swing.JMenu viewMenu;
+    private javax.swing.JMenuItem viewPrefsItem;
     private javax.swing.JScrollPane vulnsPane;
     private javax.swing.JTable vulnsTable;
+    private javax.swing.JMenuItem vulnsViewItem;
     // End of variables declaration//GEN-END:variables
 	private final Timer messageTimer;
 	private final Timer busyIconTimer;
@@ -1841,18 +1959,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 
 	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
-	private void reAddQuery(JTable table, int tabIndex, String call, String[] cols) {
+	private void reAddQuery(JTable table, String call, String[] cols) {
 		try {
 			HashMap arg = new HashMap();
 			arg.put("workspace", MsfguiApp.workspace);
 			List data = (List) ((Map)rpcConn.execute("db."+call,arg)).get(call);
 			if(data == null)
 				return;
-			reAdd(table, tabIndex, data, cols);
+			reAdd(table, data, cols);
 		} catch (MsfException mex) {
+			mex.printStackTrace();
 		}
 	}
-	private void reAdd(JTable table, int tabIndex, List data, String[] cols) throws MsfException {
+	private void reAdd(JTable table, List data, String[] cols) throws MsfException {
 		DefaultTableModel mod = (DefaultTableModel) table.getModel();
 		while (mod.getRowCount() > 0)
 			mod.removeRow(0);
@@ -1863,7 +1982,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			mod.addRow(row);
 		}
 		TableHelper.fitColumnWidths(mod, table);
-		tabbedPane.setEnabledAt(tabIndex, true);
+		DraggableTabbedPane.setTabComponentEnabled(table, true);
 	}
-
 }

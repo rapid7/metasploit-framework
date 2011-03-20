@@ -37,7 +37,12 @@ public class DbConnectDialog extends OptionsDialog {
 		try{
 			//If we don't have saved creds, look for them
 			if(!props.containsKey("dbusername")){
-				Scanner s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
+				Scanner s;
+				try{
+					s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
+				} catch (FileNotFoundException fnfox){
+					s = new Scanner(new File(MsfguiApp.getMsfRoot()+"/../config/database.yml"));
+				}
 				String token = s.next();
 				while(!token.equals("production:"))
 					token = s.next();
@@ -64,6 +69,8 @@ public class DbConnectDialog extends OptionsDialog {
 			dbNameField.setText(props.get("dbdatabase").toString());
 		}catch(NullPointerException nex){
 		}catch(FileNotFoundException fedex){
+		}catch(MsfException mex){// No msf root?
+			mex.printStackTrace();
 		}
 		Object driver = props.get("dbdriver");
 		List l = ((javax.swing.SpinnerListModel)typeSpinner.getModel()).getList();
@@ -274,5 +281,4 @@ public class DbConnectDialog extends OptionsDialog {
     private javax.swing.JSpinner typeSpinner;
     private javax.swing.JTextField usernameField;
     // End of variables declaration//GEN-END:variables
-
 }

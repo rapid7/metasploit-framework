@@ -39,6 +39,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	protected static Pattern backslash = Pattern.compile("\\\\");
 	public static String workspace = "default";
 	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf3"+File.separatorChar+"msfgui";
+	public static MainFrame mainFrame;
 
 	static{ //get saved properties file
 		Map props;
@@ -81,7 +82,8 @@ public class MsfguiApp extends SingleFrameApplication {
 	 */
 	@Override protected void startup() {
 		MsfguiLog.initDefaultLog();
-		show(new MainFrame(this));
+		mainFrame = new MainFrame(this);
+		show(mainFrame);
 	}
 
 	/**
@@ -130,7 +132,7 @@ public class MsfguiApp extends SingleFrameApplication {
 				proc = Runtime.getRuntime().exec(args);
 			} catch (IOException ex2) {
 				try {
-					args[0] = "/opt/metasploit3/msf3/" + msfCommand;
+					args[0] = getMsfRoot() + "/" + msfCommand;
 					proc = Runtime.getRuntime().exec(args);
 				} catch (IOException ex3) {
 					try {
@@ -147,20 +149,15 @@ public class MsfguiApp extends SingleFrameApplication {
 								winArgs[2] = "ruby.exe";
 							else
 								winArgs[2] = "rubyw.exe";
-							winArgs[3] = "/msf3/" + msfCommand;
-							File dir = new File(System.getenv("PROGRAMFILES") + "\\Metasploit\\Framework3\\bin\\");
-							proc = Runtime.getRuntime().exec(winArgs, null, dir);
+							winArgs[3] = getMsfRoot() + "/"  + msfCommand;
+							proc = Runtime.getRuntime().exec(winArgs);
 						} catch (IOException ex5) {
 							try {
-								File dir = new File(System.getenv("PROGRAMFILES(x86)") + "\\Metasploit\\Framework3\\bin\\");
+								File dir = new File(prefix);
+								winArgs[3] = msfCommand;
 								proc = Runtime.getRuntime().exec(winArgs, null, dir);
-							} catch (IOException ex6) {
-								try {
-									File dir = new File(prefix);
-									proc = Runtime.getRuntime().exec(winArgs, null, dir);
-								} catch (IOException ex7) {
-									throw new MsfException("Executable not found for "+msfCommand);
-								}
+							} catch (IOException ex7) {
+								throw new MsfException("Executable not found for "+msfCommand);
 							}
 						}
 					}
@@ -173,6 +170,19 @@ public class MsfguiApp extends SingleFrameApplication {
 	/** Get root node of xml saved options file */
 	public static Map getPropertiesNode(){
 		return propRoot;
+	}
+	/**
+	 * Finds the path to the root of the metasploit tree (the msf3 folder this jar is being run out of)
+	 * @return A File object pointing to the directory at the root of the metasploit tre
+	 * @throws MsfException if this jar file has been moved or the containing directory structure has been moved.
+	 */
+	public static File getMsfRoot() throws MsfException{
+		File f = new File(MsfguiApp.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+		File parent = f.getParentFile();
+		File grandparent = parent.getParentFile();
+		if(f.getName().equals("msfgui.jar") && parent.getName().equals("gui") &&  grandparent.getName().equals("data"))
+			return grandparent.getParentFile();
+		throw new MsfException("Cannot find path.");
 	}
 
 	/** Adds a module run to the recent modules list */

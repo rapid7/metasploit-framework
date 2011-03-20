@@ -33,8 +33,10 @@ public class RpcAction implements ActionListener {
 				for(Map session : parent.selectedSessions)
 					action(session);
 		}catch(Exception ex){
-			if(!ex.getMessage().equals("cancelled"))
+			if(!ex.getMessage().equals("cancelled")){
 				JOptionPane.showMessageDialog(null, "Error in RPC call: "+ex);
+				ex.printStackTrace();
+			}
 		}
 	}
 	/** prepare() is provided to prepare state of action handler

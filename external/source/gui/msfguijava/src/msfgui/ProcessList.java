@@ -1,8 +1,11 @@
 package msfgui;
 
+import java.awt.Component;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.swing.JOptionPane;
@@ -24,28 +27,49 @@ public class ProcessList extends MsfFrame {
 	static void showList(RpcConnection rpcConn, Map session, Map sessionWindowMap) {
 		Object processListWindow = sessionWindowMap.get(session.get("id")+"procList");
 		if(processListWindow == null){
-			processListWindow = new ProcessList(rpcConn,session,sessionWindowMap);
+			processListWindow = new ProcessList(rpcConn,session,sessionWindowMap).mainPanel;
 			sessionWindowMap.put(session.get("id")+"procList",processListWindow);
 		}
-		((MsfFrame)processListWindow).setVisible(true);
+		DraggableTabbedPane.show((Component)processListWindow);
 	}
 
 	/** Creates new form ProcessList */
 	public ProcessList(final RpcConnection rpcConn, final Map session, Map sessionPopupMap) {
 		super("Meterpreter remote process list");
 		initComponents();
+		tabbedPane.setTitleAt(0, "Session "+session.get("id")+" process list");
 		loadSavedSize();
 		model = new DefaultTableModel(){
 			public boolean isCellEditable(int row, int col){
 				return false;
 			}
+            public Class getColumnClass(int columnIndex) {
+                try{
+					return getValueAt(0, columnIndex).getClass();
+				}catch(ArrayIndexOutOfBoundsException aioobex){
+					return java.lang.String.class;
+				}
+            }
 		};
 		processTable.setModel(model);
 		processTable.setShowHorizontalLines(false);
 		processTable.setShowVerticalLines(false);
+		processTable.setAutoCreateRowSorter(true);
 		this.rpcConn = rpcConn;
 		this.session = session;
-		this.lock = ((InteractWindow)sessionPopupMap.get(session.get("id")+"console")).lock;
+		this.lock = (ReentrantLock)sessionPopupMap.get(session.get("id")+"lock");
+		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
+			public void focusGained(FocusEvent e) {
+				if(!lock.isHeldByCurrentThread())
+					lock.lock();
+			}
+			public void focusLost(FocusEvent e) {
+				while(lock.getHoldCount() > 0)
+					lock.unlock();
+			}
+		});
+		lock.lock();
+		listProcs();
 	}
 
 	/** Lists the processes that are running */
@@ -112,38 +136,19 @@ public class ProcessList extends MsfFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        migrateButton = new javax.swing.JButton();
-        killButton = new javax.swing.JButton();
+        tabbedPane = new DraggableTabbedPane();
+        mainPanel = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         processTable = new javax.swing.JTable();
         refreshButton = new javax.swing.JButton();
+        migrateButton = new javax.swing.JButton();
+        killButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowClosing(java.awt.event.WindowEvent evt) {
-                formWindowClosing(evt);
-            }
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                formWindowOpened(evt);
-            }
-        });
 
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(ProcessList.class);
-        migrateButton.setText(resourceMap.getString("migrateButton.text")); // NOI18N
-        migrateButton.setName("migrateButton"); // NOI18N
-        migrateButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                migrateButtonActionPerformed(evt);
-            }
-        });
+        tabbedPane.setName("tabbedPane"); // NOI18N
 
-        killButton.setText(resourceMap.getString("killButton.text")); // NOI18N
-        killButton.setName("killButton"); // NOI18N
-        killButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                killButtonActionPerformed(evt);
-            }
-        });
+        mainPanel.setName("mainPanel"); // NOI18N
 
         jScrollPane1.setName("jScrollPane1"); // NOI18N
 
@@ -166,6 +171,7 @@ public class ProcessList extends MsfFrame {
         processTable.setName("processTable"); // NOI18N
         jScrollPane1.setViewportView(processTable);
 
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(ProcessList.class);
         refreshButton.setText(resourceMap.getString("refreshButton.text")); // NOI18N
         refreshButton.setName("refreshButton"); // NOI18N
         refreshButton.addActionListener(new java.awt.event.ActionListener() {
@@ -174,46 +180,66 @@ public class ProcessList extends MsfFrame {
             }
         });
 
+        migrateButton.setText(resourceMap.getString("migrateButton.text")); // NOI18N
+        migrateButton.setName("migrateButton"); // NOI18N
+        migrateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                migrateButtonActionPerformed(evt);
+            }
+        });
+
+        killButton.setText(resourceMap.getString("killButton.text")); // NOI18N
+        killButton.setName("killButton"); // NOI18N
+        killButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                killButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 590, Short.MAX_VALUE)
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(refreshButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 418, Short.MAX_VALUE)
+                        .addComponent(killButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(migrateButton)))
+                .addContainerGap())
+        );
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 358, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(refreshButton)
+                    .addComponent(migrateButton)
+                    .addComponent(killButton))
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab("tab1", mainPanel);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 807, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(refreshButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 588, Short.MAX_VALUE)
-                        .addComponent(killButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(migrateButton)))
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 622, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 602, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(migrateButton)
-                    .addComponent(killButton)
-                    .addComponent(refreshButton))
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 456, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-	private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
-		lock.unlock();
-	}//GEN-LAST:event_formWindowClosing
-
-	private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-		lock.lock();
-		listProcs();
-	}//GEN-LAST:event_formWindowOpened
 
 	private void migrateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_migrateButtonActionPerformed
 		runCommand("migrate "+processTable.getModel().getValueAt(processTable.getSelectedRow(),0));
@@ -232,8 +258,10 @@ public class ProcessList extends MsfFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JButton killButton;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JButton migrateButton;
     private javax.swing.JTable processTable;
     private javax.swing.JButton refreshButton;
+    private javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
 }

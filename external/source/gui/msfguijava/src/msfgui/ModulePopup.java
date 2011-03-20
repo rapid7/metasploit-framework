@@ -357,11 +357,6 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
         consoleRunButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        addComponentListener(new java.awt.event.ComponentAdapter() {
-            public void componentResized(java.awt.event.ComponentEvent evt) {
-                formComponentResized(evt);
-            }
-        });
 
         mainScrollPane.setName("mainScrollPane"); // NOI18N
 
@@ -508,10 +503,6 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 	private void consoleRunButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_consoleRunButton1ActionPerformed
 		runModule(true);
 	}//GEN-LAST:event_consoleRunButton1ActionPerformed
-
-	private void formComponentResized(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_formComponentResized
-		
-	}//GEN-LAST:event_formComponentResized
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel advancedLabel;

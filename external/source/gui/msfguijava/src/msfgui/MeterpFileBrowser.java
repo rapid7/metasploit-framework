@@ -3,7 +3,11 @@ package msfgui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +20,7 @@ import javax.swing.Icon;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JTable;
 import javax.swing.Timer;
@@ -38,16 +43,16 @@ public class MeterpFileBrowser extends MsfFrame {
 	protected JFileChooser fchooser;
 	protected JPopupMenu popupMenu;
 	protected final DefaultTableModel model;
-	protected InteractWindow interactWin;
+	protected JPanel interactPane;
 
 	/** Shows file interaction window for a session, creating one if necessary */
 	static void showBrowser(RpcConnection rpcConn, Map session, Map sessionWindowMap) {
 		Object browserWindow = sessionWindowMap.get(session.get("id")+"fileBrowser");
 		if(browserWindow == null){
-			browserWindow = new MeterpFileBrowser(rpcConn,session,sessionWindowMap);
+			browserWindow = new MeterpFileBrowser(rpcConn,session,sessionWindowMap).mainPanel;
 			sessionWindowMap.put(session.get("id")+"fileBrowser",browserWindow);
 		}
-		((MsfFrame)browserWindow).setVisible(true);
+		DraggableTabbedPane.show((Component)browserWindow);
 	}
 
 	/** Creates a new window for interacting with filesystem */
@@ -55,8 +60,8 @@ public class MeterpFileBrowser extends MsfFrame {
 		super("Meterpreter remote file browsing");
 		this.rpcConn = rpcConn;
 		this.session = session;
-		this.interactWin = ((InteractWindow)sessionPopupMap.get(session.get("id")+"console"));
-		this.lock = interactWin.lock;
+		this.interactPane = ((JPanel)sessionPopupMap.get(session.get("id")+"console"));
+		this.lock = (ReentrantLock) sessionPopupMap.get(session.get("id")+"lock");
 		files = new HashMap();
 		fileVector = new Vector(100);
 		initComponents();
@@ -65,7 +70,16 @@ public class MeterpFileBrowser extends MsfFrame {
 			public boolean isCellEditable(int row, int col){
 				return false;
 			}
+            public Class getColumnClass(int columnIndex) {
+                try{
+					return getValueAt(0, columnIndex).getClass();
+				}catch(ArrayIndexOutOfBoundsException aioobex){
+				}catch(NullPointerException aioobex){
+				}
+				return java.lang.String.class;
+            }
 		};
+		tabbedPane.setTitleAt(0, "Session "+session.get("id")+" file browser");
 		mainTable.setModel(model);
 		mainTable.setShowHorizontalLines(false);
 		mainTable.setShowVerticalLines(false);
@@ -108,6 +122,7 @@ public class MeterpFileBrowser extends MsfFrame {
 				return label;
 			}
 		});
+		mainTable.setAutoCreateRowSorter(true);
 		fchooser.setMultiSelectionEnabled(false);
 		popupMenu = new JPopupMenu();
 		JMenuItem men = new JMenuItem("Delete");
@@ -125,6 +140,28 @@ public class MeterpFileBrowser extends MsfFrame {
 		});
 		popupMenu.add(men);
 		setupPopupMenu( rpcConn, session);
+		//Set up locking so the console doesn't eat our output
+		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
+			public void focusGained(FocusEvent e) {
+				if(!lock.isHeldByCurrentThread())
+					lock.lock();
+			}
+			public void focusLost(FocusEvent e) {
+				while(lock.getHoldCount() > 0)
+					lock.unlock();
+			}
+		});
+		//Get initial view
+		lock.lock();
+		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
+		executeCommand("cd \"C:\\\\\"");
+		getFiles();
+		//See if we need to move our tab
+		Map props = MsfguiApp.getPropertiesNode();
+		if(!props.get("tabWindowPreference").equals("window")){
+			((DraggableTabbedPane)tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(interactPane));
+			DraggableTabbedPane.show(mainPanel);
+		}
 	}
 
 	/** Calls meterpreter_write with the session ID and Base64 encoded text. */
@@ -175,7 +212,7 @@ public class MeterpFileBrowser extends MsfFrame {
 	}
 
 	/** Retrieves list of files. */
-	protected void getFiles() {
+	private void getFiles() {
 		while(model.getRowCount() > 0)
 			model.removeRow(0);
 		executeCommand("ls");
@@ -257,93 +294,28 @@ public class MeterpFileBrowser extends MsfFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        downloadButton = new javax.swing.JButton();
-        uploadButton = new javax.swing.JButton();
-        deleteButton = new javax.swing.JButton();
-        dirButton = new javax.swing.JButton();
-        refreshButton = new javax.swing.JButton();
-        pwdLabel = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        mainTable = new javax.swing.JTable();
+        tabbedPane = new DraggableTabbedPane();
+        mainPanel = new javax.swing.JPanel();
         upButton = new javax.swing.JButton();
-        recSearchDownloadButton = new javax.swing.JButton();
+        pwdLabel = new javax.swing.JLabel();
         addressField = new javax.swing.JTextField();
         goButton = new javax.swing.JButton();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        mainTable = new javax.swing.JTable();
+        refreshButton = new javax.swing.JButton();
+        downloadButton = new javax.swing.JButton();
+        deleteButton = new javax.swing.JButton();
+        uploadButton = new javax.swing.JButton();
+        dirButton = new javax.swing.JButton();
+        recSearchDownloadButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
-        addWindowFocusListener(new java.awt.event.WindowFocusListener() {
-            public void windowGainedFocus(java.awt.event.WindowEvent evt) {
-                formWindowGainedFocus(evt);
-            }
-            public void windowLostFocus(java.awt.event.WindowEvent evt) {
-            }
-        });
-        addWindowListener(new java.awt.event.WindowAdapter() {
-            public void windowOpened(java.awt.event.WindowEvent evt) {
-                formWindowOpened(evt);
-            }
-            public void windowClosed(java.awt.event.WindowEvent evt) {
-                formWindowClosed(evt);
-            }
-        });
+
+        tabbedPane.setName("tabbedPane"); // NOI18N
+
+        mainPanel.setName("mainPanel"); // NOI18N
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(MeterpFileBrowser.class);
-        downloadButton.setText(resourceMap.getString("downloadButton.text")); // NOI18N
-        downloadButton.setName("downloadButton"); // NOI18N
-        downloadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                downloadButtonActionPerformed(evt);
-            }
-        });
-
-        uploadButton.setText(resourceMap.getString("uploadButton.text")); // NOI18N
-        uploadButton.setName("uploadButton"); // NOI18N
-        uploadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                uploadButtonActionPerformed(evt);
-            }
-        });
-
-        deleteButton.setText(resourceMap.getString("deleteButton.text")); // NOI18N
-        deleteButton.setName("deleteButton"); // NOI18N
-        deleteButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                deleteButtonActionPerformed(evt);
-            }
-        });
-
-        dirButton.setText(resourceMap.getString("dirButton.text")); // NOI18N
-        dirButton.setName("dirButton"); // NOI18N
-        dirButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                dirButtonActionPerformed(evt);
-            }
-        });
-
-        refreshButton.setText(resourceMap.getString("refreshButton.text")); // NOI18N
-        refreshButton.setName("refreshButton"); // NOI18N
-        refreshButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                refreshButtonActionPerformed(evt);
-            }
-        });
-
-        pwdLabel.setText(resourceMap.getString("pwdLabel.text")); // NOI18N
-        pwdLabel.setName("pwdLabel"); // NOI18N
-
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
-
-        mainTable.setModel(new javax.swing.table.DefaultTableModel(
-            new Object [][] {
-
-            },
-            new String [] {
-                "Title 1", "Title 2", "Title 3", "Title 4"
-            }
-        ));
-        mainTable.setName("mainTable"); // NOI18N
-        jScrollPane1.setViewportView(mainTable);
-
         upButton.setText(resourceMap.getString("upButton.text")); // NOI18N
         upButton.setName("upButton"); // NOI18N
         upButton.addActionListener(new java.awt.event.ActionListener() {
@@ -352,13 +324,8 @@ public class MeterpFileBrowser extends MsfFrame {
             }
         });
 
-        recSearchDownloadButton.setText(resourceMap.getString("recSearchDownloadButton.text")); // NOI18N
-        recSearchDownloadButton.setName("recSearchDownloadButton"); // NOI18N
-        recSearchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                recSearchDownloadButtonActionPerformed(evt);
-            }
-        });
+        pwdLabel.setText(resourceMap.getString("pwdLabel.text")); // NOI18N
+        pwdLabel.setName("pwdLabel"); // NOI18N
 
         addressField.setText(resourceMap.getString("addressField.text")); // NOI18N
         addressField.setName("addressField"); // NOI18N
@@ -376,71 +343,134 @@ public class MeterpFileBrowser extends MsfFrame {
             }
         });
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+        jScrollPane1.setName("jScrollPane1"); // NOI18N
+
+        mainTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+
+            },
+            new String [] {
+                "Title 1", "Title 2", "Title 3", "Title 4"
+            }
+        ));
+        mainTable.setName("mainTable"); // NOI18N
+        jScrollPane1.setViewportView(mainTable);
+
+        refreshButton.setText(resourceMap.getString("refreshButton.text")); // NOI18N
+        refreshButton.setName("refreshButton"); // NOI18N
+        refreshButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                refreshButtonActionPerformed(evt);
+            }
+        });
+
+        downloadButton.setText(resourceMap.getString("downloadButton.text")); // NOI18N
+        downloadButton.setName("downloadButton"); // NOI18N
+        downloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                downloadButtonActionPerformed(evt);
+            }
+        });
+
+        deleteButton.setText(resourceMap.getString("deleteButton.text")); // NOI18N
+        deleteButton.setName("deleteButton"); // NOI18N
+        deleteButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                deleteButtonActionPerformed(evt);
+            }
+        });
+
+        uploadButton.setText(resourceMap.getString("uploadButton.text")); // NOI18N
+        uploadButton.setName("uploadButton"); // NOI18N
+        uploadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                uploadButtonActionPerformed(evt);
+            }
+        });
+
+        dirButton.setText(resourceMap.getString("dirButton.text")); // NOI18N
+        dirButton.setName("dirButton"); // NOI18N
+        dirButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                dirButtonActionPerformed(evt);
+            }
+        });
+
+        recSearchDownloadButton.setText(resourceMap.getString("recSearchDownloadButton.text")); // NOI18N
+        recSearchDownloadButton.setName("recSearchDownloadButton"); // NOI18N
+        recSearchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                recSearchDownloadButtonActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 739, Short.MAX_VALUE)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(refreshButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 94, Short.MAX_VALUE)
-                        .addComponent(recSearchDownloadButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(dirButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(uploadButton)
-                        .addGap(18, 18, 18)
-                        .addComponent(deleteButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(downloadButton))
-                    .addGroup(layout.createSequentialGroup()
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 893, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, mainPanelLayout.createSequentialGroup()
                         .addComponent(upButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pwdLabel)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(addressField, javax.swing.GroupLayout.DEFAULT_SIZE, 580, Short.MAX_VALUE)
+                        .addComponent(addressField, javax.swing.GroupLayout.DEFAULT_SIZE, 728, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(goButton))
+                    .addGroup(mainPanelLayout.createSequentialGroup()
+                        .addComponent(refreshButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 254, Short.MAX_VALUE)
+                        .addComponent(recSearchDownloadButton)
+                        .addGap(18, 18, 18)
+                        .addComponent(dirButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(uploadButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(goButton)))
+                        .addComponent(deleteButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(downloadButton)))
                 .addContainerGap())
         );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(upButton)
                     .addComponent(pwdLabel)
+                    .addComponent(addressField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(goButton))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 532, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(refreshButton)
                     .addComponent(downloadButton)
                     .addComponent(deleteButton)
                     .addComponent(uploadButton)
                     .addComponent(dirButton)
-                    .addComponent(refreshButton)
                     .addComponent(recSearchDownloadButton))
                 .addContainerGap())
         );
 
+        tabbedPane.addTab("tab1", mainPanel);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
+        getContentPane().setLayout(layout);
+        layout.setHorizontalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 925, Short.MAX_VALUE)
+        );
+        layout.setVerticalGroup(
+            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addComponent(tabbedPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 567, Short.MAX_VALUE)
+        );
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-	private void formWindowClosed(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosed
-		lock.unlock();
-	}//GEN-LAST:event_formWindowClosed
-
-	private void formWindowOpened(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowOpened
-		lock.lock();
-		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
-		executeCommand("cd \"C:\\\\\"");
-		getFiles();
-	}//GEN-LAST:event_formWindowOpened
 
 	private void downloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_downloadButtonActionPerformed
 		download();
@@ -484,7 +514,8 @@ public class MeterpFileBrowser extends MsfFrame {
 				new SearchDwldOptionsDialog(this, currentDir).toString());
 			setVisible(false);
 			dispose();
-			interactWin.setVisible(true);
+
+			DraggableTabbedPane.show(interactPane);
 		}catch (NullPointerException nex){//cancelled
 		}catch (Exception ex){
 			JOptionPane.showMessageDialog(null, ex);
@@ -507,11 +538,6 @@ public class MeterpFileBrowser extends MsfFrame {
 		applyDirectoryChange();
 	}//GEN-LAST:event_addressFieldActionPerformed
 
-	private void formWindowGainedFocus(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowGainedFocus
-		if(!lock.isHeldByCurrentThread())
-			lock.lock();
-	}//GEN-LAST:event_formWindowGainedFocus
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField addressField;
     private javax.swing.JButton deleteButton;
@@ -519,10 +545,12 @@ public class MeterpFileBrowser extends MsfFrame {
     private javax.swing.JButton downloadButton;
     private javax.swing.JButton goButton;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JPanel mainPanel;
     private javax.swing.JTable mainTable;
     private javax.swing.JLabel pwdLabel;
     private javax.swing.JButton recSearchDownloadButton;
     private javax.swing.JButton refreshButton;
+    private javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JButton upButton;
     private javax.swing.JButton uploadButton;
     // End of variables declaration//GEN-END:variables

@@ -25,6 +25,7 @@ public abstract class PopupMouseListener extends MouseAdapter{
 				JOptionPane.showMessageDialog(null, "action failed " + xre);
 			}
 		}
-		public abstract void doubleClicked (MouseEvent e) throws MsfException;
+		public void doubleClicked (MouseEvent e) throws MsfException{//empty by default
+		};
 		public abstract void showPopup(MouseEvent e);
 }

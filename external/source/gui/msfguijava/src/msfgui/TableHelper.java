@@ -10,19 +10,22 @@ import javax.swing.table.*;
  * @author scriptjunkie
  */
 public class TableHelper {
+	public static final int MARGIN = 4;
 
 	/** Sets preferred column widths for the table based on header and data content. */
 	public static void fitColumnWidths(TableModel model, JTable mainTable) {
 		for (int col = 0; col < model.getColumnCount();col++) {
 			TableColumn tc = mainTable.getColumnModel().getColumn(col);
-			TableCellRenderer tcr = mainTable.getDefaultRenderer(model.getColumnClass(col));
+			TableCellRenderer tcr = mainTable.getTableHeader().getDefaultRenderer();
 			int width = tcr.getTableCellRendererComponent(mainTable,
-					model.getColumnName(col), false, false, 0, col).getPreferredSize().width;
+					model.getColumnName(col), false, false, 0, col).getPreferredSize().width + MARGIN;
+			if(model.getRowCount() > 0)
+				tcr = mainTable.getDefaultRenderer(model.getColumnClass(col));
 			for (int row = 0; row < model.getRowCount();row++) {
 				Component c = tcr.getTableCellRendererComponent(mainTable,
 						model.getValueAt(row, col), false, false, row, col);
-				if (width < c.getPreferredSize().width)
-					width = c.getPreferredSize().width;
+				if (width < c.getPreferredSize().width + MARGIN)
+					width = c.getPreferredSize().width + MARGIN;
 			}
 			tc.setPreferredWidth(width);
 		}
@@ -41,14 +44,26 @@ public class TableHelper {
 				continue;
 			}
 			if(lastWhitespace && !Character.isWhitespace(headerRow.charAt(i))){
-				output.add(val.toString().trim());
+				//If it's a number, make it an integer; otherwise a string
+				String cell = val.toString().trim();
+				try{
+					output.add(Integer.parseInt(cell));
+				}catch(NumberFormatException nex){
+					output.add(cell);
+				}
 				val.delete(0, val.length());
 			}
 			if(line.length() > i)
 				val.append(line.charAt(i));
 			lastWhitespace = Character.isWhitespace(headerRow.charAt(i));
 		}
-		output.add(val.toString().trim());
+		//If it's a number, make it an integer; otherwise a string
+		String cell = val.toString().trim();
+		try{
+			output.add(Integer.parseInt(cell));
+		}catch(NumberFormatException nex){
+			output.add(cell);
+		}
 		return output;
 	}
 }

@@ -1,6 +1,13 @@
 package msfgui;
 
 import java.awt.Font;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
@@ -16,7 +23,7 @@ import org.jdesktop.swingworker.SwingWorker;
  * Only polls for output when open.
  * @author scriptjunkie
  */
-public class InteractWindow extends MsfFrame {
+public class InteractWindow extends MsfFrame implements ClipboardOwner {
 	public final ReentrantLock lock = new ReentrantLock();
 	private final Map session;
 	private final RpcConnection rpcConn;
@@ -30,6 +37,10 @@ public class InteractWindow extends MsfFrame {
 	private final ArrayList commands;
 	private int currentCommand = 0;
 
+	/** Create a new console window to run a command */
+	public static InteractWindow runCmdWindow(final RpcConnection rpcConn, final Map session, final String autoCommand){
+		return new InteractWindow(rpcConn, session, java.util.Arrays.asList(new String[]{autoCommand}));
+	}
 	/** Create a new console window to run a module */
 	public InteractWindow(final RpcConnection rpcConn, final Map session, final List autoCommands){
 		this(rpcConn, session, "console");
@@ -73,6 +84,7 @@ public class InteractWindow extends MsfFrame {
 		this.rpcConn = rpcConn;
 		this.session = session;
 		sid = session.get("id");
+		tabbedPane.setTitleAt(0, type+" "+sid);
 		commands = new ArrayList();
 		commands.add("");
 		if(type.equals("console")) //console stuff
@@ -97,14 +109,10 @@ public class InteractWindow extends MsfFrame {
 					for(Object o : tabs){
 						String s = o.toString();
 						int len = Math.min(s.length(), prefix.length());
-						for(int i = 0; i < len; i++){
-							if(s.charAt(i) != prefix.charAt(i)){
-								prefix = prefix.substring(0,i);
-								break;
-							}
-							if(s.length()< prefix.length())
-								prefix = s;
-						}
+						String newprefix = prefix;
+						for(int i = 0; i < len && s.charAt(i) == prefix.charAt(i); i++)
+							newprefix = prefix.substring(0,i+1);
+						prefix = newprefix;
 						outputArea.append("\n"+o.toString());
 					}
 					outputArea.append("\n");
@@ -179,6 +187,15 @@ public class InteractWindow extends MsfFrame {
 			inputField.setText("help");
 		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), 12));
 		checkPrompt(session);
+		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
+			public void focusGained(FocusEvent e) {
+				activate();
+			}
+			public void focusLost(FocusEvent e) {
+				while(lock.getHoldCount() > 0)
+					lock.unlock();
+			}
+		});
 	}
 	/** Also sets initial command */
 	public InteractWindow(final RpcConnection rpcConn, final Map session, String type, String initVal) {
@@ -225,11 +242,12 @@ public class InteractWindow extends MsfFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        tabbedPane = new DraggableTabbedPane();
         outputScrollPane = new javax.swing.JScrollPane();
         outputArea = new javax.swing.JTextArea();
+        promptLabel = new javax.swing.JLabel();
         inputField = new javax.swing.JTextField();
         submitButton = new javax.swing.JButton();
-        promptLabel = new javax.swing.JLabel();
 
         addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowOpened(java.awt.event.WindowEvent evt) {
@@ -243,6 +261,10 @@ public class InteractWindow extends MsfFrame {
             }
         });
 
+        tabbedPane.setName("tabbedPane"); // NOI18N
+
+        mainPanel.setName("mainPanel"); // NOI18N
+
         outputScrollPane.setAutoscrolls(true);
         outputScrollPane.setName("outputScrollPane"); // NOI18N
 
@@ -253,6 +275,9 @@ public class InteractWindow extends MsfFrame {
         outputScrollPane.setViewportView(outputArea);
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(InteractWindow.class);
+        promptLabel.setText(resourceMap.getString("promptLabel.text")); // NOI18N
+        promptLabel.setName("promptLabel"); // NOI18N
+
         inputField.setText(resourceMap.getString("inputField.text")); // NOI18N
         inputField.setName("inputField"); // NOI18N
         inputField.addActionListener(new java.awt.event.ActionListener() {
@@ -274,36 +299,42 @@ public class InteractWindow extends MsfFrame {
             }
         });
 
-        promptLabel.setText(resourceMap.getString("promptLabel.text")); // NOI18N
-        promptLabel.setName("promptLabel"); // NOI18N
+        javax.swing.GroupLayout mainPanelLayout = new javax.swing.GroupLayout(mainPanel);
+        mainPanel.setLayout(mainPanelLayout);
+        mainPanelLayout.setHorizontalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(mainPanelLayout.createSequentialGroup()
+                .addComponent(promptLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(inputField, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(submitButton)
+                .addContainerGap())
+            .addComponent(outputScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 623, Short.MAX_VALUE)
+        );
+        mainPanelLayout.setVerticalGroup(
+            mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, mainPanelLayout.createSequentialGroup()
+                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 465, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(mainPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(promptLabel)
+                    .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(submitButton))
+                .addContainerGap())
+        );
+
+        tabbedPane.addTab(resourceMap.getString("mainPanel.TabConstraints.tabTitle"), mainPanel); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(promptLabel)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(inputField, javax.swing.GroupLayout.DEFAULT_SIZE, 628, Short.MAX_VALUE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(submitButton))
-                    .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 737, Short.MAX_VALUE))
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 631, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(outputScrollPane, javax.swing.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(inputField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(submitButton)
-                    .addComponent(promptLabel))
-                .addContainerGap())
+            .addComponent(tabbedPane, javax.swing.GroupLayout.DEFAULT_SIZE, 551, Short.MAX_VALUE)
         );
 
         pack();
@@ -327,8 +358,13 @@ public class InteractWindow extends MsfFrame {
 		}else if (evt.isControlDown()) {
 			try {
 				if (evt.getKeyCode() == KeyEvent.VK_C){
-					rpcConn.execute(cmdPrefix+"session_kill", session.get("id"));
-					outputArea.append("killing session...\n");
+					String selText = outputArea.getSelectedText();
+					if(selText != null && selText.length() > 0){
+						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(selText), this);
+					}else{
+						rpcConn.execute(cmdPrefix+"session_kill", session.get("id"));
+						outputArea.append("killing session...\n");
+					}
 				}else  if (evt.getKeyCode() == KeyEvent.VK_Z){
 					rpcConn.execute(cmdPrefix+"session_detach", session.get("id"));
 					outputArea.append("backgrounding session...\n");
@@ -348,17 +384,30 @@ public class InteractWindow extends MsfFrame {
 	}//GEN-LAST:event_formWindowClosing
 
 	private void formWindowActivated(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowActivated
+		activate();
+	}//GEN-LAST:event_formWindowActivated
+
+	/**
+	 * Starts the polling process again
+	 */
+	public void activate(){
 		timerCommand.setCharAt(0, POLL);
 		synchronized(timerCommand){
 			timerCommand.notify();
 		}
-	}//GEN-LAST:event_formWindowActivated
+	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextField inputField;
+    public final javax.swing.JPanel mainPanel = new javax.swing.JPanel();
     private javax.swing.JTextArea outputArea;
     private javax.swing.JScrollPane outputScrollPane;
     private javax.swing.JLabel promptLabel;
     private javax.swing.JButton submitButton;
+    public javax.swing.JTabbedPane tabbedPane;
     // End of variables declaration//GEN-END:variables
+
+	/** ok */
+	public void lostOwnership(Clipboard clipboard, Transferable contents) {
+	}
 }
