@@ -49,11 +49,6 @@ class Core
 		"-l" => [ false, "List all background threads."                   ],
 		"-v" => [ false, "Print more detailed info.  Use with -i and -l"  ])
 
-	@@persist_opts = Rex::Parser::Arguments.new(
-		"-s" => [ true,  "Storage medium to be used (ex: flatfile)."      ],
-		"-r" => [ false, "Restore framework state."                       ],
-		"-h" => [ false, "Help banner."                                   ])
-
 	@@connect_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ],
 		"-p" => [ true,  "List of proxies to use."                        ],
@@ -94,10 +89,6 @@ class Core
 			"jobs"     => "Displays and manages jobs",
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
-
-# XXX complete this before re-enabling
-#			"persist"  => "Persist or restore framework state information",
-
 			"loadpath" => "Searches for and loads modules from a path",
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
@@ -852,61 +843,6 @@ class Core
 			}
 		rescue Exception
 		end
-	end
-
-	#
-	# This method persists or restores framework state from a persistent
-	# storage medium, such as a flatfile.
-	#
-	def cmd_persist(*args)
-		defanged?
-
-		if (args.length == 0)
-			args.unshift("-h")
-		end
-
-		arg_idx = 0
-		restore = false
-		storage = 'flatfile'
-
-		@@persist_opts.parse(args) { |opt, idx, val|
-			case opt
-				when "-s"
-					storage = val
-					arg_idx = idx + 2
-				when "-r"
-					restore = true
-					arg_idx = idx + 1
-				when "-h"
-					print(
-						"Usage: persist [-r] -s storage arg1 arg2 arg3 ...\n\n" +
-						"Persist or restore framework state information.\n" +
-						@@persist_opts.usage())
-					return false
-			end
-		}
-
-		# Chop off all the non-arguments
-		args = args[arg_idx..-1]
-
-		begin
-			if (inst = Msf::PersistentStorage.create(storage, *args))
-				inst.store(framework)
-			else
-				print_error("Failed to find storage medium named '#{storage}'")
-			end
-		rescue
-			log_error("Failed to persist to #{storage}: #{$!}")
-		end
-	end
-
-	#
-	# Tab completion for the persist command
-	#
-	def cmd_persist_tabs(str, words)
-		return [] if words.length > 1
-
-		@@persist_opts.fmt.keys
 	end
 
 	#
