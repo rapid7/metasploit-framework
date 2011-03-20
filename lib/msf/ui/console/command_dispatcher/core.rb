@@ -71,7 +71,7 @@ class Core
 
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
-	DefangedProhibitedDataStoreElements = [ "ModulePaths" ]
+	DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
 
 	# Returns the list of commands supported by this command dispatcher
 	def commands
@@ -93,6 +93,7 @@ class Core
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
 			"makerc"   => "Save commands entered since start to a file",
+			"reload_all" => "Reloads all modules from all defined module paths",
 			"route"    => "Route traffic through a session",
 			"save"     => "Saves the active datastores",
 			"search"   => "Searches module names and descriptions",
@@ -143,6 +144,16 @@ class Core
 		driver.update_prompt
 	end
 
+
+	#
+	# Reload all module paths that we are aware of
+	#
+	def cmd_reload_all(*args)
+		print_status("Reloading modules from all module paths...")
+		framework.modules.reload_modules
+		cmd_banner()
+	end
+	
 	def cmd_resource_tabs(str, words)
 		return [] if words.length > 1
 

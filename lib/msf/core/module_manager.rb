@@ -157,8 +157,7 @@ class ModuleSet < Hash
 	# Forces all modules in this set to be loaded.
 	#
 	def force_load_set
-		each_module { |name, mod|
-		}
+		each_module { |name, mod| }
 	end
 
 	attr_reader   :module_type
@@ -650,6 +649,28 @@ class ModuleManager < ModuleSet
 
 	def register_type_extension(type, ext)
 	end
+	
+	#
+	# Reloads modules from all module paths
+	#
+	def reload_modules
+		invalidate_cache
+
+		self.module_history = {}
+		self.module_history_mtime = {}
+		self.clear
+		
+		self.enabled_types.each_key do |type|
+			module_sets[type].clear
+			init_module_set(type)
+		end
+		
+		module_paths.each do |path|
+			counts = load_modules(path, true)
+		end
+		
+		save_module_cache
+	end
 
 	#
 	# Reloads the module specified in mod.  This can either be an instance of a
@@ -858,6 +879,7 @@ protected
 	#
 	def load_module_from_file(path, file, loaded, recalc, counts, demand = false)
 
+
 		# If the file on disk hasn't changed with what we have stored in the
 		# cache, then there's no sense in loading it
 		if (!has_module_file_changed?(file))
@@ -1001,6 +1023,7 @@ protected
 		# off to a special payload set.  The payload set, in turn, will
 		# automatically create all the permutations after all the payload
 		# modules have been loaded.
+		
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
