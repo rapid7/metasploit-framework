@@ -1,0 +1,92 @@
+##
+# $Id$
+##
+
+##
+# ## This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+require 'rex'
+require 'msf/core/post/common'
+
+
+class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
+	include Msf::Auxiliary::Report
+
+
+	def initialize(info={})
+		super( update_info( info,
+				'Name'          => 'ARP Scanner',
+				'Description'   => %q{ This Module will perform an ARP Scan for a given IP range thru a
+					Meterpreter Session.},
+				'License'       => MSF_LICENSE,
+				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+				'Version'       => '$Revision$',
+				'Platform'      => [ 'windows' ],
+				'SessionTypes'  => [ 'meterpreter']
+			))
+		register_options(
+			[
+				OptString.new('RHOSTS', [true, 'Description', nil]),
+				OptInt.new('THREADS', [false, 'Description', 10])
+
+			], self.class)
+	end
+
+	# Run Method for when run command is issued
+	def run
+		print_status("Running module against #{sysinfo['Computer']}")
+		arp_scan(datastore['RHOSTS'], datastore['THREADS'])
+	end
+
+
+	def arp_scan(cidr,threads)
+		print_status("ARP Scanning #{cidr}")
+		ws = client.railgun.ws2_32
+		iphlp = client.railgun.iphlpapi
+		i, a = 0, []
+		iplst,found = [],""
+		ipadd = Rex::Socket::RangeWalker.new(cidr)
+		numip = ipadd.num_ips
+		while (iplst.length < numip)
+			ipa = ipadd.next_ip
+			if (not ipa)
+				break
+			end
+			iplst << ipa
+		end
+		iplst.each do |ip_text|
+			if i < threads
+				a.push(::Thread.new {
+						h = ws.inet_addr(ip_text)
+						ip = h["return"]
+						h = iphlp.SendARP(ip,0,6,6)
+						if h["return"] == client.railgun.const("NO_ERROR")
+							mac = h["pMacAddr"]
+							mac_text = mac[0].ord.to_s(16) + ":" +
+							  mac[1].ord.to_s(16) + ":" +
+							  mac[2].ord.to_s(16) + ":" +
+							  mac[3].ord.to_s(16) + ":" +
+							  mac[4].ord.to_s(16) + ":" +
+							  mac[5].ord.to_s(16)
+							print_status("\tIP: #{ip_text} MAC #{mac_text}")
+							report_host(:host => ip_text,:mac => mac_text)
+						end
+					})
+				i += 1
+			else
+				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+				i = 0
+			end
+		end
+		a.delete_if {|x| not x.alive?} while not a.empty?
+		return found
+	end
+
+end
