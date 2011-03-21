@@ -457,8 +457,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_sysinfo(*args)
 		info = client.sys.config.sysinfo
-		width = 0
-		info.keys.each { |k| width = k.length if k.length > width }
+		width = "Meterpreter".length
+		info.keys.each { |k| width = k.length if k.length > width and info[k] }
 
 		info.each_pair do |key, value|
 			print_line("#{key.ljust(width+1)}: #{value}") if value
