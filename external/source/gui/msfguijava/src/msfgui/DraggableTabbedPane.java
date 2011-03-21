@@ -139,6 +139,7 @@ public class DraggableTabbedPane extends JTabbedPane{
 		for(int i = 0; i < pane.getTabCount(); i++)
 			if(pane.getComponentAt(i).equals(subParent))
 				pane.setSelectedIndex(i);
+		lastFocusListener = (FocusListener)pane.focusListeners.get(pane.getSelectedComponent());
 		//Also make containing window show up
 		for(par = pane.getParent(); !(par instanceof Window); par = par.getParent())
 			;

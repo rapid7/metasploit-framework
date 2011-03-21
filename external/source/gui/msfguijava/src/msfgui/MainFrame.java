@@ -28,6 +28,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Task;
@@ -1936,8 +1937,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				UIManager.setLookAndFeel(classname);
 				info.put("LnF", classname);
 			}catch(Exception ulafex){
-				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-				info.put("LnF", UIManager.getSystemLookAndFeelClassName());
+				String newLnF = UIManager.getSystemLookAndFeelClassName();
+				//Prefer nimbus
+				for(LookAndFeelInfo lookAndFeel : UIManager.getInstalledLookAndFeels())
+					if(lookAndFeel.getClassName().equals("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"))
+						newLnF = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+				UIManager.setLookAndFeel(newLnF);
+				info.put("LnF", newLnF);
 			}
 			SwingUtilities.updateComponentTreeUI(this.getFrame());
 			this.getFrame().pack();

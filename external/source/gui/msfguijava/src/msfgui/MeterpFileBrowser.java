@@ -6,8 +6,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowFocusListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
@@ -151,17 +149,17 @@ public class MeterpFileBrowser extends MsfFrame {
 					lock.unlock();
 			}
 		});
-		//Get initial view
-		lock.lock();
-		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
-		executeCommand("cd \"C:\\\\\"");
-		getFiles();
 		//See if we need to move our tab
 		Map props = MsfguiApp.getPropertiesNode();
 		if(!props.get("tabWindowPreference").equals("window")){
 			((DraggableTabbedPane)tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(interactPane));
 			DraggableTabbedPane.show(mainPanel);
 		}
+		//Get initial view
+		lock.lock();
+		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
+		executeCommand("cd \"C:\\\\\"");
+		getFiles();
 	}
 
 	/** Calls meterpreter_write with the session ID and Base64 encoded text. */
