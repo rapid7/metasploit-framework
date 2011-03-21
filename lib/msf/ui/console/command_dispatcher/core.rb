@@ -1739,7 +1739,7 @@ class Core
 						print_error("No exploit module selected.")
 					end
 				when "actions"
-					if (mod and mod.auxiliary?)
+					if (mod and (mod.auxiliary? or mod.post?))
 						show_actions(mod)
 					else
 						print_error("No auxiliary module selected.")
