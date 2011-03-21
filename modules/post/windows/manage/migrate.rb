@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptBool.new('SPAWN', [ false, 'Spawn process to migrate to. If name for process not given notepad.exe used', false]),
+				OptBool.new('SPAWN', [ false, 'Spawn process to migrate to. If name for process not given notepad.exe is used.', false]),
 				OptString.new('NAME', [false, 'Name of process to migrate to.', nil]),
 
 
