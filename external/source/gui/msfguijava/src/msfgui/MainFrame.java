@@ -1925,7 +1925,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 	/** Sets look and feel to preset or default */
 	private void setLnF(){
-		setLnF(MsfguiApp.getPropertiesNode().get("LnF").toString());
+		setLnF(""+MsfguiApp.getPropertiesNode().get("LnF"));
 	}
 	/** Sets look and feel of UI */
 	private void setLnF(String classname) {
