@@ -29,7 +29,7 @@ def initialize(info = {})
 
 	deregister_options("RPORT")
 	@nmap_args = []
-	@nmap_bin = nmap_binary_path
+	@nmap_bin = nmap_binary_path rescue "Could not locate the nmap binary"
 end
 
 def vprint_status(msg='')
