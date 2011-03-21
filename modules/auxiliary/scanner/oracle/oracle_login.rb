@@ -99,8 +99,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def create_credfile
 		outfile = Rex::Quickfile.new("msf3-ora-creds-")
-		if Rex::Compat.is_cygwin and nmap_binary_path =~ /cygdrive/i
-			outfile_path = Rex::Compat.cygwin_to_win32(nmap_outfile.path)
+		if Rex::Compat.is_cygwin and self.nmap_bin =~ /cygdrive/i
+			outfile_path = Rex::Compat.cygwin_to_win32(outfile.path)
 		else
 			outfile_path = outfile.path
 		end

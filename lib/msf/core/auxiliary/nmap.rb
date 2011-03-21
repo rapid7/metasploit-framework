@@ -29,7 +29,7 @@ def initialize(info = {})
 
 	deregister_options("RPORT")
 	@nmap_args = []
-	@nmap_bin = nmap_binary_path rescue "Could not locate the nmap binary"
+	@nmap_bin = nmap_binary_path 
 end
 
 def vprint_status(msg='')
@@ -56,6 +56,7 @@ def rport
 end
 
 def set_nmap_cmd
+	self.nmap_bin || (raise RuntimeError, "Cannot locate nmap binary")
 	nmap_set_log
 	nmap_add_ports
 	nmap_cmd = [self.nmap_bin]
@@ -108,8 +109,6 @@ def nmap_binary_path
 		else
 			return fullpath
 		end
-	else
-		raise RuntimeError, "Cannot locate the nmap binary"
 	end
 end
 
@@ -118,8 +117,8 @@ end
 # Only supports XML format since that's the most useful.
 def nmap_set_log
 	outfile = Rex::Quickfile.new("msf3-nmap-")
-	if Rex::Compat.is_cygwin and nmap_binary_path =~ /cygdrive/i
-		outfile_path = Rex::Compat.cygwin_to_win32(nmap_outfile.path)
+	if Rex::Compat.is_cygwin and self.nmap_bin =~ /cygdrive/i
+		outfile_path = Rex::Compat.cygwin_to_win32(outfile.path)
 	else
 		outfile_path = outfile.path
 	end
@@ -226,6 +225,7 @@ end
 # module to ferret out whatever's interesting in this host
 # object.
 def nmap_hosts(&block)
+	@nmap_bin || (raise RuntimeError, "Cannot locate the nmap binary.")
 	print_status "Nmap: processing hosts from #{self.nmap_log[1]}..."
 	fh = self.nmap_log[0]
 	nmap_data = fh.read(fh.stat.size)
