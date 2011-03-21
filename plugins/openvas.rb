@@ -6,9 +6,10 @@
 #
 # Typical usage:
 # load openvas
-# db_create
+# db_connect
 # openvas_connect test test localhost 9390 ok
 # openvas_scan localhost
+# Type openvas_help for more
 
 require 'openvas/openvas-omp'
 
@@ -32,18 +33,23 @@ class Plugin::OpenVAS < Msf::Plugin
 				'openvas_task_pause'    => "Pause task by ID",
 				'openvas_task_resume'    => "Resume task by ID",
 				'openvas_task_resume_or_start'    => "Resume task or start task by ID",
-				'openvas_task_status'    => "Get status of task ID",
+				'openvas_task_info'    => "Get info about task ID",
 				'openvas_task_delete'    => "Delete task by ID",
+				'openvas_task_cleanup' => "Cleanup tasks automatically made",
 
 				'openvas_target_create'    => "Create target (name, hosts, comment)",
 				'openvas_target_list'    => "Display list of targets",
+				'openvas_target_info'      => "Get info about target ID",
 				'openvas_target_delete'  => "Delete target by ID",
+				'openvas_target_cleanup' => "Cleanup targets automatically made",
 
 				'openvas_config_list'    => "Quickly display list of configs",
+				'openvas_config_info'    => "Get info about config ID",
 				'openvas_report_import'	 => "Import report specified by ID to framework",
 				'openvas_report_save'	=> "Save report specified by ID and format to file",
 
 				'openvas_scan'           => "Launch an automatic OpenVAS scan against a specific IP range and import the results",
+				'openvas_cleanup'        => "Cleanup target/tasks automatically made",
 
 				'openvas_debug'          => "Sets debug level",
 				'openvas_disconnect'     => "Disconnect from OpenVAS manager",
@@ -63,22 +69,27 @@ openvas_disconnect		Disconnects from OpenVAS
 TARGETS
 =======
 openvas_target_list		Lists targets
+openvas_target_info		Display info about target specified by ID
 openvas_target_create		Create target
 openvas_target_delete		Deletes target specified by ID
+openvas_target_cleanup		Cleanup targets automatically made
 
 TASKS
 =====
 openvas_task_list		Lists tasks
+openvas_task_info		Display info about task specified by ID
 openvas_task_create		Create task 
 openvas_task_start		Starts task specified by ID
 openvas_task_stop		Stops task specified by ID
 openvas_task_pause		Pauses task specified by ID
 openvas_task_resume		Resumes task specified by ID
 openvas_task_resume_or_start	Resumes or starts task specified by ID
+openvas_task_cleanup		Cleanup tasks automatically made
 
 CONFIGS
 =======
 openvas_config_list		Lists configs
+openvas_config_info		Display info about config specified by ID
 
 REPORTS
 =======
@@ -88,6 +99,7 @@ openvas_report_save		Saves OpenVAS report specified by ID and format
 AUTO
 ====
 openvas_scan			Launch an automatic OpenVAS scan against a specific IP range and import the results automatically with optional autopwn
+openvas_cleanup			Cleanup target/tasks automatically made
 "
 			print_status(usage)
 		end
@@ -104,6 +116,104 @@ openvas_scan			Launch an automatic OpenVAS scan against a specific IP range and 
 			end
 
 			true
+		end
+
+		def openvas_task_cleanup
+			return if not openvas_verify
+			begin
+				@ov.task_get_all().each do |task|
+					if task['comment'] == @ovcomment
+						print_status(">> Deleting: #{task['name']} with ID #{task['id']}")
+						@ov.task_delete(task['id']);
+#					else
+#						print_status(">> Skipping: #{task['name']} with ID #{task['id']}")
+					end
+				end
+				print_good("Completed deleting tasks.")
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
+		def openvas_target_cleanup
+			return if not openvas_verify
+			begin
+				@ov.target_get_all().each do |target|
+					if target['comment'] == @ovcomment
+						if target['in_use'] == '0'
+							print_status(">> Deleting: #{target['name']} with ID #{target['id']}")
+							@ov.target_delete(target['id'])
+						else
+							print_error(">> Target in use(#{target['in_use']}), not deleting #{target['name']} with ID #{target['id']}")
+						end
+#					else
+#						print_status(">> Skipping: #{target['name']} with ID #{target['id']}")
+					end
+				end
+				print_good("Completed deleting targets.")
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
+		def cmd_openvas_task_cleanup(*args)
+			usagecmd="openvas_task_cleanup yes
+Example: openvas_task_cleanup yes"
+			return if not openvas_verify
+			if(args.length == 0 or args[0].empty? or args[0] == "-h")
+				print_status(usagecmd)
+				return
+			end
+			begin
+				if args[0] != "yes"
+					print_error("Please, type yes as argument")
+					return
+				end
+				openvas_task_cleanup
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
+		def cmd_openvas_target_cleanup(*args)
+			usagecmd="openvas_target_cleanup yes
+Example: openvas_target_cleanup yes"
+			return if not openvas_verify
+			if(args.length == 0 or args[0].empty? or args[0] == "-h")
+				print_status(usagecmd)
+				return
+			end
+			begin
+				if args[0] != "yes"
+					print_error("Please, type yes as argument")
+					return
+				end
+				openvas_target_cleanup
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
+		def cmd_openvas_cleanup(*args)
+			usagecmd="openvas_cleanup yes
+Example: openvas_cleanup yes"
+			return if not openvas_verify
+			if(args.length == 0 or args[0].empty? or args[0] == "-h")
+				print_status(usagecmd)
+				return
+			end
+			begin
+				if args[0] != "yes"
+					print_error("Please, type yes as argument")
+					return
+				end
+				print_status("Doing task cleanup")
+				openvas_task_cleanup
+				print_status("Doing target cleanup")
+				openvas_target_cleanup
+			rescue ::Exception
+				print_error("Error executing")
+			end
 		end
 
 		def cmd_openvas_debug(*args)
@@ -241,32 +351,28 @@ Example: openvas_task_delete 9fd90790-a79b-49e0-b08e-6912afde72f4"
 			end
 		end
 
-		def cmd_openvas_task_status(*args)
-			usagecmd="openvas_task_status <id>
-Example: openvas_task_status 9fd90790-a79b-49e0-b08e-6912afde72f4"
+		def cmd_openvas_task_info(*args)
+			usagecmd="openvas_task_info <id>
+Example: openvas_task_info 9fd90790-a79b-49e0-b08e-6912afde72f4"
 			return if not openvas_verify
 			if (args.length == 0 or args[0].empty? or args[0] == "-h")
 				print_status(usagecmd)
 				return
 			end
 			begin
+				print_good("OpenVAS task info")
 				id=args[0]
-				tbl = Rex::Ui::Text::Table.new(
-					'Columns' => 
-					[ "ID", "Name", "Status", "Progress", "Comment","First Report","Last Report" ]
-				)
 				@ov.task_get_all("task_id"=>id).each do |task|
-					tbl << [ task["id"] , task["name"] , 
-						task["status"], 
-						task["progress"],
-						task["comment"],
-						task["firstreport"],
-						task["lastreport"] 
-					]
+					tbl = Rex::Ui::Text::Table.new(
+						'Columns' => 
+						[ "Field", "Value" ]
+					)
+					task.each_key do |key|
+						tbl.add_row([key,task[key]]);
+					end
+					puts "\n"
+					puts tbl.to_s + "\n"
 				end
-				print_good("OpenVAS task status")
-				puts "\n"
-				puts tbl.to_s + "\n"
 			rescue ::Exception
 				print_error("Error executing")
 			end
@@ -337,6 +443,37 @@ Example: openvas_target_list 9fd90790-a79b-49e0-b08e-6912afde72f4"
 			end
 		end
 
+		def cmd_openvas_target_info(*args)
+			usagecmd="openvas_target_info <id>
+Example: openvas_target_info 9fd90790-a79b-49e0-b08e-6912afde72f4"
+			return if not openvas_verify
+			if (args.length == 0 or args[0].empty? or args[0] == "-h")
+				print_status(usagecmd)
+				return
+			end
+			begin
+				print_good("OpenVAS target info")
+				id=args[0]
+				p={}
+				if id 
+					p={"target_id"=>id}
+				end
+				@ov.target_get_all(p).each do |target|
+					tbl = Rex::Ui::Text::Table.new(
+						'Columns' => 
+						[ "Field", "Value" ]
+					)
+					target.each_key do |key|
+						tbl.add_row([key,target[key]]);
+					end
+					puts "\n"
+					puts tbl.to_s + "\n"
+				end
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
 		def cmd_openvas_target_create(*args)
 			usagecmd="openvas_target_create <name> <hosts> <comment>
 
@@ -383,6 +520,9 @@ Example: openvas_target_delete 9fd90790-a79b-49e0-b08e-6912afde72f4"
 			end
 
 			user = pass = host = port = sslv = nil
+
+			@ovname="Metasploit"
+			@ovcomment="Autocreated by the Metasploit Framework"
 
 			case args.length
 			when 1,2
@@ -461,6 +601,37 @@ Example: openvas_config_list 9fd90790-a79b-49e0-b08e-6912afde72f4"
 				print_good("OpenVAS list of configs")
 				puts "\n"
 				puts tbl.to_s + "\n"
+			rescue ::Exception
+				print_error("Error executing")
+			end
+		end
+
+		def cmd_openvas_config_info(*args)
+			usagecmd="openvas_config_info <id>
+Example: openvas_config_info 9fd90790-a79b-49e0-b08e-6912afde72f4"
+			return if not openvas_verify
+			if (args.length == 0 or args[0].empty? or args[0] == "-h")
+				print_status(usagecmd)
+				return
+			end
+			begin
+				print_good("OpenVAS config info")
+				id=args[0]
+				p={}
+				if id 
+					p={"config_id"=>id}
+				end
+				@ov.config_get_all(p).each do |item|
+					tbl = Rex::Ui::Text::Table.new(
+						'Columns' => 
+						[ "Field", "Value" ]
+					)
+					item.each_key do |key|
+						tbl.add_row([key,item[key]]);
+					end
+					puts "\n"
+					puts tbl.to_s + "\n"
+				end
 			rescue ::Exception
 				print_error("Error executing")
 			end
@@ -618,11 +789,16 @@ Example: openvas_report_save 9fd90790-a79b-49e0-b08e-6912afde72f4 PDF /tmp/a.pdf
 				
 				ipstr=''
 				queue.each do |ip|
-					ipstr=ipstr+","+ip
+					if ipstr==''
+						ipstr=ip 
+					else
+						ipstr=ipstr+","+ip
+					end
 				end	
 				# Create a temporary site
-				mname="Metasploit-#{msfid}"
-				mcomment="Autocreated by the Metasploit Framework"
+				mname="#{@ovname}-#{msfid}"
+				mcomment=@ovcomment
+
 				mtarget=@ov.target_create({"name"=>mname, "hosts"=>ipstr, "comment"=>mcomment})		
 				
 				print_status(" >> Created temporary target #{mname} with id #{mtarget}") if opt_verbose
@@ -655,7 +831,7 @@ Example: openvas_report_save 9fd90790-a79b-49e0-b08e-6912afde72f4 PDF /tmp/a.pdf
 				prev = nil
 				while(true)
 					stat = @ov.task_get_byid(mtask)
-					break if stat["status"] == "Done" 
+					break if stat["status"] == "Done" or stat["status"] == "Stopped"
 					percent=stat["progress"]
 
 					stat = "Progress: #{percent} %"

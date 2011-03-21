@@ -394,7 +394,7 @@ module OpenVASOMP
 		# ov.target_delete(target_id)
 		# 
 		def target_delete (id) 
-			xmlreq=xml_attr("delete_task",{"target_id" => id}).to_s()
+			xmlreq=xml_attr("delete_target",{"target_id" => id}).to_s()
 			begin
 				xr=omp_request_xml(xmlreq)
 			rescue 
