@@ -9,7 +9,7 @@ import javax.swing.UIManager.LookAndFeelInfo;
  *
  * @author scriptjunkie
  */
-public class PreferencesFrame extends javax.swing.JFrame {
+public class PreferencesFrame extends MsfFrame {
 	private final Map prefs;
 	private String[] lookNFeels;
 
