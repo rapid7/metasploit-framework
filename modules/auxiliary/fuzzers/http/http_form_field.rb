@@ -30,7 +30,10 @@ class Metasploit3 < Msf::Auxiliary
 						of the form fields. You can optionally fuzz headers too
 						(option is enabled by default)
 			},
-			'Author'  => [ 'corelanc0d3r' ],
+			'Author'  => [
+				'corelanc0d3r',
+				'Paulino Calderon <calderon[at]websec.mx>' #Added cookie handling
+				],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
 			'References'    =>
@@ -41,10 +44,10 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new("URL", [ false, "The URL that contains the form", "/"]),
-				OptString.new("FORM", [ false, "The name of the form to use. Leave empty to fuzz all forms","" ] ),
-				OptString.new("FIELDS", [ false, "Name of the fields to fuzz. Leave empty to fuzz all fields","" ] ),
-				OptString.new("ACTION", [ false, "Form action full URI. Leave empty to autodetect","" ] ),
+				OptString.new('URL', [ false, "The URL that contains the form", "/"]),
+				OptString.new('FORM', [ false, "The name of the form to use. Leave empty to fuzz all forms","" ] ),
+				OptString.new('FIELDS', [ false, "Name of the fields to fuzz. Leave empty to fuzz all fields","" ] ),
+				OptString.new('ACTION', [ false, "Form action full URI. Leave empty to autodetect","" ] ),
 				OptInt.new('STARTSIZE', [ true, "Fuzzing string startsize.",1000]),
 				OptInt.new('ENDSIZE', [ true, "Max Fuzzing string size.",40000]),
 				OptInt.new('STEPSIZE', [ true, "Increment fuzzing string each attempt.",1000]),
@@ -53,9 +56,10 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('STOPAFTER', [ false, "Stop after x number of consecutive errors",2]),
 				OptBool.new('CYCLIC', [ true, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
 				OptBool.new('FUZZHEADERS', [ true, "Fuzz headers",true]),
-				OptString.new("HEADERFIELDS", [ false, "Name of the headerfields to fuzz. Leave empty to fuzz all fields","" ] ),
+				OptString.new('HEADERFIELDS', [ false, "Name of the headerfields to fuzz. Leave empty to fuzz all fields","" ] ),
 				OptString.new('TYPES', [ true, "Field types to fuzz","text,password,inputtextbox"]),
-				OptString.new("CODE", [ true, "Response code(s) indicating OK", "200,301,302,303" ] )
+				OptString.new('CODE', [ true, "Response code(s) indicating OK", "200,301,302,303" ] ),
+				OptBool.new('HANDLECOOKIES', [ true, "Appends cookies with every request.",false])
 			], self.class )
 	end
 
@@ -64,19 +68,22 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['SSL']
 			proto = "https://"
 		end
+		
 		useragent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.15) Gecko/2009102814 Ubuntu/8.10 (intrepid) Firefox/3.0.15"
 		if datastore['UserAgent'] != nil
 			if datastore['UserAgent'].length > 0
 				useragent = datastore['UserAgent']
 			end
 		end
+		
 		host = datastore['RHOST']
 		if datastore['VHOST']
 			if datastore['VHOST'].length > 0
 				host = datastore['VHOST']
 			end
 		end
-		@send_data= {
+		
+		@send_data = {
 				:uri => '',
 				:version => '1.1',
 				:method => 'POST',
@@ -91,8 +98,13 @@ class Metasploit3 < Msf::Auxiliary
 					'Keep-Alive' => '300',
 					'Connection' => 'keep-alive',
 					'Referer' => proto + datastore['RHOST'] + ":" + datastore['RPORT'],
-					'Content-Type' => 'application/x-www-form-urlencoded'
+					'Content-Type' => 'application/x-www-form-urlencoded',
 				}
+			}
+		@get_data_headers = {
+				'Host' => host,
+				'User-Agent' => useragent,
+				'Referer' => proto + datastore['RHOST'] + ":" + datastore['RPORT'],
 			}
 	end
 
@@ -474,7 +486,13 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return forms
 	end
-
+	def extract_cookie(body)
+		return body["Set-Cookie"]
+	end
+	def set_cookie(cookie)
+		@get_data_headers["Cookie"]=cookie
+		@send_data[:headers]["Cookie"]=cookie
+	end
 	def run
 		init_fuzzdata()
 		init_vars()
@@ -484,8 +502,28 @@ class Metasploit3 < Msf::Auxiliary
 		{
 			'uri' => datastore['URL'],
 			'version' => '1.1',
-			'method' => 'GET'
+			'method' => 'GET',
+			'headers' => @get_data_headers
+
 		}, datastore['TIMEOUT'])
+		if response == nil
+			print_error("[-] No response")
+			return
+		end
+		if datastore['HANDLECOOKIES']
+			cookie = extract_cookie(response.headers)
+			set_cookie(cookie)
+			print_status("[+] Set cookie:#{cookie}")
+			print_status("[+] Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']} using cookies")
+			
+			response = send_request_raw(
+			{
+				'uri' => datastore['URL'],
+				'version' => '1.1',
+				'method' => 'GET',
+				'headers' => @get_data_headers
+			}, datastore['TIMEOUT'])
+		end
 		if response == nil
 			print_error("[-] No response")
 			return
