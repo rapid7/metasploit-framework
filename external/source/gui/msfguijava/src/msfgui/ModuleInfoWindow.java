@@ -224,6 +224,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 			//only need non-default vals
 			if (defaultVal == null && optVal.toString().length() > 0 
 					&& (!optName.equals("WORKSPACE") || !optVal.equals("default"))
+					&& (!optVal.equals(Boolean.FALSE))
 					|| (defaultVal != null && !optVal.toString().equals(defaultVal.toString()))) {
 				hash.put(optName, optVal.toString()); //msfrpcd likes strings. Give them strings.
 			}
@@ -255,11 +256,11 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 			ArrayList autoCommands = new ArrayList();
 			autoCommands.add("use " + moduleType + "/" + fullName);
 			//Add target if it is set and not zero if there is no default or non-default if there is a default
-			if (hash.containsKey("TARGET") 
-					&& ((!options.containsKey("TARGET") && !hash.get("TARGET").equals("0"))
-					|| (options.containsKey("TARGET")
-					&& !hash.get("TARGET").equals(((Map) options.get("TARGET")).get("default"))))){
-				autoCommands.add("set TARGET " + hash.get("TARGET"));
+			if(moduleType.equals("exploit") && hash.containsKey("TARGET")){
+				Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
+				if(info.containsKey("default_target") && !hash.get("TARGET").toString().equals(info.get("default_target").toString())
+						|| !info.containsKey("default_target") && !hash.get("TARGET").toString().equals("0"))
+					autoCommands.add("set TARGET " + hash.get("TARGET"));
 			}
 			if (hash.containsKey("PAYLOAD"))
 				autoCommands.add("set PAYLOAD " + hash.get("PAYLOAD"));
