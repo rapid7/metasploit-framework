@@ -139,7 +139,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						lock.lock();
 						this.publish("unlocked");
 					}
-					try {
+					try { //Get data, append to window, and send notification for prompt
 						long start = System.currentTimeMillis();
 						Map received = (Map) rpcConn.execute(cmdPrefix+"read",sid);
 						time = System.currentTimeMillis() - start;
@@ -156,7 +156,8 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 					} catch (MsfException ex) {
 						if(!ex.getMessage().equals("unknown session"))
 							JOptionPane.showMessageDialog(null, ex);
-						timerCommand.setCharAt(0, STOP_POLLING);
+						if(!ex.getMessage().contains("timed out")) // on timeout, just retry
+							timerCommand.setCharAt(0, STOP_POLLING);
 					}
 					lock.unlock();
 					try {
@@ -174,15 +175,15 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 					}else if(o.equals("unlocked")){
 						submitButton.setEnabled(true);
 						inputField.setEditable(true);
-					}else if(o instanceof Map){
+					}else if(o instanceof Map){ //Update prompt if received
 						checkPrompt((Map)o);
-					}else{
+					}else{ //Data printed, scroll to end
 						outputArea.setCaretPosition(outputArea.getDocument().getLength());
 					}
 				}
 			}
 		}.execute();
-		
+
 		if(type.equals("meterpreter"))
 			inputField.setText("help");
 		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), 12));

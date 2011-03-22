@@ -229,10 +229,11 @@ public class MainFrame extends FrameView {
 							i++;
 						}
 						publish((Object)jobStrings);
-					} catch (MsfException xre) {
-						xre.printStackTrace();
-						publish("Error getting session list"+xre);
-						return new ArrayList();
+					} catch (MsfException msfEx) {
+						msfEx.printStackTrace();
+						publish("Error getting session list"+msfEx);
+						if(!msfEx.getMessage().contains("timed out")) // on timeout, just retry
+							return new ArrayList();
 					} catch (InterruptedException iex){
 					}
 				}

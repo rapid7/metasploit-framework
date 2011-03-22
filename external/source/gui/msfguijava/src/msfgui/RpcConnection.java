@@ -185,23 +185,23 @@ public class RpcConnection {
 
 	/** Method that sends a call to the server and received a response; only allows one at a time */
 	private Map exec (String methname, Object[] params) throws MsfException{
-		try{
-			synchronized(lockObject){ //Only one method call at a time!
+		synchronized(lockObject){ //Only one method call at a time!
+			try{
 				writeCall(methname, params);
 				return (Map)readResp();
+			}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
+				try{
+					if(ex instanceof java.net.SocketTimeoutException) 
+						reconnect();  //reconnect on socket timeout
+				}catch (Exception ex2){
+					ex = ex2;
+				}
+				if(! (ex instanceof MsfException)){
+					ex.printStackTrace();
+					throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
+				}
+				throw (MsfException)ex;
 			}
-		}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
-			try{
-				if(ex instanceof java.net.SocketTimeoutException) //reconnect on socket timeout
-					reconnect();
-			}catch (Exception ex2){
-				ex = ex2;
-			}
-			if(! (ex instanceof MsfException)){
-				ex.printStackTrace();
-				throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
-			}
-			throw (MsfException)ex;
 		}
 	}
 
