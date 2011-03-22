@@ -29,7 +29,6 @@ import javax.swing.JPopupMenu;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
-import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.table.DefaultTableModel;
 import org.jdesktop.application.Task;
 import org.jdesktop.swingworker.SwingWorker;
@@ -231,6 +230,7 @@ public class MainFrame extends FrameView {
 						}
 						publish((Object)jobStrings);
 					} catch (MsfException xre) {
+						xre.printStackTrace();
 						publish("Error getting session list"+xre);
 						return new ArrayList();
 					} catch (InterruptedException iex){

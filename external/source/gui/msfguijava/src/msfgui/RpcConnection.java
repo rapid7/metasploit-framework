@@ -386,7 +386,6 @@ public class RpcConnection {
 			protected RpcConnection doInBackground() throws Exception {
 				setTitle("Starting new msfrpcd");
 				setMessage("Setting up and saving parameters.");
-				setProgress(0.0f);
 				if(defaultPass == null){
 					StringBuilder password = new StringBuilder();
 					Random secrand = new SecureRandom();
@@ -402,7 +401,6 @@ public class RpcConnection {
 				if(disableDb)
 					args.add("-n");
 				setMessage("Starting msfrpcd.");
-				setProgress(0.2f);
 				Process proc = null;
 				try {
 					proc = MsfguiApp.startMsfProc(args);
@@ -414,7 +412,6 @@ public class RpcConnection {
 
 				//Connect to started daemon
 				setMessage("Started msfrpcd. Connecting to new msfrpcd...");
-				setProgress(0.7f);
 				boolean connected = false;
 				for (int tries = 0; tries < 1000; tries++) { //it usually takes a minute to get started
 					try {
