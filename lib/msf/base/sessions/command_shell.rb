@@ -107,7 +107,8 @@ class CommandShell
 			rv = rstream.get_once(length, timeout)
 			framework.events.on_session_output(self, rv) if rv
 			return rv
-		rescue ::Exception => e
+		rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
+			#print_error("Socket error: #{e.class}: #{e}")
 			shell_close
 			raise e
 		end
@@ -122,7 +123,8 @@ class CommandShell
 		begin
 			framework.events.on_session_command(self, buf.strip)
 			rstream.write(buf)
-		rescue ::Exception => e
+		rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
+			#print_error("Socket error: #{e.class}: #{e}")
 			shell_close
 			raise e
 		end
