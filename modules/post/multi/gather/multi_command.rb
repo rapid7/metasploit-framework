@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
 						session.shell_command_token(cmd.chomp).chomp
 					end
 					print_status tmpout if datastore['VERBOSE']
-					command_log = store_loot("host.command", "text/plain", session,@data_out ,
+					command_log = store_loot("host.command", "text/plain", session,tmpout ,
 						"#{cmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'#{cmd.chomp}\'")
 					print_status("Command output saved to: #{command_log}")
 				rescue ::Exception => e
