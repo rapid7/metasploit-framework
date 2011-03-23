@@ -36,7 +36,9 @@ class Msf::Module::Author
 			'natron'	=> 'natron' + 0x40.chr + 'metasploit.com',
 			'todb'		=> 'todb' + 0x40.chr + 'metasploit.com',
 			'msmith'	=> 'msmith' + 0x40.chr + 'metasploit.com',
-			'jcran'		=> 'jcran' + 0x40.chr + 'metasploit.com'
+			'jcran'		=> 'jcran' + 0x40.chr + 'metasploit.com',
+			'sinn3r'	=> 'sinn3r' + 0x40.chr + 'metasploit.com',
+			'bannedit'	=> 'bannedit' + 0x40.chr + 'metasploit.com'
 		}
 
 	#
