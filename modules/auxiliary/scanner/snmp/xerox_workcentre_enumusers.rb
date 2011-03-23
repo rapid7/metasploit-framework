@@ -45,14 +45,17 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				}
 				print_good("#{ip} Found Users: #{@users.uniq.sort.join(", ")} ")
-				report_note(
-				:host => rhost,
-				:port => datastore['RPORT'],
-				:proto => 'udp',
-				:sname => 'snmp',
-				:update => :unique_data,
-				:type => 'smb.username',
-				:data => user)
+				
+				@users.each do |user|
+					report_note(
+					:host => rhost,
+					:port => datastore['RPORT'],
+					:proto => 'udp',
+					:sname => 'snmp',
+					:update => :unique_data,
+					:type => 'smb.username',
+					:data => user)
+				end
 			end
 
 			disconnect_snmp
