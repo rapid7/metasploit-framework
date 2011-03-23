@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'udp',
 					:sname => 'snmp',
 					:update => :unique_data,
-					:type => 'smb.username',
+					:type => 'xerox.workcenter.user',
 					:data => user)
 				end
 			end
