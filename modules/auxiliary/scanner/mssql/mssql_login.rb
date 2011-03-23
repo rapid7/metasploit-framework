@@ -52,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='sa', pass='', verbose=false)
+
 		vprint_status("#{rhost}:#{rport} - MSSQL - Trying username:'#{user}' with password:'#{pass}'")
 		begin
 			success = mssql_login(user, pass)
