@@ -95,7 +95,7 @@ module Stream
 				false
 			end
 		rescue ::Errno::EBADF, ::Errno::ENOTSOCK
-			return ::EOFError
+			raise ::EOFError
 		rescue StreamClosedError, ::IOError, ::EOFError, ::Errno::EPIPE
 			# If the thing that lead to the closure was an abortive close, then
 			# don't raise the stream closed error.
