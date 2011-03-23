@@ -1277,7 +1277,13 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 	/** Refreshes the database tables. */
 	private void reloadDb() {
-		try {
+		try { //First try to reset workspace to chosen workspace
+			rpcConn.execute("db.set_workspace", MsfguiApp.getPropertiesNode().get("workspace"));
+		} catch (MsfException mex) {
+			if(!mex.getMessage().equals("database not loaded"))
+				mex.printStackTrace();
+		}
+		try { //Now load data out of current workspace
 			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
 			reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
 					new String[]{"host","created_at","updated_at","name","critical","username","info"});
@@ -1448,6 +1454,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				return;
 			MsfguiApp.workspace = selected.toString();
 			rpcConn.execute("db.set_workspace", MsfguiApp.workspace);
+			MsfguiApp.getPropertiesNode().put("workspace", MsfguiApp.workspace);
 			reloadDb();
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
