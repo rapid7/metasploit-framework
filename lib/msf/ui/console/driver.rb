@@ -141,14 +141,14 @@ class Driver < Msf::Ui::Driver
 		# Register event handlers
 		register_event_handlers
 
-		# Load console-specific configuration
-		load_config(opts['Config'])
-
 		# Re-enable output
 		self.disable_output = false
 
 		# Load additional modules as necessary
 		self.framework.modules.add_module_path(opts['ModulePath'], false) if opts['ModulePath']
+
+		# Load console-specific configuration
+		load_config(opts['Config'])
 
 		# Whether or not command passthru should be allowed
 		self.command_passthru = (opts['AllowCommandPassthru'] == false) ? false : true
