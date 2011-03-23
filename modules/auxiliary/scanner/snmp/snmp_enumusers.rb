@@ -45,17 +45,16 @@ class Metasploit3 < Msf::Auxiliary
 
 			disconnect_snmp
 
-			@users.each do |user|
-				report_note(
-					:host => rhost,
-					:port => datastore['RPORT'],
-					:proto => 'udp',
-					:sname => 'snmp',
-					:update => :unique_data,
-					:type => 'smb.username',
-					:data => user
-				)
-			end
+			report_note(
+				:host => rhost,
+				:port => datastore['RPORT'],
+				:proto => 'udp',
+				:sname => 'snmp',
+				:update => :unique_data,
+				:type => 'snmp.users',
+				:data => @users
+			)
+			
 
 		rescue ::SNMP::UnsupportedVersion
 		rescue ::SNMP::RequestTimeout
