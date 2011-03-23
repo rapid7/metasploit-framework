@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		if datastore['ENABLE'] or (datastore['USERNAME'] and datastore['PASSWORD'])
-			cleanup_rc = store_loot("host.windows.enable_rdp.cleanup", "text/plain", session,"" ,
+			cleanup_rc = store_loot("host.windows.cleanup.enable_rdp", "text/plain", session,"" ,
 						"enable_rdp_cleanup.rc", "enable_rdp cleanup resource file")
 	
 			if datastore['ENABLE']
