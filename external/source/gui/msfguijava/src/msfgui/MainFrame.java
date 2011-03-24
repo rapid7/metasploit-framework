@@ -1278,7 +1278,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	/** Refreshes the database tables. */
 	private void reloadDb() {
 		try { //First try to reset workspace to chosen workspace
-			rpcConn.execute("db.set_workspace", MsfguiApp.getPropertiesNode().get("workspace"));
+			if(MsfguiApp.getPropertiesNode().containsKey("workspace"))
+				rpcConn.execute("db.set_workspace", MsfguiApp.getPropertiesNode().get("workspace"));
 		} catch (MsfException mex) {
 			if(!mex.getMessage().equals("database not loaded"))
 				mex.printStackTrace();
