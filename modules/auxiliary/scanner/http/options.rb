@@ -26,7 +26,16 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$',
 			'Description' => 'Display available HTTP options for each system',
 			'Author'       => ['CG'],
-			'License'     => MSF_LICENSE
+			'License'     => MSF_LICENSE,
+			'References' =>
+			[
+				[ 'CVE', '2005-3398'],
+				[ 'CVE', '2005-3498'],
+				[ 'OSVDB', '877'],
+				[ 'BID', '11604'],
+				[ 'BID', '9506'],
+				[ 'BID', '9561']
+			]
 		)
 	end
 
@@ -57,17 +66,9 @@ class Metasploit3 < Msf::Auxiliary
 						:port	=> rport,
 						:proto => 'tcp',
 						:sname	=> 'http',
-						:name	=> 'HTTP-TRACE-ENABLED',
+						:name	=> self.fullname,
 						:info	=> res.headers['Allow'],
-						:refs   =>
-						[
-							[ 'CVE', '2005-3398'],
-							[ 'CVE', '2005-3498'],
-							[ 'OSVDB', '877'],
-							[ 'BID', '11604'],
-							[ 'BID', '9506'],
-							[ 'BID', '9561']
-						]
+						:refs   => self.references
 					)
 				end
 			end
