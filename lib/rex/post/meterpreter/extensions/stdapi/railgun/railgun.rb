@@ -28,11 +28,13 @@
 
 require 'pp'
 require 'enumerator'
+
 require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/model'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/multicall'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
 
 module Rex
 module Post
@@ -45,7 +47,6 @@ module Railgun
 # The Railgun class to dynamically expose the Windows API.
 #
 class Railgun
-
 	def initialize( client )
 
 		@client = client

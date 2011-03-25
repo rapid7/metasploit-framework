@@ -26,7 +26,8 @@ require 'pp'
 require 'enumerator'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/api_constants'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/model'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
 
 module Rex
 module Post
