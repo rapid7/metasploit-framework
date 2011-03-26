@@ -13,24 +13,25 @@ module Stdapi
 module Railgun
 class DLLFunction::UnitTest < Test::Unit::TestCase
 
-	VALID_RETURN_TYPE = ''
-	INVALID_RETURN_TYPE = 'INVALID_RETURN_TYPE'
+	VALID_RETURN_TYPE = 'DWORD'
+	NON_RETURN_DATATYPE = 'INVALID_RETURN_TYPE'
 
 	VALID_DIRECTION = 'out'
-	INVALID_DIRECTION = 'invalid'
+	UNKNOWN_DIRECTION = 'unknown'
+
+	VALID_DATATYPE = 'PBLOB'
+	UNKNOWN_DATATYPE = 'UNKNOWN_DATATYPE'
 
 	def test_initialize
-		
-	end
-
-	def test_check_type_exists
-		
-	end
-
-	def test_check_return_type
-	end
-
-	def test_check_params
+		# TODO: haven't gotten around to writing this yet. Feel free to
+#		skip("incomplete test coverage")
+#
+#		assert_nothing_raised("valid initialization should not raise") do
+#		end
+#
+#		assert_raised(ArgumentError, "check_type_exists should raise ArgumentError on unknown datatypes") do
+#		end
+	
 	end
 end
 end

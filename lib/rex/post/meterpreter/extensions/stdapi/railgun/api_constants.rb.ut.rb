@@ -20,7 +20,7 @@ class ApiConstants::UnitTest < Test::Unit::TestCase
 		ApiConstants.add_constants(const_manager)
 
 		assert_equal(0, const_manager.parse('SUCCESS'),
-			"should have added WinAPI constants to constant manager")
+			"ApiConstants.add_constants should have added WinAPI constants to given constant manager")
 	end
 end
 end

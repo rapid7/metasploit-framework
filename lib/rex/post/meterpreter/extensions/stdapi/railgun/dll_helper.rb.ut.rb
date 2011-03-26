@@ -14,7 +14,13 @@ module Extensions
 module Stdapi
 module Railgun
 class DLLHelper::UnitTest < Test::Unit::TestCase
-	TEST_DLL_HELPER = Object.new.extend(DLLHelper)
+
+	###
+	# We will test against this instance of DLLHelper (a module) 
+	# 
+	# We freeze the instance and make the reference constant to ensure consistency
+	##
+	TEST_DLL_HELPER = Object.new.extend(DLLHelper).freeze
 
 	def test_str_to_ascii_z
 		original_string = '23 Skidoo!'
@@ -23,13 +29,13 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		zero_terminated_ascii_attempt = TEST_DLL_HELPER.str_to_ascii_z(original_string)
 
 		assert(zero_terminated_ascii_attempt.end_with?("\x00"), 
-			"should result in a 0 terminated string")
+			"str_to_ascii_z should result in a 0 terminated string")
 
 		assert(zero_terminated_ascii_attempt.start_with?(original_string), 
-			"should still start with original string")
+			"str_to_ascii_z should still start with original string")
 
 		assert_equal(original_string.length + 1, zero_terminated_ascii_attempt.length, 
-			"should have length of original pluss room for a terminal 0")
+			"str_to_ascii_z should have length of original pluss room for a terminal 0")
 	end
 
 	def test_asciiz_to_str
@@ -40,16 +46,16 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		actual_string =  TEST_DLL_HELPER.asciiz_to_str(zero_terminated_string)
 
 		assert(actual_string.start_with?(target_string),
-			"should preserve string before zero")
+			"asciiz_to_str should preserve string before zero")
 
 		assert(!actual_string.end_with?(post_zero_noise),
-			"should ignore characters after zero")
+			"asciiz_to_str should ignore characters after zero")
 
 		assert_equal(target_string, actual_string,
-			"should only return the contents of the string before (exclusive) the zero")
+			"asciiz_to_str should only return the contents of the string before (exclusive) the zero")
 
 		assert_equal(target_string, TEST_DLL_HELPER.asciiz_to_str(target_string),
-			"should return input verbatim should that input not be zero-terminated")
+			"asciiz_to_str should return input verbatim should that input not be zero-terminated")
 
 	end
 
@@ -60,10 +66,10 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		actual_zero_terminated_unicode = TEST_DLL_HELPER.str_to_uni_z(ruby_string)
 
 		assert(actual_zero_terminated_unicode.end_with?("\x00\x00"),
-			"should result in a double-zero terminated string")
+			"str_to_uni_z should result in a double-zero terminated string")
 
 		assert_equal(target_zero_terminated_unicode, actual_zero_terminated_unicode,
-			"should convert ruby string to zero-terminated WCHAR string")
+			"str_to_uni_z should convert ruby string to zero-terminated WCHAR string")
 	end
 
 	def test_uniz_to_str
@@ -72,34 +78,43 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		zero_terminated_unicode = Rex::Text.to_unicode(target_string) + "\x00\x00"
 
 		assert_equal(target_string, TEST_DLL_HELPER.uniz_to_str(zero_terminated_unicode),
-			'should convert 0-terminated UTF16 to ruby string')
+			'uniz_to_str should convert 0-terminated UTF16 to ruby string')
 
 	end
 
 	def test_assemble_buffer
 		# TODO: provide test coverage 
-		#assert(false, "Should have test coverage for TEST_DLL_HELPER.assemble_buffer")
+		#skip("Currently DLLHelper.assemble_buffer does not have coverage")
 	end
 
 	def test_param_to_number
 		consts_manager = WinConstManager.new
 
-		consts_manager.add_const('TWENTY_THREE', 23)
-		consts_manager.add_const('FIVE', 5)
+		x_key = 'X'
+		x_value = 23
 
-		assert_equal(23, TEST_DLL_HELPER.param_to_number('TWENTY_THREE', consts_manager),
-			"should return the appropriate value for a given constant")
+		y_key = 'Y'
+		y_value = 5
+		
+		logical_or = x_key +  '|' +  y_key
+		target_result_of_logical_or = x_value | y_value
 
-		assert_equal(5, TEST_DLL_HELPER.param_to_number('FIVE', consts_manager),
-			"should return the appropriate value for a given constant")
+		consts_manager.add_const(y_key, y_value)
+		consts_manager.add_const(x_key, x_value)
+
+		assert_equal(x_value, TEST_DLL_HELPER.param_to_number(x_key, consts_manager),
+			"param_to_number should return the appropriate value for a given constant")
+
+		assert_equal(y_value, TEST_DLL_HELPER.param_to_number(y_key, consts_manager),
+			"param_to_number should return the appropriate value for a given constant")
 
 		assert_equal(0, TEST_DLL_HELPER.param_to_number(nil, consts_manager),
-			"should return zero when given nil")
+			"param_to_number should return zero when given nil")
 
-		assert_equal(23, TEST_DLL_HELPER.param_to_number('TWENTY_THREE | FIVE', consts_manager),
-			"should perform an OR should the input be in the form 'X | Y', where X and Z are constants")
+		assert_equal(target_result_of_logical_or, TEST_DLL_HELPER.param_to_number(logical_or, consts_manager),
+			"param_to_number should perform an OR should the input be in the form '#{logical_or}'")
 
-		assert_raise(ArgumentError, 'should foo') do
+		assert_raise(ArgumentError, 'param_to_number should raise an error when a given key does not exist') do
 			TEST_DLL_HELPER.param_to_number('DOESNT_EXIST', consts_manager)
 		end
 	end
