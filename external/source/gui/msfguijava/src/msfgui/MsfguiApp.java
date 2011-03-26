@@ -56,25 +56,32 @@ public class MsfguiApp extends SingleFrameApplication {
 		Runtime.getRuntime().addShutdownHook(new Thread(){
 			@Override
 			public void run() {
-				try {
-					Document docElement = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-					docElement.appendChild(RpcConnection.objectToNode(docElement, propRoot));
-					TransformerFactory.newInstance().newTransformer().transform(
-							new DOMSource(docElement), new StreamResult(new FileOutputStream(confFilename)));
-				} catch (Exception ex) {
-					//fail
-					try{ //Problem saving conf file; we are closing here, so we shouldn't try to pop up a message box
-						FileWriter fout = new FileWriter(confFilename+"ERROR.log", true);
-						fout.write(java.util.Calendar.getInstance().getTime().toString());
-						fout.write(" Error saving properties. Check "+confFilename+" file permissions.\n");
-						fout.write(ex.toString()+"\n");
-						fout.close();
-					} catch (Exception exc) {
-						 //epic fail
-					}
-				}
+				savePreferences();
 			}
 		});
+	}
+
+	/**
+	 * Saves the properties node as an XML file specified by confFilename
+	 */
+	public static void savePreferences(){
+		try {
+			Document docElement = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			docElement.appendChild(RpcConnection.objectToNode(docElement, propRoot));
+			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(docElement), new StreamResult(new FileOutputStream(confFilename)));
+		} catch (Exception ex) {
+			//fail
+			try {
+				//Problem saving conf file; we are probably closing here, so we shouldn't try to pop up a message box
+				FileWriter fout = new FileWriter(confFilename + "ERROR.log", true);
+				fout.write(java.util.Calendar.getInstance().getTime().toString());
+				fout.write(" Error saving properties. Check " + confFilename + " file permissions.\n");
+				fout.write(ex.toString() + "\n");
+				fout.close();
+			} catch (Exception exc) {
+				//epic fail
+			}
+		}
 	}
 
 	/**

@@ -88,6 +88,7 @@ public class RpcConnection {
 		root.put("port", port);
 		root.put("ssl", ssl);
 		root.put("disableDb", disableDb);
+		MsfguiApp.savePreferences();
 	}
 
 	/**

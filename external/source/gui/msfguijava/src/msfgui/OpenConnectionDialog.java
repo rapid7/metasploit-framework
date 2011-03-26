@@ -58,6 +58,8 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			boolean ssl = Boolean.parseBoolean(info.get("ssl").toString());
 			return new RpcConnection(username, password.toCharArray(), host, port, ssl);
 		} catch (MsfException mex) {
+			if(mex.getMessage().contains("Authentication Error"))
+				System.err.println("Error authenticating; wrong saved credentials.");
 		} catch (NullPointerException nex) {//generated when attributes dont exist.
 		}
 		//Darn. open the gui anyway
