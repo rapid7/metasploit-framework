@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 					if session_type =~ /meterpreter/
 						tmpout << cmd_exec(cmd.chomp)
 					elsif session_type =~ /shell/
-						session.shell_command_token(cmd.chomp).chomp
+						tmpout << session.shell_command_token(cmd.chomp).chomp
 					end
 					print_status tmpout if datastore['VERBOSE']
 					command_log = store_loot("host.command", "text/plain", session,tmpout ,
