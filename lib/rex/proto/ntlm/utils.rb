@@ -1,7 +1,13 @@
+require 'rex/proto/ntlm/constants'
+require 'rex/proto/ntlm/crypt'
+
 module Rex
 module Proto
 module NTLM
 class Utils
+
+	CONST = Rex::Proto::NTLM::Constants
+	CRYPT = Rex::Proto::NTLM::Crypt
 
   	#duplicate from lib/rex/proto/smb/utils cause we only need this fonction from Rex::Proto::SMB::Utils
 	# Convert a unix timestamp to a 64-bit signed server time
@@ -10,6 +16,11 @@ class Utils
 		thi = (t64 & 0xffffffff00000000) >> 32
 		tlo = (t64 & 0x00000000ffffffff)
 		return [thi, tlo]
+	end
+
+	# Determine whether the password is a known hash format
+	def self.is_pass_ntlm_hash?(str)
+		str.downcase =~ /^[0-9a-f]{32}:[0-9a-f]{32}$/
 	end
 
 	#
@@ -319,6 +330,98 @@ class Utils
 		return blob
 	end
 
+	# Return the correct ntlmflags upon the configuration
+	def self.make_ntlm_flags(opt = {})
+
+		signing 		= opt[:signing] 		!= nil ? opt[:signing] : false
+		usentlm2_session 	= opt[:usentlm2_session]	!= nil ? opt[:usentlm2_session] : true
+		use_ntlmv2 		= opt[:use_ntlmv2] 		!= nil ? opt[:use_ntlmv2] : false
+		send_lm 		= opt[:send_lm] 		!= nil ? opt[:send_lm] : true
+		send_ntlm 		= opt[:send_ntlm] 		!= nil ? opt[:send_ntlm] : true
+		use_lanman_key 		= opt[:use_lanman_key] 		!= nil ? opt[:use_lanman_key] : false
+
+		if signing 
+			ntlmssp_flags = 0xe2088215
+		else
+
+			ntlmssp_flags = 0xa2080205
+		end
+
+		if usentlm2_session
+			if use_ntlmv2
+				#set Negotiate Target Info
+				ntlmssp_flags |= CONST::NEGOTIATE_TARGET_INFO	
+			end
+
+		else
+			#remove the ntlm2_session flag
+			ntlmssp_flags &= 0xfff7ffff
+			#set lanmanflag only when lm and ntlm are sent
+			if send_lm
+				ntlmssp_flags |= CONST::NEGOTIATE_LMKEY if use_lanman_key
+			end
+		end
+	
+		#we can also downgrade ntlm2_session when we send only lmv1
+		ntlmssp_flags &= 0xfff7ffff if usentlm2_session && (not use_ntlmv2) && (not send_ntlm)
+
+		return ntlmssp_flags
+	end
+
+
+	# Parse an ntlm type 2 challenge blob and return usefull data
+	def self.parse_ntlm_type_2_blob(blob)
+		data = {}
+		# Extract the NTLM challenge key the lazy way
+		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
+
+		if not cidx
+			raise XCEPT::NTLM2MissingChallenge
+		end
+
+		data[:challenge_key] = blob[cidx + 24, 8]
+
+		data[:server_ntlmssp_flags] = blob[cidx + 20, 4].unpack("V")[0]
+
+		# Extract the address list from the blob
+		alist_len,alist_mlen,alist_off = blob[cidx + 40, 8].unpack("vvV")
+		alist_buf = blob[cidx + alist_off, alist_len]
+
+		while(alist_buf.length > 0)
+			atype, alen = alist_buf.slice!(0,4).unpack('vv')
+			break if atype == 0x00
+			addr = alist_buf.slice!(0, alen)
+			case atype
+			when 1
+				#netbios name
+				data[:default_name] =  addr.gsub("\x00", '')
+			when 2
+				#netbios domain
+				data[:default_domain] = addr.gsub("\x00", '')
+			when 3
+				#dns name
+				data[:dns_host_name] =  addr.gsub("\x00", '')
+			when 4
+				#dns domain
+				data[:dns_domain_name] =  addr.gsub("\x00", '')
+			when 5
+				#The FQDN of the forest.
+			when 6
+				#A 32-bit value indicating server or client configuration
+			when 7
+				#Client time
+				data[:chall_MsvAvTimestamp] = addr
+			when 8
+				#A Restriction_Encoding structure 
+			when 9
+				#The SPN of the target server. 
+			when 10
+				#A channel bindings hash.
+			end
+		end
+		return data
+	end
+
 	# This function return an ntlmv2 client challenge
 	# This is a partial implementation, full description is in [MS-NLMP].pdf around 3.1.5.2.1 :-/
 	def self.make_ntlmv2_clientchallenge(win_domain, win_name, dns_domain, dns_name, 
@@ -326,8 +429,8 @@ class Utils
 		
 		client_challenge ||= Rex::Text.rand_text(8)
 		# We have to set the timestamps here to the one in the challenge message from server if present
-		# If we don't do that, recent server like Seven will send a STATUS_INVALID_PARAMETER error packet
-		timestamp = chall_MsvAvTimestamp != nil ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
+		# If we don't do that, recent server like Seven/2008 will send a STATUS_INVALID_PARAMETER error packet
+		timestamp = chall_MsvAvTimestamp != '' ? chall_MsvAvTimestamp : self.time_unix_to_smb(Time.now.to_i).reverse.pack("VV")
 		# Make those values unicode as requested
 		win_domain = Rex::Text.to_unicode(win_domain)
 		win_name = Rex::Text.to_unicode(win_name)
@@ -368,6 +471,291 @@ class Utils
 					addr_list + "\x00" * 4
 
 	end
+
+	# create lm/ntlm responses
+	def self.create_lm_ntlm_responses(user, pass, challenge_key, domain = '', default_name = '', default_domain = '',
+					dns_host_name = '', dns_domain_name = '', chall_MsvAvTimestamp = nil, spnopt = {}, opt = {} )
+
+		usentlm2_session 	= opt[:usentlm2_session]	!= nil ? opt[:usentlm2_session] : true
+		use_ntlmv2 		= opt[:use_ntlmv2] 		!= nil ? opt[:use_ntlmv2] : false
+		send_lm 		= opt[:send_lm] 		!= nil ? opt[:send_lm] : true
+		send_ntlm 		= opt[:send_ntlm] 		!= nil ? opt[:send_ntlm] : true
+
+		#calculate the lm/ntlm response
+		resp_lm = "\x00" * 24
+		resp_ntlm = "\x00" * 24
+
+		client_challenge = Rex::Text.rand_text(8)
+		ntlm_cli_challenge = ''
+		if send_ntlm  #should be default
+			if usentlm2_session
+				if use_ntlmv2
+					ntlm_cli_challenge = self.make_ntlmv2_clientchallenge(default_domain, default_name, dns_domain_name, 
+												dns_host_name,client_challenge , 
+												chall_MsvAvTimestamp, spnopt)
+					if self.is_pass_ntlm_hash?(pass)
+						argntlm = { 	
+							:ntlmv2_hash =>  CRYPT::ntlmv2_hash(
+												user, 
+												[ pass.upcase()[33,65] ].pack('H32'), 
+												domain,{:pass_is_hash => true}
+											),
+							:challenge   => challenge_key 
+						}
+					else
+						argntlm = {
+							:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user, pass, domain),
+							:challenge   =>  challenge_key 
+						}
+					end
+
+					optntlm = { :nt_client_challenge => ntlm_cli_challenge}
+					ntlmv2_response = CRYPT::ntlmv2_response(argntlm,optntlm)
+					resp_ntlm = ntlmv2_response 
+					
+					if send_lm
+						if self.is_pass_ntlm_hash?(pass)
+							arglm = {
+								:ntlmv2_hash =>  CRYPT::ntlmv2_hash(
+													user, 								
+													[ pass.upcase()[33,65] ].pack('H32'), 
+													domain,{:pass_is_hash => true}
+												),
+								:challenge   => challenge_key 
+							}
+						else
+							arglm = {
+								:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user,pass, domain),
+								:challenge   => challenge_key 
+							}
+						end
+						
+						optlm = { :client_challenge => client_challenge }
+						resp_lm = CRYPT::lmv2_response(arglm, optlm)
+					else
+						resp_lm = "\x00" * 24
+					end
+
+				else # ntlm2_session
+					if self.is_pass_ntlm_hash?(pass)
+						argntlm = { 
+							:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+							:challenge => challenge_key 
+						}
+					else
+						argntlm = {
+							:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+							:challenge => challenge_key 
+						}
+					end
+					
+					optntlm = {	:client_challenge => client_challenge}
+					resp_ntlm = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24]
+					
+					# Generate the fake LANMAN hash
+					resp_lm = client_challenge + ("\x00" * 16)
+				end
+
+			else # we use lmv1/ntlmv1
+				if self.is_pass_ntlm_hash?(pass)
+					argntlm = {
+						:ntlm_hash =>  [ pass.upcase()[33,65] ].pack('H32'), 
+						:challenge =>  challenge_key 
+					}
+				else
+					argntlm = {
+						:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+						:challenge =>  challenge_key 
+					}
+				end
+				
+				resp_ntlm = CRYPT::ntlm_response(argntlm)
+				if send_lm
+					if self.is_pass_ntlm_hash?(pass)
+						arglm = {
+							:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+							:challenge =>  challenge_key 
+						}
+					else
+						arglm = {
+							:lm_hash => CRYPT::lm_hash(pass),
+							:challenge =>  challenge_key 
+						}
+					end
+					resp_lm = CRYPT::lm_response(arglm)
+				else
+					#when windows does not send lm in ntlmv1 type response,
+					# it gives lm response the same value as ntlm response
+					resp_lm  = resp_ntlm
+				end
+			end
+		else #send_ntlm = false 
+			#lmv2
+			if usentlm2_session && use_ntlmv2
+				if self.is_pass_ntlm_hash?(pass)
+					arglm = {
+						:ntlmv2_hash =>  CRYPT::ntlmv2_hash(
+											user, 
+											[ pass.upcase()[33,65] ].pack('H32'), 
+											domain,{:pass_is_hash => true}
+										),
+						:challenge => challenge_key 
+					}
+				else
+					arglm = {
+						:ntlmv2_hash =>  CRYPT::ntlmv2_hash(user,pass, domain),
+						:challenge => challenge_key 
+					}
+				end
+				optlm = { :client_challenge => client_challenge }
+				resp_lm = CRYPT::lmv2_response(arglm, optlm)
+			else
+				if self.is_pass_ntlm_hash?(pass)
+					arglm = {
+						:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
+						:challenge =>  challenge_key 
+					}
+				else
+					arglm = {
+						:lm_hash => CRYPT::lm_hash(pass),
+						:challenge =>  challenge_key 
+					}
+				end
+				resp_lm = CRYPT::lm_response(arglm)
+			end
+			resp_ntlm = ""
+		end
+		return resp_lm, resp_ntlm, client_challenge, ntlm_cli_challenge
+	end
+
+	# create the session key
+	def self.create_session_key(server_ntlmssp_flags, user, pass, domain, challenge_key,
+					client_challenge = '', ntlm_cli_challenge = '' , opt = {} )
+
+		usentlm2_session 	= opt[:usentlm2_session]	!= nil ? opt[:usentlm2_session] : true
+		use_ntlmv2 		= opt[:use_ntlmv2] 		!= nil ? opt[:use_ntlmv2] : false
+		send_lm 		= opt[:send_lm] 		!= nil ? opt[:send_lm] : true
+		send_ntlm 		= opt[:send_ntlm] 		!= nil ? opt[:send_ntlm] : true
+		use_lanman_key 		= opt[:use_lanman_key] 		!= nil ? opt[:use_lanman_key] : false
+
+		# Create the sessionkey (aka signing key, aka mackey) and encrypted session key
+		# Server will decide for key_size and key_exchange
+		enc_session_key = ''
+		signing_key = ''
+
+		# Set default key size and key exchange values
+		key_size = 40
+		key_exchange = false
+		# Remove ntlmssp.negotiate56
+		ntlmssp_flags &= 0x7fffffff
+		# Remove ntlmssp.negotiatekeyexch
+		ntlmssp_flags &= 0xbfffffff
+		# Remove ntlmssp.negotiate128
+		ntlmssp_flags &= 0xdfffffff
+		# Check the keyexchange
+		if server_ntlmssp_flags & CONST::NEGOTIATE_KEY_EXCH != 0 then
+			key_exchange = true
+			ntlmssp_flags |= CONST::NEGOTIATE_KEY_EXCH
+		end
+		# Check 128bits
+		if server_ntlmssp_flags & CONST::NEGOTIATE_128 != 0 then
+			key_size = 128
+			ntlmssp_flags |= CONST::NEGOTIATE_128
+			ntlmssp_flags |= CONST::NEGOTIATE_56
+		# Check 56bits
+		else
+			if server_ntlmssp_flags & CONST::NEGOTIATE_56 != 0 then
+				key_size = 56
+				ntlmssp_flags |= CONST::NEGOTIATE_56
+			end
+		end
+
+		# Generate the user session key
+		lanman_weak = false
+		if send_ntlm  # Should be default
+			if usentlm2_session
+				if use_ntlmv2
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::ntlmv2_user_session_key(user, 
+												[ pass.upcase()[33,65] ].pack('H32'),
+										 		domain, 
+												challenge_key, ntlm_cli_challenge, 
+												{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::ntlmv2_user_session_key(user, pass, domain, 
+											challenge_key, ntlm_cli_challenge)
+					end
+				else
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::ntlm2_session_user_session_key([ pass.upcase()[33,65] ].pack('H32'), 
+														challenge_key, 
+														client_challenge, 
+														{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::ntlm2_session_user_session_key(pass, challenge_key, 
+														client_challenge)
+					end
+				end
+			else # lmv1/ntlmv1
+				# lanman_key may also be used without ntlm response but it is not so much used
+				# so we don't care about this feature 
+				if send_lm && use_lanman_key
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::lanman_session_key([ pass.upcase()[0,32] ].pack('H32'), 
+												challenge_key, 
+												{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::lanman_session_key(pass, challenge_key)
+					end
+					lanman_weak = true
+				
+
+				else
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::ntlmv1_user_session_key([ pass.upcase()[33,65] ].pack('H32'),
+													{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::ntlmv1_user_session_key(pass)
+					end
+				end
+			end
+		else
+				if usentlm2_session && use_ntlmv2
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::lmv2_user_session_key(user, [ pass.upcase()[33,65] ].pack('H32'), 
+												domain, 
+												challenge_key, client_challenge, 
+												{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::lmv2_user_session_key(user, pass, domain, 
+												challenge_key, client_challenge)
+					end
+				else
+					if self.is_pass_ntlm_hash?(pass)
+						user_session_key = CRYPT::lmv1_user_session_key([ pass.upcase()[0,32] ].pack('H32'), 
+													{:pass_is_hash => true})
+					else
+						user_session_key = CRYPT::lmv1_user_session_key(pass)
+					end
+				end
+		end
+
+		user_session_key = CRYPT::make_weak_sessionkey(user_session_key,key_size, lanman_weak)			
+
+		# Sessionkey and encrypted session key
+		if key_exchange
+			signing_key = Rex::Text.rand_text(16)
+			enc_session_key = CRYPT::encrypt_sessionkey(signing_key, user_session_key)
+		else
+			signing_key = user_session_key
+		end
+		
+		return signing_key, enc_session_key
+	
+		
+	end
+	
+
 
 end
 end
