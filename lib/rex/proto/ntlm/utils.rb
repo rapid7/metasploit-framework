@@ -116,6 +116,26 @@ class Utils
 		return blob	
 	end	
 
+	# BLOB without GSS usefull for ntlmssp type 1 message
+	def self.make_ntlmssp_blob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
+		blob =	"NTLMSSP\x00" +
+			[1, flags].pack('VV') +
+
+			[
+				domain.length,  #length
+				domain.length,  #max length
+				32
+			].pack('vvV') +
+
+			[
+				name.length,	#length
+				name.length, 	#max length
+				domain.length + 32
+			].pack('vvV') +	
+
+			domain + name
+		return blob
+	end
 
 	# GSS BLOB usefull for ntlmssp type 1 message
 	def self.make_ntlmssp_secblob_init(domain = 'WORKGROUP', name = 'WORKSTATION', flags=0x80201)
@@ -135,22 +155,7 @@ class Utils
 					) +
 					"\xa2" + self.asn1encode(
 						"\x04" + self.asn1encode(
-							"NTLMSSP\x00" +
-							[1, flags].pack('VV') +
-
-							[
-								domain.length,  #length
-								domain.length,  #max length
-								32
-							].pack('vvV') +
-
-							[
-								name.length,	#length
-								name.length, 	#max length
-								domain.length + 32
-							].pack('vvV') +	
-
-							domain + name
+							make_ntlmssp_blob_init(domain, name, flags)
 						)
 					)
 				)
@@ -160,33 +165,6 @@ class Utils
 		return blob	
 	end
 
-
-	# GSS BLOB usefull for ntlmssp type 2 message
-	def self.make_ntlmssp_secblob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
-		
-		blob =
-			"\xa1" + self.asn1encode(
-				"\x30" + self.asn1encode(
-					"\xa0" + self.asn1encode(
-						"\x0a" + self.asn1encode(
-							"\x01"
-						)
-					) +
-					"\xa1" + self.asn1encode(
-						"\x06" + self.asn1encode(
-							"\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a"
-						)
-					) +
-					"\xa2" + self.asn1encode(
-						"\x04" + self.asn1encode(
-							make_ntlmssp_blob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
-						)
-					)
-				)	
-			)
-
-		return blob
-	end
 
 	# BLOB without GSS usefull for ntlm type 2 message 
 	def self.make_ntlmssp_blob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
@@ -219,10 +197,35 @@ class Utils
 		return blob
 	end
 
+	# GSS BLOB usefull for ntlmssp type 2 message
+	def self.make_ntlmssp_secblob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
+		
+		blob =
+			"\xa1" + self.asn1encode(
+				"\x30" + self.asn1encode(
+					"\xa0" + self.asn1encode(
+						"\x0a" + self.asn1encode(
+							"\x01"
+						)
+					) +
+					"\xa1" + self.asn1encode(
+						"\x06" + self.asn1encode(
+							"\x2b\x06\x01\x04\x01\x82\x37\x02\x02\x0a"
+						)
+					) +
+					"\xa2" + self.asn1encode(
+						"\x04" + self.asn1encode(
+							make_ntlmssp_blob_chall(win_domain, win_name, dns_domain, dns_name, chall, flags)
+						)
+					)
+				)	
+			)
 
-	# GSS BLOB Usefull for ntlmssp type 3 message
-	def self.make_ntlmssp_secblob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
+		return blob
+	end
 
+	# BLOB without GSS Usefull for ntlmssp type 3 message
+	def self.make_ntlmssp_blob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
 		lm ||= "\x00" * 24
 		ntlm ||= "\x00" * 24		
 	
@@ -232,59 +235,67 @@ class Utils
 		session    = enc_session_key
 
 		ptr  = 64 
+
+		blob = "NTLMSSP\x00" +
+			[ 3 ].pack('V') +
+		
+			[	# Lan Manager Response
+				lm.length,
+				lm.length,
+				(ptr)
+			].pack('vvV') +
+		
+			[	# NTLM Manager Response
+				ntlm.length,
+				ntlm.length,
+				(ptr += lm.length)
+			].pack('vvV') +		
+				
+			[	# Domain Name
+				domain_uni.length,
+				domain_uni.length,
+				(ptr += ntlm.length)
+			].pack('vvV') +		
+
+			[	# Username
+				user_uni.length,
+				user_uni.length,
+				(ptr += domain_uni.length)
+			].pack('vvV') +		
+
+			[	# Hostname
+				name_uni.length,
+				name_uni.length,
+				(ptr += user_uni.length)
+			].pack('vvV') +		
+		
+			[	# Session Key (none)
+				session.length,
+				session.length,
+				(ptr += name_uni.length)
+			].pack('vvV') +		
+
+			[ flags ].pack('V') +
+
+			lm +
+			ntlm +
+			domain_uni +
+			user_uni +
+			name_uni + 
+			session + "\x00" 
+		return blob
+
+	end
+
+	# GSS BLOB Usefull for ntlmssp type 3 message
+	def self.make_ntlmssp_secblob_auth(domain, name, user, lm, ntlm, enc_session_key, flags = 0x080201)
+
 		blob =
 			"\xa1" + self.asn1encode(
 				"\x30" + self.asn1encode(
 					"\xa2" + self.asn1encode(
 						"\x04" + self.asn1encode(
-					
-							"NTLMSSP\x00" +
-							[ 3 ].pack('V') +
-							
-							[	# Lan Manager Response
-								lm.length,
-								lm.length,
-								(ptr)
-							].pack('vvV') +
-							
-							[	# NTLM Manager Response
-								ntlm.length,
-								ntlm.length,
-								(ptr += lm.length)
-							].pack('vvV') +		
-									
-							[	# Domain Name
-								domain_uni.length,
-								domain_uni.length,
-								(ptr += ntlm.length)
-							].pack('vvV') +		
-			
-							[	# Username
-								user_uni.length,
-								user_uni.length,
-								(ptr += domain_uni.length)
-							].pack('vvV') +		
-			
-							[	# Hostname
-								name_uni.length,
-								name_uni.length,
-								(ptr += user_uni.length)
-							].pack('vvV') +		
-							
-							[	# Session Key (none)
-								session.length,
-								session.length,
-								(ptr += name_uni.length)
-							].pack('vvV') +		
-			
-							[ flags ].pack('V') +
-				
-							lm +
-							ntlm +
-							domain_uni +
-							user_uni +
-							name_uni + 
-							session + "\x00" 
+						make_ntlmssp_blob_auth(domain, name, user, lm, ntlm, enc_session_key, flags )
 					)
 				)
 			)
