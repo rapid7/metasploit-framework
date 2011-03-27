@@ -25,16 +25,16 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		const_manager.add_const(second_key, 234)
 
 		assert(const_manager.is_parseable(boolean_logic),
-			"should consider boolean logic statements parseable")
+			"is_parseable should consider boolean logic statements parseable")
 
 		assert(const_manager.is_parseable(first_key),
-			"should consider constants parseable")
+			"is_parseable should consider constants parseable")
 
 		assert(! const_manager.is_parseable(5),
-			"should not consider non-string keys as parseable")
+			"is_parseable should not consider non-string keys as parseable")
 
 		assert(! const_manager.is_parseable('| FOO |'),
-			"malformed boolean expressions should not be considered parseable")
+			"is_parseable should not consider malformed boolean expressions parseable")
 	end
 
 	def test_add_const
@@ -44,6 +44,10 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		const_manager = WinConstManager.new
 
 		const_manager.add_const(target_key, target_value)
+
+		assert_equal(target_value, const_manager.parse(target_key),
+			"add_const should add a constant/value pair that can be trieved with parse")
+		
 	end
 
 	def test_initialization
@@ -53,7 +57,7 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		const_manager = WinConstManager.new(target_key => target_value)
 
 		assert_equal(target_value, const_manager.parse(target_key),
-			"should accept constants upon initialization")
+			"upon initialization, should add any provided constants.")
 	end
 
 	def test_parse
@@ -66,14 +70,15 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		const_manager.add_const(target_key, target_value)
 
 		assert_equal(target_value, const_manager.parse(target_key),
-			"should retrieve the corresponding value when a key is provided")
-		# should not throw an exception given an invalid key
+			"parse should retrieve the corresponding value when a key is provided")
+
+		# From API: "should not throw an exception given an invalid key"
 		assert_nothing_thrown do 
 			const_manager.parse(invalid_key)
 		end
 
 		assert_equal(nil, const_manager.parse(invalid_key),
-			"should return nil when an invalid key is provided")
+			"parse should return nil when an invalid key is provided")
 
 		x_key = 'X'
 		x_value = 228
@@ -87,7 +92,7 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		const_manager.add_const(y_key, y_value)
 
 		assert_equal(target_boolean_logic_result, const_manager.parse(boolean_logic),
-			"should evaluate boolean expressions consisting of OR")
+			"parse should evaluate boolean expressions consisting of OR")
 	end
 end
 end
