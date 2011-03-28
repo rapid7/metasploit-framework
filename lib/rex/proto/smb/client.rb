@@ -657,7 +657,7 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 		self.require_signing = false if self.require_signing
 
 		
-		if UTILS.is_pass_ntlm_hash?(pass)
+		if NTLM_UTILS.is_pass_ntlm_hash?(pass)
 			arglm = {
 				:lm_hash => [ pass.upcase()[0,32] ].pack('H32'),
 				:challenge =>  self.challenge_key 
