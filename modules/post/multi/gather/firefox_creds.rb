@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Post
 		
 		stat = session.fs.file.stat(path) rescue nil
 		if !stat
-			print_error("Firefox not installed")
+			print_error("Firefox not found")
 			return
 		end
 		
@@ -190,14 +190,20 @@ class Metasploit3 < Msf::Post
 		end
 
 		if paths.empty?
-			print_error("Firefox not installed")
+			print_error("Firefox not found")
 			return
 		end
 
 		print_status("Locating Firefox Profiles...")
 		print_line("")
 		path += "Firefox\\Profiles\\"
-		
+
+		stat = session.fs.file.stat(path) rescue nil
+		if !stat
+			print_error("Profiles directory is missing")
+			return
+		end
+
 		# we should only have profiles in the Profiles directory store them all
 		session.fs.dir.foreach(path) do |pdirs|
 			next if pdirs == "." or pdirs == ".."
