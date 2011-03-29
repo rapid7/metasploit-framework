@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Post
 						paths << p
 					end
 				else
-					return
+					next
 				end
 			end
 		else # not root
