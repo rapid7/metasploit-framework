@@ -170,7 +170,13 @@ class Metasploit3 < Msf::Post
 		paths = []
 		path = path + "\\Mozilla\\"
 		print_status("Checking for Firefox directory in: #{path}")
-
+		
+		stat = session.fs.file.stat(path) rescue nil
+		if !stat
+			print_error("Firefox not installed")
+			return
+		end
+		
 		session.fs.dir.foreach(path) do |fdir|
 			if fdir =~ /Firefox/i and @platform == :windows
 				paths << path + fdir + "Profiles\\"
