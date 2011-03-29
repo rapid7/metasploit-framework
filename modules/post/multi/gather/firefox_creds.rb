@@ -154,6 +154,8 @@ class Metasploit3 < Msf::Post
 					dir.each do |p|
 						paths << p
 					end
+				else
+					return
 				end
 			end
 		else # not root
@@ -179,6 +181,11 @@ class Metasploit3 < Msf::Post
 				print_status("Found Firefox installed")
 				break
 			end
+		end
+
+		if paths.empty?
+			print_error("Firefox not installed")
+			return
 		end
 
 		print_status("Locating Firefox Profiles...")
