@@ -26,10 +26,10 @@ class Metasploit3 < Msf::Auxiliary
 					
 					This module must be run as root and will bind to tcp/137 on all interfaces.
 			},
-			'Author'			=> [ 'Tim Medin <tim@securitywhole.com>' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
-			'References'	=>
+			'Author'     => [ 'Tim Medin <tim@securitywhole.com>' ],
+			'License'    => MSF_LICENSE,
+			'Version'    => '$Revision$',
+			'References' =>
 				[
 					[ 'URL', 'http://www.packetstan.com/2011/03/nbns-spoofing-on-your-way-to-world.html' ]
 				],
