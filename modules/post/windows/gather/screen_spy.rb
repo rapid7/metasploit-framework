@@ -22,10 +22,11 @@ class Metasploit3 < Msf::Post
 				user on a machine.
 				},
 			'License'        => MSF_LICENSE,
-			'Author'         => [
-									'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
-									'bannedit' # post module
-								],
+			'Author'         =>
+				[
+					'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
+					'bannedit' # post module
+				],
 			'Version'        => '$Revision$',
 			'Platform'       => ['windows'],
 			'SessionTypes'   => ['meterpreter']
