@@ -18,7 +18,11 @@ class Framework
 	Major    = 3
 	Minor    = 7
 	Point    = 0
+	if (ENV["WINFOOL"] or ( RUBY_PLATFORM =~ /win32|cygwin|ming/i and not ENV['LINFOOL'] ))
+		Release  = "-nickel-and-dime"
+	else
 	Release  = "-dev"
+	end
 
 	if(Point)
 		Version  = "#{Major}.#{Minor}.#{Point}#{Release}"
