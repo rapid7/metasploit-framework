@@ -212,8 +212,10 @@ class DBManager
 			return address if address.kind_of? Host
 		end
 		wspace = opts.delete(:workspace) || workspace
-		host   = wspace.hosts.find_by_address(address)
-		return host
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+		return wspace.hosts.find_by_address(address)
 	end
 
 	#
@@ -2952,6 +2954,7 @@ class DBManager
 			}
 
 			report_host(conf)
+			report_import_note(wspace, addr)
 
 			report_note(
 				:workspace => wspace,
@@ -3049,6 +3052,8 @@ class DBManager
 		parser.callback = Proc.new { |type, value|
 			case type
 			when :host
+				# XXX: Blacklist should be checked here instead of saving a
+				# host we're just going to throw away later
 				hosts.push(value)
 			when :vuln
 				value["id"] = value["id"].downcase if value["id"]
@@ -3132,6 +3137,7 @@ class DBManager
 
 		if (data[:state] != Msf::HostState::Dead)
 			report_host(data)
+			report_import_note(wspace, addr)
 		end
 
 		if h["os_family"]
@@ -4003,6 +4009,7 @@ class DBManager
 			# Record the hostname
 			hinfo.merge!(:name => hname.to_s.strip) if hname
 			report_host(hinfo)
+			report_import_note(wspace, addr)
 
 			# Record the OS
 			os ||= host.elements["os_name"]
@@ -4063,11 +4070,24 @@ class DBManager
 				yield(:address,addr) if block
 			end
 			
+
+			os = host['os']
+			hname = host['hname']
+			mac = host['mac']
+
+			host_info = {
+				:workspace => wspace,
+				:host => addr,
+			}
+			host_info[:name] = hname.to_s.strip if hname
+			host_info[:mac]  = mac.to_s.strip.upcase if mac
+
+			report_host(host_info)
+			report_import_note(wspace, addr)
 	
 			os = host['os']
 			yield(:os,os) if block
 			if os
-				
 				report_note(
 					:workspace => wspace,
 					:host => addr,
@@ -4078,26 +4098,6 @@ class DBManager
 				)
 			end
 	
-			hname = host['hname']
-			
-			if hname
-				report_host(
-					:workspace => wspace,
-					:host => addr,
-					:name => hname.to_s.strip
-				)
-			end
-	
-			mac = host['mac']
-			
-			if mac
-				report_host(
-					:workspace => wspace,
-					:host => addr,
-					:mac  => mac.to_s.strip.upcase
-				)
-			end
-			
 			host['ports'].each do |item|
 				next if item['port'] == 0
 				msf = nil
@@ -4181,8 +4181,20 @@ class DBManager
 			else
 				yield(:address,addr) if block
 			end
-	
+
 			os = host['os']
+			hname = host['hname']
+			mac = host['mac']
+
+			host_hash = {
+				:workspace => wspace,
+				:host => addr,
+			}
+			host_hash[:name] = hname.to_s.strip if hname
+			host_hash[:mac]  = mac.to_s.strip.upcase if mac
+
+			report_host(host_hash)
+			
 			yield(:os, os) if block
 			if os
 				report_note(
@@ -4195,26 +4207,6 @@ class DBManager
 				)
 			end
 	
-			hname = host['hname']
-			
-			if hname
-				report_host(
-					:workspace => wspace,
-					:host => addr,
-					:name => hname.to_s.strip
-				)
-			end
-	
-			mac = host['mac']
-			
-			if mac
-				report_host(
-					:workspace => wspace,
-					:host => addr,
-					:mac  => mac.to_s.strip.upcase
-				)
-			end
-
 			host['apps'].each do |item|
 				port = item['port'].to_s
 				proto = item['proto'].to_s
@@ -4274,6 +4266,7 @@ class DBManager
 			hname = host.attributes['name'] || ''
 
 			report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
+			report_import_note(wspace, addr)
 
 			if host.elements["OS"]
 				hos = host.elements["OS"].text
@@ -4500,7 +4493,8 @@ protected
 		p = port.match(/^([^\(]+)\((\d+)\/([^\)]+)\)/)
 		return if not p
 
-		report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
+		# Unnecessary as the caller should already have reported this host
+		#report_host(:workspace => wspace, :host => addr, :state => Msf::HostState::Alive)
 		name = p[1].strip
 		port = p[2].to_i
 		proto = p[3].downcase
