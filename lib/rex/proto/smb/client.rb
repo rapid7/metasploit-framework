@@ -871,9 +871,11 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 												self.spnopt, ntlm_options)
 		enc_session_key = ''
 		self.sequence_counter = 0
+
 		if self.require_signing
-			self.signing_key, enc_session_key = NTLM_UTILS.create_session_key(server_ntlmssp_flags, user, pass, domain, self.challenge_key,
-											client_challenge, ntlm_cli_challenge, ntlm_options)
+			self.signing_key, enc_session_key, ntlmssp_flags = NTLM_UTILS.create_session_key(ntlmssp_flags, server_ntlmssp_flags, user, pass, domain, 
+											self.challenge_key, client_challenge, ntlm_cli_challenge, 
+											ntlm_options)
 		end
 		
 		# Create the security blob data
