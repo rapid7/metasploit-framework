@@ -309,6 +309,34 @@ def xenchk(session)
 	end
 	return vm
 end
+
+def qemuchk(session)
+	vm = false
+	if not vm
+		begin
+			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+			if key.query_value('Identifier').data.downcase =~ /qemu/
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
+			end
+		rescue
+		end
+	end
+	if not vm
+		begin
+			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System\CentralProcessor\0')
+			if key.query_value('ProcessorNameString').data.downcase =~ /qemu/
+				print_status("This is a QEMU/KVM Virtual Machine")
+				vm = true
+			end
+		rescue
+		end
+	end
+
+	return vm
+
+end
+
 if client.platform =~ /win32|win64/
 	print_status("Checking if target is a Virtual Machine .....")
 	found = hypervchk(session)
@@ -316,6 +344,7 @@ if client.platform =~ /win32|win64/
 	found = checkvrtlpc(session) if not found
 	found = vboxchk(session) if not found
 	found = xenchk(session) if not found
+	found = qemuchk(session) if not found
 	print_status("It appears to be physical host.") if not found
 else
 	print_error("This version of Meterpreter is not supported with this Script!")

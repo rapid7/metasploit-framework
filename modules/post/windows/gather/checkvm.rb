@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 					This module attempts to determine whether the system is running
 					inside of a virtual environment and if so, which one. This
 					module supports detectoin of Hyper-V, VMWare, Virtual PC,
-					VirtualBox, and Xen.
+					VirtualBox, Xen, and QEMU.
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -298,6 +298,32 @@ class Metasploit3 < Msf::Post
 		return vm
 	end
 
+	def qemuchk(session)
+		vm = false
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+				if key.query_value('Identifier').data.downcase =~ /qemu/
+					print_status("This is a QEMU/KVM Virtual Machine")
+					vm = true
+				end
+			rescue
+			end
+		end
+		if not vm
+			begin
+				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DESCRIPTION\System\CentralProcessor\0')
+				if key.query_value('ProcessorNameString').data.downcase =~ /qemu/
+					print_status("This is a QEMU/KVM Virtual Machine")
+					vm = true
+				end
+			rescue
+			end
+		end
+
+		return vm
+	end
+
 	# run Method
 	def run
 		print_status("Checking if #{sysinfo['Computer']} is a Virtual Machine .....")
@@ -306,6 +332,7 @@ class Metasploit3 < Msf::Post
 		found = checkvrtlpc(session) if not found
 		found = vboxchk(session) if not found
 		found = xenchk(session) if not found
+		found = qemuchk(session) if not found
 		print_status("It appears to be physical host.") if not found
 	end
 end
