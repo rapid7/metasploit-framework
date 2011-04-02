@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					[ 'OSVDB', '71420'],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-11-113/' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/17078/' ],
 				],
