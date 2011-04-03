@@ -723,8 +723,6 @@ NTLM_UTILS = Rex::Proto::NTLM::Utils
 	# Authenticate without ntlmssp with a precomputed hash pair
 	def session_setup_no_ntlmssp_prehash(user, domain, hash_lm, hash_nt, do_recv = true)
 
-		#raise XCEPT::NTLM2MissingChallenge if self.require_signing
-
 		data = ''
 		data << hash_lm
 		data << hash_nt
