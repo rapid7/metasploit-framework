@@ -55,8 +55,9 @@ module Proto
 module NTLM
 class Message < Rex::Proto::NTLM::Base::FieldSet
 
-BASE = Rex::Proto::NTLM::Base
+BASE  = Rex::Proto::NTLM::Base
 CONST = Rex::Proto::NTLM::Constants
+CRYPT = Rex::Proto::NTLM::Crypt
 
 
 	class << Message
@@ -202,7 +203,9 @@ CONST = Rex::Proto::NTLM::Constants
 				super(str)
 			end
 		end
-
+		#create a type 3 response base on a type2
+		# This mehod is not compatible with windows 7 / 2008 r2
+		# to make it compatible avpair Time and SPN must be handle as in utils
 		def response(arg, opt = {})
 			usr = arg[:user]
 			pwd = arg[:password]
@@ -244,16 +247,16 @@ CONST = Rex::Proto::NTLM::Constants
 			chal = self[:challenge].serialize
   
 			if opt[:ntlmv2]
-				ar = {	:ntlmv2_hash => NTLM::ntlmv2_hash(usr, pwd, tgt, opt), 
+				ar = {	:ntlmv2_hash => CRYPT::ntlmv2_hash(usr, pwd, tgt, opt), 
 					:challenge => chal, :target_info => ti}
-				lm_res = NTLM::lmv2_response(ar, opt)
-				ntlm_res = NTLM::ntlmv2_response(ar, opt)
+				lm_res = CRYPT::lmv2_response(ar, opt)
+				ntlm_res = CRYPT::ntlmv2_response(ar, opt)
 			elsif has_flag?(:NTLM2_KEY)
-				ar = {:ntlm_hash => NTLM::ntlm_hash(pwd, opt), :challenge => chal}
-				lm_res, ntlm_res = NTLM::ntlm2_session(ar, opt)
+				ar = {:ntlm_hash => CRYPT::ntlm_hash(pwd, opt), :challenge => chal}
+				lm_res, ntlm_res = CRYPT::ntlm2_session(ar, opt)
 			else
-				lm_res = NTLM::lm_response(pwd, chal)
-				ntlm_res = NTLM::ntlm_response(pwd, chal)
+				lm_res = CRYPT::lm_response(pwd, chal)
+				ntlm_res = CRYPT::ntlm_response(pwd, chal)
 			end
   
 			Type3.create({
