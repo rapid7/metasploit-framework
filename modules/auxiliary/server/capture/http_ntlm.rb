@@ -48,7 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('LOGFILE', [ false, "The local filename to store the captured hashes", nil ]),
-			OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ])
+			OptString.new('PWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
+			OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
 
 		], self.class)
 
@@ -59,8 +60,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('DNSDOMAIN',  [ false, "The default DNS domain name to use for NTLM authentication", "example.com"]),
 			OptBool.new('FORCEDEFAULT',  [ false, "Force the default settings", false])
 		], self.class)
-
-		@challenge = "\x11\x22\x33\x44\x55\x66\x77\x88"
 
 	end
 
@@ -87,6 +86,12 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		if datastore['CHALLENGE'].to_s =~ /^([a-fA-F0-9]{16})$/
+			@challenge = [ datastore['CHALLENGE'] ].pack("H*")
+		else
+			print_error("CHALLENGE syntax must match 1122334455667788")
+			return
+		end
 		exploit()
 	end
 
