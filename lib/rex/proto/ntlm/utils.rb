@@ -1,5 +1,6 @@
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/crypt'
+require 'rex/proto/ntlm/exceptions'
 
 module Rex
 module Proto
@@ -8,6 +9,7 @@ class Utils
 
 	CONST = Rex::Proto::NTLM::Constants
 	CRYPT = Rex::Proto::NTLM::Crypt
+	XCEPT = Rex::Proto::NTLM::Exceptions
 
   	#duplicate from lib/rex/proto/smb/utils cause we only need this fonction from Rex::Proto::SMB::Utils
 	# Convert a unix timestamp to a 64-bit signed server time
@@ -376,7 +378,7 @@ class Utils
 		cidx = blob.index("NTLMSSP\x00\x02\x00\x00\x00")
 
 		if not cidx
-			raise XCEPT::NTLM2MissingChallenge
+			raise XCEPT::NTLMMissingChallenge
 		end
 
 		data[:challenge_key] = blob[cidx + 24, 8]
