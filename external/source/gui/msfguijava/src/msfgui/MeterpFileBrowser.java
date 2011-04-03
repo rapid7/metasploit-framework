@@ -180,7 +180,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					return;
 				String clickedFile = mainTable.getValueAt(indx, 0).toString();
 				if (files.get(clickedFile).equals("dir")) {
-					executeCommand("cd \"" + clickedFile + "\"");
+					executeCommand("cd " + MsfguiApp.escapeBackslashes(clickedFile));
 					getFiles();
 				} else {
 					download();
@@ -202,9 +202,9 @@ public class MeterpFileBrowser extends MsfFrame {
 		for(int indx : indxs){
 			String clickedFile = mainTable.getValueAt(indx, 0).toString();
 			if (files.get(clickedFile).equals("dir"))
-				executeCommand("rmdir \"" + clickedFile + "\"");
+				executeCommand("rmdir " + MsfguiApp.escapeBackslashes(clickedFile));
 			else
-				executeCommand("rm \"" + clickedFile + "\"");
+				executeCommand("rm " + MsfguiApp.escapeBackslashes(clickedFile));
 		}
 		getFiles();
 	}
@@ -479,8 +479,8 @@ public class MeterpFileBrowser extends MsfFrame {
 		fchooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 		if(fchooser.showOpenDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
-		executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().getParent()) + "\"");
-		executeCommand("upload \""+fchooser.getSelectedFile().getName() + "\"");
+		executeCommand("lcd "+MsfguiApp.escapeBackslashes(fchooser.getSelectedFile().getParent()));
+		executeCommand("upload " + MsfguiApp.escapeBackslashes(fchooser.getSelectedFile().getName()));
 		getFiles();
 	}//GEN-LAST:event_uploadButtonActionPerformed
 
@@ -492,7 +492,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		String newDir = JOptionPane.showInputDialog(this,"New directory name","Choose Directory Name",JOptionPane.QUESTION_MESSAGE);
 		if(newDir == null)
 			return;
-		executeCommand("mkdir \""+newDir + "\"");
+		executeCommand("mkdir " + MsfguiApp.escapeBackslashes(newDir));
 		getFiles();
 	}//GEN-LAST:event_dirButtonActionPerformed
 
@@ -525,7 +525,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		if(addressField.getText().equals("/"))
 			executeCommand("cd /../"); //Weird annonying bug. "cd /" doesn't work
 		else
-			executeCommand("cd \"" + MsfguiApp.doubleBackslashes(addressField.getText()) + "\"");
+			executeCommand("cd " + MsfguiApp.escapeBackslashes(addressField.getText()));
 		getFiles();
 	}
 	private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
@@ -559,8 +559,8 @@ public class MeterpFileBrowser extends MsfFrame {
 		fchooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		if(fchooser.showSaveDialog(this) != JFileChooser.APPROVE_OPTION)
 			return;
-		executeCommand("lcd \""+MsfguiApp.cleanBackslashes(fchooser.getSelectedFile().toString()) + "\"");
+		executeCommand("lcd " + MsfguiApp.escapeBackslashes(fchooser.getSelectedFile().toString()));
 		for(int indx : mainTable.getSelectedRows())
-			executeCommand("download \""+mainTable.getValueAt(indx, 0) + "\"");
+			executeCommand("download " + MsfguiApp.escapeBackslashes(mainTable.getValueAt(indx, 0).toString()));
 	}
 }

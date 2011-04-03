@@ -162,7 +162,7 @@ public class NetenumOptionsDialog extends OptionsDialog {
 		if(forwardBox.isSelected())
 			cmd.append(" -fl");
 		if(fileField.getText().length() > 0)
-			cmd.append(" -hl \"").append(MsfguiApp.doubleBackslashes(fileField.getText())).append("\"");
+			cmd.append(" -hl ").append(MsfguiApp.escapeBackslashes(fileField.getText()));
 		if(domainField.getText().length() > 0)
 			cmd.append(" -d ").append(domainField.getText());
 		if(mxNsBox.isSelected())

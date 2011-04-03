@@ -127,14 +127,14 @@ public class SearchDwldOptionsDialog extends OptionsDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
 		StringBuilder cmd = new StringBuilder("file_collector");
 		if(dirField.getText().length() > 0)
-			cmd.append(" -d \'").append(MsfguiApp.doubleBackslashes(dirField.getText())).append("\'");
+			cmd.append(" -d ").append(MsfguiApp.escapeBackslashes(dirField.getText()));
 		cmd.append(" -l ").append(outputDirField.getText());
 		if(recursiveBox.isSelected())
 			cmd.append(" -r ");
 		cmd.append(" -f ").append(searchPatternField.getText());
 		String tempFileName = MsfguiApp.getTempFilename("foundfiles", ".txt");
-		cmd.append(" -o \"").append(MsfguiApp.doubleBackslashes(tempFileName)).append("\"");
-		cmd.append(" -i \"").append(MsfguiApp.doubleBackslashes(tempFileName)).append("\"");
+		cmd.append(" -o ").append(MsfguiApp.escapeBackslashes(tempFileName));
+		cmd.append(" -i ").append(MsfguiApp.escapeBackslashes(tempFileName));
 		command = cmd.toString();
 		doClose();
     }//GEN-LAST:event_okButtonActionPerformed

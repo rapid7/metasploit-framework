@@ -295,7 +295,13 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static String cleanBackslashes(String input){
 		return backslash.matcher(input).replaceAll("/");
 	}
-	public static String doubleBackslashes(String input){
-		return backslash.matcher(input).replaceAll("\\\\\\\\");
+	public static String escapeBackslashes(String input){
+		StringBuilder output = new StringBuilder();
+		for(char c : input.toCharArray()){
+			if(c == '\\' || c == ' ' || c == '\'' || c == '"')
+				output.append('\\');
+			output.append(c);
+		}
+		return output.toString();
 	}
 }

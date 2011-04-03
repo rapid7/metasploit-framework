@@ -141,10 +141,10 @@ public class UploadexecOptionsDialog extends OptionsDialog {
     private void okButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_okButtonActionPerformed
         StringBuilder cmd = new StringBuilder("uploadexec ");
 		if(optionsField.getText().length() > 0)
-			cmd.append(" -o \"").append(MsfguiApp.doubleBackslashes(optionsField.getText())).append("\"");
+			cmd.append(" -o ").append(MsfguiApp.escapeBackslashes(optionsField.getText()));
 		if(pathField.getText().length() > 0)
-			cmd.append(" -p \"").append(MsfguiApp.doubleBackslashes(pathField.getText())).append("\"");
-		cmd.append(" -e \"").append(MsfguiApp.doubleBackslashes(fileField.getText())).append("\"");
+			cmd.append(" -p ").append(MsfguiApp.escapeBackslashes(pathField.getText()));
+		cmd.append(" -e ").append(MsfguiApp.escapeBackslashes(fileField.getText()));
 		if(verboseBox.isSelected())
 			cmd.append(" -v");
 		if(removeBox.isSelected())

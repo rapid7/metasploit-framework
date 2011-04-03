@@ -1566,8 +1566,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				return;
 			Map res = (Map) rpcConn.execute("console.create");
 			registerConsole(res, true, InteractWindow.runCmdWindow(rpcConn, res,
-					"db_export -f "+type+" \""+MsfguiApp.doubleBackslashes(
-					MsfguiApp.fileChooser.getSelectedFile().getCanonicalPath())+"\""));
+					"db_export -f "+type+" "+MsfguiApp.escapeBackslashes(
+					MsfguiApp.fileChooser.getSelectedFile().getCanonicalPath())));
 		} catch (MsfException mex) {
 			JOptionPane.showMessageDialog(getFrame(), mex);
 		} catch (IOException iex) {

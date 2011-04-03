@@ -270,9 +270,9 @@ public class ScheduleTaskOptionsDialog extends OptionsDialog {
 		if(usernameField.getText().length() > 0)
 			cmd.append(" -u ").append(usernameField.getText()).append(" -p ").append(passwordField.getText());
 		if(uploadField.getText().length() > 0)
-			cmd.append(" -e \"").append(MsfguiApp.doubleBackslashes(uploadField.getText())).append("\" -o \"")
-					.append(MsfguiApp.doubleBackslashes(uploadedArgs.getText())).append("\"");
-		cmd.append(" -c \"").append(MsfguiApp.doubleBackslashes(commandField.getText())).append("\"");
+			cmd.append(" -e ").append(MsfguiApp.escapeBackslashes(uploadField.getText())).append(" -o ")
+					.append(MsfguiApp.escapeBackslashes(uploadedArgs.getText()));
+		cmd.append(" -c ").append(MsfguiApp.escapeBackslashes(commandField.getText()));
 		command = cmd.toString();
 		setVisible(false);
 	}//GEN-LAST:event_goButtonActionPerformed
