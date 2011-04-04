@@ -171,7 +171,8 @@ class RangeWalker
 	end
 
 	# 
-	# Calls the given block with each address
+	# Calls the given block with each address. This is basically a wrapper for
+	# +next_ip+
 	#
 	def each(&block)
 		while (ip = next_ip)
@@ -332,8 +333,7 @@ class RangeWalker
 
 end
 
-# :nodoc:
-class Range < Array
+class Range < Array # :nodoc: all
 	def start; self[0]; end
 	def stop;  self[1]; end
 	def ipv6;  self[2]; end

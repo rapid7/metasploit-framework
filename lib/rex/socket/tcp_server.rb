@@ -5,8 +5,7 @@ require 'rex/io/stream_server'
 ###
 #
 # This class provides methods for interacting with a TCP server.  It
-# implements the StreamServer IO interface.
-#
+# implements the Rex::IO::StreamServer interface.
 #
 ###
 module  Rex::Socket::TcpServer
