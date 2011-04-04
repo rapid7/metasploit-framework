@@ -15,11 +15,11 @@ class IP360XMLStreamParser
 	end
 
 	def reset_state
-                @host = {'hname' => nil, 'hid' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil,
-                         'vulns' => ['vuln' => {'vulnid' => nil, 'port' => nil, 'proto' => nil} ],
-                         'apps' => ['app' => {'appid' => nil, 'svcid' => nil, 'port' => nil, 'proto' => nil } ],
-                        }
-                @state = :generic_state
+		@host = {'hname' => nil, 'hid' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil,
+			'vulns' => ['vuln' => {'vulnid' => nil, 'port' => nil, 'proto' => nil} ],
+			'apps' => ['app' => {'appid' => nil, 'svcid' => nil, 'port' => nil, 'proto' => nil } ],
+		}
+		@state = :generic_state
 	end
 
 	def tag_start(name, attributes)
@@ -83,10 +83,14 @@ class IP360XMLStreamParser
 
 	# We don't need these methods, but they're necessary to keep REXML happy
 	#
-	def xmldecl(version, encoding, standalone); end
-	def comment(str); end
-	def instruction(name, instruction); end
-	def attlist; end
+	def xmldecl(version, encoding, standalone) # :nodoc:
+	end
+	def comment(str) # :nodoc:
+	end
+	def instruction(name, instruction) # :nodoc:
+	end
+	def attlist # :nodoc:
+	end
 end
 
 end
