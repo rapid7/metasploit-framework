@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Needs an end
 			next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a$/m
 			# Shouldn't have binary.
-			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x19\x80-\xff]/).empty?
+			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
 			# Add more tests to taste.
 			keepers << key
 		end

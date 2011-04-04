@@ -1944,7 +1944,7 @@ class DBManager
 				return REXML::Document.new(data)
 			rescue REXML::ParseException => e
 				dlog("REXML error: Badly formatted XML, attempting to recover. Error was: #{e.inspect}")
-				return REXML::Document.new(data.gsub(/([\x00-\x08\x0b\x0c\x0e-\x19\x80-\xff])/){ |x| "\\x%.2x" % x.unpack("C*")[0] })
+				return REXML::Document.new(data.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff])/){ |x| "\\x%.2x" % x.unpack("C*")[0] })
 			end
 		end
 	end
