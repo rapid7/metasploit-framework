@@ -19,9 +19,9 @@ class IP360ASPLXMLStreamParser
 	end
 
 	def reset_state
-                @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } },
-		         'oses' => {'name' => { } } }
-                @state = :generic_state
+		@aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } },
+			'oses' => {'name' => { } } }
+		@state = :generic_state
 	end
 
 	def tag_start(name, attributes)

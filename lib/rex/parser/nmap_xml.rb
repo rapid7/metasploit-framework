@@ -37,8 +37,22 @@ module Parser
 #
 class NmapXMLStreamParser
 
+	#
+	# Callback for processing each found host
+	#
 	attr_accessor :on_found_host
 
+	#
+	# Create a new stream parser for NMAP XML output
+	#
+	# If given a block, it will be stored in +on_found_host+, otherwise you
+	# need to set it explicitly, e.g.:
+	#   parser = NmapXMLStreamParser.new
+	#   parser.on_found_host = Proc.new { |host|
+	#     # do stuff with the host
+	#   }
+	#   REXML::Document.parse_stream(File.new(nmap_xml), parser)
+	#
 	def initialize(&block)
 		reset_state
 		on_found_host = block if block

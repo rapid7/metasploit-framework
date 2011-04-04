@@ -82,11 +82,16 @@ class NexposeXMLStreamParser
 	end
 
 	# We don't need these methods, but they're necessary to keep REXML happy
-	def xmldecl(version, encoding, standalone); end
-	def cdata; end
-	def comment(str); end
-	def instruction(name, instruction); end
-	def attlist; end
+	def xmldecl(version, encoding, standalone) # :nodoc:
+	end
+	def cdata # :nodoc:
+	end
+	def comment(str) # :nodoc:
+	end
+	def instruction(name, instruction) # :nodoc:
+	end
+	def attlist # :nodoc:
+	end
 end
 end
 end
