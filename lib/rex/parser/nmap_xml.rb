@@ -20,20 +20,16 @@ module Parser
 #	}
 #
 # Usage:
-# <tt>
-# parser = NmapXMLStreamParser.new { |host|
-#	# do stuff with the host
-# }
-# REXML::Document.parse_stream(File.new(nmap_xml), parser)
-# </tt>
+#   parser = NmapXMLStreamParser.new { |host|
+#     # do stuff with the host
+#   }
+#   REXML::Document.parse_stream(File.new(nmap_xml), parser)
 # -- or --
-# <tt>
-# parser = NmapXMLStreamParser.new
-# parser.on_found_host = Proc.new { |host|
-#	# do stuff with the host
-# }
-# REXML::Document.parse_stream(File.new(nmap_xml), parser)
-# </tt>
+#   parser = NmapXMLStreamParser.new
+#   parser.on_found_host = Proc.new { |host|
+#     # do stuff with the host
+#   }
+#   REXML::Document.parse_stream(File.new(nmap_xml), parser)
 #
 # This parser does not maintain state as well as a tree parser, so malformed
 # xml will trip it up.  Nmap shouldn't ever output malformed xml, so it's not
@@ -108,12 +104,18 @@ class NmapXMLStreamParser
 	end
 
 	# We don't need these methods, but they're necessary to keep REXML happy
-	def text(str); end
-	def xmldecl(version, encoding, standalone); end
-	def cdata; end
-	def comment(str); end
-	def instruction(name, instruction); end
-	def attlist; end
+	def text(str) # :nodoc:
+	end
+	def xmldecl(version, encoding, standalone) # :nodoc:
+	end
+	def cdata # :nodoc:
+	end
+	def comment(str) # :nodoc:
+	end
+	def instruction(name, instruction) # :nodoc:
+	end
+	def attlist # :nodoc:
+	end
 end
 
 end
