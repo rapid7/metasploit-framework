@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
 			if data.class == Fixnum
 				return data
 			else
-				value = data.unpack('H*').to_s
+				value = data.unpack('H*')[0].to_s
 				return value
 			end
 		rescue
@@ -135,6 +135,9 @@ class Metasploit3 < Msf::Post
 			end
 			#reporting
 			if e[:pass] != nil
+				if e[:port] == nil
+					e[:port] = 5900
+				end
 				print_good("#{e[:name]} => #{e[:hash]} => #{e[:pass]} on port: #{e[:port]}")
 				report_auth_info(
 					:host  => session.sock.peerhost,
