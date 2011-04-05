@@ -67,7 +67,11 @@ end
 cmd = ARGV.pop.downcase
 
 # Populate the framework datastore
-options = ARGV.join(',')
+options = {}
+ARGV.each do |x|
+	k,v = x.split("=", 2)
+	options[k] = v.to_s
+end
 
 if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	fmt = 'perl' if (cmd =~ /^p/)
@@ -84,7 +88,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	begin
 		buf = payload.generate_simple(
 				'Format'    => fmt,
-				'OptionStr' => options,
+				'Options'   => options,
 				'Encoder'   => enc)
 	rescue
 		$stderr.puts "Error generating payload: #{$!}"
@@ -98,7 +102,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 			"Created by msfpayload (http://www.metasploit.com).\n" +
 			"Payload: " + payload.refname + "\n" +
 			" Length: " + buf.length.to_s + "\n" +
-			"Options: " + options + "\n"
+			"Options: " + options.inspect + "\n"
 
 		arch = payload.arch
 		plat = payload.platform.platforms
@@ -125,7 +129,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 			"'Created by msfpayload (http://www.metasploit.com).\r\n" +
 			"'Payload: " + payload.refname + "\r\n" +
 			"' Length: " + buf.length.to_s + "\r\n" +
-			"'Options: " + options + "\r\n"
+			"'Options: " + options.inspect + "\r\n"
 
 		vba = note + "\r\n" + Msf::Util::EXE.to_exe_vba(exe)
 		$stdout.write(vba)
@@ -138,7 +142,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 			"Created by msfpayload (http://www.metasploit.com).\r\n" +
 			"Payload: " + payload.refname + "\r\n" +
 			" Length: " + buf.length.to_s + "\r\n" +
-			"Options: " + options + "\r\n"
+			"Options: " + options.inspect + "\r\n"
 
 		if(dll)
 			$stderr.puts(note)
@@ -155,7 +159,7 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 			"Created by msfpayload (http://www.metasploit.com).\n" +
 			"Payload: " + payload.refname + "\n" +
 			" Length: " + buf.length.to_s + "\n" +
-			"Options: " + options + "\n"
+			"Options: " + options.inspect + "\n"
 
 		arch = payload.arch
 		plat = payload.platform.platforms
