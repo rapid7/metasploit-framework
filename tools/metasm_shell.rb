@@ -35,13 +35,20 @@ $args = Rex::Parser::Arguments.new(
 
 $args.parse(ARGV) { |opt, idx, val|
 	case opt
-		when "-a"
-			usage unless @Arch.include?(val)
-			String.class_eval("@@cpu = Metasm::#{val}.new")
-		when "-h"
-			usage
-		else
-			usage
+	when "-a"
+		found = nil
+		@Arch.each { |a|
+			if val.downcase == a.downcase
+				String.class_eval("@@cpu = Metasm::#{a}.new")
+				found = true
+			end
+		}
+		usage if not found
+
+	when "-h"
+		usage
+	else
+		usage
 	end
 }
 
