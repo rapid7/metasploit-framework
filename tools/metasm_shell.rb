@@ -20,9 +20,33 @@ require 'rex'
 require 'rex/ui'
 require 'metasm'
 
+#PowerPC, seems broken for now in metasm
+#@Arch = ['Ia32','MIPS','PowerPC','ARM','X86_64']
+@Arch = ['Ia32','MIPS','ARM','X86_64']
+
+def usage
+	$stderr.puts("\nUsage: #{$0} <options>\n" + $args.usage)
+	exit
+end
+		
+$args = Rex::Parser::Arguments.new(
+	"-a" => [ true, "The architecture to encode as (#{@Arch.sort.collect{|a| a + ', ' }.join.gsub(/\, $/,'')})"],
+	"-h" => [ false, "Display this help information"	])
+
+$args.parse(ARGV) { |opt, idx, val|
+	case opt
+		when "-a"
+			usage unless @Arch.include?(val)
+			String.class_eval("@@cpu = Metasm::#{val}.new")
+		when "-h"
+			usage
+		else
+			usage
+	end
+}
 
 class String
-	@@cpu = Metasm::Ia32.new
+	@@cpu ||= Metasm::Ia32.new
 	class << self
 		def cpu()   @@cpu   end
 		def cpu=(c) @@cpu=c end
