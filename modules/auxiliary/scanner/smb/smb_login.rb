@@ -141,6 +141,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			smb_login()
+		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
+			if e.get_error(e.error_code) == "STATUS_ACCESS_DENIED"
+				print_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{e.get_error(e.error_code)})")
+				disconnect()
+				datastore["SMBDomain"] = orig_domain
+				return :skip_user
+			else
+				raise e 
+			end
+
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 
 			case e.error_reason
