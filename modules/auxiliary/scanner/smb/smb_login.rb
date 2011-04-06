@@ -130,10 +130,10 @@ class Metasploit3 < Msf::Auxiliary
 		# slashes.
 		if datastore["PRESERVE_DOMAINS"]
 			d,u = domain_username_split(user)
-			datastore["SMBUser"] = u.gsub(/<BLANK>/i,"")
+			datastore["SMBUser"] = u.to_s.gsub(/<BLANK>/i,"")
 			datastore["SMBDomain"] = d if d
 		else
-			datastore["SMBUser"] = user.gsub(/<BLANK>/i,"")
+			datastore["SMBUser"] = user.to_s.gsub(/<BLANK>/i,"")
 		end
 
 		# Connection problems are dealt with at a higher level
