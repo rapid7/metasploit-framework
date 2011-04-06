@@ -186,7 +186,8 @@ class ExeFormat
 				wantsize = {}
 
 				elem.each { |e|
-					e.reloc.sort.each_with_index { |(o, r), i|
+					e.reloc.sort.each_with_index { |r_, i|
+						r = r_[1]
 						# has external ref
 						if not r.target.bind(minbinding).reduce.kind_of?(Numeric) or not check_linear[r.target]
 							# find the biggest relocation type for the current target

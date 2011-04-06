@@ -25,5 +25,11 @@ EOS
 		buf = 'aaaaaaaaaaaaaaaaaa'
 		d.new_func_c(c_src) { d.fufu(42, buf) }
 		assert_equal("lolzor 42\n\000aaaaaaa", buf)
+
+		if d.host_cpu.shortname == 'ia32'
+			ret = d.new_func_asm('int __fastcall bla(int)', "lea eax, [ecx+1]\nret") { d.bla(42) }
+			assert_equal(43, ret)
+			assert_equal(false, d.respond_to?(:bla))
+		end
 	end
 end

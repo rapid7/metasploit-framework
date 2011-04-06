@@ -31,7 +31,7 @@ class Ia32
 
 		private
 		def encode16(reg, endianness)
-			if not @b
+			if not b
 				# imm only
 				return [EncodedData.new << (6 | (reg << 3)) << @imm.encode(:u16, endianness)]
 			end
@@ -211,7 +211,8 @@ class Ia32
 					opsz = ia.sz
 				end
 			}
-			pfx << 0x66 if (opsz and size == 48 - opsz) or (op.props[:opsz] and op.props[:opsz] != size)
+			pfx << 0x66 if (not op.props[:argsz] or opsz != op.props[:argsz]) and (
+				(opsz and size == 48 - opsz) or (op.props[:opsz] and op.props[:opsz] != size))
 			if op.props[:opsz] and size == 48 - op.props[:opsz]
 				opsz = op.props[:opsz]
 			end

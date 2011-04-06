@@ -4,8 +4,8 @@
 #    Licence is LGPL, see LICENCE in the top-level directory
 
 
-require 'metasm/exe_format/coff'
 require 'metasm/encode'
+require 'metasm/exe_format/coff' unless defined? Metasm::COFF
 
 module Metasm
 class COFF
@@ -29,7 +29,7 @@ class COFF
 
 		# find good default values for optheader members, based on coff.sections
 		def set_default_values(coff)
-			@signature    ||= 'PE'
+			@signature    ||= (coff.bitsize == 64 ? 'PE+' : 'PE')
 			@link_ver_maj ||= 1
 			@link_ver_min ||= 0
 			@sect_align   ||= 0x1000
@@ -175,7 +175,7 @@ class COFF
 
 			edata['nametable'] << @libname << 0
 
-			ord_mask = 1 << (coff.optheader.signature == 'PE+' ? 63 : 31)
+			ord_mask = 1 << (coff.bitsize - 1)
 			@imports.each { |i|
 				edata['iat'].last.add_export i.target, edata['iat'].last.virtsize if i.target
 				if i.ordinal
@@ -334,7 +334,7 @@ class COFF
 	def encode_byte(w)   Expression[w].encode(:u8,  @endianness, (caller if $DEBUG)) end
 	def encode_half(w)   Expression[w].encode(:u16, @endianness, (caller if $DEBUG)) end
 	def encode_word(w)   Expression[w].encode(:u32, @endianness, (caller if $DEBUG)) end
-	def encode_xword(w)  Expression[w].encode((@optheader.signature == 'PE+' ? :u64 : :u32), @endianness, (caller if $DEBUG)) end
+	def encode_xword(w)  Expression[w].encode((@bitsize == 32 ? :u32 : :u64), @endianness, (caller if $DEBUG)) end
 
 
 	# adds a new compiler-generated section
@@ -534,8 +534,8 @@ class COFF
 					end
 
 					(rt.relocs ||= []) << r
-				else
-					puts "W: COFF: Ignoring weird relocation #{rel.inspect} when building relocation tables" if $DEBUG
+				elsif $DEBUG and not rel.target.bind(binding).reduce.kind_of?(Integer)
+					puts "W: COFF: Ignoring weird relocation #{rel.inspect} when building relocation tables"
 				end
 			}
 
@@ -570,6 +570,7 @@ class COFF
 				when 32; 'PE'
 				when 64; 'PE+'
 				end
+		@bitsize = (@optheader.signature == 'PE+' ? 64 : 32)
 
 		# setup header flags
 		tmp = %w[LINE_NUMS_STRIPPED LOCAL_SYMS_STRIPPED DEBUG_STRIPPED] +
@@ -604,7 +605,8 @@ class COFF
 	def invalidate_header
 		# set those values to nil, they will be
 		# recomputed during encode_header
-		[:code_size, :data_size, :udata_size, :base_of_code, :sect_align, :file_align, :image_size, :headers_size, :checksum].each { |m| @optheader.send("#{m}=", nil) }
+		[:code_size, :data_size, :udata_size, :base_of_code, :base_of_data,
+		 :sect_align, :file_align, :image_size, :headers_size, :checksum].each { |m| @optheader.send("#{m}=", nil) }
 		[:num_sect, :ptr_sym, :num_sym, :size_opthdr].each { |m| @header.send("#{m}=", nil) }
 	end
 
@@ -1027,7 +1029,8 @@ class COFF
 	# and WindowsExports::EXPORT
 	# if the relocation target is '<symbolname>' or 'iat_<symbolname>, link to the IAT address, if it is '<symbolname> + <expr>',
 	# link to a thunk (plt-like)
-	def autoimport
+	# if the relocation is not found, try again after appending 'fallback_append' to the symbol (eg wsprintf => wsprintfA)
+	def autoimport(fallback_append='A')
 		WindowsExports rescue return	# autorequire
 		autoexports = WindowsExports::EXPORT.dup
 		@sections.each { |s|
@@ -1043,7 +1046,11 @@ class COFF
 				elsif r.target.op == :- and r.target.rexpr.kind_of?(::String) and r.target.lexpr.kind_of?(::String)
 					sym = thunk = r.target.lexpr
 				end
+				if not dll = autoexports[sym]
+					sym += fallback_append if sym.kind_of?(::String) and fallback_append.kind_of?(::String)
 				next if not dll = autoexports[sym]
+				end
+
 				@imports ||= []
 				next if @imports.find { |id| id.imports.find { |ii| ii.name == sym } }
 				if not id = @imports.find { |id_| id_.libname =~ /^#{dll}(\.dll)?$/i }

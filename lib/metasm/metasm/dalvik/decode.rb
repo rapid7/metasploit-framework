@@ -19,11 +19,6 @@ class Dalvik
 		di
 	end
 
-	def disassembler_default_func
-		df = DecodedFunction.new
-		df
-	end
-
 	def decode_instr_op(edata, di)
 		op = di.opcode
 		di.instruction.opname = op.name
@@ -99,6 +94,9 @@ class Dalvik
 					di.instruction.args << Reg.new(val[-1] + c)
 				}
 				next
+			when :m16
+				val << edata.decode_imm(:u16, @endianness)
+				Method.new(@dex, val.last)
 			else raise SyntaxError, "Internal error: invalid argument #{a} in #{op.name}"
 			end
 		}
@@ -114,6 +112,21 @@ class Dalvik
  
 	def init_backtrace_binding
 		@backtrace_binding ||= {}
+		sz = @size/8
+		@opcode_list.each { |op|
+			case op.name
+			when /invoke/
+				@backtrace_binding[op.name] = lambda { |di, *args| {
+					:callstack => Expression[:callstack, :-, sz], 
+					Indirection[:callstack, sz] => Expression[di.next_addr]
+				} }
+			when /return/
+				@backtrace_binding[op.name] = lambda { |di, *args| {
+			       		:callstack => Expression[:callstack, :+, sz]
+				} }
+			end
+		}
+		@backtrace_binding
 	end
 
 	def get_backtrace_binding(di)
@@ -139,11 +152,45 @@ class Dalvik
 	end
 	
 	def get_xrefs_x(dasm, di)
-		if di.opcode.props[:setip]
+		if di.opcode.props[:saveip]
+			m = di.instruction.args.first
+			if m.kind_of? Method and m.off
+				[m.off]
+			else
+				[:default]
+			end
+		elsif di.opcode.props[:setip]
+			if di.opcode.name =~ /return/
+				[Indirection[:callstack, @size/8]]
+			else
 			[]	#	[di.instruction.args.last]
+			end
 		else
 			[]
 		end
+	end
+
+	# returns a DecodedFunction suitable for :default
+	# uses disassembler_default_bt{for/bind}_callback
+	def disassembler_default_func
+		df = DecodedFunction.new
+		ra = Indirection[:callstack, @size/8]
+		df.backtracked_for << BacktraceTrace.new(ra, :default, ra, :x, nil)
+		df.backtrace_binding[:callstack] = Expression[:callstack, :+, @size/8]
+		df.btfor_callback = lambda { |dasm, btfor, funcaddr, calladdr|
+			if funcaddr != :default
+				btfor
+			elsif di = dasm.decoded[calladdr] and di.opcode.props[:saveip]
+				btfor
+			else []
+			end
+		}
+
+		df
+	end
+
+	def backtrace_is_function_return(expr, di=nil)
+		expr and Expression[expr] == Expression[Indirection[:callstack, @size/8]]
 	end
 end
 end

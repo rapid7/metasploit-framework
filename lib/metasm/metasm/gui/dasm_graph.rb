@@ -212,6 +212,13 @@ class Graph
 
 		# scan groups for a line pattern (multiple groups with same to & same from)
 		group_lines = lambda { |strict|
+			if groups.all? { |g1| g1.from.empty? and g1.to.empty? }
+				# disjoint subgraphs
+				align_hz[groups]
+				merge_groups[groups]
+				next true
+			end
+
 			groups.find { |g1|
 				ary = g1.from.map { |gg| gg.to }.flatten.uniq.find_all { |gg|
 					gg != g1 and
@@ -632,7 +639,13 @@ class GraphViewWidget < DrawableWidget
 			idx = (x-sx+@margin/4).to_i / (@margin/2)
 			idx = 0 if idx < 0
 			idx = bt.to.length-1 if idx >= bt.to.length
+			if bt.to[idx]
+				if @parent_widget
 			@parent_widget.focus_addr bt.to[idx][:line_address][0]
+				else
+					focus_xy(bt.to[idx].x, bt.to[idx].y)
+				end
+			end
 			true
 		elsif bf = @shown_boxes.to_a.reverse.find { |b|
 			y >= b.y-@margin-2 and y <= b.y and
@@ -642,7 +655,13 @@ class GraphViewWidget < DrawableWidget
 			idx = (x-sx+@margin/4).to_i / (@margin/2)
 			idx = 0 if idx < 0
 			idx = bf.from.length-1 if idx >= bf.from.length
+			if bf.from[idx]
+				if @parent_widget
 			@parent_widget.focus_addr bf.from[idx][:line_address][-1]
+				else
+					focus_xy(bt.from[idx].x, bt.from[idx].y)
+				end
+			end
 			true
 		end
 	end
@@ -790,7 +809,7 @@ class GraphViewWidget < DrawableWidget
 		w_w = (b.x - @curcontext.view_x + b.w - @font_width)*@zoom
 		w_h = (b.y - @curcontext.view_y + b.h - @font_height)*@zoom
 
-		if @parent_widget.bg_color_callback
+		if @parent_widget and @parent_widget.bg_color_callback
 			ly = 0
 			b[:line_address].each { |a|
 				if c = @parent_widget.bg_color_callback[a]
@@ -872,6 +891,36 @@ class GraphViewWidget < DrawableWidget
 			by = @caret_box.y + @caret_box.h/2
 			@caret_box = ctx.box.find { |cb| cb.x < bx and cb.x+cb.w > bx and cb.y < by and cb.y+cb.h > by }
 		end
+	end
+
+	def load_dotfile(path)
+		@want_update_graph = false
+		@curcontext.clear
+		boxes = {}
+		new_box = lambda { |text|
+			b = @curcontext.new_box(text, :line_text_col => [[[text, :text]]])
+			b.w = text.length * @font_width
+			b.h = @font_height
+			b
+		}
+		max = File.size(path)
+		i = 0
+		File.open(path) { |fd|
+			while l = fd.gets
+				case l.strip
+				when /^"?(\w+)"?\s*->\s*"?(\w+)"?;?$/
+					b1 = boxes[$1] ||= new_box[$1]
+					b2 = boxes[$2] ||= new_box[$2]
+					b1.to   |= [b2]
+					b2.from |= [b1]
+				end
+$stderr.printf("%.02f\r" % (fd.pos*100.0/max))  if (i += 1) & 0xff == 0
+			end
+		}
+p boxes.length
+		redraw
+rescue Interrupt
+p boxes.length
 	end
 
 	# create the graph objects in ctx
@@ -982,7 +1031,7 @@ class GraphViewWidget < DrawableWidget
 	def keypress_ctrl(key)
 		case key
 		when ?F
-			@parent_widget.inputbox('text to search in curfunc (regex)') { |pat|
+			@parent_widget.inputbox('text to search in curview (regex)', :text => @hl_word) { |pat|
 				re = /#{pat}/i
 				list = [['addr', 'instr']]
 				@curcontext.box.each { |b|
@@ -1253,7 +1302,7 @@ class GraphViewWidget < DrawableWidget
 	# start or an entrypoint is found, then the graph is created from there
 	# will call gui_update then
 	def focus_addr(addr, can_update_context=true)
-		return if not addr = @parent_widget.normalize(addr)
+		return if @parent_widget and not addr = @parent_widget.normalize(addr)
 		return if not @dasm.di_at(addr)
 
 		# move window / change curcontext
@@ -1292,7 +1341,7 @@ class GraphViewWidget < DrawableWidget
 	def update_caret
 		return if not @caret_box or not @caret_x or not l = @caret_box[:line_text_col][@caret_y]
 		l = l.map { |s, c| s }.join
-		@parent_widget.focus_changed_callback[] if @parent_widget.focus_changed_callback and @oldcaret_y != @caret_y
+		@parent_widget.focus_changed_callback[] if @parent_widget and @parent_widget.focus_changed_callback and @oldcaret_y != @caret_y
 		update_hl_word(l, @caret_x)
 		redraw
 	end

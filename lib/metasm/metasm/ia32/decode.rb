@@ -150,7 +150,7 @@ class Ia32
 				  (ndpfx = op.props[:needpfx] and not pfx[:list].to_a.include? ndpfx) or
 				  # return non-ambiguous opcode (eg push.i16 in 32bit mode) / sync with addop_post in opcode.rb
 				  (pfx[:opsz] and (op.args == [:i] or op.args == [:farptr] or op.name[0, 3] == 'ret') and not op.props[:opsz]) or
-				  (pfx[:adsz] and (not op.props[:adsz] or op.props[:adsz] == @size))
+				  (pfx[:adsz] and op.props[:adsz] and op.props[:adsz] == @size)
 				 )
 			}
 
@@ -186,8 +186,8 @@ class Ia32
 			adsz = @size
 		end
 
-		op.args.each { |a|
 			mmxsz = ((op.props[:xmmx] && pfx[:opsz]) ? 128 : 64)
+		op.args.each { |a|
 			di.instruction.args << case a
 			when :reg;    Reg.new     field_val[a], opsz
 			when :eeec;   CtrlReg.new field_val[a]
@@ -211,7 +211,7 @@ class Ia32
 			when :reg_cl;   Reg.new 1, 8
 			when :reg_eax;  Reg.new 0, opsz
 			when :reg_dx;   Reg.new 2, 16
-			when :regfp0;   FpReg.new nil	# implicit?
+			when :regfp0;   FpReg.new nil
 			else raise SyntaxError, "Internal error: invalid argument #{a} in #{op.name}"
 			end
 		}
@@ -232,7 +232,7 @@ class Ia32
 		end
 
 		pfx.delete :seg
-		case r = pfx.delete(:rep)
+		case pfx.delete(:rep)
 		when :nz
 			if di.opcode.props[:strop]
 				pfx[:rep] = 'rep'
@@ -278,8 +278,8 @@ class Ia32
 		case cc
 		when 'o'; Expression[:eflag_o]
 		when 'no'; Expression[:'!', :eflag_o]
-		when 'b', 'nae'; Expression[:eflag_c]
-		when 'nb', 'ae'; Expression[:'!', :eflag_c]
+		when 'b', 'nae', 'c'; Expression[:eflag_c]
+		when 'nb', 'ae', 'nc'; Expression[:'!', :eflag_c]
 		when 'z', 'e'; Expression[:eflag_z]
 		when 'nz', 'ne'; Expression[:'!', :eflag_z]
 		when 'be', 'na'; Expression[:eflag_c, :|, :eflag_z]
@@ -401,7 +401,7 @@ class Ia32
 				lambda { |di|
 					ret = {}
 					st_off = 0
-					register_symbols.each { |r|
+					register_symbols.reverse_each { |r|
 						ret[r] = Indirection[Expression[esp, :+, st_off].reduce, opsz(di)/8, di.address]
 						st_off += opsz(di)/8
 					}
@@ -415,11 +415,17 @@ class Ia32
 			when 'loop', 'loopz', 'loopnz'; lambda { |di, a0| { ecx => Expression[ecx, :-, 1] } }
 			when 'enter'
 				lambda { |di, a0, a1|
+					sz = opsz(di)/8
 					depth = a1.reduce % 32
-					b = { Indirection[esp, opsz(di)/8, di.address] => Expression[ebp], ebp => Expression[esp, :-, opsz(di)/8],
-							esp => Expression[esp, :-, a0.reduce + ((opsz(di)/8) * depth)] }
-					(1..depth).each { |i| # XXX test me !
-						b[Indirection[[esp, :-, i*opsz(di)/8], opsz(di)/8, di.address]] = Indirection[[ebp, :-, i*opsz(di)/8], opsz(di)/8, di.address] }
+					b = {	Indirection[ebp, sz, di.address] => Expression[ebp],
+						Indirection[[esp, :+, a0.reduce+sz*depth], sz, di.address] => Expression[ebp],
+						ebp => Expression[esp, :-, sz],
+						esp => Expression[esp, :-, a0.reduce+sz*depth+sz] }
+					(1..depth).each { |i|
+						b[Indirection[[esp, :+, a0.reduce+i*sz], sz, di.address]] =
+						b[Indirection[[ebp, :-, i*sz], sz, di.address]] =
+						       	Expression::Unknown # TODO Indirection[[ebp, :-, i*sz], sz, di.address]
+					}
 					b
 				}
 			when 'leave'; lambda { |di| { ebp => Indirection[[ebp], opsz(di)/8, di.address], esp => Expression[ebp, :+, opsz(di)/8] } }
@@ -507,7 +513,6 @@ class Ia32
 					} if di.block
 					lastfpuinstr = lastfpuinstr.address if lastfpuinstr
 					ret = {}
-					ptr = a0.pointer
 					save_at = lambda { |off, val| ret[Indirection[a0.target + off, 4, di.address]] = val }
 					save_at[0, Expression::Unknown]
 					save_at[4, Expression::Unknown]
@@ -645,7 +650,9 @@ class Ia32
 					val = bd.delete e
 					mask <<= shift if shift
 					invmask = mask ^ (@size == 64 ? 0xffff_ffff_ffff_ffff : 0xffff_ffff)
-					if invmask == 0
+					if invmask == 0xffff_ffff_0000_0000 and not di.opcode.props[:op32no64]
+						bd[reg] = Expression[val, :&, 0xffff_ffff]
+					elsif invmask == 0
 						bd[reg] = val
 					else
 						val = Expression[val, :<<, shift] if shift
@@ -673,7 +680,7 @@ class Ia32
 		when 'ret'; return [Indirection[register_symbols[4], sz/8, di.address]]
 		when 'jmp', 'call'
 			a = di.instruction.args.first
-			if a.kind_of? ModRM and a.imm and a.s == sz/8 and not a.b and dasm.get_section_at(a.imm)
+			if dasm and a.kind_of?(ModRM) and a.imm and a.s == sz/8 and not a.b and dasm.get_section_at(a.imm)
 				return get_xrefs_x_jmptable(dasm, di, a, sz)
 			end
 		end
@@ -708,9 +715,9 @@ class Ia32
 			s = dasm.get_section_at(mrm.imm)
 			lim += 1 if pdi.opcode.name[-1] == ?e
 			lim.times { |v|
-				ptr = dasm.normalize s[0].decode_imm("u#{sz}".to_sym, @endianness)
-				dasm.add_xref(s[1]+s[0].ptr-sz/8, Xref.new(:r, di.address, sz/8))
+				dasm.add_xref(s[1]+s[0].ptr, Xref.new(:r, di.address, sz/8))
 				ret << Indirection[[mrm.imm, :+, v*sz/8], sz/8, di.address]
+				s[0].read(sz/8)
 			}
 			l = dasm.auto_label_at(mrm.imm, 'jmp_table', 'xref')
 			replace_instr_arg_immediate(di.instruction, mrm.imm, Expression[l])
@@ -751,7 +758,7 @@ class Ia32
 	def backtrace_update_function_binding(dasm, faddr, f, retaddrlist, *wantregs)
 		b = f.backtrace_binding
 
-		eax, ecx, edx, ebx, esp, ebp, esi, edi = register_symbols
+		esp, ebp = register_symbols[4, 2]
 
 		# XXX handle retaddrlist for multiple/mixed thunks
 		if retaddrlist and not dasm.decoded[retaddrlist.first] and di = dasm.decoded[faddr]
@@ -1146,7 +1153,9 @@ class Ia32
 				else bt[finish, reg, false]
 				end
 			next if val == Expression[reg]
-			val = Expression[val, :&, 0xffff_ffff].reduce #( 1<<@size)-1  # 16bit code may use e.g. edi
+			mask = 0xffff_ffff	# dont use 1<<@size, because 16bit code may use e.g. edi (through opszoverride)
+			mask = 0xffff_ffff_ffff_ffff if @size == 64
+			val = Expression[val, :&, mask].reduce
 			binding[reg] = Expression[val]
 		}
 

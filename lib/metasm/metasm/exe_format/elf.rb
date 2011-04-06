@@ -635,6 +635,16 @@ class ELF < ExeFormat
 		end
 		super(cpu)
 	end
+
+	def shortname; 'elf'; end
+end
+
+class LoadedELF < ELF
+	attr_accessor :load_address
+	def addr_to_off(addr)
+		@load_address ||= 0
+		addr >= @load_address ? addr - @load_address : addr if addr
+	end
 end
 
 class FatELF < ExeFormat
@@ -733,6 +743,8 @@ class FatELF < ExeFormat
 		puts "FatELF: using 1st archive member" if $VERBOSE
 		fe[0]
 	end
+
+	def shortname; 'fatelf'; end
 end
 end
 

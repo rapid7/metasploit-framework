@@ -7,8 +7,6 @@
 # native libraries
 # x86 only for now
 
-require 'metasm'
-
 module Metasm
 class DynLdr
 	# basic C defs for ruby internals - 1.8 and 1.9 compat - x86/x64
@@ -16,8 +14,14 @@ class DynLdr
 #line #{__LINE__}
 typedef uintptr_t VALUE;
 
-#define INT2VAL(v) rb_uint2inum(v)
-#define VAL2INT(v) rb_num2ulong(v)
+#if defined(__PE__) && defined(__x86_64__)
+ // sonovabeep
+ #define INT2VAL(v) rb_ull2inum(v)
+ #define VAL2INT(v) rb_num2ull(v)
+#else
+ #define INT2VAL(v) rb_uint2inum(v)
+ #define VAL2INT(v) rb_num2ulong(v)
+#endif
 
 struct rb_string_t {
 	VALUE flags;
@@ -61,6 +65,7 @@ extern VALUE *rb_eArgError __attribute__((import));
  #define T_STRING 0x05
  #define T_ARRAY  0x07
  #define T_FIXNUM 0x15
+ #define T_MASK   0x1f
  #define RSTRING_NOEMBED (1<<13)
  #define STR_PTR(o) ((RString(o)->flags & RSTRING_NOEMBED) ? RString(o)->ptr : (char*)&RString(o)->len)
  #define STR_LEN(o) ((RString(o)->flags & RSTRING_NOEMBED) ? RString(o)->len : (RString(o)->flags >> 14) & 0x1f)
@@ -71,18 +76,19 @@ extern VALUE *rb_eArgError __attribute__((import));
  #define T_STRING 0x07
  #define T_ARRAY  0x09
  #define T_FIXNUM 0x0a
+ #define T_MASK   0x3f
  #define STR_PTR(o) (RString(o)->ptr)
  #define STR_LEN(o) (RString(o)->len)
  #define ARY_PTR(o) (RArray(o)->ptr)
  #define ARY_LEN(o) (RArray(o)->len)
 #endif
 
-#define T_MASK   0x3f
 #define TYPE(x) (((VALUE)(x) & 1) ? T_FIXNUM : (((VALUE)(x) & 3) || ((VALUE)(x) < 7)) ? 0x40 : RString(x)->flags & T_MASK)
 
 VALUE rb_uint2inum(VALUE);
 VALUE rb_ull2inum(unsigned long long);
 VALUE rb_num2ulong(VALUE);
+unsigned long long rb_num2ull(VALUE);
 VALUE rb_str_new(const char* ptr, long len);	// alloc + memcpy + 0term
 VALUE rb_ary_new2(int len);
 VALUE rb_float_new(double);
@@ -313,23 +319,25 @@ static VALUE invoke(VALUE self, VALUE ptr, VALUE args, VALUE flags)
 	return INT2VAL(ret);
 }
 
-extern uintptr_t *callback_id_tmp;
-uintptr_t do_callback_handler(uintptr_t arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4, uintptr_t arg5, uintptr_t arg6, uintptr_t arg7)
+uintptr_t do_callback_handler(uintptr_t cb_id __attribute__((register(rax))),
+		uintptr_t arg0, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3,
+		uintptr_t arg4, uintptr_t arg5, uintptr_t arg6, uintptr_t arg7)
 {
 	uintptr_t ret;
 	VALUE args = rb_ary_new2(8);
+	VALUE *ptr = ARY_PTR(args);
 
 	RArray(args)->len = 8;
-	ARY_PTR(args)[0] = INT2VAL(arg0);
-	ARY_PTR(args)[1] = INT2VAL(arg1);
-	ARY_PTR(args)[2] = INT2VAL(arg2);
-	ARY_PTR(args)[3] = INT2VAL(arg3);
-	ARY_PTR(args)[4] = INT2VAL(arg4);
-	ARY_PTR(args)[5] = INT2VAL(arg5);
-	ARY_PTR(args)[6] = INT2VAL(arg6);
-	ARY_PTR(args)[7] = INT2VAL(arg7);
+	ptr[0] = INT2VAL(arg0);
+	ptr[1] = INT2VAL(arg1);
+	ptr[2] = INT2VAL(arg2);
+	ptr[3] = INT2VAL(arg3);
+	ptr[4] = INT2VAL(arg4);
+	ptr[5] = INT2VAL(arg5);
+	ptr[6] = INT2VAL(arg6);
+	ptr[7] = INT2VAL(arg7);
 
-	ret = rb_funcall(dynldr, rb_intern("callback_run"), 2, *callback_id_tmp, args);
+	ret = rb_funcall(dynldr, rb_intern("callback_run"), 2, INT2VAL(cb_id), args);
 
 	return VAL2INT(ret);
 }
@@ -347,7 +355,12 @@ int Init_dynldr(void) __attribute__((export_as(Init_<insertfilenamehere>)))	// t
 	rb_define_singleton_method(dynldr, "rb_value_to_obj", rb_value_to_obj, 1);
 	rb_define_singleton_method(dynldr, "sym_addr", sym_addr, 2);
 	rb_define_singleton_method(dynldr, "raw_invoke", invoke, 3);
-	rb_define_const(dynldr, "CALLBACK_TARGET", INT2VAL((VALUE)&callback_handler));
+	rb_define_const(dynldr, "CALLBACK_TARGET",
+#ifdef __i386__
+			INT2VAL((VALUE)&callback_handler));
+#elif defined __amd64__
+			INT2VAL((VALUE)&do_callback_handler));
+#endif
 	rb_define_const(dynldr, "CALLBACK_ID_0", INT2VAL((VALUE)&callback_id_0));
 	rb_define_const(dynldr, "CALLBACK_ID_1", INT2VAL((VALUE)&callback_id_1));
 	return 0;
@@ -389,6 +402,9 @@ asm("get_peb: mov rax, gs:[60h] ret");
 #endif
 #ifdef __i386__
 asm("get_peb: mov eax, fs:[30h] ret");
+
+// 1st arg for ld_rb_imp == Init retaddr
+asm("Init_dynldr: call load_ruby_imports jmp Init_dynldr_real");
 #endif
 
 struct _lmodule {
@@ -409,7 +425,7 @@ struct _peb {
 };
 
 // find the ruby library in the loaded modules list of the interpreter through the PEB
-static uintptr_t find_ruby_module(void)
+static uintptr_t find_ruby_module_peb(void)
 {
 	struct _lmodule *ptr;
 	void *base;
@@ -427,6 +443,16 @@ static uintptr_t find_ruby_module(void)
 	return 0;
 }
 
+// find the ruby library from an address in the ruby module (Init_dynldr retaddr)
+static uintptr_t find_ruby_module_mem(uintptr_t someaddr)
+{
+	// could __try{}, but with no imports we're useless anyway.
+	uintptr_t ptr = someaddr & (-0x10000);
+	while (*((unsigned __int16 *)ptr) != 'ZM')	// XXX too weak?
+		ptr -= 0x10000;
+	return ptr;
+}
+
 // a table of string offsets, base = the table itself
 // each entry is a ruby function, whose address is to be put inplace in the table
 // last entry == 0
@@ -434,7 +460,7 @@ extern void *ruby_import_table;
 
 __stdcall uintptr_t GetProcAddress(uintptr_t, char *);
 // resolve the ruby imports found by offset in ruby_import_table
-static int load_ruby_imports(void)
+int load_ruby_imports(uintptr_t rbaddr)
 {
 	uintptr_t ruby_module;
 	uintptr_t *ptr;
@@ -445,7 +471,11 @@ static int load_ruby_imports(void)
 		return 0;
 	loaded_ruby_imports = 1;
 
- 	ruby_module = find_ruby_module();
+	if (rbaddr)
+		ruby_module = find_ruby_module_mem(rbaddr);
+	else
+	 	ruby_module = find_ruby_module_peb();
+
 	if (!ruby_module)
 		return 0;
 	
@@ -462,13 +492,15 @@ static int load_ruby_imports(void)
 	return 1;
 }
 
+#ifdef __x86_64__
 #define DLL_PROCESS_ATTACH 1
 __stdcall int DllMain(void *handle, int reason, void *res)
 {
 	if (reason == DLL_PROCESS_ATTACH)
-		return load_ruby_imports();
+		return load_ruby_imports(0);
 	return 1;
 }
+#endif
 EOS
 
 	# ia32 asm source for the native component: handles ABI stuff
@@ -550,32 +582,25 @@ fake_float:
 	ret
 
 // entrypoint for callbacks: to the native api, give the addr of some code
-//  that will push a unique cb_identifier and jmp here
-callback_handler:
-	// stack here: cb_id_retaddr, cb_native_retaddr, cb_native_arg0, ...
-	// swap caller retaddr & cb_identifier, fix cb_identifier from the stub
-	pop rax		// stuff pushed by the stub
-	sub rax, callback_id_1 - callback_id_0	// fixup cb_id_retaddr to get a cb id
-	mov [rip+callback_id_tmp-1f], rax	// XXX racey if not greenthreaded..
-1:
+//  that will save its address in rax and jump to do_cb_h
+callback_id_0:
+	lea rax, [rip-$_+callback_id_0]
 	jmp do_callback_handler
-
-callback_id_0: call callback_handler
-callback_id_1: call callback_handler
-
-.data
-callback_id_tmp dq ?
+callback_id_1:
+	lea rax, [rip-$_+callback_id_1]
+	jmp do_callback_handler
 EOS
 
 	# initialization
 	# load (build if needed) the binary module
 	def self.start
+		# callbacks are really just a list of asm 'call', so we share them among subclasses of DynLdr
 		@@callback_addrs = []	# list of all allocated callback addrs (in use or not)
 		@@callback_table = {}	# addr -> cb structure (inuse only)
 
 		binmodule = find_bin_path
 
-		if not File.exists? binmodule or File.stat(binmodule).mtime < File.stat(__FILE__).mtime
+		if not File.exists?(binmodule) or File.stat(binmodule).mtime < File.stat(__FILE__).mtime
 			compile_binary_module(host_exe, host_cpu, binmodule)
 		end
 
@@ -587,71 +612,108 @@ EOS
 	# compile the dynldr binary ruby module for a specific arch/cpu/modulename
 	def self.compile_binary_module(exe, cpu, modulename)
 		bin = exe.new(cpu)
-		# compile the C code, but patch the Init export name, which must match the string used in 'require'
-		bin.compile_c DYNLDR_C.gsub('<insertfilenamehere>', File.basename(modulename, '.so'))
+		# compile the C code, but patch the Init_ export name, which must match the string used in 'require'
+		module_c_src = DYNLDR_C.gsub('<insertfilenamehere>', File.basename(modulename, '.so'))
+		bin.compile_c module_c_src
+		# compile the Asm stuff according to the target architecture
 		bin.assemble  case cpu.shortname
 		              when 'ia32'; DYNLDR_ASM_IA32
 		              when 'x64'; DYNLDR_ASM_X86_64
 			      end
 
+		# tweak the resulting binary linkage procedures if needed
 		compile_binary_module_hack(bin)
 
+		# save the shared library
 		bin.encode_file(modulename, :lib)
 	end
 	
 	def self.compile_binary_module_hack(bin)
 		# this is a hack
 		# we need the module to use ruby symbols
-		# but we don't know the actual ruby lib filename (depends on ruby version,
-		# platform, ...)
-		case bin.class.name.gsub(/.*::/, '')
-		when 'ELF'
-			# we know the lib is already loaded in the main ruby process, no DT_NEEDED needed
+		# but we don't know the actual ruby lib filename (depends on ruby version, # platform, ...)
+		case bin.shortname
+		when 'elf'
+			# we know the lib is already loaded by the main ruby executable, no DT_NEEDED needed
 			class << bin
 				def automagic_symbols(*a)
+					# do the plt generation
 					super(*a)
+					# but remove the specific lib names
 					@tag.delete 'NEEDED'
 				end
 			end
 			return
-		when 'PE'
-		else return
+		when 'coff'
+			# the hard part, see below
+		else
+			# unhandled arch, dont tweak
+			return
 		end
+
+		# we remove the PE IAT section related to ruby symbols, and make
+		# a manual symbol resolution on module loading.
 
 		# populate the ruby import table ourselves on module loading
 		bin.imports.delete_if { |id| id.libname =~ /ruby/ }
 
-		# the C glue: getprocaddress etc
-		bin.compile_c DYNLDR_C_PE_HACK
+		# we generate something like:
+		#  .data
+		#  ruby_import_table:
+		#  rb_cObject dd str_rb_cObject - ruby_import_table
+		#  riat_rb_intern dd str_rb_intern - ruby_import_table
+		#  dd 0
+		#
+		#  .rodata
+		#  str_rb_cObject db "rb_cObject", 0
+		#  str_rb_intern db "rb_intern", 0
+		#
+		#  .text
+		#  rb_intern: jmp [riat_rb_intern]
+		#
+		# the PE_HACK code will parse ruby_import_table and make the symbol resolution on startup
 
-		# we now need to setup the string table and the thunks
+		# setup the string table and the thunks
 		text = bin.sections.find { |s| s.name == '.text' }.encoded
 		rb_syms = text.reloc_externals.grep(/^rb_/)
 
 		dd = (bin.cpu.size == 64 ? 'dq' : 'dd')
-		# the offset table
+
+		init_symbol = text.export.keys.grep(/^Init_/).first
+		raise 'no Init_mname symbol found' if not init_symbol
+		if bin.cpu.size == 32
+			# hax to find the base of libruby under Win98 (peb sux)
+			text.export[init_symbol + '_real'] = text.export.delete(init_symbol)
+			bin.unique_labels_cache.delete(init_symbol)
+		end
+
+		# the C glue: getprocaddress etc
+		bin.compile_c DYNLDR_C_PE_HACK.gsub('Init_dynldr', init_symbol)
+
+		# the IAT, initialized with relative offsets to symbol names
 		asm_table = ['.data', '.align 8', 'ruby_import_table:']
-		# the strings will be in .rodata
+		# strings will be in .rodata
 		bin.parse('.rodata')
 		rb_syms.each { |sym|
-			# add the raw string
+			# raw symbol name
 			str_label = bin.parse_new_label('str', "db #{sym.inspect}, 0")
 
 			if sym !~ /^rb_[ce][A-Z]/
-				# create a thunk
+				# if we dont reference a data import (rb_cClass / rb_eException),
+				# then create a function thunk
 				i = PE::ImportDirectory::Import.new
 				i.thunk = sym
-				sym = i.target = 'riat_' + str_label	# should be a new_label
+				sym = i.target = 'riat_' + str_label
 				bin.arch_encode_thunk(text, i)	# encode a jmp [importtable]
 			end
 
-			# update the offset table
+			# update the IAT
 			asm_table << "#{sym} #{dd} #{str_label} - ruby_import_table"
 		}
-		# dont forget the final 0
+		# IAT null-terminated
 		asm_table << "#{dd} 0"
 
-		# now we can parse & assemble the offset table
+		# now parse & assemble the IAT in .data
 		bin.assemble asm_table.join("\n")
 	end
 
@@ -715,7 +777,10 @@ EOS
 
 	# ExeFormat suitable as current running host native module
 	def self.host_exe
-		{ :linux => ELF, :windows => PE }[host_arch]
+		case host_arch
+		when :linux; ELF
+		when :windows; PE
+		end
 	end
 
 	# parse a C string into the @cp parser, create it if needed
@@ -757,32 +822,85 @@ EOS
 			lib = fromlib || lib_from_sym(v.name)
 			addr = sym_addr(lib, v.name)
 		       	if addr == 0 or addr == -1 or addr == 0xffff_ffff or addr == 0xffffffff_ffffffff
-				api_not_found(lib, v.name)
+				api_not_found(lib, v)
 				next
 			end
 
+			rbname = c_func_name_to_rb(v.name)
 			if not v.type.kind_of? C::Function
 				# not a function, simply return the symbol address
 				# TODO struct/table access through hash/array ?
-				class << self ; self ; end.send(:define_method, v.name.downcase) { addr }
+				class << self ; self ; end.send(:define_method, rbname) { addr }
 				next
 			end
 			next if v.initializer	# inline & stuff
-			puts "new_api_c: load method #{v.name.downcase} from #{lib}" if $DEBUG
+			puts "new_api_c: load method #{rbname} from #{lib}" if $DEBUG
 
-			new_caller_for(v, v.name.downcase, addr)
+			new_caller_for(v, rbname, addr)
 		}
 
-		# constant definition from macro/enum
-		cp.numeric_constants.each { |k, v|
-			n = k.upcase
-			n = "C#{n}" if n !~ /^[A-Z]/
-			const_set(n, v) if v.kind_of? Integer and not constants.map { |c| c.to_s }.include?(n)
+		# predeclare constants from enums
+		# macros are handled in const_missing (too slow to (re)do here everytime)
+		# TODO #define FOO(v) (v<<1)|1   =>  create ruby counterpart
+		cexist = constants.inject({}) { |h, c| h.update c.to_s => true }
+		cp.toplevel.symbol.each { |k, v|
+			if v.kind_of? ::Integer
+				n = c_const_name_to_rb(k)
+				const_set(n, v) if v.kind_of? Integer and not cexist[n]
+			end
+		}
+
+		# avoid WTF rb warning: toplevel const TRUE referenced by WinAPI::TRUE
+		cp.lexer.definition.each_key { |k|
+			n = c_const_name_to_rb(k)
+			if not cexist[n] and Object.const_defined?(n) and v = @cp.macro_numeric(n)
+				const_set(n, v)
+			end
 		}
 	end
 
+	# const_missing handler: will try to find a matching #define
+	def self.const_missing(c)
+		# infinite loop on autorequire C..
+		return super(c) if not defined? @cp or not @cp
+
+		cs = c.to_s
+		if @cp.lexer.definition[cs]
+			m = cs
+		else
+			m = @cp.lexer.definition.keys.find { |k| c_const_name_to_rb(k) == cs }
+		end
+
+		if m and v = @cp.macro_numeric(m)
+			const_set(c, v)
+			v
+		else
+			super(c)
+		end
+	end
+
+	# when defining ruby wrapper for C methods, the ruby method name is the string returned by this function from the C name
+	def self.c_func_name_to_rb(name)
+		n = name.to_s.gsub(/[^a-z0-9_]/i) { |c| c.unpack('H*')[0] }.downcase
+		n = "m#{n}" if n !~ /^[a-z]/
+		n
+	end
+
+	# when defining ruby wrapper for C constants (numeric define/enum), the ruby const name is
+	# the string returned by this function from the C name. It should follow ruby standards (1st letter upcase)
+	def self.c_const_name_to_rb(name)
+		n = name.to_s.gsub(/[^a-z0-9_]/i) { |c| c.unpack('H*')[0] }.upcase
+		n = "C#{n}" if n !~ /^[A-Z]/
+		n
+	end
+
 	def self.api_not_found(lib, func)
-		raise "could not find symbol #{func.inspect} in #{lib.inspect}"
+		raise "could not find symbol #{func.name.inspect} in #{lib.inspect}"
+	end
+
+	# called whenever a native API is called through new_api_c/new_func_c/etc
+	def self.trace_invoke(api, args)
+		#p api
 	end
 
 	# define a new method 'name' in the current module to invoke the raw method at addr addr
@@ -795,39 +913,59 @@ EOS
 		flags |= 8 if proto.type.type.float?
 		class << self ; self ; end.send(:define_method, name) { |*a|
 			raise ArgumentError, "bad arg count for #{name}: #{a.length} for #{proto.type.args.length}" if a.length != proto.type.args.length and not proto.type.varargs
+
+			# convert the arglist suitably for raw_invoke
 			auto_cb = []	# list of automatic C callbacks generated from lambdas
-			a = a.zip(proto.type.args).map { |ra, fa| convert_arg_rb2c(fa, ra, :cb_list => auto_cb, :expand_i64 => true) }.flatten
+			a = a.zip(proto.type.args).map { |ra, fa|
+				aa = convert_rb2c(fa, ra, :cb_list => auto_cb)
+				if fa and fa.type.integral? and cp.sizeof(fa) == 8 and host_cpu.size == 32
+					aa = [aa & 0xffff_ffff, (aa >> 32) & 0xffff_ffff]
+					aa.reverse! if host_cpu.endianness != :little
+				end
+				aa
+			}.flatten
+
+			trace_invoke(name, a)
+			# do it
 			ret = raw_invoke(addr, a, flags)
+
+			# cleanup autogenerated callbacks
 			auto_cb.each { |cb| callback_free(cb) }
+
+			# interpret return value
 			ret = convert_ret_c2rb(proto, ret)
-			ret
 		}
 	end
 
 	# ruby object -> integer suitable as arg for raw_invoke
-	def self.convert_arg_rb2c(formal, val, opts={})
-		val = case val
+	def self.convert_rb2c(formal, val, opts=nil)
+		case val
 		when String; str_ptr(val)
-		when Proc; cb = callback_alloc_cobj(formal, val) ; (opts[:cb_list] ||= []) << cb ; cb
-		# TODO when Hash, Array; if formal.type.pointed.kind_of? C::Struct; yadda yadda ; end
-		else val.to_i rescue 0	# NaN, Infinity, etc
+		when Proc; cb = callback_alloc_cobj(formal, val) ; (opts[:cb_list] << cb if opts and opts[:cb_list]) ; cb
+		when C::AllocCStruct; str_ptr(val.str) + val.stroff
+		when Hash
+			if not formal.type.pointed.kind_of?(C::Struct)
+				raise "invalid argument #{val.inspect} for #{formal}, need a struct*"
+			end
+			buf = cp.alloc_c_struct(formal, val)
+			val.instance_variable_set('@rb2c', buf)	# GC trick: lifetime(buf) >= lifetime(hash) (XXX or until next call to convert_rb2c)
+			str_ptr(buf.str)
+		#when Float; val	# TODO handle that in raw_invoke C code
+		else
+		       v = val.to_i rescue 0	# NaN, Infinity, etc
+		       v = -v if v == -(1<<(cp.typesize[:ptr]*8-1))	# ruby bug... raise -0x8000_0000: out of ulong range
+		       v
 		end
-
-		if opts[:expand_i64] and formal and formal.type.integral? and cp.sizeof(formal) == 8 and host_cpu.size == 32
-			val = [val & 0xffff_ffff, (val >> 32) & 0xffff_ffff]
-			val.reverse! if host_cpu.endianness != :little
-		end
-
-		val
 	end
 
 	# this method is called from the C part to run the ruby code corresponding to
 	# a given C callback allocated by callback_alloc_c
 	def self.callback_run(id, args)
-		raise "invalid callback #{'%x' % id} not in #{@@callback_table.keys.map { |c| c.to_s(16) }}" if not cb = @@callback_table[id]
+		cb = @@callback_table[id]
+		raise "invalid callback #{'%x' % id} not in #{@@callback_table.keys.map { |c| c.to_s(16) }}" if not cb
 
 		rawargs = args.dup
-		ra = cb[:proto] ? cb[:proto].args.map { |fa| convert_arg_c2rb(fa, rawargs) } : []
+		ra = cb[:proto] ? cb[:proto].args.map { |fa| convert_cbargs_c2rb(fa, rawargs) } : []
 
 		# run it
 		ret = cb[:proc].call(*ra)
@@ -838,25 +976,35 @@ EOS
 	end
 
 	# C raw cb arg -> ruby object
-	def self.convert_arg_c2rb(formal, rawargs)
+	# will combine 2 32bit values for 1 64bit arg
+	def self.convert_cbargs_c2rb(formal, rawargs)
 		val = rawargs.shift
-		if formal.type.integral? and cp.sizeof(formal) == 64 and host_cpu.size == 32
+		if formal.type.integral? and cp.sizeof(formal) == 8 and host_cpu.size == 32
 			if host.cpu.endianness == :little
 				val |= rawargs.shift << 32
 			else
 				val = (val << 32) | rawargs.shift
 			end
 		end
-		# TODO Expression.make_signed
-		val = nil if formal.type.pointer? and val == 0
 
+		convert_c2rb(formal, val)
+	end
+
+	# interpret a raw decoded C value to a ruby value according to the C prototype
+	# handles signedness etc
+	# XXX val is an integer, how to decode Floats etc ? raw binary ptr ?
+	def self.convert_c2rb(formal, val)
+		formal = formal.type if formal.kind_of? C::Variable
+		val = Expression.make_signed(val, 8*cp.sizeof(formal)) if formal.integral? and formal.signed?
+		val = nil if formal.pointer? and val == 0
 		val
 	end
 
 	# C raw ret -> ruby obj
+	# can be overridden for system-specific calling convention (eg return 0/-1 => raise an error)
 	def self.convert_ret_c2rb(fproto, ret)
-		# TODO signedness
-		ret
+		fproto = fproto.type if fproto.kind_of? C::Variable
+		convert_c2rb(fproto.untypedef.type, ret)
 	end
 
 	def self.cp ; @cp ||= C::Parser.new(host_exe.new(host_cpu)) ; end
@@ -913,13 +1061,21 @@ EOS
 			cb_page = memory_alloc(4096)
 			sc = Shellcode.new(host_cpu, cb_page)
 			case sc.cpu.shortname
-			when 'ia32', 'x64'
+			when 'ia32'
 				addr = cb_page
 				nrcb = 128	# TODO should be 4096/5, but the parser/compiler is really too slow
 				nrcb.times {
 					@@callback_addrs << addr
 					sc.parse "call #{CALLBACK_TARGET}"
 					addr += 5
+				}
+			when 'x64'
+				addr = cb_page
+				nrcb = 128	# same remark
+				nrcb.times {
+					@@callback_addrs << addr
+					sc.parse "1: lea rax, [rip-$_+1b] jmp #{CALLBACK_TARGET}"
+					addr += 12	# XXX approximative..
 				}
 			end
 			sc.assemble
@@ -949,74 +1105,96 @@ EOS
 			cp.toplevel.symbol.delete v.name
 			next if not v.type.kind_of? C::Function or not v.initializer
 			next if not off = sc.encoded.export[v.name]
-			new_caller_for(v, v.name, ptr+off)
-			defs << v.name
+			rbname = c_func_name_to_rb(v.name)
+			new_caller_for(v, rbname, ptr+off)
+			defs << rbname
 		}
 		if block_given?
 			begin
-				ret = yield
+				yield
 			ensure
 				defs.each { |d| class << self ; self ; end.send(:remove_method, d) }
 				memory_free ptr
 			end
-			ret
 		else
 			ptr
 		end
 	end
 
-	class AllocCStruct < String
-		def initialize(cp, struct)
-			@cp, @struct = cp, struct
-			replace [0].pack('C')*@cp.sizeof(@struct)
+	# compile an asm sequence, callable with the ABI of the C prototype given
+	# function name comes from the prototype
+	def self.new_func_asm(proto, asm)
+		proto += "\n;"
+		old = cp.toplevel.symbol.keys
+		parse_c(proto)
+		news = cp.toplevel.symbol.keys - old
+		raise "invalid proto #{proto}" if news.length != 1
+		f = cp.toplevel.symbol[news.first]
+		raise "invalid func proto #{proto}" if not f.name or not f.type.kind_of? C::Function or f.initializer
+		cp.toplevel.symbol.delete f.name
+
+		sc = Shellcode.assemble(host_cpu, asm)
+		ptr = memory_alloc(sc.encoded.length)
+		bd = sc.encoded.binding(ptr)
+		sc.encoded.reloc_externals.uniq.each { |ext| bd[ext] = sym_addr(lib_from_sym(ext), ext) or raise "unknown symbol #{ext}" }
+		sc.encoded.fixup(bd)
+		memory_write ptr, sc.encode_string
+		memory_perm ptr, sc.encoded.length, 'rwx'
+		rbname = c_func_name_to_rb(f.name)
+		new_caller_for(f, rbname, ptr)
+		if block_given?
+			begin
+				yield
+			ensure
+				class << self ; self ; end.send(:remove_method, rbname)
+				memory_free ptr
+			end
+		else
+			ptr
+		end
 		end
 
-		def [](*a)
-			return super(*a) if not a.first.kind_of? Symbol and not a.first.kind_of? String
-			fld = a.first
-			raise 'not a member' if not f = @struct.findmember(fld.to_s, true)
-			DynLdr.decode_c_value(self, f, @struct.offsetof(@cp, f.name))
+	# allocate a C::AllocCStruct to hold a specific struct defined in a previous new_api_c
+	def self.alloc_c_struct(structname, values={})
+		cp.alloc_c_struct(structname, values)
 		end
 
-		def []=(*a)
-			return super(*a) if not a.first.kind_of? Symbol and not a.first.kind_of? String
-			fld, val = a
-			raise 'not a member' if not f = @struct.findmember(fld.to_s, true)
-			val = length if val == :size
-			val = DynLdr.encode_c_value(f, val)
-			super(@struct.offsetof(@cp, f.name), val.length, val)
+	# return a C::AllocCStruct mapped over the string (with optionnal offset)
+	# str may be an EncodedData
+	def self.decode_c_struct(structname, str, off=0)
+		str = str.data if str.kind_of? EncodedData
+		cp.decode_c_struct(structname, str, off)
 		end
+
+	# allocate a C::AllocCStruct holding an Array of typename variables
+	# if len is an int, it holds the ary length, or it can be an array of initialisers
+	# eg alloc_c_ary("int", [4, 5, 28])
+	def self.alloc_c_ary(typename, len)
+		cp.alloc_c_ary(typename, len)
 	end
 
-	# allocate an AllocStruct to hold a specific struct defined in a previous new_api_c
-	def self.alloc_c_struct(structname, values={})
-		raise "unknown struct #{structname.inspect}" if not @cp
-		struct = @cp.toplevel.struct[structname.to_s]
-		if not struct
-			struct = @cp.toplevel.symbol[structname.to_s]
-			raise "unknown struct #{structname.inspect}" if not struct
-			struct = struct.type
-			struct = struct.pointed if struct.pointer?
-		end
-		st = AllocCStruct.new(@cp, struct)
-		values.each { |k, v| st[k] = v }
-		st
+	# return a C::AllocCStruct holding an array of type typename mapped over str
+	def self.decode_c_ary(typename, len, str, off=0)
+		cp.decode_c_ary(typename, len, str, off)
+	end
+
+	# return an AllocCStruct holding an array of 1 element of type typename
+	# access its value with obj[0]
+	# useful when you need a pointer to an int that will be filled by an API: use alloc_c_ptr('int')
+	def self.alloc_c_ptr(typename, init=nil)
+		cp.alloc_c_ary(typename, (init ? [init] : 1))
 	end
 
 	# return the binary version of a ruby value encoded as a C variable
 	# only integral types handled for now
 	def self.encode_c_value(var, val)
-		# TODO encode full struct and stuff
-		val = DynLdr.convert_arg_rb2c(var, val) if not val.kind_of? Integer
-		Expression.encode_immediate(val, @cp.sizeof(var), @cp.endianness)
+		cp.encode_c_value(var, val)
 	end
 
 	# decode a C variable
 	# only integral types handled for now
 	def self.decode_c_value(str, var, off=0)
-		val = Expression.decode_immediate(str, @cp.sizeof(var), @cp.endianness, off)
-		val = Expression.make_signed(val, @cp.sizeof(var)*8) if var.kind_of? C::Variable and var.type.integral? and var.type.untypedef.kind_of? C::BaseType and var.type.untypedef.specifier != :unsigned
-		val
+		cp.decode_c_value(str, var, off)
 	end
 
 	# read a 0-terminated string from memory

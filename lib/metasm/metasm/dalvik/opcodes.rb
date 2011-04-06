@@ -63,7 +63,7 @@ unused_fc unused_fd unused_fe unused_ff]
 	def init_dalvik
 		@valid_props << :canthrow
 		@valid_args = [:i16, :i16_32hi, :i16_64hi, :i32, :iaa, :ib, :icc, :u16, :u32, :u64,
-			:r16, :ra, :raa, :rb, :rbb, :rcc, :rlist16, :rlist4, :rlist5]
+			:r16, :ra, :raa, :rb, :rbb, :rcc, :rlist16, :rlist4, :rlist5, :m16]
 		@opcode_list = []
 
 		OPCODES.each_with_index { |n, b|
@@ -170,7 +170,9 @@ unused_fc unused_fd unused_fe unused_ff]
 			:fmt31c
 		when 'move_16', 'move_wide_16', 'move_object_16'
 			:fmt32x
-		when 'filled_new_array', 'invoke_virtual', 'invoke_super',
+		when 'filled_new_array'
+			:fmt35ca
+		when 'invoke_virtual', 'invoke_super',
 			'invoke_direct', 'invoke_static', 'invoke_interface'
 			:fmt35c
 		when 'filled_new_array_range', 'invoke_virtual_range',
@@ -225,12 +227,14 @@ unused_fc unused_fd unused_fe unused_ff]
 		when :fmt31t, :fmt31c; op.args << :raa << :u32
 		when :fmt32x; op.args << :r16 << :r16
 		when :fmt31i; op.args << :raa << :i32
+		when :fmt35ca
+			op.args << :r16 << :rlist5
 		when :fmt35c, :fmt35ms
 			# rlist:
 			#  nr of regs in :ib (max 5)
 			#  regs: :ib.times { reg :i16 & 0xf ; :i16 >>= 4 }
 			#  reg :ra if :ib == 5
-			op.args << :r16 << :rlist5
+			op.args << :m16 << :rlist5
 		when :fmt3inline
 			op.args << :r16 << :rlist4
 		when :fmt3rc, :fmt3rms

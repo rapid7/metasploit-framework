@@ -17,7 +17,7 @@ class Rubstop < Metasm::PTrace
 		define_method(reg) { peekusr(REGS_I386[reg.upcase]) & 0xffffffff }
 		define_method(reg+'=') { |v|
 			@regs_cache[reg] = v
-			v = [v].pack('L').unpack('l').first if v >= 0x8000_0000
+			v = [v & 0xffffffff].pack('L').unpack('l').first if v >= 0x8000_0000
 			pokeusr(REGS_I386[reg.upcase], v)
 		}
 	}
@@ -110,6 +110,20 @@ class Rubstop < Metasm::PTrace
 		end
 	end
 
+	def set_pax(bool)
+		if bool
+			@pgm.encoded.data.invalidate
+			code = @pgm.encoded.data[eip, 4]
+			if code != "\0\0\0\0" and @pgm.encoded.data[eip+0x6000_0000, 4] == code
+				@has_pax = 'segmexec'
+			else
+				@has_pax = 'pax'
+			end
+		else
+			@has_pax = false
+		end
+	end
+
 	def readregs
 		%w[eax ebx ecx edx esi edi esp ebp eip orig_eax eflags dr0 dr1 dr2 dr3 dr6 dr7 cs ds].each { |r| @regs_cache[r] = send(r) }
 		@curinstr = nil if @regs_cache['eip'] != @oldregs['eip']
@@ -167,7 +181,7 @@ class Rubstop < Metasm::PTrace
 				self[addr] = 0xcc
 			rescue Errno::EIO
 				log 'i/o error when setting breakpoint, switching to PaX mode'
-				@has_pax = true
+				set_pax true
 				@breakpoints.delete addr
 				bpx(addr, singleshot)
 			end
@@ -212,7 +226,7 @@ class Rubstop < Metasm::PTrace
 		end
 		@regs_cache['dr7'] &= 0xffff_ffff ^ (0xf << (16+4*dr))
 		case type
-		when 'x'; addr += 0x6000_0000 if @has_pax
+		when 'x'; addr += (@has_pax == 'segmexec' ? 0x6000_0000 : 0)
 		when 'r'; @regs_cache['dr7'] |= (((len-1)<<2)|3) << (16+4*dr)
 		when 'w'; @regs_cache['dr7'] |= (((len-1)<<2)|1) << (16+4*dr)
 		end
@@ -372,7 +386,7 @@ if $0 == __FILE__
 				rs.singlestep
 			else
 				rs.syscall ; rs.syscall	# wait return of syscall
-				puts "#{rs.orig_eax.to_s.ljust(3)} #{Rubstop::SYSCALLNR.index rs.orig_eax}"
+				puts "#{rs.orig_eax.to_s.ljust(3)} #{rs.syscallnr.index rs.orig_eax}"
 			end
 		end
 		p rs.child

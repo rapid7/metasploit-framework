@@ -36,7 +36,7 @@ Most opcodes are available in the framework, with the notable exception of:
 
 * most sse2 simd instructions
 * the AVX instructions
-* amd-specific instructions (`syscall`)
+* amd-specific instructions
 
 The `386_common` family is the subset of 386 instruction that are most
 commonly found in standard usermode programs (no `in`/`out`/bcd
@@ -121,7 +121,7 @@ The pointer itself can be:
 * `[eax + 4*ebx]` (base + 1,2,4 or 8 * index)
 * `[eax + 2*ebx + 42]` (both)
 
-Note that the form base + index cannot use `esp` as index.
+Note that the form base + s*index cannot use `esp` as index with s != 1.
 
 For indirection sizes, the size is taken from the size of other arguments
 if it is not specified (eg `mov eax, [42]` will be 4 bytes, and `mov al, [42]`
@@ -202,7 +202,7 @@ displacement this is necessary.
   or.i8 eax, 1	; "\x83\xc8\x01" (same, shortest encoding)
   or.i eax, 1   ; "\x81\xc8\x01\x00\x00\x00" (constant stored in a 32bit field)
   movsd.a16	; use a 16-byte address-size override prefix (copy dword [si] to [di])
-  push.i16 42h  ; push a 16-bit integer (using sp)
+  push.i16 42h  ; push a 16-bit integer
 
 The suffixes are available as follow:
 

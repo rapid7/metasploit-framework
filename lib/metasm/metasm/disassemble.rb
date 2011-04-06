@@ -60,6 +60,8 @@ class DecodedInstruction
 		ret = []
 		ret << Expression[address] << ' ' if address
 		ret << @instruction
+		ret << ' ; ' << @comment if comment
+		ret
 	end
 
 	def add_comment(c)
@@ -369,6 +371,10 @@ class Disassembler
 	attr_accessor :backtrace_maxblocks_data
 	# max bt length for backtrace_fast blocks, default=0
 	attr_accessor :backtrace_maxblocks_fast
+	# max complexity for an Expr during backtrace before abort
+	attr_accessor :backtrace_maxcomplexity, :backtrace_maxcomplexity_data
+	# maximum number of instructions inside a basic block, split past this limit
+	attr_accessor :disassemble_maxblocklength
 	# a cparser that parsed some C header files, prototypes are converted to DecodedFunction when jumped to
 	attr_accessor :c_parser
 	# hash address => array of strings
@@ -417,6 +423,9 @@ class Disassembler
 		@address_binding = {}
 		@backtrace_maxblocks = @@backtrace_maxblocks
 		@backtrace_maxblocks_fast = 0
+		@backtrace_maxcomplexity = 40
+		@backtrace_maxcomplexity_data = 5
+		@disassemble_maxblocklength = 100
 		@comment = {}
 		@funcs_stdabi = true
 	end
@@ -602,10 +611,14 @@ class Disassembler
 		@decoded.each_value { |di|
 			next if not di.kind_of? DecodedInstruction
 			next if not di.opcode or not di.opcode.props[:saveip]
-			di.add_comment 'noreturn' if not di.block.to_subfuncret
+			if not di.block.to_subfuncret
+				di.add_comment 'noreturn'
+				# there is no need to re-loop on all :saveip as check_noret is transitive
+				di.block.each_to_normal { |fa| check_noreturn_function(fa) }
+			end
 		}
 		@function.each { |addr, f|
-			next if not di = @decoded[addr]
+			next if not @decoded[addr]
 			if not f.finalized
 				f.finalized = true
 puts "  finalize subfunc #{Expression[addr]}" if debug_backtrace
@@ -669,6 +682,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 		elsif from and c_parser and name = Expression[addr].reduce_rec and name.kind_of? ::String and
 				s = c_parser.toplevel.symbol[name] and s.type.untypedef.kind_of? C::Function
 			bf = @function[addr] = @cpu.decode_c_function_prototype(@c_parser, s)
+			detect_function_thunk_noreturn(from) if bf.noreturn
 		elsif from
 			if bf = @function[:default]
 				puts "using default function for #{Expression[addr]} from #{Expression[from]}" if $DEBUG
@@ -738,7 +752,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 
 		# try not to run for too long
 		# loop usage: break if the block continues to the following instruction, else return
-		100.times {
+		@disassemble_maxblocklength.times {
 			# check collision into a known block
 			break if @decoded[di_addr]
 
@@ -797,7 +811,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 		}
 
 		ar = [di_addr]
-		ar = @callback_newaddr[block.list.last.address, ar] || [] if callback_newaddr
+		ar = @callback_newaddr[block.list.last.address, ar] || ar if callback_newaddr
 		ar.each { |di_addr_| backtrace(di_addr_, di.address, :origin => di.address, :type => :x) }
 
 		block
@@ -842,6 +856,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 			maxdepth -= 1
 			ep.delete_if { |a| not @decoded[normalize(a[0])] } if maxdepth == 0
 		end
+		check_noreturn_function(entrypoint)
 	end
 
 	# disassembles one block from the ary, see disassemble_fast_block
@@ -880,7 +895,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 				func = true if odi = di_at(x_.origin) and odi.opcode.props[:saveip]
 			}
 			if func
-				l = auto_label_at(addr, 'sub', 'loc', 'xref')
+				auto_label_at(addr, 'sub', 'loc', 'xref')
 				# XXX use default_btbind_callback ?
 				@function[addr] = DecodedFunction.new
 				@function[addr].finalized = true
@@ -906,7 +921,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 
 		return ret if @decoded[di_addr]
 
-		100.times {
+		@disassemble_maxblocklength.times {
 			break if @decoded[di_addr]
 
 			# decode instruction
@@ -995,7 +1010,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 				if @check_smc and type == :w
 					#len.times { |off|	# check unaligned ?
 					waddr = xaddr	#+ off
-					if wdi = @decoded[normalize(waddr)]
+					if wdi = di_at(waddr)
 						puts "W: disasm: #{di} overwrites #{wdi}" if $VERBOSE
 						wdi.add_comment "overwritten by #{di}"
 					end
@@ -1008,7 +1023,7 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 	# trace xrefs for execution
 	def backtrace_xrefs_di_x(di)
 		ar = @program.get_xrefs_x(self, di)
-		ar = @callback_newaddr[di.address, ar] || [] if callback_newaddr
+		ar = @callback_newaddr[di.address, ar] || ar if callback_newaddr
 		ar.each { |expr| backtrace(expr, di.address, :origin => di.address, :type => :x) }
 	end
 
@@ -1080,6 +1095,27 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 				end
 			end
 		}
+	end
+
+	# given an address, detect if it may be a noreturn fuction
+	# it is if all its end blocks are calls to noreturn functions
+	# if it is, create a @function[fa] with noreturn = true
+	# should only be called with fa = target of a call
+	def check_noreturn_function(fa)
+		fb = function_blocks(fa, false, false)
+		lasts = fb.keys.find_all { |k| fb[k] == [] }
+		return if lasts.empty?
+		if lasts.all? { |la|
+			b = block_at(la)
+			next if not di = b.list.last
+			(di.opcode.props[:saveip] and b.to_normal.to_a.all? { |tfa|
+				tf = function_at(tfa) and tf.noreturn
+			}) or (di.opcode.props[:stopexec] and not di.opcode.props[:setip])
+		}
+			# yay
+			@function[fa] ||= DecodedFunction.new
+			@function[fa].noreturn = true
+		end
 	end
 
 
@@ -1294,8 +1330,8 @@ puts "  finalize subfunc #{Expression[subfunc]}" if debug_backtrace
 		snapshot_addr   = nargs.delete(:snapshot_addr) || nargs.delete(:stopaddr)
 		maxdepth        = nargs.delete(:maxdepth) || @backtrace_maxblocks
 		detached        = nargs.delete :detached
-		max_complexity  = nargs.delete(:max_complexity) || 40
-		max_complexity_data = nargs.delete(:max_complexity) || 8
+		max_complexity  = nargs.delete(:max_complexity) || @backtrace_maxcomplexity
+		max_complexity_data = nargs.delete(:max_complexity) || @backtrace_maxcomplexity_data
 		bt_log          = nargs.delete :log	# array to receive the ongoing backtrace info
 		only_upto       = nargs.delete :only_upto
 		no_check        = nargs.delete :no_check

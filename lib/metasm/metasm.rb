@@ -3,25 +3,15 @@
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
-Metasmdir = File.dirname(__FILE__)
-$:.unshift(Metasmdir)
-
-
-##
-# The code below is used to do demand loading of requires, but it breaks
-# Metasploit integration. It has been commented out until a better
-# long-term solution is developed.
-##
-
-
-=begin
 
 module Metasm
 	# root directory for metasm files
 	# used by some scripts, eg to find samples/dasm-plugin directory
 	Metasmdir = File.dirname(__FILE__)
+	# add it to the ruby library path
+	$: << Metasmdir
 
-	# constant defined in the same file as another
+	# constants defined in the same file as another
 	Const_autorequire_equiv = {
 		'X86' => 'Ia32', 'PPC' => 'PowerPC',
 		'X64' => 'X86_64', 'AMD64' => 'X86_64',
@@ -35,17 +25,16 @@ module Metasm
 		'WinAPI' => 'WinOS',
 		'WindowsRemoteString' => 'WinOS', 'WinDbgAPI' => 'WinOS',
 		'WinDebugger' => 'WinOS',
-		'VirtualFile' => 'OS', 'VirtualString' => 'OS',
 		'GdbRemoteString' => 'GdbClient', 'GdbRemoteDebugger' => 'GdbClient',
 		'DecodedInstruction' => 'Disassembler', 'DecodedFunction' => 'Disassembler',
 		'InstructionBlock' => 'Disassembler',
 	}
 
+	# files to require to get the definition of those constants
 	Const_autorequire = {
-		'CPU' => ['encode', 'decode', 'render', 'main', 'exe_format/main', 'os/main'],
 		'Ia32' => 'ia32', 'MIPS' => 'mips', 'PowerPC' => 'ppc', 'ARM' => 'arm',
 		'X86_64' => 'x86_64', 'Sh4' => 'sh4', 'Dalvik' => 'dalvik',
-		'C' => ['parse_c', 'compile_c'],
+		'C' => 'compile_c',
 		'MZ' => 'exe_format/mz', 'PE' => 'exe_format/pe',
 		'ELF' => 'exe_format/elf', 'COFF' => 'exe_format/coff',
 		'Shellcode' => 'exe_format/shellcode', 'AutoExe' => 'exe_format/autoexe',
@@ -63,62 +52,25 @@ module Metasm
 		'DynLdr' => 'dynldr',
 	}
 
-def self.autorequire_const_missing(c)
-	cst = Const_autorequire_equiv[c.to_s] || c.to_s
+	# use the Module.autoload ruby functionnality to load framework components on demand
+	Const_autorequire.each { |cst, file|
+		autoload cst, File.join('metasm', file)
+	}
 
-	files = Const_autorequire[cst]
-	return if not files
-	files = [files] if files.kind_of? ::String
-
-	files.each { |f| require ::File.join('metasm', f) }
-
-	const_get c
+	Const_autorequire_equiv.each { |cst, eqv|
+		file = Const_autorequire[eqv]
+		autoload cst, File.join('metasm', file)
+	}
 end
 
-def self.require(f)
-	# temporarily put the current file directory in the ruby include path
-	if not $:.include? Metasmdir
-		incdir = Metasmdir
-		$: << incdir
-	end
-
-	super(f)
-
-	$:.delete incdir if incdir
-end
-end
-
-# handle subclasses, nested modules etc (e.g. Metasm::PE, to avoid Metasm::PE::Ia32: const not found)
-class Module
-alias premetasm_const_missing const_missing
-def const_missing(c)
-	# Object.const_missing => Module#const_missing and not the other way around
-	# XXX should use Module.nesting, but ruby sucks arse
-	# e.g. module Metasm ; module Bla ; class << self ; Ia32 ; end ; end ; end -> fail
-	if (name =~ /^Metasm(::|$)/ or ancestors.include? Metasm) and cst = Metasm.autorequire_const_missing(c)
-		cst
-	else
-		premetasm_const_missing(c)
-	end
-end
-end
-
-# load core files by default (too many classes to check for otherwise)
-Metasm::CPU.class
-
-=end
-
-
-# load core files by default (too many classes to check for otherwise)
-require 'metasm/encode'
-require 'metasm/decode'
-require 'metasm/main'
-require 'metasm/exe_format/main'
-require 'metasm/os/main'
+# load Metasm core files
+%w[main encode decode render exe_format/main os/main].each { |f|
+	require File.join('metasm', f)
+}
 
 
 # remove an 1.9 warning, couldn't find a compatible way...
-if {}.respond_to? :key
+if Hash.new.respond_to?(:key)
 	puts "using ruby1.9 workaround for Hash#index warning" if $DEBUG
 	class Hash
 		alias index_premetasm index rescue nil

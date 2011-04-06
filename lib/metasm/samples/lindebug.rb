@@ -588,7 +588,7 @@ class LinDebug
 			when :f5;  cont
 			when :f6
 				syscall
-				log Rubstop::SYSCALLNR.index(@rs.regs_cache['orig_eax']) || @rs.regs_cache['orig_eax'].to_s
+				log @rs.syscallnr.index(@rs.regs_cache['orig_eax']) || @rs.regs_cache['orig_eax'].to_s
 			when :f10; stepover
 			when :f11; singlestep
 			when :f12; stepout
@@ -772,8 +772,12 @@ class LinDebug
 		@command['has_pax'] = lambda { |lex, int|
 			if tok = lex.readtok
 				lex.unreadtok tok
-				@rs.has_pax = (int[] != 0)
-			else @rs.has_pax = !@rs.has_pax
+				if (int[] == 0)
+					@rs.set_pax false
+				else
+					@rs.set_pax true
+				end
+			else @rs.set_pax !@rs.has_pax
 			end
 			log "has_pax now #{@rs.has_pax}"
 		}
@@ -825,10 +829,13 @@ class LinDebug
 			log ' cont [<signr>]: continue the target sending a signal'
 			log ' d/db/dw/dd [<addr>]: change data type/address'
 			log ' g <addr>: set a bp at <addr> and run'
-			log ' has_pax [0|1]: set has_pax flag (hwbp+0x60000000 instead of bpx)'
+			log ' has_pax [0|1]: set has_pax flag'
+			log ' loadsyms: load symbol information from mapped files (from /proc and disk)'
+			log ' ma <addr> <ascii>: write memory'
+			log ' mx <addr> <hex>: write memory'
+			log ' maps: list maps'
 			log ' r <reg> [<value>]: show/change register'
 			log ' r fl <flag>: toggle eflags bit'
-			log ' loadsyms: load symbol information from mapped files (from /proc and disk)'
 			log ' scansyms: scan memory for ELF headers'
 			log ' sym <symbol regex>: show symbol information'
 			log ' addsym <name> <addr> [<size>]'

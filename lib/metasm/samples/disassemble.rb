@@ -58,6 +58,7 @@ else
 		basename = exename.sub(/\.\w\w?\w?$/, '')
 		opts[:map] ||= basename + '.map' if File.exist?(basename + '.map')
 		opts[:cheader] ||= basename + '.h' if File.exist?(basename + '.h')
+		(opts[:plugin] ||= []) << (basename + '.rb') if File.exist?(basename + '.rb')
 	end
 end
 # set options

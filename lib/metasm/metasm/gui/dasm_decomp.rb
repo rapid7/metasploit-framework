@@ -160,6 +160,14 @@ class CdecompListingWidget < DrawableWidget
 		when :end
 			@caret_x = @line_text[@caret_y].to_s.length
 			update_caret
+		when :pgup
+			@caret_y -= @cheight/2
+			@caret_y = 0 if @caret_y < 0
+			update_caret
+		when :pgdown
+			@caret_y += @cheight/2
+			@caret_y = @line_text.length if @caret_y > @line_text.length
+			update_caret
 		when ?n	# rename local/global variable
 			f = curfunc.initializer if curfunc and curfunc.initializer.kind_of? C::Block
 			n = @hl_word
@@ -238,12 +246,12 @@ class CdecompListingWidget < DrawableWidget
 	end
 
 	def get_cursor_pos
-		[@curaddr, @caret_x, @caret_y]
+		[@curaddr, @caret_x, @caret_y, @view_y]
 	end
 
 	def set_cursor_pos(p)
 		focus_addr p[0]
-		@caret_x, @caret_y = p[1, 2]
+		@caret_x, @caret_y, @view_y = p[1, 3]
 		update_caret
 	end
 

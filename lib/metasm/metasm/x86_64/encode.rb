@@ -129,7 +129,7 @@ class X86_64
 			when 16; pfx << 0x66
 			end
 		else
-			opsz = op.props[:argsz] || i.prefix[:sz] || (64 if op.props[:auto64])	# XXX test push ax
+			opsz = op.props[:argsz] || i.prefix[:sz]
 			oi.each { |oa, ia|
 				case oa
 				when :reg, :reg_eax, :modrm, :modrmA, :mrm_imm
@@ -137,10 +137,11 @@ class X86_64
 					opsz = ia.sz
 				end
 			}
+			opsz ||= 64 if op.props[:auto64]
 			opsz = op.props[:opsz] if op.props[:opsz]	# XXX ?
 			case opsz
 			when 64; rex_w = 1 if not op.props[:auto64]
-			when 32
+			when 32; raise EncodeError, "Incompatible arg size in #{i}" if op.props[:auto64]
 			when 16; pfx << 0x66
 			end
 		end
@@ -148,12 +149,12 @@ class X86_64
 
 		# addrsize override / segment override / rex_bx
 		if mrm = i.args.grep(ModRM).first
-			mrm.encode(0, @endianness)	# may reorder b/i, which must be correct for rex
+			mrm.encode(0, @endianness) if mrm.b or mrm.i	# may reorder b/i, which must be correct for rex
 			rex_b = 1 if mrm.b and mrm.b.val_rex.to_i > 0
 			rex_x = 1 if mrm.i and mrm.i.val_rex.to_i > 0
-			pfx << 0x67 if (mrm.b and mrm.b.sz == 32) or (mrm.i and mrm.i.sz == 32)
+			pfx << 0x67 if (mrm.b and mrm.b.sz == 32) or (mrm.i and mrm.i.sz == 32) or op.props[:adsz] == 32
 			pfx << [0x26, 0x2E, 0x36, 0x3E, 0x64, 0x65][mrm.seg.val] if mrm.seg
-		elsif op.props[:adsz] and op.propz[:adsz] == 32
+		elsif op.props[:adsz] == 32
 			pfx << 0x67
 		end
 
@@ -171,9 +172,10 @@ class X86_64
 				else
 					rex_b = ia.val_rex
 				end
-			when :seg3, :seg3A, :seg2, :seg2A, :eeec, :eeed, :regxmm
+			when :seg3, :seg3A, :seg2, :seg2A, :eeec, :eeed, :regfp, :regxmm, :regmmx
 				set_field[oa, ia.val & 7]
 				rex_r = 1 if ia.val > 7
+				pfx << 0x66 if oa == :regmmx and op.props[:xmmx] and ia.sz == 128
 			when :imm_val1, :imm_val3, :reg_cl, :reg_eax, :reg_dx, :regfp0
 				# implicit
 			when :modrm, :modrmA, :modrmmmx, :modrmxmm
@@ -194,7 +196,7 @@ class X86_64
 			end
 		}
 
-		if !(op.args & [:modrm, :modrmA, :modrmxmm]).empty?
+		if !(op.args & [:modrm, :modrmA, :modrmxmm, :modrmmmx]).empty?
 			# reg field of modrm
 			regval = (base[-1] >> 3) & 7
 			base.pop
@@ -241,7 +243,7 @@ class X86_64
 			when :mrm_imm; ed = ia.imm.encode("a#{op.props[:adsz] || 64}".to_sym, @endianness)
 			when :i8, :u8, :i16, :u16, :i32, :u32, :i64, :u64; ed = ia.encode(oa, @endianness)
 			when :i
-				type = opsz == 64 ? op.props[:imm64] ? :a64 : :i32 : :a32
+				type = (opsz == 64 ? op.props[:imm64] ? :a64 : :i32 : "#{op.props[:unsigned_imm] ? 'a' : 'i'}#{opsz}".to_sym)
 			       	ed = ia.encode(type, @endianness)
 			else raise SyntaxError, "Internal error: want to encode field #{oa.inspect} as arg in #{i}"
 			end

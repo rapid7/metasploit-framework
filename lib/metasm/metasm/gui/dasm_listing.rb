@@ -436,8 +436,8 @@ class AsmListingWidget < DrawableWidget
 				end
 				str_c << ["#{Expression[di.address]}    ", :address]
 				if @raw_data_length.to_i > 0
-					if s = @dasm.get_section_at(curaddr)
-						raw = s[0].read(di.bin_length)
+					if s = @dasm.get_edata_at(curaddr)
+						raw = s.read(di.bin_length)
 						raw = raw.unpack('H*').first
 					else
 						raw = ''
@@ -459,9 +459,9 @@ class AsmListingWidget < DrawableWidget
 				else
 					curaddr += [di.bin_length, 1].max
 				end
-			elsif s = @dasm.get_section_at(curaddr) and s[0].ptr < s[0].length
+			elsif s = @dasm.get_edata_at(curaddr) and s.ptr < s.length
 				@dasm.comment[curaddr].each { |c| str_c << ["// #{c}", :comment] ; nl[] } if @dasm.comment[curaddr]
-				if label = s[0].inv_export[s[0].ptr]
+				if label = s.inv_export[s.ptr]
 					l_list = @dasm.label_alias[curaddr].to_a.sort
 					label = l_list.pop
 					nl[] if not l_list.empty?
@@ -473,33 +473,34 @@ class AsmListingWidget < DrawableWidget
 
 				len = 256
 				comment = nil
-				if s[0].data.length > s[0].ptr
-					str = s[0].read(len).unpack('C*')
-					s[0].ptr -= len		# we may not display the whole bunch, ptr is advanced later
+				if s.data.length > s.ptr
+					str = s.read(len).unpack('C*')
+					s.ptr -= len		# we may not display the whole bunch, ptr is advanced later
 					len = str.length
-					if @dasm.xrefs[curaddr] or rel = s[0].reloc[s[0].ptr]
-						len = rel.length if rel
+					if @dasm.xrefs[curaddr] or rel = s.reloc[s.ptr]
+						xlen = nil
+						xlen = rel.length if rel
 						comment = []
 						@dasm.each_xref(curaddr) { |xref|
-							len = xref.len if xref.len
+							xlen ||= xref.len || 1 if xref.len
 							comment << " #{xref.type}#{xref.len}:#{Expression[xref.origin]}" if xref.origin
 						} if @dasm.xrefs[curaddr]
+						len = xlen if xlen and xlen > 2	# db xref may point a string
 						comment = nil if comment.empty?
-						len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s[0].inv_export[s[0].ptr+l] or s[0].reloc[s[0].ptr+l] } || len
-						str = s[0].read(len).unpack('C*')
-						s[0].ptr -= len		# we may not display the whole bunch, ptr is advanced later
+						len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s.inv_export[s.ptr+l] or s.reloc[s.ptr+l] } || len
+						str = str[0, len] if len < str.length
 						str = str.pack('C*').unpack(@dasm.cpu.endianness == :big ? 'n*' : 'v*') if len == 2
-						if (len == 1 or len == 2) and asc = str.inject('') { |asc_, c|
+						if (xlen == 1 or xlen == 2) and asc = str.inject('') { |asc_, c|
 								case c
 								when 0x20..0x7e, 9, 10, 13; asc_ << c
 								else break asc_
 								end
 							} and asc.length >= 1
-							dat = "#{len == 1 ? 'db' : 'dw'} #{asc.inspect} "
-							aoff = asc.length * len
+							dat = "#{xlen == 1 ? 'db' : 'dw'} #{asc.inspect} "
+							aoff = asc.length * xlen
 						else
 							len = 1 if (len != 2 and len != 4 and len != 8) or len < 1
-							dat = "#{%w[x db dw x dd x x x dq][len]} #{Expression[s[0].decode_imm("u#{len*8}".to_sym, @dasm.cpu.endianness)]} "
+							dat = "#{%w[x db dw x dd x x x dq][len]} #{Expression[s.decode_imm("u#{len*8}".to_sym, @dasm.cpu.endianness)]} "
 							aoff = len
 						end
 					elsif asc = str.inject('') { |asc_, c|
@@ -510,7 +511,7 @@ class AsmListingWidget < DrawableWidget
 						end
 					} and asc.length > 3
 						len = asc.length
-						len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s[0].inv_export[s[0].ptr+l] or s[0].reloc[s[0].ptr+l] } || len
+						len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s.inv_export[s.ptr+l] or s.reloc[s.ptr+l] } || len
 						asc = asc[0, len]
 						dat = "db #{asc.inspect} "
 						aoff = asc.length
@@ -520,7 +521,7 @@ class AsmListingWidget < DrawableWidget
 						else break rep_
 						end
 					} and rep > 4
-						rep = (1..rep).find { |l| @dasm.xrefs[curaddr+l] or s[0].inv_export[s[0].ptr+l] or s[0].reloc[s[0].ptr+l] } || rep
+						rep = (1..rep).find { |l| @dasm.xrefs[curaddr+l] or s.inv_export[s.ptr+l] or s.reloc[s.ptr+l] } || rep
 						rep -= curaddr % 256 if rep == 256 and curaddr.kind_of? Integer
 						dat = "db #{Expression[rep]} dup(#{Expression[str[0]]}) "
 						aoff = rep
@@ -539,8 +540,9 @@ class AsmListingWidget < DrawableWidget
 						dat = "#{%w[x db dw x dd x x x dq][len]} ? "
 						aoff = len
 					else
-						len = [len, s[0].length-s[0].ptr].min
+						len = [len, s.length-s.ptr].min
 						len -= curaddr % 256 if len == 256 and curaddr.kind_of? Integer
+						len = (1..len).find { |l| @dasm.xrefs[curaddr+l] or s.inv_export[s.ptr+l] or s.reloc[s.ptr+l] } || len
 						dat = "db #{Expression[len]} dup(?) "
 						aoff = len
 					end

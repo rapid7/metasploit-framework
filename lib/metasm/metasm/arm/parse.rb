@@ -26,7 +26,7 @@ class ARM
 
 	def parse_arg_valid?(op, sym, arg)
 		case sym
-		when :rd, :rs, :rn, :rm; arg.kind_of? Reg and arg.shift == 0
+		when :rd, :rs, :rn, :rm; arg.kind_of? Reg and arg.shift == 0 and (arg.updated ? op.props[:baseincr] : !op.props[:baseincr])
 		when :rm_rs; arg.kind_of? Reg and arg.shift.kind_of? Reg
 		when :rm_is; arg.kind_of? Reg and arg.shift.kind_of? Integer
 		when :i16, :i24, :i8_12, :i8_r; arg.kind_of? Expression
@@ -37,7 +37,7 @@ class ARM
 			     when :mem_rn_rms; :rm_rs
 			     when :mem_rn_i12; :i16
 			     end
-			arg.kind_of? Memref and parse_arg_valid?(op, os, arg.off)
+			arg.kind_of? Memref and parse_arg_valid?(op, os, arg.offset)
 		when :reglist; arg.kind_of? RegList
 		end
 		# TODO check flags on reglist, check int values
@@ -64,20 +64,32 @@ class ARM
 				arg.updated = true
 			end
 		elsif lexer.nexttok.raw == '{'
-			arg = Reglist.new
+			lexer.readtok
+			arg = RegList.new
 			loop do
+				raise "unterminated reglist" if lexer.eos?
 				lexer.skip_space
 				if Reg.s_to_i[lexer.nexttok.raw]
 					arg.list << Reg.new(Reg.s_to_i[lexer.readtok.raw])
 					lexer.skip_space
 				end
 				case lexer.nexttok.raw
-				when ','
+				when ','; lexer.readtok
+				when '-'
+					lexer.readtok
+					lexer.skip_space
+					if not r = Reg.s_to_i[lexer.nexttok.raw]
+						raise lexer, "reglist parse error: invalid range"
+					end
+					lexer.readtok
+					(arg.list.last.i+1..r).each { |v|
+						arg.list << Reg.new(v)
+					}
 				when '}'; lexer.readtok ; break
-				else raise lexer, 'reglist parse error'
+				else raise lexer, "reglist parse error: ',' or '}' expected, got #{lexer.nexttok.raw.inspect}"
 				end
 			end
-			if lexer.nexttok.raw == '^'
+			if lexer.nexttok and lexer.nexttok.raw == '^'
 				lexer.readtok
 				arg.usermoderegs = true
 			end
@@ -99,14 +111,15 @@ class ARM
 			if not off.kind_of? Expression and not off.kind_of? Reg
 				raise lexer, 'invalid mem off (reg/imm expected)'
 			end
-			case lexer.nexttok.raw
+			case lexer.nexttok and lexer.nexttok.raw
 			when ']'
 			when ','
 			end
+			lexer.readtok
 			arg = Memref.new(base, off)
-			if lexer.nexttok.raw == '!'
+			if lexer.nexttok and lexer.nexttok.raw == '!'
 				lexer.readtok
-				arg.update = true
+				arg.incr = :pre	# TODO :post
 			end
 		else
 			arg = Expression.parse lexer

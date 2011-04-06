@@ -23,13 +23,6 @@ class X86_64
 		@dbg_register_size ||= Hash.new(64).update(:cs => 16, :ds => 16, :es => 16, :fs => 16, :gs => 16)
 	end
 
-	def dbg_func_retaddr(dbg)
-		dbg.memory_read_int(:rsp)
-	end
-	def dbg_func_retaddr_set(dbg, ret)
-		dbg.memory_write_int(:rsp, ret)
-	end
-
 	def dbg_func_arg(dbg, argnr)
 		if dbg.class.name =~ /win/i
 			list = [:rcx, :rdx, :r8, :r9]

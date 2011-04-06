@@ -3,15 +3,11 @@
 #
 #    Licence is LGPL, see LICENCE in the top-level directory
 
-# this file loads all metasm files and removes the autorequire feature
-# on const_missing
+# this file loads all metasm files, to avoid using ruby autoload mechanism
 
-require 'metasm'
-
-class Module
-	alias const_missing premetasm_const_missing
-end
+require File.join(File.dirname(__FILE__), '..', 'metasm')
 
 module Metasm
-	Const_autorequire.values.flatten.each { |f| require 'metasm/'+f }
+	Const_autorequire.values.flatten.each { |f| require File.join('metasm', f) }
+	$:.pop if $:.last == Metasmdir
 end

@@ -19,7 +19,7 @@ class SyscallHooker < Metasm::PTrace
 	CTX = ['EBX', 'ECX', 'EDX', 'ESI', 'EDI', 'EAX', 'ESP', 'EBP', 'EIP', 'ORIG_EAX']
 
 	def inject(sysnr, *args)
-		sysnr = SYSCALLNR[sysnr] || sysnr
+		sysnr = syscallnr[sysnr] || sysnr
 
 		syscall
 		puts '[*] waiting syscall'
@@ -44,7 +44,7 @@ class SyscallHooker < Metasm::PTrace
 		if args.length > 5
 			puts 'too may arguments, unsupported, aborting'
 		else
-			puts "[*] hooking #{SYSCALLNR.index(savedctx['ORIG_EAX'])}"
+			puts "[*] hooking #{syscallnr.index(savedctx['ORIG_EAX'])}"
 
 			# stack pointer to store buffers to
 			esp_ptr = savedctx['ESP']
@@ -75,7 +75,7 @@ class SyscallHooker < Metasm::PTrace
 			retval = peekusr(REGS_I386['EAX'])
 			puts "[*] retval: #{'%X' % retval}#{" (Errno::#{ERRNO.index(-retval)})" if retval < 0}"
 
-			if SYSCALLNR.index(sysnr) == 'execve' and retval >= 0
+			if syscallnr.index(sysnr) == 'execve' and retval >= 0
 				cont
 				return self
 			end

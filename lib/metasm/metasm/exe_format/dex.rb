@@ -216,11 +216,13 @@ class DEX < ExeFormat
 		u4 :debugoff
 		u4 :insnssz
 
-		attr_accessor :edata, :try_items, :catch_items
+		attr_accessor :insns_off, :try_items, :catch_items
 
 		def decode(exe)
+			p0 = exe.encoded.ptr
 			super(exe)
-			@edata = EncodedData.new exe.encoded.read(2*@insnssz)
+			@insns_off = exe.encoded.ptr - p0
+			exe.encoded.ptr += 2*@insnssz
 			return if @triessz <= 0
 			exe.decode_u2 if @insnssz & 1 == 1	# align
 			@try_items = (1..@triessz).map { Try.decode(exe) }
@@ -320,6 +322,7 @@ class DEX < ExeFormat
 	end
 
 
+	attr_accessor :endianness
 
 	def encode_u2(val) Expression[val].encode(:u16, @endianness) end
 	def encode_u4(val) Expression[val].encode(:u32, @endianness) end
@@ -391,9 +394,9 @@ class DEX < ExeFormat
 				m.name = @strings[m.method.nameidx]
 				@encoded.ptr = m.codeoff
 				m.code = CodeItem.decode(self)
-				next if not ed = m.code.edata
+				next if @encoded.ptr > @encoded.length
 				l = new_label(m.name + '@' + @types[c.classidx])
-				ed.add_export l, 0
+				@encoded.add_export l, m.codeoff + m.code.insns_off
 			}
 		}
 	end
@@ -409,17 +412,32 @@ class DEX < ExeFormat
 	end
 
 	def cpu_from_headers
-		Dalvik.new
+		Dalvik.new(self)
 	end
 
-	def each_section
+	def init_disassembler
+		dasm = super()
 		@classes.each { |c|
 			next if not c.data
 			(c.data.direct_methods + c.data.virtual_methods).each { |m|
-				next if not m.code or not ed = m.code.edata
-				yield ed, ed.export.index(0)
+				n = @types[c.classidx] + '->' + m.name
+				dasm.comment[m.codeoff+m.code.insns_off] = [n]
 			}
 		}
+		dasm.function[:default] = @cpu.disassembler_default_func
+		dasm
+	end
+
+	def each_section
+		yield @encoded, 0
+#		@classes.each { |c|
+#			next if not c.data
+#			(c.data.direct_methods + c.data.virtual_methods).each { |m|
+#				next if not m.code
+#				next if not ed = @encoded[m.codeoff+m.code.insns_off, 2*m.code.insnssz]
+#				yield ed, ed.export.index(0)
+#			}
+#		}
 	end
 
 	def get_default_entrypoints

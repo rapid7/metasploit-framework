@@ -166,12 +166,19 @@ end
 		end
 	end
 
+	def parse_argregclasslist
+		[Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg]
+	end
+	def parse_modrm(lex, tok, cpu)
+		ModRM.parse(lex, tok, cpu)
+	end
+
 	# parses an arbitrary ia32 instruction argument
 	def parse_argument(lexer)
 		lexer = AsmPreprocessor.new(lexer) if lexer.kind_of? String
 
 		# reserved names (registers/segments etc)
-		@args_token ||= [Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg].map { |a| a.s_to_i.keys }.flatten.inject({}) { |h, e| h.update e => true }
+		@args_token ||= parse_argregclasslist.map { |a| a.s_to_i.keys }.flatten.inject({}) { |h, e| h.update e => true }
 
 		lexer.skip_space
 		return if not tok = lexer.readtok
@@ -185,8 +192,9 @@ end
 					raise tok, 'invalid FP register'
 				else
 					tok.raw << '(' << nntok.raw << ')'
-					if FpReg.s_to_i.has_key? tok.raw
-						return FpReg.new(FpReg.s_to_i[tok.raw])
+					fpr = parse_argregclasslist.last
+					if fpr.s_to_i.has_key? tok.raw
+						return fpr.new(fpr.s_to_i[tok.raw])
 					else
 						raise tok, 'invalid FP register'
 					end
@@ -196,10 +204,10 @@ end
 			end
 		end
 
-		if ret = ModRM.parse(lexer, tok, self)
+		if ret = parse_modrm(lexer, tok, self)
 			ret
 		elsif @args_token[tok.raw]
-			[Reg, SimdReg, SegReg, DbgReg, CtrlReg, FpReg].each { |a|
+			parse_argregclasslist.each { |a|
 				return a.from_str(tok.raw) if a.s_to_i.has_key? tok.raw
 			}
 			raise tok, 'internal error'
@@ -245,7 +253,7 @@ end
 
 		cond and
 		case spec
-		when :reg; arg.kind_of? Reg
+		when :reg; arg.kind_of? Reg and (arg.sz >= 16 or o.props[:argsz])
 		when :modrm; (arg.kind_of? ModRM or arg.kind_of? Reg) and (!arg.sz or arg.sz >= 16 or o.props[:argsz])
 		when :i;        arg.kind_of? Expression
 		when :imm_val1; arg.kind_of? Expression and arg.reduce == 1
@@ -263,7 +271,7 @@ end
 		when :mrm_imm;  arg.kind_of? ModRM   and not arg.s and not arg.i and not arg.b
 		when :farptr;   arg.kind_of? Farptr
 		when :regfp;    arg.kind_of? FpReg
-		when :regfp0;   arg.kind_of? FpReg   and (arg.val == nil or arg.val == 0)	# XXX optional argument
+		when :regfp0;   arg.kind_of? FpReg   and (arg.val == nil or arg.val == 0)
 		when :modrmmmx; arg.kind_of? ModRM   or (arg.kind_of? SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx])))
 		when :regmmx;   arg.kind_of? SimdReg and (arg.sz == 64 or (arg.sz == 128 and o.props[:xmmx]))
 		when :modrmxmm; arg.kind_of? ModRM   or (arg.kind_of? SimdReg and arg.sz == 128)
@@ -294,6 +302,8 @@ end
 			else
 				if r = i.args.grep(Reg).first
 					m.sz = r.sz
+				elsif opcode_list_byname[i.opname].all? { |o| o.props[:argsz] }
+					m.sz = opcode_list_byname[i.opname].first.props[:argsz]
 				else
 					# this is also the size of ctrlreg/dbgreg etc
 					# XXX fpu/simd ?

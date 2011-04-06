@@ -5,7 +5,7 @@
 
 
 require 'metasm/decode'
-require 'metasm/exe_format/elf'
+require 'metasm/exe_format/elf' unless defined? Metasm::ELF
 
 module Metasm
 class ELF
@@ -196,6 +196,8 @@ class ELF
 		# ((gnu_hash(sym[M].name) % C) == B			||
 		# ((gnu_hash(sym[M].name) >> shift2) % C) == B"
 		# bloomfilter may be [~0]
+		if shift2
+		end
 
 		hash_bucket = [] ; hash_bucket_len.times { hash_bucket << decode_word }
 		# bucket[N] contains the lowest M for which
@@ -953,19 +955,16 @@ EOC
 	end
 end
 
-class LoadedELF < ELF
-	attr_accessor :load_address
-	def addr_to_off(addr)
-		@load_address ||= 0
-		addr >= @load_address ? addr - @load_address : addr if addr
-	end
-
+class LoadedELF
 	# decodes the dynamic segment, fills segments.encoded
 	def decode_segments
+		if @load_address == 0 and @segments.find { |s| s.type == 'LOAD' and s.vaddr > @encoded.length }
+			@load_address = @segments.find_all { |s| s.type == 'LOAD' }.map { |s| s.vaddr }.min
+		end
 		decode_segments_dynamic
 		@segments.each { |s|
 			if s.type == 'LOAD'
-				s.encoded = @encoded[s.vaddr, s.memsz]
+				s.encoded = @encoded[addr_to_off(s.vaddr), s.memsz]
 			end
 		}
 	end

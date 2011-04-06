@@ -272,9 +272,9 @@ module C
 				when :__int32; ' dd '
 				when :__int64; ' dq '
 				when :ptr; " d#{%w[x b w x d x x x q][@parser.typesize[type.name]]} "
-				when :float;   ' df '	# TODO
-				when :double;  ' dfd '
-				when :longdouble; ' dfld '
+				when :float;   ' db ' + [value].pack(@parser.endianness == :little ? 'e' : 'g').unpack('C*').join(', ') + ' // '
+				when :double;  ' db ' + [value].pack(@parser.endianness == :little ? 'E' : 'G').unpack('C*').join(', ') + ' // '
+				when :longdouble; ' db ' + [value].pack(@parser.endianness == :little ? 'E' : 'G').unpack('C*').join(', ') + ' // '	# XXX same as :double 
 				else raise "unknown idata type #{type.inspect} #{value.inspect}"
 				end
 
@@ -762,20 +762,21 @@ module C
 			@body = @body.precompile_make_block scope
 			@body.continue_label = compiler.new_label 'for_continue'
 			@body.break_label = compiler.new_label 'for_break'
+			label_test = compiler.new_label 'for_test'
 
-			Label.new(@body.continue_label).precompile(compiler, scope)
-
+			Label.new(label_test).precompile(compiler, scope)
 			if test
 				If.new(CExpression.negate(@test), Goto.new(@body.break_label)).precompile(compiler, scope)
 			end
 
 			@body.precompile(compiler, scope)
 
+			Label.new(@body.continue_label).precompile(compiler, scope)
 			if iter
 				@iter.precompile(compiler, scope)
 			end
 
-			Goto.new(@body.continue_label).precompile(compiler, scope)
+			Goto.new(label_test).precompile(compiler, scope)
 			Label.new(@body.break_label).precompile(compiler, scope)
 		end
 	end
@@ -950,7 +951,12 @@ module C
 				if declaration; precompile_type(compiler, scope, t, declaration)
 				else   t = BaseType.new("__int#{compiler.typesize[:ptr]*8}".to_sym, :unsigned)
 				end
-			when Pointer;  t = BaseType.new("__int#{compiler.typesize[:ptr]*8}".to_sym, :unsigned)
+			when Pointer
+				if t.type.untypedef.kind_of? Function
+					precompile_type(compiler, scope, t, declaration)
+				else
+					t = BaseType.new("__int#{compiler.typesize[:ptr]*8}".to_sym, :unsigned)
+				end
 			when Enum;     t = BaseType.new("__int#{compiler.typesize[:int]*8}".to_sym)
 			when Function
 				precompile_type(compiler, scope, t)
@@ -1324,12 +1330,14 @@ module C
 					v.type.qualifier = [:const]
 					v.initializer = CExpression.new(nil, nil, @rexpr, @type)
 					Declaration.new(v).precompile(compiler, scope)
-					@rexpr = CExpression.new(nil, :'*', v, Pointer.new(v.type))
+					@rexpr = CExpression.new(nil, :'*', v, v.type)
 					precompile_inner(compiler, scope)
 				when CExpression
 					# simplify casts
-					@rexpr = @rexpr.precompile_inner(compiler, scope)
 					CExpression.precompile_type(compiler, scope, self)
+					# propagate type first so that __uint64 foo() { return -1 } => 0xffffffffffffffff
+					@rexpr.type = @type if @rexpr.kind_of? CExpression and @rexpr.op == :- and not @rexpr.lexpr and @type.kind_of? BaseType and @type.name == :__int64	# XXX kill me
+					@rexpr = @rexpr.precompile_inner(compiler, scope)
 					if @type.kind_of? BaseType and @rexpr.type.kind_of? BaseType
 						if @rexpr.type == @type
 							# noop cast

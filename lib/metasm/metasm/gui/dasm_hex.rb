@@ -394,7 +394,7 @@ class HexWidget < DrawableWidget
 	def prompt_search_hex
 		inputbox('hex pattern to search (hex regexp, use .. for wildcard)') { |pat|
 			pat = pat.gsub(' ', '').gsub('..', '.').gsub(/[0-9a-f][0-9a-f]/i) { |o| "\\x#{o}" }
-			pat = Regexp.new(pat, Regexp::MULTILINE)
+			pat = Regexp.new(pat, Regexp::MULTILINE, 'n')	# 'n' = force ascii-8bit
 			list = [['addr']] + @dasm.pattern_scan(pat).map { |a| [Expression[a]] }
 			listwindow("hex search #{pat}", list) { |i| focus_addr i[0] }
 		}

@@ -111,12 +111,59 @@ end
 class CPU
 	# compat alias, for scripts using older version of metasm
 	def get_backtrace_binding(di) backtrace_binding(di) end
+
+	# return something like backtrace_binding in the forward direction
+	# set pc_reg to some reg name (eg :pc) to include effects on the instruction pointer
+	def get_fwdemu_binding(di, pc_reg=nil)
+		fdi = di.backtrace_binding ||= get_backtrace_binding(di)
+		# find self-updated regs & revert them in simultaneous affectations
+		# XXX handles only a <- a+i for now, this covers all useful cases (except imul eax, eax, 42  jz foobar)
+		fdi.keys.grep(::Symbol).each { |s|
+			val = Expression[fdi[s]]
+			next if val.lexpr != s or (val.op != :+ and val.op != :-) #or not val.rexpr.kind_of? ::Integer
+			fwd = { s => val }
+			inv = { s => val.dup }
+			inv[s].op = ((inv[s].op == :+) ? :- : :+)
+			nxt = {}
+			fdi.each { |k, v|
+				if k == s
+					nxt[k] = v
+				else
+					k = k.bind(fwd).reduce_rec if k.kind_of? Indirection
+					nxt[k] = Expression[Expression[v].bind(inv).reduce_rec]
+				end
+			}
+			fdi = nxt
+		}
+		if pc_reg
+			if di.opcode.props[:setip]
+				xr = get_xrefs_x(nil, di)
+				if xr and xr.length == 1
+					fdi[pc_reg] = xr[0]
+				else
+					fdi[:incomplete_binding] = Expression[1]
+				end
+			else
+				fdi[pc_reg] = Expression[pc_reg, :+, di.bin_length]
+			end
+		end
+		fdi
+	end
 end
 
 class Disassembler
 	# access the default value for @@backtrace_maxblocks for newly created Disassemblers
 	def self.backtrace_maxblocks ; @@backtrace_maxblocks ; end
 	def self.backtrace_maxblocks=(b) ; @@backtrace_maxblocks = b ; end
+
+	# returns the dasm section's edata containing addr
+	# its #ptr points to addr
+	# returns the 1st element of #get_section_at
+	def get_edata_at(addr)
+		if s = get_section_at(addr)
+			s[0]
+		end
+	end
 
 	# returns the DecodedInstruction at addr if it exists
 	def di_at(addr)
@@ -170,6 +217,12 @@ class Disassembler
 			yield di.block if block_given?
 		}
 		ret
+	end
+	alias instructionblocks each_instructionblock
+
+	# return a backtrace_binding reversed (akin to code emulation) (but not really)
+	def get_fwdemu_binding(di, pc=nil)
+		@cpu.get_fwdemu_binding(di, pc)
 	end
 
 	# reads len raw bytes from the mmaped address space
@@ -225,6 +278,17 @@ class Disassembler
 		if e = get_section_at(addr)
 			@cpu.decode_instruction(e[0], normalize(addr))
 		end
+	end
+
+	# disassemble addr as if the code flow came from from_addr
+	def disassemble_from(addr, from_addr)
+		from_addr = from_addr.address if from_addr.kind_of? DecodedInstruction
+		from_addr = normalize(from_addr)
+		if b = block_at(from_addr)
+			b.add_to_normal(addr)
+		end
+		@addrs_todo << [addr, from_addr]
+		disassemble
 	end
 
 	# returns the label associated to an addr, or nil if none exist
@@ -317,7 +381,6 @@ class Disassembler
 		addr = addr.address if addr.kind_of? DecodedInstruction
 		todo = [addr]
 		done = []
-		func = nil
 		while a = todo.pop
 			a = normalize(a)
 			di = @decoded[a]
@@ -333,30 +396,30 @@ class Disassembler
 	end
 
 	# iterates over the blocks of a function, yields each func block address
-	# returns the list of block addresses
-	def each_function_block(addr, incl_subfuncs = false)
+	# returns the graph of blocks (block address => [list of samefunc blocks])
+	def each_function_block(addr, incl_subfuncs = false, find_func_start = true)
 		addr = @function.index(addr) if addr.kind_of? DecodedFunction
 		addr = addr.address if addr.kind_of? DecodedInstruction
-		addr = find_function_start(addr) if not @function[addr]
+		addr = find_function_start(addr) if not @function[addr] and find_func_start
 		todo = [addr]
-		done = []
+		ret = {}
 		while a = todo.pop
 			next if not di = di_at(a)
 			a = di.block.address
-			next if done.include? a
-			done << a
+			next if ret[a]
+			ret[a] = []
 			yield a if block_given?
-			di.block.each_to_samefunc(self) { |f| todo << f }
-			di.block.each_to_otherfunc(self) { |f| todo << f } if incl_subfuncs
+			di.block.each_to_samefunc(self) { |f| ret[a] << f ; todo << f }
+			di.block.each_to_otherfunc(self) { |f| ret[a] << f ; todo << f } if incl_subfuncs
 		end
-		done
+		ret
 	end
 	alias function_blocks each_function_block
 
 	# returns a graph of function calls
 	# for each func passed as arg (default: all), update the 'ret' hash
 	# associating func => [list of direct subfuncs called]
-	def function_graph(funcs = @function.keys + @entrypoints, ret={})
+	def function_graph(funcs = @function.keys + @entrypoints.to_a, ret={})
 		funcs = funcs.map { |f| normalize(f) }.uniq.find_all { |f| @decoded[f] }
 		funcs.each { |f|
 			next if ret[f]
@@ -374,6 +437,7 @@ class Disassembler
 	# recurses from an entrypoint
 	def function_graph_from(addr)
 		addr = normalize(addr)
+		addr = find_function_start(addr) || addr
 		ret = {}
 		osz = ret.length-1
 		while ret.length != osz
@@ -616,7 +680,6 @@ class Disassembler
 		entry = [entry] if not entry.kind_of? Array
 		todo = entry.map { |a| normalize(a) }
 		done = []
-		label = {}
 		inv_binding = @prog_binding.invert
 		while addr = todo.pop
 			next if done.include? addr or not di_at(addr)
@@ -707,6 +770,21 @@ class Disassembler
 			}
 		}
 		found
+	end
+
+	# returns/yields [addr, string] found using pattern_scan /[\x20-\x7e]/
+	def strings_scan(minlen=6)
+		ret = []
+		nexto = 0
+		pattern_scan(/[\x20-\x7e]{#{minlen},}/m, nil, 1024) { |o|
+			if o - nexto > 0
+				next unless e = get_edata_at(o)
+				str = e.data[e.ptr, 1024][/[\x20-\x7e]{#{minlen},}/m]
+				ret << [o, str] if not block_given? or yield(o, str)
+				nexto = o + str.length
+			end
+		}
+		ret
 	end
 
 	# exports the addr => symbol map (see load_map)
@@ -865,7 +943,7 @@ class Disassembler
 				@program.disassembler = self
 				@program.init_disassembler
 			when 'section'
-				info = data[0, data.index("\n", off) || data.length]
+				info = data[0, data.index("\n") || data.length]
 				data = data[info.length, data.length]
 				pp.feed!(info)
 				addr = Expression.parse(pp).reduce
@@ -948,9 +1026,9 @@ class Disassembler
 						when ':unknown'; a = Expression::Unknown
 						else a = Expression.parse(pp.feed!(a)).reduce
 						end
-						t = t.to_sym
+						t = (t.empty? ? nil : t.to_sym)
 						len = (len != '' ? len.to_i : nil)
-						o = (o != '' ? Expression.parse(pp.feed!(o)).reduce : nil)	# :default/:unknown ?
+						o = (o.to_s != '' ? Expression.parse(pp.feed!(o)).reduce : nil)	# :default/:unknown ?
 						add_xref(a, Xref.new(t, o, len))
 					rescue 
 						puts "load: bad xref #{l.inspect} #$!" if $VERBOSE
@@ -1137,7 +1215,6 @@ class Disassembler
 	# assumes bd1 is followed by bd2 in the code flow
 	# eg inc edi + push edi =>
 	#  { Ind[:esp, 4] => Expr[:edi + 1], :esp => Expr[:esp - 4], :edi => Expr[:edi + 1] }
-	# for longer sequences, eg di1 di2 di3, use compose(di1, compose(di2, di3)) (ie right assoc)
 	# XXX if bd1 writes to memory with a pointer that is reused in bd2, this function has to
 	# revert the change made by bd2, which only works with simple ptr addition now
 	# XXX unhandled situations may be resolved using :unknown, or by returning incorrect values
@@ -1169,13 +1246,14 @@ class Disassembler
 						# we dont want to invert computation of flag_zero/carry etc (booh)
 						next if k2.to_s =~ /flag/
 
-						next if not v2.externals.include? e
+						# discard indirection etc, result would be too complex / not useful
+						next if not Expression[v2].expr_externals.include? e
 
 						done = true
 
 						# try to reverse the computation made upon 'e'
 						# only simple addition handled here
-						ptr = reduce[k.pointer.bind e => Expression[[k2, :-, v2], :+, e]]
+						ptr = reduce[k.pointer.bind(e => Expression[[k2, :-, v2], :+, e])]
 
 						# if bd2 does not rewrite e, duplicate the original pointer
 						if not bd2[e]

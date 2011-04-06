@@ -10,12 +10,14 @@ require 'metasm/gui/dasm_opcodes'
 require 'metasm/gui/dasm_coverage'
 require 'metasm/gui/dasm_graph'
 require 'metasm/gui/dasm_decomp'
+require 'metasm/gui/dasm_funcgraph'
+require 'metasm/gui/cstruct'
 
 module Metasm
 module Gui
 # the main disassembler widget: this is a container for all the lower-level widgets that actually render the dasm state
 class DisasmWidget < ContainerChoiceWidget
-	attr_accessor :dasm, :entrypoints, :gui_update_counter_max
+	attr_accessor :entrypoints, :gui_update_counter_max
 	attr_accessor :keyboard_callback, :keyboard_callback_ctrl	# hash key => lambda { |key| true if handled }
 	attr_accessor :clones
 	attr_accessor :pos_history, :pos_history_redo
@@ -26,6 +28,7 @@ class DisasmWidget < ContainerChoiceWidget
 	def initialize_widget(dasm, ep=[])
 		@dasm = dasm
 		@dasm.gui = self
+		ep = [ep] if not ep.kind_of? Array
 		@entrypoints = ep
 		@pos_history = []
 		@pos_history_redo = []
@@ -43,8 +46,20 @@ class DisasmWidget < ContainerChoiceWidget
 		addview :opcodes,   AsmOpcodeWidget.new(@dasm, self)
 		addview :hex,       HexWidget.new(@dasm, self)
 		addview :coverage,  CoverageWidget.new(@dasm, self)
+		addview :funcgraph, FuncGraphViewWidget.new(@dasm, self)
+		addview :cstruct,   CStructWidget.new(@dasm, self)
 
 		view(:listing).grab_focus
+	end
+
+	attr_reader :dasm
+	# when updating @dasm, also update dasm for all views
+	def dasm=(d)
+		@dasm = d
+		view_indexes.each { |v|
+			w = view(v)
+			w.dasm = d if w.respond_to?(:'dasm=')
+		}
 	end
 
 	# start an idle callback that will run one round of @dasm.disassemble_mainiter
@@ -127,14 +142,16 @@ class DisasmWidget < ContainerChoiceWidget
 	# if it cannot display the address all other views are tried in order
 	# the current focus address is saved in @pos_history (see focus_addr_back/redo)
 	# a messagebox is popped if no view can display the address unless quiet is true
-	def focus_addr(addr, viewidx=nil, quiet=false)
+	def focus_addr(addr, viewidx=nil, quiet=false, *a)
 		viewidx ||= curview_index || :listing
 		return if not addr
 		return if viewidx == curview_index and addr == curaddr
 		oldpos = [curview_index, (curview.get_cursor_pos if curview)]
-		if [viewidx, oldpos[0], *view_indexes].compact.uniq.find { |i|
+		views = [viewidx, oldpos[0]]
+		views += [:listing, :graph] & view_indexes
+		if views.compact.uniq.find { |i|
 			o_p = view(i).get_cursor_pos
-			if view(i).focus_addr(addr)
+			if (view(i).focus_addr(addr, *a) rescue nil)
 				view(i).gui_update if i != oldpos[0]
 				showview(i)
 				true
@@ -304,15 +321,9 @@ class DisasmWidget < ContainerChoiceWidget
 	end
 
 	def list_strings
-		list = [['addr', 'string']]
-		nexto = 0
-		@dasm.pattern_scan(/[\x20-\x7e]{6,}/m) { |o|
-			if o - nexto > 0
-				next unless s = @dasm.get_section_at(o)
-				str = s[0].data[s[0].ptr, 1024][/[\x20-\x7e]{6,}/m]
-				list << [o, str[0, 24].inspect]
-				nexto = o + str.length
-			end
+		list = [['addr', 'string', 'length']]
+		@dasm.strings_scan { |o, str|
+			list << [Expression[o], str[0, 24].inspect, str.length]
 		}
 		listwindow("list of strings", list) { |i| focus_addr i[0] }
 	end
@@ -421,7 +432,7 @@ class DisasmWidget < ContainerChoiceWidget
 
 	# search for a regexp in #dasm.decoded.to_s
 	def prompt_search_decoded
-		inputbox('text to search in instrs (regex)') { |pat|
+		inputbox('text to search in instrs (regex)', :text => curview.hl_word) { |pat|
 			re = /#{pat}/i
 			found = []
 			@dasm.decoded.each { |k, v|
@@ -584,6 +595,7 @@ class DisasmWidget < ContainerChoiceWidget
 		case f
 		when /\.(c|h|cpp)$/; @dasm.parse_c_file(f)
 		when /\.map$/; @dasm.load_map(f)
+		when /\.rb$/; @dasm.load_plugin(f)
 		else messagebox("unsupported file extension #{f}")
 		end
 	end
@@ -646,6 +658,7 @@ class DasmWindow < Window
 	# returns the widget
 	def display(dasm, ep=[])
 		@dasm_widget.terminate if @dasm_widget
+		ep = [ep] if not ep.kind_of? Array
 		@dasm_widget = DisasmWidget.new(dasm, ep)
 		self.widget = @dasm_widget
 		@dasm_widget.focus_addr(ep.first) if ep.first
@@ -706,23 +719,38 @@ class DasmWindow < Window
 		list_pr = OS.current.list_processes
 		Gui.idle_add {
 			if pr = list_pr.shift
-				path = pr.modules.first.path if pr.modules and pr.modules.first
-				#path ||= '<unk>'	# if we can't retrieve exe name, can't debug the process
-				list << [pr.pid, path] if path
+				list << [pr.pid, pr.path] if pr.path
 				true
 			elsif i
-				l = listwindow('running processes', list, :noshow => true) { |e| i.text = e[0] }
+				me = ::Process.pid.to_s
+				l = listwindow('running processes', list,
+					       :noshow => true,
+					       :color_callback => lambda { |le| [:grey, :palegrey] if le[0] == me }
+				) { |e| i.text = e[0] }
 				l.x += l.width
 				l.show
 				false
 			end
+		} if not list_pr.empty?
+	end
+
+	# reuse last @savefile to save dasm, prompt for file if undefined
+	def promptsave
+		return if not @dasm_widget
+		if @savefile ||= nil
+			@dasm_widget.dasm.save_file @savefile
+			return
+		end
+		openfile('chose save file') { |file|
+			@savefile = file
+			@dasm_widget.dasm.save_file(file)
 		}
 	end
 
-	def promptsave
-		openfile('chose save file') { |file|
-			@dasm_widget.dasm.save_file(file)
-		} if @dasm_widget
+	# same as promptsave, but always prompt
+	def promptsaveas
+		@savefile = nil
+		promptsave
 	end
 
 	def promptruby
@@ -744,6 +772,7 @@ class DasmWindow < Window
 		addsubmenu(filemenu, 'OPEN', '^o') { promptopen }
 		addsubmenu(filemenu, '_Debug') { promptdebug }
 		addsubmenu(filemenu, 'SAVE', '^s') { promptsave }
+		addsubmenu(filemenu, 'Save _as...') { promptsaveas }
 		addsubmenu(filemenu, 'CLOSE') {
 			if @dasm_widget
 				@dasm_widget.terminate
@@ -753,39 +782,42 @@ class DasmWindow < Window
 		}
 		addsubmenu(filemenu)
 
-		iomenu = new_menu
-		addsubmenu(iomenu, 'Load _map') {
+		importmenu = new_menu
+		addsubmenu(importmenu, 'Load _map') {
 			openfile('chose map file') { |file|
 				@dasm_widget.dasm.load_map(File.read(file)) if @dasm_widget
 			} if @dasm_widget
 		}
-		addsubmenu(iomenu, 'S_ave map') {
+		addsubmenu(importmenu, 'Load _C') {
+			openfile('chose C file') { |file|
+				@dasm_widget.dasm.parse_c(File.read(file)) if @dasm_widget
+			} if @dasm_widget
+		}
+		addsubmenu(filemenu, '_Import', importmenu)
+
+		exportmenu = new_menu
+		addsubmenu(exportmenu, 'Save _map') {
 			savefile('chose map file') { |file|
 				File.open(file, 'w') { |fd|
 					fd.puts @dasm_widget.dasm.save_map
 				} if @dasm_widget
 			} if @dasm_widget
 		}
-		addsubmenu(iomenu, '_Save asm') {
+		addsubmenu(exportmenu, 'Save _asm') {
 			savefile('chose asm file') { |file|
 				File.open(file, 'w') { |fd|
 					fd.puts @dasm_widget.dasm
 				} if @dasm_widget
 			} if @dasm_widget
 		}
-		addsubmenu(iomenu, 'Save _C') {
+		addsubmenu(exportmenu, 'Save _C') {
 			savefile('chose C file') { |file|
 				File.open(file, 'w') { |fd|
 					fd.puts @dasm_widget.dasm.c_parser
 				} if @dasm_widget
 			} if @dasm_widget
 		}
-		addsubmenu(filemenu, 'Load _C') {
-			openfile('chose C file') { |file|
-				@dasm_widget.dasm.parse_c(File.read(file)) if @dasm_widget
-			} if @dasm_widget
-		}
-		addsubmenu(filemenu, '_i/o', iomenu)
+		addsubmenu(filemenu, '_Export', exportmenu)
 		addsubmenu(filemenu)
 		addsubmenu(filemenu, 'QUIT') { destroy } # post_quit_message ?
 
@@ -797,10 +829,12 @@ class DasmWindow < Window
 		addsubmenu(dasm, 'Disassemble _fast from here', 'C') { @dasm_widget.disassemble_fast(@dasm_widget.curview.current_address) }
 		addsubmenu(dasm, 'Disassemble fast & dee_p from here', '^C') { @dasm_widget.disassemble_fast_deep(@dasm_widget.curview.current_address) }
 		addsubmenu(actions, dasm, '_Disassemble')
-		addsubmenu(actions, 'Follow', '<enter>') { @dasm_widget.focus_addr @dasm_widget.curview.hl_word }	# XXX
-		addsubmenu(actions, 'Jmp back', '<esc>') { @dasm_widget.focus_addr_back }
-		addsubmenu(actions, 'Undo jmp back', '^<enter>') { @dasm_widget.focus_addr_redo }
-		addsubmenu(actions, 'Goto', 'g') { @dasm_widget.prompt_goto }
+		navigate = new_menu
+		addsubmenu(navigate, 'Follow', '<enter>') { @dasm_widget.focus_addr @dasm_widget.curview.hl_word }	# XXX
+		addsubmenu(navigate, 'Jmp back', '<esc>') { @dasm_widget.focus_addr_back }
+		addsubmenu(navigate, 'Undo jmp back', '^<enter>') { @dasm_widget.focus_addr_redo }
+		addsubmenu(navigate, 'Goto', 'g') { @dasm_widget.prompt_goto }
+		addsubmenu(actions, navigate, 'Navigate')
 		addsubmenu(actions, '_Backtrace', 'b') { @dasm_widget.prompt_backtrace }
 		addsubmenu(actions, 'List functions', 'f') { @dasm_widget.list_functions }
 		addsubmenu(actions, 'List labels', 'l') { @dasm_widget.list_labels }
@@ -853,9 +887,17 @@ class DasmWindow < Window
 		addsubmenu(views, 'De_compiled') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :decompile) }
 		addsubmenu(views, 'Raw _opcodes') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :opcodes) }
 		addsubmenu(views, '_Hex') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :hex) }
+		addsubmenu(views, 'C S_truct') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :cstruct) }
 		addsubmenu(views, 'Co_verage') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :coverage) }
 		addsubmenu(views, '_Sections') { @dasm_widget.list_sections }
 		addsubmenu(views, 'St_rings') { @dasm_widget.list_strings }
+
+		funcgraph = new_menu
+		addsubmenu(funcgraph, 'Fu_ll') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :funcgraph, false, :full) }
+		addsubmenu(funcgraph, '_From there') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :funcgraph, false, :from) }
+		addsubmenu(funcgraph, '_To there') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :funcgraph, false, :to) }
+		addsubmenu(funcgraph, '_Butterfly') { @dasm_widget.focus_addr(@dasm_widget.curaddr, :funcgraph, false, :both) }
+		addsubmenu(views, '_Func graph', funcgraph)
 
 		addsubmenu(@menu, views, '_Views')
 	end

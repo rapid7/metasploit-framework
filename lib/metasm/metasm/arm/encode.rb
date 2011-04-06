@@ -12,14 +12,15 @@ class ARM
 	def encode_instr_op(section, instr, op)
 		base = op.bin
 		set_field = lambda { |f, v|
+			v = v.reduce if v.kind_of? Expression
 			case f
 			when :i8_12
-				base |= (v & 0xf) | ((v << 4) & 0xf00)
+				base = Expression[base, :|, [[v, :&, 0xf], :|, [[v, :<<, 4], :&, 0xf00]]]
 				next
 			when :stype; v = [:lsl, :lsr, :asr, :ror].index(v)
 			when :u; v = [:-, :+].index(v)
 			end
-			base |= (v & @fields_mask[f]) << @fields_shift[f]
+			base = Expression[base, :|, [[v, :&, @fields_mask[f]], :<<, @fields_shift[f]]]
 		}
 
 		val, mask, shift = 0, 0, 0
@@ -46,15 +47,15 @@ class ARM
 				set_field[:rn, arg.base.i]
 				case sym
 				when :mem_rn_rm
-					set_field[:rm, arg.off.i]
+					set_field[:rm, arg.offset.i]
 				when :mem_rn_rms
-					set_field[:rm, arg.off.i]
-					set_field[:stype, arg.off.stype]
-					set_field[:rs, arg.off.shift.i]
+					set_field[:rm, arg.offset.i]
+					set_field[:stype, arg.offset.stype]
+					set_field[:rs, arg.offset.shift.i]
 				when :mem_rn_i8_12
-					set_field[:i8_12, arg.off]
+					set_field[:i8_12, arg.offset]
 				when :mem_rn_i12
-					set_field[:i12, arg.off]
+					set_field[:i12, arg.offset]
 				end
 				# TODO set_field[:u] etc
 			when :reglist

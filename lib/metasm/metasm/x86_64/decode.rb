@@ -26,24 +26,24 @@ class X86_64
 			# sib: i 4 => no index, b 5 => no base
 
 			s = i = b = imm = nil
-			if rm == 4	# XXX pfx[:rex_b] ?
+			if rm == 4
 				sib = edata.get_byte.to_i
 
 				ii = (sib >> 3) & 7
-				if ii != 4	# XXX pfx[:rex_x] ?
 					ii |= 8 if pfx[:rex_x]
+				if ii != 4
 					s = 1 << ((sib >> 6) & 3)
 					i = Reg.new(ii, adsz)
 				end
 
 				bb = sib & 7
-				if bb == 5 and m == 0 # XXX pfx[:rex_b] ?
+				if bb == 5 and m == 0
 					m = 2	# :i32 follows
 				else
 					bb |= 8 if pfx[:rex_b]
 					b = Reg.new(bb, adsz)
 				end
-			elsif rm == 5 and m == 0	# rip XXX pfx[:rex_b] ?
+			elsif rm == 5 and m == 0
 				b = Reg.new(16, adsz)
 				m = 2	# :i32 follows
 			else
@@ -68,7 +68,13 @@ class X86_64
 
 	def decode_prefix(instr, byte)
 		x = super(instr, byte)
-		#return if instr.prefix[:rex]	# must be the last prefix	TODO check repetition/out of order
+		if instr.prefix.delete :rex
+			# rex ignored if not last
+			instr.prefix.delete :rex_b
+			instr.prefix.delete :rex_x
+			instr.prefix.delete :rex_r
+			instr.prefix.delete :rex_w
+		end
 		if byte & 0xf0 == 0x40
 			x = instr.prefix[:rex] = byte
 			instr.prefix[:rex_b] = 1 if byte & 1 > 0
@@ -97,8 +103,9 @@ class X86_64
 			v
 		}
 
-		opsz = op.props[:argsz] || (pfx[:rex_w] || op.props[:auto64] ? 64 : pfx[:opsz] ? 16 : 32)
+		opsz = op.props[:argsz] || (pfx[:rex_w] ? 64 : (pfx[:opsz] ? 16 : (op.props[:auto64] ? 64 : 32)))
 		adsz = pfx[:adsz] ? 32 : 64
+		mmxsz = (op.props[:xmmx] && pfx[:opsz]) ? 128 : 64
 
 		op.args.each { |a|
 			di.instruction.args << case a
@@ -106,6 +113,7 @@ class X86_64
 			when :eeec;   CtrlReg.new field_val_r[a]
 			when :eeed;   DbgReg.new  field_val_r[a]
 			when :seg2, :seg2A, :seg3, :seg3A; SegReg.new field_val[a]
+			when :regmmx; SimdReg.new field_val_r[a], mmxsz
 			when :regxmm; SimdReg.new field_val_r[a], 128
 
 			when :farptr; Farptr.decode edata, @endianness, opsz
@@ -116,22 +124,21 @@ class X86_64
 				v &= 0xffff_ffff_ffff_ffff if opsz == 64 and op.props[:unsigned_imm] and v.kind_of? Integer
 				Expression[v]
 
-			when :mrm_imm;  ModRM.new(adsz, opsz, nil, nil, nil, Expression[edata.decode_imm("a#{adsz}".to_sym, @endianness)], pfx[:seg])	# XXX manuals say :a64, test it
+			when :mrm_imm;  ModRM.new(adsz, opsz, nil, nil, nil, Expression[edata.decode_imm("a#{adsz}".to_sym, @endianness)], pfx[:seg])
 			when :modrm, :modrmA; ModRM.decode edata, field_val[a], @endianness, adsz, opsz, pfx[:seg], Reg, pfx
+			when :modrmmmx; ModRM.decode edata, field_val[:modrm], @endianness, adsz, mmxsz, pfx[:seg], SimdReg, pfx
 			when :modrmxmm; ModRM.decode edata, field_val[:modrm], @endianness, adsz, 128, pfx[:seg], SimdReg, pfx
 
+			when :regfp;  FpReg.new   field_val[a]
 			when :imm_val1; Expression[1]
 			when :imm_val3; Expression[3]
 			when :reg_cl;   Reg.new 1, 8
 			when :reg_eax;  Reg.new 0, opsz
 			when :reg_dx;   Reg.new 2, 16
-			#when :regfp0;   FpReg.new nil	# implicit?
+			when :regfp0;   FpReg.new nil
 			else raise SyntaxError, "Internal error: invalid argument #{a} in #{op.name}"
 			end
 		}
-
-		# sil => bh
-		di.instruction.args.each { |a| a.val += 12 if a.kind_of? Reg and a.sz == 8 and not pfx[:rex] and a.val >= 4 and a.val <= 8 }
 
 		di.bin_length += edata.ptr - before_ptr
 
@@ -140,8 +147,6 @@ class X86_64
 				di.instruction.args[1].sz = 32
 			elsif opsz == 8
 				di.instruction.args[1].sz = 8
-			elsif op.name == 'movzx' and pfx[:rex_w]
-				di.instruction.args[1].sz = 32
 			else
 				di.instruction.args[1].sz = 16
 			end
@@ -154,8 +159,11 @@ class X86_64
 			end
 		end
 
+		# sil => bh
+		di.instruction.args.each { |a| a.val += 12 if a.kind_of? Reg and a.sz == 8 and not pfx[:rex] and a.val >= 4 and a.val <= 8 }
+
 		pfx.delete :seg
-		case r = pfx.delete(:rep)
+		case pfx.delete(:rep)
 		when :nz
 			if di.opcode.props[:strop]
 				pfx[:rep] = 'rep'
@@ -226,14 +234,8 @@ class X86_64
 			reg_args = [:rdi, :rsi, :rdx, :rcx, :r8, :r9]
 		end
 
-		# emulate ret <n>
 		al = cp.typesize[:ptr]
-		if sym.attributes.to_a.include? 'stdcall'
-			argsz = sym.type.args[reg_args.length..-1].to_a.inject(al) { |sum, a| sum += (cp.sizeof(a) + al - 1) / al * al }
-			df.backtrace_binding[:rsp] = Expression[:rsp, :+, argsz]
-		else
 			df.backtrace_binding[:rsp] = Expression[:rsp, :+, al]
-		end
 
 		# scan args for function pointers
 		# TODO walk structs/unions..

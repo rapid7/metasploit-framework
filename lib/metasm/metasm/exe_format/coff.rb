@@ -115,6 +115,12 @@ class COFF < ExeFormat
 
 	ORDINAL_REGEX = /^Ordinal_(\d+)$/
 
+	COMIMAGE_FLAGS = {
+		1 => 'ILONLY', 2 => '32BITREQUIRED', 4 => 'IL_LIBRARY',
+		8 => 'STRONGNAMESIGNED', 16 => 'NATIVE_ENTRYPOINT',
+		0x10000 => 'TRACKDEBUGDATA'
+	}
+
 	class SerialStruct < Metasm::SerialStruct
 		new_int_field :xword
 	end
@@ -133,8 +139,8 @@ class COFF < ExeFormat
 		half :signature, 'PE', SIGNATURE
 		bytes :link_ver_maj, :link_ver_min
 		words :code_size, :data_size, :udata_size, :entrypoint, :base_of_code
-		# base_of_data does not exist in PE+
-		new_field(:base_of_data, lambda { |exe, hdr| exe.decode_word if hdr.signature != 'PE+' }, lambda { |exe, hdr, val| exe.encode_word(val) if hdr.signature != 'PE+' }, 0)
+		# base_of_data does not exist in 64-bit
+		new_field(:base_of_data, lambda { |exe, hdr| exe.decode_word if exe.bitsize != 64 }, lambda { |exe, hdr, val| exe.encode_word(val) if exe.bitsize != 64 }, 0)
 		# NT-specific fields
 		xword :image_base
 		words :sect_align, :file_align
@@ -239,6 +245,21 @@ class COFF < ExeFormat
 		halfs :major_version, :minor_version
 		words :type, :size_of_data, :addr, :pointer
 		fld_enum :type, DEBUG_TYPE
+
+		attr_accessor :data
+
+		class NB10 < SerialStruct
+			word :offset
+			word :signature
+			word :age
+			strz :pdbfilename
+		end
+
+		class RSDS < SerialStruct
+			mem :guid, 16
+			word :age
+			strz :pdbfilename
+		end
 	end
 
 	class TLSDirectory < SerialStruct
@@ -268,6 +289,23 @@ class COFF < ExeFormat
 		attr_accessor :libname
 	end
 
+	# structure defining entrypoints and stuff for .net binaries
+	class Cor20Header < SerialStruct
+		word :size
+		halfs :major_version, :minor_version	# runtime version
+		words :metadata_rva, :metadata_sz
+		word :flags
+		fld_bits :flags, COMIMAGE_FLAGS
+		word :entrypoint	# RVA to native or managed ep, depending on flags
+		words :resources_rva, :resources_sz
+		words :strongnamesig_rva, :strongnamesig_sz
+		words :codemgr_rva, :codemgr_sz
+		words :vtfixup_rva, :vtfixup_sz
+		words :eatjumps_rva, :eatjumps_sz
+		words :managednativehdr_rva, :managednativehdr_sz
+
+		attr_accessor :metadata, :resources, :strongnamesig, :codemgr, :vtfixup, :eatjumps, :managednativehdr
+	end
 
 	# for the icon, the one that appears in the explorer is
 	#  (NT) the one with the lowest ID
@@ -355,8 +393,8 @@ class COFF < ExeFormat
 		end
 	end
 
-	attr_accessor :header, :optheader, :directory, :sections, :endianness, :symbols,
-		:export, :imports, :resource, :certificates, :relocations, :debug, :tls, :loadconfig, :delayimports
+	attr_accessor :header, :optheader, :directory, :sections, :endianness, :symbols, :bitsize,
+		:export, :imports, :resource, :certificates, :relocations, :debug, :tls, :loadconfig, :delayimports, :com_header
 
 	# boolean, set to true to have #decode() ignore the base_relocs directory
 	attr_accessor :nodecode_relocs
@@ -368,10 +406,13 @@ class COFF < ExeFormat
 		@directory = {}	# DIRECTORIES.key => [rva, size]
 		@sections = []
 		@endianness = cpu ? cpu.endianness : :little
+		@bitsize = cpu ? cpu.size : 32
 		@header = Header.new
 		@optheader = OptionalHeader.new
 		super(cpu)
 	end
+
+	def shortname; 'coff'; end
 end
 
 # the COFF archive file format

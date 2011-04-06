@@ -776,7 +776,7 @@ class Expression
 
 		# parse an expression in a string
 		# updates the string to point after the parsed expression
-		def parse_string(str, &b)
+		def parse_string!(str, &b)
 			pp = Preprocessor.new(str)
 
 			e = parse(pp, &b)
@@ -787,6 +787,11 @@ class Expression
 			str[0, len] = ''
 
 			e
+		end
+
+		# parse an expression in a string
+		def parse_string(str, &b)
+			parse(Preprocessor.new(str), &b)
 		end
 	end
 end

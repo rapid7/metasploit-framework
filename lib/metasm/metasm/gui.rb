@@ -4,7 +4,7 @@ when 'qt'; 'qt'
 when 'win32'; 'win32'
 else
 	puts "Unsupported METASM_GUI #{ENV['METASM_GUI'].inspect}" if $VERBOSE and ENV['METASM_GUI']
-	if RUBY_PLATFORM =~ /i.86-(mswin32|mingw32|cygwin)/i
+	if RUBY_PLATFORM =~ /(i.86|x(86_)?64)-(mswin|mingw|cygwin)/i
 		'win32'
 	else
 	begin

@@ -16,30 +16,6 @@ class DecodedFunction; attr_accessor :decompdata; end
 class CPU
 	def decompile_check_abi(dcmp, entry, func)
 	end
-
-	def get_fwdemu_binding(di)
-		fdi = di.backtrace_binding ||= get_backtrace_binding(di)
-		# find self-updated regs & revert them in simultaneous affectations
-		# XXX handles only a <- a+i for now, this covers all useful cases (except imul eax, eax, 42  jz foobar)
-		fdi.keys.grep(::Symbol).each { |s|
-			val = Expression[fdi[s]]
-			next if val.lexpr != s or (val.op != :+ and val.op != :-) #or not val.rexpr.kind_of? ::Integer
-			fwd = { s => val }
-			inv = { s => val.dup }
-			inv[s].op = ((inv[s].op == :+) ? :- : :+)
-			nxt = {}
-			fdi.each { |k, v|
-				if k == s
-					nxt[k] = v
-				else
-					k = k.bind(fwd).reduce_rec if k.kind_of? Indirection
-					nxt[k] = Expression[Expression[v].bind(inv).reduce_rec]
-				end
-			}
-			fdi = nxt
-		}
-		fdi
-	end
 end
 
 class Decompiler
@@ -2112,8 +2088,8 @@ class Decompiler
 				# needs also int & 0xffffffff -> int, *&var  etc (decomp_type? optim_type?)
 				if (e.op == :'++' or e.op == :'--') and v = (e.lexpr || e.rexpr) and v.kind_of? C::Variable and
 						scope.symbol[v.name] and not v.type.qualifier.to_a.include? :volatile
-					next if !((pos = :post) and (oe = find_next_read_bl[label, i, v]) and oe.kind_of? C::CExpression) and
-				   		!((pos = :prev) and (oe = find_prev_read[label, i-2, v]) and oe.kind_of? C::CExpression)
+					next if !((pos = :post.to_sym) and (oe = find_next_read_bl[label, i, v]) and oe.kind_of? C::CExpression) and
+				   		!((pos = :prev.to_sym) and (oe = find_prev_read[label, i-2, v]) and oe.kind_of? C::CExpression)
 					next if oe.op == :& and not oe.lexpr	# no &(++eax)
 
 					# merge pre/postincrement into next/prev var usage

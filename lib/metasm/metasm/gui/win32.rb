@@ -155,14 +155,6 @@ typedef struct tagPOINT {
     LONG  y;
 } POINT, *PPOINT, *LPPOINT;
 
-typedef struct tagMINMAXINFO {
-    POINT ptReserved;
-    POINT ptMaxSize;
-    POINT ptMaxPosition;
-    POINT ptMinTrackSize;
-    POINT ptMaxTrackSize;
-} MINMAXINFO, *PMINMAXINFO, *LPMINMAXINFO;
-
 #define WM_PAINTICON                    0x0026
 #define WM_ICONERASEBKGND               0x0027
 #define WM_NEXTDLGCTL                   0x0028
@@ -190,20 +182,7 @@ typedef struct tagMINMAXINFO {
 #define PWR_SUSPENDRESUME   2
 #define PWR_CRITICALRESUME  3
 #define WM_COPYDATA                     0x004A
-typedef struct tagCOPYDATASTRUCT {
-    ULONG_PTR dwData;
-    DWORD cbData;
-    PVOID lpData;
-} COPYDATASTRUCT, *PCOPYDATASTRUCT;
-
 #define WM_CANCELJOURNAL                0x004B
-
-typedef struct tagMDINEXTMENU {
-    HMENU   hmenuIn;
-    HMENU   hmenuNext;
-    HWND    hwndNext;
-} MDINEXTMENU, *PMDINEXTMENU, *LPMDINEXTMENU;
-
 #define WM_NOTIFY                       0x004E
 #define WM_INPUTLANGCHANGEREQUEST       0x0050
 #define WM_INPUTLANGCHANGE              0x0051
@@ -425,16 +404,6 @@ typedef struct tagMDINEXTMENU {
 #define SIZE_MAXSHOW        3
 #define SIZE_MAXHIDE        4
 
-typedef struct tagWINDOWPOS {
-    HWND    hwnd;
-    HWND    hwndInsertAfter;
-    int     x;
-    int     y;
-    int     cx;
-    int     cy;
-    UINT    flags;
-} WINDOWPOS, *LPWINDOWPOS, *PWINDOWPOS;
-
 #define MK_LBUTTON          0x0001
 #define MK_RBUTTON          0x0002
 #define MK_SHIFT            0x0004
@@ -461,12 +430,6 @@ TrackMouseEvent(
 #define FSHIFT    0x04
 #define FCONTROL  0x08
 #define FALT      0x10
-
-typedef struct tagACCEL {
-    BYTE   fVirt;               /* Also called the flags field */
-    WORD   key;
-    WORD   cmd;
-} ACCEL, *LPACCEL;
 
 #define FALSE 0
 #define TRUE 1
@@ -528,24 +491,6 @@ typedef struct tagACCEL {
 #define MF_HELP             0x00004000L
 #define MF_RIGHTJUSTIFY     0x00004000L
 #define MF_MOUSESELECT      0x00008000L
-#define MFT_STRING          MF_STRING
-#define MFT_BITMAP          MF_BITMAP
-#define MFT_MENUBARBREAK    MF_MENUBARBREAK
-#define MFT_MENUBREAK       MF_MENUBREAK
-#define MFT_OWNERDRAW       MF_OWNERDRAW
-#define MFT_RADIOCHECK      0x00000200L
-#define MFT_SEPARATOR       MF_SEPARATOR
-#define MFT_RIGHTORDER      0x00002000L
-#define MFT_RIGHTJUSTIFY    MF_RIGHTJUSTIFY
-// Menu flags for Add/Check/EnableMenuItem
-#define MFS_GRAYED          0x00000003L
-#define MFS_DISABLED        MFS_GRAYED
-#define MFS_CHECKED         MF_CHECKED
-#define MFS_HILITE          MF_HILITE
-#define MFS_ENABLED         MF_ENABLED
-#define MFS_UNCHECKED       MF_UNCHECKED
-#define MFS_UNHILITE        MF_UNHILITE
-#define MFS_DEFAULT         MF_DEFAULT
 
 #define IDI_APPLICATION     32512
 #define IDI_HAND            32513
@@ -642,42 +587,6 @@ typedef struct tagACCEL {
 #define DC_BRUSH            18
 #define DC_PEN              19
 
-#define BS_SOLID            0
-#define BS_NULL             1
-#define BS_HOLLOW           BS_NULL
-#define BS_HATCHED          2
-#define BS_PATTERN          3
-#define BS_INDEXED          4
-#define BS_DIBPATTERN       5
-#define BS_DIBPATTERNPT     6
-#define BS_PATTERN8X8       7
-#define BS_DIBPATTERN8X8    8
-#define BS_MONOPPATTERN     9
-
-#define HS_HORIZONTAL       0
-#define HS_VERTICAL         1
-#define HS_FDIAGONAL        2
-#define HS_BDIAGONAL        3
-#define HS_CROSS            4
-#define HS_DIAGCROSS        5
-
-#define PS_SOLID            0
-#define PS_DASH             1
-#define PS_DOT              2
-#define PS_DASHDOT          3
-#define PS_DASHDOTDOT       4
-#define PS_NULL             5
-#define PS_INSIDEFRAME      6
-#define PS_USERSTYLE        7
-#define PS_ALTERNATE        8
-
-#define KF_EXTENDED       0x0100
-#define KF_DLGMODE        0x0800
-#define KF_MENUMODE       0x1000
-#define KF_ALTDOWN        0x2000
-#define KF_REPEAT         0x4000
-#define KF_UP             0x8000
-
 #define VK_LBUTTON        0x01
 #define VK_RBUTTON        0x02
 #define VK_CANCEL         0x03
@@ -760,101 +669,6 @@ typedef struct tagACCEL {
 #define VK_F22            0x85
 #define VK_F23            0x86
 #define VK_F24            0x87
-
-#define SM_CXSCREEN             0
-#define SM_CYSCREEN             1
-#define SM_CXVSCROLL            2
-#define SM_CYHSCROLL            3
-#define SM_CYCAPTION            4
-#define SM_CXBORDER             5
-#define SM_CYBORDER             6
-#define SM_CXDLGFRAME           7
-#define SM_CYDLGFRAME           8
-#define SM_CYVTHUMB             9
-#define SM_CXHTHUMB             10
-#define SM_CXICON               11
-#define SM_CYICON               12
-#define SM_CXCURSOR             13
-#define SM_CYCURSOR             14
-#define SM_CYMENU               15
-#define SM_CXFULLSCREEN         16
-#define SM_CYFULLSCREEN         17
-#define SM_CYKANJIWINDOW        18
-#define SM_MOUSEPRESENT         19
-#define SM_CYVSCROLL            20
-#define SM_CXHSCROLL            21
-#define SM_DEBUG                22
-#define SM_SWAPBUTTON           23
-#define SM_RESERVED1            24
-#define SM_RESERVED2            25
-#define SM_RESERVED3            26
-#define SM_RESERVED4            27
-#define SM_CXMIN                28
-#define SM_CYMIN                29
-#define SM_CXSIZE               30
-#define SM_CYSIZE               31
-#define SM_CXFRAME              32
-#define SM_CYFRAME              33
-#define SM_CXMINTRACK           34
-#define SM_CYMINTRACK           35
-#define SM_CXDOUBLECLK          36
-#define SM_CYDOUBLECLK          37
-#define SM_CXICONSPACING        38
-#define SM_CYICONSPACING        39
-#define SM_MENUDROPALIGNMENT    40
-#define SM_PENWINDOWS           41
-#define SM_DBCSENABLED          42
-#define SM_CMOUSEBUTTONS        43
-#define SM_CXFIXEDFRAME           SM_CXDLGFRAME  /* ;win40 name change */
-#define SM_CYFIXEDFRAME           SM_CYDLGFRAME  /* ;win40 name change */
-#define SM_CXSIZEFRAME            SM_CXFRAME     /* ;win40 name change */
-#define SM_CYSIZEFRAME            SM_CYFRAME     /* ;win40 name change */
-#define SM_SECURE               44
-#define SM_CXEDGE               45
-#define SM_CYEDGE               46
-#define SM_CXMINSPACING         47
-#define SM_CYMINSPACING         48
-#define SM_CXSMICON             49
-#define SM_CYSMICON             50
-#define SM_CYSMCAPTION          51
-#define SM_CXSMSIZE             52
-#define SM_CYSMSIZE             53
-#define SM_CXMENUSIZE           54
-#define SM_CYMENUSIZE           55
-#define SM_ARRANGE              56
-#define SM_CXMINIMIZED          57
-#define SM_CYMINIMIZED          58
-#define SM_CXMAXTRACK           59
-#define SM_CYMAXTRACK           60
-#define SM_CXMAXIMIZED          61
-#define SM_CYMAXIMIZED          62
-#define SM_NETWORK              63
-#define SM_CLEANBOOT            67
-#define SM_CXDRAG               68
-#define SM_CYDRAG               69
-#define SM_SHOWSOUNDS           70
-#define SM_CXMENUCHECK          71   /* Use instead of GetMenuCheckMarkDimensions()! */
-#define SM_CYMENUCHECK          72
-#define SM_SLOWMACHINE          73
-#define SM_MIDEASTENABLED       74
-#define SM_MOUSEWHEELPRESENT    75
-#define SM_XVIRTUALSCREEN       76
-#define SM_YVIRTUALSCREEN       77
-#define SM_CXVIRTUALSCREEN      78
-#define SM_CYVIRTUALSCREEN      79
-#define SM_CMONITORS            80
-#define SM_SAMEDISPLAYFORMAT    81
-#define SM_IMMENABLED           82
-#define SM_CXFOCUSBORDER        83
-#define SM_CYFOCUSBORDER        84
-#define SM_TABLETPC             86
-#define SM_MEDIACENTER          87
-#define SM_STARTER              88
-#define SM_SERVERR2             89
-#define SM_REMOTESESSION        0x1000
-#define SM_SHUTTINGDOWN         0x2000
-#define SM_REMOTECONTROL        0x2001
-#define SM_CARETBLINKINGENABLED 0x2002
 
 #define QS_KEY              0x0001
 #define QS_MOUSEMOVE        0x0002
@@ -1044,24 +858,6 @@ BOOL WINAPI GlobalUnlock(__in HANDLE hMem);
 HANDLE WINAPI GlobalFree(HANDLE hMem);
 
 typedef __stdcall LRESULT (*WNDPROC)(HWND, UINT, WPARAM, LPARAM);
-typedef struct tagWNDCLASSA {
-    UINT        style;
-    WNDPROC     lpfnWndProc;
-    int         cbClsExtra;
-    int         cbWndExtra;
-    HINSTANCE   hInstance;
-    HICON       hIcon;
-    HCURSOR     hCursor;
-    HBRUSH      hbrBackground;
-    LPCSTR      lpszMenuName;
-    LPCSTR      lpszClassName;
-} WNDCLASSA;
-WINUSERAPI
-ATOM
-WINAPI
-RegisterClassA(
-    __in CONST WNDCLASSA *lpWndClass);
-
 typedef struct tagWNDCLASSEXA {
 	UINT cbSize;
 	UINT style;
@@ -1134,37 +930,6 @@ SetWindowPos(
     __in int cx,
     __in int cy,
     __in UINT uFlags);
-WINUSERAPI
-BOOL
-WINAPI
-BringWindowToTop(
-    __in HWND hWnd);
-WINUSERAPI
-BOOL
-WINAPI
-SetForegroundWindow(
-	__in HWND hWnd);
-WINUSERAPI
-HWND
-WINAPI
-GetDesktopWindow(VOID);
-WINUSERAPI
-HWND
-WINAPI
-GetParent(
-	__in HWND hWnd);
-WINUSERAPI
-HWND
-WINAPI
-SetParent(
-	__in HWND hWndChild,
-	__in_opt HWND hWndNewParent);
-WINUSERAPI
-BOOL
-WINAPI
-EndDialog(
-    __in HWND hDlg,
-    __in INT_PTR nResult);
 #define SRCCOPY             (DWORD)0x00CC0020 /* dest = source                   */
 #define SRCPAINT            (DWORD)0x00EE0086 /* dest = source OR dest           */
 #define SRCAND              (DWORD)0x008800C6 /* dest = source AND dest          */
@@ -1183,13 +948,8 @@ EndDialog(
 #define NOMIRRORBITMAP      (DWORD)0x80000000 /* Do not Mirror the bitmap in this call */
 #define CAPTUREBLT          (DWORD)0x40000000 /* Include layered windows */
 BOOL    WINAPI BitBlt(__in HDC hdcDst, __in int x, __in int y, __in int cx, __in int cy, __in_opt HDC hdcSrc, __in int x1, __in int y1, __in DWORD rop);
-HBITMAP WINAPI CreateBitmap(__in int nWidth, __in int nHeight, __in UINT nPlanes, __in UINT nBitCount, __in_opt LPVOID lpBits);
-HBITMAP WINAPI CreateBitmapIndirect(__in LPVOID pbm);
-HBRUSH  WINAPI CreateBrushIndirect(__in LPVOID plbrush);
 HBITMAP WINAPI CreateCompatibleBitmap(__in HDC hdc, __in int cx, __in int cy);
-HBITMAP WINAPI CreateDiscardableBitmap(__in HDC hdc, __in int cx, __in int cy);
 HDC     WINAPI CreateCompatibleDC(__in_opt HDC hdc);
-HDC     WINAPI CreateDCA(__in_opt LPCSTR pwszDriver, __in_opt LPCSTR pwszDevice, __in_opt LPCSTR pszPort, __in_opt LPVOID pdm);
 BOOL    WINAPI DeleteDC(__in HDC hdc);
 HDC     WINAPI GetDC(__in_opt HWND hWnd);
 int     WINAPI ReleaseDC(__in_opt HWND hWnd, __in HDC hDC);
@@ -1201,114 +961,11 @@ GetTextExtentPoint32A(
 	__in int c,
 	__out LPPOINT lpsz);
 WINUSERAPI
-int
-WINAPI
-ToAscii(
-	__in UINT uVirtKey,
-	__in UINT uScanCode,
-	__in_opt CONST BYTE *lpKeyState,
-	__out DWORD *lpChar,
-	__in UINT uFlags);
-WINUSERAPI
-HWND
-WINAPI
-GetDlgItem(
-    __in_opt HWND hDlg,
-    __in int nIDDlgItem);
-WINUSERAPI
-BOOL
-WINAPI
-SetDlgItemInt(
-    __in HWND hDlg,
-    __in int nIDDlgItem,
-    __in UINT uValue,
-    __in BOOL bSigned);
-WINUSERAPI
-UINT
-WINAPI
-GetDlgItemInt(
-    __in HWND hDlg,
-    __in int nIDDlgItem,
-    __out_opt BOOL *lpTranslated,
-    __in BOOL bSigned);
-WINUSERAPI
-BOOL
-WINAPI
-SetDlgItemTextA(
-    __in HWND hDlg,
-    __in int nIDDlgItem,
-    __in LPCSTR lpString);
-WINUSERAPI
-UINT
-WINAPI
-GetDlgItemTextA(
-    __in HWND hDlg,
-    __in int nIDDlgItem,
-    __out_ecount(cchMax) LPSTR lpString,
-    __in int cchMax);
-WINUSERAPI
-BOOL
-WINAPI
-CheckDlgButton(
-    __in HWND hDlg,
-    __in int nIDButton,
-    __in UINT uCheck);
-WINUSERAPI
-BOOL
-WINAPI
-CheckRadioButton(
-    __in HWND hDlg,
-    __in int nIDFirstButton,
-    __in int nIDLastButton,
-    __in int nIDCheckButton);
-WINUSERAPI
-UINT
-WINAPI
-IsDlgButtonChecked(
-    __in HWND hDlg,
-    __in int nIDButton);
-WINUSERAPI
-LRESULT
-WINAPI
-SendDlgItemMessageA(
-    __in HWND hDlg,
-    __in int nIDDlgItem,
-    __in UINT Msg,
-    __in WPARAM wParam,
-    __in LPARAM lParam);
-WINUSERAPI
-HMENU
-WINAPI
-LoadMenuA(
-    __in_opt HINSTANCE hInstance,
-    __in LPCSTR lpMenuName);
-WINUSERAPI
-HMENU
-WINAPI
-GetMenu(
-    __in HWND hWnd);
-WINUSERAPI
 BOOL
 WINAPI
 SetMenu(
     __in HWND hWnd,
     __in_opt HMENU hMenu);
-WINUSERAPI
-BOOL
-WINAPI
-ChangeMenuA(
-    __in HMENU hMenu,
-    __in UINT cmd,
-    __in_opt LPCSTR lpszNewItem,
-    __in UINT cmdInsert,
-    __in UINT flags);
-WINUSERAPI
-UINT
-WINAPI
-GetMenuState(
-    __in HMENU hMenu,
-    __in UINT uId,
-    __in UINT uFlags);
 WINUSERAPI
 HMENU
 WINAPI
@@ -1332,90 +989,11 @@ CheckMenuItem(
 WINUSERAPI
 BOOL
 WINAPI
-EnableMenuItem(
-    __in HMENU hMenu,
-    __in UINT uIDEnableItem,
-    __in UINT uEnable);
-WINUSERAPI
-HMENU
-WINAPI
-GetSubMenu(
-    __in HMENU hMenu,
-    __in int nPos);
-WINUSERAPI
-UINT
-WINAPI
-GetMenuItemID(
-    __in HMENU hMenu,
-    __in int nPos);
-WINUSERAPI
-int
-WINAPI
-GetMenuItemCount(
-    __in_opt HMENU hMenu);
-WINUSERAPI
-BOOL
-WINAPI
-InsertMenuA(
-    __in HMENU hMenu,
-    __in UINT uPosition,
-    __in UINT uFlags,
-    __in UINT_PTR uIDNewItem,
-    __in_opt LPCSTR lpNewItem);
-WINUSERAPI
-BOOL
-WINAPI
 AppendMenuA(
     __in HMENU hMenu,
     __in UINT uFlags,
     __in UINT_PTR uIDNewItem,
     __in_opt LPCSTR lpNewItem);
-WINUSERAPI
-BOOL
-WINAPI
-ModifyMenuA(
-    __in HMENU hMnu,
-    __in UINT uPosition,
-    __in UINT uFlags,
-    __in UINT_PTR uIDNewItem,
-    __in_opt LPCSTR lpNewItem);
-WINUSERAPI
-BOOL
-WINAPI RemoveMenu(
-    __in HMENU hMenu,
-    __in UINT uPosition,
-    __in UINT uFlags);
-WINUSERAPI
-BOOL
-WINAPI
-DeleteMenu(
-    __in HMENU hMenu,
-    __in UINT uPosition,
-    __in UINT uFlags);
-
-typedef struct tagMENUITEMINFOA
-{
-    UINT     cbSize;
-    UINT     fMask;
-    UINT     fType;
-    UINT     fState;
-    UINT     wID;
-    HMENU    hSubMenu;
-    HBITMAP  hbmpChecked;
-    HBITMAP  hbmpUnchecked;
-    ULONG_PTR dwItemData;
-    LPSTR    dwTypeData;
-    UINT     cch;
-    HBITMAP  hbmpItem;
-}   MENUITEMINFOA, *LPMENUITEMINFOA, CONST *LPCMENUITEMINFOA;
-WINUSERAPI
-BOOL
-WINAPI
-InsertMenuItemA(
-    __in HMENU hmenu,
-    __in UINT item,
-    __in BOOL fByPosition,
-    __in LPCMENUITEMINFOA lpmi);
 
 #define TRANSPARENT 1
 #define OPAQUE      2
@@ -1487,43 +1065,6 @@ MessageBoxA(
     __in_opt LPCSTR lpCaption,
     __in UINT uType);
 
-typedef struct tagHELPINFO {      // Structure pointed to by lParam of WM_HELP
-    UINT    cbSize;
-    int     iContextType;
-    int     iCtrlId;
-    HANDLE  hItemHandle;
-    DWORD_PTR dwContextId;
-    POINT   MousePos;
-} HELPINFO, *LPHELPINFO;
-typedef VOID (CALLBACK *MSGBOXCALLBACK)(LPHELPINFO lpHelpInfo);
-typedef struct tagMSGBOXPARAMSA
-{
-    UINT        cbSize;
-    HWND        hwndOwner;
-    HINSTANCE   hInstance;
-    LPCSTR      lpszText;
-    LPCSTR      lpszCaption;
-    DWORD       dwStyle;
-    LPCSTR      lpszIcon;
-    DWORD_PTR   dwContextHelpId;
-    MSGBOXCALLBACK      lpfnMsgBoxCallback;
-    DWORD       dwLanguageId;
-} MSGBOXPARAMSA, *PMSGBOXPARAMSA, *LPMSGBOXPARAMSA;
-WINUSERAPI
-int
-WINAPI
-MessageBoxIndirectA(
-    __in CONST MSGBOXPARAMSA * lpmbp);
-
-WINUSERAPI
-BOOL
-WINAPI
-CheckMenuRadioItem(
-    __in HMENU hmenu,
-    __in UINT first,
-    __in UINT last,
-    __in UINT check,
-    __in UINT flags);
 WINUSERAPI
 HICON
 WINAPI
@@ -1569,8 +1110,15 @@ AdjustWindowRectEx(
     __in DWORD dwStyle,
     __in BOOL bMenu,
     __in DWORD dwExStyle);
-HBRUSH WINAPI CreateSolidBrush(DWORD color);
-HPEN WINAPI CreatePen(int style, int width, DWORD color);
+#define PS_SOLID            0
+#define PS_DASH             1       /* -------  */
+#define PS_DOT              2       /* .......  */
+#define PS_DASHDOT          3       /* _._._._  */
+#define PS_DASHDOTDOT       4       /* _.._.._  */
+#define PS_NULL             5
+#define PS_INSIDEFRAME      6
+#define PS_USERSTYLE        7
+#define PS_ALTERNATE        8
 DWORD WINAPI SetTextColor(__in HDC hdc, __in DWORD color);
 BOOL WINAPI TextOutA( __in HDC hdc, __in int x, __in int y, __in_ecount(c) LPCSTR lpString, __in int c);
 BOOL WINAPI MoveToEx( __in HDC hdc, __in int x, __in int y, __out_opt LPPOINT lppt);
@@ -1579,8 +1127,10 @@ BOOL WINAPI Rectangle(__in HDC hdc, __in int left, __in int top, __in int right,
 HANDLE WINAPI SelectObject(__in HDC hdc, __in HANDLE h);
 BOOL WINAPI DeleteObject(__in HANDLE ho);
 DWORD WINAPI SetBkColor(__in HDC hdc, __in DWORD color);
-DWORD WINAPI SetDCBrushColor(__in HDC hdc, __in DWORD color);
-DWORD WINAPI SetDCPenColor(__in HDC hdc, __in DWORD color);
+HANDLE WINAPI CreateSolidBrush(__in DWORD color);
+//DWORD WINAPI SetDCBrushColor(__in HDC hdc, __in DWORD color);
+HANDLE WINAPI CreatePen(__in int style, __in int width, __in DWORD color);
+//DWORD WINAPI SetDCPenColor(__in HDC hdc, __in DWORD color);
 int WINAPI FillRect(__in HDC hDC, __in CONST RECT *lprc, __in HBRUSH hbr);
 
 WINUSERAPI HWND WINAPI GetCapture(VOID);
@@ -1662,12 +1212,85 @@ typedef struct tagOFNA {
    LPARAM       lCustData;
    LPVOID       lpfnHook;
    LPCSTR       lpTemplateName;
-   void *       pvReserved;
-   DWORD        dwReserved;
-   DWORD        FlagsEx;
+   //void *       pvReserved;	// undef for win98 compat
+   //DWORD        dwReserved;
+   //DWORD        FlagsEx;
 } OPENFILENAMEA, *LPOPENFILENAMEA;
 BOOL WINAPI GetOpenFileNameA(LPOPENFILENAMEA);
 BOOL WINAPI GetSaveFileNameA(LPOPENFILENAMEA);
+
+#define SB_HORZ             0
+#define SB_VERT             1
+#define SB_CTL              2
+#define SB_BOTH             3
+
+#define SB_LINEUP           0
+#define SB_LINELEFT         0
+#define SB_LINEDOWN         1
+#define SB_LINERIGHT        1
+#define SB_PAGEUP           2
+#define SB_PAGELEFT         2
+#define SB_PAGEDOWN         3
+#define SB_PAGERIGHT        3
+#define SB_THUMBPOSITION    4
+#define SB_THUMBTRACK       5
+#define SB_TOP              6
+#define SB_LEFT             6
+#define SB_BOTTOM           7
+#define SB_RIGHT            7
+#define SB_ENDSCROLL        8
+
+#define SIF_RANGE           0x0001
+#define SIF_PAGE            0x0002
+#define SIF_POS             0x0004
+#define SIF_DISABLENOSCROLL 0x0008
+#define SIF_TRACKPOS        0x0010
+#define SIF_ALL             (SIF_RANGE | SIF_PAGE | SIF_POS | SIF_TRACKPOS)
+
+WINUSERAPI
+int
+WINAPI
+SetScrollPos(
+    __in HWND hWnd,
+    __in int nBar,
+    __in int nPos,
+    __in BOOL bRedraw);
+
+WINUSERAPI
+int
+WINAPI
+GetScrollPos(
+    __in HWND hWnd,
+    __in int nBar);
+
+typedef struct tagSCROLLINFO
+{
+    UINT    cbSize;
+    UINT    fMask;
+    int     nMin;
+    int     nMax;
+    UINT    nPage;
+    int     nPos;
+    int     nTrackPos;
+}   SCROLLINFO, *LPSCROLLINFO;
+typedef SCROLLINFO CONST *LPCSCROLLINFO;
+
+WINUSERAPI
+int
+WINAPI
+SetScrollInfo(
+    __in HWND hwnd,
+    __in int nBar,
+    __in LPCSCROLLINFO lpsi,
+    __in BOOL redraw);
+
+WINUSERAPI
+BOOL
+WINAPI
+GetScrollInfo(
+    __in HWND hwnd,
+    __in int nBar,
+    __inout LPSCROLLINFO lpsi);
 EOS
 
 	new_api_c <<EOS, 'shell32'
@@ -1677,6 +1300,28 @@ WINAPI BOOL DragQueryPoint(HDROP,LPPOINT);
 WINAPI void DragFinish(HDROP);
 WINAPI void DragAcceptFiles(HWND,BOOL);
 EOS
+
+def self.last_error_msg(errno = getlasterror)
+	message = ' '*512
+	if formatmessagea(FORMAT_MESSAGE_FROM_SYSTEM, nil, errno, 0, message, message.length, nil) == 0
+		message = 'unknown error %x' % errno
+	else
+		message = message[0, message.index(?\0)] if message.index(?\0)
+		message.chomp!
+	end
+	message
+end
+
+def self.setdcbrushcolor(hdc, col)
+	@@brushes ||= {}
+	b = @@brushes[col] ||= createsolidbrush(col)
+	selectobject(hdc, b)
+end
+def self.setdcpencolor(hdc, col)
+	@@pens ||= {}
+	p = @@pens[col] ||= createpen(PS_SOLID, 0, col)
+	selectobject(hdc, p)
+end
 end
 
 module Protect
@@ -1886,7 +1531,6 @@ class ContainerVBoxWidget < WinWidget
 			if y >= cy and y < cy+@spacing
 				vsz = v
 				@resizing = v
-				Win32Gui.setcapture(@hwnd)
 				@wantheight[@resizing] ||= v.height
 				@tmpwantheight = []
 				pv.each { |vv| @tmpwantheight << vv if not @wantheight[vv] ; @wantheight[vv] ||= vv.height }
@@ -1908,7 +1552,6 @@ class ContainerVBoxWidget < WinWidget
 
 	def mouserelease(x, y)
 		if @resizing
-			Win32Gui.releasecapture
 			@wantheight[@resizing] = [0, y - @resizing.y].max
 			@resizing = nil
 			@tmpwantheight.each { |vv| @wantheight.delete vv }
@@ -2107,6 +1750,9 @@ class DrawableWidget < WinWidget
 		initialize_widget(*a, &b)
 	end
 
+	def initialize_widget
+	end
+
 	def initialize_visible_
 		{ :white => 'fff', :palegrey => 'ddd', :black => '000', :grey => '444',
 			:red => 'f00', :darkred => '800', :palered => 'fcc',
@@ -2151,14 +1797,14 @@ class DrawableWidget < WinWidget
 
 	def keypress_(key)
 		# XXX my gtk api sux
-		if not respond_to? :keypress or not keypress(key)
-			@parent.keypress(key) if @parent.respond_to? :keypress
+		if not respond_to? :keypress or not protect { keypress(key) }
+			protect { @parent.keypress(key) } if @parent.respond_to? :keypress
 		end
 	end
 
 	def keypress_ctrl_(key)
-		if not respond_to? :keypress_ctrl or not keypress_ctrl(key)
-			@parent.keypress_ctrl(key) if @parent.respond_to? :keypress_ctrl
+		if not respond_to? :keypress_ctrl or not protect { keypress_ctrl(key) }
+			protect { @parent.keypress_ctrl(key) } if @parent.respond_to? :keypress_ctrl
 		end
 	end
 
@@ -2207,8 +1853,17 @@ class DrawableWidget < WinWidget
 		draw_string(x, y, text)
 	end
 
-	def kbd_shift
+	def keyboard_state(query=nil)
+		case query
+		when :control, :ctrl
+			Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
+		when :shift
 		Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
+		when :alt
+			Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
+		else
+			[:control, :shift, :alt].find_all { |s| keyboard_state(s) }
+		end
 	end
 
 # represents a clickable area with a label (aka button)
@@ -2290,7 +1945,7 @@ class Window
 		(@@mainwindow_list ||= []) << self
 		@visible = false
 		@popups = []
-		@parent = nil
+		@parent ||= nil
 
 		cname = "metasm_w32gui_#{object_id}"
 		cls = Win32Gui.alloc_c_struct 'WNDCLASSEXA', :cbsize => :size,
@@ -2306,9 +1961,10 @@ class Window
 		initialize_window(*a, &b)
 
 		if respond_to? :build_menu
-			@menu = new_menu
+			@menu = []
+			@menuhwnd = 0
 			build_menu
-			Win32Gui.setmenu(@hwnd, @menu)
+			update_menu
 		end
 
 		Win32Gui.dragacceptfiles(@hwnd, Win32Gui::TRUE)
@@ -2323,8 +1979,19 @@ class Window
 		Win32Gui.updatewindow(@hwnd)
 	end
 
+	def keyboard_state(query=nil)
+		case query
+		when :control, :ctrl
+			Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
+		when :shift
+			Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0
+		when :alt
+			Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0
+		end
+	end
+
 	# keypress event keyval traduction table
-	Keyboard_trad = Win32Gui.constants.grep(/^VK_/).inject({}) { |h, cst|
+	Keyboard_trad = Win32Gui.cp.lexer.definition.keys.grep(/^VK_/).inject({}) { |h, cst|
 		v = Win32Gui.const_get(cst)
 		key = cst.to_s.sub(/^VK_/, '').downcase.to_sym
 		h.update v => {
@@ -2334,9 +2001,9 @@ class Window
 		}.fetch(key, key)
 	}
 
-#MSGNAME = Win32Gui.constants.grep(/WM_/).inject({}) { |h, c| h.update Win32Gui.const_get(c) => c }
+#MSGNAME = Win32Gui.cp.lexer.definition.keys.grep(/WM_/).sort.inject({}) { |h, c| h.update Win32Gui.const_get(c) => c }
 	def windowproc(hwnd, msg, wparam, lparam)
-#puts "wproc #{'%x' % hwnd} #{MSGNAME[msg] || msg} #{'%x' % wparam} #{'%x' % lparam}"
+#puts "wproc #{'%x' % hwnd} #{MSGNAME[msg] || msg} #{'%x' % wparam} #{'%x' % lparam}" if not %w[WM_NCHITTEST WM_SETCURSOR WM_MOUSEMOVE WM_NCMOUSEMOVE].include? MSGNAME[msg]
 		@hwnd ||= hwnd		# some messages are sent before createwin returns
 		case msg
 		when Win32Gui::WM_NCHITTEST, Win32Gui::WM_SETCURSOR
@@ -2386,7 +2053,7 @@ class Window
 		when Win32Gui::WM_KEYDOWN, Win32Gui::WM_SYSKEYDOWN
 			# SYSKEYDOWN for f10 (default = activate the menu bar)
 			if key = Keyboard_trad[wparam]
-				if Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0
+				if keyboard_state(:control)
 					@widget.keypress_ctrl_(key) if @widget
 				else
 					@widget.keypress_(key) if @widget
@@ -2394,14 +2061,12 @@ class Window
 			end
 			Win32Gui.defwindowproca(hwnd, msg, wparam, lparam) if key != :f10	# alt+f4 etc
 		when Win32Gui::WM_CHAR
-			if Win32Gui.getkeystate(Win32Gui::VK_CONTROL) & 0x8000 > 0 and not
-			   Win32Gui.getkeystate(Win32Gui::VK_MENU) & 0x8000 > 0			# altgr+[ returns CTRL on..
-				shift = (Win32Gui.getkeystate(Win32Gui::VK_SHIFT) & 0x8000 > 0)
+			if keyboard_state(:control) and not keyboard_state(:alt)	# altgr+[ returns CTRL on..
 				if ?a.kind_of?(String)
-					wparam += (shift ? ?A.ord : ?a.ord) - 1 if wparam < 0x1a
+					wparam += (keyboard_state(:shift) ? ?A.ord : ?a.ord) - 1 if wparam < 0x1a
 					k = wparam.chr
 				else
-					wparam += (shift ? ?A : ?a) - 1 if wparam < 0x1a
+					wparam += (keyboard_state(:shift) ? ?A : ?a) - 1 if wparam < 0x1a
 					k = wparam
 				end
 				@widget.keypress_ctrl_(k) if @widget
@@ -2430,8 +2095,8 @@ class Window
 
 	def mouse_msg(msg, wparam, lparam)
 		return if not @widget
-		x = lparam & 0xffff
-		y = (lparam >> 16) & 0xffff
+		x = Expression.make_signed(lparam & 0xffff, 16)
+		y = Expression.make_signed((lparam >> 16) & 0xffff, 16)
 		ctrl = true if wparam & Win32Gui::MK_CONTROL > 0
 		cmsg =
 		case msg
@@ -2446,7 +2111,7 @@ class Window
 		when Win32Gui::WM_LBUTTONDBLCLK
 			:doubleclick
 		when Win32Gui::WM_MOUSEWHEEL
-			off = Expression.make_signed(wparam >> 16, 16)
+			off = Expression.make_signed((wparam >> 16) & 0xffff, 16)
 			dir = off > 0 ? :up : :down
 			if ctrl
 				return(@widget.mouse_wheel_ctrl(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel_ctrl)
@@ -2454,6 +2119,14 @@ class Window
 				return(@widget.mouse_wheel(dir, x-@clientx, y-@clienty) if @widget.respond_to? :mouse_wheel)
 			end
 		end
+
+		case cmsg
+		when :click
+			Win32Gui.setcapture(@hwnd)
+		when :mouserelease
+			Win32Gui.releasecapture
+		end
+
 		@widget.send(cmsg, x, y) if cmsg and @widget.respond_to? cmsg
 	end
 
@@ -2509,17 +2182,60 @@ class Window
 	def destroyed? ; @destroyed ||= false ; end
 
 	def new_menu
-		Win32Gui.createmenu()
+		[]
 	end
 
+	# finds a menu by name (recursive)
+	# returns a valid arg for addsubmenu(ret)
+	def find_menu(name, from=@menu)
+		name = name.gsub('_', '')
+		if not l = from.find { |e| e.grep(::String).find { |es| es.gsub('_', '') == name } }
+		       l = from.map { |e| e.grep(::Array).map { |ae| find_menu(name, ae) }.compact.first }.compact.first
+		end
+		l.grep(::Array).first if l
+	end
+
+	# append stuff to a menu
+	# arglist:
+	# empty = menu separator
+	# string = menu entry display name (use a single '_' keyboard for shortcut, eg 'Sho_rtcut' => 'r')
+	# :check = menu entry is a checkbox type, add a true/false argument to specify initial value
+	# second string = keyboard shortcut (accelerator) - use '^' for Ctrl, and '<up>' for special keys
+	# a menu object = this entry will open a submenu (you must specify a name, and action is ignored)
+	# the method takes a block or a Proc argument that will be run whenever the menu item is selected
+	#
+	# use @menu to reference the top-level menu bar
+	# call update_menu when the menu is done
 	def addsubmenu(menu, *args, &action)
+		args << action if action
+		menu << args
+		menu.last
+	end
+
+	# make the window's MenuBar reflect the content of @menu
+	def update_menu
+		Win32Gui.destroymenu(@menuhwnd) if @menuhwnd != 0
+		@menuhwnd = Win32Gui.createmenu()
+		@menu.each { |e| create_menu_item(@menuhwnd, e) }
+		Win32Gui.setmenu(@hwnd, @menuhwnd)
+	end
+
+	def create_menu_item(menu, entry)
+		args = entry.dup
+
 		stock = (%w[OPEN SAVE CLOSE QUIT] & args).first
 		args.delete stock if stock
 		accel = args.grep(/^\^?(\w|<\w+>)$/).first
 		args.delete accel if accel
 		check = args.delete :check
-		submenu = args.grep(Integer).first
-		args.delete submenu if submenu
+		action = args.grep(::Proc).first
+		args.delete action if action
+		if submenu = args.grep(::Array).first
+			args.delete submenu
+			sm = Win32Gui.createmenu()
+			submenu.each { |e| create_menu_item(sm, e) }
+			submenu = sm
+		end
 		label = args.shift
 
 		label ||= '_' + stock.capitalize if stock
@@ -2552,7 +2268,7 @@ class Window
 			else
 				@control_action[id] = lambda {
 					checked = action.call(!checked)
-					Win32Gui.checkmenuitem(@menu, id, (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED))
+					Win32Gui.checkmenuitem(menu, id, (checked ? Win32Gui::MF_CHECKED : Win32Gui::MF_UNCHECKED))
 				}
 			end
 			@controlid += 1
@@ -2565,6 +2281,9 @@ class Window
 	def title=(t)
 		@title = t
 		Win32Gui.setwindowtexta(@hwnd, @title)
+	end
+
+	def initialize_window
 	end
 end
 
@@ -2585,8 +2304,9 @@ class ToolWindow < Window
 		Win32Gui.movewindow(@hwnd, x, y, r2[:right]-r2[:left], r2[:bottom]-r2[:top], Win32Gui::FALSE)
 	end
 
-	def initialize_window(parent)
+	def initialize(parent, *a, &b)
 		@parent = parent
+		super(*a, &b)
 		@@mainwindow_list.delete self
 		@parent.popups << self if parent
 	end
@@ -2646,7 +2366,7 @@ class IBoxWidget < DrawableWidget
 		@action = b
 		@textdown = false
 		@curline = opts[:text].to_s.dup
-		@caret_x_select = 0
+		@oldsel_x = @caret_x_select = 0
 		@caret_x = @curline.length
 		@caret_x_start = 0
 
@@ -2754,27 +2474,23 @@ class IBoxWidget < DrawableWidget
 	def keypress(key)
 		case key
 		when :left
-			if kbd_shift
+			if keyboard_state(:shift)
 				@caret_x_select ||= @caret_x
 			else
 				@caret_x_select = nil
 			end
-			if @caret_x > 0
-				@caret_x -= 1
+			@caret_x -= 1 if @caret_x > 0
 				update_caret
-			end
 		when :right
-			if kbd_shift
+			if keyboard_state(:shift)
 				@caret_x_select ||= @caret_x
 			else
 				@caret_x_select = nil
 			end
-			if @caret_x < @curline.length
-				@caret_x += 1
+			@caret_x += 1 if @caret_x < @curline.length
 				update_caret
-			end
 		when :home
-			if kbd_shift
+			if keyboard_state(:shift)
 				@caret_x_select ||= @caret_x
 			else
 				@caret_x_select = nil
@@ -2782,7 +2498,7 @@ class IBoxWidget < DrawableWidget
 			@caret_x = 0
 			update_caret
 		when :end
-			if kbd_shift
+			if keyboard_state(:shift)
 				@caret_x_select ||= @caret_x
 			else
 				@caret_x_select = nil
@@ -2836,7 +2552,6 @@ class IBoxWidget < DrawableWidget
 	end
 
 	def click(x, y)
-		Win32Gui.setcapture(@hwnd)
 		if y >= @texty and y < @texty+@texth
 			@caret_x_select = nil
 			@caret_x = x.to_i / @font_width - 1 + @caret_x_start
@@ -2850,7 +2565,6 @@ class IBoxWidget < DrawableWidget
 
 	def mousemove(x, y)
 		if @textdown
-			x = Expression.make_signed(x, 16)
 			x = x.to_i / @font_width - 1 + @caret_x_start
 			x = [[x, 0].max, @curline.length].min
 			if x != @textdown
@@ -2862,9 +2576,7 @@ class IBoxWidget < DrawableWidget
 	end
 
 	def mouserelease(x, y)
-		Win32Gui.releasecapture
 		if @textdown
-			x = Expression.make_signed(x, 16)
 			x = x.to_i / @font_width - 1 + @caret_x_start
 			x = [[x, 0].max, @curline.length].min
 			if x != @textdown
@@ -2878,8 +2590,9 @@ class IBoxWidget < DrawableWidget
 	end
 	
 	def update_caret
-		return if @oldcaret_x == @caret_x
+		return if @oldcaret_x == @caret_x and @oldsel_x == @caret_x_select
 		redraw
+		@oldsel_x = @caret_x_select
 		@oldcaret_x = @caret_x
 	end
 
@@ -2907,8 +2620,7 @@ class IBoxWidget < DrawableWidget
 		redraw
 	end
 end
-	def initialize_window(win, prompt, opts={}, &b)
-		super(win)
+	def initialize_window(prompt, opts={}, &b)
 		self.title = opts[:title] ? opts[:title] : 'input'
 		self.widget = IBoxWidget.new(prompt, opts, &b)
 	end
@@ -2921,6 +2633,8 @@ class ListWindow < ToolWindow
 class LBoxWidget < DrawableWidget
 	def initialize_widget(list, opts={}, &b)
 		ccnt = list.first.length
+		# store a true/false per column saying if the original data was integers (for col sorting)
+		@list_ints = list[1..-1].transpose.map { |col| col.all? { |e| e.kind_of? Integer } } rescue []
 		@list = list.map { |l|
 			l += ['']*(ccnt - l.length) if l.length < ccnt
 			l = l[0, ccnt] if l.length > ccnt
@@ -2931,12 +2645,16 @@ class LBoxWidget < DrawableWidget
 		@titles = @list.shift
 
 		@action = b
-		# index of the first row displayed
 		@linehead = 0
+		@color_callback = opts[:color_callback]	# lambda { |ary_entries_text| [color_font, color_bg] }
+		@noclose_dblclick = opts[:noclose_dblclick]
 		# index of the currently selected row
 		@linesel = nil
 		# ary indicating whether a title label is being clicked
 		@btndown = []
+		@btnheight = @font_height * 4/3
+		@sbh = 0	# position of the hz scrollbar
+		@sbv = 0
 
 		@default_color_association = { :background => :winbg, :label => :black,
 			:text => :black, :textbg => :white, :btnc1 => :white, :btnc2 => :grey,
@@ -2944,64 +2662,61 @@ class LBoxWidget < DrawableWidget
 	end
 
 	def initial_size
-		@colw = @colwmax.map { |w| [w+1, 40].min * @font_width }
+		@colw = @colwmax.map { |w| (w+1) * @font_width }
 		allw = @colw.inject(0) { |a, i| a+i }
 		[[allw, 80*@font_width].min, [@list.length+1, 30].min * @font_height+2]
 	end
 
 	def resized(w, h)
-		allw = @colw.inject(0) { |a, i| a+i }
-		if w > allw
-			can = w - allw
+		# scrollbar stuff
+		fullw = @colwmax.inject(0) { |a, i| a+i+1 } * @font_width
+		@sbh = fullw-w if @sbh > fullw-w
+		@sbh = 0 if @sbh < 0
+		sif = Win32Gui.alloc_c_struct('SCROLLINFO',
+			:cbsize => :size, :fmask => Win32Gui::SIF_ALL,
+			:nmin => 0, :nmax => fullw-1, :npage => w, :npos => @sbh)
+		Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif, Win32Gui::TRUE)
+
+		fullh = @list.length * @font_height + @btnheight
+		@sbv = fullh-h if @sbv > fullh-h
+		@sbv = 0 if @sbv < 0
+		sif = Win32Gui.alloc_c_struct('SCROLLINFO',
+			:cbsize => :size, :fmask => Win32Gui::SIF_ALL,
+			:nmin => 0, :nmax => fullh-1, :npage => h, :npos => @sbv)
+		Win32Gui.setscrollinfo(@hwnd, Win32Gui::SB_VERT, sif, Win32Gui::TRUE)
+
+		# resize columns to fill available hz space
+		if w > fullw
+			mi = (w-fullw) / @colw.length
+			mm = (w-fullw) % @colw.length
 			@colw.length.times { |i|
-				cur = @colw[i]
-				want = (@colwmax[i] + 1) * @font_width
-				need = want-cur
-				if need > 0
-					if can < need
-						@colw[i] += can
-						can = 0
-					else
-						@colw[i] = want
-						can -= need
-					end
-				end
+				@colw[i] = (@colwmax[i]+1)*@font_width + mi + (i < mm ? 1 : 0)
 			}
 			redraw
 		end
 	end
 
 	def paint
-		x = 0
 		@btnx = []
-		@btny = y = 0
-		#fixedfont = Win32Gui.selectobject(@hdc, Win32Gui.getstockobject(Win32Gui::ANSI_VAR_FONT))
-		#sz = Win32Gui.alloc_c_struct('POINT')
-		#Win32Gui.gettextextentpoint32a(@hdc, 'x', 1, sz)
-		#var_font_height = sz[:y]
+		@btny = 0
 		@btnheight = @font_height * 4/3
-		@titles.zip(@colw, @btndown).each { |t, w, d|
+		x = 0
+		@colw.each { |w|
 			@btnx << x
-			h = @btnheight-1
-			c1 = d ? :btnc2 : :btnc1
-			c2 = d ? :btnc1 : :btnc2
-			draw_line_color(c1, x, y, x, y+h)
-			draw_line_color(c1, x, y, x+w-1, y)
-			draw_line_color(c2, x+w-1, y+h, x, y+h)
-			draw_line_color(c2, x+w-1, y+h, x+w-1, y)
-
-			cw = w/@font_width-1
-			xo = [(cw-t.length) * @font_width/2, 0].max	# center titles
-			draw_string_color(:label, x+@font_width/2+xo, y+@font_height/6, t[0, cw])
 			x += w
 		}
 		
-		y += @btnheight
+		x -= @sbh
+		y = @btnheight
+		@linehead = @sbv / @font_height
+		y -= @sbv % @font_height
 		tl = (@linesel || -1) - @linehead
-		@lineshown = @list[@linehead, (height-y)/@font_height+1].length
+		@lineshown = @list[@linehead, (height-y)/@font_height+1].to_a.length
 		@list[@linehead, @lineshown].to_a.each { |l|
-			x = @btnx.first
-			ct, cb = :text, :textbg
+			x = @btnx.first - @sbh
+			ct, cb = @color_callback[l] if @color_callback
+			ct ||= :text
+			cb ||= :textbg
 			ct, cb = :textsel, :textselbg if tl == 0
 			tl -= 1
 			draw_rectangle_color(cb, x, y, width-2*x, @font_height)
@@ -3010,6 +2725,23 @@ class LBoxWidget < DrawableWidget
 				x += w
 			}
 			y += @font_height
+		}
+
+		@titles.zip(@colw, @btnx, @btndown).each { |t, w, bx, d|
+			x = bx - @sbh
+			y = @btny
+			h = @btnheight-1
+			c1 = d ? :btnc2 : :btnc1
+			c2 = d ? :btnc1 : :btnc2
+			draw_rectangle_color(:background, x, y, w-1, h)
+			draw_line_color(c1, x, y, x, y+h)
+			draw_line_color(c1, x, y, x+w-1, y)
+			draw_line_color(c2, x+w-1, y+h, x, y+h)
+			draw_line_color(c2, x+w-1, y+h, x+w-1, y)
+
+			cw = w/@font_width-1
+			xo = [(cw-t.length) * @font_width/2, 0].max	# center titles
+			draw_string_color(:label, x+@font_width/2+xo, y+@font_height/6, t[0, cw])
 		}
 	end
 
@@ -3020,7 +2752,7 @@ class LBoxWidget < DrawableWidget
 				@linesel = @linehead
 			elsif @linesel > 0
 				@linesel -= 1
-				@linehead = @linesel if @linesel < @linehead
+				vscroll(@linesel*@font_height) if @linesel < @linehead
 			end
 			redraw
 		when :down
@@ -3028,7 +2760,7 @@ class LBoxWidget < DrawableWidget
 				@linesel = @linehead
 			elsif @linesel < @list.length-1
 				@linesel += 1
-				@linehead = @linesel - (@lineshown-1) if @linehead < @linesel-(@lineshown-1)
+				vscroll((@linesel-(@lineshown-1))*@font_height) if @linehead < @linesel-(@lineshown-1)
 			end
 			redraw
 		when :pgup
@@ -3038,8 +2770,8 @@ class LBoxWidget < DrawableWidget
 			elsif @linesel != @linehead
 				@linesel = [@linehead, @linesel-off].max
 			else
-				@linehead = [0, @linehead-off].max
-				@linesel = @linehead
+				@linesel = [0, @linehead-off].max
+				vscroll(@linesel*@font_height)
 			end
 			redraw
 		when :pgdown
@@ -3050,17 +2782,17 @@ class LBoxWidget < DrawableWidget
 			elsif @linesel != @linehead+n
 				@linesel = [@linehead+n, @linesel+off].min
 			else
-				@linehead = [@linehead+off, @list.length-n-1].min
+				vscroll((@linehead+off)*@font_height)
 				@linesel = [@linehead+n, @list.length-1].min
 			end
 			redraw
 		when :home
 			@linesel = 0
-			@linehead = 0
+			vscroll(0)
 			redraw
 		when :end
 			@linesel = @list.length-1
-			@linehead = @linesel - (@lineshown-1) if @linehead < @linesel-(@lineshown-1)
+			vscroll(@list.length*@font_height)
 			redraw
 		when :enter
 			if @linesel and @list[@linesel]
@@ -3082,17 +2814,30 @@ class LBoxWidget < DrawableWidget
 		case dir
 		when :up
 			off = [@lineshown, [@lineshown/2, 5].max].min
-			@linehead = [0, @linehead-off].max
+			vscroll((@linehead-off)*@font_height)
 			redraw
 		when :down
 			n = @lineshown-1
 			off = [@lineshown, [@lineshown/2, 5].max].min
-			@linehead = [@linehead+off, @list.length-n-1].min
+			vscroll((@linehead+off)*@font_height)
 			redraw
 		end
 	end
 
+	def hscroll(val)
+		Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_HORZ, val, Win32Gui::TRUE)
+		@sbh = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_HORZ)	# clipping, etc
+		redraw
+	end
+
+	def vscroll(val)
+		Win32Gui.setscrollpos(@hwnd, Win32Gui::SB_VERT, val, Win32Gui::TRUE)
+		@sbv = Win32Gui.getscrollpos(@hwnd, Win32Gui::SB_VERT)
+		redraw
+	end
+
 	def xtobtn(x)
+		x += @sbh
 		if x < @btnx.first
 			return 0
 		elsif x >= @btnx.last + @colw.last
@@ -3105,12 +2850,12 @@ class LBoxWidget < DrawableWidget
 	end
 
 	def click(x, y)
-		Win32Gui.setcapture(@hwnd)
 		if y >= @btny and y < @btny+@btnheight
 			# TODO column resize
 			@btndown[xtobtn(x)] = true
 			redraw
 		elsif y >= @btny+@btnheight
+			y += @sbv % @font_height
 			cy = @linehead + (y - @btny - @btnheight)/@font_height
 			if cy < @list.length
 				@linesel = cy
@@ -3123,6 +2868,8 @@ class LBoxWidget < DrawableWidget
 
 	def doubleclick(x, y)
 		if y >= @btny+@btnheight
+			return click(x, y) if @noclose_dblclick
+			y += @sbv % @font_height
 			cy = @linehead + (y - @btny - @btnheight)/@font_height
 			if cy < @list.length
 				destroy
@@ -3135,20 +2882,21 @@ class LBoxWidget < DrawableWidget
 	def mousemove(x, y)
 		if @btndown.compact.first
 			@btndown = []
-			x = Expression.make_signed(x, 16)
 			@btndown[xtobtn(x)] = true
 			redraw
 		end
 	end
 
 	def mouserelease(x, y)
-		Win32Gui.releasecapture
 		if @btndown.compact.first
-			x = Expression.make_signed(x, 16)
 			@btndown = []
 			col = xtobtn(x)
 			cursel = @list[@linesel] if @linesel
+			if @list_ints[col]
+				nlist = @list.sort_by { |a| [a[col].to_i, a] }
+			else
 			nlist = @list.sort_by { |a| [a[col], a] }
+			end
 			nlist.reverse! if nlist == @list
 			@list = nlist
 			@linehead = 0
@@ -3164,8 +2912,7 @@ class LBoxWidget < DrawableWidget
 		@parent.destroy
 	end
 end
-	def initialize_window(win, title, list, opts={}, &b)
-		super(win)
+	def initialize_window(title, list, opts={}, &b)
 		@ondestroy = opts[:ondestroy]
 		self.title = title
 		self.widget = LBoxWidget.new(list, opts, &b)
@@ -3174,6 +2921,39 @@ end
 	def destroy_window
 		@ondestroy.call if @ondestroy
 		super()
+	end
+
+	def windowproc(hwnd, msg, wparam, lparam)
+		case msg
+		when Win32Gui::WM_HSCROLL
+			sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
+			Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_HORZ, sif)
+			case wparam & 0xffff
+			when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
+			when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos
+			when Win32Gui::SB_LINELEFT;  val = sif.npos - 1
+			when Win32Gui::SB_LINERIGHT; val = sif.npos + 1
+			when Win32Gui::SB_PAGELEFT;  val = sif.npos - sif.npage
+			when Win32Gui::SB_PAGERIGHT; val = sif.npos + sif.npage
+			else return 0
+			end
+			@widget.hscroll val
+		when Win32Gui::WM_VSCROLL
+			sif = Win32Gui.alloc_c_struct('SCROLLINFO', :cbsize => :size, :fmask => Win32Gui::SIF_ALL)
+			Win32Gui.getscrollinfo(@hwnd, Win32Gui::SB_VERT, sif)
+			case wparam & 0xffff
+			when Win32Gui::SB_THUMBPOSITION; val = sif.ntrackpos
+			when Win32Gui::SB_THUMBTRACK; val = sif.ntrackpos; nopos = true
+			when Win32Gui::SB_LINEDOWN; val = sif.npos + 1
+			when Win32Gui::SB_LINEUP;   val = sif.npos - 1
+			when Win32Gui::SB_PAGEDOWN; val = sif.npos + sif.npage
+			when Win32Gui::SB_PAGEUP;   val = sif.npos - sif.npage
+			else return 0
+			end
+			@widget.vscroll val
+		else return super(hwnd, msg, wparam, lparam)
+		end
+		0
 	end
 end
 
@@ -3184,7 +2964,9 @@ def Gui.main
 		if Win32Gui.peekmessagea(msg, 0, 0, 0, Win32Gui::PM_NOREMOVE) != 0 or
 				Win32Gui.msgwaitformultipleobjects(0, 0, Win32Gui::FALSE, 500,
 					Win32Gui::QS_ALLINPUT) != Win32Gui::WAIT_TIMEOUT
-			break if Win32Gui.getmessagea(msg, 0, 0, 0) == 0
+			ret = Win32Gui.getmessagea(msg, 0, 0, 0)
+			break if ret == 0
+			raise Win32Gui.last_error_msg if ret < 0
 			Win32Gui.translatemessage(msg)
 			Win32Gui.dispatchmessagea(msg)
 		end

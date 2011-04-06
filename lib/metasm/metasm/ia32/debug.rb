@@ -11,6 +11,9 @@ class Ia32
 	def dbg_register_pc
 		@dbg_register_pc ||= :eip
 	end
+	def dbg_register_sp
+		@dbg_register_sp ||= dbg_register_list[7]
+	end
 	def dbg_register_flags
 		@dbg_register_flags ||= :eflags
 	end
@@ -49,61 +52,61 @@ class Ia32
 		dbg_unset_flag(dbg, :t)
 	end
 
-	def dbg_enable_bp(dbg, addr, bp)
+	def dbg_enable_bp(dbg, bp)
 		case bp.type
-		when :bpx; dbg_enable_bpx( dbg, addr, bp)
-		else       dbg_enable_bphw(dbg, addr, bp)
+		when :bpx; dbg_enable_bpx( dbg, bp)
+		else       dbg_enable_bphw(dbg, bp)
 		end
 	end
 
-	def dbg_disable_bp(dbg, addr, bp)
+	def dbg_disable_bp(dbg, bp)
 		case bp.type
-		when :bpx; dbg_disable_bpx( dbg, addr, bp)
-		else       dbg_disable_bphw(dbg, addr, bp)
+		when :bpx; dbg_disable_bpx( dbg, bp)
+		else       dbg_disable_bphw(dbg, bp)
 		end
 	end
 
-	def dbg_enable_bpx(dbg, addr, bp)
-		bp.previous ||= dbg.memory[addr, 1]
-		dbg.memory[addr, 1] = "\xcc"
+	def dbg_enable_bpx(dbg, bp)
+		bp.internal[:previous] ||= dbg.memory[bp.address, 1]
+		dbg.memory[bp.address, 1] = "\xcc"
 	end
 
-	def dbg_disable_bpx(dbg, addr, bp)
-		dbg.memory[addr, 1] = bp.previous
+	def dbg_disable_bpx(dbg, bp)
+		dbg.memory[bp.address, 1] = bp.internal[:previous]
 	end
 
 	# allocate a debug register for a hwbp by checking the list of hwbp existing in dbg
-	def dbg_alloc_bphw(dbg, addr, bp)
-		if not bp.previous.kind_of? ::Integer
+	def dbg_alloc_bphw(dbg, bp)
+		if not bp.internal[:dr]
 			may = [0, 1, 2, 3]
-			dbg.breakpoint.each { |a, b| may.delete b.previous if b.type == :hw }
+			dbg.breakpoint_thread.values.each { |bb| may.delete bb.internal[:dr] }
 			raise 'alloc_bphw: no free debugregister' if may.empty?
-			bp.previous = may.first
+			bp.internal[:dr] = may.first
 		end
-		bp.mtype ||= :x
-		bp.mlen ||= 1
-		bp.previous
+		bp.internal[:type] ||= :x
+		bp.internal[:len]  ||= 1
+		bp.internal[:dr]
 	end
 
-	def dbg_enable_bphw(dbg, addr, bp)
-		nr = dbg_alloc_bphw(dbg, addr, bp)
-		dr7 = dbg.get_reg_value(:dr7)
-		l = { 1 => 0, 2 => 1, 4 => 3, 8 => 2 }[bp.mlen]
-		rw = { :x => 0, :w => 1, :r => 3 }[bp.mtype]
+	def dbg_enable_bphw(dbg, bp)
+		nr = dbg_alloc_bphw(dbg, bp)
+		dr7 = dbg[:dr7]
+		l = { 1 => 0, 2 => 1, 4 => 3, 8 => 2 }[bp.internal[:len]]
+		rw = { :x => 0, :w => 1, :r => 3 }[bp.internal[:type]]
 		raise "enable_bphw: invalid breakpoint #{bp.inspect}" if not l or not rw
 		dr7 &= ~((15 << (16+4*nr)) | (3 << (2*nr)))	# clear
 		dr7 |= ((l << 2) | rw) << (16+4*nr)	# set drN len/rw
 		dr7 |= 3 << (2*nr)	# enable global/local drN
 
-		dbg.set_reg_value("dr#{nr}".to_sym, addr)
-		dbg.set_reg_value(:dr7, dr7)
+		dbg["dr#{nr}"] = bp.address
+		dbg[:dr7] = dr7
 	end
 
-	def dbg_disable_bphw(dbg, addr, bp)
-		nr = dbg_alloc_bphw(dbg, addr, bp)
-		dr7 = dbg.get_reg_value(:dr7)
+	def dbg_disable_bphw(dbg, bp)
+		nr = bp.internal[:dr]
+		dr7 = dbg[:dr7]
 		dr7 &= ~(3 << (2*nr))
-		dbg.set_reg_value(:dr7, dr7)
+		dbg[:dr7] = dr7
 	end
 
 	def dbg_check_pre_run(dbg)
@@ -113,17 +116,23 @@ class Ia32
 		dbg[:dr6] = 0
 	end
 
-	def dbg_check_post_run(dbg)
-		if dbg.state == :stopped and not dbg.info
-			eip = dbg.pc
-			if dbg.breakpoint[eip-1] and dbg.memory[eip-1, 1] == "\xcc" and dbg[:dr6] & 0x4000 == 0
-				# we may get there by singlestepping a branch just over the \xcc
-				# the dr6 check should take care of that
-				# we probably got there by hitting the bp, so we need to fix eip
-				# another exception would presumably have @info not nil
-				dbg.pc = eip-1
-			end
+	def dbg_evt_bpx(dbg, b)
+		if b.address == dbg.pc-1
+			dbg.pc -= 1
 		end
+			end
+
+	def dbg_find_bpx(dbg)
+		return if dbg[:dr6] & 0x4000 != 0
+		pc = dbg.pc
+		dbg.breakpoint[pc-1] || dbg.breakpoint[pc]
+		end
+
+	def dbg_find_hwbp(dbg)
+		dr6 = dbg[:dr6]
+		return if dr6 & 0xf == 0
+		dn = (0..3).find { |n| dr6 & (1 << n) }
+		dbg.breakpoint_thread.values.find { |b| b.internal[:dr] == dn }
 	end
 
 	def dbg_need_stepover(dbg, addr, di)
@@ -154,22 +163,31 @@ class Ia32
 		ret
 	end
 
+	# retrieve the current function return value
+	# only valid at function exit
+	def dbg_func_retval(dbg)
+		dbg.get_reg_value(dbg_register_list[0])
+	end
+	def dbg_func_retval_set(dbg, val)
+		dbg.set_reg_value(dbg_register_list[0], val)
+	end
+
 	# retrieve the current function return address
 	# to be called only on entry of the subfunction
 	def dbg_func_retaddr(dbg)
-		dbg.memory_read_int(:esp)
+		dbg.memory_read_int(dbg_register_list[7])
 	end
 	def dbg_func_retaddr_set(dbg, ret)
-		dbg.memory_write_int(:esp, ret)
+		dbg.memory_write_int(dbg_register_list[7], ret)
 	end
 
 	# retrieve the current function arguments
-	# only valid at function entry
+	# only valid at function entry (eg right after the call)
 	def dbg_func_arg(dbg, argnr)
-		dbg.memory_read_int(Expression[:esp, :+, 4*argnr])
+		dbg.memory_read_int(Expression[:esp, :+, 4*(argnr+1)])
 	end
 	def dbg_func_arg_set(dbg, argnr, arg)
-		dbg.memory_write_int(Expression[:esp, :+, 4*argnr], arg)
+		dbg.memory_write_int(Expression[:esp, :+, 4*(argnr+1)], arg)
 	end
 end
 end

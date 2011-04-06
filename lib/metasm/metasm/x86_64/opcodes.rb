@@ -11,28 +11,29 @@ module Metasm
 class X86_64
 	def init_cpu_constants
 		super()
-		# XXX remove mmx*/fp* ?
 		@valid_args.concat [:i32, :u32, :i64, :u64] - @valid_args
 	end
 
 	def init_386_common_only
 		super()
-		@valid_props |= [:imm64, :auto64]
+		# :imm64 => accept a real int64 as :i argument
+		# :auto64 => ignore rex_w, always 64-bit op
+		# :op32no64 => if write to a 32-bit reg, dont zero the top 32-bits of dest
+		@valid_props |= [:imm64, :auto64, :op32no64]
 		@opcode_list.delete_if { |o| o.bin[0].to_i & 0xf0 == 0x40 }	# now REX prefix
 		@opcode_list.each { |o|
 			o.props[:imm64] = true if o.bin == [0xB8]	# mov reg, <true imm64>
-			o.props[:auto64] = true if o.name =~ /^(j|loop|(call|enter|leave|lgdt|lidt|lldt|ltr|pop|push|ret)$)/ # operate in 64bit ignoring rex_w
+			o.props[:auto64] = true if o.name =~ /^(j|loop|(call|enter|leave|lgdt|lidt|lldt|ltr|pop|push|ret)$)/
+			#o.props[:op32no64] = true if o.name =~ //	# TODO are there any instr here ?
 		}
-		addop 'movsxd', [0x63], :mrmw
+		addop 'movsxd', [0x63], :mrm
 	end
 
 	# all x86_64 cpu understand <= sse2 instrs
 	def init_x8664_only
-		# TODO XXX mov i64 ?
-		# should undef all those
 		init_386_common_only
 		init_386_only
-		# 387 is dead!
+		init_387_only	# 387 indeed
 		init_486_only
 		init_pentium_only
 		init_p6_only
@@ -40,34 +41,28 @@ class X86_64
 		init_sse2_only
 
 		@opcode_list.delete_if { |o|
-			o.args.include? :modrmmmx or	# mmx is dead!
-			o.args.include? :regmmx or	# movd
-			o.args.include? :regfp or	# no fpu beyond this line
-			o.name == 'loadall' or
-			o.name == 'arpl'
+			o.args.include?(:seg2) or
+			o.args.include?(:seg2A) or
+			%w[lds les loadall arpl pusha pushad popa popad].include?(o.name)
 		}
 
 		addop 'swapgs',  [0x0F, 0x01, 0xF8]
-		addop 'rdtscp',  [0x0F, 0x01, 0xF9]
 	end
 
 	def init_sse3
 		init_x8664_only
 		init_sse3_only
-		@opcode_list.delete_if { |o| o.args.include? :modrmmmx }
 	end
 
 	def init_vmx
 		init_sse3
 		init_vmx_only
-		@opcode_list.delete_if { |o| o.args.include? :modrmmmx }
 	end
 	
 	def init_all
 		init_vmx
 		init_sse42_only
 		init_3dnow_only
-		@opcode_list.delete_if { |o| o.args.include? :modrmmmx }
 	end
 
 	alias init_latest init_all
@@ -81,7 +76,7 @@ class X86_64
 	end
 
 	def addop_post(op)
-		if op.fields[:d] or op.fields[:w] or op.fields[:s]
+		if op.fields[:d] or op.fields[:w] or op.fields[:s] or op.args.first == :regfp0
 			return super(op)
 		end
 
@@ -104,8 +99,10 @@ class X86_64
 			op64.name << '.i64'
 			op64.props[:opsz] = 64
 			@opcode_list << op64
-		elsif op.props[:strop] or op.props[:stropz] or op.args.include? :mrm_imm
+		elsif op.props[:strop] or op.props[:stropz] or op.args.include? :mrm_imm or
+				op.args.include? :modrm or op.args.include? :modrmA or op.name =~ /loop|xlat/
 			# define adsz-override version for ambiguous opcodes (movsq)
+			# XXX loop pfx 67 = rip+ecx, 66/rex ignored
 			op32 = dupe[op]
 			op32.name << '.a32'
 			op32.props[:adsz] = 32

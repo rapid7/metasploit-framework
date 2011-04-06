@@ -48,19 +48,19 @@ class << self
 
 	# a fixed-size memory chunk
 	def mem(name, len, defval='')
-		new_field(name, lambda { |exe, me| exe.encoded.read(len) }, lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }, defval)
+		new_field(name, lambda { |exe, me| exe.curencoded.read(len) }, lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }, defval)
 	end
 	# a fixed-size string, 0-padded
 	def str(name, len, defval='')
 		e = lambda { |exe, me, val| val[0, len].ljust(len, 0.chr) }
-		d = lambda { |exe, me| v = exe.encoded.read(len) ; v = v[0, v.index(?\0)] if v.index(?\0) ; v }
+		d = lambda { |exe, me| v = exe.curencoded.read(len) ; v = v[0, v.index(?\0)] if v.index(?\0) ; v }
 		new_field(name, d, e, defval)
 	end
 	# 0-terminated string
 	def strz(name, defval='')
 		d = lambda { |exe, me|
-		       	ed = exe.encoded
-			ed.read(ed.data.index(?\0, ed.ptr)+1).chop
+		       	ed = exe.curencoded
+			ed.read(ed.data.index(?\0, ed.ptr)-ed.ptr+1).chop
 		}
 		e = lambda { |exe, me, val| val + 0.chr }
 		new_field(name, d, e, defval)
@@ -122,8 +122,8 @@ class << self
 	end
 
 	# inject a hook to be run during the decoding process
-	def decode_hook(after=nil, &b)
-		idx = (after ? @@fields[self].index(fld_get(after)) : -1)
+	def decode_hook(before=nil, &b)
+		idx = (before ? @@fields[self].index(fld_get(before)) : -1)
 		@@fields[self].insert(idx, [nil, b])
 	end
 end	# class methods
@@ -235,7 +235,8 @@ end	# class methods
 end
 
 class ExeFormat
-	def decode_strz(ed = @encoded)
+	def curencoded; encoded; end
+	def decode_strz(ed = curencoded)
 		if stop = ed.data.index(?\0, ed.ptr)
 			ed.read(stop - ed.ptr + 1).chop
 		else ''

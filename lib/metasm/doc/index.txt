@@ -26,6 +26,15 @@ second part is a higher level overview of the software and shows how
 the various parts are used and can interract. The last part explains
 the role of the source files and directories.
 
+
+Documentation progress
+----------------------
+
+The documentation is written here and there in my free time, and is **very**
+**incomplete** as of now. Specifically, all internal links you'll find
+ending in `.txt` are link to pages that have not been written yet.
+
+
 Install notes
 -------------
 
@@ -37,8 +46,8 @@ Authors
 Metasm is mostly written by Yoann Guillot.
 
 Some parts were added by various contributors, including :
-* Julien Tinnès
-* Raphaël Rigo
+* Julien TinnÃ¨s
+* RaphaÃ«l Rigo
 * Arnaud Cornet
 * Alexandre Gazet
 

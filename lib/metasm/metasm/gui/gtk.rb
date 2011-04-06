@@ -72,7 +72,7 @@ class ContainerChoiceWidget < Gtk::Notebook
 	include Msgbox
 
 	attr_accessor :views, :view_indexes
-	def initialize(*a)
+	def initialize(*a, &b)
 		super()
 		self.show_border = false
 		self.show_tabs = false
@@ -81,7 +81,7 @@ class ContainerChoiceWidget < Gtk::Notebook
 
 		signal_connect('realize') { initialize_visible } if respond_to? :initialize_visible
 
-		initialize_widget(*a)
+		initialize_widget(*a, &b)
 
 		show_all
 	end
@@ -113,7 +113,7 @@ end
 class ContainerVBoxWidget < Gtk::VBox
 	include Msgbox
 
-	def initialize(*a)
+	def initialize(*a, &b)
 		super()
 
 		signal_connect('realize') { initialize_visible } if respond_to? :initialize_visible
@@ -122,7 +122,7 @@ class ContainerVBoxWidget < Gtk::VBox
 
 		self.spacing = 2
 
-		initialize_widget(*a)
+		initialize_widget(*a, &b)
 	end
 
 	def resize_child(cld, w, h)
@@ -189,7 +189,7 @@ class DrawableWidget < Gtk::DrawingArea
 		h.update v => key
 	}
 
-	def initialize(*a)
+	def initialize(*a, &b)
 		@parent_widget = nil
 
 		@caret_x = @caret_y = 0		# text cursor position
@@ -216,7 +216,8 @@ class DrawableWidget < Gtk::DrawingArea
 		}
 
 		signal_connect('button_press_event') { |w, ev|
-			if ev.state & Gdk::Window::CONTROL_MASK == Gdk::Window::CONTROL_MASK
+			@last_kb_ev = ev
+			if keyboard_state(:control)
 				next protect { click_ctrl(ev.x, ev.y) } if ev.event_type == Gdk::Event::Type::BUTTON_PRESS and ev.button == 1 and respond_to? :click_ctrl
 				next
 			end
@@ -235,7 +236,8 @@ class DrawableWidget < Gtk::DrawingArea
 		}
 
 		signal_connect('motion_notify_event') { |w, ev|
-			if ev.state & Gdk::Window::CONTROL_MASK == Gdk::Window::CONTROL_MASK
+			@last_kb_ev = ev
+			if keyboard_state(:control)
 				protect { mousemove_ctrl(ev.x, ev.y) } if respond_to? :mousemove_ctrl
 			else
 				protect { mousemove(ev.x, ev.y) }
@@ -252,7 +254,8 @@ class DrawableWidget < Gtk::DrawingArea
 			when Gdk::EventScroll::Direction::DOWN; :down
 			else next
 			end
-			if ev.state & Gdk::Window::CONTROL_MASK == Gdk::Window::CONTROL_MASK
+			@last_kb_ev = ev
+			if keyboard_state(:control)
 				protect { mouse_wheel_ctrl(dir, ev.x, ev.y) } if respond_to? :mouse_wheel_ctrl
 			else
 				protect { mouse_wheel(dir, ev.x, ev.y) }
@@ -260,8 +263,9 @@ class DrawableWidget < Gtk::DrawingArea
 		} if respond_to? :mouse_wheel
 
 		signal_connect('key_press_event') { |w, ev|
+			@last_kb_ev = ev
 			key = Keyboard_trad[ev.keyval]
-			if ev.state & Gdk::Window::CONTROL_MASK == Gdk::Window::CONTROL_MASK
+			if keyboard_state(:control)
 				protect { keypress_ctrl(key) or (@parent_widget and @parent_widget.keypress_ctrl(key)) }
 			else
 				protect { keypress(key) or (@parent_widget and @parent_widget.keypress(key)) }
@@ -283,12 +287,15 @@ class DrawableWidget < Gtk::DrawingArea
 			initialize_visible if respond_to? :initialize_visible
 		}
 
-		initialize_widget(*a)
+		initialize_widget(*a, &b)
 
 		# receive keyboard/mouse signals
 		set_events Gdk::Event::ALL_EVENTS_MASK
 		set_can_focus true
 		set_font 'courier 10'
+	end
+
+	def initialize_widget
 	end
 
 
@@ -404,6 +411,29 @@ class DrawableWidget < Gtk::DrawingArea
 		draw_color(col)
 		draw_string(x, y, str)
 	end
+
+	def clipboard_copy(buf)
+		clipboard = Gtk::Clipboard.get(Gdk::Selection::PRIMARY)
+		clipboard.text = buf
+	end
+
+	def clipboard_paste
+		clipboard = Gtk::Clipboard.get(Gdk::Selection::PRIMARY)
+		clipboard.wait_for_text
+	end
+
+	def keyboard_state(query=nil)
+		case query
+		when :control, :ctrl
+			ev = @last_kb_ev and ev.state & Gdk::Window::CONTROL_MASK == Gdk::Window::CONTROL_MASK
+		when :shift
+			ev = @last_kb_ev and ev.state & Gdk::Window::SHIFT_MASK   == Gdk::Window::SHIFT_MASK
+		when :alt
+			ev = @last_kb_ev and ev.state & Gdk::Window::MOD1_MASK    == Gdk::Window::MOD1_MASK
+		else
+			[:control, :shift, :alt].find_all { |s| keyboard_state(s) }
+		end
+	end
 end
 
 module WindowPos
@@ -452,9 +482,10 @@ class InputBox < Gtk::Dialog
 		end
 
 		@textwidget.signal_connect('key_press_event') { |w, ev|
-			case ev.keyval
-			when Gdk::Keyval::GDK_Escape; response(RESPONSE_REJECT) ; true
-			when Gdk::Keyval::GDK_Return, Gdk::Keyval::GDK_KP_Enter; response(RESPONSE_ACCEPT) ; true
+			key = DrawableWidget::Keyboard_trad[ev.keyval]
+			case key
+			when :escape; response(RESPONSE_REJECT) ; true
+			when :enter; response(RESPONSE_ACCEPT) ; true
 			end
 		}
 
@@ -563,12 +594,26 @@ class ListWindow < Gtk::Dialog
 		treeview = Gtk::TreeView.new
 		treeview.model = Gtk::ListStore.new(*[String]*cols.length)
 		treeview.selection.mode = Gtk::SELECTION_NONE
+		if @color_callback = h[:color_callback]
+			@drawable = DrawableWidget.new	# needed for color()...
+			@drawable.signal_emit('realize')
+		end
 
 		cols.each_with_index { |col, i|
 			crt = Gtk::CellRendererText.new
 			tvc = Gtk::TreeViewColumn.new(col, crt)
 			tvc.sort_column_id = i
-			tvc.set_cell_data_func(crt) { |_tvc, _crt, model, iter| _crt.text = iter[i] }
+			tvc.set_cell_data_func(crt) { |_tvc, _crt, model, iter|
+			       	_crt.text = iter[i]
+				if @color_callback
+					fu = (0...cols.length).map { |ii| iter[ii] }
+					fg, bg = @color_callback[fu]
+					fg ||= :black
+					bg ||= :white
+					_crt.foreground = @drawable.color(fg).to_s
+					_crt.cell_background = @drawable.color(bg).to_s
+				end
+			}
 			treeview.append_column tvc
 		}
 
@@ -609,7 +654,7 @@ class Window < Gtk::Window
 	include Msgbox
 
 	attr_accessor :menu
-	def initialize(*a)
+	def initialize(*a, &b)
 		super()
 
 		signal_connect('destroy') { destroy_window }
@@ -617,10 +662,11 @@ class Window < Gtk::Window
 		@vbox = Gtk::VBox.new
 		add @vbox
 
-		@menu = Gtk::MenuBar.new
+		@menu = []
+		@menubar = Gtk::MenuBar.new
 		@accel_group = Gtk::AccelGroup.new
 
-		@vbox.add @menu, 'expand' => false
+		@vbox.add @menubar, 'expand' => false
 		@child = nil
 		s = Gdk::Screen.default
 		set_default_size s.width*3/4, s.height*3/4
@@ -629,8 +675,9 @@ class Window < Gtk::Window
 
 		(@@mainwindow_list ||= []) << self
 
-		initialize_window(*a)
+		initialize_window(*a, &b)
 		build_menu
+		update_menu
 		
 		
 		Gtk::Drag.dest_set(self,
@@ -663,6 +710,7 @@ class Window < Gtk::Window
 		@vbox.remove @child if @child
 		@child = w
 		@vbox.add w if w
+		show_all
 	end
 
 	def widget
@@ -673,17 +721,62 @@ class Window < Gtk::Window
 	end
 
 	def new_menu
-		Gtk::Menu.new
+		[]
 	end
 
+	# finds a menu by name (recursive)
+	# returns a valid arg for addsubmenu(ret)
+	def find_menu(name, from=@menu)
+		name = name.gsub('_', '')
+		if not l = from.find { |e| e.grep(::String).find { |es| es.gsub('_', '') == name } }
+		       l = from.map { |e| e.grep(::Array).map { |ae| find_menu(name, ae) }.compact.first }.compact.first
+		end
+		l.grep(::Array).first if l
+	end
+
+	# append stuff to a menu
+	# arglist:
+	# empty = menu separator
+	# string = menu entry display name (use a single '_' keyboard for shortcut, eg 'Sho_rtcut' => 'r')
+	# :check = menu entry is a checkbox type, add a true/false argument to specify initial value
+	# second string = keyboard shortcut (accelerator) - use '^' for Ctrl, and '<up>' for special keys
+	# a menu object = this entry will open a submenu (you must specify a name, and action is ignored)
+	# the method takes a block or a Proc argument that will be run whenever the menu item is selected
+	#
+	# use @menu to reference the top-level menu bar
+	# call update_menu when the menu is done
 	def addsubmenu(menu, *args, &action)
+		args << action if action
+		menu << args
+		menu.last
+	end
+
+	# make the window's MenuBar reflect the content of @menu
+	def update_menu
+		# clear
+		@menubar.children.dup.each { |mc| @menubar.remove mc }
+		# populate the menubar using @menu
+		@menu.each { |e| create_menu_item(@menubar, e) }
+		@menubar.show_all
+	end
+
+	def create_menu_item(menu, entry)
+		args = entry.dup
+
+		# recognise 'OPEN', 'SAVE' etc, with special icon/localisation
 		stock = (Gtk::Stock.constants.map { |c| c.to_s } & args).first
 		args.delete stock if stock
 		accel = args.grep(/^\^?(\w|<\w+>)$/).first
 		args.delete accel if accel
 		check = args.delete :check
-		submenu = args.grep(Gtk::Menu).first
-		args.delete submenu if submenu
+		action = args.grep(::Proc).first
+		args.delete action if action
+		if submenu = args.grep(::Array).first
+			args.delete submenu
+			sm = Gtk::Menu.new
+			submenu.each { |e| create_menu_item(sm, e) }
+			submenu = sm
+		end
 		label = args.shift
 
 		if stock
@@ -716,6 +809,7 @@ class Window < Gtk::Window
 				else ??
 				end
 			end
+			key = key.unpack('C')[0] if key.kind_of? String	# yay rb19
 			item.add_accelerator('activate', @accel_group, key, (accel[0] == ?^ ? Gdk::Window::CONTROL_MASK : 0), Gtk::ACCEL_VISIBLE)
 		end
 		if action
@@ -727,6 +821,36 @@ class Window < Gtk::Window
 		end
 		menu.append item
 		item
+	end
+
+	def initialize_window
+	end
+end
+
+class ToolWindow < Gtk::Dialog
+	include WindowPos
+
+	def initialize(parent=nil, *a, &b)
+		super('toolwin', parent, Gtk::Dialog::DESTROY_WITH_PARENT)
+		set_events Gdk::Event::ALL_EVENTS_MASK
+		set_can_focus true
+		@child = vbox
+		initialize_window(*a, &b)
+		show_all
+	end
+	
+	def widget=(w)
+		remove @child if @child
+		@child = w
+		add @child
+		if @child.respond_to? :initial_size
+			resize(*@child.initial_size)
+		end
+		show_all
+	end
+
+	def widget
+		@child
 	end
 end
 

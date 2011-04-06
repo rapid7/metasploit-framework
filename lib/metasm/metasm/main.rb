@@ -249,11 +249,6 @@ class Offset
 	end
 end
 
-# contiguous/uninterrupted sequence of instructions, chained to other blocks
-# TODO
-class InstructionBlock
-end
-
 # the superclass of all real executable formats
 # main methods:
 #  self.decode(str) => decodes the file format (imports/relocs/etc), no asm disassembly
@@ -563,9 +558,9 @@ class Expression < ExpressionType
 				l
 			elsif r == 0 and l.kind_of? Expression and l.op == :+
 				if l.rexpr.kind_of? Expression and l.rexpr.op == :- and not l.rexpr.lexpr
-					Expression[l.lexpr, op, l.rexpr.rexpr].reduce_rec
+					Expression[l.lexpr, @op, l.rexpr.rexpr].reduce_rec
 				elsif l.rexpr.kind_of? ::Integer
-					Expression[l.lexpr, op, -l.rexpr].reduce_rec
+					Expression[l.lexpr, @op, -l.rexpr].reduce_rec
 				end
 			end
 		elsif @op == :'!='
@@ -578,30 +573,59 @@ class Expression < ExpressionType
 			elsif l == r; 0
 			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
 				Expression[nil, :'!', l].reduce_rec
+			elsif l.kind_of?(::Numeric)
+				if r.kind_of? Expression and r.op == :^
+					# 1^(x^y) => x^(y^1)
+					Expression[r.lexpr, :^, [r.rexpr, :^, l]].reduce_rec
+				else
+					# 1^a => a^1
+					Expression[r, :^, l].reduce_rec
+				end
 			elsif l.kind_of? Expression and l.op == :^
-				# a^(b^c) => (a^b)^c
+				# (a^b)^c => a^(b^c)
 				Expression[l.lexpr, :^, [l.rexpr, :^, r]].reduce_rec
 			elsif r.kind_of? Expression and r.op == :^
-				# (a^b)^a => b
-				if    r.rexpr == l; r.lexpr
-				elsif r.lexpr == l; r.rexpr
+				if r.rexpr == l
+					# a^(a^b) => b
+					r.lexpr
+				elsif r.lexpr == l
+					# a^(b^a) => b
+					r.rexpr
+				else
+					# a^(b^(c^(a^d)))  =>  b^(a^(c^(a^d)))
+					# XXX ugly..
+					tr = r
+					found = false
+					while not found and tr.kind_of?(Expression) and tr.op == :^
+						found = true if tr.lexpr == l or tr.rexpr == l
+						tr = tr.rexpr
+					end
+					if found
+						Expression[r.lexpr, :^, [l, :^, r.rexpr]].reduce_rec
+					end
 				end
-			elsif l.kind_of? Integer; Expression[r, @op, l].reduce_rec
-			elsif l.kind_of? Expression and l.op == @op; Expression[l.lexpr, @op, [l.rexpr, @op, r]].reduce_rec
+			elsif l.kind_of?(Expression) and l.op == :& and l.rexpr.kind_of?(::Integer) and (l.rexpr & (l.rexpr+1)) == 0
+				if r.kind_of?(::Integer) and r & l.rexpr == r
+					# (a&0xfff)^12 => (a^12)&0xfff
+					Expression[[l.lexpr, :^, r], :&, l.rexpr].reduce_rec
+				elsif r.kind_of?(Expression) and r.op == :& and r.rexpr.kind_of?(::Integer) and r.rexpr == l.rexpr
+					# (a&0xfff)^(b&0xfff) => (a^b)&0xfff
+					Expression[[l.lexpr, :^, r.lexpr], :&, l.rexpr].reduce_rec
+				end
 			end
 		elsif @op == :&
 			if l == 0 or r == 0; 0
-			elsif r == 1 and l.kind_of? Expression and [:'==', :'!=', :<, :>, :<=, :>=].include? l.op
+			elsif r == 1 and l.kind_of?(Expression) and [:'==', :'!=', :<, :>, :<=, :>=].include?(l.op)
 				l
 			elsif l == r; l
-			elsif l.kind_of? Integer; Expression[r, @op, l].reduce_rec
-			elsif l.kind_of? Expression and l.op == @op; Expression[l.lexpr, @op, [l.rexpr, @op, r]].reduce_rec
-			# (a ^| b) & i
-			elsif l.kind_of? Expression and [:|, :^].include? l.op and r.kind_of? Integer
+			elsif l.kind_of?(Integer); Expression[r, @op, l].reduce_rec
+			elsif l.kind_of?(Expression) and l.op == @op; Expression[l.lexpr, @op, [l.rexpr, @op, r]].reduce_rec
+			elsif l.kind_of?(Expression) and [:|, :^].include?(l.op) and r.kind_of?(Integer) and (l.op == :| or (r & (r+1)) != 0)
+				# (a ^| b) & i => (a&i ^| b&i)
 				Expression[[l.lexpr, :&, r], l.op, [l.rexpr, :&, r]].reduce_rec
-			# rol/ror composition
-			elsif r.kind_of? ::Integer and l.kind_of? Expression and l.op == :|
-				reduce_rec_composerol r, l
+			elsif r.kind_of?(::Integer) and l.kind_of?(Expression) and (r & (r+1)) == 0
+				# foo & 0xffff
+				reduce_rec_mod2(l, r)
 			end
 		elsif @op == :|
 			if    l == 0; r
@@ -637,6 +661,10 @@ class Expression < ExpressionType
 					# -(a+b) => (-a)+(-b)
 					Expression[[:-, r.lexpr], :+, [:-, r.rexpr]].reduce_rec
 				end
+			elsif l.kind_of? Expression and l.op == :+ and l.lexpr == r
+				# shortcircuit for a common occurence [citation needed]
+				# (a+b)-a
+				l.rexpr
 			elsif l
 				# a-b => a+(-b)
 				Expression[l, :+, [:-, r]].reduce_rec
@@ -709,21 +737,44 @@ class Expression < ExpressionType
 				simplifier[r]
 			end
 
+	# expr & 0xffff
+	def reduce_rec_mod2(e, mask)
+		case e.op
+		when :+, :^
+			if e.lexpr.kind_of?(Expression) and e.lexpr.op == :& and
+			   e.lexpr.rexpr.kind_of?(::Integer) and e.lexpr.rexpr & mask == mask
+				# ((a&m) + b) & m  =>  (a+b) & m
+				Expression[[e.lexpr.lexpr, e.op, e.rexpr], :&, mask].reduce_rec
+			elsif e.rexpr.kind_of?(Expression) and e.rexpr.op == :& and
+			      e.rexpr.rexpr.kind_of?(::Integer) and e.rexpr.rexpr & mask == mask
+				# (a + (b&m)) & m  =>  (a+b) & m
+				Expression[[e.lexpr, e.op, e.rexpr.lexpr], :&, mask].reduce_rec
+			else
+				Expression[e, :&, mask]
+			end
+		when :|
+			# rol/ror composition
+			reduce_rec_composerol e, mask
+		else
+			Expression[e, :&, mask]
+		end
+	end
+
 	# a check to see if an Expr is the composition of two rotations (rol eax, 4 ; rol eax, 6 => rol eax, 10)
 	# this is a bit too ugly to stay in the main reduce_rec body.
-	def reduce_rec_composerol
-		m = Expression[[['var', :sh_op, 'amt'], :|, ['var', :inv_sh_op, 'inv_amt']], :&, 'mask']
-		if vars = Expression[l, :&, r].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and vars[:sh_op] == {:>> => :<<, :<< => :>>}[ vars[:inv_sh_op]] and
+	def reduce_rec_composerol(e, mask)
+		m = Expression[['var', :sh_op, 'amt'], :|, ['var', :inv_sh_op, 'inv_amt']]
+		if vars = e.match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt') and vars[:sh_op] == {:>> => :<<, :<< => :>>}[vars[:inv_sh_op]] and
 		   ((vars['amt'].kind_of?(::Integer) and  vars['inv_amt'].kind_of?(::Integer) and ampl = vars['amt'] + vars['inv_amt']) or
 		    (vars['amt'].kind_of? Expression and vars['amt'].op == :% and vars['amt'].rexpr.kind_of? ::Integer and
 		     vars['inv_amt'].kind_of? Expression and vars['inv_amt'].op == :% and vars['amt'].rexpr == vars['inv_amt'].rexpr and ampl = vars['amt'].rexpr)) and
-		   vars['mask'].kind_of?(::Integer) and vars['mask'] == (1<<ampl)-1 and vars['var'].kind_of? Expression and	# it's a rotation
+		   mask == (1<<ampl)-1 and vars['var'].kind_of? Expression and	# it's a rotation
 
-		  ivars = vars['var'].match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt', 'mask') and ivars[:sh_op] == {:>> => :<<, :<< => :>>}[ivars[:inv_sh_op]] and
+		   vars['var'].op == :& and vars['var'].rexpr == mask and
+		  ivars = vars['var'].lexpr.match(m, 'var', :sh_op, 'amt', :inv_sh_op, 'inv_amt') and ivars[:sh_op] == {:>> => :<<, :<< => :>>}[ivars[:inv_sh_op]] and
 		   ((ivars['amt'].kind_of?(::Integer) and  ivars['inv_amt'].kind_of?(::Integer) and ampl = ivars['amt'] + ivars['inv_amt']) or
 		    (ivars['amt'].kind_of? Expression and ivars['amt'].op == :% and ivars['amt'].rexpr.kind_of? ::Integer and
-		     ivars['inv_amt'].kind_of? Expression and ivars['inv_amt'].op == :% and ivars['amt'].rexpr == ivars['inv_amt'].rexpr and ampl = ivars['amt'].rexpr)) and
-		   ivars['mask'].kind_of?(::Integer) and ivars['mask'] == (1<<ampl)-1 and ivars['mask'] == vars['mask']		# it's a composed rotation
+		     ivars['inv_amt'].kind_of? Expression and ivars['inv_amt'].op == :% and ivars['amt'].rexpr == ivars['inv_amt'].rexpr and ampl = ivars['amt'].rexpr))
 			if ivars[:sh_op] != vars[:sh_op]
 				# ensure the rotations are the same orientation
 				ivars[:sh_op], ivars[:inv_sh_op] = ivars[:inv_sh_op], ivars[:sh_op]
@@ -731,7 +782,9 @@ class Expression < ExpressionType
 			end
 			amt = Expression[[vars['amt'], :+, ivars['amt']], :%, ampl]
 			invamt = Expression[[vars['inv_amt'], :+, ivars['inv_amt']], :%, ampl]
-			Expression[[[ivars['var'], vars[:sh_op], amt], :|, [ivars['var'], vars[:inv_sh_op], invamt]], :&, vars['mask']].reduce_rec
+			Expression[[[[ivars['var'], :&, mask], vars[:sh_op], amt], :|, [[ivars['var'], :&, mask], vars[:inv_sh_op], invamt]], :&, mask].reduce_rec
+		else
+			Expression[e, :&, mask]
 		end
 	end
 

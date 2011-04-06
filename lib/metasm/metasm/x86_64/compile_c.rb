@@ -28,6 +28,10 @@ class CCompiler < C::Compiler
 		# variable => register for current scope (variable never on the stack)
 		# bound registers are also in +used+
 		attr_accessor :bound
+		# list of reg values that are used as func args in current ABI
+		attr_accessor :regargs
+		# stack space reserved for subfunction in ABI
+		attr_accessor :args_space
 		# list of reg values that are not kept across function call
 		attr_accessor :abi_flushregs_call
 		# list of regs we can trash without restoring them
@@ -46,6 +50,8 @@ class CCompiler < C::Compiler
 			@used = [4]	# rsp is always in use
 			@inuse = []
 			@bound = {}
+			@regargs = []
+			@args_space = 0
 			@abi_flushregs_call = [0, 1, 2, 6, 7, 8, 9, 10, 11]
 			@abi_trashregs = @abi_flushregs_call.dup
 		end
@@ -205,19 +211,27 @@ class CCompiler < C::Compiler
 	# may return a register bigger than the type size (eg __int8 are stored in full reg size)
 	def make_volatile(e, type, rsz=@cpusz)
 		if e.kind_of? ModRM or @state.bound.index(e)
-			if type.integral?
+			if type.integral? or type.pointer?
 				oldval = @state.cache[e]
 				unuse e
-				if (sz = typesize[type.name]*8) < @cpusz or sz < rsz or e.sz < rsz
+				sz = typesize[type.pointer? ? :ptr : type.name]*8
+				if sz < @cpusz or sz < rsz or e.sz < rsz
 					e2 = inuse findreg(rsz)
 					op = ((type.specifier == :unsigned) ? 'movzx' : 'movsx')
 					op = 'mov' if e.sz == e2.sz
-					op = 'movsxd' if op == 'movsx' and e2.sz == 64 and e.sz == 32
+					if e2.sz == 64 and e.sz == 32
+						if op == 'movsx'
+							instr 'movsxd', e2, e
+				else
+							instr 'mov', Reg.new(e2.val, 32), e
+				end
+					else
+				instr op, e2, e
+					end
 				else
 					e2 = inuse findreg(sz)
-					op = 'mov'
+					instr 'mov', e2, e
 				end
-				instr op, e2, e
 				@state.cache[e2] = oldval if oldval and e.kind_of? ModRM
 				e2
 			elsif type.float?
@@ -227,7 +241,7 @@ class CCompiler < C::Compiler
 		elsif e.kind_of? Address
 			make_volatile resolve_address(e), type, rsz
 		elsif e.kind_of? Expression
-			if type.integral?
+			if type.integral? or type.pointer?
 				e2 = inuse findreg
 				instr 'mov', e2, e
 				e2
@@ -237,6 +251,22 @@ class CCompiler < C::Compiler
 		else
 			e
 		end
+	end
+
+	# takes an argument, if the argument is an integer that does not fit in an i32, moves it to a temp reg
+	# the reg is unused, so use this only right when generating the offending instr (eg cmp, add..)
+	def i_to_i32(v)
+		if v.kind_of? Expression and i = v.reduce and i.kind_of?(Integer)
+			i &= 0xffff_ffff_ffff_ffff
+			if i <= 0x7fff_ffff
+			elsif i >= (1<<64)-0x8000_0000
+				v = Expression[Expression.make_signed(i, 64)]
+			else
+				v = make_volatile(v)
+				unuse v
+			end
+		end
+		v
 	end
 
 	# returns the instruction suffix for a comparison operator
@@ -283,7 +313,7 @@ class CCompiler < C::Compiler
 		when :-
 			r = c_cexpr_inner(expr.rexpr)
 			r = make_volatile(r, expr.type)
-			if expr.type.integral?
+			if expr.type.integral? or expr.type.pointer?
 				instr 'neg', r
 			elsif expr.type.float?
 				raise 'float unhandled'
@@ -293,7 +323,7 @@ class CCompiler < C::Compiler
 		when :'++', :'--'
 			r = c_cexpr_inner(expr.rexpr)
 			inc = true if expr.op == :'++'
-			if expr.type.integral?
+			if expr.type.integral? or expr.type.pointer?
 				op = (inc ? 'inc' : 'dec')
 				instr op, r
 			elsif expr.type.float?
@@ -332,7 +362,7 @@ class CCompiler < C::Compiler
 		when :'!'
 			r = c_cexpr_inner(expr.rexpr)
 			r = make_volatile(r, expr.rexpr.type)
-			if expr.rexpr.type.integral?
+			if expr.rexpr.type.integral? or expr.type.pointer?
 				r = make_volatile(r, expr.rexpr.type)
 				instr 'test', r, r
 			elsif expr.rexpr.type.float?
@@ -348,12 +378,11 @@ class CCompiler < C::Compiler
 
 	# compile a cast (BaseType to BaseType)
 	def c_cexpr_inner_cast(expr, r)
-		esp = Reg.new(4, @cpusz)
 		if expr.type.float? or expr.rexpr.type.float?
 			raise 'float unhandled'
-		elsif expr.type.integral? and expr.rexpr.type.integral?
-			tto   = typesize[expr.type.name]*8
-			tfrom = typesize[expr.rexpr.type.name]*8
+		elsif (expr.type.integral? or expr.type.pointer?) and (expr.rexpr.type.integral? or expr.rexpr.type.pointer?)
+			tto   = typesize[expr.type.pointer? ? :ptr : expr.type.name]*8
+			tfrom = typesize[expr.rexpr.type.pointer? ? :ptr : expr.rexpr.type.name]*8
 			r = resolve_address r if r.kind_of? Address
 			if r.kind_of? Expression
 				r = make_volatile r, expr.type
@@ -366,7 +395,7 @@ class CCompiler < C::Compiler
 					inuse r
 				when Reg
 					if r.sz == 64 and tto == 32
-						instr 'movzx', r, Reg.new(r.val, tto)
+						instr 'mov', Reg.new(r.val, tto), Reg.new(r.val, tto)
 					else
 						instr 'and', r, Expression[(1<<tto)-1] if r.sz > tto
 					end
@@ -376,8 +405,15 @@ class CCompiler < C::Compiler
 					unuse r
 					reg = inuse findreg
 					op = (r.sz == reg.sz ? 'mov' : (expr.rexpr.type.specifier == :unsigned ? 'movzx' : 'movsx'))
-					op = 'movsxd' if op == 'movsx' and reg.sz == 64 and r.sz == 32
+					if reg.sz == 64 and r.sz == 32
+						if op == 'movsx'
+							instr 'movsxd', reg, r
+						else
+							instr 'mov', Reg.new(reg.val, 32), r
+						end
+					else
 					instr op, reg, r
+					end
 					r = reg
 				end
 			end
@@ -400,6 +436,7 @@ class CCompiler < C::Compiler
 			l
 		when :'+', :'-', :'*', :'/', :'%', :'^', :'&', :'|', :'<<', :'>>'
 			# both sides are already cast to the same type by the precompiler
+			# XXX fptrs are not #integral? ...
 			if expr.type.integral? and expr.type.name == :ptr and expr.lexpr.type.kind_of? C::BaseType and
 				typesize[expr.lexpr.type.name] == typesize[:ptr]
 				expr.lexpr.type.name = :ptr
@@ -507,13 +544,13 @@ class CCompiler < C::Compiler
 			c_cexpr_inner_arith(l, expr.op, r, expr.type)
 			l
 		when :'='
-			l = c_cexpr_inner(expr.lexpr)
 			r = c_cexpr_inner(expr.rexpr)
+			l = c_cexpr_inner(expr.lexpr)
 			raise 'bad lvalue ' + l.inspect if not l.kind_of? ModRM and not @state.bound.index(l)
 			r = resolve_address r if r.kind_of? Address
 			r = make_volatile(r, expr.type) if l.kind_of? ModRM and r.kind_of? ModRM
 			unuse r
-			if expr.type.integral?
+			if expr.type.integral? or expr.type.pointer?
 				if r.kind_of? Address
 					m = r.modrm.dup
 					m.sz = l.sz
@@ -550,8 +587,8 @@ class CCompiler < C::Compiler
 			l = make_volatile(l, expr.type)
 			r = c_cexpr_inner(expr.rexpr)
 			unuse r
-			if expr.lexpr.type.integral?
-				instr 'cmp', l, r
+			if expr.lexpr.type.integral? or expr.lexpr.type.pointer?
+				instr 'cmp', l, i_to_i32(r)
 			elsif expr.lexpr.type.float?
 				raise 'float unhandled'
 			else raise 'bad comparison ' + expr.to_s
@@ -568,21 +605,24 @@ class CCompiler < C::Compiler
 	# compiles a subroutine call
 	def c_cexpr_inner_funcall(expr)
 		backup = []
-		if @parser.lexer.definition['__MS_X86_64_ABI__']
-			args_space = 32
-			regargs = [1, 2, 8, 9]
-		else
-			args_space = 0
-			regargs = [7, 6, 2, 1, 8, 9]
+		rax = Reg.new(0, 64)
+
+		ft = expr.lexpr.type
+		ft = ft.pointed if ft.pointer?
+		ft = nil if not ft.kind_of? C::Function
+
+		arglist = expr.rexpr.dup
+		regargsmask = @state.regargs.dup
+		if ft
+			ft.args.each_with_index { |a, i|
+				if rn = a.has_attribute_var('register')
+					regargsmask.insert(i, Reg.from_str(rn).val)
 		end
-		regargs_used = regargs[0, expr.rexpr.length]
-		regs = (@state.abi_flushregs_call | regargs_used)
-		if expr.lexpr.kind_of? C::Variable and expr.lexpr.type.kind_of? C::Function and expr.lexpr.type.varargs and args_space == 0
-			hidden_rax_arg = true
-			regs << 0	# gcc stores here the nr of xmm args passed, real args are passed the standard way
-					# TODO check visualstudio ?
+			}
 		end
-		regs.each { |reg|
+		regargsmask = regargsmask[0, expr.rexpr.length]
+
+		(@state.abi_flushregs_call | regargsmask.compact.uniq).each { |reg|
 			next if reg == 4
 			next if reg == 5 and @state.saved_rbp
 			if not @state.used.include? reg
@@ -593,9 +633,17 @@ class CCompiler < C::Compiler
 			end
 			backup << reg
 			instr 'push', Reg.new(reg, 64)
+			@state.used.delete reg
 		}
-		expr.rexpr[regargs.length..-1].to_a.reverse_each { |arg|
-			raise 'arg unhandled' if not arg.type.integral?
+
+		stackargs = expr.rexpr.zip(regargsmask).map { |a, r| a if not r }.compact
+
+		# preserve 16byte stack align under windows
+		stackalign = true if (stackargs + backup).length & 1 == 1
+		instr 'push', rax if stackalign
+
+		stackargs.reverse_each { |arg|
+			raise 'arg unhandled' if not arg.type.integral? or arg.type.pointer?
 			a = c_cexpr_inner(arg)
 			a = resolve_address a if a.kind_of? Address
 			a = make_volatile(a, arg.type) if a.kind_of? ModRM and arg.type.name != :__int64
@@ -604,18 +652,25 @@ class CCompiler < C::Compiler
 		}
 
 		regargs_unuse = []
-		regargs_used.zip(expr.rexpr).each { |ra, arg|
+		regargsmask.zip(expr.rexpr).each { |ra, arg|
+			next if not arg or not ra
 			a = c_cexpr_inner(arg)
 			a = resolve_address a if a.kind_of? Address
 			r = Reg.new(ra, a.respond_to?(:sz) ? a.sz : 64)
-			instr 'mov', r, a
+			instr 'mov', r, a if not a.kind_of? Reg or a.val != r.val
 			unuse a
 			regargs_unuse << r if not @state.inuse.include? ra
-			inuse r		# XXX xchg already used regargs ?
+			inuse r
 		}
-		instr 'sub', Reg.new(4, 64), Expression[args_space] if args_space > 0	# TODO prealloc that at func start
+		instr 'sub', Reg.new(4, 64), Expression[@state.args_space] if @state.args_space > 0	# TODO prealloc that at func start
 
-		instr 'xor', Reg.new(0, 64), Reg.new(0, 64) if hidden_rax_arg
+		if ft.kind_of? C::Function and ft.varargs and @state.args_space == 0
+			# gcc stores here the nr of xmm args passed, real args are passed the standard way
+			# TODO check visualstudio/ms ABI
+			instr 'xor', rax, rax
+			inuse rax
+		end
+
 
 		if expr.lexpr.kind_of? C::Variable and expr.lexpr.type.kind_of? C::Function
 			instr 'call', Expression[expr.lexpr.name]
@@ -624,15 +679,15 @@ class CCompiler < C::Compiler
 			unuse ptr
 			ptr = make_volatile(ptr, expr.lexpr.type) if ptr.kind_of? Address
 			instr 'call', ptr
-			f = expr.lexpr
-			f = f.rexpr while f.kind_of? C::CExpression and not f.op and f.type == f.rexpr.type
 		end
 		regargs_unuse.each { |r| unuse r }
-		argsz = args_space + [expr.rexpr.length - regargs.length, 0].max * 8
+		argsz = @state.args_space + stackargs.length * 8
+		argsz += 8 if stackalign
 		instr 'add', Reg.new(4, @cpusz), Expression[argsz] if argsz > 0
 
 		@state.abi_flushregs_call.each { |reg| flushcachereg reg }
-		if @state.used.include? 0
+		@state.used |= backup
+		if @state.used.include?(0)
 			retreg = inuse findreg
 		else
 			retreg = inuse getreg(0)
@@ -652,7 +707,7 @@ class CCompiler < C::Compiler
 	def c_cexpr_inner_arith(l, op, r, type)
 		# optimizes *2 -> <<1
 		if r.kind_of? Expression and (rr = r.reduce).kind_of? ::Integer
-			if type.integral?
+			if type.integral? or type.pointer?
 				log2 = lambda { |v|
 					# TODO lol
 					i = 0
@@ -697,7 +752,7 @@ class CCompiler < C::Compiler
 		when 'add', 'sub', 'and', 'or', 'xor'
 			r = make_volatile(r, type) if l.kind_of? ModRM and r.kind_of? ModRM
 			unuse r
-			instr op, l, r
+			instr op, l, i_to_i32(r)
 		when 'shr', 'sar', 'shl'
 			if r.kind_of? Expression
 				instr op, l, r
@@ -736,7 +791,7 @@ class CCompiler < C::Compiler
 				instr 'push', rax
 				saved_rax = true
 			end
-			if @state.used.include? rdx.val
+			if @state.used.include? rdx.val and lv != rdx.val
 				instr 'push', rdx
 				saved_rdx = true
 			end
@@ -754,9 +809,7 @@ class CCompiler < C::Compiler
 				instr 'mov', rdx, Expression[0]
 				instr 'div', r
 			else
-				# XXX cdq ?
-				instr 'mov', rdx, rax
-				instr 'sar', rdx, Expression[0x1f]
+				instr 'cdq'
 				instr 'idiv', r
 			end
 			unuse r
@@ -808,20 +861,24 @@ class CCompiler < C::Compiler
 	end
 
 	def c_ifgoto(expr, target)
-		case expr.op
+		case o = expr.op
 		when :<, :>, :<=, :>=, :==, :'!='
 			l = c_cexpr_inner(expr.lexpr)
 			r = c_cexpr_inner(expr.rexpr)
 			r = make_volatile(r, expr.type) if r.kind_of? ModRM and l.kind_of? ModRM
+			if l.kind_of? Expression
+				o = { :< => :>, :> => :<, :>= => :<=, :<= => :>= }[o] || o
+				l, r = r, l
+			end
 			unuse l, r
-			if expr.lexpr.type.integral?
+			if expr.lexpr.type.integral? or expr.lexpr.type.pointer?
 				r = Reg.new(r.val, l.sz) if r.kind_of? Reg and r.sz != l.sz	# XXX
-				instr 'cmp', l, r
+				instr 'cmp', l, i_to_i32(r)
 			elsif expr.lexpr.type.float?
 				raise 'float unhandled'
 			else raise 'bad comparison ' + expr.to_s
 			end
-			op = 'j' + getcc(expr.op, expr.lexpr.type)
+			op = 'j' + getcc(o, expr.lexpr.type)
 			instr op, Expression[target]
 		when :'!'
 			r = c_cexpr_inner(expr.rexpr)
@@ -867,26 +924,37 @@ class CCompiler < C::Compiler
 
 	def c_init_state(func)
 		@state = State.new(func)
-		al = typesize[:ptr]
 		args = func.type.args.dup
 		if @parser.lexer.definition['__MS_X86_64_ABI__']
-			# TODO move regs to stack if &arg0
-			args_space = 32
-			regargs = [1, 2, 8, 9]
+			@state.args_space = 32
+			@state.regargs = [1, 2, 8, 9]
 		else
-			args_space = 0
-			regargs = [7, 6, 2, 1, 8, 9]
+			@state.args_space = 0
+			@state.regargs = [7, 6, 2, 1, 8, 9]
 		end
-		regargs.each { |ra|
-			break if args.empty?
-			@state.bound[args.shift] = Reg.new(ra, @cpusz)
-		}
-		argoff = 2*al + args_space
-		args.each { |a|
-			@state.offset[a] = -argoff
-			argoff = (argoff + sizeof(a) + al - 1) / al * al
-		}
 		c_reserve_stack(func.initializer)
+		off = @state.offset.values.max.to_i
+		off = 0 if off < 0
+
+		argoff = 2*8 + @state.args_space
+		rlist = @state.regargs.dup
+		args.each { |a|
+			if a.has_attribute_var('register')
+				off = c_reserve_stack_var(a, off)
+				@state.offset[a] = off
+			elsif r = rlist.shift
+				if @state.args_space > 0
+					# use reserved space to spill regargs
+					off = -16-8*@state.regargs.index(r)
+				else
+					off = c_reserve_stack_var(a, off)
+				end
+				@state.offset[a] = off
+			else
+			@state.offset[a] = -argoff
+				argoff = (argoff + sizeof(a) + 7) / 8 * 8
+			end
+		}
 		if not @state.offset.values.grep(::Integer).empty?
 			@state.saved_rbp = Reg.new(5, @cpusz)
 			@state.used << 5
@@ -896,16 +964,32 @@ class CCompiler < C::Compiler
 	def c_prolog
 		localspc = @state.offset.values.grep(::Integer).max
 		return if @state.func.attributes.to_a.include? 'naked'
+		@state.dirty -= @state.abi_trashregs
 		if localspc
-			al = typesize[:ptr]
-			localspc = (localspc + al - 1) / al * al
+			localspc = (localspc + 7) / 8 * 8
+			if @state.args_space > 0 and (localspc/8 + @state.dirty.length) & 1 == 1
+				# ensure 16-o stack align on windows
+				localspc += 8
+			end
 			ebp = @state.saved_rbp
 			esp = Reg.new(4, ebp.sz)
 			instr 'push', ebp
 			instr 'mov', ebp, esp
 			instr 'sub', esp, Expression[localspc] if localspc > 0
+
+			rlist = @state.regargs.dup
+			@state.func.type.args.each { |a|
+				if rn = a.has_attribute_var('register')
+					r = Reg.from_str(rn).val
+				elsif r = rlist.shift
+				else next
+				end
+				v = findvar(a)
+				instr 'mov', v, Reg.new(r, v.sz)
+			}
+		elsif @state.args_space > 0 and @state.dirty.length & 1 == 0
+			instr 'sub', Reg.new(4, @cpusz), Expression[8]
 		end
-		@state.dirty -= @state.abi_trashregs	# XXX ABI
 		@state.dirty.each { |reg|
 			instr 'push', Reg.new(reg, @cpusz)
 		}
@@ -913,17 +997,15 @@ class CCompiler < C::Compiler
 
 	def c_epilog
 		return if @state.func.attributes.to_a.include? 'naked'
-		# TODO revert dynamic array alloc
 		@state.dirty.reverse_each { |reg|
 			instr 'pop', Reg.new(reg, @cpusz)
 		}
 		if ebp = @state.saved_rbp
 			instr 'mov', Reg.new(4, ebp.sz), ebp
 			instr 'pop', ebp
+		elsif @state.args_space > 0 and @state.dirty.length & 1 == 0
+			instr 'add', Reg.new(4, @cpusz), Expression[8]
 		end
-		f = @state.func
-		al = typesize[:ptr]
-		argsz = f.type.args.inject(0) { |sum, a| sum += (sizeof(a) + al - 1) / al * al }
 		instr 'ret'
 	end
 

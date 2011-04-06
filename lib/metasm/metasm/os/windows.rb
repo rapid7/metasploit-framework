@@ -9,7 +9,7 @@ require 'metasm/dynldr'
 module Metasm
 class WinAPI < DynLdr
 	def self.api_not_found(lib, func)
-		puts "could not find symbol #{func.inspect} in #{lib.inspect}" if $VERBOSE
+		puts "could not find symbol #{func.name.inspect} in #{lib.inspect}" if $VERBOSE and not func.attributes.to_a.include?('optional')
 	end
 
 	new_api_c <<EOS, 'kernel32'
@@ -17,7 +17,7 @@ class WinAPI < DynLdr
 
 typedef char CHAR;
 typedef unsigned char BYTE;
-typedef unsigned short WORD;
+typedef unsigned short WORD, USHORT;
 typedef unsigned int UINT;
 typedef long LONG;
 typedef unsigned long ULONG, DWORD, *LPDWORD;
@@ -35,6 +35,7 @@ typedef void VOID, *PVOID, *LPVOID;
 typedef void *HANDLE;
 typedef void *HMODULE;
 
+#define INVALID_HANDLE_VALUE (HANDLE)-1
 #define DECLSPEC_IMPORT __declspec(dllimport)
 #define WINUSERAPI DECLSPEC_IMPORT
 #define WINBASEAPI DECLSPEC_IMPORT
@@ -163,22 +164,53 @@ typedef void *HMODULE;
 #define OUTPUT_DEBUG_STRING_EVENT   8
 #define RIP_EVENT                   9
 
+#define MAX_PATH 260
+
 #define EXCEPTION_NONCONTINUABLE 0x1    // Noncontinuable exception
 #define EXCEPTION_MAXIMUM_PARAMETERS 15 // maximum number of exception parameters
 
 typedef struct _EXCEPTION_RECORD {
 	DWORD ExceptionCode;
-	DWORD ExceptionFlags;
+	DWORD ExceptionFlags;		// noncontinuable
 	struct _EXCEPTION_RECORD *ExceptionRecord;
 	PVOID ExceptionAddress;
 	DWORD NumberParameters;
 	ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
 } EXCEPTION_RECORD, *PEXCEPTION_RECORD;
 
+typedef struct _EXCEPTION_RECORD32 {
+	DWORD ExceptionCode;
+	DWORD ExceptionFlags;
+	DWORD ExceptionRecord;
+	DWORD ExceptionAddress;
+	DWORD NumberParameters;
+	DWORD ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
+} EXCEPTION_RECORD32, *PEXCEPTION_RECORD32;
+
+typedef struct _EXCEPTION_RECORD64 {
+	DWORD ExceptionCode;
+	DWORD ExceptionFlags;
+	DWORD64 ExceptionRecord;
+	DWORD64 ExceptionAddress;
+	DWORD NumberParameters;
+	DWORD __unusedAlignment;
+	DWORD64 ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
+} EXCEPTION_RECORD64, *PEXCEPTION_RECORD64;
+
 typedef struct _EXCEPTION_DEBUG_INFO {
 	EXCEPTION_RECORD ExceptionRecord;
 	DWORD dwFirstChance;
 } EXCEPTION_DEBUG_INFO, *LPEXCEPTION_DEBUG_INFO;
+
+typedef struct _EXCEPTION_DEBUG_INFO32 {
+	EXCEPTION_RECORD32 ExceptionRecord;
+	DWORD dwFirstChance;
+} EXCEPTION_DEBUG_INFO32;
+
+typedef struct _EXCEPTION_DEBUG_INFO64 {
+	EXCEPTION_RECORD64 ExceptionRecord;
+	DWORD dwFirstChance;
+} EXCEPTION_DEBUG_INFO64;
 
 typedef struct _CREATE_THREAD_DEBUG_INFO {
 	HANDLE hThread;
@@ -235,10 +267,12 @@ typedef struct _DEBUG_EVENT {
 	DWORD dwDebugEventCode;
 	DWORD dwProcessId;
 	DWORD dwThreadId;
+	// DWORD pad64; (implicit)
 	union {
 		EXCEPTION_DEBUG_INFO Exception;
+		EXCEPTION_DEBUG_INFO32 Exception32;
 		CREATE_THREAD_DEBUG_INFO CreateThread;
-		CREATE_PROCESS_DEBUG_INFO CreateProcessInfo;
+		CREATE_PROCESS_DEBUG_INFO CreateProcess;
 		EXIT_THREAD_DEBUG_INFO ExitThread;
 		EXIT_PROCESS_DEBUG_INFO ExitProcess;
 		LOAD_DLL_DEBUG_INFO LoadDll;
@@ -248,33 +282,48 @@ typedef struct _DEBUG_EVENT {
 	} u;
 } DEBUG_EVENT, *LPDEBUG_EVENT;
 
-#define CONTEXT_i386    0x00010000
-#define CONTEXT86_CONTROL         (CONTEXT_i386 | 0x00000001L) // SS:SP, CS:IP, FLAGS, BP
-#define CONTEXT86_INTEGER         (CONTEXT_i386 | 0x00000002L) // AX, BX, CX, DX, SI, DI
-#define CONTEXT86_SEGMENTS        (CONTEXT_i386 | 0x00000004L) // DS, ES, FS, GS
-#define CONTEXT86_FLOATING_POINT  (CONTEXT_i386 | 0x00000008L) // 387 state
-#define CONTEXT86_DEBUG_REGISTERS (CONTEXT_i386 | 0x00000010L) // DB 0-3,6,7
-#define CONTEXT86_EXTENDED_REGISTERS  (CONTEXT_i386 | 0x00000020L) // cpu specific extensions
+// XXX conflict with structure name..
+#define CONTEXT_I386    0x00010000
+#define CONTEXT_AMD64   0x00100000
 
-#define CONTEXT86_FULL (CONTEXT86_CONTROL | CONTEXT86_INTEGER | CONTEXT86_SEGMENTS)
-#define CONTEXT86_ALL (CONTEXT86_FULL | CONTEXT86_FLOATING_POINT | CONTEXT86_DEBUG_REGISTERS | CONTEXT86_EXTENDED_REGISTERS)
+#define CONTEXT_CONTROL             0x00000001L // SS:SP, CS:IP, FLAGS, BP
+#define CONTEXT_INTEGER             0x00000002L // AX, BX, CX, DX, SI, DI
+#define CONTEXT_SEGMENTS            0x00000004L // DS, ES, FS, GS
+#define CONTEXT_FLOATING_POINT      0x00000008L // 387 state
+#define CONTEXT_DEBUG_REGISTERS     0x00000010L // DB 0-3,6,7
+#define CONTEXT_EXTENDED_REGISTERS  0x00000020L // cpu specific extensions
+#define CONTEXT_FULL (CONTEXT_CONTROL | CONTEXT_INTEGER | CONTEXT_SEGMENTS)
+#define CONTEXT_ALL (CONTEXT_FULL | CONTEXT_FLOATING_POINT | CONTEXT_DEBUG_REGISTERS | CONTEXT_EXTENDED_REGISTERS)
+
+#define CONTEXT_I386_FULL CONTEXT_I386 | CONTEXT_FULL
+#define CONTEXT_I386_ALL  CONTEXT_I386 | CONTEXT_ALL
+#define CONTEXT_AMD64_FULL CONTEXT_AMD64 | CONTEXT_FULL
+#define CONTEXT_AMD64_ALL  CONTEXT_AMD64 | CONTEXT_ALL
 
 #define MAXIMUM_SUPPORTED_EXTENSION     512
 #define SIZE_OF_80387_REGISTERS      80
 
+typedef struct _FPREG { BYTE b[10]; } FPREG;
+typedef struct _XMMREG { ULONGLONG lo, hi; } XMMREG;
+
 typedef struct _FLOATING_SAVE_AREA {
-	DWORD   ControlWord;
-	DWORD   StatusWord;
-	DWORD   TagWord;
+	WORD    ControlWord;
+	WORD    res0;
+	WORD    StatusWord;
+	WORD    res1;
+	WORD    TagWord;
+	WORD    res2;
 	DWORD   ErrorOffset;
-	DWORD   ErrorSelector;
+	WORD    ErrorSelector;
+	WORD    ErrorOpcode;
 	DWORD   DataOffset;
-	DWORD   DataSelector;
-	BYTE    RegisterArea[SIZE_OF_80387_REGISTERS];
+	WORD    DataSelector;
+	WORD    res3;
+	FPREG   St[8];
 	DWORD   Cr0NpxState;
 } FLOATING_SAVE_AREA, *PFLOATING_SAVE_AREA;
 
-typedef struct _CONTEXT {
+typedef struct _CONTEXT_I386 {
 	DWORD ContextFlags;
 	DWORD   Dr0;
 	DWORD   Dr1;
@@ -299,28 +348,81 @@ typedef struct _CONTEXT {
 	DWORD   EFlags;
 	DWORD   Esp;
 	DWORD   SegSs;
-	BYTE    ExtendedRegisters[MAXIMUM_SUPPORTED_EXTENSION];
-} CONTEXT, *LPCONTEXT;
 
+	XMMREG  Xmm[8];
 
-typedef struct _EXCEPTION_RECORD32 {
-	DWORD ExceptionCode;
-	DWORD ExceptionFlags;
-	DWORD ExceptionRecord;
-	DWORD ExceptionAddress;
-	DWORD NumberParameters;
-	DWORD ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
-} EXCEPTION_RECORD32, *PEXCEPTION_RECORD32;
+	BYTE   ExtendedRegisters[24*16];
+} *LPCONTEXT_I386, *LPCONTEXT;
 
-typedef struct _EXCEPTION_RECORD64 {
-	DWORD ExceptionCode;
-	DWORD ExceptionFlags;
-	DWORD64 ExceptionRecord;
-	DWORD64 ExceptionAddress;
-	DWORD NumberParameters;
-	DWORD __unusedAlignment;
-	DWORD64 ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
-} EXCEPTION_RECORD64, *PEXCEPTION_RECORD64;
+typedef struct _CONTEXT_AMD64 {
+	DWORD64 P1Home;	 // Register parameter home addresses.
+	DWORD64 P2Home;
+	DWORD64 P3Home;
+	DWORD64 P4Home;
+	DWORD64 P5Home;
+	DWORD64 P6Home;
+
+	DWORD ContextFlags;
+	DWORD MxCsr;
+
+	WORD   SegCs;
+	WORD   SegDs;
+	WORD   SegEs;
+	WORD   SegFs;
+	WORD   SegGs;
+	WORD   SegSs;
+	DWORD RFlags;
+
+	DWORD64 Dr0;
+	DWORD64 Dr1;
+	DWORD64 Dr2;
+	DWORD64 Dr3;
+	DWORD64 Dr6;
+	DWORD64 Dr7;
+
+	DWORD64 Rax;
+	DWORD64 Rcx;
+	DWORD64 Rdx;
+	DWORD64 Rbx;
+	DWORD64 Rsp;
+	DWORD64 Rbp;
+	DWORD64 Rsi;
+	DWORD64 Rdi;
+	DWORD64 R8;
+	DWORD64 R9;
+	DWORD64 R10;
+	DWORD64 R11;
+	DWORD64 R12;
+	DWORD64 R13;
+	DWORD64 R14;
+	DWORD64 R15;
+	DWORD64 Rip;
+
+	WORD ControlWord;
+	WORD StatusWord;
+	BYTE TagWord;
+	BYTE resv1;
+	WORD ErrorOpcode;
+	DWORD ErrorOffset;
+	WORD ErrorSelector;
+	WORD resv2;
+	DWORD DataAtOffset;
+	WORD DataSelector;
+	WORD resv3;
+	DWORD MxCsr_f;
+	DWORD MxCsrMask;
+	XMMREG ST[8];
+	XMMREG Xmm[16];
+
+	XMMREG Vector[26];
+	DWORD64 VectorControl;
+	
+	DWORD64 DebugControl;
+	DWORD64 LastBranchToRip;
+	DWORD64 LastBranchFromRip;
+	DWORD64 LastExceptionToRip;
+	DWORD64 LastExceptionFromRip;
+} *LPCONTEXT_AMD64;
 
 typedef struct _EXCEPTION_POINTERS {
 	PEXCEPTION_RECORD ExceptionRecord;
@@ -342,6 +444,7 @@ typedef struct _EXCEPTION_POINTERS {
 #define PROCESS_SET_INFORMATION   (0x0200)
 #define PROCESS_QUERY_INFORMATION (0x0400)
 #define PROCESS_SUSPEND_RESUME    (0x0800)
+#define PROCESS_QUERY_LIMITED_INFORMATION (0x1000)
 #define PROCESS_ALL_ACCESS        (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0xFFF)
 
 #define THREAD_TERMINATE               (0x0001)
@@ -353,6 +456,10 @@ typedef struct _EXCEPTION_POINTERS {
 #define THREAD_SET_THREAD_TOKEN        (0x0080)
 #define THREAD_IMPERSONATE             (0x0100)
 #define THREAD_DIRECT_IMPERSONATION    (0x0200)
+#define THREAD_SET_LIMITED_INFORMATION (0x0400)
+#define THREAD_QUERY_LIMITED_INFORMATION (0x0800)
+#define THREAD_ALL_ACCESS         (STANDARD_RIGHTS_REQUIRED | SYNCHRONIZE | 0x3FF)
+
 
 typedef struct _STARTUPINFOA {
 	DWORD   cb;
@@ -428,11 +535,13 @@ CreateRemoteThread(
 	__in      DWORD dwCreationFlags,
 	__out_opt LPDWORD lpThreadId);
 
+/* Vista onwards only..
 WINBASEAPI
 DWORD
 WINAPI
 GetThreadId(
 	__in HANDLE Thread);
+*/
 
 WINBASEAPI
 DWORD
@@ -503,11 +612,35 @@ SetThreadContext(
 	__in HANDLE hThread,
 	__in LPCONTEXT lpContext);
 
+WINBASEAPI
+BOOL
+WINAPI
+__attribute__((optional))
+Wow64GetThreadContext(
+	__in    HANDLE hThread,
+	__inout LPCONTEXT_I386 lpContext);
+
+WINBASEAPI
+BOOL
+WINAPI
+__attribute__((optional))
+Wow64SetThreadContext(
+	__in    HANDLE hThread,
+	__inout LPCONTEXT_I386 lpContext);
+
 ZEROOK
 WINBASEAPI
 DWORD
 WINAPI
 SuspendThread(
+	__in HANDLE hThread);
+
+ZEROOK
+WINBASEAPI
+DWORD
+WINAPI
+__attribute__((optional))
+Wow64SuspendThread(
 	__in HANDLE hThread);
 
 ZEROOK
@@ -630,7 +763,6 @@ VirtualProtectEx(
 #define TH32CS_SNAPTHREAD   0x00000004
 #define TH32CS_SNAPMODULE   0x00000008
 #define TH32CS_SNAPMODULE32 0x00000010
-#define TH32CS_SNAPALL      (TH32CS_SNAPHEAPLIST | TH32CS_SNAPPROCESS | TH32CS_SNAPTHREAD | TH32CS_SNAPMODULE)
 #define TH32CS_INHERIT      0x80000000
 
 HANDLE
@@ -639,6 +771,35 @@ CreateToolhelp32Snapshot(
 	DWORD dwFlags,
 	DWORD th32ProcessID
 );
+
+typedef struct tagPROCESSENTRY32
+{
+	DWORD   dwSize;
+	DWORD   cntUsage;
+	DWORD   th32ProcessID;
+	ULONG_PTR th32DefaultHeapID;
+	DWORD   th32ModuleID;
+	DWORD   cntThreads;
+	DWORD   th32ParentProcessID;
+	LONG    pcPriClassBase;
+	DWORD   dwFlags;
+	CHAR    szExeFile[MAX_PATH];
+} PROCESSENTRY32;
+
+BOOL
+WINAPI
+Process32First(
+	HANDLE hSnapshot,
+	PROCESSENTRY32 *lppe
+);
+BOOL
+WINAPI
+ZEROOK
+Process32Next(
+    HANDLE hSnapshot,
+    PROCESSENTRY32 *lppe
+);
+
 
 typedef struct tagTHREADENTRY32
 {
@@ -657,13 +818,69 @@ Thread32First(
 	HANDLE hSnapshot,
 	LPTHREADENTRY32 lpte
 );
-
 BOOL
 WINAPI
+ZEROOK
 Thread32Next(
 	HANDLE hSnapshot,
 	LPTHREADENTRY32 lpte
 );
+
+
+typedef struct tagHEAPLIST32
+{
+	SIZE_T dwSize;
+	DWORD  th32ProcessID;   // owning process
+	ULONG_PTR  th32HeapID;      // heap (in owning process context!)
+	DWORD  dwFlags;
+} HEAPLIST32, LPHEAPLIST32;
+
+#define HF32_DEFAULT      1  // process default heap
+#define HF32_SHARED       2  // is shared heap
+
+BOOL
+WINAPI
+Heap32ListFirst(
+     HANDLE hSnapshot,
+     LPHEAPLIST32 lphl
+);
+BOOL
+WINAPI
+ZEROOK
+Heap32ListNext(
+     HANDLE hSnapshot,
+     LPHEAPLIST32 lphl
+);
+
+
+typedef struct tagMODULEENTRY32
+{
+	DWORD   dwSize;
+	DWORD   th32ModuleID;
+	DWORD   th32ProcessID;
+	DWORD   GlblcntUsage;
+	DWORD   ProccntUsage;
+	ULONG_PTR modBaseAddr;
+	DWORD   modBaseSize;
+	HMODULE hModule;
+	char    szModule[256];
+	char    szExePath[MAX_PATH];
+} MODULEENTRY32;
+
+BOOL
+WINAPI
+Module32First(
+	HANDLE hSnapshot,
+	MODULEENTRY32 *lpme
+);
+BOOL
+WINAPI
+ZEROOK
+Module32Next(
+	HANDLE hSnapshot,
+	MODULEENTRY32 *lpme
+);
+
 
 typedef struct _MEMORY_BASIC_INFORMATION32 {
 	DWORD BaseAddress;
@@ -689,6 +906,7 @@ typedef struct _MEMORY_BASIC_INFORMATION64 {
 
 SIZE_T
 WINAPI
+ZEROOK
 VirtualQueryEx(
 	HANDLE hProcess,
 	LPVOID lpAddress,
@@ -696,6 +914,46 @@ VirtualQueryEx(
 	SIZE_T dwLength	// sizeof lpBuffer
 );
 
+typedef struct _LDT_ENTRY {
+	WORD  LimitLow;
+	WORD  BaseLow;
+	union {
+		struct {
+		BYTE BaseMid;
+		BYTE Flags1;
+		BYTE Flags2;
+		BYTE BaseHi;
+	} Bytes;
+	struct {
+		DWORD BaseMid  :8;
+		DWORD Type  :5;
+		DWORD Dpl  :2;
+		DWORD Pres  :1;
+		DWORD LimitHi  :4;
+		DWORD Sys  :1;
+		DWORD Reserved_0  :1;
+		DWORD Default_Big  :1;
+		DWORD Granularity  :1;
+		DWORD BaseHi  :8;
+	} Bits;
+	} HighWord;
+} LDT_ENTRY;
+
+BOOL
+WINAPI
+GetThreadSelectorEntry(
+	HANDLE hThread,
+	DWORD dwSelector,
+	LDT_ENTRY *lpSelectorEntry
+);
+
+BOOL
+WINAPI
+__attribute__((optional))
+IsWow64Process(
+	HANDLE hProcess,
+	BOOL *wow64
+);
 
 EOS
 
@@ -776,46 +1034,156 @@ OpenThreadToken (
 EOS
 	SE_DEBUG_NAME = 'SeDebugPrivilege'
 	
-	new_api_c <<EOS, 'psapi'
+	new_api_c <<EOS, 'ntdll'
 #line #{__LINE__}
 
-BOOL
-WINAPI
-EnumProcesses(
-	DWORD * lpidProcess,
-	DWORD   cb,
-	DWORD * cbNeeded);
+typedef LONG NTSTATUS;
 
-BOOL
-WINAPI
-EnumProcessModules(
-	HANDLE hProcess,
-	HMODULE *lphModule,
-	DWORD cb,
-	LPDWORD lpcbNeeded);
+typedef enum _PROCESSINFOCLASS {
+    ProcessBasicInformation,
+    ProcessQuotaLimits,
+    ProcessIoCounters,
+    ProcessVmCounters,
+    ProcessTimes,
+    ProcessBasePriority,
+    ProcessRaisePriority,
+    ProcessDebugPort,
+    ProcessExceptionPort,
+    ProcessAccessToken,
+    ProcessLdtInformation,
+    ProcessLdtSize,
+    ProcessDefaultHardErrorMode,
+    ProcessIoPortHandlers,
+    ProcessPooledUsageAndLimits,
+    ProcessWorkingSetWatch,
+    ProcessUserModeIOPL,
+    ProcessEnableAlignmentFaultFixup,
+    ProcessPriorityClass,
+    ProcessWx86Information,
+    ProcessHandleCount,
+    ProcessAffinityMask,
+    ProcessPriorityBoost,
+    ProcessDeviceMap,
+    ProcessSessionInformation,
+    ProcessForegroundInformation,
+    ProcessWow64Information,
+    ProcessImageFileName,
+    ProcessLUIDDeviceMapsEnabled,
+    ProcessBreakOnTermination,
+    ProcessDebugObjectHandle,
+    ProcessDebugFlags,
+    ProcessHandleTracing
+} PROCESSINFOCLASS;
 
-DWORD
+typedef enum _THREADINFOCLASS {
+    ThreadBasicInformation,
+    ThreadTimes,
+    ThreadPriority,
+    ThreadBasePriority,
+    ThreadAffinityMask,
+    ThreadImpersonationToken,
+    ThreadDescriptorTableEntry,
+    ThreadEnableAlignmentFaultFixup,
+    ThreadEventPair_Reusable,
+    ThreadQuerySetWin32StartAddress,
+    ThreadZeroTlsCell,
+    ThreadPerformanceCount,
+    ThreadAmILastThread,
+    ThreadIdealProcessor,
+    ThreadPriorityBoost,
+    ThreadSetTlsArrayAddress,
+    ThreadIsIoPending,
+    ThreadHideFromDebugger,
+    ThreadBreakOnTermination
+} THREADINFOCLASS;
+
+typedef enum _MEMORYINFOCLASS {
+    MemoryBasicInformation,
+    MemoryDunnoLol,
+    MemoryMapFileName
+} MEMORYINFOCLASS;
+
+typedef struct _CLIENT_ID {
+    HANDLE UniqueProcess;
+    HANDLE UniqueThread;
+} CLIENT_ID;
+
+typedef struct _PROCESS_BASIC_INFORMATION {
+    PVOID Reserved1;
+    PVOID PebBaseAddress;
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
+} PROCESS_BASIC_INFORMATION;
+
+typedef struct _THREAD_BASIC_INFORMATION {
+    NTSTATUS ExitStatus;
+    PVOID TebBaseAddress;
+    CLIENT_ID ClientId;
+    ULONG_PTR AffinityMask;
+    LONG Priority;
+    LONG BasePriority;
+} THREAD_BASIC_INFORMATION;
+
+typedef struct _UNICODE_STRING {
+    USHORT Length;
+    USHORT MaximumLength;
+    USHORT *Buffer;
+} UNICODE_STRING;
+
+ZEROOK
+NTSTATUS
 WINAPI
-GetModuleFileNameExA(
-	HANDLE hProcess,
-	HMODULE hModule,
-	LPSTR lpFilename,
-	DWORD nSize);
+NtQueryInformationProcess(
+	HANDLE ProcessHandle,
+	PROCESSINFOCLASS ProcessInformationClass,
+	PVOID ProcessInformation,
+	ULONG ProcessInformationLength,
+	ULONG *ReturnLength
+);
+
+ZEROOK
+NTSTATUS
+WINAPI
+NtQueryInformationThread (
+	HANDLE ThreadHandle,
+	THREADINFOCLASS ThreadInformationClass,
+	PVOID ThreadInformation,
+	ULONG ThreadInformationLength,
+	ULONG *ReturnLength
+);
+
+ZEROOK
+NTSTATUS
+WINAPI
+NtQueryVirtualMemory (
+	HANDLE ProcessHandle,
+	PVOID BaseAddress,
+	MEMORYINFOCLASS MemoryInformationClass,
+	PVOID MemoryInformation,
+	ULONG MemoryInformationLength,
+	ULONG *ReturnLength
+);
+
 EOS
  
 	# convert a native function return value
 	# if the native does not have the zero_not_fail attribute, convert 0
 	#  to nil, and print a message on stdout
         def self.convert_ret_c2rb(fproto, ret)
+		@last_err_msg = nil
 		if ret == 0 and not fproto.has_attribute 'zero_not_fail'
-			puts "WinAPI: error in #{fproto.name}: #{last_error_msg}" if $VERBOSE
+			# save error msg so that last_error_msg returns the same thing if called again
+			puts "WinAPI: error in #{fproto.name}: #{@last_err_msg = last_error_msg}" if $VERBOSE
 			nil
 		else super(fproto, ret)
 		end
 	end
 
 	# retrieve the textual error message relative to GetLastError
-	def self.last_error_msg(errno = getlasterror)
+	def self.last_error_msg(errno = nil)
+		return @last_err_msg if @last_err_msg
+		errno ||= getlasterror
 		message = ' '*512
 		if formatmessagea(FORMAT_MESSAGE_FROM_SYSTEM, nil, errno, 0, message, message.length, nil) == 0
 			message = 'unknown error %x' % errno
@@ -829,68 +1197,57 @@ end
 
 class WinOS < OS
 	class Process < OS::Process
+		attr_accessor :ppid
+		def initialize(pid, handle=nil)
+			@pid = pid
+			@handle = handle
+		end
+
 		# on-demand cached openprocess(ALL_ACCESS) handle
 		def handle
 			@handle ||= WinAPI.openprocess(WinAPI::PROCESS_ALL_ACCESS, 0, @pid)
 		end
-		def handle=(h) @handle = h end
+		attr_writer :handle
 
 		# return/create a WindowsRemoteString
 		def memory
 			@memory ||= WindowsRemoteString.new(handle)
 		end
-		def memory=(m) @memory = m end
+		attr_writer :memory
 
 		def debugger
 			@debugger ||= WinDebugger.new(@pid)
 		end
-		def debugger=(d) @debugger = d end
+		attr_writer :debugger
 
 		# returns the memory address size of the target process
-		# hardcoded to 32 for now
-		def addrsz; 32 ; end
-
-		# retrieve the process Module list from EnumProcessModules & GetModuleFileNameExA
-		# returns nil if we couldn't openprocess
-		def modules
-			oldverb, $VERBOSE = $VERBOSE, false	# avoid warning pollution from getmodfnamea
-
-			self.handle
-			# if we couldn't open a handle with ALL_ACCESS, retry with minimal rights
-			@handle ||= WinAPI.openprocess(WinAPI::PROCESS_QUERY_INFORMATION | WinAPI::PROCESS_VM_READ, 0, @pid)
-			return if not @handle
-			mods = ' '*4096
-			len = [0].pack('L')
-			ret = []
-			if WinAPI.enumprocessmodules(@handle, mods, mods.length, len)
-				len = len.unpack('L').first
-				mods[0, len].unpack('L*').each { |mod|
-					path = ' ' * 512
-					m = Process::Module.new
-					m.addr = mod
-					if len = WinAPI.getmodulefilenameexa(handle, mod, path, path.length)
-						m.path = path[0, len]
+		def addrsz
+			@addrsz ||= if WinAPI.respond_to?(:iswow64process)
+				byte = 0.chr*8
+				if WinAPI.iswow64process(handle, byte)
+					if byte != 0.chr*8
+						32 # target = wow64
+					elsif WinAPI.iswow64process(WinAPI.getcurrentprocess, byte) and byte != 0.chr*8
+						64 # us = wow64, target is not
+					else
+						WinAPI.host_cpu.size
 					end
-					ret << m
-				}
+				else
+					WinAPI.host_cpu.size
 			end
-			ret
-		ensure
-			$VERBOSE = oldverb
+			end
 		end
 
-		# return the list of threads in the current process
+		def modules
+			WinOS.list_modules(@pid)
+		end
+
 		def threads
-			h = WinAPI.createtoolhelp32snapshot(WinAPI::TH32CS_SNAPTHREAD, 0)
-			list = []
-			te = WinAPI.alloc_c_struct('THREADENTRY32', :dwsize => :size)
-			return if not WinAPI.thread32first(h, te)
-			loop do
-				list << te['th32threadid'] if te['th32ownerprocessid'] == pid
-				break if not WinAPI.thread32next(h, te)
+			WinOS.list_threads(@pid)
 			end
-			WinAPI.closehandle(h)
-			list
+
+		def heaps
+			WinOS.list_heaps(@pid)
 		end
 
 		# return a list of [addr_start, length, perms]
@@ -898,10 +1255,13 @@ class WinOS < OS
 			addr = 0
 			list = []
 			info = WinAPI.alloc_c_struct("MEMORY_BASIC_INFORMATION#{addrsz}")
+			path = [0xff].pack('C') * 512
 
-			while WinAPI.virtualqueryex(handle, addr, info, info.length)
-				addr += info[:regionsize]
-				next unless info[:state] & WinAPI::MEM_COMMIT > 0
+			hcache = heaps
+
+			while WinAPI.virtualqueryex(handle, addr, info, info.length) != 0
+				addr += info.regionsize
+				next unless info.state & WinAPI::MEM_COMMIT > 0
 
 				prot = {
 					WinAPI::PAGE_NOACCESS => '---',
@@ -916,16 +1276,199 @@ class WinOS < OS
 				prot << 'g' if info[:protect] & WinAPI::PAGE_GUARD > 0
 				prot << 'p' if info[:type]    & WinAPI::MEM_PRIVATE > 0
 
-				list << [info[:baseaddress], info[:regionsize], prot]
+				if h = hcache[info.baseaddress]
+					a = []
+					a << 'default' if h[:default]
+					a << 'shared' if h[:shared]
+					a << 'heap'
+					#a << h[:flags].to_s(16)
+					cmt = '[' + a.join(' ') + ']'
+				elsif WinAPI.ntqueryvirtualmemory(handle, info.baseaddress, WinAPI::MEMORYMAPFILENAME, path, path.length, 0) == 0
+					us = WinAPI.decode_c_struct('UNICODE_STRING', path)
+					s = WinAPI.decode_c_ary('USHORT', us['Length']/2, WinAPI.memory_read(us['Buffer'], us['MaximumLength']))
+					cmt = s.to_strz
+				else
+					cmt = ''
+				end
+
+				list << [info.baseaddress, info.regionsize, prot, cmt]
 			end
 
 			list
+		end
+
+		def peb_base
+			@peb_base ||=
+			if WinAPI.respond_to?(:ntqueryinformationprocess)
+				pinfo = WinAPI.alloc_c_struct('PROCESS_BASIC_INFORMATION')
+				if WinAPI.ntqueryinformationprocess(handle, WinAPI::PROCESSBASICINFORMATION, pinfo, pinfo.length, 0) == 0
+					pinfo.pebbaseaddress
+				end
+			else
+				# pre-NT: all pebs should have the same addr
+				WinAPI.new_func_asm('unsigned get_peb(void)', 'mov eax, fs:[30h] ret') { WinAPI.get_peb }
+			end
+		end
+		attr_writer :peb_base
+
+		def terminate(exitcode=0)
+			WinAPI.terminateprocess(handle, exitcode)
+		end
+	end
+
+	class Thread
+		attr_accessor :tid
+		attr_accessor :process
+
+		def initialize(tid, handle=nil, process=nil)
+			@tid = tid
+			@handle = handle
+			@process = process
+		end
+
+		def handle
+			@handle ||= WinAPI.openthread(WinAPI::THREAD_ALL_ACCESS, 0, @tid)
+		end
+		attr_writer :handle
+
+		# return the address of the TEB for the target thread
+		def teb_base
+			@teb_base ||=
+			if WinAPI.respond_to?(:ntqueryinformationthread)
+				tinfo = WinAPI.alloc_c_struct('THREAD_BASIC_INFORMATION')
+				if WinAPI.ntqueryinformationthread(handle, WinAPI::THREADBASICINFORMATION, tinfo, tinfo.length, 0) == 0
+					tinfo.tebbaseaddress
+				end
+			else
+				fs = context { |c| c[:fs] }
+				ldte = WinAPI.alloc_c_struct('LDT_ENTRY')
+				if WinAPI.getthreadselectorentry(handle, fs, ldte)
+					ldte.baselow | (ldte.basemid << 16) | (ldte.basehi << 24)
+				end
+			end
+		end
+		attr_writer :teb_base
+
+		# increment the suspend count of the target thread - stop at >0
+		def suspend
+			if WinAPI.host_cpu.size == 64 and process and process.addrsz == 32
+				WinAPI.wow64suspendthread(handle)
+			else
+				WinAPI.suspendthread(handle)
+			end
+		end
+
+		# decrease the suspend count of the target thread - runs at 0
+		def resume
+			WinAPI.resumethread(handle)
+		end
+
+		def terminate(exitcode=0)
+			WinAPI.terminatethread(handle, exitcode)
+		end
+
+		# returns a Context object. Can be reused, refresh the values with #update (target thread must be suspended)
+		# if a block is given, suspend the thread, update the context, yield it, and resume the thread
+		def context
+			@context ||= Context.new(self, :all)
+			if block_given?
+				suspend
+				@context.update
+				ret = yield @context
+				resume
+				ret
+			else
+				@context
+			end
+		end
+		attr_writer :context
+
+		class Context
+			def initialize(thread, kind=:all)
+				@handle = thread.handle
+				tg = thread.process ? thread.process.addrsz : 32
+				case WinAPI.host_cpu.shortname
+				when 'ia32', 'x64'; tg = ((tg == 32) ? 'ia32' : 'x64')
+				else raise "unsupported architecture #{tg}"
+				end
+
+				@getcontext = :getthreadcontext
+				@setcontext = :setthreadcontext
+				case tg
+				when 'ia32'
+					@context = WinAPI.alloc_c_struct('_CONTEXT_I386')
+					@context.contextflags = WinAPI::CONTEXT_I386_ALL
+					if WinAPI.host_cpu.shortname == 'x64'
+						@getcontext = :wow64getthreadcontext
+						@setcontext = :wow64setthreadcontext
+					end
+				when 'x64'
+					@context = WinAPI.alloc_c_struct('_CONTEXT_AMD64')
+					@context.contextflags = WinAPI::CONTEXT_AMD64_ALL
+				end
+			end
+
+			# update the context to reflect the current thread reg values
+			# call only when the thread is suspended
+			def update
+				WinAPI.send(@getcontext, @handle, @context)
+			end
+
+			def [](k)
+				case k.to_s
+				when /^[cdefgs]s$/i
+					@context["seg#{k}"]
+				when /^st(\d*)/i
+					v = @context['st'][$1.to_i]
+					buf = v.str[v.str_off, 10]
+					# TODO check this, 'D' is 8byte wide
+					buf.unpack('D')[0]
+				when /^xmm(\d+)/i
+					v = @context['xmm'][$1.to_i]
+					(v.hi << 64) | v.lo
+				when /^mmx?(\d+)/i
+					@context['xmm'][$1.to_i].lo
+				else
+					@context[k]
+				end
+			end
+
+			def []=(k, v)
+				case k.to_s
+				when /^[cdefgs]s$/i
+					@context["seg#{k}"] = v
+				when /^st(\d*)/i
+					# TODO check this, 'D' is 8byte wide
+					buf = [v, 0, 0].pack('DCC')
+					@context['st'][$1.to_i][0, 10] = buf
+				when /^xmm(\d+)/i
+					kk = @context['xmm'][$1.to_i]
+					kk.lo = v & ((1<<64)-1)
+					kk.hi = (v>>64) & ((1<<64)-1)
+				when /^mmx?(\d+)/i
+					@context['xmm'][$1.to_i].lo = v
+				else
+					@context[k] = v
+				end
+				WinAPI.send(@setcontext, @handle, @context)
+			end
+
+			def method_missing(m, *a)
+				if m.to_s[-1] == ?=
+					super(m, *a) if a.length != 1
+					send '[]=', m.to_s[0...-1], a[0]
+				else
+					super(m, *a) if a.length != 0
+					send '[]', m
+				end
+			end
 		end
 	end
 
 class << self
 	# try to enable debug privilege in current process
 	def get_debug_privilege
+		# TODO use real structs / new_func_c
 		htok = [0].pack('L')
 		return if not WinAPI.openprocesstoken(WinAPI.getcurrentprocess(), WinAPI::TOKEN_ADJUST_PRIVILEGES | WinAPI::TOKEN_QUERY, htok)
 		luid = [0, 0].pack('LL')
@@ -940,14 +1483,78 @@ class << self
 		true
 	end
 
-	# returns an array of Processes, with pid/module listing
+	# returns an array of Processes with pid/ppid/path filled
 	def list_processes
-		tab = ' '*4096
-		int = [0].pack('L')
-		return if not WinAPI.enumprocesses(tab, tab.length, int)
-		pids = tab[0, int.unpack('L').first].unpack('L*')
-		pids.map { |pid| Process.new(pid) }
+		h = WinAPI.createtoolhelp32snapshot(WinAPI::TH32CS_SNAPPROCESS, 0)
+		list = []
+		pe = WinAPI.alloc_c_struct('PROCESSENTRY32', :dwsize => :size)
+		return if not WinAPI.process32first(h, pe)
+		loop do
+			p = Process.new(pe.th32processid)
+			p.ppid = pe.th32parentprocessid
+			p.path = pe.szexefile.to_strz
+			list << p if p.pid != 0
+			break if WinAPI.process32next(h, pe) == 0
+		end
+		WinAPI.closehandle(h)
+		list
 	end
+
+	# retrieve the list of Modules for a process with addr/size/path filled
+	def list_modules(pid)
+		h = WinAPI.createtoolhelp32snapshot(WinAPI::TH32CS_SNAPMODULE, pid)
+		return [] if h == WinAPI::INVALID_HANDLE_VALUE
+		list = []
+		me = WinAPI.alloc_c_struct('MODULEENTRY32', :dwsize => :size)
+		return [] if not WinAPI.module32first(h, me)
+		loop do
+			m = Process::Module.new
+			m.addr = me.modbaseaddr
+			m.size = me.modbasesize
+			m.path = me.szexepath.to_strz
+			list << m
+			break if WinAPI.module32next(h, me) == 0
+		end
+		WinAPI.closehandle(h)
+		list
+	end
+
+	# returns the list of thread ids of the system, optionally filtering by pid
+	def list_threads(pid=nil)
+		h = WinAPI.createtoolhelp32snapshot(WinAPI::TH32CS_SNAPTHREAD, 0)
+		list = []
+		te = WinAPI.alloc_c_struct('THREADENTRY32', :dwsize => :size)
+		return [] if not WinAPI.thread32first(h, te)
+		loop do
+			list << te.th32threadid if not pid or te.th32ownerprocessid == pid
+			break if WinAPI.thread32next(h, te) == 0
+	end
+		WinAPI.closehandle(h)
+		list
+	end
+
+	# returns the heaps of the process, from a toolhelp snapshot SNAPHEAPLIST
+	# this is a hash
+	# heap_addr => { :flags => integer (heap flags)
+	#                :shared => bool (from flags)
+	#                :default => bool (from flags) }
+	def list_heaps(pid)
+		h = WinAPI.createtoolhelp32snapshot(WinAPI::TH32CS_SNAPHEAPLIST, pid)
+		return [] if h == WinAPI::INVALID_HANDLE_VALUE
+		ret = {}
+		he = WinAPI.alloc_c_struct('HEAPLIST32', :dwsize => :size)
+		return [] if not WinAPI.heap32listfirst(h, he)
+		loop do
+			hash = ret[he.th32heapid] = { :flags => he.dwflags }
+			hash[:default] = true if hash[:flags] & WinAPI::HF32_DEFAULT == WinAPI::HF32_DEFAULT
+			hash[:shared]  = true if hash[:flags] & WinAPI::HF32_SHARED  == WinAPI::HF32_SHARED
+			# TODO there are lots of other flags in there ! like 0x1000 / 0x8000
+			break if WinAPI.heap32listnext(h, he) == 0
+		end
+		WinAPI.closehandle(h)
+		ret
+	end
+
 
 	# create a debugger for the target pid/path
 	def create_debugger(path)
@@ -1011,18 +1618,37 @@ class << self
 
 	# returns a Process associated to the process handle
 	def open_process_handle(h)
-		pr = Process.new(WinAPI.getprocessid(h))
-		pr.handle = h
-		pr
+		pid = WinAPI.getprocessid(h) rescue 0
+		Process.new(pid, h)
 	end
 
 	# returns the Process associated to pid if it is alive
 	def open_process(pid)
-		if h = WinAPI.openprocess(WinAPI::PROCESS_QUERY_INFORMATION, 0, pid)	# check liveness
+		Process.new(pid) if check_process(pid)
+	end
+
+	# returns true if the process pid exists and we can open it with QUERY_INFORMATION
+	def check_process(pid)
+		if h = WinAPI.openprocess(WinAPI::PROCESS_QUERY_INFORMATION, 0, pid)
 			WinAPI.closehandle(h)
-			Process.new(pid)
+			true
 		end
 	end
+
+	# returns the Thread associated to a tid if it is alive
+	def open_thread(tid)
+		Thread.new(tid) if check_tid(tid)
+	end
+
+	# check if the thread is alive and can be read with QUERY_INFO
+	# and optionally if it belongs to pid
+	def check_tid(tid, pid=nil)
+		if h = WinAPI.openthread(WinAPI::THREAD_QUERY_INFORMATION, 0, tid)
+			WinAPI.closehandle(h)
+			not pid or list_threads(pid).include?(tid)
+		end
+	end
+
 end	# class << self
 end
 
@@ -1068,400 +1694,130 @@ class WindowsRemoteString < VirtualString
 	end
 end
 
-class WinDbgAPI
-	# pid => VirtualString
-	attr_accessor :mem
-	# pid => handle
-	attr_accessor :hprocess
-	# pid => (tid => handle)
-	attr_accessor :hthread
-
-	# creates a new debugger for target (a PID or an exe filename)
-	def initialize(target, debug_children = false)
-		@mem = {}
-		@hprocess = {}
-		@hthread = {}
-		begin
-			pid = Integer(target)
-			WinAPI.debugactiveprocess(pid)
-			WinAPI.debugsetprocesskillonexit(0) rescue nil
-			@mem[pid] = WindowsRemoteString.open_pid(pid)
-		rescue ArgumentError
-			# *(int*)&startupinfo = sizeof(startupinfo);
-			startupinfo = [17*[0].pack('L').length, *([0]*16)].pack('L*')
-			processinfo = [0, 0, 0, 0].pack('L*')
-			flags = WinAPI::DEBUG_PROCESS
-			flags |= WinAPI::DEBUG_ONLY_THIS_PROCESS if not debug_children
-			target = target.dup if target.frozen?
-			h = WinAPI.createprocessa(nil, target, nil, nil, 0, flags, nil, nil, startupinfo, processinfo)
-			raise "CreateProcess: #{WinAPI.last_error_msg}" if not h
-			hprocess, hthread, pid, tid = processinfo.unpack('LLLL')
-			WinAPI.closehandle(hthread)
-			@mem[pid] = WindowsRemoteString.new(hprocess) # need @mem not empty (terminate condition of debugloop)
-		end
-	end
-
-	# thread context (register values)
-	class Context
-		OFFSETS = {}
-		OFFSETS[:ctxflags] = 0
-		%w[dr0 dr1 dr2 dr3 dr6 dr7].each { |reg| OFFSETS[reg.to_sym] = OFFSETS.values.max + 4 }
-		OFFSETS[:fpctrl] = OFFSETS.values.max + 4
-		OFFSETS[:fpstatus] = OFFSETS.values.max + 4
-		OFFSETS[:fptag] = OFFSETS.values.max + 4
-		OFFSETS[:fperroffset] = OFFSETS.values.max + 4
-		OFFSETS[:fperrselect] = OFFSETS.values.max + 4
-		OFFSETS[:fpdataoffset] = OFFSETS.values.max + 4
-		OFFSETS[:fpdataselect] = OFFSETS.values.max + 4
-		OFFSETS[:fpregs] = OFFSETS.values.max + 4
-		OFFSETS[:fpcr0] = OFFSETS.values.max + 80
-		%w[gs fs es ds edi esi ebx edx ecx eax ebp eip cs eflags esp ss].each { |reg|
-			OFFSETS[reg.to_sym] = OFFSETS.values.max + 4
-		}
-
-		attr_accessor :hthread, :ctx
-		# retrieves the thread context
-		def initialize(hthread, flags)
-			@hthread = hthread
-			@ctx = [0].pack('C') * (OFFSETS.values.max + 4 + 512)
-			@flags = flags
-			update
-		end
-
-		def update(flags=@flags)
-			set_val(:ctxflags, flags)
-			WinAPI.getthreadcontext(@hthread, @ctx)
-		end
-
-		# returns the value of an unsigned int register
-		def [](reg)
-			raise "invalid register #{reg.inspect}" if not o = OFFSETS[reg]
-			@ctx[o, 4].unpack('L').first
-		end
-
-		# updates the value of an unsigned int register
-		def []=(reg, value)
-			set_val(reg, value)
-			commit
-		end
-
-		# updates the local copy of the context, do not commit
-		def set_val(reg, value)
-			raise "invalid register #{reg.inspect}" if not o = OFFSETS[reg]
-			@ctx[o, 4] = [value].pack('L')
-		end
-
-		# updates the thread registers from the local copy
-		def commit
-			WinAPI.setthreadcontext(@hthread, @ctx)
-		end
-
-		def to_hash
-			h = {}
-			OFFSETS.each_key { |k| h[k] = self[k] }
-			h
-		end
-	end
-
-	# returns the specified thread context
-	def get_context(pid, tid, flags = WinAPI::CONTEXT86_FULL | WinAPI::CONTEXT86_DEBUG_REGISTERS)
-		Context.new(@hthread[pid][tid], flags)
-	end
-
-	# classes for debug informations
-	class ExceptionInfo
-		attr_accessor :code, :flags, :recordptr, :addr, :nparam, :info, :firstchance
-		def initialize(str)
-			@code, @flags, @recordptr, @addr, @nparam, @info, @firstchance = str.unpack('LLLLLC60L')
-		end
-	end
-	class CreateThreadInfo
-		attr_accessor :hthread, :threadlocalbase, :startaddr
-		def initialize(str)
-			@hthread, @threadlocalbase, @startaddr = str.unpack('LLL')
-		end
-	end
-	class CreateProcessInfo
-		attr_accessor :hfile, :hprocess, :hthread, :imagebase, :debugfileoff, :debugfilesize, :threadlocalbase, :startaddr, :imagename, :unicode
-		def initialize(str)
-			@hfile, @hprocess, @hthread, @imagebase, @debugfileoff, @debugfilesize, @threadlocalbase,
-				@startaddr, @imagename, @unicode = str.unpack('LLLLLLLLLS')
-		end
-	end
-	class ExitThreadInfo
-		attr_accessor :exitcode
-		def initialize(str)
-			@exitcode = *str.unpack('L')
-		end
-	end
-	class ExitProcessInfo
-		attr_accessor :exitcode
-		def initialize(str)
-			@exitcode = *str.unpack('L')
-		end
-	end
-	class LoadDllInfo
-		attr_accessor :hfile, :imagebase, :debugfileoff, :debugfilesize, :imagename, :unicode
-		def initialize(str)
-			@hfile, @imagebase, @debugfileoff, @debugfilesize, @imagename, @unicode = str.unpack('LLLLLS')
-		end
-	end
-	class UnloadDllInfo
-		attr_accessor :imagebase
-		def initialize(str)
-			@imagebase = *str.unpack('L')
-		end
-	end
-	class OutputDebugStringInfo
-		attr_accessor :ptr, :unicode, :length
-		def initialize(str)
-			@ptr, @unicode, @length = str.unpack('LSS')
-		end
-	end
-	class RipInfo
-		attr_accessor :error, :type
-		def initialize(str)
-			@error, @type = str.unpack('LL')
-		end
-	end
-
-	# returns a string suitable for use as a debugevent structure
-	def debugevent_alloc
-		# on wxpsp2, debugevent is at most 24*uint
-		[0].pack('L')*30
-	end
-
-	# waits for debug events
-	# dispatches to the different handler_*
-	# custom handlers should call the default version (especially for newprocess/newthread/endprocess/endthread)
-	# if given a block, yields { |pid, tid, code, rawinfo| }
-	# if the block returns something not numeric, dispatch_debugevent is called
-	def loop
-		raw = debugevent_alloc
-		while not @mem.empty?
-			return if not ev = waitfordebugevent(raw)
-			ret = nil
-			ret = yield(*ev) if block_given?
-			ret = dispatch_debugevent(*ev) if not ret.kind_of? ::Integer
-			ret = WinAPI::DBG_CONTINUE if not ret.kind_of? ::Integer
-			continuedebugevent(ev[0], ev[1], ret)
-		end
-	end
-
-	# waits for a debug event (will put the current [debugger] process to sleep)
-	# returns [pid, tid, eventcode, eventdata] or nil
-	def waitfordebugevent(raw = debugevent_alloc, timeout = WinAPI::INFINITE)
-		if WinAPI.waitfordebugevent(raw, timeout)
-			code, pid, tid, info = raw.unpack('LLLa*')
-			info = decode_info(code, info)
-			predispatch_debugevent(pid, tid, code, info)
-			[pid, tid, code, info]
-		end
-	end
-
-	# tells the target pid:tid to resume
-	def continuedebugevent(pid, tid, cont=WinAPI::DBG_CONTINUE)
-		WinAPI.continuedebugevent(pid, tid, cont)
-	end
-
-	# casts a raw info to the corresponding object according to code
-	def decode_info(code, info)
-		c = {
-			WinAPI::EXCEPTION_DEBUG_EVENT => ExceptionInfo,
-			WinAPI::CREATE_PROCESS_DEBUG_EVENT => CreateProcessInfo,
-			WinAPI::CREATE_THREAD_DEBUG_EVENT => CreateThreadInfo,
-			WinAPI::EXIT_PROCESS_DEBUG_EVENT => ExitProcessInfo,
-			WinAPI::EXIT_THREAD_DEBUG_EVENT => ExitThreadInfo,
-			WinAPI::LOAD_DLL_DEBUG_EVENT => LoadDllInfo,
-			WinAPI::UNLOAD_DLL_DEBUG_EVENT => UnloadDllInfo,
-			WinAPI::OUTPUT_DEBUG_STRING_EVENT => OutputDebugStringInfo,
-			WinAPI::RIP_EVENT => RipInfo,
-		}[code]
-		c ? c.new(info) : info
-	end
-
-	# update this object internal state from debug events (new thread/process)
-	def predispatch_debugevent(pid, tid, code, info)
-		case code
-		when WinAPI::CREATE_PROCESS_DEBUG_EVENT; prehandler_newprocess pid, tid, info
-		when WinAPI::CREATE_THREAD_DEBUG_EVENT;  prehandler_newthread  pid, tid, info
-		# can't prehandle_endprocess/thread, the handler runs after us and may need the handles
-		end
-	end
-
-	# handles one debug event
-	# calls the corresponding handler
-	# returns the handler return value
-	def dispatch_debugevent(pid, tid, code, info)
-		case code
-		when WinAPI::EXCEPTION_DEBUG_EVENT;      handler_exception   pid, tid, info
-		when WinAPI::CREATE_PROCESS_DEBUG_EVENT; handler_newprocess  pid, tid, info
-		when WinAPI::CREATE_THREAD_DEBUG_EVENT;  handler_newthread   pid, tid, info
-		when WinAPI::EXIT_PROCESS_DEBUG_EVENT;   handler_endprocess  pid, tid, info
-		when WinAPI::EXIT_THREAD_DEBUG_EVENT;    handler_endthread   pid, tid, info
-		when WinAPI::LOAD_DLL_DEBUG_EVENT;       handler_loaddll     pid, tid, info
-		when WinAPI::UNLOAD_DLL_DEBUG_EVENT;     handler_unloaddll   pid, tid, info
-		when WinAPI::OUTPUT_DEBUG_STRING_EVENT;  handler_debugstring pid, tid, info
-		when WinAPI::RIP_EVENT;                  handler_rip         pid, tid, info
-		else                                     handler_unknown     pid, tid, code, info
-		end
-	end
-
-	def handler_exception(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} exception" if $DEBUG
-		case info.code
-		when WinAPI::STATUS_ACCESS_VIOLATION
-			# fix fs bug in xpsp1
-			ctx = get_context(pid, tid)
-			if ctx[:fs] != 0x3b
-				puts "wdbg: #{pid}:#{tid} fix fs bug" if $DEBUG
-				ctx[:fs] = 0x3b
-				return WinAPI::DBG_CONTINUE
-			end
-			WinAPI::DBG_EXCEPTION_NOT_HANDLED
-		when WinAPI::STATUS_BREAKPOINT
-			# we must ack ntdll interrupts on process start
-			# but we should not mask process-generated exceptions by default..
-			WinAPI::DBG_CONTINUE
-		when WinAPI::STATUS_SINGLE_STEP
-			WinAPI::DBG_CONTINUE
-		else
-			WinAPI::DBG_EXCEPTION_NOT_HANDLED
-		end
-	end
-
-	def prehandler_newprocess(pid, tid, info)
-		@mem[pid] ||= WindowsRemoteString.new(info.hprocess)
-		@hprocess[pid] = info.hprocess
-		prehandler_newthread(pid, tid, info)
-	end
-
-	def prehandler_newthread(pid, tid, info)
-		@hthread[pid] ||= {}
-		@hthread[pid][tid] = info.hthread
-	end
-
-	def prehandler_endthread(pid, tid, info)
-		@hthread[pid].delete tid
-	end
-
-	def prehandler_endprocess(pid, tid, info)
-		@hprocess.delete pid
-		@hthread.delete pid
-		@mem.delete pid
-	end
-
-	def handler_newprocess(pid, tid, info)
-		str = read_str_indirect(pid, info.imagename, info.unicode)
-		puts "wdbg: #{pid}:#{tid} new process #{str.inspect} at #{'0x%08X' % info.imagebase}" if $DEBUG
-		handler_newthread(pid, tid, info)
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_newthread(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} new thread at #{'0x%08X' % info.startaddr}" if $DEBUG
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_endprocess(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} process died" if $DEBUG
-		prehandler_endprocess(pid, tid, info)
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_endthread(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} thread died" if $DEBUG
-		prehandler_endthread(pid, tid, info)
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_loaddll(pid, tid, info)
-		if $DEBUG
-			dll = LoadedPE.load(@mem[pid][info.imagebase, 0x1000_0000])
-			dll.decode_header
-			dll.decode_exports
-			str = (dll.export ? dll.export.libname : read_str_indirect(pid, info.imagename, info.unicode))
-			puts "wdbg: #{pid}:#{tid} loaddll #{str.inspect} at #{'0x%08X' % info.imagebase}"
-		end
-		WinAPI.closehandle(info.hfile)
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_unloaddll(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} unloaddll #{'0x%08X' % info.imagebase}" if $DEBUG
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_debugstring(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} debugstring #{read_str_indirect(pid, info.ptr, info.unicode)}" if $VERBOSE
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_rip(pid, tid, info)
-		puts "wdbg: #{pid}:#{tid} rip" if $VERBOSE
-		WinAPI::DBG_CONTINUE
-	end
-
-	def handler_unknown(pid, tid, code, raw)
-		puts "wdbg: #{pid}:#{tid} unknown debugevent #{'0x%X' % code} #{raw.inspect}" if $VERBOSE
-		WinAPI::DBG_CONTINUE
-	end
-
-	# reads a null-terminated string from a pointer in the remote address space
-	def read_str_indirect(pid, ptr, unicode=0)
-		return '' if not ptr or ptr == 0
-		ptr = @mem[pid][ptr, 4].unpack('L').first
-		str = @mem[pid][ptr, 512]
-		str = str.unpack('S*').pack('C*') if unicode != 0
-		str = str[0, str.index(?\0)] if str.index(?\0)
-		str
-	end
-
-	def break(pid)
-		WinAPI.debugbreakprocess(@hprocess[pid])
-	end
-
-
-	attr_accessor :logger
-	def puts(*s)
-		@logger ||= $stdout
-		@logger.puts(*s)
-	end
-end
-
 # this class implements a high-level API over the Windows debugging primitives
 class WinDebugger < Debugger
-	attr_accessor :dbg
-	def initialize(pid)
-		@dbg = WinDbgAPI.new(pid)
-		@dbg.logger = self
-		@pid = @dbg.mem.keys.first
-		@cpu = Ia32.new(WinOS.open_process(@pid).addrsz)
-		@memory = @dbg.mem[@pid]
+	attr_accessor :os_process, :os_thread,
+		:auto_fix_fs_bug,
+		# is current exception handled? (arg to pass to continuedbgevt)
+		:continuecode
+
+	attr_accessor :callback_unloadlibrary, :callback_debugstring, :callback_ripevent
+
+	def initialize(pidpath=nil)
 		super()
-		# get a valid @tid (for reg values etc)
-		@dbg.loop { |pid_, tid, code, info|
-			update_dbgev([pid_, tid, code, info])
-			case code
-			when WinAPI::CREATE_THREAD_DEBUG_EVENT, WinAPI::CREATE_PROCESS_DEBUG_EVENT
-				@tid = tid
-				break
-			end
+		@pid_stuff_list << :os_process
+		@tid_stuff_list << :os_thread << :ctx << :continuecode
+
+		@auto_fix_fs_bug = false
+
+		return if not pidpath
+
+		begin
+			npid = Integer(pidpath)
+			attach(npid)
+		rescue ArgumentError
+			create_process(pidpath)
+	end
+
+		check_target until pid
+		end
+
+	def shortname; 'windbg'; end
+
+	def attach(npid)
+		WinAPI.debugactiveprocess(npid)
+		WinAPI.debugsetprocesskillonexit(0) if WinAPI.respond_to?(:debugsetprocesskillonexit)
+		100.times {
+			check_target
+			break if pid
 		}
+		raise "attach failed" if not pid
+		end
+
+	def create_process(target)
+		startupinfo = WinAPI.alloc_c_struct('STARTUPINFOA', :cb => :size)
+		processinfo = WinAPI.alloc_c_struct('PROCESS_INFORMATION')
+		flags  = WinAPI::DEBUG_PROCESS
+		flags |= WinAPI::DEBUG_ONLY_THIS_PROCESS if not trace_children
+		target = target.dup if target.frozen?	# eg ARGV
+		h = WinAPI.createprocessa(nil, target, nil, nil, 0, flags, nil, nil, startupinfo, processinfo)
+		raise "CreateProcess: #{WinAPI.last_error_msg}" if not h
+
+		set_context(processinfo.dwprocessid, processinfo.dwthreadid)
+		@os_process = WinOS::Process.new(processinfo.dwprocessid, processinfo.hprocess)
+		@os_thread  = WinOS::Thread.new(processinfo.dwthreadid, processinfo.hthread, @os_process)
+		initialize_osprocess
+		end
+
+	# called whenever we receive a handle to a new process being debugged, after initialisation of @os_process
+	def initialize_osprocess
+		initialize_cpu
+		initialize_memory
+		initialize_disassembler
+		end
+
+	def initialize_newpid
+		raise "non-existing pid #@pid" if pid and not WinOS.check_process(@pid)
+		super()
+		# os_process etc wait for CREATE_THREAD_DBGEVT
+	end
+
+	def initialize_newtid
+		super()
+		# os_thread etc wait for CREATE_THREAD_DBGEVT
 		@continuecode = WinAPI::DBG_CONTINUE	#WinAPI::DBG_EXCEPTION_NOT_HANDLED
 	end
 
-	def os_process
-		WinOS.open_process(@pid)
+	def initialize_cpu
+		# wait until we receive the CREATE_PROCESS_DBGEVT message
+		return if not @os_process
+		case WinAPI.host_cpu.shortname
+		when 'ia32', 'x64'
+			@cpu = Ia32.new(os_process.addrsz)
+		else
+			raise 'unsupported architecture'
+		end
 	end
 
-	def tid=(tid)
+	def initialize_memory
+		return if not @os_process
+		@memory = os_process.memory
+	end
+
+	def mappings
+		os_process.mappings
+	end
+
+	def modules
+		os_process.modules
+	end
+
+	def list_processes
+		WinOS.list_processes
+	end
+
+	def list_threads
+		os_process.threads
+	end
+
+	def check_pid(pid)
+		WinOS.check_process(pid)
+	end
+
+	def check_tid(tid)
+		# dont raise() on the first set_context when os_proc is not set yet
+		return true if not os_process
 		super(tid)
-		@ctx = nil
 	end
 
 	def ctx
-		@ctx ||= @dbg.get_context(@pid, @tid)
+		if not @ctx
+			# swapin_tid => gui.swapin_tid => getreg before we init os_thread in EventCreateThread
+			return Hash.new(0) if not os_thread
+			@ctx = os_thread.context
+			@ctx.update
+	end
+		@ctx
 	end
 
 	def invalidate
@@ -1477,111 +1833,195 @@ class WinDebugger < Debugger
 		ctx[r] = v
 	end
 
-	def enable_bp(addr)
-		return if not b = @breakpoint[addr]
-		@cpu.dbg_enable_bp(self, addr, b)
-		b.state = :active
-	end
-
-	def disable_bp(addr)
-		return if not b = @breakpoint[addr]
-		@cpu.dbg_disable_bp(self, addr, b)
-		b.state = :inactive
-	end
-
 	def do_continue(*a)
 		@cpu.dbg_disable_singlestep(self)
-		@dbg.continuedebugevent(@pid, @tid, @continuecode)
-		@state = :running
-		@info = 'continue'
+		WinAPI.continuedebugevent(@pid, @tid, @continuecode)
 	end
 
 	def do_singlestep(*a)
 		@cpu.dbg_enable_singlestep(self)
-		@dbg.continuedebugevent(@pid, @tid, @continuecode)
-		@state = :running
-		@info = 'singlestep'
-	end
-
-	def do_check_target
-		ev = @dbg.waitfordebugevent(@dbg.debugevent_alloc, 0)
-		update_dbgev(ev)
-	end
-
-
-	def do_wait_target
-		@dbg.loop { |*ev|
-			update_dbgev(ev)
-			break if @state != :running
-		} if @state == :running
-	end
-
-	def break
-		@dbg.break(@pid) if @state == :running
-	end
-
-	def kill(*a)
-		WinAPI.terminateprocess(@dbg.hprocess[@pid], 0)
-		#@state = :dead		# dont mark it dead while the process exists
-		#@info = 'killed'
-	end
-
-	def pass_current_exception(doit = true)
-		@continuecode = (doit ? WinAPI::DBG_EXCEPTION_NOT_HANDLED : WinAPI::DBG_CONTINUE)
+		WinAPI.continuedebugevent(@pid, @tid, @continuecode)
 	end
 
 	def update_dbgev(ev)
-		return if not ev
-		pid, tid, code, info = ev
-		return if pid != @pid
+		# XXX ev is static, copy all necessary values before yielding to something that may call check_target
+		set_context ev.dwprocessid, ev.dwthreadid
 		invalidate
 		@continuecode = WinAPI::DBG_CONTINUE
-		case code
+
+		# XXX reinterpret ev as struct32/64 depending on os_process.addrsz ?
+		case ev.dwdebugeventcode
 		when WinAPI::EXCEPTION_DEBUG_EVENT
-			# attr :code, :flags, :recordptr, :addr, :nparam, :info, :firstchance
-			case info.code
+			st = ev.exception
+			str = st.exceptionrecord
+			stf = st.dwfirstchance	# non-zero = first chance
+
+			@state = :stopped
+			@info = "exception"
+
+			# DWORD ExceptionCode;
+			# DWORD ExceptionFlags;
+			# struct _EXCEPTION_RECORD *ExceptionRecord;
+			# PVOID ExceptionAddress;
+			# DWORD NumberParameters;
+			# ULONG_PTR ExceptionInformation[EXCEPTION_MAXIMUM_PARAMETERS];
+			case str.exceptioncode
 			when WinAPI::STATUS_ACCESS_VIOLATION
-				# fix fs bug in xpsp1
-				if @cpu.shortname == 'ia32' and ctx = @dbg.get_context(pid, tid) and ctx[:fs] != 0x3b
-					puts "wdbg: #{pid}:#{tid} fix fs bug" if $DEBUG
-					ctx[:fs] = 0x3b
-					@dbg.continuedebugevent(pid, tid, WinAPI::DBG_CONTINUE)
+				if @auto_fix_fs_bug and ctx.fs != 0x3b
+					# fix bug in xpsp1 where fs would get a random value in a debugee
+					log "wdbg: #{pid}:#{tid} fix fs bug" if $DEBUG
+					ctx.fs = 0x3b
+					resume_badbreak
 					return
-				end
-				@state = :stopped
-				@info = "access violation at #{Expression[info.addr]} (#{info.firstchance == 0 ? '1st' : '2nd'} chance)"
-			when WinAPI::STATUS_BREAKPOINT, WinAPI::STATUS_SINGLE_STEP
-				@state = :stopped
-				@info = nil
+	end
+				mode = case str.exceptioninformation[0]
+				       when 0; :r
+				       when 1; :w
+				       when 8; :x
+				       end
+				addr = str.exceptioninformation[1]
+				evt_exception(:type => 'access violation', :st => str, :firstchance => stf,
+					      :fault_addr => addr, :fault_access => mode)
+			when WinAPI::STATUS_BREAKPOINT
+				# we must ack ntdll interrupts on process start
+				# but we should not mask process-generated exceptions by default..
+				evt_bpx
+			when WinAPI::STATUS_SINGLE_STEP
+				evt_hwbp_singlestep
 			else
-				@state = :stopped
-				@info = "unknown #{info.inspect}"
-				@continuecode = WinAPI::DBG_EXCEPTION_NOT_HANDLED
-			end
-		when WinAPI::CREATE_THREAD_DEBUG_EVENT
-			@state = :stopped
-			@info = "thread #{tid} created"
-		when WinAPI::EXIT_THREAD_DEBUG_EVENT
-			@state = :stopped
-			@info = "thread #{tid} died, exitcode #{info.exitcode}"
-		when WinAPI::EXIT_PROCESS_DEBUG_EVENT
-			@state = :dead
-			@info = "process died, exitcode #{info.exitcode}"
-		else
-			# loadsyms(info.imagebase) if code == WinAPI::LOAD_DLL_DEBUG_EVENT
-			@dbg.continuedebugevent(pid, tid, WinAPI::DBG_CONTINUE)
-			return
-		end
-		@tid = tid
+				@status_name ||= WinAPI.cp.lexer.definition.keys.grep(/^STATUS_/).
+						sort.inject({}) { |h, c| h.update WinAPI.const_get(c) => c }
+				type = @status_name[str.exceptioncode] || str.exceptioncode.to_s(16)
+				evt_exception(:type => type, :st => str, :firstchance => stf)
 	end
 
-	def ui_command_setup(ui)
-		ui.new_command('pass_current_exception', 'pass the current exception to the debuggee') { |arg|
-			if arg.strip == 'no'; pass_current_exception(false) ; puts "ignore exception"
-			else pass_current_exception ; puts "forward exception"
+		when WinAPI::CREATE_THREAD_DEBUG_EVENT
+			st = ev.createthread
+			@os_thread ||= WinOS::Thread.new(@tid, st.hthread, os_process)
+			@os_thread.teb_base = st.lpthreadlocalbase if st.lpthreadlocalbase.to_i != 0
+			evt_newthread(:st => st)
+
+		when WinAPI::CREATE_PROCESS_DEBUG_EVENT
+			# XXX 32 vs 64 struct undecidable before we get hprocess..
+			st = ev.createprocess
+			if not @os_process
+				@os_process = WinOS::Process.new(@pid, st.hprocess)
+				@os_thread ||= WinOS::Thread.new(@tid, st.hthread, os_process)
+				initialize_osprocess
+			else
+				@os_thread ||= WinOS::Thread.new(@tid, st.hthread, os_process)
+	end
+			@os_thread.teb_base = st.lpthreadlocalbase if st.lpthreadlocalbase.to_i != 0
+			hfile = st.hfile
+			evt_newprocess(:st => st)
+			WinAPI.closehandle(hfile)
+
+		when WinAPI::EXIT_THREAD_DEBUG_EVENT
+			st = ev.exitthread
+			evt_endthread(:exitcode => st.dwexitcode)
+
+		when WinAPI::EXIT_PROCESS_DEBUG_EVENT
+			st = ev.exitprocess
+			evt_endprocess(:exitcode => st.dwexitcode)
+
+		when WinAPI::LOAD_DLL_DEBUG_EVENT
+			st = ev.loaddll
+			hfile = st.hfile
+			evt_loadlibrary(:address => st.lpbaseofdll, :st => st)
+			WinAPI.closehandle(hfile)
+
+		when WinAPI::UNLOAD_DLL_DEBUG_EVENT
+			st = ev.unloaddll
+			evt_unloadlibrary(:address => st.lpbaseofdll)
+
+		when WinAPI::OUTPUT_DEBUG_STRING_EVENT
+			st = ev.debugstring
+			str = WinAPI.decode_c_ary("__int#{st.funicode != 0 ? 16 : 8}", st.ndebugstringlength, @memory, st.lpdebugstringdata) if st.lpdebugstringdata
+			str = str.to_array.pack('C*') rescue str.to_array.pack('v*')
+			evt_debugstring(:string => str, :st => str)
+
+		when WinAPI::RIP_EVENT
+			st = ev.ripinfo
+			evt_ripevent(:st => st)
 			end
-		}
-		ui.keyboard_callback_ctrl[:f5] = lambda { pass_current_exception ; ui.wrap_run { continue } }
+	end
+
+	def evt_debugstring(info={})
+		@state = :stopped
+		@info = "debugstring"
+
+		log "Debugstring: #{info[:string].inspect}"
+
+		callback_debugstring[info] if callback_debugstring
+
+		# allow callback to skip this call to continue() by setting info[:nocontinue] = true
+		continue unless info[:nocontinue]
+	end
+
+	def evt_unloadlibrary(info={})
+		@state = :stopped
+		@info = "unload library"
+
+		callback_unloadlibrary[info] if callback_unloadlibrary
+
+		continue unless info[:nocontinue]
+	end
+
+	def evt_ripevent(info={})
+		@state = :stopped
+		@info = "rip_event"	# wtf?
+
+		callback_ripevent[info] if callback_ripevent
+
+		continue unless info[:nocontinue]
+	end
+
+	def do_check_target
+		do_waitfordebug(0)
+	end
+
+	def do_wait_target
+		do_waitfordebug(WinAPI::INFINITE)
+	end
+
+	def do_waitfordebug(timeout)
+		@dbg_eventstruct ||= WinAPI.alloc_c_struct('_DEBUG_EVENT')
+		if WinAPI.waitfordebugevent(@dbg_eventstruct, timeout) != 0
+			update_dbgev(@dbg_eventstruct)
+	end
+	end
+
+	def break
+		return if @state != :running
+		if WinAPI.respond_to? :debugbreakprocess
+			WinAPI.debugbreakprocess(os_process.handle)
+		else
+			suspend
+	end
+				end
+
+	def suspend
+		os_thread.suspend
+				@state = :stopped
+		@info = 'thread suspended'
+			end
+
+	def detach
+		del_all_breakpoints
+		if WinAPI.respond_to? :debugactiveprocessstop
+			WinAPI.debugactiveprocessstop(@pid)
+		else
+			raise 'detach not supported'
+		end
+		del_pid
+	end
+
+	def kill(exitcode=0)
+		os_process.terminate(exitcode)
+			end
+
+	def pass_current_exception(doit = true)
+		@continuecode = (doit ? WinAPI::DBG_EXCEPTION_NOT_HANDLED : WinAPI::DBG_CONTINUE)
 	end
 end
 end

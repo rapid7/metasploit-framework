@@ -11,7 +11,7 @@ module Metasm
 class PowerPC
 	def build_opcode_bin_mask(op)
 		# bit = 0 if can be mutated by an field value, 1 if fixed by opcode
-		next if not op.bin.kind_of? Integer
+		return if not op.bin.kind_of? Integer
 		op.bin_mask = 0
 		op.args.each { |f|
 			op.bin_mask |= @fields_mask[f] << @fields_shift[f]
@@ -157,7 +157,7 @@ class PowerPC
 
 	def disassembler_default_func
 		df = DecodedFunction.new
-		df.backtrace_binding = (0..31).inject({}) { |h, r| h.update "r#{r}".to_sym => Expression::Unknown if r != 1 }
+		df.backtrace_binding = (0..31).inject({}) { |h, r| r != 1 ? h.update("r#{r}".to_sym => Expression::Unknown) : h }
 		df.backtracked_for = [BacktraceTrace.new(Expression[:lr], :default, Expression[:lr], :x)]
 		df.btfor_callback = lambda { |dasm, btfor, funcaddr, calladdr|
 			if funcaddr != :default

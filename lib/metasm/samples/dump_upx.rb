@@ -10,7 +10,7 @@
 # original entrypoint by disassembling the UPX stub, set breakpoint on it,
 # run the program, and dump the loaded image to an executable PE.
 #
-# usage: dump_upx.rb <packed.exe> [<dumped.exe>]
+# usage: dump_upx.rb <packed.exe> [<dumped.exe>] [<rva iat>]
 #
 
 require 'metasm'
@@ -31,6 +31,7 @@ class UPXUnpacker
 		raise 'cant find oep...' if not @oep
 		puts "oep found at #{Expression[@oep]}"
 		@baseaddr = pe.optheader.image_base
+		@iat -= @baseaddr if @iat > @baseaddr	# va => rva
 
 		@dbg = OS.current.create_process(file).debugger
 		puts 'running...'
@@ -62,8 +63,8 @@ class UPXUnpacker
 	end	
 
 	def debugloop
-		# set up a breakpoint on oep
-		@dbg.hwbp(@oep) { breakpoint_callback }
+		# set up a oneshot breakpoint on oep
+		@dbg.hwbp(@oep, :x, 1, true) { breakpoint_callback }
 		@dbg.run_forever
 		puts 'done'
 	end

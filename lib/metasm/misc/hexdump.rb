@@ -39,12 +39,17 @@ def hexdump(ctx={})
 		ctx[:pos] += s.length
 	}
 	puts '%04x' % ctx[:pos] if not ctx[:noend]
+rescue Errno::EPIPE
+	exit
 end
 end
 
 if $0 == __FILE__
-	fmt = ['c', 'a'] if ARGV.delete '-C'
-	fmt = ['d', 'a'] if ARGV.delete '-d'
+	fmt = []
+	fmt << 'c' if ARGV.delete '-C'
+	fmt << 'w' if ARGV.delete '-W'
+	fmt << 'd' if ARGV.delete '-D'
+	fmt << 'a' if ARGV.delete '-A'
 	fmt = ['c', 'd', 'a'] if ARGV.delete '-a'
 	File.open(ARGV.first, 'rb').hexdump(:fmt => fmt)
 end

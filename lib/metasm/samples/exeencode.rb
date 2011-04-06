@@ -45,6 +45,7 @@ OptionParser.new { |opt|
 	opt.on('--be', 'set cpu in big-endian mode') { $opts[:cpu].endianness = :big }
 	opt.on('--fno-pic', 'generate position-dependant code') { $opts[:cpu].generate_PIC = false }
 	opt.on('--shared', 'generate shared library') { $opts[:exetype] = :lib }
+	opt.on('--ruby-module-hack', 'use the dynldr module hack to use any ruby lib available for ruby symbols') { $opts[:dldrhack] = true }
 }.parse!
 
 src = $opts[:macros].map { |k, v| "#define #{k} #{v}\n" }.join
@@ -57,7 +58,12 @@ if file = ARGV.shift
 		src << File.read(file)
 	end
 else
+	$opts[:srctype] ||= $opts[:srctype_data]
 	src << DATA.read	# the text after __END__ in this file
+end
+
+if $opts[:outfilename] and not $opts[:overwrite_outfile] and File.exist?($opts[:outfilename])
+		abort "Error: target file exists !"
 end
 
 if $opts[:srctype] == 'c'
@@ -96,6 +102,7 @@ if $opts[:to_string]
 else
 	of = $opts[:outfilename] ||= 'a.out'
 	abort "Error: target file #{of.inspect} exists !" if File.exists? of and not $opts[:overwrite_outfile]
+	Metasm::DynLdr.compile_binary_module_hack(exe) if $opts[:dldrhack]
 	exe.encode_file(of, $opts[:exetype])
 	puts "saved to file #{of.inspect}"
 end

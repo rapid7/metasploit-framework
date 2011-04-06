@@ -166,7 +166,7 @@ class Expression
 	def self.decode_imm(str, type, endianness, off=0)
 		type = INT_SIZE.keys.find { |k| k.to_s[0] == ?a and INT_SIZE[k] == 8*type } if type.kind_of? ::Integer
 		endianness = endianness.endianness if not endianness.kind_of? ::Symbol
-		str = str[off, INT_SIZE[type]/8]
+		str = str[off, INT_SIZE[type]/8].to_s
 		str = str.reverse if endianness == :little
 		val = str.unpack('C*').inject(0) { |val_, b| (val_ << 8) | b }
 		val = make_signed(val, INT_SIZE[type]) if type.to_s[0] == ?i

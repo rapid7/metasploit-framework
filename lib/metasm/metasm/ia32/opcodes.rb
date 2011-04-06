@@ -110,6 +110,10 @@ class Ia32
 		addop 'test',  [0x84], :mrmw
 		addop 'test',  [0xA8], nil,  {:w => [0, 0]}, :reg_eax, :u
 		addop 'test',  [0xF6], 0,    {:w => [0, 0]}, :u
+		addop 'xchg',  [0x90], :reg, {}, :reg_eax
+		addop('xchg',  [0x90], :reg, {}, :reg_eax) { |o| o.args.reverse! }	# xchg eax, ebx == xchg ebx, eax)
+		addop 'xchg',  [0x86], :mrmw
+		addop('xchg',  [0x86], :mrmw) { |o| o.args.reverse! }
 		addop_macro1 'xor', 6, :u
 	end
 
@@ -120,7 +124,7 @@ class Ia32
 		addop 'aad',   [0xD5, 0x0A]
 		addop 'aam',   [0xD4, 0x0A]
 		addop 'aas',   [0x3F]
-		addop 'arpl',  [0x63], :mrm
+		addop('arpl',  [0x63], :mrm) { |o| o.props[:argsz] = 16 ; o.args.reverse! }
 		addop 'bound', [0x62], :mrmA
 		addop 'bsf',   [0x0F, 0xBC], :mrm
 		addop 'bsr',   [0x0F, 0xBD], :mrm
@@ -174,6 +178,7 @@ class Ia32
 		addop('mov',   [0x0F, 0x20, 0xC0], :reg, {:d => [1, 1], :eeec => [2, 3]}, :eeec) { |op| op.args.reverse! }
 		addop('mov',   [0x0F, 0x21, 0xC0], :reg, {:d => [1, 1], :eeed => [2, 3]}, :eeed) { |op| op.args.reverse! }
 		addop('mov',   [0x8C], 0,    {:d => [0, 1], :seg3 => [1, 3]}, :seg3) { |op| op.args.reverse! }
+		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :u8, :reg_eax
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :reg_eax, :u8
 		addop 'out',   [0xE6], nil,  {:w => [0, 0]}, :u8
 		addop 'out',   [0xEE], nil,  {:w => [0, 0]}, :reg_dx, :reg_eax
@@ -200,7 +205,7 @@ class Ia32
 		addop 'rdtsc', [0x0F, 0x31], nil, {}, :random
 		addop 'retf',  [0xCB], nil,  {}, :stopexec, :setip
 		addop 'retf',  [0xCA], nil,  {}, :stopexec, :u16, :setip
-		addop 'rsm',   [0x0F, 0xAA]
+		addop 'rsm',   [0x0F, 0xAA], nil, {}, :stopexec
 		addop 'sahf',  [0x9E]
 		addop 'sgdt',  [0x0F, 0x01, 0<<3], :modrmA
 		addop 'sidt',  [0x0F, 0x01, 1<<3], :modrmA
@@ -217,10 +222,6 @@ class Ia32
 		addop 'wbinvd',[0x0F, 0x09]
 		addop 'wrmsr', [0x0F, 0x30]
 		addop('xadd',  [0x0F, 0xC0], :mrmw) { |o| o.args.reverse! }
-		addop 'xchg',  [0x90], :reg, {}, :reg_eax
-		addop('xchg',  [0x90], :reg, {}, :reg_eax) { |o| o.args.reverse! }	# xchg eax, ebx == xchg ebx, eax)
-		addop 'xchg',  [0x86], :mrmw
-		addop('xchg',  [0x86], :mrmw) { |o| o.args.reverse! }
 		addop 'xlat',  [0xD7]
 
 # pfx:  addrsz = 0x67, lock = 0xf0, opsz = 0x66, repnz = 0xf2, rep/repz = 0xf3
@@ -244,6 +245,7 @@ class Ia32
 		addop 'fabs',  [0xD9, 0xE1]
 		addop_macrofpu1 'fadd',  0
 		addop 'faddp', [0xDE, 0xC0], :regfp
+		addop 'faddp', [0xDE, 0xC1]
 		addop('fbld',  [0xDF, 4<<3], :modrmA, {}, :regfp0) { |o| o.props[:argsz] = 80 }
 		addop('fbstp', [0xDF, 6<<3], :modrmA, {}, :regfp0) { |o| o.props[:argsz] = 80 }
 		addop 'fchs',  [0xD9, 0xE0], nil,  {}, :regfp0
@@ -257,7 +259,9 @@ class Ia32
 		addop_macrofpu1 'fdiv', 6
 		addop_macrofpu1 'fdivr', 7
 		addop 'fdivp', [0xDE, 0xF8], :regfp
+		addop 'fdivp', [0xDE, 0xF9]
 		addop 'fdivrp',[0xDE, 0xF0], :regfp
+		addop 'fdivrp',[0xDE, 0xF1]
 		addop 'ffree', [0xDD, 0xC0], nil,  {:regfp  => [1, 0]}, :regfp
 		addop_macrofpu2 'fiadd', 0
 		addop_macrofpu2 'fimul', 1
@@ -288,6 +292,7 @@ class Ia32
 		addop 'fldz',   [0xD9, 0xEE]
 		addop_macrofpu1 'fmul',  1
 		addop 'fmulp',  [0xDE, 0xC8], :regfp
+		addop 'fmulp',  [0xDE, 0xC9]
 		addop 'fnop',   [0xD9, 0xD0]
 		addop 'fpatan', [0xD9, 0xF3]
 		addop 'fprem',  [0xD9, 0xF8]
@@ -313,8 +318,10 @@ class Ia32
 		addop 'fstp', [0xDD, 0xD8], :regfp
 		addop_macrofpu1 'fsub',  4
 		addop 'fsubp',  [0xDE, 0xE8], :regfp
+		addop 'fsubp',  [0xDE, 0xE9]
 		addop_macrofpu1 'fsubp', 5
 		addop 'fsubrp', [0xDE, 0xE0], :regfp
+		addop 'fsubrp', [0xDE, 0xE1]
 		addop 'ftst',   [0xD9, 0xE4]
 		addop 'fucom',  [0xDD, 0xE0], :regfp
 		addop 'fucomp', [0xDD, 0xE8], :regfp
@@ -382,8 +389,8 @@ class Ia32
 		addop_macrotttn 'cmov', [0x0F, 0x40], :mrm
 
 		%w{b e be u}.each_with_index { |tt, i|
-			addop 'fcmov' +tt, [0xDA, 0xC0 | (i << 3)], :regfp
-			addop 'fcmovn'+tt, [0xDB, 0xC0 | (i << 3)], :regfp
+			addop 'fcmov' + tt, [0xDA, 0xC0 | (i << 3)], :regfp
+			addop 'fcmovn'+ tt, [0xDB, 0xC0 | (i << 3)], :regfp
 		}
 		addop 'fcomi', [0xDB, 0xF0], :regfp
 		addop('fxrstor', [0x0F, 0xAE, 1<<3], :modrmA) { |o| o.props[:argsz] = 512*8 }
@@ -492,7 +499,7 @@ class Ia32
 		# TODO <..blabla...integer...blabla..>
 
 		# nomem
-		addop 'clflush', [0x0F, 0xAE, 7<<3], :modrmA
+		addop('clflush', [0x0F, 0xAE, 7<<3], :modrmA) { |o| o.props[:argsz] = 8 }
 		addop('maskmovdqu', [0x0F, 0xF7], :mrmxmm) { |o| o.props[:needpfx] = 0x66 }
 		addop('movntpd', [0x0F, 0x2B], :mrmxmm) { |o| o.props[:needpfx] = 0x66 }
 		addop('movntdq', [0x0F, 0xE7], :mrmxmm) { |o| o.props[:needpfx] = 0x66 }
@@ -545,6 +552,7 @@ class Ia32
 		addop('movbe',    [0x0F, 0x38, 0xF0], :mrm, { :d => [2, 0] }) { |o| o.args.reverse! }
 		addop 'xgetbv', [0x0F, 0x01, 0xD0]
 		addop 'xsetbv', [0x0F, 0x01, 0xD1]
+		addop 'rdtscp', [0x0F, 0x01, 0xF9]
 		addop 'xrstor', [0x0F, 0xAE, 5<<3], :modrmA
 		addop 'xsave',  [0x0F, 0xAE, 4<<3], :modrmA
 		addop 'nop', [0x0F, 0x1F], 0	# which family does this belong to ?
@@ -650,7 +658,7 @@ class Ia32
 	end
 
 	def addop_macrotttn(name, bin, hint, fields = {}, *props, &blk)
-		[%w{o},     %w{no},    %w{b nae}, %w{nb ae},
+		[%w{o},     %w{no},    %w{b nae c}, %w{nb ae nc},
 		 %w{z e},   %w{nz ne}, %w{be na}, %w{nbe a},
 		 %w{s},     %w{ns},    %w{p pe},  %w{np po},
 		 %w{l nge}, %w{nl ge}, %w{le ng}, %w{nle g}].each_with_index { |e, i|
@@ -824,7 +832,7 @@ class Ia32
 			addop_post op8
 
 			return
-		elsif op.args.include? :regfp0
+		elsif op.args.first == :regfp0
 			dop = dupe[op]
 			dop.args.delete :regfp0
 			addop_post dop
@@ -847,8 +855,9 @@ class Ia32
 			op32.props[:opsz] = 32
 			@opcode_list << op32
 		elsif op.props[:strop] or op.props[:stropz] or op.args.include? :mrm_imm or
-				op.args.include? :modrm or op.args.include? :modrmA
-			# define adsz-override version for ambiguous opcodes (TODO allow movsd edi / movsd di)
+				op.args.include? :modrm or op.args.include? :modrmA or op.name =~ /loop|xlat/
+			# define adsz-override version for ambiguous opcodes (TODO allow movsd edi / movsd di syntax)
+			# XXX loop pfx 67 = eip+cx, 66 = ip+ecx
 			op16 = dupe[op]
 			op16.name << '.a16'
 			op16.props[:adsz] = 16

@@ -59,16 +59,17 @@ Exemples:
   Expression[[:eax, :-, 4], :*, [:ebx, :+, 0x12]]
 
 The Expression class also includes a parser, to allow creating an expression
-from a string. `parse_string` will create an Expression and update its
+from a string. `parse_string!` will create an Expression and update its
 argument to point after the last part read successfully into the expr.
 The parser handles standard C operator precedence.
 
   str = "1 + var"
-  Expression.parse_string(str)    # => Expression[1, :+, "var"]
+  Expression.parse_string!(str)    # => Expression[1, :+, "var"]
   str = "42 bla"
-  Expression.parse_string(str)    # => Expression[42]
+  Expression.parse_string!(str)    # => Expression[42]
   str                             # => "bla"
 
+Use `parse_string` without the ! to parse the string without updating it.
 
 External variables
 ------------------

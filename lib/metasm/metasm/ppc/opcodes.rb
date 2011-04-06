@@ -56,6 +56,21 @@ class PowerPC
 		}
 	end
 
+	def addop_trap(nbase, bin, *argprops)
+		addop nbase+'trap', bin|(0b11111<<21), *argprops
+		addop nbase+'lt', bin|(0b10000<<21), *argprops
+		addop nbase+'le', bin|(0b10100<<21), *argprops
+		addop nbase+'eq', bin|(0b00100<<21), *argprops
+		addop nbase+'ge', bin|(0b01100<<21), *argprops
+		addop nbase+'gt', bin|(0b01000<<21), *argprops
+		addop nbase+'ne', bin|(0b11000<<21), *argprops
+		addop nbase+'llt', bin|(0b00010<<21), *argprops
+		addop nbase+'lle', bin|(0b00110<<21), *argprops
+		addop nbase+'lge', bin|(0b00101<<21), *argprops
+		addop nbase+'lgt', bin|(0b00001<<21), *argprops
+	end
+
+
 	# generate cmp variations (default cr0, w/d)
 	def addop_cmp(nbase, bin, *argprops)
 		addop nbase.sub(/(cmpl?)/, '\\1w'), bin, *(argprops-[:bf])
@@ -208,18 +223,6 @@ class PowerPC
 		addop_cmp 'cmp',   0x7C000000, :bf, :ra, :rb
 		addop_cmp 'cmpli', 0x28000000, :bf, :ra, :ui
 		addop_cmp 'cmpl',  0x7C000040, :bf, :ra, :rb
-		addop 'tdi',    0x08000000, :to, :ra, :si
-	#	alias tdlti rx, value  ->  tdi 16, rx, value
-	#	alias tdnei rx, value  ->  tdi 24, rx, value
-		addop 'twi',    0x0C000000, :to, :ra, :si
-	#	alias twgti rx, value  ->  twi 8, rx, value
-	#	alias twllei rx, value  ->  twi 6, rx, value
-		addop 'td',     0x7C000088, :to, :ra, :rb
-	#	alias tdge rx, ry  ->  td 12, rx, ry
-	#	alias tdlnl rx, ry  ->  td 5, rx, ry
-		addop 'tw',     0x7C000008, :to, :ra, :rb
-	#	alias tweq rx, ry  ->  tw 4, rx, ry
-	#	alias twlge rx, ry  ->  tw 5, rx, ry
 		addop 'andi.',  0x70000000, :ra, :rs, :ui
 		addop 'andis.', 0x74000000, :ra, :rs, :ui
 		addop 'nop',    0x60000000
@@ -384,6 +387,11 @@ class PowerPC
 		addop 'mtsrin', 0x7C0001E4, :rs, :rb
 		addop 'mfsr',   0x7C0004A6, :rt, :sr
 		addop 'mfsrin', 0x7C000526, :rt, :rb
+
+		addop_trap 'tw',  0x7C000008, :ra, :rb
+		addop_trap 'twi',  0xC0000000, :ra, :si
+		addop_trap 'td',  0x7C000088, :ra, :rb
+		addop_trap 'tdi', 0x08000000, :ra, :si
 
 		# pseudo-instructions
 		addop 'mr', :pseudo, :ra, :rb

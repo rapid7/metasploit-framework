@@ -12,12 +12,13 @@ require 'metasm'
 include Metasm
 
 require 'optparse'
-opts = { :hdrs => [], :defs => {}, :path => [], :cpu => 'X86' }
+opts = { :hdrs => [], :defs => {}, :path => [], :cpu => 'X86', :offbase => 16 }
 OptionParser.new { |opt|
 	opt.on('-o outfile') { |f| opts[:outfile] = f }
 	opt.on('-H additional_header') { |f| opts[:hdrs] << f }
 	opt.on('-I path', '--includepath path') { |f| opts[:path] << f }
 	opt.on('-D var') { |f| k, v = f.split('=', 2) ; opts[:defs].update k => (v || '') }
+	opt.on('-d') { opts[:offbase] = 10 }
 	opt.on('--cpu CpuClass') { |c| opts[:cpu] = c }
 	opt.on('--gcc') { opts[:gcc] = true }
 	opt.on('--vs', '--visualstudio') { opts[:vs] = true }
@@ -50,9 +51,9 @@ ARGV.each { |structname|
 	end
 	
 	puts "// #{structname}" if not st.name
-	puts "struct #{st.name} { // size = #{cp.sizeof(st)}"
+	puts "struct #{st.name} { // size = #{cp.sizeof(st).to_s(opts[:offbase])}"
 	st.members.each { |m|
-		puts "\t#{m.type.to_s[1..-2]} #{m.name if m.name}; // +#{st.offsetof(cp, m.name)}"
+		puts "\t#{m.type.to_s[1..-2]} #{m.name if m.name}; // +#{st.offsetof(cp, m.name).to_s(opts[:offbase])}"
 	}
 	puts '};', ''
 }
