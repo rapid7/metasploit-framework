@@ -420,6 +420,173 @@ class DBManager
 		wspace.services.all(:include => :host, :conditions => conditions, :order => "hosts.address, port")
 	end
 
+	# Returns a session based on opened_time, host address, and workspace
+	# (or returns nil)
+	def get_session(opts)
+		return if not active
+		wspace = opts[:workspace] || opts[:wspace] || workspace
+		addr   = opts[:addr] || opts[:address] || opts[:host] || return
+		host = get_host(:workspace => wspace, :host => addr)
+		time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
+		Msf::DBManager::Session.find_by_host_id_and_opened_at(host.id, time)
+	end
+
+	# Record a new session in the database
+	#
+	# opts must contain either
+	#	  :session  - the Msf::Session object we are reporting
+	#	  :host     - the Host object we are reporting a session on. 
+	#
+	def report_session(opts)
+		return if not active
+		if opts[:session]
+			raise ArgumentError.new("Invalid :session, expected Msf::Session") unless opts[:session].kind_of? Msf::Session
+			session = opts[:session]
+			wspace = opts[:workspace] || find_workspace(session.workspace)
+			h_opts = { }
+			h_opts[:host]      = normalize_host(session)
+			h_opts[:arch]      = session.arch if session.arch
+			h_opts[:workspace] = wspace
+			host = find_or_create_host(h_opts)
+			sess_data = {
+				:host_id => host.id,
+				:stype => session.type,
+				:desc => session.info,
+				:platform => session.platform,
+				:via_payload => session.via_payload,
+				:via_exploit => session.via_exploit,
+				:routes => [],
+				:datastore => session.exploit_datastore.to_h,
+				:opened_at => Time.now
+			}
+		elsif opts[:host]
+			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? Host
+			host = opts[:host]
+			sess_data = {
+				:host_id => host.id,
+				:stype => opts[:stype],
+				:desc => opts[:desc],
+				:platform => opts[:platform],
+				:via_payload => opts[:via_payload],
+				:via_exploit => opts[:via_exploit],
+				:routes => opts[:routes],
+				:datastore => opts[:datastore],
+				:opened_at => opts[:opened_at],
+				:closed_at => opts[:closed_at],
+				:close_reason => opts[:close_reason],
+			}
+		else
+			raise ArgumentError.new("Missing option :session or :host")
+		end
+		ret = {}
+
+		task = queue(Proc.new {
+			s = Msf::DBManager::Session.create(sess_data)
+			if opts[:session]
+				session.db_record = s 
+			else
+				myret = s.save!
+			end
+			ret[:session] = s
+		})
+
+		# If this is a live session, we know the host is vulnerable to something.
+		# If the exploit used was multi/handler, though, we don't know what
+		# it's vulnerable to, so it isn't really useful to save it.
+		if opts[:session]
+		if session.via_exploit and session.via_exploit != "exploit/multi/handler"
+			return unless host
+			port = session.exploit_datastore["RPORT"]
+			service = (port ? host.services.find_by_port(port) : nil)
+			mod = framework.modules.create(session.via_exploit)
+			vuln_info = {
+				:host => host.address,
+				:name => session.via_exploit,
+				:refs => mod.references,
+				:workspace => wspace
+			}
+			framework.db.report_vuln(vuln_info)
+			# Exploit info is like vuln info, except it's /just/ for storing
+			# successful exploits in an unserialized way. Yes, there is
+			# duplication, but it makes exporting a score card about a
+			# million times easier. TODO: See if vuln/exploit can get fixed up
+			# to one useful table.
+			exploit_info = {
+				:name => session.via_exploit,
+				:payload => session.via_payload,
+				:workspace => wspace,
+				:host => host,
+				:service => service,
+				:session_uuid => session.uuid
+			}
+			framework.db.report_exploit(exploit_info)
+		end
+		end
+
+		# Always wait for the task so that session.db_record gets stored
+		# properly.  This allows us to have session events immediately after
+		# reporting the new session without having to worry about race
+		# conditions.
+		return nil if task.wait() != :done
+		return ret[:session]
+	end
+
+	#
+	# Record a session event in the database
+	#
+	# opts must contain one of:
+	#	:session      -- the Msf::Session OR the Msf::DBManager::Session we are reporting
+	#	:etype        -- event type, enum: command, output, upload, download, filedelete
+	#
+	# opts may contain
+	#	:output       -- the data for an output event
+	#	:command      -- the data for an command event
+	#	:remote_path  -- path to the associated file for upload, download, and filedelete events
+	#	:local_path   -- path to the associated file for upload, and download
+	#
+	def report_session_event(opts)
+		return if not active
+		raise ArgumentError.new("Missing required option :session") if opts[:session].nil? 
+		raise ArgumentError.new("Expected an :etype") unless opts[:etype]
+		if opts[:session].respond_to? :db_record
+			session = opts[:session].db_record
+			event_data = { :created_at => Time.now }
+		else
+			session = opts[:session]
+			event_data = { :created_at => opts[:created_at] }
+		end
+		unless session.kind_of? Msf::DBManager::Session
+			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
+		end
+		event_data[:session_id] = session.id
+		[:remote_path, :local_path, :output, :command, :etype].each do |attr|
+			event_data[attr] = opts[attr] if opts[attr]
+		end
+		task = queue(Proc.new {
+			s = Msf::DBManager::SessionEvent.create(event_data)
+		})
+		return task
+	end
+
+	def report_session_route(session, route)
+		return if not active
+		
+		task = queue(Proc.new {
+			session.db_record.routes << route
+			session.db_record.save!
+		})
+
+	end
+
+	def report_session_route_remove(session, route)
+		return if not active
+		
+		task = queue(Proc.new {
+			session.db_record.routes.delete(route)
+			session.db_record.save!
+		})
+
+	end
 
 	def get_client(opts)
 		wspace = opts.delete(:workspace) || workspace
@@ -567,6 +734,9 @@ class DBManager
 		return if not active
 		wait = opts.delete(:wait)
 		wspace = opts.delete(:workspace) || workspace
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
 		seen = opts.delete(:seen) || false
 		crit = opts.delete(:critical) || false
 		host = nil
@@ -576,8 +746,8 @@ class DBManager
 			if opts[:host].kind_of? Host
 				host = opts[:host]
 			else
-				report_host({:workspace => wspace, :host => opts[:host]})
 				addr = normalize_host(opts[:host])
+				report_host({:workspace => wspace, :host => addr})
 			end
 			# Do the same for a service if that's also included.
 			if (opts[:port])
@@ -634,10 +804,10 @@ class DBManager
 			conditions[:host_id] = host[:id] if host
 			conditions[:service_id] = service[:id] if service
 
-			notes = wspace.notes.find(:all, :conditions => conditions)
-
 			case mode
 			when :unique
+				notes = wspace.notes.find(:all, :conditions => conditions)
+
 				# Only one note of this type should exist, make a new one if it
 				# isn't there. If it is, grab it and overwrite its data.
 				if notes.empty?
@@ -647,6 +817,8 @@ class DBManager
 				end
 				note.data = data
 			when :unique_data
+				notes = wspace.notes.find(:all, :conditions => conditions)
+
 				# Don't make a new Note with the same data as one that already
 				# exists for the given: type and (host or service)
 				notes.each do |n|
@@ -2742,7 +2914,7 @@ class DBManager
 				end
 			}
 			host_address = host_data[:host].dup # Preserve after report_host() deletes
-			report_host(host_data)
+			report_host(host_data.merge(:wait => true))
 			host.elements.each('services/service') do |service|
 				service_data = {}
 				service_data[:workspace] = wspace
@@ -2832,32 +3004,77 @@ class DBManager
 				end
 				report_cred(cred_data.merge(:wait => true))
 			end
+
+			host.elements.each('sessions/session') do |sess|
+				sess_id = nils_for_nulls(sess.elements["id"].text.to_s.strip.to_i)
+				sess_data = {}
+				sess_data[:host] = get_host(:workspace => wspace, :address => host_address)
+				%W{desc platform port stype}.each {|datum|
+					if sess.elements[datum].respond_to? :text
+						sess_data[datum.intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
+					end
+				}
+				%W{opened-at close-reason closed-at via-exploit via-payload}.each {|datum|
+					if sess.elements[datum].respond_to? :text
+						sess_data[datum.gsub("-","_").intern] = nils_for_nulls(sess.elements[datum].text.to_s.strip)
+					end
+				}
+				sess_data[:datastore] = nils_for_nulls(unserialize_object(sess.elements["datastore"], allow_yaml))
+				sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml))
+				if not sess_data[:closed_at] # Fake a close if we don't already have one
+					sess_data[:closed_at] = Time.now 
+					sess_data[:close_reason] = "Imported at #{Time.now}"
+				end
+
+				existing_session = get_session(
+					:workspace => sess_data[:host].workspace,
+					:addr => sess_data[:host].address,
+					:time => sess_data[:opened_at]
+				) 
+				this_session = existing_session || report_session(sess_data.merge(:wait => true))
+				next if existing_session
+				sess.elements.each('events/event') do |sess_event|
+					sess_event_data = {}
+					sess_event_data[:session] = this_session
+					%W{created-at etype local-path remote-path}.each {|datum|
+						if sess_event.elements[datum].respond_to? :text
+							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(sess_event.elements[datum].text.to_s.strip)
+						end
+					}
+					%W{command output}.each {|datum|
+						if sess_event.elements[datum].respond_to? :text
+							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(unserialize_object(sess_event.elements[datum], allow_yaml))
+						end
+					}
+					report_session_event(sess_event_data) 
+				end
+			end
 		end
-		
+
 		# Import web sites
 		doc.elements.each("/#{btag}/web_sites/web_site") do |web|
 			info = {}
 			info[:workspace] = wspace
-			
+
 			%W{host port vhost ssl comments}.each do |datum|
 				if web.elements[datum].respond_to? :text
 					info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 				end					
 			end
-								
+
 			info[:options]   = nils_for_nulls(unserialize_object(web.elements["options"], allow_yaml)) if web.elements["options"].respond_to?(:text)
 			info[:ssl]       = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-									
+
 			%W{created-at updated-at}.each { |datum|
 				if web.elements[datum].text
 					info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 				end
 			}
-			
+
 			report_web_site(info)
 			yield(:web_site, "#{info[:host]}:#{info[:port]} (#{info[:vhost]})") if block
 		end
-		
+
 		%W{page form vuln}.each do |wtype|
 			doc.elements.each("/#{btag}/web_#{wtype}s/web_#{wtype}") do |web|
 				info = {}
@@ -2866,9 +3083,9 @@ class DBManager
 				info[:port]      = nils_for_nulls(web.elements["port"].text.to_s.strip)  if web.elements["port"].respond_to?(:text)
 				info[:ssl]       = nils_for_nulls(web.elements["ssl"].text.to_s.strip)   if web.elements["ssl"].respond_to?(:text)
 				info[:vhost]     = nils_for_nulls(web.elements["vhost"].text.to_s.strip) if web.elements["vhost"].respond_to?(:text)
-				
+
 				info[:ssl] = (info[:ssl] and info[:ssl].to_s.strip.downcase == "true") ? true : false
-				
+
 				case wtype
 				when "page"
 					%W{path code body query cookie auth ctype mtime location}.each do |datum|
@@ -2894,14 +3111,14 @@ class DBManager
 					info[:risk]   = info[:risk].to_i			
 					info[:confidence] = info[:confidence].to_i							
 				end
-									
+
 				%W{created-at updated-at}.each { |datum|
 					if web.elements[datum].text
 						info[datum.gsub("-","_")] = nils_for_nulls(web.elements[datum].text.to_s.strip)
 					end
 				}
 				self.send("report_web_#{wtype}", info)
-				
+
 				yield("web_#{wtype}".intern, info[:path]) if block
 			end
 		end
@@ -4468,17 +4685,56 @@ class DBManager
 		end
 	end
 
+	#
+	# Returns something suitable for the +:host+ parameter to the various report_* methods
+	#
+	# Takes a Host object, a Session object, an Msf::Session object or a String
+	# address 
+	#
 	def normalize_host(host)
-		# If the host parameter is a Session, try to extract its address
-		if host.respond_to?('target_host')
-			thost = host.target_host
-			tpeer = host.tunnel_peer
-			if tpeer and (!thost or thost.empty?)
-				thost = tpeer.split(":")[0]
+		return host if host.kind_of? Host
+		norm_host = nil
+		
+		if (host.kind_of? String)
+			# If it's an IPv4 addr with a host on the end, strip the port
+			if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+				norm_host = $1
+			else
+				norm_host = host
 			end
-			host = thost
+		elsif host.kind_of? Session
+			norm_host = host.host
+		elsif host.respond_to?(:target_host)
+			# Then it's an Msf::Session object with a target but target_host
+			# won't be set in some cases, so try tunnel_peer as well
+			thost = host.target_host
+			if host.tunnel_peer and (!thost or thost.empty?)
+				# tunnel_peer is of the form ip:port, so strip off the port to
+				# get the addr by itself
+				thost = host.tunnel_peer.split(":")[0]
+			end
+			norm_host = thost
 		end
-		host
+
+		# If we got here and don't have a norm_host yet, it could be a
+		# Msf::Session object with an empty or nil tunnel_host and tunnel_peer;
+		# see if it has a socket and use its peerhost if so.
+		if (
+				norm_host.nil? and
+				host.respond_to?(:sock) and
+				host.sock.respond_to?(:peerhost) and
+				host.sock.peerhost.to_s.length > 0
+			)
+			norm_host = session.sock.peerhost
+		end
+		# If We got here and still don't have a real host, there's nothing left
+		# to try, just log it and return what we were given
+		if not norm_host
+			dlog("Host could not be normalized: #{host.inspect}")
+			norm_host = host
+		end
+
+		norm_host
 	end
 
 protected

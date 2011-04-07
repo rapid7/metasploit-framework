@@ -870,11 +870,12 @@ class Core
 			return false
 		end
 
-		case args.shift
+		arg = args.shift
+		case arg
 
-		when "add"
+		when "add", "remove"
 			if (args.length < 3)
-				print_error("Missing arguments to route add.")
+				print_error("Missing arguments to route #{arg}.")
 				return false
 			end
 
@@ -912,55 +913,21 @@ class Core
 				return false
 			end
 
-			Rex::Socket::SwitchBoard.add_route(
-				args[0],
-				args[1],
-				gw)
-
-		when "remove"
-			if (args.length < 3)
-				print_error("Missing arguments to route remove.")
-				return false
-			end
-
-			# Satisfy check to see that formatting is correct
-			unless Rex::Socket::RangeWalker.new(args[0]).length == 1
-				print_error "Invalid IP Address"
-				return false
-			end
-
-			unless Rex::Socket::RangeWalker.new(args[1]).length == 1
-				print_error "Invalid Subnet mask"
-				return false
-			end
-
-			gw = nil
-
-			# Satisfy case problems
-			args[2] = "Local" if (args[2] =~ /local/i)
-
-			begin
-				# If the supplied gateway is a global Comm, use it.
-				if (Rex::Socket::Comm.const_defined?(args[2]))
-					gw = Rex::Socket::Comm.const_get(args[2])
+			if arg == "remove"
+				worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gw)
+				if worked
+					print_status("Route removed")
+				else
+					print_error("Route not found")
 				end
-			rescue NameError
+			else
+				worked = Rex::Socket::SwitchBoard.add_route(args[0], args[1], gw)
+				if worked
+					print_status("Route added")
+				else
+					print_error("Route already exists")
+				end
 			end
-
-			# If we still don't have a gateway, check if it's a session.
-			if ((gw == nil) and
-					(session = framework.sessions.get(args[2])) and
-					(session.kind_of?(Msf::Session::Comm)))
-				gw = session
-			elsif (gw == nil)
-				print_error("Invalid gateway specified.")
-				return false
-			end
-
-			Rex::Socket::SwitchBoard.remove_route(
-				args[0],
-				args[1],
-				gw)
 
 		when "get"
 			if (args.length == 0)

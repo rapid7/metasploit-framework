@@ -79,7 +79,8 @@ module Session
 	def initialize
 		self.alive = true
 		self.uuid  = Rex::Text.rand_text_alphanumeric(8).downcase
-		self.routes = []
+		@routes = RouteArray.new(self)
+		#self.routes = []
 	end
 
 	# Direct descendents
@@ -241,7 +242,16 @@ module Session
 	#
 	# Perform session-specific cleanup.
 	#
+	# NOTE: session classes overriding this method must call super!
+	# Also must tolerate being called multiple times.
+	#
 	def cleanup
+		if db_record and framework.db.active
+			db_record.closed_at = Time.now
+			# ignore exceptions
+			db_record.save
+			db_record = nil
+		end
 	end
 
 	#
@@ -262,6 +272,7 @@ module Session
 	def dead?
 		(not self.alive)
 	end
+
 	def alive?
 		(self.alive)
 	end
@@ -316,6 +327,10 @@ module Session
 	# An array of routes associated with this session
 	#
 	attr_accessor :routes
+	#
+	# This session's associated database record
+	#
+	attr_accessor :db_record
 protected
 
 	attr_accessor :via # :nodoc:
@@ -324,3 +339,21 @@ end
 
 end
 
+class RouteArray < Array # :nodoc: all
+	def initialize(sess)
+		self.session = sess
+		super()
+	end
+
+	def <<(val)
+		session.framework.events.on_session_route(session, val)
+		super
+	end
+
+	def delete(val)
+		session.framework.events.on_session_route_remove(session, val)
+		super
+	end
+
+	attr_accessor :session
+end

@@ -281,8 +281,21 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 			::Timeout.timeout(60) do
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
+				framework.db.report_note({
+					:type => "host.os.session_fingerprint",
+					:host => self,
+					:workspace => workspace,
+					:data => {
+						:name => sysinfo["Computer"],
+						:os => sysinfo["OS"],
+						:arch => sysinfo["Architecture"],
+					}
+				})
 				safe_info = "#{username} @ #{sysinfo['Computer']}"
 				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+				# Should probably be using Rex::Text.ascii_safe_hex but leave
+				# this as is for now since "\xNN" is arguably uglier than "_"
+				# showing up in various places in the UI.
 				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				self.info = safe_info
 			end

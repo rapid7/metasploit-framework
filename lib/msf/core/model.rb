@@ -18,6 +18,8 @@ require 'msf/core/model/workspace'
 require 'msf/core/model/vuln'
 require 'msf/core/model/cred'
 require 'msf/core/model/exploited_host'
+require 'msf/core/model/session'
+require 'msf/core/model/session_event'
 
 require 'msf/core/model/wmap_target'
 require 'msf/core/model/wmap_request'
@@ -35,4 +37,5 @@ require 'msf/core/model/web_vuln'
 
 require 'msf/core/model/imported_cred'
 require 'msf/core/model/tag'
+require 'msf/core/model/session_event'
 

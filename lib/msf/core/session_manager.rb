@@ -21,8 +21,47 @@ class SessionManager < Hash
 		self.framework = framework
 		self.sid_pool  = 0
 		self.reaper_thread = framework.threads.spawn("SessionManager", true, self) do |manager|
+			begin
 			while true
-				::IO.select(nil, nil, nil, 0.5)
+			
+				rings = values.select{|s| s.respond_to?(:ring) and s.ring and s.rstream }
+				ready = ::IO.select(rings.map{|s| s.rstream}, nil, nil, 0.5) || [[],[],[]]
+
+				ready[0].each do |fd|
+					s = rings.select{|s| s.rstream == fd}.first
+					next if not s
+				
+					begin
+						buff = fd.get_once(-1)
+						if buff
+							# Store the data in the associated ring
+							s.ring.store_data(buff)
+
+							# Store the session event into the database.
+							# Rescue anything the event handlers raise so they
+							# don't break our session.
+							framework.events.on_session_output(s, buff) rescue nil
+						end
+					rescue ::Exception => e
+						wlog("Exception reading from Session #{s.sid}: #{e.class} #{e}")
+						unless e.kind_of? EOFError
+							# Don't bother with a call stack if it's just a
+							# normal EOF
+							dlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+						end
+				
+						# Flush any ring data in the queue
+						s.ring.clear_data rescue nil
+						
+						# Shut down the socket itself
+						s.rstream.close rescue nil
+						
+						# Deregister the session
+						manager.deregister(s, "Died from #{e.class}")
+					end
+				end
+				
+				# Check for closed / dead / terminated sessions
 				manager.each_value do |s|
 					if not s.alive?
 						manager.deregister(s, "Died")
@@ -30,6 +69,11 @@ class SessionManager < Hash
 						next
 					end
 				end
+			end
+			
+			rescue ::Exception => e
+				wlog("Exception in reaper thread #{e.class} #{e}")
+				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
 			end
 		end
 	end
@@ -61,7 +105,13 @@ class SessionManager < Hash
 		session.framework = framework
 
 		# Notify the framework that we have a new session opening up...
-		framework.events.on_session_open(session)
+		# Don't let errant event handlers kill our session
+		begin
+			framework.events.on_session_open(session)
+		rescue ::Exception => e
+			wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+			wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+		end
 
 		if session.respond_to?("console")
 			session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
@@ -81,16 +131,12 @@ class SessionManager < Hash
 		end
 
 		# Tell the framework that we have a parting session
-		framework.events.on_session_close(session, reason)
+		framework.events.on_session_close(session, reason) rescue nil
 
 		# If this session implements the comm interface, remove any routes
 		# that have been created for it.
 		if (session.kind_of?(Msf::Session::Comm))
 			Rex::Socket::SwitchBoard.remove_by_comm(session)
-		end
-
-		if session.kind_of?(Msf::Session::Interactive)
-			session.interacting = false
 		end
 
 		# Remove it from the hash

@@ -598,6 +598,20 @@ module Text
 	end
 
 	#
+	# Turn non-printable chars into hex representations, leaving others alone
+	#
+	# If +whitespace+ is true, converts whitespace (0x20, 0x09, etc) to hex as
+	# well.
+	#
+	def self.ascii_safe_hex(str, whitespace=false)
+		if whitespace
+			str.gsub(/([\x00-\x20\x80-\xFF])/){ |x| "\\x%.2x" % x.unpack("C*")[0] }
+		else
+			str.gsub(/([\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xFF])/n){ |x| "\\x%.2x" % x.unpack("C*")[0]}
+		end
+	end
+
+	#
 	# Wraps text at a given column using a supplied indention
 	#
 	def self.wordwrap(str, indent = 0, col = DefaultWrap, append = '', prepend = '')

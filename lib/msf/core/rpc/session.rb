@@ -36,7 +36,7 @@ class Session < Base
 		authenticate(token)
 		s = @framework.sessions[sid.to_i]
 		if(not s)
-			raise ::XMLRPC::FaultException.new(404, "unknown session")
+			raise ::XMLRPC::FaultException.new(404, "unknown session while stopping")
 		end
 		s.kill
 		{ "result" => "success" }
@@ -185,7 +185,7 @@ protected
 		authenticate(token)
 		s = @framework.sessions[sid.to_i]
 		if(not s)
-			raise ::XMLRPC::FaultException.new(404, "unknown session")
+			raise ::XMLRPC::FaultException.new(404, "unknown session while validating")
 		end
 		if(s.type != type)
 			raise ::XMLRPC::FaultException.new(403, "session is not "+type)

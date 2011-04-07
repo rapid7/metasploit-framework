@@ -801,14 +801,20 @@ class Metasploit3 < Msf::Auxiliary
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
 				if framework.db.active
-					host_info = { :host => cli.peerhost }
-					host_info[:os_name]   = os_name   if os_name != "undefined"
-					host_info[:os_flavor] = os_flavor if os_flavor != "undefined"
-					host_info[:os_sp]     = os_sp     if os_sp != "undefined"
-					host_info[:os_lang]   = os_lang   if os_lang != "undefined"
-					host_info[:arch]      = arch      if arch != "undefined"
+					note_data = { }
+					note_data[:os_name]   = os_name   if os_name != "undefined"
+					note_data[:os_flavor] = os_flavor if os_flavor != "undefined"
+					note_data[:os_sp]     = os_sp     if os_sp != "undefined"
+					note_data[:os_lang]   = os_lang   if os_lang != "undefined"
+					note_data[:arch]      = arch      if arch != "undefined"
+					print_status("Reporting: #{note_data.inspect}")
 
-					report_host(host_info)
+					report_note({
+						:host => cli.peerhost,
+						:type => 'javascript_fingerprint',
+						:data => note_data,
+						:update => :unique_data,
+					})
 					client_info = ({
 						:host      => cli.peerhost,
 						:ua_string => request['User-Agent'],

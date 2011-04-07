@@ -90,7 +90,7 @@ class CommandShell
 		
 		# Keep reading data until no more data is available or the timeout is 
 		# reached. 
-		while (::Time.now.to_f < etime and ::IO.select([rstream], nil, nil, timeo))
+		while (::Time.now.to_f < etime and (self.respond_to?(:ring) or ::IO.select([rstream], nil, nil, timeo)))
 			res = shell_read(-1, 0.01)
 			buff << res if res
 			timeo = etime - ::Time.now.to_f
@@ -103,6 +103,8 @@ class CommandShell
 	# Read from the command shell.
 	#
 	def shell_read(length=-1, timeout=1)
+		return shell_read_ring(length,timeout) if self.respond_to?(:ring)
+		
 		begin
 			rv = rstream.get_once(length, timeout)
 			framework.events.on_session_output(self, rv) if rv
@@ -114,6 +116,50 @@ class CommandShell
 		end
 	end
 
+	#
+	# Read from the command shell.
+	#
+	def shell_read_ring(length=-1, timeout=1)
+		self.ring_buff ||= ""
+
+		# Short-circuit bad length values
+		return "" if length == 0
+		
+		# Return data from the stored buffer if available
+		if self.ring_buff.length >= length and length > 0
+			buff = self.ring_buff.slice!(0,length)
+			return buff
+		end
+		
+		buff = self.ring_buff
+		self.ring_buff = ""
+		
+		begin
+			::Timeout.timeout(timeout) do
+				while( (length > 0 and buff.length < length) or (length == -1 and buff.length == 0))					
+					ring.select
+					nseq,data = ring.read_data(self.ring_seq)
+					if data
+						self.ring_seq = nseq
+						buff << data
+					end
+				end
+			end
+		rescue ::Timeout::Error
+		rescue ::Exception => e
+			shell_close
+			raise e
+		end
+		
+		# Store any leftovers in the ring buffer backlog
+		if length > 0 and buff.length > length
+			self.ring_buff = buff[length, buff.length - length]
+			buff = buff[0,length]
+		end
+		
+		buff
+	end
+	
 	#
 	# Writes to the command shell.
 	#
@@ -178,7 +224,14 @@ protected
 	# shell_write instead of operating on rstream directly.
 	def _interact
 		framework.events.on_session_interact(self)
-
+		if self.respond_to?(:ring)
+			_interact_ring
+		else
+			_interact_stream
+		end
+	end
+	
+	def _interact_stream
 		fds = [rstream.fd, user_input.fd]
 		while self.interacting
 			sd = Rex::ThreadSafe.select(fds, nil, fds, 0.5)
@@ -190,8 +243,51 @@ protected
 			if sd[0].include? user_input.fd
 				shell_write(user_input.gets)
 			end
+			Thread.pass
 		end
 	end
+	
+	def _interact_ring
+
+		begin
+		
+		rdr = Rex::ThreadFactory.spawn("RingMonitor", false) do
+			seq = nil
+			while self.interacting
+			
+				# Look for any pending data from the remote ring
+				nseq,data = ring.read_data(seq)
+			
+				# Update the sequence number if necessary
+				seq = nseq || seq
+			
+				# Write output to the local stream if successful
+				user_output.print(data) if data
+
+				begin
+					# Wait for new data to arrive on this session
+					ring.wait(seq)
+				rescue EOFError => e
+					break
+				end
+			end	
+		end
+
+		while self.interacting
+			# Look for any pending input or errors from the local stream
+			sd = Rex::ThreadSafe.select([ _local_fd ], nil, [_local_fd], 5.0)
+
+			# Write input to the ring's input mechanism			
+			shell_write(user_input.gets) if sd
+		end
+		
+		ensure
+			rdr.kill
+		end
+	end
+	
+	attr_accessor :ring_seq    # This tracks the last seen ring buffer sequence (for shell_read)
+	attr_accessor :ring_buff   # This tracks left over read data to maintain a compatible API
 end
 
 class CommandShellWindows < CommandShell

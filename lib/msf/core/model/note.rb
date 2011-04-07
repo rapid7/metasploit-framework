@@ -8,6 +8,13 @@ class Note < ActiveRecord::Base
 	belongs_to :host
 	belongs_to :service
 	serialize :data
+
+	def after_save
+		if data_changed? and ntype =~ /fingerprint/
+			host.normalize_os
+		end
+	end
+
 end
 
 end

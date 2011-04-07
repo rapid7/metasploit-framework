@@ -15,6 +15,13 @@ class Service < ActiveRecord::Base
 	has_many :web_vulns, :through => :web_sites
 		
 	serialize :info
+
+	def after_save
+		if info_changed?
+			host.normalize_os
+		end
+	end
+
 end
 
 end

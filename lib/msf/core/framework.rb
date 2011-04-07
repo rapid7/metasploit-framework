@@ -277,127 +277,60 @@ class FrameworkEventSubscriber
 		#report_event(:name => "ui_start", :info => info)
 	end
 
-	#
-	# Generic handler for session events
-	#
-	def session_event(name, session, opts={})
-		address = nil
-
-		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
-			address = session.peerhost
-		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-		elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
-			address = session.target_host
-		else
-			elog("Session with no peerhost/tunnel_peer")
-			dlog("#{session.inspect}", LEV_3)
-			return
-		end
-
-		if framework.db.active
-			ws = framework.db.find_workspace(session.workspace)
-			event = {
-				:workspace => ws,
-				:username  => session.username,
-				:name => name,
-				:host => address,
-				:info => {
-					:session_id   => session.sid,
-					:session_info => session.info,
-					:session_uuid => session.uuid,
-					:session_type => session.type,
-					:username     => session.username,
-					:target_host  => address,
-					:via_exploit  => session.via_exploit,
-					:via_payload  => session.via_payload,
-					:tunnel_peer  => session.tunnel_peer,
-					:exploit_uuid => session.exploit_uuid
-				}.merge(opts)
-			}
-			report_event(event)
-		end
-	end
-
 	require 'msf/core/session'
 
 	include ::Msf::SessionEvent
 
 	def on_session_open(session)
-		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
-		session_event('session_open', session, opts)
-		if framework.db.active
-			framework.db.sync
-
-			address = nil
-
-			if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
-				address = session.peerhost
-			elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
-				address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-			elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
-				address = session.target_host
-			else
-				elog("Session with no peerhost/tunnel_peer")
-				dlog("#{session.inspect}", LEV_3)
-				return
-			end
-
-			# Since we got a session, we know the host is vulnerable to something.
-			# If the exploit used was multi/handler, though, we don't know what
-			# it's vulnerable to, so it isn't really useful to save it.
-			if session.via_exploit and session.via_exploit != "exploit/multi/handler"
-				wspace = framework.db.find_workspace(session.workspace)
-				host = wspace.hosts.find_by_address(address)
-				return unless host
-				port = session.exploit_datastore["RPORT"]
-				service = (port ? host.services.find_by_port(port) : nil)
-				mod = framework.modules.create(session.via_exploit)
-				vuln_info = {
-					:host => host.address,
-					:name => session.via_exploit,
-					:refs => mod.references,
-					:workspace => wspace
-				}
-				framework.db.report_vuln(vuln_info)
-				# Exploit info is like vuln info, except it's /just/ for storing
-				# successful exploits in an unserialized way. Yes, there is
-				# duplication, but it makes exporting a score card about a
-				# million times easier. TODO: See if vuln/exploit can get fixed up
-				# to one useful table.
-				exploit_info = {
-					:name => session.via_exploit,
-					:payload => session.via_payload,
-					:workspace => wspace,
-					:host => host,
-					:service => service,
-					:session_uuid => session.uuid
-				}
-				ret = framework.db.report_exploit(exploit_info)
-			end
-		end
+		framework.db.report_session(:session => session)
 	end
 
 	def on_session_upload(session, lpath, rpath)
-		session_event('session_upload', session, :local_path => lpath, :remote_path => rpath)
+		framework.db.report_session_event({
+			:etype => 'upload',
+			:session => session,
+			:local_path => lpath,
+			:remote_path => rpath
+		})
 	end
 	def on_session_download(session, rpath, lpath)
-		session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
+		#session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
+		framework.db.report_session_event({
+			:etype => 'download',
+			:session => session,
+			:local_path => lpath,
+			:remote_path => rpath
+		})
 	end
 	def on_session_filedelete(session, path)
-		session_event('session_filedelete', session, :path => path)
+		#session_event('session_filedelete', session, :path => path)
+		framework.db.report_session_event({
+			:etype => 'filedelete',
+			:session => session,
+			:local_path => lpath,
+			:remote_path => rpath
+		})
 	end
 
 	def on_session_close(session, reason='')
-		session_event('session_close', session)
+		if session.db_record
+			# Don't bother saving here, the session's cleanup method will take
+			# care of that later.
+			session.db_record.close_reason = reason
+		end
 	end
 
-	def on_session_interact(session)
-		session_event('session_interact', session)
-	end
+	#def on_session_interact(session)
+	#	$stdout.puts('session_interact', session.inspect)
+	#end
 
 	def on_session_command(session, command)
-		session_event('session_command', session, :command => command)
+		#session_event('session_command', session, :command => command)
+		framework.db.report_session_event({
+			:etype => 'command',
+			:session => session,
+			:command => command
+		})
 	end
 
 	def on_session_output(session, output)
@@ -412,8 +345,21 @@ class FrameworkEventSubscriber
 			chunks << buff
 		end
 		chunks.each { |chunk|
-			session_event('session_output', session, :output => chunk)
+			#session_event('session_output', session, :output => chunk)
+			framework.db.report_session_event({
+				:etype => 'output',
+				:session => session,
+				:output => chunk
+			})
 		}
+	end
+
+	def on_session_route(session, route)
+		framework.db.report_session_route(session, route)
+	end
+
+	def on_session_route_remove(session, route)
+		framework.db.report_session_route_remove(session, route)
 	end
 
 

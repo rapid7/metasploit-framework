@@ -1,4 +1,5 @@
 require 'rex/ui'
+require 'rex/io/ring_buffer'
 
 module Msf
 module Session
@@ -21,7 +22,11 @@ module Interactive
 	# Initializes the session.
 	#
 	def initialize(rstream, opts={})
-		self.rstream = rstream
+		# A nil is passed in the case of non-stream interactive sessions (Meterpreter)
+		if rstream
+			self.rstream = rstream
+			self.ring    = Rex::IO::RingBuffer.new(rstream, {:size => opts[:ring_size] || 100 })
+		end
 		super()
 	end
 
@@ -37,10 +42,11 @@ module Interactive
 	# Returns the local information.
 	#
 	def tunnel_local
+		return @local_info if @local_info
 		begin
-			rstream.localinfo
+			@local_info = rstream.localinfo
 		rescue ::Exception
-			'127.0.0.1'
+			@local_info = '127.0.0.1'
 		end
 	end
 
@@ -48,10 +54,11 @@ module Interactive
 	# Returns the remote peer information.
 	#
 	def tunnel_peer
+		return @peer_info if @peer_info
 		begin
 			@peer_info = rstream.peerinfo
 		rescue ::Exception
-			@peer_info ||= '127.0.0.1'
+			@peer_info = '127.0.0.1'
 		end
 	end
 
@@ -65,7 +72,6 @@ module Interactive
 	# Terminate the session
 	#
 	def kill
-		self.interacting = false if self.interactive?
 		self.reset_ui
 		self.cleanup
 		super()
@@ -76,17 +82,24 @@ module Interactive
 	#
 	def cleanup
 		begin
+			self.interacting = false if self.interactive?
 			rstream.close if (rstream)
 		rescue ::Exception
 		end
 
 		rstream = nil
+		super
 	end
 
 	#
 	# The remote stream handle.  Must inherit from Rex::IO::Stream.
 	#
 	attr_accessor :rstream
+	
+	#
+	# The RingBuffer object used to allow concurrent access to this session
+	#
+	attr_accessor :ring
 
 protected
 
@@ -104,10 +117,7 @@ protected
 		begin
 			user_want_abort?
 		rescue Interrupt
-			# The user hit ctrl-c while we were handling a ctrl-c, send a
-			# literal ctrl-c to the shell.  XXX Doesn't actually work.
-			#$stdout.puts("\n[*] interrupted interrupt, sending literal ctrl-c\n")
-			#$stdout.puts(run_cmd("\x03"))
+			# The user hit ctrl-c while we were handling a ctrl-c. Ignore
 		end
 	end
 
