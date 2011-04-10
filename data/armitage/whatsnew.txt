@@ -1,6 +1,29 @@
 Armitage Changelog
 ==================
 
+10 Apr 11 - Change Log
+---------
+- Fixed key logger dump button.
+- Process migrate function displays success or fail message again.
+- Armitage now displays nmap output in a tab. You can thank scriptjunkie
+  for making this work in Metasploit. Please send cash, check, or money
+  order directly to him.
+- Greatly improved post-pivot host discovery workflow... here's the deal:
+  -- [host] -> Meterpreter -> ARP Scan menu now shows networks local to
+     host and lets you choose to launch an ARP scan from that Meterpreter
+     session.  
+  -- Highlight one or more hosts, right-click, and select Scan to launch
+     MSF discovery scans against the highlighted hosts.
+- Added a rudimentary loot browser/viewer to Armitage. Go to View -> Loot
+  to see the currently captured loots. Loot is the Metasploit term for 
+  data captured by certain post/ modules.
+- Armitage now presents a warning when it detects a second Metasploit 
+  user connected to the same Metasploit server without the collaboration
+  server in place.
+- Armitage collaboration mode now updates target information more often
+- Updated Armitage to work with Metasploit's new normalized host OS 
+  constants and to restore the os_flavor value when it is wiped out.
+
 16 Mar 11
 ---------
 - Shell -> Disconnect now executes in a separate thread.
