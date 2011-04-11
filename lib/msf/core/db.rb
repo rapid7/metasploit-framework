@@ -3369,6 +3369,7 @@ class DBManager
 			}
 			note[:data][:vendor]  = h["os_vendor"]  if h["os_vendor"]
 			note[:data][:product] = h["os_product"] if h["os_product"]
+			note[:data][:version] = h["os_version"] if h["os_version"]
 			note[:data][:arch]    = h["arch"]       if h["arch"]
 
 			report_note(note)

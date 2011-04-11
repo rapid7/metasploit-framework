@@ -63,6 +63,7 @@ class Host < ActiveRecord::Base
 			wname[norm[:os_name]]   = wname[norm[:os_name]].to_i   + (100 * norm[:certainty])
 			wflav[norm[:os_flavor]] = wflav[norm[:os_flavor]].to_i + (100 * norm[:certainty])
 			warch[norm[:arch]]      = warch[norm[:arch]].to_i      + (100 * norm[:certainty])
+			whost[norm[:name]]      = whost[norm[:name]].to_i      + (100 * norm[:certainty])
 		end
 
 		# Grab service information and assign scores. Some services are 
@@ -748,6 +749,8 @@ protected
 			else
 				ret[:os_name] = data[:os_vendor] + " " + data[:os_family]
 			end
+			ret[:os_flavor] = data[:os_version]
+			ret[:name] = data[:hostname] if data[:hostname]
 
 		when 'host.os.nexpose_fingerprint'
 			# :family=>"Windows" :certainty=>"0.85" :vendor=>"Microsoft" :product=>"Windows 7 Ultimate Edition"
@@ -768,6 +771,7 @@ protected
 			when "Windows"
 				ret[:os_name] = "Microsoft Windows"
 				ret[:os_flavor] = data[:product].gsub("Windows", '').strip if data[:product]
+				ret[:os_sp] = data[:version] if data[:version]
 			when "embedded"
 				ret[:os_name] = data[:vendor]
 			else
@@ -808,15 +812,25 @@ protected
 			case oses.first
 			when /Windows/
 				ret.merge(parse_windows_os_str(os))
+
+			when /(2\.[46]\.\d+[-a-zA-Z0-9]+)/
+				# Linux kernel version
+				ret[:os_name] = "Linux"
+				ret[:os_sp] = $1
 			when /(.*)?((\d+\.)+\d+)$/
-				# Then this fingerprint has some version information at the
-				# end, pull it off.
+				# Then we don't necessarily know what the os is, but this
+				# fingerprint has some version information at the end, pull it
+				# off.
+				# When Nessus doesn't know what kind of linux it has, it gives an os like 
+				#  "Linux Kernel 2.6"
+				# The "Kernel" string is useless, so cut it off.
 				ret[:os_name] = $1.gsub("Kernel", '').strip
 				ret[:os_sp] = $2
 			else
 				ret[:os_name] = oses.first
 			end
 
+			ret[:name] = data[:hname]
 		when 'host.os.qualys_fingerprint'
 			# :os=>"Microsoft Windows 2000"
 			# :os=>"Windows 2003"
