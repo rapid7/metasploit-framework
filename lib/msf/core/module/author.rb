@@ -22,7 +22,7 @@ class Msf::Module::Author
 			'cazz' 		=> 'bmc' + 0x40.chr + 'shmoo.com',
 			'pusscat' 	=> 'pusscat' + 0x40.chr + 'metasploit.com',
 			'skylined' 	=> 'skylined' + 0x40.chr + 'edup.tudelft.nl',
-			'patrick' 	=> 'patrick' + 0x40.chr + 'aushack.com',
+			'patrick' 	=> 'patrick' + 0x40.chr + 'osisecurity.com.au',
 			'ramon' 	=> 'ramon' + 0x40.chr + 'risesecurity.org',
 			'I)ruid' 	=> 'druid' +  0x40.chr + 'caughq.org',
 			'egypt' 	=> 'egypt' + 0x40.chr + 'metasploit.com',
