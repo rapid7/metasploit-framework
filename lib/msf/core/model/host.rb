@@ -712,7 +712,6 @@ class Host < ActiveRecord::Base
 		end
 
 		host.save!
-		p host
 	end
 
 protected
