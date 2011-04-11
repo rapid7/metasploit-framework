@@ -70,10 +70,18 @@ class NmapXMLStreamParser
 				@host["addr"] = attributes["addr"]
 			end
 		when "osclass"
-			@host["os_vendor"]   = attributes["vendor"]
-			@host["os_family"]   = attributes["osfamily"]
-			@host["os_version"]  = attributes["osgen"]
-			@host["os_accuracy"] = attributes["accuracy"]
+			# If there is more than one, take the highest accuracy.  In case of
+			# a tie, this will have the effect of taking the last one in the
+			# list.  Last is really no better than first but nmap appears to
+			# put OSes in chronological order, at least for Windows.
+			# Accordingly, this will report XP instead of 2000, 7 instead of
+			# Vista, etc, when each has the same accuracy.
+			if (@host["os_accuracy"].to_i <= attributes["accuracy"].to_i)
+				@host["os_vendor"]   = attributes["vendor"]
+				@host["os_family"]   = attributes["osfamily"]
+				@host["os_version"]  = attributes["osgen"]
+				@host["os_accuracy"] = attributes["accuracy"]
+			end
 		when "osmatch"
 			if(attributes["accuracy"].to_i == 100)
 				@host["os_match"] = attributes["name"]
