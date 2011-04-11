@@ -731,8 +731,14 @@ protected
 		case fp.ntype
 		when 'host.os.session_fingerprint'
 			# These come from meterpreter sessions' client.sys.config.sysinfo
-			if data[:os] =~ /Windows/
+			case data[:os]
+			when /Windows/
 				ret.update(parse_windows_os_str(data[:os]))
+			when /Linux ([^[:space:]]*) ([^[:space:]]*) .* (\(.*\))/
+				ret[:os_name] = "Linux"
+				ret[:name]    = $1
+				ret[:os_sp]   = $2
+				ret[:arch]    = get_arch_from_string($3)
 			else
 				ret[:os_name] = data[:os]
 			end
