@@ -29,6 +29,7 @@ class NexposeXMLStreamParser
 				@host["os_vendor"]    = attributes["vendor"]
 				@host["os_family"]    = attributes["family"]
 				@host["os_product"]   = attributes["product"]
+				@host["os_version"]   = attributes["version"]
 				@host["arch"]         = attributes["arch"]
 				@host["os_certainty"] = attributes["certainty"]
 			end
@@ -76,7 +77,7 @@ class NexposeXMLStreamParser
 		when "vulnerability"
 			callback.call(:vuln, @vuln) if callback
 			reset_state
-		when "service","reference"
+		when "service","reference","names"
 			@state = :generic_state
 		end
 	end
