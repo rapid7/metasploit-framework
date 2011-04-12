@@ -27,20 +27,6 @@ class Console::CommandDispatcher::Core
 		self.bgjobs     = []
 		self.bgjob_id   = 0
 
-		@msf_loaded = nil
-	end
-
-	def msf_loaded?
-		return @msf_loaded unless @msf_loaded.nil?
-		# if we get here we must not have initialized yet
-
-		if client.framework
-			# We have a framework instance so the msf libraries should be
-			# available.  Load up the ones we're going to use
-			require 'msf/base/serializer/readable_text'
-		end
-		@msf_loaded = !!(client.framework)
-		@msf_loaded
 	end
 
 	@@use_opts = Rex::Parser::Arguments.new(

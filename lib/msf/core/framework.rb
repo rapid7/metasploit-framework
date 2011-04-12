@@ -302,21 +302,13 @@ class FrameworkEventSubscriber
 			:remote_path => rpath
 		})
 	end
-	def on_session_filedelete(session, path)
-		#session_event('session_filedelete', session, :path => path)
-		framework.db.report_session_event({
-			:etype => 'filedelete',
-			:session => session,
-			:local_path => lpath,
-			:remote_path => rpath
-		})
-	end
 
 	def on_session_close(session, reason='')
 		if session.db_record
 			# Don't bother saving here, the session's cleanup method will take
 			# care of that later.
 			session.db_record.close_reason = reason
+			session.db_record.closed_at = Time.now
 		end
 	end
 

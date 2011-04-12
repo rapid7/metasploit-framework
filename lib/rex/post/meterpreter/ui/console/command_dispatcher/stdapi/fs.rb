@@ -225,10 +225,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 			if (stat.directory?)
 				client.fs.dir.download(dest, src, recursive, true) { |step, src, dst|
 					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+					client.framework.events.on_session_download(client, src, dest) if msf_loaded?
 				}
 			elsif (stat.file?)
 				client.fs.file.download(dest, src) { |step, src, dst|
 					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+					client.framework.events.on_session_download(client, src, dest) if msf_loaded?
 				}
 			end
 		}
@@ -417,10 +419,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 			if (stat.directory?)
 				client.fs.dir.upload(dest, src, recursive) { |step, src, dst|
 					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+					client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
 				}
 			elsif (stat.file?)
 				client.fs.file.upload(dest, src) { |step, src, dst|
 					print_status("#{step.ljust(11)}: #{src} -> #{dst}")
+					client.framework.events.on_session_upload(client, src, dest) if msf_loaded?
 				}
 			end
 		}

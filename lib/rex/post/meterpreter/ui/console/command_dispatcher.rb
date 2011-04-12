@@ -36,11 +36,34 @@ module Console::CommandDispatcher
 		@@file_hash[name] = klass
 	end
 
+	def initialize(shell)
+		@msf_loaded = nil
+		super
+	end
+
 	#
 	# Returns the meterpreter client context.
 	#
 	def client
 		shell.client
+	end
+
+	#
+	# Returns true if the client has a framework object.
+	#
+	# Used for firing framework session events
+	#
+	def msf_loaded?
+		return @msf_loaded unless @msf_loaded.nil?
+		# if we get here we must not have initialized yet
+
+		if client.framework
+			# We have a framework instance so the msf libraries should be
+			# available.  Load up the ones we're going to use
+			require 'msf/base/serializer/readable_text'
+		end
+		@msf_loaded = !!(client.framework)
+		@msf_loaded
 	end
 
 	#
