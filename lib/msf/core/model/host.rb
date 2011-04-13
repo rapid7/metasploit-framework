@@ -699,7 +699,9 @@ class Host < ActiveRecord::Base
 		best_match[:os_flavor] ||= ""
 		if best_match[:os_name]
 			# Handle cases where the flavor contains the base name
-			best_match[:os_flavor].gsub!(best_match[:os_name], '')
+			# Don't use gsub!() here because the string was a hash key in a
+			# previously life and gets frozen on 1.9.1, see #4128
+			best_match[:os_flavor] = best_match[:os_flavor].gsub(best_match[:os_name], '')
 		end
 
 		best_match[:os_name] ||= 'Unknown'
