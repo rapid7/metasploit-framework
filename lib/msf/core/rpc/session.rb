@@ -5,6 +5,7 @@ module Msf
 module RPC
 class Session < Base
 
+
 	def list(token)
 		authenticate(token)
 		res = {}
@@ -42,31 +43,29 @@ class Session < Base
 		{ "result" => "success" }
 	end
 
-	def shell_read(token, sid)
-		s = _valid_session(token,sid,"shell")
-
-		begin
-			if(not s.rstream.has_read_data?(0.001))
-				{ "data" => "", "encoding" => "base64" }
-			else
-				data = s.shell_read
-				{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
-			end
-		rescue ::Exception => e
-			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
+	# Shell read is now a positon-aware reader of the shell's associated
+	# ring buffer. For more direct control of the pointer into a ring
+	# buffer, a client can instead use ring_read, and note the returned
+	# sequence number on their own (making multiple views into the same
+	# session possible, regardless of position in the stream)
+	def shell_read(token, sid, ptr=nil)
+		_valid_session(token,sid,"shell")
+		# @session_sequence tracks the pointer into the ring buffer 
+		# data of sessions (by sid) in order to emulate the old behavior
+		# of shell_read
+		@session_sequence ||= {}
+		@session_sequence[sid] ||= 0
+		ring_buffer = ring_read(token,sid,(ptr || @session_sequence[sid]))
+		if not (ring_buffer["seq"].nil? || ring_buffer["seq"].empty?)
+			@session_sequence[sid] = ring_buffer["seq"].to_i
 		end
+		return ring_buffer
 	end
 
+	# shell_write is pretty much totally identical to ring_put
 	def shell_write(token, sid, data)
-		s = _valid_session(token,sid,"shell")
-		buff = Rex::Text.decode_base64(data)
-		cnt = s.shell_write(buff)
-
-		begin
-			{ "write_count" => cnt }
-		rescue ::Exception => e
-			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
-		end
+		_valid_session(token,sid,"shell")
+		ring_put(token,sid,data)
 	end
 
 	def shell_upgrade(token, sid, lhost, lport)
@@ -86,6 +85,46 @@ class Session < Base
 
 		data = s.user_output.dump_buffer
 		{ "data" => Rex::Text.encode_base64(data), "encoding" => "base64" }
+	end
+
+	def ring_read(token, sid, ptr=nil)
+		authenticate(token)
+		s = _valid_session(token,sid,"ring")
+		begin
+			res = s.ring.read_data(ptr)
+			{ "seq" => res[0].to_s, "data" =>(Rex::Text.encode_base64(res[1].to_s)), "encoding" => "base64"}
+		rescue ::Exception => e
+			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
+		end
+	end	
+
+	def ring_put(token, sid, data)
+		authenticate(token)
+		s = _valid_session(token,sid,"ring")
+		buff = Rex::Text.decode_base64(data)
+		begin
+			res = s.ring.put(buff)
+			{ "write_count" => res.to_s}
+		rescue ::Exception => e
+			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
+		end
+	end
+
+	def ring_last(token, sid)
+		authenticate(token)
+		s = _valid_session(token,sid,"ring")
+		{ "seq" => s.ring.last_sequence.to_s } 
+	end
+
+	def ring_clear(token, sid)
+		authenticate(token)
+		s = _valid_session(token,sid,"ring")
+		res = s.ring.clear_data
+		if res.compact.empty?
+			{ "result" => "success"}
+		else # Doesn't seem like this can fail. Maybe a race?
+			{ "result" => "failure"}
+		end
 	end
 
 	#
@@ -187,7 +226,11 @@ protected
 		if(not s)
 			raise ::XMLRPC::FaultException.new(404, "unknown session while validating")
 		end
-		if(s.type != type)
+		if type == "ring"
+			if not s.respond_to?(:ring)
+				raise ::XMLRPC::FaultException.new(403, "session #{s.type} does not support ring operations")
+			end
+		elsif(s.type != type)
 			raise ::XMLRPC::FaultException.new(403, "session is not "+type)
 		end
 		s

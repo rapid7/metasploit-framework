@@ -89,8 +89,10 @@ $framework = Msf::Simple::Framework.create(frameworkOpts)
 
 # Fork into the background if requested
 begin
-	if (not foreground)
-		$stderr.puts "[*] XMLRPC backgrounding..."
+	if foreground
+		$stdout.puts "[*] XMLRPC ready at #{Time.now}."
+	else
+		$stderr.puts "[*] XMLRPC backgrounding at #{Time.now}..."
 		exit(0) if Process.fork()
 	end
 rescue ::NotImplementedError
