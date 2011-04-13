@@ -51,7 +51,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"execute"  => "Execute a command",
 			"getpid"   => "Get the current process identifier",
 			"getuid"   => "Get the user that the server is running as",
-			"getprivs" => "Get as many privileges as possible",
+			"getprivs" => "List all privileges available to the current process",
 			"kill"     => "Terminate a process",
 			"ps"       => "List running processes",
 			"reboot"   => "Reboots the remote computer",
