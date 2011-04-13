@@ -2276,7 +2276,7 @@ protected
 			)
 		[
 			[ 'ConsoleLogging', framework.datastore['ConsoleLogging'] || '', 'Log all console input and output' ],
-			[ 'LogLevel', framework.datastore['LogLevel'] || '', 'Verbosity of logs (default 0, max 3)' ],
+			[ 'LogLevel', framework.datastore['LogLevel'] || '', 'Verbosity of logs (default 0, max 5)' ],
 			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
 			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
 			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
