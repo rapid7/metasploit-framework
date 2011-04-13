@@ -276,6 +276,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	#
 	# Populate the session information.
 	#
+	# Also reports a session_fingerprint note for host os normalization.
+	#
 	def load_session_info()
 		begin
 			::Timeout.timeout(60) do
@@ -302,7 +304,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			# $stderr.puts "ERROR: #{e.class} #{e} #{e.backtrace}"
+			# Log the error but otherwise ignore it so we don't kill the
+			# session if reporting failed for some reason
+			elog("Error loading sysinfo: #{e.class}: #{e}")
+			dlog("Call stack:\n#{e.backtrace.join("\n")}")
 		end
 	end
 
