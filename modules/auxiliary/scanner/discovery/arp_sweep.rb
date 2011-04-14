@@ -32,6 +32,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptString.new('SHOST', [true, "Source IP Address"]),
 			OptString.new('SMAC', [true, "Source MAC Address"]),
+			# one re-register TIMEOUT here with a lower value, cause 5 seconds will be enough in most of the case
+			OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
 		], self.class)
 
 		deregister_options('SNAPLEN', 'FILTER')
@@ -62,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		etime = Time.now.to_f + (hosts.length * 0.05)
+		etime = Time.now.to_f + datastore['TIMEOUT']
 		while (Time.now.to_f < etime)
 			while(reply = getreply())
 				next if not reply[:arp]
