@@ -457,7 +457,7 @@ class DBManager
 				:via_exploit => session.via_exploit,
 				:routes => [],
 				:datastore => session.exploit_datastore.to_h,
-				:opened_at => Time.now
+				:opened_at => Time.now.utc
 			}
 		elsif opts[:host]
 			raise ArgumentError.new("Invalid :host, expected Host object") unless opts[:host].kind_of? Host
