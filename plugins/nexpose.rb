@@ -112,7 +112,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			# Wrap this so a duplicate session doesnt prevent a new login
 			begin
-			cmd_nexpose_disconnect
+				cmd_nexpose_disconnect
 			rescue ::Interrupt
 				raise $!
 			rescue ::Exception
@@ -128,6 +128,8 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 
 			@nsc = nsc
+			nexpose_compatibility_check
+			nsc
 		end
 
 		def cmd_nexpose_activity(*args)
@@ -216,6 +218,15 @@ class Plugin::Nexpose < Msf::Plugin
 			print_status("System Information")
 			res.each_pair do |k,v|
 				print_status("    #{k}: #{v}")
+			end
+		end
+		
+		def nexpose_compatibility_check
+			res = @nsc.console_command("ver")
+			if res !~ /^Console Version ID:\s*480\s*$/m
+				print_error("")
+				print_error("Warning: This version of NeXpose has not been tested with Metasploit!")
+				print_error("")
 			end
 		end
 		
