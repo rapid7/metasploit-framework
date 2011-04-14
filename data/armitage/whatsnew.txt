@@ -1,6 +1,28 @@
 Armitage Changelog
 ==================
 
+13 Apr 11 - Change Log (Dayton, OH Capstone Edition)
+---------
+- Metasploit now has host normalization (this is great news). I've 
+  removed the OS reporting code from Armitage as a consequence. This 
+  means less overhead communicating with Metasploit
+- Fixed a potential deadlock triggered when interacting with a Windows
+  command shell. Sorry about the freezes Matt and Brant.
+- Fixed a strange condition in Armitage that sometimes caused shell
+  sessions to die.
+- Download from file browser now notifies user when a file is downloaded.
+- Armitage server mode now prints database connect string to console to
+  assist with set up of Metasploit teaming.
+- Fixed a bug causing exploit recommendations to not show for Windows 
+  hosts due to host normalization
+- Added a check to prevent cd .. button in file browser from retriggering
+  too quickly. This will prevent the meterpreter command queue from 
+  becoming very backed up doing a cd/ls over and over again.
+- Graph view no longer counts edges as a selected item when creating a
+  list of hosts to apply an action to.
+- Added another heuristic to prevent Windows cmd.exe interaction from 
+  locking up.
+
 10 Apr 11 - Change Log
 ---------
 - Fixed key logger dump button.
