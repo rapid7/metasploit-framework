@@ -300,6 +300,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				# showing up in various places in the UI.
 				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				self.info = safe_info
+				if self.db_record
+					self.db_record.desc = safe_info
+					self.db_record.save!
+				end
 			end
 		rescue ::Interrupt
 			raise $!
