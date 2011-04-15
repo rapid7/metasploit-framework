@@ -82,6 +82,59 @@ rbpcap_s_lookupdev(VALUE self)
 }
 
 static VALUE
+rbpcap_s_lookupaddrs(VALUE self,VALUE dev)
+{
+    char *ldev = NULL;
+    pcap_addr_t *addresses, *a = NULL;
+    char eb[PCAP_ERRBUF_SIZE];
+    VALUE ret_dev;  /* device string to return */   
+    pcap_if_t *alldevs;
+    pcap_if_t *d;
+    VALUE list;
+
+    /* Retrieve the device list from the local machine */
+    if (pcap_findalldevs(&alldevs,eb) == -1) {
+        rb_raise(rb_eRuntimeError,"%s",eb);
+    }
+
+    /* Find the first interface with an address and not loopback */
+    for(d = alldevs; d != NULL; d= d->next)  {
+        if(strcmp(d->name,StringValuePtr(dev)) == 0 && d->addresses && !(d->flags & PCAP_IF_LOOPBACK)) {
+            ldev=d->name;
+	    addresses=d->addresses;
+            break;
+        }
+    }
+    
+    if (ldev == NULL) {
+        rb_raise(rb_eRuntimeError,"%s","No valid interfaces found.\n");
+    }
+
+    list = rb_ary_new();
+    for(a = addresses; a != NULL; a= a->next)  {
+      switch(a->addr->sa_family)
+      {
+         case AF_INET:
+             if (a->addr)
+                 rb_ary_push(list,  rb_str_new2(inet_ntoa((((struct sockaddr_in *)a->addr)->sin_addr))));
+             break;
+	/* Don't like the __MINGW32__ comment  for the moment need some testing ...
+	  case AF_INET6:
+	  #ifndef __MINGW32__ // Cygnus doesn't have IPv6 
+             if (a->addr)
+             printf("\tAddress: %s\n", ip6tos(a->addr, ip6str, sizeof(ip6str)));
+	  #endif
+	    break;
+	*/
+	  default:
+	      break;
+      }
+    }
+    pcap_freealldevs(alldevs); 
+    return(list);
+}
+
+static VALUE
 rbpcap_s_lookupnet(VALUE self, VALUE dev)
 {
     bpf_u_int32 net, mask, m;
@@ -471,6 +524,7 @@ Init_pcaprub()
     rb_define_module_function(rb_cPcap, "version", rbpcap_s_version, 0);
     rb_define_module_function(rb_cPcap, "lookupdev", rbpcap_s_lookupdev, 0);
     rb_define_module_function(rb_cPcap, "lookupnet", rbpcap_s_lookupnet, 1);
+    rb_define_module_function(rb_cPcap, "lookupaddrs", rbpcap_s_lookupaddrs, 1);
 		
     rb_define_const(rb_cPcap, "DLT_NULL",   INT2NUM(DLT_NULL));
     rb_define_const(rb_cPcap, "DLT_EN10MB", INT2NUM(DLT_EN10MB));
