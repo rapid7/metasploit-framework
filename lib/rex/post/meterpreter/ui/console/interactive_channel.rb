@@ -68,6 +68,8 @@ module Console::InteractiveChannel
 	def _stream_read_local_write_remote(channel)
 		data = user_input.gets
 		return if not data
+
+		self.on_command_proc.call(data.strip) if self.on_command_proc
 		self.write(data)
 	end
 
@@ -77,6 +79,7 @@ module Console::InteractiveChannel
 	def _stream_read_remote_write_local(channel)
 		data = self.lsock.sysread(16384)
 
+		self.on_print_proc.call(data.strip) if self.on_print_proc
 		user_output.print(data)
 	end
 

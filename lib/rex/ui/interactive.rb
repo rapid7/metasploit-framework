@@ -108,6 +108,9 @@ module Interactive
 	#
 	attr_accessor	:completed
 
+	attr_accessor :on_print_proc
+	attr_accessor :on_command_proc
+
 protected
 
 	#
@@ -148,6 +151,7 @@ protected
 	def _stream_read_remote_write_local(stream)
 		data = stream.get
 
+		self.on_print_proc.call(data) if self.on_print_proc
 		user_output.print(data)
 	end
 
@@ -157,6 +161,7 @@ protected
 	def _stream_read_local_write_remote(stream)
 		data = user_input.gets
 
+		self.on_command_proc.call(data) if self.on_command_proc
 		stream.put(data)
 	end
 
