@@ -96,7 +96,15 @@ Separator = "\\"
 	def File.stat(name)
 		return client.fs.filestat.new(name)
 	end
-	
+
+	#
+	# Determines if a file exists and returns true/false
+	#
+	def File.exists?(name)
+		r = client.fs.filestat.new(name) rescue nil
+		r ? true : false
+	end
+		
 	#
 	# Performs a delete on the specified file.
 	#
