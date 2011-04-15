@@ -277,32 +277,7 @@ class Console::CommandDispatcher::Stdapi::Ui
 	def cmd_keyscan_dump(*args)
 		print_line("Dumping captured keystrokes...")
 		data = client.ui.keyscan_dump
-		outp = ""
-		data.unpack("n*").each do |inp|
-			fl = (inp & 0xff00) >> 8
-			vk = (inp & 0xff)
-			kc = VirtualKeyCodes[vk]
-			
-			f_shift = fl & (1<<1)
-			f_ctrl  = fl & (1<<2)
-			f_alt   = fl & (1<<3)
-	
-			if(kc)
-				name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
-				case name
-				when /^.$/
-					outp << name
-				when /shift|click/i
-				when 'Space'
-					outp << " "
-				else
-					outp << " <#{name}> "
-				end
-			else
-				outp << " <0x%.2x> " % vk
-			end
-		end
-		print_line(outp)
+		print_line(client.ui.keyscan_extract(data))
 		
 		return true
 	end	

