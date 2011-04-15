@@ -11,6 +11,7 @@ class Host < ActiveRecord::Base
 	has_many :vulns,    :dependent => :destroy
 	has_many :notes,    :dependent => :destroy
 	has_many :loots,    :dependent => :destroy, :order => "loots.created_at desc"
+	has_many :sessions, :dependent => :destroy, :order => "sessions.opened_at"
 
 	has_many :service_notes, :through => :services
 	has_many :web_sites, :through => :services
