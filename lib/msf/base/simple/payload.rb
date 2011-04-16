@@ -73,6 +73,11 @@ module Payload
 		output = Msf::Util::EXE.to_executable_fmt(framework, arch, plat, e.encoded, fmt, exeopts)
 
 		if not output
+			# Generate jar if necessary
+			if fmt == 'jar'
+				return e.encoded_jar.pack
+			end
+
 			# Serialize the generated payload to some sort of format
 			fmt ||= "ruby"
 			output = Buffer.transform(e.encoded, fmt)
