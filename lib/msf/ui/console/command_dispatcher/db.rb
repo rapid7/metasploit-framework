@@ -65,9 +65,9 @@ class Db
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",				
-				"db_import_ip_list" => "Import a list of line seperated IPs",
+				"db_import_ip_list"     => "Import a list of line seperated IPs",
 				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
-				"db_import_amap_log"   => "Import a THC-Amap scan results file (-o )",
+				"db_import_amap_log"    => "Import a THC-Amap scan results file (-o )",
 				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
 				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
 				"db_import_ip360_xml"	=> "Import an IP360 scan result file (XML)",
@@ -77,9 +77,19 @@ class Db
 				"db_nmap"               => "Executes nmap and records the output automatically",
 			}
 
+			# Always include commands that only make sense when connected.
+			# This avoids the problem of them disappearing unexpectedly if the
+			# database dies or times out.  See #1923
 			base.merge(more)
 		end
 
+		#
+		# Returns true if the db is connected, prints an error and returns
+		# false if not.
+		#
+		# All commands that require an active database should call this before
+		# doing anything.
+		#
 		def active?
 			if not framework.db.active
 				print_error("Database not connected")
@@ -88,17 +98,22 @@ class Db
 			true
 		end
 
+		def cmd_db_workspace_help
+			print_line "Usage:"
+			print_line "    db_workspace                  List workspaces"
+			print_line "    db_workspace [name]           Switch workspace"
+			print_line "    db_workspace -a [name] ...    Add workspace(s)"
+			print_line "    db_workspace -d [name] ...    Delete workspace(s)"
+			print_line "    db_workspace -h               Show this help information"
+			print_line
+		end
+
 		def cmd_db_workspace(*args)
 			return unless active?
 			while (arg = args.shift)
 				case arg
 				when '-h','--help'
-					print_line("Usage:")
-					print_line("    db_workspace                  List workspaces")
-					print_line("    db_workspace [name]           Switch workspace")
-					print_line("    db_workspace -a [name] ...    Add workspace(s)")
-					print_line("    db_workspace -d [name] ...    Delete workspace(s)")
-					print_line("    db_workspace -h               Show this help information")
+					cmd_db_workspace_help
 					return
 				when '-a','--add'
 					adding = true
@@ -159,6 +174,14 @@ class Db
 		def cmd_db_workspace_tabs(str, words)
 			return [] unless active?
 			framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
+		end
+
+		def cmd_db_hosts_help
+			# This command does some lookups for the list of appropriate column
+			# names, so instead of putting all the usage stuff here like other
+			# help methods, just use it's "-h" so we don't have to recreating
+			# that list
+			cmd_db_hosts("-h")
 		end
 
 		def cmd_db_hosts(*args)
@@ -269,10 +292,23 @@ class Db
 			end
 		end
 
+		def cmd_db_sync_help
+			print_line "Usage: db_sync"
+			print_line
+			print_line "Wait for all pending database writes to complete"
+			print_line
+		end
+
 		def cmd_db_sync(*args)
 			return unless active?
 			print_status("Synchronizing the database...")
 			framework.db.sync
+		end
+
+		def cmd_db_services_help
+			# Like db_hosts, use "-h" instead of recreating the column list
+			# here
+			cmd_db_services("-h")
 		end
 
 		def cmd_db_services(*args)
@@ -364,6 +400,13 @@ class Db
 			end
 			print_line
 			print_line tbl.to_s
+		end
+
+		def cmd_db_vulns_help
+			print_line "Usage: db_vulns"
+			print_line
+			print_line "Print all vulnerabilities in the database"
+			print_line
 		end
 
 
@@ -486,6 +529,15 @@ class Db
 			print_status "Found #{exploited_returned} exploited host#{exploited_returned == 1 ? "" : "s"}."
 		end
 
+		def cmd_db_notes_help
+			print_line "Usage: db_notes [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]"
+			print_line
+			print_line "  -a <addr1,addr2>  Search for a list of addresses"
+			print_line "  -t <type1,type2>  Search for a list of types"
+			print_line "  -h,--help         Show this help information"
+			print_line
+		end
+
 		def cmd_db_notes(*args)
 			return unless active?
 			hosts = nil
@@ -507,10 +559,7 @@ class Db
 					end
 					types = typelist.strip().split(",")
 				when '-h','--help'
-					print_status("Usage: db_notes [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]")
-					print_line("  -a <addr1,addr2>  Search for a list of addresses")
-					print_line("  -t <type1,type2>  Search for a list of types")
-					print_line("  -h,--help         Show this help information")
+					cmd_db_notes_help
 					return
 				end
 
@@ -531,6 +580,13 @@ class Db
 			end
 		end
 
+		def cmd_db_loot_help
+			print_line "Usage: db_loot [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]"
+			print_line
+			print_line "  -a <addr1,addr2>  Search for a list of addresses"
+			print_line "  -t <type1,type2>  Search for a list of types"
+			print_line "  -h,--help         Show this help information"
+		end
 
 		def cmd_db_loot(*args)
 			return unless active?
@@ -553,10 +609,7 @@ class Db
 					end
 					types = typelist.strip().split(",")
 				when '-h','--help'
-					print_status("Usage: db_loot [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]")
-					print_line("  -a <addr1,addr2>  Search for a list of addresses")
-					print_line("  -t <type1,type2>  Search for a list of types")
-					print_line("  -h,--help         Show this help information")
+					cmd_db_loot_help
 					return
 				end
 
@@ -1145,15 +1198,20 @@ class Db
 			print_error "The command '#{triggering_function}' is deprecated; use 'db_import #{arg}' instead."
 		end
 
+		def cmd_db_import_help
+			print_line "Usage: db_import <filename> [file2...]"
+			print_line
+			print_line "filenames can be globs like *.xml, or **/*.xml which will search recursively"
+			print_line
+		end
+
 		#
 		# Generic import that automatically detects the file type
 		#
 		def cmd_db_import(*args)
 			return unless active?
 			if (args.include?("-h") or not (args and args.length > 0))
-				print_error("Usage: db_import <filename> [file2...]")
-				print_line
-				print_line("filenames can be globs like *.xml, or **/*.xml which will search recursively")
+				cmd_db_import_help
 				return
 			end
 			args.each { |glob|
@@ -1203,6 +1261,12 @@ class Db
 					end
 				}
 			}
+		end
+
+		def cmd_db_export_help
+			# Like db_hosts and db_services, this creates a list of columns, so
+			# use its -h
+			cmd_db_export("-h")
 		end
 
 		#
@@ -1594,6 +1658,11 @@ class Db
 			end
 		end
 
+		def cmd_db_connect_help
+			# Help is specific to each driver
+			cmd_db_connect("-h")
+		end
+
 		def cmd_db_connect(*args)
 			return if not db_check_driver
 			if (args[0] == "-y")
@@ -1617,11 +1686,18 @@ class Db
 			end
 		end
 
+		def cmd_db_disconnect_help
+			print_line "Usage: db_disconnect"
+			print_line
+			print_line "Disconnect from the database."
+			print_line
+		end
+
 		def cmd_db_disconnect(*args)
 			return if not db_check_driver
 
 			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
-				print_status("Usage: db_disconnect")
+				cmd_db_disconnect_help
 				return
 			end
 
