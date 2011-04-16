@@ -364,7 +364,6 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						Toolkit.getDefaultToolkit().getSystemClipboard().setContents(new StringSelection(selText), this);
 					}else{
 						rpcConn.execute(cmdPrefix+"session_kill", session.get("id"));
-						outputArea.append("killing session...\n");
 					}
 				}else  if (evt.getKeyCode() == KeyEvent.VK_Z){
 					rpcConn.execute(cmdPrefix+"session_detach", session.get("id"));
