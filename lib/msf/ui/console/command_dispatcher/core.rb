@@ -1162,6 +1162,7 @@ class Core
 			show_exploits(regex, rank, opts)
 			show_nops(regex, rank, opts)
 			show_payloads(regex, rank, opts)
+			show_post(regex, rank, opts)
 		when 'auxiliary'
 			show_auxiliary(regex, rank, opts)
 		when 'encoder'
