@@ -30,32 +30,25 @@
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="headerLabel" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Group type="102" alignment="1" attributes="0">
-                              <Component id="setLnFBox" pref="397" max="32767" attributes="0"/>
+                              <Component id="setLnFBox" pref="704" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                              <Component id="lnFLabel" min="-2" max="-2" attributes="0"/>
                           </Group>
-                          <Component id="tabWindowBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                  </Group>
-                  <Group type="102" alignment="0" attributes="0">
-                      <Component id="fontSizeSlider" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jLabel2" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="tableLineBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="331" max="-2" attributes="0"/>
+                              <EmptySpace pref="638" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="tableExpandBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="169" max="-2" attributes="0"/>
+                              <EmptySpace pref="476" max="-2" attributes="0"/>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
-                              <Component id="restartLabel" pref="389" max="32767" attributes="0"/>
+                              <Component id="restartLabel" pref="696" max="32767" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
@@ -63,6 +56,24 @@
                           </Group>
                       </Group>
                       <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="tabWindowBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="635" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="fontSizeSlider" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
+                      <Component id="textSizeLabel" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="486" max="32767" attributes="0"/>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="colorThemeBox" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="foregroundButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="background" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="445" max="32767" attributes="0"/>
                   </Group>
               </Group>
           </Group>
@@ -76,15 +87,21 @@
               <EmptySpace type="unrelated" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="setLnFBox" alignment="3" min="-2" max="-2" attributes="0"/>
-                  <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="lnFLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="colorThemeBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="foregroundButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="background" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace min="-2" pref="47" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                  <Component id="textSizeLabel" max="32767" attributes="1"/>
+                  <Component id="fontSizeSlider" alignment="0" min="-2" max="-2" attributes="1"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="tabWindowBox" min="-2" max="-2" attributes="0"/>
-              <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jLabel2" pref="62" max="32767" attributes="1"/>
-                  <Component id="fontSizeSlider" alignment="0" min="-2" max="-2" attributes="1"/>
-              </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Component id="tableLineBox" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
@@ -160,10 +177,10 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="setLnFBoxActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel1">
+    <Component class="javax.swing.JLabel" name="lnFLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="jLabel1.text"/>
-        <Property name="name" type="java.lang.String" value="jLabel1" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="lnFLabel.text"/>
+        <Property name="name" type="java.lang.String" value="lnFLabel" noResource="true"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JSlider" name="fontSizeSlider">
@@ -180,11 +197,35 @@
         <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="fontSizeSliderStateChanged"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel2">
+    <Component class="javax.swing.JLabel" name="textSizeLabel">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="jLabel2.text"/>
-        <Property name="name" type="java.lang.String" value="jLabel2" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="textSizeLabel.text"/>
+        <Property name="name" type="java.lang.String" value="textSizeLabel" noResource="true"/>
       </Properties>
+    </Component>
+    <Component class="javax.swing.JCheckBox" name="colorThemeBox">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="colorThemeBox.text"/>
+        <Property name="name" type="java.lang.String" value="colorThemeBox" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JButton" name="foregroundButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="foregroundButton.text"/>
+        <Property name="name" type="java.lang.String" value="foregroundButton" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="foregroundButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="background">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="background.text"/>
+        <Property name="name" type="java.lang.String" value="background" noResource="true"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="backgroundActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

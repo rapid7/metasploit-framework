@@ -1,6 +1,8 @@
 package msfgui;
 
+import java.awt.Color;
 import java.util.Map;
+import javax.swing.JColorChooser;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 
@@ -26,6 +28,8 @@ public class PreferencesFrame extends MsfFrame {
 		tabWindowBox.setSelected(!"window".equals(prefs.get("tabWindowPreference")));
 		tableLineBox.setSelected(Boolean.TRUE.equals(prefs.get("tableShowLines")));
 		tableExpandBox.setSelected(!"off".equals(prefs.get("tableResize")));
+		if(Boolean.TRUE.equals(prefs.get("overrideColors")))
+			colorThemeBox.setSelected(true);
 		if(prefs.containsKey("defaultTextSize"))
 			fontSizeSlider.setValue(new Integer(prefs.get("defaultTextSize").toString()));
     }
@@ -47,9 +51,12 @@ public class PreferencesFrame extends MsfFrame {
         cancelButton = new javax.swing.JButton();
         restartLabel = new javax.swing.JLabel();
         setLnFBox = new javax.swing.JComboBox();
-        jLabel1 = new javax.swing.JLabel();
+        lnFLabel = new javax.swing.JLabel();
         fontSizeSlider = new javax.swing.JSlider();
-        jLabel2 = new javax.swing.JLabel();
+        textSizeLabel = new javax.swing.JLabel();
+        colorThemeBox = new javax.swing.JCheckBox();
+        foregroundButton = new javax.swing.JButton();
+        background = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -94,8 +101,8 @@ public class PreferencesFrame extends MsfFrame {
             }
         });
 
-        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
-        jLabel1.setName("jLabel1"); // NOI18N
+        lnFLabel.setText(resourceMap.getString("lnFLabel.text")); // NOI18N
+        lnFLabel.setName("lnFLabel"); // NOI18N
 
         fontSizeSlider.setMaximum(20);
         fontSizeSlider.setMinimum(4);
@@ -110,8 +117,27 @@ public class PreferencesFrame extends MsfFrame {
             }
         });
 
-        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
-        jLabel2.setName("jLabel2"); // NOI18N
+        textSizeLabel.setText(resourceMap.getString("textSizeLabel.text")); // NOI18N
+        textSizeLabel.setName("textSizeLabel"); // NOI18N
+
+        colorThemeBox.setText(resourceMap.getString("colorThemeBox.text")); // NOI18N
+        colorThemeBox.setName("colorThemeBox"); // NOI18N
+
+        foregroundButton.setText(resourceMap.getString("foregroundButton.text")); // NOI18N
+        foregroundButton.setName("foregroundButton"); // NOI18N
+        foregroundButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                foregroundButtonActionPerformed(evt);
+            }
+        });
+
+        background.setText(resourceMap.getString("background.text")); // NOI18N
+        background.setName("background"); // NOI18N
+        background.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                backgroundActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -124,31 +150,40 @@ public class PreferencesFrame extends MsfFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(headerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(setLnFBox, 0, 397, Short.MAX_VALUE)
+                                .addComponent(setLnFBox, 0, 704, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jLabel1))
-                            .addComponent(tabWindowBox))
-                        .addContainerGap())
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jLabel2)
+                                .addComponent(lnFLabel)))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(tableLineBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 331, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 638, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(tableExpandBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 476, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                                .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 696, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(cancelButton)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(okButton)))
-                        .addGap(18, 18, 18))))
+                        .addGap(18, 18, 18))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(tabWindowBox)
+                        .addContainerGap(635, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(textSizeLabel)
+                        .addContainerGap(486, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(colorThemeBox)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(foregroundButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(background)
+                        .addContainerGap(445, Short.MAX_VALUE))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -158,13 +193,18 @@ public class PreferencesFrame extends MsfFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(setLnFBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel1))
+                    .addComponent(lnFLabel))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(colorThemeBox)
+                    .addComponent(foregroundButton)
+                    .addComponent(background))
+                .addGap(47, 47, 47)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(textSizeLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tabWindowBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
-                    .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tableLineBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -194,6 +234,7 @@ public class PreferencesFrame extends MsfFrame {
 		prefs.put("tabWindowPreference", tabWindowBox.isSelected() ? "tab" : "window");
 		prefs.put("tableShowLines", tableLineBox.isSelected());
 		prefs.put("tableResize", tableExpandBox.isSelected() ? "on" : "off");
+		prefs.put("overrideColors", colorThemeBox.isSelected());
 		prefs.put("defaultTextSize", new Integer(fontSizeSlider.getValue()).toString());
 		if(fontSizeSlider.getValue() >= 12)
 			prefs.put("jComponentSizeVariant", "large");
@@ -232,18 +273,37 @@ public class PreferencesFrame extends MsfFrame {
 		}
 	}//GEN-LAST:event_setLnFBoxActionPerformed
 
+	private void foregroundButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_foregroundButtonActionPerformed
+		Color fgcol = JColorChooser.showDialog(this, null, lnFLabel.getForeground());
+		prefs.put("foregroundColor",fgcol.getRGB());
+		colorThemeBox.setSelected(true);
+		prefs.put("overrideColors",true);
+		updateSizes(this);
+	}//GEN-LAST:event_foregroundButtonActionPerformed
+
+	private void backgroundActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_backgroundActionPerformed
+		Color bgcol = JColorChooser.showDialog(this, null, lnFLabel.getForeground());
+		prefs.put("backgroundColor",bgcol.getRGB());
+		colorThemeBox.setSelected(true);
+		prefs.put("overrideColors",true);
+		updateSizes(this);
+	}//GEN-LAST:event_backgroundActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton background;
     private javax.swing.JButton cancelButton;
+    private javax.swing.JCheckBox colorThemeBox;
     private javax.swing.JSlider fontSizeSlider;
+    private javax.swing.JButton foregroundButton;
     private javax.swing.JLabel headerLabel;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel lnFLabel;
     private javax.swing.JButton okButton;
     private javax.swing.JLabel restartLabel;
     private javax.swing.JComboBox setLnFBox;
     private javax.swing.JCheckBox tabWindowBox;
     private javax.swing.JCheckBox tableExpandBox;
     private javax.swing.JCheckBox tableLineBox;
+    private javax.swing.JLabel textSizeLabel;
     // End of variables declaration//GEN-END:variables
 
 }

@@ -1,5 +1,6 @@
 package msfgui;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.HeadlessException;
 import java.util.Map;
@@ -7,6 +8,9 @@ import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.metal.DefaultMetalTheme;
+import javax.swing.plaf.metal.MetalLookAndFeel;
 
 /**
  * Basic frame; shows default icon and saves dimensions on resize.
@@ -20,13 +24,44 @@ public class MsfFrame extends javax.swing.JFrame{
 
 	/** Sets look and feel to preset or default */
 	public static void setLnF(){
+		props = MsfguiApp.getPropertiesNode();
+		if(Boolean.TRUE.equals(props.get("overrideColors")) && props.containsKey("backgroundColor")){
+			final Color bgcol = new Color((Integer)props.get("backgroundColor"));
+			final Color fgcol = new Color((Integer)props.get("foregroundColor"));
+			UIManager.put("nimbusBase", bgcol);
+			UIManager.put("nimbusBlueGrey", bgcol);
+			UIManager.put("control", bgcol);
+			UIManager.put("nimbusLightBackground", bgcol);
+			UIManager.put("nimbusSelectedText", bgcol);
+			UIManager.put("textHighlightText", bgcol);
+			UIManager.put("textForeground", fgcol);
+			UIManager.put("menuText", fgcol);
+			UIManager.put("infoText", fgcol);
+			UIManager.put("controlText", fgcol);
+			UIManager.put("text", fgcol);
+			MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme() {
+				public String getName() {return "msfgui custom";}
+				private final ColorUIResource foreground = new ColorUIResource(fgcol);
+				private final ColorUIResource background = new ColorUIResource(bgcol);
+				protected ColorUIResource getPrimary1() {return foreground;}
+				protected ColorUIResource getPrimary2() {return foreground;}
+				protected ColorUIResource getPrimary3() {return foreground;}
+				protected ColorUIResource getSecondary1() {return foreground;}
+				protected ColorUIResource getSecondary2() {return background;}
+				protected ColorUIResource getSecondary3() {return background;}
+				public ColorUIResource getMenuSelectedForeground() {return background;}
+				public ColorUIResource getMenuSelectedBackground() {return foreground;}
+				protected ColorUIResource getBlack() {return foreground;}
+				protected ColorUIResource getWhite() {return background;}
+			});
+		}
+
 		String classname=""+MsfguiApp.getPropertiesNode().get("LnF");
-		Map info = MsfguiApp.getPropertiesNode();
 		try {
-			boolean system = !"Metal".equals(info.get("LnF"));
+			boolean system = !"Metal".equals(props.get("LnF"));
 			try{
 				UIManager.setLookAndFeel(classname);
-				info.put("LnF", classname);
+				props.put("LnF", classname);
 			}catch(Exception ulafex){
 				String newLnF = UIManager.getSystemLookAndFeelClassName();
 				//Prefer nimbus
@@ -34,7 +69,7 @@ public class MsfFrame extends javax.swing.JFrame{
 					if(lookAndFeel.getClassName().equals("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"))
 						newLnF = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
 				UIManager.setLookAndFeel(newLnF);
-				info.put("LnF", newLnF);
+				props.put("LnF", newLnF);
 			}
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, e);
@@ -70,6 +105,12 @@ public class MsfFrame extends javax.swing.JFrame{
 		java.awt.Font fnt = com.getFont();
 		if(fnt != null && props.containsKey("defaultTextSize"))
 			com.setFont(fnt.deriveFont(new Float(props.get("defaultTextSize").toString()).floatValue()));
+		if(Boolean.TRUE.equals(props.get("overrideColors"))){
+			if(props.containsKey("backgroundColor"))
+				com.setBackground(new Color((Integer)props.get("backgroundColor")));
+			if(props.containsKey("foregroundColor"))
+				com.setForeground(new Color((Integer)props.get("foregroundColor")));
+		}
 
 		//Loop through containers
 		if(com instanceof javax.swing.JMenu)
