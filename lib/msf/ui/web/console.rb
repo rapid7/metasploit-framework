@@ -123,19 +123,7 @@ class WebConsole
 	end
 
 	def session_kill
-		if(self.console.active_session)
-			#close interactive meterpreter channel
-			if(self.console.active_session.respond_to?('channels'))
-				self.console.active_session.channels.each_value do |ch|
-					if(ch.respond_to?('interacting') && ch.interacting)
-						ch._close
-						return
-					end
-				end
-			end
-			#kill session
-			self.console.active_session.kill()
-		end
+		self.thread.raise(Interrupt)
 	end
 
 	def active_module
