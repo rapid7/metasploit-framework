@@ -29,7 +29,7 @@ class Console::CommandDispatcher::Core
 
 	end
 
-	@@use_opts = Rex::Parser::Arguments.new(
+	@@load_opts = Rex::Parser::Arguments.new(
 		"-l" => [ false, "List all available extensions" ],
 		"-h" => [ false, "Help menu."                    ])
 
@@ -47,7 +47,8 @@ class Console::CommandDispatcher::Core
 			"interact"   => "Interacts with a channel",
 			"irb"        => "Drop into irb scripting mode",
 			"migrate"    => "Migrate the server to another process",
-			"use"        => "Load a one or more meterpreter extensions",
+			"use"        => "Deprecated alias for 'load'",
+			"load"       => "Load a one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
 			"resource"   => "Run the commands stored in a file",
 			"read"       => "Reads data from a channel",
@@ -225,17 +226,24 @@ class Console::CommandDispatcher::Core
 		print_status("Migration completed successfully.")
 	end
 
+	def cmd_load_help
+		print_line("Usage: load ext1 ext2 ext3 ...")
+		print_line
+		print_line "Loads a meterpreter extension module or modules."
+		print_line @@load_opts.usage
+	end
+
 	#
 	# Loads one or more meterpreter extensions.
 	#
-	def cmd_use(*args)
+	def cmd_load(*args)
 		if (args.length == 0)
 			args.unshift("-h")
 		end
 
 		modules = nil
 
-		@@use_opts.parse(args) { |opt, idx, val|
+		@@load_opts.parse(args) { |opt, idx, val|
 			case opt
 				when "-l"
 					exts = []
@@ -249,10 +257,7 @@ class Console::CommandDispatcher::Core
 
 					return true
 				when "-h"
-					print(
-						"Usage: use ext1 ext2 ext3 ...\n\n" +
-						"Loads a meterpreter extension module or modules.\n" +
-						@@use_opts.usage)
+					cmd_load_help
 					return true
 			end
 		}
@@ -285,7 +290,7 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
-	def cmd_use_tabs(str, words)
+	def cmd_load_tabs(str, words)
 		tabs = []
 		path = ::File.join(Msf::Config.install_root, 'data', 'meterpreter')
 		::Dir.entries(path).each { |f|
@@ -297,6 +302,13 @@ class Console::CommandDispatcher::Core
 		}
 		return tabs
 	end
+
+	def cmd_use(*args)
+		#print_error("Warning: The 'use' command is deprecated in favor of 'load'")
+		cmd_load(*args)
+	end
+	alias cmd_use_help cmd_load_help
+	alias cmd_use_tabs cmd_load_tabs
 
 	#
 	# Reads data from a channel.

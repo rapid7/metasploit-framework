@@ -258,7 +258,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def load_stdapi()
 		original = console.disable_output
 		console.disable_output = true
-		console.run_single('use stdapi')
+		console.run_single('load stdapi')
 		console.disable_output = original
 	end
 
@@ -269,7 +269,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		original = console.disable_output
 
 		console.disable_output = true
-		console.run_single('use priv')
+		console.run_single('load priv')
 		console.disable_output = original
 	end
 
