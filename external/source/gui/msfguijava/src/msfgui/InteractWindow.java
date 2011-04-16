@@ -186,7 +186,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 
 		if(type.equals("meterpreter"))
 			inputField.setText("help");
-		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), 12));
+		outputArea.setFont(new Font("Monospaced", outputArea.getFont().getStyle(), outputArea.getFont().getSize()));
 		checkPrompt(session);
 		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
 			public void focusGained(FocusEvent e) {

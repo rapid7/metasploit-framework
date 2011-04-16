@@ -188,25 +188,25 @@
             <Component class="javax.swing.JComboBox" name="outputCombo">
               <Properties>
                 <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.editors2.ComboBoxModelEditor">
-                  <StringArray count="15">
+                  <StringArray count="16">
                     <StringItem index="0" value="c"/>
                     <StringItem index="1" value="elf"/>
                     <StringItem index="2" value="exe"/>
-                    <StringItem index="3" value="java"/>
-                    <StringItem index="4" value="js_le"/>
-                    <StringItem index="5" value="js_be"/>
-                    <StringItem index="6" value="perl"/>
-                    <StringItem index="7" value="raw"/>
-                    <StringItem index="8" value="ruby"/>
-                    <StringItem index="9" value="vba"/>
-                    <StringItem index="10" value="vbs"/>
-                    <StringItem index="11" value="loop-vbs"/>
-                    <StringItem index="12" value="asp"/>
-                    <StringItem index="13" value="war"/>
-                    <StringItem index="14" value="macho"/>
+                    <StringItem index="3" value="jar"/>
+                    <StringItem index="4" value="java"/>
+                    <StringItem index="5" value="js_le"/>
+                    <StringItem index="6" value="js_be"/>
+                    <StringItem index="7" value="perl"/>
+                    <StringItem index="8" value="raw"/>
+                    <StringItem index="9" value="ruby"/>
+                    <StringItem index="10" value="vba"/>
+                    <StringItem index="11" value="vbs"/>
+                    <StringItem index="12" value="loop-vbs"/>
+                    <StringItem index="13" value="asp"/>
+                    <StringItem index="14" value="war"/>
+                    <StringItem index="15" value="macho"/>
                   </StringArray>
                 </Property>
-                <Property name="selectedIndex" type="int" value="2"/>
                 <Property name="name" type="java.lang.String" value="outputCombo" noResource="true"/>
               </Properties>
             </Component>

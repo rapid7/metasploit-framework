@@ -48,7 +48,7 @@ public class MainFrame extends FrameView {
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
-		setLnF();
+		MsfFrame.setLnF();
 		initComponents();
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
@@ -132,6 +132,7 @@ public class MainFrame extends FrameView {
 		Map props = MsfguiApp.getPropertiesNode();
 		if(!props.containsKey("tabWindowPreference"))
 			props.put("tabWindowPreference", "tab");
+		MsfFrame.updateSizes(getFrame());
 	}
 	/** Before exit, check whether the daemon should be stopped or just the session terminated */
 	private boolean confirmStop() {
@@ -1301,6 +1302,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			if(!mex.getMessage().equals("database not loaded"))
 				mex.printStackTrace();
 		}
+		MsfFrame.updateSizes(getFrame());
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
@@ -1932,35 +1934,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private final Icon[] busyIcons = new Icon[15];
 	private int busyIconIndex = 0;
 	private JDialog aboutBox;
-
-	/** Sets look and feel to preset or default */
-	private void setLnF(){
-		setLnF(""+MsfguiApp.getPropertiesNode().get("LnF"));
-	}
-	/** Sets look and feel of UI */
-	private void setLnF(String classname) {
-		Map info = MsfguiApp.getPropertiesNode();
-		try {
-			boolean system = !"Metal".equals(info.get("LnF"));
-			try{
-				UIManager.setLookAndFeel(classname);
-				info.put("LnF", classname);
-			}catch(Exception ulafex){
-				String newLnF = UIManager.getSystemLookAndFeelClassName();
-				//Prefer nimbus
-				for(LookAndFeelInfo lookAndFeel : UIManager.getInstalledLookAndFeels())
-					if(lookAndFeel.getClassName().equals("com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel"))
-						newLnF = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-				UIManager.setLookAndFeel(newLnF);
-				info.put("LnF", newLnF);
-			}
-			SwingUtilities.updateComponentTreeUI(this.getFrame());
-			this.getFrame().pack();
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(getFrame(), e);
-			e.printStackTrace();
-		}
-	}
 
 	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
 	private void reAddQuery(JTable table, String call, String[] cols) {

@@ -20,11 +20,14 @@ public class PreferencesFrame extends MsfFrame {
 		for(int i = 0; i < infoArray.length; i++)
 			lookNFeels[i] = infoArray[i].getClassName();
         initComponents();
+		updateSizes(this);
 		prefs = MsfguiApp.getPropertiesNode();
 		setLnFBox.setSelectedItem(prefs.get("LnF"));
 		tabWindowBox.setSelected(!"window".equals(prefs.get("tabWindowPreference")));
 		tableLineBox.setSelected(Boolean.TRUE.equals(prefs.get("tableShowLines")));
 		tableExpandBox.setSelected(!"off".equals(prefs.get("tableResize")));
+		if(prefs.containsKey("defaultTextSize"))
+			fontSizeSlider.setValue(new Integer(prefs.get("defaultTextSize").toString()));
     }
 
     /** This method is called from within the constructor to
@@ -45,6 +48,8 @@ public class PreferencesFrame extends MsfFrame {
         restartLabel = new javax.swing.JLabel();
         setLnFBox = new javax.swing.JComboBox();
         jLabel1 = new javax.swing.JLabel();
+        fontSizeSlider = new javax.swing.JSlider();
+        jLabel2 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -83,9 +88,30 @@ public class PreferencesFrame extends MsfFrame {
 
         setLnFBox.setModel(new javax.swing.DefaultComboBoxModel(lookNFeels));
         setLnFBox.setName("setLnFBox"); // NOI18N
+        setLnFBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                setLnFBoxActionPerformed(evt);
+            }
+        });
 
         jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
+
+        fontSizeSlider.setMaximum(20);
+        fontSizeSlider.setMinimum(4);
+        fontSizeSlider.setPaintLabels(true);
+        fontSizeSlider.setPaintTicks(true);
+        fontSizeSlider.setSnapToTicks(true);
+        fontSizeSlider.setValue(10);
+        fontSizeSlider.setName("fontSizeSlider"); // NOI18N
+        fontSizeSlider.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                fontSizeSliderStateChanged(evt);
+            }
+        });
+
+        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
+        jLabel2.setName("jLabel2"); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -98,23 +124,30 @@ public class PreferencesFrame extends MsfFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(headerLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addComponent(setLnFBox, 0, 286, Short.MAX_VALUE)
+                                .addComponent(setLnFBox, 0, 397, Short.MAX_VALUE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(jLabel1))
                             .addComponent(tabWindowBox))
                         .addContainerGap())
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(tableLineBox)
-                        .addContainerGap(238, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(tableExpandBox)
-                        .addContainerGap(76, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(cancelButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(okButton)
+                        .addComponent(jLabel2)
+                        .addContainerGap())
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(tableLineBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 331, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(tableExpandBox)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 169, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(restartLabel, javax.swing.GroupLayout.DEFAULT_SIZE, 389, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(cancelButton)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(okButton)))
                         .addGap(18, 18, 18))))
         );
         layout.setVerticalGroup(
@@ -128,7 +161,11 @@ public class PreferencesFrame extends MsfFrame {
                     .addComponent(jLabel1))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tabWindowBox)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel2, javax.swing.GroupLayout.DEFAULT_SIZE, 62, Short.MAX_VALUE)
+                    .addComponent(fontSizeSlider, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tableLineBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(tableExpandBox)
@@ -137,13 +174,17 @@ public class PreferencesFrame extends MsfFrame {
                     .addComponent(restartLabel)
                     .addComponent(cancelButton)
                     .addComponent(okButton))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
+		try{
+			UIManager.setLookAndFeel(prefs.get("LnF").toString());
+		}catch(Exception ex){
+		}
 		setVisible(false);
 		dispose();
 	}//GEN-LAST:event_cancelButtonActionPerformed
@@ -153,14 +194,50 @@ public class PreferencesFrame extends MsfFrame {
 		prefs.put("tabWindowPreference", tabWindowBox.isSelected() ? "tab" : "window");
 		prefs.put("tableShowLines", tableLineBox.isSelected());
 		prefs.put("tableResize", tableExpandBox.isSelected() ? "on" : "off");
+		prefs.put("defaultTextSize", new Integer(fontSizeSlider.getValue()).toString());
+		if(fontSizeSlider.getValue() >= 12)
+			prefs.put("jComponentSizeVariant", "large");
+		else if(fontSizeSlider.getValue() >= 10)
+			prefs.put("jComponentSizeVariant", "regular");
+		else if(fontSizeSlider.getValue() >= 8)
+			prefs.put("jComponentSizeVariant", "small");
+		else
+			prefs.put("jComponentSizeVariant", "mini");
 		setVisible(false);
 		dispose();
+		updateUIs();
 	}//GEN-LAST:event_okButtonActionPerformed
+
+	/**
+	 * Recursively iterates through a container, updating the size to this local font slider size
+	 * @param c Container to be resized
+	 */
+	public void updateSize(java.awt.Container c) {
+		for(java.awt.Component com : c.getComponents()) {
+			com.setFont(com.getFont().deriveFont((float)fontSizeSlider.getValue()));
+			if (com instanceof java.awt.Container)
+				updateSize((java.awt.Container) com);
+		}
+	}
+	private void fontSizeSliderStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_fontSizeSliderStateChanged
+		updateSize(this);
+	}//GEN-LAST:event_fontSizeSliderStateChanged
+
+	private void setLnFBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_setLnFBoxActionPerformed
+		try{
+			UIManager.setLookAndFeel(setLnFBox.getSelectedItem().toString());
+			javax.swing.SwingUtilities.updateComponentTreeUI(this);
+			pack();
+		}catch(Exception ex){
+		}
+	}//GEN-LAST:event_setLnFBoxActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
+    private javax.swing.JSlider fontSizeSlider;
     private javax.swing.JLabel headerLabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JButton okButton;
     private javax.swing.JLabel restartLabel;
     private javax.swing.JComboBox setLnFBox;

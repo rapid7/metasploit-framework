@@ -156,7 +156,8 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 		} catch (MsfException ex) {
 			JOptionPane.showMessageDialog(rootPane, ex);
 		}
-	   reGroup();
+		reGroup();
+		updateSizes(mainPanel);
 	}
 
    /** Creates payload menu. */

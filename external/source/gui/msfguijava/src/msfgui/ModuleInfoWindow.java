@@ -94,6 +94,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 		for (int i = 1; i < authors.size(); i++)
 			authorLine.append(", ").append(authors.get(i));
 		authorsLabel.setText("<html><b>Authors:</b> "+ authorLine.toString()+"</html>");
+		updateSizes(this);
 		return info;
 	}
 
@@ -194,6 +195,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 		} catch (MsfException ex) {
 			JOptionPane.showMessageDialog(rootPane, ex);
 		}
+		updateSizes(this);
 	}
 
 	/** 

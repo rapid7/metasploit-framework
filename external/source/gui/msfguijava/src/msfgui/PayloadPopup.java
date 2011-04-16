@@ -257,8 +257,7 @@ public class PayloadPopup extends ModuleInfoWindow {
         encoderCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
         encoderCombo.setName("encoderCombo"); // NOI18N
 
-        outputCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "c", "elf", "exe", "java", "js_le", "js_be", "perl", "raw", "ruby", "vba", "vbs", "loop-vbs", "asp", "war", "macho" }));
-        outputCombo.setSelectedIndex(2);
+        outputCombo.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "c", "elf", "exe", "jar", "java", "js_le", "js_be", "perl", "raw", "ruby", "vba", "vbs", "loop-vbs", "asp", "war", "macho" }));
         outputCombo.setName("outputCombo"); // NOI18N
 
         templateButton.setText(resourceMap.getString("templateButton.text")); // NOI18N
@@ -475,6 +474,8 @@ public class PayloadPopup extends ModuleInfoWindow {
 	private void generateButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_generateButtonActionPerformed
 		try {
 			HashMap hash = getOptions(mainPanel);
+			if(outputCombo.getSelectedItem().toString().equals("jar"))
+				hash.put("Format", "jar");
 			Map data = (Map) rpcConn.execute("module.execute", "payload", fullName,hash);
 			//Basic info
 			if(!data.get("result").equals("success"))
@@ -496,10 +497,13 @@ public class PayloadPopup extends ModuleInfoWindow {
 					if(templateWorkingCheck.isSelected())
 						hash.put("inject", true);
 				}
-				Map encoded = (Map) rpcConn.execute("module.encode", Base64.encode(buffer), 
-						encoderCombo.getSelectedItem().toString(),hash);
+				if(!outputCombo.getSelectedItem().toString().equals("jar")){ //jars don't get encoded
+					Map encoded = (Map) rpcConn.execute("module.encode", Base64.encode(buffer),
+							encoderCombo.getSelectedItem().toString(),hash);
+					buffer = Base64.decode(encoded.get("encoded").toString());
+				}
 				FileOutputStream fout = new FileOutputStream(outputPathField.getText());
-				fout.write(Base64.decode(encoded.get("encoded").toString()));
+				fout.write(buffer);
 				fout.close();
 				return;
 			}
