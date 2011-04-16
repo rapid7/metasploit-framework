@@ -26,6 +26,11 @@ class Arguments
 	#
 	def initialize(fmt)
 		self.fmt = fmt
+		# I think reduce is a better name for this method, but it doesn't exist
+		# before 1.8.7, so use the stupid inject instead.
+		self.longest = fmt.keys.inject(0) { |max, str| 
+			max = ((max > str.length) ? max : str.length)
+		}
 	end
 
 	#
@@ -77,7 +82,7 @@ class Arguments
 		fmt.sort.each { |entry|
 			fmtspec, val = entry
 
-			txt << "    #{fmtspec}" + ((val[0] == true) ? " <opt>  " : "        ")
+			txt << "    #{fmtspec.ljust(longest)}" + ((val[0] == true) ? " <opt>  " : "        ")
 			txt << val[1] + "\n"
 		}
 
@@ -89,7 +94,8 @@ class Arguments
 		return fmt.include?(search)
 	end
 
-	attr_accessor :fmt # :nodoc:
+	attr_accessor :fmt     # :nodoc:
+	attr_accessor :longest # :nodoc:
 
 end
 
