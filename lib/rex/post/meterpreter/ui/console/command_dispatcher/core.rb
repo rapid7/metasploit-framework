@@ -72,6 +72,13 @@ class Console::CommandDispatcher::Core
 		"Core"
 	end
 
+	def cmd_background_help
+		print_line "Usage: background"
+		print_line
+		print_line "Stop interacting with this session and return to the parent prompt"
+		print_line
+	end
+
 	def cmd_background
 		client.interacting = false
 	end
@@ -80,37 +87,61 @@ class Console::CommandDispatcher::Core
 	# Displays information about active channels
 	#
 	@@channel_opts = Rex::Parser::Arguments.new(
+		"-c" => [ true,  "Close the given channel." ],
+		"-i" => [ true,  "Interact with the given channel." ],
 		"-l" => [ false, "List active channels." ],
-		"-h" => [ false, "Help menu."            ])
+		"-r" => [ true,  "Read from the given channel." ],
+		"-w" => [ true,  "Write to the given channel." ],
+		"-h" => [ false, "Help menu." ])
+
+	def cmd_channel_help
+		print_line "Usage: channel [options]"
+		print_line
+		print_line "Displays information about active channels."
+		print_line @@channel_opts.usage
+	end
 
 	#
 	# Performs operations on the supplied channel.
 	#
 	def cmd_channel(*args)
-		if (args.length == 0)
-			args.unshift("-h")
+		if args.include?("-h") or args.include?("--help"))
+			cmd_channel_help
+			return
 		end
 
 		mode = nil
+		chan = nil
+		data = []
 
 		# Parse options
 		@@channel_opts.parse(args) { |opt, idx, val|
 			case opt
-				when "-h"
-					print(
-						"Usage: channel [options]\n\n" +
-						"Displays information about active channels.\n" +
-						@@channel_opts.usage)
-					return true
-				when "-l"
-					mode = 'list'
+			when "-l"
+				mode = :list
+			when "-c"
+				mode = :close
+				chan = val
+			when "-i"
+				mode = :interact
+				chan = val
+			when "-r"
+				mode = :read
+				chan = val
+			when "-w"
+				mode = :write
+				chan = val
+			end
+			if @@channel_opts.arg_required?(opt)
+				unless chan
+					print_error("Channel ID required")
+					return
+				end
 			end
 		}
 
-		# No mode, no service.
-		if (mode == nil)
-			return true
-		elsif (mode == 'list')
+		case mode
+		when :list
 			tbl = Rex::Ui::Text::Table.new(
 				'Indent'  => 4,
 				'Columns' =>
@@ -131,6 +162,17 @@ class Console::CommandDispatcher::Core
 			else
 				print("\n" + tbl.to_s + "\n")
 			end
+		when :close
+			cmd_close(chan)
+		when :interact
+			cmd_interact(chan)
+		when :read
+			cmd_read(chan)
+		when :write
+			cmd_write(chan)
+		else
+			# No mode, no service.
+			return true
 		end
 	end
 
@@ -485,6 +527,13 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_info_help
+		print_line 'Usage: info <module>'
+		print_line
+		print_line 'Prints information about a post-exploitation module'
+		print_line
+	end
+
 	#
 	# Show info for a given Post module.  
 	#
@@ -493,8 +542,8 @@ class Console::CommandDispatcher::Core
 	def cmd_info(*args)
 		return unless msf_loaded?
 
-		if args.length != 1
-			print_error 'Usage: info <module>'
+		if args.length != 1 or args.include?("-h")
+			cmd_info_help
 			return
 		end
 		
@@ -522,9 +571,17 @@ class Console::CommandDispatcher::Core
 		"-f" => [ true,  "Write the contents of a file on disk" ],
 		"-h" => [ false, "Help menu."                           ])
 
+	def cmd_write_help
+		print_line "Usage: write [options] channel_id"
+		print_line
+		print_line "Writes data to the supplied channel."
+		print_line @@write_opts.usage
+	end
+
 	def cmd_write(*args)
-		if (args.length == 0)
-			args.unshift("-h")
+		if (args.length == 0 or args.include?("-h"))
+			cmd_write_help
+			return
 		end
 
 		src_file = nil
@@ -532,12 +589,6 @@ class Console::CommandDispatcher::Core
 
 		@@write_opts.parse(args) { |opt, idx, val|
 			case opt
-				when "-h"
-					print(
-						"Usage: write [options] channel_id\n\n" +
-						"Writes data to the supplied channel.\n" +
-						@@write_opts.usage)
-					return true
 				when "-f"
 					src_file = val
 				else
