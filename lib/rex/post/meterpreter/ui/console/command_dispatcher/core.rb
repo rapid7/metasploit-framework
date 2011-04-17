@@ -105,7 +105,7 @@ class Console::CommandDispatcher::Core
 	# Performs operations on the supplied channel.
 	#
 	def cmd_channel(*args)
-		if args.include?("-h") or args.include?("--help"))
+		if args.include?("-h") or args.include?("--help")
 			cmd_channel_help
 			return
 		end
