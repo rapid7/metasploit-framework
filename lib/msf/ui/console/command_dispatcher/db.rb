@@ -238,23 +238,16 @@ class Db
 				end
 			end
 
-			ofd = nil
-			ofd = ::File.open(output, "w") if output
-
 			col_names = default_columns + virtual_columns
 			if col_search
 				col_names = col_search
 			end
 
-			if ofd
-				ofd.puts col_names.join(',')
-			else
-				tbl = Rex::Ui::Text::Table.new(
-					{
-						'Header'  => "Hosts",
-						'Columns' => col_names,
-					})
-			end
+			tbl = Rex::Ui::Text::Table.new(
+				{
+					'Header'  => "Hosts",
+					'Columns' => col_names,
+				})
 
 			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
 				columns = col_names.map do |n|
@@ -272,23 +265,17 @@ class Db
 					end
 				end
 
-				if ofd
-					columns.map { |n|
-						n = "#{n}"
-						n = "\"#{n}\"" if n.include?(',')
-					}
-					ofd.puts columns.join(',')
-				else
-					tbl << columns
-				end
+				tbl << columns
 			end
 
-			if ofd
+			if output
 				print_status("Wrote hosts to #{output}")
-				ofd.close
+				::File.open(output, "wb") { |ofd|
+					ofd.write(tbl.to_csv)
+				}
 			else
 				print_line
-				print_line tbl.to_s if not ofd
+				print_line tbl.to_s
 			end
 		end
 
