@@ -94,6 +94,10 @@ class Arguments
 		return fmt.include?(search)
 	end
 
+	def arg_required?(opt)
+		fmt[opt][0] if fmt[opt]
+	end
+
 	attr_accessor :fmt     # :nodoc:
 	attr_accessor :longest # :nodoc:
 
