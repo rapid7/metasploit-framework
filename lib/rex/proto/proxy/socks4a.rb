@@ -226,7 +226,6 @@ class Socks4a
 			@rsock         = nil
 			@client_thread = nil
 			@mutex         = ::Mutex.new
-			@closed        = false
 		end
 
 		#
@@ -248,8 +247,9 @@ class Socks4a
 							params = { 
 								'PeerHost' => request.dest_ip,
 								'PeerPort' => request.dest_port,
-								'Comm'     => @server.opts['Comm']
 							}
+							params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
+							
 							@rsock = Rex::Socket::Tcp.create( params )
 							# and send back success to the client
 							response         = Packet.new
@@ -262,8 +262,8 @@ class Socks4a
 							params = { 
 								'LocalHost' => '0.0.0.0',
 								'LocalPort' => 0,
-								'Comm'      => @server.opts['Comm']
 							}
+							params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
 							bsock = Rex::Socket::TcpServer.create( params )
 							# send back the bind success to the client
 							response           = Packet.new
@@ -353,7 +353,7 @@ class Socks4a
 	# Create a new Socks4a server.
 	#
 	def initialize( opts={} )
-		@opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080, 'Comm' => nil }
+		@opts          = { 'ServerHost' => '0.0.0.0', 'ServerPort' => 1080 }
 		@opts          = @opts.merge( opts )
 		@server        = nil
 		@clients       = ::Array.new
@@ -373,7 +373,7 @@ class Socks4a
 	#
 	def start
 			begin
-				# create the servers main socket
+				# create the servers main socket (ignore the context here because we don't want a remote bind)
 				@server = Rex::Socket::TcpServer.create( 'LocalHost' => @opts['ServerHost'], 'LocalPort' => @opts['ServerPort'] )
 				# signal we are now running
 				@running = true

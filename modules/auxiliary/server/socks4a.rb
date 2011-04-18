@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'Socks4a Proxy Server',
 			'Version'     => '$Revision$',
-			'Description' => 'This module provides a socks4a proxy server.',
+			'Description' => 'This module provides a socks4a proxy server that uses the builtin Metasploit routing to relay connections.',
 			'Author'      => 'sf',
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
@@ -62,7 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		opts = {
 			'ServerHost' => datastore['SRVHOST'],
-			'ServerPort' => datastore['SRVPORT']
+			'ServerPort' => datastore['SRVPORT'],
+			'Context' => {'Msf' => framework, 'MsfExploit' => self}
 		}
 
 		@socks4a = Rex::Proto::Proxy::Socks4a.new( opts )
