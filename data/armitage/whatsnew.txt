@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+In Progress - Raffi This Better Work Edition 
+-----------
+- Fixed a deadlock condition with the screenshot/webcam tab.
+
+17 Apr 11 - Change Log 
+---------
+- Windows command shell interactions are now less likely to die. How
+  oh how did we get here? Armitage interacts with cmd.exe through a
+  Meterpreter channel. If an unnecessary read happens, it ties up the
+  meterpreter session for 10-20s AND the channel dies. If you typed
+  commands in too quickly, it's probable that Armitage would do an
+  unnecessary read and the channel would die. I believe I've headed 
+  off this problem. Armitage now locks the channel until the command 
+  completes. If the command times out or completes, the channel 
+  becomes unlocked. This should prevent most out of place reads. In
+  collaboration mode, this was a great way for excited teammates to
+  tie up the meterp session for everyone. :) "I typed this command
+  20 times and nothing happened!!!" Doh! You queued 20 reads with a
+  10-20S timeout each and destroyed that channel. -- Armitage 
+  protects against this situation now.
+- Command history no longer saves empty commands.
+- Armitage server mode now provides all details that a client needs
+  to connect to the server.
+
 13 Apr 11 - Change Log (Dayton, OH Capstone Edition)
 ---------
 - Metasploit now has host normalization (this is great news). I've 
