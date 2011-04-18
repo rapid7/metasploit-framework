@@ -281,11 +281,57 @@ class FrameworkEventSubscriber
 
 	include ::Msf::SessionEvent
 
+	#
+	# Generic handler for session events
+	#
+	def session_event(name, session, opts={})
+		address = nil
+
+		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
+			address = session.peerhost
+		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
+			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
+		elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
+			address = session.target_host
+		else
+			elog("Session with no peerhost/tunnel_peer")
+			dlog("#{session.inspect}", LEV_3)
+			return
+		end
+
+		if framework.db.active
+			ws = framework.db.find_workspace(session.workspace)
+			event = {
+				:workspace => ws,
+				:username  => session.username,
+				:name => name,
+				:host => address,
+				:info => {
+					:session_id   => session.sid,
+					:session_info => session.info,
+					:session_uuid => session.uuid,
+					:session_type => session.type,
+					:username     => session.username,
+					:target_host  => address,
+					:via_exploit  => session.via_exploit,
+					:via_payload  => session.via_payload,
+					:tunnel_peer  => session.tunnel_peer,
+					:exploit_uuid => session.exploit_uuid
+				}.merge(opts)
+			}
+			report_event(event)
+		end
+	end
+
+
 	def on_session_open(session)
+		opts = { :datastore => session.exploit_datastore.to_h, :critical => true }
+		session_event('session_open', session, opts)
 		framework.db.report_session(:session => session)
 	end
 
 	def on_session_upload(session, lpath, rpath)
+		session_event('session_upload', session, :local_path => lpath, :remote_path => rpath)
 		framework.db.report_session_event({
 			:etype => 'upload',
 			:session => session,
@@ -294,7 +340,7 @@ class FrameworkEventSubscriber
 		})
 	end
 	def on_session_download(session, rpath, lpath)
-		#session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
+		session_event('session_download', session, :local_path => lpath, :remote_path => rpath)
 		framework.db.report_session_event({
 			:etype => 'download',
 			:session => session,
@@ -304,6 +350,7 @@ class FrameworkEventSubscriber
 	end
 
 	def on_session_close(session, reason='')
+		session_event('session_close', session)
 		if session.db_record
 			# Don't bother saving here, the session's cleanup method will take
 			# care of that later.
@@ -317,7 +364,7 @@ class FrameworkEventSubscriber
 	#end
 
 	def on_session_command(session, command)
-		#session_event('session_command', session, :command => command)
+		session_event('session_command', session, :command => command)
 		framework.db.report_session_event({
 			:etype => 'command',
 			:session => session,
@@ -337,7 +384,7 @@ class FrameworkEventSubscriber
 			chunks << buff
 		end
 		chunks.each { |chunk|
-			#session_event('session_output', session, :output => chunk)
+			session_event('session_output', session, :output => chunk)
 			framework.db.report_session_event({
 				:etype => 'output',
 				:session => session,
