@@ -96,26 +96,30 @@ class SessionManager < Hash
 		end
 
 		next_sid = (self.sid_pool += 1)
-
-		# Insert the session into the session hash table
-		self[next_sid.to_i] = session
-
+		
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
 		session.framework = framework
 
-		# Notify the framework that we have a new session opening up...
-		# Don't let errant event handlers kill our session
-		begin
-			framework.events.on_session_open(session)
-		rescue ::Exception => e
-			wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
-			wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
-		end
+		# Only register if the session allows for it
+		if session.register?
+			# Insert the session into the session hash table
+			self[next_sid.to_i] = session
+			
+			# Notify the framework that we have a new session opening up...
+			# Don't let errant event handlers kill our session
+			begin
 
-		if session.respond_to?("console")
-			session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
-			session.console.on_print_proc = Proc.new { |output| framework.events.on_session_output(session, output) }
+				framework.events.on_session_open(session)
+			rescue ::Exception => e
+				wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
+				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+			end
+
+			if session.respond_to?("console")
+				session.console.on_command_proc = Proc.new { |command, error| framework.events.on_session_command(session, command) }
+				session.console.on_print_proc = Proc.new { |output| framework.events.on_session_output(session, output) }
+			end
 		end
 
 		return next_sid
@@ -125,6 +129,7 @@ class SessionManager < Hash
 	# Deregisters the supplied session object with the framework.
 	#
 	def deregister(session, reason='')
+		return if not session.register?
 
 		if (session.dead? and not self[session.sid.to_i])
 			return

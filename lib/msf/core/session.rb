@@ -263,10 +263,17 @@ module Session
 
 
 	#
+	# Allow the session to skip registration
+	#
+	def register?
+		true
+	end
+
+	#
 	# Allow the user to terminate this session
 	#
 	def kill
-		framework.sessions.deregister(self)
+		framework.sessions.deregister(self) if register?
 	end
 
 	def dead?

@@ -46,6 +46,13 @@ class VncInject
 	end
 
 	#
+	# Skip session registration for VNC
+	#
+	def register?
+		false
+	end
+	
+	#
 	# Returns the session type as being 'vncinject'.
 	#
 	def self.type
