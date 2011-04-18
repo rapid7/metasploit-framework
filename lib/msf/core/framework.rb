@@ -308,7 +308,7 @@ class FrameworkEventSubscriber
 			# Don't bother saving here, the session's cleanup method will take
 			# care of that later.
 			session.db_record.close_reason = reason
-			session.db_record.closed_at = Time.now
+			session.db_record.closed_at = Time.now.utc
 		end
 	end
 
