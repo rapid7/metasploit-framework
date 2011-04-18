@@ -48,7 +48,7 @@ class Console::CommandDispatcher::Core
 			"irb"        => "Drop into irb scripting mode",
 			"migrate"    => "Migrate the server to another process",
 			"use"        => "Deprecated alias for 'load'",
-			"load"       => "Load a one or more meterpreter extensions",
+			"load"       => "Load one or more meterpreter extensions",
 			"quit"       => "Terminate the meterpreter session",
 			"resource"   => "Run the commands stored in a file",
 			"read"       => "Reads data from a channel",
