@@ -16,7 +16,7 @@ module Msf
 module Auxiliary::Nmap
 
 attr_accessor :nmap_args, :nmap_bin, :nmap_log
-attr_reader :nmap_pid
+attr_reader :nmap_pid, :nmap_ver
 
 def initialize(info = {})
 	super
@@ -64,6 +64,36 @@ def set_nmap_cmd
 	nmap_cmd << self.nmap_args.join(" ")
 	nmap_cmd << datastore['RHOSTS']
 	nmap_cmd.join(" ")
+end
+
+def get_nmap_ver
+	self.nmap_bin || (raise RuntimeError, "Cannot locate nmap binary")
+	res = ""
+	nmap_cmd = [self.nmap_bin]
+	nmap_cmd << "--version"
+	res << %x{#{nmap_cmd.join(" ")}} rescue nil
+	res.gsub(/[\x0d\x0a]/,"")
+end
+
+# Takes a version string in the form of Major.Minor and compares to
+# the found version. It yells at you specifically if you try to
+# compare a float b/c that's going to be a super common error.
+# Comparing an Integer is okay, though.
+def nmap_version_at_least?(test_ver=nil)
+	raise ArgumentError, "Cannot compare a Float, use a String or Integer" if test_ver.kind_of? Float
+	unless test_ver.to_s[/^([0-9]+(\x2e[0-9]+)?)/]
+		raise ArgumentError, "Bad Nmap comparison version: #{test_ver.inspect}" 
+	end
+	test_ver_str = test_ver.to_s
+	tnum_arr = $1.split(/\x2e/)[0,2].map {|x| x.to_i}
+	installed_ver = get_nmap_ver()
+	vtag = installed_ver.split[2] # Should be ["Nmap", "version", "X.YZTAG", "(", "http..", ")"]
+	return false if (vtag.nil? || vtag.empty?)
+	return false unless (vtag =~ /^([0-9]+\x2e[0-9]+)/) # Drop the tag.
+	inum_arr = $1.split(/\x2e/)[0,2].map {|x| x.to_i}
+	return true if inum_arr[0] > tnum_arr[0]
+	return false if inum_arr[0] < tnum_arr[0]
+	inum_arr[1].to_i >= tnum_arr[1].to_i
 end
 
 def nmap_build_args

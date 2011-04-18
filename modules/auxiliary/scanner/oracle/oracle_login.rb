@@ -50,7 +50,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	def minimum_nmap_version
+		"5.50"
+	end
+
 	def run
+		unless nmap_version_at_least? minimum_nmap_version
+			print_error "Installed Nmap version is not at least #{minimum_nmap_version}. Exiting..."
+			return false
+		end
 		print_status "Nmap: Setting up credential file..."
 		credfile = create_credfile
 		cred_count = 0
