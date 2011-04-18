@@ -1,10 +1,6 @@
 Armitage Changelog
 ==================
 
-In Progress - Raffi This Better Work Edition 
------------
-- Fixed a deadlock condition with the screenshot/webcam tab.
-
 17 Apr 11 - Change Log 
 ---------
 - Windows command shell interactions are now less likely to die. How
