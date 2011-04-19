@@ -1105,6 +1105,8 @@ class DBManager
 				vuln = host.vulns.find_or_initialize_by_name(name, :include => :refs)
 			end
 
+			vuln.info = info.to_s if info
+
 			if opts[:port]
 				proto = nil
 				case opts[:proto].to_s.downcase # Catch incorrect usages, as in report_note
