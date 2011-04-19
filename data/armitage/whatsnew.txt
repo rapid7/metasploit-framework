@@ -1,6 +1,13 @@
 Armitage Changelog
 ==================
 
+In Progress - Raffi This Better Work Edition 
+-----------
+- Added a check to prevent jerk faces from entering an empty nick in
+  collaborative mode. :)
+- Fixed a potential dead-lock condition with the screenshot/webcam
+  shot tab.
+
 17 Apr 11 - Change Log 
 ---------
 - Windows command shell interactions are now less likely to die. How
