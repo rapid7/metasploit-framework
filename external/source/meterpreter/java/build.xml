@@ -34,4 +34,13 @@
 			</manifest>
 		</jar>
 	</target>
+
+	<target name="deploy" depends="jar">
+		<copy todir="../../../../data/meterpreter">
+			<fileset dir="extensions">
+				<exclude name="meterpreter.jar" />
+				<exclude name="extensions/ext_server_stdapi.jar" />
+			</fileset>
+		</copy>
+	</target>
 </project>
