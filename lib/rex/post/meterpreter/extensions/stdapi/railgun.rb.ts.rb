@@ -1,4 +1,9 @@
 $:.unshift(File.join(File.dirname(__FILE__)))
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..','..','..','..','..', 'lib')) 
+
+require 'test/unit'
+require 'rex'
+
 require 'railgun/api_constants.rb.ut'
 require 'railgun/buffer_item.rb.ut'
 require 'railgun/dll_function.rb.ut'

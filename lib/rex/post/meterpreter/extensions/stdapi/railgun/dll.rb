@@ -25,6 +25,8 @@
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_helper'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_function'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
+require 'rex/post/meterpreter/packet'
 
 module Rex
 module Post
@@ -299,8 +301,36 @@ class DLL
 			end
 		end
 		#puts return_hash
-		#puts "finished"
 
+		#puts "finished"
+#		puts("
+#=== START of proccess_function_call snapshot ===
+#		{
+#			:platform => '#{@native == 'Q' ? 'x64/win64' : 'x86/win32'}',
+#			:name => '#{function.windows_name}',
+#			:params => #{function.params},
+#			:return_type => '#{function.return_type}',
+#			:dll_name => '#{@dll_path}',
+#			:ruby_args => #{args.inspect},
+#			:request_to_client => {
+#				TLV_TYPE_RAILGUN_SIZE_OUT => #{out_only_size_bytes},
+#				TLV_TYPE_RAILGUN_STACKBLOB => #{literal_pairs_blob.inspect},
+#				TLV_TYPE_RAILGUN_BUFFERBLOB_IN => #{in_only_buffer.inspect},
+#				TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT => #{inout_buffer.inspect},
+#				TLV_TYPE_RAILGUN_DLLNAME => '#{@dll_path}',
+#				TLV_TYPE_RAILGUN_FUNCNAME => '#{function.windows_name}',
+#			},
+#			:response_from_client => {
+#				TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_INOUT => #{rec_inout_buffers.inspect},
+#				TLV_TYPE_RAILGUN_BACK_BUFFERBLOB_OUT => #{rec_out_only_buffers.inspect},
+#				TLV_TYPE_RAILGUN_BACK_RET => #{rec_return_value.inspect},
+#				TLV_TYPE_RAILGUN_BACK_ERR => #{rec_last_error},
+#			},
+#			:returned_hash => #{return_hash.inspect},
+#		},
+#=== END of proccess_function_call snapshot ===
+#		")
+#
 		return return_hash
 	end
 
