@@ -46,7 +46,7 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 
 	ss.dwControlsAccepted = SERVICE_ACCEPT_STOP|SERVICE_ACCEPT_SHUTDOWN;
 
-	hStatus = RegisterServiceCtrlHandler( (LPCSTR)&cServiceName, ServiceHandler );
+	hStatus = RegisterServiceCtrlHandler( (LPCSTR)&cServiceName, (LPHANDLER_FUNCTION)ServiceHandler );
   
 	if ( hStatus )
 	{
@@ -88,11 +88,11 @@ VOID ServiceMain( DWORD dwNumServicesArgs, LPSTR * lpServiceArgVectors )
 /*
  *
  */
-int WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
+int __stdcall WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow )
 {
 	SERVICE_TABLE_ENTRY st[] = 
     { 
-        { (LPSTR)&cServiceName, &ServiceMain }, 
+        { (LPSTR)&cServiceName, (LPSERVICE_MAIN_FUNCTIONA)&ServiceMain }, 
         { NULL, NULL } 
     };
 	return StartServiceCtrlDispatcher( (SERVICE_TABLE_ENTRY *)&st );
