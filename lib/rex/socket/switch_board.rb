@@ -190,6 +190,12 @@ class SwitchBoard
 	def flush_routes
 		_init
 
+		# Remove each of the individual routes so the comms don't think they're
+		# still routing after a flush.
+		self.routes.each { |r|
+			r.comm.routes.delete("#{r.subnet}/#{r.netmask}")
+		}
+		# Re-initialize to an empty array
 		self.routes = Array.new
 	end
 
