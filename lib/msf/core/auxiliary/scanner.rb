@@ -51,10 +51,10 @@ def run
 	#
 
 	if(Rex::Compat.is_windows)
-		if(threads_max > 32)
+		if(threads_max > 16)
 			print_error("Warning: The Windows platform cannot reliably support more than 16 threads")
 			print_error("Thread count has been adjusted to 16")
-			threads_max = 32
+			threads_max = 16 
 		end
 	end
 
