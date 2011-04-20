@@ -20,6 +20,7 @@ OpLeaseTime = 0x33
 OpSubnetMask = 1
 OpRouter = 3
 OpDns = 6
+OpHostname = 0x0c
 OpEnd = 0xff
 
 PXEMagic = "\xF1\x00\x74\x7E"

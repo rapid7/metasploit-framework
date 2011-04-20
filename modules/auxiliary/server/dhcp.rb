@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module provides a DHCP service
 			},
-			'Author'      => [ 'scriptjunkie' ],
+			'Author'      => [ 'scriptjunkie', 'apconole@yahoo.com' ],
 			'License'     => MSF_LICENSE,
 			'Actions'     =>
 				[
@@ -46,6 +46,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('ROUTER',      [ false,  "The router IP address" ]),
 				OptString.new('BROADCAST',   [ false,  "The broadcast address to send to" ]),
 				OptString.new('DNSSERVER',   [ false,  "The DNS server IP address" ]),
+				OptString.new('HOSTNAME',    [ false,  "The optional hostname to assign" ]),
+				OptString.new('HOSTSTART',   [ false,  "The optional host integer counter" ]),
 				OptString.new('FILENAME',    [ false,  "The optional filename of a tftp boot server" ])
 			], self.class)
 	end
