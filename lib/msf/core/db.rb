@@ -3460,8 +3460,7 @@ class DBManager
 		
 		yield(:warning, 
 			"Warning: The Retina XML format does not associate vulnerabilities with the specific service on which they were found.\n" +
-			"         This makes it impossible to correlate exploits to discovered vulnerabilities in a reliable fashion."
-		)
+			"         This makes it impossible to correlate exploits to discovered vulnerabilities in a reliable fashion." )
 	
 		parser = Rex::Parser::RetinaXMLStreamParser.new
 		parser.on_found_host = Proc.new do |host|
