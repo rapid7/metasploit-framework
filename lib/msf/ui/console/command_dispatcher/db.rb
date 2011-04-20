@@ -1231,8 +1231,6 @@ class Db
 								print_status("Import: #{data} packets processed")
 							when :record_count
 								print_status("Import: #{data[1]} records processed")
-							when :warning
-								print_status("Import Warning: #{data}")
 							end
 						end
 						print_status("Successfully imported #{filename}")
