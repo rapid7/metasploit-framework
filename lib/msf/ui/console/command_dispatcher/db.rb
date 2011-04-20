@@ -1213,6 +1213,7 @@ class Db
 						next
 					end
 					begin
+						warnings = 0
 						framework.db.import_file(:filename => filename) do |type,data|
 							case type
 							when :filetype
@@ -1231,9 +1232,20 @@ class Db
 								print_status("Import: #{data} packets processed")
 							when :record_count
 								print_status("Import: #{data[1]} records processed")
+							when :warning
+								print_error("")
+								data.split("\n").each do |line|
+									print_error(line)
+								end
+								print_error("")
+								warnings += 1
 							end
 						end
 						print_status("Successfully imported #{filename}")
+						
+						print_error("Please note that there were #{warnings} warnings") if warnings > 1
+						print_error("Please note that there was one warning") if warnings == 1
+
 					rescue DBImportError
 						print_error("Failed to import #{filename}: #{$!}")
 						elog("Failed to import #{filename}: #{$!.class}: #{$!}")
