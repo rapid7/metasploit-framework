@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_batch(batch)
 
 		@found = {}
+		@tried = []
 
 		begin
 			udp_sock = nil
@@ -73,6 +74,10 @@ class Metasploit3 < Msf::Auxiliary
 				data2 = create_probe_snmp2(comm)
 
 				batch.each do |ip|
+					fq_pass = [ip,pass]
+					next if @tried.include? fq_pass
+					@tried << fq_pass
+					print_status "#{ip}:#{datastore['RPORT']} - SNMP - Trying #{(pass.nil? || pass.empty?) ? "<BLANK>" : pass}..." if datastore['VERBOSE']
 
 					begin
 						udp_sock.sendto(data1, ip, datastore['RPORT'].to_i, 0)
