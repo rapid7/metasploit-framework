@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptAddress.new('RIP', [true, 'A valid IP to request from the server'])
 			]
 		)
-		deregister_options('RHOST','FILTER','PCAPFILE')
+		deregister_options('RHOST','FILTER','PCAPFILE','SNAPLEN','TIMEOUT')
 	end
 
 	def run
