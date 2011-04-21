@@ -193,11 +193,10 @@ class Socks4a
 							total_length = buf.length
 							while( total_sent < total_length )
 								begin
-									data = buf[0, buf.length]
+									data = buf[total_sent, buf.length]
 									sent = self.write( data )
 									if( sent > 0 )
 										total_sent += sent
-										buf[0, sent] = ""
 									end
 								rescue
 									closed = true

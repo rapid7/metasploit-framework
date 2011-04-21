@@ -160,7 +160,7 @@ protected
 					total_length = buf.length
 					while( total_sent < total_length )
 						begin
-							data = buf[0, buf.length]
+							data = buf[total_sent, buf.length]
 							sent = self.write( data )
 							# sf: Only remove the data off the queue is syswrite was successfull.
 							#     This way we naturally perform a resend if a failure occured.
@@ -168,7 +168,6 @@ protected
 							#     failes gracefully and a resend is required.
 							if( sent > 0 )
 								total_sent += sent
-								buf[0, sent] = ""
 							end
 						rescue ::IOError => e
 							closed = true
