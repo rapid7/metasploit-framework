@@ -27,7 +27,11 @@ opts = Rex::Parser::Arguments.new(
 # Default parameters
 #
 
-rhost    = Rex::Socket.source_address("1.2.3.4")
+if (client.sock and client.sock.respond_to? :peerhost and client.sock.peerhost)
+	rhost    = Rex::Socket.source_address(client.sock.peerhost)
+else
+	rhost    = Rex::Socket.source_address("1.2.3.4")
+end
 rport    = 4545
 vport    = 5900
 lhost    = "127.0.0.1"
