@@ -20,7 +20,10 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'List installed applications',
-			'Description'   => %q{ This module prints out the operating system environment variables },
+			'Description'   => %q{
+				This module lists installed applications and their versions
+				using the registry.
+			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 			'Version'       => '$Revision$',
