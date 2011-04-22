@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 			]
 		)
 
-		deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS')
+		deregister_options('RHOST','PASSWORD','PASS_FILE','BLANK_PASSWORDS','USER_AS_PASS')
 
 		@good_credentials = {}
 		@good_key = ''
