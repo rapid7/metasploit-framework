@@ -301,6 +301,7 @@ class Db
 		def cmd_db_services(*args)
 			return unless active?
 			onlyup = false
+			output_file = nil
 			host_search = nil
 			port_search = nil
 			proto_search = nil
@@ -353,10 +354,17 @@ class Db
 						return
 					end
 					names = namelist.strip().split(",")
+				when '-o'
+					output_file = args.shift
+					if (!output_file)
+						print_error("Invalid output filename")
+						return
+					end
+					output_file = File.expand_path(output_file)
 
 				when '-h','--help'
 					print_line
-					print_line "Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>]"
+					print_line "Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>]"
 					print_line
 					print_line "  -a <addr1,addr2>  Search for a list of addresses"
 					print_line "  -c <col1,col2>    Only show the given columns"
@@ -365,6 +373,7 @@ class Db
 					print_line "  -p <port1,port2>  Search for a list of ports"
 					print_line "  -r <protocol>     Only show [tcp|udp] services"
 					print_line "  -u,--up           Only show services which are up"
+					print_line "  -o <file>         Send output to a file in csv format"
 					print_line
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
@@ -382,11 +391,17 @@ class Db
 				})
 			framework.db.services(framework.db.workspace, onlyup, proto, addrs, ports, names).each do |service|
 				host = service.host
-				columns = [host.address] + col_names.map { |n| service.attributes[n] || "" }
+				columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 				tbl << columns
 			end
 			print_line
-			print_line tbl.to_s
+			if (output_file == nil)
+				print_line tbl.to_s
+			else
+				# create the output file
+				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+				print_status("Wrote services to #{output_file}")
+			end
 		end
 
 		def cmd_db_vulns_help
