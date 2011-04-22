@@ -269,12 +269,12 @@ class FrameworkEventSubscriber
 
 	def on_ui_start(rev)
 		#
-		# The database is not active at startup time, so this event can never
-		# be saved to the db.  Might look into storing it in a flat file or
-		# something later.
+		# The database is not active at startup time unless msfconsole was
+		# started with a database.yml, so this event won't always be saved to
+		# the db.  Not great, but best we can do.
 		#
-		#info = { :revision => rev }
-		#report_event(:name => "ui_start", :info => info)
+		info = { :revision => rev }
+		report_event(:name => "ui_start", :info => info)
 	end
 
 	require 'msf/core/session'
