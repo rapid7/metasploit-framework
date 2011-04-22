@@ -188,6 +188,7 @@ class Db
 			return unless active?
 			onlyup = false
 			host_search = nil
+			set_rhosts = false
 
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
@@ -223,6 +224,10 @@ class Db
 					host_search = hostlist.strip().split(",")
 				when '-o'
 					output = args.shift
+				when '-R','--rhosts'
+					set_rhosts = true
+					rhosts = []
+
 				when '-h','--help'
 					print_line "Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>] [-c <column1,column2>] [-o output-file ]"
 					print_line
@@ -231,6 +236,7 @@ class Db
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
 					print_line "  -o <file>         Send output to a file in csv format"
+					print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
 					print_line
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
@@ -266,6 +272,10 @@ class Db
 				end
 
 				tbl << columns
+				if set_rhosts
+					# only unique addresses
+					rhosts << host.address unless rhosts.include?(host.address)
+				end
 			end
 
 			if output
@@ -277,6 +287,10 @@ class Db
 				print_line
 				print_line tbl.to_s
 			end
+
+			# Finally, handle the case where the user wants the resulting list
+			# of hosts to go into RHOSTS.
+			set_rhosts_from_addrs(rhosts) if set_rhosts
 		end
 
 		def cmd_db_sync_help
@@ -302,6 +316,7 @@ class Db
 			return unless active?
 			onlyup = false
 			output_file = nil
+			set_rhosts = nil
 			host_search = nil
 			port_search = nil
 			proto_search = nil
@@ -361,6 +376,9 @@ class Db
 						return
 					end
 					output_file = File.expand_path(output_file)
+				when '-R','--rhosts'
+					set_rhosts = true
+					rhosts = []
 
 				when '-h','--help'
 					print_line
@@ -374,6 +392,7 @@ class Db
 					print_line "  -r <protocol>     Only show [tcp|udp] services"
 					print_line "  -u,--up           Only show services which are up"
 					print_line "  -o <file>         Send output to a file in csv format"
+					print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
 					print_line
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
@@ -393,6 +412,10 @@ class Db
 				host = service.host
 				columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 				tbl << columns
+				if set_rhosts
+					# only unique addresses
+					rhosts << host.address unless rhosts.include?(host.address)
+				end
 			end
 			print_line
 			if (output_file == nil)
@@ -402,7 +425,13 @@ class Db
 				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
 				print_status("Wrote services to #{output_file}")
 			end
+
+			# Finally, handle the case where the user wants the resulting list
+			# of hosts to go into RHOSTS.
+			set_rhosts_from_addrs(rhosts) if set_rhosts
+
 		end
+
 
 		def cmd_db_vulns_help
 			print_line "Usage: db_vulns"
@@ -537,6 +566,7 @@ class Db
 			print_line "  -a <addr1,addr2>  Search for a list of addresses"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
+			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
 			print_line
 		end
 
@@ -544,6 +574,7 @@ class Db
 			return unless active?
 			hosts = nil
 			types = nil
+			set_rhosts = false
 			while (arg = args.shift)
 				case arg
 				when '-a'
@@ -560,6 +591,10 @@ class Db
 						return
 					end
 					types = typelist.strip().split(",")
+				when '-R','--rhosts'
+					set_rhosts = true
+					rhosts = []
+
 				when '-h','--help'
 					cmd_db_notes_help
 					return
@@ -571,7 +606,12 @@ class Db
 				next if(types and types.index(note.ntype) == nil)
 				msg = "Time: #{note.created_at} Note:"
 				if (note.host)
+					host = note.host
 					msg << " host=#{note.host.address}"
+					if set_rhosts
+						# only unique addresses
+						rhosts << host.address unless rhosts.include?(host.address)
+					end
 				end
 				if (note.service)
 					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
@@ -580,6 +620,10 @@ class Db
 				msg << " type=#{note.ntype} data=#{note.data.inspect}"
 				print_status(msg)
 			end
+
+			# Finally, handle the case where the user wants the resulting list
+			# of hosts to go into RHOSTS.
+			set_rhosts_from_addrs(rhosts) if set_rhosts
 		end
 
 		def cmd_db_loot_help
@@ -588,6 +632,7 @@ class Db
 			print_line "  -a <addr1,addr2>  Search for a list of addresses"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
+			print_line
 		end
 
 		def cmd_db_loot(*args)
@@ -1718,6 +1763,37 @@ class Db
 			if (framework.db)
 				framework.db.disconnect()
 			end
+		end
+
+
+		#
+		# Set RHOSTS in the +active_module+'s (or global if none) datastore from an array of addresses
+		#
+		# This stores all the addresses to a temporary file and utilizes the
+		# <pre>file:/tmp/filename</pre> syntax to confer the addrs.  +rhosts+
+		# should be an Array.  NOTE: the temporary file is *not* deleted
+		# automatically.
+		#
+		def set_rhosts_from_addrs(rhosts)
+			if rhosts.empty?
+				print_status "The list is empty, cowardly refusing to set RHOSTS"
+				return
+			end
+			rhosts_file = Rex::Quickfile.new("db_services-rhosts-")
+
+			# create the output file and assign it to the RHOSTS variable					
+			rhosts_file.write(rhosts.join("\n")+"\n")
+			if active_module
+				mydatastore = active_module.datastore
+			else
+				# if there is no module in use set the list to the global variable
+				mydatastore = self.framework.datastore
+			end
+			mydatastore['RHOSTS'] = 'file:'+rhosts_file.path
+
+			print_line "RHOSTS => #{mydatastore['RHOSTS']}"
+			print_line 
+			rhosts_file.close
 		end
 
 
