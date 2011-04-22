@@ -820,7 +820,7 @@ protected
 			# can do is just take the first one. 
 			case oses.first
 			when /Windows/
-				ret.merge(parse_windows_os_str(os))
+				ret.merge(parse_windows_os_str(data[:os]))
 
 			when /(2\.[46]\.\d+[-a-zA-Z0-9]+)/
 				# Linux kernel version
