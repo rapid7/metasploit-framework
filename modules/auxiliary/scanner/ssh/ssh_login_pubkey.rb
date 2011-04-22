@@ -208,8 +208,9 @@ class Metasploit3 < Msf::Auxiliary
 			rescue ::Exception
 			end
 
-			# Create a new session
+			# Create a new session from the socket, then dump it.
 			conn = Net::SSH::CommandStream.new(self.ssh_socket, '/bin/sh', true)
+			self.ssh_socket = nil
 
 			# Clean up the stored data - need to stash the keyfile into
 			# a datastore for later reuse.
