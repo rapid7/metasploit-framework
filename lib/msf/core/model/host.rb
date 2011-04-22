@@ -775,7 +775,7 @@ protected
 				else
 					# family often contains the vendor string, so rip it out to
 					# avoid useless duplication
-					ret[:os_name] = data[:vendor] + " " + data[:family].gsub(data[:vendor], '').strip
+					ret[:os_name] = data[:vendor].to_s + " " + data[:family].to_s.gsub(data[:vendor].to_s, '').strip
 				end
 			when "Windows"
 				ret[:os_name] = "Microsoft Windows"
