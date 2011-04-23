@@ -47,15 +47,19 @@ module Stream
 					total_sent += sent
 				end
 			end
-		rescue ::Errno::EAGAIN
-			# Sleep for a half a second, or until we can write again
-			Rex::ThreadSafe.select( nil, [ fd ], nil, 0.5 )
-			# Decrement the block size to handle full sendQs better
-			block_size = 1024
-			# Try to write the data again
-			retry
-		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+		rescue ::Exception => e
+			# This allows non-existent class names to be used in the rescue filter
+			case e.class.to_s
+			when 'Errno::EAGAIN', 'IO::WaitWritable'
+				# Sleep for a half a second, or until we can write again
+				Rex::ThreadSafe.select( nil, [ fd ], nil, 0.5 )
+				# Decrement the block size to handle full sendQs better
+				block_size = 1024
+				# Try to write the data again
+				retry
+			when 'IOError', 'Errno::EPIPE'
+				return nil if (fd.abortive_close == true)
+			end
 			raise $!
 		end
 		total_sent
@@ -65,11 +69,19 @@ module Stream
 	# This method reads data of the supplied length from the stream.
 	#
 	def read(length = nil, opts = {})
-		# XXX handle length being nil
 		begin
-			fd.readpartial(length)
-		rescue ::IOError, ::EOFError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			return fd.read_nonblock( length ) 				
+		rescue ::Exception => e
+			# This allows non-existent class names to be used in the rescue filter
+			case e.class.to_s
+			when 'Errno::EAGAIN', 'IO::WaitReadable'
+				# Sleep for a half a second, or until we can read again
+				Rex::ThreadSafe.select( [ fd ], nil, nil, 0.5 )
+				# Decrement the block size to handle full sendQs better
+				retry
+			when 'IOError', 'Errno::EPIPE'
+				return nil if (fd.abortive_close == true)
+			end
 			raise $!
 		end
 	end
