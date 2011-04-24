@@ -1,12 +1,32 @@
 Armitage Changelog
 ==================
 
-In Progress - Raffi This Better Work Edition 
------------
+24 Apr 11 - Happy Birthday Gerry Edition
+---------
 - Added a check to prevent jerk faces from entering an empty nick in
   collaborative mode. :)
 - Fixed a potential dead-lock condition with the screenshot/webcam
   shot tab.
+- Armitage -> Listeners -> Reverse now binds to 0.0.0.0. 
+- Host import now posts an event to the collab mode shared event log
+- added an option to display an MOTD message to clients that connect
+  to Armitage in the collaboration mode. Use -m or --motd before
+  --server and specify a file, e.g.:
+
+  armitage -m /path/to/motd.txt --server ...
+
+  Clients will see this message when they connect.
+- Added Meterpreter -> Access -> Pass Session to send a meterpreter
+  session to a handler set up on another host.
+- Armitage now sets ExitOnSession to false for multi/handlers started
+  within Armitage.
+- Pivoting and ARP Scan dialogs now highlight first option by default.
+- Added a sanity check to the Route class to prevent malformed IPs
+  from screwing up sorting.
+- Removed sqlite3 from the database options. I should have done this
+  long ago--it has no place in Armitage.
+- Armitage now intercepts meterpreter "shell" command and opens a 
+  new tab with the cmd.exe interaction in it.
 
 17 Apr 11 - Change Log 
 ---------
