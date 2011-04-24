@@ -3,6 +3,8 @@
 # 	http://stackoverflow.com/questions/3085153/how-to-parse-the-manifest-mbdb-file-in-an-ios-4-0-itunes-backup/3130860#3130860
 #
 
+module Rex
+module Parser
 class AppleBackupManifestDB
 
 	attr_accessor :entry_offsets
@@ -122,4 +124,8 @@ class AppleBackupManifestDB
 		end
  		val
 	end
+end
+
+
+end
 end
