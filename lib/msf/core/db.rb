@@ -892,7 +892,7 @@ class DBManager
 	# report_vuln() now.
 	#
 	# opts must contain
-	#	:host    -- an IP address 
+	#	:host    -- an IP address or Host object reference
 	#	:port    -- a port number 
 	#
 	# opts can contain
@@ -917,8 +917,12 @@ class DBManager
 	def report_auth_info(opts={})
 		return if not active
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil? 
-		raise ArgumentError.new("Invalid address for :host") unless validate_ips(opts[:host])
 		raise ArgumentError.new("Missing required option :port") if opts[:port].nil?
+		
+		if opts[:host].kind_of?(Host) or validate_ips(opts[:host])
+			raise ArgumentError.new("Invalid address or object for :host")
+		end
+
 		host = opts.delete(:host)
 		ptype = opts.delete(:type) || "password"
 		token = [opts.delete(:user), opts.delete(:pass)]
