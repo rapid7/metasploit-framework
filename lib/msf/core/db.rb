@@ -3979,6 +3979,9 @@ class DBManager
 		nbe_copy = data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
+		
+		# Cache host objects before passing into handle_nessus()
+		hobj_map = {]
 
 		nbe_copy.each_line do |line|
 			r = line.split('|')
@@ -4011,6 +4014,8 @@ class DBManager
 			else
 				yield(:address,addr) if block
 			end
+			
+			hobj_map[ addr ] ||= report_host(:host => addr, :workspace => wspace)
 
 			# Match the NBE types with the XML severity ratings
 			case type
@@ -4028,14 +4033,14 @@ class DBManager
 				os = data.match(/The remote host is running (.*)\\n/)[1]
 				report_note(
 					:workspace => wspace,
-					:host => addr,
+					:host => hobj_map[ addr ],
 					:type => 'host.os.nessus_fingerprint',
 					:data => {
 						:os => os.to_s.strip
 					}
 				)
 			end
-			handle_nessus(wspace, addr, port, nasl, severity, data)
+			handle_nessus(wspace, hobj_map[ addr ], port, nasl, severity, data)
 		end
 	end
 
