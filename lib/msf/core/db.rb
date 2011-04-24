@@ -919,8 +919,8 @@ class DBManager
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil? 
 		raise ArgumentError.new("Missing required option :port") if opts[:port].nil?
 		
-		if opts[:host].kind_of?(Host) or validate_ips(opts[:host])
-			raise ArgumentError.new("Invalid address or object for :host")
+		if (not opts[:host].kind_of?(Host)) and (not validate_ips(opts[:host]))
+			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
 		host = opts.delete(:host)
