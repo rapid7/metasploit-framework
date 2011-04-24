@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Applie iOS MobileSync Backup File Collection',
+			'Name'           => 'Apple iOS MobileSync Backup File Collection',
 			'Description'    => %q{ This module will collect sensitive files from any on-disk iOS device backups },
 			'License'        => MSF_LICENSE,
 			'Author'         => 
@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Post
 					'bannedit' # Based on bannedit's pidgin_cred module structure 
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['osx', 'windows'],
-			'SessionTypes'   => ['shell', 'meterpreter' ]
+			'Platform'       => ['windows'],
+			'SessionTypes'   => ['meterpreter' ]
 		))
 		register_options(
 			[
