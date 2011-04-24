@@ -3981,7 +3981,7 @@ class DBManager
 		addr_map = {}
 		
 		# Cache host objects before passing into handle_nessus()
-		hobj_map = {]
+		hobj_map = {}
 
 		nbe_copy.each_line do |line|
 			r = line.split('|')
