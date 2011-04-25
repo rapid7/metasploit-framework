@@ -188,6 +188,7 @@ class DBManager
 				end
 			}
 		end
+		true
 	end
 
 	#
