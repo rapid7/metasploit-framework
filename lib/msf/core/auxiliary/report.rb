@@ -198,11 +198,9 @@ module Auxiliary::Report
 	end
 
 	# Takes a credential from a script (shell or meterpreter), and
-	# sources it correctly to the originating user account. Note
-	# that if the user account is not already stored as a credential
-	# against that service, source_id will end up nil, and will
-	# appear as a self-sourced credential the next time credentials are
-	# sourced.
+	# sources it correctly to the originating user account or
+	# session. Note that the passed-in session ID should be the
+	# Session.local_id, which will be correlated with the Session.id
 	def store_cred(opts={})
 		if [opts[:port],opts[:sname]].compact.empty?
 			raise ArgumentError, "Missing option: :sname or :port"
@@ -252,12 +250,10 @@ module Auxiliary::Report
 			end
 		end
 		if opts[:collect_session]
-			exploit = myworkspace.exploited_hosts.find_by_session_uuid(opts[:collect_session])
-			if !exploit.nil? 
-				cred_opts[:source_id] = exploit.id
+			session = myworkspace.sessions.find_all_by_local_id(opts[:collect_session]).last
+			if !session.nil? 
+				cred_opts[:source_id] = session.id
 				cred_opts[:source_type] = "exploit"
-			else 
-				# This session isn't in exploited_hosts, so can't attribute. 
 			end
 		end
 		print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
