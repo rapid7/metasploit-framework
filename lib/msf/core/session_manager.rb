@@ -17,10 +17,13 @@ class SessionManager < Hash
 
 	include Framework::Offspring
 
+	LAST_SEEN_INTERVAL = 5 * 60
+
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
 		self.reaper_thread = framework.threads.spawn("SessionManager", true, self) do |manager|
+			last_seen_timer = Time.now
 			begin
 			while true
 			
@@ -67,6 +70,15 @@ class SessionManager < Hash
 						manager.deregister(s, "Died")
 						wlog("Session #{s.sid} has died")
 						next
+					end
+					next if ((Time.now - last_seen_timer) < LAST_SEEN_INTERVAL)
+					# Update the database entry for this session every 5
+					# minutes, give or take.  This notifies other framework
+					# instances that this session is being maintained.
+					last_seen_timer = Time.now
+					if s.db_record
+						s.db_record.last_seen = Time.now.utc
+						s.db_record.save
 					end
 				end
 			end
