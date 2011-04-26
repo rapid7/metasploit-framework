@@ -51,6 +51,10 @@ class NexposeXMLStreamParser
 		when "test"
 			if attributes["status"] == "vulnerable-exploited" or attributes["status"] == "vulnerable-version"
 				@host["vulns"][attributes["id"]] = attributes.dup
+				if attributes["key"]
+					@host["notes"] ||= []
+					@host["notes"] << [attributes["id"], attributes["key"]]
+				end
 			end
 		when "vulnerability"
 			@vuln.merge! attributes

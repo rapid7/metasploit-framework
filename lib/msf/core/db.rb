@@ -3243,6 +3243,22 @@ class DBManager
 			report_import_note(wspace, hobj)
 		end
 
+		if h["notes"]
+			note = {
+				:workspace => wspace,
+				:host => (hobj || addr),
+				:type => "host.vuln.nexpose_keys",
+				:data => {},
+				:mode => :unique_data
+			}
+			h["notes"].each do |v,k|
+				note[:data][v] ||= []
+				next if note[:data][v].include? k
+			 	note[:data][v] << k
+			end
+			report_note(note)
+		end
+
 		if h["os_family"]
 			note = {
 				:workspace => wspace,
