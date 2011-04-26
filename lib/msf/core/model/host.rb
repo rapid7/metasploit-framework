@@ -38,6 +38,13 @@ class Host < ActiveRecord::Base
 		end
 	end
 
+	#
+	# Normalize the operating system fingerprints provided by various scanners
+	# (nmap, nexpose, retina, nessus, etc).
+	#
+	# These are stored as notes (instead of directly in the os_* fields)
+	# specifically for this purpose.
+	#
 	def normalize_os
 		host = self
 
@@ -49,11 +56,9 @@ class Host < ActiveRecord::Base
 		wlang = {} # os_lang   == English, ''
 		whost = {} # hostname
 
-		# Normalize the operating system fingerprints provided by various
-		# scanners (nmap, nexpose, retina, nessus, etc).  These are stored as
-		# notes (instead of directly in the os_* fields) specifically for this
-		# purpose.  Note that we're already restricting to this host by using
-		# host.notes instead of Note, so don't need a host_id in the conditions.
+		# Note that we're already restricting the query to this host by using
+		# host.notes instead of Note, so don't need a host_id in the
+		# conditions.
 		fingers = host.notes.find(:all,
 			:conditions => [ "ntype like '%%fingerprint'" ]
 		)
@@ -746,6 +751,7 @@ protected
 				ret[:os_name] = data[:os]
 			end
 			ret[:arch] = data[:arch] if data[:arch]
+			ret[:name] = data[:name] if data[:name]
 
 		when 'host.os.nmap_fingerprint'
 			# :os_vendor=>"Microsoft" :os_family=>"Windows" :os_version=>"2000" :os_accuracy=>"94"
@@ -793,7 +799,7 @@ protected
 			# :os=>"Windows Server 2003 (X64), Service Pack 2"			
 			case data[:os]
 			when /Windows/
-				ret.merge(parse_windows_os_str(data[:os]))
+				ret.update(parse_windows_os_str(data[:os]))
 			else
 				# No idea what this looks like if it isn't windows.  Just store
 				# the whole thing and hope for the best.  XXX: Ghetto.  =/
@@ -820,7 +826,7 @@ protected
 			# can do is just take the first one. 
 			case oses.first
 			when /Windows/
-				ret.merge(parse_windows_os_str(data[:os]))
+				ret.update(parse_windows_os_str(data[:os]))
 
 			when /(2\.[46]\.\d+[-a-zA-Z0-9]+)/
 				# Linux kernel version
@@ -848,7 +854,7 @@ protected
 			# :os=>"Cisco IOS 12.0(3)T3"
 			case data[:os]
 			when /Windows/
-				ret.merge(parse_windows_os_str(data[:os]))
+				ret.update(parse_windows_os_str(data[:os]))
 			else
 				parts = data[:os].split(/\s+/, 3)
 				ret[:os_name] = parts[0] + " " + parts[1]
@@ -870,18 +876,43 @@ protected
 		ret
 	end
 
+	#
+	# Take a windows version string and return a hash with fields suitable for
+	# Host this object's version fields.
+	#
+	# A few example strings that this will have to parse:
+	# sessions
+	#   Windows XP (Build 2600, Service Pack 3).
+	#   Windows .NET Server (Build 3790).
+	#   Windows 2008 (Build 6001, Service Pack 1).
+	# retina
+	#   Windows Server 2003 (X64), Service Pack 2
+	# nessus
+	#   Microsoft Windows 2000 Advanced Server (English)
+	# qualys
+	#   Microsoft Windows XP Professional SP3
+	#   Windows 2003
+	#
+	# Note that this list doesn't include nexpose or nmap, since they are
+	# both kind enough to give us the various strings in seperate pieces
+	# that we don't have to parse out manually.
+	#
 	def parse_windows_os_str(str)
 		ret = {}
 
 		ret[:os_name] = "Microsoft Windows"
-		ret[:arch] = get_arch_from_string(str)
+		arch = get_arch_from_string(str)
+		ret[:arch] = arch if arch
+
 		if str =~ /(Service Pack|SP) ?(\d+)/
 			ret[:os_sp]  = "SP#{$2}"
 		end
 
 		# Flavor
 		case str
-		when /(XP|2000|2003|Vista|7 .* Edition|7)/
+		when /\.NET Server/
+			ret[:os_flavor] = "2003"
+		when /(XP|2000 Advanced Server|2000|2003|2008|SBS|Vista|7 .* Edition|7)/
 			ret[:os_flavor] = $1
 		else
 			# If we couldn't pull out anything specific for the flavor, just cut
