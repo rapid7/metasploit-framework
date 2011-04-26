@@ -17,14 +17,15 @@ class SessionManager < Hash
 
 	include Framework::Offspring
 
-	LAST_SEEN_INTERVAL = 5 * 60
+	LAST_SEEN_INTERVAL = 2.5 * 60
 
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
 		self.reaper_thread = framework.threads.spawn("SessionManager", true, self) do |manager|
-			last_seen_timer = Time.now
+			last_seen_timer = Time.now.utc
 			begin
+			
 			while true
 			
 				rings = values.select{|s| s.respond_to?(:ring) and s.ring and s.rstream }
@@ -71,22 +72,38 @@ class SessionManager < Hash
 						wlog("Session #{s.sid} has died")
 						next
 					end
-					next if ((Time.now - last_seen_timer) < LAST_SEEN_INTERVAL)
+
+					next if ((Time.now.utc - last_seen_timer) < LAST_SEEN_INTERVAL)
 					# Update the database entry for this session every 5
 					# minutes, give or take.  This notifies other framework
 					# instances that this session is being maintained.
-					last_seen_timer = Time.now
-					if s.db_record
+					last_seen_timer = Time.now.utc
+					if framework.db.active and s.db_record
 						s.db_record.last_seen = Time.now.utc
 						s.db_record.save
 					end
 				end
+
+				# Skip the database cleanup code below if there is no database
+				next if not (framework.db and framework.db.active)
+				
+				# Clean out any stale sessions that have been orphaned by a dead
+				# framewort instance.
+				Msf::DBManager::Session.find_all_by_closed_at(nil).each do |db_session|
+					if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
+						db_session.closed_at    = db_session.last_seen || Time.now.utc
+						db_session.close_reason = "Stale at startup"
+						db_session.save
+					end
+				end				
+				
 			end
 			
 			rescue ::Exception => e
 				wlog("Exception in reaper thread #{e.class} #{e}")
 				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
 			end
+
 		end
 	end
 

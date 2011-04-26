@@ -175,21 +175,6 @@ class DBManager
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 		end
 
-		# Clean out any stale sessions that didn't get marked as closed the
-		# last time the framework was run.
-		sessions = Session.find_all_by_closed_at(nil)
-		if sessions and sessions.size > 0
-			sessions.each { |db_session|
-=begin
-				interval = Msf::SessionManager::LAST_SEEN_INTERVAL
-				if ((Time.now.utc - db_session.last_seen) > 2*interval)
-					db_session.closed_at = Time.now.utc
-					db_session.close_reason = "Stale at startup"
-					db_session.save
-				end
-=end
-			}
-		end
 		true
 	end
 
