@@ -450,6 +450,7 @@ class DBManager
 				:routes => [],
 				:datastore => session.exploit_datastore.to_h,
 				:opened_at => Time.now.utc,
+				:last_seen => Time.now.utc,
 				:local_id => session.sid
 			}
 		elsif opts[:host]
@@ -466,6 +467,7 @@ class DBManager
 				:datastore => opts[:datastore],
 				:opened_at => opts[:opened_at],
 				:closed_at => opts[:closed_at],
+				:last_seen => opts[:last_seen] || opts[:closed_at],
 				:close_reason => opts[:close_reason],
 			}
 		else
