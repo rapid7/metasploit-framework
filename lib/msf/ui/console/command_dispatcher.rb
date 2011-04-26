@@ -123,6 +123,10 @@ module ModuleCommandDispatcher
 		end
 	end
 
+	@@reload_opts =  Rex::Parser::Arguments.new(
+		'-k' => [ false,  'Stop the current job before reloading.' ],
+		'-h' => [ false,  'Help banner.' ])
+
 	def cmd_reload_help
 		print_line "Usage: reload [-k]"
 		print_line
