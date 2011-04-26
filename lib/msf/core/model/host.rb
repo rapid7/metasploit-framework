@@ -104,10 +104,12 @@ class Host < ActiveRecord::Base
 					ninfo.gsub!('(R)', '')
 					ninfo.gsub!('(TM)', '')
 					ninfo.gsub!(/\s+/, ' ')
+					ninfo.gsub!('No Service Pack', 'Service Pack 0')
 
 					# Windows (R) Web Server 2008 6001 Service Pack 1 (language: Unknown) (name:PG-WIN2008WEB) (domain:WORKGROUP)
 					# Windows XP Service Pack 3 (language: English) (name:EGYPT-B3E55BF3C) (domain:EGYPT-B3E55BF3C)
 					# Windows 7 Ultimate (Build 7600) (language: Unknown) (name:WIN7) (domain:WORKGROUP)
+					# Windows 2003 No Service Pack (language: Unknown) (name:VMWIN2003) (domain:PWNME)
 
 					#if ninfo =~ /^Windows ([^\s]+)(.*)(Service Pack |\(Build )([^\(]+)\(/
 					if ninfo =~ /^Windows (.*)(Service Pack [^\s]+|\(Build [^\)]+\))/
