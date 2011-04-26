@@ -92,7 +92,7 @@ class SessionManager < Hash
 				Msf::DBManager::Session.find_all_by_closed_at(nil).each do |db_session|
 					if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
 						db_session.closed_at    = db_session.last_seen || Time.now.utc
-						db_session.close_reason = "Stale at startup"
+						db_session.close_reason = "Orphaned"
 						db_session.save
 					end
 				end				
