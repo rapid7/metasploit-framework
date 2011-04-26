@@ -81,13 +81,18 @@ protected
 	#
 	# Job run proc, sets up the module and kicks it off.
 	#
-	# Copy/pasted from simple/auxiliarly.rb
+	# XXX: Mostly Copy/pasted from simple/auxiliarly.rb
 	#
 	def self.job_run_proc(ctx)
 		mod = ctx[0]
 		begin
 			mod.setup
 			mod.framework.events.on_module_run(mod)
+			# Grab the session object since we need to fire an event for not
+			# only the normal module_run event that all module types have to
+			# report, but a specific event for sessions as well.
+			s = mod.framework.sessions[mod.datastore["SESSION"]]
+			mod.framework.events.on_session_module_run(s, mod)
 			mod.run
 		rescue ::Timeout::Error => e
 			mod.error = e

@@ -58,6 +58,8 @@ module Scriptable
 	def execute_script(script_name, *args)
 		mod = framework.modules.create(script_name)
 		if (mod and mod.type == "post")
+			# Don't report module run events here as it will be taken care of
+			# in +Post.run_simple+
 			opts = (args + [ "SESSION=#{self.sid}" ]).join(',')
 			mod.run_simple(
 				# Run with whatever the default stance is for now.  At some
@@ -76,6 +78,7 @@ module Scriptable
 				print_error("The specified script could not be found: #{script_name}")
 				return true
 			end
+			framework.events.on_session_script_run(self, full_path)
 			execute_file(full_path, args)
 		end
 	end

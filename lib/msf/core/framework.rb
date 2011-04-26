@@ -401,6 +401,21 @@ class FrameworkEventSubscriber
 		framework.db.report_session_route_remove(session, route)
 	end
 
+	def on_session_script_run(session, script)
+		framework.db.report_session_event({
+			:etype => 'script_run',
+			:session => session,
+			:local_path => script
+		})
+	end
+
+	def on_session_module_run(session, mod)
+		framework.db.report_session_event({
+			:etype => 'module_run',
+			:session => session,
+			:local_path => mod.fullname
+		})
+	end
 
 	#
 	# This is covered by on_module_run and on_session_open, so don't bother
