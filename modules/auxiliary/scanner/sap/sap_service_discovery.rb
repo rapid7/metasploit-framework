@@ -230,9 +230,9 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						print_good("#{ip}:#{port}\t - #{service} OPEN")
 
-						report_note(:host => '#{ip}',
+						report_note(:host => "#{ip}",
 									:proto => 'TCP',
-									:port => '#{port}',
+									:port => "#{port}",
 									:type => 'SAP',
 									:data => "#{service}")
 

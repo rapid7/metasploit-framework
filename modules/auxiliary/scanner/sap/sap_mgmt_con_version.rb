@@ -123,14 +123,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_good("[SAP] Version Number Extracted - #{rhost}:#{rport}")
 			print_good("[SAP] Version: #{version}")
 			print_good("[SAP] SID: #{sapsid.upcase}")
-			report_note(:host => '#{rhost}',
+			report_note(:host => "#{rhost}",
 				:proto => 'SOAP',
-				:port => '#{rport}',
+				:port => "#{rport}",
 				:type => 'SAP Version',
 				:data => "SAP Version: #{version}")
-			report_note(:host => '#{rhost}',
+			report_note(:host => "#{rhost}",
 					:proto => 'SOAP',
-					:port => '#{rport}',
+					:port => "#{rport}",
 					:type => 'SAP SID',
 					:data => "SAP SID: #{sapsid.upcase}")
 
