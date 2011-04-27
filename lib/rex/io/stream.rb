@@ -50,7 +50,7 @@ module Stream
 		rescue ::Exception => e
 			# This allows non-existent class names to be used in the rescue filter
 			case e.class.to_s
-			when 'Errno::EAGAIN', 'IO::WaitWritable'
+			when 'Errno::EAGAIN', 'Errno::EWOULDBLOCK', 'IO::WaitWritable'
 				# Sleep for a half a second, or until we can write again
 				Rex::ThreadSafe.select( nil, [ fd ], nil, 0.5 )
 				# Decrement the block size to handle full sendQs better
@@ -74,7 +74,7 @@ module Stream
 		rescue ::Exception => e
 			# This allows non-existent class names to be used in the rescue filter
 			case e.class.to_s
-			when 'Errno::EAGAIN', 'IO::WaitReadable'
+			when 'Errno::EAGAIN', 'Errno::EWOULDBLOCK', 'IO::WaitReadable'
 				# Sleep for a half a second, or until we can read again
 				Rex::ThreadSafe.select( [ fd ], nil, nil, 0.5 )
 				# Decrement the block size to handle full sendQs better
