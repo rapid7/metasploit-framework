@@ -88,6 +88,7 @@ class Metasploit3 < Msf::Post
 
 		@chrome_files.each do |item|
 			break if item[:sql] == nil
+			break if item[:raw_file] == nil
 
 			db = SQLite3::Database.new(item[:raw_file])
 			begin
