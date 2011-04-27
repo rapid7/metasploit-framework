@@ -21,11 +21,13 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# Options for the download command.
 	#
 	@@download_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
 		"-r" => [ false, "Download recursively." ])
 	#
 	# Options for the upload command.
 	#
 	@@upload_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
 		"-r" => [ false, "Upload recursively." ])
 
 	#
@@ -179,17 +181,21 @@ class Console::CommandDispatcher::Stdapi::Fs
 	end
 	
 	alias :cmd_del :cmd_rm
+
+	def cmd_download_help
+		print_line "Usage: download [options] src1 src2 src3 ... destination" 
+		print_line
+		print_line "Downloads remote files and directories to the local machine."
+		print_line @@download_opts.usage
+	end
 	
 	#
 	# Downloads a file or directory from the remote machine to the local
 	# machine.
 	#
 	def cmd_download(*args)
-		if (args.empty?)
-			print(
-				"Usage: download [options] src1 src2 src3 ... destination\n\n" +
-				"Downloads remote files and directories to the local machine.\n" +
-				@@download_opts.usage)
+		if (args.empty? or args.include? "-h")
+			cmd_download_help
 			return true
 		end
 
@@ -361,7 +367,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# Removes one or more directory if it's empty.
 	#
 	def cmd_rmdir(*args)
-		if (args.length == 0)
+		if (args.length == 0 or args.include?("-h"))
 		 	print_line("Usage: rmdir dir1 dir2 dir3 ...")
 			return true
 		end
@@ -374,16 +380,20 @@ class Console::CommandDispatcher::Stdapi::Fs
 		return true
 	end
 
+	def cmd_upload_help
+		print_line "Usage: upload [options] src1 src2 src3 ... destination"
+		print_line
+		print_line "Uploads local files and directories to the remote machine."
+		print_line @@upload_opts.usage
+	end
+
 	#
 	# Uploads a file or directory to the remote machine from the local
 	# machine.
 	#
 	def cmd_upload(*args)
-		if (args.empty?)
-			print(
-				"Usage: upload [options] src1 src2 src3 ... destination\n\n" +
-				"Uploads local files and directories to the remote machine.\n" +
-				@@upload_opts.usage)
+		if (args.empty? or args.include?("-h"))
+			cmd_upload_help
 			return true
 		end
 
