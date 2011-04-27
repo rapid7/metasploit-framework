@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 	
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Microsoft Windows Enable Remote Desktop',
+				'Name'          => 'Windows Manage Enable Remote Desktop',
 				'Description'   => %q{ 
 						This module enables the Remote Desktop Service. It provides the options to create
 					a Account and configure such account to be a member of the Local Administrator and

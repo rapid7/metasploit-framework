@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Microsoft Windows NtUserLoadKeyboardLayoutEx Privilege Escalation',
+			'Name'          => 'Windows Escalate NtUserLoadKeyboardLayoutEx Privilege Escalation',
 			'Description'   => %q{
 					This module exploits the keyboard layout vulnerability exploited by Stuxnet. When
 				processing specially crafted keyboard layout files (DLLs), the Windows kernel fails

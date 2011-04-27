@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Microsoft Windows Locked Desktop Unlocker',
+			'Name'          => 'Windows Escalate Locked Desktop Unlocker',
 			'Description'   => %q{
 					This module unlocks a locked Windows desktop by patching
 				the respective code inside the LSASS.exe process. This 

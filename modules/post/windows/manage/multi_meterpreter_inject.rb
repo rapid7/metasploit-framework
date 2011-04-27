@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Inject in memory multiple payloads',
+				'Name'          => 'Windows Manage Inject in Memory Multiple Payloads',
 				'Description'   => %q{ This module will inject in to several process a given
 					payload and connecting to a given list of IP Addresses.
 					The module works with a given lists of IP Addresses and

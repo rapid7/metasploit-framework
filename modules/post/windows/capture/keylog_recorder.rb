@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'           => 'Microsoft Windows Keystroke Recorder',
+				'Name'           => 'Windows Capture Keystroke Recorder',
 				'Description'    => %q{
 					This module can be used to capture keystrokes. To capture keystrokes when the session is running
 					as SYSTEM, the MIGRATE option must be enabled and the CAPTURE_TYPE option should be set to one of

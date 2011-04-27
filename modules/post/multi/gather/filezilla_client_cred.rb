@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'FileZilla FTP Client Credential Collection',
+			'Name'           => 'Multi Gather FileZilla FTP Client Credential Collection',
 			'Description'    => %q{ This module will collect credentials from the FileZilla FTP client if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => 

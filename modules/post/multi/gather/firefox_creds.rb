@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Firefox Signon Credential Collection',
+			'Name'           => 'Multi Gather Firefox Signon Credential Collection',
 			'Description'    => %q{
 					This module will collect credentials from the Firefox web browser if it is
 				installed on the targeted machine. Additionally, cookies are downloaded. Which

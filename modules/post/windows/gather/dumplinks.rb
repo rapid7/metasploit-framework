@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Dump Recent Files lnk Info',
+				'Name'          => 'Windows Gather Dump Recent Files lnk Info',
 				'Description'   => %q{
 					"This module will parse .lnk files from user's Recent Documents
 					dumplinks is a modified port of Harlan Carvey's lslnk.pl Perl script.

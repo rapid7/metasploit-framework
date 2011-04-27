@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 	include ::Msf::Post::WindowsServices
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Microsoft Windows Service Permissions Local Privilege Escalation',
+			'Name'          => 'Windows Escalate Service Permissions Local Privilege Escalation',
 			'Description'   => %q{
 				This module attempts to exploit existing administrative privileges to obtain
 				a SYSTEM session. If directly creating a service fails, this module will inspect 

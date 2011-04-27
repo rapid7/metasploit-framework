@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Mac OS X Password Hash Collector',
+				'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
 				'Description'   => %q{
 						This module dumps SHA1, LM and NT Hashes of Mac OS X Tiger, Leopard and Snow Leopard Systems.
 				},

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'VNC Password Extraction',
+				'Name'          => 'Windows Gather VNC Password Extraction',
 				'Description'   => %q{ This module extract DES encrypted passwords in known VNC locations },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Kurt Grutzmacher <grutz@jingojango.net>','Rob Fuller <mubix@hak5.org>'],

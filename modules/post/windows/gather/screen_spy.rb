@@ -15,7 +15,7 @@ require 'rbconfig'
 class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Screen Spy',
+			'Name'           => 'Windows Gather Screen Spy',
 			'Description'    => %q{ 
 					This module will incrementally take screenshots of the meterpreter host. This
 				allows for screen spying which can be useful to determine if there is an active

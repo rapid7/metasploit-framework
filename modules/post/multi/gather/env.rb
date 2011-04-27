@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Generic Operating System Environment Settings',
+			'Name'          => 'Multi Gather Generic Operating System Environment Settings',
 			'Description'   => %q{ This module prints out the operating system environment variables },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>', 'egypt' ],

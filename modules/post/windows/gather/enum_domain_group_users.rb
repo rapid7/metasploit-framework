@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate Domain Group',
+				'Name'          => 'Windows Gather Enumerate Domain Group',
 				'Description'   => %q{ Extracts user accounts from specified group
 					and stores the results in the loot. Will also verify if session
 					account is in the group. Data is stored in loot in a format that

@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Microsoft Windows Local User Account SID Lookup',
+				'Name'          => 'Windows Gather Local User Account SID Lookup',
 				'Description'   => %q{ This module prints information about a given SID from the perspective of this session },
 				'License'       => BSD_LICENSE,
 				'Author'        => [ 'chao-mu'],

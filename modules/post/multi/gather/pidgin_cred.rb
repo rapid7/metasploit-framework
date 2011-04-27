@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Pidgin Instant Messenger Credential Collection',
+			'Name'           => 'Multi Gather Pidgin Instant Messenger Credential Collection',
 			'Description'    => %q{ This module will collect credentials from the pidgin IM client if installed. },
 			'License'        => MSF_LICENSE,
 			'Author'         => 

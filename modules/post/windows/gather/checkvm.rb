@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Microsoft Windows Virtual Environment Detection',
+				'Name'          => 'Windows Gather Virtual Environment Detection',
 				'Description'   => %q{
 					This module attempts to determine whether the system is running
 					inside of a virtual environment and if so, which one. This

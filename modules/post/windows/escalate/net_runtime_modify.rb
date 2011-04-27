@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Microsoft .NET Runtime Optimization Service Privilege Escalation',
+			'Name'          => 'Windows Escalate Microsoft .NET Runtime Optimization Service Privilege Escalation',
 			'Description'   => %q{
 				This module attempts to exploit the security permissions set on the .NET Runtime
 			Optimization service. Vulnerable versions of the .NET Framework include 4.0 and 2.0.

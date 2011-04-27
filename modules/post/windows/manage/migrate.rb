@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Process Migrate',
+				'Name'          => 'Windows Manage Process Migration',
 				'Description'   => %q{ This module will migrate a Meterpreter session from one process to another.
 					A given process name can be given to migrate to or the module can spawn one
 					and migrate to that newly spawned process.},

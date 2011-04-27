@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Run Console Resource File',
+				'Name'          => 'Multi Gather Run Console Resource File',
 				'Description'   => %q{ This module will read console commands from a resource file and
 					execute the commands in the speciffied Meterpreter session.},
 				'License'       => MSF_LICENSE,

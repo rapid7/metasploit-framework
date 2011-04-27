@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Run Shell Command Resource File',
+				'Name'          => 'Multi Gather Run Shell Command Resource File',
 				'Description'   => %q{ This module will read shell commands from a resource file and
 					execute the commands in the speciffied Meterpreter or shell session.},
 				'License'       => MSF_LICENSE,

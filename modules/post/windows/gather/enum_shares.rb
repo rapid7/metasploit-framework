@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Microsoft Windows SMB Share Enumeration via Registry',
+				'Name'          => 'Windows Gather SMB Share Enumeration via Registry',
 				'Description'   => %q{ This module will enumerate configured and recently used file shares},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],

@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Credential Collector',
+				'Name'          => 'Windows Gather Credential Collector',
 				'Description'   => %q{ This module harvest credentials found on the host and store them in the database.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'tebo[at]attackresearch.com'],

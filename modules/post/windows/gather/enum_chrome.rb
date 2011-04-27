@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'                 => "Google Chrome User Data Enumeration",
+			'Name'                 => "Windows Gather Google Chrome User Data Enumeration",
 			'Description'          => %q{This module will collect user data from Google Chrome, and attempt to decrypt sensitive information},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision$',

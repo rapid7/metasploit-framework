@@ -22,8 +22,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'USB Drive Histroy',
-				'Description'   => %q{ This module will enumerate USB Drive hostory on a target host.},
+				'Name'          => 'Windows Gather USB Drive History',
+				'Description'   => %q{ This module will enumerate USB Drive history on a target host.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'nebulus'],
 				'Version'       => '$Revision$',

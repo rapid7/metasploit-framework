@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'ARP Scanner',
+				'Name'          => 'Windows Gather ARP Scanner',
 				'Description'   => %q{ This Module will perform an ARP Scan for a given IP range thru a
 					Meterpreter Session.},
 				'License'       => MSF_LICENSE,
