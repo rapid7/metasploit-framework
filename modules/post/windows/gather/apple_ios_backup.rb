@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'           => 'Apple iOS MobileSync Backup File Collection',
+			'Name'           => 'Microsoft Windows Apple iOS MobileSync Backup File Collection',
 			'Description'    => %q{ This module will collect sensitive files from any on-disk iOS device backups },
 			'License'        => MSF_LICENSE,
 			'Author'         => 
