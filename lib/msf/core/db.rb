@@ -4238,7 +4238,7 @@ class DBManager
 				nasl = item['nasl'].to_s
 				port = item['port'].to_s
 				proto = item['proto'] || "tcp"
-				name = item['svc_name']
+				sname = item['svc_name']
 				severity = item['severity']
 				description = item['description']
 				cve = item['cve'] 
@@ -4248,7 +4248,7 @@ class DBManager
 				
 				yield(:port,port) if block
 				
-				handle_nessus_v2(wspace, hobj, port, proto, hname, nasl, severity, description, cve, bid, xref, msf)
+				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, severity, description, cve, bid, xref, msf)
 	
 			end
 			yield(:end,hname) if block
@@ -4727,7 +4727,8 @@ protected
 		addr = hobj.address
 
 		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
-		if name != "unknown" and name[-1,1] != "?"
+
+		unless name =~ /^unknown$|\?$/
 			info[:name] = name
 		end
 
