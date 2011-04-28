@@ -77,6 +77,14 @@ class Module
 		# The path from which the module was loaded.
 		#
 		attr_accessor :file_path
+
+		#
+		# Override the default Class#inspect which is useless for the way
+		# modules get loaded
+		#
+		def inspect
+			"#<Class for #{fullname}>"
+		end
 	end
 
 	#
