@@ -463,7 +463,7 @@ class DBManager
 				:platform => opts[:platform],
 				:via_payload => opts[:via_payload],
 				:via_exploit => opts[:via_exploit],
-				:routes => opts[:routes],
+				:routes => opts[:routes] || [],
 				:datastore => opts[:datastore],
 				:opened_at => opts[:opened_at],
 				:closed_at => opts[:closed_at],
@@ -2907,7 +2907,9 @@ class DBManager
 					end
 				}
 				sess_data[:datastore] = nils_for_nulls(unserialize_object(sess.elements["datastore"], allow_yaml))
-				sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml))
+				if sess.elements["routes"]
+					sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml)) || []
+				end
 				if not sess_data[:closed_at] # Fake a close if we don't already have one
 					sess_data[:closed_at] = Time.now 
 					sess_data[:close_reason] = "Imported at #{Time.now}"
