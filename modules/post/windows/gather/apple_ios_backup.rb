@@ -119,11 +119,15 @@ class Metasploit3 < Msf::Post
 		paths = Array.new
 
 		if got_root?
-			session.fs.dir.foreach(@users) do |path|
-				next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/i
-				bdir = "#{@users}\\#{path}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
-				dirs = check_for_backups_win(bdir)
-				dirs.each { |dir| paths << dir } if dirs
+			begin
+				session.fs.dir.foreach(@users) do |path|
+					next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/i
+					bdir = "#{@users}\\#{path}#{@appdata}\\Apple Computer\\MobileSync\\Backup"
+					dirs = check_for_backups_win(bdir)
+					dirs.each { |dir| paths << dir } if dirs
+				end
+			rescue ::Rex::Post::Meterpreter::RequestError
+				# Handle the case of the @users base directory is not accessible
 			end
 		else
 			print_status "Only checking #{whoami} account since we do not have SYSTEM..."
@@ -136,12 +140,16 @@ class Metasploit3 < Msf::Post
 
 	def check_for_backups_win(bdir)
 		dirs = []
-		print_status("Checking for backups in #{bdir}")
-		session.fs.dir.foreach(bdir) do |dir|
-			if dir =~ /^[0-9a-f]{16}/i
-				print_status("Found #{bdir}\\#{dir}")
-				dirs << "#{bdir}\\#{dir}"
+		begin
+				print_status("Checking for backups in #{bdir}")
+				session.fs.dir.foreach(bdir) do |dir|
+				if dir =~ /^[0-9a-f]{16}/i
+					print_status("Found #{bdir}\\#{dir}")
+					dirs << "#{bdir}\\#{dir}"
+				end
 			end
+		rescue Rex::Post::Meterpreter::RequestError
+			# Handle base directories that do not exist
 		end
 		dirs
 	end
