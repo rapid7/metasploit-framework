@@ -1617,9 +1617,6 @@ class Db
 				if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
 					if ActiveRecord::Base.connection.respond_to? :current_database
 						cdb = ActiveRecord::Base.connection.current_database
-					else
-						# ghetto hack for sqlite
-						cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
 					end
 					print_status("#{framework.db.driver} connected to #{cdb}")
 				else
@@ -1654,14 +1651,6 @@ class Db
 			end
 			print_status("       Available: #{framework.db.drivers.join(", ")}")
 			print_line("")
-
-			if ! framework.db.drivers.include?('sqlite3')
-				print_status("    DB Support: Enable the sqlite3 driver with the following command:")
-				print_status("                $ gem install sqlite3-ruby")
-				print_error( "    Note that sqlite is not supported due to numerous issues.")
-				print_error( "    It may work, but don't count on it")
-				print_line("")
-			end
 
 			if ! framework.db.drivers.include?('mysql')
 				print_status("    DB Support: Enable the mysql driver with the following command:")
@@ -1819,88 +1808,6 @@ class Db
 			true
 		end
 
-		#
-		# Database management: SQLite3
-		#
-
-		#
-		# Connect to an existing SQLite database
-		#
-		def db_connect_sqlite3(*args)
-			print_error("Note that sqlite is not supported due to numerous issues.")
-			print_error("It may work, but don't count on it")
-
-			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
-				print_status("Usage: db_connect [database-file-path]")
-				return
-			end
-
-			info = db_parse_db_uri_sqlite3(args[0])
-			dbfile = info[:path]
-			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
-
-			if (not ::File.exists?(dbfile))
-				print_status("Creating a new database file...")
-			end
-
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-
-			print_status("Successfully connected to the database")
-			print_status("File: #{dbfile}")
-		end
-
-		#
-		# Create a new SQLite database instance
-		#
-		def db_create_sqlite3(*args)
-			cmd_db_disconnect()
-
-			if(args[0] and (args[0] == "-h" || args[0] == "--help"))
-				print_status("Usage: db_create [database-file-path]")
-				return
-			end
-
-			info = db_parse_db_uri_sqlite3(args[0])
-			dbfile = info[:path]
-			opts = { 'adapter' => 'sqlite3', 'database' => dbfile }
-
-			if (::File.exists?(dbfile))
-				print_status("The specified database already exists, connecting")
-			else
-				print_status("Creating a new database instance...")
-				require_library_or_gem('sqlite3')
-			end
-
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-
-			print_status("Successfully connected to the database")
-
-			print_status("File: #{dbfile}")
-		end
-
-		#
-		# Drop an existing database
-		#
-		def db_destroy_sqlite3(*args)
-			cmd_db_disconnect()
-			info = db_parse_db_uri_sqlite3(args[0])
-			begin
-				print_status("Deleting #{info[:path]}...")
-				File.unlink(info[:path])
-			rescue Errno::ENOENT
-				print_error("The specified database does not exist")
-			end
-		end
-
-		def db_parse_db_uri_sqlite3(path)
-			res = {}
-			res[:path] = path || ::File.join(Msf::Config.config_directory, 'sqlite3.db')
-			res
-		end
 
 		#
 		# Database management: MySQL

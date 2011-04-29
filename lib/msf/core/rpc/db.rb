@@ -1293,8 +1293,6 @@ public
 			opts['adapter'] = 'mysql'
 		when 'postgresql'
 			opts['adapter'] = 'postgresql'
-		when 'sqlite3'
-			opts['adapter'] = 'sqlite3'
 		else
 			return { :result => 'failed' }
 		end

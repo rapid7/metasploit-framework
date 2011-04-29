@@ -92,7 +92,7 @@ class DBManager
 	#
 	def initialize_drivers
 		self.drivers = []
-		tdrivers = %W{ postgresql mysql sqlite3 }
+		tdrivers = %W{ postgresql mysql }
 		tdrivers.each do |driver|
 			begin
 				ActiveRecord::Base.default_timezone = :utc
@@ -127,12 +127,6 @@ class DBManager
 	#
 	def queue(proc)
 		self.sink.queue_proc(proc)
-	end
-
-
-	# Verify that sqlite3 is ready
-	def driver_check_sqlite3
-		require 'sqlite3'
 	end
 
 	# Verify that mysql is ready
@@ -190,11 +184,6 @@ class DBManager
 	def create_db(opts)
 		begin
 			case opts["adapter"]
-			when 'sqlite3'
-				# Sqlite just needs the file to be writable.  ActiveRecord creates
-				# it if it doesn't exist and checks permissions if it does.  This
-				# all happens during establish_connection(), so we don't need to
-				# bother with creating anything here.
 			when 'postgresql','mysql'
 				# Try to force a connection to be made to the database, if it succeeds
 				# then we know we don't need to create it :)
