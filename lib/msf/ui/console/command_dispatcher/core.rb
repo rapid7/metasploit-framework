@@ -31,6 +31,7 @@ class Core
 		"-k" => [ true,  "Terminate session"                              ],
 		"-K" => [ false, "Terminate all sessions"                         ],
 		"-s" => [ true,  "Run a script on the session given with -i, or all"  ],
+		"-r" => [ false, "Reset the ring buffer for the session given with -i, or all"],
 		"-u" => [ true,  "Upgrade a win32 shell to a meterpreter session" ])
 
 	@@jobs_opts = Rex::Parser::Arguments.new(
@@ -1212,6 +1213,8 @@ class Core
 		sid     = nil
 		cmds    = []
 		script  = nil
+		reset_ring = false
+		
 		# any arguments that don't correspond to an option or option arg will
 		# be put in here
 		extra   = []
@@ -1267,6 +1270,11 @@ class Core
 				when "-u"
 					method = 'upexec'
 					sid = val
+					
+				# Reset the ring buffer read pointer 
+				when "-r"
+					reset_ring = true
+					method = 'reset_ring'
 
 				# Display help banner
 				when "-h"
@@ -1431,12 +1439,19 @@ class Core
 					print_error("Invalid session identifier: #{sid}")
 				end
 
+			when 'reset_ring'
+				sessions = sid ? [ sid ] : framework.sessions.keys
+				sessions.each do |sidx|
+					s = framework.sessions[sidx]
+					next if not (s and s.respond_to?(:ring_seq))
+					s.reset_ring_sequence
+					print_status("Reset the ring buffer pointer for Session #{sidx}")
+				end
+
 			when 'list',nil
 				print_line
 				print(Serializer::ReadableText.dump_sessions(framework, :verbose => verbose))
 				print_line
-
-
 		end
 
 		rescue IOError, EOFError, Rex::StreamClosedError

@@ -214,6 +214,10 @@ class CommandShell
 			execute_script(args.shift, *args)
 		end
 	end
+	
+	def reset_ring_sequence
+		self.ring_seq = 0
+	end
 
 	attr_accessor :arch
 	attr_accessor :platform
