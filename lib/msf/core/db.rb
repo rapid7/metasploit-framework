@@ -2100,6 +2100,7 @@ class DBManager
 		end
 
 		di = data.index("\n")
+		raise DBImportError.new("Could not automatically determine file type") unless di
 		firstline = data[0, di]
 		@import_filedata ||= {}
 		if (firstline.index("<NeXposeSimpleXML"))
