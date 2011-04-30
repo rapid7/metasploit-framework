@@ -2077,12 +2077,12 @@ class DBManager
 			@import_filedata[:zip_filename] = File.split(data.to_s).last
 			@import_filedata[:zip_basename] = @import_filedata[:zip_filename].gsub(/\.zip$/,"")
 			@import_filedata[:zip_entry_names] = data.entries.map {|x| x.name}
-			@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first
-			@import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
-			@import_filedata[:type] = "Metasploit ZIP Report"
-			if @import_filedata[:zip_xml]
+			begin
+				@import_filedata[:zip_xml] = @import_filedata[:zip_entry_names].grep(/^(.*)_[0-9]+\.xml$/).first || raise
+				@import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
+				@import_filedata[:type] = "Metasploit ZIP Report"
 				return :msf_zip
-			else
+			rescue
 				raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
 			end
 		end
