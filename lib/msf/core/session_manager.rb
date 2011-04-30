@@ -1,3 +1,5 @@
+require 'thread'
+
 module Msf
 
 ###
@@ -17,17 +19,25 @@ class SessionManager < Hash
 
 	include Framework::Offspring
 
-	LAST_SEEN_INTERVAL = 2.5 * 60
-
+	LAST_SEEN_INTERVAL  = 60 * 2.5
+	SCHEDULER_THREAD_COUNT = 5
+	
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
-		self.reaper_thread = framework.threads.spawn("SessionManager", true, self) do |manager|
+		self.mutex = Mutex.new		
+		self.scheduler_queue = ::Queue.new
+		self.initialize_scheduler_threads
+		
+		self.monitor_thread = framework.threads.spawn("SessionManager", true) do
 			last_seen_timer = Time.now.utc
 			begin
-			
 			while true
-			
+
+				#
+				# Process incoming data from all stream-based sessions and queue the
+				# data into the associated ring buffers.
+				#	
 				rings = values.select{|s| s.respond_to?(:ring) and s.ring and s.rstream }
 				ready = ::IO.select(rings.map{|s| s.rstream}, nil, nil, 0.5) || [[],[],[]]
 
@@ -61,34 +71,58 @@ class SessionManager < Hash
 						s.rstream.close rescue nil
 						
 						# Deregister the session
-						manager.deregister(s, "Died from #{e.class}")
+						deregister(s, "Died from #{e.class}")
 					end
 				end
+
+
+				#
+				# TODO: Call the dispatch entry point of each Meterpreter thread instead of
+				#       dedicating specific processing threads to each session
+				#
+							
 				
+				#
 				# Check for closed / dead / terminated sessions
-				manager.values.each do |s|
+				#
+				values.each do |s|
 					if not s.alive?
-						manager.deregister(s, "Died")
+						deregister(s, "Died")
 						wlog("Session #{s.sid} has died")
 						next
 					end
-
-					next if ((Time.now.utc - last_seen_timer) < LAST_SEEN_INTERVAL)
-					# Update the database entry for this session every 5
-					# minutes, give or take.  This notifies other framework
-					# instances that this session is being maintained.
+				end
+				
+				#
+				# Mark all open session as alive every LAST_SEEN_INTERVAL
+				#
+				if (Time.now.utc - last_seen_timer) >= LAST_SEEN_INTERVAL				
+					
+					# Update this timer BEFORE processing the session list, this will prevent
+					# processing time for large session lists from skewing our update interval.
+					
 					last_seen_timer = Time.now.utc
-					if framework.db.active and s.db_record
-						s.db_record.last_seen = Time.now.utc
-						s.db_record.save
+					values.each do |s|
+						# Update the database entry on a regular basis, marking alive threads
+						# as recently seen.  This notifies other framework instances that this
+						# session is being maintained.		
+						if framework.db.active and s.db_record
+							s.db_record.last_seen = Time.now.utc
+							s.db_record.save
+						end
 					end
 				end
 
+
+				#
 				# Skip the database cleanup code below if there is no database
+				#
 				next if not (framework.db and framework.db.active)
 				
+				#
 				# Clean out any stale sessions that have been orphaned by a dead
-				# framewort instance.
+				# framework instance.
+				#
 				Msf::DBManager::Session.find_all_by_closed_at(nil).each do |db_session|
 					if db_session.last_seen.nil? or ((Time.now.utc - db_session.last_seen) > (2*LAST_SEEN_INTERVAL))
 						db_session.closed_at    = db_session.last_seen || Time.now.utc
@@ -96,15 +130,44 @@ class SessionManager < Hash
 						db_session.save
 					end
 				end				
-				
 			end
 			
+			#
+			# All session management falls apart when any exception is raised to this point. Log it.
+			#
 			rescue ::Exception => e
-				wlog("Exception in reaper thread #{e.class} #{e}")
+				wlog("Exception in monitor thread #{e.class} #{e}")
 				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
 			end
-
 		end
+	end
+	
+	#
+	# Dedicated worker threads for pulling data out of new sessions
+	#
+	def initialize_scheduler_threads
+		self.scheduler_threads = []
+		1.upto(SCHEDULER_THREAD_COUNT) do |i|
+			self.scheduler_threads << framework.threads.spawn("SessionScheduler-#{i}", true) do
+				while true
+					item = self.scheduler_queue.pop
+					begin
+						item.call()
+					rescue ::Exception => e
+						wlog("Exception in scheduler thread #{e.class} #{e}")
+						wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+					end
+				end
+			end
+		end
+	end
+	
+	#
+	# Add a new task to the loader thread queue. Task is assumed to be
+	# a Proc or another object that responds to call()
+	#
+	def schedule(task)
+		self.scheduler_queue.push(task)
 	end
 
 	#
@@ -138,7 +201,7 @@ class SessionManager < Hash
 			return nil
 		end
 
-		next_sid = (self.sid_pool += 1)
+		next_sid = allocate_sid
 		
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
@@ -152,7 +215,6 @@ class SessionManager < Hash
 			# Notify the framework that we have a new session opening up...
 			# Don't let errant event handlers kill our session
 			begin
-
 				framework.events.on_session_open(session)
 			rescue ::Exception => e
 				wlog("Exception in on_session_open event handler: #{e.class}: #{e}")
@@ -203,11 +265,23 @@ class SessionManager < Hash
 	def get(sid)
 		return self[sid.to_i]
 	end
+	
+	#
+	# Allocates the next Session ID
+	#
+	def allocate_sid
+		self.mutex.synchronize do
+			self.sid_pool += 1
+		end
+	end
 
 protected
 
 	attr_accessor :sid_pool, :sessions # :nodoc:
-	attr_accessor :reaper_thread # :nodoc:
+	attr_accessor :monitor_thread # :nodoc:
+	attr_accessor :scheduler_threads # :nodoc:
+	attr_accessor :scheduler_queue # :nodoc:
+	attr_accessor :mutex # :nodoc: 
 
 end
 

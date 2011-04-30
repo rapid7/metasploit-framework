@@ -1,4 +1,5 @@
 require 'rex/socket'
+require 'thread'
 
 module Msf
 module Handler
@@ -55,7 +56,7 @@ module ReverseTcp
 			], Msf::Handler::ReverseTcp)
 
 			
-		self.conn_threads = []
+		self.handler_queue = ::Queue.new
 	end
 
 	#
@@ -131,12 +132,6 @@ module ReverseTcp
 	#
 	def cleanup_handler
 		stop_handler
-
-		# Kill any remaining handle_connection threads that might
-		# be hanging around
-		conn_threads.each { |thr|
-			thr.kill
-		}
 	end
 
 	#
@@ -157,19 +152,22 @@ module ReverseTcp
 
 				# Increment the has connection counter
 				self.pending_connections += 1
-	
-				# Start a new thread and pass the client connection
-				# as the input and output pipe.  Client's are expected
-				# to implement the Stream interface.
-				conn_threads << framework.threads.spawn("ReverseTcpHandlerSession", false, client) { |client_copy|
-					begin
-						handle_connection(client_copy)
-					rescue ::Exception
-						elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
-					end
-				}
+				
+				self.handler_queue.push( client )
 			end while true
 		}
+		
+		self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{datastore['LPORT']}", false) {
+			while true
+				client = self.handler_queue.pop
+				begin
+					handle_connection(client)
+				rescue ::Exception
+					elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
+				end
+			end
+		}
+		
 	end
 
 	# 
@@ -182,6 +180,12 @@ module ReverseTcp
 			self.listener_thread = nil
 		end
 
+		# Terminate the handler thread
+		if (self.handler_thread and self.handler_thread.alive? == true)
+			self.handler_thread.kill
+			self.handler_thread = nil
+		end
+		
 		if (self.listener_sock)
 			self.listener_sock.close
 			self.listener_sock = nil
@@ -192,8 +196,8 @@ protected
 
 	attr_accessor :listener_sock # :nodoc:
 	attr_accessor :listener_thread # :nodoc:
-	attr_accessor :conn_threads # :nodoc:
-
+	attr_accessor :handler_thread # :nodoc:
+	attr_accessor :handler_queue # :nodoc:
 end
 
 end

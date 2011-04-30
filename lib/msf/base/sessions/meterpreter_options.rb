@@ -25,6 +25,9 @@ module MeterpreterOptions
 	def on_session(session)
 		super
 
+		# Defer the session initialization to the Session Manager scheduler
+		framework.sessions.schedule Proc.new {
+		
 		session.init_ui(self.user_input, self.user_output)
 
 		if (datastore['AutoLoadStdapi'] == true)
@@ -60,6 +63,8 @@ module MeterpreterOptions
 				session.execute_script(args.shift, *args)
 			end
 		end
+		
+		}
 
 	end
 

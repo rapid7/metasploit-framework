@@ -476,20 +476,17 @@ class DBManager
 		ret = {}
 
 		
-		s = Msf::DBManager::Session.create(sess_data)
+		s = Msf::DBManager::Session.new(sess_data)
+		s.save!
+		
 		if opts[:session]
 			session.db_record = s 
-		else
-			myret = s.save!
 		end
-		ret[:session] = s
-		
 
 		# If this is a live session, we know the host is vulnerable to something.
 		# If the exploit used was multi/handler, though, we don't know what
 		# it's vulnerable to, so it isn't really useful to save it.
-		if opts[:session]
-		if session.via_exploit and session.via_exploit != "exploit/multi/handler"
+		if opts[:session] and session.via_exploit and session.via_exploit != "exploit/multi/handler"
 			return unless host
 			port = session.exploit_datastore["RPORT"]
 			service = (port ? host.services.find_by_port(port) : nil)
@@ -516,9 +513,8 @@ class DBManager
 			}
 			framework.db.report_exploit(exploit_info)
 		end
-		end
 
-		ret[:session]
+		s
 	end
 
 	#
