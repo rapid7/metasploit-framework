@@ -2082,7 +2082,9 @@ class DBManager
 				@import_filedata[:zip_wspace] = @import_filedata[:zip_xml].to_s.match(/^(.*)_[0-9]+\.xml$/)[1]
 				@import_filedata[:type] = "Metasploit ZIP Report"
 				return :msf_zip
-			rescue
+			rescue ::Interrupt
+				raise $!
+			rescue ::Exception
 				raise DBImportError.new("The zip file provided is not a Metasploit ZIP report")
 			end
 		end
