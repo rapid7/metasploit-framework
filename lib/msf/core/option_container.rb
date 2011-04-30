@@ -633,6 +633,18 @@ class OptionContainer < Hash
 	end
 
 	#
+	# Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
+	#    "can't add a new key into hash during iteration"
+	#
+	def each(&block)
+		list = []
+		self.keys.sort.each do |sidx|
+			list << [sidx, self[sidx]]
+		end
+		list.each(&block)
+	end
+
+	#
 	# Merges the options in this container with another option container and
 	# returns the sorted results.
 	#
