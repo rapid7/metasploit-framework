@@ -128,7 +128,16 @@ class Client
 		ctx = generate_ssl_context()
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 
-		ssl.accept
+		if not ssl.respond_to?(:accept_nonblock)
+			ssl.accept
+		else
+			begin
+				ssl.accept_nonblock
+			rescue OpenSSL::SSL::ReadAgain, OpenSSL::SSL::WriteAgain
+				select(nil, nil, nil, 0.25)
+				retry
+			end
+		end			
 
 		self.sock.extend(Rex::Socket::SslTcp)
 		self.sock.sslsock = ssl

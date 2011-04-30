@@ -15,9 +15,9 @@ module Rex::Socket::SslTcpServer
 	begin
 		require 'openssl'
 		@@loaded_openssl = true
+		require 'openssl/nonblock'
 	rescue ::Exception
 	end
-
 
 	include Rex::Socket::TcpServer
 
@@ -57,10 +57,22 @@ module Rex::Socket::SslTcpServer
 
 		begin
 			ssl = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
-			ssl.accept
+
+			if not ssl.respond_to?(:accept_nonblock)	
+				ssl.accept
+			else
+				begin
+					ssl.accept_nonblock
+				rescue OpenSSL::SSL::ReadAgain, OpenSSL::SSL::WriteAgain
+					select(nil, nil, nil, 0.25)
+					retry
+				end
+			end
+			
 			sock.extend(Rex::Socket::SslTcp)
 			sock.sslsock = ssl
 			sock.sslctx  = self.sslctx
+
 			return sock
 
 		rescue ::OpenSSL::SSL::SSLError
