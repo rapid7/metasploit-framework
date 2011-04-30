@@ -102,7 +102,7 @@ begin
 				begin
 					self.sslsock.connect_nonblock
 				rescue ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
-					select(nil, nil, nil, 0.10)
+					IO::select(nil, nil, nil, 0.10)
 					retry
 				end
 			end
