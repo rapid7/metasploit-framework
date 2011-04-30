@@ -64,7 +64,7 @@ module Rex::Socket::SslTcpServer
 				begin
 					ssl.accept_nonblock
 				rescue ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain, ::OpenSSL::SSL::SSLError
-					select(nil, nil, nil, 0.25)
+					::IO.select(nil, nil, nil, 0.25)
 					retry
 				end
 			end
