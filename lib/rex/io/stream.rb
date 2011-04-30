@@ -35,6 +35,7 @@ module Stream
 		total_sent   = 0
 		total_length = buf.length
 		block_size   = 32768
+		
 		begin
 			while( total_sent < total_length )
 				s = Rex::ThreadSafe.select( nil, [ fd ], nil, 0.2 )
@@ -65,6 +66,7 @@ module Stream
 	# This method reads data of the supplied length from the stream.
 	#
 	def read(length = nil, opts = {})
+		
 		begin
 			return fd.read_nonblock( length ) 				
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK

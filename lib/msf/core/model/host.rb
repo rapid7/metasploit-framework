@@ -722,7 +722,8 @@ class Host < ActiveRecord::Base
 			end
 		end
 
-		host.save!
+		# host.save! (fix this first)
+		host.save
 	end
 
 protected

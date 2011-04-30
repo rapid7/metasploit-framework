@@ -131,7 +131,7 @@ begin
 
 		begin
 			while( total_sent < total_length )
-				s = Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.2 )
+				s = Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.25 )
 				if( s == nil || s[0] == nil )
 					next
 				end
@@ -169,10 +169,18 @@ begin
 		end
 		
 		begin
-			return sslsock.read_nonblock( length ) 				
+			while true 
+				s = Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.10 )	
+				if( s == nil || s[0] == nil )
+					next
+				end						
+				buf = sslsock.read_nonblock( length ) 				
+				return buf if buf
+				raise ::EOFError
+			end
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
 			# Sleep for a half a second, or until we can read again
-			Rex::ThreadSafe.select( [ fd ], nil, nil, 0.5 )
+			Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.5 )
 			retry
 		rescue ::IOError, ::Errno::EPIPE
 			return nil if (fd.abortive_close == true)
