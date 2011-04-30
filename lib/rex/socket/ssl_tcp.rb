@@ -101,7 +101,7 @@ begin
 			else
 				begin
 					self.sslsock.connect_nonblock
-				rescue OpenSSL::SSL::ReadAgain, OpenSSL::SSL::WriteAgain
+				rescue ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
 					select(nil, nil, nil, 0.10)
 					retry
 				end
@@ -141,7 +141,7 @@ begin
 					total_sent += sent
 				end
 			end
-		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::IO::WaitWritable, ::IO::ReadWritable
+		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
 			# Sleep for a half a second, or until we can write again
 			Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.5 )
 			# Decrement the block size to handle full sendQs better
@@ -170,7 +170,7 @@ begin
 		
 		begin
 			return sslsock.read_nonblock( length ) 				
-		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::IO::WaitWritable, ::IO::ReadWritable
+		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
 			# Sleep for a half a second, or until we can read again
 			Rex::ThreadSafe.select( [ fd ], nil, nil, 0.5 )
 			retry
