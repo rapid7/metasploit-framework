@@ -66,7 +66,7 @@ class SessionManager < Hash
 				end
 				
 				# Check for closed / dead / terminated sessions
-				manager.each_value do |s|
+				manager.values.each do |s|
 					if not s.alive?
 						manager.deregister(s, "Died")
 						wlog("Session #{s.sid} has died")
@@ -112,6 +112,20 @@ class SessionManager < Hash
 	#
 	def each_sorted(&block)
 		self.keys.sort.each(&block)
+	end
+
+	#
+	# Overrides the builtin 'each' operator to avoid the following exception on Ruby 1.9.2+
+	#    "can't add a new key into hash during iteration"
+	# This allows us to register new sessions while other threads are enumerating the
+	# session list.
+	#
+	def each(&block)
+		list = []
+		self.keys.sort.each do |sidx|
+			list << [sidx, self[sidx]]
+		end
+		list.each(&block)
 	end
 
 	#
