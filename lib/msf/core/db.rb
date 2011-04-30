@@ -3312,6 +3312,7 @@ class DBManager
 			
 			next if v["status"] !~ /^vulnerable/
 			vstruct = vstructs.select {|vs| vs.id.to_s.downcase == v["id"].to_s.downcase}.first
+			next unless vstruct
 			data = {}
 			data[:workspace] = wspace
 			data[:host] = hobj || addr
@@ -4578,10 +4579,10 @@ class DBManager
 	end
 
 	def unserialize_object(xml_elem, allow_yaml = false)
+		return nil unless xml_elem
 		string = xml_elem.text.to_s.strip
 		return string unless string.is_a?(String)
-		return nil if not string
-		return nil if string.empty?
+		return nil if (string.empty? || string.nil?)
 
 		begin
 			# Validate that it is properly formed base64 first
