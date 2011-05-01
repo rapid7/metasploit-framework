@@ -18,9 +18,7 @@ Indent = '    '
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [
-		Msf::MODULE_PAYLOAD # , Msf::MODULE_ENCODER, Msf::MODULE_NOP
-	],
+	:module_types => [ Msf::MODULE_PAYLOAD ],
 	'DisableDatabase' => true
 )
 
