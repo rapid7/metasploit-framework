@@ -64,23 +64,23 @@ class Metasploit3 < Msf::Post
 
 		print_status "testing del_key"
 		results = registry_deletekey("#{datastore['KEY']}\\test")
-		print_status ("results: #{results.class} #{results.inspect}")
+		print_status("results: #{results.class} #{results.inspect}")
 
 		print_status "getting deleted val_info for key:#{datastore['KEY']}\\test, val:test, this should return nils"
 		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
 		if (results.nil?)
-			print_status ("Delete worked correctly")
+			print_status("Delete worked correctly")
 		else
-			print_error ("Deleted key is still there!")
+			print_error("Deleted key is still there!")
 		end
 
 		print_status "testing enum_keys"
 		results = registry_enumkeys(datastore['KEY'])
-		print_status ("results: #{results.class} #{results.inspect}")
+		print_status("results: #{results.class} #{results.inspect}")
 
 		print_status "testing enum_vals"
 		results = registry_enumvals(datastore['KEY'])
-		print_status ("results: #{results.class} #{results.inspect}")
+		print_status("results: #{results.class} #{results.inspect}")
 
 	end
 
