@@ -51,7 +51,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			"execute"  => "Execute a command",
 			"getpid"   => "Get the current process identifier",
 			"getuid"   => "Get the user that the server is running as",
-			"getprivs" => "List all privileges available to the current process",
+			"getprivs" => "Attempt to enable all privileges available to the current process",
 			"kill"     => "Terminate a process",
 			"ps"       => "List running processes",
 			"reboot"   => "Reboots the remote computer",
@@ -421,10 +421,24 @@ class Console::CommandDispatcher::Stdapi::Sys
 		client.sys.config.revert_to_self
 	end
 
+	def cmd_getprivs_help
+		print_line "Usage: getprivs"
+		print_line
+		print_line "Attempt to enable all privileges, such as SeDebugPrivilege, available to the"
+		print_line "current process.  Note that this only enables existing privs and does not change"
+		print_line "users or tokens."
+		print_line
+		print_line "See also: steal_token, getsystem"
+		print_line
+	end
+
 	#
 	# Obtains as many privileges as possible on the target machine.
 	#
 	def cmd_getprivs(*args)
+		if args.include? "-h"
+			cmd_getprivs_help
+		end
 		print_line("=" * 60)
 		print_line("Enabled Process Privileges")
 		print_line("=" * 60)
