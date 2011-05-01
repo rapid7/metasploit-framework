@@ -61,8 +61,4 @@ module Metasploit3
 				}
 			))
 	end
-
-	def self.handler_type
-		return "reverse_tcp"
-	end
 end
