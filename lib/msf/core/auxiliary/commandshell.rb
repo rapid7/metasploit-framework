@@ -25,6 +25,10 @@ module Auxiliary::CommandShell
 			return super if not str
 			super(str.strip + "\r\n")
 		end
+		def write(str)
+			return super if not str
+			super(str.strip + "\r\n")
+		end
 	end
 
 
