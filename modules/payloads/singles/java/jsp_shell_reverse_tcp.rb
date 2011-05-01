@@ -3,7 +3,7 @@
 ##
 
 ##
-# Thin file in part of the Metasploit Framework and may be subject to
+# This file in part of the Metasploit Framework and may be subject to
 # redintribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
