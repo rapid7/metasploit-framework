@@ -4060,6 +4060,8 @@ class DBManager
 					}
 				)
 			end
+			
+			next if nasl.to_s.strip.empty?
 			handle_nessus(wspace, hobj_map[ addr ], port, nasl, severity, data)
 		end
 	end
@@ -4707,7 +4709,7 @@ protected
 			end
 		end
 
-		nss = 'NSS-' + nasl.to_s
+		nss = 'NSS-' + nasl.to_s.strip
 
 		vuln_info = {
 			:workspace => wspace,
