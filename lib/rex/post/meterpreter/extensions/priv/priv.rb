@@ -72,12 +72,14 @@ class Priv < Extension
 		if( response.result == 0 and technique != nil )
 			client.core.use( "stdapi" ) if not client.ext.aliases.include?( "stdapi" )
 			client.sys.config.getprivs
-			client.framework.db.report_note(
-				:host => client.sock.peerhost,
-				:workspace => client.framework.db.workspace,
-				:type => "meterpreter.getsystem",
-				:data => {:technique => technique}
-			) rescue nil
+			if client.framework.db and client.framework.db.active
+				client.framework.db.report_note(
+					:host => client.sock.peerhost,
+					:workspace => client.framework.db.workspace,
+					:type => "meterpreter.getsystem",
+					:data => {:technique => technique}
+				) rescue nil
+			end
 			return [ true, technique ]
 		end
 
