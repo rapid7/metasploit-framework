@@ -266,6 +266,14 @@ protected
 			}
 		end
 
+		def write(buf)
+			@sock_inp.write(buf)
+		end
+
+		def read(length=0)
+			@sock_out.read(length)
+		end
+
 		#
 		# Closes the stream abstraction and kills the monitor thread.
 		#
