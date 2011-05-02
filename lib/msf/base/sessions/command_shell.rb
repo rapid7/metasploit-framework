@@ -146,6 +146,8 @@ class CommandShell
 				end
 			end
 		rescue ::Timeout::Error
+		rescue ::Interrupt => e
+			raise e
 		rescue ::Exception => e
 			shell_close
 			raise e
