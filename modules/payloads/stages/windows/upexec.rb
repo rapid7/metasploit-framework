@@ -76,7 +76,7 @@ module Metasploit3
 	#
 	# Uploads and executes the file
 	#
-	def handle_connection_stage(conn)
+	def handle_connection_stage(conn, opts={})
 		begin
 			# bug fix for: data = ::IO.read(datastore['PEXEC'])
 			# the above does not return the entire contents
