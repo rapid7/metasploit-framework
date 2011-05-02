@@ -73,8 +73,6 @@ arguments.parse(ARGV) { |opt, idx, val|
 
 $stderr.puts "[*] Initializing msfd..."
 
-# Create an instance of the framework
-$framework = Msf::Simple::Framework.create
 
 $stderr.puts "[*] Running msfd..."
 
@@ -86,6 +84,10 @@ begin
 rescue ::NotImplementedError
 	$stderr.puts "[-] Background mode is not available on this platform"
 end
+
+# Create an instance of the framework
+$framework = Msf::Simple::Framework.create
+
 
 # Run the plugin instance in the foreground.
 $framework.plugins.load('msfd', opts).run(opts)
