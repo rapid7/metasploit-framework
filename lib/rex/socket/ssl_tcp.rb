@@ -92,7 +92,7 @@ begin
 
 		# XXX - enabling this causes infinite recursion, so disable for now
 		# self.sslsock.sync_close = true
-
+		
 		# Force a negotiation timeout
 		begin
 		Timeout.timeout(params.timeout) do 	
@@ -129,6 +129,11 @@ begin
 		total_length = buf.length
 		block_size   = 32768
 
+		exes = [ ::Errno::EAGAIN, ::Errno::EWOULDBLOCK ]
+		if ::OpenSSL::SSL.const_defined?('ReadAgain')
+			exes << [::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain]
+		end
+		
 		begin
 			while( total_sent < total_length )
 				s = Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.25 )
@@ -141,7 +146,7 @@ begin
 					total_sent += sent
 				end
 			end
-		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
+		rescue *(exes)
 			# Sleep for a half a second, or until we can write again
 			Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.5 )
 			# Decrement the block size to handle full sendQs better
@@ -168,6 +173,11 @@ begin
 			return
 		end
 		
+		exes = [ ::Errno::EAGAIN, ::Errno::EWOULDBLOCK ]
+		if ::OpenSSL::SSL.const_defined?('ReadAgain')
+			exes << [::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain]
+		end
+		
 		begin
 			while true 
 				s = Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.10 )	
@@ -178,7 +188,7 @@ begin
 				return buf if buf
 				raise ::EOFError
 			end
-		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK, ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
+		rescue *(exes)
 			# Sleep for a half a second, or until we can read again
 			Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.5 )
 			retry
