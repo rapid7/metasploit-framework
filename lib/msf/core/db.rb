@@ -475,7 +475,6 @@ class DBManager
 		end
 		ret = {}
 
-		
 		s = Msf::DBManager::Session.new(sess_data)
 		s.save!
 		
@@ -534,13 +533,26 @@ class DBManager
 		return if not active
 		raise ArgumentError.new("Missing required option :session") if opts[:session].nil? 
 		raise ArgumentError.new("Expected an :etype") unless opts[:etype]
+
 		if opts[:session].respond_to? :db_record
 			session = opts[:session].db_record
+			if session.nil?
+				# The session doesn't have a db_record which means 
+				#  a) the database wasn't connected at session registration time
+				# or 
+				#  b) something awful happened and the report_session call failed
+				#
+				# Either way, we can't do anything with this session as is, so
+				# log a warning and punt.
+				wlog("Warning: trying to report a session_event for a session with no db_record (#{opts[:session].sid})")
+				return
+			end
 			event_data = { :created_at => Time.now }
 		else
 			session = opts[:session]
 			event_data = { :created_at => opts[:created_at] }
 		end
+
 		unless session.kind_of? Msf::DBManager::Session
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
