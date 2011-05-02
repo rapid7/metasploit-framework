@@ -64,6 +64,7 @@ class Framework
 	require 'msf/core/thread_manager'
 	require 'msf/core/module_manager'
 	require 'msf/core/session_manager'
+	require 'msf/core/plugin_manager'
 	require 'msf/core/db_manager'
 	require 'msf/core/event_dispatcher'
 
