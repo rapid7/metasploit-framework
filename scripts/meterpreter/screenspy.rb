@@ -94,7 +94,7 @@ begin
 
 	begin
 
-		data="<title>#{host}</title><img src=file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg width='500' height='500'><meta http-equiv='refresh' content='1'>"
+		data="<title>#{host}</title><img src='file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg' width='500' height='500'><meta http-equiv='refresh' content='1'>"
 		path1 = File.join(logs,"video.html")
 		File.open(path1, 'w') do |f2|
 			f2.puts(data)
@@ -105,11 +105,11 @@ begin
 	
 			print_status("Runing in local mode => windows")
 			print_status("Opening Interactive view...")
-			localcmd="start firefox -width 530 -height 660 file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html"
+			localcmd="start firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
 		else
 			print_status("Runing in local mode => Linux")
 			print_status("Opening Interactive view...")
-			localcmd="bash firefox -width 530 -height 660 file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html&"
+			localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html&\""
 		end
 	
 		system (localcmd)
@@ -133,7 +133,7 @@ begin
 	end
 
 	print_status("The interactive Session ended...")
-	data="<title>#{host} - Interactive Session ended</title><img src=file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg width='500' height='500'><script>alert('Interactive Session ended - Happy Hunting')</script>"
+	data="<title>#{host} - Interactive Session ended</title><img src='file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg' width='500' height='500'><script>alert('Interactive Session ended - Happy Hunting')</script>"
 	File.open(path1, 'w') do |f2|  
 		f2.puts(data)
  	end  
