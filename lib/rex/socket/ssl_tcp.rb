@@ -92,7 +92,8 @@ begin
 
 		# XXX - enabling this causes infinite recursion, so disable for now
 		# self.sslsock.sync_close = true
-		
+
+				
 		# Force a negotiation timeout
 		begin
 		Timeout.timeout(params.timeout) do 	
@@ -101,9 +102,25 @@ begin
 			else
 				begin
 					self.sslsock.connect_nonblock
-				rescue ::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain
-					IO::select(nil, nil, nil, 0.10)
-					retry
+				
+				# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
+				rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
+						IO::select(nil, nil, nil, 0.10)
+						retry	
+				
+				# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable			
+				rescue ::Exception => e
+					if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
+						IO::select( [ self.sslsock ], nil, nil, 0.10 )
+						retry
+					end
+					
+					if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+						IO::select( nil, [ self.sslsock ], nil, 0.10 )
+						retry
+					end
+					
+					raise e
 				end
 			end
 		end
@@ -129,14 +146,9 @@ begin
 		total_length = buf.length
 		block_size   = 32768
 
-		exes = [ ::Errno::EAGAIN, ::Errno::EWOULDBLOCK ]
-		if ::OpenSSL::SSL.const_defined?('ReadAgain')
-			exes << [::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain]
-		end
-		
 		begin
 			while( total_sent < total_length )
-				s = Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.25 )
+				s = Rex::ThreadSafe.select( nil, [ self.sslsock ], nil, 0.25 )
 				if( s == nil || s[0] == nil )
 					next
 				end
@@ -146,16 +158,34 @@ begin
 					total_sent += sent
 				end
 			end
-		rescue *(exes)
+
+		rescue ::IOError, ::Errno::EPIPE
+			return nil if (fd.abortive_close == true)
+		
+		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
+		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 			# Sleep for a half a second, or until we can write again
-			Rex::ThreadSafe.select( nil, [ sslsock ], nil, 0.5 )
+			Rex::ThreadSafe.select( nil, [ self.sslsock ], nil, 0.5 )
 			# Decrement the block size to handle full sendQs better
 			block_size = 1024
 			# Try to write the data again
 			retry
-		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			
+		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable	
+		rescue ::Exception => e
+			if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
+				IO::select( [ self.sslsock ], nil, nil, 0.5 )
+				retry
+			end
+					
+			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+				IO::select( nil, [ self.sslsock ], nil, 0.5 )
+				retry
+			end
+				
+			raise e
 		end
+
 		total_sent
 	end
 
@@ -173,14 +203,10 @@ begin
 			return
 		end
 		
-		exes = [ ::Errno::EAGAIN, ::Errno::EWOULDBLOCK ]
-		if ::OpenSSL::SSL.const_defined?('ReadAgain')
-			exes << [::OpenSSL::SSL::ReadAgain, ::OpenSSL::SSL::WriteAgain]
-		end
-		
+
 		begin
 			while true 
-				s = Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.10 )	
+				s = Rex::ThreadSafe.select( [ self.sslsock ], nil, nil, 0.10 )	
 				if( s == nil || s[0] == nil )
 					next
 				end						
@@ -188,13 +214,34 @@ begin
 				return buf if buf
 				raise ::EOFError
 			end
-		rescue *(exes)
-			# Sleep for a half a second, or until we can read again
-			Rex::ThreadSafe.select( [ sslsock ], nil, nil, 0.5 )
-			retry
+			
 		rescue ::IOError, ::Errno::EPIPE
 			return nil if (fd.abortive_close == true)
+
+		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno	
+		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
+			# Sleep for a tenth a second, or until we can read again
+			Rex::ThreadSafe.select( [ self.sslsock ], nil, nil, 0.10 )
+			# Decrement the block size to handle full sendQs better
+			block_size = 1024
+			# Try to write the data again
+			retry
+		
+		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
+		rescue ::Exception => e
+			if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
+				IO::select( [ self.sslsock ], nil, nil, 0.5 )
+				retry
+			end
+					
+			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+				IO::select( nil, [ self.sslsock ], nil, 0.5 )
+				retry
+			end
+				
+			raise e
 		end
+
 	end
 
 	
