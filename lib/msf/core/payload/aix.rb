@@ -1,5 +1,4 @@
 require 'msf/core'
-require 'msf/core/auxiliary'
 
 ###
 #
@@ -9,8 +8,6 @@ require 'msf/core/auxiliary'
 #
 ###
 module Msf::Payload::Aix
-
-	include Msf::Auxiliary::Report
 
 	#
 	# This mixin is chained within payloads that target the AIX platform.
