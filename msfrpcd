@@ -84,8 +84,6 @@ $stderr.puts "[*] URI: #{opts['URI']}" if(opts['URI'])
 require 'msf/base'
 require 'msf/ui'
 
-# Create an instance of the framework
-$framework = Msf::Simple::Framework.create(frameworkOpts)
 
 # Fork into the background if requested
 begin
@@ -98,6 +96,9 @@ begin
 rescue ::NotImplementedError
 	$stderr.puts "[-] Background mode is not available on this platform"
 end
+
+# Create an instance of the framework
+$framework = Msf::Simple::Framework.create(frameworkOpts)
 
 $framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/ and not frameworkOpts['DisableDatabase']
 
