@@ -555,7 +555,9 @@ class Console::CommandDispatcher::Core
 		end
 
 		if (mod)
-			print_line ::Msf::Serializer::ReadableText.dump_module(mod)
+			print_line(::Msf::Serializer::ReadableText.dump_module(mod))
+			mod_opt = ::Msf::Serializer::ReadableText.dump_options(mod, '   ')
+			print_line("\nModule options (#{mod.fullname}):\n\n#{mod_opt}") if (mod_opt and mod_opt.length > 0)
 		end
 	end
 
