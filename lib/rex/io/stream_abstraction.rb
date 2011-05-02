@@ -73,26 +73,12 @@ module StreamAbstraction
 	def syswrite(buffer)
 		lsock.syswrite(buffer)
 	end
-
-	#
-	# Writes to the local side.
-	#
-	def write(buffer)
-		lsock.write(buffer)
-	end
 	
 	#
 	# Low-level read from the local side.
 	#
 	def sysread(length)
 		lsock.sysread(length)
-	end
-
-	#
-	# Reads from the local side.
-	#
-	def read(length)
-		lsock.read(length)
 	end
 	
 	#
