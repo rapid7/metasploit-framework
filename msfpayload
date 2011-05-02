@@ -16,6 +16,11 @@ require 'rex'
 require 'msf/ui'
 require 'msf/base'
 
+$args = Rex::Parser::Arguments.new(
+	"-h" => [ false, "Help banner"                                                       ],
+	"-l" => [ false, "List available payloads"                                           ]
+)
+
 #
 # Dump the list of payloads
 #
@@ -36,24 +41,57 @@ def dump_payloads
 	"\n" + tbl.to_s + "\n"
 end
 
+#
+# Nuff said.
+#
+def usage
+	$stderr.puts("\n" +
+		"    Usage: #{$0} [<options>] <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]s|e[X]e|[D]ll|[V]BA|[W]ar>\n" +
+		$args.usage)
+	exit
+end
+
+cmd = nil
+rest = []
+
+# Parse the argument and rock that shit.
+$args.parse(ARGV) { |opt, idx, val|
+	#puts "opt[%d]: #{opt.inspect} / #{val.inspect}" % idx
+
+	case opt
+	when "-l"
+		cmd = "list"
+		break
+
+	# Non-option (don't begin with '-') are processed here
+	when nil
+		rest << val
+
+	end
+}
+
+if (cmd != "list" and rest.length < 2)
+	usage
+end
+
+
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_PAYLOAD, Msf::MODULE_ENCODER, Msf::MODULE_NOP ],
+	:module_types => [ Msf::MODULE_PAYLOAD ],
 	'DisableDatabase' => true
 )
 
-
-if (ARGV.length <= 1)
-	puts "\n" + "    Usage: #{$0} <payload> [var=val] <[S]ummary|C|[P]erl|Rub[y]|[R]aw|[J]avascript|e[X]ecutable|[D]ll|[V]BA|[W]ar>\n"
+if cmd == "list"
 	puts dump_payloads
 	exit
 end
 
+
 # Get the payload name we'll be using
-payload_name = ARGV.shift
+payload_name = rest.shift
 
 # Process special var/val pairs...
-Msf::Ui::Common.process_cli_arguments($framework, ARGV)
+Msf::Ui::Common.process_cli_arguments($framework, rest)
 
 # Create the payload instance
 payload = $framework.payloads.create(payload_name)
@@ -64,11 +102,11 @@ if (payload == nil)
 end
 
 # Evalulate the command
-cmd = ARGV.pop.downcase
+cmd = rest.pop.downcase
 
 # Populate the framework datastore
 options = {}
-ARGV.each do |x|
+rest.each do |x|
 	k,v = x.split("=", 2)
 	options[k] = v.to_s
 end
@@ -185,6 +223,10 @@ if (cmd =~ /^(p|y|r|d|c|j|x|b|v|w)/)
 	$stdout.write(buf)
 
 elsif (cmd =~ /^(s|o)/)
-	payload.datastore.import_options_from_s(ARGV.join('_|_'), '_|_')
+	payload.datastore.import_options_from_s(rest.join('_|_'), '_|_')
 	puts Msf::Serializer::ReadableText.dump_module(payload)
+
+else
+	$stderr.puts "Invalid command: #{cmd.inspect}"
+
 end
