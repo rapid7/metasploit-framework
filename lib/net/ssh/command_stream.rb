@@ -64,7 +64,7 @@ class CommandStream
 				self.monitor = Thread.new do
 					while(true)
 						next if not self.rsock.has_read_data?(1.0)
-						buff = self.rsock.sysread(16384)
+						buff = self.rsock.read(16384)
 						break if not buff
 						verify_channel
 						self.channel.send_data(buff) if buff
