@@ -54,7 +54,7 @@ class RingBuffer
 	end
 	
 	#
-	# The built-in monitor thread 
+	# The built-in monitor thread (normally unused with Metasploit)
 	#
 	def monitor_thread
 		Thread.new do 

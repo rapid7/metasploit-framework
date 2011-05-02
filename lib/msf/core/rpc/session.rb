@@ -103,7 +103,7 @@ class Session < Base
 		s = _valid_session(token,sid,"ring")
 		buff = Rex::Text.decode_base64(data)
 		begin
-			res = s.ring.put(buff)
+			res = s.shell_write(buff)
 			{ "write_count" => res.to_s}
 		rescue ::Exception => e
 			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
