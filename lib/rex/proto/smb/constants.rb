@@ -3,7 +3,6 @@ module Proto
 module SMB
 class Constants
 
-require 'rex/text'
 require 'rex/struct2'
 
 # SMB Commands
