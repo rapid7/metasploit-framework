@@ -266,12 +266,12 @@ protected
 			}
 		end
 
-		def write(buf)
-			@sock_inp.write(buf)
+		def write(buf, opts={})
+			@sock_inp.write(buf, opts)
 		end
 
-		def read(length=0)
-			@sock_out.read(length)
+		def read(length=0, opts={})
+			@sock_out.read(length, opts)
 		end
 
 		#

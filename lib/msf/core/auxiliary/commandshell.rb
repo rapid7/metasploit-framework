@@ -21,13 +21,13 @@ module Auxiliary::CommandShell
 	# Ghetto
 	#
 	module CRLFLineEndings
-		def put(str)
+		def put(str, opts={})
 			return super if not str
-			super(str.strip + "\r\n")
+			super(str.strip + "\r\n", opts)
 		end
-		def write(str)
+		def write(str, opts={})
 			return super if not str
-			super(str.strip + "\r\n")
+			super(str.strip + "\r\n", opts)
 		end
 	end
 
