@@ -279,6 +279,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Also reports a session_fingerprint note for host os normalization.
 	#
 	def load_session_info()
+		return if not (framework.db and framework.db.active)	
 		begin
 			::Timeout.timeout(60) do
 				username  = self.sys.config.getuid
