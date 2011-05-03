@@ -31,6 +31,10 @@ class SessionManager < Hash
 		
 		self.monitor_thread = framework.threads.spawn("SessionManager", true) do
 			last_seen_timer = Time.now.utc
+			
+			respawn_max = 30
+			respawn_cnt = 0
+			
 			begin
 			while true
 
@@ -136,8 +140,12 @@ class SessionManager < Hash
 			# All session management falls apart when any exception is raised to this point. Log it.
 			#
 			rescue ::Exception => e
-				wlog("Exception in monitor thread #{e.class} #{e}")
-				wlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
+				respawn_cnt += 1
+				elog("Exception #{respawn_cnt}/#{respawn_max} in monitor thread #{e.class} #{e} #{e.backtrace.join("\n")}")
+				if respawn_cnt < respawn_max
+					::IO.select(nil, nil, nil, 10.0)
+					retry
+				end
 			end
 		end
 	end

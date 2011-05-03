@@ -19,7 +19,7 @@ class DBManager
 	# Returns true if we are ready to load/store data
 	def active
 		return false if not @usable
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active?)
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated)
 	end
 
 	# Returns true if the prerequisites have been installed
@@ -36,10 +36,14 @@ class DBManager
 
 	# Stores a TaskManager for serializing database events
 	attr_accessor :sink
+	
+	# Flag to indicate database migration has completed
+	attr_accessor :migrated
 
 	def initialize(framework, opts = {})
 
 		self.framework = framework
+		self.migrated  = false
 		@usable = false
 
 		# Don't load the database if the user said they didn't need it.
@@ -149,6 +153,7 @@ class DBManager
 		nopts['pool'] = 75
 
 		begin
+			self.migrated = false
 			create_db(nopts)
 
 			# Configure the database adapter
@@ -159,6 +164,9 @@ class DBManager
 
 			# Set the default workspace
 			framework.db.workspace = framework.db.default_workspace
+			
+			# Flag that migration has completed
+			self.migrated = true
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.connect threw an exception: #{e}")
