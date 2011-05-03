@@ -130,7 +130,7 @@ module PassiveX
 		#
 		# The write function for Rex::IO::StreamAbstraction.monitor_rsock
 		#
-		def write(buf)
+		def write(buf, opts={})
 			write_remote(buf)
 			return buf.length
 		end
