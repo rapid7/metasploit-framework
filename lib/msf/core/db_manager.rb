@@ -229,7 +229,7 @@ class DBManager
 	#
 	# Migrate database to latest schema version
 	#
-	def migrate(verbose = false)
+	def migrate(verbose=false)
 		begin
 			migrate_dir = ::File.join(Msf::Config.install_root, "data", "sql", "migrate")
 			ActiveRecord::Migration.verbose = verbose
