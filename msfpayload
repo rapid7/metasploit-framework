@@ -13,33 +13,11 @@ $:.unshift(File.join(File.dirname(msfbase), 'lib'))
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex'
-require 'msf/ui'
-require 'msf/base'
 
 $args = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help banner"                                                       ],
 	"-l" => [ false, "List available payloads"                                           ]
 )
-
-#
-# Dump the list of payloads
-#
-def dump_payloads
-	tbl = Rex::Ui::Text::Table.new(
-		'Indent'  => 4,
-		'Header'  => "Framework Payloads (#{$framework.stats.num_payloads} total)",
-		'Columns' =>
-			[
-				"Name",
-				"Description"
-			])
-
-	$framework.payloads.each_module { |name, mod|
-		tbl << [ name, mod.new.description ]
-	}
-
-	"\n" + tbl.to_s + "\n"
-end
 
 #
 # Nuff said.
@@ -74,6 +52,28 @@ if (cmd != "list" and rest.length < 2)
 	usage
 end
 
+require 'msf/ui'
+require 'msf/base'
+
+#
+# Dump the list of payloads
+#
+def dump_payloads
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework Payloads (#{$framework.stats.num_payloads} total)",
+		'Columns' =>
+			[
+				"Name",
+				"Description"
+			])
+
+	$framework.payloads.each_module { |name, mod|
+		tbl << [ name, mod.new.description ]
+	}
+
+	"\n" + tbl.to_s + "\n"
+end
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
