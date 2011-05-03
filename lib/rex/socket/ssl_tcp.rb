@@ -144,7 +144,8 @@ begin
 
 		total_sent   = 0
 		total_length = buf.length
-		block_size   = 32768
+		block_size   = 16384
+		retry_time   = 0.5
 
 		begin
 			while( total_sent < total_length )
@@ -160,29 +161,35 @@ begin
 			end
 
 		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			return nil
 		
 		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 			# Sleep for a half a second, or until we can write again
-			Rex::ThreadSafe.select( nil, [ self.sslsock ], nil, 0.5 )
+			Rex::ThreadSafe.select( nil, [ self.sslsock ], nil, retry_time )
 			# Decrement the block size to handle full sendQs better
 			block_size = 1024
 			# Try to write the data again
 			retry
-			
+		
 		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable	
 		rescue ::Exception => e
 			if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
-				IO::select( [ self.sslsock ], nil, nil, 0.5 )
+				IO::select( [ self.sslsock ], nil, nil, retry_time )
 				retry
 			end
 					
 			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
-				IO::select( nil, [ self.sslsock ], nil, 0.5 )
+				IO::select( nil, [ self.sslsock ], nil, retry_time )
 				retry
 			end
-				
+			
+			# Another form of SSL error, this is always fatal
+			if e.kind_of?(::OpenSSL::SSL::SSLError)
+				return nil
+			end
+			
+			# Bubble the event up to the caller otherwise
 			raise e
 		end
 
@@ -197,8 +204,8 @@ begin
 			length = 16384 unless length
 			begin
 				return sslsock.sysread(length)
-			rescue EOFError, ::Errno::EPIPE
-				raise EOFError
+			rescue ::IOError, ::Errno::EPIPE, ::OpenSSL::SSL::SSLError
+				return nil
 			end
 			return
 		end
@@ -210,13 +217,11 @@ begin
 				if( s == nil || s[0] == nil )
 					next
 				end						
-				buf = sslsock.read_nonblock( length ) 				
-				return buf if buf
-				raise ::EOFError
+				return sslsock.read_nonblock( length ) 				
 			end
 			
 		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			return nil
 
 		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno	
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
@@ -238,6 +243,11 @@ begin
 				IO::select( nil, [ self.sslsock ], nil, 0.5 )
 				retry
 			end
+
+			# Another form of SSL error, this is always fatal
+			if e.kind_of?(::OpenSSL::SSL::SSLError)
+				return nil
+			end
 				
 			raise e
 		end
@@ -249,7 +259,7 @@ begin
 	# Closes the SSL socket.
 	#
 	def close
-		sslsock.close
+		sslsock.close rescue nil
 		super
 	end
 
@@ -281,7 +291,21 @@ begin
 	def cipher
 		sslsock.cipher if sslsock
 	end
+	
+	#
+	# Prevent a sysread from the bare socket
+	#
+	def sysread(*args)
+		raise RuntimeError, "Invalid sysread() call on SSL socket"
+	end
 
+	#
+	# Prevent a sysread from the bare socket
+	#
+	def syswrite(*args)
+		raise RuntimeError, "Invalid syswrite() call on SSL socket"
+	end
+	
 	attr_reader :peer_verified # :nodoc:
 	attr_accessor :sslsock, :sslctx # :nodoc:
 

@@ -56,7 +56,7 @@ module Stream
 			# Try to write the data again
 			retry
 		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			return nil
 		end
 		
 		total_sent
@@ -75,7 +75,7 @@ module Stream
 			# Decrement the block size to handle full sendQs better
 			retry
 		rescue ::IOError, ::Errno::EPIPE
-			return nil if (fd.abortive_close == true)
+			return nil
 		end
 	end
 
@@ -101,11 +101,8 @@ module Stream
 		rescue ::Errno::EBADF, ::Errno::ENOTSOCK
 			raise ::EOFError
 		rescue StreamClosedError, ::IOError, ::EOFError, ::Errno::EPIPE
-			# If the thing that lead to the closure was an abortive close, then
-			# don't raise the stream closed error.
-			return false if (fd.abortive_close == true)
-
-			raise $!
+			#  Return false if the socket is dead
+			return false
 		end
 	end
 
@@ -309,11 +306,6 @@ module Stream
 	def def_block_size
 		16384
 	end
-
-	#
-	# This flag indicates whether or not an abortive close has been issued.
-	#
-	attr_accessor :abortive_close
 
 protected
 
