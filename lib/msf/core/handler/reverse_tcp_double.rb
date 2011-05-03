@@ -231,30 +231,31 @@ protected
 			self.lsock.peerinfo  = @sock_inp.getpeername[1,2].map{|x| x.to_s}.join(":")
 			self.lsock.localinfo = @sock_inp.getsockname[1,2].map{|x| x.to_s}.join(":")
 
+			monitor_shell_stdout
+		end
+
+		#
+		# Funnel data from the shell's stdout to +rsock+
+		#
+		# +StreamAbstraction#monitor_rsock+ will deal with getting data from
+		# the client (user input).  From there, it calls our write() below,
+		# funneling the data to the shell's stdin on the other side.
+		#
+		def monitor_shell_stdout
+
 			# Start a thread to pipe data between stdin/stdout and the two sockets
 			@monitor_thread = @framework.threads.spawn("ReverseTcpDoubleHandlerMonitor", false) {
 				begin
-					begin
-
+					while true
 						# Handle data from the server and write to the client
-						if (
-							@sock_out.has_read_data?(0.50) and
-							(buf = @sock_out.get_once)
-						   )
+						if (@sock_out.has_read_data?(0.50))
+							buf = @sock_out.get_once
+							break if buf.nil?
 							rsock.put(buf)
 						end
-
-						# Handle data from the client and write to the server
-						if (
-							rsock.has_read_data?(0.50) and
-							(buf = rsock.get_once)
-						   )
-							@sock_inp.put(buf)
-						end
-
-					end while true
-
-				rescue ::Exception
+					end
+				rescue ::Exception => e
+					ilog("ReverseTcpDouble monitor thread raised #{e.class}: #{e}")
 				end
 
 				# Clean up the sockets...
