@@ -73,7 +73,6 @@ module BER #:nodoc:all
     class InvalidLength < RuntimeError; end
     class InvalidTag < RuntimeError; end
     class InvalidObjectId < RuntimeError; end
-    class InvalidLength < RuntimeError; end
 
     def assert_no_remainder(remainder)
         raise ParseError, remainder.inspect if (remainder and remainder != "")
