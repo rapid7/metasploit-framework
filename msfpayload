@@ -77,7 +77,7 @@ end
 
 # Initialize the simplified framework instance.
 $framework = Msf::Simple::Framework.create(
-	:module_types => [ Msf::MODULE_PAYLOAD ],
+	:module_types => [ Msf::MODULE_PAYLOAD, Msf::MODULE_NOP ],
 	'DisableDatabase' => true
 )
 

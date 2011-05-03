@@ -1058,7 +1058,7 @@ require 'digest/sha1'
 		opts['BadChars'] ||= ''
 		opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
 
-		return code if not framework.nops
+		return nil if not framework.nops
 		framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
 			begin
 				nop = framework.nops.create(name)
