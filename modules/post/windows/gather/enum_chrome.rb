@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Post
 		usernames = []
 		uid = session.sys.config.getuid
 		if is_system?
-			print_status("running as SYSTEM, extracting user list...")
+			print_status("Running as SYSTEM, extracting user list...")
 			print_error("(Automatic decryption will not be possible. You might want to manually migrate, or set \"MIGRATE=true\")")
 			session.fs.dir.foreach(@profiles_path) do |u|
 				usernames << u if u !~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
