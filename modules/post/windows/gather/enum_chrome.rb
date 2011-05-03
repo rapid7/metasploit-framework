@@ -231,9 +231,9 @@ class Metasploit3 < Msf::Post
 			session.fs.dir.foreach(@profiles_path) do |u|
 				usernames << u if u !~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
 			end
-			print_status "users found: #{usernames.join(", ")}"
+			print_status "Users found: #{usernames.join(", ")}"
 		else
-			print_status "running as user '#{uid}'..."
+			print_status "Running as user '#{uid}'..."
 			usernames << session.fs.file.expand_path("%USERNAME%")
 			prepare_railgun
 		end
