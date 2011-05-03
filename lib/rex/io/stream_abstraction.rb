@@ -148,10 +148,9 @@ protected
 							closed = true
 							wlog("monitor_rsock: closed remote socket due to nil read")
 						end
-
 					rescue ::Exception
 						closed = true
-						wlog("monitor_rsock: exception during read: #{e.class} #{e}")						
+						wlog("monitor_rsock: exception during read: #{e.class} #{e}")
 					end
 				end
 
@@ -165,15 +164,18 @@ protected
 							# Note that this must be write() NOT syswrite() or put() or anything like it.
 							# Using syswrite() breaks SSL streams.
 							sent = self.write( data )
-							
+
 							# sf: Only remove the data off the queue is write was successfull.
 							#     This way we naturally perform a resend if a failure occured.
 							#     Catches an edge case with meterpreter TCP channels where remote send
 							#     failes gracefully and a resend is required.
-							if( sent > 0 )
+							if (sent.nil? or sent <= 0)
+								wlog("monitor_rsock: failed writing, socket must be dead")
+								break
+							else
 								total_sent += sent
 							end
-						rescue ::IOError => e
+						rescue ::IOError, ::EOFError => e
 							closed = true
 							wlog("monitor_rsock: exception during write: #{e.class} #{e}")
 							break
