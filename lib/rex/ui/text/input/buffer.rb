@@ -14,7 +14,10 @@ require 'rex/io/stream_abstraction'
 class Input::Buffer < Rex::Ui::Text::Input
 
 	class BufferSock
-		include Rex::IO::StreamAbstraction
+		include Rex::IO::StreamAbstraction	
+		def write(buf, opts={})
+			syswrite(buf)
+		end
 	end
 
 	def initialize
@@ -30,10 +33,10 @@ class Input::Buffer < Rex::Ui::Text::Input
 		@sock.rsock.sysread(len)
 	end
 
-	def put(msg)
+	def put(msg, opts={})
 		@sock.lsock.write(msg)
 	end
-
+	
 	#
 	# Wait for a line of input to be read from a socket.
 	#
