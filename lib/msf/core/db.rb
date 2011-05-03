@@ -254,10 +254,6 @@ class DBManager
 
 		wspace = opts.delete(:workspace) || workspace
 
-		if opts[:host_mac]
-			opts[:mac] = opts.delete(:host_mac)
-		end
-
 		unless ipv4_validator(addr)
 			raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 		end
@@ -337,7 +333,7 @@ class DBManager
 		return if not active
 		addr  = opts.delete(:host) || return
 		hname = opts.delete(:host_name)
-		hmac  = opts.delete(:host_mac)
+		hmac  = opts.delete(:mac)
 		host  = nil
 		wspace = opts.delete(:workspace) || workspace
 
@@ -2802,7 +2798,7 @@ class DBManager
 			else
 				yield(:address,host_data[:host]) if block
 			end
-			host_data[:host_mac] = nils_for_nulls(host.elements["mac"].text.to_s.strip)
+			host_data[:mac] = nils_for_nulls(host.elements["mac"].text.to_s.strip)
 			if host.elements["comm"].text
 				host_data[:comm] = nils_for_nulls(host.elements["comm"].text.to_s.strip)
 			end

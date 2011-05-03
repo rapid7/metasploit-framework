@@ -271,7 +271,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_service(
 				:host  => addr,
-				:host_mac  => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+				:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
 				:host_name => (hname) ? hname.downcase : nil,
 				:port  => pkt[2],
 				:proto => 'udp',
