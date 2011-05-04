@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Mac OS X System Information Enumeration',
+				'Name'          => 'OS X Gather Mac OS X System Information Enumeration',
 				'Description'   => %q{
 						This module gathers basic system information from Mac OS X Tiger, Leopard
 					and Snow Leopard systems.
