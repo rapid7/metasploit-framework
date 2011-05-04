@@ -19,7 +19,7 @@ class DBManager
 	# Returns true if we are ready to load/store data
 	def active
 		return false if not @usable
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated)
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated) rescue false
 	end
 
 	# Returns true if the prerequisites have been installed
