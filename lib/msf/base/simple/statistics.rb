@@ -53,6 +53,13 @@ class Statistics
 	end
 
 	#
+	# Returns the number of post modules in the framework.
+	#
+	def num_post
+		framework.post.length
+	end
+
+	#
 	# Returns the number of stages in the framework.
 	#
 	def num_payload_stages
