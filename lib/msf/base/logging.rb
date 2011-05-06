@@ -1,4 +1,5 @@
 require 'rex'
+require 'rex/logging'
 require 'msf/base'
 
 module Msf
