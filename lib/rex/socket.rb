@@ -12,19 +12,23 @@ module Rex
 ###
 module Socket
 
-	module Comm
-	end
+	# Plumbing / Aux
+	autoload :Parameters, 'rex/socket/parameters'
+	autoload :Comm,       'rex/socket/comm'
 
-	require 'rex/socket/parameters'
-	require 'rex/socket/tcp'
-	require 'rex/socket/tcp_server'
+	# Underlying protocol-specific
+	autoload :Ip,           'rex/socket/ip'
+	autoload :Udp,          'rex/socket/udp'
+	autoload :Tcp,          'rex/socket/tcp'
+	autoload :TcpServer,    'rex/socket/tcp_server'
+	autoload :SslTcp,       'rex/socket/ssl_tcp'
+	autoload :SslTcpServer, 'rex/socket/ssl_tcp_server'
 
-	require 'rex/socket/comm'
-	require 'rex/socket/comm/local'
-
-	require 'rex/socket/switch_board'
-	require 'rex/socket/subnet_walker'
-	require 'rex/socket/range_walker'
+	# Utilities
+	autoload :SwitchBoard,  'rex/socket/switch_board'
+	autoload :SubnetWalker, 'rex/socket/subnet_walker'
+	autoload :Range,        'rex/socket/range_walker'
+	autoload :RangeWalker,  'rex/socket/range_walker'
 
 	##
 	#

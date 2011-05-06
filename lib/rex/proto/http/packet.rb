@@ -1,4 +1,5 @@
 require 'rex/proto/http'
+require 'rex/text'
 
 module Rex
 module Proto

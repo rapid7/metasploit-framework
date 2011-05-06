@@ -14,6 +14,8 @@ module Socket
 ###
 module Comm
 
+	autoload :Local, 'rex/socket/comm/local'
+
 	###
 	# 
 	# This mixin provides stubs for event notification handlers that can be

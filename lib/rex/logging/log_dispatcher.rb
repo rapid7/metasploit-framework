@@ -1,5 +1,4 @@
 require 'rex/sync'
-require 'rex/logging/log_sink'
 
 module Rex
 module Logging

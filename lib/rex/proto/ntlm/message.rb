@@ -45,6 +45,8 @@
 
 #this module defines the message class , useful for easily handling type 1/2/3 ntlm messages
 
+require 'rex/text'
+
 require 'rex/proto/ntlm/base'
 require 'rex/proto/ntlm/constants'
 require 'rex/proto/ntlm/crypt'

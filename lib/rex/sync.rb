@@ -1,6 +1,6 @@
-#!/usr/bin/env ruby
-
-require 'rex/sync/thread_safe'
-require 'rex/sync/ref'
-require 'rex/sync/read_write_lock'
-require 'rex/sync/event'
+module Rex
+	autoload :ReadWriteLock, 'rex/sync/read_write_lock'
+	autoload :ThreadSafe,    'rex/sync/thread_safe'
+	autoload :Ref,           'rex/sync/ref'
+	autoload :Sync,          'rex/sync/event'
+end

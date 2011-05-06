@@ -13,10 +13,10 @@ module Text
 ###
 class Input
 
-	require 'rex/ui/text/input/stdio'
-	require 'rex/ui/text/input/readline'
-	require 'rex/ui/text/input/socket'
-	require 'rex/ui/text/color'
+	autoload :Buffer,   'rex/ui/text/color'
+	autoload :Stdio,    'rex/ui/text/input/stdio'
+	autoload :Readline, 'rex/ui/text/input/readline'
+	autoload :Socket,   'rex/ui/text/input/socket'
 
 	include Rex::Ui::Text::Color
 

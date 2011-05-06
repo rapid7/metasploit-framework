@@ -1,7 +1,13 @@
-require 'rex/proto/ntlm/constants'
-require 'rex/proto/ntlm/exceptions'
-require 'rex/proto/ntlm/crypt'
-require 'rex/proto/ntlm/utils'
-require 'rex/proto/ntlm/base'
-require 'rex/proto/ntlm/message'
+module Rex
+module Proto
+module NTLM
+	autoload :Constants,  'rex/proto/ntlm/constants'
+	autoload :Exceptions, 'rex/proto/ntlm/exceptions'
 
+	autoload :Base,       'rex/proto/ntlm/base'
+	autoload :Crypt,      'rex/proto/ntlm/crypt'
+	autoload :Message,    'rex/proto/ntlm/message'
+	autoload :Utils,      'rex/proto/ntlm/utils'
+end
+end
+end
