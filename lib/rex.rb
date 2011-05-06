@@ -40,53 +40,60 @@ end
 # Generic classes
 require 'rex/constants'
 require 'rex/exceptions'
-require 'rex/transformer'
-require 'rex/text'
-require 'rex/time'
-require 'rex/job_container'
-require 'rex/file'
 
-# Thread safety and synchronization
-require 'rex/sync'
+module Rex
+	# Generic modules
+	autoload :File,         'rex/file'
+	autoload :Text,         'rex/text'
+	autoload :Job,          'rex/job_container'
+	autoload :JobContainer, 'rex/job_container'
+	autoload :Transformer,  'rex/transformer'
+	autoload :ExtTime,      'rex/time'
 
-# Thread factory
-require 'rex/thread_factory'
+	# Thread safety and synchronization
+	autoload :ReadWriteLock, 'rex/sync/read_write_lock'
+	autoload :ThreadSafe,    'rex/sync/thread_safe'
+	autoload :Ref,           'rex/sync/ref'
+	autoload :Sync,          'rex/sync/event'
 
-# Encoding
-require 'rex/encoder/xor'
-require 'rex/encoding/xor'
+	# Thread factory
+	autoload :ThreadFactory, 'rex/thread_factory'
 
-# Architecture subsystem
-require 'rex/arch'
+	# Encoding
+	autoload :Encoder,  'rex/encoder'
+	autoload :Encoders, 'rex/encoders'
+	autoload :Encoding, 'rex/encoding'
 
-# Assembly
-require 'rex/assembly/nasm'
+	# Architecture subsystem
+	autoload :Arch, 'rex/arch'
 
-# Logging
-require 'rex/logging/log_dispatcher'
+	# Assembly
+	autoload :Assembly, 'rex/assembly/nasm'
 
-# IO
-require 'rex/io/stream'
-require 'rex/io/stream_abstraction'
-require 'rex/io/stream_server'
+	# Logging
+	autoload :Logging, 'rex/logging'
 
-# Sockets
-require 'rex/socket'
+	# IO
+	autoload :IO, 'rex/io'
 
-# Protocols
+	# Sockets
+	autoload :Socket, 'rex/socket'
 
-require 'rex/proto'
+	# Platforms
+	autoload :Platforms, 'rex/platforms'
 
-# Parsers
-require 'rex/parser/arguments'
-require 'rex/parser/ini'
+	# Protocols
+	autoload :Proto, 'rex/proto'
 
+	# Service handling
+	autoload :Service, 'rex/service'
 
-# Compatibility
-require 'rex/compat'
+	# Parsers
+	autoload :Parser, 'rex/parser'
 
-# Platforms
-require 'rex/platforms'
+	# Compatibility
+	autoload :Compat, 'rex/compat'
+end
 
 
 # Overload the Kernel.sleep() function to be thread-safe
