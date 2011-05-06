@@ -1,7 +1,6 @@
 
 require 'rex/text'
 require 'rex/exploitation/obfuscatejs'
-require 'msf/core/auxiliary'
 
 module Rex
 module Exploitation
