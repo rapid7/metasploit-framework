@@ -1,5 +1,6 @@
 require 'rex/text'
 require 'rex/arch'
+require 'metasm'
 
 module Rex
 module Exploitation
