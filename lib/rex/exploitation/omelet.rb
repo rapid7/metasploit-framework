@@ -104,8 +104,8 @@ class Omelet
 			eggsize_hex = "%02x" % eggsize
 
 			hextag = ''
-			eggtag.split('').each do | thischar |
-				decchar = "%02x" % thischar[0]
+			eggtag.each_byte do |thischar|
+				decchar = "%02x" % thischar
 				hextag = decchar + hextag
 			end
 			hextag = hextag + "01"
