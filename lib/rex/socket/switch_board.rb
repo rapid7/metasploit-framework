@@ -78,6 +78,7 @@ class SwitchBoard
 		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
 			comm.routes << "#{subnet}/#{mask}"
 		end
+		ret
 	end
 
 	#
@@ -89,6 +90,7 @@ class SwitchBoard
 		if ret && comm.respond_to?(:routes) && comm.routes.kind_of?(Array)
 			comm.routes.delete "#{subnet}/#{mask}"
 		end
+		ret
 	end
 
 	#
@@ -193,7 +195,9 @@ class SwitchBoard
 		# Remove each of the individual routes so the comms don't think they're
 		# still routing after a flush.
 		self.routes.each { |r|
-			r.comm.routes.delete("#{r.subnet}/#{r.netmask}")
+			if r.comm.respond_to? :routes
+				r.comm.routes.delete("#{r.subnet}/#{r.netmask}")
+			end
 		}
 		# Re-initialize to an empty array
 		self.routes = Array.new
