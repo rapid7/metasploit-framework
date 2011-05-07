@@ -476,6 +476,7 @@ public class PayloadPopup extends ModuleInfoWindow {
 			HashMap hash = getOptions(mainPanel);
 			if(outputCombo.getSelectedItem().toString().equals("jar"))
 				hash.put("Format", "jar");
+			hash.put("Encoder", "generic/none");
 			Map data = (Map) rpcConn.execute("module.execute", "payload", fullName,hash);
 			//Basic info
 			if(!data.get("result").equals("success"))
