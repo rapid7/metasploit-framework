@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Sending file (loop : #{count = count + 1})") if verbose
 			inject_pcap(filename, file_filter, pkt_delay )
 			loop -= 1 unless infinity
-			Kernel.select(nil, nil, nil, delay/1000) if loop > 0 or infinity
+			Kernel.select(nil, nil, nil, (delay * 1.0)/1000) if loop > 0 or infinity
 		end
 		close_pcap
 	end
