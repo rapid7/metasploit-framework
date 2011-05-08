@@ -1,5 +1,5 @@
 ##
-# $Id: arp_sweep.rb 12316 2011-04-14 16:29:56Z amaloteaux $
+# $Id$
 ##
 
 ##
@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Pcap replay utility',
-			'Version'     => '$Revision: 12316 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				replay a pcap capture file
 			},
