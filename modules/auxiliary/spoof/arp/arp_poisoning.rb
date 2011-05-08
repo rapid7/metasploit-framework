@@ -1,5 +1,5 @@
 ##
-# $Id: arp_poisoning.rb 10998 2010-11-11 22:43:22Z amaloteaux $
+# $Id: arp_poisoning.rb 12564 2011-05-08 09:43:22Z amaloteaux $
 ##
 
 ##
@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ARP Spoof',
-			'Version'     => '$Revision: 10998 $',
+			'Version'     => '$Revision: 12564 $',
 			'Description' => %q{
 				Spoof ARP replies and poison remote ARP caches to conduct IP address spoofing or a denial of service.
 			},
