@@ -5,7 +5,7 @@
 ;-----------------------------------------------------------------------------;
 [BITS 32]
 
-; Compatible: block_bind_tcp, block_reverse_tcp
+; Compatible: block_bind_tcp, block_reverse_tcp, block_reverse_ipv6_tcp
 
 ; Input: EBP must be the address of 'api_call'. EDI must be the socket. ESI is a pointer on stack.
 ; Output: None.

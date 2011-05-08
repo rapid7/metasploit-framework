@@ -62,6 +62,8 @@ def xmit( name, dump_ruby=True ):
   xmit_offset( data, "Port", pack( ">H", 4444 ) )           # 4444
   xmit_offset( data, "LEPort", pack( "<H", 4444 ) )         # 4444
   xmit_offset( data, "Host", pack( ">L", 0x7F000001 ) )     # 127.0.0.1
+  xmit_offset( data, "IPv6Host", pack( "<Q", 0xBBBBBBBBBBBBBBB1 ) ) # An IPv6 Address
+  xmit_offset( data, "IPv6ScopeId", pack( "<L", 0xAAAAAAA1 ) ) # An IPv6 Scope ID
   xmit_offset( data, "HostName", "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX\x00" )     # hostname filler
   xmit_offset( data, "RetryCounter", "\x6a\x05" )     # socket retry
   xmit_offset( data, "CodeLen", pack( "<L", 0x12345678 ) )  # Filler
