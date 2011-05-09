@@ -59,7 +59,8 @@ class NmapXMLStreamParser
 	end
 
 	def reset_state
-		@host = { "status" => nil, "addrs" => {}, "ports" => [] }
+		@host = { "status" => nil, "addrs" => {}, "ports" => [], "scripts" => {} }
+		@state = nil
 	end
 
 	def tag_start(name, attributes)
@@ -98,6 +99,7 @@ class NmapXMLStreamParser
 			@host["status_reason"] = attributes["reason"]
 		when "port"
 			@host["ports"].push(attributes)
+			@state = :in_port_tag
 		when "state"
 			# <state> refers to the state of a port; values are "open", "closed", or "filtered"
 			@host["ports"].last["state"] = attributes["state"]
@@ -106,9 +108,20 @@ class NmapXMLStreamParser
 			# be any collisions on attribute names here, so just merge them.
 			@host["ports"].last.merge!(attributes)
 		when "script"
-			unless @host["ports"].empty?
+			# Associate scripts under a port tag with the appropriate port.
+			# Other scripts from <hostscript> tags can only be associated with
+			# the host and scripts from <postscript> tags don't really belong
+			# to anything, so ignore them
+			if @state == :in_port_tag
 				@host["ports"].last["scripts"] ||= {}
 				@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
+			elsif @host
+				@host["scripts"] ||= {}
+				@host["scripts"][attributes["id"]] = attributes["output"]
+			else
+				# post scripts are used for things like comparing all the found
+				# ssh keys to see if multiple hosts have the same key
+				# fingerprint.  Ignore them.
 			end
 		when "trace"
 			@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
@@ -121,6 +134,8 @@ class NmapXMLStreamParser
 
 	def tag_end(name)
 		case name
+		when "port"
+			@state = nil
 		when "host"
 			on_found_host.call(@host) if on_found_host
 			reset_state
