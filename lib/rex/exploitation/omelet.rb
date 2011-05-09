@@ -105,7 +105,7 @@ class Omelet
 
 			hextag = ''
 			eggtag.each_byte do |thischar|
-				decchar = "%02x" % thischar
+				decchar = "%02x" % thischar[0,1].unpack('C')
 				hextag = decchar + hextag
 			end
 			hextag = hextag + "01"
