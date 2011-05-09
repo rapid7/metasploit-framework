@@ -106,8 +106,10 @@ class NmapXMLStreamParser
 			# be any collisions on attribute names here, so just merge them.
 			@host["ports"].last.merge!(attributes)
 		when "script"
-			@host["ports"].last["scripts"] ||= {}
-			@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
+			unless @host["ports"].empty?
+				@host["ports"].last["scripts"] ||= {}
+				@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
+			end
 		when "trace"
 			@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
 		when "hop"
