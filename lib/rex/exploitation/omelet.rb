@@ -103,12 +103,8 @@ class Omelet
 			nr_eggs_hex = "%02x" % nr_eggs
 			eggsize_hex = "%02x" % eggsize
 
-			hextag = ''
-			eggtag.each_byte do |thischar|
-				decchar = "%02x" % thischar[0,1].unpack('C')
-				hextag = decchar + hextag
-			end
-			hextag = hextag + "01"
+			hextag = eggtag.unpack('C*').map { |b| "%02x" % b }.join
+			hextag << "01"
 
 			# search forward or backward ?
 			setflag      = nil
