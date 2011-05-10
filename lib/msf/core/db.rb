@@ -4422,7 +4422,7 @@ class DBManager
 
 	# Takes QID numbers and finds the discovered services in
 	# a qualys_asset_xml. 
-	def find_qualys_asset_ports(i=82023,host,wspace,hobj)
+	def find_qualys_asset_ports(i,host,wspace,hobj)
 		return unless (i == 82023 || i == 82004)
 		proto = i == 82023 ? 'tcp' : 'udp'
 		qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
