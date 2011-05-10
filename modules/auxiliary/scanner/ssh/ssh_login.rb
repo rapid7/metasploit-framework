@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("#{ip}:#{rport} - SSH - Starting buteforce")
+		print_status("#{ip}:#{rport} - SSH - Starting bruteforce")
 		each_user_pass do |user, pass|
 			vprint_status("#{ip}:#{rport} - SSH - Trying: username: '#{user}' with password: '#{pass}'")
 			this_attempt ||= 0
