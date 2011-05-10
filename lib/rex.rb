@@ -43,7 +43,9 @@ require 'rex/exceptions'
 
 module Rex
 	# Generic modules
-	autoload :File,         'rex/file'
+	autoload :FileUtils,    'rex/file'
+	autoload :Find,         'rex/file'
+	autoload :Quickfile,    'rex/file'
 	autoload :Text,         'rex/text'
 	autoload :Job,          'rex/job_container'
 	autoload :JobContainer, 'rex/job_container'
