@@ -403,7 +403,7 @@ module ActiveSupport #:nodoc:
         raise ArgumentError, "A copy of #{from_mod} has been removed from the module tree but is still active!"
       end
 
-      return from_mod.const_get(const_name) if uninherited_const_defined?(from_mod, const_name)
+      raise ArgumentError, "#{from_mod} is not missing constant #{const_name}!" if uninherited_const_defined?(from_mod, const_name)
 
       qualified_name = qualified_name_for from_mod, const_name
       path_suffix = qualified_name.underscore
