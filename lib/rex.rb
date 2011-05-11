@@ -95,6 +95,12 @@ module Rex
 
 	# Compatibility
 	autoload :Compat, 'rex/compat'
+
+	# User interface
+	autoload :Ui, 'rex/ui'
+
+	# Meterpreter
+	autoload :Post, 'rex/post'
 end
 
 
