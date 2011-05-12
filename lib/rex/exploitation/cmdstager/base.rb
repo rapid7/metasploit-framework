@@ -1,6 +1,6 @@
-require 'rex/text'
-require 'rex/arch'
-require 'msf/core/framework'
+##
+# $Id$
+##
 
 module Rex
 module Exploitation
