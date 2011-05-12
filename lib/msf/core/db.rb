@@ -1,9 +1,15 @@
 
-autoload :FileUtils, 'fileutils'
-autoload :Zip,       'zip'
-autoload :URI,       'uri'
-autoload :PacketFu,  'packetfu'
-
+require 'rex/parser/nmap_xml'
+require 'rex/parser/nexpose_xml'
+require 'rex/parser/retina_xml'
+require 'rex/parser/netsparker_xml'
+require 'rex/parser/nessus_xml'
+require 'rex/parser/ip360_xml'
+require 'rex/parser/ip360_aspl_xml'
+require 'rex/socket'
+require 'zip'
+require 'packetfu'
+require 'uri'
 require 'tmpdir'
 
 module Msf
