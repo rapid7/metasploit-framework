@@ -90,6 +90,7 @@ module Rex
 
 	# Service handling
 	autoload :Service, 'rex/service'
+	autoload :ServiceManager, 'rex/service_manager'
 
 	# Parsers
 	autoload :Parser, 'rex/parser'
