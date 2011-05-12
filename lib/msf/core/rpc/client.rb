@@ -1,4 +1,5 @@
 require "xmlrpc/client"
+require "rex"
 
 module Msf
 module RPC

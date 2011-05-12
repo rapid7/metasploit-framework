@@ -1,5 +1,5 @@
 require 'msf/core'
-autoload :Metasm, 'metasm'
+require 'metasm'
 
 module Msf
 
@@ -14,19 +14,19 @@ class Payload < Msf::Module
 
 	require 'rex/payloads'
 
-	autoload :Single,  'msf/core/payload/single'
-	autoload :Generic, 'msf/core/payload/generic'
-	autoload :Stager,  'msf/core/payload/stager'
+	require 'msf/core/payload/single'
+	require 'msf/core/payload/generic'
+	require 'msf/core/payload/stager'
 
 	# Platform specific includes
-	autoload :Aix,     'msf/core/payload/aix'
-	autoload :Bsd,     'msf/core/payload/bsd'
-	autoload :Linux,   'msf/core/payload/linux'
-	autoload :Osx,     'msf/core/payload/osx'
-	autoload :Solaris, 'msf/core/payload/solaris'
-	autoload :Windows, 'msf/core/payload/windows'
-	autoload :Netware, 'msf/core/payload/netware'
-	autoload :Java,    'msf/core/payload/java'
+	require 'msf/core/payload/aix'
+	require 'msf/core/payload/bsd'
+	require 'msf/core/payload/linux'
+	require 'msf/core/payload/osx'
+	require 'msf/core/payload/solaris'
+	require 'msf/core/payload/windows'
+	require 'msf/core/payload/netware'
+	require 'msf/core/payload/java'
 
 	##
 	#

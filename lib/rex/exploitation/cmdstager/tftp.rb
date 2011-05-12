@@ -2,6 +2,10 @@
 # $Id$
 ##
 
+require 'rex/text'
+require 'rex/arch'
+require 'msf/core/framework'
+
 module Rex
 module Exploitation
 

@@ -1,3 +1,5 @@
+require 'rex/ui'
+require 'rex/io/ring_buffer'
 
 module Msf
 module Session

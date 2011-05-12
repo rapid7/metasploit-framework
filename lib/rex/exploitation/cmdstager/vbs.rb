@@ -1,6 +1,10 @@
 ##
-# $Id$
+# $Id: vbs.rb 12595 2011-05-12 18:33:49Z jduck $
 ##
+
+require 'rex/text'
+require 'rex/arch'
+require 'msf/core/framework'
 
 module Rex
 module Exploitation

@@ -12,10 +12,11 @@ module Text
 ###
 class Output < Rex::Ui::Output
 
-	autoload :Stdio,  'rex/ui/text/output/stdio'
-	autoload :Socket, 'rex/ui/text/output/socket'
-	autoload :Buffer, 'rex/ui/text/output/buffer'
-	autoload :File,   'rex/ui/text/output/file'
+	require 'rex/ui/text/output/stdio'
+	require 'rex/ui/text/output/socket'
+	require 'rex/ui/text/output/buffer'
+	require 'rex/ui/text/output/file'
+	require 'rex/ui/text/color'
 
 	include Rex::Ui::Text::Color
 

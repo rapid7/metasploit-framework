@@ -1,3 +1,5 @@
+require 'rex/io/stream_abstraction'
+require 'rex/sync/ref'
 
 module Msf
 module Handler

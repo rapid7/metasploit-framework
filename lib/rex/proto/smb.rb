@@ -1,15 +1,7 @@
-module Rex
-module Proto
-module SMB
-
-	autoload :Constants,    'rex/proto/smb/constants'
-	autoload :Exceptions,   'rex/proto/smb/exceptions'
-	autoload :Evasions,     'rex/proto/smb/evasions'
-	autoload :Crypt,        'rex/proto/smb/crypt'
-	autoload :Utils,        'rex/proto/smb/utils'
-	autoload :Client,       'rex/proto/smb/client'
-	autoload :SimpleClient, 'rex/proto/smb/simpleclient'
-
-end
-end
-end
+require 'rex/proto/smb/constants'
+require 'rex/proto/smb/exceptions'
+require 'rex/proto/smb/evasions'
+require 'rex/proto/smb/crypt'
+require 'rex/proto/smb/utils'
+require 'rex/proto/smb/client'
+require 'rex/proto/smb/simpleclient'

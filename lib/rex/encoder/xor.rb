@@ -10,9 +10,6 @@ module Encoder
 ###
 class Xor
 
-	autoload :Dword,         'rex/encoder/xor/dword'
-	autoload :DwordAdditive, 'rex/encoder/xor/dword_additive'
-
 	attr_accessor :raw, :encoded, :badchars, :opts, :key, :fkey # :nodoc:
 
 	#
@@ -68,5 +65,5 @@ class Xor
 
 end
 
-end
-end
+end end
+

@@ -22,20 +22,19 @@ require 'msf/core'
 require 'msf/base/config'
 require 'msf/base/logging'
 
-module Msf
-	# Simple wrapper
-	autoload :Simple, 'msf/base/simple'
+# Simple wrapper
+require 'msf/base/simple'
 
-	# Sessions
-	autoload :Sessions, 'msf/base/sessions'
+# Sessions
+require 'msf/base/sessions/command_shell'
+require 'msf/base/sessions/tty'
 
-	# Serialization
-	autoload :Serializer, 'msf/base/serializer/readable_text'
+# Serialization
+require 'msf/base/serializer/readable_text'
 
-	# Persistent Storage
-	autoload :PersistentStorage, 'msf/base/persistent_storage'
+# Persistent Storage
+require 'msf/base/persistent_storage'
 
-	# Utilities
-	autoload :Util, 'msf/util'
-end
+# Utilities
+require 'msf/util'
 

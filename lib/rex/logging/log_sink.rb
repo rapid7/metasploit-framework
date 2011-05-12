@@ -37,3 +37,6 @@ end
 
 end
 end
+
+require 'rex/logging/sinks/flatfile'
+require 'rex/logging/sinks/stderr'

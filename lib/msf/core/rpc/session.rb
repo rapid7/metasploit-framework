@@ -1,3 +1,5 @@
+require 'rex'
+require 'rex/ui/text/output/buffer'
 
 module Msf
 module RPC

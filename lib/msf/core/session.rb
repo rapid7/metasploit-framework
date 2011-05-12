@@ -84,12 +84,15 @@ module Session
 	end
 
 	# Direct descendents
-	autoload :Interactive, 'msf/core/session/interactive'
-	autoload :Basic,       'msf/core/session/basic'
-	autoload :Comm,        'msf/core/session/comm'
+	require 'msf/core/session/interactive'
+	require 'msf/core/session/basic'
+	require 'msf/core/session/comm'
 
 	# Provider interfaces
-	autoload :Provider, 'msf/core/session/provider'
+	require 'msf/core/session/provider/single_command_execution'
+	require 'msf/core/session/provider/multi_command_execution'
+	require 'msf/core/session/provider/single_command_shell'
+	require 'msf/core/session/provider/multi_command_shell'
 
 	def self.type
 		"unknown"

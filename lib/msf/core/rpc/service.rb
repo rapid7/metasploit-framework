@@ -1,4 +1,6 @@
 require "xmlrpc/server"
+require 'rex/service_manager'
+require "rex"
 
 
 module Msf

@@ -3,19 +3,19 @@
 # wrappers of the rex library.
 #
 
-require 'rex'
+# General classes
+require 'rex/ui/output'
+require 'rex/ui/progress_tracker'
 
-module Rex
-module Ui
-	# General classes
-	autoload :Output,          'rex/ui/output'
-	autoload :ProgressTracker, 'rex/ui/progress_tracker'
+# Text-based user interfaces
+require 'rex/ui/text/input'
+require 'rex/ui/text/shell'
+require 'rex/ui/text/dispatcher_shell'
+require 'rex/ui/text/irb_shell'
 
-	# Text-based user interfaces
-	autoload :Text, 'rex/ui/text'
+require 'rex/ui/text/color'
+require 'rex/ui/text/table'
 
-	# Ui subscriber
-	autoload :Subscriber,  'rex/ui/subscriber'
-	autoload :Interactive, 'rex/ui/interactive'
-end
-end
+# Ui subscriber
+require 'rex/ui/subscriber'
+require 'rex/ui/interactive'

@@ -2,6 +2,7 @@ require 'rex/constants'
 
 module Rex
 
+
 ###
 #
 # This module provides generalized methods for performing operations that are
@@ -14,8 +15,8 @@ module Arch
 	#
 	# Architecture classes
 	#
-	autoload :X86, 'rex/arch/x86'
-	autoload :Sparc, 'rex/arch/sparc'
+	require 'rex/arch/x86'
+	require 'rex/arch/sparc'
 
 	#
 	# This routine adjusts the stack pointer for a given architecture.

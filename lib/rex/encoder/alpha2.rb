@@ -18,16 +18,14 @@
 module Rex
 module Encoder
 module Alpha2
+end end end
 
-	#
-	# autoload the Alpha2 encoders
-	#
-	autoload :Generic,      'rex/encoder/alpha2/generic'
-	autoload :AlphaMixed,   'rex/encoder/alpha2/alpha_mixed'
-	autoload :AlphaUpper,   'rex/encoder/alpha2/alpha_upper'
-	autoload :UnicodeMixed, 'rex/encoder/alpha2/unicode_mixed'
-	autoload :UnicodeUpper, 'rex/encoder/alpha2/unicode_upper'
+#
+# include the Alpha2 encodings
+#
 
-end
-end
-end
+require 'rex/encoder/alpha2/generic'
+require 'rex/encoder/alpha2/alpha_mixed'
+require 'rex/encoder/alpha2/alpha_upper'
+require 'rex/encoder/alpha2/unicode_mixed'
+require 'rex/encoder/alpha2/unicode_upper'

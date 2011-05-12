@@ -1,3 +1,4 @@
+require 'rex/parser/arguments'
 
 module Msf
 module Ui

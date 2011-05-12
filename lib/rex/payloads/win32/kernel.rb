@@ -1,12 +1,13 @@
 module Rex
 module Payloads
 module Win32
-module Kernel
 
-	autoload :Common,    'rex/payloads/win32/kernel/common'
-	autoload :Recovery,  'rex/payloads/win32/kernel/recovery'
-	autoload :Stager,    'rex/payloads/win32/kernel/stager'
-	autoload :Migration, 'rex/payloads/win32/kernel/migration'
+require 'rex/payloads/win32/kernel/common'
+require 'rex/payloads/win32/kernel/recovery'
+require 'rex/payloads/win32/kernel/stager'
+require 'rex/payloads/win32/kernel/migration'
+
+module Kernel
 
 	#
 	# Constructs a kernel-mode payload using the supplied options.  The options
