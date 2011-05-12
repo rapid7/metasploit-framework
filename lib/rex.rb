@@ -104,8 +104,11 @@ module Rex
 	# Meterpreter
 	autoload :Post, 'rex/post'
 
-	# PeParsing
+	# PE Parsing
 	autoload :PeParsey, 'rex/peparsey'
+
+	# Exploit techniques
+	autoload :Exploitation, 'rex/exploitation'
 end
 
 
