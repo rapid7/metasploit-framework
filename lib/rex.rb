@@ -102,6 +102,9 @@ module Rex
 
 	# Meterpreter
 	autoload :Post, 'rex/post'
+
+	# PeParsing
+	autoload :PeParsey, 'rex/peparsey'
 end
 
 
