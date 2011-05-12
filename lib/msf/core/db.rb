@@ -1,16 +1,10 @@
-require 'rex/parser/nmap_xml'
-require 'rex/parser/nexpose_xml'
-require 'rex/parser/retina_xml'
-require 'rex/parser/netsparker_xml'
-require 'rex/parser/nessus_xml'
-require 'rex/parser/ip360_xml'
-require 'rex/parser/ip360_aspl_xml'
-require 'rex/socket'
-require 'zip'
-require 'packetfu'
-require 'uri'
+
+autoload :FileUtils, 'fileutils'
+autoload :Zip,       'zip'
+autoload :URI,       'uri'
+autoload :PacketFu,  'packetfu'
+
 require 'tmpdir'
-require 'fileutils'
 
 module Msf
 
@@ -2070,7 +2064,7 @@ class DBManager
 	end
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
-	# :nessus_xml :nessus_xml_v2 :qualys_xml :msf_xml :nessus_nbe :amap_mlog
+	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msf_zip, :libpcap
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
@@ -2140,8 +2134,11 @@ class DBManager
 					@import_filedata[:type] = "Nessus XML (v2)"
 					return :nessus_xml_v2
 				when "SCAN"
-					@import_filedata[:type] = "Qualys XML"
-					return :qualys_xml
+					@import_filedata[:type] = "Qualys Scan XML"
+					return :qualys_scan_xml
+				when "ASSET_DATA_REPORT"
+					@import_filedata[:type] = "Qualys Asset XML"
+					return :qualys_asset_xml
 				when /MetasploitExpressV[1234]/
 					@import_filedata[:type] = "Metasploit XML"
 					return :msf_xml
@@ -4381,10 +4378,114 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
+	def find_qualys_asset_vuln_refs(doc)
+		vuln_refs = {}
+		doc.elements.each("/ASSET_DATA_REPORT/GLOSSARY/VULN_DETAILS_LIST/VULN_DETAILS") do |vuln|
+			next unless vuln.elements['QID'] && vuln.elements['QID'].first
+			qid = vuln.elements['QID'].first.to_s
+			vuln_refs[qid] ||= []
+			if vuln.elements["CVE_ID_LIST/CVE_ID/ID"]
+				vuln.elements["CVE_ID_LIST/CVE_ID/ID"].each do |ref|
+					next unless ref
+					next unless ref.to_s[/^C..-[0-9\-]{9}/]
+					vuln_refs[qid] << ref.to_s.gsub(/^C../, "CVE")
+				end
+			end
+			if vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"]
+				vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"].each do |ref|
+					next unless ref
+					next unless ref.to_s[/^[0-9]{1,9}/]
+					vuln_refs[qid] << "BID-#{ref}"
+				end
+			end
+		end
+		return vuln_refs
+	end
+
+	# Pull out vulnerabilities that have at least one matching
+	# ref -- many "vulns" are not vulns, just audit information.
+	def find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+		host.elements.each("VULN_INFO_LIST/VULN_INFO") do |vi|
+			next unless vi.elements["QID"]
+			vi.elements.each("QID") do |qid|
+				next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
+				handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil) 
+			end
+		end
+	end
+
+	# Takes QID numbers and finds the discovered services in
+	# a qualys_asset_xml. 
+	def find_qualys_asset_ports(i,host,wspace,hobj)
+		return unless (i == 82023 || i == 82004)
+		proto = i == 82023 ? 'tcp' : 'udp'
+		qid = host.elements["VULN_INFO_LIST/VULN_INFO/QID[@id='qid_#{i}']"]
+		qid_result = qid.parent.elements["RESULT[@format='table']"] if qid
+		hports = qid_result.first.to_s if qid_result
+		if hports
+			hports.scan(/([0-9]+)\t(.*?)\t.*?\t([^\t\n]*)/) do |match|
+				if match[2] == nil or match[2].strip == 'unknown'
+					name = match[1].strip
+				else
+					name = match[2].strip
+				end
+				handle_qualys(wspace, hobj, match[0].to_s, proto, 0, nil, nil, name)
+			end
+		end
+	end
+
 	#
-	# Import Qualys' xml output
+	# Import Qualys's Asset Data Report format
+	# 
+	def import_qualys_asset_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		doc = rexmlify(data)
+		vuln_refs = find_qualys_asset_vuln_refs(doc)
+
+		# 2nd pass, actually grab the hosts.
+		doc.elements.each("/ASSET_DATA_REPORT/HOST_LIST/HOST") do |host|
+			hobj = nil
+			addr = host.elements["IP"].text if host.elements["IP"]
+			next unless validate_ips(addr)
+			if bl.include? addr
+				next
+			else
+				yield(:address,addr) if block
+			end
+			hname = ( # Prefer NetBIOS over DNS
+				(host.elements["NETBIOS"].text if host.elements["NETBIOS"]) ||
+			 	(host.elements["DNS"].text if host.elements["DNS"]) ||
+			 	"" ) 
+			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
+			report_import_note(wspace,hobj)
+
+			if host.elements["OPERATING_SYSTEM"]
+				hos = host.elements["OPERATING_SYSTEM"].text
+				report_note(
+					:workspace => wspace,
+					:host => hobj,
+					:type => 'host.os.qualys_fingerprint',
+					:data => { :os => hos }
+				)
+			end
+
+			# Report open ports.
+			find_qualys_asset_ports(82023,host,wspace,hobj) # TCP
+			find_qualys_asset_ports(82004,host,wspace,hobj) # UDP
+
+			# Report vulns
+			find_qualys_asset_vulns(host,wspace,hobj,vuln_refs,&block)
+
+		end # host
+
+	end
+
 	#
-	def import_qualys_xml_file(args={})
+	# Import Qualys' Scan xml output
+	#
+	def import_qualys_scan_xml_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
@@ -4392,10 +4493,10 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
-		import_qualys_xml(args.merge(:data => data))
+		import_qualys_scan_xml(args.merge(:data => data))
 	end
 
-	def import_qualys_xml(args={}, &block)
+	def import_qualys_scan_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
@@ -4849,7 +4950,7 @@ protected
 	#
 	def handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, name=nil)
 		addr = hobj.address
-		port = port.to_i
+		port = port.to_i if port
 
 		info = { :workspace => wspace, :host => hobj, :port => port, :proto => protocol }
 		if name and name != 'unknown'
