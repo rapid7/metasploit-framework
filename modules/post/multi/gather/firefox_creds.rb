@@ -43,6 +43,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		print_status("Determining session platform and type...")
 		case session.platform
 		when /unix|linux|bsd/
 			@platform = :unix
@@ -52,9 +53,14 @@ class Metasploit3 < Msf::Post
 			paths = enum_users_unix
 		when /win/
 			@platform = :windows
-			drive = session.fs.file.expand_path("%SystemDrive%")
-			os = session.sys.config.sysinfo['OS']
-
+			if session.type == "shell"
+				print_error "Only meterpreter sessions are supported on Windows hosts"
+				print_error "Try upgrading the session to a Meterpreter session via \"sessions -u <opt>\""
+				return
+			else
+				drive = session.fs.file.expand_path("%SystemDrive%")
+				os = session.sys.config.sysinfo['OS']
+			end
 			if os =~ /Windows 7|Vista|2008/
 				@appdata = '\\AppData\\Roaming'
 				@users = drive + '\\Users'
@@ -63,10 +69,7 @@ class Metasploit3 < Msf::Post
 				@users = drive + '\\Documents and Settings'
 			end
 
-			if session.type != "meterpreter"
-				print_error "Only meterpreter sessions are supported on windows hosts"
-				return
-			end
+			print_status("Enumerating users checking for Firefox installs...")
 			paths = enum_users_windows
 		else
 			print_error("Unsupported platform #{session.platform}")
