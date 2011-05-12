@@ -17,10 +17,6 @@ module Msf
 module Util
 class EXE
 
-require 'rex'
-require 'rex/peparsey'
-require 'rex/pescan'
-require 'rex/zip'
 require 'metasm'
 require 'digest/sha1'
 

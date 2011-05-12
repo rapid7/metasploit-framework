@@ -1,4 +1,3 @@
-require 'rex/proto/http'
 require 'msf/core'
 require 'msf/base'
 require 'msf/ui'
@@ -7,7 +6,6 @@ module Msf
 module Ui
 module Web
 
-require 'rex/io/bidirectional_pipe'
 require 'msf/ui/web/console'
 
 

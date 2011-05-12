@@ -1,4 +1,3 @@
-require 'rex/socket'
 
 module Msf
 module Session

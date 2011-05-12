@@ -1,6 +1,5 @@
 
 require 'msf/core'
-require 'rex/peparsey'
 
 module Msf
 

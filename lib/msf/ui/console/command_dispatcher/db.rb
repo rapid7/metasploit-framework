@@ -1,6 +1,4 @@
 
-require 'rexml/document'
-require 'rex/parser/nmap_xml'
 require 'msf/core/db_export'
 
 module Msf

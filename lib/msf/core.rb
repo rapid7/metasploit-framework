@@ -14,7 +14,6 @@ require 'msf/sanity'
 
 # The framework-core depends on Rex
 require 'rex'
-require 'rex/ui'
 
 module Msf
 	LogSource = "core"

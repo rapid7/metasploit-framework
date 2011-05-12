@@ -1,4 +1,3 @@
-require 'rex/parser/nmap_xml'
 require 'open3'
 
 module Msf

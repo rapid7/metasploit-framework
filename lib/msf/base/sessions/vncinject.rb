@@ -1,5 +1,4 @@
 require 'msf/base'
-require 'rex/services/local_relay'
 
 module Msf
 module Sessions

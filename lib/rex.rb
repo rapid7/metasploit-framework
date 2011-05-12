@@ -51,6 +51,7 @@ module Rex
 	autoload :JobContainer, 'rex/job_container'
 	autoload :Transformer,  'rex/transformer'
 	autoload :ExtTime,      'rex/time'
+	autoload :Zip,          'rex/zip'
 
 	# Thread safety and synchronization
 	autoload :ReadWriteLock, 'rex/sync/read_write_lock'

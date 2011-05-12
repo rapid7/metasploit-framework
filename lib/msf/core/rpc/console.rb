@@ -1,5 +1,4 @@
 require 'pp'
-require 'rex'
 require 'msf/ui/web/driver'
 
 module Msf

@@ -1,4 +1,3 @@
-require 'rex/parser'
 require 'msf/core'
 require 'pathname'
 

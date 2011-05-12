@@ -4,7 +4,6 @@
 
 require 'msf/base'
 require 'msf/base/sessions/scriptable'
-require 'rex/post/meterpreter'
 
 module Msf
 module Sessions

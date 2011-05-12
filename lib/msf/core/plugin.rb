@@ -1,4 +1,3 @@
-require 'rex/sync/ref'
 
 module Msf
 
