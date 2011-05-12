@@ -105,12 +105,13 @@ class Module
 		true
 	end
 
-	require 'msf/core/module/author'
-	require 'msf/core/module/platform_list'
-	require 'msf/core/module/reference'
-	require 'msf/core/module/target'
-	require 'msf/core/module/auxiliary_action'
-	require 'msf/core/module/has_actions'
+	autoload :Author,          'msf/core/module/author'
+	autoload :Platform,        'msf/core/module/platform'
+	autoload :PlatformList,    'msf/core/module/platform_list'
+	autoload :Reference,       'msf/core/module/reference'
+	autoload :Target,          'msf/core/module/target'
+	autoload :HasActions,      'msf/core/module/has_actions'
+	autoload :AuxiliaryAction, 'msf/core/module/auxiliary_action'
 
 	#
 	# Creates an instance of an abstract module using the supplied information

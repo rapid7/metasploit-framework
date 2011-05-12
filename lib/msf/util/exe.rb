@@ -13,12 +13,14 @@
 #
 ###
 
+require 'rex'
+
+autoload :Metasm, 'metasm'
+require 'digest/sha1'
+
 module Msf
 module Util
 class EXE
-
-require 'metasm'
-require 'digest/sha1'
 
 	##
 	#

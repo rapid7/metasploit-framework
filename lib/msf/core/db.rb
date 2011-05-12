@@ -1,8 +1,10 @@
-require 'zip'
-require 'packetfu'
-require 'uri'
+
+autoload :FileUtils, 'fileutils'
+autoload :Zip,       'zip'
+autoload :URI,       'uri'
+autoload :PacketFu,  'packetfu'
+
 require 'tmpdir'
-require 'fileutils'
 
 module Msf
 

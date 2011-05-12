@@ -14,11 +14,11 @@ require 'msf/core'
 module Msf
 module Util
 
+	# Executable generation and encoding
+	autoload :EXE, 'msf/util/exe'
+
+	# Parse SVN entries
+	autoload :SVN, 'msf/util/svn'
+
 end
 end
-
-# Executable generation and encoding
-require 'msf/util/exe'
-
-# Parse SVN entries
-require 'msf/util/svn'
