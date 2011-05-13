@@ -31,7 +31,7 @@ if (!isset($GLOBALS['readers'])) {
 }
 
 function my_print($str) {
-    #error_log($str);
+    error_log($str);
 }
 
 my_print("Evaling main meterpreter stage");
@@ -41,12 +41,16 @@ my_print("Evaling main meterpreter stage");
 
 function dump_array($arr, $name=null) {
     if (is_null($name)) {
-        my_print(sprintf("Array (%s)", count($arr)));
-    } else {
-        my_print(sprintf("$name (%s)", count($arr)));
+        $name = "Array";
     }
+    my_print(sprintf("$name (%s)", count($arr)));
     foreach ($arr as $key => $val) {
-        my_print(sprintf("    $key ($val)"));
+        if (is_array($val)) {
+            # recurse
+            dump_array($val, "{$name}[{$key}]");
+        } else {
+            my_print(sprintf("    $key ($val)"));
+        }
     }
 }
 function dump_readers() {
@@ -56,6 +60,10 @@ function dump_readers() {
 function dump_resource_map() {
     global $resource_type_map;
     dump_array($resource_type_map, 'Resource map');
+}
+function dump_channels($extra="") {
+    global $channels;
+    dump_array($channels, 'Channels '.$extra);
 }
 
 
@@ -265,7 +273,7 @@ function core_channel_close($req, &$pkt) {
         }
         return ERROR_SUCCESS;
     }
-    dump_array($channels, "Channel list after close");
+    dump_channels("after close");
 
     return ERROR_FAILURE;
 }
@@ -377,18 +385,36 @@ function register_channel($in, $out=null, $err=null) {
     global $channels;
     if ($out == null) { $out = $in; }
     if ($err == null) { $err = $out; }
-    $id = count($channels);
     $channels[] = array(0 => $in, 1 => $out, 2 => $err, 'type' => get_rtype($in));
+
+    # Grab the last index and use it as the new ID.
+    $id = end(array_keys($channels));
     my_print("Created new channel $in, with id $id");
     return $id;
 }
 
+#
+# Channels look like this:
+#
+# Array
+# (
+#   [0] => Array
+#       (
+#            [0] => Resource id #12
+#            [1] => Resource id #13
+#            [2] => Resource id #14
+#            [type] => 'stream'
+#       )
+# )
+#
 function get_channel_id_from_resource($resource) {
     global $channels;
-    for ($i = 0; $i < count($channels); $i++) {
-        #dump_array($channels[$i], "channels[$i]");
-        if (in_array($resource, $channels[$i])) {
-            #my_print("Found channel id $i");
+    if (empty($channels)) {
+        return false;
+    }
+    foreach ($channels as $i => $chan_ary) {
+        if (in_array($resource, $chan_ary)) {
+            my_print("Found channel id $i");
             return $i;
         }
     }
@@ -397,7 +423,8 @@ function get_channel_id_from_resource($resource) {
 
 function get_channel_by_id($chan_id) {
     global $channels;
-    #my_print("Looking up channel id $chan_id");
+    my_print("Looking up channel id $chan_id");
+    dump_channels("in get_channel_by_id");
     if (array_key_exists($chan_id, $channels)) {
         return $channels[$chan_id];
     } else {
@@ -947,4 +974,5 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
     $r = $GLOBALS['readers'];
 } # end main loop
 my_print("Finished");
+my_print("--------------------");
 close($msgsock);
