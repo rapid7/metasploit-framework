@@ -198,13 +198,9 @@ module Stream
 		end
 
 		bsize = (length == -1) ? def_block_size : length
-
-		begin
-			return read(bsize)
-		rescue Exception
-		end
-
-		return ''
+		data  = read(bsize)
+		raise EOFError if data.nil?
+		data
 	end
 
 	#
