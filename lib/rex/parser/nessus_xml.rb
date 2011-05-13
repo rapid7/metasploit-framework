@@ -46,7 +46,7 @@ class NessusXMLStreamParser
 			@bid = Array.new
 			@xref = Array.new
 			@x = Hash.new
-			@x['nasl'] = attributes['pluginID']
+			@x['nasl'] = [attributes['pluginID'],attributes['pluginName']].join(" ")
 			@x['port'] = attributes['port']
 			@x['proto'] = attributes['protocol']
 			@x['svc_name'] = attributes['svc_name']
