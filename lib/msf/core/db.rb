@@ -4799,7 +4799,9 @@ protected
 		end
 		report_service(info)
 
-		return if not nasl
+		if nasl.nil? || nasl.empty? || nasl == 0 || nasl == "0"
+			return
+		end
 
 		data.gsub!("\\n", "\n")
 
@@ -4825,6 +4827,8 @@ protected
 		end
 
 		nss = 'NSS-' + nasl.to_s.strip
+
+		refs << nss.split(" ").first
 
 		vuln_info = {
 			:workspace => wspace,
@@ -4855,7 +4859,9 @@ protected
 			report_service(info)
 		end
 
-		return if nasl == "0"
+		if nasl.nil? || nasl.empty? || nasl == 0 || nasl == "0"
+			return
+		end
 
 		refs = []
 
@@ -4877,6 +4883,8 @@ protected
 		refs.push msfref if msfref
 		
 		nss = 'NSS-' + nasl
+
+		refs << nss.split(" ").first
 
 		vuln = {
 			:workspace => wspace,
