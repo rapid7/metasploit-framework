@@ -228,6 +228,7 @@ public class MsfguiApp extends SingleFrameApplication {
 				}
 			}
 		});
+		MsfFrame.updateSizes(item);
 		recentMenu.add(item);
 		recentMenu.setEnabled(true);
 		if(recentMenu.getItemCount() > NUM_REMEMBERED_MODULES)
