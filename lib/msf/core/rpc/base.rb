@@ -8,9 +8,12 @@ class Base
 		@users     = users
 	end
 
-	def authenticate(token)
-
+	def authenticate(token)		
 		stale = []
+		
+		# Force the encoding to ASCII-8BIT
+		token = token.unpack("C*").pack("C*")
+		
 		@tokens.each_key do |t|
 			user,ctime,mtime,perm = @tokens[t]
 			if ! perm and mtime + 300 < Time.now.to_i
@@ -20,7 +23,7 @@ class Base
 
 		stale.each { |t| @tokens.delete(t) }
 
-		if(not @tokens[token])
+		if not @tokens[token]
 			raise ::XMLRPC::FaultException.new(401, "authentication error")
 		end
 
