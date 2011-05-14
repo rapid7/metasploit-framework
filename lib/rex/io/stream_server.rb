@@ -1,3 +1,5 @@
+require 'thread'
+
 module Rex
 module IO
 
@@ -61,6 +63,7 @@ module StreamServer
 	#
 	def start
 		self.clients = []
+		self.client_waiter = ::Queue.new
 
 		self.listener_thread = Rex::ThreadFactory.spawn("StreamServerListener", false) {
 			monitor_listener
@@ -128,6 +131,7 @@ module StreamServer
 
 	attr_accessor :clients # :nodoc:
 	attr_accessor :listener_thread, :clients_thread # :nodoc:
+	attr_accessor :client_waiter
 
 protected
 
@@ -151,6 +155,9 @@ protected
 
 				# Initialize the connection processing
 				on_client_connect(cli)
+				
+				# Notify the client monitor
+				self.client_waiter.push(cli)
 
 			# Skip exceptions caused by accept() [ SSL ]
 			rescue ::EOFError, ::Errno::ECONNRESET, ::Errno::ENOTCONN, ::Errno::ECONNABORTED
@@ -170,12 +177,14 @@ protected
 	#
 	def monitor_clients
 		begin
+		
+			# Wait for a notify if our client list is empty
 			if (clients.length == 0)
-				Rex::ThreadSafe::sleep(0.25)
+				self.client_waiter.pop
 				next
 			end
 
-			sd = Rex::ThreadSafe.select(clients)
+			sd = Rex::ThreadSafe.select(clients, nil, nil, nil)
 
 			sd[0].each { |cfd|
 				begin

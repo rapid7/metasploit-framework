@@ -278,7 +278,7 @@ protected
 			#
 			# XXX: Handle ParseCode::Partial
 			#
-			data = cli.get
+			data = cli.read(65535)
 
 			raise ::EOFError if not data
 			raise ::EOFError if data.empty?
