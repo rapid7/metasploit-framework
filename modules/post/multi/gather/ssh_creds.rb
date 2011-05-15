@@ -1,5 +1,5 @@
 ##
-# $Id: ssh_creds.rb 12455 2011-04-27 16:25:15Z Jim Halfpenny $
+# $Id$
 ##
 
 ##
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Jim Halfpenny'],
-			'Version'        => '10',
+			'Version'        => '$Revision',
 			'Platform'       => ['linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))
