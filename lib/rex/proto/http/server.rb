@@ -275,9 +275,6 @@ protected
 	#
 	def on_client_data(cli)
 		begin
-			#
-			# XXX: Handle ParseCode::Partial
-			#
 			data = cli.read(65535)
 
 			raise ::EOFError if not data
@@ -286,8 +283,13 @@ protected
 			case cli.request.parse(data)
 				when Packet::ParseCode::Completed
 					dispatch_request(cli, cli.request)
-
 					cli.reset_cli
+					
+				when Packet::ParseCode::Partial
+					# Return and wait for the on_client_data handler to be called again
+					# The Request object tracks the state of the request for us
+					return
+
 				when Packet::ParseCode::Error
 					close_client(cli)
 			end
