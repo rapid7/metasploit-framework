@@ -31,7 +31,7 @@ class Job < Base
 			info = {
 				"jid"  => obj.jid,
 				"name" => obj.name,
-				"start_time" => obj.start_time
+				"start_time" => obj.start_time.to_i
 			}
 			if obj.ctx && obj.ctx[0] 
 				if obj.ctx[0].respond_to?(:get_resource)

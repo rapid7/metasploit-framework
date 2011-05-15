@@ -15,8 +15,10 @@ class MessagePackService
 
 	attr_accessor :service, :state, :srvhost, :srvport, :uri, :options
 	attr_accessor :handlers, :default_handler, :method_blacklist
-
+	attr_accessor :dispatcher_timeout
+	
 	def initialize(host, port, options={})
+		self.dispatcher_timeout = 7200
 		self.handlers = {}
 		self.options  = {
 			:ssl  => false,
@@ -98,7 +100,7 @@ class MessagePackService
 				raise ArgumentError, "Prohibited Method Call"
 			end
 			
-			self.handlers[group].send(funct, *msg)
+			::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(funct, *msg) }
 		
 		rescue ::Exception => e
 			process_exception(e)

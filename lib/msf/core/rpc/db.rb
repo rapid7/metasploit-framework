@@ -102,7 +102,7 @@ public
 		ret[:hosts] = []
 		wspace.hosts.all(:conditions => conditions, :order => :address).each do |h|
 			host = {}
-			host[:created_at] = h.created_at.to_s
+			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
 			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
@@ -112,7 +112,7 @@ public
 			host[:os_flavor] = h.os_flavor.to_s
 			host[:os_sp] = h.os_sp.to_s
 			host[:os_lang] = h.os_lang.to_s
-			host[:updated_at] = h.updated_at.to_s
+			host[:updated_at] = h.updated_at.to_i
 			host[:purpose] = h.purpose.to_s
 			host[:info] = h.info.to_s
 			ret[:hosts]  << host
@@ -166,8 +166,8 @@ public
 			service = {}
 			host = s.host
 			service[:host] = host.address || host.address6 || "unknown"
-			service[:created_at] = s[:created_at].to_s
-			service[:updated_at] = s[:updated_at].to_s
+			service[:created_at] = s[:created_at].to_i
+			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
 			service[:proto] = s[:proto].to_s
 			service[:state] = s[:state].to_s
@@ -260,7 +260,7 @@ public
 				vuln[:port] = nil
 				vuln[:proto] = nil
 			end
-			vuln[:time] = v.created_at
+			vuln[:time] = v.created_at.to_i
 			vuln[:host] = v.host.address || v.host.address6 || nil	
 			vuln[:name] = v.name
 			vuln[:refs] = reflist.join(',')
@@ -279,8 +279,8 @@ public
 		@framework.db.workspaces.each do |j|
 			ws = {}
 			ws[:name] = j.name
-			ws[:created_at] = j.created_at.to_s
-			ws[:updated_at] = j.updated_at.to_s
+			ws[:created_at] = j.created_at.to_i
+			ws[:updated_at] = j.updated_at.to_i
 			res[:workspaces] << ws
 		end
 		res
@@ -302,8 +302,8 @@ public
 		if(wspace)
 			w = {}
 			w[:name] = wspace.name
-			w[:created_at] = wspace.created_at.to_s
-			w[:modified_at] = wspace.modified_at.to_s
+			w[:created_at] = wspace.created_at.to_i
+			w[:modified_at] = wspace.modified_at.to_i
 			ret[:workspace] << w
 		end
 		ret
@@ -358,7 +358,7 @@ public
 		h = @framework.db.get_host(opts)
 		if(h)
 			host = {}
-			host[:created_at] = h.created_at.to_s
+			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
 			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
@@ -368,7 +368,7 @@ public
 			host[:os_flavor] = h.os_flavor.to_s
 			host[:os_sp] = h.os_sp.to_s
 			host[:os_lang] = h.os_lang.to_s
-			host[:updated_at] = h.updated_at.to_s
+			host[:updated_at] = h.updated_at.to_i
 			host[:purpose] = h.purpose.to_s
 			host[:info] = h.info.to_s
 			ret[:host] << host
@@ -435,8 +435,8 @@ public
 			service = {}
 			host = s.host
 			service[:host] = host.address || host.address6 || "unknown"
-			service[:created_at] = s[:created_at].to_s
-			service[:updated_at] = s[:updated_at].to_s
+			service[:created_at] = s[:created_at].to_i
+			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
 			service[:proto] = s[:proto].to_s
 			service[:state] = s[:state].to_s
@@ -490,8 +490,8 @@ public
 				note[:port] = n.service.port
 				note[:proto] = n.service.proto
 			end
-			note[:created_at] = n[:created_at].to_s
-			note[:updated_at] = n[:updated_at].to_s
+			note[:created_at] = n[:created_at].to_i
+			note[:updated_at] = n[:updated_at].to_i
 			note[:ntype] = n[:ntype].to_s
 			note[:data] = n[:data]
 			note[:critical] = n[:critical].to_s
@@ -513,8 +513,8 @@ public
 			client = {}
 			host = c.host
 			client[:host] = host.address
-			client[:created_at] = c.created_at.to_s
-			client[:updated_at] = c.updated_at.to_s
+			client[:created_at] = c.created_at.to_i
+			client[:updated_at] = c.updated_at.to_i
 			client[:ua_string] = c.ua_string.to_s
 			client[:ua_name] = c.ua_name.to_s
 			client[:ua_ver] = c.ua_ver.to_s
@@ -625,7 +625,7 @@ public
 
 		notes.each do |n|
 			note = {}
-			note[:time] = n.created_at.to_s
+			note[:time] = n.created_at.to_i
 			note[:host] = ""
 			note[:service] = ""
 			note[:host] = n.host.address || n.host.address6 if(n.host)
@@ -919,8 +919,8 @@ public
 		@framework.db.events(wspace).each do |e|
 			event = {}
 			event[:host] = e.host.address || e.host.address6 if(e.host)
-			event[:created_at] = e.created_at
-			event[:updated_at] = e.updated_at
+			event[:created_at] = e.created_at.to_i
+			event[:updated_at] = e.updated_at.to_i
 			event[:name] = e.name
 			event[:critical] = e.critical if(e.critical)	
 			event[:username] = e.username if(e.username)	
@@ -966,8 +966,8 @@ public
 			loot[:ltype] = l.ltype
 			loot[:ctype] = l.ctype
 			loot[:data] = l.data
-			loot[:created_at] = l.created_at
-			loot[:updated_at] = l.updated_at
+			loot[:created_at] = l.created_at.to_i
+			loot[:updated_at] = l.updated_at.to_i
 			loot[:name] = l.name
 			loot[:info] = l.info
 			ret[:loots] << loot
@@ -984,6 +984,7 @@ public
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
 	end
+	
 	#right now workspace is the only option supported
 	def creds(token,xopts)
 		authenticate(token)
@@ -1007,6 +1008,7 @@ public
 		end
 		ret
 	end
+	
 	def import_data(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1016,6 +1018,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_msfe_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1025,6 +1028,7 @@ public
 		@framework.db.import_msfe_xml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nexpose_simplexml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1034,6 +1038,7 @@ public
 		@framework.db.import_nexpose_simplexml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nexpose_rawxml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1043,6 +1048,7 @@ public
 		@framework.db.import_nexpose_rawxml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nmap_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1061,6 +1067,7 @@ public
 		@framework.db.import_nessus_nbe(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nessus_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1070,6 +1077,7 @@ public
 		@framework.db.import_nessus_xml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nessus_xml_v2(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1079,6 +1087,7 @@ public
 		@framework.db.import_nessus_xml_v2(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_qualys_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1088,6 +1097,7 @@ public
 		@framework.db.import_qualys_xml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_ip_list(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1097,6 +1107,7 @@ public
 		@framework.db.import_ip_list(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_amap_log(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1106,6 +1117,7 @@ public
 		@framework.db.import_nexpose_rawxml(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_amap_mlog(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1155,8 +1167,8 @@ public
 				vuln[:port] = v.service.port
 				vuln[:proto] = v.service.proto
 			end
-			vuln[:created_at] = v[:created_at].to_s
-			vuln[:updated_at] = v[:updated_at].to_s
+			vuln[:created_at] = v[:created_at].to_i
+			vuln[:updated_at] = v[:updated_at].to_i
 			vuln[:name] = v[:name].to_s
 			vuln[:info] = v[:info].to_s
 			vuln[:refs] = []
@@ -1167,6 +1179,7 @@ public
 		end
 		ret
 	end
+	
 	def clients(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1204,8 +1217,8 @@ public
 			client[:ua_string] = c.ua_string
 			client[:ua_name] = c.ua_name
 			client[:ua_ver] = c.ua_ver
-			client[:created_at] = c.created_at.to_s
-			client[:updated_at] = c.updated_at.to_s
+			client[:created_at] = c.created_at.to_i
+			client[:updated_at] = c.updated_at.to_i
 			ret[:clients] << client
 		end
 		clean_nils(ret)
@@ -1322,6 +1335,7 @@ public
 		end
 		return {:driver => 'None' }
 	end
+	
 	def disconnect(token)
 		authenticate(token)
 		if (@framework.db)
