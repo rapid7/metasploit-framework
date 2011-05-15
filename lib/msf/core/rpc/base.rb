@@ -8,6 +8,8 @@ class Base
 		@users     = users
 	end
 
+private
+
 	def authenticate(token)		
 		stale = []
 		

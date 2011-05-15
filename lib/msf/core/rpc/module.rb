@@ -248,7 +248,7 @@ class Module < Base
 		end
 	end
 
-protected
+private
 
 	def _find_module(mtype,mname)
 		mod = @framework.modules.create(mname)

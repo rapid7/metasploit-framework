@@ -30,6 +30,7 @@ class MessagePackService
 		self.srvhost = host
 		self.srvport = port
 		self.uri     = self.options[:uri]
+		self.debug   = self.options[:debug]
 		self.method_blacklist = (Object.methods + Object.new.methods).uniq.map{|x| x.to_s }
 		self.state 
 	end
@@ -92,6 +93,17 @@ class MessagePackService
 			
 			group, funct = msg.shift.split(".", 2)
 			
+			
+			if self.debug and group == "debug" and funct == "methods"
+				res = []
+				self.handlers.each_pair do |k,v| 
+					(v.methods.sort.map{|x| x.to_s} - self.method_blacklist).each do |m|
+						res << "#{k}.#{m}"
+					end
+				end
+				return res
+			end
+			
 			if not self.handlers[group]
 				raise ArgumentError, "Unknown API Call"
 			end
@@ -103,6 +115,7 @@ class MessagePackService
 			if self.method_blacklist.include?(funct)
 				raise ArgumentError, "Prohibited Method Call"
 			end
+			
 			
 			::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(funct, *msg) }
 		

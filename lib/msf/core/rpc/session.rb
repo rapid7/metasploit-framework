@@ -208,7 +208,7 @@ class Session < Base
 		ret
 	end
 	
-protected
+private
 
 	def _find_module(mtype,mname)
 		mod = @framework.modules.create(mname)
