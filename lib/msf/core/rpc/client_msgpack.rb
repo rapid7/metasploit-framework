@@ -23,6 +23,8 @@ class MessagePackClient
 			:ssl  => false,
 			:ssl_version => 'SSLv3'
 		}.merge(info)
+		
+		self.token = self.info[:token]
 	end
 
 

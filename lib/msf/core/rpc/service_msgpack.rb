@@ -63,12 +63,14 @@ class MessagePackService
 	end
 	
 	def on_request_uri(cli, req)
+		res = Rex::Proto::Http::Response.new()
+		res["Content-Type"] = "binary/message-pack"
+
 		begin
-			res = Rex::Proto::Http::Response.new()
-			res["Content-Type"] = "binary/message-pack"
 			res.body = process(req.body).to_msgpack
 		rescue XMLRPC::FaultException => e
-			res = Rex::Proto::Http::Response.new(500, "Error: #{e.class} #{e} #{e.backtrace}")
+			elog("RPC Exception: #{e.class} #{e} #{e.backtrace} #{cli.inspect} #{req.inspect}")
+			res.body = process_exception(e).to_msgpack
 		end
 		cli.send_response(res)
 	end
@@ -79,6 +81,8 @@ class MessagePackService
 
 	
 	def process(data)
+		msg = nil
+		
 		begin
 			msg = MessagePack.unpack(data)
 			
@@ -103,6 +107,7 @@ class MessagePackService
 			::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(funct, *msg) }
 		
 		rescue ::Exception => e
+			elog("RPC Exception: #{e.class} #{e} #{e.backtrace} #{msg.inspect} #{data.inspect}")
 			process_exception(e)
 		end
 	end
