@@ -18,7 +18,7 @@ module Fs
 ###
 class FileStat < Rex::Post::FileStat
 
-	class <<self
+	class << self
 		attr_accessor :client
 	end
 
