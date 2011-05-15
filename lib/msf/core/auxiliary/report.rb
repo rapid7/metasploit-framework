@@ -92,6 +92,8 @@ module Auxiliary::Report
 		framework.db.report_vuln(opts)
 	end
 
+	# This will simply log a deprecation warning, since report_exploit()
+	# is no longer implemented.
 	def report_exploit(opts={})
 		return if not db
 		opts = {:workspace => myworkspace}.merge(opts)

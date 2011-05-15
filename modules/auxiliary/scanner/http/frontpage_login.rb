@@ -134,7 +134,8 @@ class Metasploit3 < Msf::Auxiliary
 							:proto	=> 'tcp',
 							:name	=> self.fullname,
 							:info   => "#{info} FrontPage ACCESS ALLOWED [#{retcode}]",
-							:refs   => self.references
+							:refs   => self.references,
+							:exploited_at => Time.now.utc
 						}
 					)
 				when /^401/

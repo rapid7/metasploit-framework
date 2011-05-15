@@ -75,7 +75,8 @@ class Metasploit3 < Msf::Auxiliary
 						:proto  => 'tcp',
 						:name	=> self.fullname,
 						:info	=> "http://#{rhost}:#{rport}/exec/show/version/CR",
-						:refs   => self.references
+						:refs   => self.references,
+						:exploited_at => Time.now.utc
 					}
 				)
 

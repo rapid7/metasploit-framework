@@ -61,6 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 
 				if(res.headers['Allow'].index('TRACE'))
+					print_status "#{target_host}:#{rport} - TRACE method allowed."
 					report_vuln(
 						:host	=> target_host,
 						:port	=> rport,
@@ -68,7 +69,8 @@ class Metasploit3 < Msf::Auxiliary
 						:sname	=> 'http',
 						:name	=> self.fullname,
 						:info	=> res.headers['Allow'],
-						:refs   => self.references
+						:refs   => self.references,
+						:exploited_at => Time.now.utc
 					)
 				end
 			end

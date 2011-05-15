@@ -490,23 +490,10 @@ class DBManager
 				:host => host.address,
 				:name => session.via_exploit,
 				:refs => mod.references,
-				:workspace => wspace
+				:workspace => wspace,
+				:exploited_at => Time.now.utc
 			}
 			framework.db.report_vuln(vuln_info)
-			# Exploit info is like vuln info, except it's /just/ for storing
-			# successful exploits in an unserialized way. Yes, there is
-			# duplication, but it makes exporting a score card about a
-			# million times easier. TODO: See if vuln/exploit can get fixed up
-			# to one useful table.
-			exploit_info = {
-				:name => session.via_exploit,
-				:payload => session.via_payload,
-				:workspace => wspace,
-				:host => host,
-				:service => service,
-				:session_uuid => session.uuid
-			}
-			framework.db.report_exploit(exploit_info)
 		end
 
 		s
@@ -1045,6 +1032,7 @@ class DBManager
 		name = opts[:name] || return
 		info = opts[:info]
 		wspace = opts.delete(:workspace) || workspace
+		exploited_at = opts[:exploited_at] || opts["exploited_at"]
 		rids = nil
 		if opts[:refs]
 			rids = []
@@ -1084,6 +1072,7 @@ class DBManager
 		end
 
 		vuln.info = info.to_s if info
+		vuln.exploited_at = exploited_at if exploited_at
 
 		if opts[:port]
 			proto = nil
@@ -1140,60 +1129,16 @@ class DBManager
 		Ref.find_by_name(name)
 	end
 
+	# report_exploit() used to be used to track sessions and which modules
+	# opened them. That information is now available with the session table
+	# directly. TODO: kill this completely some day -- for now just warn if
+	# some other UI is actually using it.
 	def report_exploit(opts={})
-		return if not active
-		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
-		wspace = opts.delete(:workspace) || workspace
-		host = nil
-		addr = nil
-		sname = opts.delete(:sname)
-		port = opts.delete(:port)
-		proto = opts.delete(:proto) || "tcp"
-		name = opts.delete(:name)
-		payload = opts.delete(:payload)
-		session_uuid = opts.delete(:session_uuid) 
-
-		if opts[:host].kind_of? Host
-			host = opts[:host]
-		else
-			host = report_host({:workspace => wspace, :host => opts[:host]})
-			addr = normalize_host(opts[:host])
-		end
-
-		if opts[:service].kind_of? Service
-			service = opts[:service]
-		elsif port
-			report_service(:host => host, :port => port, :proto => proto, :name => sname)
-			service = get_service(wspace, host, proto, port)
-		else
-			service = nil
-		end
-
-		ret = {}
-=begin		
-		if host
-			host.updated_at = host.created_at
-			host.state      = HostState::Alive
-			host.save!
-		else
-			host = get_host(:workspace => wspace, :address => addr)
-		end
-=end
-
-		exploit_info = {
-			:workspace => wspace,
-			:host_id => host.id,
-			:name => name,
-			:payload => payload,
-		}
-		exploit_info[:service_id] = service.id if service
-		exploit_info[:session_uuid] = session_uuid if session_uuid 
-		exploit_record = ExploitedHost.create(exploit_info)
-		exploit_record.save!
-
-		ret[:exploit] = exploit_record
+		wlog("Deprecated method call: report_exploit()\n" + 
+			"report_exploit() options: #{opts.inspect}\n" + 
+			"report_exploit() call stack:\n\t#{caller.join("\n\t")}"
+		)
 	end
-
 
 	#
 	# Deletes a host and associated data matching this address/comm
@@ -2872,11 +2817,17 @@ class DBManager
 				vuln_data[:host] = hobj
 				vuln_data[:info] = nils_for_nulls(unserialize_object(vuln.elements["info"], allow_yaml))
 				vuln_data[:name] = nils_for_nulls(vuln.elements["name"].text.to_s.strip)
-				%W{created-at updated-at}.each { |datum|
-					if vuln.elements[datum].text
+				%W{created-at updated-at exploited-at}.each { |datum|
+					if vuln.elements[datum] and vuln.elements[datum].text
 						vuln_data[datum.gsub("-","_")] = nils_for_nulls(vuln.elements[datum].text.to_s.strip)
 					end
 				}
+				if vuln.elements["refs"]
+					vuln_data[:refs] = []
+					vuln.elements.each("refs/ref") do |ref|
+						vuln_data[:refs] << nils_for_nulls(ref.text.to_s.strip)
+					end
+				end
 				report_vuln(vuln_data)
 			end
 			host.elements.each('creds/cred') do |cred|

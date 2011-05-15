@@ -108,7 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 							:proto	=> 'tcp',
 							:name	=> self.fullname,
 							:info	=> "#{tpath}#{bogus} / Code: #{res.code}",
-							:refs   => self.references
+							:refs   => self.references,
+							:exploited_at => Time.now.utc
 						}
 					)
 

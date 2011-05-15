@@ -82,7 +82,8 @@ class Metasploit3 < Msf::Auxiliary
 						:proto => 'tcp',
 						:name	=> self.fullname,
 						:info => sec_type.join(","),
-						:refs => self.references
+						:refs => self.references,
+						:exploited_at => Time.now.utc
 					})
 			end
 
