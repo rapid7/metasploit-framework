@@ -45,8 +45,8 @@ class Metasploit3 < Msf::Post
 				OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
 				OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes', 5]),
 				OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
-				OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID'
-						'explorer', ['explorer','winlogon','pid']])
+				OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
+								'explorer', ['explorer','winlogon','pid']])
 
 			], self.class)
 		register_advanced_options(
