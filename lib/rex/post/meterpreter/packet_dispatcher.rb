@@ -60,11 +60,17 @@ module PacketDispatcher
 
 		bytes = 0
 		raw   = packet.to_r
+		err   = nil
 
 		if (raw)
+		
 			begin
 				bytes = self.sock.write(raw)
 			rescue ::Exception => e
+				err = e	
+			end
+			
+			if bytes.to_i == 0
 				# Mark the session itself as dead
 				self.alive = false
 				
@@ -72,7 +78,7 @@ module PacketDispatcher
 				@finish = true
 				
 				# Reraise the error to the top-level caller
-				raise e		
+				raise err if err		
 			end
 		end
 
@@ -113,7 +119,7 @@ module PacketDispatcher
 		waiter = add_response_waiter(packet)
 
 		# Transmit the packet
-		if (send_packet(packet) <= 0)
+		if (send_packet(packet).to_i <= 0)
 			# Remove the waiter if we failed to send the packet.
 			remove_response_waiter(waiter)
 			return nil
