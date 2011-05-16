@@ -80,13 +80,13 @@ class Metasploit3 < Msf::Auxiliary
 		cmd = 'HELO' + " " + "localhost" + "\r\n"
 		smtp_send(cmd,true)
 		print_status(banner)
-		@domain = @result.split()[1].split(".")[1,3].join(".")
+		@domain = @result.split()[1].split(".")[1..-1].join(".")
 		print_status("Domain Name: #{@domain}")
 
 		begin
 			cmd = 'VRFY' + " " + "root" + "\r\n"
 			smtp_send(cmd,!@connected)
-			unless (@result.match(%r{Cannot}).nil?) or (@result.match(%r{recognized}).nil?)
+			if (@result.match(%r{Cannot})) or (@result.match(%r{recognized}))
 				print_status("VRFY command disabled") if datastore['VERBOSE']
 			else
 				print_status("VRFY command enabled") if datastore['VERBOSE']
@@ -162,6 +162,18 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Trying to use to RCPT TO command") if (datastore['VERBOSE'])
 		cmd = 'MAIL FROM:' + " root@" + @domain + "\r\n"
 		smtp_send(cmd,!@connected)
+		if (@coderesult == '501') && @domain.split(".").count > 2
+			print_error "#{target} - MX domain failure for #{@domain}, trying #{@domain.split(/\./).slice(-2,2).join(".")}"
+			cmd = 'MAIL FROM:' + " root@" + @domain.split(/\./).slice(-2,2).join(".") + "\r\n"
+			smtp_send(cmd,!@connected)	
+			if (@coderesult == '501')
+				print_error "#{target} - MX domain failure for #{@domain.split(/\./).slice(-2,2).join(".")}"
+				return :abort
+			end
+		elsif (@coderesult == '501')
+			print_error "#{target} - MX domain failure for #{@domain}"
+			return :abort
+		end	
 	end
 
 	def do_rcpt_enum(user)
@@ -169,7 +181,9 @@ class Metasploit3 < Msf::Auxiliary
 		smtp_send(cmd,!@connected)
 		print_status("#{target} - SMTP - Trying name: '#{user}'") if (datastore['VERBOSE'])
 		case @coderesult.to_i
-		when (500..599)
+		# 550 is User unknown, which obviously isn't fatal when trying to
+		# enumerate users, so only abort on other 500-series errors.  See #4031
+		when (500..549, (551..599)
 			print_error "#{target} : #{@result.strip if @result} "
 			print_error "#{target} : Enumeration not possible"
 			return :abort
