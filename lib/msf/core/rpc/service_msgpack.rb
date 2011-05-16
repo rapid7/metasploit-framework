@@ -15,7 +15,7 @@ class MessagePackService
 
 	attr_accessor :service, :state, :srvhost, :srvport, :uri, :options
 	attr_accessor :handlers, :default_handler, :method_blacklist
-	attr_accessor :dispatcher_timeout
+	attr_accessor :dispatcher_timeout, :debug
 	
 	def initialize(host, port, options={})
 		self.dispatcher_timeout = 7200
