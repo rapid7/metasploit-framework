@@ -14,7 +14,7 @@ private
 		@framework.db.workspace
 	end
 
-	def fixOpts(opts)
+	def fix_options(opts)
 		newopts = {}
 		opts.each do |k,v|
 			newopts[k.to_sym] = v
@@ -22,7 +22,7 @@ private
 		newopts
 	end
 
-	def opts2Hosts(opts)
+	def opts_to_hosts(opts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
 		if opts[:host] or opts[:address]
@@ -41,7 +41,7 @@ private
 		return hosts
 	end
 
-	def opts2Services(hosts,opts)
+	def opts_to_services(hosts,opts)
 		wspace = workspace(opts[:workspace]) 
 		services = []
 		if opts[:host] or opts[:address] or opts[:addresses]
@@ -90,7 +90,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 
 		conditions = {}
 		conditions[:state] = [Msf::HostState::Alive, Msf::HostState::Unknown] if opts[:only_up]
@@ -124,7 +124,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace])
 		opts[:workspace] = wspace if opts[:workspace]
 		hosts = []
@@ -183,7 +183,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace])
 		opts[:workspace] = wspace if opts[:workspace]
 
@@ -353,7 +353,7 @@ public
 
 		ret = {}
 		ret[:host] = []
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		h = @framework.db.get_host(opts)
 		if(h)
@@ -379,7 +379,7 @@ public
 	def report_host(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 
 		res = @framework.db.report_host(opts)
@@ -391,7 +391,7 @@ public
 	def report_service(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		res = @framework.db.report_service(opts)
 		return { :result => 'success' } if(res)
@@ -402,7 +402,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace])
 		opts[:workspace] = wspace if opts[:workspace]
 
@@ -451,7 +451,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 
 		ret = {}
@@ -504,7 +504,7 @@ public
 	def get_client(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		ret = {}
 		ret[:client] = []
@@ -526,7 +526,7 @@ public
 	def report_client(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		res = @framework.db.report_client(opts)
 		return { :result => 'success' } if(res)
@@ -537,7 +537,7 @@ public
 	def report_note(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		if (opts[:host] or opts[:address]) and opts[:port] and opts[:proto]
 			addr = opts[:host] || opts[:address]
@@ -555,7 +555,7 @@ public
 	def notes(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:workspace] = wspace
 
@@ -640,7 +640,7 @@ public
 	def report_auth_info(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		res = @framework.db.report_auth_info(opts)
 		return { :result => 'success' } if(res)
@@ -650,7 +650,7 @@ public
 	def get_auth_info(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		ret = {}
 		ret[:auth_info] = []
@@ -673,21 +673,21 @@ public
 	def del_vuln(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
 		services = []
 		vulns = []
 			
 		if opts[:host] or opts[:address] or opts[:addresses]
-			hosts = opts2Hosts(opts)
+			hosts = opts_to_hosts(opts)
 		end
 
 		if opts[:port] or opts[:proto]
 			if opts[:host] or opts[:address] or opts[:addresses]
-				services = opts2Services(hosts,opts)
+				services = opts_to_services(hosts,opts)
 			else
-				services = opts2Services([],opts)
+				services = opts_to_services([],opts)
 			end
 		end
 
@@ -743,21 +743,21 @@ public
 	def del_note(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
 		services = []
 		notes = []
 			
 		if opts[:host] or opts[:address] or opts[:addresses]
-			hosts = opts2Hosts(opts)
+			hosts = opts_to_hosts(opts)
 		end
 
 		if opts[:port] or opts[:proto]
 			if opts[:host] or opts[:address] or opts[:addresses]
-				services = opts2Services(hosts,opts)
+				services = opts_to_services(hosts,opts)
 			else
-				services = opts2Services([],opts)
+				services = opts_to_services([],opts)
 			end
 		end
 
@@ -812,7 +812,7 @@ public
 	def del_service(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
 		services = []
@@ -871,7 +871,7 @@ public
 	def del_host(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts  = []
 		if opts[:host] or opts[:address]
@@ -900,7 +900,7 @@ public
 	def report_vuln(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		res = @framework.db.report_vuln(opts)
 		return { :result => 'success' } if(res)
@@ -932,7 +932,7 @@ public
 	def report_event(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		res = @framework.db.report_event(opts)
 		return { :result => 'success' } if(res)
@@ -943,7 +943,7 @@ public
 	def report_loot(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		if opts[:host] && opts[:port] && opts[:proto]
 			opts[:service] = @framework.db.find_or_create_service(opts)
 		end
@@ -979,7 +979,7 @@ public
 	def report_cred(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		res = framework.db.find_or_create_cred(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
@@ -989,7 +989,7 @@ public
 	def creds(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace])
 		ret = {}
 		ret[:creds] = []
@@ -1012,7 +1012,7 @@ public
 	def import_data(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
 		@framework.db.import(opts)
@@ -1022,109 +1022,110 @@ public
 	def import_msfe_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_msfe_xml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_nexpose_simplexml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nexpose_simplexml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_nexpose_rawxml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nexpose_rawxml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_nmap_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nmap_xml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
+	
 	def import_nessus_nbe(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nessus_nbe(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_nessus_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nessus_xml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_nessus_xml_v2(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nessus_xml_v2(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_qualys_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_qualys_xml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_ip_list(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_ip_list(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_amap_log(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_nexpose_rawxml(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 	
 	def import_amap_mlog(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 		opts[:data] = Rex::Text.decode_base64(opts[:data])
-		@framework.db.import_amap_mlog(opts)
+		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
 
@@ -1132,7 +1133,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		opts[:workspace] = workspace(opts[:workspace]) if opts[:workspace]
 
 		ret = {}
@@ -1184,7 +1185,7 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts = []
 		clients = []
@@ -1192,7 +1193,7 @@ public
 		ret[:clients] = []
 
 		if opts[:host] or opts[:address] or opts[:addresses]
-			hosts = opts2Hosts(opts)
+			hosts = opts_to_hosts(opts)
 		else
 			hosts = wspace.hosts
 		end
@@ -1228,13 +1229,13 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		wspace = workspace(opts[:workspace]) 
 		hosts = []
 		clients = []
 
 		if opts[:host] or opts[:address] or opts[:addresses]
-			hosts = opts2Hosts(opts)
+			hosts = opts_to_hosts(opts)
 		else
 			hosts = wspace.hosts
 		end
@@ -1269,7 +1270,7 @@ public
 
 	def driver(token,xopts)
 		authenticate(token)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		if opts[:driver]
 			if @framework.db.drivers.include?(opts[:driver])
 				@framework.db.driver = opts[:driver]
@@ -1286,7 +1287,7 @@ public
 
 	def connect(token,xopts)
 		authenticate(token)
-		opts = fixOpts(xopts)
+		opts = fix_options(xopts)
 		if(not @framework.db.driver and not opts[:driver])
 			return { :result => 'failed' }
 		end
