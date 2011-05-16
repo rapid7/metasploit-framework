@@ -35,6 +35,8 @@ module DispatcherShell
 		#
 		# Returns nil for an empty set of commands.
 		#
+		# This method should be overridden
+		#
 		def commands
 		end
 	
@@ -84,7 +86,9 @@ module DispatcherShell
 		# Displays the help banner.  With no arguments, this is just a list of
 		# all commands grouped by dispatcher.  Otherwise, tries to use a method
 		# named cmd_#{+cmd+}_help for the first dispatcher that has a command
-		# named +cmd+.
+		# named +cmd+.  If no such method exists, uses +cmd+ as a regex to
+		# compare against each enstacked dispatcher's name and dumps commands
+		# of any that match.
 		#
 		def cmd_help(cmd=nil, *ignored)
 			if cmd
@@ -101,6 +105,16 @@ module DispatcherShell
 						dispatcher.send("cmd_#{cmd}_help")
 						help_found = true
 						break
+					end
+				end
+
+				unless cmd_found
+					# We didn't find a cmd, try it as a dispatcher name
+					shell.dispatcher_stack.each do |dispatcher|
+						if dispatcher.name =~ /#{cmd}/i
+							print_line(dispatcher.help_to_s)
+							cmd_found = help_found = true
+						end
 					end
 				end
 				print_error("No help for #{cmd}, try -h") if cmd_found and not help_found
@@ -127,6 +141,37 @@ module DispatcherShell
 
 		alias cmd_? cmd_help
 
+		#
+		# Return a pretty, user-readable table of commands provided by this
+		# dispatcher.
+		#
+		def help_to_s(opts={})
+			# If this dispatcher has no commands, we can't do anything useful.
+			return "" if commands.nil? or commands.length == 0
+
+			# Display the commands
+			tbl = Table.new(
+				'Header'  => "#{self.name} Commands",
+				'Indent'  => opts['Indent'] || 4,
+				'Columns' => 
+					[
+						'Command',
+						'Description'
+					],
+				'ColProps' =>
+					{
+						'Command' =>
+							{
+								'MaxWidth' => 12
+							}
+					})
+
+			commands.sort.each { |c|
+				tbl << c
+			}
+
+			return "\n" + tbl.to_s + "\n"
+		end
 
 		#
 		# No tab completion items by default
@@ -391,45 +436,20 @@ module DispatcherShell
 	#
 	# Return a readable version of a help banner for all of the enstacked
 	# dispatchers.
+	# 
+	# See +CommandDispatcher#help_to_s+
 	#
 	def help_to_s(opts = {})
 		str = ''
 
 		dispatcher_stack.reverse.each { |dispatcher|
-			# No commands?  Suckage.
-			next if ((dispatcher.respond_to?('commands') == false) or
-			         (dispatcher.commands == nil) or
-			         (dispatcher.commands.length == 0))
-
-			# Display the commands
-			tbl = Table.new(
-				'Header'  => "#{dispatcher.name} Commands",
-				'Indent'  => opts['Indent'] || 4,
-				'Columns' => 
-					[
-						'Command',
-						'Description'
-					],
-				'ColProps' =>
-					{
-						'Command' =>
-							{
-								'MaxWidth' => 12
-							}
-					})
-
-			dispatcher.commands.sort.each { |c|
-				tbl << c
-			}
-
-			str << "\n" + tbl.to_s + "\n"
+			str << dispatcher.help_to_s
 		}
 
 		return str
 	end
 
 
-		
 	#
 	# Returns nil for an empty set of blocked commands.
 	#
