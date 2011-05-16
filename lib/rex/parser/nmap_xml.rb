@@ -63,57 +63,61 @@ class NmapXMLStreamParser
 	end
 
 	def tag_start(name, attributes)
-		case name
-		when "address"
-			@host["addrs"][attributes["addrtype"]] = attributes["addr"]
-			if (attributes["addrtype"] =~ /ipv[46]/)
-				@host["addr"] = attributes["addr"]
+		begin
+			case name
+			when "address"
+				@host["addrs"][attributes["addrtype"]] = attributes["addr"]
+				if (attributes["addrtype"] =~ /ipv[46]/)
+					@host["addr"] = attributes["addr"]
+				end
+			when "osclass"
+				# If there is more than one, take the highest accuracy.  In case of
+				# a tie, this will have the effect of taking the last one in the
+				# list.  Last is really no better than first but nmap appears to
+				# put OSes in chronological order, at least for Windows.
+				# Accordingly, this will report XP instead of 2000, 7 instead of
+				# Vista, etc, when each has the same accuracy.
+				if (@host["os_accuracy"].to_i <= attributes["accuracy"].to_i)
+					@host["os_vendor"]   = attributes["vendor"]
+					@host["os_family"]   = attributes["osfamily"]
+					@host["os_version"]  = attributes["osgen"]
+					@host["os_accuracy"] = attributes["accuracy"]
+				end
+			when "osmatch"
+				if(attributes["accuracy"].to_i == 100)
+					@host["os_match"] = attributes["name"]
+				end
+			when "uptime"
+				@host["last_boot"]   = attributes["lastboot"]
+			when "hostname"
+				if(attributes["type"] == "PTR")
+					@host["reverse_dns"] = attributes["name"]
+				end
+			when "status"
+				# <status> refers to the liveness of the host; values are "up" or "down"
+				@host["status"] = attributes["state"]
+				@host["status_reason"] = attributes["reason"]
+			when "port"
+				@host["ports"].push(attributes)
+			when "state"
+				# <state> refers to the state of a port; values are "open", "closed", or "filtered"
+				@host["ports"].last["state"] = attributes["state"]
+			when "service"
+				# Store any service and script info with the associated port.  There shouldn't
+				# be any collisions on attribute names here, so just merge them.
+				@host["ports"].last.merge!(attributes)
+			when "script"
+				@host["ports"].last["scripts"] ||= {}
+				@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
+			when "trace"
+				@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
+			when "hop"
+				if @host["trace"]
+					@host["trace"]["hops"].push(attributes)
+				end
 			end
-		when "osclass"
-			# If there is more than one, take the highest accuracy.  In case of
-			# a tie, this will have the effect of taking the last one in the
-			# list.  Last is really no better than first but nmap appears to
-			# put OSes in chronological order, at least for Windows.
-			# Accordingly, this will report XP instead of 2000, 7 instead of
-			# Vista, etc, when each has the same accuracy.
-			if (@host["os_accuracy"].to_i <= attributes["accuracy"].to_i)
-				@host["os_vendor"]   = attributes["vendor"]
-				@host["os_family"]   = attributes["osfamily"]
-				@host["os_version"]  = attributes["osgen"]
-				@host["os_accuracy"] = attributes["accuracy"]
-			end
-		when "osmatch"
-			if(attributes["accuracy"].to_i == 100)
-				@host["os_match"] = attributes["name"]
-			end
-		when "uptime"
-			@host["last_boot"]   = attributes["lastboot"]
-		when "hostname"
-			if(attributes["type"] == "PTR")
-				@host["reverse_dns"] = attributes["name"]
-			end
-		when "status"
-			# <status> refers to the liveness of the host; values are "up" or "down"
-			@host["status"] = attributes["state"]
-			@host["status_reason"] = attributes["reason"]
-		when "port"
-			@host["ports"].push(attributes)
-		when "state"
-			# <state> refers to the state of a port; values are "open", "closed", or "filtered"
-			@host["ports"].last["state"] = attributes["state"]
-		when "service"
-			# Store any service and script info with the associated port.  There shouldn't
-			# be any collisions on attribute names here, so just merge them.
-			@host["ports"].last.merge!(attributes)
-		when "script"
-			@host["ports"].last["scripts"] ||= {}
-			@host["ports"].last["scripts"][attributes["id"]] = attributes["output"]
-		when "trace"
-			@host["trace"] = {"port" => attributes["port"], "proto" => attributes["proto"], "hops" => [] }
-		when "hop"
-			if @host["trace"]
-				@host["trace"]["hops"].push(attributes)
-			end
+		rescue NoMethodError => err
+			raise err if err.message != /NilClass/
 		end
 	end
 
