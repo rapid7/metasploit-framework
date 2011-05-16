@@ -44,8 +44,8 @@ class Metasploit3 < Msf::Post
 				OptBool.new('LOCKSCREEN',   [false, 'Lock system screen.', false]),
 				OptBool.new('MIGRATE',      [false, 'Perform Migration.', false]),
 				OptInt.new( 'INTERVAL',     [false, 'Time interval to save keystrokes', 5]),
-				OptInt.new( 'PID',          [false, 'Time interval to save keystrokes', nil]),
-				OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID',
+				OptInt.new( 'PID',          [false, 'Process ID to migrate to', nil]),
+				OptEnum.new('CAPTURE_TYPE', [false, 'Capture keystrokes for Explorer, Winlogon or PID'
 						'explorer', ['explorer','winlogon','pid']])
 
 			], self.class)
