@@ -19,7 +19,7 @@ module Scriptable
 					::File.join(script_base, "#{script}"),
 					::File.join(script_base, "#{script}.rb"),
 					::File.join(user_script_base, "#{script}"),
-					::File.join(user_script_base, "#{script}.rb)")
+					::File.join(user_script_base, "#{script}.rb")
 				]
 
 			full_path = nil
