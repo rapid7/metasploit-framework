@@ -4169,7 +4169,6 @@ class DBManager
 			else
 				yield(:address,addr) if block
 			end
-			
 
 			os = host['os']
 			hname = host['hname']
@@ -4202,6 +4201,7 @@ class DBManager
 				next if item['port'] == 0
 				msf = nil
 				nasl = item['nasl'].to_s
+				nasl_name = item['nasl_name'].to_s
 				port = item['port'].to_s
 				proto = item['proto'] || "tcp"
 				sname = item['svc_name']
@@ -4214,7 +4214,7 @@ class DBManager
 				
 				yield(:port,port) if block
 				
-				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, severity, description, cve, bid, xref, msf)
+				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf)
 	
 			end
 			yield(:end,hname) if block
@@ -4778,15 +4778,14 @@ protected
 		end
 
 		nss = 'NSS-' + nasl.to_s.strip
-
-		refs << nss.split(" ").first
+		refs << nss
 
 		vuln_info = {
 			:workspace => wspace,
 			:host => hobj,
 			:port => port,
 			:proto => proto,
-			:name => nss,
+			:name => nss, # handle_nessus_v2 catches names instead.
 			:info => data,
 			:refs => refs
 		}
@@ -4797,7 +4796,7 @@ protected
 	# NESSUS v2 file format has a dramatically different layout
 	# for ReportItem data
 	#
-	def handle_nessus_v2(wspace,hobj,port,proto,name,nasl,severity,description,cve,bid,xref,msf)
+	def handle_nessus_v2(wspace,hobj,port,proto,name,nasl,nasl_name,severity,description,cve,bid,xref,msf)
 		addr = hobj.address
 
 		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
@@ -4834,13 +4833,18 @@ protected
 		refs.push msfref if msfref
 		
 		nss = 'NSS-' + nasl
+		if nasl_name.nil? || nasl_name.empty?
+			vuln_name = nss
+		else
+			vuln_name = nasl_name
+		end
 
-		refs << nss.split(" ").first
+		refs << nss.strip
 
 		vuln = {
 			:workspace => wspace,
 			:host => hobj,
-			:name => nss,
+			:name => vuln_name,
 			:info => description ? description : "",
 			:refs => refs
 		}

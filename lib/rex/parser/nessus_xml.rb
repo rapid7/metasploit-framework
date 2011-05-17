@@ -17,7 +17,8 @@ class NessusXMLStreamParser
 	def reset_state
 		@host = {'hname' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil, 'ports' => [
 			'port' => {'port' => nil, 'svc_name'  => nil, 'proto' => nil, 'severity' => nil,
-			'nasl' => nil, 'description' => nil, 'cve' => [], 'bid' => [], 'xref' => [], 'msf' => nil } ] }
+			'nasl' => nil, 'nasl_name' => nil, 'description' => nil, 
+			'cve' => [], 'bid' => [], 'xref' => [], 'msf' => nil } ] }
 		@state = :generic_state
 	end
 
@@ -46,7 +47,8 @@ class NessusXMLStreamParser
 			@bid = Array.new
 			@xref = Array.new
 			@x = Hash.new
-			@x['nasl'] = [attributes['pluginID'],attributes['pluginName']].join(" ")
+			@x['nasl'] = attributes['pluginID']
+			@x['nasl_name'] = attributes['pluginName']
 			@x['port'] = attributes['port']
 			@x['proto'] = attributes['protocol']
 			@x['svc_name'] = attributes['svc_name']
