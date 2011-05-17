@@ -816,7 +816,7 @@ function ua_ver_cmp(ver_a, ver_b) {
 
 	a = ver_a.split(".");
 	b = ver_b.split(".");
-	for (i = 0; i < Math.max(a.length, b.length); i++) {
+	for (var i = 0; i < Math.max(a.length, b.length); i++) {
 		// 3.0 == 3
 		if (!b[i]) { b[i] = "0"; }
 		if (!a[i]) { a[i] = "0"; }
