@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 		case @coderesult.to_i
 		# 550 is User unknown, which obviously isn't fatal when trying to
 		# enumerate users, so only abort on other 500-series errors.  See #4031
-		when (500..549, (551..599)
+		when (500..549), (551..599)
 			print_error "#{target} : #{@result.strip if @result} "
 			print_error "#{target} : Enumeration not possible"
 			return :abort
