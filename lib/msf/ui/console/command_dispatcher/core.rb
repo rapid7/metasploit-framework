@@ -145,6 +145,13 @@ class Core
 		driver.update_prompt
 	end
 
+	def cmd_reload_all_help
+		print_line "Usage: reload_all"
+		print_line
+		print_line "Reload all modules from all configured module paths.  This may take awhile."
+		print_line "See also: loadpath"
+		print_line
+	end
 
 	#
 	# Reload all module paths that we are aware of
@@ -154,7 +161,7 @@ class Core
 		framework.modules.reload_modules
 		cmd_banner()
 	end
-	
+
 	def cmd_resource_tabs(str, words)
 		return [] if words.length > 1
 
@@ -162,9 +169,7 @@ class Core
 	end
 	def cmd_resource(*args)
 		if args.empty?
-			print(
-				"Usage: resource path1 path2 ...\n\n" +
-				"Run the commands stored in the supplied files.\n")
+			cmd_resource_help
 			return false
 		end
 		args.each do |res|
@@ -174,6 +179,13 @@ class Core
 			end
 			driver.load_resource(res)
 		end
+	end
+	def cmd_resource_help
+		print_line "Usage: resource path1 [path2 ...]"
+		print_line
+		print_line "Run the commands stored in the supplied files.  Resource files may also contain"
+		print_line "ruby code between <ruby></ruby> tags."
+		print_line
 	end
 
 	#
