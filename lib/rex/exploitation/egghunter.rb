@@ -63,7 +63,7 @@ class Egghunter
 				getpc = ''
 				jmppayload = "jmp edi"
 
-				apireg = opts[:depreg].downcase || 'esi'
+				apireg = (opts[:depreg] || 'esi').downcase
 				apidest = opts[:depdest]
 				depsize = opts[:depsize]
 
