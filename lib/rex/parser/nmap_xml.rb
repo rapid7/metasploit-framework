@@ -117,7 +117,7 @@ class NmapXMLStreamParser
 				end
 			end
 		rescue NoMethodError => err
-			raise err if err.message != /NilClass/
+			raise err unless err.message =~ /NilClass/
 		end
 	end
 
