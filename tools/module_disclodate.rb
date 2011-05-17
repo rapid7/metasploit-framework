@@ -25,28 +25,34 @@ tbl = Rex::Ui::Text::Table.new(
 	'Columns' => [ 'Module', 'Disclosure Date' ]
 )
 
+match = (ARGV[0] ? %r^#{ARGV[0]}^ : nil )
 
 $framework.payloads.each_module { |name, mod|
+	next if match and not name =~ match
 	x = mod.new
 	tbl << [ 'payload/' + name, x.disclosure_date ]
 }
 
 $framework.exploits.each_module { |name, mod|
+	next if match and not name =~ match
 	x = mod.new
 	tbl << [ 'exploit/' + name, x.disclosure_date ]
 }
 
 $framework.nops.each_module { |name, mod|
+	next if match and not name =~ match
 	x = mod.new
 	tbl << [ 'nop/' + name, x.disclosure_date ]
 }
 
 $framework.encoders.each_module { |name, mod|
+	next if match and not name =~ match
 	x = mod.new
 	tbl << [ 'encoder/' + name, x.disclosure_date ]
 }
 
 $framework.auxiliary.each_module { |name, mod|
+	next if match and not name =~ match
 	x = mod.new
 	tbl << [ 'auxiliary/' + name, x.disclosure_date ]
 }
