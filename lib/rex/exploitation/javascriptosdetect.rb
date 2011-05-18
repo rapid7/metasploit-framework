@@ -650,6 +650,8 @@ function getVersion(){
 			case "5816385":
 				// IE 8.0.7600.16385, Windows 7 English
 			case "5816475":
+			case "5816762":
+				// IE 8.0.7600.16385, Windows 7 English
 				ua_version = "8.0";
 				os_flavor = "7";
 				os_sp = "SP0";
