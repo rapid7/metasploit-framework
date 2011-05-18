@@ -343,17 +343,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
    /** Displays info including version */
 	@Action
 	public void showAboutBox() {
-		String version = "";
-		try {
-			Map results = (Map)rpcConn.execute("core.version");
-			version = results.get("version").toString();
-		} catch (MsfException xre) {
-			JOptionPane.showMessageDialog(this.getFrame(), xre);
-		} catch (NullPointerException nex) {
-		}
-		if (aboutBox == null)
-			aboutBox = new MsfguiAboutBox(getFrame(),version);
-		MsfguiApp.getApplication().show(aboutBox);
+		MsfguiAboutBox.show(getFrame(), rpcConn);
 	}
 
    /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */

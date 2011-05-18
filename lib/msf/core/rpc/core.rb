@@ -9,7 +9,7 @@ class Core < Base
 
 	def version(token)
 		authenticate(token)
-		{ "version" => ::Msf::Framework::Version }
+		{ "version" => ::Msf::Framework::Version, "ruby" => "#{RUBY_VERSION} #{RUBY_PLATFORM} #{RUBY_RELEASE_DATE}" }
 	end
 
 	#

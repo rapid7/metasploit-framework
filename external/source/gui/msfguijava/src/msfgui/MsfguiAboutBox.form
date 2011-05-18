@@ -30,19 +30,28 @@
               <EmptySpace type="separate" max="-2" attributes="0"/>
               <Group type="103" groupAlignment="1" attributes="0">
                   <Component id="appTitleLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Component id="appDescLabel" alignment="0" pref="290" max="32767" attributes="0"/>
-                  <Component id="closeButton" alignment="1" min="-2" max="-2" attributes="0"/>
+                  <Component id="appDescLabel" alignment="0" pref="466" max="32767" attributes="0"/>
                   <Group type="102" alignment="0" attributes="0">
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="homepageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
-                          <Component id="versionLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                          <Component id="homepageLabel" alignment="1" max="32767" attributes="1"/>
+                          <Component id="javaVersionLabel" alignment="0" max="32767" attributes="1"/>
+                          <Component id="versionLabel" alignment="1" max="32767" attributes="1"/>
+                          <Component id="rubyVersionLabel" alignment="1" max="32767" attributes="1"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="appVersionLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                          <Component id="appHomepageLabel" alignment="0" min="-2" max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="1" attributes="0">
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="0" attributes="0">
+                                  <Component id="appVersionLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="appRubyVersionLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="appJavaVersionLabel" min="-2" max="-2" attributes="1"/>
+                              </Group>
+                              <EmptySpace pref="353" max="32767" attributes="0"/>
+                          </Group>
+                          <Component id="appHomepageLabel" pref="361" max="32767" attributes="0"/>
                       </Group>
                   </Group>
+                  <Component id="closeButton" alignment="1" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -63,10 +72,20 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="rubyVersionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="appRubyVersionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="javaVersionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="appJavaVersionLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="homepageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="appHomepageLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace pref="134" max="32767" attributes="0"/>
+              <EmptySpace min="-2" pref="104" max="-2" attributes="0"/>
               <Component id="closeButton" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -104,6 +123,7 @@
             <Font bold="true" component="versionLabel" property="font" relativeSize="true" size="0"/>
           </FontInfo>
         </Property>
+        <Property name="horizontalAlignment" type="int" value="11"/>
         <Property name="text" type="java.lang.String" resourceKey="versionLabel.text"/>
         <Property name="name" type="java.lang.String" value="versionLabel" noResource="true"/>
       </Properties>
@@ -125,6 +145,7 @@
             <Font bold="true" component="homepageLabel" property="font" relativeSize="true" size="0"/>
           </FontInfo>
         </Property>
+        <Property name="horizontalAlignment" type="int" value="11"/>
         <Property name="text" type="java.lang.String" resourceKey="homepageLabel.text"/>
         <Property name="name" type="java.lang.String" value="homepageLabel" noResource="true"/>
       </Properties>
@@ -162,6 +183,49 @@
         <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
         <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
       </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="rubyVersionLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" noResource="true" editor="org.netbeans.modules.form.editors2.FontEditor">
+          <FontInfo relative="true">
+            <Font bold="true" component="rubyVersionLabel" property="font" relativeSize="true" size="0"/>
+          </FontInfo>
+        </Property>
+        <Property name="text" type="java.lang.String" resourceKey="rubyVersionLabel.text"/>
+        <Property name="name" type="java.lang.String" value="rubyVersionLabel" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="javaVersionLabel">
+      <Properties>
+        <Property name="font" type="java.awt.Font" noResource="true" editor="org.netbeans.modules.form.editors2.FontEditor">
+          <FontInfo relative="true">
+            <Font bold="true" component="javaVersionLabel" property="font" relativeSize="true" size="0"/>
+          </FontInfo>
+        </Property>
+        <Property name="horizontalAlignment" type="int" value="11"/>
+        <Property name="text" type="java.lang.String" resourceKey="javaVersionLabel.text"/>
+        <Property name="name" type="java.lang.String" value="javaVersionLabel" noResource="true"/>
+      </Properties>
+      <AuxValues>
+        <AuxValue name="JavaCodeGenerator_VariableLocal" type="java.lang.Boolean" value="true"/>
+        <AuxValue name="JavaCodeGenerator_VariableModifier" type="java.lang.Integer" value="0"/>
+      </AuxValues>
+    </Component>
+    <Component class="javax.swing.JLabel" name="appRubyVersionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="appRubyVersionLabel.text"/>
+        <Property name="name" type="java.lang.String" value="appRubyVersionLabel" noResource="true"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="appJavaVersionLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" resourceKey="appJavaVersionLabel.text"/>
+        <Property name="name" type="java.lang.String" value="appJavaVersionLabel" noResource="true"/>
+      </Properties>
     </Component>
   </SubComponents>
 </Form>
