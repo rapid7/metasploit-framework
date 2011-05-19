@@ -60,7 +60,7 @@ end
 module OperatingSystems
 	LINUX   = "Linux"
 	MAC_OSX = "Mac OS X"
-	WINDOWS = "Windows"
+	WINDOWS = "Microsoft Windows"
 	FREEBSD = "FreeBSD"
 	NETBSD  = "NetBSD"
 	OPENBSD = "OpenBSD"
