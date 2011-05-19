@@ -84,7 +84,7 @@ class Host < ActiveRecord::Base
 		# has an opinion and which doesn't. It would also be nice to
 		# identify "impossible" combinations of services and alert that
 		# something funny is going on.
-		host.services.find(:all).each do |s|
+		host.services.each do |s|
 			next if not s.info
 			points = 0
 			case s.name
@@ -722,8 +722,7 @@ class Host < ActiveRecord::Base
 			end
 		end
 
-		# host.save! (fix this first)
-		host.save
+		host.save if host.changed?
 	end
 
 protected
