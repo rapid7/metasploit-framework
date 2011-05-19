@@ -10,8 +10,11 @@ PacketFu is rdoc-compatable. In the same directory as this file, run "rdoc" by i
 == Requirements
 
 PcapRub: 
+
 $ svn co http://www.metasploit.com/svn/framework3/trunk/external/pcaprub
+
 or
+
 $ rvm gem install pcaprub
 
 Marshall Beddoe's PcapRub is required only for packet reading and writing from a network interfaces (which is a pretty big only). PcapRub itself relies on libpcap 0.9.8 or later for packet injection. PcapRub also requires root privilieges to access the interface directly. 

@@ -12,14 +12,51 @@ module PacketFu
 			str.force_encoding "binary" if str.respond_to? :force_encoding
 		end
 
+		# parse_app makes a valiant attempt at picking out particular applications (beyond
+		# the transport layer). As of right now, this only accounts for HSRP. I don't really
+		# intend to get very far with this because I need a better way to parse packets anyway --
+		# each packet type (including application layers) should be responsible for their own
+		# parsing rules. But, let's assume that'll never happen, so continue with this folly.
+		#
+		# This is an optional step, since it can lead to misidentified applications, depending
+		# on the strategy used to pick out app layers. For example, we really shouldn't have
+		# a rule that says that HTTP must be port 80, since it can easily be on 3128 or any
+		# other arbitrary port. However, we can say with certainty that HSRP must be dst port
+		# 1985, because that's what the RFC dictates.
+		def self.parse_app(parsed_packet,packet)
+			if parsed_packet.is_udp?
+				# Figure out UDP protocols (DNS, DHCP, etc)
+				# All HSRP is dst 224.0.0.2:1985 with a TTL of 1, so sayeth RFC 2281.
+				if(
+					parsed_packet.ip_ttl == 1 and
+					parsed_packet.ip_dst == 0xe0000002 and
+					parsed_packet.udp_dst == 1985
+				)
+					return HSRPPacket.new.read(packet)
+				else
+					return parsed_packet
+				end
+			elsif parsed_packet.is_tcp?
+				# Figure out TCP protocols (HTTP, SSH, etc)
+				return parsed_packet
+			else
+				# I don't know any others.
+				return parsed_packet
+			end
+		end
+
 		# Parse() creates the correct packet type based on the data, and returns the apporpiate
 		# Packet subclass. 
 		#
 		# There is an assumption here that all incoming packets are either EthPacket
 		# or InvalidPacket types.
 		#
+		# If application-layer parsing is /not/ desired, that should be indicated explicitly
+		# with an argument of  :parse_app => false.
+		#
 		# New packet types should get an entry here. 
 		def self.parse(packet,args={})
+			parse_app = true if(args[:parse_app].nil? or args[:parse_app])
 			force_binary(packet)
 			if packet.size >= 14													# Min size for Ethernet. No check for max size, yet.
 				case packet[12,2]														# Check the Eth protocol field.
@@ -37,7 +74,7 @@ module PacketFu
 						when "\x01"; p = ICMPPacket.new					# Returns an ICMPPacket.
 						else; p = IPPacket.new									# Returns an IPPacket since we can't tell the transport layer.
 						end
-					else; p = IPPacket.new										# Returns an EthPacket since we don't know any other IP version.
+					else; p = IPPacket.new										# Returns an IPPacket of this crazy IP version.
 					end
 				when "\x08\x06"															# It's arp
 					if packet.size >= 28											# Min size for complete arp
@@ -55,7 +92,8 @@ module PacketFu
 				p = InvalidPacket.new												# Not the right size for Ethernet (jumbo frames are okay)
 			end
 			parsed_packet = p.read(packet,args)
-			return parsed_packet
+			app_parsed_packet = parse_app ? parse_app(parsed_packet,packet) : nil
+			return app_parsed_packet || parsed_packet
 		end
 
 		#method_missing() delegates protocol-specific field actions to the apporpraite
@@ -77,6 +115,8 @@ module PacketFu
 				@icmp_header.send(sym,*args)
 			when /^udp_/
 				@udp_header.send(sym,*args)
+			when /^hsrp_/
+				@hsrp_header.send(sym,*args)
 			when /^tcp_/
 				@tcp_header.send(sym,*args)
 			when /^ipv6_/
@@ -87,7 +127,7 @@ module PacketFu
 		end
 		
 		def respond_to?(sym, include_private = false)
-			if sym.to_s =~ /^(invalid|eth|arp|ip|icmp|udp|tcp|ipv6)_/
+			if sym.to_s =~ /^(invalid|eth|arp|ip|icmp|udp|hsrp|tcp|ipv6)_/
 				self.instance_variable_get("@#{$1}_header").respond_to? sym
 			else
 				super
@@ -328,6 +368,9 @@ module PacketFu
 
 		# Hexify provides a neatly-formatted dump of binary data, familar to hex readers.
 		def hexify(str)
+			if str.respond_to? :force_encoding
+				str.force_encoding("ASCII-8BIT")
+			end
 			hexascii_lines = str.to_s.unpack("H*")[0].scan(/.{1,32}/)
 			chars = str.to_s.gsub(/[\x00-\x1f\x7f-\xff]/,'.')
 			chars_lines = chars.scan(/.{1,16}/)
@@ -427,6 +470,8 @@ module PacketFu
 		def is_tcp? ;	self.proto.include? "TCP"; end
 		# Returns true if this is an UDP packet. Else, false.
 		def is_udp? ;	self.proto.include? "UDP"; end
+		# Returns true if this is an HSRP packet. Else, false.
+		def is_hsrp? ;	self.proto.include? "HSRP"; end
 		# Returns true if this is an ARP packet. Else, false.
 		def is_arp? ; self.proto.include? "ARP"; end
 		# Returns true if this is an IPv6 packet. Else, false.

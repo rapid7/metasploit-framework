@@ -36,11 +36,6 @@ module PacketFu
 		end
 		require "packetfu/capture" 
 		require "packetfu/inject"
-	else
-		# At this moment, we don't care about missing pcaprub for PacketFu; we do need to deal
-		# with this eventually if we unseat Racket, but for now, PacketFu is just being used
-		# to read/write libpcap files, which doesn't require pcaprub.
-		# warn "Warning: Missing pcaprub, cannot load PacketFu::Capture or PacketFu::Inject"
 	end
 
 end
@@ -53,6 +48,7 @@ require "packetfu/ip"
 require "packetfu/arp"
 require "packetfu/icmp"
 require "packetfu/udp"
+require "packetfu/hsrp" # Depends on UDP
 require "packetfu/tcp"
 require "packetfu/ipv6" # This is pretty minimal.
 require "packetfu/utils"
@@ -60,7 +56,9 @@ require "packetfu/config"
 
 module PacketFu
 
-VERSION = "1.0.1" # Version 1.0.0 was released July 31, 2010
+	# Version 1.0.0 was released July 31, 2010
+	# Version 1.0.1 is unreleased.
+	VERSION = "1.0.1" 
 
 	# Returns the current version of PacketFu. Incremented every once 
 	# in a while, when I remember
