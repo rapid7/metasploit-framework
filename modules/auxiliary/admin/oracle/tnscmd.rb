@@ -37,25 +37,32 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		connect
 
-		command = datastore['CMD']
+		begin
+			connect
 
-		pkt = tns_packet(command)
+			command = datastore['CMD']
 
-		print_status("Sending '#{command}' to #{rhost}:#{rport}")
-		sock.put(pkt)
-		print_status("writing #{pkt.length} bytes.")
+			pkt = tns_packet(command)
 
-		select(nil,nil,nil,0.5)
+			print_status("Sending '#{command}' to #{rhost}:#{rport}")
+			sock.put(pkt)
+			print_status("writing #{pkt.length} bytes.")
 
-		print_status("reading")
-		res = sock.get_once(-1,5)
-		res = res.tr("[\200-\377]","[\000-\177]")
-		res = res.tr("[\000-\027\]",".")
-		res = res.tr("\177",".")
-		puts res
+			select(nil,nil,nil,0.5)
 
-		disconnect
+			print_status("reading")
+			res = sock.get_once(-1,5)
+			res = res.tr("[\200-\377]","[\000-\177]")
+			res = res.tr("[\000-\027\]",".")
+			res = res.tr("\177",".")
+			puts res
+
+			disconnect
+		end
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
+			print_error e.message 
+		rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
+			print_error e.message
 	end
 end
