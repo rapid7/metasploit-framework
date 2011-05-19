@@ -239,7 +239,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			msfid = Time.now.to_i
 
-			report_formats = ["ns-raw", "ns-xml"]
+			report_formats = ["raw-xml", "ns-xml"]
 			report_format  = report_formats.shift
 
 			report = Nexpose::ReportConfig.new(@nsc)
@@ -451,8 +451,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 				print_status(" >> Created temporary site ##{site.site_id}") if opt_verbose
 
-
-				report_formats = ["ns-raw", "ns-xml"]
+				report_formats = ["raw-xml", "ns-xml"]
 				report_format  = report_formats.shift
 
 				report = Nexpose::ReportConfig.new(@nsc)
