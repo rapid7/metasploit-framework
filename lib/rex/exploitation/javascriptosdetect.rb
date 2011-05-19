@@ -636,6 +636,12 @@ function getVersion(){
 				os_flavor = "XP";
 				os_sp = "SP3";
 				break;
+			case "576000":
+				// IE 7.0.6000.16386, Vista Ultimate SP0 English
+				ua_version = "7.0";
+				os_flavor = "Vista";
+				os_sp = "SP0";
+				break;
 			case "5822960":
 				// IE 8.0.6001.18702, XP Professional SP3 Greek
 			case "5818702":
