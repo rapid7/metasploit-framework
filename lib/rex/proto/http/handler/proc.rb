@@ -38,7 +38,7 @@ class Handler::Proc < Handler
 		rescue Errno::EPIPE
 			elog("Proc::on_request: Client closed connection prematurely", LogSource)
 		rescue
-			elog("Proc::on_request: #{$!}\n\n#{$@.join("\n")}", LogSource)
+			elog("Proc::on_request: #{$!.class}: #{$!}\n\n#{$@.join("\n")}", LogSource)
 			if self.server and self.server.context
 				exploit = self.server.context['MsfExploit']
 				if exploit

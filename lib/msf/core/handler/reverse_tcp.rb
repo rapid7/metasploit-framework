@@ -163,7 +163,7 @@ module ReverseTcp
 				begin
 					handle_connection(client)
 				rescue ::Exception
-					elog("Exception raised from handle_connection: #{$!}\n\n#{$@.join("\n")}")
+					elog("Exception raised from handle_connection: #{$!.class}: #{$!}\n\n#{$@.join("\n")}")
 				end
 			end
 		}

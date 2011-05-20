@@ -47,7 +47,7 @@ module Rex::Socket::SslTcpServer
 
 	def initsock(params = nil)
 		raise RuntimeError, "No OpenSSL support" if not @@loaded_openssl
-		self.sslctx  = makessl()
+		self.sslctx  = makessl(params.ssl_cert)
 		super
 	end
 
@@ -99,43 +99,52 @@ module Rex::Socket::SslTcpServer
 	end
 
 
-	def makessl
-		key = OpenSSL::PKey::RSA.new(1024){ }
+	# 
+	# Create a new ssl context.  If +ssl_cert+ is not given, generates a new
+	# key and a leaf certificate with random values.
+	#
+	def makessl(ssl_cert=nil)
 
-		cert = OpenSSL::X509::Certificate.new
-		cert.version = 2
-		cert.serial = rand(0xFFFFFFFF)
-		# name = OpenSSL::X509::Name.new([["C","JP"],["O","TEST"],["CN","localhost"]])
-		subject = OpenSSL::X509::Name.new([
-				["C","US"],
-				['ST', Rex::Text.rand_state()],
-				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", Rex::Text.rand_hostname],
-			])
-		issuer = OpenSSL::X509::Name.new([
-				["C","US"],
-				['ST', Rex::Text.rand_state()],
-				["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
-				["CN", Rex::Text.rand_hostname],
-			])
+		if ssl_cert
+			cert = OpenSSL::X509::Certificate.new(ssl_cert)
+			key = OpenSSL::PKey::RSA.new(ssl_cert)
+		else
+			key = OpenSSL::PKey::RSA.new(1024){ }
+			cert = OpenSSL::X509::Certificate.new
+			cert.version = 2
+			cert.serial = rand(0xFFFFFFFF)
+			# name = OpenSSL::X509::Name.new([["C","JP"],["O","TEST"],["CN","localhost"]])
+			subject = OpenSSL::X509::Name.new([
+					["C","US"],
+					['ST', Rex::Text.rand_state()],
+					["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["CN", Rex::Text.rand_hostname],
+				])
+			issuer = OpenSSL::X509::Name.new([
+					["C","US"],
+					['ST', Rex::Text.rand_state()],
+					["L", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["O", Rex::Text.rand_text_alpha(rand(20) + 10)],
+					["CN", Rex::Text.rand_hostname],
+				])
 
-		cert.subject = subject
-		cert.issuer = issuer
-		cert.not_before = Time.now - (3600 * 365)
-		cert.not_after = Time.now + (3600 * 365)
-		cert.public_key = key.public_key
-		ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
-		cert.extensions = [
-			ef.create_extension("basicConstraints","CA:FALSE"),
-			ef.create_extension("subjectKeyIdentifier","hash"),
-			ef.create_extension("extendedKeyUsage","serverAuth"),
-			ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
-		]
-		ef.issuer_certificate = cert
-		cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
-		cert.sign(key, OpenSSL::Digest::SHA1.new)
+			cert.subject = subject
+			cert.issuer = issuer
+			cert.not_before = Time.now - (3600 * 365)
+			cert.not_after = Time.now + (3600 * 365)
+			cert.public_key = key.public_key
+			ef = OpenSSL::X509::ExtensionFactory.new(nil,cert)
+			cert.extensions = [
+				ef.create_extension("basicConstraints","CA:FALSE"),
+				ef.create_extension("subjectKeyIdentifier","hash"),
+				ef.create_extension("extendedKeyUsage","serverAuth"),
+				ef.create_extension("keyUsage","keyEncipherment,dataEncipherment,digitalSignature")
+			]
+			ef.issuer_certificate = cert
+			cert.add_extension ef.create_extension("authorityKeyIdentifier", "keyid:always,issuer:always")
+			cert.sign(key, OpenSSL::Digest::SHA1.new)
+		end
 
 		ctx = OpenSSL::SSL::SSLContext.new()
 		ctx.key = key

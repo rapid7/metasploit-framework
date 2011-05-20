@@ -63,6 +63,10 @@ class Rex::Socket::Parameters
 	#
 	# 	Specify SSL2, SSL3, or TLS1 (SSL3 is default)
 	#	
+	# SSLCert
+	#
+	# 	A file containing an SSL certificate (for server sockets)
+	#
 	# Proxies
 	#
 	#	List of proxies to use.
@@ -137,6 +141,14 @@ class Rex::Socket::Parameters
 		
 		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
 			self.ssl_version = hash['SSLVersion']
+		end
+		
+		if (hash['SSLCert'] and ::File.file?(hash['SSLCert']))
+			begin
+				self.ssl_cert = ::File.read(hash['SSLCert'])
+			rescue ::Exception => e
+				elog("Failed to read cert: #{e.class}: #{e}", LogSource)
+			end
 		end
 		
 		if hash['Proxies']	
@@ -324,6 +336,10 @@ class Rex::Socket::Parameters
 	# What version of SSL to use (SSL2, SSL3, TLS1)
 	#
 	attr_accessor :ssl_version
+	#
+	# The SSL certificate, in pem format, stored as a string.  See +SslTcpServer#make_ssl+
+	#
+	attr_accessor :ssl_cert
 	#
 	# Whether we should use IPv6
 	#
