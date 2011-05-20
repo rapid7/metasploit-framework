@@ -19,7 +19,10 @@ class Metasploit3 < Msf::Encoder
 	# - doesn't work on windows
 	# - min size increase: 4x + 9
 	# - max size increase: 4x + 14
-	Rank = GoodRanking
+	# However, because it intentionally leaves backslashes unescaped (assuming
+	# that PHP's magic_quotes_gpc will take care of escaping them) it is
+	# unsuitable for most exploits.
+	Rank = ManualRanking
 
 	def initialize
 		super(
