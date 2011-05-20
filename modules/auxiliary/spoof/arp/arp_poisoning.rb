@@ -109,7 +109,10 @@ class Metasploit3 < Msf::Auxiliary
 		lsmac = datastore['LOCALSMAC'] || @smac
 		raise RuntimeError ,'Local Source Mac is not in correct format' unless is_mac?(lsmac)
 
-		sip = datastore['LOCALSIP'] || Pcap.lookupaddrs(@interface)[0]
+		sip = datastore['LOCALSIP']
+		if lookupaddr_implemented? 
+			sip ||= Pcap.lookupaddrs(@interface)[0]
+		end
 		raise "LOCALIP is not an ipv4 address" unless is_ipv4? sip
 
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
