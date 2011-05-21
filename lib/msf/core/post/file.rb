@@ -77,6 +77,38 @@ module File
 		data
 	end
 
+	#
+        # Platform-agnostic file write. Writes given object content to a remote file.
+        # Returns Boolean true if successful
+        #
+        def write_file(file_name, data)
+                if session.type == "meterpreter" 
+                        fd = session.fs.file.new(file_name, "wb")
+                        fd.write(data)
+                        fd.close
+                elsif session.respond_to? :shell_command_token
+                        session.shell_command_token("cat #{data} >> '#{file_name}'")
+			
+		end
+		return true
+        end 
+	
+ 	#
+        # Platform-agnostic file append. Appends given object content to a remote file.
+        # Returns Boolean true if successful
+        #
+        def append_file(file_name, data)
+                if session.type == "meterpreter" 
+                        fd = session.fs.file.new(file_name, "wab")
+                        fd.write(data)
+                        fd.close
+                elsif session.respond_to? :shell_command_token
+                        session.shell_command_token("cat #{data} >> '#{file_name}'")
+                end
+		return true
+        end 
+	
+
 protected
 	#
 	# Meterpreter-specific file read.  Returns contents of remote file
