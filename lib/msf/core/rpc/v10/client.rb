@@ -50,7 +50,11 @@ class Client
 		
 		if not @cli
 			@cli = Rex::Proto::Http::Client.new(info[:host], info[:port], info[:ssl], info[:ssl_version])
-			@cli.set_config(:vhost => info[:host], :useragent => "Metasploit RPC Client/#{API_VERSION}")
+			@cli.set_config(
+				:vhost => info[:host], 
+				:agent => "Metasploit RPC Client/#{API_VERSION}", 
+				:read_max_data => (1024*1024*512)
+			)
 		end
 		
 		req = @cli.request_cgi(
