@@ -335,7 +335,7 @@ class Metasploit3 < Msf::Auxiliary
 				smb[:peer_lm]   = names[1]
 
 				begin
-					smb_get_hash(smb,arg)
+					smb_get_hash(smb,arg,true)
 				rescue ::Exception => e
 					print_status("Error processing Hash from #{smb[:name]} (#{cmd}): #{e.class} #{e} #{e.backtrace}")
 				end
@@ -396,7 +396,7 @@ class Metasploit3 < Msf::Auxiliary
 			smb[:peer_lm]   = names[3]
 
 			begin
-				smb_get_hash(smb,arg)
+				smb_get_hash(smb,arg,false)
 
 			rescue ::Exception => e
 				print_status("Error processing Hash from #{smb[:name]} (#{cmd}): #{e.class} #{e} #{e.backtrace}")
@@ -407,7 +407,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def smb_get_hash(smb,arg = {})
+	def smb_get_hash(smb, arg = {}, esn=true)
 
 		ntlm_ver = arg[:ntlm_ver]
 		if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE
@@ -492,8 +492,13 @@ class Metasploit3 < Msf::Auxiliary
 				lm_chall_message = lm_cli_challenge
 			end
 
-
+			
 			# Display messages
+			if esn
+				smb[:username] = Rex::Text::to_ascii(smb[:username])
+				smb[:domain]   = Rex::Text::to_ascii(smb[:domain])
+				smb[:fullname] = Rex::Text::to_ascii(smb[:fullname])
+			end
 			capturedtime = Time.now.to_s
 			case ntlm_ver
 			when NTLM_CONST::NTLM_V1_RESPONSE

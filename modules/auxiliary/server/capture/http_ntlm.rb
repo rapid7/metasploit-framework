@@ -262,6 +262,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			# Display messages
+			domain = Rex::Text::to_ascii(domain)
+			user = Rex::Text::to_ascii(user)	
+
 			capturedtime = Time.now.to_s
 			case ntlm_ver
 			when NTLM_CONST::NTLM_V1_RESPONSE
