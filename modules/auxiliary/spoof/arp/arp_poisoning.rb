@@ -147,7 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def broadcast_spoof
-		print_status("ARP poisonning in progress (broadcast)...")
+		print_status("ARP poisoning in progress (broadcast)...")
 		while(true)
 			@shosts.each do |shost|
 				print_status("Sending arp packet for #{shost} address") if datastore['VERBOSE']
@@ -257,7 +257,7 @@ class Metasploit3 < Msf::Auxiliary
 			start_listener(@dsthosts_cache, @srchosts_cache)
 		end
 		#Do the job until user interupt it
-		print_status("ARP poisonning in progress...")
+		print_status("ARP poisoning in progress...")
 		@spoofing = true
 		while(true)
 			if datastore['AUTO_ADD']
