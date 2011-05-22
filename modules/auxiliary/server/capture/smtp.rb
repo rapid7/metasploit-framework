@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			report_auth_info(
 				:host      => @state[c][:ip],
-				:port => datastore['SRVPORT'],
+				:port      => datastore['SRVPORT'],
 				:sname     => 'pop3',
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass],

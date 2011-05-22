@@ -3,7 +3,7 @@
 # $Id$
 #
 # This plugin provides an msf daemon interface that spawns a listener on a
-# defined port (default 55553) and gives each connecting client its own
+# defined port (default 55552) and gives each connecting client its own
 # console interface.  These consoles all share the same framework instance.
 # Be aware that the console instance that spawns on the port is entirely
 # unauthenticated, so realize that you have been warned.
@@ -11,8 +11,7 @@
 # $Revision$
 #
 
-require "msf/core/rpc"
-require "msf/core/rpc/service_msgpack"
+require "msf/core/rpc/v10/service"
 require "fileutils"
 
 module Msf
@@ -57,24 +56,23 @@ class Plugin::MSGRPC < Msf::Plugin
 		print_status("MSGRPC Username: #{user}")
 		print_status("MSGRPC Password: #{pass}")
 
-		@users = [ [user,pass] ]
-
-		self.server	= ::Msf::RPC::MessagePackService.new(host,port,{
+		self.server	= ::Msf::RPC::Service.new(framework, {
+			:host => opts['ServerHost'],
+			:port => opts['ServerPort'],
 			:ssl  => opts['SSL'],
 			:cert => opts['SSLCert'],
 			:key  => opts['SSLKey'],
 			:uri  => opts['URI']
 		})
-	
+		
+		self.server.add_user(user, pass)
 
 		# If the run in foreground flag is not specified, then go ahead and fire
 		# it off in a worker thread.
 		if (opts['RunInForeground'] != true)
 			# Store a handle to the thread so we can kill it during
 			# cleanup when we get unloaded.
-			self.thread = Thread.new {
-				run
-			}
+			self.thread = Thread.new { run }
 		end
 	end
 
@@ -96,54 +94,10 @@ class Plugin::MSGRPC < Msf::Plugin
 	# The meat of the plugin, sets up handlers for requests
 	#
 	def run
-
-		# Initialize the list of authenticated sessions
-		@tokens = {}
-
-		args = [framework, @tokens, @users]
-
-		# Add handlers for every class
-		self.server.add_handler("auth",
-			::Msf::RPC::Auth.new(*args)
-		)
-
-		# Note the extra argument for core as compared to the other
-		# handlers.  This allows rpc clients access to the plugin so
-		# they can shutdown the server.
-		core_args = args + [self]
-		self.server.add_handler("core",
-			::Msf::RPC::Core.new(*core_args)
-		)
-
-		self.server.add_handler("session",
-			::Msf::RPC::Session.new(*args)
-		)
-
-		self.server.add_handler("job",
-			::Msf::RPC::Job.new(*args)
-		)
-
-		self.server.add_handler("module",
-			::Msf::RPC::Module.new(*args)
-		)
-
-		self.server.add_handler("console",
-			::Msf::RPC::Console.new(*args)
-		)
-
-		self.server.add_handler("db",
-			::Msf::RPC::Db.new(*args)
-		)
-
-		self.server.add_handler("plugin",
-			::Msf::RPC::Plugin.new(*args)
-		)
-
 		# Start the actual service
 		self.server.start
 	
 		# Wait for the service to complete
-		
 		self.server.wait
 	end
 
@@ -155,19 +109,6 @@ class Plugin::MSGRPC < Msf::Plugin
 		self.thread.kill if self.thread
 		self.server = nil
 		super
-	end
-
-	def stop_rpc
-		print_line
-		print_status("MSGRPC Client requested server stop")
-		# Plugins aren't really meant to be able to unload themselves, so this
-		# is a bit of a corner case.  Unloading ourselves ends up killing the
-		# thread that's doing the unloading so we need to fire off the unload
-		# in a seperate one.
-		Thread.new {
-			framework.plugins.unload(self)
-		}
-		nil
 	end
 
 	#
