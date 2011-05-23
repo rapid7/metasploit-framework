@@ -52,6 +52,7 @@ require 'rexml/document'
 require 'net/https'
 require 'net/http'
 require 'uri'
+require 'rex/mime'
 
 module Nexpose
 
@@ -109,6 +110,9 @@ class APIRequest
 	attr_reader :error
 	attr_reader :trace
 
+	attr_reader :raw_response
+	attr_reader :raw_response_data
+
 	def initialize(req, url)
 		@url = url
 		@req = req
@@ -139,8 +143,8 @@ class APIRequest
 
 		begin
 		prepare_http_client
-		resp, data = @http.post(@uri.path, @req, @headers)
-		@res = parse_xml(data)
+		@raw_response, @raw_response_data = @http.post(@uri.path, @req, @headers)
+		@res = parse_xml(@raw_response_data)
 
 		if(not @res.root)
 			@error = "NeXpose service returned invalid XML"
@@ -286,7 +290,10 @@ module NexposeAPI
 						res[:summary][k] = res[:summary][k].to_i
 					end
 				end
-			end
+      end
+      r.res.elements.each("//ScanSummary/message") do |message|
+        res[:message] = message.text
+      end
 			return res
 		else
 			return false
@@ -338,6 +345,102 @@ module NexposeAPI
 		r.success
 	end
 
+	#-------------------------------------------------------------------------
+	# Returns all asset group information
+	#-------------------------------------------------------------------------
+	def asset_groups_listing()
+		r = execute(make_xml('AssetGroupListingRequest'))
+
+		if r.success
+			res = []
+			r.res.elements.each('//AssetGroupSummary') do |group|
+				res << {
+						:asset_group_id => group.attributes['id'].to_i,
+						:name => group.attributes['name'].to_s,
+						:description => group.attributes['description'].to_s,
+						:risk_score => group.attributes['riskscore'].to_f,
+				}
+			end
+			res
+		else
+			false
+		end
+	end
+
+	#-------------------------------------------------------------------------
+	# Returns an asset group configuration information for a specific group ID
+	#-------------------------------------------------------------------------
+	def asset_group_config(group_id)
+		r = execute(make_xml('AssetGroupConfigRequest', {'group-id' => group_id}))
+
+		if r.success
+			res = []
+			r.res.elements.each('//Devices/device') do |device_info|
+				res << {
+						:device_id => device_info.attributes['id'].to_i,
+						:site_id => device_info.attributes['site-id'].to_i,
+						:address => device_info.attributes['address'].to_s,
+						:riskfactor => device_info.attributes['riskfactor'].to_f,
+				}
+			end
+			res
+		else
+			false
+		end
+	end
+
+	#-----------------------------------------------------------------------
+	# Starts device specific site scanning.
+	#
+	# devices - An Array of device IDs
+	# hosts - An Array of Hashes [o]=>{:range=>"to,from"} [1]=>{:host=>host}
+	#-----------------------------------------------------------------------
+	def site_device_scan_start(site_id, devices, hosts)
+
+		if hosts == nil and devices == nil
+			raise ArgumentError.new("Both the device and host list is nil")
+		end
+
+		xml = make_xml('SiteDevicesScanRequest', {'site-id' => site_id})
+
+		if devices != nil
+			inner_xml = REXML::Element.new 'Devices'
+			for device_id in devices
+				inner_xml.add_element 'device', {'id' => "#{device_id}"}
+			end
+			xml.add_element inner_xml
+		end
+
+		if hosts != nil
+			inner_xml = REXML::Element.new 'Hosts'
+			hosts.each_index do |x|
+				if hosts[x].key? :range
+					to = hosts[x][:range].split(',')[0]
+					from = hosts[x][:range].split(',')[1]
+					inner_xml.add_element 'range', {'to' => "#{to}", 'from' => "#{from}"}
+				end
+				if hosts[x].key? :host
+					host_element = REXML::Element.new 'host'
+					host_element.text = "#{hosts[x][:host]}"
+					inner_xml.add_element host_element
+				end
+			end
+			xml.add_element inner_xml
+		end
+
+		r = execute xml
+		if r.success
+			r.res.elements.each('//Scan') do |scan_info|
+				return {
+						:scan_id => scan_info.attributes['scan-id'].to_i,
+						:engine_id => scan_info.attributes['engine-id'].to_i
+				}
+			end
+		else
+			false
+		end
+	end
+
 	def site_delete(param)
 		r = execute(make_xml('SiteDeleteRequest', { 'site-id' => param }))
 		r.success
@@ -360,7 +463,30 @@ module NexposeAPI
 		else
 			return false
 		end
-	end	
+	end
+
+	#-----------------------------------------------------------------------
+	# TODO: Needs to be expanded to included details
+	#-----------------------------------------------------------------------
+	def site_scan_history(site_id)
+		r.execute(make_xml('SiteScanHistoryRequest', {'site-id' => site_id.to_s}))
+
+		if (r.success)
+			res = []
+			r.res.elements.each("//ScanSummary") do |site_scan_history|
+				res << {
+						:site_id => site_scan_history.attributes['site-id'].to_i,
+						:scan_id => site_scan_history.attributes['scan-id'].to_i,
+						:engine_id => site_scan_history.attributes['engine-id'].to_i,
+						:start_time => site_scan_history.attributes['startTime'].to_s,
+						:end_time => site_scan_history.attributes['endTime'].to_s
+				}
+			end
+			return res
+		else
+			false
+		end
+	end
 
 	def site_device_listing(site_id)
 		r = execute(make_xml('SiteDeviceListingRequest', { 'site-id' => site_id.to_s }))
@@ -1962,60 +2088,75 @@ end
 
 # === Description
 #
-class ReportAdHoc
+	class ReportAdHoc
+		include XMLUtils
 
-	attr_reader :error
-	attr_reader :error_msg
-	attr_reader :connection
-	# Report Template ID strong e.g. full-audit
-	attr_reader :template_id
-	# pdf|html|xml|text|csv|raw-xml
-	attr_reader :format
-	# Array of (ReportFilter)*
-	attr_reader :filters
-	attr_reader :request_xml
-	attr_reader :response_xml
-	attr_reader :report_decoded
+		attr_reader :error
+		attr_reader :error_msg
+		attr_reader :connection
+		# Report Template ID strong e.g. full-audit
+		attr_reader :template_id
+		# pdf|html|xml|text|csv|raw-xml
+		attr_reader :format
+		# Array of (ReportFilter)*
+		attr_reader :filters
+		attr_reader :request_xml
+		attr_reader :response_xml
+		attr_reader :report_decoded
 
 
-	def initialize(connection, template_id = 'full-audit', format = 'raw-xml')
+		def initialize(connection, template_id = 'full-audit', format = 'raw-xml')
 
-		@error = false
-		@connection = connection
-		@xml_tag_stack = array()
-		@filters = Array.new()
-		@template_id = template_id
-		@format = format
+			@error = false
+			@connection = connection
+			@filters = Array.new()
+			@template_id = template_id
+			@format = format
 
-	end
-
-	def addFilter(filter_type, id)
-
-		# filter_type can be site|group|device|scan
-		# id is the ID number. For scan, you can use 'last' for the most recently run scan
-		filter = new ReportFilter.new(filter_type,id)
-		filters.push(filter)
-
-	end
-
-	def generate()
-		request_xml = '<ReportAdhocGenerateRequest session-id="' + @connection.session_id + '">'
-		request_xml += '<AdhocReportConfig template-id="' + @template_id + '" format="' + @format + '">'
-		request_xml += '<Filters>'
-		@filters.each do |f|
-			request_xml += '<filter type="' + f.type + '" id="'+  f.id + '"/>'
 		end
-		request_xml += '</Filters>'
-		request_xml += '</AdhocReportConfig>'
-		request_xml += '</ReportAdhocGenerateRequest>'
 
-		myReportAdHoc_request = APIRequest.new(request_xml, @connection.geturl())
-		myReportAdHoc_request.execute()
+		def addFilter(filter_type, id)
 
-		myReportAdHoc_response = myReportAdHoc_request.response_xml
+			# filter_type can be site|group|device|scan
+			# id is the ID number. For scan, you can use 'last' for the most recently run scan
+			filter = ReportFilter.new(filter_type, id)
+			filters.push(filter)
+
+		end
+
+		def generate()
+			request_xml = '<ReportAdhocGenerateRequest session-id="' + @connection.session_id + '">'
+			request_xml += '<AdhocReportConfig template-id="' + @template_id + '" format="' + @format + '">'
+			request_xml += '<Filters>'
+			@filters.each do |f|
+				request_xml += '<filter type="' + f.type + '" id="'+ f.id.to_s + '"/>'
+			end
+			request_xml += '</Filters>'
+			request_xml += '</AdhocReportConfig>'
+			request_xml += '</ReportAdhocGenerateRequest>'
+
+			ad_hoc_request = APIRequest.new(request_xml, @connection.url)
+			ad_hoc_request.execute()
+
+			content_type_response = ad_hoc_request.raw_response.header['Content-Type']
+			if content_type_response =~ /multipart\/mixed;\s*boundary=([^\s]+)/
+				# NeXpose sends an incorrect boundary format which breaks parsing
+				# Eg: boundary=XXX; charset=XXX
+				# Fix by removing everything from the last semi-colon onward
+				last_semi_colon_index = content_type_response.index(/;/, content_type_response.index(/boundary/))
+				content_type_response = content_type_response[0, last_semi_colon_index]
+
+				data = "Content-Type: " + content_type_response + "\r\n\r\n" + ad_hoc_request.raw_response_data
+				doc = Rex::MIME::Message.new data
+				doc.parts.each do |part|
+					if /.*base64.*/ =~ part.header.to_s
+						return parse_xml(part.content.unpack("m*")[0])
+					end
+				end
+			end
+		end
+
 	end
-
-end
 
 # === Description
 # Object that represents the configuration of a report definition.
@@ -2108,6 +2249,7 @@ class ReportConfig
 	def generateReport(debug = false)
 		return generateReport(@connection, @config_id, debug)
 	end
+	
 	# === Description
 	# Save the report definition to the NSC.
 	# Returns the config-id.
