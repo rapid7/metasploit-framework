@@ -279,11 +279,23 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	# Also reports a session_fingerprint note for host os normalization.
 	#
 	def load_session_info()
-		return if not (framework.db and framework.db.active)	
 		begin
 			::Timeout.timeout(60) do
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
+
+				safe_info = "#{username} @ #{sysinfo['Computer']}"
+				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+				# Should probably be using Rex::Text.ascii_safe_hex but leave
+				# this as is for now since "\xNN" is arguably uglier than "_"
+				# showing up in various places in the UI.
+				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
+				self.info = safe_info
+
+				# The rest of this requires a database, so bail if it's not
+				# there
+				return if not (framework.db and framework.db.active)	
+
 				framework.db.report_note({
 					:type => "host.os.session_fingerprint",
 					:host => self,
@@ -294,13 +306,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 						:arch => sysinfo["Architecture"],
 					}
 				})
-				safe_info = "#{username} @ #{sysinfo['Computer']}"
-				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
-				# Should probably be using Rex::Text.ascii_safe_hex but leave
-				# this as is for now since "\xNN" is arguably uglier than "_"
-				# showing up in various places in the UI.
-				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-				self.info = safe_info
 				if self.db_record
 					self.db_record.desc = safe_info
 					self.db_record.save!
