@@ -2,6 +2,7 @@
 # to create meaningful binary data. 
 
 module StructFu
+	
 	# Normally, self.size and self.length will refer to the Struct
 	# size as an array. It's a hassle to redefine, so this introduces some
 	# shorthand to get at the size of the resultant string.
@@ -106,6 +107,7 @@ module StructFu
 
 		# Returns a two byte value as a packed string.
 		def to_s
+			@packstr = (self.e == :big) ? "n" : "v"
 			[(self.v || self.d)].pack(@packstr)
 	 	end
 
@@ -113,10 +115,12 @@ module StructFu
   
 	# Int16be is a two byte value in big-endian format.
 	class Int16be < Int16
+		undef :endian=
 	end
 
 	# Int16le is a two byte value in little-endian format.
 	class Int16le < Int16
+		undef :endian=
 		def initialize(v=nil, e=:little)
 			super(v,e)
 			@packstr = (self.e == :big) ? "n" : "v"
@@ -132,6 +136,7 @@ module StructFu
 
 		# Returns a four byte value as a packed string.
 		def to_s
+			@packstr = (self.e == :big) ? "N" : "V"
 			[(self.v || self.d)].pack(@packstr)
 	 	end
 
@@ -139,10 +144,12 @@ module StructFu
 
 	# Int32be is a four byte value in big-endian format.
 	class Int32be < Int32
+		undef :endian=
 	end
 
 	# Int32le is a four byte value in little-endian format.
 	class Int32le < Int32
+		undef :endian=
 		def initialize(v=nil, e=:little)
 			super(v,e)
 		end
@@ -166,11 +173,11 @@ module StructFu
 	class IntString < Struct.new(:int, :string, :mode)
 
 		def initialize(string='',int=Int8,mode=nil)
-			unless int.respond_to?(:ancestors) && int.ancestors.include?(StructFu::Int)
-				raise StandardError, "Invalid length (#{int.inspect}) associated with this String."
-			else
+			if int < Int
 				super(int.new,string,mode)
 				calc
+			else
+				raise "IntStrings need a StructFu::Int for a length."
 			end
 		end
 

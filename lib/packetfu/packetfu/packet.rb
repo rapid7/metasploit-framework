@@ -1,136 +1,54 @@
 module PacketFu
 
 	# Packet is the parent class of EthPacket, IPPacket, UDPPacket, TCPPacket, and all
-	# other packets.
+	# other packets. It acts as both a singleton class, so things like
+	# Packet.parse can happen, and as an abstract class to provide 
+	# subclasses some structure.
 	class Packet
+
 		attr_reader :flavor # Packet Headers are responsible for their own specific flavor methods.
 		attr_accessor :headers # All packets have a header collection, useful for determining protocol trees.
 		attr_accessor :iface # Default inferface to send packets to
+
+		# Register subclasses in PacketFu.packet_class to do all kinds of neat things
+		# that obviates those long if/else trees for parsing. It's pretty sweet.
+		def self.inherited(subclass)
+			PacketFu.add_packet_class(subclass)
+		end
 
 		# Force strings into binary.
 		def self.force_binary(str)
 			str.force_encoding "binary" if str.respond_to? :force_encoding
 		end
 
-		# parse_app makes a valiant attempt at picking out particular applications (beyond
-		# the transport layer). As of right now, this only accounts for HSRP. I don't really
-		# intend to get very far with this because I need a better way to parse packets anyway --
-		# each packet type (including application layers) should be responsible for their own
-		# parsing rules. But, let's assume that'll never happen, so continue with this folly.
-		#
-		# This is an optional step, since it can lead to misidentified applications, depending
-		# on the strategy used to pick out app layers. For example, we really shouldn't have
-		# a rule that says that HTTP must be port 80, since it can easily be on 3128 or any
-		# other arbitrary port. However, we can say with certainty that HSRP must be dst port
-		# 1985, because that's what the RFC dictates.
-		def self.parse_app(parsed_packet,packet)
-			if parsed_packet.is_udp?
-				# Figure out UDP protocols (DNS, DHCP, etc)
-				# All HSRP is dst 224.0.0.2:1985 with a TTL of 1, so sayeth RFC 2281.
-				if(
-					parsed_packet.ip_ttl == 1 and
-					parsed_packet.ip_dst == 0xe0000002 and
-					parsed_packet.udp_dst == 1985
-				)
-					return HSRPPacket.new.read(packet)
-				else
-					return parsed_packet
-				end
-			elsif parsed_packet.is_tcp?
-				# Figure out TCP protocols (HTTP, SSH, etc)
-				return parsed_packet
-			else
-				# I don't know any others.
-				return parsed_packet
-			end
-		end
-
 		# Parse() creates the correct packet type based on the data, and returns the apporpiate
-		# Packet subclass. 
+		# Packet subclass object. 
 		#
 		# There is an assumption here that all incoming packets are either EthPacket
-		# or InvalidPacket types.
+		# or InvalidPacket types. This will be addressed pretty soon.
 		#
 		# If application-layer parsing is /not/ desired, that should be indicated explicitly
-		# with an argument of  :parse_app => false.
+		# with an argument of  :parse_app => false. Otherwise, app-layer parsing will happen.
 		#
-		# New packet types should get an entry here. 
-		def self.parse(packet,args={})
+		# It is no longer neccisary to manually add packet types here.
+		def self.parse(packet=nil,args={})
 			parse_app = true if(args[:parse_app].nil? or args[:parse_app])
 			force_binary(packet)
-			if packet.size >= 14													# Min size for Ethernet. No check for max size, yet.
-				case packet[12,2]														# Check the Eth protocol field.
-				when "\x08\x00"															# It's IP.
-					if 1.respond_to? :ord
-						ipv = packet[14,1][0].ord >> 4
-					else
-						ipv = packet[14,1][0] >> 4
-					end
-					case ipv																	# Check the IP version field.
-					when 4;				 														# It's IPv4.
-						case packet[23,1]												# Check the IP protocol field.
-						when "\x06"; p = TCPPacket.new					# Returns a TCPPacket.
-						when "\x11"; p = UDPPacket.new					# Returns a UDPPacket.
-						when "\x01"; p = ICMPPacket.new					# Returns an ICMPPacket.
-						else; p = IPPacket.new									# Returns an IPPacket since we can't tell the transport layer.
-						end
-					else; p = IPPacket.new										# Returns an IPPacket of this crazy IP version.
-					end
-				when "\x08\x06"															# It's arp
-					if packet.size >= 28											# Min size for complete arp
-						p = ARPPacket.new
-					else; p = EthPacket.new										# Returns an EthPacket since we can't deal with tiny arps.
-					end
-				when "\x86\xdd"															# It's IPv6
-					if packet.size >= 54											# Min size for a complete IPv6 packet.
-						p = IPv6Packet.new
-					else; p = EthPacket.new										# Returns an EthPacket since we can't deal with tiny Ipv6.
-					end
-				else; p = EthPacket.new											# Returns an EthPacket since we can't tell the network layer.
-				end
+			if parse_app
+				classes = PacketFu.packet_classes.select {|pclass| pclass.can_parse? packet}
 			else
-				p = InvalidPacket.new												# Not the right size for Ethernet (jumbo frames are okay)
+				classes = PacketFu.packet_classes.select {|pclass| pclass.can_parse? packet}.reject {|pclass| pclass.layer_symbol == :application}
 			end
+			p = classes.sort {|x,y| x.layer <=> y.layer}.last.new
 			parsed_packet = p.read(packet,args)
-			app_parsed_packet = parse_app ? parse_app(parsed_packet,packet) : nil
-			return app_parsed_packet || parsed_packet
 		end
 
-		#method_missing() delegates protocol-specific field actions to the apporpraite
-		#class variable (which contains the associated packet type)
-		#This register-of-protocols style switch will work for the 
-		#forseeable future (there aren't /that/ many packet types), and it's a handy
-		#way to know at a glance what packet types are supported.
-		def method_missing(sym, *args, &block)
-			case sym.to_s
-			when /^invalid_/
-				@invalid_header.send(sym,*args)
-			when /^eth_/
-				@eth_header.send(sym,*args)
-			when /^arp_/
-				@arp_header.send(sym,*args)
-			when /^ip_/
-				@ip_header.send(sym,*args)
-			when /^icmp_/
-				@icmp_header.send(sym,*args)
-			when /^udp_/
-				@udp_header.send(sym,*args)
-			when /^hsrp_/
-				@hsrp_header.send(sym,*args)
-			when /^tcp_/
-				@tcp_header.send(sym,*args)
-			when /^ipv6_/
-				@ipv6_header.send(sym,*args)
+		def handle_is_identity(ptype)
+			idx = PacketFu.packet_prefixes.index(ptype.to_s.downcase)
+			if idx
+				self.kind_of? PacketFu.packet_classes[idx]
 			else
-				raise NoMethodError, "Unknown method `#{sym}' for this packet object."
-			end
-		end
-		
-		def respond_to?(sym, include_private = false)
-			if sym.to_s =~ /^(invalid|eth|arp|ip|icmp|udp|hsrp|tcp|ipv6)_/
-				self.instance_variable_get("@#{$1}_header").respond_to? sym
-			else
-				super
+				raise NoMethodError, "Undefined method `is_#{ptype}?' for #{self.class}."
 			end
 		end
 
@@ -216,13 +134,6 @@ module PacketFu
 		# Read() takes (and trusts) the io input and shoves it all into a well-formed Packet.
 		# Note that read is a destructive process, so any existing data will be lost.
 		#
-		# TODO: This giant if tree is a mess, and worse, is decieving. You need to define
-		# actions both here and in parse(). All read() does is make a (good) guess as to
-		# what @headers to expect, and reads data to them.
-		#
-		# To take strings and turn them into packets without knowing ahead of time what kind of
-		# packet it is, use Packet.parse instead; parse() handles the figuring-out part.
-		#
 		# A note on the :strip => true argument: If :strip is set, defined lengths of data will
 		# be believed, and any trailers (such as frame check sequences) will be chopped off. This
 		# helps to ensure well-formed packets, at the cost of losing perhaps important FCS data.
@@ -236,123 +147,18 @@ module PacketFu
 		# correctly.
 		#
 		# So, to summarize; if you intend to alter the data, use :strip. If you don't, don't. Also,
-		# this is a horrid XXX hack. Stripping is useful (and fun!), but the default behavior really
+		# this is a horrid hack. Stripping is useful (and fun!), but the default behavior really
 		# should be to create payloads correctly, and /not/ treat extra FCS data as a payload.
 		#
-		# Update: This scheme is so lame. Need to fix. Seriously.
-		# Update: still sucks. Really.
-		def read(io,args={})
-			begin
-				if io.size >= 14
-					@eth_header.read(io)
-					eth_proto_num = io[12,2].unpack("n")[0]
-					if eth_proto_num == 0x0800 # It's IP.
-						if 1.respond_to? :ord
-							ipv = io[14].ord 
-						else
-							ipv = io[14] 
-						end
-						ip_hlen=(ipv & 0x0f) * 4
-						ip_ver=(ipv >> 4) # It's IPv4. Other versions, all bets are off!
-						if ip_ver == 4
-							ip_proto_num = io[23,1].unpack("C")[0]
-							@ip_header.read(io[14,ip_hlen])
-							if ip_proto_num == 0x06 # It's TCP.
-								tcp_len = io[16,2].unpack("n")[0] - 20
-								if args[:strip] # Drops trailers like frame check sequence (FCS). Often desired for cleaner packets.
-									tcp_all = io[ip_hlen+14,tcp_len] # Believe the tcp_len value; chop off anything that's not in range.
-								else
-									tcp_all = io[ip_hlen+14,0xffff] # Don't believe the tcp_len value; suck everything up.
-								end
-								tcp_hlen =  ((tcp_all[12,1].unpack("C")[0]) >> 4) * 4
-								if tcp_hlen.to_i >= 20
-									@tcp_header.read(tcp_all)
-									@ip_header.body = @tcp_header
-								else # It's a TCP packet with an impossibly small hlen, so it can't be real TCP. Abort! Abort!
-									@ip_header.body = io[16,io.size-16]
-								end
-							elsif ip_proto_num == 0x11 # It's UDP.
-								udp_len = io[16,2].unpack("n")[0] - 20
-								if args[:strip] # Same deal as with TCP. We might have stuff at the end of the packet that's not part of the payload.
-									@udp_header.read(io[ip_hlen+14,udp_len]) 
-								else # ... Suck it all up. BTW, this will change the lengths if they are ever recalc'ed. Bummer.
-									@udp_header.read(io[ip_hlen+14,0xffff])
-								end
-								@ip_header.body = @udp_header
-							elsif ip_proto_num == 1 # It's ICMP
-								@icmp_header.read(io[ip_hlen+14,0xffff])
-								@ip_header.body = @icmp_header
-							else # It's an IP packet for a protocol we don't have a decoder for.
-								@ip_header.body = io[16,io.size-16] 
-							end
-						else # It's not IPv4, so no idea what should come next. Just dump it all into an ip_header and ip payload.
-							@ip_header.read(io[14,ip_hlen])
-							@ip_header.body = io[16,io.size-16]
-						end
-						@eth_header.body = @ip_header
-					elsif eth_proto_num == 0x0806 # It's ARP
-						@arp_header.read(io[14,0xffff]) # You'll nearly have a trailer and you'll never know what size.
-						@eth_header.body=@arp_header
-						@eth_header.body
-					elsif eth_proto_num == 0x86dd # It's IPv6
-						@ipv6_header.read(io[14,0xffff])
-						@eth_header.body=@ipv6_header
-					else # It's an Ethernet packet for a protocol we don't have a decoder for
-						@eth_header.body = io[14,io.size-14]
-					end
-					if (args[:fix] || args[:recalc])
-						# Unfortunately, we cannot simply recalc with abandon, since
-						# we may have unaccounted trailers that will sneak into the checksum.
-						# The better way to handle this is to put trailers in their own
-						# StructFu field, but I'm not a-gonna right now. :/
-						ip_recalc(:ip_sum) if respond_to? :ip_header
-						recalc(:tcp) if respond_to? :tcp_header
-						recalc(:udp) if respond_to? :udp_header
-					end
-				else # You're not big enough for Ethernet. 
-					@invalid_header.read(io)
-				end	
-				# @headers[0]
-				self
-			rescue ::Exception => e
-				# remove last header
-				# nested_types = self.headers.collect {|header| header.class}
-				# nested_types.pop # whatever this packet type is, we weren't able to parse it
-				self.headers.pop
-				return_header_type = self.headers[self.headers.length-1].class.to_s
-				retklass = PacketFu::InvalidPacket
-				seekpos = 0
-				target_header = @invalid_header
-				case return_header_type.to_s
-				when "PacketFu::EthHeader"
-					retklass = PacketFu::EthPacket
-					seekpos = 0x0e
-					target_header = @eth_header
-				when "PacketFu::IPHeader"
-					retklass = PacketFu::IPPacket
-					seekpos = 0x0e + @ip_header.ip_hl * 4
-					target_header = @ip_header
-				when "PacketFu::TCPHeader"
-					retklass = PacketFu::TCPPacket
-					seekpos = 0x0e + @ip_header.ip_hl * 4 + @tcpheader.tcp_hlen
-					target_header = @tcp_header
-				when "PacketFu::UDPHeader"
-					retklass = PacketFu::UDPPacket
-				when "PacketFu::ARPHeader"
-					retklass = PacketFu::ARPPacket
-				when "PacketFu::ICMPHeader"
-					retklass = PacketFu::ICMPPacket
-				when "PacketFu::IPv6Header"
-					retklass = PacketFu::IPv6Packet
-				else
-				end
-			
-				io = io[seekpos,io.length - seekpos]
-				target_header.body = io
-				p = retklass.new
-				p.headers = self.headers
-				p
-				raise e if $debug
+		# Finally, packet subclasses should take two arguments: the string that is the data
+		# to be transmuted into a packet, as well as args. This superclass method is merely
+		# concerned with handling args common to many packet formats (namely, fixing packets
+		# on the fly)
+		def read(args={})
+			if args[:fix] || args[:recalc]
+				ip_recalc(:ip_sum) if self.is_ip?
+				recalc(:tcp) if self.is_tcp?
+				recalc(:udp) if self.is_udp?
 			end
 		end
 
@@ -364,6 +170,55 @@ module PacketFu
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << "%68s" % self.to_s[0,34].unpack("H*")[0]
 			peek_data.join
+		end
+
+		# Defines the layer this packet type lives at, based on the number of headers it 
+		# requires. Note that this has little to do with the OSI model, since TCP/IP
+		# doesn't really have Session and Presentation layers. 
+		#
+		# Ethernet and the like are layer 1, IP, IPv6, and ARP are layer 2,
+		# TCP, UDP, and other transport protocols are layer 3, and application
+		# protocols are at layer 4 or higher. InvalidPackets have an arbitrary
+		# layer 0 to distinguish them.
+		#
+		# Because these don't change much, it's cheaper just to case through them,
+		# and only resort to counting headers if we don't have a match -- this
+		# makes adding protocols somewhat easier, but of course you can just
+		# override this method over there, too. This is merely optimized
+		# for the most likely protocols you see on the Internet.
+		def self.layer
+			case self.name # Lol ran into case's fancy treatment of classes
+			when /InvalidPacket$/; 0
+			when /EthPacket$/; 1
+			when /IPPacket$/, /ARPPacket$/, /IPv6Packet$/; 2
+			when /TCPPacket$/, /UDPPacket$/, /ICMPPacket$/; 3
+			when /HSRPPacket$/; 4
+			else; self.new.headers.size
+			end
+		end
+
+		def layer
+			self.class.layer
+		end
+
+		def self.layer_symbol
+			case self.layer
+			when 0; :invalid
+			when 1; :link
+			when 2; :internet
+			when 3; :transport
+			else; :application
+			end
+		end
+
+		def layer_symbol
+			self.class.layer_symbol
+		end
+
+		# Packet subclasses must override this, since the Packet superclass
+		# can't actually parse anything.
+		def self.can_parse?(str)
+			false
 		end
 
 		# Hexify provides a neatly-formatted dump of binary data, familar to hex readers.
@@ -426,6 +281,21 @@ module PacketFu
 			end
 		end
 
+		alias :orig_kind_of? :kind_of?
+
+		def kind_of?(klass)
+			return true if orig_kind_of? klass
+			packet_types = proto.map {|p| PacketFu.const_get("#{p}Packet")}
+			match = false
+			packet_types.each do |p|
+				if p.ancestors.include? klass
+					match =  true
+					break
+				end
+			end
+			return match
+		end
+
 		# For packets, inspect is overloaded as inspect_hex(0).
 		# Not sure if this is a great idea yet, but it sure makes
 		# the irb output more sane.
@@ -458,31 +328,6 @@ module PacketFu
 		end
 
 		alias_method :protocol, :proto
-
-		# Returns true if this is an Invalid packet. Else, false.
-		def is_invalid? ;	self.proto.include? "Invalid"; end
-		# Returns true if this is an Ethernet packet. Else, false.
-		def is_ethernet? ;	self.proto.include? "Eth"; end
-		alias_method :is_eth?, :is_ethernet?
-		# Returns true if this is an IP packet. Else, false.
-		def is_ip? ;	self.proto.include? "IP"; end
-		# Returns true if this is an TCP packet. Else, false.
-		def is_tcp? ;	self.proto.include? "TCP"; end
-		# Returns true if this is an UDP packet. Else, false.
-		def is_udp? ;	self.proto.include? "UDP"; end
-		# Returns true if this is an HSRP packet. Else, false.
-		def is_hsrp? ;	self.proto.include? "HSRP"; end
-		# Returns true if this is an ARP packet. Else, false.
-		def is_arp? ; self.proto.include? "ARP"; end
-		# Returns true if this is an IPv6 packet. Else, false.
-		def is_ipv6? ; self.proto.include? "IPv6" ; end
-		# Returns true if this is an ICMP packet. Else, false.
-		def is_icmp? ; self.proto.include? "ICMP" ; end
-		# Returns true if this is an IPv6 packet. Else, false.
-		def is_ipv6? ; self.proto.include? "IPv6" ; end
-		# Returns true if the outermost layer has data. Else, false.
-		def has_data? ; self.payload.size.zero? ? false : true ; end
-
 		alias_method :length, :size
 
 		def initialize(args={})
@@ -495,6 +340,46 @@ module PacketFu
 					when :iface; @iface = v
 					end
 				end
+			end
+		end
+
+		#method_missing() delegates protocol-specific field actions to the apporpraite
+		#class variable (which contains the associated packet type)
+		#This register-of-protocols style switch will work for the 
+		#forseeable future (there aren't /that/ many packet types), and it's a handy
+		#way to know at a glance what packet types are supported.
+		def method_missing(sym, *args, &block)
+			case sym.to_s
+			when /^is_([a-zA-Z0-9]+)\?/
+				ptype = $1
+				if PacketFu.packet_prefixes.index(ptype)
+					self.send(:handle_is_identity, $1)
+				else
+					super
+				end
+			when /^([a-zA-Z0-9]+)_.+/
+				ptype = $1
+				if PacketFu.packet_prefixes.index(ptype)
+					self.instance_variable_get("@#{ptype}_header").send(sym,*args, &block)
+				else
+					super
+				end
+			else
+				super
+			end
+		end
+
+		def respond_to?(sym, include_private = false)
+			if sym.to_s =~ /^(invalid|eth|arp|ip|icmp|udp|hsrp|tcp|ipv6)_/
+				self.instance_variable_get("@#{$1}_header").respond_to? sym
+			elsif sym.to_s =~ /^is_([a-zA-Z0-9]+)\?/
+				if PacketFu.packet_prefixes.index($1)
+					true
+				else
+					super
+				end
+			else
+				super
 			end
 		end
 

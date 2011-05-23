@@ -141,6 +141,33 @@ module PacketFu
 
 		attr_accessor :eth_header, :ip_header, :udp_header, :hsrp_header
 
+		def self.can_parse?(str)
+			return false unless str.size >= 54
+			return false unless EthPacket.can_parse? str
+			return false unless IPPacket.can_parse? str
+			return false unless UDPPacket.can_parse? str
+			temp_packet = UDPPacket.new
+			temp_packet.read(str)
+			if temp_packet.ip_ttl == 1 and [temp_packet.udp_sport,temp_packet.udp_dport] == [1985,1985] 
+				return true
+			else 
+				return false
+			end
+		end
+
+		def read(str=nil, args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			@ip_header.read(str[14,str.size])
+			@eth_header.body = @ip_header
+			@udp_header.read(str[14+(@ip_header.ip_hlen),str.size])
+			@ip_header.body = @udp_header
+			@hsrp_header.read(str[14+(@ip_header.ip_hlen)+8,str.size])
+			@udp_header.body = @hsrp_header
+			super(args)
+			self
+		end
+
 		def initialize(args={})
 			@eth_header = EthHeader.new(args).read(args[:eth])
 			@ip_header = IPHeader.new(args).read(args[:ip])
@@ -150,7 +177,6 @@ module PacketFu
 			@udp_header.body = @hsrp_header
 			@ip_header.body = @udp_header
 			@eth_header.body = @ip_header
-
 			@headers = [@eth_header, @ip_header, @udp_header, @hsrp_header]
 			super
 		end

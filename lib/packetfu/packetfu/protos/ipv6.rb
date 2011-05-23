@@ -203,12 +203,27 @@ module PacketFu
 
 		attr_accessor :eth_header, :ipv6_header
 
+		def self.can_parse?(str)
+			return false unless EthPacket.can_parse? str
+			return false unless str.size >= 54
+			return false unless str[12,2] == "\x86\xdd"
+			true
+		end
+
+		def read(str=nil,args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			@ipv6_header.read(str[14,str.size])
+			@eth_header.body = @ipv6_header
+			super(args)
+			self
+		end
+
 		def initialize(args={})
 			@eth_header = (args[:eth] || EthHeader.new)
 			@ipv6_header = (args[:ipv6]	|| IPv6Header.new)
 			@eth_header.eth_proto = 0x86dd
 			@eth_header.body=@ipv6_header
-
 			@headers = [@eth_header, @ipv6_header]
 			super
 		end

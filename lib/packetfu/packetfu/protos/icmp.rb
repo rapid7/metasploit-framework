@@ -114,7 +114,26 @@ module PacketFu
 	class ICMPPacket < Packet
 
 		attr_accessor :eth_header, :ip_header, :icmp_header
-		
+
+		def self.can_parse?(str)
+			return false unless str.size >= 54
+			return false unless EthPacket.can_parse? str
+			return false unless IPPacket.can_parse? str
+			return false unless str[23,1] == "\x01"
+			return true
+		end
+
+		def read(str=nil, args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			@ip_header.read(str[14,str.size])
+			@eth_header.body = @ip_header
+			@icmp_header.read(str[14+(@ip_header.ip_hlen),str.size])
+			@ip_header.body = @icmp_header
+			super(args)
+			self
+		end
+
 		def initialize(args={})
 			@eth_header = EthHeader.new(args).read(args[:eth])
 			@ip_header = IPHeader.new(args).read(args[:ip])

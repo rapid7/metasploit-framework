@@ -245,16 +245,27 @@ module PacketFu
 	class	EthPacket < Packet
 		attr_accessor :eth_header
 
-		def initialize(args={})
-			@eth_header = EthHeader.new(args).read(args[:eth])
-			@headers = [@eth_header]
-			super
+		def self.can_parse?(str)
+			str.size >= 14
+		end
+
+		def read(str=nil,args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			super(args)
+			return self
 		end
 
 		# Does nothing, really, since there's no length or
 		# checksum to calculate for a straight Ethernet packet.
 		def recalc(args={})
 			@headers[0].inspect
+		end
+
+		def initialize(args={})
+			@eth_header = EthHeader.new(args).read(args[:eth])
+			@headers = [@eth_header]
+			super
 		end
 
 	end

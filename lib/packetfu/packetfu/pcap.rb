@@ -416,7 +416,7 @@ module PacketFu
 
 			# set_byte_order is pretty much totally deprecated.
 			def set_byte_order(byte_order)
-				PacketFu.instance_variable_set("@byte_order",byte_order)
+				PacketFu.instance_variable_set(:@byte_order,byte_order)
 				return true
 			end
 
@@ -450,7 +450,7 @@ module PacketFu
 				arr = args[:arr] || args[:array] || []
 				ts = args[:ts] || args[:timestamp] || Time.now.to_i
 				ts_inc = args[:ts_inc] || args[:timestamp_increment]
-				pkts = PcapFile.new.array_to_file(:endian => PacketFu.instance_variable_get("@byte_order"),
+				pkts = PcapFile.new.array_to_file(:endian => PacketFu.instance_variable_get(:@byte_order),
 																					:arr => arr,
 																					:ts => ts,
 																					:ts_inc => ts_inc)
@@ -468,7 +468,7 @@ module PacketFu
 				append = args[:append]
 				Read.set_byte_order(byte_order) if [:big, :little].include? byte_order
 				pf = PcapFile.new
-				pf.array_to_file(:endian => PacketFu.instance_variable_get("@byte_order"),
+				pf.array_to_file(:endian => PacketFu.instance_variable_get(:@byte_order),
 												 :arr => arr,
 												 :ts => ts,
 												 :ts_inc => ts_inc)

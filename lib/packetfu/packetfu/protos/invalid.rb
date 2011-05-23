@@ -30,6 +30,20 @@ module PacketFu
 	class	InvalidPacket < Packet
 		attr_accessor :invalid_header
 
+		# Any packet is potentially an invalid packet
+		def self.can_parse?(str)
+			true
+		end
+
+		def self.layer
+			0
+		end
+
+		def read(str=nil,args={})
+			@invalid_header.read(str)
+			self
+		end
+
 		def initialize(args={})
 			@invalid_header = 	(args[:invalid] || InvalidHeader.new)
 			@headers = [@invalid_header]

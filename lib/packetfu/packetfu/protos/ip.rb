@@ -175,6 +175,11 @@ module PacketFu
 			(ip_hl * 4) + body.to_s.length
 		end
 
+		# Return the claimed header length 
+		def ip_hlen
+			(ip_hl * 4)
+		end
+
 		# Calculate the true checksum of the packet.
 		# (Yes, this is the long way to do it, but it's e-z-2-read for mathtards like me.)
 		def ip_calc_sum
@@ -288,6 +293,30 @@ module PacketFu
 	class IPPacket < Packet
 
 		attr_accessor :eth_header, :ip_header
+
+		def self.can_parse?(str)
+			return false unless str.size >= 34
+			return false unless EthPacket.can_parse? str
+			if str[12,2] == "\x08\x00"
+				if 1.respond_to? :ord
+					ipv = str[14,1][0].ord >> 4
+				else
+					ipv = str[14,1][0] >> 4
+				end
+				return true if ipv == 4 
+			else
+				return false
+			end
+		end
+
+		def read(str=nil, args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			@ip_header.read(str[14,str.size])
+			@eth_header.body = @ip_header
+			super(args) 
+			self
+		end
 
 		# Creates a new IPPacket object. 
 		def initialize(args={})

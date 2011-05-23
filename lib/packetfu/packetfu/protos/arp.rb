@@ -173,13 +173,29 @@ module PacketFu
 
 		attr_accessor :eth_header, :arp_header
 
+		def self.can_parse?(str)
+			return false unless EthPacket.can_parse? str
+			return false unless str.size >= 28
+			return false unless str[12,2] == "\x08\x06"
+			true
+		end
+
+		def read(str=nil,args={})
+			raise "Cannot parse `#{str}'" unless self.class.can_parse?(str)
+			@eth_header.read(str)
+			@arp_header.read(str[14,str.size])
+			@eth_header.body = @arp_header
+			super(args)
+			self
+		end
+
 		def initialize(args={})
 			@eth_header = EthHeader.new(args).read(args[:eth])
 			@arp_header = ARPHeader.new(args).read(args[:arp]) 
 			@eth_header.eth_proto = "\x08\x06"
 			@eth_header.body=@arp_header
 
-			# Please send more flavors to todb-packetfu@planb-security.net.
+			# Please send more flavors to todb+packetfu@planb-security.net.
 			# Most of these initial fingerprints come from one (1) sample.
 			case (args[:flavor].nil?) ? :nil : args[:flavor].to_s.downcase.intern
 			when :windows; @arp_header.body = "\x00" * 64				# 64 bytes of padding 
@@ -197,7 +213,6 @@ module PacketFu
 
 			@headers = [@eth_header, @arp_header]
 			super
-
 		end
 
 		# Generates summary data for ARP packets.
