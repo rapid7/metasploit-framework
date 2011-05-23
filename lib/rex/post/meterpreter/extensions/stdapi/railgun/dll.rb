@@ -43,6 +43,7 @@ class DLL
 	include DLLHelper
 
 	attr_accessor :functions
+	attr_reader   :dll_path
 
 	def initialize(dll_path, client, win_consts) #
 		@dll_path = dll_path
