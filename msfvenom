@@ -1,0 +1,375 @@
+#!/usr/bin/env ruby
+#
+# $Id:$
+# $Revision:$
+#
+msfbase = __FILE__
+while File.symlink?(msfbase)
+	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
+end
+
+$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
+
+Status = "[*] "
+Error = "[-] "
+
+require 'rex'
+require 'msf/ui'
+require 'msf/base'
+require 'optparse'
+
+def parse_args
+	opts = {}
+	datastore = {}
+	opt = OptionParser.new
+	opt.banner = "Usage: #{$0} [options] <var=val>"
+	opt.separator('')
+	opt.separator('Options:')
+
+	opt.on('-p', '--payload    [payload]', String, 'Payload to use. Specify a \'-\' or stdin to use custom payloads') do |p|
+		if p == '-'
+			opts[:payload] = 'stdin'
+		else
+			opts[:payload] = p
+		end
+	end
+
+	opt.on('-l', '--list       [module_type]', Array, 'List a module type example: payloads, encoders, nops, all') do |l|
+		if l.nil? or l.empty?
+			l = ["all"]
+		end
+		opts[:list] = l
+	end
+
+	opt.on('-n', '--nopsled    [length]', Integer, 'Prepend a nopsled of [length] size on to the payload') do |n|
+		opts[:nopsled] = n.to_i
+	end
+
+	formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
+	opt.on('-f', '--format     [format]', String, "Format to output results in: #{formats.join(', ')}") do |f|
+		opts[:format] = f
+	end
+
+	opt.on('-e', '--encoder    [encoder]', String, 'The encoder to use') do |e|
+		opts[:encode] = true
+		opts[:encoder] = e
+	end
+
+	opt.on('-a', '--arch       [architecture]', String, 'The architecture to use') do |a|
+		opts[:arch] = a
+	end
+
+	opt.on('', '--platform   [platform]', String, 'The platform of the payload') do |l|
+		opts[:platform] = Msf::Module::PlatformList.transform(l)
+	end
+
+	opt.on('-s', '--space      [length]', Integer, 'The maximum size of the resulting payload') do |s|
+		opts[:space] = s
+	end
+
+	opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
+		opts[:badchars] = b
+	end
+
+	opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
+		opts[:iterations] = i
+	end
+
+	opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
+		opts[:template] = x
+	end
+	
+	opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
+		opts[:inject] = true
+	end
+
+	opt.on_tail('-h', '--help', 'Show this message') do
+		$stderr.puts opt
+		exit(1)
+	end
+
+	begin
+		opt.parse!
+	rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+		puts "Invalid option, try -h for usage"
+		exit(1)
+	end
+	
+	args = ARGV.dup
+	if args
+		args.each do |x|
+			k,v = x.split('=', 2)
+			datastore[k] = v.to_s
+		end
+	end
+
+	if opts.empty?
+		puts "no options"
+		puts opt
+		exit(1)
+	end
+
+	if opts[:payload].nil? # if no payload option is selected assume we are reading it from stdin
+		opts[:payload] = "stdin"
+	end
+
+	return [datastore, opts]
+end
+
+def print_status(msg)
+	$stderr.puts(Status + msg)
+end
+
+def print_error(msg)
+	$stderr.puts(Error + msg)
+end
+
+def get_encoders(arch, encoder)
+	encoders = []
+
+	if (encoder)
+		encoders << $framework.encoders.create(encoder)
+	else
+		$framework.encoders.each_module_ranked(
+			'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+			encoders << mod.new
+		}
+	end
+
+	encoders
+end
+
+def payload_stdin
+	$stdin.binmode
+	payload = $stdin.read
+	payload
+end
+
+def dump_payloads
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework Payloads (#{$framework.stats.num_payloads} total)",
+		'Columns' =>
+			[
+				"Name",
+				"Description"
+			])
+
+	$framework.payloads.each_module { |name, mod|
+		tbl << [ name, mod.new.description ]
+	}
+
+	"\n" + tbl.to_s + "\n"
+end
+
+def dump_encoders(arch = nil)
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework Encoders" + ((arch) ? " (architectures: #{arch})" : ""),
+		'Columns' =>
+			[
+				"Name",
+				"Rank",
+				"Description"
+			])
+	cnt = 0
+
+	$framework.encoders.each_module(
+		'Arch' => arch ? arch.split(',') : nil) { |name, mod|
+		tbl << [ name, mod.rank_to_s, mod.new.name ]
+
+		cnt += 1
+	}
+
+	(cnt > 0) ? "\n" + tbl.to_s + "\n" : "\nNo compatible encoders found.\n\n"
+end
+
+def dump_nops
+	tbl = Rex::Ui::Text::Table.new(
+		'Indent'  => 4,
+		'Header'  => "Framework NOPs (#{$framework.stats.num_nops} total)",
+		'Columns' =>
+			[
+				"Name",
+				"Description"
+			])
+
+	$framework.nops.each_module { |name, mod|
+		tbl << [ name, mod.new.description ]
+	}
+
+	"\n" + tbl.to_s + "\n"
+end
+
+datastore, opts = parse_args
+
+$framework = Msf::Simple::Framework.create(
+	:module_types => [Msf::MODULE_PAYLOAD, Msf::MODULE_ENCODER, Msf::MODULE_NOP],
+	'DisableDatabase' => true
+)
+
+if opts[:list]
+	opts[:list].each do |mod|
+		case mod
+		when /payloads/i
+			$stderr.puts dump_payloads
+		when /encoders/i
+			$stderr.puts dump_encoders(opts[:arch])
+		when /nops/i
+			$stderr.puts dump_nops
+		when /all/i
+			$stderr.puts dump_payloads
+			$stderr.puts dump_encoders
+			$stderr.puts dump_nops
+		else
+			print_error("Invalid module type")
+		end
+	end
+	exit
+end
+
+if opts[:payload]
+	if opts[:payload] == 'stdin'
+		payload_raw = payload_stdin
+		if opts[:encode] and (opts[:arch].nil? or opts[:platform].nil?)
+			print_error("Cannot encode stdin payload without specifying the proper architecture and platform")
+			opts[:encode] = false
+		end
+	else
+		payload = $framework.payloads.create(opts[:payload])
+		if payload.nil?
+			print_error("Invalid payload: #{opts[:payload]}")
+			exit
+		end
+	end
+end
+
+# set the defaults unless something is already set by the user
+opts[:arch]     ||= payload.arch[0]
+opts[:platform] ||= payload.platform.platforms
+opts[:format]   ||= 'ruby'
+opts[:encoder]  ||= nil
+
+
+if opts[:encoder].nil?
+	fmt = 'raw'
+else
+	fmt =  'raw'
+	encoders = get_encoders(opts[:arch], opts[:encoder])
+end
+
+if payload_raw.nil? or payload_raw.empty?
+	payload_raw = payload.generate_simple(
+				'Format'        => fmt,
+				'Options'       => datastore,
+				'Encoder'       => nil)
+end
+
+
+
+if opts[:encode]
+	done = false
+	encoders = get_encoders(opts[:arch], opts[:encoder])
+	encoders.each do |enc|
+		break if done
+		#enc.datastore.import_options_from_s(datastore, '_|_')
+		eout = payload_raw.dup
+		skip = false
+		raw = nil
+
+		if not opts[:iterations]
+			opts[:iterations] = 1
+		end
+
+		1.upto(opts[:iterations].to_i) do |iteration|
+			begin
+				raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
+				if opts[:space] and opts[:space] > 0 and raw.length > opts[:space]
+					print_error("#{enc.refname} created buffer that is too big (#{raw.length})\n\n")
+					skip = true
+					break
+				end
+
+				print_status("#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n")
+				if iteration == opts[:iterations]
+					done = true
+					break
+				end
+				eout = raw
+				payload_raw = raw
+			rescue
+				if iteration != opts[:iteration]
+					print_error("#{enc.refname} failed: #{$!} (iteration=#{iteration})\n")
+					next
+				else
+					print_error("Error generating payload: #{$!}")
+					exit
+				end
+			end
+		end
+	end
+end
+
+if opts[:template]
+	idx = opts[:template].rindex("/")
+	len = opts[:template].length
+	path = opts[:template][0..idx]
+	altexe = opts[:template][idx..len]
+end
+
+exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
+
+$stdout.binmode
+if opts[:format] !~/ruby|rb|perl|pl|c|js|dll/i
+	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
+end
+
+case opts[:format]
+when /ruby|rb|perl|pl|c|js_le|raw/i
+	$stdout.puts Msf::Simple::Buffer.transform(payload_raw, opts[:format])
+when /asp/
+	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
+	$stdout.puts asp
+when /js_be/i
+	if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
+		print_error("Big endian format selected for a non big endian payload")
+		exit
+	end
+	$stdout.puts Msf::Simple::Buffer.transform(payload_raw, opts[:format])
+when /java/i
+	if(!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
+		exe = payload.generate_jar.pack
+	end
+	
+	if exe
+		$stdout.puts exe
+	else
+		print_error("Could not generate payload format")
+	end
+when /dll/i
+	dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
+	$stdout.puts dll
+when /exe/i
+	$stdout.puts exe
+when /exe-small/i
+when /vba/i
+	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
+	vba = Msf::Util::EXE.to_exe_vba(exe)
+	$stdout.puts vba
+when /vbs/i
+	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
+	vbs = Msf::Util::EXE.to_exe_vbs(exe)
+	$stdout.puts vbs
+when /war/i
+	if (!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
+		exe = payload.generate_war.pack
+	else
+		exe = Msf::Util::EXE.to_jsp_war(exe)
+	end
+	
+	$stdout.puts exe
+else
+	print_error("Unsupported format")
+	exit
+end
