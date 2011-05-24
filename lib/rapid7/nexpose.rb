@@ -469,7 +469,7 @@ module NexposeAPI
 	# TODO: Needs to be expanded to included details
 	#-----------------------------------------------------------------------
 	def site_scan_history(site_id)
-		r.execute(make_xml('SiteScanHistoryRequest', {'site-id' => site_id.to_s}))
+		r = execute(make_xml('SiteScanHistoryRequest', {'site-id' => site_id.to_s}))
 
 		if (r.success)
 			res = []
