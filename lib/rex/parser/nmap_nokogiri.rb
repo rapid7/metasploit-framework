@@ -33,6 +33,7 @@ module Rex
 			@args = args
 			@db = db
 			@state = {}
+			@state[:current_tag] = {}
 			@block = block if block
 			@report_data = {:wspace => args[:wspace]}
 			super()
@@ -106,13 +107,14 @@ module Rex
 			end
 			return attr_pairs
 		end
-		
+
 		# Triggered every time a new element is encountered. We keep state
 		# ourselves with the @state variable, turning things on when we
 		# get here (and turning things off when we exit in end_element()).
 		def start_element(name=nil,attrs=[])
 			attrs = normalize_attrs(attrs)
 			block = @block
+			@state[:current_tag][name] = true
 			case name
 			when "host"
 				@state[:in_host] = true
@@ -270,6 +272,7 @@ module Rex
 		# When we exit a tag, this is triggered.
 		def end_element(name=nil)
 			block = @block
+			@state[:current_tag].delete name
 			case name
 			when "os"
 				collect_os_data
@@ -299,7 +302,17 @@ module Rex
 					report_uptime(host_object)
 					report_traceroute(host_object)
 				end
-				@state = {}
+				@state.delete_if {|k| k != :current_tag}
+			end
+		end
+
+		def end_document
+			block = @block
+			unless @state[:current_tag].empty?
+				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
+				msg = "Warning, the provided file is incomplete, and there may be missing\n"
+				msg << "data. The following tags were not closed: #{missing_ends}."
+				db.emit(:warning,msg,&block)
 			end
 		end
 
