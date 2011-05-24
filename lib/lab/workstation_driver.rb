@@ -12,17 +12,20 @@ class WorkstationDriver < VmDriver
 	attr_accessor :type
 	attr_accessor :location
 
-	def initialize(location, credentials=nil)
+	def initialize(vmid, location, credentials=nil)
+		@vmid = filter_input(vmid)
 		@location = filter_input(location)
-
 		if !File.exist?(@location)
 			raise ArgumentError,"Couldn't find: " + location
 		end
 
-		@credentials = filter_input_credentials(credentials)
+		@credentials = credentials
 
-		@type = "workstation"
-		
+		# TODO - Currently only implemented for the first set
+		if @credentials.count > 0
+			@vm_user = filter_input(@credentials[0]['user'])
+			@vm_pass = filter_input(@credentials[0]['pass'])
+		end
 	end
 
 	def start
@@ -60,88 +63,40 @@ class WorkstationDriver < VmDriver
 		system_command("vmrun -T ws deleteSnapshot " + "\"#{@location}\" \"#{snapshot}\"" )
 	end
 
-	def run_command(command, named_user=nil)
-	
+	def run_command(command)
 		command = filter_input(command)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-	
-		vmrunstr = "vmrun -T ws -gu \"{user}\" -gp \"{pass}\" runProgramInGuest \"#{@location}\" \"{command}\" -noWait -activeWindow"
-
+		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass} \" " +
+				"runProgramInGuest \"#{@location}\" \"{command}\" -noWait -activeWindow"
 		system_command(vmrunstr)
 	end
 	
-	def copy_from(from, to, named_user=nil)
-
+	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-		
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} copyFileFromGuestToHost \"#{@location}\" \"{from}\" \"{to}\"" 
+		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromGuestToHost" +
+				" \"#{@location}\" \"{from}\" \"{to}\"" 
 		system_command(vmrunstr)
 	end
 
-	def copy_to(from, to, named_user=nil)
-	
+	def copy_to(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-
-	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} copyFileFromHostToGuest \"#{@location}\" \"{from}\" \"{to}\""  
+		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest" +
+				" \"#{@location}\" \"{from}\" \"{to}\""  
 		system_command(vmrunstr)
 	end
 
-	def check_file_exists(file, named_user=nil)
-	
+	def check_file_exists(file)
 		file = filter_input(file)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-
-	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} fileExistsInGuest \"#{@location}\" \"{file}\" "
+		vmrunstr = "vmrun -T ws -gu {user} -gp #{@vm_pass} fileExistsInGuest " +
+				"\"#{@location}\" \"{file}\" "
 		system_command(vmrunstr)
 	end
 
-	def create_directory(directory, named_user=nil)
-	
+	def create_directory(directory)
 		directory = filter_input(directory)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-	
-		vmrunstr = "vmrun -T ws -gu {user} -gp {pass} createDirectoryInGuest \"#{@location}\" \"#{directory}\" "
+		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} createDirectoryInGuest " +
+				" \"#{@location}\" \"#{directory}\" "
 		system_command(vmrunstr)
 	end
 

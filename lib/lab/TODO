@@ -1,0 +1,6 @@
+ - qemu
+ - qemudo
+ - amazon ec2
+ - kvm
+ 
+look at fog as a potential drop-in replacement

@@ -1,138 +1,133 @@
 ##
 ## $Id$
 ##
+
+#
+# 	!!WARNING!! - All drivers are expected to filter input before running
+#	anything based on it. This is particularly important in the case
+#	of the drivers which wrap a command line program to provide 
+# 	functionality.  
+#
+
+
 module Lab
 module Drivers
 class VmDriver
 
-	attr_accessor :type
-	attr_accessor :location
-
-	def initialize(location)
-	
-		@location = location
-		@host = host
-		@user = user
-		@credentials = credentials
-		@type = ""
-	
-	end
-
-	def register
+	def register	# Must be implemented in a child *_driver class
+		raise Exception, "Command not Implemented"
 	end
 		
-	def unregister
+	def unregister	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def start
+	def start	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def stop
+	def stop	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def suspend
+	def suspend	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def pause
+	def pause	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def reset
+	def reset	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def create_snapshot(snapshot)
+	def create_snapshot(snapshot)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def revert_snapshot(snapshot)
+	def revert_snapshot(snapshot)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def delete_snapshot(snapshot)
+	def delete_snapshot(snapshot)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def run_command(command, named_user=nil)	
+	def run_command(command)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 	
-	def copy_from(from, to, named_user=nil)
+	def copy_from(from, to)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 	
-	def copy_to(from, to, named_user=nil)
+	def copy_to(from, to)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def check_file_exists(file, named_user=nil)
+	def check_file_exists(file)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def create_directory(directory, named_user=nil)
+	def create_directory(directory)	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-=begin
-	def ssh_exec(host, command, user)
-		ssh_command = "ssh " + @user + "@" + @host + " " + command
-		system_command(ssh_command)
+	def cleanup	# Must be implemented in a child *_driver class
+		raise Exception, "Command Not Implemented"
 	end
 
-	def scp_from(host, user, from, to)
-		vmrunstr = "scp -r \"" + @user + "@" + @host + ":" + from + "\" \"" + to + "\""  
-		system_command(vmrunstr)
+private
+	def scp_to(from,to)
+		gem 'net-ssh'
+		require 'net/ssh'
+		
+		gem 'net-scp'
+		require 'net/scp'
+		
+		# upload a file to a remote server
+		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+			scp.upload!(from,to)
+		end	
 	end
-
-	def scp_to(host, user, from, to)
-		vmrunstr = "scp -r \"" + from + "\" \"" + @user + "@" + @host + ":" + to + "\""
-		system_command(vmrunstr)
-	end
-=end
-
-	def cleanup
-	end
-
-	private
 	
-		def filter_input(string)
-			return unless string
-					
-			if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
-				raise Exception, "WARNING! Invalid character in: #{string}"
-			end
-
-			string
-		end
-
-		def filter_input_credentials(credentials)
-			return unless credentials
+	def scp_from(from,to)
+		gem 'net-ssh'
+		require 'net/ssh'
 		
-			credentials.each { |credential|
-				credential['user'] = filter_input(credential['user'])
-				credential['pass'] = filter_input(credential['pass'])
-			}
-
-			return credentials
-		end
-
+		gem 'net-scp'
+		require 'net/scp'
 		
-		## Takes a username in the form of a string
-		## and returns a credentials hash
-		def get_best_creds(named_user)
-			if !@credentials.empty?
-				return get_named_user_creds(named_user) || @credentials[0]	
-			else
-				raise Exception, "No credentials for this VM ):"
-			end
-		end
-
+		# download a file from a remote server
+		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+			scp.download!(from,to)
+		end	
+	end
+	
+	def ssh_exec(command)
+		gem 'net-ssh'
+		require 'net/ssh'
 		
-		## Checks the array of credentials to see if we have one
-		## with this user's username. returns the first.
-		def get_named_user_creds(user)
-			@credentials.each do |credential|
-				if credential['user'].downcase == user.downcase
-					return credential
-				end
-			end
-			return nil
+		Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
+			result = ssh.exec!(command)
+		end
+	end
+
+	def filter_input(string)
+		return unless string
+				
+		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
+			raise "WARNING! Invalid character in: #{string}"
 		end
 
-		def system_command(command)
-			system(command)
-		end
-
+	string
+	end
+	
+	def system_command(command)
+		puts "DEBUG: running command #{command}"
+		system(command)
+	end
 end
 
 end

@@ -8,16 +8,13 @@ module Lab
 module Drivers
 	class VirtualBoxDriver < VmDriver
 
-		attr_accessor :type
 		attr_accessor :location
 
-		def initialize(vmid, location=nil)
+		def initialize(vmid, location=nil, credentials=nil)
 
 			@vmid = filter_input(vmid)
 			@location = filter_input(location)
-
-			@type = "virtualbox"
-			
+	
 			## Check to see if we already know this vm, if not, go on location
 			vmid_list = ::Lab::Controllers::VirtualBoxController::config_list
 			unless vmid_list.include? @vmid
@@ -33,6 +30,15 @@ module Drivers
 			
 			vmInfo = `VBoxManage showvminfo \"#{@vmid}\" --machinereadable`
 			@location = vmInfo.scan(/CfgFile=\"(.*?)\"/).flatten[0].to_s
+			
+			@credentials = credentials
+
+			# TODO - Currently only implemented for the first set
+			if @credentials.count > 0
+				@vm_user = filter_input(@credentials[0]['user'])
+				@vm_pass = filter_input(@credentials[0]['pass'])
+			end
+			
 		end
 
 		def register_and_return_vmid
@@ -75,42 +81,55 @@ module Drivers
 
 		def create_snapshot(snapshot)
 			snapshot = filter_input(snapshot)
-			system_command("VBoxManage snapshot \"#{@vmid}\" take " + snapshot)
+			system_command("VBoxManage snapshot \"#{@vmid}\" take #{snapshot}")
 		end
 
 		def revert_snapshot(snapshot)
 			snapshot = filter_input(snapshot)
-			system_command("VBoxManage snapshot \"#{@vmid}\" restore " + snapshot)
+			system_command("VBoxManage snapshot \"#{@vmid}\" restore #{snapshot}")
 		end
 
 		def delete_snapshot(snapshot)
 			snapshot = filter_input(snapshot)
-			system_command("VBoxManage snapshot \"#{@vmid}\" delete " + snapshot)
+			system_command("VBoxManage snapshot \"#{@vmid}\" delete  #{snapshot}")
 		end
 
-		def run_command(command, arguments, user, pass)
-			command = "VBoxManage guestcontrol exec \"#{@vmid}\" \"#{command}\" --username \"#{user}\"
-					 --password \"#{pass}\" --arguments \"#{arguments}\""
+		def run_command(command, arguments=nil)
+			command = filter_input(command)
+			arguments = filter_input(arguments)
+
+			command = "VBoxManage guestcontrol exec \"#{@vmid}\" \"#{command}\" --username \"#{@vm_user}\"" +
+					 " --password \"#{@vm_pass}\" --arguments \"#{arguments}\""
 			system_command(command)
 		end
 	
-		def copy_from(user, pass, from, to)
+		def copy_from(from, to)
+			from = filter_input(from)
+			to = filter_input(to)
+
 			raise "Not supported by Virtual Box"
 		end
 
-		def copy_to(user, pass, from, to)
-			command = "VBoxManage guestcontrol copyto \"#{@vmid}\" \"#{from}\"  \"#{to}\"
-					 --username \"#{user}\" --password \"#{pass}\""
+		def copy_to(from, to)
+			from = filter_input(from)
+			to = filter_input(to)
+			
+			command = "VBoxManage guestcontrol copyto \"#{@vmid}\" \"#{from}\"  \"#{to}\" " +
+					 "--username \"#{@vm_user}\" --password \"#{@vm_pass}\""
 			system_command(command)
 		end
 
-		def check_file_exists(user, pass, file)
+		def check_file_exists(file)
+			file = filter_input(file)
+
 			raise "Not supported by Virtual Box"
 		end
 
-		def create_directory(user, pass, directory)
-			command = "VBoxManage guestcontrol createdir \"#{@vmid}\" \"#{directory}\"
-					 --username \"#{user}\" --password \"#{pass}\""
+		def create_directory(directory)
+			directory = filter_input(directory)
+
+			command = "VBoxManage guestcontrol createdir \"#{@vmid}\" \"#{directory}\" " + 
+					 "--username \"#{@vm_user}\" --password \"#{@vm_pass}\""
 			system_command(command)
 		end
 

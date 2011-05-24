@@ -1,14 +1,13 @@
 require 'vm_driver'
 
-##
-## $Id$
-##
+#
+# $Id$
+#
 
-## To use this driver, you have to have a lab which is preconfigured. The best / easies
-## way to set up a lab is to use GNS3 to configure it 
-## 
-
-
+#
+# To use this driver, you have to have a lab which is preconfigured. The best / easiest
+# way i've found to to set up a lab is GNS3
+# 
 
 module Lab
 module Drivers
@@ -17,23 +16,26 @@ module Drivers
 		attr_accessor :type
 		attr_accessor :location
 
-		def initialize(location)
+		def initialize(vmid,location,platform)
+			@vmid = filter_input(vmid)
+			@location = filter_input(location)
+
 			if !File.exist?(location)
 				raise ArgumentError,"Couldn't find: " + location
 			end
 
-			@location = filter_input(location)
 			@type = "dynagen"
 			@running = false
-
-			## start background dynamips process
-			system_command("nice dynamips -H 7200 &")
+			@platform = filter_input(platform)
+			@credentials = []
 		end
 
 		def start
-			## TODO - write the location-file to a temp-file and set the 
-			## autostart property 
+			# TODO - write the location-file to a temp-file 
+			#        and set the autostart property 
 
+			## start background dynamips process
+			system_command("dynamips -H #{@platform} &")
 			system_command("dynagen	#{@location}")
 			@running = true
 		end
@@ -41,50 +43,6 @@ module Drivers
 		def stop
 			system_command("killall dynagen")
 			@running = false
-		end
-
-		def suspend
-			raise Exception, "Unsupported Command"
-		end
-
-		def pause
-			raise Exception, "Unsupported Command"
-		end
-
-		def reset
-			raise Exception, "Unsupported Command"
-		end
-
-		def create_snapshot(name)
-			raise Exception, "Unsupported Command"
-		end
-
-		def revert_snapshot(name)
-			raise Exception, "Unsupported Command"
-		end
-
-		def delete_snapshot(name)
-			raise Exception, "Unsupported Command"
-		end
-
-		def run_command(command, arguments, user, pass)
-			raise Exception, "Unsupported Command"
-		end
-
-		def copy_from(user, pass, from, to)
-			raise Exception, "Unsupported Command"
-		end
-
-		def copy_to(user, pass, from, to)
-			raise Exception, "Unsupported Command"
-		end
-
-		def check_file_exists(user, pass, file)
-			raise Exception, "Unsupported Command"
-		end
-
-		def create_directory(user, pass, directory)
-			raise Exception, "Unsupported Command"
 		end
 
 		def cleanup

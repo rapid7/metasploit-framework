@@ -12,11 +12,13 @@ require 'enumerator'
 require 'vm'
 require 'yaml'
 require 'workstation_controller'
+require 'workstation_vixr_controller'
 require 'remote_workstation_controller'
-#require 'qemu_controller'
-#require 'amazon_controller'
 require 'virtualbox_controller'
-#require 'dynagen_controller'
+require 'dynagen_controller'
+#require 'qemu_controller'
+#require 'qemudo_controller'
+#require 'amazon_controller'
 
 module Lab
 module Controllers
@@ -24,14 +26,17 @@ module Controllers
 
 		include Enumerable
 		include Lab::Controllers::WorkstationController 		## gives access to workstation-specific controller methods
+		include Lab::Controllers::WorkstationVixrController 		## gives access to workstation-specific controller methods
 		include Lab::Controllers::RemoteWorkstationController 		## gives access to workstation-specific controller methods
-		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
-		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
 		include Lab::Controllers::VirtualBoxController 			## gives access to virtualbox-specific controller methods
-		#include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
+		include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
+
+		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
+		#include Lab::Controllers::QemudoController 			## gives access to qemudo-specific controller methods
+		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
 
 
-		def initialize (labdef = nil)
+		def initialize (labdef=nil)
 			@vms = [] ## Start with an empty array of vms
 
 			## labdef is a big array of hashes, use yaml to store
@@ -83,6 +88,7 @@ module Controllers
 					@vms << vm unless includes_vmid? vm.vmid
 				rescue Exception => e
 					puts "Invalid VM definition"
+					puts "Exception: #{e.to_s}"
 				end 
 			end
 		end

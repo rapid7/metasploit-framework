@@ -9,151 +9,182 @@ module Drivers
 
 class RemoteWorkstationDriver < VmDriver
 
-	attr_accessor :type
-	attr_accessor :location
+	attr_accessor :location # among other things
 
-	def initialize(location, user=nil, host=nil, credentials=nil)
+	def initialize(vmid, location, os=nil, tools=false, user=nil, host=nil, credentials=nil)
 
 		## TODO - Should proabably check file existence?	
-
 		unless user then raise ArgumentError, "Must provide a username" end
 		unless host then raise ArgumentError, "Must provide a hostname" end
-		
+
+		@vmid = filter_input(vmid)
 		@location = filter_input(location)
 		@user = filter_input(user)
 		@host = filter_input(host)
-		@credentials = filter_input_credentials(credentials)
-		@type = "remote_workstation"
+		@credentials = credentials # individually filtered
+		@tools = tools	# not used in command lines, no filter
+		@os = os	# not used in command lines, no filter
+
+		# TODO - Currently only implemented for the first set
+		if @credentials.count > 0
+			@vm_user = filter_input(@credentials[0]['user'])
+			@vm_pass = filter_input(@credentials[0]['pass'])
+			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
+		end
 	end
 
 	def start
-		system_command("ssh #{@user}@#{@host} vmrun -T ws start \\\'#{@location}\\\' nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws start \'#{@location}\' nogui")
 	end
 
 	def stop
-		system_command("ssh #{@user}@#{@host} vmrun -T ws stop \\\'#{@location}\\\' nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws stop \'#{@location}\' nogui")
 	end
 
 	def suspend
-		system_command("ssh #{@user}@#{@host} vmrun -T ws suspend \\\'#{@location}\\\' nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws suspend \'#{@location}\' nogui")
 	end
 
 	def pause
-		system_command("ssh #{@user}@#{@host} vmrun -T ws pause \\\'#{@location}\\\' nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws pause \'#{@location}\' nogui")
 	end
 
 	def reset
-		system_command("ssh #{@user}@#{@host} vmrun -T ws reset \\\'#{@location}\\\' nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws reset \'#{@location}\' nogui")
 	end
 
 	def create_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \\\'#{@location}\\\' #{snapshot} nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \'#{@location}\' #{snapshot} nogui")
 	end
 
 	def revert_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \\\'#{@location}\\\' #{snapshot} nogui")
+		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \'#{@location}\' #{snapshot} nogui")
 	end
 
 	def delete_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws deleteSnapshot \\\'#{@location}\\\' #{snapshot} nogui" )
-	end
-
-
-	def run_command(command, named_user=nil)
-	
-		command = filter_input(command)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-	
-		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu \\\'{user}\\\' -gp \\\'{pass}\\\' runProgramInGuest \\\'#{@location}\\\' \\\'{command}\\\' -noWait -activeWindow nogui"
-
-		system_command(vmrunstr)
+		system_command("ssh #{@user}@#{@host} vmrun -T ws deleteSnapshot \'#{@location}\' #{snapshot} nogui" )
 	end
 	
-	def copy_from(from, to, named_user=nil)
+	def run_command(command)
+		# generate local & remote script paths
+		script_rand_name = rand(10000)
 
+		if @os == "windows"
+			local_tempfile_path = "/tmp/lab_script_#{script_rand_name}.bat"
+			remote_tempfile_path = "C:\\\\lab_script_#{script_rand_name}.bat"
+			remote_run_command = remote_tempfile_path
+		else
+			local_tempfile_path = "/tmp/lab_script_#{script_rand_name}.sh"
+			remote_tempfile_path = "/tmp/lab_script_#{script_rand_name}.sh"
+			remote_run_command = "/bin/sh #{remote_tempfile_path}"
+		end
+
+		# write out our script locally
+		File.open(local_tempfile_path, 'w') {|f| f.write(command) }
+
+		# we really can't filter command, so we're gonna stick it in a script
+		if @tools
+			# copy it to the vm host - this is because we're a remote driver
+			remote_copy_command = "scp #{local_tempfile_path} #{@user}@#{@host}:#{local_tempfile_path}"
+			system_command(remote_copy_command)
+
+			# we have it on the vm host, copy it to the vm guest
+			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"copyFileFromHostToGuest \'#{@location}\' \'#{local_tempfile_path}\' " +
+					"\'#{remote_tempfile_path}\' nogui\""
+			system_command(vmrunstr)
+
+			# now run it on the guest
+			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
+					"runProgramInGuest \'#{@location}\' -noWait -activeWindow \'#{remote_run_command}\'\""
+			system_command(vmrunstr)
+
+			## CLEANUP
+			# delete it on the guest
+			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
+					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'\""
+			system_command(vmrunstr)
+
+
+			# and delete it on the vm host
+			vmhost_delete_command = "ssh #{@user}@#{@host} rm #{local_tempfile_path}"
+			system_command(vmhost_delete_command)
+
+			# delete it locally
+			local_delete_command = "rm #{local_tempfile_path}"
+			system_command(local_delete_command)
+		else
+			# since we can't copy easily w/o tools, let's just run it directly :/
+			if @os == "linux"
+				scp_to(local_tempfile_path, remote_tempfile_path)
+				ssh_exec(remote_run_command)
+				ssh_exec("rm #{remote_tempfile_path}")
+			else
+				raise "zomgwtfbbqnotools"
+			end	
+		end
+	end
+	
+	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
+		if @tools 
+			vmrunstr = "\"ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"copyFileFromGuestToHost \'#{@location}\' \'{from}\' \'{to}\' nogui\"" 
+			system_command(vmrunstr)
+		else
+			scp_to(from,to)
+		end
+	end
 
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
+	def copy_to(from, to)
 	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
+		from = filter_input(from)
+		to = filter_input(to)
 		
-		vmrunstr = "ssh #{@user}@#{@host}  vmrun -T ws -gu {user} -gp {pass} copyFileFromGuestToHost \\\'#{@location}\\\' \\\'{from}\\\' \\\'{to}\\\' nogui" 
-		system_command(vmrunstr)
+		if @tools
+			vmrunstr = "\"ssh #{@user}@#{@host}  vmrun -T ws -gu #{@vm_user} -gp #{@vmpass} " +
+					"copyFileFromHostToGuest \'#{@location}\' \'{from}\' \'{to}\' nogui\""  
+			system_command(vmrunstr)
+		else
+			scp_to(from,to)
+		end
 	end
 
-	def copy_to(from, to, named_user=nil)
+	def check_file_exists(file)
+		
+		if @tools
 	
-		from = filter_input(from)
-		to = filter_input(to)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-
-	
-		vmrunstr = "ssh #{@user}@#{@host}  vmrun -T ws -gu {user} -gp {pass} copyFileFromHostToGuest \\\'#{@location}\\\' \\\'{from}\\\' \\\'{to}\\\' nogui"  
-		system_command(vmrunstr)
+			file = filter_input(file)
+			vmrunstr = "\"ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"fileExistsInGuest \'#{@location}\' \'{file}\' nogui\""
+			system_command(vmrunstr)
+		else
+			raise "not implemented"
+		end
 	end
 
-	def check_file_exists(file, named_user=nil)
-	
-		file = filter_input(file)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
-	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-
-	
-		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu {user} -gp {pass} fileExistsInGuest \\\'#{@location}\\\' \\\'{file}\\\' nogui"
-		system_command(vmrunstr)
-	end
-
-	def create_directory(directory, named_user=nil)
-	
+	def create_directory(directory)
 		directory = filter_input(directory)
-
-		## this will return the first user if named_user doesn't exist
-		##  -- that may not be entirely obvious...
-		cred = get_best_creds(named_user)
 	
-		user = cred['user']
-		pass = cred['pass']
-		admin = cred['admin']
-	
-		vmrunstr = "ssh #{@user}@#{@host} vmrun -T ws -gu {user} -gp {pass} createDirectoryInGuest \\\'#{@location}\\\' \\\'#{directory}\\\' nogui"
-		system_command(vmrunstr)
+		if @tools
+			vmrunstr = "\"ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"createDirectoryInGuest \'#{@location}\' \'#{directory}\' nogui\""
+			system_command(vmrunstr)
+		else
+			ssh_exec(command)
+		end
 	end
-
 
 	def cleanup
 
 	end
 
 	def running?
-		## Get running Vms
+		## Get running VMs
 		running = `ssh #{@user}@#{@host} vmrun list nogui`
 		running_array = running.split("\n")
 		running_array.shift
