@@ -1276,8 +1276,12 @@ class Db
 						warnings = 0
 						framework.db.import_file(:filename => filename) do |type,data|
 							case type
+							when :debug
+								print_error("DEBUG: #{data.inspect}")
 							when :filetype
 								print_status("Importing '#{data}' data")
+							when :parser
+								print_status("Import: Parsing with '#{data}'")
 							when :address
 								print_status("Importing host #{data}")
 							when :service

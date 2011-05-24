@@ -68,7 +68,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_status "Nmap: Starting Oracle bruteforce with #{cred_count} credentials against SID '#{sid}'..."
 		nmap_run
 		credfile[0].unlink
-		nmap_hosts {|host| process_host(host)}
+		if Rex::Parser.nokogiri_loaded
+			nmap_hosts {|type,data| process_nokogiri_callback(type,data)}
+		else
+			nmap_hosts {|host| process_host(host)}
+		end
 	end
 
 	def sid
@@ -115,10 +119,21 @@ class Metasploit3 < Msf::Auxiliary
 		@credfile = [outfile,outfile_path]
 	end
 
+	def process_nokogiri_callback(type,data)
+		return unless type == :port_script
+		return unless data["id"] == "oracle-brute"
+		return unless data[:addresses].has_key? "ipv4"
+		return unless data[:port]["state"] == ::Msf::ServiceState::Open
+		addr = data[:addresses]["ipv4"].to_s
+		port = data[:port]["portid"].to_i
+		output = data["output"]
+		parse_script_output(addr,port,output)
+	end
+
 	def process_host(h)
 		h["ports"].each do |p|
-			next if(p["scripts"].nil? || p["scripts"].empty?)
-			p["scripts"].each do |id,output|
+			next if(h["scripts"].nil? || h["scripts"].empty?)
+			h["scripts"].each do |id,output|
 				next unless id == "oracle-brute"
 				parse_script_output(h["addr"],p["portid"],output)
 			end

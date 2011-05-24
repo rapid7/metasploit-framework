@@ -1,3 +1,4 @@
+require 'rex/parser/nmap_nokogiri'
 require 'rex/parser/nmap_xml'
 require 'open3'
 
@@ -256,23 +257,29 @@ end
 # object.
 def nmap_hosts(&block)
 	@nmap_bin || (raise RuntimeError, "Cannot locate the nmap binary.")
-	print_status "Nmap: processing hosts from #{self.nmap_log[1]}..."
 	fh = self.nmap_log[0]
 	nmap_data = fh.read(fh.stat.size)
 	# fh.unlink
-	nmap_parser = Rex::Parser::NmapXMLStreamParser.new
-	nmap_parser.on_found_host = Proc.new { |h|
-		if (h["addrs"].has_key?("ipv4"))
-			addr = h["addrs"]["ipv4"]
-		elsif (h["addrs"].has_key?("ipv6"))
-			addr = h["addrs"]["ipv6"]
-		else
-			# Can't do much with it if it doesn't have an IP
-			next
-		end
-		yield h
-	}
-	REXML::Document.parse_stream(nmap_data, nmap_parser)
+	if Rex::Parser.nokogiri_loaded
+		wspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE']) 
+		wspace ||= framework.db.workspace
+		import_args = { :data => nmap_data, :wspace => wspace }
+		framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }
+	else
+		nmap_parser = Rex::Parser::NmapXMLStreamParser.new
+		nmap_parser.on_found_host = Proc.new { |h|
+			if (h["addrs"].has_key?("ipv4"))
+				addr = h["addrs"]["ipv4"]
+			elsif (h["addrs"].has_key?("ipv6"))
+				addr = h["addrs"]["ipv6"]
+			else
+				# Can't do much with it if it doesn't have an IP
+				next
+			end
+			yield h
+		}
+		REXML::Document.parse_stream(nmap_data, nmap_parser)
+	end
 end
 
 end

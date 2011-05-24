@@ -1,4 +1,4 @@
-
+require 'rex/parser/nmap_nokogiri' # Check Rex::Parser.nokogiri_loaded for status
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/parser/retina_xml'
@@ -3759,7 +3759,6 @@ class DBManager
 		res
 	end
 
-	
 	#
 	# Import Nmap's -oX xml output
 	#
@@ -3774,16 +3773,50 @@ class DBManager
 		import_nmap_xml(args.merge(:data => data))
 	end
 
-	# Too many functions in one def! Refactor this.
+	def import_nmap_noko_stream(args, &block)
+		if block
+			doc = Rex::Parser::NmapDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::NmapDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
+	# A way to sneak the yield back into the db importer. 
+	# Used by the SAX parsers.
+	def emit(sym,data,&block)
+		yield(sym,data) 
+	end
+
+	# If you have Nokogiri installed, you'll be shunted over to
+	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
-		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
+		if Rex::Parser.nokogiri_loaded
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, "Nokogiri v#{::Nokogiri::VERSION}")
+				import_nmap_noko_stream(noko_args) {|type, data| yield type,data }
+			else
+				import_nmap_noko_stream(noko_args)
+			end
+			return true
+		end
+
+		# XXX: Legacy nmap xml parser starts here.
+
 		fix_services = args[:fix_services]
+		data = args[:data]
 
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
 		parser = Rex::Parser::NmapXMLStreamParser.new
+		yield(:parser, parser.class.name) if block
 
 		# Whenever the parser pulls a host out of the nmap results, store
 		# it, along with any associated services, in the database.
@@ -3909,6 +3942,8 @@ class DBManager
 			}
 		}
 
+		# XXX: Legacy nmap xml parser ends here.
+		
 		REXML::Document.parse_stream(data, parser)
 	end
 
