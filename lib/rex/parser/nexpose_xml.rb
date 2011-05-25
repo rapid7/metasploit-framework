@@ -13,10 +13,16 @@ class NexposeXMLStreamParser
 
 	def reset_state
 		@state = :generic_state
+		@only_vuln_states_needed = true
 		@current_vuln_id = nil
 		@vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
 		@host = {"status" => nil, "endpoints" => [], "names" => [], "vulns" => {}}
 		@vuln = {"refs" => [], "description" => [], "solution" => []}
+	end
+
+	# If all vuln states are required set this to false
+	def parse_vulnerable_states_only only_vuln_states_needed
+		@only_vuln_states_needed = only_vuln_states_needed
 	end
 
 	def tag_start(name, attributes)
@@ -51,7 +57,7 @@ class NexposeXMLStreamParser
 				@host["endpoints"].last.merge!(attributes)
 			end
 			when "test"
-				if @vulnerable_markers.include? attributes["status"].to_s.chomp
+				if (not @only_vuln_states_needed) or (@vulnerable_markers.include? attributes["status"].to_s.chomp and @only_vuln_states_needed)
 					@state = :in_test
 					@current_vuln_id = attributes["id"]
 					@host["vulns"][@current_vuln_id] = attributes.dup
