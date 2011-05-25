@@ -34,38 +34,38 @@ class RemoteWorkstationDriver < VmDriver
 	end
 
 	def start
-		system_command("ssh #{@user}@#{@host} vmrun -T ws start \'#{@location}\' nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws start \'#{@location}\' nogui\"")
 	end
 
 	def stop
-		system_command("ssh #{@user}@#{@host} vmrun -T ws stop \'#{@location}\' nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws stop \'#{@location}\' nogui\"")
 	end
 
 	def suspend
-		system_command("ssh #{@user}@#{@host} vmrun -T ws suspend \'#{@location}\' nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws suspend \'#{@location}\' nogui\"")
 	end
 
 	def pause
-		system_command("ssh #{@user}@#{@host} vmrun -T ws pause \'#{@location}\' nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws pause \'#{@location}\' nogui\"")
 	end
 
 	def reset
-		system_command("ssh #{@user}@#{@host} vmrun -T ws reset \'#{@location}\' nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws reset \'#{@location}\' nogui\"")
 	end
 
 	def create_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws snapshot \'#{@location}\' #{snapshot} nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws snapshot \'#{@location}\' #{snapshot} nogui\"")
 	end
 
 	def revert_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws revertToSnapshot \'#{@location}\' #{snapshot} nogui")
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws revertToSnapshot \'#{@location}\' #{snapshot} nogui\"")
 	end
 
 	def delete_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("ssh #{@user}@#{@host} vmrun -T ws deleteSnapshot \'#{@location}\' #{snapshot} nogui" )
+		system_command("ssh #{@user}@#{@host} \"vmrun -T ws deleteSnapshot \'#{@location}\' #{snapshot} nogui\"" )
 	end
 	
 	def run_command(command)
@@ -184,7 +184,7 @@ class RemoteWorkstationDriver < VmDriver
 
 	def running?
 		## Get running VMs
-		running = `ssh #{@user}@#{@host} vmrun list nogui`
+		running = `ssh #{@user}@#{@host} \"vmrun list nogui\"`
 		running_array = running.split("\n")
 		running_array.shift
 
