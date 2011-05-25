@@ -86,6 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Store the password if the parser returns something
 		if password
+			print_status("Password retrieved: #{password.to_s}")
 			report_auth_info({
 				:host         => rhost,
 				:port         => rport,
