@@ -267,8 +267,15 @@ if opts[:payload]
 end
 
 # set the defaults unless something is already set by the user
-opts[:arch]     ||= payload.arch[0]
-opts[:platform] ||= payload.platform.platforms
+if opts[:payload] != 'stdin'
+	opts[:arch]     ||= payload.arch[0]
+	opts[:platform] ||= payload.platform.platforms
+	puts payload.platform.platforms
+else
+	# defaults for stdin payloads users should define them
+	opts[:arch] ||= "x86" 
+	opts[:platform] ||= Msf::Module::PlatformList.transform("Windows")
+end
 opts[:format]   ||= 'ruby'
 opts[:encoder]  ||= nil
 
