@@ -89,5 +89,8 @@ require 'rex/zip/entry'
 # the archive class
 require 'rex/zip/archive'
 
+# a child of Archive, implements Java ARchives for creating java applications
+require 'rex/zip/jar'
+
 end
 end
