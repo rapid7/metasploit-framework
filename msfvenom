@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
-# $Id:$
-# $Revision:$
+# $Id$
+# $Revision$
 #
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -144,6 +144,27 @@ def payload_stdin
 	$stdin.binmode
 	payload = $stdin.read
 	payload
+end
+
+def generate_nops(arch, len, nop_mod=nil, opts={})
+	opts['BadChars'] ||= ''
+	opts['SaveRegisters'] ||= [ 'esp', 'ebp', 'esi', 'edi' ]
+
+	if nop_mod
+		nop = $framework.nops.create(nop_mod)
+		raw = nop.generate_sled(len, opts)
+		return raw if raw
+	end
+
+	$framework.nops.each_module_ranked('Arch' => arch) do |name, mod|
+		begin
+			nop = $framework.nops.create(name)
+			raw = nop.generate_sled(len, opts)
+			return raw if raw
+		rescue
+		end
+	end
+	nil
 end
 
 def dump_payloads
@@ -319,6 +340,13 @@ if opts[:template]
 end
 
 exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
+
+if opts[:nopsled]
+	puts opts[:arch].class
+	nopts = { 'BadChars' => opts[:badchars] }
+	nops = generate_nops([opts[:arch]], opts[:nopsled], nil, nopts)
+	payload_raw = nops + payload_raw
+end
 
 $stdout.binmode
 if opts[:format] !~/ruby|rb|perl|pl|c|js|dll/i
