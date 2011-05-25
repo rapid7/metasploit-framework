@@ -13,8 +13,10 @@ class NexposeXMLStreamParser
 
 	def reset_state
 		@state = :generic_state
-		@host = { "status" => nil, "endpoints" => [], "names" => [], "vulns" => {} }
-		@vuln = { "refs" => [] }
+		@current_vuln_id = nil
+		@vulnerable_markers = ['vulnerable-exploited', 'vulnerable-version', 'potential']
+		@host = {"status" => nil, "endpoints" => [], "names" => [], "vulns" => {}}
+		@vuln = {"refs" => [], "description" => [], "solution" => []}
 	end
 
 	def tag_start(name, attributes)
@@ -48,19 +50,31 @@ class NexposeXMLStreamParser
 			if @state == :in_service
 				@host["endpoints"].last.merge!(attributes)
 			end
-		when "test"
-			if attributes["status"] == "vulnerable-exploited" or attributes["status"] == "vulnerable-version"
-				@host["vulns"][attributes["id"]] = attributes.dup
-				if attributes["key"]
-					@host["notes"] ||= []
-					@host["notes"] << [attributes["id"], attributes["key"]]
+			when "test"
+				if @vulnerable_markers.include? attributes["status"].to_s.chomp
+					@state = :in_test
+					@current_vuln_id = attributes["id"]
+					@host["vulns"][@current_vuln_id] = attributes.dup
+					# Append the endpoint info for how the vuln was discovered
+					unless @host["endpoints"].empty?
+						@host["vulns"][@current_vuln_id].merge!("endpoint_data" => @host["endpoints"].last)
+					end
+					if attributes["key"]
+						@host["notes"] ||= []
+						@host["notes"] << [@current_vuln_id, attributes["key"]]
+					end
 				end
-			end
-		when "vulnerability"
-			@vuln.merge! attributes
-		when "reference"
-			@state = :in_reference
-			@vuln["refs"].push attributes
+			when "vulnerability"
+				@vuln.merge! attributes
+			when "reference"
+				@state = :in_reference
+				@vuln["refs"].push attributes
+			when "solution"
+				@state = :in_solution
+			when "description"
+				@state = :in_description
+			when "URLLink"
+				@vuln["solution"] << attributes
 		end
 	end
 
@@ -70,7 +84,17 @@ class NexposeXMLStreamParser
 			@host["names"].push str
 		when :in_reference
 			@vuln["refs"].last["value"] = str
-		end
+    when :in_solution
+      @vuln["solution"] << str
+    when :in_description
+      @vuln["description"] << str
+    when :in_test
+      if @host["vulns"][@current_vuln_id]
+         proof = @host["vulns"][@current_vuln_id]["proof"] || []
+         proof << str
+         @host["vulns"][@current_vuln_id]["proof"] = proof
+      end
+    end
 	end
 
 	def tag_end(name)
