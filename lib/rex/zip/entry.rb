@@ -5,6 +5,9 @@
 module Rex
 module Zip
 
+# 
+# An Entry represents a logical file or directory to be stored in an Archive
+#
 class Entry
 
 	attr_accessor :name, :flags, :info, :xtra, :comment, :attrs
@@ -38,6 +41,10 @@ class Entry
 		compress
 	end
 
+	#
+	# Compress the #data and store it for later use.  If this entry's compression method
+	# produces a larger blob than the original data, the method is changed to CM_STORE.
+	#
 	def compress
 		@crc = Zlib.crc32(@data, 0)
 		case @flags.compmeth
@@ -73,6 +80,9 @@ class Entry
 	end
 
 
+	#
+	# Return the compressed data in a format suitable for adding to an Archive
+	#
 	def pack
 		ret = ''
 

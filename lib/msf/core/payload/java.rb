@@ -47,9 +47,9 @@ module Msf::Payload::Java
 		] + @class_files
 
 		jar = Rex::Zip::Jar.new
+		jar.add_file("metasploit.dat", config)
 		jar.add_files(paths, File.join(Msf::Config.data_directory, "java"))
 		jar.build_manifest(:main_class => main_class)
-		jar.add_file("metasploit.dat", config)
 
 		jar
 	end
