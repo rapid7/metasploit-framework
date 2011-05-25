@@ -195,8 +195,7 @@ class DBManager
 	# Wait for all pending write to finish
 	#
 	def sync
-		task = queue( Proc.new { } )
-		task.wait
+		# There is no more queue.
 	end
 
 	#

@@ -169,11 +169,6 @@ module Auxiliary::HttpCrawler
 
 			# Extract any interesting data from the page
 			crawler_process_page(t, page, cnt)
-
-			# Sync the database every 100 items
-			if cnt % 100 == 0
-				framework.db.sync
-			end
 			
 			# Blow up if we hit our maximum page count
 			if cnt >= max_page_count

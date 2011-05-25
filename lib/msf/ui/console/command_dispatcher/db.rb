@@ -43,8 +43,7 @@ class Db
 				"db_status"     => "Show the current database status",
 				# Deprecated
 				"db_create"     => "Create a brand new database",
-				"db_destroy"    => "Drop an existing database",
-				"db_sync"       => "Synchronize the database",
+				"db_destroy"    => "Drop an existing database"
 			}
 
 			more = {
@@ -291,19 +290,6 @@ class Db
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
 			set_rhosts_from_addrs(rhosts) if set_rhosts
-		end
-
-		def cmd_db_sync_help
-			print_line "Usage: db_sync"
-			print_line
-			print_line "Wait for all pending database writes to complete"
-			print_line
-		end
-
-		def cmd_db_sync(*args)
-			return unless active?
-			print_status("Synchronizing the database...")
-			framework.db.sync
 		end
 
 		def cmd_db_services_help
