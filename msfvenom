@@ -273,6 +273,7 @@ if opts[:payload] != 'stdin'
 	puts payload.platform.platforms
 else
 	# defaults for stdin payloads users should define them
+	print_error("Using X86 architecture and Windows platform for stdin payload to change use -a and --platform")
 	opts[:arch] ||= "x86" 
 	opts[:platform] ||= Msf::Module::PlatformList.transform("Windows")
 end
