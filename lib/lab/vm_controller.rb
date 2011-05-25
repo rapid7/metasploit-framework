@@ -1,7 +1,7 @@
 ##
 ## $Id$
 ##
-## This is the main lab controller. Require this file to create a lab of vms
+## This is the main lab controller.
 ##
 ##
 
@@ -25,15 +25,14 @@ module Controllers
 	class VmController 
 
 		include Enumerable
-		include Lab::Controllers::WorkstationController 		## gives access to workstation-specific controller methods
-		include Lab::Controllers::WorkstationVixrController 		## gives access to workstation-specific controller methods
-		include Lab::Controllers::RemoteWorkstationController 		## gives access to workstation-specific controller methods
-		include Lab::Controllers::VirtualBoxController 			## gives access to virtualbox-specific controller methods
-		include Lab::Controllers::DynagenController 			## gives access to dynagen-specific controller methods
-
-		#include Lab::Controllers::QemuController 			## gives access to qemu-specific controller methods
-		#include Lab::Controllers::QemudoController 			## gives access to qemudo-specific controller methods
-		#include Lab::Controllers::AmazonController 			## gives access to amazon-specific controller methods
+		include Lab::Controllers::WorkstationController 	
+		include Lab::Controllers::WorkstationVixrController 	
+		include Lab::Controllers::RemoteWorkstationController 	
+		include Lab::Controllers::VirtualBoxController 
+		include Lab::Controllers::DynagenController 
+		#include Lab::Controllers::QemuController 
+		#include Lab::Controllers::QemudoController 
+		#include Lab::Controllers::AmazonController 
 
 
 		def initialize (labdef=nil)

@@ -106,8 +106,7 @@ class RemoteWorkstationDriver < VmDriver
 			# delete it on the guest
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
 					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'\""
-			system_command(vmrunstr)
-
+			#system_command(vmrunstr)
 
 			# and delete it on the vm host
 			vmhost_delete_command = "ssh #{@user}@#{@host} rm #{local_tempfile_path}"
@@ -132,8 +131,8 @@ class RemoteWorkstationDriver < VmDriver
 		from = filter_input(from)
 		to = filter_input(to)
 		if @tools 
-			vmrunstr = "\"ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
-					"copyFileFromGuestToHost \'#{@location}\' \'{from}\' \'{to}\' nogui\"" 
+			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"copyFileFromGuestToHost \'#{@location}\' \'#{from}\' \'#{to}\' nogui\"" 
 			system_command(vmrunstr)
 		else
 			scp_to(from,to)
@@ -146,8 +145,8 @@ class RemoteWorkstationDriver < VmDriver
 		to = filter_input(to)
 		
 		if @tools
-			vmrunstr = "\"ssh #{@user}@#{@host}  vmrun -T ws -gu #{@vm_user} -gp #{@vmpass} " +
-					"copyFileFromHostToGuest \'#{@location}\' \'{from}\' \'{to}\' nogui\""  
+			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"copyFileFromHostToGuest \'#{@location}\' \'#{from}\' \'#{to}\' nogui\""  
 			system_command(vmrunstr)
 		else
 			scp_to(from,to)

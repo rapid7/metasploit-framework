@@ -117,7 +117,7 @@ private
 	def filter_input(string)
 		return unless string
 				
-		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
+		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\):]*$/)
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
