@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			udp_sock.put(target_mac+cmd)
 
-			res = udp_sock.recvfrom(65535, 0.5) and r[1]
+			res = udp_sock.recvfrom(65535, 0.5) and res[1]
 
 			#Parse the reply if we get a response
 			if res
