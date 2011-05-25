@@ -222,7 +222,7 @@ class Server
 	# Adds Server headers and stuff.
 	#
 	def add_response_headers(resp)
-		resp['Server'] = self.server_name
+		resp['Server'] = self.server_name if not resp['Server']
 	end
 
 	#
