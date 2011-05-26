@@ -125,7 +125,6 @@ private
 	end
 	
 	def system_command(command)
-		puts "DEBUG: running command #{command}"
 		system(command)
 	end
 end
