@@ -340,14 +340,8 @@ if opts[:encode]
 	end
 end
 
-if opts[:template]
-	idx = opts[:template].rindex("/")
-	len = opts[:template].length
-	path = opts[:template][0..idx]
-	altexe = opts[:template][idx..len]
-end
 
-exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
+exeopts = { :inject => opts[:inject], :template_path => File.dirname(opts[:template]), :template => File.basename(opts[:template]) }
 
 if opts[:nopsled]
 	puts opts[:arch].class
