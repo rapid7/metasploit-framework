@@ -1,3 +1,16 @@
+require "bit-struct/vector"
+require "bit-struct/char-field"
+require "bit-struct/float-field"
+require "bit-struct/nested-field"
+require "bit-struct/octet-field"
+require "bit-struct/hex-octet-field"
+require "bit-struct/pad-field"
+require "bit-struct/signed-field"
+require "bit-struct/text-field"
+require "bit-struct/unsigned-field"
+require "bit-struct/vector-field"
+
+
 class BitStruct
   class << self
     # Define a char string field in the current subclass of BitStruct,
@@ -15,7 +28,6 @@ class BitStruct
       add_field(name, length, opts)
     end
     alias string char
-    BitStruct.autoload :CharField, "bit-struct/char-field"
 
     # Define a floating point field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits).
@@ -33,7 +45,6 @@ class BitStruct
       opts = parse_options(rest, name, FloatField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :FloatField, "bit-struct/float-field"
 
     # Define an octet string field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits). Trailing nulls are
@@ -48,7 +59,6 @@ class BitStruct
       opts = parse_options(rest, name, HexOctetField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :HexOctetField, "bit-struct/hex-octet-field"
 
     # Define a nested field in the current subclass of BitStruct,
     # with the given _name_ and _nested_class_. Length is determined from
@@ -118,7 +128,6 @@ class BitStruct
       field
     end
     alias struct nest
-    BitStruct.autoload :NestedField, "bit-struct/nested-field"
 
     # Define an octet string field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits). Trailing nulls are
@@ -133,7 +142,6 @@ class BitStruct
       opts = parse_options(rest, name, OctetField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :OctetField, "bit-struct/octet-field"
 
     # Define a padding field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits).
@@ -147,7 +155,6 @@ class BitStruct
       add_field(name, length, opts)
     end
     alias padding pad
-    BitStruct.autoload :PadField, "bit-struct/pad-field"
 
     # Define a signed integer field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits).
@@ -169,7 +176,6 @@ class BitStruct
       opts = parse_options(rest, name, SignedField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :SignedField, "bit-struct/signed-field"
 
     # Define a printable text string field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits). Trailing nulls are
@@ -185,7 +191,6 @@ class BitStruct
       opts = parse_options(rest, name, TextField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :TextField, "bit-struct/text-field"
 
     # Define a unsigned integer field in the current subclass of BitStruct,
     # with the given _name_ and _length_ (in bits).
@@ -207,7 +212,6 @@ class BitStruct
       opts = parse_options(rest, name, UnsignedField)
       add_field(name, length, opts)
     end
-    BitStruct.autoload :UnsignedField, "bit-struct/unsigned-field"
 
     # Define a vector field in the current subclass of BitStruct,
     # with the given _name_.
@@ -293,8 +297,6 @@ class BitStruct
       field = add_field(name, bit_length, opts)
       field
     end
-    BitStruct.autoload :VectorField, "bit-struct/vector-field"
   end
   
-  autoload :Vector, "bit-struct/vector"
 end
