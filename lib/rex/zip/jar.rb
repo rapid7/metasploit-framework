@@ -149,9 +149,12 @@ class Jar < Archive
 	# directly supported by keytool for some unfathomable reason
 	# http://www.agentbob.info/agentbob/79-AB.html
 	#
-	def sign(key, cert)
+	def sign(key, cert, ca_certs=nil)
 		m = self.entries.find { |e| e.name == "META-INF/MANIFEST.MF" }
 		raise RuntimeError.new("Jar has no manifest") unless m
+
+		ca_certs ||= [ cert ]
+
 		new_manifest = ''
 		sigdata =  "Signature-Version: 1.0\r\n"
 		sigdata << "Created-By: 1.6.0_18 (Sun Microsystems Inc.)\r\n"
@@ -192,25 +195,25 @@ class Jar < Archive
 		flags = 0
 		flags |= OpenSSL::PKCS7::BINARY
 		flags |= OpenSSL::PKCS7::DETACHED
-		# SMIME and ATTRs are technically valid in the signature but they both
-		# screw up the java verifier, so don't include them.
+		# SMIME and ATTRs are technically valid in the signature but they
+		# both screw up the java verifier, so don't include them.
 		flags |= OpenSSL::PKCS7::NOSMIMECAP
 		flags |= OpenSSL::PKCS7::NOATTR
 
-		signature = OpenSSL::PKCS7.sign(cert, key, sigdata, [cert], flags)
+		signature = OpenSSL::PKCS7.sign(cert, key, sigdata, ca_certs, flags)
 		sigalg = case key
 			when OpenSSL::PKey::RSA; "RSA"
 			when OpenSSL::PKey::DSA; "DSA"
 			# Don't really know what to do if it's not DSA or RSA.  Can
 			# OpenSSL::PKCS7 actually sign stuff with it in that case?
-			# Regardless, the java spec says signatures can only be RSA, DSA,
-			# or PGP, so just assume it's PGP and hope for the best
+			# Regardless, the java spec says signatures can only be RSA,
+			# DSA, or PGP, so just assume it's PGP and hope for the best
 			else; "PGP"
 			end
 
 		# SIGNFILE is the default name in documentation.  MYKEY is probably
-		# more common, though because that's what keytool defaults to.  We can
-		# probably randomize this with no ill effects.
+		# more common, though because that's what keytool defaults to.  We
+		# can probably randomize this with no ill effects.
 		add_file("META-INF/SIGNFILE.SF", sigdata)
 		add_file("META-INF/SIGNFILE.#{sigalg}", signature.to_der)
 
