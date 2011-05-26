@@ -270,7 +270,6 @@ end
 if opts[:payload] != 'stdin'
 	opts[:arch]     ||= payload.arch[0]
 	opts[:platform] ||= payload.platform.platforms
-	puts payload.platform.platforms
 else
 	# defaults for stdin payloads users should define them
 	print_error("Using X86 architecture and Windows platform for stdin payload to change use -a and --platform")
@@ -354,7 +353,7 @@ if opts[:nopsled]
 end
 
 $stdout.binmode
-if opts[:format] !~/ruby|rb|perl|pl|c|js|dll/i
+if opts[:format] !~/ruby|rb|perl|pl|c|js|dll|elf/i
 	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 end
 
@@ -380,6 +379,18 @@ when /java/i
 	else
 		print_error("Could not generate payload format")
 	end
+when /elf/i
+	if opts[:arch] =~ /x64/
+		elf = Msf::Util::EXE.to_linux_x64_elf($framework, payload_raw, exeopts)
+	elsif opts[:arch] =~ /x86/
+		elf = Msf::Util::EXE.to_linux_x86_elf($framework, payload_raw, exeopts)
+	elsif opts[:arch] =~ /arm/
+		elf = Msf::Util::EXE.to_linux_armle_elf($framework, payload_raw, exeopts)
+	else
+		print_error("This format does not support that architecture")
+		exit
+	end
+	$stdout.puts elf
 when /dll/i
 	dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
 	$stdout.puts dll
