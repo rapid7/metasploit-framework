@@ -223,16 +223,7 @@ module Rex
 					report_traceroute(host_object)
 				end
 				@state.delete_if {|k| k != :current_tag}
-			end
-		end
-
-		def end_document
-			block = @block
-			unless @state[:current_tag].empty?
-				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
-				msg = "Warning, the provided file is incomplete, and there may be missing\n"
-				msg << "data. The following tags were not closed: #{missing_ends}."
-				db.emit(:warning,msg,&block)
+				@report_data = {:wspace => @args[:wspace]}
 			end
 		end
 
@@ -281,7 +272,7 @@ module Rex
 			end
 		end
 
-		def collect_port_data(&block)
+		def collect_port_data
 			return unless @state[:in_host]
 			if @args[:fix_services]
 				if @state[:port]["state"] == "filtered"
