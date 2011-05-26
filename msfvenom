@@ -340,8 +340,11 @@ if opts[:encode]
 	end
 end
 
-
-exeopts = { :inject => opts[:inject], :template_path => File.dirname(opts[:template]), :template => File.basename(opts[:template]) }
+if opts[:template]
+	path = File.dirname(opts[:template])
+	altexe = File.basename(opts[:template])
+end
+exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
 
 if opts[:nopsled]
 	puts opts[:arch].class
