@@ -320,12 +320,12 @@ if opts[:encode]
 				end
 
 				print_status("#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n")
+				eout = raw
+				payload_raw = raw
 				if iteration == opts[:iterations]
 					done = true
 					break
 				end
-				eout = raw
-				payload_raw = raw
 			rescue
 				if iteration != opts[:iteration]
 					print_error("#{enc.refname} failed: #{$!} (iteration=#{iteration})\n")
