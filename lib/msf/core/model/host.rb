@@ -859,7 +859,9 @@ protected
 				ret.update(parse_windows_os_str(data[:os]))
 			else
 				parts = data[:os].split(/\s+/, 3)
-				ret[:os_name] = parts[0] + " " + parts[1]
+				ret[:os_name] = "<unknown>"
+				ret[:os_name] = parts[0] if parts[0]
+				ret[:os_name] << " " + parts[1] if parts[1]
 				ret[:os_sp]   = parts[2] if parts[2]
 			end
 		# XXX: We should really be using smb_version's stored fingerprints
