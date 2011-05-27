@@ -27,7 +27,6 @@ module Rex
 				record_host_fingerprint(attrs)
 			when "description"
 				@state[:has_text] = true
-				record_service_fingerprint_description(attrs)
 				record_host_fingerprint_data(name,attrs)
 			when "vendor", "family", "product", "version", "architecture"
 				@state[:has_text] = true
@@ -52,7 +51,6 @@ module Rex
 		# When we exit a tag, this is triggered.
 		def end_element(name=nil)
 			block = @block
-			@state[:current_tag].delete name
 			case name
 			when "device" # Wrap it up
 				collect_device_data
@@ -63,8 +61,6 @@ module Rex
 				# Reset the state once we close a host
 				@state.delete_if {|k| k != :current_tag}
 				@report_data = {:wspace => @args[:wspace]}
-			when "fingerprint"
-				@state[:in_fingerprint] = false
 			when "description"
 				@state[:has_text] = false
 				collect_service_fingerprint_description
@@ -85,8 +81,8 @@ module Rex
 				collect_service_vuln
 				collect_host_vuln
 				@state[:references] = nil
-				@state[:in_vuln] = false
 			end
+			@state[:current_tag].delete name
 		end
 
 		def report_vulns(host_object)
@@ -118,9 +114,9 @@ module Rex
 		end
 
 		def collect_host_vuln_id
-			return unless @state[:in_device]
-			return unless @state[:in_vuln]
-			return if @state[:in_service]
+			return unless in_tag("device")
+			return unless in_tag("vulnerability")
+			return if in_tag("service")
 			return unless @state[:host_vuln_id]
 			@state[:references] ||= []
 			ref = normalize_ref( @state[:host_vuln_id]["type"], @text )
@@ -130,9 +126,9 @@ module Rex
 		end
 
 		def collect_service_vuln_id
-			return unless @state[:in_device]
-			return unless @state[:in_vuln]
-			return unless @state[:in_service]
+			return unless in_tag("device")
+			return unless in_tag("vulnerability")
+			return unless in_tag("service")
 			return unless @state[:service_vuln_id]
 			@state[:references] ||= []
 			ref = normalize_ref( @state[:service_vuln_id]["type"], @text )
@@ -142,9 +138,9 @@ module Rex
 		end
 
 		def collect_service_vuln
-			return unless @state[:in_device]
-			return unless @state[:in_vuln]
-			return unless @state[:in_service]
+			return unless in_tag("device")
+			return unless in_tag("vulnerability")
+			return unless in_tag("service")
 			@report_data[:vulns] ||= []
 			return unless actually_vulnerable(@state[:service_vuln])
 			return if @state[:service]["port"].to_i == 0
@@ -160,9 +156,9 @@ module Rex
 		end
 
 		def collect_host_vuln
-			return unless @state[:in_vuln]
-			return unless @state[:in_device]
-			return if @state[:in_service]
+			return unless in_tag("vulnerability")
+			return unless in_tag("device")
+			return if in_tag("service")
 			@report_data[:vulns] ||= []
 			return unless actually_vulnerable(@state[:host_vuln])
 			vid = @state[:host_vuln]["id"].to_s.downcase
@@ -175,28 +171,26 @@ module Rex
 		end
 
 		def record_host_vuln_id(attrs)
-			return unless @state[:in_device]
-			return if @state[:in_service]
+			return unless in_tag("device")
+			return if in_tag("service")
 			@state[:host_vuln_id] = attr_hash(attrs)
 		end
 
 		def record_host_vuln(attrs)
-			return unless @state[:in_device]
-			return if @state[:in_service]
-			@state[:in_vuln] = true
+			return unless in_tag("device")
+			return if in_tag("service")
 			@state[:host_vuln] = attr_hash(attrs)
 		end
 
 		def record_service_vuln_id(attrs)
-			return unless @state[:in_device]
-			return unless @state[:in_service]
+			return unless in_tag("device")
+			return unless in_tag("service")
 			@state[:service_vuln_id] = attr_hash(attrs)
 		end
 
 		def record_service_vuln(attrs)
-			return unless @state[:in_device]
-			return unless @state[:in_service]
-			@state[:in_vuln] = true
+			return unless in_tag("device")
+			return unless in_tag("service")
 			@state[:service_vuln] = attr_hash(attrs)
 		end
 
@@ -206,7 +200,6 @@ module Rex
 		end
 
 		def record_device(attrs)
-			@state[:in_device] = true
 			attrs.each do |k,v|
 				next unless k == "address"
 				@state[:address] = v
@@ -214,30 +207,29 @@ module Rex
 		end
 
 		def record_host_fingerprint(attrs)
-			return unless @state[:in_device]
-			return if @state[:in_service]
-			@state[:in_fingerprint] = true
+			return unless in_tag("device")
+			return if in_tag("service")
 			@state[:host_fingerprint] = attr_hash(attrs)
 		end
 
 		def collect_device_data
-			return unless @state[:in_device]
+			return unless in_tag("device")
 			@report_data[:host] = @state[:address]
 			@report_data[:state] = Msf::HostState::Alive # always
 		end
 
 		def record_host_fingerprint_data(name, attrs)
-			return unless @state[:in_device]
-			return if @state[:in_service]
-			return unless @state[:in_fingerprint]
+			return unless in_tag("device")
+			return if in_tag("service")
+			return unless in_tag("fingerprint")
 			@state[:host_fingerprint] ||= {}
 			@state[:host_fingerprint].merge! attr_hash(attrs)
 		end
 
 		def collect_host_fingerprint_data(name)
-			return unless @state[:in_device]
-			return if @state[:in_service]
-			return unless @state[:in_fingerprint]
+			return unless in_tag("device")
+			return if in_tag("service")
+			return unless in_tag("fingerprint")
 			return unless @text
 			@report_data[:host_fingerprint] ||= {}
 			@report_data[:host_fingerprint].merge!(@state[:host_fingerprint])
@@ -279,26 +271,18 @@ module Rex
 		end
 
 		def record_service(attrs)
-			return unless @state[:in_device]
-			@state[:in_service] = true
+			return unless in_tag("device")
 			@state[:service] = attr_hash(attrs)
 		end
 
 		def record_service_fingerprint(attrs)
-			return unless @state[:in_device]
-			return unless @state[:in_service]
-			@state[:in_fingerprint] = true
+			return unless in_tag("device")
+			return unless in_tag("service")
 			@state[:service][:fingerprint] = attr_hash(attrs)
 		end
 
-		def record_service_fingerprint_description(attrs)
-			return unless @state[:in_device]
-			return unless @state[:in_service]
-			return unless @state[:in_fingerprint]
-		end
-
 		def collect_service_data
-			return unless @state[:in_device]
+			return unless in_tag("device")
 			port_hash = {}
 			@report_data[:ports] ||= []
 			@state[:service].each do |k,v|
@@ -316,13 +300,12 @@ module Rex
 				port_hash[:info] = "#{@state[:service_fingerprint]}"
 			end
 			@report_data[:ports] << port_hash
-			@state[:in_service] = false
 		end
 
 		def collect_service_fingerprint_description
-			return unless @state[:in_device]
-			return unless @state[:in_service]
-			return unless @state[:in_fingerprint]
+			return unless in_tag("device")
+			return unless in_tag("service")
+			return unless in_tag("fingerprint")
 			return unless @text
 			@state[:service_fingerprint] = @text.to_s.strip
 			@text = nil
