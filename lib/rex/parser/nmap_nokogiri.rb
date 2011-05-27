@@ -36,12 +36,6 @@ module Rex
 			block = @block
 			@state[:current_tag][name] = true
 			case name
-			when "host"
-				@state[:in_host] = true
-			when "os"
-				if @state[:in_host]
-					@state[:in_os] = true
-				end
 			when "status"
 				record_host_status(attrs)
 			when "address"
@@ -71,147 +65,24 @@ module Rex
 			end
 		end
 
-		# We can certainly get fancier with self.send() magic, but
-		# leaving this pretty simple for now.
-
-		def record_host_hop(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_trace]
-			hops = attr_hash(attrs)
-			hops["name"] = hops.delete "host"
-			@state[:trace][:hops] << hops
-		end
-
-		def record_host_trace(attrs)
-			return unless @state[:in_host]
-			@state[:in_trace] = true
-			@state[:trace] = attr_hash(attrs)
-			@state[:trace][:hops] = []
-		end
-
-		def record_host_uptime(attrs)
-			return unless @state[:in_host]
-			@state[:uptime] = attr_hash(attrs)
-		end
-
-		def record_host_osmatch(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_os]
-			temp_hash = attr_hash(attrs)
-			if temp_hash["accuracy"].to_i == 100
-				@state[:os]["osmatch"] = temp_hash["name"]
-			end
-		end
-
-		def record_host_osclass(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_os]
-			@state[:os] ||= {}
-			temp_hash = attr_hash(attrs)
-			if better_os_match(@state[:os],temp_hash)
-				@state[:os] = temp_hash
-			end
-		end
-
-		def record_hostname(attrs)
-			return unless @state[:in_host]
-			if attr_hash(attrs)["type"] == "PTR"
-				@state[:hostname] = attr_hash(attrs)["name"]
-			end
-		end
-
-		def record_host_script(attrs)
-			return unless @state[:in_host]
-			return if @state[:in_port]
-			temp_hash = attr_hash(attrs)
-			@state[:hostscripts] ||= {}
-			@state[:hostscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			db.emit(:host_script,temp_hash,&block) if block
-		end
-
-		def record_port_script(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_port]
-			temp_hash = attr_hash(attrs)
-			@state[:portscripts] ||= {}
-			@state[:portscripts].merge! temp_hash
-			temp_hash[:addresses] = @state[:addresses]
-			temp_hash[:port] = @state[:port]
-			db.emit(:port_script,temp_hash,&block) if block
-		end
-
-		def record_port_service(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_port]
-			svc = attr_hash(attrs)
-			if svc["name"] && @args[:fix_services]
-				svc["name"] = db.nmap_msf_service_map(svc["name"])
-			end
-			@state[:port] = @state[:port].merge(svc)
-		end
-
-		def record_port_state(attrs)
-			return unless @state[:in_host]
-			return unless @state[:in_port]
-			temp_hash = attr_hash(attrs)
-			@state[:port] = @state[:port].merge(temp_hash)
-		end
-
-		def record_port(attrs)
-			return unless @state[:in_host]
-			@state[:in_port] = true
-			@state[:port] ||= {}
-			svc = attr_hash(attrs)
-			@state[:port] = @state[:port].merge(svc)
-		end
-
-		def record_host_status(attrs)
-			return unless @state[:in_host]
-			attrs.each do |k,v|
-				next unless k == "state"
-				@state[:host_alive] = (v == "up") 
-			end
-		end
-
-		def record_address(attrs)
-			return unless @state[:in_host]
-			@state[:addresses] ||= {}
-			address = nil
-			type = nil
-			attrs.each do |k,v|
-				if k == "addr"
-					address = v
-				elsif k == "addrtype"
-					type = v
-				end
-			end
-			@state[:addresses][type] = address
-		end
-
 		# When we exit a tag, this is triggered.
 		def end_element(name=nil)
 			block = @block
-			@state[:current_tag].delete name
 			case name
 			when "os"
 				collect_os_data
-				@state[:in_os] = false
 				@state[:os] = {}
 			when "port"
 				collect_port_data 
-				@state[:in_port] = false
 				@state[:port] = {}
 			when "script"
-				if @state[:in_host]
-					if @state[:in_port]
+				if in_tag("host")
+					if in_tag("port")
 						@state[:portscripts] = {}
 					else
 						@state[:hostscripts] = {}
 					end
 				end
-			when "trace"
-				@state[:in_trace] = false
 			when "host" # Roll everything up now
 				collect_host_data
 				host_object = report_host &block
@@ -225,10 +96,127 @@ module Rex
 				@state.delete_if {|k| k != :current_tag}
 				@report_data = {:wspace => @args[:wspace]}
 			end
+			@state[:current_tag].delete name
+		end
+
+		# We can certainly get fancier with self.send() magic, but
+		# leaving this pretty simple for now.
+
+		def record_host_hop(attrs)
+			return unless in_tag("host")
+			return unless in_tag("trace")
+			hops = attr_hash(attrs)
+			hops["name"] = hops.delete "host"
+			@state[:trace][:hops] << hops
+		end
+
+		def record_host_trace(attrs)
+			return unless in_tag("host")
+			@state[:trace] = attr_hash(attrs)
+			@state[:trace][:hops] = []
+		end
+
+		def record_host_uptime(attrs)
+			return unless in_tag("host")
+			@state[:uptime] = attr_hash(attrs)
+		end
+
+		def record_host_osmatch(attrs)
+			return unless in_tag("host")
+			return unless in_tag("os")
+			temp_hash = attr_hash(attrs)
+			if temp_hash["accuracy"].to_i == 100
+				@state[:os]["osmatch"] = temp_hash["name"]
+			end
+		end
+
+		def record_host_osclass(attrs)
+			return unless in_tag("host")
+			return unless in_tag("os")
+			@state[:os] ||= {}
+			temp_hash = attr_hash(attrs)
+			if better_os_match(@state[:os],temp_hash)
+				@state[:os] = temp_hash
+			end
+		end
+
+		def record_hostname(attrs)
+			return unless in_tag("host")
+			if attr_hash(attrs)["type"] == "PTR"
+				@state[:hostname] = attr_hash(attrs)["name"]
+			end
+		end
+
+		def record_host_script(attrs)
+			return unless in_tag("host")
+			return if in_tag("port")
+			temp_hash = attr_hash(attrs)
+			@state[:hostscripts] ||= {}
+			@state[:hostscripts].merge! temp_hash
+			temp_hash[:addresses] = @state[:addresses]
+			db.emit(:host_script,temp_hash,&block) if block
+		end
+
+		def record_port_script(attrs)
+			return unless in_tag("host")
+			return unless in_tag("port")
+			temp_hash = attr_hash(attrs)
+			@state[:portscripts] ||= {}
+			@state[:portscripts].merge! temp_hash
+			temp_hash[:addresses] = @state[:addresses]
+			temp_hash[:port] = @state[:port]
+			db.emit(:port_script,temp_hash,&block) if block
+		end
+
+		def record_port_service(attrs)
+			return unless in_tag("host")
+			return unless in_tag("port")
+			svc = attr_hash(attrs)
+			if svc["name"] && @args[:fix_services]
+				svc["name"] = db.nmap_msf_service_map(svc["name"])
+			end
+			@state[:port] = @state[:port].merge(svc)
+		end
+
+		def record_port_state(attrs)
+			return unless in_tag("host")
+			return unless in_tag("port")
+			temp_hash = attr_hash(attrs)
+			@state[:port] = @state[:port].merge(temp_hash)
+		end
+
+		def record_port(attrs)
+			return unless in_tag("host")
+			@state[:port] ||= {}
+			svc = attr_hash(attrs)
+			@state[:port] = @state[:port].merge(svc)
+		end
+
+		def record_host_status(attrs)
+			return unless in_tag("host")
+			attrs.each do |k,v|
+				next unless k == "state"
+				@state[:host_alive] = (v == "up") 
+			end
+		end
+
+		def record_address(attrs)
+			return unless in_tag("host")
+			@state[:addresses] ||= {}
+			address = nil
+			type = nil
+			attrs.each do |k,v|
+				if k == "addr"
+					address = v
+				elsif k == "addrtype"
+					type = v
+				end
+			end
+			@state[:addresses][type] = address
 		end
 
 		def collect_os_data
-			return unless @state[:in_host]
+			return unless in_tag("host")
 			if @state[:os]
 				@report_data[:os_fingerprint] = {
 					:type => "host.os.nmap_fingerprint",
@@ -273,7 +261,7 @@ module Rex
 		end
 
 		def collect_port_data
-			return unless @state[:in_host]
+			return unless in_tag("host")
 			if @args[:fix_services]
 				if @state[:port]["state"] == "filtered"
 					return
