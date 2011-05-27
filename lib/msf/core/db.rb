@@ -1,6 +1,7 @@
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
 require 'rex/parser/nmap_nokogiri' 
 require 'rex/parser/nexpose_simple_nokogiri' 
+require 'rex/parser/nexpose_raw_nokogiri' 
 
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
