@@ -2996,9 +2996,6 @@ class DBManager
 				import_nexpose_noko_stream(noko_args) 
 			end
 			return true
-		else
-			# parser = ""
-			# yield(:parser, parser)
 		end
 		data = args[:data]
 
@@ -3117,9 +3114,22 @@ class DBManager
 	end
 
 	def import_nexpose_rawxml(args={}, &block)
-		data = args[:data]
-		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		wspace = args[:wspace] || workspace
+		if Rex::Parser.nokogiri_loaded 
+			parser = "Nokogiri v#{::Nokogiri::VERSION}"
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, parser)
+				import_nexpose_raw_noko_stream(noko_args) {|type, data| yield type,data}
+			else
+				import_nexpose_raw_noko_stream(noko_args) 
+			end
+			return true
+		end
+		data = args[:data]
 
 		# Use a stream parser instead of a tree parser so we can deal with
 		# huge results files without running out of memory.
@@ -3791,6 +3801,16 @@ class DBManager
 			data = f.read(f.stat.size)
 		end
 		import_nmap_xml(args.merge(:data => data))
+	end
+
+	def import_nexpose_raw_noko_stream(args, &block)
+		if block
+			doc = Rex::Parser::NexposeRawDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::NexposeRawDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
 	end
 
 	def import_nexpose_noko_stream(args, &block)

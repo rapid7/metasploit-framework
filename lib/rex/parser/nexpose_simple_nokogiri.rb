@@ -205,21 +205,6 @@ module Rex
 			vuln_result =~ /^V[VE]$/
 		end
 
-		def normalize_ref(ref_type, ref_value)
-			return if ref_type.nil? || ref_type.empty? || ref_value.nil? || ref_value.empty?
-			ref_value = ref_value.strip
-			ref_type = ref_type.strip.upcase
-			ret = case ref_type
-				when "CVE" 
-					ref_value.gsub("CAN", "CVE")
-				when "MS"  
-					"MSB-MS-#{ref_value}"
-				else 
-					"#{ref_type}-#{ref_value}"
-				end
-			return ret
-		end
-
 		def record_device(attrs)
 			@state[:in_device] = true
 			attrs.each do |k,v|

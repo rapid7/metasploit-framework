@@ -24,6 +24,13 @@ module Rex
 			!!@nokogiri_loaded
 		end
 
+		# Useful during development, shouldn't be used in normal operation.
+		def self.reload(fname)
+			$stdout.puts "Reloading #{fname}..."
+			load __FILE__
+			load File.join(File.expand_path(File.dirname(__FILE__)),fname)
+		end
+
 	end
 end
 
@@ -57,6 +64,39 @@ module Parser
 			valid = false
 			valid = ::Rex::Socket::RangeWalker.new(addr).valid? rescue false
 			!!valid
+		end
+
+		def normalize_ref(ref_type, ref_value)
+			return if ref_type.nil? || ref_type.empty? || ref_value.nil? || ref_value.empty?
+			ref_value = ref_value.strip
+			ref_type = ref_type.strip.upcase
+			ret = case ref_type
+				when "CVE" 
+					ref_value.gsub("CAN", "CVE")
+				when "MS"  
+					"MSB-MS-#{ref_value}"
+				when "URL", "BID"
+					"#{ref_type}-#{ref_value}"
+				else # Handle others?
+					"#{ref_type}-#{ref_value}"
+				end
+			return ret
+		end
+
+		def normalize_references(orig_refs)
+			return [] unless orig_refs
+			refs = []
+			orig_refs.each do |ref_hash|
+				ref_hash_sym = Hash[ref_hash.map {|k, v| [k.to_sym, v] }]
+				ref_type = ref_hash_sym[:source].to_s.strip.upcase
+				ref_value = ref_hash_sym[:value].to_s.strip
+				refs << normalize_ref(ref_type, ref_value)
+			end
+			return refs.compact.uniq
+		end
+
+		def in_tag(tagname)
+			@state[:current_tag].keys.include? tagname
 		end
 
 		# If there's an address, it's not on the blacklist, 

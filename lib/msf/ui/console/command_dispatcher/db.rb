@@ -1264,6 +1264,9 @@ class Db
 							case type
 							when :debug
 								print_error("DEBUG: #{data.inspect}")
+							when :vuln
+								inst = data[1] == 1 ? "instance" : "instances"
+								print_status("Importing vulnerability '#{data[0]}' (#{data[1]} #{inst})")
 							when :filetype
 								print_status("Importing '#{data}' data")
 							when :parser
