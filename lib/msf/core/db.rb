@@ -3990,6 +3990,31 @@ class DBManager
 				end
 				report_service(data)
 			}
+			#Parse the scripts output
+			if h["scripts"]
+				h["scripts"].each do |key,val| 
+					if key == "smb-check-vulns"
+						if val =~ /MS08-067: VULNERABLE/
+							vuln_info = {
+								:workspace => wspace,
+								:host =>  hobj || addr,
+								:port => 445,
+								:proto => 'tcp',
+								:name => 'MS08-067', 
+								:info => 'Microsoft Windows Server Service Crafted RPC Request Handling Unspecified Remote Code Execution',
+								:refs =>['CVE-2008-4250',
+									'BID-31874',
+									'OSVDB-49243',
+									'CWE-94',
+									'MSFT-MS08-067',
+									'MSF-Microsoft Server Service Relative Path Stack Corruption',
+									'NSS-34476']
+							}
+							report_vuln(vuln_info)
+						end
+					end
+				end
+			end
 		}
 
 		# XXX: Legacy nmap xml parser ends here.
