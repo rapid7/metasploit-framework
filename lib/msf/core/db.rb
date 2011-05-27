@@ -4013,6 +4013,44 @@ class DBManager
 							}
 							report_vuln(vuln_info)
 						end
+						if val =~ /MS06-025: VULNERABLE/
+							vuln_info = {
+								:workspace => wspace,
+								:host =>  hobj || addr,
+								:port => 445,
+								:proto => 'tcp',
+								:name => 'MS06-025', 
+								:info => 'Vulnerability in Routing and Remote Access Could Allow Remote Code Execution',
+								:refs =>['CVE-2006-2370',
+									'CVE-2006-2371',
+									'BID-18325',
+									'BID-18358',
+									'BID-18424',
+									'OSVDB-26436',
+									'OSVDB-26437',
+									'MSFT-MS06-025',
+									'MSF-Microsoft RRAS Service RASMAN Registry Overflow',
+									'NSS-21689']
+							}
+							report_vuln(vuln_info)
+						end
+						# This one has NOT been  Tested , remove this comment if confirmed working
+						if val =~ /MS07-029: VULNERABLE/
+							vuln_info = {
+								:workspace => wspace,
+								:host =>  hobj || addr,
+								:port => 445,
+								:proto => 'tcp',
+								:name => 'MS07-029', 
+								:info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
+								# Add more refs based on nessus/nexpose .. results
+								:refs =>['CVE-2007-1748',
+									'OSVDB-34100',
+									'MSF-Microsoft DNS RPC Service extractQuotedChar()',
+									'NSS-25168']
+							}
+							report_vuln(vuln_info)
+						end
 					end
 				end
 			end
