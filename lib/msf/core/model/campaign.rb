@@ -19,7 +19,7 @@ class Campaign < ActiveRecord::Base
 	serialized_prefs_attr_accessor :do_email
 	serialized_prefs_attr_accessor :smtp_server, :smtp_port, :smtp_ssl
 	serialized_prefs_attr_accessor :smtp_user, :smtp_pass
-	serialized_prefs_attr_accessor :mailfrom
+	serialized_prefs_attr_accessor :mailfrom, :display_from
 
 	# Web settings
 	serialized_prefs_attr_accessor :do_web
