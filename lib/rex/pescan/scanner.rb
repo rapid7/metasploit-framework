@@ -1,3 +1,5 @@
+require 'metasm'
+
 module Rex
 module PeScan
 module Scanner
@@ -27,8 +29,15 @@ module Scanner
 					msg  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
 					$stdout.puts pe.ptr_s(vma) + " " + msg
 					if(param['disasm'])
-						::Rex::Assembly::Nasm.disassemble([msg].pack("H*")).split("\n").each do |line|
-							$stdout.puts "\t#{line.strip}"
+						insns = []
+						d2 = Metasm::Shellcode.decode(msg, Metasm::Ia32.new).disassembler
+						addr = 0
+						while ((di = d2.disassemble_instruction(addr)))
+							insns << di.instruction
+							disasm = "0x%08x\t" % (vma + addr)
+							disasm << di.instruction.to_s
+							$stdout.puts disasm
+							addr = di.next_addr
 						end
 					end
 				end
