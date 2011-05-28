@@ -573,6 +573,86 @@ class Module
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
 
+
+	#
+	# This provides a standard set of search filters for every module.
+	# The search terms are in the form of:
+	#   { 
+	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
+	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
+	#   }
+	#
+	# Returns true on no match, false on match
+	#
+	def search_filter(k)
+	
+		refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
+		is_exploit   = (self.type == "exploit")
+		is_auxiliary = (self.type == "auxiliary")
+		is_post      = (self.type == "post")
+		is_server    = (self.respond_to?(:stance) and self.stance == "aggressive")
+		is_client    = (self.respond_to?(:stance) and self.stance == "passive")		
+					
+		[0,1].each do |mode|
+			match = false
+			k.keys.each do |t|
+				next if k[t][mode].length == 0
+
+				k[t][mode].each do |w|
+					# Reset the match flag for each keyword for inclusive search
+					match = false if mode == 0
+
+					# Convert into a case-insensitive regex
+					r = Regexp.new(Regexp.escape(w), true)
+
+					case t
+						when 'text'
+							terms = [self.name, self.fullname, self.description] + refs + self.author.map{|x| x.to_s}
+							if self.respond_to?(:targets) and self.targets
+								terms = terms + self.targets.map{|x| x.name}
+							end
+							match = [t,w] if terms.any? { |x| x =~ r }
+						when 'name'
+							match = [t,w] if self.name =~ r
+						when 'path'
+							match = [t,w] if self.fullname =~ r
+						when 'author'
+							match = [t,w] if self.author.map{|x| x.to_s}.any? { |a| a =~ r }
+						when 'os', 'platform'
+							match = [t,w] if self.platform_to_s =~ r or self.arch_to_s =~ r
+							if not match and self.respond_to?(:targets) and self.targets
+								match = [t,w] if self.targets.map{|x| x.name}.any? { |t| t =~ r }
+							end
+						when 'type'
+							match = [t,w] if (w == "exploit" and is_exploit)
+							match = [t,w] if (w == "auxiliary" and is_auxiliary)
+							match = [t,w] if (w == "post" and is_post)
+						when 'app'
+							match = [t,w] if (w == "server" and is_server_exploit)
+							match = [t,w] if (w == "client" and is_client_exploit)
+						when 'cve'
+							match = [t,w] if refs.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
+						when 'bid'
+							match = [t,w] if refs.any? { |ref| ref =~ /^bid\-/i and ref =~ r }
+						when 'osvdb'
+							match = [t,w] if refs.any? { |ref| ref =~ /^osvdb\-/i and ref =~ r }
+					end
+					break if match
+				end
+				# Filter this module if no matches for a given keyword type
+				if mode == 0 and not match
+					return true
+				end
+			end
+			# Filter this module if we matched an exlusion keyword (-value)
+			if mode == 1 and match
+				return true
+			end
+		end
+
+		false
+	end
+
 	##
 	#
 	# Just some handy quick checks

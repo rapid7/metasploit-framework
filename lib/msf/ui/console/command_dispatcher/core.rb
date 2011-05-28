@@ -64,9 +64,6 @@ class Core
 		"-z" => [ false, "Just try to connect, then return."              ])
 
 	@@search_opts = Rex::Parser::Arguments.new(
-		"-t" => [ true, "Type of module to search for (all|auxiliary|encoder|exploit|nop|payload)" ],
-		"-r" => [ true, "Minimum rank to return (#{RankingName.sort.map{|r|r[1]}.join("|")})" ],
-		"-o" => [ true, "Options or default values to search for (e.g. URIPATH,RPORT=80)" ],
 		"-h" => [ false, "Help banner."                                   ])
 
 
@@ -1124,73 +1121,57 @@ class Core
 	end
 
 	#
-	# Searches modules (name and description) for specified regex
+	# Searches modules for specific keywords
 	#
 	def cmd_search(*args)
-		section = 'all'
-		rank    = 'manual'
-		match   = nil
-		opts = {}
+		match   = ''
+
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-h"
 				cmd_search_help
 				return
-			when "-t"
-				section = val
-			when "-r"
-				rank = val
-			when "-o"
-				val.split(',').each do |optstring|
-					opt, val = optstring.split('=',2)
-					opts[opt] = val
-				end
 			else
-				match = val
+				match += val + " "
 			end
 		}
-		match = '.*' if match.nil?
+		
 
-		begin
-			regex = Regexp.new(match, true, 'n')
-		rescue RegexpError => e
-			print_error("Invalid regular expression: #{match} (hint: try .*)")
-			return
-		end
+		match += " "
+		# Split search terms by space, but allow quoted strings
+		terms = match.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
+		terms.delete('')
 
-		print_status("Searching loaded modules for pattern '#{match}'...")
+		# All terms are either included or excluded
+		res = {}
 
-		if rank.to_i != 0
-			rank = rank.to_i
-		elsif RankingName.has_value? rank
-			rank = RankingName.invert[rank]
-		else
-			print_error("Invalid rank, should be one of: " + RankingName.sort.map{|r| r[1]}.join(", "))
-			return
+		terms.each do |t|
+			f,v = t.split(":", 2)
+			if not v
+				v = f
+				f = 'text'
+			end
+			next if v.length == 0
+			f.downcase!
+			v.downcase!
+			res[f] ||=[   [],    []   ]
+			if v[0,1] == "-"
+				next if v.length == 1
+				res[f][1] << v[1,v.length-1]
+			else
+				res[f][0] << v
+			end
+		end	
+	
+		tbl = generate_module_table("Matching Modules")	
+		framework.modules.each do |m|
+			o = framework.modules.create(m[0])
+			if not o.search_filter(res)
+				tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
+			end
 		end
-		case section
-		when 'all'
-			show_auxiliary(regex, rank, opts)
-			show_encoders(regex, rank, opts)
-			show_exploits(regex, rank, opts)
-			show_nops(regex, rank, opts)
-			show_payloads(regex, rank, opts)
-			show_post(regex, rank, opts)
-		when 'auxiliary'
-			show_auxiliary(regex, rank, opts)
-		when 'encoder'
-			show_encoders(regex, rank, opts)
-		when 'exploit'
-			show_exploits(regex, rank, opts)
-		when 'nop'
-			show_nops(regex, rank, opts)
-		when 'payload'
-			show_payloads(regex, rank, opts)
-		when 'post'
-			show_post(regex, rank, opts)
-		else
-			print_error("Unknown type '#{section}'")
-		end
+		print_line(tbl.to_s)
+
 	end
 
 	def cmd_search_tabs(str, words)
@@ -1209,7 +1190,7 @@ class Core
 	end
 
 	def cmd_search_help
-		print_line "Usage: search [options] [regex]"
+		print_line "Usage: search [keywords]"
 		print_line
 		print @@search_opts.usage
 	end
