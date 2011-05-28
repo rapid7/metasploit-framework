@@ -61,7 +61,6 @@ class Plugin::MSGRPC < Msf::Plugin
 			:port => opts['ServerPort'],
 			:ssl  => opts['SSL'],
 			:cert => opts['SSLCert'],
-			:key  => opts['SSLKey'],
 			:uri  => opts['URI']
 		})
 		

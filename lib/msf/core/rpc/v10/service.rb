@@ -30,7 +30,6 @@ class Service
 		self.options  = {
 			:ssl  => false,
 			:cert => nil,
-			:key  => nil,
 			:uri  => "/uri",
 			:host => '127.0.0.1',
 			:port => 55553
@@ -206,11 +205,14 @@ class Service
 		stale.each { |t| self.tokens.delete(t) }
 
 		if not self.tokens[token]
-=begin
-			if framework.db.active and framework.db.api_keys.find_by_token(token)
-				return true
+			
+			begin
+				if framework.db.active and Msf::DBManager::ApiKey.find_by_token(token)
+					return true
+				end
+			rescue ::Exception => e
 			end
-=end
+			
 			return false
 		end
 

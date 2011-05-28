@@ -20,7 +20,7 @@ class RPC_Auth < RPC_Base
 		{ "result" => "success", "token" => token }
 	end
 	
-	def rpc_logout
+	def rpc_logout(token)
 		# Delete the token if its not marked as permanent
 		found = self.tokens[token]
 		if found and found[3] != true
@@ -28,7 +28,76 @@ class RPC_Auth < RPC_Base
 		end
 		{ "result" => "success" }
 	end
+	
+	def rpc_token_list
+		res = self.service.tokens.keys
+		begin
+			if framework.db and framework.db.active
+				Msf::DBManager::ApiKey.find(:all).each do |k|
+					res << k.token
+				end
+			end
+		rescue ::Exception
+		end
+		{ "tokens" => res }
+	end
 
+	def rpc_token_add(token)
+		db = false
+		begin
+			if framework.db and framework.db.active
+				t = Msf::DBManager::ApiKey.new
+				t.token = token
+				t.save!
+				db = true
+			end
+		rescue ::Exception
+		end
+		
+		if not db
+			self.service.tokens[token] = [nil, nil, nil, true]
+		end
+		
+		{ "result" => "success" }
+	end
+
+	def rpc_token_generate
+		token = Rex::Text.rand_text_alphanumeric(32)
+		db = false
+		begin
+			if framework.db and framework.db.active
+				t = Msf::DBManager::ApiKey.new
+				t.token = token
+				t.save!
+				db = true
+			end
+		rescue ::Exception
+		end
+		
+		if not db
+			token = "TEMP" + Rex::Text.rand_text_alphanumeric(28)
+			self.service.tokens[token] = [nil, nil, nil, true]
+		end
+		
+		{ "result" => "success", "token" => token }
+	end
+	
+	def rpc_token_remove(token)
+		db = false
+		begin
+			if framework.db and framework.db.active
+				t = Msf::DBManager::ApiKey.find_by_token(token)
+				t.destroy if t
+				db = true
+			end
+		rescue ::Exception
+		end
+		
+		self.service.tokens.delete(token)
+		
+		{ "result" => "success" }	
+	end
+	
 end
 end
 end
