@@ -224,7 +224,8 @@ class Tlv
 	# Converts the TLV to raw.
 	#
 	def to_r
-		raw = value.to_s;
+		# Forcibly convert to ASCII-8BIT encoding
+		raw = value.to_s.unpack("C*").pack("C*")
 
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			raw += "\x00"

@@ -66,8 +66,14 @@ class Client
 
 		res = @cli.send_recv(req)
 		
-		if res and [200, 401, 403, 500].include?(res.code)
-			return MessagePack.unpack(res.body)
+		if res and [200, 401, 403, 500].include?(res.code)		
+			resp = MessagePack.unpack(res.body)
+
+			if resp and resp.kind_of?(::Hash) and resp['error'] == true
+				raise Msf::RPC::ServerException.new(res.code, resp['error_string'], resp['error_class'], resp['error_backtrace'])
+			end			
+			
+			return resp
 		else
 			raise RuntimeError, res.inspect
 		end

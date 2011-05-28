@@ -14,6 +14,16 @@ class Exception < RuntimeError
 end
 
 
+class ServerException < RuntimeError
+	attr_accessor :code, :error_message, :error_class, :error_backtrace
+	
+	def initialize(code, error_message, error_class, error_backtrace)
+		self.code          = code
+		self.error_message = error_message
+		self.error_class   = error_class
+		self.error_backtrace = error_backtrace
+	end
+end
 
 end
 end
