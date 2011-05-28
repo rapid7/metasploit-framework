@@ -149,6 +149,7 @@ class RPC_Module < RPC_Base
 
 	end
 
+	# XXX: Fix callers (base64)
 	def rpc_encode(data, encoder, options)
 		# Load supported formats
 		supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
@@ -210,7 +211,7 @@ class RPC_Module < RPC_Base
 			#	$stderr.puts(OutError + "Warning: Falling back to default template: #{exeopts[:fellback]}")
 			#end
 
-			{"encoded" => Rex::Text.encode_base64(output.to_s)}
+			{ "encoded" => output.to_s }
 		rescue => e
 			error(500, "#{enc.refname} failed: #{e} #{e.backtrace}")
 		end
