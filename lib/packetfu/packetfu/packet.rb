@@ -163,10 +163,42 @@ module PacketFu
 		end
 
 		# Peek provides summary data on packet contents.
-		# Each packet type should provide its own peek method, and shouldn't exceed 80 characters wide (for
-		# easy reading in normal irb shells). If they don't, this default summary will step in.
+		#
+		# Each packet type should provide a peek_format.
 		def peek(args={})
-			peek_data = ["? "]
+			idx = @headers.reverse.map {|h| h.respond_to? peek_format}.index(true)
+			if idx
+				@headers.reverse[idx].peek_format
+			else
+				peek_format
+			end
+		end
+
+		# The peek_format is used to display a single line
+		# of packet data useful for eyeballing. It should not exceed
+		# 80 characters. The Packet superclass defines an example
+		# peek_format, but it should hardly ever be triggered, since
+		# peek traverses the @header list in reverse to find a suitable
+		# format.
+		#
+		# == Format
+		# 
+		#   * A one or two character protocol initial. It should be unique
+		#   * The packet size
+		#   * Useful data in a human-usable form.
+		#
+		# Ideally, related peek_formats will all line up with each other
+		# when printed to the screen.
+		#
+		# == Example
+		#
+		#    tcp_packet.peek
+		#    #=> "T  1054 10.10.10.105:55000   ->   192.168.145.105:80 [......] S:adc7155b|I:8dd0"
+		#    tcp_packet.peek.size
+		#    #=> 79
+		#   
+		def peek_format
+			peek_data = ["?  "]
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << "%68s" % self.to_s[0,34].unpack("H*")[0]
 			peek_data.join

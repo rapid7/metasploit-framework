@@ -216,8 +216,8 @@ module PacketFu
 		end
 
 		# Generates summary data for ARP packets.
-		def peek(args={})
-			peek_data = ["A "]
+		def peek_format
+			peek_data = ["A  "]
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << arp_saddr_mac
 			peek_data << "(#{arp_saddr_ip})"

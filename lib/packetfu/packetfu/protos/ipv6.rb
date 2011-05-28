@@ -230,7 +230,7 @@ module PacketFu
 
 		# Peek provides summary data on packet contents.
 		def peek(args={})
-			peek_data = ["6 "]
+			peek_data = ["6  "]
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << "%-31s" % self.ipv6_saddr
 			peek_data << "-> "

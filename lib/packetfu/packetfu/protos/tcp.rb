@@ -1057,9 +1057,11 @@ module PacketFu
 			end
 		end
 
-		# Peek provides summary data on packet contents.
-		def peek(args={})
-			peek_data = ["T "]
+		# TCP packets are denoted by a "T  ", followed by size,
+		# source and dest information, packet flags, sequence
+		# number, and IPID.
+		def peek_format
+			peek_data = ["T  "]
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << "%-21s" % "#{self.ip_saddr}:#{self.tcp_src}"
 			peek_data << "->"

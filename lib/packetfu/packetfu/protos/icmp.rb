@@ -148,8 +148,8 @@ module PacketFu
 		end
 
 		# Peek provides summary data on packet contents.
-		def peek(args={})
-			peek_data = ["C "] # I is taken by IP
+		def peek_format
+			peek_data = ["IC "] # I is taken by IP
 			peek_data << "%-5d" % self.to_s.size
 			type = case self.icmp_type.to_i
 						 when 8

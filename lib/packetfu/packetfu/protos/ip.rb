@@ -329,8 +329,8 @@ module PacketFu
 		end
 
 		# Peek provides summary data on packet contents.
-		def peek(args={})
-			peek_data = ["I "]
+		def peek_format
+			peek_data = ["I  "]
 			peek_data << "%-5d" % to_s.size
 			peek_data << "%-21s" % "#{ip_saddr}"
 			peek_data << "->"
