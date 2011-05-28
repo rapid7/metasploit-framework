@@ -1125,7 +1125,6 @@ class Core
 	#
 	def cmd_search(*args)
 		match   = ''
-
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
 			when "-h"
@@ -1136,37 +1135,10 @@ class Core
 			end
 		}
 		
-
-		match += " "
-		# Split search terms by space, but allow quoted strings
-		terms = match.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
-		terms.delete('')
-
-		# All terms are either included or excluded
-		res = {}
-
-		terms.each do |t|
-			f,v = t.split(":", 2)
-			if not v
-				v = f
-				f = 'text'
-			end
-			next if v.length == 0
-			f.downcase!
-			v.downcase!
-			res[f] ||=[   [],    []   ]
-			if v[0,1] == "-"
-				next if v.length == 1
-				res[f][1] << v[1,v.length-1]
-			else
-				res[f][0] << v
-			end
-		end	
-	
 		tbl = generate_module_table("Matching Modules")	
 		framework.modules.each do |m|
 			o = framework.modules.create(m[0])
-			if not o.search_filter(res)
+			if not o.search_filter(match)
 				tbl << [ o.fullname, o.disclosure_date.to_s, o.rank_to_s, o.name ]
 			end
 		end

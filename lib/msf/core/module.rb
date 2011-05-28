@@ -584,7 +584,37 @@ class Module
 	#
 	# Returns true on no match, false on match
 	#
-	def search_filter(k)
+	def search_filter(search_string)
+		return false if not search_string
+			
+		search_string += " "
+		
+		# Split search terms by space, but allow quoted strings
+		terms = search_string.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
+		terms.delete('')
+
+		# All terms are either included or excluded
+		res = {}
+
+		terms.each do |t|
+			f,v = t.split(":", 2)
+			if not v
+				v = f
+				f = 'text'
+			end
+			next if v.length == 0
+			f.downcase!
+			v.downcase!
+			res[f] ||=[   [],    []   ]
+			if v[0,1] == "-"
+				next if v.length == 1
+				res[f][1] << v[1,v.length-1]
+			else
+				res[f][0] << v
+			end
+		end		
+
+		k = res
 	
 		refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
 		is_exploit   = (self.type == "exploit")
