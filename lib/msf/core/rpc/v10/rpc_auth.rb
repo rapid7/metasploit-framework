@@ -60,7 +60,7 @@ class RPC_Auth < RPC_Base
 		
 		{ "result" => "success" }
 	end
-
+	
 	def rpc_token_generate
 		token = Rex::Text.rand_text_alphanumeric(32)
 		db = false

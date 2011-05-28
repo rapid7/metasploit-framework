@@ -182,7 +182,7 @@ class RPC_Session < RPC_Base
 	end
 
 	def rpc_meterpreter_script( sid, data)
-		meterpreter_run_single( sid, "run #{data}")
+		rpc_meterpreter_run_single( sid, "run #{data}")
 	end
 
 	def rpc_compatible_modules( sid)
