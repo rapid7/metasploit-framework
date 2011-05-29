@@ -109,7 +109,8 @@ module Rex
 			return unless @report_data[:vuln][:matches].kind_of? Array
 			refs = normalize_references(@report_data[:vuln][:refs])
 			refs << "NEXPOSE-#{report_data[:vuln]["id"]}"
-			db.emit(:vuln, [refs.last,@report_data[:vuln][:matches].size], &block)
+			vuln_instances = @report_data[:vuln][:matches].size
+			db.emit(:vuln, [refs.last,vuln_instances], &block) if block
 			data = {
 				:workspace => @args[:wspace],
 				:name => refs.last,
