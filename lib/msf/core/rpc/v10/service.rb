@@ -156,11 +156,11 @@ class Service
 		}
 
 		if e.respond_to?(:message)
-			r[:message] = e.message
+			r[:error_message] = e.message
 		end
 				
 		if e.respond_to?(:code)
-			r[:code] = e.code
+			r[:error_code] = e.code
 		end
 				
 		r

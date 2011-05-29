@@ -21,8 +21,10 @@ class RPC_Auth < RPC_Base
 	end
 	
 	def rpc_logout(token)
-		# Delete the token if its not marked as permanent
 		found = self.tokens[token]
+		error("500", "Invalid Authentication Token")
+
+		# Delete the token if its not marked as permanent
 		if found and found[3] != true
 			self.tokens.delete(token)
 		end
