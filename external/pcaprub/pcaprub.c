@@ -10,9 +10,10 @@
 #if !defined(WIN32)
  #include <netinet/in.h>
  #include <arpa/inet.h>
+ #include <sys/time.h>
 #endif
 
-#include <sys/time.h>
+
 
 static VALUE rb_cPcap;
 
@@ -459,7 +460,11 @@ rbpcap_capture(VALUE self)
 
 	if(! rbpcap_ready(rbp)) return self; 
 	
+#if !defined(WIN32)
 	fno = pcap_get_selectable_fd(rbp->pd);
+#else
+	fno = pcap_fileno(rbp->pd);
+#endif
 
     for(;;) {
     	VALUE packet = rbpcap_next(self);
