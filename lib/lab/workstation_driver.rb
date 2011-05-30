@@ -16,7 +16,7 @@ class WorkstationDriver < VmDriver
 		@vmid = filter_input(vmid)
 		@location = filter_input(location)
 		if !File.exist?(@location)
-			raise ArgumentError,"Couldn't find: " + location
+			raise ArgumentError,"Couldn't find: " + @location
 		end
 
 		@credentials = credentials
@@ -66,7 +66,7 @@ class WorkstationDriver < VmDriver
 	def run_command(command)
 		command = filter_input(command)
 		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass} \" " +
-				"runProgramInGuest \"#{@location}\" \"{command}\" -noWait -activeWindow"
+				"runProgramInGuest \"#{@location}\" \"#{command}\""
 		system_command(vmrunstr)
 	end
 	
@@ -74,7 +74,7 @@ class WorkstationDriver < VmDriver
 		from = filter_input(from)
 		to = filter_input(to)
 		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromGuestToHost" +
-				" \"#{@location}\" \"{from}\" \"{to}\"" 
+				" \"#{@location}\" \"#{from}\" \"#{to}\"" 
 		system_command(vmrunstr)
 	end
 
@@ -82,14 +82,14 @@ class WorkstationDriver < VmDriver
 		from = filter_input(from)
 		to = filter_input(to)
 		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest" +
-				" \"#{@location}\" \"{from}\" \"{to}\""  
+				" \"#{@location}\" \"#{from}\" \"#{to}\""  
 		system_command(vmrunstr)
 	end
 
 	def check_file_exists(file)
 		file = filter_input(file)
 		vmrunstr = "vmrun -T ws -gu {user} -gp #{@vm_pass} fileExistsInGuest " +
-				"\"#{@location}\" \"{file}\" "
+				"\"#{@location}\" \"#{file}\" "
 		system_command(vmrunstr)
 	end
 
