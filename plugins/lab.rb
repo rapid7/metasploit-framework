@@ -39,7 +39,7 @@ class Plugin::Lab < Msf::Plugin
 			"lab_suspend" => "lab_suspend [vmid+|all] suspend the specified vm.",
 			"lab_stop" => "lab_stop [vmid+|all] stop the specified vm.",
 			"lab_revert" => "lab_revert [vmid+|all] [snapshot] revert the specified vm.",
-			"lab_snapshot" => "lab_snapshot [vmid+|all] [snapshot] snapshot all targets for this exploit."
+			"lab_snapshot" => "lab_snapshot [vmid+|all] [snapshot] snapshot all targets for this exploit.",
 			"lab_run_command" => "lab_run_command [vmid+|all] [command] run a command on all targets.",
 			"lab_browse_to" => "lab_browse_to [vmid+|all] [uri] use the default browser to browse to a uri."
 		}
