@@ -66,13 +66,16 @@ module File
 	# as a String.
 	#
 	def read_file(file_name)
-		return false if file_name.length > 0
-
 		data = nil
 		if session.type == "meterpreter"
 			data = read_file_meterpreter(file_name)
-		elsif session.respond_to? :shell_command_token
-			data = session.shell_command_token("cat '#{file_name}'")
+		elsif session.type == "shell"
+			if session.platform == "windows"
+				data = session.shell_command_token("type \"#{file_name}\"")
+			else
+				data = session.shell_command_token("cat #{file_name}")
+			end
+			
 		end
 		data
 	end
@@ -87,7 +90,11 @@ module File
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			session.shell_command_token("echo \'#{data}\' >> '#{file_name}'")
+			if session.platform == "windows"
+				session.shell_command_token("echo #{data} > \"#{file_name}\"")
+			else
+				session.shell_command_token("echo \'#{data}\' > \'#{file_name}\'")
+			end
 			
 		end
 		return true
@@ -103,7 +110,11 @@ module File
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			session.shell_command_token("echo \'#{data}\' >> '#{file_name}'")
+			if session.platform == "windows"
+				session.shell_command_token("echo #{data} >> \"#{file_name}\"")
+			else
+				session.shell_command_token("echo \'#{data}\' >> \'#{file_name}\'")
+			end
 		end
 		return true
 	end
