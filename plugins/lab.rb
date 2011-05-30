@@ -90,6 +90,11 @@ class Plugin::Lab < Msf::Plugin
 					end
 				end
 			end
+
+			print_line 
+			print_line "In order to use this plugin, you'll want to configure a .yml lab file"
+			print_line "You can find an example in data/lab/test_targets.yml" 
+			print_line
 		end
 		
 		##
