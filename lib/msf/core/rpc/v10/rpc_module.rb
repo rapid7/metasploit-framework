@@ -149,26 +149,26 @@ class RPC_Module < RPC_Base
 
 	end
 
-	# XXX: Fix callers (base64)
 	def rpc_encode(data, encoder, options)
 		# Load supported formats
 		supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
 
 		if (fmt = options['format'])
 			if not supported_formats.include?(fmt)
-				error(500, "failed to generate: invalid format: #{fmt}")
+				error(500, "Invalid Format: #{fmt}")
 			end
 		end
 
 		badchars = ''
 		if options['badchars']
-			badchars = Rex::Text.hex_to_raw(options['badchars'])
+			badchars = options['badchars']
 		end
 
-		plat = nil
-		if options['plat']
-			plat = Msf::Module::PlatformList.transform(val)
+		platform = nil
+		if options['platform']
+			platform = Msf::Module::PlatformList.transform(platform)
 		end
+		
 		arch = nil
 		if options['arch']
 			arch = options['arch']
@@ -199,7 +199,7 @@ class RPC_Module < RPC_Base
 				raw = enc.encode(eout, badchars, nil, plat)
 			end
 
-			output = Msf::Util::EXE.to_executable_fmt(self.framework, arch, plat, raw, fmt, exeopts)
+			output = Msf::Util::EXE.to_executable_fmt(self.framework, arch, platform, raw, fmt, exeopts)
 
 			if not output
 				fmt ||= "ruby"
@@ -221,11 +221,7 @@ private
 
 	def _find_module(mtype,mname)
 		mod = self.framework.modules.create(mname)
-
-		if(not mod)
-			error(500, "Invalid Module")
-		end
-
+		error(500, "Invalid Module") if not mod
 		mod
 	end
 
@@ -236,7 +232,7 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{"result" => "success"}
+		{ "job_id" => mod.job_id }
 	end
 
 	def _run_auxiliary(mod, opts)
@@ -245,11 +241,19 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{"result" => "success"}
+		{ "job_id" => mod.job_id }
 	end
 
+	def _run_post(mod, opts)
+		Msf::Simple::Post.run_simple(mod, {
+			'RunAsJob' => true,
+			'Options'  => opts
+		})
+		{ "job_id" => mod.job_id }
+	end
+	
 	def _run_payload(mod, opts)
-		badchars = [opts['BadChars'] || ''].pack("H*")
+		badchars = opts['BadChars'] || ''
 		fmt = opts['Format'] || 'raw'
 		force = opts['ForceEncode'] || false
 		template = opts['Template'] || nil
@@ -274,19 +278,13 @@ private
 				'Iterations'  => iter
 			})
 
-			{"result" => "success", "payload" => res.unpack("H*")[0]}
+			{ "payload" => res }
 		rescue ::Exception => e
 			error(500, "failed to generate: #{e.message}")
 		end
 	end
 
-	def _run_post(mod, opts)
-		Msf::Simple::Post.run_simple(mod, {
-			'RunAsJob' => true,
-			'Options'  => opts
-		})
-		{"result" => "success"}
-	end
+
 end
 end
 end

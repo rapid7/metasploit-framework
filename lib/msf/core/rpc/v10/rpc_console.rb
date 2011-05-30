@@ -33,12 +33,14 @@ class RPC_Console < RPC_Base
 	end
 
 	def rpc_destroy(cid)
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		res = @console_driver.destroy_console(cid)
 		{ 'result' => res ? 'success' : 'failure' }
 	end
 
 	def rpc_read(cid)
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{
 			"data"   => @console_driver.read_console(cid)    || '',
@@ -48,22 +50,26 @@ class RPC_Console < RPC_Base
 	end
 
 	def rpc_write(cid, data)
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{ "wrote" => @console_driver.write_console(cid, data || '') }
 	end
 
 	def rpc_tabs(cid, line)
+		cid = cid.to_s	
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{ "tabs" => @console_driver.consoles[cid].tab_complete(line) }
 	end
 
 	def rpc_session_kill(cid)
+		cid = cid.to_s	
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		@console_driver.consoles[cid].session_kill
 		{ 'result' => 'success' }
 	end
 
 	def rpc_session_detach(cid)
+		cid = cid.to_s	
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		@console_driver.consoles[cid].session_detach
 		{ 'result' => 'success' }

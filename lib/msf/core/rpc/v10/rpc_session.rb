@@ -53,7 +53,7 @@ class RPC_Session < RPC_Base
 		# of shell_read
 		@session_sequence ||= {}
 		@session_sequence[sid] ||= 0
-		ring_buffer = ring_read(sid,(ptr || @session_sequence[sid]))
+		ring_buffer = rpc_ring_read(sid,(ptr || @session_sequence[sid]))
 		if not (ring_buffer["seq"].nil? || ring_buffer["seq"].empty?)
 			@session_sequence[sid] = ring_buffer["seq"].to_i
 		end
@@ -63,7 +63,7 @@ class RPC_Session < RPC_Base
 	# shell_write is pretty much totally identical to ring_put
 	def rpc_shell_write( sid, data)
 		_valid_session(sid,"shell")
-		ring_put(sid,data)
+		rpc_ring_put(sid,data)
 	end
 
 	def rpc_shell_upgrade( sid, lhost, lport)
@@ -139,7 +139,7 @@ class RPC_Session < RPC_Base
 		else
 			self.framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(data) }
 		end
-		{}
+		{ "result" => "success" }
 	end
 
 	def rpc_meterpreter_session_detach(sid)
@@ -178,7 +178,7 @@ class RPC_Session < RPC_Base
 		end
 
 		self.framework.threads.spawn("MeterpreterRunSingle", false, s) { |sess| sess.console.run_single(data) }
-		{}
+		{ "result" => "success" }
 	end
 
 	def rpc_meterpreter_script( sid, data)
@@ -187,7 +187,7 @@ class RPC_Session < RPC_Base
 
 	def rpc_compatible_modules( sid)
 		ret = []
-
+		
 		mtype = "post"
 		names = self.framework.post.keys.map{ |x| "post/#{x}" }
 		names.each do |mname|
@@ -195,7 +195,7 @@ class RPC_Session < RPC_Base
 			next if not m.session_compatible?(sid)
 			ret << m.fullname
 		end
-		ret
+		{ "modules" => ret }
 	end
 	
 private
