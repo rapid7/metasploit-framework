@@ -73,7 +73,7 @@ module File
 			if session.platform == "windows"
 				data = session.shell_command_token("type \"#{file_name}\"")
 			else
-				data = session.shell_command_token("cat #{file_name}")
+				data = session.shell_command_token("cat \'#{file_name}\'")
 			end
 			
 		end
