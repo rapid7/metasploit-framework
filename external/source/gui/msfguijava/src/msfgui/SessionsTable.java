@@ -17,8 +17,8 @@ public class SessionsTable extends AbstractTableModel {
 	protected List sessions;
 
 	public SessionsTable(List sessions) {
-		//also have "info", "workspace", "target_host", "username", "exploit_uuid"
-		this.columnNames = new String[]{"type","tunnel_local","tunnel_peer","via_exploit","via_payload","desc","uuid","platform"};
+		//also have "desc", "workspace", "target_host", "username", "uuid", "tunnel_local", "exploit_uuid"
+		this.columnNames = new String[]{"id","type","tunnel_peer","info","platform","via_exploit","via_payload"};
 		this.sessions = sessions;
 	}
 
