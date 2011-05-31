@@ -69,7 +69,7 @@ def parse_args
 	end
 
 	opt.on('-b', '--bad-chars  [list] ', String, 'The list of characters to avoid example: \'\x00\xff\'') do |b|
-		opts[:badchars] = b
+		opts[:badchars] = Rex::Text.hex_to_raw(b)
 	end
 
 	opt.on('-i', '--iterations [count] ', Integer, 'The number of times to encode the payload') do |i|
@@ -294,56 +294,60 @@ if payload_raw.nil? or payload_raw.empty?
 				'Encoder'       => nil)
 end
 
+if opts[:template]
+	path = File.dirname(opts[:template])
+	altexe = File.basename(opts[:template])
+end
+exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
+
 
 
 if opts[:encode]
 	done = false
 	encoders = get_encoders(opts[:arch], opts[:encoder])
 	encoders.each do |enc|
-		break if done
-		#enc.datastore.import_options_from_s(datastore, '_|_')
-		eout = payload_raw.dup
-		skip = false
-		raw = nil
+		next if not enc
+		begin
+			break if done
+			#enc.datastore.import_options_from_s(datastore, '_|_')
+			eout = payload_raw.dup
+			skip = false
+			raw = nil
 
-		if not opts[:iterations]
-			opts[:iterations] = 1
-		end
-
-		1.upto(opts[:iterations].to_i) do |iteration|
-			begin
-				raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
-				if opts[:space] and opts[:space] > 0 and raw.length > opts[:space]
-					print_error("#{enc.refname} created buffer that is too big (#{raw.length})\n\n")
-					skip = true
-					break
-				end
-
-				print_status("#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n")
-				eout = raw
-				payload_raw = raw
-				if iteration == opts[:iterations]
-					done = true
-					break
-				end
-			rescue
-				if iteration != opts[:iteration]
-					print_error("#{enc.refname} failed: #{$!} (iteration=#{iteration})\n")
-					next
-				else
-					print_error("Error generating payload: #{$!}")
-					exit
-				end
+			if not opts[:iterations]
+				opts[:iterations] = 1
 			end
+			#puts opts[:badchars].inspect
+
+			1.upto(opts[:iterations].to_i) do |iteration|
+					raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
+					if opts[:space] and opts[:space] > 0 and raw.length > opts[:space]
+						print_error("#{enc.refname} created buffer that is too big (#{raw.length})\n\n")
+						skip = true
+						break
+					end
+
+					print_status("#{enc.refname} succeeded with size #{raw.length} (iteration=#{iteration})\n")
+					payload_raw = raw.dup
+					if iteration == opts[:iterations]
+						done = true
+						break
+					end
+			end
+			next if skip
+			exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
+		rescue ::Errno::ENOENT, ::Errno::EINVAL
+			print_error("#{enc.refname} failed: #{$!}")
+			break
+
+		rescue => e
+			print_error("#{enc.refname} failed: #{e}")
+			e.backtrace.each { |el|
+			print_error(el.to_s)
+			}
 		end
 	end
 end
-
-if opts[:template]
-	path = File.dirname(opts[:template])
-	altexe = File.basename(opts[:template])
-end
-exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
 
 if opts[:nopsled]
 	puts opts[:arch].class
