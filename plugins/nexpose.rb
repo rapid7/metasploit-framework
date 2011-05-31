@@ -223,7 +223,7 @@ class Plugin::Nexpose < Msf::Plugin
 		
 		def nexpose_compatibility_check
 			res = @nsc.console_command("ver")
-			if res !~ /^Console Version ID:\s*480\s*$/m
+			if res !~ /^Console Version ID:\s*4[89]0\s*$/m
 				print_error("")
 				print_error("Warning: This version of NeXpose has not been tested with Metasploit!")
 				print_error("")
