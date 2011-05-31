@@ -7,14 +7,13 @@ require 'workstation_vixr_driver'
 require 'remote_workstation_driver'
 require 'virtualbox_driver'
 require 'dynagen_driver'
-
+#require 'fog_amazon_driver'
 #require 'amazon_driver'
 #require 'qemu_driver'
 #require 'qemudo_driver'
 
 
 module Lab
-
 class Vm
 	
 	attr_accessor :vmid
@@ -44,8 +43,8 @@ class Vm
 		raise "Invalid VMID" unless @vmid
 
 		@driver = nil
-		driver_type = filter_input(config['driver'])
-		driver_type.downcase!
+		@driver_type = filter_input(config['driver'])
+		@driver_type.downcase!
 		 
 		@type = filter_input(config['type']) || "unspecified"
 		@tools = config['tools'] || false # don't filter this, not used in cmdlines
@@ -57,27 +56,31 @@ class Vm
 		@location = filter_input(config['location'])
 
 		# Only applicable to remote systems
-		@user = config['user'] || nil
-		@host = config['host'] || nil
+		@user = filter_input(config['user']) || nil
+		@host = filter_input(config['host']) || nil
 
 		#Only dynagen
 		@platform = config['platform']
 
-		if driver_type == "workstation"
+		#puts "DEBUG: " + driver_type + " driver requested."
+
+		if @driver_type == "workstation"
 			@driver = Lab::Drivers::WorkstationDriver.new(@vmid, @location, @credentials)
-		elsif driver_type == "workstation_vixr"
+		elsif @driver_type == "workstation_vixr"
 			@driver = Lab::Drivers::WorkstationVixrDriver.new(@vmid, @location, @user, @host, @credentials)	
-		elsif driver_type == "remote_workstation"
+		elsif @driver_type == "remote_workstation"
 			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)	
-		elsif driver_type == "virtualbox"
+		elsif @driver_type == "virtualbox"
 			@driver = Lab::Drivers::VirtualBoxDriver.new(@vmid, @location, @credentials)
-		elsif driver_type == "dynagen"
+		elsif @driver_type == "dynagen"
 			@driver = Lab::Drivers::DynagenDriver.new(@vmid, @location,@platform)	
-		#elsif driver_type == "qemu"
+		#elsif @driver_type == "fog_amazon"
+		#	@driver = Lab::Drivers::FogAmazonDriver.new
+		#elsif @driver_type == "qemu"
 		#	@driver = Lab::Drivers::QemuDriver.new	
-		#elsif driver_type == "qemudo"
+		#elsif @driver_type == "qemudo"
 		#	@driver = Lab::Drivers::QemudoDriver.new	
-		#elsif driver_type == "amazon"
+		#elsif @driver_type == "amazon"
 		#	@driver = Lab::Drivers::AmazonDriver.new	
 		else
 			raise "Unknown Driver Type"
@@ -171,26 +174,23 @@ class Vm
 
 	def to_yaml
 		out =  " - vmid: #{@vmid}\n"
-		out += "   driver: #{@driver.type}\n"
+		out += "   driver: #{@driver_type}\n"
 		out += "   location: #{@driver.location}\n"
 		out += "   type: #{@type}\n"
 		out += "   tools: #{@tools}\n"
 		out += "   os: #{@os}\n"
 		out += "   arch: #{@arch}\n"
+		if @user or @host # Remote vm/drivers only
+			out += "   user: #{@user}\n"
+			out += "   host: #{@host}\n"
+		end
+
 		out += "   credentials:\n"
-		
 		@credentials.each do |credential|		
 			out += "     - user: #{credential['user']}\n"
 			out += "       pass: #{credential['pass']}\n"
-			out += "       admin: #{credential['admin']}\n"
 		end
 		
-		# Remote systems
-		if @user or @host
-			out += "   user: #{@server_user}\n"
-			out += "   host: #{@server_host}\n"
-		end
-
 	 	return out
 	end
 private

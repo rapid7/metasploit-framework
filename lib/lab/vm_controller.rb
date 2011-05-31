@@ -16,6 +16,8 @@ require 'workstation_vixr_controller'
 require 'remote_workstation_controller'
 require 'virtualbox_controller'
 require 'dynagen_controller'
+
+#require 'fog_amazon_controller'
 #require 'qemu_controller'
 #require 'qemudo_controller'
 #require 'amazon_controller'
@@ -30,6 +32,7 @@ module Controllers
 		include Lab::Controllers::RemoteWorkstationController 	
 		include Lab::Controllers::VirtualBoxController 
 		include Lab::Controllers::DynagenController 
+		#include Lab::Controllers::FogAmazonController 
 		#include Lab::Controllers::QemuController 
 		#include Lab::Controllers::QemudoController 
 		#include Lab::Controllers::AmazonController 
@@ -111,35 +114,39 @@ module Controllers
 			return false
 		end
 
-		def build_from_dir(type, dir, clear=false)
+		def build_from_dir(driver_type, dir, clear=false)
 		
 			if clear
 				@vms = []
 			end
 
-			if type.downcase == "workstation"
+			if driver_type.downcase == "workstation"
 				vm_list = ::Lab::Controllers::WorkstationController::dir_list(dir)
-			elsif type.downcase == "remote_workstation"	
+			elsif driver_type.downcase == "workstation_vixr"	
+				vm_list = ::Lab::Controllers::WorkstationVixrController::dir_list(dir)
+			elsif driver_type.downcase == "remote_workstation"	
 				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
-			elsif type.downcase == "virtualbox"	
+			elsif driver_type.downcase == "virtualbox"	
 				vm_list = ::Lab::Controllers::VirtualBoxController::dir_list(dir)
+			#elsif driver_type.downcase == "fog_amazon"	
+			#	vm_list = ::Lab::Controllers::FogAmazonController::dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
 			
 			vm_list.each_index do |index|
 				puts "Creating VM object for: " + vm_list[index]
-				@vms << Vm.new( {'vmid' => index.to_s, 'driver' => type, 'location' => vm_list[index]} )
+				@vms << Vm.new( {'vmid' => "vm_#{index}", 'driver' => driver_type, 'location' => vm_list[index]} )
 			end
 		end
 
-		def build_from_running(type=nil, user=nil, host=nil, clear=false)
+		def build_from_running(driver_type=nil, user=nil, host=nil, clear=false)
 		
 			if clear
 				@vms = []
 			end
 
-			case type.intern
+			case driver_type.intern
 				when :workstation
 					vm_list = ::Lab::Controllers::WorkstationController::running_list
 					
@@ -149,8 +156,8 @@ module Controllers
 						index = @vms.count + 1
 	
 						## Add it to the vm list
-						@vms << Vm.new( {	'vmid' => index.to_s,
-									'driver' => type, 
+						@vms << Vm.new( {	'vmid' => "vm_#{index}",
+									'driver' => driver_type, 
 									'location' => item, 
 									'user' => user,
 									'host' => host } )
@@ -165,8 +172,8 @@ module Controllers
 						index = @vms.count + 1
 	
 						## Add it to the vm list
-						@vms << Vm.new( {	'vmid' => "#{index}",
-									'driver' => type, 
+						@vms << Vm.new( {	'vmid' => "vm_#{index}",
+									'driver' => driver_type, 
 									'location' => item, 
 									'user' => user,
 									'host' => host } )
@@ -178,7 +185,7 @@ module Controllers
 					vm_list.each do |item|
 						## Add it to the vm list
 						@vms << Vm.new( {	'vmid' => "#{item}",
-									'driver' => type, 
+									'driver' => driver_type, 
 									'location' => nil, 
 									'user' => user,
 									'host' => host } )
@@ -190,20 +197,20 @@ module Controllers
 
 		end	
 
-		def build_from_config(type=nil, user=nil, host=nil, clear=false)
+		def build_from_config(driver_type=nil, user=nil, host=nil, clear=false)
 		
 			if clear
 				@vms = []
 			end
 
-			case type.intern
+			case driver_type.intern
 				when :virtualbox
 					vm_list = ::Lab::Controllers::VirtualBoxController::config_list
 					
 					vm_list.each do |item|
 						## Add it to the vm list
 						@vms << Vm.new( {	'vmid' => "#{item}",
-									'driver' => type, 
+									'driver' => driver_type, 
 									'location' => nil, 
 									'user' => user,
 									'host' => host } )

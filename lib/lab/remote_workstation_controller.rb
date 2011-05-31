@@ -3,10 +3,12 @@ module Controllers
 module RemoteWorkstationController
 
 	def self.running_list(user, host)
-		user.gsub!(/^[[:alnum:]_-]*$/, '')
-		host.gsub!(/^[[:alnum:]_-]*$/, '')
+		user.gsub!(/(\W)*/, '')
+		host.gsub!(/(\W)*/, '')
 
-		vm_list = `ssh #{@user}@#{@host} vmrun list nogui`.split("\n")
+		remote_cmd = "ssh #{user}@#{host} \"vmrun list nogui\""
+		puts "running #{remote_cmd}"
+		vm_list = `#{remote_cmd}`.split("\n")
 		vm_list.shift
 
 		return vm_list
@@ -14,7 +16,6 @@ module RemoteWorkstationController
 
 	def self.dir_list(basepath=nil)
 		vm_list = Find.find(basepath).select { |f| f =~ /\.vmx$/ }
-
 		return vm_list
 	end
 end

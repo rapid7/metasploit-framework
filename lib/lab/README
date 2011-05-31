@@ -6,23 +6,29 @@ Currently you will need to have this code running on a linux box, and your VMHos
 CONCEPTS:
 #########
 
-Controllers - TODO
-Drivers - TODO
-	Currently Supported:
-		workstation (wraps vmrun command)
-		workstation_vixr (uses the vixr gem from rhythmx)
-		remote_workstation (wraps vmrun command on a remote host)
-		virtualbox
-		dynagen (underlying vm for GNS3 - cisco hardware)
-	Planned:
-		qemu
-		qemudo
-		amazon
-		others?
+
+Drivers: Drivers implement the underlying command for each vm (such as start/stop/revert)
+
+Controllers: Controllers implement the commands which apply to all vms (such as listing all running vms)
+
+Currently Supported:
+	workstation (wraps vmrun command)
+	workstation_vixr (uses the vixr gem from rhythmx)
+	remote_workstation (wraps vmrun command on a remote host)
+	virtualbox
+	dynagen (underlying vm for GNS3 - cisco hardware)
+Planned:
+	qemu
+	qemudo
+	amazon
+	others?
+
 DEPENDENCIES:
   - whatever vm software is necessary for the driver you're using
   - net/ssh - the gem (net-ssh), not the msf library. Required to perform ssh_exec in the case tools are not installed on the device. Not necessary if tools are installed.
   - net/scp - the gem (net-scp). Required to copy files to/from the devices in the case that tools are not installed. Not necessary if tools are installed. 
+  - vixr - required to use the workstation_vixr driver
+  - fog - required to use the fog_amazon driver
 
 ###########
 LAB PLUGIN:
