@@ -3838,12 +3838,6 @@ class DBManager
 		parser.parse(args[:data])
 	end
 
-	# A way to sneak the yield back into the db importer. 
-	# Used by the SAX parsers.
-	def emit(sym,data,&block)
-		yield(sym,data) 
-	end
-
 	# If you have Nokogiri installed, you'll be shunted over to
 	# that. Otherwise, you'll hit the old NmapXMLStreamParser.
 	def import_nmap_xml(args={}, &block)
@@ -4107,6 +4101,8 @@ class DBManager
 		import_nessus_nbe(args.merge(:data => data))
 	end
 
+	# There is no place the NBE actually stores the plugin name used to
+	# scan. You get "Security Note" or "Security Warning," and that's it.
 	def import_nessus_nbe(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
@@ -4178,7 +4174,8 @@ class DBManager
 			end
 			
 			next if nasl.to_s.strip.empty?
-			handle_nessus(wspace, hobj_map[ addr ], port, nasl, severity, data)
+			plugin_name = nil # NBE doesn't ever populate this
+			handle_nessus(wspace, hobj_map[ addr ], port, nasl, plugin_name, severity, data)
 		end
 	end
 
@@ -4279,11 +4276,12 @@ class DBManager
 
 			host.elements.each('ReportItem') do |item|
 				nasl = item.elements['pluginID'].text
+				plugin_name = item.elements['pluginName'].text
 				port = item.elements['port'].text
 				data = item.elements['data'].text
 				severity = item.elements['severity'].text
 
-				handle_nessus(wspace, hobj, port, nasl, severity, data)
+				handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
 			end
 		end
 	end
@@ -4911,13 +4909,25 @@ class DBManager
 		norm_host
 	end
 
+	# A way to sneak the yield back into the db importer. 
+	# Used by the SAX parsers.
+	def emit(sym,data,&block)
+		yield(sym,data) 
+	end
+
+	# Debug logger
+	def xxx(desc,thing)
+		$stderr.puts "**** #{desc} ****"
+		$stderr.puts thing.inspect
+	end
+
 protected
 
 	#
 	# This holds all of the shared parsing/handling used by the
 	# Nessus NBE and NESSUS v1 methods
 	#
-	def handle_nessus(wspace, hobj, port, nasl, severity, data)
+	def handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
 		addr = hobj.address
 		# The port section looks like:
 		#   http (80/tcp)
@@ -4966,12 +4976,18 @@ protected
 		nss = 'NSS-' + nasl.to_s.strip
 		refs << nss
 
+		unless plugin_name.to_s.strip.empty?
+			vuln_name = plugin_name
+		else
+			vuln_name = nss
+		end
+
 		vuln_info = {
 			:workspace => wspace,
 			:host => hobj,
 			:port => port,
 			:proto => proto,
-			:name => nss, # handle_nessus_v2 catches names instead.
+			:name => vuln_name,
 			:info => data,
 			:refs => refs
 		}
