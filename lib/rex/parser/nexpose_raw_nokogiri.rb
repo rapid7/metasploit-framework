@@ -278,7 +278,12 @@ module Rex
 				end
 			end
 			if @state[:service]
-				port_hash[:name] = @state[:service]["name"] if @state[:service]["name"] != "<unknown>"
+				if state[:service]["name"] == "<unknown>"
+					sname = nil
+				else
+					sname = db.nmap_msf_service_map(@state[:service]["name"])
+				end
+				port_hash[:name] = sname
 			end
 			if @state[:service_fingerprint]
 				info = []

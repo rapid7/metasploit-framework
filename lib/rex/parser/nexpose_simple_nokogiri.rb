@@ -292,8 +292,12 @@ module Rex
 				when "port"
 					port_hash[:port] = v
 				when "name"
-					port_hash[:name] = v.to_s.downcase.split("(")[0].strip
-					port_hash.delete(:name) if port_hash[:name] == "<unknown>"
+					sname = v.to_s.downcase.split("(")[0].strip
+					if sname == "<unknown>"
+						port_hash[:name] = nil
+					else
+						port_hash[:name] = db.nmap_msf_service_map(sname)
+					end
 				end
 			end
 			if @state[:service_fingerprint]

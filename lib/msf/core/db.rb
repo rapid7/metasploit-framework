@@ -4064,6 +4064,9 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 	end
 
+	# This is starting to be more than just nmap -> msf, other
+	# things are creeping in here. Consider renaming the method
+	# and intentionally making it more general.
 	def nmap_msf_service_map(proto)
 		return proto unless proto.kind_of? String
 		case proto.downcase
@@ -4076,6 +4079,8 @@ class DBManager
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
+		when /^dns-(udp|tcp)$/;             "dns"
+		when /^dce[\s+]rpc$/;               "dcerpc"
 		else
 			proto.downcase
 		end
