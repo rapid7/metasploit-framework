@@ -2,6 +2,7 @@
 require 'rex/parser/nmap_nokogiri' 
 require 'rex/parser/nexpose_simple_nokogiri' 
 require 'rex/parser/nexpose_raw_nokogiri' 
+require 'rex/parser/foundstone_nokogiri' 
 
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
@@ -2019,7 +2020,7 @@ class DBManager
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
-	# :amap_log :ip_list, :msf_zip, :libpcap
+	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 	
@@ -2105,6 +2106,9 @@ class DBManager
 				when /audits/
 					@import_filedata[:type] = "IP360 XML v3"
 					return :ip360_xml_v3
+				when /ReportInfo/
+					@import_filedata[:type] = "Foundstone"
+					return :foundstone_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -4072,6 +4076,7 @@ class DBManager
 		when "postgresql";                  "postgres"
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
+		when "oracle-tns";                  "oracle"
 		else
 			proto.downcase
 		end
@@ -4372,6 +4377,38 @@ class DBManager
 		REXML::Document.parse_stream(data, parser)
 		
 	end
+
+	def import_foundstone_xml(args={}, &block)
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		wspace = args[:wspace] || workspace
+		if Rex::Parser.nokogiri_loaded 
+			# Rex::Parser.reload("foundstone_nokogiri.rb")
+			parser = "Nokogiri v#{::Nokogiri::VERSION}"
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, parser)
+				import_foundstone_noko_stream(noko_args) {|type, data| yield type,data}
+			else
+				import_foundstone_noko_stream(noko_args) 
+			end
+			return true
+		else # Sorry, you need Nokogiri for this one. For now, just pretend it's unknown.
+			raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+		end
+	end
+
+	def import_foundstone_noko_stream(args={},&block)
+		if block
+			doc = Rex::Parser::FoundstoneDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::FoundstoneDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
 
 	#
 	# Import IP360's xml output

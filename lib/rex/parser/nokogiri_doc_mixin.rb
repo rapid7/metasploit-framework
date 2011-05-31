@@ -114,7 +114,7 @@ module Parser
 			return true
 		end
 
-		# XXX: Define this
+		# XXX: Document classes ought to define this
 		def determine_port_state(v)
 			return v
 		end
@@ -141,11 +141,12 @@ module Parser
 
 		def end_document
 			block = @block
+			return unless @report_type_ok
 			unless @state[:current_tag].empty?
 				missing_ends = @state[:current_tag].keys.map {|x| "'#{x}'"}.join(", ")
 				msg = "Warning, the provided file is incomplete, and there may be missing\n"
 				msg << "data. The following tags were not closed: #{missing_ends}."
-				db.emit(:warning,msg,&block)
+				db.emit(:warning,msg,&block) if block
 			end
 		end
 
