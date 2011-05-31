@@ -23,6 +23,10 @@ class ServerException < RuntimeError
 		self.error_class   = error_class
 		self.error_backtrace = error_backtrace
 	end
+	
+	def to_s
+		"#{self.error_class} #{self.error_message} #{self.error_backtrace}"
+	end
 end
 
 end
