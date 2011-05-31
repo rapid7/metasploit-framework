@@ -1,0 +1,14 @@
+ - vmid: backtrack_remote
+   driver: remote_workstation
+   location: /opt/vm/lab/base/backtrack5x64-gnome/Backtrack5x64.vmx
+   type: unspecified
+   tools: false
+   os: linux 
+   arch: 64
+   user: remote 
+   host: vmhost
+ - vmid: backtrack_local
+   driver: workstation
+   location: /home/user/backtrack5/backtrack.vmx
+   type: unspecified
+   tools: false
