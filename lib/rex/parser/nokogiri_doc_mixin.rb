@@ -119,6 +119,43 @@ module Parser
 			return v
 		end
 
+		# Circumvent the unknown attribute logging by the various reporters. They
+		# seem to be there just for debugging anyway. 
+		def db_report(table, data)
+			raise "Data should be a hash" unless data.kind_of? Hash
+			nonempty_data = data.reject {|k,v| v.nil?}
+			valid_attrs = db_valid_attributes(table)
+			raise "Unknown table `#{table}'" if valid_attrs.empty?
+			if table == :note # Notes don't whine about extra stuff
+				just_the_facts = nonempty_data
+			else
+				just_the_facts = nonempty_data.select {|k,v| valid_attrs.include? k.to_s.to_sym}
+			end
+			just_the_facts.empty? ? return : db.send("report_#{table}", just_the_facts)
+		end
+
+		# XXX: It would be better to either have a single registry of acceptable 
+		# keys if we're going to alert on bad ones, or to be more forgiving if 
+		# the caller is this thing. There is basically no way to tell if 
+		# report_host()'s tastes are going to change with this scheme.
+		def db_valid_attributes(table)
+			case table.to_s.to_sym
+			when :host
+				Msf::DBManager::Host.new.attribute_names.map {|x| x.to_sym} |
+					[:host, :workspace]
+			when :service
+				Msf::DBManager::Service.new.attribute_names.map {|x| x.to_sym} |
+					[:host, :host_name, :mac, :workspace]
+			when :vuln
+				Msf::DBManager::Vuln.new.attribute_names.map {|x| x.to_sym} |
+					[:host, :refs, :workspace, :port, :proto]
+			when :note
+					[:anything]
+			else
+				[]
+			end
+		end
+
 		# Nokogiri 1.4.4 (and presumably beyond) generates attrs as pairs,
 		# like [["value1","foo"],["value2","bar"]] (but not hashes for some 
 		# reason). 1.4.3.1 (and presumably 1.4.3.x and prior) generates attrs

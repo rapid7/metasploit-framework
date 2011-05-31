@@ -225,7 +225,7 @@ module Rex
 			if host_is_okay
 				db.emit(:address,@report_data[:host],&block) if block
 				host_info = @report_data.merge(:workspace => @args[:wspace])
-				db.report_host(host_info)
+				db_report(:host,host_info)
 			end
 		end
 
@@ -235,7 +235,7 @@ module Rex
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			@report_data[:ports].each do |svc|
-				db.report_service(svc.merge(:host => host_object))
+				db_report(:service, svc.merge(:host => host_object))
 			end
 		end
 
@@ -245,7 +245,7 @@ module Rex
 			return unless @report_data[:vulns]
 			return if @report_data[:vulns].empty?
 			@report_data[:vulns].each do |vuln|
-				db.report_vuln(vuln.merge(:host => host_object))
+				db_report(:vuln, vuln.merge(:host => host_object))
 			end
 		end
 

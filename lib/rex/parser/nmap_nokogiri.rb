@@ -303,43 +303,43 @@ module Rex
 		def report_traceroute(host_object)
 			return unless host_object.kind_of? ::Msf::DBManager::Host
 			return unless @report_data[:traceroute]
-			db.report_note(
+			tr_note = {
 				:workspace => host_object.workspace,
 				:host => host_object,
 				:type => "host.nmap.traceroute",
-				:data => {
-					'port' => @report_data[:traceroute]["port"].to_i,
+				:data => { 'port' => @report_data[:traceroute]["port"].to_i,
 					'proto' => @report_data[:traceroute]["proto"].to_s,
-					'hops' => @report_data[:traceroute][:hops]
-				}
-			)
+					'hops' => @report_data[:traceroute][:hops] } 
+			}
+			db_report(:note, tr_note)
 		end
 
 		def report_uptime(host_object)
 			return unless host_object.kind_of? ::Msf::DBManager::Host
 			return unless @report_data[:last_boot]
-			db.report_note(
+			up_note = {
 				:workspace => host_object.workspace,
 				:host => host_object,
 				:type => "host.last_boot",
-				:data => { :time => @report_data[:last_boot] }
-			)
+				:data => { :time => @report_data[:last_boot] } 
+			}
+			db_report(:note, up_note)
 		end
 
 		def report_fingerprint(host_object)
 			return unless host_object.kind_of? ::Msf::DBManager::Host
 			return unless @report_data[:os_fingerprint]
-			db.report_note(
-				@report_data[:os_fingerprint].merge(
-					:workspace => host_object.workspace,
-					:host => host_object
-				)
-			)
+			fp_note = @report_data[:os_fingerprint].merge(
+				{
+				:workspace => host_object.workspace,
+				:host => host_object
+			})
+			db_report(:note, fp_note)
 		end
 
 		def report_host(&block)
 			if host_is_okay
-				host_object = db.report_host( @report_data.merge(
+				host_object = db_report(:host, @report_data.merge(
 					:workspace => @args[:wspace] ) )
 				db.emit(:address,@report_data[:host],&block) if block
 				host_object
@@ -352,7 +352,7 @@ module Rex
 			return if @report_data[:ports].empty?
 			reported = []
 			@report_data[:ports].each do |svc|
-				reported << db.report_service(svc.merge(:host => host_object))
+				reported << db_report(:service, svc.merge(:host => host_object))
 			end
 			reported
 		end

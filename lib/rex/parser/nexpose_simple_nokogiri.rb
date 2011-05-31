@@ -108,7 +108,7 @@ module Rex
 					data[:port] = vuln[:port] 
 					data[:proto] = vuln[:proto]
 				end
-				db.report_vuln(data)
+				db_report(:vuln,data)
 			end
 			
 		end
@@ -240,7 +240,7 @@ module Rex
 		def report_host(&block)
 			if host_is_okay
 				db.emit(:address,@report_data[:host],&block) if block
-				host_object = db.report_host( @report_data.merge(
+				host_object = db_report(:host, @report_data.merge(
 					:workspace => @args[:wspace] ) )
 				if host_object
 					db.report_import_note(host_object.workspace, host_object)
@@ -267,7 +267,7 @@ module Rex
 				:version => @report_data[:host_fingerprint]["version"],
 				:arch => @report_data[:host_fingerprint]["architecture"]
 			}
-			db.report_note(note.merge(:data => data))
+			db_report(:note, note.merge(:data => data))
 		end
 
 		def record_service(attrs)
@@ -317,7 +317,7 @@ module Rex
 			return if @report_data[:ports].empty?
 			reported = []
 			@report_data[:ports].each do |svc|
-				reported << db.report_service(svc.merge(:host => host_object))
+				reported << db_report(:service, svc.merge(:host => host_object))
 			end
 			reported
 		end

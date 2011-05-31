@@ -123,7 +123,7 @@ module Rex
 				host_data[:host] = match[:host]
 				host_data[:port] = match[:port] if match[:port]
 				host_data[:proto] = match[:protocol] if match[:protocol]
-				db.report_vuln(host_data)
+				db_report(:vuln, host_data)
 				if match[:key]
 					hosts_keys[host_data[:host]] ||= []
 					hosts_keys[host_data[:host]] << match[:key]
@@ -148,7 +148,7 @@ module Rex
 					next if key_note[:data][data[:name]].include? key_value
 					key_note[:data][data[:name]] << key_value
 				end
-				db.report_note(key_note)
+				db_report(:note, key_note)
 			end
 		end
 
@@ -241,7 +241,7 @@ module Rex
 			note[:data][:product] = @report_data[:os]["os_product"] if @report_data[:os]["os_prduct"]
 			note[:data][:version] = @report_data[:os]["os_version"] if @report_data[:os]["os_version"]
 			note[:data][:arch] = @report_data[:os]["os_arch"] if @report_data[:os]["os_arch"]
-			db.report_note(note)
+			db_report(:note, note)
 		end
 
 		def report_services(host_object)
@@ -250,7 +250,7 @@ module Rex
 			return if @report_data[:ports].empty?
 			reported = []
 			@report_data[:ports].each do |svc|
-				reported << db.report_service(svc.merge(:host => host_object))
+				reported << db_report(:service, svc.merge(:host => host_object))
 			end
 			reported
 		end
@@ -348,7 +348,7 @@ module Rex
 		def report_host(&block)
 			if host_is_okay
 				db.emit(:address,@report_data[:host],&block) if block
-				host_object = db.report_host( @report_data.merge(
+				host_object = db_report(:host, @report_data.merge(
 					:workspace => @args[:wspace] ) )
 					if host_object
 						db.report_import_note(host_object.workspace, host_object)
