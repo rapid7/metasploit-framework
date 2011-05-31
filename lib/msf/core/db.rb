@@ -4,6 +4,8 @@ require 'rex/parser/nexpose_simple_nokogiri'
 require 'rex/parser/nexpose_raw_nokogiri' 
 require 'rex/parser/foundstone_nokogiri' 
 
+# Legacy XML parsers -- these will be converted some day
+
 require 'rex/parser/nmap_xml'
 require 'rex/parser/nexpose_xml'
 require 'rex/parser/retina_xml'
@@ -11,6 +13,7 @@ require 'rex/parser/netsparker_xml'
 require 'rex/parser/nessus_xml'
 require 'rex/parser/ip360_xml'
 require 'rex/parser/ip360_aspl_xml'
+
 require 'rex/socket'
 require 'zip'
 require 'packetfu'
@@ -3340,10 +3343,12 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		msg =  "Warning: The Retina XML format does not associate vulnerabilities with the\n"
+		msg << "specific service on which they were found.\n"
+		msg << "This makes it impossible to correlate exploits to discovered vulnerabilities\n"
+		msg << "in a reliable fashion."
 		
-		yield(:warning, 
-			"Warning: The Retina XML format does not associate vulnerabilities with the specific service on which they were found.\n" +
-			"         This makes it impossible to correlate exploits to discovered vulnerabilities in a reliable fashion." )
+		yield(:warning,msg) if block
 	
 		parser = Rex::Parser::RetinaXMLStreamParser.new
 		parser.on_found_host = Proc.new do |host|
