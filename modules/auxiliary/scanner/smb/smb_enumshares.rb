@@ -41,14 +41,20 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def share_type(val)
-		[
+		stypes = [
 			'DISK',
 			'PRINTER',
 			'DEVICE',
 			'IPC',
 			'SPECIAL',
 			'TEMPORARY'
-		][val]
+		]
+		
+		if val > (stypes.length - 1)
+			return 'UNKNOWN'
+		end
+		
+		stypes[val]
 	end
 
 	def run_host(ip)

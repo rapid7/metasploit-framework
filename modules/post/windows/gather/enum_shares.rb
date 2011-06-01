@@ -40,14 +40,20 @@ class Metasploit3 < Msf::Post
 
 	# Stolen from modules/auxiliary/scanner/smb/smb_enumshares.rb
 	def share_type(val)
-		[
+		stypes = [
 			'DISK',
 			'PRINTER',
 			'DEVICE',
 			'IPC',
 			'SPECIAL',
 			'TEMPORARY'
-		][val]
+		]
+		
+		if val > (stypes.length - 1)
+			return 'UNKNOWN'
+		end
+		
+		stypes[val]
 	end
 
 	# Method for enumerating recent mapped drives on target machine
