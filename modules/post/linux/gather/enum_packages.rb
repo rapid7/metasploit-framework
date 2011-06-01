@@ -139,8 +139,10 @@ class Metasploit3 < Msf::Post
 
 	def get_pakages(distro)
 		packages_installed = nil
-		if distro =~ /fedora|redhat|suse|mandrake|slackware/
+		if distro =~ /fedora|redhat|suse|mandrake/
 			packages_installed = cmd_exec("rpm -qa")
+		elsif distro =~ /slackware/
+			packages_installed = cmd_exec("ls /var/log/packages")
 		elsif distro =~ /ubuntu|debian/
 			packages_installed = cmd_exec("dpkg -l")
 		elsif distro =~ /gentoo/
