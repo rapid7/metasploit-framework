@@ -29,8 +29,18 @@ module Scanner
 					msg  = hit[1].is_a?(Array) ? hit[1].join(" ") : hit[1]
 					$stdout.puts pe.ptr_s(vma) + " " + msg
 					if(param['disasm'])
+						#puts [msg].pack('H*').inspect
 						insns = []
-						d2 = Metasm::Shellcode.decode(msg, Metasm::Ia32.new).disassembler
+						msg.gsub!("; ", "\n")
+						if msg.include?("retn")
+							msg.gsub!("retn", "ret")
+						end
+						#puts msg
+						begin
+							d2 = Metasm::Shellcode.assemble(Metasm::Ia32.new, msg).disassemble
+						rescue Metasm::ParseError
+							d2 = Metasm::Shellcode.disassemble(Metasm::Ia32.new, [msg].pack('H*')[0])
+						end
 						addr = 0
 						while ((di = d2.disassemble_instruction(addr)))
 							insns << di.instruction
@@ -39,6 +49,9 @@ module Scanner
 							$stdout.puts disasm
 							addr = di.next_addr
 						end
+#						::Rex::Assembly::Nasm.disassemble([msg].pack("H*")).split("\n").each do |line|
+#							$stdout.puts "\tnasm: #{line.strip}"
+						#end
 					end
 				end
 			end
