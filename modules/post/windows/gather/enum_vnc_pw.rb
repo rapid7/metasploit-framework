@@ -61,9 +61,10 @@ class Metasploit3 < Msf::Post
 
 	# Pull encrypted passwords from registry based storage
 	def reg_get(key,variable)
-		root_key, base_key = session.sys.registry.splitkey(key)
-		open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
 		begin
+			root_key, base_key = session.sys.registry.splitkey(key)
+			open_key = session.sys.registry.open_key(root_key,base_key,KEY_READ)
+
 			data = open_key.query_value(variable).data
 			if data.class == Fixnum
 				return data
