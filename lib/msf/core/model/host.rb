@@ -755,7 +755,7 @@ protected
 			ret[:arch] = data[:arch] if data[:arch]
 			ret[:name] = data[:name] if data[:name]
 
-		when 'host.os.nmap_fingerprint'
+		when 'host.os.nmap_fingerprint', 'host.os.mbsa_fingerprint'
 			# :os_vendor=>"Microsoft" :os_family=>"Windows" :os_version=>"2000" :os_accuracy=>"94"
 			#
 			# :os_match=>"Microsoft Windows Vista SP0 or SP1, Server 2008, or Windows 7 Ultimate (build 7000)"
