@@ -5177,6 +5177,18 @@ protected
 			report_service(info)
 		end
 
+		fixed_refs = []
+		if refs
+			refs.each do |ref|
+				case ref
+				when /^MS[0-9]{2}-[0-9]{3}/
+					fixed_refs << "MSB-#{ref}"
+				else
+					fixed_refs << ref
+				end
+			end
+		end
+
 		return if qid == 0
 
 		if addr
@@ -5186,7 +5198,7 @@ protected
 				:port => port,
 				:proto => protocol,
 				:name => 'QUALYS-' + qid,
-				:refs => refs
+				:refs => fixed_refs
 			)
 		end
 	end
