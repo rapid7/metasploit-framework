@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
 			end
 
 		elsif etc_files.include?("fedora-release")
-			print_good("This appears to be a Debian Based System")
+			print_good("This appears to be a Fedora Based System")
 			kernel_version = cmd_exec("uname -a")
 			version = read_file("/etc/fedora-release").gsub(/\n|\\n|\\l/,'')
 			system_data[:distro] = "fedora"
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 			system_data[:kernel] = kernel_version
 
 		elsif etc_files.include?("slackware-version")
-			print_good("This appears to be a Debian Based System")
+			print_good("This appears to be a Slackware Based System")
 			kernel_version = cmd_exec("uname -a")
 			version = read_file("/etc/slackware-version").gsub(/\n|\\n|\\l/,'')
 			system_data[:distro] = "slackware"
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Post
 			system_data[:kernel] = kernel_version
 
 		elsif etc_files.include?("mandrake-release")
-			print_good("This appears to be a Debian Based System")
+			print_good("This appears to be a Madrake Based System")
 			kernel_version = cmd_exec("uname -a")
 			version = read_file("/etc/mandrake-release").gsub(/\n|\\n|\\l/,'')
 			system_data[:distro] = "mandrake"
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
 			system_data[:kernel] = kernel_version
 
 		elsif etc_files.include?("SuSE-release")
-			print_good("This appears to be a Debian Based System")
+			print_good("This appears to be a SUSE Based System")
 			kernel_version = cmd_exec("uname -a")
 			version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
 			system_data[:distro] = "suse"
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
 			system_data[:kernel] = kernel_version
 
 		elsif etc_files.include?("gentoo-release")
-			print_good("This appears to be a Debian Based System")
+			print_good("This appears to be a Gentoo Based System")
 			kernel_version = cmd_exec("uname -a")
 			version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'')
 			system_data[:distro] = "gentoo"
