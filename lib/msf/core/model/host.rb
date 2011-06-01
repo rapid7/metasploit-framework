@@ -734,6 +734,9 @@ protected
 	# scanner's confidence in its fingerprint.  If the particular scanner does
 	# not provide such information, defaults to 0.80.
 	#
+	# TODO: This whole normalize scanner procedure needs to be shoved off to its own
+	# mixin. It's far too long and convoluted, has a ton of repeated code, and is
+	# a massive hassle to update with new fingerprints.
 	def normalize_scanner_fp(fp)
 		return {} if not validate_fingerprint_data(fp)
 		ret  = {}
@@ -874,9 +877,15 @@ protected
 		#	# fingerprint.  Otherwise, it's samba which doesn't give us much of
 		#	# anything in most cases.
 		#	ret[:certainty] = 1.0 if fp.data[:os_name] =~ /Windows/
+		else 
+			# If you've fallen through this far, you've hit a generalized 
+			# pass-through fingerprint parser. 
+			ret[:os_name] = data[:os_name] || data[:os] || data[:os_fingerprint] || "<unknown>"
+			ret[:type] = data[:os_purpose] if data[:os_purpose]
+			ret[:arch] = data[:os_arch] if data[:os_arch]
+			ret[:certainty] = data[:os_certainty] || 0.5
 		end
 		ret[:certainty] ||= 0.8
-
 		ret
 	end
 

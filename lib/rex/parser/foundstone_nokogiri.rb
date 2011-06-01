@@ -61,6 +61,7 @@ module Rex
 				host_object = report_host &block
 				if host_object
 					db.report_import_note(@args[:wspace],host_object)
+					report_fingerprint(host_object)
 					report_services(host_object)
 					report_vulns(host_object)
 				end
@@ -217,7 +218,7 @@ module Rex
 				@report_data[:name] = @state[:host]["DNSName"]
 			end
 			if @state[:host]["OSName"] && !@state[:host]["OSName"].empty?
-				@report_data[:os_name] = @state[:host]["OSName"]
+				@report_data[:os_fingerprint] = @state[:host]["OSName"]
 			end
 			@report_data[:state] = Msf::HostState::Alive
 			@report_data[:mac] = @state[:mac] if @state[:mac]
@@ -230,6 +231,16 @@ module Rex
 				host_info = @report_data.merge(:workspace => @args[:wspace])
 				db_report(:host,host_info)
 			end
+		end
+
+		def report_fingerprint(host_object)
+			fp_note = {
+				:workspace => host_object.workspace,
+				:host => host_object,
+				:type => 'host.os.foundstone_fingerprint',
+				:data => {:os => @report_data[:os_fingerprint] }
+			}
+			db_report(:note, fp_note)
 		end
 
 		def report_services(host_object)

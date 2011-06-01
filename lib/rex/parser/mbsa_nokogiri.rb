@@ -166,7 +166,7 @@ module Rex
 			os_info = os_match[1] 
 			os_vendor = os_info[/Microsoft/]
 			os_family = os_info[/Windows/]
-			os_version = os_info[/NT|XP|2000|2003|Vista|2008|[^0-9]7/]
+			os_version = os_info[/(XP|2000 Advanced Server|2000|2003|2008|SBS|Vista|7 .* Edition|7)/]
 			if os_info
 				@report_data[:os_fingerprint] = {}
 				@report_data[:os_fingerprint][:type] = "host.os.mbsa_fingerprint"
