@@ -12,12 +12,13 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
-
+require 'msf/core/post/linux/system'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
+	include Msf::Post::System
 
 
 	def initialize(info={})
@@ -58,83 +59,6 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-	end
-
-	def linux_ver
-		system_data = {}
-		etc_files = cmd_exec("ls /etc").split()
-		if etc_files.include?("debian_version")
-			kernel_version = cmd_exec("uname -a")
-			if kernel_version =~ /Ubuntu/
-				print_good("This appears to be a Ubuntu Based System")
-				version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
-				system_data[:distro] = "ubuntu"
-				system_data[:version] = version
-				system_data[:kernel] = kernel_version
-			else
-				print_good("This appears to be a Debian Based System")
-				version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
-				system_data[:distro] = "debian"
-				system_data[:version] = version
-				system_data[:kernel] = kernel_version
-			end
-
-		elsif etc_files.include?("fedora-release")
-			print_good("This appears to be a Fedora Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/fedora-release").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "fedora"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-
-		elsif etc_files.include?("redhat-release")
-			print_good("This appears to be a RedHat Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/redhat-release").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "redhat"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-
-		elsif etc_files.include?("slackware-version")
-			print_good("This appears to be a Slackware Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/slackware-version").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "slackware"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-
-		elsif etc_files.include?("mandrake-release")
-			print_good("This appears to be a Madrake Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/mandrake-release").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "mandrake"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-
-		elsif etc_files.include?("SuSE-release")
-			print_good("This appears to be a SUSE Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "suse"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-
-		elsif etc_files.include?("gentoo-release")
-			print_good("This appears to be a Gentoo Based System")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "gentoo"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-		else
-			print_error("Could not determine the linux version")
-			kernel_version = cmd_exec("uname -a")
-			version = read_file("/etc/issue").gsub(/\n|\\n|\\l/,'')
-			system_data[:distro] = "linux"
-			system_data[:version] = version
-			system_data[:kernel] = kernel_version
-		end
-		return system_data
 	end
 
 	def get_pakages(distro)
