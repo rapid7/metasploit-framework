@@ -100,5 +100,26 @@ class Pcap::UnitTest < Test::Unit::TestCase
 		puts "Background thread ticked #{@c} times while capture was running"
 		true
 	end
+
+	def test_netifaces_constants
+		puts "AF_LINK Value is #{Pcap::AF_LINK}" 
+		puts "AF_INET Value is #{Pcap::AF_INET}" 
+		puts "AF_INET6 Value is #{Pcap::AF_INET6}" if Pcap::AF_INET6
+	end
+
+	def test_netifaces_functions
+		Pcap.interfaces.sort.each do |iface| 
+			puts "#{iface} :"
+			Pcap.addresses(iface).sort.each do |family,values|
+				puts "\t#{family} :"
+				values.each do |val| 
+					puts "\t\taddr : #{val['addr']}" if val.has_key?("addr")
+					puts "\t\tnetmask : #{val['netmask']}" if val.has_key?("netmask")
+					puts "\t\tbroadcast : #{val['broadcast']}" if val.has_key?("broadcast")
+					puts "\n"
+				end
+			end
+		end
+	end
 							
 end

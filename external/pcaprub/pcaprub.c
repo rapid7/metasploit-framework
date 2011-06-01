@@ -4,6 +4,7 @@
 #include "rubysig.h"
 #endif
 
+#include "netifaces.h"
 
 #include <pcap.h>
 
@@ -524,51 +525,236 @@ rbpcap_stats(VALUE self)
 void
 Init_pcaprub()
 {
-    // Pcap
-    rb_cPcap = rb_define_class("Pcap", rb_cObject);
-    rb_define_module_function(rb_cPcap, "version", rbpcap_s_version, 0);
-    rb_define_module_function(rb_cPcap, "lookupdev", rbpcap_s_lookupdev, 0);
-    rb_define_module_function(rb_cPcap, "lookupnet", rbpcap_s_lookupnet, 1);
-    rb_define_module_function(rb_cPcap, "lookupaddrs", rbpcap_s_lookupaddrs, 1);
+	// Pcap
+	rb_cPcap = rb_define_class("Pcap", rb_cObject);
+	rb_define_module_function(rb_cPcap, "version", rbpcap_s_version, 0);
+	rb_define_module_function(rb_cPcap, "lookupdev", rbpcap_s_lookupdev, 0);
+	rb_define_module_function(rb_cPcap, "lookupnet", rbpcap_s_lookupnet, 1);
+	rb_define_module_function(rb_cPcap, "lookupaddrs", rbpcap_s_lookupaddrs, 1);
 		
-    rb_define_const(rb_cPcap, "DLT_NULL",   INT2NUM(DLT_NULL));
-    rb_define_const(rb_cPcap, "DLT_EN10MB", INT2NUM(DLT_EN10MB));
-    rb_define_const(rb_cPcap, "DLT_EN3MB", INT2NUM(DLT_EN3MB));
-    rb_define_const(rb_cPcap, "DLT_AX25", INT2NUM(DLT_AX25));
-    rb_define_const(rb_cPcap, "DLT_PRONET", INT2NUM(DLT_PRONET));
-    rb_define_const(rb_cPcap, "DLT_CHAOS", INT2NUM(DLT_CHAOS));
-    rb_define_const(rb_cPcap, "DLT_IEEE802", INT2NUM(DLT_IEEE802));
-    rb_define_const(rb_cPcap, "DLT_ARCNET", INT2NUM(DLT_ARCNET));
-    rb_define_const(rb_cPcap, "DLT_SLIP", INT2NUM(DLT_SLIP));
-    rb_define_const(rb_cPcap, "DLT_PPP", INT2NUM(DLT_PPP));
-    rb_define_const(rb_cPcap, "DLT_FDDI", INT2NUM(DLT_FDDI));
-    rb_define_const(rb_cPcap, "DLT_ATM_RFC1483", INT2NUM(DLT_ATM_RFC1483));
-    rb_define_const(rb_cPcap, "DLT_RAW", INT2NUM(DLT_RAW));
-    rb_define_const(rb_cPcap, "DLT_SLIP_BSDOS", INT2NUM(DLT_SLIP_BSDOS));
-    rb_define_const(rb_cPcap, "DLT_PPP_BSDOS", INT2NUM(DLT_PPP_BSDOS));
-    rb_define_const(rb_cPcap, "DLT_IEEE802_11", INT2NUM(DLT_IEEE802_11));
-    rb_define_const(rb_cPcap, "DLT_IEEE802_11_RADIO", INT2NUM(DLT_IEEE802_11_RADIO));
-    rb_define_const(rb_cPcap, "DLT_IEEE802_11_RADIO_AVS", INT2NUM(DLT_IEEE802_11_RADIO_AVS));
-    rb_define_const(rb_cPcap, "DLT_LINUX_SLL", INT2NUM(DLT_LINUX_SLL));
-    rb_define_const(rb_cPcap, "DLT_PRISM_HEADER", INT2NUM(DLT_PRISM_HEADER));
-    rb_define_const(rb_cPcap, "DLT_AIRONET_HEADER", INT2NUM(DLT_AIRONET_HEADER));
+	rb_define_const(rb_cPcap, "DLT_NULL",   INT2NUM(DLT_NULL));
+	rb_define_const(rb_cPcap, "DLT_EN10MB", INT2NUM(DLT_EN10MB));
+	rb_define_const(rb_cPcap, "DLT_EN3MB", INT2NUM(DLT_EN3MB));
+	rb_define_const(rb_cPcap, "DLT_AX25", INT2NUM(DLT_AX25));
+	rb_define_const(rb_cPcap, "DLT_PRONET", INT2NUM(DLT_PRONET));
+	rb_define_const(rb_cPcap, "DLT_CHAOS", INT2NUM(DLT_CHAOS));
+	rb_define_const(rb_cPcap, "DLT_IEEE802", INT2NUM(DLT_IEEE802));
+	rb_define_const(rb_cPcap, "DLT_ARCNET", INT2NUM(DLT_ARCNET));
+	rb_define_const(rb_cPcap, "DLT_SLIP", INT2NUM(DLT_SLIP));
+	rb_define_const(rb_cPcap, "DLT_PPP", INT2NUM(DLT_PPP));
+	rb_define_const(rb_cPcap, "DLT_FDDI", INT2NUM(DLT_FDDI));
+	rb_define_const(rb_cPcap, "DLT_ATM_RFC1483", INT2NUM(DLT_ATM_RFC1483));
+	rb_define_const(rb_cPcap, "DLT_RAW", INT2NUM(DLT_RAW));
+	rb_define_const(rb_cPcap, "DLT_SLIP_BSDOS", INT2NUM(DLT_SLIP_BSDOS));
+	rb_define_const(rb_cPcap, "DLT_PPP_BSDOS", INT2NUM(DLT_PPP_BSDOS));
+	rb_define_const(rb_cPcap, "DLT_IEEE802_11", INT2NUM(DLT_IEEE802_11));
+	rb_define_const(rb_cPcap, "DLT_IEEE802_11_RADIO", INT2NUM(DLT_IEEE802_11_RADIO));
+	rb_define_const(rb_cPcap, "DLT_IEEE802_11_RADIO_AVS", INT2NUM(DLT_IEEE802_11_RADIO_AVS));
+	rb_define_const(rb_cPcap, "DLT_LINUX_SLL", INT2NUM(DLT_LINUX_SLL));
+	rb_define_const(rb_cPcap, "DLT_PRISM_HEADER", INT2NUM(DLT_PRISM_HEADER));
+	rb_define_const(rb_cPcap, "DLT_AIRONET_HEADER", INT2NUM(DLT_AIRONET_HEADER));
 
-    rb_define_singleton_method(rb_cPcap, "new", rbpcap_new_s, 0);
+	rb_define_singleton_method(rb_cPcap, "new", rbpcap_new_s, 0);
 
-    rb_define_singleton_method(rb_cPcap, "open_live", rbpcap_open_live_s, 4);
-    rb_define_singleton_method(rb_cPcap, "open_offline", rbpcap_open_offline_s, 1);
-    rb_define_singleton_method(rb_cPcap, "open_dead", rbpcap_open_dead_s, 2);
-    rb_define_singleton_method(rb_cPcap, "dump_open", rbpcap_dump_open, 1);
+	rb_define_singleton_method(rb_cPcap, "open_live", rbpcap_open_live_s, 4);
+	rb_define_singleton_method(rb_cPcap, "open_offline", rbpcap_open_offline_s, 1);
+	rb_define_singleton_method(rb_cPcap, "open_dead", rbpcap_open_dead_s, 2);
+	rb_define_singleton_method(rb_cPcap, "dump_open", rbpcap_dump_open, 1);
 	
-    rb_define_method(rb_cPcap, "dump", rbpcap_dump, 3);
+	rb_define_method(rb_cPcap, "dump", rbpcap_dump, 3);
 
-    rb_define_method(rb_cPcap, "each", rbpcap_capture, 0);
-    rb_define_method(rb_cPcap, "next", rbpcap_next, 0);
-    rb_define_method(rb_cPcap, "setfilter", rbpcap_setfilter, 1);
-    rb_define_method(rb_cPcap, "inject", rbpcap_inject, 1);
-    rb_define_method(rb_cPcap, "datalink", rbpcap_datalink, 0);
+	rb_define_method(rb_cPcap, "each", rbpcap_capture, 0);
+	rb_define_method(rb_cPcap, "next", rbpcap_next, 0);
+	rb_define_method(rb_cPcap, "setfilter", rbpcap_setfilter, 1);
+	rb_define_method(rb_cPcap, "inject", rbpcap_inject, 1);
+	rb_define_method(rb_cPcap, "datalink", rbpcap_datalink, 0);
     
-    rb_define_method(rb_cPcap, "snapshot", rbpcap_snapshot, 0);
-    rb_define_method(rb_cPcap, "snaplen", rbpcap_snapshot, 0);
-    rb_define_method(rb_cPcap, "stats", rbpcap_stats, 0);
+	rb_define_method(rb_cPcap, "snapshot", rbpcap_snapshot, 0);
+	rb_define_method(rb_cPcap, "snaplen", rbpcap_snapshot, 0);
+	rb_define_method(rb_cPcap, "stats", rbpcap_stats, 0);
+
+
+	//Netifaces
+	rb_define_module_function(rb_cPcap, "interfaces", rbnetifaces_s_interfaces, 0);
+	rb_define_module_function(rb_cPcap, "addresses", rbnetifaces_s_addresses, 1);
+
+	//constants
+	// Address families (auto-detect using #ifdef) 
+
+#ifdef AF_INET
+	rb_define_const(rb_cPcap, "AF_INET", INT2NUM(AF_INET));
+#endif
+#ifdef AF_INET6
+	rb_define_const(rb_cPcap, "AF_INET6", INT2NUM(AF_INET6));
+#endif
+#ifdef AF_UNSPEC  
+	rb_define_const(rb_cPcap, "AF_UNSPEC", INT2NUM(AF_UNSPEC));
+#endif
+#ifdef AF_UNIX
+	rb_define_const(rb_cPcap, "AF_UNIX", INT2NUM(AF_UNIX));
+#endif
+#ifdef AF_FILE
+	rb_define_const(rb_cPcap, "AF_FILE", INT2NUM(AF_FILE));
+#endif
+
+#ifdef AF_AX25
+	rb_define_const(rb_cPcap, "AF_AX25", INT2NUM(AF_AX25));
+#endif
+#ifdef AF_IMPLINK  
+	rb_define_const(rb_cPcap, "AF_IMPLINK", INT2NUM(AF_IMPLINK));
+#endif
+#ifdef AF_PUP  
+	rb_define_const(rb_cPcap, "AF_PUP", INT2NUM(AF_PUP));
+#endif
+#ifdef AF_CHAOS
+	rb_define_const(rb_cPcap, "AF_CHAOS", INT2NUM(AF_CHAOS));
+#endif
+#ifdef AF_NS
+	rb_define_const(rb_cPcap, "AF_NS", INT2NUM(AF_NS));
+#endif
+#ifdef AF_ISO
+	rb_define_const(rb_cPcap, "AF_ISO", INT2NUM(AF_ISO));
+#endif
+#ifdef AF_ECMA
+	rb_define_const(rb_cPcap, "AF_ECMA", INT2NUM(AF_ECMA));
+#endif
+#ifdef AF_DATAKIT
+	rb_define_const(rb_cPcap, "AF_DATAKIT", INT2NUM(AF_DATAKIT));
+#endif
+#ifdef AF_CCITT
+	rb_define_const(rb_cPcap, "AF_CCITT", INT2NUM(AF_CCITT));
+#endif
+#ifdef AF_SNA
+	rb_define_const(rb_cPcap, "AF_SNA", INT2NUM(AF_SNA));
+#endif
+#ifdef AF_DECnet
+	rb_define_const(rb_cPcap, "AF_DECnet", INT2NUM(AF_DECnet));
+#endif
+#ifdef AF_DLI
+	rb_define_const(rb_cPcap, "AF_DLI", INT2NUM(AF_DLI));
+#endif
+#ifdef AF_LAT
+	rb_define_const(rb_cPcap, "AF_LAT", INT2NUM(AF_LAT));
+#endif
+#ifdef AF_HYLINK
+	rb_define_const(rb_cPcap, "AF_HYLINK", INT2NUM(AF_HYLINK));
+#endif
+#ifdef AF_APPLETALK
+	rb_define_const(rb_cPcap, "AF_APPLETALK", INT2NUM(AF_APPLETALK));
+#endif
+#ifdef AF_ROUTE
+	rb_define_const(rb_cPcap, "AF_ROUTE", INT2NUM(AF_ROUTE));
+#endif
+#ifdef AF_LINK
+	rb_define_const(rb_cPcap, "AF_LINK", INT2NUM(AF_LINK));
+#endif
+#ifdef AF_PACKET
+	rb_define_const(rb_cPcap, "AF_PACKET", INT2NUM(AF_PACKET));
+#endif
+#ifdef AF_COIP
+	rb_define_const(rb_cPcap, "AF_COIP", INT2NUM(AF_COIP));
+#endif
+#ifdef AF_CNT
+	rb_define_const(rb_cPcap, "AF_CNT", INT2NUM(AF_CNT));
+#endif
+#ifdef AF_IPX
+	rb_define_const(rb_cPcap, "AF_IPX", INT2NUM(AF_IPX));
+#endif
+#ifdef AF_SIP
+	rb_define_const(rb_cPcap, "AF_SIP", INT2NUM(AF_SIP));
+#endif
+#ifdef AF_NDRV
+	rb_define_const(rb_cPcap, "AF_NDRV", INT2NUM(AF_NDRV));
+#endif
+#ifdef AF_ISDN
+	rb_define_const(rb_cPcap, "AF_ISDN", INT2NUM(AF_ISDN));
+#endif
+#ifdef AF_NATM
+	rb_define_const(rb_cPcap, "AF_NATM", INT2NUM(AF_NATM));
+#endif
+#ifdef AF_SYSTEM
+	rb_define_const(rb_cPcap, "AF_SYSTEM", INT2NUM(AF_SYSTEM));
+#endif
+#ifdef AF_NETBIOS
+	rb_define_const(rb_cPcap, "AF_NETBIOS", INT2NUM(AF_NETBIOS));
+#endif
+#ifdef AF_NETBEUI
+	rb_define_const(rb_cPcap, "AF_NETBEUI", INT2NUM(AF_NETBEUI));
+#endif
+#ifdef AF_PPP
+	rb_define_const(rb_cPcap, "AF_PPP", INT2NUM(AF_PPP));
+#endif
+#ifdef AF_ATM
+	rb_define_const(rb_cPcap, "AF_ATM", INT2NUM(AF_ATM));
+#endif
+#ifdef AF_ATMPVC
+	rb_define_const(rb_cPcap, "AF_ATMPVC", INT2NUM(AF_ATMPVC));
+#endif
+#ifdef AF_ATMSVC
+	rb_define_const(rb_cPcap, "AF_ATMSVC", INT2NUM(AF_ATMSVC));
+#endif
+#ifdef AF_NETGRAPH
+	rb_define_const(rb_cPcap, "AF_NETGRAPH", INT2NUM(AF_NETGRAPH));
+#endif
+#ifdef AF_VOICEVIEW
+	rb_define_const(rb_cPcap, "AF_VOICEVIEW", INT2NUM(AF_VOICEVIEW));
+#endif
+#ifdef AF_FIREFOX
+	rb_define_const(rb_cPcap, "AF_FIREFOX", INT2NUM(AF_FIREFOX));
+#endif
+#ifdef AF_UNKNOWN1
+	rb_define_const(rb_cPcap, "AF_UNKNOWN1", INT2NUM(AF_UNKNOWN1));
+#endif
+#ifdef AF_BAN
+	rb_define_const(rb_cPcap, "AF_BAN", INT2NUM(AF_BAN));
+#endif
+#ifdef AF_CLUSTER
+	rb_define_const(rb_cPcap, "AF_CLUSTER", INT2NUM(AF_CLUSTER));
+#endif
+#ifdef AF_12844
+	rb_define_const(rb_cPcap, "AF_12844", INT2NUM(AF_12844));
+#endif
+#ifdef AF_IRDA
+	rb_define_const(rb_cPcap, "AF_IRDA", INT2NUM(AF_IRDA));
+#endif
+#ifdef AF_NETDES
+	rb_define_const(rb_cPcap, "AF_NETDES", INT2NUM(AF_NETDES));
+#endif
+#ifdef AF_NETROM
+	rb_define_const(rb_cPcap, "AF_NETROM", INT2NUM(AF_NETROM));
+#endif
+#ifdef AF_BRIDGE
+	rb_define_const(rb_cPcap, "AF_BRIDGE", INT2NUM(AF_BRIDGE));
+#endif
+#ifdef AF_X25
+	rb_define_const(rb_cPcap, "AF_X25", INT2NUM(AF_X25));
+#endif
+#ifdef AF_ROSE
+	rb_define_const(rb_cPcap, "AF_ROSE", INT2NUM(AF_ROSE));
+#endif
+#ifdef AF_SECURITY
+	rb_define_const(rb_cPcap, "AF_SECURITY", INT2NUM(AF_SECURITY));
+#endif
+#ifdef AF_KEY
+	rb_define_const(rb_cPcap, "AF_KEY", INT2NUM(AF_KEY));
+#endif
+#ifdef AF_NETLINK
+	rb_define_const(rb_cPcap, "AF_NETLINK", INT2NUM(AF_NETLINK));
+#endif
+#ifdef AF_ASH
+	rb_define_const(rb_cPcap, "AF_ASH", INT2NUM(AF_ASH));
+#endif
+#ifdef AF_ECONET
+	rb_define_const(rb_cPcap, "AF_ECONET", INT2NUM(AF_ECONET));
+#endif
+#ifdef AF_PPPOX
+	rb_define_const(rb_cPcap, "AF_PPPOX", INT2NUM(AF_PPPOX));
+#endif
+#ifdef AF_WANPIPE
+	rb_define_const(rb_cPcap, "AF_WANPIPE", INT2NUM(AF_WANPIPE));
+#endif
+#ifdef AF_BLUETOOTH
+	rb_define_const(rb_cPcap, "AF_BLUETOOTH", INT2NUM(AF_BLUETOOTH));
+#endif
+
 }
