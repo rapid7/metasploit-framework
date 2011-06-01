@@ -30,6 +30,10 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
+		register_options(
+			[
+				OptBool.new('VERBOSE', [false, 'Show list of Packages.', false]),
+			], self.class)
 
 	end
 
@@ -42,13 +46,16 @@ class Metasploit3 < Msf::Post
 		print_good("Info:")
 		print_good("\t#{distro[:version]}")
 		print_good("\t#{distro[:kernel]}")
-		print_good("Packages:")
 		installed_pkg = get_pakages(distro[:distro])
-		store_loot("linux.packages", "text/plain", session, installed_pkg, "installed_packages.txt", "Linux Installed Packages")
+		pkg_loot = store_loot("linux.packages", "text/plain", session, installed_pkg, "installed_packages.txt", "Linux Installed Packages")
+		print_status("Package list saved to loot file: #{pkg_loot}")
+		if datastore['VERBOSE']
+			print_good("Packages:")
 
-		# Print the Packages
-		installed_pkg.each_line do |p|
-			print_good("\t#{p.chomp}")
+			# Print the Packages
+			installed_pkg.each_line do |p|
+				print_good("\t#{p.chomp}")
+			end
 		end
 
 	end
