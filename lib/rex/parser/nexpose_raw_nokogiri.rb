@@ -43,13 +43,6 @@ module Rex
 			end
 		end
 
-		# This breaks on xml-encoded characters, so need to append
-		def characters(text)
-			return unless @state[:has_text]
-			@text ||= ""
-			@text << text
-		end
-
 		# When we exit a tag, this is triggered.
 		def end_element(name=nil)
 			block = @block

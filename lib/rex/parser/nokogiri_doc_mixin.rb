@@ -176,6 +176,22 @@ module Parser
 			return attr_pairs
 		end
 
+		# This breaks xml-encoded characters, so need to append.
+		# It's on the end_element tag name to turn the appending
+		# off and clear out the data.
+		def characters(text)
+			return unless @state[:has_text]
+			@text ||= ""
+			@text << text
+		end
+
+		# Effectively the same as characters()
+		def cdata_block(text)
+			return unless @state[:has_text]
+			@text ||= ""
+			@text << text
+		end
+
 		def end_document
 			block = @block
 			return unless @report_type_ok
