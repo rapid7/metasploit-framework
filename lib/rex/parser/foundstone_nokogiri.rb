@@ -256,11 +256,11 @@ module Rex
 		def normalize_foundstone_banner(service,banner)
 			return "" if(banner.nil? || banner.strip.empty?)
 			if first_line_only? service
-				return first_line banner
+				return (first_line banner)
 			elsif needs_more_processing? service
 				return process_service(service,banner)
 			else
-				return first_line banner
+				return (first_line banner)
 			end
 		end
 
@@ -293,7 +293,7 @@ module Rex
 			if self.respond_to? meth
 				self.send meth, banner
 			else
-				return first_line banner
+				return (first_line banner)
 			end
 		end
 
