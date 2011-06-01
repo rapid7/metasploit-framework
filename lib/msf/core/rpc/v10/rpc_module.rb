@@ -89,7 +89,7 @@ class RPC_Module < RPC_Base
 	end
 
 	def rpc_compatible_sessions(mname)
-		m   = find_module('post',mname)
+		m   = _find_module('post',mname)
 		res = {}
 		res['sessions'] = m.compatible_sessions
 
