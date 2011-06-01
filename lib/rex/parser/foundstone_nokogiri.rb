@@ -59,9 +59,12 @@ module Rex
 			when "Host" # Wrap it up
 				collect_host_data
 				host_object = report_host &block
+				if host_object
+					db.report_import_note(@args[:wspace],host_object)
+					report_services(host_object)
+					report_vulns(host_object)
+				end
 				# Reset the state once we close a host
-				report_services(host_object)
-				report_vulns(host_object)
 				@state.delete_if {|k| k != :current_tag}
 			when "Port" 
 				@state[:has_text] = false

@@ -48,8 +48,11 @@ module Rex
 			when "SecScan" # Wrap it up
 				collect_host_data
 				host_object = report_host &block
-				report_fingerprint(host_object)
-				report_vulns(host_object,&block)
+				if host_object
+					db.report_import_note(@args[:wspace],host_object)
+					report_fingerprint(host_object)
+					report_vulns(host_object,&block)
+				end
 				# Reset the state once we close a host
 				@state.delete_if {|k| k != :current_tag}
 			when "Check"
