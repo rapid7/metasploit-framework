@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptAddress.new('LHOST', [true,
 				'The IP address to use for reverse-connect payloads'
-			]),
+			])
 		], self.class)
 
 		register_advanced_options([
