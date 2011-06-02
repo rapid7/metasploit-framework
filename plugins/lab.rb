@@ -309,12 +309,12 @@ class Plugin::Lab < Msf::Plugin
 			uri = args[args.count-1]
 			if args[0] == "all"
 				print_line "Opening: #{uri} on all vms."
-				@controller.each{ |vm| vm.open_uri(snapshot) }
+				@controller.each{ |vm| vm.open_uri(uri) }
 			else
 				args[0..-2].each do |vmid_arg|
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "#{vmid_arg} opening to uri: #{uri}."
-					@controller[vmid_arg].open_uri(snapshot)	
+					@controller[vmid_arg].open_uri(uri)	
 				end
 			end
 		end
