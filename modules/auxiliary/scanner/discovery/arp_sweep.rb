@@ -30,13 +30,13 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options([
-			OptString.new('SHOST', [true, "Source IP Address"]),
-			OptString.new('SMAC', [true, "Source MAC Address"]),
+			OptString.new('SHOST', [false, "Source IP Address"]),
+			OptString.new('SMAC', [false, "Source MAC Address"]),
 			# one re-register TIMEOUT here with a lower value, cause 5 seconds will be enough in most of the case
 			OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data', 5]),
 		], self.class)
 
-		deregister_options('SNAPLEN', 'FILTER')
+		deregister_options('SNAPLEN', 'FILTER', 'PCAPFILE', 'UDP_SECRET', 'GATEWAY', 'NETMASK')
 	end
 
 	def run_batch_size
@@ -45,22 +45,35 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_batch(hosts)
 
+		@netifaces = true
+		if not netifaces_implemented? 
+			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			@netifaces = false
+		end
+
 		shost = datastore['SHOST']
+		shost ||= get_ipv4_addr(datastore['INTERFACE']) if @netifaces
+		raise RuntimeError ,'SHOST should be defined' unless shost
+		
 		smac  = datastore['SMAC']
+		smac ||= get_mac(datastore['INTERFACE']) if @netifaces
+		raise RuntimeError ,'SMAC should be defined' unless smac
 
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		begin
 
 		hosts.each do |dhost|
-			probe = buildprobe(datastore['SHOST'], datastore['SMAC'], dhost)
-			capture.inject(probe)
+			if dhost != shost
+				probe = buildprobe(shost, smac, dhost)
+				capture.inject(probe)
 
-			while(reply = getreply())
-				next if not reply[:arp]
-				print_status("#{reply[:arp].spa} appears to be up.")
+				while(reply = getreply())
+					next if not reply[:arp]
+					print_status("#{reply[:arp].spa} appears to be up.")
 
-				report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+				end
 			end
 		end
 
