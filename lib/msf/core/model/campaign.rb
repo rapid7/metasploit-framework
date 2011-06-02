@@ -13,7 +13,7 @@ class Campaign < ActiveRecord::Base
 	serialize :prefs
 
 	# General settings
-	serialized_prefs_attr_accessor :payload_lhost, :listener_lhost
+	serialized_prefs_attr_accessor :payload_lhost, :listener_lhost, :payload_type
 
 	# Email settings
 	serialized_prefs_attr_accessor :do_email
