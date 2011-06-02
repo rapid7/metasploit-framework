@@ -18,7 +18,7 @@ module Rex
 		# If name resolution of the host fails out completely, you will not be
 		# able to import that Scan task. Other scan tasks in the same report
 		# should be unaffected.
-		attr_reader :parse_warning
+		attr_reader :parse_warnings
 
 		def start_document
 			@parse_warnings = []
@@ -207,6 +207,7 @@ module Rex
 
 		def report_web_page(&block)
 			return if should_skip_this_page
+			return unless @state[:web_site]
 			return unless @state[:page_request]
 			return if @state[:page_request].strip.empty?
 			return unless @state[:page_response]
@@ -267,7 +268,10 @@ module Rex
 			parsed = {}
 			parsed[:code] = code
 			parsed[:headers] = {}
-			headers.each { |k,v| parsed[:headers][k.to_s.downcase] = [v] } 
+			headers.each do |k,v|
+				parsed[:headers][k.to_s.downcase] = []
+				parsed[:headers][k.to_s.downcase] << v
+			end
 			parsed[:body] = "" # We never seem to get this from Acunetix
 			parsed
 		end
@@ -314,6 +318,7 @@ module Rex
 			return unless scheme[/^https?/]
 			return unless (host && port && scheme)
 			address = resolve_address(host)
+			return unless address
 			service_info = [ @args[:wspace], address, "tcp", port ]
 			service_object = db.get_service(*service_info)
 			service_object = db_report(:service,service_info) unless service_object
@@ -354,6 +359,7 @@ module Rex
 			unless @state[:port]
 				@parse_warnings << "Could not determine a port for '#{@state[:scan_name]}'"
 			end
+			@state[:port] = uri.port
 		end
 
 		def resolve_address(host)
