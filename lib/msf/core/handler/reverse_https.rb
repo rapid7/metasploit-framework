@@ -151,6 +151,7 @@ protected
 				return
 
 			else
+				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource}...")
 				resp.code    = 200
 				resp.message = "OK"
 				resp.body    = "<h3>No site configured at this address</h3>"
