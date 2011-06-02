@@ -91,7 +91,7 @@ module System
 	# Keys are name, uid, gid, info, dir and shell
 	def get_users
         users = []
-        cmd_out = `cat /etc/passwd`.split("\n")
+        cmd_out = cmd_exec("cat /etc/passwd").split("\n")
         cmd_out.each do |l|
 			entry = {}
 			user_field = l.split(":")
@@ -110,7 +110,7 @@ module System
 	# Keys are name, gid and users
 	def get_groups
         groups = []
-        cmd_out = `cat /etc/group`.split("\n")
+        cmd_out = cmd_exec("cat /etc/group").split("\n")
         cmd_out.each do |l|
 			entry = {}
 			user_field = l.split(":")
