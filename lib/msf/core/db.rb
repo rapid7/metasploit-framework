@@ -5202,7 +5202,7 @@ protected
 		port = port.to_i if port
 
 		info = { :workspace => wspace, :host => hobj, :port => port, :proto => protocol }
-		if name and name != 'unknown'
+		if name and name != 'unknown' and name != 'No registered hostname'
 			info[:name] = name
 		end
 
