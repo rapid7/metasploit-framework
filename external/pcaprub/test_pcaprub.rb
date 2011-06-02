@@ -104,7 +104,7 @@ class Pcap::UnitTest < Test::Unit::TestCase
 	def test_netifaces_constants
 		puts "AF_LINK Value is #{Pcap::AF_LINK}" 
 		puts "AF_INET Value is #{Pcap::AF_INET}" 
-		puts "AF_INET6 Value is #{Pcap::AF_INET6}" if Pcap::AF_INET6
+		puts "AF_INET6 Value is #{Pcap::AF_INET6}" if Pcap.const_defined?(:AF_INET6)
 	end
 
 	def test_netifaces_functions
