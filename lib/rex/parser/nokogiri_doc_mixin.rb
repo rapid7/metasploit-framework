@@ -126,7 +126,8 @@ module Parser
 			nonempty_data = data.reject {|k,v| v.nil?}
 			valid_attrs = db_valid_attributes(table)
 			raise "Unknown table `#{table}'" if valid_attrs.empty?
-			if table == :note # Notes don't whine about extra stuff
+			case table
+			when :note, :web_site, :web_page, :web_form, :web_vuln
 				just_the_facts = nonempty_data
 			else
 				just_the_facts = nonempty_data.select {|k,v| valid_attrs.include? k.to_s.to_sym}
@@ -149,8 +150,9 @@ module Parser
 			when :vuln
 				Msf::DBManager::Vuln.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :refs, :workspace, :port, :proto]
-			when :note
-					[:anything]
+			when :note, :web_site, :web_page, :web_form, :web_vuln
+				# These guys don't complain
+				[:anything]
 			else
 				[]
 			end

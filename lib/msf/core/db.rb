@@ -4,6 +4,7 @@ require 'rex/parser/nexpose_simple_nokogiri'
 require 'rex/parser/nexpose_raw_nokogiri' 
 require 'rex/parser/foundstone_nokogiri' 
 require 'rex/parser/mbsa_nokogiri' 
+require 'rex/parser/acunetix_nokogiri' 
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -367,7 +368,7 @@ class DBManager
 =end
 
 		proto = opts[:proto] || 'tcp'
-		opts[:name].downcase! if (opts[:name])
+		opts[:name].downcase! if (opts[:name]) # XXX shouldn't modify this in place, might be frozen by caller
 
 		service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
 		opts.each { |k,v|
@@ -2024,7 +2025,7 @@ class DBManager
 
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
-	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml
+	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 	
@@ -2116,6 +2117,9 @@ class DBManager
 				when /ReportInfo/
 					@import_filedata[:type] = "Foundstone"
 					return :foundstone_xml
+				when /ScanGroup/
+					@import_filedata[:type] = "Acunetix"
+					return :acunetix_xml
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -4394,7 +4398,6 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded 
-			# Rex::Parser.reload("mbsa_nokogiri.rb")
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4425,7 +4428,6 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded 
-			# Rex::Parser.reload("foundstone_nokogiri.rb")
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4452,6 +4454,37 @@ class DBManager
 		parser.parse(args[:data])
 	end
 
+
+	def import_acunetix_xml(args={}, &block)
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		wspace = args[:wspace] || workspace
+		if Rex::Parser.nokogiri_loaded 
+			# Rex::Parser.reload("acunetix_nokogiri.rb")
+			parser = "Nokogiri v#{::Nokogiri::VERSION}"
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, parser)
+				import_acunetix_noko_stream(noko_args) {|type, data| yield type,data}
+			else
+				import_acunetix_noko_stream(noko_args) 
+			end
+			return true
+		else # Sorry
+			raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+		end
+	end
+
+	def import_acunetix_noko_stream(args={},&block)
+		if block
+			doc = Rex::Parser::AcunetixDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::AcunetixFoundstoneDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
 
 	#
 	# Import IP360's xml output
