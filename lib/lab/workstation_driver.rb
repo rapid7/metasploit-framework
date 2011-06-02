@@ -65,7 +65,7 @@ class WorkstationDriver < VmDriver
 
 	def run_command(command)
 		command = filter_input(command)
-		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass} \" " +
+		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass}\" " +
 				"runProgramInGuest \"#{@location}\" \"#{command}\""
 		system_command(vmrunstr)
 	end
@@ -73,7 +73,7 @@ class WorkstationDriver < VmDriver
 	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromGuestToHost" +
+		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass}\" copyFileFromGuestToHost" +
 				" \"#{@location}\" \"#{from}\" \"#{to}\"" 
 		system_command(vmrunstr)
 	end
@@ -88,14 +88,14 @@ class WorkstationDriver < VmDriver
 
 	def check_file_exists(file)
 		file = filter_input(file)
-		vmrunstr = "vmrun -T ws -gu {user} -gp #{@vm_pass} fileExistsInGuest " +
+		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass}\" fileExistsInGuest " +
 				"\"#{@location}\" \"#{file}\" "
 		system_command(vmrunstr)
 	end
 
 	def create_directory(directory)
 		directory = filter_input(directory)
-		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} createDirectoryInGuest " +
+		vmrunstr = "vmrun -T ws -gu \"#{@vm_user}\" -gp \"#{@vm_pass}\" createDirectoryInGuest " +
 				" \"#{@location}\" \"#{directory}\" "
 		system_command(vmrunstr)
 	end
