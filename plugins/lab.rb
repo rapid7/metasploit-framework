@@ -152,7 +152,17 @@ class Plugin::Lab < Msf::Plugin
 		## 
 
 		def cmd_lab_show(*args)
-			hlp_print_lab
+			if args.empty?
+				hlp_print_lab
+			else
+				args.each do |vmid|
+					if @controller.includes_vmid? vmid
+						print_line @controller[vmid].to_yaml
+					else
+						print_error "Unknown vm '#{vmid}'"
+					end 
+				end
+			end
 	        end
 
 		def cmd_lab_show_running(*args)
@@ -217,7 +227,7 @@ class Plugin::Lab < Msf::Plugin
 			return lab_usage if args.empty?
 					
 			if args[0] == "all"
-				@controller.each{ |vm| vm.start }
+				@controller.each{ |vm| vm.suspend }
 			else
 				args.each do |arg|
 					if @controller.includes_vmid? arg
@@ -233,7 +243,7 @@ class Plugin::Lab < Msf::Plugin
 		
 			if args[0] == "all"
 				print_line "Resetting all lab vms."
-				@controller.each{ |vm| vm.start }
+				@controller.each{ |vm| vm.reset }
 			else
 				args.each do |arg|
 					if @controller.includes_vmid? arg
