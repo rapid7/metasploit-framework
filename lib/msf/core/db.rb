@@ -6,6 +6,7 @@ require 'rex/parser/foundstone_nokogiri'
 require 'rex/parser/mbsa_nokogiri' 
 require 'rex/parser/acunetix_nokogiri' 
 require 'rex/parser/appscan_nokogiri' 
+require 'rex/parser/burp_session_nokogiri' 
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -1472,7 +1473,6 @@ class DBManager
 		ret[:web_site] = site
 	end
 
-
 	#
 	# Report a Web Page to the database.  WebPage must be tied to an existing Web Site
 	#
@@ -2027,6 +2027,7 @@ class DBManager
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
+	# :burp_session
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 	
@@ -2079,6 +2080,9 @@ class DBManager
 		elsif (firstline.index("<SecScan ID="))
 			@import_filedata[:type] = "Microsoft Baseline Security Analyzer"
 			return :mbsa_xml
+		elsif (data[0,1024] =~ /<!ATTLIST\s+items\s+burpVersion/)
+			@import_filedata[:type] = "Burp Session XML"
+			return :burp_session_xml
 		elsif (firstline.index("<?xml"))
 			# it's xml, check for root tags we can handle
 			line_count = 0
@@ -4493,7 +4497,6 @@ class DBManager
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
 		if Rex::Parser.nokogiri_loaded 
-			# Rex::Parser.reload("appscan_nokogiri.rb")
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4515,6 +4518,37 @@ class DBManager
 			doc = Rex::Parser::AppscanDocument.new(args,framework.db) {|type, data| yield type,data }
 		else
 			doc = Rex::Parser::AppscanDocument.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
+	def import_burp_session_xml(args={}, &block)
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		wspace = args[:wspace] || workspace
+		if Rex::Parser.nokogiri_loaded 
+			# Rex::Parser.reload("burp_session_nokogiri.rb")
+			parser = "Nokogiri v#{::Nokogiri::VERSION}"
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, parser)
+				import_burp_session_noko_stream(noko_args) {|type, data| yield type,data}
+			else
+				import_burp_session_noko_stream(noko_args) 
+			end
+			return true
+		else # Sorry
+			raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+		end
+	end
+
+	def import_burp_session_noko_stream(args={},&block)
+		if block
+			doc = Rex::Parser::BurpSessionDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::BurpSessionDocument.new(args,self)
 		end
 		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
 		parser.parse(args[:data])

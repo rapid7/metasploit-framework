@@ -37,16 +37,16 @@ class Packet::Header < Hash
 
 		# put the non-standard line terminations back to normal
 		# gah.  not having look behinds suck,
-		header.gsub!(/([^\r])\n/,'\1' + "\r\n")
+		header.gsub!(/([^\r])\n/n,'\1' + "\r\n")
 
 		# undo folding, kinda ugly but works for now.
-		header.gsub!(/:\s*\r\n\s+/smi,': ')
+		header.gsub!(/:\s*\r\n\s+/smni,': ')
 
 		# Extract the command string
 		self.cmd_string = header.slice!(/.+\r\n/)
 
 		# Extract each header value pair
-		header.split(/\r\n/m).each { |str|
+		header.split(/\r\n/mn).each { |str|
 			if (md = str.match(/^(.+?): (.+?)$/))
 				if (self[md[1]])
 					self[md[1]] << ", " + md[2]
