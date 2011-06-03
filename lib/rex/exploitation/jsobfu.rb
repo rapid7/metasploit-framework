@@ -11,7 +11,42 @@ module Exploitation
 
 
 #
-# Obfuscate JavaScript to increase entropy and to make building AV signatures harder
+# Obfuscate JavaScript by randomizing as much as possible and removing
+# easily-signaturable string constants.
+#
+# Example:
+#   js = ::Rex::Exploitation::JSObfu.new %Q|
+#     var a = "0\\612\\063\\x34\\x35\\x36\\x37\\x38\\u0039";
+#     var b = { foo : "foo", bar : "bar" }
+#     alert(a);
+#     alert(b.foo);
+#   |
+#   js.obfuscate
+#   puts js
+# Example Output:
+#   var VwxvESbCgv = String.fromCharCode(0x30,0x31,062,063,064,53,0x36,067,070,0x39);
+#   var ToWZPn = {
+#     "\146\157\x6f": (function () { var yDyv="o",YnCL="o",Qcsa="f"; return Qcsa+YnCL+yDyv })(),
+#     "\142ar": String.fromCharCode(0142,97,0162)
+#   };
+#   alert(VwxvESbCgv);
+#   alert(ToWZPn.foo);
+#
+# NOTE: Variables MUST be declared with a 'var' statement BEFORE first use (or
+# not at all) for this to generate correct code!  If variables are not declared
+# they will not be randomized but the generated code will be correct.
+#
+# Bad Example Javascript:
+#   a = "asdf"; // this variable hasn't been declared and will not be randomized
+#   var a;
+#   alert(a); // real js engines will alert "asdf" here
+# Bad Example Obfuscated:
+#   a = (function () { var hpHu="f",oyTm="asd"; return oyTm+hpHu })();
+#   var zSrnHpEfJZtg;
+#   alert(zSrnHpEfJZtg);
+# Notice that the first usage of +a+ (before it was declared) is not
+# randomized.  Thus, the obfuscated version will alert 'undefined' instead of
+# "asdf".
 #
 class JSObfu
 
@@ -20,8 +55,9 @@ class JSObfu
 	#
 	attr_reader :ast
 
-	attr_accessor :debug
-
+	#
+	# Saves +code+ for later obfuscation with #obfuscate
+	#
 	def initialize(code)
 		@code = code
 		@funcs = {}
@@ -268,10 +304,21 @@ protected
 	#
 	# Split a javascript string, +str+, without breaking escape sequences.
 	#
+	# The maximum length of each piece of the string is half the total length
+	# of the string, ensuring we (almost) always split into at least two
+	# pieces.  This won't always be true when given a string like "AA\x41",
+	# where escape sequences artificially increase the total length (escape
+	# sequences are considered a single character).
+	#
+	# Returns an array of two-element arrays.  The zeroeth element is a
+	# randomly generated variable name, the first is a piece of the string
+	# contained in +quote+s.
+	#
 	# See #escape_length
 	#
 	def safe_split(str, quote)
 		parts = []
+		max_len = str.length / 2
 		while str.length > 0
 			len = 0
 			loop do
@@ -280,6 +327,7 @@ protected
 				len += e_len
 				# if we've reached the end of the string, bail
 				break unless str[len]
+				break if len > max_len
 				# randomize the length of each part
 				break if (rand(4) == 0)
 			end
