@@ -103,6 +103,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp',
 					:sname => 'postgres',
 					:port => rport,
+					:ntype => 'postgresql.fingerprint',
 					:data => "Unknown Pre-Auth fingerprint: #{result[:unknown]}"
 				)
 			end
