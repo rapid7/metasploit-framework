@@ -1,7 +1,7 @@
 module RKelly
   module Nodes
     class PropertyNode < Node
-      attr_reader :name
+      attr_accessor :name
       def initialize(name, value)
         super(value)
         @name = name
