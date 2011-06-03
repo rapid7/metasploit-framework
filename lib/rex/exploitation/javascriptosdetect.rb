@@ -1,6 +1,7 @@
 
+require 'msf/core'
 require 'rex/text'
-require 'rex/exploitation/obfuscatejs'
+require 'rex/exploitation/jsobfu'
 
 module Rex
 module Exploitation
@@ -24,7 +25,7 @@ module Exploitation
 # ua_ver_gt(a, b):  returns true if a > b
 # ua_ver_eq(a, b):  returns true if a == b
 #
-class JavascriptOSDetect < ObfuscateJS
+class JavascriptOSDetect < JSObfu
 	
 	def initialize(custom_js = '', opts = {})
 		clients = ::Msf::HttpClients
@@ -874,26 +875,6 @@ function ua_ver_eq(a, b) {
 }
 ENDJS
 		super @js
-		update_opts(opts) if (opts)
-		update_opts({'Symbols' => {
-			'Variables' => [ 
-				'os_name', 'os_flavor',
-				'os_sp', 'os_lang',
-				'arch',
-				'ua_name', 
-				'ua_version', 
-				'found_version', 
-				'needle', 
-				'haystack',
-				],
-			'Methods' => [ 
-				'getVersion', 
-				'searchVersion' 
-				]
-			}
-		})
-
-		#self.obfuscate
 
 		return @js
 	end
