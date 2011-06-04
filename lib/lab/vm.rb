@@ -65,9 +65,9 @@ class Vm
 		#puts "DEBUG: " + driver_type + " driver requested."
 
 		if @driver_type == "workstation"
-			@driver = Lab::Drivers::WorkstationDriver.new(@vmid, @location, @credentials)
+			@driver = Lab::Drivers::WorkstationDriver.new(@vmid, @location, @os, @tools, @credentials)
 		elsif @driver_type == "workstation_vixr"
-			@driver = Lab::Drivers::WorkstationVixrDriver.new(@vmid, @location, @user, @host, @credentials)	
+			@driver = Lab::Drivers::WorkstationVixrDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)	
 		elsif @driver_type == "remote_workstation"
 			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)	
 		elsif @driver_type == "virtualbox"

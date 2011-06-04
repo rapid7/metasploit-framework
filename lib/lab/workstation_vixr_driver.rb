@@ -14,7 +14,7 @@ class WorkstationVixrDriver < VmDriver
 	attr_accessor :type
 	attr_accessor :location
 
-	def initialize(vmid, location, credentials=nil)
+	def initialize(vmid, location, os=nil, tools=false, credentials=nil)
 
 		begin 
 			require 'vixr'
@@ -29,6 +29,8 @@ class WorkstationVixrDriver < VmDriver
 		end
 
 		@credentials = credentials
+		@tools = tools	# not used in command lines, no filter
+		@os = os	# not used in command lines, no filter
 
 		# TODO - Currently only implemented for the first set
 		if @credentials.count > 0

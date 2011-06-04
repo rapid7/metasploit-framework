@@ -106,7 +106,7 @@ class RemoteWorkstationDriver < VmDriver
 			# delete it on the guest
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
 					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'\""
-			#system_command(vmrunstr)
+			system_command(vmrunstr)
 
 			# and delete it on the vm host
 			vmhost_delete_command = "ssh #{@user}@#{@host} rm #{local_tempfile_path}"

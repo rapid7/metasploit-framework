@@ -12,7 +12,7 @@ class WorkstationDriver < VmDriver
 	attr_accessor :type
 	attr_accessor :location
 
-	def initialize(vmid, location, credentials=nil)
+	def initialize(vmid, location, os=nil, tools=false, credentials=nil)
 		@vmid = filter_input(vmid)
 		@location = filter_input(location)
 		if !File.exist?(@location)
@@ -20,6 +20,8 @@ class WorkstationDriver < VmDriver
 		end
 
 		@credentials = credentials
+		@tools = tools	# not used in command lines, no filter
+		@os = os	# not used in command lines, no filter
 
 		# TODO - Currently only implemented for the first set
 		if @credentials.count > 0
@@ -64,25 +66,69 @@ class WorkstationDriver < VmDriver
 	end
 
 	def run_command(command)
-		command = filter_input(command)
-		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' " +
-				"runProgramInGuest \'#{@location}\' \'#{command}\'"
-		system_command(vmrunstr)
+
+		script_rand_name = rand(10000)
+
+		if @os == "windows"
+			local_tempfile_path = "/tmp/lab_script_#{script_rand_name}.bat"
+			remote_tempfile_path = "C:\\\\lab_script_#{script_rand_name}.bat"
+			remote_run_command = remote_tempfile_path
+		else
+			local_tempfile_path = "/tmp/lab_script_#{script_rand_name}.sh"
+			remote_tempfile_path = "/tmp/lab_script_#{script_rand_name}.sh"
+			remote_run_command = "/bin/sh #{remote_tempfile_path}"
+		end
+
+		# write out our script locally
+		File.open(local_tempfile_path, 'w') {|f| f.write(command) }
+
+		# we really can't filter command, so we're gonna stick it in a script
+		if @tools
+			# copy our local tempfile to the guest
+			vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+					"copyFileFromHostToGuest \'#{@location}\' \'#{local_tempfile_path}\'" +
+					" \'#{remote_tempfile_path}\' nogui"
+			system_command(vmrunstr)
+
+			# now run it on the guest
+			vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
+					"runProgramInGuest \'#{@location}\' -noWait -activeWindow \'#{remote_run_command}\'"
+			system_command(vmrunstr)
+
+			## CLEANUP
+			# delete it on the guest
+			vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
+					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'"
+			#system_command(vmrunstr)
+
+			# delete it locally
+			local_delete_command = "rm #{local_tempfile_path}"
+			#system_command(local_delete_command)
+		else
+			# since we can't copy easily w/o tools, let's just run it directly :/
+			if @os == "linux"
+				scp_to(local_tempfile_path, remote_tempfile_path)
+				ssh_exec(remote_run_command)
+				ssh_exec("rm #{remote_tempfile_path}")
+			else
+				raise "zomgwtfbbqnotools"
+			end	
+		end
 	end
 	
 	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' copyFileFromGuestToHost" +
-				" \'#{@location}\' \'#{from}\' \'#{to}\'" 
+		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' copyFileFromGuestToHost " +
+				"\'#{@location}\' \'#{from}\' \'#{to}\'" 
 		system_command(vmrunstr)
 	end
 
 	def copy_to(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest" +
-				" \'#{@location}\' \'#{from}\' \'#{to}\'"  
+		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest " +
+				"\'#{@location}\' \'#{from}\' \'#{to}\'"  
 		system_command(vmrunstr)
 	end
 
