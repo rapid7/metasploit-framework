@@ -27,8 +27,8 @@ class RemoteWorkstationDriver < VmDriver
 
 		# TODO - Currently only implemented for the first set
 		if @credentials.count > 0
-			@vm_user = filter_input(@credentials[0]['user'])
-			@vm_pass = filter_input(@credentials[0]['pass'])
+			@vm_user = filter_input(@credentials[0]['user']) || "\'\'"
+			@vm_pass = filter_input(@credentials[0]['pass']) || "\'\'"
 			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
 		end
 	end
