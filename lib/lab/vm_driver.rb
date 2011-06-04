@@ -125,8 +125,11 @@ private
 	end
 	
 	def system_command(command)
-		puts "DEBUG: Running commmand #{command}"
-		system(command)
+		begin
+			system(command)
+		rescue	Exception => e
+			return false			
+		end
 	end
 end
 
