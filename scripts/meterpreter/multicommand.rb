@@ -14,7 +14,7 @@ wininfo = client.sys.config.sysinfo
         "-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
-commands = nil
+commands = []
 script = nil
 outfile = nil
 help = 0
@@ -77,7 +77,6 @@ end
 		if not ::File.exists?(script)
 			raise "Command List File does not exists!"
 		else
-			commands ||= ''
 			::File.open(script, "r").each_line do |line|
 				commands << line.chomp
 			end
