@@ -31,6 +31,7 @@ module Scanner
 					if(param['disasm'])
 						#puts [msg].pack('H*').inspect
 						insns = []
+				
 						msg.gsub!("; ", "\n")
 						if msg.include?("retn")
 							msg.gsub!("retn", "ret")
@@ -39,7 +40,7 @@ module Scanner
 						begin
 							d2 = Metasm::Shellcode.assemble(Metasm::Ia32.new, msg).disassemble
 						rescue Metasm::ParseError
-							d2 = Metasm::Shellcode.disassemble(Metasm::Ia32.new, [msg].pack('H*')[0])
+							d2 = Metasm::Shellcode.disassemble(Metasm::Ia32.new, [msg].pack('H*'))
 						end
 						addr = 0
 						while ((di = d2.disassemble_instruction(addr)))
