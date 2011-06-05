@@ -47,40 +47,43 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'       => "/"+Rex::Text.rand_text_alpha(12),
 				'method'    => 'GET',
 				'ctype'     => 'text/plain',
+
 			}, 20)
+	
+		if res
 
-		info = http_fingerprint({ :response => res })
-		print_status(info)
+			info = http_fingerprint({ :response => res })
+			print_status(info)
 
-		if(res.body and />(JBoss[^<]+)/.match(res.body) )
-			print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
+			if(res.body and />(JBoss[^<]+)/.match(res.body) )
+				print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
+			end
+		
+			apps = [ '/jmx-console/HtmlAdaptor',
+				'/status',
+				'/web-console/ServerInfo.jsp',
+				# apps added per Patrick Hof
+				'/web-console/Invoker',
+				'/invoker/JMXInvokerServlet'
+			]
+	
+			print_status("#{rhost}:#{rport} Checking http...")
+			apps.each do |app|
+				check_app(app)
+			end
+	
+			ports = {
+				# 1098i, 1099, and 4444 needed to use twiddle
+				1098 => 'Naming Service',
+				1099 => 'Naming Service',
+				4444 => 'RMI invoker'
+			}
+			print_status("#{rhost}:#{rport} Checking services...")
+			ports.each do |port,service|
+				status = test_connection(ip,port) == :up ? "open" : "closed";
+				print_status("#{rhost}:#{rport} #{service} tcp/#{port}: #{status}")
+			end
 		end
-
-		apps = [ '/jmx-console/HtmlAdaptor',
-			'/status',
-			'/web-console/ServerInfo.jsp',
-			# apps added per Patrick Hof
-			'/web-console/Invoker',
-			'/invoker/JMXInvokerServlet'
-		]
-
-		print_status("#{rhost}:#{rport} Checking http...")
-		apps.each do |app|
-			check_app(app)
-		end
-
-		ports = {
-			# 1098i, 1099, and 4444 needed to use twiddle
-			1098 => 'Naming Service',
-			1099 => 'Naming Service',
-			4444 => 'RMI invoker'
-		}
-		print_status("#{rhost}:#{rport} Checking services...")
-		ports.each do |port,service|
-			status = test_connection(ip,port) == :up ? "open" : "closed";
-			print_status("#{rhost}:#{rport} #{service} tcp/#{port}: #{status}")
-		end
-
 	end
 
 	def check_app(app)
