@@ -126,6 +126,11 @@ rescue OptionParser::InvalidOption
 	exit(1)
 end
 
+if not mode
+	puts "A mode must be selected"
+	exit(1)
+end
+
 # check if the file is a directory if it is collect all the entries
 ARGV.each do |file|
 
