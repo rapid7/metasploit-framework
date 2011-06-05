@@ -115,19 +115,21 @@ opt.on('-F', '--filter-addresses [regex]', 'Filter addresses based on a regular 
 end
 
 opt.on_tail("-h", "--help", "Show this message") do
-	puts opt
+	$stderr.puts opt
 	exit(1)
 end
 
 begin
 	opt.parse!
-rescue OptionParser::InvalidOption
-	puts "Invalid option, try -h for usage"
+rescue OptionParser::InvalidOption, OptionParser::MissingArgument
+	$stderr.puts "Invalid option, try -h for usage"
 	exit(1)
 end
 
-if not mode or mode.nil?
+
+if mode.empty?
 	$stderr.puts "A mode must be selected"
+	$stderr.puts opt
 	exit(1)
 end
 
