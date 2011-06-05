@@ -130,7 +130,13 @@ class RemoteWorkstationDriver < VmDriver
 	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
+		
+		# copy it to the vm host - this is because we're a remote driver
+		remote_copy_command = "scp #{from} #{@user}@#{@host}:#{from}"
+		system_command(remote_copy_command)
+
 		if @tools 
+					
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
 					"copyFileFromGuestToHost \'#{@location}\' \'#{from}\' \'#{to}\' nogui\"" 
 			system_command(vmrunstr)
@@ -144,6 +150,10 @@ class RemoteWorkstationDriver < VmDriver
 		from = filter_input(from)
 		to = filter_input(to)
 		
+		# copy it to the vm host - this is because we're a remote driver
+		remote_copy_command = "scp #{from} #{@user}@#{@host}:#{from}"
+		system_command(remote_copy_command)
+		
 		if @tools
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
 					"copyFileFromHostToGuest \'#{@location}\' \'#{from}\' \'#{to}\' nogui\""  
@@ -156,7 +166,6 @@ class RemoteWorkstationDriver < VmDriver
 	def check_file_exists(file)
 		
 		if @tools
-	
 			file = filter_input(file)
 			vmrunstr = "\"ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
 					"fileExistsInGuest \'#{@location}\' \'{file}\' nogui\""

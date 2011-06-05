@@ -231,8 +231,10 @@ class Plugin::Lab < Msf::Plugin
 			else
 				args.each do |arg|
 					if @controller.includes_vmid? arg
-						print_line "Suspending lab vm #{arg}."
-						@controller.find_by_vmid(arg).suspend	
+						if @controller.find_by_vmid(arg).running?
+							print_line "Suspending lab vm #{arg}."
+							@controller.find_by_vmid(arg).suspend
+						end	
 					end	
 				end
 			end
@@ -247,8 +249,10 @@ class Plugin::Lab < Msf::Plugin
 			else
 				args.each do |arg|
 					if @controller.includes_vmid? arg
-						print_line "Resetting lab vm #{arg}."
-						@controller.find_by_vmid(arg).reset	
+						if @controller.find_by_vmid(arg).running?
+							print_line "Resetting lab vm #{arg}."
+							@controller.find_by_vmid(arg).reset	
+						end
 					end	
 				end
 			end
@@ -294,12 +298,19 @@ class Plugin::Lab < Msf::Plugin
 			command = args[args.count-1]
 			if args[0] == "all"
 				print_line "Running command #{command} on all vms."
-				@controller.each{ |vm| vm.run_command(command) }
+					@controller.each do |vm| 
+						if vm.running?
+							print_line "#{vm.vmid} running command: #{command}."
+							vm.run_command(command)
+						end
+					end
 			else
 				args[0..-2].each do |vmid_arg|
 					next unless @controller.includes_vmid? vmid_arg
-					print_line "#{vmid_arg} running command: #{command}."
-					@controller[vmid_arg].run_command(command)	
+					if @controller[vmid_arg].running?
+						print_line "#{vmid_arg} running command: #{command}."					
+						@controller[vmid_arg].run_command(command)
+					end
 				end
 			end
 	        end
@@ -309,12 +320,19 @@ class Plugin::Lab < Msf::Plugin
 			uri = args[args.count-1]
 			if args[0] == "all"
 				print_line "Opening: #{uri} on all vms."
-				@controller.each{ |vm| vm.open_uri(uri) }
+				@controller.each do |vm| 
+					if vm.running?
+						print_line "#{vm.vmid} opening to uri: #{uri}."
+						vm.open_uri(uri)
+					end
+				end
 			else
 				args[0..-2].each do |vmid_arg|
 					next unless @controller.includes_vmid? vmid_arg
-					print_line "#{vmid_arg} opening to uri: #{uri}."
-					@controller[vmid_arg].open_uri(uri)	
+					if @controller[vmid_arg].running?
+						print_line "#{vmid_arg} opening to uri: #{uri}."
+						@controller[vmid_arg].open_uri(uri)
+					end
 				end
 			end
 		end

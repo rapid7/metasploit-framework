@@ -86,10 +86,14 @@ private
 		gem 'net-scp'
 		require 'net/scp'
 		
-		# upload a file to a remote server
-		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
-			scp.upload!(from,to)
-		end	
+		begin
+			# upload a file to a remote server
+			Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+				scp.upload!(from,to)
+			end	
+		rescue Exception => e
+			return false
+		end
 	end
 	
 	def scp_from(from,to)
@@ -99,19 +103,29 @@ private
 		gem 'net-scp'
 		require 'net/scp'
 		
-		# download a file from a remote server
-		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
-			scp.download!(from,to)
-		end	
+		begin
+			# download a file from a remote server
+			Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+				scp.download!(from,to)
+			end	
+		rescue Exception => e
+			return false
+		end
+
 	end
 	
 	def ssh_exec(command)
 		gem 'net-ssh'
 		require 'net/ssh'
-		
-		Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
-			result = ssh.exec!(command)
+
+		begin		
+			Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
+				result = ssh.exec!(command)
+			end
+		rescue Exception => e
+			return false
 		end
+
 	end
 
 	def filter_input(string)
@@ -126,6 +140,7 @@ private
 	
 	def system_command(command)
 		begin
+			#puts "DEBUG: running command #{command}"
 			system(command)
 		rescue	Exception => e
 			return false			
