@@ -127,7 +127,7 @@ rescue OptionParser::InvalidOption
 end
 
 if not mode or mode.nil?
-	puts "A mode must be selected"
+	$stderr.puts "A mode must be selected"
 	exit(1)
 end
 
@@ -241,6 +241,11 @@ files.each do |file|
 			elf.base_addr = param['imagebase'];
 		end
 
+		if not worker
+			$stderr.puts("A mode could not be set for this file.")
+			next
+		end
+		
 		o = worker.new(elf)
 		o.scan(param)
 
