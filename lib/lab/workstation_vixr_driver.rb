@@ -39,7 +39,7 @@ class WorkstationVixrDriver < VmDriver
 		end
 		
 		host = VixR.connect()
-		vm = host.op0n_vmx(@location)
+		vm = host.open_vmx(@location)
 		
 	end
 
