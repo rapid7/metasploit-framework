@@ -172,6 +172,14 @@ class Table
 	end
 
 	#
+	# Sorts the rows based on the supplied index of sub-arrays
+	#	
+	def sort_rows(index)
+		rows.sort!{|a,b| a[index].nil? ? -1 : b[index].nil? ? 1 : a[index] <=> b[index]}
+	end
+
+
+	#
 	# Adds a horizontal line.
 	#
 	def add_hr
@@ -272,6 +280,7 @@ protected
 		return val
 	end
 
+	
 end
 
 end
