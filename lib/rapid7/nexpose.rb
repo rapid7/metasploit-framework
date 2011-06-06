@@ -193,7 +193,7 @@ class APIRequest
 		end
 
 		if ! (@success or @error)
-			@error = "NeXpose service returned an unrecognized response: #{data}"
+			@error = "NeXpose service returned an unrecognized response: #{@raw_response_data.inspect}"
 		end
 
 		@sid
