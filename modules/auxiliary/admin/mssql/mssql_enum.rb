@@ -246,26 +246,34 @@ class Metasploit3 < Msf::Auxiliary
 		# Get list of Databases on System
 		print_status("Databases on the server:")
 		dbs = mssql_query("select name from master..sysdatabases")[:rows].flatten
-		dbs.each do |dbn|
-			print_status("\tDatabase name:#{dbn.strip}")
-			print_status("\tDatabase Files for #{dbn.strip}:")
-			if vernum.join != "2000"
-				mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows].each do |fn|
-					print_status("\t\t#{fn.join}")
-					report_note(:host => datastore['RHOST'],
-						:proto => 'TCP',
-						:port => datastore['RPORT'],
-						:type => 'MSSQL_ENUM',
-						:data => "Database: #{dbn.strip} File: #{fn.join}")
-				end
-			else
-				mssql_query("select filename from #{dbn.strip}..sysfiles")[:rows].each do |fn|
-					print_status("\t\t#{fn.join.strip}")
-					report_note(:host => datastore['RHOST'],
-						:proto => 'TCP',
-						:port => datastore['RPORT'],
-						:type => 'MSSQL_ENUM',
-						:data => "Database: #{dbn.strip} File: #{fn.join}")
+		if dbs != nil
+			dbs.each do |dbn|
+				print_status("\tDatabase name:#{dbn.strip}")
+				print_status("\tDatabase Files for #{dbn.strip}:")
+				if vernum.join != "2000"
+					db_ind_files = mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows]
+					if db_ind_files != nil
+						db_files.each do |fn|
+							print_status("\t\t#{fn.join}")
+							report_note(:host => datastore['RHOST'],
+								:proto => 'TCP',
+								:port => datastore['RPORT'],
+								:type => 'MSSQL_ENUM',
+								:data => "Database: #{dbn.strip} File: #{fn.join}")
+						end
+					end
+				else
+					db_ind_files = mssql_query("select filename from #{dbn.strip}..sysfiles")[:rows]
+					if db_ind_files != nil
+						db_ind_files.each do |fn|
+							print_status("\t\t#{fn.join.strip}")
+							report_note(:host => datastore['RHOST'],
+								:proto => 'TCP',
+								:port => datastore['RPORT'],
+								:type => 'MSSQL_ENUM',
+								:data => "Database: #{dbn.strip} File: #{fn.join}")
+						end
+					end
 				end
 			end
 		end
@@ -735,13 +743,19 @@ EOS
 		instances =[]
 		if vernum.join != "2000"
 			querykey = "EXEC master..xp_regenumvalues \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\\Instance Names\\SQL\'"
-			mssql_query(querykey)[:rows].each do |i|
-				instances << i[0]
+			instance_res = mssql_query(querykey)[:rows]
+			if instance_res != nil
+				instance_res.each do |i|
+					instances << i[0]
+				end
 			end
 		else
 			querykey = "exec xp_regread \'HKEY_LOCAL_MACHINE\',\'SOFTWARE\\Microsoft\\Microsoft SQL Server\', \'InstalledInstances\'"
-			mssql_query(querykey)[:rows].each do |i|
-				instances << i[1]
+			instance_res = mssql_query(querykey)[:rows]
+			if instance_res != nil
+				instance_res.each do |i|
+					instances << i[1]
+				end
 			end
 		end
 
