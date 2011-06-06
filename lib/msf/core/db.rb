@@ -902,7 +902,7 @@ class DBManager
 	# opts can contain
 	#	:user  -- the username
 	#	:pass  -- the password, or path to ssh_key
-	#	:ptype  -- the type of password (password, hash, or ssh_key)
+	#	:ptype  -- the type of password (password(ish), hash, or ssh_key)
 	#   :proto -- a transport name for the port
 	#   :sname -- service name
 	#	:active -- by default, a cred is active, unless explicitly false

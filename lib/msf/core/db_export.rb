@@ -140,10 +140,10 @@ class Export
 			next unless cred.active
 			svc = "%s:%d/%s (%s)" % [cred.service.host.address,cred.service.port,cred.service.proto,cred.service.name]
 			case cred.ptype
-			when "smb_hash", "ssh_key"
-				ptype = cred.ptype
-			else
+			when /^password/
 				ptype = "text"
+			else
+				ptype = cred.ptype
 			end
 			creds[ptype] ||= {}
 			creds[ptype][svc] ||= []
