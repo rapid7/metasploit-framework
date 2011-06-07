@@ -17,11 +17,10 @@ require 'msf/base'
 
 sort=0
 filter= 'All'
-filters= ['All','Exploit','Payload','Post','NOP','Encoder','Auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 types = ['All','URL','CVE','OSVDB','BID','MSB','NSS','US-CERT-VU']
 type='All'
-reg=0
-regex= ''
+match= nil
 
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
@@ -47,9 +46,9 @@ opts.parse(ARGV) { |opt, idx, val|
 		puts "Reverse Sorting"
 		sort = 2
 	when "-f"
-		unless filters.include?(val)
+		unless filters.include?(val.downcase)
 			puts "Invalid Filter Supplied: #{val}"
-			puts "Please use one of these: [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary]"
+			puts "Please use one of these: #{filters.map{|f|f.capitalize}.join(", ")}"
 			exit
 		end
 		puts "Module Filter: #{val}"
@@ -64,8 +63,7 @@ opts.parse(ARGV) { |opt, idx, val|
 		type = val
 	when "-x"
 		puts "Regex: #{val}"
-		reg=1
-		regex = val
+		match = Regexp.new(val)
 	end
 
 }
@@ -74,8 +72,18 @@ puts "Type: #{type}"
 
 Indent = '    '
 
+# Always disable the database (we never need it just to list module
+# information).
+framework_opts = { 'DisableDatabase' => true }
+
+# If the user only wants a particular module type, no need to load the others
+if filter.downcase != 'all'
+	framework_opts[:module_types] = [ filter.downcase ]
+end
+
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
+$framework = Msf::Simple::Framework.create(framework_opts)
+
 
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module References',
@@ -83,89 +91,17 @@ tbl = Rex::Ui::Text::Table.new(
 	'Columns' => [ 'Module', 'Reference' ]
 )
 
-if filter=='Payload' or filter=='All'
-	$framework.payloads.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'payload/' + name, ref ]
-				end
-			end
-		end
-	}
-end
+$framework.modules.each { |name, mod|
+	next if match and not name =~ match
 
-if filter=='Exploit' or filter=='All'
-	$framework.exploits.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'exploit/' + name, ref ]
-				end
-			end
+	x = mod.new
+	x.references.each do |r|
+		if type=='All' or type==r.ctx_id
+			ref = r.ctx_id + '-' + r.ctx_val
+			tbl << [ x.fullname, ref ]
 		end
-	}
-end
-
-if filter=='NOP' or filter=='All'
-	$framework.nops.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'nop/' + name, ref ]
-				end
-			end
-		end
-	}
-end
-
-if filter=='Encoder' or filter=='All'
-	$framework.encoders.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'encoder/' + name, ref ]
-				end
-			end
-		end
-	}
-end
-
-if filter=='Auxiliary' or filter=='All'
-	$framework.auxiliary.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'auxiliary/' + name, ref ]
-				end
-			end
-		end
-	}
-end
-
-if filter=='Post' or filter=='All'
-	$framework.post.each_module { |name, mod|
-		x = mod.new
-		x.references.each do |r|
-			if type=='All' or type==r.ctx_id
-				ref = r.ctx_id + '-' + r.ctx_val
-				if reg==0 or ref=~/#{regex}/
-					tbl << [ 'post/' + name, ref ]
-				end
-			end
-		end
-	}
-end
+	end
+}
 
 if sort == 1
 	tbl.sort_rows(1)

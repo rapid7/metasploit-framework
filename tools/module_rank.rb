@@ -28,7 +28,7 @@ minrank= 0
 maxrank= 600
 sort = 0
 filter= 'All'
-filters= ['All','Exploit','Payload','Post','NOP','Encoder','Auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 ranks = ['Manual','Low','Average','Normal','Good','Great','Excellent']
 
 
@@ -39,7 +39,7 @@ opts = Rex::Parser::Arguments.new(
 	"-m" => [ true, "Set Minimum Rank [Manual,Low,Average,Normal,Good,Great,Excellent] (Default = Manual)."],
 	"-s" => [ false, "Sort by Rank instead of Module Type."],
 	"-r" => [ false, "Reverse Sort by Rank"],
-	"-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = All)."]
+	"-f" => [ true, "Filter based on Module Type [#{filters.map{|f|f.capitalize}.join(", ")}] (Default = All)."],
 )
 
 opts.parse(ARGV) { |opt, idx, val|
@@ -72,9 +72,9 @@ opts.parse(ARGV) { |opt, idx, val|
 		puts "Reverse Sorting by Rank"
 		sort = 2
 	when "-f"
-		unless filters.include?(val)
+		unless filters.include?(val.downcase)
 			puts "Invalid Filter Supplied: #{val}"
-			puts "Please use one of these: [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary]"
+			puts "Please use one of these: #{filters.map{|f|f.capitalize}.join(", ")}"
 			exit
 		end
 		puts "Module Filter: #{val}"
@@ -87,8 +87,18 @@ opts.parse(ARGV) { |opt, idx, val|
 
 Indent = '    '
 
+# Always disable the database (we never need it just to list module
+# information).
+framework_opts = { 'DisableDatabase' => true }
+
+# If the user only wants a particular module type, no need to load the others
+if filter.downcase != 'all'
+	framework_opts[:module_types] = [ filter.downcase ]
+end
+
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
+$framework = Msf::Simple::Framework.create(framework_opts)
+
 
 tbl = Rex::Ui::Text::Table.new(
 	'Header'  => 'Module Ranks',
@@ -96,78 +106,20 @@ tbl = Rex::Ui::Text::Table.new(
 	'Columns' => [ 'Module', 'Rank' ]
 )
 
-if filter=='Payload' or filter=='All'
-	$framework.payloads.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'payload/' + name, modrank ]
-		end
-	
-	}
-end
+$framework.modules.each { |name, mod|
+	x = mod.new
+	modrank = x.rank
+	if modrank >= minrank and modrank<= maxrank
+		tbl << [ x.fullname, modrank ]
+	end
 
-if filter=='Exploit' or filter=='All'
-	$framework.exploits.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'exploit/' + name, modrank ]
-		end
-	
-	
-	}
-end
+}
 
-if filter=='NOP' or filter=='All'
-	$framework.nops.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'nop/' + name, modrank ]
-		end
-	
-	}
-end
-
-if filter=='Encoder' or filter=='All'
-	$framework.encoders.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'encoder/' + name, modrank ]
-		end
-	
-	}
-end
-
-if filter=='Auxiliary' or filter=='All'
-	$framework.auxiliary.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'auxiliary/' + name, modrank ]
-		end
-	
-	}
-end
-
-if filter=='Post' or filter=='All'
-	$framework.post.each_module { |name, mod|
-		x = mod.new
-		modrank = x.rank
-		if modrank >= minrank and modrank<= maxrank
-			tbl << [ 'post/' + name, modrank ]
-		end
-	
-	}
-end
-
-if sort==1
+if sort == 1
 	tbl.sort_rows(1)
 end
 
-if sort=2
+if sort == 2
 	tbl.sort_rows(1)
 	tbl.rows.reverse
 end

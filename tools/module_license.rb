@@ -36,7 +36,7 @@ end
 
 sort=0
 filter= 'All'
-filters= ['All','Exploit','Payload','Post','NOP','Encoder','Auxiliary']
+filters = ['all','exploit','payload','post','nop','encoder','auxiliary']
 reg=0
 regex= ''
 
@@ -44,7 +44,7 @@ opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-s" => [ false, "Sort by License instead of Module Type."],
 	"-r" => [ false, "Reverse Sort"],
-	"-f" => [ true, "Filter based on Module Type [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary] (Default = All)."],
+	"-f" => [ true, "Filter based on Module Type [#{filters.map{|f|f.capitalize}.join(", ")}] (Default = All)."],
 	"-x" => [ true, "String or RegEx to try and match against the License Field"]
 )
 
@@ -62,9 +62,9 @@ opts.parse(ARGV) { |opt, idx, val|
 		puts "Reverse Sorting"
 		sort = 2
 	when "-f"
-		unless filters.include?(val)
+		unless filters.include?(val.downcase)
 			puts "Invalid Filter Supplied: #{val}"
-			puts "Please use one of these: [All,Exploit,Payload,Post,NOP,Encoder,Auxiliary]"
+			puts "Please use one of these: #{filters.map{|f|f.capitalize}.join(", ")}"
 			exit
 		end
 		puts "Module Filter: #{val}"
@@ -82,8 +82,17 @@ opts.parse(ARGV) { |opt, idx, val|
 
 Indent = '    '
 
+# Always disable the database (we never need it just to list module
+# information).
+framework_opts = { 'DisableDatabase' => true }
+
+# If the user only wants a particular module type, no need to load the others
+if filter.downcase != 'all'
+	framework_opts[:module_types] = [ filter.downcase ]
+end
+
 # Initialize the simplified framework instance.
-$framework = Msf::Simple::Framework.create('DisableDatabase' => true)
+$framework = Msf::Simple::Framework.create(framework_opts)
 
 
 tbl = Rex::Ui::Text::Table.new(
@@ -94,65 +103,14 @@ tbl = Rex::Ui::Text::Table.new(
 
 licenses = {}
 
-if filter=='Payload' or filter=='All'
-	$framework.payloads.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Payload', name ]
-		end
-	}
-end
+$framework.modules.each { |name, mod|
+	x = mod.new
+	lictype = lic_short(x.license)
+	if reg==0 or lictype=~/#{regex}/
+		tbl << [ lictype, mod.type.capitalize, name ]
+	end
+}
 
-if filter=='Exploit' or filter=='All'
-	$framework.exploits.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Exploit', name ]
-		end
-	}
-end
-
-if filter=='NOP' or filter=='All'
-	$framework.nops.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Nop', name ]
-		end
-	}
-end
-
-if filter=='Encoder' or filter=='All'
-	$framework.encoders.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Encoder', name ]
-		end
-	}
-end
-
-if filter=='Auxiliary' or filter=='All'
-	$framework.auxiliary.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Auxiliary', name ]
-		end
-	}
-end
-
-if filter=='Post' or filter=='All'
-	$framework.post.each_module { |name, mod|
-		x = mod.new
-		lictype = lic_short(x.license)
-		if reg==0 or lictype=~/#{regex}/
-			tbl << [ lictype, 'Post', name ]
-		end
-	}
-end
 
 if sort == 1
 	tbl.sort_rows(0)

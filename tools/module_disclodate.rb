@@ -91,7 +91,7 @@ framework_opts = { 'DisableDatabase' => true }
 
 # If the user only wants a particular module type, no need to load the others
 if filter.downcase != 'all'
-	framework_opts[:module_types] = [ filter ]
+	framework_opts[:module_types] = [ filter.downcase ]
 end
 
 # Initialize the simplified framework instance.
