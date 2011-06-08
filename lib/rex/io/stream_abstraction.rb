@@ -148,7 +148,7 @@ protected
 							closed = true
 							wlog("monitor_rsock: closed remote socket due to nil read")
 						end
-					rescue ::Exception
+					rescue ::Exception => e
 						closed = true
 						wlog("monitor_rsock: exception during read: #{e.class} #{e}")
 					end
@@ -169,10 +169,11 @@ protected
 							#     This way we naturally perform a resend if a failure occured.
 							#     Catches an edge case with meterpreter TCP channels where remote send
 							#     failes gracefully and a resend is required.
-							if (sent.nil? or sent <= 0)
+							if (sent.nil?)
+								closed = true
 								wlog("monitor_rsock: failed writing, socket must be dead")
 								break
-							else
+							elsif (sent > 0)
 								total_sent += sent
 							end
 						rescue ::IOError, ::EOFError => e
