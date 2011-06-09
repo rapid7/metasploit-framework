@@ -9,7 +9,7 @@ module System
 		include ::Msf::Post::File
 
 		# Returns a Hash containing Distribution Name, Version and Kernel Information
-		def linux_ver
+		def get_sysinfo
 			system_data = {}
 			etc_files = cmd_exec("ls /etc").split()
 
@@ -28,7 +28,7 @@ module System
 					system_data[:kernel] = kernel_version
 				end
 
-				# Fedora
+			# Fedora
 			elsif etc_files.include?("fedora-release")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/fedora-release").gsub(/\n|\\n|\\l/,'')
@@ -36,7 +36,15 @@ module System
 				system_data[:version] = version
 				system_data[:kernel] = kernel_version
 
-				# RedHat
+			# Oracle Linux
+			elsif etc_files.include?("enterprise-release")
+				kernel_version = cmd_exec("uname -a")
+				version = read_file("/etc/enterprise-release").gsub(/\n|\\n|\\l/,'')
+				system_data[:distro] = "oracle"
+				system_data[:version] = version
+				system_data[:kernel] = kernel_version
+
+			# RedHat
 			elsif etc_files.include?("redhat-release")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/redhat-release").gsub(/\n|\\n|\\l/,'')
@@ -44,7 +52,15 @@ module System
 				system_data[:version] = version
 				system_data[:kernel] = kernel_version
 
-				# Slackware
+			# Arch
+			elsif etc_files.include?("arch-release")
+				kernel_version = cmd_exec("uname -a")
+				version = read_file("/etc/arch-release").gsub(/\n|\\n|\\l/,'')
+				system_data[:distro] = "arch"
+				system_data[:version] = version
+				system_data[:kernel] = kernel_version
+
+			# Slackware
 			elsif etc_files.include?("slackware-version")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/slackware-version").gsub(/\n|\\n|\\l/,'')
@@ -52,7 +68,7 @@ module System
 				system_data[:version] = version
 				system_data[:kernel] = kernel_version
 
-				# Mandrake
+			# Mandrake
 			elsif etc_files.include?("mandrake-release")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/mandrake-release").gsub(/\n|\\n|\\l/,'')
@@ -60,7 +76,7 @@ module System
 				system_data[:version] = version
 				system_data[:kernel] = kernel_version
 
-				#SuSE
+			#SuSE
 			elsif etc_files.include?("SuSE-release")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/SuSE-release").gsub(/\n|\\n|\\l/,'')
@@ -68,7 +84,7 @@ module System
 				system_data[:version] = version
 				system_data[:kernel] = kernel_version
 
-				# Gentoo
+			# Gentoo
 			elsif etc_files.include?("gentoo-release")
 				kernel_version = cmd_exec("uname -a")
 				version = read_file("/etc/gentoo-release").gsub(/\n|\\n|\\l/,'')
