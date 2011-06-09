@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 
 	# Run Method for when run command is issued
 	def run
-		distro = linux_ver
+		distro = get_sysinfo
 		store_loot("linux.version", "text/plain", session, "Distro: #{distro[:distro]}, Version: #{distro[:version]}, Kernel: #{distro[:kernel]}", "linux_info.txt", "Linux Version")
 
 		# Print the info
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 
 	def get_services(distro)
 		services_installed = ""
-		if distro =~ /fedora|redhat|suse|mandrake/
+		if distro =~ /fedora|redhat|suse|mandrake|oracle/
 			services_installed = cmd_exec("/sbin/chkconfig --list")
 		elsif distro =~ /slackware/
 			services_installed << "\nEnabled:\n*************************\n"
@@ -74,6 +74,8 @@ class Metasploit3 < Msf::Post
 			services_installed = cmd_exec("/usr/bin/service --status-all")
 		elsif distro =~ /gentoo/
 			services_installed = cmd_exec("/bin/rc-status --all")
+		elsif distro =~ /arch/
+			services_installed = cmd_exec("/bin/egrep '^DAEMONS' /etc/rc.conf")
 		else
 			print_error("Could not determine the Linux Distribution to get list of configured services")
 		end

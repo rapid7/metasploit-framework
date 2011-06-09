@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 
 
 		# Collect data
-		distro = linux_ver
+		distro = get_sysinfo
 		print_good("Info:")
 		print_good("\t#{distro[:version]}")
 		print_good("\t#{distro[:kernel]}")
@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Post
 
 	def get_packages(distro)
 		packages_installed = nil
-		if distro =~ /fedora|redhat|suse|mandrake/
+		if distro =~ /fedora|redhat|suse|mandrake|oracle/
 			packages_installed = cmd_exec("rpm -qa")
 		elsif distro =~ /slackware/
 			packages_installed = cmd_exec("ls /var/log/packages")
@@ -218,6 +218,8 @@ class Metasploit3 < Msf::Post
 			packages_installed = cmd_exec("dpkg -l")
 		elsif distro =~ /gentoo/
 			packages_installed = cmd_exec("equery list")
+		elsif distro =~ /arch/
+			packages_installed = cmd_exec("/usr/bin/pacman -Q")
 		else
 			print_error("Could not determine package manager to get list of installed packages")
 		end
@@ -226,7 +228,7 @@ class Metasploit3 < Msf::Post
 
 	def get_services(distro)
 		services_installed = ""
-		if distro =~ /fedora|redhat|suse|mandrake/
+		if distro =~ /fedora|redhat|suse|mandrake|oracle/
 			services_installed = cmd_exec("/sbin/chkconfig --list")
 		elsif distro =~ /slackware/
 			services_installed << "\nEnabled:\n*************************\n"

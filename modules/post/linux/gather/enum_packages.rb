@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 
 	# Run Method for when run command is issued
 	def run
-		distro = linux_ver
+		distro = get_sysinfo
 		store_loot("linux.version", "text/plain", session, "Distro: #{distro[:distro]}, Version: #{distro[:version]}, Kernel: #{distro[:kernel]}", "linux_info.txt", "Linux Version")
 
 		# Print the info
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 
 	def get_pakages(distro)
 		packages_installed = nil
-		if distro =~ /fedora|redhat|suse|mandrake/
+		if distro =~ /fedora|redhat|suse|mandrake|oracle/
 			packages_installed = cmd_exec("rpm -qa")
 		elsif distro =~ /slackware/
 			packages_installed = cmd_exec("ls /var/log/packages")
@@ -71,6 +71,8 @@ class Metasploit3 < Msf::Post
 			packages_installed = cmd_exec("dpkg -l")
 		elsif distro =~ /gentoo/
 			packages_installed = cmd_exec("equery list")
+		elsif distro =~ /arch/
+			packages_installed = cmd_exec("/usr/bin/pacman -Q")
 		else
 			print_error("Could not determine package manager to get list of installed packages")
 		end
