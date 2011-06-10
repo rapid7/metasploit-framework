@@ -9,9 +9,13 @@ module Priv
 		# Returns true if running as root, false if not.
 		def is_root?
 			root_priv = false
-			user_id = cmd_exec("/bin/id -u")
+			user_id = cmd_exec("id -u")
 			if user_id.to_i == 0
 				root_priv = true
+			elsif user_id =~ /^\d*$/
+				root_priv = false
+			else
+				raise "Could not determine UID: #{user_id}"
 			end
 			return root_priv
 		end
