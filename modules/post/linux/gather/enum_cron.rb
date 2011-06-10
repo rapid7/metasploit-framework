@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Enumerate cron jobs on linux',
 				'Description'   => %q{
-						This module lists cron jobs for each user on the machine and saves it to loot.
+					This module lists cron jobs for each user on the machine and saves it to loot.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
