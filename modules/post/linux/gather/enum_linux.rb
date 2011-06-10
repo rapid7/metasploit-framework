@@ -98,24 +98,14 @@ class Metasploit3 < Msf::Post
 		save("Linux Installed Packages", installed_pkg)
 		save("Linux Configured Services", installed_svc)
 
-
 	end
 
 	# Save enumerated data
 	def save(msg, data, ctype="text/plain")
-		if ctype == "image/x-xwd"
-			filename = ::Time.now.strftime("%Y%m%d.%M%S") + ".xwd"
-			save_path = Msf::Config.install_root + "/data/" + filename
-			f = ::File.new(save_path, "wb")
-			f.write(data)
-			f.close
-			print_status("#{msg} stored in #{save_path}")
-		else
-			ltype = "linux.enum"
-			print_status(msg) if datastore['VERBOSE']
-			loot = store_loot(ltype, ctype, session, data, nil, msg)
-			print_status("#{msg} stored in #{loot.to_s}")
-		end
+		ltype = (ctype == 'image/x-xwd') ? "host.linux.screenshot" : "linux.enum"
+		print_status(msg) if datastore['VERBOSE']
+		loot = store_loot(ltype, ctype, session, data, nil, msg)
+		print_status("#{msg} stored in #{loot.to_s}")
 	end
 
 	# Get host name
@@ -151,7 +141,7 @@ class Metasploit3 < Msf::Post
 		#Take a snapshot and save it.
 		#We leave the conversion up to the user. Tools such as gimp can open this file format.
 		capture = execute("xwd -root -display :0.0 -out #{xwd_filename}")
-		return nil if capture =~ /Command not found/i
+		return nil if capture =~ /Command not found/i or capture =~ /refused by server/
 
 		#Download the screenshot
 		xwd = read_file(xwd_filename)
