@@ -34,6 +34,9 @@ module Net; module SSH; module Transport
     # The cipher algorithm in use for this socket endpoint.
     attr_reader :cipher
 
+    # The block size for the cipher
+    attr_reader :block_size
+
     # The role that this state plays (either :client or :server)
     attr_reader :role
 
@@ -56,6 +59,7 @@ module Net; module SSH; module Transport
       @role = role
       @sequence_number = @packets = @blocks = 0
       @cipher = CipherFactory.get("none")
+      @block_size = 8
       @hmac = HMAC.get("none")
       @compression = nil
       @compressor = @decompressor = nil
@@ -89,7 +93,7 @@ module Net; module SSH; module Transport
     def increment(packet_length)
       @sequence_number = (@sequence_number + 1) & 0xFFFFFFFF
       @packets += 1
-      @blocks += (packet_length + 4) / cipher.block_size
+      @blocks += (packet_length + 4) / @block_size
     end
 
     # The compressor object to use when compressing data. This takes into account
@@ -135,22 +139,23 @@ module Net; module SSH; module Transport
 
       @max_packets ||= 1 << 31
 
+      @block_size = cipher.name == "RC4" ? 8 : cipher.block_size
+
       if max_blocks.nil?
         # cargo-culted from openssh. the idea is that "the 2^(blocksize*2)
         # limit is too expensive for 3DES, blowfish, etc., so enforce a 1GB
         # limit for small blocksizes."
-
-        if cipher.block_size >= 16
-          @max_blocks = 1 << (cipher.block_size * 2)
+        if @block_size >= 16
+          @max_blocks = 1 << (@block_size * 2)
         else
-          @max_blocks = (1 << 30) / cipher.block_size
+          @max_blocks = (1 << 30) / @block_size
         end
 
         # if a limit on the # of bytes has been given, convert that into a
         # minimum number of blocks processed.
 
         if rekey_limit
-          @max_blocks = [@max_blocks, rekey_limit / cipher.block_size].min
+          @max_blocks = [@max_blocks, rekey_limit / @block_size].min
         end
       end
 

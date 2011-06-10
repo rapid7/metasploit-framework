@@ -26,11 +26,5 @@ module Net; module SSH; module Transport
     KEXDH_INIT                = 30
     KEXDH_REPLY               = 31
 
-	 #--
-	 # Compatibility flags
-	 #++
-
-	 COMPAT_OLD_DHGEX          = 0x1
-
   end
 end; end; end

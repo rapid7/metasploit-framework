@@ -10,7 +10,6 @@ module Net::SSH::Transport::Kex
     MINIMUM_BITS      = 1024
     MAXIMUM_BITS      = 8192
 
-    KEXDH_GEX_REQUEST_OLD = 30
     KEXDH_GEX_GROUP   = 31
     KEXDH_GEX_INIT    = 32
     KEXDH_GEX_REPLY   = 33
@@ -35,15 +34,9 @@ module Net::SSH::Transport::Kex
       def get_parameters
         compute_need_bits
 
-		  # request the DH key parameters for the given number of bits.
-		  if connection.compat_flags & COMPAT_OLD_DHGEX
-			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST_OLD, :long,
-				  data[:need_bits])
-		  else
-			  buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, MINIMUM_BITS,
-				  :long, data[:need_bits], :long, MAXIMUM_BITS)
-		  end
-
+        # request the DH key parameters for the given number of bits.
+        buffer = Net::SSH::Buffer.from(:byte, KEXDH_GEX_REQUEST, :long, MINIMUM_BITS,
+          :long, data[:need_bits], :long, MAXIMUM_BITS)
         connection.send_message(buffer)
 
         buffer = connection.next_message
@@ -71,11 +64,9 @@ module Net::SSH::Transport::Kex
                               data[:client_algorithm_packet],
                               data[:server_algorithm_packet],
                               result[:key_blob]
-
-        response.write_long MINIMUM_BITS if not connection.compat_flags & COMPAT_OLD_DHGEX
-        response.write_long data[:need_bits]
-        response.write_long MAXIMUM_BITS if not connection.compat_flags & COMPAT_OLD_DHGEX
-
+        response.write_long MINIMUM_BITS,
+                            data[:need_bits],
+                            MAXIMUM_BITS
         response.write_bignum dh.p, dh.g, dh.pub_key,
                               result[:server_dh_pubkey],
                               result[:shared_secret]

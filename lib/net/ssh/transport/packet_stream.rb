@@ -115,11 +115,16 @@ module Net; module SSH; module Transport
       actual_length = 4 + payload.length + 1
 
       # compute the padding length
-      padding_length = client.cipher.block_size - (actual_length % client.cipher.block_size)
-      padding_length += client.cipher.block_size if padding_length < 4
+      padding_length = client.block_size - (actual_length % client.block_size)
+      padding_length += client.block_size if padding_length < 4
 
       # compute the packet length (sans the length field itself)
       packet_length = payload.length + padding_length + 1
+
+      if packet_length < 16
+        padding_length += client.block_size
+        packet_length = payload.length + padding_length + 1
+      end
 
       padding = Array.new(padding_length) { rand(256) }.pack("C*")
 
@@ -174,7 +179,7 @@ module Net; module SSH; module Transport
       # new Packet object.
       def poll_next_packet
         if @packet.nil?
-          minimum = server.cipher.block_size < 4 ? 4 : server.cipher.block_size
+          minimum = server.block_size < 4 ? 4 : server.block_size
           return nil if available < minimum
           data = read_available(minimum)
 
@@ -183,8 +188,8 @@ module Net; module SSH; module Transport
           @packet_length = @packet.read_long
         end
 
-        need = @packet_length + 4 - server.cipher.block_size
-        raise Net::SSH::Exception, "padding error, need #{need} block #{server.cipher.block_size}" if need % server.cipher.block_size != 0
+        need = @packet_length + 4 - server.block_size
+        raise Net::SSH::Exception, "padding error, need #{need} block #{server.block_size}" if need % server.block_size != 0
 
         return nil if available < need + server.hmac.mac_length
 
