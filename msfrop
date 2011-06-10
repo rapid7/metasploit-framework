@@ -26,6 +26,7 @@ def opt2i(o)
 end
 
 opts = {}
+color = true
 
 opt = OptionParser.new
 opt.banner = "Usage #{$PROGRAM_NAME} <option> [targets]"
@@ -38,6 +39,11 @@ end
 
 opt.on('-s', '--search [regex]', 'Search for gadgets matching a regex, match intel syntax or raw bytes') do |regex|
 	opts[:pattern] = regex
+end
+
+opt.on('-n', '--nocolor', 'Disable color. Useful for piping to other tools like the less and more commands') do
+	color = false
+	puts "color set false"
 end
 
 opt.on('-x', '--export [filename]', 'Export gadgets to CSV format') do |csv|
@@ -64,7 +70,7 @@ rescue OptionParser::InvalidOption
 	exit(1)
 end
 
-if opts.empty?
+if opts.empty? and (ARGV.empty? or ARGV.nil?)
 	puts "no options"
 	puts opt
 	exit(1)
@@ -91,12 +97,13 @@ if opts[:import].nil?
 	end
 	
 	ropbuilder = Rex::RopBuilder::RopCollect.new
+
 	files.each do |file|
 		found = []
 		ropbuilder = Rex::RopBuilder::RopCollect.new(file)
-		ropbuilder.print_msg("Collecting gadgets from %bld%cya#{file}%clr\n")
+		ropbuilder.print_msg("Collecting gadgets from %bld%cya#{file}%clr\n", color)
 		found = ropbuilder.collect(opts[:depth])
-		ropbuilder.print_msg("Found %grn#{found.count}%clr gadgets\n\n")
+		ropbuilder.print_msg("Found %grn#{found.count}%clr gadgets\n\n", color)
 
 		# compile a list of all gadgets from all files
 		found.each do |gadget|
@@ -106,36 +113,36 @@ if opts[:import].nil?
 
 	if opts[:verbose]
 		gadgets.each do |gadget|
-			ropbuilder.print_msg("#{gadget[:file]} gadget: %bld%grn#{gadget[:address]}%clr\n")
-			ropbuilder.print_msg gadget[:disasm] + "\n"
+			ropbuilder.print_msg("#{gadget[:file]} gadget: %bld%grn#{gadget[:address]}%clr\n", color)
+			ropbuilder.print_msg(gadget[:disasm] + "\n", color)
 		end
 	end
-	ropbuilder.print_msg("Found %bld%grn#{gadgets.count}%clr gadgets total\n\n")
+	ropbuilder.print_msg("Found %bld%grn#{gadgets.count}%clr gadgets total\n\n", color)
 end
 
 if opts[:import]
 
 	ropbuilder = Rex::RopBuilder::RopCollect.new()
-	ropbuilder.print_msg("Importing gadgets from %bld%cya#{opts[:import]}\n")
+	ropbuilder.print_msg("Importing gadgets from %bld%cya#{opts[:import]}\n", color)
 	gadgets = ropbuilder.import(opts[:import])
 
 	gadgets.each do |gadget|
-		ropbuilder.print_msg("gadget: %bld%cya#{gadget[:address]}%clr\n")
-		ropbuilder.print_msg gadget[:disasm] + "\n"
+		ropbuilder.print_msg("gadget: %bld%cya#{gadget[:address]}%clr\n", color)
+		ropbuilder.print_msg(gadget[:disasm] + "\n", color)
 	end
 
-	ropbuilder.print_msg("Imported %grn#{gadgets.count}%clr gadgets\n")
+	ropbuilder.print_msg("Imported %grn#{gadgets.count}%clr gadgets\n", color)
 end
 
 if opts[:pattern]
 	matches = ropbuilder.pattern_search(opts[:pattern])
 	if opts[:verbose]
-		ropbuilder.print_msg("Found %grn#{matches.count}%clr matches\n")
+		ropbuilder.print_msg("Found %grn#{matches.count}%clr matches\n", color)
 	end
 end
 
 if opts[:export]
-	ropbuilder.print_msg("Exporting %grn#{gadgets.count}%clr gadgets to %bld%cya#{opts[:export]}%clr\n")
+	ropbuilder.print_msg("Exporting %grn#{gadgets.count}%clr gadgets to %bld%cya#{opts[:export]}%clr\n", color)
 	csv = ropbuilder.to_csv(gadgets)
 	begin
 		fd = File.new(opts[:export], 'w')
@@ -145,5 +152,5 @@ if opts[:export]
 		puts "Error writing #{opts[:export]} file"
 		exit(1)
 	end
-	 ropbuilder.print_msg("%bld%redSuccess!%clr gadgets exported to %bld%cya#{opts[:export]}%clr\n")
+	 ropbuilder.print_msg("%bld%redSuccess!%clr gadgets exported to %bld%cya#{opts[:export]}%clr\n", color)
 end

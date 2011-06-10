@@ -61,12 +61,16 @@ class RopBase
 			@gadgets
 	end
 
-	def print_msg(msg)
+	def print_msg(msg, color=true)
 		if not @stdio
 			@stdio = Rex::Ui::Text::Output::Stdio.new
 		end
 
-		@stdio.auto_color
+		if color == true
+			@stdio.auto_color
+		else
+		    @stdio.disable_color
+		end
 		@stdio.print_raw(@stdio.substitute_colors(msg))
 	end
 end
