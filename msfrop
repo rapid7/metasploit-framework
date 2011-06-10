@@ -27,9 +27,6 @@ end
 
 opts = {}
 
-# set defaults
-opts[:depth] = 3
-
 opt = OptionParser.new
 opt.banner = "Usage #{$PROGRAM_NAME} <option> [targets]"
 opt.separator('')
@@ -66,6 +63,15 @@ rescue OptionParser::InvalidOption
 	puts "Invalid option, try -h for usage"
 	exit(1)
 end
+
+if opts.empty?
+	puts "no options"
+	puts opt
+	exit(1)
+end
+
+# set defaults
+opts[:depth] ||= 3
 
 gadgets = []
 
