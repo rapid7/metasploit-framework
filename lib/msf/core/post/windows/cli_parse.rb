@@ -110,7 +110,7 @@ module CliParse
 		hashish = {
 				:error => "Unknown Error",
 				:errval => nil
-			  }
+			}
 		if ma = /^error:.*/i.match(str) # if line starts with Error: just pass to regular parser
 			hashish.merge!(win_parse_results(ma[0].upcase)) #upcase required to satisfy regular parser
 			# merge results.  Results from win_parse_results will override any duplicates in hashish

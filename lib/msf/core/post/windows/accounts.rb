@@ -2,7 +2,7 @@ module Msf
 class Post
 
 module Accounts
-	
+
 	##
 	# delete_user(username, server_name = nil)
 	#
@@ -29,7 +29,7 @@ module Accounts
 	##
 	def delete_user(username, server_name = nil)
 		deletion = client.railgun.netapi32.NetUserDel(server_name, username) 
-		 
+
 		#http://msdn.microsoft.com/en-us/library/aa370674.aspx
 		case deletion['return']
 		when 2221 # NERR_UserNotFound

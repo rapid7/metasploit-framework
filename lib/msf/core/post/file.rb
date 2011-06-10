@@ -100,7 +100,7 @@ module File
 		return true
 	end
 	
- 	#
+	#
 	# Platform-agnostic file append. Appends given object content to a remote file.
 	# Returns Boolean true if successful
 	#
