@@ -1,0 +1,56 @@
+# $Id$
+##
+
+##
+# ## This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+require 'rex'
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+require 'msf/core/post/solaris/system'
+
+class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
+	include Msf::Post::File
+	include Msf::Post::System
+
+
+	def initialize(info={})
+		super( update_info( info,
+				'Name'          => 'Solaris Gather Installed Packages',
+				'Description'   => %q{ Post Module to get installed packages on a Solaris System},
+				'License'       => MSF_LICENSE,
+				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+				'Version'       => '$Revision$',
+				'Platform'      => [ 'solaris' ],
+				'SessionTypes'  => [ 'shell' ]
+			))
+		register_options(
+			[
+				OptBool.new('VERBOSE', [false, 'Show list of Packages.', false]),
+			], self.class)
+
+	end
+
+	# Run Method for when run command is issued
+	def run
+		distro = get_sysinfo
+		print_status("Running Module against #{distro[:hostname]}")
+		packages = cmd_exec("/usr/bin/pkg list")
+		pkg_loot = store_loot("solaris.packages", "text/plain", session, packages, "installed_packages.txt", "Solaris Installed Packages")
+		print_status("Package list saved to loot file: #{pkg_loot}")
+
+		if datastore['VERBOSE']
+			packages.each do |p|
+				print_good("\t#{p.chomp}")
+			end
+		end
+
+	end
+end
