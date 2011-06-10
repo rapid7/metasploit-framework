@@ -40,10 +40,10 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
 		if not ::File.exists?(datastore['RESOURCE'])
-                        raise "Resource File does not exists!"
-                else
-                        ::File.open(datastore['RESOURCE'], "r").each_line do |cmd|
-                                next if cmd.strip.length < 1
+			raise "Resource File does not exists!"
+		else
+			::File.open(datastore['RESOURCE'], "r").each_line do |cmd|
+				next if cmd.strip.length < 1
 				next if cmd[0,1] == "#"
 				begin
 					print_status "Running command #{cmd.chomp}"
@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 				rescue ::Exception => e
 					print_status("Error Running Command #{cmd.chomp}: #{e.class} #{e}")
 				end
-                        end
-                end
+			end
+		end
 	end
 end
