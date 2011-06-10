@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
 		unshadowed = ""
 		sf.each_line do |sl|
 			pass = sl.scan(/^\w*:([^:]*)/).join
-			if pass != "*"
+			if pass !~ /^\*|^!$/
 				user = sl.scan(/(^\w*):/).join
 				pf.each_line do |pl|
 					if pl.match(/^#{user}:/)
