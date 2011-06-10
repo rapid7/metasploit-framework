@@ -1,4 +1,4 @@
-# $Id: enum_packages.rb 12796 2011-06-01 11:52:36Z darkoperator $
+# $Id$
 ##
 
 ##
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ Post Module to enumerate Services on a Linux System},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision: 12796 $',
+				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
