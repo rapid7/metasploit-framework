@@ -41,3 +41,5 @@ require 'msf/core/model/web_vuln'
 require 'msf/core/model/imported_cred'
 require 'msf/core/model/tag'
 
+require 'msf/core/model/cred_file'
+

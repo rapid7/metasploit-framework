@@ -20,6 +20,7 @@ class Workspace < ActiveRecord::Base
 	has_many :imported_creds,  :dependent => :destroy
 	has_many :exploited_hosts, :through => :hosts
 	has_many :sessions, :through => :hosts
+	has_many :cred_files, :dependent => :destroy
 
 
 	validates_uniqueness_of :name
