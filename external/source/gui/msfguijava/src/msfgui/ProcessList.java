@@ -8,7 +8,6 @@ import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.JOptionPane;
 import javax.swing.Timer;
 import javax.swing.table.DefaultTableModel;
 
@@ -81,7 +80,7 @@ public class ProcessList extends MsfFrame {
 				try {
 					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
 					if (!received.get("encoding").equals("base64")) {
-						JOptionPane.showMessageDialog(null, "uhoh. encoding changed. Time to update msfgui?");
+						MsfguiApp.showMessage(null, "uhoh. encoding changed. Time to update msfgui?");
 						return;
 					}
 					byte[] decodedBytes = Base64.decode(received.get("data").toString());
@@ -108,7 +107,7 @@ public class ProcessList extends MsfFrame {
 					ex.printStackTrace();
 					if (ex.getMessage().equals("unknown session"))
 						readTimer.stop();
-					JOptionPane.showMessageDialog(null, ex.getMessage());
+					MsfguiApp.showMessage(null, ex.getMessage());
 				}
 			}
 		});
@@ -120,7 +119,7 @@ public class ProcessList extends MsfFrame {
 		try {
 			rpcConn.execute("session.meterpreter_run_single", session.get("id"),cmd);
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, ex);
+			MsfguiApp.showMessage(this, ex);
 			if (ex.getMessage().equals("unknown session"))
 				return true;
 		}

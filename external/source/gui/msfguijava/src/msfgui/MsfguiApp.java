@@ -40,6 +40,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static String workspace = "default";
 	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf3"+File.separatorChar+"msfgui";
 	public static MainFrame mainFrame;
+	public static boolean shuttingDown = false;
 
 	static{ //get saved properties file
 		Map props;
@@ -59,6 +60,10 @@ public class MsfguiApp extends SingleFrameApplication {
 				savePreferences();
 			}
 		});
+	}
+	public static void showMessage(java.awt.Component parent, Object message){
+		if(!shuttingDown)
+			JOptionPane.showMessageDialog(parent, message);
 	}
 
 	/**
@@ -257,7 +262,7 @@ public class MsfguiApp extends SingleFrameApplication {
 			temp.delete();
 			return path;
 		}catch(IOException ex){
-			JOptionPane.showMessageDialog(null, "Cannot create temp file. This is a bad and unexpected error. What is wrong with your system?!");
+			MsfguiApp.showMessage(null, "Cannot create temp file. This is a bad and unexpected error. What is wrong with your system?!");
 			return null;
 		}
 	}
@@ -270,7 +275,7 @@ public class MsfguiApp extends SingleFrameApplication {
 			temp.delete();
 			return path;
 		}catch(IOException ex){
-			JOptionPane.showMessageDialog(null, "Cannot create temp file. This is a bad and unexpected error. What is wrong with your system?!");
+			MsfguiApp.showMessage(null, "Cannot create temp file. This is a bad and unexpected error. What is wrong with your system?!");
 			return null;
 		}
 	}

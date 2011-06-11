@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import javax.swing.DefaultListModel;
-import javax.swing.JOptionPane;
 
 /**
  * Window for searching for modules by name or details
@@ -269,7 +268,7 @@ public class SearchWindow extends MsfFrame {
 						mod.addElement(modInfo[1]+" - "+Rank.toString(info.get("rank")));
 				}
 			} catch (MsfException ex) {
-				JOptionPane.showMessageDialog(rootPane, ex);
+				MsfguiApp.showMessage(rootPane, ex);
 			}
 		}
 	}//GEN-LAST:event_searchButtonActionPerformed

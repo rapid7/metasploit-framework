@@ -12,7 +12,6 @@ import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
@@ -193,7 +192,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 				}
 			}
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(rootPane, ex);
+			MsfguiApp.showMessage(rootPane, ex);
 		}
 		updateSizes(this);
 	}
@@ -279,7 +278,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 		} else { // Non-console; just fire away
 			Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
 			if (!info.get("result").equals("success"))
-				JOptionPane.showMessageDialog(rootPane, info);
+				MsfguiApp.showMessage(rootPane, info);
 		}
 		MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{moduleType, fullName, hash}), rpcConn, parentFrame);
 	}

@@ -13,7 +13,6 @@ import javax.swing.GroupLayout;
 import javax.swing.GroupLayout.ParallelGroup;
 import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 
 /**
  * Popup for generating payloads and starting handlers.
@@ -533,9 +532,9 @@ public class PayloadPopup extends ModuleInfoWindow {
 			}
 			outputPane.append("\n\nruby\n"+rubyHex);
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(this, ex);
+			MsfguiApp.showMessage(this, ex);
 		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, ex);
+			MsfguiApp.showMessage(this, ex);
 		}
 	}//GEN-LAST:event_generateButtonActionPerformed
 

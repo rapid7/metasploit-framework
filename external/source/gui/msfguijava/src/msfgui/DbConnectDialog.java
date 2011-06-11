@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
@@ -253,9 +252,9 @@ public class DbConnectDialog extends OptionsDialog {
 			Map res = (Map)rpcConn.execute("db.connect",opts);
 			success = "success".equals(res.get("result"));
 			if(!success)
-				JOptionPane.showMessageDialog(myParent, res);
+				MsfguiApp.showMessage(myParent, res);
 		}catch(MsfException mex){
-			JOptionPane.showMessageDialog(myParent, mex);
+			MsfguiApp.showMessage(myParent, mex);
 		}
 		setVisible(false);
 	}//GEN-LAST:event_connectButtonActionPerformed

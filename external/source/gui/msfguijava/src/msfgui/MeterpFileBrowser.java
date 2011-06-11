@@ -93,7 +93,7 @@ public class MeterpFileBrowser extends MsfFrame {
 			tempFile.delete();
 		} catch (IOException iox){
 			tempIcon = null;
-			JOptionPane.showMessageDialog(null, "Cannot create temp file. Weird.");
+			MsfguiApp.showMessage(null, "Cannot create temp file. Weird.");
 		}
 		fileIcon = tempIcon;
 		tempFile.delete();
@@ -167,7 +167,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		try{
 			rpcConn.execute("session.meterpreter_run_single", session.get("id"), cmd);
 		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this, ex);
+			MsfguiApp.showMessage(this, ex);
 		}
 	}
 	/** Handles click events, like popup menu and double-click navigation */
@@ -221,7 +221,7 @@ public class MeterpFileBrowser extends MsfFrame {
 				try {
 					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
 					if (! received.get("encoding").equals("base64")) {
-						JOptionPane.showMessageDialog(null, "uhoh. encoding changed. Time to update msfgui?");
+						MsfguiApp.showMessage(null, "uhoh. encoding changed. Time to update msfgui?");
 						return;
 					}
 					byte[] decodedBytes = Base64.decode(received.get("data").toString());
@@ -264,7 +264,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					ex.printStackTrace();
 					if(ex.getMessage().equals("unknown session"))
 						readTimer.stop();
-					JOptionPane.showMessageDialog(null, ex);
+					MsfguiApp.showMessage(null, ex);
 				}
 			}
 
@@ -516,7 +516,7 @@ public class MeterpFileBrowser extends MsfFrame {
 			DraggableTabbedPane.show(interactPane);
 		}catch (NullPointerException nex){//cancelled
 		}catch (Exception ex){
-			JOptionPane.showMessageDialog(null, ex);
+			MsfguiApp.showMessage(null, ex);
 		}
 	}//GEN-LAST:event_recSearchDownloadButtonActionPerformed
 

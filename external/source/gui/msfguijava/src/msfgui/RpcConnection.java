@@ -20,7 +20,6 @@ import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.swing.JOptionPane;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
@@ -377,7 +376,7 @@ public class RpcConnection {
 	/** Attempts to start msfrpcd and connect to it.*/
 	public static Task startRpcConn(final MainFrame mainFrame){
 		if(mainFrame.rpcConn != null){
-			JOptionPane.showMessageDialog(mainFrame.getFrame(), "You are already connected!\n"
+			MsfguiApp.showMessage(mainFrame.getFrame(), "You are already connected!\n"
 					+ "Exit before making a new connection.");
 			throw new RuntimeException("Already connected");
 		}
@@ -420,6 +419,11 @@ public class RpcConnection {
 						connected = true;
 						break;
 					} catch (MsfException mex) {
+						if(mex.getMessage().toLowerCase().contains("authentication error")){
+							mex.printStackTrace();
+							setMessage("Cannot connect to started msfrpcd.");
+							throw mex;
+						}
 					}
 					try {
 						Thread.sleep(200); //Wait for msfrpcd to be ready

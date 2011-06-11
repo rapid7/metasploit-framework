@@ -5,7 +5,6 @@ import java.awt.Component;
 import java.awt.HeadlessException;
 import java.util.Map;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UIManager.LookAndFeelInfo;
 import javax.swing.plaf.ColorUIResource;
@@ -72,7 +71,7 @@ public class MsfFrame extends javax.swing.JFrame{
 				props.put("LnF", newLnF);
 			}
 		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, e);
+			MsfguiApp.showMessage(null, e);
 			e.printStackTrace();
 		}
 	}

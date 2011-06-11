@@ -6,7 +6,6 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.Map;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 import javax.swing.SwingWorker;
 
 /**
@@ -169,11 +168,11 @@ public class WebcamFrame extends MsfFrame {
 		};
 		sw.execute();
 	} catch(NumberFormatException nex){
-		JOptionPane.showMessageDialog(this, "Please enter a valid delay interval between frames!");
+		MsfguiApp.showMessage(this, "Please enter a valid delay interval between frames!");
 	} catch(MsfException mex) {
-		JOptionPane.showMessageDialog(this, mex);
+		MsfguiApp.showMessage(this, mex);
 	} catch (SocketException sox) {
-		JOptionPane.showMessageDialog(this, sox);
+		MsfguiApp.showMessage(this, sox);
 	}
     }//GEN-LAST:event_startButtonActionPerformed
 

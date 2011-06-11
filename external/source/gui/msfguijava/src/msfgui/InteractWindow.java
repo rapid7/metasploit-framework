@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.locks.ReentrantLock;
-import javax.swing.JOptionPane;
 import org.jdesktop.swingworker.SwingWorker;
 
 /**
@@ -55,7 +54,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 					if(autoCommands.get(0).toString().startsWith("use"))
 						rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
 				} catch (MsfException ex) {
-					JOptionPane.showMessageDialog(null, ex);
+					MsfguiApp.showMessage(null, ex);
 				}
 				for(Object cmd : autoCommands) {
 					try {
@@ -155,7 +154,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						publish(received);
 					} catch (MsfException ex) {
 						if(!ex.getMessage().equals("unknown session"))
-							JOptionPane.showMessageDialog(null, ex);
+							MsfguiApp.showMessage(null, ex);
 						if(!ex.getMessage().contains("timed out")) // on timeout, just retry
 							timerCommand.setCharAt(0, STOP_POLLING);
 					}
@@ -231,7 +230,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 			inputField.setText("");
 			currentCommand = 0;
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(null, ex);
+			MsfguiApp.showMessage(null, ex);
 		}
 	}
 	/** This method is called from within the constructor to
@@ -370,7 +369,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 					outputArea.append("backgrounding session...\n");
 				}
 			} catch (MsfException ex) {
-				JOptionPane.showMessageDialog(null, ex);
+				MsfguiApp.showMessage(null, ex);
 			}
 		}
 	}//GEN-LAST:event_inputFieldKeyPressed

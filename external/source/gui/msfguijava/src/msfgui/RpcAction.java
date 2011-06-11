@@ -3,7 +3,6 @@ package msfgui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Map;
-import javax.swing.JOptionPane;
 
 /**
  * Provides an ActionListener for running a meterpreter script on each selected session. Each time
@@ -34,7 +33,7 @@ public class RpcAction implements ActionListener {
 					action(session);
 		}catch(Exception ex){
 			if(!ex.getMessage().equals("cancelled")){
-				JOptionPane.showMessageDialog(null, "Error in RPC call: "+ex);
+				MsfguiApp.showMessage(null, "Error in RPC call: "+ex);
 				ex.printStackTrace();
 			}
 		}

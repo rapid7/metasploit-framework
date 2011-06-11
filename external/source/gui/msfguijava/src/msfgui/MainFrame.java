@@ -143,6 +143,7 @@ public class MainFrame extends FrameView {
 				rpcConn.execute("auth.logout");
 			else
 				return false;
+			MsfguiApp.shuttingDown = true;
 		} catch (Exception ex) {
 		}
 		return true;
@@ -356,7 +357,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			for (Object console : consoles)
 				registerConsole((Map)console,false, "");
 		}catch (MsfException mex){
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}
 
@@ -389,6 +390,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					};
 					//Exploits and auxiliary get modulepopups; payloads get payloadpopups duh
 					setMessage("Getting exploits");
+					statusAnimationLabel.setText("");
 					expandList((List) ((Map)rpcConn.execute("module.exploits")).get("modules"), exploitsMenu, moduleFactory, "exploit");
 					setProgress(0.3f);
 					setMessage("Getting auxiliary modules");
@@ -1213,9 +1215,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		try{
 			java.awt.Desktop.getDesktop().browse(new URI("http://www.metasploit.com/framework/support"));
 		} catch (IOException ex){
-			JOptionPane.showMessageDialog(this.getFrame(), "Can't open browser. See http://www.metasploit.com/framework/support");
+			MsfguiApp.showMessage(this.getFrame(), "Can't open browser. See http://www.metasploit.com/framework/support");
 		} catch ( URISyntaxException usx){
-			JOptionPane.showMessageDialog(this.getFrame(), "Can't find the URL. This really should never happen. Report this bug.");
+			MsfguiApp.showMessage(this.getFrame(), "Can't find the URL. This really should never happen. Report this bug.");
 		}
 	}//GEN-LAST:event_onlineHelpMenuActionPerformed
 
@@ -1230,7 +1232,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					java.awt.Desktop.getDesktop().browse(new URI("file://"+MsfguiLog.defaultLog.save(
 							MsfguiApp.cleanBackslashes(MsfguiApp.fileChooser.getSelectedFile().getAbsolutePath()))));
 			}catch (Exception ex){
-				JOptionPane.showMessageDialog(getFrame(), "Problem "+ex);
+				MsfguiApp.showMessage(getFrame(), "Problem "+ex);
 			}
 		}
 	}//GEN-LAST:event_logGenerateMenuItemActionPerformed
@@ -1250,7 +1252,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			Map res = (Map)rpcConn.execute("console.create");
 			registerConsole(res, true, "");
 		}catch(MsfException mex){
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 }//GEN-LAST:event_newConsoleItemActionPerformed
 
@@ -1319,9 +1321,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			argHash.put("data", Base64.encode(data));
 			rpcConn.execute("db.import_"+type,argHash);
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		} catch (IOException iex) {
-			JOptionPane.showMessageDialog(getFrame(), iex);
+			MsfguiApp.showMessage(getFrame(), iex);
 		}
 	}//GEN-LAST:event_importItemActionPerformed
 
@@ -1329,16 +1331,16 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		try {
 			rpcConn.execute("db.disconnect");
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}//GEN-LAST:event_disconnectItemActionPerformed
 
 	private void loadPlugin(String plugin){
 		try {
 			rpcConn.execute("plugin.load",plugin, new HashMap());
-			JOptionPane.showMessageDialog(getFrame(), "Plugin "+plugin+" loaded.");
+			MsfguiApp.showMessage(getFrame(), "Plugin "+plugin+" loaded.");
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}
 	private void otherPluginItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_otherPluginItemActionPerformed
@@ -1380,7 +1382,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				return;
 			rpcConn.execute("plugin.unload",plugin);
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}//GEN-LAST:event_unloadPluginItemActionPerformed
 
@@ -1402,7 +1404,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					map.put(colNames[i], tab.getValueAt(row,i));
 				rpcConn.execute("db.del_"+name,map);
 			} catch (MsfException mex) {
-				JOptionPane.showMessageDialog(getFrame(), mex);
+				MsfguiApp.showMessage(getFrame(), mex);
 			}
 		}//delete then readd
 		reAddQuery(tab,name+"s",colNames);
@@ -1447,7 +1449,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			MsfguiApp.getPropertiesNode().put("workspace", MsfguiApp.workspace);
 			reloadDb();
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}//GEN-LAST:event_currWorkspaceItemActionPerformed
 
@@ -1460,7 +1462,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			rpcConn.execute("db.set_workspace", name);
 			reloadDb();
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}//GEN-LAST:event_addWorkspaceItemActionPerformed
 
@@ -1480,7 +1482,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				reloadDb();
 			}
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		}
 	}//GEN-LAST:event_delWorkspaceItemActionPerformed
 
@@ -1558,9 +1560,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					"db_export -f "+type+" "+MsfguiApp.escapeBackslashes(
 					MsfguiApp.fileChooser.getSelectedFile().getCanonicalPath())));
 		} catch (MsfException mex) {
-			JOptionPane.showMessageDialog(getFrame(), mex);
+			MsfguiApp.showMessage(getFrame(), mex);
 		} catch (IOException iex) {
-			JOptionPane.showMessageDialog(getFrame(), iex);
+			MsfguiApp.showMessage(getFrame(), iex);
 		}
 	}//GEN-LAST:event_dbExportItemActionPerformed
 
@@ -1602,7 +1604,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		addSessionItem("Stop",jobPopupMenu,new RpcAction() {
 			public void action() throws Exception {
 				if(!((Map)rpcConn.execute("job.stop", clickedJob)).get("result").equals("success"))
-					JOptionPane.showMessageDialog(null, "stop failed.");
+					MsfguiApp.showMessage(null, "stop failed.");
 			}
 		});
 		jobsList.addMouseListener( new PopupMouseListener() {
@@ -1904,7 +1906,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem socketLoggerItem;
     private javax.swing.JMenuItem soundItem;
     private javax.swing.JMenuItem startRpcMenuItem;
-    private javax.swing.JLabel statusAnimationLabel;
+    public javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     public javax.swing.JTabbedPane tabbedPane;

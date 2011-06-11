@@ -2,7 +2,6 @@ package msfgui;
 
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import javax.swing.JOptionPane;
 
 /**
  * Convenient handler for showing popup windows from mouse clicks
@@ -22,7 +21,7 @@ public abstract class PopupMouseListener extends MouseAdapter{
 				if(e.getClickCount() == 2)
 					doubleClicked(e);
 			}catch(MsfException xre){
-				JOptionPane.showMessageDialog(null, "action failed " + xre);
+				MsfguiApp.showMessage(null, "action failed " + xre);
 			}
 		}
 		public void doubleClicked (MouseEvent e) throws MsfException{//empty by default

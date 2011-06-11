@@ -15,7 +15,6 @@ import javax.swing.GroupLayout.SequentialGroup;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JMenu;
-import javax.swing.JOptionPane;
 import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.event.TreeSelectionEvent;
@@ -126,7 +125,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 				//Targets
 				Map targetsMap = (Map) info.get("targets");
 				if(targetsMap == null){
-					JOptionPane.showMessageDialog(this, "No Targets. ??");
+					MsfguiApp.showMessage(this, "No Targets. ??");
 				}else{
 					String defaultTarget="";
 					if(info.get("default_target") != null)
@@ -154,7 +153,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 				showOptions();
 			}
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(rootPane, ex);
+			MsfguiApp.showMessage(rootPane, ex);
 		}
 		reGroup();
 		updateSizes(mainPanel);
@@ -213,7 +212,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 			payloadTree.setRootVisible(false);
 			payloadTree.revalidate();
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(rootPane, ex);
+			MsfguiApp.showMessage(rootPane, ex);
 		}
 	}
 
@@ -235,7 +234,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 			//Add exploit only options
 			if(moduleType.equals("exploit")){
 				if(payload.length() <= 0){
-					JOptionPane.showMessageDialog(rootPane, "You must select a payload");
+					MsfguiApp.showMessage(rootPane, "You must select a payload");
 					return;
 				}
 				hash.put("PAYLOAD",payload.toString());
@@ -249,7 +248,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 			this.setVisible(false);
 			this.dispose();
 		} catch (MsfException ex) {
-			JOptionPane.showMessageDialog(rootPane, ex);
+			MsfguiApp.showMessage(rootPane, ex);
 		}
 	}
 

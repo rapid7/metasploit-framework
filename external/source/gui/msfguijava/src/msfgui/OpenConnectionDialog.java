@@ -2,7 +2,6 @@ package msfgui;
 import java.io.File;
 import java.util.Map;
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
@@ -44,7 +43,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 	 */
 	public static RpcConnection getConnection(MainFrame mainframe) {
 		if(mainframe.rpcConn != null){
-			JOptionPane.showMessageDialog(mainframe.getFrame(), "You are already connected!\n"
+			MsfguiApp.showMessage(mainframe.getFrame(), "You are already connected!\n"
 					+ "Exit before making a new connection.");
 			throw new RuntimeException("Already connected");
 		}
@@ -58,8 +57,9 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			boolean ssl = Boolean.parseBoolean(info.get("ssl").toString());
 			return new RpcConnection(username, password.toCharArray(), host, port, ssl);
 		} catch (MsfException mex) {
-			if(mex.getMessage().contains("Authentication Error"))
-				System.err.println("Error authenticating; wrong saved credentials.");
+			if(mex.getMessage().toLowerCase().contains("authentication error"))
+				mainframe.statusAnimationLabel.setText("Error authenticating; msfrpcd is running "
+						+"but you did not enter the right credentials.");
 		} catch (NullPointerException nex) {//generated when attributes dont exist.
 		}
 		//Darn. open the gui anyway
@@ -331,7 +331,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			return;
 		MsfguiApp.getPropertiesNode().put("commandPrefix",
 				MsfguiApp.fileChooser.getCurrentDirectory().getPath()+File.separator);
-		JOptionPane.showMessageDialog(this, "Will now try running \n"
+		MsfguiApp.showMessage(this, "Will now try running \n"
 				+MsfguiApp.getPropertiesNode().get("commandPrefix")+"msfrpcd\n"
 				+"and "+ MsfguiApp.getPropertiesNode().get("commandPrefix")+"ruby /msf3/msfrpcd\n"
 				+ "when starting new daemon. Note: for the second to work on Windows,\n"
