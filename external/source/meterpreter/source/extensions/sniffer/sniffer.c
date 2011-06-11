@@ -468,7 +468,6 @@ DWORD sniffer_thread(THREAD *thread)
 DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 	Packet *response = packet_create_response(packet);
 	unsigned int ifid;
-	char *ifn;
 	unsigned int maxp;
 	CaptureJob *j;
 	DWORD result;
