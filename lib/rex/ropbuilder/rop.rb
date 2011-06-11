@@ -91,7 +91,7 @@ class RopCollect < RopBase
 		gadgets = []
 
 		# find matches by scanning for the pattern
-		matches = @disassembler.pattern_scan(pattern)
+		matches += @disassembler.pattern_scan(pattern)
 		if @bin.kind_of?(Metasm::PE)
 			@bin.sections.each do |section|
 				next if section.characteristics.include? 'MEM_EXECUTE'
