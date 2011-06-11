@@ -43,7 +43,6 @@ end
 
 opt.on('-n', '--nocolor', 'Disable color. Useful for piping to other tools like the less and more commands') do
 	color = false
-	puts "color set false"
 end
 
 opt.on('-x', '--export [filename]', 'Export gadgets to CSV format') do |csv|
@@ -77,7 +76,7 @@ if opts.empty? and (ARGV.empty? or ARGV.nil?)
 end
 
 # set defaults
-opts[:depth] ||= 3
+opts[:depth] ||= 5
 
 gadgets = []
 
@@ -99,24 +98,32 @@ if opts[:import].nil?
 	ropbuilder = Rex::RopBuilder::RopCollect.new
 
 	files.each do |file|
-		found = []
+		ret, retn = []
 		ropbuilder = Rex::RopBuilder::RopCollect.new(file)
 		ropbuilder.print_msg("Collecting gadgets from %bld%cya#{file}%clr\n", color)
-		found = ropbuilder.collect(opts[:depth])
-		ropbuilder.print_msg("Found %grn#{found.count}%clr gadgets\n\n", color)
+		retn = ropbuilder.collect(opts[:depth], "\xc2") # retn
+		ret = ropbuilder.collect(opts[:depth], "\xc3") # ret
+		ropbuilder.print_msg("Found %grn#{ret.count + retn.count}%clr gadgets\n\n", color)
 
 		# compile a list of all gadgets from all files
-		found.each do |gadget|
+		ret.each do |gadget|
 			gadgets << gadget
+			if opts[:verbose]
+				ropbuilder.print_msg("#{gadget[:file]} gadget: %bld%grn#{gadget[:address]}%clr\n", color)
+				ropbuilder.print_msg("#{gadget[:disasm]}\n", color)
+			end
 		end
+
+		retn.each do |gadget|
+			gadgets << gadget
+			if opts[:verbose]
+				ropbuilder.print_msg("#{gadget[:file]} gadget: %bld%grn#{gadget[:address]}%clr\n", color)
+				ropbuilder.print_msg("#{gadget[:disasm]}\n", color)
+			end
+		end
+		
 	end
 
-	if opts[:verbose]
-		gadgets.each do |gadget|
-			ropbuilder.print_msg("#{gadget[:file]} gadget: %bld%grn#{gadget[:address]}%clr\n", color)
-			ropbuilder.print_msg(gadget[:disasm] + "\n", color)
-		end
-	end
 	ropbuilder.print_msg("Found %bld%grn#{gadgets.count}%clr gadgets total\n\n", color)
 end
 

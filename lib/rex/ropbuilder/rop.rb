@@ -80,43 +80,47 @@ class RopCollect < RopBase
 		@file = file if not file.empty?
 		@bin = Metasm::AutoExe.decode_file(file) if not file.empty?
 		@disassembler = @bin.disassembler if not @bin.nil?
+		if @disassembler
+			@disassembler.cpu = Metasm::Ia32.new('386_common')
+		end
 		super()
 	end
 
-	def collect(depth)
-		rets = ["\xc3", "\xc2"] # ret, retn
+	def collect(depth, pattern)
 		matches = []
 		gadgets = []
-		rets.each do |ret|
-			# find matches by scanning for the pattern
-			matches = @disassembler.pattern_scan(ret)
 
-			if @bin.kind_of?(Metasm::PE)
-				@bin.sections.each do |section|
-					next if section.characteristics.include? 'MEM_EXECUTE'
-					# delete matches if the address is outside the virtual address space
-					matches.delete_if do |ea|
-						va = section.virtaddr + @bin.optheader.image_base
-						va <= ea and ea < va + section.virtsize
-					end
+		# find matches by scanning for the pattern
+		matches = @disassembler.pattern_scan(pattern)
+		if @bin.kind_of?(Metasm::PE)
+			@bin.sections.each do |section|
+				next if section.characteristics.include? 'MEM_EXECUTE'
+				# delete matches if the address is outside the virtual address space
+				matches.delete_if do |ea|
+					va = section.virtaddr + @bin.optheader.image_base
+					ea >= va and ea < va + section.virtsize
 				end
-			elsif @bin.kind_of?(Metasm::ELF)
-				@bin.segments.each  do |seg|
-					next if seg.flags.include? 'X'
-					matches.delete_if do |ea|
-						ea >= seg.vaddr and ea < seg.vaddr + seg.memsz
-					end
+			end
+		elsif @bin.kind_of?(Metasm::ELF)
+			@bin.segments.each  do |seg|
+				next if seg.flags.include? 'X'
+				matches.delete_if do |ea|
+					ea >= seg.vaddr and ea < seg.vaddr + seg.memsz
 				end
 			end
 		end
-		gadgets = self.process_gadgets(matches, depth)
-		@gadgets = gadgets
+
+		gadgets = process_gadgets(matches, depth)
+		gadgets.each do |gadget|
+			@gadgets << gadget
+		end
 		gadgets
 	end
 
 	def pattern_search(pattern)
 		p = Regexp.new("(" + pattern + ")")
 		matches = []
+
 		@gadgets.each do |gadget|
 			disasm = ""
 			addrs = []
@@ -173,6 +177,7 @@ class RopCollect < RopBase
 	def process_gadgets(rets, num)
 		ret = {}
 		gadgets = []
+		tmp = []
 		rets.each do |ea|
 			insn = @disassembler.disassemble_instruction(ea)
 			next if not insn
@@ -192,21 +197,22 @@ class RopCollect < RopBase
 
 				# get raw bytes
 				buf = @disassembler.read_raw_data(addr, x + xtra)
-
-				# see if we have it already, if so, add the ea to the list
-				arr = ret[buf]
-				if arr
-					arr << addr
-					next
-				end
+				
 
 				# make sure disassembling forward leads to our instruction
 				next if not ends_with_addr(buf, addr, ea)
+
 				dasm = ""
 				while addr <= ea
 					di = @disassembler.disassemble_instruction(addr)
 					dasm << ("0x%08x:\t" % addr) + di.instruction.to_s + "\n"
 					addr = addr + di.bin_length
+				end
+
+				if not tmp.include?(ea)
+					tmp << ea
+				else
+					next
 				end
 				# otherwise, we create a new tailchunk and add it to the list
 				ret = {:file => @file, :address => ("0x%08x" % (ea - x)), :raw => buf, :disasm => dasm}
@@ -227,6 +233,17 @@ class RopCollect < RopBase
 			offset = di.next_addr
 		end
 		false
+	end
+
+	def raw_instructions(raw)
+		insns = []
+		d2 = Metasm::Shellcode.decode(raw, @disassembler.cpu).disassembler
+		addr = 0
+		while ((di = d2.disassemble_instruction(addr)))
+			insns << di.instruction
+			addr = di.next_addr
+		end
+		insns
 	end
 end
 end
