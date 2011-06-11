@@ -1056,7 +1056,7 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 				inHeader = FALSE;
 		}
 		
-		if (bytesRead != sizeof(TlvHeader))
+		if (headerBytes != sizeof(TlvHeader))
 			break;
 
 		// Initialize the header
