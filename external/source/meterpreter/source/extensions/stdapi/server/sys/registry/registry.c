@@ -15,7 +15,36 @@ DWORD request_registry_create_key(Remote *remote, Packet *packet);
  */
 DWORD request_registry_open_key(Remote *remote, Packet *packet)
 {
-	return request_registry_create_key(remote, packet);
+	Packet *response = packet_create_response(packet);
+	LPCTSTR baseKey = NULL;
+	HKEY rootKey = NULL, resKey;
+	DWORD permission;
+	DWORD result;
+
+	rootKey    = (HKEY)packet_get_tlv_value_uint(packet, TLV_TYPE_ROOT_KEY);
+	baseKey    = packet_get_tlv_value_string(packet, TLV_TYPE_BASE_KEY);
+	permission = packet_get_tlv_value_uint(packet, TLV_TYPE_PERMISSION);
+
+	// Validate the parameters and then attempt to create the key
+	if ((!rootKey) || (!baseKey))
+		result = ERROR_INVALID_PARAMETER;
+	else
+	{
+		if (!permission)
+			permission = KEY_ALL_ACCESS;
+		
+		result = RegOpenKeyEx(rootKey, baseKey, 0, permission, &resKey);
+	}
+
+	// Add the HKEY if we succeeded, but always return a result
+	if (result == ERROR_SUCCESS)
+		packet_add_tlv_uint(response, TLV_TYPE_HKEY, (DWORD)resKey);
+
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	packet_transmit(remote, response, NULL);
+
+	return ERROR_SUCCESS;
 }
 
 /*
