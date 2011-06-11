@@ -44,7 +44,16 @@ class Registry
 			return RegistrySubsystem::RegistryKey.new(client, root_key, base_key, perm, root_key)
 		end
 
-		return self.create_key(root_key, base_key, perm)
+		request = Packet.create_request('stdapi_registry_open_key')
+
+		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+		request.add_tlv(TLV_TYPE_PERMISSION, perm)
+
+		response = client.send_request(request)
+
+		return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RegistryKey.new(
+				client, root_key, base_key, perm, response.get_tlv(TLV_TYPE_HKEY).value)
 	end
 
 	#
