@@ -7,6 +7,7 @@ require 'rex/post/meterpreter/extensions/stdapi/constants'
 require 'rex/post/meterpreter/extensions/stdapi/stdapi'
 require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_key'
 require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/registry_value'
+require 'rex/post/meterpreter/extensions/stdapi/sys/registry_subsystem/remote_registry_key'
 
 module Rex
 module Post
@@ -56,6 +57,25 @@ class Registry
 				client, root_key, base_key, perm, response.get_tlv(TLV_TYPE_HKEY).value)
 	end
 
+	#
+	# Opens the supplied registry key on the specified remote host. Requires that the
+	# current process has credentials to access the target and that the target has the
+	# remote registry service running.
+	#
+	def Registry.open_remote_key(target_host, root_key)
+
+		request = Packet.create_request('stdapi_registry_open_remote_key')
+
+		request.add_tlv(TLV_TYPE_TARGET_HOST, target_host)
+		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+
+
+		response = client.send_request(request)
+
+		return Rex::Post::Meterpreter::Extensions::Stdapi::Sys::RegistrySubsystem::RemoteRegistryKey.new(
+				client, target_host, root_key, response.get_tlv(TLV_TYPE_HKEY).value)
+	end
+	
 	#
 	# Creates the supplied registry key or opens it if it already exists.
 	#
