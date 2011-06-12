@@ -132,9 +132,8 @@ class Metasploit3 < Msf::Post
 			begin
 				key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
 				srvvals = key.enum_key
-				if srvvals.include?("vpcbus")
-					vm = true
-				elsif srvvals.include?("vpc-s3")
+				
+				if srvvals.include?("vpc-s3")
 					vm = true
 				elsif srvvals.include?("vpcuhub")
 					vm = true
