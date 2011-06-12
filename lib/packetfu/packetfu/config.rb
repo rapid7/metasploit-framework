@@ -36,17 +36,20 @@ module PacketFu
 				@iface = args[:iface] || ENV['IFACE'] || Pcap.lookupdev || "lo" 
 			end	
 			@pcapfile = "/tmp/out.pcap"
-			args.each_pair { |k,v| self.instance_variable_set(("@" + k.to_s).intern,v) }
+			args.each_pair { |k,v| self.instance_variable_set(("@#{k}"),v) }
 		end
 
 		# Returns all instance variables as a hash (including custom variables set at initialization).
 		def config(arg=nil)
-			if arg.nil?
-				config_hash = {}
-				self.instance_variables.each { |v| config_hash[v.delete("@").intern] = self.instance_variable_get(v) }
-				config_hash
-			else
+			if arg
 				arg.each_pair {|k,v| self.instance_variable_set(("@" + k.to_s).intern, v)}
+			else
+				config_hash = {}
+				self.instance_variables.each do |v| 
+					key = v.to_s.gsub(/^@/,"").to_sym
+					config_hash[key] = self.instance_variable_get(v) 
+				end
+				config_hash
 			end
 		end
 

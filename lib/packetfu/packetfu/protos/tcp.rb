@@ -546,14 +546,10 @@ module PacketFu
 			opts
 		end
 
-		def force_binary(str)
-			str.force_encoding "binary" if str.respond_to? :force_encoding
-		end
-
 		# Reads a string to populate the object.
 		def read(str)
-			self.clear if self.size > 0
-			force_binary(str)
+			self.clear 
+			PacketFu.force_binary(str)
 			return self if(!str.respond_to? :to_s || str.nil?)
 			i = 0
 			while i < str.to_s.size
@@ -609,7 +605,7 @@ module PacketFu
 		# Note that by using TcpOptions#encode, strings supplied as values which
 		# can be converted to numbers will be converted first.
 		#
-		# == Example
+		# === Example
 		#
 		#   t = TcpOptions.new
 		#   t.encode("MS:1460,WS:6")
@@ -774,10 +770,15 @@ module PacketFu
 
 		# Getter for the TCP Header Length value.
 		def tcp_hlen; self[:tcp_hlen].to_i; end
-		# Setter for the TCP Header Length value.
+		# Setter for the TCP Header Length value. Can take
+		# either a string or an integer. Note that if it's
+		# a string, the top four bits are used.
 		def tcp_hlen=(i)
-			if i.kind_of? PacketFu::TcpHlen
-				self[:tcp_hlen]=i
+			case i
+			when PacketFu::TcpHlen
+				self[:tcp_hlen] = i
+			when Numeric
+				self[:tcp_hlen] = TcpHlen.new(:hlen => i.to_i)
 			else
 				self[:tcp_hlen].read(i)
 			end
@@ -787,8 +788,15 @@ module PacketFu
 		def tcp_reserved; self[:tcp_reserved].to_i; end
 		# Setter for the TCP Reserved field.
 		def tcp_reserved=(i)
-			if i.kind_of? PacketFu::TcpReserved
+			case i
+			when PacketFu::TcpReserved
 				self[:tcp_reserved]=i
+			when Numeric
+				args = {}
+				args[:r1] = (i & 0b100) >> 2
+				args[:r2] = (i & 0b010) >> 1
+				args[:r3] = (i & 0b001)
+				self[:tcp_reserved] = TcpReserved.new(args)
 			else
 				self[:tcp_reserved].read(i)
 			end
@@ -798,8 +806,15 @@ module PacketFu
 		def tcp_ecn; self[:tcp_ecn].to_i; end
 		# Setter for the ECN bits. 
 		def tcp_ecn=(i)
-			if i.kind_of? PacketFu::TcpEcn
+			case i
+			when PacketFu::TcpEcn
 				self[:tcp_ecn]=i
+			when Numeric
+				args = {}
+				args[:n] = (i & 0b100) >> 2
+				args[:c] = (i & 0b010) >> 1
+				args[:e] = (i & 0b001)
+				self[:tcp_ecn] = TcpEcn.new(args)
 			else
 				self[:tcp_ecn].read(i)
 			end
@@ -809,7 +824,8 @@ module PacketFu
 		def tcp_opts; self[:tcp_opts].to_s; end
 		# Setter for TCP Options.
 		def tcp_opts=(i)
-			if i.kind_of? PacketFu::TcpOptions
+			case i
+			when PacketFu::TcpOptions
 				self[:tcp_opts]=i
 			else
 				self[:tcp_opts].read(i)
@@ -840,6 +856,15 @@ module PacketFu
 		# Gets a more readable option list.
 		def tcp_options
 		 self[:tcp_opts].decode
+		end
+
+		# Gets a more readable flags list
+		def tcp_flags_dotmap
+			dotmap = tcp_flags.members.map do |flag|
+				status = self.tcp_flags.send flag
+				status == 0 ? "." : flag.to_s.upcase[0].chr
+			end
+			dotmap.join
 		end
 
 		# Sets a more readable option list.
@@ -885,6 +910,26 @@ module PacketFu
 			else
 				raise ArgumentError, "No such field `#{arg}'"
 			end
+		end
+
+		# Readability aliases
+
+		alias :tcp_flags_readable :tcp_flags_dotmap
+
+		def tcp_ack_readable
+			"0x%08x" % tcp_ack
+		end
+
+		def tcp_seq_readable
+			"0x%08x" % tcp_seq
+		end
+
+		def tcp_sum_readable
+			"0x%04x" % tcp_sum
+		end
+
+		def tcp_opts_readable
+			tcp_options
 		end
 
 	end
@@ -1067,12 +1112,7 @@ module PacketFu
 			peek_data << "->"
 			peek_data << "%21s" % "#{self.ip_daddr}:#{self.tcp_dst}"
 			flags = ' ['
-			flags << (self.tcp_flags.urg.zero? ? "." : "U")
-			flags << (self.tcp_flags.ack.zero? ? "." : "A")
-			flags << (self.tcp_flags.psh.zero? ? "." : "P")
-			flags << (self.tcp_flags.rst.zero? ? "." : "R")
-			flags << (self.tcp_flags.syn.zero? ? "." : "S")
-			flags << (self.tcp_flags.fin.zero? ? "." : "F")
+			flags << self.tcp_flags_dotmap
 			flags << '] '
 			peek_data << flags
 			peek_data << "S:"

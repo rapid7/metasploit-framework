@@ -27,13 +27,12 @@ module PacketFu
 		#  It goes without saying, spewing forged ARP packets on your network is a great way to really
 		#  irritate your co-workers.
 		def self.arp(target_ip,args={})
-			arp_pkt = PacketFu::ARPPacket.new(:flavor => (args[:flavor] || :none))
-			arp_pkt.eth_saddr = arp_pkt.arp_saddr_mac = (args[:eth_saddr] || ($packetfu_default.config[:eth_saddr] if $packetfu_default) || "00:00:00:00:00:00" )
+			iface = args[:iface] || :eth0
+			args[:config] ||= whoami?(:iface => iface)
+			arp_pkt = PacketFu::ARPPacket.new(:flavor => (args[:flavor] || :none), :config => args[:config])
 			arp_pkt.eth_daddr = "ff:ff:ff:ff:ff:ff"
 			arp_pkt.arp_daddr_mac = "00:00:00:00:00:00"
-			arp_pkt.arp_saddr_ip = (args[:ip_saddr] || ($packetfu_default.config[:ip_saddr] if $packetfu_default) || "0.0.0.0")
-			arp_pkt.arp_daddr_ip = target_ip 
-			iface = (args[:iface] || ($packetfu_default.iface if $packetfu_default) || "eth0")
+			arp_pkt.arp_daddr_ip = target_ip
 			# Stick the Capture object in its own thread.
 			cap_thread = Thread.new do
 				target_mac = nil
@@ -59,9 +58,15 @@ module PacketFu
 		# operation; a UDP packet is generated and dropped on to the default (or named)
 		# interface, and then captured (which means you need to be root to do this).
 		#
-		# whoami? returns a hash of :eth_saddr, :eth_src, :ip_saddr, :ip_src,
-		# :eth_dst, and :eth_daddr (the last two are usually suitable for a
-		# gateway mac address). It's most useful as an argument to PacketFu::Config.new.
+		# whoami? returns a hash of :eth_saddr, :eth_src, :ip_saddr, :ip_src, 
+		# :ip_src_bin, :eth_dst, and :eth_daddr (the last two are usually suitable 
+		# for a gateway mac address). It's most useful as an argument to 
+		# PacketFu::Config.new, or as an argument to the many Packet constructors.
+		#
+		# Note that if you have multiple interfaces with the same route (such as when
+		# wlan0 and eth0 are associated to the same network), the "first" one
+		# according to Pcap.lookupdev will be used, regardless of which :iface you 
+		# pick.
 		#
 		# === Parameters
 		#   :iface => "eth0"
@@ -72,7 +77,10 @@ module PacketFu
 		#    Since this network is IANA reserved (for now), this network should be handled by your default gateway
 		#    and default interface.
 		def self.whoami?(args={})
-			if args[:iface] =~ /^lo/ # Linux loopback more or less. Need a switch for windows loopback, too.
+			unless args.kind_of? Hash
+				raise ArgumentError, "Argument to `whoami?' must be a Hash"
+			end
+			if args[:iface].to_s =~ /^lo/ # Linux loopback more or less. Need a switch for windows loopback, too.
 				dst_host = "127.0.0.1"
 			else
 				dst_host = (args[:target] || IPAddr.new((rand(16777216) + 2969567232), Socket::AF_INET).to_s)
@@ -80,8 +88,11 @@ module PacketFu
 
 			dst_port = rand(0xffff-1024)+1024
 			msg = "PacketFu whoami? packet #{(Time.now.to_i + rand(0xffffff)+1)}"
-			cap = PacketFu::Capture.new(:iface => (args[:iface] || ENV['IFACE'] || Pcap.lookupdev || "lo" ), :start => true, :filter => "udp and dst host #{dst_host} and dst port #{dst_port}")
-			UDPSocket.open.send(msg,0,dst_host,dst_port)
+			iface = (args[:iface] || ENV['IFACE'] || Pcap.lookupdev || :lo ).to_s
+			cap = PacketFu::Capture.new(:iface => iface, :promisc => false, :start => true, :filter => "udp and dst host #{dst_host} and dst port #{dst_port}")
+			udp_sock = UDPSocket.new
+			udp_sock.send(msg,0,dst_host,dst_port)
+			udp_sock = nil
 			cap.save
 			pkt = Packet.parse(cap.array[0]) unless cap.save.zero?
 			timeout = 0
@@ -90,12 +101,13 @@ module PacketFu
 					timeout = 1.1 # Cancel the timeout
 					if pkt.payload == msg
 					my_data =	{
-						:iface => args[:iface] || ENV['IFACE'] || Pcap.lookupdev || "lo",
+						:iface => (args[:iface] || ENV['IFACE'] || Pcap.lookupdev || "lo").to_s,
 						:pcapfile => args[:pcapfile] || "/tmp/out.pcap",
 						:eth_saddr => pkt.eth_saddr,
 						:eth_src => pkt.eth_src.to_s,
 						:ip_saddr => pkt.ip_saddr,
-						:ip_src => pkt.ip_src.to_s,
+						:ip_src => pkt.ip_src,
+						:ip_src_bin => [pkt.ip_src].pack("N"),
 						:eth_dst => pkt.eth_dst.to_s,
 						:eth_daddr => pkt.eth_daddr
 					}
@@ -107,7 +119,7 @@ module PacketFu
 					cap.save
 					pkt = Packet.parse(cap.array[0]) unless cap.save.zero?
 				end
-				raise SocketError, "Didn't receive the whomi() packet." if !pkt
+				raise SocketError, "Didn't receive the whomi() packet, can't automatically configure." if !pkt
 				cap = nil
 			end
 			my_data
@@ -161,7 +173,7 @@ module PacketFu
 				end
 				ifconfig_data.each do |s|
 					case s
-					when /inet addr:[\s]*([0-9]+\.[0-9]+\.[0-9]+\.[0-9])(.*Mask:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]))?/i
+					when /inet addr:[\s]*([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)(.*Mask:([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+))?/i
 						ret[:ip_saddr] = $1
 						ret[:ip_src] = [IPAddr.new($1).to_i].pack("N")
 						ret[:ip4_obj] = IPAddr.new($1)

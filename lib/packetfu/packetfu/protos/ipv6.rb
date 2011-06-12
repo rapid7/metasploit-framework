@@ -182,6 +182,11 @@ module PacketFu
 			self[:ipv6_dst].read_x(str)
 		end
 
+		# Readability aliases
+
+		alias :ipv6_src_readable :ipv6_saddr
+		alias :ipv6_dst_readable :ipv6_daddr
+
 	end # class IPv6Header
 
 	# IPv6Packet is used to construct IPv6 Packets. They contain an EthHeader and an IPv6Header, and in

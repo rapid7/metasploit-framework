@@ -132,6 +132,12 @@ module PacketFu
 	# For more on the construction on MAC addresses, see 
 	# http://en.wikipedia.org/wiki/MAC_address
 	#
+	# TODO: Need to come up with a good way of dealing with vlan
+	# tagging. Having a usually empty struct member seems weird,
+	# but there may not be another way to do it if I want to preserve
+	# the Eth-ness of vlan-tagged 802.1Q packets. Also, may as well
+	# deal with 0x88a8 as well (http://en.wikipedia.org/wiki/802.1ad)
+	#
 	# ==== Header Definition
 	#
 	#  EthMac  :eth_dst                     # See EthMac
@@ -229,6 +235,15 @@ module PacketFu
 			EthHeader.str2mac(self[:eth_dst].to_s)
 		end
 
+		# Readability aliases
+
+		alias :eth_dst_readable :eth_daddr
+		alias :eth_src_readable :eth_saddr
+
+		def eth_proto_readable
+			"0x%04x" % eth_proto
+		end
+
 	end
 
 	# EthPacket is used to construct Ethernet packets. They contain an
@@ -242,11 +257,17 @@ module PacketFu
 	#   eth_pkt.eth_daddr="00:1c:24:aa:bb:cc"
 	#
 	#   eth_pkt.to_w('eth0') # Inject on the wire. (require root)
+	#
 	class	EthPacket < Packet
 		attr_accessor :eth_header
 
 		def self.can_parse?(str)
-			str.size >= 14
+			# XXX Temporary fix. Need to extend the EthHeader class to handle more.
+			valid_eth_types = [0x0800, 0x0806, 0x86dd]
+			return false unless str.size >= 14
+			type = str[12,2].unpack("n").first rescue nil
+			return false unless valid_eth_types.include? type
+			true
 		end
 
 		def read(str=nil,args={})

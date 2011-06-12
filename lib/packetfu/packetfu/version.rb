@@ -1,13 +1,14 @@
 module PacketFu
 
 	# Check the repo's for version release histories
-	VERSION = "1.0.2" 
+	VERSION = "1.1.0" 
 
+	# Returns PacketFu::VERSION
 	def self.version
 		VERSION
 	end
 
-	# Returns the version in a binary format for easy comparisons.
+	# Returns a version string in a binary format for easy comparisons.
 	def self.binarize_version(str)
 		if(str.respond_to?(:split) && str =~ /^[0-9]+(\.([0-9]+)(\.[0-9]+)?)?\..+$/)
 			bin_major,bin_minor,bin_teeny = str.split(/\x2e/).map {|x| x.to_i}

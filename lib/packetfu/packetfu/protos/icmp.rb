@@ -1,9 +1,10 @@
 module PacketFu
 
-	# ICMPHeader is a complete ICMP struct, used in ICMPPacket. ICMP is typically used for network
-	# administration and connectivity testing.
+	# ICMPHeader is a complete ICMP struct, used in ICMPPacket. ICMP is 
+	# typically used for network administration and connectivity testing.
 	#
-	# For more on ICMP packets, see http://www.networksorcery.com/enp/protocol/icmp.htm
+	# For more on ICMP packets, see 
+	# http://www.networksorcery.com/enp/protocol/icmp.htm
 	# 
 	# ==== Header Definition
 	#
@@ -81,6 +82,12 @@ module PacketFu
 			else
 				raise ArgumentError, "No such field `#{arg}'"
 			end
+		end
+
+		# Readability aliases
+
+		def icmp_sum_readable
+			"0x%04x" % icmp_sum
 		end
 
 	end

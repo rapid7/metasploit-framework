@@ -109,6 +109,14 @@ module PacketFu
 			self[:hsrp_vip].to_x
 		end
 
+		# Readability aliases
+
+		alias :hsrp_vip_readable :hsrp_addr
+
+		def hsrp_password_readable
+			hsrp_password.to_s.inspect
+		end
+
 	end
 
 	# HSRPPacket is used to construct HSRP Packets. They contain an EthHeader, an IPHeader, and a UDPHeader.
@@ -186,7 +194,7 @@ module PacketFu
 			peek_data << "%-5d" % self.to_s.size
 			peek_data << "%-16s" % self.hsrp_addr
 			peek_data << "%-4d" % self.hsrp_group
-			peek_data << "%-35s" % self.hsrp_password.inspect # .gsub(/\x00/,"")
+			peek_data << "%-35s" % self.hsrp_password_readable
 			peek_data << "%-15s" % self.ip_saddr
 			peek_data.join
 		end

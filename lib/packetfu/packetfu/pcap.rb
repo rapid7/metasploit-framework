@@ -44,6 +44,10 @@ module PacketFu
 																:thiszone, :sigfigs, :snaplen, :network)
 		include StructFu
 
+		MAGIC_INT32  = 0xa1b2c3d4
+		MAGIC_LITTLE = [MAGIC_INT32].pack("V")
+		MAGIC_BIG    = [MAGIC_INT32].pack("N")
+
 		def initialize(args={})
 			set_endianness(args[:endian] ||= :little)
 			init_fields(args) 
@@ -54,7 +58,7 @@ module PacketFu
 		
 		# Called by initialize to set the initial fields. 
 		def init_fields(args={})
-			args[:magic] = @int32.new(args[:magic] || 0xa1b2c3d4)
+			args[:magic] = @int32.new(args[:magic] || PcapHeader::MAGIC_INT32)
 			args[:ver_major] = @int16.new(args[:ver_major] || 2)
 			args[:ver_minor] ||= @int16.new(args[:ver_minor] || 4)
 			args[:thiszone] ||= @int32.new(args[:thiszone])
@@ -76,7 +80,7 @@ module PacketFu
 			force_binary(str)
 			return self if str.nil?
 			str.force_encoding("binary") if str.respond_to? :force_encoding
-			if str[0,4] == self[:magic].to_s || true # TODO: raise if it's not magic.
+			if str[0,4] == self[:magic].to_s 
 				self[:magic].read str[0,4]
 				self[:ver_major].read str[4,2]
 				self[:ver_minor].read str[6,2]
@@ -84,6 +88,8 @@ module PacketFu
 				self[:sigfigs].read str[12,4]
 				self[:snaplen].read str[16,4]
 				self[:network].read str[20,4]
+			else
+				raise "Incorrect magic for libpcap"
 			end
 			self
 		end
@@ -163,6 +169,7 @@ module PacketFu
 
 		# Reads a string to populate the object.
 		def read(str)
+			return unless str
 			force_binary(str)
 			self[:timestamp].read str[0,8]
 			self[:incl_len].read str[8,4]
@@ -194,10 +201,9 @@ module PacketFu
 		def read(str)
 			force_binary(str)
 			return self if str.nil?
-			magic = "\xa1\xb2\xc3\xd4"
-			if str[0,4] == magic
+			if str[0,4] == PcapHeader::MAGIC_BIG
 				@endian = :big
-			elsif str[0,4] == magic.reverse
+			elsif str[0,4] == PcapHeader::MAGIC_LITTLE
 				@endian = :little
 			else
 				raise ArgumentError, "Unknown file format for #{self.class}"
@@ -222,8 +228,92 @@ module PacketFu
 	# PcapHeader and PcapPackets.
 	#
 	# See http://wiki.wireshark.org/Development/LibpcapFileFormat
+	#
+	# PcapFile also can behave as a singleton class, which is usually the better
+	# way to handle pcap files of really any size, since it doesn't require
+	# storing packets before handing them off to a given block. This is really
+	# the way to go.
 	class PcapFile < Struct.new(:endian, :head, :body)
 		include StructFu
+
+		class << self
+
+			# Takes a given file and returns an array of the packet bytes. Here 
+			# for backwards compatibilty.
+			def file_to_array(fname)
+				PcapFile.new.file_to_array(:f => fname)
+			end
+
+			# Takes a given file name, and reads out the packets. If given a block,
+			# it will yield back a PcapPacket object per packet found.
+			def read(fname,&block) 
+				file_header = PcapHeader.new
+				pcap_packets = PcapPackets.new 
+				unless File.readable? fname
+					raise ArgumentError, "Cannot read file `#{fname}'"
+				end
+				begin
+				file_handle = File.open(fname, "rb")
+				file_header.read file_handle.read(24)
+				packet_count = 0
+				pcap_packet = PcapPacket.new(:endian => file_header.endian)
+				while pcap_packet.read file_handle.read(16) do
+					len = pcap_packet.incl_len
+					pcap_packet.data = StructFu::String.new.read(file_handle.read(len.to_i))
+					packet_count += 1
+					if pcap_packet.data.size < len.to_i
+						warn "Packet ##{packet_count} is corrupted: expected #{len.to_i}, got #{pcap_packet.data.size}. Exiting."
+						break
+					end
+					pcap_packets << pcap_packet.clone
+					yield pcap_packets.last if block
+				end
+				ensure
+					file_handle.close
+				end
+				block ? packet_count : pcap_packets
+			end
+
+			# Takes a filename, and an optional block. If a block is given, 
+			# yield back the raw packet data from the given file. Otherwise,
+			# return an array of parsed packets.
+			def read_packet_bytes(fname,&block)
+				count = 0
+				packets = [] unless block
+				read(fname) do |packet| 
+					if block
+						count += 1
+						yield packet.data.to_s
+					else
+						packets << packet.data.to_s
+					end
+				end
+				block ? count : packets
+			end
+
+			alias :file_to_array :read_packet_bytes 
+
+			# Takes a filename, and an optional block. If a block is given,
+			# yield back parsed packets from the given file. Otherwise, return
+			# an array of parsed packets.
+			#
+			# This is a brazillian times faster than the old methods of extracting
+			# packets from files.
+			def read_packets(fname,&block)
+				count = 0
+				packets = [] unless block
+				read_packet_bytes(fname) do |packet| 
+					if block
+						count += 1
+						yield Packet.parse(packet)
+					else
+						packets << Packet.parse(packet)
+					end
+				end
+				block ? count : packets
+			end
+
+		end
 
 		def initialize(args={})
 			init_fields(args)
@@ -259,6 +349,7 @@ module PacketFu
 		# Clears the contents of the PcapFile prior to reading in a new string.
 		def read!(str)
 			clear	
+			force_binary(str)
 			self.read str
 		end
 
@@ -274,9 +365,6 @@ module PacketFu
 		# Note that this strips out pcap timestamps -- if you'd like to retain
 		# timestamps and other libpcap file information, you will want to 
 		# use read() instead.
-		#
-		# Note, invoking this requires the somewhat clumsy sytax of,
-		# PcapFile.new.file_to_array(:f => 'filename.pcap')
 		def file_to_array(args={})
 			filename = args[:filename] || args[:file] || args[:f]
 			if filename
@@ -363,7 +451,11 @@ module PacketFu
 			end
 			append = args[:append]
 			if append
-				File.open(filename,'ab') {|file| file.write(self.body.to_s)}
+				if File.exists? filename
+					File.open(filename,'ab') {|file| file.write(self.body.to_s)}
+				else
+					File.open(filename,'wb') {|file| file.write(self.to_s)}
+				end
 			else
 				File.open(filename,'wb') {|file| file.write(self.to_s)}
 			end
@@ -410,7 +502,7 @@ module PacketFu
 			# Reads the magic string of a pcap file, and determines
 			# if it's :little or :big endian.
 			def get_byte_order(pcap_file)
-				byte_order = ((pcap_file[0,4] == "\xd4\xc3\xb2\xa1") ? :little : :big)
+				byte_order = ((pcap_file[0,4] == PcapHeader::MAGIC_LITTLE) ? :little : :big)
 				return byte_order
 			end
 

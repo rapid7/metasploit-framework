@@ -97,6 +97,12 @@ module PacketFu
 			self.udp_dst=(arg)
 		end
 
+		# Readability aliases
+
+		def udp_sum_readable
+			"0x%04x" % udp_sum
+		end
+
 	end
 
 	# UDPPacket is used to construct UDP Packets. They contain an EthHeader, an IPHeader, and a UDPHeader.
