@@ -5,6 +5,7 @@
  * Registry interaction packet handlers
  */
 DWORD request_registry_open_key(Remote *remote, Packet *packet);
+DWORD request_registry_open_remote_key(Remote *remote, Packet *packet);
 DWORD request_registry_create_key(Remote *remote, Packet *packet);
 DWORD request_registry_enum_key(Remote *remote, Packet *packet);
 DWORD request_registry_delete_key(Remote *remote, Packet *packet);

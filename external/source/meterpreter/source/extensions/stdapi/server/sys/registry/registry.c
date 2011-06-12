@@ -47,6 +47,46 @@ DWORD request_registry_open_key(Remote *remote, Packet *packet)
 	return ERROR_SUCCESS;
 }
 
+
+/*
+ * Opens a remote registry key and returns the associated HKEY to the caller if the
+ * operation succeeds.
+ *
+ * TLVs:
+ *
+ * req: TLV_TYPE_ROOT_KEY      - The root key
+ * req: TLV_TYPE_TARGET_HOST   - The target machine name
+ */
+DWORD request_registry_open_remote_key(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCTSTR targetHost = NULL;
+	HKEY rootKey = NULL, resKey;
+	DWORD result;
+
+	targetHost = packet_get_tlv_value_string(packet, TLV_TYPE_TARGET_HOST);
+	rootKey    = (HKEY)packet_get_tlv_value_uint(packet, TLV_TYPE_ROOT_KEY);
+
+	// Validate the parameters and then attempt to create the key
+	if ((!rootKey) || (!targetHost))
+		result = ERROR_INVALID_PARAMETER;
+	else
+	{
+		result = RegConnectRegistry(targetHost, rootKey, &resKey);	
+	}
+
+	// Add the HKEY if we succeeded, but always return a result
+	if (result == ERROR_SUCCESS)
+		packet_add_tlv_uint(response, TLV_TYPE_HKEY, (DWORD)resKey);
+
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	packet_transmit(remote, response, NULL);
+
+	return ERROR_SUCCESS;
+}
+
+
 /*
  * Creates a registry key and returns the associated HKEY to the caller if the
  * operation succeeds.
