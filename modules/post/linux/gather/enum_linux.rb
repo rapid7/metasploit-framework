@@ -24,10 +24,10 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Gather Linux System Information Enumeration',
+				'Name'          => 'Linux Gather System Information',
 				'Description'   => %q{
 						This module gathers basic system information from Linux systems.
-						Enumerates users, hashes, services, network config, routing table, installed packages, 
+						Enumerates users, hashes, services, network config, routing table, installed packages,
 						,screenshot, and bash_history
 				},
 				'License'       => MSF_LICENSE,
@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 					[
 						'Stephen Haywood <averagesecurityguy[at]gmail.com>',
 						'sinn3r',  #Modified the original, and more testing
-						'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
+						'Carlos Perez <carlos_perez[at]darkoperator.com>' # get_packages and get_services
 					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		print_status("Running module against #{host}")
-	
+
 		return host
 	end
 
@@ -239,3 +239,4 @@ class Metasploit3 < Msf::Post
 	end
 
 end
+

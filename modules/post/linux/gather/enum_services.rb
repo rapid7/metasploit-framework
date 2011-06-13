@@ -82,3 +82,4 @@ class Metasploit3 < Msf::Post
 		return services_installed
 	end
 end
+

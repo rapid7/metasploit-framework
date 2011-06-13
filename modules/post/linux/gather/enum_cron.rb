@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Enumerate cron jobs on linux',
+				'Name'          => 'Linux Cron Job Enumeration',
 				'Description'   => %q{
 					This module lists cron jobs for each user on the machine and saves it to loot.
 				},
@@ -81,3 +81,4 @@ class Metasploit3 < Msf::Post
 	end
 
 end
+
