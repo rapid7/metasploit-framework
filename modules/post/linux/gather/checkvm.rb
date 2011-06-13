@@ -65,6 +65,7 @@ class Metasploit3 < Msf::Post
 				vm = "Xen"
 			end
 		end
+
 		# Check Modules
 		if not vm
 			case loaded_modules.gsub("\n", " ")
@@ -88,6 +89,20 @@ class Metasploit3 < Msf::Post
 				vm = "VMware"
 			when /vbox/
 				vm = "VirtualBox"
+			end
+		end
+
+		# Check IDE Devices
+		if not vm
+			case cmd_exec("cat /proc/ide/hd*/model")
+			when /vbox/i
+				vm = "VirtualBox"
+			when /vmware/i
+				vm = "VMware"
+			when /qemu/i
+				vm = "Qemu/KVM"
+			when /virtual (hd|cd)/i
+				vm = "Hyper-V/Virtual PC"
 			end
 		end
 
