@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 
 	def get_services(distro)
 		services_installed = ""
-		if distro =~ /fedora|redhat|suse|mandrake|oracle/
+		if distro =~ /fedora|redhat|suse|mandrake|oracle|amazon/
 			services_installed = cmd_exec("/sbin/chkconfig --list")
 		elsif distro =~ /slackware/
 			services_installed << "\nEnabled:\n*************************\n"
