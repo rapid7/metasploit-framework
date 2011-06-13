@@ -41,6 +41,7 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Gathering System info ....")
 		vm = nil
+		dmi_info = nil
 		loaded_modules = cmd_exec("/sbin/lsmod")
 		dmesg = cmd_exec("dmesg")
 		proc_scsi = read_file("/proc/scsi/scsi")
@@ -49,18 +50,35 @@ class Metasploit3 < Msf::Post
 			dmi_info = cmd_exec("/usr/sbin/dmidecode")
 		end
 
+		# Check DMi Info
+		if dmi_info
+			case dmi_info
+			when /microsoft corporation/i
+				vm = "MS Hyper-V"
+			when /vmware/i
+				vm = "VMware"
+			when /virtualbox/i
+				vm = "VirtualBox"
+			when /qemu/i
+				vm = "Qemu/KVM"
+			when /domu/i
+				vm = "Xen"
+			end
+		end
 		# Check Modules
-		case loaded_modules.gsub("\n", " ")
-		when /vboxsf|vboxguest/i
-			vm = "VirtualBox"
-		when /vmw_ballon|vmxnet|vmw/i
-			vm = "VMware"
-		when /xen-vbd|xen-vnif/
-			vm = "Xen"
-		when /virtio_pci|virtio_net/
-			vm = "Qemu/KVM"
-		when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc/
-			vm = "MS Hyper-V"
+		if not vm
+			case loaded_modules.gsub("\n", " ")
+			when /vboxsf|vboxguest/i
+				vm = "VirtualBox"
+			when /vmw_ballon|vmxnet|vmw/i
+				vm = "VMware"
+			when /xen-vbd|xen-vnif/
+				vm = "Xen"
+			when /virtio_pci|virtio_net/
+				vm = "Qemu/KVM"
+			when /hv_vmbus|hv_blkvsc|hv_netvsc|hv_utils|hv_storvsc/
+				vm = "MS Hyper-V"
+			end
 		end
 
 		# Check SCSI Driver
