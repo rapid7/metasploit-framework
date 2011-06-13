@@ -28,6 +28,14 @@ module System
 					system_data[:kernel] = kernel_version
 				end
 
+			# Amazon
+			elsif etc_files.include?("system-release")
+				kernel_version = cmd_exec("uname -a")
+				version = read_file("/etc/system-release").gsub(/\n|\\n|\\l/,'')
+				system_data[:distro] = "amazon"
+				system_data[:version] = version
+				system_data[:kernel] = kernel_version
+
 			# Fedora
 			elsif etc_files.include?("fedora-release")
 				kernel_version = cmd_exec("uname -a")
