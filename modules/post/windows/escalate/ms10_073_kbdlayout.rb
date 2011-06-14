@@ -331,7 +331,7 @@ EOS
 		print_status("Successfully executed syscall wrapper!")
 
 		# Now, send some input to cause ring0 payload execution...
-		print_status("Attemping to cause the ring0 payload to execute...");
+		print_status("Attempting to cause the ring0 payload to execute...");
 		vInput = [
 			1,    # INPUT_KEYBOARD - input type
 			# KEYBDINPUT struct
