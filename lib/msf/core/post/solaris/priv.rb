@@ -9,7 +9,7 @@ module Priv
 		# Returns true if running as root, false if not.
 		def is_root?
 			root_priv = false
-			user_id = cmd_exec("/bin/id -u")
+			user_id = cmd_exec("/usr/xpg4/bin/id -u")
 			if user_id.to_i == 0
 				root_priv = true
 			end
