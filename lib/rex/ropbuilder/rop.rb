@@ -102,10 +102,17 @@ class RopCollect < RopBase
 				end
 			end
 		elsif @bin.kind_of?(Metasm::ELF)
-			@bin.segments.each  do |seg|
+			@bin.segments.each do |seg|
 				next if seg.flags.include? 'X'
 				matches.delete_if do |ea|
 					ea >= seg.vaddr and ea < seg.vaddr + seg.memsz
+				end
+			end
+		elsif @bin.kind_of?(Metasm::MachO)
+			@bin.segments.each do |seg|
+				next if seg.initprot.include? 'EXECUTE'
+				matches.delete_if do |ea|
+					ea >= seg.virtaddr and ea < seg.virtaddr + seg.filesize
 				end
 			end
 		end
