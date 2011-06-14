@@ -188,6 +188,7 @@ class Db
 			onlyup = false
 			host_search = nil
 			set_rhosts = false
+			hostlist = []
 
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
@@ -214,13 +215,6 @@ class Db
 					}
 				when '-u','--up'
 					onlyup = true
-				when '-a'
-					hostlist = args.shift
-					if (!hostlist)
-						print_error("Invalid host list")
-						return
-					end
-					host_search = hostlist.strip().split(",")
 				when '-o'
 					output = args.shift
 				when '-R','--rhosts'
@@ -228,10 +222,10 @@ class Db
 					rhosts = []
 
 				when '-h','--help'
-					print_line "Usage: db_hosts [-h|--help] [-u|--up] [-a <addr1,addr2>] [-c <column1,column2>] [-o output-file ]"
+					print_line "Usage: db_hosts [ options ] [addr1 addr2 ...]"
 					print_line
-					print_line "  -a <addr1,addr2>  Search for a list of addresses"
-					print_line "  -c <col1,col2>    Only show the given columns"
+					print_line "OPTIONS:"
+					print_line "  -c <col1,col2>    Only show the given columns (see list below)"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
 					print_line "  -o <file>         Send output to a file in csv format"
@@ -240,8 +234,15 @@ class Db
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
 					return
+				else
+					hostlist.push(arg)
 				end
 			end
+
+			# This will be used in a database lookup.  An empty array to search
+			# for will return in an empty result; give nil when we want them
+			# all.
+			host_search = (hostlist.empty? ? nil : hostlist)
 
 			col_names = default_columns + virtual_columns
 			if col_search
