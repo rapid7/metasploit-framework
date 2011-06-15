@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'         => 'Microsoft Windows Credential Cache Dump',
-			'Description'  => '%q{
+			'Description'  => %q{
 				This modules uses the registry, just like the hashdump module to extract the stored
 				domain hashes that have been cached as a result a GPO setting. The default is to
-				store 10 credentials, but this can be changed or disabled altogether.}',
+				store 10 credentials, but this can be changed or disabled altogether.},
 			'License'      => MSF_LICENSE,
 			'Author'       => ['Maurizio Agazzini <inode[at]mediaservice.net>','Rob Fuller <mubix@hak5.org>'],
 			'Version'      => '$Revision$',
