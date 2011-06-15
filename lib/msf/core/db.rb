@@ -1,12 +1,12 @@
 # Check Rex::Parser.nokogiri_loaded for status of the Nokogiri parsers
-require 'rex/parser/nmap_nokogiri' 
-require 'rex/parser/nexpose_simple_nokogiri' 
-require 'rex/parser/nexpose_raw_nokogiri' 
-require 'rex/parser/foundstone_nokogiri' 
-require 'rex/parser/mbsa_nokogiri' 
-require 'rex/parser/acunetix_nokogiri' 
-require 'rex/parser/appscan_nokogiri' 
-require 'rex/parser/burp_session_nokogiri' 
+require 'rex/parser/nmap_nokogiri'
+require 'rex/parser/nexpose_simple_nokogiri'
+require 'rex/parser/nexpose_raw_nokogiri'
+require 'rex/parser/foundstone_nokogiri'
+require 'rex/parser/mbsa_nokogiri'
+require 'rex/parser/acunetix_nokogiri'
+require 'rex/parser/appscan_nokogiri'
+require 'rex/parser/burp_session_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -261,24 +261,22 @@ class DBManager
 			return
 		end
 
-		addr = normalize_host(addr)
-
 		wspace = opts.delete(:workspace) || workspace
+		ret = { }
 
-		unless ipv4_validator(addr)
-			raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
-		end
+		if not addr.kind_of? Host
+			addr = normalize_host(addr)
+			unless ipv4_validator(addr)
+				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+			end
 
-		ret = {}
-
-		if addr.kind_of? Host
-			host = addr
-		else
 			if opts[:comm] and opts[:comm].length > 0
 				host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
 			else
 				host = wspace.hosts.find_or_initialize_by_address(addr)
 			end
+		else
+			host = addr
 		end
 
 		opts.each { |k,v|
@@ -294,7 +292,7 @@ class DBManager
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-		
+
 		if host.changed?
 			msf_import_timestamps(opts,host)
 			host.save!
@@ -351,7 +349,7 @@ class DBManager
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
-		
+
 		if addr.kind_of? Host
 			host = addr
 			addr = host.address
@@ -434,7 +432,7 @@ class DBManager
 	#
 	# opts must contain either
 	#	  :session  - the Msf::Session object we are reporting
-	#	  :host     - the Host object we are reporting a session on. 
+	#	  :host     - the Host object we are reporting a session on.
 	#
 	def report_session(opts)
 		return if not active
@@ -484,9 +482,9 @@ class DBManager
 
 		s = Msf::DBManager::Session.new(sess_data)
 		s.save!
-		
+
 		if opts[:session]
-			session.db_record = s 
+			session.db_record = s
 		end
 
 		# If this is a live session, we know the host is vulnerable to something.
@@ -525,15 +523,15 @@ class DBManager
 	#
 	def report_session_event(opts)
 		return if not active
-		raise ArgumentError.new("Missing required option :session") if opts[:session].nil? 
+		raise ArgumentError.new("Missing required option :session") if opts[:session].nil?
 		raise ArgumentError.new("Expected an :etype") unless opts[:etype]
 
 		if opts[:session].respond_to? :db_record
 			session = opts[:session].db_record
 			if session.nil?
-				# The session doesn't have a db_record which means 
+				# The session doesn't have a db_record which means
 				#  a) the database wasn't connected at session registration time
-				# or 
+				# or
 				#  b) something awful happened and the report_session call failed
 				#
 				# Either way, we can't do anything with this session as is, so
@@ -554,7 +552,7 @@ class DBManager
 		[:remote_path, :local_path, :output, :command, :etype].each do |attr|
 			event_data[attr] = opts[attr] if opts[attr]
 		end
-		
+
 		s = Msf::DBManager::SessionEvent.create(event_data)
 	end
 
@@ -568,8 +566,8 @@ class DBManager
 		unless s.kind_of? Msf::DBManager::Session
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
-		
-		
+
+
 		subnet, netmask = route.split("/")
 		s.routes.create(:subnet => subnet, :netmask => netmask)
 	end
@@ -584,7 +582,7 @@ class DBManager
 		unless s.kind_of? Msf::DBManager::Session
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
-		
+
 		subnet, netmask = route.split("/")
 		r = s.routes.find_by_subnet_and_netmask(subnet, netmask)
 		r.destroy if r
@@ -860,7 +858,7 @@ class DBManager
 	def report_host_tag(opts)
 		name = opts.delete(:name)
 		raise DBImportError.new("Missing required option :name") unless name
-		addr = opts.delete(:addr) 
+		addr = opts.delete(:addr)
 		raise DBImportError.new("Missing required option :addr") unless addr
 		wspace = opts.delete(:wspace)
 		raise DBImportError.new("Missing required option :wspace") unless wspace
@@ -868,7 +866,7 @@ class DBManager
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
-		
+
 		host = get_host(:workspace => wspace, :address => addr)
 		desc = opts.delete(:desc)
 		summary = opts.delete(:summary)
@@ -897,7 +895,7 @@ class DBManager
 	#
 	# opts must contain
 	#	:host    -- an IP address or Host object reference
-	#	:port    -- a port number 
+	#	:port    -- a port number
 	#
 	# opts can contain
 	#	:user  -- the username
@@ -916,13 +914,13 @@ class DBManager
 	#	:source_id   -- The Vuln or Cred id of the source of this cred.
 	#	:source_type -- Either Vuln or Cred
 	#
-	# TODO: This is written somewhat host-centric, when really the 
+	# TODO: This is written somewhat host-centric, when really the
 	# Service is the thing. Need to revisit someday.
 	def report_auth_info(opts={})
 		return if not active
-		raise ArgumentError.new("Missing required option :host") if opts[:host].nil? 
+		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		raise ArgumentError.new("Missing required option :port") if opts[:port].nil?
-		
+
 		if (not opts[:host].kind_of?(Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
@@ -953,7 +951,7 @@ class DBManager
 		if duplicate_ok
 			cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
 		else
-			# Create the cred by username only (so we can change passwords) 
+			# Create the cred by username only (so we can change passwords)
 			cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
 		end
 
@@ -966,14 +964,14 @@ class DBManager
 
 		# Update the source ID only if there wasn't already one.
 		if source_id and !cred.source_id
-			cred.source_id = source_id 
+			cred.source_id = source_id
 			cred.source_type = source_type if source_type
 		end
 
 		# Safe proof (lazy way) -- doesn't chop expanded
 		# characters correctly, but shouldn't ever be a problem.
 		unless proof.nil?
-			proof = Rex::Text.to_hex_ascii(proof) 
+			proof = Rex::Text.to_hex_ascii(proof)
 			proof = proof[0,4096]
 		end
 		cred.proof = proof
@@ -1065,7 +1063,7 @@ class DBManager
 		end
 
 		ret = {}
-		
+
 =begin
 		if host
 			host.updated_at = host.created_at
@@ -1145,8 +1143,8 @@ class DBManager
 	# directly. TODO: kill this completely some day -- for now just warn if
 	# some other UI is actually using it.
 	def report_exploit(opts={})
-		wlog("Deprecated method call: report_exploit()\n" + 
-			"report_exploit() options: #{opts.inspect}\n" + 
+		wlog("Deprecated method call: report_exploit()\n" +
+			"report_exploit() options: #{opts.inspect}\n" +
 			"report_exploit() call stack:\n\t#{caller.join("\n\t")}"
 		)
 	end
@@ -1277,7 +1275,7 @@ class DBManager
 				host.state      = HostState::Alive
 				host.save!
 			end
-=end			
+=end
 		end
 
 		ret[:loot] = loot
@@ -1388,22 +1386,22 @@ class DBManager
 	# opts MUST contain
 	#  :service* -- the service object this site should be associated with
 	#  :vhost    -- the virtual host name for this particular web site`
-	
+
 	# If service is NOT specified, the following values are mandatory
 	#  :host     -- the ip address of the server hosting the web site
 	#  :port     -- the port number of the associated web site
 	#  :ssl      -- whether or not SSL is in use on this port
 	#
 	# These values will be used to create new host and service records
-	
+
 	#
 	# opts can contain
 	#  :options    -- a hash of options for accessing this particular web site
 
-	# 
+	#
 	# Duplicate records for a given host, port, vhost combination will be overwritten
 	#
-	
+
 	def report_web_site(opts)
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
@@ -1411,9 +1409,9 @@ class DBManager
 
 		addr = nil
 		port = nil
-		name = nil		
+		name = nil
 		serv = nil
-		
+
 		if opts[:service] and opts[:service].kind_of?(Service)
 			serv = opts[:service]
 		else
@@ -1423,32 +1421,32 @@ class DBManager
 			if not (addr and port)
 				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
 			end
-			
+
 			# Force addr to be the address and not hostname
 			addr = Rex::Socket.getaddress(addr)
 		end
 
 		ret = {}
-	
+
 		host = serv ? serv.host : find_or_create_host(
 			:workspace => wspace,
-			:host      => addr, 
+			:host      => addr,
 			:state     => Msf::HostState::Alive
 		)
-			
+
 		if host.name.to_s.empty?
 			host.name = vhost
 			host.save!
 		end
-			
+
 		serv = serv ? serv : find_or_create_service(
 			:workspace => wspace,
-			:host      => host, 
-			:port      => port, 
+			:host      => host,
+			:port      => port,
 			:proto     => 'tcp',
 			:state     => 'open'
 		)
-			
+
 		# Change the service name if it is blank or it has
 		# been explicitly specified.
 		if opts.keys.include?(:ssl) or serv.name.to_s.empty?
@@ -1456,7 +1454,7 @@ class DBManager
 			serv.name = name
 			serv.save!
 		end
-=begin		
+=begin
 		host.updated_at = host.created_at
 		host.state      = HostState::Alive
 		host.save!
@@ -1465,7 +1463,7 @@ class DBManager
 		vhost ||= host.address
 		site = WebSite.find_or_initialize_by_vhost_and_service_id(vhost, serv[:id])
 		site.options = opts[:options] if opts[:options]
-		
+
 		# XXX:
 		msf_import_timestamps(opts, site)
 		site.save!
@@ -1482,8 +1480,8 @@ class DBManager
 	#  :code      -- the http status code from requesting this page
 	#  :headers   -- this is a HASH of headers (lowercase name as key) of ARRAYs of values
 	#  :body      -- the document body of the server response
-	#  :query     -- the query string after the path 	
-	
+	#  :query     -- the query string after the path
+
 	# If web_site is NOT specified, the following values are mandatory
 	#  :host     -- the ip address of the server hosting the web site
 	#  :port     -- the port number of the associated web site
@@ -1498,31 +1496,31 @@ class DBManager
 	#  :ctype    -- the Content-Type headers, merged into a string
 	#  :mtime    -- the timestamp returned from the server of the last modification time
 	#  :location -- the URL that a redirect points to
-	# 
+	#
 	# Duplicate records for a given web_site, path, and query combination will be overwritten
 	#
-	
+
 	def report_web_page(opts)
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
-		
+
 		path    = opts[:path]
 		code    = opts[:code].to_i
 		body    = opts[:body].to_s
 		query   = opts[:query].to_s
-		headers = opts[:headers]		
+		headers = opts[:headers]
 		site    = nil
-		
+
 		if not (path and code and body and headers)
 			raise ArgumentError, "report_web_page requires the path, query, code, body, and headers parameters"
 		end
-		
+
 		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
 				:workspace => wspace,
-				:host      => opts[:host], :port => opts[:port], 
+				:host      => opts[:host], :port => opts[:port],
 				:vhost     => opts[:host], :ssl  => opts[:ssl]
 			)
 			if not site
@@ -1535,7 +1533,7 @@ class DBManager
 		page = WebPage.find_or_initialize_by_web_site_id_and_path_and_query(site[:id], path, query)
 		page.code     = code
 		page.body     = body
-		page.headers  = headers	
+		page.headers  = headers
 		page.cookie   = opts[:cookie] if opts[:cookie]
 		page.auth     = opts[:auth]   if opts[:auth]
 		page.mtime    = opts[:mtime]  if opts[:mtime]
@@ -1547,8 +1545,8 @@ class DBManager
 		ret[:web_page] = page
 
 	end
-	
-			
+
+
 	#
 	# Report a Web Form to the database.  WebForm must be tied to an existing Web Site
 	#
@@ -1565,14 +1563,14 @@ class DBManager
 	#  :vhost    -- the virtual host for this particular web site
 	#  :ssl      -- whether or not SSL is in use on this port
 	#
-	# 
+	#
 	# Duplicate records for a given web_site, path, method, and params combination will be overwritten
 	#
-	
+
 	def report_web_form(opts)
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
-		
+
 		path    = opts[:path]
 		meth    = opts[:method].to_s.upcase
 		para    = opts[:params]
@@ -1582,7 +1580,7 @@ class DBManager
 		if not (path and meth)
 			raise ArgumentError, "report_web_form requires the path and method parameters"
 		end
-		
+
 		if not %W{GET POST PATH}.include?(meth)
 			raise ArgumentError, "report_web_form requires the method to be one of GET, POST, PATH"
 		end
@@ -1592,8 +1590,8 @@ class DBManager
 		else
 			site = report_web_site(
 				:workspace => wspace,
-				:host      => opts[:host], :port => opts[:port], 
-				:vhost     => opts[:host], :ssl  => opts[:ssl] 
+				:host      => opts[:host], :port => opts[:port],
+				:vhost     => opts[:host], :ssl  => opts[:ssl]
 			)
 			if not site
 				raise ArgumentError, "report_web_form was unable to create the associated web site"
@@ -1604,13 +1602,13 @@ class DBManager
 
 		# Since one of our serialized fields is used as a unique parameter, we must do the final
 		# comparisons through ruby and not SQL.
-		
+
 		form = nil
 		WebForm.find_all_by_web_site_id_and_path_and_method_and_query(site[:id], path, meth, quer).each do |xform|
 			if xform.params == para
 				form = xform
 				break
-			end 
+			end
 		end
 		if not form
 			form = WebForm.new
@@ -1619,8 +1617,8 @@ class DBManager
 			form.method      = meth
 			form.params      = para
 			form.query       = quer
-		end 
-			
+		end
+
 		msf_import_timestamps(opts, form)
 		form.save!
 		ret[:web_form] = form
@@ -1647,14 +1645,14 @@ class DBManager
 	#  :vhost    -- the virtual host for this particular web site
 	#  :ssl      -- whether or not SSL is in use on this port
 	#
-	# 
+	#
 	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
 	#
-	
+
 	def report_web_vuln(opts)
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
-		
+
 		path    = opts[:path]
 		meth    = opts[:method]
 		para    = opts[:params] || []
@@ -1666,18 +1664,18 @@ class DBManager
 		blame   = opts[:blame].to_s.strip
 		desc    = opts[:description].to_s.strip
 		conf    = opts[:confidence].to_i
-		cat     = opts[:category].to_s.strip			
-		
+		cat     = opts[:category].to_s.strip
+
 		site    = nil
 
 		if not (path and meth and proof and pname)
 			raise ArgumentError, "report_web_vuln requires the path, method, proof, risk, name, params, and pname parameters. Received #{opts.inspect}"
 		end
-		
+
 		if not %W{GET POST PATH}.include?(meth)
 			raise ArgumentError, "report_web_vuln requires the method to be one of GET, POST, PATH. Received '#{meth}'"
 		end
-		
+
 		if risk < 0 or risk > 5
 			raise ArgumentError, "report_web_vuln requires the risk to be between 0 and 5 (inclusive). Received '#{risk}'"
 		end
@@ -1689,17 +1687,17 @@ class DBManager
 		if cat.empty?
 			raise ArgumentError, "report_web_vuln requires the category to be a valid string"
 		end
-						
+
 		if name.empty?
 			raise ArgumentError, "report_web_vuln requires the name to be a valid string"
 		end
-		
+
 		if opts[:web_site] and opts[:web_site].kind_of?(WebSite)
 			site = opts.delete(:web_site)
 		else
 			site = report_web_site(
 				:workspace => wspace,
-				:host      => opts[:host], :port => opts[:port], 
+				:host      => opts[:host], :port => opts[:port],
 				:vhost     => opts[:host], :ssl  => opts[:ssl]
 			)
 			if not site
@@ -1708,21 +1706,21 @@ class DBManager
 		end
 
 		ret = {}
-	
+
 		meth = meth.to_s.upcase
-			
+
 		vuln = WebVuln.find_or_initialize_by_web_site_id_and_path_and_method_and_pname_and_name_and_category_and_query(site[:id], path, meth, pname, name, cat, quer)
-		vuln.name     = name			
+		vuln.name     = name
 		vuln.risk     = risk
 		vuln.params   = para
-		vuln.proof    = proof.to_s	
+		vuln.proof    = proof.to_s
 		vuln.category = cat
 		vuln.blame    = blame
 		vuln.description = desc
 		vuln.confidence  = conf
 		msf_import_timestamps(opts, vuln)
 		vuln.save!
-		
+
 		ret[:web_vuln] = vuln
 	end
 
@@ -2030,7 +2028,7 @@ class DBManager
 	# :burp_session
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
-	
+
 		if data and data.kind_of? Zip::ZipFile
 			raise DBImportError.new("The zip file provided is empty.") if data.entries.empty?
 			@import_filedata ||= {}
@@ -2057,7 +2055,7 @@ class DBManager
 		end
 
 		# Text string kinds of data.
-		if data and data.to_s.strip.size.zero? 
+		if data and data.to_s.strip.size.zero?
 			raise DBImportError.new("The data provided to the import function was empty")
 		end
 
@@ -2073,7 +2071,7 @@ class DBManager
 			return :nexpose_rawxml
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
-			return :retina_xml		
+			return :retina_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
@@ -2112,13 +2110,16 @@ class DBManager
 					return :msf_xml
 				when /MetasploitV4/
 					@import_filedata[:type] = "Metasploit XML"
-					return :msf_xml		
+					return :msf_xml
 				when /netsparker/
 					@import_filedata[:type] = "NetSparker XML"
-					return :netsparker_xml			
+					return :netsparker_xml
 				when /audits/
 					@import_filedata[:type] = "IP360 XML v3"
 					return :ip360_xml_v3
+				when /ontology/
+					@import_filedata[:type] = "IP360 ASPL"
+					return :ip360_aspl_xml
 				when /ReportInfo/
 					@import_filedata[:type] = "Foundstone"
 					return :foundstone_xml
@@ -2152,13 +2153,13 @@ class DBManager
 			return :ip_list
 		elsif (data[0,1024].index("<netsparker"))
 			@import_filedata[:type] = "NetSparker XML"
-			return :netsparker_xml				
+			return :netsparker_xml
 		elsif (firstline.index("# Metasploit PWDump Export"))
 			# then it's a Metasploit PWDump export
 			@import_filedata[:type] = "msf_pwdump"
 			return :msf_pwdump
 		end
-		
+
 		raise DBImportError.new("Could not automatically determine file type")
 	end
 
@@ -2195,10 +2196,10 @@ class DBManager
 		# kinds of crazy awesome stuff like that.
 		seen_hosts = {}
 		decoded_packets = 0
-		last_count = 0	
+		last_count = 0
 		data.body.map {|p| p.data}.each do |p|
 			if (decoded_packets >= last_count + 1000) and block
-				yield(:pcap_count, decoded_packets) 
+				yield(:pcap_count, decoded_packets)
 				last_count = decoded_packets
 			end
 			decoded_packets += 1
@@ -2212,7 +2213,7 @@ class DBManager
 			# Handle blacklists and obviously useless IP addresses, and report the host.
 			next if (bl | [saddr,daddr]).size == bl.size # Both hosts are blacklisted, skip everything.
 			unless( bl.include?(saddr) || rfc3330_reserved(saddr))
-				yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr) 
+				yield(:address,saddr) if block and !seen_hosts.keys.include?(saddr)
 				report_host(:workspace => wspace, :host => saddr, :state => Msf::HostState::Alive) unless seen_hosts[saddr]
 				seen_hosts[saddr] ||= []
 
@@ -2220,7 +2221,7 @@ class DBManager
 			unless( bl.include?(daddr) || rfc3330_reserved(daddr))
 				yield(:address,daddr) if block and !seen_hosts.keys.include?(daddr)
 				report_host(:workspace => wspace, :host => daddr, :state => Msf::HostState::Alive) unless seen_hosts[daddr]
-				seen_hosts[daddr] ||= [] 
+				seen_hosts[daddr] ||= []
 			end
 
 			if pkt.is_tcp? # First pass on TCP packets
@@ -2229,10 +2230,10 @@ class DBManager
 					if seen_hosts[saddr]
 						unless seen_hosts[saddr].include? [pkt.tcp_src,"tcp"]
 							report_service(
-								:workspace => wspace, :host => saddr, 
-								:proto => "tcp", :port => pkt.tcp_src, 
+								:workspace => wspace, :host => saddr,
+								:proto => "tcp", :port => pkt.tcp_src,
 								:state => Msf::ServiceState::Open
-							) 
+							)
 							seen_hosts[saddr] << [pkt.tcp_src,"tcp"]
 							yield(:service,"%s:%d/%s" % [saddr,pkt.tcp_src,"tcp"])
 						end
@@ -2244,8 +2245,8 @@ class DBManager
 						if seen_hosts[xaddr]
 							unless seen_hosts[xaddr].include? [pkt.udp_src,"udp"]
 								report_service(
-									:workspace => wspace, :host => xaddr, 
-									:proto => "udp", :port => pkt.udp_src, 
+									:workspace => wspace, :host => xaddr,
+									:proto => "udp", :port => pkt.udp_src,
 									:state => Msf::ServiceState::Open
 								)
 								seen_hosts[xaddr] << [pkt.udp_src,"udp"]
@@ -2253,12 +2254,12 @@ class DBManager
 							end
 						end
 					end
-				elsif pkt.udp_src < 1024 # Probably a service 
+				elsif pkt.udp_src < 1024 # Probably a service
 					if seen_hosts[saddr]
 						unless seen_hosts[saddr].include? [pkt.udp_src,"udp"]
 							report_service(
-								:workspace => wspace, :host => saddr, 
-								:proto => "udp", :port => pkt.udp_src, 
+								:workspace => wspace, :host => saddr,
+								:proto => "udp", :port => pkt.udp_src,
 								:state => Msf::ServiceState::Open
 							)
 							seen_hosts[saddr] << [pkt.udp_src,"udp"]
@@ -2316,7 +2317,7 @@ class DBManager
 			if pkt.payload.match(/[\x00-\x20]HTTP\x2f1\x2e[10]/)
 				auth_match = pkt.payload.match(/\nAuthorization:\s+Basic\s+([A-Za-z0-9=\x2b]+)/)
 				if auth_match.kind_of?(MatchData) and auth_match[1]
-					b64_cred = auth_match[1] 
+					b64_cred = auth_match[1]
 				else
 					return false
 				end
@@ -2348,13 +2349,13 @@ class DBManager
 		end
 	end
 
-	# 
+	#
 	# Metasploit PWDump Export
 	#
 	# This file format is generated by the db_export -f pwdump and
 	# the Metasploit Express and Pro report types of "PWDump."
 	#
-	# This particular block scheme is temporary, since someone is 
+	# This particular block scheme is temporary, since someone is
 	# bound to want to import gigantic lists, so we'll want a
 	# stream parser eventually (just like the other non-nmap formats).
 	#
@@ -2436,7 +2437,7 @@ class DBManager
 			report_auth_info(cred_info)
 			user = pass = ptype = nil
 		end
-		
+
 	end
 
 	# If hex notation is present, turn them into a character.
@@ -2577,7 +2578,7 @@ class DBManager
 			btag = "MetasploitExpressV4"
 		elsif doc.elements["MetasploitV4"]
 			m_ver = 4
-			btag = "MetasploitV4"			
+			btag = "MetasploitV4"
 		else
 			m_ver = nil
 		end
@@ -2737,7 +2738,7 @@ class DBManager
 
 		allow_yaml = false
 		btag       = nil
-		
+
 		doc = rexmlify(data)
 		if doc.elements["MetasploitExpressV1"]
 			m_ver = 1
@@ -2746,16 +2747,16 @@ class DBManager
 		elsif doc.elements["MetasploitExpressV2"]
 			m_ver = 2
 			allow_yaml = true
-			btag = "MetasploitExpressV2"			
+			btag = "MetasploitExpressV2"
 		elsif doc.elements["MetasploitExpressV3"]
 			m_ver = 3
-			btag = "MetasploitExpressV3"			
+			btag = "MetasploitExpressV3"
 		elsif doc.elements["MetasploitExpressV4"]
-			m_ver = 4			
+			m_ver = 4
 			btag = "MetasploitExpressV4"
 		elsif doc.elements["MetasploitV4"]
-			m_ver = 4			
-			btag = "MetasploitV4"						
+			m_ver = 4
+			btag = "MetasploitV4"
 		else
 			m_ver = nil
 		end
@@ -2898,7 +2899,7 @@ class DBManager
 					sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml)) || []
 				end
 				if not sess_data[:closed_at] # Fake a close if we don't already have one
-					sess_data[:closed_at] = Time.now 
+					sess_data[:closed_at] = Time.now
 					sess_data[:close_reason] = "Imported at #{Time.now}"
 				end
 
@@ -2906,7 +2907,7 @@ class DBManager
 					:workspace => sess_data[:host].workspace,
 					:addr => sess_data[:host].address,
 					:time => sess_data[:opened_at]
-				) 
+				)
 				this_session = existing_session || report_session(sess_data)
 				next if existing_session
 				sess.elements.each('events/event') do |sess_event|
@@ -2922,7 +2923,7 @@ class DBManager
 							sess_event_data[datum.gsub("-","_").intern] = nils_for_nulls(unserialize_object(sess_event.elements[datum], allow_yaml))
 						end
 					}
-					report_session_event(sess_event_data) 
+					report_session_event(sess_event_data)
 				end
 			end
 		end
@@ -2935,7 +2936,7 @@ class DBManager
 			%W{host port vhost ssl comments}.each do |datum|
 				if web.elements[datum].respond_to? :text
 					info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-				end					
+				end
 			end
 
 			info[:options]   = nils_for_nulls(unserialize_object(web.elements["options"], allow_yaml)) if web.elements["options"].respond_to?(:text)
@@ -2967,25 +2968,25 @@ class DBManager
 					%W{path code body query cookie auth ctype mtime location}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end					
+						end
 					end
 					info[:headers] = nils_for_nulls(unserialize_object(web.elements["headers"], allow_yaml))
 				when "form"
 					%W{path query method}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end					
+						end
 					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))				
+					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
 				when "vuln"
 					%W{path query method pname proof risk name blame description category confidence}.each do |datum|
 						if web.elements[datum].respond_to? :text
 							info[datum.intern] = nils_for_nulls(web.elements[datum].text.to_s.strip)
-						end					
+						end
 					end
-					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))		
-					info[:risk]   = info[:risk].to_i			
-					info[:confidence] = info[:confidence].to_i							
+					info[:params] = nils_for_nulls(unserialize_object(web.elements["params"], allow_yaml))
+					info[:risk]   = info[:risk].to_i
+					info[:confidence] = info[:confidence].to_i
 				end
 
 				%W{created-at updated-at}.each { |datum|
@@ -3008,7 +3009,7 @@ class DBManager
 	def import_nexpose_simplexml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -3017,7 +3018,7 @@ class DBManager
 				yield(:parser, parser)
 				import_nexpose_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_nexpose_noko_stream(noko_args) 
+				import_nexpose_noko_stream(noko_args)
 			end
 			return true
 		end
@@ -3140,7 +3141,7 @@ class DBManager
 	def import_nexpose_rawxml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -3149,7 +3150,7 @@ class DBManager
 				yield(:parser, parser)
 				import_nexpose_raw_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_nexpose_raw_noko_stream(noko_args) 
+				import_nexpose_raw_noko_stream(noko_args)
 			end
 			return true
 		end
@@ -3208,7 +3209,7 @@ class DBManager
 	def nexpose_refs_to_struct(vulns)
 		ret = []
 		vulns.each do |vuln|
-			next if ret.map {|v| v.id}.include? vuln["id"] 
+			next if ret.map {|v| v.id}.include? vuln["id"]
 			vstruct = Struct.new(:id, :refs, :title, :severity).new
 			vstruct.id = vuln["id"]
 			vstruct.title = vuln["title"]
@@ -3321,7 +3322,7 @@ class DBManager
 		}
 
 		h["vulns"].each_pair { |k,v|
-			
+
 			next if v["status"] !~ /^vulnerable/
 			vstruct = vstructs.select {|vs| vs.id.to_s.downcase == v["id"].to_s.downcase}.first
 			next unless vstruct
@@ -3363,23 +3364,23 @@ class DBManager
 		msg << "specific service on which they were found.\n"
 		msg << "This makes it impossible to correlate exploits to discovered vulnerabilities\n"
 		msg << "in a reliable fashion."
-		
+
 		yield(:warning,msg) if block
-	
+
 		parser = Rex::Parser::RetinaXMLStreamParser.new
 		parser.on_found_host = Proc.new do |host|
 			hobj = nil
 			data = {:workspace => wspace}
 			addr = host['address']
 			next if not addr
-			
+
 			next if bl.include? addr
 			data[:host] = addr
-			
+
 			if host['mac']
 				data[:mac] = host['mac']
 			end
-			
+
 			data[:state] = Msf::HostState::Alive
 
 			if host['hostname']
@@ -3389,13 +3390,13 @@ class DBManager
 			if host['netbios']
 				data[:name] = host['netbios']
 			end
-			
+
 			yield(:address, data[:host]) if block
-			
+
 			# Import Host
 			hobj = report_host(data)
 			report_import_note(wspace, hobj)
-			
+
 			# Import OS fingerprint
 			if host["os"]
 				note = {
@@ -3408,7 +3409,7 @@ class DBManager
 				}
 				report_note(note)
 			end
-			
+
 			# Import vulnerabilities
 			host['vulns'].each do |vuln|
 				refs = vuln['refs'].map{|v| v.join("-")}
@@ -3421,7 +3422,7 @@ class DBManager
 					:info => vuln['description'],
 					:refs => refs
 				}
-				
+
 				report_vuln(vuln_info)
 			end
 		end
@@ -3459,10 +3460,10 @@ class DBManager
 			url  = vuln['url']
 			return if not url
 
-			# Crack the URL into a URI			
+			# Crack the URL into a URI
 			uri = URI(url) rescue nil
 			return if not uri
-			
+
 			# Resolve the host and cache the IP
 			if not addr
 				baddr = Rex::Socket.addr_aton(uri.host) rescue nil
@@ -3471,12 +3472,12 @@ class DBManager
 					yield(:address, addr) if block
 				end
 			end
-			
+
 			# Bail early if we have no IP address
 			if not addr
 				raise Interrupt, "Not a valid IP address"
 			end
-			
+
 			if bl.include?(addr)
 				raise Interrupt, "IP address is on the blacklist"
 			end
@@ -3485,7 +3486,7 @@ class DBManager
 			data[:vhost] = uri.host
 			data[:port]  = uri.port
 			data[:ssl]   = (uri.scheme == "ssl")
-		
+
 			body = nil
 			# First report a web page
 			if vuln['response']
@@ -3493,11 +3494,11 @@ class DBManager
 				code    = 200
 				head,body = vuln['response'].to_s.split(/\r?\n\r?\n/, 2)
 				if body
-				
+
 					if head =~ /^HTTP\d+\.\d+\s+(\d+)\s*/
 						code = $1.to_i
 					end
-				
+
 					headers = {}
 					head.split(/\r?\n/).each do |line|
 						hname,hval = line.strip.split(/\s*:\s*/, 2)
@@ -3505,8 +3506,8 @@ class DBManager
 						headers[hname.downcase] ||= []
 						headers[hname.downcase] << hval
 					end
-					
-					info = { 
+
+					info = {
 						:path     => uri.path,
 						:query    => uri.query,
 						:code     => code,
@@ -3514,11 +3515,11 @@ class DBManager
 						:headers  => headers
 					}
 					info.merge!(data)
-					
+
 					if headers['content-type']
 						info[:ctype] = headers['content-type'][0]
 					end
-		
+
 					if headers['set-cookie']
 						info[:cookie] = headers['set-cookie'].join("\n")
 					end
@@ -3530,31 +3531,31 @@ class DBManager
 					if headers['location']
 						info[:location] = headers['location'][0]
 					end
-		
+
 					if headers['last-modified']
 						info[:mtime] = headers['last-modified'][0]
 					end
-									
+
 					# Report the web page to the database
 					report_web_page(info)
-					
+
 					yield(:web_page, url) if block
 				end
 			end # End web_page reporting
-			
-			
+
+
 			details = netsparker_vulnerability_map(vuln)
-			
+
 			method = netsparker_method_map(vuln)
 			pname  = netsparker_pname_map(vuln)
 			params = netsparker_params_map(vuln)
-			
+
 			proof  = ''
-			
+
 			if vuln['info'] and vuln['info'].length > 0
 				proof << vuln['info'].map{|x| "#{x[0]}: #{x[1]}\n" }.join + "\n"
 			end
-			
+
 			if proof.empty?
 				if body
 					proof << body + "\n"
@@ -3562,7 +3563,7 @@ class DBManager
 					proof << vuln['response'].to_s + "\n"
 				end
 			end
-			
+
 			if params.empty? and pname
 				params = [[pname, vuln['vparam_name'].to_s]]
 			end
@@ -3579,14 +3580,14 @@ class DBManager
 				:blame    => details[:blame],
 				:category => details[:category],
 				:description => details[:description],
-				:confidence  => details[:confidence],				
+				:confidence  => details[:confidence],
 			}
 			info.merge!(data)
-			
+
 			next if vuln['type'].to_s.empty?
-			
+
 			report_web_vuln(info)
-			yield(:web_vuln, url) if block			
+			yield(:web_vuln, url) if block
 		end
 
 		# We throw interrupts in our parser when the job is hopeless
@@ -3596,7 +3597,7 @@ class DBManager
 			wlog("The netsparker_xml_import() job was interrupted: #{e}")
 		end
 	end
-	
+
 	def netsparker_method_map(vuln)
 		case vuln['vparam_type']
 		when "FullQueryString"
@@ -3611,7 +3612,7 @@ class DBManager
 			"GET"
 		end
 	end
-	
+
 	def netsparker_pname_map(vuln)
 		case vuln['vparam_name']
 		when "URI-BASED", "Query Based"
@@ -3620,11 +3621,11 @@ class DBManager
 			vuln['vparam_name']
 		end
 	end
-	
+
 	def netsparker_params_map(vuln)
 		[]
 	end
-	
+
 	def netsparker_vulnerability_map(vuln)
 		res = {
 			:risk => 1,
@@ -3634,26 +3635,26 @@ class DBManager
 			:description => "This is an information leak",
 			:confidence => 100
 		}
-		
+
 		# Risk is a value from 1-5 indicating the severity of the issue
 		#	Examples: 1, 4, 5
-		
+
 		# Name is a descriptive name for this vulnerability.
 		#	Examples: XSS, ReflectiveXSS, PersistentXSS
-		
+
 		# Blame indicates who is at fault for the vulnerability
 		#	Examples: App Developer, Server Developer, System Administrator
 
 		# Category indicates the general class of vulnerability
 		#	Examples: info, xss, sql, rfi, lfi, cmd
-		
+
 		# Description is a textual summary of the vulnerability
 		#	Examples: "A reflective cross-site scripting attack"
 		#             "The web server leaks the internal IP address"
 		#             "The cookie is not set to HTTP-only"
-		
+
 		#
-		# Confidence is a value from 1 to 100 indicating how confident the 
+		# Confidence is a value from 1 to 100 indicating how confident the
 		# software is that the results are valid.
 		#	Examples: 100, 90, 75, 15, 10, 0
 
@@ -3774,8 +3775,8 @@ class DBManager
 				:category => 'info',
 				:description => "",
 				:confidence => 100
-			}			
-		when "PossibleXSS", "LowPossibilityPermanentXSS", "XSS", "PermanentXSS"																																
+			}
+		when "PossibleXSS", "LowPossibilityPermanentXSS", "XSS", "PermanentXSS"
 			conf = 100
 			conf = 25  if vuln['type'].to_s == "LowPossibilityPermanentXSS"
 			conf = 50  if vuln['type'].to_s == "PossibleXSS"
@@ -3786,8 +3787,8 @@ class DBManager
 				:category => 'xss',
 				:description => "",
 				:confidence => conf
-			}						
-		
+			}
+
 		when "ConfirmedBlindSQLInjection", "ConfirmedSQLInjection", "HighlyPossibleSqlInjection", "DatabaseErrorMessages"
 			conf = 100
 			conf = 90  if vuln['type'].to_s == "HighlyPossibleSqlInjection"
@@ -3799,7 +3800,7 @@ class DBManager
 				:category => 'sql',
 				:description => "",
 				:confidence => conf
-			}		
+			}
 		else
 		conf = 100
 		res = {
@@ -3809,9 +3810,9 @@ class DBManager
 			:category => 'info',
 			:description => "",
 			:confidence => conf
-		}			
+		}
 		end
-		
+
 		res
 	end
 
@@ -3959,7 +3960,7 @@ class DBManager
 			if (h["trace"])
 				hops = []
 				h["trace"]["hops"].each do |hop|
-					hops << { 
+					hops << {
 						"ttl"     => hop["ttl"].to_i,
 						"address" => hop["ipaddr"].to_s,
 						"rtt"     => hop["rtt"].to_f,
@@ -3977,7 +3978,7 @@ class DBManager
 					}
 				)
 			end
-			
+
 
 			# Put all the ports, regardless of state, into the db.
 			h["ports"].each { |p|
@@ -4012,7 +4013,7 @@ class DBManager
 			}
 			#Parse the scripts output
 			if h["scripts"]
-				h["scripts"].each do |key,val| 
+				h["scripts"].each do |key,val|
 					if key == "smb-check-vulns"
 						if val =~ /MS08-067: VULNERABLE/
 							vuln_info = {
@@ -4020,7 +4021,7 @@ class DBManager
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
-								:name => 'MS08-067', 
+								:name => 'MS08-067',
 								:info => 'Microsoft Windows Server Service Crafted RPC Request Handling Unspecified Remote Code Execution',
 								:refs =>['CVE-2008-4250',
 									'BID-31874',
@@ -4038,7 +4039,7 @@ class DBManager
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
-								:name => 'MS06-025', 
+								:name => 'MS06-025',
 								:info => 'Vulnerability in Routing and Remote Access Could Allow Remote Code Execution',
 								:refs =>['CVE-2006-2370',
 									'CVE-2006-2371',
@@ -4060,7 +4061,7 @@ class DBManager
 								:host =>  hobj || addr,
 								:port => 445,
 								:proto => 'tcp',
-								:name => 'MS07-029', 
+								:name => 'MS07-029',
 								:info => 'Vulnerability in Windows DNS RPC Interface Could Allow Remote Code Execution',
 								# Add more refs based on nessus/nexpose .. results
 								:refs =>['CVE-2007-1748',
@@ -4076,7 +4077,7 @@ class DBManager
 		}
 
 		# XXX: Legacy nmap xml parser ends here.
-		
+
 		REXML::Document.parse_stream(data, parser)
 	end
 
@@ -4137,7 +4138,7 @@ class DBManager
 		nbe_copy = data.dup
 		# First pass, just to build the address map.
 		addr_map = {}
-		
+
 		# Cache host objects before passing into handle_nessus()
 		hobj_map = {}
 
@@ -4172,7 +4173,7 @@ class DBManager
 			else
 				yield(:address,addr) if block
 			end
-			
+
 			hobj_map[ addr ] ||= report_host(:host => addr, :workspace => wspace)
 
 			# Match the NBE types with the XML severity ratings
@@ -4198,7 +4199,7 @@ class DBManager
 					}
 				)
 			end
-			
+
 			next if nasl.to_s.strip.empty?
 			plugin_name = nil # NBE doesn't ever populate this
 			handle_nessus(wspace, hobj_map[ addr ], port, nasl, plugin_name, severity, data)
@@ -4316,7 +4317,7 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-		
+
 		#@host = {
 				#'hname'             => nil,
 				#'addr'              => nil,
@@ -4336,12 +4337,12 @@ class DBManager
 				#}
 		parser = Rex::Parser::NessusXMLStreamParser.new
 		parser.on_found_host = Proc.new { |host|
-			
+
 			hobj = nil
 			addr = host['addr'] || host['hname']
-			
+
 			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
-			
+
 			if bl.include? addr
 				next
 			else
@@ -4361,7 +4362,7 @@ class DBManager
 
 			hobj = report_host(host_info)
 			report_import_note(wspace,hobj)
-	
+
 			os = host['os']
 			yield(:os,os) if block
 			if os
@@ -4374,7 +4375,7 @@ class DBManager
 					}
 				)
 			end
-	
+
 			host['ports'].each do |item|
 				next if item['port'] == 0
 				msf = nil
@@ -4385,27 +4386,27 @@ class DBManager
 				sname = item['svc_name']
 				severity = item['severity']
 				description = item['description']
-				cve = item['cve'] 
+				cve = item['cve']
 				bid = item['bid']
 				xref = item['xref']
 				msf = item['msf']
-				
+
 				yield(:port,port) if block
-				
+
 				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf)
-	
+
 			end
 			yield(:end,hname) if block
 		}
-		
+
 		REXML::Document.parse_stream(data, parser)
-		
+
 	end
 
 	def import_mbsa_xml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4414,10 +4415,10 @@ class DBManager
 				yield(:parser, parser)
 				import_mbsa_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_mbsa_noko_stream(noko_args) 
+				import_mbsa_noko_stream(noko_args)
 			end
 			return true
-		else # Sorry 
+		else # Sorry
 			raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
 		end
 	end
@@ -4435,7 +4436,7 @@ class DBManager
 	def import_foundstone_xml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4444,7 +4445,7 @@ class DBManager
 				yield(:parser, parser)
 				import_foundstone_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_foundstone_noko_stream(noko_args) 
+				import_foundstone_noko_stream(noko_args)
 			end
 			return true
 		else # Sorry
@@ -4465,7 +4466,7 @@ class DBManager
 	def import_acunetix_xml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4474,7 +4475,7 @@ class DBManager
 				yield(:parser, parser)
 				import_acunetix_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_acunetix_noko_stream(noko_args) 
+				import_acunetix_noko_stream(noko_args)
 			end
 			return true
 		else # Sorry
@@ -4496,7 +4497,7 @@ class DBManager
 	def import_appscan_xml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
 			noko_args[:blacklist] = bl
@@ -4505,7 +4506,7 @@ class DBManager
 				yield(:parser, parser)
 				import_appscan_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_appscan_noko_stream(noko_args) 
+				import_appscan_noko_stream(noko_args)
 			end
 			return true
 		else # Sorry
@@ -4526,7 +4527,7 @@ class DBManager
 	def import_burp_session_xml(args={}, &block)
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 		wspace = args[:wspace] || workspace
-		if Rex::Parser.nokogiri_loaded 
+		if Rex::Parser.nokogiri_loaded
 			# Rex::Parser.reload("burp_session_nokogiri.rb")
 			parser = "Nokogiri v#{::Nokogiri::VERSION}"
 			noko_args = args.dup
@@ -4536,7 +4537,7 @@ class DBManager
 				yield(:parser, parser)
 				import_burp_session_noko_stream(noko_args) {|type, data| yield type,data}
 			else
-				import_burp_session_noko_stream(noko_args) 
+				import_burp_session_noko_stream(noko_args)
 			end
 			return true
 		else # Sorry
@@ -4554,6 +4555,28 @@ class DBManager
 		parser.parse(args[:data])
 	end
 
+
+	#
+	# Import IP360's ASPL database
+	#
+	def import_ip360_aspl_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
+		if not data.index("<ontology")
+			raise DBImportError.new("The ASPL file does not appear to be valid or may still be compressed")
+		end
+
+		base = ::File.join(Msf::Config.config_directory, "data", "ncircle")
+		::FileUtils.mkdir_p(base)
+		::File.open(::File.join(base, "ip360.aspl"), "w") do |fd|
+			fd.write(data)
+		end
+		yield(:notice, "Saved the IP360 ASPL database to #{base}...")
+	end
+
+
 	#
 	# Import IP360's xml output
 	#
@@ -4561,18 +4584,24 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
-		
-		# @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } } 
+
+		# @aspl = {'vulns' => {'name' => { }, 'cve' => { }, 'bid' => { } }
 		# 'oses' => {'name' } }
 
-		aspl_path = File.join(Msf::Config.data_directory, "ncircle", "ip360.aspl")
-		
-		if not ::File.exist?(aspl_path)
-			raise DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and save it as " + aspl_path)
+		aspl_path  = nil
+		aspl_paths = [
+			::File.join(Msf::Config.config_directory, "data", "ncircle", "ip360.aspl"),
+			::File.join(Msf::Config.data_directory, "ncircle", "ip360.aspl")
+		]
+
+		aspl_paths.each do |tpath|
+			next if not (::File.exist?(tpath) and ::File.readable?(tpath))
+			aspl_path = tpath
+			break
 		end
-		
-		if not ::File.readable?(aspl_path)
-			raise DBImportError.new("Could not read the IP360 ASPL XML file provided at " + aspl_path)
+
+		if not aspl_path
+			raise DBImportError.new("The nCircle IP360 ASPL file is not present.\n    Download ASPL from nCircle VNE | Administer | Support | Resources, unzip it, and import it first")
 		end
 
 		# parse nCircle ASPL file
@@ -4580,10 +4609,10 @@ class DBManager
 		::File.open(aspl_path, "rb") do |f|
 			aspl = f.read(f.stat.size)
 		end
-	
+
 		@asplhash = nil
 		parser = Rex::Parser::IP360ASPLXMLStreamParser.new
-		parser.on_found_aspl = Proc.new { |asplh| 
+		parser.on_found_aspl = Proc.new { |asplh|
 			@asplhash = asplh
 		}
 		REXML::Document.parse_stream(aspl, parser)
@@ -4603,9 +4632,9 @@ class DBManager
 		parser.on_found_host = Proc.new { |host|
 			hobj = nil
 			addr = host['addr'] || host['hname']
-			
+
 			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
-			
+
 			if bl.include? addr
 				next
 			else
@@ -4624,7 +4653,7 @@ class DBManager
 			host_hash[:mac]  = mac.to_s.strip.upcase if mac
 
 			hobj = report_host(host_hash)
-			
+
 			yield(:os, os) if block
 			if os
 				report_note(
@@ -4636,7 +4665,7 @@ class DBManager
 					}
 				)
 			end
-	
+
 			host['apps'].each do |item|
 				port = item['port'].to_s
 				proto = item['proto'].to_s
@@ -4644,7 +4673,7 @@ class DBManager
 				handle_ip360_v3_svc(wspace, hobj, port, proto, hname)
 			end
 
-			
+
 			host['vulns'].each do |item|
 				vulnid = item['vulnid'].to_s
 				port = item['port'].to_s
@@ -4652,16 +4681,16 @@ class DBManager
 				vulnname = @asplhash['vulns']['name'][vulnid]
 				cves = @asplhash['vulns']['cve'][vulnid]
 				bids = @asplhash['vulns']['bid'][vulnid]
-				
+
 				yield(:port, port) if block
-				
+
 				handle_ip360_v3_vuln(wspace, hobj, port, proto, hname, vulnid, vulnname, cves, bids)
-	
+
 			end
 
 			yield(:end, hname) if block
 		}
-		
+
 		REXML::Document.parse_stream(data, parser)
 	end
 
@@ -4696,13 +4725,13 @@ class DBManager
 			next unless vi.elements["QID"]
 			vi.elements.each("QID") do |qid|
 				next if vuln_refs[qid.text].nil? || vuln_refs[qid.text].empty?
-				handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil) 
+				handle_qualys(wspace, hobj, nil, nil, qid.text, nil, vuln_refs[qid.text], nil)
 			end
 		end
 	end
 
 	# Takes QID numbers and finds the discovered services in
-	# a qualys_asset_xml. 
+	# a qualys_asset_xml.
 	def find_qualys_asset_ports(i,host,wspace,hobj)
 		return unless (i == 82023 || i == 82004)
 		proto = i == 82023 ? 'tcp' : 'udp'
@@ -4723,7 +4752,7 @@ class DBManager
 
 	#
 	# Import Qualys's Asset Data Report format
-	# 
+	#
 	def import_qualys_asset_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
@@ -4744,7 +4773,7 @@ class DBManager
 			hname = ( # Prefer NetBIOS over DNS
 				(host.elements["NETBIOS"].text if host.elements["NETBIOS"]) ||
 			 	(host.elements["DNS"].text if host.elements["DNS"]) ||
-			 	"" ) 
+			 	"" )
 			hobj = report_host(:workspace => wspace, :host => addr, :name => hname, :state => Msf::HostState::Alive)
 			report_import_note(wspace,hobj)
 
@@ -4898,7 +4927,7 @@ class DBManager
 		::File.open(filename, 'rb') do |f|
 			data = f.read(f.stat.size)
 		end
-		
+
 		case import_filetype_detect(data)
 		when :amap_log
 			import_amap_log(args.merge(:data => data))
@@ -5007,12 +5036,12 @@ class DBManager
 	# Returns something suitable for the +:host+ parameter to the various report_* methods
 	#
 	# Takes a Host object, a Session object, an Msf::Session object or a String
-	# address 
+	# address
 	#
 	def normalize_host(host)
 		return host if host.kind_of? Host
 		norm_host = nil
-		
+
 		if (host.kind_of? String)
 			# If it's an IPv4 addr with a host on the end, strip the port
 			if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
@@ -5055,10 +5084,10 @@ class DBManager
 		norm_host
 	end
 
-	# A way to sneak the yield back into the db importer. 
+	# A way to sneak the yield back into the db importer.
 	# Used by the SAX parsers.
 	def emit(sym,data,&block)
-		yield(sym,data) 
+		yield(sym,data)
 	end
 
 	# Debug logger
@@ -5176,10 +5205,10 @@ protected
 			ref_id, ref_val = r.to_s.split(':')
 			ref_val ? refs.push(ref_id + '-' + ref_val) : refs.push(ref_id)
 		end if xref
-		
+
 		msfref = "MSF-" << msf if msf
 		refs.push msfref if msfref
-		
+
 		nss = 'NSS-' + nasl
 		if nasl_name.nil? || nasl_name.empty?
 			vuln_name = nss
@@ -5206,7 +5235,7 @@ protected
 	end
 
 	#
-	# IP360 v3 vuln  
+	# IP360 v3 vuln
 	#
 	def handle_ip360_v3_svc(wspace,hobj,port,proto,hname)
 		addr = hobj.address
@@ -5223,7 +5252,7 @@ protected
 	end  #handle_ip360_v3_svc
 
 	#
-	# IP360 v3 vuln  
+	# IP360 v3 vuln
 	#
 	def handle_ip360_v3_vuln(wspace,hobj,port,proto,hname,vulnid,vulnname,cves,bids)
 		info = { :workspace => wspace, :host => hobj, :port => port, :proto => proto }
