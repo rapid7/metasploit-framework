@@ -17,6 +17,11 @@ class Def_netapi32
 			["PWCHAR","username","in"],
 			])
 
+		railgun.add_function( 'netapi32', 'NetGetJoinInformation', 'DWORD',[
+			["PBLOB","lpServer","in"],
+			["PDWORD","lpNameBugger","out"],
+			["PDWORD","BufferType","out"]
+			])
 	end
 	
 end
