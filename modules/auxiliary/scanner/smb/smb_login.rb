@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("Starting SMB login attempt on #{ip}")
 
 		if accepts_bogus_logins?
-			print_error("This system accepts authentication with any credentials, brute force is ineffective.")
+			print_error("#{smbhost} - This system accepts authentication with any credentials, brute force is ineffective.")
 			return
 		end
 
