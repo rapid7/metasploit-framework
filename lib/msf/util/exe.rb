@@ -653,7 +653,7 @@ require 'digest/sha1'
 			}
 
 			# Copy the original file
-			elf = File.read(opts[:template])
+			elf = File.open(opts[:template], "rb") {|fd| fd.read(fd.stat.size) }
 
 			# Replace the header with our rwx modified version
 			elf[e.header.phoff, new_phdr.data.length] = new_phdr.data
