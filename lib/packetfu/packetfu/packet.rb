@@ -345,7 +345,7 @@ module PacketFu
 				end
 			end
 			table
-			if @headers.last.members.include? :body
+			if @headers.last.members.map {|x| x.to_sym }.include? :body
 				body_part = [:body, self.payload, @headers.last.body.class.name]
 			end
 			table << body_part
