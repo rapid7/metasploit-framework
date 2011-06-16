@@ -27,8 +27,10 @@ def initialize(info = {})
 	register_advanced_options([
 		OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
 		OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
-		OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false])
+		OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
+		OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance.", 0])
 	], Auxiliary::AuthBrute)
+
 
 end
 
@@ -45,32 +47,11 @@ end
 # iterating over the usernames and passwords and should not respect 
 # bruteforce_speed as a delaying factor.
 def each_user_pass(noconn=false,&block)
-	# Class variables to track credential use (for threading)
-	@@credentials_tried = {}
-	@@credentials_skipped = {}
+	this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
+	fq_rest = [this_service,"all remaining users"].join(":")
 
-	credentials = extract_word_pair(datastore['USERPASS_FILE'])
-
-	translate_proto_datastores()
-
-	users = load_user_vars(credentials)
-	passwords = load_password_vars(credentials)
-
-	cleanup_files()
-
-	if datastore['USER_AS_PASS']
-		credentials = gen_user_as_password(users, credentials)
-	end
-
-	if datastore['BLANK_PASSWORDS']
-		credentials = gen_blank_passwords(users, credentials)
-	end
-
-	credentials.concat(combine_users_and_passwords(users, passwords))
-	credentials.uniq!
-	credentials = just_uniq_passwords(credentials) if @strip_usernames
-
-	fq_rest = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], "all remaining users"]
+	credentials = build_credentials_array()
+	initialize_class_variables(credentials)
 
 	credentials.each do |u, p|
 		# Explicitly be able to set a blank (zero-byte) username by setting the
@@ -79,7 +60,7 @@ def each_user_pass(noconn=false,&block)
 		u = "" if u =~ /^<BLANK>$/i
 		break if @@credentials_skipped[fq_rest]
 
-		fq_user = "%s:%s:%s" % [datastore['RHOST'], datastore['RPORT'], u]
+		fq_user = [this_service,u].join(":")
 
 		# Set noconn to indicate that in this case, each_user_pass
 		# is not actually kicking off a connection, so the
@@ -107,13 +88,80 @@ def each_user_pass(noconn=false,&block)
 			@@credentials_skipped[fq_user] = p
 
 		when :connection_error # Report an error, skip this cred, but don't abort.
-			vprint_error "#{datastore['RHOST']}:#{datastore['RPORT']} - Connection error, skipping '#{u}':'#{p}'"
-
+			print_brute(:level => :verror, 
+				:ip => datastore['RHOST'],
+				:port => datastore['RPORT'],
+				:msg => "Connection error, skipping '#{u}':'#{p}'")
 		end
+
+		@@guesses_per_service[this_service] ||= 1
 		@@credentials_tried[fq_user] = p
+
+		if @@guesses_per_service[this_service] >= (@@max_per_service)
+			if @@max_per_service < credentials.size
+				print_brute(:level => :vstatus,
+					:ip => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:msg => "Hit maximum guesses for this service.")
+				break
+			end
+		else
+			@@guesses_per_service[this_service] += 1
+		end
 	end
 end
 
+def unset_attempt_counters(ip,port)
+	@@guesses_per_service ||= {}
+	@@guesses_per_service["#{ip}:#{port}"] = nil 
+	@@max_per_service = nil 
+end
+
+def build_credentials_array
+	credentials = extract_word_pair(datastore['USERPASS_FILE'])
+
+	translate_proto_datastores()
+
+	users = load_user_vars(credentials)
+	passwords = load_password_vars(credentials)
+
+	cleanup_files()
+
+	if datastore['USER_AS_PASS']
+		credentials = gen_user_as_password(users, credentials)
+	end
+
+	if datastore['BLANK_PASSWORDS']
+		credentials = gen_blank_passwords(users, credentials)
+	end
+
+	credentials.concat(combine_users_and_passwords(users, passwords))
+	credentials.uniq!
+	credentials = just_uniq_passwords(credentials) if @strip_usernames
+	return credentials
+end
+
+# Class variables to track credential use. They need
+# to be class variables due to threading. 
+def initialize_class_variables(credentials)
+	@@credentials_skipped = {}
+	@@credentials_tried   = {}
+	@@guesses_per_service = {}
+
+	if datastore['MaxGuessesPerService'].to_i == 0 
+		@@max_per_service = credentials.size
+	else
+		if datastore['MaxGuessesPerService'].to_i >= credentials.size
+			@@max_per_service = credentials.size
+			print_brute(:level => :vstatus,
+				:ip => datastore['RHOST'],
+				:port => datastore['RPORT'],
+				:msg => "Adjusting MaxGuessesPerService to the actual total number of credentials")
+		else
+			@@max_per_service = datastore['MaxGuessesPerService'].to_i
+		end
+	end
+end
 
 def load_user_vars(credentials = nil)
 	users = extract_words(datastore['USER_FILE'])
@@ -257,21 +305,90 @@ def userpass_sleep_interval
 	::IO.select(nil,nil,nil,sleep_time) unless sleep_time == 0
 end
 
+# Provides a consistant way to display messages about AuthBrute-mixed modules.
+# Acceptable opts are fairly self-explanitory, but :level can be tricky.
+#
+# It can be one of status, good, error, or line (and corresponds to the usual 
+# print_status, print_good, etc. methods).
+#
+# If it's preceded by a "v" (ie, vgood, verror, etc), only print if 
+# datstore["VERBOSE"] is set to true.
+#
+# If :level would make the method nonsense, default to print_status.
+def print_brute(opts={})
+	if opts[:level] and opts[:level].to_s[/^v/]
+		return unless datastore["VERBOSE"]
+		level = opts[:level].to_s[1,16].strip
+	else
+		level = opts[:level].to_s.strip
+	end
+
+	host_ip = opts[:ip] || opts[:rhost] || opts[:host] 
+	host_port = opts[:port] || opts[:rport] || (rport rescue nil)
+	msg = opts[:msg] || opts[:message]
+	proto = opts[:proto] || opts[:protocol] || proto_from_fullname
+
+	complete_message = build_brute_message(host_ip,host_port,proto,msg)
+
+	print_method = "print_#{level}"
+	if self.respond_to? print_method
+		self.send print_method, complete_message
+	else
+		print_status complete_message
+	end
+end
+
+# Depending on the non-nil elements, build up a standardized
+# auth_brute message, but support the old style used by
+# vprint_status and friends as well.
+def build_brute_message(host_ip,host_port,proto,msg)
+	ip = host_ip.to_s.strip if host_ip
+	port = host_port.to_s.strip if host_port
+	complete_message = ""
+	unless ip && port
+		complete_message = msg.to_s.strip
+	else
+		complete_message << [ip,port].join(":")
+		(complete_message << " - ") if ip
+		complete_message << "#{proto.to_s.strip} - " if proto
+		progress = tried_over_total(ip,port)
+		complete_message << progress if progress
+		complete_message << msg.to_s.strip
+	end
+end
+
+# Fun trick: Only prints if we're already in each_user_pass, since
+# only then is @@max_per_service defined.
+def tried_over_total(ip,port)
+	total = self.class.class_variable_get("@@max_per_service") rescue nil
+	return unless total
+	total = total.to_i
+	current_try = (@@guesses_per_service["#{ip}:#{port}"] || 1).to_i
+	pad = total.to_s.size
+	"[%0#{pad}d/%0#{pad}d] - " % [current_try, total]
+end
+
+# Protocols can nearly always be automatically determined from the
+# name of the module, assuming the name is sensible like ssh_login or
+# smb_auth.
+def proto_from_fullname
+	File.split(self.fullname).last.match(/^(.*)_(login|auth)/)[1].upcase rescue nil
+end
+
+# Legacy vprint
 def vprint_status(msg='')
-	return if not datastore['VERBOSE']
-	print_status(msg)
+	print_brute :level => :vstatus, :msg => msg
 end
 
+# Legacy vprint
 def vprint_error(msg='')
-	return if not datastore['VERBOSE']
-	print_error(msg)
+	print_brute :level => :verror, :msg => msg
 end
 
+# Legacy vprint
 def vprint_good(msg='')
-	return if not datastore['VERBOSE']
-	print_good(msg)
+	print_brute :level => :vgood, :msg => msg
 end
-
 
 # This method deletes the dictionary files if requested
 def cleanup_files

@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 				'USERNAME'      => user,
 				'PASSWORD'      => pass
 			}
-			start_session(self, "SSH #{user}:#{pass} (#{ip}:#{port})", merge_me, false, conn.lsock)
+			start_session(self, "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})", merge_me, false, conn.lsock)
 
 			return [:success, proof]
 		else
@@ -128,41 +128,36 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	def rhost
-		datastore['RHOST']
-	end
-
-	def rport
-		datastore['RPORT']
-	end
-
 	def run_host(ip)
-		print_status("#{ip}:#{rport} - SSH - Starting bruteforce")
+		unset_attempt_counters(ip,rport)
+		print_brute :ip => ip, :msg => "Starting bruteforce"
 		each_user_pass do |user, pass|
-			vprint_status("#{ip}:#{rport} - SSH - Trying: username: '#{user}' with password: '#{pass}'")
+			print_brute :level => :vstatus, 
+				:ip => ip,
+				:msg => "Trying: username: '#{user}' with password: '#{pass}'"
 			this_attempt ||= 0
 			ret = nil
 			while this_attempt <=3 and (ret.nil? or ret == :connection_error or ret == :connection_disconnect)
 				if this_attempt > 0
 					select(nil,nil,nil,2**this_attempt)
-					vprint_error "#{rhost}:#{rport} SSH - Retrying '#{user}':'#{pass}' due to connection error"
+					print_brute :level => :verror, :ip => ip, :msg => "Retrying '#{user}':'#{pass}' due to connection error"
 				end
 				ret,proof = do_login(ip,user,pass,rport)
 				this_attempt += 1
 			end
 			case ret
 			when :success
-				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+				print_brute :level => :good, :ip => ip, :msg => "Success: '#{user}':'#{pass}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
 				do_report(ip,user,pass,rport,proof)
 				:next_user
 			when :connection_error
-				vprint_error "#{ip}:#{rport} - SSH - Could not connect"
+				print_brute :level => :verror, :ip => ip, :msg => "Could not connect"
 				:abort
 			when :connection_disconnect
-				vprint_error "#{ip}:#{rport} - SSH - Connection timed out"
+				print_brute :level => :verror, :ip => ip, :msg => "Connection timed out"
 				:abort
 			when :fail
-				vprint_error "#{ip}:#{rport} - SSH - Failed: '#{user}':'#{pass}'"
+				print_brute :level => :verror, :ip => ip, :msg => "Failed: '#{user}':'#{pass}'"
 			end
 		end
 	end
