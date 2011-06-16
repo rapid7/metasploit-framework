@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		while @run
 			packet, addr = @sock.recvfrom(512)
-			print_status("Packet Recieved from #{addr[3]}") if datastore['VERBOSE']
+			print_status("Packet Received from #{addr[3]}") if datastore['VERBOSE']
 
 			rhost = addr[3]
 			break if packet.length == 0
