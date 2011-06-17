@@ -19,22 +19,36 @@ class SVN
 		if !::File.exists?(path)
 			return info
 		end
-		ents = []
+		contents = ''
 		File.open(path, "rb") do |fd|
-			ents = fd.read(::File.size(path)).split("\x0c")
+			contents = fd.read(::File.size(path))
 		end
-		ents[0].split("\n").each do |line|
-			line.strip!
-			next if line.empty?
-			case line
-			when /framework3/
-				info[:root] = line
-			when /^\d+$/
-				info[:revision] = line.to_i
-			when /^\d{4}-\d.*T/
-				info[:updated] = line
+		if contents.include? "<?xml"
+			require 'rexml/document'
+			rd = REXML::Document.new(contents).root
+			rd.elements.each { |e|
+				if e.attributes['name'] == ""
+					info[:root] = e.attributes['url']
+					info[:revision] = e.attributes['revision']
+					info[:updated] = e.attributes['committed-date']
+					break
+				end
+			}
+		else
+			ents = contents.split("\x0c")
+			ents[0].split("\n").each do |line|
+				line.strip!
+				next if line.empty?
+				case line
+				when /framework3/
+					info[:root] = line
+				when /^\d+$/
+					info[:revision] = line.to_i
+				when /^\d{4}-\d.*T/
+					info[:updated] = line
+				end
+				break if (info[:root] and info[:revision] and info[:updated])
 			end
-			break if (info[:root] and info[:revision] and info[:updated])
 		end
 		info
 	end
