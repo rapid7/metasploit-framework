@@ -28,7 +28,8 @@ module Auxiliary::AuthBrute
 			OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
 			OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
 			OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
-			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance.", 0])
+			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance.", 0]), # Tracked in @@guesses_per_service 
+			OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance.", 0]) # Tracked in @@brute_start_time
 		], Auxiliary::AuthBrute)
 
 	end
@@ -49,8 +50,10 @@ module Auxiliary::AuthBrute
 		this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
 		fq_rest = [this_service,"all remaining users"].join(":")
 
-		credentials = build_credentials_array()
-		initialize_class_variables(credentials)
+		unless credentials ||= false # Assignment and comparison!
+			credentials = build_credentials_array()
+			initialize_class_variables(this_service,credentials)
+		end
 
 		credentials.each do |u, p|
 			# Explicitly be able to set a blank (zero-byte) username by setting the
@@ -96,23 +99,45 @@ module Auxiliary::AuthBrute
 
 			@@guesses_per_service[this_service] ||= 1
 			@@credentials_tried[fq_user] = p
-
-			if @@guesses_per_service[this_service] >= (@@max_per_service)
-				if @@max_per_service < credentials.size
-					print_brute(
-						:level => :vstatus,
-						:ip => datastore['RHOST'],
-						:port => datastore['RPORT'],
-						:msg => "Hit maximum guesses for this service.")
-					break
-				end
+			if counters_expired? this_service,credentials
+				break
 			else
 				@@guesses_per_service[this_service] += 1
 			end
+
 		end
 	end
 
-	def unset_attempt_counters(ip,port)
+	def counters_expired?(this_service,credentials)
+		expired_cred = false 
+		expired_time = false
+		if @@guesses_per_service[this_service] >= (@@max_per_service)
+			if @@max_per_service < credentials.size
+				print_brute(
+					:level => :vstatus,
+					:ip => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:msg => "Hit maximum guesses for this service (#{@@max_per_service}).")
+					expired_cred = true
+			end
+		end
+		seconds_to_run = datastore['MaxMinutesPerService'].to_i.abs * 60
+		if seconds_to_run > 0
+			if Time.now.utc.to_i > @@brute_start_time.to_i + seconds_to_run
+				print_brute(
+					:level => :vstatus,
+					:ip => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:msg => "Hit timeout for this service at #{seconds_to_run / 60}m.")
+					expired_time = true
+			end
+		end
+		expired_cred || expired_time
+	end
+
+	def reset_attempt_counters(*args)
+		ip = args[0]
+		port = args[1]
 		@@guesses_per_service ||= {}
 		@@guesses_per_service["#{ip}:#{port}"] = nil 
 		@@max_per_service = nil 
@@ -144,15 +169,16 @@ module Auxiliary::AuthBrute
 
 	# Class variables to track credential use. They need
 	# to be class variables due to threading. 
-	def initialize_class_variables(credentials)
+	def initialize_class_variables(this_service,credentials)
+		reset_attempt_counters(this_service.split(":"))
 		@@credentials_skipped = {}
 		@@credentials_tried   = {}
 		@@guesses_per_service = {}
 
-		if datastore['MaxGuessesPerService'].to_i == 0 
+		if datastore['MaxGuessesPerService'].to_i.abs == 0 
 			@@max_per_service = credentials.size
 		else
-			if datastore['MaxGuessesPerService'].to_i >= credentials.size
+			if datastore['MaxGuessesPerService'].to_i.abs >= credentials.size
 				@@max_per_service = credentials.size
 				print_brute(
 					:level => :vstatus,
@@ -160,8 +186,11 @@ module Auxiliary::AuthBrute
 					:port => datastore['RPORT'],
 					:msg => "Adjusting MaxGuessesPerService to the actual total number of credentials")
 			else
-				@@max_per_service = datastore['MaxGuessesPerService'].to_i
+				@@max_per_service = datastore['MaxGuessesPerService'].to_i.abs
 			end
+		end
+		unless datastore['MaxMinutesPerService'].to_i.abs == 0
+			@@brute_start_time = Time.now.utc
 		end
 	end
 
@@ -325,12 +354,12 @@ module Auxiliary::AuthBrute
 			level = opts[:level].to_s.strip
 		end
 
-		host_ip = opts[:ip] || opts[:rhost] || opts[:host] 
-		host_port = opts[:port] || opts[:rport] || (rport rescue nil)
-		msg = opts[:msg] || opts[:message]
+		host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
+		host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
+		msg = opts[:msg] || opts[:message] || opts[:legacy_msg] 
 		proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
-		complete_message = build_brute_message(host_ip,host_port,proto,msg)
+		complete_message = build_brute_message(host_ip,host_port,proto,msg,!!opts[:legacy_msg])
 
 		print_method = "print_#{level}"
 		if self.respond_to? print_method
@@ -343,15 +372,28 @@ module Auxiliary::AuthBrute
 	# Depending on the non-nil elements, build up a standardized
 	# auth_brute message, but support the old style used by
 	# vprint_status and friends as well.
-	def build_brute_message(host_ip,host_port,proto,msg)
+	def build_brute_message(host_ip,host_port,proto,msg,legacy)
 		ip = host_ip.to_s.strip if host_ip
 		port = host_port.to_s.strip if host_port
-		complete_message = ""
-		unless ip && port
-			complete_message = msg.to_s.strip
+		complete_message = nil
+		extracted_message = nil
+		if legacy # TODO: This is all a workaround until I get a chance to get rid of the legacy messages
+			old_msg = msg.to_s.strip
+			msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
+			if old_msg.match(msg_regex)
+				complete_message = [ip,port].join(":")
+				(complete_message << " ") if ip
+				complete_message << (old_msg.match(msg_regex)[4] || proto).to_s
+				complete_message << " - "
+				progress = tried_over_total(ip,port)
+				complete_message << progress if progress
+				complete_message << old_msg.match(msg_regex)[6].to_s.strip
+			else
+				complete_message = msg.to_s.strip
+			end
 		else
-			complete_message << [ip,port].join(":")
-			(complete_message << " - ") if ip
+			complete_message = [ip,port].join(":")
+			(complete_message << " ") if ip
 			complete_message << "#{proto.to_s.strip} - " if proto
 			progress = tried_over_total(ip,port)
 			complete_message << progress if progress
@@ -379,17 +421,17 @@ module Auxiliary::AuthBrute
 
 	# Legacy vprint
 	def vprint_status(msg='')
-		print_brute :level => :vstatus, :msg => msg
+		print_brute :level => :vstatus, :legacy_msg => msg
 	end
 
 	# Legacy vprint
 	def vprint_error(msg='')
-		print_brute :level => :verror, :msg => msg
+		print_brute :level => :verror, :legacy_msg => msg
 	end
 
 	# Legacy vprint
 	def vprint_good(msg='')
-		print_brute :level => :vgood, :msg => msg
+		print_brute :level => :vgood, :legacy_msg => msg
 	end
 
 	# This method deletes the dictionary files if requested

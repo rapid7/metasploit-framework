@@ -129,8 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		unset_attempt_counters(ip,rport)
-		print_brute :ip => ip, :msg => "Starting bruteforce"
+		print_brute :ip => ip, :msg => "Starting bruteforce" 
 		each_user_pass do |user, pass|
 			print_brute :level => :vstatus, 
 				:ip => ip,
