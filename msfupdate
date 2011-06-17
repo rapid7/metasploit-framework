@@ -15,6 +15,7 @@ $stderr.puts ""
 
 wait = (ARGV.shift.to_s == "wait")
 
+system("svn", "cleanup")
 system("svn", "update", *ARGV)
 
 if wait
