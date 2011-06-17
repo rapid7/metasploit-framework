@@ -2114,7 +2114,7 @@ class DBManager
 				when /netsparker/
 					@import_filedata[:type] = "NetSparker XML"
 					return :netsparker_xml
-				when /audits/
+				when /audits?/ # <audit> and <audits> are both valid for nCircle. wtfmate.
 					@import_filedata[:type] = "IP360 XML v3"
 					return :ip360_xml_v3
 				when /ontology/
