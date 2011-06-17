@@ -2025,7 +2025,7 @@ class DBManager
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-	# :burp_session
+	# :burp_session, :ip360_xml_v3, :ip360_aspl_xml
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 
