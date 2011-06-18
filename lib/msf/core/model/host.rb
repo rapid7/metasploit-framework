@@ -72,7 +72,7 @@ class Host < ActiveRecord::Base
 			whost[norm[:name]]      = whost[norm[:name]].to_i      + (100 * norm[:certainty])
 		end
 
-		# Grab service information and assign scores. Some services are 
+		# Grab service information and assign scores. Some services are
 		# more trustworthy than others. If more services agree than not,
 		# than that should be considered as well.
 		# Each service has a starting number of points. Services that
@@ -91,6 +91,10 @@ class Host < ActiveRecord::Base
 			when 'smb'
 				points = 210
 				case s.info
+				when /\.el([23456])(\s+|$)/  # Match Samba 3.0.33-0.30.el4 as RHEL4
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav["RHEL" + $1] = wflav["RHEL" + $1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 				when /(ubuntu|debian|fedora|red ?hat|rhel)/i
 					wname['Linux'] = wname['Linux'].to_i + points
 					wflav[$1.capitalize] = wflav[$1.capitalize].to_i + points
@@ -159,7 +163,7 @@ class Host < ActiveRecord::Base
 				when /honeypot/i # Never trust this
 					nil
 				when /ubuntu/i
-					# This needs to be above /debian/ becuase the ubuntu banner contains both, e.g.: 
+					# This needs to be above /debian/ becuase the ubuntu banner contains both, e.g.:
 					# SSH-2.0-OpenSSH_5.3p1 Debian-3ubuntu6
 					wname['Linux'] = wname['Linux'].to_i + points
 					wflav['Ubuntu'] = wflav['Ubuntu'].to_i + points
@@ -172,7 +176,7 @@ class Host < ActiveRecord::Base
 					wname['FreeBSD'] = wname['FreeBSD'].to_i + points
 					wtype['server'] = wtype['server'].to_i + points
 				when /sun_ssh/i
-					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points 
+					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points
 					wtype['server'] = wtype['server'].to_i + points
 				when /vshell|remotelyanywhere|freessh/i
 					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points
@@ -191,503 +195,503 @@ class Host < ActiveRecord::Base
 					wtype['device'] = wtype['device'].to_i + points
 
 				when /vpn3/
-					wname['Cisco VPN 3000'] = wname['Cisco VPN 3000'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco VPN 3000'] = wname['Cisco VPN 3000'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /cisco/i
-					wname['Cisco IOS'] = wname['Cisco IOS'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco IOS'] = wname['Cisco IOS'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /mpSSH/
-					wname['HP iLO'] = wname['HP iLO'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['HP iLO'] = wname['HP iLO'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 				end
 			when 'http'
 				points = 99
 				case s.info
 				when /iSeries/
-					wname['IBM iSeries'] = wname['IBM iSeries'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['IBM iSeries'] = wname['IBM iSeries'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Mandrake/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Mandrake'] = wflav['Mandrake'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Mandrake'] = wflav['Mandrake'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Mandriva/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Mandrake'] = wflav['Mandrake'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Mandrake'] = wflav['Mandrake'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Ubuntu/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Ubuntu'] = wflav['Ubuntu'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Ubuntu'] = wflav['Ubuntu'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Debian/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Debian'] = wflav['Debian'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Debian'] = wflav['Debian'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Fedora/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Fedora'] = wflav['Fedora'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Fedora'] = wflav['Fedora'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /CentOS/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['CentOS'] = wflav['CentOS'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['CentOS'] = wflav['CentOS'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /RHEL/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['RHEL'] = wflav['RHEL'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['RHEL'] = wflav['RHEL'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Red.?Hat/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Red Hat'] = wflav['Red Hat'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Red Hat'] = wflav['Red Hat'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /SuSE/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['SUSE'] = wflav['SUSE'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['SUSE'] = wflav['SUSE'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /TurboLinux/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['TurboLinux'] = wflav['TurboLinux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['TurboLinux'] = wflav['TurboLinux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Gentoo/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Gentoo'] = wflav['Gentoo'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Gentoo'] = wflav['Gentoo'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Conectiva/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Conectiva'] = wflav['Conectiva'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Conectiva'] = wflav['Conectiva'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Asianux/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Asianux'] = wflav['Asianux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Asianux'] = wflav['Asianux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Trustix/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Trustix'] = wflav['Trustix'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Trustix'] = wflav['Trustix'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /White Box/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['White Box'] = wflav['White Box'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['White Box'] = wflav['White Box'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /UnitedLinux/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['UnitedLinux'] = wflav['UnitedLinux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['UnitedLinux'] = wflav['UnitedLinux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /PLD\/Linux/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['PLD/Linux'] = wflav['PLD/Linux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['PLD/Linux'] = wflav['PLD/Linux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Vine\/Linux/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Vine/Linux'] = wflav['Vine/Linux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Vine/Linux'] = wflav['Vine/Linux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /rPath/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['rPath'] = wflav['rPath'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['rPath'] = wflav['rPath'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /StartCom/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['StartCom'] = wflav['StartCom'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['StartCom'] = wflav['StartCom'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /linux/i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /PalmOS/
-					wname['PalmOS'] = wname['PalmOS'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['PalmOS'] = wname['PalmOS'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /Microsoft[\x20\x2d]IIS\/[234]\.0/
-					wname['Microsoft Windows NT 4.0'] = wname['Microsoft Windows NT 4.0'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows NT 4.0'] = wname['Microsoft Windows NT 4.0'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Microsoft[\x20\x2d]IIS\/5\.0/
-					wname['Microsoft Windows 2000'] = wname['Microsoft Windows 2000'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2000'] = wname['Microsoft Windows 2000'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Microsoft[\x20\x2d]IIS\/5\.1/
-					wname['Microsoft Windows XP'] = wname['Microsoft Windows XP'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows XP'] = wname['Microsoft Windows XP'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Microsoft[\x20\x2d]IIS\/6\.0/
-					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Microsoft[\x20\x2d]IIS\/7\.0/
-					wname['Microsoft Windows 2008'] = wname['Microsoft Windows 2008'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2008'] = wname['Microsoft Windows 2008'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Win32/i
-					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /DD\-WRT ([^\s]+) /i
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['DD-WRT'] = wflav['DD-WRT'].to_i + points 
-					wvers[$1.strip] = wvers[$1.strip].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['DD-WRT'] = wflav['DD-WRT'].to_i + points
+					wvers[$1.strip] = wvers[$1.strip].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /Darwin/
-					wname['Apple Mac OS X'] = wname['Apple Mac OS X'].to_i + points 
+					wname['Apple Mac OS X'] = wname['Apple Mac OS X'].to_i + points
 
 				when /FreeBSD/i
-					wname['FreeBSD'] = wname['FreeBSD'].to_i + points 
+					wname['FreeBSD'] = wname['FreeBSD'].to_i + points
 
 				when /OpenBSD/i
-					wname['OpenBSD'] = wname['OpenBSD'].to_i + points 
+					wname['OpenBSD'] = wname['OpenBSD'].to_i + points
 
 				when /NetBSD/i
-					wname['NetBSD'] = wname['NetBSD'].to_i + points 
+					wname['NetBSD'] = wname['NetBSD'].to_i + points
 
 				when /NetWare/i
-					wname['Novell NetWare'] = wname['Novell NetWare'].to_i + points 
+					wname['Novell NetWare'] = wname['Novell NetWare'].to_i + points
 
 				when /OpenVMS/i
-					wname['OpenVMS'] = wname['OpenVMS'].to_i + points 
+					wname['OpenVMS'] = wname['OpenVMS'].to_i + points
 
 				when /SunOS|Solaris/i
-					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points 
+					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points
 
 				when /HP.?UX/i
-					wname['HP-UX'] = wname['HP-UX'].to_i + points 
+					wname['HP-UX'] = wname['HP-UX'].to_i + points
 				end
 			when 'snmp'
 				points = 103
 				case s.info
 				when /^Sun SNMP Agent/
-					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^SunOS ([^\s]+) ([^\s]+) /
 					# XXX 1/2 XXX what does this comment mean i wonder
-					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Sun Solaris'] = wname['Sun Solaris'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Linux ([^\s]+) ([^\s]+) /
-					whost[$1] = whost[$1].to_i + points 
-					wname['Linux ' + $2] = wname['Linux ' + $2].to_i + points 
-					wvers[$2] = wvers[$2].to_i + points 
+					whost[$1] = whost[$1].to_i + points
+					wname['Linux ' + $2] = wname['Linux ' + $2].to_i + points
+					wvers[$2] = wvers[$2].to_i + points
 					arch = get_arch_from_string(s.info)
 					warch[arch] = warch[arch].to_i + points if arch
-					wtype['server'] = wtype['server'].to_i + points 
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Novell NetWare ([^\s]+)/
-					wname['Novell NetWare ' + $1] = wname['Novell NetWare ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
+					wname['Novell NetWare ' + $1] = wname['Novell NetWare ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
 					arch = "x86"
 					warch[arch] = warch[arch].to_i + points
-					wtype['server'] = wtype['server'].to_i + points 
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Novell UnixWare ([^\s]+)/
-					wname['Novell UnixWare ' + $1] = wname['Novell UnixWare ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
+					wname['Novell UnixWare ' + $1] = wname['Novell UnixWare ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
 					arch = "x86"
 					warch[arch] = warch[arch].to_i + points
-					wtype['server'] = wtype['server'].to_i + points 
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^HP-UX ([^\s]+) ([^\s]+) /
 					# XXX
-					wname['HP-UX ' + $2] = wname['HP-UX ' + $2].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['HP-UX ' + $2] = wname['HP-UX ' + $2].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^IBM PowerPC.*Base Operating System Runtime AIX version: (\d+\.\d+)/
-					wname['IBM AIX ' + $1] = wname['IBM AIX ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['IBM AIX ' + $1] = wname['IBM AIX ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^SCO TCP\/IP Runtime Release ([^\s]+)/
-					wname['SCO UnixWare ' + $1] = wname['SCO UnixWare ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['SCO UnixWare ' + $1] = wname['SCO UnixWare ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /.* IRIX version ([^\s]+)/
-					wname['SGI IRIX ' + $1] = wname['SGI IRIX ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['SGI IRIX ' + $1] = wname['SGI IRIX ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Unisys ([^\s]+) version ([^\s]+) kernel/
-					wname['Unisys ' + $2] = wname['Unisys ' + $2].to_i + points 
-					wvers[$2] = wvers[$2].to_i + points 
-					whost[$1] = whost[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Unisys ' + $2] = wname['Unisys ' + $2].to_i + points
+					wvers[$2] = wvers[$2].to_i + points
+					whost[$1] = whost[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /.*OpenVMS V([^\s]+) /
 					# XXX
-					wname['OpenVMS ' + $1] = wname['OpenVMS ' + $1].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['OpenVMS ' + $1] = wname['OpenVMS ' + $1].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Hardware:.*Software: Windows NT Version ([^\s]+) /
-					wname['Microsoft Windows NT ' + $1] = wname['Microsoft Windows NT ' + $1].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows NT ' + $1] = wname['Microsoft Windows NT ' + $1].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Hardware:.*Software: Windows 2000 Version 5\.0/
-					wname['Microsoft Windows 2000'] = wname['Microsoft Windows 2000'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2000'] = wname['Microsoft Windows 2000'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Hardware:.*Software: Windows 2000 Version 5\.1/
-					wname['Microsoft Windows XP'] = wname['Microsoft Windows XP'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows XP'] = wname['Microsoft Windows XP'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				when /^Hardware:.*Software: Windows Version 5\.2/
-					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 
 				# XXX: TODO 2008, Vista, Windows 7
 
 				when /^Microsoft Windows CE Version ([^\s]+)+/
-					wname['Microsoft Windows CE ' + $1] = wname['Microsoft Windows CE ' + $1].to_i + points 
-					wtype['client'] = wtype['client'].to_i + points 
+					wname['Microsoft Windows CE ' + $1] = wname['Microsoft Windows CE ' + $1].to_i + points
+					wtype['client'] = wtype['client'].to_i + points
 
 				when /^IPSO ([^\s]+) ([^\s]+) /
-					whost[$1] = whost[$1].to_i + points 
-					wname['Nokia IPSO ' + $2] = wname['Nokia IPSO ' + $2].to_i + points 
-					wvers[$2] = wvers[$2].to_i + points 
+					whost[$1] = whost[$1].to_i + points
+					wname['Nokia IPSO ' + $2] = wname['Nokia IPSO ' + $2].to_i + points
+					wvers[$2] = wvers[$2].to_i + points
 					arch = get_arch_from_string(s.info)
 					warch[arch] = warch[arch].to_s + points if arch
-					wtype['device'] = wtype['device'].to_i + points 
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /^Sun StorEdge/
-					wname['Sun StorEdge'] = wname['Sun StorEdge'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Sun StorEdge'] = wname['Sun StorEdge'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /^HP StorageWorks/
-					wname['HP StorageWorks'] = wname['HP StorageWorks'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['HP StorageWorks'] = wname['HP StorageWorks'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /^Network Storage/
 					# XXX
-					wname['Network Storage Router'] = wname['Network Storage Router'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Network Storage Router'] = wname['Network Storage Router'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /Cisco Internetwork Operating System.*Version ([^\s]+)/
 					vers = $1.split(/[,^\s]/)[0]
-					wname['Cisco IOS ' + vers] = wname['Cisco IOS ' + vers].to_i + points 
-					wvers[vers] = wvers[vers].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco IOS ' + vers] = wname['Cisco IOS ' + vers].to_i + points
+					wvers[vers] = wvers[vers].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /Cisco Catalyst.*Version ([^\s]+)/
 					vers = $1.split(/[,^\s]/)[0]
-					wname['Cisco CatOS ' + vers] = wname['Cisco CatOS ' + vers].to_i + points 
-					wvers[vers] = wvers[vers].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco CatOS ' + vers] = wname['Cisco CatOS ' + vers].to_i + points
+					wvers[vers] = wvers[vers].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /Cisco 761.*Version ([^\s]+)/
 					vers = $1.split(/[,^\s]/)[0]
-					wname['Cisco 761 ' + vers] = wname['Cisco 761 ' + vers].to_i + points 
-					wvers[vers] = wvers[vers].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco 761 ' + vers] = wname['Cisco 761 ' + vers].to_i + points
+					wvers[vers] = wvers[vers].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /Network Analysis Module.*Version ([^\s]+)/
 					vers = $1.split(/[,^\s]/)[0]
-					wname['Cisco NAM ' + vers] = wname['Cisco NAM ' + vers].to_i + points 
-					wvers[vers] = wvers[vers].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco NAM ' + vers] = wname['Cisco NAM ' + vers].to_i + points
+					wvers[vers] = wvers[vers].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /VPN 3000 Concentrator Series Version ([^\s]+)/
 					vers = $1.split(/[,^\s]/)[0]
-					wname['Cisco VPN 3000 ' + vers] = wname['Cisco VPN 3000 ' + vers].to_i + points 
-					wvers[vers] = wvers[vers].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Cisco VPN 3000 ' + vers] = wname['Cisco VPN 3000 ' + vers].to_i + points
+					wvers[vers] = wvers[vers].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /ProCurve.*Switch/
-					wname['3Com ProCurve Switch'] = wname['3Com ProCurve Switch'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['3Com ProCurve Switch'] = wname['3Com ProCurve Switch'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /ProCurve.*Access Point/
-					wname['3Com Access Point'] = wname['3Com Access Point'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['3Com Access Point'] = wname['3Com Access Point'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /3Com.*Access Point/i
-					wname['3Com Access Point'] = wname['3Com Access Point'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['3Com Access Point'] = wname['3Com Access Point'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /ShoreGear/
-					wname['ShoreTel Appliance'] = wname['ShoreTel Appliance'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['ShoreTel Appliance'] = wname['ShoreTel Appliance'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /firewall/i
-					wname['Unknown Firewall'] = wname['Unknown Firewall'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Unknown Firewall'] = wname['Unknown Firewall'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /phone/i
-					wname['Unknown Phone'] = wname['Unknown Phone'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Unknown Phone'] = wname['Unknown Phone'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /router/i
-					wname['Unknown Router'] = wname['Unknown Router'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Unknown Router'] = wname['Unknown Router'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 
 				when /switch/i
-					wname['Unknown Switch'] = wname['Unknown Switch'].to_i + points 
-					wtype['device'] = wtype['device'].to_i + points 
+					wname['Unknown Switch'] = wname['Unknown Switch'].to_i + points
+					wtype['device'] = wtype['device'].to_i + points
 				#
 				# Printer Signatures
 				#
 				when /^HP ETHERNET MULTI-ENVIRONMENT/
-					wname['HP Printer'] = wname['HP Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['HP Printer'] = wname['HP Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Canon/i
-					wname['Canon Printer'] = wname['Canon Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Canon Printer'] = wname['Canon Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Epson/i
-					wname['Epson Printer'] = wname['Epson Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Epson Printer'] = wname['Epson Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /ExtendNet/i
-					wname['ExtendNet Printer'] = wname['ExtendNet Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['ExtendNet Printer'] = wname['ExtendNet Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Fiery/i
-					wname['Fiery Printer'] = wname['Fiery Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Fiery Printer'] = wname['Fiery Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Konica/i
-					wname['Konica Printer'] = wname['Konica Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Konica Printer'] = wname['Konica Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Lanier/i
-					wname['Lanier Printer'] = wname['Lanier Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Lanier Printer'] = wname['Lanier Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Lantronix/i
-					wname['Lantronix Printer'] = wname['Lantronix Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Lantronix Printer'] = wname['Lantronix Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Lexmark/i
-					wname['Lexmark Printer'] = wname['Lexmark Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Lexmark Printer'] = wname['Lexmark Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Magicolor/i
-					wname['Magicolor Printer'] = wname['Magicolor Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Magicolor Printer'] = wname['Magicolor Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Minolta/i
-					wname['Minolta Printer'] = wname['Minolta Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Minolta Printer'] = wname['Minolta Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /NetJET/i
-					wname['NetJET Printer'] = wname['NetJET Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['NetJET Printer'] = wname['NetJET Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /OKILAN/i
-					wname['OKILAN Printer'] = wname['OKILAN Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['OKILAN Printer'] = wname['OKILAN Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Phaser/i
-					wname['Phaser Printer'] = wname['Phaser Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Phaser Printer'] = wname['Phaser Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /PocketPro/i
-					wname['PocketPro Printer'] = wname['PocketPro Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['PocketPro Printer'] = wname['PocketPro Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Ricoh/i
-					wname['Ricoh Printer'] = wname['Ricoh Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Ricoh Printer'] = wname['Ricoh Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Savin/i
-					wname['Savin Printer'] = wname['Savin Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Savin Printer'] = wname['Savin Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /SHARP AR/i
-					wname['SHARP Printer'] = wname['SHARP Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['SHARP Printer'] = wname['SHARP Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Star Micronix/i
-					wname['Star Micronix Printer'] = wname['Star Micronix Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Star Micronix Printer'] = wname['Star Micronix Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Source Tech/i
-					wname['Source Tech Printer'] = wname['Source Tech Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Source Tech Printer'] = wname['Source Tech Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Xerox/i
-					wname['Xerox Printer'] = wname['Xerox Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Xerox Printer'] = wname['Xerox Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /^Brother/i
-					wname['Brother Printer'] = wname['Brother Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Brother Printer'] = wname['Brother Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /^Axis.*Network Print/i
-					wname['Axis Printer'] = wname['Axis Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Axis Printer'] = wname['Axis Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /^Prestige/i
-					wname['Prestige Printer'] = wname['Prestige Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Prestige Printer'] = wname['Prestige Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /^ZebraNet/i
-					wname['ZebraNet Printer'] = wname['ZebraNet Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['ZebraNet Printer'] = wname['ZebraNet Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /e\-STUDIO/i
-					wname['eStudio Printer'] = wname['eStudio Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['eStudio Printer'] = wname['eStudio Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /^Gestetner/i
-					wname['Gestetner Printer'] = wname['Gestetner Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Gestetner Printer'] = wname['Gestetner Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /IBM.*Print/i
-					wname['IBM Printer'] = wname['IBM Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['IBM Printer'] = wname['IBM Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /HP (Color|LaserJet|InkJet)/i
-					wname['HP Printer'] = wname['HP Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['HP Printer'] = wname['HP Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Dell (Color|Laser|Ink)/i
-					wname['Dell Printer'] = wname['Dell Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Dell Printer'] = wname['Dell Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				when /Print/i
-					wname['Unknown Printer'] = wname['Unknown Printer'].to_i + points 
-					wtype['printer'] = wtype['printer'].to_i + points 
+					wname['Unknown Printer'] = wname['Unknown Printer'].to_i + points
+					wtype['printer'] = wtype['printer'].to_i + points
 				end # End of s.info for SNMP
 
 			when 'telnet'
 				points = 105
 				case s.info
 				when /IRIX/
-					wname['SGI IRIX'] = wname['SGI IRIX'].to_i + points 
+					wname['SGI IRIX'] = wname['SGI IRIX'].to_i + points
 				when /AIX/
-					wname['IBM AIX'] = wname['IBM AIX'].to_i + points 
+					wname['IBM AIX'] = wname['IBM AIX'].to_i + points
 				when /(FreeBSD|OpenBSD|NetBSD)\/(.*) /
-					wname[$1] = wname[$1].to_i + points 
+					wname[$1] = wname[$1].to_i + points
 					arch = get_arch_from_string($2)
 					warch[arch] = warch[arch].to_i + points
 				when /Ubuntu (\d+(\.\d+)+)/
-					wname['Linux'] = wname['Linux'].to_i + points 
-					wflav['Ubuntu'] = wflav['Ubuntu'].to_i + points 
-					wvers[$1] = wvers[$1].to_i + points 
+					wname['Linux'] = wname['Linux'].to_i + points
+					wflav['Ubuntu'] = wflav['Ubuntu'].to_i + points
+					wvers[$1] = wvers[$1].to_i + points
 				when /User Access Verification/
 					wname['Cisco IOS'] = wname['Cisco IOS'].to_i + points
 				when /Microsoft/
-					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points 
+					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points
 				end # End of s.info for TELNET
-				wtype['server'] = wtype['server'].to_i + points 
+				wtype['server'] = wtype['server'].to_i + points
 
 			when 'smtp'
-				points = 103 
+				points = 103
 				case s.info
 				when /ESMTP.*SGI\.8/
-					wname['SGI IRIX'] = wname['SGI IRIX'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['SGI IRIX'] = wname['SGI IRIX'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 				end # End of s.info for SMTP
 
 			when 'netbios'
 				points = 201
 				case s.info
 				when /W2K3/i
-					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2003'] = wname['Microsoft Windows 2003'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 				when /W2K8/i
-					wname['Microsoft Windows 2008'] = wname['Microsoft Windows 2008'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
+					wname['Microsoft Windows 2008'] = wname['Microsoft Windows 2008'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
 				end # End of s.info for NETBIOS
 
 			when 'dns'
 				points = 101
 				case s.info
 				when 'Microsoft DNS'
-					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points 
-					wtype['server'] = wtype['server'].to_i + points 
-				end # End of s.info for DNS		
+					wname['Microsoft Windows'] = wname['Microsoft Windows'].to_i + points
+					wtype['server'] = wtype['server'].to_i + points
+				end # End of s.info for DNS
 			end # End of s.name case
 		# End of Services
 		end
@@ -801,7 +805,7 @@ protected
 			ret[:arch] ||= get_arch_from_string(data[:desc]) if data[:desc]
 
 		when 'host.os.retina_fingerprint'
-			# :os=>"Windows Server 2003 (X64), Service Pack 2"			
+			# :os=>"Windows Server 2003 (X64), Service Pack 2"
 			case data[:os]
 			when /Windows/
 				ret.update(parse_windows_os_str(data[:os]))
@@ -828,7 +832,7 @@ protected
 			end
 
 			# Since there is no confidence associated with them, the best we
-			# can do is just take the first one. 
+			# can do is just take the first one.
 			case oses.first
 			when /Windows/
 				ret.update(parse_windows_os_str(data[:os]))
@@ -841,7 +845,7 @@ protected
 				# Then we don't necessarily know what the os is, but this
 				# fingerprint has some version information at the end, pull it
 				# off.
-				# When Nessus doesn't know what kind of linux it has, it gives an os like 
+				# When Nessus doesn't know what kind of linux it has, it gives an os like
 				#  "Linux Kernel 2.6"
 				# The "Kernel" string is useless, so cut it off.
 				ret[:os_name] = $1.gsub("Kernel", '').strip
@@ -877,9 +881,9 @@ protected
 		#	# fingerprint.  Otherwise, it's samba which doesn't give us much of
 		#	# anything in most cases.
 		#	ret[:certainty] = 1.0 if fp.data[:os_name] =~ /Windows/
-		else 
-			# If you've fallen through this far, you've hit a generalized 
-			# pass-through fingerprint parser. 
+		else
+			# If you've fallen through this far, you've hit a generalized
+			# pass-through fingerprint parser.
 			ret[:os_name] = data[:os_name] || data[:os] || data[:os_fingerprint] || "<unknown>"
 			ret[:type] = data[:os_purpose] if data[:os_purpose]
 			ret[:arch] = data[:os_arch] if data[:os_arch]
@@ -966,3 +970,4 @@ end
 
 end
 end
+
