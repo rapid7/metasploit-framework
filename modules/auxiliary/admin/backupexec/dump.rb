@@ -33,6 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					['CVE', 'CVE-2005-2611'],
 					['OSVDB', '18695'],
 					['BID', '14551'],
 					['URL', 'http://www.fpns.net/willy/msbksrc.lzh'],
@@ -281,3 +282,4 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
+
