@@ -32,6 +32,7 @@ The Metasploit Framework is provided under the 3-clause BSD license above.
 
 The copyright on this package is held by Rapid7 LLC.
 
+
 This license does not apply to the following components:
  - The OpenSSL library embedded into the Meterpreter payload binaries and the
    corresponding header files in the source tree
@@ -63,4 +64,4 @@ To subscribe, visit the following web page:
 
 The archives are available from:
  https://mail.metasploit.com/pipermail/framework/
- 
+
