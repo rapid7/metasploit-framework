@@ -28,10 +28,21 @@ module Auxiliary::AuthBrute
 			OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
 			OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
 			OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
-			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance.", 0]), # Tracked in @@guesses_per_service 
-			OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance.", 0]) # Tracked in @@brute_start_time
+			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service 
+			OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
+			OptInt.new('MaxGuessesPerUser', [ false, %q{
+				Maximum guesses for a particular username for the service instance. 
+				Note that users are considered unique among different services, so a 
+				user at 10.1.1.1:22 is different from one at 10.2.2.2:22, and both will
+				be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
+				this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
 		], Auxiliary::AuthBrute)
 
+
+	end
+
+	def setup
+		@@max_per_service = nil
 	end
 
 	# Checks all three files for usernames and passwords, and combines them into
@@ -50,8 +61,12 @@ module Auxiliary::AuthBrute
 		this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
 		fq_rest = [this_service,"all remaining users"].join(":")
 
+		# This should kinda halfway be in setup, halfway in run... need to
+		# revisit this.
 		unless credentials ||= false # Assignment and comparison!
-			credentials = build_credentials_array()
+			credentials ||= build_credentials_array()
+			credentials = adjust_credentials_by_max_user(credentials) 
+			this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
 			initialize_class_variables(this_service,credentials)
 		end
 
@@ -135,14 +150,6 @@ module Auxiliary::AuthBrute
 		expired_cred || expired_time
 	end
 
-	def reset_attempt_counters(*args)
-		ip = args[0]
-		port = args[1]
-		@@guesses_per_service ||= {}
-		@@guesses_per_service["#{ip}:#{port}"] = nil 
-		@@max_per_service = nil 
-	end
-
 	def build_credentials_array
 		credentials = extract_word_pair(datastore['USERPASS_FILE'])
 
@@ -170,7 +177,8 @@ module Auxiliary::AuthBrute
 	# Class variables to track credential use. They need
 	# to be class variables due to threading. 
 	def initialize_class_variables(this_service,credentials)
-		reset_attempt_counters(this_service.split(":"))
+		@@guesses_per_service ||= {}
+		@@guesses_per_service[this_service] = nil
 		@@credentials_skipped = {}
 		@@credentials_tried   = {}
 		@@guesses_per_service = {}
@@ -282,8 +290,11 @@ module Auxiliary::AuthBrute
 			end
 		end
 
-		# Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
 		creds = [ [], [], [], [] ] # userpass, pass, user, rest
+		# Move datastore['USERNAME'] and datastore['PASSWORD'] to the front of the list.
+		# Note that we cannot tell the user intention if USERNAME or PASSWORD is blank --
+		# maybe (and it's often) they wanted a blank. One more credential won't kill
+		# anyone, and hey, won't they be lucky if blank user/blank pass actually works!
 		combined_array.each do |pair|
 			if pair == [datastore['USERNAME'],datastore['PASSWORD']]
 				creds[0] << pair
@@ -399,6 +410,29 @@ module Auxiliary::AuthBrute
 			complete_message << progress if progress
 			complete_message << msg.to_s.strip
 		end
+	end
+
+	# Takes a credentials array, and returns just the first X involving
+	# a particular user.
+	def adjust_credentials_by_max_user(credentials)
+		max = datastore['MaxGuessesPerUser'].to_i.abs
+		if max == 0
+			new_credentials = credentials
+		else
+			print_brute(
+				:level => :vstatus,
+				:msg => "Adjusting credentials by MaxGuessesPerUser (#{max})"
+			)
+			user_count = {}
+			new_credentials = []
+			credentials.each do |u,p|
+				user_count[u] ||= 0
+				user_count[u] += 1
+				next if user_count[u] > max
+				new_credentials << [u,p]
+			end
+		end
+		return new_credentials
 	end
 
 	# Fun trick: Only prints if we're already in each_user_pass, since
