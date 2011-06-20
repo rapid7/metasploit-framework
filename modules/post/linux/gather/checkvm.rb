@@ -13,6 +13,7 @@ require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
 require 'msf/core/post/linux/priv'
+require 'msf/core/post/linux/system'
 
 class Metasploit3 < Msf::Post
 
@@ -34,7 +35,7 @@ class Metasploit3 < Msf::Post
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
-				'SessionTypes'  => [ 'shell' ]
+				'SessionTypes'  => [ 'shell', 'meterpreter' ]
 			))
 	end
 
