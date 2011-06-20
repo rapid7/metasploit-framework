@@ -2,7 +2,7 @@ require 'msf/core/post/common'
 
 module Msf
 class Post
-
+module Solaris
 module Priv
 	include ::Msf::Post::Common
 
@@ -17,5 +17,6 @@ module Priv
 		end
 
 end # Priv
+end # Solaris
 end # Post
 end # Msf

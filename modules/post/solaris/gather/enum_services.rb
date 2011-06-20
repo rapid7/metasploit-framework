@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	include Msf::Post::System
+	include Msf::Post::Solaris::System
 
 	def initialize(info={})
 		super( update_info( info,

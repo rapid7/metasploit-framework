@@ -3,7 +3,7 @@ require 'msf/core/post/file'
 
 module Msf
 class Post
-
+module Solaris
 module System
 	include ::Msf::Post::Common
 		include ::Msf::Post::File
@@ -56,5 +56,6 @@ module System
 
 
 end # System
+end # Solaris
 end # Post
 end # Msf
