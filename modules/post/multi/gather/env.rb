@@ -31,6 +31,8 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		print_status(datastore.inspect)
+
 		case session.type
 		when "shell"
 			get_env_shell

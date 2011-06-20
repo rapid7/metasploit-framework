@@ -60,7 +60,11 @@ module Scriptable
 		if (mod and mod.type == "post")
 			# Don't report module run events here as it will be taken care of
 			# in +Post.run_simple+
-			opts = (args + [ "SESSION=#{self.sid}" ]).join(',')
+			opts = { 'SESSION' => self.sid }
+			args.each do |arg|
+				k,v = arg.split("=", 2)
+				opts[k] = v
+			end
 			mod.run_simple(
 				# Run with whatever the default stance is for now.  At some
 				# point in the future, we'll probably want a way to force a
@@ -68,7 +72,7 @@ module Scriptable
 				#'RunAsJob' => true,
 				'LocalInput'  => self.user_input,
 				'LocalOutput' => self.user_output,
-				'OptionStr'   => opts
+				'Options'     => opts
 			)
 		else
 			full_path = self.class.find_script_path(script_name)

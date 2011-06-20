@@ -2,6 +2,8 @@
 # $Id$
 ##
 
+require 'shellwords'
+
 module Msf
 module Sessions
 module MeterpreterOptions
@@ -27,7 +29,7 @@ module MeterpreterOptions
 
 		# Defer the session initialization to the Session Manager scheduler
 		framework.sessions.schedule Proc.new {
-		
+
 		session.init_ui(self.user_input, self.user_output)
 
 		if (datastore['AutoLoadStdapi'] == true)
@@ -54,16 +56,15 @@ module MeterpreterOptions
 				session.load_priv rescue nil
 			end
 		end
-		
-		
+
 		[ 'InitialAutoRunScript', 'AutoRunScript' ].each do |key|
 			if (datastore[key].empty? == false)
-				args = datastore[key].split
+				args = Shellwords.shellwords( datastore[key] )
 				print_status("Session ID #{session.sid} (#{session.tunnel_to_s}) processing #{key} '#{datastore[key]}'")
 				session.execute_script(args.shift, *args)
 			end
 		end
-		
+
 		}
 
 	end
