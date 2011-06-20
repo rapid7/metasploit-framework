@@ -2,7 +2,7 @@ require 'msf/core/post/common'
 
 module Msf
 class Post
-
+module Linux
 module Priv
 	include ::Msf::Post::Common
 
@@ -21,5 +21,6 @@ module Priv
 		end
 
 end # Priv
+end # Linux
 end # Post
 end # Msf

@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	include Msf::Post::Priv
-	include Msf::Post::System
+	include Msf::Post::Linux::Priv
+	include Msf::Post::Linux::System
 
 
 	def initialize(info={})
