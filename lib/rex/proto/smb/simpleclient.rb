@@ -202,7 +202,7 @@ attr_accessor	:socket, :client, :direct, :shares, :last_share
 
 			# Disable NTLMv2 Session for Windows 2000 (breaks authentication on some systems)
 			# XXX: This in turn breaks SMB auth for Windows 2000 configured to enforce NTLMv2
-			# XXX: Tracked by ticket #4785
+			# XXX: Tracked by ticket #4785#4785
 			if self.client.native_lm =~ /Windows 2000 5\.0/ and usentlm2_session
 				self.client.usentlm2_session = false
 			end
