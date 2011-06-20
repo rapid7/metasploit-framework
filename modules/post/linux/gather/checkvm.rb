@@ -148,8 +148,8 @@ class Metasploit3 < Msf::Post
 
 		# Check dmesg Output
 		if not vm
-		case dmesg
-		when /vboxbios|vboxcput|vboxfacp|vboxxsdt|(vbox cd-rom)|(vbox harddisk)/i
+			case dmesg
+			when /vboxbios|vboxcput|vboxfacp|vboxxsdt|(vbox cd-rom)|(vbox harddisk)/i
 				vm = "VirtualBox"
 			when /(vmware virtual ide)|(vmware pvscsi)|(vmware virtual platform)/i
 				vm = "VMware"
