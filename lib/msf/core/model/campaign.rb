@@ -30,6 +30,7 @@ class Campaign < ActiveRecord::Base
 	serialized_prefs_attr_accessor :do_exe_gen
 	serialized_prefs_attr_accessor :exe_lport
 	serialized_prefs_attr_accessor :exe_name
+	serialized_prefs_attr_accessor :macro_name
 
 end
 
