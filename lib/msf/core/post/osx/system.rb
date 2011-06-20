@@ -3,7 +3,7 @@ require 'msf/core/post/file'
 
 module Msf
 class Post
-
+module OSX
 module System
 	include ::Msf::Post::Common
 		include ::Msf::Post::File
@@ -98,5 +98,6 @@ module System
 			return groups
 		end
 end # System
+end # OSX
 end # Post
 end # Msf
