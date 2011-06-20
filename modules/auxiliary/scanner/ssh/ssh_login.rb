@@ -11,7 +11,6 @@
 
 require 'msf/core'
 require 'net/ssh'
-load 'msf/core/auxiliary/auth_brute.rb'
 
 class Metasploit3 < Msf::Auxiliary
 
