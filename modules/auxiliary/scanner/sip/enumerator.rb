@@ -131,6 +131,8 @@ class Metasploit3 < Msf::Auxiliary
 		serv  = ''
 		prox  = ''
 
+		rhost,rport = pkt[1], pkt[2]
+
 		if(pkt[0] =~ /^To\:\s*(.*)$/i)
 			testn = "#{$1.strip}".split(';')[0]
 		end
