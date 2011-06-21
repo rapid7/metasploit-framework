@@ -17,7 +17,7 @@ require 'msf/core/post/windows/priv'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
-	include Msf::Post::Priv
+	include Msf::Post::Windows::Priv
 
 	def initialize(info={})
 		super(update_info(info,

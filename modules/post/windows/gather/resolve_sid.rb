@@ -14,7 +14,7 @@ require 'msf/core/post/windows/accounts'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Accounts
+	include Msf::Post::Windows::Accounts
 
 	def initialize(info={})
 		super( update_info( info,

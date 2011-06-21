@@ -1,5 +1,6 @@
 module Msf
 class Post
+module Windows
 
 module Eventlog
 	#enumerate eventlogs
@@ -30,6 +31,7 @@ module Eventlog
 	end
 
 
+end
 end
 end
 end

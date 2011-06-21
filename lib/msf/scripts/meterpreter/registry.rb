@@ -5,7 +5,7 @@ module Scripts
 module Meterpreter
 module Common
 
-include ::Msf::Post::Registry
+include ::Msf::Post::Windows::Registry
 
 end
 end

@@ -1,6 +1,7 @@
 module Msf
 class Post
-
+module Windows
+	
 module Accounts
 
 	##
@@ -176,5 +177,6 @@ module Accounts
 		][enum_value - 1]
 	end
 end # Accounts
+end # Windows
 end # Post
 end # Msf

@@ -5,7 +5,7 @@ module Scripts
 module Meterpreter
 module Common
 
-include ::Msf::Post::Accounts
+include ::Msf::Post::Windows::Accounts
 
 end
 end

@@ -16,7 +16,7 @@ require 'msf/core/post/windows/registry'
 class Metasploit3 < Msf::Post
 
 	include Msf::Auxiliary::Report
-
+	include Msf::Post::Windows::Registry
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather Local User Account Password Hashes (Registry)',

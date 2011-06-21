@@ -3,10 +3,11 @@ require 'msf/core/post/windows/accounts'
 
 module Msf
 class Post
+module Windows
 
 module Priv
 
-	include ::Msf::Post::Accounts
+	include ::Msf::Post::Windows::Accounts
 	# Returns true if user is admin and false if not.
 	def is_admin?
 		return session.railgun.shell32.IsUserAnAdmin()["return"]
@@ -50,6 +51,7 @@ module Priv
 		return uac
 	end
 
+end
 end
 end
 end

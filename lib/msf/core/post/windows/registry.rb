@@ -3,6 +3,7 @@ require 'msf/core/post/windows/cli_parse'
 
 module Msf
 class Post
+module Windows
 
 module Registry
 
@@ -441,4 +442,4 @@ protected
 end
 end
 end
-
+end

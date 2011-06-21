@@ -2,10 +2,11 @@ require 'msf/core/post/windows/registry'
 
 module Msf
 class Post
+module Windows
 
 module WindowsServices
 
-	include ::Msf::Post::Registry
+	include ::Msf::Post::Windows::Registry
 	#
 	# List all Windows Services present. Returns an Array containing the names
 	# of the services.
@@ -187,5 +188,6 @@ module WindowsServices
 	end
 end
 
+end
 end
 end

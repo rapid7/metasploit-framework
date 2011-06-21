@@ -17,8 +17,8 @@ require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::Accounts
-	include Msf::Post::Registry
+	include Msf::Post::Windows::Accounts
+	include Msf::Post::Windows::Registry
 	include Msf::Post::Common
 	include Msf::Post::File
 	

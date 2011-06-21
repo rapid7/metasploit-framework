@@ -7,8 +7,8 @@ module Scripts
 module Meterpreter
 module Common
 
-include Msf::Post::Priv
-include Msf::Post::Eventlog
+include Msf::Post::Windows::Priv
+include Msf::Post::Windows::Eventlog
 include Msf::Post::Common
 
 end

@@ -10,10 +10,10 @@
 require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
-
+require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
-	include Msf::Post::Registry
+	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})

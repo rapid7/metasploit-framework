@@ -21,25 +21,29 @@ def app_list
 	threadnum = 0
 	a = []
 	appkeys.each do |keyx86|
-
-		registry_enumkeys(keyx86).each do |k|
-			if threadnum < 10
-				a.push(::Thread.new {
-						begin
-							dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
-							dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
-							tbl << [dispnm,dispversion]
-						rescue
-						end
-					})
-				threadnum += 1
-			else
-				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-				threadnum = 0
+		soft_keys = registry_enumkeys(keyx86)
+		if soft_keys
+			soft_keys.each do |k|
+				if threadnum < 10
+					a.push(::Thread.new {
+							begin
+								dispnm = registry_getvaldata("#{keyx86}\\#{k}","DisplayName")
+								dispversion = registry_getvaldata("#{keyx86}\\#{k}","DisplayVersion")
+								if dispnm =~ /\S*/
+									tbl << [dispnm,dispversion]
+								end
+							rescue
+							end
+						})
+					threadnum += 1
+				else
+					sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+					threadnum = 0
+				end
 			end
 		end
-				
-	
+
+
 	end
 	print_line("\n" + tbl.to_s + "\n")
 end

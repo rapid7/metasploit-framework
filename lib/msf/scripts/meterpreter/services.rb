@@ -5,7 +5,7 @@ module Scripts
 module Meterpreter
 module Common
 
-include ::Msf::Post::WindowsServices
+include ::Msf::Post::Windows::WindowsServices
 
 end
 end
