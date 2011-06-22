@@ -83,7 +83,7 @@ class Module
 		# modules get loaded
 		#
 		def inspect
-			"#<Class for #{fullname}>"
+			"#<Class for #{refname}>"
 		end
 	end
 
