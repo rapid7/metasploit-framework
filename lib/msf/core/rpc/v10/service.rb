@@ -101,7 +101,11 @@ class Service
 
 		begin
 			if req.method != "POST"
-				raise ArgumentError, "Invalid Request Verb"
+				if req && req.method
+					raise ArgumentError, "Invalid Request Verb: `#{req.method.inspect}'"
+				else
+					raise ArgumentError, "Invalid Request: `#{req.inspect}'"
+				end
 			end
 			
 			if not (req.headers["Content-Type"] and req.headers["Content-Type"] == "binary/message-pack")
@@ -117,7 +121,7 @@ class Service
 			group, funct = msg.shift.split(".", 2)
 	
 			if not self.handlers[group]
-				raise ArgumentError, "Unknown API Group"
+				raise ArgumentError, "Unknown API Group: `#{group.inspect}'"
 			end
 
 			doauth = true
@@ -129,7 +133,7 @@ class Service
 			end
 
 			if not self.handlers[group].respond_to?(mname)
-				raise ArgumentError, "Unknown API Call"
+				raise ArgumentError, "Unknown API Call: `#{mname.inspect}'"
 			end
 			
 			if doauth
