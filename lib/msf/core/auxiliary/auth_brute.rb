@@ -93,6 +93,16 @@ module Auxiliary::AuthBrute
 
 			case ret
 			when :abort # Skip the current host entirely.
+				abort_msg = {
+					:level => :error,
+					:ip => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:msg => "Bruteforce cancelled against this service."
+				}
+				unless datastore['VERBOSE']
+					abort_msg[:msg] << " Enable verbose output for service-specific details."
+				end
+				print_brute abort_msg
 				break
 
 			when :next_user # This means success for that user.
@@ -104,7 +114,7 @@ module Auxiliary::AuthBrute
 			when :skip_user # Skip the user in non-success cases. 
 				@@credentials_skipped[fq_user] = p
 
-			when :connection_error # Report an error, skip this cred, but don't abort.
+			when :connection_error # Report an error, skip this cred, but don't neccisarily abort.
 				print_brute(
 					:level => :verror, 
 					:ip => datastore['RHOST'],
@@ -391,7 +401,7 @@ module Auxiliary::AuthBrute
 		if legacy # TODO: This is all a workaround until I get a chance to get rid of the legacy messages
 			old_msg = msg.to_s.strip
 			msg_regex = /(#{ip})(:#{port})?(\s*-?\s*)(#{proto.to_s})?(\s*-?\s*)(.*)/ni
-			if old_msg.match(msg_regex)
+			if old_msg.match(msg_regex) and !old_msg.match(msg_regex)[6].to_s.strip.empty?
 				complete_message = [ip,port].join(":")
 				(complete_message << " ") if ip
 				complete_message << (old_msg.match(msg_regex)[4] || proto).to_s

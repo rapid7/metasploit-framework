@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		vprint_status("Starting SMB login attempt on #{ip}")
+		print_brute(:level => :vstatus, :ip => ip, :msg => "Starting SMB login bruteforce")
 
 		if accepts_bogus_logins?
 			print_error("#{smbhost} - This system accepts authentication with any credentials, brute force is ineffective.")
