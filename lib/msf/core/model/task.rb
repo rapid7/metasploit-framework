@@ -8,6 +8,7 @@ class Task < ActiveRecord::Base
 
 	serialize :options
 	serialize :result
+	serialize :settings
 end
 
 end
