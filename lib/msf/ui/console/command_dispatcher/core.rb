@@ -1127,6 +1127,10 @@ class Core
 		match   = ''
 		@@search_opts.parse(args) { |opt, idx, val|
 			case opt
+			when "-t"
+				print_error("Deprecated option.  Use type:#{val} instead")
+				cmd_search_help
+				return
 			when "-h"
 				cmd_search_help
 				return
@@ -1164,7 +1168,26 @@ class Core
 	def cmd_search_help
 		print_line "Usage: search [keywords]"
 		print_line
-		print @@search_opts.usage
+		print_line "Keywords:"
+		{ 
+			"name"     => "Modules with a matching descriptive name",
+			"path"     => "Modules with a matching path or reference name",
+			"platform" => "Modules affecting this platform",
+			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
+			"app"      => "Modules that are client or server attacks",
+			"author"   => "Modules written by this author",
+			"cve"      => "Modules with a matching CVE ID",
+			"bid"      => "Modules with a matching Bugtraq ID",
+			"osvdb"    => "Modules with a matching OSVDB ID" 
+		}.each_pair do |keyword, description|
+			print_line "  #{keyword.ljust 10}:  #{description}"
+		end
+		print_line
+		print_line "Examples:"
+		print_line "  search cve:2009 type:exploit app:client"
+		print_line
+
+		#print @@search_opts.usage
 	end
 
 	#
