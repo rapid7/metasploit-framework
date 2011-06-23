@@ -329,7 +329,7 @@ class Metasploit3 < Msf::Auxiliary
 			"_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp.","_h323cs._tcp.",
 			"_h323cs._udp.","_h323be._tcp.","_h323be._udp.","_h323ls._tcp.","_h323ls._udp.",
 			"_sipinternal._tcp.","_sipinternaltls._tcp.","_sip._tls.","_sipfederationtls._tcp.",
-			"_jabber._tcp.","_xmpp-server._tcp.","_xmpp-client._tcp.","_imap.tcp.","_certificates._tcp.",
+			"_jabber._tcp.","_xmpp-server._tcp.","_xmpp-client._tcp.","_imap._tcp.","_certificates._tcp.",
 			"_crls._tcp.","_pgpkeys._tcp.","_pgprevokations._tcp.","_cmp._tcp.","_svcp._tcp.","_crl._tcp.",
 			"_ocsp._tcp.","_PKIXREP._tcp.","_smtp._tcp.","_hkp._tcp.","_hkps._tcp.","_jabber._udp.",
 			"_xmpp-server._udp.","_xmpp-client._udp.","_jabber-client._tcp.","_jabber-client._udp."]
