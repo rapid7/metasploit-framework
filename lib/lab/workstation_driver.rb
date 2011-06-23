@@ -31,38 +31,38 @@ class WorkstationDriver < VmDriver
 	end
 
 	def start
-		system_command("vmrun -T ws start " + "\'#{@location}\'")
+		system_command("vmrun -T ws start " + "\'#{@location}\' nogui")
 	end
 
 	def stop
-		system_command("vmrun -T ws stop " + "\'#{@location}\'")
+		system_command("vmrun -T ws stop " + "\'#{@location}\' nogui")
 	end
 
 	def suspend
-		system_command("vmrun -T ws suspend " + "\'#{@location}\'")
+		system_command("vmrun -T ws suspend " + "\'#{@location}\' nogui")
 	end
 
 	def pause
-		system_command("vmrun -T ws pause " + "\'#{@location}\'")
+		system_command("vmrun -T ws pause " + "\'#{@location}\' nogui")
 	end
 
 	def reset
-		system_command("vmrun -T ws reset " + "\'#{@location}\'")
+		system_command("vmrun -T ws reset " + "\'#{@location}\' nogui")
 	end
 
 	def create_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("vmrun -T ws snapshot " + "\'#{@location}\' \'#{snapshot}\'")
+		system_command("vmrun -T ws snapshot " + "\'#{@location}\' \'#{snapshot}\' nogui")
 	end
 
 	def revert_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("vmrun -T ws revertToSnapshot " + "\'#{@location}\' \'#{snapshot}\'")
+		system_command("vmrun -T ws revertToSnapshot " + "\'#{@location}\' \'#{snapshot}\' nogui")
 	end
 
 	def delete_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		system_command("vmrun -T ws deleteSnapshot " + "\'#{@location}\' \'#{snapshot}\'" )
+		system_command("vmrun -T ws deleteSnapshot " + "\'#{@location}\' \'#{snapshot}\' nogui" )
 	end
 
 	def run_command(command)
