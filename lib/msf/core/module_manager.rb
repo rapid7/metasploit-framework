@@ -733,6 +733,7 @@ class ModuleManager < ModuleSet
 			return
 		end
 
+		added = nil
 		::Msf::Framework::Major.downto(1) do |major|
 			if wrap.const_defined?("Metasploit#{major}")
 				added = wrap.const_get("Metasploit#{major}")
