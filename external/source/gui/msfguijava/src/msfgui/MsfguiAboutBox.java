@@ -1,6 +1,5 @@
 package msfgui;
 
-import javax.swing.JOptionPane;
 import org.jdesktop.application.Action;
 
 /**

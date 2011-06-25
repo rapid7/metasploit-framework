@@ -116,7 +116,7 @@ public class MainFrame extends FrameView {
 		connectRpc();
 		getFrame().addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
-				if(!confirmStop())
+				if(!MsfguiApp.shuttingDown && !confirmStop())
 					throw new RuntimeException("Closing aborted.");
 			}
 		});
@@ -137,13 +137,13 @@ public class MainFrame extends FrameView {
 			return true;
 		try {
 			int choice = JOptionPane.showConfirmDialog(getFrame(), "Stop msfrpcd?");
+			if(choice != JOptionPane.YES_OPTION && choice != JOptionPane.NO_OPTION)
+				return false;
+			MsfguiApp.shuttingDown = true;
 			if(choice == JOptionPane.YES_OPTION)
 				rpcConn.execute("core.stop");
 			else if(choice == JOptionPane.NO_OPTION)
 				rpcConn.execute("auth.logout");
-			else
-				return false;
-			MsfguiApp.shuttingDown = true;
 		} catch (Exception ex) {
 		}
 		return true;

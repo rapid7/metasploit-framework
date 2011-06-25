@@ -71,9 +71,9 @@ public class RpcConnection {
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
 		} catch (MsfException xre) {
-			 message = xre.getLocalizedMessage();
+			message = xre.getLocalizedMessage();
 		} catch (IOException io){
-			 message = io.getLocalizedMessage();
+			message = io.getLocalizedMessage();
 		} catch (NullPointerException nex){
 		} catch (NoSuchAlgorithmException nsax){
 		} catch (KeyManagementException kmx){
@@ -197,8 +197,10 @@ public class RpcConnection {
 					ex = ex2;
 				}
 				if(! (ex instanceof MsfException)){
-					ex.printStackTrace();
-					throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
+					if(! MsfguiApp.shuttingDown || !ex.getLocalizedMessage().toLowerCase().contains("broken pipe")){
+						ex.printStackTrace();
+						throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
+					}
 				}
 				throw (MsfException)ex;
 			}
@@ -422,6 +424,14 @@ public class RpcConnection {
 						if(mex.getMessage().toLowerCase().contains("authentication error")){
 							mex.printStackTrace();
 							setMessage("Cannot connect to started msfrpcd.");
+							throw mex;
+						}else if(mex.getMessage().toLowerCase().contains("connection reset")){
+							mex.printStackTrace();
+							setMessage("Connection reset.");
+							throw mex;
+						}else if(mex.getMessage().toLowerCase().contains("timed out")){
+							mex.printStackTrace();
+							setMessage("Timeout.");
 							throw mex;
 						}
 					}

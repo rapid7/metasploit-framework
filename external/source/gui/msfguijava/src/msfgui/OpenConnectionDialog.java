@@ -60,6 +60,12 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			if(mex.getMessage().toLowerCase().contains("authentication error"))
 				mainframe.statusAnimationLabel.setText("Error authenticating; msfrpcd is running "
 						+"but you did not enter the right credentials.");
+			else if (mex.getMessage().toLowerCase().contains("connection reset"))
+				mainframe.statusAnimationLabel.setText("Connection reset; is the SSL option correct?"
+						+ " Is msfrpcd running on the right port?");
+			else if (mex.getMessage().toLowerCase().contains("timed out"))
+				mainframe.statusAnimationLabel.setText("Timeout; is the SSL option correct?"
+						+ " Is msfrpcd running on the right port?");
 		} catch (NullPointerException nex) {//generated when attributes dont exist.
 		}
 		//Darn. open the gui anyway
