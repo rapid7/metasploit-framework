@@ -81,7 +81,7 @@ module Shell
 
 			self.input.output = self.output
 		end
-		update_prompt('')
+		update_prompt('') if not input.prompt
 	end
 
 	#

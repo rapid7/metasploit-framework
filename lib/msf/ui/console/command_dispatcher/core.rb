@@ -66,7 +66,6 @@ class Core
 	@@search_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner."                                   ])
 
-
 	# The list of data store elements that cannot be set when in defanged
 	# mode.
 	DefangedProhibitedDataStoreElements = [ "MsfModulePaths" ]
@@ -106,6 +105,7 @@ class Core
 			"unsetg"   => "Unsets one or more global variables",
 			"use"      => "Selects a module by name",
 			"version"  => "Show the framework and console library version numbers",
+			"spool"    => "Write console output into a file as well the screen"
 		}
 	end
 
@@ -289,7 +289,7 @@ class Core
 		if(avdwarn)
 			avdwarn.map{|line| print_error(line) }
 		end
-		
+
 	end
 
 	#
@@ -1138,8 +1138,8 @@ class Core
 				match += val + " "
 			end
 		}
-		
-		tbl = generate_module_table("Matching Modules")	
+
+		tbl = generate_module_table("Matching Modules")
 		framework.modules.each do |m|
 			o = framework.modules.create(m[0])
 			if not o.search_filter(match)
@@ -1169,7 +1169,7 @@ class Core
 		print_line "Usage: search [keywords]"
 		print_line
 		print_line "Keywords:"
-		{ 
+		{
 			"name"     => "Modules with a matching descriptive name",
 			"path"     => "Modules with a matching path or reference name",
 			"platform" => "Modules affecting this platform",
@@ -1178,7 +1178,7 @@ class Core
 			"author"   => "Modules written by this author",
 			"cve"      => "Modules with a matching CVE ID",
 			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID" 
+			"osvdb"    => "Modules with a matching OSVDB ID"
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
 		end
@@ -1188,6 +1188,30 @@ class Core
 		print_line
 
 		#print @@search_opts.usage
+	end
+
+	def cmd_spool(*args)
+		if args.include?('-h') or args.empty?
+			cmd_spool_help
+			return
+		end
+
+		if args[0] == "off"
+			driver.init_ui(driver.input, Rex::Ui::Text::Output::Stdio.new)
+			print_status("Spooling is now disabled")
+			return
+		end
+
+		driver.init_ui(driver.input, Rex::Ui::Text::Output::Tee.new(args[0]))
+		print_status("Spooling to file #{args[0]}...")
+	end
+
+	def cmd_spool_help
+		print_line "Usage: spool <off>|<filename>"
+		print_line
+		print_line "Example:"
+		print_line "  spool /tmp/console.log"
+		print_line
 	end
 
 	#
@@ -1202,7 +1226,7 @@ class Core
 		cmds    = []
 		script  = nil
 		reset_ring = false
-		
+
 		# any arguments that don't correspond to an option or option arg will
 		# be put in here
 		extra   = []
@@ -1258,8 +1282,8 @@ class Core
 				when "-u"
 					method = 'upexec'
 					sid = val
-					
-				# Reset the ring buffer read pointer 
+
+				# Reset the ring buffer read pointer
 				when "-r"
 					reset_ring = true
 					method = 'reset_ring'
@@ -1695,7 +1719,7 @@ class Core
 					end
 				when 'sessions'
 					if (active_module and active_module.respond_to?(:compatible_sessions))
-						sessions = active_module.compatible_sessions 
+						sessions = active_module.compatible_sessions
 					else
 						sessions = framework.sessions.keys.sort
 					end
