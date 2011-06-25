@@ -121,7 +121,7 @@ class ModuleSet < Hash
 		end
 		list.each(&block)
 	end
-	
+
 	#
 	# Enumerates each module class in the set.
 	#
@@ -661,7 +661,7 @@ class ModuleManager < ModuleSet
 
 	def register_type_extension(type, ext)
 	end
-	
+
 	#
 	# Reloads modules from all module paths
 	#
@@ -671,16 +671,16 @@ class ModuleManager < ModuleSet
 		self.module_history = {}
 		self.module_history_mtime = {}
 		self.clear
-		
+
 		self.enabled_types.each_key do |type|
 			module_sets[type].clear
 			init_module_set(type)
 		end
-		
+
 		module_paths.each do |path|
 			counts = load_modules(path, true)
 		end
-		
+
 		save_module_cache
 	end
 
@@ -733,14 +733,19 @@ class ModuleManager < ModuleSet
 			return
 		end
 
-		if(not wrap.const_defined?('Metasploit3'))
+		::Msf::Framework::Major.downto(1) do |major|
+			if wrap.const_defined?("Metasploit#{major}")
+				added = wrap.const_get("Metasploit#{major}")
+				break
+			end
+		end
+
+		if not added
 			errmsg = "Reloaded file did not contain a valid module (#{file})."
 			elog(errmsg)
 			self.module_failed[mod.file_path] = errmsg
 			return nil
 		end
-
-		added = wrap.const_get('Metasploit3')
 
 
 		self.module_failed.delete(mod.file_path)
@@ -954,13 +959,19 @@ protected
 			return false
 		end
 
-		if(not wrap.const_defined?('Metasploit3'))
-			errmsg = "Missing Metasploit3 constant"
+		::Msf::Framework::Major.downto(1) do |major|
+			if wrap.const_defined?("Metasploit#{major}")
+				added = wrap.const_get("Metasploit#{major}")
+				break
+			end
+		end
+
+		if not added
+			errmsg = "Missing Metasploit class constant"
 			self.module_failed[file] = errmsg
 			elog(errmsg)
 			return false
 		end
-		added = wrap.const_get('Metasploit3')
 
 		# If the module indicates that it is not usable on this system, then we
 		# will not try to use it.
@@ -1035,7 +1046,7 @@ protected
 		# off to a special payload set.  The payload set, in turn, will
 		# automatically create all the permutations after all the payload
 		# modules have been loaded.
-		
+
 		if (type != MODULE_PAYLOAD)
 			# Add the module class to the list of modules and add it to the
 			# type separated set of module classes
@@ -1087,3 +1098,4 @@ protected
 end
 
 end
+

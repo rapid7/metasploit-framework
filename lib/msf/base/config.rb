@@ -19,21 +19,21 @@ class Config < Hash
 	# Determines the base configuration directory.
 	#
 	def self.get_config_root
-	
+
 		# Windows-specific environment variables
 		['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
 			val = Rex::Compat.getenv(dir)
 			if (val and File.directory?(val))
-				return File.join(val, ".msf3")
+				return File.join(val, ".msf#{Msf::Framework::Major}")
 			end
 		end
-								
+
 		begin
-			# First we try $HOME/.msf3
-			File.expand_path("~#{FileSep}.msf3")
+			# First we try $HOME/.msfx
+			File.expand_path("~#{FileSep}.msf#{Msf::Framework::Major}")
 		rescue ::ArgumentError
-			# Give up and install root + ".msf3"
-			InstallRoot + ".msf3"
+			# Give up and install root + ".msfx"
+			InstallRoot + ".msf#{Msf::Framework::Major}"
 		end
 	end
 
@@ -122,7 +122,7 @@ class Config < Hash
 	def self.loot_directory
 		self.new.loot_directory
 	end
-	
+
 	#
 	# Calls the instance method.
 	#
@@ -136,7 +136,7 @@ class Config < Hash
 	def self.user_script_directory
 		self.new.user_script_directory
 	end
-	
+
 	#
 	# Calls the instance method.
 	#
@@ -248,14 +248,14 @@ class Config < Hash
 	def session_log_directory
 		config_directory + FileSep + self['SessionLogDirectory']
 	end
-	
+
 	#
 	# Returns the directory in which captured data will reside.
 	#
 	def loot_directory
 		config_directory + FileSep + self['LootDirectory']
 	end
-	
+
 	#
 	# Returns the user-specific module base path
 	#
@@ -291,7 +291,7 @@ class Config < Hash
 		FileUtils.mkdir_p(config_directory)
 		FileUtils.mkdir_p(log_directory)
 		FileUtils.mkdir_p(session_log_directory)
-		FileUtils.mkdir_p(loot_directory)		
+		FileUtils.mkdir_p(loot_directory)
 		FileUtils.mkdir_p(user_module_directory)
 		FileUtils.mkdir_p(user_plugin_directory)
 	end
@@ -328,3 +328,4 @@ class Config < Hash
 end
 
 end
+
