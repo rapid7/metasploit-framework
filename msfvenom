@@ -300,8 +300,6 @@ if opts[:template]
 end
 exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
 
-
-
 if opts[:encode]
 	done = false
 	encoders = get_encoders(opts[:arch], opts[:encoder])
@@ -396,7 +394,12 @@ when /elf/i
 	end
 	$stdout.puts elf
 when /dll/i
-	dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
+	if opts[:arch] == "x86"
+		dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
+	elsif opts[:arch] == "x86_64"
+		dll = Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
+	end
+
 	$stdout.puts dll
 when /exe/i
 	$stdout.puts exe
