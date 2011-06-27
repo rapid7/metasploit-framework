@@ -15,6 +15,20 @@ $stderr.puts ""
 
 wait = (ARGV.shift.to_s == "wait")
 
+have_configdir = false
+ARGV.each do |arg|
+	next unless arg =~ /--config-dir/
+	have_configdir = true
+end
+
+unless have_configdir
+	configdir = File.join(File.dirname(msfbase), "data", "svn")
+	# Spaces in the directory should be fine since this whole thing is passed
+	# as a single argument via the multi-arg syntax for system() below.
+	ARGV.push("--config-dir=#{configdir}")
+end
+
+
 system("svn", "cleanup")
 system("svn", "update", *ARGV)
 
