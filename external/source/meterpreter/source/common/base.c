@@ -117,18 +117,23 @@ DWORD command_register(Command *command)
 {
 	Command *newCommand;
 
+	dprintf("Registering a new command...");
 	if (!(newCommand = (Command *)malloc(sizeof(Command))))
 		return ERROR_NOT_ENOUGH_MEMORY;
 
+	dprintf("Allocated memory...");
 	memcpy(newCommand, command, sizeof(Command));
 
+	dprintf("Setting new command...");
 	if (extensionList)
 		extensionList->prev = newCommand;
 
+	dprintf("Fixing next/prev...");
 	newCommand->next    = extensionList;
 	newCommand->prev    = NULL;
 	extensionList       = newCommand;
-			
+
+	dprintf("Done...");
 	return ERROR_SUCCESS;
 }
 

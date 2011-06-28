@@ -1,5 +1,37 @@
 #include "common.h"
 
+
+#ifdef _WIN32
+// This function returns a unix timestamp in UTC
+int current_unix_timestamp(void) {
+	SYSTEMTIME system_time;
+	FILETIME file_time;
+	ULARGE_INTEGER ularge;
+
+	GetSystemTime(&system_time);
+	SystemTimeToFileTime(&system_time, &file_time);
+	
+	ularge.LowPart = file_time.dwLowDateTime;
+	ularge.HighPart = file_time.dwHighDateTime;
+	return (long)((ularge.QuadPart - 116444736000000000) / 10000000L);
+}
+#else
+
+#include <sys/time.h>
+
+// This function returns a unix timestamp in UTC
+int current_unix_timestamp(void) {
+	struct timeval tv;
+	struct timezone tz;
+
+	memset(&tv, sizeof(tv));
+	memset(&tz, sizeof(tz));
+
+	gettimeofday(&tv, &tz);
+	return (long) tv.tv_usec;
+}
+#endif
+
 #ifndef _WIN32
 
 int debugging_enabled;

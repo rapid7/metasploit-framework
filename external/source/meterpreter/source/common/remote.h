@@ -1,6 +1,8 @@
 #ifndef _METERPRETER_LIB_REMOTE_H
 #define _METERPRETER_LIB_REMOTE_H
 
+
+
 #include "crypto.h"
 #include "thread.h"
 /*
@@ -27,6 +29,18 @@ typedef struct _Remote
 	char * cpCurrentStationName;
 	char * cpOrigDesktopName;
 	char * cpCurrentDesktopName;
+	
+	DWORD transport;
+	char *url;
+	char *uri;
+	HANDLE hInternet;
+	HANDLE hConnection;
+
+	int expiration_time;
+	int start_time;
+	int comm_last_packet;
+	int comm_timeout;
+
 } Remote;
 
 Remote *remote_allocate(SOCKET fd);

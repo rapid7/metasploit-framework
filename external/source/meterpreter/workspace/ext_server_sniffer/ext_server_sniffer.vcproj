@@ -191,12 +191,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="1"
-				InlineFunctionExpansion="0"
+				Optimization="2"
+				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
-				FavorSizeOrSpeed="2"
+				FavorSizeOrSpeed="0"
 				AdditionalIncludeDirectories="..\..\source\extensions\sniffer;..\..\source\openssl\include;&quot;C:\Program Files (x86)\MicroOLAP Packet Sniffer SDK\win32\pssdk_vc_lib\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;EXT_SERVER_SNIFFER_EXPORTS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;EXT_SERVER_SNIFFER_EXPORTS"
 				StringPooling="true"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -206,6 +206,7 @@
 				ProgramDataBaseFileName=".\Release/"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				CompileAs="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

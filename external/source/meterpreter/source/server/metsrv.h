@@ -10,6 +10,7 @@
  */
 #define METSRV_VERSION_NUMBER 0x00000500
 
+
 #ifdef _WIN32
 #define USE_DLL
 #endif

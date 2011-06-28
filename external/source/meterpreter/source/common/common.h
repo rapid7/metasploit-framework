@@ -68,6 +68,13 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #ifdef _WIN32
 
+#include <wininet.h>
+
+#define METERPRETER_TRANSPORT_SSL 0
+#define METERPRETER_TRANSPORT_HTTP 1
+#define METERPRETER_TRANSPORT_HTTPS 2
+
+// Enable debugging
 // #define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
@@ -83,7 +90,7 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 // Simple macros to close a handle and set the handle to NULL.
 #define CLOSE_SERVICE_HANDLE( h )	if( h ) { CloseServiceHandle( h ); h = NULL; }
-#define CLOSE_HANDLE( h )			if( h ) { CloseHandle( h ); h = NULL; }
+#define CLOSE_HANDLE( h )			if( h ) { DWORD dwHandleFlags; if(GetHandleInformation( h , &dwHandleFlags)) CloseHandle( h ); h = NULL; }
 
 static void real_dprintf(char *format, ...) {
 	va_list args;
@@ -97,3 +104,5 @@ static void real_dprintf(char *format, ...) {
 #endif
 
 #endif
+
+int current_unix_timestamp(void);

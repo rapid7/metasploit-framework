@@ -89,21 +89,21 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 		// call its Init routine
 		if ((flags & LOAD_LIBRARY_FLAG_EXTENSION) && (library))
 		{
-			EXTENSION * exension = (EXTENSION *)malloc( sizeof(EXTENSION) );
-			if( exension )
+			EXTENSION * extension = (EXTENSION *)malloc( sizeof(EXTENSION) );
+			if( extension )
 			{
-				exension->library = library;
+				extension->library = library;
 
 				// if the library was loaded via its reflective loader we must use GetProcAddressR()
 				if( bLibLoadedReflectivly )
 				{
-					exension->init   = (LPVOID)GetProcAddressR( exension->library, "InitServerExtension" );
-					exension->deinit = (LPVOID)GetProcAddressR( exension->library, "DeinitServerExtension" );
+					extension->init   = (LPVOID)GetProcAddressR( extension->library, "InitServerExtension" );
+					extension->deinit = (LPVOID)GetProcAddressR( extension->library, "DeinitServerExtension" );
 				}
 				else
 				{
-					exension->init   = (LPVOID)GetProcAddress( exension->library, "InitServerExtension" );
-					exension->deinit = (LPVOID)GetProcAddress( exension->library, "DeinitServerExtension" );
+					extension->init   = (LPVOID)GetProcAddress( extension->library, "InitServerExtension" );
+					extension->deinit = (LPVOID)GetProcAddress( extension->library, "DeinitServerExtension" );
 				}
 
 				// patch in the metsrv.dll's HMODULE handle, used by the server extensions for delay loading
@@ -112,16 +112,16 @@ DWORD request_core_loadlib(Remote *remote, Packet *packet)
 				remote->hMetSrv = hAppInstance;
 
 				// Call the init routine in the library
-				if( exension->init )
+				if( extension->init )
 				{
 					dprintf("[SERVER] Calling init()...");
 
-					res = exension->init( remote );
+					res = extension->init( remote );
 
 					if( res == ERROR_SUCCESS )
-						list_push( extension_list, exension );
+						list_push( extension_list, extension );
 					else
-						free( exension );
+						free( extension );
 				}
 				dprintf("[SERVER] Called init()...");
 			}

@@ -41,6 +41,12 @@ VOID remote_deallocate( Remote * remote )
 	if( remote->lock )
 		lock_destroy( remote->lock );
 
+	if ( remote->uri )
+		free( remote->uri);
+
+	// Wipe our structure from memory
+	memset(remote, 0, sizeof(Remote));
+
 	free(remote);
 }
 

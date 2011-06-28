@@ -186,9 +186,17 @@ LINKAGE DWORD packet_get_result(Packet *packet);
 /*
  * Packet transmission
  */
-LINKAGE DWORD packet_transmit(Remote *remote, Packet *packet,PacketRequestCompletion *completion);
+LINKAGE DWORD packet_transmit(Remote *remote, Packet *packet, PacketRequestCompletion *completion);
 LINKAGE DWORD packet_transmit_empty_response(Remote *remote, Packet *packet, DWORD res);
 LINKAGE DWORD packet_receive(Remote *remote, Packet **packet);
+LINKAGE DWORD packet_receive_via_http(Remote *remote, Packet **packet);
+LINKAGE DWORD packet_transmit_via_ssl(Remote *remote, Packet *packet, PacketRequestCompletion *completion);
+LINKAGE DWORD packet_transmit_via_http(Remote *remote, Packet *packet, PacketRequestCompletion *completion);
+
+#ifdef _WIN32
+LINKAGE DWORD packet_receive_via_http_wininet(Remote *remote, Packet **packet);
+LINKAGE DWORD packet_transmit_via_http_wininet(Remote *remote, Packet *packet, PacketRequestCompletion *completion);
+#endif
 
 #define packet_transmit_response(result, remote, response)    \
 	if (response) {                                            \
