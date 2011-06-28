@@ -1387,18 +1387,25 @@ DWORD packet_receive_http_via_wininet(Remote *remote, Packet **packet) {
 				break;
 			}
 
+			// If the response contains no data, this is fine, it just means the
+			// remote side had nothing to tell us. Indicate this through a 
+			// ERROR_EMPTY response code so we can update the timestamp.
+			if (bytesRead == 0) {
+				SetLastError(ERROR_EMPTY);
+				break;
+			}
+
 			headerBytes += bytesRead;
 	
 			if (headerBytes != sizeof(TlvHeader)) {
-				if (bytesRead == 0) {
-					SetLastError(ERROR_NOT_FOUND);
-					break;
-				}
 				continue;
 			} else {
 				inHeader = FALSE;
 			}
 		}
+
+		if (GetLastError() == ERROR_EMPTY)
+			break;
 		
 		if (headerBytes != sizeof(TlvHeader)) {
 			SetLastError(ERROR_NOT_FOUND);

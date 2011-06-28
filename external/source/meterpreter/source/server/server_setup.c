@@ -464,6 +464,10 @@ static DWORD server_dispatch_http_wininet( Remote * remote )
 		result = packet_receive( remote, &packet );
 		if( result != ERROR_SUCCESS ) {
 
+			// Update the timestamp for empty replies
+			if (result == ERROR_EMPTY) 
+				remote->comm_last_packet = current_unix_timestamp();
+
 			if (ecount < 10)
 				delay = 10 * ecount;
 			else 
