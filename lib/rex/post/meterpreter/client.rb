@@ -89,6 +89,8 @@ class Client
 			extension.cleanup if extension.respond_to?( 'cleanup' )
 		end
 		dispatcher_thread.kill if dispatcher_thread
+		core.shutdown rescue nil
+		shutdown_passive_dispatcher
 	end
 
 	#
