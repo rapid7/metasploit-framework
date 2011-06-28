@@ -75,7 +75,7 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 #define METERPRETER_TRANSPORT_HTTPS 2
 
 // Enable debugging
-//#define DEBUGTRACE 1
+// #define DEBUGTRACE 1
 
 #ifdef DEBUGTRACE
 #define dprintf(...) real_dprintf(__VA_ARGS__)

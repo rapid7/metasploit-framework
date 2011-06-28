@@ -14,6 +14,8 @@ extern DWORD remote_request_core_channel_interact(Remote *remote, Packet *packet
 
 extern DWORD remote_request_core_crypto_negotiate(Remote *remote, Packet *packet);
 
+extern DWORD remote_request_core_shutdown(Remote *remote, Packet *packet);
+
 extern DWORD remote_request_core_migrate(Remote *remote, Packet *packet);
 
 // Local remote response implementors
@@ -97,6 +99,12 @@ Command commands[] =
 	// Migration
 	{  "core_migrate",
 	   { remote_request_core_migrate,           { 0 },  0 },
+		{ EMPTY_DISPATCH_HANDLER                           },
+	},
+
+	// Shutdown
+	{  "core_shutdown",
+	   { remote_request_core_shutdown,           { 0 },  0 },
 		{ EMPTY_DISPATCH_HANDLER                           },
 	},
 

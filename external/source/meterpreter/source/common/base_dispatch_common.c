@@ -1,5 +1,8 @@
 #include "common.h"
 
+// An external reference to the meterpreters main server thread, so we can shutdown gracefully after successfull migration.
+extern THREAD * serverThread;
+
 /*
  * core_channel_open
  * -----------------
@@ -603,4 +606,28 @@ DWORD remote_request_core_crypto_negotiate(Remote *remote, Packet *packet)
 	}
 
 	return ERROR_SUCCESS;
+}
+
+
+
+/*
+ * core_shutdown
+ * -----------------
+ *
+ */
+DWORD remote_request_core_shutdown(Remote *remote, Packet *packet)
+{
+	Channel *channel = NULL;
+	Packet *response = packet_create_response(packet);
+	DWORD result = ERROR_SUCCESS;
+
+	// Acknowledge the shutdown request
+	packet_add_tlv_bool(response, TLV_TYPE_BOOL, TRUE);
+
+	// Transmit the response
+	packet_transmit_response(result, remote, response);
+
+	dprintf("[SHUTDOWN] Shutting down the Meterpreter thread 1 (killing the main thread)...");
+	thread_kill( serverThread );
+	return result;
 }
