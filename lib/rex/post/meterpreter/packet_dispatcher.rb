@@ -29,9 +29,9 @@ class RequestError < ArgumentError
 
 	# The error result that occurred, typically a windows error message.
 	attr_reader :result
-	
+
 	# The error result that occurred, typically a windows error code.
-	attr_reader :code	
+	attr_reader :code
 end
 
 ###
@@ -43,6 +43,84 @@ end
 module PacketDispatcher
 
 	PacketTimeout = 600
+
+	##
+	#
+	# Synchronization
+	#
+	##
+	attr_accessor :comm_mutex
+
+
+	##
+	#
+	#
+	# Passive Dispatching
+	#
+	##
+	attr_accessor :passive_service, :send_queue, :recv_queue
+
+	def initialize_passive_dispatcher
+		self.send_queue = []
+		self.recv_queue = []
+		self.waiters    = []
+		self.alive      = true
+
+		self.passive_service = self.passive_dispatcher
+		self.passive_service.remove_resource("/" + self.conn_id  + "/")
+		self.passive_service.add_resource("/" + self.conn_id + "/",
+			'Proc'             => Proc.new { |cli, req| on_passive_request(cli, req) },
+			'VirtualDirectory' => true
+		)
+	end
+
+	def shutdown_passive_dispatcher
+		return if not self.passive_service
+		self.passive_service.remove_resource("/" + self.conn_id  + "/")
+
+		self.alive      = false
+		self.send_queue = []
+		self.recv_queue = []
+		self.waiters    = []
+
+		self.passive_service = nil
+	end
+
+	def on_passive_request(cli, req)
+
+		begin
+
+		resp = Rex::Proto::Http::Response.new(200, "OK")
+		resp['Content-Type'] = 'application/octet-stream'
+		resp['Connection']   = 'close'
+
+		# If the first 4 bytes are "RECV", return the oldest packet from the outbound queue
+		if req.body[0,4] == "RECV"
+			rpkt = send_queue.pop
+			resp.body = rpkt || ''
+			begin
+				cli.send_response(resp)
+			rescue ::Exception => e
+				send_queue.unshift(rpkt) if rpkt
+				elog("Exception sending a reply to the reader request: #{cli.inspect} #{e.class} #{e} #{e.backtrace}")
+			end
+		else
+			resp.body = ""
+			if req.body and req.body.length > 0
+				packet = Packet.new(0)
+				packet.from_r(req.body)
+				dispatch_inbound_packet(packet)
+			end
+			cli.send_response(resp)
+		end
+
+		# Force a closure for older WinInet implementations
+		self.passive_service.close_client( cli )
+
+		rescue ::Exception => e
+			elog("Exception handling request: #{cli.inspect} #{req.inspect} #{e.class} #{e} #{e.backtrace}")
+		end
+	end
 
 	##
 	#
@@ -62,23 +140,34 @@ module PacketDispatcher
 		raw   = packet.to_r
 		err   = nil
 
+		# Short-circuit send when using a passive dispatcher
+		if self.passive_service
+			send_queue.push(raw)
+			return raw.size # Lie!
+		end
+
 		if (raw)
-		
-			begin
-				bytes = self.sock.write(raw)
-			rescue ::Exception => e
-				err = e	
+
+			# This mutex is used to lock out new commands during an
+			# active migration.
+
+			self.comm_mutex.synchronize do
+				begin
+					bytes = self.sock.write(raw)
+				rescue ::Exception => e
+					err = e
+				end
 			end
-			
+
 			if bytes.to_i == 0
 				# Mark the session itself as dead
 				self.alive = false
-				
+
 				# Indicate that the dispatcher should shut down too
 				@finish = true
-				
+
 				# Reraise the error to the top-level caller
-				raise err if err		
+				raise err if err
 			end
 		end
 
@@ -89,12 +178,12 @@ module PacketDispatcher
 	# Sends a packet and waits for a timeout for the given time interval.
 	#
 	def send_request(packet, t = self.response_timeout)
-		
+
 		if not t
 			send_packet(packet)
 			return nil
 		end
-	
+
 		response = send_packet_wait_response(packet, t)
 
 		if (response == nil)
@@ -146,6 +235,12 @@ module PacketDispatcher
 	# thread context and parsers all inbound packets.
 	#
 	def monitor_socket
+
+		# Skip if we are using a passive dispatcher
+		return if self.passive_service
+
+		self.comm_mutex = ::Mutex.new
+
 		self.waiters = []
 
 		@pqueue = []
@@ -303,6 +398,7 @@ module PacketDispatcher
 			self.receiver_thread.kill
 			self.receiver_thread = nil
 		end
+
 		if(self.dispatcher_thread)
 			self.dispatcher_thread.kill
 			self.dispatcher_thread = nil
@@ -384,7 +480,6 @@ module PacketDispatcher
 				return true
 			end
 		end
-
 
 		# Enumerate all of the inbound packet handlers until one handles
 		# the packet

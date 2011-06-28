@@ -114,7 +114,7 @@ def write_script_to_target(target_dir,vbs)
 	fd = @client.fs.file.new(tempvbs, "wb")
 	fd.write(vbs)
 	fd.close
-	print_good("Persisten Script written to #{tempvbs}")
+	print_good("Persistent Script written to #{tempvbs}")
 	file_local_write(@clean_up_rc, "rm #{tempvbs}\n")
 	return tempvbs
 end
@@ -171,7 +171,7 @@ def install_as_service(script_on_target)
 		service_create(nam, nam, "cscript \"#{script_on_target}\"")
 		file_local_write(@clean_up_rc, "execute -H -f sc -a \"delete #{nam}\"\n")
 	else
-		print_error("Insufficient privileges to create service")	
+		print_error("Insufficient privileges to create service")
 	end
 end
 
@@ -234,3 +234,4 @@ end
 if serv
 	install_as_service(script_on_target)
 end
+

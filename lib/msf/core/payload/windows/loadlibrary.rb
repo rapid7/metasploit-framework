@@ -26,7 +26,7 @@ module Payload::Windows::LoadLibrary
 			'Arch'          => ARCH_X86,
 			'PayloadCompat' =>
 				{
-					'Convention' => '-passivex -https',
+					'Convention' => '-http -https',
 				},
 			'Payload'       =>
 				{

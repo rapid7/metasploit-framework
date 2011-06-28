@@ -18,9 +18,9 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'        => 'Windows .vbs Download and execute',
+			'Name'        => 'Windows Executable Download and Evaluate VBS',
 			'Version'     => '$Revision$',
-			'Description' => 'Downloads a file from an HTTP(S) URL and executes it as a vbs script. 
+			'Description' => 'Downloads a file from an HTTP(S) URL and executes it as a vbs script.
 						Use it to stage a vbs encoded payload from a short command line. ',
 			'Author'      => 'scriptjunkie',
 			'License'     => BSD_LICENSE,
@@ -67,3 +67,4 @@ module Metasploit3
 			"&start #{vbsname}.vbs"
 	end
 end
+

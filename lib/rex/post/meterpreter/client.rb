@@ -45,7 +45,7 @@ class Client
 	# Cached SSL certificate (required to scale)
 	#
 	@@ssl_ctx = nil
-	
+
 	#
 	# Mutex to synchronize class-wide operations
 	#
@@ -95,32 +95,51 @@ class Client
 	# Initializes the meterpreter client instance
 	#
 	def init_meterpreter(sock,opts={})
-		self.sock        = sock
-		self.parser      = PacketParser.new
-		self.ext         = ObjectAliases.new
-		self.ext_aliases = ObjectAliases.new
-		self.alive       = true
-		self.target_id   = opts[:target_id]
-		self.capabilities= opts[:capabilities] || {}
+		self.sock         = sock
+		self.parser       = PacketParser.new
+		self.ext          = ObjectAliases.new
+		self.ext_aliases  = ObjectAliases.new
+		self.alive        = true
+		self.target_id    = opts[:target_id]
+		self.capabilities = opts[:capabilities] || {}
 
-		self.response_timeout =  opts[:timeout] || self.class.default_timeout
+
+		self.conn_id      = opts[:conn_id]
+		self.url          = opts[:url]
+		self.ssl          = opts[:ssl]
+		self.expiration   = opts[:expiration]
+		self.comm_timeout = opts[:comm_timeout]
+		self.passive_dispatcher = opts[:passive_dispatcher]
+
+		self.response_timeout = opts[:timeout] || self.class.default_timeout
 		self.send_keepalives  = true
 
+		if opts[:passive_dispatcher]
+			initialize_passive_dispatcher
 
-		# Switch the socket to SSL mode and receive the hello if needed
-		if capabilities[:ssl] and not opts[:skip_ssl]
-			swap_sock_plain_to_ssl()
+			register_extension_alias('core', ClientCore.new(self))
+
+			initialize_inbound_handlers
+			initialize_channels
+
+			# Register the channel inbound packet handler
+			register_inbound_handler(Rex::Post::Meterpreter::Channel)
+		else
+			# Switch the socket to SSL mode and receive the hello if needed
+			if capabilities[:ssl] and not opts[:skip_ssl]
+				swap_sock_plain_to_ssl()
+			end
+
+			register_extension_alias('core', ClientCore.new(self))
+
+			initialize_inbound_handlers
+			initialize_channels
+
+			# Register the channel inbound packet handler
+			register_inbound_handler(Rex::Post::Meterpreter::Channel)
+
+			monitor_socket
 		end
-
-		register_extension_alias('core', ClientCore.new(self))
-
-		initialize_inbound_handlers
-		initialize_channels
-
-		# Register the channel inbound packet handler
-		register_inbound_handler(Rex::Post::Meterpreter::Channel)
-
-		monitor_socket
 	end
 
 	def swap_sock_plain_to_ssl
@@ -138,22 +157,22 @@ class Client
 			rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 					IO::select(nil, nil, nil, 0.10)
 					retry
-					
-			# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable		
+
+			# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
 			rescue ::Exception => e
 				if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
 					IO::select( [ ssl ], nil, nil, 0.10 )
 					retry
 				end
-					
-				if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+
+				if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
 					IO::select( nil, [ ssl ], nil, 0.10 )
 					retry
 				end
-					
+
 				raise e
 			end
-		end			
+		end
 
 		self.sock.extend(Rex::Socket::SslTcp)
 		self.sock.sslsock = ssl
@@ -175,11 +194,11 @@ class Client
 	end
 
 	def generate_ssl_context
-		@@ssl_mutex.synchronize do 
+		@@ssl_mutex.synchronize do
 		if not @@ssl_ctx
-		
+
 		wlog("Generating SSL certificate for Meterpreter sessions")
-	
+
 		key  = OpenSSL::PKey::RSA.new(1024){ }
 		cert = OpenSSL::X509::Certificate.new
 		cert.version = 2
@@ -223,12 +242,12 @@ class Client
 		ctx.session_id_context = Rex::Text.rand_text(16)
 
 		wlog("Generated SSL certificate for Meterpreter sessions")
-		
+
 		@@ssl_ctx = ctx
-		
+
 		end # End of if not @ssl_ctx
 		end # End of mutex.synchronize
-		
+
 		@@ssl_ctx
 	end
 
@@ -379,6 +398,30 @@ class Client
 	# The libraries available to this meterpreter server
 	#
 	attr_accessor :capabilities
+	#
+	# The Connection ID
+	#
+	attr_accessor :conn_id
+	#
+	# The Connect URL
+	#
+	attr_accessor :url
+	#
+	# Use SSL (HTTPS)
+	#
+	attr_accessor :ssl
+	#
+	# The Session Expiration Timeout
+	#
+	attr_accessor :expiration
+	#
+	# The Communication Timeout
+	#
+	attr_accessor :comm_timeout
+	#
+	# The Passive Dispatcher
+	#
+	attr_accessor :passive_dispatcher
 
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:

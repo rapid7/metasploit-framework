@@ -43,6 +43,7 @@ class Console::CommandDispatcher::Core
 			"close"      => "Closes a channel",
 			"channel"    => "Displays information about active channels",
 			"exit"       => "Terminate the meterpreter session",
+			"detach"     => "Detach the meterpreter session (for http/https)",
 			"help"       => "Help menu",
 			"interact"   => "Interacts with a channel",
 			"irb"        => "Drop into irb scripting mode",
@@ -204,10 +205,25 @@ class Console::CommandDispatcher::Core
 	# Terminates the meterpreter session.
 	#
 	def cmd_exit(*args)
+		print_status("Shutting down Meterpreter...")
+		client.core.shutdown rescue nil
+		client.shutdown_passive_dispatcher
 		shell.stop
 	end
 
 	alias cmd_quit cmd_exit
+
+	#
+	# Disconnects the session
+	#
+	def cmd_detach(*args)
+		if not client.passive_service
+			print_error("Detach is only possible for non-stream sessions (http/https)")
+			return
+		end
+		client.shutdown_passive_dispatcher
+		shell.stop
+	end
 
 	#
 	# Interacts with a channel.
@@ -385,11 +401,11 @@ class Console::CommandDispatcher::Core
 
 	def cmd_run_help
 		print_line "Usage: run <script> [arguments]"
-		print_line 
+		print_line
 		print_line "Executes a ruby script or Metasploit Post module in the context of the"
 		print_line "meterpreter session.  Post modules can take arguments in var=val format."
 		print_line "Example: run post/foo/bar BAZ=abcd"
-		print_line 
+		print_line
 	end
 
 	#
@@ -535,7 +551,7 @@ class Console::CommandDispatcher::Core
 	end
 
 	#
-	# Show info for a given Post module.  
+	# Show info for a given Post module.
 	#
 	# See also +cmd_info+ in lib/msf/ui/console/command_dispatcher/core.rb
 	#
@@ -546,10 +562,10 @@ class Console::CommandDispatcher::Core
 			cmd_info_help
 			return
 		end
-		
+
 		module_name = args.shift
 		mod = client.framework.modules.create(module_name);
-		
+
 		if mod.nil?
 			print_error 'Invalid module: ' << module_name
 		end
@@ -655,7 +671,7 @@ class Console::CommandDispatcher::Core
 
 		tab_complete_filenames(str, words)
 	end
-	
+
 	def cmd_resource(*args)
 		if args.empty?
 			print(

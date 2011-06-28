@@ -166,7 +166,7 @@ class Packet
 	# Converts the packet to a string.
 	#
 	def to_s
-		content = self.body.dup
+		content = self.body.to_s.dup
 
 		# Update the content length field in the header with the body length.
 		if (content)

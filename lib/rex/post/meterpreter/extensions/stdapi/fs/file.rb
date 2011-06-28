@@ -27,27 +27,27 @@ SEPARATOR = "\\"
 Separator = "\\"
 
 	include Rex::Post::File
-	
+
 	class << self
 		attr_accessor :client
 	end
-	
+
 	#
 	# Search for files.
 	#
 	def File.search( root=nil, glob="*.*", recurse=true, timeout=-1 )
-		
+
 		files = ::Array.new
-		
+
 		request = Packet.create_request( 'stdapi_fs_search' )
 
 		root = root.chomp( '\\' ) if root
-		
+
 		request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
 		request.add_tlv( TLV_TYPE_SEARCH_GLOB, glob )
 		request.add_tlv( TLV_TYPE_SEARCH_RECURSE, recurse )
 
-		# we set the response timeout to -1 to wait indefinatly as a 
+		# we set the response timeout to -1 to wait indefinatly as a
 		# search could take an indeterminate ammount of time to complete.
 		response = client.send_request( request, timeout )
 		if( response.result == 0 )
@@ -59,10 +59,10 @@ Separator = "\\"
 				}
 			end
 		end
-		
+
 		return files
 	end
-	
+
 	#
 	# Returns the base name of the supplied file path to the caller.
 	#
@@ -86,7 +86,7 @@ Separator = "\\"
 		request.add_tlv(TLV_TYPE_FILE_PATH, path)
 
 		response = client.send_request(request)
-		
+
 		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
 	end
 
@@ -104,27 +104,27 @@ Separator = "\\"
 		r = client.fs.filestat.new(name) rescue nil
 		r ? true : false
 	end
-		
+
 	#
 	# Performs a delete on the specified file.
 	#
-	def File.rm(name)		
+	def File.rm(name)
 		request = Packet.create_request('stdapi_fs_delete_file')
 
 		request.add_tlv(TLV_TYPE_FILE_PATH,name)
 
 		response = client.send_request(request)
-		
+
 		return response
 	end
-	
+
 	#
 	# Performs a delete on the specified file.
 	#
 	def File.unlink(name)
 		return File.rm(name)
-	end	
-	
+	end
+
 	#
 	# Upload one or more files to the remote computer the remote
 	# directory supplied in destination.
@@ -151,7 +151,7 @@ Separator = "\\"
 		# all of the contents of the local file
 		dest_fd = client.fs.file.new(dest_file, "wb")
 		src_buf = ''
-		
+
 		::File.open(src_file, 'rb') { |f|
 			src_buf = f.read(f.stat.size)
 		}
@@ -164,7 +164,7 @@ Separator = "\\"
 	end
 
 	#
-	# Download one or more files from the remote computer to the local 
+	# Download one or more files from the remote computer to the local
 	# directory supplied in destination.
 	#
 	def File.download(destination, *src_files, &stat)
@@ -178,7 +178,7 @@ Separator = "\\"
 			end
 
 			download_file(dest, src)
-			
+
 			stat.call('downloaded', src, dest) if (stat)
 		}
 	end
@@ -272,3 +272,4 @@ protected
 end
 
 end; end; end; end; end; end
+

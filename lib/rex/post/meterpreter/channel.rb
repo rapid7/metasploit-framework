@@ -172,7 +172,8 @@ class Channel
 		request = Packet.create_request('core_channel_read')
 
 		if (length == nil)
-			length = 65536
+			# Default block size to a higher amount for passive dispatcher
+			length = self.client.passive_service ? (1024*1024) : 65536
 		end
 
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
@@ -228,12 +229,12 @@ class Channel
 
 		# Populate the request
 		request.add_tlv(TLV_TYPE_CHANNEL_ID, self.cid)
-		
+
 		cdata = request.add_tlv(TLV_TYPE_CHANNEL_DATA, buf)
 		if( ( self.flags & CHANNEL_FLAG_COMPRESS ) == CHANNEL_FLAG_COMPRESS )
-			cdata.compress = true 
+			cdata.compress = true
 		end
-		
+
 		request.add_tlv(TLV_TYPE_LENGTH, length)
 		request.add_tlvs(addends)
 
@@ -285,7 +286,7 @@ class Channel
 
 		return true
 	end
-	
+
 	def _close(addends = nil)
 		self.class._close(self.client, self.cid, addends)
 		self.cid = nil

@@ -202,7 +202,7 @@ protected
 
 			return s
 		end
-
+		nil
 	end
 
 	#
