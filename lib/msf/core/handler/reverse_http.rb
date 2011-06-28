@@ -84,7 +84,7 @@ module ReverseHttp
 			'VirtualDirectory' => true)
 
 		self.conn_ids = []
-		print_status("Started HTTP reverse handler on https://#{datastore['LHOST']}:#{datastore['LPORT']}/")
+		print_status("Started HTTP reverse handler on http://#{datastore['LHOST']}:#{datastore['LPORT']}/")
 	end
 
 	#
