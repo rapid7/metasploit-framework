@@ -388,8 +388,9 @@ static DWORD server_dispatch_http_wininet( Remote * remote )
 	URL_COMPONENTS bits;
 	DWORD ecount = 0;
 	DWORD delay = 0;
+	char tmpHostName[512];
+	char tmpUrlPath[1024];
 
-	
 	if (global_expiration_timeout > 0) 
 		remote->expiration_time  = current_unix_timestamp() + global_expiration_timeout;
 	else
@@ -407,27 +408,27 @@ static DWORD server_dispatch_http_wininet( Remote * remote )
 	}
 	dprintf("[DISPATCH] Configured hInternet: 0x%.8x", remote->hInternet);
 
+	
 	// The InternetCrackUrl method was poorly designed...
+	memset(tmpHostName, 0, sizeof(tmpHostName));
+	memset(tmpUrlPath, 0, sizeof(tmpUrlPath));
+
 	memset(&bits, 0, sizeof(bits));
 	bits.dwStructSize = sizeof(bits);
-	bits.dwSchemeLength    = 1;
-	bits.dwHostNameLength  = 1;
-	bits.dwUserNameLength  = 1;
-	bits.dwPasswordLength  = 1;
-	bits.dwUrlPathLength   = 1;
-	bits.dwExtraInfoLength = 1;
+	bits.dwHostNameLength  = sizeof(tmpHostName) -1;
+	bits.lpszHostName      = tmpHostName;
+	bits.dwUrlPathLength   = sizeof(tmpUrlPath) -1;
+	bits.lpszUrlPath       = tmpUrlPath;
+
 	InternetCrackUrl(remote->url, 0, 0, &bits);
 
-	remote->uri = _strdup(bits.lpszUrlPath);
-
-	bits.lpszHostName[bits.dwHostNameLength] = 0;
-
+	remote->uri = _strdup(tmpUrlPath);
 
 	dprintf("[DISPATCH] Configured URL: %s", remote->uri);
-	dprintf("[DISPATCH] Host: %s Port: %u", bits.lpszHostName, bits.nPort);
+	dprintf("[DISPATCH] Host: %s Port: %u", tmpHostName, bits.nPort);
 
 	// Allocate the connection handle
-	remote->hConnection = InternetConnect(remote->hInternet, bits.lpszHostName, bits.nPort, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
+	remote->hConnection = InternetConnect(remote->hInternet, tmpHostName, bits.nPort, NULL, NULL, INTERNET_SERVICE_HTTP, 0, 0);
 	if (!remote->hConnection) {
 		dprintf("[DISPATCH] Failed InternetConnect: %d", GetLastError());
 		return 0;
