@@ -21,6 +21,7 @@ class Workspace < ActiveRecord::Base
 	has_many :exploited_hosts, :through => :hosts
 	has_many :sessions, :through => :hosts
 	has_many :cred_files, :dependent => :destroy
+	has_many :listeners, :dependent => :destroy
 
 
 	validates_uniqueness_of :name
@@ -81,11 +82,11 @@ class Workspace < ActiveRecord::Base
 	def web_vulns
 		web_sites.map{|w| w.web_vulns}.flatten
 	end
-	
+
 	def web_unique_forms(addrs=nil)
 		xhosts = addrs ? hosts.select{|host| addrs.include?(host.address) } : hosts
 		xhosts.map { |host|
-			host.web_sites.map{|site| 
+			host.web_sites.map{|site|
 				site.web_forms.find(:all, :select => 'DISTINCT web_site_id, path, method, query')
 			}
 		}.flatten
