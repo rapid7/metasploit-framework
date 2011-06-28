@@ -1019,9 +1019,6 @@ DWORD packet_transmit_via_http(Remote *remote, Packet *packet, PacketRequestComp
 #endif
 
 
-
-	dprintf("Calling packet_transmit_via_http()...");
-
 	lock_acquire( remote->lock );
 
 	// If the packet does not already have a request identifier, create one for it
@@ -1133,21 +1130,10 @@ DWORD packet_transmit_via_http_wininet(Remote *remote, Packet *packet, PacketReq
 		hReq = HttpOpenRequest(remote->hConnection, "POST", remote->uri, NULL, NULL, NULL, flags, 0);
 
 		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
-
 		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
 			InternetQueryOption( hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, &flen);
 			flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_UNKNOWN_CA;
 			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, flen);
-		}
-
-retry_request:
-		hRes = HttpSendRequest(hReq, NULL, 0, buffer, packet->payloadLength + sizeof(TlvHeader) );
-
-		if (hRes == NULL && GetLastError() == ERROR_INTERNET_INVALID_CA && retries > 0) {
-			retries--;
-//			flags = 0x3380;
-//			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, 4);
-			goto retry_request;
 		}
 
 		if (! hRes) {
@@ -1347,13 +1333,12 @@ DWORD packet_receive_http_via_wininet(Remote *remote, Packet **packet) {
 	PUCHAR payload = NULL;
 	ULONG payloadLength;
 	DWORD flags;
+	DWORD flen;
 
 	HINTERNET hReq;
 	HINTERNET hRes;
 	DWORD retries = 5;
 	
-	dprintf("[PACKET RECEIVE] Acquiring lock");
-
 	lock_acquire( remote->lock );
 
 	do {
@@ -1364,18 +1349,14 @@ DWORD packet_receive_http_via_wininet(Remote *remote, Packet **packet) {
 		}
 		dprintf("[PACKET RECEIVE] HttpOpenRequest");
 		hReq = HttpOpenRequest(remote->hConnection, "POST", remote->uri, NULL, NULL, NULL, flags, 0);
-		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
 
-retry_request:
-		dprintf("[PACKET RECEIVE] HttpSendRequest");
-		hRes = HttpSendRequest(hReq, NULL, 0, "RECV", 4);
-		dprintf("[RECEIVE] Got HTTP Reply: 0x%.8x", hRes);	
-		if (hRes == NULL && GetLastError() == ERROR_INTERNET_INVALID_CA && retries > 0) {
-			retries--;
-			flags = 0x3380;
-			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, 4);
-			goto retry_request;
+		if (remote->transport == METERPRETER_TRANSPORT_HTTPS) {
+			InternetQueryOption( hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, &flen);
+			flags |= SECURITY_FLAG_IGNORE_UNKNOWN_CA | SECURITY_FLAG_IGNORE_CERT_CN_INVALID | SECURITY_FLAG_IGNORE_UNKNOWN_CA;
+			InternetSetOption(hReq, INTERNET_OPTION_SECURITY_FLAGS, &flags, flen);
 		}
+
+		if (hReq == NULL) {			dprintf("[PACKET RECEIVE] Failed HttpOpenRequest: %d", GetLastError());			SetLastError(ERROR_NOT_FOUND);			break;		}
 
 		if (! hRes) {
 			dprintf("[PACKET RECEIVE] Failed HttpSendRequest: %d", GetLastError());
@@ -1388,7 +1369,6 @@ retry_request:
 		while (inHeader && retries > 0)
 		{
 			retries--;
-			dprintf("[PACKET RECEIVE] Header");
 			if (! InternetReadFile(hReq, ((PUCHAR)&header + headerBytes), sizeof(TlvHeader) - headerBytes, &bytesRead))  {
 				dprintf("[PACKET RECEIVE] Failed HEADER InternetReadFile: %d", GetLastError());
 				SetLastError(ERROR_NOT_FOUND);
@@ -1431,7 +1411,6 @@ retry_request:
 		while (payloadBytesLeft > 0 && retries > 0 )
 		{
 			retries--;
-			dprintf("[PACKET RECEIVE] Data");
 			if (! InternetReadFile(hReq, payload + payloadLength - payloadBytesLeft, payloadBytesLeft, &bytesRead))  {
 				dprintf("[PACKET RECEIVE] Failed BODY InternetReadFile: %d", GetLastError());
 				SetLastError(ERROR_NOT_FOUND);
