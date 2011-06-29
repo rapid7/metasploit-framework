@@ -357,9 +357,9 @@ DWORD request_fs_md5(Remote *remote, Packet *packet)
 	LPSTR expanded = NULL;
 	DWORD result = ERROR_SUCCESS;
 	MD5_CTX context;
-	HANDLE fd;
+	FILE *fd;
+	int ret;
 	unsigned char buff[16384];
-	DWORD bytesRead;
 	unsigned char hash[128];
 
 	filePath = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);
@@ -373,18 +373,17 @@ DWORD request_fs_md5(Remote *remote, Packet *packet)
 	{
 		do {
 			MD5_Init(&context);
-			fd = CreateFile(expanded, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+			fd = fopen(expanded, "rb");
 			if (! fd) {
 				result = GetLastError();
 				break;
 			}
 
-			while (ReadFile(fd, buff, sizeof(buff), &bytesRead, NULL)) {
-				dprintf("[MD5] READ: %s => %d", expanded, bytesRead);
-				if (bytesRead == 0) break;
-				MD5_Update(&context, buff, bytesRead);
+			while((ret = fread(buff, 1, sizeof(buff), fd)) > 0 ) {
+				MD5_Update(&context, buff, ret);
 			}
-			CloseHandle(fd);
+
+			fclose(fd);
 			MD5_Final(hash, &context);
 
 			// One byte extra for the NULL
@@ -420,9 +419,9 @@ DWORD request_fs_sha1(Remote *remote, Packet *packet)
 	DWORD result = ERROR_SUCCESS;
 	SHA_CTX context;
 
-	HANDLE fd;
+	FILE *fd;
+	int ret;
 	unsigned char buff[16384];
-	DWORD bytesRead;
 	unsigned char hash[128];
 
 	filePath = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);
@@ -436,19 +435,19 @@ DWORD request_fs_sha1(Remote *remote, Packet *packet)
 	{
 		do {
 			SHA1_Init(&context);
-			fd = CreateFile(expanded, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+			fd = fopen(expanded, "rb");
 			if (! fd) {
 				result = GetLastError();
 				break;
 			}
 
-			while (ReadFile(fd, buff, sizeof(buff), &bytesRead, NULL)) {
-				dprintf("[SHA1] READ: %s => %d", expanded, bytesRead);
-				if (bytesRead == 0) break;
-				SHA1_Update(&context, buff, bytesRead);
+			while((ret = fread(buff, 1, sizeof(buff), fd)) > 0 ) {
+				SHA1_Update(&context, buff, ret);
 			}
-			CloseHandle(fd);
+
+			fclose(fd);
 			SHA1_Final(hash, &context);
+
 			// One byte extra for the NULL
 			packet_add_tlv_raw(response, TLV_TYPE_FILE_NAME, hash, 21);
 		} while(0);
