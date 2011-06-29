@@ -1,4 +1,4 @@
-OPTS="-x .ut.rb -x .ts.rb -q"
+OPTS="-x .ut.rb -x .ts.rb -x samples -q"
 BASE="$(dirname "$0")"
 MSFDIR="${BASE}/.."
 DOCDIR="${BASE}/api"
