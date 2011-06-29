@@ -76,6 +76,10 @@ def parse_args
 		opts[:iterations] = i
 	end
 
+	opt.on('-c', '--add-code   [path] ', String, 'Specify an additional win32 shellcode file to include') do |x|
+		opts[:addshellcode] = x
+	end
+
 	opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
 		opts[:template] = x
 	end
@@ -299,6 +303,16 @@ if opts[:template]
 	altexe = File.basename(opts[:template])
 end
 exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
+
+# If we were given addshellcode for a win32 payload, 
+# create a double-payload; one running in one thread, one running in the other
+if opts[:addshellcode] and opts[:platform].include?(Msf::Module::Platform::Windows) and opts[:arch] == 'x86'
+	payload_raw = Msf::Util::EXE.win32_rwx_exec_thread(payload_raw,0,'end')
+	file = ::File.new(opts[:addshellcode])
+	file.binmode
+	payload_raw << file.read
+	file.close
+end
 
 if opts[:encode]
 	done = false
