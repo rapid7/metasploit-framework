@@ -85,6 +85,14 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER										},
 	},
 #endif
+	{ "stdapi_fs_md5",
+	  { request_fs_md5,                                    { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "stdapi_fs_sha1",
+	  { request_fs_sha1,                                   { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 
 	// Process
 	{ "stdapi_sys_process_attach",

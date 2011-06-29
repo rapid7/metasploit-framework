@@ -279,7 +279,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib jpeg.lib"
+				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib jpeg.lib  ssleay32.lib libeay32.lib"
 				OutputFile=".\Release\ext_server_stdapi.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -381,11 +381,11 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib"
+				AdditionalDependencies="iphlpapi.lib shlwapi.lib ws2_32.lib odbc32.lib odbccp32.lib metsrv.lib   ssleay32.lib libeay32.lib"
 				OutputFile=".\Release\ext_server_stdapi.x64.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="..\..\source\jpeg-8\lib\win\x64;..\metsrv\Release;..\..\source\openssl\lib\win"
+				AdditionalLibraryDirectories="..\..\source\jpeg-8\lib\win\x64;..\metsrv\Release;..\..\source\openssl\lib\win\x64"
 				GenerateManifest="false"
 				DelayLoadDLLs="metsrv.dll"
 				GenerateMapFile="true"

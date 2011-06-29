@@ -1,6 +1,9 @@
 #include "precomp.h"
 #include <sys/stat.h>
 
+#include <openssl/md5.h>
+#include <openssl/sha.h>
+
 /***************************
  * File Channel Operations *
  ***************************/
@@ -332,6 +335,129 @@ DWORD request_fs_file_expand_path(Remote *remote, Packet *packet)
 
 	// Transmit the response to the mofo
 	packet_transmit_response(result, remote, response);
+
+	if (expanded)
+		free(expanded);
+
+	return ERROR_SUCCESS;
+}
+
+
+/*
+ * Returns the MD5 hash for a specified file path
+ *
+ * TLVs:
+ *
+ * req: TLV_TYPE_FILE_PATH - The file path that is to be stat'd
+ */
+DWORD request_fs_md5(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCSTR filePath;
+	LPSTR expanded = NULL;
+	DWORD result = ERROR_SUCCESS;
+	MD5_CTX context;
+	HANDLE fd;
+	unsigned char buff[16384];
+	DWORD bytesRead;
+	unsigned char hash[128];
+
+	filePath = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);
+
+	// Validate parameters
+	if (!filePath)
+		result = ERROR_INVALID_PARAMETER;
+	else if (!(expanded = fs_expand_path(filePath)))
+		result = ERROR_NOT_ENOUGH_MEMORY;
+	else
+	{
+		do {
+			MD5_Init(&context);
+			fd = CreateFile(expanded, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+			if (! fd) {
+				result = GetLastError();
+				break;
+			}
+
+			while (ReadFile(fd, buff, sizeof(buff), &bytesRead, NULL)) {
+				dprintf("[MD5] READ: %s => %d", expanded, bytesRead);
+				if (bytesRead == 0) break;
+				MD5_Update(&context, buff, bytesRead);
+			}
+			CloseHandle(fd);
+			MD5_Final(hash, &context);
+
+			// One byte extra for the NULL
+			packet_add_tlv_raw(response, TLV_TYPE_FILE_NAME, hash, 17);
+		} while(0);
+	}
+
+	// Set the result and transmit the response
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	packet_transmit(remote, response, NULL);
+
+	if (expanded)
+		free(expanded);
+
+	return ERROR_SUCCESS;
+}
+
+
+
+/*
+ * Returns the SHA1 hash for a specified file path
+ *
+ * TLVs:
+ *
+ * req: TLV_TYPE_FILE_PATH - The file path that is to be stat'd
+ */
+DWORD request_fs_sha1(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCSTR filePath;
+	LPSTR expanded = NULL;
+	DWORD result = ERROR_SUCCESS;
+	SHA_CTX context;
+
+	HANDLE fd;
+	unsigned char buff[16384];
+	DWORD bytesRead;
+	unsigned char hash[128];
+
+	filePath = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);
+
+	// Validate parameters
+	if (!filePath)
+		result = ERROR_INVALID_PARAMETER;
+	else if (!(expanded = fs_expand_path(filePath)))
+		result = ERROR_NOT_ENOUGH_MEMORY;
+	else
+	{
+		do {
+			SHA1_Init(&context);
+			fd = CreateFile(expanded, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL | FILE_FLAG_SEQUENTIAL_SCAN, NULL);
+			if (! fd) {
+				result = GetLastError();
+				break;
+			}
+
+			while (ReadFile(fd, buff, sizeof(buff), &bytesRead, NULL)) {
+				dprintf("[SHA1] READ: %s => %d", expanded, bytesRead);
+				if (bytesRead == 0) break;
+				SHA1_Update(&context, buff, bytesRead);
+			}
+			CloseHandle(fd);
+			SHA1_Final(hash, &context);
+			// One byte extra for the NULL
+			packet_add_tlv_raw(response, TLV_TYPE_FILE_NAME, hash, 21);
+		} while(0);
+	}
+
+	// Set the result and transmit the response
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+
+	packet_transmit(remote, response, NULL);
 
 	if (expanded)
 		free(expanded);

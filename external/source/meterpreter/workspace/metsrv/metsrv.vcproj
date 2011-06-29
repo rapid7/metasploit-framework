@@ -388,7 +388,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib odbc32.lib odbccp32.lib ssleay32.lib wininet.lib libeay32.lib"
+				AdditionalDependencies="ws2_32.lib odbc32.lib odbccp32.lib wininet.lib ssleay32.lib libeay32.lib"
 				OutputFile=".\Release\metsrv.x64.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"

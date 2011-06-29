@@ -15,6 +15,8 @@ DWORD request_fs_delete_file(Remote *remote, Packet *packet);
 DWORD request_fs_stat(Remote *remote, Packet *packet);
 DWORD request_fs_file_expand_path(Remote *remote, Packet *packet);
 DWORD request_fs_search( Remote * remote, Packet * packet );
+DWORD request_fs_md5(Remote *remote, Packet *packet);
+DWORD request_fs_sha1(Remote *remote, Packet *packet);
 
 /*
  * Channel allocation
