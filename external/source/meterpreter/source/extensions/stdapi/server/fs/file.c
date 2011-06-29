@@ -358,7 +358,7 @@ DWORD request_fs_md5(Remote *remote, Packet *packet)
 	DWORD result = ERROR_SUCCESS;
 	MD5_CTX context;
 	FILE *fd;
-	int ret;
+	size_t ret;
 	unsigned char buff[16384];
 	unsigned char hash[128];
 
@@ -420,7 +420,7 @@ DWORD request_fs_sha1(Remote *remote, Packet *packet)
 	SHA_CTX context;
 
 	FILE *fd;
-	int ret;
+	size_t ret;
 	unsigned char buff[16384];
 	unsigned char hash[128];
 
