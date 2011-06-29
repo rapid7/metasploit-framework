@@ -440,15 +440,17 @@ class Db
 			end
 		end
 
+		#
 		# Only takes two arguments. Can return return active or all, on a certain 
 		# host or range, on a certain port or range, and/or on a service name. 
-		# E.g., these:
 		#
-		# db_creds     # Default, returns all active credentials)
-		# db_creds all # Returns all credentials, active or not 
-		# db_creds host=10.10.10.0/24
-		# db_creds port=1-1024
-		# db_creds service=ssh,smb,http
+		# E.g., these:
+		#   db_creds     # Default, returns all active credentials)
+		#   db_creds all # Returns all credentials, active or not 
+		#   db_creds host=10.10.10.0/24
+		#   db_creds port=1-1024
+		#   db_creds service=ssh,smb,http
+		#
 		def cmd_db_creds(*args)
 			return unless active?
 			if args.size > 2
