@@ -90,6 +90,47 @@ Separator = "\\"
 		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
 	end
 
+
+	#
+	# Calculates the MD5 (16-bytes raw) of a remote file
+	#
+	def File.md5(path)
+		request = Packet.create_request('stdapi_fs_md5')
+
+		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+
+		response = client.send_request(request)
+
+		return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+	end
+
+	#
+	# Calculates the SHA1 (20-bytes raw) of a remote file
+	#
+	def File.sha1(path)
+		request = Packet.create_request('stdapi_fs_sha1')
+
+		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+
+		response = client.send_request(request)
+
+		return response.get_tlv_value(TLV_TYPE_FILE_NAME)
+	end
+
+	#
+	# Expands a file path, substituting all environment variables, such as
+	# %TEMP%.
+	#
+	def File.expand_path(path)
+		request = Packet.create_request('stdapi_fs_file_expand_path')
+
+		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+
+		response = client.send_request(request)
+
+		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
+	end
+
 	#
 	# Performs a stat on a file and returns a FileStat instance.
 	#
