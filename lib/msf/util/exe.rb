@@ -1358,7 +1358,7 @@ require 'digest/sha1'
 	# starting the code in a new thread, and finally jumping back to the next
 	# code to execute. block_offset is the offset of the next code from
 	# the start of this code
-	def self.win32_rwx_exec_thread(code, block_offset)
+	def self.win32_rwx_exec_thread(code, block_offset, which_offset='start')
 
 		stub_block = %Q^
 		; Input: The hash of the API to call and all its parameters must be pushed onto stack.
@@ -1576,7 +1576,13 @@ require 'digest/sha1'
 		res = enc.data + code
 
 		res[off,4] = [code.length].pack('V')
-		res[soff,4] = [block_offset - (soff + 4)].pack('V')
+		if which_offset == 'start'
+			res[soff,4] = [block_offset - (soff + 4)].pack('V')
+		elsif which_offset == 'end'
+			res[soff,4] = [res.length - (soff + 4) + block_offset].pack('V')
+		else
+			raise RuntimeError, 'Blast! Msf::Util::EXE.rwx_exec_thread called with invalid offset!'
+		end
 		res
 	end
 
