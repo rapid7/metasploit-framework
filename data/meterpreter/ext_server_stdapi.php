@@ -320,8 +320,8 @@ if (!function_exists('stdapi_fs_chdir')) {
 function stdapi_fs_chdir($req, &$pkt) {
     my_print("doing chdir");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_DIRECTORY_PATH);
-    chdir(cononicalize_path($path_tlv['value']));
-    return ERROR_SUCCESS;
+    $ret = @chdir(cononicalize_path($path_tlv['value']));
+    return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
 }
 }
 
@@ -330,7 +330,7 @@ if (!function_exists('stdapi_fs_delete')) {
 function stdapi_fs_delete($req, &$pkt) {
     my_print("doing delete");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_NAME);
-    $ret = unlink(cononicalize_path($path_tlv['value']));
+    $ret = @unlink(cononicalize_path($path_tlv['value']));
     return $ret ? ERROR_SUCCESS : ERROR_FAILURE;
 }
 }
@@ -515,7 +515,7 @@ $GLOBALS['processes'] = array();
 
 if (!function_exists('stdapi_sys_process_execute')) {
 function stdapi_sys_process_execute($req, &$pkt) {
-    global $channel_process_map;
+    global $channel_process_map, $processes;
 
     my_print("doing execute");
     $cmd_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_PATH);
@@ -555,9 +555,9 @@ function stdapi_sys_process_execute($req, &$pkt) {
         my_print("Channelized");
         # Then the client wants a channel set up to handle this process' stdio,
         # register all the necessary junk to make that happen.
-        register_stream($pipes[0]);
-        register_stream($pipes[1]);
-        register_stream($pipes[2]);
+        for ($i = 0; $i < 3; $i++) {
+            register_stream($pipes[$i]);
+        }
         $cid = register_channel($pipes[0], $pipes[1], $pipes[2]);
         $channel_process_map[$cid] = $proc;
 
@@ -580,9 +580,9 @@ function stdapi_sys_process_close($req, &$pkt) {
     global $processes;
     my_print("doing process_close");
     $handle_tlv = packet_get_tlv($req, TLV_TYPE_PROCESS_HANDLE);
-    $proc = $processes[$handle_tlv['value']];
-
-    close_process($proc);
+    if (array_key_exists($handle_tlv['value'], $processes)) {
+        close_process($processes[$handle_tlv['value']]);
+    }
 
     return ERROR_SUCCESS;
 }
@@ -599,10 +599,25 @@ function close_process($proc) {
         foreach ($proc['pipes'] as $f) {
             fclose($f);
         }
-        # Don't use proc_close() here because it blocks waiting for the child
-        # to die.  Better to just send it a sigterm and move on.
-        proc_terminate($proc['handle']);
-        if ($proc['cid'] && $channel_process_map[$proc['cid']]) {
+		if (is_callable('proc_get_status')) {
+			$status = proc_get_status($proc['handle']);
+		} else {
+			# fake a running process on php < 4.3
+			$status = array('running' => true);
+		}
+
+		# proc_close blocks waiting for the child to exit, so if it's still
+		# running, don't take a chance on deadlock and just sigkill it if we
+		# can.  We can't on php < 4.3, so don't do anything.  This will leave
+		# zombie processes, but that's better than deadlock.
+		if ($status['running'] == false) {
+			proc_close($proc['handle']);
+		} else {
+			if (is_callable('proc_terminate')) {
+				proc_terminate($proc['handle'], 9);
+			}
+		}
+        if (array_key_exists('cid', $proc) && $channel_process_map[$proc['cid']]) {
             unset($channel_process_map[$proc['cid']]);
         }
     }
