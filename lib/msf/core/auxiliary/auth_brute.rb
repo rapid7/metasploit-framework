@@ -136,6 +136,10 @@ module Auxiliary::AuthBrute
 	def counters_expired?(this_service,credentials)
 		expired_cred = false 
 		expired_time = false
+		# Workaround for cases where multiple auth_brute modules are running concurrently and
+		# someone stomps on the @max_per_service class variable during setup.
+		current_max_per_service = self.class.class_variable_get("@@max_per_service") rescue nil
+		return false unless current_max_per_service
 		if @@guesses_per_service[this_service] >= (@@max_per_service)
 			if @@max_per_service < credentials.size
 				print_brute(
