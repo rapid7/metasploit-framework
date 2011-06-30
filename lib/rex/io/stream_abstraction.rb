@@ -185,7 +185,10 @@ protected
 				end
 
 				if( closed )
-					self.close_write if self.respond_to?('close_write')
+					begin
+						self.close_write if self.respond_to?('close_write')
+					rescue IOError
+					end
 					break
 				end
 			end
