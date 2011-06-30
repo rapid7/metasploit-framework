@@ -124,11 +124,13 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 		begin
 			framework.events.on_session_command(self, buf.strip)
-			len = @shell.channel.write(buf + "\r\n")
+			len = @shell.channel.write("#{buf}\n")
 		rescue ::Exception => e
 			shell_close
 			raise e
 		end
+
+		len
 	end
 
 	def shell_close
@@ -147,8 +149,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		# Keep reading data until no more data is available or the timeout is 
 		# reached. 
 		while (::Time.now.to_f < etime)
-			res = shell_read(-1, 0.1)
-			buff << res if res
+			res = shell_read(-1, timeout)
+			break unless res
+			timeout = etime - ::Time.now.to_f
+			buff << res
 		end
 
 		buff
