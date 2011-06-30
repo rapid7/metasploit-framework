@@ -29,14 +29,14 @@ class Plugin::Nexpose < Msf::Plugin
 				'nexpose_dos'            => "Launch a scan that includes checks that can crash services and devices (caution)",
 
 				'nexpose_disconnect'     => "Disconnect from an active NeXpose instance",
-				
+
 				'nexpose_sites'          => "List all defined sites",
 				'nexpose_site_devices'   => "List all discovered devices within a site",
 				'nexpose_site_import'    => "Import data from the specified site ID",
 				'nexpose_report_templates' => "List all available report templates",
 				'nexpose_command'        => "Execute a console command on the NeXpose instance",
 				'nexpose_sysinfo'        => "Display detailed system information about the NeXpose instance",
-				
+
 				# TODO:
 				# nexpose_stop_scan
 			}
@@ -196,7 +196,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 		def cmd_nexpose_command(*args)
 			return if not nexpose_verify
-			
+
 			if args.length == 0
 				print_error("No command was specified")
 				return
@@ -207,7 +207,7 @@ class Plugin::Nexpose < Msf::Plugin
 			print_status("Command Output")
 			print_line(res)
 			print_line("")
-			
+
 		end
 
 		def cmd_nexpose_sysinfo(*args)
@@ -220,16 +220,16 @@ class Plugin::Nexpose < Msf::Plugin
 				print_status("    #{k}: #{v}")
 			end
 		end
-		
+
 		def nexpose_compatibility_check
 			res = @nsc.console_command("ver")
-			if res !~ /^Console Version ID:\s*4[89]0\s*$/m
+			if res !~ /^(NSC|Console) Version ID:\s*4[89]0\s*$/m
 				print_error("")
 				print_error("Warning: This version of NeXpose has not been tested with Metasploit!")
 				print_error("")
 			end
 		end
-		
+
 		def cmd_nexpose_site_import(*args)
 			site_id = args.shift
 			if not site_id
@@ -245,11 +245,11 @@ class Plugin::Nexpose < Msf::Plugin
 			report = Nexpose::ReportConfig.new(@nsc)
 			report.set_name("Metasploit Export #{msfid}")
 			report.set_template_id("pentest-audit")
-			
+
 			report.addFilter("SiteFilter", site_id)
 			report.set_generate_after_scan(0)
 			report.set_storeOnServer(1)
-			
+
 			begin
 				report.set_format(report_format)
 				report.saveReport()
@@ -268,7 +268,7 @@ class Plugin::Nexpose < Msf::Plugin
 				select(nil, nil, nil, 1.0)
 			end
 
-			print_status("Downloading the export data...") 
+			print_status("Downloading the export data...")
 			data = @nsc.download(url)
 
 			# Delete the temporary report ID
@@ -276,9 +276,9 @@ class Plugin::Nexpose < Msf::Plugin
 
 			print_status("Importing NeXpose data...")
 			process_nexpose_data(report_format, data)
-			
+
 		end
-					
+
 		def cmd_nexpose_discover(*args)
 			args << "-h" if args.length == 0
 			args << "-t"
@@ -457,11 +457,11 @@ class Plugin::Nexpose < Msf::Plugin
 				report = Nexpose::ReportConfig.new(@nsc)
 				report.set_name("Metasploit Export #{msfid}")
 				report.set_template_id(opt_template)
-			
+
 				report.addFilter("SiteFilter", site.site_id)
 				report.set_generate_after_scan(1)
 				report.set_storeOnServer(1)
-			
+
 				begin
 					report.set_format(report_format)
 					report.saveReport()
@@ -472,7 +472,7 @@ class Plugin::Nexpose < Msf::Plugin
 					end
 					raise e
 				end
-			
+
 				print_status(" >> Created temporary report configuration ##{report.config_id}") if opt_verbose
 
 				# Run the scan
