@@ -39,6 +39,26 @@ class Registry
 	# the supplied permissions.  Right now this is merely a wrapper around
 	# create_key.
 	#
+
+	def Registry.load_key(root_key,base_key,hive_file)
+		request = Packet.create_request('stdapi_registry_load_key')
+		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+		request.add_tlv(TLV_TYPE_FILE_PATH,hive_file)
+		
+		response = client.send_request(request)
+		return response.get_tlv(TLV_TYPE_RESULT).value
+	end
+
+	def Registry.unload_key(root_key,base_key)
+		request = Packet.create_request('stdapi_registry_unload_key')
+		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
+		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
+		response = client.send_request(request)
+		return response.get_tlv(TLV_TYPE_RESULT).value
+	end
+
+
 	def Registry.open_key(root_key, base_key, perm = KEY_READ)
 		# If no base key was provided, just return the root_key.
 		if (base_key == nil or base_key.length == 0)
