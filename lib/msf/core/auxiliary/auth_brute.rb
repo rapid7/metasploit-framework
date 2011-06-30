@@ -160,24 +160,23 @@ module Auxiliary::AuthBrute
 		expired_cred || expired_time
 	end
 
+	# If the user passed a memory location for credential gen, assume
+	# that that's precisely what's desired -- no other transforms or
+	# additions or uniqueness should be done. Otherwise, perform
+	# the usual alterations.
 	def build_credentials_array
 		credentials = extract_word_pair(datastore['USERPASS_FILE'])
-
 		translate_proto_datastores()
-
+		return credentials if datastore['USERPASS_FILE'] =~ /^memory:/
 		users = load_user_vars(credentials)
 		passwords = load_password_vars(credentials)
-
 		cleanup_files()
-
 		if datastore['USER_AS_PASS']
 			credentials = gen_user_as_password(users, credentials)
 		end
-
 		if datastore['BLANK_PASSWORDS']
 			credentials = gen_blank_passwords(users, credentials)
 		end
-
 		credentials.concat(combine_users_and_passwords(users, passwords))
 		credentials.uniq!
 		credentials = just_uniq_passwords(credentials) if @strip_usernames
@@ -330,19 +329,44 @@ module Auxiliary::AuthBrute
 		return save_array
 	end
 
+	def get_object_from_memory_location(memloc)
+		if memloc.to_s =~ /^memory:\s*([0-9]+)/
+			id = $1
+			ObjectSpace._id2ref(id.to_s.to_i)
+		end
+	end
+
 	def extract_word_pair(wordfile)
-		return [] unless wordfile && File.readable?(wordfile)
 		creds = []
+		if wordfile.to_s =~ /^memory:/
+			return extract_word_pair_from_memory(wordfile.to_s)
+		else
+			return [] unless wordfile && File.readable?(wordfile)
+			begin
+				upfile_contents = File.open(wordfile) {|f| f.read(f.stat.size)}
+			rescue
+				return []
+			end
+			upfile_contents.split(/\n/).each do |line|
+				user,pass = line.split(/\s+/,2).map { |x| x.strip }
+				creds << [user.to_s, pass.to_s]
+			end
+			return creds
+		end
+	end
+
+	def extract_word_pair_from_memory(memloc)
 		begin
-			upfile_contents = File.open(wordfile) {|f| f.read(f.stat.size)}
-		rescue
-			return []
+			creds = []
+			obj = get_object_from_memory_location(memloc)
+			obj.all_creds.each do |cred|
+				user,pass = cred.split(/\s+/,2).map {|x| x.strip}
+				creds << [Rex::Text.dehex(user.to_s), Rex::Text.dehex(pass.to_s)]
+			end
+			return creds
+		rescue => e
+			raise ArgumentError, "Could not read credentials from memory, raised: #{e.class}: #{e.message}"
 		end
-		upfile_contents.split(/\n/).each do |line|
-			user,pass = line.split(/\s+/,2).map { |x| x.strip }
-			creds << [user.to_s, pass.to_s]
-		end
-		return creds
 	end
 
 	def userpass_sleep_interval

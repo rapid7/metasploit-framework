@@ -132,7 +132,7 @@ end
 # OptBool    - Boolean true or false indication
 # OptPort    - TCP/UDP service port
 # OptAddress - IP address or hostname
-# OptPath    - Path name on disk
+# OptPath    - Path name on disk or an Object ID
 # OptInt     - An integer value
 # OptEnum    - Select from a set of valid values
 # OptAddressRange - A subnet or range of addresses
@@ -383,16 +383,33 @@ class OptPath < OptBase
 		return 'path'
 	end
 
+	# Generally, 'value' should be a file that exists.
 	def valid?(value)
 		return false if empty_required_value?(value)
-
-		if ((value != nil and value.empty? == false) and
-		    (File.exists?(value) == false))
-			return false
+		if value and !value.empty?
+			if value =~ /^memory:\s*([0-9]+)/i
+				return false unless check_memory_location($1)
+			else
+				unless File.exists?(value)
+					return false
+				end
+			end
 		end
-
 		return super
 	end
+
+	# The AuthBrute mixin can take a memory address as well --
+	# currently, no other OptFile can make use of these objects.
+	# TODO: Implement memory:xxx to be more generally useful so
+	# the validator on OptFile isn't lying for non-AuthBrute.
+	def check_memory_location(id)
+		return false unless self.class.const_defined?(:ObjectSpace)
+		obj = ObjectSpace._id2ref(id.to_i) rescue nil
+		return false unless obj.respond_to? :acts_as_file?
+		return false unless obj.acts_as_file? # redundant? 
+		return !!obj
+	end
+
 end
 
 ###

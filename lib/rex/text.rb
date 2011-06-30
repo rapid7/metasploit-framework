@@ -704,6 +704,30 @@ module Text
 		Digest::MD5.hexdigest(str)
 	end
 
+	#
+	# Convert hex-encoded characters to literals.
+	# Example: "AA\\x42CC" becomes "AABCC"
+	#
+	def self.dehex(str)
+		return str unless str.respond_to? :match
+		return str unless str.respond_to? :gsub
+		regex = /\x5cx[0-9a-f]{2}/mi
+		if str.match(regex)
+			str.gsub(regex) { |x| x[2,2].to_i(16).chr }
+		else
+			str
+		end
+	end
+
+	#
+	# Convert and replace hex-encoded characters to literals.
+	#
+	def self.dehex!(str)
+		return str unless str.respond_to? :match
+		return str unless str.respond_to? :gsub
+		regex = /\x5cx[0-9a-f]{2}/mi
+		str.gsub!(regex) { |x| x[2,2].to_i(16).chr }
+	end
 
 	##
 	#
