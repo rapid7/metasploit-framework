@@ -44,3 +44,5 @@ require 'msf/core/model/tag'
 
 require 'msf/core/model/cred_file'
 
+require 'msf/core/model/nexpose_console'
+
