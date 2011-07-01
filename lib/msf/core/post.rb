@@ -125,7 +125,15 @@ class Post < Msf::Module
 			return false unless self.module_info["SessionTypes"].include?(s.type)
 		end
 
-		# Types are okay, check the platform.  This is kind of a ghetto
+		# XXX: Special-case java and php for now.  This sucks and Session
+		# should have a method to auto-detect the underlying platform of
+		# platform-independent sessions such as these.
+		plat = s.platform
+		if plat =~ /php|java/ and sysinfo and sysinfo["OS"]
+			plat = sysinfo["OS"]
+		end
+
+		# Types are okay, now check the platform.  This is kind of a ghetto
 		# workaround for session platforms being ad-hoc and Platform being
 		# inflexible.
 		if self.platform and self.platform.kind_of?(Msf::Module::PlatformList)
@@ -133,14 +141,14 @@ class Post < Msf::Module
 				# Add as necessary
 				"win", "linux", "osx"
 			].each do |name|
-				if s.platform =~ /#{name}/
+				if plat =~ /#{name}/
 					p = Msf::Module::PlatformList.transform(name)
 					return false unless self.platform.supports? p
 				end
 			end
 		elsif self.platform and self.platform.kind_of?(Msf::Module::Platform)
 			p_klass = Msf::Module::Platform
-			case s.platform
+			case plat.downcase
 			when /win/
 				return false unless self.platform.kind_of?(p_klass::Windows)
 			when /osx/
