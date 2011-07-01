@@ -73,6 +73,7 @@ function getVersion(){
 				case "344":   // opera-9.0-20060616.1-static-qt.i386-en-344
 				case "2091":  // opera-9.52-2091.gcc3-shared-qt3.i386.rpm
 				case "2444":  // opera-9.60.gcc4-shared-qt3.i386.rpm
+				case "6386":  // 10.61
 					os_name = "#{oses::LINUX}";
 					break;
 				case "8502":  // "Opera 9 Eng Setup.exe"
@@ -82,7 +83,11 @@ function getVersion(){
 				case "8801":  // "Opera_9.22_Eng_Setup.exe"
 				case "10108": // "Opera_952_10108_en.exe"
 				case "10467": // "Opera_962_en_Setup.exe"
+				case "3445":  // 10.61
 					os_name = "#{oses::WINDOWS}";
+					break;
+				case "6386":  // 10.61
+					os_name = "#{oses::MAC_OSX}";
 					break;
 				//default:
 				//	document.write(opera.buildNumber('inconspicuous'));
@@ -133,7 +138,7 @@ function getVersion(){
 			if (platform.match(/x86_64/)) {
 				arch = "#{ARCH_X86_64}";
 			} else if (platform.match(/arm/)) {
-				// Android
+				// Android and maemo
 				arch = "#{ARCH_ARMLE}";
 			}
 		} else if (platform.match(/windows/)) {
