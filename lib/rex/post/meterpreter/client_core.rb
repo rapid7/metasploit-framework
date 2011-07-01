@@ -311,7 +311,8 @@ class ClientCore < Extension
 	#
 	def shutdown
 		request  = Packet.create_request('core_shutdown')
-		response = self.client.send_packet_wait_response(request, 15)
+		# Don't wait for the response since the server will be dead
+		self.client.send_packet(request)
 		true
 	end
 
