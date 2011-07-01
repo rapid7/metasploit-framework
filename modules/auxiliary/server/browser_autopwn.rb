@@ -174,6 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def setup
+		print_status("Setup")
 
 		@init_js = ::Rex::Exploitation::JavascriptOSDetect.new <<-ENDJS
 
@@ -244,7 +245,10 @@ class Metasploit3 < Msf::Auxiliary
 				}
 			ENDJS
 		else
+			pre = Time.now
+			print_status("Obfuscating initial javascript #{pre}")
 			@init_js.obfuscate
+			print_status "Done in #{Time.now - pre} seconds"
 		end
 
 		#@init_js << "window.onload = #{@init_js.sym("bodyOnLoad")};";
@@ -561,7 +565,7 @@ class Metasploit3 < Msf::Auxiliary
 			# detection, which is kind of a bummer since it's so easy for the
 			# ua string to lie.  It probably doesn't matter that much because
 			# most of our exploits require javascript anyway.
-			print_status("Browser has javascript disabled, trying exploits that don't need it")
+			print_status("#{cli.peerhost.ljust 16} Browser has javascript disabled, trying exploits that don't need it")
 			record_detection(cli, request)
 			if (action.name == "DefangedDetection")
 				response = create_response()
@@ -575,7 +579,7 @@ class Metasploit3 < Msf::Auxiliary
 			response["Cache-Control"] = "must-revalidate"
 			cli.send_response(response)
 		else
-			print_status("404ing #{request.uri}")
+			print_status("#{cli.peerhost.ljust 16} 404ing #{request.uri}")
 			send_not_found(cli)
 			return false
 		end
@@ -878,14 +882,14 @@ class Metasploit3 < Msf::Auxiliary
 			# roughly the same as the javascript version on non-IE
 			# browsers because it does most everything with
 			# navigator.userAgent
-			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
+			print_status("#{cli.peerhost.ljust 16} Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
 		else
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
-				print_status("JavaScript Report: #{detected_version}")
+				print_status("#{cli.peerhost.ljust 16} JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
 				if framework.db.active
@@ -895,7 +899,7 @@ class Metasploit3 < Msf::Auxiliary
 					note_data[:os_sp]     = os_sp     if os_sp != "undefined"
 					note_data[:os_lang]   = os_lang   if os_lang != "undefined"
 					note_data[:arch]      = arch      if arch != "undefined"
-					print_status("Reporting: #{note_data.inspect}")
+					print_status("#{cli.peerhost.ljust 16} Reporting: #{note_data.inspect}")
 
 					report_note({
 						:host => cli.peerhost,
