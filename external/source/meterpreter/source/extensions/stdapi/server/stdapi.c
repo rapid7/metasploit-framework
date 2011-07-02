@@ -221,6 +221,14 @@ Command customCommands[] =
 
 
 	// Registry
+	{ "stdapi_registry_load_key",
+	  { request_registry_load_key,                         { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
+	{ "stdapi_registry_unload_key",
+	  { request_registry_unload_key,                         { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 	{ "stdapi_registry_open_key",
 	  { request_registry_open_key,                         { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },

@@ -13,6 +13,52 @@ DWORD request_registry_create_key(Remote *remote, Packet *packet);
  * req: TLV_TYPE_BASE_KEY   - The base key
  * opt: TLV_TYPE_PERMISSION - Permissions with which to open the key
  */
+
+DWORD request_registry_load_key(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCTSTR baseKey = NULL;
+	HKEY rootKey = NULL, resKey;
+	LPCSTR hiveFile = NULL;
+	DWORD result;
+
+	rootKey    = (HKEY)packet_get_tlv_value_uint(packet, TLV_TYPE_ROOT_KEY);
+	baseKey    = packet_get_tlv_value_string(packet, TLV_TYPE_BASE_KEY);
+	hiveFile   = packet_get_tlv_value_string(packet, TLV_TYPE_FILE_PATH);	
+
+	if ((!rootKey) || (!baseKey) || (!hiveFile))
+		result = ERROR_INVALID_PARAMETER;
+	else
+	{
+		result = RegLoadKey(rootKey,baseKey,hiveFile);
+	}
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+	packet_transmit(remote, response, NULL);
+	return ERROR_SUCCESS;
+}
+
+DWORD request_registry_unload_key(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+	LPCTSTR baseKey = NULL;
+	HKEY rootKey = NULL, resKey;
+	DWORD result;
+
+	rootKey    = (HKEY)packet_get_tlv_value_uint(packet, TLV_TYPE_ROOT_KEY);
+	baseKey    = packet_get_tlv_value_string(packet, TLV_TYPE_BASE_KEY);
+
+	if ((!rootKey) || (!baseKey))
+		result = ERROR_INVALID_PARAMETER;
+	else
+	{
+		result=RegUnLoadKey(rootKey,baseKey);
+	}
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, result);
+	packet_transmit(remote, response, NULL);
+	return ERROR_SUCCESS;
+}
+
+
 DWORD request_registry_open_key(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
