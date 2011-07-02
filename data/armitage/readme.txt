@@ -9,10 +9,16 @@ Armitage - Cyber Attack Management for Metasploit
 
 Armitage is a graphical cyber attack management tool for Metasploit that 
 visualizes your targets, recommends exploits, and exposes the advanced 
-capabilities of the framework. Armitage aims to make Metasploit usable for 
-security practitioners who understand hacking but don't use Metasploit every 
-day. If you want to learn Metasploit and grow into the advanced features, 
-Armitage can help you.
+capabilities of the framework.
+
+Advanced users will find Armitage valuable for managing remote Metasploit 
+instances and collaboration. Armitage's red team collaboration features allow 
+your team to use the same sessions, share data, and communicate through one 
+Metasploit instance.
+
+Armitage aims to make Metasploit usable for security practitioners who 
+understand hacking but don't use Metasploit every day. If you want to learn 
+Metasploit and grow into the advanced features, Armitage can help you.
 
 2. Documentation
    -------------
@@ -62,9 +68,6 @@ See section 8 for more information.
 
 lib/jgraphx.jar is used here within the terms of the BSD license offered by
 JGraphX Ltd. http://www.jgraphx.com/
--
-lib/jyaml-1.3.jar is used here within the terms of the BSD licensed offered
-by http://jyaml.sourceforge.net/
 -
 Code in src/msf/* comes from msfgui by scriptjunkie. 
 -

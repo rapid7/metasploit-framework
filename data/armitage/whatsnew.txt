@@ -1,6 +1,47 @@
 Armitage Changelog
 ==================
 
+02 Jul 11 - Change Log
+--------- 
+- Doubled wait time for Meterpreter ls command to complete.
+- Armitage now shows psexec option instead of smb on Login menu for
+  Windows hosts (when smb service is present).
+- Fixed bug preventing manual import of a single host
+- Removed automatic resending of console commands that didn't appear
+  sent. This was a work-around for a msf bug that may not be present
+  anymore. We'll find out.
+- Removed --script-all from NMap profiles. I saw quite a discussion
+  about this on the NMap mailing list. Oops. Oh well :)
+	http://seclists.org/nmap-dev/2011/q2/572
+- All host import options now use Metasploit's import_data RPC call.
+  This is what all the remote calls map to anyways.
+- Added Help button to start dialog.
+- Armitage now opens cmd.exe and executes programs from the file 
+  browser using the current process token (execute -t in Meterpreter)
+- Added logging. Logs are stored in ~/.armitage organized as
+  [date]/[host]/[file]. The logging captures:
+
+  - all Console tab output (console.log)
+  - the collaboration event log (event.log)
+  - all Meterpreter tab output (meterpreter_[session].log)
+  - all Command Shell tab output (cmd_[session]_[pid].log)
+  - all Shell tab output (shell_[session].log)
+  - all Screenshots captured through Armitage (.../Screenshots/)
+  - all Webcam shots captured through Armitage (.../Webcam Shots/)
+
+  You can turn this off by setting armitage.log_everything.boolean
+  to false in the Armitage preferences.
+- Added a Reset button to preferences dialog to reset Armitage 
+  preferences.
+- SSL now defaults to off on all platforms
+- Added a Default button to the database settings helper. This 
+  button loads the default database settings ignoring what is in the
+  config file.
+- Loot viewer now uses the same colors and font as a console tab
+- Fixed bug preventing Loot browser from populating data/time column
+- Preferences dialog now brings font and shortcut dialogs to front
+  to prevent them from being hidden by prefs dialog.
+
 24 Apr 11 - Happy Birthday Gerry Edition
 ---------
 - Added a check to prevent jerk faces from entering an empty nick in
