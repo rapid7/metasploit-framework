@@ -183,7 +183,7 @@ class Module
 	# Overwrite the Subscriber print_(status|error|good) to do time stamps
 	#
 
-	def print_prefix 
+	def print_prefix
 		if(
 			datastore['TimestampOutput'] =~ /^(t|y|1)/i or
 			framework.datastore['TimestampOutput'] =~ /^(t|y|1)/i
@@ -219,13 +219,13 @@ class Module
 	#
 
 	def print_line_prefix
-		datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''	
+		datastore['CustomPrintPrefix'] || framework.datastore['CustomPrintPrefix'] || ''
 	end
-		
+
 	def print_line(msg='')
 		super(print_line_prefix + msg)
 	end
-	
+
 	#
 	# Returns the module's framework full reference name.  This is the
 	# short name that end-users work with (refname) plus the type
@@ -363,17 +363,17 @@ class Module
 
 	#
 	# Returns the username that instantiated this module, this tries a handful of methods
-	# to determine what actual user ran this module. 
+	# to determine what actual user ran this module.
 	#
 	def owner
 		# Generic method to configure a module owner
 		username = self.datastore['MODULE_OWNER'].to_s.strip
-		
+
 		# Specific method used by the commercial products
 		if username.empty?
 			username = self.datastore['PROUSER'].to_s.strip
 		end
-		
+
 		# Fallback when neither prior method is available, common for msfconsole
 		if username.empty?
 			username = (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip
@@ -381,7 +381,7 @@ class Module
 
 		username
 	end
-	
+
 	#
 	# Scans the parent module reference to populate additional information. This
 	# is used to inherit common settings (owner, workspace, parent uuid, etc).
@@ -392,7 +392,7 @@ class Module
 		self.datastore['MODULE_OWNER'] = ref.owner.dup
 		self.datastore['ParentUUID']   = ref.uuid.dup
 	end
-	
+
 	#
 	# Returns whether or not this module is compatible with the supplied
 	# module.
@@ -423,7 +423,10 @@ class Module
 			mval = mod.module_info[k]
 
 			# Reject a filled compat item on one side, but not the other
-			return false if (v and not mval)
+			if (v and not mval)
+				dlog("Module #{mod.refname} is incompatible with #{self.refname} for #{k}: limiter was #{v}")
+				return false
+			end
 
 			# Track how many of our values matched the module
 			mcnt = 0
@@ -452,6 +455,9 @@ class Module
 			end
 
 		end
+
+		dlog("Module #{mod.refname} is compatible with #{self.refname}", "core", LEV_1)
+
 
 		# If we get here, we're compatible.
 		return true
@@ -577,7 +583,7 @@ class Module
 	#
 	# This provides a standard set of search filters for every module.
 	# The search terms are in the form of:
-	#   { 
+	#   {
 	#     "text" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ],
 	#     "cve" => [  [ "include_term1", "include_term2", ...], [ "exclude_term1", "exclude_term2"], ... ]
 	#   }
@@ -586,9 +592,9 @@ class Module
 	#
 	def search_filter(search_string)
 		return false if not search_string
-			
+
 		search_string += " "
-		
+
 		# Split search terms by space, but allow quoted strings
 		terms = search_string.split(/\"/).collect{|t| t.strip==t ? t : t.split(' ')}.flatten
 		terms.delete('')
@@ -612,17 +618,17 @@ class Module
 			else
 				res[f][0] << v
 			end
-		end		
+		end
 
 		k = res
-	
+
 		refs = self.references.map{|x| [x.ctx_id, x.ctx_val].join("-") }
 		is_exploit   = (self.type == "exploit")
 		is_auxiliary = (self.type == "auxiliary")
 		is_post      = (self.type == "post")
 		is_server    = (self.respond_to?(:stance) and self.stance == "aggressive")
-		is_client    = (self.respond_to?(:stance) and self.stance == "passive")		
-					
+		is_client    = (self.respond_to?(:stance) and self.stance == "passive")
+
 		[0,1].each do |mode|
 			match = false
 			k.keys.each do |t|
