@@ -44,9 +44,6 @@ class Metasploit3 < Msf::Post
 		print_status("Gathering System info ....")
 		vm = nil
 		dmi_info = nil
-		loaded_modules = cmd_exec("/sbin/lsmod")
-		dmesg = cmd_exec("dmesg")
-		proc_scsi = read_file("/proc/scsi/scsi")
 
 		if is_root?
 			dmi_info = cmd_exec("/usr/sbin/dmidecode")
@@ -70,6 +67,7 @@ class Metasploit3 < Msf::Post
 
 		# Check Modules
 		if not vm
+			loaded_modules = cmd_exec("/sbin/lsmod")
 			case loaded_modules.gsub("\n", " ")
 			when /vboxsf|vboxguest/i
 				vm = "VirtualBox"
@@ -86,6 +84,7 @@ class Metasploit3 < Msf::Post
 
 		# Check SCSI Driver
 		if not vm
+			proc_scsi = read_file("/proc/scsi/scsi")
 			case proc_scsi.gsub("\n", " ")
 			when /vmware/i
 				vm = "VMware"
@@ -148,6 +147,7 @@ class Metasploit3 < Msf::Post
 
 		# Check dmesg Output
 		if not vm
+			dmesg = cmd_exec("dmesg")
 			case dmesg
 			when /vboxbios|vboxcput|vboxfacp|vboxxsdt|(vbox cd-rom)|(vbox harddisk)/i
 				vm = "VirtualBox"
@@ -157,6 +157,8 @@ class Metasploit3 < Msf::Post
 				vm =  "Xen"
 			when /(qemu virtual cpu version)/i
 				vm = "Qemu/KVM"
+			when %r{/dev/vmnet}
+				print_good("This appears to be a VMware %bldHost%clr")
 			end
 		end
 
