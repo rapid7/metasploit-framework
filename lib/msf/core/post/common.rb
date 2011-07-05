@@ -8,14 +8,20 @@ module Common
 	def cmd_exec(cmd, opts=nil, time_out=15)
 		case session.type
 		when /meterpreter/
+			if opts.nil? and cmd =~ /\s*/
+				opts = Shellwords.shellwords(cmd)
+				cmd = opts.shift
+				opts = opts.join
+			end
 			session.response_timeout = time_out
-			cmd = session.sys.process.execute(cmd, opts, {'Hidden' => true, 'Channelized' => true})
+			process = session.sys.process.execute(cmd, opts, {'Hidden' => true, 'Channelized' => true})
 			o = ""
-			while (d = cmd.channel.read)
+			while (d = process.channel.read)
 				break if d == ""
 				o << d
 			end
-			cmd.channel.close
+			process.channel.close
+			process.close
 			cmd.close
 		when /shell/
 			o = session.shell_command_token("#{cmd} #{opts}", time_out)
