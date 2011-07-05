@@ -132,6 +132,8 @@ debug_buffer("Rex::Text.charset_exclude() output", from_msf)
 
 
 # Find differences between the two data sets
+from_msf = from_msf.unpack('C*')
+from_dbg = from_dbg.unpack('C*')
 minlen = from_msf.length
 minlen = from_dbg.length if from_dbg.length < minlen
 (0..(minlen-1)).each do |idx|
