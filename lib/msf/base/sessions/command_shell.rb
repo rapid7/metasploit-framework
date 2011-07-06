@@ -147,9 +147,7 @@ class CommandShell
 				end
 			end
 		rescue ::Timeout::Error
-		rescue ::Interrupt => e
-			raise e
-		rescue ::Exception => e
+		rescue ::Rex::SocketError, ::EOFError, ::IOError, ::Errno::EPIPE => e
 			shell_close
 			raise e
 		end
