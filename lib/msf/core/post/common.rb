@@ -22,7 +22,6 @@ module Common
 			end
 			process.channel.close
 			process.close
-			cmd.close
 		when /shell/
 			o = session.shell_command_token("#{cmd} #{opts}", time_out)
 			o.chomp! if o
