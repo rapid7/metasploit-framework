@@ -16,7 +16,7 @@ public class stdapi_fs_stat implements Command {
 		String path = request.getStringValue(TLVType.TLV_TYPE_FILE_PATH);
 		File file = new File(path);
 		if (!file.exists())
-			file = new File(Loader.cwd, path);
+			file = Loader.expand(path);
 		if (!file.exists())
 			throw new IOException("File/directory does not exist: " + path);
 		response.add(TLVType.TLV_TYPE_STAT_BUF, stat(file));

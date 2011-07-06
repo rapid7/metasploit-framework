@@ -13,6 +13,13 @@ import com.metasploit.meterpreter.ExtensionLoader;
 public class Loader implements ExtensionLoader {
 
 	public static File cwd;
+	
+	public static File expand(String path) {
+		File result = new File(path);
+		if (!result.isAbsolute())
+			result = new File(cwd, path);
+		return result;
+	}
 
 	public void load(CommandManager mgr) throws Exception {
 		cwd = new File(".").getCanonicalFile();

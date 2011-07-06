@@ -54,7 +54,7 @@ public class stdapi_fs_search implements Command {
 
 	private List findFiles(String path, String mask, boolean recurse) {
 		try {
-			File pathfile = new File(Loader.cwd, path);
+			File pathfile = Loader.expand(path);
 			if (!pathfile.exists() || !pathfile.isDirectory()) {
 				pathfile = new File(path);
 				if (!pathfile.exists() || !pathfile.isDirectory()) {

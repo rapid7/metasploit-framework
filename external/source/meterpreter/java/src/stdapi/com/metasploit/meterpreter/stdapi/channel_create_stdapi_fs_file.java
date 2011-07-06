@@ -1,7 +1,6 @@
 package com.metasploit.meterpreter.stdapi;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 
@@ -26,11 +25,11 @@ public class channel_create_stdapi_fs_file implements Command {
 					channel = new Channel(meterpreter, new ByteArrayInputStream(data), null);
 			}
 			if (channel == null)
-				channel = new Channel(meterpreter, new FileInputStream(new File(Loader.cwd, fpath)), null);
+				channel = new Channel(meterpreter, new FileInputStream(Loader.expand(fpath)), null);
 		} else if (mode.equals("r") || mode.equals("wb") || mode.equals("wbb")) {
-			channel = new Channel(meterpreter, new ByteArrayInputStream(new byte[0]), new FileOutputStream(new File(Loader.cwd, fpath).getPath(), false));
+			channel = new Channel(meterpreter, new ByteArrayInputStream(new byte[0]), new FileOutputStream(Loader.expand(fpath).getPath(), false));
 		} else if (mode.equals("a") || mode.equals("ab") || mode.equals("abb")) {
-			channel = new Channel(meterpreter, new ByteArrayInputStream(new byte[0]), new FileOutputStream(new File(Loader.cwd, fpath).getPath(), true));
+			channel = new Channel(meterpreter, new ByteArrayInputStream(new byte[0]), new FileOutputStream(Loader.expand(fpath).getPath(), true));
 		} else {
 			NotYetImplementedCommand.INSTANCE.execute(meterpreter, request, response);
 			throw new IllegalArgumentException("Unsupported file mode: " + mode);
