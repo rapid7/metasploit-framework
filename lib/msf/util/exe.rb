@@ -1063,7 +1063,9 @@ require 'digest/sha1'
 		jspraw << "#{var_fperm}[1] = \"+x\";\n"
 		jspraw << "#{var_fperm}[2] = #{var_exepath};\n"
 		jspraw << "Process #{var_proc} = Runtime.getRuntime().exec(#{var_fperm});\n"
+		jspraw << "if (#{var_proc}.waitFor() == 0) {\n"
 		jspraw << "#{var_proc} = Runtime.getRuntime().exec(#{var_exepath});\n"
+		jspraw << "}\n"
 		# Linux and other UNICES allow removing files while they are in use...
 		jspraw << "File #{var_fdel} = new File(#{var_exepath}); #{var_fdel}.delete();\n"
 		jspraw << "} else {\n"
