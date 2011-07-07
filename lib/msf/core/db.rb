@@ -1196,6 +1196,7 @@ class DBManager
 	def report_event(opts = {})
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
+		return if not wspace # Temp fix?
 		uname  = opts.delete(:username)
 
 		if ! opts[:host].kind_of? Host and opts[:host]
