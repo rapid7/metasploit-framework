@@ -24,8 +24,8 @@ int current_unix_timestamp(void) {
 	struct timeval tv;
 	struct timezone tz;
 
-	memset(&tv, sizeof(tv));
-	memset(&tz, sizeof(tz));
+	memset(&tv, 0, sizeof(tv));
+	memset(&tz, 0, sizeof(tz));
 
 	gettimeofday(&tv, &tz);
 	return (long) tv.tv_usec;
