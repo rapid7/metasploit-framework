@@ -1,3 +1,4 @@
+require 'msf/ui/console/command_dispatcher/encoder'
 require 'msf/ui/console/command_dispatcher/exploit'
 require 'msf/ui/console/command_dispatcher/nop'
 require 'msf/ui/console/command_dispatcher/payload'
@@ -1928,17 +1929,17 @@ class Core
 
 		case mod.type
 			when MODULE_ENCODER
-				dispatcher = Encoder
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Encoder
 			when MODULE_EXPLOIT
-				dispatcher = Exploit
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Exploit
 			when MODULE_NOP
-				dispatcher = Nop
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Nop
 			when MODULE_PAYLOAD
-				dispatcher = Payload
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Payload
 			when MODULE_AUX
-				dispatcher = Auxiliary
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Auxiliary
 			when MODULE_POST
-				dispatcher = Post
+				dispatcher = Msf::Ui::Console::CommandDispatcher::Post
 			else
 				print_error("Unsupported module type: #{mod.type}")
 				return false
