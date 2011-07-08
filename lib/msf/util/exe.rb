@@ -568,33 +568,20 @@ require 'digest/sha1'
 	# Create a 64-bit Linux ELF containing the payload provided in +code+
 	#
 	def self.to_linux_x64_elf(framework, code, opts={})
-		elf_header = ''
-		elf_header << "\x7f\x45\x4c\x46\x02\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00"  #ELF ID
-		elf_header << "\x02\x00"                                                          #Object file type
-		elf_header << "\x3e\x00"                                                          #Machine type
-		elf_header << "\x01\x00\x00\x00"                                                  #Object file version
-		elf_header << "\x78\x00\x40\x00\x00\x00\x00\x00"                                  #Entry point address
-		elf_header << "\x40\x00\x00\x00\x00\x00\x00\x00"                                  #Program header offset
-		elf_header << "\x00\x00\x00\x00\x00\x00\x00\x00"                                  #Section header offset
-		elf_header << "\x00\x00\x00\x00"                                                  #Process specific flags
-		elf_header << "\x40\x00"                                                          #ELF header size
-		elf_header << "\x38\x00"                                                          #ELF program header entry
-		elf_header << "\x01\x00"                                                          #Number of program header entries
-		elf_header << "\x00\x00"                                                          #Size of section header entry
-		elf_header << "\x00\x00"                                                          #Number of section header entry
-		elf_header << "\x00\x00"                                                          #Section name string table index
+		set_template_default(opts, "template_x64_linux.bin")
 
-		prg_header = ''
-		prg_header << "\x01\x00\x00\x00"                  #Type of segment
-		prg_header << "\x07\x00\x00\x00"                  #Segment attributes (flags)
-		prg_header << "\x00\x00\x00\x00\x00\x00\x00\x00"  #Offset in file
-		prg_header << "\x00\x00\x40\x00\x00\x00\x00\x00"  #Virtual address in memory
-		prg_header << "\x00\x00\x40\x00\x00\x00\x00\x00"  #Reserved
-		prg_header << [120 + code.length].pack('Q')       #Size of segment in file (p_filesz)
-		prg_header << [120 + code.length].pack('Q')       #Size of segment in memory (p_memsz)
-		prg_header << "\x00\x10\x00\x00\x00\x00\x00\x00"  #Alignment of segment
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
 
-		elf = elf_header + prg_header + code
+		#Append shellcode
+		elf << code
+
+		#Modify size
+		elf[96, 8] = [120 + code.length].pack('Q')  #p_filesz
+		elf[104,8] = [120 + code.length].pack('Q')  #p_memsz
+
 		return elf
 	end
 
