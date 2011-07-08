@@ -45,7 +45,7 @@ module Metasploit3
 	end
 
 	def config
-		spawn = datastore["SPAWN"] || 2
+		spawn = datastore["Spawn"] || 2
 		c =  ""
 		c << "Spawn=#{spawn}\n"
 		c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
