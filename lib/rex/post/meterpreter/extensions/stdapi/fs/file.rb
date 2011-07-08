@@ -23,8 +23,11 @@ module Fs
 ###
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
-SEPARATOR = "\\"
-Separator = "\\"
+	#
+	# This should be replaced with a platform-specific value.
+	#
+	SEPARATOR = "\\"
+	Separator = "\\"
 
 	include Rex::Post::File
 
@@ -68,12 +71,13 @@ Separator = "\\"
 	#
 	def File.basename(*a)
 		path = a[0]
-		sep  = "\\" + File::SEPARATOR
 
-		# I suck at regex.
-		path =~ /(.*)#{sep}(.*)$/
+		# Allow both kinds of dir serparators since lots and lots of code
+		# assumes one or the other so this ends up getting called with strings
+		# like: "C:\\foo/bar"
+		path =~ %r#.*[/\\](.*)$#
 
-		Rex::FileUtils.clean_path($2 || path)
+		Rex::FileUtils.clean_path($1 || path)
 	end
 
 	#
@@ -208,15 +212,15 @@ Separator = "\\"
 	# Download one or more files from the remote computer to the local
 	# directory supplied in destination.
 	#
-	def File.download(destination, *src_files, &stat)
+	def File.download(dest, *src_files, &stat)
 		src_files.each { |src|
-			dest = destination
-
-			stat.call('downloading', src, dest) if (stat)
-
-			if (::File.basename(destination) != File.basename(src))
+			if (::File.basename(dest) != File.basename(src))
+				# The destination when downloading is a local file so use this
+				# system's separator
 				dest += ::File::SEPARATOR + File.basename(src)
 			end
+
+			stat.call('downloading', src, dest) if (stat)
 
 			download_file(dest, src)
 
@@ -229,7 +233,9 @@ Separator = "\\"
 	#
 	def File.download_file(dest_file, src_file)
 		src_fd = client.fs.file.new(src_file, "rb")
-		::FileUtils.mkdir_p(::File.dirname(dest_file))
+		dir = ::File.dirname(dest_file)
+		::FileUtils.mkdir_p(dir) if dir and not ::File.directory?(dir)
+
 		dst_fd = ::File.new(dest_file, "wb")
 
 		# Keep transferring until EOF is reached...

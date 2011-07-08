@@ -183,7 +183,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	alias :cmd_del :cmd_rm
 
 	def cmd_download_help
-		print_line "Usage: download [options] src1 src2 src3 ... destination" 
+		print_line "Usage: download [options] src1 src2 src3 ... destination"
 		print_line
 		print_line "Downloads remote files and directories to the local machine."
 		print_line @@download_opts.usage
@@ -206,23 +206,29 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		@@download_opts.parse(args) { |opt, idx, val|
 			case opt
-				when "-r"
-					recursive = true
-				when nil
-					if (last)
-						src_items << last
-					end
-
-					last = val
+			when "-r"
+				recursive = true
+			when nil
+				src_items << last if (last)
+				last = val
 			end
 		}
 
-		return true if not last
+		# No files given, nothing to do
+		if not last
+			cmd_download_help
+			return true
+		end
 
 		# Source and destination will be the same
-		src_items << last if src_items.empty?
-
-		dest = last
+		if src_items.empty?
+			src_items << last
+			# Use the basename of the remote filename so we don't end up with
+			# a file named c:\\boot.ini in linux
+			dest = ::Rex::Post::Meterpreter::Extensions::Stdapi::Fs::File.basename(last)
+		else
+			dest = last
+		end
 
 		# Go through each source item and download them
 		src_items.each { |src|
@@ -301,7 +307,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		path = args[0] || client.fs.dir.getwd
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => "Listing: #{path}",
-			'Columns' => 
+			'Columns' =>
 				[
 					'Mode',
 					'Size',
@@ -315,12 +321,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 		# Enumerate each item...
 		client.fs.dir.entries_with_info(path).sort { |a,b| a['FileName'] <=> b['FileName'] }.each { |p|
 
-			tbl << 
-				[ 
+			tbl <<
+				[
 					p['StatBuf'] ? p['StatBuf'].prettymode : '',
-					p['StatBuf'] ? p['StatBuf'].size       : '', 
-					p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '', 
-					p['StatBuf'] ? p['StatBuf'].mtime      : '', 
+					p['StatBuf'] ? p['StatBuf'].size       : '',
+					p['StatBuf'] ? p['StatBuf'].ftype[0,3] : '',
+					p['StatBuf'] ? p['StatBuf'].mtime      : '',
 					p['FileName'] || 'unknown'
 				]
 
@@ -368,7 +374,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 	#
 	def cmd_rmdir(*args)
 		if (args.length == 0 or args.include?("-h"))
-		 	print_line("Usage: rmdir dir1 dir2 dir3 ...")
+			print_line("Usage: rmdir dir1 dir2 dir3 ...")
 			return true
 		end
 

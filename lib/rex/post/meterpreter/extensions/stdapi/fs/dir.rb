@@ -96,7 +96,7 @@ class Dir < Rex::Post::Dir
 
 			files <<
 				{
-					'FileName' => file_name.value, 
+					'FileName' => file_name.value,
 					'FilePath' => fpath[idx].value,
 					'StatBuf'  => st,
 				}
@@ -189,7 +189,7 @@ class Dir < Rex::Post::Dir
 	##
 
 	#
-	# Downloads the contents of a remote directory a 
+	# Downloads the contents of a remote directory a
 	# local directory, optionally in a recursive fashion.
 	#
 	def Dir.download(dst, src, recursive = false, force = true, &stat)
@@ -205,7 +205,7 @@ class Dir < Rex::Post::Dir
 
 			if (src_stat.file?)
 				stat.call('downloading', src_item, dst_item) if (stat)
-				begin 
+				begin
 					client.fs.file.download(dst_item, src_item)
 					stat.call('downloaded', src_item, dst_item) if (stat)
 				rescue ::Rex::Post::Meterpreter::RequestError => e
@@ -234,7 +234,7 @@ class Dir < Rex::Post::Dir
 	end
 
 	#
-	# Uploads the contents of a local directory to a remote 
+	# Uploads the contents of a local directory to a remote
 	# directory, optionally in a recursive fashion.
 	#
 	def Dir.upload(dst, src, recursive = false, &stat)
@@ -272,7 +272,7 @@ class Dir < Rex::Post::Dir
 	#
 	# The path of the directory that was opened.
 	#
-	attr_reader   :path 
+	attr_reader   :path
 protected
 	attr_accessor :client # :nodoc:
 	attr_writer   :path # :nodoc:
