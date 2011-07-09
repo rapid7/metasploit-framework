@@ -919,7 +919,7 @@ class DBManager
 	def report_auth_info(opts={})
 		return if not active
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
-		raise ArgumentError.new("Missing required option :port") if opts[:port].nil?
+		raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
 		if (not opts[:host].kind_of?(Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
@@ -942,7 +942,7 @@ class DBManager
 
 		# Service management; assume the user knows what
 		# he's talking about.
-		service = report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
+		service = opts.delete(:service) || report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
 
 		ret = {}
 
