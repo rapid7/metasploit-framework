@@ -1,0 +1,70 @@
+	Installing John the Ripper.
+
+First of all, most likely you do not need to install John the Ripper
+system-wide.  Instead, after you extract the distribution archive and
+possibly compile the source code (see below), you may simply enter the
+"run" directory and invoke John from there.
+
+System-wide installation is also supported, but it is intended for use
+by packagers of John for *BSD "ports", Linux distributions, etc., rather
+than by end-users.  (If you're in fact preparing a package of John,
+please refer to the JOHN_SYSTEMWIDE setting in src/params.h.)
+
+You may have obtained the source code or a "binary" (pre-compiled)
+distribution of John the Ripper.  On Unix-like systems, it is typical
+to get the source code and compile it into "binary" executables right
+on the system you intend to run John on.  On DOS and Windows, however,
+it is typical to get a binary distribution which is ready for use.
+
+The following instructions apply to the source code distribution of
+John only.  If you have a binary distribution, then there's nothing
+for you to compile and you can start using John right away.
+
+
+	Compiling the sources on a Unix-like system.
+
+Enter the directory into which you extracted the source code
+distribution of John.  Enter the "src" subdirectory and invoke "make"
+to obtain a list of operating systems for which specific support
+exists:
+
+	cd src
+	make
+
+Note the make target for your system and type:
+
+	make clean SYSTEM
+
+where SYSTEM is the appropriate make target.  Alternatively, if your
+system is not listed, use:
+
+	make clean generic
+
+If everything goes well, this will create the executables for John and
+its related utilities under "../run/".  You can change directory to
+there and start John, like this:
+
+	cd ../run
+	./john --test
+
+Alternatively, you may copy the entire "run" directory to anywhere you
+like and use John from there.
+
+
+	A note on moving binaries between systems.
+
+With the "generic" make target, certain machine hardware performance
+parameters are detected at compile time.  Additionally, some OS-specific
+make targets tell the C compiler to generate and optimize code for the
+machine's specific CPU type (this currently applies to C compilers other
+than gcc only).  If you then move the binary executable to a different
+machine, you might not get the best performance or the program might
+not run at all if the CPU lacks features that the C compiler assumed it
+would have.  Thus, it is recommended to recompile John on each system if
+you use one of these make targets.
+
+Since Linux and *BSD distributions' packages of John typically use make
+targets other than "generic" and since they typically use gcc, they are
+usually not affected by this potential problem.
+
+$Owl: Owl/packages/john/john/doc/INSTALL,v 1.5 2010/05/27 13:37:48 solar Exp $
