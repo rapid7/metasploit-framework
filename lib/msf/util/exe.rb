@@ -1610,7 +1610,13 @@ require 'digest/sha1'
 			end
 
 		when 'elf'
-			output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
+			if (not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_linux_x86_elf(framework, code, exeopts)
+			end
+
+			if (arch and (arch.index( ARCH_X86_64 ) or arch.index( ARCH_X64 )))
+				output = Msf::Util::EXE.to_linux_x64_elf(framework, code, exeopts)
+			end
 
 		when 'macho'
 			output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
