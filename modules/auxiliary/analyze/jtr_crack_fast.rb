@@ -50,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 			# Write the seed file
 			wordlist.write( seed.flatten.uniq.join("\n") + "\n" )
 			
+			print_status("Seeded the password database with #{seed.length} words...")
+			
 			# Append the standard JtR wordlist as well
 			::File.open(john_wordlist_path, "rb") do |fd|
 				wordlist.write fd.read(fd.stat.size) 
@@ -70,9 +72,13 @@ class Metasploit3 < Msf::Auxiliary
 				cracked_lm   = {}
 				added        = [] 
 				
-				# Crack this in LANMAN format first
+				# Crack this in LANMAN format using wordlist mode with tweaked rules
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'lm')
-				
+
+				# Crack this in LANMAN format using various incremntal modes
+				john_crack(hashlist.path, :incremental => "All4", :format => 'lm')
+				john_crack(hashlist.path, :incremental => "Digits5", :format => 'lm')
+								
 				# Parse cracked passwords and permute LANMAN->NTLM as needed
 				cracked = john_show_passwords(hashlist.path, 'lm')
 				cracked[:users].each_pair do |k,v|
@@ -99,9 +105,12 @@ class Metasploit3 < Msf::Auxiliary
 				tfd.close
 				
 				# Crack this in NTLM format 
-				# Crack this in LANMAN format first
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'nt')
 				
+				# Crack this in NTLM format using various incremntal modes
+				john_crack(hashlist.path, :incremental => "All4", :format => 'nt')
+				john_crack(hashlist.path, :incremental => "Digits5", :format => 'nt')
+								
 				# Parse cracked passwords
 				cracked = john_show_passwords(hashlist.path, 'nt')
 				cracked[:users].each_pair do |k,v|

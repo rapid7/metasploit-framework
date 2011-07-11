@@ -89,6 +89,10 @@ module Auxiliary::JohnTheRipper
 		if format
 			cmd << "--format=" + format
 		end
+		
+		if RUBY_VERSION =~ /^1\.8\./
+			cmd = cmd.join(" ")
+		end
 	
 		::IO.popen(cmd, "rb") do |fd|
 			fd.each_line do |line|
@@ -185,6 +189,10 @@ module Auxiliary::JohnTheRipper
 		end 		
 		
 		cmd << hfile
+
+		if RUBY_VERSION =~ /^1\.8\./
+			cmd = cmd.join(" ")
+		end
 
 		::IO.popen(cmd, "rb") do |fd|
 			fd.each_line do |line|
