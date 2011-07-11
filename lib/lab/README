@@ -1,61 +1,81 @@
 This folder contains the libraries necessary to run the lab plugin, and can also be used in a standalone way to automate virtual machines.
 
-Currently you will need to have this code running on a linux box, and your VMHost will likely need to be linux as well. If you're interested in porting it to windows, please contact jcran@metasploit.com. 
-
 #########
 CONCEPTS:
 #########
 
+The lab is designed to provided a clean interface to common vm functions such as start / stop / snapshot / revert and even running system commands. It's designed in an easily-extensible way, so that different VM technologies have the same interface, and you can ignore the specifics of the VM tech. The majority of the functionality is implemented in the form of drivers and controllers. Drivers implement the underlying command for each vm (such as start/stop/revert), whereas controllers implement the commands which apply to all vms (such as listing all running vms). 
 
-Drivers: Drivers implement the underlying command for each vm (such as start/stop/revert)
+If you're interested in porting a technology (see below), please take a look at the workstation_driver.rb and the workstation_controller.rb -- This is the most simple driver / controller in the lab, and you can simply copy / modify this to implement a new technology. 
 
-Controllers: Controllers implement the commands which apply to all vms (such as listing all running vms)
+##########################
+SUPPORTED VM TECHNOLOGIES:
+##########################
 
-Currently Supported:
-	workstation (wraps vmrun command)
-	workstation_vixr (uses the vixr gem from rhythmx)
-	remote_workstation (wraps vmrun command on a remote host)
-	virtualbox
-	dynagen (underlying vm for GNS3 - cisco hardware)
-Planned:
-	qemu
-	qemudo
-	amazon
-	others?
+Implemented:
+ - workstation (Tested against 7.x)
+ - remote_workstation (Tested against 7.x)
+ - virtualbox (Tested against 4.x)
 
-DEPENDENCIES:
-  - whatever vm software is necessary for the driver you're using
+Partially Implemented:
+ - remote_esxi (VMware ESX Host Agent 4.1.0 build-348481)
+ - workstation_vixr (via the vixr gem)
+ - dynagen
+
+Need Implementation:
+ - qemu
+ - qemudo
+ - amazon_ec2
+ - others?
+
+#################
+PLATFORM SUPPORT:
+#################
+
+You will need to have this code running on a linux box, Currently this has only been run / tested on Ubuntu 9.04 -> 10.04, though it should run on any linux with an ssh client and the dependencies below. Remote VM Hosts will need to be linux as well, though other platforms may work (untested). If you're interested in porting it to windows, please contact me (jcran). 
+
+Platform Dependencies:
+  - whatever vm software is necessary for the driver you're using (see SUPPORTED VM TECHNOLOGIES)
   - net/ssh - the gem (net-ssh), not the msf library. Required to perform ssh_exec in the case tools are not installed on the device. Not necessary if tools are installed.
   - net/scp - the gem (net-scp). Required to copy files to/from the devices in the case that tools are not installed. Not necessary if tools are installed. 
-  - vixr - required to use the workstation_vixr driver
-  - fog - required to use the fog_amazon driver
+  - vixr - required to use the workstation_vixr driver.
 
-###########
-LAB PLUGIN:
-###########
-
-BACKGROUND:
-  The lab plugin adds a number of commands which may be useful if you're interested in automating remote hosts with rc scripts. If you are testing an IPS / IDS, or determing if an exploit was successful, you'll need to have targets which can be easily started / reverted. The lab plugin provides those commands. 
-
-USAGE:
-  msf> load lab
-  msf> lab_help
-  msf> lab_load <path_to_lab_file> // see data/lab/test_targets.yml for an example
-  msf> lab_start vm1
-  msf> lab_snapshot vm1 emosheep  
-  // do some stuff
-  msf> lab_revert vm1 emosheep
-  msf> lab_stop  vm1
-
-###########
-STANDALONE:
-###########
+######################
+INTERFACE: LAB PLUGIN:
+######################
 
 BACKGROUND:
-  The lab libraries add tons of useful functionality that isn't exposed through the lab plugin, such as the ability to run commands on hosts. This library can serve as an excellent base for more complex operations on a remote host as well. 
+
+The lab plugin for msfconsole adds a number of commands which may be useful if you're interested in automating remote hosts with rc scripts, or if you need to control targets / support systems while utilizing the metasploit console. A potential use case is testing an IPS / IDS, and resetting the target after running each exploit. 
 
 USAGE:
-  You must first create a yaml file which describes your vm. See data/lab/test_targets.yml for an example.  
+
+Here's some example usage for the lab plugin. 
+
+  msf> load lab						// Loads the lab plugin
+  msf> lab_load <path_to_lab_file> 			// Loads from a lab configuration file. See data/lab/test_targets.yml for an example
+  msf> lab_load_dir workstation /path/to/vmx/files	// Loads from a local directory.
+  msf> lab_load_running remote_esx root esx_server	// Loads all running vms. 
+  msf> lab_start vm1					// Start a vm which was loaded above
+  msf> lab_snapshot vm1 snapshot_1			// Snapshot a vm as 'snapshot_1'
+  msf> lab_run_command ("rm -rf /")			// oops!
+  msf> lab_show 					// Show all vms that we're aware of
+  msf> lab_show_running					// Show only running vms
+  msf> lab_start vm2					// Start another vm
+  msf> lab_suspend  vm1					// Suspend a vm
+  msf> lab_revert all snapshot_1			// Revert all vms back to 'snapshot_1'
+
+###############
+STANDALONE API:
+###############
+
+BACKGROUND:
+
+The lab libraries add tons of useful functionality that isn't exposed through the lab plugin, such as the ability to run commands on hosts. This library can serve as an excellent base for more complex operations on a remote host as well. 
+
+USAGE:
+
+You must first create a yaml file which describes your vm. See data/lab/test_targets.yml for an example.  
 
   require 'vm_controller'
   vm_controller = ::Lab::Controllers::VmController.new(YAML.load_file(lab_def)) 
@@ -64,3 +84,5 @@ USAGE:
   vm_controller['vm1'].run_command("rm /etc/resolv.conf")
   vm_controller['vm1'].open_uri("http://autopwn:8080")
   vm_controller['vm1'].revert("clean")
+  vm_controller['vm1'].revert("clean")
+

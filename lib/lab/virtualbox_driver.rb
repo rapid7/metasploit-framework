@@ -24,7 +24,7 @@ module Drivers
 					raise ArgumentError,"Error, no vm at: #{@location}"
 				end
 				
-				puts "Registering #{@location}"
+				# Registering @location
 				@vmid = register_and_return_vmid
 			end
 			

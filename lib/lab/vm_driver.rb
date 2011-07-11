@@ -15,70 +15,79 @@ module Drivers
 class VmDriver
 
 	def register	# Must be implemented in a child *_driver class
-		raise Exception, "Command not Implemented"
+		raise "Command not Implemented"
 	end
 		
 	def unregister	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def start	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def stop	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def suspend	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def pause	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
+	end
+
+	def resume	# Must be implemented in a child *_driver class
+		raise "Command not Implemented"
 	end
 
 	def reset	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def create_snapshot(snapshot)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def revert_snapshot(snapshot)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def delete_snapshot(snapshot)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def run_command(command)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 	
 	def copy_from(from, to)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 	
 	def copy_to(from, to)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def check_file_exists(file)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def create_directory(directory)	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 	def cleanup	# Must be implemented in a child *_driver class
-		raise Exception, "Command Not Implemented"
+		raise "Command not Implemented"
 	end
 
 private
+
+	# Currently this requires the net-ssh and net-scp gems. Ran into problems doing 
+	# it with within metasploit (even though net-ssh is available). TODO - do something
+	# about this...
+
 	def scp_to(from,to)
 		gem 'net-ssh'
 		require 'net/ssh'
@@ -129,7 +138,7 @@ private
 	end
 
 	def filter_input(string)
-		return unless string
+		return "" unless string
 				
 		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\):]*$/)
 			raise "WARNING! Invalid character in: #{string}"
@@ -140,7 +149,6 @@ private
 	
 	def system_command(command)
 		begin
-			#puts "DEBUG: running command #{command}"
 			system(command)
 		rescue	Exception => e
 			return false			

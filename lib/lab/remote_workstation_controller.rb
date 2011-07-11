@@ -7,7 +7,6 @@ module RemoteWorkstationController
 		host.gsub!(/(\W)*/, '')
 
 		remote_cmd = "ssh #{user}@#{host} \"vmrun list nogui\""
-		puts "running #{remote_cmd}"
 		vm_list = `#{remote_cmd}`.split("\n")
 		vm_list.shift
 

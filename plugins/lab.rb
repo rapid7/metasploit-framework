@@ -48,55 +48,7 @@ class Plugin::Lab < Msf::Plugin
 		def name
 			"Lab"
 		end
-
-		##
-		## Commands for help
-		##
-		
-		def longest_cmd_size
-			commands.keys.map {|x| x.size}.sort.last
-		end
-
-		# No extended help yet, but this is where more detailed documentation
-		# on particular commands would live. Key is command, (not cmd_command),
-		# value is the documentation.
-		def extended_help
-			{
-				"lab_fake_cmd" =>              "This is a fake command. It's got its own special docs." +
-					(" " * longest_cmd_size) + "It might be long so so deal with formatting somehow."
-			}
-		end
-
-		# Map for usages
-		def lab_usage
-			caller[0][/`cmd_(.*)'/]
-			cmd = $1
-			if extended_help[cmd] || commands[cmd]
-				cmd_lab_help cmd
-			else # Should never really get here...
-				print_error "Unknown command. Try 'help'"
-			end
-		end
-
-		def cmd_lab_help(*args)
-			if args.empty?
-				commands.each_pair {|k,v| print_line "%-#{longest_cmd_size}s - %s" % [k,v] }
-			else
-				args.each do |c|
-					if extended_help[c] || commands[c]
-						print_line "%-#{longest_cmd_size}s - %s" % [c,extended_help[c] || commands[c]]
-					else
-						print_error "Unknown command '#{c}'"
-					end
-				end
-			end
-
-			print_line 
-			print_line "In order to use this plugin, you'll want to configure a .yml lab file"
-			print_line "You can find an example in data/lab/test_targets.yml" 
-			print_line
-		end
-		
+	
 		##
 		## Regular Lab Commands
 		## 
@@ -337,6 +289,56 @@ class Plugin::Lab < Msf::Plugin
 			end
 		end
 	
+
+		##
+		## Commands for help
+		##
+		
+		def longest_cmd_size
+			commands.keys.map {|x| x.size}.sort.last
+		end
+
+		# No extended help yet, but this is where more detailed documentation
+		# on particular commands would live. Key is command, (not cmd_command),
+		# value is the documentation.
+		def extended_help
+			{
+				"lab_fake_cmd" =>              "This is a fake command. It's got its own special docs." +
+					(" " * longest_cmd_size) + "It might be long so so deal with formatting somehow."
+			}
+		end
+
+		# Map for usages
+		def lab_usage
+			caller[0][/`cmd_(.*)'/]
+			cmd = $1
+			if extended_help[cmd] || commands[cmd]
+				cmd_lab_help cmd
+			else # Should never really get here...
+				print_error "Unknown command. Try 'help'"
+			end
+		end
+
+		def cmd_lab_help(*args)
+			if args.empty?
+				commands.each_pair {|k,v| print_line "%-#{longest_cmd_size}s - %s" % [k,v] }
+			else
+				args.each do |c|
+					if extended_help[c] || commands[c]
+						print_line "%-#{longest_cmd_size}s - %s" % [c,extended_help[c] || commands[c]]
+					else
+						print_error "Unknown command '#{c}'"
+					end
+				end
+			end
+
+			print_line 
+			print_line "In order to use this plugin, you'll want to configure a .yml lab file"
+			print_line "You can find an example in data/lab/test_targets.yml" 
+			print_line
+		end
+
+
 		private
 			def hlp_print_lab
 				indent = '    '
@@ -344,11 +346,12 @@ class Plugin::Lab < Msf::Plugin
 				tbl = Rex::Ui::Text::Table.new(
 					'Header'  => 'Available Lab VMs',
 					'Indent'  => indent.length,
-					'Columns' => [ 'Vmid', 'Location', "Powered On" ]
+					'Columns' => [ 'Vmid', 'Name', 'Location', "Power?" ]
 				)
 
 				@controller.each do |vm| 
-					tbl << [ 	vm.vmid, 
+					tbl << [ 	vm.vmid,
+							vm.name,
 							vm.location,
 							vm.running?]
 				end
@@ -362,12 +365,13 @@ class Plugin::Lab < Msf::Plugin
 				tbl = Rex::Ui::Text::Table.new(
 					'Header'  => 'Running Lab VMs',
 					'Indent'  => indent.length,
-					'Columns' => [ 'Vmid', 'Location', 'Powered On' ]
+					'Columns' => [ 'Vmid', 'Name', 'Location', 'Power?' ]
 				)
 
 				@controller.each do |vm|
 					if vm.running? 
 						tbl << [ 	vm.vmid, 
+								vm.name,
 								vm.location,
 								vm.running?]
 					end	

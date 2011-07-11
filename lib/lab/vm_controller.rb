@@ -5,7 +5,7 @@
 ##
 ##
 
-$:.unshift(File.expand_path(File.dirname(__FILE__))) ## Msf Test libraries
+$:.unshift(File.expand_path(File.dirname(__FILE__)))
 
 require 'find'
 require 'enumerator'
@@ -16,8 +16,7 @@ require 'workstation_vixr_controller'
 require 'remote_workstation_controller'
 require 'virtualbox_controller'
 require 'dynagen_controller'
-
-#require 'fog_amazon_controller'
+require 'remote_esx_controller'
 #require 'qemu_controller'
 #require 'qemudo_controller'
 #require 'amazon_controller'
@@ -32,7 +31,7 @@ module Controllers
 		include Lab::Controllers::RemoteWorkstationController 	
 		include Lab::Controllers::VirtualBoxController 
 		include Lab::Controllers::DynagenController 
-		#include Lab::Controllers::FogAmazonController 
+		include Lab::Controllers::RemoteEsxController
 		#include Lab::Controllers::QemuController 
 		#include Lab::Controllers::QemudoController 
 		#include Lab::Controllers::AmazonController 
@@ -89,6 +88,7 @@ module Controllers
 					vm = Vm.new(item)
 					@vms << vm unless includes_vmid? vm.vmid
 				rescue Exception => e
+					# TODO -  this needs to go into a logfile and be raised up to an interface.
 					puts "Invalid VM definition"
 					puts "Exception: #{e.to_s}"
 				end 
@@ -128,6 +128,10 @@ module Controllers
 				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
 			elsif driver_type.downcase == "virtualbox"	
 				vm_list = ::Lab::Controllers::VirtualBoxController::dir_list(dir)
+			elsif driver_type.downcase == "remote_esx"
+				vm_list =::Lab::Controllers::RemoteEsxController::dir_list(dir)
+			#elsif driver_type.downcase == "esxi_vixr"
+			#	vm_list =::Lab::Controllers::EsxiVixrController::dir_list(dir)
 			#elsif driver_type.downcase == "fog_amazon"	
 			#	vm_list = ::Lab::Controllers::FogAmazonController::dir_list(dir)
 			else
@@ -135,7 +139,6 @@ module Controllers
 			end
 			
 			vm_list.each_index do |index|
-				puts "Creating VM object for: " + vm_list[index]
 				@vms << Vm.new( {'vmid' => "vm_#{index}", 'driver' => driver_type, 'location' => vm_list[index]} )
 			end
 		end
@@ -182,11 +185,24 @@ module Controllers
 				when :virtualbox
 					vm_list = ::Lab::Controllers::VirtualBoxController::running_list
 					
+					# TODO - why are user and host specified here?
+
 					vm_list.each do |item|
 						## Add it to the vm list
 						@vms << Vm.new( {	'vmid' => "#{item}",
+									'driver' => driver_type,
+									'location' => nil, # this will be filled in by the driver
+									'user' => user,
+									'host' => host } )
+					end
+
+				when :remote_esx
+					vm_list = ::Lab::Controllers::RemoteEsxController::running_list(user,host)
+					
+					vm_list.each do |item|
+						@vms << Vm.new( {	'vmid' => "#{item[:id]}",
+									'name' => "#{item[:name]}",
 									'driver' => driver_type, 
-									'location' => nil, 
 									'user' => user,
 									'host' => host } )
 					end
