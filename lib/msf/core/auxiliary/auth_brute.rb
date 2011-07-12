@@ -363,7 +363,12 @@ module Auxiliary::AuthBrute
 		begin
 			creds = []
 			obj = get_object_from_memory_location(memloc)
-			obj.all_creds.each do |cred|
+			unless obj.all_creds.empty?
+				these_creds = obj.all_creds
+			else
+				these_creds = obj.builders.select {|x| x.respond_to? :imported_users}.map {|b| b.imported_users}.flatten
+			end
+			these_creds.each do |cred|
 				user,pass = cred.split(/\s+/,2).map {|x| x.strip}
 				creds << [Rex::Text.dehex(user.to_s), Rex::Text.dehex(pass.to_s)]
 			end

@@ -74,6 +74,10 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT']
 	end
 
+	def ip
+		datastore['RHOST']
+	end
+
 	def read_keyfile(file)
 		if file == :keyfile_b64
 			keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
@@ -112,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 			# Needs a beginning
 			next unless key =~ /^-----BEGIN [RD]SA PRIVATE KEY-----\x0d?\x0a/m
 			# Needs an end
-			next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a$/m
+			next unless key =~ /\n-----END [RD]SA PRIVATE KEY-----\x0d?\x0a?$/m
 			# Shouldn't have binary.
 			next unless key.scan(/[\x00-\x08\x0b\x0c\x0e-\x1f\x80-\xff]/).empty?
 			# Add more tests to taste.
@@ -237,6 +241,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_report(ip,user,port,proof)
+		store_keyfile_b64_loot(ip,user,self.good_key)
 		report_auth_info(
 			:host => ip,
 			:port => datastore['RPORT'],
@@ -247,6 +252,23 @@ class Metasploit3 < Msf::Auxiliary
 			:proof => "KEY=#{self.good_key}, PROOF=#{proof}",
 			:active => true
 		)
+	end
+
+	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's 
+	# good, then store it as loot for this user@host, unless we
+	# already have it in loot.
+	def store_keyfile_b64_loot(ip,user,key_id)
+		return unless db 
+		return if @keyfile_path
+		return if datastore["SSH_KEYFILE_B64"].to_s.empty?
+		keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
+		keyfile = keyfile.strip + "\n"
+		ktype_match = keyfile.match(/--BEGIN ([DR]SA) PRIVATE/)
+		return unless ktype_match
+		ktype = ktype_match[1].downcase
+		ltype = "host.unix.ssh.#{user}_#{ktype}_private"
+		return if Msf::DBManager::Loot.find_by_ltype_and_workspace_id(ltype,myworkspace.id)
+		@keyfile_path = store_loot(ltype, "application/octet-stream", ip, keyfile.strip, nil, key_id)
 	end
 
 	def run_host(ip)
