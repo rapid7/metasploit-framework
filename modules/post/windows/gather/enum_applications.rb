@@ -47,8 +47,11 @@ class Metasploit3 < Msf::Post
 			]
 		apps = []
 		appkeys.each do |keyx86|
-			registry_enumkeys(keyx86).each do |ak|
-				apps << keyx86 +"\\" + ak
+			found_keys = registry_enumkeys(keyx86)
+			if found_keys
+				found_keys.each do |ak|
+					apps << keyx86 +"\\" + ak
+				end
 			end
 		end
 
