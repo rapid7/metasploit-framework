@@ -13,7 +13,7 @@ class Cred < ActiveRecord::Base
 		return false if other.proof.empty?
 		return false unless self.proof
 		return false if self.proof.empty?
-		key_id_regex = /KEY=[0-9a-fA-F:]+/i
+		key_id_regex = /KEY=[0-9a-fA-F:]+/
 		my_key_id = self.proof[key_id_regex].to_s.downcase 
 		other_key_id = other.proof[key_id_regex].to_s.downcase
 		my_key_id == other_key_id
