@@ -221,6 +221,16 @@ def self.win32_winexec(cmd)
 end
 
 #
+# Verify the Console2 environment
+#
+def self.win32_console2_verify
+	buf = "\x00" * 512
+	out = Win32API.new("kernel32", "GetStdHandle", ["L"], "L").call(STD_OUTPUT_HANDLE)
+	res = Win32API.new("kernel32","GetConsoleTitle", ["PL"], "L").call(buf, buf.length-1)
+	( res > 0 and buf.index("Console2 command").nil? ) ? false : true 
+end 
+
+#
 # Platform independent socket pair
 #
 def self.pipe
