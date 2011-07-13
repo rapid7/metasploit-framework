@@ -183,6 +183,7 @@ module Auxiliary::AuthBrute
 		end
 		credentials.concat(combine_users_and_passwords(users, passwords))
 		credentials.uniq!
+		credentials = just_uniq_users(credentials) if @strip_passwords
 		credentials = just_uniq_passwords(credentials) if @strip_usernames
 		return credentials
 	end
@@ -250,6 +251,10 @@ module Auxiliary::AuthBrute
 				datastore['PASSWORD'] = datastore[p]
 			end
 		end
+	end
+
+	def just_uniq_users(credentials)
+		credentials.map {|x| [x[0],""]}.uniq
 	end
 
 	def just_uniq_passwords(credentials)
@@ -369,10 +374,22 @@ module Auxiliary::AuthBrute
 				these_creds = obj.builders.select {|x| x.respond_to? :imported_users}.map {|b| b.imported_users}.flatten
 			end
 			these_creds.each do |cred|
-				user,pass = cred.split(/\s+/,2).map {|x| x.strip}
+				if @strip_passwords
+					user = cred.split(/\s+/,2).map {|x| x.strip}[0]
+					pass = ""
+				elsif @strip_usernames
+					user = ""
+					pass = cred.split(/\s+/,2).map {|x| x.strip}[1]
+				else
+					user,pass = cred.split(/\s+/,2).map {|x| x.strip}
+				end
 				creds << [Rex::Text.dehex(user.to_s), Rex::Text.dehex(pass.to_s)]
 			end
-			return creds
+			if @strip_passwords || @strip_usernames
+				return creds.uniq
+			else
+				return creds
+			end
 		rescue => e
 			raise ArgumentError, "Could not read credentials from memory, raised: #{e.class}: #{e.message}"
 		end

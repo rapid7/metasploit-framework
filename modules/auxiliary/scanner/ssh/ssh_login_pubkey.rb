@@ -63,6 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		@good_credentials = {}
 		@good_key = ''
+		@strip_passwords = true
 
 	end
 
@@ -103,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		if keys.empty?
-			print_error "#{ip}:#{rport} - SSH - No keys found."
+			print_error "#{ip}:#{rport} SSH - No keys found."
 		end
 		return validate_keys(keys)
 	end
@@ -123,18 +124,22 @@ class Metasploit3 < Msf::Auxiliary
 			keepers << key
 		end
 		if keepers.empty?
-			print_error "#{ip}:#{rport} - SSH - No valid keys found"
+			print_error "#{ip}:#{rport} SSH - No valid keys found"
 		end
 		return keepers
 	end
 
 	def pull_cleartext_keys(keys)
 		cleartext_keys = []
-		keys.each { |key|
-			cleartext_keys << key unless(key =~ /Proc-Type:.*ENCRYPTED/)
-		}
+		keys.each do |key|
+			next unless key
+			next if key =~ /Proc-Type:.*ENCRYPTED/
+			this_key = key.gsub(/\x0d/,"")
+			next if cleartext_keys.include? this_key
+			cleartext_keys << this_key 
+		end
 		if cleartext_keys.empty?
-			print_error "#{ip}:#{rport} - SSH - No valid cleartext keys found"
+			print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
 		end
 		return cleartext_keys
 	end
@@ -144,11 +149,11 @@ class Metasploit3 < Msf::Auxiliary
 			keys = read_keyfile(datastore['KEY_FILE'])
 			@keyfile_path = datastore['KEY_FILE'].dup
 			cleartext_keys = pull_cleartext_keys(keys)
-			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
+			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
 			keys = read_keyfile(:keyfile_b64)
 			cleartext_keys = pull_cleartext_keys(keys)
-			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
+			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
 		elsif datastore['KEY_DIR']
 			@keyfile_path = datastore['KEY_DIR'].dup
 			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
@@ -158,45 +163,46 @@ class Metasploit3 < Msf::Auxiliary
 			these_keys = @key_files.map {|f| File.join(key_dir,f)}
 			keys = read_keyfile(these_keys)
 			cleartext_keys = pull_cleartext_keys(keys)
-			print_status "#{ip}:#{rport} - SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
+			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		else
 			return :missing_keyfile
 		end
-		cleartext_keys.each_with_index do |key_data,key_idx|
-
-		opt_hash = {
-			:auth_methods => ['publickey'],
-			:msframework  => framework,
-			:msfmodule    => self,
-			:port         => port,
-			:key_data     => key_data,
-			:record_auth_info => true
-		}
-
-		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
-
-		begin
-			self.ssh_socket = Net::SSH.start(
-				ip,
-				user,
-				opt_hash
-			)
-		rescue Rex::ConnectionError
-			return :connection_error
-		rescue Net::SSH::Disconnect, ::EOFError
-			return :connection_disconnect
-		rescue Net::SSH::AuthenticationFailed
-			# Try, try, again
-			if @key_files
-				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
-			else
-				vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}"
-			end
-			next
-		rescue Net::SSH::Exception => e
-			return [:fail,nil] # For whatever reason.
+		unless @alerted_with_msg
+			print_status msg
+			@alerted_with_msg = true
 		end
-		break
+		cleartext_keys.each_with_index do |key_data,key_idx|
+			opt_hash = {
+				:auth_methods => ['publickey'],
+				:msframework  => framework,
+				:msfmodule    => self,
+				:port         => port,
+				:key_data     => key_data,
+				:record_auth_info => true
+			}
+			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
+			begin
+				self.ssh_socket = Net::SSH.start(
+					ip,
+					user,
+					opt_hash
+				)
+			rescue Rex::ConnectionError
+				return :connection_error
+			rescue Net::SSH::Disconnect, ::EOFError
+				return :connection_disconnect
+			rescue Net::SSH::AuthenticationFailed
+				# Try, try, again
+				if @key_files
+					vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
+				else
+					vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}"
+				end
+				next
+			rescue Net::SSH::Exception => e
+				return [:fail,nil] # For whatever reason.
+			end
+			break
 		end
 
 		if self.ssh_socket
@@ -261,18 +267,23 @@ class Metasploit3 < Msf::Auxiliary
 		return unless db 
 		return if @keyfile_path
 		return if datastore["SSH_KEYFILE_B64"].to_s.empty?
-		keyfile = datastore['SSH_KEYFILE_B64'].unpack("m*").first
+		keyfile = datastore["SSH_KEYFILE_B64"].unpack("m*").first
 		keyfile = keyfile.strip + "\n"
 		ktype_match = keyfile.match(/--BEGIN ([DR]SA) PRIVATE/)
 		return unless ktype_match
 		ktype = ktype_match[1].downcase
 		ltype = "host.unix.ssh.#{user}_#{ktype}_private"
-		return if Msf::DBManager::Loot.find_by_ltype_and_workspace_id(ltype,myworkspace.id)
-		@keyfile_path = store_loot(ltype, "application/octet-stream", ip, keyfile.strip, nil, key_id)
+		# Assignment and comparison here, watch out!
+		if loot = Msf::DBManager::Loot.find_by_ltype_and_workspace_id(ltype,myworkspace.id)
+			if loot.info.include? key_id
+				@keyfile_path = loot.path
+			end
+		end
+		@keyfile_path ||= store_loot(ltype, "application/octet-stream", ip, keyfile.strip, nil, key_id)
 	end
 
 	def run_host(ip)
-		print_status("#{ip}:#{rport} - SSH - Testing Cleartext Keys")
+		print_status("#{ip}:#{rport} SSH - Testing Cleartext Keys")
 		# Since SSH collects keys and tries them all on one authentication session, it doesn't
 		# make sense to iteratively go through all the keys individually. So, ignore the pass variable,
 		# and try all available keys for all users.
@@ -280,7 +291,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret,proof = do_login(ip,user,rport)
 			case ret
 			when :success
-				print_good "#{ip}:#{rport} - SSH - Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+				print_good "#{ip}:#{rport} SSH - Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
 				do_report(ip,user,rport,proof)
 				:next_user
 			when :connection_error
