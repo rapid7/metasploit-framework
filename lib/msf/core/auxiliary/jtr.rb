@@ -36,7 +36,7 @@ module Auxiliary::JohnTheRipper
 		
 		case ::RUBY_PLATFORM
 		when /mingw|cygwin|mswin/
-			data = `#{cpuinfo_base}/cpuinfo.exe`
+			data = `"#{cpuinfo_base}/cpuinfo.exe"`
 			case data
 			when /sse2/
 				@run_path = "run.win32.sse2/john.exe"
