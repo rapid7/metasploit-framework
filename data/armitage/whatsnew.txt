@@ -1,6 +1,23 @@
 Armitage Changelog
 ==================
 
+12 Jul 11 - Change Log
+---------
+- Fixed a race condition causing some file browser actions to fail on 
+  Windows hosts at times.
+- Files downloaded through file browser are now archived in:
+  [host]\Downloads
+- Hail Mary output nows goes to [log dir]\all\hailmary.log
+- Added Crack Passwords button to Credentials tab. This opens the 
+  launcher for John the Ripper: auxiliary/analyze/jtr_crack_fast
+- Added Post Modules item to Meterpreter N -> Explore and Shell N menus. 
+  This menu item will show applicable post-exploitation modules in 
+  the module browser.
+- Loot browser now opens loot viewer as a tab.
+- Loot viewer now has many of the same keyboard shortcuts as a console
+  tab. You can Ctrl+F to search for stuff, Ctrl+Plus/Minus to increase
+  and shrink the font, and Ctrl+A to select everything.
+
 02 Jul 11 - Change Log
 --------- 
 - Doubled wait time for Meterpreter ls command to complete.
