@@ -123,10 +123,16 @@ module File
 protected
 	#
 	# Meterpreter-specific file read.  Returns contents of remote file
-	# +file_name+ as a String
+	# +file_name+ as a String or nil if there was an error
 	#
 	def read_file_meterpreter(file_name)
-		fd = session.fs.file.new(file_name, "rb")
+		begin
+			fd = session.fs.file.new(file_name, "rb")
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			print_error("Failed to open file: #{e.class} : #{e}")
+			return nil
+		end
+
 		data = ''
 		begin
 			until fd.eof?
