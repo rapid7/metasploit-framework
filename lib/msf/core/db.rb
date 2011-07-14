@@ -2060,8 +2060,9 @@ class DBManager
 			raise DBImportError.new("The data provided to the import function was empty")
 		end
 
-		di = data.index("\n")
-		raise DBImportError.new("Could not automatically determine file type") unless di
+		# Parse the first line or 4k of data from the file
+		di = data.index("\n") || 4096
+	
 		firstline = data[0, di]
 		@import_filedata ||= {}
 		if (firstline.index("<NeXposeSimpleXML"))
