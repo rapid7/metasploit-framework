@@ -53,6 +53,8 @@ module Auxiliary::CommandShell
 
 		framework.sessions.register(sess)
 		sess.process_autoruns(datastore)
+
+		sess
 	end
 
 end
