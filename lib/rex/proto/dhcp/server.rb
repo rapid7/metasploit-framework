@@ -27,8 +27,6 @@ class Server
 		self.context = context
 		self.sock = nil
 
-		@shutting_down = false
-
 		self.myfilename = hash['FILENAME'] || ""
 		self.myfilename << ("\x00" * (128 - self.myfilename.length))
 
@@ -74,17 +72,10 @@ class Server
 		end
 
 		self.served = {}
-		if (hash['SERVEONCE'])
-			self.serveOnce = true
-		else
-			self.serveOnce = false
-		end
-		
-		if (hash['PXE'])
-			self.servePXE = true
-		else
-			self.servePXE = false
-		end
+		self.serveOnce = hash.include?('SERVEONCE')
+
+		self.servePXE = (hash.include?('PXE') or hash.include?('FILENAME') or hash.include?('PXEONLY'))
+		self.serveOnlyPXE = hash.include?('PXEONLY')
 
 		# Always assume we don't give out hostnames ...
 		self.give_hostname = false
@@ -120,8 +111,8 @@ class Server
 
 	# Stop the DHCP server
 	def stop
-		@shutting_down = true
 		self.thread.kill
+		self.served = {}
 		self.sock.close rescue nil
 	end
 
@@ -131,7 +122,7 @@ class Server
 		allowed_options = [
 			:serveOnce, :servePXE, :relayip, :leasetime, :dnsserv,
 			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-			:give_hostname, :served_hostname, :served_over
+			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE
 		]
 
 		opts.each_pair { |k,v|
@@ -158,7 +149,7 @@ class Server
 	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
-	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime
+	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
 	attr_accessor :give_hostname, :served_hostname, :served_over
 
 protected
@@ -242,24 +233,26 @@ protected
 			end
 		end
 
-		if pxeclient == false && self.servePXE == true
-			#dlog ("No tftp server request; ignoring (probably not PXE client)")
-			return
-		end
+		# don't serve if only serving PXE and not PXE request
+		return if pxeclient == false and self.serveOnlyPXE == true
 
 		# prepare response
 		pkt = [Response].pack('C')
 		pkt << buf[1..7] #hwtype, hwlen, hops, txid
 		pkt << "\x00\x00\x00\x00"  #elapsed, flags
 		pkt << clientip
-		if messageType == DHCPDiscover
-			# give next ip address (not super reliable high volume but it should work for a basic server)
+
+		# if this is somebody we've seen before, use the saved IP
+		if self.served.include?( buf[28..43] )
+			pkt << Rex::Socket.addr_iton(self.served[buf[28..43]][0])
+		else # otherwise go to next ip address
 			self.current_ip += 1
 			if self.current_ip > self.end_ip
 				self.current_ip = self.start_ip
 			end
+			self.served.merge!( buf[28..43] => [ self.current_ip, messageType == DHCPRequest ] )
+			pkt << Rex::Socket.addr_iton(self.current_ip)
 		end
-		pkt << Rex::Socket.addr_iton(self.current_ip)
 		pkt << self.ipstring #next server ip
 		pkt << self.relayip
 		pkt << buf[28..43] #client hw address
@@ -270,15 +263,17 @@ protected
 
 		if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
 			pkt << [DHCPOffer].pack('C')
-			# check if already served based on hw addr (MAC address)
-			if self.serveOnce == true && self.served.has_key?(buf[28..43])
-				#dlog ("Already served; allowing normal boot")
+			# check if already served an Ack based on hw addr (MAC address)
+			# if serveOnce & PXE, don't reply to another PXE request 
+			# if serveOnce & ! PXE, don't reply to anything
+			if self.serveOnce == true and self.served.has_key?(buf[28..43]) and
+					self.served[buf[28..43]][1] and (pxeclient == true or self.servePXE == false)
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
+			self.served[buf[28..43]][1] = true # mark as requested
 			pkt << [DHCPAck].pack('C')
 			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
-			self.served.merge!( buf[28..43] => true ) 
 			if ( self.served_over != 0 )
 				# NOTE: this is sufficient for low-traffic net
 				# for high-traffic, this will probably lead to
@@ -286,8 +281,7 @@ protected
 				self.served_over += 1
 			end
 		else
-			#dlog("ignoring unknown DHCP request - type #{messageType}")
-			return
+			return  # ignore unknown DHCP request
 		end
 
 		# Options!
@@ -296,20 +290,20 @@ protected
 		pkt << dhcpoption(OpSubnetMask, self.netmaskn)
 		pkt << dhcpoption(OpRouter, self.router)
 		pkt << dhcpoption(OpDns, self.dnsserv)
-		pkt << dhcpoption(OpPXEMagic, PXEMagic)
-		pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
-		pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
-		pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
-		if ( self.give_hostname == true )
-			send_hostname = self.served_hostname
-			if ( self.served_over != 0 )
-				# NOTE : see above comments for the 'uniqueness'
-				# of this value
-				send_hostname += self.served_over.to_s
+		if self.servePXE  # PXE options
+			pkt << dhcpoption(OpPXEMagic, PXEMagic)
+			pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
+			pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
+			pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
+			if ( self.give_hostname == true )
+				send_hostname = self.served_hostname
+				if ( self.served_over != 0 )
+					# NOTE : see above comments for the 'uniqueness' of this value
+					send_hostname += self.served_over.to_s
+				end
+				pkt << dhcpoption(OpHostname, send_hostname)
 			end
-			pkt << dhcpoption(OpHostname, send_hostname)
 		end
-
 		pkt << dhcpoption(OpEnd)
 
 		pkt << ("\x00" * 32) #padding
