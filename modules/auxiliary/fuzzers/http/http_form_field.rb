@@ -286,7 +286,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def process_response(response,field,type)
 		if response == nil
-			print_error("      [-] No response - #{@nrerrors+1} / #{datastore['STOPAFTER']} - fuzzdata length : #{@fuzzsize}")
+			print_error("      No response - #{@nrerrors+1} / #{datastore['STOPAFTER']} - fuzzdata length : #{@fuzzsize}")
 			if @nrerrors+1 >= datastore['STOPAFTER']
 				print_status("      *!* No response : #{type} #{field} | fuzzdata length : #{@fuzzsize}")
 				return false
@@ -335,7 +335,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def get_form_data(body)
-		print_status("[+] Enumerating form data")
+		print_status("Enumerating form data")
 		body = body.gsub("\r","")
 		body = body.gsub("\n","")
 		bodydata = body.downcase.split(/<form/)
@@ -497,7 +497,7 @@ class Metasploit3 < Msf::Auxiliary
 		init_fuzzdata()
 		init_vars()
 
-		print_status("[+] Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']}")
+		print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']}")
 		response = send_request_raw(
 		{
 			'uri' => datastore['URL'],
@@ -507,14 +507,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		}, datastore['TIMEOUT'])
 		if response == nil
-			print_error("[-] No response")
+			print_error("No response")
 			return
 		end
 		if datastore['HANDLECOOKIES']
 			cookie = extract_cookie(response.headers)
 			set_cookie(cookie)
-			print_status("[+] Set cookie:#{cookie}")
-			print_status("[+] Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']} using cookies")
+			print_status("Set cookie:#{cookie}")
+			print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']} using cookies")
 			
 			response = send_request_raw(
 			{
@@ -525,13 +525,13 @@ class Metasploit3 < Msf::Auxiliary
 			}, datastore['TIMEOUT'])
 		end
 		if response == nil
-			print_error("[-] No response")
+			print_error("No response")
 			return
 		end
-		print_status("[+] Code : #{response.code}")
+		print_status("Code : #{response.code}")
 		okcode = is_error_code(response.code)
 		if not okcode
-			print_error("[-] Server replied with error code. Check URL or set CODE to another value, and try again.")
+			print_error("Server replied with error code. Check URL or set CODE to another value, and try again.")
 			return
 		end
 		if response.body
@@ -543,7 +543,7 @@ class Metasploit3 < Msf::Auxiliary
 				formdata.each do | thisform |
 					if thisform[:name].length > 0
 						if ((datastore['FORM'].strip == "") || (datastore['FORM'].upcase.strip == thisform[:name].upcase.strip)) && (thisform[:fields].size > 0)
-							print_status("[+] Fuzzing fields in form #{thisform[:name].upcase.strip}")
+							print_status("Fuzzing fields in form #{thisform[:name].upcase.strip}")
 							#for each field in this form, fuzz one field at a time
 							formfields = thisform[:fields]
 							formfields.each do | thisfield |
@@ -555,23 +555,23 @@ class Metasploit3 < Msf::Auxiliary
 									end
 								end
 							end
-							print_status("[+] Done fuzzing fields in form #{thisform[:name].upcase.strip}")
+							print_status("Done fuzzing fields in form #{thisform[:name].upcase.strip}")
 						end
 						#fuzz headers ?
 						if datastore['FUZZHEADERS'] == true
-							print_status("[+] Fuzzing header fields")
+							print_status("Fuzzing header fields")
 							do_fuzz_headers(thisform,response.headers)
 						end
 					end
 				end
 
 			else
-				print_error("[-] No form found in response body")
+				print_error("No form found in response body")
 				print_status(response.body)
 				return
 			end
 		else
-			print_error("[-] No response data")
+			print_error("No response data")
 		end
 
 	end
