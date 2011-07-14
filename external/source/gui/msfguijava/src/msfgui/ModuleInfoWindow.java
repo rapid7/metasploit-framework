@@ -269,7 +269,7 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 			for (Object entObj : hash.entrySet()) {
 				Map.Entry ent = (Map.Entry) entObj;
 				if (!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
-					autoCommands.add("set " + ent.getKey() + " " + ent.getValue());
+					autoCommands.add("set " + ent.getKey() + " " + MsfguiApp.escapeBackslashes(ent.getValue().toString()));
 			}
 			autoCommands.add("exploit");
 			InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);

@@ -22,8 +22,22 @@ public class DbConnectDialog extends OptionsDialog {
 	//Opens dialog to get options
 	public static boolean connect(Frame parent, RpcConnection rpcConn){
 		DbConnectDialog cd = new DbConnectDialog(parent, rpcConn, true);
+		try{
+			if(cd.tryConnect())
+				return true;
+		} catch (MsfException mex) { // on error connecting, show dialog
+		}
 		cd.setVisible(true);
 		return cd.success;
+	}
+	//Tries to connect without opening a dialog
+	public static boolean tryConnect(Frame parent, RpcConnection rpcConn){
+		DbConnectDialog cd = new DbConnectDialog(parent, rpcConn, true);
+		try{
+			return cd.tryConnect();
+		} catch (MsfException mex) { // on error connecting, show dialog
+		}
+		return false;
 	}
     /** Creates new form DbConnectDialog */
     public DbConnectDialog(Frame parent, RpcConnection rpcConn, boolean modal) {
@@ -240,23 +254,27 @@ public class DbConnectDialog extends OptionsDialog {
 	}
 
 	private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
+		try {
+			success = tryConnect();
+			if (!success)
+				MsfguiApp.showMessage(myParent, "Failure connecting to database!");
+		} catch (MsfException mex) {
+			MsfguiApp.showMessage(myParent, mex);
+		}
+		setVisible(false);
+	}
+	/** Tries to connect to the database with given credentials */
+	private boolean tryConnect() throws MsfException{
 		HashMap opts = new HashMap();
-		addNonempty("host",hostField, opts);
+		addNonempty("host", hostField, opts);
 		addNonempty("port", portField, opts);
 		addNonempty("username", usernameField, opts);
 		addNonempty("password", passwordField, opts);
 		addNonempty("database", dbNameField, opts);
 		opts.put("driver", typeSpinner.getValue().toString());
 		props.put("dbdriver", typeSpinner.getValue().toString());
-		try{
-			Map res = (Map)rpcConn.execute("db.connect",opts);
-			success = "success".equals(res.get("result"));
-			if(!success)
-				MsfguiApp.showMessage(myParent, res);
-		}catch(MsfException mex){
-			MsfguiApp.showMessage(myParent, mex);
-		}
-		setVisible(false);
+		Map res = (Map) rpcConn.execute("db.connect",opts);
+		return "success".equals(res.get("result"));
 	}//GEN-LAST:event_connectButtonActionPerformed
 
 	private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed

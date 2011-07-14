@@ -262,7 +262,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					if(ex.getMessage().equals("unknown session"))
+					if(ex.getMessage().contains("unknown session"))
 						readTimer.stop();
 					MsfguiApp.showMessage(null, ex);
 				}

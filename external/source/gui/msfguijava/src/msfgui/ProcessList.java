@@ -105,7 +105,7 @@ public class ProcessList extends MsfFrame {
 				} catch(NullPointerException nex){ //junk data from previous command? Ignore.
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					if (ex.getMessage().equals("unknown session"))
+					if (ex.getMessage().contains("unknown session"))
 						readTimer.stop();
 					MsfguiApp.showMessage(null, ex.getMessage());
 				}
@@ -120,7 +120,7 @@ public class ProcessList extends MsfFrame {
 			rpcConn.execute("session.meterpreter_run_single", session.get("id"),cmd);
 		} catch (Exception ex) {
 			MsfguiApp.showMessage(this, ex);
-			if (ex.getMessage().equals("unknown session"))
+			if (ex.getMessage().contains("unknown session"))
 				return true;
 		}
 		return false;

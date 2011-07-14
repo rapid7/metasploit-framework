@@ -192,6 +192,8 @@ public class MainFrame extends FrameView {
 						Thread.sleep(delay);
 						//update sessions
 						Map slist = (Map) rpcConn.execute("session.list");
+						if(statusMessageLabel.getText().contains("timed out"))
+							publish(""); // If last attempt was a timeout, reset since we're rollin again
 						ArrayList sessionList = new ArrayList();
 						for (Object sid : slist.keySet()) {
 							Map session = (Map) slist.get(sid);
@@ -230,9 +232,11 @@ public class MainFrame extends FrameView {
 						publish((Object)jobStrings);
 					} catch (MsfException msfEx) {
 						msfEx.printStackTrace();
-						publish("Error getting session list"+msfEx);
+						publish("Error getting session list "+msfEx);
 						if(!msfEx.getMessage().contains("timed out")) // on timeout, just retry
 							return new ArrayList();
+						else
+							publish("Timeout getting session list. Retrying...");
 					} catch (InterruptedException iex){
 					}
 				}
@@ -412,21 +416,23 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					meterpreterPopupMenu.add(postModMenu,4);
 					expandList((List) ((Map)rpcConn.execute("module.post")).get("modules"), postModMenu, moduleFactory, "post");
 					setProgress(0.85f);
-					setMessage("Querying database...");
-					// Enable menus
 					postMenu.setEnabled(true);
 
-					databaseMenu.setEnabled(true);
-					pluginsMenu.setEnabled(true);
-					consoleMenu.setEnabled(true);
-					reloadDb();
-					setProgress(0.95f);
 					setMessage("Finding open consoles");
 					refreshConsoles();
+					consoleMenu.setEnabled(true);
+
+					setMessage("Querying database...");
+					//First try to connect to the database
+					DbConnectDialog.tryConnect(getFrame(), rpcConn);
+					reloadDb();
 					if(MainFrame.this.closeConsoleMenu.getItemCount() == 0 && !tabbedPane.isEnabledAt(3)){
 						registerConsole( (Map)rpcConn.execute("console.create"), false, "");
 						reloadDb();
 					}
+					setProgress(0.95f);
+					databaseMenu.setEnabled(true);
+					pluginsMenu.setEnabled(true);
 					setProgress(1.0f);
 				} catch (MsfException ex) {
 					statusAnimationLabel.setText("Error getting module lists. " + ex);
@@ -1262,7 +1268,12 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 
 	private void connectItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectItemActionPerformed
 		if(DbConnectDialog.connect(getFrame(), rpcConn))
-			reloadDb();
+			new SwingWorker(){
+				protected Object doInBackground() throws Exception {
+					reloadDb();
+					return null;
+				}
+			}.execute();
 	}//GEN-LAST:event_connectItemActionPerformed
 
 	/** Refreshes the database tables. */
@@ -1608,7 +1619,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			}
 		});
 		jobsList.addMouseListener( new PopupMouseListener() {
-			public void mouseClicked(MouseEvent e){
+			public void mouseReleased(MouseEvent e){
 				int indx = jobsList.locationToIndex(e.getPoint());
 				if (indx == -1)
 					return;
