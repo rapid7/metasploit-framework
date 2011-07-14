@@ -287,6 +287,7 @@ function stdapi_fs_file_expand_path($req, &$pkt) {
     my_print("doing expand_path");
     $path_tlv = packet_get_tlv($req, TLV_TYPE_FILE_PATH);
     $env = $path_tlv['value'];
+    my_print("Request for: '$env'");
     if (!is_windows()) {
         # Handle some basic windows-isms when we can
         switch ($env) {
@@ -304,6 +305,10 @@ function stdapi_fs_file_expand_path($req, &$pkt) {
         }
     } else {
         $path = getenv($env);
+        if (empty($path) and ($env == "%COMSPEC%")) {
+            # hope it's in the path
+            $path = "cmd.exe";
+        }
     }
     my_print("Returning with an answer of: '$path'");
 
@@ -534,9 +539,17 @@ function stdapi_sys_process_execute($req, &$pkt) {
     }
     $real_cmd = $cmd ." ". $args;
 
+    $pipe_desc = array(array('pipe','r'), array('pipe','w'));
+    if (is_windows()) {
+        # see http://us2.php.net/manual/en/function.proc-open.php#97012
+        array_push($pipe_desc, array('pipe','a'));
+    } else {
+        array_push($pipe_desc, array('pipe','w'));
+    }
+
     # Now that we've got the command built, run it. If it worked, we'll send
     # back a handle identifier.
-    $handle = proc_open($real_cmd, array(array('pipe','r'), array('pipe','w'), array('pipe','w')), $pipes);
+    $handle = proc_open($real_cmd, $pipe_desc, $pipes);
     if (!is_resource($handle)) {
         return ERROR_FAILURE;
     }
@@ -555,9 +568,13 @@ function stdapi_sys_process_execute($req, &$pkt) {
         my_print("Channelized");
         # Then the client wants a channel set up to handle this process' stdio,
         # register all the necessary junk to make that happen.
-        for ($i = 0; $i < 3; $i++) {
-            register_stream($pipes[$i]);
+        foreach ($pipes as $p) {
+            register_stream($p);
         }
+        #stream_set_blocking($pipes[0], 1);
+        #stream_set_blocking($pipes[1], 1);
+        #stream_set_blocking($pipes[2], 1);
+
         $cid = register_channel($pipes[0], $pipes[1], $pipes[2]);
         $channel_process_map[$cid] = $proc;
 
@@ -597,7 +614,7 @@ function close_process($proc) {
         # real harm in that, so go ahead and just always make sure they get
         # closed.
         foreach ($proc['pipes'] as $f) {
-            fclose($f);
+            @fclose($f);
         }
 		if (is_callable('proc_get_status')) {
 			$status = proc_get_status($proc['handle']);
