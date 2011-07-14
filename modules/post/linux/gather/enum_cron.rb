@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
-				'SessionTypes'  => [ "shell" ]
+				'SessionTypes'  => [ "shell", "meterpreter" ]
 			))
 
 			register_options(
@@ -56,7 +56,8 @@ class Metasploit3 < Msf::Post
 				cron_data += execute("crontab -u #{user} -l") + "\n\n"
 			end
 		else
-			user = execute("/usr/bin/whomai")
+			user = execute("/usr/bin/whoami")
+			user.strip! if user
 			print_status("Enumerating as #{user}")
 			cron_data = "***** Listing cron jobs for #{user} *****\n\n"
 			cron_data += execute("crontab -l")
