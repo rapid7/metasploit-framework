@@ -524,6 +524,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         clearHistoryItem = new javax.swing.JMenuItem();
         postMenu = new javax.swing.JMenu();
         menuRunAllMeterp = new javax.swing.JMenu();
+        crackPasswordsItem = new javax.swing.JMenuItem();
         killSessionsMenuItem = new javax.swing.JMenuItem();
         logGenerateMenuItem = new javax.swing.JMenuItem();
         consoleMenu = new javax.swing.JMenu();
@@ -906,6 +907,16 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         menuRunAllMeterp.setText(resourceMap.getString("menuRunAllMeterp.text")); // NOI18N
         menuRunAllMeterp.setName("menuRunAllMeterp"); // NOI18N
         postMenu.add(menuRunAllMeterp);
+
+        crackPasswordsItem.setMnemonic('C');
+        crackPasswordsItem.setText(resourceMap.getString("crackPasswordsItem.text")); // NOI18N
+        crackPasswordsItem.setName("crackPasswordsItem"); // NOI18N
+        crackPasswordsItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                crackPasswordsItemActionPerformed(evt);
+            }
+        });
+        postMenu.add(crackPasswordsItem);
 
         killSessionsMenuItem.setMnemonic('K');
         killSessionsMenuItem.setText(resourceMap.getString("killSessionsMenuItem.text")); // NOI18N
@@ -1577,6 +1588,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		}
 	}//GEN-LAST:event_dbExportItemActionPerformed
 
+	private void crackPasswordsItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_crackPasswordsItemActionPerformed
+		MsfguiApp.runModule("auxiliary", "analyze/jtr_crack_fast", new HashMap(), rpcConn, this, true);
+	}//GEN-LAST:event_crackPasswordsItemActionPerformed
+
 	/** Runs command on all current meterpreter sessions in new thread; posting updates for each thread */
 	private void runOnAllMeterpreters(String cmd, String output, JLabel outputLabel) {
 		SessionCommand.runOnAllMeterpreters(sessionsTableModel, cmd, output, outputLabel, rpcConn);
@@ -1858,6 +1873,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem connectItem;
     private javax.swing.JMenuItem connectRpcMenuItem;
     private javax.swing.JMenu consoleMenu;
+    private javax.swing.JMenuItem crackPasswordsItem;
     private javax.swing.JScrollPane credsPane;
     private javax.swing.JTable credsTable;
     private javax.swing.JMenuItem credsViewItem;
@@ -1918,7 +1934,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem soundItem;
     private javax.swing.JMenuItem startRpcMenuItem;
     public javax.swing.JLabel statusAnimationLabel;
-    private javax.swing.JLabel statusMessageLabel;
+    javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     public javax.swing.JTabbedPane tabbedPane;
     private javax.swing.JMenuItem unloadPluginItem;

@@ -179,6 +179,47 @@ public class MsfguiApp extends SingleFrameApplication {
 		return proc;
 	}
 
+	/**
+	 * Runs the specified module from options provided, sending results to main frame
+	 * @param console
+	 * @param hash
+	 * @throws MsfException
+	 * @throws HeadlessException
+	 */
+	public static void runModule(String moduleType, String fullName, Map hash, RpcConnection rpcConn,
+			MainFrame parentFrame, boolean console) throws MsfException, java.awt.HeadlessException {
+		//Execute and get results
+		if (console) { // Create a list of commands to run in the console
+			Map res = (Map) rpcConn.execute("console.create");
+			java.util.ArrayList autoCommands = new java.util.ArrayList();
+			autoCommands.add("use " + moduleType + "/" + fullName);
+			//Add target if it is set and not zero if there is no default or non-default if there is a default
+			if(moduleType.equals("exploit") && hash.containsKey("TARGET")){
+				Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
+				if(info.containsKey("default_target") && !hash.get("TARGET").toString().equals(info.get("default_target").toString())
+						|| !info.containsKey("default_target") && !hash.get("TARGET").toString().equals("0"))
+					autoCommands.add("set TARGET " + hash.get("TARGET"));
+			}
+			if (hash.containsKey("PAYLOAD"))
+				autoCommands.add("set PAYLOAD " + hash.get("PAYLOAD"));
+			//Convert the rest of the options to set commands
+			for (Object entObj : hash.entrySet()) {
+				Map.Entry ent = (Map.Entry) entObj;
+				if (!(ent.getKey().toString().equals("TARGET")) && !(ent.getKey().toString().equals("PAYLOAD")))
+					autoCommands.add("set " + ent.getKey() + " " + MsfguiApp.escapeBackslashes(ent.getValue().toString()));
+			}
+			autoCommands.add("exploit");
+			InteractWindow iw = new InteractWindow(rpcConn, res, autoCommands);
+			parentFrame.registerConsole(res, true, iw);
+			MsfguiLog.defaultLog.logMethodCall("module.execute", new Object[]{moduleType, fullName, hash});
+		} else { // Non-console; just fire away
+			Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
+			if (!info.get("result").equals("success"))
+				MsfguiApp.showMessage(parentFrame.getFrame(), info);
+		}
+		MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{moduleType, fullName, hash}), rpcConn, parentFrame);
+	}
+
 	/** Get root node of xml saved options file */
 	public static Map getPropertiesNode(){
 		return propRoot;

@@ -610,6 +610,16 @@
                 <Property name="name" type="java.lang.String" value="menuRunAllMeterp" noResource="true"/>
               </Properties>
             </Menu>
+            <MenuItem class="javax.swing.JMenuItem" name="crackPasswordsItem">
+              <Properties>
+                <Property name="mnemonic" type="int" value="67"/>
+                <Property name="text" type="java.lang.String" resourceKey="crackPasswordsItem.text"/>
+                <Property name="name" type="java.lang.String" value="crackPasswordsItem" noResource="true"/>
+              </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="crackPasswordsItemActionPerformed"/>
+              </Events>
+            </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="killSessionsMenuItem">
               <Properties>
                 <Property name="mnemonic" type="int" value="75"/>

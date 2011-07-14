@@ -242,7 +242,7 @@ public class ModulePopup extends ModuleInfoWindow implements TreeSelectionListen
 				hash.put("TARGET",target);
 			}
 			//Actually run the module
-			run(console, hash);
+			run(hash, console);
 
 			//close out
 			this.setVisible(false);

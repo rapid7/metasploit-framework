@@ -51,7 +51,7 @@ public class PayloadPopup extends ModuleInfoWindow {
 		Map hash = getOptions(mainPanel);
 		hash.put("PAYLOAD", fullName);
 		hash.put("TARGET", "0");
-		run(console, hash, "exploit", "multi/handler");
+		run("exploit", "multi/handler", hash, console);
 	}
 
 	/** Resets group layout displaying appropriate elements */
