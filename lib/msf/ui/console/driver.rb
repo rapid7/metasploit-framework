@@ -69,12 +69,6 @@ class Driver < Msf::Ui::Driver
 
 		# Default to the RbReadline wrapper
 		require 'readline_compatible' if(not rl)
-		
-		# Verify console compatibility on Windows (require Console2)
-		if Rex::Compat.is_windows and not Rex::Compat.win32_console2_verify
-			$stdout.puts "Error: The Metasploit Framework is not compatible with this console"
-			return
-		end
 
 		histfile = opts['HistFile'] || Msf::Config.history_file
 
@@ -89,6 +83,18 @@ class Driver < Msf::Ui::Driver
 
 		# Initialize attributes
 		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+		# Verify console compatibility on Windows (require Console2)
+		if Rex::Compat.is_windows and not Rex::Compat.win32_console2_verify
+			is_rpc = false
+			self.framework.plugins.each do |plugin|
+				is_rpc = true if plugin.name == 'xmlrpc'
+			end
+			if is_rpc == false
+				$stdout.puts "Error: The Metasploit Framework is not compatible with this console"
+				exit(1)
+			end
+		end
 
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
