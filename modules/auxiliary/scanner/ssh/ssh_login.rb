@@ -108,7 +108,8 @@ class Metasploit3 < Msf::Auxiliary
 				'USERNAME'      => user,
 				'PASSWORD'      => pass
 			}
-			start_session(self, "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})", merge_me, false, conn.lsock)
+			info = "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})"
+			s = start_session(self, info, merge_me, false, conn.lsock)
 
 			return [:success, proof]
 		else
@@ -129,9 +130,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_brute :ip => ip, :msg => "Starting bruteforce" 
+		print_brute :ip => ip, :msg => "Starting bruteforce"
 		each_user_pass do |user, pass|
-			print_brute :level => :vstatus, 
+			print_brute :level => :vstatus,
 				:ip => ip,
 				:msg => "Trying: username: '#{user}' with password: '#{pass}'"
 			this_attempt ||= 0
