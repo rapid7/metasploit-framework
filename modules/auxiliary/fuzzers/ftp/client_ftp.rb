@@ -411,7 +411,7 @@ class Metasploit3 < Msf::Auxiliary
 				code = "550 "
 			end
 			if cmd=="FEAT"
-				@fuzzdata = "211-Features:\r\n @fuzzdata\r\n211 End"
+				@fuzzdata = "211-Features:\r\n "+@fuzzdata+"\r\n211 End"
 			end
 			if cmd=="PWD"
 				@fuzzdata = "  \"/"+@fuzzdata+"\" is current directory"
