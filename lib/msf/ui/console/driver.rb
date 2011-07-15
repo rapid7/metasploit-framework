@@ -84,18 +84,6 @@ class Driver < Msf::Ui::Driver
 		# Initialize attributes
 		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
 
-		# Verify console compatibility on Windows (require Console2)
-		if Rex::Compat.is_windows and not Rex::Compat.win32_console2_verify
-			is_rpc = false
-			self.framework.plugins.each do |plugin|
-				is_rpc = true if plugin.name == 'xmlrpc'
-			end
-			if is_rpc == false
-				$stdout.puts "Error: The Metasploit Framework is not compatible with this console"
-				exit(1)
-			end
-		end
-
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
 		input = opts['LocalInput']
@@ -109,6 +97,12 @@ class Driver < Msf::Ui::Driver
 			end
 		else
 			output = Rex::Ui::Text::Output::Stdio.new
+		end
+
+		# Verify console compatibility on Windows (require Console2)
+		if Rex::Compat.is_windows and not Rex::Compat.win32_console2_verify and input.kind_of?(Rex::Ui::Text::Input::Stdio)
+			$stdout.puts "Error: The Metasploit Framework is not compatible with this console"
+			exit(1)
 		end
 
 		init_ui(input, output)
