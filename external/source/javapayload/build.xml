@@ -66,12 +66,43 @@
 		<delete file="build/metasploit.dat"/>
 	</target>
 	
-	<target name="deploy" depends="compile">
+	<target name="buildrmi" depends="compile">
+		<!-- build dummy jar used for capturing communication and for testing -->
+		<propertyfile file="build/metasploit.dat">
+			<entry key="LPORT" value="4444" />
+			<entry key="LHOST" value="127.0.0.1" />
+		</propertyfile>
+		<jar destfile="rmidummy.jar">
+			<manifest>
+				<attribute name="Main-Class" value="metasploit.Payload"/>
+			</manifest>
+			<fileset dir="build">
+    			<include name="metasploit/RMILoader.class"/>
+    			<include name="metasploit/RMIPayload.class"/>
+    			<include name="metasploit/Payload.class"/>
+				<include name="metasploit.dat"/>
+			</fileset>
+		</jar>
+		
+		<!-- rename local metasploit/RMILoader.class to ensure a classloader URL will be serialized -->
+		<move file="build/metasploit/RMILoader.class" tofile="build/metasploit/RMILoader.class.tmp" />
+		
+		<!-- run the capture server -->
+		<java classpath="build" classname="rmi.RMICaptureServer" />
+
+		<!-- rename back -->
+		<move file="build/metasploit/RMILoader.class.tmp" tofile="build/metasploit/RMILoader.class" />
+	</target>
+	
+	<target name="deploy" depends="compile,buildrmi">
 		<copy todir="../../../data/java">
 			<fileset dir="build">
 				<exclude name="javapayload/stage/JSh*.class" />
 				<exclude name="javapayload/stage/SendParameters.class" />
 				<exclude name="javapayload/stage/SystemInfo.class" />
+				<exclude name="metasploit/PayloadApplet.class" />
+				<exclude name="rmi/**" />
+				<exclude name="metasploit.dat" />
 			</fileset>
 		</copy>
 	</target>
