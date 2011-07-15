@@ -37,12 +37,6 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ "shell", "meterpreter" ]
 			))
-
-			register_options(
-			[
-				OptBool.new('VERBOSE', [false, 'Show detailed status messages', false]),
-			], self.class)
-
 	end
 
 	# Run Method for when run command is issued
@@ -76,7 +70,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def execute(cmd)
-		print_status("Execute: #{cmd}") if datastore['VERBOSE']
+		vprint_status("Execute: #{cmd}")
 		output = cmd_exec(cmd)
 		return output
 	end

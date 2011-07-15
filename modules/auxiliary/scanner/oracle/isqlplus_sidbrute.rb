@@ -42,7 +42,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [ true, 'Oracle iSQLPlus path', '/isqlplus/']),
 				OptString.new('SID', [ false, 'A single SID to test']),
 				OptPath.new('SIDFILE', [ false, 'A file containing a list of SIDs', File.join(Msf::Config.install_root, 'data', 'wordlists', 'sid.txt')]),
-				OptBool.new('VERBOSE', [ true, 'Display incorrect SIDs as they are guessed', true ]),
 				OptInt.new('TIMEOUT', [false, 'Time to wait for HTTP responses', 30])
 			], self.class)
 
@@ -165,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				guess = true
 			elsif (res.body =~ /(ORA-12170):/ or res.body =~ /(ORA-12154):/ or res.body =~ /(ORA-12162):/)
-				print_status("#{msg} Incorrect SID: '#{sid.strip}' (got error code #{$1})") if datastore['VERBOSE']
+				vprint_status("#{msg} Incorrect SID: '#{sid.strip}' (got error code #{$1})")
 			elsif res.body =~ /(ORA-12541):/
 				print_status("#{msg} Possible correct SID, but got ORA-12541: No Listener error.")
 				guess = true
@@ -218,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def check_oracle_sid(ip,oracle_ver,sid)
 		post_request = build_post_request(oracle_ver,sid)
-		print_status "#{msg} Trying SID '#{sid}', waiting for response..." if datastore['VERBOSE']
+		vprint_status "#{msg} Trying SID '#{sid}', waiting for response..."
 		res = send_request_cgi({
 			'version' => '1.1',
 			'uri'     => uri,

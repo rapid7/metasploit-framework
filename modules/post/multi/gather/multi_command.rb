@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptBool.new('VERBOSE', [ false, 'Print the output of each command.', false]),
 				OptString.new('RESOURCE', [true, 'Full path to resource file to read commands from.', nil])
 
 			], self.class)
@@ -57,7 +56,7 @@ class Metasploit3 < Msf::Post
 					elsif session_type =~ /shell/
 						tmpout << session.shell_command_token(cmd.chomp).chomp
 					end
-					print_status tmpout if datastore['VERBOSE']
+					vprint_status tmpout
 					command_log = store_loot("host.command", "text/plain", session,tmpout ,
 						"#{cmd.gsub(/\.|\/|\s/,"_")}.txt", "Command Output \'#{cmd.chomp}\'")
 					print_status("Command output saved to: #{command_log}")

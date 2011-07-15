@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('PATH', [ true,  "The test path. The default value will not work.", '/']),
 				OptString.new('EXT', [ true,  "Extension to include.", '.aspx']),
-				OptBool.new('VERBOSE', [ true,  "Show detailed messages", false])
 			], self.class)
 
 	end
@@ -105,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 
 				else
-					print_status("NOT Found #{wmap_base_url}#{testf}") if datastore['VERBOSE']
+					vprint_status("NOT Found #{wmap_base_url}#{testf}")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

@@ -31,10 +31,6 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
-		register_options(
-			[
-				OptBool.new('VERBOSE', [false, 'Show list of Packages.', false]),
-			], self.class)
 
 	end
 

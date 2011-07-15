@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 		[
 			OptString.new('INSTANCES', [true, "Instance numbers to scan (e.g. 00-05,00-99)", "00-01"]),
 			OptInt.new('TIMEOUT', [true, "The socket connect timeout in milliseconds", 1000]),
-			OptBool.new('VERBOSE', [false, "Display verbose output", false]),
 			OptInt.new('CONCURRENCY', [true, "The number of concurrent ports to check per host", 10]),
 		], self.class)
 
@@ -238,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
 
 						r << [ip,port,"open"]
 						rescue ::Rex::ConnectionRefused
-							print_status("#{ip}:#{port}\t - TCP closed") if datastore['VERBOSE']
+							vprint_status("#{ip}:#{port}\t - TCP closed")
 							r << [ip,port,"closed"]
 						rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
 						rescue ::Interrupt

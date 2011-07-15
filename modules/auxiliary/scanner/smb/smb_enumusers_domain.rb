@@ -40,10 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('RPORT', 'RHOST')
 
-		register_advanced_options(
-			[
-				OptBool.new('VERBOSE', [ false, "Print logon server and additional domains identified.", false ])
-			], self.class)
 	end
 
 	def parse_value(resp, idx)

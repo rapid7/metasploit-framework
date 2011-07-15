@@ -32,7 +32,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options([
 			OptString.new('PATH',	[true,	"Starting crawling path", '/']),
-			OptBool.new('VERBOSE', [ true, "Verbose output", false ]),
 			OptInt.new('RPORT', [true, "Remote port", 80 ]),
 		], self.class)
 
@@ -123,9 +122,7 @@ class Metasploit3 < Msf::Auxiliary
 					@UriLimits[hashreq['uri']] += 1
 
 					if !File.extname(hashreq['uri']).empty? and datastore['DontCrawl'].include? File.extname(hashreq['uri'])
-						if datastore['VERBOSE']
-							print_status "URI not crawled #{hashreq['uri']}"
-						end
+						vprint_status "URI not crawled #{hashreq['uri']}"
 					else
 							prx = nil
 							#if self.useproxy
@@ -144,9 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 							sendreq(c,hashreq)
 					end
 				else
-					if datastore['VERBOSE']
-						puts "#{hashreq['uri']} already visited. "
-					end
+					vprint_line "#{hashreq['uri']} already visited. "
 				end
 
 				####
@@ -289,9 +284,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				when 301..303
 					puts "[#{resp.code}] Redirection to: #{resp['Location']}"
-					if advopts['VERBOSE']
-						print_status urltohash('GET',resp['Location'],reqopts['uri'],nil)
-					end
+					vprint_status urltohash('GET',resp['Location'],reqopts['uri'],nil)
 					insertnewpath(urltohash('GET',resp['Location'],reqopts['uri'],nil))
 				when 404
 					print_status "[404] Invalid link #{reqopts['uri']}"
@@ -305,9 +298,7 @@ class Metasploit3 < Msf::Auxiliary
 			sleep(datastore['SleepTime'])
 		rescue
 			print_status "ERROR"
-			if datastore['VERBOSE']
-				print_status "#{$!}: #{$!.backtrace}"
-			end
+			vprint_status "#{$!}: #{$!.backtrace}"
 		end
 	end
 
@@ -322,20 +313,14 @@ class Metasploit3 < Msf::Auxiliary
 		if hashreq['rhost'] == datastore['RHOSTS'] and hashreq['rport'] == datastore['RPORT']
 			if !@ViewedQueue.include?(hashsig(hashreq))
 				if @NotViewedQueue.read_all(hashreq).size > 0
-					if datastore['VERBOSE']
-						print_status "Already in queue to be viewed: #{hashreq['uri']}"
-					end
+					vprint_status "Already in queue to be viewed: #{hashreq['uri']}"
 				else
-					if datastore['VERBOSE']
-						print_status "Inserted: #{hashreq['uri']}"
-					end
+					vprint_status "Inserted: #{hashreq['uri']}"
 
 					@NotViewedQueue.write(hashreq)
 				end
 			else
-				if datastore['VERBOSE']
-					print_status "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
-				end
+				vprint_status "#{hashreq['uri']} already visited at #{@ViewedQueue[hashsig(hashreq)]}"
 			end
 		end
 	end

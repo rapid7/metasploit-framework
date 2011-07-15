@@ -156,8 +156,10 @@ class Module
 		# Allow all modules to track their current workspace
 		register_advanced_options(
 			[
-				OptString.new('WORKSPACE', [ false, "Specify the workspace for this module" ])
+				OptString.new('WORKSPACE', [ false, "Specify the workspace for this module" ]),
+				OptBool.new('VERBOSE',     [ false, 'Enable detailed status messages', false ])
 			], Msf::Module)
+
 	end
 
 	#
@@ -224,6 +226,23 @@ class Module
 
 	def print_line(msg='')
 		super(print_line_prefix + msg)
+	end
+
+	# Verbose version of #print_status
+	def vprint_status(msg)
+		print_status(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
+	# Verbose version of #print_error
+	def vprint_error(msg)
+		print_error(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
+	# Verbose version of #print_good
+	def vprint_good(msg)
+		print_good(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
+	# Verbose version of #print_line
+	def vprint_line(msg)
+		print_line(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
 	end
 
 	#

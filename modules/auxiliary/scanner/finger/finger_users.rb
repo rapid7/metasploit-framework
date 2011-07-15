@@ -27,7 +27,6 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		register_options([
 			Opt::RPORT(79),
-			OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", true]),
 			OptString.new('USERS_FILE',
 				[ true, 'The file that contains a list of default UNIX accounts.',
 					File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
@@ -39,13 +38,13 @@ class Metasploit3 < Msf::Auxiliary
 		@users = {}
 
 		begin
-			print_status "#{rhost}:#{rport} - Sending empty finger request." if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} - Sending empty finger request."
 			finger_empty
-			print_status "#{rhost}:#{rport} - Sending test finger requests." if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} - Sending test finger requests."
 			finger_zero
 			finger_dot
 			finger_chars
-			print_status "#{rhost}:#{rport} - Sending finger request for user list: #{finger_user_common.join(", ")}" if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} - Sending finger request for user list: #{finger_user_common.join(", ")}"
 			finger_list
 
 		rescue ::Rex::ConnectionError
@@ -98,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 		buff = finger_slurp_data
 		if buff.scan(/\r?\nm\s/).size > 7
 			@multiple_requests = true
-			print_status "#{rhost}:#{rport} - Multiple users per request is okay." if datastore['VERBOSE']
+			vprint_status "#{rhost}:#{rport} - Multiple users per request is okay."
 		end
 		parse_users(buff)
 		disconnect
@@ -109,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 			finger_user_common.each do |user|
 				next if @users[user]
 				connect
-				print_status "#{rhost}:#{rport} - Sending finger request for #{user}..." if datastore['VERBOSE']
+				vprint_status "#{rhost}:#{rport} - Sending finger request for #{user}..."
 				sock.put("#{user}\r\n")
 				buff = finger_slurp_data
 				ret = parse_users(buff)
@@ -125,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 					user_batch << new_user
 				end
 				connect
-				print_status "#{rhost}:#{rport} - Sending finger request for #{user_batch.join(", ")}..." if datastore['VERBOSE']
+				vprint_status "#{rhost}:#{rport} - Sending finger request for #{user_batch.join(", ")}..."
 				sock.put("#{user_batch.join(" ")}\r\n")
 				buff = finger_slurp_data
 				ret = parse_users(buff)

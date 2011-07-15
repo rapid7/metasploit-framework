@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Post
 		))
 		register_options(
 			[
-				OptBool.new('VERBOSE', [false, 'Print all the decrypted data', true]),
 				OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
 			], self.class)
 	end
@@ -121,7 +120,7 @@ class Metasploit3 < Msf::Post
 							decrypt_table << [name, pass, origin]
 							secret = "#{name}:#{pass}..... #{origin}"
 							secrets << secret << "\n"
-							print_good("Decrypted data: #{secret}") if datastore["VERBOSE"]
+							vprint_good("Decrypted data: #{secret}")
 						end
 					end
 				end

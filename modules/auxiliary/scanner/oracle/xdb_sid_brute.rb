@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 				[
 					OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
-					OptBool.new('VERBOSE', [ false, 'Report each try', false]),
 					Opt::RPORT(8080),
 				], self.class)
 		deregister_options('DBUSER','DBPASS')
@@ -54,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if not res
 
 		if(res.code == 200)
-			print_status("http://#{ip}:#{datastore['RPORT']}/oradb/PUBLIC/GLOBAL_NAME (#{res.code}) is not password protected.") if datastore['VERBOSE']
+			vprint_status("http://#{ip}:#{datastore['RPORT']}/oradb/PUBLIC/GLOBAL_NAME (#{res.code}) is not password protected.")
 			return
 		end
 
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, 10)
 
 			if( not res )
-				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
+				vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
 				next
 			end
 			if (res.code == 200)

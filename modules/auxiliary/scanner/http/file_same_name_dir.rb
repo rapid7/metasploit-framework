@@ -38,7 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('PATH', [ true,  "The directory path  to identify files", '/']),
 				OptString.new('EXT', [ true, "File extension to use", '.aspx']),
-				OptBool.new('VERBOSE', [ true,  "Display verbose messages", true])
 
 			], self.class)
 
@@ -109,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 
 				else
-					print_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}") if datastore['VERBOSE']
+					vprint_status("NOT Found #{wmap_base_url}#{tpath}#{testfext}")
 				end
 
 			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

@@ -36,7 +36,6 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 		[
-			OptBool.new('VERBOSE', [true, 'Verbose account information', false]),
 			OptBool.new('DEBUG', [true, 'Debugging output', false])
 		], self.class)
 	end
@@ -236,11 +235,11 @@ class Metasploit3 < Msf::Post
 		i+=s.userNameLength
 		i+=2 * ( ( s.userNameLength / 2 ) % 2 )
 
-		print_good "Username\t\t: #{username}" if( datastore['VERBOSE'] )
-		print_good "Hash\t\t: #{hash.unpack("H*")[0]}" if( datastore['VERBOSE'] )
+		vprint_good "Username\t\t: #{username}"
+		vprint_good "Hash\t\t: #{hash.unpack("H*")[0]}"
 
 		last = Time.at(s.lastAccess)
-		print_good "Last login\t\t: #{last.strftime("%F %T")} " if( datastore['VERBOSE'] )
+		vprint_good "Last login\t\t: #{last.strftime("%F %T")} "
 
 		domain = dec_data[i...i+s.domainNameLength+1]
 		i+=s.domainNameLength
@@ -249,60 +248,60 @@ class Metasploit3 < Msf::Post
 			dnsDomainName = dec_data[i...i+s.dnsDomainNameLength+1]
 			i+=s.dnsDomainNameLength
 			i+=2 * ( ( s.dnsDomainNameLength / 2 ) % 2 )
-			print_good "DNS Domain Name\t: #{dnsDomainName}" if( datastore['VERBOSE'] )
+			vprint_good "DNS Domain Name\t: #{dnsDomainName}"
 		end
 
 		if( s.upnLength != 0)
 			upn = dec_data[i...i+s.upnLength+1]
 			i+=s.upnLength
 			i+=2 * ( ( s.upnLength / 2 ) % 2 )
-			print_good "UPN\t\t\t: #{upn}" if( datastore['VERBOSE'] )
+			vprint_good "UPN\t\t\t: #{upn}"
 		end
 
 		if( s.effectiveNameLength != 0 )
 			effectiveName = dec_data[i...i+s.effectiveNameLength+1]
 			i+=s.effectiveNameLength
 			i+=2 * ( ( s.effectiveNameLength / 2 ) % 2 )
-			print_good "Effective Name\t: #{effectiveName}" if( datastore['VERBOSE'] )
+			vprint_good "Effective Name\t: #{effectiveName}"
 		end
 
 		if( s.fullNameLength != 0 )
 			fullName = dec_data[i...i+s.fullNameLength+1]
 			i+=s.fullNameLength
 			i+=2 * ( ( s.fullNameLength / 2 ) % 2 )
-			print_good "Full Name\t\t: #{fullName}" if( datastore['VERBOSE'] )
+			vprint_good "Full Name\t\t: #{fullName}"
 		end
 
 		if( s.logonScriptLength != 0 )
 			logonScript = dec_data[i...i+s.logonScriptLength+1]
 			i+=s.logonScriptLength
 			i+=2 * ( ( s.logonScriptLength / 2 ) % 2 )
-			print_good "Logon Script\t\t: #{logonScript}" if( datastore['VERBOSE'] )
+			vprint_good "Logon Script\t\t: #{logonScript}"
 		end
 
 		if( s.profilePathLength != 0 )
 			profilePath = dec_data[i...i+s.profilePathLength+1]
 			i+=s.profilePathLength
 			i+=2 * ( ( s.profilePathLength / 2 ) % 2 )
-			print_good "Profile Path\t\t: #{profilePath}" if( datastore['VERBOSE'] )
+			vprint_good "Profile Path\t\t: #{profilePath}"
 		end
 
 		if( s.homeDirectoryLength != 0 )
 			homeDirectory = dec_data[i...i+s.homeDirectoryLength+1]
 			i+=s.homeDirectoryLength
 			i+=2 * ( ( s.homeDirectoryLength / 2 ) % 2 )
-			print_good "Home Directory\t\t: #{homeDirectory}" if( datastore['VERBOSE'] )
+			vprint_good "Home Directory\t\t: #{homeDirectory}"
 		end
 
 		if( s.homeDirectoryDriveLength != 0 )
 			homeDirectoryDrive = dec_data[i...i+s.homeDirectoryDriveLength+1]
 			i+=s.homeDirectoryDriveLength
 			i+=2 * ( ( s.homeDirectoryDriveLength / 2 ) % 2 )
-			print_good "Home Directory Drive\t: #{homeDirectoryDrive}" if( datastore['VERBOSE'] )
+			vprint_good "Home Directory Drive\t: #{homeDirectoryDrive}"
 		end
 
-		print_good "User ID\t\t: #{s.userId}" if( datastore['VERBOSE'] )
-		print_good "Primary Group ID\t: #{s.primaryGroupId}" if( datastore['VERBOSE'] )
+		vprint_good "User ID\t\t: #{s.userId}"
+		vprint_good "Primary Group ID\t: #{s.primaryGroupId}"
 
 		relativeId = []
 		while (s.groupCount > 0) do
@@ -314,18 +313,18 @@ class Metasploit3 < Msf::Post
 			s.groupCount-=1
 		end
 
-		print_good "Additional groups\t: #{relativeId.join ' '}" if( datastore['VERBOSE'] )
+		vprint_good "Additional groups\t: #{relativeId.join ' '}"
 
 
 		if( s.logonDomainNameLength != 0 )
 			logonDomainName = dec_data[i...i+s.logonDomainNameLength+1]
 			i+=s.logonDomainNameLength
 			i+=2 * ( ( s.logonDomainNameLength / 2 ) % 2 )
-			print_good "Logon domain name\t: #{logonDomainName}" if( datastore['VERBOSE'] )
+			vprint_good "Logon domain name\t: #{logonDomainName}"
 		end
 
 
-		print_good "----------------------------------------------------------------------" if( datastore['VERBOSE'] )
+		vprint_good "----------------------------------------------------------------------"
 		return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
 	end
 

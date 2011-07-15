@@ -30,7 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::CHOST,
-				OptBool.new('VERBOSE', [false, 'Enable verbose output', false])
 			], self.class)
 
 		register_advanced_options(

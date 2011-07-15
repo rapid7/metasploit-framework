@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 		[
 			Opt::CHOST,
 			OptInt.new('BATCHSIZE', [true, 'The number of hosts to probe in each set', 256]),
-			OptBool.new('VERBOSE', [false, 'Enable verbose output', false])
 		], self.class)
 
 		register_advanced_options(

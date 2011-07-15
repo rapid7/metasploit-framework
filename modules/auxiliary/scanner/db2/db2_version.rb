@@ -29,7 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		register_options(
 			[
-				OptBool.new('VERBOSE', [ true, 'Verbose output', false]),
 				OptInt.new('TIMEOUT', [true, 'Timeout for the DB2 probe', 5])
 		], self.class)
 
@@ -60,13 +59,13 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 		rescue ::Rex::ConnectionRefused
-			print_error("#{rhost}:#{rport} : Cannot connect to host") if verbose
+			vprint_error("#{rhost}:#{rport} : Cannot connect to host")
 			return :done
 		rescue ::Rex::ConnectionError
-			print_error("#{rhost}:#{rport} : Unable to attempt probe") if verbose
+			vprint_error("#{rhost}:#{rport} : Unable to attempt probe")
 			return :done
 		rescue ::Rex::Proto::DRDA::RespError => e
-			print_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}") if verbose
+			vprint_error("#{rhost}:#{rport} : Error in connecting to DB2 instance: #{e}")
 			return :error
 		end
 	end

@@ -24,9 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     => [ ['Dedected', 'http://www.dedected.org'] ]
 		)
-		register_options([
-			OptBool.new('VERBOSE',[false, 'Print out verbose information during the scan', true])
-		],  self.class )
 	end
 
 	def print_results
@@ -73,9 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				next_channel
 
-				if (datastore['VERBOSE'])
-					print_status("Switching to channel: #{channel}")
-				end
+				vprint_status("Switching to channel: #{channel}")
 				select(nil,nil,nil,1)
 			end
 		ensure

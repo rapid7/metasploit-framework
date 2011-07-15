@@ -40,7 +40,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(25),
-				OptBool.new('VERBOSE', [ true, "Whether to print output for all attempts", false]),
 				OptString.new('USER_FILE',
 					[
 						true, 'The file that contains a list of probable users accounts.',
@@ -87,9 +86,9 @@ class Metasploit3 < Msf::Auxiliary
 			cmd = 'VRFY' + " " + "root" + "\r\n"
 			smtp_send(cmd,!@connected)
 			if (@result.match(%r{Cannot})) or (@result.match(%r{recognized}))
-				print_status("VRFY command disabled") if datastore['VERBOSE']
+				vprint_status("VRFY command disabled")
 			else
-				print_status("VRFY command enabled") if datastore['VERBOSE']
+				vprint_status("VRFY command enabled")
 				vrfy_ok=true
 			end
 		end
@@ -109,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 			if(@users_found.empty?)
 				print_status("#{target} No users or e-mail addresses found.")
 			else
-				print_status("#{target} - SMTP - Trying to get valid e-mail addresses") if (datastore['VERBOSE'])
+				vprint_status("#{target} - SMTP - Trying to get valid e-mail addresses")
 				@users_found.keys.each {|mails|
 					return finish_host() if((do_get_mails(mails)) == :abort)
 				}
@@ -146,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_vrfy_enum(user)
 		cmd = 'VRFY' + " " + user + "\r\n"
 		smtp_send(cmd,!@connected)
-		print_status("#{target} - SMTP - Trying name: '#{user}'") if (datastore['VERBOSE'])
+		vprint_status("#{target} - SMTP - Trying name: '#{user}'")
 		case @coderesult.to_i
 		when (250..259)
 			print_good "#{target} - Found user: #{user}"
@@ -159,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_mail_from()
-		print_status("Trying to use to RCPT TO command") if (datastore['VERBOSE'])
+		vprint_status("Trying to use to RCPT TO command")
 		cmd = 'MAIL FROM:' + " root@" + @domain + "\r\n"
 		smtp_send(cmd,!@connected)
 		if (@coderesult == '501') && @domain.split(".").count > 2
@@ -179,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 	def do_rcpt_enum(user)
 		cmd = 'RCPT TO:' + " " + user + "\r\n"
 		smtp_send(cmd,!@connected)
-		print_status("#{target} - SMTP - Trying name: '#{user}'") if (datastore['VERBOSE'])
+		vprint_status("#{target} - SMTP - Trying name: '#{user}'")
 		case @coderesult.to_i
 		# 550 is User unknown, which obviously isn't fatal when trying to
 		# enumerate users, so only abort on other 500-series errors.  See #4031

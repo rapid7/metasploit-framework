@@ -47,7 +47,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([
 			OptString.new('SPOOFIP', [ true, "IP address with which to poison responses", nil]),
 			OptString.new('REGEX', [ true, "Regex applied to determene if spoofed reply is sent", '.*']),
-			OptBool.new('VERBOSE', [ false, "Determines whether to display responses", true])
 		])
 
 		register_advanced_options([
@@ -71,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		while @run
 			packet, addr = @sock.recvfrom(512)
-			print_status("Packet Received from #{addr[3]}") if datastore['VERBOSE']
+			vprint_status("Packet Received from #{addr[3]}")
 
 			rhost = addr[3]
 			break if packet.length == 0
@@ -93,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if (nbnsq_decodedname =~ /#{datastore['REGEX']}/i)
 
-				print_status("Regex matched #{nbnsq_decodedname} from #{rhost}. Sending reply...") if datastore['VERBOSE']
+				vprint_status("Regex matched #{nbnsq_decodedname} from #{rhost}. Sending reply...")
 
 				if datastore['DEBUG']
 					print_status("transid:        #{nbnsq_transid.unpack('H4')}")
@@ -139,7 +138,7 @@ class Metasploit3 < Msf::Auxiliary
 				n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
 				n.sendpacket
 			else
-				print_status("Packet received from #{rhost} with name #{nbnsq_decodedname} did not match regex") if datastore['VERBOSE']
+				vprint_status("Packet received from #{rhost} with name #{nbnsq_decodedname} did not match regex")
 			end
 		end
 

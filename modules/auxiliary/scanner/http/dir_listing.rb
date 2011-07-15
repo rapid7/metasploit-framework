@@ -34,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directoy listing", '/']),
-				OptBool.new('VERBOSE', [ true,  "Display detail messages", false])
 			], self.class)
 
 	end
@@ -83,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 			else
-				print_status("NOT Vulnerable to directory listing #{wmap_base_url}#{tpath}") if datastore['VERBOSE']
+				vprint_status("NOT Vulnerable to directory listing #{wmap_base_url}#{tpath}")
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

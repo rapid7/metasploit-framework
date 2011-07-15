@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path/file to identify backups", '/index.asp']),
-				OptBool.new('VERBOSE', [ true,  "Display verbose messages", true])
 			], self.class)
 
 	end
@@ -82,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 
 			else
-				print_status("NOT Found #{wmap_base_url}#{file}") if datastore['VERBOSE']
+				vprint_status("NOT Found #{wmap_base_url}#{file}")
 				#To be removed or just displayed with verbose debugging.
 			end
 

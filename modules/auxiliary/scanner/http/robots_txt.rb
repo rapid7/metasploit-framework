@@ -34,7 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The test path to find robots.txt file", '/']),
-				OptBool.new('VERBOSE', [ true,  "Display verbose messages", true])
 
 			], self.class)
 
@@ -63,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			if not res.body.include?("llow:")
-				print_status("[#{target_host}] #{tpath}robots.txt - Doesn't contain \"llow:\"") if datastore['VERBOSE']
+				vprint_status("[#{target_host}] #{tpath}robots.txt - Doesn't contain \"llow:\"")
 				print_status(res.body.inspect) if datastore['DEBUG']
 				return
 			end
@@ -75,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			result = res.body.scan(aregex).flatten.map{ |s| s.strip }.uniq
 
-			print_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}") if datastore['VERBOSE']
+			vprint_status("[#{target_host}] #{tpath}robots.txt - #{result.join(', ')}")
 			result.each do |u|
 				report_note(
 					:host	=> target_host,

