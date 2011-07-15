@@ -8,79 +8,78 @@ module Def
 
 class Def_user32
 
-	def self.add_imports(railgun)
+	def self.create_dll(dll_path = 'user32')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 		
-		railgun.add_dll('user32')
-
-		railgun.add_function( 'user32', 'ActivateKeyboardLayout', 'DWORD',[
+		dll.add_function('ActivateKeyboardLayout', 'DWORD',[
 			["DWORD","hkl","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'AdjustWindowRect', 'BOOL',[
+		dll.add_function('AdjustWindowRect', 'BOOL',[
 			["PBLOB","lpRect","inout"],
 			["DWORD","dwStyle","in"],
 			["BOOL","bMenu","in"],
 			])
 
-		railgun.add_function( 'user32', 'AdjustWindowRectEx', 'BOOL',[
+		dll.add_function('AdjustWindowRectEx', 'BOOL',[
 			["PBLOB","lpRect","inout"],
 			["DWORD","dwStyle","in"],
 			["BOOL","bMenu","in"],
 			["DWORD","dwExStyle","in"],
 			])
 
-		railgun.add_function( 'user32', 'AllowSetForegroundWindow', 'BOOL',[
+		dll.add_function('AllowSetForegroundWindow', 'BOOL',[
 			["DWORD","dwProcessId","in"],
 			])
 
-		railgun.add_function( 'user32', 'AnimateWindow', 'BOOL',[
+		dll.add_function('AnimateWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","dwTime","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'AnyPopup', 'BOOL',[
+		dll.add_function('AnyPopup', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'AppendMenuA', 'BOOL',[
+		dll.add_function('AppendMenuA', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uFlags","in"],
 			["DWORD","uIDNewItem","in"],
 			["PCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'AppendMenuW', 'BOOL',[
+		dll.add_function('AppendMenuW', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uFlags","in"],
 			["DWORD","uIDNewItem","in"],
 			["PWCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'ArrangeIconicWindows', 'DWORD',[
+		dll.add_function('ArrangeIconicWindows', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'AttachThreadInput', 'BOOL',[
+		dll.add_function('AttachThreadInput', 'BOOL',[
 			["DWORD","idAttach","in"],
 			["DWORD","idAttachTo","in"],
 			["BOOL","fAttach","in"],
 			])
 
-		railgun.add_function( 'user32', 'BeginDeferWindowPos', 'DWORD',[
+		dll.add_function('BeginDeferWindowPos', 'DWORD',[
 			["DWORD","nNumWindows","in"],
 			])
 
-		railgun.add_function( 'user32', 'BeginPaint', 'DWORD',[
+		dll.add_function('BeginPaint', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpPaint","out"],
 			])
 
-		railgun.add_function( 'user32', 'BringWindowToTop', 'BOOL',[
+		dll.add_function('BringWindowToTop', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'BroadcastSystemMessage', 'DWORD',[
+		dll.add_function('BroadcastSystemMessage', 'DWORD',[
 			["DWORD","flags","in"],
 			["PDWORD","lpInfo","inout"],
 			["DWORD","Msg","in"],
@@ -88,7 +87,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'BroadcastSystemMessageA', 'DWORD',[
+		dll.add_function('BroadcastSystemMessageA', 'DWORD',[
 			["DWORD","flags","in"],
 			["PDWORD","lpInfo","inout"],
 			["DWORD","Msg","in"],
@@ -96,16 +95,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'BroadcastSystemMessageExA', 'DWORD',[
-			["DWORD","flags","in"],
-			["PDWORD","lpInfo","inout"],
-			["DWORD","Msg","in"],
-			["WORD","wParam","in"],
-			["DWORD","lParam","in"],
-			["PBLOB","pbsmInfo","out"],
-			])
-
-		railgun.add_function( 'user32', 'BroadcastSystemMessageExW', 'DWORD',[
+		dll.add_function('BroadcastSystemMessageExA', 'DWORD',[
 			["DWORD","flags","in"],
 			["PDWORD","lpInfo","inout"],
 			["DWORD","Msg","in"],
@@ -114,7 +104,16 @@ class Def_user32
 			["PBLOB","pbsmInfo","out"],
 			])
 
-		railgun.add_function( 'user32', 'BroadcastSystemMessageW', 'DWORD',[
+		dll.add_function('BroadcastSystemMessageExW', 'DWORD',[
+			["DWORD","flags","in"],
+			["PDWORD","lpInfo","inout"],
+			["DWORD","Msg","in"],
+			["WORD","wParam","in"],
+			["DWORD","lParam","in"],
+			["PBLOB","pbsmInfo","out"],
+			])
+
+		dll.add_function('BroadcastSystemMessageW', 'DWORD',[
 			["DWORD","flags","in"],
 			["PDWORD","lpInfo","inout"],
 			["DWORD","Msg","in"],
@@ -122,24 +121,24 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CallMsgFilterA', 'BOOL',[
+		dll.add_function('CallMsgFilterA', 'BOOL',[
 			["PBLOB","lpMsg","in"],
 			["DWORD","nCode","in"],
 			])
 
-		railgun.add_function( 'user32', 'CallMsgFilterW', 'BOOL',[
+		dll.add_function('CallMsgFilterW', 'BOOL',[
 			["PBLOB","lpMsg","in"],
 			["DWORD","nCode","in"],
 			])
 
-		railgun.add_function( 'user32', 'CallNextHookEx', 'DWORD',[
+		dll.add_function('CallNextHookEx', 'DWORD',[
 			["DWORD","hhk","in"],
 			["DWORD","nCode","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CallWindowProcA', 'DWORD',[
+		dll.add_function('CallWindowProcA', 'DWORD',[
 			["PBLOB","lpPrevWndFunc","in"],
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
@@ -147,7 +146,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CallWindowProcW', 'DWORD',[
+		dll.add_function('CallWindowProcW', 'DWORD',[
 			["PBLOB","lpPrevWndFunc","in"],
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
@@ -155,7 +154,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CascadeWindows', 'WORD',[
+		dll.add_function('CascadeWindows', 'WORD',[
 			["DWORD","hwndParent","in"],
 			["DWORD","wHow","in"],
 			["PBLOB","lpRect","in"],
@@ -163,17 +162,17 @@ class Def_user32
 			["PDWORD","lpKids","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeClipboardChain', 'BOOL',[
+		dll.add_function('ChangeClipboardChain', 'BOOL',[
 			["DWORD","hWndRemove","in"],
 			["DWORD","hWndNewNext","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeDisplaySettingsA', 'DWORD',[
+		dll.add_function('ChangeDisplaySettingsA', 'DWORD',[
 			["PBLOB","lpDevMode","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeDisplaySettingsExA', 'DWORD',[
+		dll.add_function('ChangeDisplaySettingsExA', 'DWORD',[
 			["PCHAR","lpszDeviceName","in"],
 			["PBLOB","lpDevMode","in"],
 			["DWORD","hwnd","inout"],
@@ -181,7 +180,7 @@ class Def_user32
 			["PBLOB","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeDisplaySettingsExW', 'DWORD',[
+		dll.add_function('ChangeDisplaySettingsExW', 'DWORD',[
 			["PWCHAR","lpszDeviceName","in"],
 			["PBLOB","lpDevMode","in"],
 			["DWORD","hwnd","inout"],
@@ -189,12 +188,12 @@ class Def_user32
 			["PBLOB","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeDisplaySettingsW', 'DWORD',[
+		dll.add_function('ChangeDisplaySettingsW', 'DWORD',[
 			["PBLOB","lpDevMode","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeMenuA', 'BOOL',[
+		dll.add_function('ChangeMenuA', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","cmd","in"],
 			["PCHAR","lpszNewItem","in"],
@@ -202,7 +201,7 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChangeMenuW', 'BOOL',[
+		dll.add_function('ChangeMenuW', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","cmd","in"],
 			["PWCHAR","lpszNewItem","in"],
@@ -210,61 +209,61 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharLowerBuffA', 'DWORD',[
+		dll.add_function('CharLowerBuffA', 'DWORD',[
 			["PCHAR","lpsz","in"],
 			["DWORD","cchLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharLowerBuffW', 'DWORD',[
+		dll.add_function('CharLowerBuffW', 'DWORD',[
 			["PWCHAR","lpsz","in"],
 			["DWORD","cchLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharToOemA', 'BOOL',[
+		dll.add_function('CharToOemA', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			])
 
-		railgun.add_function( 'user32', 'CharToOemBuffA', 'BOOL',[
+		dll.add_function('CharToOemBuffA', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			["DWORD","cchDstLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharToOemBuffW', 'BOOL',[
+		dll.add_function('CharToOemBuffW', 'BOOL',[
 			["PWCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			["DWORD","cchDstLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharToOemW', 'BOOL',[
+		dll.add_function('CharToOemW', 'BOOL',[
 			["PWCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			])
 
-		railgun.add_function( 'user32', 'CharUpperBuffA', 'DWORD',[
+		dll.add_function('CharUpperBuffA', 'DWORD',[
 			["PCHAR","lpsz","in"],
 			["DWORD","cchLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CharUpperBuffW', 'DWORD',[
+		dll.add_function('CharUpperBuffW', 'DWORD',[
 			["PWCHAR","lpsz","in"],
 			["DWORD","cchLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'CheckDlgButton', 'BOOL',[
+		dll.add_function('CheckDlgButton', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDButton","in"],
 			["DWORD","uCheck","in"],
 			])
 
-		railgun.add_function( 'user32', 'CheckMenuItem', 'DWORD',[
+		dll.add_function('CheckMenuItem', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","uIDCheckItem","in"],
 			["DWORD","uCheck","in"],
 			])
 
-		railgun.add_function( 'user32', 'CheckMenuRadioItem', 'BOOL',[
+		dll.add_function('CheckMenuRadioItem', 'BOOL',[
 			["DWORD","hmenu","in"],
 			["DWORD","first","in"],
 			["DWORD","last","in"],
@@ -272,65 +271,65 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'CheckRadioButton', 'BOOL',[
+		dll.add_function('CheckRadioButton', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDFirstButton","in"],
 			["DWORD","nIDLastButton","in"],
 			["DWORD","nIDCheckButton","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChildWindowFromPoint', 'DWORD',[
+		dll.add_function('ChildWindowFromPoint', 'DWORD',[
 			["DWORD","hWndParent","in"],
 			["PBLOB","Point","in"],
 			])
 
-		railgun.add_function( 'user32', 'ChildWindowFromPointEx', 'DWORD',[
+		dll.add_function('ChildWindowFromPointEx', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["PBLOB","pt","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'ClientToScreen', 'BOOL',[
+		dll.add_function('ClientToScreen', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpPoint","inout"],
 			])
 
-		railgun.add_function( 'user32', 'ClipCursor', 'BOOL',[
+		dll.add_function('ClipCursor', 'BOOL',[
 			["PBLOB","lpRect","in"],
 			])
 
-		railgun.add_function( 'user32', 'CloseClipboard', 'BOOL',[
+		dll.add_function('CloseClipboard', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'CloseDesktop', 'BOOL',[
+		dll.add_function('CloseDesktop', 'BOOL',[
 			["DWORD","hDesktop","in"],
 			])
 
-		railgun.add_function( 'user32', 'CloseWindow', 'BOOL',[
+		dll.add_function('CloseWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'CloseWindowStation', 'BOOL',[
+		dll.add_function('CloseWindowStation', 'BOOL',[
 			["DWORD","hWinSta","in"],
 			])
 
-		railgun.add_function( 'user32', 'CopyAcceleratorTableA', 'DWORD',[
+		dll.add_function('CopyAcceleratorTableA', 'DWORD',[
 			["DWORD","hAccelSrc","in"],
 			["PBLOB","lpAccelDst","out"],
 			["DWORD","cAccelEntries","in"],
 			])
 
-		railgun.add_function( 'user32', 'CopyAcceleratorTableW', 'DWORD',[
+		dll.add_function('CopyAcceleratorTableW', 'DWORD',[
 			["DWORD","hAccelSrc","in"],
 			["PBLOB","lpAccelDst","out"],
 			["DWORD","cAccelEntries","in"],
 			])
 
-		railgun.add_function( 'user32', 'CopyIcon', 'DWORD',[
+		dll.add_function('CopyIcon', 'DWORD',[
 			["DWORD","hIcon","in"],
 			])
 
-		railgun.add_function( 'user32', 'CopyImage', 'DWORD',[
+		dll.add_function('CopyImage', 'DWORD',[
 			["DWORD","h","in"],
 			["DWORD","type","in"],
 			["DWORD","cx","in"],
@@ -338,32 +337,32 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'CopyRect', 'BOOL',[
+		dll.add_function('CopyRect', 'BOOL',[
 			["PBLOB","lprcDst","out"],
 			["PBLOB","lprcSrc","in"],
 			])
 
-		railgun.add_function( 'user32', 'CountClipboardFormats', 'DWORD',[
+		dll.add_function('CountClipboardFormats', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'CreateAcceleratorTableA', 'DWORD',[
+		dll.add_function('CreateAcceleratorTableA', 'DWORD',[
 			["PBLOB","paccel","in"],
 			["DWORD","cAccel","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateAcceleratorTableW', 'DWORD',[
+		dll.add_function('CreateAcceleratorTableW', 'DWORD',[
 			["PBLOB","paccel","in"],
 			["DWORD","cAccel","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateCaret', 'BOOL',[
+		dll.add_function('CreateCaret', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hBitmap","in"],
 			["DWORD","nWidth","in"],
 			["DWORD","nHeight","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateCursor', 'DWORD',[
+		dll.add_function('CreateCursor', 'DWORD',[
 			["DWORD","hInst","in"],
 			["DWORD","xHotSpot","in"],
 			["DWORD","yHotSpot","in"],
@@ -371,7 +370,7 @@ class Def_user32
 			["DWORD","nHeight","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDesktopA', 'DWORD',[
+		dll.add_function('CreateDesktopA', 'DWORD',[
 			["PCHAR","lpszDesktop","in"],
 			["PCHAR","lpszDevice","inout"],
 			["PBLOB","pDevmode","inout"],
@@ -380,7 +379,7 @@ class Def_user32
 			["PBLOB","lpsa","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDesktopW', 'DWORD',[
+		dll.add_function('CreateDesktopW', 'DWORD',[
 			["PWCHAR","lpszDesktop","in"],
 			["PWCHAR","lpszDevice","inout"],
 			["PBLOB","pDevmode","inout"],
@@ -389,7 +388,7 @@ class Def_user32
 			["PBLOB","lpsa","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDialogIndirectParamA', 'DWORD',[
+		dll.add_function('CreateDialogIndirectParamA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PBLOB","lpTemplate","in"],
 			["DWORD","hWndParent","in"],
@@ -397,7 +396,7 @@ class Def_user32
 			["DWORD","dwInitParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDialogIndirectParamW', 'DWORD',[
+		dll.add_function('CreateDialogIndirectParamW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PBLOB","lpTemplate","in"],
 			["DWORD","hWndParent","in"],
@@ -405,7 +404,7 @@ class Def_user32
 			["DWORD","dwInitParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDialogParamA', 'DWORD',[
+		dll.add_function('CreateDialogParamA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpTemplateName","in"],
 			["DWORD","hWndParent","in"],
@@ -413,7 +412,7 @@ class Def_user32
 			["DWORD","dwInitParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateDialogParamW', 'DWORD',[
+		dll.add_function('CreateDialogParamW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpTemplateName","in"],
 			["DWORD","hWndParent","in"],
@@ -421,7 +420,7 @@ class Def_user32
 			["DWORD","dwInitParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateIcon', 'DWORD',[
+		dll.add_function('CreateIcon', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["DWORD","nWidth","in"],
 			["DWORD","nHeight","in"],
@@ -431,14 +430,14 @@ class Def_user32
 			["PBLOB","lpbXORbits","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateIconFromResource', 'DWORD',[
+		dll.add_function('CreateIconFromResource', 'DWORD',[
 			["PBLOB","presbits","in"],
 			["DWORD","dwResSize","in"],
 			["BOOL","fIcon","in"],
 			["DWORD","dwVer","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateIconFromResourceEx', 'DWORD',[
+		dll.add_function('CreateIconFromResourceEx', 'DWORD',[
 			["PBLOB","presbits","in"],
 			["DWORD","dwResSize","in"],
 			["BOOL","fIcon","in"],
@@ -448,11 +447,11 @@ class Def_user32
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateIconIndirect', 'DWORD',[
+		dll.add_function('CreateIconIndirect', 'DWORD',[
 			["PBLOB","piconinfo","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateMDIWindowA', 'DWORD',[
+		dll.add_function('CreateMDIWindowA', 'DWORD',[
 			["PCHAR","lpClassName","in"],
 			["PCHAR","lpWindowName","in"],
 			["DWORD","dwStyle","in"],
@@ -465,7 +464,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateMDIWindowW', 'DWORD',[
+		dll.add_function('CreateMDIWindowW', 'DWORD',[
 			["PWCHAR","lpClassName","in"],
 			["PWCHAR","lpWindowName","in"],
 			["DWORD","dwStyle","in"],
@@ -478,13 +477,13 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateMenu', 'DWORD',[
+		dll.add_function('CreateMenu', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'CreatePopupMenu', 'DWORD',[
+		dll.add_function('CreatePopupMenu', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'CreateWindowExA', 'DWORD',[
+		dll.add_function('CreateWindowExA', 'DWORD',[
 			["DWORD","dwExStyle","in"],
 			["PCHAR","lpClassName","in"],
 			["PCHAR","lpWindowName","in"],
@@ -499,7 +498,7 @@ class Def_user32
 			["PBLOB","lpParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateWindowExW', 'DWORD',[
+		dll.add_function('CreateWindowExW', 'DWORD',[
 			["DWORD","dwExStyle","in"],
 			["PWCHAR","lpClassName","in"],
 			["PWCHAR","lpWindowName","in"],
@@ -514,35 +513,35 @@ class Def_user32
 			["PBLOB","lpParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateWindowStationA', 'DWORD',[
+		dll.add_function('CreateWindowStationA', 'DWORD',[
 			["PCHAR","lpwinsta","in"],
 			["DWORD","dwFlags","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["PBLOB","lpsa","in"],
 			])
 
-		railgun.add_function( 'user32', 'CreateWindowStationW', 'DWORD',[
+		dll.add_function('CreateWindowStationW', 'DWORD',[
 			["PWCHAR","lpwinsta","in"],
 			["DWORD","dwFlags","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["PBLOB","lpsa","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefDlgProcA', 'DWORD',[
+		dll.add_function('DefDlgProcA', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefDlgProcW', 'DWORD',[
+		dll.add_function('DefDlgProcW', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefFrameProcA', 'DWORD',[
+		dll.add_function('DefFrameProcA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hWndMDIClient","in"],
 			["DWORD","uMsg","in"],
@@ -550,7 +549,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefFrameProcW', 'DWORD',[
+		dll.add_function('DefFrameProcW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hWndMDIClient","in"],
 			["DWORD","uMsg","in"],
@@ -558,41 +557,41 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefMDIChildProcA', 'DWORD',[
+		dll.add_function('DefMDIChildProcA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","uMsg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefMDIChildProcW', 'DWORD',[
+		dll.add_function('DefMDIChildProcW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","uMsg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefRawInputProc', 'DWORD',[
+		dll.add_function('DefRawInputProc', 'DWORD',[
 			["PBLOB","paRawInput","in"],
 			["DWORD","nInput","in"],
 			["DWORD","cbSizeHeader","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefWindowProcA', 'DWORD',[
+		dll.add_function('DefWindowProcA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DefWindowProcW', 'DWORD',[
+		dll.add_function('DefWindowProcW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'DeferWindowPos', 'DWORD',[
+		dll.add_function('DeferWindowPos', 'DWORD',[
 			["DWORD","hWinPosInfo","in"],
 			["DWORD","hWnd","in"],
 			["DWORD","hWndInsertAfter","in"],
@@ -603,51 +602,51 @@ class Def_user32
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DeleteMenu', 'BOOL',[
+		dll.add_function('DeleteMenu', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DeregisterShellHookWindow', 'BOOL',[
+		dll.add_function('DeregisterShellHookWindow', 'BOOL',[
 			["DWORD","hwnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'DestroyAcceleratorTable', 'BOOL',[
+		dll.add_function('DestroyAcceleratorTable', 'BOOL',[
 			["DWORD","hAccel","in"],
 			])
 
-		railgun.add_function( 'user32', 'DestroyCaret', 'BOOL',[
+		dll.add_function('DestroyCaret', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'DestroyCursor', 'BOOL',[
+		dll.add_function('DestroyCursor', 'BOOL',[
 			["DWORD","hCursor","in"],
 			])
 
-		railgun.add_function( 'user32', 'DestroyIcon', 'BOOL',[
+		dll.add_function('DestroyIcon', 'BOOL',[
 			["DWORD","hIcon","in"],
 			])
 
-		railgun.add_function( 'user32', 'DestroyMenu', 'BOOL',[
+		dll.add_function('DestroyMenu', 'BOOL',[
 			["DWORD","hMenu","in"],
 			])
 
-		railgun.add_function( 'user32', 'DestroyWindow', 'BOOL',[
+		dll.add_function('DestroyWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'DisableProcessWindowsGhosting', 'VOID',[
+		dll.add_function('DisableProcessWindowsGhosting', 'VOID',[
 			])
 
-		railgun.add_function( 'user32', 'DispatchMessageA', 'DWORD',[
+		dll.add_function('DispatchMessageA', 'DWORD',[
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'DispatchMessageW', 'DWORD',[
+		dll.add_function('DispatchMessageW', 'DWORD',[
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirListA', 'DWORD',[
+		dll.add_function('DlgDirListA', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["PCHAR","lpPathSpec","inout"],
 			["DWORD","nIDListBox","in"],
@@ -655,7 +654,7 @@ class Def_user32
 			["DWORD","uFileType","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirListComboBoxA', 'DWORD',[
+		dll.add_function('DlgDirListComboBoxA', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["PCHAR","lpPathSpec","inout"],
 			["DWORD","nIDComboBox","in"],
@@ -663,7 +662,7 @@ class Def_user32
 			["DWORD","uFiletype","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirListComboBoxW', 'DWORD',[
+		dll.add_function('DlgDirListComboBoxW', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["PWCHAR","lpPathSpec","inout"],
 			["DWORD","nIDComboBox","in"],
@@ -671,7 +670,7 @@ class Def_user32
 			["DWORD","uFiletype","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirListW', 'DWORD',[
+		dll.add_function('DlgDirListW', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["PWCHAR","lpPathSpec","inout"],
 			["DWORD","nIDListBox","in"],
@@ -679,40 +678,40 @@ class Def_user32
 			["DWORD","uFileType","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirSelectComboBoxExA', 'BOOL',[
+		dll.add_function('DlgDirSelectComboBoxExA', 'BOOL',[
 			["DWORD","hwndDlg","in"],
 			["PCHAR","lpString","out"],
 			["DWORD","cchOut","in"],
 			["DWORD","idComboBox","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirSelectComboBoxExW', 'BOOL',[
+		dll.add_function('DlgDirSelectComboBoxExW', 'BOOL',[
 			["DWORD","hwndDlg","in"],
 			["PWCHAR","lpString","out"],
 			["DWORD","cchOut","in"],
 			["DWORD","idComboBox","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirSelectExA', 'BOOL',[
+		dll.add_function('DlgDirSelectExA', 'BOOL',[
 			["DWORD","hwndDlg","in"],
 			["PCHAR","lpString","out"],
 			["DWORD","chCount","in"],
 			["DWORD","idListBox","in"],
 			])
 
-		railgun.add_function( 'user32', 'DlgDirSelectExW', 'BOOL',[
+		dll.add_function('DlgDirSelectExW', 'BOOL',[
 			["DWORD","hwndDlg","in"],
 			["PWCHAR","lpString","out"],
 			["DWORD","chCount","in"],
 			["DWORD","idListBox","in"],
 			])
 
-		railgun.add_function( 'user32', 'DragDetect', 'BOOL',[
+		dll.add_function('DragDetect', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["PBLOB","pt","in"],
 			])
 
-		railgun.add_function( 'user32', 'DragObject', 'DWORD',[
+		dll.add_function('DragObject', 'DWORD',[
 			["DWORD","hwndParent","in"],
 			["DWORD","hwndFrom","in"],
 			["DWORD","fmt","in"],
@@ -720,40 +719,40 @@ class Def_user32
 			["DWORD","hcur","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawAnimatedRects', 'BOOL',[
+		dll.add_function('DrawAnimatedRects', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","idAni","in"],
 			["PBLOB","lprcFrom","in"],
 			["PBLOB","lprcTo","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawCaption', 'BOOL',[
+		dll.add_function('DrawCaption', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","hdc","in"],
 			["PBLOB","lprect","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawEdge', 'BOOL',[
+		dll.add_function('DrawEdge', 'BOOL',[
 			["DWORD","hdc","in"],
 			["PBLOB","qrc","inout"],
 			["DWORD","edge","in"],
 			["DWORD","grfFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawFocusRect', 'BOOL',[
+		dll.add_function('DrawFocusRect', 'BOOL',[
 			["DWORD","hDC","in"],
 			["PBLOB","lprc","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawIcon', 'BOOL',[
+		dll.add_function('DrawIcon', 'BOOL',[
 			["DWORD","hDC","in"],
 			["DWORD","X","in"],
 			["DWORD","Y","in"],
 			["DWORD","hIcon","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawIconEx', 'BOOL',[
+		dll.add_function('DrawIconEx', 'BOOL',[
 			["DWORD","hdc","in"],
 			["DWORD","xLeft","in"],
 			["DWORD","yTop","in"],
@@ -765,11 +764,11 @@ class Def_user32
 			["DWORD","diFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawMenuBar', 'BOOL',[
+		dll.add_function('DrawMenuBar', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawStateA', 'BOOL',[
+		dll.add_function('DrawStateA', 'BOOL',[
 			["DWORD","hdc","in"],
 			["DWORD","hbrFore","in"],
 			["PBLOB","qfnCallBack","in"],
@@ -782,7 +781,7 @@ class Def_user32
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawStateW', 'BOOL',[
+		dll.add_function('DrawStateW', 'BOOL',[
 			["DWORD","hdc","in"],
 			["DWORD","hbrFore","in"],
 			["PBLOB","qfnCallBack","in"],
@@ -795,7 +794,7 @@ class Def_user32
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawTextA', 'DWORD',[
+		dll.add_function('DrawTextA', 'DWORD',[
 			["DWORD","hdc","in"],
 			["PCHAR","lpchText","in"],
 			["DWORD","cchText","in"],
@@ -803,7 +802,7 @@ class Def_user32
 			["DWORD","format","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawTextExA', 'DWORD',[
+		dll.add_function('DrawTextExA', 'DWORD',[
 			["DWORD","hdc","in"],
 			["PCHAR","lpchText","in"],
 			["DWORD","cchText","in"],
@@ -812,7 +811,7 @@ class Def_user32
 			["PBLOB","lpdtp","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawTextExW', 'DWORD',[
+		dll.add_function('DrawTextExW', 'DWORD',[
 			["DWORD","hdc","in"],
 			["PWCHAR","lpchText","in"],
 			["DWORD","cchText","in"],
@@ -821,7 +820,7 @@ class Def_user32
 			["PBLOB","lpdtp","in"],
 			])
 
-		railgun.add_function( 'user32', 'DrawTextW', 'DWORD',[
+		dll.add_function('DrawTextW', 'DWORD',[
 			["DWORD","hdc","in"],
 			["PWCHAR","lpchText","in"],
 			["DWORD","cchText","in"],
@@ -829,231 +828,231 @@ class Def_user32
 			["DWORD","format","in"],
 			])
 
-		railgun.add_function( 'user32', 'EmptyClipboard', 'BOOL',[
+		dll.add_function('EmptyClipboard', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'EnableMenuItem', 'BOOL',[
+		dll.add_function('EnableMenuItem', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uIDEnableItem","in"],
 			["DWORD","uEnable","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnableScrollBar', 'BOOL',[
+		dll.add_function('EnableScrollBar', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","wSBflags","in"],
 			["DWORD","wArrows","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnableWindow', 'BOOL',[
+		dll.add_function('EnableWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["BOOL","bEnable","in"],
 			])
 
-		railgun.add_function( 'user32', 'EndDeferWindowPos', 'BOOL',[
+		dll.add_function('EndDeferWindowPos', 'BOOL',[
 			["DWORD","hWinPosInfo","in"],
 			])
 
-		railgun.add_function( 'user32', 'EndDialog', 'BOOL',[
+		dll.add_function('EndDialog', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["PDWORD","nResult","in"],
 			])
 
-		railgun.add_function( 'user32', 'EndMenu', 'BOOL',[
+		dll.add_function('EndMenu', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'EndPaint', 'BOOL',[
+		dll.add_function('EndPaint', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpPaint","in"],
 			])
 
-		railgun.add_function( 'user32', 'EndTask', 'BOOL',[
+		dll.add_function('EndTask', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["BOOL","fShutDown","in"],
 			["BOOL","fForce","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumChildWindows', 'BOOL',[
+		dll.add_function('EnumChildWindows', 'BOOL',[
 			["DWORD","hWndParent","in"],
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumClipboardFormats', 'DWORD',[
+		dll.add_function('EnumClipboardFormats', 'DWORD',[
 			["DWORD","format","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDesktopWindows', 'BOOL',[
+		dll.add_function('EnumDesktopWindows', 'BOOL',[
 			["DWORD","hDesktop","in"],
 			["PBLOB","lpfn","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDesktopsA', 'BOOL',[
+		dll.add_function('EnumDesktopsA', 'BOOL',[
 			["DWORD","hwinsta","in"],
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDesktopsW', 'BOOL',[
+		dll.add_function('EnumDesktopsW', 'BOOL',[
 			["DWORD","hwinsta","in"],
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplayDevicesA', 'BOOL',[
+		dll.add_function('EnumDisplayDevicesA', 'BOOL',[
 			["PCHAR","lpDevice","in"],
 			["DWORD","iDevNum","in"],
 			["PBLOB","lpDisplayDevice","inout"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplayDevicesW', 'BOOL',[
+		dll.add_function('EnumDisplayDevicesW', 'BOOL',[
 			["PWCHAR","lpDevice","in"],
 			["DWORD","iDevNum","in"],
 			["PBLOB","lpDisplayDevice","inout"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplayMonitors', 'BOOL',[
+		dll.add_function('EnumDisplayMonitors', 'BOOL',[
 			["DWORD","hdc","in"],
 			["PBLOB","lprcClip","in"],
 			["PBLOB","lpfnEnum","in"],
 			["DWORD","dwData","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplaySettingsA', 'BOOL',[
+		dll.add_function('EnumDisplaySettingsA', 'BOOL',[
 			["PCHAR","lpszDeviceName","in"],
 			["DWORD","iModeNum","in"],
 			["PBLOB","lpDevMode","out"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplaySettingsExA', 'BOOL',[
+		dll.add_function('EnumDisplaySettingsExA', 'BOOL',[
 			["PCHAR","lpszDeviceName","in"],
 			["DWORD","iModeNum","in"],
 			["PBLOB","lpDevMode","out"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplaySettingsExW', 'BOOL',[
+		dll.add_function('EnumDisplaySettingsExW', 'BOOL',[
 			["PWCHAR","lpszDeviceName","in"],
 			["DWORD","iModeNum","in"],
 			["PBLOB","lpDevMode","out"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumDisplaySettingsW', 'BOOL',[
+		dll.add_function('EnumDisplaySettingsW', 'BOOL',[
 			["PWCHAR","lpszDeviceName","in"],
 			["DWORD","iModeNum","in"],
 			["PBLOB","lpDevMode","out"],
 			])
 
-		railgun.add_function( 'user32', 'EnumPropsA', 'DWORD',[
+		dll.add_function('EnumPropsA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpEnumFunc","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumPropsExA', 'DWORD',[
-			["DWORD","hWnd","in"],
-			["PBLOB","lpEnumFunc","in"],
-			["DWORD","lParam","in"],
-			])
-
-		railgun.add_function( 'user32', 'EnumPropsExW', 'DWORD',[
+		dll.add_function('EnumPropsExA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumPropsW', 'DWORD',[
+		dll.add_function('EnumPropsExW', 'DWORD',[
+			["DWORD","hWnd","in"],
+			["PBLOB","lpEnumFunc","in"],
+			["DWORD","lParam","in"],
+			])
+
+		dll.add_function('EnumPropsW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpEnumFunc","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumThreadWindows', 'BOOL',[
+		dll.add_function('EnumThreadWindows', 'BOOL',[
 			["DWORD","dwThreadId","in"],
 			["PBLOB","lpfn","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumWindowStationsA', 'BOOL',[
+		dll.add_function('EnumWindowStationsA', 'BOOL',[
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumWindowStationsW', 'BOOL',[
+		dll.add_function('EnumWindowStationsW', 'BOOL',[
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EnumWindows', 'BOOL',[
+		dll.add_function('EnumWindows', 'BOOL',[
 			["PBLOB","lpEnumFunc","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'EqualRect', 'BOOL',[
+		dll.add_function('EqualRect', 'BOOL',[
 			["PBLOB","lprc1","in"],
 			["PBLOB","lprc2","in"],
 			])
 
-		railgun.add_function( 'user32', 'ExcludeUpdateRgn', 'DWORD',[
+		dll.add_function('ExcludeUpdateRgn', 'DWORD',[
 			["DWORD","hDC","in"],
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'ExitWindowsEx', 'BOOL',[
+		dll.add_function('ExitWindowsEx', 'BOOL',[
 			["DWORD","uFlags","in"],
 			["DWORD","dwReason","in"],
 			])
 
-		railgun.add_function( 'user32', 'FillRect', 'DWORD',[
+		dll.add_function('FillRect', 'DWORD',[
 			["DWORD","hDC","in"],
 			["PBLOB","lprc","in"],
 			["DWORD","hbr","in"],
 			])
 
-		railgun.add_function( 'user32', 'FindWindowA', 'DWORD',[
+		dll.add_function('FindWindowA', 'DWORD',[
 			["PCHAR","lpClassName","in"],
 			["PCHAR","lpWindowName","in"],
 			])
 
-		railgun.add_function( 'user32', 'FindWindowExA', 'DWORD',[
+		dll.add_function('FindWindowExA', 'DWORD',[
 			["DWORD","hWndParent","in"],
 			["DWORD","hWndChildAfter","in"],
 			["PCHAR","lpszClass","in"],
 			["PCHAR","lpszWindow","in"],
 			])
 
-		railgun.add_function( 'user32', 'FindWindowExW', 'DWORD',[
+		dll.add_function('FindWindowExW', 'DWORD',[
 			["DWORD","hWndParent","in"],
 			["DWORD","hWndChildAfter","in"],
 			["PWCHAR","lpszClass","in"],
 			["PWCHAR","lpszWindow","in"],
 			])
 
-		railgun.add_function( 'user32', 'FindWindowW', 'DWORD',[
+		dll.add_function('FindWindowW', 'DWORD',[
 			["PWCHAR","lpClassName","in"],
 			["PWCHAR","lpWindowName","in"],
 			])
 
-		railgun.add_function( 'user32', 'FlashWindow', 'BOOL',[
+		dll.add_function('FlashWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["BOOL","bInvert","in"],
 			])
 
-		railgun.add_function( 'user32', 'FlashWindowEx', 'BOOL',[
+		dll.add_function('FlashWindowEx', 'BOOL',[
 			["PBLOB","pfwi","in"],
 			])
 
-		railgun.add_function( 'user32', 'FrameRect', 'DWORD',[
+		dll.add_function('FrameRect', 'DWORD',[
 			["DWORD","hDC","in"],
 			["PBLOB","lprc","in"],
 			["DWORD","hbr","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetActiveWindow', 'DWORD',[
+		dll.add_function('GetActiveWindow', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetAltTabInfoA', 'BOOL',[
+		dll.add_function('GetAltTabInfoA', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","iItem","in"],
 			["PBLOB","pati","inout"],
@@ -1061,7 +1060,7 @@ class Def_user32
 			["DWORD","cchItemText","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetAltTabInfoW', 'BOOL',[
+		dll.add_function('GetAltTabInfoW', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","iItem","in"],
 			["PBLOB","pati","inout"],
@@ -1069,307 +1068,307 @@ class Def_user32
 			["DWORD","cchItemText","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetAncestor', 'DWORD',[
+		dll.add_function('GetAncestor', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["DWORD","gaFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetAsyncKeyState', 'WORD',[
+		dll.add_function('GetAsyncKeyState', 'WORD',[
 			["DWORD","vKey","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetCapture', 'DWORD',[
+		dll.add_function('GetCapture', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetCaretBlinkTime', 'DWORD',[
+		dll.add_function('GetCaretBlinkTime', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetCaretPos', 'BOOL',[
+		dll.add_function('GetCaretPos', 'BOOL',[
 			["PBLOB","lpPoint","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassInfoA', 'BOOL',[
+		dll.add_function('GetClassInfoA', 'BOOL',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpClassName","in"],
 			["PBLOB","lpWndClass","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassInfoExA', 'BOOL',[
+		dll.add_function('GetClassInfoExA', 'BOOL',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpszClass","in"],
 			["PBLOB","lpwcx","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassInfoExW', 'BOOL',[
+		dll.add_function('GetClassInfoExW', 'BOOL',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpszClass","in"],
 			["PBLOB","lpwcx","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassInfoW', 'BOOL',[
+		dll.add_function('GetClassInfoW', 'BOOL',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpClassName","in"],
 			["PBLOB","lpWndClass","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassLongA', 'DWORD',[
+		dll.add_function('GetClassLongA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassLongW', 'DWORD',[
+		dll.add_function('GetClassLongW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassNameA', 'DWORD',[
+		dll.add_function('GetClassNameA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpClassName","out"],
 			["DWORD","nMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassNameW', 'DWORD',[
+		dll.add_function('GetClassNameW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpClassName","out"],
 			["DWORD","nMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClassWord', 'WORD',[
+		dll.add_function('GetClassWord', 'WORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClientRect', 'BOOL',[
+		dll.add_function('GetClientRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpRect","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClipCursor', 'BOOL',[
+		dll.add_function('GetClipCursor', 'BOOL',[
 			["PBLOB","lpRect","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardData', 'DWORD',[
+		dll.add_function('GetClipboardData', 'DWORD',[
 			["DWORD","uFormat","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardFormatNameA', 'DWORD',[
+		dll.add_function('GetClipboardFormatNameA', 'DWORD',[
 			["DWORD","format","in"],
 			["PCHAR","lpszFormatName","out"],
 			["DWORD","cchMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardFormatNameW', 'DWORD',[
+		dll.add_function('GetClipboardFormatNameW', 'DWORD',[
 			["DWORD","format","in"],
 			["PWCHAR","lpszFormatName","out"],
 			["DWORD","cchMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardOwner', 'DWORD',[
+		dll.add_function('GetClipboardOwner', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardSequenceNumber', 'DWORD',[
+		dll.add_function('GetClipboardSequenceNumber', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetClipboardViewer', 'DWORD',[
+		dll.add_function('GetClipboardViewer', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetComboBoxInfo', 'BOOL',[
+		dll.add_function('GetComboBoxInfo', 'BOOL',[
 			["DWORD","hwndCombo","in"],
 			["PBLOB","pcbi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetCursor', 'DWORD',[
+		dll.add_function('GetCursor', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetCursorInfo', 'BOOL',[
+		dll.add_function('GetCursorInfo', 'BOOL',[
 			["PBLOB","pci","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetCursorPos', 'BOOL',[
+		dll.add_function('GetCursorPos', 'BOOL',[
 			["PBLOB","lpPoint","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetDC', 'DWORD',[
+		dll.add_function('GetDC', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDCEx', 'DWORD',[
+		dll.add_function('GetDCEx', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hrgnClip","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDesktopWindow', 'DWORD',[
+		dll.add_function('GetDesktopWindow', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetDialogBaseUnits', 'DWORD',[
+		dll.add_function('GetDialogBaseUnits', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetDlgCtrlID', 'DWORD',[
+		dll.add_function('GetDlgCtrlID', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDlgItem', 'DWORD',[
+		dll.add_function('GetDlgItem', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDlgItemInt', 'DWORD',[
+		dll.add_function('GetDlgItemInt', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["PBLOB","lpTranslated","out"],
 			["BOOL","bSigned","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDlgItemTextA', 'DWORD',[
+		dll.add_function('GetDlgItemTextA', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["PCHAR","lpString","out"],
 			["DWORD","cchMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDlgItemTextW', 'DWORD',[
+		dll.add_function('GetDlgItemTextW', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["PWCHAR","lpString","out"],
 			["DWORD","cchMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetDoubleClickTime', 'DWORD',[
+		dll.add_function('GetDoubleClickTime', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetFocus', 'DWORD',[
+		dll.add_function('GetFocus', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetForegroundWindow', 'DWORD',[
+		dll.add_function('GetForegroundWindow', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetGUIThreadInfo', 'BOOL',[
+		dll.add_function('GetGUIThreadInfo', 'BOOL',[
 			["DWORD","idThread","in"],
 			["PBLOB","pgui","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetGuiResources', 'DWORD',[
+		dll.add_function('GetGuiResources', 'DWORD',[
 			["DWORD","hProcess","in"],
 			["DWORD","uiFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetIconInfo', 'BOOL',[
+		dll.add_function('GetIconInfo', 'BOOL',[
 			["DWORD","hIcon","in"],
 			["PBLOB","piconinfo","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetInputState', 'BOOL',[
+		dll.add_function('GetInputState', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'GetKBCodePage', 'DWORD',[
+		dll.add_function('GetKBCodePage', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetKeyNameTextA', 'DWORD',[
+		dll.add_function('GetKeyNameTextA', 'DWORD',[
 			["DWORD","lParam","in"],
 			["PCHAR","lpString","out"],
 			["DWORD","cchSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetKeyNameTextW', 'DWORD',[
+		dll.add_function('GetKeyNameTextW', 'DWORD',[
 			["DWORD","lParam","in"],
 			["PWCHAR","lpString","out"],
 			["DWORD","cchSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetKeyState', 'WORD',[
+		dll.add_function('GetKeyState', 'WORD',[
 			["DWORD","nVirtKey","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetKeyboardLayout', 'DWORD',[
+		dll.add_function('GetKeyboardLayout', 'DWORD',[
 			["DWORD","idThread","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetKeyboardType', 'DWORD',[
+		dll.add_function('GetKeyboardType', 'DWORD',[
 			["DWORD","nTypeFlag","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetLastActivePopup', 'DWORD',[
+		dll.add_function('GetLastActivePopup', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetLastInputInfo', 'BOOL',[
+		dll.add_function('GetLastInputInfo', 'BOOL',[
 			["PBLOB","plii","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetLayeredWindowAttributes', 'BOOL',[
+		dll.add_function('GetLayeredWindowAttributes', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["PDWORD","pcrKey","out"],
 			["PBLOB","pbAlpha","out"],
 			["PDWORD","pdwFlags","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetListBoxInfo', 'DWORD',[
+		dll.add_function('GetListBoxInfo', 'DWORD',[
 			["DWORD","hwnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenu', 'DWORD',[
+		dll.add_function('GetMenu', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuBarInfo', 'BOOL',[
+		dll.add_function('GetMenuBarInfo', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","idObject","in"],
 			["DWORD","idItem","in"],
 			["PBLOB","pmbi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuCheckMarkDimensions', 'DWORD',[
+		dll.add_function('GetMenuCheckMarkDimensions', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetMenuDefaultItem', 'DWORD',[
+		dll.add_function('GetMenuDefaultItem', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","fByPos","in"],
 			["DWORD","gmdiFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuInfo', 'BOOL',[
+		dll.add_function('GetMenuInfo', 'BOOL',[
 			["DWORD","param0","in"],
 			["PBLOB","param1","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuItemCount', 'DWORD',[
+		dll.add_function('GetMenuItemCount', 'DWORD',[
 			["DWORD","hMenu","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuItemID', 'DWORD',[
+		dll.add_function('GetMenuItemID', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","nPos","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuItemInfoA', 'BOOL',[
+		dll.add_function('GetMenuItemInfoA', 'BOOL',[
 			["DWORD","hmenu","in"],
 			["DWORD","item","in"],
 			["BOOL","fByPosition","in"],
 			["PBLOB","lpmii","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuItemInfoW', 'BOOL',[
+		dll.add_function('GetMenuItemInfoW', 'BOOL',[
 			["DWORD","hmenu","in"],
 			["DWORD","item","in"],
 			["BOOL","fByPosition","in"],
 			["PBLOB","lpmii","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuItemRect', 'BOOL',[
+		dll.add_function('GetMenuItemRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hMenu","in"],
 			["DWORD","uItem","in"],
 			["PBLOB","lprcItem","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuState', 'DWORD',[
+		dll.add_function('GetMenuState', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","uId","in"],
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuStringA', 'DWORD',[
+		dll.add_function('GetMenuStringA', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","uIDItem","in"],
 			["PCHAR","lpString","out"],
@@ -1377,7 +1376,7 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMenuStringW', 'DWORD',[
+		dll.add_function('GetMenuStringW', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","uIDItem","in"],
 			["PWCHAR","lpString","out"],
@@ -1385,40 +1384,40 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMessageA', 'BOOL',[
+		dll.add_function('GetMessageA', 'BOOL',[
 			["PBLOB","lpMsg","out"],
 			["DWORD","hWnd","in"],
 			["DWORD","wMsgFilterMin","in"],
 			["DWORD","wMsgFilterMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMessageExtraInfo', 'DWORD',[
+		dll.add_function('GetMessageExtraInfo', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetMessagePos', 'DWORD',[
+		dll.add_function('GetMessagePos', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetMessageTime', 'DWORD',[
+		dll.add_function('GetMessageTime', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetMessageW', 'BOOL',[
+		dll.add_function('GetMessageW', 'BOOL',[
 			["PBLOB","lpMsg","out"],
 			["DWORD","hWnd","in"],
 			["DWORD","wMsgFilterMin","in"],
 			["DWORD","wMsgFilterMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetMonitorInfoA', 'BOOL',[
+		dll.add_function('GetMonitorInfoA', 'BOOL',[
 			["DWORD","hMonitor","in"],
 			["PBLOB","lpmi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMonitorInfoW', 'BOOL',[
+		dll.add_function('GetMonitorInfoW', 'BOOL',[
 			["DWORD","hMonitor","in"],
 			["PBLOB","lpmi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetMouseMovePointsEx', 'DWORD',[
+		dll.add_function('GetMouseMovePointsEx', 'DWORD',[
 			["DWORD","cbSize","in"],
 			["PBLOB","lppt","in"],
 			["PBLOB","lpptBuf","out"],
@@ -1426,58 +1425,58 @@ class Def_user32
 			["DWORD","resolution","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetNextDlgGroupItem', 'DWORD',[
+		dll.add_function('GetNextDlgGroupItem', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","hCtl","in"],
 			["BOOL","bPrevious","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetNextDlgTabItem', 'DWORD',[
+		dll.add_function('GetNextDlgTabItem', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","hCtl","in"],
 			["BOOL","bPrevious","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetOpenClipboardWindow', 'DWORD',[
+		dll.add_function('GetOpenClipboardWindow', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetParent', 'DWORD',[
+		dll.add_function('GetParent', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetPriorityClipboardFormat', 'DWORD',[
+		dll.add_function('GetPriorityClipboardFormat', 'DWORD',[
 			["PDWORD","paFormatPriorityList","in"],
 			["DWORD","cFormats","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetProcessDefaultLayout', 'BOOL',[
+		dll.add_function('GetProcessDefaultLayout', 'BOOL',[
 			["PDWORD","pdwDefaultLayout","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetProcessWindowStation', 'DWORD',[
+		dll.add_function('GetProcessWindowStation', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetPropA', 'DWORD',[
+		dll.add_function('GetPropA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetPropW', 'DWORD',[
+		dll.add_function('GetPropW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetQueueStatus', 'DWORD',[
+		dll.add_function('GetQueueStatus', 'DWORD',[
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetRawInputBuffer', 'DWORD',[
+		dll.add_function('GetRawInputBuffer', 'DWORD',[
 			["PBLOB","pData","out"],
 			["PDWORD","pcbSize","inout"],
 			["DWORD","cbSizeHeader","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetRawInputData', 'DWORD',[
+		dll.add_function('GetRawInputData', 'DWORD',[
 			["DWORD","hRawInput","in"],
 			["DWORD","uiCommand","in"],
 			["PBLOB","pData","out"],
@@ -1485,107 +1484,107 @@ class Def_user32
 			["DWORD","cbSizeHeader","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetRawInputDeviceInfoA', 'DWORD',[
+		dll.add_function('GetRawInputDeviceInfoA', 'DWORD',[
 			["DWORD","hDevice","in"],
 			["DWORD","uiCommand","in"],
 			["PBLOB","pData","inout"],
 			["PDWORD","pcbSize","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetRawInputDeviceInfoW', 'DWORD',[
+		dll.add_function('GetRawInputDeviceInfoW', 'DWORD',[
 			["DWORD","hDevice","in"],
 			["DWORD","uiCommand","in"],
 			["PBLOB","pData","inout"],
 			["PDWORD","pcbSize","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetRawInputDeviceList', 'DWORD',[
+		dll.add_function('GetRawInputDeviceList', 'DWORD',[
 			["PBLOB","pRawInputDeviceList","out"],
 			["PDWORD","puiNumDevices","inout"],
 			["DWORD","cbSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetRegisteredRawInputDevices', 'DWORD',[
+		dll.add_function('GetRegisteredRawInputDevices', 'DWORD',[
 			["PBLOB","pRawInputDevices","out"],
 			["PDWORD","puiNumDevices","inout"],
 			["DWORD","cbSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetScrollBarInfo', 'BOOL',[
+		dll.add_function('GetScrollBarInfo', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","idObject","in"],
 			["PBLOB","psbi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetScrollInfo', 'BOOL',[
+		dll.add_function('GetScrollInfo', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","nBar","in"],
 			["PBLOB","lpsi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetScrollPos', 'DWORD',[
+		dll.add_function('GetScrollPos', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nBar","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetScrollRange', 'BOOL',[
+		dll.add_function('GetScrollRange', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","nBar","in"],
 			["PDWORD","lpMinPos","out"],
 			["PDWORD","lpMaxPos","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetShellWindow', 'DWORD',[
+		dll.add_function('GetShellWindow', 'DWORD',[
 			])
 
-		railgun.add_function( 'user32', 'GetSubMenu', 'DWORD',[
+		dll.add_function('GetSubMenu', 'DWORD',[
 			["DWORD","hMenu","in"],
 			["DWORD","nPos","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetSysColor', 'DWORD',[
+		dll.add_function('GetSysColor', 'DWORD',[
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetSysColorBrush', 'DWORD',[
+		dll.add_function('GetSysColorBrush', 'DWORD',[
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetSystemMenu', 'DWORD',[
+		dll.add_function('GetSystemMenu', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["BOOL","bRevert","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetSystemMetrics', 'DWORD',[
+		dll.add_function('GetSystemMetrics', 'DWORD',[
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetThreadDesktop', 'DWORD',[
+		dll.add_function('GetThreadDesktop', 'DWORD',[
 			["DWORD","dwThreadId","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetTitleBarInfo', 'BOOL',[
+		dll.add_function('GetTitleBarInfo', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["PBLOB","pti","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetTopWindow', 'DWORD',[
+		dll.add_function('GetTopWindow', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetUpdateRect', 'BOOL',[
+		dll.add_function('GetUpdateRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpRect","out"],
 			["BOOL","bErase","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetUpdateRgn', 'DWORD',[
+		dll.add_function('GetUpdateRgn', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hRgn","in"],
 			["BOOL","bErase","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetUserObjectInformationA', 'BOOL',[
+		dll.add_function('GetUserObjectInformationA', 'BOOL',[
 			["DWORD","hObj","in"],
 			["DWORD","nIndex","in"],
 			["PBLOB","pvInfo","out"],
@@ -1593,7 +1592,7 @@ class Def_user32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetUserObjectInformationW', 'BOOL',[
+		dll.add_function('GetUserObjectInformationW', 'BOOL',[
 			["DWORD","hObj","in"],
 			["DWORD","nIndex","in"],
 			["PBLOB","pvInfo","out"],
@@ -1601,7 +1600,7 @@ class Def_user32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetUserObjectSecurity', 'BOOL',[
+		dll.add_function('GetUserObjectSecurity', 'BOOL',[
 			["DWORD","hObj","in"],
 			["PBLOB","pSIRequested","in"],
 			["PBLOB","pSID","out"],
@@ -1609,97 +1608,97 @@ class Def_user32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindow', 'DWORD',[
+		dll.add_function('GetWindow', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","uCmd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowContextHelpId', 'DWORD',[
+		dll.add_function('GetWindowContextHelpId', 'DWORD',[
 			["DWORD","param0","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowDC', 'DWORD',[
+		dll.add_function('GetWindowDC', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowInfo', 'BOOL',[
+		dll.add_function('GetWindowInfo', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["PBLOB","pwi","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowLongA', 'DWORD',[
+		dll.add_function('GetWindowLongA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowLongW', 'DWORD',[
+		dll.add_function('GetWindowLongW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowModuleFileNameA', 'DWORD',[
+		dll.add_function('GetWindowModuleFileNameA', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["PCHAR","pszFileName","out"],
 			["DWORD","cchFileNameMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowModuleFileNameW', 'DWORD',[
+		dll.add_function('GetWindowModuleFileNameW', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["PWCHAR","pszFileName","out"],
 			["DWORD","cchFileNameMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowPlacement', 'BOOL',[
+		dll.add_function('GetWindowPlacement', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpwndpl","inout"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowRect', 'BOOL',[
+		dll.add_function('GetWindowRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpRect","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowRgn', 'DWORD',[
+		dll.add_function('GetWindowRgn', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hRgn","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowRgnBox', 'DWORD',[
+		dll.add_function('GetWindowRgnBox', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lprc","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowTextA', 'DWORD',[
+		dll.add_function('GetWindowTextA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpString","out"],
 			["DWORD","nMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowTextLengthA', 'DWORD',[
+		dll.add_function('GetWindowTextLengthA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowTextLengthW', 'DWORD',[
+		dll.add_function('GetWindowTextLengthW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowTextW', 'DWORD',[
+		dll.add_function('GetWindowTextW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpString","out"],
 			["DWORD","nMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowThreadProcessId', 'DWORD',[
+		dll.add_function('GetWindowThreadProcessId', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PDWORD","lpdwProcessId","out"],
 			])
 
-		railgun.add_function( 'user32', 'GetWindowWord', 'WORD',[
+		dll.add_function('GetWindowWord', 'WORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			])
 
-		railgun.add_function( 'user32', 'GrayStringA', 'BOOL',[
+		dll.add_function('GrayStringA', 'BOOL',[
 			["DWORD","hDC","in"],
 			["DWORD","hBrush","in"],
 			["PBLOB","lpOutputFunc","in"],
@@ -1711,7 +1710,7 @@ class Def_user32
 			["DWORD","nHeight","in"],
 			])
 
-		railgun.add_function( 'user32', 'GrayStringW', 'BOOL',[
+		dll.add_function('GrayStringW', 'BOOL',[
 			["DWORD","hDC","in"],
 			["DWORD","hBrush","in"],
 			["PBLOB","lpOutputFunc","in"],
@@ -1723,31 +1722,31 @@ class Def_user32
 			["DWORD","nHeight","in"],
 			])
 
-		railgun.add_function( 'user32', 'HideCaret', 'BOOL',[
+		dll.add_function('HideCaret', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'HiliteMenuItem', 'BOOL',[
+		dll.add_function('HiliteMenuItem', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hMenu","in"],
 			["DWORD","uIDHiliteItem","in"],
 			["DWORD","uHilite","in"],
 			])
 
-		railgun.add_function( 'user32', 'InSendMessage', 'BOOL',[
+		dll.add_function('InSendMessage', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'InSendMessageEx', 'DWORD',[
+		dll.add_function('InSendMessageEx', 'DWORD',[
 			["PBLOB","lpReserved","inout"],
 			])
 
-		railgun.add_function( 'user32', 'InflateRect', 'BOOL',[
+		dll.add_function('InflateRect', 'BOOL',[
 			["PBLOB","lprc","inout"],
 			["DWORD","dx","in"],
 			["DWORD","dy","in"],
 			])
 
-		railgun.add_function( 'user32', 'InsertMenuA', 'BOOL',[
+		dll.add_function('InsertMenuA', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
@@ -1755,14 +1754,14 @@ class Def_user32
 			["PCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'InsertMenuItemW', 'BOOL',[
+		dll.add_function('InsertMenuItemW', 'BOOL',[
 			["DWORD","hmenu","in"],
 			["DWORD","item","in"],
 			["BOOL","fByPosition","in"],
 			["PBLOB","lpmi","in"],
 			])
 
-		railgun.add_function( 'user32', 'InsertMenuW', 'BOOL',[
+		dll.add_function('InsertMenuW', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
@@ -1770,192 +1769,192 @@ class Def_user32
 			["PWCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'InternalGetWindowText', 'DWORD',[
+		dll.add_function('InternalGetWindowText', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","pString","out"],
 			["DWORD","cchMaxCount","in"],
 			])
 
-		railgun.add_function( 'user32', 'IntersectRect', 'BOOL',[
+		dll.add_function('IntersectRect', 'BOOL',[
 			["PBLOB","lprcDst","out"],
 			["PBLOB","lprcSrc1","in"],
 			["PBLOB","lprcSrc2","in"],
 			])
 
-		railgun.add_function( 'user32', 'InvalidateRect', 'BOOL',[
+		dll.add_function('InvalidateRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpRect","in"],
 			["BOOL","bErase","in"],
 			])
 
-		railgun.add_function( 'user32', 'InvalidateRgn', 'BOOL',[
+		dll.add_function('InvalidateRgn', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hRgn","in"],
 			["BOOL","bErase","in"],
 			])
 
-		railgun.add_function( 'user32', 'InvertRect', 'BOOL',[
+		dll.add_function('InvertRect', 'BOOL',[
 			["DWORD","hDC","in"],
 			["PBLOB","lprc","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharAlphaA', 'BOOL',[
+		dll.add_function('IsCharAlphaA', 'BOOL',[
 			["BYTE","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharAlphaNumericA', 'BOOL',[
+		dll.add_function('IsCharAlphaNumericA', 'BOOL',[
 			["BYTE","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharAlphaNumericW', 'BOOL',[
+		dll.add_function('IsCharAlphaNumericW', 'BOOL',[
 			["WORD","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharAlphaW', 'BOOL',[
+		dll.add_function('IsCharAlphaW', 'BOOL',[
 			["WORD","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharLowerA', 'BOOL',[
+		dll.add_function('IsCharLowerA', 'BOOL',[
 			["BYTE","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharLowerW', 'BOOL',[
+		dll.add_function('IsCharLowerW', 'BOOL',[
 			["WORD","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharUpperA', 'BOOL',[
+		dll.add_function('IsCharUpperA', 'BOOL',[
 			["BYTE","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsCharUpperW', 'BOOL',[
+		dll.add_function('IsCharUpperW', 'BOOL',[
 			["WORD","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsChild', 'BOOL',[
+		dll.add_function('IsChild', 'BOOL',[
 			["DWORD","hWndParent","in"],
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsClipboardFormatAvailable', 'BOOL',[
+		dll.add_function('IsClipboardFormatAvailable', 'BOOL',[
 			["DWORD","format","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsDialogMessageA', 'BOOL',[
+		dll.add_function('IsDialogMessageA', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsDialogMessageW', 'BOOL',[
+		dll.add_function('IsDialogMessageW', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsDlgButtonChecked', 'DWORD',[
+		dll.add_function('IsDlgButtonChecked', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDButton","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsGUIThread', 'BOOL',[
+		dll.add_function('IsGUIThread', 'BOOL',[
 			["BOOL","bConvert","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsHungAppWindow', 'BOOL',[
+		dll.add_function('IsHungAppWindow', 'BOOL',[
 			["DWORD","hwnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsIconic', 'BOOL',[
+		dll.add_function('IsIconic', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsMenu', 'BOOL',[
+		dll.add_function('IsMenu', 'BOOL',[
 			["DWORD","hMenu","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsRectEmpty', 'BOOL',[
+		dll.add_function('IsRectEmpty', 'BOOL',[
 			["PBLOB","lprc","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWinEventHookInstalled', 'BOOL',[
+		dll.add_function('IsWinEventHookInstalled', 'BOOL',[
 			["DWORD","event","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWindow', 'BOOL',[
+		dll.add_function('IsWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWindowEnabled', 'BOOL',[
+		dll.add_function('IsWindowEnabled', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWindowUnicode', 'BOOL',[
+		dll.add_function('IsWindowUnicode', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWindowVisible', 'BOOL',[
+		dll.add_function('IsWindowVisible', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'IsWow64Message', 'BOOL',[
+		dll.add_function('IsWow64Message', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'IsZoomed', 'BOOL',[
+		dll.add_function('IsZoomed', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'KillTimer', 'BOOL',[
+		dll.add_function('KillTimer', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","uIDEvent","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadAcceleratorsA', 'DWORD',[
+		dll.add_function('LoadAcceleratorsA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpTableName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadAcceleratorsW', 'DWORD',[
+		dll.add_function('LoadAcceleratorsW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpTableName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadBitmapA', 'DWORD',[
+		dll.add_function('LoadBitmapA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpBitmapName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadBitmapW', 'DWORD',[
+		dll.add_function('LoadBitmapW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpBitmapName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadCursorA', 'DWORD',[
+		dll.add_function('LoadCursorA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpCursorName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadCursorFromFileA', 'DWORD',[
+		dll.add_function('LoadCursorFromFileA', 'DWORD',[
 			["PCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadCursorFromFileW', 'DWORD',[
+		dll.add_function('LoadCursorFromFileW', 'DWORD',[
 			["PWCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadCursorW', 'DWORD',[
+		dll.add_function('LoadCursorW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpCursorName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadIconA', 'DWORD',[
+		dll.add_function('LoadIconA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpIconName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadIconW', 'DWORD',[
+		dll.add_function('LoadIconW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpIconName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadImageA', 'DWORD',[
+		dll.add_function('LoadImageA', 'DWORD',[
 			["DWORD","hInst","in"],
 			["PCHAR","name","in"],
 			["DWORD","type","in"],
@@ -1964,7 +1963,7 @@ class Def_user32
 			["DWORD","fuLoad","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadImageW', 'DWORD',[
+		dll.add_function('LoadImageW', 'DWORD',[
 			["DWORD","hInst","in"],
 			["PWCHAR","name","in"],
 			["DWORD","type","in"],
@@ -1973,65 +1972,65 @@ class Def_user32
 			["DWORD","fuLoad","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadKeyboardLayoutA', 'DWORD',[
+		dll.add_function('LoadKeyboardLayoutA', 'DWORD',[
 			["PCHAR","pwszKLID","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadKeyboardLayoutW', 'DWORD',[
+		dll.add_function('LoadKeyboardLayoutW', 'DWORD',[
 			["PWCHAR","pwszKLID","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadMenuA', 'DWORD',[
+		dll.add_function('LoadMenuA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PCHAR","lpMenuName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadMenuIndirectA', 'DWORD',[
+		dll.add_function('LoadMenuIndirectA', 'DWORD',[
 			["PBLOB","lpMenuTemplate","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadMenuIndirectW', 'DWORD',[
+		dll.add_function('LoadMenuIndirectW', 'DWORD',[
 			["PBLOB","lpMenuTemplate","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadMenuW', 'DWORD',[
+		dll.add_function('LoadMenuW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["PWCHAR","lpMenuName","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadStringA', 'DWORD',[
+		dll.add_function('LoadStringA', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["DWORD","uID","in"],
 			["PCHAR","lpBuffer","out"],
 			["DWORD","cchBufferMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'LoadStringW', 'DWORD',[
+		dll.add_function('LoadStringW', 'DWORD',[
 			["DWORD","hInstance","in"],
 			["DWORD","uID","in"],
 			["PWCHAR","lpBuffer","out"],
 			["DWORD","cchBufferMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'LockSetForegroundWindow', 'BOOL',[
+		dll.add_function('LockSetForegroundWindow', 'BOOL',[
 			["DWORD","uLockCode","in"],
 			])
 
-		railgun.add_function( 'user32', 'LockWindowUpdate', 'BOOL',[
+		dll.add_function('LockWindowUpdate', 'BOOL',[
 			["DWORD","hWndLock","in"],
 			])
 
-		railgun.add_function( 'user32', 'LockWorkStation', 'BOOL',[
+		dll.add_function('LockWorkStation', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'LookupIconIdFromDirectory', 'DWORD',[
+		dll.add_function('LookupIconIdFromDirectory', 'DWORD',[
 			["PBLOB","presbits","in"],
 			["BOOL","fIcon","in"],
 			])
 
-		railgun.add_function( 'user32', 'LookupIconIdFromDirectoryEx', 'DWORD',[
+		dll.add_function('LookupIconIdFromDirectoryEx', 'DWORD',[
 			["PBLOB","presbits","in"],
 			["BOOL","fIcon","in"],
 			["DWORD","cxDesired","in"],
@@ -2039,58 +2038,58 @@ class Def_user32
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'MapDialogRect', 'BOOL',[
+		dll.add_function('MapDialogRect', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["PBLOB","lpRect","inout"],
 			])
 
-		railgun.add_function( 'user32', 'MapVirtualKeyA', 'DWORD',[
+		dll.add_function('MapVirtualKeyA', 'DWORD',[
 			["DWORD","uCode","in"],
 			["DWORD","uMapType","in"],
 			])
 
-		railgun.add_function( 'user32', 'MapVirtualKeyExA', 'DWORD',[
-			["DWORD","uCode","in"],
-			["DWORD","uMapType","in"],
-			["DWORD","dwhkl","in"],
-			])
-
-		railgun.add_function( 'user32', 'MapVirtualKeyExW', 'DWORD',[
+		dll.add_function('MapVirtualKeyExA', 'DWORD',[
 			["DWORD","uCode","in"],
 			["DWORD","uMapType","in"],
 			["DWORD","dwhkl","in"],
 			])
 
-		railgun.add_function( 'user32', 'MapVirtualKeyW', 'DWORD',[
+		dll.add_function('MapVirtualKeyExW', 'DWORD',[
+			["DWORD","uCode","in"],
+			["DWORD","uMapType","in"],
+			["DWORD","dwhkl","in"],
+			])
+
+		dll.add_function('MapVirtualKeyW', 'DWORD',[
 			["DWORD","uCode","in"],
 			["DWORD","uMapType","in"],
 			])
 
-		railgun.add_function( 'user32', 'MapWindowPoints', 'DWORD',[
+		dll.add_function('MapWindowPoints', 'DWORD',[
 			["DWORD","hWndFrom","in"],
 			["DWORD","hWndTo","in"],
 			["PBLOB","lpPoints","in"],
 			["DWORD","cPoints","in"],
 			])
 
-		railgun.add_function( 'user32', 'MenuItemFromPoint', 'DWORD',[
+		dll.add_function('MenuItemFromPoint', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hMenu","in"],
 			["PBLOB","ptScreen","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBeep', 'BOOL',[
+		dll.add_function('MessageBeep', 'BOOL',[
 			["DWORD","uType","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxA', 'DWORD',[
+		dll.add_function('MessageBoxA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpText","in"],
 			["PCHAR","lpCaption","in"],
 			["DWORD","uType","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxExA', 'DWORD',[
+		dll.add_function('MessageBoxExA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpText","in"],
 			["PCHAR","lpCaption","in"],
@@ -2098,7 +2097,7 @@ class Def_user32
 			["WORD","wLanguageId","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxExW', 'DWORD',[
+		dll.add_function('MessageBoxExW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpText","in"],
 			["PWCHAR","lpCaption","in"],
@@ -2106,22 +2105,22 @@ class Def_user32
 			["WORD","wLanguageId","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxIndirectA', 'DWORD',[
+		dll.add_function('MessageBoxIndirectA', 'DWORD',[
 			["PBLOB","lpmbp","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxIndirectW', 'DWORD',[
+		dll.add_function('MessageBoxIndirectW', 'DWORD',[
 			["PBLOB","lpmbp","in"],
 			])
 
-		railgun.add_function( 'user32', 'MessageBoxW', 'DWORD',[
+		dll.add_function('MessageBoxW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpText","in"],
 			["PWCHAR","lpCaption","in"],
 			["DWORD","uType","in"],
 			])
 
-		railgun.add_function( 'user32', 'ModifyMenuA', 'BOOL',[
+		dll.add_function('ModifyMenuA', 'BOOL',[
 			["DWORD","hMnu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
@@ -2129,7 +2128,7 @@ class Def_user32
 			["PCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'ModifyMenuW', 'BOOL',[
+		dll.add_function('ModifyMenuW', 'BOOL',[
 			["DWORD","hMnu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
@@ -2137,22 +2136,22 @@ class Def_user32
 			["PWCHAR","lpNewItem","in"],
 			])
 
-		railgun.add_function( 'user32', 'MonitorFromPoint', 'DWORD',[
+		dll.add_function('MonitorFromPoint', 'DWORD',[
 			["PBLOB","pt","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'MonitorFromRect', 'DWORD',[
+		dll.add_function('MonitorFromRect', 'DWORD',[
 			["PBLOB","lprc","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'MonitorFromWindow', 'DWORD',[
+		dll.add_function('MonitorFromWindow', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'MoveWindow', 'BOOL',[
+		dll.add_function('MoveWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","X","in"],
 			["DWORD","Y","in"],
@@ -2161,7 +2160,7 @@ class Def_user32
 			["BOOL","bRepaint","in"],
 			])
 
-		railgun.add_function( 'user32', 'MsgWaitForMultipleObjects', 'DWORD',[
+		dll.add_function('MsgWaitForMultipleObjects', 'DWORD',[
 			["DWORD","nCount","in"],
 			["PDWORD","pHandles","in"],
 			["BOOL","fWaitAll","in"],
@@ -2169,7 +2168,7 @@ class Def_user32
 			["DWORD","dwWakeMask","in"],
 			])
 
-		railgun.add_function( 'user32', 'MsgWaitForMultipleObjectsEx', 'DWORD',[
+		dll.add_function('MsgWaitForMultipleObjectsEx', 'DWORD',[
 			["DWORD","nCount","in"],
 			["PDWORD","pHandles","in"],
 			["DWORD","dwMilliseconds","in"],
@@ -2177,90 +2176,90 @@ class Def_user32
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'NotifyWinEvent', 'VOID',[
+		dll.add_function('NotifyWinEvent', 'VOID',[
 			["DWORD","event","in"],
 			["DWORD","hwnd","in"],
 			["DWORD","idObject","in"],
 			["DWORD","idChild","in"],
 			])
 
-		railgun.add_function( 'user32', 'OemKeyScan', 'DWORD',[
+		dll.add_function('OemKeyScan', 'DWORD',[
 			["WORD","wOemChar","in"],
 			])
 
-		railgun.add_function( 'user32', 'OemToCharA', 'BOOL',[
+		dll.add_function('OemToCharA', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			])
 
-		railgun.add_function( 'user32', 'OemToCharBuffA', 'BOOL',[
+		dll.add_function('OemToCharBuffA', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PCHAR","lpszDst","out"],
 			["DWORD","cchDstLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'OemToCharBuffW', 'BOOL',[
+		dll.add_function('OemToCharBuffW', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PWCHAR","lpszDst","out"],
 			["DWORD","cchDstLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'OemToCharW', 'BOOL',[
+		dll.add_function('OemToCharW', 'BOOL',[
 			["PCHAR","lpszSrc","in"],
 			["PWCHAR","lpszDst","out"],
 			])
 
-		railgun.add_function( 'user32', 'OffsetRect', 'BOOL',[
+		dll.add_function('OffsetRect', 'BOOL',[
 			["PBLOB","lprc","inout"],
 			["DWORD","dx","in"],
 			["DWORD","dy","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenClipboard', 'BOOL',[
+		dll.add_function('OpenClipboard', 'BOOL',[
 			["DWORD","hWndNewOwner","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenDesktopA', 'DWORD',[
+		dll.add_function('OpenDesktopA', 'DWORD',[
 			["PCHAR","lpszDesktop","in"],
 			["DWORD","dwFlags","in"],
 			["BOOL","fInherit","in"],
 			["DWORD","dwDesiredAccess","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenDesktopW', 'DWORD',[
+		dll.add_function('OpenDesktopW', 'DWORD',[
 			["PWCHAR","lpszDesktop","in"],
 			["DWORD","dwFlags","in"],
 			["BOOL","fInherit","in"],
 			["DWORD","dwDesiredAccess","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenIcon', 'BOOL',[
+		dll.add_function('OpenIcon', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenInputDesktop', 'DWORD',[
+		dll.add_function('OpenInputDesktop', 'DWORD',[
 			["DWORD","dwFlags","in"],
 			["BOOL","fInherit","in"],
 			["DWORD","dwDesiredAccess","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenWindowStationA', 'DWORD',[
+		dll.add_function('OpenWindowStationA', 'DWORD',[
 			["PCHAR","lpszWinSta","in"],
 			["BOOL","fInherit","in"],
 			["DWORD","dwDesiredAccess","in"],
 			])
 
-		railgun.add_function( 'user32', 'OpenWindowStationW', 'DWORD',[
+		dll.add_function('OpenWindowStationW', 'DWORD',[
 			["PWCHAR","lpszWinSta","in"],
 			["BOOL","fInherit","in"],
 			["DWORD","dwDesiredAccess","in"],
 			])
 
-		railgun.add_function( 'user32', 'PaintDesktop', 'BOOL',[
+		dll.add_function('PaintDesktop', 'BOOL',[
 			["DWORD","hdc","in"],
 			])
 
-		railgun.add_function( 'user32', 'PeekMessageA', 'BOOL',[
+		dll.add_function('PeekMessageA', 'BOOL',[
 			["PBLOB","lpMsg","out"],
 			["DWORD","hWnd","in"],
 			["DWORD","wMsgFilterMin","in"],
@@ -2268,7 +2267,7 @@ class Def_user32
 			["DWORD","wRemoveMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'PeekMessageW', 'BOOL',[
+		dll.add_function('PeekMessageW', 'BOOL',[
 			["PBLOB","lpMsg","out"],
 			["DWORD","hWnd","in"],
 			["DWORD","wMsgFilterMin","in"],
@@ -2276,45 +2275,45 @@ class Def_user32
 			["DWORD","wRemoveMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'PostMessageA', 'BOOL',[
+		dll.add_function('PostMessageA', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'PostMessageW', 'BOOL',[
+		dll.add_function('PostMessageW', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'PostQuitMessage', 'VOID',[
+		dll.add_function('PostQuitMessage', 'VOID',[
 			["DWORD","nExitCode","in"],
 			])
 
-		railgun.add_function( 'user32', 'PostThreadMessageA', 'BOOL',[
+		dll.add_function('PostThreadMessageA', 'BOOL',[
 			["DWORD","idThread","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'PostThreadMessageW', 'BOOL',[
+		dll.add_function('PostThreadMessageW', 'BOOL',[
 			["DWORD","idThread","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'PrintWindow', 'BOOL',[
+		dll.add_function('PrintWindow', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","hdcBlt","in"],
 			["DWORD","nFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'PrivateExtractIconsA', 'DWORD',[
+		dll.add_function('PrivateExtractIconsA', 'DWORD',[
 			["PCHAR","szFileName","in"],
 			["DWORD","nIconIndex","in"],
 			["DWORD","cxIcon","in"],
@@ -2325,7 +2324,7 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'PrivateExtractIconsW', 'DWORD',[
+		dll.add_function('PrivateExtractIconsW', 'DWORD',[
 			["PWCHAR","szFileName","in"],
 			["DWORD","nIconIndex","in"],
 			["DWORD","cxIcon","in"],
@@ -2336,130 +2335,130 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'PtInRect', 'BOOL',[
+		dll.add_function('PtInRect', 'BOOL',[
 			["PBLOB","lprc","in"],
 			["PBLOB","pt","in"],
 			])
 
-		railgun.add_function( 'user32', 'RealChildWindowFromPoint', 'DWORD',[
+		dll.add_function('RealChildWindowFromPoint', 'DWORD',[
 			["DWORD","hwndParent","in"],
 			["PBLOB","ptParentClientCoords","in"],
 			])
 
-		railgun.add_function( 'user32', 'RealGetWindowClassA', 'DWORD',[
+		dll.add_function('RealGetWindowClassA', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["PCHAR","ptszClassName","out"],
 			["DWORD","cchClassNameMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'RealGetWindowClassW', 'DWORD',[
+		dll.add_function('RealGetWindowClassW', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["PWCHAR","ptszClassName","out"],
 			["DWORD","cchClassNameMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'RedrawWindow', 'BOOL',[
+		dll.add_function('RedrawWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lprcUpdate","in"],
 			["DWORD","hrgnUpdate","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClassA', 'WORD',[
+		dll.add_function('RegisterClassA', 'WORD',[
 			["PBLOB","lpWndClass","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClassExA', 'WORD',[
+		dll.add_function('RegisterClassExA', 'WORD',[
 			["PBLOB","param0","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClassExW', 'WORD',[
+		dll.add_function('RegisterClassExW', 'WORD',[
 			["PBLOB","param0","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClassW', 'WORD',[
+		dll.add_function('RegisterClassW', 'WORD',[
 			["PBLOB","lpWndClass","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClipboardFormatA', 'DWORD',[
+		dll.add_function('RegisterClipboardFormatA', 'DWORD',[
 			["PCHAR","lpszFormat","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterClipboardFormatW', 'DWORD',[
+		dll.add_function('RegisterClipboardFormatW', 'DWORD',[
 			["PWCHAR","lpszFormat","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterDeviceNotificationA', 'DWORD',[
+		dll.add_function('RegisterDeviceNotificationA', 'DWORD',[
 			["DWORD","hRecipient","in"],
 			["PBLOB","NotificationFilter","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterDeviceNotificationW', 'DWORD',[
+		dll.add_function('RegisterDeviceNotificationW', 'DWORD',[
 			["DWORD","hRecipient","in"],
 			["PBLOB","NotificationFilter","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterHotKey', 'BOOL',[
+		dll.add_function('RegisterHotKey', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","id","in"],
 			["DWORD","fsModifiers","in"],
 			["DWORD","vk","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterRawInputDevices', 'BOOL',[
+		dll.add_function('RegisterRawInputDevices', 'BOOL',[
 			["PBLOB","pRawInputDevices","in"],
 			["DWORD","uiNumDevices","in"],
 			["DWORD","cbSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterShellHookWindow', 'BOOL',[
+		dll.add_function('RegisterShellHookWindow', 'BOOL',[
 			["DWORD","hwnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterWindowMessageA', 'DWORD',[
+		dll.add_function('RegisterWindowMessageA', 'DWORD',[
 			["PCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'RegisterWindowMessageW', 'DWORD',[
+		dll.add_function('RegisterWindowMessageW', 'DWORD',[
 			["PWCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'ReleaseCapture', 'BOOL',[
+		dll.add_function('ReleaseCapture', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'ReleaseDC', 'DWORD',[
+		dll.add_function('ReleaseDC', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hDC","in"],
 			])
 
-		railgun.add_function( 'user32', 'RemoveMenu', 'BOOL',[
+		dll.add_function('RemoveMenu', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'RemovePropA', 'DWORD',[
+		dll.add_function('RemovePropA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'RemovePropW', 'DWORD',[
+		dll.add_function('RemovePropW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'ReplyMessage', 'BOOL',[
+		dll.add_function('ReplyMessage', 'BOOL',[
 			["DWORD","lResult","in"],
 			])
 
-		railgun.add_function( 'user32', 'ScreenToClient', 'BOOL',[
+		dll.add_function('ScreenToClient', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpPoint","inout"],
 			])
 
-		railgun.add_function( 'user32', 'ScrollDC', 'BOOL',[
+		dll.add_function('ScrollDC', 'BOOL',[
 			["DWORD","hDC","in"],
 			["DWORD","dx","in"],
 			["DWORD","dy","in"],
@@ -2469,7 +2468,7 @@ class Def_user32
 			["PBLOB","lprcUpdate","out"],
 			])
 
-		railgun.add_function( 'user32', 'ScrollWindow', 'BOOL',[
+		dll.add_function('ScrollWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","XAmount","in"],
 			["DWORD","YAmount","in"],
@@ -2477,7 +2476,7 @@ class Def_user32
 			["PBLOB","lpClipRect","in"],
 			])
 
-		railgun.add_function( 'user32', 'ScrollWindowEx', 'DWORD',[
+		dll.add_function('ScrollWindowEx', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","dx","in"],
 			["DWORD","dy","in"],
@@ -2488,7 +2487,7 @@ class Def_user32
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendDlgItemMessageA', 'DWORD',[
+		dll.add_function('SendDlgItemMessageA', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["DWORD","Msg","in"],
@@ -2496,7 +2495,7 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendDlgItemMessageW', 'DWORD',[
+		dll.add_function('SendDlgItemMessageW', 'DWORD',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["DWORD","Msg","in"],
@@ -2504,29 +2503,20 @@ class Def_user32
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendInput', 'DWORD',[
+		dll.add_function('SendInput', 'DWORD',[
 			["DWORD","cInputs","in"],
 			["PBLOB","pInputs","in"],
 			["DWORD","cbSize","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendMessageA', 'DWORD',[
+		dll.add_function('SendMessageA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendMessageCallbackA', 'BOOL',[
-			["DWORD","hWnd","in"],
-			["DWORD","Msg","in"],
-			["WORD","wParam","in"],
-			["DWORD","lParam","in"],
-			["PBLOB","lpResultCallBack","in"],
-			["PDWORD","dwData","in"],
-			])
-
-		railgun.add_function( 'user32', 'SendMessageCallbackW', 'BOOL',[
+		dll.add_function('SendMessageCallbackA', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
@@ -2535,7 +2525,16 @@ class Def_user32
 			["PDWORD","dwData","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendMessageTimeoutA', 'DWORD',[
+		dll.add_function('SendMessageCallbackW', 'BOOL',[
+			["DWORD","hWnd","in"],
+			["DWORD","Msg","in"],
+			["WORD","wParam","in"],
+			["DWORD","lParam","in"],
+			["PBLOB","lpResultCallBack","in"],
+			["PDWORD","dwData","in"],
+			])
+
+		dll.add_function('SendMessageTimeoutA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
@@ -2545,7 +2544,7 @@ class Def_user32
 			["PBLOB","lpdwResult","out"],
 			])
 
-		railgun.add_function( 'user32', 'SendMessageTimeoutW', 'DWORD',[
+		dll.add_function('SendMessageTimeoutW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
@@ -2555,149 +2554,149 @@ class Def_user32
 			["PBLOB","lpdwResult","out"],
 			])
 
-		railgun.add_function( 'user32', 'SendMessageW', 'DWORD',[
+		dll.add_function('SendMessageW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendNotifyMessageA', 'BOOL',[
+		dll.add_function('SendNotifyMessageA', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SendNotifyMessageW', 'BOOL',[
+		dll.add_function('SendNotifyMessageW', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","Msg","in"],
 			["WORD","wParam","in"],
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetActiveWindow', 'DWORD',[
+		dll.add_function('SetActiveWindow', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetCapture', 'DWORD',[
+		dll.add_function('SetCapture', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetCaretBlinkTime', 'BOOL',[
+		dll.add_function('SetCaretBlinkTime', 'BOOL',[
 			["DWORD","uMSeconds","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetCaretPos', 'BOOL',[
+		dll.add_function('SetCaretPos', 'BOOL',[
 			["DWORD","X","in"],
 			["DWORD","Y","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetClassLongA', 'DWORD',[
+		dll.add_function('SetClassLongA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["DWORD","dwNewLong","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetClassLongW', 'DWORD',[
+		dll.add_function('SetClassLongW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["DWORD","dwNewLong","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetClassWord', 'WORD',[
+		dll.add_function('SetClassWord', 'WORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["WORD","wNewWord","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetClipboardData', 'DWORD',[
+		dll.add_function('SetClipboardData', 'DWORD',[
 			["DWORD","uFormat","in"],
 			["DWORD","hMem","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetClipboardViewer', 'DWORD',[
+		dll.add_function('SetClipboardViewer', 'DWORD',[
 			["DWORD","hWndNewViewer","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetCursor', 'DWORD',[
+		dll.add_function('SetCursor', 'DWORD',[
 			["DWORD","hCursor","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetCursorPos', 'BOOL',[
+		dll.add_function('SetCursorPos', 'BOOL',[
 			["DWORD","X","in"],
 			["DWORD","Y","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetDebugErrorLevel', 'VOID',[
+		dll.add_function('SetDebugErrorLevel', 'VOID',[
 			["DWORD","dwLevel","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetDlgItemInt', 'BOOL',[
+		dll.add_function('SetDlgItemInt', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["DWORD","uValue","in"],
 			["BOOL","bSigned","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetDlgItemTextA', 'BOOL',[
+		dll.add_function('SetDlgItemTextA', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["PCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetDlgItemTextW', 'BOOL',[
+		dll.add_function('SetDlgItemTextW', 'BOOL',[
 			["DWORD","hDlg","in"],
 			["DWORD","nIDDlgItem","in"],
 			["PWCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetDoubleClickTime', 'BOOL',[
+		dll.add_function('SetDoubleClickTime', 'BOOL',[
 			["DWORD","param0","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetFocus', 'DWORD',[
+		dll.add_function('SetFocus', 'DWORD',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetForegroundWindow', 'BOOL',[
+		dll.add_function('SetForegroundWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetLastErrorEx', 'VOID',[
+		dll.add_function('SetLastErrorEx', 'VOID',[
 			["DWORD","dwErrCode","in"],
 			["DWORD","dwType","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetLayeredWindowAttributes', 'BOOL',[
+		dll.add_function('SetLayeredWindowAttributes', 'BOOL',[
 			["DWORD","hwnd","in"],
 			["DWORD","crKey","in"],
 			["BYTE","bAlpha","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenu', 'BOOL',[
+		dll.add_function('SetMenu', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hMenu","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenuContextHelpId', 'BOOL',[
+		dll.add_function('SetMenuContextHelpId', 'BOOL',[
 			["DWORD","param0","in"],
 			["DWORD","param1","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenuDefaultItem', 'BOOL',[
+		dll.add_function('SetMenuDefaultItem', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uItem","in"],
 			["DWORD","fByPos","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenuInfo', 'BOOL',[
+		dll.add_function('SetMenuInfo', 'BOOL',[
 			["DWORD","param0","in"],
 			["PBLOB","param1","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenuItemBitmaps', 'BOOL',[
+		dll.add_function('SetMenuItemBitmaps', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uPosition","in"],
 			["DWORD","uFlags","in"],
@@ -2705,47 +2704,47 @@ class Def_user32
 			["DWORD","hBitmapChecked","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMenuItemInfoW', 'BOOL',[
+		dll.add_function('SetMenuItemInfoW', 'BOOL',[
 			["DWORD","hmenu","in"],
 			["DWORD","item","in"],
 			["BOOL","fByPositon","in"],
 			["PBLOB","lpmii","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMessageExtraInfo', 'DWORD',[
+		dll.add_function('SetMessageExtraInfo', 'DWORD',[
 			["DWORD","lParam","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetMessageQueue', 'BOOL',[
+		dll.add_function('SetMessageQueue', 'BOOL',[
 			["DWORD","cMessagesMax","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetParent', 'DWORD',[
+		dll.add_function('SetParent', 'DWORD',[
 			["DWORD","hWndChild","in"],
 			["DWORD","hWndNewParent","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetProcessDefaultLayout', 'BOOL',[
+		dll.add_function('SetProcessDefaultLayout', 'BOOL',[
 			["DWORD","dwDefaultLayout","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetProcessWindowStation', 'BOOL',[
+		dll.add_function('SetProcessWindowStation', 'BOOL',[
 			["DWORD","hWinSta","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetPropA', 'BOOL',[
+		dll.add_function('SetPropA', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpString","in"],
 			["DWORD","hData","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetPropW', 'BOOL',[
+		dll.add_function('SetPropW', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpString","in"],
 			["DWORD","hData","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetRect', 'BOOL',[
+		dll.add_function('SetRect', 'BOOL',[
 			["PBLOB","lprc","out"],
 			["DWORD","xLeft","in"],
 			["DWORD","yTop","in"],
@@ -2753,25 +2752,25 @@ class Def_user32
 			["DWORD","yBottom","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetRectEmpty', 'BOOL',[
+		dll.add_function('SetRectEmpty', 'BOOL',[
 			["PBLOB","lprc","out"],
 			])
 
-		railgun.add_function( 'user32', 'SetScrollInfo', 'DWORD',[
+		dll.add_function('SetScrollInfo', 'DWORD',[
 			["DWORD","hwnd","in"],
 			["DWORD","nBar","in"],
 			["PBLOB","lpsi","in"],
 			["BOOL","redraw","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetScrollPos', 'DWORD',[
+		dll.add_function('SetScrollPos', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nBar","in"],
 			["DWORD","nPos","in"],
 			["BOOL","bRedraw","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetScrollRange', 'BOOL',[
+		dll.add_function('SetScrollRange', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","nBar","in"],
 			["DWORD","nMinPos","in"],
@@ -2779,65 +2778,65 @@ class Def_user32
 			["BOOL","bRedraw","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetSystemCursor', 'BOOL',[
+		dll.add_function('SetSystemCursor', 'BOOL',[
 			["DWORD","hcur","in"],
 			["DWORD","id","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetThreadDesktop', 'BOOL',[
+		dll.add_function('SetThreadDesktop', 'BOOL',[
 			["DWORD","hDesktop","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetTimer', 'DWORD',[
+		dll.add_function('SetTimer', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIDEvent","in"],
 			["DWORD","uElapse","in"],
 			["PBLOB","lpTimerFunc","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetUserObjectInformationA', 'BOOL',[
+		dll.add_function('SetUserObjectInformationA', 'BOOL',[
 			["DWORD","hObj","in"],
 			["DWORD","nIndex","in"],
 			["PBLOB","pvInfo","in"],
 			["DWORD","nLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetUserObjectInformationW', 'BOOL',[
+		dll.add_function('SetUserObjectInformationW', 'BOOL',[
 			["DWORD","hObj","in"],
 			["DWORD","nIndex","in"],
 			["PBLOB","pvInfo","in"],
 			["DWORD","nLength","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetUserObjectSecurity', 'BOOL',[
+		dll.add_function('SetUserObjectSecurity', 'BOOL',[
 			["DWORD","hObj","in"],
 			["PBLOB","pSIRequested","in"],
 			["PBLOB","pSID","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowContextHelpId', 'BOOL',[
+		dll.add_function('SetWindowContextHelpId', 'BOOL',[
 			["DWORD","param0","in"],
 			["DWORD","param1","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowLongA', 'DWORD',[
+		dll.add_function('SetWindowLongA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["DWORD","dwNewLong","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowLongW', 'DWORD',[
+		dll.add_function('SetWindowLongW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["DWORD","dwNewLong","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowPlacement', 'BOOL',[
+		dll.add_function('SetWindowPlacement', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpwndpl","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowPos', 'BOOL',[
+		dll.add_function('SetWindowPos', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hWndInsertAfter","in"],
 			["DWORD","X","in"],
@@ -2847,115 +2846,115 @@ class Def_user32
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowRgn', 'DWORD',[
+		dll.add_function('SetWindowRgn', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hRgn","in"],
 			["BOOL","bRedraw","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowTextA', 'BOOL',[
+		dll.add_function('SetWindowTextA', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowTextW', 'BOOL',[
+		dll.add_function('SetWindowTextW', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PWCHAR","lpString","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowWord', 'WORD',[
+		dll.add_function('SetWindowWord', 'WORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","nIndex","in"],
 			["WORD","wNewWord","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowsHookA', 'DWORD',[
+		dll.add_function('SetWindowsHookA', 'DWORD',[
 			["DWORD","nFilterType","in"],
 			["DWORD","pfnFilterProc","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowsHookExA', 'DWORD',[
+		dll.add_function('SetWindowsHookExA', 'DWORD',[
 			["DWORD","idHook","in"],
 			["DWORD","lpfn","in"],
 			["DWORD","hmod","in"],
 			["DWORD","dwThreadId","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowsHookExW', 'DWORD',[
+		dll.add_function('SetWindowsHookExW', 'DWORD',[
 			["DWORD","idHook","in"],
 			["DWORD","lpfn","in"],
 			["DWORD","hmod","in"],
 			["DWORD","dwThreadId","in"],
 			])
 
-		railgun.add_function( 'user32', 'SetWindowsHookW', 'DWORD',[
+		dll.add_function('SetWindowsHookW', 'DWORD',[
 			["DWORD","nFilterType","in"],
 			["DWORD","pfnFilterProc","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowCaret', 'BOOL',[
+		dll.add_function('ShowCaret', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowCursor', 'DWORD',[
+		dll.add_function('ShowCursor', 'DWORD',[
 			["BOOL","bShow","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowOwnedPopups', 'BOOL',[
+		dll.add_function('ShowOwnedPopups', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["BOOL","fShow","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowScrollBar', 'BOOL',[
+		dll.add_function('ShowScrollBar', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","wBar","in"],
 			["BOOL","bShow","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowWindow', 'BOOL',[
+		dll.add_function('ShowWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","nCmdShow","in"],
 			])
 
-		railgun.add_function( 'user32', 'ShowWindowAsync', 'BOOL',[
+		dll.add_function('ShowWindowAsync', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","nCmdShow","in"],
 			])
 
-		railgun.add_function( 'user32', 'SubtractRect', 'BOOL',[
+		dll.add_function('SubtractRect', 'BOOL',[
 			["PBLOB","lprcDst","out"],
 			["PBLOB","lprcSrc1","in"],
 			["PBLOB","lprcSrc2","in"],
 			])
 
-		railgun.add_function( 'user32', 'SwapMouseButton', 'BOOL',[
+		dll.add_function('SwapMouseButton', 'BOOL',[
 			["BOOL","fSwap","in"],
 			])
 
-		railgun.add_function( 'user32', 'SwitchDesktop', 'BOOL',[
+		dll.add_function('SwitchDesktop', 'BOOL',[
 			["DWORD","hDesktop","in"],
 			])
 
-		railgun.add_function( 'user32', 'SwitchToThisWindow', 'VOID',[
+		dll.add_function('SwitchToThisWindow', 'VOID',[
 			["DWORD","hwnd","in"],
 			["BOOL","fUnknown","in"],
 			])
 
-		railgun.add_function( 'user32', 'SystemParametersInfoA', 'BOOL',[
+		dll.add_function('SystemParametersInfoA', 'BOOL',[
 			["DWORD","uiAction","in"],
 			["DWORD","uiParam","in"],
 			["PBLOB","pvParam","inout"],
 			["DWORD","fWinIni","in"],
 			])
 
-		railgun.add_function( 'user32', 'SystemParametersInfoW', 'BOOL',[
+		dll.add_function('SystemParametersInfoW', 'BOOL',[
 			["DWORD","uiAction","in"],
 			["DWORD","uiParam","in"],
 			["PBLOB","pvParam","inout"],
 			["DWORD","fWinIni","in"],
 			])
 
-		railgun.add_function( 'user32', 'TabbedTextOutA', 'DWORD',[
+		dll.add_function('TabbedTextOutA', 'DWORD',[
 			["DWORD","hdc","in"],
 			["DWORD","x","in"],
 			["DWORD","y","in"],
@@ -2966,7 +2965,7 @@ class Def_user32
 			["DWORD","nTabOrigin","in"],
 			])
 
-		railgun.add_function( 'user32', 'TabbedTextOutW', 'DWORD',[
+		dll.add_function('TabbedTextOutW', 'DWORD',[
 			["DWORD","hdc","in"],
 			["DWORD","x","in"],
 			["DWORD","y","in"],
@@ -2977,7 +2976,7 @@ class Def_user32
 			["DWORD","nTabOrigin","in"],
 			])
 
-		railgun.add_function( 'user32', 'TileWindows', 'WORD',[
+		dll.add_function('TileWindows', 'WORD',[
 			["DWORD","hwndParent","in"],
 			["DWORD","wHow","in"],
 			["PBLOB","lpRect","in"],
@@ -2985,7 +2984,7 @@ class Def_user32
 			["PDWORD","lpKids","in"],
 			])
 
-		railgun.add_function( 'user32', 'ToAscii', 'DWORD',[
+		dll.add_function('ToAscii', 'DWORD',[
 			["DWORD","uVirtKey","in"],
 			["DWORD","uScanCode","in"],
 			["PBLOB","lpKeyState","in"],
@@ -2993,7 +2992,7 @@ class Def_user32
 			["DWORD","uFlags","in"],
 			])
 
-		railgun.add_function( 'user32', 'ToAsciiEx', 'DWORD',[
+		dll.add_function('ToAsciiEx', 'DWORD',[
 			["DWORD","uVirtKey","in"],
 			["DWORD","uScanCode","in"],
 			["PBLOB","lpKeyState","in"],
@@ -3002,11 +3001,11 @@ class Def_user32
 			["DWORD","dwhkl","in"],
 			])
 
-		railgun.add_function( 'user32', 'TrackMouseEvent', 'BOOL',[
+		dll.add_function('TrackMouseEvent', 'BOOL',[
 			["PBLOB","lpEventTrack","inout"],
 			])
 
-		railgun.add_function( 'user32', 'TrackPopupMenu', 'BOOL',[
+		dll.add_function('TrackPopupMenu', 'BOOL',[
 			["DWORD","hMenu","in"],
 			["DWORD","uFlags","in"],
 			["DWORD","x","in"],
@@ -3016,145 +3015,145 @@ class Def_user32
 			["PBLOB","prcRect","in"],
 			])
 
-		railgun.add_function( 'user32', 'TranslateAcceleratorA', 'DWORD',[
+		dll.add_function('TranslateAcceleratorA', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hAccTable","in"],
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'TranslateAcceleratorW', 'DWORD',[
+		dll.add_function('TranslateAcceleratorW', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","hAccTable","in"],
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'TranslateMDISysAccel', 'BOOL',[
+		dll.add_function('TranslateMDISysAccel', 'BOOL',[
 			["DWORD","hWndClient","in"],
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'TranslateMessage', 'BOOL',[
+		dll.add_function('TranslateMessage', 'BOOL',[
 			["PBLOB","lpMsg","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnhookWinEvent', 'BOOL',[
+		dll.add_function('UnhookWinEvent', 'BOOL',[
 			["DWORD","hWinEventHook","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnhookWindowsHook', 'BOOL',[
+		dll.add_function('UnhookWindowsHook', 'BOOL',[
 			["DWORD","nCode","in"],
 			["DWORD","pfnFilterProc","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnhookWindowsHookEx', 'BOOL',[
+		dll.add_function('UnhookWindowsHookEx', 'BOOL',[
 			["DWORD","hhk","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnionRect', 'BOOL',[
+		dll.add_function('UnionRect', 'BOOL',[
 			["PBLOB","lprcDst","out"],
 			["PBLOB","lprcSrc1","in"],
 			["PBLOB","lprcSrc2","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnloadKeyboardLayout', 'BOOL',[
+		dll.add_function('UnloadKeyboardLayout', 'BOOL',[
 			["DWORD","hkl","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnregisterClassA', 'BOOL',[
+		dll.add_function('UnregisterClassA', 'BOOL',[
 			["PCHAR","lpClassName","in"],
 			["DWORD","hInstance","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnregisterClassW', 'BOOL',[
+		dll.add_function('UnregisterClassW', 'BOOL',[
 			["PWCHAR","lpClassName","in"],
 			["DWORD","hInstance","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnregisterDeviceNotification', 'BOOL',[
+		dll.add_function('UnregisterDeviceNotification', 'BOOL',[
 			["DWORD","Handle","in"],
 			])
 
-		railgun.add_function( 'user32', 'UnregisterHotKey', 'BOOL',[
+		dll.add_function('UnregisterHotKey', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","id","in"],
 			])
 
-		railgun.add_function( 'user32', 'UpdateWindow', 'BOOL',[
+		dll.add_function('UpdateWindow', 'BOOL',[
 			["DWORD","hWnd","in"],
 			])
 
-		railgun.add_function( 'user32', 'UserHandleGrantAccess', 'BOOL',[
+		dll.add_function('UserHandleGrantAccess', 'BOOL',[
 			["DWORD","hUserHandle","in"],
 			["DWORD","hJob","in"],
 			["BOOL","bGrant","in"],
 			])
 
-		railgun.add_function( 'user32', 'ValidateRect', 'BOOL',[
+		dll.add_function('ValidateRect', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["PBLOB","lpRect","in"],
 			])
 
-		railgun.add_function( 'user32', 'ValidateRgn', 'BOOL',[
+		dll.add_function('ValidateRgn', 'BOOL',[
 			["DWORD","hWnd","in"],
 			["DWORD","hRgn","in"],
 			])
 
-		railgun.add_function( 'user32', 'VkKeyScanA', 'WORD',[
+		dll.add_function('VkKeyScanA', 'WORD',[
 			["BYTE","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'VkKeyScanExA', 'WORD',[
+		dll.add_function('VkKeyScanExA', 'WORD',[
 			["BYTE","ch","in"],
 			["DWORD","dwhkl","in"],
 			])
 
-		railgun.add_function( 'user32', 'VkKeyScanExW', 'WORD',[
+		dll.add_function('VkKeyScanExW', 'WORD',[
 			["WORD","ch","in"],
 			["DWORD","dwhkl","in"],
 			])
 
-		railgun.add_function( 'user32', 'VkKeyScanW', 'WORD',[
+		dll.add_function('VkKeyScanW', 'WORD',[
 			["WORD","ch","in"],
 			])
 
-		railgun.add_function( 'user32', 'WaitForInputIdle', 'DWORD',[
+		dll.add_function('WaitForInputIdle', 'DWORD',[
 			["DWORD","hProcess","in"],
 			["DWORD","dwMilliseconds","in"],
 			])
 
-		railgun.add_function( 'user32', 'WaitMessage', 'BOOL',[
+		dll.add_function('WaitMessage', 'BOOL',[
 			])
 
-		railgun.add_function( 'user32', 'WinHelpA', 'BOOL',[
+		dll.add_function('WinHelpA', 'BOOL',[
 			["DWORD","hWndMain","in"],
 			["PCHAR","lpszHelp","in"],
 			["DWORD","uCommand","in"],
 			["PDWORD","dwData","in"],
 			])
 
-		railgun.add_function( 'user32', 'WinHelpW', 'BOOL',[
+		dll.add_function('WinHelpW', 'BOOL',[
 			["DWORD","hWndMain","in"],
 			["PWCHAR","lpszHelp","in"],
 			["DWORD","uCommand","in"],
 			["PDWORD","dwData","in"],
 			])
 
-		railgun.add_function( 'user32', 'WindowFromDC', 'DWORD',[
+		dll.add_function('WindowFromDC', 'DWORD',[
 			["DWORD","hDC","in"],
 			])
 
-		railgun.add_function( 'user32', 'WindowFromPoint', 'DWORD',[
+		dll.add_function('WindowFromPoint', 'DWORD',[
 			["PBLOB","Point","in"],
 			])
 
-		railgun.add_function( 'user32', 'keybd_event', 'VOID',[
+		dll.add_function('keybd_event', 'VOID',[
 			["BYTE","bVk","in"],
 			["BYTE","bScan","in"],
 			["DWORD","dwFlags","in"],
 			["PDWORD","dwExtraInfo","in"],
 			])
 
-		railgun.add_function( 'user32', 'mouse_event', 'VOID',[
+		dll.add_function('mouse_event', 'VOID',[
 			["DWORD","dwFlags","in"],
 			["DWORD","dx","in"],
 			["DWORD","dy","in"],
@@ -3162,6 +3161,7 @@ class Def_user32
 			["PDWORD","dwExtraInfo","in"],
 			])
 
+		return dll
 	end
 	
 end

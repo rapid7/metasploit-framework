@@ -8,12 +8,13 @@ module Def
 
 class Def_shell32
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('shell32')
+	def self.create_dll(dll_path = 'shell32')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 
-		railgun.add_function( 'shell32', 'IsUserAnAdmin', 'BOOL', [
+		dll.add_function('IsUserAnAdmin', 'BOOL', [
 			])
+
+		return dll
 	end
 	
 end

@@ -1,3 +1,5 @@
+require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
+require 'thread'
 
 module Rex
 module Post
@@ -7,6 +9,31 @@ module Stdapi
 module Railgun
 
 class ApiConstants
+
+	# This will be lazily loaded in self.manager
+	@@manager = nil
+	@@manager_semaphore = Mutex.new
+
+	# provides a frozen constant manager for the constants defined in self.add_constants
+	def self.manager
+
+		# The first check for nil is to potentially skip the need to synchronize
+		if @@manager.nil?
+			# Looks like we MAY need to load manager
+			@@manager_semaphore.synchronize do 
+				# We check once more. Now our options are synchronized
+				if @@manager.nil?
+					@@manager = WinConstManager.new
+
+					self.add_constants(@@manager)
+
+					@@manager.freeze
+				end
+			end
+		end
+
+		return @@manager
+	end
 
 	def self.add_constants(win_const_mgr)
 		win_const_mgr.add_const('MCI_DGV_SETVIDEO_TINT',0x00004003)

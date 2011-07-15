@@ -8,85 +8,85 @@ module Def
 
 class Def_iphlpapi
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('iphlpapi')
+	def self.create_dll(dll_path = 'iphlpapi')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 
-		railgun.add_function( 'iphlpapi', 'CancelIPChangeNotify', 'BOOL',[
+		dll.add_function('CancelIPChangeNotify', 'BOOL',[
 			["PBLOB","notifyOverlapped","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'CreateProxyArpEntry', 'DWORD',[
+		dll.add_function('CreateProxyArpEntry', 'DWORD',[
 			["DWORD","dwAddress","in"],
 			["DWORD","dwMask","in"],
 			["DWORD","dwIfIndex","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'DeleteIPAddress', 'DWORD',[
+		dll.add_function('DeleteIPAddress', 'DWORD',[
 			["DWORD","NTEContext","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'DeleteProxyArpEntry', 'DWORD',[
+		dll.add_function('DeleteProxyArpEntry', 'DWORD',[
 			["DWORD","dwAddress","in"],
 			["DWORD","dwMask","in"],
 			["DWORD","dwIfIndex","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'FlushIpNetTable', 'DWORD',[
+		dll.add_function('FlushIpNetTable', 'DWORD',[
 			["DWORD","dwIfIndex","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetAdapterIndex', 'DWORD',[
+		dll.add_function('GetAdapterIndex', 'DWORD',[
 			["PWCHAR","AdapterName","in"],
 			["PDWORD","IfIndex","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetBestInterface', 'DWORD',[
+		dll.add_function('GetBestInterface', 'DWORD',[
 			["DWORD","dwDestAddr","in"],
 			["PDWORD","pdwBestIfIndex","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetBestInterfaceEx', 'DWORD',[
+		dll.add_function('GetBestInterfaceEx', 'DWORD',[
 			["PBLOB","pDestAddr","in"],
 			["PDWORD","pdwBestIfIndex","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetFriendlyIfIndex', 'DWORD',[
+		dll.add_function('GetFriendlyIfIndex', 'DWORD',[
 			["DWORD","IfIndex","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetNumberOfInterfaces', 'DWORD',[
+		dll.add_function('GetNumberOfInterfaces', 'DWORD',[
 			["PDWORD","pdwNumIf","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'GetRTTAndHopCount', 'BOOL',[
+		dll.add_function('GetRTTAndHopCount', 'BOOL',[
 			["DWORD","DestIpAddress","in"],
 			["PDWORD","HopCount","inout"],
 			["DWORD","MaxHops","in"],
 			["PDWORD","RTT","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'NotifyAddrChange', 'DWORD',[
+		dll.add_function('NotifyAddrChange', 'DWORD',[
 			["PDWORD","Handle","inout"],
 			["PBLOB","overlapped","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'NotifyRouteChange', 'DWORD',[
+		dll.add_function('NotifyRouteChange', 'DWORD',[
 			["PDWORD","Handle","inout"],
 			["PBLOB","overlapped","in"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'SendARP', 'DWORD',[
+		dll.add_function('SendARP', 'DWORD',[
 			["DWORD","DestIP","in"],
 			["DWORD","SrcIP","in"],
 			["PBLOB","pMacAddr","out"],
 			["PDWORD","PhyAddrLen","inout"],
 			])
 
-		railgun.add_function( 'iphlpapi', 'SetIpTTL', 'DWORD',[
+		dll.add_function('SetIpTTL', 'DWORD',[
 			["DWORD","nTTL","in"],
 			])
 
+		return dll
 	end
 	
 end

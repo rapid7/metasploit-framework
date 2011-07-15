@@ -41,10 +41,10 @@ class MultiCaller
 
 		include DLLHelper
 		
-		def initialize( client, parent, win_consts )
-			@parent     = parent
-			@client     = client
-			@win_consts = win_consts
+		def initialize( client, parent )
+			@parent = parent
+			@client = client
+
 			if( @client.platform =~ /x64/i )
 				@native = 'Q'
 			else

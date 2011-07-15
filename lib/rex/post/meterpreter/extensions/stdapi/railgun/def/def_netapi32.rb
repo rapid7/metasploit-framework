@@ -8,20 +8,21 @@ module Def
 
 class Def_netapi32
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('netapi32')
+	def self.create_dll(dll_path = 'netapi32')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 
-		railgun.add_function( 'netapi32', 'NetUserDel', 'DWORD',[
+		dll.add_function('NetUserDel', 'DWORD',[
 			["PWCHAR","servername","in"],
 			["PWCHAR","username","in"],
 			])
 
-		railgun.add_function( 'netapi32', 'NetGetJoinInformation', 'DWORD',[
+		dll.add_function('NetGetJoinInformation', 'DWORD',[
 			["PBLOB","lpServer","in"],
 			["PDWORD","lpNameBugger","out"],
 			["PDWORD","BufferType","out"]
 			])
+
+		return dll
 	end
 	
 end

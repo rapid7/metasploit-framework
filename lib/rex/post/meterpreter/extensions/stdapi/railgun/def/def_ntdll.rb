@@ -8,15 +8,14 @@ module Def
 
 class Def_ntdll
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('ntdll')
+	def self.create_dll(dll_path = 'ntdll')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 
-		railgun.add_function( 'ntdll', 'NtClose', 'DWORD',[
+		dll.add_function('NtClose', 'DWORD',[
 			["DWORD","Handle","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtCreateFile', 'DWORD',[
+		dll.add_function('NtCreateFile', 'DWORD',[
 			["PDWORD","FileHandle","inout"],
 			["DWORD","DesiredAccess","in"],
 			["PBLOB","ObjectAttributes","in"],
@@ -30,7 +29,7 @@ class Def_ntdll
 			["DWORD","EaLength","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtDeviceIoControlFile', 'DWORD',[
+		dll.add_function('NtDeviceIoControlFile', 'DWORD',[
 			["DWORD","FileHandle","in"],
 			["DWORD","Event","in"],
 			["PBLOB","ApcRoutine","in"],
@@ -43,7 +42,7 @@ class Def_ntdll
 			["DWORD","OutputBufferLength","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtOpenFile', 'DWORD',[
+		dll.add_function('NtOpenFile', 'DWORD',[
 			["PDWORD","FileHandle","inout"],
 			["DWORD","DesiredAccess","in"],
 			["PBLOB","ObjectAttributes","in"],
@@ -52,7 +51,7 @@ class Def_ntdll
 			["DWORD","OpenOptions","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtQueryInformationProcess', 'DWORD',[
+		dll.add_function('NtQueryInformationProcess', 'DWORD',[
 			["DWORD","ProcessHandle","in"],
 			["DWORD","ProcessInformationClass","in"],
 			["PBLOB","ProcessInformation","inout"],
@@ -60,7 +59,7 @@ class Def_ntdll
 			["PDWORD","ReturnLength","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtQueryInformationThread', 'DWORD',[
+		dll.add_function('NtQueryInformationThread', 'DWORD',[
 			["DWORD","ThreadHandle","in"],
 			["DWORD","ThreadInformationClass","in"],
 			["PBLOB","ThreadInformation","inout"],
@@ -68,82 +67,83 @@ class Def_ntdll
 			["PDWORD","ReturnLength","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtQuerySystemInformation', 'DWORD',[
+		dll.add_function('NtQuerySystemInformation', 'DWORD',[
 			["DWORD","SystemInformationClass","in"],
 			["PBLOB","SystemInformation","inout"],
 			["DWORD","SystemInformationLength","in"],
 			["PDWORD","ReturnLength","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtQuerySystemTime', 'DWORD',[
+		dll.add_function('NtQuerySystemTime', 'DWORD',[
 			["PBLOB","SystemTime","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'NtWaitForSingleObject', 'DWORD',[
+		dll.add_function('NtWaitForSingleObject', 'DWORD',[
 			["DWORD","Handle","in"],
 			["BOOL","Alertable","in"],
 			["PBLOB","Timeout","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlCharToInteger', 'DWORD',[
+		dll.add_function('RtlCharToInteger', 'DWORD',[
 			["PBLOB","String","inout"],
 			["DWORD","Base","in"],
 			["PDWORD","Value","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlConvertSidToUnicodeString', 'DWORD',[
+		dll.add_function('RtlConvertSidToUnicodeString', 'DWORD',[
 			["PBLOB","UnicodeString","inout"],
 			["PBLOB","Sid","inout"],
 			["BOOL","AllocateDestinationString","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlFreeAnsiString', 'VOID',[
+		dll.add_function('RtlFreeAnsiString', 'VOID',[
 			["PBLOB","AnsiString","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlFreeOemString', 'VOID',[
+		dll.add_function('RtlFreeOemString', 'VOID',[
 			["PBLOB","OemString","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlFreeUnicodeString', 'VOID',[
+		dll.add_function('RtlFreeUnicodeString', 'VOID',[
 			["PBLOB","UnicodeString","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlInitAnsiString', 'VOID',[
+		dll.add_function('RtlInitAnsiString', 'VOID',[
 			["PBLOB","DestinationString","inout"],
 			["PBLOB","SourceString","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlInitString', 'VOID',[
+		dll.add_function('RtlInitString', 'VOID',[
 			["PBLOB","DestinationString","inout"],
 			["PBLOB","SourceString","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlLocalTimeToSystemTime', 'DWORD',[
+		dll.add_function('RtlLocalTimeToSystemTime', 'DWORD',[
 			["PBLOB","LocalTime","in"],
 			["PBLOB","SystemTime","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlNtStatusToDosError', 'DWORD',[
+		dll.add_function('RtlNtStatusToDosError', 'DWORD',[
 			["DWORD","Status","in"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlTimeToSecondsSince1970', 'BOOL',[
+		dll.add_function('RtlTimeToSecondsSince1970', 'BOOL',[
 			["PBLOB","Time","inout"],
 			["PDWORD","ElapsedSeconds","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlUniform', 'DWORD',[
+		dll.add_function('RtlUniform', 'DWORD',[
 			["PDWORD","Seed","inout"],
 			])
 
-		railgun.add_function( 'ntdll', 'RtlUnwind', 'VOID',[
+		dll.add_function('RtlUnwind', 'VOID',[
 			["PBLOB","TargetFrame","in"],
 			["PBLOB","TargetIp","in"],
 			["PBLOB","ExceptionRecord","in"],
 			["PBLOB","ReturnValue","in"],
 			])
 
+		return dll
 	end
 	
 end

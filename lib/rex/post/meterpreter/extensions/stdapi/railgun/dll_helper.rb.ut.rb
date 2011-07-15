@@ -28,10 +28,10 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		# converts ruby string to zero-terminated ASCII string
 		zero_terminated_ascii_attempt = TEST_DLL_HELPER.str_to_ascii_z(original_string)
 
-		assert(zero_terminated_ascii_attempt.end_with?("\x00"), 
+		assert(zero_terminated_ascii_attempt  =~ /\x00$/, 
 			"str_to_ascii_z should result in a 0 terminated string")
 
-		assert(zero_terminated_ascii_attempt.start_with?(original_string), 
+		assert(zero_terminated_ascii_attempt =~ /^#{original_string}/, 
 			"str_to_ascii_z should still start with original string")
 
 		assert_equal(original_string.length + 1, zero_terminated_ascii_attempt.length, 
@@ -45,10 +45,10 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 
 		actual_string =  TEST_DLL_HELPER.asciiz_to_str(zero_terminated_string)
 
-		assert(actual_string.start_with?(target_string),
+		assert(actual_string =~ /^#{target_string}/,
 			"asciiz_to_str should preserve string before zero")
 
-		assert(!actual_string.end_with?(post_zero_noise),
+		assert(actual_string !~ /#{post_zero_noise}$/,
 			"asciiz_to_str should ignore characters after zero")
 
 		assert_equal(target_string, actual_string,
@@ -65,7 +65,7 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		target_zero_terminated_unicode = Rex::Text.to_unicode(ruby_string) + "\x00\x00"
 		actual_zero_terminated_unicode = TEST_DLL_HELPER.str_to_uni_z(ruby_string)
 
-		assert(actual_zero_terminated_unicode.end_with?("\x00\x00"),
+		assert(actual_zero_terminated_unicode =~ /\x00\x00$/,
 			"str_to_uni_z should result in a double-zero terminated string")
 
 		assert_equal(target_zero_terminated_unicode, actual_zero_terminated_unicode,

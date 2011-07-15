@@ -8,11 +8,10 @@ module Def
 
 class Def_ws2_32
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('ws2_32')
+	def self.create_dll(dll_path = 'ws2_32')
+		dll = DLL.new(dll_path, ApiConstants.manager)
 
-		railgun.add_function( 'ws2_32', 'WSAAccept', 'DWORD',[
+		dll.add_function('WSAAccept', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","addr","inout"],
 			["PDWORD","addrlen","inout"],
@@ -20,7 +19,7 @@ class Def_ws2_32
 			["PDWORD","dwCallbackData","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAddressToStringA', 'DWORD',[
+		dll.add_function('WSAAddressToStringA', 'DWORD',[
 			["PBLOB","lpsaAddress","in"],
 			["DWORD","dwAddressLength","in"],
 			["PBLOB","lpProtocolInfo","in"],
@@ -28,7 +27,7 @@ class Def_ws2_32
 			["PDWORD","lpdwAddressStringLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAddressToStringW', 'DWORD',[
+		dll.add_function('WSAAddressToStringW', 'DWORD',[
 			["PBLOB","lpsaAddress","in"],
 			["DWORD","dwAddressLength","in"],
 			["PBLOB","lpProtocolInfo","in"],
@@ -36,7 +35,7 @@ class Def_ws2_32
 			["PDWORD","lpdwAddressStringLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetHostByAddr', 'DWORD',[
+		dll.add_function('WSAAsyncGetHostByAddr', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["PCHAR","addr","in"],
@@ -46,7 +45,7 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetHostByName', 'DWORD',[
+		dll.add_function('WSAAsyncGetHostByName', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["PCHAR","name","in"],
@@ -54,7 +53,7 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetProtoByName', 'DWORD',[
+		dll.add_function('WSAAsyncGetProtoByName', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["PCHAR","name","in"],
@@ -62,7 +61,7 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetProtoByNumber', 'DWORD',[
+		dll.add_function('WSAAsyncGetProtoByNumber', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["DWORD","number","in"],
@@ -70,7 +69,7 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetServByName', 'DWORD',[
+		dll.add_function('WSAAsyncGetServByName', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["PCHAR","name","in"],
@@ -79,7 +78,7 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncGetServByPort', 'DWORD',[
+		dll.add_function('WSAAsyncGetServByPort', 'DWORD',[
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["DWORD","port","in"],
@@ -88,28 +87,28 @@ class Def_ws2_32
 			["DWORD","buflen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAAsyncSelect', 'DWORD',[
+		dll.add_function('WSAAsyncSelect', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","hWnd","in"],
 			["DWORD","wMsg","in"],
 			["DWORD","lEvent","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSACancelAsyncRequest', 'DWORD',[
+		dll.add_function('WSACancelAsyncRequest', 'DWORD',[
 			["DWORD","hAsyncTaskHandle","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSACancelBlockingCall', 'DWORD',[
+		dll.add_function('WSACancelBlockingCall', 'DWORD',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSACleanup', 'DWORD',[
+		dll.add_function('WSACleanup', 'DWORD',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSACloseEvent', 'BOOL',[
+		dll.add_function('WSACloseEvent', 'BOOL',[
 			["DWORD","hEvent","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAConnect', 'DWORD',[
+		dll.add_function('WSAConnect', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","in"],
 			["DWORD","namelen","in"],
@@ -119,59 +118,59 @@ class Def_ws2_32
 			["PBLOB","lpGQOS","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSACreateEvent', 'DWORD',[
+		dll.add_function('WSACreateEvent', 'DWORD',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSADuplicateSocketA', 'DWORD',[
+		dll.add_function('WSADuplicateSocketA', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","dwProcessId","in"],
 			["PBLOB","lpProtocolInfo","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSADuplicateSocketW', 'DWORD',[
+		dll.add_function('WSADuplicateSocketW', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","dwProcessId","in"],
 			["PBLOB","lpProtocolInfo","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEnumNameSpaceProvidersA', 'DWORD',[
+		dll.add_function('WSAEnumNameSpaceProvidersA', 'DWORD',[
 			["PDWORD","lpdwBufferLength","inout"],
 			["PBLOB","lpnspBuffer","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEnumNameSpaceProvidersW', 'DWORD',[
+		dll.add_function('WSAEnumNameSpaceProvidersW', 'DWORD',[
 			["PDWORD","lpdwBufferLength","inout"],
 			["PBLOB","lpnspBuffer","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEnumNetworkEvents', 'DWORD',[
+		dll.add_function('WSAEnumNetworkEvents', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","hEventObject","in"],
 			["PBLOB","lpNetworkEvents","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEnumProtocolsA', 'DWORD',[
+		dll.add_function('WSAEnumProtocolsA', 'DWORD',[
 			["PDWORD","lpiProtocols","in"],
 			["PBLOB","lpProtocolBuffer","inout"],
 			["PDWORD","lpdwBufferLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEnumProtocolsW', 'DWORD',[
+		dll.add_function('WSAEnumProtocolsW', 'DWORD',[
 			["PDWORD","lpiProtocols","in"],
 			["PBLOB","lpProtocolBuffer","inout"],
 			["PDWORD","lpdwBufferLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAEventSelect', 'DWORD',[
+		dll.add_function('WSAEventSelect', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","hEventObject","in"],
 			["DWORD","lNetworkEvents","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetLastError', 'DWORD',[
+		dll.add_function('WSAGetLastError', 'DWORD',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetOverlappedResult', 'BOOL',[
+		dll.add_function('WSAGetOverlappedResult', 'BOOL',[
 			["DWORD","s","in"],
 			["PBLOB","lpOverlapped","in"],
 			["PDWORD","lpcbTransfer","inout"],
@@ -179,59 +178,59 @@ class Def_ws2_32
 			["PDWORD","lpdwFlags","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetQOSByName', 'BOOL',[
+		dll.add_function('WSAGetQOSByName', 'BOOL',[
 			["DWORD","s","in"],
 			["PBLOB","lpQOSName","in"],
 			["PBLOB","lpQOS","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetServiceClassInfoA', 'DWORD',[
+		dll.add_function('WSAGetServiceClassInfoA', 'DWORD',[
 			["PBLOB","lpProviderId","in"],
 			["PBLOB","lpServiceClassId","in"],
 			["PDWORD","lpdwBufSize","inout"],
 			["PBLOB","lpServiceClassInfo","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetServiceClassInfoW', 'DWORD',[
+		dll.add_function('WSAGetServiceClassInfoW', 'DWORD',[
 			["PBLOB","lpProviderId","in"],
 			["PBLOB","lpServiceClassId","in"],
 			["PDWORD","lpdwBufSize","inout"],
 			["PBLOB","lpServiceClassInfo","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetServiceClassNameByClassIdA', 'DWORD',[
+		dll.add_function('WSAGetServiceClassNameByClassIdA', 'DWORD',[
 			["PBLOB","lpServiceClassId","in"],
 			["PCHAR","lpszServiceClassName","inout"],
 			["PDWORD","lpdwBufferLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAGetServiceClassNameByClassIdW', 'DWORD',[
+		dll.add_function('WSAGetServiceClassNameByClassIdW', 'DWORD',[
 			["PBLOB","lpServiceClassId","in"],
 			["PWCHAR","lpszServiceClassName","inout"],
 			["PDWORD","lpdwBufferLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAHtonl', 'DWORD',[
+		dll.add_function('WSAHtonl', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","hostlong","in"],
 			["PDWORD","lpnetlong","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAHtons', 'DWORD',[
+		dll.add_function('WSAHtons', 'DWORD',[
 			["DWORD","s","in"],
 			["WORD","hostshort","in"],
 			["PBLOB","lpnetshort","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAInstallServiceClassA', 'DWORD',[
+		dll.add_function('WSAInstallServiceClassA', 'DWORD',[
 			["PBLOB","lpServiceClassInfo","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAInstallServiceClassW', 'DWORD',[
+		dll.add_function('WSAInstallServiceClassW', 'DWORD',[
 			["PBLOB","lpServiceClassInfo","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAIoctl', 'DWORD',[
+		dll.add_function('WSAIoctl', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","dwIoControlCode","in"],
 			["PBLOB","lpvInBuffer","in"],
@@ -243,10 +242,10 @@ class Def_ws2_32
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAIsBlocking', 'BOOL',[
+		dll.add_function('WSAIsBlocking', 'BOOL',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAJoinLeaf', 'DWORD',[
+		dll.add_function('WSAJoinLeaf', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","in"],
 			["DWORD","namelen","in"],
@@ -257,37 +256,37 @@ class Def_ws2_32
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSALookupServiceBeginA', 'DWORD',[
+		dll.add_function('WSALookupServiceBeginA', 'DWORD',[
 			["PBLOB","lpqsRestrictions","in"],
 			["DWORD","dwControlFlags","in"],
 			["PDWORD","lphLookup","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSALookupServiceBeginW', 'DWORD',[
+		dll.add_function('WSALookupServiceBeginW', 'DWORD',[
 			["PBLOB","lpqsRestrictions","in"],
 			["DWORD","dwControlFlags","in"],
 			["PDWORD","lphLookup","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSALookupServiceEnd', 'DWORD',[
+		dll.add_function('WSALookupServiceEnd', 'DWORD',[
 			["DWORD","hLookup","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSALookupServiceNextA', 'DWORD',[
+		dll.add_function('WSALookupServiceNextA', 'DWORD',[
 			["DWORD","hLookup","in"],
 			["DWORD","dwControlFlags","in"],
 			["PDWORD","lpdwBufferLength","inout"],
 			["PBLOB","lpqsResults","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSALookupServiceNextW', 'DWORD',[
+		dll.add_function('WSALookupServiceNextW', 'DWORD',[
 			["DWORD","hLookup","in"],
 			["DWORD","dwControlFlags","in"],
 			["PDWORD","lpdwBufferLength","inout"],
 			["PBLOB","lpqsResults","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSANSPIoctl', 'DWORD',[
+		dll.add_function('WSANSPIoctl', 'DWORD',[
 			["DWORD","hLookup","in"],
 			["DWORD","dwControlCode","in"],
 			["PBLOB","lpvInBuffer","in"],
@@ -298,25 +297,25 @@ class Def_ws2_32
 			["PBLOB","lpCompletion","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSANtohl', 'DWORD',[
+		dll.add_function('WSANtohl', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","netlong","in"],
 			["PDWORD","lphostlong","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSANtohs', 'DWORD',[
+		dll.add_function('WSANtohs', 'DWORD',[
 			["DWORD","s","in"],
 			["WORD","netshort","in"],
 			["PBLOB","lphostshort","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAProviderConfigChange', 'DWORD',[
+		dll.add_function('WSAProviderConfigChange', 'DWORD',[
 			["PDWORD","lpNotificationHandle","inout"],
 			["PBLOB","lpOverlapped","in"],
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSARecv', 'DWORD',[
+		dll.add_function('WSARecv', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpBuffers","inout"],
 			["DWORD","dwBufferCount","in"],
@@ -326,12 +325,12 @@ class Def_ws2_32
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSARecvDisconnect', 'DWORD',[
+		dll.add_function('WSARecvDisconnect', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpInboundDisconnectData","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSARecvFrom', 'DWORD',[
+		dll.add_function('WSARecvFrom', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpBuffers","inout"],
 			["DWORD","dwBufferCount","in"],
@@ -343,15 +342,15 @@ class Def_ws2_32
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSARemoveServiceClass', 'DWORD',[
+		dll.add_function('WSARemoveServiceClass', 'DWORD',[
 			["PBLOB","lpServiceClassId","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAResetEvent', 'BOOL',[
+		dll.add_function('WSAResetEvent', 'BOOL',[
 			["DWORD","hEvent","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASend', 'DWORD',[
+		dll.add_function('WSASend', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpBuffers","in"],
 			["DWORD","dwBufferCount","in"],
@@ -361,12 +360,12 @@ class Def_ws2_32
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASendDisconnect', 'DWORD',[
+		dll.add_function('WSASendDisconnect', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpOutboundDisconnectData","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASendTo', 'DWORD',[
+		dll.add_function('WSASendTo', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","lpBuffers","in"],
 			["DWORD","dwBufferCount","in"],
@@ -378,27 +377,27 @@ class Def_ws2_32
 			["PBLOB","lpCompletionRoutine","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASetEvent', 'BOOL',[
+		dll.add_function('WSASetEvent', 'BOOL',[
 			["DWORD","hEvent","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASetLastError', 'VOID',[
+		dll.add_function('WSASetLastError', 'VOID',[
 			["DWORD","iError","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASetServiceA', 'DWORD',[
+		dll.add_function('WSASetServiceA', 'DWORD',[
 			["PBLOB","lpqsRegInfo","in"],
 			["PBLOB","essoperation","in"],
 			["DWORD","dwControlFlags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASetServiceW', 'DWORD',[
+		dll.add_function('WSASetServiceW', 'DWORD',[
 			["PBLOB","lpqsRegInfo","in"],
 			["PBLOB","essoperation","in"],
 			["DWORD","dwControlFlags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASocketA', 'DWORD',[
+		dll.add_function('WSASocketA', 'DWORD',[
 			["DWORD","af","in"],
 			["DWORD","type","in"],
 			["DWORD","protocol","in"],
@@ -407,7 +406,7 @@ class Def_ws2_32
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSASocketW', 'DWORD',[
+		dll.add_function('WSASocketW', 'DWORD',[
 			["DWORD","af","in"],
 			["DWORD","type","in"],
 			["DWORD","protocol","in"],
@@ -416,12 +415,12 @@ class Def_ws2_32
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAStartup', 'DWORD',[
+		dll.add_function('WSAStartup', 'DWORD',[
 			["WORD","wVersionRequested","in"],
 			["PBLOB","lpWSAData","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAStringToAddressA', 'DWORD',[
+		dll.add_function('WSAStringToAddressA', 'DWORD',[
 			["PCHAR","AddressString","in"],
 			["DWORD","AddressFamily","in"],
 			["PBLOB","lpProtocolInfo","in"],
@@ -429,7 +428,7 @@ class Def_ws2_32
 			["PDWORD","lpAddressLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAStringToAddressW', 'DWORD',[
+		dll.add_function('WSAStringToAddressW', 'DWORD',[
 			["PWCHAR","AddressString","in"],
 			["DWORD","AddressFamily","in"],
 			["PBLOB","lpProtocolInfo","in"],
@@ -437,10 +436,10 @@ class Def_ws2_32
 			["PDWORD","lpAddressLength","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAUnhookBlockingHook', 'DWORD',[
+		dll.add_function('WSAUnhookBlockingHook', 'DWORD',[
 			])
 
-		railgun.add_function( 'ws2_32', 'WSAWaitForMultipleEvents', 'DWORD',[
+		dll.add_function('WSAWaitForMultipleEvents', 'DWORD',[
 			["DWORD","cEvents","in"],
 			["PDWORD","lphEvents","in"],
 			["BOOL","fWaitAll","in"],
@@ -448,51 +447,51 @@ class Def_ws2_32
 			["BOOL","fAlertable","in"],
 			])
 
-		railgun.add_function( 'ws2_32', '__WSAFDIsSet', 'DWORD',[
+		dll.add_function('__WSAFDIsSet', 'DWORD',[
 			["DWORD","param0","in"],
 			["PBLOB","param1","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'accept', 'DWORD',[
+		dll.add_function('accept', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","addr","inout"],
 			["PDWORD","addrlen","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'bind', 'DWORD',[
+		dll.add_function('bind', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","in"],
 			["DWORD","namelen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'closesocket', 'DWORD',[
+		dll.add_function('closesocket', 'DWORD',[
 			["DWORD","s","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'connect', 'DWORD',[
+		dll.add_function('connect', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","in"],
 			["DWORD","namelen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'gethostname', 'DWORD',[
+		dll.add_function('gethostname', 'DWORD',[
 			["PCHAR","name","inout"],
 			["DWORD","namelen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'getpeername', 'DWORD',[
+		dll.add_function('getpeername', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","inout"],
 			["PDWORD","namelen","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'getsockname', 'DWORD',[
+		dll.add_function('getsockname', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","name","inout"],
 			["PDWORD","namelen","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'getsockopt', 'DWORD',[
+		dll.add_function('getsockopt', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","level","in"],
 			["DWORD","optname","in"],
@@ -500,45 +499,45 @@ class Def_ws2_32
 			["PDWORD","optlen","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'htonl', 'DWORD',[
+		dll.add_function('htonl', 'DWORD',[
 			["DWORD","hostlong","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'htons', 'WORD',[
+		dll.add_function('htons', 'WORD',[
 			["WORD","hostshort","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'inet_addr', 'DWORD',[
+		dll.add_function('inet_addr', 'DWORD',[
 			["PCHAR","cp","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'ioctlsocket', 'DWORD',[
+		dll.add_function('ioctlsocket', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","cmd","in"],
 			["PDWORD","argp","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'listen', 'DWORD',[
+		dll.add_function('listen', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","backlog","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'ntohl', 'DWORD',[
+		dll.add_function('ntohl', 'DWORD',[
 			["DWORD","netlong","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'ntohs', 'WORD',[
+		dll.add_function('ntohs', 'WORD',[
 			["WORD","netshort","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'recv', 'DWORD',[
+		dll.add_function('recv', 'DWORD',[
 			["DWORD","s","in"],
 			["PCHAR","buf","inout"],
 			["DWORD","len","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'recvfrom', 'DWORD',[
+		dll.add_function('recvfrom', 'DWORD',[
 			["DWORD","s","in"],
 			["PCHAR","buf","inout"],
 			["DWORD","len","in"],
@@ -547,7 +546,7 @@ class Def_ws2_32
 			["PDWORD","fromlen","inout"],
 			])
 
-		railgun.add_function( 'ws2_32', 'select', 'DWORD',[
+		dll.add_function('select', 'DWORD',[
 			["DWORD","nfds","in"],
 			["PBLOB","readfds","inout"],
 			["PBLOB","writefds","inout"],
@@ -555,14 +554,14 @@ class Def_ws2_32
 			["PDWORD","timeout","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'send', 'DWORD',[
+		dll.add_function('send', 'DWORD',[
 			["DWORD","s","in"],
 			["PCHAR","buf","in"],
 			["DWORD","len","in"],
 			["DWORD","flags","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'sendto', 'DWORD',[
+		dll.add_function('sendto', 'DWORD',[
 			["DWORD","s","in"],
 			["PCHAR","buf","in"],
 			["DWORD","len","in"],
@@ -571,7 +570,7 @@ class Def_ws2_32
 			["DWORD","tolen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'setsockopt', 'DWORD',[
+		dll.add_function('setsockopt', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","level","in"],
 			["DWORD","optname","in"],
@@ -579,17 +578,18 @@ class Def_ws2_32
 			["DWORD","optlen","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'shutdown', 'DWORD',[
+		dll.add_function('shutdown', 'DWORD',[
 			["DWORD","s","in"],
 			["DWORD","how","in"],
 			])
 
-		railgun.add_function( 'ws2_32', 'socket', 'DWORD',[
+		dll.add_function('socket', 'DWORD',[
 			["DWORD","af","in"],
 			["DWORD","type","in"],
 			["DWORD","protocol","in"],
 			])
 
+		return dll
 	end
 	
 end

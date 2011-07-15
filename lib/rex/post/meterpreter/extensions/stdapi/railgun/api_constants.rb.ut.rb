@@ -14,6 +14,13 @@ module Extensions
 module Stdapi
 module Railgun
 class ApiConstants::UnitTest < Test::Unit::TestCase
+	def test_manager
+		const_manager = ApiConstants.manager
+
+		assert_equal(0, const_manager.parse('SUCCESS'),
+			"ApiConstants.manager should return a functional constant manager for WinAPI constants")
+	end
+
 	def test_add_constants
 		const_manager = WinConstManager.new
 

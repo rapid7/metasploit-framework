@@ -45,22 +45,38 @@ class DLL
 	attr_accessor :functions
 	attr_reader   :dll_path
 
-	def initialize(dll_path, client, win_consts) #
+	def initialize(dll_path, win_consts)
 		@dll_path = dll_path
-		@client = client
+
+		# needed by DLLHelper
 		@win_consts = win_consts
-		if( @client.platform =~ /x64/i )
-			@native = 'Q'
-		else
-			@native = 'V'
-		end
+
 		self.functions = {}
 	end
 
-	# adds a function to the DLL
+	def known_function_names 
+		return functions.keys
+	end
+	
+	def get_function(name)
+		return functions[name]
+	end
+
+	def call_function(func_symbol, args, client)
+		func_name = func_symbol.to_s
+
+		unless known_function_names.include? func_name 
+			raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
+		end
+
+		function = get_function(func_name)
+
+		return process_function_call(function, args, client)
+	end
+
 	# syntax for params:
-	# add_function("MessageBoxW",				 # name
-	#	"DWORD",			# return value
+	# add_function("MessageBoxW",   # name
+	#	"DWORD",                # return value
 	#	[["DWORD","hWnd","in"], # params
 	#	["PWCHAR","lpText","in"],
 	#	["PWCHAR","lpCaption","in"],
@@ -84,9 +100,16 @@ class DLL
 	private
 
 	# called when a function like "MessageBoxW" is called
-	def process_function_call(function, args)
+	def process_function_call(function, args, client)
 		raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
-		#puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
+
+		if( client.platform =~ /x64/i )
+			native = 'Q'
+		else
+			native = 'V'
+		end
+
+#puts "process_function_call(function.windows_name,#{PP.pp(args, "")})"
 
 		# We transmit the immediate stack and three heap-buffers:
 		# in, inout and out. The reason behind the separation is bandwidth.
@@ -114,14 +137,14 @@ class DLL
 				buffer_size = args[param_idx]
 				if param_desc[0] == "PDWORD"
 					# bump up the size for an x64 pointer
-					if( @native == 'Q' and buffer_size == 4 )
+					if( native == 'Q' and buffer_size == 4 )
 						args[param_idx] = 8
 						buffer_size = args[param_idx]
 					end
 
-					if( @native == 'Q' )
+					if( native == 'Q' )
 						raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8" unless buffer_size == 8
-					elsif( @native == 'V' )
+					elsif( native == 'V' )
 						raise "Please pass 4 for 'out' PDWORDS, since they require a buffer of size 4" unless buffer_size == 4
 					end
 				end
@@ -157,43 +180,43 @@ class DLL
 			if ["PDWORD", "PWCHAR", "PCHAR", "PBLOB"].include? param_desc[0]
 				#puts "   pointer"
 				if args[param_idx] == nil # null pointer?
-					buffer  = [0].pack(@native) # type: DWORD  (so the dll does not rebase it)
-					buffer += [0].pack(@native) # value: 0
+					buffer  = [0].pack(native) # type: DWORD  (so the dll does not rebase it)
+					buffer += [0].pack(native) # value: 0
 				elsif param_desc[2] == "in"
-					buffer  = [1].pack(@native)
-					buffer += [in_only_layout[param_desc[1]].addr].pack(@native)
+					buffer  = [1].pack(native)
+					buffer += [in_only_layout[param_desc[1]].addr].pack(native)
 				elsif param_desc[2] == "out"
-					buffer  = [2].pack(@native)
-					buffer += [out_only_layout[param_desc[1]].addr].pack(@native)
+					buffer  = [2].pack(native)
+					buffer += [out_only_layout[param_desc[1]].addr].pack(native)
 				elsif param_desc[2] == "inout"
-					buffer  = [3].pack(@native)
-					buffer += [inout_layout[param_desc[1]].addr].pack(@native)
+					buffer  = [3].pack(native)
+					buffer += [inout_layout[param_desc[1]].addr].pack(native)
 				else
 					raise "unexpected direction"
 				end
 			else
 				#puts "   not a pointer"
 				# it's not a pointer (LPVOID is a pointer but is not backed by railgun memory, ala PBLOB)
-				buffer = [0].pack(@native)
+				buffer = [0].pack(native)
 				case param_desc[0]
 					when "LPVOID", "HANDLE"
 						num     = param_to_number(args[param_idx])
-						buffer += [num].pack(@native)
+						buffer += [num].pack(native)
 					when "DWORD"
 						num     = param_to_number(args[param_idx])
-						buffer += [num % 4294967296].pack(@native)
+						buffer += [num % 4294967296].pack(native)
 					when "WORD"
 						num     = param_to_number(args[param_idx])
-						buffer += [num % 65536].pack(@native)
+						buffer += [num % 65536].pack(native)
 					when "BYTE"
 						num     = param_to_number(args[param_idx])
-						buffer += [num % 256].pack(@native)
+						buffer += [num % 256].pack(native)
 					when "BOOL"
 						case args[param_idx]
 							when true
-								buffer += [1].pack(@native)
+								buffer += [1].pack(native)
 							when false
-								buffer += [0].pack(@native)
+								buffer += [0].pack(native)
 							else
 								raise "param #{param_desc[1]}: true or false expected"
 						end
@@ -219,7 +242,7 @@ class DLL
 		request.add_tlv(TLV_TYPE_RAILGUN_DLLNAME, @dll_path )
 		request.add_tlv(TLV_TYPE_RAILGUN_FUNCNAME, function.windows_name)
 
-		response = @client.send_request(request)
+		response = client.send_request(request)
 
 		#puts "receiving Stuff from meterpreter"
 		#puts "out_only_layout:"
@@ -240,7 +263,7 @@ class DLL
 		#process return value
 		case function.return_type
 			when "LPVOID", "HANDLE"
-				if( @native == 'Q' )
+				if( native == 'Q' )
 					return_hash["return"] = rec_return_value
 				else
 					return_hash["return"] = rec_return_value % 4294967296
@@ -307,7 +330,7 @@ class DLL
 #		puts("
 #=== START of proccess_function_call snapshot ===
 #		{
-#			:platform => '#{@native == 'Q' ? 'x64/win64' : 'x86/win32'}',
+#			:platform => '#{native == 'Q' ? 'x64/win64' : 'x86/win32'}',
 #			:name => '#{function.windows_name}',
 #			:params => #{function.params},
 #			:return_type => '#{function.return_type}',
@@ -335,15 +358,6 @@ class DLL
 		return return_hash
 	end
 
-	# process_function_call
-
-	# we fake having methods like "MessageBoxW" by intercepting "method-not-found"-exceptions
-	def method_missing(func_symbol, *args)
-		func_name = func_symbol.to_s
-		raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(@functions.keys, "")}" unless @functions.has_key? func_name
-		function = @functions[func_name]
-		return process_function_call(function, args)
-	end
 end
 
 end; end; end; end; end; end;

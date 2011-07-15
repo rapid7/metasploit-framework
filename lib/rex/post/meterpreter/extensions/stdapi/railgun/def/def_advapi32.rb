@@ -8,19 +8,18 @@ module Def
 
 class Def_advapi32
 
-	def self.add_imports(railgun)
-		
-		railgun.add_dll('advapi32')
-		
+	def self.create_dll(dll_path = 'advapi32')
+		dll = DLL.new(dll_path, ApiConstants.manager)
+
 		# Function to open the Service Control Database
-		railgun.add_function( 'advapi32', 'OpenSCManagerA','DWORD',[
+		dll.add_function('OpenSCManagerA','DWORD',[
 			[ "PCHAR", "lpMachineName", "inout" ],
 			[ "PCHAR", "lpDatabaseName", "inout" ],
 			[ "DWORD", "dwDesiredAccess", "in" ]
 			])
 			
 		# Function for creating a Service
-		railgun.add_function( 'advapi32', 'CreateServiceA','DWORD',[
+		dll.add_function('CreateServiceA','DWORD',[
 			[ "DWORD", "hSCManager", "in" ],
 			[ "PCHAR", "lpServiceName", "in" ],
 			[ "PCHAR", "lpDisplayName", "in" ],
@@ -36,7 +35,7 @@ class Def_advapi32
 			[ "PCHAR", "lpPassword", "in" ]
 			])
 
-		railgun.add_function( 'advapi32', 'OpenServiceA','DWORD',[
+		dll.add_function('OpenServiceA','DWORD',[
 			[ "DWORD", "hSCManager", "in" ],
 			[ "PCHAR", "lpServiceName", "in" ],
 			[ "DWORD", "dwDesiredAccess", "in" ]
@@ -45,13 +44,13 @@ class Def_advapi32
 		#access rights: SERVICE_CHANGE_CONFIG (0x0002)  SERVICE_START (0x0010)
 		#SERVICE_STOP (0x0020)
 
-		railgun.add_function( 'advapi32', 'StartServiceA','BOOL',[
+		dll.add_function('StartServiceA','BOOL',[
 			[ "DWORD", "hService", "in" ],
 			[ "DWORD", "dwNumServiceArgs", "in" ],
 			[ "PCHAR", "lpServiceArgVectors", "in" ]
 			])
 
-		railgun.add_function( 'advapi32', 'ControlService','BOOL',[
+		dll.add_function('ControlService','BOOL',[
 			[ "DWORD", "hService", "in" ],
 			[ "DWORD", "dwControl", "in" ],
 			[ "PBLOB", "lpServiceStatus", "out" ]
@@ -63,7 +62,7 @@ class Def_advapi32
 		#dwCurrentState; dwControlsAccepted; dwWin32ExitCode;
 		#dwServiceSpecificExitCode; dwCheckPoint; dwWaitHint;
 
-		railgun.add_function( 'advapi32', 'ChangeServiceConfigA','BOOL',[
+		dll.add_function('ChangeServiceConfigA','BOOL',[
 			[ "DWORD", "hService", "in" ],
 			[ "DWORD", "dwServiceType", "in" ],
 			[ "DWORD", "dwStartType", "in" ],
@@ -77,19 +76,19 @@ class Def_advapi32
 			[ "PCHAR", "lpDisplayName", "in" ]
 			])
 
-		railgun.add_function( 'advapi32', 'CloseServiceHandle','BOOL',[
+		dll.add_function('CloseServiceHandle','BOOL',[
 			[ "DWORD", "hSCObject", "in" ]
 			])
 			
-		railgun.add_function( 'advapi32', 'AbortSystemShutdownA', 'BOOL',[
+		dll.add_function('AbortSystemShutdownA', 'BOOL',[
 			["PCHAR","lpMachineName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AbortSystemShutdownW', 'BOOL',[
+		dll.add_function('AbortSystemShutdownW', 'BOOL',[
 			["PWCHAR","lpMachineName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitiateSystemShutdownA', 'BOOL',[
+		dll.add_function('InitiateSystemShutdownA', 'BOOL',[
 			["PCHAR","lpMachineName","in"],
 			["PCHAR","lpMessage","in"],
 			["DWORD","dwTimeout","in"],
@@ -97,7 +96,7 @@ class Def_advapi32
 			["BOOL","bRebootAfterShutdown","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitiateSystemShutdownExA', 'BOOL',[
+		dll.add_function('InitiateSystemShutdownExA', 'BOOL',[
 			["PCHAR","lpMachineName","in"],
 			["PCHAR","lpMessage","in"],
 			["DWORD","dwTimeout","in"],
@@ -106,7 +105,7 @@ class Def_advapi32
 			["DWORD","dwReason","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitiateSystemShutdownExW', 'BOOL',[
+		dll.add_function('InitiateSystemShutdownExW', 'BOOL',[
 			["PWCHAR","lpMachineName","in"],
 			["PWCHAR","lpMessage","in"],
 			["DWORD","dwTimeout","in"],
@@ -115,7 +114,7 @@ class Def_advapi32
 			["DWORD","dwReason","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitiateSystemShutdownW', 'BOOL',[
+		dll.add_function('InitiateSystemShutdownW', 'BOOL',[
 			["PWCHAR","lpMachineName","in"],
 			["PWCHAR","lpMessage","in"],
 			["DWORD","dwTimeout","in"],
@@ -123,43 +122,43 @@ class Def_advapi32
 			["BOOL","bRebootAfterShutdown","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegCloseKey', 'DWORD',[
+		dll.add_function('RegCloseKey', 'DWORD',[
 			["DWORD","hKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegConnectRegistryA', 'DWORD',[
+		dll.add_function('RegConnectRegistryA', 'DWORD',[
 			["PCHAR","lpMachineName","in"],
 			["DWORD","hKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegConnectRegistryExA', 'DWORD',[
+		dll.add_function('RegConnectRegistryExA', 'DWORD',[
 			["PCHAR","lpMachineName","in"],
 			["DWORD","hKey","in"],
 			["DWORD","Flags","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegConnectRegistryExW', 'DWORD',[
+		dll.add_function('RegConnectRegistryExW', 'DWORD',[
 			["PWCHAR","lpMachineName","in"],
 			["DWORD","hKey","in"],
 			["DWORD","Flags","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegConnectRegistryW', 'DWORD',[
+		dll.add_function('RegConnectRegistryW', 'DWORD',[
 			["PWCHAR","lpMachineName","in"],
 			["DWORD","hKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegCreateKeyA', 'DWORD',[
+		dll.add_function('RegCreateKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegCreateKeyExA', 'DWORD',[
+		dll.add_function('RegCreateKeyExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["DWORD","Reserved","inout"],
@@ -171,7 +170,7 @@ class Def_advapi32
 			["PDWORD","lpdwDisposition","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegCreateKeyExW', 'DWORD',[
+		dll.add_function('RegCreateKeyExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["DWORD","Reserved","inout"],
@@ -183,65 +182,65 @@ class Def_advapi32
 			["PDWORD","lpdwDisposition","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegCreateKeyW', 'DWORD',[
+		dll.add_function('RegCreateKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteKeyA', 'DWORD',[
+		dll.add_function('RegDeleteKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteKeyExA', 'DWORD',[
+		dll.add_function('RegDeleteKeyExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["DWORD","samDesired","in"],
 			["DWORD","Reserved","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteKeyExW', 'DWORD',[
+		dll.add_function('RegDeleteKeyExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["DWORD","samDesired","in"],
 			["DWORD","Reserved","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteKeyW', 'DWORD',[
+		dll.add_function('RegDeleteKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteValueA', 'DWORD',[
+		dll.add_function('RegDeleteValueA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpValueName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDeleteValueW', 'DWORD',[
+		dll.add_function('RegDeleteValueW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpValueName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegDisablePredefinedCache', 'DWORD',[
+		dll.add_function('RegDisablePredefinedCache', 'DWORD',[
 			])
 
-		railgun.add_function( 'advapi32', 'RegDisableReflectionKey', 'DWORD',[
+		dll.add_function('RegDisableReflectionKey', 'DWORD',[
 			["DWORD","hBase","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnableReflectionKey', 'DWORD',[
+		dll.add_function('RegEnableReflectionKey', 'DWORD',[
 			["DWORD","hBase","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumKeyA', 'DWORD',[
+		dll.add_function('RegEnumKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PCHAR","lpName","out"],
 			["DWORD","cchName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumKeyExA', 'DWORD',[
+		dll.add_function('RegEnumKeyExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PCHAR","lpName","out"],
@@ -252,7 +251,7 @@ class Def_advapi32
 			["PBLOB","lpftLastWriteTime","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumKeyExW', 'DWORD',[
+		dll.add_function('RegEnumKeyExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PWCHAR","lpName","out"],
@@ -263,14 +262,14 @@ class Def_advapi32
 			["PBLOB","lpftLastWriteTime","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumKeyW', 'DWORD',[
+		dll.add_function('RegEnumKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PWCHAR","lpName","out"],
 			["DWORD","cchName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumValueA', 'DWORD',[
+		dll.add_function('RegEnumValueA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PCHAR","lpValueName","out"],
@@ -281,7 +280,7 @@ class Def_advapi32
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegEnumValueW', 'DWORD',[
+		dll.add_function('RegEnumValueW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","dwIndex","in"],
 			["PWCHAR","lpValueName","out"],
@@ -292,18 +291,18 @@ class Def_advapi32
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegFlushKey', 'DWORD',[
+		dll.add_function('RegFlushKey', 'DWORD',[
 			["DWORD","hKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegGetKeySecurity', 'DWORD',[
+		dll.add_function('RegGetKeySecurity', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
 			["PDWORD","lpcbSecurityDescriptor","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegGetValueA', 'DWORD',[
+		dll.add_function('RegGetValueA', 'DWORD',[
 			["DWORD","hkey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PCHAR","lpValue","in"],
@@ -313,7 +312,7 @@ class Def_advapi32
 			["PDWORD","pcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegGetValueW', 'DWORD',[
+		dll.add_function('RegGetValueW', 'DWORD',[
 			["DWORD","hkey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PWCHAR","lpValue","in"],
@@ -323,19 +322,19 @@ class Def_advapi32
 			["PDWORD","pcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegLoadKeyA', 'DWORD',[
+		dll.add_function('RegLoadKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PCHAR","lpFile","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegLoadKeyW', 'DWORD',[
+		dll.add_function('RegLoadKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PWCHAR","lpFile","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegNotifyChangeKeyValue', 'DWORD',[
+		dll.add_function('RegNotifyChangeKeyValue', 'DWORD',[
 			["DWORD","hKey","in"],
 			["BOOL","bWatchSubtree","in"],
 			["DWORD","dwNotifyFilter","in"],
@@ -343,18 +342,18 @@ class Def_advapi32
 			["BOOL","fAsynchronous","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenCurrentUser', 'DWORD',[
+		dll.add_function('RegOpenCurrentUser', 'DWORD',[
 			["DWORD","samDesired","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenKeyA', 'DWORD',[
+		dll.add_function('RegOpenKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenKeyExA', 'DWORD',[
+		dll.add_function('RegOpenKeyExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["DWORD","ulOptions","inout"],
@@ -362,7 +361,7 @@ class Def_advapi32
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenKeyExW', 'DWORD',[
+		dll.add_function('RegOpenKeyExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["DWORD","ulOptions","inout"],
@@ -370,25 +369,25 @@ class Def_advapi32
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenKeyW', 'DWORD',[
+		dll.add_function('RegOpenKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOpenUserClassesRoot', 'DWORD',[
+		dll.add_function('RegOpenUserClassesRoot', 'DWORD',[
 			["DWORD","hToken","in"],
 			["DWORD","dwOptions","inout"],
 			["DWORD","samDesired","in"],
 			["PDWORD","phkResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegOverridePredefKey', 'DWORD',[
+		dll.add_function('RegOverridePredefKey', 'DWORD',[
 			["DWORD","hKey","in"],
 			["DWORD","hNewHKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryInfoKeyA', 'DWORD',[
+		dll.add_function('RegQueryInfoKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpClass","out"],
 			["PDWORD","lpcchClass","inout"],
@@ -403,7 +402,7 @@ class Def_advapi32
 			["PBLOB","lpftLastWriteTime","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryInfoKeyW', 'DWORD',[
+		dll.add_function('RegQueryInfoKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpClass","out"],
 			["PDWORD","lpcchClass","inout"],
@@ -418,7 +417,7 @@ class Def_advapi32
 			["PBLOB","lpftLastWriteTime","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryMultipleValuesA', 'DWORD',[
+		dll.add_function('RegQueryMultipleValuesA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PBLOB","val_list","out"],
 			["DWORD","num_vals","in"],
@@ -426,7 +425,7 @@ class Def_advapi32
 			["PDWORD","ldwTotsize","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryMultipleValuesW', 'DWORD',[
+		dll.add_function('RegQueryMultipleValuesW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PBLOB","val_list","out"],
 			["DWORD","num_vals","in"],
@@ -434,19 +433,19 @@ class Def_advapi32
 			["PDWORD","ldwTotsize","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryReflectionKey', 'DWORD',[
+		dll.add_function('RegQueryReflectionKey', 'DWORD',[
 			["DWORD","hBase","in"],
 			["PBLOB","bIsReflectionDisabled","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryValueA', 'DWORD',[
+		dll.add_function('RegQueryValueA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PCHAR","lpData","out"],
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryValueExA', 'DWORD',[
+		dll.add_function('RegQueryValueExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpValueName","in"],
 			["PDWORD","lpReserved","inout"],
@@ -455,7 +454,7 @@ class Def_advapi32
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryValueExW', 'DWORD',[
+		dll.add_function('RegQueryValueExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpValueName","in"],
 			["PDWORD","lpReserved","inout"],
@@ -464,72 +463,72 @@ class Def_advapi32
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegQueryValueW', 'DWORD',[
+		dll.add_function('RegQueryValueW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PWCHAR","lpData","out"],
 			["PDWORD","lpcbData","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegReplaceKeyA', 'DWORD',[
+		dll.add_function('RegReplaceKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["PCHAR","lpNewFile","in"],
 			["PCHAR","lpOldFile","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegReplaceKeyW', 'DWORD',[
+		dll.add_function('RegReplaceKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["PWCHAR","lpNewFile","in"],
 			["PWCHAR","lpOldFile","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegRestoreKeyA', 'DWORD',[
+		dll.add_function('RegRestoreKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpFile","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegRestoreKeyW', 'DWORD',[
+		dll.add_function('RegRestoreKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpFile","in"],
 			["DWORD","dwFlags","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSaveKeyA', 'DWORD',[
+		dll.add_function('RegSaveKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpFile","in"],
 			["PBLOB","lpSecurityAttributes","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSaveKeyExA', 'DWORD',[
+		dll.add_function('RegSaveKeyExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpFile","in"],
 			["PBLOB","lpSecurityAttributes","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSaveKeyExW', 'DWORD',[
+		dll.add_function('RegSaveKeyExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpFile","in"],
 			["PBLOB","lpSecurityAttributes","in"],
 			["DWORD","Flags","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSaveKeyW', 'DWORD',[
+		dll.add_function('RegSaveKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpFile","in"],
 			["PBLOB","lpSecurityAttributes","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSetKeySecurity', 'DWORD',[
+		dll.add_function('RegSetKeySecurity', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","pSecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSetValueA', 'DWORD',[
+		dll.add_function('RegSetValueA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			["DWORD","dwType","in"],
@@ -537,7 +536,7 @@ class Def_advapi32
 			["DWORD","cbData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSetValueExA', 'DWORD',[
+		dll.add_function('RegSetValueExA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpValueName","in"],
 			["DWORD","Reserved","inout"],
@@ -546,7 +545,7 @@ class Def_advapi32
 			["DWORD","cbData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSetValueExW', 'DWORD',[
+		dll.add_function('RegSetValueExW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpValueName","in"],
 			["DWORD","Reserved","inout"],
@@ -555,7 +554,7 @@ class Def_advapi32
 			["DWORD","cbData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegSetValueW', 'DWORD',[
+		dll.add_function('RegSetValueW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			["DWORD","dwType","in"],
@@ -563,23 +562,23 @@ class Def_advapi32
 			["DWORD","cbData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegUnLoadKeyA', 'DWORD',[
+		dll.add_function('RegUnLoadKeyA', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PCHAR","lpSubKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegUnLoadKeyW', 'DWORD',[
+		dll.add_function('RegUnLoadKeyW', 'DWORD',[
 			["DWORD","hKey","in"],
 			["PWCHAR","lpSubKey","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'Wow64Win32ApiEntry', 'DWORD',[
+		dll.add_function('Wow64Win32ApiEntry', 'DWORD',[
 			["DWORD","dwFuncNumber","in"],
 			["DWORD","dwFlag","in"],
 			["DWORD","dwRes","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheck', 'BOOL',[
+		dll.add_function('AccessCheck', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["DWORD","ClientToken","in"],
 			["DWORD","DesiredAccess","in"],
@@ -590,7 +589,7 @@ class Def_advapi32
 			["PBLOB","AccessStatus","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckAndAuditAlarmA', 'BOOL',[
+		dll.add_function('AccessCheckAndAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PCHAR","ObjectTypeName","in"],
@@ -604,7 +603,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckAndAuditAlarmW', 'BOOL',[
+		dll.add_function('AccessCheckAndAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PWCHAR","ObjectTypeName","in"],
@@ -618,7 +617,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByType', 'BOOL',[
+		dll.add_function('AccessCheckByType', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","ClientToken","in"],
@@ -632,7 +631,7 @@ class Def_advapi32
 			["PBLOB","AccessStatus","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeAndAuditAlarmA', 'BOOL',[
+		dll.add_function('AccessCheckByTypeAndAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PCHAR","ObjectTypeName","in"],
@@ -651,7 +650,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeAndAuditAlarmW', 'BOOL',[
+		dll.add_function('AccessCheckByTypeAndAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PWCHAR","ObjectTypeName","in"],
@@ -670,7 +669,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultList', 'BOOL',[
+		dll.add_function('AccessCheckByTypeResultList', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["LPVOID","PrincipalSelfSid","in"],
 			["DWORD","ClientToken","in"],
@@ -684,7 +683,7 @@ class Def_advapi32
 			["PDWORD","AccessStatusList","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultListAndAuditAlarmA', 'BOOL',[
+		dll.add_function('AccessCheckByTypeResultListAndAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PCHAR","ObjectTypeName","in"],
@@ -703,7 +702,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultListAndAuditAlarmByHandleA', 'BOOL',[
+		dll.add_function('AccessCheckByTypeResultListAndAuditAlarmByHandleA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["DWORD","ClientToken","in"],
@@ -723,7 +722,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultListAndAuditAlarmByHandleW', 'BOOL',[
+		dll.add_function('AccessCheckByTypeResultListAndAuditAlarmByHandleW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["DWORD","ClientToken","in"],
@@ -743,7 +742,7 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AccessCheckByTypeResultListAndAuditAlarmW', 'BOOL',[
+		dll.add_function('AccessCheckByTypeResultListAndAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PWCHAR","ObjectTypeName","in"],
@@ -762,39 +761,14 @@ class Def_advapi32
 			["PBLOB","pfGenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAccessAllowedAce', 'BOOL',[
+		dll.add_function('AddAccessAllowedAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AccessMask","in"],
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAccessAllowedAceEx', 'BOOL',[
-			["PBLOB","pAcl","inout"],
-			["DWORD","dwAceRevision","in"],
-			["DWORD","AceFlags","in"],
-			["DWORD","AccessMask","in"],
-			["LPVOID","pSid","in"],
-			])
-
-		railgun.add_function( 'advapi32', 'AddAccessAllowedObjectAce', 'BOOL',[
-			["PBLOB","pAcl","inout"],
-			["DWORD","dwAceRevision","in"],
-			["DWORD","AceFlags","in"],
-			["DWORD","AccessMask","in"],
-			["PBLOB","ObjectTypeGuid","in"],
-			["PBLOB","InheritedObjectTypeGuid","in"],
-			["LPVOID","pSid","in"],
-			])
-
-		railgun.add_function( 'advapi32', 'AddAccessDeniedAce', 'BOOL',[
-			["PBLOB","pAcl","inout"],
-			["DWORD","dwAceRevision","in"],
-			["DWORD","AccessMask","in"],
-			["LPVOID","pSid","in"],
-			])
-
-		railgun.add_function( 'advapi32', 'AddAccessDeniedAceEx', 'BOOL',[
+		dll.add_function('AddAccessAllowedAceEx', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
@@ -802,7 +776,7 @@ class Def_advapi32
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAccessDeniedObjectAce', 'BOOL',[
+		dll.add_function('AddAccessAllowedObjectAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
@@ -812,7 +786,32 @@ class Def_advapi32
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAce', 'BOOL',[
+		dll.add_function('AddAccessDeniedAce', 'BOOL',[
+			["PBLOB","pAcl","inout"],
+			["DWORD","dwAceRevision","in"],
+			["DWORD","AccessMask","in"],
+			["LPVOID","pSid","in"],
+			])
+
+		dll.add_function('AddAccessDeniedAceEx', 'BOOL',[
+			["PBLOB","pAcl","inout"],
+			["DWORD","dwAceRevision","in"],
+			["DWORD","AceFlags","in"],
+			["DWORD","AccessMask","in"],
+			["LPVOID","pSid","in"],
+			])
+
+		dll.add_function('AddAccessDeniedObjectAce', 'BOOL',[
+			["PBLOB","pAcl","inout"],
+			["DWORD","dwAceRevision","in"],
+			["DWORD","AceFlags","in"],
+			["DWORD","AccessMask","in"],
+			["PBLOB","ObjectTypeGuid","in"],
+			["PBLOB","InheritedObjectTypeGuid","in"],
+			["LPVOID","pSid","in"],
+			])
+
+		dll.add_function('AddAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","dwStartingAceIndex","in"],
@@ -820,7 +819,7 @@ class Def_advapi32
 			["DWORD","nAceListLength","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAuditAccessAce', 'BOOL',[
+		dll.add_function('AddAuditAccessAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","dwAccessMask","in"],
@@ -829,7 +828,7 @@ class Def_advapi32
 			["BOOL","bAuditFailure","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAuditAccessAceEx', 'BOOL',[
+		dll.add_function('AddAuditAccessAceEx', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
@@ -839,7 +838,7 @@ class Def_advapi32
 			["BOOL","bAuditFailure","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AddAuditAccessObjectAce', 'BOOL',[
+		dll.add_function('AddAuditAccessObjectAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceRevision","in"],
 			["DWORD","AceFlags","in"],
@@ -851,7 +850,7 @@ class Def_advapi32
 			["BOOL","bAuditFailure","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AdjustTokenGroups', 'BOOL',[
+		dll.add_function('AdjustTokenGroups', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			["BOOL","ResetToDefault","in"],
 			["PBLOB","NewState","in"],
@@ -860,7 +859,7 @@ class Def_advapi32
 			["PDWORD","ReturnLength","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AdjustTokenPrivileges', 'BOOL',[
+		dll.add_function('AdjustTokenPrivileges', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			["BOOL","DisableAllPrivileges","in"],
 			["PBLOB","NewState","in"],
@@ -869,7 +868,7 @@ class Def_advapi32
 			["PDWORD","ReturnLength","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AllocateAndInitializeSid', 'BOOL',[
+		dll.add_function('AllocateAndInitializeSid', 'BOOL',[
 			["PBLOB","pIdentifierAuthority","in"],
 			["BYTE","nSubAuthorityCount","in"],
 			["DWORD","nSubAuthority0","in"],
@@ -883,55 +882,55 @@ class Def_advapi32
 			["PDWORD","pSid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AllocateLocallyUniqueId', 'BOOL',[
+		dll.add_function('AllocateLocallyUniqueId', 'BOOL',[
 			["PBLOB","Luid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'AreAllAccessesGranted', 'BOOL',[
+		dll.add_function('AreAllAccessesGranted', 'BOOL',[
 			["DWORD","GrantedAccess","in"],
 			["DWORD","DesiredAccess","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'AreAnyAccessesGranted', 'BOOL',[
+		dll.add_function('AreAnyAccessesGranted', 'BOOL',[
 			["DWORD","GrantedAccess","in"],
 			["DWORD","DesiredAccess","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'BackupEventLogA', 'BOOL',[
+		dll.add_function('BackupEventLogA', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PCHAR","lpBackupFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'BackupEventLogW', 'BOOL',[
+		dll.add_function('BackupEventLogW', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PWCHAR","lpBackupFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CheckTokenMembership', 'BOOL',[
+		dll.add_function('CheckTokenMembership', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			["PBLOB","SidToCheck","in"],
 			["PBLOB","IsMember","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'ClearEventLogA', 'BOOL',[
+		dll.add_function('ClearEventLogA', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PCHAR","lpBackupFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ClearEventLogW', 'BOOL',[
+		dll.add_function('ClearEventLogW', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PWCHAR","lpBackupFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CloseEncryptedFileRaw', 'VOID',[
+		dll.add_function('CloseEncryptedFileRaw', 'VOID',[
 			["PBLOB","pvContext","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CloseEventLog', 'BOOL',[
+		dll.add_function('CloseEventLog', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ConvertToAutoInheritPrivateObjectSecurity', 'BOOL',[
+		dll.add_function('ConvertToAutoInheritPrivateObjectSecurity', 'BOOL',[
 			["PBLOB","ParentDescriptor","in"],
 			["PBLOB","CurrentSecurityDescriptor","in"],
 			["PBLOB","NewSecurityDescriptor","out"],
@@ -940,23 +939,23 @@ class Def_advapi32
 			["PBLOB","GenericMapping","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ConvertStringSidToSidA', 'BOOL',[
+		dll.add_function('ConvertStringSidToSidA', 'BOOL',[
 			["PCHAR","StringSid","in"],
 			["PDWORD","pSid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'ConvertStringSidToSidW', 'BOOL',[
+		dll.add_function('ConvertStringSidToSidW', 'BOOL',[
 			["PWCHAR","StringSid","in"],
 			["PDWORD","pSid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CopySid', 'BOOL',[
+		dll.add_function('CopySid', 'BOOL',[
 			["DWORD","nDestinationSidLength","in"],
 			["PBLOB","pDestinationSid","out"],
 			["LPVOID","pSourceSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreatePrivateObjectSecurity', 'BOOL',[
+		dll.add_function('CreatePrivateObjectSecurity', 'BOOL',[
 			["PBLOB","ParentDescriptor","in"],
 			["PBLOB","CreatorDescriptor","in"],
 			["PBLOB","NewDescriptor","out"],
@@ -965,7 +964,7 @@ class Def_advapi32
 			["PBLOB","GenericMapping","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreatePrivateObjectSecurityEx', 'BOOL',[
+		dll.add_function('CreatePrivateObjectSecurityEx', 'BOOL',[
 			["PBLOB","ParentDescriptor","in"],
 			["PBLOB","CreatorDescriptor","in"],
 			["PBLOB","NewDescriptor","out"],
@@ -976,7 +975,7 @@ class Def_advapi32
 			["PBLOB","GenericMapping","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreatePrivateObjectSecurityWithMultipleInheritance', 'BOOL',[
+		dll.add_function('CreatePrivateObjectSecurityWithMultipleInheritance', 'BOOL',[
 			["PBLOB","ParentDescriptor","in"],
 			["PBLOB","CreatorDescriptor","in"],
 			["PBLOB","NewDescriptor","out"],
@@ -988,7 +987,7 @@ class Def_advapi32
 			["PBLOB","GenericMapping","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateProcessAsUserA', 'BOOL',[
+		dll.add_function('CreateProcessAsUserA', 'BOOL',[
 			["DWORD","hToken","in"],
 			["PCHAR","lpApplicationName","in"],
 			["PCHAR","lpCommandLine","inout"],
@@ -1002,7 +1001,7 @@ class Def_advapi32
 			["PBLOB","lpProcessInformation","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateProcessAsUserW', 'BOOL',[
+		dll.add_function('CreateProcessAsUserW', 'BOOL',[
 			["DWORD","hToken","in"],
 			["PWCHAR","lpApplicationName","in"],
 			["PWCHAR","lpCommandLine","inout"],
@@ -1016,7 +1015,7 @@ class Def_advapi32
 			["PBLOB","lpProcessInformation","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateProcessWithLogonW', 'BOOL',[
+		dll.add_function('CreateProcessWithLogonW', 'BOOL',[
 			["PWCHAR","lpUsername","in"],
 			["PWCHAR","lpDomain","in"],
 			["PWCHAR","lpPassword","in"],
@@ -1030,7 +1029,7 @@ class Def_advapi32
 			["PBLOB","lpProcessInformation","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateProcessWithTokenW', 'BOOL',[
+		dll.add_function('CreateProcessWithTokenW', 'BOOL',[
 			["DWORD","hToken","in"],
 			["DWORD","dwLogonFlags","in"],
 			["PWCHAR","lpApplicationName","in"],
@@ -1042,7 +1041,7 @@ class Def_advapi32
 			["PBLOB","lpProcessInformation","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateRestrictedToken', 'BOOL',[
+		dll.add_function('CreateRestrictedToken', 'BOOL',[
 			["DWORD","ExistingTokenHandle","in"],
 			["DWORD","Flags","in"],
 			["DWORD","DisableSidCount","in"],
@@ -1054,43 +1053,43 @@ class Def_advapi32
 			["PDWORD","NewTokenHandle","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'CreateWellKnownSid', 'BOOL',[
+		dll.add_function('CreateWellKnownSid', 'BOOL',[
 			["DWORD","WellKnownSidType","in"],
 			["PBLOB","DomainSid","in"],
 			["PBLOB","pSid","out"],
 			["PDWORD","cbSid","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'DecryptFileA', 'BOOL',[
+		dll.add_function('DecryptFileA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
 			["DWORD","dwReserved","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'DecryptFileW', 'BOOL',[
+		dll.add_function('DecryptFileW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
 			["DWORD","dwReserved","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'DeleteAce', 'BOOL',[
+		dll.add_function('DeleteAce', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["DWORD","dwAceIndex","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'DeregisterEventSource', 'BOOL',[
+		dll.add_function('DeregisterEventSource', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'DestroyPrivateObjectSecurity', 'BOOL',[
+		dll.add_function('DestroyPrivateObjectSecurity', 'BOOL',[
 			["PBLOB","ObjectDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'DuplicateToken', 'BOOL',[
+		dll.add_function('DuplicateToken', 'BOOL',[
 			["DWORD","ExistingTokenHandle","in"],
 			["DWORD","ImpersonationLevel","in"],
 			["PDWORD","DuplicateTokenHandle","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'DuplicateTokenEx', 'BOOL',[
+		dll.add_function('DuplicateTokenEx', 'BOOL',[
 			["DWORD","hExistingToken","in"],
 			["DWORD","dwDesiredAccess","in"],
 			["PBLOB","lpTokenAttributes","in"],
@@ -1099,71 +1098,71 @@ class Def_advapi32
 			["PDWORD","phNewToken","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'EncryptFileA', 'BOOL',[
+		dll.add_function('EncryptFileA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'EncryptFileW', 'BOOL',[
+		dll.add_function('EncryptFileW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'EqualDomainSid', 'BOOL',[
+		dll.add_function('EqualDomainSid', 'BOOL',[
 			["LPVOID","pSid1","in"],
 			["LPVOID","pSid2","in"],
 			["PBLOB","pfEqual","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'EqualPrefixSid', 'BOOL',[
+		dll.add_function('EqualPrefixSid', 'BOOL',[
 			["LPVOID","pSid1","in"],
 			["LPVOID","pSid2","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'EqualSid', 'BOOL',[
+		dll.add_function('EqualSid', 'BOOL',[
 			["LPVOID","pSid1","in"],
 			["LPVOID","pSid2","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'FileEncryptionStatusA', 'BOOL',[
+		dll.add_function('FileEncryptionStatusA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
 			["PDWORD","lpStatus","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'FileEncryptionStatusW', 'BOOL',[
+		dll.add_function('FileEncryptionStatusW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
 			["PDWORD","lpStatus","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'FindFirstFreeAce', 'BOOL',[
+		dll.add_function('FindFirstFreeAce', 'BOOL',[
 			["PBLOB","pAcl","in"],
 			["PBLOB","pAce","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'FreeSid', 'LPVOID',[
+		dll.add_function('FreeSid', 'LPVOID',[
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetAce', 'BOOL',[
+		dll.add_function('GetAce', 'BOOL',[
 			["PBLOB","pAcl","in"],
 			["DWORD","dwAceIndex","in"],
 			["PBLOB","pAce","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetAclInformation', 'BOOL',[
+		dll.add_function('GetAclInformation', 'BOOL',[
 			["PBLOB","pAcl","in"],
 			["PBLOB","pAclInformation","out"],
 			["DWORD","nAclInformationLength","in"],
 			["DWORD","dwAclInformationClass","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetCurrentHwProfileA', 'BOOL',[
+		dll.add_function('GetCurrentHwProfileA', 'BOOL',[
 			["PBLOB","lpHwProfileInfo","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetCurrentHwProfileW', 'BOOL',[
+		dll.add_function('GetCurrentHwProfileW', 'BOOL',[
 			["PBLOB","lpHwProfileInfo","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetEventLogInformation', 'BOOL',[
+		dll.add_function('GetEventLogInformation', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["DWORD","dwInfoLevel","in"],
 			["PBLOB","lpBuffer","out"],
@@ -1171,7 +1170,7 @@ class Def_advapi32
 			["PDWORD","pcbBytesNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetFileSecurityA', 'BOOL',[
+		dll.add_function('GetFileSecurityA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
 			["PBLOB","RequestedInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
@@ -1179,7 +1178,7 @@ class Def_advapi32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetFileSecurityW', 'BOOL',[
+		dll.add_function('GetFileSecurityW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
 			["PBLOB","RequestedInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
@@ -1187,7 +1186,7 @@ class Def_advapi32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetKernelObjectSecurity', 'BOOL',[
+		dll.add_function('GetKernelObjectSecurity', 'BOOL',[
 			["DWORD","Handle","in"],
 			["PBLOB","RequestedInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
@@ -1195,21 +1194,21 @@ class Def_advapi32
 			["PDWORD","lpnLengthNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetLengthSid', 'DWORD',[
+		dll.add_function('GetLengthSid', 'DWORD',[
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetNumberOfEventLogRecords', 'BOOL',[
+		dll.add_function('GetNumberOfEventLogRecords', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PDWORD","NumberOfRecords","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetOldestEventLogRecord', 'BOOL',[
+		dll.add_function('GetOldestEventLogRecord', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["PDWORD","OldestRecord","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetPrivateObjectSecurity', 'BOOL',[
+		dll.add_function('GetPrivateObjectSecurity', 'BOOL',[
 			["PBLOB","ObjectDescriptor","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","ResultantDescriptor","out"],
@@ -1217,52 +1216,52 @@ class Def_advapi32
 			["PDWORD","ReturnLength","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorControl', 'BOOL',[
+		dll.add_function('GetSecurityDescriptorControl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["PBLOB","pControl","out"],
 			["PDWORD","lpdwRevision","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorDacl', 'BOOL',[
+		dll.add_function('GetSecurityDescriptorDacl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["PBLOB","lpbDaclPresent","out"],
 			["PBLOB","pDacl","out"],
 			["PBLOB","lpbDaclDefaulted","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorGroup', 'BOOL',[
+		dll.add_function('GetSecurityDescriptorGroup', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["PBLOB","pGroup","out"],
 			["PBLOB","lpbGroupDefaulted","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorLength', 'DWORD',[
+		dll.add_function('GetSecurityDescriptorLength', 'DWORD',[
 			["PBLOB","pSecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorOwner', 'BOOL',[
+		dll.add_function('GetSecurityDescriptorOwner', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["PBLOB","pOwner","out"],
 			["PBLOB","lpbOwnerDefaulted","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorRMControl', 'DWORD',[
+		dll.add_function('GetSecurityDescriptorRMControl', 'DWORD',[
 			["PBLOB","SecurityDescriptor","in"],
 			["PBLOB","RMControl","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSecurityDescriptorSacl', 'BOOL',[
+		dll.add_function('GetSecurityDescriptorSacl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["PBLOB","lpbSaclPresent","out"],
 			["PBLOB","pSacl","out"],
 			["PBLOB","lpbSaclDefaulted","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetSidLengthRequired', 'DWORD',[
+		dll.add_function('GetSidLengthRequired', 'DWORD',[
 			["BYTE","nSubAuthorityCount","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetTokenInformation', 'BOOL',[
+		dll.add_function('GetTokenInformation', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			["DWORD","TokenInformationClass","in"],
 			["PBLOB","TokenInformation","out"],
@@ -1270,86 +1269,86 @@ class Def_advapi32
 			["PDWORD","ReturnLength","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetUserNameA', 'BOOL',[
+		dll.add_function('GetUserNameA', 'BOOL',[
 			["PCHAR","lpBuffer","out"],
 			["PDWORD","pcbBuffer","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetUserNameW', 'BOOL',[
+		dll.add_function('GetUserNameW', 'BOOL',[
 			["PWCHAR","lpBuffer","out"],
 			["PDWORD","pcbBuffer","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'GetWindowsAccountDomainSid', 'BOOL',[
+		dll.add_function('GetWindowsAccountDomainSid', 'BOOL',[
 			["LPVOID","pSid","in"],
 			["PBLOB","pDomainSid","out"],
 			["PDWORD","cbDomainSid","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'ImpersonateAnonymousToken', 'BOOL',[
+		dll.add_function('ImpersonateAnonymousToken', 'BOOL',[
 			["DWORD","ThreadHandle","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ImpersonateLoggedOnUser', 'BOOL',[
+		dll.add_function('ImpersonateLoggedOnUser', 'BOOL',[
 			["DWORD","hToken","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ImpersonateNamedPipeClient', 'BOOL',[
+		dll.add_function('ImpersonateNamedPipeClient', 'BOOL',[
 			["DWORD","hNamedPipe","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ImpersonateSelf', 'BOOL',[
+		dll.add_function('ImpersonateSelf', 'BOOL',[
 			["DWORD","ImpersonationLevel","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitializeAcl', 'BOOL',[
+		dll.add_function('InitializeAcl', 'BOOL',[
 			["PBLOB","pAcl","out"],
 			["DWORD","nAclLength","in"],
 			["DWORD","dwAclRevision","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitializeSecurityDescriptor', 'BOOL',[
+		dll.add_function('InitializeSecurityDescriptor', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","out"],
 			["DWORD","dwRevision","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'InitializeSid', 'BOOL',[
+		dll.add_function('InitializeSid', 'BOOL',[
 			["PBLOB","Sid","out"],
 			["PBLOB","pIdentifierAuthority","in"],
 			["BYTE","nSubAuthorityCount","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsTextUnicode', 'BOOL',[
+		dll.add_function('IsTextUnicode', 'BOOL',[
 			["DWORD","iSize","in"],
 			["PDWORD","lpiResult","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsTokenRestricted', 'BOOL',[
+		dll.add_function('IsTokenRestricted', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsTokenUntrusted', 'BOOL',[
+		dll.add_function('IsTokenUntrusted', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsValidAcl', 'BOOL',[
+		dll.add_function('IsValidAcl', 'BOOL',[
 			["PBLOB","pAcl","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsValidSecurityDescriptor', 'BOOL',[
+		dll.add_function('IsValidSecurityDescriptor', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsValidSid', 'BOOL',[
+		dll.add_function('IsValidSid', 'BOOL',[
 			["LPVOID","pSid","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'IsWellKnownSid', 'BOOL',[
+		dll.add_function('IsWellKnownSid', 'BOOL',[
 			["LPVOID","pSid","in"],
 			["DWORD","WellKnownSidType","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'LogonUserA', 'BOOL',[
+		dll.add_function('LogonUserA', 'BOOL',[
 			["PCHAR","lpszUsername","in"],
 			["PCHAR","lpszDomain","in"],
 			["PCHAR","lpszPassword","in"],
@@ -1358,7 +1357,7 @@ class Def_advapi32
 			["PDWORD","phToken","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LogonUserExA', 'BOOL',[
+		dll.add_function('LogonUserExA', 'BOOL',[
 			["PCHAR","lpszUsername","in"],
 			["PCHAR","lpszDomain","in"],
 			["PCHAR","lpszPassword","in"],
@@ -1371,7 +1370,7 @@ class Def_advapi32
 			["PBLOB","pQuotaLimits","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LogonUserExW', 'BOOL',[
+		dll.add_function('LogonUserExW', 'BOOL',[
 			["PWCHAR","lpszUsername","in"],
 			["PWCHAR","lpszDomain","in"],
 			["PWCHAR","lpszPassword","in"],
@@ -1384,7 +1383,7 @@ class Def_advapi32
 			["PBLOB","pQuotaLimits","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LogonUserW', 'BOOL',[
+		dll.add_function('LogonUserW', 'BOOL',[
 			["PWCHAR","lpszUsername","in"],
 			["PWCHAR","lpszDomain","in"],
 			["PWCHAR","lpszPassword","in"],
@@ -1393,7 +1392,7 @@ class Def_advapi32
 			["PDWORD","phToken","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupAccountNameA', 'BOOL',[
+		dll.add_function('LookupAccountNameA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
 			["PCHAR","lpAccountName","in"],
 			["PBLOB","Sid","out"],
@@ -1403,7 +1402,7 @@ class Def_advapi32
 			["PBLOB","peUse","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupAccountNameW', 'BOOL',[
+		dll.add_function('LookupAccountNameW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
 			["PWCHAR","lpAccountName","in"],
 			["PBLOB","Sid","out"],
@@ -1413,7 +1412,7 @@ class Def_advapi32
 			["PBLOB","peUse","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupAccountSidA', 'BOOL',[
+		dll.add_function('LookupAccountSidA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
 			["LPVOID","Sid","in"],
 			["PCHAR","Name","out"],
@@ -1423,7 +1422,7 @@ class Def_advapi32
 			["PBLOB","peUse","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupAccountSidW', 'BOOL',[
+		dll.add_function('LookupAccountSidW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
 			["LPVOID","Sid","in"],
 			["PWCHAR","Name","out"],
@@ -1433,7 +1432,7 @@ class Def_advapi32
 			["PBLOB","peUse","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeDisplayNameA', 'BOOL',[
+		dll.add_function('LookupPrivilegeDisplayNameA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
 			["PCHAR","lpName","in"],
 			["PCHAR","lpDisplayName","out"],
@@ -1441,7 +1440,7 @@ class Def_advapi32
 			["PDWORD","lpLanguageId","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeDisplayNameW', 'BOOL',[
+		dll.add_function('LookupPrivilegeDisplayNameW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
 			["PWCHAR","lpName","in"],
 			["PWCHAR","lpDisplayName","out"],
@@ -1449,33 +1448,33 @@ class Def_advapi32
 			["PDWORD","lpLanguageId","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeNameA', 'BOOL',[
+		dll.add_function('LookupPrivilegeNameA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
 			["PBLOB","lpLuid","in"],
 			["PCHAR","lpName","out"],
 			["PDWORD","cchName","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeNameW', 'BOOL',[
+		dll.add_function('LookupPrivilegeNameW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
 			["PBLOB","lpLuid","in"],
 			["PWCHAR","lpName","out"],
 			["PDWORD","cchName","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeValueA', 'BOOL',[
+		dll.add_function('LookupPrivilegeValueA', 'BOOL',[
 			["PCHAR","lpSystemName","in"],
 			["PCHAR","lpName","in"],
 			["PBLOB","lpLuid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'LookupPrivilegeValueW', 'BOOL',[
+		dll.add_function('LookupPrivilegeValueW', 'BOOL',[
 			["PWCHAR","lpSystemName","in"],
 			["PWCHAR","lpName","in"],
 			["PBLOB","lpLuid","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'MakeAbsoluteSD', 'BOOL',[
+		dll.add_function('MakeAbsoluteSD', 'BOOL',[
 			["PBLOB","pSelfRelativeSecurityDescriptor","in"],
 			["PBLOB","pAbsoluteSecurityDescriptor","out"],
 			["PDWORD","lpdwAbsoluteSecurityDescriptorSize","inout"],
@@ -1489,52 +1488,52 @@ class Def_advapi32
 			["PDWORD","lpdwPrimaryGroupSize","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'MakeAbsoluteSD2', 'BOOL',[
+		dll.add_function('MakeAbsoluteSD2', 'BOOL',[
 			["PBLOB","pSelfRelativeSecurityDescriptor","inout"],
 			["PDWORD","lpdwBufferSize","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'MakeSelfRelativeSD', 'BOOL',[
+		dll.add_function('MakeSelfRelativeSD', 'BOOL',[
 			["PBLOB","pAbsoluteSecurityDescriptor","in"],
 			["PBLOB","pSelfRelativeSecurityDescriptor","out"],
 			["PDWORD","lpdwBufferLength","inout"],
 			])
 
-		railgun.add_function( 'advapi32', 'MapGenericMask', 'VOID',[
+		dll.add_function('MapGenericMask', 'VOID',[
 			["PDWORD","AccessMask","inout"],
 			["PBLOB","GenericMapping","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'NotifyChangeEventLog', 'BOOL',[
+		dll.add_function('NotifyChangeEventLog', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["DWORD","hEvent","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectCloseAuditAlarmA', 'BOOL',[
+		dll.add_function('ObjectCloseAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["BOOL","GenerateOnClose","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectCloseAuditAlarmW', 'BOOL',[
+		dll.add_function('ObjectCloseAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["BOOL","GenerateOnClose","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectDeleteAuditAlarmA', 'BOOL',[
+		dll.add_function('ObjectDeleteAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["BOOL","GenerateOnClose","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectDeleteAuditAlarmW', 'BOOL',[
+		dll.add_function('ObjectDeleteAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["BOOL","GenerateOnClose","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectOpenAuditAlarmA', 'BOOL',[
+		dll.add_function('ObjectOpenAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PCHAR","ObjectTypeName","in"],
@@ -1549,7 +1548,7 @@ class Def_advapi32
 			["PBLOB","GenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectOpenAuditAlarmW', 'BOOL',[
+		dll.add_function('ObjectOpenAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["PWCHAR","ObjectTypeName","in"],
@@ -1564,7 +1563,7 @@ class Def_advapi32
 			["PBLOB","GenerateOnClose","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectPrivilegeAuditAlarmA', 'BOOL',[
+		dll.add_function('ObjectPrivilegeAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["DWORD","ClientToken","in"],
@@ -1573,7 +1572,7 @@ class Def_advapi32
 			["BOOL","AccessGranted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ObjectPrivilegeAuditAlarmW', 'BOOL',[
+		dll.add_function('ObjectPrivilegeAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PBLOB","HandleId","in"],
 			["DWORD","ClientToken","in"],
@@ -1582,58 +1581,58 @@ class Def_advapi32
 			["BOOL","AccessGranted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenBackupEventLogA', 'DWORD',[
+		dll.add_function('OpenBackupEventLogA', 'DWORD',[
 			["PCHAR","lpUNCServerName","in"],
 			["PCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenBackupEventLogW', 'DWORD',[
+		dll.add_function('OpenBackupEventLogW', 'DWORD',[
 			["PWCHAR","lpUNCServerName","in"],
 			["PWCHAR","lpFileName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenEncryptedFileRawA', 'DWORD',[
+		dll.add_function('OpenEncryptedFileRawA', 'DWORD',[
 			["PCHAR","lpFileName","in"],
 			["DWORD","ulFlags","in"],
 			["PBLOB","pvContext","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenEncryptedFileRawW', 'DWORD',[
+		dll.add_function('OpenEncryptedFileRawW', 'DWORD',[
 			["PWCHAR","lpFileName","in"],
 			["DWORD","ulFlags","in"],
 			["PBLOB","pvContext","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenEventLogA', 'DWORD',[
+		dll.add_function('OpenEventLogA', 'DWORD',[
 			["PCHAR","lpUNCServerName","in"],
 			["PCHAR","lpSourceName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenEventLogW', 'DWORD',[
+		dll.add_function('OpenEventLogW', 'DWORD',[
 			["PWCHAR","lpUNCServerName","in"],
 			["PWCHAR","lpSourceName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenProcessToken', 'BOOL',[
+		dll.add_function('OpenProcessToken', 'BOOL',[
 			["DWORD","ProcessHandle","in"],
 			["DWORD","DesiredAccess","in"],
 			["PDWORD","TokenHandle","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'OpenThreadToken', 'BOOL',[
+		dll.add_function('OpenThreadToken', 'BOOL',[
 			["DWORD","ThreadHandle","in"],
 			["DWORD","DesiredAccess","in"],
 			["BOOL","OpenAsSelf","in"],
 			["PDWORD","TokenHandle","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'PrivilegeCheck', 'BOOL',[
+		dll.add_function('PrivilegeCheck', 'BOOL',[
 			["DWORD","ClientToken","in"],
 			["PBLOB","RequiredPrivileges","inout"],
 			["PBLOB","pfResult","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'PrivilegedServiceAuditAlarmA', 'BOOL',[
+		dll.add_function('PrivilegedServiceAuditAlarmA', 'BOOL',[
 			["PCHAR","SubsystemName","in"],
 			["PCHAR","ServiceName","in"],
 			["DWORD","ClientToken","in"],
@@ -1641,7 +1640,7 @@ class Def_advapi32
 			["BOOL","AccessGranted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'PrivilegedServiceAuditAlarmW', 'BOOL',[
+		dll.add_function('PrivilegedServiceAuditAlarmW', 'BOOL',[
 			["PWCHAR","SubsystemName","in"],
 			["PWCHAR","ServiceName","in"],
 			["DWORD","ClientToken","in"],
@@ -1649,13 +1648,13 @@ class Def_advapi32
 			["BOOL","AccessGranted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ReadEncryptedFileRaw', 'DWORD',[
+		dll.add_function('ReadEncryptedFileRaw', 'DWORD',[
 			["PBLOB","pfExportCallback","in"],
 			["PBLOB","pvCallbackContext","in"],
 			["PBLOB","pvContext","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ReadEventLogA', 'BOOL',[
+		dll.add_function('ReadEventLogA', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["DWORD","dwReadFlags","in"],
 			["DWORD","dwRecordOffset","in"],
@@ -1665,7 +1664,7 @@ class Def_advapi32
 			["PDWORD","pnMinNumberOfBytesNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'ReadEventLogW', 'BOOL',[
+		dll.add_function('ReadEventLogW', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["DWORD","dwReadFlags","in"],
 			["DWORD","dwRecordOffset","in"],
@@ -1675,17 +1674,17 @@ class Def_advapi32
 			["PDWORD","pnMinNumberOfBytesNeeded","out"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegisterEventSourceA', 'DWORD',[
+		dll.add_function('RegisterEventSourceA', 'DWORD',[
 			["PCHAR","lpUNCServerName","in"],
 			["PCHAR","lpSourceName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RegisterEventSourceW', 'DWORD',[
+		dll.add_function('RegisterEventSourceW', 'DWORD',[
 			["PWCHAR","lpUNCServerName","in"],
 			["PWCHAR","lpSourceName","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ReportEventA', 'BOOL',[
+		dll.add_function('ReportEventA', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["WORD","wType","in"],
 			["WORD","wCategory","in"],
@@ -1697,7 +1696,7 @@ class Def_advapi32
 			["PBLOB","lpRawData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'ReportEventW', 'BOOL',[
+		dll.add_function('ReportEventW', 'BOOL',[
 			["DWORD","hEventLog","in"],
 			["WORD","wType","in"],
 			["WORD","wCategory","in"],
@@ -1709,35 +1708,35 @@ class Def_advapi32
 			["PBLOB","lpRawData","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'RevertToSelf', 'BOOL',[
+		dll.add_function('RevertToSelf', 'BOOL',[
 			])
 
-		railgun.add_function( 'advapi32', 'SetAclInformation', 'BOOL',[
+		dll.add_function('SetAclInformation', 'BOOL',[
 			["PBLOB","pAcl","inout"],
 			["PBLOB","pAclInformation","in"],
 			["DWORD","nAclInformationLength","in"],
 			["DWORD","dwAclInformationClass","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetFileSecurityA', 'BOOL',[
+		dll.add_function('SetFileSecurityA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","pSecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetFileSecurityW', 'BOOL',[
+		dll.add_function('SetFileSecurityW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","pSecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetKernelObjectSecurity', 'BOOL',[
+		dll.add_function('SetKernelObjectSecurity', 'BOOL',[
 			["DWORD","Handle","in"],
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","SecurityDescriptor","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetPrivateObjectSecurity', 'BOOL',[
+		dll.add_function('SetPrivateObjectSecurity', 'BOOL',[
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","ModificationDescriptor","in"],
 			["PBLOB","ObjectsSecurityDescriptor","inout"],
@@ -1745,7 +1744,7 @@ class Def_advapi32
 			["DWORD","Token","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetPrivateObjectSecurityEx', 'BOOL',[
+		dll.add_function('SetPrivateObjectSecurityEx', 'BOOL',[
 			["PBLOB","SecurityInformation","in"],
 			["PBLOB","ModificationDescriptor","in"],
 			["PBLOB","ObjectsSecurityDescriptor","inout"],
@@ -1754,61 +1753,63 @@ class Def_advapi32
 			["DWORD","Token","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorControl', 'BOOL',[
+		dll.add_function('SetSecurityDescriptorControl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","in"],
 			["WORD","ControlBitsOfInterest","in"],
 			["WORD","ControlBitsToSet","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorDacl', 'BOOL',[
+		dll.add_function('SetSecurityDescriptorDacl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","inout"],
 			["BOOL","bDaclPresent","in"],
 			["PBLOB","pDacl","in"],
 			["BOOL","bDaclDefaulted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorGroup', 'BOOL',[
+		dll.add_function('SetSecurityDescriptorGroup', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","inout"],
 			["PBLOB","pGroup","in"],
 			["BOOL","bGroupDefaulted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorOwner', 'BOOL',[
+		dll.add_function('SetSecurityDescriptorOwner', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","inout"],
 			["PBLOB","pOwner","in"],
 			["BOOL","bOwnerDefaulted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorRMControl', 'DWORD',[
+		dll.add_function('SetSecurityDescriptorRMControl', 'DWORD',[
 			["PBLOB","SecurityDescriptor","inout"],
 			["PBLOB","RMControl","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetSecurityDescriptorSacl', 'BOOL',[
+		dll.add_function('SetSecurityDescriptorSacl', 'BOOL',[
 			["PBLOB","pSecurityDescriptor","inout"],
 			["BOOL","bSaclPresent","in"],
 			["PBLOB","pSacl","in"],
 			["BOOL","bSaclDefaulted","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetThreadToken', 'BOOL',[
+		dll.add_function('SetThreadToken', 'BOOL',[
 			["PDWORD","Thread","in"],
 			["DWORD","Token","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'SetTokenInformation', 'BOOL',[
+		dll.add_function('SetTokenInformation', 'BOOL',[
 			["DWORD","TokenHandle","in"],
 			["DWORD","TokenInformationClass","in"],
 			["PBLOB","TokenInformation","in"],
 			["DWORD","TokenInformationLength","in"],
 			])
 
-		railgun.add_function( 'advapi32', 'WriteEncryptedFileRaw', 'DWORD',[
+		dll.add_function('WriteEncryptedFileRaw', 'DWORD',[
 			["PBLOB","pfImportCallback","in"],
 			["PBLOB","pvCallbackContext","in"],
 			["PBLOB","pvContext","in"],
 			])
 
+
+		return dll
 	end
 	
 end
