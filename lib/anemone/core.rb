@@ -44,8 +44,12 @@ module Anemone
       :redirect_limit => 5,
       # storage engine defaults to Hash in +process_options+ if none specified
       :storage => nil,
-      # Hash of cookie name => value to send with HTTP requests
+      # hash of cookie name => value to send with HTTP requests
       :cookies => nil,
+      # basic authentication data to send with HTTP requests
+      :http_basic_auth => nil,
+      # array or raw header lines to inject into each request 
+      :inject_headers => [],
       # accept cookies from the server and send them back?
       :accept_cookies => false,
       # skip any link with a query string? e.g. http://foo.com/?u=user
@@ -73,7 +77,7 @@ module Anemone
       @skip_link_patterns = []
       @after_crawl_blocks = []
       @opts = opts
-
+      
       yield self if block_given?
     end
 

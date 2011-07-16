@@ -143,6 +143,17 @@ module Anemone
       	head['Referer'] = referer.to_s
       end
       
+      if @opts[:http_basic_auth]
+      	head['Authorization'] = "Basic " + @opts[:http_basic_auth]
+      end
+
+      @opts[:inject_headers].each do |hdr|
+      	k,v = hdr.split(':', 2)
+      	head[k] = v
+      end
+      
+      opts['headers'] = head
+      
       retries = 0
       begin
         start = Time.now()

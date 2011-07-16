@@ -35,6 +35,8 @@ module Auxiliary::HttpCrawler
 				]),
 				OptString.new('BasicAuthUser', [false, 'The HTTP username to specify for basic authentication']),
 				OptString.new('BasicAuthPass', [false, 'The HTTP password to specify for basic authentication']),
+				OptString.new('HTTPAdditionalHeaders', [false, "A list of additional headers to send (separated by \\x01)"]),
+				OptString.new('HTTPCookie', [false, "A HTTP cookie header to send with each request"]),
 				OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', false]),
 				OptEnum.new('SSLVersion', [ false, 'Specify the version of SSL that should be used', 'SSL3', ['SSL2', 'SSL23', 'SSL3', 'TLS1']]),
 			], self.class
@@ -109,11 +111,26 @@ module Auxiliary::HttpCrawler
 			:ssl      => ssl,
 			:path     => path,
 			:query    => query,
-			:user     => datastore['BasicAuthUser'],
-			:pass     => datastore['BasicAuthPass'],
 			:info     => ""
 		})
+		
+		if datastore['BasicAuthUser']
+			t[:http_basic_auth] = [ "#{datastore['BasicAuthUser']}:#{datastore['BasicAuthPass']}" ].pack("m*").gsub(/\s+/, '')
+		end
+		
+		if datastore['HTTPCookie']
+			t[:cookies] = {}
+			datastore['HTTPCookie'].to_s.split(';').each do |pair|
+				k,v = pair.strip.split('=', 2)
+				next if not v
+				t[:cookies][k] = v
+			end
+		end 
 
+		if datastore['HTTPAdditionalHeaders']
+			t[:headers] = datastore['HTTPAdditionalHeaders'].to_s.split("\x01").select{|x| x.to_s.length > 0}
+		end 
+		
 		t[:site] = report_web_site(:wait => true, :host => t[:host], :port => t[:port], :vhost => t[:vhost], :ssl => t[:ssl])
 
 		print_status("Crawling #{t.to_url}...")
@@ -242,6 +259,19 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		
+		if (t[:headers] and t[:headers].length > 0)
+			opts[:inject_headers] = t[:headers]
+		end
+		
+		if t[:cookies]
+			opts[:cookies] = t[:cookies]
+		end
+		
+		if t[:http_basic_auth]
+			opts[:http_basic_auth] = t[:http_basic_auth]
+		end 
+
 		opts
 	end
 
