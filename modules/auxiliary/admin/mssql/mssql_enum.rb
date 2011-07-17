@@ -253,7 +253,7 @@ class Metasploit3 < Msf::Auxiliary
 				if vernum.join != "2000"
 					db_ind_files = mssql_query("select filename from #{dbn.strip}.sys.sysfiles")[:rows]
 					if db_ind_files != nil
-						db_files.each do |fn|
+						db_ind_files.each do |fn|
 							print_status("\t\t#{fn.join}")
 							report_note(:host => datastore['RHOST'],
 								:proto => 'TCP',
