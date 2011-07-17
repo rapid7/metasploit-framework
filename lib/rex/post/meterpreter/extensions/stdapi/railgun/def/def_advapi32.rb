@@ -1427,7 +1427,7 @@ class Def_advapi32
 
 		dll.add_function('GetFileSecurityA', 'BOOL',[
 			["PCHAR","lpFileName","in"],
-			["PBLOB","RequestedInformation","in"],
+			["DWORD","RequestedInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
 			["DWORD","nLength","in"],
 			["PDWORD","lpnLengthNeeded","out"],
@@ -1435,7 +1435,7 @@ class Def_advapi32
 
 		dll.add_function('GetFileSecurityW', 'BOOL',[
 			["PWCHAR","lpFileName","in"],
-			["PBLOB","RequestedInformation","in"],
+			["DWORD","RequestedInformation","in"],
 			["PBLOB","pSecurityDescriptor","out"],
 			["DWORD","nLength","in"],
 			["PDWORD","lpnLengthNeeded","out"],
