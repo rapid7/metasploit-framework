@@ -151,7 +151,7 @@ class Process < Rex::Post::Process
 			end
 		end
 
-		request.add_tlv(TLV_TYPE_PROCESS_PATH, path);
+		request.add_tlv(TLV_TYPE_PROCESS_PATH, Rex::Text.unicode_filter_decode( path ));
 
 		# If process arguments were supplied
 		if (arguments != nil)
@@ -177,7 +177,7 @@ class Process < Rex::Post::Process
 		# Return a process instance
 		return self.new(pid, handle, channel)
 	end
-	
+
 	#
 	# Kills one or more processes.
 	#
@@ -223,7 +223,7 @@ class Process < Rex::Post::Process
 
 		response.each(TLV_TYPE_PROCESS_GROUP) { |p|
 		arch = ""
-		
+
 		pa = p.get_tlv_value( TLV_TYPE_PROCESS_ARCH )
 		if( pa != nil )
 			if pa == 1 # PROCESS_ARCH_X86
@@ -232,15 +232,15 @@ class Process < Rex::Post::Process
 				arch = ARCH_X86_64
 			end
 		end
-		
+
 		processes <<
 				{
 					'pid'      => p.get_tlv_value(TLV_TYPE_PID),
 					'parentid' => p.get_tlv_value(TLV_TYPE_PARENT_PID),
-					'name'     => p.get_tlv_value(TLV_TYPE_PROCESS_NAME),
-					'path'     => p.get_tlv_value(TLV_TYPE_PROCESS_PATH),
+					'name'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_NAME) ),
+					'path'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_PATH) ),
 					'session'  => p.get_tlv_value(TLV_TYPE_PROCESS_SESSION),
-					'user'     => p.get_tlv_value(TLV_TYPE_USER_NAME),
+					'user'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_USER_NAME) ),
 					'arch'     => arch
 				}
 		}
@@ -291,7 +291,7 @@ class Process < Rex::Post::Process
 	def self.finalize(client,handle)
 		proc { self.close(client,handle) }
 	end
-	
+
 	#
 	# Returns the executable name of the process.
 	#
@@ -316,7 +316,7 @@ class Process < Rex::Post::Process
 		handle = nil;
 		return true
 	end
-	
+
 	#
 	# Instance method
 	#
@@ -358,8 +358,8 @@ protected
 		response = client.send_request(request)
 
 		# Populate the hash
-		info['name'] = response.get_tlv_value(TLV_TYPE_PROCESS_NAME)
-		info['path'] = response.get_tlv_value(TLV_TYPE_PROCESS_PATH)
+		info['name'] = Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_NAME) )
+		info['path'] = Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_PATH) )
 
 		return info
 	end

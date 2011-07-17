@@ -113,7 +113,7 @@ class Tlv
 	def initialize(type, value = nil, compress=false)
 		@type     = type
 		@compress = compress
-		
+
 		if (value != nil)
 			if (type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 				if (value.kind_of?(Fixnum))
@@ -219,7 +219,7 @@ class Tlv
 	# Serializers
 	#
 	##
-	
+
 	#
 	# Converts the TLV to raw.
 	#
@@ -240,14 +240,14 @@ class Tlv
 				raw = [0].pack("c")
 			end
 		end
-		
+
 		# check if the tlv is to be compressed...
 		if( @compress )
 			raw_uncompressed = raw
 			# compress the raw data
 			raw_compressed = Rex::Text.zlib_deflate( raw_uncompressed )
 			# check we have actually made the raw data smaller...
-			# (small blobs often compress slightly larger then the origional) 
+			# (small blobs often compress slightly larger then the origional)
 			# if the compressed data is not smaller, we dont use the compressed data
 			if( raw_compressed.length < raw_uncompressed.length )
 				# if so, set the TLV's type to indicate compression is used
@@ -257,7 +257,7 @@ class Tlv
 				raw = [ raw_uncompressed.length ].pack("N") + raw_compressed
 			end
 		end
-		
+
 		return [raw.length + 8, self.type].pack("NN") + raw
 	end
 
@@ -273,7 +273,7 @@ class Tlv
 		if( self.type & TLV_META_TYPE_COMPRESSED == TLV_META_TYPE_COMPRESSED )
 			# set this TLV as using compression
 			@compress = true
-			# remove the TLV_META_TYPE_COMPRESSED flag from the tlv type to restore the 
+			# remove the TLV_META_TYPE_COMPRESSED flag from the tlv type to restore the
 			# tlv type to its origional, allowing for transparent data compression.
 			self.type = self.type ^ TLV_META_TYPE_COMPRESSED
 			# decompress the compressed data (skipping the length and type DWORD's)
@@ -283,7 +283,7 @@ class Tlv
 			# update the raw buffer with the new length, decompressed data and updated type.
 			raw = [length, self.type].pack("NN") + raw_decompressed
 		end
-		
+
 		if (self.type & TLV_META_TYPE_STRING == TLV_META_TYPE_STRING)
 			if (raw.length > 0)
 				self.value = raw[8..length-2]
@@ -293,7 +293,7 @@ class Tlv
 		elsif (self.type & TLV_META_TYPE_UINT == TLV_META_TYPE_UINT)
 			self.value = raw.unpack("NNN")[2]
 		elsif (self.type & TLV_META_TYPE_QWORD == TLV_META_TYPE_QWORD)
-			self.value = raw.unpack("NNQ")[2] 		
+			self.value = raw.unpack("NNQ")[2]
 			self.value = self.ntohq( self.value )
 		elsif (self.type & TLV_META_TYPE_BOOL == TLV_META_TYPE_BOOL)
 			self.value = raw.unpack("NNc")[2]
@@ -309,9 +309,9 @@ class Tlv
 
 		return length;
 	end
-	
+
 	protected
-	
+
 	def htonq( value )
 		if( [1].pack( 's' ) == [1].pack( 'n' ) )
 			return value
@@ -322,7 +322,7 @@ class Tlv
 	def ntohq( value )
 		return htonq( value )
 	end
-	
+
 end
 
 ###
@@ -684,6 +684,7 @@ class Packet < GroupTlv
 		return get_tlv_value(TLV_TYPE_REQUEST_ID)
 	end
 end
+
 
 end; end; end
 

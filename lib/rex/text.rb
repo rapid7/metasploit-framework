@@ -35,6 +35,7 @@ module Text
 	Alpha        = UpperAlpha + LowerAlpha
 	AlphaNumeric = Alpha + Numerals
 	HighAscii    = [*(0x80 .. 0xff)].pack("C*")
+	LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
 	DefaultWrap  = 60
 	AllChars     = [*(0x00 .. 0xff)].pack("C*")
 
@@ -1122,7 +1123,23 @@ module Text
 	def self.pack_int64le(val)
 		[val & 0x00000000ffffffff, val >> 32].pack("V2")
 	end
-	
+
+
+	#
+	# A custom unicode filter for dealing with multi-byte strings on a 8-bit console
+	# Punycode would have been more "standard", but it requires valid Unicode chars
+	#
+	def self.unicode_filter_encode(str)
+		if (str.unpack("C*") & ( LowAscii + HighAscii + "\x7f" ).unpack("C*")).length > 0
+			str = "$U$" + str.unpack("C*").select{|c| c < 0x7f and c > 0x1f and c != 0x2d}.pack("C*") + "-0x" + str.unpack("H*")[0]
+		else
+			str
+		end
+	end
+
+	def self.unicode_filter_decode(str)
+		str.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/ ){|m| [$2].pack("H*") }
+	end
 
 protected
 

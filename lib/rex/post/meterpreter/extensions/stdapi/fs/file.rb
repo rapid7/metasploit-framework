@@ -44,6 +44,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 		request = Packet.create_request( 'stdapi_fs_search' )
 
+		root = Rex::Text.unicode_filter_decode(root) if root
 		root = root.chomp( '\\' ) if root
 
 		request.add_tlv( TLV_TYPE_SEARCH_ROOT, root )
@@ -56,8 +57,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 		if( response.result == 0 )
 			response.each( TLV_TYPE_SEARCH_RESULTS ) do | results |
 				files << {
-					'path' => results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ),
-					'name' => results.get_tlv_value( TLV_TYPE_FILE_NAME ),
+					'path' => Rex::Text.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_PATH ).chomp( '\\' ) ),
+					'name' => Rex::Text.unicode_filter_encode( results.get_tlv_value( TLV_TYPE_FILE_NAME ) ),
 					'size' => results.get_tlv_value( TLV_TYPE_FILE_SIZE )
 				}
 			end
@@ -87,11 +88,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	def File.expand_path(path)
 		request = Packet.create_request('stdapi_fs_file_expand_path')
 
-		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
-		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
+		return Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_FILE_PATH) )
 	end
 
 
@@ -101,10 +102,11 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	def File.md5(path)
 		request = Packet.create_request('stdapi_fs_md5')
 
-		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
+		# This is not really a file name, but a raw hash in bytes
 		return response.get_tlv_value(TLV_TYPE_FILE_NAME)
 	end
 
@@ -114,32 +116,19 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	def File.sha1(path)
 		request = Packet.create_request('stdapi_fs_sha1')
 
-		request.add_tlv(TLV_TYPE_FILE_PATH, path)
+		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
+		# This is not really a file name, but a raw hash in bytes
 		return response.get_tlv_value(TLV_TYPE_FILE_NAME)
-	end
-
-	#
-	# Expands a file path, substituting all environment variables, such as
-	# %TEMP%.
-	#
-	def File.expand_path(path)
-		request = Packet.create_request('stdapi_fs_file_expand_path')
-
-		request.add_tlv(TLV_TYPE_FILE_PATH, path)
-
-		response = client.send_request(request)
-
-		return response.get_tlv_value(TLV_TYPE_FILE_PATH)
 	end
 
 	#
 	# Performs a stat on a file and returns a FileStat instance.
 	#
 	def File.stat(name)
-		return client.fs.filestat.new(name)
+		return client.fs.filestat.new( name )
 	end
 
 	#
@@ -156,7 +145,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	def File.rm(name)
 		request = Packet.create_request('stdapi_fs_delete_file')
 
-		request.add_tlv(TLV_TYPE_FILE_PATH,name)
+		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( name ))
 
 		response = client.send_request(request)
 

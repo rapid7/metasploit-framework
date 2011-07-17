@@ -88,7 +88,7 @@ protected
 	def stat(file)
 		request = Packet.create_request('stdapi_fs_stat')
 
-		request.add_tlv(TLV_TYPE_FILE_PATH, file)
+		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( file ))
 
 		response = self.class.client.send_request(request)
 		stat_buf = response.get_tlv(TLV_TYPE_STAT_BUF).value
@@ -101,3 +101,4 @@ protected
 end
 
 end; end; end; end; end; end
+
