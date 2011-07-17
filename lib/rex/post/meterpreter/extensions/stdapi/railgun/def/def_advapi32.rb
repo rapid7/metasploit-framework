@@ -11,6 +11,261 @@ class Def_advapi32
 	def self.create_dll(dll_path = 'advapi32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
 
+		#Functions for Windows CryptoAPI
+		dll.add_function( 'CryptAcquireContextW', 'BOOL',[
+				['PDWORD', 'phProv', 'out'],
+				['PWCHAR', 'pszContainer', 'in'],
+				['PWCHAR', 'pszProvider', 'in'],
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'dwflags', 'in']])
+
+		dll.add_function( 'CryptAcquireContextA', 'BOOL',[
+				['PDWORD', 'phProv', 'out'],
+				['PWCHAR', 'pszContainer', 'in'],
+				['PWCHAR', 'pszProvider', 'in'],
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'dwflags', 'in']])
+
+
+		dll.add_function( 'CryptContextAddRef', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptEnumProvidersW', 'BOOL', [
+				['DWORD', 'dwIndex', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'pdwProvType', 'out'],
+				['PWCHAR', 'pszProvName', 'out'],
+				['PDWORD', 'pcbProvName', 'inout']])
+
+		dll.add_function( 'CryptEnumProvidersA', 'BOOL', [
+				['DWORD', 'dwIndex', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'pdwProvType', 'out'],
+				['PCHAR', 'pszProvName', 'out'],
+				['PDWORD', 'pcbProvName', 'inout']])
+
+		dll.add_function( 'CryptEnumProviderTypesW', 'BOOL', [
+				['DWORD', 'dwIndex', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'pdwProvType', 'out'],
+				['PWCHAR', 'pszTypeName', 'out'],
+				['PDWORD', 'pcbTypeName', 'inout']])
+
+		dll.add_function( 'CryptEnumProviderTypesA', 'BOOL', [
+				['DWORD', 'dwIndex', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'pdwProvType', 'out'],
+				['PCHAR', 'pszTypeName', 'out'],
+				['PDWORD', 'pcbTypeName', 'inout']])
+
+		dll.add_function( 'CryptGetDefaultProviderW ', 'BOOL', [
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'pwdReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PWCHAR', 'pszProvName', 'out'],
+				['PDWORD', 'pcbProvName', 'inout']])
+
+		dll.add_function( 'CryptGetDefaultProviderA ', 'BOOL', [
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'pwdReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PCHAR', 'pszProvName', 'out'],
+				['PDWORD', 'pcbProvName', 'inout']])
+
+		dll.add_function( 'CryptGetProvParam', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'out'],
+				['PDWORD', 'pwdDataLen', 'inout'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptSetProviderW', 'BOOL', [
+				['PWCHAR', 'pszProvName', 'in'],
+				['DWORD', 'dwProvType', 'in']])
+
+		dll.add_function( 'CryptSetProviderA', 'BOOL', [
+				['PCHAR', 'pszProvName', 'in'],
+				['DWORD', 'dwProvType', 'in']])
+
+		dll.add_function( 'CryptSetProviderExW', 'BOOL', [
+				['PWCHAR', 'pszProvName', 'in'],
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptSetProviderExA', 'BOOL', [
+				['PCHAR', 'pszProvName', 'in'],
+				['DWORD', 'dwProvType', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptSetProvParam', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'in'],
+				['DWORD', 'dwFlags','in']])
+
+		dll.add_function( 'CryptDuplicateKey', 'BOOL', [
+				['LPVOID', 'hKey', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phKey', 'out']])
+
+		dll.add_function( 'CryptExportKey', 'BOOL', [
+				['LPVOID', 'hKey', 'in'],
+				['LPVOID', 'hExpKey', 'in'],
+				['DWORD', 'dwBlobType', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PBLOB', 'pbData', 'out'],
+				['PDWORD', 'pwdDataLen', 'inout']])
+
+		dll.add_function( 'CryptGenKey', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'Algid', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phKey', 'out']])
+
+		dll.add_function( 'CryptGenRandom', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'dwLen', 'in'],
+				['PBLOB', 'pbBuffer', 'inout']])
+
+		dll.add_function( 'CryptGetKeyParam', 'BOOL', [
+				['LPVOID', 'hKey', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'out'],
+				['PDWORD', 'pdwDataLen',  'inout'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptGetUserKey', 'BOOL', [
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'dwKeySpec', 'in'],
+				['PDWORD', 'phUserKey', 'out']])
+		
+		dll.add_function( 'CryptImportKey', 'BOOL', [	
+				['LPVOID', 'hProv', 'in'],
+				['PBLOB', 'pbData', 'in'],
+				['DWORD', 'dwDataLen', 'in'],
+				['LPVOID', 'hPubKey', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phKey', 'out']])
+		
+		dll.add_function( 'CryptSetKeyParam', 'BOOL', [
+				['LPVOID', 'hKey', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptEncrypt', 'BOOL', [
+				['LPVOID', 'hKey', 'in'],
+				['LPVOID', 'hHash', 'in'],
+				['BOOL', 'Final', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PBLOB', 'pbData', 'inout'],
+				['PDWORD', 'pdwDataLen', 'inout'],
+				['DWORD', 'dwBufLen', 'in']])
+
+		dll.add_function( 'CryptDuplicateHash', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['DWORD', 'pdwReserved', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phHash', 'out']])
+
+		dll.add_function( 'CryptGetHashParam', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'out'],
+				['PDWORD', 'pdwDataLen', 'out'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptHashSessionKey', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['LPVOID', 'hKey', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptSetHashParam', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['DWORD', 'dwParam', 'in'],
+				['PBLOB', 'pbData', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptSignHashW', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['DWORD', 'dwKeySpec', 'in'],
+				['PWCHAR', 'sDescription', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PBLOB', 'pbSignature', 'out'],
+				['PDWORD', 'pdwSigLen', 'inout']])
+
+		dll.add_function( 'CryptSignHashA', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['DWORD', 'dwKeySpec', 'in'],
+				['PCHAR', 'sDescription', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PBLOB', 'pbSignature', 'out'],
+				['PDWORD', 'pdwSigLen', 'inout']])
+	
+		dll.add_function( 'CryptVerifySignatureW', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['PBLOB', 'pbSignature', 'in'],
+				['DWORD', 'dwSigLen', 'in'],
+				['LPVOID', 'hPubKey', 'in'],
+				['PWCHAR', 'sDescription', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+		dll.add_function( 'CryptVerifySignatureA', 'BOOL', [
+				['LPVOID', 'hHash', 'in'],
+				['PBLOB', 'pbSignature', 'in'],
+				['DWORD', 'dwSigLen', 'in'],
+				['LPVOID', 'hPubKey', 'in'],
+				['PCHAR', 'sDescription', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+				
+		dll.add_function( 'CryptCreateHash', 'BOOL',[
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'Algid', 'in'],
+				['LPVOID', 'hKey', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phHash', 'out']])
+		
+		dll.add_function( 'CryptHashData', 'BOOL',[
+				['LPVOID', 'hHash', 'in'],
+				['PWCHAR', 'pbData', 'in'],
+				['DWORD', 'dwDataLen', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+		
+		dll.add_function( 'CryptDeriveKey', 'BOOL',[
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'Algid', 'in'],
+				['LPVOID', 'hBaseData', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PDWORD', 'phKey', 'inout']])
+	
+		dll.add_function( 'CryptDecrypt', 'BOOL',[
+				['LPVOID', 'hKey', 'in'],
+				['LPVOID', 'hHash', 'in'],
+				['BOOL', 'Final', 'in'],
+				['DWORD', 'dwFlags', 'in'],
+				['PBLOB', 'pbData', 'inout'],
+				['PDWORD', 'pdwDataLen', 'inout']])
+		
+		dll.add_function( 'CryptDestroyHash', 'BOOL',[
+				['LPVOID', 'hHash', 'in']])
+		
+		dll.add_function( 'CryptDestroyKey', 'BOOL',[
+				['LPVOID', 'hKey', 'in']])
+
+		dll.add_function( 'CryptReleaseContext', 'BOOL',[
+				['LPVOID', 'hProv', 'in'],
+				['DWORD', 'dwFlags', 'in']])
+
+
 		# Function to open the Service Control Database
 		dll.add_function('OpenSCManagerA','DWORD',[
 			[ "PCHAR", "lpMachineName", "inout" ],
