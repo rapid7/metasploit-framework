@@ -105,7 +105,7 @@ module ReverseHttp
 	# active on sub-urls.
 	#
 	def stop_handler
-		self.service.remove_resource("/")
+		self.service.remove_resource("/") if self.service
 	end
 
 	attr_accessor :service # :nodoc:
