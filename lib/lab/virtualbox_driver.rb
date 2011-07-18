@@ -12,8 +12,9 @@ module Drivers
 
 		def initialize(vmid, location=nil, credentials=nil)
 
-			@vmid = filter_input(vmid)
-			@location = filter_input(location)
+			@vmid = filter_command(vmid)
+			@location = filter_command(location)
+
 	
 			## Check to see if we already know this vm, if not, go on location
 			vmid_list = ::Lab::Controllers::VirtualBoxController::config_list

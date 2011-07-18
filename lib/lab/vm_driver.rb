@@ -146,6 +146,16 @@ private
 
 	string
 	end
+
+	def filter_command(string)
+		return "" unless string
+				
+		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
+			raise "WARNING! Invalid character in: #{string}"
+		end
+
+	string
+	end
 	
 	def system_command(command)
 		begin

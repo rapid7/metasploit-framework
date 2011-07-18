@@ -20,10 +20,10 @@ class RemoteEsxDriver < VmDriver
 		unless user then raise ArgumentError, "Must provide a username" end
 		unless host then raise ArgumentError, "Must provide a hostname" end
 
-		@vmid = filter_input(vmid)
-		@location = filter_input(location)
-		@user = filter_input(user)
-		@host = filter_input(host)
+		@vmid = filter_command(vmid)
+		@location = filter_command(location)
+		@user = filter_command(user)
+		@host = filter_command(host)
 		@credentials = credentials # individually filtered
 		@tools = tools	# not used in command lines, no filter
 		@os = os	# not used in command lines, no filter

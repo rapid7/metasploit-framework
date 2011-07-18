@@ -17,8 +17,9 @@ module Drivers
 		attr_accessor :location
 
 		def initialize(vmid,location,platform)
-			@vmid = filter_input(vmid)
-			@location = filter_input(location)
+			
+			@vmid = filter_command(vmid)
+			@location = filter_command(location)
 
 			if !File.exist?(location)
 				raise ArgumentError,"Couldn't find: " + location
@@ -26,7 +27,7 @@ module Drivers
 
 			@type = "dynagen"
 			@running = false
-			@platform = filter_input(platform)
+			@platform = filter_command(platform)
 			@credentials = []
 		end
 
