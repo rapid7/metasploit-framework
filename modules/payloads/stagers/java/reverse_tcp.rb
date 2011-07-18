@@ -32,6 +32,7 @@ module Metasploit3
 			'Platform'      => 'java',
 			'Arch'          => ARCH_JAVA,
 			'Handler'       => Msf::Handler::ReverseTcp,
+			'Convention'    => 'javasocket',
 			'Stager'        => {'Payload' => ""}
 			))
 

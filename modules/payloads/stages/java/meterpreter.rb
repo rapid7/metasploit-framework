@@ -33,6 +33,10 @@ module Metasploit3
 				],
 			'Platform'      => 'java',
 			'Arch'          => ARCH_JAVA,
+			'PayloadCompat' =>
+				{
+					'Convention' => 'javasocket javaurl',
+				},
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::Meterpreter_Java_Java))
 		# Order matters.  Classes can only reference classes that have already

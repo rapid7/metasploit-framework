@@ -34,6 +34,10 @@ module Metasploit3
 				],
 			'Platform'      => 'java',
 			'Arch'          => ARCH_JAVA,
+			'PayloadCompat' =>
+				{
+					'Convention' => 'javasocket',
+				},
 			'License'       => MSF_LICENSE,
 			'Session'       => Msf::Sessions::CommandShell))
 
@@ -43,7 +47,6 @@ module Metasploit3
 		@stage_class_files = [
 			[ "javapayload", "stage", "Stage.class" ],
 			[ "javapayload", "stage", "StreamForwarder.class" ],
-			[ "javapayload", "stage", "Exec.class" ],
 			[ "javapayload", "stage", "Shell.class" ],
 		]
 	end
