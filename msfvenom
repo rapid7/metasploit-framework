@@ -362,7 +362,7 @@ if opts[:encode]
 end
 
 if opts[:nopsled]
-	puts opts[:arch].class
+	#puts opts[:arch].class
 	nopts = { 'BadChars' => opts[:badchars] }
 	nops = generate_nops([opts[:arch]], opts[:nopsled], nil, nopts)
 	payload_raw = nops + payload_raw
