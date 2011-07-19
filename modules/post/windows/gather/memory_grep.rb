@@ -64,9 +64,7 @@ class Metasploit3 < Msf::Post
 				thread = process.thread.open(tid)
 				esp = thread.query_regs['esp']
 				addr = process.memory.query(esp)
-				if datastore['VERBOSE']
-					print_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']]) 
-				end
+				vprint_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']]) 
 				data = process.memory.read(addr['BaseAddress'], addr['RegionSize'])
 				stack << {
 							'Address' => addr['BaseAddress'],
@@ -89,14 +87,14 @@ class Metasploit3 < Msf::Post
 		railgun = railgun_setup
 		heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
 		dheap = railgun.kernel32.GetProcessHeap()['return']
-		print_status("Default Process Heap: 0x%08x" % dheap) if datastore['VERBOSE']
+		vprint_status("Default Process Heap: 0x%08x" % dheap)
 		ret = railgun.kernel32.GetProcessHeaps(heap_cnt, heap_cnt * 4)
 		pheaps = ret['ProcessHeaps']
 
 		idx = 0
 		handles = []
 		while idx != pheaps.length
-			print_status("Found Heap: 0x%08x" % pheaps[idx, 4].unpack('V')[0]) if datastore['VERBOSE']
+			vprint_status("Found Heap: 0x%08x" % pheaps[idx, 4].unpack('V')[0])
 			handles << pheaps[idx, 4].unpack('V')[0]
 			idx += 4
 		end
@@ -112,7 +110,7 @@ class Metasploit3 < Msf::Post
 					size = ret['lpEntry'][4, 4].unpack('V')[0]
 					data = process.memory.read(entry, size)
 
-					print_status("Walking Entry: 0x%08x\t Size: %d" % [entry, size]) if datastore['VERBOSE']
+					vprint_status("Walking Entry: 0x%08x\t Size: %d" % [entry, size])
 					heap << {'Address' => entry, 'Size' => size, 'Handle' => handle, 'Data' => data}
 					lpentry = ret['lpEntry']
 				end
