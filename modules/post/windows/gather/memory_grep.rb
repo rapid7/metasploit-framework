@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		heap = []
-		railgun = railgun_setup
+		railgun = session.railgun
 		heap_cnt = railgun.kernel32.GetProcessHeaps(nil, nil)['return']
 		dheap = railgun.kernel32.GetProcessHeap()['return']
 		vprint_status("Default Process Heap: 0x%08x" % dheap)
@@ -132,15 +132,6 @@ class Metasploit3 < Msf::Post
 				print_status("Match found...\n" + hex_dump(mem['Data'][idx, 512], mem['Address']+idx))
 			end
 		end
-	end
-
-	def railgun_setup
-		rg = session.railgun
-
-		if (!rg.get_dll('kernel32')) # should never happen
-			rg.add_dll('kernel32')
-		end
-		return rg
 	end
 
 	def hex_dump(str, base = 0, width = 16)
