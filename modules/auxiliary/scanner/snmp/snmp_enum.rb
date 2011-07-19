@@ -89,12 +89,15 @@ class Metasploit3 < Msf::Auxiliary
 			year = month = day = hour = minutes = seconds = tenths = 0
 
 			systemDate = snmp.get_value('1.3.6.1.2.1.25.1.2.0')
-			if (systemDate.to_s.empty? or systemDate.to_s =~ /Null/)
+			str = systemDate.to_s
+			if (str.empty? or str =~ /Null/)
 				output_data["System date"] = '-'
 			else
 
 				# RFC 2579 - Textual Conventions for SMIv2
 				# http://www.faqs.org/rfcs/rfc2579.html
+
+				systemDate = systemDate.unpack('C*')
 
 				year    = systemDate[0] * 256 + systemDate[1]
 				month   = systemDate[2]
