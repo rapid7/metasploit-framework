@@ -325,6 +325,7 @@ class Db
 
 		def cmd_db_services(*args)
 			return unless active?
+			mode = :search
 			onlyup = false
 			output_file = nil
 			set_rhosts = nil
@@ -335,8 +336,13 @@ class Db
 			col_search = ['port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
+			addrlist = []
 			while (arg = args.shift)
 				case arg
+				when '-a','--add'
+					mode = :add
+				when '-d','--delete'
+					mode = :delete
 				when '-u','--up'
 					onlyup = true
 				when '-c'
@@ -352,13 +358,6 @@ class Db
 							return
 						end
 					}
-				when '-a'
-					addrlist = args.shift
-					if (!addrlist)
-						print_error("Invalid address list")
-						return
-					end
-					addrs = addrlist.strip().split(",")
 				when '-p'
 					portlist = args.shift
 					if (!portlist)
@@ -393,9 +392,10 @@ class Db
 
 				when '-h','--help'
 					print_line
-					print_line "Usage: db_services [-h|--help] [-u|--up] [-a <addr1,addr2>] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>]"
+					print_line "Usage: db_services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
 					print_line
-					print_line "  -a <addr1,addr2>  Search for a list of addresses"
+					#print_line "  -a,--add          Add the services instead of searching"
+					print_line "  -d,--delete       Delete the services instead of searching"
 					print_line "  -c <col1,col2>    Only show the given columns"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -n <name1,name2>  Search for a list of service names"
@@ -408,33 +408,71 @@ class Db
 					print_line "Available columns: #{default_columns.join(", ")}"
 					print_line
 					return
+				else
+					addrlist << arg
 				end
 			end
 
-			col_names = default_columns
-			if col_search
-				col_names = col_search
-			end
-			tbl = Rex::Ui::Text::Table.new({
-					'Header'  => "Services",
-					'Columns' => ['host'] + col_names,
-				})
-			framework.db.services(framework.db.workspace, onlyup, proto, addrs, ports, names).each do |service|
-				host = service.host
-				columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
-				tbl << columns
-				if set_rhosts
-					# only unique addresses
-					rhosts << host.address unless rhosts.include?(host.address)
+			case mode
+			when :add
+				addrlist.each { |addr|
+					# XXX: Can only deal with one port and one service name at
+					# a time right now.  Them's the breaks.
+					host = framework.db.find_or_create_host(:host => addr)
+					next if not host
+					info = {
+						:host => host,
+						:port => ports.first.to_i
+					}
+					info[:proto] = proto.downcase if proto
+					info[:name]  = names.first.downcase if names and names.first
+
+					svc = framework.db.find_or_create_service(info)
+					print_status("Time: #{svc.created_at} Note: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
+				}
+
+			when :delete
+				addrlist.each { |addr|
+					host = framework.db.workspace.hosts.find_by_address(addr)
+					next if not host
+					svc = host.services.find_by_port(port)
+					next if not svc
+					print_status("Time: #{svc.created_at} Note: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
+					svc.destroy
+				}
+
+			when :search
+				col_names = default_columns
+				if col_search
+					col_names = col_search
 				end
-			end
-			print_line
-			if (output_file == nil)
-				print_line tbl.to_s
-			else
-				# create the output file
-				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-				print_status("Wrote services to #{output_file}")
+				tbl = Rex::Ui::Text::Table.new({
+						'Header'  => "Services",
+						'Columns' => ['host'] + col_names,
+					})
+				# The user didn't give us any addresses to search for, so
+				# switch to nil so ActiveRecord will return all of them.
+				if addrlist.empty?
+					addrlist = nil
+				end
+
+				framework.db.services(framework.db.workspace, onlyup, proto, addrlist, ports, names).each do |service|
+					host = service.host
+					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
+					tbl << columns
+					if set_rhosts
+						# only unique addresses
+						rhosts << host.address unless rhosts.include?(host.address)
+					end
+				end
+				print_line
+				if (output_file == nil)
+					print_line tbl.to_s
+				else
+					# create the output file
+					File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+					print_status("Wrote services to #{output_file}")
+				end
 			end
 
 			# Finally, handle the case where the user wants the resulting list
@@ -464,6 +502,24 @@ class Db
 			end
 		end
 
+		def cmd_db_creds_help
+			print_line "Usage: db_creds [addr range|port range|list of services]"
+			print_line
+			#print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
+			#print_line "  -d,--delete       Delete the hosts instead of searching"
+			print_line "  -h,--help         Show this help information"
+			print_line "  -p                Treat other argument as a port range"
+			print_line "  -s                Treat other arg as comma-separated service names"
+			print_line
+			print_line "Examples:"
+			print_line "  db_creds               # Default, returns all active credentials"
+			print_line "  db_creds all           # Returns all credentials active or not"
+			print_line "  db_creds 1.2.3.4/24"
+			print_line "  db_creds -p 1-1024"
+			print_line "  db_creds -s ssh,smb,etc"
+			print_line
+		end
+
 		#
 		# Only takes two arguments. Can return return active or all, on a certain
 		# host or range, on a certain port or range, and/or on a service name.
@@ -477,52 +533,67 @@ class Db
 		#
 		def cmd_db_creds(*args)
 			return unless active?
-			if args.size > 2
-				print_status "Usage: db_creds [host=1.2.3.4/24|port=1-1024|service=ssh,smb,etc] [all]"
-				print_status "       Note, only one of host, port, or service can be used at a time."
-				print_status "       To display inactive credentials as well, use the 'all' keyword."
-				return
-			end
-			search_term = nil
+
+			search_term = "host"
 			search_param = nil
 			inactive_ok = false
-			creds_returned = 0
-			if args[0] =~ /^[\s]*(host|port|service)=(.*)/i
-				search_term = $1.downcase
-				search_param = $2.downcase
-				if args[1] =~ /^[\s]*all/
-					inactive_ok = true
-				end
-			elsif args[0] =~ /^[\s]*all/
+
+			# Short-circuit help
+			if args.delete "-h"
+				cmd_db_creds_help
+				return
+			end
+
+			if args.delete "-p"
+				search_term = "port"
+			elsif args.delete "-s"
+				search_term = "service"
+			end
+
+			# Does the user want inactive passwords, too?
+			if args.delete "all"
 				inactive_ok = true
 			end
-			framework.db.each_cred(framework.db.workspace) do |cred|
-				if(cred.active | inactive_ok)
-					case search_term
-					when "host"
-						begin
-							rw = Rex::Socket::RangeWalker.new(search_param)
-							next unless rw.include? cred.service.host.address
-						rescue
-							print_error "Invalid host parameter."
-							break
-						end
-					when "port"
-						if search_param =~ /([0-9]+)-([0-9]+)/
-							ports = Range.new($1,$2)
-						else
-							ports = Range.new(search_param,search_param)
-						end
-						next unless ports.include? cred.service.port.to_s
-					when "service"
-						svcs = search_param.split(/[\s]*,[\s]*/)
-						next unless svcs.include? cred.service.name
-					end
-					print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
-					creds_returned += 1
-				else
-					next
+
+			# Anything that wasn't an option is the thing to search for
+			search_param = args.shift
+
+			# Set up the place we're searching before dropping into the search loop
+			case search_term
+			when "host"
+				begin
+					rw = Rex::Socket::RangeWalker.new(search_param)
+				rescue
+					print_error "Invalid host parameter."
+					return
 				end
+			when "port"
+				if search_param =~ /([0-9]+)-([0-9]+)/
+					ports = Range.new($1,$2)
+				else
+					ports = Range.new(search_param,search_param)
+				end
+			when "service"
+				svcs = search_param.split(/[\s]*,[\s]*/)
+			end
+
+			creds_returned = 0
+			framework.db.each_cred(framework.db.workspace) do |cred|
+				# skip if it's inactive and user didn't ask for all
+				next unless (cred.active or inactive_ok)
+
+				# Also skip if the user is searching for something and this
+				# one doesn't match
+				unless search_param.nil?
+					case search_term
+					when "host"; next unless rw.include? cred.service.host.address
+					when "port"; next unless ports.include? cred.service.port.to_s
+					when "service"; next unless svcs.include? cred.service.name
+					end
+				end
+
+				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+				creds_returned += 1
 			end
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
 		end
@@ -530,39 +601,57 @@ class Db
 		# Returns exploited hosts. Takes a similiar set of options as db_creds
 		def cmd_db_exploited(*args)
 			return unless active?
-			if args.size > 1
-				print_status "Usage: db_exploited [host=1.2.3.4/24|port=1-1024|service=ssh,smb,etc]"
-				print_status "       Note, only one of host, port, or service can be used at a time."
+			search_term = "host"
+			search_param = nil
+			inactive_ok = false
+
+			# Short-circuit help
+			if args.delete "-h"
+				cmd_db_creds_help
 				return
 			end
-			search_term = nil
-			search_param = nil
-			exploited_returned = 0
-			if args[0] =~ /^[\s]*(host|port|service)=(.*)/i
-				search_term = $1.downcase
-				search_param = $2.downcase
+
+			if args.delete "-p"
+				search_term = "port"
+			elsif args.delete "-s"
+				search_term = "service"
 			end
-			framework.db.each_exploited_host(framework.db.workspace) do |eh|
-				case search_term
-				when "host"
-					begin
-						rw = Rex::Socket::RangeWalker.new(search_param)
-						next unless rw.include? eh.host.address
-					rescue
-						print_error "Invalid host parameter."
-						break
-					end
-				when "port"
-					if search_param =~ /([0-9]+)-([0-9]+)/
-						ports = Range.new($1,$2)
-					else
-						ports = Range.new(search_param,search_param)
-					end
-					next unless ports.include? eh.service.port.to_s
-				when "service"
-					svcs = search_param.split(/[\s]*,[\s]*/)
-					next unless svcs.include? eh.service.name
+
+			# Does the user want inactive passwords, too?
+			if args.delete "all"
+				inactive_ok = true
+			end
+
+			# Anything that wasn't an option is the thing to search for
+			search_param = args.shift
+
+			# Set up the place we're searching before dropping into the search loop
+			case search_term
+			when "host"
+				begin
+					rw = Rex::Socket::RangeWalker.new(search_param)
+				rescue
+					print_error "Invalid host parameter."
+					return
 				end
+			when "port"
+				if search_param =~ /([0-9]+)-([0-9]+)/
+					ports = Range.new($1,$2)
+				else
+					ports = Range.new(search_param,search_param)
+				end
+			when "service"
+				svcs = search_param.split(/[\s]*,[\s]*/)
+			end
+
+			exploited_returned = 0
+			framework.db.each_exploited_host(framework.db.workspace) do |eh|
+				unless search_param.nil?
+					next unless rw.include? eh.host.address
+					next unless !eh.service or ports.include? eh.service.port.to_s
+					next unless !eh.service or svcs.include? eh.service.name
+				end
+
 				if eh.service
 					print_status("Time: #{eh.updated_at} Host Info: host=#{eh.host.address} port=#{eh.service.port} proto=#{eh.service.proto} sname=#{eh.service.name} exploit=#{eh.name}")
 				else
@@ -577,13 +666,14 @@ class Db
 			print_line "Usage: db_notes [-h|--help] [-t <type1,type2>] [-n <data string>] [-a] [addr1 addr2 ...]"
 			print_line
 			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
+			print_line "  -d,--delete       Delete the hosts instead of searching"
 			print_line "  -n,--note <data>  Set the data for a new note (only with -a)"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
 			print_line
 			print_line "Examples:"
-			print_line "  db_notes --add -t apps -d 'winzip' 10.1.1.34 10.1.20.41"
+			print_line "  db_notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
 			print_line "  db_notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
 			print_line
 		end
