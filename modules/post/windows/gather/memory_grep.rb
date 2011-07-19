@@ -32,8 +32,6 @@ class Metasploit3 < Msf::Post
 			[
 			  OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
 			  OptString.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
-			  OptBool.new('VERBOSE', [false, 'Be verbose?', false]),
-			
 			], self.class)
 	end
 
