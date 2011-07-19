@@ -55,9 +55,7 @@ class Db
 				"db_loot"       => "List all loot in the database",				
 				"db_creds"      => "List all credentials in the database",
 				"db_exploited"  => "List all exploited hosts in the database",
-				"db_add_host"   => "Add one or more hosts to the database",
 				"db_add_port"   => "Add a port to a host",
-				"db_add_note"   => "Add a note to a host",
 				"db_add_cred"   => "Add a credential to a host:port",
 				"db_del_host"   => "Delete one or more hosts from the database",
 				"db_del_port"   => "Delete one port from the database",
@@ -202,6 +200,8 @@ class Db
 				case arg
 				when '-a','--add'
 					mode = :add
+				when '-d','--delete'
+					mode = :delete
 				when '-c'
 					list = args.shift
 					if(!list)
@@ -229,6 +229,7 @@ class Db
 					print_line
 					print_line "OPTIONS:"
 					print_line "  -a,--add          Add the hosts instead of searching"
+					print_line "  -d,--delete       Delete the hosts instead of searching"
 					print_line "  -c <col1,col2>    Only show the given columns (see list below)"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
@@ -262,6 +263,13 @@ class Db
 					if set_rhosts
 						# only unique addresses
 						rhosts << host.address unless rhosts.include?(host.address)
+					end
+				end
+
+			when :delete
+				hostlist.each do |address|
+					if framework.db.del_host(framework.db.workspace, address)
+						print_status("Host #{address} deleted")
 					end
 				end
 
@@ -566,64 +574,107 @@ class Db
 		end
 
 		def cmd_db_notes_help
-			print_line "Usage: db_notes [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]"
+			print_line "Usage: db_notes [-h|--help] [-t <type1,type2>] [-n <data string>] [-a] [addr1 addr2 ...]"
 			print_line
-			print_line "  -a <addr1,addr2>  Search for a list of addresses"
+			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
+			print_line "  -n,--note <data>  Set the data for a new note (only with -a)"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
+			print_line
+			print_line "Examples:"
+			print_line "  db_notes --add -t apps -d 'winzip' 10.1.1.34 10.1.20.41"
+			print_line "  db_notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
 			print_line
 		end
 
 		def cmd_db_notes(*args)
 			return unless active?
+			mode = :search
+			data = nil
 			hosts = nil
 			types = nil
 			set_rhosts = false
+			hostlist = []
+
 			while (arg = args.shift)
 				case arg
-				when '-a'
-					hostlist = args.shift
-					if(!hostlist)
-						print_status("Invalid host list")
+				when '-a','--add'
+					mode = :add
+				when '-d','--delete'
+					mode = :delete
+				when '-n','--note'
+					data = args.shift
+					if(!data)
+						print_error("Can't make a note with no data")
 						return
 					end
-					hosts = hostlist.strip().split(",")
 				when '-t'
 					typelist = args.shift
 					if(!typelist)
-						print_status("Invalid host list")
+						print_error("Invalid type list")
 						return
 					end
 					types = typelist.strip().split(",")
 				when '-R','--rhosts'
 					set_rhosts = true
 					rhosts = []
-
 				when '-h','--help'
 					cmd_db_notes_help
 					return
+				else
+					hostlist << arg
 				end
 
 			end
-			framework.db.each_note(framework.db.workspace) do |note|
-				next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
-				next if(types and types.index(note.ntype) == nil)
-				msg = "Time: #{note.created_at} Note:"
-				if (note.host)
-					host = note.host
-					msg << " host=#{note.host.address}"
-					if set_rhosts
-						# only unique addresses
-						rhosts << host.address unless rhosts.include?(host.address)
+			case mode
+			when :add
+				if types.size != 1
+					print_error("Only one type allowed when adding notes")
+				end
+				type = types.first
+				hostlist.each { |addr|
+					host = framework.db.find_or_create_host(:host => addr)
+					break if not host
+					note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
+					break if not note
+					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+				}
+
+			when :delete
+				if types.size != 1
+					print_error("Only one type allowed when deleting notes")
+				end
+				type = types.first
+				hostlist.each { |addr|
+					host = framework.db.workspace.hosts.find_by_address(addr)
+					next if not host
+					note = host.notes.find_by_ntype(type)
+					next if not note
+					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+					note.destroy
+				}
+
+			when :search
+				framework.db.each_note(framework.db.workspace) do |note|
+					next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
+					next if(types and types.index(note.ntype) == nil)
+					msg = "Time: #{note.created_at} Note:"
+					if (note.host)
+						host = note.host
+						msg << " host=#{note.host.address}"
+						if set_rhosts
+							# only unique addresses
+							rhosts << host.address unless rhosts.include?(host.address)
+						end
 					end
+					if (note.service)
+						name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
+						msg << " service=#{name}"
+					end
+					msg << " type=#{note.ntype} data=#{note.data.inspect}"
+					print_status(msg)
 				end
-				if (note.service)
-					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
-					msg << " service=#{name}"
-				end
-				msg << " type=#{note.ntype} data=#{note.data.inspect}"
-				print_status(msg)
 			end
 
 			# Finally, handle the case where the user wants the resulting list
@@ -682,15 +733,6 @@ class Db
 				print_status(msg)
 			end
 		end
-		
-		def cmd_db_add_host(*args)
-			return unless active?
-			print_status("Adding #{args.length} hosts...")
-			args.each do |address|
-				host = framework.db.find_or_create_host(:host => address)
-				print_status("Time: #{host.created_at} Host: host=#{host.address}")
-			end
-		end
 
 		def cmd_db_add_port(*args)
 			return unless active?
@@ -724,26 +766,6 @@ class Db
 			if framework.db.del_service(framework.db.workspace, args[0], args[2].downcase, args[1].to_i)
 				print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
 			end
-		end
-
-		def cmd_db_add_note(*args)
-			return unless active?
-			if (not args or args.length < 3)
-				print_status("Usage: db_add_note [host] [type] [note]")
-				return
-			end
-
-			naddr = args.shift
-			ntype = args.shift
-			ndata = args.join(" ")
-
-			host = framework.db.find_or_create_host(:host => naddr)
-			return if not host
-
-			note = framework.db.find_or_create_note(:host => host, :type => ntype, :data => ndata)
-			return if not note
-
-			print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
 		end
 
 		def cmd_db_add_cred(*args)
