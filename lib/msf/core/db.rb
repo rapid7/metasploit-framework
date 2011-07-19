@@ -4360,7 +4360,9 @@ class DBManager
 				:host => addr,
 			}
 			host_info[:name] = hname.to_s.strip if hname
-			host_info[:mac]  = mac.to_s.strip.upcase if mac
+			# Short mac, protect against Nessus's habit of saving multiple macs
+			# We can't use them anyway, so take just the first.
+			host_info[:mac]  = mac.to_s.strip.upcase.split(/\s+/).first if mac
 
 			hobj = report_host(host_info)
 			report_import_note(wspace,hobj)
