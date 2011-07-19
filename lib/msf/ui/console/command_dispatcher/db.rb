@@ -510,20 +510,12 @@ class Db
 		end
 
 		#
-		# Only takes two arguments. Can return return active or all, on a certain
-		# host or range, on a certain port or range, and/or on a service name.
-		#
-		# E.g., these:
-		#   db_creds     # Default, returns all active credentials)
-		#   db_creds all # Returns all credentials, active or not
-		#   db_creds host=10.10.10.0/24
-		#   db_creds port=1-1024
-		#   db_creds service=ssh,smb,http
+		# Can return return active or all, on a certain host or range, on a
+		# certain port or range, and/or on a service name.
 		#
 		def cmd_db_creds(*args)
 			return unless active?
 
-			search_term = "host"
 			search_param = nil
 			inactive_ok = false
 
@@ -537,6 +529,8 @@ class Db
 				search_term = "port"
 			elsif args.delete "-s"
 				search_term = "service"
+			else
+				search_term = "host"
 			end
 
 			# Does the user want inactive passwords, too?
@@ -781,7 +775,7 @@ class Db
 				when '-t'
 					typelist = args.shift
 					if(!typelist)
-						print_status("Invalid host list")
+						print_status("Invalid type list")
 						return
 					end
 					types = typelist.strip().split(",")
@@ -792,6 +786,9 @@ class Db
 					hostlist << arg
 				end
 
+			end
+			if hostlist.empty?
+				hostlist = nil
 			end
 			framework.db.each_loot(framework.db.workspace) do |loot|
 				next if(hostlist and (loot.host.nil? or hostlist.index(loot.host.address).nil?))
