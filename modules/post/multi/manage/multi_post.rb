@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 		if session_list
 			session_list.each do |s|
 				if m.session_compatible?(s.to_i)
-					print_status("Running Against #{s}")
+					print_status("Running against #{s}")
 					m.datastore['SESSION'] = s.to_i
 					if mod_opts
 						mod_opts.each do |o|
