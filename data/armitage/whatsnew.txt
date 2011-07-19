@@ -1,6 +1,24 @@
 Armitage Changelog
 ==================
 
+19 Jul 11 - Change Log
+---------
+- You may now execute a post module against multiple hosts at once.
+  Simply highlight the hosts, find your post module, double-click it
+  and watch the magic happen. The drawback--each session will open a
+  new tab to display the output of the post module.
+- You may now hold down shift and click on a tab to close all tabs
+  with the same title. If you run a post module against multiple hosts
+  this is a good way to get rid of all those tabs.
+- Graph view Ctrl+P shortcut (save screenshot of graph view) now shows
+  pivots.
+- post module output now logs to ~/.armitage/[host]/post.log
+- Fixed some weirdness with popup menu mouse events not being consumed
+- Added View -> Activity Logs to open folder containing Armitage logs
+- Fixed command history so up arrow really gives the previous command
+- Keystrokes dumped using dump button on key scan dialog are now logged
+  to ~/.armitage/[host]/keyscan.log
+
 12 Jul 11 - Change Log
 ---------
 - Fixed a race condition causing some file browser actions to fail on 
