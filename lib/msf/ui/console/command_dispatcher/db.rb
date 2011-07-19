@@ -61,17 +61,8 @@ class Db
 				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
-				"db_export"     => "Export a file containing the contents of the database",				
-				"db_import_ip_list"     => "Import a list of line seperated IPs",
-				"db_import_amap_mlog"   => "Import a THC-Amap scan results file (-o -m)",
-				"db_import_amap_log"    => "Import a THC-Amap scan results file (-o )",
-				"db_import_nessus_nbe"  => "Import a Nessus scan result file (NBE)",
-				"db_import_nessus_xml"	=> "Import a Nessus scan result file (NESSUS)",
-				"db_import_ip360_xml"	=> "Import an IP360 scan result file (XML)",
-				"db_import_nmap_xml"    => "Import a Nmap scan results file (-oX)",
-				"db_import_qualys_xml"  => "Import a Qualys scan results file (XML)",
-				"db_import_msfe_xml"    => "Import a Metasploit Express report (XML)",
-				"db_nmap"               => "Executes nmap and records the output automatically",
+				"db_export"     => "Export a file containing the contents of the database",
+				"db_nmap"       => "Executes nmap and records the output automatically",
 			}
 
 			# Always include commands that only make sense when connected.
@@ -775,7 +766,6 @@ class Db
 		def cmd_db_loot_help
 			print_line "Usage: db_loot [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]"
 			print_line
-			print_line "  -a <addr1,addr2>  Search for a list of addresses"
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line
@@ -1500,139 +1490,6 @@ class Db
 				end
 			end
 			print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-			end
-		
-		#
-		# Import Nessus NBE files
-		#
-		def cmd_db_import_nessus_nbe(*args)
-			return unless active?
-			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nessus_xml <nessus.nbe>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if (not File.readable?(args[0]))
-				print_status("Could not read the NBE file")
-				return
-			end
-			framework.db.import_nessus_nbe_file(:filename => args[0])
-		end
-
-		#
-		# Import Nessus NESSUS files
-		#
-		def cmd_db_import_nessus_xml(*args)
-			return unless active?
-			if (not (args and args.length == 1))
-				print_status("Usage: db_import_nessus_xml <nessus.nessus>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if (not File.readable?(args[0]))
-				print_status("Could not read the NESSUS file")
-				return
-			end
-			framework.db.import_nessus_xml_file(:filename => args[0])
-		end
-
-		#
-		# Import IP360 XML files
-		#
-		def cmd_db_import_ip360_xml(*args)
-			return unless active?
-			if (not (args and args.length == 1))
-				print_status("Usage: db_import_ip360_xml <ip360.xml>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if (not File.readable?(args[0]))
-				print_status("Could not read the IP360 Scan file provided")
-				return
-			end
-
-			framework.db.import_ip360_xml_file(:filename => args[0])
-		end
-
-		#
-		# Import Nmap data from a file
-		#
-		def cmd_db_import_nmap_xml(*args)
-			return unless active?
-			if (not (args and args.length == 1))
-				print_error("Usage: db_import_nmap_xml <nmap.xml>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if (not File.readable?(args[0]))
-				print_status("Could not read the NMAP file")
-				return
-			end
-			framework.db.import_nmap_xml_file(:filename => args[0])
-		end
-
-		#
-		# Import Qualys XML files
-		#
-		def cmd_db_import_qualys_xml(*args)
-			return unless active?
-			if not (args and args.length == 1)
-				print_status("Usage: db_import_qualys_xml <result.xml>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if not File.readable?(args[0])
-				print_status("Could not read the Qualys file")
-				return
-			end
-			framework.db.import_qualys_xml_file(:filename => args[0])
-		end
-
-		#
-		# Import a Metasploit Express XML report
-		def cmd_db_import_msfe_xml(*args)
-			return unless active?
-			if not (args and args.length == 1)
-				print_status("Usage: db_import_msfe_xml <report.xml>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if not File.readable?(args[0])
-				print_status("Could not read the Metasploit Express file")
-				return
-			end
-			framework.db.import_msf_file(:filename => args[0])
-		end
-
-		#
-		# Import IP List from a file
-		#
-		def cmd_db_import_ip_list(*args)
-			return unless active?
-			if (not (args and args.length == 1))
-				print_error("Usage: db_import_file_list <iplist.txt>")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if (not File.readable?(args[0]))
-				print_status("Could not read the text file")
-				return
-			end
-			framework.db.import_ip_list_file(:filename => args[0])
 		end
 
 		#
@@ -1698,28 +1555,6 @@ class Db
 			framework.db.import_nmap_xml_file(:filename => fd.path)
 			fd.close(true)
 		end
-
-		#
-		# Import from a THC-Amap machine-readable log file
-		#
-		def cmd_db_import_amap_mlog(*args)
-			return unless active?
-			if args.length == 0
-				print_status("Usage: db_import_amap_mlog [logfile]")
-				return
-			end
-
-			warn_about_db_import(args[0])
-
-			if not File.readable?(args[0])
-				print_error("Could not read the log file")
-				return
-			end
-
-			framework.db.import_amap_log_file(:filename => args[0])
-		end
-
-		alias :cmd_db_import_amap_log :cmd_db_import_amap_mlog
 
 		#
 		# Database management
