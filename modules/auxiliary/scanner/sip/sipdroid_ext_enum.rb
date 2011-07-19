@@ -34,8 +34,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptInt.new('STRTPORT',	 [true, 'The start probe port', 59150]),
-				OptInt.new('FNLPORT',	[true, 'The final probe port', 59159]),
+				OptInt.new('STRTPORT',  [true, 'The start probe port', 59150]),
+				OptInt.new('FNLPORT',   [true, 'The final probe port', 59159]),
+				OptInt.new('RPORT',     [false, 'Remote port to probe', nil]),
 			], self.class)
 	end
 
