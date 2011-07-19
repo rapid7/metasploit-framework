@@ -683,8 +683,8 @@ class Module
 							match = [t,w] if (w == "auxiliary" and is_auxiliary)
 							match = [t,w] if (w == "post" and is_post)
 						when 'app'
-							match = [t,w] if (w == "server" and is_server_exploit)
-							match = [t,w] if (w == "client" and is_client_exploit)
+							match = [t,w] if (w == "server" and is_server)
+							match = [t,w] if (w == "client" and is_client)
 						when 'cve'
 							match = [t,w] if refs.any? { |ref| ref =~ /^cve\-/i and ref =~ r }
 						when 'bid'
