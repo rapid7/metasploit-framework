@@ -362,6 +362,8 @@ class EncodedPayload
 	def encoded_jar(opts={})
 		return pinst.generate_jar(opts) if pinst.respond_to? :generate_jar
 
+		opts[:spawn] ||= pinst.datastore["Spawn"]
+
 		Msf::Util::EXE.to_jar(encoded_exe(opts), opts)
 	end
 
