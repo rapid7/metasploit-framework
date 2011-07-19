@@ -274,7 +274,7 @@ module C
 				when :ptr; " d#{%w[x b w x d x x x q][@parser.typesize[type.name]]} "
 				when :float;   ' db ' + [value].pack(@parser.endianness == :little ? 'e' : 'g').unpack('C*').join(', ') + ' // '
 				when :double;  ' db ' + [value].pack(@parser.endianness == :little ? 'E' : 'G').unpack('C*').join(', ') + ' // '
-				when :longdouble; ' db ' + [value].pack(@parser.endianness == :little ? 'E' : 'G').unpack('C*').join(', ') + ' // '	# XXX same as :double 
+				when :longdouble; ' db ' + [value].pack(@parser.endianness == :little ? 'E' : 'G').unpack('C*').join(', ') + ' // '	# XXX same as :double
 				else raise "unknown idata type #{type.inspect} #{value.inspect}"
 				end
 
@@ -663,7 +663,7 @@ module C
 					if not init.op and init.rexpr.kind_of? ::String
 						v = Variable.new
 						v.storage = :static
-						v.name = 'char_' + init.rexpr.tr('^a-zA-Z', '')[0, 8]
+						v.name = 'char_' + init.rexpr.gsub(/[^a-zA-Z]/, '')[0, 8]
 						v.type = Array.new(type.type)
 						v.type.length = init.rexpr.length + 1
 						v.type.type.qualifier = [:const]
@@ -1434,3 +1434,4 @@ module C
 	end
 end
 end
+

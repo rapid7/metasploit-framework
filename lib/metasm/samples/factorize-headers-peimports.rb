@@ -41,13 +41,18 @@ if opts[:vspath] ||= ARGV.shift
 end
 
 funcnames = opts[:exe].map { |e|
-	pe = PE.decode_file_header(e)
-	pe.decode_imports
-	if not pe.imports
+	pe = PE.decode_file_header(e) rescue nil
+	
+	pe.decode_imports if pe 
+	if pe and not pe.imports
 		puts "#{e} has no imports"
 		next
 	end
-	pe.imports.map { |id| id.imports.map { |i| i.name } }
+	if pe 
+		pe.imports.map { |id| id.imports.map { |i| i.name } }
+	else
+		[]
+	end
 }.flatten.compact.uniq.sort
 
 ARGV.each { |n|
