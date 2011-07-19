@@ -189,6 +189,7 @@ class Db
 			host_search = nil
 			set_rhosts = false
 			hostlist = []
+			mode = :search
 
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
@@ -199,6 +200,8 @@ class Db
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
+				when '-a','--add'
+					mode = :add
 				when '-c'
 					list = args.shift
 					if(!list)
@@ -225,6 +228,7 @@ class Db
 					print_line "Usage: db_hosts [ options ] [addr1 addr2 ...]"
 					print_line
 					print_line "OPTIONS:"
+					print_line "  -a,--add          Add the hosts instead of searching"
 					print_line "  -c <col1,col2>    Only show the given columns (see list below)"
 					print_line "  -h,--help         Show this help information"
 					print_line "  -u,--up           Only show hosts which are up"
@@ -244,48 +248,60 @@ class Db
 			# all.
 			host_search = (hostlist.empty? ? nil : hostlist)
 
-			col_names = default_columns + virtual_columns
 			if col_search
 				col_names = col_search
+			else
+				col_names = default_columns + virtual_columns
 			end
 
-			tbl = Rex::Ui::Text::Table.new(
-				{
-					'Header'  => "Hosts",
-					'Columns' => col_names,
-				})
-
-			framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-				columns = col_names.map do |n|
-					if virtual_columns.include?(n)
-						case n
-						when "svcs"
-							host.services.length
-						when "vulns"
-							host.vulns.length
-						when "workspace"
-							host.workspace.name
-						end
-					else
-						host.attributes[n] || ""
+			case mode
+			when :add
+				hostlist.each do |address|
+					host = framework.db.find_or_create_host(:host => address)
+					print_status("Time: #{host.created_at} Host: host=#{host.address}")
+					if set_rhosts
+						# only unique addresses
+						rhosts << host.address unless rhosts.include?(host.address)
 					end
 				end
 
-				tbl << columns
-				if set_rhosts
-					# only unique addresses
-					rhosts << host.address unless rhosts.include?(host.address)
-				end
-			end
+			when :search
+				tbl = Rex::Ui::Text::Table.new(
+					{
+						'Header'  => "Hosts",
+						'Columns' => col_names,
+					})
 
-			if output
-				print_status("Wrote hosts to #{output}")
-				::File.open(output, "wb") { |ofd|
-					ofd.write(tbl.to_csv)
-				}
-			else
-				print_line
-				print_line tbl.to_s
+				framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
+					columns = col_names.map do |n|
+						# Deal with the special cases
+						if virtual_columns.include?(n)
+							case n
+							when "svcs";      host.services.length
+							when "vulns";     host.vulns.length
+							when "workspace"; host.workspace.name
+							end
+						# Otherwise, it's just an attribute
+						else
+							host.attributes[n] || ""
+						end
+					end
+
+					tbl << columns
+					if set_rhosts
+						# only unique addresses
+						rhosts << host.address unless rhosts.include?(host.address)
+					end
+				end
+				if output
+					print_status("Wrote hosts to #{output}")
+					::File.open(output, "wb") { |ofd|
+						ofd.write(tbl.to_csv)
+					}
+				else
+					print_line
+					print_line tbl.to_s
+				end
 			end
 
 			# Finally, handle the case where the user wants the resulting list
@@ -441,12 +457,12 @@ class Db
 		end
 
 		#
-		# Only takes two arguments. Can return return active or all, on a certain 
-		# host or range, on a certain port or range, and/or on a service name. 
+		# Only takes two arguments. Can return return active or all, on a certain
+		# host or range, on a certain port or range, and/or on a service name.
 		#
 		# E.g., these:
 		#   db_creds     # Default, returns all active credentials)
-		#   db_creds all # Returns all credentials, active or not 
+		#   db_creds all # Returns all credentials, active or not
 		#   db_creds host=10.10.10.0/24
 		#   db_creds port=1-1024
 		#   db_creds service=ssh,smb,http
@@ -1227,7 +1243,7 @@ class Db
 			tab_complete_filenames(str, words)
 		end
 
-		# Informs about the superior cmd_db_import function. 
+		# Informs about the superior cmd_db_import function.
 		def warn_about_db_import(arg)
 			return nil unless caller[0][/:in `cmd_(.*)'/] # `fix higlighting
 			triggering_function = $1
@@ -1555,9 +1571,9 @@ class Db
 				end
 
 				temp_nmap_threads << framework.threads.spawn("db_nmap-Stderr", false, nmap_pipe[2]) do |np_2|
-					np_2.each_line do |nmap_err| 
+					np_2.each_line do |nmap_err|
 						next if nmap_err.strip.empty?
-						print_status  "Nmap: '#{nmap_err.strip}'" 
+						print_status  "Nmap: '#{nmap_err.strip}'"
 					end
 				end
 
@@ -1785,7 +1801,7 @@ class Db
 			end
 
 			print_line "RHOSTS => #{mydatastore['RHOSTS']}"
-			print_line 
+			print_line
 		end
 
 
