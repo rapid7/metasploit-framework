@@ -56,7 +56,6 @@ class Db
 				"db_creds"      => "List all credentials in the database",
 				"db_exploited"  => "List all exploited hosts in the database",
 				"db_add_port"   => "Add a port to a host",
-				"db_add_cred"   => "Add a credential to a host:port",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
@@ -492,20 +491,24 @@ class Db
 		end
 
 		def cmd_db_creds_help
-			print_line "Usage: db_creds [addr range|port range|list of services]"
+			print_line "Usage: db_creds [addr range]"
+			print_line "Usage: db_creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
 			print_line
-			#print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
-			#print_line "  -d,--delete       Delete the hosts instead of searching"
-			print_line "  -h,--help         Show this help information"
-			print_line "  -p                Treat other argument as a port range"
-			print_line "  -s                Treat other arg as comma-separated service names"
+			print_line "  -a,--add              Add creds to the given addresses instead of listing"
+			print_line "  -d,--delete           Delete the creds instead of searching"
+			print_line "  -h,--help             Show this help information"
+			print_line "  -p,--port <portspec>  List creds matching this port spec"
+			print_line "  -s <svc names>        List creds matching these service names"
+			print_line "  -t,--type <type>      Add a cred of this type (only with -a). Default: password"
+			print_line "  -u,--user      Add a cred for this user (only with -a). Default: blank"
+			print_line "  -P,--password  Add a cred with this password (only with -a). Default: blank"
 			print_line
 			print_line "Examples:"
 			print_line "  db_creds               # Default, returns all active credentials"
 			print_line "  db_creds all           # Returns all credentials active or not"
-			print_line "  db_creds 1.2.3.4/24"
-			print_line "  db_creds -p 1-1024"
-			print_line "  db_creds -s ssh,smb,etc"
+			print_line "  db_creds 1.2.3.4/24    # nmap host specification"
+			print_line "  db_creds -p 22-25,445  # nmap port specification"
+			print_line "  db_creds 10.1.*.* -s ssh,smb all"
 			print_line
 		end
 
@@ -518,6 +521,11 @@ class Db
 
 			search_param = nil
 			inactive_ok = false
+			type = "password"
+
+			host_ranges = []
+			port_ranges = []
+			svcs        = []
 
 			# Short-circuit help
 			if args.delete "-h"
@@ -525,60 +533,124 @@ class Db
 				return
 			end
 
-			if args.delete "-p"
-				search_term = "port"
-			elsif args.delete "-s"
-				search_term = "service"
-			else
-				search_term = "host"
+			mode = :search
+			search_term = "host"
+			while (arg = args.shift)
+				case arg
+				when "-a","--add"
+					mode = :add
+				when "-d"
+					mode = :delete
+				when "-h"
+					cmd_db_creds_help
+					return
+				when "-p","--port"
+					port = args.shift
+					if (!port)
+						print_error("Argument required for -p")
+						return
+					end
+					begin
+						port_ranges << Rex::Socket.portspec_to_portlist(port)
+					rescue
+						print_error "Invalid port parameter, #{port}."
+						return
+					end
+				when "-t","--type"
+					ptype = args.shift
+					if (!ptype)
+						print_error("Argument required for -t")
+						return
+					end
+				when "-s","--service"
+					service = args.shift
+					if (!service)
+						print_error("Argument required for -s")
+						return
+					end
+					svcs = service.split(/[\s]*,[\s]*/)
+				when "-P","--password"
+					pass = args.shift
+					if (!pass)
+						print_error("Argument required for -P")
+						return
+					end
+				when "-u","--user"
+					user = args.shift
+					if (!user)
+						print_error("Argument required for -u")
+						return
+					end
+				when "all"
+					# The user wants inactive passwords, too
+					inactive_ok = true
+				else
+					# Anything that wasn't an option is the thing to search for
+					begin
+						host_ranges << Rex::Socket::RangeWalker.new(arg)
+					rescue
+						print_error "Invalid host parameter, #{arg}."
+						return
+					end
+				end
 			end
 
-			# Does the user want inactive passwords, too?
-			if args.delete "all"
-				inactive_ok = true
-			end
-
-			# Anything that wasn't an option is the thing to search for
-			search_param = args.shift
-
-			# Set up the place we're searching before dropping into the search loop
-			case search_term
-			when "host"
-				begin
-					rw = Rex::Socket::RangeWalker.new(search_param)
-				rescue
-					print_error "Invalid host parameter."
+			if mode == :add
+				if port_ranges.length != 1 or port_ranges.first.length != 1
+					print_error("Exactly one port required")
 					return
 				end
-			when "port"
-				if search_param =~ /([0-9]+)-([0-9]+)/
-					ports = Range.new($1,$2)
-				else
-					ports = Range.new(search_param,search_param)
+				port = port_ranges.first.first
+				host_ranges.each do |range|
+					range.each do |host|
+						cred = framework.db.find_or_create_cred(
+							:host => host,
+							:port => port,
+							:user => (user == "NULL" ? nil : user),
+							:pass => (pass == "NULL" ? nil : pass),
+							:ptype => ptype,
+							:sname => service,
+							:active => true
+						)
+						print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+					end
 				end
-			when "service"
-				svcs = search_param.split(/[\s]*,[\s]*/)
+				return
 			end
 
+			# If we get here, we're searching.  Delete implies search
+
 			creds_returned = 0
+			# Now do the actual search
 			framework.db.each_cred(framework.db.workspace) do |cred|
 				# skip if it's inactive and user didn't ask for all
 				next unless (cred.active or inactive_ok)
 
 				# Also skip if the user is searching for something and this
 				# one doesn't match
-				unless search_param.nil?
-					case search_term
-					when "host"; next unless rw.include? cred.service.host.address
-					when "port"; next unless ports.include? cred.service.port.to_s
-					when "service"; next unless svcs.include? cred.service.name
-					end
+				includes = false
+				host_ranges.map do |rw|
+					includes = rw.include? cred.service.host.address
+					break if includes
 				end
+				next unless host_ranges.empty? or includes
+
+				# Same for ports
+				ports = port_ranges.flatten
+				next unless ports.empty? or ports.include? cred.service.port.to_s
+
+				# Same for service names
+				svcs.flatten!
+				next unless svcs.empty? or svcs.include?(cred.service.name)
 
 				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+				if mode == :delete
+					cred.destroy
+				end
 				creds_returned += 1
 			end
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
+
 		end
 
 		# Returns exploited hosts. Takes a similiar set of options as db_creds
@@ -804,25 +876,6 @@ class Db
 
 				msg << " type=#{loot.ltype} name=#{loot.name} content=#{loot.content_type} info='#{loot.info}' path=#{loot.path}"
 				print_status(msg)
-			end
-		end
-
-		def cmd_db_add_cred(*args)
-			return unless active?
-			if (!args || args.length < 3)
-				print_status("Usage: db_add_cred [host] [port] [user] [pass] [type] [active]")
-				return
-			else
-				host,port,user,pass,ptype,active = args
-				cred = framework.db.find_or_create_cred(
-					:host => host,
-					:port => port,
-					:user => (user == "NULL" ? nil : user),
-					:pass => (pass == "NULL" ? nil : pass),
-					:ptype => ptype,
-					:active => (active == "false" ? false : true )
-				)
-				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
 			end
 		end
 
