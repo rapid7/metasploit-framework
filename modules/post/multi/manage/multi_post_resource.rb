@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit3 < Msf::Post
 	include Msf::Ui::Console
 	def initialize(info={})
 		super( update_info( info,
