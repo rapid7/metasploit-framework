@@ -671,7 +671,6 @@ class Db
 			return unless active?
 			mode = :search
 			data = nil
-			hosts = nil
 			types = nil
 			set_rhosts = false
 			hostlist = []
@@ -736,8 +735,8 @@ class Db
 
 			when :search
 				framework.db.each_note(framework.db.workspace) do |note|
-					next if(hosts and (note.host == nil or hosts.index(note.host.address) == nil))
-					next if(types and types.index(note.ntype) == nil)
+					next if(hostlist and (note.host.nil? or hostlist.index(note.host.address).nil?))
+					next if(types and types.index(note.ntype).nil?)
 					msg = "Time: #{note.created_at} Note:"
 					if (note.host)
 						host = note.host
@@ -762,7 +761,7 @@ class Db
 		end
 
 		def cmd_db_loot_help
-			print_line "Usage: db_loot [-h|--help] [-a <addr1,addr2>] [-t <type1,type2>]"
+			print_line "Usage: db_loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
 			print_line
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
@@ -771,17 +770,10 @@ class Db
 
 		def cmd_db_loot(*args)
 			return unless active?
-			hosts = nil
+			hostlist = []
 			types = nil
 			while (arg = args.shift)
 				case arg
-				when '-a'
-					hostlist = args.shift
-					if(!hostlist)
-						print_status("Invalid host list")
-						return
-					end
-					hosts = hostlist.strip().split(",")
 				when '-t'
 					typelist = args.shift
 					if(!typelist)
@@ -792,12 +784,14 @@ class Db
 				when '-h','--help'
 					cmd_db_loot_help
 					return
+				else
+					hostlist << arg
 				end
 
 			end
 			framework.db.each_loot(framework.db.workspace) do |loot|
-				next if(hosts and (loot.host == nil or hosts.index(loot.host.address) == nil))
-				next if(types and types.index(loot.ltype) == nil)
+				next if(hostlist and (loot.host.nil? or hostlist.index(loot.host.address).nil?))
+				next if(types and types.index(loot.ltype).nil?)
 				msg = "Time: #{loot.created_at} Loot:"
 				if (loot.host)
 					msg << " host=#{loot.host.address}"
