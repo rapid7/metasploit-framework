@@ -172,7 +172,7 @@ class RangeWalker
 
 	# 
 	# Calls the given block with each address. This is basically a wrapper for
-	# +next_ip+
+	# #next_ip
 	#
 	def each(&block)
 		while (ip = next_ip)
