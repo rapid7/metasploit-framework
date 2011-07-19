@@ -705,6 +705,10 @@ class Db
 				end
 
 			end
+			if hostlist.empty?
+				hostlist = nil
+			end
+
 			case mode
 			when :add
 				if types.size != 1
