@@ -107,6 +107,8 @@ class Metasploit3 < Msf::Auxiliary
 						udp_sock.put(data)
 						strtport = fnlport + 1
 						rcv = nil
+					else
+						break
 					end
 				end
 			rescue ::Exception => e
