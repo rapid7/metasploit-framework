@@ -12,20 +12,21 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Post
-	include Msf::Ui::Console
+
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Manage Post Module Resource file Automation',
-				'Description'   => %q{ Run resource file with post modules and options
-									against specified sessions.},
+				'Description'   => %q{
+						Execute a resource file containing post modules and options
+					against specific sessions.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$'
 			))
 		register_options(
 			[
-				OptString.new('RESOURCE', [true, 'Resource file with space separate values <session> <module> <options>, per line.', nil])
-
+				OptPath.new('RESOURCE', [true, "Resource file with space-separated values in the form of: '<session> <module> <options>'"])
 			], self.class)
 	end
 
@@ -43,7 +44,7 @@ class Metasploit3 < Msf::Post
 				entries << line.chomp
 			end
 		else
-			print_error("Resourse file does not exist.")
+			print_error("Resource file does not exist.")
 		end
 
 		if entries
@@ -55,7 +56,7 @@ class Metasploit3 < Msf::Post
 				else
 					post_mod = values[1]
 				end
-				
+
 				if values.length == 3
 					mod_opts = values[2].split(",")
 				end
@@ -70,12 +71,12 @@ class Metasploit3 < Msf::Post
 					session_list.each do |s|
 						next if not current_sessions.include?(s.to_i)
 						if m.session_compatible?(s.to_i)
-							print_status("Running Against #{s}")
+							print_status("Running against #{s}")
 							m.datastore['SESSION'] = s.to_i
 							if mod_opts
 								mod_opts.each do |o|
 									opt_pair = o.split("=",2)
-									print_status("\tSetting Option #{opt_pair[0]} to #{opt_pair[1]}")
+									print_status("\tSetting option #{opt_pair[0]} to #{opt_pair[1]}")
 									m.datastore[opt_pair[0]] = opt_pair[1]
 								end
 							end
@@ -89,11 +90,12 @@ class Metasploit3 < Msf::Post
 						end
 					end
 				else
-					print_error("No Compatible Sessions where found!")
+					print_error("No compatible sessions were found")
 				end
 			end
 		end
 	end
 
-	
+
 end
+

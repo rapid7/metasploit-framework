@@ -12,19 +12,21 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Post
-	include Msf::Ui::Console
+
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Manage Execute Meterpreter Console Command Resource File',
-				'Description'   => %q{Execute Meterpreter Console Commands in resourcefileagainst
-									specified sessions.},
+				'Description'   => %q{
+						Execute Meterpreter console commands defined in a resource file against
+					specific sessions.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$'
 			))
 		register_options(
 			[
-				OptString.new('RESOURCE', [true, 'Resource file with space separate values <session> <command>, per line.', nil])
+				OptPath.new('RESOURCE', [true, "Resource file with space-separated values in the form of: '<session> <command>'"])
 			], self.class)
 	end
 
@@ -42,7 +44,7 @@ class Metasploit3 < Msf::Post
 				entries << line.chomp
 			end
 		else
-			print_error("Resourse file does not exist.")
+			print_error("Resource file does not exist.")
 		end
 
 		entries.each do |entrie|
@@ -53,7 +55,7 @@ class Metasploit3 < Msf::Post
 			else
 				sessions = session_parm.split(",")
 			end
-			
+
 			sessions.each do |s|
 				# Check if session is in the current session list.
 				next if not current_sessions.include?(s.to_i)
@@ -63,14 +65,15 @@ class Metasploit3 < Msf::Post
 
 				# Check if session is meterpreter and run command.
 				if (session.type == "meterpreter")
-					print_good("Running command #{command} against sessions #{s}")
+					print_good("Running command #{command} against session #{s}")
 					session.console.run_single(command)
 				else
-					print_error("Sessions #{s} is not a Meterpreter Sessions!")
+					print_error("Session #{s} is not a Meterpreter sessions!")
 				end
 			end
 		end
 	end
 
-	
+
 end
+

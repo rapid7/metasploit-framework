@@ -12,20 +12,22 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Post
-	include Msf::Ui::Console
+
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Manage Execute Meterpreter Console Command',
-				'Description'   => %q{ Run a given Meterpreter console command against
-									specified sessions.},
+				'Description'   => %q{
+						Run a Meterpreter console command against a set of
+					specified sessions.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$'
 			))
 		register_options(
 			[
-				OptString.new('SESSIONS', [true, 'Specify either ALL for all sessions or a comman separated list of sessions.', nil]),
-				OptString.new('COMMAND', [true, 'Meterpreter Console command.', nil])
+				OptString.new('SESSIONS', [true, 'Specify either ALL for all sessions or a comma-separated list of sessions']),
+				OptString.new('COMMAND', [true, 'Meterpreter console command.', nil])
 			], self.class)
 	end
 
@@ -51,13 +53,14 @@ class Metasploit3 < Msf::Post
 
 			# Check if session is meterpreter and run command.
 			if (session.type == "meterpreter")
-				print_good("Running command #{command} against sessions #{s}")
+				print_good("Running command #{command} against session #{s}")
 				session.console.run_single(command)
 			else
-				print_error("Sessions #{s} is not a Meterpreter Sessions!")
+				print_error("Session #{s} is not a Meterpreter session!")
 			end
 		end
 	end
 
-	
+
 end
+

@@ -12,22 +12,21 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Post
-	include Msf::Ui::Console
+
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Multi Manage Post Moudule Execution Automation',
-				'Description'   => %q{ Run specified module against a a given set
-									of sessions or all sessions.},
+				'Name'          => 'Multi Manage Post Module Execution Automation',
+				'Description'   => %q{ Run the specified module against a a given set
+					of sessions or all sessions.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$'
 			))
 		register_options(
 			[
-				OptString.new('SESSIONS', [true, 'Specify either ALL for all sessions or a comman separated list of sessions.', nil]),
-				OptString.new('MODULE', [true, 'Post Module to run', nil]),
-				OptString.new('OPTIONS', [false, 'Commans Separated list of Options for post module', nil]),
-
+				OptString.new('SESSIONS', [true, 'Specify either ALL for all sessions or a comma-separated list of sessions']),
+				OptString.new('MODULE', [true, 'The name of the Post module to run']),
+				OptString.new('OPTIONS', [false, 'Comma-separated list of options for the post module'])
 			], self.class)
 	end
 
@@ -70,9 +69,10 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		else
-			print_error("No Compatible Sessions where found!")
+			print_error("No compatible sessions were found")
 		end
 	end
 
-	
+
 end
+
