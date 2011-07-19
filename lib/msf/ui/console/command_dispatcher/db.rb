@@ -57,8 +57,6 @@ class Db
 				"db_exploited"  => "List all exploited hosts in the database",
 				"db_add_port"   => "Add a port to a host",
 				"db_add_cred"   => "Add a credential to a host:port",
-				"db_del_host"   => "Delete one or more hosts from the database",
-				"db_del_port"   => "Delete one port from the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
@@ -327,7 +325,7 @@ class Db
 			col_search = ['port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
-			addrlist = []
+			hostlist = []
 			while (arg = args.shift)
 				case arg
 				when '-a','--add'
@@ -400,13 +398,13 @@ class Db
 					print_line
 					return
 				else
-					addrlist << arg
+					hostlist << arg
 				end
 			end
 
 			case mode
 			when :add
-				addrlist.each { |addr|
+				hostlist.each { |addr|
 					# XXX: Can only deal with one port and one service name at
 					# a time right now.  Them's the breaks.
 					host = framework.db.find_or_create_host(:host => addr)
@@ -423,10 +421,10 @@ class Db
 				}
 
 			when :delete
-				addrlist.each { |addr|
+				hostlist.each { |addr|
 					host = framework.db.workspace.hosts.find_by_address(addr)
 					next if not host
-					svc = host.services.find_by_port(port)
+					svc = host.services.find_by_port_and_proto(port, proto||'tcp')
 					next if not svc
 					print_status("Time: #{svc.created_at} Note: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
 					svc.destroy
@@ -443,11 +441,11 @@ class Db
 					})
 				# The user didn't give us any addresses to search for, so
 				# switch to nil so ActiveRecord will return all of them.
-				if addrlist.empty?
-					addrlist = nil
+				if hostlist.empty?
+					hostlist = nil
 				end
 
-				framework.db.services(framework.db.workspace, onlyup, proto, addrlist, ports, names).each do |service|
+				framework.db.services(framework.db.workspace, onlyup, proto, hostlist, ports, names).each do |service|
 					host = service.host
 					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 					tbl << columns
@@ -814,40 +812,6 @@ class Db
 			end
 		end
 
-		def cmd_db_add_port(*args)
-			return unless active?
-			if (not args or args.length < 2 or args.length > 4)
-				print_status("Usage: db_add_port <host> <port> [proto] [name]")
-				return
-			end
-
-			host = framework.db.find_or_create_host(:host => args[0])
-			return if not host
-			info = {
-				:host => host,
-				:port => args[1].to_i
-			}
-			info[:proto] = args[2].downcase if args[2]
-			info[:name]  = args[3].downcase if args[3]
-
-			service = framework.db.find_or_create_service(info)
-			return if not service
-
-			print_status("Time: #{service.created_at} Service: host=#{service.host.address} port=#{service.port} proto=#{service.proto} state=#{service.state}")
-		end
-
-		def cmd_db_del_port(*args)
-			return unless active?
-			if (not args or args.length < 3)
-				print_status("Usage: db_del_port [host] [port] [proto]")
-				return
-			end
-
-			if framework.db.del_service(framework.db.workspace, args[0], args[2].downcase, args[1].to_i)
-				print_status("Service: host=#{args[0]} port=#{args[1].to_i} proto=#{args[2].downcase} deleted")
-			end
-		end
-
 		def cmd_db_add_cred(*args)
 			return unless active?
 			if (!args || args.length < 3)
@@ -864,15 +828,6 @@ class Db
 					:active => (active == "false" ? false : true )
 				)
 				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
-			end
-		end
-
-		def cmd_db_del_host(*args)
-			return unless active?
-			args.each do |address|
-				if framework.db.del_host(framework.db.workspace, address)
-					print_status("Host #{address} deleted")
-				end
 			end
 		end
 
