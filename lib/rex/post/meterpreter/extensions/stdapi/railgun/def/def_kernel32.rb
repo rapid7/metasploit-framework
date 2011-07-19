@@ -1593,7 +1593,7 @@ class Def_kernel32
 		
 		dll.add_function( 'GetProcessHeaps', 'DWORD',[
 			["DWORD","NumberOfHeaps","in"],
-			["PDWORD","ProcessHeaps","out"],
+			["PBLOB","ProcessHeaps","out"],
 			])
 		
 		dll.add_function( 'GetProcessId', 'DWORD',[
