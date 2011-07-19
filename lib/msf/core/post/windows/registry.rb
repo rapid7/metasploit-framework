@@ -9,6 +9,25 @@ module Registry
 
 	include Msf::Post::Windows::CliParse
 
+
+	def registry_loadkey(key,file)
+		if session_has_registry_ext
+			retval=meterpreter_registry_loadkey(key,file)
+		else
+			retval=shell_registry_loadkey(key,file)
+		end 
+		return retval
+	end
+
+	def registry_unloadkey(key)
+		if session_has_registry_ext
+			retval=meterpreter_registry_unloadkey(key)
+		else
+			retval=shell_registry_unloadkey(key)
+		end 
+		return retval
+	end
+
 	#
 	# Create the given registry key
 	#
@@ -120,6 +139,39 @@ protected
 	##
 	# Generic registry manipulation methods based on reg.exe
 	##
+
+
+	def shell_registry_loadkey(key,file)
+		key = normalize_key(key)
+		boo = false
+		file = "\"#{file}\""
+		cmd = "cmd.exe /c reg load #{key} #{file}"
+		results = session.shell_command_token_win32(cmd)
+		if results =~ /The operation completed successfully/
+			boo = true
+		elsif results =~ /^Error:/
+			error_hash = win_parse_error(results)
+		else
+			error_hash = win_parse_error("ERROR:Unknown error running #{cmd}") 
+		end
+		return boo
+	end
+
+	def shell_registry_unloadkey(key)
+		key = normalize_key(key)
+		boo = false
+		cmd = "cmd.exe /c reg unload #{key}"
+		results = session.shell_command_token_win32(cmd)
+		if results =~ /The operation completed successfully/
+			boo = true
+		elsif results =~ /^Error:/
+			error_hash = win_parse_error(results)
+		else
+			error_hash = win_parse_error("ERROR:Unknown error running #{cmd} INSPECT: #{error_hash.inspect}") 
+		end
+		return boo
+	end
+
 
 	def shell_registry_createkey(key)
 		key = normalize_key(key)
@@ -290,6 +342,61 @@ protected
 	# Meterpreter-specific registry manipulation methods
 	##
 
+	def meterpreter_registry_loadkey(key,file)
+		begin
+			client.sys.config.getprivs()
+			root_key, base_key = session.sys.registry.splitkey(key)
+			#print_debug("Loading file #{file}")
+			begin
+				loadres= session.sys.registry.load_key(root_key,base_key,file)
+			rescue Rex::Post::Meterpreter::RequestError => e
+				case e.to_s
+				when "stdapi_registry_load_key: Operation failed: 1314"
+					print_error("You appear to be lacking the SeRestorePrivilege. Are you running with Admin privs?")
+					return false
+				when "stdapi_registry_load_key: Operation failed: The system cannot find the path specified."
+					print_error("The path you provided to the Registry Hive does not Appear to be valid: #{file}")
+					return false
+				when "stdapi_registry_load_key: Operation failed: The process cannot access the file because it is being used by another process."
+					print_error("The file you specified is currently locked by another process: #{file}")
+					return false
+				when /stdapi_registry_load_key: Operation failed:/
+					print_error("An unknown error has occured: #{loadres.to_s}")
+					return false
+				else
+					#print_debug("Registry Hive Loaded Successfully: #{key}")
+					return true
+				end
+			end
+				
+		rescue
+			return false
+		end
+
+	end
+
+	def meterpreter_registry_unloadkey(key)
+		begin
+			client.sys.config.getprivs()
+			root_key, base_key = session.sys.registry.splitkey(key)
+			begin
+				unloadres= session.sys.registry.unload_key(root_key,base_key)
+			rescue Rex::Post::Meterpreter::RequestError => e
+				case e.to_s
+				when "stdapi_registry_unload_key: Operation failed: The parameter is incorrect."
+					print_error("The KEY you provided does not appear to match a loaded Registry Hive: #{key}")
+				when /stdapi_registry_unload_key: Operation failed:/
+					print_error("An unknown error has occured: #{unloadres.to_s}")
+					return false
+				else
+					#print_debug("Registry Hive Unloaded Successfully: #{key}")
+					return true
+				end
+			end
+		rescue
+			return false
+		end
+	end
 
 	def meterpreter_registry_createkey(key)
 		begin
