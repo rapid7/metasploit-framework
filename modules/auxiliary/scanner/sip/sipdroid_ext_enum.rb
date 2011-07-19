@@ -95,18 +95,18 @@ class Metasploit3 < Msf::Auxiliary
 					if not msg[0].eql?("")
 						if msg[0].include?("SIP/2.0 180 Ringing")
 							origin = /o=\w+\@[\w+\.]+/.match(msg[0])
-						end
 
-						if not origin.nil?
-							print_good(/\w+\@[\w+\.]+/.match(origin.to_s).to_s)
-						else
-							print_status("Ringing message received but no user/gateway sent...")
-						end
+							if not origin.nil?
+								print_good(/\w+\@[\w+\.]+/.match(origin.to_s).to_s)
+							else
+								print_status("Ringing message received but no user/gateway sent...")
+							end
 
-						data = create_probe(datastore['RHOST'], 'CANCEL', @branch, @tag, @callid)
-						udp_sock.put(data)
-						strtport = fnlport + 1
-						rcv = nil
+							data = create_probe(datastore['RHOST'], 'CANCEL', @branch, @tag, @callid)
+							udp_sock.put(data)
+							strtport = fnlport + 1
+							rcv = nil
+						end
 					else
 						break
 					end
