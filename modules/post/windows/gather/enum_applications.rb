@@ -71,10 +71,12 @@ class Metasploit3 < Msf::Post
 			end
 			t.map{|x| x.join }
 		end
+
+		results = tbl.to_s
 		
-		print_line("\n" + tbl.to_s + "\n")
+		print_line("\n" + results + "\n")
 		
-		store_loot("host.applications", "text/plain", session, tbl.to_s, "applications.txt", "Installed Applications")
+		store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
 	end
 
 	def run
