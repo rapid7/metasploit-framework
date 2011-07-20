@@ -44,13 +44,13 @@ class Db
 			}
 
 			more = {
-				"db_workspace"  => "Switch between database workspaces",
-				"db_hosts"      => "List all hosts in the database",
-				"db_services"   => "List all services in the database",
-				"db_vulns"      => "List all vulnerabilities in the database",
-				"db_notes"      => "List all notes in the database",
-				"db_loot"       => "List all loot in the database",				
-				"db_creds"      => "List all credentials in the database",
+				"workspace"     => "Switch between database workspaces",
+				"hosts"         => "List all hosts in the database",
+				"services"      => "List all services in the database",
+				"vulns"         => "List all vulnerabilities in the database",
+				"notes"         => "List all notes in the database",
+				"loot"          => "List all loot in the database",				
+				"creds"         => "List all credentials in the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
@@ -78,22 +78,22 @@ class Db
 			true
 		end
 
-		def cmd_db_workspace_help
+		def cmd_workspace_help
 			print_line "Usage:"
-			print_line "    db_workspace                  List workspaces"
-			print_line "    db_workspace [name]           Switch workspace"
-			print_line "    db_workspace -a [name] ...    Add workspace(s)"
-			print_line "    db_workspace -d [name] ...    Delete workspace(s)"
-			print_line "    db_workspace -h               Show this help information"
+			print_line "    workspace                  List workspaces"
+			print_line "    workspace [name]           Switch workspace"
+			print_line "    workspace -a [name] ...    Add workspace(s)"
+			print_line "    workspace -d [name] ...    Delete workspace(s)"
+			print_line "    workspace -h               Show this help information"
 			print_line
 		end
 
-		def cmd_db_workspace(*args)
+		def cmd_workspace(*args)
 			return unless active?
 			while (arg = args.shift)
 				case arg
 				when '-h','--help'
-					cmd_db_workspace_help
+					cmd_workspace_help
 					return
 				when '-a','--add'
 					adding = true
@@ -151,20 +151,20 @@ class Db
 			end
 		end
 
-		def cmd_db_workspace_tabs(str, words)
+		def cmd_workspace_tabs(str, words)
 			return [] unless active?
 			framework.db.workspaces.map { |s| s.name } if (words & ['-a','--add']).empty?
 		end
 
-		def cmd_db_hosts_help
+		def cmd_hosts_help
 			# This command does some lookups for the list of appropriate column
 			# names, so instead of putting all the usage stuff here like other
 			# help methods, just use it's "-h" so we don't have to recreating
 			# that list
-			cmd_db_hosts("-h")
+			cmd_hosts("-h")
 		end
 
-		def cmd_db_hosts(*args)
+		def cmd_hosts(*args)
 			return unless active?
 			onlyup = false
 			host_search = nil
@@ -210,7 +210,7 @@ class Db
 					rhosts = []
 
 				when '-h','--help'
-					print_line "Usage: db_hosts [ options ] [addr1 addr2 ...]"
+					print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
 					print_line
 					print_line "OPTIONS:"
 					print_line "  -a,--add          Add the hosts instead of searching"
@@ -307,13 +307,13 @@ class Db
 			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		end
 
-		def cmd_db_services_help
-			# Like db_hosts, use "-h" instead of recreating the column list
+		def cmd_services_help
+			# Like cmd_hosts, use "-h" instead of recreating the column list
 			# here
-			cmd_db_services("-h")
+			cmd_services("-h")
 		end
 
-		def cmd_db_services(*args)
+		def cmd_services(*args)
 			return unless active?
 			mode = :search
 			onlyup = false
@@ -380,7 +380,7 @@ class Db
 
 				when '-h','--help'
 					print_line
-					print_line "Usage: db_services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+					print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
 					print_line
 					print_line "  -a,--add          Add the services instead of searching"
 					print_line "  -d,--delete       Delete the services instead of searching"
@@ -480,10 +480,10 @@ class Db
 		end
 
 
-		def cmd_db_vulns_help
+		def cmd_vulns_help
 			print_line "Print all vulnerabilities in the database"
 			print_line
-			print_line "Usage: db_vulns [addr range]"
+			print_line "Usage: vulns [addr range]"
 			print_line
 			#print_line "  -a,--add              Add creds to the given addresses instead of listing"
 			#print_line "  -d,--delete           Delete the creds instead of searching"
@@ -492,13 +492,13 @@ class Db
 			print_line "  -s <svc names>        List vulns matching these service names"
 			print_line
 			print_line "Examples:"
-			print_line "  db_vulns -p 1-65536          # only vulns with associated services"
-			print_line "  db_vulns -p 1-65536 -s http  # identified as http on any port"
+			print_line "  vulns -p 1-65536          # only vulns with associated services"
+			print_line "  vulns -p 1-65536 -s http  # identified as http on any port"
 			print_line
 		end
 
 
-		def cmd_db_vulns(*args)
+		def cmd_vulns(*args)
 			return unless active?
 
 			host_ranges = []
@@ -507,7 +507,7 @@ class Db
 
 			# Short-circuit help
 			if args.delete "-h"
-				cmd_db_creds_help
+				cmd_creds_help
 				return
 			end
 
@@ -519,7 +519,7 @@ class Db
 				#when "-d"
 				#	mode = :delete
 				when "-h"
-					cmd_db_creds_help
+					cmd_creds_help
 					return
 				when "-p","--port"
 					unless (arg_port_range(args.shift, port_ranges, true))
@@ -567,9 +567,9 @@ class Db
 		end
 
 
-		def cmd_db_creds_help
-			print_line "Usage: db_creds [addr range]"
-			print_line "Usage: db_creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
+		def cmd_creds_help
+			print_line "Usage: creds [addr range]"
+			print_line "Usage: creds -a <addr range> -p <port> -t <type> -u <user> -P <pass>"
 			print_line
 			print_line "  -a,--add              Add creds to the given addresses instead of listing"
 			print_line "  -d,--delete           Delete the creds instead of searching"
@@ -581,11 +581,11 @@ class Db
 			print_line "  -P,--password  Add a cred with this password (only with -a). Default: blank"
 			print_line
 			print_line "Examples:"
-			print_line "  db_creds               # Default, returns all active credentials"
-			print_line "  db_creds all           # Returns all credentials active or not"
-			print_line "  db_creds 1.2.3.4/24    # nmap host specification"
-			print_line "  db_creds -p 22-25,445  # nmap port specification"
-			print_line "  db_creds 10.1.*.* -s ssh,smb all"
+			print_line "  creds               # Default, returns all active credentials"
+			print_line "  creds all           # Returns all credentials active or not"
+			print_line "  creds 1.2.3.4/24    # nmap host specification"
+			print_line "  creds -p 22-25,445  # nmap port specification"
+			print_line "  creds 10.1.*.* -s ssh,smb all"
 			print_line
 		end
 
@@ -593,7 +593,7 @@ class Db
 		# Can return return active or all, on a certain host or range, on a
 		# certain port or range, and/or on a service name.
 		#
-		def cmd_db_creds(*args)
+		def cmd_creds(*args)
 			return unless active?
 
 			search_param = nil
@@ -606,7 +606,7 @@ class Db
 
 			# Short-circuit help
 			if args.delete "-h"
-				cmd_db_creds_help
+				cmd_creds_help
 				return
 			end
 
@@ -618,7 +618,7 @@ class Db
 				when "-d"
 					mode = :delete
 				when "-h"
-					cmd_db_creds_help
+					cmd_creds_help
 					return
 				when "-p","--port"
 					unless (arg_port_range(args.shift, port_ranges, true))
@@ -731,8 +731,8 @@ class Db
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
 		end
 
-		def cmd_db_notes_help
-			print_line "Usage: db_notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
+		def cmd_notes_help
+			print_line "Usage: notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
 			print_line
 			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
 			print_line "  -d,--delete       Delete the hosts instead of searching"
@@ -742,12 +742,12 @@ class Db
 			print_line "  -R,--rhosts       Set RHOSTS from the results of the search"
 			print_line
 			print_line "Examples:"
-			print_line "  db_notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
-			print_line "  db_notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
+			print_line "  notes --add -t apps -n 'winzip' 10.1.1.34 10.1.20.41"
+			print_line "  notes -t smb.fingerprint 10.1.1.34 10.1.20.41"
 			print_line
 		end
 
-		def cmd_db_notes(*args)
+		def cmd_notes(*args)
 			return unless active?
 			mode = :search
 			data = nil
@@ -779,7 +779,7 @@ class Db
 					set_rhosts = true
 					rhosts = []
 				when '-h','--help'
-					cmd_db_notes_help
+					cmd_notes_help
 					return
 				else
 					# Anything that wasn't an option is a host to search for
@@ -845,15 +845,15 @@ class Db
 			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
 		end
 
-		def cmd_db_loot_help
-			print_line "Usage: db_loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
+		def cmd_loot_help
+			print_line "Usage: loot [-h] [addr1 addr2 ...] [-t <type1,type2>]"
 			print_line
 			print_line "  -t <type1,type2>  Search for a list of types"
 			print_line "  -h,--help         Show this help information"
 			print_line
 		end
 
-		def cmd_db_loot(*args)
+		def cmd_loot(*args)
 			return unless active?
 			mode = :search
 			host_ranges = []
@@ -870,7 +870,7 @@ class Db
 					end
 					types = typelist.strip().split(",")
 				when '-h','--help'
-					cmd_db_loot_help
+					cmd_loot_help
 					return
 				else
 					# Anything that wasn't an option is a host to search for
