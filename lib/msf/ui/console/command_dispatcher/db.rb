@@ -54,7 +54,6 @@ class Db
 				"db_notes"      => "List all notes in the database",
 				"db_loot"       => "List all loot in the database",				
 				"db_creds"      => "List all credentials in the database",
-				"db_exploited"  => "List all exploited hosts in the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
@@ -548,7 +547,6 @@ class Db
 			end
 
 			mode = :search
-			search_term = "host"
 			while (arg = args.shift)
 				case arg
 				when "-a","--add"
@@ -667,70 +665,6 @@ class Db
 			print_line
 			print_line tbl.to_s
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
-		end
-
-		# Returns exploited hosts. Takes a similiar set of options as db_creds
-		def cmd_db_exploited(*args)
-			return unless active?
-			search_term = "host"
-			search_param = nil
-			inactive_ok = false
-
-			# Short-circuit help
-			if args.delete "-h"
-				cmd_db_creds_help
-				return
-			end
-
-			if args.delete "-p"
-				search_term = "port"
-			elsif args.delete "-s"
-				search_term = "service"
-			end
-
-			# Does the user want inactive passwords, too?
-			if args.delete "all"
-				inactive_ok = true
-			end
-
-			# Anything that wasn't an option is the thing to search for
-			search_param = args.shift
-
-			# Set up the place we're searching before dropping into the search loop
-			case search_term
-			when "host"
-				begin
-					rw = Rex::Socket::RangeWalker.new(search_param)
-				rescue
-					print_error "Invalid host parameter."
-					return
-				end
-			when "port"
-				if search_param =~ /([0-9]+)-([0-9]+)/
-					ports = Range.new($1,$2)
-				else
-					ports = Range.new(search_param,search_param)
-				end
-			when "service"
-				svcs = search_param.split(/[\s]*,[\s]*/)
-			end
-
-			exploited_returned = 0
-			framework.db.each_exploited_host(framework.db.workspace) do |eh|
-				unless search_param.nil?
-					next unless rw.include? eh.host.address
-					next unless !eh.service or ports.include? eh.service.port.to_s
-					next unless !eh.service or svcs.include? eh.service.name
-				end
-
-				if eh.service
-					print_status("Time: #{eh.updated_at} Host Info: host=#{eh.host.address} port=#{eh.service.port} proto=#{eh.service.proto} sname=#{eh.service.name} exploit=#{eh.name}")
-				else
-					print_status("Time: #{eh.updated_at} Host Info: host=#{eh.host.address} exploit=#{eh.name}")
-				end
-				exploited_returned += 1
-			end
-			print_status "Found #{exploited_returned} exploited host#{exploited_returned == 1 ? "" : "s"}."
 		end
 
 		def cmd_db_notes_help
