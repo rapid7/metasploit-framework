@@ -794,8 +794,9 @@ class Db
 			end
 
 			if mode == :add
-				if types.size != 1
-					print_error("Only one type allowed when adding notes")
+				if types.nil? or types.size != 1
+					print_error("Exactly one note type is required")
+					return
 				end
 				type = types.first
 				host_ranges.each { |range|
