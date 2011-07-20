@@ -735,7 +735,7 @@ class Db
 		end
 
 		def cmd_db_notes_help
-			print_line "Usage: db_notes [-h|--help] [-t <type1,type2>] [-n <data string>] [-a] [addr1 addr2 ...]"
+			print_line "Usage: db_notes [-h] [-t <type1,type2>] [-n <data string>] [-a] [addr range]"
 			print_line
 			print_line "  -a,--add          Add a note to the list of addresses, instead of listing"
 			print_line "  -d,--delete       Delete the hosts instead of searching"
@@ -756,7 +756,8 @@ class Db
 			data = nil
 			types = nil
 			set_rhosts = false
-			hostlist = []
+
+			host_ranges = []
 
 			while (arg = args.shift)
 				case arg
@@ -784,45 +785,37 @@ class Db
 					cmd_db_notes_help
 					return
 				else
-					hostlist << arg
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
+						return
+					end
 				end
 
 			end
-			if hostlist.empty?
-				hostlist = nil
-			end
 
-			case mode
-			when :add
+			if mode == :add
 				if types.size != 1
 					print_error("Only one type allowed when adding notes")
 				end
 				type = types.first
-				hostlist.each { |addr|
-					host = framework.db.find_or_create_host(:host => addr)
-					break if not host
-					note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
-					break if not note
-					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
+				host_ranges.each { |range|
+					range.each { |addr|
+						host = framework.db.find_or_create_host(:host => addr)
+						break if not host
+						note = framework.db.find_or_create_note(:host => host, :type => type, :data => data)
+						break if not note
+						print_status("Time: #{note.created_at} Note: host=#{host.address} type=#{note.ntype} data=#{note.data}")
+					}
 				}
+				return
+			end
 
-			when :delete
-				if types.size != 1
-					print_error("Only one type allowed when deleting notes")
-				end
-				type = types.first
-				hostlist.each { |addr|
-					host = framework.db.workspace.hosts.find_by_address(addr)
-					next if not host
-					note = host.notes.find_by_ntype(type)
-					next if not note
-					print_status("Time: #{note.created_at} Note: host=#{note.host.address} type=#{note.ntype} data=#{note.data}")
-					note.destroy
-				}
+			host_ranges.push(nil) if host_ranges.empty?
 
-			when :search
-				framework.db.each_note(framework.db.workspace) do |note|
-					next if(hostlist and (note.host.nil? or hostlist.index(note.host.address).nil?))
+			delete_count = 0
+			each_host_range_chunk(host_ranges) do |host_search|
+				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+				host.notes.each do |note|
 					next if(types and types.index(note.ntype).nil?)
 					msg = "Time: #{note.created_at} Note:"
 					if (note.host)
@@ -839,12 +832,19 @@ class Db
 					end
 					msg << " type=#{note.ntype} data=#{note.data.inspect}"
 					print_status(msg)
+					if mode == :delete
+						note.destroy
+						delete_count += 1
+					end
+				end
 				end
 			end
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
 			set_rhosts_from_addrs(rhosts) if set_rhosts
+
+			print_status("Deleted #{delete_count} note#{delete_count == 1 ? "" : "s"}") if delete_count > 0
 		end
 
 		def cmd_db_loot_help
