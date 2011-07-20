@@ -243,12 +243,14 @@ class Db
 			end
 
 			if mode == :add
-				hostlist.each do |address|
-					host = framework.db.find_or_create_host(:host => address)
-					print_status("Time: #{host.created_at} Host: host=#{host.address}")
-					if set_rhosts
-						# only unique addresses
-						rhosts << host.address unless rhosts.include?(host.address)
+				host_ranges.each do |range|
+					range.each do |address|
+						host = framework.db.find_or_create_host(:host => address)
+						print_status("Time: #{host.created_at} Host: host=#{host.address}")
+						if set_rhosts
+							# only unique addresses
+							rhosts << host.address unless rhosts.include?(host.address)
+						end
 					end
 				end
 				return
@@ -265,29 +267,7 @@ class Db
 			# Sentinal value meaning all
 			host_ranges.push(nil) if host_ranges.empty?
 
-			# Chunk it up and do the query in batches. The naive implementation
-			# uses so much memory for a /8 that it's basically unusable (1.6
-			# billion IP addresses take a rather long time to allocate).
-			# Chunking has roughly the same perfomance for small batches, so
-			# don't worry about it too much.
-			host_ranges.each do |range|
-				if (range.nil?)
-					host_search = nil
-					end_of_range = true
-				else
-					host_search = []
-					end_of_range = false
-					# Set up this chunk of hosts to search for
-					while host_search.length < 1024 and host_search.length < range.length
-						n = range.next_ip
-						if n.nil?
-							end_of_range = true
-							break
-						end
-						host_search << n
-					end
-				end
-
+			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
 					columns = col_names.map do |n|
 						# Deal with the special cases
@@ -313,10 +293,6 @@ class Db
 						delete_count += 1
 					end
 				end
-
-				# Restart the loop with the same RangeWalker if we didn't get
-				# to the end of it in this chunk.
-				redo unless end_of_range
 			end
 
 			if output
@@ -350,8 +326,10 @@ class Db
 			col_search = ['port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
-			hostlist = []
+
+			host_ranges = []
 			port_ranges = []
+			delete_count = 0
 
 			# option parsing
 			while (arg = args.shift)
@@ -386,7 +364,7 @@ class Db
 						return
 					end
 					proto = proto.strip
-				when '-n'
+				when '-s'
 					namelist = args.shift
 					if (!namelist)
 						print_error("Invalid name list")
@@ -412,7 +390,7 @@ class Db
 					print_line "  -d,--delete       Delete the services instead of searching"
 					print_line "  -c <col1,col2>    Only show the given columns"
 					print_line "  -h,--help         Show this help information"
-					print_line "  -n <name1,name2>  Search for a list of service names"
+					print_line "  -s <name1,name2>  Search for a list of service names"
 					print_line "  -p <port1,port2>  Search for a list of ports"
 					print_line "  -r <protocol>     Only show [tcp|udp] services"
 					print_line "  -u,--up           Only show services which are up"
@@ -423,59 +401,57 @@ class Db
 					print_line
 					return
 				else
-					hostlist << arg
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
+						return
+					end
 				end
 			end
 
 			ports = port_ranges.flatten.uniq
 
-			case mode
-			when :add
-				hostlist.each { |addr|
-					# XXX: Can only deal with one port and one service name at
-					# a time right now.  Them's the breaks.
-					host = framework.db.find_or_create_host(:host => addr)
-					next if not host
-					info = {
-						:host => host,
-						:port => ports.first.to_i
-					}
-					info[:proto] = proto.downcase if proto
-					info[:name]  = names.first.downcase if names and names.first
-
-					svc = framework.db.find_or_create_service(info)
-					print_status("Time: #{svc.created_at} Note: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
-				}
-
-			when :delete
-				hostlist.each { |addr|
-					host = framework.db.workspace.hosts.find_by_address(addr)
-					next if not host
-					svc = host.services.find_by_port_and_proto(port, proto||'tcp')
-					next if not svc
-					print_status("Time: #{svc.created_at} Note: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
-					svc.destroy
-				}
-
-			when :search
-				col_names = default_columns
-				if col_search
-					col_names = col_search
+			if mode == :add
+				# Can only deal with one port and one service name at a time
+				# right now.  Them's the breaks.
+				if ports.length != 1
+					print_error("Exactly one port required")
+					return
 				end
-				tbl = Rex::Ui::Text::Table.new({
-						'Header'  => "Services",
-						'Columns' => ['host'] + col_names,
-					})
-				# The user didn't give us any addresses to search for, so
-				# switch to nil so ActiveRecord will return all of them.
-				if hostlist.empty?
-					hostlist = nil
-				end
-				if ports.empty?
-					ports = nil
-				end
+				host_ranges.each do |range|
+					range.each do |addr|
+						host = framework.db.find_or_create_host(:host => addr)
+						next if not host
+						info = {
+							:host => host,
+							:port => ports.first.to_i
+						}
+						info[:proto] = proto.downcase if proto
+						info[:name]  = names.first.downcase if names and names.first
 
-				framework.db.services(framework.db.workspace, onlyup, proto, hostlist, ports, names).each do |service|
+						svc = framework.db.find_or_create_service(info)
+						print_status("Time: #{svc.created_at} Service: host=#{svc.host.address} port=#{svc.port} proto=#{svc.proto} name=#{svc.name}")
+					end
+				end
+				return
+			end
+
+			# If we got here, we're searching.  Delete implies search
+
+			col_names = default_columns
+			if col_search
+				col_names = col_search
+			end
+			tbl = Rex::Ui::Text::Table.new({
+					'Header'  => "Services",
+					'Columns' => ['host'] + col_names,
+				})
+
+			# Sentinal value meaning all
+			host_ranges.push(nil) if host_ranges.empty?
+			ports = nil if ports.empty?
+
+			each_host_range_chunk(host_ranges) do |host_search|
+				framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
 
 					host = service.host
 					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
@@ -484,20 +460,26 @@ class Db
 						# only unique addresses
 						rhosts << host.address unless rhosts.include?(host.address)
 					end
+					if (mode == :delete)
+						service.destroy
+						delete_count += 1
+					end
 				end
-				print_line
-				if (output_file == nil)
-					print_line tbl.to_s
-				else
-					# create the output file
-					File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
-					print_status("Wrote services to #{output_file}")
-				end
+			end
+
+			print_line
+			if (output_file == nil)
+				print_line tbl.to_s
+			else
+				# create the output file
+				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+				print_status("Wrote services to #{output_file}")
 			end
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
 			set_rhosts_from_addrs(rhosts) if set_rhosts
+			print_status("Deleted #{delete_count} services") if delete_count > 0
 
 		end
 
@@ -2203,6 +2185,43 @@ class Db
 				return
 			end
 			return true
+		end
+
+		#
+		# Takes +host_ranges+, an Array of RangeWalkers, and chunks it up into
+		# blocks of 1024.
+		#
+		def each_host_range_chunk(host_ranges, &block)
+			# Chunk it up and do the query in batches. The naive implementation
+			# uses so much memory for a /8 that it's basically unusable (1.6
+			# billion IP addresses take a rather long time to allocate).
+			# Chunking has roughly the same perfomance for small batches, so
+			# don't worry about it too much.
+			host_ranges.each do |range|
+				if (range.nil?)
+					chunk = nil
+					end_of_range = true
+				else
+					chunk = []
+					end_of_range = false
+					# Set up this chunk of hosts to search for
+					while chunk.length < 1024 and chunk.length < range.length
+						n = range.next_ip
+						if n.nil?
+							end_of_range = true
+							break
+						end
+						chunk << n
+					end
+				end
+
+				# The block will do some 
+				yield chunk
+
+				# Restart the loop with the same RangeWalker if we didn't get
+				# to the end of it in this chunk.
+				redo unless end_of_range
+			end
 		end
 
 end
