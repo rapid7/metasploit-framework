@@ -856,10 +856,13 @@ class Db
 
 		def cmd_db_loot(*args)
 			return unless active?
-			hostlist = []
+			mode = :search
+			host_ranges = []
 			types = nil
 			while (arg = args.shift)
 				case arg
+				when '-d','--delete'
+					mode = :delete
 				when '-t'
 					typelist = args.shift
 					if(!typelist)
@@ -871,28 +874,47 @@ class Db
 					cmd_db_loot_help
 					return
 				else
-					hostlist << arg
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
+						return
+					end
 				end
 
 			end
-			if hostlist.empty?
-				hostlist = nil
-			end
-			framework.db.each_loot(framework.db.workspace) do |loot|
-				next if(hostlist and (loot.host.nil? or hostlist.index(loot.host.address).nil?))
-				next if(types and types.index(loot.ltype).nil?)
-				msg = "Time: #{loot.created_at} Loot:"
-				if (loot.host)
-					msg << " host=#{loot.host.address}"
-				end
-				if (loot.service)
-					name = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-					msg << "service=#{name}"
-				end				
+			tbl = Rex::Ui::Text::Table.new({
+					'Header'  => "Loot",
+					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info' ],
+				})
 
-				msg << " type=#{loot.ltype} name=#{loot.name} content=#{loot.content_type} info='#{loot.info}' path=#{loot.path}"
-				print_status(msg)
+			# Sentinal value meaning all
+			host_ranges.push(nil) if host_ranges.empty?
+
+			each_host_range_chunk(host_ranges) do |host_search|
+				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+					host.loots.each do |loot|
+						next if(types and types.index(loot.ltype).nil?)
+						row = []
+						row.push( (loot.host ? loot.host.address : "") )
+						if (loot.service)
+							name = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+							row.push name
+						else
+							row.push ""
+						end				
+						row.push(loot.ltype)
+						row.push(loot.name)
+						row.push(loot.content_type)
+						row.push(loot.info)
+
+						tbl << row
+						if (mode == :delete)
+							loot.destroy
+						end
+					end
+				end
 			end
+			print_line
+			print_line tbl.to_s
 		end
 
 		#
