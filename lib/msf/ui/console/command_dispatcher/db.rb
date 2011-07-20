@@ -55,7 +55,6 @@ class Db
 				"db_loot"       => "List all loot in the database",				
 				"db_creds"      => "List all credentials in the database",
 				"db_exploited"  => "List all exploited hosts in the database",
-				"db_add_port"   => "Add a port to a host",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
 				"db_export"     => "Export a file containing the contents of the database",
@@ -317,14 +316,13 @@ class Db
 			onlyup = false
 			output_file = nil
 			set_rhosts = nil
-			host_search = nil
-			port_search = nil
-			proto_search = nil
-			name_search = nil
 			col_search = ['port', 'proto', 'name', 'state', 'info']
 			default_columns = ::Msf::DBManager::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			hostlist = []
+			port_ranges = []
+
+			# option parsing
 			while (arg = args.shift)
 				case arg
 				when '-a','--add'
@@ -347,12 +345,9 @@ class Db
 						end
 					}
 				when '-p'
-					portlist = args.shift
-					if (!portlist)
-						print_error("Invalid port list")
+					unless (arg_port_range(args.shift, port_ranges, true))
 						return
 					end
-					ports = portlist.strip().split(",")
 				when '-r'
 					proto = args.shift
 					if (!proto)
@@ -382,7 +377,7 @@ class Db
 					print_line
 					print_line "Usage: db_services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
 					print_line
-					#print_line "  -a,--add          Add the services instead of searching"
+					print_line "  -a,--add          Add the services instead of searching"
 					print_line "  -d,--delete       Delete the services instead of searching"
 					print_line "  -c <col1,col2>    Only show the given columns"
 					print_line "  -h,--help         Show this help information"
@@ -400,6 +395,8 @@ class Db
 					hostlist << arg
 				end
 			end
+
+			ports = port_ranges.flatten.uniq
 
 			case mode
 			when :add
@@ -443,8 +440,12 @@ class Db
 				if hostlist.empty?
 					hostlist = nil
 				end
+				if ports.empty?
+					ports = nil
+				end
 
 				framework.db.services(framework.db.workspace, onlyup, proto, hostlist, ports, names).each do |service|
+
 					host = service.host
 					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 					tbl << columns
