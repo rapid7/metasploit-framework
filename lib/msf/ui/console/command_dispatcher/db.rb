@@ -545,15 +545,7 @@ class Db
 					cmd_db_creds_help
 					return
 				when "-p","--port"
-					port = args.shift
-					if (!port)
-						print_error("Argument required for -p")
-						return
-					end
-					begin
-						port_ranges << Rex::Socket.portspec_to_portlist(port)
-					rescue
-						print_error "Invalid port parameter, #{port}."
+					unless (arg_port_range(args.shift, port_ranges, true))
 						return
 					end
 				when "-t","--type"
@@ -585,11 +577,8 @@ class Db
 					# The user wants inactive passwords, too
 					inactive_ok = true
 				else
-					# Anything that wasn't an option is the thing to search for
-					begin
-						host_ranges << Rex::Socket::RangeWalker.new(arg)
-					rescue
-						print_error "Invalid host parameter, #{arg}."
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
 						return
 					end
 				end
@@ -620,6 +609,10 @@ class Db
 
 			# If we get here, we're searching.  Delete implies search
 
+			# normalize
+			ports = port_ranges.flatten.uniq
+			svcs.flatten!
+
 			creds_returned = 0
 			# Now do the actual search
 			framework.db.each_cred(framework.db.workspace) do |cred|
@@ -636,11 +629,9 @@ class Db
 				next unless host_ranges.empty? or includes
 
 				# Same for ports
-				ports = port_ranges.flatten
-				next unless ports.empty? or ports.include? cred.service.port.to_s
+				next unless ports.empty? or ports.include? cred.service.port
 
 				# Same for service names
-				svcs.flatten!
 				next unless svcs.empty? or svcs.include?(cred.service.name)
 
 				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
@@ -2133,6 +2124,53 @@ class Db
 			end
 			res[:name] = name || 'metasploit3'
 			res
+		end
+
+
+		##
+		# Miscellaneous option helpers
+		##
+
+		#
+		# Parse +arg+ into a RangeWalker and append the result into +host_ranges+
+		#
+		# Returns true if parsing was successful or nil otherwise.
+		#
+		# NOTE: This modifies +host_ranges+
+		#
+		def arg_host_range(arg, host_ranges, required=false)
+			if (!arg and required)
+				print_error("Missing required host argument")
+				return
+			end
+			begin
+				host_ranges << Rex::Socket::RangeWalker.new(arg)
+			rescue
+				print_error "Invalid host parameter, #{arg}."
+				return
+			end
+			return true
+		end
+
+		#
+		# Parse +arg+ into an array of ports and append the result into +port_ranges+
+		#
+		# Returns true if parsing was successful or nil otherwise.
+		#
+		# NOTE: This modifies +port_ranges+
+		#
+		def arg_port_range(arg, port_ranges, required=false)
+			if (!arg and required)
+				print_error("Argument required for -p")
+				return
+			end
+			begin
+				port_ranges << Rex::Socket.portspec_to_portlist(arg)
+			rescue
+				print_error "Invalid port parameter, #{arg}."
+				return
+			end
+			return true
 		end
 
 end
