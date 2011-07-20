@@ -173,8 +173,10 @@ class Db
 			onlyup = false
 			host_search = nil
 			set_rhosts = false
-			hostlist = []
 			mode = :search
+			delete_count = 0
+
+			host_ranges = []
 
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
@@ -227,14 +229,12 @@ class Db
 					print_line
 					return
 				else
-					hostlist.push(arg)
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
+						return
+					end
 				end
 			end
-
-			# This will be used in a database lookup.  An empty array to search
-			# for will return in an empty result; give nil when we want them
-			# all.
-			host_search = (hostlist.empty? ? nil : hostlist)
 
 			if col_search
 				col_names = col_search
@@ -242,8 +242,7 @@ class Db
 				col_names = default_columns + virtual_columns
 			end
 
-			case mode
-			when :add
+			if mode == :add
 				hostlist.each do |address|
 					host = framework.db.find_or_create_host(:host => address)
 					print_status("Time: #{host.created_at} Host: host=#{host.address}")
@@ -252,20 +251,42 @@ class Db
 						rhosts << host.address unless rhosts.include?(host.address)
 					end
 				end
+				return
+			end
 
-			when :delete
-				hostlist.each do |address|
-					if framework.db.del_host(framework.db.workspace, address)
-						print_status("Host #{address} deleted")
+			# If we got here, we're searching.  Delete implies search
+
+			tbl = Rex::Ui::Text::Table.new(
+				{
+					'Header'  => "Hosts",
+					'Columns' => col_names,
+				})
+
+			# Sentinal value meaning all
+			host_ranges.push(nil) if host_ranges.empty?
+
+			# Chunk it up and do the query in batches. The naive implementation
+			# uses so much memory for a /8 that it's basically unusable (1.6
+			# billion IP addresses take a rather long time to allocate).
+			# Chunking has roughly the same perfomance for small batches, so
+			# don't worry about it too much.
+			host_ranges.each do |range|
+				if (range.nil?)
+					host_search = nil
+					end_of_range = true
+				else
+					host_search = []
+					end_of_range = false
+					# Set up this chunk of hosts to search for
+					while host_search.length < 1024 and host_search.length < range.length
+						n = range.next_ip
+						if n.nil?
+							end_of_range = true
+							break
+						end
+						host_search << n
 					end
 				end
-
-			when :search
-				tbl = Rex::Ui::Text::Table.new(
-					{
-						'Header'  => "Hosts",
-						'Columns' => col_names,
-					})
 
 				framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
 					columns = col_names.map do |n|
@@ -287,21 +308,31 @@ class Db
 						# only unique addresses
 						rhosts << host.address unless rhosts.include?(host.address)
 					end
+					if mode == :delete
+						host.destroy
+						delete_count += 1
+					end
 				end
-				if output
-					print_status("Wrote hosts to #{output}")
-					::File.open(output, "wb") { |ofd|
-						ofd.write(tbl.to_csv)
-					}
-				else
-					print_line
-					print_line tbl.to_s
-				end
+
+				# Restart the loop with the same RangeWalker if we didn't get
+				# to the end of it in this chunk.
+				redo unless end_of_range
+			end
+
+			if output
+				print_status("Wrote hosts to #{output}")
+				::File.open(output, "wb") { |ofd|
+					ofd.write(tbl.to_csv)
+				}
+			else
+				print_line
+				print_line tbl.to_s
 			end
 
 			# Finally, handle the case where the user wants the resulting list
 			# of hosts to go into RHOSTS.
 			set_rhosts_from_addrs(rhosts) if set_rhosts
+			print_status("Deleted #{delete_count} hosts") if delete_count > 0
 		end
 
 		def cmd_db_services_help
