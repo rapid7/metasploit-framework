@@ -1388,17 +1388,30 @@ class Db
 			tab_complete_filenames(str, words)
 		end
 
-		# Informs about the superior cmd_db_import function.
-		def warn_about_db_import(arg)
-			return nil unless caller[0][/:in `cmd_(.*)'/] # `fix higlighting
-			triggering_function = $1
-			print_error "The command '#{triggering_function}' is deprecated; use 'db_import #{arg}' instead."
-		end
-
 		def cmd_db_import_help
 			print_line "Usage: db_import <filename> [file2...]"
 			print_line
-			print_line "filenames can be globs like *.xml, or **/*.xml which will search recursively"
+			print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
+			print_line "Currently supported file types include:"
+			print_line "    Acunetix XML"
+			print_line "    Amap Log"
+			print_line "    Amap Log -m"
+			print_line "    Appscan XML"
+			print_line "    Burp Session XML"
+			print_line "    Foundstone XML"
+			print_line "    IP360 ASPL"
+			print_line "    IP360 XML v3"
+			print_line "    Microsoft Baseline Security Analyzer"
+			print_line "    Nessus NBE"
+			print_line "    Nessus XML (v1 and v2)"
+			print_line "    NetSparker XML"
+			print_line "    NeXpose Simple XML"
+			print_line "    NeXpose XML Report"
+			print_line "    Nmap XML"
+			print_line "    OpenVAS Report"
+			print_line "    Qualys Asset XML"
+			print_line "    Qualys Scan XML"
+			print_line "    Retina XML"
 			print_line
 		end
 
