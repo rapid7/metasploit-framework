@@ -627,6 +627,11 @@ class Db
 			ports = port_ranges.flatten.uniq
 			svcs.flatten!
 
+			tbl = Rex::Ui::Text::Table.new({
+					'Header'  => "Credentials",
+					'Columns' => [ 'host', 'port', 'user', 'pass', 'type', 'active?' ],
+				})
+
 			creds_returned = 0
 			# Now do the actual search
 			framework.db.each_cred(framework.db.workspace) do |cred|
@@ -648,14 +653,20 @@ class Db
 				# Same for service names
 				next unless svcs.empty? or svcs.include?(cred.service.name)
 
-				print_status("Time: #{cred.updated_at} Credential: host=#{cred.service.host.address} port=#{cred.service.port} proto=#{cred.service.proto} sname=#{cred.service.name} type=#{cred.ptype} user=#{cred.user} pass=#{cred.pass} active=#{cred.active}")
+				row = [
+						cred.service.host.address, cred.service.port,
+						cred.user, cred.pass, cred.ptype,
+						(cred.active ? "true" : "false")
+					]
+				tbl << row
 				if mode == :delete
 					cred.destroy
 				end
 				creds_returned += 1
 			end
+			print_line
+			print_line tbl.to_s
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
-
 		end
 
 		# Returns exploited hosts. Takes a similiar set of options as db_creds
