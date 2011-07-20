@@ -484,24 +484,91 @@ class Db
 
 
 		def cmd_db_vulns_help
-			print_line "Usage: db_vulns"
-			print_line
 			print_line "Print all vulnerabilities in the database"
+			print_line
+			print_line "Usage: db_vulns [addr range]"
+			print_line
+			#print_line "  -a,--add              Add creds to the given addresses instead of listing"
+			#print_line "  -d,--delete           Delete the creds instead of searching"
+			print_line "  -h,--help             Show this help information"
+			print_line "  -p,--port <portspec>  List vulns matching this port spec"
+			print_line "  -s <svc names>        List vulns matching these service names"
+			print_line
+			print_line "Examples:"
+			print_line "  db_vulns -p 1-65536          # only vulns with associated services"
+			print_line "  db_vulns -p 1-65536 -s http  # identified as http on any port"
 			print_line
 		end
 
 
 		def cmd_db_vulns(*args)
 			return unless active?
-			framework.db.each_vuln(framework.db.workspace) do |vuln|
-				reflist = vuln.refs.map { |r| r.name }
-				if(vuln.service)
-					print_status("Time: #{vuln.created_at} Vuln: host=#{vuln.host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+
+			host_ranges = []
+			port_ranges = []
+			svcs        = []
+
+			# Short-circuit help
+			if args.delete "-h"
+				cmd_db_creds_help
+				return
+			end
+
+			mode = :search
+			while (arg = args.shift)
+				case arg
+				#when "-a","--add"
+				#	mode = :add
+				#when "-d"
+				#	mode = :delete
+				when "-h"
+					cmd_db_creds_help
+					return
+				when "-p","--port"
+					unless (arg_port_range(args.shift, port_ranges, true))
+						return
+					end
+				when "-s","--service"
+					service = args.shift
+					if (!service)
+						print_error("Argument required for -s")
+						return
+					end
+					svcs = service.split(/[\s]*,[\s]*/)
 				else
-					print_status("Time: #{vuln.created_at} Vuln: host=#{vuln.host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+					# Anything that wasn't an option is a host to search for
+					unless (arg_host_range(arg, host_ranges))
+						return
+					end
+				end
+			end
+
+			# normalize
+			host_ranges.push(nil) if host_ranges.empty?
+			ports = port_ranges.flatten.uniq
+			svcs.flatten!
+
+			each_host_range_chunk(host_ranges) do |host_search|
+				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+					host.vulns.each do |vuln|
+						reflist = vuln.refs.map { |r| r.name }
+						if(vuln.service)
+							# Skip this one if the user specified a port and it
+							# doesn't match.
+							next unless ports.empty? or ports.include? vuln.service.port
+							# Same for service names
+							next unless svcs.empty? or svcs.include?(vuln.service.name)
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+						else
+							# This vuln has no service, so it can't match
+							next unless ports.empty? and svcs.empty?
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+						end
+					end
 				end
 			end
 		end
+
 
 		def cmd_db_creds_help
 			print_line "Usage: db_creds [addr range]"
