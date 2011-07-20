@@ -27,8 +27,9 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('SESSIONS', [true, 'Specify either ALL for all sessions or a comma-separated list of sessions']),
-				OptString.new('COMMAND', [true, 'Meterpreter console command.', nil])
-			], self.class)
+				OptString.new('COMMAND', [true, 'Meterpreter console command.'])
+			],self.class)
+		deregister_options("SESSION")
 	end
 
 	# Run Method for when run command is issued

@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Post
 			[
 				OptPath.new('RESOURCE', [true, "Resource file with space-separated values in the form of: '<session> <command>'"])
 			], self.class)
+		deregister_options("SESSION")
 	end
 
 	# Run Method for when run command is issued

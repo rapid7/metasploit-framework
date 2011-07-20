@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Post
 				OptString.new('MODULE', [true, 'The name of the Post module to run']),
 				OptString.new('OPTIONS', [false, 'Comma-separated list of options for the post module'])
 			], self.class)
+		deregister_options("SESSION")
 	end
 
 	# Run Method for when run command is issued
