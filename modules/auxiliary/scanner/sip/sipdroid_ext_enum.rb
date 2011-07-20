@@ -112,7 +112,6 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 			rescue ::Exception => e
-				puts e, strtport
 				disconnect_udp
 				if strtport == fnlport
 					print_status("Tested all ports got no response, try a bigger port range.")
