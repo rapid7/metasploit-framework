@@ -56,12 +56,12 @@ class Dir < Rex::Post::Dir
 		request = Packet.create_request('stdapi_fs_ls')
 		files   = []
 
-		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, Rex::Text.unicode_filter_decode(name))
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(name))
 
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_FILE_NAME) { |file_name|
-			files << Rex::Text.unicode_filter_encode( file_name.value )
+			files << client.unicode_filter_encode( file_name.value )
 		}
 
 		return files
@@ -74,7 +74,7 @@ class Dir < Rex::Post::Dir
 		request = Packet.create_request('stdapi_fs_ls')
 		files   = []
 
-		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, Rex::Text.unicode_filter_decode(name))
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode(name))
 
 		response = client.send_request(request)
 
@@ -96,8 +96,8 @@ class Dir < Rex::Post::Dir
 
 			files <<
 				{
-					'FileName' => Rex::Text.unicode_filter_encode( file_name.value ),
-					'FilePath' => Rex::Text.unicode_filter_encode( fpath[idx].value ),
+					'FileName' => client.unicode_filter_encode( file_name.value ),
+					'FilePath' => client.unicode_filter_encode( fpath[idx].value ),
 					'StatBuf'  => st,
 				}
 		}
@@ -117,7 +117,7 @@ class Dir < Rex::Post::Dir
 	def Dir.chdir(path)
 		request = Packet.create_request('stdapi_fs_chdir')
 
-		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, Rex::Text.unicode_filter_decode( path ))
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
@@ -130,7 +130,7 @@ class Dir < Rex::Post::Dir
 	def Dir.mkdir(path)
 		request = Packet.create_request('stdapi_fs_mkdir')
 
-		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, Rex::Text.unicode_filter_decode( path ))
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
@@ -145,7 +145,7 @@ class Dir < Rex::Post::Dir
 
 		response = client.send_request(request)
 
-		return Rex::Text.unicode_filter_encode( response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value )
+		return client.unicode_filter_encode( response.get_tlv(TLV_TYPE_DIRECTORY_PATH).value )
 	end
 
 	#
@@ -161,7 +161,7 @@ class Dir < Rex::Post::Dir
 	def Dir.delete(path)
 		request = Packet.create_request('stdapi_fs_delete_dir')
 
-		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, Rex::Text.unicode_filter_decode( path ))
+		request.add_tlv(TLV_TYPE_DIRECTORY_PATH, client.unicode_filter_decode( path ))
 
 		response = client.send_request(request)
 
@@ -195,8 +195,8 @@ class Dir < Rex::Post::Dir
 	def Dir.download(dst, src, recursive = false, force = true, &stat)
 
 		self.entries(src).each { |src_sub|
-			dst_item = dst + ::File::SEPARATOR + Rex::Text.unicode_filter_encode( src_sub )
-			src_item = src + File::SEPARATOR + Rex::Text.unicode_filter_encode( src_sub )
+			dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
+			src_item = src + File::SEPARATOR + client.unicode_filter_encode( src_sub )
 
 			if (src_sub == '.' or src_sub == '..')
 				next
@@ -240,8 +240,8 @@ class Dir < Rex::Post::Dir
 	#
 	def Dir.upload(dst, src, recursive = false, &stat)
 		::Dir.entries(src).each { |src_sub|
-			dst_item = dst + File::SEPARATOR + Rex::Text.unicode_filter_encode( src_sub )
-			src_item = src + ::File::SEPARATOR + Rex::Text.unicode_filter_encode( src_sub )
+			dst_item = dst + File::SEPARATOR + client.unicode_filter_encode( src_sub )
+			src_item = src + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
 
 			if (src_sub == '.' or src_sub == '..')
 				next

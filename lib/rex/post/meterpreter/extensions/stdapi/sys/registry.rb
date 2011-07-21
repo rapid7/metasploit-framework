@@ -44,7 +44,7 @@ class Registry
 		request = Packet.create_request('stdapi_registry_load_key')
 		request.add_tlv(TLV_TYPE_ROOT_KEY, root_key)
 		request.add_tlv(TLV_TYPE_BASE_KEY, base_key)
-		request.add_tlv(TLV_TYPE_FILE_PATH, Rex::Text.unicode_filter_decode( hive_file ))
+		request.add_tlv(TLV_TYPE_FILE_PATH, client.unicode_filter_decode( hive_file ))
 
 		response = client.send_request(request)
 		return response.get_tlv(TLV_TYPE_RESULT).value

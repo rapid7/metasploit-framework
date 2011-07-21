@@ -30,7 +30,7 @@ class Config
 	def getuid
 		request  = Packet.create_request('stdapi_sys_config_getuid')
 		response = client.send_request(request)
-		return Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
+		return client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_USER_NAME) )
 	end
 
 	#
@@ -62,7 +62,7 @@ class Config
 		req = Packet.create_request('stdapi_sys_config_steal_token')
 		req.add_tlv(TLV_TYPE_PID, pid.to_i)
 		res = client.send_request(req)
-		return Rex::Text.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
+		return client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
 	end
 
 	#
@@ -71,7 +71,7 @@ class Config
 	def drop_token
 		req = Packet.create_request('stdapi_sys_config_drop_token')
 		res = client.send_request(req)
-		return Rex::Text.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
+		return client.unicode_filter_encode( res.get_tlv_value(TLV_TYPE_USER_NAME) )
 	end
 
 	#

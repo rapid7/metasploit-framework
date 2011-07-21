@@ -115,6 +115,7 @@ class Client
 
 		self.response_timeout = opts[:timeout] || self.class.default_timeout
 		self.send_keepalives  = true
+		self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
 
 		if opts[:passive_dispatcher]
 			initialize_passive_dispatcher
@@ -368,6 +369,20 @@ class Client
 	end
 
 	#
+	# Encodes (or not) a UTF-8 string
+	#
+	def unicode_filter_encode(str)
+		self.encode_unicode ? client.unicode_filter_encode(str) : str
+	end
+
+	#
+	# Decodes (or not) a UTF-8 string
+	#
+	def unicode_filter_decode(str)
+		self.encode_unicode ? client.unicode_filter_decode(str) : str
+	end
+
+	#
 	# The extension alias under which all extensions can be accessed by name.
 	# For example:
 	#
@@ -424,6 +439,10 @@ class Client
 	# The Passive Dispatcher
 	#
 	attr_accessor :passive_dispatcher
+	#
+	# Flag indicating whether to hex-encode UTF-8 file names and other strings
+	#
+	attr_accessor :encode_unicode
 
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:

@@ -151,7 +151,7 @@ class Process < Rex::Post::Process
 			end
 		end
 
-		request.add_tlv(TLV_TYPE_PROCESS_PATH, Rex::Text.unicode_filter_decode( path ));
+		request.add_tlv(TLV_TYPE_PROCESS_PATH, client.unicode_filter_decode( path ));
 
 		# If process arguments were supplied
 		if (arguments != nil)
@@ -237,10 +237,10 @@ class Process < Rex::Post::Process
 				{
 					'pid'      => p.get_tlv_value(TLV_TYPE_PID),
 					'parentid' => p.get_tlv_value(TLV_TYPE_PARENT_PID),
-					'name'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_NAME) ),
-					'path'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_PATH) ),
+					'name'     => client.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_NAME) ),
+					'path'     => client.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_PROCESS_PATH) ),
 					'session'  => p.get_tlv_value(TLV_TYPE_PROCESS_SESSION),
-					'user'     => Rex::Text.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_USER_NAME) ),
+					'user'     => client.unicode_filter_encode( p.get_tlv_value(TLV_TYPE_USER_NAME) ),
 					'arch'     => arch
 				}
 		}
@@ -358,8 +358,8 @@ protected
 		response = client.send_request(request)
 
 		# Populate the hash
-		info['name'] = Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_NAME) )
-		info['path'] = Rex::Text.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_PATH) )
+		info['name'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_NAME) )
+		info['path'] = client.unicode_filter_encode( response.get_tlv_value(TLV_TYPE_PROCESS_PATH) )
 
 		return info
 	end

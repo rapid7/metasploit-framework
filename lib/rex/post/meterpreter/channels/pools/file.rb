@@ -36,7 +36,7 @@ class File < Rex::Post::Meterpreter::Channels::Pool
 				[
 					{
 						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_PATH,
-						'value' => Rex::Text.unicode_filter_decode( name )
+						'value' => client.unicode_filter_decode( name )
 					},
 					{
 						'type'  => Rex::Post::Meterpreter::Extensions::Stdapi::TLV_TYPE_FILE_MODE,

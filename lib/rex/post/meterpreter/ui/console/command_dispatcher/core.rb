@@ -58,6 +58,8 @@ class Console::CommandDispatcher::Core
 			"bgkill"     => "Kills a background meterpreter script",
 			"bglist"     => "Lists running background scripts",
 			"write"      => "Writes data to a channel",
+			"enable_unicode_encoding"  => "Enables encoding of unicode strings",
+			"disable_unicode_encoding" => "Disables encoding of unicode strings"
 		}
 		if (msf_loaded?)
 			c["info"] = "Displays information about a Post module"
@@ -707,7 +709,15 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_enable_unicode_encoding
+		client.encode_unicode = true
+		print_status("Unicode encoding is enabled")
+	end
 
+	def cmd_disable_unicode_encoding
+		client.encode_unicode = false
+		print_status("Unicode encoding is disabled")
+	end
 
 	@@client_extension_search_paths = [ ::File.join(Rex::Root, "post", "meterpreter", "ui", "console", "command_dispatcher") ]
 
