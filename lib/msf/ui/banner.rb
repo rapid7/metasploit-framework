@@ -82,11 +82,11 @@ module Banner
 ',
 %Q{
 %whiIIIIII    %reddTb.dTb%clr        _.---._
-  II     %red4'  v  'B%clr   .'"".'/|\`.""'.
-  II     %red6.     .P%clr  :  .' / | \ `.  :
-  II     %red'T;. .;P'%clr  '.'  /  |  \  `.'
-  II      %red'T; ;P'%clr    `. /   |   \ .'
-IIIIII     %red'YvP'%clr       `-.__|__.-'
+%whi  II     %red4'  v  'B%clr   .'"".'/|\`.""'.
+%whi  II     %red6.     .P%clr  :  .' / | \ `.  :
+%whi  II     %red'T;. .;P'%clr  '.'  /  |  \  `.'
+%whi  II      %red'T; ;P'%clr    `. /   |   \ .'
+%whiIIIIII     %red'YvP'%clr       `-.__|__.-'
 
 I love shells --egypt
 },
