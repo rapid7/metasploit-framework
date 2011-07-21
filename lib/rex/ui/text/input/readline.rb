@@ -86,57 +86,6 @@ begin
 				Thread.current.priority = -20
 
 				output.prompting
-				if framework
-					if prompt.include?("%T")
-						t = Time.now
-						if framework.datastore['PromptTimeFormat']
-							t = t.strftime(framework.datastore['PromptTimeFormat'])
-						end
-						prompt.gsub!(/%T/, t.to_s)
-					end
-
-					if prompt.include?("%H")
-						hostname = ENV['HOSTNAME']
-						if hostname.nil?
-							hostname = `hostname`.split('.')[0]
-						end
-
-						# check if hostname is still nil
-						if hostname.nil?
-							hostname = ENV['COMPUTERNAME']
-						end
-
-						if hostname.nil?
-							hostname = 'unknown'
-						end
-
-						prompt.gsub!(/%H/, hostname.chomp)
-					end
-
-					if prompt.include?("%U")
-						user = ENV['USER']
-						if user.nil?
-							user = `whoami`
-						end
-
-						# check if username is still nil
-						if user.nil?
-							user = ENV['USERNAME']
-						end
-
-						if user.nil?
-							user = 'unknown'
-						end
-
-						prompt.gsub!(/%U/, user.chomp)
-					end
-
-					prompt.gsub!(/%S/, framework.sessions.count.to_s)
-					prompt.gsub!(/%J/, framework.jobs.count.to_s)
-					prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
-					prompt.gsub!(/%D/, ::Dir.getwd)
-				end
-
 				line = ::Readline.readline(prompt, true)
 				::Readline::HISTORY.pop if (line and line.empty?)
 			ensure

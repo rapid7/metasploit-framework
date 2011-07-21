@@ -21,7 +21,8 @@ module Shell
 	module InputShell
 		attr_accessor :prompt, :output
 
-		def pgets
+		def pgets()
+
 			output.print(prompt)
 			output.flush
 
@@ -126,7 +127,59 @@ module Shell
 				break if (self.stop_flag or self.stop_count > 1)
 
 				init_tab_complete
-				line = input.pgets(self.framework)
+
+				if framework
+					if input.prompt.include?("%T")
+						t = Time.now
+						if framework.datastore['PromptTimeFormat']
+							t = t.strftime(framework.datastore['PromptTimeFormat'])
+						end
+						input.prompt.gsub!(/%T/, t.to_s)
+					end
+
+					if input.prompt.include?("%H")
+						hostname = ENV['HOSTNAME']
+						if hostname.nil?
+							hostname = `hostname`.split('.')[0]
+						end
+
+						# check if hostname is still nil
+						if hostname.nil?
+							hostname = ENV['COMPUTERNAME']
+						end
+
+						if hostname.nil?
+							hostname = 'unknown'
+						end
+
+						input.prompt.gsub!(/%H/, hostname.chomp)
+					end
+
+					if input.prompt.include?("%U")
+						user = ENV['USER']
+						if user.nil?
+							user = `whoami`
+						end
+
+						# check if username is still nil
+						if user.nil?
+							user = ENV['USERNAME']
+						end
+
+						if user.nil?
+							user = 'unknown'
+						end
+
+						input.prompt.gsub!(/%U/, user.chomp)
+					end
+
+					input.prompt.gsub!(/%S/, framework.sessions.count.to_s)
+					input.prompt.gsub!(/%J/, framework.jobs.count.to_s)
+					input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
+					input.prompt.gsub!(/%D/, ::Dir.getwd)
+				end
+
+				line = input.pgets()
 				log_output(input.prompt)
 
 				# If a block was passed in, pass the line to it.  If it returns true,
