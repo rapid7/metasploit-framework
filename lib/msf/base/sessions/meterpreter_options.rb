@@ -17,6 +17,7 @@ module MeterpreterOptions
 				OptString.new('InitialAutoRunScript', [false, "An initial script to run on session creation (before AutoRunScript)", '']),
 				OptString.new('AutoRunScript', [false, "A script to run automatically on session creation.", '']),
 				OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
+				OptBool.new('EnableUnicodeEncoding', [true, "Automatically encode UTF-8 strings as hexadecimal", true])
 			], self.class)
 	end
 
@@ -29,6 +30,9 @@ module MeterpreterOptions
 
 		# Defer the session initialization to the Session Manager scheduler
 		framework.sessions.schedule Proc.new {
+
+		# Configure unicode encoding before loading stdapi
+		session.encode_unicode = ( datastore['EnableUnicodeEncoding'] ? true : false )
 
 		session.init_ui(self.user_input, self.user_output)
 

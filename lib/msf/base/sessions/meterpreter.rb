@@ -145,9 +145,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		timeout = 5
 		etime = ::Time.now.to_f + timeout
 		buff = ""
-		
-		# Keep reading data until no more data is available or the timeout is 
-		# reached. 
+
+		# Keep reading data until no more data is available or the timeout is
+		# reached.
 		while (::Time.now.to_f < etime)
 			res = shell_read(-1, timeout)
 			break unless res
@@ -298,7 +298,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 				# The rest of this requires a database, so bail if it's not
 				# there
-				return if not (framework.db and framework.db.active)	
+				return if not (framework.db and framework.db.active)
 
 				framework.db.report_note({
 					:type => "host.os.session_fingerprint",

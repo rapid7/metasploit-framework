@@ -79,7 +79,7 @@ class Driver < Msf::Ui::Driver
 			prompt = self.framework.datastore['Prompt']
 			prompt_char = self.framework.datastore['PromptChar'] || DefaultPromptChar
 		end
-		
+
 		# Call the parent
 		super(prompt, prompt_char, histfile, framework)
 

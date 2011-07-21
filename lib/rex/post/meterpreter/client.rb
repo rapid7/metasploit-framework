@@ -373,14 +373,14 @@ class Client
 	# Encodes (or not) a UTF-8 string
 	#
 	def unicode_filter_encode(str)
-		self.encode_unicode ? client.unicode_filter_encode(str) : str
+		self.encode_unicode ? Rex::Text.unicode_filter_encode(str) : str
 	end
 
 	#
 	# Decodes (or not) a UTF-8 string
 	#
 	def unicode_filter_decode(str)
-		self.encode_unicode ? client.unicode_filter_decode(str) : str
+		self.encode_unicode ? Rex::Text.unicode_filter_decode(str) : str
 	end
 
 	#
