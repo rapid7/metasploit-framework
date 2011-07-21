@@ -15,10 +15,10 @@ class Framework
 	# Versioning information
 	#
 
-	Major    = 3
-	Minor    = 8
+	Major    = 4
+	Minor    = 0
 	Point    = 0
-	Release  = "-dev"
+	Release  = "-testing"
 
 	if(Point)
 		Version  = "#{Major}.#{Minor}.#{Point}#{Release}"
