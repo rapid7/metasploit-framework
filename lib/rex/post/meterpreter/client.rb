@@ -115,7 +115,8 @@ class Client
 
 		self.response_timeout = opts[:timeout] || self.class.default_timeout
 		self.send_keepalives  = true
-		self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
+		# self.encode_unicode   = opts.has_key?(:encode_unicode) ? opts[:encode_unicode] : true
+		self.encode_unicode = false
 
 		if opts[:passive_dispatcher]
 			initialize_passive_dispatcher
