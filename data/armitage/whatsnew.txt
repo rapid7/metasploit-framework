@@ -1,6 +1,19 @@
 Armitage Changelog
 ==================
 
+21 Jul 11 - Change Log
+---------
+- loots dialog is now populated by db.loots RPC call. This is faster
+  and compatible with changes made to MSF.
+- credentials dialog is now populated by.creds RPC call. This is 
+  faster and compatible with changes made to MSF.
+- RPC connection code now strips out more characters that may cause 
+  the XML parser to complain. 
+
+  ** There were a few changes made to MSF over the past few days that
+     broke the credentials and loots dialog. This update brings Armitage
+     back to compatability with what exists in MSF trunk. **
+
 19 Jul 11 - Change Log
 ---------
 - You may now execute a post module against multiple hosts at once.
@@ -18,6 +31,9 @@ Armitage Changelog
 - Fixed command history so up arrow really gives the previous command
 - Keystrokes dumped using dump button on key scan dialog are now logged
   to ~/.armitage/[host]/keyscan.log
+
+  *Respun* Armitage.dmg with .app file fix for MacOS X Lion. Thanks to
+  @NightLion for contributing this.
 
 12 Jul 11 - Change Log
 ---------
