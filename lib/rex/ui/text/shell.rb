@@ -48,7 +48,7 @@ module Shell
 
 		self.histfile = histfile
 		self.hist_last_saved = 0
-		
+
 		self.framework = framework
 	end
 
@@ -188,7 +188,7 @@ module Shell
 			else
 				new_prompt = self.prompt || ''
 			end
-			
+
 			if mode
 			  new_prompt = prompt + (new_prompt_char || prompt_char) + ' '
 		  end
@@ -272,6 +272,7 @@ module Shell
 
 	attr_accessor :on_command_proc
 	attr_accessor :on_print_proc
+	attr_accessor :framework
 
 protected
 
