@@ -962,14 +962,15 @@ public
 		@framework.db.loots(wspace).each do |l|
 			loot = {}
 			loot[:host] = l.host.address || l.host.address6 if(l.host)
-			loot[:service] = l.service.name || n.service.port  if(n.service)
-			loot[:ltype] = l.ltype
-			loot[:ctype] = l.ctype
-			loot[:data] = l.data
+			loot[:service] = l.service.name || l.service.port  if(l.service)
+			loot[:ltype] = l.ltype 
+			loot[:content_type] = l.content_type
+			loot[:data] = l.data if (l.data)
 			loot[:created_at] = l.created_at.to_i
 			loot[:updated_at] = l.updated_at.to_i
-			loot[:name] = l.name
-			loot[:info] = l.info
+			loot[:name] = l.name if (l.name)
+			loot[:info] = l.info if (l.info)
+			loot[:path] = l.path
 			ret[:loots] << loot
 		end
 		ret
