@@ -29,6 +29,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
+					[ 'CVE', '2011-1140'],
+					[ 'OSVDB', '71552'],
 					[ 'URL', 'http://www.wireshark.org/security/wnpa-sec-2011-04.html' ],
 					[ 'URL', 'https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5717' ],
 				],
