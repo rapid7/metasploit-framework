@@ -89,8 +89,8 @@ begin
 				if framework
 					if prompt.include?("%T")
 						t = Time.now
-						if framework.datastore['Time_Fmt']
-							t = t.strftime(framework.datastore['Time_Fmt'])
+						if framework.datastore['PromptTimeFormat']
+							t = t.strftime(framework.datastore['PromptTimeFormat'])
 						end
 						prompt.gsub!(/%T/, t.to_s)
 					end

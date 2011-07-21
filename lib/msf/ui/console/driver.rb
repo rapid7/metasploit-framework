@@ -77,7 +77,7 @@ class Driver < Msf::Ui::Driver
 
 		if self.framework.datastore['Prompt']
 			prompt = self.framework.datastore['Prompt']
-			prompt_char = self.framework.datastore['Prompt_Char'] || DefaultPromptChar
+			prompt_char = self.framework.datastore['PromptChar'] || DefaultPromptChar
 		end
 		
 		# Call the parent
@@ -390,8 +390,8 @@ class Driver < Msf::Ui::Driver
 			when "loglevel"
 				handle_loglevel(val) if (glob)
 			when "prompt"
-			  update_prompt(val, framework.datastore['Prompt_Char'] || DefaultPromptChar, true)
-			when "prompt_char"
+			  update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
+			when "promptchar"
 				update_prompt(framework.datastore['Prompt'], val, true)
 		end
 	end
