@@ -987,11 +987,11 @@ public
 	end
 	
 	#right now workspace is the only option supported
-	def creds(token,xopts)
+	def creds(token,wspace=nil)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
-		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace])
+		wspace = workspace(wspace)
+		raise ::XMLRPC::FaultException.new(404, "unknown workspace") if(not wspace)
 		ret = {}
 		ret[:creds] = []
 		@framework.db.creds(wspace).each do |c|
