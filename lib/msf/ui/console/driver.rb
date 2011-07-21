@@ -72,17 +72,22 @@ class Driver < Msf::Ui::Driver
 
 		histfile = opts['HistFile'] || Msf::Config.history_file
 
+		# Initialize attributes
+		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
+
+		if self.framework.datastore['Prompt']
+			prompt = self.framework.datastore['Prompt']
+			prompt_char = self.framework.datastore['Prompt_Char'] || DefaultPromptChar
+		end
+		
 		# Call the parent
-		super(prompt, prompt_char, histfile)
+		super(prompt, prompt_char, histfile, framework)
 
 		# Temporarily disable output
 		self.disable_output = true
 
 		# Load pre-configuration
 		load_preconfig
-
-		# Initialize attributes
-		self.framework = opts['Framework'] || Msf::Simple::Framework.create(opts)
 
 		# Initialize the user interface to use a different input and output
 		# handle if one is supplied
@@ -97,12 +102,6 @@ class Driver < Msf::Ui::Driver
 			end
 		else
 			output = Rex::Ui::Text::Output::Stdio.new
-		end
-
-		# Verify console compatibility on Windows (require Console2)
-		if Rex::Compat.is_windows and not Rex::Compat.win32_console2_verify and input.kind_of?(Rex::Ui::Text::Input::Stdio)
-			$stdout.puts "Error: The Metasploit Framework is not compatible with this console"
-			exit(1)
 		end
 
 		init_ui(input, output)
@@ -390,6 +389,9 @@ class Driver < Msf::Ui::Driver
 				handle_console_logging(val) if (glob)
 			when "loglevel"
 				handle_loglevel(val) if (glob)
+			when "prompt"
+			  update_prompt(val, framework.datastore['Prompt_Char'] || DefaultPromptChar, true)
+			when "prompt_char"
 		end
 	end
 

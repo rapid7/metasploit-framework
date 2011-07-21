@@ -18,8 +18,6 @@ begin
 		# Initializes the readline-aware Input instance for text.
 		#
 		def initialize(tab_complete_proc = nil)
-		
-		
 			if(not Object.const_defined?('Readline'))
 				begin 
 					require 'readline'
@@ -79,14 +77,66 @@ begin
 		# down other background threads. This is important when there are many active
 		# background jobs, such as when the user is running Karmetasploit
 		#
-		def pgets
+		def pgets(framework = nil)
 		
 			line = nil
 			orig = Thread.current.priority
 			
 			begin
 				Thread.current.priority = -20
+
 				output.prompting
+				if framework
+					if prompt.include?("%T")
+						t = Time.now
+						if framework.datastore['Time_Fmt']
+							t = t.strftime(framework.datastore['Time_Fmt'])
+						end
+						prompt.gsub!(/%T/, t.to_s)
+					end
+
+					if prompt.include?("%H")
+						hostname = ENV['HOSTNAME']
+						if hostname.nil?
+							hostname = `hostname`.split('.')[0]
+						end
+
+						# check if hostname is still nil
+						if hostname.nil?
+							hostname = ENV['COMPUTERNAME']
+						end
+
+						if hostname.nil?
+							hostname = 'unknown'
+						end
+
+						prompt.gsub!(/%H/, hostname.chomp)
+					end
+
+					if prompt.include?("%U")
+						user = ENV['USER']
+						if user.nil?
+							user = `whoami`
+						end
+
+						# check if username is still nil
+						if user.nil?
+							user = ENV['USERNAME']
+						end
+
+						if user.nil?
+							user = 'unknown'
+						end
+
+						prompt.gsub!(/%U/, user.chomp)
+					end
+
+					prompt.gsub!(/%S/, framework.sessions.count.to_s)
+					prompt.gsub!(/%J/, framework.jobs.count.to_s)
+					prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
+					prompt.gsub!(/%D/, ::Dir.getwd)
+				end
+
 				line = ::Readline.readline(prompt, true)
 				::Readline::HISTORY.pop if (line and line.empty?)
 			ensure

@@ -78,8 +78,8 @@ module DispatcherShell
 		#
 		# Wraps shell.update_prompt
 		#
-		def update_prompt(prompt=nil)
-			shell.update_prompt(prompt)
+		def update_prompt(prompt=nil, prompt_char = nil, mode = false)
+			shell.update_prompt(prompt, prompt_char, mode)
 		end
 
 		#
@@ -204,7 +204,7 @@ module DispatcherShell
 	#
 	# Initialize the dispatcher shell.
 	#
-	def initialize(prompt, prompt_char = '>', histfile = nil)
+	def initialize(prompt, prompt_char = '>', histfile = nil, framework = nil)
 		super
 
 		# Initialze the dispatcher array
