@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather VNC Password Extraction',
 				'Description'   => %q{ This module extract DES encrypted passwords in known VNC locations },
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Kurt Grutzmacher <grutz@jingojango.net>','Rob Fuller <mubix@hak5.org>'],
+				'Author'        => [ 'Kurt Grutzmacher <grutz[at]jingojango.net>','Rob Fuller <mubix[at]hak5.org>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

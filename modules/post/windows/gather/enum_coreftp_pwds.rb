@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 				passwords are stored in the registry. They are encrypted with AES-128-ECB. 
 				This module extracts and decrypts these passwords.},
 				'License'       => MSF_LICENSE,
-				'Author'        => ['TheLightCosine <thelightcosine@gmail.com>'],
+				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

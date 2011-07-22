@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 							It finds the saved passwords and decrypts
 							them.},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine@gmail.com>'],
+				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 					decrypt.
 				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine@gmail.com>'],
+				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

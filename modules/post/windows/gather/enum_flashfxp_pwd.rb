@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 					passwords are saved in a weakly encrypted format which this module will 
 					decrypt. },
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine@gmail.com>'],
+				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

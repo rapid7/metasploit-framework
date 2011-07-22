@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 					names, volume serial #s and more. This info may help you target"
 					additional systems."},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'davehull dph_msf@trustedsignal.com'],
+				'Author'        => [ 'davehull <dph_msf[at]trustedsignal.com>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

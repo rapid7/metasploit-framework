@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 							file. It cannot decrypt passwords
 							if a master password is used},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine@gmail.com>'],
+				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))

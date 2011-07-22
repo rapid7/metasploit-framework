@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather Bitcoin wallet.dat',
 				'Description'   => %q{ This module downloads any Bitcoin wallet.dat files from the target system},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'illwill <illwill@illmob.org>'],
+				'Author'        => [ 'illwill <illwill[at]illmob.org>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

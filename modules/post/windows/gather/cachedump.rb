@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 				domain hashes that have been cached as a result a GPO setting. The default is to
 				store 10 credentials, but this can be changed or disabled altogether.},
 			'License'      => MSF_LICENSE,
-			'Author'       => ['Maurizio Agazzini <inode[at]mediaservice.net>','Rob Fuller <mubix@hak5.org>'],
+			'Author'       => ['Maurizio Agazzini <inode[at]mediaservice.net>','Rob Fuller <mubix[at]hak5.org>'],
 			'Version'      => '$Revision$',
 			'Platform'     => ['windows'],
 			'SessionTypes' => ['meterpreter'],
