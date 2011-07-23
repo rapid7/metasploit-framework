@@ -2,8 +2,17 @@ module Msf
 module RPC
 class RPC_Auth < RPC_Base
 
+# Dynamic load test for SHA2 (needed for SHA512)
+@@loaded_sha2 = false
+begin
+	require 'digest/sha2'
+	@@loaded_sha2 = true
+rescue ::LoadError
+end
+
+
 	def rpc_login_noauth(user,pass)
-	
+
 		# handle authentication here
 		fail = true
 		self.users.each do |u|
@@ -12,14 +21,16 @@ class RPC_Auth < RPC_Base
 				break
 			end
 		end
-	
+
+		fail = db_validate_auth(user,pass) if fail
+
 		error(401, "Login Failed") if fail
-		
+
 		token = "TEMP" + Rex::Text.rand_text_alphanumeric(28)
 		self.tokens[token] = [user, Time.now.to_i, Time.now.to_i]
 		{ "result" => "success", "token" => token }
 	end
-	
+
 	def rpc_logout(token)
 		found = self.tokens[token]
 		error("500", "Invalid Authentication Token")
@@ -30,7 +41,7 @@ class RPC_Auth < RPC_Base
 		end
 		{ "result" => "success" }
 	end
-	
+
 	def rpc_token_list
 		res = self.service.tokens.keys
 		begin
@@ -55,14 +66,14 @@ class RPC_Auth < RPC_Base
 			end
 		rescue ::Exception
 		end
-		
+
 		if not db
 			self.service.tokens[token] = [nil, nil, nil, true]
 		end
-		
+
 		{ "result" => "success" }
 	end
-	
+
 	def rpc_token_generate
 		token = Rex::Text.rand_text_alphanumeric(32)
 		db = false
@@ -75,15 +86,15 @@ class RPC_Auth < RPC_Base
 			end
 		rescue ::Exception
 		end
-		
+
 		if not db
 			token = "TEMP" + Rex::Text.rand_text_alphanumeric(28)
 			self.service.tokens[token] = [nil, nil, nil, true]
 		end
-		
+
 		{ "result" => "success", "token" => token }
 	end
-	
+
 	def rpc_token_remove(token)
 		db = false
 		begin
@@ -94,12 +105,32 @@ class RPC_Auth < RPC_Base
 			end
 		rescue ::Exception
 		end
-		
+
 		self.service.tokens.delete(token)
-		
-		{ "result" => "success" }	
+
+		{ "result" => "success" }
 	end
-	
+
+private
+
+	def db_validate_auth(user,pass)
+		return true if not (framework.db and framework.db.active)
+		return true if not @@loaded_sha2
+
+		user_info = Msf::DBManager::User.find_by_username(user)
+		return true if not user_info
+
+		# These settings match the CryptoProvider we use in AuthLogic
+		jtoken    = ''
+		stretches = 20
+		algorithm = ::Digest::SHA512
+		digest    = [pass,user_info.password_salt].compact.join(jtoken)
+		stretches.times { digest = algorithm.hexdigest(digest) }
+		# Flip true/false as the return value indicates failure
+		( user_info.crypted_password == digest ) ? false : true
+	end
+
 end
 end
 end
+
