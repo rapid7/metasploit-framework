@@ -376,7 +376,7 @@ static DWORD server_dispatch( Remote * remote )
 	return result;
 }
 
-
+#ifdef _WIN32 
 /*
  * The servers main dispatch loop for incoming requests using SSL over TCP
  */
@@ -509,6 +509,8 @@ static DWORD server_dispatch_http_wininet( Remote * remote )
 
 	return result;
 }
+
+#endif 
 
 /*
  * Get the session id that this meterpreter server is running in.
