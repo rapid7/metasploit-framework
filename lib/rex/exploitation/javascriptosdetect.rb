@@ -625,6 +625,12 @@ function getVersion(){
 				os_flavor = "2003";
 				os_sp = "SP2";
 				break;
+			case "568837":
+				// IE 6.0.2900.2180, XP Professional SP2 Korean
+				ua_version = "6.0";
+				os_flavor = "XP";
+				os_sp = "SP2";
+				break;
 			case "575730":
 				// IE 7.0.5730.13, Server 2003 Standard SP2 English
 				// IE 7.0.5730.13, Server 2003 Standard SP1 English
