@@ -1,6 +1,12 @@
 Armitage Changelog
 ==================
 
+23 Jul 11 - Change Log
+---------
+- Ooops! My baaad. I broke db.creds in MSF. Someone else unbroke it. Now
+  I call it the right way from Armitage so everything works like it's 
+  supposed to. :)
+
 21 Jul 11 - Change Log
 ---------
 - loots dialog is now populated by db.loots RPC call. This is faster
