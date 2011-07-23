@@ -66,13 +66,13 @@ void real_dprintf(char *filename, int line, const char *function, char *format, 
 
 #include "zlib/zlib.h"
 
-#ifdef _WIN32
-
-#include <wininet.h>
-
 #define METERPRETER_TRANSPORT_SSL 0
 #define METERPRETER_TRANSPORT_HTTP 1
 #define METERPRETER_TRANSPORT_HTTPS 2
+
+#ifdef _WIN32
+
+#include <wininet.h>
 
 // Enable debugging
 // #define DEBUGTRACE 1
