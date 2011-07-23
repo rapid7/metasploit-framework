@@ -28,11 +28,11 @@ class Service
 		self.framework = framework
 		self.handlers = {}
 		self.options  = {
-			:ssl  => false,
+			:ssl  => true,
 			:cert => nil,
 			:uri  => "/uri",
 			:host => '127.0.0.1',
-			:port => 55553
+			:port => 3790
 		}.merge(options)
 
 		self.srvhost = self.options[:host]
