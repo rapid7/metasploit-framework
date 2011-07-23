@@ -156,7 +156,7 @@ class Service
 			:error           => true,
 			:error_class     => e.class.to_s,
 			:error_string    => e.to_s,
-			:error_backtrace => e.backtrace.map{|x| x.gsub(/^.*lib\//, 'lib/'} # Dont expose the install path
+			:error_backtrace => e.backtrace.map{|x| x.sub(/^.*lib\//, 'lib/'} # Dont expose the install path
 		}
 
 		if e.respond_to?(:message)
