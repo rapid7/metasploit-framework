@@ -17,12 +17,13 @@ class Client
 	def initialize(info={})
 		self.info = {
 			:host => '127.0.0.1',
-			:port => 55552,
+			:port => 3790,
 			:uri  => '/api',
-			:ssl  => false,
-			:ssl_version => 'SSLv3'
+			:ssl  => true,
+			:ssl_version => 'SSLv3',
+			:context     => {}
 		}.merge(info)
-		
+
 		self.token = self.info[:token]
 	end
 
@@ -45,18 +46,18 @@ class Client
 			end
 			args.unshift(self.token)
 		end
-		
+
 		args.unshift(meth)
-		
+
 		if not @cli
-			@cli = Rex::Proto::Http::Client.new(info[:host], info[:port], info[:ssl], info[:ssl_version])
+			@cli = Rex::Proto::Http::Client.new(info[:host], info[:port], info[:context], info[:ssl], info[:ssl_version])
 			@cli.set_config(
-				:vhost => info[:host], 
-				:agent => "Metasploit RPC Client/#{API_VERSION}", 
+				:vhost => info[:host],
+				:agent => "Metasploit RPC Client/#{API_VERSION}",
 				:read_max_data => (1024*1024*512)
 			)
 		end
-		
+
 		req = @cli.request_cgi(
 			'method' => 'POST',
 			'uri'    => self.info[:uri],
@@ -65,14 +66,14 @@ class Client
 		)
 
 		res = @cli.send_recv(req)
-		
-		if res and [200, 401, 403, 500].include?(res.code)		
+
+		if res and [200, 401, 403, 500].include?(res.code)
 			resp = MessagePack.unpack(res.body)
 
 			if resp and resp.kind_of?(::Hash) and resp['error'] == true
 				raise Msf::RPC::ServerException.new(res.code, resp['error_message'] || resp['error_string'], resp['error_class'], resp['error_backtrace'])
-			end			
-			
+			end
+
 			return resp
 		else
 			raise RuntimeError, res.inspect
