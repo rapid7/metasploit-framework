@@ -96,10 +96,107 @@ I love shells --egypt
    ((__---,,,---__))
       (_) O O (_)_________
          \ _ /            |\
-          o_o \   M S F   | \
+          o_o \   %bldM S F%clr   | \
                \   _____  |  *
                 |||   WW|||
                 |||     |||
+',
+
+
+'%clr
+ ______________________________________________________________________________
+|                                                                              |
+|                          3Kom SuperHack II Logon                             |
+|______________________________________________________________________________|
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                 User Name:          [   %redsecurity%clr    ]                        |
+|                                                                              |
+|                 Password:           [               ]                        |
+|                                                                              |
+|                                                                              |
+|                                                                              |
+|                                   %bld[ OK ]%clr                                     |
+|______________________________________________________________________________|
+|                                                                              |
+|______________________________________________________________________________|
+%clr
+',
+
+
+'%clr
+ ______________________________________________________________________________
+|                                                                              |
+|                   %bld%grnMETASPLOIT CYBER MISSILE COMMAND V4%clr                        |
+|______________________________________________________________________________|
+      %yel\%clr                                  %yel/%clr                      %yel/%clr
+       %yel\%clr     .                          %yel/%clr                      %yel/%clr            x
+        %yel\%clr                              %yel/%clr                      %yel/%clr
+         %yel\%clr                            %yel/%clr          +           %yel/%clr
+          %yel\%clr            +             %yel/%clr                      %yel/%clr
+           *                        %yel/%clr                      %yel/%clr
+                                   %yel/%clr      .               %yel/%clr
+    X                             %yel/%clr                      %yel/%clr            X
+                                 %yel/%clr                     %red###%clr
+                                %yel/%clr                     %red# %bld%%clr%red #%clr
+                               %yel/%clr                       %red###%clr
+                      .       %yel/%clr
+     .                       %yel/%clr      .            %red*%clr           .
+                            %yel/%clr
+                           *
+                  +                       %red*%clr
+
+                                       %bld^%clr
+####      __     __     __          #######         __     __     __        ####
+####    %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr      ###########     %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr %yel/%clr    %yel\%clr      ####
+################################################################################
+################################################################################
+# %bldWAVE 4%clr ######## %bldSCORE 31337%clr ################################### %bldHIGH 9999999%clr #
+################################################################################
+%clr
+',
+
+
+'
+%clr%whi
+Unable to handle kernel NULL pointer dereference at virtual address 0xd34db33f
+EFLAGS: 00010046
+eax: 00000001 ebx: f77c8c00 ecx: 00000000 edx: f77f0001
+esi: 803bf014 edi: 8023c755 ebp: 80237f84 esp: 80237f60
+ds: 0018   es: 0018  ss: 0018
+Process Swapper (Pid: 0, process nr: 0, stackpage=80377000)
+
+%bld
+Stack: 90909090990909090990909090
+       90909090990909090990909090
+       90909090.90909090.90909090
+       90909090.90909090.90909090
+       90909090.90909090.09090900
+       90909090.90909090.09090900
+       ..........................
+       cccccccccccccccccccccccccc
+       cccccccccccccccccccccccccc
+       ccccccccc.................
+       cccccccccccccccccccccccccc
+       cccccccccccccccccccccccccc
+       .................ccccccccc
+       cccccccccccccccccccccccccc
+       cccccccccccccccccccccccccc
+       ..........................
+       ffffffffffffffffffffffffff
+       ffffffff..................
+       ffffffffffffffffffffffffff
+       ffffffff..................
+       ffffffff..................
+       ffffffff..................
+%clr
+
+%yelCode: 00 00 00 00 M3 T4 SP L0 1T FR 4M 3W OR K! V3 R5 I0 N4 00 00 00 00%clr
+Aiee, Killing Interrupt handler
+%redKernel panic: Attempted to kill the idle task!
+In swapper task - not syncing
+%clr
 '
 		]
 
