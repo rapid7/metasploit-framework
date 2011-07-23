@@ -129,7 +129,7 @@ public class RpcConnection {
 		} else {
 			connection = new Socket(host, port);
 		}
-		connection.setSoTimeout(5000); //Five second timeout
+		connection.setSoTimeout(10000); //Ten second timeout
 		sout = connection.getOutputStream();
 		sin = connection.getInputStream();
 	}
@@ -396,8 +396,9 @@ public class RpcConnection {
 					defaultPass = password.toString();
 				}
 
+				// Don't fork cause we'll check if it dies
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)
@@ -415,7 +416,15 @@ public class RpcConnection {
 				//Connect to started daemon
 				setMessage("Started msfrpcd. Connecting to new msfrpcd...");
 				boolean connected = false;
-				for (int tries = 0; tries < 1000; tries++) { //it usually takes a minute to get started
+				for (int tries = 0; tries < 10000; tries++) { //it usually takes a minute to get started
+
+					try{ //unfortunately this is the only direct way to check if process has terminated
+						int exitval = proc.exitValue();
+						setMessage("msfrpcd died with exit value "+exitval);
+						throw new MsfException("msfrpcd died");
+					} catch (IllegalThreadStateException itsy){
+					} //Nope. We're good.
+
 					try {
 						myRpcConn = new RpcConnection(defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
 						connected = true;

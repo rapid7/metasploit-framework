@@ -1,4 +1,8 @@
 package msfgui;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 import java.io.File;
 import java.util.Map;
 import javax.swing.JFileChooser;
@@ -9,8 +13,10 @@ import javax.swing.JTextField;
  * @author scriptjunkie
  */
 public class OpenConnectionDialog extends javax.swing.JDialog {
-	MainFrame mainframe;
-	RpcConnection rpcConn;
+	private MainFrame mainframe;
+	private RpcConnection rpcConn;
+	private int timeout = 4;
+	private javax.swing.Timer countdown;
 
 	/** Creates new form UserPassDialog */
 	public OpenConnectionDialog(boolean modal, MainFrame mainframe) {
@@ -22,6 +28,30 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 				= org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class)
 				.getContext().getResourceMap(ModulePopup.class);
 		this.setIconImage(resourceMap.getImageIcon("main.icon").getImage());
+
+		startNewButton.requestFocusInWindow();
+		startNewButton.addFocusListener(new FocusListener(){
+			public void focusGained(FocusEvent fe) {
+			}
+			public void focusLost(FocusEvent fe) {
+				timeout = 0;
+				startNewButton.setText("Start new msfrpcd");
+			}
+		});
+		countdown = new javax.swing.Timer(1000,new ActionListener(){
+			public void actionPerformed(ActionEvent ae) {
+				if(timeout == 0){
+					countdown.stop();
+					return;
+				}
+				timeout = timeout - 1;
+				startNewButton.setText("Start new msfrpcd ("+timeout+")");
+				if(timeout == 0)
+					startNewButtonActionPerformed(ae);
+			}
+		});
+		countdown.start();
+		startNewButton.setText("Start new msfrpcd ("+timeout+")");
 		Map root = MsfguiApp.getPropertiesNode();
 		fillDefault(root.get("username"),usernameField);
 		fillDefault(root.get("host"),hostField);

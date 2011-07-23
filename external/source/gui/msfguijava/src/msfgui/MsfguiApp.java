@@ -38,11 +38,39 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static JFileChooser fileChooser;
 	protected static Pattern backslash = Pattern.compile("\\\\");
 	public static String workspace = "default";
-	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf3"+File.separatorChar+"msfgui";
+	public static final String confFilename = System.getProperty("user.home")+File.separatorChar+".msf4"+File.separatorChar+"msfgui";
 	public static MainFrame mainFrame;
 	public static boolean shuttingDown = false;
 
-	static{ //get saved properties file
+	static{
+		//First start detection
+		if(!(new java.io.File(confFilename)).exists()){
+			try{
+				//Prepare exit rc
+				String rcname = MsfguiApp.getTempFilename("exit", ".rc");
+				FileWriter exitOut = new FileWriter(rcname);
+				exitOut.write("exit\n");
+				exitOut.close();
+				Process p;
+				//Run msfconsole once to init database.
+				if(System.getProperty("os.name").toLowerCase().contains("windows")){
+					ProcessBuilder ps = new ProcessBuilder(new String[]{"console.exe","-c",
+							System.getenv("BASE")+"tools\\console.xml","-t","Metasploit"});
+					ps.environment().put("MSFCONSOLE_OPTS", "-e production -y \""+
+							System.getenv("BASE")+"config\\database.yml\" -r "+rcname);
+					ps.directory(new File(System.getenv("BASE")));
+					p = ps.start();
+				}else{
+					p = startMsfProc(new String[]{"msfconsole","-r",rcname});
+				}
+				//Tell user and wait
+				JOptionPane.showMessageDialog(null, "Please wait for msf4 first-run initialization");
+				p.waitFor();
+			}catch(Exception iox){
+				JOptionPane.showMessageDialog(null, "First-run initialization failed: "+iox.getMessage());
+			}
+		}
+		//get saved properties file
 		Map props;
 		try{
 			props = (Map)RpcConnection.parseVal(DocumentBuilderFactory.newInstance().newDocumentBuilder()
@@ -326,7 +354,6 @@ public class MsfguiApp extends SingleFrameApplication {
 		try{
 			DatagramSocket socket = new DatagramSocket();
 			socket.connect(InetAddress.getByName("1.2.3.4"),1234);
-			socket.getLocalAddress();
 			String answer = socket.getLocalAddress().getHostAddress();
 			socket.close();
 			return answer;
