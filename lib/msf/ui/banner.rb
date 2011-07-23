@@ -108,7 +108,16 @@ I love shells --egypt
 	# Returns a random metasploit logo.
 	#
 	def self.to_s
+		if ENV['GOCOW']
+			case rand(2)
+				when 0
+					Logos[1]
+				when 1
+					Logos[5]
+			end
+		else
 			Logos[rand(Logos.length)]
+		end
 	end
 
 end
