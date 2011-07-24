@@ -9,6 +9,7 @@ CFLAGS=-I`pwd`/include -I../libc/include -I${TARGET_ALSO} -I../libc/kernel/commo
 CFLAGS+=-I../libc/kernel/common/ -I../libc/arch-${TARGET_ARCH}/include/ -I../libc/kernel/arch-${TARGET_ARCH}/
 CFLAGS+=-D_BYTE_ORDER=_LITTLE_ENDIAN -Ihack/ -I${TARGET_FPU} -I../libc/arch-${TARGET_ARCH}/include
 CFLAGS+=-fPIC -DPIC
+CFLAGS+=-Wl,--hash-style=sysv
 
 libm_common_src_files= \
 	isinf.c  \
