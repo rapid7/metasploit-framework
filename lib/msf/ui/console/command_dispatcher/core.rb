@@ -224,8 +224,8 @@ class Core
 			driver.destack_dispatcher
 
 			# Restore the prompt
-			prompt = framework.datastore['Prompt']
-			prompt_char = framework.datastore['PromptChar']
+			prompt = framework.datastore['Prompt'] || "%undmsf%clr "
+			prompt_char = framework.datastore['PromptChar'] || ">"
 			driver.update_prompt("#{prompt}", prompt_char, true)
 		end
 	end
@@ -1968,8 +1968,8 @@ class Core
 		mod.init_ui(driver.input, driver.output)
 
 		# Update the command prompt
-		prompt = framework.datastore['Prompt']
-		prompt_char = framework.datastore['PromptChar']
+		prompt = framework.datastore['Prompt'] || "%undmsf%clr "
+		prompt_char = framework.datastore['PromptChar'] || ">"
 		driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
 	end
 

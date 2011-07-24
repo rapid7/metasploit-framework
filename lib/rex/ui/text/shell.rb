@@ -177,6 +177,7 @@ module Shell
 					input.prompt.gsub!(/%J/, framework.jobs.count.to_s)
 					input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
 					input.prompt.gsub!(/%D/, ::Dir.getwd)
+					self.init_prompt = input.prompt
 				end
 
 				line = input.pgets()
