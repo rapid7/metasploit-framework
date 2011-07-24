@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'       => '$Revision$',
 			'References'    =>
 				[
-					[ 'CVE', 'CVE-2010-2156' ],
+					[ 'CVE', '2010-2156' ],
 					[ 'OSVDB', '65246'],
 					[ 'URL', 'http://www.exploit-db.com/exploits/14185/']
 				]
