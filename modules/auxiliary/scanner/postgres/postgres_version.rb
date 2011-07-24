@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE,
 			'References'     =>
 				[
-					[ 'URL', 'www.postgresql.org' ]
+					[ 'URL', 'http://www.postgresql.org' ]
 				],
 			'Version'        => '$Revision$' # 2009-02-05
 		))

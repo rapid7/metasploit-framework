@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
-					[ 'URL', 'www.attackresearch.com' ],
+					[ 'URL', 'http://www.attackresearch.com' ],
 					[ 'URL', 'http://msdn.microsoft.com/en-us/library/cc448435(PROT.10).aspx'],
 				]
 		))
