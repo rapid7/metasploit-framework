@@ -1,4 +1,4 @@
-SUBDIRS = ulibc common metsrv ext_posix_sample
+SUBDIRS = common metsrv ext_server_stdapi ext_server_sniffer ext_server_networkpug
 
 subdirs:
 	for dir in $(SUBDIRS); do \

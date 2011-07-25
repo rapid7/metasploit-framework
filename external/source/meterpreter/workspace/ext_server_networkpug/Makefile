@@ -31,7 +31,7 @@ all: ext_server_networkpug.so
 
 
 ext_server_networkpug.so: $(objects)
-	$(CC) -shared $(CFLAGS) -o $@ $(objects) 
+	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -o $@
 
 
 .PHONY: clean

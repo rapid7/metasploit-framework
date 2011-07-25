@@ -45,16 +45,16 @@ struct libs {
 static struct libs libs[] = {
 	{ "libc.so", libc, libc_length, NULL },
 	{ "libm.so", libm, libm_length, NULL },
+	{ "libpcap.so.1", libpcap, libpcap_length, NULL },
 	{ "libcrypto.so.0.9.8", libcrypto, libcrypto_length, NULL },
 	{ "libssl.so.0.9.8", libssl, libssl_length, NULL },
 	{ "libsupport.so", libsupport, libsupport_length, NULL },
 	{ "libmetsrv_main.so", libmetsrv_main, libmetsrv_main_length, NULL },
-	{ "libpcap.so.1", libpcap, libpcap_length, NULL },
 };
 
 #define LIBC_IDX 0
-#define LIBSUPPORT_IDX 4
-#define METSRV_IDX  5
+#define LIBSUPPORT_IDX 5
+#define METSRV_IDX  6
 
 #include <pthread.h>
 
@@ -133,13 +133,14 @@ unsigned metsrv_rtld(int fd, int options)
 
 		enable_debugging();
 	}
+	TRACE("[ logging will stop unless OPT_NO_FD_CLEANUP is set ]\n");
 
 	if(!(options & OPT_NO_FD_CLEANUP)) {
 		perform_fd_cleanup(&fd);
 	}
 
 	server_setup = dlsym(libs[METSRV_IDX].handle, "server_setup");
-	TRACE("[ metsrv server_setup is at %08x, calling ]\n", server_setup);
+	TRACE("[ metsrv server_setup is at %p, calling ]\n", server_setup);
 	server_setup(fd);
 
 	TRACE("[ metsrv_rtld(): server_setup() returned, exit()'ing ]\n");
@@ -252,7 +253,7 @@ void dump_memory(char **ptr, int *len, char *prefix, long unsigned int location,
 
 	if(pipe(fds) == -1) return;
 
-	if(write(fds[1], location, count) == count) {
+	if(write(fds[1], (void *)location, count) == count) {
 		if(read(fds[0], discard, count) == count) {
 			n = 0;
 			while(n < count) {

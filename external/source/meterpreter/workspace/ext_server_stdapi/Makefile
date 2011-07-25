@@ -1,7 +1,7 @@
 VPATH=../../source/extensions/stdapi
 
-OPENSSL=${PWD}/../../source/openssl/include
-COMMON=${PWD}/../../source/common
+OPENSSL=../../source/openssl/include
+COMMON=../../source/common
 SERVER=../../source/server
 
 CFLAGS=-fno-stack-protector -nostdinc -nostdlib -fPIC -DPIC -g -Wall
@@ -36,7 +36,7 @@ all: ext_server_stdapi.so
 
 
 ext_server_stdapi.so: $(objects)
-	$(CC) -shared $(CFLAGS) -o $@ $(objects) 
+	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lpcap -lcrypto -o $@
 
 
 .PHONY: clean

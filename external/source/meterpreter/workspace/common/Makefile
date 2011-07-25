@@ -18,14 +18,13 @@ CFLAGS+= -lgcc -L../../source/bionic/compiled
 CFLAGS+= -D_UNIX -I$(SOURCEPATH) -I$(MALLOC_PATH) -I$(XOR_PATH) -DMALLOC_PRODUCTION -DPIC -I$(SSLPATH) -I$(STDLIBPATH) -I$(ZLIB_PATH)
 CFLAGS+= -g -fPIC -Os -D_POSIX_C_SOURCE=200809 -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1
 
-CPPFLAGS= -I$(SOURCEPATH) -DPIC
 
 CC=gcc
 AR=ar
 RM=rm
 
 objects = args.o base.o base_dispatch.o base_dispatch_common.o buffer.o \
-	channel.o common.o core.o list.o remote.o thread.o xor.o zlib.o 
+	channel.o common.o core.o list.o remote.o thread.o xor.o zlib.o
 
 
 
@@ -50,12 +49,14 @@ ARCHVPATH= $(OSVPATH)/$(ARCH)
 VPATH=$(BASEVPATH):$(OSVPATH):$(ARCHVPATH)
 
 CFLAGS+= -I$(ARCHVPATH)
-CPPFLAGS+= -I$(ARCHVPATH)
+
 
 all: libsupport.so
 
 libsupport.so: $(objects)
-	$(CC) $(CFLAGS) -shared -o $@ $(objects)  -lc -lssl -lcrypto
+	# Specify that we only want sysv aka DT_HASH hash tables, not DT_GNU_HASH,
+	# because that's what msflinker (modified bionic linker) can handle
+	$(CC) -Wl,--hash-style=sysv $(CFLAGS) -shared $(objects) -lc -lssl -lcrypto -o $@ 
 
 clean:
 	$(RM) -f *.o *.a *.so zlib/zlib.o

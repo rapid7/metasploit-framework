@@ -1,7 +1,7 @@
 VPATH=../../source/extensions/sniffer
 
-OPENSSL=${PWD}/../../source/openssl/include
-COMMON=${PWD}/../../source/common
+OPENSSL=../../source/openssl/include
+COMMON=../../source/common
 SERVER=../../source/server
 PCAP=../../source/libpcap
 
@@ -23,7 +23,7 @@ all: ext_server_sniffer.so
 
 
 ext_server_sniffer.so: $(objects)
-	$(CC) -shared $(CFLAGS) -o $@ $(objects) 
+	$(CC) -shared $(CFLAGS) $(objects) -lpcap -o $@
 
 .PHONY: clean
 clean:

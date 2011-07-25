@@ -1123,7 +1123,7 @@ load_segments_buf(void *header, soinfo *si, void *buf, size_t size)
             /* we want to map in the segment on a page boundary */
 
             tmp = base + (phdr->p_vaddr & (~PAGE_MASK));
-            TRACE("base = %08x, phdr->p_vaddr = %08x, result = %08x", base, phdr->p_vaddr, tmp);
+            TRACE("base = %08x, phdr->p_vaddr = %08x, result = %08x\n", base, phdr->p_vaddr, tmp);
 
             /* add the # of bytes we masked off above to the total length. */
             // PKS .. wtf len = phdr->p_filesz + (phdr->p_vaddr & PAGE_MASK);
@@ -1627,7 +1627,7 @@ static int reloc_library(soinfo *si, Elf32_Rel *rel, unsigned count)
         unsigned sym_addr = 0;
         char *sym_name = NULL;
 
-        DEBUG("%5d Processing '%s' relocation at index %d\n", pid,
+        DEBUG("%5d Processing '%s' relocation at index %d via reloc_library\n", pid,
               si->name, idx);
         if(sym != 0) {
             sym_name = (char *)(strtab + symtab[sym].st_name);
@@ -1819,7 +1819,7 @@ static int reloc_library_a(soinfo *si, Elf32_Rela *rela, unsigned count)
         unsigned sym_addr = 0;
         char *sym_name = NULL;
 
-        DEBUG("%5d Processing '%s' relocation at index %d\n", pid,
+        DEBUG("%5d Processing '%s' relocation at index %d via reloc_library_a\n", pid,
               si->name, idx);
         if(sym != 0) {
             sym_name = (char *)(strtab + symtab[sym].st_name);
@@ -2073,6 +2073,22 @@ static int link_image(soinfo *si, unsigned wr_offset)
 
     DEBUG("[ %5d dynamic = %08x ]\n", pid, si->dynamic);
     DEBUG("[ looping over dynamic header ]\n");
+
+	/* si->dynamic is an array of Elf32_Dyn structs that look like this:
+	 *
+	 * typedef struct dynamic{
+	 *   Elf32_Sword d_tag;
+	 *   union{
+	 *     Elf32_Sword d_val;
+	 *     Elf32_Addr d_ptr;
+	 *   } d_un;
+	 * } Elf32_Dyn;
+	 *
+	 * It's easier to deal with them as a two-element array of (unsigned *)'s,
+	 * where d[0] is d_tag and d[1] is d_val or d_ptr.
+	 *
+	 * -egypt
+	 */
     /* extract useful information from dynamic section */
     for(d = si->dynamic; *d; d++){
         DEBUG("[ %5d d = %p, d[0] = 0x%08x d[1] = 0x%08x ]\n", pid, d, d[0], d[1]);

@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 
 	fd = open(argv[1], O_RDONLY);
 	if(fd == -1) {
-		printf("Failed to open msflinker: %s\n", strerror(errno));
+		printf("Failed to open %s: %s\n", argv[1], strerror(errno));
 		exit(EXIT_FAILURE);
 	}
 

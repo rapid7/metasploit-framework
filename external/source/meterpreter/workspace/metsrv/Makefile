@@ -1,7 +1,7 @@
-PWD=`pwd`/
+
 BASEVPATH=../../source/server:../../source/server/posix/
-OPENSSL=${PWD}../../source/openssl/include
-COMMON=${PWD}../../source/common
+OPENSSL=../../source/openssl/include
+COMMON=../../source/common
 SERVER=../../source/server
 
 CFLAGS=-fno-stack-protector -nostdinc -nostdlib 
@@ -24,10 +24,10 @@ objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o netlink.o
 all:  libmetsrv_main.so 
 
 libmetsrv_main.so: $(objects)
-	$(CC) -shared $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
+	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
 
 clean:
 	@echo "ARCHVPATH= " $(ARCHVPATH) " VPATH= " $(VPATH)
-	$(RM) -f *.o *.h *.so *.gz *~ *.a metsrv_main 
+	$(RM) -f *.o *.h *.so *.gz *~ *.a libmetsrv_main.so
 
 .PHONY: clean

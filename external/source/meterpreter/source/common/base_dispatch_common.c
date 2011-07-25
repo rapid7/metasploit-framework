@@ -1,7 +1,14 @@
 #include "common.h"
 
+#ifdef _WIN32
+/* it appears extern'd globals screw up the posix build because the linker
+ * fails to find them and causes metsrv to exit.
+ *  - egypt
+ */
+
 // An external reference to the meterpreters main server thread, so we can shutdown gracefully after successfull migration.
 extern THREAD * serverThread;
+#endif
 
 /*
  * core_channel_open
@@ -627,7 +634,10 @@ DWORD remote_request_core_shutdown(Remote *remote, Packet *packet)
 	// Transmit the response
 	packet_transmit_response(result, remote, response);
 
+#ifdef _WIN32
+// see note about posix above - egypt
 	dprintf("[SHUTDOWN] Shutting down the Meterpreter thread 1 (killing the main thread)...");
 	thread_kill( serverThread );
+#endif
 	return result;
 }
