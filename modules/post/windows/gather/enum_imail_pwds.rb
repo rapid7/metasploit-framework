@@ -11,8 +11,6 @@
 
 require 'msf/core'
 require 'msf/core/post/windows/registry'
-require 'rexml/document'
-require 'msf/core/post/file'
 
 class Metasploit3 < Msf::Post
 
@@ -25,7 +23,7 @@ class Metasploit3 < Msf::Post
 			'Description'    => %q{
 					This module will collect iMail user data such as the username, domain,
 				full name, e-mail, and the decoded password.  Please note if IMAILUSER is
-				specified, the module extract user data from all the domains found.  If
+				specified, the module extracts user data from all the domains found.  If
 				IMAILDOMAIN is specified, then it will extract all user data under that
 				particular category.
 			},
