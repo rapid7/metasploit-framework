@@ -13,8 +13,6 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Post
 
-	include Msf::Post::File
-
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Windows Gather Process Memory Grep',
