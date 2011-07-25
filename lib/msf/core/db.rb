@@ -2209,6 +2209,8 @@ class DBManager
 			pkt = PacketFu::Packet.parse(p) rescue next # Just silently skip bad packets
 
 			next unless pkt.is_ip? # Skip anything that's not IP. Technically, not Ethernet::Ip
+			next if pkt.is_tcp? && (pkt.tcp_src == 0 || pkt.tcp_dst == 0) # Skip port 0
+			next if pkt.is_udp? && (pkt.udp_src == 0 || pkt.udp_dst == 0) # Skip port 0
 			saddr = pkt.ip_saddr
 			daddr = pkt.ip_daddr
 
