@@ -173,8 +173,8 @@ module Shell
 						input.prompt.gsub!(/%U/, user.chomp)
 					end
 
-					input.prompt.gsub!(/%S/, framework.sessions.count.to_s)
-					input.prompt.gsub!(/%J/, framework.jobs.count.to_s)
+					input.prompt.gsub!(/%S/, framework.sessions.length.to_s)
+					input.prompt.gsub!(/%J/, framework.jobs.length.to_s)
 					input.prompt.gsub!(/%L/, Rex::Socket.source_address("50.50.50.50"))
 					input.prompt.gsub!(/%D/, ::Dir.getwd)
 					self.init_prompt = input.prompt
