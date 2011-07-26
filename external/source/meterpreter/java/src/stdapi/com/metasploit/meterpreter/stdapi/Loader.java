@@ -35,6 +35,7 @@ public class Loader implements ExtensionLoader {
 		mgr.registerCommand("stdapi_fs_ls", stdapi_fs_ls.class);
 		mgr.registerCommand("stdapi_fs_mkdir", stdapi_fs_mkdir.class);
 		mgr.registerCommand("stdapi_fs_search", stdapi_fs_search.class);
+		mgr.registerCommand("stdapi_fs_separator", stdapi_fs_separator.class);
 		mgr.registerCommand("stdapi_fs_stat", stdapi_fs_stat.class, V1_2, V1_6);
 		mgr.registerCommand("stdapi_net_config_get_interfaces", stdapi_net_config_get_interfaces.class, V1_4, V1_6);
 		mgr.registerCommand("stdapi_net_config_get_routes", stdapi_net_config_get_routes.class, V1_4);

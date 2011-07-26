@@ -391,6 +391,13 @@ function stdapi_fs_ls($req, &$pkt) {
 }
 }
 
+if (!function_exists('stdapi_fs_separator')) {
+function stdapi_fs_separator($req, &$pkt) {
+    packet_add_tlv($pkt, create_tlv(TLV_TYPE_STRING, DIRECTORY_SEPARATOR));
+    return ERROR_SUCCESS;
+}
+}
+
 if (!function_exists('stdapi_fs_stat')) {
 function stdapi_fs_stat($req, &$pkt) {
     my_print("doing stat");

@@ -224,6 +224,29 @@ DWORD request_fs_file_channel_open(Remote *remote, Packet *packet)
 }
 
 /*
+ * Gets the directory separator for this system
+ */
+DWORD request_fs_separator(Remote *remote, Packet *packet)
+{
+	Packet *response = packet_create_response(packet);
+#ifdef _WIN32
+	LPCSTR separator = "\\";
+#else
+	LPCSTR separator = "/";
+#endif
+
+	packet_add_tlv_string(response, TLV_TYPE_STRING, separator);
+
+	// Set the result and transmit the response
+	packet_add_tlv_uint(response, TLV_TYPE_RESULT, ERROR_SUCCESS);
+
+	packet_transmit(remote, response, NULL);
+
+	return ERROR_SUCCESS;
+}
+
+
+/*
  * Gets information about the file path that is supplied and returns it to the
  * requestor
  *

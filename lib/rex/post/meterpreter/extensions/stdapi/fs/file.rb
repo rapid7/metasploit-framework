@@ -24,15 +24,32 @@ module Fs
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 	#
-	# This should be replaced with a platform-specific value.
+	# Return the directory separator, i.e.: "/" on unix, "\\" on windows
 	#
-	SEPARATOR = "\\"
-	Separator = "\\"
+	def File.separator()
+		# The separator won't change, so cache it to prevent sending
+		# unnecessary requests.
+		return @separator if @separator
 
-	include Rex::Post::File
+		request = Packet.create_request('stdapi_fs_separator')
+
+		# Fall back to the old behavior of always assuming windows.  This
+		# allows meterpreter executables built before the addition of this
+		# command to continue functioning.
+		begin
+			response = client.send_request(request)
+			@separator = response.get_tlv_value(TLV_TYPE_STRING)
+		rescue RequestError
+			@separator = "\\"
+		end
+
+		return @separator
+	end
 
 	class << self
 		attr_accessor :client
+		alias :Separator :separator
+		alias :SEPARATOR :separator
 	end
 
 	#
@@ -169,7 +186,7 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 			stat.call('uploading', src, dest) if (stat)
 			if (File.basename(destination) != ::File.basename(src))
-				dest += File::SEPARATOR + ::File.basename(src)
+				dest += File.separator + ::File.basename(src)
 			end
 
 			upload_file(dest, src)
