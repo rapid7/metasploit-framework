@@ -25,6 +25,10 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
 	include Rex::Post::File
 
+	class << self
+		attr_accessor :client
+	end
+
 	#
 	# Return the directory separator, i.e.: "/" on unix, "\\" on windows
 	#
@@ -49,7 +53,6 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 	end
 
 	class << self
-		attr_accessor :client
 		alias :Separator :separator
 		alias :SEPARATOR :separator
 	end
@@ -187,8 +190,8 @@ class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 			dest = destination
 
 			stat.call('uploading', src, dest) if (stat)
-			if (File.basename(destination) != ::File.basename(src))
-				dest += File.separator + ::File.basename(src)
+			if (self.basename(destination) != ::File.basename(src))
+				dest += self.separator + ::File.basename(src)
 			end
 
 			upload_file(dest, src)

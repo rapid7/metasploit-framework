@@ -196,7 +196,7 @@ class Dir < Rex::Post::Dir
 
 		self.entries(src).each { |src_sub|
 			dst_item = dst + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
-			src_item = src + File::SEPARATOR + client.unicode_filter_encode( src_sub )
+			src_item = src + client.fs.file.separator + client.unicode_filter_encode( src_sub )
 
 			if (src_sub == '.' or src_sub == '..')
 				next
@@ -240,7 +240,7 @@ class Dir < Rex::Post::Dir
 	#
 	def Dir.upload(dst, src, recursive = false, &stat)
 		::Dir.entries(src).each { |src_sub|
-			dst_item = dst + File::SEPARATOR + client.unicode_filter_encode( src_sub )
+			dst_item = dst + client.fs.file.separator + client.unicode_filter_encode( src_sub )
 			src_item = src + ::File::SEPARATOR + client.unicode_filter_encode( src_sub )
 
 			if (src_sub == '.' or src_sub == '..')
