@@ -13,6 +13,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Remote::Ipv6
 	include Msf::Exploit::Remote::Capture
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
@@ -63,12 +64,12 @@ class Metasploit3 < Msf::Auxiliary
 				probe = buildprobe(datastore['SHOST'], datastore['SMAC'], dhost)
 				capture.inject(probe)
 				while(reply = getreply())
-					next if not reply[:arp]
-					if not found[reply[:arp].spa]
-						print_status(sprintf("  %16s ALIVE",reply[:arp].spa))
-						addrs << [reply[:arp].spa, reply[:arp].sha]
-						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						found[reply[:arp].spa] = true
+					next unless reply.is_arp?
+					if not found[reply.arp_saddr_ip]
+						print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
+						addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
+						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+						found[reply.arp_saddr_ip] = true
 					end
 				end
 			end
@@ -77,12 +78,12 @@ class Metasploit3 < Msf::Auxiliary
 
 			while (::Time.now.to_f < etime)
 				while(reply = getreply())
-					next if not reply[:arp]
-					if not found[reply[:arp].spa]
-						print_status(sprintf("  %16s ALIVE",reply[:arp].spa))
-						addrs << [reply[:arp].spa, reply[:arp].sha]
-						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						found[reply[:arp].spa] = true
+					next unless reply.is_arp?
+					if not found[reply.arp_saddr_ip]
+						print_status(sprintf("  %16s ALIVE",reply.arp_saddr_ip))
+						addrs << [reply.arp_saddr_ip, reply.arp_saddr_mac]
+						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+						found[reply.arp_saddr_ip] = true
 					end
 				end
 
@@ -99,13 +100,10 @@ class Metasploit3 < Msf::Auxiliary
 	def map_neighbor(nodes, adv)
 		nodes.each do |node|
 			ipv4_addr, mac_addr = node
-			next if not adv[:eth].src_mac.eql? mac_addr
-
-			ipv6_addr = Racket::L3::Misc.long2ipv6(adv[:ipv6].src_ip)
+			next unless adv.eth_saddr == mac_addr
+			ipv6_addr = adv.ipv6_saddr
 			return {:eth => mac_addr, :ipv4 => ipv4_addr, :ipv6 => ipv6_addr}
-
 		end
-
 		nil
 	end
 
@@ -120,15 +118,16 @@ class Metasploit3 < Msf::Auxiliary
 			neighs.each do |neigh|
 				host, dmac = neigh
 
-				shost = Racket::L3::Misc.linklocaladdr(smac)
-				neigh = Racket::L3::Misc.linklocaladdr(dmac)
+				shost = ipv6_linklocaladdr(smac)
+				neigh = ipv6_linklocaladdr(dmac)
 
 				probe = buildsolicitation(smac, shost, neigh)
 
 				capture.inject(probe)
+				Kernel.select(nil,nil,nil,0.1)
 
 				while(adv = getadvertisement())
-					next if not adv[:icmpv6]
+					next unless adv.is_ipv6?
 
 					addr = map_neighbor(neighs, adv)
 					next if not addr
@@ -157,73 +156,56 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def buildprobe(shost, smac, dhost)
-		n = Racket::Racket.new
-		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
-		n.l2.src_mac = smac
-		n.l2.dst_mac = 'ff:ff:ff:ff:ff:ff'
-		n.l2.ethertype = 0x0806
-
-		n.l3 = Racket::L3::ARP.new
-		n.l3.opcode = Racket::L3::ARP::ARPOP_REQUEST
-		n.l3.sha = n.l2.src_mac
-		n.l3.tha = n.l2.dst_mac
-		n.l3.spa = shost
-		n.l3.tpa = dhost
-		n.pack
+		p = PacketFu::ARPPacket.new
+		p.eth_saddr = smac
+		p.eth_daddr = "ff:ff:ff:ff:ff:ff"
+		p.arp_opcode = 1
+		p.arp_saddr_mac = p.eth_saddr
+		p.arp_daddr_mac = p.eth_daddr
+		p.arp_saddr_ip = shost
+		p.arp_daddr_ip = dhost
+		p.to_s
 	end
 
 	def getreply
 		pkt = capture.next
+		Kernel.select(nil,nil,nil,0.1)
 		return if not pkt
-
-		eth = Racket::L2::Ethernet.new(pkt)
-		return if not eth.ethertype == 0x0806
-
-		arp = Racket::L3::ARP.new(eth.payload)
-		return if not arp.opcode == Racket::L3::ARP::ARPOP_REPLY
-
-		{:raw => pkt, :eth => eth, :arp => arp}
+		p = PacketFu::Packet.parse(pkt)
+		return unless p.is_arp?
+		return unless p.arp_opcode == 2
+		p
 	end
 
 	def buildsolicitation(smac, shost, neigh)
-		dmac  = Racket::L3::Misc.soll_mcast_mac(neigh)
-		dhost = Racket::L3::Misc.soll_mcast_addr6(neigh)
+		dmac = ipv6_soll_mcast_mac(neigh)
+		dhost = ipv6_soll_mcast_addr6(neigh)
 
-		n = Racket::Racket.new
-		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
-		n.l2.src_mac = smac
-		n.l2.dst_mac = dmac
-		n.l2.ethertype = 0x86dd
-
-		n.l3 = Racket::L3::IPv6.new
-		n.l3.src_ip = Racket::L3::Misc.ipv62long(shost)
-		n.l3.dst_ip = Racket::L3::Misc.ipv62long(dhost)
-		n.l3.nhead  = 0x3a
-		n.l3.ttl    = 0xff
-
-
-		n.l4 = Racket::L4::ICMPv6NeighborSolicitation.new
-		n.l4.address = Racket::L3::Misc.ipv62long(neigh)
-		n.l4.slla = smac
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-		n.pack
+		p = PacketFu::IPv6Packet.new
+		p.eth_saddr = smac
+		p.eth_daddr = dmac
+		p.ipv6_saddr = shost
+		p.ipv6_daddr = dhost
+		p.ipv6_next = 0x3a
+		p.ipv6_hop = 255
+		p.payload = ipv6_neighbor_solicitation(
+			IPAddr.new(neigh).to_i,
+			p.eth_src
+		)
+		p.ipv6_len = p.payload.size
+		ipv6_checksum!(p)
+		p.to_s
 	end
 
 	def getadvertisement
 		pkt = capture.next
+		Kernel.select(nil,nil,nil,0.1)
 		return if not pkt
-
-		eth = Racket::L2::Ethernet.new(pkt)
-		return if not eth.ethertype == 0x86dd
-
-		ipv6 = Racket::L3::IPv6.new(eth.payload)
-		return if not ipv6.nhead == 0x3a
-
-		icmpv6 = Racket::L4::ICMPv6.new(ipv6.payload)
-		return if not icmpv6.type == Racket::L4::ICMPv6::ICMPv6_TYPE_NEIGHBOR_ADVERTISEMENT
-
-		icmpv6 = Racket::L4::ICMPv6NeighborAdvertisement.new(ipv6.payload)
-		{:raw => pkt, :eth => eth, :ipv6 => ipv6, :icmpv6 => icmpv6}
+		p = PacketFu::Packet.parse(pkt)
+		return unless p.is_ipv6?
+		return unless p.ipv6_next == 0x3a
+		return unless p.payload[0,2] == "\x88\x00"
+		p
 	end
+
 end

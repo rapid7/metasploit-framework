@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -59,44 +58,27 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def build_tcp_syn(dst)
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = datastore['EHOST']
-		n.l3.dst_ip = dst
-		n.l3.protocol = 0x6
-		n.l3.id = rand(0x10000)
-		n.l3.ttl = 255
-
-		n.l4 = Racket::L4::TCP.new
-		n.l4.src_port = datastore['CPORT'].to_i
-		n.l4.seq = Rex::Socket.addr_atoi(dst)
-		n.l4.dst_port = datastore['RPORT'].to_i
-		n.l4.flag_syn = 1
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")
-
-		n.pack
+		p = PacketFu::TCPPacket.new
+		p.ip_saddr = datastore['EHOST']
+		p.ip_daddr = dst
+		p.ip_ttl = 255
+		p.tcp_sport = datastore['CPORT'].to_i
+		p.tcp_dport = datastore['RPORT'].to_i
+		p.tcp_flags.syn = 1
+		p.tcp_seq = Rex::Socket.addr_atoi(dst)
+		p.recalc
+		p
 	end
 
 	def build_icmp(dst)
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = datastore['EHOST']
-		n.l3.dst_ip = dst
-		n.l3.protocol = 0x1
-		n.l3.id = rand(0x10000)
-		n.l3.ttl = 255
-
-		n.l4 = Racket::L4::ICMPEcho.new
-		n.l4.id = datastore['ECHOID']
-		n.l4.sequence = 1
-		n.l4.payload = Rex::Socket.addr_aton(dst) + [datastore['ECHOID']].pack('n') + Rex::Text.rand_text(26)
-
-		n.l4.fix!
-
-		n.pack
+		p = PacketFu::ICMPPacket.new
+		p.ip_saddr = datastore['EHOST']
+		p.ip_daddr = dst
+		p.ip_ttl = 255
+		p.icmp_type = 8
+		payload = Rex::Socket.addr_aton(dst) + [datastore['ECHOID']].pack('n') + Rex::Text.rand_text(26)
+		p.payload = capture_icmp_echo_pack(datastore['ECHOID'],1,payload)
+		p.recalc
 	end
 end
 

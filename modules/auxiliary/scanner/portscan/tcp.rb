@@ -11,7 +11,6 @@
 
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 

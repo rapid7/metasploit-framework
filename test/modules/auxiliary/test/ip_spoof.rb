@@ -11,7 +11,6 @@
 
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -40,24 +39,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		open_pcap
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = ip
-		n.l3.dst_ip = ip
-		n.l3.protocol = 17
-		n.l3.id = 0xdead
-		n.l3.ttl = 255
-
-		n.l4 = Racket::L4::UDP.new
-		n.l4.src_port = 53
-		n.l4.dst_port = 53
-		n.l4.payload  = "HELLO WORLD"
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-
-		buff = n.pack
-		ret = send(ip,buff)
+		p = PacketFu::UDPPacket.new
+		p.ip_saddr = ip
+		p.ip_daddr = ip
+		p.ip_ttl = 255
+		p.udp_sport = 53
+		p.udp_dport = 53
+		p.payload  = "HELLO WORLD"
+		p.recalc
+		ret = send(ip,p)
 		if ret == :done
 			print_good("#{ip}: Sent a packet to #{ip} from #{ip}")
 		else
@@ -66,9 +56,9 @@ class Metasploit3 < Msf::Auxiliary
 		close_pcap
 	end
 
-	def send(ip,buff)
+	def send(ip,pkt)
 		begin
-			capture_sendto(buff, ip)
+			capture_sendto(pkt, ip)
 		rescue RuntimeError => e
 			return :error
 		end

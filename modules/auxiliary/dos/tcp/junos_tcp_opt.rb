@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -60,27 +59,19 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		open_pcap
-
-
-		n = Racket::Racket.new
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.dst_ip = rhost
-		n.l3.src_ip = shost
-		n.l3.protocol = 6
-		n.l3.id = rand(0xffff)
-		n.l3.ttl = rand(128) + 128
-		n.l4 = Racket::L4::TCP.new
-		n.l4.src_port = sport
-		n.l4.dst_port = rport
-		n.l4.flag_syn = 1
-		n.l4.window = rand(4096)+1
-		n.l4.ack = 0
-		n.l4.seq = rand(0xffffffff)
-		n.l4.add_option(101,"")
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
-		pkt = n.pack
-		print_status("#{n.l3.dst_ip}:#{n.l4.dst_port} Sending TCP Syn packet from #{n.l3.src_ip}:#{n.l4.src_port}")
-		capture_sendto(pkt,rhost)
+		
+		p = PacketFu::TCPPacket.new
+		p.ip_daddr = rhost
+		p.ip_saddr = shost
+		p.ip_ttl = rand(128) + 128
+		p.tcp_sport = sport
+		p.tcp_dport = rport
+		p.tcp_flags.syn = 1
+		p.tcp_win = rand(4096)+1
+		p.tcp_opts = "e\x02\x01\x00" # Opt 101, len 2, nop, eol
+		p.recalc
+		print_status("#{p.ip_daddr}:#{p.tcp_dport} Sending TCP Syn packet from #{p.ip_saddr}:#{p.tcp_sport}")
+		capture_sendto(p,rhost)
 		close_pcap
 	end
 end

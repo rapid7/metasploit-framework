@@ -54,24 +54,16 @@ class Metasploit3 < Msf::Auxiliary
 		while(::Time.now.to_i < max_epoch)
 			pkt = capture.next()
 			next if not pkt
-			eth = Racket::L2::Ethernet.new(pkt)
-
-			next if not eth.ethertype.eql?(Racket::L2::Ethernet::ETHERTYPE_IPV6)
-			ipv6 = Racket::L3::IPv6.new(eth.payload)
-
-			next if not ipv6.nhead == 0x3a
-			icmpv6 = Racket::L4::ICMPv6.new(ipv6.payload)
-
-			next if not icmpv6.type == Racket::L4::ICMPv6Generic::ICMPv6_TYPE_NEIGHBOR_SOLICITATION
-
-			icmpv6 = Racket::L4::ICMPv6NeighborAdvertisement.new(ipv6.payload)
-			host_addr = Racket::L3::Misc.long2ipv6(icmpv6.address)
-
+			p = PacketFu::Packet.parse(pkt)
+			next unless p.is_ipv6?
+			next unless p.payload
+			next if p.payload.empty?
+			next unless p.payload[0,1] == "\x87" # Neighbor solicitation
+			host_addr = PacketFu::AddrIpv6.new.read(p.payload[8,16]).to_x # Fixed position yay
 			# Make sure host portion is the same as what we requested
 			host_addr_prefix = IPAddr.new(host_addr).to_string().slice(0..19)
-			next if not host_addr_prefix.eql?(autoconf_prefix)
-
-			next if not hosts.index(host_addr).eql?(nil)
+			next unless host_addr_prefix == autoconf_prefix
+			next unless hosts.index(host_addr).nil?
 			hosts.push(host_addr)
 			print_status("   |*| #{host_addr}")
 		end
@@ -97,54 +89,63 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def create_router_advertisment(opts = {})
-	
+	def create_router_advertisment(opts={})
 		dhost = "FF02::1"
 		smac = opts['SMAC'] || datastore['SMAC'] || ipv6_mac
 		shost = opts['SHOST'] || datastore['SHOST'] || ipv6_link_address
 		lifetime = opts['LIFETIME'] || datastore['TIMEOUT']
 		prefix = opts['PREFIX'] || datastore['PREFIX']
 		plen = 64
-
 		dmac = "33:33:00:00:00:01"
+
+		p = PacketFu::IPv6Packet.new
+		p.eth_saddr = smac
+		p.eth_daddr = dmac
+		p.ipv6_hop = 255
+		p.ipv6_next = 0x3a
+		p.ipv6_saddr = shost
+		p.ipv6_daddr = dhost
 		
-		p = Racket::Racket.new
-		p.l2 = Racket::L2::Ethernet.new()
-		p.l2.src_mac = smac
-		p.l2.dst_mac = dmac
-		p.l2.ethertype = Racket::L2::Ethernet::ETHERTYPE_IPV6
+		payload = router_advertisement_payload
+		payload << opt60_payload(lifetime, prefix)
+		payload << slla_payload(smac)
+		p.payload = payload
+		p.ipv6_len = payload.size
+		ipv6_checksum!(p)
+		return p
+	end
 
-		p.l3 = Racket::L3::IPv6.new()
-		p.l3.ttl = 255
-		p.l3.nhead = 58
-		p.l3.src_ip = Racket::L3::Misc.ipv62long(shost)
-		p.l3.dst_ip = Racket::L3::Misc.ipv62long(dhost)
+	def opt60_payload(lifetime, prefix)
+		type = 3
+		len = 4
+		prefix_len = 64
+		flag = 0xc0
+		valid_lifetime = lifetime || 5
+		preferred_lifetime = lifetime || 5
+		reserved = 0
+		prefix = IPAddr.new(prefix).to_i.to_s(16).scan(/../).map {|x| x.to_i(16)}.pack("C*")
+		[type, len, prefix_len, flag, valid_lifetime,
+			preferred_lifetime, reserved, prefix].pack("CCCCNNNa16")
+	end
 
-		p.l4 = ICMPv6RouterAdvertisementFixed.new()
-		p.l4.managed_config = 0
-		p.l4.other_config = 0
-		p.l4.preference = 1
-		p.l4.lifetime = 1800
-		p.l4.hop_limit = 0
+	def slla_payload(smac)
+		type = 1
+		len = 1
+		addr = PacketFu::EthHeader.mac2str(smac)
+		[type,len,addr].pack("CCa6")
+	end
 
-		# OPTION lladdress
-		option_dst_lladdr = ICMPv6OptionLinkAddress.new()
-		option_dst_lladdr.lladdr = smac
-		p.l4.add_option(ICMPv6OptionLinkAddress::ICMPv6_OPTION_TYPE_ID, option_dst_lladdr)
-
-		# OPTION Prefix Information
-		option_prefix = ICMPv6OptionPrefixInformation.new()
-		option_prefix.plen = plen
-		option_prefix.on_link = 1
-		option_prefix.addrconf = 1
-		option_prefix.valid_lifetime = lifetime
-		option_prefix.preferred_lifetime = lifetime
-		option_prefix.prefix = Racket::L3::Misc.ipv62long(prefix)
-		p.l4.add_option(ICMPv6OptionPrefixInformation::ICMPv6_OPTION_TYPE_ID, option_prefix)
-
-		p.l4.fix!(p.l3.src_ip, p.l3.dst_ip)
-
-		return(p)
+	def router_advertisement_payload
+		type = 0x86
+		code = 0
+		checksum = 0
+		hop_limit = 0
+		flags = 0x08
+		lifetime = 1800
+		reachable = 0
+		retrans = 0
+		[type, code, checksum, hop_limit, flags, 
+			lifetime, reachable, retrans].pack("CCnCCnNN")
 	end
 
 	def run
@@ -154,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Send router advertisment
 		print_status("Sending router advertisment...")
 		pkt = create_router_advertisment()
-		capture.inject(pkt.pack())
+		capture.inject(pkt.to_s)
 
 		# Listen for host advertisments
 		print_status("Listening for neighbor solicitation...")
@@ -171,47 +172,5 @@ class Metasploit3 < Msf::Auxiliary
 		# Close capture
 		close_pcap()
 	end
-
-class ICMPv6OptionPrefixInformation < RacketPart
-	ICMPv6_OPTION_TYPE_ID = 3
-	unsigned :plen, 8
-	unsigned :on_link, 1
-	unsigned :addrconf, 1
-	unsigned :reserved, 6
-	unsigned :valid_lifetime, 32
-	unsigned :preferred_lifetime, 32
-	unsigned :reserved2, 32
-	unsigned :prefix, 128
-	def initialize(*args)
-		super(*args)
-	end
-end
-
-class ICMPv6RouterAdvertisementFixed < Racket::L4::ICMPv6Generic
-	# default value that should be placed in the hop count field of the IP header
-	# for outgoing IP packets
-	unsigned :hop_limit, 8
-	# boolean, managed address configuration?
-	unsigned :managed_config, 1
-	# boolean, other configuration?
-	unsigned :other_config, 1
-	unsigned :home_config, 1
-	unsigned :preference, 2
-	unsigned :proxied, 1
-	# set to 0, never used.
-	unsigned :reserved, 2
-	# lifetime associated with the default router in seconds
-	unsigned :lifetime, 16
-	# time in milliseconds that a node assumes a neighbor is reachable after
-	# having received a reachability confirmation
-	unsigned :reachable_time, 32
-	# time in milliseconds between retransmitted neighbor solicitation messages
-	unsigned :retrans_time, 32
-	rest :payload
-	def initialize(*args)
-		super(*args)
-		self.type = ICMPv6_TYPE_ROUTER_ADVERTISEMENT
-	end
-end
 
 end

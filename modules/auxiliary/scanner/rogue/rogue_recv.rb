@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -67,28 +66,26 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def parse_reply(r)
-		eth = Racket::L2::Ethernet.new(r)
-		return if not eth.ethertype == 0x0800
-
-		ip = Racket::L3::IPv4.new(eth.payload)
-		case ip.protocol
-		when 1
-			icmp = Racket::L4::ICMP.new(ip.payload)
-			reply = {:raw => r, :eth => eth, :ip => ip, :icmp => icmp}
-			reply[:type]     = :icmp
-			return if(icmp.payload[0,2] != [datastore['ECHOID']].pack('n'))
-			reply[:internal] = Rex::Socket.addr_ntoa(icmp.payload[4,4])
-			reply[:external] = ip.src_ip
-			return reply
-		when 6
-			tcp = Racket::L4::TCP.new(ip.payload)
-			reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
-			reply[:type]     = :tcp
-			reply[:internal] = Rex::Socket.addr_itoa(tcp.ack - 1)
-			reply[:external] = ip.src_ip
-			return reply
+		p = PacketFu::Packet.parse(r)
+		return unless p.is_eth?
+		if p.is_icmp?
+			return if(p.payload[0,2] != [datstore['ECHOID']].pack("n"))
+			return unless p.payload.size >= 8
+			reply = {:raw => p}
+			reply[:type] = :icmp
+			reply[:internal] = Rex::Socket.addr_nota(p.payload[4,4])
+			reply[:external] = p.ip_saddr
+		elsif p.is_tcp?
+			return if p.tcp_ack.zero?
+			reply = {:packet => p}
+			reply[:type] = :tcp
+			reply[:internal] = Rex::Socket.addr_itoa(p.tcp_ack - 1)
+			reply[:external] = p.ip_saddr
+		else
+			reply = nil
 		end
-		return
+		return reply
 	end
+
 end
 

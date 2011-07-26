@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		while(::Time.now.to_i < max_epoch)
 			pkt = capture.next()
+			Kernel.select(nil,nil,nil,0.1)
 			next if not pkt
 			eth = Racket::L2::Ethernet.new(pkt)
 

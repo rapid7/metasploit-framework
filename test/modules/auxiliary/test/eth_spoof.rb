@@ -37,23 +37,17 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Opening the network interface...")
 		open_pcap()
 
-		r = Racket::Racket.new
-		r.l2 = Racket::L2::Ethernet.new
-		r.l2.ethertype = 0x0800
-		r.l2.src_mac = "00:41:41:41:41:41"
-		r.l2.dst_mac = "00:42:42:42:42:42"
-		r.l3 = Racket::L3::IPv4.new
-		r.l3.src_ip  = "41.41.41.41"
-		r.l3.dst_ip  = "42.42.42.42"
-		r.l3.protocol = 17
-		r.l4 = Racket::L4::UDP.new
-		r.l4.src_port = 0x41
-		r.l4.dst_port = 0x42
-		r.l4.payload  = "SPOOOOOFED"
-		r.l4.fix!(r.l3.src_ip, r.l3.dst_ip)
-
+		p = PacketFu::UDPPacket.new
+		p.eth_saddr = "00:41:41:41:41:41"
+		p.eth_daddr = "00:42:42:42:42:42"
+		p.ip_saddr = "41.41.41.41"
+		p.ip_daddr = "42.42.42.42"
+		p.udp_sport = 0x41
+		p.udp_dport = 0x42
+		p.payload = "SPOOOOOFED"
+		p.recalc
 		1.upto(10) do
-			capture.inject(r.pack)
+			capture.inject(p.to_s)
 		end
 
 		close_pcap()

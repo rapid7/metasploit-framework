@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -117,52 +116,34 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def buildprobe(shost, sport, dhost, dport)
-		n = Racket::Racket.new
-
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = shost
-		n.l3.dst_ip = dhost
-		n.l3.protocol = 0x6
-		n.l3.id = rand(0x10000)
-		n.l3.ttl = 255
-
-		n.l4 = Racket::L4::TCP.new
-		n.l4.src_port = sport
-		n.l4.seq = rand(0x100000000)
-		n.l4.flag_fin = 1
-		n.l4.flag_urg = 1
-		n.l4.flag_psh = 1
-		n.l4.dst_port = dport
-		n.l4.window = 3072
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, "")
-
-		n.pack
+		p = PacketFu::TCPPacket.new
+		p.ip_saddr = shost
+		p.ip_daddr = dhost
+		p.tcp_sport = sport
+		p.tcp_flags.fin = 1
+		p.tcp_flags.urg = 1
+		p.tcp_flags.psh = 1
+		p.tcp_dport = dport
+		p.tcp_win = 3072
+		p.recalc
+		p
 	end
 
-	def readreply(pcap, to)
+	def probereply(pcap, to)
 		reply = nil
-
 		begin
 			Timeout.timeout(to) do
 				pcap.each do |r|
-					eth = Racket::L2::Ethernet.new(r)
-					next if not eth.ethertype == 0x0800
-
-					ip = Racket::L3::IPv4.new(eth.payload)
-					next if not ip.protocol == 6
-
-					tcp = Racket::L4::TCP.new(ip.payload)
-
-					reply = {:raw => r, :eth => eth, :ip => ip, :tcp => tcp}
-
+					pkt = PacketFu::Packet.parse(r)
+					next unless pkt.is_tcp?
+					reply = pkt
 					break
 				end
 			end
 		rescue Timeout::Error
 		end
-
 		return reply
 	end
+
 end
 

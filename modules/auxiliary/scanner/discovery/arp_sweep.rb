@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
-
 	def initialize
 		super(
 			'Name'        => 'ARP Sweep Local Network Discovery',
@@ -51,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 			@netifaces = false
 		end
 
+		# XXX: This needs to be more automatic /and/ not rely on Pcap.interfaces, since
+		# it's never going to be reliable anyway.
 		shost = datastore['SHOST']
 		shost ||= get_ipv4_addr(datastore['INTERFACE']) if @netifaces
 		raise RuntimeError ,'SHOST should be defined' unless shost
