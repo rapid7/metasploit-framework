@@ -47,6 +47,10 @@ class Metasploit3 < Msf::Post
 
 	# Run Method for when run command is issued
 	def run
+		unless client.platform =~ /win/
+			print_error("This module requires native Windows meterpreter functions not compatible with the selected session")
+			return
+		end
 		# Set variables
 		multi_ip = nil
 		multi_pid = nil
