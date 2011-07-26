@@ -23,6 +23,8 @@ module Fs
 ###
 class File < Rex::Post::Meterpreter::Extensions::Stdapi::Fs::IO
 
+	include Rex::Post::File
+
 	#
 	# Return the directory separator, i.e.: "/" on unix, "\\" on windows
 	#
