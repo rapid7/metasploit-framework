@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 		users = []
 		users_key.each do |key|
 			#Filter out '_aliases'
-			break if key =~ /_aliases/
+			next if key =~ /_aliases/
 
 			print_status("Grabbing key: #{key}") if datastore['VERBOSE']
 
@@ -191,6 +191,8 @@ class Metasploit3 < Msf::Post
 	def run
 		imail_user = datastore['IMAILUSER']
 		imail_domain = datastore['IMAILDOMAIN']
+
+		print_status("Download iMail user information...") if datastore['VERBOSE'] == false
 
 		#Download user data.  If no user specified, we dump it all.
 		users = download_info(imail_user, imail_domain)
