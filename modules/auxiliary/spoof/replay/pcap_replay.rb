@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options([
-			OptString.new('FILENAME', [true, "The local pcap file to process"]),
+			OptPath.new('FILENAME', [true, "The local pcap file to process"]),
 			OptString.new('FILE_FILTER', [false, "The filter string to apply on the file"]),
 			OptInt.new('LOOP', [true, "The number of times to loop through the file",1]),
 			OptInt.new('DELAY', [true, "the delay in millisecond between each loop",0]),
