@@ -44,6 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_batch(hosts)
 
+		check_pcaprub_loaded
+
 		@netifaces = true
 		if not netifaces_implemented? 
 			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
