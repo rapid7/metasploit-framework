@@ -1613,6 +1613,9 @@ class Core
 			MinimumRank
 			SessionLogging
 			TimestampOutput
+			Prompt
+			PromptChar
+			PromptTimeFormat
 		}
 		mod = active_module
 
