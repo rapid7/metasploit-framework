@@ -63,9 +63,12 @@ class Metasploit3 < Msf::Post
 		full_path = "#{partial_path}\\Map Network Drive MRU"
 		explorer_keys = registry_enumkeys(partial_path)
 		if explorer_keys.include?("Map Network Drive MRU")
-			registry_enumvals(full_path).each do |k|
-				if not k =~ /MRUList/
-					recent_mounts << registry_getvaldata(full_path,k)
+			vals_found = registry_enumvals(full_path)
+			if vals_found
+				registry_enumvals(full_path).each do |k|
+					if not k =~ /MRUList/
+						recent_mounts << registry_getvaldata(full_path,k)
+					end
 				end
 			end
 		end
@@ -76,10 +79,13 @@ class Metasploit3 < Msf::Post
 	def enum_run_unc(base_key)
 		unc_paths = []
 		full_path = base_key + "\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\RunMRU"
-		registry_enumvals(full_path).each do |k|
-			if k =~ /./
-				run_entrie = registry_getvaldata(full_path,k)
-				unc_paths << run_entrie if run_entrie =~ /^\\\\/
+		vals_found = registry_enumvals(full_path)
+		if vals_found
+			vals_found.each do |k|
+				if k =~ /./
+					run_entrie = registry_getvaldata(full_path,k)
+					unc_paths << run_entrie if run_entrie =~ /^\\\\/
+				end
 			end
 		end
 
