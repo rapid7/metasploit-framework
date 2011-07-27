@@ -263,13 +263,30 @@ class Console::CommandDispatcher::Stdapi::Net
 					print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
 				end
 
+			when "flush"
+
+				counter = 0
+				service.each_tcp_relay do |lhost, lport, rhost, rport, opts|
+					next if (opts['MeterpreterRelay'] == nil)
+
+					if (service.stop_tcp_relay(lport, lhost))
+						print_status("Successfully stopped TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+					else
+						print_error("Failed to stop TCP relay on #{lhost || '0.0.0.0'}:#{lport}")
+						next
+					end 
+
+					counter += 1
+				end
+				print_status("Successfully flushed #{counter} rules")
+
 			else
 				cmd_portfwd_help
 		end
 	end
 
 	def cmd_portfwd_help
-		print_line "Usage: portfwd [-h] [add / delete / list] [args]"
+		print_line "Usage: portfwd [-h] [add | delete | list | flush] [args]"
 		print_line
 		print @@portfwd_opts.usage
 	end
