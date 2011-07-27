@@ -46,15 +46,16 @@ class Metasploit3 < Msf::Post
 		cur_domain, cur_user = client.sys.config.getuid.split("\\")
 		ltype = "domain.group.members"
 		ctype = "text/plain"
-		usr_cmd = 'net groups "' + datastore['GROUP'] + '" /domain'
-		dom_cmd = 'net config workstation'
 		domain = ""
-		
-		usr_res = cmd_exec(usr_cmd)
-		dom_res = cmd_exec(dom_cmd)
+
+		# Get Data
+		usr_res = run_cmd("net groups \"#{datastore['GROUP']}\" /domain")
+		dom_res = run_cmd("net config workstation")
+
+		# Parse Returned data
 		members = get_members(usr_res.split("\n"))
 		domain = get_domain(dom_res.split("\n"))
-		p dom_res
+
 		# Show results if we have any, Error if we don't
 		if ! members.empty?
 			
@@ -121,6 +122,17 @@ class Metasploit3 < Msf::Post
 		end
 		
 		return member
+	end
+	def run_cmd(cmd)
+		process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		res = ""
+		while (d = process.channel.read)
+			break if d == ""
+			res << d
+		end
+		process.channel.close
+		process.close
+		return res
 	end
 	
 end
