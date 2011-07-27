@@ -67,24 +67,23 @@ class Metasploit3 < Msf::Auxiliary
 		hosts.each do |dhost|
 			if dhost != shost
 				probe = buildprobe(shost, smac, dhost)
-				capture.inject(probe)
+				inject(probe)
 
 				while(reply = getreply())
-					next if not reply[:arp]
-					print_status("#{reply[:arp].spa} appears to be up.")
-
-					report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+					next unless reply.is_arp?
+					print_status("#{reply.arp_saddr_ip} appears to be up.")
+					report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 				end
+
 			end
 		end
 
 		etime = Time.now.to_f + datastore['TIMEOUT']
 		while (Time.now.to_f < etime)
 			while(reply = getreply())
-				next if not reply[:arp]
-				print_status("#{reply[:arp].spa} appears to be up.")
-
-				report_host(:host => reply[:arp].spa, :mac=>reply[:arp].sha)
+				next unless reply.is_arp?
+				print_status("#{reply.arp_saddr_ip} appears to be up.")
+				report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 			end
 			Kernel.select(nil, nil, nil, 0.50)
 		end
@@ -95,31 +94,26 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def buildprobe(shost, smac, dhost)
-		n = Racket::Racket.new
-		n.l2 = Racket::L2::Ethernet.new(Racket::Misc.randstring(14))
-		n.l2.src_mac = smac
-		n.l2.dst_mac = 'ff:ff:ff:ff:ff:ff'
-		n.l2.ethertype = 0x0806
-
-		n.l3 = Racket::L3::ARP.new
-		n.l3.opcode = Racket::L3::ARP::ARPOP_REQUEST
-		n.l3.sha = n.l2.src_mac
-		n.l3.tha = n.l2.dst_mac
-		n.l3.spa = shost
-		n.l3.tpa = dhost
-		n.pack
+		p = PacketFu::ARPPacket.new
+		p.eth_saddr = smac
+		p.eth_daddr = "ff:ff:ff:ff:ff:ff"
+		p.arp_opcode = 1
+		p.arp_saddr_mac = p.eth_saddr
+		p.arp_daddr_mac = p.eth_daddr
+		p.arp_saddr_ip = shost
+		p.arp_daddr_ip = dhost
+		p.recalc
+		p
 	end
 
 	def getreply
-		pkt = capture.next
-		return if not pkt
-
-		eth = Racket::L2::Ethernet.new(pkt)
-		return if not eth.ethertype == 0x0806
-
-		arp = Racket::L3::ARP.new(eth.payload)
-		return if not arp.opcode == Racket::L3::ARP::ARPOP_REPLY
-
-		{:raw => pkt, :eth => eth, :arp => arp}
+		pkt_bytes = capture.next
+		Kernel.select(nil,nil,nil,0.1)
+		return unless pkt_bytes
+		pkt = PacketFu::Packet.parse(pkt_bytes)
+		return unless pkt.is_arp?
+		return unless pkt.arp_opcode == 2
+		pkt
 	end
+
 end
