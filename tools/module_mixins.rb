@@ -16,7 +16,7 @@ require 'msf/base'
 
 def do_want(klass)
 	return false if klass.class != Module
-	return false if [ Kernel, ERB::Util, SNMP::BER, Racket].include?(klass)
+	return false if [ Kernel, ERB::Util, SNMP::BER].include?(klass)
 	return false if klass.to_s.match(/^Rex::Ui::Subscriber/)
 
 	return true

@@ -39,12 +39,10 @@ This license does not apply to the following components:
  - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter
    Sniffer extension. HD Moore has a single-seat developer license.
  - The modified TightVNC binaries and their associated source code.
- - The Bit-Struct library located under lib/bit-struct
  - The Byakugan plugin located under external/source/byakugan
  - The Metasm library located under lib/metasm
  - The PcapRub library located under external/pcaprub
  - The Rabal library located under lib/rabal
- - The Racket library located under lib/racket
  - The PacketFu library located under lib/packetfu
  - The Ruby-Lorcon library located under external/ruby-lorcon
  - The SNMP library located under lib/snmp
