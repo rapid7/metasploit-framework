@@ -8,36 +8,36 @@ require 'rex/socket'
 module Rex
 module Proto
 module Proxy
-	
-# 
+
+#
 # A Socks4a proxy server.
-# 
+#
 class Socks4a
 
 	#
 	# A client connected to the Socks4a server.
 	#
 	class Client
-		
+
 		REQUEST_VERSION                 = 4
 		REPLY_VERSION                   = 0
-		
+
 		COMMAND_CONNECT                 = 1
 		COMMAND_BIND                    = 2
-	
+
 		REQUEST_GRANTED                 = 90
 		REQUEST_REJECT_FAILED           = 91
 		REQUEST_REJECT_CONNECT          = 92
 		REQUEST_REJECT_USERID           = 93
-		
+
 		HOST                            = 1
 		PORT                            = 2
-		
+
 		#
 		# A Socks4a packet.
 		#
 		class Packet
-			
+
 			def initialize
 				@version   = REQUEST_VERSION
 				@command   = 0
@@ -45,11 +45,11 @@ class Socks4a
 				@dest_ip   = '0.0.0.0'
 				@userid    = ''
 			end
-			
+
 			#
 			# A helper function to recv in a Socks4a packet byte by byte.
 			#
-			# sf: we could just call raw = sock.get_once but some clients 
+			# sf: we could just call raw = sock.get_once but some clients
 			#     seem to need reading this byte by byte instead.
 			#
 			def Packet.recv( sock, timeout=30 )
@@ -78,16 +78,16 @@ class Socks4a
 				packet = Packet.new
 				packet.from_r( raw ) ? packet : nil
 			end
-						
+
 			#
 			# Pack a packet into raw bytes for transmitting on the wire.
-			# 
+			#
 			def to_r
 				raw = [ @version, @command, @dest_port, Rex::Socket.addr_atoi( @dest_ip ) ].pack( 'CCnN' )
 				return raw if( @userid.empty? )
 				return raw + [ @userid ].pack( 'Z*' )
 			end
-			
+
 			#
 			# Unpack a raw packet into its components.
 			#
@@ -112,19 +112,19 @@ class Socks4a
 				end
 				return true
 			end
-		
+
 			def is_connect?
 				@command == COMMAND_CONNECT ? true : false
 			end
-			
+
 			def is_bind?
 				@command == COMMAND_BIND ? true : false
 			end
-			
+
 			attr_accessor :version, :command, :dest_port, :dest_ip, :userid
-			
+
 			protected
-			
+
 			#
 			# Resolve the given hostname into a dotted IP address.
 			#
@@ -138,9 +138,9 @@ class Socks4a
 				end
 				return nil
 			end
-			
+
 			#
-			# As per the Socks4a spec, check to see if the provided dest_ip is 0.0.0.XX 
+			# As per the Socks4a spec, check to see if the provided dest_ip is 0.0.0.XX
 			# which indicates after the @userid field contains a hostname to resolve.
 			#
 			def is_hostname?
@@ -152,7 +152,7 @@ class Socks4a
 			end
 
 		end
-		
+
 		#
 		# A mixin for a socket to perform a relay to another socket.
 		#
@@ -169,7 +169,7 @@ class Socks4a
 					loop do
 						closed = false
 						buf    = nil
-		
+
 						begin
 							s = Rex::ThreadSafe.select( [ @relay_sock ], nil, nil, 0.2 )
 							if( s == nil || s[0] == nil )
@@ -178,7 +178,7 @@ class Socks4a
 						rescue
 							closed = true
 						end
-		
+
 						if( closed == false )
 							begin
 								buf = @relay_sock.sysread( 32768 )
@@ -187,7 +187,7 @@ class Socks4a
 								closed = true
 							end
 						end
-		
+
 						if( closed == false )
 							total_sent   = 0
 							total_length = buf.length
@@ -204,18 +204,18 @@ class Socks4a
 								end
 							end
 						end
-		
+
 						if( closed )
 							@relay_client.stop
 							::Thread.exit
 						end
 					end
 				end
-				
+
 			end
-			
+
 		end
-		
+
 		#
 		# Create a new client connected to the server.
 		#
@@ -243,12 +243,12 @@ class Socks4a
 						# handle socks4a conenct requests
 						if( request.is_connect? )
 							# perform the connection request
-							params = { 
+							params = {
 								'PeerHost' => request.dest_ip,
 								'PeerPort' => request.dest_port,
 							}
 							params['Context'] = @server.opts['Context'] if @server.opts.has_key?('Context')
-							
+
 							@rsock = Rex::Socket::Tcp.create( params )
 							# and send back success to the client
 							response         = Packet.new
@@ -258,7 +258,7 @@ class Socks4a
 						# handle socks4a bind requests
 						elsif( request.is_bind? )
 							# create a server socket for this request
-							params = { 
+							params = {
 								'LocalHost' => '0.0.0.0',
 								'LocalPort' => 0,
 							}
@@ -286,7 +286,7 @@ class Socks4a
 							raise "Got connection from an invalid peer." if( rpeer[HOST] != request.dest_ip )
 							# send back the client connect success to the client
 							#
-							# sf: according to the spec we send this response back to the client, however 
+							# sf: according to the spec we send this response back to the client, however
 							#     I have seen some clients who bawk if they get this second response.
 							#
 							response           = Packet.new
@@ -319,33 +319,33 @@ class Socks4a
 				end
 			end
 		end
-		
+
 		#
 		# Stop handling the client connection.
 		#
 		def stop
 			@mutex.synchronize do
 				if( not @closed )
-				
+
 					begin
 						@lsock.close if @lsock
 					rescue
 					end
-				
+
 					begin
 						@rsock.close if @rsock
 					rescue
 					end
-				
+
 					@client_thread.kill if( @client_thread and @client_thread.alive? )
-					
+
 					@server.remove_client( self )
-					
+
 					@closed = true
 				end
 			end
 		end
-		
+
 	end
 
 	#
@@ -366,7 +366,7 @@ class Socks4a
 	def is_running?
 		return @running
 	end
-	
+
 	#
 	# Start the Socks4a server.
 	#
@@ -395,14 +395,14 @@ class Socks4a
 			end
 			return true
 	end
-	
+
 	#
 	# Block while the server is running.
 	#
 	def join
-		@server_thread.join
+		@server_thread.join if @server_thread
 	end
-	
+
 	#
 	# Stop the Socks4a server.
 	#
@@ -423,17 +423,18 @@ class Socks4a
 		end
 		return !@running
 	end
-	
+
 	def add_client( client )
 		@clients << client
 	end
-	
+
 	def remove_client( client )
 		@clients.delete( client )
 	end
-	
+
 	attr_reader :opts
-	
+
 end
 
 end; end; end
+
