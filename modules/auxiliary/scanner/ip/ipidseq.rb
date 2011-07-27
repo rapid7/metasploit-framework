@@ -39,13 +39,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$'
 		)
 
-		begin
-			require 'pcaprub'
-			@@havepcap = true
-		rescue ::LoadError
-			@@havepcap = false
-		end
-
 		register_options([
 			Opt::RPORT(80),
 			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
@@ -66,7 +59,6 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		open_pcap
 
-		raise "Pcaprub is not available" if not @@havepcap
 		raise "SAMPLES option must be >= 2" if datastore['SAMPLES'] < 2
 
 		pcap = self.capture

@@ -30,13 +30,6 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
-		begin
-			require 'pcaprub'
-			@@havepcap = true
-		rescue ::LoadError
-			@@havepcap = false
-		end
-
 		register_options([
 			OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
 			OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500]),
@@ -53,8 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_batch(hosts)
 		open_pcap
-
-		raise "Pcaprub is not available" if not @@havepcap
 
 		pcap = self.capture
 

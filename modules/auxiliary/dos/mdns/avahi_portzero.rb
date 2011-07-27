@@ -40,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		print_status("Sending to #{rhost}")
-
 		open_pcap
+
+		print_status("Sending to #{rhost}")
 
 		p = PacketFu::UDPPacket.new
 		p.ip_saddr = "0.0.0.0"

@@ -56,6 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		check_pcaprub_loaded() # Check first since otherwise this is all for naught
 		# MacOS X workaround
 		::Socket.do_not_reverse_lookup = true
 

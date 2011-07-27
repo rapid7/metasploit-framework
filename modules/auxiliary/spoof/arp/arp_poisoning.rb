@@ -59,6 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 		@netifaces = true
 		if not netifaces_implemented? 
 			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
@@ -77,7 +78,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
-			open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
 
 			@smac = datastore['SMAC'] 

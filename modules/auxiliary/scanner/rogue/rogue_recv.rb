@@ -48,8 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		print_status("Opening the capture interface...")
 		open_pcap('SNAPLEN' => 128, 'FILTER' => build_filter)
+		print_status("Opening the capture interface...")
 
 		print_status("Waiting for responses to rogue_send...")
 		begin

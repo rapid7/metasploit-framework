@@ -43,10 +43,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		open_pcap
 
 		print_status("Sending packet to #{rhost}")
-
-		open_pcap
 
 		p = PacketFu::TCPPacket.new
 		p.ip_saddr = datastore['SHOST'] || Rex::Socket.source_address(rhost)

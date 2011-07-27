@@ -40,8 +40,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		print_status("Creating DTLS ChangeCipherSpec Datagram...")
 		open_pcap
+		print_status("Creating DTLS ChangeCipherSpec Datagram...")
 		p = PacketFu::UDPPacket.new
 		p.ip_daddr = datastore['RHOST']
 		p.ip_src = rand(0x100000000)

@@ -49,8 +49,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		print_status("Creating DHCP Request with 0-length ClientID")
 		open_pcap
+		print_status("Creating DHCP Request with 0-length ClientID")
 		p = PacketFu::UDPPacket.new
 		p.ip_daddr = "255.255.255.255"
 		p.udp_sport = 68

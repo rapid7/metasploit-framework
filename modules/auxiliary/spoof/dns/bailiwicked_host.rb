@@ -150,6 +150,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		check_pcaprub_loaded # Check first.
+
 		target   = rhost()
 		source   = Rex::Socket.source_address(target)
 		saddr    = datastore['SRCADDR']

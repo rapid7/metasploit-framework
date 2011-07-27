@@ -86,6 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
+		check_pcaprub_loaded # Check first
 		# Load all of our existing protocols
 		load_protocols
 

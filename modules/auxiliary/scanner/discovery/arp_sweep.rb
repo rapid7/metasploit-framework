@@ -43,8 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
-
-		check_pcaprub_loaded
+		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		@netifaces = true
 		if not netifaces_implemented? 
@@ -61,8 +60,6 @@ class Metasploit3 < Msf::Auxiliary
 		smac  = datastore['SMAC']
 		smac ||= get_mac(datastore['INTERFACE']) if @netifaces
 		raise RuntimeError ,'SMAC should be defined' unless smac
-
-		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		begin
 

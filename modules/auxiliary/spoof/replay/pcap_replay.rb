@@ -38,6 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def run
+		check_pcaprub_loaded # Check first
 		pkt_delay = datastore['PKT_DELAY']
 		delay = datastore['DELAY']
 		loop = datastore['LOOP']

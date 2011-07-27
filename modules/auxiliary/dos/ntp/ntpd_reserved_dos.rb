@@ -51,9 +51,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		print_status("Sending a mode 7 packet to host #{ip} from #{datastore['LHOST']}")
-
 		open_pcap
+
+		print_status("Sending a mode 7 packet to host #{ip} from #{datastore['LHOST']}")
 
 		p = PacketFu::UDPPacket.new
 		p.ip_saddr = datastore['LHOST']

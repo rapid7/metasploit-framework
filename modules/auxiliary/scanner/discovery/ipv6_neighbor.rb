@@ -46,15 +46,14 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_batch(hosts)
+		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
+
 		print_status("Discovering IPv4 nodes via ARP...")
-		print_status("")
 
 		shost = datastore['SHOST']
 		smac  = datastore['SMAC']
 
 		addrs = []
-
-		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 
 		begin
 			found = {}
