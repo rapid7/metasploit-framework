@@ -536,7 +536,7 @@ class Metasploit3 < Msf::Auxiliary
 				:pass => ( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "<NULL>" ) + ":" +
 					( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s : "<NULL>" ) + ":" +
 					datastore['CHALLENGE'].to_s,
-				:type => "smb_hash",
+				:type => "smb_net_hash",
 				:proof => "NAME=#{smb[:nbsrc]} DOMAIN=#{smb[:domain]} OS=#{smb[:peer_os]}",
 				:active => true
 			)
