@@ -13,9 +13,11 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/common'
 require 'msf/core/post/windows/priv'
+require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::Priv
 	include Msf::Post::Common
 	
@@ -49,17 +51,20 @@ class Metasploit3 < Msf::Post
 
 		print_status(out)
 
-		usb_drive_classes = enum_subkeys('HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR')
+		usb_drive_classes = registry_enumkeys('HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR')
 		usb_uids_to_info = {}
-		usb_drive_uids = []
 
-		usb_drive_classes.each do |x|
-			enum_subkeys(x).each do |y|
-				begin
-					vals = enum_values(y)
-					# enumerate each USB device used on the system
-					usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
-				rescue
+		if usb_drive_classes
+			usb_drive_classes.each do |x|
+				if x
+					registry_enumkeys(x).each do |y|
+						begin
+							vals = registry_enumvals(y)
+							# enumerate each USB device used on the system
+							usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
+						rescue
+						end
+					end
 				end
 			end
 		end
@@ -108,44 +113,7 @@ class Metasploit3 < Msf::Post
 		return Rex::Proto::SMB::Utils.time_smb_to_unix(hi,lo)
 	end
 
-	#-------------------------------------------------------------------------------
-	# Function to enumerate the next level of keys from the given key
-	#	key_str		Full string representation of the key for which subkeys should be enumerated
-	#	returns		Array of string representations of subkeys
-	def enum_subkeys(key_str = nil)
-		return nil if(! key_str)
-
-		r, b = session.sys.registry.splitkey(key_str)
-		key = session.sys.registry.open_key(r, "#{b}", KEY_READ)
-		full_keys = []
-		key.enum_key.each do |x|
-			full_keys.push("#{key_str}" << '\\' << "#{x}")
-		end
-
-		key.close
-		return full_keys
-	end
-
-	#-------------------------------------------------------------------------------
-	# Function to enumerate the values in the given key
-	#	key_str		Full string representation of the key from which values should be enumerated
-	#	returns		Hash of string representations of: Value.name => Value
-	def enum_values(key_str = nil)
-		return nil if(! key_str)
-
-		r, b = session.sys.registry.splitkey("#{key_str}")
-		key = session.sys.registry.open_key(r, "#{b}", KEY_READ)
-		values = {}
-		key.enum_value.each do |x|
-			values.store(x.name, x.query)
-		end
-		key.close
-		return values
-	end
-
-	#--------------------------------------------------------------------------------------------------
-	# Function to enumerate the disks (not volumes) mounted as contained in HKLM\System\MountedDevices
-	#	returns		Hash of string representations of: assigned drive letter => UID
+	
 	def enum_disks()
 
 		r, b = session.sys.registry.splitkey('HKLM\\SYSTEM\\MountedDevices')
