@@ -157,18 +157,24 @@ class BaseProtocolParser
 		self.module.report_auth_info(*s)
 	end
 
+	def report_note(*s)
+		self.module.report_note(*s)
+	end
+
 	def report_service(*s)
 		self.module.report_service(*s)
 	end
 
 	def find_session(sessionid)
+		purge_keys = []
 		sessions.each_key do |ses|
 			# Check for cleanup abilities... kills performance in large environments maybe
 			if ((sessions[ses][:mtime]-sessions[ses][:ctime])>300)		#When longer than 5 minutes no packet was related to the session, delete it
 				# too bad to this session has no action for a long time
-				sessions.delete(ses)
+				purge_keys << ses
 			end
 		end
+		purge_keys.each {|ses| sessions.delete(ses) }
 
 		# Does this session already exist?
 		if (sessions[sessionid])
