@@ -52,6 +52,9 @@ class Metasploit3 < Msf::Post
 		if paths.nil?
 			print_error("No users found with a .ssh directory")
 			return
+		else
+			print_error("Platfor is not Unix or Linux based.")
+			return
 		end
 
 		download_loot(paths)
