@@ -84,6 +84,7 @@ class Metasploit3 < Msf::Post
 				userinfo['userpath'] = dir_entry_exists(userinfo['userpath'])
 				userinfo['useroffcpath'] = dir_entry_exists(userinfo['useroffcpath'])
 				users << userinfo
+				userinfo = {}
 			end
 		else
 			uservar = session.fs.file.expand_path("%USERNAME%")
