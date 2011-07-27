@@ -185,6 +185,12 @@ class RPC_Session < RPC_Base
 		rpc_meterpreter_run_single( sid, "run #{data}")
 	end
 
+	def rpc_meterpreter_directory_separator(sid)
+		s = _valid_session(sid,"meterpreter")
+
+		{ "separator" => s.fs.file.separator }
+	end
+
 	def rpc_compatible_modules( sid)
 		ret = []
 		
