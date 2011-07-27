@@ -268,7 +268,7 @@ class Core
 				oldwarn << "Warning: This copy of the Metasploit Framework was last updated #{::Msf::Framework::RepoUpdatedDaysNote}."
 				oldwarn << "         We recommend that you update the framework at least every other day."
 				oldwarn << "         For information on updating your copy of Metasploit, please see:"
-				oldwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/Updating"
+				oldwarn << "             https://community.rapid7.com/docs/DOC-1306"
 				oldwarn << ""
 			end
 		end
@@ -278,7 +278,7 @@ class Core
 			avdwarn << "Warning: This copy of the Metasploit Framework has been corrupted by an installed anti-virus program."
 			avdwarn << "         We recommend that you disable your anti-virus or exclude your Metasploit installation path,"
 			avdwarn << "         then restore the removed files from quarantine or reinstall the framework. For more info: "
-			avdwarn << "             http://www.metasploit.com/redmine/projects/framework/wiki/EICAR"
+			avdwarn << "             https://community.rapid7.com/docs/DOC-1273"
 			avdwarn << ""
 		end
 
