@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 			print_error("No users found with a .ssh directory")
 			return
 		else
-			print_error("Platfor is not Unix or Linux based.")
+			print_error("Platform is not Unix or Linux based.")
 			return
 		end
 
