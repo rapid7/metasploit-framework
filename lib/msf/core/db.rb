@@ -945,8 +945,8 @@ class DBManager
 		service = opts.delete(:service) || report_service(:host => host, :port => port, :proto => proto, :name => sname, :workspace => wspace)
 
 		# Non-US-ASCII usernames are tripping up the database at the moment, this is a temporary fix until we update the tables
-		token[1] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } if token[0]
-		token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } if token[1]
+		( token[0] = token[0].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } ) if token[0]
+		( token[1] = token[1].gsub(/[\x00-\x1f\x7f-\xff]/){|m| "\\x%.2x" % m.unpack("C")[0] } ) if token[1]
 
 		ret = {}
 
