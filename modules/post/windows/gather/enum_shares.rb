@@ -105,7 +105,9 @@ class Metasploit3 < Msf::Post
 			shares = []
 			print_status("The following shares were found:")
 			share_names.each do |sname|
-				share_info = registry_getvaldata(shares_key,sname).split("\000")
+				info = registry_getvaldata(shares_key,sname)
+				next if info.nil?
+				share_info = info.split("\000")
 				print_status("\tName: #{sname}")
 				stype = remark = path = nil
 				share_info.each do |e|
