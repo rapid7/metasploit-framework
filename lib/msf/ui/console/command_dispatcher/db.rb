@@ -507,7 +507,7 @@ class Db
 
 			# Short-circuit help
 			if args.delete "-h"
-				cmd_creds_help
+				cmd_vulns_help
 				return
 			end
 
@@ -882,7 +882,7 @@ class Db
 			end
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Loot",
-					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info' ],
+					'Columns' => [ 'host', 'service', 'type', 'name', 'content', 'info', 'path' ],
 				})
 
 			# Sentinal value meaning all
@@ -895,15 +895,16 @@ class Db
 						row = []
 						row.push( (loot.host ? loot.host.address : "") )
 						if (loot.service)
-							name = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
-							row.push name
+							svc = (loot.service.name ? loot.service.name : "#{loot.service.port}/#{loot.service.proto}")
+							row.push svc
 						else
 							row.push ""
 						end				
 						row.push(loot.ltype)
-						row.push(loot.name)
+						row.push(loot.name || "")
 						row.push(loot.content_type)
-						row.push(loot.info)
+						row.push(loot.info || "")
+						row.push(loot.path)
 
 						tbl << row
 						if (mode == :delete)
