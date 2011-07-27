@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 				File.join(Msf::Config.install_root, "data", "exploits", "psnuffle")
 			]),
 		], self.class)
+		deregister_options('RHOST')
 	end
 
 
