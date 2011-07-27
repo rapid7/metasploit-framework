@@ -47,13 +47,15 @@ class Metasploit3 < Msf::Post
 		else
 			# Make sure we are can identify the platform if not set
 			paths = platform_check
-			return if paths.nil?
+
+			if paths.nil?
+				print_error("Platform is not Unix or Linux based.")
+				return
+			end
 		end
-		if paths.nil?
+
+		if paths.empty?
 			print_error("No users found with a .ssh directory")
-			return
-		else
-			print_error("Platform is not Unix or Linux based.")
 			return
 		end
 
@@ -100,8 +102,9 @@ class Metasploit3 < Msf::Post
 			if stat =~ /No such file/i
 				print_error("OpenSSH profile not found in #{dir}")
 				next
+			else
+				paths << "#{dir}"
 			end
-			paths << "#{dir}"
 		end
 		return paths
 	end
