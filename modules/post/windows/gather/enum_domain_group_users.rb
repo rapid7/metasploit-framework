@@ -20,11 +20,11 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Enumerate Domain Group',
-				'Description'   => %q{ Extracts user accounts from specified group
-					and stores the results in the loot. Will also verify if session
+				'Description'   => %q{ This module extracts user accounts from specified group
+					and stores the results in the loot. It will also verify if session
 					account is in the group. Data is stored in loot in a format that
-					is compatible with the token_hunter plugin. May get unexpected
-					results if this module is not with domain credentials.},
+					is compatible with the token_hunter plugin. This module should be
+					run over as session with domain credentials.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
 						'Stephen Haywood <haywoodsb[at]gmail.com>'],

@@ -20,12 +20,9 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather Total Commander Saved Password Extraction',
 				'Description'   => %q{ This module extracts weakly encrypted
-							saved FTP Passwords from Total Comamnder.
+							saved FTP Passwords from Total Commander.
 							It finds saved FTP connections in the 
-							wcx_ftp.ini file. The passwords are
-							saved in a weakly encrypted format
-							which this module will decrypt.
-							},
+							wcx_ftp.ini file.  },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',

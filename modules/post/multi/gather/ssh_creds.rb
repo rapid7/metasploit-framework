@@ -23,11 +23,9 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Multi Gather OpenSSH PKI Credentials Collection',
 			'Description'    => %q{
-					This module will collect the contents of user's .ssh directory on the targetted
+					This module will collect the contents of user's .ssh directory on the targeted
 				machine. Additionally, known_hosts and authorized_keys and any other files are also
-				downloaded.
-
-				This module is largely based on firefox_creds.rb due to my lack of talent in ruby.
+				downloaded. This module is largely based on firefox_creds.rb.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Jim Halfpenny'],

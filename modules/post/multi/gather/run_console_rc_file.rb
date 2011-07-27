@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Multi Gather Run Console Resource File',
 				'Description'   => %q{ This module will read console commands from a resource file and
-					execute the commands in the speciffied Meterpreter session.},
+					execute the commands in the specified Meterpreter session.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',

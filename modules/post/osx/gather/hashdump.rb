@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'OS X Gather Mac OS X Password Hash Collector',
 				'Description'   => %q{
-						This module dumps SHA1, LM and NT Hashes of Mac OS X Tiger, Leopard, Snow Leopard and Lion Systems.
+						This module dumps SHA-1, LM and NT Hashes of Mac OS X Tiger, Leopard, Snow Leopard and Lion Systems.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>','hammackj <jacob.hammack[at]hammackj.com>'],

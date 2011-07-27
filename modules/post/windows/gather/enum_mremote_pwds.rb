@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather mRemote Saved Password Extraction',
 				'Description'   => %q{ This module extracts saved passwords
 						from mRemote. mRemote stores connections for
-						RDP,VNC,SSH,Telnet,Rlogin and others. It saves
+						RDP, VNC, SSH, Telnet, rlogin and other protocols. It saves
 						the passwords in an encrypted format. The module
 						will extract the connection info and decrypt
 						the saved passwords.},

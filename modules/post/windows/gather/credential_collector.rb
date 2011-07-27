@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Credential Collector',
-				'Description'   => %q{ This module harvest credentials found on the host and store them in the database.},
+				'Description'   => %q{ This module harvests credentials found on the host and stores them in the database.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'tebo[at]attackresearch.com'],
 				'Version'       => '$Revision$',
@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Post
 		else
 			db_ok = false
 		end
-
 
 		# Make sure we're rockin Priv and Incognito
 		session.core.use("priv") if not session.respond_to?("priv")

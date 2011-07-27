@@ -30,8 +30,8 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather Local and Domain Controller Account Password Hashes',
 				'Description'   => %q{
-						This will dump local accounts from the SAM Database and if the targets
-					host is a Domain Controller the Domain Account Database using the proper
+						This will dump local accounts from the SAM Database. If the target
+					host is a Domain Controller, it will dump the Domain Account Database using the proper
 					technique depending on privilege level, OS and role of the host.
 				},
 				'License'       => MSF_LICENSE,

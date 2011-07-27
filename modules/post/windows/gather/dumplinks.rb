@@ -25,14 +25,12 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather Dump Recent Files lnk Info',
 				'Description'   => %q{
-					"This module will parse .lnk files from user's Recent Documents
-					dumplinks is a modified port of Harlan Carvey's lslnk.pl Perl script.
-					dumplinks parses .lnk files from a user's Recent documents folder and
-					Microsoft Office's Recent documents folder, if present. Windows creates
-					these link files automatically for many common file types."
-					The .lnk files contain time stamps, file locations, including share"
-					names, volume serial #s and more. This info may help you target"
-					additional systems."},
+					The dumplinks module is a modified port of Harlan Carvey's lslnk.pl Perl script.
+					This module will parse .lnk files from a user's Recent Documents folder
+					and Microsoft Office's Recent Documents folder, if present.
+					Windows creates these link files automatically for many common file types.
+					The .lnk files contain time stamps, file locations, including share
+					names, volume serial numbers, and more. },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'davehull <dph_msf[at]trustedsignal.com>'],
 				'Version'       => '$Revision$',

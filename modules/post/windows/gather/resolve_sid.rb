@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
 
 		sid_type = info[:type]
 
-		if sid_type.eql? :invalid
+		if sid_type == :invalid
 			print_error 'Invalid SID provided'
 			return
 		end

@@ -20,10 +20,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather WS_FTP Saved Password Extraction',
 				'Description'   => %q{ This module extracts weakly encrypted saved FTP Passwords 
-					from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file. The 
-					passwords are saved in a weakly encrypted format which this module will 
-					decrypt.
-				},
+					from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file. },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',

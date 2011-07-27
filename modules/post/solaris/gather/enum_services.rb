@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Solaris Gather Configured Services',
-				'Description'   => %q{ Post Module to enumerate Services on a Solaris System},
+				'Description'   => %q{ Post Module to enumerate services on a Solaris System},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
 				'Version'       => '$Revision$',

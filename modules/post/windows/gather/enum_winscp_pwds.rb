@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 							searches for saved sessions in the
 							Windows Registry and the WinSCP.ini
 							file. It cannot decrypt passwords
-							if a master password is used},
+							if a master password is used.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Platform'      => [ 'windows' ],
