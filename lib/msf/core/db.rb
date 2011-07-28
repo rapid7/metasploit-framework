@@ -7,6 +7,7 @@ require 'rex/parser/mbsa_nokogiri'
 require 'rex/parser/acunetix_nokogiri'
 require 'rex/parser/appscan_nokogiri'
 require 'rex/parser/burp_session_nokogiri'
+require 'rex/parser/ci_nokogiri'
 
 # Legacy XML parsers -- these will be converted some day
 
@@ -2135,6 +2136,11 @@ class DBManager
 				when /AppScanInfo/ # Actually the second line
 					@import_filedata[:type] = "Appscan"
 					return :appscan_xml
+				when "entities"
+					if  line =~ /creator.*\x43\x4f\x52\x45\x20\x49\x4d\x50\x41\x43\x54/i
+						@import_filedata[:type] = "CI"
+						return :ci_xml
+					end
 				else
 					# Give up if we haven't hit the root tag in the first few lines
 					break if line_count > 10
@@ -4493,6 +4499,26 @@ class DBManager
 		end
 	end
 
+	def import_ci_xml(args={}, &block)
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		wspace = args[:wspace] || workspace
+		if Rex::Parser.nokogiri_loaded
+			parser = "Nokogiri v#{::Nokogiri::VERSION}"
+			noko_args = args.dup
+			noko_args[:blacklist] = bl
+			noko_args[:wspace] = wspace
+			if block
+				yield(:parser, parser)
+				import_ci_noko_stream(noko_args) {|type, data| yield type,data}
+			else
+				import_ci_noko_stream(noko_args)
+			end
+			return true
+		else # Sorry
+			raise DBImportError.new("Could not import due to missing Nokogiri parser. Try 'gem install nokogiri'.")
+		end
+	end
+
 	def import_acunetix_noko_stream(args={},&block)
 		if block
 			doc = Rex::Parser::AcunetixDocument.new(args,framework.db) {|type, data| yield type,data }
@@ -5010,6 +5036,17 @@ class DBManager
 			service = find_or_create_service(info)
 		end
 	end
+
+	def import_ci_noko_stream(args, &block)
+		if block
+			doc = Rex::Parser::CIDocument.new(args,framework.db) {|type, data| yield type,data }
+		else
+			doc = Rex::Parser::CI.new(args,self)
+		end
+		parser = ::Nokogiri::XML::SAX::Parser.new(doc)
+		parser.parse(args[:data])
+	end
+
 
 	def unserialize_object(xml_elem, allow_yaml = false)
 		return nil unless xml_elem
