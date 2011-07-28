@@ -1,6 +1,38 @@
 Armitage Changelog
 ==================
 
+07.28.11 - Armed for Metasploit 4
+--------
+- Armitage now sends use prive with use stdapi when it gets a command not
+  found error in Meterpreter.
+- Armitage now sends BLANK_PASSWORDS 0 with any Login menu items. This
+  should speed up the login by forcing Metasploit to not try a blank
+  user/password first.
+- Armitage no longer sends payload related variables to auxiliary modules.
+  (note to programmer: auxiliary modules don't use PAYLOADs :P~~~)
+- Module launch dialog for client-side attacks (fileformat and browser) 
+  now presents payload options to you. They're still configured to a 
+  reasonable default (and updated as the exploit target changes).
+- Client-side payload "guess" is now better about selecting an OS X specific
+  payload when appropriate.
+- Double-click the PAYLOAD option in the module launch dialog to open a 
+  chooser that lets you select a payload and choose whether to create a 
+  handler for it or not. This will configure the appropriate payload vars
+  for you. You're welcome to tweak them from there.
+- Simplified some of the logic in the file browser and added better error
+  reporting.
+- Added a visual hint to clickable option names in the module launcher.
+  Double-clicking these options will open a dialog to assist setting the value.
+- Added a visual hint to clickable preference types in the preferences window.
+  Double-clicking these types will open a dialog to assist setting the value.
+- Fixed a potential deadlock caused by launching modules while Armitage is
+  still initializing.
+- Added a preference to disable displaying the MSF ASCII banner when a new
+  console opens. This preference is set to show the banner by default.
+- Added a regexp to strip non-ascii chars from usernames collected with dump
+  hashes. The RPC daemon throws an exception when I try to report usernames
+  with these chars in them.
+
 23 Jul 11 - Change Log
 ---------
 - Ooops! My baaad. I broke db.creds in MSF. Someone else unbroke it. Now
