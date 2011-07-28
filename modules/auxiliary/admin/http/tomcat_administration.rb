@@ -35,7 +35,6 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(8180),
 				OptString.new('TOMCAT_USER', [ false, 'The username to authenticate as', '']),
 				OptString.new('TOMCAT_PASS', [ false, 'The password for the specified username', '']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 	end
 

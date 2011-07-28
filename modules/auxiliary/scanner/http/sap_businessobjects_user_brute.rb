@@ -38,8 +38,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8080),
 				OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-								'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 		register_autofilter_ports([ 8080 ])
 	end

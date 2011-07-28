@@ -70,8 +70,6 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_pass.txt") ]),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888, 9080, 19300 ])

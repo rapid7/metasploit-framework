@@ -21,7 +21,12 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'         => 'SAP Management Console Get Logfile',
 			'Version'      => '$Revision$',
-			'Description'  => %q{ This module simply attempts to download available logfiles and developer tracefiles through the SAP Management Console SOAP Interface. Please use the sap_manamgenet_console_listlogfiles extension to view a list of availble files. },
+			'Description'  => %q{
+				This module simply attempts to download available logfiles and
+				developer tracefiles through the SAP Management Console SOAP
+				Interface. Please use the sap_manamgenet_console_listlogfiles
+				extension to view a list of availble files.
+				},
 			'References'   =>
 				[
 					# General
@@ -37,8 +42,6 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
 				OptString.new('RFILE', [ true, 'The name of the file to download', 'sapstart.log']),
 				OptString.new('FILETYPE', [true, 'Specify LOGFILE or TRACEFILE', 'TRACEFILE']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-				'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 		deregister_options('RHOST')

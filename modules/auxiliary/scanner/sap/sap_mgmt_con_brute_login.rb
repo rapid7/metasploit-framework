@@ -22,7 +22,15 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'SAP Management Console Brute Force',
 			'Version'        => '$Revision$',
-			'Description'    => %q{ This module simply attempts to brute force the username | password for the SAP Management Console SOAP Interface. By setting the SAP SID value, a list of default SAP users can be tested without needing to set a USERNAME or USER_FILE value. The default usernames are stored in ./data/wordlists/sap_common.txt (the value of SAP SID is automatically inserted into the username to replce <SAPSID>). },
+			'Description'    => %q{
+				This module simply attempts to brute force the username |
+				password for the SAP Management Console SOAP Interface. By
+				setting the SAP SID value, a list of default SAP users can be
+				tested without needing to set a USERNAME or USER_FILE value.
+				The default usernames are stored in
+				./data/wordlists/sap_common.txt (the value of SAP SID is
+				automatically inserted into the username to replce <SAPSID>).
+				},
 			'References'     =>
 				[
 					# General
@@ -37,8 +45,6 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(50013),
 				OptString.new('SAP_SID', [false, 'Input SAP SID to attempt brute-forcing standard SAP accounts ', '']),
 				OptString.new('URI', [false, 'Path to the SAP Management Console ', '/']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-				'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 	end

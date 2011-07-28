@@ -15,6 +15,8 @@ module Http
 ###
 class Client
 
+	DefaultUserAgent = "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)"
+
 	#
 	# Creates a new client instance
 	#
@@ -29,7 +31,7 @@ class Client
 			'read_max_data'   => (1024*1024*1),
 			'vhost'           => self.hostname,
 			'version'         => '1.1',
-			'agent'           => "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+			'agent'           => DefaultUserAgent,
 			#
 			# Evasion options
 			#

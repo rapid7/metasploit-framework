@@ -37,8 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(6405),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 		register_autofilter_ports([ 6405 ])
 	end

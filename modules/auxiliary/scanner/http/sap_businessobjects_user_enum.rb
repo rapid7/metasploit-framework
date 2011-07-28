@@ -24,7 +24,12 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'		   => 'SAP BusinessObjects User Enumeration',
 			'Version'		=> '$Revision$',
-			'Description'	=> 'This module simply attempts to enumerate SAP BusinessObjects users.The dswsbobje interface is only used to verify valid	users for CmcApp. Therefore, any valid users that have been identified can be leveraged by logging into CmcApp.',
+			'Description'	=> %Q{
+				This module simply attempts to enumerate SAP BusinessObjects
+				users.The dswsbobje interface is only used to verify valid
+				users for CmcApp. Therefore, any valid users that have been
+				identified can be leveraged by logging into CmcApp.
+				},
 			'References'  =>
 				[
 					# General
@@ -38,8 +43,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8080),
 				OptString.new('URI', [false, 'Path to the SAP BusinessObjects Axis2', '/dswsbobje']),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 			], self.class)
 		register_autofilter_ports([ 8080 ])
 	end

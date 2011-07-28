@@ -47,7 +47,6 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(8080),
 				OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
-				OptString.new('UserAgent', [ false, "The HTTP User-Agent sent in the request", 'Mozilla/4.0 (compatible MSIE 6.0; Windows NT 5.1)' ]),
 				OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "unix_users.txt") ]),
 			], self.class)
