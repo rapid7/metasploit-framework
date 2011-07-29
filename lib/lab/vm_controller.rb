@@ -1,25 +1,25 @@
 ##
 ## $Id$
 ##
-## This is the main lab controller.
+## This is the main lab controller. Require this controller to get all 
+## lab functionality. 
 ##
 ##
 
 $:.unshift(File.expand_path(File.dirname(__FILE__)))
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'driver')))
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'controller')))
+$:.unshift(File.expand_path(File.join(File.dirname(__FILE__), 'modifier')))
 
 require 'find'
-require 'enumerator'
-require 'vm'
 require 'yaml'
-require 'workstation_controller'
-require 'workstation_vixr_controller'
-require 'remote_workstation_controller'
-require 'virtualbox_controller'
-require 'dynagen_controller'
-require 'remote_esx_controller'
-#require 'qemu_controller'
-#require 'qemudo_controller'
-#require 'amazon_controller'
+require 'enumerator'
+require 'fileutils'
+
+require 'vm'
+require 'controllers'
+require 'drivers'
+require 'modifiers'
 
 module Lab
 module Controllers
@@ -34,7 +34,8 @@ module Controllers
 		include Lab::Controllers::RemoteEsxController
 		#include Lab::Controllers::QemuController 
 		#include Lab::Controllers::QemudoController 
-		#include Lab::Controllers::AmazonController 
+		#include Lab::Controllers::AmazonController
+		#include Lab::Controllers::FogController
 
 
 		def initialize (labdef=nil)
@@ -65,6 +66,7 @@ module Controllers
 		end
 
 		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
+			
 			@vms << Vm.new( {	'vmid' => vmid, 
 						'driver' => type, 
 						'location' => location, 
@@ -132,8 +134,8 @@ module Controllers
 				vm_list =::Lab::Controllers::RemoteEsxController::dir_list(dir)
 			#elsif driver_type.downcase == "esxi_vixr"
 			#	vm_list =::Lab::Controllers::EsxiVixrController::dir_list(dir)
-			#elsif driver_type.downcase == "fog_amazon"	
-			#	vm_list = ::Lab::Controllers::FogAmazonController::dir_list(dir)
+			#elsif driver_type.downcase == "fog"
+			#	vm_list = ::Lab::Controllers::FogController::dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end

@@ -1,27 +1,23 @@
 require 'vm_driver'
 
 ##
-## $Id: remote_esx_driver.rb 12713 2011-05-25 07:30:22Z jcran $
+## $Id$
 ##
 
 # This driver was built against: 
 # VMware ESX Host Agent 4.1.0 build-348481
-
 
 module Lab
 module Drivers
 
 class RemoteEsxDriver < VmDriver
 
-	attr_accessor :location # among other things
-
-	def initialize(vmid, location, os=nil, tools=false, user=nil, host=nil, credentials=nil)
+	def initialize(vmid,os=nil, tools=false, user=nil, host=nil, credentials=nil)
 
 		unless user then raise ArgumentError, "Must provide a username" end
 		unless host then raise ArgumentError, "Must provide a hostname" end
 
-		@vmid = filter_command(vmid)
-		@location = filter_command(location)
+		@vmid = vmid
 		@user = filter_command(user)
 		@host = filter_command(host)
 		@credentials = credentials # individually filtered

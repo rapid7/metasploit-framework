@@ -100,21 +100,33 @@ class WorkstationDriver < VmDriver
 			# delete it on the guest
 			vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
 					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'"
-			#system_command(vmrunstr)
+			system_command(vmrunstr)
 
 			# delete it locally
 			local_delete_command = "rm #{local_tempfile_path}"
-			#system_command(local_delete_command)
+			system_command(local_delete_command)
 		else
 			# since we can't copy easily w/o tools, let's just run it directly :/
 			if @os == "linux"
+				
+				output_file = "/tmp/lab_command_output_#{rand(1000000)}"
+				
 				scp_to(local_tempfile_path, remote_tempfile_path)
-				ssh_exec(remote_run_command)
+				ssh_exec(remote_run_command + "> #{output_file}")
+				scp_from(output_file, output_file)
+				
+				ssh_exec("rm #{output_file}")
 				ssh_exec("rm #{remote_tempfile_path}")
+				
+				# Ghettohack!
+				string = File.open(output_file,"r").read
+				`rm #{output_file}`
+				
 			else
 				raise "zomgwtfbbqnotools"
 			end	
 		end
+	return string
 	end
 	
 	def copy_from(from, to)

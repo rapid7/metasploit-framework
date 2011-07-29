@@ -9,7 +9,6 @@
 # 	functionality.  
 #
 
-
 module Lab
 module Drivers
 class VmDriver
@@ -95,14 +94,14 @@ private
 		gem 'net-scp'
 		require 'net/scp'
 		
-		begin
+		#begin
 			# upload a file to a remote server
-			Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
-				scp.upload!(from,to)
-			end	
-		rescue Exception => e
-			return false
-		end
+		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+			scp.upload!(from,to)
+		end	
+		#rescue Exception => e
+		#	return false
+		#end
 	end
 	
 	def scp_from(from,to)
@@ -112,14 +111,14 @@ private
 		gem 'net-scp'
 		require 'net/scp'
 		
-		begin
-			# download a file from a remote server
-			Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
-				scp.download!(from,to)
-			end	
-		rescue Exception => e
-			return false
-		end
+		#begin
+		# download a file from a remote server
+		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+			scp.download!(from,to)
+		end	
+		#rescue Exception => e
+		#	return false
+		#end
 
 	end
 	
@@ -127,20 +126,20 @@ private
 		gem 'net-ssh'
 		require 'net/ssh'
 
-		begin		
-			Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
-				result = ssh.exec!(command)
-			end
-		rescue Exception => e
-			return false
+		#begin		
+		Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
+			result = ssh.exec!(command)
 		end
+		#rescue Exception => e
+		#	return false
+		#end
 
 	end
 
 	def filter_input(string)
 		return "" unless string
 				
-		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/)
+		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/)
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
@@ -150,7 +149,7 @@ private
 	def filter_command(string)
 		return "" unless string
 				
-		if !(string =~ /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
+		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
@@ -158,11 +157,11 @@ private
 	end
 	
 	def system_command(command)
-		begin
-			system(command)
-		rescue	Exception => e
-			return false			
-		end
+		#begin
+		system(command)
+		#rescue	Exception => e
+		#	return false
+		#	end
 	end
 end
 

@@ -16,10 +16,14 @@ class WorkstationVixrDriver < VmDriver
 
 	def initialize(vmid, location, os=nil, tools=false, credentials=nil)
 
-		begin 
+		# We have to treat this differently, as it's not in the same tree
+		begin
 			require 'vixr'
-		rescue
-			raise "Oops, no vixr installed. Consider using the regular workstation driver."
+		rescue LoadError
+			puts 	"WARNING: Library pro_vixr not found. To resolve this error, please\n" + 
+				"         install the vixr gem. Latest is available here:\n" +
+				"https://github.com/rhythmx/vixr ."
+			raise "Unable to create vixr driver"
 		end
 		
 		@vmid = filter_command(vmid)

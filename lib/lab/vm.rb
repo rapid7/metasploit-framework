@@ -2,16 +2,6 @@
 ## $Id$
 ##
 
-require 'workstation_driver'
-require 'workstation_vixr_driver'
-require 'remote_workstation_driver'
-require 'virtualbox_driver'
-require 'dynagen_driver'
-require 'remote_esx_driver'
-#require 'qemu_driver'
-#require 'qemudo_driver'
-#require 'amazon_driver'
-
 module Lab
 class Vm
 	
@@ -38,6 +28,7 @@ class Vm
 	##    credentials (of the form [ {'user'=>"user",'pass'=>"pass", 'admin' => false}, ... ])
 	##    os (currently only linux / windows)
 	##    arch (currently only 32 / 64
+	
 	def initialize(config = {})	
 
 		# Mandatory
@@ -53,9 +44,14 @@ class Vm
 		@tools = config['tools'] || false # don't filter this, not used in cmdlines
 		@os = config['os'] || nil				
 		@arch = config['arch']	|| nil	
-		 
 		@type = filter_input(config['type']) || "unspecified"
 		@credentials = config['credentials'] || []
+
+		# Load in a list of modifiers. These provide additional methods
+		# TODO - currently it is up to the user to verify that 
+		# modifiers are properly used with the correct VM image. If not, 
+		# the results are likely to be disasterous. 		
+		@modifiers = config['modifiers']
 	
 		# Optional for virtualbox
 		@location = filter_input(config['location'])
@@ -70,6 +66,7 @@ class Vm
 		#Only dynagen
 		@platform = config['platform']
 
+		# Process the correct driver
 		if @driver_type == "workstation"
 			@driver = Lab::Drivers::WorkstationDriver.new(@vmid, @location, @os, @tools, @credentials)
 		elsif @driver_type == "workstation_vixr"
@@ -81,16 +78,20 @@ class Vm
 		elsif @driver_type == "dynagen"
 			@driver = Lab::Drivers::DynagenDriver.new(@vmid, @location,@platform)	
 		elsif @driver_type == "remote_esx"
-			@driver = Lab::Drivers::RemoteEsxDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)
+			@driver = Lab::Drivers::RemoteEsxDriver.new(@vmid, @os, @tools, @user, @host, @credentials)
 		#elsif @driver_type == "qemu"
 		#	@driver = Lab::Drivers::QemuDriver.new	
 		#elsif @driver_type == "qemudo"
 		#	@driver = Lab::Drivers::QemudoDriver.new	
-		#elsif @driver_type == "amazon"
-		#	@driver = Lab::Drivers::AmazonDriver.new	
+		#elsif @driver_type == "fog"
+		#	@driver = Lab::Drivers::FogDriver.new	
 		else
 			raise "Unknown Driver Type"
 		end
+		
+		# Now handle the modifiers - for now, just eval'm
+ 		@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
+		
 	end
 	
 	def running?
