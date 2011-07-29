@@ -45,11 +45,9 @@ class Plugin::MSGRPC < Msf::Plugin
 		port = opts['ServerPort'] || DefaultPort
 		ssl  = (opts['SSL'] and opts['SSL'].to_s =~ /^[ty]/i) ? true : false
 		cert = opts['SSLCert']
-		ckey = opts['SSLKey']
 
 		user = opts['User'] || "msf"
 		pass = opts['Pass'] || ::Rex::Text.rand_text_alphanumeric(8)
-		type = opts['ServerType'] || "Basic"
 		uri  = opts['URI'] || "/api"
 
 		print_status("MSGRPC Service:  #{host}:#{port} #{ssl ? " (SSL)" : ""}")
@@ -57,13 +55,14 @@ class Plugin::MSGRPC < Msf::Plugin
 		print_status("MSGRPC Password: #{pass}")
 
 		self.server	= ::Msf::RPC::Service.new(framework, {
-			:host => opts['ServerHost'],
-			:port => opts['ServerPort'],
-			:ssl  => opts['SSL'],
-			:cert => opts['SSLCert'],
-			:uri  => opts['URI']
+			:host   => host,
+			:port   => port,
+			:ssl    => ssl,
+			:cert   => cert,
+			:uri    => uri,
+			:tokens => { }
 		})
-		
+
 		self.server.add_user(user, pass)
 
 		# If the run in foreground flag is not specified, then go ahead and fire
@@ -72,6 +71,7 @@ class Plugin::MSGRPC < Msf::Plugin
 			# Store a handle to the thread so we can kill it during
 			# cleanup when we get unloaded.
 			self.thread = Thread.new { run }
+			framework.threads.register(self.thread, "MetasploitRPCServer", true)
 		end
 	end
 
@@ -95,7 +95,10 @@ class Plugin::MSGRPC < Msf::Plugin
 	def run
 		# Start the actual service
 		self.server.start
-	
+
+		# Register
+		framework.threads.register(Thread.current, "MetasploitRPCServer", true)
+
 		# Wait for the service to complete
 		self.server.wait
 	end

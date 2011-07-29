@@ -3,7 +3,7 @@
 # $Id$
 #
 # This user interface listens on a port and provides clients that connect to
-# it with an XMLRPC interface to the Metasploit Framework.
+# it with an RPC interface to the Metasploit Framework.
 #
 # $Revision$
 #
@@ -24,9 +24,9 @@ arguments = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "Bind to this port instead of 55553"                   ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
-	"-t" => [ true,  "Server type, [Basic|Web]"                             ],
+	"-t" => [ true,  "Server type, [Basic|Web|Msg]"                         ],
 	"-u" => [ true,  "URI for Web server"                                   ],
-	"-S" => [ false, "Disable SSL on the XMLRPC socket"                     ],
+	"-S" => [ false, "Disable SSL on the RPC socket"                     ],
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
 	"-n" => [ false, "Disable database"                     ],
 	"-h" => [ false, "Help banner"                                          ])
@@ -77,7 +77,10 @@ end
 
 $0 = "msfrpcd"
 
-$stderr.puts "[*] XMLRPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
+rpctype = 'XML'
+rpctype = 'MSG' if opts['ServerType'].downcase == 'msg'
+
+$stderr.puts "[*] #{rpctype}RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
 
 $stderr.puts "[*] URI: #{opts['URI']}" if(opts['URI'])
 
@@ -88,9 +91,9 @@ require 'msf/ui'
 # Fork into the background if requested
 begin
 	if foreground
-		$stdout.puts "[*] XMLRPC ready at #{Time.now}."
+		$stdout.puts "[*] #{rpctype}RPC ready at #{Time.now}."
 	else
-		$stderr.puts "[*] XMLRPC backgrounding at #{Time.now}..."
+		$stderr.puts "[*] #{rpctype}RPC backgrounding at #{Time.now}..."
 		exit(0) if Process.fork()
 	end
 rescue ::NotImplementedError
@@ -104,7 +107,7 @@ $framework.db.sink.restart if RUBY_PLATFORM !~ /cygwin/ and not frameworkOpts['D
 
 # Run the plugin instance in the foreground.
 begin
-	$framework.plugins.load('xmlrpc', opts).run
+	$framework.plugins.load("#{rpctype.downcase}rpc", opts).run
 rescue ::Interrupt
 	$stderr.puts "[*] Shutting down"
 end

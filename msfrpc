@@ -24,14 +24,16 @@ arguments = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "Connect to the specified port instead of 55553"       ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
-	"-S" => [ false, "Disable SSL on the XMLRPC socket"                     ],
+	"-t" => [ true,  "Type of RPC daemon, [XML|Msg]"                        ],
+	"-S" => [ false, "Disable SSL on the RPC socket"                        ],
 	"-h" => [ false, "Help banner"                                          ]
 )
 
 opts = {
 	'User' => 'msf',
 	'SSL'  => true,
-	'ServerPort' => 55553
+	'ServerPort' => 55553,
+	'Type' => 'Xml'
 }
 
 # Parse command line arguments.
@@ -47,6 +49,8 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['User'] = val
 		when '-P'
 			opts['Pass'] = val
+		when '-t'
+			opts['Type'] = (val =~ /xml/i) ? 'XML' : 'Msg'
 		when "-h"
 			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
 			exit
@@ -68,8 +72,11 @@ end
 
 $0 = "msfrpc"
 
-
-require 'msf/core/rpc'
+if opts['Type'] == 'Msg'
+	require 'msf/core/rpc/v10/client'
+else
+	require 'msf/core/rpc/client'
+end
 require 'rex/ui'
 
 rpc = Msf::RPC::Client.new(
@@ -87,3 +94,4 @@ while(ARGV.shift)
 end
 
 Rex::Ui::Text::IrbShell.new(binding).run
+

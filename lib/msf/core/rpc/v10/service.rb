@@ -60,7 +60,10 @@ class Service
 			Rex::Proto::Http::Server,
 			self.srvport,
 			self.srvhost,
-			{}
+			self.options[:ssl],
+			self.options[:context],
+			self.options[:comm],
+			self.options[:cert]
 		)
 
 		self.service.add_resource(self.uri, {

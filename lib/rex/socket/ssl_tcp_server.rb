@@ -58,8 +58,7 @@ module Rex::Socket::SslTcpServer
 		begin
 			ssl = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
 
-
-			if not allow_nonblock?
+			if not allow_nonblock?(ssl)
 				ssl.accept
 			else
 				begin
@@ -160,8 +159,8 @@ module Rex::Socket::SslTcpServer
 	# API calls when they are available. This is still buggy on
 	# Linux/Mac OS X, but is required on Windows
 	#
-	def allow_nonblock?
-		avail = self.sock.respond_to?(:accept_nonblock)
+	def allow_nonblock?(sock=self.sock)
+		avail = sock.respond_to?(:accept_nonblock)
 		if avail and Rex::Compat.is_windows
 			return true
 		end
