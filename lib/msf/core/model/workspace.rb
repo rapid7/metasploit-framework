@@ -23,6 +23,44 @@ class Workspace < ActiveRecord::Base
 	has_many :cred_files, :dependent => :destroy
 	has_many :listeners, :dependent => :destroy
 
+	has_many :web_sites, :finder_sql =>
+		'SELECT DISTINCT web_sites.* '           +
+		'FROM hosts, services, web_sites '       +
+		'WHERE hosts.workspace_id = #{id} AND '  +
+			'services.host_id = hosts.id AND '   +
+			'web_sites.service_id = services.id'
+
+	has_many :web_pages, :finder_sql =>
+		'SELECT DISTINCT web_pages.* '                +
+		'FROM hosts, services, web_sites, web_pages ' +
+		'WHERE hosts.workspace_id = #{id} AND '       +
+			'services.host_id = hosts.id AND '        +
+			'web_sites.service_id = services.id AND ' +
+			'web_pages.web_site_id = web_sites.id'
+
+	has_many :web_forms, :finder_sql =>
+		'SELECT DISTINCT web_forms.* '                +
+		'FROM hosts, services, web_sites, web_forms ' +
+		'WHERE hosts.workspace_id = #{id} AND '       +
+			'services.host_id = hosts.id AND '        +
+			'web_sites.service_id = services.id AND ' +
+			'web_forms.web_site_id = web_sites.id'
+
+	has_many :unique_web_forms, :class_name => 'Msf::DBManager::WebForm', :finder_sql =>
+		'SELECT DISTINCT web_forms.web_site_id, web_forms.path, web_forms.method, web_forms.query ' +
+		'FROM hosts, services, web_sites, web_forms ' +
+		'WHERE hosts.workspace_id = #{id} AND '       +
+			'services.host_id = hosts.id AND '        +
+			'web_sites.service_id = services.id AND ' +
+			'web_forms.web_site_id = web_sites.id'
+
+	has_many :web_vulns, :finder_sql =>
+		'SELECT DISTINCT web_vulns.* '                +
+		'FROM hosts, services, web_sites, web_vulns ' +
+		'WHERE hosts.workspace_id = #{id} AND '       +
+			'services.host_id = hosts.id AND '        +
+			'web_sites.service_id = services.id AND ' +
+			'web_vulns.web_site_id = web_sites.id'
 
 	validates_uniqueness_of :name
 	validates_presence_of :name
@@ -67,29 +105,12 @@ class Workspace < ActiveRecord::Base
 		end
 	end
 
-	def web_sites
-		hosts.map{|host| host.web_sites}.flatten
-	end
-
-	def web_pages
-		web_sites.map{|w| w.web_pages}.flatten
-	end
-
-	def web_forms
-		web_sites.map{|w| w.web_forms}.flatten
-	end
-
-	def web_vulns
-		web_sites.map{|w| w.web_vulns}.flatten
-	end
-
 	def web_unique_forms(addrs=nil)
-		xhosts = addrs ? hosts.select{|host| addrs.include?(host.address) } : hosts
-		xhosts.map { |host|
-			host.web_sites.map{|site|
-				site.web_forms.find(:all, :select => 'DISTINCT web_site_id, path, method, query')
-			}
-		}.flatten
+		forms = unique_web_forms
+		if addrs
+			forms.reject!{|f| not addrs.include?( f.web_site.service.host.address ) }
+		end
+		forms
 	end
 
 end
