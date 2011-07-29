@@ -209,35 +209,26 @@ In swapper task - not syncing
 %clr
 ',
 '
-%clr                          ########                  #
-                      #################            #
-                   ######################         #
-                  #########################      #
-                ############################
-               ##############################
-               ###############################
-              ###############################
-              ##############################
-                              #    ########   #
-                 %red##%clr        %red###%clr        ####   ##
-                                      ###   ###
-                                    ####   ###
-               ####          ##########   ####
-               #######################   ####
-                 ####################   ####
-                  ##################  ####
-                    ############      ##
-                       ########        ###
-                      #########        #####
-                    ############      ######
-                   ########      #########
-                     #####       ########
-                       ###       #########
-                      ######    ############
-                     #######################
-                     #   #   ###  #   #   ##
-                     ########################
-                      ##     ##   ##     ##
+%clr
+%bluMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM%clr
+%bluMMMMMMMMMMM                MMMMMMMMMMMMM%clr
+%bluMMMN$                           vMMMMMMM%clr
+%bluMMMNl%clr  %bldMMMMM             MMMMM%clr  %bluJMMMMMMM%clr
+%bluMMMNl%clr  %bldMMMMMMMN       NMMMMMMM%clr  %bluJMMMMMMM%clr
+%bluMMMNl%clr  %bldMMMMMMMMMNmmmNMMMMMMMMM%clr  %bluJMMMMMMM%clr
+%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMMMMM%clr
+%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMMMMM%clr
+%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
+%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
+%bluMMMNI%clr  %bldMMMNM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
+%bluMMMNI%clr  %bldWMMMM   MMMMMMM   MMMM#%clr  %bluJMMMMMMM%clr
+%bluMMMMR%clr  %bld?MMNM             MMMMM%clr %blu.dMMMMMMM%clr
+%bluMMMMNm%clr %bld`?MMM             MMMM`%clr %bludMMMMMMMM%clr
+%bluMMMMMMN%clr  %bld?MM             MM?%clr  %bluNMMMMMNMMM%clr
+%bluMMMMMMMMNe%clr                 %bluJMMMMMNMMMMMM%clr
+%bluMMMMMMMMMMNm,%clr            %blueMMMMMNMMNMMMMM%clr
+%bluMMMMNNMNMMMMMNx%clr        %bluMMMMMMNMMNMMNMMMM%clr
+%bluMMMMMMMMNMMNMMMMm+..+MMNMMNMNMMNMMNMMMMM%clr
 %clr
 '
 		]
