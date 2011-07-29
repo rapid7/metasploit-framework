@@ -17,22 +17,22 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})
-			super( update_info( info,
-					'Name'          => 'Nimbuzz Instant Messenger Password Extractor',
-					'Description'   => %q{
-							This module extracts the account passwords saved by Nimbuzz Instant
-						Messenger in hex format.
-					},
-					'License'       => MSF_LICENSE,
-					'Author'        =>
-						[
-							'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
-							'SecurityXploded Team', #www.SecurityXploded.com
-						],
-					'Version'       => '$Revision$',
-					'Platform'      => [ 'windows' ],
-					'SessionTypes'  => [ 'meterpreter' ]
-			))
+		super( update_info( info,
+				'Name'          => 'Nimbuzz Instant Messenger Password Extractor',
+				'Description'   => %q{
+						This module extracts the account passwords saved by Nimbuzz Instant
+					Messenger in hex format.
+				},
+				'License'       => MSF_LICENSE,
+				'Author'        =>
+					[
+						'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
+						'SecurityXploded Team', #www.SecurityXploded.com
+					],
+				'Version'       => '$Revision$',
+				'Platform'      => [ 'windows' ],
+				'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
