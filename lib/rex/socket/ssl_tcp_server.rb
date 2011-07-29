@@ -158,11 +158,11 @@ module Rex::Socket::SslTcpServer
 	#
 	# This flag determines whether to use the non-blocking openssl
 	# API calls when they are available. This is still buggy on
-	# Mac OS X and will be disabled by default on that platform
+	# Linux/Mac OS X, but is required on Windows
 	#
 	def allow_nonblock?
 		avail = self.sock.respond_to?(:accept_nonblock)
-		if avail and not Rex::Compat.is_macosx
+		if avail and Rex::Compat.is_windows
 			return true
 		end
 		false
