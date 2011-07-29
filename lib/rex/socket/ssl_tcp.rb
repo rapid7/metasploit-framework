@@ -10,7 +10,7 @@ module Rex::Socket::SslTcp
 
 begin
 	@@loaded_openssl = false
-	
+
 	begin
 		require 'openssl'
 		@@loaded_openssl = true
@@ -62,64 +62,64 @@ begin
 			when 'SSL2'
 				version = :SSLv2
 			when 'SSL23'
-				version = :SSLv23				
+				version = :SSLv23
 			when 'TLS1'
 				version = :TLSv1
 			end
 		end
-		
+
 		# Build the SSL connection
 		self.sslctx  = OpenSSL::SSL::SSLContext.new(version)
-		
+
 		# Configure the SSL context
 		# TODO: Allow the user to specify the verify mode and callback
 		# Valid modes:
 		#  VERIFY_CLIENT_ONCE
-		#  VERIFY_FAIL_IF_NO_PEER_CERT 
+		#  VERIFY_FAIL_IF_NO_PEER_CERT
 		#  VERIFY_NONE
 		#  VERIFY_PEER
 		self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
 		self.sslctx.options = OpenSSL::SSL::OP_ALL
-		
+
 		# Set the verification callback
 		self.sslctx.verify_callback = Proc.new do |valid, store|
 			self.peer_verified = valid
 			true
 		end
-		
+
 		# Tie the context to a socket
 		self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)
 
 		# XXX - enabling this causes infinite recursion, so disable for now
 		# self.sslsock.sync_close = true
 
-				
+
 		# Force a negotiation timeout
 		begin
-		Timeout.timeout(params.timeout) do 	
-			if not self.sslsock.respond_to?(:connect_nonblock)
+		Timeout.timeout(params.timeout) do
+			if not allow_nonblock?
 				self.sslsock.connect
 			else
 				begin
 					self.sslsock.connect_nonblock
-				
+
 				# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
 				rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 						IO::select(nil, nil, nil, 0.10)
-						retry	
-				
-				# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable			
+						retry
+
+				# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
 				rescue ::Exception => e
 					if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
 						IO::select( [ self.sslsock ], nil, nil, 0.10 )
 						retry
 					end
-					
-					if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+
+					if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
 						IO::select( nil, [ self.sslsock ], nil, 0.10 )
 						retry
 					end
-					
+
 					raise e
 				end
 			end
@@ -140,7 +140,7 @@ begin
 	# Writes data over the SSL socket.
 	#
 	def write(buf, opts = {})
-		return sslsock.write(buf) if not self.sslsock.respond_to?(:write_nonblock)
+		return sslsock.write(buf) if not allow_nonblock?
 
 		total_sent   = 0
 		total_length = buf.length
@@ -162,7 +162,7 @@ begin
 
 		rescue ::IOError, ::Errno::EPIPE
 			return nil
-		
+
 		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 			# Sleep for a half a second, or until we can write again
@@ -171,24 +171,24 @@ begin
 			block_size = 1024
 			# Try to write the data again
 			retry
-		
-		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable	
+
+		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
 		rescue ::Exception => e
 			if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
 				IO::select( [ self.sslsock ], nil, nil, retry_time )
 				retry
 			end
-					
-			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+
+			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
 				IO::select( nil, [ self.sslsock ], nil, retry_time )
 				retry
 			end
-			
+
 			# Another form of SSL error, this is always fatal
 			if e.kind_of?(::OpenSSL::SSL::SSLError)
 				return nil
 			end
-			
+
 			# Bubble the event up to the caller otherwise
 			raise e
 		end
@@ -199,8 +199,8 @@ begin
 	#
 	# Reads data from the SSL socket.
 	#
-	def read(length = nil, opts = {})	
-		if not self.sslsock.respond_to?(:read_nonblock)
+	def read(length = nil, opts = {})
+		if not allow_nonblock?
 			length = 16384 unless length
 			begin
 				return sslsock.sysread(length)
@@ -209,21 +209,21 @@ begin
 			end
 			return
 		end
-		
+
 
 		begin
-			while true 
-				s = Rex::ThreadSafe.select( [ self.sslsock ], nil, nil, 0.10 )	
+			while true
+				s = Rex::ThreadSafe.select( [ self.sslsock ], nil, nil, 0.10 )
 				if( s == nil || s[0] == nil )
 					next
-				end						
-				return sslsock.read_nonblock( length ) 				
+				end
+				return sslsock.read_nonblock( length )
 			end
-			
+
 		rescue ::IOError, ::Errno::EPIPE
 			return nil
 
-		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno	
+		# Ruby 1.8.7 and 1.9.0/1.9.1 uses a standard Errno
 		rescue ::Errno::EAGAIN, ::Errno::EWOULDBLOCK
 			# Sleep for a tenth a second, or until we can read again
 			Rex::ThreadSafe.select( [ self.sslsock ], nil, nil, 0.10 )
@@ -231,15 +231,15 @@ begin
 			block_size = 1024
 			# Try to write the data again
 			retry
-		
+
 		# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
 		rescue ::Exception => e
 			if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
 				IO::select( [ self.sslsock ], nil, nil, 0.5 )
 				retry
 			end
-					
-			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+
+			if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
 				IO::select( nil, [ self.sslsock ], nil, 0.5 )
 				retry
 			end
@@ -248,13 +248,13 @@ begin
 			if e.kind_of?(::OpenSSL::SSL::SSLError)
 				return nil
 			end
-				
+
 			raise e
 		end
 
 	end
 
-	
+
 	#
 	# Closes the SSL socket.
 	#
@@ -263,35 +263,35 @@ begin
 		super
 	end
 
-	# 
+	#
 	# Ignore shutdown requests
 	#
 	def shutdown(how=0)
 		# Calling shutdown() on an SSL socket can lead to bad things
 		# Cause of http://metasploit.com/dev/trac/ticket/102
 	end
-	
+
 	#
 	# Access to peer cert
 	#
 	def peer_cert
 		sslsock.peer_cert if sslsock
 	end
-	
+
 	#
 	# Access to peer cert chain
 	#
 	def peer_cert_chain
 		sslsock.peer_cert_chain if sslsock
 	end
-	
+
 	#
 	# Access to the current cipher
 	#
 	def cipher
 		sslsock.cipher if sslsock
 	end
-	
+
 	#
 	# Prevent a sysread from the bare socket
 	#
@@ -305,7 +305,20 @@ begin
 	def syswrite(*args)
 		raise RuntimeError, "Invalid syswrite() call on SSL socket"
 	end
-	
+
+	#
+	# This flag determines whether to use the non-blocking openssl
+	# API calls when they are available. This is still buggy on
+	# Mac OS X and will be disabled by default on that platform
+	#
+	def allow_nonblock?
+		avail = self.sslsock.respond_to?(:connect_nonblock)
+		if avail and not Rex::Compat.is_macosx
+			return true
+		end
+		false
+	end
+
 	attr_reader :peer_verified # :nodoc:
 	attr_accessor :sslsock, :sslctx # :nodoc:
 
@@ -322,3 +335,4 @@ end
 	end
 
 end
+

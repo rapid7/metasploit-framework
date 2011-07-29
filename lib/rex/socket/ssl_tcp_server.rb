@@ -58,8 +58,8 @@ module Rex::Socket::SslTcpServer
 		begin
 			ssl = OpenSSL::SSL::SSLSocket.new(sock, self.sslctx)
 
-		
-			if not ssl.respond_to?(:accept_nonblock)	
+
+			if not allow_nonblock?
 				ssl.accept
 			else
 				begin
@@ -70,22 +70,22 @@ module Rex::Socket::SslTcpServer
 						IO::select(nil, nil, nil, 0.10)
 						retry
 
-				# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable			
+				# Ruby 1.9.2+ uses IO::WaitReadable/IO::WaitWritable
 				rescue ::Exception => e
 					if ::IO.const_defined?('WaitReadable') and e.kind_of?(::IO::WaitReadable)
 						IO::select( [ ssl ], nil, nil, 0.10 )
 						retry
 					end
-					
-					if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)						
+
+					if ::IO.const_defined?('WaitWritable') and e.kind_of?(::IO::WaitWritable)
 						IO::select( nil, [ ssl ], nil, 0.10 )
 						retry
 					end
-					
+
 					raise e
 				end
 			end
-			
+
 			sock.extend(Rex::Socket::SslTcp)
 			sock.sslsock = ssl
 			sock.sslctx  = self.sslctx
@@ -99,7 +99,7 @@ module Rex::Socket::SslTcpServer
 	end
 
 
-	# 
+	#
 	# Create a new ssl context.  If +ssl_cert+ is not given, generates a new
 	# key and a leaf certificate with random values.
 	#
@@ -153,6 +153,19 @@ module Rex::Socket::SslTcpServer
 		ctx.session_id_context = Rex::Text.rand_text(16)
 
 		return ctx
+	end
+
+	#
+	# This flag determines whether to use the non-blocking openssl
+	# API calls when they are available. This is still buggy on
+	# Mac OS X and will be disabled by default on that platform
+	#
+	def allow_nonblock?
+		avail = self.sock.respond_to?(:accept_nonblock)
+		if avail and not Rex::Compat.is_macosx
+			return true
+		end
+		false
 	end
 
 	attr_accessor :sslctx

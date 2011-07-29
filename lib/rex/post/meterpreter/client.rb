@@ -151,7 +151,8 @@ class Client
 		ctx = generate_ssl_context()
 		ssl = OpenSSL::SSL::SSLSocket.new(sock, ctx)
 
-		if not ssl.respond_to?(:accept_nonblock)
+		# Use non-blocking openssl calls when possible, but not on OS X
+		if Rex::Compat.is_macosx or not ssl.respond_to?(:accept_nonblock)
 			ssl.accept
 		else
 			begin
