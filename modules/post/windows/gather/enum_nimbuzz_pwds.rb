@@ -71,12 +71,12 @@ class Metasploit3 < Msf::Post
 
 		print_status("Storing data...")
 		path = store_loot(
-				'nimbuzz.user.creds',
-				'text/plain',
-				session,
-				creds,
-				'nimbuzz_user_creds.txt',
-				'Nimbuzz User Credentials'
+			'nimbuzz.user.creds',
+			'text/plain',
+			session,
+			creds,
+			'nimbuzz_user_creds.txt',
+			'Nimbuzz User Credentials'
 		)
 
 		print_status("Nimbuzz user credentials saved in: #{path}")
