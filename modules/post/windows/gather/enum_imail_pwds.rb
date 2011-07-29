@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
 			password << char.chr
 		end
 
-		print_status("Password '#{enc_password}' = #{password}") if datastore['VERBOSE']
+		print_good("Password '#{enc_password}' = #{password}") if datastore['VERBOSE']
 
 		return password
 	end
