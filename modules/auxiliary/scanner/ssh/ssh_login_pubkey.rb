@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 					user,
 					opt_hash
 				)
-			rescue Rex::ConnectionError
+			rescue Rex::ConnectionError, Rex::AddressInUse
 				return :connection_error
 			rescue Net::SSH::Disconnect, ::EOFError
 				return :connection_disconnect
