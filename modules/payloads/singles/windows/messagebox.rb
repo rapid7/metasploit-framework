@@ -28,6 +28,7 @@ module Metasploit3
 					'jduck'         # some ruby factoring
 				],
 			'License'       => MSF_LICENSE,
+			'Version'       => "$Revision$",
 			'Platform'      => 'win',
 			'Arch'          => ARCH_X86
 		))
