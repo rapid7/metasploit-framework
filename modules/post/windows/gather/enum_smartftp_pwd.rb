@@ -1,5 +1,5 @@
 ##
-# $Id:$
+# $Id$
 ##
 
 
@@ -21,17 +21,16 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather SmartFTP Saved Password Extraction',
-				'Description'   => %q{ This module finds saved login credentials
-							for the SmartFTP FTP client for windows.
-							It finds the saved passwords and decrypts
-							them.},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
-
+			'Name'          => 'Windows Gather SmartFTP Saved Password Extraction',
+			'Description'   => %q{ This module finds saved login credentials
+						for the SmartFTP FTP client for windows.
+						It finds the saved passwords and decrypts
+						them.},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
