@@ -312,7 +312,7 @@ begin
 	# Linux/Mac OS X, but is required on Windows
 	#
 	def allow_nonblock?
-		avail = self.sock.respond_to?(:accept_nonblock)
+		avail = self.sslsock.respond_to?(:accept_nonblock)
 		if avail and Rex::Compat.is_windows
 			return true
 		end
