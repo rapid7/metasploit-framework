@@ -88,7 +88,7 @@ module WindowsServices
 	# Manual or 4 for Disable, default Auto.
 	#
 	def service_create(name, display_name, executable_on_host,startup=2)
-		adv = client.railgun.get_dll('advapi32')
+		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(nil,nil,0x13)
 		if(manag["return"] != 0)
 			# SC_MANAGER_CREATE_SERVICE = 0x0002
@@ -115,7 +115,7 @@ module WindowsServices
 	# service is disabled.
 	#
 	def service_start(name)
-		adv = client.railgun.get_dll('advapi32')
+		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(nil,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
@@ -145,7 +145,7 @@ module WindowsServices
 	# stopped or disabled and 2 if the service can not be stopped.
 	#
 	def service_stop(name)
-		adv = client.railgun.get_dll('advapi32')
+		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(nil,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
@@ -176,7 +176,7 @@ module WindowsServices
 			basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 			if registry_enumkeys(basekey).index(name)
 				servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-				registry_delkey(servicekey)
+				registry_deletekey(servicekey)
 				return true
 			else
 				return false
