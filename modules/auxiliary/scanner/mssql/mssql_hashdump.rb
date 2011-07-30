@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
+		info = mssql_ping(2)
 		if (not mssql_login_datastore)
 			print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
 			return
