@@ -284,7 +284,10 @@ module Rex
 				info << @state[:service_fingerprint]["version"] if @state[:service_fingerprint]["version"]
 				port_hash[:info] = info.join(" ") if info[0]
 			end
-			@report_data[:ports] << port_hash
+			@report_data[:ports] << port_hash.clone
+			@state.delete :service_fingerprint
+			@state.delete :service
+			@report_data[:ports]
 		end
 
 		def actually_vulnerable(test)
