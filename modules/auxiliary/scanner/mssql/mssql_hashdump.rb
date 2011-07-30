@@ -37,11 +37,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		info = mssql_ping(2)
 		if (not mssql_login_datastore)
 			print_error("#{rhost}:#{rport} - Invalid SQL Server credentials")
 			return
 		end
+
+		instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
+		print_status("Instance Name: #{instancename.inspect}")
 
 		version_year = mssql_query(mssql_sql_info())[:rows][0][0].split('-')[0].slice(/\d\d\d\d/)
 		mssql_db_names = get_db_names()
@@ -56,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		mssql_hashes = mssql_hashdump(version_year)
-		report_other_data(mssql_schema,info,version_year)
+		report_other_data(mssql_schema,instancename,version_year)
 		unless mssql_hashes.nil?
 			report_hashes(mssql_hashes,version_year)
 		end
