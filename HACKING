@@ -14,7 +14,7 @@ adhere to the following style guidelines:
  - Try to keep your lines under 100 columns (assuming four-space tabs)
  - do; end instead of {} for a block
  - Always use str[0,1] instead of str[0]
-   (This avoids a known ruby 1.8/1.9 incompatability.)
+   (This avoids a known ruby 1.8/1.9 incompatibility.)
  - Method names should always be lower_case and words separated by "_"
  - Variable names should be lower case with words separated by "_"
  - Don't depend on any external gems or libraries without talking to
@@ -114,16 +114,18 @@ Submitting Your Code
 When you've finished fixing a bug, adding a feature, or creating a
 new module, build a patch by using the following command from the
 base installation directory: 
+
     svn diff > something-descriptive.patch
+
 Make sure you add any new files with 'svn add filename' first.  If
 you have just a single new file (such as when creating a new module)
 feel free to just send that file.  Once you've created the patch,
 there are a couple ways to submit it.  The first is to add it as an
 attachment to a ticket in our Redmine tracker
-(https://www.metasploit.com/redmine/projects/framework); you can
-create a ticket if one does not exist.  Secondly, you can email it
-framework@metasploit.com, which is the main mailinglist for
-framework users, or msfdev@metasploit.com which only goes to
+(http://dev.metasploit.com/redmine/projects/framework); you can
+create a ticket if one does not exist.  Alternatively, you can 
+email it framework@metasploit.com, which is the main mailing list 
+for framework users, or msfdev@metasploit.com which only goes to
 developers.
 
 
