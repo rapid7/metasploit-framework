@@ -16,6 +16,11 @@ Armitage Changelog
   environment once a connection is successful. Chances are it'll happen fast
   enough that you won't see it. 
 - View -> Activity Log now opens activity log folder on MacOS X.
+- Removed restriction that prevents user from deleting/clearing default 
+  workspace.
+- File chooser helper used to set values in the module launch dialog now 
+  escapes all backslashes in the path. This fixes a problem on Windows caused 
+  by the console stripping the unescaped backslashes.
 
 07.28.11 - Armed for Metasploit 4
 --------
