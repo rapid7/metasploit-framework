@@ -389,8 +389,6 @@ class Plugin::Nexpose < Msf::Plugin
 				end
 			end
 
-			# Check each of the specified ranges to see if it's a file, if so, 
-			# get all ranges / addresses from the file (keep going til it's finished).
 			possible_files = opt_ranges # don't allow DOS by circular reference
 			possible_files.each do |file|
 				if ::File.exist? file
