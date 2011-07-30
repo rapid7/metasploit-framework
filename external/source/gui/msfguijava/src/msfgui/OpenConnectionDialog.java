@@ -4,6 +4,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
 import java.io.File;
+import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
@@ -58,6 +59,21 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		fillDefault(root.get("port"),portField);
 		sslBox.setSelected(Boolean.TRUE.equals(root.get("ssl")));
 		disableDbButton.setSelected(Boolean.TRUE.equals(root.get("disableDb")));
+	}
+
+	private boolean checkCrypto(boolean ssl) throws MsfException {
+		try {
+			if (ssl)
+				javax.crypto.KeyGenerator.getInstance("RSA");
+		} catch (NoSuchAlgorithmException nsax) {
+			MsfguiApp.showMessage(this, "Error: this version of Java does not support the necessary " 
+					+ "\ncryptographic capabilities to connect to msfrpcd over SSL. Try running \n"
+					+ (System.getProperty("os.name").toLowerCase().contains("windows") ? "" : "java -jar ")
+					+ MsfguiApp.getMsfRoot() + "/data/gui/msfgui.jar \n"
+					+ "as your system version of Java may work.");
+			throw new MsfException("SSLcheck");
+		}
+		return ssl;
 	}
 
 	/** Sets the text of the given component if val is defined */
@@ -313,7 +329,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		char[] password = passwordField.getPassword();
 		String host = hostField.getText();
 		int port = Integer.parseInt(portField.getText());
-		boolean ssl = sslBox.isSelected();
+		boolean ssl = checkCrypto(sslBox.isSelected());
 		try {
 			rpcConn = new RpcConnection(username, password, host, port, ssl);
 		} catch (MsfException mex) {
@@ -351,7 +367,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		if(hostField.getText().length() > 0)
 			RpcConnection.defaultHost = hostField.getText();
 		RpcConnection.defaultPort  = Integer.parseInt(portField.getText());
-		RpcConnection.defaultSsl = sslBox.isSelected();
+		RpcConnection.defaultSsl = checkCrypto(sslBox.isSelected());
 		RpcConnection.disableDb = disableDbButton.isSelected();
 		//do the action. There's probably a "right" way to do  Oh well.
 		mainframe.getContext().getActionMap(mainframe).get("startRpc").actionPerformed(new java.awt.event.ActionEvent(startNewButton,1234,""));
