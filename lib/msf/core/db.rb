@@ -2060,8 +2060,9 @@ class DBManager
 			return :libpcap
 		end
 
-		# Text string kinds of data.
-		if data and data.to_s.strip.size.zero?
+		# This is a text string, lets make sure its treated as binary
+		data = data.unpack("C*").pack("C*")
+		if data and data.to_s.strip.length == 0
 			raise DBImportError.new("The data provided to the import function was empty")
 		end
 
