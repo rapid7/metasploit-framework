@@ -296,7 +296,10 @@ module Rex
 			if @state[:service_fingerprint]
 				port_hash[:info] = "#{@state[:service_fingerprint]}"
 			end
-			@report_data[:ports] << port_hash
+			@report_data[:ports] << port_hash.clone
+			@state.delete :service_fingerprint
+			@state.delete :service
+			@report_data[:ports]
 		end
 
 		def collect_service_fingerprint_description
