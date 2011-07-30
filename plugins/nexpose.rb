@@ -389,8 +389,20 @@ class Plugin::Nexpose < Msf::Plugin
 				end
 			end
 
-			opt_ranges = opt_ranges.join(' ')
+			# Check each of the specified ranges to see if it's a file, if so, 
+			# get all ranges / addresses from the file (keep going til it's finished).
+			possible_files = opt_ranges # don't allow DOS by circular reference
+			possible_files.each do |file|
+				if ::File.exist? file
+					print_status "Parsing ranges from #{file}"
+					range_list = ::File.open(file,"r").read.split("\n")
+					range_list.each{ |subrange| opt_ranges << subrange}
+					opt_ranges.delete(file)
+				end
+			end
 
+			opt_ranges = opt_ranges.join(' ')
+			
 			if(opt_ranges.strip.empty?)
 				print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
 				print_line(opts.usage)
