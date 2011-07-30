@@ -85,7 +85,10 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			String host = info.get("host").toString();
 			int port = Integer.parseInt(info.get("port").toString());
 			boolean ssl = Boolean.parseBoolean(info.get("ssl").toString());
-			return new RpcConnection(username, password.toCharArray(), host, port, ssl);
+			RpcConnection rpc = new RpcConnection(username, password.toCharArray(), host, port, ssl);
+			if(javax.swing.JOptionPane.showConfirmDialog(null, "Connect to last remembered rpcd?") == javax.swing.JOptionPane.YES_OPTION)
+				return rpc;
+			rpc.execute("auth.logout");
 		} catch (MsfException mex) {
 			if(mex.getMessage().toLowerCase().contains("authentication error"))
 				mainframe.statusAnimationLabel.setText("Error authenticating; msfrpcd is running "
