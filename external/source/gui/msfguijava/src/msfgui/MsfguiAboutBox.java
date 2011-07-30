@@ -9,12 +9,16 @@ import org.jdesktop.application.Action;
 public class MsfguiAboutBox extends javax.swing.JDialog {
 
 	public static void show(java.awt.Frame parent, RpcConnection rpcConn){
-		if(rpcConn != null){
-			java.util.Map version = (java.util.Map)rpcConn.execute("core.version");
-			MsfguiApp.getApplication().show(new MsfguiAboutBox(parent, version.get("version").toString(),
-					version.get("ruby").toString(),
-					System.getProperty("java.version")+" "+System.getProperty("java.vendor")));
+		java.util.Map version = new java.util.HashMap();
+		if(rpcConn != null) {
+			version = (java.util.Map)rpcConn.execute("core.version");
+		} else {
+			version.put("version", "4");
+			version.put("ruby", "");
 		}
+		MsfguiApp.getApplication().show(new MsfguiAboutBox(parent, version.get("version").toString(),
+				version.get("ruby").toString(),
+				System.getProperty("java.version")+" "+System.getProperty("java.vendor")));
 	}
 	public MsfguiAboutBox(java.awt.Frame parent, String msfVersion, String rubyVersion, String javaVersion) {
 		super(parent);

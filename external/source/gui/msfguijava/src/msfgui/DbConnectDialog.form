@@ -27,12 +27,13 @@
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
+                      <Component id="defaultsButton" min="-2" max="-2" attributes="0"/>
+                      <EmptySpace pref="208" max="32767" attributes="0"/>
                       <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="connectButton" min="-2" max="-2" attributes="0"/>
                   </Group>
-                  <Component id="jLabel7" alignment="0" min="-2" max="-2" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Group type="102" alignment="1" attributes="0">
                       <Group type="103" groupAlignment="1" attributes="0">
                           <Component id="jLabel6" min="-2" max="-2" attributes="0"/>
                           <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
@@ -59,8 +60,6 @@
     <DimensionLayout dim="1">
       <Group type="103" groupAlignment="0" attributes="0">
           <Group type="102" alignment="1" attributes="0">
-              <EmptySpace max="-2" attributes="0"/>
-              <Component id="jLabel7" min="-2" max="-2" attributes="0"/>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="typeSpinner" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -91,10 +90,11 @@
                   <Component id="portField" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
-              <EmptySpace max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="connectButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="cancelButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="defaultsButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -198,11 +198,14 @@
         <Property name="name" type="java.lang.String" value="jLabel6" noResource="true"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JLabel" name="jLabel7">
+    <Component class="javax.swing.JButton" name="defaultsButton">
       <Properties>
-        <Property name="text" type="java.lang.String" resourceKey="jLabel7.text"/>
-        <Property name="name" type="java.lang.String" value="jLabel7" noResource="true"/>
+        <Property name="text" type="java.lang.String" resourceKey="defaultsButton.text"/>
+        <Property name="name" type="java.lang.String" value="defaultsButton" noResource="true"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="defaultsButtonActionPerformed"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

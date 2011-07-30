@@ -49,39 +49,10 @@ public class DbConnectDialog extends OptionsDialog {
 		props = MsfguiApp.getPropertiesNode();
 		try{
 			//If we don't have saved creds, look for them
-			if(!props.containsKey("dbusername")){
-				Scanner s;
-				try{
-					s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
-				} catch (FileNotFoundException fnfox){
-					s = new Scanner(new File(MsfguiApp.getMsfRoot()+"/../config/database.yml"));
-				}
-				String token = s.next();
-				while(!token.equals("production:"))
-					token = s.next();
-				while(s.hasNext()){
-					if(token.equals("adapter:"))
-						props.put("dbdriver", s.next());
-					else if(token.equals("database:"))
-						props.put("dbdatabase", s.next());
-					else if(token.equals("username:"))
-						props.put("dbusername", s.next());
-					else if(token.equals("password:"))
-						props.put("dbpassword", s.next().replace("'", ""));
-					else if(token.equals("host:"))
-						props.put("dbhost", s.next());
-					else if(token.equals("port:"))
-						props.put("dbport", s.next());
-					token = s.next();
-				}
-			}
-			hostField.setText(props.get("dbhost").toString());
-			portField.setText(props.get("dbport").toString());
-			usernameField.setText(props.get("dbusername").toString());
-			passwordField.setText(props.get("dbpassword").toString());
-			dbNameField.setText(props.get("dbdatabase").toString());
+			if(!props.containsKey("dbusername"))
+				reloadDefaults();
+			showDefaults();
 		}catch(NullPointerException nex){
-		}catch(FileNotFoundException fedex){
 		}catch(MsfException mex){// No msf root?
 			mex.printStackTrace();
 		}
@@ -115,7 +86,7 @@ public class DbConnectDialog extends OptionsDialog {
         portField = new javax.swing.JTextField();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        defaultsButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
@@ -173,8 +144,13 @@ public class DbConnectDialog extends OptionsDialog {
         jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
         jLabel6.setName("jLabel6"); // NOI18N
 
-        jLabel7.setText(resourceMap.getString("jLabel7.text")); // NOI18N
-        jLabel7.setName("jLabel7"); // NOI18N
+        defaultsButton.setText(resourceMap.getString("defaultsButton.text")); // NOI18N
+        defaultsButton.setName("defaultsButton"); // NOI18N
+        defaultsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                defaultsButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -184,11 +160,12 @@ public class DbConnectDialog extends OptionsDialog {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(defaultsButton)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 208, Short.MAX_VALUE)
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(connectButton))
-                    .addComponent(jLabel7)
-                    .addGroup(layout.createSequentialGroup()
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabel6)
                             .addComponent(jLabel5)
@@ -210,8 +187,6 @@ public class DbConnectDialog extends OptionsDialog {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel7)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(typeSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel1))
@@ -235,10 +210,11 @@ public class DbConnectDialog extends OptionsDialog {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel6))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectButton)
-                    .addComponent(cancelButton))
+                    .addComponent(cancelButton)
+                    .addComponent(defaultsButton))
                 .addContainerGap())
         );
 
@@ -251,6 +227,47 @@ public class DbConnectDialog extends OptionsDialog {
 		if (val.length() > 0)
 			opts.put(key, val);
 		props.put("db"+key, val);
+	}
+
+	/** Loads database information from the database.yml file in the default install. */
+	private void reloadDefaults(){
+		try{
+			Scanner s;
+			try{
+				s = new Scanner(new File(System.getenv("BASE")+"config/database.yml"));
+			} catch (FileNotFoundException fnfox){
+				s = new Scanner(new File(MsfguiApp.getMsfRoot()+"/../config/database.yml"));
+			}
+			String token = s.next();
+			while(!token.equals("production:"))
+				token = s.next();
+			while(s.hasNext()){
+				if(token.equals("adapter:"))
+					props.put("dbdriver", s.next());
+				else if(token.equals("database:"))
+					props.put("dbdatabase", s.next());
+				else if(token.equals("username:"))
+					props.put("dbusername", s.next());
+				else if(token.equals("password:"))
+					props.put("dbpassword", s.next().replace("'", ""));
+				else if(token.equals("host:"))
+					props.put("dbhost", s.next());
+				else if(token.equals("port:"))
+					props.put("dbport", s.next());
+				token = s.next();
+			}
+		} catch (FileNotFoundException fnfox){
+		}
+		showDefaults();
+	}
+
+	/** Takes the values stored in the proproot and display it */
+	private void showDefaults() {
+		hostField.setText(props.get("dbhost").toString());
+		portField.setText(props.get("dbport").toString());
+		usernameField.setText(props.get("dbusername").toString());
+		passwordField.setText(props.get("dbpassword").toString());
+		dbNameField.setText(props.get("dbdatabase").toString());
 	}
 
 	private void connectButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectButtonActionPerformed
@@ -281,10 +298,15 @@ public class DbConnectDialog extends OptionsDialog {
 		setVisible(false);
 	}//GEN-LAST:event_cancelButtonActionPerformed
 
+	private void defaultsButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_defaultsButtonActionPerformed
+		reloadDefaults();
+	}//GEN-LAST:event_defaultsButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton cancelButton;
     private javax.swing.JButton connectButton;
     private javax.swing.JTextField dbNameField;
+    private javax.swing.JButton defaultsButton;
     private javax.swing.JTextField hostField;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -292,7 +314,6 @@ public class DbConnectDialog extends OptionsDialog {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
     private javax.swing.JTextField passwordField;
     private javax.swing.JTextField portField;
     private javax.swing.JSpinner typeSpinner;

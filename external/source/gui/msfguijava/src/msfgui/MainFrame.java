@@ -42,11 +42,19 @@ public class MainFrame extends FrameView {
 	private String clickedJob;
 	public Map[] selectedSessions;
 	private SearchWindow searchWin;
+	private javax.swing.JTable eventsTable;
+	private javax.swing.JScrollPane eventsPane;
 
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
 		MsfFrame.setLnF();
 		initComponents();
+		eventsPane = new javax.swing.JScrollPane();
+		eventsTable = new MsfTable(new String [] {
+				"Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
+			});
+		eventsTable.setName("eventsTable"); // NOI18N
+		eventsPane.setViewportView(eventsTable);
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
 
@@ -425,10 +433,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					setMessage("Querying database...");
 					//First try to connect to the database
 					DbConnectDialog.tryConnect(getFrame(), rpcConn);
-					reloadDb();
+					reloadDb(true);
 					if(MainFrame.this.closeConsoleMenu.getItemCount() == 0 && !tabbedPane.isEnabledAt(3)){
 						registerConsole( (Map)rpcConn.execute("console.create"), false, "");
-						reloadDb();
+						reloadDb(true);
 					}
 					setProgress(0.95f);
 					databaseMenu.setEnabled(true);
@@ -479,10 +487,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         vulnsPane = new javax.swing.JScrollPane();
         vulnsTable = new MsfTable(new String [] {
             "Port", "Proto", "Time", "Host", "Name", "Refs"
-        });
-        eventsPane = new javax.swing.JScrollPane();
-        eventsTable = new MsfTable(new String [] {
-            "Host", "Created", "Updated", "Name", "Critical", "Username", "Info"
         });
         notesPane = new javax.swing.JScrollPane();
         notesTable = new MsfTable(new String [] {
@@ -637,13 +641,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         vulnsPane.setViewportView(vulnsTable);
 
         tabbedPane.addTab(resourceMap.getString("vulnsPane.TabConstraints.tabTitle"), vulnsPane); // NOI18N
-
-        eventsPane.setName("eventsPane"); // NOI18N
-
-        eventsTable.setName("eventsTable"); // NOI18N
-        eventsPane.setViewportView(eventsTable);
-
-        tabbedPane.addTab(resourceMap.getString("eventsPane.TabConstraints.tabTitle"), eventsPane); // NOI18N
 
         notesPane.setName("notesPane"); // NOI18N
 
@@ -945,6 +942,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         consoleMenu.setEnabled(false);
         consoleMenu.setName("consoleMenu"); // NOI18N
 
+        newConsoleItem.setMnemonic('N');
         newConsoleItem.setText(resourceMap.getString("newConsoleItem.text")); // NOI18N
         newConsoleItem.setName("newConsoleItem"); // NOI18N
         newConsoleItem.addActionListener(new java.awt.event.ActionListener() {
@@ -954,14 +952,17 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         });
         consoleMenu.add(newConsoleItem);
 
+        existingConsoleMenu.setMnemonic('O');
         existingConsoleMenu.setText(resourceMap.getString("existingConsoleMenu.text")); // NOI18N
         existingConsoleMenu.setName("existingConsoleMenu"); // NOI18N
         consoleMenu.add(existingConsoleMenu);
 
+        closeConsoleMenu.setMnemonic('C');
         closeConsoleMenu.setText(resourceMap.getString("closeConsoleMenu.text")); // NOI18N
         closeConsoleMenu.setName("closeConsoleMenu"); // NOI18N
         consoleMenu.add(closeConsoleMenu);
 
+        refreshConsolesItem.setMnemonic('R');
         refreshConsolesItem.setText(resourceMap.getString("refreshConsolesItem.text")); // NOI18N
         refreshConsolesItem.setName("refreshConsolesItem"); // NOI18N
         refreshConsolesItem.addActionListener(new java.awt.event.ActionListener() {
@@ -998,6 +999,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         });
         databaseMenu.add(disconnectItem);
 
+        refreshItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F5, 0));
         refreshItem.setMnemonic('R');
         refreshItem.setText(resourceMap.getString("refreshItem.text")); // NOI18N
         refreshItem.setName("refreshItem"); // NOI18N
@@ -1172,6 +1174,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
         helpMenu.add(onlineHelpMenu);
 
         aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
+        aboutMenuItem.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F1, 0));
         aboutMenuItem.setName("aboutMenuItem"); // NOI18N
         helpMenu.add(aboutMenuItem);
 
@@ -1281,14 +1284,14 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		if(DbConnectDialog.connect(getFrame(), rpcConn))
 			new SwingWorker(){
 				protected Object doInBackground() throws Exception {
-					reloadDb();
+					reloadDb(true);
 					return null;
 				}
 			}.execute();
 	}//GEN-LAST:event_connectItemActionPerformed
 
 	/** Refreshes the database tables. */
-	private void reloadDb() {
+	private void reloadDb(boolean all) {
 		try { //First try to reset workspace to chosen workspace
 			if(MsfguiApp.getPropertiesNode().containsKey("workspace"))
 				rpcConn.execute("db.set_workspace", MsfguiApp.getPropertiesNode().get("workspace"));
@@ -1298,17 +1301,19 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		}
 		try { //Now load data out of current workspace
 			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
-			reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
-					new String[]{"host","created_at","updated_at","name","critical","username","info"});
-			reAdd(lootsTable,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
-					new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
+			if(DraggableTabbedPane.isVisible(eventsTable))
+				reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
+						new String[]{"host","created_at","updated_at","name","critical","username","info"});
+			if(all || DraggableTabbedPane.isVisible(lootsTable))
+				reAdd(lootsTable,(List) ((Map)rpcConn.execute("db.loots",MsfguiApp.workspace)).get("loots"),
+						new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
 			reAddQuery(hostsTable,"hosts",new String[]{"created_at","address","address6","mac","name","state","os_name",
-							"os_flavor","os_sp","os_lang","updated_at","purpose","info"});
-			reAddQuery(clientsTable,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"});
-			reAddQuery(servicesTable,  "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"});
-			reAddQuery(vulnsTable,"vulns",new String[]{"port","proto","time","host","name","refs"});
-			reAddQuery(notesTable,"notes",new String[]{"time", "host", "service", "type", "data"});
-			reAddQuery(credsTable,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"});
+							"os_flavor","os_sp","os_lang","updated_at","purpose","info"}, all);
+			reAddQuery(clientsTable,"clients",new String[]{"host","ua_string","ua_name","ua_ver","created_at","updated_at"}, all);
+			reAddQuery(servicesTable,  "services", new String[]{"host","created_at","updated_at","port","proto","state","name","info"}, all);
+			reAddQuery(vulnsTable,"vulns",new String[]{"port","proto","time","host","name","refs"}, all);
+			reAddQuery(notesTable,"notes",new String[]{"time", "host", "service", "type", "data"}, all);
+			reAddQuery(credsTable,"creds",new String[]{"host", "time", "port", "proto", "sname", "type", "user", "pass", "active"}, all);
 		} catch (MsfException mex) {
 			if(!mex.getMessage().equals("database not loaded"))
 				mex.printStackTrace();
@@ -1317,7 +1322,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 
 	private void refreshItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_refreshItemActionPerformed
-		reloadDb();
+		reloadDb(false);
 	}//GEN-LAST:event_refreshItemActionPerformed
 
 	private void importItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_importItemActionPerformed
@@ -1415,7 +1420,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private String[] tableShortNames = new String[]{"","",};
 	private void tableDelCheck(KeyEvent evt, String name, String[] colNames){
 		if(evt.getKeyCode() == KeyEvent.VK_F5)
-			reloadDb();
+			reloadDb(false);
 		if(evt.getKeyCode() != KeyEvent.VK_DELETE)
 			return;
 		JTable tab = (JTable)evt.getSource();
@@ -1429,7 +1434,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				MsfguiApp.showMessage(getFrame(), mex);
 			}
 		}//delete then readd
-		reAddQuery(tab,name+"s",colNames);
+		reAddQuery(tab,name+"s",colNames, true);
 	}
 	private void hostsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_hostsTableKeyReleased
 		tableDelCheck(evt,"host",new String[]{"created_at","address","address6","mac","name","state","os_name",
@@ -1449,7 +1454,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}//GEN-LAST:event_notesTableKeyReleased
 
 	private void lootsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_lootsTableKeyReleased
-		reAddQuery(lootsTable,"loots",new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"});
+		reAddQuery(lootsTable,"loots",new String[]{"host","service","ltype","ctype","data","created_at","updated_at","name","info"}, true);
 	}//GEN-LAST:event_lootsTableKeyReleased
 
 	private void clientsTableKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_clientsTableKeyReleased
@@ -1469,7 +1474,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			MsfguiApp.workspace = selected.toString();
 			rpcConn.execute("db.set_workspace", MsfguiApp.workspace);
 			MsfguiApp.getPropertiesNode().put("workspace", MsfguiApp.workspace);
-			reloadDb();
+			reloadDb(true);
 		} catch (MsfException mex) {
 			MsfguiApp.showMessage(getFrame(), mex);
 		}
@@ -1482,7 +1487,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 				rpcConn.execute("db.add_workspace",name);
 			MsfguiApp.workspace = name;
 			rpcConn.execute("db.set_workspace", name);
-			reloadDb();
+			reloadDb(true);
 		} catch (MsfException mex) {
 			MsfguiApp.showMessage(getFrame(), mex);
 		}
@@ -1501,7 +1506,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			rpcConn.execute("db.del_workspace", selected.toString());
 			if(MsfguiApp.workspace.equals(selected.toString())){
 				MsfguiApp.workspace = "default";
-				reloadDb();
+				reloadDb(true);
 			}
 		} catch (MsfException mex) {
 			MsfguiApp.showMessage(getFrame(), mex);
@@ -1537,6 +1542,11 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}//GEN-LAST:event_vulnsViewItemActionPerformed
 
 	private void eventsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsViewItemActionPerformed
+		if(eventsPane.getParent() == null)
+			tabbedPane.addTab("Events", eventsPane);
+		if(eventsTable.getRowCount() == 0)
+			reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
+					new String[]{"host","created_at","updated_at","name","critical","username","info"});
 		DraggableTabbedPane.show(eventsPane);
 	}//GEN-LAST:event_eventsViewItemActionPerformed
 
@@ -1884,8 +1894,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private javax.swing.JMenuItem dbTrackerItem;
     private javax.swing.JMenuItem delWorkspaceItem;
     private javax.swing.JMenuItem disconnectItem;
-    private javax.swing.JScrollPane eventsPane;
-    private javax.swing.JTable eventsTable;
     private javax.swing.JMenuItem eventsViewItem;
     private javax.swing.JMenu existingConsoleMenu;
     private javax.swing.JMenu exploitsMenu;
@@ -1952,7 +1960,9 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private JDialog aboutBox;
 
 	/** Clear a table's contents, reenabling the tab, and replace with contents of data returned from a db call */
-	private void reAddQuery(JTable table, String call, String[] cols) {
+	private void reAddQuery(JTable table, String call, String[] cols, boolean force) {
+		if(!force && !DraggableTabbedPane.isVisible(table))
+			return; //Don't re-add if not visible
 		try {
 			HashMap arg = new HashMap();
 			arg.put("workspace", MsfguiApp.workspace);

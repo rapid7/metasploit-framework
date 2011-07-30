@@ -226,33 +226,6 @@
                 </Component>
               </SubComponents>
             </Container>
-            <Container class="javax.swing.JScrollPane" name="eventsPane">
-              <Properties>
-                <Property name="name" type="java.lang.String" value="eventsPane" noResource="true"/>
-              </Properties>
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-              <Constraints>
-                <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-                  <JTabbedPaneConstraints tabName="Events">
-                    <Property name="tabTitle" type="java.lang.String" resourceKey="eventsPane.TabConstraints.tabTitle"/>
-                  </JTabbedPaneConstraints>
-                </Constraint>
-              </Constraints>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTable" name="eventsTable">
-                  <Properties>
-                    <Property name="name" type="java.lang.String" value="eventsTable" noResource="true"/>
-                  </Properties>
-                  <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;&#x9;&#x9;&quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Critical&quot;, &quot;Username&quot;, &quot;Info&quot;&#xa;&#x9;})"/>
-                  </AuxValues>
-                </Component>
-              </SubComponents>
-            </Container>
             <Container class="javax.swing.JScrollPane" name="notesPane">
               <Properties>
                 <Property name="name" type="java.lang.String" value="notesPane" noResource="true"/>
@@ -652,6 +625,7 @@
           <SubComponents>
             <MenuItem class="javax.swing.JMenuItem" name="newConsoleItem">
               <Properties>
+                <Property name="mnemonic" type="int" value="78"/>
                 <Property name="text" type="java.lang.String" resourceKey="newConsoleItem.text"/>
                 <Property name="name" type="java.lang.String" value="newConsoleItem" noResource="true"/>
               </Properties>
@@ -661,18 +635,21 @@
             </MenuItem>
             <Menu class="javax.swing.JMenu" name="existingConsoleMenu">
               <Properties>
+                <Property name="mnemonic" type="int" value="79"/>
                 <Property name="text" type="java.lang.String" resourceKey="existingConsoleMenu.text"/>
                 <Property name="name" type="java.lang.String" value="existingConsoleMenu" noResource="true"/>
               </Properties>
             </Menu>
             <Menu class="javax.swing.JMenu" name="closeConsoleMenu">
               <Properties>
+                <Property name="mnemonic" type="int" value="67"/>
                 <Property name="text" type="java.lang.String" resourceKey="closeConsoleMenu.text"/>
                 <Property name="name" type="java.lang.String" value="closeConsoleMenu" noResource="true"/>
               </Properties>
             </Menu>
             <MenuItem class="javax.swing.JMenuItem" name="refreshConsolesItem">
               <Properties>
+                <Property name="mnemonic" type="int" value="82"/>
                 <Property name="text" type="java.lang.String" resourceKey="refreshConsolesItem.text"/>
                 <Property name="name" type="java.lang.String" value="refreshConsolesItem" noResource="true"/>
               </Properties>
@@ -712,6 +689,9 @@
             </MenuItem>
             <MenuItem class="javax.swing.JMenuItem" name="refreshItem">
               <Properties>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="F5"/>
+                </Property>
                 <Property name="mnemonic" type="int" value="82"/>
                 <Property name="text" type="java.lang.String" resourceKey="refreshItem.text"/>
                 <Property name="name" type="java.lang.String" value="refreshItem" noResource="true"/>
@@ -892,7 +872,10 @@
             <MenuItem class="javax.swing.JMenuItem" name="aboutMenuItem">
               <Properties>
                 <Property name="action" type="javax.swing.Action" editor="org.netbeans.modules.swingapp.ActionEditor">
-                  <action class="msfgui.MsfguiJDesktopView" id="showAboutBox" methodName="showAboutBox"/>
+                  <action class="msfgui.MainFrame" id="showAboutBox" methodName="showAboutBox"/>
+                </Property>
+                <Property name="accelerator" type="javax.swing.KeyStroke" editor="org.netbeans.modules.form.editors.KeyStrokeEditor">
+                  <KeyStroke key="F1"/>
                 </Property>
                 <Property name="name" type="java.lang.String" value="aboutMenuItem" noResource="true"/>
               </Properties>

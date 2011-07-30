@@ -127,6 +127,18 @@ public class DraggableTabbedPane extends JTabbedPane{
 	 * Finds the parent tab of the component given in c, and makes it visible.
 	 * @param c  The component whose tab is to be made visible
 	 */
+	public static boolean isVisible(Component c){
+		Component subParent = c, par;
+		for(par = subParent.getParent(); !(par instanceof Window); par = par.getParent())
+			if(par == null || !par.isVisible())
+				return false;
+		return true;
+	}
+
+	/**
+	 * Finds the parent tab of the component given in c, and makes it visible.
+	 * @param c  The component whose tab is to be made visible
+	 */
 	public static void show(Component c){
 		//Find containing tab pane
 		Component subParent = c, par;
