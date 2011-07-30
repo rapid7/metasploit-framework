@@ -1,6 +1,22 @@
 Armitage Changelog
 ==================
 
+07.30.11 - Paying down some engineering debt.
+--------
+- Loot viewer no longer displays non-text files. If you try to "view" a 
+  binary loot, it will the folder containing it.
+- Improved UI responsiveness by making sure all communication with Metasploit
+  happens in some thread other than the UI thread. This will prevent latency
+  from bogging the UI down and making it feel locked up. Armitage will also
+  feel a lot faster for many actions.
+- The code that creates a console, executes a command, and calls a callback
+  now uses a much tighter sleeping schedule (10ms vs 500ms). This greatly
+  improves Armitage responsiveness.
+- Armitage connect progress dialog now shows progress setting up the Armitage
+  environment once a connection is successful. Chances are it'll happen fast
+  enough that you won't see it. 
+- View -> Activity Log now opens activity log folder on MacOS X.
+
 07.28.11 - Armed for Metasploit 4
 --------
 - Armitage now sends use prive with use stdapi when it gets a command not
