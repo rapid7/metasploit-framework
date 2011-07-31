@@ -61,6 +61,7 @@ class Metasploit3 < Msf::Post
 			var_names << registry_enumvals("HKEY_CURRENT_USER\\Environment")
 			var_names << registry_enumvals("HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment")
 			output = []
+			var_names.delete(nil)
 			var_names.flatten.uniq.sort.each do |v|
 				# Emulate the output of set and env, e.g. VAR=VALUE
 				output << "#{v}=#{session.fs.file.expand_path("\%#{v}\%")}"
