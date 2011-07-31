@@ -119,18 +119,19 @@ class Metasploit3 < Msf::Post
 			byte_1 = (byte_1 <= 57) ? byte_1 - 48 : byte_1 - 55
 			byte_1 *= 16
 
-			byte_2 = enc_password[i+1]
+			byte_2 = enc_password[i+1,1].unpack("C")[0]
 			byte_2 = (byte_2 <= 57) ? byte_2 - 48 : byte_2 - 55
 
 			char = byte_1 + byte_2
 
 			counter = 0 if username.length <= counter
 
-			if username[counter] > 54 and username[counter] < 90
-				username[counter] += 32
+			username_byte = username[counter, 1].unpack("C")[0]
+			if username_byte > 54 and username_byte < 90
+				username_byte += 32
 			end
 
-			char -= username[counter]
+			char -= username_byte
 			counter += 1
 			password << char.chr
 		end
