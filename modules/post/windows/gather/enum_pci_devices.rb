@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Post
 
 		keys.each do |key|
 			devices = registry_enumkeys(key)
+			next if devices.nil? or devices.empty?
 
 			devices.each do |device|
 				next if device.nil?
