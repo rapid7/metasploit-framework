@@ -89,9 +89,9 @@ class Vm
 			raise "Unknown Driver Type"
 		end
 		
-		# Now handle the modifiers - for now, just eval'm
- 		@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
-		
+		if @modifiers	
+ 			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
+		end
 	end
 	
 	def running?
