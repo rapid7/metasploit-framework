@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
 
 			begin
 				subkeys = registry_enumkeys("HKU\\#{k}\\Software\\DownloadManager\\Passwords\\")
-				if subkeys.empty? or subkeys.nil?
+				if subkeys.nil? or subkeys.empty?
 					print_status ("IDM not installed for this user.")
 					return
 				end
@@ -101,3 +101,4 @@ def xor(ciphertext)
 end
 
 end
+
