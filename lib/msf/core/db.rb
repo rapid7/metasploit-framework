@@ -282,7 +282,9 @@ class DBManager
 
 		opts.each { |k,v|
 			if (host.attribute_names.include?(k.to_s))
-				host[k] = v unless host.attribute_locked?(k.to_s)
+				unless host.attribute_locked?(k.to_s)
+					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
+				end
 			else
 				dlog("Unknown attribute for Host: #{k}")
 			end
