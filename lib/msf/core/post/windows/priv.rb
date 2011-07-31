@@ -10,7 +10,8 @@ module Priv
 	include ::Msf::Post::Windows::Accounts
 	# Returns true if user is admin and false if not.
 	def is_admin?
-		return session.railgun.shell32.IsUserAnAdmin()["return"]
+		# Assume true if the OS doesn't expose this (Windows 2000)
+		session.railgun.shell32.IsUserAnAdmin()["return"] rescue true
 	end
 
 	# Returns true if running as Local System
@@ -27,7 +28,7 @@ module Priv
 	# Returns true if UAC is enabled
 	#
 	# Returns false if the session is running as system, if uac is disabled or
-	# if running on a system that does not have UAC 
+	# if running on a system that does not have UAC
 	#
 	def is_uac_enabled?
 		uac = false
@@ -55,3 +56,4 @@ end
 end
 end
 end
+
