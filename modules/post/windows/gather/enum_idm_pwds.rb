@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Internet Download Manager (IDM) Password Extractor',
+				'Name'          => 'Windows Gather Internet Download Manager (IDM) Password Extractor',
 				'Description'   => %q{
 						This module recovers the saved premium download account passwords from
 					Internet Download Manager (IDM). These passwords are stored in an encoded
