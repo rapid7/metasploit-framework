@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Nimbuzz Instant Messenger Password Extractor',
+				'Name'          => 'Windows Gather Nimbuzz Instant Messenger Password Extractor',
 				'Description'   => %q{
 						This module extracts the account passwords saved by Nimbuzz Instant
 					Messenger in hex format.

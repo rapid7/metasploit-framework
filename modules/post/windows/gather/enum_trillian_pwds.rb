@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name' => 'Trillian Password Extractor',
+			'Name' => 'Windows Gather Trillian Password Extractor',
 			'Description' => %q{
 				This module extracts account password from Trillian & Trillian Astra
 				v4.x-5.x instant messenger.

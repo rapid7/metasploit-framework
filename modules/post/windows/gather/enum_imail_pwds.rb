@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => "IPSwitch iMail User Data Enumeration",
+			'Name'           => "Windows Gather IPSwitch iMail User Data Enumeration",
 			'Description'    => %q{
 					This module will collect iMail user data such as the username, domain,
 				full name, e-mail, and the decoded password.  Please note if IMAILUSER is
