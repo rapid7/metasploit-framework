@@ -162,6 +162,9 @@ class RangeWalker
 	# given RangeWalker 
 	#
 	def include_range?(range_walker)
+		return false if ((not @ranges) or @ranges.empty?)
+		return false if not range_walker.ranges
+
 		range_walker.ranges.all? do |start, stop|
 			ranges.any? do |self_start, self_stop|
 				r = (self_start..self_stop)
