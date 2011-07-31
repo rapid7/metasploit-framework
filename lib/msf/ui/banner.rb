@@ -210,25 +210,25 @@ In swapper task - not syncing
 ',
 '
 %clr
-%bluMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM%clr
-%bluMMMMMMMMMMM                MMMMMMMMMMMMM%clr
-%bluMMMN$                           vMMMMMMM%clr
-%bluMMMNl%clr  %bldMMMMM             MMMMM%clr  %bluJMMMMMMM%clr
-%bluMMMNl%clr  %bldMMMMMMMN       NMMMMMMM%clr  %bluJMMMMMMM%clr
-%bluMMMNl%clr  %bldMMMMMMMMMNmmmNMMMMMMMMM%clr  %bluJMMMMMMM%clr
-%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMMMMM%clr
-%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMMMMM%clr
-%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
-%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
-%bluMMMNI%clr  %bldMMMNM   MMMMMMM   MMMMM%clr  %blujMMMMMMM%clr
-%bluMMMNI%clr  %bldWMMMM   MMMMMMM   MMMM#%clr  %bluJMMMMMMM%clr
-%bluMMMMR%clr  %bld?MMNM             MMMMM%clr %blu.dMMMMMMM%clr
-%bluMMMMNm%clr %bld`?MMM             MMMM`%clr %bludMMMMMMMM%clr
-%bluMMMMMMN%clr  %bld?MM             MM?%clr  %bluNMMMMMNMMM%clr
-%bluMMMMMMMMNe%clr                 %bluJMMMMMNMMMMMM%clr
-%bluMMMMMMMMMMNm,%clr            %blueMMMMMNMMNMMMMM%clr
-%bluMMMMNNMNMMMMMNx%clr        %bluMMMMMMNMMNMMNMMMM%clr
-%bluMMMMMMMMNMMNMMMMm+..+MMNMMNMNMMNMMNMMMMM%clr
+%bluMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMMM%clr
+%bluMMMMMMMMMMM                MMMMMMMMMM%clr
+%bluMMMN$                           vMMMM%clr
+%bluMMMNl%clr  %bldMMMMM             MMMMM%clr  %bluJMMMM%clr
+%bluMMMNl%clr  %bldMMMMMMMN       NMMMMMMM%clr  %bluJMMMM%clr
+%bluMMMNl%clr  %bldMMMMMMMMMNmmmNMMMMMMMMM%clr  %bluJMMMM%clr
+%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMM%clr
+%bluMMMNI%clr  %bldMMMMMMMMMMMMMMMMMMMMMMM%clr  %blujMMMM%clr
+%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMM%clr
+%bluMMMNI%clr  %bldMMMMM   MMMMMMM   MMMMM%clr  %blujMMMM%clr
+%bluMMMNI%clr  %bldMMMNM   MMMMMMM   MMMMM%clr  %blujMMMM%clr
+%bluMMMNI%clr  %bldWMMMM   MMMMMMM   MMMM#%clr  %bluJMMMM%clr
+%bluMMMMR%clr  %bld?MMNM             MMMMM%clr %blu.dMMMM%clr
+%bluMMMMNm%clr %bld`?MMM             MMMM`%clr %bludMMMMM%clr
+%bluMMMMMMN%clr  %bld?MM             MM?%clr  %bluNMMMMMN%clr
+%bluMMMMMMMMNe%clr                 %bluJMMMMMNMMM%clr
+%bluMMMMMMMMMMNm,%clr            %blueMMMMMNMMNMM%clr
+%bluMMMMNNMNMMMMMNx%clr        %bluMMMMMMNMMNMMNM%clr
+%bluMMMMMMMMNMMNMMMMm+..+MMNMMNMNMMNMMNMM%clr
 %clr
 ',
 '
