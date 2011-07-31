@@ -1,6 +1,11 @@
 Armitage Changelog
 ==================
 
+07.31.11
+--------
+- Fixed bug preventing Meterpreter -> Access -> Hashdump from noting all hashes
+  into the credentials table.
+
 07.30.11 - Paying down some engineering debt.
 --------
 - Loot viewer no longer displays non-text files. If you try to "view" a 
