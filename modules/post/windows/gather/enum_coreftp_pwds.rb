@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 			print_status("Looking at Key #{hive['HKU']}")
 			begin
 				subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
-				if subkeys.empty? or subkeys.nil?
+				if subkeys.nil? or subkeys.empty?
 					print_status ("CoreFTP not installed for this user.")
 					return
 				end
