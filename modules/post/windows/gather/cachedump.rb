@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info(info,
-			'Name'         => 'Microsoft Windows Credential Cache Dump',
+			'Name'         => 'Windows Gather Credential Cache Dump',
 			'Description'  => %q{
 				This module uses the registry to extract the stored domain hashes that have been
 				cached as a result of a GPO setting. The default setting on Windows is to store
