@@ -627,6 +627,8 @@ class DBManager
 		host = get_host(:workspace => wspace, :host => addr)
 		client = host.clients.find_or_initialize_by_ua_string(opts[:ua_string])
 
+		opts[:ua_string] = opts[:ua_string].to_s
+
 		campaign = opts.delete(:campaign)
 		if campaign
 			case campaign
