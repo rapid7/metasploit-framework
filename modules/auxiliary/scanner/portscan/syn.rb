@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 		p.ip_saddr = shost
 		p.ip_daddr = dhost
 		p.tcp_sport = sport
-		n.l4.ack = 0
+		p.tcp_flags.ack = 0
 		p.tcp_flags.syn = 1
 		p.tcp_dport = dport
 		p.tcp_win = 3072
