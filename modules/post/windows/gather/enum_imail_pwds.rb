@@ -115,7 +115,7 @@ class Metasploit3 < Msf::Post
 
 		#Start decoding, what's up gold $$
 		0.step(enc_password.length-1, 2) do |i|
-			byte_1 = enc_password[i]
+			byte_1 = enc_password[i,1].unpack("C")[0]
 			byte_1 = (byte_1 <= 57) ? byte_1 - 48 : byte_1 - 55
 			byte_1 *= 16
 
