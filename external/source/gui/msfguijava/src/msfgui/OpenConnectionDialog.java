@@ -7,6 +7,7 @@ import java.io.File;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**
@@ -64,14 +65,15 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 	private boolean checkCrypto(boolean ssl) throws MsfException {
 		try {
 			if (ssl)
-				javax.crypto.KeyGenerator.getInstance("RSA");
+				javax.crypto.KeyGenerator.getInstance("SunTlsRsaPremasterSecret");
 		} catch (NoSuchAlgorithmException nsax) {
-			MsfguiApp.showMessage(this, "Error: this version of Java does not support the necessary " 
+			int res = JOptionPane.showConfirmDialog(this, "Error: this version of Java may not support the necessary "
 					+ "\ncryptographic capabilities to connect to msfrpcd over SSL. Try running \n"
 					+ (System.getProperty("os.name").toLowerCase().contains("windows") ? "" : "java -jar ")
 					+ MsfguiApp.getMsfRoot() + "/data/gui/msfgui.jar \n"
-					+ "as your system version of Java may work.");
-			throw new MsfException("SSLcheck");
+					+ "as your system version of Java may work.\n\nContinue anyway?");
+			if(res != JOptionPane.YES_OPTION)
+				throw new MsfException("SSLcheck", nsax);
 		}
 		return ssl;
 	}
