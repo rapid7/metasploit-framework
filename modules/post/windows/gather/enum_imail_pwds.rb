@@ -55,8 +55,10 @@ class Metasploit3 < Msf::Post
 		users_subkey = []
 		if imail_domain.empty?
 			domains_key = registry_enumkeys("#{base}\\domains")
-			domains_key.each do |domain_key|
-				users_subkey << "#{base}\\domains\\#{domain_key}\\Users"
+			if not domains_key.nil?
+				domains_key.each do |domain_key|
+					users_subkey << "#{base}\\domains\\#{domain_key}\\Users"
+				end
 			end
 		else
 			users_subkey << "#{base}\\domains\\#{imail_domain}\\Users"
