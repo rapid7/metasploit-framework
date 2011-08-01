@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 #
-# $Id: module_license.rb 12882 2011-06-07 01:25:12Z egypt $
+# $Id$
 #
 # This script generates module changelogs
 #
-# $Revision: 12882 $
+# $Revision$
 #
 
 msfbase = File.symlink?(__FILE__) ? File.readlink(__FILE__) : __FILE__
