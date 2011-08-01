@@ -375,7 +375,7 @@ end
 
 case opts[:format]
 when /ruby|rb|perl|pl|c|js_le|raw/i
-	$stdout.puts Msf::Simple::Buffer.transform(payload_raw, opts[:format])
+	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
 when /asp/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
 	$stdout.puts asp
@@ -391,7 +391,7 @@ when /java/i
 	end
 	
 	if exe
-		$stdout.puts exe
+		$stdout.write exe
 	else
 		print_error("Could not generate payload format")
 	end
@@ -406,7 +406,7 @@ when /elf/i
 		print_error("This format does not support that architecture")
 		exit
 	end
-	$stdout.puts elf
+	$stdout.write elf
 when /dll/i
 	if opts[:arch] == "x86"
 		dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)
@@ -414,9 +414,9 @@ when /dll/i
 		dll = Msf::Util::EXE.to_win64pe_dll($framework, payload_raw)
 	end
 
-	$stdout.puts dll
+	$stdout.write dll
 when /exe/i
-	$stdout.puts exe
+	$stdout.write exe
 when /exe-small/i
 when /vba/i
 	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
@@ -433,7 +433,7 @@ when /war/i
 		exe = Msf::Util::EXE.to_jsp_war(exe)
 	end
 	
-	$stdout.puts exe
+	$stdout.write exe
 else
 	print_error("Unsupported format")
 	exit
