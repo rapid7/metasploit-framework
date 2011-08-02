@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::AuthBrute
-	
+
 	def initialize
 		super(
 			'Name'        => 'SNMP Community Scanner',
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 				File.join(Msf::Config.install_root, "data", "wordlists", "snmp_default_pass.txt")
 			])
 		], self.class)
-		
+
 		deregister_options('USERNAME', 'USER_FILE', 'USERPASS_FILE')
 	end
 
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 
 					if (idx % 10 == 0)
-						while (r = udp_sock.recvfrom(65535, 0.01) and r[1])
+						while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
 							parse_reply(r)
 						end
 					end
@@ -100,12 +100,12 @@ class Metasploit3 < Msf::Auxiliary
 			while (r = udp_sock.recvfrom(65535, 3) and r[1])
 				parse_reply(r)
 			end
-			
+
 
 			if @found.keys.length > 0
 				print_status("Validating scan results from #{@found.keys.length} hosts...")
 			end
-						
+
 			# Review all successful communities and determine write access
 			@found.keys.sort.each do |host|
 				fake_comm  = Rex::Text.rand_text_alphanumeric(8)
@@ -115,11 +115,11 @@ class Metasploit3 < Msf::Auxiliary
 				comms_rw   = []
 				finished   = false
 				versions = ["1", "2"]
-				
+
 				versions.each do |version|
 				comms_todo = @found[host].keys.sort
 				comms_todo.unshift(fake_comm)
-				
+
 				comms_todo.each do |comm|
 					begin
 						sval = nil
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 						resp = snmp.get("sysName.0")
 						resp.each_varbind { |var| sval = var.value }
 						next if not sval
-						
+
 						svar = ::SNMP::VarBind.new("1.3.6.1.2.1.1.5.0", ::SNMP::OctetString.new(sval))
 						resp = snmp.set(svar)
 
@@ -141,34 +141,34 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						else
 							comms_ro << comm
-							print_status("Host #{host} provides READ-ONLY access with community '#{comm}'")	
+							print_status("Host #{host} provides READ-ONLY access with community '#{comm}'")
 							if comm == fake_comm
 								anycomm_ro = true
 								finished   = true
 								break
-							end													
+							end
 						end
-						
+
 						# Used to flag whether this version was compatible
 						finished = true
-					
+
 					rescue ::SNMP::UnsupportedPduTag, ::SNMP::InvalidPduTag, ::SNMP::ParseError, ::SNMP::InvalidErrorStatus, ::SNMP::InvalidTrapVarbind, ::SNMP::InvalidGenericTrap, ::SNMP::BER::OutOfData, ::SNMP::BER::InvalidLength, ::SNMP::BER::InvalidTag, ::SNMP::BER::InvalidObjectId, ::SNMP::MIB::ModuleNotLoadedError, ::SNMP::UnsupportedValueTag
 						next
-		
+
 					rescue ::SNMP::UnsupportedVersion
 						break
 					rescue ::SNMP::RequestTimeout
 						next
-					end				
+					end
 				end
-				
+
 				break if finished
 				end
-				
+
 				# Report on the results
 				comms_ro = ["anything"] if anycomm_ro
 				comms_rw = ["anything"] if anycomm_rw
-				
+
 				comms_rw.each do |comm|
 					report_auth_info(
 						:host   => host,
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Auxiliary
 			:Retries => 2,
 			:Transport => SNMP::RexUDPTransport,
 			:Socket => socket
-		)	
+		)
 	end
 
 	#
