@@ -311,7 +311,17 @@ class ClientCore < Extension
 	#
 	def shutdown
 		request  = Packet.create_request('core_shutdown')
-		self.client.send_packet_wait_response(request, 10)
+
+		# If this is a standard TCP session, send and return
+		if not client.passive_service
+			self.client.send_packet(request)
+		else
+		# If this is a HTTP/HTTPS session we need to wait a few seconds
+		# otherwise the session may not receive the command before we
+		# kill the handler. This could be improved by the server side
+		# sending a reply to shutdown first.
+			self.client.send_packet_wait_response(request, 10)
+		end
 		true
 	end
 
