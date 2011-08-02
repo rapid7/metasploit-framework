@@ -111,7 +111,10 @@ class Metasploit3 < Msf::Post
 		return users
 	end
 
-	def decode_password(username, enc_password)
+	def decode_password(username='', enc_password='')
+		#No point trying to decode if there's no username or password
+		return "" if username.empty? or enc_password.empty?
+
 		counter = 0
 		password = ''
 
