@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Windows PCI Hardware Enumeration',
+			'Name'           => 'Windows Gather PCI Hardware Enumeration',
 			'Description'    => %q{ Enumerate PCI hardware information from the registry },
 			'License'        => MSF_LICENSE,
 			'Version'        => "$Revision$",
