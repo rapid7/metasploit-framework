@@ -18,24 +18,24 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Internet Download Manager (IDM) Password Extractor',
-				'Description'   => %q{
-						This module recovers the saved premium download account passwords from
-					Internet Download Manager (IDM). These passwords are stored in an encoded
-					format in the registry. This module traverses through these registry entries
-					and decodes them. Thanks to the template code of thelightcosine's CoreFTP
-					password module.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        =>
-					[
-						'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
-						'SecurityXploded Team <contact[at]securityxploded.com>'
-					],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Internet Download Manager (IDM) Password Extractor',
+			'Description'   => %q{
+					This module recovers the saved premium download account passwords from
+				Internet Download Manager (IDM). These passwords are stored in an encoded
+				format in the registry. This module traverses through these registry entries
+				and decodes them. Thanks to the template code of thelightcosine's CoreFTP
+				password module.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        =>
+				[
+					'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
+					'SecurityXploded Team <contact[at]securityxploded.com>'
+				],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
@@ -91,14 +91,14 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-def xor(ciphertext)
-	pass = ciphertext.unpack("C*")
-	key=15
-	for i in 0 .. pass.length-1 do
-	pass[i] ^= key
+	def xor(ciphertext)
+		pass = ciphertext.unpack("C*")
+		key=15
+		for i in 0 .. pass.length-1 do
+		pass[i] ^= key
+		end
+		return pass.pack("C*")
 	end
-	return pass.pack("C*")
-end
 
 end
 
