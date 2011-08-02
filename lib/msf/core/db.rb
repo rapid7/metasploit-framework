@@ -280,6 +280,16 @@ class DBManager
 			host = addr
 		end
 
+		# Truncate the info field at the maximum field length
+		if opts[:info]
+			opts[:info] = opts[:info][0,65535]
+		end
+
+		# Truncate the name field at the maximum field length
+		if opts[:name]
+			opts[:name] = opts[:name][0,255]
+		end
+
 		opts.each { |k,v|
 			if (host.attribute_names.include?(k.to_s))
 				unless host.attribute_locked?(k.to_s)
@@ -482,6 +492,11 @@ class DBManager
 			raise ArgumentError.new("Missing option :session or :host")
 		end
 		ret = {}
+
+		# Truncate the session data if necessary
+		if sess_data[:desc]
+			sess_data[:desc] = sess_data[:desc][0,255]
+		end
 
 		s = Msf::DBManager::Session.new(sess_data)
 		s.save!
@@ -1082,6 +1097,14 @@ class DBManager
 			host = get_host(:workspace => wspace, :address => addr)
 		end
 =end
+
+		# Truncate the info field at the maximum field length
+		if info
+			info = info[0,65535]
+		end
+
+		# Truncate the name field at the maximum field length
+		name = name[0,255]
 
 		if info and name !~ /^NEXPOSE-/
 			vuln = host.vulns.find_or_initialize_by_name_and_info(name, info, :include => :refs)
