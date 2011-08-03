@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Post
 		aes.padding = 0
 		aes.decrypt
 		aes.key = "hdfzpysvpzimorhk"
-		password = aes.update(cipher) + aes.final
+		password = (aes.update(cipher) + aes.final).gsub(/\x00/,'')
 		return password
 	end
 end
