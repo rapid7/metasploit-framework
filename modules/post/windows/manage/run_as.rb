@@ -24,8 +24,8 @@ class Metasploit3 < Msf::Post
 				This module will login with the specified username/password and execute the
 				supplied command as a hidden process. Output is not returned by default, by setting 
 				CMDOUT to false output will be redirected to a temp file and read back in to 
-				display.By setting SETPASS to true, it will reset the users password and then
-				execute the command.
+				display.By setting advanced option SETPASS to true, it will reset the users
+				password and then execute the command.
 				},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision$',
@@ -35,11 +35,15 @@ class Metasploit3 < Msf::Post
 		))
 		register_options(
 			[
-		OptString.new('USER', [true, 'Username to reset/login with' ]),
-		OptString.new('PASS', [true, 'Password to use' ]),
-		OptString.new('CMD', [true, 'Command to execute' ]),
-		OptBool.new('SETPASS', [false, 'Reset password', false]),
-		OptBool.new('CMDOUT', [false, 'Retrieve command output', false]),
+				OptString.new('USER', [true, 'Username to reset/login with' ]),
+				OptString.new('PASS', [true, 'Password to use' ]),
+				OptString.new('CMD', [true, 'Command to execute' ]),
+				OptBool.new('CMDOUT', [false, 'Retrieve command output', false]),
+			], self.class)
+
+		register_advanced_options(
+			[
+				OptBool.new('SETPASS', [false, 'Reset password', false])
 			], self.class)
 	end
 
