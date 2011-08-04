@@ -44,8 +44,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
 		print_status("Instance Name: #{instancename.inspect}")
+		version = mssql_query(mssql_sql_info())[:rows][0][0]
+		version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
-		version_year = mssql_query(mssql_sql_info())[:rows][0][0].split('-')[0].slice(/\d\d\d\d/)
 		mssql_db_names = get_db_names()
 		mssql_schema={}
 		unless mssql_db_names.nil?
@@ -58,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 		mssql_hashes = mssql_hashdump(version_year)
-		report_other_data(mssql_schema,instancename,version_year)
+		report_other_data(mssql_schema,{'InstanceName' => instancename, 'Version' => version} ,version_year)
 		unless mssql_hashes.nil?
 			report_hashes(mssql_hashes,version_year)
 		end
@@ -150,6 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 		when "2005", "2008"
 			results = mssql_query(mssql_2k5_password_hashes())[:rows]
 		end
+
 		return results
 
 	end
