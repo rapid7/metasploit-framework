@@ -75,6 +75,13 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_pivot", "ext_ser
 		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ext_server_lanattacks", "ext_server_lanattacks\ext_server_lanattacks.vcproj", "{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9E4DE963-873F-4525-A7D0-CE34EDBBDCCA} = {9E4DE963-873F-4525-A7D0-CE34EDBBDCCA}
+		{72F0246A-A38D-4547-9057-46020E8E503D} = {72F0246A-A38D-4547-9057-46020E8E503D}
+		{37E24F8F-1BD9-490B-8CD2-4768B89E5EAB} = {37E24F8F-1BD9-490B-8CD2-4768B89E5EAB}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -183,6 +190,14 @@ Global
 		{C4801040-A3B8-11DF-811F-2A3AE0D72085}.Release|Win32.Build.0 = Release|Win32
 		{C4801040-A3B8-11DF-811F-2A3AE0D72085}.Release|x64.ActiveCfg = Release|x64
 		{C4801040-A3B8-11DF-811F-2A3AE0D72085}.Release|x64.Build.0 = Release|x64
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Debug|Win32.Build.0 = Debug|Win32
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Debug|x64.ActiveCfg = Debug|x64
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Debug|x64.Build.0 = Debug|x64
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Release|Win32.ActiveCfg = Release|Win32
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Release|Win32.Build.0 = Release|Win32
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Release|x64.ActiveCfg = Release|x64
+		{2FCCCE33-77E9-43F3-928E-DBF6B9340A62}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
