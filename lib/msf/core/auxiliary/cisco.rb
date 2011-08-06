@@ -278,6 +278,40 @@ module Auxiliary::Cisco
 						store_cred(cred)
 					end
 
+				when /^\s*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
+					user  = $1
+					stype = $2.to_i
+					shash = $3
+
+					if stype == 5
+						print_good("#{thost}:#{tport} Username '#{user}' with MD5 Encrypted Password: #{shash}")
+						store_loot("cisco.ios.username_password_hash", "text/plain", thost, "#{user}:#{shash}", "username_password_hash.txt", "Cisco IOS Username and Password Hash (MD5)")
+					end
+
+					if stype == 0
+						print_good("#{thost}:#{tport} Username '#{user}' with Password: #{shash}")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+
+						cred = cred_info.dup
+						cred[:user] = user
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					end
+
+					if stype == 7
+						shash = cisco_ios_decrypt7(shash) rescue shash
+						print_good("#{thost}:#{tport} Username '#{user}' with Decrypted Password: #{shash}")
+						store_loot("cisco.ios.username_password", "text/plain", thost, "#{user}:#{shash}", "username_password.txt", "Cisco IOS Username and Password")
+
+						cred = cred_info.dup
+						cred[:user] = user
+						cred[:pass] = shash
+						cred[:type] = "password"
+						cred[:collect_type] = "password"
+						store_cred(cred)
+					end
 
 				when /^\s*ppp.*username ([^\s]+) (secret|password) (\d+) ([^\s]+)/i
 
