@@ -17,8 +17,8 @@ class Framework
 
 	Major    = 4
 	Minor    = 0
-	Point    = 0
-	Release  = "-release"
+	Point    = 1
+	Release  = "-dev"
 
 	if(Point)
 		Version  = "#{Major}.#{Minor}.#{Point}#{Release}"
