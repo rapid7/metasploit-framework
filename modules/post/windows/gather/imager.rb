@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
 		
 		ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex,
 				"",0,200,200,4,"")
-		if ioctl['GetLastError'] == 6:
+		if ioctl['GetLastError'] == 6
 			ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex,
 				"",0,200,200,4,"")
 		end
