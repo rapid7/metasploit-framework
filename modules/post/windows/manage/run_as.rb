@@ -12,6 +12,7 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
+require 'msf/core/post/windows/priv'
 
 class Metasploit3 < Msf::Post
 	include Msf::Post::File
