@@ -261,7 +261,6 @@ class Metasploit3 < Msf::Auxiliary
 			return :fail
 		end
 
-		recvd_sample = @recvd.dup
 		# Allow for slow echos
 		1.upto(10) do
 			recv(self.sock, 0.10) unless @recvd.nil? or @recvd[/#{@password_prompt}/]
