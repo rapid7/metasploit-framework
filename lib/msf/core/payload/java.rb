@@ -3,8 +3,8 @@ require 'msf/core'
 module Msf::Payload::Java
 
 	# 
-	# Used by stages; all java payloads need to define @class_files as an array
-	# of .class files located in data/java/
+	# Used by stages; all java stages need to define +@stage_class_files+ as an
+	# array of .class files located in data/java/
 	#
 	# The staging protocol expects any number of class files, each prepended
 	# with its length, and terminated with a 0:
@@ -27,14 +27,21 @@ module Msf::Payload::Java
 	end
 
 	#
-	# Constructs the payload, used by stagers.  Returns a jar file as a +String+
+	# Used by stagers to construct the payload jar file as a String
 	#
 	def generate
 		generate_jar.pack
 	end
 
 	#
-	# Returns a jar file as a +Rex::Zip::Jar+
+	# Used by stagers to create a jar file as a Rex::Zip::Jar.  Stagers define
+	# a list of class files in @class_files which are pulled from
+	# Msf::Config.data_directory.  The configuration file is created by the
+	# payload's #config method.
+	#
+	# +opts+ can include:
+	# +:main_class+:: the name of the Main-Class attribute in the manifest.
+	#                 Defaults to "metasploit.Payload"
 	#
 	def generate_jar(opts={})
 		raise if not respond_to? :config
@@ -54,7 +61,16 @@ module Msf::Payload::Java
 		jar
 	end
 
+	#
+	# Like #generate_jar, this method is used by stagers to create a war file
+	# as a Rex::Zip::Jar object.
+	#
+	# +opts+ can include:
+	# +:app_name+:: the name of the \<servlet-name> attribute in the web.xml.
+	#               Defaults to "NAME"
+	#
 	def generate_war(opts={})
+		raise if not respond_to? :config
 		zip = Rex::Zip::Jar.new
 
 		web_xml = %q{<?xml version="1.0"?>
