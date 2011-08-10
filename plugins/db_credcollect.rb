@@ -20,20 +20,20 @@ class Plugin::CredCollect < Msf::Plugin
 
 		def commands
 			{
-				"db_hashes" => "Dumps hashes (deprecated: use 'db_creds service=smb')",
-				"db_tokens" => "Dumps tokens (deprecated: use 'db_notes -t smb_token')"
+				"db_hashes" => "Dumps hashes (deprecated: use 'creds -s smb')",
+				"db_tokens" => "Dumps tokens (deprecated: use 'notes -t smb_token')"
 			}
 		end
 
 		def cmd_db_hashes()
 			print_error ""
-			print_error "db_hashes is deprecated. Use 'db_creds service=smb' instead."
+			print_error "db_hashes is deprecated. Use 'creds -s smb' instead."
 			print_error ""
 		end
 
 		def cmd_db_tokens()
 			print_error ""
-			print_error "db_tokens is deprecated. Use 'db_notes -t smb_token' instead."
+			print_error "db_tokens is deprecated. Use 'notes -t smb_token' instead."
 			print_error ""
 		end
 
