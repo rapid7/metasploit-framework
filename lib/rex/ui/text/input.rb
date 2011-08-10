@@ -16,6 +16,7 @@ class Input
 	require 'rex/ui/text/input/stdio'
 	require 'rex/ui/text/input/readline'
 	require 'rex/ui/text/input/socket'
+	require 'rex/ui/text/input/buffer'
 	require 'rex/ui/text/color'
 
 	include Rex::Ui::Text::Color
