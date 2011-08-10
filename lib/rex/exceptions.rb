@@ -170,11 +170,9 @@ end
 
 ###
 #
-# This exception is raised when a connection attempt fails because the remote
-# side refused the connection.
+# This is a generic exception for errors that cause a connection to fail.
 #
 ###
-
 class ConnectionError < ::IOError
 	include SocketError
 	include HostCommunicationError
@@ -220,10 +218,12 @@ end
 #
 # This exception is raised when an attempt to use an address or port that is
 # already in use occurs, such as binding to a host on a given port that is
-# already in use.
+# already in use.  Note that Windows raises this in some cases when attempting
+# to connect to addresses that it can't handle, e.g. "0.0.0.0".  Thus, this is
+# a ConnectionError.
 #
 ###
-class AddressInUse < ::RuntimeError
+class AddressInUse < ConnectionError
 	include SocketError
 	include HostCommunicationError
 
