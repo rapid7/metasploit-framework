@@ -48,8 +48,6 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_users.txt") ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
-				OptString.new('UserAgent', [ true, "The HTTP User-Agent sent in the request",
-					'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
 				OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
 				OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth (default:GET)", "GET" ])
 			], self.class)
