@@ -343,13 +343,13 @@ class DBManager
 	#
 	# Record a service in the database.
 	#
-	# opts must contain
-	#	:host  -- the host where this service is running
-	#	:port  -- the port where this service listens
-	#	:proto -- the transport layer protocol (e.g. tcp, udp)
+	# opts MUST contain
+	# +:host+::  the host where this service is running
+	# +:port+::  the port where this service listens
+	# +:proto+:: the transport layer protocol (e.g. tcp, udp)
 	#
 	# opts may contain
-	#	:name  -- the application layer protocol (e.g. ssh, mssql, smb)
+	# +:name+:: the application layer protocol (e.g. ssh, mssql, smb)
 	#
 	def report_service(opts)
 		return if not active
@@ -443,9 +443,9 @@ class DBManager
 
 	# Record a new session in the database
 	#
-	# opts must contain either
-	#	  :session  - the Msf::Session object we are reporting
-	#	  :host     - the Host object we are reporting a session on.
+	# opts MUST contain either
+	# +:session+:: the Msf::Session object we are reporting
+	# +:host+::    the Host object we are reporting a session on.
 	#
 	def report_session(opts)
 		return if not active
@@ -529,15 +529,15 @@ class DBManager
 	#
 	# Record a session event in the database
 	#
-	# opts must contain one of:
-	#	:session      -- the Msf::Session OR the Msf::DBManager::Session we are reporting
-	#	:etype        -- event type, enum: command, output, upload, download, filedelete
+	# opts MUST contain one of:
+	# +:session+:: the Msf::Session OR the Msf::DBManager::Session we are reporting
+	# +:etype+::   event type, enum: command, output, upload, download, filedelete
 	#
 	# opts may contain
-	#	:output       -- the data for an output event
-	#	:command      -- the data for an command event
-	#	:remote_path  -- path to the associated file for upload, download, and filedelete events
-	#	:local_path   -- path to the associated file for upload, and download
+	# +:output+::      the data for an output event
+	# +:command+::     the data for an command event
+	# +:remote_path+:: path to the associated file for upload, download, and filedelete events
+	# +:local_path+::  path to the associated file for upload, and download
 	#
 	def report_session_event(opts)
 		return if not active
@@ -620,14 +620,14 @@ class DBManager
 	#
 	# Report a client running on a host.
 	#
-	# opts must contain
-	#   :ua_string  -- the value of the User-Agent header
-	#   :host       -- the host where this client connected from, can be an ip address or a Host object
+	# opts MUST contain
+	# +:ua_string+::  the value of the User-Agent header
+	# +:host+::       the host where this client connected from, can be an ip address or a Host object
 	#
 	# opts can contain
-	#   :ua_name    -- one of the Msf::HttpClients constants
-	#   :ua_ver     -- detected version of the given client
-	#   :campaign   -- an id or Campaign object
+	# +:ua_name+::    one of the Msf::HttpClients constants
+	# +:ua_ver+::     detected version of the given client
+	# +:campaign+::   an id or Campaign object
 	#
 	# Returns a Client.
 	#
@@ -723,25 +723,26 @@ class DBManager
 	# Report a Note to the database.  Notes can be tied to a Workspace, Host, or Service.
 	#
 	# opts MUST contain
-	#  :data  -- whatever it is you're making a note of
-	#  :type  -- The type of note, e.g. smb_peer_os
+	# +:data+::  whatever it is you're making a note of
+	# +:type+::  The type of note, e.g. smb_peer_os
 	#
 	# opts can contain
-	#  :workspace  -- the workspace to associate with this Note
-	#  :host       -- an IP address or a Host object to associate with this Note
-	#  :service    -- a Service object to associate with this Note
-	#  :port       -- along with :host and proto, a service to associate with this Note
-	#  :proto      -- along with :host and port, a service to associate with this Note
-	#  :update     -- what to do in case a similar Note exists, see below
+	# +:workspace+::  the workspace to associate with this Note
+	# +:host+::       an IP address or a Host object to associate with this Note
+	# +:service+::    a Service object to associate with this Note
+	# +:port+::       along with :host and proto, a service to associate with this Note
+	# +:proto+::      along with :host and port, a service to associate with this Note
+	# +:update+::     what to do in case a similar Note exists, see below
 	#
-	# The :update option can have the following values:
-	#  :unique       -- allow only a single Note per +host+/+type+ pair
-	#  :unique_data  -- like :uniqe, but also compare +data+
-	#  :insert       -- always insert a new Note even if one with identical values exists
+	# The +:update+ option can have the following values:
+	# +:unique+::       allow only a single Note per +:host+/+:type+ pair
+	# +:unique_data+::  like +:uniqe+, but also compare +:data+
+	# +:insert+::       always insert a new Note even if one with identical values exists
 	#
-	# If the provided :host is an IP address and does not exist in the
-	# database, it will be created.  If :workspace, :host and :service are all
-	# omitted, the new Note will be associated with the current workspace.
+	# If the provided +:host+ is an IP address and does not exist in the
+	# database, it will be created.  If +:workspace+, +:host+ and +:service+
+	# are all omitted, the new Note will be associated with the current
+	# workspace.
 	#
 	def report_note(opts)
 		return if not active
@@ -913,26 +914,26 @@ class DBManager
 	# an entry in the creds table. It's much more akin to
 	# report_vuln() now.
 	#
-	# opts must contain
-	#	:host    -- an IP address or Host object reference
-	#	:port    -- a port number
+	# opts MUST contain
+	# +:host+::   an IP address or Host object reference
+	# +:port+::   a port number
 	#
 	# opts can contain
-	#	:user  -- the username
-	#	:pass  -- the password, or path to ssh_key
-	#	:ptype  -- the type of password (password(ish), hash, or ssh_key)
-	#   :proto -- a transport name for the port
-	#   :sname -- service name
-	#	:active -- by default, a cred is active, unless explicitly false
-	#	:proof  -- data used to prove the account is actually active.
+	# +:user+::   the username
+	# +:pass+::   the password, or path to ssh_key
+	# +:ptype+::  the type of password (password(ish), hash, or ssh_key)
+	# +:proto+::  a transport name for the port
+	# +:sname+::  service name
+	# +:active+:: by default, a cred is active, unless explicitly false
+	# +:proof+::  data used to prove the account is actually active.
 	#
 	# Sources: Credentials can be sourced from another credential, or from
 	# a vulnerability. For example, if an exploit was used to dump the
 	# smb_hashes, and this credential comes from there, the source_id would
 	# be the Vuln id (as reported by report_vuln) and the type would be "Vuln".
 	#
-	#	:source_id   -- The Vuln or Cred id of the source of this cred.
-	#	:source_type -- Either Vuln or Cred
+	# +:source_id+::   The Vuln or Cred id of the source of this cred.
+	# +:source_type+:: Either Vuln or Cred
 	#
 	# TODO: This is written somewhat host-centric, when really the
 	# Service is the thing. Need to revisit someday.
@@ -1050,13 +1051,13 @@ class DBManager
 	end
 
 	#
-	# opts must contain
-	#	:host  -- the host where this vulnerability resides
-	#	:name  -- the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
+	# opts MUST contain
+	# +:host+:: the host where this vulnerability resides
+	# +:name+:: the scanner-specific id of the vuln (e.g. NEXPOSE-cifs-acct-password-never-expires)
 	#
 	# opts can contain
-	#	:info  -- a human readable description of the vuln, free-form text
-	#	:refs  -- an array of Ref objects or string names of references
+	# +:info+:: a human readable description of the vuln, free-form text
+	# +:refs+:: an array of Ref objects or string names of references
 	#
 	def report_vuln(opts)
 		return if not active
@@ -1417,24 +1418,21 @@ class DBManager
 	# Report a Web Site to the database.  WebSites must be tied to an existing Service
 	#
 	# opts MUST contain
-	#  :service* -- the service object this site should be associated with
-	#  :vhost    -- the virtual host name for this particular web site`
-
-	# If service is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :ssl      -- whether or not SSL is in use on this port
+	# +:service+:: the service object this site should be associated with
+	# +:vhost+::   the virtual host name for this particular web site`
+	#
+	# If +:service+ is NOT specified, the following values are mandatory
+	# +:host+:: the ip address of the server hosting the web site
+	# +:port+:: the port number of the associated web site
+	# +:ssl+::  whether or not SSL is in use on this port
 	#
 	# These values will be used to create new host and service records
-
 	#
 	# opts can contain
-	#  :options    -- a hash of options for accessing this particular web site
-
+	# +:options+:: a hash of options for accessing this particular web site
 	#
 	# Duplicate records for a given host, port, vhost combination will be overwritten
 	#
-
 	def report_web_site(opts)
 		return if not active
 		wspace = opts.delete(:workspace) || workspace
@@ -1508,27 +1506,27 @@ class DBManager
 	# Report a Web Page to the database.  WebPage must be tied to an existing Web Site
 	#
 	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :code      -- the http status code from requesting this page
-	#  :headers   -- this is a HASH of headers (lowercase name as key) of ARRAYs of values
-	#  :body      -- the document body of the server response
-	#  :query     -- the query string after the path
-
+	# +:web_site+:: the web site object that this page should be associated with
+	# +:path+::     the virtual host name for this particular web site
+	# +:code+::     the http status code from requesting this page
+	# +:headers+::  this is a HASH of headers (lowercase name as key) of ARRAYs of values
+	# +:body+::     the document body of the server response
+	# +:query+::    the query string after the path
+	#
 	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
+	# +:host+::  the ip address of the server hosting the web site
+	# +:port+::  the port number of the associated web site
+	# +:vhost+:: the virtual host for this particular web site
+	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	# These values will be used to create new host, service, and web_site records
 	#
 	# opts can contain
-	#  :cookie   -- the Set-Cookie headers, merged into a string
-	#  :auth     -- the Authorization headers, merged into a string
-	#  :ctype    -- the Content-Type headers, merged into a string
-	#  :mtime    -- the timestamp returned from the server of the last modification time
-	#  :location -- the URL that a redirect points to
+	# +:cookie+::   the Set-Cookie headers, merged into a string
+	# +:auth+::     the Authorization headers, merged into a string
+	# +:ctype+::    the Content-Type headers, merged into a string
+	# +:mtime+::    the timestamp returned from the server of the last modification time
+	# +:location+:: the URL that a redirect points to
 	#
 	# Duplicate records for a given web_site, path, and query combination will be overwritten
 	#
@@ -1584,18 +1582,17 @@ class DBManager
 	# Report a Web Form to the database.  WebForm must be tied to an existing Web Site
 	#
 	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :query     -- the query string that is appended to the path (not valid for GET)
-	#  :method    -- the form method, one of GET, POST, or PATH
-	#  :params    -- an ARRAY of all parameters and values specified in the form
+	# +:web_site+:: the web site object that this page should be associated with
+	# +:path+::     the virtual host name for this particular web site
+	# +:query+::    the query string that is appended to the path (not valid for GET)
+	# +:method+::   the form method, one of GET, POST, or PATH
+	# +:params+::   an ARRAY of all parameters and values specified in the form
 	#
 	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
-	#
+	# +:host+::  the ip address of the server hosting the web site
+	# +:port+::  the port number of the associated web site
+	# +:vhost+:: the virtual host for this particular web site
+	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	# Duplicate records for a given web_site, path, method, and params combination will be overwritten
 	#
@@ -1662,21 +1659,21 @@ class DBManager
 	# Report a Web Vuln to the database.  WebVuln must be tied to an existing Web Site
 	#
 	# opts MUST contain
-	#  :web_site* -- the web site object that this page should be associated with
-	#  :path      -- the virtual host name for this particular web site
-	#  :query     -- the query string appended to the path (not valid for GET method flaws)
-	#  :method    -- the form method, one of GET, POST, or PATH
-	#  :params    -- an ARRAY of all parameters and values specified in the form
-	#  :pname     -- the specific field where the vulnerability occurs
-	#  :proof     -- the string showing proof of the vulnerability
-	#  :risk      -- an INTEGER value from 0 to 5 indicating the risk (5 is highest)
-	#  :name      -- the string indicating the type of vulnerability
+	# +:web_site+::  the web site object that this page should be associated with
+	# +:path+::      the virtual host name for this particular web site
+	# +:query+::     the query string appended to the path (not valid for GET method flaws)
+	# +:method+::    the form method, one of GET, POST, or PATH
+	# +:params+::    an ARRAY of all parameters and values specified in the form
+	# +:pname+::     the specific field where the vulnerability occurs
+	# +:proof+::     the string showing proof of the vulnerability
+	# +:risk+::      an INTEGER value from 0 to 5 indicating the risk (5 is highest)
+	# +:name+::      the string indicating the type of vulnerability
 	#
 	# If web_site is NOT specified, the following values are mandatory
-	#  :host     -- the ip address of the server hosting the web site
-	#  :port     -- the port number of the associated web site
-	#  :vhost    -- the virtual host for this particular web site
-	#  :ssl      -- whether or not SSL is in use on this port
+	# +:host+::  the ip address of the server hosting the web site
+	# +:port+::  the port number of the associated web site
+	# +:vhost+:: the virtual host for this particular web site
+	# +:ssl+::   whether or not SSL is in use on this port
 	#
 	#
 	# Duplicate records for a given web_site, path, method, pname, and name combination will be overwritten
