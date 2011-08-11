@@ -72,7 +72,7 @@ class EncodingError < RuntimeError
 	include Exception
 
 	def to_s
-		"A encoding exception occurred."
+		"An encoding exception occurred."
 	end
 end
 
