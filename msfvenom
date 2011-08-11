@@ -282,6 +282,7 @@ else
 end
 opts[:format]   ||= 'ruby'
 opts[:encoder]  ||= nil
+opts[:encode]   ||= !(opts[:badchars].nil? or opts[:badchars].empty?)
 
 
 if opts[:encoder].nil?
@@ -332,7 +333,13 @@ if opts[:encode]
 			#puts opts[:badchars].inspect
 
 			1.upto(opts[:iterations].to_i) do |iteration|
-					raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
+					begin
+						raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
+					rescue Msf::EncodingError
+						print_error("#{enc.refname} failed: #{$!.class} : #{$!}")
+						skip = true
+						break
+					end
 					if opts[:space] and opts[:space] > 0 and raw.length > opts[:space]
 						print_error("#{enc.refname} created buffer that is too big (#{raw.length})\n\n")
 						skip = true
@@ -353,9 +360,9 @@ if opts[:encode]
 			break
 
 		rescue => e
-			print_error("#{enc.refname} failed: #{e}")
+			print_error("#{enc.refname} failed: #{e.class} #{e}")
 			e.backtrace.each { |el|
-			print_error(el.to_s)
+			$stderr.puts(el.to_s)
 			}
 		end
 	end

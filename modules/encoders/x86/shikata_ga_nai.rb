@@ -255,10 +255,14 @@ protected
 		loop_block.depends_on(init_counter, init_key)
 		loop_inst.depends_on(loop_block)
 
-		# Generate a permutation saving the ECX and ESP registers
-		loop_inst.generate([
-			Rex::Arch::X86::ESP,
-			Rex::Arch::X86::ECX ], nil, state.badchars)
+		begin
+			# Generate a permutation saving the ECX and ESP registers
+			loop_inst.generate([
+				Rex::Arch::X86::ESP,
+				Rex::Arch::X86::ECX ], nil, state.badchars)
+		rescue RuntimeError => e
+			raise EncodingError
+		end
 	end
 
 	def sub_immediate(regnum, imm)
