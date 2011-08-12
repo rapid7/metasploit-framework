@@ -162,7 +162,7 @@ class Server
 
 		# Read the file contents, and register it as being served once
 		data = data = ::File.open(fn, "rb") { |fd| fd.read(fd.stat.size) }
-		register_file(fname, data, true)
+		register_file(fname, data)
 
 		# Return the last file in the array
 		return self.files[-1]
