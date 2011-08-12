@@ -8,22 +8,47 @@ module Windows
 module Priv
 
 	include ::Msf::Post::Windows::Accounts
+
+	#
 	# Returns true if user is admin and false if not.
+	#
 	def is_admin?
-		# Assume true if the OS doesn't expose this (Windows 2000)
-		session.railgun.shell32.IsUserAnAdmin()["return"] rescue true
-	end
-
-	# Returns true if running as Local System
-	def is_system?
-		local_sys = resolve_sid("S-1-5-18")
-		if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
-			return true
+		if session_has_ext
+			# Assume true if the OS doesn't expose this (Windows 2000)
+			session.railgun.shell32.IsUserAnAdmin()["return"] rescue true
 		else
-			return false
-		end
-
+			cmd = "cmd.exe /c reg query HKU\\S-1-5-19"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /Error/
+				return false
+			else
+				return true
+			end
+		end 	
 	end
+
+	#
+	# Returns true if running as Local System
+	#
+	def is_system?
+		if session_has_ext
+			local_sys = resolve_sid("S-1-5-18")
+			if session.sys.config.getuid == "#{local_sys[:domain]}\\#{local_sys[:name]}"
+				return true
+			else
+				return false
+			end
+		else
+			cmd = "cmd.exe /c reg query HKLM\\SAM\\SAM"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /Error/
+				return false
+			else
+				return true
+			end
+		end
+	end
+
 	#
 	# Returns true if UAC is enabled
 	#
@@ -50,6 +75,14 @@ module Priv
 			end
 		end
 		return uac
+	end
+	
+	def session_has_ext
+		begin
+			return !!(session.railgun and session.sys.config)
+		rescue NoMethodError
+			return false
+		end
 	end
 
 end
