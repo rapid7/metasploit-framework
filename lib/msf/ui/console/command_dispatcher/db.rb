@@ -49,7 +49,7 @@ class Db
 				"services"      => "List all services in the database",
 				"vulns"         => "List all vulnerabilities in the database",
 				"notes"         => "List all notes in the database",
-				"loot"          => "List all loot in the database",				
+				"loot"          => "List all loot in the database",
 				"creds"         => "List all credentials in the database",
 				"db_autopwn"    => "Automatically exploit everything",
 				"db_import"     => "Import a scan result file (filetype will be auto-detected)",
@@ -178,8 +178,8 @@ class Db
 			default_columns = ::Msf::DBManager::Host.column_names.sort
 			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 
-			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments' ]			
-						
+			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments' ]
+
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
 				case arg
@@ -899,7 +899,7 @@ class Db
 							row.push svc
 						else
 							row.push ""
-						end				
+						end
 						row.push(loot.ltype)
 						row.push(loot.name || "")
 						row.push(loot.content_type)
@@ -1470,7 +1470,7 @@ class Db
 							end
 						end
 						print_status("Successfully imported #{filename}")
-						
+
 						print_error("Please note that there were #{warnings} warnings") if warnings > 1
 						print_error("Please note that there was one warning") if warnings == 1
 
@@ -1518,18 +1518,18 @@ class Db
 					output = arg
 				end
 			end
-			
+
 			if not output
 				print_error("No output file was specified")
 				return
 			end
-			
+
 			if not export_formats.include?(format)
 				print_error("Unsupported file format: #{format}")
 				print_error("Unsupported file format: '#{format}'. Must be one of: #{export_formats.join(", ")}")
 				return
 			end
-			
+
 			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
 			exporter = Msf::DBManager::Export.new(framework.db.workspace)
 
@@ -1540,7 +1540,7 @@ class Db
 					end
 					if mstatus == "complete"
 						print_status("    >> Finished export of #{mname}")
-					end					
+					end
 				end
 			end
 			print_status("Finished export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
@@ -1567,7 +1567,7 @@ class Db
 
 			fd = Tempfile.new('dbnmap')
 			fd.binmode
-			
+
 			fo = Tempfile.new('dbnmap')
 			fo.binmode
 
@@ -1760,7 +1760,7 @@ class Db
 				# read, store to a temp file
 				rhosts_file = Rex::Quickfile.new("msf-db-rhosts-")
 				mydatastore['RHOSTS'] = 'file:'+rhosts_file.path
-				# create the output file and assign it to the RHOSTS variable					
+				# create the output file and assign it to the RHOSTS variable
 				rhosts_file.write(rhosts.join("\n")+"\n")
 				rhosts_file.close
 			else
@@ -1976,7 +1976,7 @@ class Db
 			# Chunking has roughly the same perfomance for small batches, so
 			# don't worry about it too much.
 			host_ranges.each do |range|
-				if (range.nil?)
+				if range.nil? or range.length.nil?
 					chunk = nil
 					end_of_range = true
 				else
@@ -1993,7 +1993,7 @@ class Db
 					end
 				end
 
-				# The block will do some 
+				# The block will do some
 				yield chunk
 
 				# Restart the loop with the same RangeWalker if we didn't get
