@@ -90,4 +90,8 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Leaking PII to #{cli.peerhost}:#{cli.peerport}")
 		send_response(cli, res, { 'Content-Type' => 'text/html' })
 	end
+
+	def run
+		exploit()
+	end
 end
