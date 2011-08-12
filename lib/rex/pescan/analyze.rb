@@ -54,7 +54,7 @@ module Analyze
 			config(param)
 
 			epa = pe.hdr.opt.AddressOfEntryPoint
-			buf = pe.read_rva(epa, 256)
+			buf = pe.read_rva(epa, 256) || ""
 
 			@sigs.each_pair do |name, data|
 				begin
