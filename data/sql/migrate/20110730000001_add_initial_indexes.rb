@@ -9,18 +9,24 @@ class AddInitialIndexes < ActiveRecord::Migration
 		add_index :hosts, :os_name
 		add_index :hosts, :os_flavor
 		add_index :hosts, :purpose
-		add_index :hosts, :comments
+
+		# Removed (conditionally dropped in the next migration)
+		# add_index :hosts, :comments
 
 		add_index :services, :port
 		add_index :services, :proto
 		add_index :services, :state
 		add_index :services, :name
-		add_index :services, :info
+
+		# Removed (conditionally dropped in the next migration)
+		# add_index :services, :info
 
 		add_index :notes, :ntype
 
 		add_index :vulns, :name
-		add_index :vulns, :info
+
+		# Removed (conditionally dropped in the next migration)
+		# add_index :vulns, :info
 
 		add_index :refs, :name
 
