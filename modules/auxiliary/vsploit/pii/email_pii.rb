@@ -21,10 +21,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Email PII Tester',
+			'Name'           => 'vsploit Email PII',
 			'Description'    => %q{
 					This auxiliary reads from a file and sends data which
-			should be flagged via an internal or external smtp server.
+			should be flagged via an internal or external SMTP server.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>  ['willis'],
@@ -53,3 +53,4 @@ class Metasploit3 < Msf::Auxiliary
 		resp = send_message(msg.to_s)
 	end
 end
+

