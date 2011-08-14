@@ -19,8 +19,14 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Windows Gather PCI Hardware Enumeration',
-			'Description'    => %q{ Enumerate PCI hardware information from the registry },
+			'Name'           => 'Windows Hardware Enumeration',
+			'Description'    => %q{
+					Enumerate PCI hardware information from the registry. Please note this script
+				will run through registry subkeys such as: 'PCI', 'ACPI', 'ACPI_HAL', 'FDC', 'HID',
+				'HTREE', 'IDE', 'ISAPNP', 'LEGACY'', LPTENUM', 'PCIIDE', 'SCSI', 'STORAGE', 'SW',
+				and 'USB'; it will take time to finish. It is recommended to run this module as a
+				background job.
+				},
 			'License'        => MSF_LICENSE,
 			'Version'        => "$Revision$",
 			'Author'         => [ 'Brandon Perry' ],
@@ -38,49 +44,100 @@ class Metasploit3 < Msf::Post
 				"Device Description",
 				"Driver Version",
 				"Class",
-				"Manufacturer"
+				"Manufacturer",
+				"Extra",
 			])
 
-		keys = [ "HKLM\\SYSTEM\\ControlSet001\\Enum\\PCI\\" ]
+		keys = [
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\PCI\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\ACPI\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\ACPI_HAL\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\FDC\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\HID\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\HTREE\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\IDE\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\ISAPNP\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\LEGACY\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\LPTENUM\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\PCIIDE\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\Root\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\SCSI\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\STORAGE\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\SW\\",
+			"HKLM\\SYSTEM\\ControlSet001\\Enum\\USB\\",
+		]
 
 		keys.each do |key|
 			devices = registry_enumkeys(key)
-			next if devices.nil? or devices.empty?
 
-			devices.each do |device|
-				next if device.nil?
-				print_status("Enumerating #{device}") if datastore['VERBOSE']
+			t = []
 
-				infos = registry_enumkeys(key + "\\" + device)
-				next if infos.nil?
+			while(not devices.nil? and not devices.empty?)
+				1.upto(3) do
+					t << framework.threads.spawn("Module(#{self.refname})", false, devices.shift) do |device|
+						next if device.nil?
+						print_status("Enumerating #{device}") if datastore['VERBOSE']
 
-				infos.each do |info|
-					next if info.nil?
-					desc         = registry_getvaldata(key + "\\" + device + "\\" + info, "DeviceDesc")
-					mfg          = registry_getvaldata(key + "\\" + device + "\\" + info, "Mfg")
-					device_class = registry_getvaldata(key + "\\" + device + "\\" + info, "Class")
-					driver_guid  = registry_getvaldata(key + "\\" + device + "\\" + info, "Driver")
+						infos = registry_enumkeys(key + "\\" + device)
+						next if infos.nil?
 
-					desc         = '' if desc.nil?
-					mfg          = '' if mfg.nil?
-					device_class = '' if device_class.nil?
-					driver_guid  = '' if driver_guid.nil?
+						infos.each do |info|
+							next if info.nil?
 
-					print_status("DeviceDesc: #{desc}") if datastore['VERBOSE']
-					print_status("Mfg: #{mfg}") if datastore['VERBOSE']
-					print_status("Class: #{device_class}") if datastore['VERBOSE']
-					print_status("Driver: #{driver_guid}") if datastore['VERBOSE']
+							info_key = key + "\\" + device + "\\" + info
 
-					driver_version = ""
-					if not driver_guid.nil? or not driver_guid.empty?
-						if driver_guid =~ /\\\\/
-							tmp = driver_guid.split('\\')
-							k = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\" + tmp[0] + "\\0000"
-							driver_version << registry_getvaldata(k, "DriverVersion")
+							desc         = registry_getvaldata(info_key, "DeviceDesc")
+							mfg          = registry_getvaldata(info_key, "Mfg")
+							device_class = registry_getvaldata(info_key, "Class")
+							driver_guid  = registry_getvaldata(info_key, "Driver")
+							extra        = ""
+
+							if key =~ /USB/ or key =~ /LPTENUM/
+								extra = registry_getvaldata(info_key, "LocationInformation")
+							end
+
+							if key =~ /SCSI/ or key =~ /\\IDE/ or key =~ /ACPI\\/
+								extra = registry_getvaldata(info_key, "FriendlyName")
+							end
+
+							desc = desc.split(';')[1] if desc =~ /^@/
+							mfg = mfg.split(';')[1] if mfg =~ /^@/
+
+							desc         = '' if desc.nil?
+							mfg          = '' if mfg.nil?
+							device_class = '' if device_class.nil?
+							driver_guid  = '' if driver_guid.nil?
+							extra        = '' if extra.nil?
+
+							next if desc.empty? and mfg.empty?
+
+							driver_version = ""
+
+							if not driver_guid.nil? or not driver_guid.empty?
+								if driver_guid =~ /\\/
+									k = "HKLM\\SYSTEM\\CurrentControlSet\\Control\\Class\\" + driver_guid
+									d = registry_getvaldata(k, "DriverVersion")
+									driver_version << d if not d.nil?
+								end
+							end
+
+							done = false
+
+							tbl.rows.each do |row|
+								if row[0] == desc and
+									row[1] == driver_version and
+									row[2] == device_class and
+									row[3] == mfg and
+									row[4] == extra
+									done = true
+									break
+								end
+							end
+
+							tbl << [desc, driver_version, device_class, mfg, extra] if not done
 						end
 					end
-
-					tbl << [desc, driver_version, device_class, mfg]
+					t.map {|x| x.join }
 				end
 			end
 		end
