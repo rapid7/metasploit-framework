@@ -51,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 		deregister_options(
-						'PASSWORD',
-						'PASS_FILE',
-						'USERPASS_FILE',
-						'STOP_ON_SUCCESS',
-						'BLANK_PASSWORDS',
-						'USER_AS_PASS'
-						)
+			'PASSWORD',
+			'PASS_FILE',
+			'USERPASS_FILE',
+			'STOP_ON_SUCCESS',
+			'BLANK_PASSWORDS',
+			'USER_AS_PASS'
+		)
 	end
 
 	def target_url
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 				@users_found[user] = :reported
 			else
 				vprint_status("#{target_url} - Apache UserDir: '#{user}' not found ")
-			end	
+			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
