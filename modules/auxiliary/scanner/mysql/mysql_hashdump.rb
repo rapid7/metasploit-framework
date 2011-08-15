@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		report_hashes(tbl) unless tbl.rows.empty?
+		report_hashes(tbl.to_csv) unless tbl.rows.empty?
 
 		#Recursively grab the schema for the entire DB server
 		mysql_schema={}
