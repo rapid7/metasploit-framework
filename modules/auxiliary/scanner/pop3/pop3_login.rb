@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 	super(
 		'Name'        => 'POP3 Login Utility',
-		'Description'    => 'This module attempts to authenticate to an POP3 service.',
+		'Description' => 'This module attempts to authenticate to an POP3 service.',
 		'Version'     => '$Revision$',
 		'Author'      =>
 		[
@@ -38,15 +38,17 @@ class Metasploit3 < Msf::Auxiliary
 		[
 			Opt::RPORT(110),
 			OptString.new('USER_FILE',
-			[
-			false, 'The file that contains a list of probable users accounts.',
-			File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
-			]),
+				[
+					false,
+					'The file that contains a list of probable users accounts.',
+					File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_users.txt')
+				]),
 			OptString.new('PASS_FILE',
-			[
-			false, 'The file that contains a list of probable passwords.',
-			File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
-			])
+				[
+					false,
+					'The file that contains a list of probable passwords.',
+					File.join(Msf::Config.install_root, 'data', 'wordlists', 'unix_passwords.txt')
+				])
 		], self.class)
 	end
 
@@ -63,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
-			vprint_error("#{target} #{e} #{e.backtrace}")
+			vprint_error("#{target} #{e.to_s} #{e.backtrace}")
 	end
 
 	def pop3_send(data=nil, con=true)
@@ -91,24 +93,24 @@ class Metasploit3 < Msf::Auxiliary
 				return :abort
 			end
 		
-			vprint_status("#{target} - POP3 Brute Force - Trying user:'#{user}' with password:'#{pass}'")
+			vprint_status("#{target} - Trying user:'#{user}' with password:'#{pass}'")
 			cmd = "USER #{user}\r\n"
 			pop3_send(cmd,!@connected)
 			if @result !~ /^\+OK (.*)/
-				vprint_error("#{target} - POP3 Brute Force - Rejected user: '#{user}'")
+				vprint_error("#{target} - Rejected user: '#{user}'")
 				return :fail
 			else
 				cmd = "PASS #{pass}\r\n"
 				pop3_send(cmd,!@connected)
 				if @result !~ /^\+OK (.*)/
-					vprint_error("#{target} - POP3 Brute Force - Failed login for '#{user}' : '#{pass}'")
+					vprint_error("#{target} - Failed login for '#{user}' : '#{pass}'")
 					if (@connected)
 						disconnect # Some servers disconnect the client after wrongs attempts
 						@connected = false
 					end
 					return :fail
 				else
-					print_good("#{target} - POP3 Brute Force - SUCCESSFUL login for '#{user}' : '#{pass}'")
+					print_good("#{target} - SUCCESSFUL login for '#{user}' : '#{pass}'")
 					report_auth_info(
 						:host => rhost,
 						:port => rport,
