@@ -273,7 +273,7 @@ module Rex
 			@state[:port].each do |k,v|
 				case k
 				when "protocol"
-					port_hash[:protocol] = v
+					port_hash[:proto] = v
 				when "portid"
 					port_hash[:port] = v
 				when "state"
