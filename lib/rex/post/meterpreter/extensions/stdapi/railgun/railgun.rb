@@ -106,7 +106,7 @@ class Railgun
 
 	def util
 		if @util.nil?
-			Util.new(self, client.platform)
+			@util = Util.new(self, client.platform)
 		end
 
 		return @util
