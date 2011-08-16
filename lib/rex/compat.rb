@@ -133,7 +133,7 @@ def self.open_browser(url='http://metasploit.com/')
 			# "sensible-browser" opens the "default" browser in Ubuntu and others, so try that first
 			#  but also provide fallbacks
 			['sensible-browser', 'firefox', 'opera', 'chromium-browser', 'konqueror'].each do |browser|
-					ENV['PATH'].split(':').each do |path|
+				ENV['PATH'].split(':').each do |path|
 					# Does the browser exists?
 					if File.exists?("#{path}/#{browser}")
 						system("#{browser} #{url} &")
