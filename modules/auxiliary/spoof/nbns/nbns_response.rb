@@ -53,6 +53,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_advanced_options([
 			OptBool.new('Debug', [ false, "Determines whether incoming packet parsing is displayed", false])
 		])
+
+		deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN')
 	end
 
 	def run
@@ -103,11 +105,11 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("answerrr:       #{nbnsq_answerrr.unpack('n')}")
 					print_status("authorityrr:    #{nbnsq_authorityrr.unpack('n')}")
 					print_status("additionalrr:   #{nbnsq_additionalrr.unpack('n')}")
-					print_status("name:           #{nbnsq_name} #{nbns_name.unpack('H34')}")
+					print_status("name:           #{nbnsq_name} #{nbnsq_name.unpack('H34')}")
 					print_status("full name:      #{nbnsq_name.slice(1..-2)}")
 					print_status("decoded:        #{decoded}")
 					print_status("decoded name:   #{nbnsq_decodedname}")
-					print_status("type:           #{nbnsq_type('n')}")
+					print_status("type:           #{nbnsq_type.unpack('n')}")
 					print_status("class:          #{nbnsq_class.unpack('n')}")
 				end
 
