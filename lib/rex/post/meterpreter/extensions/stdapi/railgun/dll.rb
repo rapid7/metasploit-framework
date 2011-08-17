@@ -36,7 +36,7 @@ module Stdapi
 module Railgun
 
 #
-# represents a DLL, e.g. kernel32.dll
+# Represents a DLL, e.g. kernel32.dll
 #
 class DLL
 
@@ -62,6 +62,15 @@ class DLL
 		return functions[name]
 	end
 
+	#
+	# Perform a function call in this DLL on the remote system.
+	#
+	# Returns a Hash containing the return value, the result of GetLastError(),
+	# and any +inout+ parameters.
+	#
+	# Raises an exception if +func_symbol+ is not a known function in this DLL,
+	# i.e., it hasn't been defined in a Def.
+	#
 	def call_function(func_symbol, args, client)
 		func_name = func_symbol.to_s
 
@@ -74,22 +83,29 @@ class DLL
 		return process_function_call(function, args, client)
 	end
 
-	# syntax for params:
-	# add_function("MessageBoxW",   # name
-	#	"DWORD",                # return value
-	#	[["DWORD","hWnd","in"], # params
-	#	["PWCHAR","lpText","in"],
-	#	["PWCHAR","lpCaption","in"],
-	#	["DWORD","uType","in"],
-	#	])
+	#
+	# Define a function for this DLL.
 	#
 	# Every function argument is described by a tuple (type,name,direction)
 	#
-	# windows_name: Use it when the actual windows name is different from the ruby variable
-	#               for example when the actual func name is myFunc@4
-	#               or when you want to create an alternative version of an existing function
+	# Example:
+	#   add_function("MessageBoxW",   # name
+	#     "DWORD",                    # return value
+	#     [                           # params
+	#	   ["DWORD","hWnd","in"],
+	#      ["PWCHAR","lpText","in"],
+	#      ["PWCHAR","lpCaption","in"],
+	#      ["DWORD","uType","in"],
+	#     ])
 	#
-	# When new function is called it will return a list containing the return value and all inout params
+	# Use +windows_name+ when the actual windows name is different from the
+	# ruby variable.  You might need to do this for example when the actual
+	# func name is myFunc@4 or when you want to create an alternative version
+	# of an existing function.
+	#
+	# When the new function is called it will return a list containing the
+	# return value and all inout params.  See #call_function.
+	#
 	def add_function(name, return_type, params, windows_name=nil)
 		if windows_name == nil
 			windows_name = name
@@ -99,7 +115,6 @@ class DLL
 
 	private
 
-	# called when a function like "MessageBoxW" is called
 	def process_function_call(function, args, client)
 		raise "#{function.params.length} arguments expected. #{args.length} arguments provided." unless args.length == function.params.length
 

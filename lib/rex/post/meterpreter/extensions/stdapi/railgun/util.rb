@@ -6,6 +6,10 @@ module Meterpreter
 module Extensions
 module Stdapi
 module Railgun
+
+#
+# Utility methods and constants for dealing with most types of variables.
+#
 class  Util
 
 	# Bring in some useful string manipulation utility functions
@@ -29,8 +33,10 @@ class  Util
 		:wchar_t => 2,
 	}
 
-	# Maps a data type to its corresponding primitive or special type :pointer
-	# Note, primitive types are mapped to themselves
+	#
+	# Maps a data type to its corresponding primitive or special type
+	# +:pointer+.  Note, primitive types are mapped to themselves.
+	#
 	# typedef info: http://msdn.microsoft.com/en-us/library/aa383751(v=vs.85).aspx
 	TYPE_DEFINITIONS = {
 		##
@@ -312,7 +318,9 @@ class  Util
 		@is_64bit = is_64bit_platform?(platform)
 	end
 
+	#
 	# Given a packed pointer, unpacks it according to architecture
+	#
 	def unpack_pointer(packed_pointer)
 		if is_64bit
 			# XXX: Only works if attacker and victim are like-endianed 
@@ -322,14 +330,15 @@ class  Util
 		end
 	end
 
-	###
-	# Summary: Returns true if pointer will be considered a 'null' pointer
 	#
-	# If given nil, returns true
-	# If given 0, returns true
-	# If given a string, if 0 after unpacking, returns true
+	# Returns true if +pointer+ will be considered a 'null' pointer.
+	#
+	# If +pointer+ is nil or 0, returns true
+	# If +pointer+ is a String, if 0 after unpacking, returns true
 	# false otherwise
-	##
+	#
+	# See #unpack_pointer
+	#
 	def is_null_pointer(pointer)
 		if pointer.class == String
 			pointer = unpack_pointer(pointer)
@@ -338,12 +347,13 @@ class  Util
 		return pointer.nil? || pointer == 0
 	end
 
-	###
-	# Summary: Reads null-terminated unicode strings from memory.
 	#
-	# Given a pointer to a null terminated array of WCHARs, return a ruby string
-	# Null pointers cause an empty string to be returned
-	##
+	# Reads null-terminated unicode strings from memory.
+	#
+	# Given a pointer to a null terminated array of WCHARs, return a ruby
+	# String. If +pointer+ is NULL (see #is_null_pointer) returns an empty
+	# string.
+	#
 	def read_wstring(pointer, length = nil)
 		# Return an empty string for null pointers
 		if is_null_pointer(pointer)
@@ -364,12 +374,12 @@ class  Util
 		return str
 	end
 
-	###
-	# Summary: Read a given number of bytes from memory or from a provided buffer.
 	#
-	# If 'buffer' is not provided, read 'size' bytes from the client's memory
-	# If 'buffer' is provided, reads 'size' characters from the index of 'address'
-	##
+	# Read a given number of bytes from memory or from a provided buffer.
+	#
+	# If +buffer+ is not provided, read +size+ bytes from the client's memory.
+	# If +buffer+ is provided, reads +size+ characters from the index of +address+.
+	#
 	def memread(address, size, buffer = nil)
 		if buffer.nil?
 			return railgun.memread(address, size)
@@ -378,12 +388,16 @@ class  Util
 		end
 	end
 
+	#
 	# Read and unpack a pointer from the given buffer at a given offset
+	#
 	def read_pointer(buffer, offset = 0)
 		unpack_pointer(buffer[offset, (offset + pointer_size)])
 	end
 
+	#
 	# Reads data structures and several windows data types
+	#
 	def read_data(type, position, buffer = nil)
 		if buffer.nil?
 			buffer = memread(position, sizeof_type(type))
@@ -426,8 +440,11 @@ class  Util
 		return raw
 	end
 
-	# Read 'length' number of instances of 'type' from 'bufptr' 
-	# bufptr is an index in 'buffer' or, if buffer is nil, a memory address
+	#
+	# Read +length+ number of instances of +type+ from +bufptr+ .
+	#
+	# +bufptr+ is an index in +buffer+ or, if +buffer+ is nil, a memory address
+	#
 	def read_array(type, length, bufptr, buffer = nil)
 		if length <= 0
 			return []
@@ -448,8 +465,10 @@ class  Util
 		end
 	end
 
-	# construct the data structure described in 'definition' from 'buffer'
-	# starting from the index 'offset'
+	#
+	# Construct the data structure described in +definition+ from +buffer+
+	# starting from the index +offset+
+	#
 	def read_struct(definition, buffer, offset = 0)
 		data = {}
 
@@ -520,7 +539,9 @@ class  Util
 		raise "Unable to determine size for type #{type}."
 	end
 
-	# Calculates the size of the struct after alignment
+	#
+	# Calculates the size of +struct+ after alignment.
+	#
 	def sizeof_struct(struct)
 		offsets = struct_offsets(struct, 0)
 		last_data_size = sizeof_type(struct.last[1])
@@ -529,9 +550,11 @@ class  Util
 		return size_no_padding + calc_padding(size_no_padding)
 	end
 
-	# Given a description of a data structure, returns an array containing 
+	#
+	# Given a description of a data structure, returns an Array containing 
 	# the offset from the beginning for each subsequent element, taking into
-	# consideration alignment and padding
+	# consideration alignment and padding.
+	#
 	def struct_offsets(definition, offset)
 		padding = 0
 		offsets = []
@@ -558,7 +581,9 @@ class  Util
 		is_64bit ? 8 : 4
 	end
 
-	# Bytes that needed to be added to be aligned
+	#
+	# Number of bytes that needed to be added to be aligned.
+	#
 	def calc_padding(offset)
 		align = required_alignment
 
@@ -571,9 +596,11 @@ class  Util
 		end
 	end
 
+	#
 	# Given an explicit array definition (e.g. BYTE[23]) return size (e.g. 23) and
-	# and type (e.g. BYTE). If a constant is given, attempt to resolve it
-	# that constant
+	# and +type+ (e.g. BYTE). If a constant is given, attempt to resolve it
+	# that constant.
+	#
 	def split_array_type(type)
 		if type =~ /^(\w+)\[(\w+)\]$/
 			element_type = $1
@@ -595,18 +622,17 @@ class  Util
 		platform =~ /win64/
 	end
 
-	###
-	# Summary: 
-	#   Evaluates a bit field, returning a hash representing the meaning 
-	#   and state of each bit.
+	#
+	# Evaluates a bit field, returning a hash representing the meaning and
+	# state of each bit.
 	#
 	# Parameters:
-	#   value: a bit field represented by a Fixnum
-	#   mappings: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
+	#   +value+:: a bit field represented by a Fixnum
+	#   +mappings+:: { 'WINAPI_CONSTANT_NAME' => :descriptive_symbol, ... }
 	#
 	# Returns:
 	#   { :descriptive_symbol => true/false, ... }
-	##
+	#
 	def judge_bit_field(value, mappings)
 		flags = {}
 		rg = railgun

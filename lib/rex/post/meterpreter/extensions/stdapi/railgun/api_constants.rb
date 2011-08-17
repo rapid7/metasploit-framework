@@ -8,13 +8,21 @@ module Extensions
 module Stdapi
 module Railgun
 
+#
+# A container holding useful Windows API Constants.
+#
 class ApiConstants
 
 	# This will be lazily loaded in self.manager
 	@@manager = nil
+
+	# Mutex to ensure we don't add constants more than once via thread races.
 	@@manager_semaphore = Mutex.new
 
-	# provides a frozen constant manager for the constants defined in self.add_constants
+	#
+	# Provides a frozen constant manager for the constants defined in
+	# self.add_constants
+	#
 	def self.manager
 
 		# The first check for nil is to potentially skip the need to synchronize
@@ -35,6 +43,9 @@ class ApiConstants
 		return @@manager
 	end
 
+	#
+	# Slurp in a giant list of known constants.
+	#
 	def self.add_constants(win_const_mgr)
 		win_const_mgr.add_const('MCI_DGV_SETVIDEO_TINT',0x00004003)
 		win_const_mgr.add_const('EVENT_TRACE_FLAG_PROCESS',0x00000001)

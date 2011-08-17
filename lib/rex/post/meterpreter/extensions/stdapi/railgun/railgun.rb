@@ -53,13 +53,18 @@ module Railgun
 # The Railgun class to dynamically expose the Windows API.
 #
 class Railgun
-	# If you want to add additional DLL definitions to be preloaded
-	# create a definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'
-	# Naming is important and should follow convention.
-	# For example, if your dll's name was "my_dll"
-	#   file name   -  def_my_dll.rb
-	#   class name  -  Def_my_dll
-	#   entry below - 'my_dll'
+
+	#
+	# Railgun::DLL's that have builtin definitions.
+	#
+	# If you want to add additional DLL definitions to be preloaded create a
+	# definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
+	# Naming is important and should follow convention.  For example, if your
+	# dll's name was "my_dll"
+	# file name::   def_my_dll.rb
+	# class name::  Def_my_dll
+	# entry below:: 'my_dll'
+	#
 	BUILTIN_DLLS = [
 		'kernel32',
 		'ntdll',
@@ -73,27 +78,21 @@ class Railgun
 	].freeze
 
 	##
-	# dlls
-	#
-	# Returns a hash containing DLLs added to this instance with self.add_dll
-	# as well as references to any frozen cached dlls added directly in self.get_dll
-	# and copies of any frozen dlls (added directly with self.add_function) 
-	# that the user attempted to modify with self.add_function
+	# Returns a Hash containing DLLs added to this instance with #add_dll
+	# as well as references to any frozen cached dlls added directly in #get_dll
+	# and copies of any frozen dlls (added directly with #add_function) 
+	# that the user attempted to modify with #add_function.
 	#
 	# Keys are friendly DLL names and values are the corresponding DLL instance
 	attr_accessor :dlls
 
 	##
-	# client
-	#
 	# Contains a reference to the client that corresponds to this instance of railgun
 	attr_accessor :client
 
 	##
-	# @@cached_dlls
-	#
 	# These DLLs are loaded lazily and then shared amongst all railgun instances.
-	# For safety reasons this variable should only be read/written within get_dll.
+	# For safety reasons this variable should only be read/written within #get_dll.
 	@@cached_dlls = {}
 
 	# if you are going to touch @@cached_dlls, wear protection
@@ -104,6 +103,9 @@ class Railgun
 		self.dlls = {}
 	end
 
+	#
+	# Return this Railgun's Util instance.
+	#
 	def util
 		if @util.nil?
 			@util = Util.new(self, client.platform)
@@ -112,12 +114,19 @@ class Railgun
 		return @util
 	end
 
+	#
+	# Return this Railgun's WinConstManager instance, initially populated with
+	# constants defined in ApiConstants.
+	#
 	def constant_manager
 		# Loads lazily
 		return ApiConstants.manager
 	end
 
-	# read data from a memory address on the host (useful for working with LPVOID parameters)
+	#
+	# Read data from a memory address on the host (useful for working with
+	# LPVOID parameters)
+	#
 	def memread(address, length)
 	
 		raise "Invalid parameters." if(not address or not length)
@@ -135,7 +144,10 @@ class Railgun
 		return nil
 	end
 	
-	# write data to a memory address on the host (useful for working with LPVOID parameters)
+	#
+	# Write data to a memory address on the host (useful for working with
+	# LPVOID parameters)
+	#
 	def memwrite(address, data, length)
 	
 		raise "Invalid parameters." if(not address or not data or not length)
@@ -154,9 +166,13 @@ class Railgun
 		return false
 	end
 	
-	# adds a function to an existing DLL-definition.
-	# if the DLL-definition is frozen (idealy this should be true for all cached dlls)
-	# an unfrozen copy is created and used henceforth for this instance. 
+	#
+	# Adds a function to an existing DLL definition.
+	#
+	# If the DLL definition is frozen (ideally this should be the case for all
+	# cached dlls) an unfrozen copy is created and used henceforth for this
+	# instance. 
+	#
 	def add_function(dll_name, function_name, return_type, params, windows_name=nil)
 
 		unless known_dll_names.include?(dll_name)
@@ -177,9 +193,16 @@ class Railgun
 		dll.add_function(function_name, return_type, params, windows_name)
 	end
 
-	# adds a function to an existing DLL-definition
-	# you can override the dll name if you want to include a path or the DLL name contains
-	# non-ruby-approved characters
+	#
+	# Adds a DLL to this Railgun.
+	#
+	# The +windows_name+ is the name used on the remote system and should be
+	# set appropriately if you want to include a path or the DLL name contains
+	# non-ruby-approved characters.
+	#
+	# Raises an exception if a dll with the given name has already been
+	# defined.
+	#
 	def add_dll(dll_name, windows_name=dll_name)
 
 		if dlls.has_key? dll_name
@@ -194,8 +217,11 @@ class Railgun
 		return BUILTIN_DLLS | dlls.keys
 	end
 
-	# Attempts to provide a DLL instance of the given name. Handles lazy loading and caching
-	# Note that if a DLL of the given name does not exist, then nil is returned
+	#
+	# Attempts to provide a DLL instance of the given name. Handles lazy
+	# loading and caching.  Note that if a DLL of the given name does not
+	# exist, returns nil
+	#
 	def get_dll(dll_name)
 
 		# If the DLL is not local, we now either load it from cache or load it lazily.
@@ -225,11 +251,13 @@ class Railgun
 		return dlls[dll_name]
 	end
 	
-	# we fake having members like user32 and kernel32.
+	#
+	# Fake having members like user32 and kernel32.
 	# reason is that
 	#   ...user32.MessageBoxW()
 	# is prettier than
 	#   ...dlls["user32"].functions["MessageBoxW"]()
+	#
 	def method_missing(dll_symbol, *args)
 		dll_name = dll_symbol.to_s
 
@@ -242,12 +270,16 @@ class Railgun
 		return DLLWrapper.new(dll, client)
 	end
 
-	# Give the programmer access to constants
+	#
+	# Return a Windows constant matching +str+.
+	#
 	def const(str)
 		return constant_manager.parse(str)
 	end
 
+	#
 	# The multi-call shorthand (["kernel32", "ExitProcess", [0]])
+	#
 	def multi(functions)
 		if @multicaller.nil?
 			@multicaller = MultiCaller.new(client, self)
