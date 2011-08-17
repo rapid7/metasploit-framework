@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 
-		while @run
+		while @run # Not exactly thrilled we can never turn this off XXX fix this sometime.
 			packet, addr = @sock.recvfrom(512)
 			vprint_status("Packet Received from #{addr[3]}")
 
