@@ -82,6 +82,10 @@ module DispatcherShell
 			shell.update_prompt(prompt, prompt_char, mode)
 		end
 
+		def cmd_help_help
+			print_line "There's only so much I can do"
+		end
+
 		#
 		# Displays the help banner.  With no arguments, this is just a list of
 		# all commands grouped by dispatcher.  Otherwise, tries to use a method
