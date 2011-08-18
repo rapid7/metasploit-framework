@@ -127,6 +127,13 @@ class Core
 		"Core"
 	end
 
+	def cmd_color_help
+		print_line "Usage: color <'true'|'false'|'auto'>"
+		print_line 
+		print_line "Enable or disable color output."
+		print_line 
+	end
+
 	def cmd_color(*args)
 		case args[0]
 		when "auto"
@@ -136,8 +143,7 @@ class Core
 		when "false"
 			driver.output.disable_color
 		else
-			print_line("Usage: color <'true'|'false'|'auto'>\n")
-			print_line("Enable or disable color output.")
+			cmd_color_help
 			return
 		end
 		driver.update_prompt
@@ -155,16 +161,25 @@ class Core
 	# Reload all module paths that we are aware of
 	#
 	def cmd_reload_all(*args)
+		if args.length > 0
+			cmd_reload_all_help
+			return
+		end
 		print_status("Reloading modules from all module paths...")
 		framework.modules.reload_modules
 		cmd_banner()
 	end
 
-	def cmd_resource_tabs(str, words)
-		return [] if words.length > 1
-
-		tab_complete_filenames(str, words)
+	def cmd_resource_help
+		print_line "Usage: resource path1 [path2 ...]"
+		print_line
+		print_line "Run the commands stored in the supplied files.  Resource files may also contain"
+		print_line "ruby code between <ruby></ruby> tags."
+		print_line
+		print_line "See also: makerc"
+		print_line
 	end
+
 	def cmd_resource(*args)
 		if args.empty?
 			cmd_resource_help
@@ -178,11 +193,17 @@ class Core
 			driver.load_resource(res)
 		end
 	end
-	def cmd_resource_help
-		print_line "Usage: resource path1 [path2 ...]"
+
+	def cmd_resource_tabs(str, words)
+		return [] if words.length > 1
+
+		tab_complete_filenames(str, words)
+	end
+
+	def cmd_makerc_help
+		print_line "Usage: makerc <output rc file>"
 		print_line
-		print_line "Run the commands stored in the supplied files.  Resource files may also contain"
-		print_line "ruby code between <ruby></ruby> tags."
+		print_line "Save the commands executed since startup to the specified file."
 		print_line
 	end
 
@@ -191,12 +212,17 @@ class Core
 	#
 	def cmd_makerc(*args)
 		if args.empty?
-			print(
-				"Usage: makerc <output rc file>\n\n" +
-				"Save the commands executed since startup to the specified file.\n")
+			cmd_makerc_help
 			return false
 		end
 		driver.save_recent_history(args[0])
+	end
+
+	def cmd_back_help
+		print_line "Usage: back"
+		print_line
+		print_line "Return to the global dispatcher context"
+		print_line
 	end
 
 	#
@@ -230,6 +256,12 @@ class Core
 		end
 	end
 
+	def cmd_cd_help
+		print_line "Usage: cd <directory>"
+		print_line
+		print_line "Change the current working directory"
+		print_line
+	end
 
 	#
 	# Change the current working directory
@@ -245,6 +277,13 @@ class Core
 		rescue ::Exception
 			print_error("The specified path does not exist")
 		end
+	end
+
+	def cmd_banner_help
+		print_line "Usage: banner"
+		print_line
+		print_line "Print a stunning ascii art banner along with version information and module counts"
+		print_line
 	end
 
 	#
@@ -293,6 +332,14 @@ class Core
 			avdwarn.map{|line| print_error(line) }
 		end
 
+	end
+
+	def cmd_connect_help
+		print_line "Usage: connect [options] <host> <port>"
+		print_line
+		print_line "Communicate with a host, similar to interacting via netcat, taking advantage of"
+		print_line "any configured session pivoting."
+		print @@connect_opts.usage
 	end
 
 	#
@@ -474,14 +521,6 @@ class Core
 		true
 	end
 
-	def cmd_connect_help
-		print_line "Usage: connect [options] <host> <port>"
-		print_line
-		print_line "Communicate with a host, similar to interacting via netcat, taking advantage of"
-		print_line "any configured session pivoting."
-		print @@connect_opts.usage
-	end
-
 	#
 	# Instructs the driver to stop executing.
 	#
@@ -499,12 +538,27 @@ class Core
 
 	alias cmd_quit cmd_exit
 
+	def cmd_sleep_help
+		print_line "Usage: sleep <seconds>"
+		print_line
+		print_line "Do nothing the specified number of seconds.  This is useful in rc scripts."
+		print_line
+	end
+
 	#
 	# Causes process to pause for the specified number of seconds
 	#
 	def cmd_sleep(*args)
 		return if not (args and args.length == 1)
 		Rex::ThreadSafe.sleep(args[0].to_f)
+	end
+
+	def cmd_info_help
+		print_line "Usage: info <module name> [mod2 mod3 ...]"
+		print_line
+		print_line "Queries the supplied module or modules for information. If no module is given,"
+		print_line "show info for the currently active module."
+		print_line
 	end
 
 	#
@@ -516,11 +570,12 @@ class Core
 				print(Serializer::ReadableText.dump_module(active_module))
 				return true
 			else
-				print(
-					"Usage: info mod1 mod2 mod3 ...\n\n" +
-					"Queries the supplied module or modules for information.\n")
+				cmd_info_help
 				return false
 			end
+		elsif args.include? "-h"
+			cmd_info_help
+			return false
 		end
 
 		args.each { |name|
@@ -541,6 +596,13 @@ class Core
 		cmd_use_tabs(str, words)
 	end
 
+	def cmd_irb_help
+		print_line "Usage: irb"
+		print_line
+		print_line "Drop into an interactive Ruby environment"
+		print_line
+	end
+
 	#
 	# Goes into IRB scripting mode
 	#
@@ -559,6 +621,13 @@ class Core
 		if (driver.input.supports_readline)
 			driver.input.reset_tab_completion
 		end
+	end
+
+	def cmd_jobs_help
+		print_line "Usage: jobs [options]"
+		print_line
+		print_line "Active job manipulation and interaction."
+		print @@jobs_opts.usage()
 	end
 
 	#
@@ -651,10 +720,10 @@ class Core
 		[]
 	end
 
-	def cmd_jobs_help
-		print_line "Usage: jobs [options]"
+	def cmd_kill_help
+		print_line "Usage: kill <job1> [job2 ...]"
 		print_line
-		print_line "Active job manipulation and interaction."
+		print_line "Equivalent to 'jobs -k job1 -k job2 ...'"
 		print @@jobs_opts.usage()
 	end
 
@@ -667,11 +736,11 @@ class Core
 		framework.jobs.keys
 	end
 
-	def cmd_kill_help
-		print_line "Usage: kill <job1> [job2 ...]"
+	def cmd_threads_help
+		print_line "Usage: threads [options]"
 		print_line
-		print_line "Equivalent to 'jobs -k job1 -k job2 ...'"
-		print @@jobs_opts.usage()
+		print_line "Background thread management."
+		print_line @@threads_opts.usage()
 	end
 
 	#
@@ -792,13 +861,17 @@ class Core
 		[]
 	end
 
-	def cmd_threads_help
-		print(
-			"Usage: threads [options]\n\n" +
-			"Background thread management.\n" +
-			@@threads_opts.usage())
+	def cmd_load_help
+		print_line "Usage: load <path> [var=val var=val ...]"
+		print_line
+		print_line "Loads a plugin from the supplied path.  If path is not absolute, fist looks"
+		print_line "in the user's plugin directory (#{Msf::Config.user_plugin_directory}) then"
+		print_line "in the framework root plugin directory (#{Msf::Config.plugin_directory})."
+		print_line "The optional var=val options are custom parameters that can be passed to plugins."
+		print_line
 	end
 
+	#
 	# Loads a plugin from the supplied path.  If no absolute path is supplied,
 	# the framework root plugin directory is used.
 	#
@@ -806,11 +879,7 @@ class Core
 		defanged?
 
 		if (args.length == 0)
-			print_line(
-				"Usage: load <path> [var=val var=val ...]\n\n" +
-				"Load a plugin from the supplied path.  The optional\n" +
-				"var=val options are custom parameters that can be\n" +
-				"passed to plugins.")
+			cmd_load_help
 			return false
 		end
 
@@ -870,16 +939,21 @@ class Core
 		end
 	end
 
+	def cmd_route_help
+		print_line "Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]"
+		print_line
+		print_line "Route traffic destined to a given subnet through a supplied session."
+		print_line "The default comm is Local."
+		print_line
+	end
+
 	#
 	# This method handles the route command which allows a user to specify
 	# which session a given subnet should route through.
 	#
 	def cmd_route(*args)
-		usage = "Usage: route [add/remove/get/flush/print] subnet netmask [comm/sid]\n\n" +
-				"Route traffic destined to a given subnet through a supplied session. \n" +
-				"The default comm is Local.\n"
 		if (args.length == 0)
-			print(usage)
+			cmd_route_help
 			return false
 		end
 
@@ -1012,6 +1086,15 @@ class Core
 		[]
 	end
 
+	def cmd_save_help
+		print_line "Usage: save"
+		print_line
+		print_line "Save the active datastore contents to disk for automatic use across restarts of the console"
+		print_line
+		print_line "The configuration is stored in #{Msf::Config.config_file}"
+		print_line
+	end
+
 	#
 	# Saves the active datastore contents to disk for automatic use across
 	# restarts of the console.
@@ -1035,6 +1118,14 @@ class Core
 		end
 
 		print_line("Saved configuration to: #{Msf::Config.config_file}")
+	end
+
+	def cmd_loadpath_help
+		print_line "Usage: loadpath </path/to/modules>"
+		print_line
+		print_line "Loads modules from the given directory which should contain subdirectories for"
+		print_line "module types, e.g. /path/to/modules/exploits"
+		print_line
 	end
 
 	#
@@ -1116,11 +1207,27 @@ class Core
 		return paths
 	end
 
-	def cmd_loadpath_help
-		print_line "Usage: loadpath /path/to/modules"
+	def cmd_search_help
+		print_line "Usage: search [keywords]"
 		print_line
-		print_line "Loads modules from the given directory which should contain subdirectories for"
-		print_line "module types, e.g. /path/to/modules/exploits"
+		print_line "Keywords:"
+		{
+			"name"     => "Modules with a matching descriptive name",
+			"path"     => "Modules with a matching path or reference name",
+			"platform" => "Modules affecting this platform",
+			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
+			"app"      => "Modules that are client or server attacks",
+			"author"   => "Modules written by this author",
+			"cve"      => "Modules with a matching CVE ID",
+			"bid"      => "Modules with a matching Bugtraq ID",
+			"osvdb"    => "Modules with a matching OSVDB ID"
+		}.each_pair do |keyword, description|
+			print_line "  #{keyword.ljust 10}:  #{description}"
+		end
+		print_line
+		print_line "Examples:"
+		print_line "  search cve:2009 type:exploit app:client"
+		print_line
 	end
 
 	#
@@ -1168,29 +1275,12 @@ class Core
 		[]
 	end
 
-	def cmd_search_help
-		print_line "Usage: search [keywords]"
+	def cmd_spool_help
+		print_line "Usage: spool <off>|<filename>"
 		print_line
-		print_line "Keywords:"
-		{
-			"name"     => "Modules with a matching descriptive name",
-			"path"     => "Modules with a matching path or reference name",
-			"platform" => "Modules affecting this platform",
-			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
-			"app"      => "Modules that are client or server attacks",
-			"author"   => "Modules written by this author",
-			"cve"      => "Modules with a matching CVE ID",
-			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID"
-		}.each_pair do |keyword, description|
-			print_line "  #{keyword.ljust 10}:  #{description}"
-		end
+		print_line "Example:"
+		print_line "  spool /tmp/console.log"
 		print_line
-		print_line "Examples:"
-		print_line "  search cve:2009 type:exploit app:client"
-		print_line
-
-		#print @@search_opts.usage
 	end
 
 	def cmd_spool(*args)
@@ -1209,12 +1299,11 @@ class Core
 		print_status("Spooling to file #{args[0]}...")
 	end
 
-	def cmd_spool_help
-		print_line "Usage: spool <off>|<filename>"
+	def cmd_sessions_help
+		print_line "Usage: sessions [options]"
 		print_line
-		print_line "Example:"
-		print_line "  spool /tmp/console.log"
-		print_line
+		print_line "Active session manipulation and interaction."
+		print(@@sessions_opts.usage())
 	end
 
 	#
@@ -1506,11 +1595,15 @@ class Core
 		[]
 	end
 
-	def cmd_sessions_help
-		print_line "Usage: sessions [options]"
+	def cmd_set_help
+		print_line "Usage: set [option] [value]"
 		print_line
-		print_line "Active session manipulation and interaction."
-		print(@@sessions_opts.usage())
+		print_line "Set the given option to value.  If value is omitted, print the current value."
+		print_line "If both are omitted, print options that are currently set."
+		print_line
+		print_line "If run from a module context, this will set the value in the module's"
+		print_line "datastore.  Use -g to operate on the global datastore"
+		print_line
 	end
 
 	#
@@ -1556,9 +1649,7 @@ class Core
 				return true
 			else
 				print_error("Unknown variable")
-				print(
-					"Usage: set name value\n\n" +
-					"Sets an arbitrary name to an arbitrary value.\n")
+				cmd_set_help
 				return false
 			end
 		end
@@ -1655,6 +1746,12 @@ class Core
 		return res
 	end
 
+	def cmd_setg_help
+		print_line "Usage: setg [option] [value]"
+		print_line
+		print_line "Exactly like set -g, set a value in the global datastore."
+		print_line
+	end
 
 	#
 	# Sets the supplied variables in the global datastore.
@@ -1670,6 +1767,14 @@ class Core
 	#
 	def cmd_setg_tabs(str, words)
 		cmd_set_tabs(str, words)
+	end
+
+	def cmd_show_help
+		global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
+		print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
+
+		module_opts = %w{ advanced evasion targets actions }
+		print_status("Additional module-specific parameters are: #{module_opts.join(", ")}")
 	end
 
 	#
@@ -1769,12 +1874,12 @@ class Core
 		return res
 	end
 
-	def cmd_show_help
-		global_opts = %w{all encoders nops exploits payloads auxiliary plugins options}
-		print_status("Valid parameters for the \"show\" command are: #{global_opts.join(", ")}")
-
-		module_opts = %w{ advanced evasion targets actions }
-		print_status("Additional module-specific parameters are: #{module_opts.join(", ")}")
+	def cmd_unload_help
+		print_line "Usage: unload <plugin name>"
+		print_line
+		print_line "Unloads a plugin by its symbolic name.  Use 'show plugins' to see a list of"
+		print_line "currently loaded plugins."
+		print_line
 	end
 
 	#
@@ -1782,9 +1887,7 @@ class Core
 	#
 	def cmd_unload(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: unload [plugin name]\n\n" +
-				"Unloads a plugin by its symbolic name.")
+			cmd_unload_help
 			return false
 		end
 
@@ -1809,6 +1912,15 @@ class Core
 		tabs = []
 		framework.plugins.each { |k| tabs.push(k.name) }
 		return tabs
+	end
+
+	def cmd_unset_help
+		print_line "Usage: unset [-g] var1 var2 var3 ..."
+		print_line
+		print_line "The unset command is used to unset one or more variables."
+		print_line "To flush all entires, specify 'all' as the variable name."
+		print_line "With -g, operates on global datastore variables."
+		print_line
 	end
 
 	#
@@ -1872,12 +1984,11 @@ class Core
 		datastore.keys
 	end
 
-	def cmd_unset_help
-		print_line "Usage: unset [-g] var1 var2 var3 ..."
+	def cmd_unsetg_help
+		print_line "Usage: unsetg var1 [var2 ...]"
 		print_line
-		print_line "The unset command is used to unset one or more variables."
-		print_line "To flush all entires, specify 'all' as the variable name."
-		print_line "With -g, operates on global datastore variables."
+		print_line "Exactly like unset -g, unset global variables, or all"
+		print_line
 	end
 
 	#
@@ -1902,6 +2013,7 @@ class Core
 		print_line "Usage: use module_name"
 		print_line
 		print_line "The use command is used to interact with a module of a given name."
+		print_line
 	end
 
 	#
