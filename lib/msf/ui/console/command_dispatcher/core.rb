@@ -129,9 +129,9 @@ class Core
 
 	def cmd_color_help
 		print_line "Usage: color <'true'|'false'|'auto'>"
-		print_line 
+		print_line
 		print_line "Enable or disable color output."
-		print_line 
+		print_line
 	end
 
 	def cmd_color(*args)
