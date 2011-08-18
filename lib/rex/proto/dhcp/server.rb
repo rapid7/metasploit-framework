@@ -228,7 +228,7 @@ protected
 			spot = spot + optionLen + 2
 			if optionType == 53
 				messageType = optionValue.unpack("C").first
-			elsif optionType == 150
+			elsif optionType == 150 or (optionType == 60 and optionValue.include? "PXEClient")
 				pxeclient = true
 			end
 		end
