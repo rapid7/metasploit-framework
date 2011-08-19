@@ -46,15 +46,15 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options([
-			OptString.new('SPOOFIP', [ true, "IP address with which to poison responses", nil]),
-			OptString.new('REGEX', [ true, "Regex applied to determene if spoofed reply is sent", '.*']),
+			OptAddress.new('SPOOFIP', [ true, "IP address with which to poison responses", "127.0.0.1"]),
+			OptString.new('REGEX', [ true, "Regex applied to the NB Name to determine if spoofed reply is sent", '.*']),
 		])
 
 		register_advanced_options([
 			OptBool.new('Debug', [ false, "Determines whether incoming packet parsing is displayed", false])
 		])
 
-		deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN')
+		deregister_options('RHOST', 'PCAPFILE', 'SNAPLEN', 'FILTER')
 	end
 
 	def run
