@@ -226,7 +226,7 @@ class Module < Base
 			file.close
 		end
 
-		enc = $framework.encoders.create(encoder)
+		enc = @framework.encoders.create(encoder)
 
 		begin
 			# Imports options
@@ -239,7 +239,7 @@ class Module < Base
 				raw = enc.encode(raw, badchars, nil, plat)
 			end
 
-			output = Msf::Util::EXE.to_executable_fmt($framework, arch, plat, raw, fmt, exeopts)
+			output = Msf::Util::EXE.to_executable_fmt(@framework, arch, plat, raw, fmt, exeopts)
 
 			if not output
 				fmt ||= "ruby"
