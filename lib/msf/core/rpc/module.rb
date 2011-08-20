@@ -216,18 +216,27 @@ class Module < Base
 			:template_path => options['exedir']
 		}
 
+		# If we were given addshellcode for a win32 payload, 
+		# create a double-payload; one running in one thread, one running in the other
+		if options['addshellcode']
+			buf = Msf::Util::EXE.win32_rwx_exec_thread(buf,0,'end')
+			file = ::File.new(options['addshellcode'])
+			file.binmode
+			buf << file.read
+			file.close
+		end
+
 		enc = $framework.encoders.create(encoder)
 
 		begin
 			# Imports options
 			enc.datastore.update(options)
 
-			eout = buf.dup
-			raw  = nil
+			raw  = buf.dup
 
 			1.upto(ecount) do |iteration|
 				# Encode it up
-				raw = enc.encode(eout, badchars, nil, plat)
+				raw = enc.encode(raw, badchars, nil, plat)
 			end
 
 			output = Msf::Util::EXE.to_executable_fmt($framework, arch, plat, raw, fmt, exeopts)

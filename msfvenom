@@ -323,7 +323,6 @@ if opts[:encode]
 		begin
 			break if done
 			#enc.datastore.import_options_from_s(datastore, '_|_')
-			eout = payload_raw.dup
 			skip = false
 			raw = nil
 
@@ -334,7 +333,7 @@ if opts[:encode]
 
 			1.upto(opts[:iterations].to_i) do |iteration|
 					begin
-						raw = enc.encode(eout, opts[:badchars], nil, opts[:platform])
+						raw = enc.encode(payload_raw.dup, opts[:badchars], nil, opts[:platform])
 					rescue Msf::EncodingError
 						print_error("#{enc.refname} failed: #{$!.class} : #{$!}")
 						skip = true
