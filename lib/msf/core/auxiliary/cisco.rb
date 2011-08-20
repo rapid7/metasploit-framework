@@ -55,6 +55,8 @@ module Auxiliary::Cisco
 
 		store_loot("cisco.ios.config", "text/plain", thost, config.strip, "config.txt", "Cisco IOS Configuration")
 
+		tuniface = nil 
+		
 		config.each_line do |line|
 			case line
 #
@@ -211,11 +213,11 @@ module Auxiliary::Cisco
 					cred[:collect_type] = "password"
 					store_cred(cred)
 				when /^\s*interface tunnel(\d+)/i
-					$tuniface = $1
+					tuniface = $1
 
 				when /^\s*tunnel key ([^\s]+)/i
 					spass = $1
-					siface = $tuniface
+					siface = tuniface
 
 					print_good("#{thost}:#{tport} GRE Tunnel Key #{spass} for Interface Tunnel #{siface}")
 					store_loot("cisco.ios.gre_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "gre_tunnel_key.txt", "Cisco GRE Tunnel Key")
@@ -228,7 +230,7 @@ module Auxiliary::Cisco
 
 				when /^\s*ip nhrp authentication ([^\s]+)/i
 					spass = $1
-					siface = $tuniface
+					siface = tuniface
 
 					print_good("#{thost}:#{tport} NHRP Authentication Key #{spass} for Interface Tunnel #{siface}")
 					store_loot("cisco.ios.nhrp_tunnel_key", "text/plain", thost, "tunnel#{siface}_#{spass}", "nhrp_tunnel_key.txt", "Cisco NHRP Authentication Key")
