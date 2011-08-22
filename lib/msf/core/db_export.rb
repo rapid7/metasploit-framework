@@ -46,9 +46,19 @@ class Export
 		report_file.write "#" * 40; report_file.write "\n"
 
 		count = count_credentials("smb_hash",creds)
-		yield(:status, "start", "SMB Hash dump") if block_given?
-		report_file.write "# SMB Hashes (%d services, %d hashes)\n" % [creds["smb_hash"].size, count]
+		yield(:status, "start", "LM/NTLM Hash dump") if block_given?
+		report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [creds["smb_hash"].size, count]
 		write_credentials("smb_hash",creds,report_file)
+
+		count = count_credentials("smb_netv1_hash",creds)
+		yield(:status, "start", "NETLMv1/NETNTLMv1 Hash dump") if block_given?
+		report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [creds["smb_netv1_hash"].size, count]
+		write_credentials("smb_netv1_hash",creds,report_file)
+
+		count = count_credentials("smb_netv2_hash",creds)
+		yield(:status, "start", "NETLMv2/NETNTLMv2 Hash dump") if block_given?
+		report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [creds["smb_netv2_hash"].size, count]
+		write_credentials("smb_netv2_hash",creds,report_file)
 
 		count = count_credentials("ssh_key",creds)
 		yield(:status, "start", "SSH Key dump") if block_given?
@@ -87,6 +97,35 @@ class Export
 						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
 						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
 						report_file.write "%s:%d:%s:::\n" % [user,c.id,pass]
+					end
+				when "smb_netv1_hash"
+					data.each do |c| 
+						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
+						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
+						report_file.write "%s::%s\n" % [user,pass]
+					end
+				when "smb_netv2_hash"
+					data.each do |c| 
+						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
+						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
+						if pass != "<BLANK>"
+							pass = (c.pass.upcase =~ /^[\x20-\x7e]*:[A-F0-9]{48}:[A-F0-9]{50,}/m) ? c.pass : "<BLANK>"
+						end
+						if pass == "<BLANK>"
+							# Basically this is an error (maybe around [\x20-\x7e] in regex) above
+							report_file.write(user + "::" + pass + ":")
+							report_file.write(pass + ":" +  pass + ":" + pass + "\n")
+						else
+							datas = pass.split(":")
+							if datas[1] != "00" * 24
+								report_file.write "# netlmv2\n"
+								report_file.write(user + "::" + datas[0] + ":")
+								report_file.write(datas[3] + ":" +  datas[1][0,32] + ":" + datas[1][32,16] + "\n")
+							end
+							report_file.write "# netntlmv2\n"
+							report_file.write(user + "::" + datas[0] + ":")
+							report_file.write(datas[3] + ":" +  datas[2][0,32] + ":" + datas[2][32..-1] + "\n")
+						end
 					end
 				when "ssh_key"
 					data.each do |c|
