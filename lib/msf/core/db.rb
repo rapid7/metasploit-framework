@@ -543,6 +543,7 @@ class DBManager
 		return if not active
 		raise ArgumentError.new("Missing required option :session") if opts[:session].nil?
 		raise ArgumentError.new("Expected an :etype") unless opts[:etype]
+		session = nil
 
 		if opts[:session].respond_to? :db_record
 			session = opts[:session].db_record
@@ -563,7 +564,7 @@ class DBManager
 			event_data = { :created_at => opts[:created_at] }
 		end
 
-		unless s.respond_to?(:sid)
+		unless session.respond_to?(:sid)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 		event_data[:session_id] = session.id
