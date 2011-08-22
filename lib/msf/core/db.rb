@@ -563,7 +563,7 @@ class DBManager
 			event_data = { :created_at => opts[:created_at] }
 		end
 
-		unless session.kind_of? Msf::DBManager::Session
+		unless s.respond_to?(:sid)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 		event_data[:session_id] = session.id
@@ -581,7 +581,7 @@ class DBManager
 		else
 			s = session
 		end
-		unless s.kind_of? Msf::DBManager::Session
+		unless s.respond_to?(:sid)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
@@ -597,7 +597,7 @@ class DBManager
 		else
 			s = session
 		end
-		unless s.kind_of? Msf::DBManager::Session
+		unless s.respond_to?(:sid)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
