@@ -564,7 +564,7 @@ class DBManager
 			event_data = { :created_at => opts[:created_at] }
 		end
 
-		unless session.respond_to?(:sid)
+		unless session.respond_to?(:routes)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 		event_data[:session_id] = session.id
@@ -582,7 +582,7 @@ class DBManager
 		else
 			s = session
 		end
-		unless s.respond_to?(:sid)
+		unless s.respond_to?(:routes)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
@@ -598,7 +598,7 @@ class DBManager
 		else
 			s = session
 		end
-		unless s.respond_to?(:sid)
+		unless s.respond_to?(:routes)
 			raise ArgumentError.new("Invalid :session, expected Session object got #{session.class}")
 		end
 
