@@ -73,7 +73,6 @@ class Service
 	end
 
 	def stop
-		self.state = {}
 		self.service.stop
 	end
 
