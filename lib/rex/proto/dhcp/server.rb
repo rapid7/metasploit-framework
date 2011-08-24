@@ -91,6 +91,7 @@ class Server
 		self.leasetime = 600
 		self.relayip = "\x00\x00\x00\x00" # relay ip - not currently suported
 		self.pxeconfigfile = "update2"
+		self.pxealtconfigfile = "update0"
 		self.pxepathprefix = ""
 		self.pxereboottime = 2000
 	end
@@ -120,7 +121,7 @@ class Server
 	# Set an option
 	def set_option(opts)
 		allowed_options = [
-			:serveOnce, :servePXE, :relayip, :leasetime, :dnsserv,
+			:serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
 			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
 			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE
 		]
@@ -149,7 +150,7 @@ class Server
 	attr_accessor :listen_host, :listen_port, :context, :leasetime, :relayip, :router, :dnsserv
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
-	attr_accessor :servePXE, :pxeconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
+	attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
 	attr_accessor :give_hostname, :served_hostname, :served_over
 
 protected
@@ -267,7 +268,7 @@ protected
 			# if serveOnce & PXE, don't reply to another PXE request 
 			# if serveOnce & ! PXE, don't reply to anything
 			if self.serveOnce == true and self.served.has_key?(buf[28..43]) and
-					self.served[buf[28..43]][1] and (pxeclient == true or self.servePXE == false)
+					self.served[buf[28..43]][1] and (pxeclient == false or self.servePXE == false)
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
@@ -292,7 +293,12 @@ protected
 		pkt << dhcpoption(OpDns, self.dnsserv)
 		if self.servePXE  # PXE options
 			pkt << dhcpoption(OpPXEMagic, PXEMagic)
-			pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
+			if self.serveOnce == true and self.served.has_key?(buf[28..43]) and
+					self.served[buf[28..43]][1] and pxeclient == true
+				pkt << dhcpoption(OpPXEConfigFile, self.pxealtconfigfile)
+			else
+				pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
+			end
 			pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
 			pkt << dhcpoption(OpPXERebootTime, [self.pxereboottime].pack('N'))
 			if ( self.give_hostname == true )
