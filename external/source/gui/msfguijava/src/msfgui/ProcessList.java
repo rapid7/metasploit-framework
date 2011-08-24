@@ -83,7 +83,7 @@ public class ProcessList extends MsfFrame {
 						MsfguiApp.showMessage(null, "uhoh. encoding changed. Time to update msfgui?");
 						return;
 					}
-					byte[] decodedBytes = Base64.decode(received.get("data").toString());
+					byte[] decodedBytes = RpcConnection.getData(received);
 					if (decodedBytes.length == 0)
 						return; //no data
 					String[] lines = new String(decodedBytes).split("\n");

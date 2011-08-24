@@ -73,7 +73,7 @@ public class MsfguiApp extends SingleFrameApplication {
 		//get saved properties file
 		Map props;
 		try{
-			props = (Map)RpcConnection.parseVal(DocumentBuilderFactory.newInstance().newDocumentBuilder()
+			props = (Map)XmlRpc.parseVal(DocumentBuilderFactory.newInstance().newDocumentBuilder()
 					.parse(new FileInputStream(confFilename)).getDocumentElement());
 		} catch (Exception ex) { //if anything goes wrong, make new (IOException, SAXException, ParserConfigurationException, NullPointerException
 			props = new HashMap();//ensure existence
@@ -90,7 +90,8 @@ public class MsfguiApp extends SingleFrameApplication {
 		});
 	}
 	public static void showMessage(java.awt.Component parent, Object message){
-		if(!shuttingDown)
+		String msg = message.toString();
+		if(!shuttingDown && !msg.contains("unknown session"))
 			JOptionPane.showMessageDialog(parent, message);
 	}
 
@@ -100,7 +101,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static void savePreferences(){
 		try {
 			Document docElement = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			docElement.appendChild(RpcConnection.objectToNode(docElement, propRoot));
+			docElement.appendChild(XmlRpc.objectToNode(docElement, propRoot));
 			TransformerFactory.newInstance().newTransformer().transform(new DOMSource(docElement), new StreamResult(new FileOutputStream(confFilename)));
 		} catch (Exception ex) {
 			//fail

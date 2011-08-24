@@ -53,7 +53,12 @@ public abstract class ModuleInfoWindow extends MsfFrame {
 		Map info = (Map) rpcConn.execute("module.info", moduleType, fullName);
 		//Basic info
 		setTitle(info.get("name") + " " + fullName);
+		try{
 		titleLabel.setText("<html><h2>"+info.get("name")+ "</h2> <b>Rank:</b> "+Rank.toString(info.get("rank"))+"</html>");
+		}
+		catch(Exception ex){
+			System.out.println(info);
+		}
 		Object references = info.get("references");
 		StringBuilder referenceString = new StringBuilder();
 		if(references != null){

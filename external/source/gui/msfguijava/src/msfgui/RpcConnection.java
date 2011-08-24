@@ -1,7 +1,5 @@
 package msfgui;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,54 +8,78 @@ import java.net.SocketException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.jdesktop.application.Task;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 
 /**
  * RpcConnection handles connection details to a msfrpcd and automatically sends 
  * activity to be logged. It also caches some method calls to more quickly
  * retrieve results later.
- * 
- * Implements a minimal XMLRPC client for our purposes. Reinventing the wheel is 
- * usually a bad idea, but CVE/description searching takes a long time and this
- * implementation runs a CVE search twice as fast as the apache libs. It also
- * results in a more responsive console.
+ *
+ * Connection implementation is left to child classes, which must implemtent
+ * writeCall() and readResp() and may implement connect.
  * 
  * @author scriptjunkie
  */
-public class RpcConnection {
-	private String rpcToken;
-	private Map callCache = new HashMap();
-	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1";
+public abstract class RpcConnection {
+	public String type = "msg";
+	protected String rpcToken;
+	protected Map callCache = new HashMap();
+	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1", defaultType = "msg";
 	public static int defaultPort = 55553;
 	public static boolean defaultSsl = false;
 	public static boolean disableDb = false;
-	private Socket connection;
-	private OutputStream sout; //socket output/input
-	private InputStream sin;
-	private final Object lockObject = new Object();//to synchronize one request at a time
-	private String username, password, host;
-	private int port;
-	private boolean ssl;
+	protected Socket connection;
+	protected OutputStream sout; //socket output/input
+	protected InputStream sin;
+	protected final Object lockObject = new Object();//to synchronize one request at a time
+	protected String username, password, host;
+	protected int port;
+	protected boolean ssl;
 
-	/** Constructor sets up a connection and authenticates. */
-	RpcConnection(String username, char[] password, String host, int port, boolean ssl) throws MsfException {
+	protected abstract void writeCall(String methname, Object[] params) throws Exception;
+	protected abstract Object readResp() throws Exception;
+
+	/**
+	 * Creates an RPC connection of the appropriate type and connection details
+	 * @param type RPC type
+	 * @param username
+	 * @param password
+	 * @param host IP address or hostname of RPC server
+	 * @param port Port RPC server is operating on
+	 * @param ssl Whether SSL is to be used
+	 * @return A new RPC connection
+	 * @throws MsfException
+	 */
+	public static RpcConnection getConn(String type, String username, char[] password, String host, int port, boolean ssl) throws MsfException{
+		RpcConnection conn;
+		if(type.toLowerCase().equals("xml"))
+			conn = new XmlRpc();
+		else
+			conn = new MsgRpc();
+		conn.setup(username, password, host, port, ssl);
+		return conn;
+	}
+
+	/**
+	 * Gets the unencoded data returned from a something.read call
+	 * @param ret The return from the read call
+	 * @return the 
+	 */
+	public static byte[] getData(Map received){
+		if(received.get("encoding").equals("base64"))
+			return Base64.decode(received.get("data").toString());
+		else
+			return received.get("data").toString().getBytes();
+	}
+
+	/** Setup sets up a connection and authenticates. */
+	public void setup(String username, char[] password, String host, int port, boolean ssl) throws MsfException {
 		boolean haveRpcd=false;
 		this.username = username;
 		this.password = new String(password);
@@ -87,7 +109,18 @@ public class RpcConnection {
 		root.put("port", port);
 		root.put("ssl", ssl);
 		root.put("disableDb", disableDb);
+		root.put("type", type);
 		MsfguiApp.savePreferences();
+	}
+
+	/**
+	 * Disconnects this connection
+	 *
+	 * @throws SocketException
+	 * @throws IOException
+	 */
+	protected void disconnect() throws SocketException, IOException{
+		connection.close();
 	}
 
 	/**
@@ -98,20 +131,20 @@ public class RpcConnection {
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 */
-	private void reconnect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
-		connection.close();
+	protected void reconnect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
+		disconnect();
 		connect();
 	}
 
 	/**
-	 * Connects the TCP stream, setting up SSL if necessary.
+	 * Default connect method connects the TCP stream, setting up SSL if necessary.
 	 *
 	 * @throws SocketException
 	 * @throws KeyManagementException
 	 * @throws IOException
 	 * @throws NoSuchAlgorithmException
 	 */
-	private void connect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
+	protected void connect() throws SocketException, KeyManagementException, IOException, NoSuchAlgorithmException {
 		if (ssl) {
 			TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
 				public java.security.cert.X509Certificate[] getAcceptedIssuers() {
@@ -136,6 +169,7 @@ public class RpcConnection {
 
 	public String toString(){
 		return "RPC connection "
+				+ "\ntype: "+type
 				+ "\nusername: "+username
 				+ "\npassword: " + password
 				+ "\nhost: " + host
@@ -207,174 +241,6 @@ public class RpcConnection {
 		}
 	}
 
-	/** Creates an XMLRPC call from the given method name and parameters and sends it */
-	protected void writeCall(String methname, Object[] params) throws Exception{
-		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-		Element methodCall = doc.createElement("methodCall");
-		doc.appendChild(methodCall);
-		Element methodName = doc.createElement("methodName");
-		methodName.appendChild(doc.createTextNode(methname));
-		methodCall.appendChild(methodName);
-		Element paramsEl = doc.createElement("params");
-		methodCall.appendChild(paramsEl);
-		//Add each parameter by type. Usually just the maps are difficult
-		for(Object param : params){
-			Element paramEl = doc.createElement("param");
-			paramEl.appendChild(objectToNode(doc,param));
-			paramsEl.appendChild(paramEl);
-		}
-		ByteArrayOutputStream bout = new  ByteArrayOutputStream();
-		TransformerFactory.newInstance().newTransformer().transform(new DOMSource(doc), new StreamResult(bout));
-		sout.write(bout.toByteArray());
-		sout.write(0);
-	}
-
-	/**
-	 * Takes the object provided and recursively creates a node out of it suitable
-	 * for xmlrpc transmission.
-	 * @param doc
-	 * @param param
-	 * @return
-	 */
-	public static Node objectToNode(Document doc, Object param){
-		Node valEl = doc.createElement("value");
-		if(param instanceof Map){ //Reverse of the parseVal() struct-to-HashMap code
-			Element structEl = doc.createElement("struct");
-			for(Object entryObj : ((Map)param).entrySet()){
-				Map.Entry ent = (Map.Entry)entryObj;
-				Element membEl = doc.createElement("member");
-				Element nameEl = doc.createElement("name");
-				nameEl.appendChild(doc.createTextNode(ent.getKey().toString()));
-				membEl.appendChild(nameEl);
-				membEl.appendChild(objectToNode(doc,ent.getValue()));
-				structEl.appendChild(membEl);
-			}
-			valEl.appendChild(structEl);
-		}else if(param instanceof List || param instanceof Object[]){ //Reverse of the parseVal() array-to-HashMap code
-			Element arrayEl = doc.createElement("array");
-			Element dataEl = doc.createElement("data");
-			if(param instanceof Object[])
-				for(Object obj : (Object[])param)
-					dataEl.appendChild(objectToNode(doc,obj));
-			else
-				for(Object obj : (List)param)
-					dataEl.appendChild(objectToNode(doc,obj));
-			arrayEl.appendChild(dataEl);
-			valEl.appendChild(arrayEl);
-		}else if(param instanceof Integer){ //not sure I even need this
-			Element i4El = doc.createElement("i4");
-			i4El.appendChild(doc.createTextNode(param.toString()));
-			valEl.appendChild(i4El);
-		}else if(param instanceof Boolean){ //not sure I even need this
-			Element boolEl = doc.createElement("boolean");
-			boolEl.appendChild(doc.createTextNode(param.toString()));
-			valEl.appendChild(boolEl);
-		}else{
-			Element strEl = doc.createElement("string");
-			strEl.appendChild(doc.createTextNode(param.toString()));
-			valEl.appendChild(strEl);
-		}
-		return valEl;
-	}
-
-	/** Receives an XMLRPC response and converts to an object */
-	protected Object readResp() throws Exception{
-		//Will store our response
-		StringBuilder sb = new StringBuilder();
-		int len;
-		do{
-			//read bytes
-			ByteArrayOutputStream cache = new ByteArrayOutputStream();
-			int val;
-			while((val = sin.read()) != 0){
-				if(val == -1)
-					throw new MsfException("Stream died.");
-				cache.write(val);
-			}
-			//parse the response: <methodResponse><params><param><value>...
-			ByteArrayInputStream is = new ByteArrayInputStream(cache.toByteArray());
-			int a = is.read();
-			while(a != -1){
-				if(!Character.isISOControl(a) || a == '\t')
-					sb.append((char)a);
-				//else
-				//	sb.append("&#x").append(Integer.toHexString(a)).append(';');
-				a = is.read();
-			}
-			len = sb.length();//Check to make sure we aren't stopping on an embedded null
-		} while (sb.lastIndexOf("</methodResponse>") < len - 20 || len < 30);
-		Document root = DocumentBuilderFactory.newInstance().newDocumentBuilder()
-				.parse(new ByteArrayInputStream(sb.toString().getBytes()));
-		
-		if(!root.getFirstChild().getNodeName().equals("methodResponse"))
-			throw new MsfException("Error reading response: not a response.");
-		Node methResp = root.getFirstChild();
-		if(methResp.getFirstChild().getNodeName().equals("fault")){
-			throw new MsfException(methResp.getFirstChild()//fault 
-					.getFirstChild() // value
-					.getFirstChild() // struct
-					.getLastChild() // member
-					.getLastChild() // value
-					.getTextContent());
-		}
-		Node params = methResp.getFirstChild();
-		if(!params.getNodeName().equals("params"))
-			throw new MsfException("Error reading response: no params.");
-		Node param = params.getFirstChild();
-		if(!param.getNodeName().equals("param"))
-			throw new MsfException("Error reading response: no param.");
-		Node value = param.getFirstChild();
-		if(!value.getNodeName().equals("value"))
-			throw new MsfException("Error reading response: no value.");
-		return parseVal(value);
-	}
-
-	/** Takes an XMLRPC DOM value node and creates a java object out of it recursively */
-	public static Object parseVal(Node submemb) throws MsfException {
-		Node type = submemb.getFirstChild();
-		String typeName = type.getNodeName();
-		if(typeName.equals("string")){//<struct><member><name>jobs</name><value><struct/></value></member></struct>
-			return type.getTextContent(); //String returns java string
-		}else if (typeName.equals("array")){ //Array returns List
-			ArrayList arrgh = new ArrayList();
-			Node data = type.getFirstChild();
-			if(!data.getNodeName().equals("data"))
-				throw new MsfException("Error reading array: no data.");
-			for(Node val = data.getFirstChild(); val != null; val = val.getNextSibling())
-				arrgh.add(parseVal(val));
-			return arrgh;
-		}else if (typeName.equals("struct")){ //Struct returns a HashMap of name->value member pairs
-			HashMap structmembs = new HashMap();
-			for(Node member = type.getFirstChild(); member != null; member = member.getNextSibling()){
-				if(!member.getNodeName().equals("member"))
-					throw new MsfException("Error reading response: non struct member.");
-				Object name = null, membValue = null;
-				//get each member and put into output map
-				for(Node submember = member.getFirstChild(); submember != null; submember = submember.getNextSibling()){
-					if(submember.getNodeName().equals("name"))
-						name = submember.getTextContent();
-					else if (submember.getNodeName().equals("value"))
-						membValue = parseVal(submember); //Value can be arbitrarily complex
-				}
-				structmembs.put(name, membValue);
-			}
-			return structmembs;
-		}else if (typeName.equals("i4")){
-			return new Integer(type.getTextContent());
-		}else if (typeName.equals("boolean")){
-			return type.getTextContent().equals("1") || Boolean.valueOf(type.getTextContent());
-		}else if (typeName.equals("dateTime.iso8601")) {
-			SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd'T'HH:mm:ss");
-			try{
-				return sdf.parse(type.getTextContent());
-			}catch(ParseException pex){
-				return type.getTextContent();
-			}
-		} else {
-			throw new MsfException("Error reading val: unknown type " + typeName);
-		}
-	}
-
 	/** Attempts to start msfrpcd and connect to it.*/
 	public static Task startRpcConn(final MainFrame mainFrame){
 		if(mainFrame.rpcConn != null){
@@ -397,8 +263,11 @@ public class RpcConnection {
 				}
 
 				// Don't fork cause we'll check if it dies
+				String rpcType = "Basic";
+				if(defaultType.toLowerCase().equals("msg"))
+					rpcType = "Msg";
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-f","-P",defaultPass,"-t","Basic","-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t",rpcType,"-U",defaultUser,"-a","127.0.0.1"}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)
@@ -426,7 +295,7 @@ public class RpcConnection {
 					} //Nope. We're good.
 
 					try {
-						myRpcConn = new RpcConnection(defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
+						myRpcConn = RpcConnection.getConn(defaultType, defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
 						connected = true;
 						break;
 					} catch (MsfException mex) {

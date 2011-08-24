@@ -100,11 +100,9 @@ public class MsfguiLog {
 				}
 			//New data on existing sessions
 			} else if (methodName.equals("console.read")) {
-				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
-				logConsole("Console " + params[0], resString, false);
+				logConsole("Console " + params[0], new String(RpcConnection.getData((Map)result)), false);
 			} else if (methodName.startsWith("session.") && methodName.endsWith("_read")) {
-				String resString = new String(Base64.decode(((Map) result).get("data").toString()));
-				logConsole(params[0].toString(), resString, false);
+				logConsole(params[0].toString(), new String(RpcConnection.getData((Map)result)), false);
 			}
 		} catch (MsfException mex) {
 		}

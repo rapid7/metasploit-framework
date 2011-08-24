@@ -144,7 +144,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						time = System.currentTimeMillis() - start;
 						if (!received.get("encoding").equals("base64"))
 							throw new MsfException("Uhoh. Unknown encoding. Time to update?");
-						byte[] decodedBytes = Base64.decode(received.get("data").toString());
+						byte[] decodedBytes = RpcConnection.getData(received);
 						if (decodedBytes.length > 0) {
 							outputArea.append(new String(decodedBytes));
 							if(decodedBytes[decodedBytes.length-1] != '\n')
@@ -153,8 +153,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						}
 						publish(received);
 					} catch (MsfException ex) {
-						if(!ex.getMessage().contains("unknown session"))
-							MsfguiApp.showMessage(null, ex);
+						MsfguiApp.showMessage(null, ex);
 						if(!ex.getMessage().contains("timed out")) // on timeout, just retry
 							timerCommand.setCharAt(0, STOP_POLLING);
 					}
