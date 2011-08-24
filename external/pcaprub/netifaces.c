@@ -205,6 +205,7 @@ static VALUE add_to_family(VALUE result, VALUE family, VALUE value)
 	return result;
 }
 
+
 VALUE
 rbnetifaces_s_addresses (VALUE class, VALUE dev)
 {
@@ -253,8 +254,14 @@ rbnetifaces_s_addresses (VALUE class, VALUE dev)
 	for (pInfo = pAdapterInfo; pInfo; pInfo = pInfo->Next) 
 	{
 		char buffer[256];
-
-		if (strcmp (pInfo->AdapterName, StringValuePtr(dev)) != 0)
+		//dev is the iface GUID on windows with "\\Device\\NPF_" prefix
+		int cmpAdapterNamelen = (MAX_ADAPTER_NAME_LENGTH + 4) + 12;
+		char cmpAdapterName[cmpAdapterNamelen];
+		memset(cmpAdapterName, 0x00, cmpAdapterNamelen);
+		strncpy(cmpAdapterName, "\\Device\\NPF_", 12);
+		int AdapterName_len = strlen(pInfo->AdapterName);
+		strncpy(cmpAdapterName + 12, pInfo->AdapterName, AdapterName_len);
+		if (strcmp (cmpAdapterName, StringValuePtr(dev)) != 0)
 			continue;
 
 		VALUE rbhardw = Qnil;
@@ -575,8 +582,16 @@ rbnetifaces_s_interfaces (VALUE self)
 
 	for (pInfo = pAdapterInfo; pInfo; pInfo = pInfo->Next) 
 	{
-		VALUE ifname =  rb_str_new2(pInfo->AdapterName);
-		//VALUE ifname =  rb_str_new2(pInfo->Description);
+		//
+		int outputnamelen = (MAX_ADAPTER_NAME_LENGTH + 4) + 12;
+		char outputname[outputnamelen];
+		memset(outputname, 0x00, outputnamelen);
+		strncpy(outputname, "\\Device\\NPF_", 12);
+		int AdapterName_len = strlen(pInfo->AdapterName);
+		strncpy(outputname + 12, pInfo->AdapterName, AdapterName_len);
+		//pInfo->Description
+		VALUE ifname =  rb_str_new2(outputname) ;
+
 		if(!rb_ary_includes(result, ifname))
 			rb_ary_push(result, ifname);
 	}
@@ -682,6 +697,122 @@ rbnetifaces_s_interfaces (VALUE self)
 
 #endif //
 
+	return result;
+}
+
+//This function is usefull only under windows to retrieve some additionnal interfaces informations
+VALUE
+rbnetifaces_s_interface_info (VALUE self, VALUE dev)
+{
+	VALUE result = Qnil;
+	
+#if defined(WIN32)
+
+	PIP_ADAPTER_INFO pAdapterInfo = NULL;
+	PIP_ADAPTER_INFO pInfo = NULL;
+	ULONG ulBufferLength = 0;
+	DWORD dwRet;
+
+	// First, retrieve the adapter information 
+	do {
+		dwRet = GetAdaptersInfo(pAdapterInfo, &ulBufferLength);
+
+		if (dwRet == ERROR_BUFFER_OVERFLOW) 
+		{
+			if (pAdapterInfo)
+			free (pAdapterInfo);
+			pAdapterInfo = (PIP_ADAPTER_INFO)malloc (ulBufferLength);
+
+			if (!pAdapterInfo) 
+			{
+				rb_raise(rb_eRuntimeError, "Unknow error at OS level");
+			}
+    	}
+  	} while (dwRet == ERROR_BUFFER_OVERFLOW);
+
+	// If we failed, then fail in Ruby too 
+	if (dwRet != ERROR_SUCCESS && dwRet != ERROR_NO_DATA) 
+	{
+		if (pAdapterInfo)
+			free (pAdapterInfo);
+
+    	rb_raise(rb_eRuntimeError, "Unknow error at OS level");
+   	 	return Qnil;
+	}
+	if (dwRet == ERROR_NO_DATA) 
+	{
+		free (pAdapterInfo);
+		return result;
+	}
+
+	for (pInfo = pAdapterInfo; pInfo; pInfo = pInfo->Next) 
+	{
+		
+		//dev is the iface GUID on windows with "\\Device\\NPF_" prefix
+		int cmpAdapterNamelen = (MAX_ADAPTER_NAME_LENGTH + 4) + 12;
+		char cmpAdapterName[cmpAdapterNamelen];
+		memset(cmpAdapterName, 0x00, cmpAdapterNamelen);
+		strncpy(cmpAdapterName, "\\Device\\NPF_", 12);
+		int AdapterName_len = strlen(pInfo->AdapterName);
+		strncpy(cmpAdapterName + 12, pInfo->AdapterName, AdapterName_len);
+		if (strcmp (cmpAdapterName, StringValuePtr(dev)) != 0)
+			continue;
+
+		result = rb_hash_new();
+		rb_hash_aset(result, rb_str_new2("description"), rb_str_new2(pInfo->Description));
+		rb_hash_aset(result, rb_str_new2("guid"), rb_str_new2(pInfo->AdapterName));
+		
+		// Get the name from the registry
+		const char* prefix = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\";
+		const char* sufix  = "\\Connection";
+		int prefix_len = strlen(prefix);
+		int sufix_len  = strlen(sufix);
+		int adaptername_len = strlen(pInfo->AdapterName);
+		char* keypath = NULL;
+		keypath = malloc(prefix_len +  sufix_len + adaptername_len + 1);
+		memset(keypath, 0x00, prefix_len +  sufix_len + adaptername_len + 1);
+		strncpy(keypath, prefix, prefix_len);
+		strncpy(keypath + prefix_len, pInfo->AdapterName, adaptername_len);
+		strncpy(keypath + prefix_len + adaptername_len, sufix, sufix_len);
+		
+		HKEY hKey;   
+		LONG lRet = 0;
+		LPBYTE buffer = NULL;
+		DWORD dwSize = 0;               
+		if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, keypath, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+		{
+			// obtain current value size
+			lRet = RegQueryValueEx(hKey, "Name", NULL, NULL, NULL, &dwSize);
+			if (dwSize > 0 && ERROR_SUCCESS == lRet)
+			{
+				buffer = malloc((dwSize * sizeof(BYTE)) + 4);
+				memset(buffer, 0x00, (dwSize * sizeof(BYTE)) + 4);
+				lRet = RegQueryValueEx(hKey, "Name", NULL, NULL, buffer, &dwSize);
+				if (ERROR_SUCCESS == lRet)
+				{
+					rb_hash_aset(result, rb_str_new2("name"), rb_str_new2(buffer));
+				}
+				else
+				{
+					rb_hash_aset(result, rb_str_new2("name"), rb_str_new2(""));
+				}
+				free(buffer);
+			}
+			else
+			{
+				rb_hash_aset(result, rb_str_new2("name"), rb_str_new2(""));
+			}
+			RegCloseKey(hKey);	
+		}
+		else
+		{
+			rb_hash_aset(result, rb_str_new2("name"), rb_str_new2(""));
+		}
+		free(keypath);
+	} 
+	free (pAdapterInfo);
+#endif	
+	
 	return result;
 }
 

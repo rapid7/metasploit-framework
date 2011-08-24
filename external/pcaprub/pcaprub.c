@@ -577,6 +577,7 @@ Init_pcaprub()
 	//Netifaces
 	rb_define_module_function(rb_cPcap, "interfaces", rbnetifaces_s_interfaces, 0);
 	rb_define_module_function(rb_cPcap, "addresses", rbnetifaces_s_addresses, 1);
+	rb_define_module_function(rb_cPcap, "interface_info", rbnetifaces_s_interface_info, 1);
 
 	//constants
 	// Address families (auto-detect using #ifdef) 

@@ -179,5 +179,6 @@ static int af_to_len(int af)
 VALUE rbnetifaces_s_addresses (VALUE class, VALUE dev);
 //Get a list of the network interfaces 
 VALUE rbnetifaces_s_interfaces (VALUE self);
-
+//This function is usefull only under windows to retrieve some additionnal interfaces informations
+VALUE rbnetifaces_s_interface_info (VALUE self, VALUE dev);
 
