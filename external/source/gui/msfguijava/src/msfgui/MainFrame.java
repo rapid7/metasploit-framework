@@ -1715,8 +1715,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		});
 		addSessionItem("Shell",meterpreterPopupMenu,new RpcAction(this) {
 			public void action(Map session) throws Exception {
-				rpcConn.execute("session.meterpreter_write", session.get("id"),
-						Base64.encode("shell\n".getBytes()));
+				rpcConn.execute("session.meterpreter_write", session.get("id"),"shell\n");
 			}
 		});
 		addSessionItem("Console",meterpreterPopupMenu,null);

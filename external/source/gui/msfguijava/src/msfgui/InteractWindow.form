@@ -66,18 +66,18 @@
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="promptLabel" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="inputField" pref="506" max="32767" attributes="0"/>
+                      <Component id="inputField" pref="505" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="submitButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
-                  <Component id="outputScrollPane" alignment="1" pref="623" max="32767" attributes="0"/>
+                  <Component id="outputScrollPane" alignment="1" pref="619" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="outputScrollPane" pref="465" max="32767" attributes="0"/>
+                      <Component id="outputScrollPane" pref="459" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="promptLabel" alignment="3" min="-2" max="-2" attributes="0"/>

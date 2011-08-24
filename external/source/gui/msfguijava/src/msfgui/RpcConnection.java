@@ -72,7 +72,7 @@ public abstract class RpcConnection {
 	 * @return the 
 	 */
 	public static byte[] getData(Map received){
-		if(received.get("encoding").equals("base64"))
+		if(received.containsKey("encoding") && received.get("encoding").equals("base64"))
 			return Base64.decode(received.get("data").toString());
 		else
 			return received.get("data").toString().getBytes();

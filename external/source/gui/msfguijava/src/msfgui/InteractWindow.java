@@ -50,9 +50,8 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 			protected Object doInBackground() throws Exception {
 				//for some reason the first command doesn't usually work. Do first command twice.
 				try {
-					String data = Base64.encode((autoCommands.get(0) + "\n").getBytes());
 					if(autoCommands.get(0).toString().startsWith("use"))
-						rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
+						rpcConn.execute(cmdPrefix + "write", session.get("id"), autoCommands.get(0) + "\n");
 				} catch (MsfException ex) {
 					MsfguiApp.showMessage(null, ex);
 				}
@@ -101,7 +100,7 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 				List tabs = (List)res.get("tabs");
 				//one option: use it
 				if(tabs.size() == 1){
-					inputField.setText(tabs.get(0).toString());
+					inputField.setText(tabs.get(0).toString()+" ");
 				//more options: display, and use common prefix
 				} else if (tabs.size() > 1){
 					String prefix = tabs.get(0).toString();
@@ -142,8 +141,6 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						long start = System.currentTimeMillis();
 						Map received = (Map) rpcConn.execute(cmdPrefix+"read",sid);
 						time = System.currentTimeMillis() - start;
-						if (!received.get("encoding").equals("base64"))
-							throw new MsfException("Uhoh. Unknown encoding. Time to update?");
 						byte[] decodedBytes = RpcConnection.getData(received);
 						if (decodedBytes.length > 0) {
 							outputArea.append(new String(decodedBytes));
@@ -207,23 +204,28 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 			Object pobj = o.get("prompt");
 			if (pobj == null)
 				return;
-			prompt = new String(Base64.decode(pobj.toString()));
+			if(o.containsKey("encoding") && o.get("encoding").equals("base64"))
+				prompt = new String(Base64.decode(pobj.toString()));
+			else
+				prompt = pobj.toString();
 			StringBuilder sb = new StringBuilder();
 			for(int i = 0; i < prompt.length(); i++)
 				if(!Character.isISOControl(prompt.charAt(i)))
 					sb.append(prompt.charAt(i));
 			prompt=sb.toString();
 			promptLabel.setText(prompt);
+			submitButton.setEnabled(Boolean.FALSE.equals(o.get("busy")));
 		}catch (MsfException mex){//bad prompt: do nothing
 		}
 	}
 
 	private void doInput() {
 		try {
+			if(!submitButton.isEnabled())
+				return;
 			String command = inputField.getText();
 			commands.add(command);
-			String data = Base64.encode((command + "\n").getBytes());
-			rpcConn.execute(cmdPrefix + "write", session.get("id"), data);
+			rpcConn.execute(cmdPrefix + "write", session.get("id"), command + "\n");
 			outputArea.append(prompt + command + "\n");
 			outputArea.setCaretPosition(outputArea.getDocument().getLength());
 			inputField.setText("");

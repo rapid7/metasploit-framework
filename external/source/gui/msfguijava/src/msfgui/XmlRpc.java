@@ -37,6 +37,8 @@ public class XmlRpc extends RpcConnection {
 	}
 	/** Creates an XMLRPC call from the given method name and parameters and sends it */
 	protected void writeCall(String methname, Object[] params) throws Exception{
+		if(methname.endsWith("write"))
+			params[2] = Base64.encode(params[2].toString().getBytes());
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		Element methodCall = doc.createElement("methodCall");
 		doc.appendChild(methodCall);
