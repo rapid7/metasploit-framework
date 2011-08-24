@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def smac
-		@spoof_mac = datastore['SMAC']
+		@spoof_mac ||= datastore['SMAC']
 		@spoof_mac ||= get_mac(interface) if netifaces_implemented?
 		return @spoof_mac
 	end
