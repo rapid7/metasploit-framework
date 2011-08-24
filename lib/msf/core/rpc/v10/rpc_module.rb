@@ -166,7 +166,7 @@ class RPC_Module < RPC_Base
 
 		platform = nil
 		if options['platform']
-			platform = Msf::Module::PlatformList.transform(platform)
+			platform = Msf::Module::PlatformList.transform(options['platform'])
 		end
 		
 		arch = nil
@@ -185,18 +185,27 @@ class RPC_Module < RPC_Base
 			:template_path => options['exedir']
 		}
 
+		# If we were given addshellcode for a win32 payload, 
+		# create a double-payload; one running in one thread, one running in the other
+		if options['addshellcode']
+			buf = Msf::Util::EXE.win32_rwx_exec_thread(buf,0,'end')
+			file = ::File.new(options['addshellcode'])
+			file.binmode
+			buf << file.read
+			file.close
+		end
+
 		enc = self.framework.encoders.create(encoder)
 
 		begin
 			# Imports options
 			enc.datastore.update(options)
 
-			eout = buf.dup
-			raw  = nil
+			raw  = data.dup
 
 			1.upto(ecount) do |iteration|
 				# Encode it up
-				raw = enc.encode(eout, badchars, nil, plat)
+				raw = enc.encode(raw, badchars, nil, platform)
 			end
 
 			output = Msf::Util::EXE.to_executable_fmt(self.framework, arch, platform, raw, fmt, exeopts)
