@@ -205,7 +205,6 @@ static VALUE add_to_family(VALUE result, VALUE family, VALUE value)
 	return result;
 }
 
-
 VALUE
 rbnetifaces_s_addresses (VALUE class, VALUE dev)
 {
@@ -582,14 +581,12 @@ rbnetifaces_s_interfaces (VALUE self)
 
 	for (pInfo = pAdapterInfo; pInfo; pInfo = pInfo->Next) 
 	{
-		//
 		int outputnamelen = (MAX_ADAPTER_NAME_LENGTH + 4) + 12;
 		char outputname[outputnamelen];
 		memset(outputname, 0x00, outputnamelen);
 		strncpy(outputname, "\\Device\\NPF_", 12);
 		int AdapterName_len = strlen(pInfo->AdapterName);
 		strncpy(outputname + 12, pInfo->AdapterName, AdapterName_len);
-		//pInfo->Description
 		VALUE ifname =  rb_str_new2(outputname) ;
 
 		if(!rb_ary_includes(result, ifname))
