@@ -217,7 +217,7 @@ public abstract class RpcConnection {
 		return exec(methodName, params);
 	}
 
-	/** Method that sends a call to the server and received a response; only allows one at a time */
+	/** Method that handles synchronization and error handling for calls */
 	private Map exec (String methname, Object[] params) throws MsfException{
 		synchronized(lockObject){ //Only one method call at a time!
 			try{

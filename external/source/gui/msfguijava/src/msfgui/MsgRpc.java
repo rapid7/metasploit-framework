@@ -54,7 +54,15 @@ public class MsgRpc extends RpcConnection {
 			out = new HashMap();
 			for (Object ento : ents){
 				Map.Entry ent = (Map.Entry)ento;
-				((Map)out).put(unMsg(ent.getKey()), unMsg(ent.getValue()));
+				Object key = unMsg(ent.getKey());
+				Object val = ent.getValue();
+				// Hack - keep bytes of generated or encoded payload
+				if(ents.size() == 1 && val instanceof RawType &&
+						(key.equals("payload") || key.equals("encoded")))
+					val = ((RawType)val).asByteArray();
+				else
+					val = unMsg(val);
+				((Map)out).put(key, val);
 			}
 			if(((Map)out).containsKey("error") && ((Map)out).containsKey("error_class")){
 				System.out.println(((Map)out).get("error_backtrace"));

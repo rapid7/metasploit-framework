@@ -59,7 +59,7 @@ public class MsfguiLog {
 		try {
 			if (methodName.startsWith("session.")) {
 				if (methodName.endsWith("_write")) 
-					logConsole(params[0].toString(), new String(Base64.decode(params[1].toString())), true);
+					logConsole(params[0].toString(), params[1].toString(), true);
 				else if (methodName.endsWith("_run_single"))
 					logConsole(params[0].toString(), params[1].toString(), true);
 				else if (methodName.endsWith("_script"))
@@ -69,7 +69,7 @@ public class MsfguiLog {
 			} else if (methodName.equals("module.execute")) {
 				activityLog.add(now() + "  " + params[0] + " " + params[1] + " executed with options " + params[2]);
 			} else if (methodName.equals("console.write")) {
-				logConsole("Console " + params[0].toString(), new String(Base64.decode(params[1].toString())), true);
+				logConsole("Console " + params[0].toString(), params[1].toString(), true);
 			} else if (methodName.equals("console.destroy")) {
 				activityLog.add(now() + " Console " + params[0] + " destroyed.");
 			} else if (methodName.equals("plugin.load")) {

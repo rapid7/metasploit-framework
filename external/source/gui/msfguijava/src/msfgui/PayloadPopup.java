@@ -519,15 +519,18 @@ public class PayloadPopup extends ModuleInfoWindow {
 			hash.put("Encoder", "generic/none");
 			Map data = (Map) rpcConn.execute("module.execute", "payload", fullName,hash);
 			//Basic info
-			if(!data.get("result").equals("success"))
-				return;
-			String rawHex = data.get("payload").toString();
+			byte[] buffer;
+			String rawHex;
+			if(rpcConn.type.equals("msg")){
+				buffer = (byte[])data.get("payload");
+			}else{
+				rawHex = data.get("payload").toString();
+				buffer = new byte[rawHex.length() / 2];
+				for (int i = 0; i < rawHex.length(); i += 2)
+					buffer[i/2] = (byte)Integer.parseInt(rawHex.substring(i, i + 2),16);
+			}
 
 			if(saveButton.isSelected()){ //Encode and output
-				byte[] buffer = new byte[rawHex.length() / 2];
-				for (int i = 0; i < rawHex.length(); i += 2) 
-					buffer[i/2] = (byte)Integer.parseInt(rawHex.substring(i, i + 2),16);
-
 				hash.put("format", outputCombo.getSelectedItem().toString());
 				if(timesField.getText().length() > 0)
 					hash.put("ecount", timesField.getText());
@@ -541,9 +544,12 @@ public class PayloadPopup extends ModuleInfoWindow {
 						hash.put("inject", true);
 				}
 				if(!outputCombo.getSelectedItem().toString().equals("jar")){ //jars don't get encoded
-					Map encoded = (Map) rpcConn.execute("module.encode", Base64.encode(buffer),
+					Map encoded = (Map) rpcConn.execute("module.encode", buffer,
 							encoderCombo.getSelectedItem().toString(),hash);
-					buffer = Base64.decode(encoded.get("encoded").toString());
+					if(rpcConn.type.equals("msg"))
+						buffer = (byte[])encoded.get("encoded");
+					else
+						buffer = Base64.decode(encoded.get("encoded").toString());
 				}
 				FileOutputStream fout = new FileOutputStream(outputPathField.getText());
 				fout.write(buffer);
@@ -551,26 +557,26 @@ public class PayloadPopup extends ModuleInfoWindow {
 				return;
 			}
 
-			outputPane.setText("Payload "+fullName+" "+hash+" "+(rawHex.length()/2)+" bytes.");
+			outputPane.setText("Payload "+fullName+" "+hash+" "+buffer.length+" bytes.");
 			boolean isPlain = true;
 			StringBuilder plain = new StringBuilder("");
-			for(int i = 0; i < rawHex.length(); i += 2){
-				int chint = Integer.parseInt(rawHex.substring(i,i+2),16);
-				if (!Character.isISOControl(chint))// or check isLetterOrDigit isWhitespace or " , . (){}-_+=<>.,?/'"; etc.
-					plain.append((char)chint);
+			for(int i = 0; i < buffer.length; i++){
+				if (!Character.isISOControl(buffer[i]))// or check isLetterOrDigit isWhitespace or " , . (){}-_+=<>.,?/'"; etc.
+					plain.append((char)buffer[i]);
 				else
 					isPlain = false;
 			}
 			if(isPlain)
 				outputPane.append("\n\nplain text\n"+plain);
 			StringBuilder rubyHex = new StringBuilder("\"");
-			for(int i = 0; i < rawHex.length(); i += 20){
-				for(int j = 0; j < 20 && i + j + 2 <= rawHex.length(); j += 2){
+			for(int i = 0; i < buffer.length; i += 10){
+				for(int j = 0; j < 10 && i + j < buffer.length; j++){
 					rubyHex.append("\\x");
-					rubyHex.append(rawHex.substring(i + j, i + j + 2));
+					rubyHex.append(Integer.toString((buffer[i+j] & 0xF0)/16,16));
+					rubyHex.append(Integer.toString(buffer[i+j] & 0x0F,16));
 				}
 				rubyHex.append("\"");
-				if(i + 20 < rawHex.length())
+				if(i + 10 < buffer.length)
 					rubyHex.append("+\n\"");
 			}
 			outputPane.append("\n\nruby\n"+rubyHex);

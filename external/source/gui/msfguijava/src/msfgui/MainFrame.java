@@ -1345,7 +1345,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 			FileInputStream fin = new FileInputStream(MsfguiApp.fileChooser.getSelectedFile());
 			byte[] data = new byte[fsize];
 			fin.read(data);
-			argHash.put("data", Base64.encode(data));
+			argHash.put("data", data);
 			rpcConn.execute("db.import_"+type,argHash);
 		} catch (MsfException mex) {
 			MsfguiApp.showMessage(getFrame(), mex);

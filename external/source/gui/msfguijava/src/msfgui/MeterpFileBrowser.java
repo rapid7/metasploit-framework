@@ -162,7 +162,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		getFiles();
 	}
 
-	/** Calls meterpreter_write with the session ID and Base64 encoded text. */
+	/** Calls meterpreter_write with the session ID and cmd. */
 	private void executeCommand(String cmd){
 		try{
 			rpcConn.execute("session.meterpreter_run_single", session.get("id"), cmd);

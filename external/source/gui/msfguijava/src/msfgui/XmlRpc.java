@@ -39,6 +39,10 @@ public class XmlRpc extends RpcConnection {
 	protected void writeCall(String methname, Object[] params) throws Exception{
 		if(methname.endsWith("write"))
 			params[2] = Base64.encode(params[2].toString().getBytes());
+		if(methname.startsWith("db.import_"))
+			((Map)params[1]).put("data", Base64.encode((byte[])((Map)params[1]).get("data")));
+		if(methname.equals("module.encode"))
+			params[1] = Base64.encode((byte[])params[1]);
 		Document doc = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 		Element methodCall = doc.createElement("methodCall");
 		doc.appendChild(methodCall);
