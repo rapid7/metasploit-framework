@@ -169,7 +169,7 @@ public
 	end
 
 
-	def def_vulns(xopts)
+	def rpc_vulns(xopts)
 		
 		db_check
 		
@@ -256,7 +256,7 @@ public
 			vuln[:refs] = reflist.join(',')
 			ret[:vulns] << vuln
 		end
-		clean_nils(ret)
+		ret
 	end
 
 	def rpc_workspaces
@@ -281,7 +281,7 @@ public
 
 	def rpc_get_workspace(wspace)
 		db_check
-		wspace = workspace(wspace)
+		wspace = find_workspace(wspace)
 		ret = {}
 		ret[:workspace] = []
 		if(wspace)
@@ -525,7 +525,7 @@ public
 		{ :result => 'failed' }
 	end
 
-	def def_notes(xopts)
+	def rpc_notes(xopts)
 		db_check
 		opts = fix_options(xopts)
 		wspace = find_workspace(opts[:workspace]) if opts[:workspace]
@@ -873,7 +873,7 @@ public
 
 	def rpc_events(wspace = nil)
 		db_check
-		wspace = rpc_workspace(wspace)
+		wspace = find_workspace(wspace)
 		error(500, "Unknown Workspace") if(not wspace)
 		ret = {}
 		ret[:events] = []
@@ -915,7 +915,7 @@ public
 
 	def rpc_loots(wspace=nil)
 		db_check
-		wspace = workspace(wspace)
+		wspace = find_workspace(wspace)
 		error(500, "Unknown Workspace") if(not wspace)
 		
 		ret = {}
@@ -975,7 +975,6 @@ public
 		self.framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
 
 	def rpc_get_vuln(xopts)
 		db_check
@@ -1066,7 +1065,7 @@ public
 			client[:updated_at] = c.updated_at.to_i
 			ret[:clients] << client
 		end
-		clean_nils(ret)
+		ret
 	end
 
 	def rpc_del_client(xopts)
