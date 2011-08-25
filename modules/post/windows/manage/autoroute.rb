@@ -33,24 +33,40 @@ class Metasploit3 < Msf::Post
 
 				OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
 				OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
-				OptEnum.new('ACTION', [false, 'Specify the action to take.', nil, ['ADD','PRINT',"DELETE"]])
+				OptEnum.new('CMD', [true, 'Specify the autoroute command', 'add', ['add','print','delete']])
 
 			], self.class)
+	end
+
+	# Backwards compatability: This was changed because the option name of "ACTION"
+	# is special for some things, and indicates the :action attribute, not a datastore option.
+	# However, this is a semi-popular module, though, so I'd prefer not to break people's 
+	# RC scripts that set ACTION. Note that ACTION is preferred over CMD.
+	#
+	# TODO: The better solution is to use 'Action' and 'DefaultAction' info elements,
+	# but there are some squirelly problems right now with rendering these for post modules.
+	def route_cmd
+		if datastore['ACTION'].to_s.empty?
+			datastore['CMD'].to_s.downcase.to_sym
+		else
+			wlog("Warning, deprecated use of 'ACTION' datastore option for #{self.fullname}'. Use 'CMD' instead.")
+			datastore['ACTION'].to_s.downcase.to_sym
+		end
 	end
 
 	# Run Method for when run command is issued
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
 
-		case datastore['ACTION']
-		when 'PRINT'
+		case route_cmd()
+		when :print
 			print_routes()
-		when 'ADD'
+		when :add
 			if validate_cmd(datastore['SUBNET'],netmask)
 				print_status("Adding a route to %s/%s..." % [datastore['SUBNET'],netmask])
 				add_route(:subnet => datastore['SUBNET'], :netmask => netmask)
 			end
-		when 'DELETE'
+		when :delete
 			if datastore['SUBNET']
 				print_status("Deleting route to %s/%s..." % [datastore['SUBNET'],netmask])
 				delete_route(:subnet => datastore['SUBNET'], :netmask => netmask)
