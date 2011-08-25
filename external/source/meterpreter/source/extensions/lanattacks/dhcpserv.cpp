@@ -222,6 +222,9 @@ int DHCPserv::run(){
 	string pxeConfigFile("update2");
 	stringOptionCheck(&pxeConfigFile, "PXECONF");
 
+	string pxeAltConfigFile("update0");
+	stringOptionCheck(&pxeAltConfigFile, "PXEALTCONF");
+
 	string pxePathPrefix("");
 	//get DHCP parameters
 	unsigned int leaseTime = 600;
@@ -336,10 +339,6 @@ int DHCPserv::run(){
 		if (messageType == DHCPDiscover){  //DHCP Discover - send DHCP Offer
 			pkt << DHCPOffer;
 
-			// check if already served based on hw addr (MAC address)
-			if (serveOnce == true && served.count(clienthwaddr) > 0)
-				continue;  //Already served; allowing normal boot
-
 		}else if (messageType == DHCPRequest){ //DHCP Request - send DHCP ACK
 			pkt << DHCPAck;
 
@@ -360,7 +359,12 @@ int DHCPserv::run(){
 		pkt << dhcpoption(OpDns, iton(dnsServer));
 		string pxemagic(PXEMagic,4);
 		pkt << dhcpoption(OpPXEMagic, pxemagic);
-		pkt << dhcpoption(OpPXEConfigFile, pxeConfigFile);
+
+		// check if already served based on hw addr (MAC address)
+		if (serveOnce == true && served.count(clienthwaddr) > 0)
+			pkt << dhcpoption(OpPXEConfigFile, pxeAltConfigFile); //Already served; allowing normal boot
+		else
+			pkt << dhcpoption(OpPXEConfigFile, pxeConfigFile);
 		pkt << dhcpoption(OpPXEPathPrefix, pxePathPrefix);
 		pkt << dhcpoption(OpPXERebootTime, iton(pxeRebootTime));
 		if ( hostname.length() > 0 ){
