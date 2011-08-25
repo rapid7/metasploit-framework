@@ -360,7 +360,7 @@
 			>
 			<File
 
-				RelativePath="..\..\source\extensions\lanattacks\dhcpserver.cpp"
+				RelativePath="..\..\source\extensions\lanattacks\dhcpserv.cpp"
 				>
 			</File>
 			<File
@@ -379,7 +379,7 @@
 			UniqueIdentifier="{93995380-89BF-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\..\source\extensions\lanattacks\dhcpserver.h"
+				RelativePath="..\..\source\extensions\lanattacks\dhcpserv.h"
 				>
 			</File>
 			<File
