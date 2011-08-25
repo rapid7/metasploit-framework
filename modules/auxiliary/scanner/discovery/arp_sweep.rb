@@ -51,14 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 			@netifaces = false
 		end
 
-		# XXX: This needs to be more automatic /and/ not rely on Pcap.interfaces, since
-		# it's never going to be reliable anyway.
+		@interface = datastore['INTERFACE'] || Pcap.lookupdev
 		shost = datastore['SHOST']
-		shost ||= get_ipv4_addr(datastore['INTERFACE']) if @netifaces
+		shost ||= get_ipv4_addr(@interface) if @netifaces
 		raise RuntimeError ,'SHOST should be defined' unless shost
 		
 		smac  = datastore['SMAC']
-		smac ||= get_mac(datastore['INTERFACE']) if @netifaces
+		smac ||= get_mac(@interface) if @netifaces
 		raise RuntimeError ,'SMAC should be defined' unless smac
 
 		begin
