@@ -96,6 +96,9 @@ class Server
 		self.pxereboottime = 2000
 	end
 
+	def report(&block)
+		self.reporter = block
+	end
 
 	# Start the DHCP server
 	def start
@@ -151,7 +154,7 @@ class Server
 	attr_accessor :sock, :thread, :myfilename, :ipstring, :served, :serveOnce
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
 	attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
-	attr_accessor :give_hostname, :served_hostname, :served_over
+	attr_accessor :give_hostname, :served_hostname, :served_over, :reporter
 
 protected
 
@@ -293,10 +296,15 @@ protected
 		pkt << dhcpoption(OpDns, self.dnsserv)
 		if self.servePXE  # PXE options
 			pkt << dhcpoption(OpPXEMagic, PXEMagic)
+			# We already got this one, serve localboot file
 			if self.serveOnce == true and self.served.has_key?(buf[28..43]) and
 					self.served[buf[28..43]][1] and pxeclient == true
 				pkt << dhcpoption(OpPXEConfigFile, self.pxealtconfigfile)
 			else
+				# We are handing out an IP and our PXE attack
+				if(self.reporter)
+					self.reporter.call(buf[28..43],self.ipstring)
+				end
 				pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
 			end
 			pkt << dhcpoption(OpPXEPathPrefix, self.pxepathprefix)
