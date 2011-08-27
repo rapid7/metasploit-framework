@@ -57,6 +57,20 @@ class Lanattacks < Extension
 		true
 	end
 
+	def dhcp_log
+		response = client.send_request(Packet.create_request('lanattacks_dhcp_log'))
+		entries = []
+		if( response.result == 0 )
+			log = response.get_tlv_value( TLV_TYPE_LANATTACKS_RAW )
+			while log.length > 0
+				mac = log.slice!(0..5)
+				ip = log.slice!(0..3)
+				entries << [ mac, ip ]
+			end
+		end
+		entries
+	end
+
 	def start_tftp
 		client.send_request(Packet.create_request('lanattacks_start_tftp'))
 		true

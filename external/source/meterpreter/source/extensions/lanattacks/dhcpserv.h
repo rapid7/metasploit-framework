@@ -50,12 +50,16 @@ public:
 	int stop();
 	int run();
 	void setOption(string option, string value);
+	string * getLog(){
+		return &log;
+	}
 private:
 	bool shuttingDown;
 	void* thread;
 	int smellySock;
 	unsigned int myIp;
 	map<string,string> options;
+	string log;
 	void ipOptionCheck(unsigned int * defaultOption, char * option);
 	void stringOptionCheck(string * defaultOption, char * option);
 };

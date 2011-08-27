@@ -71,6 +71,19 @@ DWORD request_lanattacks_stop_dhcp(Remote *remote, Packet *packet){
 
 	return ERROR_SUCCESS;
 }
+//Gets and resets the DHCP log
+DWORD request_lanattacks_dhcp_log(Remote *remote, Packet *packet){
+	Packet *response = packet_create_response(packet);
+
+	unsigned long loglen;
+	unsigned char * log = getDHCPLog(dhcpserver, &loglen);
+
+	packet_add_tlv_raw(response, TLV_TYPE_LANATTACKS_RAW, log, loglen);
+	packet_transmit_response(ERROR_SUCCESS, remote, response);
+	free(log);
+
+	return ERROR_SUCCESS;
+}
 
 //Launches the TFTP server
 DWORD request_lanattacks_start_tftp(Remote *remote, Packet *packet){
@@ -150,6 +163,12 @@ Command customCommands[] =
 	// Stop DHCP
 	{ "lanattacks_stop_dhcp",
 	  { request_lanattacks_stop_dhcp, { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER },
+	},
+
+	// Get DHCP Log
+	{ "lanattacks_dhcp_log",
+	  { request_lanattacks_dhcp_log, { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER },
 	},
 

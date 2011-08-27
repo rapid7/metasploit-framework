@@ -39,6 +39,8 @@ int startDHCPServer(void * server);
 int stopDHCPServer(void * server);
 // Sets an option in the DHCP server
 void setDHCPOption(void * server, char* name, unsigned int namelen, char* opt, unsigned int optlen);
+//Gets the log of DHCP served
+unsigned char * getDHCPLog(void * server, unsigned long * size);
 
 //C interface for TFTP functions
 //creates a new server

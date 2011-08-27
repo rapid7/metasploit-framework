@@ -39,6 +39,15 @@ void setDHCPOption(void * server, char* name, unsigned int namelen, char* opt, u
 	string optstr(opt,optlen);
 	((DHCPserv*)server)->setOption(namestr,optstr);
 }
+// Gets the DHCP log
+unsigned char * getDHCPLog(void * server, unsigned long * size){
+	string * log = ((DHCPserv*)server)->getLog();
+	*size = log->size();
+	unsigned char* res = (unsigned char*)malloc(*size);
+	memcpy(res, log->data(), *size);
+	log->clear();
+	return res;
+}
 }
 
 //Gets IP of default interface, or at least default interface to 8.8.8.8
@@ -87,10 +96,7 @@ string iton(unsigned int ip){
 }
 
 //constructor
-DHCPserv::DHCPserv(): options(){
-	thread = NULL;
-	shuttingDown = false;
-	smellySock = 0;
+DHCPserv::DHCPserv(): options(), log(), thread(NULL), smellySock(0), shuttingDown(false){
 }
 
 // Sets an option
@@ -114,6 +120,9 @@ DWORD WINAPI runDHCPServer(void* server){
 
 // Starts server
 int DHCPserv::start(){
+	//reset log
+	log.clear();
+
 	//get socket
 	smellySock = socket(AF_INET, SOCK_DGRAM, 0);
 	if (smellySock == -1)
@@ -361,10 +370,13 @@ int DHCPserv::run(){
 		pkt << dhcpoption(OpPXEMagic, pxemagic);
 
 		// check if already served based on hw addr (MAC address)
-		if (serveOnce == true && served.count(clienthwaddr) > 0)
+		if (serveOnce == true && served.count(clienthwaddr) > 0){
 			pkt << dhcpoption(OpPXEConfigFile, pxeAltConfigFile); //Already served; allowing normal boot
-		else
+		}else{
 			pkt << dhcpoption(OpPXEConfigFile, pxeConfigFile);
+			log.append(clienthwaddr);
+			log.append(iton(currentIp));
+		}
 		pkt << dhcpoption(OpPXEPathPrefix, pxePathPrefix);
 		pkt << dhcpoption(OpPXERebootTime, iton(pxeRebootTime));
 		if ( hostname.length() > 0 ){
