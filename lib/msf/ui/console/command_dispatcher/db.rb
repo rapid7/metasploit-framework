@@ -808,33 +808,38 @@ class Db
 				return
 			end
 
-			host_ranges.push(nil) if host_ranges.empty?
-
+			note_list = []
 			delete_count = 0
-			each_host_range_chunk(host_ranges) do |host_search|
-				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
-				host.notes.each do |note|
-					next if(types and types.index(note.ntype).nil?)
-					msg = "Time: #{note.created_at} Note:"
-					if (note.host)
-						host = note.host
-						msg << " host=#{note.host.address}"
-						if set_rhosts
-							# only unique addresses
-							rhosts << host.address unless rhosts.include?(host.address)
-						end
-					end
-					if (note.service)
-						name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
-						msg << " service=#{name}"
-					end
-					msg << " type=#{note.ntype} data=#{note.data.inspect}"
-					print_status(msg)
-					if mode == :delete
-						note.destroy
-						delete_count += 1
+			if host_ranges.empty? # No host specified - collect all notes
+				note_list = framework.db.notes
+			else # Collect notes of specified hosts
+				each_host_range_chunk(host_ranges) do |host_search|
+					framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
+						note_list.concat(host.notes)
 					end
 				end
+			end
+			# Now display them
+			note_list.each do |note|
+				next if(types and types.index(note.ntype).nil?)
+				msg = "Time: #{note.created_at} Note:"
+				if (note.host)
+					host = note.host
+					msg << " host=#{note.host.address}"
+					if set_rhosts
+						# only unique addresses
+						rhosts << host.address unless rhosts.include?(host.address)
+					end
+				end
+				if (note.service)
+					name = (note.service.name ? note.service.name : "#{note.service.port}/#{note.service.proto}")
+					msg << " service=#{name}"
+				end
+				msg << " type=#{note.ntype} data=#{note.data.inspect}"
+				print_status(msg)
+				if mode == :delete
+					note.destroy
+					delete_count += 1
 				end
 			end
 
