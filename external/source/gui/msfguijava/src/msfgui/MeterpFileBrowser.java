@@ -141,7 +141,7 @@ public class MeterpFileBrowser extends MsfFrame {
 		//Set up locking so the console doesn't eat our output
 		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
 			public void focusGained(FocusEvent e) {
-				if(!lock.isHeldByCurrentThread())
+				if(!lock.tryLock())
 					lock.lock();
 			}
 			public void focusLost(FocusEvent e) {
@@ -156,7 +156,8 @@ public class MeterpFileBrowser extends MsfFrame {
 			DraggableTabbedPane.show(mainPanel);
 		}
 		//Get initial view
-		lock.lock();
+		if(!lock.tryLock())
+			lock.lock();
 		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
 		executeCommand("cd \"C:\\\\\"");
 		getFiles();

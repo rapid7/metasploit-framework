@@ -59,7 +59,7 @@ public class ProcessList extends MsfFrame {
 		this.lock = (ReentrantLock)sessionPopupMap.get(session.get("id")+"lock");
 		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
 			public void focusGained(FocusEvent e) {
-				if(!lock.isHeldByCurrentThread())
+				if(!lock.tryLock())
 					lock.lock();
 			}
 			public void focusLost(FocusEvent e) {
@@ -67,7 +67,15 @@ public class ProcessList extends MsfFrame {
 					lock.unlock();
 			}
 		});
-		lock.lock();
+		//See if we need to move our tab
+		Map props = MsfguiApp.getPropertiesNode();
+		if(!props.get("tabWindowPreference").equals("window")){
+			((DraggableTabbedPane)tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(
+					(Component)sessionPopupMap.get(session.get("id")+"console")));
+			DraggableTabbedPane.show(mainPanel);
+		}
+		if(!lock.tryLock())
+			lock.lock();
 		listProcs();
 	}
 
