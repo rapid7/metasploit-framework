@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
 		# Negotiation
 		rsock.put('NBDMAGIC')
 		rsock.put("\x00\x00\x42\x02\x81\x86\x12\x53")
-	
+
 		rsock.put([disk_size].pack("Q").reverse)
 		rsock.put("\x00\x00\x00\x03")  # Read-only
 		rsock.put("\x00"*124)
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
 		while true
 			request = rsock.read(28)
 			magic, request, nbd_handle, offset_n, length = request.unpack("NNa8a8N")
-	
+
 			if magic != 0x25609513
 				print_line("Wrong magic number")
 				break
