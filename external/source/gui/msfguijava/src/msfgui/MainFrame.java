@@ -228,7 +228,9 @@ public class MainFrame extends FrameView {
 							publish(sessionList);
 						}
 						//Update jobs
-						Map jlist = (Map) ((Map)rpcConn.execute("job.list")).get("jobs");
+						Map jlist = (Map) ((Map)rpcConn.execute("job.list"));
+						if(jlist.containsKey("jobs"))
+							jlist = (Map)jlist.get("jobs");
 						TreeMap orderedJobsList = new TreeMap();
 						orderedJobsList.putAll(jlist);
 						int i = 0;
@@ -1633,13 +1635,15 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		jobPopupMenu = new JPopupMenu();
 		addSessionItem("Info",jobPopupMenu,new RpcAction() {
 			public void action() throws Exception {
-				Object obj = ((Map)rpcConn.execute("job.info", clickedJob)).get("info");
+				Object obj = rpcConn.execute("job.info", clickedJob);
+				if(obj instanceof Map && ((Map)obj).containsKey("info"))
+					obj = ((Map)obj).get("info");
 				(new JobInfoPopup(null, true, obj)).setVisible(true);
 			}
 		});
 		addSessionItem("Stop",jobPopupMenu,new RpcAction() {
 			public void action() throws Exception {
-				if(!((Map)rpcConn.execute("job.stop", clickedJob)).get("result").equals("success"))
+				if(!"success".equals(((Map)rpcConn.execute("job.stop", clickedJob)).get("result")))
 					MsfguiApp.showMessage(null, "stop failed.");
 			}
 		});
@@ -1650,9 +1654,12 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					return;
 				jobsList.setSelectedIndex(indx);
 				clickedJob = jobsList.getSelectedValue().toString().split(" ")[0];
-				if(e.getClickCount() > 1)
-					(new JobInfoPopup(null, true,
-							((Map)rpcConn.execute("job.info", clickedJob)).get("info"))).setVisible(true);
+				if(e.getClickCount() > 1){
+					Object obj = rpcConn.execute("job.info", clickedJob);
+					if(obj instanceof Map && ((Map)obj).containsKey("info"))
+						obj = ((Map)obj).get("info");
+					(new JobInfoPopup(null, true, obj)).setVisible(true);
+				}
 			}
 			public void showPopup(MouseEvent e) {
 				jobPopupMenu.show(jobsList, e.getX(), e.getY() );

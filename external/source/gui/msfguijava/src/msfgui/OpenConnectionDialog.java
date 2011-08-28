@@ -357,12 +357,8 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		int port = Integer.parseInt(portField.getText());
 		boolean ssl = checkCrypto(sslBox.isSelected());
 		String type = "xml";
-		if(msgpackButton.isSelected()){
-			if(JOptionPane.showConfirmDialog(this, "MsgPack RPC is not currently supported. Continue anyway?",
-					"Warning",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION)
-				return;
+		if(msgpackButton.isSelected())
 			type = "msg";
-		}
 		try {
 			rpcConn = RpcConnection.getConn(type, username, password, host, port, ssl);
 		} catch (MsfException mex) {
@@ -394,14 +390,10 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 
 	private void startNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startNewButtonActionPerformed
 		//Setup defaults
-		if(msgpackButton.isSelected()){
-			if(JOptionPane.showConfirmDialog(this, "MsgPack RPC is not currently supported. Continue anyway?",
-					"Warning",JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE) != JOptionPane.YES_OPTION)
-				return;
+		if(msgpackButton.isSelected())
 			RpcConnection.defaultType = "msg";
-		}else{
+		else
 			RpcConnection.defaultType = "xml";
-		}
 		RpcConnection.defaultUser = usernameField.getText();
 		if(passwordField.getPassword().length > 0)
 			RpcConnection.defaultPass = new String(passwordField.getPassword());

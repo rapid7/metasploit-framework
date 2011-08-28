@@ -243,7 +243,7 @@ public class MsfguiApp extends SingleFrameApplication {
 			MsfguiLog.defaultLog.logMethodCall("module.execute", new Object[]{moduleType, fullName, hash});
 		} else { // Non-console; just fire away
 			Map info = (Map) rpcConn.execute("module.execute",moduleType, fullName,hash);
-			if (!info.get("result").equals("success"))
+			if (!info.containsKey("job_id") && !info.get("result").equals("success"))
 				MsfguiApp.showMessage(parentFrame.getFrame(), info);
 		}
 		MsfguiApp.addRecentModule(java.util.Arrays.asList(new Object[]{moduleType, fullName, hash}), rpcConn, parentFrame);

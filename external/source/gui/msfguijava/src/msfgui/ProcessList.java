@@ -87,10 +87,6 @@ public class ProcessList extends MsfFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
-					if (!received.get("encoding").equals("base64")) {
-						MsfguiApp.showMessage(null, "uhoh. encoding changed. Time to update msfgui?");
-						return;
-					}
 					byte[] decodedBytes = RpcConnection.getData(received);
 					if (decodedBytes.length == 0)
 						return; //no data
@@ -128,7 +124,7 @@ public class ProcessList extends MsfFrame {
 			rpcConn.execute("session.meterpreter_run_single", session.get("id"),cmd);
 		} catch (Exception ex) {
 			MsfguiApp.showMessage(this, ex);
-			if (ex.getMessage().contains("unknown session"))
+			if (ex.getMessage().toLowerCase().contains("unknown session"))
 				return true;
 		}
 		return false;

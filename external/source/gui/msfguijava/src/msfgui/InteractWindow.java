@@ -151,7 +151,8 @@ public class InteractWindow extends MsfFrame implements ClipboardOwner {
 						publish(received);
 					} catch (MsfException ex) {
 						MsfguiApp.showMessage(null, ex);
-						if(!ex.getMessage().contains("timed out")) // on timeout, just retry
+						if(ex.getMessage().toLowerCase().contains("unknown session") // we're dead.
+								|| !ex.getMessage().contains("timed out")) // on timeout, just retry
 							timerCommand.setCharAt(0, STOP_POLLING);
 					}
 					lock.unlock();

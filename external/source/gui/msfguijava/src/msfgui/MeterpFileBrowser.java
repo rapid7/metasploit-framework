@@ -221,10 +221,6 @@ public class MeterpFileBrowser extends MsfFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					Map received = (Map) rpcConn.execute("session.meterpreter_read", session.get("id"));
-					if (! received.get("encoding").equals("base64")) {
-						MsfguiApp.showMessage(null, "uhoh. encoding changed. Time to update msfgui?");
-						return;
-					}
 					byte[] decodedBytes = RpcConnection.getData(received);
 					if (decodedBytes.length == 0)
 						return;
@@ -263,7 +259,7 @@ public class MeterpFileBrowser extends MsfFrame {
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
-					if(ex.getMessage().contains("unknown session"))
+					if(ex.getMessage().toLowerCase().contains("unknown session"))
 						readTimer.stop();
 					MsfguiApp.showMessage(null, ex);
 				}
