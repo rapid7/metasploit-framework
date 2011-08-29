@@ -11,26 +11,15 @@ class RemoteWorkstationDriver < VmDriver
 
 	attr_accessor :location # among other things
 
-	def initialize(vmid, location, os=nil, tools=false, user=nil, host=nil, credentials=nil)
+	def initialize(config)
 
-		## TODO - Should proabably check file existence?	
-		unless user then raise ArgumentError, "Must provide a username" end
-		unless host then raise ArgumentError, "Must provide a hostname" end
+		unless config['user'] then raise ArgumentError, "Must provide a username" end
+		unless config['host'] then raise ArgumentError, "Must provide a hostname" end
 
-		@vmid = filter_command(vmid)
-		@location = filter_command(location)
-		@user = filter_command(user)
-		@host = filter_command(host)
-		@credentials = credentials # individually filtered
-		@tools = tools	# not used in command lines, no filter
-		@os = os	# not used in command lines, no filter
+		super(config)
 
-		# TODO - Currently only implemented for the first set
-		if @credentials.count > 0
-			@vm_user = filter_input(@credentials[0]['user']) || "\'\'"
-			@vm_pass = filter_input(@credentials[0]['pass']) || "\'\'"
-			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
-		end
+		@user = filter_command(config['user'])
+		@host = filter_command(config['host'])
 	end
 
 	def start
@@ -183,7 +172,7 @@ class RemoteWorkstationDriver < VmDriver
 					"createDirectoryInGuest \'#{@location}\' \'#{directory}\' nogui\""
 			system_command(vmrunstr)
 		else
-			ssh_exec(command)
+			raise "not implemented"
 		end
 	end
 

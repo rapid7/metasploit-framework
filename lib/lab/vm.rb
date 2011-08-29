@@ -31,63 +31,69 @@ class Vm
 	
 	def initialize(config = {})	
 
-		# Mandatory
+		# TODO - This is such a mess. clean up, and pass stuff down to drivers
+		# and then rework the code that uses this api. 
 		@vmid = config['vmid'] 
 		raise "Invalid VMID" unless @vmid
 
-		@driver = nil
 		@driver_type = filter_input(config['driver'])
 		@driver_type.downcase!
 
-		@name = config['name'] || ""	# not used in command lines
-		@description = config['description'] || "" # not used in command lines
-		@tools = config['tools'] || false # don't filter this, not used in cmdlines
-		@os = config['os'] || nil				
-		@arch = config['arch']	|| nil	
+		@location = filter_input(config['location'])
+		@name = config['name'] || ""
+		@description = config['description'] || ""
+		@tools = config['tools'] || ""
+		@os = config['os'] || ""			
+		@arch = config['arch'] || ""
 		@type = filter_input(config['type']) || "unspecified"
 		@credentials = config['credentials'] || []
-
-		# Load in a list of modifiers. These provide additional methods
-		# TODO - currently it is up to the user to verify that 
-		# modifiers are properly used with the correct VM image. If not, 
-		# the results are likely to be disasterous. 		
-		@modifiers = config['modifiers']
-	
-		# Optional for virtualbox
-		@location = filter_input(config['location'])
+		
+		# TODO - Currently only implemented for the first set
+		if @credentials.count > 0
+			@vm_user = filter_input(@credentials[0]['user']) || "\'\'"
+			@vm_pass = filter_input(@credentials[0]['pass']) || "\'\'"
+			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
+		end
 
 		# Only applicable to remote systems
 		@user = filter_input(config['user']) || nil
 		@host = filter_input(config['host']) || nil
-
-		# pass might need to be unfiltered, or filtered less
 		@pass = filter_input(config['pass']) || nil
 
-		#Only dynagen
+		#Only dynagen systems need this
 		@platform = config['platform']
+
+		#Only fog system need this
+		@fog_config = config['fog_config']
 
 		# Process the correct driver
 		if @driver_type == "workstation"
-			@driver = Lab::Drivers::WorkstationDriver.new(@vmid, @location, @os, @tools, @credentials)
-		elsif @driver_type == "workstation_vixr"
-			@driver = Lab::Drivers::WorkstationVixrDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)	
-		elsif @driver_type == "remote_workstation"
-			@driver = Lab::Drivers::RemoteWorkstationDriver.new(@vmid, @location, @os, @tools, @user, @host, @credentials)	
+			@driver = Lab::Drivers::WorkstationDriver.new(config)
 		elsif @driver_type == "virtualbox"
-			@driver = Lab::Drivers::VirtualBoxDriver.new(@vmid, @location, @credentials)
+			@driver = Lab::Drivers::VirtualBoxDriver.new(config)
+		elsif @driver_type == "fog"
+			@driver = Lab::Drivers::FogDriver.new(config, config['fog_config'])
 		elsif @driver_type == "dynagen"
-			@driver = Lab::Drivers::DynagenDriver.new(@vmid, @location,@platform)	
+			@driver = Lab::Drivers::DynagenDriver.new(config, config['dynagen_config'])	
 		elsif @driver_type == "remote_esx"
-			@driver = Lab::Drivers::RemoteEsxDriver.new(@vmid, @os, @tools, @user, @host, @credentials)
+			@driver = Lab::Drivers::RemoteEsxDriver.new(config)
+		elsif @driver_type == "remote_workstation"
+			@driver = Lab::Drivers::RemoteWorkstationDriver.new(config)
 		#elsif @driver_type == "qemu"
 		#	@driver = Lab::Drivers::QemuDriver.new	
 		#elsif @driver_type == "qemudo"
 		#	@driver = Lab::Drivers::QemudoDriver.new	
-		#elsif @driver_type == "fog"
-		#	@driver = Lab::Drivers::FogDriver.new	
 		else
 			raise "Unknown Driver Type"
 		end
+		
+		
+		# Load in a list of modifiers. These provide additional methods
+		# Currently it is up to the user to verify that 
+		# modifiers are properly used with the correct VM image.
+		#
+		# If not, the results are likely to be disasterous.
+		@modifiers = config['modifiers']
 		
 		if @modifiers	
  			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
@@ -176,20 +182,33 @@ class Vm
 	end
 
 	def to_s
-		return "#{@vmid}: #{@location}"
+		return "#{@vmid}"
 	end
 
 	def to_yaml
+		
+		# TODO - push this down to the drivers.
+		
+		# Standard configuration options
 		out =  " - vmid: #{@vmid}\n"
 		out += "   driver: #{@driver_type}\n"
-		out += "   location: #{@driver.location}\n"
+		out += "   location: #{@location}\n"
 		out += "   type: #{@type}\n"
 		out += "   tools: #{@tools}\n"
 		out += "   os: #{@os}\n"
 		out += "   arch: #{@arch}\n"
+		
 		if @user or @host # Remote vm/drivers only
 			out += "   user: #{@user}\n"
 			out += "   host: #{@host}\n"
+		end
+
+		if @platform
+			out += "   platform: #{@platform}\n"
+		end
+
+		if @fog_config
+			out += @fog_config.to_yaml
 		end
 
 		out += "   credentials:\n"
@@ -197,13 +216,14 @@ class Vm
 			out += "     - user: #{credential['user']}\n"
 			out += "       pass: #{credential['pass']}\n"
 		end
-		
+	
 	 	return out
 	end
 private
 
 	def filter_input(string)
-		return unless string
+		return "" unless string # nil becomes empty string
+		return unless string.class == String # Allow other types
 					
 		if !(string =~ /^[(!)\d*\w*\s*\[\]\{\}\/\\\.\-\"\(\)]*$/)
 			raise "WARNING! Invalid character in: #{string}"

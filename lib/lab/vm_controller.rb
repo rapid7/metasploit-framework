@@ -27,25 +27,20 @@ module Controllers
 
 		include Enumerable
 		include Lab::Controllers::WorkstationController 	
-		include Lab::Controllers::WorkstationVixrController 	
-		include Lab::Controllers::RemoteWorkstationController 	
 		include Lab::Controllers::VirtualBoxController 
+		include Lab::Controllers::FogController
 		include Lab::Controllers::DynagenController 
 		include Lab::Controllers::RemoteEsxController
+		include Lab::Controllers::RemoteWorkstationController 	
 		#include Lab::Controllers::QemuController 
 		#include Lab::Controllers::QemudoController 
-		#include Lab::Controllers::AmazonController
-		#include Lab::Controllers::FogController
-
-
 		def initialize (labdef=nil)
-			@vms = [] ## Start with an empty array of vms
-
-			## labdef is a big array of hashes, use yaml to store
-			labdef = [] unless labdef 
 			
-			## Create vm objects from the lab definition
-			load_vms(labdef)
+			# Start with an empty array of vm objects
+			@vms = [] 
+
+			# labdef is a just a big array of hashes
+			load_vms(labdef) if labdef
 		end
 		
 		def clear!
@@ -53,7 +48,12 @@ module Controllers
 		end
 
 		def [](x)
-			find_by_vmid(x)
+			# Support indexing by both names and number
+			if x.class == String
+				find_by_vmid(x)
+			else
+				return @vms[x]
+			end
 		end
 
 		def find_by_vmid(vmid)
@@ -65,8 +65,7 @@ module Controllers
 			return nil
 		end
 
-		def add_vm(vmid, type,location,credentials=nil,user=nil,host=nil)			
-			
+		def add_vm(vmid, location=nil, os=nil, tools=nil, credentials=nil, user=nil, host=nil)			
 			@vms << Vm.new( {	'vmid' => vmid, 
 						'driver' => type, 
 						'location' => location, 
@@ -80,20 +79,13 @@ module Controllers
 		end	
 
 		def from_file(file)
-			labdef = YAML::load_file(file)
-			load_vms(labdef)
+			load_vms(YAML::load_file(file))
 		end
 
 		def load_vms(vms)
 			vms.each do |item|
-				begin
-					vm = Vm.new(item)
-					@vms << vm unless includes_vmid? vm.vmid
-				rescue Exception => e
-					# TODO -  this needs to go into a logfile and be raised up to an interface.
-					puts "Invalid VM definition"
-					puts "Exception: #{e.to_s}"
-				end 
+				vm = Vm.new(item)
+				@vms << vm unless includes_vmid? vm.vmid
 			end
 		end
 
@@ -110,10 +102,10 @@ module Controllers
 		end
 
 		def includes_vmid?(vmid)
-			@vms.each do |vm| 
+			@vms.each do |vm|
 				return true if (vm.vmid == vmid)
 			end
-			return false
+		false
 		end
 
 		def build_from_dir(driver_type, dir, clear=false)
@@ -124,18 +116,16 @@ module Controllers
 
 			if driver_type.downcase == "workstation"
 				vm_list = ::Lab::Controllers::WorkstationController::dir_list(dir)
-			elsif driver_type.downcase == "workstation_vixr"	
-				vm_list = ::Lab::Controllers::WorkstationVixrController::dir_list(dir)
-			elsif driver_type.downcase == "remote_workstation"	
-				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
 			elsif driver_type.downcase == "virtualbox"	
 				vm_list = ::Lab::Controllers::VirtualBoxController::dir_list(dir)
+			elsif driver_type.downcase == "fog"
+				vm_list = ::Lab::Controllers::FogController::dir_list(dir)
+			elsif driver_type.downcase == "Dynagen"	
+				vm_list = ::Lab::Controllers::DynagenController::dir_list(dir)
+			elsif driver_type.downcase == "remote_workstation"	
+				vm_list = ::Lab::Controllers::RemoteWorkstationController::dir_list(dir)
 			elsif driver_type.downcase == "remote_esx"
 				vm_list =::Lab::Controllers::RemoteEsxController::dir_list(dir)
-			#elsif driver_type.downcase == "esxi_vixr"
-			#	vm_list =::Lab::Controllers::EsxiVixrController::dir_list(dir)
-			#elsif driver_type.downcase == "fog"
-			#	vm_list = ::Lab::Controllers::FogController::dir_list(dir)
 			else
 				raise TypeError, "Unsupported VM Type"
 			end
@@ -168,6 +158,19 @@ module Controllers
 									'host' => host } )
 					end
 					
+					
+				when :virtualbox
+					vm_list = ::Lab::Controllers::VirtualBoxController::running_list
+					vm_list.each do |item|
+						## Add it to the vm list
+						@vms << Vm.new( {	'vmid' => "#{item}",
+									'driver' => driver_type,
+									'location' => nil })
+					end
+				when :fog
+					raise "Unsupported" # TODO - figure out a way to allow this
+				when :dynagen
+					raise "Unsupported"
 				when :remote_workstation
 					vm_list = ::Lab::Controllers::RemoteWorkstationController::running_list(user, host)
 					
@@ -183,21 +186,6 @@ module Controllers
 									'user' => user,
 									'host' => host } )
 					end
-					
-				when :virtualbox
-					vm_list = ::Lab::Controllers::VirtualBoxController::running_list
-					
-					# TODO - why are user and host specified here?
-
-					vm_list.each do |item|
-						## Add it to the vm list
-						@vms << Vm.new( {	'vmid' => "#{item}",
-									'driver' => driver_type,
-									'location' => nil, # this will be filled in by the driver
-									'user' => user,
-									'host' => host } )
-					end
-
 				when :remote_esx
 					vm_list = ::Lab::Controllers::RemoteEsxController::running_list(user,host)
 					
@@ -216,7 +204,6 @@ module Controllers
 		end	
 
 		def build_from_config(driver_type=nil, user=nil, host=nil, clear=false)
-		
 			if clear
 				@vms = []
 			end

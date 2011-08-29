@@ -12,23 +12,10 @@ require 'vm_driver'
 module Lab
 module Drivers
 	class DynagenDriver < VmDriver
-
-		attr_accessor :type
-		attr_accessor :location
-
-		def initialize(vmid,location,platform)
-			
-			@vmid = filter_command(vmid)
-			@location = filter_command(location)
-
-			if !File.exist?(location)
-				raise ArgumentError,"Couldn't find: " + location
-			end
-
-			@type = "dynagen"
+		def initialize(config,dynagen_config)
+			super(config)
 			@running = false
-			@platform = filter_command(platform)
-			@credentials = []
+			@dynagen_platform = filter_command(dynagen_config['dynagen_platform'])
 		end
 
 		def start
@@ -36,7 +23,7 @@ module Drivers
 			#        and set the autostart property 
 
 			## start background dynamips process
-			system_command("dynamips -H #{@platform} &")
+			system_command("dynamips -H #{@dynagen_platform} &")
 			system_command("dynagen	#{@location}")
 			@running = true
 		end

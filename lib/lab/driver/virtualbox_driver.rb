@@ -10,12 +10,10 @@ module Drivers
 
 		attr_accessor :location
 
-		def initialize(vmid, location=nil, credentials=nil)
+		def initialize(config)
 
-			@vmid = filter_command(vmid)
-			@location = filter_command(location)
+			super(config)
 
-	
 			## Check to see if we already know this vm, if not, go on location
 			vmid_list = ::Lab::Controllers::VirtualBoxController::config_list
 			unless vmid_list.include? @vmid
@@ -31,15 +29,11 @@ module Drivers
 			
 			vmInfo = `VBoxManage showvminfo \"#{@vmid}\" --machinereadable`
 			@location = vmInfo.scan(/CfgFile=\"(.*?)\"/).flatten[0].to_s
-			
-			@credentials = credentials
 
-			# TODO - Currently only implemented for the first set
-			if @credentials.count > 0
-				@vm_user = filter_input(@credentials[0]['user']) || "\'\'"
-				@vm_pass = filter_input(@credentials[0]['pass']) || "\'\'"
+			if !File.exist?(@location)
+				raise ArgumentError,"Couldn't find: " + @location
 			end
-			
+
 		end
 
 		def register_and_return_vmid

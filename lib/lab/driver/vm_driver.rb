@@ -5,13 +5,33 @@
 #
 # 	!!WARNING!! - All drivers are expected to filter input before running
 #	anything based on it. This is particularly important in the case
-#	of the drivers which wrap a command line program to provide 
-# 	functionality.  
+#	of the drivers which wrap a command line to provide functionality.  
 #
 
 module Lab
 module Drivers
 class VmDriver
+	
+	attr_accessor :vmid 
+	attr_accessor :location
+	attr_accessor :os
+	attr_accessor :tools
+	attr_accessor :credentials
+	
+	def initialize(basic_driver_config)
+		@vmid = filter_command(basic_driver_config["vmid"])
+		@location = filter_command(basic_driver_config["location"])
+		@credentials = basic_driver_config["credentials"] || []
+		@tools = filter_input(basic_driver_config["tools"])
+		@os = filter_input(basic_driver_config["os"])
+
+		# Currently only implemented for the first set
+		if @credentials.count > 0
+			@vm_user = filter_input(@credentials[0]['user'])
+			@vm_pass = filter_input(@credentials[0]['pass'])
+			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
+		end
+	end
 
 	def register	# Must be implemented in a child *_driver class
 		raise "Command not Implemented"
@@ -83,62 +103,33 @@ class VmDriver
 
 private
 
-	# Currently this requires the net-ssh and net-scp gems. Ran into problems doing 
-	# it with within metasploit (even though net-ssh is available). TODO - do something
-	# about this...
-
 	def scp_to(from,to)
-		gem 'net-ssh'
-		require 'net/ssh'
-		
-		gem 'net-scp'
 		require 'net/scp'
-		
-		#begin
-			# upload a file to a remote server
+
 		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
 			scp.upload!(from,to)
 		end	
-		#rescue Exception => e
-		#	return false
-		#end
 	end
 	
 	def scp_from(from,to)
-		gem 'net-ssh'
-		require 'net/ssh'
-		
-		gem 'net-scp'
 		require 'net/scp'
-		
-		#begin
+
 		# download a file from a remote server
 		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
 			scp.download!(from,to)
-		end	
-		#rescue Exception => e
-		#	return false
-		#end
-
+		end
 	end
 	
 	def ssh_exec(command)
-		gem 'net-ssh'
-		require 'net/ssh'
-
-		#begin		
 		Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
 			result = ssh.exec!(command)
 		end
-		#rescue Exception => e
-		#	return false
-		#end
-
 	end
 
 	def filter_input(string)
-		return "" unless string
-				
+		return "" unless string # nil becomes empty string
+		return unless string.class == String # Allow other types unmodified
+		
 		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/)
 			raise "WARNING! Invalid character in: #{string}"
 		end
@@ -147,8 +138,9 @@ private
 	end
 
 	def filter_command(string)
-		return "" unless string
-				
+		return "" unless string # nil becomes empty string
+		return unless string.class == String # Allow other types unmodified		
+		
 		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
 			raise "WARNING! Invalid character in: #{string}"
 		end
@@ -156,12 +148,11 @@ private
 	string
 	end
 	
+	# The only reason we don't filter here is because we need
+	# the ability to still run clean (controlled entirely by us)
+	# command lines.
 	def system_command(command)
-		#begin
 		system(command)
-		#rescue	Exception => e
-		#	return false
-		#	end
 	end
 end
 

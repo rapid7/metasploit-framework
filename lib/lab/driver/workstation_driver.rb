@@ -9,25 +9,11 @@ module Drivers
 
 class WorkstationDriver < VmDriver
 
-	attr_accessor :type
-	attr_accessor :location
-
-	def initialize(vmid, location, os=nil, tools=false, credentials=nil)
-		@vmid = filter_command(vmid)
-		@location = filter_command(location)
-
+	def initialize(config)
+		super(config)
+		
 		if !File.exist?(@location)
-			raise ArgumentError,"Couldn't find: " + @location
-		end
-
-		@credentials = credentials
-		@tools = tools	# not used in command lines, no filter
-		@os = os	# not used in command lines, no filter
-
-		# TODO - Currently only implemented for the first set
-		if @credentials.count > 0
-			@vm_user = filter_input(@credentials[0]['user']) || "\'\'"
-			@vm_pass = filter_input(@credentials[0]['pass']) || "\'\'"
+			raise ArgumentError,"Couldn't find: #{@location}"
 		end
 	end
 
@@ -132,31 +118,49 @@ class WorkstationDriver < VmDriver
 	def copy_from(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' copyFileFromGuestToHost " +
-				"\'#{@location}\' \'#{from}\' \'#{to}\'" 
+		if @tools
+			vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' copyFileFromGuestToHost " +
+					"\'#{@location}\' \'#{from}\' \'#{to}\'" 
+		else
+			scp_from(from, to)
+		end
 		system_command(vmrunstr)
 	end
 
 	def copy_to(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
-		vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest " +
-				"\'#{@location}\' \'#{from}\' \'#{to}\'"  
-		system_command(vmrunstr)
+		if @tools
+			vmrunstr = "vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} copyFileFromHostToGuest " +
+				"\'#{@location}\' \'#{from}\' \'#{to}\'"
+			system_command(vmrunstr)
+		else
+			scp_to(from, to)
+		end
 	end
 
 	def check_file_exists(file)
 		file = filter_input(file)
-		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' fileExistsInGuest " +
+		if @tools
+			vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' fileExistsInGuest " +
 				"\'#{@location}\' \'#{file}\' "
-		system_command(vmrunstr)
+			system_command(vmrunstr)
+		else
+			raise "Unsupported"
+		end
 	end
 
 	def create_directory(directory)
 		directory = filter_input(directory)
-		vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' createDirectoryInGuest " +
-				" \'#{@location}\' \'#{directory}\' "
-		system_command(vmrunstr)
+		if @tools
+			vmrunstr = "vmrun -T ws -gu \'#{@vm_user}\' -gp \'#{@vm_pass}\' createDirectoryInGuest " +
+					" \'#{@location}\' \'#{directory}\' "
+			system_command(vmrunstr)
+		else
+			raise "Unsupported"
+		end
+
+		
 	end
 
 	def cleanup

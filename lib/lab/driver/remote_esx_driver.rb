@@ -12,24 +12,15 @@ module Drivers
 
 class RemoteEsxDriver < VmDriver
 
-	def initialize(vmid,os=nil, tools=false, user=nil, host=nil, credentials=nil)
+	def initialize(config)
 
-		unless user then raise ArgumentError, "Must provide a username" end
-		unless host then raise ArgumentError, "Must provide a hostname" end
+		unless config['user'] then raise ArgumentError, "Must provide a username" end
+		unless config['host'] then raise ArgumentError, "Must provide a hostname" end
 
-		@vmid = filter_command(vmid)
-		@user = filter_command(user)
-		@host = filter_command(host)
-		@credentials = credentials # individually filtered
-		@tools = tools	# not used in command lines, no filter
-		@os = os	# not used in command lines, no filter
+		super(config)
 
-		# TODO - Currently only implemented for the first set
-		if @credentials.count > 0
-			@vm_user = filter_input(@credentials[0]['user'])
-			@vm_pass = filter_input(@credentials[0]['pass'])
-			@vm_keyfile = filter_input(@credentials[0]['keyfile'])
-		end
+		@user = filter_command(config['user'])
+		@host = filter_command(config['host'])
 	end
 
 	def start
@@ -62,11 +53,13 @@ class RemoteEsxDriver < VmDriver
 		#vmware-vim-cmd vmsvc/snapshot.create [vmid: int] [snapshotName: string] 
 		#			[snapshotDescription: string] [includeMemory:bool]
 
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/snapshot.create #{@vmid} #{snapshot} \'lab created snapshot\' 1 true\"")
+		`ssh #{@user}@#{@host} \"vim-cmd vmsvc/snapshot.create #{@vmid} #{snapshot} \'lab created snapshot\' 1 true\""`
 	end
 
 	def revert_snapshot(snapshot)
 		raise "Not Implemented"
+
+
 
 		#vmware-vim-cmd vmsvc/snapshot.revert [vmid: int] [snapshotlevel: int] [snapshotindex: int]
 		# not sure how we can do this, would have to list snapshots and map name to level & index
@@ -87,11 +80,19 @@ class RemoteEsxDriver < VmDriver
 	end
 	
 	def copy_from(from, to)
-		raise "Not Implemented"
+		if @os == "linux"
+			scp_from(from, to)
+		else
+			raise "Unimplemented"
+		end
 	end
 
 	def copy_to(from, to)
-		raise "Not Implemented"			
+		if @os == "linux"
+			scp_to(from, to)
+		else
+			raise "Unimplemented"
+		end
 	end
 
 	def check_file_exists(file)
