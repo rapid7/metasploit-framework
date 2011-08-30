@@ -37,7 +37,7 @@ class EncodedPayload
 	end
 
 	#
-	# This method enerates the full encoded payload and returns the encoded
+	# This method generates the full encoded payload and returns the encoded
 	# payload buffer.
 	#
 	def generate(raw = nil)
