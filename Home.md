@@ -1,1 +1,1 @@
-Welcome to the metasploit-framework wiki!
+This is a placeholder only, please do not use for anything serious yet
