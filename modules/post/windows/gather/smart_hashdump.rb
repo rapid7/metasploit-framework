@@ -333,7 +333,7 @@ class Metasploit3 < Msf::Post
 				lmhash = returned_hash[2].scan(/[a-f0-9]*/).join
 				next if lmhash == nil
 				hash_entry = "#{user}:#{rid}:#{lmhash}:#{returned_hash[3]}"
-				collected_hashes << hash_entry
+				collected_hashes << "#{hash_entry}\n"
 				print_good("\t#{hash_entry}")
 				session.framework.db.report_auth_info(
 					:host  => session.sock.peerhost,
