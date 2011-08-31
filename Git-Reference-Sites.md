@@ -10,7 +10,7 @@ The following sites are great references for Git padawans and jedi alike:
 * [Git Ready](http://gitready.com): A collection of Git tips and tricks.
 * [Why Git is Better Than X](http://whygitisbetterthanx.com): In case you still need convincing, this site breaks down Git vs. other popular SCM packages.
 * [The Git Parable](http://tom.preston-werner.com/2009/05/19/the-git-parable.html): A story by GitHub founder Tom Preston-Werner that reveals the underlying principles behind Git's construction. A great starting point for understanding the nature of Git.
-* [PeepCode](http://peepcode.com/products/git) Not free, but like an ~80 minute video.  Well made, I found it super helpful.
+* [PeepCode](http://peepcode.com/products/git) Not free, a ~60 minute video.  Well made, I found it super helpful.
 
 ## SVN mirroring
 
