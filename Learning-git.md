@@ -1,4 +1,5 @@
-# Reference Sites
+# Learning git
+## Reference sites
 
 The following sites are great references for git padawans and jedi alike:
 
@@ -9,6 +10,6 @@ The following sites are great references for git padawans and jedi alike:
 * [Why Git is Better Than X](http://whygitisbetterthanx.com): In case you still need convincing, this site breaks down git vs. other popular SCM packages.
 * [The Git Parable](http://tom.preston-werner.com/2009/05/19/the-git-parable.html): A story by GitHub founder Tom Preston-Werner that reveals the underlying principles behind git's construction. A great starting point for understanding the nature of git.
 
-# SVN Mirroring
+## SVN mirroring
 
 Of course, if you're still having trouble, GitHub does offer [basic SVN read-write support](https://github.com/blog/644-subversion-write-support).
