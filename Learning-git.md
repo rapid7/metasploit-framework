@@ -1,4 +1,5 @@
 # Learning git
+
 ## Reference sites
 
 The following sites are great references for git padawans and jedi alike:
