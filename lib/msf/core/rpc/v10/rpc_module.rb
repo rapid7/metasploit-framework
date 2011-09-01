@@ -229,11 +229,13 @@ class RPC_Module < RPC_Base
 private
 
 	def _find_module(mtype,mname)
-		if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post)$/
+	
+		if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post)\//
 			mname = mtype + "/" + mname
 		end
-	
+
 		mod = self.framework.modules.create(mname)
+
 		error(500, "Invalid Module") if not mod
 		mod
 	end
