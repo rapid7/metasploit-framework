@@ -1,5 +1,6 @@
 require 'rex/text'
 require 'rex/exploitation/obfuscatejs'
+require 'rex/exploitation/jsbfu'
 
 module Rex
 module Exploitation
