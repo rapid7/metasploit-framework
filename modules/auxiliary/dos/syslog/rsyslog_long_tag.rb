@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				but is effective at shutting down a remote log daemon. This bug
 				was introduced in version 4.6.0 and corrected in 4.6.8/5.8.5. 
 				Compiler differences may prevent this bug from causing any
-				noticable result on many systems (RHEL6 is affected).
+				noticeable result on many systems (RHEL6 is affected).
 			},
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE,
