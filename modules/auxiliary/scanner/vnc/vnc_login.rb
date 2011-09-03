@@ -47,16 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ false, 'The password to test' ]),
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.data_directory, "wordlists", "vnc_passwords.txt") ]),
+
+				#We need to set the following options to make sure BLANK_PASSWORDS functions properly
+				OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
+				OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
 			], self.class)
 
 		register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
-
-		#We need to set the following options to make sure BLANK_PASSWORDS functions properly
-		register_options(
-			[
-				OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
-				OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
-			])
 
 		# We don't currently support an auth mechanism that uses usernames, so we'll ignore any
 		# usernames that are passed in.
