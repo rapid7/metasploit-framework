@@ -51,6 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_autofilter_ports((5900..5910).to_a) # Each instance increments the port by one.
 
+		#We need to set the following options to make sure BLANK_PASSWORDS functions properly
+		register_options(
+			[
+				OptString.new('USERNAME', [false, 'A specific username to authenticate as', '<BLANK>']),
+				OptBool.new('USER_AS_PASS', [false, 'Try the username as the password for all users', false])
+			])
+
 		# We don't currently support an auth mechanism that uses usernames, so we'll ignore any
 		# usernames that are passed in.
 		@strip_usernames = true
