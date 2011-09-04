@@ -158,6 +158,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	public static Process startMsfProc(String[] args) throws MsfException {
 		String msfCommand = args[0];
 		String prefix;
+		File msfRoot = getMsfRoot();
 		try{
 			prefix = getPropertiesNode().get("commandPrefix").toString();
 		}catch(Exception ex){
@@ -167,14 +168,14 @@ public class MsfguiApp extends SingleFrameApplication {
 		String[] winArgs = null;
 		try {
 			args[0] = prefix + msfCommand;
-			proc = Runtime.getRuntime().exec(args);
+			proc = Runtime.getRuntime().exec(args, null, msfRoot);
 		} catch (Exception ex1) {
 			try {
-				proc = Runtime.getRuntime().exec(args);
+				proc = Runtime.getRuntime().exec(args, null, msfRoot);
 			} catch (IOException ex2) {
 				try {
-					args[0] = getMsfRoot() + "/" + msfCommand;
-					proc = Runtime.getRuntime().exec(args);
+					args[0] = msfRoot + "/" + msfCommand;
+					proc = Runtime.getRuntime().exec(args, null, msfRoot);
 				} catch (IOException ex3) {
 					try {
 						winArgs = new String[args.length + 3];
@@ -183,14 +184,14 @@ public class MsfguiApp extends SingleFrameApplication {
 						winArgs[1] = "/c";
 						winArgs[2] = "ruby.exe";
 						winArgs[3] = msfCommand;
-						proc = Runtime.getRuntime().exec(winArgs);
+						proc = Runtime.getRuntime().exec(winArgs, null, msfRoot);
 					} catch (IOException ex4){
 						try{
 							if (msfCommand.equals("msfencode"))
 								winArgs[2] = "ruby.exe";
 							else
 								winArgs[2] = "rubyw.exe";
-							winArgs[3] = getMsfRoot() + "/"  + msfCommand;
+							winArgs[3] = msfRoot + "/"  + msfCommand;
 							proc = Runtime.getRuntime().exec(winArgs);
 						} catch (IOException ex5) {
 							try {
@@ -255,7 +256,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	}
 	/**
 	 * Finds the path to the root of the metasploit tree (the msf3 folder this jar is being run out of)
-	 * @return A File object pointing to the directory at the root of the metasploit tre
+	 * @return A File object pointing to the directory at the root of the metasploit tree
 	 * @throws MsfException if this jar file has been moved or the containing directory structure has been moved.
 	 */
 	public static File getMsfRoot() throws MsfException{
