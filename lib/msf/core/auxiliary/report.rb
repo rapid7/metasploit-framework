@@ -185,14 +185,17 @@ module Auxiliary::Report
 			# If we have a database we need to store it with all the available
 			# metadata.
 			conf = {}
-			conf[:host] = host if host
-			conf[:service] = service if service 			
+			conf[:host] = host if host		
 			conf[:type] = ltype
 			conf[:content_type] = ctype
 			conf[:path] = full_path
 			conf[:workspace] = myworkspace
 			conf[:name] = filename if filename
 			conf[:info] = info if info
+			
+			if service and service.kind_of?(Msf::DBManager::Service)
+				conf[:service] = service if service 	
+			end
 
 			framework.db.report_loot(conf)
 		end
