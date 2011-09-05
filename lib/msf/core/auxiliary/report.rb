@@ -147,7 +147,7 @@ module Auxiliary::Report
 	# +filename+ and +info+ are only stored as metadata, and therefore both are
 	# ignored if there is no database
 	#
-	def store_loot(ltype, ctype, host, data, filename=nil, info=nil)
+	def store_loot(ltype, ctype, host, data, filename=nil, info=nil, service=nil)
 		if ! ::File.directory?(Msf::Config.loot_directory)
 			FileUtils.mkdir_p(Msf::Config.loot_directory)
 		end
@@ -186,6 +186,7 @@ module Auxiliary::Report
 			# metadata.
 			conf = {}
 			conf[:host] = host if host
+			conf[:service] = service if service 			
 			conf[:type] = ltype
 			conf[:content_type] = ctype
 			conf[:path] = full_path
