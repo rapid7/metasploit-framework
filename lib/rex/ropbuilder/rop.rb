@@ -15,7 +15,7 @@ class RopBase
 
 	def to_csv(gadgets = [])
 		if gadgets.empty? and @gadgets.nil? or @gadgets.empty?
-			print_error("No gadgets collected to convert to CSV format.")
+			@stdio.print_error("No gadgets collected to convert to CSV format.")
 			return
 		end
 
@@ -45,14 +45,25 @@ class RopBase
 		begin
 			data = File.new(file, 'r').read
 		rescue
-			print_error("Error reading #{file}")
+			@stdio.print_error("Error reading #{file}")
+			return []
+		end
+
+		if data.empty? or data.nil?
+			return []
 		end
 
 		data.gsub!(/\"/, '')
 		data.gsub!("Address,Raw,Disassembly\n", '')
+
 		@gadgets = []
+		
 		data.each_line do |line|
 			addr, raw, disasm = line.split(',', 3)
+			if addr.nil? or raw.nil? or disasm.nil?
+				@stdio.print_error("Import file format corrupted")
+				return []
+			end
 			disasm.gsub!(/: /, ":\t")
 			disasm.gsub!(' | ', "\n")
 			raw = [raw].pack('H*')
