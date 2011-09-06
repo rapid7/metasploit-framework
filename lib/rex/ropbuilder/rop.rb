@@ -88,6 +88,7 @@ end
 
 class RopCollect < RopBase
 	def initialize(file="")
+		@stdio = Rex::Ui::Text::Output::Stdio.new
 		@file = file if not file.empty?
 		@bin = Metasm::AutoExe.decode_file(file) if not file.empty?
 		@disassembler = @bin.disassembler if not @bin.nil?
