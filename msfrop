@@ -151,6 +151,11 @@ end
 if opts[:export]
 	ropbuilder.print_msg("Exporting %grn#{gadgets.count}%clr gadgets to %bld%cya#{opts[:export]}%clr\n", color)
 	csv = ropbuilder.to_csv(gadgets)
+
+	if csv.nil?
+		exit(1)
+	end
+
 	begin
 		fd = File.new(opts[:export], 'w')
 		fd.puts csv
