@@ -248,8 +248,8 @@ class Metasploit3 < Msf::Auxiliary
 			maddr = buff.slice!(0,6).unpack("C*").map{|c| "%.2x" % c }.join(":")
 
 			@results[addr][:names] = names
-			@results[addr][:mac]   = maddr			
-			
+			@results[addr][:mac]   = maddr
+
 			if (!hname and @results[addr][:names].length > 0)
 				@results[addr][:name] = @results[addr][:names][0][0]
 			end

