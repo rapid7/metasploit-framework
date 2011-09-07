@@ -146,13 +146,28 @@ module Analyze
 				$stdout.puts "\n\n"
 			end
 
+			# Rex::PeParsey::Pe doesn't seem to give us any offset information for each function,
+			# which makes it difficult to calculate the actual addresses for them. So instead we
+			# are using Metasm::COFF::ImportDirectory to do this task.  The ability to see
+			# addresses is mainly for ROP.
 			if (pe.imports)
-				tbl = table("Imported Functions", ['Library', 'Ordinal', 'Name'])
-				pe.imports.each do |lib|
-					lib.entries.each do |ent|
-						tbl << [lib.name, ent.ordinal, ent.name]
+				tbl = table("Imported Functions", ['Library', 'Address', 'Ordinal', 'Name'])
+				exefmt = Metasm::AutoExe.orshellcode{ Metasm.const_get('x86_64').new }
+				exe = exefmt.decode_file(pe._isource.file.path)
+				ibase = pe.image_base
+				exe_imports = exe.imports
+				exe_imports.each do |lib|
+					lib_name   = lib.libname
+					ini_offset = lib.iat_p
+					func_table = lib.imports
+					offset     = 0
+					func_table.each do |func|
+						func_addr = "0x%08x" %(ibase + ini_offset + offset)
+						tbl << [lib_name, func_addr, func.hint, func.name]
+						offset += 4
 					end
 				end
+
 				$stdout.puts tbl.to_s
 				$stdout.puts "\n\n"
 			end
