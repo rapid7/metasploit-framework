@@ -134,8 +134,49 @@ module Analyze
 				LoaderFlags
 				NumberOfRvaAndSizes
 			})
+
 			$stdout.puts tbl.to_s
 			$stdout.puts "\n\n"
+
+			# Get DllCharacteristics (in Integer)
+			dllcharacteristics = pe.hdr.opt.struct[23].value
+
+			if (dllcharacteristics > 0)
+				tbl = table("DllCharacteristics", ['Flag', 'Value'])
+
+				# http://msdn.microsoft.com/en-us/library/ms680339(v=vs.85).aspx
+				traits = {
+					:ASLR      => 'False',  #IMAGE_DLLCHARACTERISTICS_DYNAMIC_BASE
+					:Integrity => 'False',  #IMAGE_DLLCHARACTERISTICS_FORCE_INTEGRITY
+					:NX        => 'False',  #IMAGE_DLLCHARACTERISTICS_NX_COMPAT
+					:Isolation => 'False',  #IMAGE_DLLCHARACTERISTICS_NO_ISOLATION
+					:SEH       => 'False',  #IMAGE_DLLCHARACTERISTICS_NO_SEH
+					:Bind      => 'False',  #IMAGE_DLLCHARACTERISTICS_NO_BIND
+					:WDM       => 'False',  #IMAGE_DLLCHARACTERISTICS_WDM_DRIVER
+					:Terminal  => 'False'   #IMAGE_DLLCHARACTERISTICS_TERMINAL_SERVER_AWARE
+				}
+
+				# Convert integer to an bit array
+				c_bits = ("%32d" %dllcharacteristics.to_s(2)).split('').map { |e| e.to_i }.reverse
+
+				# Check characteristics
+				traits[:ASLR]      = 'True' if c_bits[6]  == 1  #0x0040
+				traits[:Integrity] = 'True' if c_bits[7]  == 1  #0x0080
+				traits[:NX]        = 'True' if c_bits[8]  == 1  #0x0100
+				traits[:Isolation] = 'True' if c_bits[9]  == 1  #0x0200
+				traits[:SEH]       = 'True' if c_bits[10] == 1  #0x0400
+				traits[:Bind]      = 'True' if c_bits[11] == 1  #0x0800
+				traits[:WDM]       = 'True' if c_bits[13] == 1  #2000
+				traits[:Terminal]  = 'True' if c_bits[15] == 1  #0x8000
+
+				# Putting results to table
+				traits.each do |trait_name, trait_value|
+					tbl << [trait_name, trait_value]
+				end
+
+				$stdout.puts tbl.to_s
+				$stdout.puts "\n\n"
+			end
 
 			if (pe.exports)
 				tbl = table("Exported Functions", ['Ordinal', 'Name', 'Address'])
