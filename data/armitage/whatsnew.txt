@@ -1,6 +1,28 @@
 Armitage Changelog
 ==================
 
+09.08.11
+--------
+- Armitage now highlights the event log tab when something new is posted and the
+  tab is not active. Control the color by editing tab.highlight.color pref.
+- Fixed a bug preventing preference values from saving properly (and having an
+  effect).
+- Added "Check all credentials" option to the login dialogs. This option will 
+  login to the service to test each credential. Successful logins will populate
+  the credentials table.
+- Fixed a bug preventing the first open console from scrolling all the way to 
+  the bottom when open.
+- Credential export button now escapes the file path (making the button work on
+  Windows). This bug is another good example of why you should use Armitage on
+  Linux. It'll just work. Windows users: expect surprises.
+- Use Ctrl+Shift on a tab X button to remove the tab and create a desktop window 
+  with its contents. I suspect you'll find this really useful at times.
+- Armitage now remembers your auto-layout setting. Right-click in the graph area
+  to change it.
+- Setting armitage.show_all_commands.boolean to true will now run each exploit in 
+  its own tab. Setting this is a good way to get feedback on the attacks you
+  launch and to learn the Metasploit console better.
+
 07.31.11
 --------
 - Fixed bug preventing Meterpreter -> Access -> Hashdump from noting all hashes
