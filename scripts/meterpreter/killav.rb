@@ -575,7 +575,6 @@ avs = %W{
 	window.exe
 	windows.exe
 	wininetd.exe
-	wininit.exe
 	wininitx.exe
 	winlogin.exe
 	winmain.exe
