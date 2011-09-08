@@ -92,6 +92,7 @@ module ReverseHttps
 	# Simply calls stop handler to ensure that things are cool.
 	#
 	def cleanup_handler
+		stop_handler
 	end
 
 	#
