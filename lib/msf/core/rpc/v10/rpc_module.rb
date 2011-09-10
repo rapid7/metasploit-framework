@@ -201,7 +201,7 @@ class RPC_Module < RPC_Base
 			# Imports options
 			enc.datastore.update(options)
 
-			raw  = data.dup
+			raw  = data.unpack("C*").pack("C*")
 
 			1.upto(ecount) do |iteration|
 				# Encode it up
