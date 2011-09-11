@@ -1,6 +1,8 @@
 package msfgui;
 
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.HeadlessException;
 import java.awt.Point;
 import java.awt.Window;
@@ -21,6 +23,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JWindow;
 import javax.swing.event.ChangeEvent;
@@ -36,6 +39,7 @@ public class DraggableTabbedPane extends JTabbedPane{
 	private static Set panes = new HashSet();
 	private boolean dragging = false;
 	private int draggedTabIndex = 0;
+	private Container paneParent;
 	private Map focusListeners = new HashMap();
 	private static FocusListener lastFocusListener = null;
 	private static JWindow window;
@@ -115,11 +119,35 @@ public class DraggableTabbedPane extends JTabbedPane{
 		destinationPane.focusListeners.put(comp, focusListeners.get(comp));
 
 		//If we got rid of the last tab, close this window, unless it's the main window
-		JFrame rent = (JFrame)getTopLevelAncestor();
-		if(getTabCount() < 1 && rent != MsfguiApp.mainFrame.getFrame()){
-			rent.setVisible(false);
-			rent.dispose();
-			panes.remove(DraggableTabbedPane.this);
+		if(getTabCount() < 1 && paneParent != MsfguiApp.mainFrame.getFrame()){
+			panes.remove(this);
+			//If parent is a frame, just close it
+			if(paneParent instanceof JFrame){
+				paneParent.setVisible(false);
+				((JFrame)paneParent).dispose();
+			//If it's a split pane, replace with other side
+			}else if(paneParent instanceof JSplitPane){
+				JSplitPane split = (JSplitPane)paneParent;
+				Component replacement;
+				if (split.getRightComponent() == this)
+					replacement = split.getLeftComponent();
+				else if (((JSplitPane)paneParent).getLeftComponent() == this)
+					replacement = split.getRightComponent();
+				else
+					throw new MsfException("Not either side of split? This should never happen");
+				Container parent = split.getParent();
+				parent.remove(split);
+				parent.add(replacement);
+				//If the other side is a DraggableTabbedPane, update its parent
+				for(Container c = parent; c != null; c=c.getParent()){
+					if((c instanceof JSplitPane || c instanceof JFrame)
+							&& replacement instanceof DraggableTabbedPane){
+						((DraggableTabbedPane)replacement).paneParent = c;
+						break;
+					}
+				}
+				((Window)((javax.swing.JComponent)replacement).getTopLevelAncestor()).pack();
+			}
 		}
 	}
 
@@ -174,9 +202,11 @@ public class DraggableTabbedPane extends JTabbedPane{
 	}
 
 	/**
-	 * Default constructor of DraggableTabbedPane.
+	 * Constructs a new DraggableTabbedPane with a parent
+	 * @param parent
 	 */
-	public DraggableTabbedPane() {
+	public DraggableTabbedPane(Container parent) {
+		paneParent = parent;
 		//Set up right-click menu
 		final JPopupMenu tabPopupMenu = new JPopupMenu();
 		JMenuItem closeTabItem = new JMenuItem("Close this tab");
@@ -191,6 +221,36 @@ public class DraggableTabbedPane extends JTabbedPane{
 			}
 		});
 		tabPopupMenu.add(closeTabItem);
+		JMenuItem newWinItem = new JMenuItem("Move to new window");
+		newWinItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indx = getSelectedIndex();
+				if(indx == -1)
+					return;
+				moveTabToNewFrame(indx,0,0);
+			}
+		});
+		tabPopupMenu.add(newWinItem);
+		JMenuItem splitVerticalItem = new JMenuItem("Split vertically");
+		splitVerticalItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indx = getSelectedIndex();
+				if(indx == -1)
+					return;
+				addSplit(indx,JSplitPane.VERTICAL_SPLIT);
+			}
+		});
+		tabPopupMenu.add(splitVerticalItem);
+		JMenuItem splitHorizontalItem = new JMenuItem("Split horizontally");
+		splitHorizontalItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int indx = getSelectedIndex();
+				if(indx == -1)
+					return;
+				addSplit(indx,JSplitPane.HORIZONTAL_SPLIT);
+			}
+		});
+		tabPopupMenu.add(splitHorizontalItem);
 		addMouseListener( new PopupMouseListener() {
 			public void showPopup(MouseEvent e) {
 				tabPopupMenu.show(DraggableTabbedPane.this, e.getX(), e.getY() );
@@ -244,19 +304,20 @@ public class DraggableTabbedPane extends JTabbedPane{
 				for(Object tabo : panes){
 					DraggableTabbedPane pane = (DraggableTabbedPane)tabo;
 					try{
-						Point ptabo = (pane).getLocationOnScreen();
+						Point ptabo = pane.getLocationOnScreen();
 						int x = e.getXOnScreen() - ptabo.x;
 						int y = e.getYOnScreen() - ptabo.y;
 						int tabNumber = pane.getUI().tabForCoordinate(pane, x, y);
 
 						//If it's not on one of the tabs, but it's still in the tab bar, make a new tab
-						if (tabNumber < 0 && pane.getBounds().contains(x, y))
+						int paneW = pane.getWidth();
+						int paneH = pane.getHeight();
+						if (tabNumber < 0 && x > 0 && y > 0 && x <= paneW && y <= paneH)
 							tabNumber = pane.getTabCount() - 1;
 
 						//We found it!
 						if (tabNumber >= 0) {
 							moveTabTo(draggedTabIndex, pane, tabNumber);
-							MsfguiApp.getPropertiesNode().put("tabWindowPreference", "tab"); //guess we like tabs
 							return;
 						}
 					}catch(java.awt.IllegalComponentStateException icse){
@@ -270,15 +331,47 @@ public class DraggableTabbedPane extends JTabbedPane{
 	}
 
 	/**
+	 * Splits the current tabbed pane, adding indx to the new split
+	 * @param indx
+	 */
+	private void addSplit(int indx, int orientation) {
+		//Make split pane
+		JSplitPane split = new javax.swing.JSplitPane();
+		split.setOrientation(orientation);
+		split.setLeftComponent(DraggableTabbedPane.this);
+		//make new tabbedpane
+		final DraggableTabbedPane tabs = new DraggableTabbedPane(split);
+		moveTabTo(indx, tabs, 0);
+		split.setRightComponent(tabs);
+		if (paneParent instanceof JFrame) {
+			Dimension size = paneParent.getSize();
+			((JFrame) paneParent).getContentPane().removeAll();
+			((JFrame) paneParent).getContentPane().setLayout(new java.awt.GridLayout());
+			((JFrame) paneParent).getContentPane().add(split);
+			((JFrame) paneParent).pack();
+			paneParent.setSize(size);
+		} else if (paneParent instanceof JSplitPane) {
+			JSplitPane splitParent = (JSplitPane) paneParent;
+			if (splitParent.getRightComponent() == null) {
+				splitParent.setRightComponent(split);
+			} else if (splitParent.getLeftComponent() == null) {
+				splitParent.setLeftComponent(split);
+			}
+			splitParent.setDividerLocation(0.5);
+		}
+		split.setDividerLocation(0.5);
+		paneParent = split;
+	}
+
+	/**
 	 * Creates a new frame, and places the given tab in it
 	 */
 	private MsfFrame moveTabToNewFrame(int tabNumber, int x, int y) throws HeadlessException {
-		MsfguiApp.getPropertiesNode().put("tabWindowPreference", "window"); //guess we like new windows
 		final MsfFrame newFrame = new MsfFrame("Msfgui");
 		newFrame.setSize(DraggableTabbedPane.this.getSize());
 		newFrame.setLocation(x, y);
 		//Make tabs to go in the frame
-		final DraggableTabbedPane tabs = new DraggableTabbedPane();
+		final DraggableTabbedPane tabs = new DraggableTabbedPane(newFrame);
 		moveTabTo(tabNumber, tabs, 0);
 		newFrame.add(tabs);
 		newFrame.setVisible(true);

@@ -469,7 +469,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
     private void initComponents() {
 
         mainPanel = new javax.swing.JPanel();
-        tabbedPane = new DraggableTabbedPane();
+        tabbedPane = new DraggableTabbedPane(getFrame());
         jobsPane = new javax.swing.JScrollPane();
         jobsList = new javax.swing.JList();
         sessionsPane = new javax.swing.JScrollPane();

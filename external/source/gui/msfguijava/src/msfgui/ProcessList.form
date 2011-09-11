@@ -37,7 +37,7 @@
         <Property name="name" type="java.lang.String" value="tabbedPane" noResource="true"/>
       </Properties>
       <AuxValues>
-        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new DraggableTabbedPane()"/>
+        <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new DraggableTabbedPane(this)"/>
       </AuxValues>
 
       <Layout class="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout"/>
@@ -60,10 +60,10 @@
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="jScrollPane1" alignment="1" pref="590" max="32767" attributes="0"/>
+                          <Component id="jScrollPane1" alignment="1" pref="586" max="32767" attributes="0"/>
                           <Group type="102" alignment="0" attributes="0">
                               <Component id="refreshButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="418" max="32767" attributes="0"/>
+                              <EmptySpace pref="416" max="32767" attributes="0"/>
                               <Component id="killButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="migrateButton" min="-2" max="-2" attributes="0"/>
@@ -77,7 +77,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="1" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane1" pref="358" max="32767" attributes="0"/>
+                      <Component id="jScrollPane1" pref="352" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="refreshButton" alignment="3" min="-2" max="-2" attributes="0"/>
