@@ -133,10 +133,16 @@ public class MainFrame extends FrameView {
 		//Disable tabs by default
 		for(int i = 2; i < tabbedPane.getTabCount(); i++)
 			tabbedPane.setEnabledAt(i, false);
-		((DraggableTabbedPane)tabbedPane).addWindowFocusListener(); //tabs listen for focus events
 		Map props = MsfguiApp.getPropertiesNode();
 		if(!props.containsKey("tabWindowPreference"))
 			props.put("tabWindowPreference", "tab");
+		if(props.containsKey("tabLayout")){
+			java.awt.Container mainPane = getFrame().getContentPane();
+			Component realigned = DraggableTabbedPane.restoreSplitLayout(
+					props.get("tabLayout"), mainPane, (DraggableTabbedPane)tabbedPane);
+			mainPane.removeAll();
+			mainPane.add(realigned);
+		}
 		MsfFrame.updateSizes(getFrame());
 	}
 	/** Before exit, check whether the daemon should be stopped or just the session terminated */
@@ -154,6 +160,9 @@ public class MainFrame extends FrameView {
 				rpcConn.execute("auth.logout");
 		} catch (Exception ex) {
 		}
+		// TEST TEST
+		Object m = DraggableTabbedPane.getSplitLayout(getFrame().getContentPane().getComponent(0));
+		MsfguiApp.getPropertiesNode().put("tabLayout", m);
 		return true;
 	}
 	/** Adds window and menu items for reopening and closing the console */

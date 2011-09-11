@@ -138,26 +138,12 @@ public class MeterpFileBrowser extends MsfFrame {
 		});
 		popupMenu.add(men);
 		setupPopupMenu( rpcConn, session);
-		//Set up locking so the console doesn't eat our output
-		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
-			public void focusGained(FocusEvent e) {
-				if(!lock.tryLock())
-					lock.lock();
-			}
-			public void focusLost(FocusEvent e) {
-				while(lock.getHoldCount() > 0)
-					lock.unlock();
-			}
-		});
 		//See if we need to move our tab
 		Map props = MsfguiApp.getPropertiesNode();
 		if(!props.get("tabWindowPreference").equals("window")){
 			((DraggableTabbedPane)tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(interactPane));
 			DraggableTabbedPane.show(mainPanel);
 		}
-		//Get initial view
-		if(!lock.tryLock())
-			lock.lock();
 		// Some exploits open in C:\Windows\system32. Too many files in there! Try to move to C:\ which should be more manageable
 		executeCommand("cd \"C:\\\\\"");
 		getFiles();
@@ -212,6 +198,10 @@ public class MeterpFileBrowser extends MsfFrame {
 
 	/** Retrieves list of files. */
 	private void getFiles() {
+		//Set up locking so the console doesn't eat our output
+		if(!lock.tryLock())
+			lock.lock();
+
 		while(model.getRowCount() > 0)
 			model.removeRow(0);
 		executeCommand("ls");
@@ -247,7 +237,7 @@ public class MeterpFileBrowser extends MsfFrame {
 						files.put(filename,line.substring(indx,indx+3));
 						model.addRow(TableHelper.fill(line,headerRow));
 					}
-					readTimer.stop();
+					stop();
 					TableHelper.fitColumnWidths(model, mainTable);
 					int nameColumn = -1;
 					for(int i = 0; i < mainTable.getColumnCount(); i++)
@@ -255,14 +245,20 @@ public class MeterpFileBrowser extends MsfFrame {
 							nameColumn = i;
 					if(nameColumn != -1){
 						mainTable.moveColumn(nameColumn, 0);
-						readTimer.stop();
+						stop();
 					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					if(ex.getMessage().toLowerCase().contains("unknown session"))
-						readTimer.stop();
+						stop();
 					MsfguiApp.showMessage(null, ex);
 				}
+			}
+
+			/** Stops read timer, and releases lock */
+			private void stop(){
+				readTimer.stop();
+				lock.unlock();
 			}
 
 			/** Helps parsing responses. */

@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowFocusListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -60,6 +61,70 @@ public class DraggableTabbedPane extends JTabbedPane{
 		for(par = subParent.getParent(); !(par instanceof DraggableTabbedPane); par = par.getParent())
 			subParent = par;
 		return  (DraggableTabbedPane)par;
+	}
+
+	/**
+	 * Returns a object composed of nested arrays & strings representing the layout
+	 * of splitpanes and tabs in the given object
+	 * @param component The root component
+	 * @return
+	 */
+	public static Object getSplitLayout(Object component){
+		if(component instanceof javax.swing.JPanel){
+			return getSplitLayout(((javax.swing.JPanel)component).getComponent(0));
+		}else if(component instanceof javax.swing.JSplitPane){
+			javax.swing.JSplitPane split = (javax.swing.JSplitPane)component;
+			ArrayList list = new ArrayList();
+			list.add(split.getOrientation());
+			list.add(getSplitLayout(split.getLeftComponent()));
+			list.add(getSplitLayout(split.getRightComponent()));
+			return list;
+		}else if(component instanceof DraggableTabbedPane){
+			ArrayList list = new ArrayList();
+			DraggableTabbedPane pane = (DraggableTabbedPane)component;
+			for(int i = 0; i < pane.getTabCount(); i++)
+				list.add(pane.getTitleAt(i));
+			return list;
+		}
+		return null;
+	}
+	/**
+	 * Restores a layout of splitpanes and tabs to the given container
+	 * from an object composed of nested arrays & strings representing the layout
+	 * @param component The root component
+	 * @return
+	 */
+	public static Component restoreSplitLayout(Object component, Container parent, DraggableTabbedPane root){
+		if(!(component instanceof ArrayList))
+			return null;
+		ArrayList list = (ArrayList)component;
+		//Split pane
+		if(list.size() == 3 && ((ArrayList)component).get(0) instanceof Integer){
+			JSplitPane split = new JSplitPane();
+			Component left = restoreSplitLayout(list.get(1), split, root);
+			if(left == null) // If the only tabs here are not present (meterp, file, etc)
+				return restoreSplitLayout(list.get(2), parent, root); //return other side
+			//Get right
+			Component right = restoreSplitLayout(list.get(2), split, root);
+			if(right == null){
+				//uhoh. now we told left the wrong parent. Fix.
+				if(left instanceof DraggableTabbedPane)
+					((DraggableTabbedPane)left).paneParent = parent;
+				return left;
+			}
+			//Ok! both sides are good. Plug 'em in and we'll go
+			split.setOrientation((Integer)list.get(0));
+			split.setLeftComponent(left);
+			split.setRightComponent(right);
+			return split;
+		}
+		DraggableTabbedPane pane = new DraggableTabbedPane(parent);
+		for(Object o : list)
+			if(root.indexOfTab(o.toString()) != -1)
+				root.moveTabTo(root.indexOfTab(o.toString()), pane);
+		if(pane.getTabCount() == 0)
+			return null;
+		return pane;
 	}
 
 	/**
@@ -109,7 +174,7 @@ public class DraggableTabbedPane extends JTabbedPane{
 		//First save tab information
 		Component comp = getComponentAt(sourceIndex);
 		String title = getTitleAt(sourceIndex);
-		boolean enabled = isEnabledAt(draggedTabIndex);
+		boolean enabled = isEnabledAt(sourceIndex);
 
 		//Then move tab and restore information
 		removeTabAt(sourceIndex);
@@ -119,7 +184,8 @@ public class DraggableTabbedPane extends JTabbedPane{
 		destinationPane.focusListeners.put(comp, focusListeners.get(comp));
 
 		//If we got rid of the last tab, close this window, unless it's the main window
-		if(getTabCount() < 1 && paneParent != MsfguiApp.mainFrame.getFrame()){
+		if(getTabCount() < 1 && MsfguiApp.mainFrame != null //This can be referenced in constructor
+				&& paneParent != MsfguiApp.mainFrame.getFrame()){
 			panes.remove(this);
 			//If parent is a frame, just close it
 			if(paneParent instanceof JFrame){
@@ -335,6 +401,9 @@ public class DraggableTabbedPane extends JTabbedPane{
 	 * @param indx
 	 */
 	private void addSplit(int indx, int orientation) {
+		//Sanity check
+		if(getTabCount() < 2)
+			throw new MsfException("Need more than one tab to split view!");
 		//Make split pane
 		JSplitPane split = new javax.swing.JSplitPane();
 		split.setOrientation(orientation);
@@ -349,7 +418,8 @@ public class DraggableTabbedPane extends JTabbedPane{
 			((JFrame) paneParent).getContentPane().setLayout(new java.awt.GridLayout());
 			((JFrame) paneParent).getContentPane().add(split);
 			((JFrame) paneParent).pack();
-			paneParent.setSize(size);
+			if((((JFrame)paneParent).getExtendedState() & JFrame.MAXIMIZED_BOTH) == 0)
+				paneParent.setSize(size);
 		} else if (paneParent instanceof JSplitPane) {
 			JSplitPane splitParent = (JSplitPane) paneParent;
 			if (splitParent.getRightComponent() == null) {
