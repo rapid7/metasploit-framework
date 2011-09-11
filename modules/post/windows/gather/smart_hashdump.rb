@@ -266,6 +266,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 
 	def read_hashdump
+		host,port = session.tunnel_peer.split(":")
 		collected_hashes = ""
 		begin
 
@@ -289,7 +290,7 @@ class Metasploit3 < Msf::Post
 				collected_hashes << "#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::\n"
 				print_good("\t#{users[rid][:Name]}:#{rid}:#{users[rid][:hashlm].unpack("H*")[0]}:#{users[rid][:hashnt].unpack("H*")[0]}:::")
 				session.framework.db.report_auth_info(
-					:host  => session.sock.peerhost,
+					:host  => host,
 					:port  => @smb_port,
 					:sname => 'smb',
 					:user  => users[rid][:Name],
@@ -313,6 +314,7 @@ class Metasploit3 < Msf::Post
 
 	def inject_hashdump
 		collected_hashes = ""
+		host,port = session.tunnel_peer.split(":")
 		# Load priv extension
 		session.core.use("priv")
 		# dump hashes
@@ -336,7 +338,7 @@ class Metasploit3 < Msf::Post
 				collected_hashes << "#{hash_entry}\n"
 				print_good("\t#{hash_entry}")
 				session.framework.db.report_auth_info(
-					:host  => session.sock.peerhost,
+					:host  => host,
 					:port  => @smb_port,
 					:sname => 'smb',
 					:user  => user,
