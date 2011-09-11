@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect_snmp
 
 		rescue Exception => e
-			puts "#{e.class}, #{e.message}"
+			print_error("#{e.class}, #{e.message}")
 
 		end
 

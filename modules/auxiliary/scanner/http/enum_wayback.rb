@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 			write_output(urls.join("\n") + "\n")
 		else
 			urls.each do |i|
-				puts(i)
+				print_line(i)
 			end
 		end
 	end

@@ -126,11 +126,11 @@ protected
 		# Process the requested resource.
 		case req.relative_resource
 			when /^\/INITJM/
-				$stdout.puts("java: #{req.relative_resource}")
+				print_line("java: #{req.relative_resource}")
 			
 				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
 				url = "http://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"				
-				$stdout.puts "URL: #{url.inspect}"
+				print_line "URL: #{url.inspect}"
 				
 				blob = ""
 				blob << obj.generate_stage
@@ -158,7 +158,7 @@ protected
 				})
 				
 			when /^\/A?INITM?/
-				$stdout.puts("Win32: #{req.relative_resource}")
+				print_line("Win32: #{req.relative_resource}")
 
 				url = ''
 
@@ -214,7 +214,7 @@ protected
 			when /^\/(CONN_.*)\//
 				resp.body = ""
 				conn_id = $1
-				$stdout.puts("Received poll from #{conn_id}")
+				print_line("Received poll from #{conn_id}")
 
 				if not self.conn_ids.include?(conn_id)
 					print_status("Incoming orphaned session #{conn_id}, reattaching...")

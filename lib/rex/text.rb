@@ -862,7 +862,7 @@ module Text
 		0.upto(len-1) do |i|
 			setnum = i % sets.size
 
-			puts counter.inspect
+			#puts counter.inspect
 		end
 
 		return buf

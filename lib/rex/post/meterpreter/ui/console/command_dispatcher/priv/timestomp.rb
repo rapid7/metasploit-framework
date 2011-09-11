@@ -73,7 +73,7 @@ class Console::CommandDispatcher::Priv::Timestomp
 				when "-e"
 					emodified = str_to_time(val)
 				when "-z"
-					puts "#{val}"
+					print_line("#{val}")
 					modified  = str_to_time(val)
 					accessed  = str_to_time(val)
 					creation  = str_to_time(val)

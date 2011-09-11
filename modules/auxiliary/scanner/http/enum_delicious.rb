@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			write_output(urls.join)
 		else
 			urls.each do |i|
-				puts(i)
+				print_status(i)
 			end
 		end
 	end

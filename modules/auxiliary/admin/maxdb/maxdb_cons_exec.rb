@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		info = ver[27,2000]
 		if (info.length > 0)
-			puts "[*] #{info}"
+			print_status(info)
 		end
 
 		#Send our command.
@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(data)
 
 		res = sock.get_once
-		puts res
+		print_line(res)
 
 		disconnect
 

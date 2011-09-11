@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Read from the pipe and give us the data.
 		res = pipe.read()
-		puts res
+		print_line(res)
 
 		# Close the named pipe and disconnect from the socket.
 		pipe.close

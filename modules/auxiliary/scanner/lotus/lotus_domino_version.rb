@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 						elsif server1.strip == currentversion.last then
 							''
 						else server1.strip != currentversion.last
-							puts "Different current version values" #this shouldnt happen,but just in case
+							print_error("Different current version values") #this shouldnt happen,but just in case
 							currentversion << ' : ' + server1.strip
 						end
 					else
@@ -165,7 +165,7 @@ class Metasploit3 < Msf::Auxiliary
 						elsif server3.strip == baseversion.last then
 							''
 						else server3.strip != baseversion.last #this shouldnt happen,but just in case
-							puts "Different base version values"
+							print_error("Different base version values")
 							baseversion << ' : ' + server3.strip
 						end
 					else
@@ -189,6 +189,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, Resolv::ResolvError, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH =>e
-			puts e.message
+			print_error(e.message)
 	end
 end

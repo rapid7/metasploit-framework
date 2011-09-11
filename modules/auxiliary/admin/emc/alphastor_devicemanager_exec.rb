@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = sock.get_once
 
 		res.each do |info|
-			puts "[*] #{info.gsub(/[^[:print:]]+/,"")}" # hack.
+			print_status("#{info.gsub(/[^[:print:]]+/,"")}") # hack.
 		end
 
 		disconnect

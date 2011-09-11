@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			end
 		rescue Rinda::RequestExpiredError
-			puts "END."
+			print_status("END.")
 			return
 		end
 
@@ -283,7 +283,7 @@ class Metasploit3 < Msf::Auxiliary
 						@crawlermodules[k].parse(reqopts,resp)
 					end
 				when 301..303
-					puts "[#{resp.code}] Redirection to: #{resp['Location']}"
+					print_line("[#{resp.code}] Redirection to: #{resp['Location']}")
 					vprint_status urltohash('GET',resp['Location'],reqopts['uri'],nil)
 					insertnewpath(urltohash('GET',resp['Location'],reqopts['uri'],nil))
 				when 404

@@ -88,9 +88,9 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 	rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, Rex::ConnectionError =>e
-		puts e.message
+		print_error(e.message)
 	rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH =>e
-		puts e.message
+		print_error(e.message)
 	end
 end
 

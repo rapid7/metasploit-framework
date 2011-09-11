@@ -91,7 +91,7 @@ class Console::CommandDispatcher::Sniffer
 		stats = client.sniffer.capture_stats(intf)
 		print_status("Capture statistics for interface #{intf}")
 		stats.each_key do |k|
-			puts "\t#{k}: #{stats[k]}"
+			print_line("\t#{k}: #{stats[k]}")
 		end
 		
 		return true		
