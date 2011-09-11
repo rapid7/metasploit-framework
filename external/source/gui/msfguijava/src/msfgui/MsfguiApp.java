@@ -260,11 +260,15 @@ public class MsfguiApp extends SingleFrameApplication {
 	 * @throws MsfException if this jar file has been moved or the containing directory structure has been moved.
 	 */
 	public static File getMsfRoot() throws MsfException{
-		File f = new File(MsfguiApp.class.getProtectionDomain().getCodeSource().getLocation().getPath());
-		File parent = f.getParentFile();
-		File grandparent = parent.getParentFile();
-		if(f.getName().equals("msfgui.jar") && parent.getName().equals("gui") &&  grandparent.getName().equals("data"))
-			return grandparent.getParentFile();
+		try{
+			File f = new File(MsfguiApp.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+			File parent = f.getParentFile();
+			File grandparent = parent.getParentFile();
+			if(f.getName().equals("msfgui.jar") && parent.getName().equals("gui") &&  grandparent.getName().equals("data"))
+				return grandparent.getParentFile();
+		}catch(java.net.URISyntaxException urisex){
+			urisex.printStackTrace();
+		}
 		throw new MsfException("Cannot find path.");
 	}
 
