@@ -190,7 +190,7 @@ module Rex
 			return unless @state[:fullurl].kind_of? URI
 			return unless @state[:form_variables].kind_of? Array
 			return if @state[:form_variables].empty?
-			method = @state[:form_variables].first[1]
+			method = parse_method(@state[:form_variables].first[1])
 			vars = @state[:form_variables].map {|x| x[0]}
 			form_info = {}
 			form_info[:web_site] = @state[:web_site]
@@ -274,6 +274,15 @@ module Rex
 			end
 			parsed[:body] = "" # We never seem to get this from Acunetix
 			parsed
+		end
+
+		# Don't cause the web report to die just because we can't tell
+		# what method was used -- default to GET. Sometimes it's just "POST," and
+		# sometimes it's "URL encoded POST," and sometimes it might be something
+		# else.
+		def parse_method(meth)
+			real_method = meth.match(/^(\s*(GET|POST|PATH))|(\s+(GET|POST|PATH)\s*$)/)
+			real_method ? real_method[4] : "GET"
 		end
 
 		def report_host(&block)
