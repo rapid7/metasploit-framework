@@ -139,7 +139,7 @@ public class MainFrame extends FrameView {
 		if(props.containsKey("tabLayout")){
 			java.awt.Container mainPane = getFrame().getContentPane();
 			Component realigned = DraggableTabbedPane.restoreSplitLayout(
-					props.get("tabLayout"), mainPane, (DraggableTabbedPane)tabbedPane);
+					props.get("tabLayout"), getFrame(), (DraggableTabbedPane)tabbedPane);
 			mainPane.removeAll();
 			mainPane.add(realigned);
 		}

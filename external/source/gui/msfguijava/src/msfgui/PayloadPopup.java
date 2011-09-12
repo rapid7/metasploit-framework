@@ -45,6 +45,7 @@ public class PayloadPopup extends ModuleInfoWindow {
 			encoderCombo.setSelectedIndex(defaultEncoder);
 		}catch(MsfException xre){
 		}
+		mainScrollPane.getVerticalScrollBar().setUnitIncrement(40);
 	}
 
 	private void doRun(boolean console) {
@@ -228,7 +229,7 @@ public class PayloadPopup extends ModuleInfoWindow {
     private void initComponents() {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        mainScrollPane = new javax.swing.JScrollPane();
         mainPanel = new javax.swing.JPanel();
         timesField = new javax.swing.JTextField();
         encoderCombo = new javax.swing.JComboBox();
@@ -260,7 +261,7 @@ public class PayloadPopup extends ModuleInfoWindow {
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         setName("Form"); // NOI18N
 
-        jScrollPane1.setName("jScrollPane1"); // NOI18N
+        mainScrollPane.setName("mainScrollPane"); // NOI18N
 
         mainPanel.setName("mainPanel"); // NOI18N
 
@@ -495,17 +496,17 @@ public class PayloadPopup extends ModuleInfoWindow {
                 .addContainerGap())
         );
 
-        jScrollPane1.setViewportView(mainPanel);
+        mainScrollPane.setViewportView(mainPanel);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 795, Short.MAX_VALUE)
+            .addComponent(mainScrollPane, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 795, Short.MAX_VALUE)
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jScrollPane1)
+            .addComponent(mainScrollPane)
         );
 
         pack();
@@ -633,8 +634,8 @@ public class PayloadPopup extends ModuleInfoWindow {
     private javax.swing.JButton generateButton;
     private javax.swing.JButton handleButton;
     private javax.swing.JButton handleConsoleButton;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JPanel mainPanel;
+    private javax.swing.JScrollPane mainScrollPane;
     private javax.swing.JComboBox outputCombo;
     private javax.swing.JLabel outputLabel;
     private javax.swing.JTextArea outputPane;
