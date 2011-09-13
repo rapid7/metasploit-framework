@@ -45,11 +45,11 @@ class Metasploit3 < Msf::Auxiliary
 		response = ""
 		pages = []
 		header = { 'User-Agent' => "Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US) AppleWebKit/525.13 (KHTML, like Gecko) Chrome/4.0.221.6 Safari/525.13"}
-		clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("classic-web.archive.org")
-		resp, data = clnt.get2("/web/*sr_1nr_1300/http://"+targetdom+"/*",header)
+		clnt = Net::HTTP::Proxy(@proxysrv,@proxyport,@proxyuser,@proxypass).new("wayback.archive.org")
+		resp, data = clnt.get2("/web/*/http://"+targetdom+"/*",header)
 		response << data
 		response.each_line do |line|
-			pages << line.gsub!(/(.+>)(.+)(<\/a><br>)\n/, '\2')
+			pages << line.gsub!(/(.+>)(.+)(<\/a>)\n/, '\2')
 		end
 
 		pages.delete_if{|x| x==nil}
