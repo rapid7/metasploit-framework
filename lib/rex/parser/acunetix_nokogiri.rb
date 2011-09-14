@@ -281,8 +281,10 @@ module Rex
 		# sometimes it's "URL encoded POST," and sometimes it might be something
 		# else.
 		def parse_method(meth)
-			real_method = meth.match(/^(\s*(GET|POST|PATH))|(\s+(GET|POST|PATH)\s*$)/)
-			real_method ? real_method[4] : "GET"
+			verbs = "(GET|POST|PATH)"
+			real_method = meth.match(/^\s*#{verbs}/)
+			real_method ||= meth.match(/\s*#{verbs}\s*$/)
+			( real_method && real_method[1] ) ? real_method[1] : "GET"
 		end
 
 		def report_host(&block)
