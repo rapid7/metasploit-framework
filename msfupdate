@@ -29,12 +29,21 @@ unless have_configdir
 end
 
 
-system("svn", "cleanup")
-system("svn", "update", *ARGV)
+res = system("svn", "cleanup")
+if res.nil?
+	$stderr.puts "[-] ERROR: Failed to run svn"
+	$stderr.puts ""
+	$stderr.puts "[-] If you used a binary installer, make sure you run the symlink in"
+	$stderr.puts "[-] /usr/local/bin instead of running this file directly (e.g.: ./msfupdate)"
+	$stderr.puts "[-] to ensure a proper environment."
+else
+	# Cleanup worked, go ahead and update
+	system("svn", "update", *ARGV)
+end
 
 if wait
 	$stderr.puts ""
 	$stderr.puts "[*] Please hit enter to exit"
-	$stderr.puts ""	
+	$stderr.puts ""
 	$stdin.readline
 end
