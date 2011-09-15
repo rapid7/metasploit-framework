@@ -23,6 +23,7 @@ import java.util.Set;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenuItem;
+import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
@@ -185,8 +186,10 @@ public class DraggableTabbedPane extends JTabbedPane{
 
 		//If we got rid of the last tab, close this window, unless it's the main window
 		if(getTabCount() < 1 && MsfguiApp.mainFrame != null //This can be referenced in constructor
-				&& paneParent != MsfguiApp.mainFrame.getFrame()){
+				&& paneParent != MsfguiApp.mainFrame.getFrame().getContentPane()){
 			panes.remove(this);
+			if(paneParent instanceof JPanel)
+				paneParent = ((JPanel)paneParent).getTopLevelAncestor();
 			//If parent is a frame, just close it
 			if(paneParent instanceof JFrame){
 				paneParent.setVisible(false);
@@ -428,6 +431,11 @@ public class DraggableTabbedPane extends JTabbedPane{
 				splitParent.setLeftComponent(split);
 			}
 			splitParent.setDividerLocation(0.5);
+		}else if (paneParent instanceof JPanel){
+			paneParent.removeAll();
+			paneParent.setLayout(new java.awt.GridLayout());
+			paneParent.add(split);
+			((JPanel)paneParent).validate();
 		}
 		split.setDividerLocation(0.5);
 		paneParent = split;

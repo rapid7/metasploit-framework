@@ -137,11 +137,13 @@ public class MainFrame extends FrameView {
 		if(!props.containsKey("tabWindowPreference"))
 			props.put("tabWindowPreference", "tab");
 		if(props.containsKey("tabLayout")){
-			java.awt.Container mainPane = getFrame().getContentPane();
 			Component realigned = DraggableTabbedPane.restoreSplitLayout(
-					props.get("tabLayout"), getFrame(), (DraggableTabbedPane)tabbedPane);
-			mainPane.removeAll();
-			mainPane.add(realigned);
+					props.get("tabLayout"), mainPanel, (DraggableTabbedPane)tabbedPane);
+			if(realigned != null){
+				mainPanel.removeAll();
+				mainPanel.setLayout(new java.awt.GridLayout());
+				mainPanel.add(realigned);
+			}
 		}
 		MsfFrame.updateSizes(getFrame());
 	}
@@ -445,7 +447,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 					//First try to connect to the database
 					DbConnectDialog.tryConnect(getFrame(), rpcConn);
 					reloadDb(true);
-					if(MainFrame.this.closeConsoleMenu.getItemCount() == 0 && !tabbedPane.isEnabledAt(3)){
+					//Find a database pane, and see if it is enabled (db successfuly loaded)
+					DraggableTabbedPane credsDTP = DraggableTabbedPane.getTabPane(credsPane);
+					if(MainFrame.this.closeConsoleMenu.getItemCount() == 0 &&
+							credsDTP.isEnabledAt(credsDTP.indexOfComponent(credsPane))){
 						registerConsole( (Map)rpcConn.execute("console.create"), false, "");
 						reloadDb(true);
 					}
