@@ -20,8 +20,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'test',
-				'Description'   => %q{ This module will test registry stuff },
+				'Name'          => 'registry_post_testing',
+				'Description'   => %q{ This module will test registry code used in post modules},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'kernelsmith'],
 				'Version'       => '$Revision$',
@@ -37,50 +37,97 @@ class Metasploit3 < Msf::Post
 
 	def run
 		print_status("Running against session #{datastore["SESSION"]}")
+		print_status("Session type is #{session.type}")
 
-		print_status "testing get_val_info for key:#{datastore['KEY']}, val:#{datastore['VALUE']}"
+		print_status()
+		print_status("TESTING:  registry_value_exist? for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
+		results = registry_value_exist?(datastore['KEY'],datastore['VALUE'])
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_value_exist? for key:#{'HKLM\\Non\Existent\key'}, val:#{datastore['VALUE']}")
+		results = registry_value_exist?('HKLM\\Non\Existent\key',datastore['VALUE'])
+		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_value_exist? for key:#{datastore['KEY']}, val:'NonExistentValue'")
+		results = registry_value_exist?(datastore['KEY'],'NonExistentValue')
+		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_key_exist? for key: 'HKLM\\Non\Existent\key'")
+		results = registry_key_exist?('HKLM\\Non\Existent\key')  # need to error handle this properly in meterp ver
+		print_status("RESULTS (Expecting false):  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_key_exist? for key:#{datastore['KEY']}")
+		results = registry_key_exist?(datastore['KEY'])
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_getvalinfo for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
 		results = registry_getvalinfo(datastore['KEY'], datastore['VALUE'])
-		print_status("results: #{results.class} #{results.inspect}")
-		print_status "testing get_val_data for key:#{datastore['KEY']}, val:#{datastore['VALUE']}"
+		print_error("reported failure") unless results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("TESTING:  registry_getvaldata for key:#{datastore['KEY']}, val:#{datastore['VALUE']}")
 		results = registry_getvaldata(datastore['KEY'], datastore['VALUE'])
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") unless results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "testing create_key for key:#{datastore['KEY']}\\test"
+		print_status()
+		print_status("TESTING:  registry_createkey for key:#{datastore['KEY']}\\test")
 		results = registry_createkey("#{datastore['KEY']}\\test")
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") if results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "testing set_val_data for key:#{datastore['KEY']}\\test, val:test, data:test, type:REG_SZ"
+		print_status()
+		print_status("TESTING:  registry_setvaldata for key:#{datastore['KEY']}\\test, val:test, data:test, type:REG_SZ")
 		results = registry_setvaldata("#{datastore['KEY']}\\test", "test", "test", "REG_SZ")
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") if results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "getting newly created val_info for key:#{datastore['KEY']}\\test, val:test"
+		print_status()
+		print_status("Running registry_getvalinfo for freshly created key:#{datastore['KEY']}\\test, val:test")
 		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") unless results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "testing del_val_data for key:#{datastore['KEY']}\\test, val:test"
+		print_status()
+		print_status("TESTING:  registry_deleteval for key:#{datastore['KEY']}\\test, val:test")
 		results = registry_deleteval("#{datastore['KEY']}\\test", "test")
-		print_errror("registry_deleteval reported failure") unless results
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") if results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "testing del_key"
+		print_status()
+		print_status("TESTING:  registry_deletekey")
 		results = registry_deletekey("#{datastore['KEY']}\\test")
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") if results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "getting deleted val_info for key:#{datastore['KEY']}\\test, val:test, this should return nils"
+		print_status()
+		print_status("Running registry_getvalinfo for deleted key:#{datastore['KEY']}\\test, val:test")
+		print_status("NOTE: this OUGHT to return nil")
 		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
-		if (results.nil?)
-			print_status("Delete worked correctly")
-		else
-			print_error("Deleted key is still there!")
-		end
-
-		print_status "testing enum_keys"
+		print_status("RESULTS (Expecting nil):  #{results.class} #{results.inspect}")
+		print_error("reported failure") if results
+		print_status("nil is correct.  sweet.")  if !results
+		
+		print_status()
+		print_status("TESTING:  registry_enumkeys")
 		results = registry_enumkeys(datastore['KEY'])
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") unless results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
 
-		print_status "testing enum_vals"
+		print_status()
+		print_status("TESTING:  registry_enumvals")
 		results = registry_enumvals(datastore['KEY'])
-		print_status("results: #{results.class} #{results.inspect}")
+		print_error("reported failure") unless results
+		print_status("RESULTS:  #{results.class} #{results.inspect}")
+		
+		print_status()
+		print_status("Testing Complete!")
 
 	end
 
