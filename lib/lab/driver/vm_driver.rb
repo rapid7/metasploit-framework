@@ -18,12 +18,13 @@ class VmDriver
 	attr_accessor :tools
 	attr_accessor :credentials
 	
-	def initialize(basic_driver_config)
-		@vmid = filter_command(basic_driver_config["vmid"])
-		@location = filter_command(basic_driver_config["location"])
-		@credentials = basic_driver_config["credentials"] || []
-		@tools = filter_input(basic_driver_config["tools"])
-		@os = filter_input(basic_driver_config["os"])
+	def initialize(config)
+	
+		@vmid = filter_command(config["vmid"].to_s)
+		@location = filter_command(config["location"])
+		@credentials = config["credentials"] || []
+		@tools = filter_input(config["tools"])
+		@os = filter_input(config["os"])
 
 		# Currently only implemented for the first set
 		if @credentials.count > 0
@@ -106,7 +107,7 @@ private
 	def scp_to(from,to)
 		require 'net/scp'
 
-		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+		Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 			scp.upload!(from,to)
 		end	
 	end
@@ -115,13 +116,13 @@ private
 		require 'net/scp'
 
 		# download a file from a remote server
-		Net::SCP.start(@vmid, @vm_user, :password => @vm_pass) do |scp|
+		Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 			scp.download!(from,to)
 		end
 	end
 	
 	def ssh_exec(command)
-		Net::SSH.start(@vmid, @vm_user, :password => @vm_pass) do |ssh|
+		Net::SSH.start(@hostname, @vm_user, :password => @vm_pass) do |ssh|
 			result = ssh.exec!(command)
 		end
 	end
@@ -130,7 +131,7 @@ private
 		return "" unless string # nil becomes empty string
 		return unless string.class == String # Allow other types unmodified
 		
-		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/)
+		unless /^[\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
@@ -141,7 +142,7 @@ private
 		return "" unless string # nil becomes empty string
 		return unless string.class == String # Allow other types unmodified		
 		
-		if !(string =~ /^[0-9\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/)
+		unless /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
 

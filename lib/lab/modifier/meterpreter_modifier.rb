@@ -10,7 +10,7 @@ end
 
 
 # This allows us to override the default way of running commands
-# Currently useful for the esx controller 
+# Currently useful for the esx controller
 
 module Lab
 class Vm
@@ -19,7 +19,6 @@ class Vm
 	attr_accessor :session
 	attr_accessor :session_input
 	attr_accessor :session_output
-
 
 	def create_framework
 		return if @framework
@@ -42,7 +41,7 @@ class Vm
 		if @os == "windows"
 			exploit_name = 'windows/smb/psexec'
 			payload_name = 'windows/meterpreter/bind_tcp'
-			options = {	"RHOST"		=> @vmid, 
+			options = {	"RHOST"		=> @hostname, 
 					"SMBUser" 	=> @vm_user, 
 					"SMBPass" 	=> @vm_pass}
 
@@ -64,7 +63,7 @@ class Vm
 		else
 			module_name = 'scanner/ssh/ssh_login'
 			payload_name = 'linux/x86/meterpreter/bind_tcp'
-			options = {	"RHOSTS"		=> @vmid, 
+			options = {	"RHOSTS"		=> @hostname, 
 					"USERNAME" 		=> @vm_user, 
 					"PASSWORD" 		=> @vm_pass, 
 					"BLANK_PASSWORDS" 	=> false, 

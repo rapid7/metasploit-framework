@@ -31,10 +31,17 @@ class Vm
 	
 	def initialize(config = {})	
 
-		# TODO - This is such a mess. clean up, and pass stuff down to drivers
+		# TODO - This is a mess. clean up, and pass stuff down to drivers
 		# and then rework the code that uses this api. 
-		@vmid = config['vmid'] 
+		@vmid = config['vmid'].to_s 
 		raise "Invalid VMID" unless @vmid
+
+		# Grab the hostname if specified, otherwise use the vmid
+		# VMID will be different in the case of ESX
+		@hostname = config['hostname']
+		if !@hostname
+			@hostname = @vmid
+		end
 
 		@driver_type = filter_input(config['driver'])
 		@driver_type.downcase!
@@ -86,8 +93,7 @@ class Vm
 		else
 			raise "Unknown Driver Type"
 		end
-		
-		
+				
 		# Load in a list of modifiers. These provide additional methods
 		# Currently it is up to the user to verify that 
 		# modifiers are properly used with the correct VM image.
@@ -145,8 +151,8 @@ class Vm
 	end
 
 	def revert_and_start(snapshot)
-		self.revert_snapshot(snapshot)
-		self.start
+		@driver.revert_snapshot(snapshot)
+		@driver.start
 	end
 
 	def copy_to(from,to)
@@ -225,7 +231,7 @@ private
 		return "" unless string # nil becomes empty string
 		return unless string.class == String # Allow other types
 					
-		if !(string =~ /^[(!)\d*\w*\s*\[\]\{\}\/\\\.\-\"\(\)]*$/)
+		unless /^[(!)\d*\w*\s*\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
 

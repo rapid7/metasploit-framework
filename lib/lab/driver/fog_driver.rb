@@ -13,8 +13,6 @@ class FogDriver < VmDriver
 		super(config)
 		@fog_config = fog_config
 
-		puts "Fog Config: #{fog_config}"
-
 		# Soft dependency
 		begin
 			require 'fog'
