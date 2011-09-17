@@ -176,7 +176,7 @@ public class MainFrame extends FrameView {
 		if(show){
 			DraggableTabbedPane.show(iw.mainPanel);
 			if(MsfguiApp.getPropertiesNode().get("tabWindowPreference").equals("tab"))
-				((DraggableTabbedPane)iw.tabbedPane).moveTabTo(0, (DraggableTabbedPane)tabbedPane);
+				((DraggableTabbedPane)iw.tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(sessionsPane));
 			iw.activate();
 		}
 		final String id = res.get("id").toString();
@@ -224,7 +224,7 @@ public class MainFrame extends FrameView {
 									&& sessionWindowMap.get(session.get("id")+"console") == null){
 								InteractWindow win = new InteractWindow(rpcConn, session, session.get("type").toString());
 								if(MsfguiApp.getPropertiesNode().get("tabWindowPreference").equals("tab")){
-									((DraggableTabbedPane)win.tabbedPane).moveTabTo(0, (DraggableTabbedPane)tabbedPane);
+									((DraggableTabbedPane)win.tabbedPane).moveTabTo(0, DraggableTabbedPane.getTabPane(sessionsPane));
 									win.activate();
 								}
 								sessionWindowMap.put(session.get("id")+"console", win.mainPanel);
