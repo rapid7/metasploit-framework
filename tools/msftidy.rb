@@ -130,7 +130,9 @@ def check_single_file(dparts, fparts, f_rel)
 		# The rest of these only count if it's not a comment line
 		next if ln =~ /[[:space:]]*#/
 
-		no_stdio = false if ln =~ /puts/
+		if ln =~ /\$std(?:out|err)/ or ln =~ /[[:space:]]puts/
+			no_stdio = false
+		end
 	}
 
 	# report information for this file
