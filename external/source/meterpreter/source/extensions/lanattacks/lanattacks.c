@@ -150,7 +150,7 @@ Command customCommands[] =
 
 	// Reset DHCP
 	{ "lanattacks_reset_dhcp",
-	  { request_lanattacks_stop_dhcp, { 0 }, 0 },
+	  { request_lanattacks_reset_dhcp, { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER },
 	},
 
