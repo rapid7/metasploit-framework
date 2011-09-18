@@ -9,6 +9,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import org.msgpack.MessagePack;
 import org.msgpack.MessagePackObject;
 import org.msgpack.Packer;
@@ -27,7 +33,34 @@ public class MsgRpc extends RpcConnection {
 	 * Creates a new URL to use as the basis of a connection.
 	 */
 	protected void connect() throws MalformedURLException{
-		u = new URL("http",host,port,"/api");
+		if(ssl){ // Install the all-trusting trust manager & HostnameVerifier
+			try {
+				SSLContext sc = SSLContext.getInstance("SSL");
+				sc.init(null, new TrustManager[]{
+						new X509TrustManager() {
+							public java.security.cert.X509Certificate[] getAcceptedIssuers() {
+								return null;
+							}
+							public void checkClientTrusted(
+								java.security.cert.X509Certificate[] certs, String authType) {
+							}
+							public void checkServerTrusted(
+								java.security.cert.X509Certificate[] certs, String authType) {
+							}
+						}
+					}, new java.security.SecureRandom());
+				HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
+				HttpsURLConnection.setDefaultHostnameVerifier( new HostnameVerifier(){
+					public boolean verify(String string,SSLSession ssls) {
+						return true;
+					}
+				});
+			} catch (Exception e) {
+			}
+			u = new URL("https",host,port,"/api");
+		}else{
+			u = new URL("http",host,port,"/api");
+		}
 	}
 
 	/**
