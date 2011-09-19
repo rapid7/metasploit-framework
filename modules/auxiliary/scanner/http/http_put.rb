@@ -56,7 +56,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	#
-	# Send a normal HTTP request and see if our successfully uploaded or deleted a file.
+	# Send a normal HTTP request and see if we successfully uploaded or deleted a file.
 	# If successful, return true, otherwise false.
 	#
 	def file_exists(path, data)
