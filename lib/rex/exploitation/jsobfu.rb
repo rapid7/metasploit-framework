@@ -2,7 +2,6 @@
 # $Id$
 ##
 
-$:.unshift("lib")
 require 'rex/text'
 require 'rkelly'
 
