@@ -150,7 +150,7 @@ class Metasploit4 < Msf::Auxiliary
 					:name         => self.fullname,
 					:info         => "PUT Enabled",
 					:refs         => self.references,
-					:exploited_at => Time.now.utc,
+					:exploited_at => Time.now.utc
 				)
 			else
 				print_error("File doesn't seem to exist. The upload probably failed.")
