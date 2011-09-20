@@ -28,11 +28,11 @@ module Auxiliary::AuthBrute
 			OptBool.new('REMOVE_USER_FILE', [ true, "Automatically delete the USER_FILE on module completion", false]),
 			OptBool.new('REMOVE_PASS_FILE', [ true, "Automatically delete the PASS_FILE on module completion", false]),
 			OptBool.new('REMOVE_USERPASS_FILE', [ true, "Automatically delete the USERPASS_FILE on module completion", false]),
-			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service 
+			OptInt.new('MaxGuessesPerService', [ false, "Maximum number of credentials to try per service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@guesses_per_service
 			OptInt.new('MaxMinutesPerService', [ false, "Maximum time in minutes to bruteforce the service instance. If set to zero or a non-number, this option will not be used.", 0]), # Tracked in @@brute_start_time
 			OptInt.new('MaxGuessesPerUser', [ false, %q{
-				Maximum guesses for a particular username for the service instance. 
-				Note that users are considered unique among different services, so a 
+				Maximum guesses for a particular username for the service instance.
+				Note that users are considered unique among different services, so a
 				user at 10.1.1.1:22 is different from one at 10.2.2.2:22, and both will
 				be tried up to the MaxGuessesPerUser limit.	If set to zero or a non-number,
 				this option will not be used.}.gsub(/[\t\r\n\s]+/nm,"\s"), 0]) # Tracked in @@brute_start_time
@@ -55,7 +55,7 @@ module Auxiliary::AuthBrute
 	# list.
 	#
 	# The 'noconn' argument should be set to true if each_user_pass is merely
-	# iterating over the usernames and passwords and should not respect 
+	# iterating over the usernames and passwords and should not respect
 	# bruteforce_speed as a delaying factor.
 	def each_user_pass(noconn=false,&block)
 		this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
@@ -65,7 +65,7 @@ module Auxiliary::AuthBrute
 		# revisit this.
 		unless credentials ||= false # Assignment and comparison!
 			credentials ||= build_credentials_array()
-			credentials = adjust_credentials_by_max_user(credentials) 
+			credentials = adjust_credentials_by_max_user(credentials)
 			this_service = [datastore['RHOST'],datastore['RPORT']].join(":")
 			initialize_class_variables(this_service,credentials)
 		end
@@ -111,12 +111,12 @@ module Auxiliary::AuthBrute
 					@@credentials_skipped[fq_rest] = true
 				end
 
-			when :skip_user # Skip the user in non-success cases. 
+			when :skip_user # Skip the user in non-success cases.
 				@@credentials_skipped[fq_user] = p
 
 			when :connection_error # Report an error, skip this cred, but don't neccisarily abort.
 				print_brute(
-					:level => :verror, 
+					:level => :verror,
 					:ip => datastore['RHOST'],
 					:port => datastore['RPORT'],
 					:msg => "Connection error, skipping '#{u}':'#{p}'")
@@ -134,7 +134,7 @@ module Auxiliary::AuthBrute
 	end
 
 	def counters_expired?(this_service,credentials)
-		expired_cred = false 
+		expired_cred = false
 		expired_time = false
 		# Workaround for cases where multiple auth_brute modules are running concurrently and
 		# someone stomps on the @max_per_service class variable during setup.
@@ -189,7 +189,7 @@ module Auxiliary::AuthBrute
 	end
 
 	# Class variables to track credential use. They need
-	# to be class variables due to threading. 
+	# to be class variables due to threading.
 	def initialize_class_variables(this_service,credentials)
 		@@guesses_per_service ||= {}
 		@@guesses_per_service[this_service] = nil
@@ -197,7 +197,7 @@ module Auxiliary::AuthBrute
 		@@credentials_tried   = {}
 		@@guesses_per_service = {}
 
-		if datastore['MaxGuessesPerService'].to_i.abs == 0 
+		if datastore['MaxGuessesPerService'].to_i.abs == 0
 			@@max_per_service = credentials.size
 		else
 			if datastore['MaxGuessesPerService'].to_i.abs >= credentials.size
@@ -410,11 +410,11 @@ module Auxiliary::AuthBrute
 	# Provides a consistant way to display messages about AuthBrute-mixed modules.
 	# Acceptable opts are fairly self-explanitory, but :level can be tricky.
 	#
-	# It can be one of status, good, error, or line (and corresponds to the usual 
+	# It can be one of status, good, error, or line (and corresponds to the usual
 	# print_status, print_good, etc. methods).
 	#
-	# If it's preceded by a "v" (ie, vgood, verror, etc), only print if 
-	# datstore["VERBOSE"] is set to true.
+	# If it's preceded by a "v" (ie, vgood, verror, etc), only print if
+	# datastore["VERBOSE"] is set to true.
 	#
 	# If :level would make the method nonsense, default to print_status.
 	def print_brute(opts={})
@@ -427,7 +427,7 @@ module Auxiliary::AuthBrute
 
 		host_ip = opts[:ip] || opts[:rhost] || opts[:host] || (rhost rescue nil) || datastore['RHOST']
 		host_port = opts[:port] || opts[:rport] || (rport rescue nil) || datastore['RPORT']
-		msg = opts[:msg] || opts[:message] || opts[:legacy_msg] 
+		msg = opts[:msg] || opts[:message] || opts[:legacy_msg]
 		proto = opts[:proto] || opts[:protocol] || proto_from_fullname
 
 		complete_message = build_brute_message(host_ip,host_port,proto,msg,!!opts[:legacy_msg])

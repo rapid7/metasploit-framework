@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 		p = PacketFu::Packet.parse(r)
 		return unless p.is_eth?
 		if p.is_icmp?
-			return if(p.payload[0,2] != [datstore['ECHOID']].pack("n"))
+			return if(p.payload[0,2] != [datastore['ECHOID']].pack("n"))
 			return unless p.payload.size >= 8
 			reply = {:raw => p}
 			reply[:type] = :icmp
