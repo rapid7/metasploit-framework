@@ -168,7 +168,7 @@ class Metasploit4 < Msf::Auxiliary
 
 			#Delete our file
 			res = do_delete(path)
-			print_status("Reply: #{res.code.to_s}")
+			vprint_status("Reply: #{res.code.to_s}")
 
 			#Check if DELETE was successful
 			if res.nil? or file_exists(path, data)
