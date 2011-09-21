@@ -863,7 +863,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			line = ""
 			width = 30  # name field width
-			twidth = 16 # table like display cell width
+			#twidth = 16 # table like display cell width
 			
 			fields_order.each {|k|
 				if not output_data.has_key?(k)
@@ -887,7 +887,7 @@ class Metasploit3 < Msf::Auxiliary
 							
 							a.each { |sv|
 								sv = sv.to_s.strip
-								content << sprintf("%s%s", " "*(twidth-sv.length), sv)
+								content << sprintf("%s%s", " " * 5, sv)
 							}
 							content << "\n"
 						else
