@@ -125,6 +125,7 @@ public class DraggableTabbedPane extends JTabbedPane{
 				root.moveTabTo(root.indexOfTab(o.toString()), pane);
 		if(pane.getTabCount() == 0)
 			return null;
+		root.paneParent = null; //we're disconnecting you
 		return pane;
 	}
 
@@ -249,10 +250,14 @@ public class DraggableTabbedPane extends JTabbedPane{
 			if(pane.getComponentAt(i).equals(subParent))
 				pane.setSelectedIndex(i);
 		lastFocusListener = (FocusListener)pane.focusListeners.get(pane.getSelectedComponent());
-		//Also make containing window show up
-		for(par = pane.getParent(); !(par instanceof Window); par = par.getParent())
-			;
-		((Window)par).setVisible(true);
+		try{
+			//Also make containing window show up
+			for(par = pane.getParent(); !(par instanceof Window); par = par.getParent())
+				;
+			((Window)par).setVisible(true);
+		}catch (NullPointerException nex){ // If it is not associated with a window, make one
+			pane.moveTabToNewFrame(pane.getSelectedIndex(), 0, 0).setSize(400, 300);
+		}
 	}
 
 	/**
