@@ -82,8 +82,12 @@ def parse_args
 
 	opt.on('-x', '--template   [path] ', String, 'Specify a custom executable file to use as a template') do |x|
 		opts[:template] = x
+		unless File.exist?(x)
+			$stderr.puts "Template file (#{x}) does not exist"
+			exit 1
+		end
 	end
-	
+
 	opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
 		opts[:inject] = true
 	end
@@ -99,7 +103,7 @@ def parse_args
 		puts "Invalid option, try -h for usage"
 		exit(1)
 	end
-	
+
 	args = ARGV.dup
 	if args
 		args.each do |x|
@@ -277,7 +281,7 @@ if opts[:payload] != 'stdin'
 else
 	# defaults for stdin payloads users should define them
 	print_error("Using X86 architecture and Windows platform for stdin payload to change use -a and --platform")
-	opts[:arch] ||= "x86" 
+	opts[:arch] ||= "x86"
 	opts[:platform] ||= Msf::Module::PlatformList.transform("Windows")
 end
 opts[:format]   ||= 'ruby'
@@ -305,7 +309,7 @@ if opts[:template]
 end
 exeopts = { :inject => opts[:inject], :template_path => path, :template => altexe }
 
-# If we were given addshellcode for a win32 payload, 
+# If we were given addshellcode for a win32 payload,
 # create a double-payload; one running in one thread, one running in the other
 if opts[:addshellcode] and opts[:platform].include?(Msf::Module::Platform::Windows) and opts[:arch] == 'x86'
 	payload_raw = Msf::Util::EXE.win32_rwx_exec_thread(payload_raw,0,'end')
@@ -395,7 +399,7 @@ when /java/i
 	if(!exe and payload.platform.platforms.index(Msf::Module::Platform::Java))
 		exe = payload.generate_jar.pack
 	end
-	
+
 	if exe
 		$stdout.write exe
 	else
@@ -438,7 +442,7 @@ when /war/i
 	else
 		exe = Msf::Util::EXE.to_jsp_war(exe)
 	end
-	
+
 	$stdout.write exe
 else
 	print_error("Unsupported format")
