@@ -275,7 +275,6 @@ protected
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
-			self.served[buf[28..43]][1] = true # mark as requested
 			pkt << [DHCPAck].pack('C')
 			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
 			if ( self.served_over != 0 )
@@ -321,6 +320,9 @@ protected
 		pkt << dhcpoption(OpEnd)
 
 		pkt << ("\x00" * 32) #padding
+
+		# And now we mark as requested
+		self.served[buf[28..43]][1] = true if messageType == DHCPRequest
 
 		send_packet(nil, pkt)
 	end
