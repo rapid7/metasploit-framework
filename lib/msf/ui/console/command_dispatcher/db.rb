@@ -1126,7 +1126,7 @@ class Db
 									end
 								end
 
-								next if (regx and e.fullname !~ /#{regx}/)
+								next if (regx and mod.fullname !~ /#{regx}/)
 
 								mod.datastore['RPORT'] = xport if xport
 								mod.datastore['RHOST'] = xhost
