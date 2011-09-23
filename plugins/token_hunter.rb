@@ -86,14 +86,14 @@ class Plugin::TokenHunter < Msf::Plugin
 								ndom = nil
 							end
 
-							if(ndom and user.strip.downcase == needle.strip.downcase)
+							if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
 								print_status("FOUND: #{session.sid} - #{session.tunnel_peer} - #{user} (delegation)")
 								next
 							end
 
 							fdom,fusr = user.split("\\")
 
-							if (! ndom and fusr.strip.downcase == nusr.strip.downcase)
+							if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
 								print_status("FOUND: #{session.sid} - #{session.tunnel_peer} - #{user} (delegation)")
 							end
 						end
@@ -112,13 +112,13 @@ class Plugin::TokenHunter < Msf::Plugin
 								ndom = nil
 							end
 
-							if(ndom and user.strip.downcase == needle.strip.downcase)
+							if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
 								print_status(">> Found #{session.sid} - #{session.tunnel_peer} - #{user} (impersonation)")
 								next
 							end
 
 							fdom,fusr = user.split("\\")
-							if (! ndom and fusr.strip.downcase == nusr.strip.downcase)
+							if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
 								print_status(">> Found #{session.sid} - #{session.tunnel_peer} - #{user} (impersonation)")
 							end
 						end
