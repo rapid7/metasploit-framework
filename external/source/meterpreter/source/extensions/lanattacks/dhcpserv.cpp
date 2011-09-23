@@ -351,8 +351,6 @@ int DHCPserv::run(){
 		}else if (messageType == DHCPRequest){ //DHCP Request - send DHCP ACK
 			pkt << DHCPAck;
 
-			// now we ignore their discovers (but we'll respond to requests in case a packet was lost)
-			served.insert(clienthwaddr);
 			if ( servedOver != 0 ) // NOTE: this is sufficient for low-traffic net
 				servedOver += 1;
 
@@ -370,12 +368,14 @@ int DHCPserv::run(){
 		pkt << dhcpoption(OpPXEMagic, pxemagic);
 
 		// check if already served based on hw addr (MAC address)
-		if (serveOnce == true && served.count(clienthwaddr) > 0){
+		if (serveOnce == true && served.count(clienthwaddr) > 0 || served.size() > 0){
 			pkt << dhcpoption(OpPXEConfigFile, pxeAltConfigFile); //Already served; allowing normal boot
 		}else{
 			pkt << dhcpoption(OpPXEConfigFile, pxeConfigFile);
-			log.append(clienthwaddr);
-			log.append(iton(currentIp));
+			if (messageType == DHCPRequest){
+				log.append(clienthwaddr);
+				log.append(iton(currentIp));
+			}
 		}
 		pkt << dhcpoption(OpPXEPathPrefix, pxePathPrefix);
 		pkt << dhcpoption(OpPXERebootTime, iton(pxeRebootTime));
@@ -389,6 +389,11 @@ int DHCPserv::run(){
 
 		pkt << dhcpoption(OpEnd);
 		string sendPacket = pkt.str();
+
+		// now mark as served. We will then ignore their discovers 
+		//(but we'll respond to requests in case a packet was lost)
+		if (messageType == DHCPRequest)
+			served.insert(clienthwaddr);
 
 		//Send response
 		unsigned int sent = sendto(smellySock, sendPacket.c_str(), sendPacket.length(), 0, (struct sockaddr*)&broadcastAddr, sizeof(broadcastAddr));
