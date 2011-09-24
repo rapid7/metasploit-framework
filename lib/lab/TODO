@@ -1,6 +1,20 @@
- - qemu
- - qemudo
- - amazon ec2
- - kvm
- 
-look at fog as a potential drop-in replacement
+
+This is a list of the priorities for the lab code...
+
+1) Implement more technologies
+
+ a) finish amazon ec2 (via fog)
+
+ b) qemu
+
+ c) qemudo
+
+ d) kvm
+
+ e) other cloud technologies (newservers, slicehost/rackspace,etc)
+
+2) Implement a cloning function on each controller
+
+3) Support Windows as a host platform. Currently all the code assumes a linux host is running it. The same applies for the remote_* drivers -- they've not been tested on windows.
+
+4) 

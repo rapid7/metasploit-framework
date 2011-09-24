@@ -4,28 +4,29 @@ This folder contains the libraries necessary to run the lab plugin, and can also
 CONCEPTS:
 #########
 
-The lab is designed to provided a clean interface to common vm functions such as start / stop / snapshot / revert and even running system commands. It's designed in an easily-extensible way, so that different VM technologies have the same interface, and you can ignore the specifics of the VM tech. The majority of the functionality is implemented in the form of drivers and controllers. Drivers implement the underlying command for each vm (such as start/stop/revert), whereas controllers implement the commands which apply to all vms (such as listing all running vms). 
+The lab provides a clean interface to common vm functions such as start / stop / snapshot / revert and even running system commands or higher-level functions like opening a browser to a specified URL. It's designed so the different VM technologies have a similiar interface, and you can ignore the specifics of the VM tech. The majority of the functionality is implemented in the form of drivers and controllers. Drivers implement the underlying command for each vm software (such as start/stop/revert), and controllers implement the commands which apply to all vms (such as listing all running vms, or cloning a vm). 
 
-If you're interested in porting a technology (see below), please take a look at the workstation_driver.rb and the workstation_controller.rb -- This is the most simple driver / controller in the lab, and you can simply copy / modify this to implement a new technology. 
+If you're interested in porting a vm software (see below), please take a look at the workstation_driver.rb and the workstation_controller.rb -- This is a simple driver / controller in the lab, and you can simply copy / modify this to implement a new driver & controller for the software. 
 
 ##########################
 SUPPORTED VM TECHNOLOGIES:
 ##########################
 
+NOTE: The lab libraries have only been tested on linux, porting to windows is not planned at this time.
+
 Implemented:
  - workstation (Tested against 7.x)
  - remote_workstation (Tested against 7.x)
  - virtualbox (Tested against 4.x)
+ - remote_esx (VMware ESX Host Agent 4.1.0 build-348481)
 
 Partially Implemented:
- - remote_esxi (VMware ESX Host Agent 4.1.0 build-348481)
- - workstation_vixr (via the vixr gem)
+ - amazon_ec2 (via fog gem)
  - dynagen
 
 Need Implementation:
  - qemu
  - qemudo
- - amazon_ec2
  - others?
 
 #################
@@ -35,13 +36,12 @@ PLATFORM SUPPORT:
 You will need to have this code running on a linux box, Currently this has only been run / tested on Ubuntu 9.04 -> 10.04, though it should run on any linux with an ssh client and the dependencies below. Remote VM Hosts will need to be linux as well, though other platforms may work (untested). If you're interested in porting it to windows, please contact me (jcran). 
 
 Platform Dependencies:
-  - whatever vm software is necessary for the driver you're using (see SUPPORTED VM TECHNOLOGIES)
-  - net/ssh - the gem (net-ssh), not the msf library. Required to perform ssh_exec in the case tools are not installed on the device. Not necessary if tools are installed.
+  - whatever vm software is necessary for the driver you're using (see SUPPORTED VM TECHNOLOGIES above)
   - net/scp - the gem (net-scp). Required to copy files to/from the devices in the case that tools are not installed. Not necessary if tools are installed. 
-  - vixr - required to use the workstation_vixr driver.
+  - fog - require to use the amazon_ec2 driver
 
 ######################
-INTERFACE: LAB PLUGIN:
+MSFCONSOLE LAB PLUGIN:
 ######################
 
 BACKGROUND:
@@ -85,4 +85,3 @@ You must first create a yaml file which describes your vm. See data/lab/test_tar
   vm_controller['vm1'].open_uri("http://autopwn:8080")
   vm_controller['vm1'].revert("clean")
   vm_controller['vm1'].revert("clean")
-
