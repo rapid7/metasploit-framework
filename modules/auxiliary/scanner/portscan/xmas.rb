@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 					capture_sendto(probe, dhost)
 
-					reply = readreply(pcap, to)
+					reply = probereply(pcap, to)
 
 					next if reply # Got a RST back
 
