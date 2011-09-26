@@ -1,6 +1,17 @@
 Armitage Changelog
 ==================
 
+09.26.11 - take 2
+--------
+- Improved performance when launching exploits and other modules that open
+  a new tab.
+- Launching an exploit will only open a tab when fewer than four hosts are 
+  highlighted. If four or more are highlighted, then Armitage will use the old
+  behavior of silently launching each exploit. [You're supposed to be able to
+  attack hundreds of hosts at once--hence my desire to add this caveat]
+- When launching an exploit in the background, Armitage will show a dialog 
+  indicating that the exploit was launched against X hosts.
+
 09.26.11 
 --------
 - You may now drag and drop Armitage tabs to rearrange their order.
