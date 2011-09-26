@@ -204,13 +204,13 @@ int DHCPserv::run(){
 	bool serveOnce = true;
 	string soncestr("SERVEONCE");
 	if(options.count(soncestr) > 0)
-		serveOnce = atoi(options[soncestr].c_str()) != 0;
+		serveOnce = atoi(options[soncestr].c_str()) != 0 || (options[soncestr].at(0) | 0x20) == 't';
 
 	//get PXE
 	bool servePXE = true;
 	string pxestring("PXE");
 	if(options.count(pxestring) > 0)
-		servePXE = atoi(options[pxestring].c_str()) != 0;
+		servePXE = atoi(options[pxestring].c_str()) != 0 || (options[pxestring].at(0) | 0x20) == 't';
 
 	//get HOSTNAME
 	string hostname; //hostname to give out
@@ -368,7 +368,7 @@ int DHCPserv::run(){
 		pkt << dhcpoption(OpPXEMagic, pxemagic);
 
 		// check if already served based on hw addr (MAC address)
-		if (serveOnce == true && served.count(clienthwaddr) > 0 || served.size() > 0){
+		if (serveOnce == true && served.count(clienthwaddr) > 0){
 			pkt << dhcpoption(OpPXEConfigFile, pxeAltConfigFile); //Already served; allowing normal boot
 		}else{
 			pkt << dhcpoption(OpPXEConfigFile, pxeConfigFile);
