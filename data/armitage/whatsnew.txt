@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+09.26.11 
+--------
+- You may now drag and drop Armitage tabs to rearrange their order.
+- Armitage "show all commands" option (for better exploit feedback) is now on 
+  by default. 
+- You may now right-click a screenshot/webcam shot to zoom in or out on the 
+  image. The zoom-level stays fixed (in case you refresh the image later)
+- Added a menu to the X button in the tabs. Through this menu you may open the
+  current tab in its own window or close all like tabs.
+- Updated Hosts -> Import Hosts to reflect the current importable file types.
+- Added View -> Reporting -> Export Data to dump most Metasploit tables into 
+  TSV and XML files suitable for parsing (by you!) into a report format of 
+  some sort. 
+- Armitage now encodes (-e x86/shikata_ga_nai -i 3) any Windows meterpreter 
+  payload generated from the module launcher dialog.
+- [host] -> Meterpreter -> Access -> Duplicate now uses multi_meter_inject to
+  launch Meterpreter into memory directly (rather than upload and execute a file)
+- In teaming mode, Armitage will now automatically upload a file selected through
+  the + option (e.g., USER_FILE +) to the Metasploit server and set the value
+  in Metasploit accordingly.
+- Modified error output for a failed Metasploit method to only display the
+  method name and error message. Displaying a large input would cause Armitage
+  UI to start flashing in some weird disco mode until a hard reset. Yeaah.
+
 09.08.11
 --------
 - Armitage now highlights the event log tab when something new is posted and the
