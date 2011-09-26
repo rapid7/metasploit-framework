@@ -22,9 +22,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'GlassFish Brute Force Utility',
 			'Version'        => '$Revision$',
-			'Description'    => %q{This module attempts to login to GlassFish
-				instance using username and password combindations indicated by the USER_FILE,
-				PASS_FILE, and USERPASS_FILE options.
+			'Description'    => %q{
+				This module attempts to login to GlassFish instance using username
+				and password combindations indicated by the USER_FILE, PASS_FILE,
+				and USERPASS_FILE options.
 			},
 			'Author'         =>
 				[
@@ -39,10 +40,11 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		register_options(
-			[	Opt::RPORT(4848),
+			[
+				Opt::RPORT(4848),
 				OptString.new('URI', [true, 'The URI path of the GlassFish Server', '/']),
 				OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
-		], self.class)
+			], self.class)
 	end
 	
 	#
