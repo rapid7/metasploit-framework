@@ -152,27 +152,26 @@ module Socket
 	#
 	def self.getaddress(addr, accept_ipv6 = true)
 		begin
-		
 			if dotted_ip?(addr)
 				return addr
 			end
-			
+
 			res = ::Socket.gethostbyname(addr)
 			return nil if not res
-			
+
 			# Shift the first three elements out
 			rname  = res.shift
 			ralias = res.shift
 			rtype  = res.shift
-			
-			# Reject IPv6 addresses if we don't accept them			
+
+			# Reject IPv6 addresses if we don't accept them
 			if not accept_ipv6
 				res.reject!{|nbo| nbo.length != 4}
 			end
-			
+
 			# Make sure we have at least one name
-			return nil if res.length == 0			
-			
+			return nil if res.length == 0
+
 			# Return the first address of the result
 			self.addr_ntoa( res[0] )
 		rescue ::ArgumentError # Win32 bug
@@ -236,10 +235,10 @@ module Socket
 		addr_ntoi(resolv_nbo(host))
 	end
 
-	# 
+	#
 	# Converts an ASCII IP address to a CIDR mask. Returns
 	# nil if it's not convertable.
-	# 
+	#
 	def self.addr_atoc(mask)
 		mask_i = resolv_nbo_i(mask)
 		cidr = nil
@@ -476,7 +475,7 @@ module Socket
 	##
 
 	#
-	# This method does NOT send any traffic to the destination, instead, it uses a 
+	# This method does NOT send any traffic to the destination, instead, it uses a
 	# "bound" UDP socket to determine what source address we would use to
 	# communicate with the specified destination. The destination defaults to
 	# Google's DNS server to make the standard behavior determine which IP
@@ -491,14 +490,14 @@ module Socket
 			)
 			r = s.getsockname[1]
 			s.close
-			
+
 			# Trim off the trailing interface ID for link-local IPv6
 			return r.split('%').first
 		rescue ::Exception
 			return '127.0.0.1'
 		end
 	end
-	
+
 	#
 	# Identifies the link-local address of a given interface (if IPv6 is enabled)
 	#
@@ -507,10 +506,10 @@ module Socket
 		return if not (r and r =~ /^fe80/i)
 		r
 	end
-	
+
 	#
 	# Identifies the mac address of a given interface (if IPv6 is enabled)
-	#	
+	#
 	def self.ipv6_mac(intf)
 		r = ipv6_link_address(intf)
 		return if not r
