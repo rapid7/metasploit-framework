@@ -176,6 +176,7 @@ class Metasploit3 < Msf::Post
 
 	def get_bash_history(users, user)
 		if user == "root" and users != nil
+			users = users.chomp.split()
 			users.each do |u|
 				if u == "root"
 					vprint_status("Extracting history for #{u}")
