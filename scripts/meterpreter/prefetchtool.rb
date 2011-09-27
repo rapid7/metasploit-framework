@@ -161,9 +161,9 @@ else
 		req     = Net::HTTP::Get.new("/p/prefetch-tool/downloads/detail?name=prefetch.exe&can=2&q=")
 		resp    = http.request(req)
 		body    = resp.body
-		chksum  = body.scan(/SHA1 Checksum:.*<\/span><br>/)[0]
-		chksum.sub!(/SHA1 Checksum: /,'')
-		chksum.sub!(/<\/span><br>/,'')
+		chksum  = body.scan(/SHA1 Checksum: <\/th><td style="white-space:nowrap">.* <a href/)[0]
+		chksum.sub!(/SHA1 Checksum: <\/th><td style="white-space:nowrap"> /,'')
+		chksum.sub!(/ <a href/,'')
 
 		if (digest != chksum)
 			print_status("Downloading an updated version of prefetch.exe to #{prefetch_local}...")
