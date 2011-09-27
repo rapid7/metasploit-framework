@@ -66,11 +66,11 @@ class Metasploit3 < Msf::Auxiliary
 		#Set version.  Some GlassFish servers return banner "GlassFish v3".
 		if banner =~ /(GlassFish Server|Open Source Edition) (\d\.\d)/
 			version = $2
-		elsif banner =~ /GlassFish v(\d)/ and (version == 'Unknown' or version.nil?)
+		elsif banner =~ /GlassFish v(\d)/ and version.nil?
 			version = $1
-		elsif banner =~ /Sun GlassFish Enterprise Server v2/ and (version.nil? or version == 'Unknown')
+		elsif banner =~ /Sun GlassFish Enterprise Server v2/ and version.nil?
 			version = '2.x'
-		elsif banner =~ /Sun Java System Application Server 9/ and (version.nil? or version == 'Unknown')
+		elsif banner =~ /Sun Java System Application Server 9/ and version.nil?
 			version = '9.x'
 		end
 
