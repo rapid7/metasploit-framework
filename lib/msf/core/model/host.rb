@@ -55,6 +55,7 @@ class Host < ActiveRecord::Base
 		warch = {} # arch      == x86, PPC, SPARC, MIPS, ''
 		wlang = {} # os_lang   == English, ''
 		whost = {} # hostname
+		wtype = {} # purpose
 
 		# Note that we're already restricting the query to this host by using
 		# host.notes instead of Note, so don't need a host_id in the
@@ -70,6 +71,7 @@ class Host < ActiveRecord::Base
 			wflav[norm[:os_flavor]] = wflav[norm[:os_flavor]].to_i + (100 * norm[:certainty])
 			warch[norm[:arch]]      = warch[norm[:arch]].to_i      + (100 * norm[:certainty])
 			whost[norm[:name]]      = whost[norm[:name]].to_i      + (100 * norm[:certainty])
+			wtype[norm[:type]]      = wtype[norm[:type]].to_i      + (100 * norm[:certainty])
 		end
 
 		# Grab service information and assign scores. Some services are
@@ -794,8 +796,19 @@ protected
 				end
 			when "Windows"
 				ret[:os_name] = "Microsoft Windows"
-				ret[:os_flavor] = data[:product].gsub("Windows", '').strip if data[:product]
-				ret[:os_sp] = data[:version] if data[:version]
+				if data[:product]
+					if data[:product][/2008/] && data[:version].to_i == 7
+						ret[:os_flavor] = "Windows 7"
+						ret[:type] = "client"
+					else
+						ret[:os_flavor] = data[:product].gsub("Windows", '').strip 
+						ret[:os_sp] = data[:version] if data[:version]
+						if data[:product]
+							ret[:type] = "server" if data[:product][/Server/]
+							ret[:type] = "client" if data[:product][/^(XP|ME)$/]
+						end
+					end
+				end
 			when "embedded"
 				ret[:os_name] = data[:vendor]
 			else
