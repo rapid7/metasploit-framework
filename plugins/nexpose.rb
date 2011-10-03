@@ -2,7 +2,7 @@
 #
 # $Id$
 #
-# This plugin provides integration with Rapid7 NeXpose
+# This plugin provides integration with Rapid7 Nexpose
 #
 # $Revision$
 #
@@ -15,27 +15,27 @@ class Plugin::Nexpose < Msf::Plugin
 		include Msf::Ui::Console::CommandDispatcher
 
 		def name
-			"NeXpose"
+			"Nexpose"
 		end
 
 		def commands
 			{
-				'nexpose_connect'        => "Connect to a running NeXpose instance ( user:pass@host[:port] )",
-				'nexpose_activity'       => "Display any active scan jobs on the NeXpose instance",
+				'nexpose_connect'        => "Connect to a running Nexpose instance ( user:pass@host[:port] )",
+				'nexpose_activity'       => "Display any active scan jobs on the Nexpose instance",
 
-				'nexpose_scan'           => "Launch a NeXpose scan against a specific IP range and import the results",
+				'nexpose_scan'           => "Launch a Nexpose scan against a specific IP range and import the results",
 				'nexpose_discover'       => "Launch a scan but only perform host and minimal service discovery",
 				'nexpose_exhaustive'     => "Launch a scan covering all TCP ports and all authorized safe checks",
 				'nexpose_dos'            => "Launch a scan that includes checks that can crash services and devices (caution)",
 
-				'nexpose_disconnect'     => "Disconnect from an active NeXpose instance",
+				'nexpose_disconnect'     => "Disconnect from an active Nexpose instance",
 
 				'nexpose_sites'          => "List all defined sites",
 				'nexpose_site_devices'   => "List all discovered devices within a site",
 				'nexpose_site_import'    => "Import data from the specified site ID",
 				'nexpose_report_templates' => "List all available report templates",
-				'nexpose_command'        => "Execute a console command on the NeXpose instance",
-				'nexpose_sysinfo'        => "Display detailed system information about the NeXpose instance",
+				'nexpose_command'        => "Execute a console command on the Nexpose instance",
+				'nexpose_sysinfo'        => "Display detailed system information about the Nexpose instance",
 
 				# TODO:
 				# nexpose_stop_scan
@@ -55,7 +55,7 @@ class Plugin::Nexpose < Msf::Plugin
 			return false if not nexpose_verify_db
 
 			if ! @nsc
-				print_error("No active NeXpose instance has been configured, please use 'nexpose_connect'")
+				print_error("No active Nexpose instance has been configured, please use 'nexpose_connect'")
 				return false
 			end
 
@@ -104,7 +104,7 @@ class Plugin::Nexpose < Msf::Plugin
 
 			if(host != "localhost" and host != "127.0.0.1" and sslv != "ok")
 				print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
-				print_error("         with the ability to man-in-the-middle the NeXpose traffic to capture the NeXpose")
+				print_error("         with the ability to man-in-the-middle the Nexpose traffic to capture the Nexpose")
 				print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
 				print_error("         as an additional parameter to this command.")
 				return
@@ -119,7 +119,7 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 
 			begin
-				print_status("Connecting to NeXpose instance at #{host}:#{port} with username #{user}...")
+				print_status("Connecting to Nexpose instance at #{host}:#{port} with username #{user}...")
 				nsc = ::Nexpose::Connection.new(host, user, pass, port)
 				nsc.login
 			rescue ::Nexpose::APIError => e
@@ -138,11 +138,11 @@ class Plugin::Nexpose < Msf::Plugin
 			scans = @nsc.scan_activity || []
 			case scans.length
 			when 0
-				print_status("There are currently no active scan jobs on this NeXpose instance")
+				print_status("There are currently no active scan jobs on this Nexpose instance")
 			when 1
-				print_status("There is 1 active scan job on this NeXpose instance")
+				print_status("There is 1 active scan job on this Nexpose instance")
 			else
-				print_status("There are currently #{scans.length} active scan jobs on this NeXpose instance")
+				print_status("There are currently #{scans.length} active scan jobs on this Nexpose instance")
 			end
 
 			scans.each do |scan|
@@ -156,7 +156,7 @@ class Plugin::Nexpose < Msf::Plugin
 			sites = @nsc.site_listing || []
 			case sites.length
 			when 0
-				print_status("There are currently no active sites on this NeXpose instance")
+				print_status("There are currently no active sites on this Nexpose instance")
 			end
 
 			sites.each do |site|
@@ -225,7 +225,7 @@ class Plugin::Nexpose < Msf::Plugin
 			res = @nsc.console_command("ver")
 			if res !~ /^(NSC|Console) Version ID:\s*4[89]0\s*$/m
 				print_error("")
-				print_error("Warning: This version of NeXpose has not been tested with Metasploit!")
+				print_error("Warning: This version of Nexpose has not been tested with Metasploit!")
 				print_error("")
 			end
 		end
@@ -274,7 +274,7 @@ class Plugin::Nexpose < Msf::Plugin
 			# Delete the temporary report ID
 			@nsc.report_config_delete(report.config_id)
 
-			print_status("Importing NeXpose data...")
+			print_status("Importing Nexpose data...")
 			process_nexpose_data(report_format, data)
 
 		end
@@ -307,7 +307,7 @@ class Plugin::Nexpose < Msf::Plugin
 				"-t"   => [ true,   "The scan template to use (default:pentest-audit options:full-audit,exhaustive-audit,discovery,aggressive-discovery,dos-audit)"],
 				"-c"   => [ true,   "Specify credentials to use against these targets (format is type:user:pass[@host[:port]]"],
 				"-n"   => [ true,   "The maximum number of IPs to scan at a time (default is 32)"],
-				"-s"   => [ true,   "The directory to store the raw XML files from the NeXpose instance (optional)"],
+				"-s"   => [ true,   "The directory to store the raw XML files from the Nexpose instance (optional)"],
 				"-P"   => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
 				"-v"   => [ false,  "Display diagnostic information about the scanning process"],
 				"-x"   => [ false,  "Automatically launch all exploits by matching reference after the scan completes (unsafe)"],
@@ -354,7 +354,7 @@ class Plugin::Nexpose < Msf::Plugin
 						newcreds.setCredentials(type, nil, nil, user, pass, nil)
 						opt_credentials << newcreds
 					else
-						print_error("Unrecognized NeXpose scan credentials: #{val}")
+						print_error("Unrecognized Nexpose scan credentials: #{val}")
 						return
 					end
 				when "-v"
@@ -521,7 +521,7 @@ class Plugin::Nexpose < Msf::Plugin
 						select(nil, nil, nil, 1.0)
 					end
 
-					print_status(" >> Downloading the report data from NeXpose...") if opt_verbose
+					print_status(" >> Downloading the report data from Nexpose...") if opt_verbose
 					data = @nsc.download(url)
 
 					if(opt_savexml)
@@ -562,12 +562,12 @@ class Plugin::Nexpose < Msf::Plugin
 			when 'ns-xml'
 				framework.db.import({:data => data})
 			else
-				print_error("Unsupported NeXpose data format: #{fmt}")
+				print_error("Unsupported Nexpose data format: #{fmt}")
 			end
 		end
 
         #
-        # NeXpose vuln lookup
+        # Nexpose vuln lookup
         #
         def nexpose_vuln_lookup(doc, vid, refs, host, serv=nil)
             doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
@@ -625,11 +625,11 @@ class Plugin::Nexpose < Msf::Plugin
 			banner = ["202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29684e29684e29684202020e29684e29684202020202020202020202020e29684e29684e296842020e29684e29684e2968420202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29688e29688e29688202020e29688e2968820202020202020202020202020e29688e2968820e29684e29688e296882020202020202020202020202020202020202020202020202020202020202020202020202020202020200a20e29688e29688e29680e296882020e29688e29688202020e29684e29688e29688e29688e29688e296842020202020e29688e29688e29688e2968820202020e29688e29688e29684e29688e29688e29688e2968420202020e29684e29688e29688e29688e29688e29684202020e29684e29684e29688e29688e29688e29688e29688e29684202020e29684e29688e29688e29688e29688e2968420200a20e29688e2968820e29688e2968820e29688e296882020e29688e29688e29684e29684e29684e29684e29688e296882020202020e29688e296882020202020e29688e29688e296802020e29680e29688e296882020e29688e29688e296802020e29680e29688e296882020e29688e29688e29684e29684e29684e2968420e296802020e29688e29688e29684e29684e29684e29684e29688e29688200a20e29688e296882020e29688e29684e29688e296882020e29688e29688e29680e29680e29680e29680e29680e2968020202020e29688e29688e29688e2968820202020e29688e2968820202020e29688e296882020e29688e2968820202020e29688e29688202020e29680e29680e29680e29680e29688e29688e296842020e29688e29688e29680e29680e29680e29680e29680e29680200a20e29688e29688202020e29688e29688e296882020e29680e29688e29688e29684e29684e29684e29684e29688202020e29688e296882020e29688e29688202020e29688e29688e29688e29684e29684e29688e29688e296802020e29680e29688e29688e29684e29684e29688e29688e296802020e29688e29684e29684e29684e29684e29684e29688e296882020e29680e29688e29688e29684e29684e29684e29684e29688200a20e29680e29680202020e29680e29680e2968020202020e29680e29680e29680e29680e29680202020e29680e29680e296802020e29680e29680e296802020e29688e2968820e29680e29680e29680202020202020e29680e29680e29680e296802020202020e29680e29680e29680e29680e29680e296802020202020e29680e29680e29680e29680e2968020200a20202020202020202020202020202020202020202020202020202020202020e29688e29688202020202020202020202020202020202020202020202020202020202020202020202020200a202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020202020200a"].pack("H*")
 		end
 		print(banner)
-		print_status("NeXpose integration has been activated")
+		print_status("Nexpose integration has been activated")
 	end
 
 	def cleanup
-		remove_console_dispatcher('NeXpose')
+		remove_console_dispatcher('Nexpose')
 	end
 
 	def name
@@ -637,7 +637,7 @@ class Plugin::Nexpose < Msf::Plugin
 	end
 
 	def desc
-		"Integrates with the Rapid7 NeXpose vulnerability management product"
+		"Integrates with the Rapid7 Nexpose vulnerability management product"
 	end
 end
 end

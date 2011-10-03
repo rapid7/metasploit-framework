@@ -1,5 +1,5 @@
 #
-# The NeXpose API
+# The Nexpose API
 #
 =begin
 
@@ -34,11 +34,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
 #
-# WARNING! This code makes an SSL connection to the NeXpose server, but does NOT
+# WARNING! This code makes an SSL connection to the Nexpose server, but does NOT
 #          verify the certificate at this time. This can be a security issue if
 #          an attacker is able to man-in-the-middle the connection between the
-#          Metasploit console and the NeXpose server. In the common case of
-#          running NeXpose and Metasploit on the same host, this is a low risk.
+#          Metasploit console and the Nexpose server. In the common case of
+#          running Nexpose and Metasploit on the same host, this is a low risk.
 #
 
 #
@@ -147,7 +147,7 @@ class APIRequest
 		@res = parse_xml(@raw_response_data)
 
 		if(not @res.root)
-			@error = "NeXpose service returned invalid XML"
+			@error = "Nexpose service returned invalid XML"
 			return @sid
 		end
 
@@ -166,7 +166,7 @@ class APIRequest
 				end
 			end
 		end
-		# This is a hack to handle corner cases where a heavily loaded NeXpose instance
+		# This is a hack to handle corner cases where a heavily loaded Nexpose instance
 		# drops our HTTP connection before processing. We try 5 times to establish a
 		# connection in these situations. The actual exception occurs in the Ruby
 		# http library, which is why we use such generic error classes.
@@ -180,20 +180,20 @@ class APIRequest
 				@conn_tries += 1
 				retry
 			end
-			@error = "NeXpose host did not respond"
+			@error = "Nexpose host did not respond"
 		rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL,::Errno::EADDRNOTAVAIL
-			@error = "NeXpose host is unreachable"
+			@error = "Nexpose host is unreachable"
 		# Handle console-level interrupts
 		rescue ::Interrupt
 			@error = "received a user interrupt"
 		rescue ::Errno::ECONNRESET,::Errno::ECONNREFUSED,::Errno::ENOTCONN,::Errno::ECONNABORTED
-			@error = "NeXpose service is not available"
+			@error = "Nexpose service is not available"
 		rescue ::REXML::ParseException
-			@error = "NeXpose has not been properly licensed"
+			@error = "Nexpose has not been properly licensed"
 		end
 
 		if ! (@success or @error)
-			@error = "NeXpose service returned an unrecognized response: #{@raw_response_data.inspect}"
+			@error = "Nexpose service returned an unrecognized response: #{@raw_response_data.inspect}"
 		end
 
 		@sid
@@ -569,7 +569,7 @@ module NexposeAPI
 end
 
 # === Description
-# Object that represents a connection to a NeXpose Security Console.
+# Object that represents a connection to a Nexpose Security Console.
 #
 # === Examples
 #   # Create a new Nexpose Connection on the default port
@@ -729,7 +729,7 @@ class SiteListing
 end
 
 # === Description
-# Object that represents the summary of a NeXpose Site.
+# Object that represents the summary of a Nexpose Site.
 #
 class SiteSummary
 	# The Site ID
@@ -1603,7 +1603,7 @@ class Device
 	attr_reader :address
 	# User assigned risk multiplier
 	attr_reader :riskfactor
-	# NeXpose risk score
+	# Nexpose risk score
 	attr_reader :riskscore
 
 	def initialize(id, site_id, address, riskfactor=1, riskscore=0)
@@ -1924,7 +1924,7 @@ class VulnerabilityDetail
 	attr_reader :cvssVector
 	# The date this vulnerability was published
 	attr_reader :published
-	# The date this vulnerability was added to NeXpose
+	# The date this vulnerability was added to Nexpose
 	attr_reader :added
 	# The last date this vulnerability was modified
 	attr_reader :modified
@@ -2140,7 +2140,7 @@ end
 
 			content_type_response = ad_hoc_request.raw_response.header['Content-Type']
 			if content_type_response =~ /multipart\/mixed;\s*boundary=([^\s]+)/
-				# NeXpose sends an incorrect boundary format which breaks parsing
+				# Nexpose sends an incorrect boundary format which breaks parsing
 				# Eg: boundary=XXX; charset=XXX
 				# Fix by removing everything from the last semi-colon onward
 				last_semi_colon_index = content_type_response.index(/;/, content_type_response.index(/boundary/))
@@ -2498,7 +2498,7 @@ def self.getAttribute(attribute, xml)
 end
 
 # === Description
-# Returns an ISO 8601 formatted date/time stamp. All dates in NeXpose must use this format.
+# Returns an ISO 8601 formatted date/time stamp. All dates in Nexpose must use this format.
 def self.get_iso_8601_date(int_date)
 #@date_mod = date('Ymd\THis000', @int_date)
 	date_mod = ''
