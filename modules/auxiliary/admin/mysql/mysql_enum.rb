@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -19,15 +17,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-				'Name'			=> 'MySQL Enumeration Module',
+				'Name'          => 'MySQL Enumeration Module',
 				'Description'	=> %q{
 					This module allows for simple enumeration of MySQL Database Server
 					provided proper credentials to connect remotely.
 				},
-				'Author'		=> [ 'Carlos Perez. <carlos_perez[at]darkoperator.com>' ],
-				'License'		=> MSF_LICENSE,
-				'Version'		=> '$Revision$',
-				'References'		=>
+				'Author'        => [ 'Carlos Perez. <carlos_perez[at]darkoperator.com>' ],
+				'License'       => MSF_LICENSE,
+				'Version'       => '$Revision$',
+				'References'    =>
 				[
 					[ 'URL', 'https://cisecurity.org/benchmarks.html' ]
 				]
@@ -47,6 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 			#print_status(" | #{row.join(" | ")} |")
 			vparm[row[0]] = row[1]
 		end
+
 		#-------------------------------------------------------
 		# MySQL Version
 		print_status("\tMySQL Version: #{vparm["version"]}")
@@ -54,12 +53,14 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("\tArchitecture: #{vparm["version_compile_machine"]}")
 		print_status("\tServer Hostname: #{vparm["hostname"]}")
 		print_status("\tData Directory: #{vparm["datadir"]}")
+
 		if vparm["log"] == "OFF"
 			print_status("\tLogging of queries and logins: OFF")
 		else
 			print_status("\tLogging of queries and logins: ON")
 			print_status("\tLog Files Location: #{vparm["log_bin"]}")
 		end
+
 		print_status("\tOld Password Hashing Algorithm #{vparm["old_passwords"]}")
 		print_status("\tLoading of local files: #{vparm["local_infile"]}")
 		print_status("\tLogins with old Pre-4.1 Passwords: #{vparm["secure_auth"]}")
@@ -67,6 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("\tAllow Use of symlinks for Database Files: #{vparm["have_symlink"]}")
 		print_status("\tAllow Table Merge: #{vparm["have_merge_engine"]}")
 		print_status("\tRestrict DB Enumeration by Privilege: #{vparm["safe_show_database"]}") if vparm["safe_show_database"]
+
 		if vparm["have_openssl"] == "YES"
 			print_status("\tSSL Connections: Enabled")
 			print_status("\tSSL CA Certificate: #{vparm["ssl_ca"]}")
@@ -75,7 +77,12 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_status("\tSSL Connection: #{vparm["have_openssl"]}")
 		end
+
 		#-------------------------------------------------------
+		# Database selection
+		query = "use mysql"
+		mysql_query(query)
+
 		#Account Enumeration
 		# Enumerate all accounts with their password hashes
 		print_status("Enumerating Accounts:")
@@ -89,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		# Only list accounts that can log in with SSL if SSL is enabled
 		if vparm["have_openssl"] == "YES"
-			query = %Q|select user, host, ssl_type from mysql.user where ssl_type
+			query = %Q|select user, host, ssl_type from mysql.user where
 				(ssl_type = 'ANY') or
 				(ssl_type = 'X509') or
 				(ssl_type = 'SPECIFIED')|
@@ -153,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 		query = "select user, host from mysql.user where Process_priv = 'Y'"
 		res = mysql_query(query)
 		if res.size > 0
-			print_status("\tThe following users have POCESS Privilege:")
+			print_status("\tThe following users have PROCESS Privilege:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
 			end
@@ -168,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
 				(Drop_priv = 'Y')|
 		res = mysql_query(queryinmysql)
 		if res.size > 0
-			print_status("\tThe following accounts have privileges to the mysql databse:")
+			print_status("\tThe following accounts have privileges to the mysql database:")
 			res.each do |row|
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
 			end
@@ -204,7 +211,6 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("\t\tUser: #{row[0]} Host: #{row[1]}")
 			end
 		end
-
 
 		mysql_logoff
 	end
