@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def get_system
-		print_status("Trying to get SYUSERNAMESTEM privileges")
+		print_status("Trying to get SYSTEM privileges")
 		results = session.priv.getsystem
 		if results[0]
 			print_good("Got SYSTEM privileges")
