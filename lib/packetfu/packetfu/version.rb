@@ -1,7 +1,7 @@
 module PacketFu
 
 	# Check the repo's for version release histories
-	VERSION = "1.1.1" # Fixes for 1.8 
+	VERSION = "1.1.3" # Unscrewing the 1.1.2 gem
 
 	# Returns PacketFu::VERSION
 	def self.version
