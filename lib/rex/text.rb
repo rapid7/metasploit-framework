@@ -681,14 +681,14 @@ module Text
 	# Base64 encoder
 	#
 	def self.encode_base64(str, delim='')
-		[str].pack("m").gsub(/\s+/, delim)
+		[str.to_s].pack("m").gsub(/\s+/, delim)
 	end
 
 	#
 	# Base64 decoder
 	#
 	def self.decode_base64(str)
-		str.unpack("m")[0]
+		str.to_s.unpack("m")[0]
 	end
 
 	#
