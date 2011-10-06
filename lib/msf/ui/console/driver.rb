@@ -299,6 +299,20 @@ class Driver < Msf::Ui::Driver
 						print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
 					end
 				end
+			elsif line =~ /\$.*\$/
+				# this is a variable we need to subs line
+				var_with_delimiters = $&
+				var = var_with_delimiters.gsub("$","")
+				replacement = ENV["#{var}"]
+				
+				if replacement 
+					print_line("Replacing... #{var} with #{replacement} in ")				
+					line = line.gsub!(var_with_delimiters,replacement)
+					print_line("resource (#{path})> #{line}")
+					run_single(line)
+				else
+					print_error "No environment variable: #{variable} defined."
+				end
 			else
 				print_line("resource (#{path})> #{line}")
 				run_single(line)
