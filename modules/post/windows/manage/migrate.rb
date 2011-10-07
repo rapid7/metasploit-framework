@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
 		if datastore['KILL']
 			print_status("Killing original process with PID #{original_pid}")
 			session.sys.process.kill(original_pid)
-			print_good("Successfuly killed process with PID #{original_pid}")
+			print_good("Successfully killed process with PID #{original_pid}")
 		end
 	end
 
