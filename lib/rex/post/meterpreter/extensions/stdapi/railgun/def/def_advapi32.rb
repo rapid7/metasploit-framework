@@ -7,9 +7,30 @@ module Railgun
 module Def
 
 class Def_advapi32
+	
+	CREDENTIAL = [
+		[:Flags, :DWORD],
+		[:Type, :DWORD],
+		[:TargetName, :LPTSTR],
+		[:Comment, :LPTSTR],
+		[:LastWritten, :FILETIME],
+		[:CredentialBlobSize, :DWORD],
+		[:CredentialBlob, :LPBYTE],
+		[:Persist, :DWORD],
+		[:AttributeCount, :LPTSTR],
+		[:Attributes, :PCREDENTIAL_ATTRIBUTE],
+		[:TargetAlias, :LPTSTR],
+		[:UserName, :LPTSTR]
+	]
 
 	def self.create_dll(dll_path = 'advapi32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
+		
+		dll.add_function('CredEnumerateA', 'BOOL', [
+				['PCHAR', 'Filter', 'in'],
+				['DWORD', 'Flags', 'in'],
+				['PDWORD', 'Count', 'out'],
+				['PBLOB', 'Credentials', 'out']])
 
 		#Functions for Windows CryptoAPI
 		dll.add_function( 'CryptAcquireContextW', 'BOOL',[
@@ -181,7 +202,7 @@ class Def_advapi32
 				['LPVOID', 'hHash', 'in'],
 				['DWORD', 'dwParam', 'in'],
 				['PBLOB', 'pbData', 'out'],
-				['PDWORD', 'pdwDataLen', 'out'],
+				['PDWORD', 'pdwDataLen', 'inout'],
 				['DWORD', 'dwFlags', 'in']])
 
 		dll.add_function( 'CryptHashSessionKey', 'BOOL', [
