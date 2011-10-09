@@ -244,6 +244,10 @@ class Module
 	def vprint_line(msg)
 		print_line(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
 	end
+	# Verbose version of #print_debug
+	def vprint_debug(msg)
+		print_debug(msg) if datastore['VERBOSE'] || framework.datastore['VERBOSE']
+	end
 
 	#
 	# Returns the module's framework full reference name.  This is the
