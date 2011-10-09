@@ -82,9 +82,8 @@ class RangeWalker
 			elsif arg =~ /[^-0-9,.*]/
 				# Then it's a domain name and we should send it on to addr_atoi
 				# unmolested to force a DNS lookup.
-				addr = Rex::Socket.addr_atoi(arg)
-				ranges.push [addr, addr]
-			elsif arg =~ /^([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)-([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)$/
+				Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr] }
+			elsif arg =~ /^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})-([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/
 				# Then it's in the format of 1.2.3.4-5.6.7.8
 				# Note, this will /not/ deal with DNS names, or the fancy/obscure 10...1-10...2
 				begin 

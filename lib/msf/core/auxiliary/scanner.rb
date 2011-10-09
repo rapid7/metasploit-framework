@@ -117,7 +117,7 @@ def run
 			@tl.delete_if { |t| not t.alive? }
 			tlb = @tl.length
 
-			@range_done += tla - tlb
+			@range_done += (tla - tlb)
 			scanner_show_progress() if @show_progress
 		end
 

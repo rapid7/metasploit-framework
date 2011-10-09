@@ -180,6 +180,42 @@ module Socket
 	end
 
 	#
+	# Wrapper for Resolv.getaddress that takes special care to see if the
+	# supplied address is already a dotted quad, for instance.  This is
+	# necessary to prevent calls to gethostbyaddr (which occurs on windows).
+	# These calls can be quite slow. This also fixes an issue with the
+	# Resolv.getaddress() call being non-functional on Ruby 1.9.1 (Win32).
+	#
+	def self.getaddresses(addr, accept_ipv6 = true)
+		begin
+			if dotted_ip?(addr)
+				return addr
+			end
+
+			res = ::Socket.gethostbyname(addr)
+			return nil if not res
+
+			# Shift the first three elements out
+			rname  = res.shift
+			ralias = res.shift
+			rtype  = res.shift
+
+			# Reject IPv6 addresses if we don't accept them
+			if not accept_ipv6
+				res.reject!{|nbo| nbo.length != 4}
+			end
+
+			# Make sure we have at least one name
+			return nil if res.length == 0
+
+			# Return an array of all addresses
+			res.map{ |addr| self.addr_ntoa(addr) }
+		rescue ::ArgumentError # Win32 bug
+			nil
+		end
+	end
+	
+	#
 	# Wrapper for Socket.gethostbyname which takes into account whether or not
 	# an IP address is supplied.  If it is, then reverse DNS resolution does
 	# not occur.  This is done in order to prevent delays, such as would occur
@@ -229,12 +265,26 @@ module Socket
 	end
 
 	#
+	# Resolves a host to raw network-byte order.
+	#
+	def self.resolv_nbo_list(host)
+		Rex::Socket.getaddresses(host).map{|addr| self.gethostbyname(addr)[3] }
+	end
+
+	#
 	# Resolves a host to a network-byte order ruby integer.
 	#
 	def self.resolv_nbo_i(host)
 		addr_ntoi(resolv_nbo(host))
 	end
 
+	#
+	# Resolves a host to a list of network-byte order ruby integers.
+	#
+	def self.resolv_nbo_i_list(host)
+		resolv_nbo_list(host).map{|addr| addr_ntoi(addr) }
+	end
+	
 	#
 	# Converts an ASCII IP address to a CIDR mask. Returns
 	# nil if it's not convertable.
@@ -274,6 +324,13 @@ module Socket
 		resolv_nbo_i(addr)
 	end
 
+	#
+	# Converts a ascii address into a list of addresses
+	#
+	def self.addr_atoi_list(addr)
+		resolv_nbo_i_list(addr)
+	end
+	
 	#
 	# Converts an integer address into ascii
 	#
