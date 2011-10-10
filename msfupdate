@@ -14,7 +14,8 @@ $stderr.puts "[*]"
 $stderr.puts ""
 
 if not ::File.stat(msfbase).owned?
-	$stderr.puts "[-] ERROR: user running msfupdate does not own the metasploit install"
+	$stderr.puts "[-] ERROR: User running msfupdate does not own the metasploit install"
+	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
 
 wait = (ARGV.shift.to_s == "wait")
