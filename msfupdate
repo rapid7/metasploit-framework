@@ -13,6 +13,10 @@ $stderr.puts "[*] Attempting to update the Metasploit Framework..."
 $stderr.puts "[*]"
 $stderr.puts ""
 
+if not ::File.stat(msfbase).owned?
+	$stderr.puts "[-] ERROR: user running msfupdate does not own the metasploit install"
+end
+
 wait = (ARGV.shift.to_s == "wait")
 
 have_configdir = false
