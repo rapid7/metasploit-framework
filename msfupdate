@@ -13,7 +13,7 @@ $stderr.puts "[*] Attempting to update the Metasploit Framework..."
 $stderr.puts "[*]"
 $stderr.puts ""
 
-if not ::File.stat(msfbase).owned?
+if not (Process.uid == 0 or File.stat(msfbase).owned?)
 	$stderr.puts "[-] ERROR: User running msfupdate does not own the metasploit install"
 	$stderr.puts "Please run msfupdate as the same user who installed metasploit."
 end
