@@ -924,9 +924,15 @@ class Db
 
 		#
 		# A shotgun approach to network-wide exploitation
+		# Officially deprecated as of 4.1
 		#
 		def cmd_db_autopwn(*args)
 			return unless active?
+
+			print_error("")			
+			print_error("Warning: The db_autopwn command is deprecated and will be removed in a future version.")
+			print_error("         This code is not well maintained, crashes systems, and crashes itself.")
+			print_error("")
 
 			stamp = Time.now.to_f
 			vcnt  = 0
