@@ -325,7 +325,7 @@ class Metasploit3 < Msf::Post
 			@hist_col.each do |hitem|
 				url = hitem["url"].split('?')[0].downcase
 				hash = hash_url(url).upcase
-				if val_arr.include? (hash)
+				if val_arr.include?(hash)
 					data = registry_getvaldata(regpath, hash)
 					dec = decrypt_reg(url, data)
 					#decode data and add to creds array
