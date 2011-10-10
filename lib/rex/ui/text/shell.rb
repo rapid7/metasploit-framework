@@ -237,7 +237,7 @@ module Shell
 	# mode - append or not to append - false = append true = make a new prompt
 	def update_prompt(prompt = nil, new_prompt_char = nil, mode = false)
 		if (self.input)
-			if prompt
+			if prompt and prompt.length > 1
 				new_prompt = self.init_prompt + ' ' + prompt + prompt_char + ' '
 			else
 				new_prompt = self.prompt || ''
