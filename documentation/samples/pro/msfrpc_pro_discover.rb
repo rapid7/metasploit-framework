@@ -127,7 +127,7 @@ end
 project 			= opts[:project]	|| usage(parser)
 targets 			= opts[:targets]	|| usage(parser)
 blacklist			= opts[:blacklist]
-speed				= opts[:speed]		|| "Insane"
+speed				= opts[:speed]		|| "5"
 extra_ports			= opts[:extra_ports]
 blacklist_ports			= opts[:blacklist_ports]
 custom_ports			= opts[:custom_ports]
