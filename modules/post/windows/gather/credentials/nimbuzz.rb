@@ -17,21 +17,21 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Windows Gather Nimbuzz Instant Messenger Password Extractor',
-				'Description'   => %q{
-						This module extracts the account passwords saved by Nimbuzz Instant
-					Messenger in hex format.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        =>
-					[
-						'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
-						'SecurityXploded Team', #www.SecurityXploded.com
-					],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
+		super(update_info( info,
+			'Name'          => 'Windows Gather Nimbuzz Instant Messenger Password Extractor',
+			'Description'   => %q{
+					This module extracts the account passwords saved by Nimbuzz Instant
+				Messenger in hex format.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        =>
+				[
+					'sil3ntdre4m <sil3ntdre4m[at]gmail.com>',
+					'SecurityXploded Team', #www.SecurityXploded.com
+				],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
 
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Post
 				return
 			end
 
-			user = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application\\", "Username")
+			user = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application\\", "Username") || ""
 			hpass = registry_getvaldata("HKU\\#{k}\\Software\\Nimbuzz\\PCClient\\Application\\", "Password")
 
 			next if hpass == nil or hpass == ""
