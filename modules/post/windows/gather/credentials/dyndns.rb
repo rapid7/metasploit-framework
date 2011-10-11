@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Dyn-Dns Client Password Extractor',
+			'Name'           => 'Windows Gather Dyn-Dns Client Password Extractor',
 			'Description'    => %q{
 					This module extracts the username, password, and hosts for Dyn-Dns version 4.1.8.
 				This is done by downloading the config.dyndns file from the victim machine, and then

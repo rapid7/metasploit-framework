@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'            => "Windows Internet Explorer User Data Enumeration",
+			'Name'            => "Windows Gather Internet Explorer User Data Enumeration",
 			'Description'     => %q{
 				This module will collect history, cookies, and credentials (from either HTTP
 				auth passwords, or saved form passwords found in auto-complete) in

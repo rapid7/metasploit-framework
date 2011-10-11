@@ -22,9 +22,11 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'		  => 'Google Picasa Password Extractor',
-				'Description'   => %q{This module extracts and decrypts the login passwords
-				stored by Google Picasa.},
+				'Name'		  => 'Windows Gather Google Picasa Password Extractor',
+				'Description'   => %q{
+					This module extracts and decrypts the login passwords
+					stored by Google Picasa.
+				},
 				'License'	   => MSF_LICENSE,
 				'Author' =>
 				[

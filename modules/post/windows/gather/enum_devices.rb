@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => 'Windows Hardware Enumeration',
+			'Name'           => 'Windows Gather Hardware Enumeration',
 			'Description'    => %q{
 					Enumerate PCI hardware information from the registry. Please note this script
 				will run through registry subkeys such as: 'PCI', 'ACPI', 'ACPI_HAL', 'FDC', 'HID',

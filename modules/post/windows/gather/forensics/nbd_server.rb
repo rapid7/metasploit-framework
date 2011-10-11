@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Local NBD server for remote disks',
+			'Name'          => 'Windows Local NBD server for remote disks',
 			'Description'   => %q{
 					Maps remote disks and logical volumes to a local Network Block Device server.
 				Allows for forensic tools to be executed on the remote disk directly.
