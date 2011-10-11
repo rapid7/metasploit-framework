@@ -49,12 +49,12 @@ class Metasploit3 < Msf::Post
 			paths = platform_check
 
 			if paths.nil?
-				print_error("Platform is not Unix or Linux based.")
+				print_error("Platform is not Unix or Linux based. This one is: #{session.platform.to_s}")
 				return
 			end
 		end
 
-		if paths.empty?
+		if paths.nil? or paths.empty?
 			print_error("No users found with a .ssh directory")
 			return
 		end
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
 
 	def enum_users_unix
 		id = whoami
-		if id.empty? or id.nil?
+		if id.nil? or id.empty?
 			print_error("This session is not responding, perhaps the session is dead")
 		end
 
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Post
 
 	def enum_users_osx
 		id = whoami
-		if id.empty? or id.nil?
+		if id.nil? or id.empty?
 			print_error("This session is not responding, perhaps the session is dead")
 		end
 
