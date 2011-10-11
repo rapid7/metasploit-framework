@@ -25,7 +25,7 @@ class Metasploit4 < Msf::Auxiliary
 				[
 					['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
 					['CVE', 'CVE-2011-3368'],
-				],
+				]
 		)
 
 		register_options(
