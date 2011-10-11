@@ -16,28 +16,22 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => "Enumerate Directory Permissions Module",
-			'Description'    => 
-					%q{
-						This module enumerates directories and lists the 
-						permissions set on found directories.
-					},
+			'Name'           => "Windows Gather Directory Permissions Enumeration",
+			'Description'    => %q{
+				This module enumerates directories and lists the permissions set
+				on found directories.
+			},
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'Platform'       => ['windows'],
 			'SessionTypes'   => ['meterpreter'],
 			'Author'         => ['Kx499']
 		))
+
 		register_options(
 			[
 				OptString.new('PATH', [ true, 'Directory to begin search from' ]),
-				OptEnum.new('FILTER', [ false, 'Filter to limit results by', 'NA',
-								[
-									'NA',
-									'R',
-									'W',
-									'RW'
-								]]),
+				OptEnum.new('FILTER', [ false, 'Filter to limit results by', 'NA', [ 'NA', 'R', 'W', 'RW' ]]),
 				OptInt.new('DEPTH', [ true, 'Depth to drill down into subdirs, O = no limit',0]),
 			], self.class)
 	end
