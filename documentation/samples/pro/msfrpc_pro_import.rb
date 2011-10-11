@@ -34,7 +34,7 @@ parser.on("--project PROJECT") do |project|
 end
 
 parser.on("--help") do
-	$stderr.puts ropts
+	$stderr.puts parser
 	exit(1)
 end
 parser.separator('')

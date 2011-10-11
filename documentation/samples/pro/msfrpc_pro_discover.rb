@@ -107,7 +107,7 @@ parser.on("--fast-detect (optional)") do
 end
 
 parser.on("--help") do
-	$stderr.puts opts
+	$stderr.puts parser
 	exit(1)
 end
 

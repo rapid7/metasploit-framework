@@ -63,7 +63,7 @@ parser.on("--blacklist BLACKLIST (optional)") do |x|
 end
 
 parser.on("--help") do
-	$stderr.puts opts
+	$stderr.puts parser
 	exit(1)
 end
 
