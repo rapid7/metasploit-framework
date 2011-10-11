@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Post
 
 	def enum_users_unix
 		id = whoami
-		if id.empty? or id.nil?
+		if id.nil? or id.empty?
 			print_error("This session is not responding, perhaps the session is dead")
 		end
 
