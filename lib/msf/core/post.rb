@@ -35,7 +35,24 @@ class Post < Msf::Module
 		if not session
 			raise Msf::OptionValidateError.new(["SESSION"])
 		end
+		check_for_session_readiness() unless session.type == "meterpreter"
+
 		@session.init_ui(self.user_input, self.user_output)
+	end
+
+	# Meterpreter sometimes needs a little bit of extra time to 
+	# actually be responsive for post modules. Default tries
+	# and retries for 5 seconds.
+	def check_for_session_readiness(tries=10)
+		session_ready_count = 0
+		session_ready = false
+		until session.sys or session_ready_count > tries
+			select(nil,nil,nil,0.5)
+			session_ready_count += 1
+		end
+		session_ready = !!session.sys
+		raise "Could not get a hold of the session." unless session_ready
+		return session_ready
 	end
 
 	#
