@@ -93,14 +93,17 @@ class Metasploit3 < Msf::Auxiliary
 							parse_reply(r)
 						end
 					end
+					
+					idx += 1
 
 				end
 			end
 
-			while (r = udp_sock.recvfrom(65535, 3) and r[1])
+			idx = 0
+			while (r = udp_sock.recvfrom(65535, 3) and r[1] and idx < 500)
 				parse_reply(r)
+				idx += 1
 			end
-
 
 			if @found.keys.length > 0
 				print_status("Validating scan results from #{@found.keys.length} hosts...")
