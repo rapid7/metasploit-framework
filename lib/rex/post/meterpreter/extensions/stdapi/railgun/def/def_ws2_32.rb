@@ -11,6 +11,13 @@ class Def_ws2_32
 	def self.create_dll(dll_path = 'ws2_32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
 
+		dll.add_function('getaddrinfo', 'DWORD',[
+			["PCHAR","pNodeName","in"],
+			["PCHAR","pServiceName","in"],
+			["PDWORD","pHints","in"],
+			["PDWORD","ppResult","out"]
+			])
+
 		dll.add_function('WSAAccept', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","addr","inout"],
