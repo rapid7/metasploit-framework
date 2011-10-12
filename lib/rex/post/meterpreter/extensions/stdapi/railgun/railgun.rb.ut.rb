@@ -1,4 +1,4 @@
-#!/usr/bin/env rubyj
+#!/usr/bin/env ruby
 
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
 
@@ -17,9 +17,17 @@ class Railgun::UnitTest < Test::Unit::TestCase
 
 	# DLLs we know should be available at the time of this writing, 
 	# and DLLs that because of changes since then should be available
-	STOCK_DLLS = 
-		['kernel32', 'ntdll', 'user32', 'ws2_32', 'crypt32',
-			'iphlpapi', 'netapi32', 'advapi32', 'shell32'] | Railgun::BUILTIN_DLLS
+	STOCK_DLLS = [
+		'kernel32',
+		'ntdll',
+		'user32',
+		'ws2_32',
+		'iphlpapi',
+		'advapi32',
+		'shell32',
+		'netapi32',
+		'crypt32',
+	] | Railgun::BUILTIN_DLLS
 
 	include MockMagic
 
