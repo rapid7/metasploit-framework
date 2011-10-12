@@ -1,3 +1,5 @@
+$Id$
+
 require 'msf/core'
 
 class Metasploit4 < Msf::Auxiliary
@@ -7,30 +9,30 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Reverse Proxy Bypass Scanner',
-			'Version'     => '$Revision: $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				Scan for poorly configured reverse proxy servers.
 				By default, this module attempts to force the server to make
-				a request with an invalid domain name. Then, if the bypass 
-				is successful, the server will look it up and of course fail, 
+				a request with an invalid domain name. Then, if the bypass
+				is successful, the server will look it up and of course fail,
 				then responding with a status code 502. A baseline status code
 				is always established and if that baseline matches your test
 				status code, the injection attempt does not occur.
 				"set VERBOSE true" if you are paranoid and want to catch potential
 				false negatives. Works best against Apache and mod_rewrite
 			},
-			'Author'      => 'chao-mu',
-			'License'     => BSD_LICENSE,
+			'Author'      => ['chao-mu'],
+			'License'     => MSF_LICENSE,
 			'References'  =>
 				[
 					['URL', 'http://www.contextis.com/research/blog/reverseproxybypass/'],
-					['CVE', 'CVE-2011-3368'],
+					['CVE', '2011-3368'],
 				]
 		)
 
 		register_options(
 			[
-				OptString.new('ESCAPE_SEQUENCE', 
+				OptString.new('ESCAPE_SEQUENCE',
 					[true, 'Character(s) that terminate the rewrite rule', '@']),
 
 				OptString.new('INJECTED_URI',
@@ -58,7 +60,7 @@ class Metasploit4 < Msf::Auxiliary
 			vprint_error "Request against #{host} timed out"
 			return nil
 		end
-			
+
 		seconds_transpired = (responded_at - requested_at).to_f
 		vprint_status "#{host} took #{seconds_transpired} seconds to respond to URI #{uri}"
 
