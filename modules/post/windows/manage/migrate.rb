@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 		begin
 			print_good("Migrating to #{target_pid}")
 			session.core.migrate(target_pid)
-			print_good("Successfully migrated to process #{}")
+			print_good("Successfully migrated to process #{target_pid}")
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
 			print_error(e)
