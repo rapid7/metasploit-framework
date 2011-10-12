@@ -485,8 +485,6 @@ class Db
 			print_line
 			print_line "Usage: vulns [addr range]"
 			print_line
-			#print_line "  -a,--add              Add creds to the given addresses instead of listing"
-			#print_line "  -d,--delete           Delete the creds instead of searching"
 			print_line "  -h,--help             Show this help information"
 			print_line "  -p,--port <portspec>  List vulns matching this port spec"
 			print_line "  -s <svc names>        List vulns matching these service names"
@@ -519,7 +517,7 @@ class Db
 				#when "-d"
 				#	mode = :delete
 				when "-h"
-					cmd_creds_help
+					cmd_vulns_help
 					return
 				when "-p","--port"
 					unless (arg_port_range(args.shift, port_ranges, true))
@@ -604,6 +602,8 @@ class Db
 			port_ranges = []
 			svcs        = []
 
+			user = nil
+
 			# Short-circuit help
 			if args.delete "-h"
 				cmd_creds_help
@@ -685,6 +685,10 @@ class Db
 
 			# If we get here, we're searching.  Delete implies search
 
+			if user
+				user_regex = Regexp.compile(user)
+			end
+
 			# normalize
 			ports = port_ranges.flatten.uniq
 			svcs.flatten!
@@ -715,6 +719,9 @@ class Db
 				# Same for service names
 				next unless svcs.empty? or svcs.include?(cred.service.name)
 
+				if user_regex
+					next unless user_regex.match(cred.user)
+				end
 				row = [
 						cred.service.host.address, cred.service.port,
 						cred.user, cred.pass, cred.ptype,
