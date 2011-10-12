@@ -1,6 +1,27 @@
 Armitage Changelog
 ==================
 
+10.12.11
+--------
+- Meterpreter N -> Hashdump now runs post/windows/gather/smart_hashdump module.
+  This gives you the benefit of seeing its output and it works in more
+  situations. 
+- Right-click the tab X button and select Save Screenshot to take a screenshot
+  of the current tab. This image will render the tab contents exactly as seen
+  on the screen. Useful for putting together a report or presentation.
+  (thanks Rob for the suggestion)
+- Added a module launcher helper for RHOSTS and RHOST. This helper will let you
+  import a list of IPs (separated by newlines) from a file into these fields.
+- View -> Reporting -> Export Data no longer fails if there are no hosts to
+  export data about.
+- Armitage now runs post/auxiliary modules as jobs (meaning you may kill them
+  using View -> Jobs)
+- hashdump and smart_hashdump post modules will now announce to the event log
+  that hashes were dumped when they're run (whether through the menu or 
+  the module browser).
+- View -> Reporting -> Export Data now takes a screenshot of the table view
+  and includes it in the artifacts (when table view is active)
+
 09.26.11 - take 2
 --------
 - Improved performance when launching exploits and other modules that open
