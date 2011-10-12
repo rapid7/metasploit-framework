@@ -35,7 +35,7 @@ class Post < Msf::Module
 		if not session
 			raise Msf::OptionValidateError.new(["SESSION"])
 		end
-		check_for_session_readiness() unless session.type == "meterpreter"
+		check_for_session_readiness() if session.type == "meterpreter"
 
 		@session.init_ui(self.user_input, self.user_output)
 	end
