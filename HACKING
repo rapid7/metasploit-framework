@@ -18,7 +18,7 @@ adhere to the following style guidelines:
  - Method names should always be lower_case and words separated by "_"
  - Variable names should be lower case with words separated by "_"
  - Don't depend on any external gems or libraries without talking to
-   egypt to resolve packaging and licensing issues 
+   todb to resolve packaging and licensing issues 
 
 You can use the the "./tools/msftidy.rb" script to do some rudimentary
 checking for various violations.
@@ -128,14 +128,21 @@ email it framework@metasploit.com, which is the main mailing list
 for framework users, or msfdev@metasploit.com which only goes to
 developers.
 
+The SVN keywords for Id and Revision should remain blank, as the SVN
+checkin will handle those substitutions automatically. The Author
+field is not automatic, and should be filled in in the format of
+'Yourname <user[at]domain.tld>' so future developers can contact
+you with any questions.
+
 
 Licensing
 =========
 By submitting code contributions to the Metasploit Project it is
-assumed that you are offering your code under a BSD or similar
-license.  MIT and Ruby Licenses are also fine.  We specifically cannot
-include GPL code. LGPL code is accepted on a case by case basis for
-libraries only and is never accepted for modules.
+assumed that you are offering your code under the Metasploit License
+or similar 3-clause BSD-compatible license.  MIT and Ruby Licenses 
+are also fine.  We specifically cannot include GPL code. LGPL code
+is accepted on a case by case basis for libraries only and is never 
+accepted for modules.
 
 When possible, such as aux and exploit modules, be sure to include
 your license designation in the file in the appropriate place.
