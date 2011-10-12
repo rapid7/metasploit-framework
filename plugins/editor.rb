@@ -42,7 +42,7 @@ class Plugin::Editor < Msf::Plugin
 		# This method handles the edit command.
 		#
 		def cmd_edit(*args)
-			print_line ("Launching editor...")
+			print_line("Launching editor...")
 
 			e = Rex::Compat.getenv("EDITOR") || "vi"
 
