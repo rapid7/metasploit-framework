@@ -3705,10 +3705,18 @@ module RbReadline
          if (!@rl_display_fixed || @forced_display || lmargin != @last_lmargin)
 
             @forced_display = false
+			# in case we scrolled to the right, the prompt is not visible,
+			# so temporarily set wrap_offset and visible_wrap_offset to zero.
+			old_vwo=@visible_wrap_offset
+			old_wo=@wrap_offset
+			if (lmargin != 0)
+				@visible_wrap_offset=0
+				@wrap_offset=0
+			end
             update_line(@visible_line,@last_lmargin,@invisible_line[lmargin..-1],
             0,
             @_rl_screenwidth + @visible_wrap_offset,
-            @_rl_screenwidth + (lmargin ? 0 : @wrap_offset),
+            @_rl_screenwidth + (lmargin != 0 ? 0 : @wrap_offset),
             0)
             # If the visible new line is shorter than the old, but the number
             #   of invisible characters is greater, and we are at the end of
@@ -3727,6 +3735,8 @@ module RbReadline
             end
             _rl_move_cursor_relative(@cpos_buffer_position - lmargin, @invisible_line ,lmargin)
             @last_lmargin = lmargin
+			@visible_wrap_offset=old_vwo
+			@wrap_offset=old_wo
          end
       end
       @rl_outstream.flush

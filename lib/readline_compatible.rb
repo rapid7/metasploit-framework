@@ -31,6 +31,8 @@ OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 =end
 
+require 'windows_console_color_support'
+
 module Readline
 
    require 'rbreadline'
@@ -69,6 +71,9 @@ module Readline
       begin
          RbReadline.rl_instream  = $stdin
          RbReadline.rl_outstream = $stdout
+         if (Rex::Compat.is_windows)
+            RbReadline.rl_outstream = WindowsConsoleColorSupport.new($stdout)
+         end
          buff = RbReadline.readline(prompt)
       rescue ::Interrupt
          raise $!

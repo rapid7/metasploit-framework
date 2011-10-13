@@ -1,4 +1,5 @@
 require 'rex/ui'
+require 'windows_console_color_support'
 
 module Rex
 module Ui
@@ -18,6 +19,9 @@ class Output::Stdio < Rex::Ui::Text::Output
 		when false
 			return false
 		else # auto
+			if (Rex::Compat.is_windows)
+				return true
+			end
 			term = Rex::Compat.getenv('TERM')
 			return (term and term.match(/(?:vt10[03]|xterm(?:-color)?|linux|screen|rxvt)/i) != nil)
 		end
@@ -27,7 +31,11 @@ class Output::Stdio < Rex::Ui::Text::Output
 	# Prints the supplied message to standard output.
 	#
 	def print_raw(msg = '')
-		$stdout.print(msg)
+		if (Rex::Compat.is_windows and supports_color?)
+			WindowsConsoleColorSupport.new($stdout).write(msg)
+		else
+			$stdout.print(msg)
+		end
 		$stdout.flush
 
 		msg
