@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 									report_host({
 										:host => ip,
 										:name => hostname[1].strip,
-										:comm => "Discovered trhu post reverse DNS lookup"
+										:comm => "Discovered thru post reverse DNS lookup"
 										})
 								end
 							else
@@ -107,7 +107,7 @@ class Metasploit3 < Msf::Post
 								report_host({
 										:host => ip,
 										:name => hostname.strip,
-										:comm => "Discovered trhu post reverse DNS lookup"
+										:comm => "Discovered thru post reverse DNS lookup"
 									})
 							else
 								vprint_status("#{ip} does not have a Reverse Lookup Record")
