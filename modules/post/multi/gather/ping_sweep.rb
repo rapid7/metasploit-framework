@@ -84,7 +84,7 @@ class Metasploit3 < Msf::Post
 								print_status "\t#{ip} host found"
 								report_host({
 										:host => ip,
-										:comm => "Discovered trhu post ping sweep"
+										:comm => "Discovered thru post ping sweep"
 									})
 							else
 								vprint_status("\t#{ip} host not found")
