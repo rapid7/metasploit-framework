@@ -110,7 +110,24 @@ class Metasploit3 < Msf::Auxiliary
 			}
 			info = "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})"
 			s = start_session(self, info, merge_me, false, conn.lsock)
-
+			
+			# Set the session platfomr
+			case proof
+			when /Linux/
+				s.platform = "linux"
+			when /Darwin/
+				s.platform = "osx"
+			when /SunOS/
+				s.platform = "solaris"
+			when /BSD/
+				s.platform = "bsd"
+			when /HP-UX/
+				s.platform = "hpux"
+			when /AIX/
+				s.platform = "aix"
+			when /Win32|Windows/
+				s.platform = "windows"
+			end
 			return [:success, proof]
 		else
 			return [:fail, nil]
