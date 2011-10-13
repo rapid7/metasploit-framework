@@ -347,6 +347,14 @@ class Msf::Module::Platform
 	end
 
 	#
+	# Cisco
+	#
+	class Cisco < Msf::Module::Platform
+		Rank = 100
+		Alias = "cisco"
+	end
+
+	#
 	# Solaris
 	#
 	class Solaris < Msf::Module::Platform
