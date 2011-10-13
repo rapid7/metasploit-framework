@@ -1,6 +1,12 @@
 Armitage Changelog
 ==================
 
+10.12.11 - oooh SECKSY
+-------- 
+- fixed a typo in the default armitage settings file.
+- made PAYLOAD helper friendly to post/windows/manage/payload_inject
+- Meterpreter -> Access -> Pass Session now uses payload_inject
+
 10.12.11
 --------
 - Meterpreter N -> Hashdump now runs post/windows/gather/smart_hashdump module.
