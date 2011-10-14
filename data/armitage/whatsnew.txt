@@ -1,6 +1,16 @@
 Armitage Changelog
 ==================
 
+10.13.11 take II?
+--------
+- updated msf3/data directories to account for new install locations.
+- Removed Meterpreter -> Access - > Duplicate because it is now redundant with
+  Meterpreter -> Access -> Pass Session
+- Updated Meterpreter -> Access -> Pass Session to have LPORT of default 
+  Meterpreter listener. Click Launch to simply duplicate your current session.
+- Added Meterpreter -> Access -> Steal Token to list and steal user/group tokens
+- Updated meterpreter multiplexer to not expect output from rev2self. 
+
 10.13.11
 --------
 - added ability to set up VNC on a target when connected to a remote Metasploit
