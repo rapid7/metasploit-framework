@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Gather Local User Account SID Lookup',
 				'Description'   => %q{ This module prints information about a given SID from the perspective of this session },
-				'License'       => BSD_LICENSE,
+				'License'       => MSF_LICENSE,
 				'Author'        => [ 'chao-mu'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],

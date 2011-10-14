@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Manage Local User Account Deletion',
 				'Description'   => %q{ This module deletes a local user account from the specified server,
 				 or the local machine if no server is given.},
-				'License'       => BSD_LICENSE,
+				'License'       => MSF_LICENSE,
 				'Author'        => [ 'chao-mu'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
