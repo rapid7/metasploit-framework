@@ -572,11 +572,13 @@ class Db
 			print_line "  -a,--add              Add creds to the given addresses instead of listing"
 			print_line "  -d,--delete           Delete the creds instead of searching"
 			print_line "  -h,--help             Show this help information"
+			print_line "  -o <file>             Send output to a file in csv format"
 			print_line "  -p,--port <portspec>  List creds matching this port spec"
 			print_line "  -s <svc names>        List creds matching these service names"
 			print_line "  -t,--type <type>      Add a cred of this type (only with -a). Default: password"
-			print_line "  -u,--user      Add a cred for this user (only with -a). Default: blank"
-			print_line "  -P,--password  Add a cred with this password (only with -a). Default: blank"
+			print_line "  -u,--user             Add a cred for this user (only with -a). Default: blank"
+			print_line "  -P,--password         Add a cred with this password (only with -a). Default: blank"
+			print_line "  -R,--rhosts           Set RHOSTS from the results of the search"
 			print_line
 			print_line "Examples:"
 			print_line "  creds               # Default, returns all active credentials"
@@ -597,6 +599,9 @@ class Db
 			search_param = nil
 			inactive_ok = false
 			type = "password"
+
+			set_rhosts = false
+			output_file = nil
 
 			host_ranges = []
 			port_ranges = []
@@ -620,6 +625,13 @@ class Db
 				when "-h"
 					cmd_creds_help
 					return
+				when '-o'
+					output_file = args.shift
+					if (!output_file)
+						print_error("Invalid output filename")
+						return
+					end
+					output_file = File.expand_path(output_file)
 				when "-p","--port"
 					unless (arg_port_range(args.shift, port_ranges, true))
 						return
@@ -643,6 +655,9 @@ class Db
 						print_error("Argument required for -P")
 						return
 					end
+				when "-R"
+					set_rhosts = true
+					rhosts = []
 				when "-u","--user"
 					user = args.shift
 					if (!user)
@@ -731,10 +746,23 @@ class Db
 				if mode == :delete
 					cred.destroy
 				end
+				if set_rhosts
+					# only unique addresses
+					rhosts << cred.service.host.address unless rhosts.include?(cred.service.host.address)
+				end
 				creds_returned += 1
 			end
+
 			print_line
-			print_line tbl.to_s
+			if (output_file == nil)
+				print_line tbl.to_s
+			else
+				# create the output file
+				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+				print_status("Wrote services to #{output_file}")
+			end
+
+			set_rhosts_from_addrs(rhosts) if set_rhosts
 			print_status "Found #{creds_returned} credential#{creds_returned == 1 ? "" : "s"}."
 		end
 
