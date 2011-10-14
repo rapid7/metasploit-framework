@@ -23,6 +23,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will enumerate the OS license key },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Brandon Perry'],
+				'Version'         => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
