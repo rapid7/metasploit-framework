@@ -27,7 +27,8 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'cisco'],
 			'SessionTypes'  => [ 'shell' ]
 		))
-	register_options(
+
+		register_options(
 			[
 				OptString.new('ENABLE', [ false, 'Enable password for changing privilege level.']),
 				OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
@@ -153,7 +154,7 @@ class Metasploit3 < Msf::Post
 			print_good("Obtained higher privilege level.")
 			return true
 		else
-			print_error("Cold not obtain higher privilege level.")
+			print_error("Could not obtain higher privilege level.")
 			return false
 		end
 	end
