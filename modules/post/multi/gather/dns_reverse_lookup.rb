@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 				cmd = "/usr/bin/host"
 			end
 
-			if i < thread_num
+			if i <= thread_num
 				a.push(::Thread.new {
 						r = cmd_exec(cmd, ns_opt)
 

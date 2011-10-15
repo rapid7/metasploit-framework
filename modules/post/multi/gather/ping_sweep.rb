@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Post
 					cmd = "/bin/ping"
 				end
 				#puts "#{cmd} #{count}"
-				if i < thread_num
+				if i <= thread_num
 					a.push(::Thread.new {
 							r = cmd_exec(cmd, count)
 							if r =~ /(TTL|Alive)/i
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Post
 						})
 					i += 1
 				else
-					sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+					sleep(0.5) and a.delete_if {|x| not x.alive?} while not a.empty?
 					i = 0
 				end
 			end
