@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 		))
 	register_options(
 			[
-				OptString.new('ENABLE', [ false, 'Enable password for changing privilege leve.']),
+				OptString.new('ENABLE', [ false, 'Enable password for changing privilege level.']),
 				OptPath.new('WORDLIST', [false, 'Wordlist of possible enable passwords to try.'])
 			], self.class)
 
