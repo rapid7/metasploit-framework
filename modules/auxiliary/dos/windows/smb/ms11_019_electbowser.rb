@@ -10,6 +10,7 @@
 ##
 
 class Metasploit3 < Msf::Auxiliary
+	Rank = ManualRanking
 
 	include Msf::Exploit::Remote::Udp
 	#include Msf::Exploit::Remote::SMB
@@ -17,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Microsoft Windows MRXSMB.SYS _BowserWriteErrorLogEntry Pool Overflow DoS',
+			'Name'           => 'Microsoft Windows Browser Pool DoS',
 			'Description'    => %q{
 					This module exploits a denial of service flaw in the Microsoft
 				Windows SMB service on versions of Windows Server 2003 that have been
@@ -41,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'CVE', '2011-0654' ],
 					[ 'BID', '46360' ],
 					[ 'OSVDB', '70881' ],
-					#[ 'MSB', 'MS11-XXX' ],
+					[ 'MSB', 'MS11-019' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/16166/' ],
 					[ 'URL', 'http://seclists.org/fulldisclosure/2011/Feb/285' ]
 				],
