@@ -147,7 +147,7 @@ module Auxiliary::JohnTheRipper
 	def john_lm_upper_to_ntlm(pwd, hash)
 		pwd  = pwd.upcase
 		hash = hash.upcase
-		Rex::Text.permute_case(pwd) do |str|
+		Rex::Text.permute_case(pwd).each do |str|
 			if hash == Rex::Proto::NTLM::Crypt.ntlm_hash(str).unpack("H*")[0].upcase
 				return str
 			end
