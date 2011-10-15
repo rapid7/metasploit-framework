@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 	
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Forensic Imaging',
+			'Name'          => 'Windows Gather Forensic Imaging',
 			'Description'   => %q{This module will perform byte-for-byte imaging of remote disks and volumes},
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',

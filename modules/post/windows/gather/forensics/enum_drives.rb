@@ -11,7 +11,7 @@ class Metasploit3 < Msf::Post
 	
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Enumerate Physical Drives and Logical Volumes',
+			'Name'          => 'Windows Gather Physical Drives and Logical Volumes',
 			'Description'   => %q{This module will list physical drives and logical volumes},
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',
