@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'                 => "Run Command As User",
+			'Name'                 => "Windows Manage Run Command As User",
 			'Description'          => %q{
 				This module will login with the specified username/password and execute the
 				supplied command as a hidden process. Output is not returned by default, by setting 
