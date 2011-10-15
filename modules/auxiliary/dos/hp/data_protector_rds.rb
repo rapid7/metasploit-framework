@@ -12,7 +12,7 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	Rank = NormalRanking
+	Rank = ManualRanking
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos

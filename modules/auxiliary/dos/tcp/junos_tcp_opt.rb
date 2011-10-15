@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Dos
 
 	# The whole point is to cause a router crash.
-	Rank = LowRanking
+	Rank = ManualRanking
 
 	def initialize
 		super(
