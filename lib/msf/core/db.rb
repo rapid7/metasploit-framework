@@ -2538,12 +2538,16 @@ class DBManager
 		end
 		@import_filedata[:zip_tmp] = new_tmp
 
+		# Grab the list of unique basedirs over all entries.
 		@import_filedata[:zip_tmp_subdirs] = @import_filedata[:zip_entry_names].map {|x| ::File.split(x)}.map {|x| x[0]}.uniq.reject {|x| x == "."}
 
+		# mkdir all of the base directores we just pulled out, if they don't
+		# already exist
 		@import_filedata[:zip_tmp_subdirs].each {|sub|
 			tmp_subdirs = ::File.join(@import_filedata[:zip_tmp],sub)
 			if File.exists? tmp_subdirs
 				unless (::File.directory?(tmp_subdirs) && File.writable?(tmp_subdirs))
+					# if it exists but we can't write to it, give up
 					raise DBImportError.new("Could not extract zip file to #{tmp_subdirs}")
 				end
 			else
