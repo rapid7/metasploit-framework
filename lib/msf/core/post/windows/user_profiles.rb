@@ -1,4 +1,5 @@
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/accounts'
 
 module Msf
 class Post
@@ -6,6 +7,7 @@ module Windows
 
 module UserProfiles
 	include Msf::Post::Windows::Registry
+	include Msf::Post::Windows::Accounts
 	
 	def grab_user_profiles
 		hives = load_missing_hives()
@@ -32,11 +34,9 @@ module UserProfiles
 
 	def parse_profile(hive)
 		profile={}
-		#print_status("Parsing User Profile from Registry Hive: #{hive['HKU']}")
-		profile['UserName'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer", 'Logon User Name')
-		if profile['UserName'] == nil
-			profile['UserName'] = registry_getvaldata("#{hive['HKU']}\\Volatile Environment", 'USERNAME')
-		end
+		sidinf = resolve_sid(hive['SID'].to_s)
+		profile['UserName'] = sidinf[:name]
+		profile['Domain'] = sidinf[:domain]
 		profile['SID'] = hive['SID']
 		profile['ProfileDir'] = hive['PROF']
 		profile['AppData'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'AppData')
@@ -47,6 +47,8 @@ module UserProfiles
 		profile['Favorites'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'Favorites')
 		profile['History'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'History')
 		profile['Cookies'] = registry_getvaldata("#{hive['HKU']}\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell Folders", 'Cookies')
+		profile['Temp'] = registry_getvaldata("#{hive['HKU']}\\Environment", 'TEMP').to_s.sub('%USERPROFILE%',profile['ProfileDir'])
+		profile['Path'] = registry_getvaldata("#{hive['HKU']}\\Environment", 'PATH')
 
 		return profile
 	end
@@ -55,12 +57,14 @@ module UserProfiles
 	def load_missing_hives
 		hives=[]
 		read_profile_list().each do |hive|
+			hive['OURS']=false
 			if hive['LOADED']== false
-				registry_loadkey(hive['HKU'], hive['DAT'])
-				hive['OURS']=true
-				
-			else
-				hive['OURS']=false
+				if session.fs.file.exists?(hive['DAT']) 
+					hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT']) 
+					print_error("Error loading USER #{hive['SID']}: Hive could not be loaded, are you Admin?") unless hive['OURS']
+				else 
+					print_error("Error loading USER #{hive['SID']}: Profile doesn't exist or cannot be accessed")
+				end
 			end
 			hives << hive
 		end
@@ -75,7 +79,7 @@ module UserProfiles
 			hive['SID']=profkey
 			hive['HKU']= "HKU\\#{profkey}"
 			hive['PROF']= registry_getvaldata("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProfileList\\#{profkey}", 'ProfileImagePath')
-			hive['PROF']= session.fs.file.expand_path(hive['PROF'])
+			hive['PROF']= session.fs.file.expand_path(hive['PROF']) if hive['PROF']
 			hive['DAT']= "#{hive['PROF']}\\NTUSER.DAT"
 			hive['LOADED'] = loaded_hives.include?(profkey)
 			hives << hive
@@ -97,3 +101,4 @@ end
 end
 end
 end
+
