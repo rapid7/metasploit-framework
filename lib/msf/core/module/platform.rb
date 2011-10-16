@@ -12,7 +12,7 @@ class Msf::Module::Platform
 	# actually, having a argument of '' is what to do for wanting 'all'
 	Short = "all"
 
-	class <<self
+	class << self
 		attr_accessor :full_name
 	end
 

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => 'This module scans for DECT base stations',
 			'Author'         => [ 'DK <privilegedmode@gmail.com>' ],
 			'License'        => MSF_LICENSE,
-			'References'     => [ ['Dedected', 'http://www.dedected.org'] ]
+			'References'     => [ ['URL', 'http://www.dedected.org'] ]
 		)
 
 	end

@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 				[
-					['BugtraqID', '47710'],
-					['Full_Disclosure', 'http://seclists.org/fulldisclosure/2011/May/83'],
+					['BID', '47710'],
+					['URL', 'http://seclists.org/fulldisclosure/2011/May/83'],
 				]
 			))
 

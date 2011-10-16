@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'		=> '$Revision$',
 			'References' 	=>
 				[
-					['link', 'http://www.projecthoneypot.org/httpbl_api.php'],
+					['URL', 'http://www.projecthoneypot.org/httpbl_api.php'],
 				]
 			))
 
