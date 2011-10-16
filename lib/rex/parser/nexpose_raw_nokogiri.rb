@@ -79,6 +79,7 @@ module Rex
 		def collect_reference
 			return unless in_tag("references")
 			return unless in_tag("vulnerability")
+			return unless @state[:vuln]
 			@state[:ref][:value] = @text.to_s.strip
 			@report_data[:refs] ||= []
 			@report_data[:refs] << @state[:ref]
