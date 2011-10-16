@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		paths = []
 		print_status("Determining session platform and type...")
 		case session.platform
 		when /unix|linux|bsd/
@@ -58,9 +59,10 @@ class Metasploit3 < Msf::Post
 				print_error "Only meterpreter sessions are supported on windows hosts"
 				return
 			end
+
 			grab_user_profiles().each do |user|
 				next if user['AppData'] == nil
-				dir=check_firefox(user['AppData'])
+				dir = check_firefox(user['AppData'])
 				if dir
 					paths << dir
 				end
@@ -139,7 +141,6 @@ class Metasploit3 < Msf::Post
 		return paths
 	end
 
-	
 	def check_firefox(path)
 		paths = []
 		path = path + "\\Mozilla\\"
