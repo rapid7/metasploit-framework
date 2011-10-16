@@ -121,11 +121,9 @@ class Table
 		rows.each { |row|
 			next if is_hr(row)
 			str << ( row.map{|x| 
-				if x.nil?
-					""
-				else
-					x.gsub(/[\r\n]/, ' ').gsub(/\s+/, ' ').gsub('"', '""')
-				end
+				x = x.to_s
+
+				x.gsub(/[\r\n]/, ' ').gsub(/\s+/, ' ').gsub('"', '""')
 			}.map{|x| "\"#{x}\"" }.join(",") + "\n" )
 		}
 		str
