@@ -1304,8 +1304,6 @@ public
 		driver = @framework.db.driver
 
 		case driver
-		when 'mysql'
-			opts['adapter'] = 'mysql'
 		when 'postgresql'
 			opts['adapter'] = 'postgresql'
 		else

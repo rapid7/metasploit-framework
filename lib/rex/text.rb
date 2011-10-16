@@ -38,6 +38,7 @@ module Text
 	LowAscii     = [*(0x00 .. 0x1f)].pack("C*")
 	DefaultWrap  = 60
 	AllChars     = [*(0x00 .. 0xff)].pack("C*")
+	Punctuation  = ( [*(0x21 .. 0x2f)] + [*(0x3a .. 0x3F)] + [*(0x5b .. 0x60)] + [*(0x7b .. 0x7e)] ).flatten.pack("C*")
 
 	DefaultPatternSets = [ Rex::Text::UpperAlpha, Rex::Text::LowerAlpha, Rex::Text::Numerals ]
 

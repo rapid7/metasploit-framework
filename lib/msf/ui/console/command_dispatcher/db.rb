@@ -1711,14 +1711,6 @@ class Db
 			print_status("       Available: #{framework.db.drivers.join(", ")}")
 			print_line("")
 
-			if ! framework.db.drivers.include?('mysql')
-				print_status("    DB Support: Enable the mysql driver with the following command:")
-				print_status("                $ gem install mysql")
-				print_status("    This gem requires mysqlclient headers, which can be installed on Ubuntu with:")
-				print_status("                $ sudo apt-get install libmysqlclient-dev")
-				print_line("")
-			end
-
 			if ! framework.db.drivers.include?('postgresql')
 				print_status("    DB Support: Enable the postgresql driver with the following command:")
 				print_status("                  * This requires libpq-dev and a build environment")
@@ -1833,62 +1825,6 @@ class Db
 			end
 			true
 		end
-
-
-		#
-		# Database management: MySQL
-		#
-
-		#
-		# Connect to an existing MySQL database
-		#
-		def db_connect_mysql(*args)
-			if(args[0] == nil or args[0] == "-h" or args[0] == "--help")
-				print_status("   Usage: db_connect <user:pass>@<host:port>/<database>")
-				print_status("      OR: db_connect -y [path/to/database.yml]")
-				print_status("Examples:")
-				print_status("       db_connect user@metasploit3")
-				print_status("       db_connect user:pass@192.168.0.2/metasploit3")
-				print_status("       db_connect user:pass@192.168.0.2:1500/metasploit3")
-				return
-			end
-
-			info = db_parse_db_uri_mysql(args[0])
-			opts = { 'adapter' => 'mysql' }
-
-			opts['username'] = info[:user] if (info[:user])
-			opts['password'] = info[:pass] if (info[:pass])
-			opts['database'] = info[:name]
-			opts['host'] = info[:host] if (info[:host])
-			opts['port'] = info[:port] if (info[:port])
-
-			opts['host'] ||= 'localhost'
-
-			# This is an ugly hack for a broken MySQL adapter:
-			# 	http://dev.rubyonrails.org/ticket/3338
-			if (opts['host'].strip.downcase == 'localhost')
-				opts['host'] = Socket.gethostbyname("localhost")[3].unpack("C*").join(".")
-			end
-
-			if (not framework.db.connect(opts))
-				raise RuntimeError.new("Failed to connect to the database: #{framework.db.error}")
-			end
-		end
-
-		def db_parse_db_uri_mysql(path)
-			res = {}
-			if (path)
-				auth, dest = path.split('@')
-				(dest = auth and auth = nil) if not dest
-				res[:user],res[:pass] = auth.split(':') if auth
-				targ,name = dest.split('/')
-				(name = targ and targ = nil) if not name
-				res[:host],res[:port] = targ.split(':') if targ
-			end
-			res[:name] = name || 'metasploit3'
-			res
-		end
-
 
 		#
 		# Database management: Postgres

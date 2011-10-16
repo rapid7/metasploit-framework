@@ -96,7 +96,7 @@ class DBManager
 	#
 	def initialize_drivers
 		self.drivers = []
-		tdrivers = %W{ postgresql mysql }
+		tdrivers = %W{ postgresql }
 		tdrivers.each do |driver|
 			begin
 				ActiveRecord::Base.default_timezone = :utc
@@ -131,11 +131,6 @@ class DBManager
 	#
 	def queue(proc)
 		self.sink.queue_proc(proc)
-	end
-
-	# Verify that mysql is ready
-	def driver_check_mysql
-		require 'mysql'
 	end
 
 	#
@@ -192,7 +187,7 @@ class DBManager
 	def create_db(opts)
 		begin
 			case opts["adapter"]
-			when 'postgresql','mysql'
+			when 'postgresql'
 				# Try to force a connection to be made to the database, if it succeeds
 				# then we know we don't need to create it :)
 				ActiveRecord::Base.establish_connection(opts)
