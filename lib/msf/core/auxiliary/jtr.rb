@@ -96,17 +96,62 @@ module Auxiliary::JohnTheRipper
 
 		::IO.popen(cmd, "rb") do |fd|
 			fd.each_line do |line|
-				if line =~ /(\d+) password hash cracked, (\d+) left/m
+				print_status(line)
+				if line =~ /(\d+) password hash(es)* cracked, (\d+) left/m
 					res[:cracked]   = $1.to_i
 					res[:uncracked] = $2.to_i
 				end
 
 				bits = line.split(':')
 				next if not bits[2]
-				res[ :users ][ bits[0] ] = bits[1]
+				if (format== 'lm' or format == 'nt')
+					res[ :users ][ bits[0] ] = bits[1]
+				else
+					bits.last.chomp!
+					res[ :users ][ bits[0] ] = bits.drop(1)
+				end
+				
 			end
 		end
 		res
+	end
+	
+	def john_unshadow(passwd_file,shadow_file)
+		
+		retval=""
+		
+		if File.exists?(passwd_file)
+			unless File.readable?(passwd_file)
+				print_error("We do not have permission to read #{passwd_file}")
+				return nil
+			end
+		else
+			print_error("File does not exist: #{passwd_file}")
+			return nil
+		end
+		
+		if File.exists?(shadow_file)
+			unless File.readable?(shadow_file)
+				print_error("We do not have permission to read #{shadow_file}")
+				return nil
+			end
+		else
+			print_error("File does not exist: #{shadow_file}")
+			return nil
+		end
+		
+		
+		cmd = [ john_binary_path.gsub(/john$/, "unshadow"), passwd_file , shadow_file ]
+		
+		if RUBY_VERSION =~ /^1\.8\./
+			cmd = cmd.join(" ")
+		end
+		::IO.popen(cmd, "rb") do |fd|
+			fd.each_line do |line|
+				retval << line
+			end
+		end
+		return retval
 	end
 
 	def john_wordlist_path
