@@ -14,6 +14,8 @@
 #
 ##
 
+LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+
 def show_count(f, txt, num)
 	puts "%s ... %s: %u" % [f, txt, num] if num > 0
 end
@@ -109,7 +111,7 @@ def check_single_file(dparts, fparts, f_rel)
 		in_comment = true if ln =~ /^=begin$/
 		next if in_comment
 
-		if (ln.length > 100)
+		if (ln.length > LONG_LINE_LENGTH) 
 			ll << [ idx, ln ]
 		end
 
@@ -145,7 +147,7 @@ def check_single_file(dparts, fparts, f_rel)
 		}
 	end
 	if ll.length > 0
-		puts '%s ... lines longer than 100 columns: %u' % [f, ll.length]
+		puts "%s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
 		ll.each { |el|
 			el[1] = el[1].inspect
 			puts '  %8d: %s' % el
