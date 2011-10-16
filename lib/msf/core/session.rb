@@ -247,7 +247,7 @@ module Session
 	#
 	def cleanup
 		if db_record and framework.db.active
-			db_record.closed_at = Time.now
+			db_record.closed_at = Time.now.utc
 			# ignore exceptions
 			db_record.save
 			db_record = nil

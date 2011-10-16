@@ -2940,8 +2940,8 @@ class DBManager
 					sess_data[:routes] = nils_for_nulls(unserialize_object(sess.elements["routes"], allow_yaml)) || []
 				end
 				if not sess_data[:closed_at] # Fake a close if we don't already have one
-					sess_data[:closed_at] = Time.now
-					sess_data[:close_reason] = "Imported at #{Time.now}"
+					sess_data[:closed_at] = Time.now.utc
+					sess_data[:close_reason] = "Imported at #{Time.now.utc}"
 				end
 
 				existing_session = get_session(
