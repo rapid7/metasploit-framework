@@ -151,6 +151,14 @@ class Metasploit3 < Msf::Post
 
 	def run
 		print_status("Enumerating hardware on #{sysinfo['Computer']}")
-		list
+		begin
+			list
+		rescue ::Exception => e
+			if e.to_s =~ /execution expired/i
+				print_error("Sorry, execution expired. Module could not finish running.")
+			else
+				print_error("An unexpected error has occured: #{e.to_s}:\n#{e.backtrace}")
+			end
+		end
 	end
 end
