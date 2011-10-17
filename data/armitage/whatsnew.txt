@@ -1,6 +1,11 @@
 Armitage Changelog
 ==================
 
+In Progress
+-----------
+- Added menu item to dump hashes using the old lsass method or the smart hashdump
+  registry method.
+
 10.13.11 take II?
 --------
 - updated msf3/data directories to account for new install locations.
