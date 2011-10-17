@@ -129,13 +129,18 @@ class Metasploit3 < Msf::Post
 		return nil if(! key_str)
 
 		r, b = session.sys.registry.splitkey(key_str)
-		key = session.sys.registry.open_key(r, "#{b}", KEY_READ)
-		full_keys = []
-		key.enum_key.each do |x|
-			full_keys.push("#{key_str}" << '\\' << "#{x}")
-		end
+		begin
+			key = session.sys.registry.open_key(r, "#{b}", KEY_READ)
 
-		key.close
+			full_keys = []
+			key.enum_key.each do |x|
+				full_keys.push("#{key_str}" << '\\' << "#{x}")
+			end
+
+			key.close
+		rescue
+			return nil
+		end
 		return full_keys
 	end
 
