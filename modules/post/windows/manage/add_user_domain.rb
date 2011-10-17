@@ -228,8 +228,7 @@ class Metasploit3 < Msf::Post
 
 		## enum domain
 		domain = get_domain()
-		if domain == ''
-			print_error("Error: domain not found")
+		if domain.nil?
 			return
 		end
 
@@ -330,7 +329,7 @@ class Metasploit3 < Msf::Post
 				if (net_user_res =~ /The command completed successfully/ and net_user_res =~ /Domain Users/)
 					print_good("#{datastore['USERNAME']} is now a member of the #{domain} domain!")
 				else
-					print_error("Error adding '#{datastore['USERNAME']}' to the domain.")
+					print_error("Error adding '#{datastore['USERNAME']}' to the domain. Check the password complexity.")
 				end
 			end
 		end
@@ -366,19 +365,24 @@ class Metasploit3 < Msf::Post
 		end
 		return value
 	end
-	
+
 	## return primary domain from the registry
 	def get_domain()
-		subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
-		v_name = "DCName"
-
-		domain = reg_getvaldata(subkey, v_name)
-
-		if domain.nil? or domain !~ /\./
-			return ""
-		else
-			return domain.split('.')[1].upcase
+		domain = nil
+		begin
+			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+			v_name = "DCName"
+			dom_info = reg_getvaldata(subkey, v_name)
+			if not dom_info.nil? and dom_info =~ /\./
+				foo = dom_info.split('.')
+				domain = foo[1].upcase
+			else
+				print_error("Error parsing output from the registry. (#{dom_info})")
+			end
+		rescue
+			print_error("This host is not part of a domain.")
 		end
+		return domain
 	end
 
 	## execute cmd and return the response

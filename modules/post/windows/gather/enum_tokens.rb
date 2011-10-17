@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'           => "Windows Gather Enumerate Domain Admin Tokens (Token Hunter)",
-			'Description'    => %q{
+			'Name'             => "Windows Gather Enumerate Domain Admin Tokens (Token Hunter)",
+			'Description'      => %q{
 					This module will identify systems that have a Domain Admin (delegation) token
 					on them.  The module will first check if sufficient privileges are present for
 					certain actions, and run getprivs for system.  If you elevated privs to system,
@@ -28,11 +28,11 @@ class Metasploit3 < Msf::Post
 					migrating to another process that is running as system.  If no sufficient
 					privileges are available, the script will not continue.
 				},
-			'License'        => MSF_LICENSE,
-			'Version'        => '$Revision$',
-			'Platform'       => ['windows'],
-			'SessionTypes'   => ['meterpreter'],
-			'Author'         => ['Joshua Abraham <jabra[at]rapid7.com>']
+			'License'         => MSF_LICENSE,
+			'Version'         => '$Revision$',
+			'Platform'        => ['windows'],
+			'SessionTypes'    => ['meterpreter'],
+			'Author'          => ['Joshua Abraham <jabra[at]rapid7.com>']
 		))
 		register_options(
 			[
@@ -97,10 +97,20 @@ class Metasploit3 < Msf::Post
 
 	# extract the primary domain from the registry
 	def get_domain
-		subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon"
-		v_name = "CachePrimaryDomain"
-		domain = reg_getvaldata(subkey,v_name)
-		print_error("domain not found") if domain == ""
+		domain = nil
+		begin
+			subkey = "HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History"
+			v_name = "DCName"
+			dom_info = reg_getvaldata(subkey, v_name)
+			if not dom_info.nil? and dom_info =~ /\./
+				foo = dom_info.split('.')
+				domain = foo[1].upcase
+			else
+				print_error("Error parsing output from the registry. (#{dom_info})")
+			end
+		rescue
+			print_error("This host is not part of a domain.")
+		end
 		return domain
 	end
 
@@ -125,6 +135,10 @@ class Metasploit3 < Msf::Post
 
 		# get var
 		domain = get_domain
+
+		if domain.nil?
+			return
+		end
 
 		# load incognito
 		session.core.use("incognito") if(! session.incognito)
