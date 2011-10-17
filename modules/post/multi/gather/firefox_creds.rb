@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		download_loot(paths)
+		download_loot(paths.flatten)
 	end
 
 	def enum_users_unix
