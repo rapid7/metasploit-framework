@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
 
 				print_status("Found .ssh directory for: #{id}")
 				print_status("stat = #{stat}")
-				return stat
+				return [stat]
 			end
 			return
 		end
