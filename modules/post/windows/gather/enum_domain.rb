@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 			v = open_key.query_value(valname)
 			value = v.data
 			open_key.close
+		rescue
 		end
 		return value
 	end
