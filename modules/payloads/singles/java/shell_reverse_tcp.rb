@@ -25,7 +25,7 @@ module Metasploit3
 			'Name'          => 'Java Command Shell, Reverse TCP Inline',
 			'Version'       => '$Revision$',
 			'Description'   => 'Connect back to attacker and spawn a command shell',
-			'Author'        => [ 
+			'Author'        => [
 					'mihi', # all the hard work
 					'egypt' # msf integration
 				],

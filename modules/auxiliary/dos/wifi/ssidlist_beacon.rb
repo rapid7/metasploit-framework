@@ -22,7 +22,14 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Wireless Beacon SSID Emulator',
 			'Description'    => %q{
-				This module sends out beacon frames using SSID's identified in a specified file and randomly selected BSSID's.  This is useful when combined with a Karmetasploit attack to get clients configured to not probe for networks in their PNL to start probing when they see a matching SSID in from this script.  For a list of common SSID's to use with this script, check http://www.wigle.net/gps/gps/main/ssidstats.  If a file of SSID's is not specified, a default list of 20 SSID's will be used.  This script will run indefinitely until interrupted.
+				This module sends out beacon frames using SSID's identified in a
+				specified file and randomly selected BSSID's.  This is useful when
+				combined with a Karmetasploit attack to get clients configured to
+				not probe for networks in their PNL to start probing when they see a
+				matching SSID in from this script.  For a list of common SSID's to
+				use with this script, check http://www.wigle.net/gps/gps/main/ssidstats.
+				If a file of SSID's is not specified, a default list of 20 SSID's will
+				be used. This script will run indefinitely until interrupted.
 			},
 
 			'Author'         => [ 'joswr1ght', 'hdm' ],
@@ -56,7 +63,10 @@ class Metasploit3 < Msf::Auxiliary
 				ssidlist.push line.chomp
 			end
 		else
-			ssidlist = ["linksys", "default", "NETGEAR", "Belkin54g", "Wireless", "WLAN", "home", "DLINK", "smc", "tsunami", "tmobile", "101", "panera", "hhonors", "GlobalSuiteWireless", "Internet", "WiFi", "public", "guest", "test"]
+			ssidlist = ["linksys", "default", "NETGEAR", "Belkin54g", "Wireless",
+				"WLAN", "home", "DLINK", "smc", "tsunami", "tmobile", "101", "panera",
+				"hhonors", "GlobalSuiteWireless", "Internet", "WiFi", "public", "guest",
+				"test"]
 		end
 
 		print_status("Sending beacon frames...")

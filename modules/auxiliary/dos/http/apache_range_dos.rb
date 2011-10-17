@@ -20,9 +20,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Apache Range header DoS (Apache Killer)',
 			'Description'    => %q{
-					The byterange filter in the Apache HTTP Server 2.0.x through 2.0.64, and 2.2.x 
-				through 2.2.19 allows remote attackers to cause a denial of service (memory and 
-				CPU consumption) via a Range header that expresses multiple overlapping ranges, 
+					The byterange filter in the Apache HTTP Server 2.0.x through 2.0.64, and 2.2.x
+				through 2.2.19 allows remote attackers to cause a denial of service (memory and
+				CPU consumption) via a Range header that expresses multiple overlapping ranges,
 				exploit called "Apache Killer"
 			},
 			'Author'         =>

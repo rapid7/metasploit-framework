@@ -65,17 +65,17 @@ class Metasploit3 < Msf::Auxiliary
 			
 			if c.audio_buff.length > 0
 				opath = ::File.join( datastore['OUTPUT_PATH'], "#{number}.raw" )
-				cnt   = 0 
+				cnt   = 0
 				::File.open(opath, 'wb') do |fd|
 					c.audio_buff.each do |raw|
 						cnt += raw.length
 						fd.write(raw)
-					end 
+					end
 				end
 				print_good("#{number} resulted in #{cnt} bytes of audio saved to #{opath}")
 			end
 			# Next call
-		end 
+		end
 	end
 	
 end

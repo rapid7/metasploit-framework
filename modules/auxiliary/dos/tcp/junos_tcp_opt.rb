@@ -22,7 +22,10 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Juniper JunOS Malformed TCP Option',
-			'Description' => %q{ This module exploits a denial of service vulnerability in Juniper Network's JunOS router operating system. By sending a TCP packet with TCP option 101 set, an attacker can cause an affected router to reboot.
+			'Description' => %q{ This module exploits a denial of service vulnerability
+				in Juniper Network's JunOS router operating system. By sending a TCP
+				packet with TCP option 101 set, an attacker can cause an affected
+				router to reboot.
 				},
 			'Author'      => 'todb',
 			'License'     => MSF_LICENSE,

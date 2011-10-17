@@ -132,12 +132,12 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		rescue ::Rex::ConnectionError => e
-		 	vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
+			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
 			return :abort
 		end
 
 		if success
-                       print_good("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
+			print_good("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] successful login '#{user}' : '#{pass}'")
 			report_auth_info(
 				:host => rhost,
 				:port => rport,
@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :next_user
 		else
-		 	vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
+			vprint_error("http://#{rhost}:#{rport}#{datastore['URI']} [#{srvhdr}] [Tomcat Application Manager] failed to login as '#{user}'")
 			return
 		end
 	end

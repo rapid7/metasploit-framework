@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Microsoft Windows DNSAPI.dll LLMNR Buffer Underrun DoS',
 			'Description' => %q{
 					This module exploits a buffer underrun vulnerability in Microsoft's DNSAPI.dll
-				as distributed with Windows Vista and later without KB2509553. By sending a 
+				as distributed with Windows Vista and later without KB2509553. By sending a
 				specially crafted LLMNR query, containing a leading '.' character, an attacker
 				can trigger stack exhaustion or potentially cause stack memory corruption.
 
