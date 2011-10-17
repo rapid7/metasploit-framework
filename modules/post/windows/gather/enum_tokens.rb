@@ -91,6 +91,7 @@ class Metasploit3 < Msf::Post
 			open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ)
 			value = open_key.query_value(valname).data
 			open_key.close
+		rescue
 		end
 		return value
 	end
