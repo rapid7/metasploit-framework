@@ -332,6 +332,6 @@ class Metasploit3 < Msf::Post
 		found = vboxchk(session) if not found
 		found = xenchk(session) if not found
 		found = qemuchk(session) if not found
-		print_status("It appears to be physical host.") if not found
+		print_status("It appears to be a physical host.") if not found
 	end
 end
