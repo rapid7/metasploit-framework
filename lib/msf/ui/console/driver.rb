@@ -175,11 +175,14 @@ class Driver < Msf::Ui::Driver
 			dbfile = opts['DatabaseYAML']
 			dbfile ||= ENV["MSF_DATABASE_CONFIG"]
 			dbfile ||= File.join(Msf::Config.get_config_root, "database.yml")
-			if (dbfile and File.readable? dbfile)
-				dbinfo = YAML.load(File.read(dbfile))
-				dbenv  = opts['DatabaseEnv'] || "production"
-				db     = dbinfo[dbenv]
-
+			if (dbfile and File.exists? dbfile)
+				if File.readable?(dbfile)
+					dbinfo = YAML.load(File.read(dbfile))
+					dbenv  = opts['DatabaseEnv'] || "production"
+					db     = dbinfo[dbenv]
+				else
+					print_error("Warning, #{dbfile} is not readable. Try running as root or chmod.")
+				end
 				if not db
 					print_error("No database definition for environment #{dbenv}")
 				else
