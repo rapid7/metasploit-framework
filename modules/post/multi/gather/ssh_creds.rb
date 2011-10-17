@@ -208,12 +208,33 @@ class Metasploit3 < Msf::Post
 	end
 
 	def whoami
-		return cmd_exec("whoami")
+		return cmd_exec("/usr/bin/whoami")
 	end
 
 	def platform_check
 		paths = nil
-		platform = cmd_exec("uname")
+
+		# uname might exist in a different location depending on the dsitro.
+		# We will try these locations
+		begin
+			platform = cmd_exec("/bin/uname")
+		rescue
+			platform = nil
+		end
+
+		# I guess we didn't get a uname, try again
+		if platform.nil?
+			begin
+				platform = cmd_exec("/usr/bin/uname")
+			rescue
+				platform = nil
+			end
+		end
+
+		# still nothing, abort!
+		return nil if platform.nil?
+
+
 		if platform =~ /Linux|HPUX|AIX|Sun|Solaris|BSD/
 			@platform = :unix
 			paths = enum_users_unix
@@ -221,7 +242,6 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_osx
 		else
-			print_error("")
 			print_error("Unsupported platform #{session.platform}")
 		end
 		return paths
