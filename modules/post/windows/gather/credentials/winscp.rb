@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Post
 					# it is set to SCP.
 					if proto == nil or proto == 0
 						proto = "SCP"					
-					else 
+					else
 						proto = "FTP"
 					end
 					
@@ -138,7 +138,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			#Runs through each group in the ini file looking for all of the Sessions
-			ini.each_key do |group| 
+			ini.each_key do |group|
 				groupkey='Sessions'
 				if group=~/#{groupkey}/
 					#See if we have a password saved in this sessions
@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Post
 						# is 0 it is set to SCP.
 						if proto == nil or proto == 0
 							proto = "SCP"					
-						else 
+						else
 							proto = "FTP"
 						end
 						# Decrypt the password and report on all of the results
@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Post
 					end
 				end
 			end			
-		rescue 
+		rescue
 			print_status("WinSCP.ini file NOT found...")
 		end
 	end

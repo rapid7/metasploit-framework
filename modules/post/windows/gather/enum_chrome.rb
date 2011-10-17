@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
 				next
 			end
 			db.close
- 
+
 			rows.map! do |row|
 				res = Hash[*columns.zip(row).flatten]
 				if item[:encrypted_fields] && session.sys.config.getuid != "NT AUTHORITY\\SYSTEM"

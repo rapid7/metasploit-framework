@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Windows Gather Screen Spy',
-			'Description'    => %q{ 
+			'Description'    => %q{
 					This module will incrementally take screenshots of the meterpreter host. This
 				allows for screen spying which can be useful to determine if there is an active
 				user on a machine, or to record the screen for later data extraction.
@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		# here we check for the local platform and use default browsers
-		# linux is the one question mark firefox is not necessarily a 
+		# linux is the one question mark firefox is not necessarily a
 		case ::Config::CONFIG['host'] # neat trick to get the local system platform
 		when /ming/
 			cmd = "start #{datastore['BROWSER']} \"file://#{screenshot}\""

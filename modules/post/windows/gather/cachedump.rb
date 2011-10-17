@@ -322,7 +322,7 @@ class Metasploit3 < Msf::Post
 			vprint_good "Logon domain name\t: #{logonDomainName}"
 		end
 
-			@credentials << 
+			@credentials <<
 				[
 					username,
 					hash.unpack("H*")[0],

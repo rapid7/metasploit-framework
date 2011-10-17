@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Post
 	def parse_xml(data)
 		mxml = REXML::Document.new(data).root
 		mxml.elements.to_a("//FavoriteItem").each do |node|
-			next if node.elements['Host'].nil? 
+			next if node.elements['Host'].nil?
 			next if node.elements['User'].nil?
 			next if node.elements['Password'].nil?
 

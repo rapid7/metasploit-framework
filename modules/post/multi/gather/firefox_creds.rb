@@ -27,10 +27,10 @@ class Metasploit3 < Msf::Post
 				installed on the targeted machine. Additionally, cookies are downloaded. Which
 				could potentially yield valid web sessions.
 
-				Firefox stores passwords within the signons.sqlite database file. There is also a 
+				Firefox stores passwords within the signons.sqlite database file. There is also a
 				keys3.db file which contains the key for decrypting these passwords. In cases where
-				a Master Password has not been set, the passwords can easily be decrypted using 
-				third party tools. If a Master Password was used the only option would be to 
+				a Master Password has not been set, the passwords can easily be decrypted using
+				third party tools. If a Master Password was used the only option would be to
 				bruteforce.
 			},
 			'License'        => MSF_LICENSE,
@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 			'Platform'       => ['windows', 'linux', 'bsd', 'unix', 'osx'],
 			'SessionTypes'   => ['meterpreter', 'shell' ]
 		))
-		#TODO 
+		#TODO
 		# - add support for decrypting the passwords without a Master Password
 		# - Collect cookies.
 	end
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
 
 				if profile =~ /\.default/
 						print_status("Found Firefox Profile for: #{id}")
-						return [home + id + "/.mozilla/" + "firefox/" + profile + "/"] 
+						return [home + id + "/.mozilla/" + "firefox/" + profile + "/"]
 				end
 			end
 			return

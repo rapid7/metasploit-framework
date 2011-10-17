@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Post
 		## verify domain_user contains a domain
 		if domain_user !~ /\\/
 			domain_user = "#{domain}\\#{domain_user}"
-		else 
+		else
 			domain_user = ''
 		end
 
@@ -128,7 +128,7 @@ class Metasploit3 < Msf::Post
 				res = session.sys.config.steal_token(target_pid)
 				if  domain_user != ''
 					domain_user = session.sys.config.getuid()
-				end 
+				end
 			end
 
 			if session.sys.config.getuid() != domain_user
@@ -346,7 +346,7 @@ class Metasploit3 < Msf::Post
 				next if user.strip == ""
 				next if user =~ /-----/
 				next if user =~ /The command completed successfully/
-				members << user.strip 
+				members << user.strip
 			end
 		end
 

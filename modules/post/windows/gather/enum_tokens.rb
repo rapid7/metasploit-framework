@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 			if privs.include?("SeAssignPrimaryTokenPrivilege") and privs.include?("SeIncreaseQuotaPrivilege")
 				return true
 			else
-				return false 
+				return false
 			end
 		elsif is_admin?
 			return true
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		if session 
+		if session
 			@host_info = session.sys.config.sysinfo
 		else
 			print_error("Error! The session is not fully loaded yet")
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Post
 			if res
 				res["delegation"].split("\n").each do |user|
 					ndom,nusr = user.split("\\")
-					if not nusr 
+					if not nusr
 						nusr = ndom
 						ndom = nil
 					end

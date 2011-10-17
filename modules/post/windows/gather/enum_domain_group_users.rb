@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 				next if user.strip == ""
 				next if user =~ /-----/
 				next if user =~ /The command completed successfully/
-				members << user.strip 
+				members << user.strip
 			end
 		end
 		

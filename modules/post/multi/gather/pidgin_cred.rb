@@ -21,11 +21,11 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Multi Gather Pidgin Instant Messenger Credential Collection',
-			'Description'    => %q{ 
+			'Description'    => %q{
 				This module will collect credentials from the Pidgin IM client if it is installed.
 				},
 			'License'        => MSF_LICENSE,
-			'Author'         => 
+			'Author'         =>
 				[
 					'bannedit', # post port, added support for shell sessions
 					'Carlos Perez <carlos_perez[at]darkoperator.com>' # original meterpreter script
@@ -94,10 +94,10 @@ class Metasploit3 < Msf::Post
 		else
 			userdirs = session.shell_command("ls #{home}#{whoami}/.purple")
 			if userdirs =~ /No such file/i
-				return 
+				return
 			else
 				print_status("Found Pidgin profile for: #{whoami}")
-				return ["#{home}#{whoami}/.purple"] 
+				return ["#{home}#{whoami}/.purple"]
 			end
 		end
 
@@ -313,7 +313,7 @@ class Metasploit3 < Msf::Post
 				print_status("    Account: %s"  % contact['account'])
 				print_line("")
 			end
-		end 
+		end
 
 		return buddies
 	end

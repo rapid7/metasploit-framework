@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Escalate Service Permissions Local Privilege Escalation',
 			'Description'   => %q{
 				This module attempts to exploit existing administrative privileges to obtain
-				a SYSTEM session. If directly creating a service fails, this module will inspect 
+				a SYSTEM session. If directly creating a service fails, this module will inspect
 				existing services to look for insecure file or configuration permissions that may
 				be hijacked. It will then attempt to restart the replaced service to run the
 				payload. This will result in a new session when this succeeds. If the module is

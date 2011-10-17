@@ -1,5 +1,5 @@
 ##
-# $Id$ 
+# $Id$
 ##
 
 ##
@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Post
 		else
 			qtype = datastore["TYPE"]
 		end
-		if qcred 
+		if qcred
 			print_status("Credential Filter: " + qcred)
 		end
 		if qpath
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Post
 				rescue
 					print_error("An error occured enumerating service: #{sname}")
 				end
-			elsif sname 
+			elsif sname
 				print_good("\tName: #{sname}")
 			else
 				print_error("Problem enumerating services")

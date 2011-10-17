@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Gather DNS Reverse Lookup Scan',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					Performs DNS reverse lookup using the OS included DNS query command.
 				},
 				'License'       => MSF_LICENSE,

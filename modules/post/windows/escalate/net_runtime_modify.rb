@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ],
-			'References'    => 
+			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
 					[ 'URL', 'http://www.exploit-db.com/exploits/16940/' ]

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Manage Enable Remote Desktop',
-				'Description'   => %q{ 
+				'Description'   => %q{
 						This module enables the Remote Desktop Service (RDP). It provides the options to create
 					an account and configure it to be a member of the Local Administrators and
 					Remote Desktop Users group. It can also forward the target's port 3389/tcp.},

@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Manage Network Route via Meterpreter Session',
-				'Description'   => %q{This module manages session routing via an existing 
-					Meterpreter session. It enables other modules to 'pivot' through a 
+				'Description'   => %q{This module manages session routing via an existing
+					Meterpreter session. It enables other modules to 'pivot' through a
 					compromised host when connecting to the named NETWORK and SUBMASK.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'todb'],
@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 
 	# Backwards compatability: This was changed because the option name of "ACTION"
 	# is special for some things, and indicates the :action attribute, not a datastore option.
-	# However, this is a semi-popular module, though, so I'd prefer not to break people's 
+	# However, this is a semi-popular module, though, so I'd prefer not to break people's
 	# RC scripts that set ACTION. Note that ACTION is preferred over CMD.
 	#
 	# TODO: The better solution is to use 'Action' and 'DefaultAction' info elements,

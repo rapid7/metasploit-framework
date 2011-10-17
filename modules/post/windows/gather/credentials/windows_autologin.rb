@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Post
 					[
 						'Myo Soe <YGN Ethical Hacker Group, http://yehg.net>'
 					],
-				'Version'       => '$Revision$', 
+				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ],
 				'References'     =>
@@ -91,11 +91,11 @@ class Metasploit3 < Msf::Post
 			has_al = 1
 			dp2 = '[No Password!]'
 			creds << [do2,du2,dp2]
-			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}") 
+			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		elsif do2 != '' and  du2 != '' and dp2 != ''
 			has_al = 1
 			creds << [do2,du2,dp2]
-			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}") 
+			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		end
 		
 		if has_al == 0

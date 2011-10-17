@@ -24,8 +24,8 @@ class Metasploit3 < Msf::Post
 						This module extracts login account password stored by
 						Meebo Notifier, a desktop version of Meebo's Online Messenger.},
 				'License' => MSF_LICENSE,
-				'Author' => 
-					[ 
+				'Author' =>
+					[
 						'Sil3ntDre4m <sil3ntdre4m[at]gmail.com>',
 						'SecurityXploded Team  <www.SecurityXploded.com>'
 					],

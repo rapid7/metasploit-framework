@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 			},
 			'License'        => MSF_LICENSE,
 			'Version'        => "$Revision$",
-			'Author'         => 
+			'Author'         =>
 				[
 					'sinn3r',  #Metasploit
 				],

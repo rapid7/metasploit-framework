@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Windows Gather Process Memory Grep',
-			'Description'    => %q{ 
-			    This module allows for searching the memory space of a proccess for potentially sensitive 
+			'Description'    => %q{
+			    This module allows for searching the memory space of a proccess for potentially sensitive
 			      data.
 			  },
 			'License'        => MSF_LICENSE,
@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 				thread = process.thread.open(tid)
 				esp = thread.query_regs['esp']
 				addr = process.memory.query(esp)
-				vprint_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']]) 
+				vprint_status("Found Thread TID: #{tid}\tBaseAddress: 0x%08x\t\tRegionSize: %d bytes" % [addr['BaseAddress'], addr['RegionSize']])
 				data = process.memory.read(addr['BaseAddress'], addr['RegionSize'])
 				stack << {
 							'Address' => addr['BaseAddress'],
