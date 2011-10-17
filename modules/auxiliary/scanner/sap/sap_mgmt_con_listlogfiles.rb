@@ -143,8 +143,14 @@ class Metasploit3 < Msf::Auxiliary
 				"Size",
 				"Timestamp"
 			])
-			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, saptbl.to_s, "sap_listlogfiles.xml",
-			 	"SAP #{datastore['FILETYPE'].downcase}")
+			store_loot(
+				"sap.#{datastore['FILETYPE'].downcase}file",
+				"text/xml",
+					rhost,
+					saptbl.to_s,
+					"sap_listlogfiles.xml",
+					"SAP #{datastore['FILETYPE'].downcase}"
+			)
 
 			env.each do |output|
 				saptbl << [ output[0], output[1], output[2] ]

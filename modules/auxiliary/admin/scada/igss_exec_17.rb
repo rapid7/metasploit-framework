@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'CVE', '2011-1566'],
-					[ 'OSVDB', '72349'], 
+					[ 'OSVDB', '72349'],
 					[ 'URL', 'http://aluigi.org/adv/igss_8-adv.txt' ],
 				],
 			'DisclosureDate' => 'Mar 21 2011'))

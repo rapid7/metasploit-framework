@@ -303,7 +303,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Reloading failed
 		unless @exploits[name]
 			@exploits.delete(name)
-			return 
+			return
 		end
 
 		apo = @exploits[name].class.autopwn_opts
@@ -318,7 +318,7 @@ class Metasploit3 < Msf::Auxiliary
 			lport = @win_lport
 =begin
 		#
-		# Some day, we'll support Linux and Mac OS X here.. 
+		# Some day, we'll support Linux and Mac OS X here..
 		#
 
 		when %r{linux}
@@ -633,7 +633,7 @@ class Metasploit3 < Msf::Auxiliary
 	#
 	# Build some javascript that attempts to determine which exploits to run
 	# for the victim's OS and browser.
-	# 
+	#
 	# Returns a raw javascript string to be eval'd on the victim
 	#
 	def build_script_response(cli, request)
@@ -762,7 +762,7 @@ class Metasploit3 < Msf::Auxiliary
 					# Skip exploits that don't match the client's OS.
 					if (host_info and host_info[:os_name] and s[:os_name])
 						# Host os normalization will set os_name to "Unknown"
-						# if it has no fingerprinting info.  
+						# if it has no fingerprinting info.
 						#
 						# See lib/msf/core/model/host.rb
 						if host_info[:os_name] != "Unknown"
@@ -819,7 +819,7 @@ class Metasploit3 < Msf::Auxiliary
 		return response
 	end
 
-	# 
+	#
 	# Yields each module that exports autopwn_info, filtering on MATCH and EXCLUDE options
 	#
 	def each_autopwn_module(&block)
@@ -851,7 +851,7 @@ class Metasploit3 < Msf::Auxiliary
 	# don't need to bother sending it.
 	#
 	def client_matches_browser(client_info, browser)
-		if client_info and browser and client_info[:ua_name] 
+		if client_info and browser and client_info[:ua_name]
 			if browser != "generic" and  client_info[:ua_name] != browser
 				return false
 			end

@@ -24,8 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'       => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired as hashed files (loot) or raw LANMAN/NTLM hashes (hashdump). The goal
-				of this module is to find trivial passwords in a short amount of time. To 
-				crack complex passwords or use large wordlists, John the Ripper should be 
+				of this module is to find trivial passwords in a short amount of time. To
+				crack complex passwords or use large wordlists, John the Ripper should be
 				used outside of Metasploit. This initial version just handles LM/NTLM credentials
 				from hashdump and uses the standard wordlist and rules.
 			},
@@ -40,10 +40,10 @@ class Metasploit3 < Msf::Auxiliary
 		
 		begin
 			# Seed the wordlist with usernames, passwords, and hostnames
-			seed = [] 
+			seed = []
 
 			myworkspace.hosts.find(:all).each {|o| seed << john_expand_word( o.name ) if o.name }
-			myworkspace.creds.each do |o| 
+			myworkspace.creds.each do |o|
 				seed << john_expand_word( o.user ) if o.user
 				seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
 			end
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			# Append the standard JtR wordlist as well
 			::File.open(john_wordlist_path, "rb") do |fd|
-				wordlist.write fd.read(fd.stat.size) 
+				wordlist.write fd.read(fd.stat.size)
 			end
 
 			# Close the wordlist to prevent sharing violations (windows)			
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 			if smb_hashes.length > 0
 				cracked_ntlm = {}
 				cracked_lm   = {}
-				added        = [] 
+				added        = []
 				
 				# Crack this in LANMAN format using wordlist mode with tweaked rules
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'lm')
@@ -108,7 +108,7 @@ class Metasploit3 < Msf::Auxiliary
 				cracked_ntlm.values.each {|w| if not added.include?(w); tfd.write( w + "\n" ); added << w; end }
 				tfd.close
 				
-				# Crack this in NTLM format 
+				# Crack this in NTLM format
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'nt')
 				
 				# Crack this in NTLM format using various incremntal modes
@@ -130,11 +130,11 @@ class Metasploit3 < Msf::Auxiliary
 				# Store the cracked results based on user_id => cred.id
 				cracked_ntlm.each_pair do |k,v|
 					next if not k =~ /^cred_(\d+)/m
-					cid = $1.to_i 
+					cid = $1.to_i
 					
 					cred_find = smb_hashes.select{|x| x[:id] == cid}
 					next if cred_find.length == 0
-					cred = cred_find.first 
+					cred = cred_find.first
 					
 					print_good("Cracked: #{cred.user}:#{v} (#{cred.service.host.address}:#{cred.service.port})")
 					report_auth_info(
@@ -146,10 +146,10 @@ class Metasploit3 < Msf::Auxiliary
 						:source_id   => cred[:id],
 						:source_type => 'cracked'
 					)
-				end 
+				end
 			end
 			
-			# XXX: Enter other hash types here (shadow, etc) 
+			# XXX: Enter other hash types here (shadow, etc)
 		
 		rescue ::Timeout::Error
 		ensure
@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 			hashlist.close rescue nil
 			::File.unlink(wordlist.path) rescue nil
 			::File.unlink(hashlist.path) rescue nil
-		end 
+		end
 	end
 end
 

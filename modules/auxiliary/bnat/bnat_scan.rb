@@ -20,10 +20,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'      => '$Revision$',
 			'Description'  => %q{
 					This module is a scanner which can detect Bad NAT (network address translation)
-				implementations, which could result in a inability to reach ports on remote 
-				machines. Typically, these ports will appear in nmap scans as 'filtered'. 
+				implementations, which could result in a inability to reach ports on remote
+				machines. Typically, these ports will appear in nmap scans as 'filtered'.
 				},
-			'Author'       => 
+			'Author'       =>
 				[
 					'bannedit',
 					'Jonathan Claudius <jclaudius[at]trustwave.com>',
@@ -99,3 +99,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
+

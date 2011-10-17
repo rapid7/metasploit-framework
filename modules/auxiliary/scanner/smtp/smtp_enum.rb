@@ -22,7 +22,13 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'SMTP User Enumeration Utility',
 			'Version'     => '$Revision$',
-			'Description' => %q{The SMTP service has two internal commands that allow the enumeration of users: VRFY (confirming the names of valid users) and EXPN (which reveals the actual address of users aliases and lists of e-mail (mailing lists)). Through the implementation of these SMTP commands can reveal a list of valid users.},
+			'Description' => %q{
+				The SMTP service has two internal commands that allow the enumeration
+				of users: VRFY (confirming the names of valid users) and EXPN (which
+				reveals the actual address of users aliases and lists of e-mail
+				(mailing lists)). Through the implementation of these SMTP commands can
+				reveal a list of valid users.
+				},
 			'References'  =>
 			[
 				['URL', 'http://www.ietf.org/rfc/rfc2821.txt'],

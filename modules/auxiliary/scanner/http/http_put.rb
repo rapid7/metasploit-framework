@@ -35,7 +35,7 @@ class Metasploit4 < Msf::Auxiliary
 					'sinn3r',
 				],
 			'License'     => MSF_LICENSE,
-			'References'  => 
+			'References'  =>
 			[
 				[ 'OSVDB', '397'],
 			],

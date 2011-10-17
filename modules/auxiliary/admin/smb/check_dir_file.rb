@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				of SMB hosts for the presence of a known file or directory.
 				An example would be to scan all systems for the presence of
 				antivirus or known malware outbreak. Typically you must set
-				RPATH, SMBUser, SMBDomain and SMBPass to operate correctly. 
+				RPATH, SMBUser, SMBDomain and SMBPass to operate correctly.
 			},
 			'Author'      =>
 				[

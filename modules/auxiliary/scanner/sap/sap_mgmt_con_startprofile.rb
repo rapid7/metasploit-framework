@@ -51,8 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 		res = send_request_cgi({
 			'uri'      => "/#{datastore['URI']}",
 			'method'   => 'GET',
-			'headers' =>
-			 	{
+			'headers' => {
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)

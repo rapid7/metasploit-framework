@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			p = PacketFu::Packet.parse(pkt_bytes)
 			# Don't bother checking if it's an echo reply, since Neighbor Solicitations
 			# and any other response is just as good.
-			next unless p.is_ipv6? 
+			next unless p.is_ipv6?
 			host_addr = p.ipv6_saddr
 			host_mac = p.eth_saddr
 			next if host_mac == smac

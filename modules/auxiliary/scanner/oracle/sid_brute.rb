@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 		deregister_options(
-			"RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE", 
+			"RHOST", "USERNAME", "PASSWORD", "USER_FILE", "PASS_FILE", "USERPASS_FILE",
 			"BLANK_PASSWORDS", "USER_AS_PASS", "REMOVE_USER_FILE", "REMOVE_PASS_FILE",
 			"REMOVE_USERPASS_FILE"
 		)

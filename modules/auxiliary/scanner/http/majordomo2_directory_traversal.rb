@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Majordomo2 _list_file_get() Directory Traversal',
 			'Description'    => %q{
 					This module exploits a directory traversal vulnerability present in
-				the _list_file_get() function of Majordomo2 (help function). By default, this 
+				the _list_file_get() function of Majordomo2 (help function). By default, this
 				module will attempt to download the Majordomo config.pl file.
 			},
 			'Author'         =>	['Nikolas Sotiriu'],

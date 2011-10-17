@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 					pass = "" if pass == "<empty>"
 					print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
 					report_auth_info(
-						:host => addr, :port => port, :proto => "tcp", 
+						:host => addr, :port => port, :proto => "tcp",
 						:user => "#{sid}/#{user}", :pass => pass, :active => true
 					)
 				elsif oline =~ /Account locked/

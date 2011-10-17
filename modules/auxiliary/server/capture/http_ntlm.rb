@@ -229,8 +229,8 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			when NTLM_CONST::NTLM_V2_RESPONSE
 				if NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [nt_hash].pack("H*"),:srv_challenge => @challenge,
-								:cli_challenge => [nt_cli_challenge].pack("H*"), 
-								:user => Rex::Text::to_ascii(user), 
+								:cli_challenge => [nt_cli_challenge].pack("H*"),
+								:user => Rex::Text::to_ascii(user),
 								:domain => Rex::Text::to_ascii(domain),
 								:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'ntlm' })
 					print_status("NTLMv2 Hash correspond to an empty password, ignoring ... ")
@@ -240,8 +240,8 @@ class Metasploit3 < Msf::Auxiliary
 					lm_hash_message = "Disabled"
 					lm_chall_message = 'Disabled'
 				elsif NTLM_CRYPT::is_hash_from_empty_pwd?({:hash => [lm_hash].pack("H*"),:srv_challenge => @challenge,
-								:cli_challenge => [lm_cli_challenge].pack("H*"), 
-								:user => Rex::Text::to_ascii(user), 
+								:cli_challenge => [lm_cli_challenge].pack("H*"),
+								:user => Rex::Text::to_ascii(user),
 								:domain => Rex::Text::to_ascii(domain),
 								:ntlm_ver => NTLM_CONST::NTLM_V2_RESPONSE, :type => 'lm' })
 					lm_hash_message = "Disabled (from empty password)"
@@ -300,7 +300,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status(capturelogmessage)
 
 			# DB reporting
-			# Rem :  one report it as a smb_challenge on port 445 has breaking those hashes 
+			# Rem :  one report it as a smb_challenge on port 445 has breaking those hashes
 			# will be mainly use for psexec / smb related exploit
 			report_auth_info(
 				:host  => ip,
@@ -320,7 +320,7 @@ class Metasploit3 < Msf::Auxiliary
 			#end
 
 			if(datastore['CAINPWFILE'] and user)
-				if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE 
+				if ntlm_ver == NTLM_CONST::NTLM_V1_RESPONSE or ntlm_ver == NTLM_CONST::NTLM_2_SESSION_RESPONSE
 					fd = File.open(datastore['CAINPWFILE'], "ab")
 					fd.puts(
 						[
@@ -337,7 +337,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if(datastore['JOHNPWFILE'] and user)
 				case ntlm_ver
-				when NTLM_CONST::NTLM_V1_RESPONSE, NTLM_CONST::NTLM_2_SESSION_RESPONSE 
+				when NTLM_CONST::NTLM_V1_RESPONSE, NTLM_CONST::NTLM_2_SESSION_RESPONSE
 
 					fd = File.open(datastore['JOHNPWFILE'] + '_netntlm', "ab")
 					fd.puts(

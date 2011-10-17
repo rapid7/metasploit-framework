@@ -24,7 +24,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'		   => 'SAP BusinessObjects User Bruteforcer',
 			'Version'		=> '$Revision$',
-			'Description'	=> 'This module simply attempts to bruteforce SAP BusinessObjects users. The dswsbobje interface is only used to verify valid credentials for CmcApp. Therefore, any valid credentials that have been identified can be leveraged by logging into CmcApp.',
+			'Description'	=> 'This module attempts to bruteforce SAP BusinessObjects users.
+				The dswsbobje interface is only used to verify valid credentials for CmcApp.
+				Therefore, any valid credentials that have been identified can be leveraged by
+				logging into CmcApp.',
 			'References'  =>
 				[
 					# General

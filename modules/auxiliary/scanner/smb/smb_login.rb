@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 				datastore["SMBDomain"] = orig_domain
 				return :skip_user
 			else
-				raise e 
+				raise e
 			end
 
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e

@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 				:port => rport,
 				:type => 'sap.users',
 				:data => {:proto => "soap", :users => users},
-				:update => :unique_data 
+				:update => :unique_data
 			)
 	
 			users.each do |output|

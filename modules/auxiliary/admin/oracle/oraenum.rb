@@ -108,10 +108,25 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			print_status("\tUTL Directory Access is set to #{vparm["utl_file_dir"]}") if vparm["utl_file_dir"] != " "
-			report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "UTL_DIR: #{ vparm["utl_file_dir"]}") if not  vparm["utl_file_dir"]#.empty?
+			report_note(
+				:host => datastore['RHOST'],
+				:proto => 'tcp',
+				:sname => 'TNS',
+				:port => datastore['RPORT'],
+				:type => 'ORA_ENUM',
+				:data => "UTL_DIR: #{ vparm["utl_file_dir"]}"
+			) if not vparm["utl_file_dir"]#.empty?
 
 			print_status("\tAudit log is saved at #{vparm["audit_file_dest"]}")
-			report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Audit Log Location: #{ vparm["audit_file_dest"]}") if not  vparm["audit_file_dest"]#.empty?
+			report_note(
+				:host => datastore['RHOST'],
+				:proto => 'tcp',
+				:sname => 'TNS',
+				:port => datastore['RPORT'],
+				:type => 'ORA_ENUM',
+				:data => "Audit Log Location: #{ vparm["audit_file_dest"]}"
+			) if not vparm["audit_file_dest"]#.empty?
+
 		end
 
 		#-------------------------------------------------------
@@ -419,7 +434,13 @@ class Metasploit3 < Msf::Auxiliary
 					accrcrd =  l.split(",")
 					if accts.has_key?(accrcrd[2])
 						print_status("\tDefault pass for account #{accrcrd[0]} is #{accrcrd[1]} ")
-						report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}")
+						report_note(
+							:host => datastore['RHOST'],
+							:proto => 'tcp',
+							:sname => 'TNS',
+							:port => datastore['RPORT'],
+							:type => 'ORA_ENUM',
+							:data => "Account with Default Password #{accrcrd[0]} is #{accrcrd[1]}")
 					end
 				end
 			end

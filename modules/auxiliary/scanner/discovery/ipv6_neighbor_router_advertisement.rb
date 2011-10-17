@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 		lifetime = 1800
 		reachable = 0
 		retrans = 0
-		[type, code, checksum, hop_limit, flags, 
+		[type, code, checksum, hop_limit, flags,
 			lifetime, reachable, retrans].pack("CCnCCnNN")
 	end
 

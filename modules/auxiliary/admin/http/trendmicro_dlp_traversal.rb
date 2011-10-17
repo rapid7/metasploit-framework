@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				bug which is implemented in module tomcat_utf8_traversal CVE 2008-2938.
 				This module simply tests for the same bug with Trend Micro specific settings.
 				Note that in the Trend Micro appliance, /etc/shadow is not used and therefore
-				password hashes are stored and anonymously accessible in the passwd file. 
+				password hashes are stored and anonymously accessible in the passwd file.
 				},
 			'References'  =>
 				[
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{f}")
 				end
 			else
-				print_good("No File(s) found") 
+				print_good("No File(s) found")
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

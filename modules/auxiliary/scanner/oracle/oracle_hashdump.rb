@@ -107,8 +107,6 @@ class Metasploit3 < Msf::Auxiliary
 		
 	end
 			
-	
-
 	def get_schema
 		#Grabs the Database and table names for storage
 		#These names will be sued later to seed wordlists for cracking
@@ -127,10 +125,10 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return schema
 	end
-	
+
 	def report_hashes(hash_loot, is_11g, ip, service)
-        #reports the hashes slightly differently depending on the version
-        #This is so that we know which are which when we go to crack them
+		#reports the hashes slightly differently depending on the version
+		#This is so that we know which are which when we go to crack them
 		if is_11g==false
 			filename= "#{ip}-#{datastore['RPORT']}_oraclehashes.txt"
 			store_loot("oracle.hashes", "text/plain", ip, hash_loot, filename, "Oracle Hashes", service)
@@ -140,7 +138,6 @@ class Metasploit3 < Msf::Auxiliary
 			store_loot("oracle11g.hashes", "text/plain", ip, hash_loot, filename, "Oracle 11g Hashes", service)
 			print_status("Hash Table has been saved")
 		end
-		
 	end
 
 	def report_other_data(oracle_schema,ip)

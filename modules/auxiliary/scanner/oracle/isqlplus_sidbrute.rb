@@ -3,7 +3,7 @@
 ##
 
 ##
-# This file is part of the Metasploit Framework and may be subject to 
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/Framework/
@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 			'Description' => %q{
 				This module attempts to bruteforce the SID on the Oracle application server iSQL*Plus
 				login pages.  It does this by testing Oracle error responses returned in the HTTP response.
-				Incorrect username/pass with a correct SID will produce an Oracle ORA-01017 error. 
-				Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to 
+				Incorrect username/pass with a correct SID will produce an Oracle ORA-01017 error.
+				Works against Oracle 9.2, 10.1 & 10.2 iSQL*Plus.  This module will attempt to
 				fingerprint the version and automatically select the correct POST request.
 			},
 			'References'  =>
@@ -97,8 +97,8 @@ class Metasploit3 < Msf::Auxiliary
 			res = send_request_cgi({
 				'version' => '1.1',
 				'uri'     => uri,
-				'method'  => 'GET',                                        
-			}, timeout) 
+				'method'  => 'GET',
+			}, timeout)
 			oracle_ver = nil
 			if (res.nil?)
 				print_error("#{msg} no response")
@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 				if sid.nil? || sid.empty?
 					print_good("#{msg} Recieved ORA-01017 on a blank SID -- SIDs are not enforced upon login.")
 				else
-					print_good("#{msg} Received ORA-01017, probable correct SID '#{sid.strip}'") 
+					print_good("#{msg} Received ORA-01017, probable correct SID '#{sid.strip}'")
 				end
 				guess = true
 			elsif (res.body =~ /(ORA-12170):/ or res.body =~ /(ORA-12154):/ or res.body =~ /(ORA-12162):/)
@@ -226,8 +226,8 @@ class Metasploit3 < Msf::Auxiliary
 			'headers' =>
 			{
 				'Referer' => "http://#{ip}:#{rport}#{uri}"
-			}	                                                                
-		}, timeout)  
+			}
+		}, timeout)
 		guess = parse_isqlplus_response(res,sid)
 		report_oracle_sid(ip,sid) if guess
 		return guess

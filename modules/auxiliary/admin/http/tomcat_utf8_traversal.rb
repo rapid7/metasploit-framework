@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{f}")
 				end
 			else
-				print_good("No File(s) found") 
+				print_good("No File(s) found")
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

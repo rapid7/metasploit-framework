@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Auxiliary
 			next if key =~ /Proc-Type:.*ENCRYPTED/
 			this_key = key.gsub(/\x0d/,"")
 			next if cleartext_keys.include? this_key
-			cleartext_keys << this_key 
+			cleartext_keys << this_key
 		end
 		if cleartext_keys.empty?
 			print_error "#{ip}:#{rport} SSH - No valid cleartext keys found"
@@ -260,11 +260,11 @@ class Metasploit3 < Msf::Auxiliary
 		)
 	end
 
-	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's 
+	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's
 	# good, then store it as loot for this user@host, unless we
 	# already have it in loot.
 	def store_keyfile_b64_loot(ip,user,key_id)
-		return unless db 
+		return unless db
 		return if @keyfile_path
 		return if datastore["SSH_KEYFILE_B64"].to_s.empty?
 		keyfile = datastore["SSH_KEYFILE_B64"].unpack("m*").first

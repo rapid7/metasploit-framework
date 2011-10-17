@@ -18,9 +18,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'         => 'BNAT Router',
 			'Version'      => '$Revision$',
 			'Description'  => %q{
-					This module will properly route BNAT traffic and allow for connections to be 
+					This module will properly route BNAT traffic and allow for connections to be
 				established to machines on ports which might not otherwise be accessible.},
-			'Author'       => 
+			'Author'       =>
 				[
 						'bannedit',
 						'Jonathan Claudius',
@@ -153,3 +153,4 @@ class Metasploit3 < Msf::Auxiliary
 		return target_mac
 	end
 end
+

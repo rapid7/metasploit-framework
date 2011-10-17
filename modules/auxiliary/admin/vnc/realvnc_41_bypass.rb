@@ -23,10 +23,10 @@ class Metasploit3 < Msf::Auxiliary
 				in RealVNC Server version 4.1.0 and 4.1.1. It sets up a proxy
 				listener on LPORT and proxies to the target server
 
-				The AUTOVNC option requires that vncviewer be installed on 
+				The AUTOVNC option requires that vncviewer be installed on
 				the attacking machine.
 			},
-			'Author'         => 
+			'Author'         =>
 				[
 					'hdm', #original msf2 module
 					'TheLightCosine <thelightcosine[at]gmail.com>'

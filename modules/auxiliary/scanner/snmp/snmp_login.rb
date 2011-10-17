@@ -155,7 +155,11 @@ class Metasploit3 < Msf::Auxiliary
 						# Used to flag whether this version was compatible
 						finished = true
 
-					rescue ::SNMP::UnsupportedPduTag, ::SNMP::InvalidPduTag, ::SNMP::ParseError, ::SNMP::InvalidErrorStatus, ::SNMP::InvalidTrapVarbind, ::SNMP::InvalidGenericTrap, ::SNMP::BER::OutOfData, ::SNMP::BER::InvalidLength, ::SNMP::BER::InvalidTag, ::SNMP::BER::InvalidObjectId, ::SNMP::MIB::ModuleNotLoadedError, ::SNMP::UnsupportedValueTag
+					rescue ::SNMP::UnsupportedPduTag, ::SNMP::InvalidPduTag, ::SNMP::ParseError,
+						::SNMP::InvalidErrorStatus, ::SNMP::InvalidTrapVarbind, ::SNMP::InvalidGenericTrap,
+						::SNMP::BER::OutOfData, ::SNMP::BER::InvalidLength, ::SNMP::BER::InvalidTag,
+						::SNMP::BER::InvalidObjectId, ::SNMP::MIB::ModuleNotLoadedError,
+						::SNMP::UnsupportedValueTag
 						next
 
 					rescue ::SNMP::UnsupportedVersion

@@ -143,8 +143,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		if success
 			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase} looted")
-			store_loot("sap.#{datastore['FILETYPE'].downcase}file", "text/xml", rhost, res.body, "sap_#{datastore['RFILE'].downcase}.xml",
-			 	"SAP Get Logfile")
+			store_loot(
+				"sap.#{datastore['FILETYPE'].downcase}file",
+				"text/xml",
+				rhost,
+				res.body,
+				"sap_#{datastore['RFILE'].downcase}.xml",
+				"SAP Get Logfile"
+			)
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
 			return

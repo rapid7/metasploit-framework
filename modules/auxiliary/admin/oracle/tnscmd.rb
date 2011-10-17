@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 		end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout => e
-			print_error e.message 
+			print_error e.message
 		rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
 			print_error e.message
 	end

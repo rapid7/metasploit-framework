@@ -137,7 +137,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlhashes.txt"
 		store_loot(hashtype, "text/plain", datastore['RHOST'], tbl.to_csv, filename, "MS SQL Hashes", this_service)
-		 
 	end
 
 	#Grabs the user tables depending on what Version of MSSQL

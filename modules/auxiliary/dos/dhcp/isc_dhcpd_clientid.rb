@@ -19,11 +19,11 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'          => 'ISC DHCP Zero Length ClientID Denial of Service Module',
-			'Description'   => %q{ 
-					This module performs a Denial of Service Attack against the ISC DHCP server, 
-				versions 4.1 before 4.1.1-P1 and 4.0 before 4.0.2-P1. It sends out a DHCP Request 
+			'Description'   => %q{
+					This module performs a Denial of Service Attack against the ISC DHCP server,
+				versions 4.1 before 4.1.1-P1 and 4.0 before 4.0.2-P1. It sends out a DHCP Request
 				message with a 0-length client_id option for an IP address on the appropriate range
-				for the dhcp server. When ISC DHCP Server tries to hash this value it exits 
+				for the dhcp server. When ISC DHCP Server tries to hash this value it exits
 				abnormally.
 			},
 			'Author'        =>

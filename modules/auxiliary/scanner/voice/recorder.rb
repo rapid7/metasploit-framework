@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			
 			c = create_call
 			begin
-				::Timeout.timeout( datastore['CALL_TIME'] ) do 
+				::Timeout.timeout( datastore['CALL_TIME'] ) do
 					print_status("Dialing #{number}...")
 					r = c.dial(number)
 					if not c

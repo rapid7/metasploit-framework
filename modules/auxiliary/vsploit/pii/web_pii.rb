@@ -44,8 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def create_page
 		# Webpage Title
 		title = "vSploit PII Webserver"
-		sheep = 
-"
+		sheep =<<EOF
  __________
 < baaaaah! >
  ---------
@@ -55,14 +54,14 @@ class Metasploit3 < Msf::Auxiliary
          ;@;@( \\@;@;@;@;@;@,
          /x  @\\_|@;@;@;@;@;@;,
         /    )@:@;@;@;@;@;@;@|)
-        *---;@;@;@;@;@;@;@;@; 
+        *---;@;@;@;@;@;@;@;@;
                ';@;\;@;\;@;@
                 || |   \\ (
                 || |   // /
                 // (  // /
-               ~~~~~ ~~~~ 
+               ~~~~~ ~~~~
 
-"
+EOF
 		page = ""
 		page << "<html>\n<head>\n"
 
