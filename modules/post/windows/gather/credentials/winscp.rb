@@ -25,6 +25,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 			'Name'          => 'Windows Gather WinSCP Saved Password Extraction',
+			'Version'       => '$Revision$',
 			'Description'   => %q{
 				This module extracts weakly encrypted saved passwords from
 				WinSCP. It searches for saved sessions in the Windows Registry
