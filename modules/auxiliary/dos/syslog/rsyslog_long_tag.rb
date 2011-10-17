@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'rsyslog Long Tag Off-By-Two DoS',
 			'Description' => %q{
-					This module triggers an off-by-two stack overflow in the
+					This module triggers an off-by-two overflow in the
 				rsyslog daemon. This flaw is unlikely to yield code execution
 				but is effective at shutting down a remote log daemon. This bug
 				was introduced in version 4.6.0 and corrected in 4.6.8/5.8.5.

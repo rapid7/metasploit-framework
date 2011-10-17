@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Post
 					print_error("Wordlist File #{pass_file} does not exists!")
 					return
 				end
-				creds = ::File.open(pass_file, "r")
+				creds = ::File.open(pass_file, "rb")
 			else
 				creds = "Cisco\n" << "cisco\n"<< "sanfran\n" << "SanFran\n" << "password\n" << "Password\n"
 			end

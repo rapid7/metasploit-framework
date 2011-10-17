@@ -285,7 +285,7 @@ class Metasploit3 < Msf::Post
 
 	# Function for writing results of other functions to a file
 	def filewrt(file2wrt, data2wrt)
-		output = ::File.open(file2wrt, "a")
+		output = ::File.open(file2wrt, "ab")
 		if data2wrt
 			data2wrt.each_line do |d|
 				output.puts(d)
