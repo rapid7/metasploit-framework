@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'vSploit Web PII',
+			'Name'           => 'VSploit Web PII',
 			'Description'    => 'This module emulates a webserver leaking PII data',
 			'License'        => MSF_LICENSE,
 			'Author'         => 'MJC',

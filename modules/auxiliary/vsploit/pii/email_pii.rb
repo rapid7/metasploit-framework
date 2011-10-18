@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'vsploit Email PII',
+			'Name'           => 'VSploit Email PII',
 			'Description'    => %q{
 					This auxiliary reads from a file and sends data which
 			should be flagged via an internal or external SMTP server.
