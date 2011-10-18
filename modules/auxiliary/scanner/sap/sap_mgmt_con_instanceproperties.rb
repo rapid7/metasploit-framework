@@ -210,7 +210,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			return
 		elsif fault
-			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
 		else
 			print_error("#{rhost}:#{rport} [SAP] failed to identify instance properties")

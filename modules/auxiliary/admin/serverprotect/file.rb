@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 		return if not resp
 
 		if resp.length != 0x108
-			print_error("An unknown error occured while calling FindFirstFile.")
+			print_error("An unknown error occurred while calling FindFirstFile.")
 			return
 		end
 
@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 			return if not resp
 
 			if resp.length != 0x108
-				print_error("An unknown error occured while calling FindFirstFile.")
+				print_error("An unknown error occurred while calling FindFirstFile.")
 				break
 			end
 
@@ -186,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret, = resp[8,4].unpack('V')
 
 			if ret == 0
-				print_status("File #{args[0]} successfuly deleted.")
+				print_status("File #{args[0]} successfully deleted.")
 			else
 				print_error("An error occurred while deleting #{args[0]}: #{ret}.")
 			end
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		serverprotect_closehandle(handle)
 
-		print_status("File #{args[0]} successfuly downloaded.")
+		print_status("File #{args[0]} successfully downloaded.")
 	end
 
 
@@ -257,7 +257,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		serverprotect_closehandle(handle)
 
-		print_status("File #{args[1]} successfuly uploaded.")
+		print_status("File #{args[1]} successfully uploaded.")
 	end
 
 
@@ -278,7 +278,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret, = resp[544,4].unpack('V')
 
 			if ret != 0
-				print_error("An error occured while calling CreateFile: #{ret}.")
+				print_error("An error occurred while calling CreateFile: #{ret}.")
 				return 0
 			else
 				return handle
@@ -301,7 +301,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret, = resp[4108,4].unpack('V')
 
 			if ret != 0
-				print_error("An error occured while calling CreateFile: #{ret}.")
+				print_error("An error occurred while calling CreateFile: #{ret}.")
 				return ''
 			else
 				br, = resp[4104, 4].unpack('V')
@@ -327,7 +327,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret, = resp[4108,4].unpack('V')
 
 			if ret != 0
-				print_error("An error occured while calling WriteFile: #{ret}.")
+				print_error("An error occurred while calling WriteFile: #{ret}.")
 				return 0
 			end
 		end
@@ -348,7 +348,7 @@ class Metasploit3 < Msf::Auxiliary
 			ret, = resp[8,4].unpack('V')
 
 			if ret != 0
-				print_error("An error occured while calling CloseHandle: #{ret}.")
+				print_error("An error occurred while calling CloseHandle: #{ret}.")
 			end
 		end
 	end

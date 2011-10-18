@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 			elsif wordcount == 0x0C
 				smb_cmd_session_setup(c, buff, true)
 			else
-				print_status("Unknow SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
+				print_status("Unknown SMB_COM_SESSION_SETUP_ANDX request type , ignoring... ")
 				smb_error(cmd, c, CONST::SMB_STATUS_SUCCESS, @s_smb_esn)
 			end
 
@@ -320,7 +320,7 @@ class Metasploit3 < Msf::Auxiliary
 					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 					return
 				else
-					print_status("Unknow hash type from #{smb[:name]}, ignoring ...")
+					print_status("Unknown hash type from #{smb[:name]}, ignoring ...")
 					smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 					return
 				end
@@ -381,7 +381,7 @@ class Metasploit3 < Msf::Auxiliary
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 				return
 			else
-				print_status("Unknow hash type capture from #{smb[:name]}, ignoring ...")
+				print_status("Unknown hash type capture from #{smb[:name]}, ignoring ...")
 				smb_error(CONST::SMB_COM_SESSION_SETUP_ANDX, c, CONST::SMB_STATUS_LOGON_FAILURE, true)
 				return
 			end

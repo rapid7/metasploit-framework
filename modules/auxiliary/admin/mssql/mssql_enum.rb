@@ -798,7 +798,7 @@ EOS
 				if i.strip != "MSSQLSERVER"
 					privinst = mssql_query("EXEC master..xp_regread \'HKEY_LOCAL_MACHINE\' ,\'SYSTEM\\CurrentControlSet\\Services\\MSSQL$#{i.strip}\',\'ObjectName\'")[:rows]
 					if privinst != nil
-						print_status("Instance #{i} SQL Server Service is running under the privilage of:")
+						print_status("Instance #{i} SQL Server Service is running under the privilege of:")
 						privinst.each do |p|
 							print_status("\t#{p[1]}")
 							report_note(:host => datastore['RHOST'],

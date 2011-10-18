@@ -11,11 +11,11 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	def initialize
 		super(
-		'Name'        => 'IPv6 Local Neighbor Discovery Using Router Advertisment',
+		'Name'        => 'IPv6 Local Neighbor Discovery Using Router Advertisement',
 		'Version'     => '$Revision$',
 		'Description' => %q{
-				Send a spoofed router advertisment with high priority to force hosts to
-				start the IPv6 address auto-config. Monitor for IPv6 host advertisments,
+				Send a spoofed router advertisement with high priority to force hosts to
+				start the IPv6 address auto-config. Monitor for IPv6 host advertisements,
 				and try to guess the link-local address by concatinating the prefix, and
 				the host portion of the IPv6 address.  Use NDP host solicitation to
 				determine if the IP address is valid'
@@ -152,12 +152,12 @@ class Metasploit3 < Msf::Auxiliary
 		# Start caputure
 		open_pcap({'FILTER' => "icmp6"})
 
-		# Send router advertisment
-		print_status("Sending router advertisment...")
+		# Send router advertisement
+		print_status("Sending router advertisement...")
 		pkt = create_router_advertisment()
 		capture.inject(pkt.to_s)
 
-		# Listen for host advertisments
+		# Listen for host advertisements
 		print_status("Listening for neighbor solicitation...")
 		hosts = listen_for_neighbor_solicitation()
 

@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif (res.code == 200)
 			if (res.body =~ /ORA-01017:/ or res.body =~ /ORA-28273:/)
 				if sid.nil? || sid.empty?
-					print_good("#{msg} Recieved ORA-01017 on a blank SID -- SIDs are not enforced upon login.")
+					print_good("#{msg} Received ORA-01017 on a blank SID -- SIDs are not enforced upon login.")
 				else
 					print_good("#{msg} Received ORA-01017, probable correct SID '#{sid.strip}'")
 				end

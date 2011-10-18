@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Post
 			if e.to_s =~ /execution expired/i
 				print_error("Sorry, execution expired. Module could not finish running.")
 			else
-				print_error("An unexpected error has occured: #{e.to_s}:\n#{e.backtrace}")
+				print_error("An unexpected error has occurred: #{e.to_s}:\n#{e.backtrace}")
 			end
 		end
 	end

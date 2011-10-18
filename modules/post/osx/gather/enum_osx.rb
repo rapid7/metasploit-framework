@@ -380,7 +380,7 @@ class Metasploit3 < Msf::Post
 			print_status("Capturing screenshot")
 			picture_name = ::Time.now.strftime("%Y%m%d.%M%S")
 			if check_root
-				print_status("Capturing screenshot for each loginwindow process since privilage is root")
+				print_status("Capturing screenshot for each loginwindow process since privilege is root")
 				if session.type =~ /shell/
 					loginwindow_pids = session.shell_command_token("/bin/ps aux \| /usr/bin/awk \'/name/ \&\& \!/awk/ \{print \$2\}\'").split("\n")
 					loginwindow_pids.each do |pid|

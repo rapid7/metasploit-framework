@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 		
 		authmethods = s.read(2)
 		
-		print_status("Auth methods recieved. Sending null authentication option to client")
+		print_status("Auth methods received. Sending null authentication option to client")
 		client.write("\x01\x01")
 		client.read(1)
 		s.put("\x01")

@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		#Check to verify server reported is a 2wire router
 		if (res.headers['Server'].match(/2wire Gateway/i))
-			print_status("Server is a 2wire Gateway! Grabing info\n")
+			print_status("Server is a 2wire Gateway! Grabbing info\n")
 		else
 			print_error("Target doesn't seem to be a 2wire router. Exiting!")
 			return

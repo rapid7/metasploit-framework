@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
 		[
 			OptInt.new('INTERVAL',[true, 'Time between key collection during logging',30]),
 			OptInt.new('HEARTBEAT',[true, 'Heart beat between idle checks',30]),
-			OptInt.new('LOCKTIME',[true, 'Amount of idletime before lockout',300]),
+			OptInt.new('LOCKTIME',[true, 'Amount of idle time before lockout',300]),
 			OptInt.new('PID',[false,'Target PID, only needed if multiple winlogon.exe instances exist',nil]),
 			OptBool.new('WAIT', [true, 'Wait for lockout instead of default method', false])
 		], self.class)
@@ -226,7 +226,7 @@ class Metasploit3 < Msf::Post
 			currentidle = session.ui.idle_time
 			print_status("System has currently been idle for #{currentidle} seconds")
 			while currentidle <= datastore['locktime'] do
-				print_status("Current Idletime: #{currentidle} seconds")
+				print_status("Current Idle time: #{currentidle} seconds")
 				sleep(datastore['heartbeat'])
 				currentidle = session.ui.idle_time
 			end

@@ -137,7 +137,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return
 		elsif fault
-			print_error("[SAP] Errorcode: #{faultcode}")
+			print_error("[SAP] Error code: #{faultcode}")
 			return
 		else
 			print_error("[SAP] failed to identify version")

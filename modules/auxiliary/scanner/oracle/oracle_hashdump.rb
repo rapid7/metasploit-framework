@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module dumps the usernames and password hashes
-					from Oracle given the propper Credentials and SID.
+					from Oracle given the proper Credentials and SID.
 					These are then stored as loot for later cracking.				
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 				
 			end
 		rescue => e
-			print_error("An error occured. The supplied credentials may not have propper privs")
+			print_error("An error occured. The supplied credentials may not have proper privs")
 			return
 		end
 		print_status("Hash table :\n #{tbl}")

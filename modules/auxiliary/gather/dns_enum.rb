@@ -480,7 +480,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(datastore['ENUM_BRT'])
 			if wldcrd & datastore['STOP_WLDCRD']
-				print_status("Wilcard Record Found!")
+				print_status("Wildcard Record Found!")
 			else
 				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
 			end
@@ -488,7 +488,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(datastore['ENUM_IP6'])
 			if wldcrd & datastore['STOP_WLDCRD']
-				print_status("Wilcard Record Found!")
+				print_status("Wildcard Record Found!")
 			else
 				bruteipv6(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
 			end

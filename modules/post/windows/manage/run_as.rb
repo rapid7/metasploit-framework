@@ -146,8 +146,8 @@ class Metasploit3 < Msf::Post
 					"CREATE_NEW_CONSOLE", nil, nil, startinfo, 16)
 			end
 		else
-			print_error("Insuficient Privileges, either you are not Admin or system or you elevated")
-			print_error("privs to system and do not have sufficent Priveldges. If you elevated to")
+			print_error("Insufficient Privileges, either you are not Admin or system or you elevated")
+			print_error("privs to system and do not have sufficient privileges. If you elevated to")
 			print_error("system, migrate to a process that was started as system (srvhost.exe)")
 			return 0
 		end

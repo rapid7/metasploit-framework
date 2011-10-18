@@ -348,7 +348,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		#get creds from credential store
-		print_status("Looking in the Credential Store for HTTP Authenication Creds...")
+		print_status("Looking in the Credential Store for HTTP Authentication Creds...")
 		#get data from credential store
 		ret = rg.advapi32.CredEnumerateA(nil,0,4,4)
 		p_to_arr = ret["Credentials"].unpack("V")

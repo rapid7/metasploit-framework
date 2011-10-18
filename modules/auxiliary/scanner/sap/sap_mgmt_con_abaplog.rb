@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 			store_loot("sap.abap.syslog", "text/xml", rhost, res.body, "sap_abap_syslog.xml", "SAP ABAP syslog")
 
 		elsif fault
-			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
 		else
 			print_error("#{rhost}:#{rport} [SAP] failed to access ABAPSyslog")

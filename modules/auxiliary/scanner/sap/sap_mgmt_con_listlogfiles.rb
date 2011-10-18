@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 			return
 
 		elsif fault
-			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
 
 		else

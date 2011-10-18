@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect_udp
 
 		if res[0] =~ /HELLO/
-			print_error("DoS attempt failed.  It apperas target is still up.")
+			print_error("DoS attempt failed.  It appears target is still up.")
 		else
 			print_good("Target is down")
 		end

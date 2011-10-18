@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'Lotus Domino Password Hash Collector',
 			'Version'        => '$Revision$',
-			'Description'    => 'Get users passwords hashs from names.nsf page',
+			'Description'    => 'Get users passwords hashes from names.nsf page',
 			'Author'         => 'Tiago Ferreira <tiago.ccna[at]gmail.com>',
 			'License'        => MSF_LICENSE
 		)
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		$uri =  datastore['URI'].to_s
 
 		if (user.length == 0 and pass.length == 0)
-			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs without credentials")
+			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes without credentials")
 
 			begin
 				res = send_request_raw({
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 		else
-			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashs with given credentials")
+			print_status("http://#{vhost}:#{rport} - Lotus Domino - Trying dump password hashes with given credentials")
 			do_login(user, pass)
 
 		end
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 					return :abort
 				end
 				print_good("http://#{vhost}:#{rport} - Lotus Domino - SUCCESSFUL authentication for '#{user}'")
-				print_status("http://#{vhost}:#{rport} - Lotus Domino - Getting password hashs")
+				print_status("http://#{vhost}:#{rport} - Lotus Domino - Getting password hashes")
 				get_views(cookie,$uri)
 
 			elsif (res and res.body.to_s =~ /names.nsf\?Login/)

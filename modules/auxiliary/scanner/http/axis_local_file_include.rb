@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				get_credentials(new_uri)
 
 			else
-				print_status("#{target_url} - Apache Axis - The remote page not acessible")
+				print_status("#{target_url} - Apache Axis - The remote page not accessible")
 				return
 
 			end

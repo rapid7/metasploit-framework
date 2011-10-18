@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Auxiliary
 				AND profile         = 'DEFAULT'
 			|
 			passreusemax = prepare_exec(query)
-			print_status("\tThe Maximun Number of Times a Password needs to be changed before it can be reused is set to #{passreusemax[0].chomp}")
+			print_status("\tThe Maximum Number of Times a Password needs to be changed before it can be reused is set to #{passreusemax[0].chomp}")
 			report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'TNS', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Password Maximun Reuse Time: #{passreusemax[0].chomp}")
 			print_status("\tThe Number of Times a Password can be reused is set to #{passreuse[0].chomp}")
 
