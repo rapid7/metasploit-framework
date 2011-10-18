@@ -1131,7 +1131,7 @@ module Text
 	# Punycode would have been more "standard", but it requires valid Unicode chars
 	#
 	def self.unicode_filter_encode(str)
-		if (str.unpack("C*") & ( LowAscii + HighAscii + "\x7f" ).unpack("C*")).length > 0
+		if (str.to_s.unpack("C*") & ( LowAscii + HighAscii + "\x7f" ).unpack("C*")).length > 0
 			str = "$U$" + str.unpack("C*").select{|c| c < 0x7f and c > 0x1f and c != 0x2d}.pack("C*") + "-0x" + str.unpack("H*")[0]
 		else
 			str
@@ -1139,7 +1139,7 @@ module Text
 	end
 
 	def self.unicode_filter_decode(str)
-		str.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/ ){|m| [$2].pack("H*") }
+		str.to_s.gsub( /\$U\$([\x20-\x2c\x2e-\x7E]*)\-0x([A-Fa-f0-9]+)/ ){|m| [$2].pack("H*") }
 	end
 
 protected
