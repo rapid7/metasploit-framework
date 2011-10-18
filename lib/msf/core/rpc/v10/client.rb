@@ -18,7 +18,7 @@ class Client
 		self.info = {
 			:host => '127.0.0.1',
 			:port => 3790,
-			:uri  => '/api',
+			:uri  => '/api/',
 			:ssl  => true,
 			:ssl_version => 'SSLv3',
 			:context     => {}
