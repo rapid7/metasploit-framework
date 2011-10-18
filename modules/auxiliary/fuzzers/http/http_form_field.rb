@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'HTTP Form field fuzzer',
+			'Name'           => 'HTTP Form Field Fuzzer',
 			'Description'    => %q{
 						This module will grab all fields from a form,
 						and launch a series of POST actions, fuzzing the contents
