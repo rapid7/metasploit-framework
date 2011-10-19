@@ -1,0 +1,101 @@
+##
+# $Id$
+##
+
+##
+# ## This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+require 'rex'
+
+require 'msf/core/post/common'
+require 'msf/core/post/file'
+
+class Metasploit3 < Msf::Post
+
+	include Msf::Post::Common
+	include Msf::Post::File
+
+	def initialize(info={})
+		super( update_info( info,
+				'Name'          => 'Multi Manage Post Module Macro Execition',
+				'Description'   => %q{
+						This module will execute a list of modules given in a macro file in the format
+						of <module> <opt=val,opt=val> against the select session checking for compatibility
+						of the module against the sessions and validation of the options provided.
+				},
+				'License'       => MSF_LICENSE,
+				'Author'        => [ 'carlos_perez[at]darkoperator.com>'],
+				'Version'       => '$Revision$',
+				'Platform'      => [ 'windows', 'unix', 'osx', 'linux', 'solaris' ],
+				'SessionTypes'  => [ 'meterpreter','shell' ]
+			))
+		register_options(
+			[
+
+				OptString.new('MACRO', [false, 'File with Post Modules and Options to run in the session', nil])
+
+			], self.class)
+	end
+
+	# Run Method for when run command is issued
+	def run
+		# syinfo is only on meterpreter sessions
+		print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
+		macro = datastore['MACRO']
+		entries = []
+		if not ::File.exists?(script)
+			print_error "Resource File does not exists!"
+			return
+		else
+			::File.open(datastore['MACRO'], "rb").each_line do |line|
+				# Empty line
+				next if line.strip.length < 1
+				# Comment
+				next if line[0,1] == "#"
+				entries << line.chomp
+			end
+		end
+
+		if entries
+			entries.each do |l|
+				values = l.split(" ")
+				post_mod = values[0]
+				if values.length == 2
+					mod_opts = values[1].split(",")
+				end
+				print_line("Loading #{post_mod}")
+				m= framework.post.create(post_mod)
+
+				# Set the current session
+				s = session.sid
+
+				if m.session_compatible?(s.to_i)
+					print_line("Running Against #{s}")
+					m.datastore['SESSION'] = s
+					if mod_opts
+						mod_opts.each do |o|
+							opt_pair = o.split("=",2)
+							print_line("\tSetting Option #{opt_pair[0]} to #{opt_pair[1]}")
+							m.datastore[opt_pair[0]] = opt_pair[1]
+						end
+					end
+					m.options.validate(m.datastore)
+					m.run_simple(
+						'LocalInput'    => self.user_input,
+						'LocalOutput'    => self.user_output
+					)
+				else
+					print_error("Session #{s} is not compatible with #{post_mod}")
+				end
+
+			end
+			else
+				print_error("Resource file was empty!")
+			end
+	end
+end
