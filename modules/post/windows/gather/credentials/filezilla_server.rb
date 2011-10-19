@@ -225,7 +225,7 @@ class Metasploit3 < Msf::Post
 		else
 			settings['admin_bindip'] = "127.0.0.1"
 		end
-		if settings['admin_bindip'] = "*"
+		if settings['admin_bindip'] == "*"
 			settings['admin_bindip'] = "0.0.0.0"
 		end
 		
