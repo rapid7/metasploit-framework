@@ -62,6 +62,7 @@ class Metasploit3 < Msf::Post
 				thread_num = 10
 			end
 
+			ip_found = []
 			
 			iplst.each do |ip|
 				# Set count option for ping command
@@ -76,16 +77,13 @@ class Metasploit3 < Msf::Post
 					count = " -c 1 #{ip}"
 					cmd = "/bin/ping"
 				end
-				#puts "#{cmd} #{count}"
+
 				if i <= thread_num
 					a.push(::Thread.new {
 							r = cmd_exec(cmd, count)
 							if r =~ /(TTL|Alive)/i
-								print_status "\t#{ip} host found"
-								report_host({
-										:host => ip,
-										:comm => "Discovered thru post ping sweep"
-									})
+								print_status "\t#{ip.inspect} host found"
+								ip_found << ip
 							else
 								vprint_status("\t#{ip} host not found")
 							end
@@ -102,6 +100,9 @@ class Metasploit3 < Msf::Post
 		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 			
+		end
+		ip_found.each do |i|
+			report_host(:host => i)
 		end
 	end
 end
