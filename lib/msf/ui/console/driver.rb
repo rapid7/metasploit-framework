@@ -5,6 +5,7 @@ require 'msf/ui/console/framework_event_manager'
 require 'msf/ui/console/command_dispatcher'
 require 'msf/ui/console/table'
 require 'find'
+require 'erb'
 
 module Msf
 module Ui
@@ -274,16 +275,22 @@ class Driver < Msf::Ui::Driver
 	def load_resource(path=nil)
 		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
 		return if not ::File.readable?(path)
+		resource_file = ::File.read(path)
+		
+		# Process ERB directives first
+		print_status "Processing #{path} for ERB directives."		
+		erb = ERB.new(resource_file)
+		processed_resource = erb.result(binding)
 
-		lines = ::File.readlines(path)
-
-
+		lines = processed_resource.each_line.to_a
 		while lines.length > 0
+			
 			line = lines.shift
 			break if not line
 			line.strip!
 			next if line.length == 0
 			next if line =~ /^#/
+	
 			if line =~ /<ruby>/
 				buff = ''
 				while lines.length > 0
@@ -301,20 +308,6 @@ class Driver < Msf::Ui::Driver
 					rescue ::Exception => e
 						print_error("resource (#{path})> Ruby Error: #{e.class} #{e} #{e.backtrace}")
 					end
-				end
-			elsif line =~ /\$.*\$/
-				# this is a variable we need to subs line
-				var_with_delimiters = $&
-				var = var_with_delimiters.gsub("$","")
-				replacement = ENV["#{var}"]
-				
-				if replacement 
-					print_line("Replacing... #{var} with #{replacement} in ")				
-					line = line.gsub!(var_with_delimiters,replacement)
-					print_line("resource (#{path})> #{line}")
-					run_single(line)
-				else
-					print_error "No environment variable: #{variable} defined."
 				end
 			else
 				print_line("resource (#{path})> #{line}")
