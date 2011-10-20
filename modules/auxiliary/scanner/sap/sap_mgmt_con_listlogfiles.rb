@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
@@ -58,7 +58,11 @@ class Metasploit3 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		listfiles(ip)
 	end
@@ -143,6 +147,7 @@ class Metasploit3 < Msf::Auxiliary
 				"Size",
 				"Timestamp"
 			])
+
 			store_loot(
 				"sap.#{datastore['FILETYPE'].downcase}file",
 				"text/xml",

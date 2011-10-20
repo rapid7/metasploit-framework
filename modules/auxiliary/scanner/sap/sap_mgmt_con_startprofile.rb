@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
@@ -55,7 +55,11 @@ class Metasploit3 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		getStartProfile(ip)
 	end
@@ -132,10 +136,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		if success
 			print_good("#{rhost}:#{rport} [SAP] Startup Profile Extracted: #{name}")
-			store_loot("sap.profile", "text/xml", rhost, res.body, "sap_profile.xml", "SAP Profile XML")
+			store_loot(
+				"sap.profile",
+				"text/xml",
+				rhost,
+				res.body,
+				"sap_profile.xml",
+				"SAP Profile XML"
+			)
 
 			env.each do |output|
-				print_status("#{output}")
+				print_status("#{output[0]}")
 			end
 
 			

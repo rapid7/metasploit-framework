@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
@@ -50,7 +50,11 @@ class Metasploit3 < Msf::Auxiliary
 			'method'  => 'GET',
 			'headers' => {'User-Agent' => datastore['UserAgent']}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		extractabap(ip)
 	end
@@ -109,7 +113,14 @@ class Metasploit3 < Msf::Auxiliary
 		if success
 			print_status("#{rhost}:#{rport} [SAP] ABAP syslog downloading")
 			print_status("#{rhost}:#{rport} [SAP] Storing looted SAP ABAP syslog XML file")
-			store_loot("sap.abap.syslog", "text/xml", rhost, res.body, "sap_abap_syslog.xml", "SAP ABAP syslog")
+			store_loot(
+				"sap.abap.syslog",
+				"text/xml",
+				rhost,
+				res.body,
+				"sap_abap_syslog.xml",
+				"SAP ABAP syslog"
+			)
 
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")

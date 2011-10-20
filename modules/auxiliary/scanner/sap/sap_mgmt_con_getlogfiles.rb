@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
@@ -60,7 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		gettfiles(ip)
 	end
@@ -143,10 +147,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		if success
 			print_good("#{rhost}:#{rport} [SAP] #{datastore['FILETYPE'].downcase}:#{datastore['RFILE'].downcase} looted")
+			addr = Rex::Socket.getaddress(rhost) # Convert rhost to ip for DB
 			store_loot(
 				"sap.#{datastore['FILETYPE'].downcase}file",
 				"text/xml",
-				rhost,
+				addr,
 				res.body,
 				"sap_#{datastore['RFILE'].downcase}.xml",
 				"SAP Get Logfile"
