@@ -57,9 +57,9 @@ public class MsgRpc extends RpcConnection {
 				});
 			} catch (Exception e) {
 			}
-			u = new URL("https",host,port,"/api");
+			u = new URL("https",host,port,"/api/1.0");
 		}else{
-			u = new URL("http",host,port,"/api");
+			u = new URL("http",host,port,"/api/1.0");
 		}
 	}
 
