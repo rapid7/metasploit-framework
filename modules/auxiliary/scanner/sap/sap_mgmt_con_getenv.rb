@@ -56,7 +56,11 @@ class Metasploit4 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		getEnvironment(ip)
 	end
@@ -134,11 +138,11 @@ class Metasploit4 < Msf::Auxiliary
 			)
 	
 			env.each do |output|
-				print_status("#{output}")
+				print_status("#{output[0]}")
 			end
 	
 		elsif fault
-			print_error("#{rhost}:#{rport} [SAP] Errorcode: #{faultcode}")
+			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
 		else
 			print_error("#{rhost}:#{rport} [SAP] failed to request environment")

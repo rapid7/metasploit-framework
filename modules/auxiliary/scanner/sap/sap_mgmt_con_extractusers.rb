@@ -140,7 +140,7 @@ class Metasploit4 < Msf::Auxiliary
 			)
 	
 			users.each do |output|
-				print_good("#{rhost}:#{rport} [SAP] Extracted User: #{output}")
+				print_good("#{rhost}:#{rport} [SAP] Extracted User: #{output[0]}")
 			end	
 			return
 		elsif fault

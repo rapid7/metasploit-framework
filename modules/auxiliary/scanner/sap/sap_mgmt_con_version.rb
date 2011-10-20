@@ -55,7 +55,11 @@ class Metasploit4 < Msf::Auxiliary
 					'User-Agent' => datastore['UserAgent']
 				}
 		}, 25)
-		return if not res
+
+		if not res
+			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
+			return
+		end
 
 		enum_version(ip)
 	end
@@ -124,16 +128,22 @@ class Metasploit4 < Msf::Auxiliary
 			print_good("[SAP] Version Number Extracted - #{rhost}:#{rport}")
 			print_good("[SAP] Version: #{version}")
 			print_good("[SAP] SID: #{sapsid.upcase}")
-			report_note(:host => "#{rhost}",
+
+			report_note(
+				:host => "#{rhost}",
 				:proto => 'SOAP',
 				:port => "#{rport}",
 				:type => 'SAP Version',
-				:data => "SAP Version: #{version}")
-			report_note(:host => "#{rhost}",
-					:proto => 'SOAP',
-					:port => "#{rport}",
-					:type => 'SAP SID',
-					:data => "SAP SID: #{sapsid.upcase}")
+				:data => "SAP Version: #{version}"
+			)
+
+			report_note(
+				:host => "#{rhost}",
+				:proto => 'SOAP',
+				:port => "#{rport}",
+				:type => 'SAP SID',
+				:data => "SAP SID: #{sapsid.upcase}"
+			)
 
 			return
 		elsif fault
