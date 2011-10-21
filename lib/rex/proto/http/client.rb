@@ -288,7 +288,7 @@ class Client
 	#
 	# Connects to the remote server if possible.
 	#
-	def connect
+	def connect(t = -1)
 		# If we already have a connection and we aren't pipelining, close it.
 		if (self.conn)
 			if !pipelining?
@@ -298,6 +298,8 @@ class Client
 			end
 		end
 
+		timeout = (t.nil? or t == -1) ? 0 : t
+
 		self.conn = Rex::Socket::Tcp.create(
 			'PeerHost'  => self.hostname,
 			'PeerPort'  => self.port.to_i,
@@ -306,7 +308,8 @@ class Client
 			'Context'   => self.context,
 			'SSL'       => self.ssl,
 			'SSLVersion'=> self.ssl_version,
-			'Proxies'   => self.proxies
+			'Proxies'   => self.proxies,
+			'Timeout'   => timeout
 		)
 	end
 
@@ -329,7 +332,7 @@ class Client
 	#
 	def send_recv(req, t = -1, persist=false)
 		@pipeline = persist
-		send_request(req)
+		send_request(req, t)
 		res = read_response(t)
 		res.request = req.to_s if res
 		res
@@ -338,8 +341,8 @@ class Client
 	#
 	# Send an HTTP request to the server
 	#
-	def send_request(req)
-		connect
+	def send_request(req, t = -1)
+		connect(t)
 		conn.put(req.to_s)
 	end
 
