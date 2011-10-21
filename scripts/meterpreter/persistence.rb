@@ -135,7 +135,7 @@ def set_handler(selected_payload,rhost,rport)
 		'Payload'        => mul.datastore['PAYLOAD'],
 		'RunAsJob'       => true
 	)
-	print_good("Multi/Handler starterd!")
+	print_good("Multi/Handler started!")
 end
 
 # Function to execute script on target and return the PID of the process
