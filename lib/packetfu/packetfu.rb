@@ -50,7 +50,8 @@ module PacketFu
 	pcaprub_platform_require
 
 	if @pcaprub_loaded
-		if Pcap.version !~ /[0-9]\.[7-9][0-9]?(-dev)?/ # Regex for 0.7-dev and beyond.
+		pcaprub_regex = /[0-9]\.([8-9]|[1-7][0-9])(-dev)?/ # Regex for 0.8 and beyond.
+		if Pcap.version !~ pcaprub_regex 
 			@pcaprub_loaded = false # Don't bother with broken versions
 			raise LoadError, "PcapRub not at a minimum version of 0.8-dev"
 		end
