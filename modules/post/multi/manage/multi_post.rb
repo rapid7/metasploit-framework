@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Multi Manage Post Module Macro Execition',
+				'Name'          => 'Multi Manage Post Module Macro Execution',
 				'Description'   => %q{
 						This module will execute a list of modules given in a macro file in the format
 						of <module> <opt=val,opt=val> against the select session checking for compatibility
