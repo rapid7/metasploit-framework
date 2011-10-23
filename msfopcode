@@ -235,8 +235,8 @@ case cmd
 							"0x%.8x" % seg.base_address,
 							seg.size.to_s,
 							(((seg.readable == true) ? "r" : "") +
-							 ((seg.writable == true) ? "w" : "") +
-							 ((seg.executable == true) ? "x" : ""))
+								((seg.writable == true) ? "w" : "") +
+								((seg.executable == true) ? "x" : ""))
 						]
 					}
 

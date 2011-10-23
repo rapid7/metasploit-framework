@@ -63,10 +63,10 @@ $stderr.puts "[*] Please wait while we load the module tree..."
 $framework = Msf::Simple::Framework.create
 
 if ($framework.modules.failed.length > 0)
-  print("Warning: The following modules could not be loaded!\n\n")
-  $framework.modules.failed.each_pair do |file, err|
-    print("\t#{file}: #{err}\n\n")
-  end
+	print("Warning: The following modules could not be loaded!\n\n")
+	$framework.modules.failed.each_pair do |file, err|
+		print("\t#{file}: #{err}\n\n")
+	end
 end
 
 if (not exploit_name)
@@ -228,19 +228,19 @@ case mode.downcase
 			con = Msf::Ui::Console::Driver.new(
 				Msf::Ui::Console::Driver::DefaultPrompt,
 				Msf::Ui::Console::Driver::DefaultPromptChar,
-				{ 
+				{
 					'Framework' => $framework
 				}
 			)
 			con.run_single("use #{module_class}/#{exploit.refname}")
-			
+
 			ARGV.each do |arg|
 				k,v = arg.split("=", 2)
 				con.run_single("set #{k} #{v}")
 			end
 
 			con.run_single("exploit")
-			
+
 			# If we have sessions or jobs, keep running
 			if $framework.sessions.length > 0 or $framework.jobs.length > 0
 				con.run

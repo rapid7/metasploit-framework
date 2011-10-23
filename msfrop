@@ -164,5 +164,5 @@ if opts[:export]
 		puts "Error writing #{opts[:export]} file"
 		exit(1)
 	end
-	 ropbuilder.print_msg("%bld%redSuccess!%clr gadgets exported to %bld%cya#{opts[:export]}%clr\n", color)
+	ropbuilder.print_msg("%bld%redSuccess!%clr gadgets exported to %bld%cya#{opts[:export]}%clr\n", color)
 end
