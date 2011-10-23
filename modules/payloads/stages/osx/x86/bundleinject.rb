@@ -19,6 +19,7 @@ require 'msf/core/payload/osx/bundleinject'
 ###
 module Metasploit3
 
+	# $Revision$
 	include Msf::Payload::Osx::BundleInject
 
 end

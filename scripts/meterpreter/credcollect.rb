@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 # credcollect - tebo[at]attackresearch.com
 
 opts = Rex::Parser::Arguments.new(

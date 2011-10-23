@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 #
-# $Id:$
-# $Revision:$
+# $Id$
+# $Revision$
 #
-# This small utility will display all the informations about the network interfaces 
+# This small utility will display all the informations about the network interfaces
 # that one can use under Windows with modules using pcaprub and having the INTERFACE option (ex: arp_poisonning, arp_sweep, ...).
 # To use th interface option under  Windows use the Index value displayed by this tool (ex: "SET INTERFACE 1")
 #
@@ -19,14 +19,14 @@ if RUBY_PLATFORM == "i386-mingw32"
 			Pcap.respond_to?(:interfaces) and
 			Pcap.respond_to?(:addresses))
 		$stderr.puts "Error: Looks like you are not running the latest version of pcaprub"
-		exit			
+		exit
 	end
 	found = false
 	Pcap.interfaces.each_with_index do |iface, i|
 		found = true
 		detail = Pcap.interface_info(iface)
 		addr = Pcap.addresses(iface)
-		puts "#" * 70 
+		puts "#" * 70
 		puts ""
 		puts "INDEX        :  " + (i + 1).to_s
 		puts "NAME         :  " + detail["name"]

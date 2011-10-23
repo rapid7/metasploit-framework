@@ -89,8 +89,7 @@ def print_log_details
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => "Event Logs on System",
 		'Indent'  => 1,
-		'Columns' =>
-		  [
+		'Columns' => [
 			"Name",
 			"Retention",
 			"Maximum Size",

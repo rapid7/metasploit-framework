@@ -566,44 +566,44 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 		end
 
-        #
-        # Nexpose vuln lookup
-        #
-        def nexpose_vuln_lookup(doc, vid, refs, host, serv=nil)
-            doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
-
-                title = vulndef.attributes['title']
-                pciSeverity = vulndef.attributes['pciSeverity']
-                cvss_score = vulndef.attributes['cvssScore']
-                cvss_vector = vulndef.attributes['cvssVector']
-
-                vulndef.elements['references'].elements.each('reference') do |ref|
-                    if ref.attributes['source'] == 'BID'
-                        refs[ 'BID-' + ref.text ] = true
-                    elsif ref.attributes['source'] == 'CVE'
-                        # ref.text is CVE-$ID
-                        refs[ ref.text ] = true
-                    elsif ref.attributes['source'] == 'MS'
-                        refs[ 'MSB-MS-' + ref.text ] = true
-                    end
-                end
-
-                refs[ 'NEXPOSE-' + vid.downcase ] = true
-
-                vuln = framework.db.find_or_create_vuln(
+		#
+		# Nexpose vuln lookup
+		#
+		def nexpose_vuln_lookup(doc, vid, refs, host, serv=nil)
+			doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
+				
+				title = vulndef.attributes['title']
+				pciSeverity = vulndef.attributes['pciSeverity']
+				cvss_score = vulndef.attributes['cvssScore']
+				cvss_vector = vulndef.attributes['cvssVector']
+				
+				vulndef.elements['references'].elements.each('reference') do |ref|
+					if ref.attributes['source'] == 'BID'
+						refs[ 'BID-' + ref.text ] = true
+					elsif ref.attributes['source'] == 'CVE'
+						# ref.text is CVE-$ID
+						refs[ ref.text ] = true
+					elsif ref.attributes['source'] == 'MS'
+						refs[ 'MSB-MS-' + ref.text ] = true
+					end
+				end
+				
+				refs[ 'NEXPOSE-' + vid.downcase ] = true
+				
+				vuln = framework.db.find_or_create_vuln(
 					:host => host,
 					:service => serv,
 					:name => 'NEXPOSE-' + vid.downcase,
 					:data => title)
-
-                rids = []
-                refs.keys.each do |r|
-                    rids << framework.db.find_or_create_ref(:name => r)
-                end
-
-                vuln.refs << (rids - vuln.refs)
-            end
-        end
+				
+				rids = []
+				refs.keys.each do |r|
+					rids << framework.db.find_or_create_ref(:name => r)
+				end
+				
+				vuln.refs << (rids - vuln.refs)
+			end
+		end
 
 	end
 

@@ -68,7 +68,7 @@ $args.parse(ARGV) { |opt, idx, val|
 	end
 }
 
-if not type 
+if not type
 	usage
 else
 	if pass and (not (hash or list))
@@ -77,20 +77,20 @@ else
 		mode = PASS_MODE
 	elsif list and hash and not pass
 		mode = BRUTE_MODE
-		if not File.exist? list 
-			$stderr.puts "[*] The passwords list file does not exist"			
+		if not File.exist? list
+			$stderr.puts "[*] The passwords list file does not exist"
 			exit
 		end
-		if not File.file? list 
-			$stderr.puts "[*] The passwords list provided is not a file"			
+		if not File.file? list
+			$stderr.puts "[*] The passwords list provided is not a file"
 			exit
 		end
-		if not File.readable? list 
-			$stderr.puts "[*] The passwords list file is not readable"			
+		if not File.readable? list
+			$stderr.puts "[*] The passwords list file is not readable"
 			exit
 		end
 	else
-		usage	
+		usage
 	end
 end
 
@@ -112,8 +112,8 @@ elsif type == "NETNTLM2_SESSION"  then
 	end
 end
 
-case type  
-when "HALFLM"	
+case type
+when "HALFLM"
 	case mode
 	when BRUTE_MODE
 		if not hash =~ /^([a-fA-F0-9]{16})$/
@@ -122,18 +122,18 @@ when "HALFLM"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
-				if password =~ /^.{1,7}$/	
+				if password =~ /^.{1,7}$/
 					puts password
-					calculatedhash = CRYPT::lm_hash(password,true).unpack("H*")[0].upcase	
+					calculatedhash = CRYPT::lm_hash(password,true).unpack("H*")[0].upcase
 					if calculatedhash == hash.upcase
 						found = true
 						match_password = password
 						break
 					end
-				end	
+				end
 			end
 		end
 		if found
@@ -170,7 +170,7 @@ when "HALFLM"
 		end
 	end
 
-when "LM"	
+when "LM"
 	case mode
 	when BRUTE_MODE
 		if not hash =~ /^([a-fA-F0-9]{32})$/
@@ -179,7 +179,7 @@ when "LM"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,14}$/
@@ -190,7 +190,7 @@ when "LM"
 						match_password = password
 						break
 					end
-				end	
+				end
 			end
 		end
 		if found
@@ -236,7 +236,7 @@ when "NTLM"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
@@ -245,7 +245,7 @@ when "NTLM"
 					found = true
 					match_password = password
 					break
-				end	
+				end
 			end
 		end
 		if found
@@ -290,7 +290,7 @@ when  "HALFNETLMv1"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,7}$/
@@ -304,7 +304,7 @@ when  "HALFNETLMv1"
 						match_password = password
 						break
 					end
-				end	
+				end
 			end
 		end
 		if found
@@ -380,7 +380,7 @@ when  "NETLMv1"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				if password =~ /^.{1,14}$/
@@ -392,7 +392,7 @@ when  "NETLMv1"
 						found = true
 						match_password = password
 						break
-					end	
+					end
 				end
 			end
 		end
@@ -404,7 +404,7 @@ when  "NETLMv1"
 			exit
 		end
 	when HASH_MODE
-		if not pass =~ /^.{1,14}$/ 
+		if not pass =~ /^.{1,14}$/
 			$stderr.puts "[*] NETLMv1 password can not be bigger then 14 characters"
 			exit
 		end
@@ -423,7 +423,7 @@ when  "NETLMv1"
 		puts "[*] The NETLMv1 hash for #{pass.upcase} is  : #{calculatedhash}"
 		exit
 	when PASS_MODE
-		if not pass =~ /^.{1,14}$/ 
+		if not pass =~ /^.{1,14}$/
 			$stderr.puts "[*] NETLMv1 password can not be bigger then 14 characters"
 			exit
 		end
@@ -468,18 +468,18 @@ when "NETNTLMv1"
 		end
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 			password = line.gsub("\r\n",'').gsub("\n",'')
 			puts password
-			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password), 
+			argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password),
 					:challenge => [ srvchal ].pack("H*") }
 			calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
 				if calculatedhash == hash.upcase
 					found = true
 					match_password = password
 					break
-				end	
+				end
 			end
 		end
 		if found
@@ -498,7 +498,7 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 		calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
 		puts "[*] The NETNTLMv1 hash for #{pass} is  : #{calculatedhash}"
@@ -516,7 +516,7 @@ when "NETNTLMv1"
 			$stderr.puts "[*] Server challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 
 		calculatedhash = CRYPT::ntlm_response(argntlm).unpack("H*")[0].upcase
@@ -554,21 +554,21 @@ when  "NETNTLM2_SESSION"
 
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
-				argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password), 
+				argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(password),
 						:challenge => [ srvchal ].pack("H*") }
 				optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
 				calculatedhash = CRYPT::ntlm2_session(argntlm,optntlm).join[24,24].unpack("H*")[0].upcase
-		
+
 				if calculatedhash == hash.upcase
 					found = true
 					match_password = password
 					break
-				end	
+				end
 			end
 		end
 		if found
@@ -595,7 +595,7 @@ when  "NETNTLM2_SESSION"
 			$stderr.puts "[*] Client challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
@@ -623,7 +623,7 @@ when  "NETNTLM2_SESSION"
 			$stderr.puts "[*] Client challenge must be exactly 16 bytes of hexadecimal"
 			exit
 		end
-		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass), 
+		argntlm = { 	:ntlm_hash =>  CRYPT::ntlm_hash(pass),
 				:challenge => [ srvchal ].pack("H*") }
 		optntlm = {	:client_challenge => [ clichal ].pack("H*")}
 
@@ -671,7 +671,7 @@ when  "NETLMv2"
 
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
@@ -683,7 +683,7 @@ when  "NETLMv2"
 					found = true
 					match_password = password
 					break
-				end	
+				end
 			end
 		end
 		if found
@@ -802,7 +802,7 @@ when "NETNTLMv2"
 
 		found = false
 		match_password = nil
-		File.open(list,"r") do |password_list|
+		File.open(list,"rb") do |password_list|
 			password_list.each_line do |line|
 				password = line.gsub("\r\n",'').gsub("\n",'')
 				puts password
@@ -815,7 +815,7 @@ when "NETNTLMv2"
 					found = true
 					match_password = password
 					break
-				end	
+				end
 			end
 		end
 		if found

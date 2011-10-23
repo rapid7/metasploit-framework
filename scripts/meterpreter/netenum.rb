@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 #
 #Meterpreter script for ping sweeps on Windows 2003, Windows Vista
 #Windows 2008 and Windows XP targets using native windows commands.
@@ -7,16 +8,15 @@
 #Note:
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
-  "-h"  => [ false,  "Help menu."],
-  "-r"  => [ true,  "The target address range or CIDR identifier"],
-  "-ps" => [ false,  "To Perform Ping Sweep on IP Range"],
-  "-rl" => [ false,  "To Perform DNS Reverse Lookup on IP Range"],
-  "-fl" => [ false,  "To Perform DNS Forward Lookup on host list and domain"],
-  "-hl" => [ true,  "File with Host List for DNS Forward Lookup"],
-  "-d"  => [ true,  "Domain Name for DNS Forward Lookup"],
-  "-st" => [ false,  "To Perform DNS lookup of MX and NS records for a domain"],
-  "-sr" => [ false,  "To Perform Service Record DNS lookup for a domain"]
-
+	"-h"  => [ false,  "Help menu."],
+	"-r"  => [ true,  "The target address range or CIDR identifier"],
+	"-ps" => [ false,  "To Perform Ping Sweep on IP Range"],
+	"-rl" => [ false,  "To Perform DNS Reverse Lookup on IP Range"],
+	"-fl" => [ false,  "To Perform DNS Forward Lookup on host list and domain"],
+	"-hl" => [ true,  "File with Host List for DNS Forward Lookup"],
+	"-d"  => [ true,  "Domain Name for DNS Forward Lookup"],
+	"-st" => [ false,  "To Perform DNS lookup of MX and NS records for a domain"],
+	"-sr" => [ false,  "To Perform Service Record DNS lookup for a domain"]
 )
 session = client
 host,port = session.tunnel_peer.split(':')
@@ -44,15 +44,15 @@ def stdlookup(session,domain,dest)
 	results = []
 	garbage = []
 	types.each do |t|
-	begin
-		r = session.sys.process.execute("nslookup -type=#{t} #{domain}", nil, {'Hidden' => true, 'Channelized' => true})
-		while(d = r.channel.read)
-			mxout << d
-		end
-		r.channel.close
-		r.close
-		results = mxout.join.split(/\n/)
-		results.each do |rec|
+		begin
+			r = session.sys.process.execute("nslookup -type=#{t} #{domain}", nil, {'Hidden' => true, 'Channelized' => true})
+			while(d = r.channel.read)
+				mxout << d
+			end
+			r.channel.close
+			r.close
+			results = mxout.join.split(/\n/)
+			results.each do |rec|
 				if  rec.match(/\s*internet\saddress\s\=\s/)
 					garbage << rec.split(/\s*internet\saddress\s\=/)
 					print_status("#{garbage[0].join.sub(" ","   ")} #{t} ")
@@ -60,13 +60,14 @@ def stdlookup(session,domain,dest)
 					garbage.clear
 				end
 				garbage.clear
+			end
+			
+		rescue ::Exception => e
+			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
-
-	rescue ::Exception => e
-    		print_status("The following Error was encountered: #{e.class} #{e}")
-	end
 	end
 end
+
 #-------------------------------------------------------------------------------
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
@@ -76,6 +77,7 @@ def filewrt(file2wrt, data2wrt)
 	end
 	output.close
 end
+
 #-------------------------------------------------------------------------------
 # Function for Executing Reverse lookups
 def reverselookup(session,iprange,dest)
@@ -86,49 +88,50 @@ def reverselookup(session,iprange,dest)
 	i, a = 0, []
 	begin
 		ipadd = Rex::Socket::RangeWalker.new(iprange)
-				numip = ipadd.num_ips
-				while (iplst.length < numip)
-					ipa = ipadd.next_ip
-		      			if (not ipa)
-		        			break
-		      			end
-					iplst << ipa
-				end
+		numip = ipadd.num_ips
+		while (iplst.length < numip)
+			ipa = ipadd.next_ip
+			if (not ipa)
+				break
+			end
+			iplst << ipa
+		end
 		begin
-		    iplst.each do |ip|
-		      if i < 10
-		        a.push(::Thread.new {
-			  	r = session.sys.process.execute("nslookup #{ip}", nil, {'Hidden' => true, 'Channelized' => true})
-	        		while(d = r.channel.read)
-	         			if d =~ /(Name)/
-	            				d.scan(/Name:\s*\S*\s/) do |n|
-	              				hostname = n.split(":    ")
-	              				print_status "\t #{ip} is #{hostname[1].chomp("\n")}"
-	              				filewrt(dest,"#{ip} is #{hostname[1].chomp("\n")}")
-	            			end
-	            			break
-
-	          		end
-
-		        	end
-
-		        	r.channel.close
-		        	r.close
-
-		          })
-		        i += 1
-		      else
-		        sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-		        i = 0
-		      end
-		    end
-		    a.delete_if {|x| not x.alive?} while not a.empty?
-		  end
+			iplst.each do |ip|
+				if i < 10
+					a.push(::Thread.new {
+							r = session.sys.process.execute("nslookup #{ip}", nil, {'Hidden' => true, 'Channelized' => true})
+							while(d = r.channel.read)
+								if d =~ /(Name)/
+									d.scan(/Name:\s*\S*\s/) do |n|
+										hostname = n.split(":    ")
+										print_status "\t #{ip} is #{hostname[1].chomp("\n")}"
+										filewrt(dest,"#{ip} is #{hostname[1].chomp("\n")}")
+									end
+									break
+									
+								end
+								
+							end
+							
+							r.channel.close
+							r.close
+							
+						})
+					i += 1
+				else
+					sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+					i = 0
+				end
+			end
+			a.delete_if {|x| not x.alive?} while not a.empty?
+		end
 	rescue ::Exception => e
-    		print_status("The following Error was encountered: #{e.class} #{e}")
-
+		print_status("The following Error was encountered: #{e.class} #{e}")
+		
 	end
 end
+
 #-------------------------------------------------------------------------------
 #Function for Executing Forward Lookups
 def frwdlp(session,hostlst,domain,dest)
@@ -139,38 +142,39 @@ def frwdlp(session,hostlst,domain,dest)
 	threads = []
 	tmpout = []
 	begin
-	if ::File.exists?(hostlst)
-		::File.open(hostlst).each {|line|
-    			threads << ::Thread.new(line) { |h|
-    			#print_status("checking #{h.chomp}")
-		  	r = session.sys.process.execute("nslookup #{h.chomp}.#{domain}", nil, {'Hidden' => true, 'Channelized' => true})
-       		 	while(d = r.channel.read)
-          			if d =~ /(Name)/
-            				d.scan(/Name:\s*\S*\s*Address\w*:\s*.*?.*?.*/) do |n|
-            				tmpout << n.split
-            			end
-           			break
-          		end
-        end
-
-        r.channel.close
-        r.close
+		if ::File.exists?(hostlst)
+			::File.open(hostlst).each {|line|
+				threads << ::Thread.new(line) { |h|
+					#print_status("checking #{h.chomp}")
+					r = session.sys.process.execute("nslookup #{h.chomp}.#{domain}", nil, {'Hidden' => true, 'Channelized' => true})
+					while(d = r.channel.read)
+						if d =~ /(Name)/
+							d.scan(/Name:\s*\S*\s*Address\w*:\s*.*?.*?.*/) do |n|
+								tmpout << n.split
+							end
+							break
+						end
+					end
+					
+					r.channel.close
+					r.close
+				}
 			}
-		}
-	threads.each { |aThread|  aThread.join }
-	tmpout.uniq.each do |t|
-        	print_status("\t#{t.join.sub(/Address\w*:/, "\t")}")
-        	filewrt(dest,"#{t.join.sub(/Address\w*:/, "\t")}")
-        end
-
-	else
-		print_status("File #{hostlst}does not exists!")
-		exit
-	end
+			threads.each { |aThread|  aThread.join }
+			tmpout.uniq.each do |t|
+				print_status("\t#{t.join.sub(/Address\w*:/, "\t")}")
+				filewrt(dest,"#{t.join.sub(/Address\w*:/, "\t")}")
+			end
+			
+		else
+			print_status("File #{hostlst}does not exists!")
+			exit
+		end
 	rescue ::Exception => e
-    		print_status("The following Error was encountered: #{e.class} #{e}")
+		print_status("The following Error was encountered: #{e.class} #{e}")
 	end
 end
+
 #-------------------------------------------------------------------------------
 #Function for Executing Ping Sweep
 def pingsweep(session,iprange,dest)
@@ -184,42 +188,42 @@ def pingsweep(session,iprange,dest)
 		numip = ipadd.num_ips
 		while (iplst.length < numip)
 			ipa = ipadd.next_ip
-      			if (not ipa)
-        			break
-      			end
+			if (not ipa)
+				break
+			end
 			iplst << ipa
 		end
 		begin
-		    iplst.each do |ip|
-		      if i < 10
-		        a.push(::Thread.new {
-		          r = session.sys.process.execute("ping #{ip} -n 1", nil, {'Hidden' => true, 'Channelized' => true})
-		        	while(d = r.channel.read)
-		          		if d =~ /(Reply)/
-		            			print_status "\t#{ip} host found"
-		            			filewrt(dest,"#{ip} host found")
-		            			r.channel.close
-					elsif d =~ /(Antwort)/
-						print_status "\t#{ip} host found"
-						filewrt(dest,"#{ip} host found")
-						r.channel.close
-		          		end
-		        	end
-		        	r.channel.close
-		        	r.close
-
-		          })
-		        i += 1
-		      else
-		        sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-		        i = 0
-		      end
-		    end
-		    a.delete_if {|x| not x.alive?} while not a.empty?
-		  end
+			iplst.each do |ip|
+				if i < 10
+					a.push(::Thread.new {
+							r = session.sys.process.execute("ping #{ip} -n 1", nil, {'Hidden' => true, 'Channelized' => true})
+							while(d = r.channel.read)
+								if d =~ /(Reply)/
+									print_status "\t#{ip} host found"
+									filewrt(dest,"#{ip} host found")
+									r.channel.close
+								elsif d =~ /(Antwort)/
+									print_status "\t#{ip} host found"
+									filewrt(dest,"#{ip} host found")
+									r.channel.close
+								end
+							end
+							r.channel.close
+							r.close
+							
+						})
+					i += 1
+				else
+					sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+					i = 0
+				end
+			end
+			a.delete_if {|x| not x.alive?} while not a.empty?
+		end
 	rescue ::Exception => e
-    		print_status("The following Error was encountered: #{e.class} #{e}")
-
+		print_status("The following Error was encountered: #{e.class} #{e}")
+		
 	end
 end
 #-------------------------------------------------------------------------------
@@ -229,9 +233,10 @@ def srvreclkp(session,domain,dest)
 	srout = []
 	garbage = []
 	srvrcd = [
-	    "_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp.","_test._tcp.",
-	    "_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
-	    "_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp."]
+		"_gc._tcp.","_kerberos._tcp.", "_kerberos._udp.","_ldap._tcp.","_test._tcp.",
+		"_sips._tcp.","_sip._udp.","_sip._tcp.","_aix._tcp.","_aix._tcp.","_finger._tcp.",
+		"_ftp._tcp.","_http._tcp.","_nntp._tcp.","_telnet._tcp.","_whois._tcp."
+	]
 	print_status("Performing SRV Record Enumeration for #{domain}")
 	filewrt(dest,"SRV Record Enumeration for #{domain}")
 	srvrcd.each do |srv|
@@ -276,33 +281,33 @@ srvrc = nil
 # Parsing of Options
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-  when "-sr"
-    srvrc = 1
-  when "-rl"
-    rvrslkp = 1
-  when "-fl"
-    frdlkp = 1
-  when "-ps"
-    pngsp = 1
-  when "-st"
-  	stdlkp = 1
-  when "-d"
-    dom = val
-  when "-hl"
-    hostlist = val
-  when "-r"
-    range = val
-
-  when "-h"
-    print(
-      "Network Enumerator Meterpreter Script\n" +
-      "Usage:\n" +
-        @@exec_opts.usage
-    )
-    helpcall = 1
-  end
-
+	when "-sr"
+		srvrc = 1
+	when "-rl"
+		rvrslkp = 1
+	when "-fl"
+		frdlkp = 1
+	when "-ps"
+		pngsp = 1
+	when "-st"
+		stdlkp = 1
+	when "-d"
+		dom = val
+	when "-hl"
+		hostlist = val
+	when "-r"
+		range = val
+		
+	when "-h"
+		print(
+			"Network Enumerator Meterpreter Script\n" +
+			"Usage:\n" +
+			@@exec_opts.usage
+			)
+		helpcall = 1
+	end
 }
+
 if client.platform =~ /win32|win64/
 	if range != nil && pngsp == 1
 		message(logs)
@@ -320,10 +325,9 @@ if client.platform =~ /win32|win64/
 		message(logs)
 		srvreclkp(session,dom,dest)
 	elsif helpcall == nil
-		print(
-			"Network Enumerator Meterpreter Script\n" +
-			  "Usage: \n" +
-			  @@exec_opts.usage)
+		print("Network Enumerator Meterpreter Script\n" +
+			"Usage: \n" +
+			@@exec_opts.usage)
 	end
 
 else

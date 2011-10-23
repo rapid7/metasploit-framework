@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 #Meterpreter script for extracting information from windows prefetch folder
 #Provided by Milo at keith.lee2012[at]gmail.com
 #Verion: 0.1.0
@@ -12,13 +13,13 @@ require 'digest/sha1'
 
 # Script Options
 @@exec_opts = Rex::Parser::Arguments.new(
-        "-h" => [ false,  "Help menu."],
-		"-p" => [ false,  "List Installed Programs"],
-		"-c" => [ false,  "Disable SHA1/MD5 checksum"],
-		"-x" => [ true,   "Top x Accessed Executables (Based on Prefetch folder)"],
-		"-i" => [ false,  "Perform lookup for software name"],
-		"-l" => [ false,  "Download Prefetch Folder Analysis Log"]
-		)
+	"-h" => [ false,  "Help menu."],
+	"-p" => [ false,  "List Installed Programs"],
+	"-c" => [ false,  "Disable SHA1/MD5 checksum"],
+	"-x" => [ true,   "Top x Accessed Executables (Based on Prefetch folder)"],
+	"-i" => [ false,  "Perform lookup for software name"],
+	"-l" => [ false,  "Download Prefetch Folder Analysis Log"]
+)
 
 @tempdir = @session.fs.file.expand_path("%TEMP%")
 

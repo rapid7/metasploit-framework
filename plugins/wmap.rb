@@ -12,9 +12,9 @@ module Msf
 
 class Plugin::Wmap < Msf::Plugin
 	class WmapCommandDispatcher
-	
+
 		attr_accessor :targets
-	
+
 		include Msf::Ui::Console::CommandDispatcher
 
 		def name
@@ -37,12 +37,12 @@ class Plugin::Wmap < Msf::Plugin
 
 			while (arg = args.shift)
 				case arg
-				when '-c'	
-					self.targets = {} 
+				when '-c'
+					self.targets = {}
 				when '-l'
 					view_targets
 					return
-				when '-t'			
+				when '-t'
 					process_urls(args.shift)
 				when '-h'
 					print_status("Usage: wmap_targets [options]")
@@ -50,7 +50,7 @@ class Plugin::Wmap < Msf::Plugin
 					print_line("\t-t [urls]	Define target sites (vhost1,url[space]vhost2,url) ")
 					print_line("\t-c 		Clean target sites list")
 					print_line("\t-l  		List all target sites")
-					
+
 					print_line("")
 					return
 				else
@@ -59,7 +59,7 @@ class Plugin::Wmap < Msf::Plugin
 				end
 			end
 		end
-		
+
 		def cmd_wmap_sites(*args)
 			args.push("-h") if args.length == 0
 
@@ -68,10 +68,10 @@ class Plugin::Wmap < Msf::Plugin
 				when '-a'
 					s = add_web_site(args.shift)
 					if s
-						print_status("Site created.")		
+						print_status("Site created.")
 					else
 						print_error("Unable to create site")
-					end	
+					end
 				when '-l'
 					view_sites
 					return
@@ -79,7 +79,7 @@ class Plugin::Wmap < Msf::Plugin
 					u = args.shift
 					l = args.shift
 					s = args.shift
-					
+
 					if l == nil or l.empty?
 						l = 200
 						s = true
@@ -87,16 +87,16 @@ class Plugin::Wmap < Msf::Plugin
 						l = l.to_i
 						s = false
 					end
-					
+
 					view_site_tree(u,l,s)
-					return	
+					return
 				when '-h'
 					print_status("Usage: wmap_sites [options]")
 					print_line("\t-h 		Display this help text")
 					print_line("\t-a [url]	Add site (vhost,url)")
 					print_line("\t-l  		List all available sites")
 					print_line("\t-s [urls] (level) Display site structure (vhost,url)")
-					
+
 					print_line("")
 					return
 				else
@@ -105,7 +105,7 @@ class Plugin::Wmap < Msf::Plugin
 				end
 			end
 		end
-		
+
 		def cmd_wmap_run(*args)
 			# Run exploit check
 			wmap_check = true
@@ -113,7 +113,7 @@ class Plugin::Wmap < Msf::Plugin
 			wmap_runexpl = false
 			# Exit wmap if session is created
 			wmap_exitifsess = true
-			
+
 			# Formating
 			sizeline = 60
 
@@ -122,38 +122,38 @@ class Plugin::Wmap < Msf::Plugin
 
 			# Exclude files can be modified by setting datastore['WMAP_EXCLUDE']
 			wmap_exclude_files = '.*\.(gif|jpg|png*)$'
-		
+
 			run_wmap_ssl = true
 			run_wmap_server = true
 			run_wmap_dir_file = true
 			run_wmap_query = true
 			run_wmap_unique_query = true
 			run_wmap_generic = true
-			
+
 			# If module supports datastore['VERBOSE']
 			moduleverbose = false
-			
+
 			showprogress = false
-			
+
 			if not run_wmap_ssl
 				print_status("Loading of wmap ssl modules disabled.")
 			end
 			if not run_wmap_server
 				print_status("Loading of wmap server modules disabled.")
-			end	
-			if not run_wmap_dir_file 
+			end
+			if not run_wmap_dir_file
 				print_status("Loading of wmap dir and file modules disabled.")
 			end
 			if not run_wmap_query
 				print_status("Loading of wmap query modules disabled.")
-			end	
-			if not run_wmap_unique_query 
+			end
+			if not run_wmap_unique_query
 				print_status("Loading of wmap unique query modules disabled.")
-			end	
-			if not run_wmap_generic 
+			end
+			if not run_wmap_generic
 				print_status("Loading of wmap generic modules disabled.")
-			end	
-			
+			end
+
 			stamp = Time.now.to_f
 			mode  = 0
 
@@ -203,7 +203,7 @@ class Plugin::Wmap < Msf::Plugin
 						print_status("Using module #{mname}.")
 					end
 					using_m = true
-						
+
 				when '-h'
 					print_status("Usage: wmap_run [options]")
 					print_line("\t-h			Display this help text")
@@ -220,30 +220,30 @@ class Plugin::Wmap < Msf::Plugin
 				print_error("Targets have not been selected.")
 				return
 			end
-			
-			if self.targets.keys.length == 0 
+
+			if self.targets.keys.length == 0
 				print_error("Targets have not been selected.")
 				return
 			end
-			
+
 			self.targets.each_with_index do |t, idx|
 				selected_host = t[1][:host]
 				selected_port = t[1][:port]
 				selected_ssl  = t[1][:ssl]
 				selected_vhost = t[1][:vhost]
-				
+
 				print_status ("Testing target:")
 				print_status ("\tSite: #{selected_vhost} (#{selected_host})")
 				print_status ("\tPort: #{selected_port} SSL: #{selected_ssl}")
-				puts '='* sizeline
+				print_status '='* sizeline
 				print_status("Testing started. #{(Time.now )}")
-				
-				
+
+
 				if not selected_ssl
 					run_wmap_ssl = false
 					#print_status ("Target is not SSL. SSL modules disabled.")
 				end
-				
+
 				# WMAP_DIR, WMAP_FILE
 				matches = {}
 
@@ -252,7 +252,7 @@ class Plugin::Wmap < Msf::Plugin
 
 				# WMAP_QUERY
 				matches2 = {}
-				
+
 				# WMAP_SSL
 				matches3 = {}
 
@@ -279,7 +279,7 @@ class Plugin::Wmap < Msf::Plugin
 
 							if penabled
 								#if ( not using_p or eprofile.include? n.split('/').last ) or (using_m and n.match(mname))
-								if ( using_p and eprofile.include? n.split('/').last ) or (using_m and n.to_s.match(mname)) or (not using_m and not using_p) 
+								if ( using_p and eprofile.include? n.split('/').last ) or (using_m and n.to_s.match(mname)) or (not using_m and not using_p)
 									#
 									# First run the WMAP_SERVER plugins
 									#
@@ -307,7 +307,7 @@ class Plugin::Wmap < Msf::Plugin
 									when :WMAP_SSL
 										if run_wmap_ssl
 											matches3[[selected_host,selected_port,selected_ssl,selected_vhost,mtype[1]+'/'+n]]=true
-										end	
+										end
 									else
 										# Black Hole
 									end
@@ -321,14 +321,14 @@ class Plugin::Wmap < Msf::Plugin
 				# Handle modules that need to be run before all tests IF SERVER is SSL, once usually again the SSL web server.
 				# :WMAP_SSL
 				#
-				
-				puts "\n=[ SSL testing ]="
-				puts "=" * sizeline
-				
+
+				print_status "\n=[ SSL testing ]="
+				print_status "=" * sizeline
+
 				if not selected_ssl
 					print_status ("Target is not SSL. SSL modules disabled.")
 				end
-				
+
 				idx = 0
 				matches3.each_key do |xref|
 					idx += 1
@@ -377,7 +377,7 @@ class Plugin::Wmap < Msf::Plugin
 							mod.datastore['VHOST'] = xref[3].to_s
 							mod.datastore['VERBOSE'] = moduleverbose
 							mod.datastore['ShowProgress'] = showprogress
-							
+
 							#
 							# Run the plugins that only need to be
 							# launched once.
@@ -386,7 +386,7 @@ class Plugin::Wmap < Msf::Plugin
 							wtype = mod.wmap_type
 
 							if wtype == :WMAP_SSL
-								puts "Module #{xref[4]}"
+								print_status "Module #{xref[4]}"
 
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and wmap_check
@@ -490,14 +490,14 @@ class Plugin::Wmap < Msf::Plugin
 					end
 				end
 
-				
+
 				#
 				# Handle modules that need to be run before all tests, once usually again the web server.
 				# :WMAP_SERVER
 				#
-				puts "\n=[ Web Server testing ]="
-				puts "=" * sizeline
-				
+				print_status "\n=[ Web Server testing ]="
+				print_status "=" * sizeline
+
 				idx = 0
 				matches1.each_key do |xref|
 					idx += 1
@@ -555,7 +555,7 @@ class Plugin::Wmap < Msf::Plugin
 							wtype = mod.wmap_type
 
 							if wtype == :WMAP_SERVER
-								puts "Module #{xref[4]}"
+								print_status "Module #{xref[4]}"
 
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and wmap_check
@@ -663,9 +663,9 @@ class Plugin::Wmap < Msf::Plugin
 				# Handle modules to be run at every path/file
 				# WMAP_DIR, WMAP_FILE
 				#
-				puts "\n=[ File/Dir testing ]="
-				puts "=" * sizeline
-				
+				print_status "\n=[ File/Dir testing ]="
+				print_status "=" * sizeline
+
 				idx = 0
 				matches.each_key do |xref|
 					idx += 1
@@ -716,13 +716,13 @@ class Plugin::Wmap < Msf::Plugin
 							h = self.framework.db.workspace.hosts.find_by_address(selected_host)
 							s = h.services.find_by_port(selected_port)
 							w = s.web_sites.find_by_vhost(selected_vhost)
-							
-							puts "Module #{xref[4]}:" 
-							
+
+							print_status "Module #{xref[4]}:"
+
 							test_tree = load_tree(w)
 							test_tree.each do |node|
-	
-								p = node.current_path								
+
+								p = node.current_path
 								testpath = Pathname.new(p)
 								strpath = testpath.cleanpath(false).to_s
 
@@ -830,9 +830,9 @@ class Plugin::Wmap < Msf::Plugin
 				# Run modules for each request to play with URI with UNIQUE query parameters.
 				# WMAP_UNIQUE_QUERY
 				#
-				puts "\n=[ Unique Query testing ]="
-				puts "=" * sizeline
-				
+				print_status "\n=[ Unique Query testing ]="
+				print_status "=" * sizeline
+
 				idx = 0
 				matches5.each_key do |xref|
 					idx += 1
@@ -881,50 +881,50 @@ class Plugin::Wmap < Msf::Plugin
 							wtype = mod.wmap_type
 
 							utest_query = {}
-							
+
 							h = self.framework.db.workspace.hosts.find_by_address(selected_host)
 							s = h.services.find_by_port(selected_port)
 							w = s.web_sites.find_by_vhost(selected_vhost)
-							
+
 							w.web_forms.each do |form|
 								#
 								# Only test unique query strings by comparing signature to previous tested signatures 'path,p1,p2,pn'
 								#
-							
+
 								datastr = ""
-								typestr = "" 
-								
+								typestr = ""
+
 								temparr = []
-								
-								#puts "---------"
-								#puts form.params
-								#puts "+++++++++"
-											
+
+								#print_status "---------"
+								#print_status form.params
+								#print_status "+++++++++"
+
 								form.params.each do |p|
 									pn, pv, pt = p
 									temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
 								end
-								
-								datastr = temparr.join("&")	if (temparr and not temparr.empty?)	
-											
+
+								datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+
 								if (utest_query.has_key?(mod.signature(form.path,datastr)) == false)
-									
+
 									mod.datastore['METHOD'] = form.method.upcase
 									mod.datastore['PATH'] =  form.path
 									mod.datastore['QUERY'] = form.query
 									if form.method.upcase == 'GET'
 										mod.datastore['QUERY'] = datastr
-										mod.datastore['DATA'] = ""	
-									end	
+										mod.datastore['DATA'] = ""
+									end
 									mod.datastore['DATA'] = datastr if form.method.upcase == 'POST'
 									mod.datastore['TYPES'] = typestr
-									
+
 									#
 									# TODO: Add headers, etc.
 									#
 
 									if wtype == :WMAP_UNIQUE_QUERY
-										puts "Module #{xref[4]}" 
+										print_status "Module #{xref[4]}"
 
 										# To run check function for modules that are exploits
 										if mod.respond_to?("check") and wmap_check
@@ -953,7 +953,7 @@ class Plugin::Wmap < Msf::Plugin
 									# Unique query tested, actually the value does not matter
 									#
 									#print_status("sig: #{mod.signature(form.path,varnarr.join(','))}")
-									
+
 									utest_query[mod.signature(form.path,datastr)]=1
 								else
 									#print_status("Already tested")
@@ -972,9 +972,9 @@ class Plugin::Wmap < Msf::Plugin
 				# and will make this shotgun implementation much simple.
 				# WMAP_QUERY
 				#
-				puts "\n=[ Query testing ]="
-				puts "=" * sizeline
-				
+				print_status "\n=[ Query testing ]="
+				print_status "=" * sizeline
+
 				idx = 0
 				matches2.each_key do |xref|
 					idx += 1
@@ -1026,37 +1026,37 @@ class Plugin::Wmap < Msf::Plugin
 							h = self.framework.db.workspace.hosts.find_by_address(selected_host)
 							s = h.services.find_by_port(selected_port)
 							w = s.web_sites.find_by_vhost(selected_vhost)
-							
+
 							w.web_forms.each do |req|
-							
+
 								datastr = ""
-								typestr = "" 
-								
+								typestr = ""
+
 								temparr = []
-											
+
 								req.params.each do |p|
 									pn, pv, pt = p
 									temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
 								end
-								
-								datastr = temparr.join("&")	if (temparr and not temparr.empty?)	
-				
+
+								datastr = temparr.join("&")	if (temparr and not temparr.empty?)
+
 								mod.datastore['METHOD'] = req.method.upcase
 								mod.datastore['PATH'] =  req.path
 								if req.method.upcase == 'GET'
 									mod.datastore['QUERY'] = datastr
-									mod.datastore['DATA'] = ""	
-								end	
+									mod.datastore['DATA'] = ""
+								end
 								mod.datastore['DATA'] = datastr if req.method.upcase == 'POST'
 								mod.datastore['TYPES'] = typestr
-								
-							
+
+
 								#
 								# TODO: Add method, headers, etc.
 								#
 
 								if wtype == :WMAP_QUERY
-									puts "Module #{xref[4]}" 
+									print_status "Module #{xref[4]}"
 
 									# To run check function for modules that are exploits
 									if mod.respond_to?("check") and wmap_check
@@ -1087,16 +1087,16 @@ class Plugin::Wmap < Msf::Plugin
 						print_status(" >> Exception from #{xref[4]}: #{$!}")
 					end
 				end
-			
+
 				#
 				# Handle modules that need to be after all tests, once.
 				# Good place to have modules that analize the test results and/or
 				# launch exploits.
 				# :WMAP_GENERIC
 				#
-				puts "\n=[ General testing ]="
-				puts "=" * sizeline
-				
+				print_status "\n=[ General testing ]="
+				print_status "=" * sizeline
+
 				idx = 0
 				matches10.each_key do |xref|
 					idx += 1
@@ -1146,7 +1146,7 @@ class Plugin::Wmap < Msf::Plugin
 							wtype = mod.wmap_type
 
 							if wtype == :WMAP_GENERIC
-								puts "Module #{xref[4]}" 
+								print_status "Module #{xref[4]}"
 
 								# To run check function for modules that are exploits
 								if mod.respond_to?("check") and wmap_check
@@ -1159,7 +1159,7 @@ class Plugin::Wmap < Msf::Plugin
 										print_status(" >> Exception during check launch from #{xref[4]}: #{$!}")
 									end
 								else
-	
+
 									begin
 										session = mod.run_simple(
 											'LocalInput' 	=> driver.input,
@@ -1180,22 +1180,22 @@ class Plugin::Wmap < Msf::Plugin
 				if (mode & wmap_show != 0)
 					print_status("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")
 					print_status("Done.")
-					puts "+" * sizeline
-					puts "\n"
+					print_status "+" * sizeline
+					print_status "\n"
 				end
 			end
 
 		# EOM
-		end	
-		
+		end
+
 		def view_targets
 			if self.targets == nil or self.targets.keys.length == 0
 				print_status "No targets have been defined"
 				return
 			end
-			
+
 			indent = '     '
-		
+
 			tbl = Rex::Ui::Text::Table.new(
 				'Indent'  => indent.length,
 				'Header'  => 'Defined targets',
@@ -1213,12 +1213,12 @@ class Plugin::Wmap < Msf::Plugin
 				tbl << [ idx.to_s, t[1][:vhost], t[1][:host], t[1][:port], t[1][:ssl], t[1][:path].to_s ]
 			}
 
-			puts tbl.to_s + "\n"
+			print_status tbl.to_s + "\n"
 		end
-		
+
 		def view_sites
 			indent = '     '
-		
+
 			tbl = Rex::Ui::Text::Table.new(
 				'Indent'  => indent.length,
 				'Header'  => 'Available sites',
@@ -1232,11 +1232,11 @@ class Plugin::Wmap < Msf::Plugin
 						'# Forms',
 					])
 
-			idx  = 0		
+			idx  = 0
 			self.framework.db.hosts.each do |bdhost|
 				bdhost.services.each do |serv|
 					serv.web_sites.each do |web|
-						c = web.web_pages.count 
+						c = web.web_pages.count
 						f = web.web_forms.count
 						tbl << [ idx.to_s, bdhost.address, web.vhost, serv.port, c.to_s, f.to_s ]
 						idx += 1
@@ -1244,23 +1244,23 @@ class Plugin::Wmap < Msf::Plugin
 				end
 			end
 
-			puts tbl.to_s + "\n"
+			print_status tbl.to_s + "\n"
 
 		end
-		
-		
+
+
 		# Reusing code from hdmoore
 		#
 		# Allow the URL to be supplied as VHOST,URL if a custom VHOST
 		# should be used. This allows for things like:
 		# localhost,http://192.168.0.2/admin/
-		
+
 		def add_web_site(url)
-		
-				
-				
+
+
+
 				vhost = nil
-			
+
 				# Allow the URL to be supplied as VHOST,URL if a custom VHOST
 				# should be used. This allows for things like:
 				#   localhost,http://192.168.0.2/admin/
@@ -1281,24 +1281,24 @@ class Plugin::Wmap < Msf::Plugin
 				uri = URI.parse(url) rescue nil
 				if not uri
 					print_error("Could not understand URL: #{url}")
-					return 
+					return
 				end
 
 				if uri.scheme !~ /^https?/
 					print_error("Only http and https URLs are accepted: #{url}")
 					return
 				end
-				
+
 				ssl = false
 				if uri.scheme == 'https'
 					ssl = true
 				end
-		
+
 				site = self.framework.db.report_web_site(:wait => true, :host => uri.host, :port => uri.port, :vhost => vhost, :ssl => ssl)
 
 				return site
 		end
-		
+
 		# Code by hdm. Modified two lines by et
 		#
 		def process_urls(urlstr)
@@ -1309,7 +1309,7 @@ class Plugin::Wmap < Msf::Plugin
 			urls.each do |url|
 				next if url.to_s.strip.empty?
 				vhost = nil
-			
+
 				# Allow the URL to be supplied as VHOST,URL if a custom VHOST
 				# should be used. This allows for things like:
 				#   localhost,http://192.168.0.2/admin/
@@ -1345,10 +1345,10 @@ class Plugin::Wmap < Msf::Plugin
 			return if target_whitelist.length == 0
 
 			self.targets = {}
-		
+
 			target_whitelist.each do |ent|
 				vhost,target = ent
-				
+
 				host = self.framework.db.workspace.hosts.find_by_address(target.host)
 				if not host
 					print_error("No matching host for #{target.host}")
@@ -1359,16 +1359,16 @@ class Plugin::Wmap < Msf::Plugin
 					print_error("No matching service for #{target.host}:#{target.port}")
 					next
 				end
-				
-				#puts "aaa"
-				#puts framework.db.workspace.name
-				
+
+				#print_status "aaa"
+				#print_status framework.db.workspace.name
+
 				#sites = serv.web_sites.find(:all, :conditions => ['vhost = ? or vhost = ?', vhost, host.address])
-				
+
 				sites = serv.web_sites.find(:all)
-				
+
 				sites.each do |site|
-					
+
 					#site.web_forms.find_all_by_path(target.path).each do |form|
 						ckey = [ site.vhost, host.address, serv.port, target.path].join("|")
 						if not self.targets[ckey]
@@ -1389,23 +1389,23 @@ class Plugin::Wmap < Msf::Plugin
 				end
 			end
 		end
-		
+
 		def view_site_tree(urlstr, md, ld)
-			
+
 			site_whitelist = []
 			urls = urlstr.to_s.split(/\s+/)
 
 			urls.each do |url|
 				next if url.to_s.strip.empty?
 				vhost = nil
-			
+
 				# Allow the URL to be supplied as VHOST,URL if a custom VHOST
 				# should be used. This allows for things like:
 				#   localhost,http://192.168.0.2/admin/
 
 				if url !~ /^http/
 					vhost,url = url.split(",", 2)
-					
+
 					if url.to_s.empty?
 						url = vhost
 						vhost = nil
@@ -1435,10 +1435,10 @@ class Plugin::Wmap < Msf::Plugin
 			return if site_whitelist.length == 0
 
 			vsites = {}
-		
+
 			site_whitelist.each do |ent|
 				vhost,target = ent
-				
+
 				host = self.framework.db.workspace.hosts.find_by_address(target.host)
 				if not host
 					print_error("No matching host for #{target.host}")
@@ -1449,14 +1449,14 @@ class Plugin::Wmap < Msf::Plugin
 					print_error("No matching service for #{target.host}:#{target.port}")
 					next
 				end
-				
-				#puts "aaa"
-				#puts framework.db.workspace.name
-				
+
+				#print_status "aaa"
+				#print_status framework.db.workspace.name
+
 				sites = serv.web_sites.find(:all, :conditions => ['vhost = ? or vhost = ?', vhost, host.address])
-				
+
 				#sites = serv.web_sites.find(:all)
-				
+
 				sites.each do |site|
 					#site.vhost
 					#site.web_forms.find_all_by_path(target.path).each do |form|
@@ -1466,18 +1466,18 @@ class Plugin::Wmap < Msf::Plugin
 				end
 			end
 		end
-		
+
 		#
 		# Load website structure into a tree
 		#
 
 		def load_tree(s)
-			
+
 			pathchr = '/'
-		
+
 			wtree = Tree.new(s.vhost)
 
-			# Load site pages 	
+			# Load site pages
 			s.web_pages.find(:all, :order => 'path').each do |req|
 				tarray = req.path.to_s.split(pathchr)
 				tarray.delete("")
@@ -1487,7 +1487,7 @@ class Plugin::Wmap < Msf::Plugin
 					tpath = tpath + Pathname.new(df.to_s)
 				end
 			end
-			
+
 			# Load site forms
 			s.web_forms.each do |req|
 				tarray = req.path.to_s.split(pathchr)
@@ -1498,42 +1498,42 @@ class Plugin::Wmap < Msf::Plugin
 					tpath = tpath + Pathname.new(df.to_s)
 				end
 			end
-			
+
 			return wtree
 		end
 
 		#
 		# Print Tree structure. Still ugly
 		#
-		
+
 		def print_tree(tree, maxlevel, limitlevel)
 			initab = " " * 4
 			indent = 6
 			if  tree != nil and tree.depth <= maxlevel
 				print initab + (" " * indent * tree.depth)
 				if tree.depth > 0
-					print "|"+("-" * (indent-1))+"/" 
+					print "|"+("-" * (indent-1))+"/"
 				end
-				if tree.depth >= 0 
+				if tree.depth >= 0
 					if tree.depth == 0
-						print "[#{tree.name}]\n"+initab+(" " * indent)+"|\n" 
-						
+						print "[#{tree.name}]\n"+initab+(" " * indent)+"|\n"
+
 					else
 						c = tree.children.count
 						if c > 0
 							print tree.name	+ " (" + c.to_s+")\n"
 						else
 							print tree.name	+ "\n"
-						end	
+						end
 					end
 				end
-				
+
 				tree.children.each_pair do |name,child|
 					print_tree(child,maxlevel,limitlevel)
 				end
 			end
 		end
-		
+
 
 		#def print_tree(tree)
 		#	if tree.is_leaf? and tree.depth > 0
@@ -1545,7 +1545,7 @@ class Plugin::Wmap < Msf::Plugin
 		#			print_tree(child)
 		#	end
 		#end
-		
+
 	end
 
 	class WebTarget < ::Hash
@@ -1554,10 +1554,10 @@ class Plugin::Wmap < Msf::Plugin
 			"#{proto}://#{self[:host]}:#{self[:port]}#{self[:path]}"
 		end
 	end
-	
+
 	def initialize(framework, opts)
 		super
-		
+
 		wmapversion = '1.0'
 		wmapbanner = "[WMAP #{wmapversion}] ===  et [  ] metasploit.com 2011"
 

@@ -1,6 +1,7 @@
 # win32-sshserver.rb
 #
 # $Id$
+# $Revision$
 #
 # meterpreter-script to deploy + run OpenSSH
 # on the target machine

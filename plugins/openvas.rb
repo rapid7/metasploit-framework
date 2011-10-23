@@ -3,7 +3,10 @@
 # This plugin provides integration with OpenVAS. Written by kost and
 # averagesecurityguy.
 #
-# Distributed under MIT license: 
+# $Id$
+# $Revision$
+#
+# Distributed under MIT license:
 # http://www.opensource.org/licenses/mit-license.php
 #
 
@@ -34,7 +37,7 @@ class Plugin::OpenVAS < Msf::Plugin
 				'openvas_task_pause' => "Pause task by ID",
 				'openvas_task_resume' => "Resume task by ID",
 				'openvas_task_resume_or_start' => "Resume task or start task by ID",
-				
+
 				'openvas_target_create' => "Create target (name, hosts, comment)",
 				'openvas_target_delete' => "Delete target by ID",
 				'openvas_target_list' => "Display list of targets",
@@ -43,7 +46,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
 				'openvas_format_list' => "Display list of available report formats",
 
-				'openvas_report_list' => "Display a list of available report formats", 
+				'openvas_report_list' => "Display a list of available report formats",
 				'openvas_report_delete' => "Delete a report specified by ID",
 				'openvas_report_download' => "Save a report to disk",
 				'openvas_report_import' => "Import report specified by ID into framework",
@@ -172,7 +175,7 @@ class Plugin::OpenVAS < Msf::Plugin
 
 			# Make sure the correct number of arguments are present.
 			if args?(args, 4, 5)
-					
+
 				user, pass, host, port, sslv = args
 
 				# SSL warning. User is required to confirm.
@@ -199,10 +202,10 @@ class Plugin::OpenVAS < Msf::Plugin
 
 			else
 				print_status("Usage:")
-       			print_status("openvas_connect username password host port <ssl-confirm>")
+				print_status("openvas_connect username password host port <ssl-confirm>")
 			end
 		end
-	
+
 		# Disconnect from an OpenVAS manager
 		def cmd_openvas_disconnect()
 			return unless openvas?
@@ -216,7 +219,7 @@ class Plugin::OpenVAS < Msf::Plugin
 	#--------------------------
 		def cmd_openvas_target_create(*args)
 			return unless openvas?
-			
+
 			if args?(args, 3)
 				begin
 					resp = @ov.target_create(args[0], args[1], args[2])
@@ -255,13 +258,14 @@ class Plugin::OpenVAS < Msf::Plugin
 							'Columns' => ["ID", "Name", "Hosts", "Max Hosts", "In Use", "Comment"])
 				id = 0
 				@ov.target_get_all().each do |target|
-					tbl << [ id, target["name"], target["hosts"], target["max_hosts"], 
-							 target["in_use"], target["comment"] ]
+					tbl << [ id, target["name"], target["hosts"], target["max_hosts"],
+					target["in_use"], target["comment"] ]
 					id += 1
 				end
 				print_good("OpenVAS list of targets")
-				puts "\n"
-				puts tbl.to_s + "\n"
+				print_good "\n"
+				print_good tbl.to_s
+				print_good "\n"
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -324,8 +328,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of tasks")
-				puts "\n"
-				puts tbl.to_s + "\n"
+				print_good "\n"
+				print_good tbl.to_s
+				print_good "\n"
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -415,15 +420,16 @@ class Plugin::OpenVAS < Msf::Plugin
 			begin
 				tbl = Rex::Ui::Text::Table.new(
 					'Columns' => [ "ID", "Name" ])
-				
+
 				id = 0
 				@ov.configs.each do |config|
 					tbl << [ id, config["name"] ]
 					id += 1
 				end
 				print_good("OpenVAS list of configs")
-				puts "\n"
-				puts tbl.to_s + "\n"
+				print_good "\n"
+				print_good tbl.to_s
+				print_good "\n"
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -444,8 +450,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of report formats")
-				puts "\n"
-				puts tbl.to_s + "\n"
+				print_good "\n"
+				print_good tbl.to_s
+				print_good "\n"
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -466,8 +473,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of reports")
-				puts "\n"
-				puts tbl.to_s + "\n"
+				print_good "\n"
+				print_good tbl.to_s
+				print_good "\n"
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -508,7 +516,7 @@ class Plugin::OpenVAS < Msf::Plugin
 				print_status("Usage: openvas_report_download <report_id> <format_id> <path> <report_name>")
 			end
 		end
-	
+
 		def cmd_openvas_report_import(*args)
 			return unless openvas?
 
@@ -523,7 +531,7 @@ class Plugin::OpenVAS < Msf::Plugin
 			else
 				print_status("Usage: openvas_report_import <report_id> <format_id>")
 				print_status("Only the NBE format is supported for importing.")
-			end	
+			end
 		end
 
 	end # End OpenVAS class

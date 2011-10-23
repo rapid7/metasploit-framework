@@ -101,14 +101,12 @@ class Metasploit3 < Msf::Post
 				'Header'  => "Active Routing Table",
 				'Prefix'  => "\n",
 				'Postfix' => "\n",
-				'Columns' =>
-				  [
+				'Columns' => [
 					'Subnet',
 					'Netmask',
 					'Gateway',
 				],
-				'ColProps' =>
-				  {
+				'ColProps' => {
 					'Subnet'  => { 'MaxWidth' => 17 },
 					'Netmask' => { 'MaxWidth' => 17 },
 				})

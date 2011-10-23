@@ -9,6 +9,8 @@
 #
 # (C) 2010 Rapid7
 #
+# $Revision$
+#
 
 def usage
 	$stderr.puts "usage: #{$0} [dump-file] <master password list>"

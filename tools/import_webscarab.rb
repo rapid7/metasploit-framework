@@ -52,7 +52,8 @@ puts("Opening database file: #{db_file}")
 database = SQLite3::Database.new(db_file)
 
 # Prepare the insert statement...
-insert_statement = database.prepare("INSERT INTO requests(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created) VALUES(:host,:port,:ssl,:meth,:path,:headers,:query,:body,:respcode,:resphead,:response,:created)");
+insert_statement = database.prepare("INSERT INTO requests(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response,created)" +
+	" VALUES(:host,:port,:ssl,:meth,:path,:headers,:query,:body,:respcode,:resphead,:response,:created)");
 
 # target hash -> Resolving dns names is soooo slow, I don't know why. So we use the
 # following hash as a "micro hosts", so we don't have to call getaddress each time...

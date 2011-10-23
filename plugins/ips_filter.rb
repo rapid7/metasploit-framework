@@ -68,7 +68,7 @@ module SocketTracer
 	# Hook the write method
 	def write(buf, opts = {})
 		if (ips_match(buf))
-			$stderr.puts "*** Outbound write blocked due to possible signature match"
+			print_error "Outbound write blocked due to possible signature match"
 			return 0
 		end
 		super(buf, opts)
@@ -78,7 +78,7 @@ module SocketTracer
 	def read(length = nil, opts = {})
 		r = super(length, opts)
 		if (ips_match(r))
-			$stderr.puts "*** Incoming read may match a known signature"
+			print_error "Incoming read may match a known signature"
 		end
 		return r
 	end
@@ -95,11 +95,11 @@ module SocketTracer
 			begin
 				r = Regexp.new(s[1])
 				if (data.match(r))
-					$stderr.puts "*** Matched IPS signature #{s[0]}"
+					print_error "Matched IPS signature #{s[0]}"
 					return true
 				end
 			rescue ::Exception => e
-				$stderr.puts "*** Compiled error: #{s[1]}"
+				print_error "Compiled error: #{s[1]}"
 			end
 		end
 

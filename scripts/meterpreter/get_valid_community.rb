@@ -1,3 +1,6 @@
+# $Id$
+# $Revision$
+
 #copied getvncpw - thanks grutz/carlos
 
 session = client

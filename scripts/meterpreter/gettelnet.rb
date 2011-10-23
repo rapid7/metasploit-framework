@@ -40,7 +40,7 @@ end
 def insttlntsrv()
 	trgtos = @client.sys.config.sysinfo['OS']
 	if trgtos =~ /Vista|7|2008/
-		puts("Checking if Telnet Service is Installed")
+		print_status("Checking if Telnet Service is Installed")
 		if checkifinst()
 			print_status("Telnet Service Installed on Target")
 		else
@@ -52,7 +52,7 @@ def insttlntsrv()
 				@client.sys.process.get_processes().each do |x|
 					found =1
 					if prog2check == (x['name'].downcase)
-						puts "*"
+						print_line "*"
 						sleep(0.5)
 						found = 0
 					end

@@ -28,7 +28,7 @@ def wmicexec(session,wmiccmds= nil)
 		wmicfl = tmp + "\\"+ sprintf("%.5d",rand(100000))
 		wmiccmds.each do |wmi|
 			print_status "running command wmic #{wmi}"
-			puts wmicfl
+			print_line wmicfl
 			r = session.sys.process.execute("cmd.exe /c %SYSTEMROOT%\\system32\\wbem\\wmic.exe /append:#{wmicfl} #{wmi}", nil, {'Hidden' => true})
 			sleep(2)
 			#Making sure that wmic finishes before executing next wmic command
@@ -77,7 +77,7 @@ end
 
 def usage
 	print_line("Windows WMIC Command Execution Meterpreter Script ")
-	puts @@exec_opts.usage
+	print_line @@exec_opts.usage
 	print_line("USAGE:")
 	print_line("run wmic -c \"WMIC Command Argument\"\n")
 	print_line("NOTE:")

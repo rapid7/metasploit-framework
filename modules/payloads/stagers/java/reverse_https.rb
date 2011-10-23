@@ -20,7 +20,7 @@ module Metasploit3
 	def initialize(info = {})
 		super(merge_info(info,
 			'Name'          => 'Java Reverse HTTPS Stager',
-			'Version'       => '$Revision: 13402 $',
+			'Version'       => '$Revision$',
 			'Description'   => 'Tunnel communication over HTTPS',
 			'Author'        => [
 					'mihi',  # all the hard work

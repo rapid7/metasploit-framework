@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Gather DNS Service Record Lookup Scan',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					Enumerates know SRV Records for a given domaon using target host DNS query tool.
 				},
 				'License'       => MSF_LICENSE,
@@ -42,21 +42,21 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		srvrcd = [
-        '_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
-        '_test._tcp.', '_sips._tcp.', '_sip._udp.', '_sip._tcp.', '_aix._tcp.',
-        '_aix._tcp.', '_finger._tcp.', '_ftp._tcp.', '_http._tcp.', '_nntp._tcp.',
-        '_telnet._tcp.', '_whois._tcp.', '_h323cs._tcp.', '_h323cs._udp.',
-        '_h323be._tcp.', '_h323be._udp.', '_h323ls._tcp.',
-        '_h323ls._udp.', '_sipinternal._tcp.', '_sipinternaltls._tcp.',
-        '_sip._tls.', '_sipfederationtls._tcp.', '_jabber._tcp.',
-        '_xmpp-server._tcp.', '_xmpp-client._tcp.', '_imap.tcp.',
-        '_certificates._tcp.', '_crls._tcp.', '_pgpkeys._tcp.',
-        '_pgprevokations._tcp.', '_cmp._tcp.', '_svcp._tcp.', '_crl._tcp.',
-        '_ocsp._tcp.', '_PKIXREP._tcp.', '_smtp._tcp.', '_hkp._tcp.',
-        '_hkps._tcp.', '_jabber._udp.','_xmpp-server._udp.', '_xmpp-client._udp.',
-        '_jabber-client._tcp.', '_jabber-client._udp.','_kerberos.tcp.dc._msdcs.',
-        '_ldap._tcp.ForestDNSZones.'
-        ]
+			'_gc._tcp.', '_kerberos._tcp.', '_kerberos._udp.', '_ldap._tcp.',
+			'_test._tcp.', '_sips._tcp.', '_sip._udp.', '_sip._tcp.', '_aix._tcp.',
+			'_aix._tcp.', '_finger._tcp.', '_ftp._tcp.', '_http._tcp.', '_nntp._tcp.',
+			'_telnet._tcp.', '_whois._tcp.', '_h323cs._tcp.', '_h323cs._udp.',
+			'_h323be._tcp.', '_h323be._udp.', '_h323ls._tcp.',
+			'_h323ls._udp.', '_sipinternal._tcp.', '_sipinternaltls._tcp.',
+			'_sip._tls.', '_sipfederationtls._tcp.', '_jabber._tcp.',
+			'_xmpp-server._tcp.', '_xmpp-client._tcp.', '_imap.tcp.',
+			'_certificates._tcp.', '_crls._tcp.', '_pgpkeys._tcp.',
+			'_pgprevokations._tcp.', '_cmp._tcp.', '_svcp._tcp.', '_crl._tcp.',
+			'_ocsp._tcp.', '_PKIXREP._tcp.', '_smtp._tcp.', '_hkp._tcp.',
+			'_hkps._tcp.', '_jabber._udp.','_xmpp-server._udp.', '_xmpp-client._udp.',
+			'_jabber-client._tcp.', '_jabber-client._udp.','_kerberos.tcp.dc._msdcs.',
+			'_ldap._tcp.ForestDNSZones.'
+		]
 
 		domain = datastore['DOMAIN']
 
@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 				ip_map[host.strip] = ip.strip
 			end
 		end
-		
+
 		# Get SRV parameter for each record
 		records.each do |r|
 			if r =~ /svr hostname/
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Post
 						srv_records << rcrd
 					end
 				else
-	
+
 					rcrd[:ip] = ip_map[rcrd[:target]]
 					# Report hosts found
 					report_host(:host => rcrd[:ip].strip, :name => rcrd[:target])

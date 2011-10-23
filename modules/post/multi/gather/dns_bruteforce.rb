@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Multi Gather DNS Forward Lookup Bruteforce',
-				'Description'   => %q{ 
+				'Description'   => %q{
 					Brute force subdomains and hostnames via wordlist.
 				},
 				'License'       => MSF_LICENSE,
@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Post
 
 	# Run Method for when run command is issued
 	def run
-		
+
 		domain = datastore['DOMAIN']
 		hostlst = datastore['NAMELIST']
 		i, a = 0, []
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 					ns_opt = " #{n.strip}.#{domain}"
 					cmd = "/usr/bin/host"
 				end
-				
+
 				if i <= thread_num
 					print_status("Trying #{ns_opt}")
 					a.push(::Thread.new {

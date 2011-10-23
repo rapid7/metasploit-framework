@@ -46,11 +46,11 @@ class Metasploit3 < Msf::Post
 		#p = kern.GetCurrentProcess() #get handle to current process
 		pid = session.sys.process.open.pid
 		pr = session.sys.process.open(pid, PROCESS_ALL_ACCESS)
-		pt = adv.OpenProcessToken(pr.handle, tok_all, 4) #get handle to primary token 
+		pt = adv.OpenProcessToken(pr.handle, tok_all, 4) #get handle to primary token
 		it = adv.DuplicateToken(pt["TokenHandle"],2, 4) # get an impersonation token
 		if it["return"] #if it fails return 0 for error handling
 			return it["DuplicateTokenHandle"]
-		else 
+		else
 			return 0
 		end
 	end
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
 		gen_map = [0,0,0,0]
 		gen_map = gen_map.pack("L")
 
-		#get Security Descriptor for the directory 
+		#get Security Descriptor for the directory
 		f = adv.GetFileSecurityA(dir, si, 20, 20, 4)
 		f = adv.GetFileSecurityA(dir, si, f["lpnLengthNeeded"], f["lpnLengthNeeded"], 4)
 		sd = f["pSecurityDescriptor"]
@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Post
 				next if d =~ /^(\.|\.\.)$/
 				realpath = dpath + '\\' + d
 				if session.fs.file.stat(realpath).directory?
-					perm = check_dir(realpath, token) 
+					perm = check_dir(realpath, token)
 					if !filter or perm.include? filter
 						print_status(perm + "\t" + realpath)
 					end
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
 		#get impersonation token
 		print_status("Getting impersonation token...")
 		t = get_imperstoken()
-		
+
 		#loop through sub dirs if we have an impers token..else error
 		if t == 0
 			print_error("Getting impersonation token failed")

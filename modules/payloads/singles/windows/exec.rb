@@ -19,6 +19,7 @@ require 'msf/core/payload/windows/exec'
 ###
 module Metasploit3
 
+	# $Revision$
 	include Msf::Payload::Windows::Exec
 
 end

@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'            => 'SAP URL Scanner',
 			'Description'   => %q{
-				This module scans for commonly found SAP Internet Communication Manager URLs 
+				This module scans for commonly found SAP Internet Communication Manager URLs
 				and outputs return codes for the user.
 			},
 			'Version'         => '$Revision$',
@@ -52,11 +52,11 @@ class Metasploit3 < Msf::Auxiliary
 		# Initialize the actual URLFILE path
 		if datastore['URLFILE'] == "sap_icm_paths.txt"
 			url_file = "#{Msf::Config.data_directory}/wordlists/#{datastore['URLFILE']}"
-		else 
+		else
 			# Not the default sap_icm_paths file
 			url_file = datastore['URLFILE']
 		end
-		
+
 		# If URLFILE path doesn't exist, no point to continue the rest of the script
 		if not File.exists?(url_file)
 			print_error("Required URL list #{url_file} was not found")
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 				'method'    => 'GET',
 				'ctype'     => 'text/plain',
 			}, 20)
-		
+
 		if res
 			print_status("Note: Please note these URLs may or may not be of interest based on server configuration")
 			@info = []
@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_error("#{rhost}:#{rport} No response received")
 		end
-		
+
 	end
 
 	def check_url(url)

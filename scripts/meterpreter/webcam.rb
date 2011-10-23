@@ -2,7 +2,7 @@
 #  $Revision$
 #  Author: scriptjunkie
 #
-# Simplify running webcam, whether grabbing a single frame or running 
+# Simplify running webcam, whether grabbing a single frame or running
 # a continous loop.
 
 @client = client
@@ -66,7 +66,7 @@ begin
 	end
 	print_line("[*] Starting webcam #{index}: #{camlist[index - 1]}")
 	client.webcam.webcam_start(index)
-	
+
 	#prepare output
 	if(gui)
 		sock = Rex::Socket::Udp.create(

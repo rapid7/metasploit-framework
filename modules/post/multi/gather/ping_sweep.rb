@@ -49,9 +49,9 @@ class Metasploit3 < Msf::Post
 			numip = ipadd.num_ips
 			while (iplst.length < numip)
 				ipa = ipadd.next_ip
-      			if (not ipa)
-        			break
-      			end
+				if (not ipa)
+					break
+				end
 				iplst << ipa
 			end
 			if session.type =~ /shell/

@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 
 #
 # Meterpreter script for obtaining a quick VNC session

@@ -57,8 +57,8 @@ class Plugin::CredCollect < Msf::Plugin
 			# Target infos for the db record
 			addr = session.sock.peerhost
 			# This ought to read from the exploit's datastore.
-			# Use the meterpreter script if you need to control it. 
-			smb_port = 445 
+			# Use the meterpreter script if you need to control it.
+			smb_port = 445
 
 			# Record hashes to the running db instance
 			hashes.each do |hash|

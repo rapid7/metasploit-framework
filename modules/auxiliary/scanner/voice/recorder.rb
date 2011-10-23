@@ -1,5 +1,5 @@
 ##
-# $Id: call_scanner.rb 13183 2011-07-15 15:33:35Z egypt $
+# $Id$
 ##
 
 ##
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'Telephone Line Voice Scanner',
-			'Version'        => '$Revision: 13183 $',
+			'Version'        => '$Revision$',
 			'Description'    => 'This module dials a range of phone numbers and records audio from each answered call',
 			'Author'         => [ 'hdm' ],
 			'License'        => MSF_LICENSE,

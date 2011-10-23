@@ -1,18 +1,18 @@
 # $Id$
+# $Revision: $
 # Meterpreter script for listing installed applications and their version.
 # Provided: carlos_perez[at]darkoperator[dot]com
 
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(
-        "-h" => [ false, "Help menu." ]
+	"-h" => [ false, "Help menu." ]
 )
 
 def app_list
 	tbl = Rex::Ui::Text::Table.new(
 		'Header'  => "Installed Applications",
 		'Indent'  => 1,
-		'Columns' =>
-		  [
+		'Columns' => [
 			"Name",
 			"Version"
 		])
@@ -49,13 +49,13 @@ def app_list
 end
 
 opts.parse(args) { |opt, idx, val|
-        case opt
-        when "-h"
-                print_line "Meterpreter Script for extracting a list installed applications and their version."
-                print_line(opts.usage)
-                raise Rex::Script::Completed
-
-        end
+	case opt
+	when "-h"
+		print_line "Meterpreter Script for extracting a list installed applications and their version."
+		print_line(opts.usage)
+		raise Rex::Script::Completed
+		
+	end
 }
 if client.platform =~ /win32|win64/
 	app_list

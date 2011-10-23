@@ -328,7 +328,7 @@ class Metasploit3 < Msf::Post
 					hash.unpack("H*")[0],
 					logonDomainName,
 					dnsDomainName,
-			 		last.strftime("%F %T"),
+					last.strftime("%F %T"),
 					upn,
 					effectiveName,
 					fullName,

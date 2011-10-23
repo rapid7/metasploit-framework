@@ -41,23 +41,24 @@ class Metasploit3 < Msf::Post
 					"License Key"
 				])
 
-		keys =  [["HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\11.0\\Registration\\{91110409-6000-11D3-8CFE-0150048383C9}", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-00CA-0000-0000-0000000FF1CE}", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0014-0000-0000-0000000FF1CE}", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0051-0000-0000-0000000FF1CE}", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0053-0000-0000-0000000FF1CE}", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\100\\Tools\\Setup", "DigitalProductId"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77654"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77574"],
-			 ["HKLM\\SOFTWARE\\Microsoft\\Exchange\\Setup", "DigitalProductId"],
-			]
+		keys = [
+			[ "HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Office\\11.0\\Registration\\{91110409-6000-11D3-8CFE-0150048383C9}", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-00CA-0000-0000-0000000FF1CE}", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0014-0000-0000-0000000FF1CE}", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0051-0000-0000-0000000FF1CE}", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Office\\12.0\\Registration\\{91120000-0053-0000-0000-0000000FF1CE}", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\100\\Tools\\Setup", "DigitalProductId" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77654" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Microsoft SQL Server\\90\\ProductID", "DigitalProductId77574" ],
+			[ "HKLM\\SOFTWARE\\Microsoft\\Exchange\\Setup", "DigitalProductId" ],
+		]
 
 		keys.each do |keyx86|
-			
+
 			#parent key
 			p = keyx86[0,1].join
-			
+
 			#child key
 			c = keyx86[1,1].join
 
@@ -122,7 +123,7 @@ class Metasploit3 < Msf::Post
 
 				(string_length-1).downto(0) do |s|
 					t = ((mindex << 8) & 0xffffffff) | product_id[s]
-	      	 		product_id[s] = t / 24
+					product_id[s] = t / 24
 					mindex = t % 24
 				end
 

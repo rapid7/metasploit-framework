@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 #Meterpreter script for running multiple commands on Windows 2003, Windows Vista
 # and Windows XP and Windows 2008 targets.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
@@ -8,10 +9,10 @@ session = client
 wininfo = client.sys.config.sysinfo
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
-        "-h" => [ false,"Help menu."                        ],
-        "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
-        "-f" => [ true,"File where to saved output of command."],
-        "-rc" => [ true,"Text file with list of commands, one per line."]
+	"-h" => [ false,"Help menu."                        ],
+	"-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+	"-f" => [ true,"File where to saved output of command."],
+	"-rc" => [ true,"Text file with list of commands, one per line."]
 )
 #Setting Argument variables
 commands = []
@@ -52,11 +53,11 @@ def list_exec(session,cmdlst)
 end
 # Function for writing results of other functions to a file
 def filewrt(file2wrt, data2wrt)
-        output = ::File.open(file2wrt, "a")
-        data2wrt.each_line do |d|
-                output.puts(d)
-        end
-        output.close
+	output = ::File.open(file2wrt, "a")
+	data2wrt.each_line do |d|
+		output.puts(d)
+	end
+	output.close
 end
 
 def usage

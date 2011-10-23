@@ -98,14 +98,14 @@ class Metasploit3 < Msf::Auxiliary
 					end
 					rescue EOFError
 					rescue ::Exception => e
-						print_error("AIRPWN: failed to parse response file " \
+						print_error("AIRPWN: failed to parse response file " +
 							"#{r['file']}, #{e.class} #{e} #{e.backtrace}")
 					end
 				end
 			else
 				if r["file"] then
-					print_error "AIRPWN: Both 'response' and 'file' in yaml config, " \
-								"defaulting to 'response'"
+					print_error "AIRPWN: Both 'response' and 'file' in yaml config, " +
+						"defaulting to 'response'"
 				end
 
 				r["txresponse"] = r["response"]

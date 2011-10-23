@@ -25,6 +25,7 @@ def enum_int
 		
 	end
 end
+
 def arp_scan(cidr)
 	print_status("ARP Scanning #{cidr}")
 	ws = client.railgun.ws2_32
@@ -42,27 +43,20 @@ def arp_scan(cidr)
 	end
 	iplst.each do |ip_text|
 		if i < 10
-		        a.push(::Thread.new {
+			a.push(::Thread.new {
 					h = ws.inet_addr(ip_text)
 					ip = h["return"]
 					h = iphlp.SendARP(ip,0,6,6)
 					if h["return"] == client.railgun.const("NO_ERROR")
-						mac = h["pMacAddr"]
-						print_status("IP: #{ip_text} MAC " +
-							  mac[0].ord.to_s(16) + ":" +
-							  mac[1].ord.to_s(16) + ":" +
-							  mac[2].ord.to_s(16) + ":" +
-							  mac[3].ord.to_s(16) + ":" +
-							  mac[4].ord.to_s(16) + ":" +
-							  mac[5].ord.to_s(16)
-						)
+						mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
+						print_status("IP: #{ip_text} MAC #{mac_text}")
 						found << "#{ip_text}\n"
 					end
 				})
-		        i += 1
+			i += 1
 		else
-		        sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-		        i = 0
+			sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
+			i = 0
 		end
 	end
 	a.delete_if {|x| not x.alive?} while not a.empty?

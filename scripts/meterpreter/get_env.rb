@@ -1,4 +1,5 @@
 # $Id$
+# $Revision: $
 #-------------------------------------------------------------------------------
 #Options and Option Parsing
 opts = Rex::Parser::Arguments.new(

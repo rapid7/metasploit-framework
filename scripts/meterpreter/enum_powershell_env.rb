@@ -1,4 +1,5 @@
 # $Id$
+# $Revision: $
 #Meterpreter script for enumerating Microsoft Powershell settings.
 #Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com
 @client = client

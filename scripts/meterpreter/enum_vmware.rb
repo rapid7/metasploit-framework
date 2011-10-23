@@ -1,5 +1,6 @@
-# $Id$
+# $Id: $
 # $Revision$
+
 # Author: Carlos Perez at carlos_perez[at]darkoperator.com
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
@@ -261,7 +262,7 @@ def enum_vihosupdt
 		begin
 		@client.fs.dir.foreach(u['userappdata']+"VIU\\hosts\\") do |vmdir|
 			next if vmdir =~ /^(\.|\.\.)$/
-			 print_status("\t#{vmdir}")
+			print_status("\t#{vmdir}")
 		end
 		rescue
 		end

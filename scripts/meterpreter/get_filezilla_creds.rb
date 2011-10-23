@@ -1,5 +1,6 @@
 ##
 # $Id$
+# $Revision: $
 ##
 
 require "rexml/document"
@@ -84,10 +85,10 @@ def extract_saved_creds(path,xml_file)
 			print_status "\tUser: #{e.elements["User"].text}"
 			creds << "User: #{e.elements["User"].text}"
 			print_status "\tPassword: #{e.elements["Pass"].text}"
-		      creds << "Password: #{e.elements["Pass"].text}"
+			creds << "Password: #{e.elements["Pass"].text}"
 		elsif logon_type =~ /2|3/
-		      print_status "\tUser: #{e.elements["User"].text}"
-		      creds << "User: #{e.elements["User"].text}"
+			print_status "\tUser: #{e.elements["User"].text}"
+			creds << "User: #{e.elements["User"].text}"
 		end
 		
 		proto = e.elements["Protocol"].text

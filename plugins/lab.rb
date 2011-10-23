@@ -1,5 +1,6 @@
 ##
-## $Id$
+# $Id$
+# $Revision$
 ##
 
 $:.unshift(File.join(File.expand_path(File.dirname(__FILE__)), '..', 'lib', 'lab'))
@@ -14,7 +15,7 @@ class Plugin::Lab < Msf::Plugin
 		include Msf::Ui::Console::CommandDispatcher
 
 		attr_accessor :controller
-		
+
 		def initialize(driver)
 			super(driver)
 			@controller = nil
@@ -28,12 +29,12 @@ class Plugin::Lab < Msf::Plugin
 			"lab_help" => "lab_help <lab command> - Show that command's description.",
 			"lab_show" => "lab_show - show all vms in the lab.",
 			"lab_show_running" => "lab_show_running - show running vms.",
-			"lab_load" => "lab_load [file] - load a lab definition from disk.", 			
+			"lab_load" => "lab_load [file] - load a lab definition from disk.",
 			"lab_save" => "lab_save [filename] - persist a lab definition in a file.",
-			"lab_load_running" => "lab_load_running [type] [user] [host] - use the running vms to create a lab.", 
-			"lab_load_config" => "lab_load_config [type] [user] [host] - use the vms in the config to create a lab.", 
+			"lab_load_running" => "lab_load_running [type] [user] [host] - use the running vms to create a lab.",
+			"lab_load_config" => "lab_load_config [type] [user] [host] - use the vms in the config to create a lab.",
 			"lab_load_dir" => "lab_load_dir [type] [directory] - create a lab from a specified directory.",
-			"lab_clear" => "lab_clear - clear the running lab.",	
+			"lab_clear" => "lab_clear - clear the running lab.",
 			"lab_start" => "lab_start [vmid+|all] start the specified vm.",
 			"lab_reset" => "lab_reset [vmid+|all] reset the specified vm.",
 			"lab_suspend" => "lab_suspend [vmid+|all] suspend the specified vm.",
@@ -48,60 +49,60 @@ class Plugin::Lab < Msf::Plugin
 		def name
 			"Lab"
 		end
-	
+
 		##
 		## Regular Lab Commands
-		## 
+		##
 
 		def cmd_lab_load(*args)
-			return lab_usage unless args.count == 1 
+			return lab_usage unless args.count == 1
 			@controller.from_file(args[0])
 		end
 
 		def cmd_lab_load_running(*args)
 			return lab_usage if args.empty?
-			
+
 			if args[0] =~ /^remote_/
-				return lab_usage unless args.count == 3 
+				return lab_usage unless args.count == 3
 				## Expect a username & password
 				@controller.build_from_running(args[0], args[1], args[2])
 			else
-				return lab_usage unless args.count == 1 
+				return lab_usage unless args.count == 1
 				@controller.build_from_running(args[0])
 			end
 		end
 
 		def cmd_lab_load_config(*args)
 			return lab_usage if args.empty?
-			
+
 			if args[0] =~ /^remote_/
-				return lab_usage unless args.count == 3 
+				return lab_usage unless args.count == 3
 				## Expect a username & password
 				@controller.build_from_config(args[0], args[1], args[2])
 			else
-				return lab_usage unless args.count == 1 
+				return lab_usage unless args.count == 1
 				@controller.build_from_config(args[0])
 			end
 		end
 
-		def cmd_lab_load_dir(*args)	
+		def cmd_lab_load_dir(*args)
 			return lab_usage unless args.count == 2
 			@controller.build_from_dir(args[0],args[1],true)
 		end
 
 		def cmd_lab_clear(*args)
 			@controller.clear!
-	        end
+		end
 
-		def cmd_lab_save(*args)		
+		def cmd_lab_save(*args)
 			return lab_usage if args.empty?
 			@controller.to_file(args[0])
 		end
-		
 
-		## 
+
+		##
 		## Commands for dealing with a currently-loaded lab
-		## 
+		##
 
 		def cmd_lab_show(*args)
 			if args.empty?
@@ -112,72 +113,72 @@ class Plugin::Lab < Msf::Plugin
 						print_line @controller[vmid].to_yaml
 					else
 						print_error "Unknown vm '#{vmid}'"
-					end 
-				end
-			end
-	        end
-
-		def cmd_lab_show_running(*args)
-			hlp_print_lab_running
-	        end
-	        
-		def cmd_lab_start(*args)
-			return lab_usage if args.empty?
-		
-			if args[0] == "all"
-				@controller.each do |vm| 
-					print_line "Starting lab vm #{vm.vmid}."	
-					if !vm.running?
-						vm.start
-					else
-						print_line "Lab vm #{vm.vmid} already running."	
 					end
-				end
-			else
-				args.each do |arg|
-					if @controller.includes_vmid? arg
-						vm = @controller.find_by_vmid(arg)	
-						if !vm.running?
-							print_line "Starting lab vm #{vm.vmid}."	
-							vm.start
-						else
-							print_line "Lab vm #{vm.vmid} already running."	
-						end
-					end	
 				end
 			end
 		end
-	     
-		def cmd_lab_stop(*args)
+
+		def cmd_lab_show_running(*args)
+			hlp_print_lab_running
+		end
+
+		def cmd_lab_start(*args)
 			return lab_usage if args.empty?
-		
+
 			if args[0] == "all"
-				@controller.each do |vm| 
-					print_line "Stopping lab vm #{vm.vmid}."	
-					if vm.running?
-						vm.stop
+				@controller.each do |vm|
+					print_line "Starting lab vm #{vm.vmid}."
+					if !vm.running?
+						vm.start
 					else
-						print_line "Lab vm #{vm.vmid} not running."	
+						print_line "Lab vm #{vm.vmid} already running."
 					end
 				end
 			else
 				args.each do |arg|
 					if @controller.includes_vmid? arg
-						vm = @controller.find_by_vmid(arg)	
-						if vm.running?
-							print_line "Stopping lab vm #{vm.vmid}."	
-							vm.stop
+						vm = @controller.find_by_vmid(arg)
+						if !vm.running?
+							print_line "Starting lab vm #{vm.vmid}."
+							vm.start
 						else
-							print_line "Lab vm #{vm.vmid} not running."	
+							print_line "Lab vm #{vm.vmid} already running."
 						end
-					end	
+					end
 				end
 			end
-	        end
+		end
+
+		def cmd_lab_stop(*args)
+			return lab_usage if args.empty?
+
+			if args[0] == "all"
+				@controller.each do |vm|
+					print_line "Stopping lab vm #{vm.vmid}."
+					if vm.running?
+						vm.stop
+					else
+						print_line "Lab vm #{vm.vmid} not running."
+					end
+				end
+			else
+				args.each do |arg|
+					if @controller.includes_vmid? arg
+						vm = @controller.find_by_vmid(arg)
+						if vm.running?
+							print_line "Stopping lab vm #{vm.vmid}."
+							vm.stop
+						else
+							print_line "Lab vm #{vm.vmid} not running."
+						end
+					end
+				end
+			end
+		end
 
 		def cmd_lab_suspend(*args)
 			return lab_usage if args.empty?
-					
+
 			if args[0] == "all"
 				@controller.each{ |vm| vm.suspend }
 			else
@@ -186,15 +187,15 @@ class Plugin::Lab < Msf::Plugin
 						if @controller.find_by_vmid(arg).running?
 							print_line "Suspending lab vm #{arg}."
 							@controller.find_by_vmid(arg).suspend
-						end	
-					end	
+						end
+					end
 				end
 			end
-	        end
+		end
 
 		def cmd_lab_reset(*args)
 			return lab_usage if args.empty?
-		
+
 			if args[0] == "all"
 				print_line "Resetting all lab vms."
 				@controller.each{ |vm| vm.reset }
@@ -203,18 +204,18 @@ class Plugin::Lab < Msf::Plugin
 					if @controller.includes_vmid? arg
 						if @controller.find_by_vmid(arg).running?
 							print_line "Resetting lab vm #{arg}."
-							@controller.find_by_vmid(arg).reset	
+							@controller.find_by_vmid(arg).reset
 						end
-					end	
+					end
 				end
 			end
-	        end
+		end
 
 
 		def cmd_lab_snapshot(*args)
 			return lab_usage if args.count < 2
-			snapshot = args[args.count-1] 	
-		
+			snapshot = args[args.count-1]
+
 			if args[0] == "all"
 				print_line "Snapshotting all lab vms to snapshot: #{snapshot}."
 				@controller.each{ |vm| vm.create_snapshot(snapshot) }
@@ -225,12 +226,12 @@ class Plugin::Lab < Msf::Plugin
 					@controller[vmid_arg].create_snapshot(snapshot)
 				end
 			end
-	        end
+		end
 
 
 		def cmd_lab_revert(*args)
 			return lab_usage if args.count < 2
-			snapshot = args[args.count-1] 		
+			snapshot = args[args.count-1]
 
 			if args[0] == "all"
 				print_line "Reverting all lab vms to snapshot: #{snapshot}."
@@ -239,10 +240,10 @@ class Plugin::Lab < Msf::Plugin
 				args[0..-2].each do |vmid_arg|
 					next unless @controller.includes_vmid? vmid_arg
 					print_line "Reverting #{vmid_arg} to snapshot: #{snapshot}."
-					@controller[vmid_arg].revert_snapshot(snapshot)	
+					@controller[vmid_arg].revert_snapshot(snapshot)
 				end
 			end
-	        end
+		end
 
 
 		def cmd_lab_run_command(*args)
@@ -250,7 +251,7 @@ class Plugin::Lab < Msf::Plugin
 			command = args[args.count-1]
 			if args[0] == "all"
 				print_line "Running command #{command} on all vms."
-					@controller.each do |vm| 
+					@controller.each do |vm|
 						if vm.running?
 							print_line "#{vm.vmid} running command: #{command}."
 							vm.run_command(command)
@@ -260,19 +261,19 @@ class Plugin::Lab < Msf::Plugin
 				args[0..-2].each do |vmid_arg|
 					next unless @controller.includes_vmid? vmid_arg
 					if @controller[vmid_arg].running?
-						print_line "#{vmid_arg} running command: #{command}."					
+						print_line "#{vmid_arg} running command: #{command}."
 						@controller[vmid_arg].run_command(command)
 					end
 				end
 			end
-	        end
+		end
 
 		def cmd_lab_browse_to(*args)
 			return lab_usage if args.empty?
 			uri = args[args.count-1]
 			if args[0] == "all"
 				print_line "Opening: #{uri} on all vms."
-				@controller.each do |vm| 
+				@controller.each do |vm|
 					if vm.running?
 						print_line "#{vm.vmid} opening to uri: #{uri}."
 						vm.open_uri(uri)
@@ -288,12 +289,12 @@ class Plugin::Lab < Msf::Plugin
 				end
 			end
 		end
-	
+
 
 		##
 		## Commands for help
 		##
-		
+
 		def longest_cmd_size
 			commands.keys.map {|x| x.size}.sort.last
 		end
@@ -332,9 +333,9 @@ class Plugin::Lab < Msf::Plugin
 				end
 			end
 
-			print_line 
+			print_line
 			print_line "In order to use this plugin, you'll want to configure a .yml lab file"
-			print_line "You can find an example in data/lab/test_targets.yml" 
+			print_line "You can find an example in data/lab/test_targets.yml"
 			print_line
 		end
 
@@ -349,18 +350,18 @@ class Plugin::Lab < Msf::Plugin
 					'Columns' => [ 'Vmid', 'Name', 'Location', "Power?" ]
 				)
 
-				@controller.each do |vm| 
+				@controller.each do |vm|
 					tbl << [ 	vm.vmid,
 							vm.name,
 							vm.location,
 							vm.running?]
 				end
-			
+
 				print_line tbl.to_s
 			end
-				
+
 			def hlp_print_lab_running
-				indent = '    ' 
+				indent = '    '
 
 				tbl = Rex::Ui::Text::Table.new(
 					'Header'  => 'Running Lab VMs',
@@ -369,19 +370,19 @@ class Plugin::Lab < Msf::Plugin
 				)
 
 				@controller.each do |vm|
-					if vm.running? 
-						tbl << [ 	vm.vmid, 
+					if vm.running?
+						tbl << [ 	vm.vmid,
 								vm.name,
 								vm.location,
 								vm.running?]
-					end	
+					end
 				end
 				print_line tbl.to_s
 			end
 
 
 	end
-	
+
 	#
 	# The constructor is called when an instance of the plugin is created.  The
 	# framework instance that the plugin is being associated with is passed in
@@ -427,6 +428,6 @@ class Plugin::Lab < Msf::Plugin
 	def desc
 		"Adds the ability to manage VMs"
 	end
-	
+
 end ## End Class
 end ## End Module

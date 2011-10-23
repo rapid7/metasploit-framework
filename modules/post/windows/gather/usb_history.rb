@@ -85,10 +85,10 @@ class Metasploit3 < Msf::Post
 			if isadmin
 				mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
 				if mace
-                                        keytime = ::Time.at(mace)
-                                else
-                                        keytime = "Unknown"
-                                end
+					keytime = ::Time.at(mace)
+				else
+					keytime = "Unknown"
+				end
 				out << sprintf("%25s\t%50s\n", "Volume lpftLastWriteTime", keytime)
 			end
 			print_status(info_hash_to_str(out, v))

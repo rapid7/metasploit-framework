@@ -27,9 +27,9 @@ opts.parse(args) { |opt, idx, val|
 	when "-h"
 		print_line("")
 		print_line("USAGE:")
-		print_line("EXAMPLE: run process_dump putty.exe") 
-		print_line("EXAMPLE: run process_dump -p 1234") 
-		print_line(opts.usage) 
+		print_line("EXAMPLE: run process_dump putty.exe")
+		print_line("EXAMPLE: run process_dump -p 1234")
+		print_line(opts.usage)
 		raise Rex::Script::Completed
 	when "-p"
 		pid = val
@@ -40,15 +40,15 @@ opts.parse(args) { |opt, idx, val|
 	when "-q"
 		query = true
 	when "-r"
-                list = val
+		list = val
 		resource = ""
-                if not ::File.exists?(list)
-                        raise "Command List File does not exists!"
-                else
-                        ::File.open(list, "r").each_line do |line|
-                                resource << line
-                        end
-                end
+		if not ::File.exists?(list)
+			raise "Command List File does not exists!"
+		else
+			::File.open(list, "r").each_line do |line|
+				resource << line
+			end
+		end
 	end
 }
 
@@ -107,7 +107,7 @@ def dump_mem(pid,name, toggle)
 		base_size += mbi["RegionSize"]
 	end
 	print_status("Saving Dumped Memory to #{dumpfile}")
-	
+
 end
 
 # Function to query process Size

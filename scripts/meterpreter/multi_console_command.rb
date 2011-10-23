@@ -11,10 +11,11 @@
 
 # Setting Arguments
 @@exec_opts = Rex::Parser::Arguments.new(
-        "-h" => [ false,"Help menu."                        ],
-        "-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
-        "-rc" => [ true,"Text file with list of commands, one per line."]
+	"-h" => [ false,"Help menu."                        ],
+	"-cl" => [ true,"Commands to execute. The command must be enclosed in double quotes and separated by a comma."],
+	"-rc" => [ true,"Text file with list of commands, one per line."]
 )
+
 #Setting Argument variables
 commands = []
 script = []
@@ -46,30 +47,29 @@ def usage
 end
 ################## Main ##################
 @@exec_opts.parse(args) { |opt, idx, val|
-        case opt
-
-        when "-cl"
-                commands = val.split(",")
-        when "-rc"
-                script = val
-                if not ::File.exists?(script)
-                        raise "Command List File does not exists!"
-                else
-                        ::File.open(script, "r").each_line do |line|
-                                commands << line.chomp
-                        end
-                end
-
-        when "-h"
-                help = 1
-        end
-
+	case opt
+		
+	when "-cl"
+		commands = val.split(",")
+	when "-rc"
+		script = val
+		if not ::File.exists?(script)
+			raise "Command List File does not exists!"
+		else
+			::File.open(script, "r").each_line do |line|
+				commands << line.chomp
+			end
+		end
+		
+	when "-h"
+		help = 1
+	end
 }
 
 if args.length == 0 or help == 1
 	usage
 else
-	 list_con_exec(commands)
-	 raise Rex::Script::Completed
+	list_con_exec(commands)
+	raise Rex::Script::Completed
 end
 

@@ -1,5 +1,5 @@
 ##
-# $Id: $
+# $Id$
 ##
 
 ##
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Page Scraper',
-			'Version'     => '$Revision: 13183 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Scrap defined data from a specific web page based on a regular expresion',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

@@ -86,20 +86,20 @@ class Metasploit3 < Msf::Post
 
 	def run
 
-		'''
-	 Hash format
-  	  :name,
-  	  :check_file,
-  	  :check_reg,
-  	  :pass_variable,
-  	  :port_variable,
-  	  :port,
-  	  :hash,
-  	  :pass,
-  	  :viewonly_variable,
-  	  :viewonly_hash,
-  	  :viewonly_pass
-		'''
+	'''
+	Hash format
+		:name,
+		:check_file,
+		:check_reg,
+		:pass_variable,
+		:port_variable,
+		:port,
+		:hash,
+		:pass,
+		:viewonly_variable,
+		:viewonly_hash,
+		:viewonly_pass
+	'''
 
 		locations = []
 

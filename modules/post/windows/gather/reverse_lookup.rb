@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'                 => "Windows Gather IP Range Reverse Lookup",
-			'Description'          => %q{ 
+			'Description'          => %q{
 				This module uses Railgun, calling the gethostbyaddr function to resolve a hostname
 				to an IP.
 			},
@@ -34,12 +34,12 @@ class Metasploit3 < Msf::Post
 			], self.class)
 	end
 
-	
+
 	def run
-		
-		#Add ws2_32 just in case it isn't there... 
+
+		#Add ws2_32 just in case it isn't there...
 		session.railgun.ws2_32
-		
+
 		#Check if gethostbyaddr is available to us
 		modhandle = session.railgun.kernel32.GetModuleHandleA('ws2_32.dll')
 		if modhandle['return'] == 0
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 				return
 			end
 		end
-		
+
 		#Initialize Railgun 'gethostbyaddr' call'
 		session.railgun.add_function('ws2_32', 'gethostbyaddr', 'DWORD', [
 				['PCHAR', 'addr', 'in'],
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Post
 		iplist.each do |x|
 			#Converts an IP in string formate to network byte order format
 			nbi = Rex::Socket.addr_aton(x)
-			
+
 			#Call gethostbyaddr
 			result = session.railgun.ws2_32.gethostbyaddr(nbi.to_s,nbi.size,2)
 			if result['return'] == 0

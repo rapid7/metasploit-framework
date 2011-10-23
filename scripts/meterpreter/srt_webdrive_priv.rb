@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 
 ##
 # South River Technologies WebDrive Service Bad Security Descriptor Local Privilege Escalation.
@@ -63,7 +64,8 @@ opts.parse(args) do |opt, idx, val|
 
 				# Set correct service security descriptor to mitigate the vulnerability
 				print_status("Setting correct security descriptor for the South River Technologies WebDrive Service.")
-				client.sys.process.execute("cmd.exe /c sc sdset \"#{sname}\" D:(A;;CCLCSWLOCRRC;;;AU)(A;;CCLCSWRPLOCRRC;;;PU)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWRPWPDTLOCRRC;;;SY)", nil, {'Hidden' => 'true'})
+				client.sys.process.execute("cmd.exe /c sc sdset \"#{sname}\" D:(A;;CCLCSWLOCRRC;;;AU)(A;;CCLCSWRPLOCRRC;;;PU)(A;;CCDCLCSWRPWPDTLOCRSDRCWDWO;;;BA)(A;;CCLCSWRPWPDTLOCRRC;;;SY)",
+					nil, {'Hidden' => 'true'})
 			end
 		end
 		raise Rex::Script::Completed

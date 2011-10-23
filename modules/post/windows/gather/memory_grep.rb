@@ -17,20 +17,19 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Windows Gather Process Memory Grep',
 			'Description'    => %q{
-			    This module allows for searching the memory space of a proccess for potentially sensitive
-			      data.
-			  },
+					This module allows for searching the memory space of a proccess for potentially sensitive
+				data.
+			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['bannedit'],
 			'Version'        => '$Revision$',
 			'Platform'       => ['windows'],
 			'SessionTypes'   => ['meterpreter' ]
 		))
-		register_options(
-			[
-			  OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
-			  OptString.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
-			], self.class)
+		register_options([
+			OptString.new('PROCESS', [true, 'Name of the process to dump memory from', nil]),
+			OptString.new('REGEX', [true, 'Regular expression to search for with in memory', nil]),
+		], self.class)
 	end
 
 	def run

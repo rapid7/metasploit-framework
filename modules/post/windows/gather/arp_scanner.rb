@@ -68,13 +68,7 @@ class Metasploit3 < Msf::Post
 						ip = h["return"]
 						h = iphlp.SendARP(ip,0,6,6)
 						if h["return"] == client.railgun.const("NO_ERROR")
-							mac = h["pMacAddr"]
-							mac_text = mac[0].ord.to_s(16) + ":" +
-							  mac[1].ord.to_s(16) + ":" +
-							  mac[2].ord.to_s(16) + ":" +
-							  mac[3].ord.to_s(16) + ":" +
-							  mac[4].ord.to_s(16) + ":" +
-							  mac[5].ord.to_s(16)
+							mac_text = h["pMacAddr"].unpack('C*').map { |e| "%02x" % e }.join(':')
 							print_status("\tIP: #{ip_text} MAC #{mac_text}")
 							report_host(:host => ip_text,:mac => mac_text)
 						end

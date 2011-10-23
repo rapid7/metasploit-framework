@@ -59,7 +59,9 @@ class Metasploit3 < Msf::Auxiliary
 		vhost = datastore['VHOST'] || wmap_target_host
 		prot  = datastore['SSL'] ? 'https' : 'http'
 
-		webdav_req = %q|<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/><getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/><checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>|
+		webdav_req = '<?xml version="1.0" encoding="utf-8"?><propfind xmlns="DAV:"><prop><getcontentlength xmlns="DAV:"/>' +
+			'<getlastmodified xmlns="DAV:"/><executable xmlns="http://apache.org/dav/props/"/><resourcetype xmlns="DAV:"/>' +
+			'<checked-in xmlns="DAV:"/><checked-out xmlns="DAV:"/></prop></propfind>'
 
 		begin
 			res = send_request_cgi({

@@ -1,6 +1,7 @@
 # win32-sshclient.rb
 #
 # $Id$
+# $Revision$
 #
 # Meterpreter script to deploy & run the "plink" commandline ssh-client
 # supports only MS-Windows-2k/XP/Vista Hosts

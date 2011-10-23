@@ -104,13 +104,13 @@ class Plugin::Msfd < Msf::Plugin
 			addr = Rex::Socket.resolv_nbo(client.peerhost)
 
 			if opts['HostsAllowed'] and
-			   not opts['HostsAllowed'].find { |x| x == addr }
+				not opts['HostsAllowed'].find { |x| x == addr }
 				client.close
 				next
 			end
 
 			if opts['HostsDenied'] and
-			   opts['HostsDenied'].find { |x| x == addr }
+				opts['HostsDenied'].find { |x| x == addr }
 				client.close
 				next
 			end

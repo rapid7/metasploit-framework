@@ -3,6 +3,8 @@
 # Meterpreter script for triggering the VirtualBox DoS published at:
 # http://milw0rm.com/exploits/9323
 
+# $Revision$
+
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false,"Help menu." ]
 )

@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 # Meterpreter script for detecting if target host is a Virtual Machine
 # Provided by Carlos Perez at carlos_perez[at]darkoperator.com
 # Version: 0.2.0
@@ -20,37 +21,38 @@ session = client
 
 # Function for detecting if it is a Hyper-V VM
 def hypervchk(session)
- 	begin
-	vm = false
-	key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft', KEY_READ)
-	sfmsvals = key.enum_key
-	if sfmsvals.include?("Hyper-V")
-		print_status("This is a Hyper-V Virtual Machine")
-		vm = true
-	elsif sfmsvals.include?("VirtualMachine")
-		print_status("This is a Hyper-V Virtual Machine")
-		vm = true
-	end
-	key.close
-	rescue
-	end
-	if not vm
-		begin
-		key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
-		srvvals = key.enum_key
-		if srvvals.include?("vmicheartbeat")
+	begin
+		vm = false
+		key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SOFTWARE\Microsoft', KEY_READ)
+		sfmsvals = key.enum_key
+		if sfmsvals.include?("Hyper-V")
 			print_status("This is a Hyper-V Virtual Machine")
 			vm = true
-		elsif srvvals.include?("vmicvss")
-			print_status("This is a Hyper-V Virtual Machine")
-			vm = true
-		elsif srvvals.include?("vmicshutdown")
-			print_status("This is a Hyper-V Virtual Machine")
-			vm = true
-		elsif srvvals.include?("vmicexchange")
+		elsif sfmsvals.include?("VirtualMachine")
 			print_status("This is a Hyper-V Virtual Machine")
 			vm = true
 		end
+		key.close
+	rescue
+	end
+
+	if not vm
+		begin
+			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'SYSTEM\ControlSet001\Services', KEY_READ)
+			srvvals = key.enum_key
+			if srvvals.include?("vmicheartbeat")
+				print_status("This is a Hyper-V Virtual Machine")
+				vm = true
+			elsif srvvals.include?("vmicvss")
+				print_status("This is a Hyper-V Virtual Machine")
+				vm = true
+			elsif srvvals.include?("vmicshutdown")
+				print_status("This is a Hyper-V Virtual Machine")
+				vm = true
+			elsif srvvals.include?("vmicexchange")
+				print_status("This is a Hyper-V Virtual Machine")
+				vm = true
+			end
 		rescue
 		end
 	end
@@ -81,11 +83,11 @@ def vmwarechk(session)
 	end
 	if not vm
 		begin
-		key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
-		if key.query_value('Identifier').data.downcase =~ /vmware/
-			print_status("This is a VMware Virtual Machine")
-			vm = true
-	 end
+			key = session.sys.registry.open_key(HKEY_LOCAL_MACHINE, 'HARDWARE\DEVICEMAP\Scsi\Scsi Port 0\Scsi Bus 0\Target Id 0\Logical Unit Id 0')
+			if key.query_value('Identifier').data.downcase =~ /vmware/
+				print_status("This is a VMware Virtual Machine")
+				vm = true
+			end
 		rescue
 		end
 	end

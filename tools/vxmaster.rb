@@ -9,6 +9,8 @@
 #
 # (C) 2010 Rapid7
 #
+# $Revision$
+#
 
 
 # VxWorks converts the clear-text password into single integer value. This value

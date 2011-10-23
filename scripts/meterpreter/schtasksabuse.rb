@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 
 #Meterpreter script for abusing the scheduler service in windows
 #by scheduling and running a list of command against one or more targets
@@ -127,20 +128,20 @@ end
 		script = val
 		if not ::File.exists?(script)
 			raise "Command List File does not exists!"
-	       	else
-	    		::File.open(script, "r").each_line do |line|
+		else
+			::File.open(script, "r").each_line do |line|
 				commands << line.chomp
 			end
-	    	end
+		end
 	when "-l"
 		list = val
 		if not ::File.exists?(list)
 			raise "Command List File does not exists!"
-	       	else
-	    		::File.open(list, "r").each_line do |line|
+		else
+			::File.open(list, "r").each_line do |line|
 				targets << line.chomp
 			end
-	    	end
+		end
 	when "-h"
 		help = 1
 	end

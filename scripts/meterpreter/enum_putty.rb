@@ -1,4 +1,5 @@
 # $Id$
+# $Revision: $
 #
 # Meterpreter script for enumerating putty connections
 # Provided by Carlos Perez at carlos_perez[at]darkoperator[dot]com

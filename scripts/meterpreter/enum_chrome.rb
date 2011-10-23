@@ -33,7 +33,7 @@ end
 
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu" ],
-	"-m" => [ false, "Migrate into explorer.exe"], 
+	"-m" => [ false, "Migrate into explorer.exe"],
 	"-f" => [ true, "Output format: j[son], y[aml], t[ext]. Defaults to json"]
 )
 
@@ -43,7 +43,7 @@ opts.parse(args) { |opt, idx, val|
 		@migrate = true
 	when "-f"
 		if val =~ /^j(son)?$/
-			@output_format << "json" 
+			@output_format << "json"
 		elsif val =~ /^y(aml)?$/
 			@output_format << "yaml"
 		elsif val =~ /^t(ext)?$/
@@ -71,10 +71,10 @@ if @output_format.include?("json")
 		require 'json'
 	rescue LoadError
 		print_error("JSON is not available.")
-		@output_format.delete("json") 
+		@output_format.delete("json")
 		if @output_format.empty?
 			print_status("Falling back to raw text output.")
-			@output_format << "text" 
+			@output_format << "text"
 		end
 	end
 end
@@ -123,7 +123,7 @@ def write_output(file, rows)
 		::File.open(file + ".yml", "w") { |f| f.write(JSON.pretty_generate(rows)) }
 	end
 	if @output_format.include?("text")
-		::File.open(file + ".txt", "w") do |f| 
+		::File.open(file + ".txt", "w") do |f|
 			f.write(rows.first.keys.join("\t") + "\n")
 			f.write(rows.map { |e| e.values.map(&:inspect).join("\t") }.join("\n"))
 		end

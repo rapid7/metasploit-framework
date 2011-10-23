@@ -61,10 +61,12 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_advanced_options(
 			[
-				OptBool.new("SMB_EXTENDED_SECURITY",  [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
-				OptBool.new("NTLM_UseNTLM2_session", [ true,  "activate the 'Negotiate NTLM2 key' flag in ntlm authentification when  smb extended security negociation is set,  client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
-				OptBool.new("USE_GSS_NEGOCIATION",    [ true, "Send an gss_security blob in smb_negociate response when smb extended security is set, when this flag is not set windows will respond without gss encapsulation, ubuntu will still use gss", true ]),
-				OptString.new('DOMAIN_NAME',          [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
+				OptBool.new("SMB_EXTENDED_SECURITY", [ true, "Use smb extended security negociation, when set client will use ntlmssp, if not then client will use classic lanman authentification", false ]),
+				OptBool.new("NTLM_UseNTLM2_session", [ true, "Activate the 'negociate NTLM2 key' flag in NTLM authentication. " +
+					"When SMB extended security negociation is set, client will use ntlm2_session instead of ntlmv1 (default on win 2K and above)", false ]),
+				OptBool.new("USE_GSS_NEGOCIATION",   [ true, "Send a gss_security blob in smb_negociate response when SMB extended security is set. " +
+					"When this flag is not set, Windows will respond without gss encapsulation, Ubuntu will still use gss.", true ]),
+				OptString.new('DOMAIN_NAME',         [ true, "The domain name used during smb exchange with smb extended security set ", "anonymous" ])
 			], self.class)
 
 	end

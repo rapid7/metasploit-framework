@@ -157,8 +157,8 @@ class Metasploit3 < Msf::Post
 								lvt['name'] = lnk_file.sysread(lvt['len'] - 0x10)
 								
 								@data_out += "\t\tVolume Name = #{lvt['name']}\n" +
-								  "\t\tVolume Type = #{get_vol_type(lvt['type'])}\n" +
-								  "\t\tVolume SN   = 0x%X" % lvt['vol_sn'] + "\n"
+									"\t\tVolume Type = #{get_vol_type(lvt['type'])}\n" +
+									"\t\tVolume SN   = 0x%X" % lvt['vol_sn'] + "\n"
 								
 							end
 

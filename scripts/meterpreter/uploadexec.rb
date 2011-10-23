@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 
 session = client
 @@exec_opts = Rex::Parser::Arguments.new(

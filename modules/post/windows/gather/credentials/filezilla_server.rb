@@ -140,8 +140,10 @@ class Metasploit3 < Msf::Post
 		end
 		file.close
 
-		creds, perms, config = parse_server(fs_xml) # user credentials password is just an MD5 hash
-		 										    # admin pass is just plain text. Priorities?
+		# user credentials password is just an MD5 hash
+		# admin pass is just plain text. Priorities?
+		creds, perms, config = parse_server(fs_xml)
+
 		creds.each do |cred|
 			credentials << [cred['host'], cred['port'], cred['user'], cred['password'], cred['ssl']]
 

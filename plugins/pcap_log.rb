@@ -37,7 +37,7 @@ class Plugin::PcapLog < Msf::Plugin
 				"pcap_iface"  => "Set/Get an interface to capture from",
 				"pcap_start"  => "Start a capture",
 				"pcap_stop"   => "Stop a running capture",
-				
+
 				"pcap_show_config"  => "Show the current PcapLog configuration"
 			}
 		end
@@ -59,7 +59,7 @@ class Plugin::PcapLog < Msf::Plugin
 
 		def cmd_pcap_iface(*args)
 			@iface = args[0] || @iface
-			print_line "#{self.name} Interface: #{@iface}" 
+			print_line "#{self.name} Interface: #{@iface}"
 		end
 
 		def cmd_pcap_start(*args)
@@ -94,7 +94,7 @@ class Plugin::PcapLog < Msf::Plugin
 				print_line "Capture Stats: #{@pcap.stats.inspect}"
 				@pcap = nil
 				@capture_file.close if @capture_file.respond_to? :close
-				@capture_thread.kill 
+				@capture_thread.kill
 				@capture_thread = nil
 			else
 				print_error "No capture running."
@@ -124,7 +124,7 @@ class Plugin::PcapLog < Msf::Plugin
 				return [false, msg]
 			end
 
-			# Check directory suitability. 
+			# Check directory suitability.
 			unless File.directory? @dir
 				msg = "Invalid pcap directory specified: '#{@dir}'"
 				return [false, msg]
@@ -170,7 +170,7 @@ class Plugin::PcapLog < Msf::Plugin
 		end
 
 	end
-	
+
 	def initialize(framework, opts)
 		super
 		add_console_dispatcher(PcapLogDispatcher)
