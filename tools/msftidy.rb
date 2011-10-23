@@ -99,6 +99,9 @@ def check_single_file(dparts, fparts, f_rel)
 	no_stdio = true
 
 	in_comment = false
+	in_literal = false
+	src_ended = false
+
 	idx = 0
 	content.each_line { |ln|
 		idx += 1
@@ -111,7 +114,17 @@ def check_single_file(dparts, fparts, f_rel)
 		in_comment = true if ln =~ /^=begin$/
 		next if in_comment
 
-		if (ln.length > LONG_LINE_LENGTH) 
+		# block string awareness (ignore indentation in these)
+		in_literal = false if ln =~ /^EOS$/
+		next if in_literal
+		in_literal = true if ln =~ /\<\<-EOS$/
+
+		# ignore stuff after an __END__ line
+		src_ended = true if ln =~ /^__END__$/
+		next if src_ended
+
+
+		if (ln.length > LONG_LINE_LENGTH)
 			ll << [ idx, ln ]
 		end
 
@@ -146,6 +159,7 @@ def check_single_file(dparts, fparts, f_rel)
 			puts '  %8d: %s' % el
 		}
 	end
+
 	if ll.length > 0
 		puts "%s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
 		ll.each { |el|
@@ -153,6 +167,7 @@ def check_single_file(dparts, fparts, f_rel)
 			puts '  %8d: %s' % el
 		}
 	end
+
 	show_count(f, 'carriage return EOL', cr)
 	show_missing(f, 'missing $'+'Id: $', has_id)
 	show_missing(f, 'missing $'+'Revision: $', has_rev)
