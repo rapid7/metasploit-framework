@@ -898,6 +898,8 @@ class Db
 			mode = :search
 			host_ranges = []
 			types = nil
+			delete_count = 0
+
 			while (arg = args.shift)
 				case arg
 				when '-d','--delete'
@@ -949,12 +951,14 @@ class Db
 						tbl << row
 						if (mode == :delete)
 							loot.destroy
+							delete_count += 1
 						end
 					end
 				end
 			end
 			print_line
 			print_line tbl.to_s
+			print_status "Deleted #{delete_count} loots" if delete_count > 0
 		end
 
 		#
@@ -964,7 +968,7 @@ class Db
 		def cmd_db_autopwn(*args)
 			return unless active?
 
-			print_error("")			
+			print_error("")
 			print_error("Warning: The db_autopwn command is deprecated and will be removed in a future version.")
 			print_error("         This code is not well maintained, crashes systems, and crashes itself.")
 			print_error("")
