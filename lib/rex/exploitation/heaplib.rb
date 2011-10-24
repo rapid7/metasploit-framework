@@ -20,7 +20,7 @@ class HeapLib
 	# The list of symbols found in the file.  This is used to dynamically
 	# replace contents.
 	#
-	SymbolNames  = 
+	SymbolNames  =
 		{
 			"Methods" =>
 				[
