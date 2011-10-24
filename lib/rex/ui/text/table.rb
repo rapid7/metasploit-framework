@@ -98,7 +98,8 @@ class Table
 		str << header_to_s || ''
 		str << columns_to_s || ''
 		str << hr_to_s || ''
-		
+
+		sort_rows(0)
 		rows.each { |row|
 			if (is_hr(row))
 				str << hr_to_s
@@ -175,11 +176,23 @@ class Table
 
 	#
 	# Sorts the rows based on the supplied index of sub-arrays
+	# If the supplied index is an IPv4 address, handle it differently, but
+	# avoid actually resolving domain names.
 	#	
-	def sort_rows(index)
-		rows.sort!{|a,b| a[index].nil? ? -1 : b[index].nil? ? 1 : a[index] <=> b[index]}
+	def sort_rows(index=0)
+		return unless rows
+		rows.sort! do |a,b| 
+			if a[index].nil? 
+				-1
+			elsif b[index].nil?
+				1 
+			elsif Rex::Socket.dotted_ip?(a[index]) and Rex::Socket.dotted_ip?(b[index])
+				Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
+			else
+				a[index] <=> b[index] # assumes otherwise comparable.
+			end
+		end
 	end
-
 
 	#
 	# Adds a horizontal line.
