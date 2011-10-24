@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptString.new('CERTID', [ true, 'SHA1 hash of the certificate to remove.', ''],)
+				OptString.new('CERTID', [ true, 'SHA1 hash of the certificate to remove.', '']),
 			], self.class)
 	end
 
