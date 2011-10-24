@@ -26,7 +26,10 @@ class Metasploit3 < Msf::Auxiliary
 				version 0.9.8i and earlier. OpenSSL crashes under these versions when it recieves a
 				ChangeCipherspec Datagram before a ClientHello.
 			},
-			'Author'	=> ['TheLightCosine <thelightcosine@gmail.com>'],
+			'Author'	=> [
+						'Jon Oberheide <jon@oberheide.org>', #original code
+						'TheLightCosine <thelightcosine@gmail.com>' # metasploit module
+						],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
