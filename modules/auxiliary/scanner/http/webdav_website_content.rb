@@ -31,13 +31,17 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
+		register_options(
+			[
+				OptString.new('PATH', [true, "Path to use", '/']),
+			], self.class)
 	end
 
 	def run_host(target_host)
 
 		begin
 			res = send_request_cgi({
-				'uri'          => '/',
+				'uri'          => datastore['PATH'],
 				'method'       => 'PROPFIND',
 				'data'	=>	'',
 				'ctype'   => 'text/xml',
@@ -53,7 +57,6 @@ class Metasploit3 < Msf::Auxiliary
 				#print_status("#{res.body}")
 
 				result = res.body.scan(urlregex).uniq
-
 
 				result.each do |u|
 					print_status("Found file or directory in WebDAV response (#{target_host}) #{u}")

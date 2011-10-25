@@ -31,13 +31,17 @@ class Metasploit3 < Msf::Auxiliary
 			'License'     => MSF_LICENSE
 		)
 
+		register_options(
+			[
+				OptString.new('PATH', [true, "Path to use", '/']),
+			], self.class)
 	end
 
 	def run_host(target_host)
 
 		begin
 			res = send_request_raw({
-				'uri'          => '/',
+				'uri'          => datastore['PATH'],
 				'method'       => 'OPTIONS'
 			}, 10)
 
