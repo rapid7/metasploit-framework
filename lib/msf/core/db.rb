@@ -381,12 +381,11 @@ class DBManager
 =end
 
 		proto = opts[:proto] || 'tcp'
-		opts[:name].downcase! if (opts[:name]) # XXX shouldn't modify this in place, might be frozen by caller
 
 		service = host.services.find_or_initialize_by_port_and_proto(opts[:port].to_i, proto)
 		opts.each { |k,v|
 			if (service.attribute_names.include?(k.to_s))
-				service[k] = v
+				service[k] = ((v and k == :name) ? v.to_s.downcase : v)
 			else
 				dlog("Unknown attribute for Service: #{k}")
 			end
@@ -2053,7 +2052,7 @@ class DBManager
 	# Returns one of: :nexpose_simplexml :nexpose_rawxml :nmap_xml :openvas_xml
 	# :nessus_xml :nessus_xml_v2 :qualys_scan_xml, :qualys_asset_xml, :msf_xml :nessus_nbe :amap_mlog
 	# :amap_log :ip_list, :msf_zip, :libpcap, :foundstone_xml, :acunetix_xml, :appscan_xml
-	# :burp_session, :ip360_xml_v3, :ip360_aspl_xml
+	# :burp_session, :ip360_xml_v3, :ip360_aspl_xml, :nikto_xml
 	# If there is no match, an error is raised instead.
 	def import_filetype_detect(data)
 
@@ -2117,6 +2116,9 @@ class DBManager
 			data.each_line { |line|
 				line =~ /<([a-zA-Z0-9\-\_]+)[ >]/
 				case $1
+				when "niktoscan"
+					@import_filedata[:type] = "Nikto XML"
+					return :nikto_xml
 				when "nmaprun"
 					@import_filedata[:type] = "Nmap XML"
 					return :nmap_xml
@@ -2207,6 +2209,70 @@ class DBManager
 		end
 		return true
 	end
+
+	# Imports Nikto scan data from -Format xml as notes.
+	# TODO: Should import proper vulnerabilities as vulns, but Nikto doesn't report vuln
+	# names, just reference ID's and descriptions. For example:
+	#
+	# <item id="999971" osvdbid="877" osvdblink="http://osvdb.org/877" method="GET">
+	# <description><![CDATA[HTTP TRACE method is active, suggesting the host is vulnerable to XST]]></description>
+	# <uri><![CDATA[/]]></uri>
+	# <namelink><![CDATA[http://192.168.1.2:80/]]></namelink>
+	# <iplink><![CDATA[http://192.168.1.2:80/]]></iplink>
+	# </item>
+
+	def import_nikto_xml(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		doc = rexmlify(data)
+		doc.elements.each do |f|
+			f.elements.each('scandetails') do |host|
+				# Get host information
+				addr = host.attributes['targetip']
+				next if not addr
+				if bl.include? addr
+					next
+				else
+					yield(:address,addr) if block
+				end
+				# Get service information
+				port = host.attributes['targetport']
+				next if port.to_i == 0
+				uri = URI.parse(host.attributes['sitename']) rescue nil
+				next unless uri and uri.scheme
+				# Collect and report scan descriptions. 
+				host.elements.each do |item|
+					if item.elements['description']
+						desc_text = item.elements['description'].text
+						next if desc_text.nil? or desc_text.empty?
+						desc_data = {
+							:workspace => wspace,
+							:host => addr,
+							:type => "service.nikto.scan.description",
+							:data => desc_text,
+							:proto => "tcp",
+							:port => port.to_i,
+							:sname => uri.scheme,
+							:update => :unique_data
+						}
+						# Always report it as a note.
+						report_note(desc_data)
+						# Sometimes report it as a vuln, too.
+						# XXX: There's a Vuln.info field but nothing reads from it? See Bug #5837
+						if item.attributes['osvdbid'].to_i != 0
+							desc_data[:refs] = ["OSVDB-#{item.attributes['osvdbid']}"]
+							desc_data[:name] = "NIKTO-#{item.attributes['id']}"
+							desc_data.delete(:data) 
+							desc_data.delete(:type)
+							desc_data.delete(:update)
+							report_vuln(desc_data)
+						end
+					end
+				end				
+			end
+		end
+	end		
 
 	def import_libpcap_file(args={})
 		filename = args[:filename]
@@ -5437,4 +5503,3 @@ protected
 end
 
 end
-
