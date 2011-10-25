@@ -960,7 +960,7 @@ class Core
 		arg = args.shift
 		case arg
 
-		when "add", "remove"
+		when "add", "remove", "del"
 			if (args.length < 3)
 				print_error("Missing arguments to route #{arg}.")
 				return false
@@ -1000,7 +1000,7 @@ class Core
 				return false
 			end
 
-			if arg == "remove"
+			if arg == "remove" or arg == "del"
 				worked = Rex::Socket::SwitchBoard.remove_route(args[0], args[1], gw)
 				if worked
 					print_status("Route removed")
@@ -1066,7 +1066,7 @@ class Core
 
 			print(tbl.to_s)
 		else
-			print(usage)
+			cmd_route_help
 		end
 	end
 
@@ -2428,6 +2428,9 @@ protected
 			[ 'MinimumRank', framework.datastore['MinimumRank'] || '', 'The minimum rank of exploits that will run without explicit confirmation' ],
 			[ 'SessionLogging', framework.datastore['SessionLogging'] || '', 'Log all input and output for sessions' ],
 			[ 'TimestampOutput', framework.datastore['TimestampOutput'] || '', 'Prefix all console output with a timestamp' ],
+			[ 'Prompt', framework.datastore['Prompt'] || '', 'The prompt string, defaults to "%undmsf%clr"' ],
+			[ 'PromptChar', framework.datastore['PromptChar'] || '', 'The prompt character, defaults to ">"' ],
+			[ 'PromptTimeFormat', framework.datastore['PromptTimeFormat'] || '', 'A format for timestamp escapes in the prompt, see ruby\'s strftime docs' ],
 		].each { |r| tbl << r }
 
 		print(tbl.to_s)
