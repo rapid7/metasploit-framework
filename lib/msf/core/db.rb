@@ -2210,17 +2210,9 @@ class DBManager
 		return true
 	end
 
-	# Imports Nikto scan data from -Format xml as notes.
-	# TODO: Should import proper vulnerabilities as vulns, but Nikto doesn't report vuln
-	# names, just reference ID's and descriptions. For example:
 	#
-	# <item id="999971" osvdbid="877" osvdblink="http://osvdb.org/877" method="GET">
-	# <description><![CDATA[HTTP TRACE method is active, suggesting the host is vulnerable to XST]]></description>
-	# <uri><![CDATA[/]]></uri>
-	# <namelink><![CDATA[http://192.168.1.2:80/]]></namelink>
-	# <iplink><![CDATA[http://192.168.1.2:80/]]></iplink>
-	# </item>
-
+	# Imports Nikto scan data from -Format xml as notes.
+	#
 	def import_nikto_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
