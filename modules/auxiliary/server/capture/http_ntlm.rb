@@ -151,11 +151,15 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Unknown hash type from #{host}, ignoring ...")
 			end
 
-			arg[:host] = host
-			arg[:user] = user
-			arg[:domain] = domain
-			arg[:ip] = cli.peerhost
-			html_get_hash(arg)
+			# If we get an empty hash, or unknown hash type, arg is not set.
+			# So why try to read from it?
+			if not arg.nil?
+				arg[:host] = host
+				arg[:user] = user
+				arg[:domain] = domain
+				arg[:ip] = cli.peerhost
+				html_get_hash(arg)
+			end
 
 			response = create_response(200)
 			response.headers['Cache-Control'] = "no-cache"
