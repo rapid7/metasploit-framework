@@ -1078,12 +1078,35 @@ class Core
 			return %w{add remove get flush print}
 		end
 
-		# The "add" and "remove" options take 3+ args,
-		# but we can't really complete them well.
-
+		ret = []
+		case words[1]
+		when "remove", "del"
+			Rex::Socket::SwitchBoard.each { |route|
+				case words.length
+				when 2
+					ret << route.subnet
+				when 3
+					if route.subnet == words[2]
+						ret << route.netmask
+					end
+				when 4
+					if route.subnet == words[2]
+						ret << route.comm.sid.to_s if route.comm.kind_of? Msf::Session
+					end
+				end
+			}
+			ret
+		when "add"
+			# We can't really complete the subnet and netmask args without
+			# diving pretty deep into all sessions, so just be content with
+			# completing sids for the last arg
+			if words.length == 4
+				ret = framework.sessions.keys.map { |k| k.to_s }
+			end
 		# The "get" command takes one arg, but we can't complete it either...
+		end
 
-		[]
+		ret
 	end
 
 	def cmd_save_help
