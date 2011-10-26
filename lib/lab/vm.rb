@@ -102,7 +102,11 @@ class Vm
 		@modifiers = config['modifiers']
 		
 		if @modifiers	
- 			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
+			begin
+	 			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
+			rescue Exception => e
+				# modifier likely didn't exist
+			end 		
 		end
 	end
 	
