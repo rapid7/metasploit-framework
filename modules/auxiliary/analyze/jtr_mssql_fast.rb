@@ -15,23 +15,25 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'				=> 'John the Ripper MS SQL Password Cracker (Fast Mode)',
-			'Version'           => '$$',
-			'Description'       => %Q{
+			'Name'           => 'John the Ripper MS SQL Password Cracker (Fast Mode)',
+			'Version'        => '$$',
+			'Description'    => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from the mssql_hashdump module. Passwords that have been successfully
 				cracked are then saved as propper credentials
 			},
-			'Author'			=> ['TheLightCosine <thelightcosine[at]gmail.com>',
-									'hdm'
-									] ,
-			'License'			=> MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
+			'Author'         =>
+				[
+					'TheLightCosine <thelightcosine[at]gmail.com>',
+					'hdm'
+				],
+			'License'        => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
 		)
 	end
 
 	def run
 		@wordlist = Rex::Quickfile.new("jtrtmp")
-		
+
 		@wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )	
 		@wordlist.close
 		print_status("Cracking MSSQL Hashes")
@@ -39,14 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Cracking MSSQL05 Hashes")
 		crack("mssql05")
 
-			
-				
-			
 	end
-	
+
 	def build_seed
-	
-		seed = [] 
+
+		seed = []
 		#Seed the wordlist with Database , Table, and Instance Names
 		schemas = myworkspace.notes.find(:all, :conditions => ['ntype like ?', '%.schema%'])
 		unless schemas.nil? or schemas.empty?
@@ -57,23 +56,22 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 		end
-	
+
 		instances = myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename'])
 		unless instances.nil? or instances.empty?
 			instances.each do |anote|
 				seed << anote.data['InstanceName']
 			end
 		end
-			
+
 		# Seed the wordlist with usernames, passwords, and hostnames
-		
 
 		myworkspace.hosts.find(:all).each {|o| seed << john_expand_word( o.name ) if o.name }
 		myworkspace.creds.each do |o| 
 			seed << john_expand_word( o.user ) if o.user
 			seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
 		end
-		
+
 		# Grab any known passwords out of the john.pot file
 		john_cracked_passwords.values {|v| seed << v }
 
@@ -82,10 +80,10 @@ class Metasploit3 < Msf::Auxiliary
 		john.each_line{|line| seed << line.chomp}
 
 		return seed
-	
+
 	end
-	
-	
+
+
 	def crack(format)
 		
 		hashlist = Rex::Quickfile.new("jtrtmp")
@@ -103,19 +101,19 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			hashlist.close
-			
+
 			print_status("HashList: #{hashlist.path}")
 			print_status("Trying Wordlist: #{@wordlist.path}")
 			john_crack(hashlist.path, :wordlist => @wordlist.path, :rules => 'single', :format => format)
-			
+
 			print_status("Trying Rule: All4...")
 			john_crack(hashlist.path, :incremental => "All4", :format => format)
-			
+
 			print_status("Trying Rule: Digits5...")
 			john_crack(hashlist.path, :incremental => "Digits5", :format => format)
-			
+
 			cracked = john_show_passwords(hashlist.path, format)
-			
+
 			print_status("#{cracked[:cracked]} hashes were cracked!")	
 			cracked[:users].each_pair do |k,v|	
 				print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
@@ -125,10 +123,9 @@ class Metasploit3 < Msf::Auxiliary
 					:sname => 'mssql',
 					:user => k,
 					:pass => v[0]
-				)	
+				)
 			end
 		end
 	end
-	
-end
 
+end
