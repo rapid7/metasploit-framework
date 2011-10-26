@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'				=> 'Unix Unshadow Utility',
 			'Version'           => '$$',
 			'Description'       => %Q{
-					This module takes a passwd and shaodw file and 'unshadows'
+					This module takes a passwd and shadow file and 'unshadows'
 					them and saves them as linux.hashes loot.
 			},
 			'Author'			=> ['TheLightCosine <thelightcosine[at]gmail.com>'],
