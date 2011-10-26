@@ -1,0 +1,53 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+#
+##
+
+
+require 'msf/core'
+
+
+class Metasploit3 < Msf::Auxiliary
+
+	include Msf::Auxiliary::JohnTheRipper
+
+	def initialize
+		super(
+			'Name'				=> 'Unix Unshadow Utility',
+			'Version'           => '$$',
+			'Description'       => %Q{
+					This module takes a passwd and shaodw file and 'unshadows'
+					them and saves them as linux.hashes loot.
+			},
+			'Author'			=> ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'License'			=> MSF_LICENSE  
+		)
+		
+		register_options([OptPath.new('passwd', [true, 'The path to the passwd file']),
+						OptPath.new('shadow', [true, 'The path to the shadow file']),
+						OptAddress.new('IP', [true, 'The IP address if the host the shadow file came from']),		
+		])
+		
+	end
+
+	def run
+	
+		unshadow = john_unshadow(datastore['passwd'],datastore['shadow'])
+		if unshadow
+			print_good(unshadow)
+			filename= "#{datastore['IP']}_Linux_Hashes.txt"
+			lootfile = store_loot("linux.hashes", "text/plain", datastore['IP'], unshadow, filename, "Linux Hashes")
+			print_status("Saved unshadowed file: #{lootfile}")
+		end
+				
+		
+	end
+	
+	
+		
+	
+end
+
