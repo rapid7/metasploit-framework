@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 			sock = Rex::Socket::Tcp.create(
 				'PeerHost' => ip,
 				'PeerPort' => port,
-				'Timeout' => 1
+				'Timeout' => 20
 				)
 		rescue Rex::ConnectionError
 			return :down
