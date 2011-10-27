@@ -1,4 +1,6 @@
 #
+# $Id$
+#
 # This is a modified version of token_hunter.rb. Credit to
 # jduck (I believe) for much of the base code here.
 #
@@ -7,6 +9,7 @@
 #
 # jseely[at]relaysecurity.com
 #
+# TODO: This should probably find new life as a post module.
 
 module Msf
 
