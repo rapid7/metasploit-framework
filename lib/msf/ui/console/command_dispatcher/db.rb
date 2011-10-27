@@ -13,6 +13,9 @@ class Db
 
 		include Msf::Ui::Console::CommandDispatcher
 
+		# TODO: Not thrilled about including this entire module for just store_local.
+		include Msf::Auxiliary::Report
+
 		#
 		# Constants
 		#
@@ -1606,6 +1609,12 @@ class Db
 				return
 			end
 
+			save = false
+			if args.include?("save")
+				save = active? 
+				args.delete("save")
+			end
+
 			nmap =
 				Rex::FileUtils.find_full_path("nmap") ||
 				Rex::FileUtils.find_full_path("nmap.exe")
@@ -1657,8 +1666,21 @@ class Db
 
 			fo.close(true)
 			framework.db.import_nmap_xml_file(:filename => fd.path)
+
+			if save
+				fd.rewind
+				saved_path = report_store_local("nmap.scan.xml", "text/xml", fd.read, "nmap_#{Time.now.utc.to_i}")
+				print_status "Saved NMAP XML results to #{saved_path}"
+			end
 			fd.close(true)
 		end
+
+
+		# Store some locally-generated data as a file, similiar to store_loot.
+		def report_store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
+			store_local(ltype,ctype,data,filename)
+		end
+
 
 		#
 		# Database management

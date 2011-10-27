@@ -203,6 +203,74 @@ module Auxiliary::Report
 		return full_path.dup
 	end
 
+	#
+	# Store some locally-generated data as a file, similiar to store_loot.
+	# Sometimes useful for keeping artifacts of an exploit or auxiliary
+	# module, such as files from fileformat exploits. (TODO: actually
+	# implement this on file format modules.)
+	# 
+	# +filenmae+ is the local file name.
+	#
+	# +data+ is the actual contents of the file
+	#
+	# Also stores metadata about the file in the database when available.
+	# +ltype+ is an OID-style loot type, e.g. "cisco.ios.config".  Ignored when
+	# no database is connected.
+	#
+	# +ctype+ is the Content-Type, e.g. "text/plain". Ignored when no database
+	# is connected. 
+	#
+	def store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
+		if ! ::File.directory?(Msf::Config.local_directory)
+			FileUtils.mkdir_p(Msf::Config.local_directory)
+		end
+
+		# Split by fname an extension
+		if filename and not filename.empty?
+			if filename =~ /(.*)\.(.*)/
+				ext = $2
+				fname = $1
+			else
+				fname = filename
+			end
+		else
+			fname = ctype || "local_#{Time.now.utc.to_i}"
+		end
+
+		# Split by path seperator
+		fname = ::File.split(fname).last
+
+		case ctype # Probably could use more cases 
+		when "text/plain"
+			ext ||= "txt"
+		when "text/xml"
+			ext ||= "xml"
+		when "text/html"
+			ext ||= "html"
+		when "application/pdf"
+			ext ||= "pdf"
+		else
+			ext ||= "bin"
+		end
+
+		fname.gsub!(/[^a-z0-9\.\_]+/i, '')
+		fname << ".#{ext}"
+
+		ltype.gsub!(/[^a-z0-9\.\_]+/i, '')
+
+		path = File.join(Msf::Config.local_directory, fname)
+		full_path = ::File.expand_path(path)
+		File.open(full_path, "wb") { |fd| fd.write(data) }
+
+		# This will probably evolve into a new database table
+		framework.db.report_note(
+			:data => full_path.dup,
+			:type => "#{ltype}.localpath",
+		)
+
+		return full_path.dup
+	end
+
 	# Takes a credential from a script (shell or meterpreter), and
 	# sources it correctly to the originating user account or
 	# session. Note that the passed-in session ID should be the

@@ -51,7 +51,8 @@ class Config < Hash
 			'SessionLogDirectory' => "logs/sessions",
 			'PluginDirectory'     => "plugins",
 			'DataDirectory'       => "data",
-			'LootDirectory'       => "loot"
+			'LootDirectory'       => "loot",
+			'LocalDirectory'      => "local"
 		}
 
 	##
@@ -121,6 +122,13 @@ class Config < Hash
 	#
 	def self.loot_directory
 		self.new.loot_directory
+	end
+
+	#
+	# Calls the instance method.
+	#
+	def self.local_directory
+		self.new.local_directory
 	end
 
 	#
@@ -257,6 +265,13 @@ class Config < Hash
 	end
 
 	#
+	# Returns the directory in which locally-generated data will reside.
+	#
+	def local_directory
+		config_directory + FileSep + self['LocalDirectory']
+	end
+
+	#
 	# Returns the user-specific module base path
 	#
 	def user_module_directory
@@ -292,6 +307,7 @@ class Config < Hash
 		FileUtils.mkdir_p(log_directory)
 		FileUtils.mkdir_p(session_log_directory)
 		FileUtils.mkdir_p(loot_directory)
+		FileUtils.mkdir_p(local_directory)
 		FileUtils.mkdir_p(user_module_directory)
 		FileUtils.mkdir_p(user_plugin_directory)
 	end
