@@ -860,7 +860,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			line = ""
 			width = 30  # name field width
-			#twidth = 16 # table like display cell width
+			twidth = 32 # table like display cell width
 
 			fields_order.each {|k|
 				if not output_data.has_key?(k)
@@ -877,12 +877,14 @@ class Metasploit3 < Msf::Auxiliary
 						case a
 						when Hash
 							a.each{ |sk, sv|
+								sk = truncate_to_twidth(sk, twidth)
 								content << sprintf("    %s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
 							}
 							content << "\n"
 						when Array
 							a.each { |sv|
 								sv = sv.to_s.strip
+								sv = truncate_to_twidth(sv, twidth)
 								content << sprintf("%s%s", " " * 5, sv)
 							}
 							content << "\n"
@@ -906,6 +908,7 @@ class Metasploit3 < Msf::Auxiliary
 				when Hash
 					content = ""
 					v.each{ |sk, sv|
+						sk = truncate_to_twidth(sk,twidth)
 						content << sprintf("    %s%s: %s\n", sk, " "*([0,width-sk.length].max), sv)
 					}
 
@@ -934,6 +937,7 @@ class Metasploit3 < Msf::Auxiliary
 						:data  => v
 					)
 
+					k = truncate_to_twidth(k,twidth)
 					line << sprintf("%s%s: %s\n", k, " "*([0,width-k.length].max), v)
 				end
 			}
@@ -959,6 +963,10 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Exception => e
 			print_status("Unknown error: #{e.class} #{e}")
 		end
+	end
+
+	def truncate_to_twidth(string,twidth)
+		string.slice(0..twidth-2)
 	end
 
 	def number_to_human_size(size,unit)
