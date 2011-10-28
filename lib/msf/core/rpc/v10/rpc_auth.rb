@@ -10,7 +10,6 @@ begin
 rescue ::LoadError
 end
 
-
 	def rpc_login_noauth(user,pass)
 
 		# handle authentication here
@@ -27,18 +26,18 @@ end
 		error(401, "Login Failed") if fail
 
 		token = "TEMP" + Rex::Text.rand_text_alphanumeric(28)
-		self.tokens[token] = [user, Time.now.to_i, Time.now.to_i]
+		self.service.tokens[token] = [user, Time.now.to_i, Time.now.to_i]
 		{ "result" => "success", "token" => token }
 	end
 
 	def rpc_logout(token)
-		found = self.tokens[token]
-		error("500", "Invalid Authentication Token")
+		found = self.service.tokens[token]
+		error("500", "Invalid Authentication Token") if not found
+		error("500", "Permanent Authentication Token") if found[3] == true
 
 		# Delete the token if its not marked as permanent
-		if found and found[3] != true
-			self.tokens.delete(token)
-		end
+		self.service.tokens.delete(token)
+
 		{ "result" => "success" }
 	end
 
@@ -88,7 +87,7 @@ end
 		end
 
 		if not db
-			token = "TEMP" + Rex::Text.rand_text_alphanumeric(28)
+			token = "TEMP" + Rex::Text.rand_text_numeric(28)
 			self.service.tokens[token] = [nil, nil, nil, true]
 		end
 
