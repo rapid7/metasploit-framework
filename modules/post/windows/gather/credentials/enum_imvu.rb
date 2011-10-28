@@ -70,6 +70,9 @@ class Metasploit3 < Msf::Post
 			creds << [user, decpass]
 			credcount = (credcount + 1)
 		end
+
+		#clean up after ourselves
+		unload_our_hives(userhives)
 		print_status("#{credcount} Credentials were found.")
 
 		if credcount > 0 
