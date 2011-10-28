@@ -48,13 +48,13 @@ class Metasploit3 < Msf::Auxiliary
 						::File.join(Msf::Config.log_directory, "vxworks_memory.dmp")
 					]
 				),
-				OptInt.new('OFFSET', [ true, "The starting offset to read the memory dump in hex", 0 ])
+				OptInt.new('OFFSET', [ true, "The starting offset to read the memory dump (hex allowed)", 0 ])
 			], self.class)
 	end
 
 	def run
-		offset = datastore['OFFSET'].to_s.to_i(16)
-		print_status("Attempting to dump system memory...")
+		offset = datastore['OFFSET'].to_i
+		print_status("Attempting to dump system memory, starting at offset 0x%02x" % offset)
 
 		wdbrpc_client_connect
 
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		lfd = nil
 		if offset != 0
-			lfd = ::File.open(datastore['LPATH'], "ab")
+			lfd = ::File.open(datastore['LPATH'], "wb")
 			lfd.seek(offset)
 		else
 			lfd = ::File.open(datastore['LPATH'], "wb")
