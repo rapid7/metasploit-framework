@@ -265,7 +265,7 @@ module Auxiliary::Report
 		# This will probably evolve into a new database table
 		framework.db.report_note(
 			:data => full_path.dup,
-			:type => "#{ltype}.localpath",
+			:type => "#{ltype}.localpath"
 		)
 
 		return full_path.dup
