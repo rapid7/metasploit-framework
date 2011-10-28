@@ -2,6 +2,7 @@
 
 The following sites are great references for Git padawans and jedi alike:
 
+* [Git-SVN crash course](http://git.or.cz/course/svn.html): Lots of good stuff on helping newbies grok the concepts of Git w/ reference to similar concepts in Subversion.
 * [learn.github.com](http://learn.github.com): GitHub's own reference site. Includes helpful GitHub-specific information.
 * [Git Reference](http://gitref.org): From the site: "meant to be a quick reference for learning and remembering the most important and commonly used Git commands." Follows a tutorial-like format. Great for beginners.
 * [The Pro Git Book](http://progit.org): A free, online copy of the Pro Git book by GitHubber Scott Chacon.
