@@ -86,11 +86,6 @@ class Metasploit3 < Msf::Auxiliary
 
 				print_status("#{rhost}:#{rport} is running #{desc}")
 
-				report_host(
-					:host => ip,
-					:name => simple.client.default_name
-				)
-
 				report_service(
 					:host  => ip,
 					:port  => info[0],
