@@ -1,4 +1,5 @@
 require 'rex/ui'
+require 'rex/socket'
 
 module Rex
 module Ui
