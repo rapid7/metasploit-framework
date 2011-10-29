@@ -24,8 +24,7 @@ class Metasploit3 < Msf::Post
 			'Name'                 => "Windows Gather Service Info Enumeration",
 			'Description'          => %q{
 				This module will query the system for services and display name and configuration
-				info for each returned service, if VERBOSE is set to false you will just see the
-				service name. It allows you to optionally search the credentials, path, or start
+				info for each returned service. It allows you to optionally search the credentials, path, or start
 				type for a string and only return the results that match. These query operations
 				are cumulative and if no query strings are specified, it just returns all services.
 				NOTE: If the script hangs, windows firewall is most likely on and you did not
@@ -101,8 +100,6 @@ class Metasploit3 < Msf::Post
 				rescue
 					print_error("An error occured enumerating service: #{sname}")
 				end
-			elsif sname
-				print_good("\tName: #{sname}")
 			else
 				print_error("Problem enumerating services")
 			end
