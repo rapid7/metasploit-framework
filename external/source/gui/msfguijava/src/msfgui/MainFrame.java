@@ -55,6 +55,7 @@ public class MainFrame extends FrameView {
 			});
 		eventsTable.setName("eventsTable"); // NOI18N
 		eventsPane.setViewportView(eventsTable);
+		tabbedPane.addTab("Events", eventsPane); // NOI18N
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
 
@@ -1558,11 +1559,6 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}//GEN-LAST:event_vulnsViewItemActionPerformed
 
 	private void eventsViewItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_eventsViewItemActionPerformed
-		if(eventsPane.getParent() == null)
-			tabbedPane.addTab("Events", eventsPane);
-		if(eventsTable.getRowCount() == 0)
-			reAdd(eventsTable,(List) ((Map)rpcConn.execute("db.events",MsfguiApp.workspace)).get("events"),
-					new String[]{"host","created_at","updated_at","name","critical","username","info"});
 		DraggableTabbedPane.show(eventsPane);
 	}//GEN-LAST:event_eventsViewItemActionPerformed
 

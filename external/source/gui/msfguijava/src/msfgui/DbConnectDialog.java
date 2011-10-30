@@ -229,6 +229,14 @@ public class DbConnectDialog extends OptionsDialog {
 		props.put("db"+key, val);
 	}
 
+	/** Remove quotes */
+	private String stripQuotes(String quoted){
+		if(quoted.startsWith("\"") && quoted.endsWith("\"")
+				|| quoted.startsWith("\'") && quoted.endsWith("\'"))
+			return quoted.substring(1, quoted.length() - 1);
+		return quoted;
+	}
+
 	/** Loads database information from the database.yml file in the default install. */
 	private void reloadDefaults(){
 		try{
@@ -243,17 +251,17 @@ public class DbConnectDialog extends OptionsDialog {
 				token = s.next();
 			while(s.hasNext()){
 				if(token.equals("adapter:"))
-					props.put("dbdriver", s.next());
+					props.put("dbdriver", stripQuotes(s.next()));
 				else if(token.equals("database:"))
-					props.put("dbdatabase", s.next());
+					props.put("dbdatabase", stripQuotes(s.next()));
 				else if(token.equals("username:"))
-					props.put("dbusername", s.next());
+					props.put("dbusername", stripQuotes(s.next()));
 				else if(token.equals("password:"))
-					props.put("dbpassword", s.next().replace("'", ""));
+					props.put("dbpassword", stripQuotes(s.next()));
 				else if(token.equals("host:"))
-					props.put("dbhost", s.next());
+					props.put("dbhost", stripQuotes(s.next()));
 				else if(token.equals("port:"))
-					props.put("dbport", s.next());
+					props.put("dbport", stripQuotes(s.next()));
 				token = s.next();
 			}
 		} catch (FileNotFoundException fnfox){
