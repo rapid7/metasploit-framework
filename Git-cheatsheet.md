@@ -5,6 +5,12 @@ your day-to-day workflow with Git.
 
 **Pro Tip:** you can get man pages for any git command by inserting a hyphen.  As in: "man git-fetch" or "man git-merge"
 
+## What's going on?
+
+* What branch am I on? Which files are modified, which are staged, which are untracked, etc?
+
+    `git status`
+
 ## Fetch, Pull, and Push
 
 * Get all new changes, and remote branch refs
