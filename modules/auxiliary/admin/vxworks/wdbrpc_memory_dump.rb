@@ -71,7 +71,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		lfd = nil
 		if offset != 0
-			lfd = ::File.open(datastore['LPATH'], "wb")
+			# Turns out ruby's implementation of seek with "ab" mode is all kind of busted.
+			lfd = ::File.open(datastore['LPATH'], "r+b")
 			lfd.seek(offset)
 		else
 			lfd = ::File.open(datastore['LPATH'], "wb")
