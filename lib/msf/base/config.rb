@@ -20,6 +20,12 @@ class Config < Hash
 	#
 	def self.get_config_root
 
+		# Use MSFCFGDIR environment variable first. See feature request #5797
+		val = Rex::Compat.getenv('MSF_CFGROOT_CONFIG')
+		if (val and File.directory?(val))
+			return val
+		end
+
 		# Windows-specific environment variables
 		['HOME', 'LOCALAPPDATA', 'APPDATA', 'USERPROFILE'].each do |dir|
 			val = Rex::Compat.getenv(dir)
