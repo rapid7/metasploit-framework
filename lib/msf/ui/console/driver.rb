@@ -283,6 +283,7 @@ class Driver < Msf::Ui::Driver
 		processed_resource = erb.result(binding)
 
 		lines = processed_resource.each_line.to_a
+		bindings = {}
 		while lines.length > 0
 			
 			line = lines.shift
@@ -290,8 +291,17 @@ class Driver < Msf::Ui::Driver
 			line.strip!
 			next if line.length == 0
 			next if line =~ /^#/
-	
-			if line =~ /<ruby>/
+
+			# Pretty soon, this is going to need an XML parser :)
+			# TODO: case matters for the tag and for binding names
+			if line =~ /<ruby/
+				if line =~ /\s+binding=(?:'(\w+)'|"(\w+)")(>|\s+)/
+					bin = ($~[1] || $~[2])
+					bindings[bin] = binding unless bindings.has_key? bin
+					bin = bindings[bin]
+				else
+					bin = binding
+				end
 				buff = ''
 				while lines.length > 0
 					line = lines.shift
@@ -302,7 +312,7 @@ class Driver < Msf::Ui::Driver
 				if ! buff.empty?
 					print_status("resource (#{path})> Ruby Code (#{buff.length} bytes)")
 					begin
-						eval(buff, binding)
+						eval(buff, bin)
 					rescue ::Interrupt
 						raise $!
 					rescue ::Exception => e
