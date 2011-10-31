@@ -15,6 +15,13 @@ The following sites are great references for Git padawans and jedi alike:
 * [PeepCode: Git](http://peepcode.com/products/git): A one-hour (not-free) screencast covering Git basics. Well-made and easy to follow.
 * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html): Another great post from Scott Chacon describing a GitHub-based workflow for projects.
 
+
+## Using Git in Editors
+
+* [Fugitive plugin for Vim](https://github.com/tpope/vim-fugitive): Provides lots of tasty functionality from inside Vim.  There's also a five-part series on [VimCasts](http://vimcasts.org/episodes/fugitive-vim---a-complement-to-command-line-git/) on using Fugitive for almost any git task you can think of.
+
+* TextMate - a bundle for git ships with the editor.  Highlight your top-level folder in the project drawer and then invoke with Command-Shift-G
+
 ## SVN mirroring
 
 Of course, if you're still having trouble, GitHub does offer [basic SVN read-write support](https://github.com/blog/644-subversion-write-support).
