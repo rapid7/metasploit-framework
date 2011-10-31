@@ -3,6 +3,8 @@
 Here is a set of some of the most common things you'll need to do in
 your day-to-day workflow with Git.
 
+**Pro Tip:** you can get man pages for any git command by inserting a hyphen.  As in: "man git-fetch" or "man git-merge"
+
 ## Fetch, Pull, and Push
 
 * Get all new changes, and remote branch refs
