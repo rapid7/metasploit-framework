@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module attempts identify various flavors of ColdFusion as well as the underlying OS
 			},
 			'Author'      => [ 'nebulus' ],
-			'License'     => MSF_LICENSE,
+			'License'     => MSF_LICENSE
 		)
 	end
 
