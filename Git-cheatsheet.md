@@ -1,5 +1,4 @@
-
-#How do I...?
+#Git Cheatsheet
 
 Here is a set of some of the most common things you'll need to do in
 your day-to-day workflow with Git.
