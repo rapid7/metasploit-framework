@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 
 		}, 25)
-		return if not res
+		return if not res or res.code != 200
 
 		enum_version(ip)
 	end
