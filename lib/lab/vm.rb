@@ -6,6 +6,7 @@ module Lab
 class Vm
 	
 	attr_accessor :vmid
+	attr_accessor :hostname
 	attr_accessor :name
 	attr_accessor :descripition
 	attr_accessor :location
@@ -47,7 +48,7 @@ class Vm
 		@driver_type.downcase!
 
 		@location = filter_input(config['location'])
-		@name = config['name'] || ""
+		#@name = config['name'] || ""
 		@description = config['description'] || ""
 		@tools = config['tools'] || ""
 		@os = config['os'] || ""			
