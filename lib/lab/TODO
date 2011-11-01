@@ -1,20 +1,15 @@
+This is a list of basic priorities for the lab code...
 
-This is a list of the priorities for the lab code...
-
-1) Implement more technologies
+* Implement more technologies
 
  a) finish amazon ec2 (via fog)
-
  b) qemu
-
  c) qemudo
-
  d) kvm
-
  e) other cloud technologies (newservers, slicehost/rackspace,etc)
 
-2) Implement a cloning function on each controller
+* Implement a cloning function on each controller
 
-3) Support Windows as a host platform. Currently all the code assumes a linux host is running it. The same applies for the remote_* drivers -- they've not been tested on windows.
+* Support Windows as a host platform. Currently all the code assumes a linux host is running it. The same applies for the remote_* drivers -- they've not been tested on windows.
 
-4) 
+* Consolidate the remote_system_command code & provide a filter. Create an unsafe_system_command and unsafe_remote_system_command function call for when we control the entire string.

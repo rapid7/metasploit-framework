@@ -25,6 +25,7 @@ class VmDriver
 		@credentials = config["credentials"] || []
 		@tools = filter_input(config["tools"])
 		@os = filter_input(config["os"])
+		@hostname = filter_input(config["hostname"]) || filter_input(config["vmid"].to_s)
 
 		# Currently only implemented for the first set
 		if @credentials.count > 0
@@ -34,104 +35,116 @@ class VmDriver
 		end
 	end
 
-	def register	# Must be implemented in a child *_driver class
+	## This interface must be implemented in a child driver class
+	## #########################################################
+
+	def register
 		raise "Command not Implemented"
 	end
 		
-	def unregister	# Must be implemented in a child *_driver class
+	def unregister
 		raise "Command not Implemented"
 	end
 
-	def start	# Must be implemented in a child *_driver class
+	def start
 		raise "Command not Implemented"
 	end
 
-	def stop	# Must be implemented in a child *_driver class
+	def stop
 		raise "Command not Implemented"
 	end
 
-	def suspend	# Must be implemented in a child *_driver class
+	def suspend
 		raise "Command not Implemented"
 	end
 
-	def pause	# Must be implemented in a child *_driver class
+	def pause
 		raise "Command not Implemented"
 	end
 
-	def resume	# Must be implemented in a child *_driver class
+	def resume
 		raise "Command not Implemented"
 	end
 
-	def reset	# Must be implemented in a child *_driver class
+	def reset
 		raise "Command not Implemented"
 	end
 
-	def create_snapshot(snapshot)	# Must be implemented in a child *_driver class
+	def create_snapshot(snapshot)
 		raise "Command not Implemented"
 	end
 
-	def revert_snapshot(snapshot)	# Must be implemented in a child *_driver class
+	def revert_snapshot(snapshot)
 		raise "Command not Implemented"
 	end
 
-	def delete_snapshot(snapshot)	# Must be implemented in a child *_driver class
+	def delete_snapshot(snapshot)
 		raise "Command not Implemented"
 	end
 
-	def run_command(command)	# Must be implemented in a child *_driver class
+	def run_command(command)	
 		raise "Command not Implemented"
 	end
 	
-	def copy_from(from, to)	# Must be implemented in a child *_driver class
+	def copy_from(from, to)
 		raise "Command not Implemented"
 	end
 	
-	def copy_to(from, to)	# Must be implemented in a child *_driver class
+	def copy_to(from, to)
 		raise "Command not Implemented"
 	end
 
-	def check_file_exists(file)	# Must be implemented in a child *_driver class
+	def check_file_exists(file)
 		raise "Command not Implemented"
 	end
 
-	def create_directory(directory)	# Must be implemented in a child *_driver class
+	def create_directory(directory)
 		raise "Command not Implemented"
 	end
 
-	def cleanup	# Must be implemented in a child *_driver class
+	def cleanup
 		raise "Command not Implemented"
 	end
+
+	## End Interface
+	## #########################################################
 
 private
 
-	def scp_to(from,to)
-		require 'net/scp'
+	def scp_to(local,remote)
+		#require 'net/scp'
+		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
+		#	scp.upload!(from,to)
+		#end	
 
-		Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
-			scp.upload!(from,to)
-		end	
+		system_command("scp #{local} #{@vm_user}@#{@hostname}:#{remote}")
 	end
 	
-	def scp_from(from,to)
-		require 'net/scp'
-
+	def scp_from(local,remote)
+		#require 'net/scp'
 		# download a file from a remote server
-		Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
-			scp.download!(from,to)
-		end
+		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
+		#	scp.download!(from,to)
+		#end
+		
+		system_command("scp #{@vm_user}@#{@hostname}:#{remote} #{local}")
+
 	end
 	
 	def ssh_exec(command)
-		Net::SSH.start(@hostname, @vm_user, :password => @vm_pass) do |ssh|
+		
+		::Net::SSH.start(@hostname, @vm_user, :password => @vm_pass) do |ssh|
 			result = ssh.exec!(command)
 		end
+		
+		`scp #{@vm_user}@#{@hostname} from to`
 	end
 
 	def filter_input(string)
 		return "" unless string # nil becomes empty string
 		return unless string.class == String # Allow other types unmodified
 		
-		unless /^[\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
+		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
@@ -142,7 +155,7 @@ private
 		return "" unless string # nil becomes empty string
 		return unless string.class == String # Allow other types unmodified		
 		
-		unless /^[\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
+		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
 
@@ -153,7 +166,13 @@ private
 	# the ability to still run clean (controlled entirely by us)
 	# command lines.
 	def system_command(command)
+		#puts "DEBUG: system command #{command}"
 		system(command)
+	end
+	
+	
+	def remote_system_command(command)
+		system_command("ssh #{@user}@#{@host} \"#{command}\"")
 	end
 end
 

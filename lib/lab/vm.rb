@@ -65,13 +65,16 @@ class Vm
 		# Only applicable to remote systems
 		@user = filter_input(config['user']) || nil
 		@host = filter_input(config['host']) || nil
+		@port = filter_input(config['port']) || nil
 		@pass = filter_input(config['pass']) || nil
 
 		#Only dynagen systems need this
 		@platform = config['platform']
 
-		#Only fog system need this
+		#Only fog systems need this
 		@fog_config = config['fog_config']
+
+		#puts "Passing driver config: #{config}"
 
 		# Process the correct driver
 		if @driver_type == "workstation"
@@ -219,6 +222,10 @@ class Vm
 
 		if @fog_config
 			out += @fog_config.to_yaml
+		end
+
+		if @dynagen_config
+			out += @dynagen_config.to_yaml
 		end
 
 		out += "   credentials:\n"

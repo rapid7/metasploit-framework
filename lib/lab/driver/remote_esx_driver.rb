@@ -20,39 +20,37 @@ class RemoteEsxDriver < VmDriver
 		
 		@user = filter_command(config['user'])
 		@host = filter_command(config['host'])
+		@port = config['port']		
 	end
 
 	def start
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.on #{@vmid}\"")
+		remote_system_command("vim-cmd vmsvc/power.on #{@vmid}")
 	end
 
 	def stop
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.off #{@vmid}\"")
+		remote_system_command("vim-cmd vmsvc/power.off #{@vmid}")
 	end
 
 	def suspend
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.suspend #{@vmid}\"")
+		remote_system_command("vim-cmd vmsvc/power.suspend #{@vmid}")
 	end
 
-	def pause 	# no concept of pause?
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.suspend #{@vmid}\"")
+	def pause
+		remote_system_command("vim-cmd vmsvc/power.suspend #{@vmid}")
 	end
 
 	def resume
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.suspendResume #{@vmid}\"")
+		remote_system_command("vim-cmd vmsvc/power.suspendResume #{@vmid}")
 	end
 
 	def reset
-		system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.reset #{@vmid}\"")
+		remote_system_command("vim-cmd vmsvc/power.reset #{@vmid}")
 	end
 
 	def create_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
 		
-		#vmware-vim-cmd vmsvc/snapshot.create [vmid: int] [snapshotName: string] 
-		#			[snapshotDescription: string] [includeMemory:bool]
-
-		`ssh #{@user}@#{@host} \"vim-cmd vmsvc/snapshot.create #{@vmid} #{snapshot} \'lab created snapshot\' 1 true\""`
+		remote_system_command("vim-cmd vmsvc/snapshot.create #{@vmid} #{snapshot} \'lab created snapshot\' 1 true")
 	end
 
 	def revert_snapshot(snapshot)
@@ -61,9 +59,14 @@ class RemoteEsxDriver < VmDriver
 		
 		# Look through our snapshot list, choose the right one based on display_name		
 		snapshots.each do |snapshot_obj|
+		
+			#puts "DEBUG: checking #{snapshot_obj}"
+		
 			if snapshot_obj[:display_name].downcase == snapshot.downcase
-				snapshot_number = snapshot_obj[:name].join(" ")
-				system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/snapshot.revert #{@vmid} #{snapshot_number}\"")
+				snapshot_identifier = snapshot_obj[:name].join(" ")
+				
+				#puts "DEBUG: I would revert to #{snapshot_obj}"
+				remote_system_command("vim-cmd vmsvc/snapshot.revert #{@vmid} 0 #{snapshot_identifier}")
 				return true
 			end
 		end
@@ -71,15 +74,30 @@ class RemoteEsxDriver < VmDriver
 		# If we got here, the snapshot didn't exist
 		raise "Invalid Snapshot Name"
 	end
+
+	def delete_snapshot(snapshot, remove_children=false)
+		snapshots = get_snapshots
 		
-
-	def delete_snapshot(snapshot)
-		raise "Not Implemented"
-
-		#snapshot = filter_input(snapshot)
-		#system_command("ssh #{@user}@#{@host} \"vim-cmd vmsvc/snapshot.remove #{@vmid} true 0 0\"")
+		# Look through our snapshot list, choose the right one based on display_name		
+		snapshots.each do |snapshot_obj|
+		
+			#puts "DEBUG: checking #{snapshot_obj}"
+		
+			if snapshot_obj[:display_name].downcase == snapshot.downcase
+				snapshot_identifier = snapshot_obj[:name].join(" ")
+				remote_system_command("vim-cmd vmsvc/snapshot.remove #{@vmid} #{remove_children} #{snapshot_identifier}")
+				return true
+			end
+		end
+	
+		# If we got here, the snapshot didn't exist
+		raise "Invalid Snapshot Name"
 	end
 	
+	def delete_all_snapshots
+		remote_system_command("vim-cmd vmsvc/snapshot.removeall #{@vmid}")
+	end
+		
 	def run_command(command)
 		raise "Not Implemented"
 	end
@@ -116,9 +134,7 @@ class RemoteEsxDriver < VmDriver
 		power_status_string = `ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.getstate #{@vmid}\"`
 		return true if power_status_string =~ /Powered on/
 	false
-	end
-
-private 
+	end 
 
 	def get_snapshots
 		# Command take the format: 
@@ -141,12 +157,12 @@ private
 		output_lines.each do |line|
 			if line.include?("|") # this is a new snapshot
 				if line.include?("ROOT") # it's a root
-					current_tree = current_tree + 1 # new tree
-					snapshots << { :name => [current_tree,current_num], :display_name => output_lines[count+1].split(":").last.strip }
 					current_num = 0
+					current_tree = current_tree + 1 # new tree
+					snapshots << { :name => [current_num, current_tree], :display_name => output_lines[count+1].split(":").last.strip }
 				else
 					current_num = current_num + 1 # new snapshot in current tree
-					snapshots << { :name => [current_tree,current_num], :display_name => output_lines[count+1].split(":").last.strip }
+					snapshots << { :name => [current_num, current_tree], :display_name => output_lines[count+1].split(":").last.strip }
 				end
 			end
 			count = count+1

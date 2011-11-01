@@ -1,6 +1,6 @@
 require 'vm_driver'
 ##
-## $Id: workstation_driver.rb 11753 2011-02-16 02:15:24Z jcran $
+## $Id$
 ##
 
 # This requires rhythmx's vixr driver from https://github.com/rhythmx/vixr 

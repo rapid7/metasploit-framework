@@ -26,13 +26,14 @@ class Vm
 	end
 	
 	# perform the setup only once
-	def setup_meterpreter
+	def setup_session
 		return if @session
 
 		# require the framework (assumes this sits in lib/lab/modifiers)
 		require 'msf/base'
 
-		create_framework
+		create_framework 	## TODO - this should use a single framework 
+					## for all hosts, not one-per-host
 
 		@session 		= nil
 		@session_input        	= Rex::Ui::Text::Input::Buffer.new
@@ -40,29 +41,41 @@ class Vm
 	
 		if @os == "windows"
 			exploit_name = 'windows/smb/psexec'
+
+			# TODO - check for x86, choose the appropriate payload
+
 			payload_name = 'windows/meterpreter/bind_tcp'
-			options = {	"RHOST"		=> @hostname, 
-					"SMBUser" 	=> @vm_user, 
-					"SMBPass" 	=> @vm_pass}
+			options = {	"RHOST"		  => @hostname, 
+					        "SMBUser" 	=> @vm_user, 
+					        "SMBPass" 	=> @vm_pass}
+
+      			puts "DEBUG: using options #{options}"
 
 			# Initialize the exploit instance
 			exploit = @framework.exploits.create(exploit_name)
 
-			begin 
+			begin
 				# Fire it off.
 				@session = exploit.exploit_simple(
 					'Payload'     	=> payload_name,
-					'Options'   	=> options,
+					'Options'     	=> options,
 					'LocalInput'  	=> @session_input,
 					'LocalOutput' 	=> @session_output)
 				@session.load_stdapi
-			rescue
-				raise "Unable to exploit"
+				
+				puts "DEBUG: Generated session: #{@session}"
+				
+			rescue  Exception => e 
+  			  puts "DEBUG: Unable to exploit"
+  			  puts e.to_s
 			end
 							
 		else
 			module_name = 'scanner/ssh/ssh_login'
-			payload_name = 'linux/x86/meterpreter/bind_tcp'
+			
+			# TODO - check for x86, choose the appropriate payload
+			
+			payload_name = 'linux/x86/shell_bind_tcp'
 			options = {	"RHOSTS"		=> @hostname, 
 					"USERNAME" 		=> @vm_user, 
 					"PASSWORD" 		=> @vm_pass, 
@@ -70,8 +83,12 @@ class Vm
 					"USER_AS_PASS" 		=> false, 
 					"VERBOSE" 		=> false}
 
+      			puts "DEBUG: using options #{options}"
+
 			# Initialize the module instance
 			aux = @framework.auxiliary.create(module_name)
+			
+			puts "DEBUG: created module: #{aux}"
 			
 			begin 
 				# Fire it off.
@@ -82,15 +99,35 @@ class Vm
 					'LocalOutput' => @session_output)
 				
 				@session = @framework.sessions.first.last
-			rescue
-				raise "Unable to exploit"
+				puts "DEBUG: Generated session: #{@session}"
+			rescue Exception => e 
+			  puts "DEBUG: Unable to exploit"
+			  puts e.to_s
 			end
 		end
+		
+
+		
 	end
 
 	def run_command(command, timeout=60)
-		setup_meterpreter
-		@session.shell_command_token(command, timeout)
+		
+		setup_session
+		puts "Using session #{@session}"
+		
+		# TODO: pass the timeout down
+	
+		if @session
+			if @session.type == "shell"
+				puts "Running command via shell: #{command}"		
+				@session.shell_command_token(command, timeout)
+			elsif @session.type == "meterpreter" 
+				puts "Running command via meterpreter: #{command}"		
+				@session.shell_command(command) #, timeout)
+			end
+		else
+			raise "No session"
+		end
 	end
 	
 	
@@ -108,21 +145,21 @@ class Vm
 	#	run_script(script,options)
 	#end
 	
-	def copy_to(from,to)
-		setup_meterpreter
+	def copy_to(local,remote)
+		setup_session
 		if @session.type == "meterpreter"
 			@session.run_cmd("upload #{from} #{to}")
 		else
-			@driver.copy_to(from,to)
+			@driver.copy_to(local,remote)
 		end
 	end
 	
-	def copy_from(from,to)
-		setup_meterpreter
+	def copy_from(local, remote)
+		setup_session
 		if @session.type == "meterpreter"
 			@session.run_cmd("download #{from} #{to}")
 		else
-			@driver.copy_from(from,to)
+			@driver.copy_from(local,remote)
 		end
 	end
 	
