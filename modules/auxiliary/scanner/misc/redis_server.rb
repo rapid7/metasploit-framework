@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				report back the server information
 			},
 			'Author'       => [ 'iallison <ian[at]team-allison.com>' ],
-			'License'      => MSF_LICENSE,
+			'License'      => MSF_LICENSE
 		 ))
 
 		register_options(
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host => rhost,
 						:port => rport,
 						:type => 'password',
-						:data => 'foobared',
+						:data => 'foobared'
 					)
 				end
 			else
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			disconnect
 
-		rescue ::Rex::ConnectionError, ::IOError => e
+		rescue ::Exception => e
 			print_error "Unable to connect: #{e.to_s}" 
 		end
 	end
