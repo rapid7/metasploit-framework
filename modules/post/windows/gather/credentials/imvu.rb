@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: enum_imvu.rb 14100 2011-10-28 18:00:10Z thelightcosine $
 ##
 
 ##
@@ -13,6 +13,7 @@
 
 require 'msf/core' 
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
@@ -34,7 +35,7 @@ class Metasploit3 < Msf::Post
 				'SecurityXploded Team', #www.SecurityXploded.com
 				],
 			'License'        => MSF_LICENSE, 
-			'Version'        => '$Revision$', 
+			'Version'        => '$Revision: 14100 $', 
 			'Platform' => [ 'windows' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))

