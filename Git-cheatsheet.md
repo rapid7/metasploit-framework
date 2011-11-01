@@ -3,7 +3,9 @@
 Here is a set of some of the most common things you'll need to do in
 your day-to-day workflow with Git.
 
-**Pro Tip:** you can get man pages for any git command by inserting a hyphen.  As in: "man git-fetch" or "man git-merge"
+**Pro Tip 1:** you can get man pages for any git command by inserting a hyphen.  As in: "man git-fetch" or "man git-merge"
+
+**Pro Tip 2:** install the [cheat gem](http://cheat.errtheblog.com/) for a really long cheat sheet available in your terminal.
 
 ## What's going on?
 
