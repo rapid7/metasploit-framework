@@ -5,7 +5,6 @@ require 'nessus/nessus-xmlrpc'
 require 'rex/parser/nessus_xml'
 
 module Msf
-
 	#constants
 	NBVer = "1.1" # Nessus Plugin Version.  Increments each time we commit to msf
 	Xindex = "#{Msf::Config.get_config_root}/nessus_index" # location of the exploit index file used to speed up searching for valid exploits.
@@ -17,27 +16,12 @@ module Msf
 		def create_xindex
 			start = Time.now
 				print_status("Creating Exploit Search Index - (#{Xindex}) - this wont take long.")
-				print("%grn[*]")
 				count = 0
 				# use Msf::Config.get_config_root as the location.
 				File.open("#{Xindex}", "w+") do |f|
 					#need to add version line.
 					f.puts(Msf::Framework::RepoRevision)
 					framework.exploits.sort.each { |refname, mod|
-						case count
-						when 0
-							print("\b\b\b[|]")
-							count += 1
-						when 1
-							print("\b\b\b[/]")
-							count += 1
-						when 2
-							print("\b\b\b[-]")
-							count += 1
-						when 3
-							print("\b\b\b[\\]")
-							count =0
-						end
 						stuff = ""
 						o = nil
 						begin
@@ -60,8 +44,6 @@ module Msf
 					}
 				end
 				total = Time.now - start
-				print("\b\b\b[*]%clr")
-				print("\n")
 				print_status("It has taken : #{total} seconds to build the exploits search index")
 		end
 
@@ -84,6 +66,7 @@ module Msf
 
 		class ConsoleCommandDispatcher
 			include Msf::Ui::Console::CommandDispatcher
+			
 			def name
 				"Nessus"
 			end
@@ -161,148 +144,6 @@ module Msf
 					print_error("Missing username/password/server/port - relogin and then try again.")
 					return
 				end
-			end
-
-			def cmd_nessus_report_exploits(*args)
-
-				if args[0] == "-h"
-					print_status("Usage: ")
-					print_status("       nessus_report_summary <report id>")
-					print_status(" Example:> nessus_report_summary 33ebfd80-5e6f-348d-8f15-04628b5f5ca789bb25241af01698")
-					print_status()
-					print_status("Parses your report and just shows you exploitable vulns.")
-					print_status("%redThis plugin is experimental%clr")
-					return
-				end
-
-				if ! nessus_verify_db
-					print_error("You need a database configured for this command.")
-					print_error("Connect to a db with \"db_connect\"")
-					print_error("Then import scan with nessus_report_get")
-					return
-				end
-
-				if ! nessus_verify_token
-					return
-				end
-
-				rid = nil
-
-				case args.length
-				when 1
-					rid = args[0]
-				else
-					print_status("Usage: ")
-					print_status("       nessus_report_summary <report id>")
-					print_status("Parses your report and just shows you exploitable vulns.")
-					return
-				end
-
-				if check_scan(rid)
-					print_error("That scan is still running.")
-					return
-				end
-
-				#streaming parser ftw.
-				content = nil
-				content=@n.report_file_download(rid)
-				if content.nil?
-					print_error("Failed, please reauthenticate")
-					return
-				end
-				print_status("Examining " + rid)
-				print_error("Experimental, trust but verify")
-				print("\n")
-				parser = Rex::Parser::NessusXMLStreamParser.new
-				parser.on_found_host = Proc.new { |host|
-					addr = host['addr'] || host['hname']
-					addr.gsub!(/[\n\r]/," or ") if addr
-
-					os = host['os']
-					os.gsub!(/[\n\r]/," or ") if os
-
-					hname = host['hname']
-					hname.gsub!(/[\n\r]/," or ") if hname
-
-					mac = host['mac']
-					mac.gsub!(/[\n\r]/," or ") if mac
-
-					host['ports'].each do |item|
-
-						next if item['port'] == 0
-
-						exp = []
-						msf = nil
-						nasl = item['nasl'].to_s
-						port = item['port'].to_s
-						proto = item['proto'] || "tcp"
-						name = item['svc_name']
-						severity = item['severity']
-						description = item['description']
-						cve = item['cve']
-						bid = item['bid']
-						xref = item['xref']
-						msf = item['msf']
-
-						# find exploits based on the msf plugin name from the report output.
-						if msf
-							regex = Regexp.new(msf, true, 'n')
-							File.open("#{Xindex}", "r") do |m|
-								while line = m.gets
-									exp.push line.split("|").first if (line.match(regex))
-								end
-							end
-						end
-
-						# find exploits based on CVE
-						if cve
-							cve.each do |c|
-								regex = Regexp.new(c, true, 'n')
-								File.open("#{Xindex}", "r") do |m|
-									while line = m.gets
-										exp.push line.split("|").first if (line.match(regex))
-									end
-								end
-							end
-						end
-
-						#find exploits based on BID
-						if bid
-							bid.each do |c|
-								r = "BID-"
-								r << c
-								regex = Regexp.new(r, true, 'n')
-								File.open("#{Xindex}", "r") do |m|
-									while line = m.gets
-										exp.push line.split("|").first if (line.match(regex))
-									end
-								end
-							end
-						end
-
-						#find exploits based on OSVDB entry
-
-						#find exploits based on MSB
-						if xref
-							xref.each do |c|
-								if c =~ /OSVDB/
-									c.gsub!(/:/, "-")
-									regex = Regexp.new(c, true, 'n')
-									File.open("#{Xindex}", "r") do |m|
-										while line = m.gets
-											exp.push line.split("|").first if (line.match(regex))
-										end
-									end
-								end
-							end
-						end
-
-						nss = 'NSS-' + nasl
-						next if exp.empty?
-						print("#{addr} | #{os} | #{port} | #{nss} | Sev #{severity} | %bld%red#{exp.uniq}%clr\n")
-					end
-				}
-				REXML::Document.parse_stream(content, parser)
 			end
 
 			def cmd_nessus_db_scan(*args)
@@ -573,15 +414,15 @@ module Msf
 				end
 
 				if ! @user
-					print_good("Username:")
-					@user = gets
-					@user.chomp!
+					print_error("Missing Username")
+					ncusage
+					return
 				end
 
 				if ! @pass
-					print_good("Password:")
-					@pass = gets
-					@pass.chomp!
+					print_error("Missing Password")
+					ncusage
+					return
 				end
 
 				if ! ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
@@ -721,29 +562,7 @@ module Msf
 				framework.db.import({:data => content}) do |type,data|
 					case type
 					when :address
-						@count = 0
 						print_line("%bld%blu[*]%clr %bld#{data}%clr")
-					when :port
-						print_line("\b")
-						case @count
-						when 0
-							print_line("%bld%grn|")
-							@count += 1
-						when 1
-							print_line("%bld%grn/")
-							@count += 1
-						when 2
-							print_line("%bld%grn-")
-							@count += 1
-						when 3
-							print_line("%bld%grn/")
-							@count = 0
-						end
-					when :end
-						print_line("\b Done!%clr\n")
-					when :os
-						data.gsub!(/[\n\r]/," or ") if data
-						print_line(" #{data}  ")
 					end
 				end
 				print_good("Done")
@@ -1603,9 +1422,6 @@ module Msf
 					return
 				end
 
-				print_error("Are you sure you want to delete #{pid} ?")
-				answer = gets
-				answer.chomp!
 				if answer == "Yes" || answer == "Y" || answer == "y" || answer == "yes"
 					del = @n.policy_del(pid)
 					status = del.root.elements['status'].text
@@ -1702,9 +1518,6 @@ module Msf
 					return
 				end
 
-				print_error("Are you sure you want to delete #{rid} ?")
-				answer = gets
-				answer.chomp!
 				if (answer == "Yes" || answer == "Y" || answer == "y" || answer == "yes")
 					del = @n.report_del(rid)
 					status = del.root.elements['status'].text
@@ -1793,7 +1606,7 @@ module Msf
 
 		def initialize(framework, opts)
 			super
-
+			
 			add_console_dispatcher(ConsoleCommandDispatcher)
 			print_status("Nessus Bridge for Metasploit #{NBVer}")
 			print_good("Type %bldnessus_help%clr for a command listing")
