@@ -691,7 +691,7 @@ class Db
 							:port => port,
 							:user => (user == "NULL" ? nil : user),
 							:pass => (pass == "NULL" ? nil : pass),
-							:ptype => ptype,
+							:type => ptype,
 							:sname => service,
 							:active => true
 						)

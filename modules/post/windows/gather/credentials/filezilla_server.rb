@@ -188,7 +188,7 @@ class Metasploit3 < Msf::Post
 				:proto => 'tcp',
 				:user => 'admin',
 				:pass => config['admin_pass'],
-				:ptype => "password",
+				:type => "password",
 				:target_host => config['admin_bindip'],
 				:target_port => config['admin_port']
 			)
