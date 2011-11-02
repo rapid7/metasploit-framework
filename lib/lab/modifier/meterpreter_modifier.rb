@@ -148,7 +148,7 @@ class Vm
 	def copy_to(local,remote)
 		setup_session
 		if @session.type == "meterpreter"
-			@session.run_cmd("upload #{from} #{to}")
+			@session.run_cmd("upload #{local} #{remote}")
 		else
 			@driver.copy_to(local,remote)
 		end
@@ -157,7 +157,7 @@ class Vm
 	def copy_from(local, remote)
 		setup_session
 		if @session.type == "meterpreter"
-			@session.run_cmd("download #{from} #{to}")
+			@session.run_cmd("download #{local} #{remote}")
 		else
 			@driver.copy_from(local,remote)
 		end

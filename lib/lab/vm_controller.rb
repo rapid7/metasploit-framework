@@ -58,7 +58,7 @@ module Controllers
 
 		def find_by_vmid(vmid)
 			@vms.each do |vm|
-				if (vm.vmid.to_s == vmid.to_s)
+				if (vm.hostname.to_s.downcase == vmid.to_s.downcase)
 					return vm
 				end
 			end
