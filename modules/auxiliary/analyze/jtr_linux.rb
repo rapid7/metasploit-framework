@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'         => '$Revision$',
 			'Description'     => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
-				aquired from unsahdowed passwd files from Unix systems. The module will noly crack
+				acquired from unsahdowed passwd files from Unix systems. The module will noly crack
 				MD5 and DES implementations by default. Set Crypt to true to also try to crack
 				Blowfish and SHA implementations. Warning: This is much slower.
 			},
