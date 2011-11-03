@@ -53,7 +53,8 @@ class Metasploit3 < Msf::Post
 			vprint_status("Looking up IP for #{hostname}")
 			result = client.railgun.ws2_32.getaddrinfo(hostname, nil, nil, 4 )
 			if result['GetLastError'] == 11001
-				next
+				print_error("Failed to resolve the host")
+				return
 			end
 			addrinfo = client.railgun.memread( result['ppResult'], size )
 			ai_addr_pointer = addrinfo[addrinfoinmem,4].unpack('L').first
