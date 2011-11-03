@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 
-				OptString.new('MACRO', [false, 'File with Post Modules and Options to run in the session', nil])
+				OptString.new('MACRO', [true, 'File with Post Modules and Options to run in the session', nil])
 
 			], self.class)
 	end
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 		print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 		macro = datastore['MACRO']
 		entries = []
-		if not ::File.exists?(script)
+		if not ::File.exists?(macro)
 			print_error "Resource File does not exists!"
 			return
 		else
@@ -69,10 +69,10 @@ class Metasploit3 < Msf::Post
 					mod_opts = values[1].split(",")
 				end
 				print_line("Loading #{post_mod}")
-				m= framework.post.create(post_mod)
+				m = framework.post.create(post_mod)
 
 				# Set the current session
-				s = session.sid
+				s = datastore['SESSION']
 
 				if m.session_compatible?(s.to_i)
 					print_line("Running Against #{s}")
