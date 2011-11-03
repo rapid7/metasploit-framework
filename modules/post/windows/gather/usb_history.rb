@@ -51,49 +51,50 @@ class Metasploit3 < Msf::Post
 
 		usb_drive_classes = enum_subkeys('HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR')
 		usb_uids_to_info = {}
-		usb_drive_uids = []
-
-		usb_drive_classes.each do |x|
-			enum_subkeys(x).each do |y|
-				begin
-					vals = enum_values(y)
-					# enumerate each USB device used on the system
-					usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
-				rescue
+		if not usb_drive_classes.nil?
+			usb_drive_classes.each do |x|
+				enum_subkeys(x).each do |y|
+					begin
+						vals = enum_values(y)
+						# enumerate each USB device used on the system
+						usb_uids_to_info.store(x.match(/HKLM\\SYSTEM\\CurrentControlSet\\Enum\\USBSTOR\\(.*)$/)[1], vals)
+					rescue
+					end
 				end
 			end
-		end
 
-		usb_uids_to_info.each do |u, v|
+			usb_uids_to_info.each do |u, v|
 
-			guid = '##?#USBSTOR#' << u << '#' << '{53f56307-b6bf-11d0-94f2-00a0c91efb8b}'
-			out = "#{v['FriendlyName']}\n" << "="*85 << "\n"
-			if isadmin
-				mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
-				if mace
-					keytime = ::Time.at(mace)
-				else
-					keytime = "Unknown"
+				guid = '##?#USBSTOR#' << u << '#' << '{53f56307-b6bf-11d0-94f2-00a0c91efb8b}'
+				out = "#{v['FriendlyName']}\n" << "="*85 << "\n"
+				if isadmin
+					mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f56307-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
+					if mace
+						keytime = ::Time.at(mace)
+					else
+						keytime = "Unknown"
+					end
+					out << sprintf("%25s\t%50s\n", "Disk lpftLastWriteTime", keytime)
 				end
-				out << sprintf("%25s\t%50s\n", "Disk lpftLastWriteTime", keytime)
-			end
-			if( not v.key?('ParentIdPrefix') )
+				if( not v.key?('ParentIdPrefix') )
+					print_status(info_hash_to_str(out, v))
+					next
+				end
+				guid =	'##?#STORAGE#RemoveableMedia#' << v['ParentIdPrefix'] << '&RM#' << '{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}'
+				if isadmin
+					mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
+					if mace
+						keytime = ::Time.at(mace)
+					else
+						keytime = "Unknown"
+					end
+					out << sprintf("%25s\t%50s\n", "Volume lpftLastWriteTime", keytime)
+				end
 				print_status(info_hash_to_str(out, v))
-				next
 			end
-			guid =	'##?#STORAGE#RemoveableMedia#' << v['ParentIdPrefix'] << '&RM#' << '{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}'
-			if isadmin
-				mace = registry_getkeylastwritetime('HKLM\\SYSTEM\\CurrentControlSet\\Control\\DeviceClasses\\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\\' << guid)
-				if mace
-					keytime = ::Time.at(mace)
-				else
-					keytime = "Unknown"
-				end
-				out << sprintf("%25s\t%50s\n", "Volume lpftLastWriteTime", keytime)
-			end
-			print_status(info_hash_to_str(out, v))
+		else
+			print_error("No USB devices appear to have been connected to theis host.")
 		end
-
 	end
 
 	#-------------------------------------------------------------------------------
