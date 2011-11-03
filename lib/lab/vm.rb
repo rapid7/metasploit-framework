@@ -8,7 +8,7 @@ class Vm
 	attr_accessor :vmid
 	attr_accessor :hostname
 	attr_accessor :name
-	attr_accessor :descripition
+	attr_accessor :description
 	attr_accessor :location
 	attr_accessor :driver
 	attr_accessor :credentials
