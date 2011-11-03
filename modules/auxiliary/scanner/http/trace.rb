@@ -1,0 +1,60 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Auxiliary
+
+	# Exploit mixins should be called first
+	include Msf::Exploit::Remote::HttpClient
+	# Scanner mixin should be near last
+	include Msf::Auxiliary::Scanner
+
+	def initialize
+		super(
+			'Name'        => 'HTTP TRACE Detection',
+			'Version'     => '$Revision$',
+			'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
+			'Author'       => ['CG'],
+			'License'     => MSF_LICENSE
+		)
+	end
+
+	def run_host(target_host)
+
+		begin
+			res = send_request_raw({
+				'version'      => '1.0',
+				'uri'          => '/',
+				'method'       => 'TRACE',
+				'headers' =>
+				{
+					'Cookie' => "did you echo me back?",
+				},
+			}, 10)
+
+			if res.nil?
+				print_error("no repsonse for #{target_host}")
+			elsif (res.code == 200)
+				print_good("#{target_host}:#{rport}-->#{res.code}")
+				print_good("Response Headers:\n #{res.headers}")
+				print_good("Response Body:\n #{res.body}")
+				print_good("TRACE appears to be enabled on #{target_host}:#{rport} \n")
+			elsif (res.code == 501)#Not Implemented
+				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")#IIS
+			elsif (res.code == 405)#Method Not Allowed
+				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")#Apache
+			else
+				print_status("#{res.code}")
+			end
+
+		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+		rescue ::Timeout::Error, ::Errno::EPIPE
+		end
+	end
+end
+
