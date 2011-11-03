@@ -69,8 +69,17 @@ class Metasploit3 < Msf::Post
 					mod_opts = values[1].split(",")
 				end
 				print_line("Loading #{post_mod}")
+				# Make sure we can handle post module names with or without post in the start
+				if post_mod =~ /^post\//
+					post_mod.gsub!(/^post\//,"")
+				end
 				m = framework.post.create(post_mod)
-
+				
+				# Check if a post module was actually initiated
+				if m.nil?
+					print_error("Post module #{post_mod} could not be initialized!")
+					next
+				end
 				# Set the current session
 				s = datastore['SESSION']
 
