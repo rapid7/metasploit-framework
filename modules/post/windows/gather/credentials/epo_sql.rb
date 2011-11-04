@@ -8,29 +8,31 @@
 # Framework web site for more information on licensing and terms of use.
 # http://metasploit.com/framework/
 ##
+
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 require "net/dns/resolver"
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather McAfee ePO 4.6 Config SQL Credentials',
-				'Description'   => %q{
-					This module extracts connection details and decrypts the saved password for the
-					SQL database in use by a McAfee ePO 4.6 server. The passwords are stored in a
-					config file. They are encrypted with AES-128-ECB and a static key.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['Nathan Einwechter <neinwechter[at]gmail.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather McAfee ePO 4.6 Config SQL Credentials',
+			'Description'   => %q{
+				This module extracts connection details and decrypts the saved password for the
+				SQL database in use by a McAfee ePO 4.6 server. The passwords are stored in a
+				config file. They are encrypted with AES-128-ECB and a static key.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['Nathan Einwechter <neinwechter[at]gmail.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
