@@ -189,10 +189,9 @@ class Metasploit3 < Msf::Post
 		arr_len = ret["Count"] * 4 if is_86
 		arr_len = ret["Count"] * 8 unless is_86
 
-		return credentials unless arr_len > 0
-
 		#tell user what's going on
 		print_status("#{ret["Count"]} credentials found in the Credential Store")
+		return credentials unless arr_len > 0
 		if ret["Count"] > 0
 			print_status("Decrypting each set of credentials, this may take a minute...")
 
