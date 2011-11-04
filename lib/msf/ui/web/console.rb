@@ -33,7 +33,7 @@ class WebConsole
 		end
 	end
 
-	def initialize(framework, console_id)
+	def initialize(framework, console_id, opts={})
 		# Configure the framework
 		self.framework = framework
 
@@ -50,13 +50,13 @@ class WebConsole
 		self.console = Msf::Ui::Console::Driver.new(
 			'msf',
 			'>',
-			{
+			opts.merge({
 				'Framework'   => self.framework,
 				'LocalInput'  => self.pipe,
 				'LocalOutput' => self.pipe,
 				'AllowCommandPassthru' => true,
 				'Resource'    => [],
-			}
+			})
 		)
 
 		self.console.extend(WebConsoleShell)

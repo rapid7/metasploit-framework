@@ -59,11 +59,11 @@ class Driver < Msf::Ui::Driver
 		self.last_console = 0
 	end
 
-	def create_console
+	def create_console(opts={})
 		# Destroy any unused consoles
 		clean_consoles
 
-		console = WebConsole.new(self.framework, self.last_console)
+		console = WebConsole.new(self.framework, self.last_console, opts)
 		self.last_console += 1
 		self.consoles[console.console_id.to_s] = console
 		console.console_id.to_s

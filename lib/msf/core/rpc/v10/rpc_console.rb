@@ -11,8 +11,8 @@ class RPC_Console < RPC_Base
 		@console_driver = Msf::Ui::Web::Driver.new(:framework => framework)
 	end
 
-	def rpc_create
-		cid = @console_driver.create_console
+	def rpc_create(opts={})
+		cid = @console_driver.create_console(opts)
 		{
 			'id'     => cid,
 			'prompt' => @console_driver.consoles[cid].prompt || '',
