@@ -54,7 +54,7 @@ class RemoteWorkstationDriver < VmDriver
 
 	def delete_snapshot(snapshot)
 		snapshot = filter_input(snapshot)
-		remote_system_command("vmrun -T ws deleteSnapshot \'#{@location}\' #{snapshot} nogui\"" )
+		remote_system_command("vmrun -T ws deleteSnapshot \'#{@location}\' #{snapshot} nogui" )
 	end
 	
 	def run_command(command)
@@ -88,13 +88,13 @@ class RemoteWorkstationDriver < VmDriver
 
 			# now run it on the guest
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
-					"runProgramInGuest \'#{@location}\' -noWait -activeWindow \'#{remote_run_command}\'\""
+					"runProgramInGuest \'#{@location}\' -noWait -activeWindow \'#{remote_run_command}\'"
 			system_command(vmrunstr)
 
 			## CLEANUP
 			# delete it on the guest
 			vmrunstr = "ssh #{@user}@#{@host} \"vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " + 
-					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'\""
+					"deleteFileInGuest \'#{@location}\' \'#{remote_tempfile_path}\'"
 			system_command(vmrunstr)
 
 			# and delete it on the vm host
