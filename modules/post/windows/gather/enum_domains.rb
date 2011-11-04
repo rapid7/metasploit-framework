@@ -14,20 +14,19 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Domain Enumeration',
-				'Description'   => %q{
-					This module enumerates currently the domains a host can see and the domain
-					controllers for that domain. 
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix@hak5.org>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Domain Enumeration',
+			'Description'   => %q{
+				This module enumerates currently the domains a host can see and the domain
+				controllers for that domain. 
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 	
 	def run
