@@ -120,6 +120,7 @@ class Driver < Msf::Ui::Driver
 			print_error("***")
 		end
 
+
 		# Add the database dispatcher if it is usable
 		if (framework.db.usable)
 			require 'msf/ui/console/command_dispatcher/db'
@@ -168,7 +169,7 @@ class Driver < Msf::Ui::Driver
 		end
 
 		# Parse any specified database.yml file
-		if framework.db.usable
+		if framework.db.usable and not opts['SkipDatabaseInit']
 			# Look for our database configuration in the following places, in order:
 			#	command line arguments
 			#	environment variable
