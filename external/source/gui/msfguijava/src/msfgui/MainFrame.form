@@ -131,7 +131,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="hostsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;&#x9;&#x9;&quot;Created&quot;, &quot;Address&quot;, &quot;Address6&quot;, &quot;MAC&quot;, &quot;Name&quot;, &quot;State&quot;, &quot;OS name&quot;, &quot;OS flavor&quot;, &quot;OS SP&quot;, &quot;OS lang&quot;, &quot;Updated&quot;, &quot;Purpose&quot;, &quot;Info&quot;&#xa;&#x9;})"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Created&quot;, &quot;Address&quot;, &quot;Address6&quot;, &quot;MAC&quot;, &quot;Name&quot;, &quot;State&quot;, &quot;OS name&quot;, &quot;OS flavor&quot;, &quot;OS SP&quot;, &quot;OS lang&quot;, &quot;Updated&quot;, &quot;Purpose&quot;, &quot;Info&quot;}&#xa;    , &quot;hosts&quot;,new String[]{&quot;created_at&quot;, &quot;address&quot;, &quot;address6&quot;, &quot;mac&quot;, &quot;name&quot;, &quot;state&quot;, &quot;os_name&quot;, &quot;os_flavor&quot;, &quot;os_sp&quot;, &quot;os_lang&quot;, &quot;updated_at&quot;, &quot;purpose&quot;, &quot;info&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -161,7 +161,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="clientsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Host&quot;, &quot;UA String&quot;, &quot;UA Name&quot;, &quot;UA Ver&quot;, &quot;Created&quot;, &quot;Updated&quot;&#xa;    })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Host&quot;, &quot;UA String&quot;, &quot;UA Name&quot;, &quot;UA Ver&quot;, &quot;Created&quot;, &quot;Updated&quot;}&#xa;    , &quot;clients&quot;, new String[]{&quot;host&quot;, &quot;ua_string&quot;, &quot;ua_name&quot;, &quot;ua_ver&quot;, &quot;created_at&quot;, &quot;updated_at&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -191,7 +191,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="servicesTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;State&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;    })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Host&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;State&quot;, &quot;Name&quot;, &quot;Info&quot;}&#xa;&#x9;&#x9;&#x9;&#x9;&#x9;&#x9;, &quot;services&quot;, new String[]{&quot;host&quot;, &quot;created_at&quot;, &quot;updated_at&quot;, &quot;port&quot;, &quot;proto&quot;, &quot;state&quot;, &quot;name&quot;, &quot;info&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -221,7 +221,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="vulnsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Port&quot;, &quot;Proto&quot;, &quot;Time&quot;, &quot;Host&quot;, &quot;Name&quot;, &quot;Refs&quot;&#xa;    })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Port&quot;, &quot;Proto&quot;, &quot;Time&quot;, &quot;Host&quot;, &quot;Name&quot;, &quot;Refs&quot;&#xa;&#x9;&#x9;&#x9;&#x9;}, &quot;vulns&quot;, new String[]{&quot;port&quot;, &quot;proto&quot;, &quot;time&quot;, &quot;host&quot;, &quot;name&quot;, &quot;refs&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -251,7 +251,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="notesTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;        &quot;Time&quot;, &quot;Host&quot;, &quot;Service&quot;, &quot;Type&quot;, &quot;Data&quot;&#xa;    })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Time&quot;, &quot;Host&quot;, &quot;Service&quot;, &quot;Type&quot;, &quot;Data&quot;&#xa;&#x9;&#x9;&#x9;}, &quot;notes&quot;, new String[]{&quot;time&quot;, &quot;host&quot;, &quot;service&quot;, &quot;type&quot;, &quot;data&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -281,7 +281,7 @@
                     <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="lootsTableKeyReleased"/>
                   </Events>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;                &quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;            })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn,new String [] {&quot;Host&quot;, &quot;Service&quot;, &quot;Ltype&quot;, &quot;Ctype&quot;, &quot;Data&quot;, &quot;Created&quot;, &quot;Updated&quot;, &quot;Name&quot;, &quot;Info&quot;&#xa;}, &quot;loots&quot;, new String[]{&quot;host&quot;, &quot;service&quot;, &quot;ltype&quot;, &quot;ctype&quot;, &quot;data&quot;, &quot;created_at&quot;, &quot;updated_at&quot;, &quot;name&quot;, &quot;info&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
@@ -308,7 +308,7 @@
                     <Property name="name" type="java.lang.String" value="credsTable" noResource="true"/>
                   </Properties>
                   <AuxValues>
-                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(new String [] {&#xa;                &quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            })"/>
+                    <AuxValue name="JavaCodeGenerator_CreateCodeCustom" type="java.lang.String" value="new MsfTable(rpcConn, new String [] {&quot;Host&quot;, &quot;Time&quot;, &quot;Port&quot;, &quot;Proto&quot;, &quot;Sname&quot;, &quot;Type&quot;, &quot;User&quot;, &quot;Pass&quot;, &quot;Active&quot;&#xa;            }, &quot;creds&quot;, new String[]{&quot;host&quot;, &quot;time&quot;, &quot;port&quot;, &quot;proto&quot;, &quot;sname&quot;, &quot;type&quot;, &quot;user&quot;, &quot;pass&quot;, &quot;active&quot;})"/>
                   </AuxValues>
                 </Component>
               </SubComponents>
