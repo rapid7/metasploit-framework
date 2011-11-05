@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %Q{
 					This module attempts to crack Postgres SQL md5 password hashes.
 				It creates hashes based on information saved in the MSF Database 
-				such as hostnames, usernames,passwords, and database schema information.
+				such as hostnames, usernames, passwords, and database schema information.
 				The user can also supply an additional external wordlist if they wish.
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],

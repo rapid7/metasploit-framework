@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %Q{
 					This module uses John the Ripper to identify weak passwords that have been
 				acquired from the mssql_hashdump module. Passwords that have been successfully
-				cracked are then saved as propper credentials
+				cracked are then saved as proper credentials
 			},
 			'Author'         =>
 				[
