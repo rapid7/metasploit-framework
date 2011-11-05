@@ -25,21 +25,19 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Terminal Server Client Connection Information Dumper',
-				'Description'   => %q{ 
-					This module dumps MRU and connection data for RDP sessions
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => ['Rob Fuller <mubix[at]hak5.org>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
-
+			'Name'          => 'Windows Terminal Server Client Connection Information Dumper',
+			'Description'   => %q{ 
+				This module dumps MRU and connection data for RDP sessions
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => ['Rob Fuller <mubix[at]hak5.org>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
 	end
 
 	def run
-		
 		userhives = load_missing_hives()
 		userhives.each do |hive|
 			next if hive['HKU'] == nil
