@@ -11,7 +11,7 @@
 
 
 require 'msf/core'
-
+require 'openssl'
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -132,6 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 		hname = nil
 
 		case pkt[2]
+		
 			when 53
 				app = 'DNS'
 				ver = nil
@@ -145,6 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
+				
 			when 137
 				app = 'NetBIOS'
 
@@ -217,6 +219,7 @@ class Metasploit3 < Msf::Auxiliary
 				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
+				
 			when 1434
 				app = 'MSSQL'
 				mssql_ping_parse(pkt[0]).each_pair { |k,v|
@@ -225,15 +228,22 @@ class Metasploit3 < Msf::Auxiliary
 
 			when 161
 				app = 'SNMP'
-				begin
-					asn = ASNData.new(pkt[0])
-					inf = asn.access("L0.L0.L0.L0.V1.value")
-					if (inf)
-						inf.gsub!(/\r|\n/, ' ')
-						inf.gsub!(/\s+/, ' ')
-					end
-				rescue ::Exception
-				end
+
+				asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
+				return if not asn
+		
+				snmp_error = asn.value[0].value rescue nil
+				snmp_comm  = asn.value[1].value rescue nil
+				snmp_data  = asn.value[2].value[3].value[0] rescue nil
+				snmp_oid   = snmp_data.value[0].value rescue nil
+				snmp_info  = snmp_data.value[1].value rescue nil
+
+				return if not (snmp_error and snmp_comm and snmp_data and snmp_oid and snmp_info)
+				snmp_info = snmp_info.to_s.gsub(/\s+/, ' ')
+
+				inf = snmp_info
+				com = snmp_comm		
+
 			when 5093
 				app = 'Sentinel'
 
@@ -261,73 +271,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	#
-	# Parse a asn1 buffer into a hash tree
-	#
-
-	class ASNData < ::Hash
-
-		def initialize(data)
-			_parse_asn1(data, self)
-		end
-
-		def _parse_asn1(data, tree)
-			x = 0
-			while (data.length > 0)
-				t,l = data[0,2].unpack('CC')
-				i = 2
-
-				if (l > 0x7f)
-					lb = l - 0x80
-					l = (("\x00" * (4-lb)) + data[i, lb]).unpack('N')[0]
-					i += lb
-				end
-
-				buff = data[i, l]
-
-				tree[:v] ||= []
-				tree[:l] ||= []
-				case t
-					when 0x00...0x29
-						tree[:v] << [t, buff]
-					else
-						tree[:l][x] ||= ASNData.new(buff)
-						x += 1
-				end
-				data = data[i + l, data.length - l]
-			end
-		end
-
-		def access(desc)
-			path = desc.split('.')
-			node = self
-			path.each_index do |i|
-				case path[i]
-					when /^V(\d+)$/
-						if (node[:v] and node[:v][$1.to_i])
-							node = node[:v][$1.to_i]
-							next
-						else
-							return nil
-						end
-					when /^L(\d+)$/
-						if (node[:l] and node[:l][$1.to_i])
-							node = node[:l][$1.to_i]
-							next
-						else
-							return nil
-						end
-					when 'type'
-						return (node and node[0]) ? node[0] : nil
-					when 'value'
-						return (node and node[1]) ? node[1] : nil
-					else
-						return nil
-				end
-			end
-			return node
-		end
-	end
 
 	#
 	# Parse a db2disco packet.
