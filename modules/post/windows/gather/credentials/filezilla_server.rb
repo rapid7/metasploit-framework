@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Post
 			'Platform'       => ['windows'],
 			'SessionTypes'   => ['meterpreter' ]
 		))
+
 		register_options(
 			[
 				OptBool.new('SSLCERT', [false, 'Loot the SSL Certificate if its there?', false]), # useful perhaps for MITM

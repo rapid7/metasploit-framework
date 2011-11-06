@@ -12,10 +12,8 @@
 require 'msf/core'
 require 'rex'
 
-
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
-
 
 	def initialize(info={})
 		super( update_info( info,
@@ -49,7 +47,7 @@ class Metasploit3 < Msf::Post
 
 		wlan_iflist.each do |interface|
 			#Scan with the interface, then wait 10 seconds to give it time to finish
-			#If we don't wait we can get unpredicatble results. May be a race condition		
+			#If we don't wait we can get unpredicatble results. May be a race condition
 			scan_results = @wlanapi.WlanScan(wlan_handle,interface['guid'],nil,nil,nil)
 			sleep(10)
 
@@ -80,11 +78,10 @@ class Metasploit3 < Msf::Post
 		else
 			print_error("There was an error closing the Handle")
 		end
-		
 	end
 
 
-	def open_handle 
+	def open_handle
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -252,7 +249,7 @@ class Metasploit3 < Msf::Post
 			num += int << bits
 			bits += 32
 		end
-		num >= 2**(bits-1) ? num - 2**bits : num 
+		num >= 2**(bits-1) ? num - 2**bits : num
 	end
 
 	#Convert the GUID to human readable form

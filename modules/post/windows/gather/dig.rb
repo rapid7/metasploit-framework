@@ -22,18 +22,18 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Dig',
 				'Description'   => %q{ This module looks up a IP for a hostname via the victim},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix@hak5.org>'],
+				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
-			
-			register_options(
-				[
-					OptString.new('HOSTNAME',	 [true, 'Hostname to lookup', nil]),
-				], self.class)
+
+		register_options(
+			[
+				OptString.new('HOSTNAME', [true, 'Hostname to lookup', nil])
+			], self.class)
 	end
-	
+
 	def run
 		### MAIN ###
 		client.railgun.add_function( 'ws2_32', 'getaddrinfo', 'DWORD',[["PCHAR","pNodeName","in"],["PCHAR","pServiceName","in"],["PDWORD","pHints","in"],["PDWORD","ppResult","out"]])
@@ -45,9 +45,9 @@ class Metasploit3 < Msf::Post
 			size = 32
 			addrinfoinmem = 24
 		end
-		
+
 		hostname = datastore['HOSTNAME']
-		
+
 		## get IP for host
 		begin
 			vprint_status("Looking up IP for #{hostname}")

@@ -28,13 +28,12 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))
+
 		register_options(
 			[
-
 				OptString.new('SUBNET', [false, 'Subnet (IPv4, for example, 10.10.10.0)', nil]),
 				OptString.new('NETMASK', [false, 'Netmask (IPv4 as "255.255.255.0" or CIDR as "/24"', '255.255.255.0']),
 				OptEnum.new('CMD', [true, 'Specify the autoroute command', 'add', ['add','print','delete']])
-
 			], self.class)
 	end
 
@@ -73,9 +72,7 @@ class Metasploit3 < Msf::Post
 			else
 				delete_all_routes()
 			end
-
 		end
-		
 	end
 
 	def delete_all_routes

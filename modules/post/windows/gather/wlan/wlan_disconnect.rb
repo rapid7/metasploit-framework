@@ -12,10 +12,8 @@
 require 'msf/core'
 require 'rex'
 
-
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
-
 
 	def initialize(info={})
 		super( update_info( info,
@@ -30,6 +28,7 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
+
 		register_options([
 			OptInt.new("Interface", [true, "The Index of the Interface to Disconnect. Leave at 0 if only one IF", 0])
 		])
@@ -108,7 +107,7 @@ class Metasploit3 < Msf::Post
 	end
 
 
-	def open_handle 
+	def open_handle
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -229,7 +228,7 @@ class Metasploit3 < Msf::Post
 
 		#Checks if security is enabled on this BSS
 		pointer = (pointer + 4)
-		security_enabled = @host_process.memory.read(pointer,4)		
+		security_enabled = @host_process.memory.read(pointer,4)
 		if security_enabled.unpack("V")[0] == 1
 			connection['security'] = "Yes"
 		else

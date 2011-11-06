@@ -26,8 +26,11 @@ class Metasploit3 < Msf::Post
 					is compatible with the token_hunter plugin. This module should be
 					run over as session with domain credentials.},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>',
-						'Stephen Haywood <haywoodsb[at]gmail.com>'],
+				'Author'        =>
+					[
+						'Carlos Perez <carlos_perez[at]darkoperator.com>',
+						'Stephen Haywood <haywoodsb[at]gmail.com>'
+					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
@@ -35,14 +38,13 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('GROUP', [true, 'Domain Group to enumerate', nil])
-
 			], self.class)
 	end
 
 	# Run Method for when run command is issued
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
-		
+
 		cur_domain, cur_user = client.sys.config.getuid.split("\\")
 		ltype = "domain.group.members"
 		ctype = "text/plain"
@@ -58,15 +60,15 @@ class Metasploit3 < Msf::Post
 
 		# Show results if we have any, Error if we don't
 		if ! members.empty?
-			
+
 			print_status("Found users in #{datastore['GROUP']}")
-			
+
 			loot = []
 			members.each do |user|
 				print_status("\t#{domain}\\#{user}")
 				loot << "#{domain}\\#{user}"
 			end
-			
+
 			# Is our current user a member of this domain and group
 			if is_member(cur_domain, cur_user, domain, members)
 				print_status("Current sessions running as #{cur_domain}\\#{cur_user} is a member of #{datastore['GROUP']}!!")
@@ -82,7 +84,7 @@ class Metasploit3 < Msf::Post
 		end
 
 	end
-	
+
 	def get_members(results)
 		members = []
 		
@@ -97,30 +99,30 @@ class Metasploit3 < Msf::Post
 				members << user.strip
 			end
 		end
-		
+
 		return members
 	end
 	
 	def get_domain(results)
 		domain = ''
-		
+
 		results.each do |line|
 			if line =~ /Workstation domain \s+(.*)/ then domain = $1.strip end
 		end
-		
+
 		return domain
 	end
-	
+
 	def is_member(cur_dom, cur_user, dom, users)
-		
+
 		member = false
-		
+
 		if cur_dom == dom
 			users.each do |u|
 				if u.downcase == cur_user.downcase then member = true end
 			end
 		end
-		
+
 		return member
 	end
 	def run_cmd(cmd)
@@ -134,5 +136,5 @@ class Metasploit3 < Msf::Post
 		process.close
 		return res
 	end
-	
+
 end

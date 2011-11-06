@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 			'Version'       => '$Revision$',
 			'Platform'      => ['windows'],
 			'SessionTypes'  => ['meterpreter'],
-			'Author'        => ['Wesley McGrew <wesley@mcgrewsecurity.com>']
+			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))
 		register_options(
 			[
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
 		invalid_set_file_pointer = 0xFFFFFFFF
 		fsctl_allow_extended_dasd_io = 0x00090083
 		ioctl_disk_get_drive_geometry_ex = 0x000700A0
-		
+
 		r = client.railgun.kernel32.CreateFileA(devname, "GENERIC_READ",
 			0x3, nil, "OPEN_EXISTING", "FILE_ATTRIBUTE_READONLY", 0)
 		handle = r['return']
@@ -54,9 +54,9 @@ class Metasploit3 < Msf::Post
 			print_error("Could not open #{devname}")
 			raise Rex::Script::Completed
 		end
-		
+
 		r = client.railgun.kernel32.DeviceIoControl(handle,fsctl_allow_extended_dasd_io,nil,0,0,0,4,nil)
-		
+
 		ioctl = client.railgun.kernel32.DeviceIoControl(handle,ioctl_disk_get_drive_geometry_ex,
 				"",0,200,200,4,"")
 		if ioctl['GetLastError'] == 6
@@ -64,9 +64,9 @@ class Metasploit3 < Msf::Post
 				"",0,200,200,4,"")
 		end
 		geometry = ioctl['lpOutBuffer']
-		
+
 		disk_size = geometry[24,31].unpack('Q')[0]
-		
+
 		finished = false
 		skip_counter = 0
 		if num_to_read != 0
@@ -77,10 +77,10 @@ class Metasploit3 < Msf::Post
 		disk_bytes_count = 0
 		fp = ::File.new("%s.%03i" % [base_filename,file_number],"w")
 		print_line("Started imaging #{devname} to %s.%03i" % [base_filename,file_number])
-		
+
 		md5_hash = Digest::MD5.new
 		sha1_hash = Digest::SHA1.new
-		
+
 		while finished != true do
 			if skip_counter < skip
 				print_line("Skipped #{block_size} bytes")
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 				skip_counter += 1
 				next
 			end
-		
+
 			if (disk_size - disk_bytes_count) < block_size
 				block_size = disk_size - disk_bytes_count
 				finished = true
@@ -104,19 +104,19 @@ class Metasploit3 < Msf::Post
 			if disk_bytes_count == disk_size
 				finished = true
 			end
-		
+
 			data = r['lpBuffer'][0,r['lpNumberOfBytesRead']]
-		
+
 			if num_to_read != 0
 				count += 1
 				if count == num_to_read
 					finished = true
 				end
 			end
-		
+
 			md5_hash << data
 			sha1_hash << data
-		
+
 			fp.syswrite(data)
 			file_data_count += data.length
 			if file_data_count >= split
@@ -130,11 +130,11 @@ class Metasploit3 < Msf::Post
 			end
 		end
 		fp.close()
-		
+
 		print_line("Finished!")
 		print_line("MD5  : #{md5_hash.to_s}")
 		print_line("SHA1 : #{sha1_hash.to_s}")
-		
+
 		client.railgun.kernel32.CloseHandle(handle)
 	end
 end

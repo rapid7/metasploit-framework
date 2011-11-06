@@ -12,10 +12,8 @@
 require 'msf/core'
 require 'rex'
 
-
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
-
 
 	def initialize(info={})
 		super( update_info( info,
@@ -70,11 +68,10 @@ class Metasploit3 < Msf::Post
 		else
 			print_error("There was an error closing the Handle")
 		end
-		
 	end
 
 
-	def open_handle 
+	def open_handle
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -119,7 +116,7 @@ class Metasploit3 < Msf::Post
 		#We return nil and deal with the results back in the calling function
 		pointer = (pointer+512)
 		len_ssid = @host_process.memory.read(pointer,4)
-		unless len_ssid.unpack("V")[0] 
+		unless len_ssid.unpack("V")[0]
 			return nil
 		end
 
@@ -194,7 +191,7 @@ class Metasploit3 < Msf::Post
 
 		#Checks if security is enabled on this BSS
 		pointer = (pointer + 4)
-		security_enabled = @host_process.memory.read(pointer,4)		
+		security_enabled = @host_process.memory.read(pointer,4)
 		if security_enabled.unpack("V")[0] == 1
 			connection['security'] = "Yes"
 		else

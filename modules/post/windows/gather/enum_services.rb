@@ -14,9 +14,8 @@ require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/services'
 
-#define the appropriate class
 class Metasploit3 < Msf::Post
-	#set your includes
+
 	include Msf::Post::Windows::WindowsServices
 
 	def initialize(info={})
@@ -40,13 +39,7 @@ class Metasploit3 < Msf::Post
 			[
 				OptString.new('CRED', [ false, 'String to search credentials for' ]),
 				OptString.new('PATH', [ false, 'String to search path for' ]),
-				OptEnum.new('TYPE', [false, 'Service startup Option', 'All',
-								[
-									'All',
-									'Auto',
-									'Manual',
-									'Disabled'
-								]]),
+				OptEnum.new('TYPE', [false, 'Service startup Option', 'All', ['All', 'Auto', 'Manual', 'Disabled' ]])
 			], self.class)
 	end
 
@@ -70,7 +63,7 @@ class Metasploit3 < Msf::Post
 		if qtype
 			print_status("Start Type Filter: " + qtype)
 		end
-		
+
 		print_status("Listing Service Info for matching services:")
 		service_list.each do |sname|
 			srv_conf = {}
@@ -89,7 +82,7 @@ class Metasploit3 < Msf::Post
 					if qtype and ! srv_conf['Startup'].downcase.include? qtype.downcase
 						isgood = false
 					end
-				
+
 					#if we are still good return the info
 					if isgood
 						vprint_status("\tName: #{sname}")

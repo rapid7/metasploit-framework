@@ -12,10 +12,8 @@
 require 'msf/core'
 require 'rex'
 
-
 class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
-
 
 	def initialize(info={})
 		super( update_info( info,
@@ -70,7 +68,7 @@ class Metasploit3 < Msf::Post
 	end
 
 
-	def open_handle 
+	def open_handle
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
@@ -162,7 +160,6 @@ class Metasploit3 < Msf::Post
 		end
 		return profiles
 	end
-
 
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)

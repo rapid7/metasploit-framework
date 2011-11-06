@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 
 		t = []
 		while(not apps.empty?)
-			
+
 			1.upto(16) do
 				t << framework.threads.spawn("Module(#{self.refname})", false, apps.shift) do |k|
 					begin
@@ -73,9 +73,9 @@ class Metasploit3 < Msf::Post
 		end
 
 		results = tbl.to_s
-		
+
 		print_line("\n" + results + "\n")
-		
+
 		store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
 	end
 

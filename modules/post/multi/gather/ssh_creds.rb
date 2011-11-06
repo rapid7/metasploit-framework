@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 			end
 			return
 		end
-			
+
 		# we got root check all user dirs
 		paths = []
 		userdirs.each_line do |dir|
@@ -171,7 +171,7 @@ class Metasploit3 < Msf::Post
 					ensure
 						fd.close
 					end
-					
+
 					file = file.split('\\').last
 					store_loot("ssh.#{file}", "text/plain", session, loot, "ssh_#{file}", "OpenSSH #{file} File")
 				end

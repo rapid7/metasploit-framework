@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 			# Save pwd file
 			upassf = store_loot("solaris.hashes", "text/plain", session, john_file, "unshadowed_passwd.pwd", "Solaris Unshadowed Password File")
 			print_good("Unshadowed Password File: #{upassf}")
-			
+
 		else
 			print_error("You must run this module as root!")
 		end

@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
 	end
-	
+
 	def run
 		#structure
 =begin

@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 			'Version'       => '$Revision$',
 			'Platform'      => ['windows'],
 			'SessionTypes'  => ['meterpreter'],
-			'Author'        => ['Wesley McGrew <wesley@mcgrewsecurity.com>']
+			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))
 		register_options(
 			[
@@ -50,12 +50,12 @@ class Metasploit3 < Msf::Post
 			else
 				type = ""
 			end
-	
+
 			size = geometry[24,31].unpack('Q')
 			if size.to_s == "4702111234474983745"
 				size = 'N/A'
 			end
-	
+
 			print_line("%-25s%12s%15i" % [devname,type,size[0]])
 			client.railgun.kernel32.CloseHandle(handle)
 		end

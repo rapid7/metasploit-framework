@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 			'Version'       => '$Revision$',
 			'Platform'      => ['windows'],
 			'SessionTypes'  => ['meterpreter'],
-			'Author'        => ['Wesley McGrew <wesley@mcgrewsecurity.com>']
+			'Author'        => ['Wesley McGrew <wesley[at]mcgrewsecurity.com>']
 		))
 		register_options(
 			[

@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
 		print_status("Getting privilege level")
 		priv_cmd = "show priv"
 		priv = (session.shell_command(priv_cmd)).scan(/privilege level is (\d*)/).join
-		
+
 		# Check if this is a Nexus or IOS box
 		case ver
 		when /Nexus/
@@ -73,11 +73,11 @@ class Metasploit3 < Msf::Post
 				mode = "PRIV"
 			end	
 		end
-		
+
 		print_status("The device OS is #{os_type}")
 		print_status("Session running in mode #{mode}")
 		print_status("Privilege level #{priv}")
-		
+
 		case os_type
 		when /IOS/
 			ver_loc = store_loot("cisco.ios.version",
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Post
 				"version.txt",
 				"Cisco NXOS Version")
 		end
-		
+
 		# Print the version of VERBOSE set to true.
 		vprint_status("version information stored in to loot, file:#{ver_loc}")
 

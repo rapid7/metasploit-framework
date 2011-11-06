@@ -18,23 +18,23 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage Local User Account Deletion',
-				'Description'   => %q{
-						This module deletes a local user account from the specified server,
-					or the local machine if no server is given.
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'chao-mu'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Manage Local User Account Deletion',
+			'Description'   => %q{
+					This module deletes a local user account from the specified server,
+				or the local machine if no server is given.
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'chao-mu'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
+
 		register_options(
 			[
 				OptString.new('USERNAME', [ true, 'The username of the user to delete (not-qualified, e.g. BOB)' ]),
 				OptString.new('SERVER_NAME', [ false, ' DNS or NetBIOS name of remote server on which to delete user' ]),
 			], self.class)
-
 	end
 
 	def run
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 		target_server = datastore['SERVER_NAME']
 
 		status = delete_user(username, target_server ? target_server : nil)
-		
+
 		case status
 		when :success
 			print_status 'User was deleted!';

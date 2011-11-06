@@ -196,10 +196,10 @@ class Metasploit3 < Msf::Post
 		@old_pid = nil
 		@host_info = session.sys.config.sysinfo
 		migrate_success = false
-		
+
 		# Automatically migrate to explorer.exe
 		migrate_success = migrate if datastore["MIGRATE"]
-		
+
 		host = session.tunnel_peer.split(':')[0]
 
 		#Get Google Chrome user data path

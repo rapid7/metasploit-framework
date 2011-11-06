@@ -22,7 +22,6 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	
 	include Msf::Post::Windows::Registry
 
 	def initialize(info={})
@@ -49,27 +48,27 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("Running module against #{sysinfo['Computer']}") if not sysinfo.nil?
 		domain = get_domain()
-		
+
 		if not domain.empty?
 			uid = client.sys.config.getuid
 			dom_admins = list_domain_group_mem("Domain Admins")
-			
+
 			if  uid =~ /#{domain}/
 				user = uid.split("\\")[1]
 				if dom_admins.include?(user)
 					print_good("Current session is running under a Domain Admin Account")
 				end
 			end
-			
+
 			if not is_dc?
 				list_group_members(domain, dom_admins)
 			end
-			
+
 			list_tokens(domain, dom_admins)
 			list_processes(domain, dom_admins)
 		end
 	end
-	
+
 	# List local group members
 	def list_group_mem(group)
 		devisor = "-------------------------------------------------------------------------------\r\n"
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Post
 		account_list.delete("The command completed successfully.")
 		return account_list
 	end
-	
+
 	# List Members of a domain group
 	def list_domain_group_mem(group)
 		account_list = []
@@ -90,7 +89,7 @@ class Metasploit3 < Msf::Post
 		account_list.delete("The command completed successfully.")
 		return account_list
 	end
-	
+
 	# Gets the Domain Name
 	def get_domain()
 		domain = ""
@@ -105,7 +104,7 @@ class Metasploit3 < Msf::Post
 		end
 		return domain
 	end
-	
+
 	# List Tokens precent on the domain
 	def list_tokens(domain,dom_admins)
 		tbl = Rex::Ui::Text::Table.new(
@@ -127,7 +126,7 @@ class Metasploit3 < Msf::Post
 		group_tokens = client.incognito.incognito_list_tokens(1)
 		group_delegation = group_tokens["delegation"].split("\n")
 		group_impersonation = group_tokens["impersonation"].split("\n")
-		
+
 		user_delegation.each do |dt|
 			if dt =~ /#{domain}/
 				user = dt.split("\\")[1]
@@ -138,7 +137,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		
+
 		user_impersonation.each do |dt|
 			if dt =~ /#{domain}/
 				user = dt.split("\\")[1]
@@ -149,7 +148,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		
+
 		group_delegation.each do |dt|
 			if dt =~ /#{domain}/
 				user = dt.split("\\")[1]
@@ -160,7 +159,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		
+
 		group_impersonation.each do |dt|
 			if dt =~ /#{domain}/
 				user = dt.split("\\")[1]
@@ -174,7 +173,7 @@ class Metasploit3 < Msf::Post
 		results = tbl.to_s
 		print_line("\n" + results + "\n")
 	end
-	
+
 	def list_group_members(domain,dom_admins)
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Account in Local Groups with Domain Context",
@@ -199,7 +198,7 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		
+
 		backops.each do |dt|
 			if dt =~ /#{domain}/
 				user = dt.split("\\")[1]
@@ -223,7 +222,7 @@ class Metasploit3 < Msf::Post
 		results = tbl.to_s
 		print_line("\n" + results + "\n")
 	end
-	
+
 	def list_processes(domain,dom_admins)
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Processes under Domain Context",
@@ -250,7 +249,7 @@ class Metasploit3 < Msf::Post
 		results = tbl.to_s
 		print_line("\n" + results + "\n")
 	end
-	
+
 	# Function for checking if target is a DC
 	def is_dc?
 		is_dc_srv = false

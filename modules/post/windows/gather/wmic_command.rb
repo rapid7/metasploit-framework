@@ -19,21 +19,21 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Gather Run Specified WMIC command',
-				'Description'   => %q{ This module will execute a given WMIC command options or read
-					WMIC commands options from a resource file and execute the commands in the
-					specified Meterpreter session.},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Gather Run Specified WMIC command',
+			'Description'   => %q{ This module will execute a given WMIC command options or read
+				WMIC commands options from a resource file and execute the commands in the
+				specified Meterpreter session.},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
+
 		register_options(
 			[
 				OptPath.new('RESOURCE', [false, 'Full path to resource file to read commands from.']),
 				OptString.new('COMMAND', [false, 'WMIC command options.']),
-
 			], self.class)
 	end
 

