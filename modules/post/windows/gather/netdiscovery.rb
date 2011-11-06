@@ -16,7 +16,6 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
-
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Net Discovery',
@@ -33,24 +32,24 @@ class Metasploit3 < Msf::Post
 				UNIX = All Unix Hosts
 					},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Rob Fuller <mubix@hak5.org>'],
+				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
-			))
-			
-			register_options(
-				[
-					OptString.new('LTYPE',	 [true, 'Account informations (type info for known types)', 'WK']),
-					OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
-				], self.class)
+		))
+
+		register_options(
+			[
+				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']),
+				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil])
+			], self.class)
 	end
-	
+
 	def parse_netserverenum(startmem,count)
 		base = 0
 		sys_list = []
 		mem = client.railgun.memread(startmem, 24*count)
-		
+
 		count.times{|i|
 			x = {}
 			x[:platform_id] = mem[(base + 0),4].unpack("V*")[0]
@@ -69,7 +68,6 @@ class Metasploit3 < Msf::Post
 		return sys_list
 	end
 
-	
 	def run
 		### MAIN ###
 		client = session
@@ -111,7 +109,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 		# Terminal Servers = SV_TYPE_TERMINALSERVER
 		# SQL Servers = SV_TYPE_SQLSERVER
 		lookuptype = 1
-		
+
 		case datastore['LTYPE']
 			when 'WK' then lookuptype = "1".hex
 			when 'SVR' then lookuptype = "2".hex
@@ -126,6 +124,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 			when 'UNIX' then lookuptype = "800".hex
 			when 'LOCAL' then lookuptype = "40000000".hex
 		end
+
 		if client.platform =~ /^x64/
 			nameiterator = 8
 			size = 64
@@ -135,6 +134,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 			size = 32
 			addrinfoinmem = 24
 		end
+
 		result = client.railgun.netapi32.NetServerEnum(nil,101,4,-1,4,4,lookuptype,datastore['DOMAIN'],0)
 		# print_error(result.inspect)
 		if result['totalentries'] == 0
@@ -167,20 +167,20 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 			print_error(e)
 			print_status('Windows 2000 and prior does not support getaddrinfo')
 		end
-		
+
 		netview = netview.sort_by {|e| e[:type]}
-		
+
 		results = Rex::Ui::Text::Table.new(
 			'Header' => 'Netdiscovery Results',
 			'Indent' => 2,
 			'Columns' => ['TYPE', 'IP', 'COMPUTER NAME', 'VERSION', 'COMMENT']
 		)
-		
+
 		netview.each do |x|
 			results << [x[:type], x[:ip], x[:cname], "#{x[:major_ver]}.#{x[:minor_ver]}", x[:comment]]
 		end
 		print_status(results.inspect)
-		
+
 		print_status('If none of the IP addresses show up you are running this from a Win2k or older system')
 		print_status("If a host doesn't have an IP it either timed out or only has an IPv6 address assinged to it")
 	end
