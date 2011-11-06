@@ -115,9 +115,11 @@ module Anemone
       	opts['Authorization'] = "Basic " + @opts[:http_basic_auth]
       end
 
-      @opts[:inject_headers].each do |hdr|
-      	k,v = hdr.split(':', 2)
-      	opts[k] = v
+      if not @opts[:inject_headers].nil? 
+      	@opts[:inject_headers].each do |hdr|
+      	  k,v = hdr.split(':', 2)
+      	  opts[k] = v
+        end
       end
       
       retries = 0
@@ -182,3 +184,4 @@ module Anemone
 
   end
 end
+€ý5:q!
