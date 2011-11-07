@@ -97,9 +97,15 @@ public class MsfTable extends javax.swing.JTable {
 		if(!force && !DraggableTabbedPane.isVisible(this))
 			return; //Don't re-add if not visible
 		try {
-			HashMap arg = new HashMap(10);
-			arg.put("workspace", MsfguiApp.workspace);
-			arg.put("offset", offset);
+			Object arg;
+			if(rpcConn.type.equals("XML") && (dbTable.equals("events") || dbTable.equals("loots"))){
+				arg = MsfguiApp.workspace;
+			} else {
+				HashMap argM = new HashMap(10);
+				argM.put("workspace", MsfguiApp.workspace);
+				argM.put("offset", offset);
+				arg = argM;
+			}
 			List data = (List) ((Map)rpcConn.execute("db."+dbTable, arg)).get(dbTable);
 			if(data == null)
 				return;
@@ -110,8 +116,13 @@ public class MsfTable extends javax.swing.JTable {
 				Object[] row = new Object[dbNames.length];
 				for (int i = 0; i < dbNames.length; i++){
 					row[i] = ((Map) dataObj).get(dbNames[i]);
-					if(dbNames[i].endsWith("_at"))
-						row[i] = new java.util.Date(Long.parseLong(row[i].toString()) * 1000);
+					try{
+						if(dbNames[i].endsWith("_at"))
+							row[i] = new java.util.Date(Long.parseLong(row[i].toString()) * 1000);
+					}catch(NumberFormatException nfex){
+						//don't do anything
+
+					}
 				}
 				mod.addRow(row);
 			}
