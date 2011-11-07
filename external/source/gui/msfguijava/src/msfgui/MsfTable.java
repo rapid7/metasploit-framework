@@ -25,7 +25,7 @@ import javax.swing.table.DefaultTableModel;
 public class MsfTable extends javax.swing.JTable {
 	private final String[] dbNames;
 	private final String dbTable;
-	private final RpcConnection rpcConn;
+	public RpcConnection rpcConn;
 	/**
 	 * Default constructor just takes column names
 	 * @param colnames The names of the columns in the table
@@ -121,7 +121,6 @@ public class MsfTable extends javax.swing.JTable {
 							row[i] = new java.util.Date(Long.parseLong(row[i].toString()) * 1000);
 					}catch(NumberFormatException nfex){
 						//don't do anything
-
 					}
 				}
 				mod.addRow(row);

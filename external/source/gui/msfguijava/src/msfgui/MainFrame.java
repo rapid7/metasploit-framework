@@ -39,6 +39,7 @@ public class MainFrame extends FrameView {
 	private JPopupMenu jobPopupMenu, shellPopupMenu, meterpreterPopupMenu, sessionPopupMenu;
 	private String clickedJob;
 	public Map[] selectedSessions;
+	private MsfTable[] tables;
 	private SearchWindow searchWin;
 	private javax.swing.JTable eventsTable;
 	private javax.swing.JScrollPane eventsPane;
@@ -147,6 +148,9 @@ public class MainFrame extends FrameView {
 			}
 		}
 		MsfFrame.updateSizes(getFrame());
+		this.tables = new MsfTable[]{(MsfTable)eventsTable, (MsfTable)hostsTable,
+			(MsfTable)clientsTable, (MsfTable)servicesTable, (MsfTable)vulnsTable,
+			(MsfTable)notesTable, (MsfTable)lootsTable, (MsfTable)credsTable};
 		// Setup table autoquery code
 		((MsfTable)eventsTable).addAutoAdjuster(eventsPane);
 		((MsfTable)hostsTable).addAutoAdjuster(hostsPane);
@@ -1321,14 +1325,10 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		}
 		try { //Now load data out of current workspace
 			MsfguiApp.workspace = ((Map) rpcConn.execute("db.current_workspace")).get("workspace").toString();
-			((MsfTable)eventsTable).reAddQuery(all, 0);
-			((MsfTable)lootsTable).reAddQuery(all, 0);
-			((MsfTable)hostsTable).reAddQuery(all, 0);
-			((MsfTable)clientsTable).reAddQuery(all, 0);
-			((MsfTable)servicesTable).reAddQuery(all, 0);
-			((MsfTable)vulnsTable).reAddQuery(all, 0);
-			((MsfTable)notesTable).reAddQuery(all, 0);
-			((MsfTable)credsTable).reAddQuery(all, 0);
+			for(MsfTable table : tables){
+				table.rpcConn = rpcConn;
+				table.reAddQuery(all, 0);
+			}
 		} catch (MsfException mex) {
 			if(!mex.getMessage().equals("database not loaded"))
 				mex.printStackTrace();
