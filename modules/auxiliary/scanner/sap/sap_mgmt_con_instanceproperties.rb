@@ -76,7 +76,8 @@ class Metasploit4 < Msf::Auxiliary
 		ns1='ns1:GetInstanceProperties'
 
 		data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
-		data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' + soapenv + '"  xmlns:xsi="' + xsi + '" xmlns:xs="' + xs + '">' + "\r\n"
+		data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' + soapenv + '"  xmlns:xsi="' + xsi
+		data << '" xmlns:xs="' + xs + '">' + "\r\n"
 		data << '<SOAP-ENV:Header>' + "\r\n"
 		data << '<sapsess:Session xlmns:sapsess="' + sapsess + '">' + "\r\n"
 		data << '<enableSession>true</enableSession>' + "\r\n"
@@ -126,11 +127,23 @@ class Metasploit4 < Msf::Auxiliary
 					icmurl = $1.strip
 					success = true
 				end
+				if body.match(/<property>IGS<\/property><propertytype>NodeURL<\/propertytype><value>([^<]+)<\/value>/)
+					igsurl = $1.strip
+					success = true
+				end
 				if body.match(/<property>ABAP DB Connection<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
 					dbstring = $1.strip
 					success = true
 				end
-				if body.match(/<property>protectedweb Webmethods<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
+				if body.match(/<property>J2EE DB Connection<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
+					j2eedbstring = $1.strip
+					success = true
+				end
+				if body.match(/<property>Webmethods<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
+					webmethods = $1.strip
+					success = true
+				end
+				if body.match(/<property>Protected Webmethods<\/property><propertytype>Attribute<\/propertytype><value>([^<]+)<\/value>/)
 					protectedweb = $1.strip
 					success = true
 				end
@@ -192,9 +205,17 @@ class Metasploit4 < Msf::Auxiliary
 							:type => 'sap.icm.url',
 							:data => {:proto => "soap", :icmurl => icmurl})
 			end
-
+			if igsurl
+				print_good("#{rhost}:#{rport} [SAP] IGS URL: #{igsurl}")
+				report_note(:host => "#{rhost}",
+							:proto => 'tcp',
+							:port => "#{rport}",
+							:type => 'sap.igs.url',
+							:data => {:proto => "soap", :igsurl => igsurl})
+			end
 			if dbstring
-				print_good("#{rhost}:#{rport} [SAP] DATABASE: #{dbstring}")
+				dbstring = CGI.unescapeHTML(dbstring)
+				print_good("#{rhost}:#{rport} [SAP] ABAP DATABASE: #{dbstring}")
 				report_note(:host => "#{rhost}",
 							:proto => 'tcp',
 							:port => "#{rport}",
@@ -202,9 +223,22 @@ class Metasploit4 < Msf::Auxiliary
 							:data => {:proto => "soap", :dbstring => dbstring},
 							:update => :unique_data )
 			end
-
+			if j2eedbstring
+				j2eedbstring = CGI.unescapeHTML(j2eedbstring)
+				print_good("#{rhost}:#{rport} [SAP] J2EE DATABASE: #{j2eedbstring}")
+				report_note(:host => "#{rhost}",
+							:proto => 'tcp',
+							:port => "#{rport}",
+							:type => 'sap.j2eedbstring',
+							:data => {:proto => "soap", :j2eedbstring => j2eedbstring},
+							:update => :unique_data )
+			end
 			if protectedweb
-				print_good("#{rhost}:#{rport} [SAP] protectedweb Webmethods: #{protectedweb}")
+				protectedweb_arr = protectedweb.split(",")
+				print_good("#{rhost}:#{rport} [SAP] Protected Webmethods (auth required) :")
+				protectedweb_arr.each do | pweb |
+					print_status("#{pweb}")
+				end
 				report_note(:host => "#{rhost}",
 							:proto => 'tcp',
 							:port => "#{rport}",
@@ -212,12 +246,27 @@ class Metasploit4 < Msf::Auxiliary
 							:data => {:proto => "soap", :protectedweb => protectedweb},
 							:update => :unique_data )
 			end
+			if webmethods
+				webmethods_arr = webmethods.split(",")
+				print_good("#{rhost}:#{rport} [SAP] Unprotected Webmethods :")
+				webmethods_arr.each do | webm |
+					# Only print webmethods not found in protectedweb_arr
+					print_status("#{webm}") if not protectedweb_arr.include?(webm)
+				end
+				report_note(:host => "#{rhost}",
+							:proto => 'tcp',
+							:port => "#{rport}",
+							:type => 'sap.web.methods',
+							:data => {:proto => "soap", :webmethods => webmethods},
+							:update => :unique_data )
+			end
+
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return
 		else
-			print_error("#{rhost}:#{rport} [SAP] failed to identify instance properties")
+			print_error("#{rhost}:#{rport} [SAP] Failed to identify instance properties")
 			return
 		end
 	end
