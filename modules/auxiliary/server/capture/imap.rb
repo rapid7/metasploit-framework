@@ -83,6 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host      => @state[c][:ip],
 				:sname     => 'imap-yahoo',
 				:port      => datastore['SRVPORT'],
+				:source_type => "captured",
 				:user      => cookie1,
 				:pass      => cookie2
 			)

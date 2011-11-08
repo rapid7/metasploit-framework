@@ -317,6 +317,7 @@ class Metasploit3 < Msf::Auxiliary
 					datastore['CHALLENGE'].to_s,
 				:type => smb_db_type_hash,
 				:proof => "DOMAIN=#{domain}",
+				:source_type => "captured",
 				:active => true
 			)
 			#if(datastore['LOGFILE'])

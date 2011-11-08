@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 					domino_svc = report_service(
 						:host => rhost,
 						:port => rport,
-						:name => "postgres"
+						:name => "http"
 					)
 					report_auth_info(
 						:host        => rhost,

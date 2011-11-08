@@ -133,6 +133,7 @@ class Metasploit3 < Msf::Auxiliary
 			:sname     => 'telnet',
 			:user      => @state[c][:user],
 			:pass      => @state[c][:pass],
+			:source_type => "captured",
 			:active    => true
 		)
 

@@ -126,6 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 				:sname     => 'pop3',
 				:user      => @state[c][:user],
 				:pass      => @state[c][:pass],
+				:source_type => "captured",
 				:active    => true
 			)
 			print_status("SMTP LOGIN #{@state[c][:name]} #{@state[c][:user]} / #{@state[c][:pass]}")

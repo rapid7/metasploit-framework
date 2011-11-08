@@ -188,6 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 				:sname     => 'http',
 				:user      => user,
 				:pass      => pass,
+				:source_type => "captured",
 				:active    => true
 			)
 
