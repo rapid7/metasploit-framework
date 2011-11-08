@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Post
 		pay.datastore['LPORT'] = lport
 		if not opts.empty?
 			opts.split(",").each do |o|
-				opt,val = o.split("=")
+				opt,val = o.split("=",2)
 				pay.datastore[opt] = val
 			end
 		end
