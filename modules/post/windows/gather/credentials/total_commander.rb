@@ -160,6 +160,8 @@ class Metasploit3 < Msf::Post
 						:host  => host,
 						:port => port,
 						:sname => 'FTP',
+						:source_id => session.db_record.id,
+						:source_type => "exploit",
 						:user => username,
 						:pass => passwd
 					)

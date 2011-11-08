@@ -63,6 +63,8 @@ class Metasploit3 < Msf::Post
 			data[:user]  = hash.user_name
 			data[:pass]  = hash.lanman + ":" + hash.ntlm
 			data[:type]  = "smb_hash"
+			data[:source_id] = session.db_record.id,
+			data[:source_type] = "exploit",
 			data[:active] = true
 
 			print_line "    Extracted: #{data[:user]}:#{data[:pass]}"

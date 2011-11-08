@@ -231,6 +231,8 @@ class Metasploit3 < Msf::Post
 					:sname => 'vnc',
 					:pass  => "#{e[:pass]}",
 					:port => "#{e[:port]}",
+					:source_id => session.db_record.id,
+					:source_type => "exploit",
 					:type => 'password'
 				)
 			end
@@ -241,6 +243,8 @@ class Metasploit3 < Msf::Post
 					:sname => 'vnc',
 					:viewonly_pass  => "#{e[:viewonly_pass]}",
 					:port => "#{e[:port]}",
+					:source_id => session.db_record.id,
+					:source_type => "exploit",
 					:type => 'password_ro'
 				)
 			end

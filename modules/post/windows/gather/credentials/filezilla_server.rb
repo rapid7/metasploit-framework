@@ -157,6 +157,8 @@ class Metasploit3 < Msf::Post
 				:user => cred['user'],
 				:pass => cred['password'],
 				:ptype => "MD5 hash",
+				:source_id => session.db_record.id,
+				:source_type => "exploit",
 				:target_host => config['ftp_bindip'],
 				:target_port => config['ftp_port']
 			)
@@ -190,6 +192,8 @@ class Metasploit3 < Msf::Post
 				:user => 'admin',
 				:pass => config['admin_pass'],
 				:type => "password",
+				:source_id => session.db_record.id,
+				:source_type => "exploit",
 				:target_host => config['admin_bindip'],
 				:target_port => config['admin_port']
 			)

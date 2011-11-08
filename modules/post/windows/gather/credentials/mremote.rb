@@ -91,6 +91,8 @@ class Metasploit3 < Msf::Post
 				:host  => host,
 				:port => port,
 				:sname => proto,
+				:source_id => session.db_record.id,
+				:source_type => "exploit",
 				:user => user,
 				:pass => pass)
 		end

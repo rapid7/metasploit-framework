@@ -148,6 +148,8 @@ class Metasploit3 < Msf::Post
 				:sname => 'mssql',
 				:user => full_user,
 				:pass => plaintext_passwd,
+				:source_id => session.db_record.id,
+				:source_type => "exploit",
 				:active => true
 			)
 			print_good("Added credentials to report database")

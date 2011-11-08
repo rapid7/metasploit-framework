@@ -116,6 +116,8 @@ class Metasploit3 < Msf::Post
 			report_auth_info(
 						:host  => host,
 						:port => port,
+						:source_id => session.db_record.id,
+						:source_type => "exploit",
 						:user => user,
 						:pass => pass
 					)

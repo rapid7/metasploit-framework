@@ -166,6 +166,8 @@ class Metasploit3 < Msf::Post
 					:user => cred["username"],
 					:pass => cred["password"],
 					:type => 'password',
+					:source_id => session.db_record.id,
+					:source_type => "exploit",
 					:active => true
 				}
 

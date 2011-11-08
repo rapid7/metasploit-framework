@@ -59,9 +59,15 @@ class Metasploit3 < Msf::Post
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
 					auth =
 						{
-							:host => host, :port => port, :sname => 'ftp',
-							:user => user, :pass => pass,
-							:type => 'password', :active => true
+							:host => host, 
+							:port => port, 
+							:sname => 'ftp',
+							:user => user, 
+							:pass => pass,
+							:type => 'password',
+							:source_id => session.db_record.id,
+							:source_type => "exploit",
+							:active => true
 						}
 					report_auth_info(auth)
 				end

@@ -308,6 +308,8 @@ class Metasploit3 < Msf::Post
 						:host  => host,
 						:port => portnum,
 						:sname => type,
+						:source_id => session.db_record.id,
+						:source_type => "exploit",
 						:user => user,
 						:pass => pass)
 					#print_status("CHK report_auth_info: host = #{host}, port= #{portnum}, sname= #{type}, user= #{user}, pass= #{pass}")
@@ -318,6 +320,8 @@ class Metasploit3 < Msf::Post
 						:host  => smtp_server,
 						:port => smtp_port,
 						:sname => "SMTP",
+						:source_id => session.db_record.id,
+						:source_type => "exploit",
 						:user => smtp_user,
 						:pass => smtp_decrypted_password)
 					#print_status("SMTP report_auth_info: host = #{smtp_server}, port= #{smtp_port}, sname= SMTP, user= #{smtp_user}, pass= #{smtp_decrypted_password}")
