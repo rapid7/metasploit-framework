@@ -100,7 +100,6 @@ class Metasploit3 < Msf::Post
 
 	# Create a payload given a name, lhost and lport, additional options
 	def create_payload(name, lhost, lport, opts = "")
-
 		pay = client.framework.payloads.create(name)
 		pay.datastore['LHOST'] = lhost
 		pay.datastore['LPORT'] = lport
@@ -113,7 +112,6 @@ class Metasploit3 < Msf::Post
 		# Validate the options for the module
 		pay.options.validate(pay.datastore)
 		return pay
-
 	end
 
 	# Starts a multi/handler session
