@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Post
 		print_status("Cleanup Meterpreter RC File: #{clean_rc}")
 
 		report_note(:host => host,
-			:type => "host.persistance.cleuanup",
+			:type => "host.persistance.cleanup",
 			:data => {
 				:local_id => session.sid,
 				:stype => session.type,
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Post
 		pay.datastore['LPORT'] = lport
 		if not opts.empty?
 			opts.split(",").each do |o|
-				opt,val = o.split("=")
+				opt,val = o.split("=", 2)
 				pay.datastore[opt] = val
 			end
 		end
@@ -238,7 +238,7 @@ class Metasploit3 < Msf::Post
 		return tempvbs
 	end
 
-	# Method for checking if a listner for a given IP and port is present
+	# Method for checking if a listener for a given IP and port is present
 	# will return true if a conflict exists and false if none is found
 	#-------------------------------------------------------------------------------
 	def check_for_listner(lhost,lport)
