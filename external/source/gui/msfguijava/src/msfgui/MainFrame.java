@@ -47,7 +47,6 @@ public class MainFrame extends FrameView {
 	public MainFrame(SingleFrameApplication app) {
 		super(app);
 		MsfFrame.setLnF();
-		connectRpc(); // Connect to RPC daemon
 		initComponents();
 		sessionsTableModel = null;
 		sessionWindowMap = new HashMap();
@@ -112,6 +111,7 @@ public class MainFrame extends FrameView {
 			}
 		});
 		//Set up GUI, RPC connection, and recent modules
+		connectRpc(); // Connect to RPC daemon
 		setupSessionsPollTimer();
 		setupPopupMenus();
 		if(rpcConn != null)
