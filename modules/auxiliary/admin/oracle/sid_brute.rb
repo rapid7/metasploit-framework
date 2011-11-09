@@ -70,10 +70,12 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				report_note(
 					:host => rhost,
+					:port => rport,
 					:type => 'oracle_sid',
-					:data => "PORT=#{rport}, SID=#{sid.strip}"
+					:data => "PORT=#{rport}, SID=#{sid.strip}",
+					:update => :unique_data
 				)
-				print_status("Found SID '#{sid.strip}' for host #{rhost}.")
+				print_good("#{rhost}:#{rport} Found SID '#{sid.strip}'")
 			end
 		end
 

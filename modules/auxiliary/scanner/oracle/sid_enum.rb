@@ -61,19 +61,23 @@ class Metasploit3 < Msf::Auxiliary
 							sid.uniq.each do |s|
 								report_note(
 									:host   => ip,
-									:type   => "oracle_instance_name",
-									:data   => "PORT=#{rport}, SID=#{s}"
+									:port	=> rport,
+									:type   => "oracle_sid",
+									:data   => "PORT=#{rport}, SID=#{s}",
+									:update	=> :unique_data
 								)
-								print_status("Identified SID for #{ip}: #{s}")
+								print_good("Identified SID for #{ip}:#{rport} #{s}")
 							end
 						service_name = data.scan(/SERVICE_NAME=([^\)]+)/)
 							service_name.uniq.each do |s|
 								report_note(
 									:host   => ip,
+									:port	=> rport,
 									:type   => "oracle_service_name",
-									:data   => "PORT=#{rport}, SERVICE_NAME=#{s}"
+									:data   => "PORT=#{rport}, SERVICE_NAME=#{s}",
+									:update	=> :unique_data
 								)
-								print_status("Identified SERVICE_NAME for #{ip}: #{s}")
+								print_status("Identified SERVICE_NAME for #{ip}:#{rport} #{s}")
 							end
 					end
 				end

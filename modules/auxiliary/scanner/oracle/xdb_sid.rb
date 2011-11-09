@@ -69,9 +69,11 @@ class Metasploit3 < Msf::Auxiliary
 					sid = res.body.scan(/<GLOBAL_NAME>(\S+)<\/GLOBAL_NAME>/)
 						report_note(
 							:host	=> ip,
+							:port => datastore['RPORT'],
 							:proto	=> 'tcp',
-							:type	=> 'SERVICE_NAME',
-							:data	=> "#{sid}"
+							:type	=> 'oracle_sid',
+							:data	=> "#{sid}",
+							:update => :unique_data
 						)
 					print_status("Discovered SID: '#{sid}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
 				else

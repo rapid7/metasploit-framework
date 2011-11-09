@@ -52,11 +52,13 @@ class Metasploit3 < Msf::Auxiliary
 				sid = res.body.scan(/SERVICE_NAME=([^\)]+)/)
 					report_note(
 							:host	=> ip,
+							:port	=> datastore['RPORT'],
 							:proto	=> 'tcp',
-							:type	=> 'SERVICE_NAME',
-							:data	=> "#{sid.uniq}"
+							:type	=> 'oracle_sid',
+							:data	=> "#{sid.uniq}",
+							:update	=> :unique_data
 					)
-				print_status("Discovered SID: '#{sid.uniq}' for host #{ip}")
+				print_good("#{rhost}:#{rport} Discovered SID: '#{sid.uniq}'")
 			else
 				print_error("Unable to retrieve SID for #{ip}...")
 			end
