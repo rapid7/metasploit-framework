@@ -117,7 +117,7 @@ public class MsfTable extends javax.swing.JTable {
 				for (int i = 0; i < dbNames.length; i++){
 					row[i] = ((Map) dataObj).get(dbNames[i]);
 					try{
-						if(dbNames[i].endsWith("_at"))
+						if(dbNames[i].endsWith("_at") || dbNames[i].equals("time"))
 							row[i] = new java.util.Date(Long.parseLong(row[i].toString()) * 1000);
 					}catch(NumberFormatException nfex){
 						//don't do anything

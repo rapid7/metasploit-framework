@@ -91,7 +91,7 @@ public class MsfguiApp extends SingleFrameApplication {
 	}
 	public static void showMessage(java.awt.Component parent, Object message){
 		String msg = message.toString();
-		if(!shuttingDown && !msg.contains("unknown session"))
+		if(!shuttingDown && !msg.toLowerCase().contains("unknown session"))
 			JOptionPane.showMessageDialog(parent, message);
 	}
 
