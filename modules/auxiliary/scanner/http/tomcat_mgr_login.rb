@@ -145,6 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 				:user => user,
 				:pass => pass,
 				:proof => "WEBAPP=\"Tomcat Application Manager\"",
+				:source_type => "user supplied",
 				:active => true
 			)
 

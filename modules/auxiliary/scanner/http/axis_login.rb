@@ -81,6 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 					:user   => user,
 					:pass   => pass,
 					:proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
+					:source_type => "user supplied",
 					:active => true
 				)
 

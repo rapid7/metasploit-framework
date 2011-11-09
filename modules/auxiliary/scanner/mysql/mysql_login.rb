@@ -116,6 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 				:sname  => 'mysql',
 				:user   => user,
 				:pass   => pass,
+				:source_type => "user supplied",
 				:active => true
 			)
 			return :next_user

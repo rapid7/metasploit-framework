@@ -313,6 +313,7 @@ class Metasploit3 < Msf::Auxiliary
 			:sname => 'login',
 			:user	=> user,
 			:proof  => proof,
+			:source_type => "user supplied",
 			:active => true
 		}
 

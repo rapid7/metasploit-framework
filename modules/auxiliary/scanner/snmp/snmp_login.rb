@@ -187,6 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 						:pass   => comm,
 						:duplicate_ok => true,
 						:active => true,
+						:source_type => "user supplied",
 						:type   => "password"
 					)
 				end
@@ -201,6 +202,7 @@ class Metasploit3 < Msf::Auxiliary
 						:pass   => comm,
 						:duplicate_ok => true,
 						:active => true,
+						:source_type => "user supplied",
 						:type   => "password_ro"
 					)
 				end

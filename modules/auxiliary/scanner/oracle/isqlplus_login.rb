@@ -236,7 +236,8 @@ class Metasploit3 < Msf::Auxiliary
 	def report_isqlauth_info(ip,user,pass,sid)
 		ora_info = {
 			:host => ip, :port => rport, :proto => "tcp",
-			:pass => pass, :active => true
+			:pass => pass, :source_type => "user supplied",
+			:active => true
 		}
 		if sid.nil? || sid.empty?
 			ora_info.merge! :user => user

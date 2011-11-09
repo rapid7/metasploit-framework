@@ -183,6 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 				:user   => user,
 				:pass   => pass,
 				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",
+				:source_type => "user supplied",
 				:active => true
 			)
 

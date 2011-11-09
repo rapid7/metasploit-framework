@@ -126,6 +126,7 @@ class Metasploit3 < Msf::Auxiliary
 				:pass => pass,
 				:type => access_type,
 				:duplicate_ok => true,
+				:source_type => "user supplied",
 				:active => true
 			})
 			return :next_user

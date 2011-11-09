@@ -165,7 +165,8 @@ class Metasploit3 < Msf::Auxiliary
 					print_good "#{msg} Success: #{user}:#{pass} (SID: #{sid})"
 					report_auth_info(
 						:host => addr, :port => port, :proto => "tcp",
-						:user => "#{sid}/#{user}", :pass => pass, :active => true
+						:user => "#{sid}/#{user}", :pass => pass,
+						:source_type => "user supplied", :active => true
 					)
 				elsif oline =~ /Account locked/
 					if not @oracle_reported
@@ -177,7 +178,8 @@ class Metasploit3 < Msf::Auxiliary
 					print_status "#{msg} Locked: #{user} (SID: #{sid}) -- account valid but locked"
 					report_auth_info(
 						:host => addr, :port => port, :proto => "tcp",
-						:user => "#{sid}/#{user}", :active => false
+						:user => "#{sid}/#{user}",
+						:source_type => "user supplied", :active => false
 					)
 				elsif oline =~ /^\s+ERROR: (.*)/
 					print_error "#{msg} NSE script error: #{$1}"

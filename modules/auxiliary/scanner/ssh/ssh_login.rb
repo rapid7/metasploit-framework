@@ -142,6 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 			:user => user,
 			:pass => pass,
 			:proof => proof,
+			:source_type => "user supplied",
 			:active => true
 		)
 	end
