@@ -1,1 +1,1 @@
-* [Using Git]
+* [[Using Git]]
