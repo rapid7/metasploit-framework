@@ -236,7 +236,7 @@ class Driver < Msf::Ui::Driver
 		e = REXML::Element.new("testsuite")
 		
 		c = REXML::Element.new("testcase")
-		c.attributes["class"] = "msfrc"
+		c.attributes["classname"] = "msfrc"
 		c.attributes["name"]  = tname
 		
 		f = REXML::Element.new("failure")
