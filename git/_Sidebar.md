@@ -1,4 +1,4 @@
-*Git Resources*
+**Git Resources**
 
 -------------
 
