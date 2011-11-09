@@ -6,6 +6,8 @@ require 'msf/ui/console/command_dispatcher'
 require 'msf/ui/console/table'
 require 'find'
 require 'erb'
+require 'rexml/document'
+require 'fileutils'
 
 module Msf
 module Ui
@@ -209,7 +211,58 @@ class Driver < Msf::Ui::Driver
 			load_resource(opts['Resource'])
 		end
 	end
-
+	
+	#
+	# Configure a default output path for jUnit XML output
+	#
+	def junit_setup(output_path)
+		output_path = ::File.expand_path(output_path)
+		
+		::FileUtils.mkdir_p(output_path)
+		@junit_output_path = output_path
+		@junit_error_count = 0
+		print_status("Test Output: #{output_path}")
+	end
+	
+	#
+	# Emit a new jUnit XML output file representing an error
+	#
+	def junit_error(tname, ftype, data)
+	
+		if not @junit_output_path
+			raise RuntimeError, "No output path, call junit_setup() first"
+		end
+		
+		e = REXML::Element.new("testsuite")
+		
+		c = REXML::Element.new("testcase")
+		c.attributes["class"] = "msfrc"
+		c.attributes["name"]  = tname
+		
+		f = REXML::Element.new("failure")
+		f.attributes["type"] = ftype
+		
+		f.text = data	
+		c << f
+		e << c
+		
+		fname = ::File.join(@junit_output_path, "msfrc_#{tname.gsub(/[^A-Za-z0-9]/, '')}_#{ (@junit_error_count += 1) }.xml")
+		::File.open(fname, "w") do |fd|
+			fd.write(e.to_s)
+		end
+		
+		print_error("Test Error: #{tname} - #{ftype} - #{data}")
+	end
+	
+	#
+	# Emit a jUnit XML output file and throw a fatal exception
+	#
+	def junit_fatal_error(tname, ftype, data)
+		junit_error(tname, ftype, data)
+		print_error("Exiting")
+		run_single("exit -y")
+	end
+	
 	#
 	# Loads configuration that needs to be analyzed before the framework
 	# instance is created.
