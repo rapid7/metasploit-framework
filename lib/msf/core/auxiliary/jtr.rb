@@ -1,5 +1,8 @@
 require 'open3'
+require 'fileutils'
 require 'rex/proto/ntlm/crypt'
+
+
 
 module Msf
 
@@ -33,37 +36,43 @@ module Auxiliary::JohnTheRipper
 
 	def autodetect_platform
 		cpuinfo_base = ::File.join(Msf::Config.install_root, "data", "cpuinfo")
+		return @run_path if @run_path
 
 		case ::RUBY_PLATFORM
 		when /mingw|cygwin|mswin/
-			data = `"#{cpuinfo_base}/cpuinfo.exe"`
+			data = `"#{cpuinfo_base}/cpuinfo.exe"` rescue nil
 			case data
 			when /sse2/
-				@run_path = "run.win32.sse2/john.exe"
+				@run_path ||= "run.win32.sse2/john.exe"
 			when /mmx/
-				@run_path = "run.win32.mmx/john.exe"
+				@run_path ||= "run.win32.mmx/john.exe"
 			else
-				@run_path = "run.win32.any/john.exe"
+				@run_path ||= "run.win32.any/john.exe"
 			end
+			
 		when /x86_64-linux/
-			data = `#{cpuinfo_base}/cpuinfo.ia64.bin`
+			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
+			data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
 			case data
 			when /mmx/
-				@run_path = "run.linux.x64.mmx/john"
+				@run_path ||= "run.linux.x64.mmx/john"
 			else
-				@run_path = "run.linux.x86.any/john"
+				@run_path ||= "run.linux.x86.any/john"
 			end
+			
 		when /i[\d]86-linux/
-			data = `#{cpuinfo_base}/cpuinfo.ia32.bin`
+			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil		
+			data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
 			case data
 			when /sse2/
-				@run_path = "run.linux.x86.sse2/john"
+				@run_path ||= "run.linux.x86.sse2/john"
 			when /mmx/
-				@run_path = "run.linux.x86.mmx/john"
+				@run_path ||= "run.linux.x86.mmx/john"
 			else
-				@run_path = "run.linux.x86.any/john"
+				@run_path ||= "run.linux.x86.any/john"
 			end
 		end
+		@run_path
 	end
 
 	def john_session_id
@@ -160,16 +169,23 @@ module Auxiliary::JohnTheRipper
 
 	def john_binary_path
 		if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
-			return datastore['JOHN_PATH']
+			path = datastore['JOHN_PATH']
+			::FileUtils.chmod(755, path) rescue nil
+			path			
 		end
+		
 		if not @run_path
 			if ::RUBY_PLATFORM =~ /mingw|cygwin|mswin/
 				::File.join(john_base_path, "john.exe")
 			else
-				::File.join(john_base_path, "john")
+				path = ::File.join(john_base_path, "john")
+				::FileUtils.chmod(755, path) rescue nil
+				path				
 			end
 		else
-			::File.join(john_base_path, @run_path)
+			path = ::File.join(john_base_path, @run_path)
+			::FileUtils.chmod(755, path) rescue nil
+			path
 		end
 	end
 
