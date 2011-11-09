@@ -90,7 +90,7 @@ def run
 
 					begin
 						nmod.run_host(targ)
-					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error
+					rescue ::Rex::ConnectionError, ::Rex::ConnectionProxyError, ::Errno::ECONNRESET, ::Errno::EINTR, ::Rex::TimeoutError, ::Timeout::Error, ::EOFError
 					rescue ::Interrupt,::NoMethodError, ::RuntimeError, ::ArgumentError, ::NameError
 						raise $!
 					rescue ::Exception => e
