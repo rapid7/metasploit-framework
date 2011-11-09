@@ -232,7 +232,8 @@ public abstract class RpcConnection {
 				}
 				if(! (ex instanceof MsfException)){
 					if(! MsfguiApp.shuttingDown || !ex.getLocalizedMessage().toLowerCase().contains("broken pipe")){
-						ex.printStackTrace();
+						if(!(ex instanceof java.net.ConnectException))
+							ex.printStackTrace();
 						throw new MsfException("Error in call: "+ex.getLocalizedMessage(), ex);
 					}
 				}
@@ -327,7 +328,7 @@ public abstract class RpcConnection {
 			@Override
 			protected void succeeded(RpcConnection myRpcConn) {
 				mainFrame.rpcConn = myRpcConn;
-				mainFrame.getModules();
+				mainFrame.handleNewRpcConnection();
 			}
 		};
 	}

@@ -34,7 +34,7 @@ public class MainFrame extends FrameView {
 
 	public HashMap sessionWindowMap;
 	public RpcConnection rpcConn;
-	private SwingWorker sessionsPollTimer;
+	private SwingWorker sessionsPollTimer = null;
 	private SessionsTable sessionsTableModel;
 	private JPopupMenu jobPopupMenu, shellPopupMenu, meterpreterPopupMenu, sessionPopupMenu;
 	private String clickedJob;
@@ -112,10 +112,9 @@ public class MainFrame extends FrameView {
 		});
 		//Set up GUI, RPC connection, and recent modules
 		connectRpc(); // Connect to RPC daemon
-		setupSessionsPollTimer();
 		setupPopupMenus();
 		if(rpcConn != null)
-			getModules();
+			handleNewRpcConnection();
 		MsfguiApp.fileChooser = new JFileChooser();
 		getFrame().addWindowListener(new WindowAdapter() {
 			public void windowClosing(WindowEvent we) {
@@ -401,7 +400,8 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	}
 
    /** Makes a menu tree with expandList for exploits and auxiliary. Also start jobs/sessions watcher. */
-	public void getModules() {
+	public void handleNewRpcConnection() {
+		setupSessionsPollTimer();
 		searchWin = new SearchWindow(rpcConn);
 		MsfguiApp.addRecentModules(rpcConn, this);
 		getContext().getActionMap(this).get("moduleTask").actionPerformed(new java.awt.event.ActionEvent(this,1234,""));
@@ -1248,7 +1248,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 	private void connectRpcMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_connectRpcMenuItemActionPerformed
 		connectRpc();
 		if(rpcConn != null)
-			getModules();
+			handleNewRpcConnection();
 	}//GEN-LAST:event_connectRpcMenuItemActionPerformed
 
 	private void clearHistoryItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearHistoryItemActionPerformed
