@@ -1,1 +1,3 @@
-This is a placeholder only, please do not use for anything serious yet
+# Table of Contents
+
+* [Using Git]
