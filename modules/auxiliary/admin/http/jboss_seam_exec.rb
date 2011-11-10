@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'            => 'JBoss seam remote command execution',
+			'Name'            => 'JBoss Seam 2 Remote Command Execution',
 			'Description'     => %q{
 					JBoss Seam 2 (jboss-seam2), as used in JBoss Enterprise Application Platform
 				4.3.0 for Red Hat Linux, does not properly sanitize inputs for JBoss Expression
@@ -28,9 +28,9 @@ class Metasploit3 < Msf::Auxiliary
 			'References'      =>
 				[
 					[ 'CVE', '2010-1871' ],
-					[ 'OSVDB', '66881'],
+					[ 'OSVDB', '66881']
 				],
-			'DefaultTarget' => 0,
+			'DefaultTarget'  => 0,
 			'DisclosureDate' => 'Jul 19 2010'))
 
 		register_options(
