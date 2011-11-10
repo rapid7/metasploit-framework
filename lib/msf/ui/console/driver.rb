@@ -8,6 +8,7 @@ require 'find'
 require 'erb'
 require 'rexml/document'
 require 'fileutils'
+require 'digest/md5'
 
 module Msf
 module Ui
@@ -227,11 +228,13 @@ class Driver < Msf::Ui::Driver
 	#
 	# Emit a new jUnit XML output file representing an error
 	#
-	def junit_error(tname, ftype, data)
+	def junit_error(tname, ftype, data = nil)
 	
 		if not @junit_output_path
 			raise RuntimeError, "No output path, call junit_setup() first"
 		end
+	
+		data ||= framework.inspect.to_s
 		
 		e = REXML::Element.new("testsuite")
 		
@@ -246,7 +249,16 @@ class Driver < Msf::Ui::Driver
 		c << f
 		e << c
 		
-		fname = ::File.join(@junit_output_path, "msfrc_#{tname.gsub(/[^A-Za-z0-9]/, '')}_#{ (@junit_error_count += 1) }.xml")
+		bname = ( ::File.basename(self.active_resource || "msfrpc") + "_" + tname ).gsub(/[^A-Za-z0-9\.\_]/, '') 
+		bname << "_" + Digest::MD5.hexdigest(ftype)
+		
+		fname = ::File.join(@junit_output_path, "#{bname}.xml")
+		cnt   = 0
+		while ::File.exists?( fname )
+			cnt  += 1
+			fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
+		end 
+		
 		::File.open(fname, "w") do |fd|
 			fd.write(e.to_s)
 		end
@@ -331,6 +343,8 @@ class Driver < Msf::Ui::Driver
 		return if not ::File.readable?(path)
 		resource_file = ::File.read(path)
 		
+		self.active_resource = resource_file
+		
 		# Process ERB directives first
 		print_status "Processing #{path} for ERB directives."		
 		erb = ERB.new(resource_file)
@@ -378,6 +392,8 @@ class Driver < Msf::Ui::Driver
 				run_single(line)
 			end
 		end
+		
+		self.active_resource = nil 
 	end
 
 	#
@@ -501,7 +517,11 @@ class Driver < Msf::Ui::Driver
 	# The active session associated with the driver.
 	#
 	attr_accessor :active_session
-
+	#
+	# The active resource file being processed by the driver
+	#
+	attr_accessor :active_resource
+	
 	#
 	# If defanged is true, dangerous functionality, such as exploitation, irb,
 	# and command shell passthru is disabled.  In this case, an exception is
