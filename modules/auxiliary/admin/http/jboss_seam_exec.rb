@@ -28,6 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'      =>
 				[
 					[ 'CVE', '2010-1871' ],
+					[ 'OSVDB', '66881'],
 				],
 			'DefaultTarget' => 0,
 			'DisclosureDate' => 'Jul 19 2010'))
