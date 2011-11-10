@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+
+# This is an RVM Project .rvmrc file, used to automatically load the ruby
+# development environment upon cd'ing into the directory
+
+# First we specify our desired <ruby>[@<gemset>], the @gemset name is optional.
+environment_id="ruby-1.9.2-p290@framework-wiki"
+
+#
+# Uncomment following line if you want options to be set only for given project.
+#
+# PROJECT_JRUBY_OPTS=( --1.9 )
+
+#
+# First we attempt to load the desired environment directly from the environment
+# file. This is very fast and efficient compared to running through the entire
+# CLI and selector. If you want feedback on which environment was used then
+# insert the word 'use' after --create as this triggers verbose mode.
+#
+if [[ -d "${rvm_path:-$HOME/.rvm}/environments" \
+  && -s "${rvm_path:-$HOME/.rvm}/environments/$environment_id" ]]
+then
+  \. "${rvm_path:-$HOME/.rvm}/environments/$environment_id"
+
+  if [[ -s "${rvm_path:-$HOME/.rvm}/hooks/after_use" ]]
+  then
+    . "${rvm_path:-$HOME/.rvm}/hooks/after_use"
+  fi
+else
+  # If the environment file has not yet been created, use the RVM CLI to select.
+  if ! rvm --create  "$environment_id"
+  then
+    echo "Failed to create RVM environment '${environment_id}'."
+    exit 1
+  fi
+fi
+
+#
+# If you use an RVM gemset file to install a list of gems (*.gems), you can have
+# it be automatically loaded. Uncomment the following and adjust the filename if
+# necessary.
+#
+# filename=".gems"
+# if [[ -s "$filename" ]]
+# then
+#   rvm gemset import "$filename" | grep -v already | grep -v listed | grep -v complete | sed '/^$/d'
+# fi
+
+# If you use bundler, this might be useful to you:
+# if command -v bundle && [[ -s Gemfile ]]
+# then
+#   bundle
+# fi
+
+
