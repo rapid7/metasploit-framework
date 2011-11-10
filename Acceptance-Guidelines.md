@@ -12,7 +12,7 @@ Modules should have a clear and obvious goal: Exploits should result in a shell.
 
 Modules should not launch other modules, given the complexity of setting multiple payloads. Such actions are are usually automation tasks for an external UI.
 
-Denial of Service modules should be asymmetric, and at least have some interesting feature. If it's comparable to a synflood, it shouldn't be included. If it's comparable to Baliwicked, it should be included. Modules that hover the line, such as slowlaris, may be included with some justification.
+Denial of Service modules should be asymmetric, and at least have some interesting feature. If it's comparable to a synflood, it shouldn't be included. If it's comparable to Baliwicked, it should be included. Modules that hover the line, such as slowloris, may be included with some justification.
 
 Modules should be able to function as expected with minimal configuration. Defaults should be sensible and usually correct. Modules should not depend on exact timing, uncontrollable heap states, system DLLs, etc. All memory addresses (ie. a JMP ESP, or a ROP gadget) should be part of the metadata under 'Targets', and documented (what instructions it points to, and what DLL). If the exploit is against a specific hardware (ie. routers, PLCs, etc), or against a software that's not free (and no trial/demo available), please remember to submit a binary packet capture (pcap-formatted) along with the module that demonstrates the exploit actually works.
 
