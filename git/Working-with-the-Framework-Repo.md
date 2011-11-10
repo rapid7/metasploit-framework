@@ -35,7 +35,7 @@ Switched to a new branch 'add-my-awesome-module'
 
 From here, you can hack away and commit to your new branch as many times as you'd like.
 
-## Create a pull request
+## Send a pull request
 
 Once you've got everything the way you'd like it in your topic branch, you'll need to create a [pull request](http://help.github.com/send-pull-requests/) to get your work merged back in to the main Metasploit repo. Start by pushing your branch up to your fork on GitHub.
 
