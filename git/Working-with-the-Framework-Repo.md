@@ -20,7 +20,7 @@ $ git remote add upstream git://github.com/rapid7/metasploit-framework.git
 
 ## Create a topic branch
 
-It's best to keep all work organized into (topic branches)[http://progit.org/book/ch3-4.html]. To start a topic branch, make sure you're on the master branch, pull in changes from up stream, and check out a new branch.
+It's best to keep all work organized into [topic branches](http://progit.org/book/ch3-4.html). To start a topic branch, make sure you're on the master branch, pull in changes from up stream, and check out a new branch.
 
 ```console
 $ git checkout master
