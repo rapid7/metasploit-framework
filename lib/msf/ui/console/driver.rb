@@ -19,6 +19,7 @@ module Console
 # This class implements a user interface driver on a console interface.
 #
 ###
+
 class Driver < Msf::Ui::Driver
 
 	ConfigCore  = "framework/core"
