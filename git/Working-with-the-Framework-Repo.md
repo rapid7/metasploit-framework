@@ -54,7 +54,7 @@ Now access your fork on GitHub and switch to your new branch from the *Switch Br
 
 ![Click the Pull Request button](http://img.skitch.com/20100831-qfk1c9wyt89pfgfxg61bh1r8rn.png)
 
-Review the [excellent information provided by GitHub on configuring pull requests](http://help.github.com/send-pull-requests/), and then click the big friendly *Send Pull Request* button at the bottom of the page when you're ready for the team to review your code. After that, you'll either get feedback from the team on further changes to be made, or your code will be merged into the framework.
+Review the [excellent information provided by GitHub on configuring pull requests](http://help.github.com/send-pull-requests/), and then click the big, friendly *Send Pull Request* button at the bottom of the page when you're ready for the team to review your code. After that, you'll either get feedback from the team on further changes to be made, or your code will be merged into the framework.
 
 ## Do small dance of celebration
 
