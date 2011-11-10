@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Post
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
@@ -111,6 +106,13 @@ class Metasploit3 < Msf::Post
 				x[:dc] << t
 				base = base + 8
 				print_status(t[:dc_hostname])
+
+				report_note(
+					:host   => session,
+					:type   => 'domain.hostnames',
+					:data   => t[:dc_hostname],
+					:update => :unique_data
+				)
 			}
 		end
 	end
