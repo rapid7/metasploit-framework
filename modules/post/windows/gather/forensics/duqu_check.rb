@@ -24,21 +24,20 @@ class Metasploit3 < Msf::Post
                                 'Version' => '$Revision$',
                                 'Platform' => [ 'windows' ],
                                 'SessionTypes' => [ 'meterpreter' ],
-				'References' => [[ 'URL', 'http://r-7.co/w5h7fY' ]]
+								'References' => [[ 'URL', 'http://r-7.co/w5h7fY' ]]
                         ))
                        
         end
 
         # Run Method for when run command is issued
         def run
-		# query: is a list of registry keys related to duqu. query holds multiple values delimited by comma.
-		query = 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\"CFID",'
-		query += 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\CFID,'
-		query += 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\JmiNET3,'
-		query += 'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\JmiNET3\FILTER'
+		# Registry keys from the Symantec analysis
+		keys = [ 'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\"CFID"',
+				'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\CFID',
+				'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\JmiNET3',
+				'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\JmiNET3\FILTER']
                 match = 0
                 print_status("Searching registry on #{sysinfo['Computer']} for Duqu attributes.")
-                keys = query.split(/,/)
 		begin 
 		        keys.each do |key|
 				(key, value) = parse_query(key)
