@@ -34,6 +34,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
 			'License'     => MSF_LICENSE
 		))
+
+		register_options(
+			[
+				OptBool.new('VERBOSE', [false, "Be verbose, show timeouts.", false])
+			], self.class)
 	end
 
 	def run_host(ip)
@@ -953,7 +958,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect_snmp
 
 		rescue SNMP::RequestTimeout
-			print_status("#{ip}, SNMP request timeout.")
+			vprint_status("#{ip}, SNMP request timeout.")
 		rescue Errno::ECONNREFUSED
 			print_status("#{ip}, Connection refused.")
 		rescue SNMP::InvalidIpAddress
