@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Spencer McIntyre',
 					'SecureState R&D Team'
 				],
-			'License'        => MSF_LICENSE,
+			'License'        => MSF_LICENSE
 		)
 
 		register_options(
