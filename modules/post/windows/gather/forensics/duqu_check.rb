@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 				'Description' => %q{ This module searches for CVE-2011-3402 [Duqu] related registry artifacts.},
 				'License' => MSF_LICENSE,
 				'Author' => [ 'Marcus J. Carey <mjc[at]threatagent.com>'],
-				'Version' => '$Revision$',
+				'Version' => '$Revision: $',
 				'Platform' => [ 'windows' ],
 				'SessionTypes' => [ 'meterpreter' ],
 				'References' => [
