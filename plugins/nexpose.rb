@@ -310,9 +310,6 @@ class Plugin::Nexpose < Msf::Plugin
 				"-s"   => [ true,   "The directory to store the raw XML files from the Nexpose instance (optional)"],
 				"-P"   => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
 				"-v"   => [ false,  "Display diagnostic information about the scanning process"],
-				"-x"   => [ false,  "Automatically launch all exploits by matching reference after the scan completes (unsafe)"],
-				"-X"   => [ false,  "Automatically launch all exploits by matching reference and port after the scan completes (unsafe)"],
-				"-R"   => [ true,   "Specify a minimum exploit rank to use for automated exploitation"],
 				"-d"   => [ false,  "Scan hosts based on the contents of the existing database"],
 				"-I"   => [ true,   "Only scan systems with an address within the specified range"],
 				"-E"   => [ true,   "Exclude hosts in the specified range from the scan"]
@@ -324,12 +321,10 @@ class Plugin::Nexpose < Msf::Plugin
 			opt_verbose   = false
 			opt_savexml   = nil
 			opt_preserve  = false
-			opt_autopwn   = false
 			opt_rescandb  = false
 			opt_addrinc   = nil
 			opt_addrexc   = nil
 			opt_scanned   = []
-			opt_minrank   = "manual"
 			opt_credentials = []
 
 			opt_ranges    = []
@@ -361,18 +356,12 @@ class Plugin::Nexpose < Msf::Plugin
 					opt_verbose = true
 				when "-P"
 					opt_preserve = true
-				when "-X"
-					opt_autopwn = "-p -x"
-				when "-x"
-					opt_autopwn = "-x" unless opt_autopwn
 				when "-d"
 					opt_rescandb = true
 				when '-I'
 					opt_addrinc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
 				when '-E'
 					opt_addrexc = OptAddressRange.new('TEMPRANGE', [ true, '' ]).normalize(val)
-				when '-R'
-					opt_minrank = val
 				else
 					opt_ranges << val
 				end
@@ -543,11 +532,6 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 
 			print_status("Completed the scan of #{total} addresses")
-
-			if(opt_autopwn)
-				print_status("Launching an automated exploitation session")
-				driver.run_single("db_autopwn -q -r -e -t #{opt_autopwn} -R #{opt_minrank} -I #{opt_scanned.join(",")}")
-			end
 		end
 
 		def cmd_nexpose_disconnect(*args)
