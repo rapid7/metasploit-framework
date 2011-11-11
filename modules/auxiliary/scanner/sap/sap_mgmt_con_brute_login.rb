@@ -166,7 +166,7 @@ class Metasploit4 < Msf::Auxiliary
 				:port => rport,
 				:user => user,
 				:pass => pass,
-				:source_type => "user supplied",
+				:source_type => "user_supplied",
 				:target_host => rhost,
 				:target_port => rport
 			)

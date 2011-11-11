@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => 'pop3',
 						:user => user,
 						:pass => pass,
-						:source_type => "user supplied",
+						:source_type => "user_supplied",
 						:active => true
 					)
 					disconnect
