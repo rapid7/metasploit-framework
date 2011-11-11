@@ -22,6 +22,12 @@ rescue RuntimeError
 	exit
 end
 
+bits = ARGV.length > 0 ? ARGV[0].to_i : 32
+if ! [16, 32, 64].include?(bits) then
+    puts "#{bits} bits not supported"
+    exit 1
+end
+
 # Start a pseudo shell and dispatch lines to be assembled and then
 # disassembled.
 shell = Rex::Ui::Text::PseudoShell.new("%bldnasm%clr")
@@ -35,7 +41,7 @@ shell.run { |line|
 
 	begin
 		puts(Rex::Assembly::Nasm.disassemble(
-			Rex::Assembly::Nasm.assemble(line)))
+			Rex::Assembly::Nasm.assemble(line, bits), bits))
 	rescue RuntimeError
 		puts "Error: #{$!}"
 	end

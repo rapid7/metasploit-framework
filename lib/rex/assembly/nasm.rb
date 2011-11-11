@@ -37,7 +37,7 @@ class Nasm
 	#
 	# Assembles the supplied assembly and returns the raw opcodes.
 	#
-	def self.assemble(assembly)
+	def self.assemble(assembly, bits=32)
 		check
 
 		# Open the temporary file
@@ -48,7 +48,7 @@ class Nasm
 		opath = tmp.path + '.out'
 
 		# Write the assembly data to a file
-		tmp.write("BITS 32\n" + assembly)
+		tmp.write("BITS #{bits}\n" + assembly)
 		tmp.flush()
 		tmp.seek(0)
 
@@ -70,7 +70,7 @@ class Nasm
 	#
 	# Disassembles the supplied raw opcodes
 	#
-	def self.disassemble(raw)
+	def self.disassemble(raw, bits=32)
 		check
 
 		tmp = Tempfile.new('nasmout')
@@ -82,7 +82,7 @@ class Nasm
 		tfd.flush()
 		tfd.close
 
-		p = ::IO.popen("\"#{@@ndisasm_path}\" -u \"#{tmp.path}\"")
+		p = ::IO.popen("\"#{@@ndisasm_path}\" -b #{bits} \"#{tmp.path}\"")
 		o = ''
 
 		begin
