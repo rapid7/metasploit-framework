@@ -69,21 +69,31 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		data = datastore['DATA']
+		data = ""
+		data << datastore['DATA'].to_s
 		opts = datastore['OPTS']
 		method = datastore['METHOD'].upcase
 
+		wmap_target_host = datastore['VHOST'] if datastore['VHOST']
+
 		sqlmap_url  = (datastore['SSL'] ? "https" : "http")
-		sqlmap_url += "://" + wmap_target_host + ":" + wmap_target_port
-		sqlmap_url += "/" + datastore['PATH']
+		sqlmap_url << "://"
+		sqlmap_url << wmap_target_host
+		sqlmap_url << ":"
+		sqlmap_url << wmap_target_port
+		sqlmap_url << "/"
+		sqlmap_url << datastore['PATH']
 
 		if method == "GET"
-			sqlmap_url += '?' + datastore['QUERY']
+			sqlmap_url << '?'
+			sqlmap_url << datastore['QUERY']
+		elsif method == "POST"
+			data << "&"
+			data << datastore['QUERY']
 		end
 
 		cmd = [ sqlmap ]
 		cmd += [ '-u', sqlmap_url ]
-		cmd += [ '--method', method ]
 		if opts
 			cmd << opts
 		end
