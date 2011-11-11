@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
 				:port   => datastore['RPORT'],
 				:sname	=> 'smb',
 				:pass   => pass,
-				:source_type => "user supplied",
+				:source_type => "user_supplied",
 				:active => true
 			}
 			if accepts_bogus_domains? rhost

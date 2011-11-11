@@ -63,8 +63,12 @@ class Metasploit3 < Msf::Post
 				info = service_info(service)
 				paths << info['Command']
 				services << service
-				service_stop(service) # temporarily stop the service
-				print_status("Found #{info['Name']} installed")
+				begin
+					service_stop(service) # temporarily stop the service
+					print_status("Found #{info['Name']} installed")
+				rescue
+					print_error("We do not appear to have access to stop #{info['Name']}")
+				end
 			else
 				next
 			end

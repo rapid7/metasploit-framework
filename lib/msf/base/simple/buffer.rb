@@ -18,7 +18,7 @@ module Buffer
 
 	#
 	# Serializes a buffer to a provided format.  The formats supported are raw,
-	# ruby, perl, c, js_be, js_le and java
+	# ruby, perl, bash, c, js_be, js_le and java
 	#
 	def self.transform(buf, fmt = "ruby")
 		case fmt
@@ -27,6 +27,8 @@ module Buffer
 				buf = Rex::Text.to_ruby(buf)
 			when 'perl', 'pl'
 				buf = Rex::Text.to_perl(buf)
+			when 'bash', 'sh'
+				buf = Rex::Text.to_bash(buf)
 			when 'c'
 				buf = Rex::Text.to_c(buf)
 			when 'js_be'
@@ -44,7 +46,7 @@ module Buffer
 
 	#
 	# Creates a comment using the supplied format.  The formats supported are
-	# raw, ruby, perl, js_be, js_le, c, and java.
+	# raw, ruby, perl, bash, js_be, js_le, c, and java.
 	#
 	def self.comment(buf, fmt = "ruby")
 		case fmt
@@ -53,6 +55,8 @@ module Buffer
 				buf = Rex::Text.to_ruby_comment(buf)
 			when 'perl', 'pl'
 				buf = Rex::Text.to_perl_comment(buf)
+			when 'bash', 'sh'
+				buf = Rex::Text.to_bash_comment(buf)
 			when 'c'
 				buf = Rex::Text.to_c_comment(buf)
 			when 'js_be', 'js_le'
@@ -70,7 +74,7 @@ module Buffer
 	# Returns the list of supported formats
 	#
 	def self.transform_formats
-		['raw','ruby','rb','perl','pl','c','js_be','js_le','java']
+		['raw','ruby','rb','perl','pl','bash','sh','c','js_be','js_le','java']
 	end
 
 end
