@@ -1,7 +1,3 @@
-##
-# $Id$
-##
-
 # post/windows/gather/dig.rb
 
 ##
@@ -23,7 +19,6 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module looks up a IP for a hostname via the victim},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
-				'Version'       => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]
 			))
@@ -37,7 +32,7 @@ class Metasploit3 < Msf::Post
 	def run
 		### MAIN ###
 		client.railgun.add_function( 'ws2_32', 'getaddrinfo', 'DWORD',[["PCHAR","pNodeName","in"],["PCHAR","pServiceName","in"],["PDWORD","pHints","in"],["PDWORD","ppResult","out"]])
-		
+
 		if client.platform =~ /^x64/
 			size = 64
 			addrinfoinmem = 32
