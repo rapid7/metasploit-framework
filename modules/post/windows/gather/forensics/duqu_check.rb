@@ -62,7 +62,8 @@ class Metasploit3 < Msf::Post
 						)
 				end
 			end
-		rescue;	end
+		rescue # Probably should do something here...
+		end
 
 		print_status("#{sysinfo['Computer']}: #{match.to_s} artifact(s) found in registry.")
 
