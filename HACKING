@@ -110,29 +110,18 @@ Non-scanner aux modules use run().
 Submitting Your Code
 ====================
 
-When you've finished fixing a bug, adding a feature, or creating a
-new module, build a patch by using the following command from the
-base installation directory: 
+The process for submitting new modules via GitHub is documented here:
 
-    svn diff > something-descriptive.patch
+https://github.com/rapid7/metasploit-framework/wiki/Working-with-the-Framework-Repo
 
-Make sure you add any new files with 'svn add filename' first.  If
-you have just a single new file (such as when creating a new module)
-feel free to just send that file.  Once you've created the patch,
-there are a couple ways to submit it.  The first is to add it as an
-attachment to a ticket in our Redmine tracker
-(http://dev.metasploit.com/redmine/projects/framework); you can
-create a ticket if one does not exist.  Alternatively, you can 
-email it framework@metasploit.com, which is the main mailing list 
-for framework users, or msfdev@metasploit.com which only goes to
-developers.
+This describes the process of forking, editing, and generating a
+pull request, and is the preferred method for bringing new modules
+and framework enhancements to the attention of the core Metasploit
+development team. Note that this process requires a GitHub account.
 
-The SVN keywords for Id and Revision should remain blank, as the SVN
-checkin will handle those substitutions automatically. The Author
-field is not automatic, and should be filled in in the format of
-'Yourname <user[at]domain.tld>' so future developers can contact
-you with any questions.
-
+For modules, note that Author field is not automatic, and should be 
+filled in in the format of 'Your Name <user[at]domain.tld>' so future 
+developers can contact you with any questions.
 
 Licensing
 =========
