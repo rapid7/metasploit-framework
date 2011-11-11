@@ -34,11 +34,6 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'Matteo Cantoni <goony[at]nothink.org>',
 			'License'     => MSF_LICENSE
 		))
-
-		register_options(
-			[
-				OptBool.new('VERBOSE', [false, "Be verbose, show timeouts.", false])
-			], self.class)
 	end
 
 	def run_host(ip)
