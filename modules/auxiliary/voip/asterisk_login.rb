@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['URL', 'http://www.asterisk.org/astdocs/node201.html'], # Docs for AMI
 				],
-			'License'     => MSF_LICENSE,
+			'License'     => MSF_LICENSE
 		))
 
 		register_options(
