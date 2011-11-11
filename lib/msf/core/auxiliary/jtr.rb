@@ -79,11 +79,14 @@ module Auxiliary::JohnTheRipper
 		@session_id ||= ::Rex::Text.rand_text_alphanumeric(8)
 	end
 
+	def john_pot_file
+		::File.join( ::Msf::Config.config_directory, "john.pot" )
+	end
+
 	def john_cracked_passwords
 		ret = {}
-		pot = ::File.join( ::File.dirname( john_binary_path ), "john.pot" )
-		return ret if not ::File.exist?(pot)
-		::File.open(pot, "rb") do |fd|
+		return ret if not ::File.exist?(john_pot_file)
+		::File.open(john_pot_file, "rb") do |fd|
 			fd.each_line do |line|
 				hash,clear = line.sub(/\r?\n$/, '').split(",", 2)
 				ret[hash] = clear
@@ -94,7 +97,12 @@ module Auxiliary::JohnTheRipper
 
 	def john_show_passwords(hfile, format=nil)
 		res = {:cracked => 0, :uncracked => 0, :users => {} }
-		cmd = [ john_binary_path,  "--show", "--conf=" + ::File.join(john_base_path, "confs", "john.conf"), hfile]
+
+		pot  = john_pot_file
+		conf = ::File.join(john_base_path, "confs", "john.conf")
+
+		cmd = [ john_binary_path,  "--show", "--conf=#{conf}", "--pot=#{pot}", hfile]
+
 		if format
 			cmd << "--format=" + format
 		end
@@ -221,12 +229,20 @@ module Auxiliary::JohnTheRipper
 
 		res = {:cracked => 0, :uncracked => 0, :users => {} }
 
-		cmd = [ john_binary_path,  "--session=" + john_session_id]
+		# Don't bother making a log file, we'd just have to rm it when we're
+		# done anyway.
+		cmd = [ john_binary_path,  "--session=" + john_session_id, "--nolog"]
 
 		if opts[:conf]
 			cmd << ( "--conf=" + opts[:conf] )
 		else
 			cmd << ( "--conf=" + ::File.join(john_base_path, "confs", "john.conf") )
+		end
+
+		if opts[:pot]
+			cmd << ( "--pot=" + opts[:pot] )
+		else
+			cmd << ( "--pot=" + john_pot_file )
 		end
 
 		if opts[:format]
@@ -260,11 +276,6 @@ module Auxiliary::JohnTheRipper
 				print_status("Output: #{line.strip}")
 			end
 		end
-
-		# Clean up temporary files created by --session
-		# XXX: Surely there is a better way to control
-		#      the location of these.
-		::FileUtils.rm_f("#{john_session_id}.log")
 
 		res
 	end
