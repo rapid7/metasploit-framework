@@ -2970,6 +2970,11 @@ class DBManager
 						cred_data[datum.gsub("-","_")] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
 					end
 				}
+				%W{source-type source-id}.each { |datum|
+					if cred.elements[datum].respond_to? :text
+						cred_data[datum.gsub("-","_").intern] = nils_for_nulls(cred.elements[datum].text.to_s.strip)
+					end
+				}
 				if cred_data[:pass] == "<masked>"
 					cred_data[:pass] = ""
 					cred_data[:active] = false
