@@ -379,12 +379,12 @@ if opts[:nopsled]
 end
 
 $stdout.binmode
-if opts[:format] !~/ruby|rb|perl|pl|c|js|dll|elf/i
+if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf/i
 	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 end
 
 case opts[:format]
-when /ruby|rb|perl|pl|c|js_le|raw/i
+when /ruby|rb|perl|pl|bash|sh|c|js_le|raw/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
 when /asp/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
