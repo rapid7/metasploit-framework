@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 						:user   => user,
 						:pass   => pass,
 						:proof  => "WEBAPP=\"Lotus Domino\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",
-						:source_type => "user supplied",
+						:source_type => "user_supplied",
 						:active => true
 					)
 					return :next_user

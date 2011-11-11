@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 			:user => user,
 			:pass => pass,
 			:type => "password#{access == :read ? "_ro" : "" }",
-			:source_type => "user supplied",
+			:source_type => "user_supplied",
 			:active => true
 		)
 	end

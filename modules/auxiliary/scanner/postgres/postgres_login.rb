@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 			:sname => "postgres",
 			:user => user,
 			:pass => pass,
-			:source_type => "user supplied",
+			:source_type => "user_supplied",
 			:active => true
 		}
 		result_hash[:user] = "#{db}/#{user}" if db_ok

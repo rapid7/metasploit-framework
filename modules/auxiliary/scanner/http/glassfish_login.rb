@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 			:user   => user,
 			:pass   => pass,
 			:proof  => "WEBAPP=\"GlassFish\", VHOST=#{vhost}",
-			:source_type => "user supplied",
+			:source_type => "user_supplied",
 			:active => true
 		)
 	end
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 				:user	=> '',
 				:pass	=> '',
 				:proof	=> "WEBAPP=\"GlassFish\", VHOST=#{vhost}",
-				:source_type => "user supplied",
+				:source_type => "user_supplied",
 				:active => true
 			)
 		else
