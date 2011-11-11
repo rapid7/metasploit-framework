@@ -95,6 +95,13 @@ module Text
 	end
 
 	#
+	# Converts a raw string into a Bash buffer
+	#
+	def self.to_bash(str, wrap = DefaultWrap, name = "buf")
+		return hexify(str, wrap, '$\'', '\'\\', "export #{name}=\\\n", '\'')
+	end
+
+	#
 	# Converts a raw string into a java byte array
 	#
 	def self.to_java(str, name = "shell")
@@ -121,6 +128,13 @@ module Text
 	# Creates a perl-style comment
 	#
 	def self.to_perl_comment(str, wrap = DefaultWrap)
+		return wordwrap(str, 0, wrap, '', '# ')
+	end
+
+	#
+	# Creates a Bash-style comment
+	#
+	def self.to_bash_comment(str, wrap = DefaultWrap)
 		return wordwrap(str, 0, wrap, '', '# ')
 	end
 
@@ -829,7 +843,7 @@ module Text
 
 		# Return stupid uses
 		return "" if length.to_i < 1
-		return sets[0][0] * length if sets.size == 1 and sets[0].size == 1
+		return sets[0][0].chr * length if sets.size == 1 and sets[0].size == 1
 
 		sets.length.times { offsets << 0 }
 
