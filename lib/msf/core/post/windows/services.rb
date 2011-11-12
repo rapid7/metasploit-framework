@@ -38,7 +38,7 @@ module WindowsServices
 	end
 
 	#
-	# Get Windows Service information. 
+	# Get Windows Service information.
 	#
 	# Information returned in a hash with display name, startup mode and
 	# command executed by the service. Service name is case sensitive.  Hash
@@ -87,9 +87,10 @@ module WindowsServices
 	# startup as string and the startup type as an integer of 2 for Auto, 3 for
 	# Manual or 4 for Disable, default Auto.
 	#
-	def service_create(name, display_name, executable_on_host,startup=2)
+	def service_create(name, display_name, executable_on_host, startup=2, server=nil)
+		machine_str = server ? "#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,0x13)
+		manag = adv.OpenSCManagerA(machine_str,nil,0x13)
 		if(manag["return"] != 0)
 			# SC_MANAGER_CREATE_SERVICE = 0x0002
 			newservice = adv.CreateServiceA(manag["return"],name,display_name,
@@ -114,9 +115,10 @@ module WindowsServices
 	# Returns 0 if service started, 1 if service is already started and 2 if
 	# service is disabled.
 	#
-	def service_start(name)
+	def service_start(name, server=nil)
+		machine_str = server ? "#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
+		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
 		end
@@ -145,8 +147,9 @@ module WindowsServices
 	# stopped or disabled and 2 if the service can not be stopped.
 	#
 	def service_stop(name)
+		machine_str = server ? "#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
+		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
 		end
