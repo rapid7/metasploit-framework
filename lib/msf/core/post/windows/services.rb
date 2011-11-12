@@ -88,7 +88,7 @@ module WindowsServices
 	# Manual or 4 for Disable, default Auto.
 	#
 	def service_create(name, display_name, executable_on_host, startup=2, server=nil)
-		machine_str = server ? "#{server}" : nil
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(machine_str,nil,0x13)
 		if(manag["return"] != 0)
@@ -116,7 +116,7 @@ module WindowsServices
 	# service is disabled.
 	#
 	def service_start(name, server=nil)
-		machine_str = server ? "#{server}" : nil
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
@@ -147,7 +147,7 @@ module WindowsServices
 	# stopped or disabled and 2 if the service can not be stopped.
 	#
 	def service_stop(name)
-		machine_str = server ? "#{server}" : nil
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
 		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
