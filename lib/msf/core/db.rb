@@ -370,6 +370,11 @@ class DBManager
 			host = report_host(hopts)
 		end
 
+		if opts[:port].to_i.zero?
+			dlog("Skipping port zero for service '%s' on host '%s'" % [opts[:name],host.address])
+			return nil
+		end
+
 		ret  = {}
 =begin
 		host = get_host(:workspace => wspace, :address => addr)
