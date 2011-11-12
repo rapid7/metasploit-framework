@@ -46,12 +46,12 @@ class Metasploit3 < Msf::Auxiliary
 			}, 10)
 
 			if res and res.code == 200
-
 				http_fingerprint({ :response => res })
 
 				tserver = res.headers['Server']
+				tdav = res.headers['DAV'].to_s
 
-				if (res.headers['DAV'].to_s == '1, 2')
+				if (tdav == '1, 2' or tdav[0,3] == '1,2')
 					wdtype = 'WEBDAV'
 					if res.headers['X-MSDAVEXT']
 						wdtype = 'SHAREPOINT DAV'
@@ -61,12 +61,12 @@ class Metasploit3 < Msf::Auxiliary
 
 					report_note(
 						{
-							:host	=> target_host,
-							:proto => 'tcp',
-							:sname	=> 'HTTP',
-							:port	=> rport,
-							:type	=> wdtype,
-							:data	=> 'enabled'
+							:host   => target_host,
+							:proto  => 'tcp',
+							:sname  => 'HTTP',
+							:port   => rport,
+							:type   => wdtype,
+							:data   => 'enabled'
 						})
 
 				else
