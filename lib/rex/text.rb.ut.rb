@@ -158,6 +158,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 
 		assert_equal("buf = \n\"\\x01\\x02\\xff\\x00\"\n", Rex::Text.to_ruby(str), 'to_ruby')
 		assert_equal("my $buf = \n\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_perl(str), 'to_perl')
+		assert_equal("export buf=\\\n$'\\x01\\x02\\xff\\x00\'\n", Rex::Text.to_bash(str), 'to_bash')
 		assert_equal("unsigned char buf[] = \n\"\\x01\\x02\\xff\\x00\";\n", Rex::Text.to_c(str), 'to_c')
 	
 		# 0 -> 20
@@ -165,6 +166,7 @@ class Rex::Text::UnitTest < Test::Unit::TestCase
 
 		assert_equal("buf = \n\"\\x00\\x01\\x02\\x03\" +\n\"\\x04\\x05\\x06\\x07\" +\n\"\\x08\\x09\\x0a\\x0b\" +\n\"\\x0c\\x0d\\x0e\\x0f\" +\n\"\\x10\\x11\\x12\\x13\"\n", Rex::Text.to_ruby(str, 20), 'to_ruby with wrap')
 		assert_equal("my $buf = \n\"\\x00\\x01\\x02\\x03\" .\n\"\\x04\\x05\\x06\\x07\" .\n\"\\x08\\x09\\x0a\\x0b\" .\n\"\\x0c\\x0d\\x0e\\x0f\" .\n\"\\x10\\x11\\x12\\x13\";\n", Rex::Text.to_perl(str, 20), 'to_perl with wrap')
+		assert_equal("export buf=\\\n$'\\x00\\x01\\x02\\x03\'\\\n$'\\x04\\x05\\x06\\x07\'\\\n$'\\x08\\x09\\x0a\\x0b'\\\n$'\\x0c\\x0d\\x0e\\x0f'\\\n$'\\x10\\x11\\x12\\x13\'\n", Rex::Text.to_bash(str, 20), 'to_bash with wrap')
 		assert_equal("unsigned char buf[] = \n\"\\x00\\x01\\x02\\x03\\x04\"\n\"\\x05\\x06\\x07\\x08\\x09\"\n\"\\x0a\\x0b\\x0c\\x0d\\x0e\"\n\"\\x0f\\x10\\x11\\x12\\x13\";\n", Rex::Text.to_c(str, 20, "buf"), 'to_c with wrap')
 		assert_equal("\\x0a", Rex::Text.to_hex("\n"), 'to_hex newline')
 
