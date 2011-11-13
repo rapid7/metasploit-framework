@@ -122,9 +122,6 @@ class EncodedPayload
 			migrate_stub = generate_migrator('win','x86',generated_payload.length, processname, delay)
 
 			wlog("Migrator stub generated, #{migrate_stub.length} bytes")
-
-		else
-			wlog("No migrator stub selected")
 			
 		end
 		
