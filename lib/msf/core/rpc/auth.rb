@@ -13,7 +13,12 @@ class Auth < Base
 			end
 		end
 	
-		if(fail)
+		if fail
+			# Introduce a random delay in the response to annoy brute forcers
+			delay = ( rand(3000) / 1000.0 )
+			::IO.select(nil, nil, nil, delay)
+			
+			# Send back a 401 denied error
 			raise ::XMLRPC::FaultException.new(401, "authentication error")
 		end
 		
