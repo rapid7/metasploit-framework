@@ -15,7 +15,7 @@ class Auth < Base
 	
 		if fail
 			# Introduce a random delay in the response to annoy brute forcers
-			delay = ( rand(3000) / 1000.0 )
+			delay = [ ( rand(3000) / 1000.0 ), 0.50 ].max
 			::IO.select(nil, nil, nil, delay)
 			
 			# Send back a 401 denied error
