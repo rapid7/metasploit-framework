@@ -1,8 +1,58 @@
 Armitage Changelog
 ==================
 
-In Progress
------------
+11.13.11 - A major rewrite of a lot of stuff.
+--------
+- Moved from XML/RPC interface to MSGPACK. This should be much faster.
+- Removed Armitage dependence on Metapsloit db.* API--since it may go away soon.
+- Attack recommendations and Hail Mary no longer depend on db_autopwn. New code
+  offers same results with improved speed.
+- Simplified Hail Mary and Find Attacks to use port/OS information only.
+- Greatly improved keystroke recorder. The option is now called "Log Keystrokes".
+  It uses the Metasploit keystroke_recorder post module. Results are regularly 
+  dumped into the post module window. Also, the results are stored as loot 
+  available for the team to view.
+- Launching the keystroke_recorder post module now makes an announcement to the
+  event log.
+- Added a button to Processes tab to log keystrokes. This will bring up a the
+  keystroke_recorder module configured to migrate to the process and record 
+  keystrokes there.
+- Removed Workspaces menu. Armitage now works from the default workspace.
+- Simplified Hosts menu.
+- Meterpreter -> Access -> Persistence now calls persistence post module.
+- Improved Meterpreter -> Access -> Steal Tokens, it's still wonky but it's a 
+  little better now.
+- Host import now uses db_import command running in a console.
+- Added Armitage -> Set Exploit Rank to update the minimum exploit rank value.
+- Armitage now displays up to 512 hosts and 12,288 services at any given time.
+  This keeps Armitage operable even if you scan a big freaking network.
+- Added dynamic workspaces. This feature gives you the ability to define a filter
+  on the database and Armitage will display only hosts that match this filter.
+  You may define filters based on operating system, open ports, and network address.
+  Go to Workspaces -> Create to create a filter. Filters show up under the 
+  Workspaces menu and you may switch back and forth betweem them too.
+- Simplified the Connect dialog. One button. :)
+- Right-click Scan option now scans for HTTPS.
+- Check all credentials option no longer tries blank passwords/username as pass
+- Added a read optimization to the console code. This will reduce load in a team 
+  engagement + make consoles feel faster when there is output.
+- Armitage now opens the event log tab instead of a metasploit console tab in team
+  mode.
+- Fixed a host sorting issue in table view.
+- Moved View -> Targets to Armitage -> Set Target View
+- Overhauled how Armitage handles downloaded files. Downloads are saved to a set
+  place on the attack server. Downloads are available to the whole team through
+  View -> Downloads. This works like the loot viewer. Team members may view text 
+  files or download binary files. This method is friendlier when downloading whole
+  directories of stuff.
+
+10.20.11
+--------
+- Modified hail mary attack to get a little more success with some common Windows
+  attacks.
+
+10.17.11 
+--------
 - Added menu item to dump hashes using the old lsass method or the smart hashdump
   registry method.
 

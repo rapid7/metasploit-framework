@@ -38,7 +38,7 @@ module WindowsServices
 	end
 
 	#
-	# Get Windows Service information. 
+	# Get Windows Service information.
 	#
 	# Information returned in a hash with display name, startup mode and
 	# command executed by the service. Service name is case sensitive.  Hash
@@ -87,9 +87,10 @@ module WindowsServices
 	# startup as string and the startup type as an integer of 2 for Auto, 3 for
 	# Manual or 4 for Disable, default Auto.
 	#
-	def service_create(name, display_name, executable_on_host,startup=2)
+	def service_create(name, display_name, executable_on_host, startup=2, server=nil)
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,0x13)
+		manag = adv.OpenSCManagerA(machine_str,nil,0x13)
 		if(manag["return"] != 0)
 			# SC_MANAGER_CREATE_SERVICE = 0x0002
 			newservice = adv.CreateServiceA(manag["return"],name,display_name,
@@ -114,9 +115,10 @@ module WindowsServices
 	# Returns 0 if service started, 1 if service is already started and 2 if
 	# service is disabled.
 	#
-	def service_start(name)
+	def service_start(name, server=nil)
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
+		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
 		end
@@ -144,9 +146,10 @@ module WindowsServices
 	# Returns 0 if service is stopped successfully, 1 if service is already
 	# stopped or disabled and 2 if the service can not be stopped.
 	#
-	def service_stop(name)
+	def service_stop(name, server=nil)
+		machine_str = server ? "\\\\#{server}" : nil
 		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
+		manag = adv.OpenSCManagerA(machine_str,nil,1)
 		if(manag["return"] == 0)
 			raise "Could not open Service Control Manager, Access Denied"
 		end
@@ -169,22 +172,33 @@ module WindowsServices
 	end
 
 	#
-	# Delete a service by deleting the key in the registry.
+	# Delete a service.
 	#
-	def service_delete(name)
-		begin
-			basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-			if registry_enumkeys(basekey).index(name)
-				servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-				registry_deletekey(servicekey)
-				return true
-			else
-				return false
-			end
-		rescue::Exception => e
-			print_error(e)
-			return false
+	def service_delete(name, server=nil)
+		machine_str = server ? "\\\\#{server}" : nil
+		adv = session.railgun.advapi32
+
+		# #define SC_MANAGER_ALL_ACCESS 0xF003F
+		manag = adv.OpenSCManagerA(machine_str,nil,0xF003F)
+		if (manag["return"] == 0)
+			raise "Could not open Service Control Manager, Access Denied"
 		end
+
+		# Now to grab a handle to the service.
+		# Thank you, Wine project for defining the DELETE constant since it,
+		# and all its friends, are missing from the MSDN docs.
+		# #define DELETE                     0x00010000
+		servhandleret = adv.OpenServiceA(manag["return"],name,0x10000)
+		if (servhandleret["return"] == 0)
+			adv.CloseServiceHandle(manag["return"])
+			raise "Could not Open Service, Access Denied"
+		end
+
+		# Lastly, delete it
+		adv.DeleteService(servhandleret["return"])
+
+		adv.CloseServiceHandle(manag["return"])
+		adv.CloseServiceHandle(servhandleret["return"])
 	end
 end
 
