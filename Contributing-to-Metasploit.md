@@ -45,8 +45,11 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 ### [CVE-2005-1790](http://www.cvedetails.com/cve/CVE-2005-1790)
 
 **Description:** Microsoft Internet Explorer 6 SP2 6.0.2900.2180 and 6.0.2800.1106, and earlier versions, allows remote attackers to cause a denial of service (crash) and execute arbitrary code via a Javascript BODY onload event that calls the window function, aka "Mismatched Document Object Model Objects Memory Corruption Vulnerability."
+
 **Affected Software:** Microsoft Internet Explorer 6, SP2
+
 **Module Type:** exploits/windows/browser
+
 **Proof of concept:** http://www.securityfocus.com/bid/13799/exploit
 
 ### [CVE-2008-5499](http://www.cvedetails.com/cve/CVE-2008-5499)
