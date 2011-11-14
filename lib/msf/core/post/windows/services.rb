@@ -185,7 +185,7 @@ module WindowsServices
 		end
 
 		# Now to grab a handle to the service.
-		# Thank, you Wine project for defining the DELETE constant since it,
+		# Thank you, Wine project for defining the DELETE constant since it,
 		# and all its friends, are missing from the MSDN docs.
 		# #define DELETE                     0x00010000
 		servhandleret = adv.OpenServiceA(manag["return"],name,0x10000)
