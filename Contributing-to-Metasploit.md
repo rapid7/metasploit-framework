@@ -4,7 +4,7 @@ Every so often, we'll get a request on the Metasploit Developer's mailing list, 
 
 However, tackling core Metasploit Framework bugs or particularly squirrelly exploits probably isn't the right place for the newbie. Believe me, everyone was a newbie once, there's no shame in that. Those bugs and vulns are usually complicated, nuanced, and there's so many to choose from, it's hard to get started.
 
-This page will attempt to keep a very short list of relatively straightforward, older exploits. For whatever reason, they haven't quite made it into the framework yet. As these modules get written and committed, new ones will take their place, so don't worry too much about duplicating effort.
+This page will attempt to keep a very short list of relatively straightforward, older vulnerabilities to cut your teeth on. For whatever reason, they haven't quite made it into the framework yet. As these modules get written and committed, new ones will take their place, so don't worry too much about duplicating effort.
 
 ## Server Exploits
 
