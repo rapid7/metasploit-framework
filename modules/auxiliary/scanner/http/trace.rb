@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP TRACE Detection',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: $',
 			'Description' => 'Test if TRACE is actually enabled.  405 (Apache) 501(IIS) if its disabled, 200 if it is',
 			'Author'       => ['CG'],
 			'License'     => MSF_LICENSE
@@ -45,18 +45,18 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("Response Body:\n #{res.body}")
 				print_good("TRACE appears to be enabled on #{target_host}:#{rport} \n")
 				report_note(
-                                        :host   => target_host,
-                                        :port   => rport,
-                                        :proto => 'tcp',
-                                        :sname  => (ssl ? 'https' : 'http'),
-                                        :type   => 'TRACE',
-                                        :data   => "TRACE Method is enabled.",
-                                        :update => :unique_data
-                                )
+					:host   => target_host,
+					:port   => rport,
+					:proto => 'tcp',
+					:sname  => (ssl ? 'https' : 'http'),
+					:type   => 'service.http.method.trace',
+					:data   => "TRACE method is enabled for this service",
+					:update => :unique_data
+				)
 			elsif (res.code == 501)#Not Implemented
-				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")#IIS
+				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") #IIS
 			elsif (res.code == 405)#Method Not Allowed
-				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")#Apache
+				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}") #Apache
 			else
 				print_status("#{res.code}")
 			end
