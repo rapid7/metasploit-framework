@@ -44,6 +44,15 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("Response Headers:\n #{res.headers}")
 				print_good("Response Body:\n #{res.body}")
 				print_good("TRACE appears to be enabled on #{target_host}:#{rport} \n")
+				report_note(
+                                        :host   => target_host,
+                                        :port   => rport,
+                                        :proto => 'tcp',
+                                        :sname  => (ssl ? 'https' : 'http'),
+                                        :type   => 'TRACE',
+                                        :data   => "TRACE Method is enabled.",
+                                        :update => :unique_data
+                                )
 			elsif (res.code == 501)#Not Implemented
 				print_error("Received #{res.code} TRACE is not enabled for #{target_host}:#{rport}")#IIS
 			elsif (res.code == 405)#Method Not Allowed
