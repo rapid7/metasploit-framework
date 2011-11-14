@@ -13,22 +13,31 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 ### [CVE-2005-0058](http://www.cvedetails.com/cve/CVE-2005-0058)
 
 **Description:** Buffer overflow in the Telephony Application Programming Interface (TAPI) for Microsoft Windows 98, Windows 98 SE, Windows ME, Windows 2000, Windows XP, and Windows Server 2003 allows attackers elevate privileges or execute arbitrary code via a crafted message.
+
 **Affected Software:** Microsoft Windows 2000, 2003, and XP
+
 **Module Type:** exploits/windows/dcerpc
+
 **Proof of concept:** http://www.securiteam.com/exploits/5VP0D1FI0Y.html
 
 ### [CVE-2008-2161](http://www.cvedetails.com/cve/CVE-2008-2161)
 
 **Description:** Buffer overflow in TFTP Server SP 1.4 and 1.5 on Windows, and possibly other versions, allows remote attackers to execute arbitrary code via a long TFTP error packet. 
+
 **Affected Software:** [Open TFTP Server](http://sourceforge.net/scm/?type=cvs&group_id=162512), versions 1.4 and 1.5
+
 **Module Type:** exploits/windows/tftp (perhaps multi/tftp as it's cross-platform)
+
 **Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/29111.pl
 
 ### [CVE-2004-2111](http://www.cvedetails.com/cve/CVE-2004-2111)
 
 **Description:** Stack-based buffer overflow in the site chmod command in Serv-U FTP Server before 4.2 allows remote attackers to execute arbitrary code via a long filename.
+
 **Affected Software:** [RhinoSoft Serv-U FTP Server](http://www.serv-u.com/) pre-4.1.0.3
+
 **Module Type:** exploits/windows/ftp
+
 **Proof of concept:** http://www.securityfocus.com/bid/9483/exploit
 
 ## Client Exploits
@@ -43,8 +52,11 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 ### [CVE-2008-5499](http://www.cvedetails.com/cve/CVE-2008-5499)
 
 **Description:** Unspecified vulnerability in Adobe Flash Player for Linux 10.0.12.36, and 9.0.151.0 and earlier, allows remote attackers to execute arbitrary code via a crafted SWF file.
+
 **Affected Software:** Adobe Flash Player for Linux, version 10.0.12.36 and 9.0.151.0 and prior (give http://kb2.adobe.com/cps/142/tn_14266.html a try)
+
 **Module Type:** exploits/linux/browser
+
 **Proof of concept:** http://www.securityfocus.com/bid/32896/exploit
 
 ## The Usual Warnings
