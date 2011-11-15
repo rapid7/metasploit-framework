@@ -84,10 +84,10 @@ class Metasploit3 < Msf::Post
 			print_status("Storing data...")
 			path = store_loot(
 				'trillian.user.creds',
-				'text/plain',
+				'text/csv',
 				session,
-				creds,
-				'trillian_user_creds.txt',
+				creds.to_csv,
+				'trillian_user_creds.csv',
 				'Trillian Instant Messenger User Credentials'
 				)
 

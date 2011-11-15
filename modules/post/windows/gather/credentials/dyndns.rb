@@ -128,15 +128,33 @@ class Metasploit3 < Msf::Post
 	# Print results and storeloot
 	#
 	def do_report(data)
+
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => 'DynDNS Client Data',
 			'Indent'  => 1,
 			'Columns' => ['Field', 'Value']
 		)
 
+		creds  = Rex::Ui::Text::Table.new(
+			'Header'  => 'DynDNS Credentials',
+			'Indent'  => 1,
+			'Columns' => ['User', 'Password']
+		)
+
 		# Store username/password
-		tbl << ['Username', data[:user]]
-		tbl << ['Password', data[:pass]]
+		cred << [data[:user], data[:pass]]
+
+		if not creds.rows.empty?
+			p = store_loot(
+				'dyndns.creds',
+				'text/csv',
+				session,
+				creds.to_csv,
+				'dyndns_creds.csv',
+				'DynDNS Credentials'
+			)
+			print_status("Parsed creds stored in: #{p.to_s}")
+		end
 
 		# Store all found hosts
 		hosts = data[:hosts]
@@ -152,7 +170,7 @@ class Metasploit3 < Msf::Post
 				'text/plain',
 				session,
 				tbl.to_csv,
-				'dyndns_data.txt',
+				'dyndns_data.csv',
 				'DynDNS Client Data'
 			)
 			print_status("Parsed data stored in: #{p.to_s}")

@@ -80,10 +80,10 @@ class Metasploit3 < Msf::Post
 			print_status("Storing data...")
 			path = store_loot(
 				'imvu.user.creds',
-				'text/plain',
+				'text/csv',
 				session,
-				creds,
-				'imvu_user_creds.txt',
+				creds.to_csv,
+				'imvu_user_creds.csv',
 				'IMVU User Credentials'
 			)
 

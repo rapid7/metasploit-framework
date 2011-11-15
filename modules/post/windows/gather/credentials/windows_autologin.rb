@@ -53,9 +53,9 @@ class Metasploit3 < Msf::Post
 			'Header'  => 'Windows AutoLogin Password',
 			'Ident'   => 1,
 			'Columns' => [
-				'Domain',
 				'UserName',
-				'Password'
+				'Password',
+				'Domain'
 			]
 		)
 
@@ -77,22 +77,22 @@ class Metasploit3 < Msf::Post
 		if do1 != '' and  du1 != '' and dp1 == '' and al == '1'
 			has_al = 1
 			dp1 = '[No Password!]'
-			creds << [do1,du1,dp1]
+			creds << [du1,dp1, do1]
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		elsif do1 != '' and  du1 != '' and dp1 != ''
 			has_al = 1
-			creds << [do1,du1,dp1]
+			creds << [du1,dp1, d01]
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		end
 
 		if do2 != '' and  du2 != '' and dp2 == '' and al == '1'
 			has_al = 1
 			dp2 = '[No Password!]'
-			creds << [do2,du2,dp2]
+			creds << [du2,dp2,d02]
 			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		elsif do2 != '' and  du2 != '' and dp2 != ''
 			has_al = 1
-			creds << [do2,du2,dp2]
+			creds << [du2,dp2,d02]
 			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		end
 
@@ -104,10 +104,10 @@ class Metasploit3 < Msf::Post
 		print_status("Storing data...")
 		path = store_loot(
 			'windows.autologin.user.creds',
-			'text/plain',
+			'text/csv',
 			session,
-			creds,
-			'windows.autologin.user.creds.txt',
+			creds.to_csv,
+			'windows-autologin-user-creds.csv',
 			'Windows AutoLogin User Credentials'
 		)
 
