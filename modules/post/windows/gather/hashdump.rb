@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 					:host  => session.sock.peerhost,
 					:port  => 445,
 					:sname => 'smb',
-					:user  => users[rid][:Name],
+					:user  => users[rid][:Name].downcase,
 					:pass  => users[rid][:hashlm].unpack("H*")[0] +":"+ users[rid][:hashnt].unpack("H*")[0],
 					:type  => "smb_hash"
 				)

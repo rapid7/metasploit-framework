@@ -70,7 +70,17 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			each_user_pass do |user, pass|
-				try_user_pass(user, pass)
+				result = try_user_pass(user, pass)
+				if result == :next_user
+					unless user == user.downcase
+						result = try_user_pass(user.downcase, pass)
+						if result == :next_user
+							print_status("Username is case insensitive")
+							user = user.downcase 
+						end
+					end
+					report_creds(user,pass)
+				end
 			end
 		rescue ::Rex::ConnectionError
 			nil
@@ -203,36 +213,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		if(simple.client.auth_user)
 			print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{splitname(user)}' : '#{pass}'")
-			report_hash = {
-				:host	=> rhost,
-				:port   => datastore['RPORT'],
-				:sname	=> 'smb',
-				:pass   => pass,
-				:source_type => "user_supplied",
-				:active => true
-			}
-			if accepts_bogus_domains? rhost
-				if datastore["PRESERVE_DOMAINS"]
-					d,u = domain_username_split(user)
-					report_hash[:user] = u
-				else
-					report_hash[:user] = "#{datastore["SMBUser"]}"
-				end
-			else
-				if datastore["PRESERVE_DOMAINS"]
-					d,u = domain_username_split(user)
-					report_hash[:user] = "#{datastore["SMBDomain"]}/#{u}"
-				else
-					report_hash[:user] = "#{datastore["SMBDomain"]}/#{datastore["SMBUser"]}"
-				end
-			end
-
-			if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
-				report_hash.merge!({:type => 'smb_hash'})
-			else
-				report_hash.merge!({:type => 'password'})
-			end
-			report_auth_info(report_hash)
 		else
 			# Samba has two interesting behaviors:
 			# 1) Invalid users receive a guest login
@@ -249,6 +229,41 @@ class Metasploit3 < Msf::Auxiliary
 		datastore["SMBDomain"] = orig_domain
 		return :next_user
 	end
+
+	def report_creds(user,pass)
+		
+		report_hash = {
+			:host	=> rhost,
+			:port   => datastore['RPORT'],
+			:sname	=> 'smb',
+			:pass   => pass,
+			:source_type => "user_supplied",
+			:active => true
+		}
+		if accepts_bogus_domains? rhost
+			if datastore["PRESERVE_DOMAINS"]
+				d,u = domain_username_split(user)
+				report_hash[:user] = u
+			else
+				report_hash[:user] = "#{datastore["SMBUser"]}"
+			end
+		else
+			if datastore["PRESERVE_DOMAINS"]
+				d,u = domain_username_split(user)
+				report_hash[:user] = "#{datastore["SMBDomain"]}/#{u}"
+			else
+				report_hash[:user] = "#{datastore["SMBDomain"]}/#{datastore["SMBUser"]}"
+			end
+		end
+
+		if pass =~ /[0-9a-fA-F]{32}:[0-9a-fA-F]{32}/
+			report_hash.merge!({:type => 'smb_hash'})
+		else
+			report_hash.merge!({:type => 'password'})
+		end
+		report_auth_info(report_hash)
+	end
+
 
 end
 

@@ -61,6 +61,16 @@ class Metasploit3 < Msf::Auxiliary
 				next if user.nil?
 				ret = do_login(user,pass)
 				ftp_quit if datastore['SINGLE_SESSION']
+				if ret == :next_user
+					unless user == user.downcase
+						ret = do_login(user.downcase,pass)
+						if ret == :next_user
+							user = user.downcase
+							print_status("Username #{user} is not case sensitive")
+						end
+					end
+					report_ftp_creds(user,pass,@access)
+				end
 				ret
 			}
 			check_anonymous
@@ -119,8 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 				pass_response = send_pass(pass, @ftp_sock)
 				if pass_response =~ /^2/
 					print_good("#{rhost}:#{rport} - Successful FTP login for '#{user}':'#{pass}'")
-					access = test_ftp_access(user)
-					report_ftp_creds(user,pass,access)
+					@access = test_ftp_access(user)
 					ftp_quit
 					return :next_user
 				else
