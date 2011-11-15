@@ -150,12 +150,20 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 
 	#
-	# Drop into a system shell as specified by %COMSPEC%
-	#
+	# This patch adds Linux shell functionality when using the
+	# 'shell'    command from whithin the command dispatcher 
+	# as opposed to using the 'execute -f  /bin/bash -c' followed
+	# by channel -i "channel_id" to interact with a  cmd shell.
+	# 
 	def cmd_shell(*args)
-		path = client.fs.file.expand_path("%COMSPEC%")
-		path = (path and not path.empty?) ? path : "cmd.exe"
-		cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+		if client.platform =~/win/
+			path = client.fs.file.expand_path("%COMSPEC%")
+			path = (path and not path.empty?) ? path : "cmd.exe"
+			cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+		else
+			path = client.fs.file.expand_path("/bin/bash")
+			cmd_execute("-f", path, "-c", "-i")
+		end
 	end
 
 
