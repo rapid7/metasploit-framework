@@ -151,7 +151,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 	#
 	# This patch adds Linux shell functionality when using the
-	# 'shell'    command from whithin the command dispatcher 
+	# 'shell'    command from within the command dispatcher 
 	# as opposed to using the 'execute -f  /bin/bash -c' followed
 	# by channel -i "channel_id" to interact with a  cmd shell.
 	# 
