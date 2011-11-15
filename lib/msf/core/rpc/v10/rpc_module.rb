@@ -247,7 +247,10 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
 
 	def _run_auxiliary(mod, opts)
@@ -256,7 +259,10 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
 
 	def _run_post(mod, opts)
@@ -264,7 +270,10 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
 	
 	def _run_payload(mod, opts)
