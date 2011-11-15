@@ -976,10 +976,24 @@ class DBManager
 		# If duplicate usernames are okay, find by both user and password (allows
 		# for actual duplicates to get modified updated_at, sources, etc)
 		if duplicate_ok
-			cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+			cred = service.creds.find_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+			unless cred
+				dcu = token[0].downcase
+				cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
+				unless cred
+					cred = service.creds.find_or_initalize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+				end
+			end
 		else
 			# Create the cred by username only (so we can change passwords)
-			cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+			cred = service.creds.find_by_user_and_ptype(token[0] || "", ptype)
+			unless cred
+				dcu = token[0].downcase
+				cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
+				unless cred
+					cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+				end
+			end
 		end
 
 		# Update with the password

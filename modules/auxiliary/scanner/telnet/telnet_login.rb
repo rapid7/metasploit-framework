@@ -89,6 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 		case ret
 		when :no_auth_required
 			print_good "#{rhost}:#{rport} Telnet - No authentication required!"
+			report_telnet('','',@trace)
 			return :abort
 		when :no_pass_prompt
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping '#{user}' due to missing password prompt"
@@ -102,6 +103,15 @@ class Metasploit3 < Msf::Auxiliary
 		when :skip_user
 			vprint_status "#{rhost}:#{rport} Telnet - Skipping disallowed user '#{user}' for subsequent requests"
 			return :skip_user
+		when :success
+			unless user == user.downcase
+				case_ret = do_login(user.downcase,pass)
+				if case_ret == :success
+					user= user.downcase
+					print_status("Username #{user} is case insensitive")
+				end
+			end
+			report_telnet(user,pass,@trace)
 		else
 			if login_succeeded?
 				start_telnet_session(rhost,rport,user,pass)
@@ -140,7 +150,6 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if login_succeeded?
-			report_telnet('','',@trace)
 			return :no_auth_required
 		end
 
@@ -179,7 +188,6 @@ class Metasploit3 < Msf::Auxiliary
 			vprint_status("#{rhost}:#{rport} Result: #{@recvd.gsub(/[\r\n\e\b\a]/, ' ')}")
 
 			if login_succeeded?
-				report_telnet(user,pass,@trace)
 				return :success
 			else
 				self.sock.close unless self.sock.closed?
