@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 		@current_shell = cmd_exec("echo $SHELL")
-		if @current_shell =~ /(bsh|bash|ksh|csh|\/bin\/sh)$/
+		if @current_shell =~ /(bsh|bash|zsh|ksh|csh|\/bin\/sh)$/
 			print_status "Current shell is `#{@current_shell}'"
 			get_root()
 		else
