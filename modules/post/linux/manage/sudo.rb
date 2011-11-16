@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Post
 					cmd_exec("sudo -s")
 				end
 			rescue
-				print_error "SUDO: Passwordless sudo didn't work out."
+				print_error "SUDO: Passwordless sudo failed."
 			end
 		else
 			begin
@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Post
 					cmd_exec("rm #{askpass_sh}")
 				end
 			rescue ::IOError, ::Timeout::Error
-				print_error "Sudo with a password didn't work out."
+				print_error "Sudo with a password failed."
 			end
 		end
 	end
