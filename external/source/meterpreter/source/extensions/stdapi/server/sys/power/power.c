@@ -53,3 +53,20 @@ DWORD request_sys_power_exitwindows(Remote * remote, Packet * packet)
 
 	return ERROR_SUCCESS;
 }
+
+DWORD request_sys_power_exitlinux(Remote * remote, Packet * packet)
+
+{
+
+	Packet * response = packet_create_response(packet);
+
+	
+
+	// adding reboot power action functionality for linux meterpreter
+	// next on my todo
+
+	
+
+	return ERROR_SUCCESS;
+
+}
