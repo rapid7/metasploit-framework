@@ -2,7 +2,6 @@
 # $Id$
 ##
 
-# post/windows/gather/netdiscovery.rb
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -18,8 +17,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Net Discovery',
-				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network \n
+				'Name'          => 'Windows Recon Computer Browser Discovery',
+				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network 
 				WK = All Workstations - 
 				SVR = All Servers - 
 				SQL = All SQL Servers - 

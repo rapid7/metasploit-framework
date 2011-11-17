@@ -1,4 +1,4 @@
-# post/windows/gather/dig.rb
+# 
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Dig',
+				'Name'          => 'Windows Recon Resolve Hostname',
 				'Description'   => %q{ This module looks up a IP for a hostname via the victim},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
