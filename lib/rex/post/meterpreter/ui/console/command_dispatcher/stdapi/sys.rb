@@ -150,11 +150,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 
 	#
-	# This patch adds Linux shell functionality when using the
-	# 'shell'    command from within the command dispatcher 
-	# as opposed to using the 'execute -f  /bin/bash -c' followed
-	# by channel -i "channel_id" to interact with a  cmd shell.
-	# 
+	# Drop into a system shell as specified by %COMSPEC% or
+	# as appropriate for the host.
 	def cmd_shell(*args)
 		if client.platform =~/win/
 			path = client.fs.file.expand_path("%COMSPEC%")
