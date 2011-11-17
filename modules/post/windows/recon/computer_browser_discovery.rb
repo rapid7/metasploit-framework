@@ -17,18 +17,12 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Windows Recon Computer Browser Discovery',
-				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network 
-				WK = All Workstations - 
-				SVR = All Servers - 
-				SQL = All SQL Servers - 
-				DC = All Domain Controllers - 
-				DCBKUP = All Domain Backup Servers - 
-				NOVELL = All Novell Servers - 
-				PRINTSVR = All Print Que Servers - 
-				MASTERBROWSER = All Master Browswers - 
-				WINDOWS = All Windows Hosts - 
-				UNIX = All Unix Hosts
+				'Name'          => 'Post Windows Recon Computer Browser Discovery',
+				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
+					LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
+					SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
+					NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browswers),
+					WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
@@ -39,7 +33,7 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']),
+				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']), # Enum would be a better choice
 				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil])
 			], self.class)
 	end
