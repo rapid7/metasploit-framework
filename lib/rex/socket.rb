@@ -73,6 +73,17 @@ module Socket
 	def self.create_ip(opts = {})
 		return create_param(Rex::Socket::Parameters.from_hash(opts.merge('Proto' => 'ip')))
 	end
+	
+	
+	#
+	# Common Regular Expressions
+	#
+	
+	MATCH_IPV6 = /^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$/
+
+	MATCH_IPV4 = /^\s*(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))\s*$/
+	
+	MATCH_IPV4_PRIVATE = /^\s*(?:10\.|192\.168|172.(?:1[6-9]|2[0-9]|3[01])\.|169\.254)/
 
 	##
 	#
@@ -108,6 +119,8 @@ module Socket
 	# Determine whether this is an IPv4 address
 	#
 	def self.is_ipv4?(addr)
+		return false if addr =~ MATCH_IPV6
+		return true if addr =~ MATCH_IPV4
 		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? false : true
 	end
@@ -116,19 +129,23 @@ module Socket
 	# Determine whether this is an IPv6 address
 	#
 	def self.is_ipv6?(addr)
+		return true if addr =~ MATCH_IPV6
+		return false if addr =~ MATCH_IPV4
 		res = Rex::Socket.getaddress(addr)
 		res.match(/:/) ? true : false
 	end
 
 	#
-	# Checks to see if the supplied address is a dotted quad.
+	# Checks to see if the supplied address is in "dotted" form 
 	#
 	def self.dotted_ip?(addr)
-		# Assume anything with a colon is IPv6
-		return true if (support_ipv6? and addr =~ /:/)
-
-		# Otherwise assume this is IPv4
-		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
+		# Match IPv6
+		return true if (support_ipv6? and addr =~ MATCH_IPV6)
+	
+		# Match IPv4
+		return true if (addr =~ MATCH_IPV4)
+		
+		false
 	end
 
 	#
@@ -137,7 +154,7 @@ module Socket
 	#
 	def self.is_internal?(addr)
 		if self.dotted_ip?(addr)
-			addr =~ /^(?:10\.|192\.168|172.(?:1[6-9]|2[0-9]|3[01])\.|169\.254)/
+			addr =~ MATCH_IPV4_PRIVATE
 		else
 			false
 		end
