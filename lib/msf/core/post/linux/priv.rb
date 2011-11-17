@@ -10,14 +10,15 @@ module Priv
 	def is_root?
 		root_priv = false
 		user_id = cmd_exec("id -u")
-		if user_id and !user_id.empty?
-			if user_id.strip.lstrip.to_i == 0
+		clean_user_id = user_id.to_s.strip.lstrip.gsub(/[^\d]/,"")
+		unless clean_user_id.empty?
+			if clean_user_id =~ /^0$/
 				root_priv = true
-			elsif user_id.to_s =~ /^\d*$/
+			elsif clean_user_id =~ /^\d*$/
 				root_priv = false
 			end
 		else
-			raise "Could not determine UID: #{user_id}"
+			raise "Could not determine UID: #{user_id.inspect}"
 		end
 		return root_priv
 	end

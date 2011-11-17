@@ -100,6 +100,7 @@ module SingleCommandShell
 	end
 
 	# NOTE: if the session echoes input we don't need to echo the token twice.
+	# This setting will persist for the duration of the session.
 	def set_shell_token_index(timeout)
 		return @shell_token_index if @shell_token_index
 		token = ::Rex::Text.rand_text_alpha(32)

