@@ -278,7 +278,11 @@ Command customCommands[] =
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},
 #endif
-
+        // Sys/power
+	{ "stdapi_sys_power_exitlinux",
+	  { request_sys_power_exitlinux,                      { 0 }, 0 },
+	  { EMPTY_DISPATCH_HANDLER                                      },
+	},
 	// Sys/config
 	{ "stdapi_sys_config_getuid",
 	  { request_sys_config_getuid,                         { 0 }, 0 },

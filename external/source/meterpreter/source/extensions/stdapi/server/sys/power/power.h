@@ -5,5 +5,6 @@
  * Power interaction packet handlers
  */
 DWORD request_sys_power_exitwindows(Remote *remote, Packet *packet);
+DWORD request_sys_power_exitlinux(Remote *remote, Packet *packet);
 
 #endif
