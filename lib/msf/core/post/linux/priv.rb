@@ -10,7 +10,7 @@ module Priv
 	def is_root?
 		root_priv = false
 		user_id = cmd_exec("id -u")
-		clean_user_id = user_id.to_s.strip.lstrip.gsub(/[^\d]/,"")
+		clean_user_id = user_id.to_s.gsub(/[^\d]/,"")
 		unless clean_user_id.empty?
 			if clean_user_id =~ /^0$/
 				root_priv = true
