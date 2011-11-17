@@ -673,6 +673,9 @@ module Socket
 			self.localport = params.localport
 			self.context   = params.context || {}
 			self.ipv       = params.v6 ? 6 : 4
+			if (self.respond_to?('threaded'))
+				self.threaded = params.threaded?
+			end
 		end
 	end
 
