@@ -15,6 +15,8 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Auxiliary::Report
+
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Recon Computer Browser Discovery',
@@ -40,7 +42,8 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']),
-				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil])
+				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
+				OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', false])
 			], self.class)
 	end
 
@@ -154,6 +157,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 				print '.'
 				result = client.railgun.ws2_32.getaddrinfo(x[:cname], nil, nil, 4 )
 				if result['GetLastError'] == 11001
+					print_error("There was an error resolving the IP for #{x[:cname]}")
 					next
 				end
 				addrinfo = client.railgun.memread( result['ppResult'], size )
@@ -161,6 +165,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 				sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
 				ip = sockaddr[4,4].unpack('N').first
 				x[:ip] = Rex::Socket.addr_itoa(ip)
+				x[:ip] = '' unless x[:ip]
 			end
 		rescue ::Exception => e
 			print_error(e)
@@ -177,8 +182,10 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 
 		netview.each do |x|
 			results << [x[:type], x[:ip], x[:cname], "#{x[:major_ver]}.#{x[:minor_ver]}", x[:comment]]
+			report_host(:host => x[:ip]) if datastore['SAVEHOSTS'] and !(x[:ip].empty?)
 		end
-		print_status(results.inspect)
+		print_status(results.to_s)
+		store_loot("discovered.hosts", "text/plain", session, results.to_s, "discovered_hosts.txt", "Computer Browser Discovered Hosts")
 
 		print_status('If none of the IP addresses show up you are running this from a Win2k or older system')
 		print_status("If a host doesn't have an IP it either timed out or only has an IPv6 address assinged to it")
