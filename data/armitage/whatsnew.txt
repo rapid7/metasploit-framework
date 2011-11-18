@@ -1,6 +1,37 @@
 Armitage Changelog
 ==================
 
+11.17.11 - All the things I wanted to do, but didn't have time
+--------
+Release Note 1: if you use Armitage teaming, things changed. You have to start 
+msfrpcd with a different set of flags and your team must use the latest version 
+of Armitage. If you have a script that starts msfrpcd, you must update it. 
+
+More information is at: http://www.fastandeasyhacking.com/manual#7
+
+Release Note 2: Armitage requires a Metasploit base install of 4.0 or greater. 
+If you use msfupdate to update a Metasploit install prior to 4.0, then Armitage
+will not work. The Metasploit pre-4.0 installers did not install dependencies
+that Armitage requires today. Missing are certain Java cryptography extensions
+and the msgpack Ruby gem. BackTrack 5 is Metasploit 3.7. BackTrack 5r1 is 4.0.
+
+- db.services now limits its results to hosts that are returned by db.hosts. 
+  This fixes a bug where services data for some hosts was not returned when
+  when >3,500 hosts are in the armitage database.
+- MSF Scans menu is now available under Hosts menu again.
+- Removed Browser Autopwn menu as its future in Metasploit is undecided.
+- Find Attacks/Hail Mary now pull latest service info from DB before resolving
+  the attacks. This prevents a situation where Find Attacks after a scan yielded
+  nothing because Armitage had not synced with the database yet.
+- Deconfliction server now complains when you try to use 127.0.0.1 as your host
+- Added cut/copy/paste/clear menu to most textfields. (for Glen)
+- Added Workspaces -> Manage to edit, add, and remove dynamic workspaces.
+- Added code to intercept "sessions -i ##" and open a meterpreter tab instead.
+- Armitage now honors port setting when starting msfrpcd for you.
+- Armitage now detects msfrpcd shutdown and offers user advice to fix it. The
+  most common cause is probably a lack of msgpack.
+- Fixed a deadlock that happened when generating a payload.
+
 11.13.11 - A major rewrite of a lot of stuff.
 --------
 - Moved from XML/RPC interface to MSGPACK. This should be much faster.
