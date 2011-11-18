@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
 			'Ident'   => 1,
 			'Columns' =>
 			[
-				'Username',
+				'User',
 				'Password'
 			]
 		)
@@ -72,10 +72,10 @@ class Metasploit3 < Msf::Post
 		print_status("Storing data...")
 		path = store_loot(
 			'nimbuzz.user.creds',
-			'text/plain',
+			'text/csv',
 			session,
-			creds,
-			'nimbuzz_user_creds.txt',
+			creds.to_csv,
+			'nimbuzz_user_creds.csv',
 			'Nimbuzz User Credentials'
 		)
 

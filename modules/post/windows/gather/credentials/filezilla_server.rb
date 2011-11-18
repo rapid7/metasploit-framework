@@ -94,10 +94,10 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
-			"Host",
-			"Port",
 			"User",
 			"Password",
+			"Host",
+			"Port",
 			"SSL"
 		])
 
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Post
 			)
 
 		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
-			"filezilla_server_credentials.txt", "FileZilla FTP Server Credentials")
+			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
 		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")

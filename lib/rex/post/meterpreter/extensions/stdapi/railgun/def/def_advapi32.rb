@@ -355,7 +355,11 @@ class Def_advapi32
 		dll.add_function('CloseServiceHandle','BOOL',[
 			[ "DWORD", "hSCObject", "in" ]
 			])
-			
+
+		dll.add_function('DeleteService','BOOL',[
+			[ "DWORD", "hService", "in" ]
+			])
+
 		dll.add_function('AbortSystemShutdownA', 'BOOL',[
 			["PCHAR","lpMachineName","in"],
 			])

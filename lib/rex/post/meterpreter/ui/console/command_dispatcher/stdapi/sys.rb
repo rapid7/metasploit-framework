@@ -150,12 +150,17 @@ class Console::CommandDispatcher::Stdapi::Sys
 
 
 	#
-	# Drop into a system shell as specified by %COMSPEC%
-	#
+	# Drop into a system shell as specified by %COMSPEC% or
+	# as appropriate for the host.
 	def cmd_shell(*args)
-		path = client.fs.file.expand_path("%COMSPEC%")
-		path = (path and not path.empty?) ? path : "cmd.exe"
-		cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+		if client.platform =~/win/
+			path = client.fs.file.expand_path("%COMSPEC%")
+			path = (path and not path.empty?) ? path : "cmd.exe"
+			cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+		else
+			path = client.fs.file.expand_path("/bin/bash")
+			cmd_execute("-f", path, "-c", "-i")
+		end
 	end
 
 

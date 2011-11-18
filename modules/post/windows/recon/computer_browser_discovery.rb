@@ -2,7 +2,6 @@
 # $Id$
 ##
 
-# post/windows/gather/netdiscovery.rb
 
 ##
 # This file is part of the Metasploit Framework and may be subject to
@@ -16,20 +15,16 @@ require 'rex'
 
 class Metasploit3 < Msf::Post
 
+	include Msf::Auxiliary::Report
+
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Net Discovery',
-				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network \n
-				WK = All Workstations - 
-				SVR = All Servers - 
-				SQL = All SQL Servers - 
-				DC = All Domain Controllers - 
-				DCBKUP = All Domain Backup Servers - 
-				NOVELL = All Novell Servers - 
-				PRINTSVR = All Print Que Servers - 
-				MASTERBROWSER = All Master Browswers - 
-				WINDOWS = All Windows Hosts - 
-				UNIX = All Unix Hosts
+				'Name'          => 'Post Windows Recon Computer Browser Discovery',
+				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
+					LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
+					SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
+					NOVELL (all Novell servers), PRINTSVR (all Print Que servers), MASTERBROWSER (all Master Browswers),
+					WINDOWS (all Windows hosts), or UNIX (all Unix hosts).
 					},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
@@ -40,8 +35,9 @@ class Metasploit3 < Msf::Post
 
 		register_options(
 			[
-				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']),
-				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil])
+				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']), # Enum would be a better choice
+				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
+				OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', false])
 			], self.class)
 	end
 
@@ -155,6 +151,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 				print '.'
 				result = client.railgun.ws2_32.getaddrinfo(x[:cname], nil, nil, 4 )
 				if result['GetLastError'] == 11001
+					print_error("There was an error resolving the IP for #{x[:cname]}")
 					next
 				end
 				addrinfo = client.railgun.memread( result['ppResult'], size )
@@ -162,6 +159,7 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 				sockaddr = client.railgun.memread( ai_addr_pointer, size/2 )
 				ip = sockaddr[4,4].unpack('N').first
 				x[:ip] = Rex::Socket.addr_itoa(ip)
+				x[:ip] = '' unless x[:ip]
 			end
 		rescue ::Exception => e
 			print_error(e)
@@ -178,8 +176,10 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 
 		netview.each do |x|
 			results << [x[:type], x[:ip], x[:cname], "#{x[:major_ver]}.#{x[:minor_ver]}", x[:comment]]
+			report_host(:host => x[:ip]) if datastore['SAVEHOSTS'] and !(x[:ip].empty?)
 		end
-		print_status(results.inspect)
+		print_status(results.to_s)
+		store_loot("discovered.hosts", "text/plain", session, results.to_s, "discovered_hosts.txt", "Computer Browser Discovered Hosts")
 
 		print_status('If none of the IP addresses show up you are running this from a Win2k or older system')
 		print_status("If a host doesn't have an IP it either timed out or only has an IPv6 address assinged to it")
