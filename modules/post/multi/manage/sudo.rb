@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Post Sudo Upgrade Shell',
+				'Name'          => 'Multiple Linux / Unix Post Sudo Upgrade Shell',
 				'Description'   => %q{
 					This module attempts to upgrade a shell account to UID 0 by reusing the
 					given password and passing it to sudo. This technique relies on sudo
@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'todb <todb[at]metasploit.com>'],
 				'Version'       => '$Revision: $',
-				'Platform'      => [ 'linux' ],
+				'Platform'      => [ 'linux','unix','osx','solaris','aix' ],
 				'References'    =>
 					[
 						# Askpass first added March 2, 2008, looks like
