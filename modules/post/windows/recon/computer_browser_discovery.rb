@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Post
 		register_options(
 			[
 				OptString.new('LTYPE',  [true, 'Account informations (type info for known types)', 'WK']), # Enum would be a better choice
-				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil])
+				OptString.new('DOMAIN', [false, 'Domain to perform lookups on, default is current domain',nil]),
 				OptBool.new('SAVEHOSTS', [true, 'Save Discovered Hosts to the Database', false])
 			], self.class)
 	end
