@@ -1,5 +1,3 @@
-# 
-
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -11,7 +9,6 @@ require 'msf/core'
 require 'rex'
 
 class Metasploit3 < Msf::Post
-
 
 	def initialize(info={})
 		super( update_info( info,
