@@ -15,7 +15,7 @@ module Registry
 			retval=meterpreter_registry_loadkey(key,file)
 		else
 			retval=shell_registry_loadkey(key,file)
-		end 
+		end
 		return retval
 	end
 
@@ -24,7 +24,7 @@ module Registry
 			retval=meterpreter_registry_unloadkey(key)
 		else
 			retval=shell_registry_unloadkey(key)
-		end 
+		end
 		return retval
 	end
 
@@ -152,7 +152,7 @@ protected
 		elsif results =~ /^Error:/
 			error_hash = win_parse_error(results)
 		else
-			error_hash = win_parse_error("ERROR:Unknown error running #{cmd}") 
+			error_hash = win_parse_error("ERROR:Unknown error running #{cmd}")
 		end
 		return boo
 	end
@@ -167,7 +167,7 @@ protected
 		elsif results =~ /^Error:/
 			error_hash = win_parse_error(results)
 		else
-			error_hash = win_parse_error("ERROR:Unknown error running #{cmd} INSPECT: #{error_hash.inspect}") 
+			error_hash = win_parse_error("ERROR:Unknown error running #{cmd} INSPECT: #{error_hash.inspect}")
 		end
 		return boo
 	end
@@ -185,7 +185,7 @@ protected
 			elsif results =~ /^Error:/
 				error_hash = win_parse_error(results)
 			else
-				error_hash = win_parse_error("ERROR:Unknown error running #{cmd}") 
+				error_hash = win_parse_error("ERROR:Unknown error running #{cmd}")
 			end
 		end
 	end
@@ -220,7 +220,7 @@ protected
 			elsif results =~ /^Error:/
 				error_hash = win_parse_error(results)
 			else
-				error_hash = win_parse_error("ERROR:Unknown error running #{cmd}") 
+				error_hash = win_parse_error("ERROR:Unknown error running #{cmd}")
 			end
 		end
 		return boo
@@ -229,8 +229,8 @@ protected
 	def shell_registry_enumkeys(key)
 		key = normalize_key(key)
 		subkeys = []
-		reg_data_types = 'REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|' 
-		reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR' 
+		reg_data_types = 'REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|'
+		reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
 		begin
 			bslashes = key.count('\\')
 			cmd = "cmd.exe /c reg query \"#{key}\""
@@ -249,7 +249,7 @@ protected
 					end
 				#else
 				#	error_hash = win_parse_error("ERROR:Unrecognizable results from #{cmd}")
-				end 
+				end
 			else
 				error_hash = win_parse_error("ERROR:Unknown error running #{cmd}")
 			end
@@ -260,7 +260,7 @@ protected
 	def shell_registry_enumvals(key)
 		key = normalize_key(key)
 		values = []
-		reg_data_types = 'REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|' 
+		reg_data_types = 'REG_SZ|REG_MULTI_SZ|REG_DWORD_BIG_ENDIAN|REG_DWORD|REG_BINARY|'
 		reg_data_types << 'REG_DWORD_LITTLE_ENDIAN|REG_NONE|REG_EXPAND_SZ|REG_LINK|REG_FULL_RESOURCE_DESCRIPTOR'
 		begin
 			# REG QUERY KeyName [/v ValueName | /ve] [/s]
@@ -368,7 +368,7 @@ protected
 					return true
 				end
 			end
-				
+
 		rescue
 			return false
 		end
