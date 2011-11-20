@@ -102,12 +102,12 @@ class Config
 
 		return routes
 	end
-	
+
 	alias routes get_routes
 
 	#
 	# Adds a route to the target machine.
-	# 
+	#
 	def add_route(subnet, netmask, gateway)
 		request = Packet.create_request('stdapi_net_config_add_route')
 
@@ -136,7 +136,7 @@ class Config
 	end
 
 protected
-	
+
 	attr_accessor :client # :nodoc:
 
 end
