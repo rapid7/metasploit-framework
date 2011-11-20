@@ -21,34 +21,34 @@ class SessionManager < Hash
 
 	LAST_SEEN_INTERVAL  = 60 * 2.5
 	SCHEDULER_THREAD_COUNT = 5
-	
+
 	def initialize(framework)
 		self.framework = framework
 		self.sid_pool  = 0
-		self.mutex = Mutex.new		
+		self.mutex = Mutex.new
 		self.scheduler_queue = ::Queue.new
 		self.initialize_scheduler_threads
-		
+
 		self.monitor_thread = framework.threads.spawn("SessionManager", true) do
 			last_seen_timer = Time.now.utc
-			
+
 			respawn_max = 30
 			respawn_cnt = 0
-			
+
 			begin
 			while true
 
 				#
 				# Process incoming data from all stream-based sessions and queue the
 				# data into the associated ring buffers.
-				#	
+				#
 				rings = values.select{|s| s.respond_to?(:ring) and s.ring and s.rstream }
 				ready = ::IO.select(rings.map{|s| s.rstream}, nil, nil, 0.5) || [[],[],[]]
 
 				ready[0].each do |fd|
 					s = rings.select{|s| s.rstream == fd}.first
 					next if not s
-				
+
 					begin
 						buff = fd.get_once(-1)
 						if buff
@@ -67,13 +67,13 @@ class SessionManager < Hash
 							# normal EOF
 							dlog("Call Stack\n#{e.backtrace.join("\n")}", 'core', LEV_3)
 						end
-				
+
 						# Flush any ring data in the queue
 						s.ring.clear_data rescue nil
-						
+
 						# Shut down the socket itself
 						s.rstream.close rescue nil
-						
+
 						# Deregister the session
 						deregister(s, "Died from #{e.class}")
 					end
@@ -84,8 +84,8 @@ class SessionManager < Hash
 				# TODO: Call the dispatch entry point of each Meterpreter thread instead of
 				#       dedicating specific processing threads to each session
 				#
-							
-				
+
+
 				#
 				# Check for closed / dead / terminated sessions
 				#
@@ -96,20 +96,20 @@ class SessionManager < Hash
 						next
 					end
 				end
-				
+
 				#
 				# Mark all open session as alive every LAST_SEEN_INTERVAL
 				#
-				if (Time.now.utc - last_seen_timer) >= LAST_SEEN_INTERVAL				
-					
+				if (Time.now.utc - last_seen_timer) >= LAST_SEEN_INTERVAL
+
 					# Update this timer BEFORE processing the session list, this will prevent
 					# processing time for large session lists from skewing our update interval.
-					
+
 					last_seen_timer = Time.now.utc
 					values.each do |s|
 						# Update the database entry on a regular basis, marking alive threads
 						# as recently seen.  This notifies other framework instances that this
-						# session is being maintained.		
+						# session is being maintained.
 						if framework.db.active and s.db_record
 							s.db_record.last_seen = Time.now.utc
 							s.db_record.save
@@ -122,7 +122,7 @@ class SessionManager < Hash
 				# Skip the database cleanup code below if there is no database
 				#
 				next if not (framework.db and framework.db.active)
-				
+
 				#
 				# Clean out any stale sessions that have been orphaned by a dead
 				# framework instance.
@@ -133,9 +133,9 @@ class SessionManager < Hash
 						db_session.close_reason = "Orphaned"
 						db_session.save
 					end
-				end				
+				end
 			end
-			
+
 			#
 			# All session management falls apart when any exception is raised to this point. Log it.
 			#
@@ -149,7 +149,7 @@ class SessionManager < Hash
 			end
 		end
 	end
-	
+
 	#
 	# Dedicated worker threads for pulling data out of new sessions
 	#
@@ -169,7 +169,7 @@ class SessionManager < Hash
 			end
 		end
 	end
-	
+
 	#
 	# Add a new task to the loader thread queue. Task is assumed to be
 	# a Proc or another object that responds to call()
@@ -210,7 +210,7 @@ class SessionManager < Hash
 		end
 
 		next_sid = allocate_sid
-		
+
 		# Initialize the session's sid and framework instance pointer
 		session.sid       = next_sid
 		session.framework = framework
@@ -219,7 +219,7 @@ class SessionManager < Hash
 		if session.register?
 			# Insert the session into the session hash table
 			self[next_sid.to_i] = session
-			
+
 			# Notify the framework that we have a new session opening up...
 			# Don't let errant event handlers kill our session
 			begin
@@ -273,7 +273,7 @@ class SessionManager < Hash
 	def get(sid)
 		return self[sid.to_i]
 	end
-	
+
 	#
 	# Allocates the next Session ID
 	#
@@ -289,7 +289,7 @@ protected
 	attr_accessor :monitor_thread # :nodoc:
 	attr_accessor :scheduler_threads # :nodoc:
 	attr_accessor :scheduler_queue # :nodoc:
-	attr_accessor :mutex # :nodoc: 
+	attr_accessor :mutex # :nodoc:
 
 end
 

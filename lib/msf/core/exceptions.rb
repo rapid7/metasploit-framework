@@ -105,7 +105,7 @@ class BadcharError < EncodingError
 		# Integer in ruby 1.9.
 		if (char.respond_to? :ord)
 			c = char.ord
-		else 
+		else
 			c = char
 		end
 		if (c)
@@ -289,7 +289,7 @@ class PluginLoadError < RuntimeError
 		self.reason = reason
 		super
 	end
-	
+
 	def to_s
 		"This plugin failed to load:  #{reason}"
 	end

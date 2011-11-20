@@ -42,11 +42,11 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 		options = OptionContainer.new(
 			'rport' => [ OptPort, true, nil, 1234 ])
 
-		assert_equal(1234, options.get('rport').default, 
+		assert_equal(1234, options.get('rport').default,
 				"option default does not match")
-		assert_equal(true, options.get('rport').required?, 
+		assert_equal(true, options.get('rport').required?,
 				"option required does not match")
-		assert_equal('rport', options['rport'].name, 
+		assert_equal('rport', options['rport'].name,
 				"option name does not match")
 	end
 
@@ -90,8 +90,8 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 
 		options.add_advanced_options(
 			'DONKEY' => [ OptString, false ])
-			
-		assert_equal(true, options.get('DONKEY').advanced?, 
+
+		assert_equal(true, options.get('DONKEY').advanced?,
 				"advanced option failed")
 	end
 
@@ -117,13 +117,13 @@ class OptionContainer::UnitTest < Test::Unit::TestCase
 		options = OptionContainer.new(
 			'testenum' => [ OptEnum, true, 'desc', nil, ['none','one','done']]
 			)
-		
+
 		ds = DataStore.new
 
 		assert_raise(OptionValidateError, "enum required") {
 			options.validate(ds)
 		}
-		
+
 		ds['testenum'] = 'done'
 		assert_equal(true, options.validate(ds), "enum valid")
 

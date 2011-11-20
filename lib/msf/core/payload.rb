@@ -450,7 +450,7 @@ class Payload < Msf::Module
 			begin
 				assoc_exploit.on_new_session(session)
 			rescue ::Exception => e
-				dlog("#{assoc_exploit.refname}: on_new_session handler triggered exception: #{e.class} #{e} #{e.backtrace}", 'core', LEV_1)	rescue nil		
+				dlog("#{assoc_exploit.refname}: on_new_session handler triggered exception: #{e.class} #{e} #{e.backtrace}", 'core', LEV_1)	rescue nil
 			end
 
 			# Set the abort sockets flag only if the exploit is not passive
