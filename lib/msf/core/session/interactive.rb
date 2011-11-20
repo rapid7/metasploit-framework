@@ -95,7 +95,7 @@ module Interactive
 	# The remote stream handle.  Must inherit from Rex::IO::Stream.
 	#
 	attr_accessor :rstream
-	
+
 	#
 	# The RingBuffer object used to allow concurrent access to this session
 	#

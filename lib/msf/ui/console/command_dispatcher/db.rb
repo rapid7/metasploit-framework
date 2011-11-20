@@ -1138,7 +1138,7 @@ class Db
 
 			save = false
 			if args.include?("save")
-				save = active? 
+				save = active?
 				args.delete("save")
 			end
 

@@ -32,7 +32,7 @@ class Plugin < Base
 			elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
 			return 	{ "result" => "failure" }
 		end
-		
+
 	end
 
 	def unload(token,name)
@@ -57,7 +57,7 @@ class Plugin < Base
 		end
 		ret
 	end
-	
+
 end
 end
 end

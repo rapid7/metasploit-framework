@@ -31,7 +31,7 @@ class Msf::Module::Target
 		#
 		def start_addresses
 			if (self['Start'] and self['Start'].kind_of?(Hash) == false)
-				return {'Address' => self['Start'] } 
+				return {'Address' => self['Start'] }
 			else
 				return self['Start']
 			end
@@ -43,7 +43,7 @@ class Msf::Module::Target
 		#
 		def stop_addresses
 			if (self['Stop'] and self['Stop'].kind_of?(Hash) == false)
-				return {'Address' => self['Stop'] } 
+				return {'Address' => self['Stop'] }
 			else
 				return self['Stop']
 			end
@@ -136,9 +136,9 @@ class Msf::Module::Target
 		self.save_registers = opts['SaveRegisters']
 		self.ret            = opts['Ret']
 		self.opts           = opts
-	
+
 		if (opts['Arch'])
-			self.arch = Rex::Transformer.transform(opts['Arch'], Array, 
+			self.arch = Rex::Transformer.transform(opts['Arch'], Array,
 				[ String ], 'Arch')
 		end
 
@@ -210,7 +210,7 @@ class Msf::Module::Target
 	def payload_max_nops
 		opts['Payload'] ? opts['Payload']['MaxNops'] : nil
 	end
-	
+
 	#
 	# Payload min nops information for this target.
 	#

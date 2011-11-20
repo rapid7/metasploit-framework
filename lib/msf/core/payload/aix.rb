@@ -46,7 +46,7 @@ module Msf::Payload::Aix
 
 		#
 		# NOTE:
-		# 
+		#
 		# To add a syscall set, add a aix_XXXX_syscalls hash as seen below,
 		# and add a line to the versions hash using that version.
 		#
@@ -62,7 +62,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 278,
 			:__NR_kfcntl      => 658
 		}
-		
+
 		aix_613_syscalls = {
 			:__NR_execve      => 7,
 			:__NR_getpeername => 205,
@@ -74,7 +74,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 272,
 			:__NR_kfcntl      => 644
 		}
-		
+
 		aix_612_syscalls = {
 			:__NR_execve      => 7,
 			:__NR_getpeername => 205,
@@ -86,7 +86,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 272,
 			:__NR_kfcntl      => 635
 		}
-		
+
 		aix_611_syscalls = {
 			:__NR_execve      => 7,
 			:__NR_getpeername => 202,
@@ -98,7 +98,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 269,
 			:__NR_kfcntl      => 614
 		}
-		
+
 		aix_610_syscalls = {
 			:__NR_execve      => 6,
 			:__NR_getpeername => 203,
@@ -110,7 +110,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 269,
 			:__NR_kfcntl      => 617
 		}
-		
+
 		aix_53x_syscalls = {
 			:__NR_execve      => 6,
 			:__NR_getpeername => 198,
@@ -122,7 +122,7 @@ module Msf::Payload::Aix
 			:__NR_close       => 245,
 			:__NR_kfcntl      => 493
 		}
-		
+
 		aix_51_syscalls = {
 			:__NR_execve      => 5,
 			:__NR_getpeername => 122,

@@ -7,11 +7,11 @@ class Job < Base
 		res         = {}
 		res['jobs'] = {}
 		@framework.jobs.each do |j|
-			 res['jobs'][j[0]] = j[1].name
+			res['jobs'][j[0]] = j[1].name
 		end
 		res
 	end
-	
+
 	def stop(token,jid)
 		authenticate(token)
 		obj = @framework.jobs[jid.to_s]
@@ -33,7 +33,7 @@ class Job < Base
 				"name" => obj.name,
 				"start_time" => obj.start_time.to_i
 			}
-			if obj.ctx && obj.ctx[0] 
+			if obj.ctx && obj.ctx[0]
 				if obj.ctx[0].respond_to?(:get_resource)
 					info['uripath'] = obj.ctx[0].get_resource
 				end

@@ -21,10 +21,10 @@ class Host < ActiveRecord::Base
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id
 
-    def attribute_locked?(attr)
-      n = notes.find_by_ntype("host.updated.#{attr}")
-	  n && n.data[:locked]
-    end
+	def attribute_locked?(attr)
+		n = notes.find_by_ntype("host.updated.#{attr}")
+		n && n.data[:locked]
+	end
 
 	# Determine if the fingerprint data is readable. If not, it nearly always
 	# means that there was a problem with the YAML or the Marshal'ed data,
@@ -801,7 +801,7 @@ protected
 						ret[:os_flavor] = "Windows 7"
 						ret[:type] = "client"
 					else
-						ret[:os_flavor] = data[:product].gsub("Windows", '').strip 
+						ret[:os_flavor] = data[:product].gsub("Windows", '').strip
 						ret[:os_sp] = data[:version] if data[:version]
 						if data[:product]
 							ret[:type] = "server" if data[:product][/Server/]

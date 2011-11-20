@@ -3,13 +3,13 @@ module RPC
 class Db < Base
 
 private
-	def db 
+	def db
 		@framework.db.active
 	end
 
 	def workspace(wspace = nil)
-	 	if(wspace and wspace != "")
-			return @framework.db.find_workspace(wspace) 
+		if(wspace and wspace != "")
+			return @framework.db.find_workspace(wspace)
 		end
 		@framework.db.workspace
 	end
@@ -23,7 +23,7 @@ private
 	end
 
 	def opts_to_hosts(opts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts  = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
@@ -42,7 +42,7 @@ private
 	end
 
 	def opts_to_services(hosts,opts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		services = []
 		if opts[:host] or opts[:address] or opts[:addresses]
 			return services if hosts.count < 1
@@ -73,7 +73,7 @@ private
 	def clean_nils(obj)
 		return '' if obj == nil
 		if obj.is_a? Hash
-			obj.each_key do |key| 
+			obj.each_key do |key|
 				obj[key] = clean_nils(obj[key])
 			end
 		elsif obj.is_a? Array
@@ -161,7 +161,7 @@ public
 		end
 
 		return ret if (not services)
-		
+
 		services.each do |s|
 			service = {}
 			host = s.host
@@ -220,7 +220,7 @@ public
 			services << sret if sret.class == Msf::DBManager::Service
 			services |= sret if sret.class == Array
 		end
-		
+
 		#get list of vulns
 		if services.count > 0
 			services.each do |s|
@@ -253,7 +253,7 @@ public
 		vulns.each do |v|
 			vuln = {}
 			reflist = v.refs.map { |r| r.name }
-			if(v.service)	
+			if(v.service)
 				vuln[:port] = v.service.port
 				vuln[:proto] = v.service.proto
 			else
@@ -261,7 +261,7 @@ public
 				vuln[:proto] = nil
 			end
 			vuln[:time] = v.created_at.to_i
-			vuln[:host] = v.host.address || v.host.address6 || nil	
+			vuln[:host] = v.host.address || v.host.address6 || nil
 			vuln[:name] = v.name
 			vuln[:refs] = reflist.join(',')
 			ret[:vulns] << vuln
@@ -373,7 +373,7 @@ public
 			host[:info] = h.info.to_s
 			ret[:host] << host
 		end
-		ret	
+		ret
 	end
 
 	def report_host(token,xopts)
@@ -385,7 +385,7 @@ public
 		res = @framework.db.report_host(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
-		
+
 	end
 
 	def report_service(token,xopts)
@@ -430,7 +430,7 @@ public
 		services << sret if sret.class == Msf::DBManager::Service
 		services |= sret if sret.class == Array
 
-		
+
 		services.each do |s|
 			service = {}
 			host = s.host
@@ -546,7 +546,7 @@ public
 			service = host.services.find_by_proto_and_port(opts[:proto],opts[:port]) if host.services.count > 0
 			opts[:service] = service if service
 		end
-			
+
 		res = @framework.db.report_note(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
@@ -593,7 +593,7 @@ public
 			services << sret if sret.class == Msf::DBManager::Service
 			services |= sret if sret.class == Array
 		end
-		
+
 		#get list of notes
 		if services.count > 0
 			services.each do |s|
@@ -660,7 +660,7 @@ public
 			i.each do |k,v|
 				info[k.to_sym] = v
 			end
-			ret[:auth_info] << info	
+			ret[:auth_info] << info
 		end
 		ret
 	end
@@ -674,11 +674,11 @@ public
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts  = []
 		services = []
 		vulns = []
-			
+
 		if opts[:host] or opts[:address] or opts[:addresses]
 			hosts = opts_to_hosts(opts)
 		end
@@ -734,21 +734,21 @@ public
 			dent[:proto] = v.service.proto if v.service
 			dent[:name] = v.name
 			deleted << dent
-			v.destroy	
+			v.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def del_note(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts  = []
 		services = []
 		notes = []
-			
+
 		if opts[:host] or opts[:address] or opts[:addresses]
 			hosts = opts_to_hosts(opts)
 		end
@@ -803,17 +803,17 @@ public
 			dent[:proto] = n.service.proto if n.service
 			dent[:ntype] = n.ntype
 			deleted << dent
-			n.destroy	
+			n.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def del_service(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts  = []
 		services = []
 		if opts[:host] or opts[:address]
@@ -852,9 +852,9 @@ public
 			services << sret if sret and sret.class == Msf::DBManager::Service
 			services |= sret if sret and sret.class == Array
 		end
-					
-				
-				
+
+
+
 		deleted = []
 		services.each do |s|
 			dent = {}
@@ -862,17 +862,17 @@ public
 			dent[:port] = s.port
 			dent[:proto] = s.proto
 			deleted << dent
-			s.destroy	
+			s.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def del_host(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts  = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
@@ -890,10 +890,10 @@ public
 		deleted = []
 		hosts.each do |h|
 			deleted << h.address.to_s
-			h.destroy	
+			h.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 
@@ -922,8 +922,8 @@ public
 			event[:created_at] = e.created_at.to_i
 			event[:updated_at] = e.updated_at.to_i
 			event[:name] = e.name
-			event[:critical] = e.critical if(e.critical)	
-			event[:username] = e.username if(e.username)	
+			event[:critical] = e.critical if(e.critical)
+			event[:username] = e.username if(e.username)
 			event[:info] = e.info
 			ret[:events] << event
 		end
@@ -963,7 +963,7 @@ public
 			loot = {}
 			loot[:host] = l.host.address || l.host.address6 if(l.host)
 			loot[:service] = l.service.name || l.service.port  if(l.service)
-			loot[:ltype] = l.ltype 
+			loot[:ltype] = l.ltype
 			loot[:content_type] = l.content_type
 			loot[:data] = l.data if (l.data)
 			loot[:created_at] = l.created_at.to_i
@@ -985,7 +985,7 @@ public
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
 	end
-	
+
 	#right now workspace is the only option supported
 	def creds(token,xopts)
 		authenticate(token)
@@ -1009,7 +1009,7 @@ public
 		end
 		ret
 	end
-	
+
 	def import_data(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1019,7 +1019,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_msfe_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1029,7 +1029,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nexpose_simplexml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1039,7 +1039,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nexpose_rawxml(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1049,7 +1049,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nmap_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1059,7 +1059,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nessus_nbe(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1069,7 +1069,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nessus_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1079,7 +1079,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_nessus_xml_v2(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1089,7 +1089,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_qualys_xml(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1099,7 +1099,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_ip_list(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1109,7 +1109,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_amap_log(args={})
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1119,7 +1119,7 @@ public
 		@framework.db.import(opts)
 		return { :result => 'success' }
 	end
-	
+
 	def import_amap_mlog(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
@@ -1151,7 +1151,7 @@ public
 			return ret if sret == nil
 			services << sret if sret.class == Msf::DBManager::Service
 			services |= sret if sret.class == Array
-			
+
 			services.each do |s|
 				vulns |= s.vulns
 			end
@@ -1160,7 +1160,7 @@ public
 		end
 
 		return ret if (not vulns)
-		
+
 		vulns.each do |v|
 			vuln= {}
 			host= v.host
@@ -1176,18 +1176,18 @@ public
 			vuln[:refs] = []
 			v.refs.each do |r|
 				vuln[:refs] << r.name
-			end	
+			end
 			ret[:vuln] << vuln
 		end
 		ret
 	end
-	
+
 	def clients(token,xopts)
 		authenticate(token)
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts = []
 		clients = []
 		ret = {}
@@ -1201,7 +1201,7 @@ public
 
 		hosts.each do |h|
 			cret = nil
-			if opts[:ua_name] or opts[:ua_ver]	
+			if opts[:ua_name] or opts[:ua_ver]
 				conditions = {}
 				conditions[:ua_name] = opts[:ua_name] if opts[:ua_name]
 				conditions[:ua_ver] = opts[:ua_ver] if opts[:ua_ver]
@@ -1231,7 +1231,7 @@ public
 		raise ::XMLRPC::FaultException.new(404, "database not loaded") if(not db)
 
 		opts = fix_options(xopts)
-		wspace = workspace(opts[:workspace]) 
+		wspace = workspace(opts[:workspace])
 		hosts = []
 		clients = []
 
@@ -1243,7 +1243,7 @@ public
 
 		hosts.each do |h|
 			cret = nil
-			if opts[:ua_name] or opts[:ua_ver]	
+			if opts[:ua_name] or opts[:ua_ver]
 				conditions = {}
 				conditions[:ua_name] = opts[:ua_name] if opts[:ua_name]
 				conditions[:ua_ver] = opts[:ua_ver] if opts[:ua_ver]
@@ -1262,11 +1262,11 @@ public
 			dent[:address] = c.host.address.to_s
 			dent[:ua_string] = c.ua_string
 			deleted << dent
-			c.destroy	
+			c.destroy
 		end
 
-		return { :result => 'success', :deleted => deleted } 
-			
+		return { :result => 'success', :deleted => deleted }
+
 	end
 
 	def driver(token,xopts)
@@ -1300,7 +1300,7 @@ public
 				return { :result => 'failed' }
 			end
 		end
-		
+
 		driver = @framework.db.driver
 
 		case driver
@@ -1309,12 +1309,12 @@ public
 		else
 			return { :result => 'failed' }
 		end
-	
-		if (not @framework.db.connect(opts))		
+
+		if (not @framework.db.connect(opts))
 			return { :result => 'failed' }
 		end
 		return { :result => 'success' }
-		
+
 	end
 
 	def status(token)
@@ -1323,19 +1323,19 @@ public
 			return {:driver => 'None' }
 		end
 		cdb = ""
-                if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
-                                        if ActiveRecord::Base.connection.respond_to? :current_database
-                                                cdb = ActiveRecord::Base.connection.current_database
-                                        else
-						cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
-					end
-					return {:driver => @framework.db.driver.to_s , :db => cdb }
+		if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
+			if ActiveRecord::Base.connection.respond_to? :current_database
+				cdb = ActiveRecord::Base.connection.current_database
+			else
+				cdb = ActiveRecord::Base.connection.instance_variable_get(:@config)[:database]
+			end
+			return {:driver => @framework.db.driver.to_s , :db => cdb }
 		else
 			return {:driver => @framework.db.driver.to_s}
 		end
 		return {:driver => 'None' }
 	end
-	
+
 	def disconnect(token)
 		authenticate(token)
 		if (@framework.db)

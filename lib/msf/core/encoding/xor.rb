@@ -21,7 +21,7 @@ class Xor
 			cblock ^= key
 			oblock += [ cblock ].pack(block_pack)
 		end
-		
+
 		return oblock
 	end
 

@@ -16,18 +16,18 @@ module Msf::Payload::Netware
 
 	#
 	# Returns a list of compatible encoders based on architecture
-        # fnstenv does not work on NetWare
+	# fnstenv does not work on NetWare
 	#
 	def compatible_encoders
 		encoders = super()
-                encoders2 = []
-        
+		encoders2 = []
+
 		encoders.each { |encname, encmod|
-                                if (!encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai'))
-                                   encoders2 << [ encname, encmod ]
-                                end
+			if (!encname.include?('fnstenv_mov') && !encname.include?('shikata_ga_nai'))
+				encoders2 << [ encname, encmod ]
+			end
 		}
-        
+
 		return encoders2;
 	end
 end

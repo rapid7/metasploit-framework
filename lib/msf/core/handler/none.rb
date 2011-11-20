@@ -8,7 +8,7 @@ module Handler
 ###
 module None
 	include Msf::Handler
-	
+
 	#
 	# Returns the handler type of none since payloads that use this handler
 	# have no connection.
