@@ -41,7 +41,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 			# Initialize the state back to defaults since we're trying to find a
 			# key.
 			init_state(state)
-	
+
 			begin
 				# Reset the encoder state's key to the current set of key bytes
 				state.reset(key_bytes_to_integer(key_bytes))
@@ -75,7 +75,7 @@ class Msf::Encoder::XorAdditiveFeedback < Msf::Encoder::Xor
 
 				# If we looped around, then give up.
 				if (key_bytes[idx] == orig_key_bytes[idx])
-					raise info, "The #{self.name} encoder failed to encode without bad characters.", 
+					raise info, "The #{self.name} encoder failed to encode without bad characters.",
 							caller
 				end
 			end
