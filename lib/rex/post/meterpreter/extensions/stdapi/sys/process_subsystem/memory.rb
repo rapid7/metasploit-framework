@@ -22,17 +22,17 @@ class Memory
 
 	# Page protection translation hash
 	@@page_protection_map =
-	{ 
+	{
 		PROT_NONE                => PAGE_NOACCESS,
 		PROT_EXEC                => PAGE_EXECUTE,
 		PROT_EXEC | PROT_READ    => PAGE_EXECUTE_READ,
-		PROT_EXEC | PROT_READ | 
+		PROT_EXEC | PROT_READ |
 			PROT_WRITE            => PAGE_EXECUTE_READWRITE,
-		PROT_EXEC | PROT_READ | 
+		PROT_EXEC | PROT_READ |
 			PROT_WRITE | PROT_COW => PAGE_EXECUTE_WRITECOPY,
 		PROT_READ                => PAGE_READONLY,
 		PROT_READ | PROT_WRITE   => PAGE_READWRITE,
-		PROT_READ | PROT_WRITE | 
+		PROT_READ | PROT_WRITE |
 			PROT_COW              => PAGE_WRITECOPY,
 		PROT_WRITE               => PAGE_READWRITE
 	}
@@ -52,10 +52,10 @@ class Memory
 	end
 
 	#
-	# Allocate storage of the supplied length and returns the 
+	# Allocate storage of the supplied length and returns the
 	# address at which the memory was allocated.
 	#
-	def allocate(length, protection = nil, base = nil) 
+	def allocate(length, protection = nil, base = nil)
 		allocation_type = MEM_COMMIT
 
 		# If no protection was supplied, default to the most flexible
@@ -225,7 +225,7 @@ class Memory
 	end
 
 	#
-	# Lock a region of memory into physical memory so that it can't be 
+	# Lock a region of memory into physical memory so that it can't be
 	# swapped to disk.  This can only be done in the context of the
 	# process that is running the meterpreter server.  The instance's
 	# handle is ignored.
@@ -242,7 +242,7 @@ class Memory
 	end
 
 	#
-	# Unloock a region of memory into physical memory so that it can be 
+	# Unloock a region of memory into physical memory so that it can be
 	# swapped to disk.  This can only be done in the context of the
 	# process that is running the meterpreter server.  The instance's
 	# handle is ignored.
@@ -322,7 +322,7 @@ protected
 	# Translates specific protection flags to general protection flags.
 	#
 	def specific_prot_to_gen(prot)
-		
+
 		if (prot == nil)
 			return PAGE_READONLY
 		end

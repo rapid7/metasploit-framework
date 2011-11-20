@@ -13,7 +13,7 @@ module Sys
 
 ##
 #
-# This class implements the Rex::Post::Thread interface which 
+# This class implements the Rex::Post::Thread interface which
 # wrappers a logical thread for a given process.
 #
 ##
@@ -123,7 +123,7 @@ class Thread < Rex::Post::Thread
 		# Add all of the register that we're setting
 		regs_hash.each_key { |name|
 			t = request.add_tlv(TLV_TYPE_REGISTER)
-		
+
 			t.add_tlv(TLV_TYPE_REGISTER_NAME, name)
 			t.add_tlv(TLV_TYPE_REGISTER_VALUE_32, regs_hash[name])
 		}
@@ -139,13 +139,13 @@ class Thread < Rex::Post::Thread
 	def pretty_regs
 		regs = query_regs
 
-		buf  = sprintf("eax=%.8x ebx=%.8x ecx=%.8x edx=%.8x esi=%.8x edi=%.8x\n", 
+		buf  = sprintf("eax=%.8x ebx=%.8x ecx=%.8x edx=%.8x esi=%.8x edi=%.8x\n",
 		               regs['eax'], regs['ebx'], regs['ecx'], regs['edx'], regs['esi'], regs['edi'])
 		buf += sprintf("eip=%.8x esp=%.8x ebp=%.8x\n",
 		               regs['eip'], regs['esp'], regs['ebp'])
 		buf += sprintf("cs=%.4x ss=%.4x ds=%.4x es=%.4x fs=%.4x gs=%.4x\n",
 		               regs['cs'], regs['ss'], regs['ds'], regs['es'], regs['fs'], regs['gs'])
-	
+
 		return buf
 	end
 
@@ -165,14 +165,14 @@ class Thread < Rex::Post::Thread
 		handle = nil
 		return true
 	end
-	
+
 	# Instance method
 	def close
 		self.class.close(self.process.client, self.handle)
 	end
 
 	attr_reader :process, :handle, :tid # :nodoc:
-protected	
+protected
 	attr_writer :process, :handle, :tid # :nodoc:
 
 end

@@ -28,7 +28,7 @@ class RemoteRegistryKey
 		self.root_key = root_key
 		self.target_host = target_host
 		self.hkey     = hkey
-		
+
 		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.hkey) )
 	end
 
@@ -109,9 +109,9 @@ class RemoteRegistryKey
 			return client.sys.registry.close_key(hkey)
 		end
 
-		return false	
+		return false
 	end
-	
+
 	# Instance method for the same
 	def close()
 		self.class.close(self.client, self.hkey)

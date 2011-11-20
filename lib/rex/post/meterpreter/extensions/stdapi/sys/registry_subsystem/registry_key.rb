@@ -29,7 +29,7 @@ class RegistryKey
 		self.base_key = base_key
 		self.perm     = perm
 		self.hkey     = hkey
-		
+
 		ObjectSpace.define_finalizer( self, self.class.finalize(self.client, self.hkey) )
 	end
 
@@ -110,9 +110,9 @@ class RegistryKey
 			return client.sys.registry.close_key(hkey)
 		end
 
-		return false	
+		return false
 	end
-	
+
 	# Instance method for the same
 	def close()
 		self.class.close(self.client, self.hkey)
