@@ -49,7 +49,7 @@ module Auxiliary::JohnTheRipper
 			else
 				@run_path ||= "run.win32.any/john.exe"
 			end
-			
+
 		when /x86_64-linux/
 			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
@@ -59,9 +59,9 @@ module Auxiliary::JohnTheRipper
 			else
 				@run_path ||= "run.linux.x86.any/john"
 			end
-			
+
 		when /i[\d]86-linux/
-			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil		
+			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
 			case data
 			when /sse2/
@@ -127,16 +127,16 @@ module Auxiliary::JohnTheRipper
 					bits.last.chomp!
 					res[ :users ][ bits[0] ] = bits.drop(1)
 				end
-				
+
 			end
 		end
 		res
 	end
-	
+
 	def john_unshadow(passwd_file,shadow_file)
-		
+
 		retval=""
-		
+
 		if File.exists?(passwd_file)
 			unless File.readable?(passwd_file)
 				print_error("We do not have permission to read #{passwd_file}")
@@ -146,7 +146,7 @@ module Auxiliary::JohnTheRipper
 			print_error("File does not exist: #{passwd_file}")
 			return nil
 		end
-		
+
 		if File.exists?(shadow_file)
 			unless File.readable?(shadow_file)
 				print_error("We do not have permission to read #{shadow_file}")
@@ -156,10 +156,10 @@ module Auxiliary::JohnTheRipper
 			print_error("File does not exist: #{shadow_file}")
 			return nil
 		end
-		
-		
+
+
 		cmd = [ john_binary_path.gsub(/john$/, "unshadow"), passwd_file , shadow_file ]
-		
+
 		if RUBY_VERSION =~ /^1\.8\./
 			cmd = cmd.join(" ")
 		end
@@ -179,16 +179,16 @@ module Auxiliary::JohnTheRipper
 		if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
 			path = datastore['JOHN_PATH']
 			::FileUtils.chmod(755, path) rescue nil
-			path			
+			path
 		end
-		
+
 		if not @run_path
 			if ::RUBY_PLATFORM =~ /mingw|cygwin|mswin/
 				::File.join(john_base_path, "john.exe")
 			else
 				path = ::File.join(john_base_path, "john")
 				::FileUtils.chmod(755, path) rescue nil
-				path				
+				path
 			end
 		else
 			path = ::File.join(john_base_path, @run_path)
