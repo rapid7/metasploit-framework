@@ -43,8 +43,8 @@ class Msf::Encoder::Xor < Msf::Encoder
 				bad_keys[i][badchar] = true
 			}
 		}
-		
+
 		return bad_keys
 	end
-	
+
 end

@@ -45,7 +45,7 @@ module ReverseTcp
 			[
 				Opt::LHOST,
 				Opt::LPORT(4444)
-			], Msf::Handler::ReverseTcp)	
+			], Msf::Handler::ReverseTcp)
 
 		# XXX: Not supported by all modules
 		register_advanced_options(
@@ -55,7 +55,7 @@ module ReverseTcp
 				OptString.new('ReverseListenerComm', [ false, 'The specific communication channel to use for this listener']),
 			], Msf::Handler::ReverseTcp)
 
-			
+
 		self.handler_queue = ::Queue.new
 	end
 
@@ -75,16 +75,16 @@ module ReverseTcp
 		# First attempt to bind LHOST. If that fails, the user probably has
 		# something else listening on that interface. Try again with ANY_ADDR.
 		any = (addr.length == 4) ? "0.0.0.0" : "::0"
-		
+
 		addrs = [ Rex::Socket.addr_ntoa(addr), any  ]
-		
+
 		comm  = datastore['ReverseListenerComm']
 		if comm.to_s == "local"
 			comm = ::Rex::Socket::Comm::Local
 		else
 			comm = nil
 		end
-		
+
 		if not datastore['ReverseListenerBindAddress'].to_s.empty?
 			# Only try to bind to this specific interface
 			addrs = [ datastore['ReverseListenerBindAddress'] ]
@@ -105,12 +105,12 @@ module ReverseTcp
 							'MsfPayload' => self,
 							'MsfExploit' => assoc_exploit
 						})
-			
+
 				ex = false
-			
+
 				comm_used = comm || Rex::Socket::SwitchBoard.best_comm( ip )
 				comm_used = Rex::Socket::Comm::Local if comm_used == nil
-				
+
 				if( comm_used.respond_to?( :type ) and comm_used.respond_to?( :sid ) )
 					via = "via the #{comm_used.type} on session #{comm_used.sid}"
 				else
@@ -124,7 +124,7 @@ module ReverseTcp
 				print_error("Handler failed to bind to #{ip}:#{datastore['LPORT']}")
 			end
 		}
-		raise ex if (ex) 
+		raise ex if (ex)
 	end
 
 	#
@@ -144,7 +144,7 @@ module ReverseTcp
 			begin
 				# Accept a client connection
 				begin
-					client = self.listener_sock.accept	
+					client = self.listener_sock.accept
 				rescue
 					wlog("Exception raised during listener accept: #{$!}\n\n#{$@.join("\n")}")
 					break
@@ -152,11 +152,11 @@ module ReverseTcp
 
 				# Increment the has connection counter
 				self.pending_connections += 1
-				
+
 				self.handler_queue.push( client )
 			end while true
 		}
-		
+
 		self.handler_thread = framework.threads.spawn("ReverseTcpHandlerWorker-#{datastore['LPORT']}", false) {
 			while true
 				client = self.handler_queue.pop
@@ -167,10 +167,10 @@ module ReverseTcp
 				end
 			end
 		}
-		
+
 	end
 
-	# 
+	#
 	# Stops monitoring for an inbound connection.
 	#
 	def stop_handler
@@ -185,7 +185,7 @@ module ReverseTcp
 			self.handler_thread.kill
 			self.handler_thread = nil
 		end
-		
+
 		if (self.listener_sock)
 			self.listener_sock.close
 			self.listener_sock = nil

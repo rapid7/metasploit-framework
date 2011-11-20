@@ -36,7 +36,7 @@ class DBManager
 
 	# Stores a TaskManager for serializing database events
 	attr_accessor :sink
-	
+
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
 
@@ -159,7 +159,7 @@ class DBManager
 
 			# Set the default workspace
 			framework.db.workspace = framework.db.default_workspace
-			
+
 			# Flag that migration has completed
 			self.migrated = true
 		rescue ::Exception => e

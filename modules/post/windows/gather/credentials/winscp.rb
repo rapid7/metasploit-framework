@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 					password = registry_getvaldata(active_session, 'Password')
 					# There is no password saved for this session, so we skip it
 					next if password == nil
-				
+
 					savedpwds = 1
 					portnum = registry_getvaldata(active_session, 'PortNumber')
 					if portnum == nil
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Post
 						:pass => pass
 					)
 
-				end	
+				end
 
 				if savedpwds == 0
 					print_status("No Saved Passwords found in the Session Registry Keys")

@@ -55,8 +55,8 @@ module Auxiliary::Cisco
 
 		store_loot("cisco.ios.config", "text/plain", thost, config.strip, "config.txt", "Cisco IOS Configuration")
 
-		tuniface = nil 
-		
+		tuniface = nil
+
 		config.each_line do |line|
 			case line
 #

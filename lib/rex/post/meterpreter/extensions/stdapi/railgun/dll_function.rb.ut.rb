@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll_function'
 require 'test/unit'
@@ -31,7 +31,7 @@ class DLLFunction::UnitTest < Test::Unit::TestCase
 #
 #		assert_raised(ArgumentError, "check_type_exists should raise ArgumentError on unknown datatypes") do
 #		end
-	
+
 	end
 end
 end

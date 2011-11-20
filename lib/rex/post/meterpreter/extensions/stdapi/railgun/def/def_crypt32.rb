@@ -23,7 +23,7 @@ class Def_crypt32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

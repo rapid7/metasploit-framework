@@ -55,7 +55,7 @@ class Nop
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
 				when nil
-					length = val.to_i	
+					length = val.to_i
 				when '-b'
 					badchars = Rex::Text.hex_to_raw(val)
 				when "-c"

@@ -160,7 +160,7 @@ class Metasploit3 < Msf::Auxiliary
 		hname = nil
 
 		case pkt[2]
-		
+
 			when 53
 				app = 'DNS'
 				ver = nil
@@ -174,7 +174,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
-				
+
 			when 137
 				app = 'NetBIOS'
 
@@ -248,7 +248,7 @@ class Metasploit3 < Msf::Auxiliary
 				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
-				
+
 			when 1434
 				app = 'MSSQL'
 				mssql_ping_parse(pkt[0]).each_pair { |k,v|
@@ -259,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
 				app = 'SNMP'
 				asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
 				return if not asn
-		
+
 				snmp_error = asn.value[0].value rescue nil
 				snmp_comm  = asn.value[1].value rescue nil
 				snmp_data  = asn.value[2].value[3].value[0] rescue nil
@@ -270,13 +270,13 @@ class Metasploit3 < Msf::Auxiliary
 				snmp_info = snmp_info.to_s.gsub(/\s+/, ' ')
 
 				inf = snmp_info
-				com = snmp_comm	
-				
+				com = snmp_comm
+
 			when 5093
 				app = 'Sentinel'
 
 			when 523
-			
+
 				app = 'ibm-db2'
 				inf = db2disco_parse(pkt[0])
 

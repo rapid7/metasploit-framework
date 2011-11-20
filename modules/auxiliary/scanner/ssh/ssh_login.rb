@@ -110,7 +110,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 			info = "#{proto_from_fullname} #{user}:#{pass} (#{ip}:#{port})"
 			s = start_session(self, info, merge_me, false, conn.lsock)
-			
+
 			# Set the session platform
 			case proof
 			when /Linux/

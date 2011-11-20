@@ -29,7 +29,7 @@ class  Util
 		:long_long => 8,
 		:float => 4,
 		:double => 8,
-		:long_double => 8,	
+		:long_double => 8,
 		:wchar_t => 2,
 	}
 
@@ -323,7 +323,7 @@ class  Util
 	#
 	def unpack_pointer(packed_pointer)
 		if is_64bit
-			# XXX: Only works if attacker and victim are like-endianed 
+			# XXX: Only works if attacker and victim are like-endianed
 			packed_pointer.unpack('Q')[0]
 		else
 			packed_pointer.unpack('V')[0]
@@ -343,7 +343,7 @@ class  Util
 		if pointer.class == String
 			pointer = unpack_pointer(pointer)
 		end
-		
+
 		return pointer.nil? || pointer == 0
 	end
 
@@ -360,13 +360,13 @@ class  Util
 			return ''
 		end
 
-		# If length not provided, use lstrlenW 
+		# If length not provided, use lstrlenW
 		if length.nil?
 			length = railgun.kernel32.lstrlenW(pointer)['return']
 		end
 
 		# Retrieve the array of characters
-		chars = read_array(:WCHAR, length, pointer) 
+		chars = read_array(:WCHAR, length, pointer)
 
 		# Concatenate the characters and convert to a ruby string
 		str = uniz_to_str(chars.join(''))
@@ -457,7 +457,7 @@ class  Util
 		offset = 0
 
 		1.upto(length).map do |n|
-			data = read_data(type, offset, buffer) 
+			data = read_data(type, offset, buffer)
 
 			offset = offset + size
 
@@ -524,11 +524,11 @@ class  Util
 
 		if TYPE_DEFINITIONS.has_key?(type)
 			primitive = TYPE_DEFINITIONS[type]
-	
+
 			if primitive == :pointer
 				return pointer_size
-			end		
-	
+			end
+
 			if PRIMITIVE_TYPE_SIZES.has_key?(primitive)
 				return PRIMITIVE_TYPE_SIZES[primitive]
 			else
@@ -551,7 +551,7 @@ class  Util
 	end
 
 	#
-	# Given a description of a data structure, returns an Array containing 
+	# Given a description of a data structure, returns an Array containing
 	# the offset from the beginning for each subsequent element, taking into
 	# consideration alignment and padding.
 	#
@@ -565,7 +565,7 @@ class  Util
 			if sizeof_type(data_type) > padding
 				offset = offset + padding
 			end
-	
+
 			offsets.push(offset)
 
 			offset = offset + sizeof_type(data_type)
@@ -575,7 +575,7 @@ class  Util
 
 		offsets
 	end
-	
+
 	# http://en.wikipedia.org/wiki/Data_structure_alignment
 	def required_alignment
 		is_64bit ? 8 : 4
@@ -605,13 +605,13 @@ class  Util
 		if type =~ /^(\w+)\[(\w+)\]$/
 			element_type = $1
 			length = $2
-	
+
 			unless length =~ /^\d+$/
 				length = railgun.const(length)
 			end
-	
+
 			return element_type, length
-		else	
+		else
 			raise "Can not split non-array type #{type}"
 		end
 	end

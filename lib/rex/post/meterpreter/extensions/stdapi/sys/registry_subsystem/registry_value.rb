@@ -28,7 +28,7 @@ class RegistryValue
 		self.name   = name
 		self.type   = type
 		self.data   = data
-	end	
+	end
 
 	#
 	# Sets the value's data.

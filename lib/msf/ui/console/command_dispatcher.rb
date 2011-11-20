@@ -84,9 +84,9 @@ module CommandDispatcher
 	#
 	attr_accessor :driver
 
-end 
+end
 end end end
-	
+
 require 'msf/ui/console/module_command_dispatcher'
 require 'msf/ui/console/command_dispatcher/core'
 

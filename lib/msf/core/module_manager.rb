@@ -683,7 +683,7 @@ class ModuleManager < ModuleSet
 
 		save_module_cache
 	end
-	
+
 	#
 	# Reloads the module specified in mod.  This can either be an instance of a
 	# module or a module class.

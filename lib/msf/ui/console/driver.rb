@@ -213,60 +213,60 @@ class Driver < Msf::Ui::Driver
 			load_resource(opts['Resource'])
 		end
 	end
-	
+
 	#
 	# Configure a default output path for jUnit XML output
 	#
 	def junit_setup(output_path)
 		output_path = ::File.expand_path(output_path)
-		
+
 		::FileUtils.mkdir_p(output_path)
 		@junit_output_path = output_path
 		@junit_error_count = 0
 		print_status("Test Output: #{output_path}")
 	end
-	
+
 	#
 	# Emit a new jUnit XML output file representing an error
 	#
 	def junit_error(tname, ftype, data = nil)
-	
+
 		if not @junit_output_path
 			raise RuntimeError, "No output path, call junit_setup() first"
 		end
-	
+
 		data ||= framework.inspect.to_s
-		
+
 		e = REXML::Element.new("testsuite")
-		
+
 		c = REXML::Element.new("testcase")
 		c.attributes["classname"] = "msfrc"
 		c.attributes["name"]  = tname
-		
+
 		f = REXML::Element.new("failure")
 		f.attributes["type"] = ftype
-		
-		f.text = data	
+
+		f.text = data
 		c << f
 		e << c
-		
-		bname = ( ::File.basename(self.active_resource || "msfrpc") + "_" + tname ).gsub(/[^A-Za-z0-9\.\_]/, '') 
+
+		bname = ( ::File.basename(self.active_resource || "msfrpc") + "_" + tname ).gsub(/[^A-Za-z0-9\.\_]/, '')
 		bname << "_" + Digest::MD5.hexdigest(ftype)
-		
+
 		fname = ::File.join(@junit_output_path, "#{bname}.xml")
 		cnt   = 0
 		while ::File.exists?( fname )
 			cnt  += 1
 			fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
-		end 
-		
+		end
+
 		::File.open(fname, "w") do |fd|
 			fd.write(e.to_s)
 		end
-		
+
 		print_error("Test Error: #{tname} - #{ftype} - #{data}")
 	end
-	
+
 	#
 	# Emit a jUnit XML output file and throw a fatal exception
 	#
@@ -275,7 +275,7 @@ class Driver < Msf::Ui::Driver
 		print_error("Exiting")
 		run_single("exit -y")
 	end
-	
+
 	#
 	# Loads configuration that needs to be analyzed before the framework
 	# instance is created.
@@ -343,18 +343,18 @@ class Driver < Msf::Ui::Driver
 		path ||= File.join(Msf::Config.config_directory, 'msfconsole.rc')
 		return if not ::File.readable?(path)
 		resource_file = ::File.read(path)
-		
+
 		self.active_resource = resource_file
-		
+
 		# Process ERB directives first
-		print_status "Processing #{path} for ERB directives."		
+		print_status "Processing #{path} for ERB directives."
 		erb = ERB.new(resource_file)
 		processed_resource = erb.result(binding)
 
 		lines = processed_resource.each_line.to_a
 		bindings = {}
 		while lines.length > 0
-			
+
 			line = lines.shift
 			break if not line
 			line.strip!
@@ -393,8 +393,8 @@ class Driver < Msf::Ui::Driver
 				run_single(line)
 			end
 		end
-		
-		self.active_resource = nil 
+
+		self.active_resource = nil
 	end
 
 	#
@@ -481,7 +481,7 @@ class Driver < Msf::Ui::Driver
 			when "loglevel"
 				handle_loglevel(val) if (glob)
 			when "prompt"
-			  update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
+				update_prompt(val, framework.datastore['PromptChar'] || DefaultPromptChar, true)
 			when "promptchar"
 				update_prompt(framework.datastore['Prompt'], val, true)
 		end
@@ -522,7 +522,7 @@ class Driver < Msf::Ui::Driver
 	# The active resource file being processed by the driver
 	#
 	attr_accessor :active_resource
-	
+
 	#
 	# If defanged is true, dangerous functionality, such as exploitation, irb,
 	# and command shell passthru is disabled.  In this case, an exception is

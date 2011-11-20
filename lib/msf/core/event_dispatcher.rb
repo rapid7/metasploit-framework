@@ -82,7 +82,7 @@ class EventDispatcher
 	# Removes a general subscriber.
 	#
 	def remove_general_subscriber(subscriber)
-		remove_event_subscriber(general_event_subscribers, subscriber)	
+		remove_event_subscriber(general_event_subscribers, subscriber)
 	end
 
 	#
@@ -203,8 +203,8 @@ class EventDispatcher
 		end
 		return found
 	end
-	
-	
+
+
 protected
 
 	#
@@ -224,8 +224,8 @@ protected
 	attr_accessor :general_event_subscribers # :nodoc:
 	attr_accessor :exploit_event_subscribers # :nodoc:
 	attr_accessor :session_event_subscribers # :nodoc:
-	attr_accessor :db_event_subscribers # :nodoc:	
-	attr_accessor :ui_event_subscribers # :nodoc:	
+	attr_accessor :db_event_subscribers # :nodoc:
+	attr_accessor :ui_event_subscribers # :nodoc:
 
 end
 

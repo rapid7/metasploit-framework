@@ -48,7 +48,7 @@ class RPC_Session < RPC_Base
 	# session possible, regardless of position in the stream)
 	def rpc_shell_read( sid, ptr=nil)
 		_valid_session(sid,"shell")
-		# @session_sequence tracks the pointer into the ring buffer 
+		# @session_sequence tracks the pointer into the ring buffer
 		# data of sessions (by sid) in order to emulate the old behavior
 		# of shell_read
 		@session_sequence ||= {}
@@ -93,7 +93,7 @@ class RPC_Session < RPC_Base
 		rescue ::Exception => e
 			error(500, "Session Disconnected: #{e.class} #{e}")
 		end
-	end	
+	end
 
 	def rpc_ring_put( sid, data)
 		s = _valid_session(sid,"ring")
@@ -107,7 +107,7 @@ class RPC_Session < RPC_Base
 
 	def rpc_ring_last( sid)
 		s = _valid_session(sid,"ring")
-		{ "seq" => s.ring.last_sequence.to_s } 
+		{ "seq" => s.ring.last_sequence.to_s }
 	end
 
 	def rpc_ring_clear( sid)
@@ -193,7 +193,7 @@ class RPC_Session < RPC_Base
 
 	def rpc_compatible_modules( sid)
 		ret = []
-		
+
 		mtype = "post"
 		names = self.framework.post.keys.map{ |x| "post/#{x}" }
 		names.each do |mname|
@@ -203,7 +203,7 @@ class RPC_Session < RPC_Base
 		end
 		{ "modules" => ret }
 	end
-	
+
 private
 
 	def _find_module(mtype,mname)
@@ -221,7 +221,7 @@ private
 		if(not s)
 			error(500, "Unknown Session ID")
 		end
-		
+
 		if type == "ring"
 			if not s.respond_to?(:ring)
 				error(500, "Session #{s.type} does not support ring operations")

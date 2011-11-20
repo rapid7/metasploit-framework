@@ -488,7 +488,7 @@ class Metasploit3 < Msf::Auxiliary
 				lm_chall_message = lm_cli_challenge
 			end
 
-			
+
 			# Display messages
 			if esn
 				smb[:username] = Rex::Text::to_ascii(smb[:username])

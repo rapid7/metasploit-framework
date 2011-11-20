@@ -6,7 +6,7 @@ module Stdapi
 module Railgun
 class DLLWrapper
 	attr_reader :_client, :_dll
-	
+
 	def initialize(dll, client)
 		@_dll    = dll
 		@_client = client
@@ -15,7 +15,7 @@ class DLLWrapper
 	# For backwards compatability. People check if functions are added this way
 	# XXX: Depricate this
 	def functions
-		# warn 'Depricated.' 
+		# warn 'Depricated.'
 		_dll.functions
 	end
 

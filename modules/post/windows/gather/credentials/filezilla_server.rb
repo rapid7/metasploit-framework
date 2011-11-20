@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Post
 		if settings['admin_bindip'] == "*"
 			settings['admin_bindip'] = "0.0.0.0"
 		end
-		
+
 		if settings['bindip']
 			settings['ftp_bindip'] = settings['bindip']
 		else
@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Post
 				settings['ssl_cert'] + ".txt", "FileZilla Server SSL Certificate File" )
 			print_status("Looted SSL Certificate File")
 		end
-		
+
 		if settings['ssl_certfile'].nil?
 			settings['ssl_certfile'] = "<none>"
 		end

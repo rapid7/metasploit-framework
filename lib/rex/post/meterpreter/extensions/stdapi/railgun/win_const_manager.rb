@@ -38,10 +38,10 @@ class WinConstManager
 		@consts = {}
 
 		initial_consts.each_pair do |name, value|
-			add_const(name, value)			
+			add_const(name, value)
 		end
 
-		# Load utility 
+		# Load utility
 	end
 
 	def add_const(name, value)

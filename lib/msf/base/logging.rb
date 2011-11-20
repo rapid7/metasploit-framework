@@ -41,7 +41,7 @@ class Logging
 		if (log_source_registered?(src) == false)
 			f = Rex::Logging::Sinks::Flatfile.new(
 				Msf::Config.log_directory + File::SEPARATOR + "#{src}.log")
-	
+
 			register_log_source(src, f, level)
 		end
 	end
@@ -74,9 +74,9 @@ class Logging
 		if (log_source_registered?(session.log_source) == false)
 			f = Rex::Logging::Sinks::Flatfile.new(
 			Msf::Config.session_log_directory + File::SEPARATOR + "#{session.log_file_name}.log")
-	
+
 			register_log_source(session.log_source, f)
-			
+
 			rlog("\n[*] Logging started: #{Time.now}\n\n", session.log_source)
 		end
 	end

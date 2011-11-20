@@ -25,14 +25,14 @@ module Auxiliary::IAX2
 				OptString.new('IAX_CID_NAME',  [false, 'The default caller ID name', '']),
 				OptString.new('IAX_CID_NUMBER',  [true, 'The default caller ID number', '15555555555'])
 			], Msf::Auxiliary::IAX2 )
-		
+
 		register_advanced_options(
 			[
 				OptBool.new('IAX_DEBUG', [false, 'Enable IAX2 debugging messages', false])
 			], Msf::Auxiliary::IAX2 )
-		
+
 	end
-	
+
 	def connect
 		@iax.shutdown if @iax
 		@iax = Rex::Proto::IAX2::Client.new(
@@ -55,14 +55,14 @@ module Auxiliary::IAX2
 			raise RuntimeError, "Failed to register with the server"
 		end
 	end
-	
+
 	def create_call
 		if not @iax
 			raise RuntimeError, "No active IAX2 connection"
-		end 
-		@iax.create_call 
+		end
+		@iax.create_call
 	end
-	
+
 	def cleanup
 		super
 		@iax.shutdown if @iax
@@ -73,12 +73,12 @@ module Auxiliary::IAX2
 	def crack_phone_range(range)
 		crack_phone_ranges([range])
 	end
-	
+
 	def crack_phone_ranges(masks)
 		res = {}
 		masks.each do |mask|
 			mask = mask.strip
-			
+
 			if(mask.index(':'))
 				next if mask.index('X')
 				rbeg,rend = mask.split(':').map{|c| c.gsub(/[^\d]/, '').to_i }
@@ -87,14 +87,14 @@ module Auxiliary::IAX2
 				end
 				next
 			end
-			
+
 			incdigits = 0
 			mask.each_char do |c|
 				incdigits += 1 if c =~ /^[X#]$/i
 			end
-	
+
 			max = (10**incdigits)-1
-	
+
 			(0..max).each do |num|
 				number = mask.dup # copy the mask
 				numstr = sprintf("%0#{incdigits}d", num) # stringify our incrementing number
@@ -107,11 +107,11 @@ module Auxiliary::IAX2
 				end
 				res[number] = {}
 			end
-	
+
 		end
 
 		return res.keys.sort
-	end	
+	end
 
 end
 end

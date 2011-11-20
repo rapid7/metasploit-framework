@@ -310,7 +310,7 @@ class Metasploit3 < Msf::Post
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)
 		aguid = guid.unpack("H*")[0]
-		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2] 
+		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2]
 		sguid << "-" + aguid[10,2] +  aguid[8,2] + "-" + aguid[14,2] + aguid[12,2] + "-" +  aguid[16,4]
 		sguid << "-" + aguid[20,12] + "}"
 		return sguid

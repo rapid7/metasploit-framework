@@ -88,7 +88,7 @@ class Def_iphlpapi
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

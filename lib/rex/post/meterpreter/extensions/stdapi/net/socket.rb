@@ -71,7 +71,7 @@ class Socket
 				res = create_tcp_client_channel( params )
 			end
 		elsif( params.udp? )
-		  res = create_udp_channel( params )
+			res = create_udp_channel( params )
 		end
 
 		return res

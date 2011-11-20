@@ -16,7 +16,7 @@ module Sys
 
 ###
 #
-# This class provides access to the Windows event log on the remote 
+# This class provides access to the Windows event log on the remote
 # machine.
 #
 ###
@@ -52,7 +52,7 @@ class EventLog
 	attr_accessor :handle # :nodoc:
 	attr_accessor :client # :nodoc:
 
-	public 
+	public
 
 	#
 	# Initializes an instance of the eventlog manipulator.
@@ -182,7 +182,7 @@ class EventLog
 		response = client.send_request(request, nil)
 		return nil
 	end
-	
+
 	# Instance method
 	def close
 		self.class.close(self.client, self.handle)

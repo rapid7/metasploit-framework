@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 		else
 			print_status "Sudoing with password `#{password}'."
 		end
-		askpass_sudo(password)	
+		askpass_sudo(password)
 		unless is_root?
 			print_error "SUDO: Didn't work out, still a mere user."
 		else

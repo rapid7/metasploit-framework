@@ -135,7 +135,7 @@ class Metasploit4 < Msf::Auxiliary
 				path << "#{Rex::Text.rand_text_alpha(5)}.txt"
 				vprint_status("No filename specified. Using: #{path}")
 			end
-	
+
 			#Upload file
 			res = do_put(path, data)
 			vprint_status("Reply: #{res.code.to_s}")

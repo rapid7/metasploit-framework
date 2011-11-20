@@ -18,13 +18,13 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Common
 	include Msf::Post::File
-	
+
 	include Msf::Post::Windows::Registry
 
 	def initialize(info={})
 		super( update_info( info,
 				'Name'         => 'Windows Gather Enumerate Computers',
-				'Description'  => %q{ 
+				'Description'  => %q{
 						This module will enumerate computers included in the primary Domain.
 				},
 				'License'      => MSF_LICENSE,

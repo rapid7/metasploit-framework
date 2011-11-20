@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Post
 
 		# get system, if requested.
 		get_system if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
-	
+
 		## Make sure we meet the requirements before running the module
 		if not priv_check
 			print_error("Abort! Did not pass the priv check")

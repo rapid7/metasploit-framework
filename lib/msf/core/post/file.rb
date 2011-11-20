@@ -75,7 +75,7 @@ module File
 			else
 				data = session.shell_command_token("cat \'#{file_name}\'")
 			end
-			
+
 		end
 		data
 	end
@@ -95,11 +95,11 @@ module File
 			else
 				session.shell_command_token("echo \'#{data}\' > \'#{file_name}\'")
 			end
-			
+
 		end
 		return true
 	end
-	
+
 	#
 	# Platform-agnostic file append. Appends given object content to a remote file.
 	# Returns Boolean true if successful
@@ -118,7 +118,7 @@ module File
 		end
 		return true
 	end
-	
+
 
 protected
 	#

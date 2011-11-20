@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Post
 		handler.datastore['LPORT']   = lport
 		handler.datastore['InitialAutoRunScript'] = "migrate -f"
 		handler.datastore['ExitOnSession'] = true
-		handler.datastore['ListenerTimeout'] = 300		
+		handler.datastore['ListenerTimeout'] = 300
 		handler.datastore['ListenerComm'] = 'local'
 
 		# start the session handler

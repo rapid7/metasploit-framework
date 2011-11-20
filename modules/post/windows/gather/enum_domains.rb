@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Domain Enumeration',
 			'Description'   => %q{
 				This module enumerates currently the domains a host can see and the domain
-				controllers for that domain. 
+				controllers for that domain.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Post
 				base = base + 8
 			}
 
-		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL) 
+		domaincontrollers = 24  # 10 + 8 (SV_TYPE_DOMAIN_BAKCTRL || SV_TYPE_DOMAIN_CTRL)
 
 		domains.each do |x|
 			print_status("Enumerating DCs for #{x[:domain]}")

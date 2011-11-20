@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/railgun'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/mock_magic'
@@ -15,7 +15,7 @@ module Stdapi
 module Railgun
 class Railgun::UnitTest < Test::Unit::TestCase
 
-	# DLLs we know should be available at the time of this writing, 
+	# DLLs we know should be available at the time of this writing,
 	# and DLLs that because of changes since then should be available
 	STOCK_DLLS = [
 		'kernel32',
@@ -38,7 +38,7 @@ class Railgun::UnitTest < Test::Unit::TestCase
 
 		assert_equal(dll_names.length, dll_names.uniq.length,
 			"known_dll_names should not have duplicates")
-		
+
 		STOCK_DLLS.each do |name|
 			assert(dll_names.include?(name),
 				"known_dll_names should include #{name}")
@@ -89,7 +89,7 @@ class Railgun::UnitTest < Test::Unit::TestCase
 
 	def test_method_missing
 		railgun = Railgun.new(make_mock_client())
-		
+
 		STOCK_DLLS.each do |dll_name|
 			assert_nothing_raised do
 				railgun.send(dll_name.to_sym)
@@ -129,7 +129,7 @@ class Railgun::UnitTest < Test::Unit::TestCase
 
 			dll_name = func[:dll_name]
 			function_name = func[:name]
-			
+
 			railgun.add_dll(dll_name)
 			railgun.add_function(dll_name, function_name, func[:return_type], func[:params])
 

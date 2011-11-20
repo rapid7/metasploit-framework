@@ -40,7 +40,7 @@ class Post < Msf::Module
 		@session.init_ui(self.user_input, self.user_output)
 	end
 
-	# Meterpreter sometimes needs a little bit of extra time to 
+	# Meterpreter sometimes needs a little bit of extra time to
 	# actually be responsive for post modules. Default tries
 	# and retries for 5 seconds.
 	def check_for_session_readiness(tries=10)
@@ -79,7 +79,7 @@ class Post < Msf::Module
 
 	alias :client :session
 
-	# 
+	#
 	# Cached sysinfo, returns nil for non-meterpreter sessions
 	#
 	def sysinfo
@@ -112,7 +112,7 @@ class Post < Msf::Module
 		end
 		sessions
 	end
-	
+
 	#
 	# Create an anonymous module not tied to a file.  Only useful for IRB.
 	#

@@ -45,7 +45,7 @@ protected
 			return (sock.commandstate ? false : true)
 		end
 		return true
-	end	  
+	end
 
 end
 

@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Post
 					post_mod.gsub!(/^post\//,"")
 				end
 				m = framework.post.create(post_mod)
-				
+
 				# Check if a post module was actually initiated
 				if m.nil?
 					print_error("Post module #{post_mod} could not be initialized!")

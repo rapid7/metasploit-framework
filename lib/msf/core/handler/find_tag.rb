@@ -37,10 +37,10 @@ module FindTag
 
 		register_advanced_options(
 			[
-				OptString.new('TAG', 
-					[ 
-						true, 
-						"The four byte tag to signify the connection.", 
+				OptString.new('TAG',
+					[
+						true,
+						"The four byte tag to signify the connection.",
 						Rex::Text.rand_text_alphanumeric(4),
 					])
 			], Msf::Handler::FindTag)

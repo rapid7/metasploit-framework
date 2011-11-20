@@ -267,7 +267,7 @@ class Metasploit3 < Msf::Post
 				contact['name'] = bcontact.elements['buddy'].elements['name'].text rescue "<unknown>"
 				contact['account'] = bcontact.elements['buddy'].attributes['account'] rescue "<unknown>"
 				contact['protocol'] = bcontact.elements['buddy'].attributes['proto'] rescue "<unknown>"
-				
+
 				if bcontact.elements['buddy'].elements['alias']
 					contact['alias'] = bcontact.elements['buddy'].elements['alias'].text
 				else

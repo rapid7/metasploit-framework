@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 
 	def get_members(results)
 		members = []
-		
+
 		# Usernames start somewhere around line 6
 		results = results.slice(6, results.length)
 		# Get group members from the output
@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Post
 
 		return members
 	end
-	
+
 	def get_domain(results)
 		domain = ''
 

@@ -33,7 +33,7 @@ module Railgun
 #
 #
 class BufferItem
-	
+
 	attr_reader :belongs_to_param_n, :addr, :length_in_bytes, :datatype
 
 	def initialize(belongs_to_param_n, addr, length_in_bytes, datatype)

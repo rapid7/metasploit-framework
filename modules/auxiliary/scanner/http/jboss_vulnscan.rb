@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 				'ctype'     => 'text/plain',
 
 			}, 20)
-	
+
 		if res
 
 			info = http_fingerprint({ :response => res })
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			if(res.body and />(JBoss[^<]+)/.match(res.body) )
 				print_error("#{rhost}:#{rport} JBoss error message: #{$1}")
 			end
-		
+
 			apps = [ '/jmx-console/HtmlAdaptor',
 				'/status',
 				'/web-console/ServerInfo.jsp',
@@ -66,12 +66,12 @@ class Metasploit3 < Msf::Auxiliary
 				'/web-console/Invoker',
 				'/invoker/JMXInvokerServlet'
 			]
-	
+
 			print_status("#{rhost}:#{rport} Checking http...")
 			apps.each do |app|
 				check_app(app)
 			end
-	
+
 			ports = {
 				# 1098i, 1099, and 4444 needed to use twiddle
 				1098 => 'Naming Service',

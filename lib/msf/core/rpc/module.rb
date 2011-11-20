@@ -216,7 +216,7 @@ class Module < Base
 			:template_path => options['exedir']
 		}
 
-		# If we were given addshellcode for a win32 payload, 
+		# If we were given addshellcode for a win32 payload,
 		# create a double-payload; one running in one thread, one running in the other
 		if options['addshellcode']
 			buf = Msf::Util::EXE.win32_rwx_exec_thread(buf,0,'end')

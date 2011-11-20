@@ -15,15 +15,15 @@ module EventLogSubsystem
 ###
 class EventRecord
 
-	attr_reader :num, :generated, :written, :eventid,
-	            :type, :category, :strings, :data
+	attr_reader :num, :generated, :written, :eventid
+	attr_reader :type, :category, :strings, :data
 
 	protected
 
-	attr_writer :num, :generated, :written, :eventid,
-	            :type, :category, :strings, :data
+	attr_writer :num, :generated, :written, :eventid
+	attr_writer :type, :category, :strings, :data
 
-	public 
+	public
 
 	def initialize(recnum, timegen, timewri, id, type, cat, strs, data)
 		self.num       = recnum

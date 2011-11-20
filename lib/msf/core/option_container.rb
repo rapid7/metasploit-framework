@@ -406,7 +406,7 @@ class OptPath < OptBase
 		return false unless self.class.const_defined?(:ObjectSpace)
 		obj = ObjectSpace._id2ref(id.to_i) rescue nil
 		return false unless obj.respond_to? :acts_as_file?
-		return false unless obj.acts_as_file? # redundant? 
+		return false unless obj.acts_as_file? # redundant?
 		return !!obj
 	end
 

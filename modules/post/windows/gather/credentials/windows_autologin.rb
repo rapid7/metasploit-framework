@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Post
 
 		host_name = sysinfo['Computer']
 		print_status("Running against #{host_name} on session #{datastore['SESSION']}")
-		
+
 		creds = Rex::Ui::Text::Table.new(
 			'Header'  => 'Windows AutoLogin Password',
 			'Ident'   => 1,

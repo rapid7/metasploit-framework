@@ -15,7 +15,7 @@ module MultiCommandShell
 	include SingleCommandShell
 
 	#
-	# Initializes the default command shell as expected from 
+	# Initializes the default command shell as expected from
 	# SingleCommandShell.
 	#
 	def shell_init()

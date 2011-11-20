@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'            => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 			'License'           => MSF_LICENSE
 		)
-		
+
 		register_options(
 			[
 				OptPath.new('passwd', [true, 'The path to the passwd file']),

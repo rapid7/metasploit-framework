@@ -2264,7 +2264,7 @@ class DBManager
 				next if port.to_i == 0
 				uri = URI.parse(host.attributes['sitename']) rescue nil
 				next unless uri and uri.scheme
-				# Collect and report scan descriptions. 
+				# Collect and report scan descriptions.
 				host.elements.each do |item|
 					if item.elements['description']
 						desc_text = item.elements['description'].text
@@ -2286,16 +2286,16 @@ class DBManager
 						if item.attributes['osvdbid'].to_i != 0
 							desc_data[:refs] = ["OSVDB-#{item.attributes['osvdbid']}"]
 							desc_data[:name] = "NIKTO-#{item.attributes['id']}"
-							desc_data.delete(:data) 
+							desc_data.delete(:data)
 							desc_data.delete(:type)
 							desc_data.delete(:update)
 							report_vuln(desc_data)
 						end
 					end
-				end				
+				end
 			end
 		end
-	end		
+	end
 
 	def import_libpcap_file(args={})
 		filename = args[:filename]
@@ -4231,7 +4231,7 @@ class DBManager
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
-		when "quickbooksrds";               "metasploit"		
+		when "quickbooksrds";               "metasploit"
 		when /^dns-(udp|tcp)$/;             "dns"
 		when /^dce[\s+]rpc$/;               "dcerpc"
 		else

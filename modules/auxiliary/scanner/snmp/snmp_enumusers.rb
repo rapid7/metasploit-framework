@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 				:type => 'snmp.users',
 				:data => @users
 			)
-			
+
 
 		rescue ::SNMP::UnsupportedVersion
 		rescue ::SNMP::RequestTimeout

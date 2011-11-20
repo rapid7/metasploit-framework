@@ -30,7 +30,7 @@ def initialize(info = {})
 
 	deregister_options("RPORT")
 	@nmap_args = []
-	@nmap_bin = nmap_binary_path 
+	@nmap_bin = nmap_binary_path
 end
 
 def vprint_status(msg='')
@@ -83,7 +83,7 @@ end
 def nmap_version_at_least?(test_ver=nil)
 	raise ArgumentError, "Cannot compare a Float, use a String or Integer" if test_ver.kind_of? Float
 	unless test_ver.to_s[/^([0-9]+(\x2e[0-9]+)?)/]
-		raise ArgumentError, "Bad Nmap comparison version: #{test_ver.inspect}" 
+		raise ArgumentError, "Bad Nmap comparison version: #{test_ver.inspect}"
 	end
 	test_ver_str = test_ver.to_s
 	tnum_arr = $1.split(/\x2e/)[0,2].map {|x| x.to_i}
@@ -116,9 +116,9 @@ def nmap_run
 		end
 
 		temp_nmap_threads << framework.threads.spawn("Module(#{self.refname})-NmapStderr", false, nmap_pipe[2]) do |np_2|
-			np_2.each_line do |nmap_err| 
+			np_2.each_line do |nmap_err|
 				next if nmap_err.strip.empty?
-				print_status  "Nmap: '#{nmap_err.strip}'" 
+				print_status  "Nmap: '#{nmap_err.strip}'"
 			end
 		end
 
@@ -176,7 +176,7 @@ def nmap_add_ports
 		raise RuntimeError, "Cannot continue without a valid port list."
 	end
 	port_arg = "-p \"#{datastore['RPORT'] || rports}\""
-	if nmap_validate_arg(port_arg) 
+	if nmap_validate_arg(port_arg)
 		self.nmap_args << port_arg
 	else
 		raise RunTimeError, "Argument is invalid"
@@ -230,7 +230,7 @@ def nmap_validate_arg(str)
 		return false
 	end
 	# Check for quote balance
-	if !(str.scan(/'/).size % 2).zero? or !(str.scan(/"/).size % 2).zero? 
+	if !(str.scan(/'/).size % 2).zero? or !(str.scan(/"/).size % 2).zero?
 		print_error "Unbalanced quotes in nmap argument: #{str}"
 		return false
 	end
@@ -239,7 +239,7 @@ def nmap_validate_arg(str)
 	badchar = str[disallowed_characters]
 	if badchar
 		print_error "Malformed nmap arguments (contains '#{c}'): #{str}"
-		return false 
+		return false
 	end
 	# Check for commas outside of quoted arguments
 	quoted_22 = /\x22[^\x22]*\x22/
@@ -252,7 +252,7 @@ def nmap_validate_arg(str)
 end
 
 # Takes a block, and yields back the host object as discovered
-# by the Rex::Parser::NmapXMLStreamParser. It's up to the 
+# by the Rex::Parser::NmapXMLStreamParser. It's up to the
 # module to ferret out whatever's interesting in this host
 # object.
 def nmap_hosts(&block)
@@ -261,7 +261,7 @@ def nmap_hosts(&block)
 	nmap_data = fh.read(fh.stat.size)
 	# fh.unlink
 	if Rex::Parser.nokogiri_loaded
-		wspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE']) 
+		wspace = Msf::DBManager::Workspace.find_by_name(datastore['WORKSPACE'])
 		wspace ||= framework.db.workspace
 		import_args = { :data => nmap_data, :wspace => wspace }
 		framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }

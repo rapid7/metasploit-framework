@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('SNAPLEN','FILTER','PCAPFILE','RHOST','TIMEOUT','UDP_SECRET','GATEWAY','NETMASK')
 	end
-	
+
 	def run
 		check_pcaprub_loaded # Check first
 		pkt_delay = datastore['PKT_DELAY']

@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
 		# set some instance vars
 		@IsAdmin = false
 		@host_info = session.sys.config.sysinfo
-		
+
 		# Make sure we meet the requirements before running the script, note no need to return
 		# unless error
 		return 0 if session.type != "meterpreter"

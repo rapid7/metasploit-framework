@@ -54,10 +54,10 @@ class DLL
 		self.functions = {}
 	end
 
-	def known_function_names 
+	def known_function_names
 		return functions.keys
 	end
-	
+
 	def get_function(name)
 		return functions[name]
 	end
@@ -74,7 +74,7 @@ class DLL
 	def call_function(func_symbol, args, client)
 		func_name = func_symbol.to_s
 
-		unless known_function_names.include? func_name 
+		unless known_function_names.include? func_name
 			raise "DLL-function #{func_name} not found. Known functions: #{PP.pp(known_function_names, '')}"
 		end
 

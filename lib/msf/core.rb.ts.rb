@@ -30,7 +30,7 @@ class Msf::TestSuite
 		suite << Msf::Module::PlatformList::UnitTest.suite
 		suite << Msf::Module::Reference::UnitTest.suite
 		suite << Msf::Module::Target::UnitTest.suite
-		
+
 		suite << Msf::Handler::BindTcp::UnitTest.suite
 		suite << Msf::Handler::ReverseTcp::UnitTest.suite
 

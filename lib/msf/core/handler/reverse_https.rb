@@ -125,12 +125,12 @@ protected
 		print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
 		lhost = datastore['LHOST']
-		
-		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance) 
+
+		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance)
 		if lhost.empty? or lhost == '0.0.0.0'
 			lhost = Rex::Socket.source_address(cli.peerhost)
 		end
-		
+
 		# Process the requested resource.
 		case req.relative_resource
 			when /^\/INITJM/
