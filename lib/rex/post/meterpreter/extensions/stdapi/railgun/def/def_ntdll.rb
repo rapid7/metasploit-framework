@@ -145,7 +145,7 @@ class Def_ntdll
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

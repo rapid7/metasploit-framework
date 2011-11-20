@@ -10,7 +10,7 @@ class Def_user32
 
 	def self.create_dll(dll_path = 'user32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
-		
+
 		dll.add_function('ActivateKeyboardLayout', 'DWORD',[
 			["DWORD","hkl","in"],
 			["DWORD","Flags","in"],
@@ -3163,7 +3163,7 @@ class Def_user32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

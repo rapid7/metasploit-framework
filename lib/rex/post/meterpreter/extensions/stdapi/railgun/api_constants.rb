@@ -28,7 +28,7 @@ class ApiConstants
 		# The first check for nil is to potentially skip the need to synchronize
 		if @@manager.nil?
 			# Looks like we MAY need to load manager
-			@@manager_semaphore.synchronize do 
+			@@manager_semaphore.synchronize do
 				# We check once more. Now our options are synchronized
 				if @@manager.nil?
 					@@manager = WinConstManager.new
@@ -38138,7 +38138,7 @@ class ApiConstants
 		win_const_mgr.add_const('MCI_DGV_MONITOR_METHOD',0x00010000)
 
 	end
-	
+
 end
 
 end; end; end; end; end; end

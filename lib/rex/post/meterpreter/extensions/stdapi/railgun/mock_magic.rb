@@ -10,13 +10,13 @@ require 'rex/post/meterpreter/extensions/stdapi/railgun/tlv'
 #
 # This mixin serves as a means of providing common mock objects and utilities
 # relevant to railgun until a better home is decided upon
-# 
+#
 module MockMagic
-	
+
 	TLV_TYPE_NAMES = {
 		TLV_TYPE_RAILGUN_SIZE_OUT => "TLV_TYPE_RAILGUN_SIZE_OUT",
 		TLV_TYPE_RAILGUN_STACKBLOB => "TLV_TYPE_RAILGUN_STACKBLOB",
-		TLV_TYPE_RAILGUN_BUFFERBLOB_IN => "TLV_TYPE_RAILGUN_BUFFERBLOB_IN", 
+		TLV_TYPE_RAILGUN_BUFFERBLOB_IN => "TLV_TYPE_RAILGUN_BUFFERBLOB_IN",
 		TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT => "TLV_TYPE_RAILGUN_BUFFERBLOB_INOUT",
 		TLV_TYPE_RAILGUN_DLLNAME => "TLV_TYPE_RAILGUN_DLLNAME",
 		TLV_TYPE_RAILGUN_FUNCNAME => "TLV_TYPE_RAILGUN_FUNCNAME",
@@ -28,7 +28,7 @@ module MockMagic
 		def initialize(platform, response_tlvs, check_request)
 			@check_request = check_request
 			@response_tlvs = response_tlvs
-			@platform = platform 
+			@platform = platform
 		end
 
 		def send_request(request)
@@ -511,4 +511,4 @@ module MockMagic
 
 end
 
-end; end; end; end; end; end; 
+end; end; end; end; end; end;

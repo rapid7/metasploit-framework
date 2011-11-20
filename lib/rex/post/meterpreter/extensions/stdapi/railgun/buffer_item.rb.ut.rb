@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/buffer_item'
 require 'test/unit'
@@ -18,8 +18,8 @@ class BufferItem::UnitTest < Test::Unit::TestCase
 		target_addr = 232323
 		target_length_in_bytes = 4
 		target_datatype = "DWORD"
-	
-		item = BufferItem.new(target_belongs_to_param_n, target_addr, 
+
+		item = BufferItem.new(target_belongs_to_param_n, target_addr,
 					target_length_in_bytes, target_datatype)
 
 		assert_equal(target_belongs_to_param_n, item.belongs_to_param_n)
