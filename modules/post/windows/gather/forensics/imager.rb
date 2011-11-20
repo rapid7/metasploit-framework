@@ -11,7 +11,7 @@ require 'digest/md5'
 require 'digest/sha1'
 
 class Metasploit3 < Msf::Post
-	
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather Forensic Imaging',

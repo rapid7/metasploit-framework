@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter']
 			))
-		
+
 	end
 
 	# Run Method for when run command is issued

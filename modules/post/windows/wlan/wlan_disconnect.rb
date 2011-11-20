@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Disconnect Wireless Connection ',
 			'Description'   => %q{
 				This module disconnects the current wireless network connection
-				on the specified interface. 
+				on the specified interface.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => ['TheLightCosine <thelightcosine[at]gmail.com>'],
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Post
 		#We return nil and deal with the results back in the calling function
 		pointer = (pointer+512)
 		len_ssid = @host_process.memory.read(pointer,4)
-		unless len_ssid.unpack("V")[0] 
+		unless len_ssid.unpack("V")[0]
 			return nil
 		end
 
@@ -345,7 +345,7 @@ class Metasploit3 < Msf::Post
 	#Convert the GUID to human readable form
 	def guid_to_string(guid)
 		aguid = guid.unpack("H*")[0]
-		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2] 
+		sguid = "{" + aguid[6,2] + aguid[4,2] + aguid[2,2] + aguid[0,2]
 		sguid << "-" + aguid[10,2] +  aguid[8,2] + "-" + aguid[14,2] + aguid[12,2] + "-" +  aguid[16,4]
 		sguid << "-" + aguid[20,12] + "}"
 		return sguid

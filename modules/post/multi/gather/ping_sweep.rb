@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			ip_found = []
-			
+
 			iplst.each do |ip|
 				# Set count option for ping command
 				case session.platform
@@ -96,10 +96,10 @@ class Metasploit3 < Msf::Post
 				end
 			end
 			a.delete_if {|x| not x.alive?} while not a.empty?
-			
+
 		rescue ::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
-			
+
 		end
 		ip_found.each do |i|
 			report_host(:host => i)

@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 		key = "HKEY_LOCAL_MACHINE\\Software\\Microsoft\\SystemCertificates\\ROOT\\Certificates"
 		rkey,bkey = client.sys.registry.splitkey(key)
 
-		# Check if the requested cert is actually in the registry to start with 
+		# Check if the requested cert is actually in the registry to start with
 		open_key = client.sys.registry.open_key(rkey, bkey, KEY_READ + 0x0000)
 		keys = open_key.enum_key
 

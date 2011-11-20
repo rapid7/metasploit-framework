@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Post
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Common
 	include Msf::Post::File
-	
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Manage Enable Remote Desktop',

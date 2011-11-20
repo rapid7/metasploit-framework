@@ -172,7 +172,7 @@ class Metasploit3 < Msf::Post
 			print_error("Must be an admin to migrate into Winlogon.exe, exiting")
 			return
 		end
-		
+
 		mypid = session.sys.process.getpid
 		if datastore['pid'] == 0
 			targetpid = get_winlogon

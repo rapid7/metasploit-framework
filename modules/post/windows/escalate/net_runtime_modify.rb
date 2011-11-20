@@ -188,4 +188,4 @@ class Metasploit3 < Msf::Post
 		print_status("Upload complete")
 		return file
 	end
-end	
+end

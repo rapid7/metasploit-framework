@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Registry
 	include Msf::Auxiliary::Report
-	
+
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather SNMP Settings Enumeration (Registry)',
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 			return false
 		end
 	end
-	
+
 	# Method for enumerating the Community Strings configured
 	def community_strings
 		comm_str = []
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Post
 		comm_str = registry_enumvals(key)
 		if not comm_str.empty?
 			comm_str.each do |c|
-			
+
 				case registry_getvaldata(key,c)
 				when 4
 					comm_type = "READ ONLY"

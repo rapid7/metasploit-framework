@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 				fzdir = check_filezilla(user['AppData'])
 				paths << fzdir if fzdir
 			end
-			
+
 		else
 			print_error "Unsupported platform #{session.platform}"
 			return
@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Post
 			if account['password'].nil?
 				account['password'] = "<blank>"
 			end
-			
+
 			case sub.elements['Protocol'].text
 			when "0"
 				account['protocol'] = "FTP"

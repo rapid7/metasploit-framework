@@ -59,10 +59,10 @@ class Metasploit3 < Msf::Post
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
 					auth =
 						{
-							:host => host, 
-							:port => port, 
+							:host => host,
+							:port => port,
 							:sname => 'ftp',
-							:user => user, 
+							:user => user,
 							:pass => pass,
 							:type => 'password',
 							:source_id => session.db_record.id,

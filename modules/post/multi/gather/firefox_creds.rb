@@ -209,7 +209,7 @@ class Metasploit3 < Msf::Post
 						ensure
 							fd.close
 						end
-					
+
 						ext = file.split('.')[2]
 						if ext == "txt"
 							mime = "plain"

