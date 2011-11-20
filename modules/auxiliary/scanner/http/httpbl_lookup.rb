@@ -55,11 +55,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return results
 	end
-	
+
 	def translate(ip)
 		ip.split('.')
 	end
-	
+
 	def run_host(ip)
 		result = resolve(ip)
 		if result != 0
@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 			elsif threatnum > 75 then
 				threat = "over 1 million"
 			end
-			
+
 			typenum = breakup[3]
 			typestring = case typenum
 				when '0' then 'Search Engine'
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					"Unknown"
 			end
-			
+
 			print_status ""
 			print_status "#{ip} resloves to #{result} which means: #{typestring}"
 			print_status "=> it was last seen #{lastseen} day ago and has a threat score of #{threatnum} or \'#{threat} spam messages\'"

@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			out = (v =~ /^6/) ? "Adobe ColdFusion MX6 #{v}" : "Adobe ColdFusion MX7 #{v}"
 		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2006 Adobe/)
 			out = "Adobe ColdFusion 8"
-		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or 
+		elsif(response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995-2010 Adobe/ or
 			response.body =~ /<meta name=\"Author\" content=\"Copyright \(c\) 1995\-2009 Adobe Systems\, Inc\. All rights reserved/)
 			out = "Adobe ColdFusion 9"
 		elsif(response.body =~ /<meta name=\"Keywords\" content=\"(.*)\">\s+<meta name/)

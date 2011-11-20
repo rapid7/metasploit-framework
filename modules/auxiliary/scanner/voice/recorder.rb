@@ -35,11 +35,11 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		targets = crack_phone_ranges(datastore['TARGETS'].split(","))
 		connect
-		
+
 		::FileUtils.mkdir_p( datastore['OUTPUT_PATH'] )
-		
+
 		targets.each do |number|
-			
+
 			c = create_call
 			begin
 				::Timeout.timeout( datastore['CALL_TIME'] ) do
@@ -60,9 +60,9 @@ class Metasploit3 < Msf::Auxiliary
 			ensure
 				c.hangup rescue nil
 			end
-			
+
 			print_status("  COMPLETED   Number: #{number}  State: #{c.state}  Frames: #{c.audio_buff.length}  DTMF: '#{c.dtmf}'")
-			
+
 			if c.audio_buff.length > 0
 				opath = ::File.join( datastore['OUTPUT_PATH'], "#{number}.raw" )
 				cnt   = 0
@@ -77,5 +77,5 @@ class Metasploit3 < Msf::Auxiliary
 			# Next call
 		end
 	end
-	
+
 end

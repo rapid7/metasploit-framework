@@ -161,7 +161,7 @@ class Metasploit4 < Msf::Auxiliary
 				saptbl << [ output[0], output[1], output[2] ]
 			end
 
-			print(saptbl.to_s)				
+			print(saptbl.to_s)
 			return
 
 		elsif fault

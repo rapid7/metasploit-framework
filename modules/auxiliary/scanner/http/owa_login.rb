@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('RPORT', [ true, "The target port", 443]),
 				OptString.new('VERSION', [ true, "OWA VERSION (2003, 2007, or 2010)", '2007'])
 			], self.class)
-	
+
 		register_advanced_options(
 			[
 				OptString.new('AD_DOMAIN', [ false, "Optional AD domain to prepend to usernames", '']),

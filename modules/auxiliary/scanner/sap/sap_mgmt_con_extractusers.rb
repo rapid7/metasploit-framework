@@ -138,10 +138,10 @@ class Metasploit4 < Msf::Auxiliary
 				:data => {:proto => "soap", :users => users},
 				:update => :unique_data
 			)
-	
+
 			users.each do |output|
 				print_good("#{rhost}:#{rport} [SAP] Extracted User: #{output[0]}")
-			end	
+			end
 			return
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")

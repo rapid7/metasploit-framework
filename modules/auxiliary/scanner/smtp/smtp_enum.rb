@@ -170,7 +170,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (@coderesult == '501') && @domain.split(".").count > 2
 			print_error "#{target} - MX domain failure for #{@domain}, trying #{@domain.split(/\./).slice(-2,2).join(".")}"
 			cmd = 'MAIL FROM:' + " root@" + @domain.split(/\./).slice(-2,2).join(".") + "\r\n"
-			smtp_send(cmd,!@connected)	
+			smtp_send(cmd,!@connected)
 			if (@coderesult == '501')
 				print_error "#{target} - MX domain failure for #{@domain.split(/\./).slice(-2,2).join(".")}"
 				return :abort
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif (@coderesult == '501')
 			print_error "#{target} - MX domain failure for #{@domain}"
 			return :abort
-		end	
+		end
 	end
 
 	def do_rcpt_enum(user)

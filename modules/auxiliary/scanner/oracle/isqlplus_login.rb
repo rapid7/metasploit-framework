@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 					File.join(Msf::Config.install_root, "data", "wordlists", "oracle_default_userpass.txt") ]),
 				OptBool.new('USER_AS_PASS', [ false, "Try the username as the password for all users", false]),
 			], self.class)
-	
+
 	end
 
 	def verbose; datastore['VERBOSE']; end
@@ -152,7 +152,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif (version == 10)
 			postrequest = "username=#{user}&password=#{pass}&connectID=#{sid}&report=&script=&dynamic=&type=&action=&variables=&event=login"
 		end
-		
+
 		begin
 			res = send_request_cgi({
 				'version' => '1.1',
@@ -193,7 +193,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Unexpected Response of: #{res.code}")#''
 				return :abort
 			end
-		
+
 		rescue ::Rex::ConnectionError => e
 			vprint_error("#{msg} - #{e}")
 			return :abort

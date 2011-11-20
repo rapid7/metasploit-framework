@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def find_auth_uri_and_scheme
-		
+
 		path_and_scheme = []
 		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
 			paths = [datastore['AUTH_URI']]
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				/Management.asp
 			}
 		end
-		
+
 		paths.each do |path|
 			res = send_request_cgi({
 				'uri'     => path,
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		
+
 		if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
 			print_error("You need need to set AUTH_URI when using PUT Method !")
 			return
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		proof   = ""
-		
+
 		ret  = do_http_login(user,pass,@scheme)
 		return :abort if ret == :abort
 		if ret == :success
@@ -264,7 +264,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		return :fail
 	end
-	
+
 	def do_http_auth_digest(user,pass,requesttype)
 		path = datastore['AUTH_URI'] || "/"
 		begin
@@ -284,14 +284,14 @@ class Metasploit3 < Msf::Auxiliary
 					#'DigestAuthIIS' => false,
 					'DigestAuthUser' => user,
 					'DigestAuthPassword' => pass
-				}, 25)				
+				}, 25)
 			end
 
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("#{target_url} not responding")
 				return :abort
 			end
-			
+
 			return :abort if (res.code == 404)
 
 			if (res.code == 200) or (res.code == 201)

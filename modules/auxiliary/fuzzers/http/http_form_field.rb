@@ -68,21 +68,21 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['SSL']
 			proto = "https://"
 		end
-		
+
 		useragent="Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.15) Gecko/2009102814 Ubuntu/8.10 (intrepid) Firefox/3.0.15"
 		if datastore['UserAgent'] != nil
 			if datastore['UserAgent'].length > 0
 				useragent = datastore['UserAgent']
 			end
 		end
-		
+
 		host = datastore['RHOST']
 		if datastore['VHOST']
 			if datastore['VHOST'].length > 0
 				host = datastore['VHOST']
 			end
 		end
-		
+
 		@send_data = {
 				:uri => '',
 				:version => '1.1',
@@ -515,7 +515,7 @@ class Metasploit3 < Msf::Auxiliary
 			set_cookie(cookie)
 			print_status("Set cookie:#{cookie}")
 			print_status("Grabbing webpage #{datastore['URL']} from #{datastore['RHOST']} using cookies")
-			
+
 			response = send_request_raw(
 			{
 				'uri' => datastore['URL'],

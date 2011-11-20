@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 						result = try_user_pass(user.downcase, pass)
 						if result == :next_user
 							print_status("Username is case insensitive")
-							user = user.downcase 
+							user = user.downcase
 						end
 					end
 					report_creds(user,pass)
@@ -231,7 +231,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def report_creds(user,pass)
-		
+
 		report_hash = {
 			:host	=> rhost,
 			:port   => datastore['RPORT'],

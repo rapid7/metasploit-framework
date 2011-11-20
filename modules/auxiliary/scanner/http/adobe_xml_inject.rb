@@ -83,13 +83,13 @@ class Metasploit3 < Msf::Auxiliary
 				'Content-Type' => 'application/x-amf',
 				'data'         => postrequest
 			}, 25)
-			
+
 			if (res.nil?)
 				print_error("no response for #{ip}:#{rport} #{check}")
 			elsif (res.code == 200 and res.body =~ /\<\?xml version\="1.0" encoding="utf-8"\?\>/)
 				print_status("#{rhost}:#{rport} #{check} #{res.code}\n #{res.body}")
 			elsif (res and res.code == 302 or res.code == 301)
-				print_status(" Received 302 to  #{res.headers['Location']} for #{check}")		
+				print_status(" Received 302 to  #{res.headers['Location']} for #{check}")
 			else
 				print_error("#{res.code} for #{check}")
 				#''
