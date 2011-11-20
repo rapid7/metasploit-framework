@@ -128,7 +128,7 @@ def check_single_file(dparts, fparts, f_rel)
 			ll << [ idx, ln ]
 		end
 
-		spaces += 1 if ln =~ / $/
+		spaces += 1 if ln =~ /[ \t]$/
 		if (ln.length > 1) and (ln =~ /^([\t ]*)/) and ($1.include?(' '))
 			bi << [ idx, ln ]
 		end
