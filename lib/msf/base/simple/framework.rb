@@ -111,11 +111,22 @@ module Framework
 		if (Msf::Config.module_directory)
 			framework.modules.add_module_path(Msf::Config.module_directory)
 		end
-
+		
+		# Initialize the default module archive paths
+		if Msf::Config.module_archive and ::File.exists?(Msf::Config.module_archive)
+			framework.modules.add_module_path(Msf::Config.module_archive)
+		end
+		
+		# Initialize the user module archive search path
 		if (Msf::Config.user_module_directory)
 			framework.modules.add_module_path(Msf::Config.user_module_directory)
 		end
 
+		# Initialize the user module archive path
+		if Msf::Config.user_module_archive and ::File.exists?(Msf::Config.user_module_archive)
+			framework.modules.add_module_path(Msf::Config.user_module_archive)
+		end
+		
 		# If additional module paths have been defined globally, then load them.
 		# They should be separated by semi-colons.
 		if framework.datastore['MsfModulePaths']

@@ -52,6 +52,7 @@ class Config < Hash
 			'ConfigDirectory'     => get_config_root,
 			'ConfigFile'          => "config",
 			'ModuleDirectory'     => "modules",
+			'ModuleArchive'       => "modules.fastlib",
 			'ScriptDirectory'     => "scripts",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
@@ -88,6 +89,13 @@ class Config < Hash
 		self.new.module_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
+	def self.module_archive
+		self.new.module_archive
+	end
+	
 	#
 	# Calls the instance method.
 	#
@@ -144,6 +152,13 @@ class Config < Hash
 		self.new.user_module_directory
 	end
 
+	#
+	# Calls the instance method.
+	#
+	def self.user_module_archive
+		self.new.user_module_archive
+	end
+	
 	#
 	# Calls the instance method.
 	#
@@ -234,7 +249,14 @@ class Config < Hash
 	def module_directory
 		install_root + FileSep + self['ModuleDirectory']
 	end
-
+	
+	#
+	# Returns the global module archive.
+	#
+	def module_archive
+		install_root + FileSep + self['ModuleArchive']
+	end
+	
 	#
 	# Returns the path that scripts can be loaded from.
 	#
@@ -285,6 +307,13 @@ class Config < Hash
 	end
 
 	#
+	# Returns the user-specific module archive
+	#
+	def user_module_archive
+		config_directory + FileSep + "modules.fastlib"
+	end
+	
+	#
 	# Returns the user-specific plugin base path
 	#
 	def user_plugin_directory
@@ -309,6 +338,7 @@ class Config < Hash
 	# Initializes configuration, creating directories as necessary.
 	#
 	def init
+		FileUtils.mkdir_p(module_directory)
 		FileUtils.mkdir_p(config_directory)
 		FileUtils.mkdir_p(log_directory)
 		FileUtils.mkdir_p(session_log_directory)
