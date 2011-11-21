@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 		begin
 			creds = Rex::Ui::Text::Table.new(
 				'Header'  => 'Meebo Instant Messenger Credentials',
-				'Ident'	=> 1,
+				'Indent'	=> 1,
 				'Columns' =>
 				[
 					'User',

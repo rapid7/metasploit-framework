@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Post
 
 		creds = Rex::Ui::Text::Table.new(
 			'Header' => 'IMVU Credentials',
-			'Ident' => 1,
+			'Indent' => 1,
 			'Columns' =>[
 				'User',
 				'Password'
