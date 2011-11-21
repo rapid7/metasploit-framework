@@ -24,7 +24,7 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 **Description:** Buffer overflow in TFTP Server SP 1.4 and 1.5 on Windows, and possibly other versions, allows remote attackers to execute arbitrary code via a long TFTP error packet. 
 
-**Affected Software:** [Open TFTP Server](http://sourceforge.net/scm/?type=cvs&group_id=162512), versions 1.4 and 1.5. **Note: ** This software is proving more difficult to locate than you might expect.
+**Affected Software:** [Open TFTP Server](http://sourceforge.net/scm/?type=cvs&group_id=162512), versions 1.4 and 1.5. _Note: This software is proving more difficult to locate than you might expect._
 
 **Module Type:** exploits/windows/tftp (perhaps multi/tftp as it's cross-platform)
 
