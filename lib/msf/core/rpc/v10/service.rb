@@ -145,7 +145,7 @@ class Service
 				end
 			end
 
-			::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(mname, *msg) }
+			::Timeout.timeout(self.dispatcher_timeout) { puts "Group: #{group} Mname: #{mname}";self.handlers[group].send(mname, *msg) }
 
 		rescue ::Exception => e
 			elog("RPC Exception: #{e.class} #{e.to_s} #{e.backtrace} #{msg.inspect} #{req.inspect}")
