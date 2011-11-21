@@ -98,7 +98,7 @@ end
 #
 class FastLib
 
-	VERSION = "0.0.3"
+	VERSION = "0.0.4"
 
 	@@cache = {}
 	
@@ -141,6 +141,9 @@ class FastLib
 	def self.load_cache(lib)
 		return if @@cache[lib]
 		dict = {}
+
+		return if not ::File.exists?(lib)
+				
 		::File.open(lib, 'rb') do |fd|
 			head = fd.read(4)
 			return if head != "FAST"
