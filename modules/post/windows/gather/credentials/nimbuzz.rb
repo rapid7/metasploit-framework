@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 	def run
 		creds = Rex::Ui::Text::Table.new(
 			'Header'  => 'Nimbuzz Instant Messenger Credentials',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' =>
 			[
 				'User',
