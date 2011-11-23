@@ -1,6 +1,33 @@
 Armitage Changelog
 ==================
 
+22 Nov 11 - A big improvement...
+---------
+- Services refresh is now set to 30s (vs. 60s before)
+- Workspaces -> Manage now opens as a tab and shows all data about workspaces
+- Fixed a bug with Edit Workspace not auto-checking session box when set.
+- Meterpreter -> Access -> Escalate Privileges now highlights the priv esc
+  options in the post module true. This is viable now that getsystem is a   
+  module.
+- Payload module launcher now lets you set Template, Iterations, Encoder, and
+  KeepTemplateWorking for any Windows payload. Also, payload is generated and
+  saved locally without opening a tab. 
+- sessions -i ## trap is now smarter and opens a shell tab for shell sessions,
+  a meterpreter tab for meterpreter sessions, and offers an error when you
+  try to interact with a session that doesn't exist.
+- Armitage no longer shows a host until it receives a db.hosts reply.
+- Right-click a module and select Relevant Targets to create a dynamic 
+  workspace that shows only targets that meet the host/port criteria for that
+  module. Use Ctrl+A to select all of those hosts and rock'n'roll. :)
+- Hosts -> Import Hosts now works when the folder/file has spaces in it.
+- Dynamic workspaces are now local to the current Armitage client. They no
+  longer have a global effect in teaming mode.
+- Added an Activate button to workspace management dialog.
+- Fixed a bug with sessions only dyn workspace sometimes showing hosts that
+  do not have sessions.
+- You may now highlight multiple jobs in View -> Jobs and select Kill to get
+  rid of all them at once.
+
 11.17.11 - All the things I wanted to do, but didn't have time
 --------
 Release Note 1: if you use Armitage teaming, things changed. You have to start 
