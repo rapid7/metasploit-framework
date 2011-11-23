@@ -339,12 +339,26 @@ class Module
 	end
 
 	#
-	# Return the module's version information.
+	# Return the module's legacy version information.
 	#
-	def version
+	def legacy_version
 		module_info['Version'].split(/,/).map { |ver|
 			ver.gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
 		}.join(',')
+	end
+
+	#
+	# Calculate the version information using SVN's all-wcprops entries file.
+	# If it's not present (always get case for github checkouts), fall back to the
+	# old in-module method instead. TODO: Completely deprecate in-module versions.
+	#
+	def version
+		svn_all_wcprops = ::File.join(::File.split(self.file_path).first,".svn","all-wcprops")
+		return legacy_version unless ::File.readable?(svn_all_wcprops)
+		mod_pathname = refname + ".rb"
+		prop_info = ::File.readlines(svn_all_wcprops,"rb").select {|line| line =~ /#{mod_pathname}$/}.first
+		prop_version = prop_info.match(/!svn[\x5c\x2f]ver[\x5c\x2f]([0-9]+)/)
+		(prop_version and prop_version[1]) ? prop_version[1] : legacy_version
 	end
 
 	#
