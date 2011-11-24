@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
-			
+
 
 			res = send_request_raw({
 				'uri'     => tpath,

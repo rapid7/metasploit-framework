@@ -44,7 +44,7 @@ class Nop < Msf::Module
 	#     The list of registers that should not be clobbered by the NOP
 	#     generator.
 	#   - BadChars (string)
-	#     The list of characters that should be avoided by the NOP 
+	#     The list of characters that should be avoided by the NOP
 	#     generator.
 	#
 	def generate_sled(length, opts)

@@ -94,10 +94,10 @@ class Metasploit3 < Msf::Post
 		'Indent'    => 1,
 		'Columns'   =>
 		[
-			"Host",
-			"Port",
 			"User",
 			"Password",
+			"Host",
+			"Port",
 			"SSL"
 		])
 
@@ -199,7 +199,7 @@ class Metasploit3 < Msf::Post
 			)
 
 		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
-			"filezilla_server_credentials.txt", "FileZilla FTP Server Credentials")
+			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
 		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
@@ -235,7 +235,7 @@ class Metasploit3 < Msf::Post
 		if settings['admin_bindip'] == "*"
 			settings['admin_bindip'] = "0.0.0.0"
 		end
-		
+
 		if settings['bindip']
 			settings['ftp_bindip'] = settings['bindip']
 		else
@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Post
 				settings['ssl_cert'] + ".txt", "FileZilla Server SSL Certificate File" )
 			print_status("Looted SSL Certificate File")
 		end
-		
+
 		if settings['ssl_certfile'].nil?
 			settings['ssl_certfile'] = "<none>"
 		end

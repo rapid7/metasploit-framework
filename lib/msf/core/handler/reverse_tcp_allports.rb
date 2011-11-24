@@ -24,7 +24,7 @@ module ReverseTcpAllPorts
 	def self.handler_type
 		return "reverse_tcp_allports"
 	end
-	
+
 	#
 	# Returns the connection-described general handler type, in this case
 	# 'reverse'.
@@ -32,7 +32,7 @@ module ReverseTcpAllPorts
 	def self.general_handler_type
 		"reverse"
 	end
-	
+
 	#
 	# Override the default port to be '1'
 	#

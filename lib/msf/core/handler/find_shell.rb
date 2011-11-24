@@ -38,7 +38,7 @@ module FindShell
 
 protected
 
-	
+
 
 end
 

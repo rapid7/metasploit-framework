@@ -39,10 +39,10 @@ class Metasploit3 < Msf::Post
 	def run
 		# Get device prompt
 		prompt = session.shell_command("")
-		
+
 		# Set terminal length to 0 so no paging is required
 		session.shell_write("term len 0 \n")
-		
+
 		# Get version info
 		print_status("Getting version information")
 		show_ver_cmd = "show version"
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Post
 				mode = "EXEC"
 			when /#/
 				mode = "PRIV"
-			end	
+			end
 		end
 
 		print_status("The device OS is #{os_type}")

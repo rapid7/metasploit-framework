@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 			server_thread = framework.threads.spawn("Module(#{self.refname})-Listener", false) { upnp_client_listener }
 
 			# TODO: Test to see if this scheme will work when pivoted.
-			
+
 			# Create an unbound UDP socket if no CHOST is specified, otherwise
 			# create a UDP socket bound to CHOST (in order to avail of pivoting)
 			udp_send_sock = Rex::Socket::Udp.create(
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 				usn_string = $1
 				info << usn_string.to_s.strip
 			end
-			
+
 			report_service(
 				:host  => addr,
 				:port  => port,

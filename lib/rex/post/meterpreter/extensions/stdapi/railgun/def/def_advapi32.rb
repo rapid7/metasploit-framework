@@ -7,7 +7,7 @@ module Railgun
 module Def
 
 class Def_advapi32
-	
+
 	CREDENTIAL = [
 		[:Flags, :DWORD],
 		[:Type, :DWORD],
@@ -25,7 +25,7 @@ class Def_advapi32
 
 	def self.create_dll(dll_path = 'advapi32')
 		dll = DLL.new(dll_path, ApiConstants.manager)
-		
+
 		dll.add_function('CredEnumerateA', 'BOOL', [
 				['PCHAR', 'Filter', 'in'],
 				['DWORD', 'Flags', 'in'],
@@ -168,15 +168,15 @@ class Def_advapi32
 				['LPVOID', 'hProv', 'in'],
 				['DWORD', 'dwKeySpec', 'in'],
 				['PDWORD', 'phUserKey', 'out']])
-		
-		dll.add_function( 'CryptImportKey', 'BOOL', [	
+
+		dll.add_function( 'CryptImportKey', 'BOOL', [
 				['LPVOID', 'hProv', 'in'],
 				['PBLOB', 'pbData', 'in'],
 				['DWORD', 'dwDataLen', 'in'],
 				['LPVOID', 'hPubKey', 'in'],
 				['DWORD', 'dwFlags', 'in'],
 				['PDWORD', 'phKey', 'out']])
-		
+
 		dll.add_function( 'CryptSetKeyParam', 'BOOL', [
 				['LPVOID', 'hKey', 'in'],
 				['DWORD', 'dwParam', 'in'],
@@ -231,7 +231,7 @@ class Def_advapi32
 				['DWORD', 'dwFlags', 'in'],
 				['PBLOB', 'pbSignature', 'out'],
 				['PDWORD', 'pdwSigLen', 'inout']])
-	
+
 		dll.add_function( 'CryptVerifySignatureW', 'BOOL', [
 				['LPVOID', 'hHash', 'in'],
 				['PBLOB', 'pbSignature', 'in'],
@@ -247,27 +247,27 @@ class Def_advapi32
 				['LPVOID', 'hPubKey', 'in'],
 				['PCHAR', 'sDescription', 'in'],
 				['DWORD', 'dwFlags', 'in']])
-				
+
 		dll.add_function( 'CryptCreateHash', 'BOOL',[
 				['LPVOID', 'hProv', 'in'],
 				['DWORD', 'Algid', 'in'],
 				['LPVOID', 'hKey', 'in'],
 				['DWORD', 'dwFlags', 'in'],
 				['PDWORD', 'phHash', 'out']])
-		
+
 		dll.add_function( 'CryptHashData', 'BOOL',[
 				['LPVOID', 'hHash', 'in'],
 				['PWCHAR', 'pbData', 'in'],
 				['DWORD', 'dwDataLen', 'in'],
 				['DWORD', 'dwFlags', 'in']])
-		
+
 		dll.add_function( 'CryptDeriveKey', 'BOOL',[
 				['LPVOID', 'hProv', 'in'],
 				['DWORD', 'Algid', 'in'],
 				['LPVOID', 'hBaseData', 'in'],
 				['DWORD', 'dwFlags', 'in'],
 				['PDWORD', 'phKey', 'inout']])
-	
+
 		dll.add_function( 'CryptDecrypt', 'BOOL',[
 				['LPVOID', 'hKey', 'in'],
 				['LPVOID', 'hHash', 'in'],
@@ -275,10 +275,10 @@ class Def_advapi32
 				['DWORD', 'dwFlags', 'in'],
 				['PBLOB', 'pbData', 'inout'],
 				['PDWORD', 'pdwDataLen', 'inout']])
-		
+
 		dll.add_function( 'CryptDestroyHash', 'BOOL',[
 				['LPVOID', 'hHash', 'in']])
-		
+
 		dll.add_function( 'CryptDestroyKey', 'BOOL',[
 				['LPVOID', 'hKey', 'in']])
 
@@ -293,7 +293,7 @@ class Def_advapi32
 			[ "PCHAR", "lpDatabaseName", "inout" ],
 			[ "DWORD", "dwDesiredAccess", "in" ]
 			])
-			
+
 		# Function for creating a Service
 		dll.add_function('CreateServiceA','DWORD',[
 			[ "DWORD", "hSCManager", "in" ],
@@ -355,7 +355,11 @@ class Def_advapi32
 		dll.add_function('CloseServiceHandle','BOOL',[
 			[ "DWORD", "hSCObject", "in" ]
 			])
-			
+
+		dll.add_function('DeleteService','BOOL',[
+			[ "DWORD", "hService", "in" ]
+			])
+
 		dll.add_function('AbortSystemShutdownA', 'BOOL',[
 			["PCHAR","lpMachineName","in"],
 			])
@@ -2087,7 +2091,7 @@ class Def_advapi32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

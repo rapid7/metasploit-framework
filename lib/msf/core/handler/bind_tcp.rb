@@ -62,12 +62,12 @@ module BindTcp
 	# Starts a new connecting thread
 	#
 	def add_handler(opts={})
-	
+
 		# Merge the updated datastore values
 		opts.each_pair do |k,v|
 			datastore[k] = v
 		end
-		
+
 		# Start a new handler
 		start_handler
 	end
@@ -79,19 +79,19 @@ module BindTcp
 
 		# Maximum number of seconds to run the handler
 		ctimeout = 150
-		
+
 		if (exploit_config and exploit_config['active_timeout'])
 			ctimeout = exploit_config['active_timeout'].to_i
 		end
-	
+
 		# Take a copy of the datastore options
 		rhost = datastore['RHOST']
 		lport = datastore['LPORT']
-		
+
 		# Ignore this if one of the required options is missing
 		return if not rhost
 		return if not lport
-	
+
 		# Only try the same host/port combination once
 		phash = rhost + ':' + lport.to_s
 		return if self.listener_pairs[phash]
@@ -100,17 +100,17 @@ module BindTcp
 		# Start a new handling thread
 		self.listener_threads << framework.threads.spawn("BindTcpHandlerListener-#{lport}", false) {
 			client = nil
-			
+
 			print_status("Started bind handler")
 
 			if (rhost == nil)
-				raise ArgumentError, 
+				raise ArgumentError,
 					"RHOST is not defined; bind stager cannot function.",
 					caller
 			end
 
 			stime = Time.now.to_i
-			
+
 			while (stime + ctimeout > Time.now.to_i)
 				begin
 					client = Rex::Socket::Tcp.create(
@@ -137,10 +137,10 @@ module BindTcp
 
 			# Valid client connection?
 			if (client)
-			
+
 				# Increment the has connection counter
 				self.pending_connections += 1
-				
+
 				# Start a new thread and pass the client connection
 				# as the input and output pipe.  Client's are expected
 				# to implement the Stream interface.
@@ -157,7 +157,7 @@ module BindTcp
 		}
 	end
 
-	# 
+	#
 	# Nothing to speak of.
 	#
 	def stop_handler

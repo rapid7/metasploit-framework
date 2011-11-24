@@ -339,7 +339,7 @@ class Module
 	end
 
 	#
-	# Return the module's version information.
+	# Return the module's legacy version information.
 	#
 	def version
 		module_info['Version'].split(/,/).map { |ver|

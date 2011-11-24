@@ -56,11 +56,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
+
 		if (datastore['VERBOSE'])
 			print_status("Connecting to the server...")
 		end
-		
+
 		begin
 		connect()
 		smb_login()
@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (datastore['VERBOSE'])
 			print_status("Checking for file/folder #{datastore['RPATH']}...")
 		end
-		
+
 		if (fd = simple.open("\\#{datastore['RPATH']}", 'o')) # mode is open only - do not create/append/write etc
 			print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
 			fd.close

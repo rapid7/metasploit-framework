@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
 		user = arg[:user]
 		host = arg[:host]
 		ip = arg[:ip]
-		
+
 		unless @previous_lm_hash == lm_hash and @previous_ntlm_hash == nt_hash then
 
 			@previous_lm_hash = lm_hash
@@ -268,7 +268,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Display messages
 			domain = Rex::Text::to_ascii(domain)
-			user = Rex::Text::to_ascii(user)	
+			user = Rex::Text::to_ascii(user)
 
 			capturedtime = Time.now.to_s
 			case ntlm_ver

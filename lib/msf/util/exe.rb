@@ -127,7 +127,7 @@ require 'digest/sha1'
 				raise RuntimeError, 'NOTE: using the substitution method means no inject support'
 			end
 
-			# use 
+			# use
 			return self.to_win32pe_exe_sub(framework, code, opts)
 		end
 
@@ -152,7 +152,7 @@ require 'digest/sha1'
 		cert_entry = pe.hdr.opt['DataDirectory'][4]
 		#if the cert is the only thing past the sections, we can handle.
 		if cert_entry.v['VirtualAddress'] + cert_entry.v['Size'] >= fsize and sections_end >= cert_entry.v['VirtualAddress']
-			endjunk = false 
+			endjunk = false
 		end
 
 		#try to inject code into executable by adding a section without affecting executable behavior
@@ -937,7 +937,7 @@ require 'digest/sha1'
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
-	# in the system's temp dir and executes it.  
+	# in the system's temp dir and executes it.
 	#
 	# See also: +Msf::Core::Payload::Java+
 	#
@@ -1675,15 +1675,15 @@ require 'digest/sha1'
 		return true if not ::File.exists?(path)
 
 		begin
-			data = ::File.read(path)	
+			data = ::File.read(path)
 			if Digest::SHA1.hexdigest(data) != "3395856ce81f2b7382dee72602f798b642f14140"
 				return true
 			end
-		
+
 		rescue ::Exception
 			return true
 		end
-	
+
 		false
 	end
 

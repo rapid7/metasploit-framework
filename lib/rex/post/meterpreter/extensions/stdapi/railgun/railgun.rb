@@ -81,7 +81,7 @@ class Railgun
 	##
 	# Returns a Hash containing DLLs added to this instance with #add_dll
 	# as well as references to any frozen cached dlls added directly in #get_dll
-	# and copies of any frozen dlls (added directly with #add_function) 
+	# and copies of any frozen dlls (added directly with #add_function)
 	# that the user attempted to modify with #add_function.
 	#
 	# Keys are friendly DLL names and values are the corresponding DLL instance
@@ -98,7 +98,7 @@ class Railgun
 
 	# if you are going to touch @@cached_dlls, wear protection
 	@@cache_semaphore = Mutex.new
-	
+
 	def initialize(client)
 		self.client = client
 		self.dlls = {}
@@ -129,11 +129,11 @@ class Railgun
 	# LPVOID parameters)
 	#
 	def memread(address, length)
-	
+
 		raise "Invalid parameters." if(not address or not length)
-		
+
 		request = Packet.create_request('stdapi_railgun_memread')
-		
+
 		request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
 		request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
 
@@ -141,20 +141,20 @@ class Railgun
 		if(response.result == 0)
 			return response.get_tlv_value(TLV_TYPE_RAILGUN_MEM_DATA)
 		end
-		
+
 		return nil
 	end
-	
+
 	#
 	# Write data to a memory address on the host (useful for working with
 	# LPVOID parameters)
 	#
 	def memwrite(address, data, length)
-	
+
 		raise "Invalid parameters." if(not address or not data or not length)
-		
+
 		request = Packet.create_request('stdapi_railgun_memwrite')
-		
+
 		request.add_tlv(TLV_TYPE_RAILGUN_MEM_ADDRESS, address)
 		request.add_tlv(TLV_TYPE_RAILGUN_MEM_DATA, data)
 		request.add_tlv(TLV_TYPE_RAILGUN_MEM_LENGTH, length)
@@ -163,16 +163,16 @@ class Railgun
 		if(response.result == 0)
 			return true
 		end
-		
+
 		return false
 	end
-	
+
 	#
 	# Adds a function to an existing DLL definition.
 	#
 	# If the DLL definition is frozen (ideally this should be the case for all
 	# cached dlls) an unfrozen copy is created and used henceforth for this
-	# instance. 
+	# instance.
 	#
 	def add_function(dll_name, function_name, return_type, params, windows_name=nil)
 
@@ -182,7 +182,7 @@ class Railgun
 
 		dll = get_dll(dll_name)
 
-		# For backwards compatibility, we ensure the dll is thawed 
+		# For backwards compatibility, we ensure the dll is thawed
 		if dll.frozen?
 			# dup will copy values, but not the frozen status
 			dll = dll.dup
@@ -213,7 +213,7 @@ class Railgun
 		dlls[dll_name] = DLL.new(windows_name, constant_manager)
 	end
 
-	
+
 	def known_dll_names
 		return BUILTIN_DLLS | dlls.keys
 	end
@@ -238,9 +238,9 @@ class Railgun
 					if dll_name !~ /^\w+$/
 						raise "DLL name #{dll_name} is bad. Correct Railgun::BUILTIN_DLLS"
 					end
- 
-					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name 
-                                        dll = Def.const_get('Def_' << dll_name).create_dll.freeze
+
+					require 'rex/post/meterpreter/extensions/stdapi/railgun/def/def_' << dll_name
+					dll = Def.const_get('Def_' << dll_name).create_dll.freeze
 
 					@@cached_dlls[dll_name] = dll
 					dlls[dll_name] = dll
@@ -251,7 +251,7 @@ class Railgun
 
 		return dlls[dll_name]
 	end
-	
+
 	#
 	# Fake having members like user32 and kernel32.
 	# reason is that
@@ -265,7 +265,7 @@ class Railgun
 		unless known_dll_names.include? dll_name
 			raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, '')}"
 		end
-		
+
 		dll = get_dll(dll_name)
 
 		return DLLWrapper.new(dll, client)

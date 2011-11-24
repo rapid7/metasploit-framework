@@ -111,24 +111,24 @@ module Auxiliary::Report
 		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_web_site(opts)
 	end
-	
+
 	def report_web_page(opts={})
 		return if not db
 		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_web_page(opts)
-	end	
-	
+	end
+
 	def report_web_form(opts={})
 		return if not db
 		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_web_form(opts)
-	end	
-	
+	end
+
 	def report_web_vuln(opts={})
 		return if not db
 		opts = {:workspace => myworkspace}.merge(opts)
 		framework.db.report_web_vuln(opts)
-	end	
+	end
 
 	#
 	# Store some data stolen from a session as a file
@@ -185,16 +185,16 @@ module Auxiliary::Report
 			# If we have a database we need to store it with all the available
 			# metadata.
 			conf = {}
-			conf[:host] = host if host		
+			conf[:host] = host if host
 			conf[:type] = ltype
 			conf[:content_type] = ctype
 			conf[:path] = full_path
 			conf[:workspace] = myworkspace
 			conf[:name] = filename if filename
 			conf[:info] = info if info
-			
+
 			if service and service.kind_of?(Msf::DBManager::Service)
-				conf[:service] = service if service 	
+				conf[:service] = service if service
 			end
 
 			framework.db.report_loot(conf)
@@ -208,7 +208,7 @@ module Auxiliary::Report
 	# Sometimes useful for keeping artifacts of an exploit or auxiliary
 	# module, such as files from fileformat exploits. (TODO: actually
 	# implement this on file format modules.)
-	# 
+	#
 	# +filenmae+ is the local file name.
 	#
 	# +data+ is the actual contents of the file
@@ -218,7 +218,7 @@ module Auxiliary::Report
 	# no database is connected.
 	#
 	# +ctype+ is the Content-Type, e.g. "text/plain". Ignored when no database
-	# is connected. 
+	# is connected.
 	#
 	def store_local(ltype=nil, ctype=nil, data=nil, filename=nil)
 		if ! ::File.directory?(Msf::Config.local_directory)
@@ -240,7 +240,7 @@ module Auxiliary::Report
 		# Split by path seperator
 		fname = ::File.split(fname).last
 
-		case ctype # Probably could use more cases 
+		case ctype # Probably could use more cases
 		when "text/plain"
 			ext ||= "txt"
 		when "text/xml"
@@ -325,14 +325,14 @@ module Auxiliary::Report
 		end
 		if opts[:collect_session]
 			session = myworkspace.sessions.find_all_by_local_id(opts[:collect_session]).last
-			if !session.nil? 
+			if !session.nil?
 				cred_opts[:source_id] = session.id
 				cred_opts[:source_type] = "exploit"
 			end
 		end
 		print_status "Collecting #{cred_opts[:user]}:#{cred_opts[:pass]}"
 		framework.db.report_auth_info(cred_opts)
-	end			
+	end
 end
 end
 

@@ -136,11 +136,11 @@ class Metasploit4 < Msf::Auxiliary
 				:data => {:proto => "soap", :env => env},
 				:update => :unique_data
 			)
-	
+
 			env.each do |output|
 				print_status("#{output[0]}")
 			end
-	
+
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return

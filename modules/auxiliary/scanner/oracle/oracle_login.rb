@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'URL', 'http://www.oracle.com/us/products/database/index.html' ],
 					[ 'CVE', '1999-0502'], # Weak password CVE
-					[ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']	
+					[ 'URL', 'http://nmap.org/nsedoc/scripts/oracle-brute.html']
 				],
 			'Version'        => '$Revision$'
 		))
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 	def sid
 		datastore['SID'].to_s
 	end
-	
+
 	def nmap_build_args(credpath)
 		nmap_reset_args
 		nmap_append_arg "-P0"

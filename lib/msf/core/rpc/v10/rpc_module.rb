@@ -168,7 +168,7 @@ class RPC_Module < RPC_Base
 		if options['platform']
 			platform = Msf::Module::PlatformList.transform(options['platform'])
 		end
-		
+
 		arch = nil
 		if options['arch']
 			arch = options['arch']
@@ -185,7 +185,7 @@ class RPC_Module < RPC_Base
 			:template_path => options['exedir']
 		}
 
-		# If we were given addshellcode for a win32 payload, 
+		# If we were given addshellcode for a win32 payload,
 		# create a double-payload; one running in one thread, one running in the other
 		if options['addshellcode']
 			buf = Msf::Util::EXE.win32_rwx_exec_thread(buf,0,'end')
@@ -229,7 +229,7 @@ class RPC_Module < RPC_Base
 private
 
 	def _find_module(mtype,mname)
-	
+
 		if mname !~ /^(exploit|payload|nop|encoder|auxiliary|post)\//
 			mname = mtype + "/" + mname
 		end
@@ -247,7 +247,10 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
 
 	def _run_auxiliary(mod, opts)
@@ -256,7 +259,10 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
 
 	def _run_post(mod, opts)
@@ -264,9 +270,12 @@ private
 			'RunAsJob' => true,
 			'Options'  => opts
 		})
-		{ "job_id" => mod.job_id }
+		{
+			"job_id" => mod.job_id,
+			"uuid" => mod.uuid
+		}
 	end
-	
+
 	def _run_payload(mod, opts)
 		badchars = opts['BadChars'] || ''
 		fmt = opts['Format'] || 'raw'

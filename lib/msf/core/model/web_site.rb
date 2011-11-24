@@ -7,9 +7,9 @@ class WebSite < ActiveRecord::Base
 	has_many :web_pages, :dependent => :destroy
 	has_many :web_forms, :dependent => :destroy
 	has_many :web_vulns, :dependent => :destroy
-			
+
 	serialize :options
-	
+
 	def to_url(ignore_vhost=false)
 		proto = self.service.name == "https" ? "https" : "http"
 		host  = ignore_vhost ? self.service.host.address : self.vhost
@@ -20,19 +20,19 @@ class WebSite < ActiveRecord::Base
 		end
 		url
 	end
-	
+
 	def page_count
 		web_pages.size
 	end
-	
+
 	def form_count
 		web_forms.size
 	end
-	
+
 	def vuln_count
 		web_vulns.size
-	end	
-	
+	end
+
 end
 
 end

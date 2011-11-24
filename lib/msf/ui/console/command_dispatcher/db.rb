@@ -370,7 +370,7 @@ class Db
 
 				when '-h','--help'
 					print_line
-					print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-n <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
+					print_line "Usage: services [-h] [-u] [-a] [-r <proto>] [-p <port1,port2>] [-s <name1,name2>] [-o <filename>] [addr1 addr2 ...]"
 					print_line
 					print_line "  -a,--add          Add the services instead of searching"
 					print_line "  -d,--delete       Delete the services instead of searching"
@@ -1138,7 +1138,7 @@ class Db
 
 			save = false
 			if args.include?("save")
-				save = active? 
+				save = active?
 				args.delete("save")
 			end
 

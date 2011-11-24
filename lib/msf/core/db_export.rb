@@ -16,8 +16,8 @@ class Export
 
 	def myworkspace
 		self.workspace
-	end	
-	
+	end
+
 	def myusername
 		@username ||= (ENV['LOGNAME'] || ENV['USERNAME'] || ENV['USER'] || "unknown").to_s.strip.gsub(/[^A-Za-z0-9\x20]/,"_")
 	end
@@ -72,7 +72,7 @@ class Export
 
 		report_file.flush
 		report_file.close
-		yield(:status, "complete", "password dump") if block_given?		
+		yield(:status, "complete", "password dump") if block_given?
 		true
 	end
 
@@ -93,19 +93,19 @@ class Export
 				report_file.write "# #{svc}\n"
 				case ptype
 				when "smb_hash"
-					data.each do |c| 
+					data.each do |c|
 						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
 						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
 						report_file.write "%s:%d:%s:::\n" % [user,c.id,pass]
 					end
 				when "smb_netv1_hash"
-					data.each do |c| 
+					data.each do |c|
 						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
 						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
 						report_file.write "%s::%s\n" % [user,pass]
 					end
 				when "smb_netv2_hash"
-					data.each do |c| 
+					data.each do |c|
 						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : c.user
 						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : c.pass
 						if pass != "<BLANK>"
@@ -143,8 +143,8 @@ class Export
 							report_file.puts "Warning: could not read the private key '#{c.pass}'."
 						end
 					end
-				else "text" 
-					data.each do |c| 
+				else "text"
+					data.each do |c|
 						user = (c.user.nil? || c.user.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.user, true)
 						pass = (c.pass.nil? || c.pass.empty?) ? "<BLANK>" : Rex::Text.ascii_safe_hex(c.pass, true)
 						report_file.write "%s %s\n" % [user,pass]
@@ -191,7 +191,7 @@ class Export
 		return creds
 	end
 
-	
+
 	def to_xml_file(path, &block)
 
 		yield(:status, "start", "report") if block_given?
@@ -237,25 +237,25 @@ class Export
 		report_file.flush
 		extract_web_page_info(report_file)
 		report_file.write %Q|</web_pages>\n|
-		
+
 		yield(:status, "start", "web forms") if block_given?
 		report_file.write %Q|<web_forms>\n|
 		report_file.flush
 		extract_web_form_info(report_file)
-		report_file.write %Q|</web_forms>\n|	
+		report_file.write %Q|</web_forms>\n|
 
 		yield(:status, "start", "web vulns") if block_given?
 		report_file.write %Q|<web_vulns>\n|
 		report_file.flush
 		extract_web_vuln_info(report_file)
 		report_file.write %Q|</web_vulns>\n|
-		
+
 		report_file.write %Q|</MetasploitV4>\n|
 		report_file.flush
 		report_file.close
-		
-		yield(:status, "complete", "report") if block_given?		
-		
+
+		yield(:status, "complete", "report") if block_given?
+
 		true
 	end
 
@@ -310,7 +310,7 @@ class Export
 	# Extract all web entries, storing them in instance variables
 	def extract_web_entries
 		@web_sites = myworkspace.web_sites
-		@web_pages = myworkspace.web_pages		
+		@web_pages = myworkspace.web_pages
 		@web_forms = myworkspace.web_forms
 		@web_vulns = myworkspace.web_vulns
 	end
@@ -411,7 +411,7 @@ class Export
 
 			report_file.write("  </host>\n")
 		end
-		report_file.flush		
+		report_file.flush
 	end
 
 	# Extract event data from @events
@@ -441,7 +441,7 @@ class Export
 		end
 		report_file.flush
 	end
-	
+
 	# Extract credential data from @creds
 	def extract_credential_info(report_file)
 		@creds.each do |c|
@@ -478,63 +478,63 @@ class Export
 				el = create_xml_element(k,v)
 				report_file.write("      #{el}\n")
 			end
-			
+
 			site = e
 			el = create_xml_element("host", site.service.host.address)
 			report_file.write("      #{el}\n")
-			
-			el = create_xml_element("port", site.service.port)			
+
+			el = create_xml_element("port", site.service.port)
 			report_file.write("      #{el}\n")
 
-			el = create_xml_element("ssl", site.service.name == "https")			
-			report_file.write("      #{el}\n")			
-			
+			el = create_xml_element("ssl", site.service.name == "https")
+			report_file.write("      #{el}\n")
+
 			report_file.write("  </web_site>\n")
 		end
 		report_file.flush
 	end
-	
-	# Extract web pages, forms, and vulns 
+
+	# Extract web pages, forms, and vulns
 	def extract_web_info(report_file, tag, entries)
 		entries.each do |e|
 			report_file.write("  <#{tag}>\n")
 			e.attributes.each_pair do |k,v|
 				el = create_xml_element(k,v)
 				report_file.write("      #{el}\n")
-			end			
-			
+			end
+
 			site = e.web_site
 			el = create_xml_element("vhost", site.vhost)
 			report_file.write("      #{el}\n")
-						
+
 			el = create_xml_element("host", site.service.host.address)
 			report_file.write("      #{el}\n")
-			
-			el = create_xml_element("port", site.service.port)			
+
+			el = create_xml_element("port", site.service.port)
 			report_file.write("      #{el}\n")
 
-			el = create_xml_element("ssl", site.service.name == "https")			
-			report_file.write("      #{el}\n")	
-						
+			el = create_xml_element("ssl", site.service.name == "https")
+			report_file.write("      #{el}\n")
+
 			report_file.write("  </#{tag}>\n")
 		end
 		report_file.flush
 	end
-	
+
 	# Extract web pages
 	def extract_web_page_info(report_file)
 		extract_web_info(report_file, "web_page", @web_pages)
 	end
-	
+
 	# Extract web forms
 	def extract_web_form_info(report_file)
 		extract_web_info(report_file, "web_form", @web_forms)
 	end
-	
+
 	# Extract web vulns
 	def extract_web_vuln_info(report_file)
 		extract_web_info(report_file, "web_vuln", @web_vulns)
-	end			
+	end
 
 end
 end

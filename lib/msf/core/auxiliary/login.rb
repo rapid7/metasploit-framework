@@ -130,7 +130,10 @@ module Auxiliary::Login
 	end
 
 	def password_prompt?
-		return true if @recvd =~ @password_regex
+		return true if(@recvd =~ @password_regex)
+		if datastore['USERNAME']
+			return true if( !(datastore['USERNAME'].empty?) and @recvd =~ /#{datastore['USERNAME']}'s/)
+		end
 		return false
 	end
 

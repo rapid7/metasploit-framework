@@ -50,7 +50,7 @@ class Session < Base
 	# session possible, regardless of position in the stream)
 	def shell_read(token, sid, ptr=nil)
 		_valid_session(token,sid,"shell")
-		# @session_sequence tracks the pointer into the ring buffer 
+		# @session_sequence tracks the pointer into the ring buffer
 		# data of sessions (by sid) in order to emulate the old behavior
 		# of shell_read
 		@session_sequence ||= {}
@@ -96,7 +96,7 @@ class Session < Base
 		rescue ::Exception => e
 			raise ::XMLRPC::FaultException.new(500, "session disconnected: #{e.class} #{e}")
 		end
-	end	
+	end
 
 	def ring_put(token, sid, data)
 		authenticate(token)
@@ -113,7 +113,7 @@ class Session < Base
 	def ring_last(token, sid)
 		authenticate(token)
 		s = _valid_session(token,sid,"ring")
-		{ "seq" => s.ring.last_sequence.to_s } 
+		{ "seq" => s.ring.last_sequence.to_s }
 	end
 
 	def ring_clear(token, sid)
@@ -138,7 +138,7 @@ class Session < Base
 		end
 
 		buff = Rex::Text.decode_base64(data)
-		
+
 		interacting = false
 		s.channels.each_value do |ch|
 			interacting ||= ch.respond_to?('interacting') && ch.interacting
@@ -207,7 +207,7 @@ class Session < Base
 		end
 		ret
 	end
-	
+
 private
 
 	def _find_module(mtype,mname)

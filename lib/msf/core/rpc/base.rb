@@ -10,12 +10,12 @@ class Base
 
 private
 
-	def authenticate(token)		
+	def authenticate(token)
 		stale = []
-		
+
 		# Force the encoding to ASCII-8BIT
 		token = token.unpack("C*").pack("C*")
-		
+
 		@tokens.each_key do |t|
 			user,ctime,mtime,perm = @tokens[t]
 			if ! perm and mtime + 300 < Time.now.to_i

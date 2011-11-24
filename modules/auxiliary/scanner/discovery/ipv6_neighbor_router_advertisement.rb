@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 		p.ipv6_next = 0x3a
 		p.ipv6_saddr = shost
 		p.ipv6_daddr = dhost
-		
+
 		payload = router_advertisement_payload
 		payload << opt60_payload(lifetime, prefix)
 		payload << slla_payload(smac)

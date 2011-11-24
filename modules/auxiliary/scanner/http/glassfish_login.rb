@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME',[true, 'A specific username to authenticate as','admin']),
 			], self.class)
 	end
-	
+
 	#
 	# Return GlassFish's edition (Open Source or Commercial) and version (2.x, 3.0, 3.1, 9.x) and
 	# banner (ex: Sun Java System Application Server 9.x)
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 		edition, version, banner = get_version(res)
 		target_url = "http://#{rhost.to_s}:#{rport.to_s}/#{datastore['PATH'].to_s}"
 		print_status("#{target_url} - GlassFish - Attempting authentication")
-	
+
 		if (version == '2.x' or version == '9.x' or version == '3.0')
 			try_glassfish_auth_bypass(version)
 		end

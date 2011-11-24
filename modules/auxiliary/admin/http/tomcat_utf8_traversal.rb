@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					}, 25)
 			if (res and res.code == 200)
 				print_status("Request ##{level} may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
-				@files_found << files	
+				@files_found << files
 				break
 			elsif (res and res.code)
 				print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")

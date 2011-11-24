@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				prints the names of all exploit modules that would be used by
 				the WebServer action given the current MATCH and EXCLUDE
 				options.
-				
+
 				Also adds a 'list' command which is the same as running with
 				ACTION=list.
 			},

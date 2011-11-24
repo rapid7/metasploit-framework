@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..','..','..','..','..', 'lib'))
 
 require 'msf/core/post/windows/user_profiles'
 require 'test/unit'

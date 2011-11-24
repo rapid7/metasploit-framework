@@ -11,7 +11,7 @@ class Module::Target::UnitTest < Test::Unit::TestCase
 	def test_target
 		t = Target.from_a(['Universal', {
 				'Platform' => 'winxpsp0',
-				'Ret'      => 0x12345678 
+				'Ret'      => 0x12345678
 			}])
 
 		assert_equal('Universal', t.name)

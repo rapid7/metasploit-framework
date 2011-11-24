@@ -21,7 +21,7 @@ module Auxiliary::HttpCrawler
 				Opt::Proxies,
 				OptInt.new('MAX_PAGES', [ true, 'The maximum number of pages to crawl per URL', 500]),
 				OptInt.new('MAX_MINUTES', [ true, 'The maximum number of minutes to spend on each URL', 5]),
-				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4])					
+				OptInt.new('MAX_THREADS', [ true, 'The maximum number of concurrent requests', 4])
 			], self.class
 		)
 
@@ -44,14 +44,14 @@ module Auxiliary::HttpCrawler
 
 		register_autofilter_ports([ 80, 8080, 443, 8000, 8888, 8880, 8008, 3000, 8443 ])
 		register_autofilter_services(%W{ http https })
-		
+
 		begin
 			require 'anemone'
 			@anemone_loaded = true
 		rescue ::Exception => e
 			@anemone_loaded = false
 			@anemone_error  = e
-		end		
+		end
 	end
 
 	def setup
@@ -72,7 +72,7 @@ module Auxiliary::HttpCrawler
 	# Crawler methods and accessors
 	#
 	##
-	
+
 	# A target object for tracking URLs
 	class WebTarget < ::Hash
 		def to_url
@@ -81,11 +81,11 @@ module Auxiliary::HttpCrawler
 			"#{proto}://#{host}:#{self[:port]}#{self[:path]}"
 		end
 	end
-	
+
 	# A custom error to signify we hit the page request cap
 	class MaximumPageCount < ::RuntimeError
 	end
-	
+
 	# Some accessors for stat tracking
 	attr_accessor :targets
 	attr_accessor :url_count, :url_total, :form_count, :request_count
@@ -103,7 +103,7 @@ module Auxiliary::HttpCrawler
 		query ||= ""
 
 		t = WebTarget.new
-	
+
 		t.merge!({
 			:vhost    => vhost,
 			:host     => rhost,
@@ -113,11 +113,11 @@ module Auxiliary::HttpCrawler
 			:query    => query,
 			:info     => ""
 		})
-		
+
 		if datastore['BasicAuthUser']
 			t[:http_basic_auth] = [ "#{datastore['BasicAuthUser']}:#{datastore['BasicAuthPass']}" ].pack("m*").gsub(/\s+/, '')
 		end
-		
+
 		if datastore['HTTPCookie']
 			t[:cookies] = {}
 			datastore['HTTPCookie'].to_s.split(';').each do |pair|
@@ -125,12 +125,12 @@ module Auxiliary::HttpCrawler
 				next if not v
 				t[:cookies][k] = v
 			end
-		end 
+		end
 
 		if datastore['HTTPAdditionalHeaders']
 			t[:headers] = datastore['HTTPAdditionalHeaders'].to_s.split("\x01").select{|x| x.to_s.length > 0}
-		end 
-		
+		end
+
 		t[:site] = report_web_site(:wait => true, :host => t[:host], :port => t[:port], :vhost => t[:vhost], :ssl => t[:ssl])
 
 		print_status("Crawling #{t.to_url}...")
@@ -150,29 +150,29 @@ module Auxiliary::HttpCrawler
 	def get_connection_timeout
 		datastore['RequestTimeout']
 	end
-	
+
 	def max_page_count
 		datastore['MAX_PAGES']
 	end
-	
+
 	def max_crawl_time
 		datastore['MAX_MINUTES'] * 60.0
 	end
-	
+
 	def max_crawl_threads
 		datastore['MAX_THREADS']
 	end
-	
+
 	# Scrub links that end in these extensions. If more or less is
 	# desired by a particular module, this should get redefined.
 	def get_link_filter
 		/\.(js|png|jpe?g|bmp|gif|swf|jar|zip|gz|bz2|rar|pdf|docx?|pptx?)$/i
 	end
-	
+
 	def focus_crawl(page)
 		page.links
 	end
-	
+
 	def crawl_target(t)
 		cnt  = 0
 		opts = crawler_options(t)
@@ -181,19 +181,19 @@ module Auxiliary::HttpCrawler
 		@crawler = ::Anemone::Core.new([url], opts)
 		@crawler.on_every_page do |page|
 			cnt += 1
-			
+
 			self.request_count += 1
 
 			# Extract any interesting data from the page
 			crawler_process_page(t, page, cnt)
-			
+
 			# Blow up if we hit our maximum page count
 			if cnt >= max_page_count
 				print_error("Maximum page count reached for #{url}")
 				raise MaximumPageCount, "Maximum page count reached"
 			end
 		end
-		
+
 		# Skip link processing based on a regular expression
 		@crawler.skip_links_like(
 			get_link_filter
@@ -203,7 +203,7 @@ module Auxiliary::HttpCrawler
 		@crawler.focus_crawl do |page|
 			focus_crawl(page)
 		end
-		
+
 		begin
 			@crawler.run
 		rescue MaximumPageCount
@@ -218,10 +218,10 @@ module Auxiliary::HttpCrawler
 			@crawler = nil
 		end
 	end
-	
+
 	# Specific module implementations should redefine this method
 	# with whatever is meaningful to them.
-	def crawler_process_page(t, page, cnt)	
+	def crawler_process_page(t, page, cnt)
 		msg = "[#{"%.5d" % cnt}/#{"%.5d" % max_page_count}]    #{page.code || "ERR"} - #{@current_site.vhost} - #{page.url}"
 		case page.code
 			when 301,302
@@ -243,7 +243,7 @@ module Auxiliary::HttpCrawler
 				print_error(msg)
 		end
 	end
-	
+
 	def crawler_options(t)
 		opts = {}
 		opts[:user_agent]      = datastore['UserAgent']
@@ -254,23 +254,23 @@ module Auxiliary::HttpCrawler
 		opts[:retry_limit]     = datastore['RetryLimit']
 		opts[:accept_cookies]  = true
 		opts[:depth_limit]     = false
-		opts[:skip_query_strings]  = false		
+		opts[:skip_query_strings]  = false
 		opts[:discard_page_bodies] = true
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
-		
+
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]
 		end
-		
+
 		if t[:cookies]
 			opts[:cookies] = t[:cookies]
 		end
-		
+
 		if t[:http_basic_auth]
 			opts[:http_basic_auth] = t[:http_basic_auth]
-		end 
+		end
 
 		opts
 	end

@@ -9,11 +9,11 @@ class Service < ActiveRecord::Base
 	has_many :exploited_hosts, :dependent => :destroy
 	has_many :web_sites, :dependent => :destroy
 	belongs_to :host
-	
+
 	has_many :web_pages, :through => :web_sites
 	has_many :web_forms, :through => :web_sites
 	has_many :web_vulns, :through => :web_sites
-		
+
 	serialize :info
 
 	def after_save

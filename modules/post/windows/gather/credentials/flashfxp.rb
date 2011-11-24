@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 				port = ini[group]['port']
 				next if epass == nil or epass == ""
 				passwd = decrypt(epass)
-			
+
 				print_good("*** Host: #{host} Port: #{port} User: #{username}  Password: #{passwd} ***")
 				report_auth_info(
 					:host  => host,

@@ -149,14 +149,14 @@ class Metasploit3 < Msf::Post
 	def report(users)
 		credentials = Rex::Ui::Text::Table.new(
 			'Header'  => 'Ipswitch iMail User Credentials',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' =>
 			[
-				'Domain',
 				'User',
-				'Full Name',
 				'Password',
-				'E-mail',
+				'Domain',
+				'Full Name',
+				'E-mail'
 			]
 		)
 
@@ -169,25 +169,25 @@ class Metasploit3 < Msf::Post
 
 			if datastore['VERBOSE']
 				text  = ''
-				text << "Domain=#{domain}, "
 				text << "User=#{username}, "
 				text << "Password=#{password}, "
+				text << "Domain=#{domain}, "
 				text << "Full Name=#{full_name}, "
 				text << "E-mail=#{e_mail}"
 				print_good(text)
 			end
 
-			credentials << [domain, username, full_name, password, e_mail]
+			credentials << [username, password, domain, full_name, e_mail]
 		end
 
 		print_status("Storing data...")
 
 		path = store_loot(
 			'imail.user.creds',
-			'text/plain',
+			'text/csv',
 			session,
-			credentials,
-			'imail_user_creds.txt',
+			credentials.to_csv,
+			'imail_user_creds.csv',
 			'Ipswitch iMail user credentials'
 		)
 

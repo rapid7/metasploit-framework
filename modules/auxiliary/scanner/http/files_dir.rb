@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 			'~',
 			''
 		]
-	
+
 		conn = false
 
 		tpath = datastore['PATH']
@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		dm = datastore['NoDetailMessages']
 
-		
+
 
 		extensions << datastore['EXT']
 
@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 			File.open(datastore['DICTIONARY'], 'rb').each do |testf|
 				queue << testf.strip
 			end
-		
+
 			#
 			# Detect error code
 			#

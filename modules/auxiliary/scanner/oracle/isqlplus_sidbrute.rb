@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Auxiliary
 	def hostport
 		[target_host,rport].join(":")
 	end
-	
+
 	def uri
 		datastore['URI'] || "/isqlplus/"
 	end
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "#{msg} Cannot connect"
 			rescue ::Timeout::Error, ::Errno::EPIPE,Errno::ECONNRESET => e
 				print_error e.message
-		end	
+		end
 	end
 
 	def get_oracle_version(ip)

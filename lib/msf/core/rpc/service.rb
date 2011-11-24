@@ -9,25 +9,25 @@ module RPC
 
 module MonkeyPatcher
 	def initialize(*args)
-	
+
 		# Enable Bigint processing (required for big file sizes,etc)
 		if XMLRPC::Config.const_defined?(:ENABLE_BIGINT)
 			XMLRPC::Config.send(:remove_const, :ENABLE_BIGINT)
 			XMLRPC::Config.const_set(:ENABLE_BIGINT, true)
 		end
-		
+
 		# Enable nils in requests
 		if XMLRPC::Config.const_defined?(:ENABLE_NIL_CREATE)
 			XMLRPC::Config.send(:remove_const, :ENABLE_NIL_CREATE)
 			XMLRPC::Config.const_set(:ENABLE_NIL_CREATE, true)
 		end
-			
+
 		# Enable nils in replies
 		if XMLRPC::Config.const_defined?(:ENABLE_NIL_PARSER)
 			XMLRPC::Config.send(:remove_const, :ENABLE_NIL_PARSER)
-			XMLRPC::Config.const_set(:ENABLE_NIL_PARSER, true)						
+			XMLRPC::Config.const_set(:ENABLE_NIL_PARSER, true)
 		end
-		
+
 		super(*args)
 	end
 end
@@ -35,14 +35,14 @@ end
 class Service < ::XMLRPC::BasicServer
 
 	include MonkeyPatcher
-	
+
 	attr_accessor :service, :state, :on_input, :on_output, :on_error
 	attr_accessor :dispatcher_timeout
 
 	def initialize(srvhost, srvport, ssl=false, cert=nil, ckey=nil)
-	
+
 		self.dispatcher_timeout  = 0
-	
+
 		self.service = Rex::Socket::TcpServer.create(
 			'LocalHost' => srvhost,
 			'LocalPort' => srvport,
@@ -52,7 +52,7 @@ class Service < ::XMLRPC::BasicServer
 		self.service.on_client_connect_proc = Proc.new { |client|
 			on_client_connect(client)
 		}
-		self.service.on_client_data_proc = Proc.new { |client|	
+		self.service.on_client_data_proc = Proc.new { |client|
 			begin
 				Timeout.timeout(self.dispatcher_timeout) do
 					on_client_data(client)
@@ -143,7 +143,7 @@ end
 class WebService < ::XMLRPC::BasicServer
 
 	include MonkeyPatcher
-	
+
 	attr_accessor :service, :state, :srvhost, :srvport, :uri
 
 

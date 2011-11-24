@@ -598,7 +598,7 @@ class Def_ws2_32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

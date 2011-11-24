@@ -24,7 +24,7 @@ module Priv
 			else
 				return true
 			end
-		end 	
+		end
 	end
 
 	#
@@ -76,7 +76,7 @@ module Priv
 		end
 		return uac
 	end
-	
+
 	def session_has_ext
 		begin
 			return !!(session.railgun and session.sys.config)

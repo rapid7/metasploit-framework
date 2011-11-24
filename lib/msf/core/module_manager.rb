@@ -700,7 +700,7 @@ class ModuleManager < ModuleSet
 
 		# Load the module into a new Module wrapper
 		begin
-			wrap.module_eval(File.read(file, File.size(file)))
+			wrap.module_eval(load_module_source(file))
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or
@@ -842,6 +842,13 @@ class ModuleManager < ModuleSet
 		module_sets[set] ? module_sets[set].keys.dup : []
 	end
 
+	#
+	# Read the module code from the file on disk
+	#
+	def load_module_source(file)
+		::File.read(file, ::File.size(file))
+	end
+
 protected
 
 	#
@@ -927,7 +934,7 @@ protected
 
 		begin
 			wrap = ::Module.new
-			wrap.module_eval(File.read(file, File.size(file)))
+			wrap.module_eval(load_module_source(file))
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or

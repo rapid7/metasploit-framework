@@ -16,8 +16,8 @@ module Railgun
 class DLLHelper::UnitTest < Test::Unit::TestCase
 
 	###
-	# We will test against this instance of DLLHelper (a module) 
-	# 
+	# We will test against this instance of DLLHelper (a module)
+	#
 	# We freeze the instance and make the reference constant to ensure consistency
 	##
 	TEST_DLL_HELPER = Object.new.extend(DLLHelper).freeze
@@ -28,13 +28,13 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 		# converts ruby string to zero-terminated ASCII string
 		zero_terminated_ascii_attempt = TEST_DLL_HELPER.str_to_ascii_z(original_string)
 
-		assert(zero_terminated_ascii_attempt  =~ /\x00$/, 
+		assert(zero_terminated_ascii_attempt  =~ /\x00$/,
 			"str_to_ascii_z should result in a 0 terminated string")
 
-		assert(zero_terminated_ascii_attempt =~ /^#{original_string}/, 
+		assert(zero_terminated_ascii_attempt =~ /^#{original_string}/,
 			"str_to_ascii_z should still start with original string")
 
-		assert_equal(original_string.length + 1, zero_terminated_ascii_attempt.length, 
+		assert_equal(original_string.length + 1, zero_terminated_ascii_attempt.length,
 			"str_to_ascii_z should have length of original pluss room for a terminal 0")
 	end
 
@@ -83,7 +83,7 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 	end
 
 	def test_assemble_buffer
-		# TODO: provide test coverage 
+		# TODO: provide test coverage
 		#skip("Currently DLLHelper.assemble_buffer does not have coverage")
 	end
 
@@ -95,7 +95,7 @@ class DLLHelper::UnitTest < Test::Unit::TestCase
 
 		y_key = 'Y'
 		y_value = 5
-		
+
 		logical_or = x_key +  '|' +  y_key
 		target_result_of_logical_or = x_value | y_value
 

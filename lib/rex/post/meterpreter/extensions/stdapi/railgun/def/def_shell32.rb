@@ -16,7 +16,7 @@ class Def_shell32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

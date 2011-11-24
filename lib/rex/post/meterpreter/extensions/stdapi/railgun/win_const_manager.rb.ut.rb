@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager'
 require 'test/unit'
@@ -40,14 +40,14 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 	def test_add_const
 		target_key = 'VALID_KEY'
 		target_value = 23
-		
+
 		const_manager = WinConstManager.new
 
 		const_manager.add_const(target_key, target_value)
 
 		assert_equal(target_value, const_manager.parse(target_key),
 			"add_const should add a constant/value pair that can be trieved with parse")
-		
+
 	end
 
 	def test_initialization
@@ -73,7 +73,7 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 			"parse should retrieve the corresponding value when a key is provided")
 
 		# From API: "should not throw an exception given an invalid key"
-		assert_nothing_thrown do 
+		assert_nothing_thrown do
 			const_manager.parse(invalid_key)
 		end
 
@@ -83,7 +83,7 @@ class WinConstManager::UnitTest < Test::Unit::TestCase
 		x_key = 'X'
 		x_value = 228
 		y_key = 'Y'
-		y_value = 15 
+		y_value = 15
 
 		boolean_logic = x_key + ' | ' + y_key
 		target_boolean_logic_result = x_value | y_value

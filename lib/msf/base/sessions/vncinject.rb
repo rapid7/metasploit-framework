@@ -51,7 +51,7 @@ class VncInject
 	def register?
 		false
 	end
-	
+
 	#
 	# Returns the session type as being 'vncinject'.
 	#

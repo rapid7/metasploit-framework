@@ -12,7 +12,7 @@ class Encoder::NonAlpha < Msf::Encoder
 	def initialize(info)
 		super(info)
 	end
-	
+
 end
 
 end

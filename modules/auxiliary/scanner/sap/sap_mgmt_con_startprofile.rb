@@ -149,7 +149,7 @@ class Metasploit4 < Msf::Auxiliary
 				print_status("#{output[0]}")
 			end
 
-			
+
 		elsif fault
 			print_error("#{rhost}:#{rport} [SAP] Error code: #{faultcode}")
 			return

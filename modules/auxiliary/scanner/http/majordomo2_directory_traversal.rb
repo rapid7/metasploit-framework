@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				module will attempt to download the Majordomo config.pl file.
 			},
 			'Author'         =>	['Nikolas Sotiriu'],
-			'Version'        => '$Revision$',			
+			'Version'        => '$Revision$',
 			'References'     =>
 				[
 					['OSVDB', '70762'],
@@ -87,10 +87,10 @@ class Metasploit3 < Msf::Auxiliary
 						else
 							file_data = html.gsub(%r{(.*)<pre>|<\/pre>(.*)}m, '')
 							print_good("#{rhost}:#{rport} Successfully retrieved #{file} and storing as loot...")
-							
+
 							# Transform HTML entities back to the original characters
 							file_data = file_data.gsub(/\&gt\;/i, '>').gsub(/\&lt\;/i, '<').gsub(/\&quot\;/i, '"')
-							
+
 							store_loot("majordomo2.traversal.file", "application/octet-stream", rhost, file_data, file)
 							return
 						end

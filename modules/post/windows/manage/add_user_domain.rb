@@ -220,7 +220,7 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		print_status("Running module on #{sysinfo['Computer']}")
-	
+
 		## get system, if requested
 		if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
 			get_system

@@ -60,7 +60,7 @@ COMMIT;
 RETURN NULL;
 END;
 		"
-		
+
 		#PROCEDURE CREATE_CHANGE_SET
 		# Argument Name			Type			In/Out Default?
 		# ------------------------------ ----------------------- ------ --------

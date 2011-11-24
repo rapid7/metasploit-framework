@@ -8,7 +8,7 @@ module Windows
 module UserProfiles
 	include Msf::Post::Windows::Registry
 	include Msf::Post::Windows::Accounts
-	
+
 	def grab_user_profiles
 		hives = load_missing_hives()
 		profiles = parse_profiles(hives)
@@ -59,10 +59,10 @@ module UserProfiles
 		read_profile_list().each do |hive|
 			hive['OURS']=false
 			if hive['LOADED']== false
-				if session.fs.file.exists?(hive['DAT']) 
-					hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT']) 
+				if session.fs.file.exists?(hive['DAT'])
+					hive['OURS'] = registry_loadkey(hive['HKU'], hive['DAT'])
 					print_error("Error loading USER #{hive['SID']}: Hive could not be loaded, are you Admin?") unless hive['OURS']
-				else 
+				else
 					print_error("Error loading USER #{hive['SID']}: Profile doesn't exist or cannot be accessed")
 				end
 			end
@@ -86,7 +86,7 @@ module UserProfiles
 		end
 		return hives
 	end
-		
+
 	def loaded_hives
 		hives=[]
 		registry_enumkeys('HKU').each do |k|
