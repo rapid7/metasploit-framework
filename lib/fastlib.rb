@@ -31,68 +31,6 @@ require "find"
 # 	>> rubyzip is free software; you can redistribute it and/or
 # 	>> modify it under the terms of the ruby license.
 
-module Kernel #:nodoc:all
-	alias :fastlib_original_require :require
-
-	#
-	# This method hooks the original Kernel.require to support
-	# loading files within FASTLIB archives
-	#	
-	def require(name)
-		fastlib_require(name) || fastlib_original_require(name)
-	end
-	
-	#
-	# This method handles the loading of FASTLIB archives
-	#
-	def fastlib_require(name)
-		name = name + ".rb" if not name =~ /\.rb$/
-		return false if fastlib_already_loaded?(name)
-		return false if fastlib_already_tried?(name)
-
-		# TODO: Implement relative path $: checks and adjust the
-		#       search path within archives to match.
-			
-		$:.grep( /^(.*)\.fastlib$/ ).each do |lib|
-			data = FastLib.load(lib, name)
-			next if not data
-			$" << name
-			
-			# TODO: Implement a better stack trace that represents
-			#       the original filename and line number.
-			Object.class_eval(data)
-			return true
-		end
-		
-		$fastlib_miss << name 	
-
-		false
-	end
-	
-	#
-	# This method determines whether the specific file name
-	# has already been loaded ($LOADED_FEATURES aka $")
-	#
-	def fastlib_already_loaded?(name)
-		re = Regexp.new("^" + Regexp.escape(name) + "$")
-		$".detect { |e| e =~ re } != nil
-	end
-
-	#
-	# This method determines whether the specific file name
-	# has already been attempted with the included FASTLIB
-	# archives.
-	#
-	# TODO: Ensure that this only applies to known FASTLIB
-	#       archives and that newly included archives will
-	#       be searched appropriately.
-	#	
-	def fastlib_already_tried?(name)
-		$fastlib_miss ||= []
-		$fastlib_miss.include?(name)
-	end	
-end
-
 
 #
 # The FastLib class implements the meat of the FASTLIB archive format
@@ -401,6 +339,75 @@ end
 	[ Raw Data ]
 
 =end
+
+
+module Kernel #:nodoc:all
+	alias :fastlib_original_require :require
+
+	#
+	# This method hooks the original Kernel.require to support
+	# loading files within FASTLIB archives
+	#	
+	def require(name)
+		fastlib_require(name) || fastlib_original_require(name)
+	end
+	
+	#
+	# This method handles the loading of FASTLIB archives
+	#
+	def fastlib_require(name)
+		name = name + ".rb" if not name =~ /\.rb$/
+		return false if fastlib_already_loaded?(name)
+		return false if fastlib_already_tried?(name)
+
+		# TODO: Implement relative path $: checks and adjust the
+		#       search path within archives to match.
+		
+		$:.map{ |path| ::Dir["#{path}/*.fastlib"] }.flatten.uniq.each do |lib|
+			data = FastLib.load(lib, name)
+			next if not data
+			$" << name
+			
+			begin
+				Object.class_eval(data)
+			rescue ::Exception => e
+				opath,oerror = e.backtrace.shift.split(':', 2)
+				e.backtrace.unshift("#{lib}::#{name}:#{oerror}")
+				raise e
+			end
+			
+			return true
+		end
+		
+		$fastlib_miss << name 	
+
+		false
+	end
+	
+	#
+	# This method determines whether the specific file name
+	# has already been loaded ($LOADED_FEATURES aka $")
+	#
+	def fastlib_already_loaded?(name)
+		re = Regexp.new("^" + Regexp.escape(name) + "$")
+		$".detect { |e| e =~ re } != nil
+	end
+
+	#
+	# This method determines whether the specific file name
+	# has already been attempted with the included FASTLIB
+	# archives.
+	#
+	# TODO: Ensure that this only applies to known FASTLIB
+	#       archives and that newly included archives will
+	#       be searched appropriately.
+	#	
+	def fastlib_already_tried?(name)
+		$fastlib_miss ||= []
+		$fastlib_miss.include?(name)
+	end	
+end
+
 
 
 
