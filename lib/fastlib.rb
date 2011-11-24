@@ -20,6 +20,7 @@
 
 require "find"
 
+
 #
 # Copyright (C) 2011 Rapid7. You can redistribute it and/or
 # modify it under the terms of the ruby license.
@@ -98,9 +99,22 @@ end
 #
 class FastLib
 
-	VERSION = "0.0.4"
+	VERSION = "0.0.5"
 
+	FLAG_COMPRESS = 0x01
+	FLAG_ENCRYPT  = 0x02
+	
 	@@cache = {}
+	@@has_zlib = false
+	
+	#
+	# Load zlib support if possible
+	#
+	begin
+		require 'zlib'
+		@@has_zlib = true
+	rescue ::LoadError
+	end
 	
 	#
 	# This method returns the version of the fastlib library
@@ -128,7 +142,7 @@ class FastLib
 				@@cache[lib][:fastlib_header][1] + 
 				@@cache[lib][name][0]
 			)
-			data = fastlib_filter( fd.read(@@cache[lib][name][1] ))
+			data = fastlib_filter_decode( @@cache[lib][:fastlib_flags], fd.read(@@cache[lib][name][1] ))
 		end
 		
 		# Return the contents in raw or processed form
@@ -140,45 +154,94 @@ class FastLib
 	#
 	def self.load_cache(lib)
 		return if @@cache[lib]
-		dict = {}
-
+		@@cache[lib] = {}
+		
 		return if not ::File.exists?(lib)
 				
 		::File.open(lib, 'rb') do |fd|
+			dict = {}
 			head = fd.read(4)
 			return if head != "FAST"
 			hlen = fd.read(4).unpack("N")[0]
-			dict[:fastlib_header] = [8, hlen]
+			flag = fd.read(4).unpack("N")[0]			
+		
+			@@cache[lib][:fastlib_header] = [12, hlen, fd.stat.mtime.utc.to_i ]
+			@@cache[lib][:fastlib_flags]  = flag
 			
-			nlen, doff, dlen = fd.read(12).unpack("N*")
+			nlen, doff, dlen, tims = fd.read(16).unpack("N*")
 			
 			while nlen > 0
-				name = fastlib_filter_name( fd.read(nlen) )
-				dict[name] = [doff, dlen]
+				name = fastlib_filter_decode( lib, fd.read(nlen) )
+				dict[name] = [doff, dlen, tims]
 				
-				nlen, doff, dlen = fd.read(12).unpack("N*")
+				nlen, doff, dlen, tims = fd.read(16).unpack("N*")
 			end
-			@@cache[lib] = dict
+			
+			@@cache[lib].merge!(dict)
 		end
+		
 	end
 	
 	#
-	# This method provides a way to hook the translation of file names
-	# from the dictionary in the file to the final string. This can be
-	# used to provide encryption or compression.
+	# This method provides compression and encryption capabilities
+	# for the fastlib archive format.
 	#
-	def self.fastlib_filter_name(name)
-		name
+	def self.fastlib_filter_decode(lib, buff)
+
+		if (@@cache[lib][:fastlib_flags] & FLAG_ENCRYPT) != 0
+		
+			@@cache[lib][:fastlib_decrypt] ||= ::Proc.new do |data|
+				stub = "decrypt_%.8x" % ( @@cache[lib][:fastlib_flags] & 0xfffffff0 )
+				FastLib.send(stub, data)
+			end
+
+			buff = @@cache[lib][:fastlib_decrypt].call( buff )
+		end
+		
+		if (@@cache[lib][:fastlib_flags] & FLAG_COMPRESS) != 0
+			if not @@has_zlib
+				raise ::RuntimeError, "zlib is required to open this archive"
+			end
+
+			z = Zlib::Inflate.new
+			buff = z.inflate(buff)
+			buff << z.finish
+			z.close	
+		end
+		
+		buff
 	end
 
 	#
-	# This method provides a way to hook the translation of file content
-	# from the archive to the final content. This can be used to provide
-	# encryption or compression.
-	#	
-	def self.fastlib_filter(data)
-		data
+	# This method provides compression and encryption capabilities
+	# for the fastlib archive format.
+	#
+	def self.fastlib_filter_encode(lib, buff)
+		
+		if (@@cache[lib][:fastlib_flags] & FLAG_COMPRESS) != 0
+			if not @@has_zlib
+				raise ::RuntimeError, "zlib is required to open this archive"
+			end
+
+			z = Zlib::Deflate.new
+			buff = z.deflate(buff)
+			buff << z.finish
+			z.close	
+		end
+
+		if (@@cache[lib][:fastlib_flags] & FLAG_ENCRYPT) != 0
+		
+			@@cache[lib][:fastlib_encrypt] ||= ::Proc.new do |data|
+				stub = "encrypt_%.8x" % ( @@cache[lib][:fastlib_flags] & 0xfffffff0 )
+				FastLib.send(stub, data)
+			end
+
+			buff = @@cache[lib][:fastlib_encrypt].call( buff )
+		end
+		
+		buff
 	end
+
 
 	#
 	# This method provides a way to create a FASTLIB archive programatically,
@@ -186,7 +249,7 @@ class FastLib
 	# directory that should be excluded from the archived path, and finally
 	# the list of specific files and directories to include in the archive.
 	#
-	def self.dump(lib, bdir, *dirs)
+	def self.dump(lib, flag, bdir, *dirs)
 		head = ""
 		data = ""
 		hidx = 0
@@ -195,20 +258,26 @@ class FastLib
 		bdir = bdir.gsub(/\/$/, '')
 		brex = /^#{Regexp.escape(bdir)}\//
 		
+		@@cache[lib] = {
+			:fastlib_flags => flag.to_i(16)
+		}
+		
 		dirs.each do |dir|
 			::Find.find(dir).each do |path|
 				next if not ::File.file?(path)
-				name = fastlib_filter_name( path.sub( brex, "" ) )
+				name = fastlib_filter_encode( lib, path.sub( brex, "" ) )
+				
 				buff = ""
 				::File.open(path, "rb") do |fd|
-					buff = fd.read(fd.stat.size)
+					buff = fastlib_filter_encode(lib, fd.read(fd.stat.size))
 				end
-			
-				head << [ name.length, didx, buff.length ].pack("NNN")
+				
+
+				head << [ name.length, didx, buff.length, ::File.stat(path).mtime.utc.to_i ].pack("NNNN")
 				head << name
-				hidx = hidx + 12 + name.length
+				hidx = hidx + 16 + name.length
 			
-				data << fastlib_filter( buff )
+				data << buff
 				didx = didx + buff.length
 			end
 		end
@@ -217,7 +286,7 @@ class FastLib
 		
 		::File.open(lib, "wb") do |fd|
 			fd.write("FAST")
-			fd.write( [ head.length ].pack("N") )
+			fd.write( [ head.length, flag.to_i(16) ].pack("NN") )
 			fd.write( head )
 			fd.write( data )
 		end	
@@ -229,7 +298,7 @@ class FastLib
 	#
 	def self.list(lib)
 		load_cache(lib)
-		( @@cache[lib] || {} ).keys.map{|x| x.to_s }.sort
+		( @@cache[lib] || {} ).keys.map{|x| x.to_s }.sort.select{ |x| @@cache[lib][x] }
 	end
 	
 	#
@@ -240,6 +309,24 @@ class FastLib
 		data.gsub('__FILE__', "'#{ ::File.expand_path(::File.join(::File.dirname(lib), name)) }'")
 	end
 	
+	#
+	# This is a stub crypto handler that performs a basic XOR
+	# operation against a fixed one byte key
+	#
+	def self.encrypt_12345600(data)
+		data.unpack("C*").map{ |c| c ^ 0x90 }.pack("C*")
+	end
+	
+	def self.decrypt_12345600(data)
+		encrypt_12345600(data)
+	end
+	
+	def self.cache
+		@@cache
+	end
+	
+
+	
 end
 
 
@@ -249,32 +336,35 @@ end
 #
 if __FILE__ == $0
 	cmd = ARGV.shift
-	unless ["dump", "list", "version"].include?(cmd)
+	unless ["store", "list", "version"].include?(cmd)
 		$stderr.puts "Usage: #{$0} [dump|list|version] <arguments>"
 		exit(0)
 	end
 	
 	case cmd
-	when "dump"
+	when "store"
 		dst = ARGV.shift
+		flg = ARGV.shift
 		dir = ARGV.shift
 		src = ARGV
 		unless dst and dir and src.length > 0
-			$stderr.puts "Usage: #{$0} dump destination.fastlib base_dir src1 src2 ... src99"
+			$stderr.puts "Usage: #{$0} store destination.fastlib flags base_dir src1 src2 ... src99"
 			exit(0)
 		end
-		FastLib.dump(dst, dir, *src)
+		FastLib.dump(dst, flg, dir, *src)
 	
 	when "list"
 		src = ARGV.shift
 		unless src
-			$stderr.puts "Usage: #{$0} list src_lib "
+			$stderr.puts "Usage: #{$0} list"
 			exit(0)
 		end
 		$stdout.puts "Library: #{src}"
 		$stdout.puts "====================================================="
 		FastLib.list(src).each do |name|
-			$stdout.puts " - #{name}"
+			fsize = FastLib.cache[src][name][1]
+			ftime = ::Time.at(FastLib.cache[src][name][2]).strftime("%Y-%m-%d %H:%M:%S")
+			$stdout.puts sprintf("%9d\t%20s\t%s\n", fsize, ftime, name)
 		end
 		$stdout.puts ""
 
@@ -292,10 +382,10 @@ end
 
 	* All integers are 32-bit and in network byte order (big endian / BE)
 	* The file signature is 0x46415354 (big endian, use htonl() if necessary)
-	* The header is always 8 bytes into the archive (magic + header length)
-	* The data section is always 8 + header length into the archive
+	* The header is always 12 bytes into the archive (magic + header length)
+	* The data section is always 12 + header length into the archive
 	* The header entries always start with 'fastlib_header'
-	* The header entries always consist of 12 bytes + name length (no alignment)
+	* The header entries always consist of 16 bytes + name length (no alignment)
 	* The header name data may be encoded, compressed, or transformed
 	* The data entries may be encoded, compressed, or transformed too
 	
@@ -306,6 +396,7 @@ end
 		4 bytes: name length (0 = End of Names)
 		4 bytes: data offset
 		4 bytes: data length
+		4 bytes: timestamp
 	]
 	[ Raw Data ]
 
