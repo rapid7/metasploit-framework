@@ -136,7 +136,9 @@ class Metasploit3 < Msf::Post
 			if item =~ /signons\.sqlite/ and datastore['PARSE']
 				print_status("Parsing signons.sqlite...")
 				data_tbl = parse(path)
-				if not data_tbl.nil?
+				if data_tbl.nil? or data_tbl.rows.empty?
+					print_status("No data parsed")
+				else
 					path = store_loot(
 						"tb.parsed.#{item}",
 						"text/plain",
