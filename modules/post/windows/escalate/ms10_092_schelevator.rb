@@ -164,12 +164,7 @@ class Metasploit3 < Msf::Post
 		print_status("Creating task: #{taskname}")
 		cmdline = "schtasks.exe /create /tn #{taskname} /tr \"#{cmd}\" /sc monthly /f"
 #		print_debug("Will Execute:\n\t#{cmdline}")
-		begin
-			exec_schtasks(cmdline, "create the task")
-		rescue ::Exception => e
-			print_error(e.to_s)
-			return
-		end
+		exec_schtasks(cmdline, "create the task")
 
 		#
 		# Read the contents of the newly creates task file
