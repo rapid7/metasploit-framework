@@ -11,7 +11,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::WMAPScanSSL
@@ -25,13 +25,16 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'HTTP SSL Certificate Information',
 			'Version'     => '$Revision$',
 			'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
-			'Author'      => 'et',
+			'Author'      =>
+				[
+					'et', #original module
+					'Chris John Riley', #additions
+				],
 			'License'     => MSF_LICENSE
 		)
 		register_options([
 			Opt::RPORT(443)
 		], self.class)
-
 	end
 
 	# Fingerprint a single host
@@ -39,14 +42,30 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 
-			connect
+			connect(true, {"SSL" => true}) #Force SSL
 
 			cert = OpenSSL::X509::Certificate.new(sock.peer_cert)
 
 			disconnect
 
 			if cert
-				print_status("#{ip}:#{rport} Subject: #{cert.subject} Signature Alg: #{cert.signature_algorithm}")
+				print_status("#{ip}:#{rport} Subject: #{cert.subject}")
+				print_status("#{ip}:#{rport} Issuer: #{cert.issuer}")
+				print_status("#{ip}:#{rport} Signature Alg: #{cert.signature_algorithm}")
+
+				# Checks for common properties of self signed certificates
+				caissuer = (/CA Issuers - URI:(.*?),/i).match(cert.extensions.to_s)
+
+				if caissuer.to_s.empty?
+					print_good("Certificate contains no CA Issuers extension... possible self signed certificate") 
+				else
+					print_status("#{ip}:#{rport} " +caissuer.to_s[0..-2])
+				end
+
+				if cert.issuer.to_s == cert.subject.to_s
+					print_good("Certificate Subject and Issuer match... possible self signed certificate")
+				end
+
 				alg = cert.signature_algorithm
 
 				if alg.downcase.include? "md5"
@@ -101,4 +120,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-
