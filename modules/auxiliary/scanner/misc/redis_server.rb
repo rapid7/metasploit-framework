@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'       => [ 'iallison <ian[at]team-allison.com>' ],
 			'License'      => MSF_LICENSE
-		 ))
+		))
 
 		register_options(
 			[
