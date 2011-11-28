@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Account in Local Groups with Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Group",
 				"Member",
 				"Domain Admin"
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Processes under Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Name",
 				"PID",
 				"Arch",
