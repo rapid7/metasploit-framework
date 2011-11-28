@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'       => [ 'iallison <ian[at]team-allison.com>' ],
 			'License'      => MSF_LICENSE
-		 ))
+		))
 
 		register_options(
 			[
@@ -83,7 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect
 
 		rescue ::Exception => e
-			print_error "Unable to connect: #{e.to_s}" 
+			print_error "Unable to connect: #{e.to_s}"
 		end
 	end
 end

@@ -51,7 +51,7 @@ module Metasploit3
 		c << "Spawn=#{spawn}\n"
 		c << "LHOST=#{datastore["LHOST"]}\n" if datastore["LHOST"]
 		c << "LPORT=#{datastore["LPORT"]}\n" if datastore["LPORT"]
-		
+
 		c
 	end
 
