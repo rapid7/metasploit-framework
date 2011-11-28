@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		elsif datastore['VERSION'] == '2010'
 			authPath = '/owa/auth.owa'  # Post creds here
 			inboxPath = '/owa/'         # Get request with cookie/sessionid
-			loginCheck = /Inbox|A mailbox couldn\'t be found/        # check result
+			loginCheck = /location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/        # check result
 		else
 			print_error('Invalid VERSION, select one of 2003, 2007, or 2010')
 			return
