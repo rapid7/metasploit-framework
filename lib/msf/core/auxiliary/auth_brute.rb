@@ -419,6 +419,8 @@ module Auxiliary::AuthBrute
 	# datastore["VERBOSE"] is set to true.
 	#
 	# If :level would make the method nonsense, default to print_status.
+	#
+	# TODO: This needs to be simpler to be useful.
 	def print_brute(opts={})
 		if opts[:level] and opts[:level].to_s[/^v/]
 			return unless datastore["VERBOSE"]
