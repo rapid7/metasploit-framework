@@ -103,7 +103,7 @@ def check_single_file(dparts, fparts, f_rel)
 		cr += 1 if ln =~ /\r$/
 		url_ok = false if ln =~ /\.com\/projects\/Framework/
 		if ln =~ /File\.open/ and ln =~ /[\"\'][arw]/
-			if not ln =~ /[\"\'][wra]b\+?[\"\']/
+			if not ln =~ /[\"\'][wra]\+?b\+?[\"\']/
 				nbo += 1
 			end
 		end
