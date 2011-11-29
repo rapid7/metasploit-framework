@@ -47,6 +47,17 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['BLANK_PASSWORDS'] = false  # OWA doesn't support blank passwords
 		vhost = datastore['VHOST'] || datastore['RHOST']
 
+		print_status("#{msg} Testing version #{datastore['VERSION']}")
+
+		# Here's a weird hack to check if each_user_pass is empty or not
+		# apparently you cannot do each_user_pass.empty? or even inspect() it
+		isempty = true
+		each_user_pass do |user|
+			isempty = false
+			break
+		end
+		print_error("No username/password specified") if isempty
+
 		if datastore['VERSION'] == '2003'
 			authPath = '/exchweb/bin/auth/owaauth.dll'
 			inboxPath = '/exchange/'
@@ -58,13 +69,11 @@ class Metasploit3 < Msf::Auxiliary
 		elsif datastore['VERSION'] == '2010'
 			authPath = '/owa/auth.owa'  # Post creds here
 			inboxPath = '/owa/'         # Get request with cookie/sessionid
-			loginCheck = /location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/        # check result
+			loginCheck = /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/        # check result
 		else
 			print_error('Invalid VERSION, select one of 2003, 2007, or 2010')
 			return
 		end
-
-		print_status("#{msg} Testing version #{datastore['VERSION']}")
 
 		begin
 			each_user_pass do |user, pass|
