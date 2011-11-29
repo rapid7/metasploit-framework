@@ -52,7 +52,6 @@ class Config < Hash
 			'ConfigDirectory'     => get_config_root,
 			'ConfigFile'          => "config",
 			'ModuleDirectory'     => "modules",
-			'ModuleArchive'       => "modules.fastlib",
 			'ScriptDirectory'     => "scripts",
 			'LogDirectory'        => "logs",
 			'SessionLogDirectory' => "logs/sessions",
@@ -87,13 +86,6 @@ class Config < Hash
 	#
 	def self.module_directory
 		self.new.module_directory
-	end
-
-	#
-	# Calls the instance method.
-	#
-	def self.module_archive
-		self.new.module_archive
 	end
 	
 	#
@@ -150,13 +142,6 @@ class Config < Hash
 	#
 	def self.user_module_directory
 		self.new.user_module_directory
-	end
-
-	#
-	# Calls the instance method.
-	#
-	def self.user_module_archive
-		self.new.user_module_archive
 	end
 	
 	#
@@ -251,13 +236,6 @@ class Config < Hash
 	end
 	
 	#
-	# Returns the global module archive.
-	#
-	def module_archive
-		install_root + FileSep + self['ModuleArchive']
-	end
-	
-	#
 	# Returns the path that scripts can be loaded from.
 	#
 	def script_directory
@@ -304,13 +282,6 @@ class Config < Hash
 	#
 	def user_module_directory
 		config_directory + FileSep + "modules"
-	end
-
-	#
-	# Returns the user-specific module archive
-	#
-	def user_module_archive
-		config_directory + FileSep + "modules.fastlib"
 	end
 	
 	#
