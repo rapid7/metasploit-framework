@@ -253,10 +253,10 @@ module Auxiliary::Report
 			ext ||= "bin"
 		end
 
-		fname.gsub!(/[^a-z0-9\.\_]+/i, '')
+		fname.gsub!(/[^a-z0-9\.\_\-]+/i, '')
 		fname << ".#{ext}"
 
-		ltype.gsub!(/[^a-z0-9\.\_]+/i, '')
+		ltype.gsub!(/[^a-z0-9\.\_\-]+/i, '')
 
 		path = File.join(Msf::Config.local_directory, fname)
 		full_path = ::File.expand_path(path)
