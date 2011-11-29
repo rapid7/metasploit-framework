@@ -30,7 +30,7 @@ module Metasploit3
 					'Payload' => "" # not really
 				}
 			))
-			
+
 		# Register options
 		register_options(
 			[

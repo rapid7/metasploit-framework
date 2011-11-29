@@ -92,8 +92,22 @@ client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
 
 =end
 
-		client.railgun.add_function( 'netapi32', 'NetServerEnum', 'DWORD',[["PBLOB","servername","in"],["DWORD","level","in"],["PDWORD","bufptr","out"],["DWORD","prefmaxlen","in"],["PDWORD","entriesread","out"],["PDWORD","totalentries","out"],["DWORD","servertype","in"],["PWCHAR","domain","in"],["DWORD","resume_handle","inout"]])
-		client.railgun.add_function( 'ws2_32', 'getaddrinfo', 'DWORD',[["PCHAR","pNodeName","in"],["PCHAR","pServiceName","in"],["PDWORD","pHints","in"],["PDWORD","ppResult","out"]])
+		client.railgun.add_function(
+			'netapi32', 'NetServerEnum', 'DWORD',
+			[
+				["PBLOB","servername","in"], ["DWORD","level","in"], ["PDWORD","bufptr","out"],
+				["DWORD","prefmaxlen","in"], ["PDWORD","entriesread","out"], ["PDWORD","totalentries","out"],
+				["DWORD","servertype","in"], ["PWCHAR","domain","in"], ["DWORD","resume_handle","inout"]
+			]
+		)
+
+		client.railgun.add_function(
+			'ws2_32', 'getaddrinfo', 'DWORD',
+			[
+				["PCHAR","pNodeName","in"], ["PCHAR","pServiceName","in"],
+				["PDWORD","pHints","in"], ["PDWORD","ppResult","out"]
+			]
+		)
 
 		domain = nil
 

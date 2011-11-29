@@ -124,11 +124,11 @@ class Metasploit3 < Msf::Auxiliary
 		john_cracked_passwords.values {|v| seed << v }
 
 		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "r")
+		john = File.open(john_wordlist_path, "rb")
 		john.each_line{|line| seed << line.chomp}
 
 		if datastore['Wordlist']
-			wordlist= File.open(datastore['Wordlist'], "r")
+			wordlist= File.open(datastore['Wordlist'], "rb")
 			wordlist.each_line{|line| seed << line.chomp}
 		end
 

@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
 				begin
-					usf = File.open(myloot.path)
+					usf = File.open(myloot.path, "rb")
 				rescue Exception => e
 					print_error("Unable to read #{myloot.path} \n #{e}")
 				end
@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 		john_cracked_passwords.values {|v| seed << v }
 
 		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "r")
+		john = File.open(john_wordlist_path, "rb")
 		john.each_line{|line| seed << line.chomp}
 
 		unless seed.empty?
