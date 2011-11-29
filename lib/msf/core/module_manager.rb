@@ -614,9 +614,11 @@ class ModuleManager < ModuleSet
 	# their loading will not impact the module path.
 	#
 	def add_module_path(path, check_cache = true)
+		epaths = []
+
 		if path =~ /\.fastlib$/
 			unless ::File.exist?(path)
-				raise RuntimeError, "The path supplied is not a valid directory.", caller
+				raise RuntimeError, "The path supplied does not exist", caller
 			end
 		else
 			path.sub!(/#{File::SEPARATOR}$/, '')
@@ -626,15 +628,24 @@ class ModuleManager < ModuleSet
 
 			# Make sure the path is a valid directory before we try to rock the
 			# house
-			unless (path.directory?)
+			unless path.directory?
 				raise RuntimeError, "The path supplied is not a valid directory.", caller
 			end
 
 			# Now that we've confirmed it exists, get the full, cononical path
 			path = path.realpath.to_s
+
+			# Identify any fastlib archives inside of this path
+			Dir["#{path}/**/*.fastlib"].each do |fp|
+				epaths << fp
+			end
 		end
 
 		module_paths << path
+
+		epaths.each do |epath|
+			module_paths << epath
+		end		
 
 		begin
 			counts = load_modules(path, !check_cache)
