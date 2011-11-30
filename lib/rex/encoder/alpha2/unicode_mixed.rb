@@ -7,12 +7,6 @@ module Encoder
 module Alpha2
 
 class UnicodeMixed < Generic
-
-	def self.gen_base_set(max)
-		Rex::Text.shuffle_a(
-			[* ( (0..(max-1)).map { |i| i *= 0x10 } ) ]
-		)
-	end
 	
 	def self.gen_second(block, base)
 		# unicode uses additive encoding
@@ -20,8 +14,8 @@ class UnicodeMixed < Generic
 	end
 	
 	def self.gen_decoder_prefix(reg, offset)
-		if (offset > 28)
-			 raise "Critical: Offset is greater than 28"
+		if (offset > 21)
+			 raise "Critical: Offset is greater than 21"
 		end
 
 		# offset untested for unicode :(
