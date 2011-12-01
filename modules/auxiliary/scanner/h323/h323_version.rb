@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision: 9804 $',
 			'Description' => 'Detect H.323 Version.',
 			'Author'      => 'hdm',
-			'License'     => 'Rapid7 Proprietary'
+			'License'     => MSF_LICENSE,
 		)
 
 		register_options(
