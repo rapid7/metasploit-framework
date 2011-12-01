@@ -29,7 +29,7 @@ your day-to-day workflow with Git.
 
 * Push commits on a non-master branch:
 
-    `git push origin/your_branch_name`
+    `git push origin your_branch_name`
 
 ## Branching
 
