@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Post
 
 			print_status "Microsoft Outlook found in Registry..."
 			outlook_exists = 1
-			registry_enumkeys(@key_base + "9375CFF0413111d3B88A00104B2A6676\\").each do |k|
+			registry_enumkeys(@key_base).each do |k|
 				display_name = get_valdata(k, 'Display Name')
 
 				if display_name == nil
