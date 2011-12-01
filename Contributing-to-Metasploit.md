@@ -30,16 +30,6 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 **Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/29111.pl
 
-### [CVE-2004-2111](http://www.cvedetails.com/cve/CVE-2004-2111)
-
-**Description:** Stack-based buffer overflow in the site chmod command in Serv-U FTP Server before 4.2 allows remote attackers to execute arbitrary code via a long filename.
-
-**Affected Software:** [RhinoSoft Serv-U FTP Server](http://www.serv-u.com/) pre-4.1.0.3
-
-**Module Type:** exploits/windows/ftp
-
-**Proof of concept:** http://www.securityfocus.com/bid/9483/exploit
-
 ## Client Exploits
 
 ### [CVE-2005-1790](http://www.cvedetails.com/cve/CVE-2005-1790)
