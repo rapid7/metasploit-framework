@@ -202,11 +202,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-=begin
-	[*] 207.245.233.72:1720 Protocol: 6  VendorID: 0x0900003d  VersionID: )N=r^ cBk&Dd#0,  ProductID: one Networks H.323 Channel Driver for Asterisk1.0.0 (OpenH323 v1.18.  DisplayName: root
-=end
-
-
 	# This provides a weak method of decoding USER-USER PDUs. These are
 	# actually PER-encoded ASN.1, but we take a few shortcuts since PER
 	# encoding is such a pain.
