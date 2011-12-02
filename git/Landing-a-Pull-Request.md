@@ -1,6 +1,6 @@
 The process of incorporating a downstream change back into the framework is known as "landing" a pull request. To get started, we need to check out the pull request page.
 
-[pull-request.png]
+[[pull-request.png]]
 
 ## Create remote
 
@@ -133,7 +133,7 @@ Date:   Wed Nov 30 08:15:20 2011 -0600
 
 Here, I've followed [the git commit message style espoused by Tim Pope](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html). Note the line at the bottom. By specifying a `Fixes` section for each Redmine issue, and a `Closes` section for the pull request number (which can be found in the URL of the pull request page), we can close both the issue and the request with this commit message. Save the file and push up the commit, and now the pull request page will show a status of 'Closed' with a link to your commit:
 
-[closed-pull-request.png]
+[[closed-pull-request.png]]
 
 
 
