@@ -108,6 +108,8 @@ your day-to-day workflow with Git.
 * Revert a commit from a merge:
 
     `git revert -m<number of commits back in the merge to revert> <hash of merge commit>`
+     (e.g. git revert -m1 4f76f3bbb83ffe4de74a849ad9f68707e3568e16 will revert the first commit back
+     in the merge performed at 4f76f3bbb83ffe4de74a849ad9f68707e3568e16)
 
 
 ## Git in Bash
