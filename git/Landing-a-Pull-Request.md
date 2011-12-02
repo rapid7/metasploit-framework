@@ -10,9 +10,11 @@ If anything looks awry in the diff, we can leave a comment on the pull request t
 $ git remote add swtornio git://github.com/swtornio/metasploit-framework.git
 ```
 
+Making the remote name match the user's name keeps things simple. 
+
 ## Create tracking branch
 
-Making the remote name match the user's name keeps things simple. Now we'll create a branch that tracks the remote branch listed in the pull request, in this case, `master`:
+Now we'll create a branch that tracks the remote branch listed in the pull request, in this case, `master`:
 
 ```console
 $ git fetch swtornio
