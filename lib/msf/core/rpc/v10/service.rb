@@ -63,7 +63,8 @@ class Service
 			self.options[:ssl],
 			self.options[:context],
 			self.options[:comm],
-			self.options[:cert]
+			self.options[:cert],
+			true
 		)
 
 		self.service.add_resource(self.uri, {

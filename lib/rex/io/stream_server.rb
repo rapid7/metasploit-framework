@@ -68,9 +68,13 @@ module StreamServer
 		self.listener_thread = Rex::ThreadFactory.spawn("StreamServerListener", false) {
 			monitor_listener
 		}
-		self.clients_thread = Rex::ThreadFactory.spawn("StreamServerClientMonitor", false) {
-			monitor_clients
-		}
+		if self.threaded
+			self.clients_thread = []
+		else
+			self.clients_thread = Rex::ThreadFactory.spawn("StreamServerClientMonitor", false) {
+				monitor_clients
+			}
+		end
 	end
 
 	#
@@ -78,7 +82,7 @@ module StreamServer
 	#
 	def stop
 		self.listener_thread.kill
-		self.clients_thread.kill
+		self.clients_thread.kill unless self.threaded
 
 		self.clients.each { |cli|
 			close_client(cli)
@@ -91,6 +95,7 @@ module StreamServer
 	#
 	def close_client(client)
 		if (client)
+			clients_thread.delete_at(clients.index(client)) if self.threaded
 			clients.delete(client)
 
 			begin
@@ -130,7 +135,7 @@ module StreamServer
 	attr_accessor :on_client_close_proc
 
 	attr_accessor :clients # :nodoc:
-	attr_accessor :listener_thread, :clients_thread # :nodoc:
+	attr_accessor :listener_thread, :clients_thread, :threaded # :nodoc:
 	attr_accessor :client_waiter
 
 protected
@@ -156,6 +161,12 @@ protected
 				# Initialize the connection processing
 				on_client_connect(cli)
 				
+				if self.threaded # Start thread
+					self.clients_thread << Rex::ThreadFactory.spawn("StreamServerClientMonitor#{cli.to_s}", false, cli) {
+						monitor_clients(cli)
+					}
+				end
+
 				# Notify the client monitor
 				self.client_waiter.push(cli)
 
@@ -175,16 +186,20 @@ protected
 	# This method monitors client connections for data and calls the
 	# +on_client_data+ routine when new data arrives.
 	#
-	def monitor_clients
+	def monitor_clients(cli = nil)
 		begin
 		
 			# Wait for a notify if our client list is empty
-			if (clients.length == 0)
+			if (not self.threaded and clients.length == 0)
 				self.client_waiter.pop
 				next
 			end
 
-			sd = Rex::ThreadSafe.select(clients, nil, nil, nil)
+			if self.threaded
+				sd = Rex::ThreadSafe.select([cli])
+			else
+				sd = Rex::ThreadSafe.select(clients, nil, nil, nil)
+			end
 
 			sd[0].each { |cfd|
 				begin
@@ -203,6 +218,8 @@ protected
 			}
 
 		rescue ::Rex::StreamClosedError => e
+			# Remove thread from the list if threaded
+			clients_thread.delete_at(clients.index(client)) if self.threaded
 			# Remove the closed stream from the list
 			clients.delete(e.stream)
 		rescue ::Interrupt
