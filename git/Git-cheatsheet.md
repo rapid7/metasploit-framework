@@ -101,6 +101,14 @@ your day-to-day workflow with Git.
 
     `git mergetool`
 
+* Revert a commit:
+
+    `git revert <commit hash>`
+
+* Revert a commit from a merge:
+
+    `git revert -m<number of commits back in the merge to revert> <hash of merge commit>`
+
 
 ## Git in Bash
 When using Git, it's very handy (read: pretty much mandatory) to have an ambient cue in your shell telling you what branch you're currently on.  Use this function in your .profile/.bashrc/.bash_profile to enable you to place your Git branch in your prompt:
