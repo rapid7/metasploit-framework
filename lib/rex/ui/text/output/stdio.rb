@@ -1,5 +1,9 @@
 require 'rex/ui'
-require 'windows_console_color_support'
+
+begin
+	require 'windows_console_color_support'
+rescue ::LoadError
+end
 
 module Rex
 module Ui
