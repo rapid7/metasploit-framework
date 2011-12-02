@@ -97,11 +97,6 @@ class Rex::Socket::Parameters
 	#
 	# 	The number of seconds before a connection should time out
 	#
-	# Threaded
-	#
-	#   Whether the server is to spin off a new thread for each client.
-	#
-
 	
 	def initialize(hash)
 		if (hash['PeerHost'])
@@ -143,13 +138,7 @@ class Rex::Socket::Parameters
 		else
 			self.ssl = false
 		end
-
-		if (hash['Threaded'] and hash['Threaded'].to_s =~ /^(t|y|1)/i)
-			self.threaded = true
-		else
-			self.threaded = false
-		end
-
+		
 		if (hash['SSLVersion'] and hash['SSLVersion'].to_s =~ /^(SSL2|SSL3|TLS1)$/i)
 			self.ssl_version = hash['SSLVersion']
 		end
@@ -284,12 +273,6 @@ class Rex::Socket::Parameters
 		return v6
 	end
 
-	#
-	# Returns true if Multithreading has been enabled
-	#
-	def threaded?
-		return threaded
-	end
 
 	##
 	#
@@ -361,10 +344,6 @@ class Rex::Socket::Parameters
 	# Whether we should use IPv6
 	#
 	attr_accessor :v6
-	#
-	# Whether we should be multithreaded
-	#
-	attr_accessor :threaded
 
 
 	attr_accessor :proxies
