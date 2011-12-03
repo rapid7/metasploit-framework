@@ -30,6 +30,14 @@
 #define DLT_AIRONET_HEADER 120
 #endif
 
+#if !defined(PCAP_NETMASK_UNKNOWN)
+/*
+ * Value to pass to pcap_compile() as the netmask if you don't know what
+ * the netmask is.
+ */
+#define PCAP_NETMASK_UNKNOWN    0xffffffff
+#endif
+
 static VALUE rb_cPcap;
 
 #define PCAPRUB_VERSION "0.9-dev"

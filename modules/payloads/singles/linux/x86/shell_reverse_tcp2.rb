@@ -56,14 +56,14 @@ module Metasploit3
 	int 80h                       ; @0000000c   cd80
 	xchg ebx, eax                 ; @0000000e   93
 	pop ecx                       ; @0000000f   59
-	
+
 	; Xrefs: 0000000f, 00000015
 xref_00000010_uuidfdbd8:
 	mov al, 3fh                   ; @00000010   b03f
 	int 80h                       ; @00000012   cd80
 	dec ecx                       ; @00000014   49
 	jns xref_00000010_uuidfdbd8   ; @00000015   79f9  -- to 10h
-	
+
 	; Xrefs: 00000015
 	pop ebx                       ; @00000017   5b
 	pop edx                       ; @00000018   5a

