@@ -47,7 +47,7 @@ class Metasploit3 < Msf::Post
 		admin = is_admin? ? 'True' : 'False'
 		uid   = client.sys.config.getuid.inspect
 		begin
-			# Older OS might not have this (min supported is XP)
+			# Older OS might not have this (min support is XP)
 			fid = client.railgun.kernel32.WTSGetActiveConsoleSessionId["return"]
 		rescue
 			fid = 'N/A'
