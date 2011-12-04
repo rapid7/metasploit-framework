@@ -27,6 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'References'     =>
 				[
+					['OSVDB', '77455'],
 					['URL', 'http://www.exploit-db.com/exploits/18189/'],
 					['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
 				],
