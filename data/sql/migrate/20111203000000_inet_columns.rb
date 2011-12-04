@@ -1,8 +1,8 @@
 class InetColumns < ActiveRecord::Migration
 
 	def self.up
-		change_column :hosts, :address, :inet
-		drop_column :hosts, :address6
+		change_column :hosts, :address, 'INET using address::INET'
+		remove_column :hosts, :address6
 	end
 
 	def self.down
