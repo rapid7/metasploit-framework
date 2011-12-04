@@ -41,6 +41,11 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST', 'RPORT')
 	end
 
+	# No IPv6 support yet
+	def support_ipv6?
+		false
+	end
+	
 	def run_host(ip)
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
 
