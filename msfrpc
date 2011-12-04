@@ -37,7 +37,7 @@ opts = {
 	'User' => 'msf',
 	'SSL'  => true,
 	'ServerPort' => 55553,
-	'Type' => 'Xml'
+	'Type' => 'Msg'
 }
 
 # Parse command line arguments.
@@ -53,8 +53,6 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['User'] = val
 		when '-P'
 			opts['Pass'] = val
-		when '-t'
-			opts['Type'] = (val =~ /xml/i) ? 'XML' : 'Msg'
 		when "-h"
 			print("\nUsage: #{File.basename(__FILE__)} <options>\n" +	arguments.usage)
 			exit
@@ -76,11 +74,7 @@ end
 
 $0 = "msfrpc"
 
-if opts['Type'] == 'Msg'
-	require 'msf/core/rpc/v10/client'
-else
-	require 'msf/core/rpc/client'
-end
+require 'msf/core/rpc/v10/client'
 require 'rex/ui'
 
 rpc = Msf::RPC::Client.new(
