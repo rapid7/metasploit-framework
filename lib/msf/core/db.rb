@@ -130,7 +130,7 @@ class DBManager
 			ip_x = ip.to_x
 			ip_i = ip.to_i
 		when "String"
-			if ipv4_validator(ip)
+			if ipv46_validator(ip)
 				ip_x = ip
 				ip_i = Rex::Socket.addr_atoi(ip)
 			else
@@ -154,9 +154,17 @@ class DBManager
 		return false
 	end
 
+	def ipv46_validator(addr)
+		ipv4_validator(addr) or ipv6_validator(addr)
+	end
+
 	def ipv4_validator(addr)
 		return false unless addr.kind_of? String
-		addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+		Rex::Socket.is_ipv4?(addr)
+	end
+
+	def ipv6_validator(addr)
+		Rex::Socket.is_ipv6?(addr)
 	end
 
 	# Takes a space-delimited set of ips and ranges, and subjects
@@ -164,7 +172,7 @@ class DBManager
 	def validate_ips(ips)
 		ret = true
 		begin
-			ips.split(' ').each {|ip|
+			ips.split(/\s+/).each {|ip|
 				unless Rex::Socket::RangeWalker.new(ip).ranges
 					ret = false
 					break
@@ -267,7 +275,7 @@ class DBManager
 
 		if not addr.kind_of? Host
 			addr = normalize_host(addr)
-			unless ipv4_validator(addr)
+			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
 
@@ -2215,7 +2223,7 @@ class DBManager
 			# then it's an amap log
 			@import_filedata[:type] = "Amap Log"
 			return :amap_log
-		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
+		elsif ipv46_validator(firstline)
 			# then its an IP list
 			@import_filedata[:type] = "IP Address List"
 			return :ip_list
@@ -2539,7 +2547,7 @@ class DBManager
 			end
 
 			next unless [addr,port,user,pass].compact.size == 4
-			next unless ipv4_validator(addr) # Skip Malformed addrs
+			next unless ipv46_validator(addr) # Skip Malformed addrs
 			next unless port[/^[0-9]+$/] # Skip malformed ports
 			if bl.include? addr
 				next
@@ -4302,7 +4310,7 @@ class DBManager
 			data = r[6]
 
 			# If there's no resolution, or if it's malformed, skip it.
-			next unless ipv4_validator(addr)
+			next unless ipv46_validator(addr)
 
 			if bl.include? addr
 				next
@@ -4407,7 +4415,7 @@ class DBManager
 				hname = host.elements['HostName'].text
 			end
 			addr ||= host.elements['HostName'].text
-			next unless ipv4_validator(addr) # Skip resolved names and SCAN-ERROR.
+			next unless ipv46_validator(addr) # Skip resolved names and SCAN-ERROR.
 			if bl.include? addr
 				next
 			else
@@ -4477,7 +4485,7 @@ class DBManager
 			hobj = nil
 			addr = host['addr'] || host['hname']
 
-			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			next unless ipv46_validator(addr) # Catches SCAN-ERROR, among others.
 
 			if bl.include? addr
 				next
@@ -4791,7 +4799,7 @@ class DBManager
 			hobj = nil
 			addr = host['addr'] || host['hname']
 
-			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			next unless ipv46_validator(addr) # Catches SCAN-ERROR, among others.
 
 			if bl.include? addr
 				next
