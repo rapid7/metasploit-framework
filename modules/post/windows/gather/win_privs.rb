@@ -46,7 +46,12 @@ class Metasploit3 < Msf::Post
 		uac   = is_uac_enabled? ? 'True' : 'False'
 		admin = is_admin? ? 'True' : 'False'
 		uid   = client.sys.config.getuid.inspect
-		fid   = client.railgun.kernel32.WTSGetActiveConsoleSessionId["return"]
+		begin
+			# Older OS might not have this (min supported is XP)
+			fid = client.railgun.kernel32.WTSGetActiveConsoleSessionId["return"]
+		rescue
+			fid = 'N/A'
+		end
 		privs = client.sys.config.getprivs
 
 		# Store in tables
