@@ -346,7 +346,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def exec_schtasks(cmdline, purpose)
-		cmdline = "/c #{cmdline.strip}"#&& echo SCHELEVATOR"
+		cmdline = "/c #{cmdline.strip} && echo SCHELEVATOR"
 		lns = cmd_exec('cmd.exe', cmdline)
 
 		success = false
