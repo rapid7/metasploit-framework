@@ -40,7 +40,11 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-
+	# Not compatible today
+	def support_ipv6?
+		false
+	end
+	
 	def resolve(ip)
 		results = ''
 		apikey = datastore['apikey']
