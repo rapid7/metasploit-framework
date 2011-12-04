@@ -37,6 +37,13 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		)
 
+		register_options(
+			[
+				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
+			],
+			self.class
+		)
+
 		deregister_options('RPORT', 'RHOST')
 	end
 
@@ -205,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			# Brute force through a common RID range
-			500.upto(4000) do |rid|
+			500.upto(datastore['MaxRID'].to_i) do |rid|
 
 				stub =
 					phandle +
