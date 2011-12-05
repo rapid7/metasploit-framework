@@ -169,7 +169,7 @@ module Socket
 	#
 	def self.getaddress(addr, accept_ipv6 = true)
 		begin
-			if is_ipv4?(addr) or (accept_ipv6 and is_ipv6?(addr))
+			if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
 				return addr
 			end
 
@@ -205,12 +205,12 @@ module Socket
 	#
 	def self.getaddresses(addr, accept_ipv6 = true)
 		begin
-			if is_ipv4?(addr) or (accept_ipv6 and is_ipv6?(addr))
-				return addr
+			if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
+				return [addr]
 			end
 
 			res = ::Socket.gethostbyname(addr)
-			return nil if not res
+			return [] if not res
 
 			# Shift the first three elements out
 			rname  = res.shift
@@ -223,12 +223,12 @@ module Socket
 			end
 
 			# Make sure we have at least one name
-			return nil if res.length == 0
+			return [] if res.length == 0
 
 			# Return an array of all addresses
 			res.map{ |addr| self.addr_ntoa(addr) }
 		rescue ::ArgumentError # Win32 bug
-			nil
+			[]
 		end
 	end
 	
