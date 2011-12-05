@@ -61,6 +61,11 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
+	# Not compatible today
+	def support_ipv6?
+		false
+	end
+	
 	def run
 		@formsdir = datastore['FORMSDIR']
 		@template = datastore['TEMPLATE']

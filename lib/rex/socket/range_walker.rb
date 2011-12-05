@@ -73,16 +73,19 @@ class RangeWalker
 				else
 					return false
 				end
+				
 			elsif arg.include?(":")
-				# Then it's IPv6
-				# Can't really do much with IPv6 right now, just return it and
-				# hope for the best
+				# IPv6 ranges are not yet supported (or useful)
+				return false unless Rex::Socket.is_ipv6?(arg)
+				
 				addr = Rex::Socket.addr_atoi(arg)
 				ranges.push [addr, addr, true]
+				
 			elsif arg =~ /[^-0-9,.*]/
 				# Then it's a domain name and we should send it on to addr_atoi
 				# unmolested to force a DNS lookup.
 				Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr] }
+				
 			elsif arg =~ /^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})-([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/
 				# Then it's in the format of 1.2.3.4-5.6.7.8
 				# Note, this will /not/ deal with DNS names, or the fancy/obscure 10...1-10...2

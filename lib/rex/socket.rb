@@ -169,7 +169,7 @@ module Socket
 	#
 	def self.getaddress(addr, accept_ipv6 = true)
 		begin
-			if dotted_ip?(addr)
+			if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
 				return addr
 			end
 
@@ -205,12 +205,12 @@ module Socket
 	#
 	def self.getaddresses(addr, accept_ipv6 = true)
 		begin
-			if dotted_ip?(addr)
-				return addr
+			if addr =~ MATCH_IPV4 or (accept_ipv6 and addr =~ MATCH_IPV6)
+				return [addr]
 			end
 
 			res = ::Socket.gethostbyname(addr)
-			return nil if not res
+			return [] if not res
 
 			# Shift the first three elements out
 			rname  = res.shift
@@ -223,12 +223,12 @@ module Socket
 			end
 
 			# Make sure we have at least one name
-			return nil if res.length == 0
+			return [] if res.length == 0
 
 			# Return an array of all addresses
 			res.map{ |addr| self.addr_ntoa(addr) }
 		rescue ::ArgumentError # Win32 bug
-			nil
+			[]
 		end
 	end
 	
@@ -357,10 +357,10 @@ module Socket
 
 		# IPv4
 		if (addr < 0x100000000 and not v6)
-			nboa.unpack('C4').join('.')
+			addr_ntoa(nboa)
 		# IPv6
 		else
-			nboa.unpack('n8').map{ |c| "%.4x" % c }.join(":")
+			addr_ntoa(nboa)
 		end
 	end
 
@@ -383,10 +383,31 @@ module Socket
 
 		# IPv6
 		if (addr.length == 16)
-			return addr.unpack('n8').map{ |c| "%.4x" % c }.join(":")
+			return compress_address(addr.unpack('n8').map{ |c| "%x" % c }.join(":"))
 		end
 
 		raise RuntimeError, "Invalid address format"
+	end
+	
+	#
+	# Implement zero compression for IPv6 addresses. 
+	# Uses the compression method from Marco Ceresa's IPAddress GEM
+	#	https://github.com/bluemonk/ipaddress/blob/master/lib/ipaddress/ipv6.rb
+	#
+	def self.compress_address(addr)
+		return addr unless is_ipv6?(addr)
+		addr = addr.dup
+		while true
+			break if addr.sub!(/\A0:0:0:0:0:0:0:0\Z/, '::')
+			break if addr.sub!(/\b0:0:0:0:0:0:0\b/, ':')
+			break if addr.sub!(/\b0:0:0:0:0:0\b/, ':')
+			break if addr.sub!(/\b0:0:0:0:0\b/, ':')
+			break if addr.sub!(/\b0:0:0:0\b/, ':')
+			break if addr.sub!(/\b0:0:0\b/, ':')
+			break if addr.sub!(/\b0:0\b/, ':')
+			break
+		end
+		addr.sub(/:{3,}/, '::')
 	end
 
 	#
@@ -655,6 +676,7 @@ module Socket
 
 		return [lsock, rsock]
 	end
+	
 
 	##
 	#

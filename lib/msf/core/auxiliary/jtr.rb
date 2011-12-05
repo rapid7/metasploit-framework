@@ -51,7 +51,7 @@ module Auxiliary::JohnTheRipper
 			end
 
 		when /x86_64-linux/
-			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
+			::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
 			case data
 			when /mmx/
@@ -61,7 +61,7 @@ module Auxiliary::JohnTheRipper
 			end
 
 		when /i[\d]86-linux/
-			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
+			::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
 			case data
 			when /sse2/
