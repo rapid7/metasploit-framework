@@ -159,9 +159,9 @@ class Metasploit4 < Msf::Auxiliary
 				hostname = host['hostnames'][0]
 
 				if  ip =~ /#{my_filter}/ or 
-					city =~ /#{my_filter}/ or 
-					country =~ /#{my_filter}/ or 
-					hostname =~ /#{my_filter}/
+					city =~ /#{my_filter}/i or 
+					country =~ /#{my_filter}/i or 
+					hostname =~ /#{my_filter}/i
 					tbl << [ip, city, country, hostname]
 				end
 			}
