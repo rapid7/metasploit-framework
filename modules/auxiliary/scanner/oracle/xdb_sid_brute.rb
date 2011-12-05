@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
 			'Description' => %q{
 					This module attempts to retrieve the sid from the Oracle XML DB httpd server,
-					utilizing Pete Finnigan s default oracle password list.
+					utilizing Pete Finnigan's default oracle password list.
 			},
 			'Version'     => '$Revision$',
 			'References'  =>
@@ -37,6 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 				[
 					OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
+					OptBool.new('VERBOSE', [ false, 'Enable verbose console output.', false]),
 					Opt::RPORT(8080),
 				], self.class)
 		deregister_options('DBUSER','DBPASS')
