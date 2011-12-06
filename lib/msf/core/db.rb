@@ -2661,7 +2661,7 @@ class DBManager
 				target_data = ::File.open(target) {|f| f.read 1024}
 				if import_filetype_detect(target_data) == :msf_xml
 					@import_filedata[:zip_extracted_xml] = target
-					break
+					#break
 				end
 			end
 		end
