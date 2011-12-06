@@ -153,16 +153,22 @@ class Metasploit4 < Msf::Auxiliary
 		for i in page..tpages
 			next if results[i].nil?
 			results[i]['matches'].each { |host|
+
 				city = host['city'] || 'N/A'
 				ip   = host['ip'] || 'N/A'
+				port = host['port'] || ''
 				country = host['country_name'] || 'N/A'
 				hostname = host['hostnames'][0]
+				data = host['data']
 
 				if  ip =~ /#{my_filter}/ or 
 					city =~ /#{my_filter}/i or 
 					country =~ /#{my_filter}/i or 
-					hostname =~ /#{my_filter}/i
-					tbl << [ip, city, country, hostname]
+					hostname =~ /#{my_filter}/i or
+					data =~ /#{my_filter}/i
+					# Unfortunately we cannot display the banner properly,
+					# because it messes with our output format
+					tbl << ["#{ip}:#{port}", city, country, hostname]
 				end
 			}
 		end
