@@ -53,7 +53,28 @@ class RangeWalker
 		return nil if not parseme
 		ranges = []
 		parseme.split(', ').map{ |a| a.split(' ') }.flatten.each { |arg|
-			if arg.include?("/")
+
+			# Handle IPv6 first (support ranges, but not CIDR)
+			if arg.include?(":")
+				addrs = arg.split('-', 2)
+				
+				# Handle a single address
+				if addrs.length == 1
+					# IPv6 ranges are not yet supported (or useful)
+					return false unless Rex::Socket.is_ipv6?(arg)
+				
+					addr = Rex::Socket.addr_atoi(arg)
+					ranges.push [addr, addr, true]
+				end
+				
+				# Handle IPv6 ranges in the form of 2001::1-2001::10
+				return false if not (Rex::Socket.is_ipv6?(addrs[0]) and Rex::Socket.is_ipv6?(addrs[1]))
+				addr1 = Rex::Socket.addr_atoi(addrs[0])
+				addr2 = Rex::Socket.addr_atoi(addrs[1])
+				ranges.push [addr1, addr2, true]
+
+			# Handle IPv4 CIDR
+			elsif arg.include?("/")
 				# Then it's CIDR notation and needs special case
 				return false if arg =~ /[,-]/ # Improper CIDR notation (can't mix with 1,3 or 1-3 style IP ranges)
 				return false if arg.scan("/").size > 1 # ..but there are too many slashes
@@ -72,20 +93,15 @@ class RangeWalker
 					ranges += expanded
 				else
 					return false
-				end
+				end	
 				
-			elsif arg.include?(":")
-				# IPv6 ranges are not yet supported (or useful)
-				return false unless Rex::Socket.is_ipv6?(arg)
-				
-				addr = Rex::Socket.addr_atoi(arg)
-				ranges.push [addr, addr, true]
-				
+			# Handle hostnames		
 			elsif arg =~ /[^-0-9,.*]/
 				# Then it's a domain name and we should send it on to addr_atoi
 				# unmolested to force a DNS lookup.
 				Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr] }
-				
+			
+			# Handle IPv4 ranges
 			elsif arg =~ /^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})-([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/
 				# Then it's in the format of 1.2.3.4-5.6.7.8
 				# Note, this will /not/ deal with DNS names, or the fancy/obscure 10...1-10...2
