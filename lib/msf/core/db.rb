@@ -56,6 +56,7 @@ module ServiceState
 	Open      = "open"
 	Closed    = "closed"
 	Filtered  = "filtered"
+	OpenFiltered  = "open|filtered"
 	Unknown   = "unknown"
 end
 
