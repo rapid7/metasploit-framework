@@ -6,7 +6,7 @@ class WebTemplate < ActiveRecord::Base
 
 	extend SerializedPrefs
 
-	serialize :prefs
+	serialize :prefs, Msf::Util::Base64Serializer.new
 
 	serialized_prefs_attr_accessor :exploit_type
 	serialized_prefs_attr_accessor :exploit_name, :exploit_opts

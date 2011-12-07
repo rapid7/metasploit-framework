@@ -7,7 +7,7 @@ class EmailTemplate < ActiveRecord::Base
 
 	extend SerializedPrefs
 
-	serialize :prefs
+	serialize :prefs, Msf::Util::Base64Serializer.new
 
 	serialized_prefs_attr_accessor :exploit_module, :exploit_attach_name
 	serialized_prefs_attr_accessor :attach_exe

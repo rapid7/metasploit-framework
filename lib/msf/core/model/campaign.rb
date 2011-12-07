@@ -10,7 +10,7 @@ class Campaign < ActiveRecord::Base
 
 	extend SerializedPrefs
 
-	serialize :prefs
+	serialize :prefs, Msf::Util::Base64Serializer.new
 
 	# General settings
 	serialized_prefs_attr_accessor :payload_lhost, :listener_lhost, :payload_type

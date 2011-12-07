@@ -4,7 +4,7 @@ class DBManager
 class User < ActiveRecord::Base
 	include DBSave
 
-	serialize :prefs
+	serialize :prefs, Msf::Util::Base64Serializer.new
 end
 
 end

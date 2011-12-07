@@ -7,7 +7,7 @@ class Note < ActiveRecord::Base
 	belongs_to :workspace
 	belongs_to :host
 	belongs_to :service
-	serialize :data
+	serialize :data, Msf::Util::Base64Serializer.new
 
 	def after_save
 		if data_changed? and ntype =~ /fingerprint/

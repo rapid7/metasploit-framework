@@ -13,8 +13,8 @@ class Service < ActiveRecord::Base
 	has_many :web_pages, :through => :web_sites
 	has_many :web_forms, :through => :web_sites
 	has_many :web_vulns, :through => :web_sites
-
-	serialize :info
+		
+	serialize :info, Msf::Util::Base64Serializer.new
 
 	def after_save
 		if info_changed?
