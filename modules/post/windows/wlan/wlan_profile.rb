@@ -39,6 +39,10 @@ class Metasploit3 < Msf::Post
 		@wlanapi = client.railgun.wlanapi
 		wlan_info = "Wireless LAN Profile Information \n"
 		wlan_handle = open_handle()
+		unless wlan_handle
+			print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
+			return
+		end
 		wlan_iflist = enum_interfaces(wlan_handle)
 
 		#Take each enumerated interface and gets the profile information available on each one
@@ -72,7 +76,6 @@ class Metasploit3 < Msf::Post
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
-			print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
 			return nil
 		end
 		return wlhandle['phClientHandle']
