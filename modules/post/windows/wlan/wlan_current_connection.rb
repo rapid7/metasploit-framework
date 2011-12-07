@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 		wlan_handle = open_handle()
 		unless wlan_handle
 			print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
+			print_error("On Windows XP this could also mean the Wireless Zero Configuration Service is turned off")
 			return
 		end
 		wlan_iflist = enum_interfaces(wlan_handle)
