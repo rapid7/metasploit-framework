@@ -61,9 +61,15 @@ class Metasploit3 < Msf::Auxiliary
 		# Show data if needed
 		if res and res.code == 200
 			vprint_line(res.to_s)
-			fname = Rex::Text.rand_text_alpha(5) + "_" + File.basename(datastore['FILEPATH'])
+			fname = File.basename(datastore['FILEPATH'])
 
-			path = store_local("yaws.file", "application/octet-stream", res.body, fname)
+			path = store_loot(
+				'yaws.http',
+				'application/octet-stream',
+				ip,
+				res.body,
+				fname
+			)
 			print_status("File saved in: #{path}")
 		else
 			print_error("Nothing was downloaded")
