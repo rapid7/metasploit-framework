@@ -97,6 +97,10 @@ class Server
 		self.pxealtconfigfile = "update0"
 		self.pxepathprefix = ""
 		self.pxereboottime = 2000
+
+		if (hash['ROOTPATH'])
+			self.root_path = hash['ROOTPATH']
+		end
 	end
 
 	def report(&block)
@@ -225,6 +229,7 @@ protected
 
 		messageType = 0
 		pxeclient = false
+		resType = "Unknown"
 
 		# options parsing loop
 		spot = 240
@@ -271,6 +276,7 @@ protected
 		pkt << "\x35\x01" #Option
 
 		if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
+			resType = "DHCP Offer"
 			pkt << [DHCPOffer].pack('C')
 			# check if already served an Ack based on hw addr (MAC address)
 			# if serveOnce & PXE, don't reply to another PXE request 
@@ -280,6 +286,7 @@ protected
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
+			resType = "DHCP ACK"
 			pkt << [DHCPAck].pack('C')
 			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
 			if ( self.served_over != 0 )
@@ -307,7 +314,7 @@ protected
 			else
 				# We are handing out an IP and our PXE attack
 				if(self.reporter)
-					self.reporter.call(buf[28..43],self.ipstring)
+					self.reporter.call(buf[28..43],self.ipstring, resType)
 				end
 				pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
 			end

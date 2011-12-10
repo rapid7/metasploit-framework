@@ -31,6 +31,7 @@ class Server
 		self.listen_port = port
 		self.context = context
 		self.sock = nil
+		self.reporter = nil
 		@shutting_down = false
 		@output_dir = nil
 		@tftproot = nil
@@ -168,12 +169,16 @@ class Server
 		return self.files[-1]
 	end
 
+	def set_reporter(&block)
+		self.reporter = block
+	end
 
 	attr_accessor :listen_host, :listen_port, :context
 	attr_accessor :sock, :files, :transfers, :uploaded
 	attr_accessor :thread
 	
 	attr_accessor :incoming_file_hook
+	attr_accessor :reporter
 
 protected
 
@@ -345,8 +350,11 @@ protected
 					process_options(from, buf, transfer)
 
 					self.transfers << transfer
+
+					self.report("Read request for #{fn}")
 				end
 			else
+				self.report("File not found: #{fn}")
 				#puts "[-] file not found!"
 				send_error(from, ErrFileNotFound)
 			end
@@ -488,6 +496,12 @@ protected
 		}
 
 		send_packet(from, data)
+	end
+
+	def report(msg)
+		if (self.reporter)
+			self.reporter.call(msg)
+		end
 	end
 
 end
