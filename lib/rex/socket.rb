@@ -121,7 +121,7 @@ module Socket
 	def self.is_ipv4?(addr)
 		return false if addr =~ MATCH_IPV6
 		return true if addr =~ MATCH_IPV4
-		res = Rex::Socket.getaddress(addr)
+		res = Rex::Socket.getaddress(addr, true)
 		res.match(/:/) ? false : true
 	end
 
@@ -131,7 +131,7 @@ module Socket
 	def self.is_ipv6?(addr)
 		return true if addr =~ MATCH_IPV6
 		return false if addr =~ MATCH_IPV4
-		res = Rex::Socket.getaddress(addr)
+		res = Rex::Socket.getaddress(addr, true)
 		res.match(/:/) ? true : false
 	end
 
@@ -278,7 +278,7 @@ module Socket
 	# Resolves a host to raw network-byte order.
 	#
 	def self.resolv_nbo(host)
-		self.gethostbyname(Rex::Socket.getaddress(host))[3]
+		self.gethostbyname(Rex::Socket.getaddress(host, true))[3]
 	end
 
 	#

@@ -154,7 +154,7 @@ class Rex::Socket::Comm::Local
 					elsif (local == "\x7f\x00\x00\x01")
 						param.localhost = '::1'
 					else
-						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
+						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost, true)
 					end
 				end
 
@@ -164,7 +164,7 @@ class Rex::Socket::Comm::Local
 					elsif (peer == "\x7f\x00\x00\x01")
 						param.peerhost = '::1'
 					else
-						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
+						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost, true)
 					end
 				end
 
