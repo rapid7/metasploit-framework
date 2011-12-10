@@ -261,7 +261,7 @@ class DBManager
 	#	:os_lang    -- something like "English", "French", or "en-US"
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
-	#   :scope      -- interface identifier for link-local IPv6
+	#	:scope      -- interface identifier for link-local IPv6
 	#
 	def report_host(opts)
 
