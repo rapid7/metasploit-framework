@@ -320,7 +320,7 @@ class OptAddress < OptBase
 
 		if (value != nil and value.empty? == false)
 			begin
-				::Rex::Socket.getaddress(value)
+				::Rex::Socket.getaddress(value, true)
 			rescue
 				return false
 			end
@@ -351,8 +351,7 @@ class OptAddressRange < OptBase
 			ret = ''
 			count.times {
 				ret << " " if not ret.empty?
-				ip = "%u.%u.%u.%u" % [1+rand(0xfe),1+rand(0xfe),1+rand(0xfe),1+rand(0xfe)]
-				ret << ip
+				ret << [ rand(0x100000000) ].pack("N").unpack("C*").join(".")
 			}
 			return ret
 		end

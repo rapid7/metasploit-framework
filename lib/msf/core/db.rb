@@ -1490,7 +1490,7 @@ class DBManager
 			end
 
 			# Force addr to be the address and not hostname
-			addr = Rex::Socket.getaddress(addr)
+			addr = Rex::Socket.getaddress(addr, true)
 		end
 
 		ret = {}
