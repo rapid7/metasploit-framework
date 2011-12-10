@@ -351,7 +351,7 @@ class OptAddressRange < OptBase
 			ret = ''
 			count.times {
 				ret << " " if not ret.empty?
-				ret << [ rand(0x100000000) ].pack("N").unpack("C*").join(".")
+				ret << [ rand(0x100000000) ].pack("N").unpack("C*").map{|x| x.to_s }.join(".")
 			}
 			return ret
 		end
