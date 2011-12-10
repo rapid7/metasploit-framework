@@ -29,6 +29,10 @@ OpPXEConfigFile = 0xD1
 OpPXEPathPrefix = 0xD2
 OpPXERebootTime = 0xD3
 
+OpVendorClassID = 0x3C
+OpVendorEncapOpts = 0x2B
+OpRootPath = 0x11
+
 end
 end
 end

@@ -15,6 +15,9 @@ module DHCP
 #
 # extended to support testing/exploiting CVE-2011-0997
 # - apconole@yahoo.com
+#
+# extended to support Mac clients
+# - snare / snare@ragequ.it
 ##
 
 class Server
@@ -126,7 +129,8 @@ class Server
 		allowed_options = [
 			:serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
 			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE
+			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE,
+			:vendor_class_id, :vendor_encap_opts, :root_path
 		]
 
 		opts.each_pair { |k,v|
@@ -155,6 +159,7 @@ class Server
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
 	attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
 	attr_accessor :give_hostname, :served_hostname, :served_over, :reporter
+	attr_accessor :vendor_class_id, :vendor_encap_opts, :root_path
 
 protected
 
@@ -317,6 +322,19 @@ protected
 				pkt << dhcpoption(OpHostname, send_hostname)
 			end
 		end
+
+		if (self.vendor_class_id)
+			pkt << dhcpoption(OpVendorClassID, self.vendor_class_id)
+		end
+
+		if (self.vendor_encap_opts)
+			pkt << dhcpoption(OpVendorEncapOpts, self.vendor_encap_opts)
+		end
+
+		if (self.root_path)
+			pkt << dhcpoption(OpRootPath, self.root_path)
+		end
+
 		pkt << dhcpoption(OpEnd)
 
 		pkt << ("\x00" * 32) #padding
