@@ -244,7 +244,7 @@ module Socket
 		end
 		
 		if is_ipv6?(host)
-			host, scope__id = host.split('%', 2)
+			host, scope_id = host.split('%', 2)
 		end
 
 		::Socket.gethostbyname(host)
