@@ -104,7 +104,7 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			int port = Integer.parseInt(info.get("port").toString());
 			boolean ssl = Boolean.parseBoolean(info.get("ssl").toString());
 			String type = info.get("type").toString();
-			RpcConnection rpc = RpcConnection.getConn(type, username, password.toCharArray(), host, port, ssl);
+			RpcConnection rpc = RpcConnection.getConn(username, password.toCharArray(), host, port, ssl);
 			if(javax.swing.JOptionPane.showConfirmDialog(null, "Connect to last remembered rpcd?") == javax.swing.JOptionPane.YES_OPTION)
 				return rpc;
 			rpc.execute("auth.logout");
@@ -154,8 +154,6 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
         sslLabel = new javax.swing.JLabel();
         disableDbLabel = new javax.swing.JLabel();
         disableDbButton = new javax.swing.JCheckBox();
-        xmlButton = new javax.swing.JRadioButton();
-        msgpackButton = new javax.swing.JRadioButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(msfgui.MsfguiApp.class).getContext().getResourceMap(OpenConnectionDialog.class);
@@ -255,15 +253,6 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
         disableDbButton.setText(resourceMap.getString("disableDbButton.text")); // NOI18N
         disableDbButton.setName("disableDbButton"); // NOI18N
 
-        buttonGroup1.add(xmlButton);
-        xmlButton.setSelected(true);
-        xmlButton.setText(resourceMap.getString("xmlButton.text")); // NOI18N
-        xmlButton.setName("xmlButton"); // NOI18N
-
-        buttonGroup1.add(msgpackButton);
-        msgpackButton.setText(resourceMap.getString("msgpackButton.text")); // NOI18N
-        msgpackButton.setName("msgpackButton"); // NOI18N
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -284,21 +273,16 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(disableDbButton)
-                            .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                            .addComponent(hostField, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                            .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                            .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 427, Short.MAX_VALUE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addComponent(sslBox)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 250, Short.MAX_VALUE)
-                                .addComponent(xmlButton)
-                                .addGap(18, 18, 18)
-                                .addComponent(msgpackButton))))
+                            .addComponent(usernameField, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+                            .addComponent(hostField, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+                            .addComponent(passwordField, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+                            .addComponent(portField, javax.swing.GroupLayout.DEFAULT_SIZE, 433, Short.MAX_VALUE)
+                            .addComponent(sslBox)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(startNewButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(pathButton)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 126, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 132, Short.MAX_VALUE)
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(connectButton)))
@@ -326,18 +310,13 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
                     .addComponent(portField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(portLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(sslBox, javax.swing.GroupLayout.Alignment.LEADING, 0, 0, Short.MAX_VALUE)
-                            .addComponent(sslLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(disableDbLabel)
-                            .addComponent(disableDbButton, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(msgpackButton)
-                        .addComponent(xmlButton)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(sslBox, javax.swing.GroupLayout.Alignment.LEADING, 0, 0, Short.MAX_VALUE)
+                    .addComponent(sslLabel, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(disableDbLabel)
+                    .addComponent(disableDbButton, javax.swing.GroupLayout.PREFERRED_SIZE, 18, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(connectButton, javax.swing.GroupLayout.DEFAULT_SIZE, 37, Short.MAX_VALUE)
@@ -356,11 +335,8 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 		String host = hostField.getText();
 		int port = Integer.parseInt(portField.getText());
 		boolean ssl = checkCrypto(sslBox.isSelected());
-		String type = "xml";
-		if(msgpackButton.isSelected())
-			type = "msg";
 		try {
-			rpcConn = RpcConnection.getConn(type, username, password, host, port, ssl);
+			rpcConn = RpcConnection.getConn(username, password, host, port, ssl);
 		} catch (MsfException mex) {
 			rpcConn = null;
 		}
@@ -390,10 +366,6 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 
 	private void startNewButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startNewButtonActionPerformed
 		//Setup defaults
-		if(msgpackButton.isSelected())
-			RpcConnection.defaultType = "msg";
-		else
-			RpcConnection.defaultType = "xml";
 		RpcConnection.defaultUser = usernameField.getText();
 		if(passwordField.getPassword().length > 0)
 			RpcConnection.defaultPass = new String(passwordField.getPassword());
@@ -434,7 +406,6 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
     private javax.swing.JLabel disableDbLabel;
     private javax.swing.JTextField hostField;
     private javax.swing.JLabel hostLabel;
-    private javax.swing.JRadioButton msgpackButton;
     private javax.swing.JPasswordField passwordField;
     private javax.swing.JLabel passwordLabel;
     private javax.swing.JButton pathButton;
@@ -446,6 +417,5 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
     private javax.swing.JLabel titleLabel;
     private javax.swing.JTextField usernameField;
     private javax.swing.JLabel usernameLabel;
-    private javax.swing.JRadioButton xmlButton;
     // End of variables declaration//GEN-END:variables
 }
