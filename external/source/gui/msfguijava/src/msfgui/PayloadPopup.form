@@ -73,14 +73,14 @@
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="1" attributes="0">
                                   <Group type="102" alignment="1" attributes="0">
-                                      <Component id="outputPathField" pref="453" max="32767" attributes="1"/>
+                                      <Component id="outputPathField" pref="853" max="32767" attributes="1"/>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Component id="choosePathButton" min="-2" pref="91" max="-2" attributes="0"/>
                                   </Group>
-                                  <Component id="archField" alignment="0" pref="550" max="32767" attributes="1"/>
-                                  <Component id="badcharsField" alignment="0" pref="550" max="32767" attributes="1"/>
-                                  <Component id="timesField" alignment="0" pref="550" max="32767" attributes="1"/>
-                                  <Component id="outputCombo" alignment="0" pref="550" max="32767" attributes="1"/>
+                                  <Component id="archField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="badcharsField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="timesField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="outputCombo" alignment="0" pref="950" max="32767" attributes="1"/>
                                   <Component id="encoderCombo" alignment="0" min="-2" pref="540" max="-2" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
                                       <Group type="103" groupAlignment="0" max="-2" attributes="0">
@@ -89,8 +89,8 @@
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="addCodeButton" pref="97" max="32767" attributes="1"/>
-                                          <Component id="templateButton" alignment="0" pref="97" max="32767" attributes="1"/>
+                                          <Component id="addCodeButton" pref="497" max="32767" attributes="1"/>
+                                          <Component id="templateButton" alignment="0" pref="497" max="32767" attributes="1"/>
                                       </Group>
                                   </Group>
                               </Group>
@@ -112,7 +112,6 @@
                               <Component id="handleButton" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="handleConsoleButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="-2" pref="121" max="-2" attributes="0"/>
                           </Group>
                           <Component id="outputScrollPane" alignment="0" min="-2" pref="691" max="-2" attributes="0"/>
                       </Group>

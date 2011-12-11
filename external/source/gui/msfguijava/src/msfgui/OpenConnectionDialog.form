@@ -44,24 +44,18 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Component id="disableDbButton" min="-2" max="-2" attributes="0"/>
-                          <Component id="usernameField" alignment="0" pref="427" max="32767" attributes="0"/>
-                          <Component id="hostField" alignment="0" pref="427" max="32767" attributes="0"/>
-                          <Component id="passwordField" alignment="0" pref="427" max="32767" attributes="0"/>
-                          <Component id="portField" alignment="0" pref="427" max="32767" attributes="0"/>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Component id="sslBox" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace pref="250" max="32767" attributes="0"/>
-                              <Component id="xmlButton" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace type="separate" max="-2" attributes="0"/>
-                              <Component id="msgpackButton" min="-2" max="-2" attributes="0"/>
-                          </Group>
+                          <Component id="usernameField" alignment="0" pref="433" max="32767" attributes="0"/>
+                          <Component id="hostField" alignment="0" pref="433" max="32767" attributes="0"/>
+                          <Component id="passwordField" alignment="0" pref="433" max="32767" attributes="0"/>
+                          <Component id="portField" alignment="0" pref="433" max="32767" attributes="0"/>
+                          <Component id="sslBox" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="startNewButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="pathButton" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="126" max="32767" attributes="0"/>
+                      <EmptySpace pref="132" max="32767" attributes="0"/>
                       <Component id="cancelButton" min="-2" max="-2" attributes="0"/>
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="connectButton" min="-2" max="-2" attributes="0"/>
@@ -97,22 +91,14 @@
                   <Component id="portLabel" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" attributes="0">
-                      <Group type="103" groupAlignment="1" max="-2" attributes="0">
-                          <Component id="sslBox" alignment="0" min="0" pref="0" max="32767" attributes="1"/>
-                          <Component id="sslLabel" alignment="0" max="32767" attributes="1"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="disableDbLabel" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="disableDbButton" alignment="3" min="-2" pref="18" max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-                  <Group type="103" alignment="0" groupAlignment="3" attributes="0">
-                      <Component id="msgpackButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                      <Component id="xmlButton" alignment="3" min="-2" max="-2" attributes="0"/>
-                  </Group>
+              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                  <Component id="sslBox" alignment="0" min="0" pref="0" max="32767" attributes="1"/>
+                  <Component id="sslLabel" alignment="0" max="32767" attributes="1"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="disableDbLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="disableDbButton" alignment="3" min="-2" pref="18" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
@@ -266,25 +252,6 @@
       <Properties>
         <Property name="text" type="java.lang.String" resourceKey="disableDbButton.text"/>
         <Property name="name" type="java.lang.String" value="disableDbButton" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="xmlButton">
-      <Properties>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="selected" type="boolean" value="true"/>
-        <Property name="text" type="java.lang.String" resourceKey="xmlButton.text"/>
-        <Property name="name" type="java.lang.String" value="xmlButton" noResource="true"/>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JRadioButton" name="msgpackButton">
-      <Properties>
-        <Property name="buttonGroup" type="javax.swing.ButtonGroup" editor="org.netbeans.modules.form.RADComponent$ButtonGroupPropertyEditor">
-          <ComponentRef name="buttonGroup1"/>
-        </Property>
-        <Property name="text" type="java.lang.String" resourceKey="msgpackButton.text"/>
-        <Property name="name" type="java.lang.String" value="msgpackButton" noResource="true"/>
       </Properties>
     </Component>
   </SubComponents>
