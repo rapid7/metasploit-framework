@@ -102,7 +102,7 @@ class RangeWalker
 
 				expanded = expand_cidr(arg)
 				if expanded
-					ranges.push [ expanded[0], expanded[1], false, {} ]
+					ranges.push(expanded)
 				else
 					return false
 				end	
@@ -125,11 +125,10 @@ class RangeWalker
 					return false
 				end
 			else
+				# Returns an array of ranges
 				expanded = expand_nmap(arg)
 				if expanded
-					ranges.push [ expanded[0], expanded[1], false, {} ]
-				else
-					return false
+					expanded.each { |r| ranges.push(r) }
 				end
 			end
 		}
@@ -147,7 +146,6 @@ class RangeWalker
 		return false if not valid?
 		@curr_range = 0
 		@curr_addr = @ranges[0][0]
-
 		@length = 0
 		@ranges.each { |r| @length += r[1] - r[0] + 1 }
 	end
@@ -234,8 +232,9 @@ class RangeWalker
 		range.start = Rex::Socket.addr_atoi(start)
 		range.stop = Rex::Socket.addr_atoi(stop)
 		range.ipv6 = (arg.include?(":"))
+		range.options = {}
 
-		return [range]
+		return range
 	end
 
 	#
@@ -343,8 +342,12 @@ class RangeWalker
 
 		addrs.sort!
 		addrs.uniq!
+		
 		rng = Range.new
+		rng.ipv6 = false
+		rng.options = {}		
 		rng.start = addrs[0]
+		
 		ranges = []
 		1.upto(addrs.length - 1) do |idx|
 			if addrs[idx - 1] + 1 == addrs[idx]
@@ -378,9 +381,11 @@ class Range < Array # :nodoc: all
 	def start; self[0]; end
 	def stop;  self[1]; end
 	def ipv6;  self[2]; end
+	def options; self[3]; end	
 	def start=(val); self[0] = val; end
 	def stop=(val);  self[1] = val; end
 	def ipv6=(val);  self[2] = val; end
+	def options=(val); self[3] = val; end	
 end
 
 end

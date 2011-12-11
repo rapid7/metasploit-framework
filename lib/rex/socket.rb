@@ -119,20 +119,14 @@ module Socket
 	# Determine whether this is an IPv4 address
 	#
 	def self.is_ipv4?(addr)
-		return false if addr =~ MATCH_IPV6
-		return true if addr =~ MATCH_IPV4
-		res = Rex::Socket.getaddress(addr, true)
-		res.match(/:/) ? false : true
+		( addr =~ MATCH_IPV4 ) ? true : false
 	end
 
 	#
 	# Determine whether this is an IPv6 address
 	#
 	def self.is_ipv6?(addr)
-		return true if addr =~ MATCH_IPV6
-		return false if addr =~ MATCH_IPV4
-		res = Rex::Socket.getaddress(addr, true)
-		res.match(/:/) ? true : false
+		( addr =~ MATCH_IPV6 ) ? true : false
 	end
 
 	#
