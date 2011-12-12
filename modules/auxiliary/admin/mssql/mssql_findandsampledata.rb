@@ -9,9 +9,8 @@
 #  thank you humble-desser, DarkOperator, HDM,
 #  and todb for helping me refine this MSF Module.
 #
-#  Finally I woud like to thank the Academy for 
-#  time and consideration. :)
-#
+#  Finally, I would like to thank the Academy for 
+#  their time and consideration. :)
 ##
 
 ## 
