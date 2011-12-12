@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Privileges Enumeration',
 			'Description'   => %q{
 				This module will print if UAC is enabled, and if the current account is
-				ADMIN enabled. It will also print UID, foreground SESSION ID and current 
-				process PRIVILEGES.
+				ADMIN enabled. It will also print UID, foreground SESSION ID, is SYSTEM status
+				and current process PRIVILEGES. 
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Merlyn Cousins <drforbin6[at]gmail.com>'],
