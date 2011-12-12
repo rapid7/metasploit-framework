@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 				crash the target server.
 			},
 		'Author'         => [ 'pello <fropert[at]packetfault.org>' ],
-		'License'        => MSF_LICENSE,
+		'License'        => MSF_LICENSE
 		)
 		register_options([
 										 Opt::RPORT(53),
