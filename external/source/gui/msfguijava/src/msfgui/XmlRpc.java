@@ -33,7 +33,6 @@ public class XmlRpc extends RpcConnection {
 	 */
 	public XmlRpc(){
 		super();
-		type = "XML";
 	}
 	/** Creates an XMLRPC call from the given method name and parameters and sends it */
 	protected void writeCall(String methname, Object[] params) throws Exception{
