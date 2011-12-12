@@ -30,6 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					['CVE', '2011-4350'],
+					['OSVDB', '77581'],
 					['URL', 'https://bugzilla.redhat.com/show_bug.cgi?id=757181']
 				],
 			'DisclosureDate' => "Nov 25 2011"
