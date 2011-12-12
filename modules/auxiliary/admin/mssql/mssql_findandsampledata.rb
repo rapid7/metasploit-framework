@@ -1,12 +1,17 @@
 ##
-# $Id: mssql_FindandSampleData.rb 2011-11-15 nullbind $
+#  $Id: mssql_findandsampledata.rb 2011-12-11 nullbind $
 ##
 
 ##
 #  Credits: 
-#  Thank you Dijininja for your original IDF 
-#  module.  Also, thank you  humble-desser and DarkOperator
-#  helping me work through a few critical issues.
+#  Thank you Dijininja for the IDF module which
+#  was my inspiration for this.  Also, 
+#  thank you humble-desser, DarkOperator, HDM,
+#  and todb for helping me refine this MSF Module.
+#
+#  Finally I woud like to thank the Academy for 
+#  time and consideration. :)
+#
 ##
 
 ## 
@@ -18,11 +23,10 @@
 #  data is present in the associated tables, the script 
 #  will select a sample of the records from each 
 #  of the affected tables.  The sample size is determined
-#  by the SAMPLESIZE option.  Also, the results can be written to a
-#  CSV file if the OUTPUT is set to "yes" and an OUTPUTPATH option is set.
+#  by the SAMPLESIZE option.  
 #
 #  This script is valuable for gathering evidence during PCI
-#  penetration tests and could even be used during the PCI 
+#  penetration tests and could also be used during the PCI 
 #  data dicovery process.
 #
 #  Important note: This script only works on SQL Server 2005 and 2008
@@ -44,12 +48,11 @@ class Metasploit3 < Msf::Auxiliary
 			on the SQL Server for columns that match the keywords defined in the TSQL KEYWORDS 
 			option. If column names are found that match the defined keywords and data is present 
 			in the associated tables, the script will select a sample of the records from each of 
-			the affected tables.  The sample size is determined by the SAMPLESIZE option.  Also, 
-			the results can be written to a CSV file if the OUTPUT is set to "yes" and the 
-			OUTPUTPATH option is set.
+			the affected tables.  The sample size is determined by the SAMPLESIZE option, and results
+			output in a CSV format.
 			},
-			'Author'         => [ 'Scot Sutherland (nullbind) <scott.sutherland@netspi.com>' ],
-			'Version'        => '$Revision: 12196 $',
+			'Author'         => [ 'Scott Sutherland (nullbind) <scott.sutherland@netspi.com>' ],
+			'Version'        => '$Revision: 1000000000 $',
 			'License'        => MSF_LICENSE,
 			'References'     => [[ 'URL', 'http://www.netspi.com/blog/author/ssutherland/' ]],
 			'Targets'        => [[ 'MSSQL 2005', { 'ver' => 2005 }]]
@@ -58,9 +61,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('KEYWORDS', [ true, 'Keywords to search for','passw|credit|card']),
-				OptString.new('SAMPLESIZE', [ true, 'Number of rows to sample',  '1']),
-				OptString.new('OUTPUT', [ false, 'Generate CSV file from search results',  'no']),
-				OptString.new('OUTPUTPATH', [ false, 'File output path (C:\\\filename.csv)',  '']),
+				OptString.new('SAMPLESIZE', [ true, 'Number of rows to sample',  '1']),			
 			], self.class)
 	end
 
@@ -363,6 +364,13 @@ class Metasploit3 < Msf::Auxiliary
 		
 		SET NOCOUNT OFF;"
 		
+		#CREATE TABLE TO STORE SQL SERVER DATA LOOT
+		sql_data_tbl = Rex::Ui::Text::Table.new(
+			'Header'  => 'SQL Server Data',
+			'Ident'   => 1,
+			'Columns' => ['Server', 'Database', 'Schema', 'Table', 'Column', 'Data Type', 'Sample Data', 'Row Count']
+		)			
+			
 		#STATUSING
 		print_line(" ")
 		print_line("[*] STATUS: Attempting to connect to the SQL Server at #{rhost}:#{rport}...")
@@ -371,92 +379,97 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			result = mssql_query(sql, false) if mssql_login_datastore
 			column_data = result[:rows]
-			print_line("[*] STATUS: Connected to #{rhost}:#{rport} successfully.")			
-			rescue
-			print_line("[-] ERROR : Connection to #{rhost}:#{rport} failed.")
+			print_line("[*] STATUS: Successfully connected to #{rhost}:#{rport}")			
+			
+			#STATUSING		
+			print_line("[*] STATUS: Attempting to retrieve data ...")
+					
+			if (column_data.count < 7) 
+				#Save loot status
+				save_loot="no"
+			
+				#Return error from SQL server
+				column_data.each { |row|
+					print_line("[*] STATUS: #{row.to_s.gsub("[","").gsub("]","").gsub("\"","")}")
+				}
 			return
-		end
-
-		#STATUSING		
-		print_line("[*] STATUS: Attempting to retrieve data ...")
-				
-		if (column_data.count < 7) 
-			#Return error from SQL server
-			column_data.each { |row|
-				print_line("[*] STATUS: #{row.to_s.gsub("[","").gsub("]","").gsub("\"","")}")
-			}
-		return
-		else
-			#Setup column width for standard query results
-			column_data.each { |row|
-				0.upto(7) { |col|
-					row[col] = row[col].strip.to_s	
-					}		
-			}
-			print_line(" ")
-		end
-						
-		#SETUP ROW WIDTHS
-		widths = [0, 0, 0, 0, 0, 0, 0, 0]		
-		(column_data|headings).each { |row|
-			0.upto(7) { |col|				
-				widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col] 
-			}
-		}		
-		
-		#PRINT HEADERS
-		buffer1 = ""
-		buffer2 = ""
-		headings.each { |row|
-			0.upto(7) { |col|
-				buffer1 += row[col].ljust(widths[col] + 1)
-				buffer2 += row[col]+ ","
-			}
-			print_line(buffer1)	
-			buffer2 = buffer2.chomp(",")+ "\n"	 
-			File.open(opt_outputpath, 'ab') do |myfile| myfile.print(buffer2) 		
-			end if (opt_ouput.downcase == "yes" and opt_outputpath.downcase != "")			
-		}
-		
-		#PRINT DIVIDERS
-		buffer1 = ""
-		buffer2 = ""
-		headings.each { |row|
-			0.upto(7) { |col|
-				divider = "=" * widths[col] + " "
-				buffer1 += divider.ljust(widths[col] + 1)
-			}
-			print_line(buffer1)				
-		}
-
-		#PRINT DATA
-		buffer1 = ""
-		buffer2 = ""		
-		print_line("")
-		column_data.each { |row|
-			0.upto(7) { |col|
-				buffer1 += row[col].ljust(widths[col] + 1)
-				buffer2 += row[col] + ","
-			}
-			print_line(buffer1)
-			buffer2 = buffer2.chomp(",")+ "\n"	
-			# Write query output to the defined file path 
-			# Note: This will overwrite existing files
-			File.open(opt_outputpath, 'ab') do |myfile| myfile.print(buffer2) 
-			end if (opt_ouput.downcase == "yes" and opt_outputpath.downcase != "")
+			else
+				#SETUP COLUM WIDTH FOR QUERY RESULTS
+				#Save loot status
+				save_loot="yes"
+				column_data.each { |row|
+					0.upto(7) { |col|
+						row[col] = row[col].strip.to_s	
+						}		
+				}
+				print_line(" ")
+			end
+							
+			#SETUP ROW WIDTHS
+			widths = [0, 0, 0, 0, 0, 0, 0, 0]		
+			(column_data|headings).each { |row|
+				0.upto(7) { |col|				
+					widths[col] = row[col].to_s.length if row[col].to_s.length > widths[col] 
+				}
+			}		
+			
+			#PRINT HEADERS
 			buffer1 = ""
 			buffer2 = ""
-			print_line(buffer1)						
-		}
-		disconnect	
-		
-		#CHECK IF QUERY OUTPUT WAS WRITTEN TO THE FILE
-		if File.exist?(opt_outputpath) 
-			print_line("[*] The query output from #{rhost} has been written to: #{opt_outputpath}")
-		else
-			print_line("[*] The query output from #{rhost} was NOT written to a file.")
+			headings.each { |row|
+				0.upto(7) { |col|
+					buffer1 += row[col].ljust(widths[col] + 1)
+					buffer2 += row[col]+ ","
+				}
+				print_line(buffer1)	
+				buffer2 = buffer2.chomp(",")+ "\n"	 
+				File.open(opt_outputpath, 'ab') do |myfile| myfile.print(buffer2) 		
+				end if (opt_ouput.downcase == "yes" and opt_outputpath.downcase != "")			
+			}
+			
+			#PRINT DIVIDERS
+			buffer1 = ""
+			buffer2 = ""
+			headings.each { |row|
+				0.upto(7) { |col|
+					divider = "=" * widths[col] + " "
+					buffer1 += divider.ljust(widths[col] + 1)
+				}
+				print_line(buffer1)				
+			}
+
+			#PRINT DATA
+			buffer1 = ""
+			buffer2 = ""		
+			print_line("")
+			column_data.each { |row|
+				0.upto(7) { |col|
+					buffer1 += row[col].ljust(widths[col] + 1)
+					buffer2 += row[col] + ","
+				}
+				print_line(buffer1)
+				buffer2 = buffer2.chomp(",")+ "\n"	
+				
+				#WRITE QUERY OUTPUT TO TEMP REPORT TABLE
+				sql_data_tbl << [row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7]] 
+						
+				buffer1 = ""
+				buffer2 = ""
+				print_line(buffer1)						
+			}
+			disconnect	
+			
+			#CONVERT TABLE TO CSV AND WRITE TO FILE
+			if (save_loot=="yes")
+				
+				filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_sqlserver_query_results.csv"
+				path = store_loot("mssql.data", "text/plain", datastore['RHOST'], sql_data_tbl.to_csv, filename, "SQL Server query results", "mssql")
+				print_status("Query results have been saved to: #{path}")
+			end	
+		rescue
+		print_line("[-] ERROR : Failed to connect to #{rhost}:#{rport}.")
+		return
 		end
 		
-
 	end
 end
