@@ -41,6 +41,7 @@ class Plugin::Lab < Msf::Plugin
 			"lab_stop" => "lab_stop [vmid+|all] stop the specified vm.",
 			"lab_revert" => "lab_revert [vmid+|all] [snapshot] revert the specified vm.",
 			"lab_snapshot" => "lab_snapshot [vmid+|all] [snapshot] snapshot all targets for this exploit.",
+			"lab_upload" => "lab_upload [vmid] [local_path] [remote_path] upload a file.",
 			"lab_run_command" => "lab_run_command [vmid+|all] [command] run a command on all targets.",
 			"lab_browse_to" => "lab_browse_to [vmid+|all] [uri] use the default browser to browse to a uri."
 		}
@@ -268,6 +269,42 @@ class Plugin::Lab < Msf::Plugin
 			end
 		end
 
+		# 
+		# Command: lab_upload [vmids] [from] [to]
+		# 
+		# Description: Uploads a file to the guest(s)
+		#
+		# Quirks: Pass "all" as a vmid to have it operate on all vms.
+		# 
+		def cmd_lab_upload(*args)
+			return lab_usage if args.empty?
+			return lab_usage if args.count < 3
+
+			local_path = args[args.count-2]
+			vm_path = args[args.count-1]
+	
+#			print_line "DEBUG: local path #{local_path}"
+#			print_line "DEBUG: vm path #{vm_path}"
+#			print_line "DEBUG: vm #{args[0]}"
+
+			if args[0] == "all"
+					@controller.each do |vm|
+						if vm.running?
+								print_line "Copying from #{local_path} to #{vm_path} on #{vm.hostname}"
+								vm.copy_to_guest(local_path, vm_path)
+						end
+					end
+			else
+				args[0..-2].each do |vmid_arg|
+					next unless @controller.includes_vmid? vmid_arg
+					if @controller[vmid_arg].running?
+						print_line "Copying from #{local_path} to #{vm_path} on #{vmid_arg}"
+						@controller[vmid_arg].copy_to_guest(local_path, vm_path)
+					end
+				end
+			end
+		end
+
 		def cmd_lab_browse_to(*args)
 			return lab_usage if args.empty?
 			uri = args[args.count-1]
@@ -390,6 +427,8 @@ class Plugin::Lab < Msf::Plugin
 	# inheriting from Msf::Plugin to ensure that the framework attribute on
 	# their instance gets set.
 	#
+	attr_accessor :controller
+
 	def initialize(framework, opts)
 		super
 

@@ -24,6 +24,7 @@ class VmDriver
 		@location = filter_command(config["location"])
 		@credentials = config["credentials"] || []
 		@tools = filter_input(config["tools"])
+
 		@os = filter_input(config["os"])
 		@hostname = filter_input(config["hostname"]) || filter_input(config["vmid"].to_s)
 
@@ -86,11 +87,11 @@ class VmDriver
 		raise "Command not Implemented"
 	end
 	
-	def copy_from(from, to)
+	def copy_from_guest(from, to)
 		raise "Command not Implemented"
 	end
 	
-	def copy_to(from, to)
+	def copy_to_guest(from, to)
 		raise "Command not Implemented"
 	end
 
@@ -142,7 +143,7 @@ private
 
 	def filter_input(string)
 		return "" unless string # nil becomes empty string
-		return unless string.class == String # Allow other types unmodified
+		return string unless string.class == String # Allow other types unmodified
 		
 		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"

@@ -116,7 +116,7 @@ class RemoteWorkstationDriver < VmDriver
 		end
 	end
 	
-	def copy_from(from, to)
+	def copy_from_guest(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
 		
@@ -133,7 +133,7 @@ class RemoteWorkstationDriver < VmDriver
 		end
 	end
 
-	def copy_to(from, to)
+	def copy_to_guest(from, to)
 	
 		from = filter_input(from)
 		to = filter_input(to)

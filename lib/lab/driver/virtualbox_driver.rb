@@ -98,14 +98,14 @@ module Drivers
 			system_command(command)
 		end
 	
-		def copy_from(from, to)
+		def copy_from_guest(from, to)
 			from = filter_input(from)
 			to = filter_input(to)
 
 			raise "Not supported by Virtual Box"
 		end
 
-		def copy_to(from, to)
+		def copy_to_guest(from, to)
 			from = filter_input(from)
 			to = filter_input(to)
 			

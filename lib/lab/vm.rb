@@ -163,12 +163,12 @@ class Vm
 		@driver.start
 	end
 
-	def copy_to(from,to)
-		@driver.copy_to(from,to)
+	def copy_to_guest(from,to)
+		@driver.copy_to_guest(from,to)
 	end
 	
-	def copy_from(from,to)
-		@driver.copy_from(from,to)
+	def copy_from_guest(from,to)
+		@driver.copy_from_guest(from,to)
 	end
 	
 	def run_command(command)
