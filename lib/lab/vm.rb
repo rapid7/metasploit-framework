@@ -18,7 +18,9 @@ class Vm
 	attr_accessor :host
 	attr_accessor :os
 	attr_accessor :arch
-
+	attr_accessor :tags 
+	attr_accessor :type
+	
 	## Initialize takes a vm configuration hash of the form
 	##  - vmid (unique identifier)
 	##    driver (vm technology)
@@ -75,8 +77,6 @@ class Vm
 		#Only fog systems need this
 		@fog_config = config['fog_config']
 
-		#puts "Passing driver config: #{config}"
-
 		# Process the correct driver
 		if @driver_type == "workstation"
 			@driver = Lab::Drivers::WorkstationDriver.new(config)
@@ -101,8 +101,6 @@ class Vm
 		# Load in a list of modifiers. These provide additional methods
 		# Currently it is up to the user to verify that 
 		# modifiers are properly used with the correct VM image.
-		#
-		# If not, the results are likely to be disasterous.
 		@modifiers = config['modifiers']
 		
 		if @modifiers	
@@ -112,6 +110,14 @@ class Vm
 				# modifier likely didn't exist
 			end 		
 		end
+
+		# Consume all tags
+		@tags = config['tags']
+	end
+	
+	def tagged?(tag_name)
+		return false unless @tags
+		return true if @tags.include?(tag_name)
 	end
 	
 	def running?

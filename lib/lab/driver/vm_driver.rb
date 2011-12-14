@@ -167,8 +167,7 @@ private
 	# the ability to still run clean (controlled entirely by us)
 	# command lines.
 	def system_command(command)
-		#puts "DEBUG: system command #{command}"
-		system(command)
+		`#{command}`
 	end
 	
 	
