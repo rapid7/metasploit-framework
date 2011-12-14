@@ -75,7 +75,7 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def save_output(data)
-		f = ::File.open(datastore['OUTFILE'], "w")
+		f = ::File.open(datastore['OUTFILE'], "wb")
 		f.write(data)
 		f.close
 		print_status("Save results in #{datastore['OUTFILE']}")
@@ -161,9 +161,9 @@ class Metasploit4 < Msf::Auxiliary
 				hostname = host['hostnames'][0]
 				data = host['data']
 
-				if  ip =~ /#{my_filter}/ or 
-					city =~ /#{my_filter}/i or 
-					country =~ /#{my_filter}/i or 
+				if  ip =~ /#{my_filter}/ or
+					city =~ /#{my_filter}/i or
+					country =~ /#{my_filter}/i or
 					hostname =~ /#{my_filter}/i or
 					data =~ /#{my_filter}/i
 					# Unfortunately we cannot display the banner properly,

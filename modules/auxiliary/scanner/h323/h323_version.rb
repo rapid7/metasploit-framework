@@ -1,8 +1,4 @@
 ##
-# $Id: ftp_version.rb 9804 2010-07-13 18:52:27Z todb $
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.

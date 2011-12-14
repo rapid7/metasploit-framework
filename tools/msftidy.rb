@@ -13,6 +13,12 @@
 ##
 
 LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+
+if CHECK_OLD_RUBIES
+	require 'rvm'
+	warn "This is going to take a while, depending on the number of Rubies you have installed."
+end
 
 def show_count(f, txt, num)
 	puts "%s ... %s: %u" % [f, txt, num] if num > 0
@@ -20,6 +26,16 @@ end
 
 def show_missing(f, txt, val)
 	puts '%s ... %s' % [f, txt] if not val
+end
+
+# This check is only enabled if the environment variable MSF_CHECK_OLD_RUBIES is set
+def test_old_rubies(f_rel)
+	return true unless CHECK_OLD_RUBIES
+	return true unless Object.const_defined? :RVM
+	puts "Checking syntax for #{f_rel}."
+	@rubies ||= RVM.list_strings
+	res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
+	@rubies.size == res.size
 end
 
 
@@ -32,6 +48,12 @@ def check_single_file(dparts, fparts, f_rel)
 	# check for executable
 	f_exec = File.executable?(f_rel)
 	show_missing(f, "is executable", !f_exec)
+
+	# check all installed rubies
+	
+	old_rubies = test_old_rubies(f_rel)
+	show_missing(f, "fails alternate Ruby version check", old_rubies)
+
 
 	# check various properties based on content
 	content = File.open(f_rel, "rb").read

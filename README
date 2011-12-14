@@ -34,6 +34,7 @@ The copyright on this package is held by Rapid7 LLC.
 
 
 This license does not apply to the following components:
+ - The Bit-Struct library located under lib/bit-struct
  - The OpenSSL library embedded into the Meterpreter payload binaries and the
    corresponding header files in the source tree
  - The Packet Sniffer SDK (MicroOLAP) library embedded into the Meterpreter

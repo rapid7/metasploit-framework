@@ -235,6 +235,8 @@ class DBManager
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
+		
+		address, scope = address.split('%', 2)
 		return wspace.hosts.find_by_address(address)
 	end
 
@@ -259,6 +261,7 @@ class DBManager
 	#	:os_lang    -- something like "English", "French", or "en-US"
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
+	#	:scope      -- interface identifier for link-local IPv6
 	#
 	def report_host(opts)
 
@@ -275,6 +278,9 @@ class DBManager
 
 		if not addr.kind_of? Host
 			addr = normalize_host(addr)
+			addr, scope = addr.split('%', 2)
+			opts[:scope] = scope if scope
+			 
 			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
@@ -313,7 +319,7 @@ class DBManager
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-
+		
 		if host.changed?
 			msf_import_timestamps(opts,host)
 			host.save!
@@ -1222,6 +1228,7 @@ class DBManager
 	# Deletes a host and associated data matching this address/comm
 	#
 	def del_host(wspace, address, comm='')
+		address, scope = address.split('%', 2)
 		host = wspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
 	end
@@ -1255,6 +1262,7 @@ class DBManager
 	# Look for an address across all comms
 	#
 	def has_host?(wspace,addr)
+		address, scope = addr.split('%', 2)
 		wspace.hosts.find_by_address(addr)
 	end
 
@@ -1490,7 +1498,7 @@ class DBManager
 			end
 
 			# Force addr to be the address and not hostname
-			addr = Rex::Socket.getaddress(addr)
+			addr = Rex::Socket.getaddress(addr, true)
 		end
 
 		ret = {}
@@ -5220,8 +5228,9 @@ class DBManager
 		norm_host = nil
 
 		if (host.kind_of? String)
-			# If it's an IPv4 addr with a host on the end, strip the port
-			if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+		
+			# If it's an IPv4 addr with a port on the end, strip the port
+			if Rex::Socket.is_ipv4?(host) and host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
 				norm_host = $1
 			else
 				norm_host = host

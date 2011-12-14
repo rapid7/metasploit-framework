@@ -717,7 +717,7 @@ class ModuleManager < ModuleSet
 
 		# Load the module into a new Module wrapper
 		begin
-			wrap.module_eval(load_module_source(file))
+			wrap.module_eval(load_module_source(file), file)
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or
@@ -1004,7 +1004,7 @@ protected
 
 		begin
 			wrap = ::Module.new
-			wrap.module_eval(load_module_source(file))
+			wrap.module_eval(load_module_source(file), file)
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or
@@ -1124,7 +1124,7 @@ protected
 
 		begin
 			wrap = ::Module.new
-			wrap.module_eval( ::FastLib.load(path, file) )
+			wrap.module_eval( ::FastLib.load(path, file), file )
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or

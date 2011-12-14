@@ -53,25 +53,37 @@ class RangeWalker
 		return nil if not parseme
 		ranges = []
 		parseme.split(', ').map{ |a| a.split(' ') }.flatten.each { |arg|
-
+			opts = {}
+			
 			# Handle IPv6 first (support ranges, but not CIDR)
 			if arg.include?(":")
 				addrs = arg.split('-', 2)
-				
+						
 				# Handle a single address
 				if addrs.length == 1
-					# IPv6 ranges are not yet supported (or useful)
-					return false unless Rex::Socket.is_ipv6?(arg)
-				
-					addr = Rex::Socket.addr_atoi(arg)
-					ranges.push [addr, addr, true]
+					addr, scope_id = addrs[0].split('%')
+					opts[:scope_id] = scope_id if scope_id
+					
+					return false unless Rex::Socket.is_ipv6?(addr)
+					addr = Rex::Socket.addr_atoi(addr)
+					ranges.push [addr, addr, true, opts]
+					next
 				end
+								
+				addr1, scope_id = addrs[0].split('%')
+				opts[:scope_id] = scope_id if scope_id
 				
+				addr2, scope_id = addrs[0].split('%')
+				( opts[:scope_id] ||= scope_id ) if scope_id
+
+				return false if not (Rex::Socket.is_ipv6?(addr1) and Rex::Socket.is_ipv6?(addr2))
+
 				# Handle IPv6 ranges in the form of 2001::1-2001::10
-				return false if not (Rex::Socket.is_ipv6?(addrs[0]) and Rex::Socket.is_ipv6?(addrs[1]))
-				addr1 = Rex::Socket.addr_atoi(addrs[0])
-				addr2 = Rex::Socket.addr_atoi(addrs[1])
-				ranges.push [addr1, addr2, true]
+				addr1 = Rex::Socket.addr_atoi(addr1)
+				addr2 = Rex::Socket.addr_atoi(addr2)
+
+				ranges.push [addr1, addr2, true, opts]
+				next
 
 			# Handle IPv4 CIDR
 			elsif arg.include?("/")
@@ -90,7 +102,7 @@ class RangeWalker
 
 				expanded = expand_cidr(arg)
 				if expanded
-					ranges += expanded
+					ranges.push(expanded)
 				else
 					return false
 				end	
@@ -99,7 +111,7 @@ class RangeWalker
 			elsif arg =~ /[^-0-9,.*]/
 				# Then it's a domain name and we should send it on to addr_atoi
 				# unmolested to force a DNS lookup.
-				Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr] }
+				Rex::Socket.addr_atoi_list(arg).each { |addr| ranges.push [addr, addr, false, opts] }
 			
 			# Handle IPv4 ranges
 			elsif arg =~ /^([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})-([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3})$/
@@ -108,19 +120,21 @@ class RangeWalker
 				begin 
 					addrs = [Rex::Socket.addr_atoi($1), Rex::Socket.addr_atoi($2)]
 					return false if addrs[0] > addrs[1] # The end is greater than the beginning.
-					ranges.push [addrs[0], addrs[1]]
+					ranges.push [addrs[0], addrs[1], false, opts]
 				rescue Resolv::ResolvError # Something's broken, forget it.
 					return false
 				end
 			else
+				# Returns an array of ranges
 				expanded = expand_nmap(arg)
 				if expanded
-					ranges += expanded
-				else
-					return false
+					expanded.each { |r| ranges.push(r) }
 				end
 			end
 		}
+		
+		# Remove any duplicate ranges
+		ranges = ranges.uniq 
 
 		return ranges
 	end
@@ -132,7 +146,6 @@ class RangeWalker
 		return false if not valid?
 		@curr_range = 0
 		@curr_addr = @ranges[0][0]
-
 		@length = 0
 		@ranges.each { |r| @length += r[1] - r[0] + 1 }
 	end
@@ -150,6 +163,11 @@ class RangeWalker
 			@curr_addr = @ranges[@curr_range][0]
 		end
 		addr = Rex::Socket.addr_itoa(@curr_addr, @ranges[@curr_range][2])
+		
+		if @ranges[@curr_range][3][:scope_id]
+			addr = addr + '%' + @ranges[@curr_range][3][:scope_id]
+		end
+		
 		@curr_addr += 1
 		return addr
 	end
@@ -214,8 +232,9 @@ class RangeWalker
 		range.start = Rex::Socket.addr_atoi(start)
 		range.stop = Rex::Socket.addr_atoi(stop)
 		range.ipv6 = (arg.include?(":"))
+		range.options = {}
 
-		return [range]
+		return range
 	end
 
 	#
@@ -323,8 +342,12 @@ class RangeWalker
 
 		addrs.sort!
 		addrs.uniq!
+		
 		rng = Range.new
+		rng.ipv6 = false
+		rng.options = {}		
 		rng.start = addrs[0]
+		
 		ranges = []
 		1.upto(addrs.length - 1) do |idx|
 			if addrs[idx - 1] + 1 == addrs[idx]
@@ -358,9 +381,11 @@ class Range < Array # :nodoc: all
 	def start; self[0]; end
 	def stop;  self[1]; end
 	def ipv6;  self[2]; end
+	def options; self[3]; end	
 	def start=(val); self[0] = val; end
 	def stop=(val);  self[1] = val; end
 	def ipv6=(val);  self[2] = val; end
+	def options=(val); self[3] = val; end	
 end
 
 end

