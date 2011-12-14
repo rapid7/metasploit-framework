@@ -82,7 +82,6 @@ class Plugin::Nexpose < Msf::Plugin
 			group = "default"
 
 			if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-				config = Hash.new
 				config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
 				File.open("#{Nexpose_yaml}", "w+") do |f|
 					f.puts YAML.dump(config)
@@ -143,7 +142,10 @@ class Plugin::Nexpose < Msf::Plugin
 		def nexpose_login
 
 			if ! ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
-				ncusage
+				print_status("Usage: ")
+				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
+				print_status("        -OR- ")
+				print_status("       nexpose_connect username password host port <ssl-confirm>")
 				return
 			end
 
