@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 			next if user['ProfileDir'] == nil
 			file= user['ProfileDir'] + "\\.razorsql\\data\\profiles.txt"
 			content = get_content(file)
-			if not content.nil? or not content.empty?
+			if content and not content.empty?
 				creds = parse_content(creds_tbl, content, user['UserName'])
 				creds.each do |c|
 					creds_tbl << c
