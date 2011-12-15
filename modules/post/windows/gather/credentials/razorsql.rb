@@ -70,8 +70,8 @@ class Metasploit3 < Msf::Post
 				'razor_user_creds.txt',
 				'RazorSQL User Credentials'
 			)
-			print_status("User credentials stored in: #{path}")
 			print_line(creds_tbl.to_s)
+			print_status("User credentials stored in: #{path}")
 		else
 			print_error("No data collected")
 		end
@@ -109,9 +109,9 @@ class Metasploit3 < Msf::Post
 
 			# Reort auth info while dumping data
 			report_auth_info(
-				:host  => session,
+				:host  => host,
 				:port  => port,
-				:sname => 'razorsql',
+				:sname => database,
 				:user  => user,
 				:pass  => pass,
 				:type  => 'password'
