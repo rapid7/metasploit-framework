@@ -678,9 +678,20 @@ class Client
 	#
 	# Return the HTTP Host header
 	#
-	def set_host_header(host)
+	def set_host_header(host=nil)
 		return "" if self.config['uri_full_url']
 		host ||= self.config['vhost']
+		
+		# IPv6 addresses must be placed in brackets
+		if Rex::Socket.is_ipv6?(host)
+			host = "[#{host}]"
+		end
+		
+		# The port should be appended if non-standard
+		if not [80,443].include?(self.port)
+			host = host + ":#{port}"
+		end
+		
 		set_formatted_header("Host", host)
 	end
 

@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 #
-# $Id$
-#
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
@@ -15,6 +13,12 @@
 ##
 
 LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+
+if CHECK_OLD_RUBIES
+	require 'rvm'
+	warn "This is going to take a while, depending on the number of Rubies you have installed."
+end
 
 def show_count(f, txt, num)
 	puts "%s ... %s: %u" % [f, txt, num] if num > 0
@@ -24,47 +28,35 @@ def show_missing(f, txt, val)
 	puts '%s ... %s' % [f, txt] if not val
 end
 
+# This check is only enabled if the environment variable MSF_CHECK_OLD_RUBIES is set
+def test_old_rubies(f_rel)
+	return true unless CHECK_OLD_RUBIES
+	return true unless Object.const_defined? :RVM
+	puts "Checking syntax for #{f_rel}."
+	@rubies ||= RVM.list_strings
+	res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
+	@rubies.size == res.size
+end
+
 
 def check_single_file(dparts, fparts, f_rel)
 	f = (dparts + fparts).join('/')
-	#puts f
+	# puts "Checking: #{f.inspect}"
 
-	# blacklisted files..
-	#?
+	# Put some kind of blacklist mechanism here, yaml config would be nice...
 
-	# check svn existence
-	svn_parts = fparts[0, fparts.length - 1] + [ '.svn', 'text-base' ]
-	svn_parts << fparts[-1, 1].first + '.svn-base'
-	svn_path = svn_parts.join('/')
-	if not File.file?(svn_path)
-		show_missing(f, 'not in SVN!', false)
-	else
-		# check svn properties
-		svn_parts = fparts[0, fparts.length - 1] + [ '.svn', 'prop-base' ]
-		svn_parts << fparts[-1, 1].first + '.svn-base'
-		svn_path = svn_parts.join('/')
-		props = File.open(svn_path, 'rb').read rescue nil
-		if props
-			kw = false
-			exec = false
-			mime = false
-			props.each_line { |ln|
-				kw = true if ln =~ /svn:keywords/
-				exec = true if ln =~ /svn:executable/
-				mime = true if ln =~ /svn:mime-type/
-			}
+	# check for executable
+	f_exec = File.executable?(f_rel)
+	show_missing(f, "is executable", !f_exec)
 
-			show_missing(f, 'missing svn:keywords', kw)
-			show_missing(f, 'is executable!', (not exec))
-			show_missing(f, 'has mime-type property!', (not mime))
-		else
-			show_missing(f, 'missing svn properties', props)
-		end
-	end
+	# check all installed rubies
+	
+	old_rubies = test_old_rubies(f_rel)
+	show_missing(f, "fails alternate Ruby version check", old_rubies)
+
 
 	# check various properties based on content
 	content = File.open(f_rel, "rb").read
-
 
 	# check criteria based on whole content
 	if content =~ / \< Msf::Exploit/
@@ -91,8 +83,6 @@ def check_single_file(dparts, fparts, f_rel)
 	bi = []
 	ll = []
 	cr = 0
-	has_rev = false
-	has_id = false
 	url_ok = true
 	nbo = 0 # non-bin open
 	long_lines = 0
@@ -133,11 +123,9 @@ def check_single_file(dparts, fparts, f_rel)
 			bi << [ idx, ln ]
 		end
 		cr += 1 if ln =~ /\r$/
-		has_id = true if ln =~ /\$Id:.*\$/
-		has_rev = true if ln =~ /\$Revision:.*\$/
 		url_ok = false if ln =~ /\.com\/projects\/Framework/
 		if ln =~ /File\.open/ and ln =~ /[\"\'][arw]/
-			if not ln =~ /[\"\'][wra]b\+?[\"\']/
+			if not ln =~ /[\"\'][wra]\+?b\+?[\"\']/
 				nbo += 1
 			end
 		end
@@ -169,8 +157,6 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	show_count(f, 'carriage return EOL', cr)
-	show_missing(f, 'missing $'+'Id: $', has_id)
-	show_missing(f, 'missing $'+'Revision: $', has_rev)
 	show_missing(f, 'incorrect URL to framework site', url_ok)
 	show_missing(f, 'writes to stdout', no_stdio)
 	show_count(f, 'File.open without binary mode', nbo)

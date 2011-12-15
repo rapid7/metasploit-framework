@@ -14,6 +14,10 @@ while File.symlink?(msfbase)
 end
 
 $:.unshift(File.join(File.dirname(msfbase), 'lib'))
+require 'fastlib'
+
+
+
 $:.unshift(ENV['MSF_LOCAL_LIB']) if ENV['MSF_LOCAL_LIB']
 
 require 'rex/parser/arguments'
@@ -24,7 +28,6 @@ arguments = Rex::Parser::Arguments.new(
 	"-p" => [ true,  "Bind to this port instead of 55553"                   ],
 	"-U" => [ true,  "Specify the username to access msfrpcd"               ],
 	"-P" => [ true,  "Specify the password to access msfrpcd"               ],
-	"-t" => [ true,  "Server type, [Basic|Web|Msg]"                         ],
 	"-u" => [ true,  "URI for Web server"                                   ],
 	"-S" => [ false, "Disable SSL on the RPC socket"                     ],
 	"-f" => [ false, "Run the daemon in the foreground"                     ],
@@ -36,7 +39,7 @@ opts = {
 	'SSL'             => true,
 	'ServerHost'      => '0.0.0.0',
 	'ServerPort'      => 55553,
-	'ServerType'      => 'Basic'
+	'ServerType'      => 'Msg'
 }
 
 foreground = false
@@ -58,8 +61,6 @@ arguments.parse(ARGV) { |opt, idx, val|
 			opts['Pass'] = val
 		when "-f"
 			foreground = true
-		when "-t"
-			opts['ServerType'] = val
 		when "-u"
 			opts['URI'] = val
 		when "-n"
@@ -77,8 +78,7 @@ end
 
 $0 = "msfrpcd"
 
-rpctype = 'XML'
-rpctype = 'MSG' if opts['ServerType'].downcase == 'msg'
+rpctype = 'MSG'
 
 $stderr.puts "[*] #{rpctype}RPC starting on #{opts['ServerHost']}:#{opts['ServerPort']} (#{opts['SSL'] ? "SSL" : "NO SSL"}):#{opts['ServerType']}..."
 

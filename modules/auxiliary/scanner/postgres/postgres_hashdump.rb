@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'Postgres Server Hashes',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' => ['Username', 'Hash']
 		)
 

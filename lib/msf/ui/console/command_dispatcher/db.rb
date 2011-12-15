@@ -168,7 +168,7 @@ class Db
 			default_columns = ::Msf::DBManager::Host.column_names.sort
 			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 
-			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments' ]
+			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
 
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 			while (arg = args.shift)
@@ -235,7 +235,8 @@ class Db
 						print_status("Time: #{host.created_at} Host: host=#{host.address}")
 						if set_rhosts
 							# only unique addresses
-							rhosts << host.address unless rhosts.include?(host.address)
+							addr = (host.scope ? host.address + '%' + host.scope : host.address ) 
+							rhosts << addr unless rhosts.include?(addr)
 						end
 					end
 				end
@@ -271,8 +272,8 @@ class Db
 
 					tbl << columns
 					if set_rhosts
-						# only unique addresses
-						rhosts << host.address unless rhosts.include?(host.address)
+						addr = (host.scope ? host.address + '%' + host.scope : host.address ) 
+						rhosts << addr unless rhosts.include?(addr)
 					end
 					if mode == :delete
 						host.destroy
@@ -363,7 +364,7 @@ class Db
 						print_error("Invalid output filename")
 						return
 					end
-					output_file = File.expand_path(output_file)
+					output_file = ::File.expand_path(output_file)
 				when '-R','--rhosts'
 					set_rhosts = true
 					rhosts = []
@@ -443,9 +444,10 @@ class Db
 					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 					tbl << columns
 					if set_rhosts
-						# only unique addresses
-						rhosts << host.address unless rhosts.include?(host.address)
+						addr = (host.scope ? host.address + '%' + host.scope : host.address ) 
+						rhosts << addr unless rhosts.include?(addr)
 					end
+					
 					if (mode == :delete)
 						service.destroy
 						delete_count += 1
@@ -458,7 +460,7 @@ class Db
 				print_line tbl.to_s
 			else
 				# create the output file
-				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+				::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
 				print_status("Wrote services to #{output_file}")
 			end
 
@@ -621,7 +623,7 @@ class Db
 						print_error("Invalid output filename")
 						return
 					end
-					output_file = File.expand_path(output_file)
+					output_file = ::File.expand_path(output_file)
 				when "-p","--port"
 					unless (arg_port_range(args.shift, port_ranges, true))
 						return
@@ -737,8 +739,8 @@ class Db
 					cred.destroy
 				end
 				if set_rhosts
-					# only unique addresses
-					rhosts << cred.service.host.address unless rhosts.include?(cred.service.host.address)
+					addr = (cred.service.host.scope ? cred.service.host.address + '%' + cred.service.host.scope : cred.service.host.address ) 
+					rhosts << addr unless rhosts.include?(addr)
 				end
 				creds_returned += 1
 			end
@@ -748,7 +750,7 @@ class Db
 				print_line tbl.to_s
 			else
 				# create the output file
-				File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
+				::File.open(output_file, "wb") { |f| f.write(tbl.to_csv) }
 				print_status("Wrote services to #{output_file}")
 			end
 
@@ -852,8 +854,8 @@ class Db
 					host = note.host
 					msg << " host=#{note.host.address}"
 					if set_rhosts
-						# only unique addresses
-						rhosts << host.address unless rhosts.include?(host.address)
+						addr = (host.scope ? host.address + '%' + host.scope : host.address ) 
+						rhosts << addr unless rhosts.include?(addr)
 					end
 				end
 				if (note.service)
@@ -1003,13 +1005,13 @@ class Db
 				return
 			end
 			args.each { |glob|
-				files = Dir.glob(File.expand_path(glob))
+				files = ::Dir.glob(::File.expand_path(glob))
 				if files.empty?
 					print_error("No such file #{glob}")
 					next
 				end
 				files.each { |filename|
-					if (not File.readable?(filename))
+					if (not ::File.readable?(filename))
 						print_error("Could not read file #{filename}")
 						next
 					end
@@ -1285,13 +1287,13 @@ class Db
 		def cmd_db_connect(*args)
 			return if not db_check_driver
 			if (args[0] == "-y")
-				if (args[1] and not File.exists? File.expand_path(args[1]))
+				if (args[1] and not ::File.exists? ::File.expand_path(args[1]))
 					print_error("File not found")
 					return
 				end
-				file = args[1] || File.join(Msf::Config.get_config_root, "database.yml")
-				if (File.exists? File.expand_path(file))
-					db = YAML.load(File.read(file))['production']
+				file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
+				if (::File.exists? ::File.expand_path(file))
+					db = YAML.load(::File.read(file))['production']
 					cmd_db_driver(db['adapter'])
 					framework.db.connect(db)
 					return

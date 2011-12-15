@@ -224,6 +224,9 @@ class Driver < Msf::Ui::Driver
 		@junit_output_path = output_path
 		@junit_error_count = 0
 		print_status("Test Output: #{output_path}")
+
+		# We need at least one test success in order to pass
+		junit_pass("framework_loaded")
 	end
 
 	#
@@ -250,8 +253,8 @@ class Driver < Msf::Ui::Driver
 		c << f
 		e << c
 
-		bname = ( ::File.basename(self.active_resource || "msfrpc") + "_" + tname ).gsub(/[^A-Za-z0-9\.\_]/, '')
-		bname << "_" + Digest::MD5.hexdigest(ftype)
+		bname = ("msfrpc_#{tname}").gsub(/[^A-Za-z0-9\.\_]/, '')
+		bname << "_" + Digest::MD5.hexdigest(tname)
 
 		fname = ::File.join(@junit_output_path, "#{bname}.xml")
 		cnt   = 0
@@ -266,6 +269,43 @@ class Driver < Msf::Ui::Driver
 
 		print_error("Test Error: #{tname} - #{ftype} - #{data}")
 	end
+	
+	#
+	# Emit a new jUnit XML output file representing a success
+	#
+	def junit_pass(tname)
+
+		if not @junit_output_path
+			raise RuntimeError, "No output path, call junit_setup() first"
+		end
+
+		# Generate the structure of a test case run
+		e = REXML::Element.new("testsuite")
+		c = REXML::Element.new("testcase")
+		c.attributes["classname"] = "msfrc"
+		c.attributes["name"]  = tname
+		e << c
+
+		# Generate a unique name
+		bname = ("msfrpc_#{tname}").gsub(/[^A-Za-z0-9\.\_]/, '')
+		bname << "_" + Digest::MD5.hexdigest(tname)
+
+		# Generate the output path, allow multiple test with the same name
+		fname = ::File.join(@junit_output_path, "#{bname}.xml")
+		cnt   = 0
+		while ::File.exists?( fname )
+			cnt  += 1
+			fname = ::File.join(@junit_output_path, "#{bname}_#{cnt}.xml")
+		end
+
+		# Write to our test output location, as specified with junit_setup
+		::File.open(fname, "w") do |fd|
+			fd.write(e.to_s)
+		end
+
+		print_good("Test Pass: #{tname}")
+	end
+
 
 	#
 	# Emit a jUnit XML output file and throw a fatal exception

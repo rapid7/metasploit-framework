@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('VERIFY_CONNECT', [ false, 'Enable test for CONNECT method', false ]),
 				OptBool.new('VERIFY_HEAD', [ false, 'Enable test for HEAD method', false ]),
 				OptBool.new('LOOKUP_PUBLIC_ADDRESS', [ false, 'Enable test for retrieve public IP address via RIPE.net', false ]),
-				OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', '209.85.135.147' ]),
+				OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', '209.85.148.147' ]),
 				OptString.new('ValidCode', [ false, "Valid HTTP code for a successfully request", '200,302' ]),
 				OptString.new('ValidPattern', [ false, "Valid HTTP server header for a successfully request", 'server: gws' ]),
 				OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),

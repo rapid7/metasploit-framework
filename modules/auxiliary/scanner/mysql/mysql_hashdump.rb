@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		#create a table to store data
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'MysQL Server Hashes',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' => ['Username', 'Hash']
 		)
 

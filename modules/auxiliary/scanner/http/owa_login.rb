@@ -47,6 +47,17 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['BLANK_PASSWORDS'] = false  # OWA doesn't support blank passwords
 		vhost = datastore['VHOST'] || datastore['RHOST']
 
+		print_status("#{msg} Testing version #{datastore['VERSION']}")
+
+		# Here's a weird hack to check if each_user_pass is empty or not
+		# apparently you cannot do each_user_pass.empty? or even inspect() it
+		isempty = true
+		each_user_pass do |user|
+			isempty = false
+			break
+		end
+		print_error("No username/password specified") if isempty
+
 		if datastore['VERSION'] == '2003'
 			authPath = '/exchweb/bin/auth/owaauth.dll'
 			inboxPath = '/exchange/'
@@ -58,21 +69,19 @@ class Metasploit3 < Msf::Auxiliary
 		elsif datastore['VERSION'] == '2010'
 			authPath = '/owa/auth.owa'  # Post creds here
 			inboxPath = '/owa/'         # Get request with cookie/sessionid
-			loginCheck = /Inbox/        # check result
+			loginCheck = /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/        # check result
 		else
-			print_error('Invalid Version, Select 2003, 2007, or 2010')
+			print_error('Invalid VERSION, select one of 2003, 2007, or 2010')
 			return
 		end
 
-		print_status("Testing OWA: version #{datastore['VERSION']} against #{vhost}:#{datastore['RPORT'].to_s}")
-
 		begin
 			each_user_pass do |user, pass|
-				vprint_status("Trying #{user} : #{pass}")
+				vprint_status("#{msg} Trying #{user} : #{pass}")
 				try_user_pass(user, pass, authPath, inboxPath, loginCheck, vhost)
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 		end
 	end
 
@@ -98,17 +107,17 @@ class Metasploit3 < Msf::Auxiliary
 			}, 20)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error('HTTP Connection Failed, Aborting')
+			print_error("#{msg} HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 			return :abort
 		end
 
 		if not res.headers['set-cookie']
-			print_error('Received Invalid Repsonse due to a missing cookie (Possibly Due To Invalid Version), Aborting')
+			print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
 			return :abort
 		end
 
@@ -125,22 +134,22 @@ class Metasploit3 < Msf::Auxiliary
 				'headers'   => headers
 			}, 20)
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error('HTTP Connection Failed, Aborting')
+			print_error("#{msg} HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 			return :abort
 		end
 
 		if res.code == 302
-			vprint_error("FAILED LOGIN. #{user} : #{pass}")
+			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
 
 		if res.body =~ loginCheck
-			print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+			print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 			report_hash = {
 				:host   => datastore['RHOST'],
@@ -154,9 +163,13 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(report_hash)
 			return :next_user
 		else
-			vprint_error("FAILED LOGIN. #{user} : #{pass}")
+			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
+	end
+
+	def msg
+		"#{vhost}:#{rport} OWA -"
 	end
 
 end

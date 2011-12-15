@@ -50,6 +50,13 @@ module ReverseHttp
 	end
 
 	#
+	# Toggle for IPv4 vs IPv6 mode
+	#
+	def ipv6
+		self.refname.index('ipv6') ? true : false
+	end
+	
+	#
 	# Create a HTTP listener
 	#
 	def setup_handler
@@ -64,7 +71,7 @@ module ReverseHttp
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
-			'0.0.0.0',
+			ipv6 ? '::' : '0.0.0.0',
 			false,
 			{
 				'Msf'        => framework,
@@ -130,6 +137,8 @@ protected
 		if lhost.empty? or lhost == '0.0.0.0'
 			lhost = Rex::Socket.source_address(cli.peerhost)
 		end
+		
+		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
 
 		# Process the requested resource.
 		case req.relative_resource

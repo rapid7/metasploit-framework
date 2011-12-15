@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -11,7 +7,7 @@
 
 require 'msf/core'
 
-class Metasploit3 < Msf::Auxiliary
+class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Report
@@ -21,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'         => 'SAP Service Discovery',
-			'Version'      => '$Revision$',
 			'Description'  => %q{ Scans for listening SAP services. },
 			'References'   =>
 				[
@@ -189,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 							when /^39[0-9][0-9]$/
 								service = "ITS AGate sapavw00_<INST>"
 							when /^4[0-9][0-9]00/
-								"IGS Multiplexer"
+								service = "IGS Multiplexer"
 							when /^8200$/
 								service = "XI JMS/JDBC/File Adapter"
 							when /^8210$/
@@ -205,7 +200,7 @@ class Metasploit3 < Msf::Auxiliary
 							when /^4445$/
 								service = "IPC Data Loader"
 							when /^9999$/
-								"IPC Server"
+								service = "IPC Server"
 							when /^3[0-9][0-9](0|1)(1|2|3|4|5|6|7|8$)/
 								service = "SAP Software Deployment Manager"
 							when /^2000(3|4|5|6|7$)/
@@ -229,16 +224,18 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						print_good("#{ip}:#{port}\t - #{service} OPEN")
 
+=begin
 						report_note(:host => "#{ip}",
 									:proto => 'TCP',
 									:port => "#{port}",
 									:type => 'SAP',
 									:data => "#{service}")
+=end
 
-						r << [ip,port,"open"]
+						r << [ip,port,"open", service]
 						rescue ::Rex::ConnectionRefused
 							vprint_status("#{ip}:#{port}\t - TCP closed")
-							r << [ip,port,"closed"]
+							r << [ip,port,"closed", "service"]
 						rescue ::Rex::ConnectionError, ::IOError, ::Timeout::Error
 						rescue ::Interrupt
 						raise $!
@@ -257,7 +254,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 
 			r.each do |res|
-				report_service(:host => res[0], :port => res[1], :state => res[2])
+				report_service(:host => res[0], :port => res[1], :state => res[2], :name => res[3])
 			end
 		end
 	end
