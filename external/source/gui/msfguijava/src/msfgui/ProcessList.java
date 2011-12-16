@@ -57,16 +57,6 @@ public class ProcessList extends MsfFrame {
 		this.rpcConn = rpcConn;
 		this.session = session;
 		this.lock = (ReentrantLock)sessionPopupMap.get(session.get("id")+"lock");
-		((DraggableTabbedPane)tabbedPane).setTabFocusListener(0, new FocusListener() {
-			public void focusGained(FocusEvent e) {
-				if(!lock.tryLock())
-					lock.lock();
-			}
-			public void focusLost(FocusEvent e) {
-				while(lock.getHoldCount() > 0)
-					lock.unlock();
-			}
-		});
 		//See if we need to move our tab
 		Map props = MsfguiApp.getPropertiesNode();
 		if(!props.get("tabWindowPreference").equals("window")){
@@ -74,13 +64,12 @@ public class ProcessList extends MsfFrame {
 					(Component)sessionPopupMap.get(session.get("id")+"console")));
 			DraggableTabbedPane.show(mainPanel);
 		}
-		if(!lock.tryLock())
-			lock.lock();
 		listProcs();
 	}
 
 	/** Lists the processes that are running */
 	protected void listProcs() throws HeadlessException {
+		lock.lock();
 		if (runCommand("ps"))
 			return;
 		readTimer = new Timer(300, new ActionListener() {
@@ -113,6 +102,7 @@ public class ProcessList extends MsfFrame {
 						readTimer.stop();
 					MsfguiApp.showMessage(null, ex.getMessage());
 				}
+				lock.unlock();
 			}
 		});
 		readTimer.start();
