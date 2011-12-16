@@ -29,10 +29,20 @@ module WindowsServices
 	
 	def service_list_running
 		if session_has_services_depend?
-			#TODO:  implement meterpreter_service_list_running
-			raise NotImplementedError.new "#{__method__}"
+			meterpreter_service_list_running
 		else
 			shell_service_list_running
+		end
+	end
+	
+	#
+	# Returns true if the given service is running
+	#
+	def service_running?(service_name)
+		if session_has_services_depend?
+			meterpreter_service_running?(service_name)
+		else
+			shell_service_running?(service_name)
 		end
 	end
 
@@ -44,11 +54,19 @@ module WindowsServices
 	# keys are Name, Start, Command and Credentials.
 	#
 
-	def service_info(name)
+	def service_info(name,extended_info=false)
 		if session_has_services_depend?
-			meterpreter_service_info(name)
+			meterpreter_service_info(name,extended_info)
 		else
-			shell_service_info(name)
+			shell_service_info(name, extended_info)
+		end
+	end
+	
+	def service_info_advanced(name,extended_info=false)
+		if session_has_services_depend?
+			meterpreter_service_info_advanced(name,extended_info)
+		else
+			shell_service_info(name, extended_info)
 		end
 	end
 
@@ -199,6 +217,294 @@ module WindowsServices
 protected
 
 	##
+	# Non-native Meterpreter windows service manipulation methods, i.e. shell or java meterp etc
+	##
+	def shell_service_list
+		services = []
+		begin
+			cmd = "cmd.exe /c sc query type= service state= all"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SERVICE_NAME:/
+				results.each_line do |line| 
+					if line =~ /SERVICE_NAME:/
+						h = win_parse_results(line)
+						services << h[:service_name]
+					end 
+				end
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				return nil
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+			return nil
+		end
+		return services
+	end
+
+	def shell_service_list_running
+		#SERVICE_NAME: Winmgmt
+		#DISPLAY_NAME: Windows Management Instrumentation
+      	# <...etc...>
+		#
+		services = []
+		begin
+			cmd = "cmd.exe /c sc query type= service"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SERVICE_NAME:/
+				results.each_line do |line| 
+					if line =~ /SERVICE_NAME:/
+						h = win_parse_results(line)
+						services << h[:service_name]
+					end 
+				end
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				return nil
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+			return nil
+		end
+		return services
+	end
+
+	def shell_service_running?(service_name)
+		running_services = self.shell_service_list_running
+		return true if running_services.include?(service_name)
+	end
+	
+	def shell_service_query_config(name)
+		service = {}
+		begin
+			cmd = "cmd.exe /c sc qc #{name.chomp}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SUCCESS/
+				#[SC] QueryServiceConfig SUCCESS
+				#
+				#SERVICE_NAME: winmgmt
+				#      TYPE          : 20  WIN32_SHARE_PROCESS
+				#      START_TYPE      : 2  AUTO_START
+				#      ERROR_CONTROL    : 0  IGNORE
+				#      BINARY_PATH_NAME  : C:\Windows\system32\svchost.exe -k netsvcs
+				#      <...>
+				#      DISPLAY_NAME     : Windows Management Instrumentation
+				#      DEPENDENCIES     : RPCSS
+				#      		   : OTHER
+				#      SERVICE_START_NAME : LocalSystem
+				# 
+				service = win_parse_results(results)
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				return nil
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+			return nil
+		end
+		return service
+	end
+	
+	def shell_service_info(name,extended_info=false)
+		service = {}
+		begin
+			h = shell_service_query_config(name)
+			return nil unless h
+			if ! extended_info
+				# this is here only for backwards compatibility with the original meterp version
+				service['Name'] = h[:service_name]
+				service['Startup'] = normalize_mode(h[:start_type])
+				service['Command'] = h[:binary_path_name]
+				service['Credentials'] = h[:service_start_name]
+				return service
+			else
+				# this is alot more useful stuff, but not backward compatible
+				return h
+			end
+		rescue Exception => e
+			print_error(e.to_s)
+			return nil
+		end
+		return nil
+	end
+
+	def shell_service_query_ex(name)
+		service = {}
+		begin
+			cmd = "cmd.exe /c sc queryex #{name.chomp}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SERVICE_NAME/ # NOTE: you can't use /SUCCESS/ here
+				#SERVICE_NAME: winmgmt
+				#      TYPE          : 20  WIN32_SHARE_PROCESS
+				#      STATE          : 4  RUNNING
+				#                      (STOPPABLE,PAUSABLE,ACCEPTS_SHUTDOWN)
+				#      WIN32_EXIT_CODE   : 0  (0x0)
+				#      SERVICE_EXIT_CODE  : 0  (0x0)
+				#      CHECKPOINT      : 0x0
+				#      WAIT_HINT       : 0x0
+				#      PID           : 1088
+				#      FLAGS          :
+				# 
+				service = win_parse_results(results)
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				return nil
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+			return nil
+		end
+		return service
+	end
+	
+	def shell_service_query_state(name)
+		begin
+			h = service_query_ex(name)
+			return h[:state] if h # return the state
+		rescue Exception => e
+			print_error(e.to_s)
+		end
+		return nil
+	end
+
+	def shell_service_change_startup(name,mode)
+		begin
+			mode = normalize_mode(mode)
+			cmd = "cmd.exe /c sc config #{name} start= #{mode}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SUCCESS/
+				return nil
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				eh = win_parse_error(results)
+				raise Msf::Post::Windows::CliParse::ParseError.new(
+					__method__,"Error changing startup mode #{name} to #{mode}:  #{eh[:error]}",
+					eh[:errval],cmd) 
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+		end
+	end
+
+	def shell_service_create(name,display_name="Server Service",executable_on_host="",mode="auto")
+		#  sc create [service name] [binPath= ] <option1> <option2>...
+		begin
+			mode = normalize_mode(mode)
+			cmd = "cmd.exe /c sc create #{name} binPath= \"#{executable_on_host}\" " +
+				"start= #{mode} DisplayName= \"#{display_name}\""
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SUCCESS/
+				return nil
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				eh = win_parse_error(results)
+				raise Msf::Post::Windows::CliParse::ParseError.new(
+					__method__,"Error creating service #{name}:  #{eh[:error]}",eh[:errval],cmd)
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+		end
+	end
+
+	def shell_service_start(name)
+		begin
+			cmd = "cmd.exe /c sc start #{name}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /(SUCCESS|START_PENDING|RUNNING)/
+				return nil
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				eh = win_parse_error(results)
+				raise Msf::Post::Windows::CliParse::ParseError.new(
+					__method__,"Error starting #{name}:  #{eh[:error]}",eh[:errval],cmd)
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+		end
+	end
+
+	def shell_service_stop(name)
+		begin
+			cmd = "cmd.exe /c sc stop #{name}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SUCCESS|STOP_PENDING|STOPPED|/
+				return nil
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				eh = win_parse_error(results)
+				raise Msf::Post::Windows::CliParse::ParseError.new(
+					__method__,"Error stopping service #{name}:  #{eh[:error]}",eh[:errval],cmd)
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+		end
+	end
+
+	def shell_service_delete(name)
+		begin
+			cmd = "cmd.exe /c sc delete #{name}"
+			results = session.shell_command_token_win32(cmd)
+			if results =~ /SUCCESS/
+				return nil
+			elsif results =~ /(^Error:.*|FAILED.*:)/
+				eh = win_parse_error(results)
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Error deleting service #{name}:  #{eh[:error]}",eh[:errval],cmd)
+			elsif results =~ /SYNTAX:/
+				# Syntax error
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Syntax error",nil,cmd)
+			else
+				raise Msf::Post::Windows::CliParse::ParseError.new(__method__,
+				"Unparsable error:  #{results}",nil,cmd)
+			end
+		rescue Msf::Post::Windows::CliParse::ParseError => e
+			print_error(e.to_s)
+		end
+	end
+	
+
+	##
 	# Native Meterpreter-specific windows service manipulation methods
 	##
 	
@@ -223,25 +529,123 @@ protected
 					threadnum = 0
 				end
 			end
+			#a.join?
+			a.join
 		rescue Exception => e
 			print_error("Error enumerating services.  #{e.to_s}")
 		end
 		return services
 	end
 	
+	def meterpreter_service_running?(service_name)
+		rg = session.railgun
+		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
+		# define the function if not defined
+		if ! rg.advapi32.functions['QueryServiceStatus']
+			# MSDN
+			#BOOL WINAPI QueryServiceStatusEx(
+			#	__in   SC_HANDLE hService,
+			#	__out  LPSERVICE_STATUS lpServiceStatus
+			#);
+			rg.add_function('advapi32', 'QueryServiceStatusEx', 'BOOL',[
+				['DWORD','hService',		'in'],
+				['PBLOB','lpServiceStatus',	'out']
+			])
+		end
+		begin
+			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
+			if(manag["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+			end
+			#open with  SERVICE_QUERY_STATUS (0x0004) privs
+			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
+			if(servhandleret["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
+			end
+			ret = rg.advapi32.QueryServiceStatus(servhandleret["return"],4+1)
+			return true if ret['lpServiceStatus'].unpack("H*").first =~ /00000004/
+			# otherwise
+			return false
+		rescue Rex::Post::Meterpreter::RequestError => e
+			return false if e.to_s =~ /Could not Open Service/
+			# otherwise print the error
+			print_error("Error getting service status:  #{e.to_s}")
+			return false
+		ensure 
+			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
+			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+		end
+	
+		# advanced version below, in work
+			#info = meterpreter_service_info_advanced(service_name, true)
+			# if dwCurrentState is 0x00000004 then SERVICE_RUNNING
+			#return true if ret['lpServiceStatus'].unpack("H8").first =~ /00000004/
+			# otherwise
+			#return false
+	end
+	
 	def meterpreter_service_list_running
-		raise NotImplementedError.new "#{__method__}"
-		#
 		all_services = self.meterpreter_service_list
 		run_services = []
 		all_services.each do |s|
-			run_services << s if s.running? # TODO:  define running? or other solution here
+			run_services << s if meterpreter_service_running?(s)
 		end
+		return run_services
 	end
 
-	def meterpreter_service_info(name)
+	def meterpreter_service_info_advanced(service_name, extended_info)
+		rg = session.railgun
+		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
+		# define the function if not defined
+		if ! rg.advapi32.functions['QueryServiceStatusEx']
+			# MSDN
+			#BOOL WINAPI QueryServiceStatusEx(
+			#	__in       SC_HANDLE hService,
+			#	__in       SC_STATUS_TYPE InfoLevel,
+			#	__out_opt  LPBYTE lpBuffer,
+			#	__in       DWORD cbBufSize,
+			#	__out      LPDWORD pcbBytesNeeded
+			#);
+			rg.add_function('advapi32', 'QueryServiceStatusEx', 'BOOL',[
+				['DWORD','hService',		'in'],
+				['DWORD','InfoLevel',		'in'], # SC_STATUS_PROCESS_INFO, always 0 basically
+				['PBLOB','lpBuffer',		'out'],
+				['DWORD','cbBufSize',		'in'],
+				['PDWORD','pcBytesNeeded',	'out']
+			])
+		end
+		
+		begin
+			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
+			if(manag["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+			end
+			#open with  SERVICE_QUERY_STATUS (0x0004) privs
+			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
+			if(servhandleret["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
+			end
+			ret = rg.advapi32.QueryServiceStatusEx(servhandleret["return"],0,9*4+1,9*4+1,4)
+			print_good ret["lpBuffer"].unpack("H4")
+
+		rescue Rex::Post::Meterpreter::RequestError => e
+			return false if e.to_s =~ /Could not Open Service/
+			# otherwise print the error
+			print_error("Error getting service status:  #{e.to_s}")
+			return false
+		ensure 
+			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
+			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+		end
+	end
+	
+	def meterpreter_service_info(service_name)
 		service = {}
-		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
+		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{service_name.chomp}"
 		begin
 			service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
 			service["Startup"] = normalize_mode(registry_getvaldata(servicekey,"Start").to_i)
@@ -265,11 +669,11 @@ protected
 		end
 	end
 
-	def meterpreter_service_create(name, display_name, executable_on_host,mode=2)  #sets
+	def meterpreter_service_create(name, display_name, executable_on_host,mode=2)
 		mode = normalize_mode(mode,true)
 		adv = client.railgun.get_dll('advapi32')
 		begin
-			manag = adv.OpenSCManagerA(nil,nil,0x13)
+			manag = adv.call_function OpenSCManagerA(nil,nil,0x13)
 			if(manag["return"] != 0)
 				# SC_MANAGER_CREATE_SERVICE = 0x0002
 				newservice = adv.CreateServiceA(manag["return"],name,display_name,
@@ -281,40 +685,48 @@ protected
 				if newservice["GetLastError"] == 0
 					return nil
 				elsif newservice["GetLastError"] == 1072
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,'The specified service has been marked for deletion',newservice["GetLastError"])
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified service has been marked for deletion',newservice["GetLastError"])
 				else
 					raise Rex::Post::Meterpreter::RequestError.new(__method__,"Error creating service,
 					railgun reports:#{newservice.pretty_inspect}",newservice["GetLastError"])
 				end
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error creating service: #{e.to_s}")
 		end
 	end
 
-	def meterpreter_service_start(name)  #sets
+	def meterpreter_service_start(name)
 		adv = client.railgun.get_dll('advapi32')
 		begin
 			manag = adv.OpenSCManagerA(nil,nil,1)
 			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
 			end
 			#open with  SERVICE_START (0x0010)
 			servhandleret = adv.OpenServiceA(manag["return"],name,0x10)
 			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not open service, Access Denied",servhandleret["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open service, Access Denied",servhandleret["GetLastError"])
 			end
 			retval = adv.StartServiceA(servhandleret["return"],0,nil)
 			if retval["GetLastError"] == 0
 				return nil
 			elsif retval["GetLastError"] == 1056
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,'An instance of the service is already running.',retval["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				'An instance of the service is already running.',retval["GetLastError"])
 			elsif retval["GetLastError"] == 1058
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,'The service cannot be started, either because it is disabled or because it has no enabled devices associated with it.',retval["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				'The service cannot be started, either because it is disabled or because 
+				it has no enabled devices associated with it.',retval["GetLastError"])
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,'The service cannot be started, because of an unknown error',retval["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				'The service cannot be started, because of an unknown error',retval["GetLastError"])
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error starting service:  #{e.to_s}")
@@ -324,25 +736,29 @@ protected
 		end
 	end
 
-	def meterpreter_service_stop(name)  #sets
+	def meterpreter_service_stop(name)
 		adv = client.railgun.get_dll('advapi32')
 		begin
 			manag = adv.OpenSCManagerA(nil,nil,1)
 			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
 			end
 			#open with  SERVICE_STOP (0x0020)
 			servhandleret = adv.OpenServiceA(manag["return"],name,0x30)
 			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not Open Service, Access Denied",servhandleret["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
 			end
 			retval = adv.ControlService(servhandleret["return"],1,56)
 			if retval["GetLastError"] == 0
 				return nil
 			elsif retval["GetLastError"] == 1062
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,'The service has not been started.',retval["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				'The service has not been started.',retval["GetLastError"])
 			elsif retval["GetLastError"] == 1052
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,'The requested control is not valid for this service.',retval["GetLastError"])
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				'The requested control is not valid for this service.',retval["GetLastError"])
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error stopping service:  #{e.to_s}")
@@ -352,7 +768,7 @@ protected
 		end
 	end
 
-	def meterpreter_service_delete(name)  #sets
+	def meterpreter_service_delete(name)
 		begin
 			basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 			if registry_enumkeys(basekey).index(name)
@@ -360,194 +776,13 @@ protected
 				registry_deletekey(servicekey)
 				return nil
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Could not find #{name} as a registered service.",nil)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not find #{name} as a registered service.",nil)
 			end
 		rescue::Exception => e
 			print_error("Error deleting service:  #{e.to_s}")
 		end
 	end
-
-#------------------------------------------------------------------------------
-	#
-	# List all Windows Services present. Returns an Array containing the names
-	# of the services.
-	#
-	def service_list
-		serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-		threadnum = 0
-		a =[]
-		services = []
-		registry_enumkeys(serviceskey).each do |s|
-			if threadnum < 10
-				a.push(::Thread.new(s) { |sk|
-						begin
-							srvtype = registry_getvaldata("#{serviceskey}\\#{sk}","Type").to_s
-							if srvtype =~ /32|16/
-								services << sk
-							end
-						rescue
-						end
-					})
-				threadnum += 1
-			else
-				sleep(0.05) and a.delete_if {|x| not x.alive?} while not a.empty?
-				threadnum = 0
-			end
-		end
-
-		return services
-	end
-
-	#
-	# Get Windows Service information. 
-	#
-	# Information returned in a hash with display name, startup mode and
-	# command executed by the service. Service name is case sensitive.  Hash
-	# keys are Name, Start, Command and Credentials.
-	#
-	def service_info(name)
-		service = {}
-		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-		service["Name"] = registry_getvaldata(servicekey,"DisplayName").to_s
-		srvstart = registry_getvaldata(servicekey,"Start").to_i
-		if srvstart == 2
-			service["Startup"] = "Auto"
-		elsif srvstart == 3
-			service["Startup"] = "Manual"
-		elsif srvstart == 4
-			service["Startup"] = "Disabled"
-		end
-		service["Command"] = registry_getvaldata(servicekey,"ImagePath").to_s
-		service["Credentials"] = registry_getvaldata(servicekey,"ObjectName").to_s
-		return service
-	end
-
-	#
-	# Changes a given service startup mode, name must be provided and the mode.
-	#
-	# Mode is a string with either auto, manual or disable for the
-	# corresponding setting. The name of the service is case sensitive.
-	#
-	def service_change_startup(name,mode)
-		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-		case mode.downcase
-		when "auto" then
-			registry_setvaldata(servicekey,"Start","2","REG_DWORD")
-		when "manual" then
-			registry_setvaldata(servicekey,"Start","3","REG_DWORD")
-		when "disable" then
-			registry_setvaldata(servicekey,"Start","4","REG_DWORD")
-		end
-	end
-
-	#
-	# Create a service that runs it's own process.
-	#
-	# It takes as values the service name as string, the display name as
-	# string, the path of the executable on the host that will execute at
-	# startup as string and the startup type as an integer of 2 for Auto, 3 for
-	# Manual or 4 for Disable, default Auto.
-	#
-	def service_create(name, display_name, executable_on_host,startup=2)
-		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,0x13)
-		if(manag["return"] != 0)
-			# SC_MANAGER_CREATE_SERVICE = 0x0002
-			newservice = adv.CreateServiceA(manag["return"],name,display_name,
-				0x0010,0X00000010,startup,0,executable_on_host,nil,nil,nil,nil,nil)
-			adv.CloseServiceHandle(newservice["return"])
-			adv.CloseServiceHandle(manag["return"])
-			#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
-			#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
-			if newservice["GetLastError"] == 0
-				return true
-			else
-				return false
-			end
-		else
-			raise "Could not open Service Control Manager, Access Denied"
-		end
-	end
-
-	#
-	# Start a service.
-	#
-	# Returns 0 if service started, 1 if service is already started and 2 if
-	# service is disabled.
-	#
-	def service_start(name)
-		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
-		if(manag["return"] == 0)
-			raise "Could not open Service Control Manager, Access Denied"
-		end
-		#open with  SERVICE_START (0x0010)
-		servhandleret = adv.OpenServiceA(manag["return"],name,0x10)
-		if(servhandleret["return"] == 0)
-			adv.CloseServiceHandle(manag["return"])
-			raise "Could not Open Service, Access Denied"
-		end
-		retval = adv.StartServiceA(servhandleret["return"],0,nil)
-		adv.CloseServiceHandle(servhandleret["return"])
-		adv.CloseServiceHandle(manag["return"])
-		if retval["GetLastError"] == 0
-			return 0
-		elsif retval["GetLastError"] == 1056
-			return 1
-		elsif retval["GetLastError"] == 1058
-			return 2
-		end
-	end
-
-	#
-	# Stop a service.
-	#
-	# Returns 0 if service is stopped successfully, 1 if service is already
-	# stopped or disabled and 2 if the service can not be stopped.
-	#
-	def service_stop(name)
-		adv = session.railgun.advapi32
-		manag = adv.OpenSCManagerA(nil,nil,1)
-		if(manag["return"] == 0)
-			raise "Could not open Service Control Manager, Access Denied"
-		end
-		#open with  SERVICE_STOP (0x0020)
-		servhandleret = adv.OpenServiceA(manag["return"],name,0x30)
-		if(servhandleret["return"] == 0)
-			adv.CloseServiceHandle(manag["return"])
-			raise "Could not Open Service, Access Denied"
-		end
-		retval = adv.ControlService(servhandleret["return"],1,56)
-		adv.CloseServiceHandle(servhandleret["return"])
-		adv.CloseServiceHandle(manag["return"])
-		if retval["GetLastError"] == 0
-			return 0
-		elsif retval["GetLastError"] == 1062
-			return 1
-		elsif retval["GetLastError"] == 1052
-			return 2
-		end
-	end
-
-	#
-	# Delete a service by deleting the key in the registry.
-	#
-	def service_delete(name)
-		begin
-			basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-			if registry_enumkeys(basekey).index(name)
-				servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-				registry_deletekey(servicekey)
-				return true
-			else
-				return false
-			end
-		rescue::Exception => e
-			print_error(e)
-			return false
-		end
-	end
-#-------------------------------------------------------------------------------
 
 	### Helper methods ###
 
@@ -557,7 +792,9 @@ protected
 	def session_has_services_depend?
 		begin
 			return !!(session.sys.registry and session.railgun)
+			#print_good "using meterpreter version"
 		rescue NoMethodError
+			#print_good "using SHELL version"
 			return false
 		end
 	end

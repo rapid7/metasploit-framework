@@ -316,6 +316,7 @@ protected
 			bslashes = key.count('\\')
 			cmd = "cmd.exe /c reg query \"#{key}\""
 			results = session.shell_command_token_win32(cmd)
+			return nil unless results # since we couldn't check for valid key, results could be nil
 			if results =~ Regexp.new(Regexp.escape(key)) #if the supplied key is in the output
 				results.each_line do |line|
 					# now let's keep the ones that have a count = bslashes+1 cuz reg query is
