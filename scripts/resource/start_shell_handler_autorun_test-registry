@@ -5,7 +5,7 @@
 	resource_dir = File.join(Msf::Config.install_root, "scripts", "resource")
 	require File.join(resource_dir, "helpers","demo_methods")
 	test_mods_dir = File.join(Msf::Config.install_root, "test", "modules")
-	run_single("loadpath #{test_mods_dir}")
+	run_single("loadpath \"#{test_mods_dir}\"")
 
 	# let's set some stuff up using those new methods
 	# assign lhost to be whatever IP I have on arg network
