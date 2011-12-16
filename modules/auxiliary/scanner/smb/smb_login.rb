@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -11,7 +7,6 @@
 
 
 require 'msf/core'
-
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -30,15 +25,14 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	def initialize
 		super(
-			'Name'        => 'SMB Login Check Scanner',
-			#'Version'     => '$Revision$',
-			'Description' => %q{
+			'Name'           => 'SMB Login Check Scanner',
+			'Description'    => %q{
 				This module will test a SMB login on a range of machines and
 				report successful logins.  If you have loaded a database plugin
 				and connected to a database this module will record successful
 				logins and hosts so you can track your access.
 			},
-			'Author'      => 'tebo <tebo [at] attackresearch [dot] com>',
+			'Author'         => 'tebo <tebo [at] attackresearch [dot] com>',
 			'References'     =>
 				[
 					[ 'CVE', '1999-0506'] # Weak password
@@ -48,6 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('RHOST','USERNAME','PASSWORD')
 
 		@accepts_bogus_domains = []
+		@accepts_guest_logins = {}
 
 		# These are normally advanced options, but for this module they have a
 		# more active role, so make them regular options.
@@ -57,6 +52,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('SMBUser', [ false, "SMB Username" ]),
 				OptString.new('SMBDomain', [ false, "SMB Domain", 'WORKGROUP']),
 				OptBool.new('PRESERVE_DOMAINS', [ false, "Respect a username that contains a domain name.", true]),
+				OptBool.new('RECORD_GUEST', [ false, "Record guest-privileged random logins to the database", false]),
 			], self.class)
 	end
 
@@ -69,6 +65,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
+			if accepts_guest_logins?
+				print_error("#{ip} - This system allows guest sessions with any credentials, these instances will not be reported.")
+			end
+		end unless datastore['RECORD_GUEST']
+
+		begin
 			each_user_pass do |user, pass|
 				result = try_user_pass(user, pass)
 				if result == :next_user
@@ -79,7 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 							user = user.downcase
 						end
 					end
-					report_creds(user,pass)
+					report_creds(user,pass) if @accepts_guest_logins.select{ |g_host, g_creds| g_host == ip and g_creds == [user,pass] }.empty?
 				end
 			end
 		rescue ::Rex::ConnectionError
@@ -87,6 +89,47 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
+
+	def accepts_guest_logins?
+		guest = false
+		orig_user,orig_pass = datastore['SMBUser'],datastore['SMBPass']
+		datastore["SMBUser"] = Rex::Text.rand_text_alpha(8)
+		datastore["SMBPass"] = Rex::Text.rand_text_alpha(8)
+
+		# Connection problems are dealt with at a higher level
+		connect()
+
+		begin
+			smb_login()
+		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
+		end
+
+		begin
+			# Samba has two interesting behaviors:
+			# 1) Invalid users receive a guest login
+			# 2) Valid users return a STATUS_LOGON_FAILURE
+			unless(smb_peer_os == 'Unix')
+				# Print the guest login message only for non-Samba
+				guest = true
+				@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
+				report_note(
+					:host	=> rhost,
+					:proto => 'tcp',
+					:sname	=> 'smb',
+					:port   =>  datastore['RPORT'],
+					:type   => 'smb.account.info',
+					:data   => 'accepts guest login from any account',
+					:update => :unique_data
+				)
+			end
+		end unless(simple.client.auth_user)
+
+		disconnect()
+		datastore['SMBUser'],datastore['SMBPass'] = orig_user,orig_pass
+		return guest
+
+	end
+
 
 	def accepts_bogus_logins?
 		orig_user,orig_pass = datastore['SMBUser'],datastore['SMBPass']
@@ -101,10 +144,10 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 		end
 
-		disconnect
+		disconnect()
 		datastore['SMBUser'],datastore['SMBPass'] = orig_user,orig_pass
 
-		simple.client.auth_user ? true : false
+		return simple.client.auth_user ? true : false
 	end
 
 	def accepts_bogus_domains?(addr)
@@ -119,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
 			smb_login()
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError => e
 		end
-		disconnect
+		disconnect()
 		datastore['SMBDomain'] = orig_domain
 
 		if simple.client.auth_user
@@ -166,7 +209,7 @@ class Metasploit3 < Msf::Auxiliary
 			case e.error_reason
 			when 'STATUS_LOGON_FAILURE', 'STATUS_ACCESS_DENIED'
 				# Nothing interesting
-				vprint_status("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{e.error_reason})")
+				vprint_error("#{smbhost} - FAILED LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass} (#{e.error_reason})")
 				disconnect()
 				datastore["SMBDomain"] = orig_domain
 				return
@@ -220,6 +263,7 @@ class Metasploit3 < Msf::Auxiliary
 			unless(smb_peer_os == 'Unix')
 				# Print the guest login message only for non-Samba
 				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass}")
+				@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
 			end
 		end
 
@@ -264,6 +308,4 @@ class Metasploit3 < Msf::Auxiliary
 		report_auth_info(report_hash)
 	end
 
-
 end
-

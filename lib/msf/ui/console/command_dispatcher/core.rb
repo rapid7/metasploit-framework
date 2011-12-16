@@ -185,19 +185,61 @@ class Core
 			cmd_resource_help
 			return false
 		end
+		
 		args.each do |res|
-			if not File.file? res
+			good_res = nil
+			if (File.file? res and File.readable? res)
+				good_res = res
+			elsif
+				# let's check to see if it's in the scripts/resource dir (like when tab completed)
+				[
+					::Msf::Config.script_directory + File::SEPARATOR + "resource",
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+				].each do |dir|
+					res_path = dir + File::SEPARATOR + res 
+					if (File.file?(res_path) and File.readable?(res_path))
+						good_res = res_path
+						break
+					end
+				end
+			end
+			if good_res
+				driver.load_resource(good_res)
+			else
 				print_error("#{res} is not a valid resource file")
 				next
 			end
-			driver.load_resource(res)
 		end
 	end
-
+	
+	#
+	# Tab completion for the resource command
+	#
 	def cmd_resource_tabs(str, words)
-		return [] if words.length > 1
-
-		tab_complete_filenames(str, words)
+		tabs = []
+		#return tabs if words.length > 1
+		if ( str and str =~ /^#{Regexp.escape(File::SEPARATOR)}/ )
+			# then you are probably specifying a full path so let's just use normal file completion
+			return tab_complete_filenames(str,words)
+		elsif (not words[1] or not words[1].match(/^\//))
+			# then let's start tab completion in the scripts/resource directories 
+			begin
+				[
+					::Msf::Config.script_directory + File::SEPARATOR + "resource",
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + File::SEPARATOR + e
+						::File.file?(path) and File.readable?(path)
+					}
+				end
+			rescue Exception
+			end
+		else
+			tabs += tab_complete_filenames(str,words)
+		end
+		return tabs
 	end
 
 	def cmd_makerc_help
@@ -902,7 +944,7 @@ class Core
 		if (path !~ /#{File::SEPARATOR}/)
 			plugin_file_name = path
 
-			# If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
+			# If the plugin isn't in the user directory (~/.msf3/plugins/), use the base
 			path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
 			if not File.exists?( path  + ".rb" )
 				# If the following "path" doesn't exist it will be caught when we attempt to load
@@ -2132,7 +2174,7 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		ver = "$Revision$"
+		ver = "$Revision: 14065 $"
 
 		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
 		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")

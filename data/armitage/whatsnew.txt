@@ -1,6 +1,58 @@
 Armitage Changelog
 ==================
 
+12 Dec 11
+---------
+- Armitage teaming mode now downloads the resulting file for any fileformat
+  exploit.
+- Armitage -> Set Exploit Rank and Set Target View now show a * next to an 
+  item to indicate the current setting.
+- Shift+click on Launch in a module launch dialog will not close the module
+  launch dialog. One use case for this: set up a payload multi/handler, 
+  shift+click Launch to do it, then change output type to exe, click Launch
+  and you're all set.
+- Dynamic Workspace editor now trims whitespace from your entries. Errant
+  whitespace causes Armitage to reject the entry and your workspace never
+  acivates.
+- Updated the "msfrpcd died" troubleshooting dialog. The new one takes folks
+  to a website with detailed information. 
+- Armitage now uses "load" to load a meterpreter module instead of "use"
+- Key logger event log announcement now notes the session ID. This is so 
+  your teammates will know not to migrate that session since it's recording
+  key strokes.
+- Right-click X in tab -> Save Screenshot now displays filename without the
+  path.
+- Deconfliction server now detects when database is not available and offers
+  troubleshooting steps. 
+- Loot/Downloads viewer now has a right-click menu to Copy selected text.
+
+22 Nov 11 - A big improvement...
+---------
+- Services refresh is now set to 30s (vs. 60s before)
+- Workspaces -> Manage now opens as a tab and shows all data about workspaces
+- Fixed a bug with Edit Workspace not auto-checking session box when set.
+- Meterpreter -> Access -> Escalate Privileges now highlights the priv esc
+  options in the post module true. This is viable now that getsystem is a   
+  module.
+- Payload module launcher now lets you set Template, Iterations, Encoder, and
+  KeepTemplateWorking for any Windows payload. Also, payload is generated and
+  saved locally without opening a tab. 
+- sessions -i ## trap is now smarter and opens a shell tab for shell sessions,
+  a meterpreter tab for meterpreter sessions, and offers an error when you
+  try to interact with a session that doesn't exist.
+- Armitage no longer shows a host until it receives a db.hosts reply.
+- Right-click a module and select Relevant Targets to create a dynamic 
+  workspace that shows only targets that meet the host/port criteria for that
+  module. Use Ctrl+A to select all of those hosts and rock'n'roll. :)
+- Hosts -> Import Hosts now works when the folder/file has spaces in it.
+- Dynamic workspaces are now local to the current Armitage client. They no
+  longer have a global effect in teaming mode.
+- Added an Activate button to workspace management dialog.
+- Fixed a bug with sessions only dyn workspace sometimes showing hosts that
+  do not have sessions.
+- You may now highlight multiple jobs in View -> Jobs and select Kill to get
+  rid of all them at once.
+
 11.17.11 - All the things I wanted to do, but didn't have time
 --------
 Release Note 1: if you use Armitage teaming, things changed. You have to start 

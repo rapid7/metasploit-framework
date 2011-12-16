@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 		john_cracked_passwords.values {|v| seed << v }
 
 		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "r")
+		john = File.open(john_wordlist_path, "rb")
 		john.each_line{|line| seed << line.chomp}
 
 		return seed

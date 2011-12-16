@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Post
 		print_status("Enumerating community strings")
 		key = "HKLM\\System\\CurrentControlSet\\Services\\SNMP\\Parameters\\ValidCommunities"
 		comm_str = registry_enumvals(key)
-		if not comm_str.empty?
+		if not comm_str.nil? and not comm_str.empty?
 			comm_str.each do |c|
 
 				case registry_getvaldata(key,c)
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Post
 		print_status("Enumerating Trap Configuration")
 		key = "HKLM\\System\\CurrentControlSet\\Services\\SNMP\\Parameters\\TrapConfiguration"
 		trap_hosts = registry_enumkeys(key)
-		if not trap_hosts.empty?
+		if not trap_hosts.nil? and not trap_hosts.empty?
 			trap_hosts.each do |c|
 				print_status("Community Name: #{c}")
 				session.framework.db.report_auth_info(
@@ -149,7 +149,7 @@ class Metasploit3 < Msf::Post
 		print_status("Enumerating Permitted Managers for Community Strings")
 		key = "HKLM\\System\\CurrentControlSet\\Services\\SNMP\\Parameters\\PermittedManagers"
 		managers = registry_enumvals(key)
-		if not managers.empty?
+		if not managers.nil? and not managers.empty?
 			print_status("Community Strings can be accessed from:")
 			managers.each do |m|
 				print_status("\t#{registry_getvaldata(key,m)}")

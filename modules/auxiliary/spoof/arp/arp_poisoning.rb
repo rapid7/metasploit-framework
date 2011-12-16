@@ -330,6 +330,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#copy paste from rex::socket cause we need only ipv4
+	#NOTE: Breaks msftidy's rule on long lines, should be refactored for readability.
 	def is_ipv4?(addr)
 		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end

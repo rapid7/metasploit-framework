@@ -154,7 +154,7 @@ class Rex::Socket::Comm::Local
 					elsif (local == "\x7f\x00\x00\x01")
 						param.localhost = '::1'
 					else
-						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost)
+						param.localhost = '::ffff:' + Rex::Socket.getaddress(param.localhost, true)
 					end
 				end
 
@@ -164,7 +164,7 @@ class Rex::Socket::Comm::Local
 					elsif (peer == "\x7f\x00\x00\x01")
 						param.peerhost = '::1'
 					else
-						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost)
+						param.peerhost = '::ffff:' + Rex::Socket.getaddress(param.peerhost, true)
 					end
 				end
 
@@ -187,10 +187,9 @@ class Rex::Socket::Comm::Local
 		end
 
 		# Bind to a given local address and/or port if they are supplied
-		if (param.localhost || param.localport)
+		if param.localport or param.localhost
 			begin
 				sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, true)
-
 				sock.bind(Rex::Socket.to_sockaddr(param.localhost, param.localport))
 
 			rescue ::Errno::EADDRNOTAVAIL,::Errno::EADDRINUSE
@@ -223,16 +222,55 @@ class Rex::Socket::Comm::Local
 
 			# If we were supplied with host information
 			if (param.peerhost)
-				begin
-					ip = param.peerhost
-					port = param.peerport
-
-					if param.proxies
-						chain = param.proxies.dup
-						chain.push(['host',param.peerhost,param.peerport])
-						ip = chain[0][1]
-						port = chain[0][2].to_i
+		
+				# A flag that indicates whether we need to try multiple scopes
+				retry_scopes = false
+				
+				# Always retry with link-local IPv6 addresses
+				if Rex::Socket.is_ipv6?( param.peerhost ) and param.peerhost =~ /^fe80::/
+					retry_scopes = true
+				end
+		
+				# Prepare a list of scope IDs to try when connecting to
+				# link-level addresses. Read from /proc if it is available,
+				# otherwise increment through the first 255 IDs.
+				@@ip6_lla_scopes ||= []
+				
+				if @@ip6_lla_scopes.length == 0 and retry_scopes
+				
+					# Linux specific interface lookup code
+					if ::File.exists?( "/proc/self/net/igmp6" )
+						::File.open("/proc/self/net/igmp6") do |fd|
+							fd.each_line do |line|
+								line = line.strip
+								tscope, tint, junk = line.split(/\s+/, 3)
+								next if not tint
+								
+								# Specifying lo in any connect call results in the socket
+								# being unusable, even if the correct interface is set.
+								next if tint == "lo"
+								
+								@@ip6_lla_scopes << tscope
+							end
+						end
+					else
+					# Other Unix-like platforms should support a raw scope ID
+						[*(1 .. 255)].map{ |x| @@ip6_lla_scopes << x.to_s }
 					end
+				end
+				
+				ip6_scope_idx = 0
+				ip   = param.peerhost
+				port = param.peerport
+
+				if param.proxies
+					chain = param.proxies.dup
+					chain.push(['host',param.peerhost,param.peerport])
+					ip = chain[0][1]
+					port = chain[0][2].to_i
+				end
+									
+				begin
 
 					begin
 						Timeout.timeout(param.timeout) do
@@ -243,6 +281,14 @@ class Rex::Socket::Comm::Local
 					end
 
 				rescue ::Errno::EHOSTUNREACH,::Errno::ENETDOWN,::Errno::ENETUNREACH,::Errno::ENETRESET,::Errno::EHOSTDOWN,::Errno::EACCES,::Errno::EINVAL
+
+					# Rescue errors caused by a bad Scope ID for a link-local address
+					if retry_scopes and @@ip6_lla_scopes[ ip6_scope_idx ]
+						ip = param.peerhost + "%" + @@ip6_lla_scopes[ ip6_scope_idx ]			
+						ip6_scope_idx += 1
+						retry
+					end
+				
 					sock.close
 					raise Rex::HostUnreachable.new(param.peerhost, param.peerport), caller
 

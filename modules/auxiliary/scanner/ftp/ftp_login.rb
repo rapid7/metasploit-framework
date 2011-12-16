@@ -42,7 +42,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				Opt::RPORT(21)
+				Opt::RPORT(21),
+				OptBool.new('RECORD_GUEST', [ false, "Record anonymous/guest logins to the database", false])
 			], self.class)
 
 		register_advanced_options(
@@ -52,11 +53,18 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		deregister_options('FTPUSER','FTPPASS') # Can use these, but should use 'username' and 'password'
+		@accepts_all_logins = {}
 	end
+
 
 	def run_host(ip)
 		print_status("#{ip}:#{rport} - Starting FTP login sweep")
 		if check_banner
+			if datastore['RECORD_GUEST'] == false and check_anonymous == :next_user
+				@accepts_all_logins[@access] ||= []
+				@accepts_all_logins[@access] << ip
+				print_status("Successful authentication with #{@access.to_s} access on #{ip} will not be reported")
+			end
 			each_user_pass { |user, pass|
 				next if user.nil?
 				ret = do_login(user,pass)
@@ -69,11 +77,15 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("Username #{user} is not case sensitive")
 						end
 					end
-					report_ftp_creds(user,pass,@access)
+					if datastore['RECORD_GUEST']
+						report_ftp_creds(user,pass,@access)
+					else
+						report_ftp_creds(user,pass,@access) unless @accepts_all_logins[@access].include?(ip)
+					end
 				end
 				ret
 			}
-			check_anonymous
+#			check_anonymous
 		else
 			return
 		end

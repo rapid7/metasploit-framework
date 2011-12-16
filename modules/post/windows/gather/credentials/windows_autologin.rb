@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Post
 
 		creds = Rex::Ui::Text::Table.new(
 			'Header'  => 'Windows AutoLogin Password',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' => [
 				'UserName',
 				'Password',

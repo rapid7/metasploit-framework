@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 					['OSVDB', '52048'],
 					['CVE', '2009-0815'],
 					['URL', 'http://secunia.com/advisories/33829/'],
-					['URL', 'http://www.milw0rm.com/exploits/8038'],
+					['URL', 'http://www.exploit-db.com/exploits/8038/'],
 					['URL', 'http://typo3.org/teams/security/security-bulletins/typo3-sa-2009-002/'],
 				],
 			'DisclosureDate' => 'Feb 10 2009',

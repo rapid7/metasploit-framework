@@ -48,6 +48,13 @@ module ReverseHttps
 				OptInt.new('SessionCommunicationTimeout', [ false, 'The number of seconds of no activity before this session should be killed', 300])
 			], Msf::Handler::ReverseHttps)
 	end
+	
+	#
+	# Toggle for IPv4 vs IPv6 mode
+	#
+	def ipv6
+		self.refname.index('ipv6') ? true : false
+	end
 
 	#
 	# Create an HTTPS listener
@@ -64,7 +71,7 @@ module ReverseHttps
 		# Start the HTTPS server service on this host/port
 		self.service = Rex::ServiceManager.start(Rex::Proto::Http::Server,
 			datastore['LPORT'].to_i,
-			'0.0.0.0',
+			ipv6 ? '::' : '0.0.0.0',
 			true,
 			{
 				'Msf'        => framework,
@@ -85,7 +92,10 @@ module ReverseHttps
 			'VirtualDirectory' => true)
 
 		self.conn_ids = []
-		print_status("Started HTTPS reverse handler on https://#{datastore['LHOST']}:#{datastore['LPORT']}/")
+		
+		uhost = datastore['LHOST']
+		uhost = "[#{uhost}]" if Rex::Socket.is_ipv6?(uhost)
+		print_status("Started HTTPS reverse handler on https://#{uhost}:#{datastore['LPORT']}/")
 	end
 
 	#
@@ -125,12 +135,14 @@ protected
 		print_status("#{cli.peerhost}:#{cli.peerport} Request received for #{req.relative_resource}...")
 
 		lhost = datastore['LHOST']
-
+		
 		# Default to our own IP if the user specified 0.0.0.0 (pebkac avoidance)
-		if lhost.empty? or lhost == '0.0.0.0'
+		if lhost.empty? or lhost == '0.0.0.0'or lhost == '::'
 			lhost = Rex::Socket.source_address(cli.peerhost)
 		end
 
+		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
+		
 		# Process the requested resource.
 		case req.relative_resource
 			when /^\/INITJM/

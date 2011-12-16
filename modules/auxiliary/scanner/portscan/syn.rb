@@ -37,6 +37,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		deregister_options('FILTER','PCAPFILE')
 	end
+	
+	# No IPv6 support yet
+	def support_ipv6?
+		false
+	end
 
 	def run_batch_size
 		datastore['BATCHSIZE'] || 256

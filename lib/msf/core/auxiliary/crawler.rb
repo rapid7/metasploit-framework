@@ -78,6 +78,9 @@ module Auxiliary::HttpCrawler
 		def to_url
 			proto = self[:ssl] ? "https" : "http"
 			host = self[:vhost] ? self[:vhost] : self[:host]
+			if Rex::Socket.is_ipv6?(host)
+				host = "[#{host}]"
+			end
 			"#{proto}://#{host}:#{self[:port]}#{self[:path]}"
 		end
 	end
