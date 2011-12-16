@@ -1,6 +1,6 @@
 
 ##
-# $Id$
+# $Id: registry.rb 13739 2011-09-16 20:32:22Z egypt $
 ##
 
 ##
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will test registry code used in post modules},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'kernelsmith'],
-				'Version'       => '$Revision$',
+				'Version'       => '$Revision: 13739 $',
 				'Platform'      => [ 'windows' ]
 			))
 		register_options(
