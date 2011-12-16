@@ -184,8 +184,8 @@ class Railgun
 
 		# For backwards compatibility, we ensure the dll is thawed
 		if dll.frozen?
-			# dup will copy values, but not the frozen status
-			dll = dll.dup
+			# Duplicate not only the dll, but its functions as well. Frozen status will be lost
+			dll = Marshal.load(Marshal.dump(dll))
 
 			# Update local dlls with the modifiable duplicate
 			dlls[dll_name] = dll
