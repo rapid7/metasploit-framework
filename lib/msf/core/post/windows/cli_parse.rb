@@ -65,38 +65,6 @@ module CliParse
 	#      <...etc...>
 	#    }
 	#
-	
-	require 'msf/windows_error'
-	require 'rex/logging'
-	require 'rex/exceptions'
-	
-	#Msf::Post::Windows::CliParse::ParseError
-	class ParseError < ArgumentError
-        def initialize(method, einfo='', ecode=nil, clicmd=nil)
-                @method = method
-                @info = einfo
-				# try to look up info if not given, but code is?
-                @code   = ecode 
-                @clicmd = clicmd || "Unknown shell command"
-        end
-
-        def to_s
-                "#{@method}: Operation failed: #{@info}:#{@code} while running #{@clicmd}"
-        end
-
-        # The method that failed.
-        attr_reader :method
-
-        # The error info that occurred, typically a windows error message.
-        attr_reader :info
-
-        # The error result that occurred, typically a windows error code.
-        attr_reader :code
-        
-        # The shell command that caused the error, if known
-        attr_reader :clicmd
-	end
-	
 	def win_parse_results(str)
 		tip = false
 		hashish = {}
