@@ -95,9 +95,12 @@ class Metasploit3 < Msf::Auxiliary
 		@tftp_client.thread.join
 	end
 
+<<<<<<< HEAD
 	def cleanup
 		# Need to kill the server in case of interruption
 	end
 
+=======
+>>>>>>> a6867ef1287af1786b2e0cd6e7b13fdb8099ce2a
 end
 
