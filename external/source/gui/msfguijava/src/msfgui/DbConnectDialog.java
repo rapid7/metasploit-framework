@@ -265,6 +265,7 @@ public class DbConnectDialog extends OptionsDialog {
 				token = s.next();
 			}
 		} catch (FileNotFoundException fnfox){
+			fnfox.printStackTrace();
 		}
 		showDefaults();
 	}
