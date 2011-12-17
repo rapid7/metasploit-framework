@@ -455,7 +455,7 @@ class Plugin::Lab < Msf::Plugin
 	# their instance gets set.
 	#
 	attr_accessor :controller
-
+	
 	def initialize(framework, opts)
 		super
 
