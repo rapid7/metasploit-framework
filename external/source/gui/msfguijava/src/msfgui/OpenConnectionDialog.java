@@ -103,7 +103,6 @@ public class OpenConnectionDialog extends javax.swing.JDialog {
 			String host = info.get("host").toString();
 			int port = Integer.parseInt(info.get("port").toString());
 			boolean ssl = Boolean.parseBoolean(info.get("ssl").toString());
-			String type = info.get("type").toString();
 			RpcConnection rpc = RpcConnection.getConn(username, password.toCharArray(), host, port, ssl);
 			if(javax.swing.JOptionPane.showConfirmDialog(null, "Connect to last remembered rpcd?") == javax.swing.JOptionPane.YES_OPTION)
 				return rpc;

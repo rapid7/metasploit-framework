@@ -16,7 +16,7 @@ module System
 				field,val = l.chomp.split(":")
 				system_info[field] = val.strip
 			end
-			system_info["Kernel"] = `uname -a`.chomp
+			system_info["Kernel"] = cmd_exec("uname -a")
 			system_info["Hostname"] = system_info["Kernel"].split(" ")[1]
 
 			return system_info
