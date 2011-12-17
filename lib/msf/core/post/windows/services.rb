@@ -52,19 +52,11 @@ module WindowsServices
 	# Information returned in a hash with display name, startup mode and
 	# command executed by the service. Service name is case sensitive.  Hash
 	# keys are Name, Start, Command and Credentials.
-	#
+	# TODO:  Deprecate this in favor os service_query_config and service_query_ex
 
 	def service_info(name,extended_info=false)
 		if session_has_services_depend?
 			meterpreter_service_info(name,extended_info)
-		else
-			shell_service_info(name, extended_info)
-		end
-	end
-	
-	def service_info_advanced(name,extended_info=false)
-		if session_has_services_depend?
-			meterpreter_service_info_advanced(name,extended_info)
 		else
 			shell_service_info(name, extended_info)
 		end
@@ -163,18 +155,17 @@ module WindowsServices
 	# :service_start_name => "LocalSystem" }
 	#
 	
-	def service_query_config(name)
+	def service_query_config(service_name)
 		if session_has_services_depend?
-			#TODO:  implement meterpreter_query_config(name)
-			raise NotImplementedError.new "#{__method__}"
+			meterpreter_service_query_config(service_name)
 		else
-			shell_service_query_config(name)
+			shell_service_query_config(service_name)
 		end
 		
 	end
 	
 	#
-	# Get extended Windows Service staus information. 
+	# Get extended Windows Service status information. 
 	#
 	# Info returned stuffed into a hash with all available service info
 	# Service name is case sensitive.
@@ -189,12 +180,11 @@ module WindowsServices
 	# :pid => 1108
 	# }
 	
-	def service_query_ex(name)
+	def service_query_ex(service_name)
 		if session_has_services_depend?
-			#TODO:  implement meterpreter_service_query_ex(name)
-			raise NotImplementedError.new "#{__method__}"
+			meterpreter_service_query_ex(service_name)
 		else
-			shell_service_query_ex(name)
+			shell_service_query_ex(service_name)
 		end	
 	end
 
@@ -203,14 +193,13 @@ module WindowsServices
 	#
 	# returns a string with state info such as "4 RUNNING,STOPPABLE,PAUSABLE,ACCEPTS_SHUTDOWN"
 	# could normalize it to just "RUNNING" if desired, but not currently
-	#
+	# NOTE:  Currently the meterpreter version will only return primary state, like "4 RUNNING"
 
-	def service_query_state(name)
+	def service_query_state(service_name)
 		if session_has_services_depend?
-			#TODO:  implement meterpreter_service_query_state(name)
-			raise NotImplementedError.new "#{__method__}"
+			meterpreter_service_query_state(service_name)
 		else
-			shell_service_query_state(name)
+			shell_service_query_state(service_name)
 		end	
 	end
 
@@ -321,6 +310,7 @@ protected
 	end
 	
 	def shell_service_info(name,extended_info=false)
+		# TODO:  Deprecate this for query_config and query_ex
 		service = {}
 		begin
 			h = shell_service_query_config(name)
@@ -536,14 +526,20 @@ protected
 		end
 		return services
 	end
+	def meterpreter_service__running?(service_name)
+		state = meterpreter_service_query_state(service_name)
+		return true if state =~ /RUNNING/
+		# otherwise
+		return false
+	end
 	
-	def meterpreter_service_running?(service_name)
+	def meterpreter_service_query_state(service_name)
 		rg = session.railgun
 		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
 		# define the function if not defined
 		if ! rg.advapi32.functions['QueryServiceStatus']
 			# MSDN
-			#BOOL WINAPI QueryServiceStatusEx(
+			#BOOL WINAPI QueryServiceStatus(
 			#	__in   SC_HANDLE hService,
 			#	__out  LPSERVICE_STATUS lpServiceStatus
 			#);
@@ -565,9 +561,26 @@ protected
 				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
 			end
 			ret = rg.advapi32.QueryServiceStatus(servhandleret["return"],4+1)
-			return true if ret['lpServiceStatus'].unpack("H*").first =~ /00000004/
-			# otherwise
-			return false
+			# parse results and format human-like
+			case ret['lpServiceStatus'].unpack("H*").first
+			when =~ /00000005/
+				return "5 CONTINUE_PENDING"
+			when =~ /00000006/
+				return "6 PAUSE_PENDING"
+			when =~ /00000007/
+				return "7 PAUSED"
+			when =~ /00000004/
+				return "4 RUNNING"
+			when =~ /00000002/
+				return "2 START_PENDING"
+			when =~ /00000003/
+				return "3 STOP_PENDING"
+			when =~ /00000001/
+				return "1 STOPPED"
+	#		else
+	#			return "UNKNOWN"
+			end
+				
 		rescue Rex::Post::Meterpreter::RequestError => e
 			return false if e.to_s =~ /Could not Open Service/
 			# otherwise print the error
@@ -577,13 +590,6 @@ protected
 			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
 			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
 		end
-	
-		# advanced version below, in work
-			#info = meterpreter_service_info_advanced(service_name, true)
-			# if dwCurrentState is 0x00000004 then SERVICE_RUNNING
-			#return true if ret['lpServiceStatus'].unpack("H8").first =~ /00000004/
-			# otherwise
-			#return false
 	end
 	
 	def meterpreter_service_list_running
@@ -595,7 +601,7 @@ protected
 		return run_services
 	end
 
-	def meterpreter_service_info_advanced(service_name, extended_info)
+	def meterpreter_service_query_config(service_name)
 		rg = session.railgun
 		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
 		# define the function if not defined
@@ -615,6 +621,57 @@ protected
 				['DWORD','cbBufSize',		'in'],
 				['PDWORD','pcBytesNeeded',	'out']
 			])
+		end
+		# run the query via railgun
+		begin
+			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
+			if(manag["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+			end
+			#open with  SERVICE_QUERY_STATUS (0x0004) privs
+			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
+			if(servhandleret["return"] == 0)
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,
+				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
+			end
+			ret = rg.advapi32.QueryServiceStatusEx(servhandleret["return"],0,8*8,8000,4)
+			print_good "Returned:  #{ret.inspect}"
+			# parse results and format human-like
+			case ret['lpBuffer'].unpack("H*").first
+			when =~ /00000005/
+				return "5 CONTINUE_PENDING"
+			when =~ /00000006/
+				return "6 PAUSE_PENDING"
+			when =~ /00000007/
+				return "7 PAUSED"
+			when =~ /00000004/
+				return "4 RUNNING"
+			when =~ /00000002/
+				return "2 START_PENDING"
+			when =~ /00000003/
+				return "3 STOP_PENDING"
+			when =~ /00000001/
+				return "1 STOPPED"
+			#else
+			#	return "UNKNOWN"
+			end
+				
+		rescue Rex::Post::Meterpreter::RequestError => e
+			return false if e.to_s =~ /Could not Open Service/
+			# otherwise print the error
+			print_error("Error getting service status:  #{e.to_s}")
+			return false
+		ensure 
+			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
+			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+		end
+		# advanced version below, in work
+			#info = meterpreter_service_info_advanced(service_name, true)
+			# if dwCurrentState is 0x00000004 then SERVICE_RUNNING
+			#return true if ret['lpServiceStatus'].unpack("H8").first =~ /00000004/
+			# otherwise
+			#return false
 		end
 		
 		begin
