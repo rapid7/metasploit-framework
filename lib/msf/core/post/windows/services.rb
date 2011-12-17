@@ -563,24 +563,23 @@ protected
 			ret = rg.advapi32.QueryServiceStatus(servhandleret["return"],4+1)
 			# parse results and format human-like
 			case ret['lpServiceStatus'].unpack("H*").first
-			when =~ /00000005/
-				return "5 CONTINUE_PENDING"
-			when =~ /00000006/
-				return "6 PAUSE_PENDING"
-			when =~ /00000007/
-				return "7 PAUSED"
-			when =~ /00000004/
-				return "4 RUNNING"
-			when =~ /00000002/
-				return "2 START_PENDING"
-			when =~ /00000003/
-				return "3 STOP_PENDING"
-			when =~ /00000001/
-				return "1 STOPPED"
-	#		else
-	#			return "UNKNOWN"
+				when /00000005/
+					return "5 CONTINUE_PENDING"
+				when /00000006/
+					return "6 PAUSE_PENDING"
+				when /00000007/
+					return "7 PAUSED"
+				when /00000004/
+					return "4 RUNNING"
+				when /00000002/
+					return "2 START_PENDING"
+				when /00000003/
+					return "3 STOP_PENDING"
+				when /00000001/
+					return "1 STOPPED"
+				else
+					return "UNKNOWN"
 			end
-				
 		rescue Rex::Post::Meterpreter::RequestError => e
 			return false if e.to_s =~ /Could not Open Service/
 			# otherwise print the error
@@ -639,22 +638,22 @@ protected
 			print_good "Returned:  #{ret.inspect}"
 			# parse results and format human-like
 			case ret['lpBuffer'].unpack("H*").first
-			when =~ /00000005/
+			when /00000005/
 				return "5 CONTINUE_PENDING"
-			when =~ /00000006/
+			when /00000006/
 				return "6 PAUSE_PENDING"
-			when =~ /00000007/
+			when /00000007/
 				return "7 PAUSED"
-			when =~ /00000004/
+			when /00000004/
 				return "4 RUNNING"
-			when =~ /00000002/
+			when /00000002/
 				return "2 START_PENDING"
-			when =~ /00000003/
+			when /00000003/
 				return "3 STOP_PENDING"
-			when =~ /00000001/
+			when /00000001/
 				return "1 STOPPED"
-			#else
-			#	return "UNKNOWN"
+			else
+				return "UNKNOWN"
 			end
 				
 		rescue Rex::Post::Meterpreter::RequestError => e

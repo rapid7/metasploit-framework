@@ -45,9 +45,9 @@ class Metasploit3 < Msf::Post
 		results = service_running?(datastore['QSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 		
-		#print_status "meterpreter_service_info(service_name, extended_info)"
-		#ret = service_info_advanced("winmgmt",true)
-		#print_status ret.inspect
+		print_status "service_query_config(#{datastore['QSERVICE']})"
+		ret = service_query_config(datastore['QSERVICE'])
+		print_status 'Returned: ' + ret.inspect
 		return
 		
 		blab = datastore['VERBOSE']
