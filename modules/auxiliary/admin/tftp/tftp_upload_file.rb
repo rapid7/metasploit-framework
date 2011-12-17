@@ -89,10 +89,14 @@ class Metasploit3 < Msf::Auxiliary
 			when /^Sending/, /complete!$/
 				print_good [rtarget,msg].join
 			else
-				print_status [rtarget,msg].join if datastore['VERBOSE']
+				vprint_status [rtarget,msg].join 
 			end
 		end
 		@tftp_client.thread.join
+	end
+
+	def cleanup
+		# Need to kill the server in case of interruption
 	end
 
 end
