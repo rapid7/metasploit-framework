@@ -202,7 +202,7 @@ class Vm
 	end
 
 	def to_s
-		return "#{@vmid}"
+		return "#{@hostname}"
 	end
 
 	def to_yaml
