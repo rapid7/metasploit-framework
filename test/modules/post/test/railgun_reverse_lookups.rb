@@ -26,9 +26,9 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 		[
-				OptInt.new("ERR_CODE" , [true, "Error code to reverse lookup", 4]),
+				OptInt.new("ERR_CODE" , [true, "Error code to reverse lookup", 0x420]),
 				OptInt.new("WIN_CONST", [true, "Windows constant to reverse lookup", 4]),
-				OptString.new("WCREGEX", [false,"Regexp to apply to constant rev lookup", "^SERVICE_"]),
+				OptString.new("WCREGEX", [false,"Regexp to apply to constant rev lookup", "^SERVICE"]),
 				OptString.new("ECREGEX", [false,"Regexp to apply to error code lookup", "^ERROR_SERVICE_"]),
 			], self.class)
 
@@ -41,13 +41,13 @@ class Metasploit3 < Msf::Post
 		@rg = session.railgun
 
 		print_status()
-		print_status("TESTING:  const_reverse_lookup on #{datastore['WIN_CONST']}")
-		results = @rg.const_reverse_lookup(datastore['WIN_CONST'],datastore['REGEX'])
+		print_status("TESTING:  const_reverse_lookup on #{datastore['WIN_CONST']} filtering by #{datastore['WCREGEX'].to_s}")
+		results = @rg.const_reverse_lookup(datastore['WIN_CONST'],datastore['WCREGEX'])
 		print_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
 		
 		print_status()
-		print_status("TESTING:  error_lookup on #{datastore['ERR_CODE']}")
-		results = @rg.error_lookup(datastore['ERR_CODE'])
+		print_status("TESTING:  error_lookup on #{datastore['ERR_CODE']} filtering by #{datastore['ECREGEX'].to_s}")
+		results = @rg.error_lookup(datastore['ERR_CODE'],datastore['ECREGEX'])
 		print_status("RESULTS:  #{results.class} #{results.inspect}")
 		
 		print_status()
