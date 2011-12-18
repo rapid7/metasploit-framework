@@ -265,7 +265,8 @@ public class MainFrame extends FrameView {
 						}
 						publish((Object)jobStrings);
 					} catch (MsfException msfEx) {
-						msfEx.printStackTrace();
+						if(!MsfguiApp.shuttingDown || !msfEx.getMessage().contains("Connection refused"))
+							msfEx.printStackTrace();
 						publish("Error getting session list "+msfEx);
 						if(!msfEx.getMessage().contains("timed out")) // on timeout, just retry
 							return new ArrayList();
@@ -1655,6 +1656,7 @@ nameloop:	for (int i = 0; i < names.length; i++) {
 		});
 		jobsList.addMouseListener( new PopupMouseListener() {
 			public void mouseReleased(MouseEvent e){
+				super.mouseReleased(e);
 				int indx = jobsList.locationToIndex(e.getPoint());
 				if (indx == -1)
 					return;

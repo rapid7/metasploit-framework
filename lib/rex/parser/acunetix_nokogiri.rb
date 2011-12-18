@@ -1,4 +1,4 @@
-require File.join(File.expand_path(File.dirname(__FILE__)),"nokogiri_doc_mixin")
+require "rex/parser/nokogiri_doc_mixin"
 require 'rex'
 require 'uri'
 

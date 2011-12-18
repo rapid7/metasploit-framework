@@ -1,4 +1,5 @@
 require 'msf/core'
+require 'fastlib'
 require 'pathname'
 
 module Msf
@@ -613,22 +614,38 @@ class ModuleManager < ModuleSet
 	# their loading will not impact the module path.
 	#
 	def add_module_path(path, check_cache = true)
-		path.sub!(/#{File::SEPARATOR}$/, '')
+		epaths = []
 
-		# Make the path completely canonical
-		path = Pathname.new(File.expand_path(path))
+		if path =~ /\.fastlib$/
+			unless ::File.exist?(path)
+				raise RuntimeError, "The path supplied does not exist", caller
+			end
+		else
+			path.sub!(/#{File::SEPARATOR}$/, '')
+		
+			# Make the path completely canonical
+			path = Pathname.new(File.expand_path(path))
 
-		# Make sure the path is a valid directory before we try to rock the
-		# house
-		unless (path.directory?)
-			raise RuntimeError, "The path supplied is not a valid directory.",
-				caller
+			# Make sure the path is a valid directory before we try to rock the
+			# house
+			unless path.directory?
+				raise RuntimeError, "The path supplied is not a valid directory.", caller
+			end
+
+			# Now that we've confirmed it exists, get the full, cononical path
+			path = path.realpath.to_s
+
+			# Identify any fastlib archives inside of this path
+			Dir["#{path}/**/*.fastlib"].each do |fp|
+				epaths << fp
+			end
 		end
 
-		# Now that we've confirmed it exists, get the full, cononical path
-		path = path.realpath.to_s
-
 		module_paths << path
+
+		epaths.each do |epath|
+			module_paths << epath
+		end		
 
 		begin
 			counts = load_modules(path, !check_cache)
@@ -700,7 +717,7 @@ class ModuleManager < ModuleSet
 
 		# Load the module into a new Module wrapper
 		begin
-			wrap.module_eval(load_module_source(file))
+			wrap.module_eval(load_module_source(file), file)
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or
@@ -851,25 +868,35 @@ class ModuleManager < ModuleSet
 
 protected
 
+
+	#
+	# Load all of the modules from the supplied directory or archive
+	#
+	def load_modules(bpath, demand = false)
+		( bpath =~ /\.fastlib$/ ) ? 
+			load_modules_from_archive(bpath, demand) : 
+			load_modules_from_directory(bpath, demand)
+	end
+		
 	#
 	# Load all of the modules from the supplied module path (independent of
 	# module type).
 	#
-	def load_modules(bpath, demand = false)
+	def load_modules_from_directory(bpath, demand = false)
 		loaded = {}
 		recalc = {}
 		counts = {}
 		delay  = {}
 		ks     = true
 
-		dbase  = Dir.new(bpath)
+		dbase  = ::Dir.new(bpath)
 		dbase.entries.each do |ent|
 			next if ent.downcase == '.svn'
 
-			path  = File.join(bpath, ent)
+			path  = ::File.join(bpath, ent)
 			mtype = ent.gsub(/s$/, '')
 
-			next if not File.directory?(path)
+			next if not ::File.directory?(path)
 			next if not MODULE_TYPES.include?(mtype)
 			next if not enabled_types[mtype]
 
@@ -899,6 +926,49 @@ protected
 		return counts
 	end
 
+
+	#
+	# Load all of the modules from the supplied fastlib archive 
+	#
+	def load_modules_from_archive(bpath, demand = false)
+		loaded = {}
+		recalc = {}
+		counts = {}
+		delay  = {}
+		ks     = true
+
+		::FastLib.list(bpath).each do |ent|
+			
+			next if ent.index(".svn/")
+			
+			mtype, path = ent.split("/", 2)
+			mtype.sub!(/s$/, '')
+
+			next if not MODULE_TYPES.include?(mtype)
+			next if not enabled_types[mtype]
+
+			# Skip non-ruby files
+			next if ent[-3,3] != ".rb"
+
+			# Skip unit test files
+			next if (ent =~ /rb\.(ut|ts)\.rb$/)
+
+			# Skip files with a leading period
+			next if ent[0,1] =="."
+
+			load_module_from_archive(bpath, ent, loaded, recalc, counts, demand)
+		end
+
+		# Perform any required recalculations for the individual module types
+		# that actually had load changes
+		recalc.each_key { |key|
+			module_sets[key].recalculate
+		}
+
+		# Return per-module loaded counts
+		return counts
+	end
+	
 	#
 	# Loads a module from the supplied file.
 	#
@@ -934,7 +1004,7 @@ protected
 
 		begin
 			wrap = ::Module.new
-			wrap.module_eval(load_module_source(file))
+			wrap.module_eval(load_module_source(file), file)
 			if(wrap.const_defined?(:RequiredVersions))
 				mins = wrap.const_get(:RequiredVersions)
 				if( mins[0] > ::Msf::Framework::VersionCore or
@@ -1030,6 +1100,126 @@ protected
 		return true
 	end
 
+
+	#
+	# Loads a module from the supplied archive path
+	#
+	def load_module_from_archive(path, file, loaded, recalc, counts, demand = false)
+	
+		# Derive the name from the path with the exclusion of the .rb
+		name = file.match(/^(.+?)#{File::SEPARATOR}(.*)(.rb?)$/)[2]
+
+		# Chop off the file name
+		base = file.sub(/(.+)(#{File::SEPARATOR}.+)(.rb?)$/, '\1')
+
+		if (m = base.match(/^(.+?)#{File::SEPARATOR}+?/))
+			type = m[1]
+		else
+			type = base
+		end
+
+		type.sub!(/s$/, '')
+
+		added = nil
+
+		begin
+			wrap = ::Module.new
+			wrap.module_eval( ::FastLib.load(path, file), file )
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					errmsg = "Failed to load module from #{path}::#{file} due to version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[file] = errmsg
+					return false
+				end
+			end
+		rescue ::Interrupt
+			raise $!
+		rescue ::Exception => e
+			# Hide eval errors when the module version is not compatible
+			if(wrap.const_defined?(:RequiredVersions))
+				mins = wrap.const_get(:RequiredVersions)
+				if( mins[0] > ::Msf::Framework::VersionCore or
+				    mins[1] > ::Msf::Framework::VersionAPI
+				  )
+					errmsg = "Failed to load module from #{path}::#{file}due to error and failed version check (requires Core:#{mins[0]} API:#{mins[1]})"
+					elog(errmsg)
+					self.module_failed[file] = errmsg
+					return false
+				end
+			end
+			errmsg = "#{e.class} #{e}"
+			self.module_failed[file] = errmsg
+			elog(errmsg)
+			return false
+		end
+
+		::Msf::Framework::Major.downto(1) do |major|
+			if wrap.const_defined?("Metasploit#{major}")
+				added = wrap.const_get("Metasploit#{major}")
+				break
+			end
+		end
+
+		if not added
+			errmsg = "Missing Metasploit class constant"
+			self.module_failed[file] = errmsg
+			elog(errmsg)
+			return false
+		end
+
+		# If the module indicates that it is not usable on this system, then we
+		# will not try to use it.
+		usable = false
+
+		begin
+			usable = respond_to?(:is_usable) ? added.is_usable : true
+		rescue
+			elog("Exception caught during is_usable check: #{$!}")
+		end
+
+		# Synchronize the modification time for this file.
+		update_module_cache_info(nil, added, {
+			'paths' => [ path ],
+			'files' => [ file ],
+			'type'  => type}) if (!using_cache)
+
+		if (usable == false)
+			ilog("Skipping module in #{path}::#{file} because is_usable returned false.", 'core', LEV_1)
+			return false
+		end
+
+		ilog("Loaded #{type} module #{added} from #{path}::#{file}.", 'core', LEV_2)
+		self.module_failed.delete(file)
+
+		# Do some processing on the loaded module to get it into the
+		# right associations
+		on_module_load(added, type, name, {
+			'files' => [ file ],
+			'paths' => [ path ],
+			'type'  => type })
+
+		# Set this module type as needing recalculation
+		recalc[type] = true if (recalc)
+
+		# Append the added module to the hash of file->module
+		loaded[file] = added if (loaded)
+
+		# Track module load history for future reference
+		module_history[file]       = added
+		module_history_mtime[file] = ::Time.now.to_i
+
+		# The number of loaded modules this round
+		if (counts)
+			counts[type] = (counts[type]) ? (counts[type] + 1) : 1
+		end
+
+		return true
+	end
+	
 	#
 	# Checks to see if the supplied file has changed (if it's even in the
 	# cache).

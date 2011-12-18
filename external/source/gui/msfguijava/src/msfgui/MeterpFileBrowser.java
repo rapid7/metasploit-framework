@@ -3,8 +3,6 @@ package msfgui;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -199,8 +197,7 @@ public class MeterpFileBrowser extends MsfFrame {
 	/** Retrieves list of files. */
 	private void getFiles() {
 		//Set up locking so the console doesn't eat our output
-		if(!lock.tryLock())
-			lock.lock();
+		lock.lock();
 
 		while(model.getRowCount() > 0)
 			model.removeRow(0);
@@ -243,10 +240,8 @@ public class MeterpFileBrowser extends MsfFrame {
 					for(int i = 0; i < mainTable.getColumnCount(); i++)
 						if(mainTable.getColumnName(i).equals("Name"))
 							nameColumn = i;
-					if(nameColumn != -1){
+					if(nameColumn != -1)
 						mainTable.moveColumn(nameColumn, 0);
-						stop();
-					}
 				} catch (Exception ex) {
 					ex.printStackTrace();
 					if(ex.getMessage().toLowerCase().contains("unknown session"))

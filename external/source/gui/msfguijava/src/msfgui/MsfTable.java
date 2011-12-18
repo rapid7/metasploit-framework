@@ -97,15 +97,9 @@ public class MsfTable extends javax.swing.JTable {
 		if(!force && !DraggableTabbedPane.isVisible(this))
 			return; //Don't re-add if not visible
 		try {
-			Object arg;
-			if(rpcConn.type.equals("XML") && (dbTable.equals("events") || dbTable.equals("loots"))){
-				arg = MsfguiApp.workspace;
-			} else {
-				HashMap argM = new HashMap(10);
-				argM.put("workspace", MsfguiApp.workspace);
-				argM.put("offset", offset);
-				arg = argM;
-			}
+			HashMap arg = new HashMap(10);
+			arg.put("workspace", MsfguiApp.workspace);
+			arg.put("offset", offset);
 			List data = (List) ((Map)rpcConn.execute("db."+dbTable, arg)).get(dbTable);
 			if(data == null)
 				return;

