@@ -41,6 +41,12 @@ class Metasploit3 < Msf::Post
 	def run
 		begin
 		
+		print_status()
+		print_status("TESTING service_list")
+		results = service_list
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
+		return
+		
 		blab = datastore['VERBOSE']
 		print_status("Running against session #{datastore["SESSION"]}")
 		print_status("Session type is #{session.type}")
@@ -48,6 +54,15 @@ class Metasploit3 < Msf::Post
 		print_status("Don't be surprised to see some errors as the script is faster")
 		print_line("than the windows SCM, just make sure the errors are sane.  You can")
 		print_line("set VERBOSE to true to see more details")
+		
+		print_status "TESTING service_running?(#{datastore['QSERVICE']})"
+		results = service_running?(datastore['QSERVICE'])
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
+		
+		print_status()
+		print_status("TESTING service_query_status on servicename: #{datastore["QSERVICE"]}")
+		results = service_query_status(datastore['QSERVICE'])
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 
 		print_status()
 		print_status("TESTING service_query_config on servicename: #{datastore["QSERVICE"]}")

@@ -1,21 +1,17 @@
-require 'msf/core/post/windows/registry'
+require 'msf/core/post/windows/registry'  # TODO:  Remove this dependency
 
 module Msf
 class Post
 module Windows
 
 module WindowsServices
-	#TODO:  Create a reverse constant lookup for railgun
-	# constant_reverse_lookup(dec_or_hex_value,filer_regex=nil)
-	# usage: 	lookup(1072) returns "ERROR_SERVICE_MARKED_FOR_DELETE"
-	#			lookup(0x04, /SERVICE_/) might return "SERVICE_QUERY_STATUS"
 
 	# these symbols are used for hash keys and are scoped here to allow a consistent api
 	CURRENT_SERVICE_STATUS_PROCESS_STRUCT_NAMES = [:type,:state,:controls,:win32_exit_code,
 	:service_exit_code,:checkpoint,:wait_hint,:pid,:flags]
 
 	include Msf::Post::Windows::CliParse
-	include ::Msf::Post::Windows::Registry
+	include ::Msf::Post::Windows::Registry # TODO:  Remove this dependency
 	
 	#
 	# List all Windows Services present. Returns an Array containing the names (keynames)
@@ -24,7 +20,8 @@ module WindowsServices
 
 	def service_list
 		if session_has_services_depend?
-			meterpreter_service_list
+			#TODO:  remove _new when done
+			meterpreter_service_list_new
 		else
 			shell_service_list
 		end
@@ -171,7 +168,33 @@ module WindowsServices
 		else
 			shell_service_query_config(service_name)
 		end
-		
+	end
+
+	#
+	# Get Windows Service status information. 
+	#
+	# Info returned stuffed into a hash with most service info available 
+	# Service name is case sensitive.
+	#
+	# for non-native meterpreter:
+	# Hash keys match the keys returned by sc.exe qc <service_name>, but downcased and symbolized
+	# e.g returns {
+	# :service_name => "winmgmt",
+	# :type => "20 WIN32_SHARE_PROCESS",
+	# :start_type => "2 AUTO_START",
+	# <...>
+	# :dependencies => "RPCSS,OTHER",
+	# :service_start_name => "LocalSystem" }
+	#
+	
+	def service_query_status(service_name)
+		if session_has_services_depend?
+			meterpreter_service_query_status(service_name)
+		else
+			#TODO:  implement this, check if shell needs a status vs config
+			return "not implemented yet"
+			shell_service_query_status(service_name)
+		end
 	end
 
 	#
@@ -484,6 +507,82 @@ protected
 	# Native Meterpreter-specific windows service manipulation methods
 	##
 	# TODO:  Convert this to use railgun
+	def meterpreter_service_list_new (state=0x03)
+		# other choices for state: 
+		# "SERVICE_STATE_ALL" = 0x03
+		# "SERVICE_STATE_ACTIVE" = 0x01
+		# "SERVICE_STATE_INACTIVE" = 0x02
+		#TODO:  Railgun doesn't seem to know the above constants
+		
+		# use railgun to make the service query
+		rg = session.railgun
+		# define the function if not defined
+		if not rg.advapi32.functions['EnumServicesStatusA']
+			# MSDN
+			#BOOL WINAPI EnumServicesStatus(
+			#	__in 		 SC_HANDLE hSCManager,
+			#	__in         DWORD dwServiceType,
+			#	__in         DWORD dwServiceState,
+			#	__out_opt    LPENUM_SERVICE_STATUS lpServices,
+			#	__in         DWORD cbBufSize,
+			#	__out        LPDWORD pcbBytesNeeded,
+			#	__out        LPDWORD lpServicesReturned,
+			#	__inout_opt  LPDWORD lpResumeHandle
+			#);
+			rg.add_function('advapi32', 'EnumServicesStatusA', 'BOOL',[
+				['DWORD','hSCManager',		'in'],
+				['DWORD','dwServiceType',	'in'], #SERVICE_WIN32
+				['DWORD','dwServiceState',	'in'], #1, 2, or 3
+				['PBLOB','lpServices',		'out'],
+				['DWORD','cbBufSize',		'in'],
+				['PDWORD','pcBytesNeeded',	'out'],
+				['PDWORD','lpServicesReturned','out'], # the number of svs returned
+				['PDWORD','lpResumeHandle','inout'] # 0
+			])
+		end
+		#print_debug rg.advapi32.functions.to_s
+		# run the railgun query
+		begin
+			nil_handle,scum_handle = get_serv_handle(0,"SERVICE_QUERY_STATUS")
+			# ok, let's use the winapi to figure out just how big our buffer needs to be
+			# note, there could be a "race" condition where the buffer size increases after we query
+			# but this is about as good as we can do
+			print_debug "Running EnumServicesStatus to get buf_size"
+			# TODO:  Railgun doesn't know:  SERVICE_WIN32 = 0x30
+			# check if it knows SERVICE_WIN32_OWN_PROCESS = 0x10
+			railhash = rg.advapi32.EnumServicesStatusA(scum_handle,0x10,state,4,0,4,4,4)
+			# passing in a buf size of 0 gives us the required buf size in pcBytesNeeded
+			if not railhash["GetLastError"] == 0 #change this to if == 0xEA going forward
+				#then this is good, this puts buf size in pcBytesNeeded
+				buf_size = railhash["pcBytesNeeded"].to_i
+				print_debug "Buffer size:  " + buf_size.to_s
+			else # if no error, bad things
+				raise Rex::Post::Meterpreter::RequestError.new(__method__,"Problem getting buffer size")
+			end
+			# now use that buf_size to make the real query
+			# TODO:  railgun doesn't seem to know "SERVICE_WIN32" which is 0x30
+			print_debug "Running EnumServicesStatus with buf_size of #{buf_size}"
+			railhash = rg.advapi32.EnumServicesStatusA(scum_handle,0x10,state,buf_size,buf_size,4,4,4)
+			# assume for now that each process_struct is buf_size / lpServicesReturned or ?36(37)B
+			# for now, let's just see this buffer boyyyyyy
+			if railhash["GetLastError"] == 0
+				#print_debug "Buffer:  " + railhash["lpServices"].inspect
+				print_debug "Number of services:  " + railhash["lpServicesReturned"].to_s
+				return railhash["lpServices"].inspect
+				#return parse_service_status_process_structure(railhash["lpBuffer"])
+			else # there was an error, let's handle it
+				err = railhash["GetLastError"]
+				handle_railgun_error(err,__method__,"Error querying service status",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_INSUFFICIENT_|ERROR_SHUTDOWN_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
+			end
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error e.to_s
+			return nil
+		ensure
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
+		end
+	end
 	def meterpreter_service_list
 		serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 		threadnum = 0
@@ -579,18 +678,19 @@ protected
 		# run the railgun query
 		begin
 			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_QUERY_STATUS")
-			print_debug "Railgunning queryservicestatusEx"
+			#print_debug "Railgunning queryservicestatusEx"
 			railhash = rg.advapi32.QueryServiceStatusEx(serv_handle,0,37,37,4)
-			print_debug "Railgun returned:  #{railhash.inspect}"
+			#print_debug "Railgun returned:  #{railhash.inspect}"
 			if railhash["GetLastError"] == 0
-				return parse_service_status_process_structure(results_hash["lpBuffer"])
-			else
-				raise_windows_error(railhash["GetLastError"],__method__)
+				return parse_service_status_process_structure(railhash["lpBuffer"])
+			else # there was an error, let's handle it
+				err = railhash["GetLastError"]
+				handle_railgun_error(err,__method__,"Error querying service status",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_INSUFFICIENT_|ERROR_SHUTDOWN_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			#return nil if e.to_s =~ /Could not Open Service/
-			# otherwise print the error
-			print_error("Error getting service status:  #{e.to_s}")
+			print_error e.to_s
 			return nil
 		ensure
 			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
@@ -628,46 +728,33 @@ protected
 
 	def meterpreter_service_create(name, display_name, executable_on_host,mode=2)
 		mode = normalize_mode(mode,true)
-		rg = session.railgun # can't use get_service_handle as service doesn't exist yet
+		nil_handle,scum_handle = get_serv_handle(0,nil,"SC_MANAGER_CREATE_SERVICE")
 		begin
-			manag = rg.advapi32.OpenSCManagerA(nil,nil,"SC_MANAGER_CREATE_SERVICE")
-			if(manag["return"] != 0)
-				newservice = rg.advapi32.CreateServiceA(
-					manag["return"],
-					name,display_name,
-					#"SERVICE_ALL_ACCESS", railgun doesn't recognize this
-					0xF01FF,
-					"SERVICE_WIN32_OWN_PROCESS",
-					mode,
-					0,
-					executable_on_host,
-					nil,nil,nil,nil,nil)
-				case newservice["GetLastError"]
-				when 0 #success
-					return nil
-				when rg.const("ERROR_SERVICE_MARKED_FOR_DELETE")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified service has been marked for deletion',newservice["GetLastError"])
-				when rg.const("ERROR_SERVICE_EXISTS")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified service already exists',newservice["GetLastError"])
-				when rg.const("ERROR_DUPLICATE_SERVICE_NAME")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified service name or display name is already in use',
-					newservice["GetLastError"])
-				else
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,"Error creating service,
-					railgun reports:#{newservice.pretty_inspect}",newservice["GetLastError"])
-				end
+			new_service = rg.advapi32.CreateServiceA(
+				scum_handle,
+				name,
+				display_name,
+				#"SERVICE_ALL_ACCESS", railgun doesn't recognize this
+				0xF01FF,
+				"SERVICE_WIN32_OWN_PROCESS",
+				mode,
+				0,
+				executable_on_host,
+				nil,nil,nil,nil,nil)
+			err = new_service["GetLastError"]
+			case err
+			when 0 #success
+				return nil
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
+				handle_railgun_error(err,__method__,"Error starting service",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_CIRCULAR_|ERROR_SERVICE_|ERROR_DUPLICATE_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error("Error creating service: #{e.to_s}")
+			print_error e.to_s
 		ensure
-			rg.advapi32.CloseServiceHandle(newservice["return"]) if newservice
-			rg.advapi32.CloseServiceHandle(manag["return"]) if manag
+			rg.advapi32.CloseServiceHandle(new_service["return"]) if new_service
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
 		end
 	end
 
@@ -676,14 +763,17 @@ protected
 		begin
 			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_START")
 			# railgun doesn't 'end
-			railhash = session.railgun.advapi32.StartServiceA(serv_handle,0,nil)
+			railhash = rg.advapi32.StartServiceA(serv_handle,0,nil)
 			if railhash["GetLastError"] == 0
 				return nil
-			else
-				raise_windows_error(railhash["GetLastError"],__method__)
+			else # there was an error, let's handle it
+				err = railhash["GetLastError"]
+				handle_railgun_error(err,__method__,"Error starting service",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_PATH_|ERROR_SERVICE_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error("Error starting service:  #{e.to_s}")
+			print_error e.to_s
 		ensure 
 			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
 			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
@@ -695,14 +785,17 @@ protected
 		rg = session.railgun
 		begin
 			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_STOP")
-			railhash = session.railgun.advapi32.ControlService(serv_handle,"SERVICE_CONTROL_STOP",nil)
+			railhash = rg.advapi32.ControlService(serv_handle,"SERVICE_CONTROL_STOP",4)
 			if railhash["GetLastError"] == 0
 				return nil
-			else
-				raise_windows_error(railhash["GetLastError"],__method__)
+			else # there was an error, let's handle it
+				err = railhash["GetLastError"]
+				handle_railgun_error(err,__method__,"Error stopping service",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_DEPENDENT_|ERROR_SHUTDOWN_|ERROR_SERVICE_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error("Error stopping service:  #{e.to_s}")
+			print_error e.to_s
 		ensure 
 			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
 			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
@@ -713,14 +806,17 @@ protected
 		rg = session.railgun
 		begin
 			serv_handle,scum_handle = get_serv_handle(service_name,"DELETE")
-			railhash = session.railgun.advapi32.DeleteService(serv_handle)
+			railhash = rg.advapi32.DeleteService(serv_handle)
 			if railhash["GetLastError"] == 0
 				return nil
-			else
-				raise_windows_error(railhash["GetLastError"],__method__)
+			else # there was an error, let's handle it
+				err = railhash["GetLastError"]
+				handle_railgun_error(err,__method__,"Error deleting service",rg,
+				/^[ERROR_INVALID_|ERROR_ACCESS_|ERROR_SERVICE_]/)
+				# ^^^^ filter reverse error lookups (helps to look at msdn function return vals)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_error("Error deleting service:  #{e.to_s}")
+			print_error e.to_s
 		ensure 
 			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
 			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
@@ -762,77 +858,50 @@ protected
 		return mode		
 	end
 	
+	def handle_railgun_error(error_code, blame_method, message, railgun_instance, filter_regex=nil)
+		err_name_array = railgun_instance.error_lookup(error_code,filter_regex)
+		if not err_name_array.nil? and not err_name_array.empty?
+			error_name = err_name_array.first
+		else
+			error_name = nil
+		end
+    	raise Rex::Post::Meterpreter::RequestError.new(blame_method,
+    	"#{message}, Windows returned the following error:  #{error_name}(#{error_code})",error_code)
+	end
+	
 	def get_serv_handle(s_name,serv_privs="SERVICE_INTERROGATE",scm_privs="SC_MANAGER_ENUMERATE_SERVICE")
+		# s_name is normally a string, but if s_name is the value 0 then
+		# a serv_handle will not be attempted, essentially only a scum_handle will be returned
 		if not session_has_services_depend?
 			raise Error.new "get_serv_handle only valid for meterpreter sessions"
 		end
 		rg = session.railgun
 		begin
+			# get the SCManager handle
 			manag = rg.advapi32.OpenSCManagerA(nil,nil,scm_privs)
-			if(manag["return"] == 0)
-				err = manag["GetLastError"]
-				case err
-				when rg.const("ERROR_ACCESS_DENIED")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The requested access was denied',err)
-				when rg.const("ERROR_DATABASE_DOES_NOT_EXIST")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified SCM database does not exist',err)
-				else
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					"Unknown error accessing the Service Control Manager, " +
-					"railgun reports:#{manag.pretty_inspect}",err)
+			scum_handle = manag["return"]
+			err = manag["GetLastError"]
+			if scum_handle == 0 #then OpenSCManagerA had a problem
+				handle_railgun_error(err,__method__,"Error opening the SCManager",rg)
+			else # move on to getting the service handle if requested
+				return nil,scum_handle if s_name == 0 # only a scum_handle is requested
+				servhandleret = rg.advapi32.OpenServiceA(scum_handle,s_name,serv_privs)
+				serv_handle = servhandleret["return"]
+				
+				if(serv_handle == 0) # then OpenServiceA had a problem
+					err = servhandleret["GetLastError"]
+					handle_railgun_error(err, __method__,"Error opening service handle", rg,
+					/^[ERROR_ACCESS_|ERROR_SERVICE_|ERROR_INVALID]/) #limit our error lookups
 				end
+				#print_debug "Returning:  #{serv_handle.to_s}, #{scum_handle.to_s}"
+				return serv_handle,scum_handle
 			end
-			servhandleret = rg.advapi32.OpenServiceA(manag["return"],s_name,serv_privs)
-			if(servhandleret["return"] == 0)
-				err = servhandleret["GetLastError"]
-				case err
-				when rg.const("ERROR_ACCESS_DENIED")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The requested access was denied',err)
-				when rg.const("ERROR_SERVICE_DOES_NOT_EXIST")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified service does not exist',err)
-				when rg.const("ERROR_INVALID_HANDLE")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified handle is invalid',err)
-				when rg.const("ERROR_INVALID_NAME")
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					'The specified service name is invalid',err)
-				else
-					raise Rex::Post::Meterpreter::RequestError.new(__method__,
-					"Unknown error accessing the Service Control Manager, " +
-					"railgun reports:#{manag.pretty_inspect}",err)
-				end
-			end
-			return servhandleret["return"]
 		rescue Rex::Post::Meterpreter::RequestError => e
-			#return nil if e.to_s =~ /Could not Open Service/
-			# otherwise print the error
-			print_error("Error getting service status:  #{e.to_s}")
+			print_error e.to_s
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
+			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
 			return nil
-		ensure 
-			rg.advapi32.CloseServiceHandle(manag["return"]) if manag
-			rg.advapi32.CloseServiceHandle(servhandleret["return"]) if servhandleret
-		end
-	end
-	
-	def raise_windows_error(err_val, method_involved)
-		#TODO:  use idea of railgun constant_reverse_lookup(err_val)
-		# err = constant_reverse_lookup(err_val)
-		# if err
-		#	raise Rex::Post::Meterpreter::RequestError.new(__method__,
-		#			"Windows reported the following error:#{err}",err_val)
-		rg = session.railgun
-		case err_val
-		when the_err = rg.const("ERROR_INVALID_HANDLE")
-			raise Rex::Post::Meterpreter::RequestError.new(method_involved,
-			"Windows reported:  #{the_err}",err_val)
-		else
-			raise Rex::Post::Meterpreter::RequestError.new(method_involved,
-			"Windows reported an error that I don't feel like handling (#{err_val})",err_val)
-		#		"Windows reported an error that railgun doesn't recognize (#{err_val})",err_val)
+		# we don't use ensure here cuz we don't want the handles to get closed if no error
 		end
 	end
 	
@@ -841,7 +910,7 @@ protected
 	# with decimal windows constants.  hex_string normally comes from a PBLOB lpBuffer (Railgun)
 	#
 	def parse_service_status_process_structure(hex_string)
-		print_debug "parsing #{hex_string.inspect}"
+		#print_debug "parsing #{hex_string.inspect}"
 		names = CURRENT_SERVICE_STATUS_PROCESS_STRUCT_NAMES
 		arr_of_arrs = names.zip(hex_string.unpack("V8"))
 		hashish = Hash[*arr_of_arrs.flatten]
