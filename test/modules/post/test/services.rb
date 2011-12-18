@@ -41,15 +41,6 @@ class Metasploit3 < Msf::Post
 	def run
 		begin
 		
-		print_status "TESTING service_running?(#{datastore['QSERVICE']})"
-		results = service_running?(datastore['QSERVICE'])
-		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		
-		print_status "service_query_config(#{datastore['QSERVICE']})"
-		ret = service_query_config(datastore['QSERVICE'])
-		print_status 'Returned: ' + ret.inspect
-		return
-		
 		blab = datastore['VERBOSE']
 		print_status("Running against session #{datastore["SESSION"]}")
 		print_status("Session type is #{session.type}")
@@ -59,30 +50,13 @@ class Metasploit3 < Msf::Post
 		print_line("set VERBOSE to true to see more details")
 
 		print_status()
-		print_status("TESTING service_list")
-		results = service_list
-		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-		print_status("Sleeping to let the registry & threads settle")
-		select(nil, nil, nil, 3)
-		
-		print_status()
-		print_status("TESTING service_list_running")
-		results = service_list_running
+		print_status("TESTING service_query_config on servicename: #{datastore["QSERVICE"]}")
+		results = service_query_config(datastore['QSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 
 		print_status()
 		print_status("TESTING service_info on servicename: #{datastore["QSERVICE"]}")
 		results = service_info(datastore['QSERVICE'])
-		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-
-		print_status()
-		print_status("TESTING service_query_ex on servicename: #{datastore["QSERVICE"]}")
-		results = service_query_ex(datastore['QSERVICE'])
-		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
-
-		print_status()
-		print_status("TESTING service_query_config on servicename: #{datastore["QSERVICE"]}")
-		results = service_query_config(datastore['QSERVICE'])
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 
 		print_status()
@@ -126,6 +100,21 @@ class Metasploit3 < Msf::Post
 		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 		print_status("Current status of this service " + 
 					"#{service_query_ex(datastore['QSERVICE']).pretty_inspect}") if blab
+		print_status()
+		print_status("TESTING service_list")
+		results = service_list
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
+		print_status("Sleeping to let the registry & threads settle")
+		select(nil, nil, nil, 3)
+
+		print_status "TESTING service_running?(#{datastore['QSERVICE']})"
+		results = service_running?(datastore['QSERVICE'])
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
+		
+		print_status()
+		print_status("TESTING service_list_running")
+		results = service_list_running
+		print_status("RESULTS: #{results.class} #{results.pretty_inspect}")
 		print_status()
 		print_status("Testing complete.")
 		rescue NotImplementedError => e

@@ -5,6 +5,14 @@ class Post
 module Windows
 
 module WindowsServices
+	#TODO:  Create a reverse constant lookup for railgun
+	# constant_reverse_lookup(dec_or_hex_value,filer_regex=nil)
+	# usage: 	lookup(1072) returns "ERROR_SERVICE_MARKED_FOR_DELETE"
+	#			lookup(0x04, /SERVICE_/) might return "SERVICE_QUERY_STATUS"
+
+	# these symbols are used for hash keys and are scoped here to allow a consistent api
+	CURRENT_SERVICE_STATUS_PROCESS_STRUCT_NAMES = [:type,:state,:controls,:win32_exit_code,
+	:service_exit_code,:checkpoint,:wait_hint,:pid,:flags]
 
 	include Msf::Post::Windows::CliParse
 	include ::Msf::Post::Windows::Registry
@@ -56,7 +64,7 @@ module WindowsServices
 
 	def service_info(name,extended_info=false)
 		if session_has_services_depend?
-			meterpreter_service_info(name,extended_info)
+			meterpreter_service_info(name)
 		else
 			shell_service_info(name, extended_info)
 		end
@@ -157,35 +165,13 @@ module WindowsServices
 	
 	def service_query_config(service_name)
 		if session_has_services_depend?
+			#TODO:  implement this, check if shell needs a status vs config
+			return "not implemented yet"
 			meterpreter_service_query_config(service_name)
 		else
 			shell_service_query_config(service_name)
 		end
 		
-	end
-	
-	#
-	# Get extended Windows Service status information. 
-	#
-	# Info returned stuffed into a hash with all available service info
-	# Service name is case sensitive.
-	#
-	# for non-native meterpreter:
-	# Hash keys match the keys returned by sc.exe queryex <service_name>, but downcased and symbolized
-	# e.g returns {
-	# :service_name => "winmgmt",
-	# :type => "20 WIN32_SHARE_PROCESS",
-	# :state => "4 RUNNING,STOPPABLE,PAUSABLE,ACCEPTS_SHUTDOWN"
-	# <...>
-	# :pid => 1108
-	# }
-	
-	def service_query_ex(service_name)
-		if session_has_services_depend?
-			meterpreter_service_query_ex(service_name)
-		else
-			shell_service_query_ex(service_name)
-		end	
 	end
 
 	#
@@ -269,7 +255,7 @@ protected
 	end
 
 	def shell_service_running?(service_name)
-		running_services = self.shell_service_list_running
+		running_services = shell_service_list_running
 		return true if running_services.include?(service_name)
 	end
 	
@@ -497,7 +483,7 @@ protected
 	##
 	# Native Meterpreter-specific windows service manipulation methods
 	##
-	
+	# TODO:  Convert this to use railgun
 	def meterpreter_service_list
 		serviceskey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
 		threadnum = 0
@@ -526,7 +512,8 @@ protected
 		end
 		return services
 	end
-	def meterpreter_service__running?(service_name)
+	
+	def meterpreter_service_running?(service_name)
 		state = meterpreter_service_query_state(service_name)
 		return true if state =~ /RUNNING/
 		# otherwise
@@ -534,65 +521,31 @@ protected
 	end
 	
 	def meterpreter_service_query_state(service_name)
-		rg = session.railgun
-		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
-		# define the function if not defined
-		if ! rg.advapi32.functions['QueryServiceStatus']
-			# MSDN
-			#BOOL WINAPI QueryServiceStatus(
-			#	__in   SC_HANDLE hService,
-			#	__out  LPSERVICE_STATUS lpServiceStatus
-			#);
-			rg.add_function('advapi32', 'QueryServiceStatusEx', 'BOOL',[
-				['DWORD','hService',		'in'],
-				['PBLOB','lpServiceStatus',	'out']
-			])
-		end
-		begin
-			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
-			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
-			end
-			#open with  SERVICE_QUERY_STATUS (0x0004) privs
-			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
-			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
-			end
-			ret = rg.advapi32.QueryServiceStatus(servhandleret["return"],4+1)
-			# parse results and format human-like
-			case ret['lpServiceStatus'].unpack("H*").first
-				when /00000005/
-					return "5 CONTINUE_PENDING"
-				when /00000006/
-					return "6 PAUSE_PENDING"
-				when /00000007/
-					return "7 PAUSED"
-				when /00000004/
-					return "4 RUNNING"
-				when /00000002/
-					return "2 START_PENDING"
-				when /00000003/
-					return "3 STOP_PENDING"
-				when /00000001/
-					return "1 STOPPED"
-				else
-					return "UNKNOWN"
-			end
-		rescue Rex::Post::Meterpreter::RequestError => e
-			return false if e.to_s =~ /Could not Open Service/
-			# otherwise print the error
-			print_error("Error getting service status:  #{e.to_s}")
-			return false
-		ensure 
-			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
-			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+		h = meterpreter_service_query_status(service_name)
+		return nil unless h
+		# format human-like
+		case h[:state]
+		when 5
+			return "5 CONTINUE_PENDING"
+		when 6
+			return "6 PAUSE_PENDING"
+		when 7
+			return "7 PAUSED"
+		when 4
+			return "4 RUNNING"
+		when 2
+			return "2 START_PENDING"
+		when 3
+			return "3 STOP_PENDING"
+		when 1
+			return "1 STOPPED"
+		else
+			return "UNKNOWN"
 		end
 	end
 	
 	def meterpreter_service_list_running
-		all_services = self.meterpreter_service_list
+		all_services = meterpreter_service_list
 		run_services = []
 		all_services.each do |s|
 			run_services << s if meterpreter_service_running?(s)
@@ -600,7 +553,9 @@ protected
 		return run_services
 	end
 
-	def meterpreter_service_query_config(service_name)
+	# returns hash
+	def meterpreter_service_query_status(service_name)
+		# use railgun to make the service status query
 		rg = session.railgun
 		rg.add_dll('advapi32') unless rg.get_dll('advapi32') # load dll if not loaded
 		# define the function if not defined
@@ -615,91 +570,36 @@ protected
 			#);
 			rg.add_function('advapi32', 'QueryServiceStatusEx', 'BOOL',[
 				['DWORD','hService',		'in'],
-				['DWORD','InfoLevel',		'in'], # SC_STATUS_PROCESS_INFO, always 0 basically
+				['DWORD','InfoLevel',		'in'], # SC_STATUS_PROCESS_INFO, always 0
 				['PBLOB','lpBuffer',		'out'],
 				['DWORD','cbBufSize',		'in'],
 				['PDWORD','pcBytesNeeded',	'out']
 			])
 		end
-		# run the query via railgun
+		# run the railgun query
 		begin
-			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
-			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
-			end
-			#open with  SERVICE_QUERY_STATUS (0x0004) privs
-			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
-			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
-			end
-			ret = rg.advapi32.QueryServiceStatusEx(servhandleret["return"],0,8*8,8000,4)
-			print_good "Returned:  #{ret.inspect}"
-			# parse results and format human-like
-			case ret['lpBuffer'].unpack("H*").first
-			when /00000005/
-				return "5 CONTINUE_PENDING"
-			when /00000006/
-				return "6 PAUSE_PENDING"
-			when /00000007/
-				return "7 PAUSED"
-			when /00000004/
-				return "4 RUNNING"
-			when /00000002/
-				return "2 START_PENDING"
-			when /00000003/
-				return "3 STOP_PENDING"
-			when /00000001/
-				return "1 STOPPED"
+			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_QUERY_STATUS")
+			print_debug "Railgunning queryservicestatusEx"
+			railhash = rg.advapi32.QueryServiceStatusEx(serv_handle,0,37,37,4)
+			print_debug "Railgun returned:  #{railhash.inspect}"
+			if railhash["GetLastError"] == 0
+				return parse_service_status_process_structure(results_hash["lpBuffer"])
 			else
-				return "UNKNOWN"
+				raise_windows_error(railhash["GetLastError"],__method__)
 			end
-				
 		rescue Rex::Post::Meterpreter::RequestError => e
-			return false if e.to_s =~ /Could not Open Service/
+			#return nil if e.to_s =~ /Could not Open Service/
 			# otherwise print the error
 			print_error("Error getting service status:  #{e.to_s}")
-			return false
-		ensure 
-			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
-			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
-		end
-		# advanced version below, in work
-			#info = meterpreter_service_info_advanced(service_name, true)
-			# if dwCurrentState is 0x00000004 then SERVICE_RUNNING
-			#return true if ret['lpServiceStatus'].unpack("H8").first =~ /00000004/
-			# otherwise
-			#return false
-		end
-		
-		begin
-			manag = rg.advapi32.OpenSCManagerA(nil,nil,1)
-			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
-			end
-			#open with  SERVICE_QUERY_STATUS (0x0004) privs
-			servhandleret = rg.advapi32.OpenServiceA(manag["return"],service_name,0x04)
-			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
-			end
-			ret = rg.advapi32.QueryServiceStatusEx(servhandleret["return"],0,9*4+1,9*4+1,4)
-			print_good ret["lpBuffer"].unpack("H4")
-
-		rescue Rex::Post::Meterpreter::RequestError => e
-			return false if e.to_s =~ /Could not Open Service/
-			# otherwise print the error
-			print_error("Error getting service status:  #{e.to_s}")
-			return false
-		ensure 
-			rg.advapi32.CloseServiceHandle(manag["return"]) unless manag.nil?
-			rg.advapi32.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+			return nil
+		ensure
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
+			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
 		end
 	end
-	
+		
 	def meterpreter_service_info(service_name)
+		#TODO:  convert this to railgun or just deprecate for query_config or _status
 		service = {}
 		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{service_name.chomp}"
 		begin
@@ -715,6 +615,7 @@ protected
 	end
 
 	def meterpreter_service_change_startup(name,mode)
+		#TODO convert this to railgun, see service_start and _create etc
 		servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
 		mode = normalize_mode(mode,true).to_s # the string version of the int, e.g. "2"
 		begin
@@ -727,22 +628,33 @@ protected
 
 	def meterpreter_service_create(name, display_name, executable_on_host,mode=2)
 		mode = normalize_mode(mode,true)
-		adv = client.railgun.get_dll('advapi32')
+		rg = session.railgun # can't use get_service_handle as service doesn't exist yet
 		begin
-			manag = adv.call_function OpenSCManagerA(nil,nil,0x13)
+			manag = rg.advapi32.OpenSCManagerA(nil,nil,"SC_MANAGER_CREATE_SERVICE")
 			if(manag["return"] != 0)
-				# SC_MANAGER_CREATE_SERVICE = 0x0002
-				newservice = adv.CreateServiceA(manag["return"],name,display_name,
-				0x0010,0X00000010,mode,0,executable_on_host,nil,nil,nil,nil,nil)
-				adv.CloseServiceHandle(newservice["return"])
-				adv.CloseServiceHandle(manag["return"])
-				#SERVICE_START=0x0010  SERVICE_WIN32_OWN_PROCESS= 0X00000010
-				#SERVICE_AUTO_START = 2 SERVICE_ERROR_IGNORE = 0
-				if newservice["GetLastError"] == 0
+				newservice = rg.advapi32.CreateServiceA(
+					manag["return"],
+					name,display_name,
+					#"SERVICE_ALL_ACCESS", railgun doesn't recognize this
+					0xF01FF,
+					"SERVICE_WIN32_OWN_PROCESS",
+					mode,
+					0,
+					executable_on_host,
+					nil,nil,nil,nil,nil)
+				case newservice["GetLastError"]
+				when 0 #success
 					return nil
-				elsif newservice["GetLastError"] == 1072
+				when rg.const("ERROR_SERVICE_MARKED_FOR_DELETE")
 					raise Rex::Post::Meterpreter::RequestError.new(__method__,
 					'The specified service has been marked for deletion',newservice["GetLastError"])
+				when rg.const("ERROR_SERVICE_EXISTS")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified service already exists',newservice["GetLastError"])
+				when rg.const("ERROR_DUPLICATE_SERVICE_NAME")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified service name or display name is already in use',
+					newservice["GetLastError"])
 				else
 					raise Rex::Post::Meterpreter::RequestError.new(__method__,"Error creating service,
 					railgun reports:#{newservice.pretty_inspect}",newservice["GetLastError"])
@@ -753,90 +665,65 @@ protected
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error creating service: #{e.to_s}")
+		ensure
+			rg.advapi32.CloseServiceHandle(newservice["return"]) if newservice
+			rg.advapi32.CloseServiceHandle(manag["return"]) if manag
 		end
 	end
 
-	def meterpreter_service_start(name)
-		adv = client.railgun.get_dll('advapi32')
+	def meterpreter_service_start(service_name)
+		rg = session.railgun
 		begin
-			manag = adv.OpenSCManagerA(nil,nil,1)
-			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
-			end
-			#open with  SERVICE_START (0x0010)
-			servhandleret = adv.OpenServiceA(manag["return"],name,0x10)
-			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open service, Access Denied",servhandleret["GetLastError"])
-			end
-			retval = adv.StartServiceA(servhandleret["return"],0,nil)
-			if retval["GetLastError"] == 0
+			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_START")
+			# railgun doesn't 'end
+			railhash = session.railgun.advapi32.StartServiceA(serv_handle,0,nil)
+			if railhash["GetLastError"] == 0
 				return nil
-			elsif retval["GetLastError"] == 1056
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				'An instance of the service is already running.',retval["GetLastError"])
-			elsif retval["GetLastError"] == 1058
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				'The service cannot be started, either because it is disabled or because 
-				it has no enabled devices associated with it.',retval["GetLastError"])
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				'The service cannot be started, because of an unknown error',retval["GetLastError"])
+				raise_windows_error(railhash["GetLastError"],__method__)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error starting service:  #{e.to_s}")
 		ensure 
-			adv.CloseServiceHandle(manag["return"]) unless manag.nil?
-			adv.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
 		end
 	end
 
-	def meterpreter_service_stop(name)
-		adv = client.railgun.get_dll('advapi32')
+	def meterpreter_service_stop(service_name)
+		#TODO:  create a meterpreter_service_control, and bounce this method to it
+		rg = session.railgun
 		begin
-			manag = adv.OpenSCManagerA(nil,nil,1)
-			if(manag["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not open Service Control Manager, Access Denied",manag["GetLastError"])
-			end
-			#open with  SERVICE_STOP (0x0020)
-			servhandleret = adv.OpenServiceA(manag["return"],name,0x30)
-			if(servhandleret["return"] == 0)
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not Open Service, Access Denied",servhandleret["GetLastError"])
-			end
-			retval = adv.ControlService(servhandleret["return"],1,56)
-			if retval["GetLastError"] == 0
+			serv_handle,scum_handle = get_serv_handle(service_name,"SERVICE_STOP")
+			railhash = session.railgun.advapi32.ControlService(serv_handle,"SERVICE_CONTROL_STOP",nil)
+			if railhash["GetLastError"] == 0
 				return nil
-			elsif retval["GetLastError"] == 1062
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				'The service has not been started.',retval["GetLastError"])
-			elsif retval["GetLastError"] == 1052
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				'The requested control is not valid for this service.',retval["GetLastError"])
+			else
+				raise_windows_error(railhash["GetLastError"],__method__)
 			end
 		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error stopping service:  #{e.to_s}")
 		ensure 
-			adv.CloseServiceHandle(manag["return"]) unless manag.nil?
-			adv.CloseServiceHandle(servhandleret["return"]) unless servhandleret.nil?
+			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
 		end
 	end
 
-	def meterpreter_service_delete(name)
+	def meterpreter_service_delete(service_name)
+		rg = session.railgun
 		begin
-			basekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services"
-			if registry_enumkeys(basekey).index(name)
-				servicekey = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\#{name.chomp}"
-				registry_deletekey(servicekey)
+			serv_handle,scum_handle = get_serv_handle(service_name,"DELETE")
+			railhash = session.railgun.advapi32.DeleteService(serv_handle)
+			if railhash["GetLastError"] == 0
 				return nil
 			else
-				raise Rex::Post::Meterpreter::RequestError.new(__method__,
-				"Could not find #{name} as a registered service.",nil)
+				raise_windows_error(railhash["GetLastError"],__method__)
 			end
-		rescue::Exception => e
+		rescue Rex::Post::Meterpreter::RequestError => e
 			print_error("Error deleting service:  #{e.to_s}")
+		ensure 
+			rg.advapi32.CloseServiceHandle(serv_handle) if serv_handle
+			rg.advapi32.CloseServiceHandle(scum_handle) if scum_handle
 		end
 	end
 
@@ -848,9 +735,9 @@ protected
 	def session_has_services_depend?
 		begin
 			return !!(session.sys.registry and session.railgun)
-			#print_good "using meterpreter version"
+			##print_debug "using meterpreter version"
 		rescue NoMethodError
-			#print_good "using SHELL version"
+			##print_debug "using SHELL version"
 			return false
 		end
 	end
@@ -873,6 +760,119 @@ protected
 			mode = i ? 4 : 'disabled'
 		end
 		return mode		
+	end
+	
+	def get_serv_handle(s_name,serv_privs="SERVICE_INTERROGATE",scm_privs="SC_MANAGER_ENUMERATE_SERVICE")
+		if not session_has_services_depend?
+			raise Error.new "get_serv_handle only valid for meterpreter sessions"
+		end
+		rg = session.railgun
+		begin
+			manag = rg.advapi32.OpenSCManagerA(nil,nil,scm_privs)
+			if(manag["return"] == 0)
+				err = manag["GetLastError"]
+				case err
+				when rg.const("ERROR_ACCESS_DENIED")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The requested access was denied',err)
+				when rg.const("ERROR_DATABASE_DOES_NOT_EXIST")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified SCM database does not exist',err)
+				else
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					"Unknown error accessing the Service Control Manager, " +
+					"railgun reports:#{manag.pretty_inspect}",err)
+				end
+			end
+			servhandleret = rg.advapi32.OpenServiceA(manag["return"],s_name,serv_privs)
+			if(servhandleret["return"] == 0)
+				err = servhandleret["GetLastError"]
+				case err
+				when rg.const("ERROR_ACCESS_DENIED")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The requested access was denied',err)
+				when rg.const("ERROR_SERVICE_DOES_NOT_EXIST")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified service does not exist',err)
+				when rg.const("ERROR_INVALID_HANDLE")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified handle is invalid',err)
+				when rg.const("ERROR_INVALID_NAME")
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					'The specified service name is invalid',err)
+				else
+					raise Rex::Post::Meterpreter::RequestError.new(__method__,
+					"Unknown error accessing the Service Control Manager, " +
+					"railgun reports:#{manag.pretty_inspect}",err)
+				end
+			end
+			return servhandleret["return"]
+		rescue Rex::Post::Meterpreter::RequestError => e
+			#return nil if e.to_s =~ /Could not Open Service/
+			# otherwise print the error
+			print_error("Error getting service status:  #{e.to_s}")
+			return nil
+		ensure 
+			rg.advapi32.CloseServiceHandle(manag["return"]) if manag
+			rg.advapi32.CloseServiceHandle(servhandleret["return"]) if servhandleret
+		end
+	end
+	
+	def raise_windows_error(err_val, method_involved)
+		#TODO:  use idea of railgun constant_reverse_lookup(err_val)
+		# err = constant_reverse_lookup(err_val)
+		# if err
+		#	raise Rex::Post::Meterpreter::RequestError.new(__method__,
+		#			"Windows reported the following error:#{err}",err_val)
+		rg = session.railgun
+		case err_val
+		when the_err = rg.const("ERROR_INVALID_HANDLE")
+			raise Rex::Post::Meterpreter::RequestError.new(method_involved,
+			"Windows reported:  #{the_err}",err_val)
+		else
+			raise Rex::Post::Meterpreter::RequestError.new(method_involved,
+			"Windows reported an error that I don't feel like handling (#{err_val})",err_val)
+		#		"Windows reported an error that railgun doesn't recognize (#{err_val})",err_val)
+		end
+	end
+	
+	#
+	# Converts a hex string into hash representing a service_status_process_structure
+	# with decimal windows constants.  hex_string normally comes from a PBLOB lpBuffer (Railgun)
+	#
+	def parse_service_status_process_structure(hex_string)
+		print_debug "parsing #{hex_string.inspect}"
+		names = CURRENT_SERVICE_STATUS_PROCESS_STRUCT_NAMES
+		arr_of_arrs = names.zip(hex_string.unpack("V8"))
+		hashish = Hash[*arr_of_arrs.flatten]
+	end
+	
+	#typedef struct _SERVICE_STATUS_PROCESS {
+	#	DWORD dwServiceType;
+	#	DWORD dwCurrentState;
+	#	DWORD dwControlsAccepted;
+	#	DWORD dwWin32ExitCode;
+	#	DWORD dwServiceSpecificExitCode;
+	#	DWORD dwCheckPoint;
+	#	DWORD dwWaitHint;
+	#	DWORD dwProcessId;
+	#	DWORD dwServiceFlags;
+	#}
+
+	#
+	# Converts a hash into human readable service_status_process_structure info
+	# as a hash adding human readable commentary.  ssps_hash normally comes
+	# from parse_service_status_process_structure
+	#
+	def beautify_service_status_process_structure(ssps_hash,railgun_instance)
+		rg = railgun_instance
+		rg.const("SERVICE_QUERY_STATUS") # returns 4
+		# TODO:  Is there any easy way to do this?
+	end
+	
+	def parse_and_pretty_service_status_process_structure(hex_string,railgun_instance)
+		h = parse_and_pretty_service_status_process_structure(hex_string)
+		beautify_service_status_process_structure(h,railgun_instance)
 	end
 end
 
