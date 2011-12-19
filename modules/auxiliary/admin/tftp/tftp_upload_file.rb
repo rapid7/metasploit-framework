@@ -30,12 +30,17 @@ class Metasploit3 < Msf::Auxiliary
 			OptPort.new('LPORT',    [false, "The local port the TFTP client should listen on" ]),
 			OptAddress.new('LHOST', [false, "The local address the TFTP client should bind to"]),
 			OptBool.new('VERBOSE', [false, "Provide more details about the transfer", false]),
+			OptString.new('MODE', [false, "The TFTP mode. Usual choices are netsacii and octet.", "octet"]),
 			Opt::RPORT(69)
 		], self.class)
 	end
 
 	def file
 		datastore['FILENAME']
+	end
+
+	def mode
+		datastore['MODE'] || "octect"
 	end
 
 	def remote_file
@@ -76,7 +81,8 @@ class Metasploit3 < Msf::Auxiliary
 			"PeerHost"  => rhost,
 			"PeerPort"  => rport,
 			"LocalFile" => file,
-			"RemoteFile" => remote_file
+			"RemoteFile" => remote_file,
+			"Mode"      => mode
 		)
 	end
 
@@ -84,15 +90,16 @@ class Metasploit3 < Msf::Auxiliary
 		print_status "Sending '#{file}' to #{@lhost}:#{@lport} as '#{remote_file}'"
 		@tftp_client.send_write_request do |msg|
 			case msg
-			when /Aborting.$/, /errors.$/
+			when /Aborting/, /errors.$/
 				print_error [rtarget,msg].join
-			when /^Sending/, /complete!$/
+				@tftp_client.thread.kill
+			when /^WRQ accepted/, /^Sending/, /complete!$/
 				print_good [rtarget,msg].join
+			when /complete!$/
 			else
 				vprint_status [rtarget,msg].join 
 			end
 		end
-		@tftp_client.thread.join
 	end
 
 	def cleanup

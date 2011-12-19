@@ -15,7 +15,14 @@ class Client
 
 	attr_accessor :local_host, :local_port, :peer_host, :peer_port
 	attr_accessor :thread, :context, :sock, :write_sock
-	attr_accessor :local_file, :remote_file
+	attr_accessor :local_file, :remote_file, :mode
+
+	# Returns an array of [code, type, msg]
+	def parse_tftp_msg(str)
+		return nil unless str.length >= 4
+		ret = str.unpack("nnA*")
+		return ret
+	end
 
 	def initialize(params)
 		self.local_host = params["LocalHost"] || "0.0.0.0"
@@ -25,8 +32,8 @@ class Client
 		self.context = params["Context"] || {}
 		self.local_file = params["LocalFile"] || (raise ArgumentError, "Need a file to send.")
 		self.remote_file = params["RemoteFile"] || ::File.split(self.local_file).last
+		self.mode = params["Mode"] || "octet"
 		self.sock = nil
-		@shutting_down = false
 	end
 
 	def blockify_file
@@ -45,18 +52,22 @@ class Client
 			yield "Sending #{expected_size} bytes (#{expected_blocks} blocks)"
 		end
 		data_blocks.each_with_index do |data_block,idx|
-			req = ["\x00\x03", (idx + 1), data_block].pack("A2nA*")
+			req = [3, (idx + 1), data_block].pack("nnA*")
 			if self.sock.sendto(req, host, port) > 0
 				sent_data += data_block.size
 			end
-			res = self.sock.recvfrom(65535, 5)
-			if res[0] and res[0] =~ /^\x00\x04/
-				# emit a status
-				sent_blocks += 1
-				yield "Sent #{data_block.size} bytes in block #{sent_blocks}" if block_given?
-			else
-				yield "Got an unexpected response: `#{res[0].inspect}' ; Aborting." if block_given?
-				break # and probably yell about it
+			res = self.sock.recvfrom(65535)
+			if res
+				code, type, msg = parse_tftp_msg(res[0])
+				if code == 4
+					sent_blocks += 1
+					yield "Sent #{data_block.size} bytes in block #{sent_blocks}" if block_given?
+				else
+					if block_given?
+						yield "Got an unexpected response: Code:%d, Type:%d, Message:'%s'. Aborting." % [code, type, msg]
+					end
+					break 
+				end
 			end
 		end
 		if block_given?
@@ -69,12 +80,12 @@ class Client
 	end
 
 	def monitor_socket
-		yield "Listening for incoming ACKs" if block_given?
-		res = self.sock.recvfrom(65535, 5)
-		if res[0] and res[0] =~ /^\x00\x04/
-			send_data(res[1], res[2]) {|msg| yield msg}
-			stop
-		end
+			yield "Listening for incoming ACKs" if block_given?
+			res = self.sock.recvfrom(65535)
+			if res[0] and res[0] =~ /^\x00\x04/
+				send_data(res[1], res[2]) {|msg| yield msg}
+			end
+		stop
 	end
 
 	def start_client_port
@@ -96,7 +107,7 @@ class Client
 		req = "\x00\x02"
 		req += self.remote_file
 		req += "\x00"
-		req += "netascii"
+		req += self.mode
 		req += "\x00"
 	end
 
@@ -114,27 +125,26 @@ class Client
 			'Context'   => context
 		)
 		self.write_sock.sendto(wrq_packet, peer_host, peer_port)
-		self.write_sock.close rescue nil
+		res = self.write_sock.recvfrom(65535)
+		if res 
+			code, type, msg = parse_tftp_msg(res[0])
+			case code
+			when 1
+				yield "WRQ accepted, sending file" if block_given?
+				self.write_sock.close rescue nil
+			when nil
+				stop
+			else
+				yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
+				stop
+			end
+		end
 	end
 
 	def stop
-		@shutting_down = true
 		self.thread.kill
 		self.sock.close rescue nil # might be closed already
-	end
-
-	#
-	# Send an error packet w/the specified code and string
-	#
-	def send_error(from, num)
-		if (num < 1 or num >= ERRCODES.length)
-			# ignore..
-			return
-		end
-		pkt = [OpError, num].pack('nn')
-		pkt << ERRCODES[num]
-		pkt << "\x00"
-		send_packet(from, pkt)
+		self.write_sock.close rescue nil # might be closed already
 	end
 
 end
