@@ -67,7 +67,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	#
 	# TFTP is a funny service and needs to kind of be a server on our side, too.
-	# Setup is called only once
 	def setup
 		@rport = datastore['RPORT'] || 69
 		@lport = datastore['LPORT'] || (1025 + rand(0xffff-1025))
@@ -89,21 +88,27 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		print_status "Sending '#{file}' to #{@lhost}:#{@lport} as '#{remote_file}'"
 		@tftp_client.send_write_request do |msg|
-			case msg
-			when /Aborting/, /errors.$/
-				print_error [rtarget,msg].join
-				@tftp_client.thread.kill
-			when /^WRQ accepted/, /^Sending/, /complete!$/
-				print_good [rtarget,msg].join
-			when /complete!$/
+			print_tftp_status(msg)
+		end
+		while true
+			if @tftp_client.complete
+				print_status [rtarget,"TFTP transfer operation complete."].join
+				break
 			else
-				vprint_status [rtarget,msg].join 
+				select(nil,nil,nil,1)
 			end
 		end
 	end
 
-	def cleanup
-		# Need to kill the server in case of interruption
+	def print_tftp_status(msg)
+		case msg
+		when /Aborting/, /errors.$/
+			print_error [rtarget,msg].join
+		when /^WRQ accepted/, /^Sending/, /complete!$/
+			print_good [rtarget,msg].join
+		else
+			vprint_status [rtarget,msg].join 
+		end
 	end
 
 end
