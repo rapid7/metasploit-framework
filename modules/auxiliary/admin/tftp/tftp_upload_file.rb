@@ -148,11 +148,11 @@ class Metasploit3 < Msf::Auxiliary
 		print_status "Saving #{remote_file} as #{file}"
 		fh = @tftp_client.recv_tempfile
 		data = File.open(fh,"rb") {|f| f.read f.stat.size} rescue nil
-		unless framework.db.active
-			print_status "No database connected, so not actually saving the data:"
-			print_line data
-		end
 		if data and not data.empty?
+			unless framework.db.active
+				print_status "No database connected, so not actually saving the data:"
+				print_line data
+			end
 			this_service = report_service(
 				:host => rhost,
 				:port => rport,

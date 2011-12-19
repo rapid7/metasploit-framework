@@ -20,12 +20,11 @@ class Client
 	attr_accessor :complete, :recv_tempfile
 
 	# Returns an array of [code, type, msg]. Data packets
-	# should set strip to false, or else trailing spaces and nulls
-	# will be dropped during unpacking.
-	def parse_tftp_msg(str,strip=true)
+	# specifically will /not/ unpack, since that would drop any trailing spaces or nulls.
+	def parse_tftp_msg(str)
 		return nil unless str.length >= 4
 		ret = str.unpack("nnA*")
-		ret[2] = str[4,str.size] unless strip
+		ret[2] = str[4,str.size] if ret[0] == OpData
 		return ret
 	end
 
@@ -65,9 +64,9 @@ class Client
 		res = self.server_sock.recvfrom(65535)
 		if res and res[0]
 			code, type, data = parse_tftp_msg(res[0])
-			if code == 4 && self.action == :upload
+			if code == OpAck && self.action == :upload
 				send_data(res[1], res[2]) {|msg| yield msg}
-			elsif code == 3 && self.action == :download
+			elsif code == OpData && self.action == :download
 				recv_data(res[1], res[2], data) {|msg| yield msg}
 			else
 				yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
@@ -148,7 +147,7 @@ class Client
 				end
 			end
 		end
-		yield("Transferred #{recvd_blocks} blocks, download complete!")
+		yield("Transferred #{recvd_blocks} blocks, #{self.recv_tempfile.size} bytes, download complete!")
 		self.recv_tempfile.close
 		stop
 	end
@@ -161,17 +160,14 @@ class Client
 		yield "Received and acknowledged #{data.size} in block #{blocknum}"
 	end
 
-
 	#
 	# Methods for upload
 	#
 
 	def wrq_packet
-		req = "\x00\x02"
-		req += self.remote_file
-		req += "\x00"
-		req += self.mode
-		req += "\x00"
+		req = [OpWrite, self.remote_file, self.mode]
+		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
+		req.pack(packstr)
 	end
 
 	def blockify_file
@@ -209,7 +205,7 @@ class Client
 			yield "Sending #{expected_size} bytes (#{expected_blocks} blocks)"
 		end
 		data_blocks.each_with_index do |data_block,idx|
-			req = [3, (idx + 1), data_block].pack("nnA*")
+			req = [OpData, (idx + 1), data_block].pack("nnA*")
 			if self.server_sock.sendto(req, host, port) > 0
 				sent_data += data_block.size
 			end
