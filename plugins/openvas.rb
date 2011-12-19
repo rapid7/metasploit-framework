@@ -263,9 +263,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of targets")
-				puts
-				puts tbl.to_s
-				puts
+				print_line
+				print_line tbl.to_s
+				print_line
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -328,9 +328,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of tasks")
-				puts
-				puts tbl.to_s
-				puts
+				print_line
+				print_line tbl.to_s
+				print_line
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -427,9 +427,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of configs")
-				puts
-				puts tbl.to_s
-				puts
+				print_line
+				print_line tbl.to_s
+				print_line
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -450,9 +450,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of report formats")
-				puts
-				puts tbl.to_s
-				puts
+				print_line
+				print_line tbl.to_s
+				print_line
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
@@ -473,9 +473,9 @@ class Plugin::OpenVAS < Msf::Plugin
 					id += 1
 				end
 				print_good("OpenVAS list of reports")
-				puts
-				puts tbl.to_s
-				puts
+				print_line
+				print_line tbl.to_s
+				print_line
 			rescue OpenVASOMP::OMPError => e
 				print_error(e.to_s)
 			end
