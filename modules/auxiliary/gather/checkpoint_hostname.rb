@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("SmartCenter Host: #{sc_hostname}")
 			end
 		else
-			print_error("Unexpected response:\r\n#{res}")
+			print_error("Unexpected response:\r\n#{res.inspect}")
 		end
 
 		report_info(fw_hostname,sc_hostname)
