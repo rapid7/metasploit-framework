@@ -82,28 +82,22 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-	# The local filename must be real if you are uploading. Otherwise,
-	# it can be made up, since for downloading it's only used for the
-	# name of the loot entry.
 	def file
 		if action.name == "Upload"
+			fdata = datastore['FILEDATA'].to_s
 			fname = datastore['FILENAME'].to_s
-			if fname.empty?
-				fdata = "DATA:#{datastore['FILEDATA']}"
-				return fdata
+			if not fdata.empty?
+				fdata_decorated = "DATA:#{datastore['FILEDATA']}"
+			elsif ::File.readable? fname
+				fname
 			else
-				if ::File.readable? fname
-					fname
-				else
-					fname_local = ::File.join(Msf::Config.local_directory,fname)
-					fname_data  = ::File.join(Msf::Config.data_directory,fname)
-					return fname_local if ::File.readable? fname_local
-					return fname_data  if ::File.readable? fname_data
-					return nil # Couldn't find it, giving up.
-				end
+				fname_local = ::File.join(Msf::Config.local_directory,fname)
+				fname_data  = ::File.join(Msf::Config.data_directory,fname)
+				return fname_local if ::File.file?(fname_local) and ::File.readable?(fname_local)
+				return fname_data  if ::File.file?(fname_data)  and ::File.readable?(fname_data)
+				return nil # Couldn't find it, giving up.
 			end
-		else # "Download
+		else # "Download"
 			fname = ::File.split(datastore['FILENAME'] || datastore['REMOTE_FILENAME']).last rescue nil
 		end
 	end
@@ -120,21 +114,12 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	# At least one, but not both, are required.
-	def check_valid_filename
-		not (datastore['FILENAME'].to_s.empty? and datastore['REMOTE_FILENAME'].to_s.empty?)
-	end
-
 	# This all happens before run(), and should give an idea on how to use
 	# the TFTP client mixin. Essentially, you create an instance of the
 	# Rex::Proto::TFTP::Client class, fill it up with the relevant host and
 	# file data, set it to either :upload or :download, then kick off the
 	# transfer as you like.
 	def setup
-		unless check_valid_filename()
-			print_error "Need at least one valid filename."
-			return
-		end
 		@lport = datastore['LPORT'] || (1025 + rand(0xffff-1025))
 		@lhost = datastore['LHOST'] || "0.0.0.0"
 		@local_file = file
@@ -153,17 +138,13 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		return unless check_valid_filename()
 		run_upload()   if action.name == 'Upload'
 		run_download() if action.name == 'Download'
-		while true
-			if @tftp_client.complete
-				print_status [rtarget,"TFTP transfer operation complete."].join
-				save_downloaded_file() if action.name == 'Download'
-				break
-			else
-				select(nil,nil,nil,1) # 1 second delays are just fine.
-			end
+		while not @tftp_client.complete
+			select(nil,nil,nil,1)
+			print_status [rtarget,"TFTP transfer operation complete."].join
+			save_downloaded_file() if action.name == 'Download'
+			break
 		end
 	end
 

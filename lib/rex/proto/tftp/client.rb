@@ -19,9 +19,9 @@ module TFTP
 #
 # Also, since TFTP clients act as both clients and servers, we use two
 # threads to handle transfers, regardless of the direction. For this reason,
-# the action of sending data is nonblocking; if you need to see the
+# the transfer actions are nonblocking; if you need to see the
 # results of a transfer before doing something else, check the boolean complete
-# attribute and any return data in the :return_data attribute. It's a little
+# attribute and any return data in the :status attribute. It's a little
 # weird like that.
 #
 # Finally, most (all?) clients will alter the data in netascii mode in order
@@ -36,11 +36,11 @@ class Client
 	attr_accessor :local_host, :local_port, :peer_host, :peer_port
 	attr_accessor :threads, :context, :server_sock, :client_sock
 	attr_accessor :local_file, :remote_file, :mode, :action
-	attr_accessor :complete, :recv_tempfile, :return_data
+	attr_accessor :complete, :recv_tempfile, :status
 
 	# Returns an array of [code, type, msg]. Data packets
 	# specifically will /not/ unpack, since that would drop any trailing spaces or nulls.
-	def parse_tftp_msg(str)
+	def parse_tftp_response(str)
 		return nil unless str.length >= 4
 		ret = str.unpack("nnA*")
 		ret[2] = str[4,str.size] if ret[0] == OpData
@@ -86,24 +86,26 @@ class Client
 		yield "Listening for incoming ACKs" if block_given?
 		res = self.server_sock.recvfrom(65535)
 		if res and res[0]
-			code, type, data = parse_tftp_msg(res[0])
-			if code == OpAck && self.action == :upload
+			code, type, data = parse_tftp_response(res[0])
+			if code == OpAck and self.action == :upload
 				if block_given?
 					yield "WRQ accepted, sending the file." if type == 0
-					self.return_data = {:write_allowed => true}
 					send_data(res[1], res[2]) {|msg| yield msg}
 				else
 					send_data(res[1], res[2])
 				end
-			elsif code == OpData && self.action == :download
+			elsif code == OpData and self.action == :download
 				if block_given?
 					recv_data(res[1], res[2], data) {|msg| yield msg}
 				else
 					recv_data(res[1], res[2], data)
 				end
+			elsif code == OpError
+				yield("Aborting, got error type:%d, message:'%s'" % [type, data]) if block_given?
+				self.status = {:error => [code, type, data]}
 			else
-				yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
-				stop
+				yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, data]) if block_given?
+				self.status = {:error => [code, type, data]}
 			end
 		end
 		stop
@@ -112,17 +114,18 @@ class Client
 	def monitor_client_sock
 		res = self.client_sock.recvfrom(65535)
 		if res[1] # Got a response back, so that's never good; Acks come back on server_sock.
-			code, type, msg = parse_tftp_msg(res[0])
-			yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
+			code, type, data = parse_tftp_response(res[0])
+			yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, data]) if block_given?
+			self.status = {:error => [code, type, data]}
 			stop
 		end
 	end
 
 	def stop
 		self.complete = true
-		self.threads.each {|t| t.kill}
 		self.server_sock.close rescue nil # might be closed already
 		self.client_sock.close rescue nil # might be closed already
+		self.threads.each {|t| t.kill}
 	end
 
 	#
@@ -140,7 +143,7 @@ class Client
 	end
 
 	def send_read_request(&block)
-		self.return_data = nil
+		self.status = nil
 		self.complete = false
 		if block_given?
 			start_server_socket {|msg| yield msg}
@@ -163,7 +166,7 @@ class Client
 			end
 		}
 		until self.complete
-			return self.return_data
+			return self.status
 		end
 	end
 
@@ -183,7 +186,7 @@ class Client
 		while current_block.size == 512
 			res = self.server_sock.recvfrom(65535)
 			if res and res[0]
-				code, block_num, current_block = parse_tftp_msg(res[0])
+				code, block_num, current_block = parse_tftp_response(res[0])
 				if code == 3
 					if block_given?
 						write_and_ack_data(current_block,block_num,host,port) {|msg| yield msg}
@@ -200,7 +203,7 @@ class Client
 		if block_given?
 			yield("Transferred #{self.recv_tempfile.size} bytes in #{recvd_blocks} blocks, download complete!")
 		end
-		self.return_data = {:success => [
+		self.status = {:success => [
 			self.local_file,
 			self.remote_file,
 			self.recv_tempfile.size,
@@ -221,7 +224,7 @@ class Client
 	#
 	# Methods for upload
 	#
-
+	
 	def wrq_packet
 		req = [OpWrite, self.remote_file, self.mode]
 		packstr = "na#{self.remote_file.length+1}a#{self.mode.length+1}"
@@ -229,18 +232,21 @@ class Client
 	end
 
 	# Note that the local filename for uploading need not be a real filename --
-	# if it begins with DATA: it can be any old string of bytes.
+	# if it begins with DATA: it can be any old string of bytes. If it's missing
+	# completely, then just quit.
 	def blockify_file_or_data
 		if self.local_file =~ /^DATA:(.*)/m
 			data = $1
+		elsif ::File.file?(self.local_file) and ::File.readable?(self.local_file)
+			data = ::File.open(self.local_file, "rb") {|f| f.read f.stat.size} rescue []
 		else
-			data = ::File.open(self.local_file, "rb") {|f| f.read f.stat.size}
+			return []
 		end
 		data.scan(/.{1,512}/)
 	end
 
 	def send_write_request(&block)
-		self.return_data = nil
+		self.status = nil
 		self.complete = false
 		if block_given?
 			start_server_socket {|msg| yield msg}
@@ -263,12 +269,18 @@ class Client
 			end
 		}
 		until self.complete
-			return self.return_data
+			return self.status
 		end
 	end
 
 	def send_data(host,port)
+		self.status = {:write_allowed => true}
 		data_blocks = blockify_file_or_data()
+		if data_blocks.empty?
+			yield "Closing down since there is no data to send." if block_given?
+			self.status = {:success => [self.local_file, self.local_file, 0, 0]}
+			return nil
+		end
 		sent_data = 0
 		sent_blocks = 0
 		expected_blocks = data_blocks.size
@@ -284,7 +296,7 @@ class Client
 			end
 			res = self.server_sock.recvfrom(65535)
 			if res
-				code, type, msg = parse_tftp_msg(res[0])
+				code, type, msg = parse_tftp_response(res[0])
 				if code == 4
 					sent_blocks += 1
 					yield "Sent #{data_block.size} bytes in block #{sent_blocks}" if block_given?
@@ -304,7 +316,7 @@ class Client
 			end
 		end
 		if sent_data == expected_size
-		self.return_data = {:success => [
+		self.status = {:success => [
 				self.local_file,
 				self.remote_file,
 				sent_data,
