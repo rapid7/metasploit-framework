@@ -10,3 +10,4 @@
 
 require 'rex/proto/tftp/constants'
 require 'rex/proto/tftp/server'
+require 'rex/proto/tftp/client'
