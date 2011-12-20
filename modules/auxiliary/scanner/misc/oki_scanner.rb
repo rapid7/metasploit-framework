@@ -76,9 +76,9 @@ class Metasploit3 < Msf::Auxiliary
 				tcp.put(http_data)
 				data = tcp.recv(12)
 
-				responce = "#{data[9..11]}"
+				response = "#{data[9..11]}"
 
-				case responce
+				case response
 				when "200"
 					print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
 					report_auth_info(
@@ -91,7 +91,7 @@ class Metasploit3 < Msf::Auxiliary
 				when "401"
 					print_error("Default credentials failed")
 				when "404"
-					print_status("Page not found, try credential manually: admin/{last_six}")
+					print_status("Page not found, try credential manually: admin/#{last_six}")
 				else
 					print_status("Unexpected message")
 				end
