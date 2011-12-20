@@ -12,12 +12,31 @@ module TFTP
 # TFTP Client class
 #
 # Note that TFTP has blocks, and so does Ruby. Watch out with the variable names!
+#
+# The big gotcha right now is that setting the mode between octet, netascii, or
+# anything else doesn't actually do anything other than declare it to the
+# server.
+#
+# Also, since TFTP clients act as both clients and servers, we use two
+# threads to handle transfers, regardless of the direction. For this reason,
+# the action of sending data is nonblocking; if you need to see the
+# results of a transfer before doing something else, check the boolean complete
+# attribute and any return data in the :return_data attribute. It's a little
+# weird like that.
+#
+# Finally, most (all?) clients will alter the data in netascii mode in order
+# to try to conform to the RFC standard for what "netascii" means, but there are
+# ambiguities in implementations on things like if nulls are allowed, what
+# to do with Unicode, and all that. For this reason, "octet" is default, and
+# if you want to send "netascii" data, it's on you to fix up your source data
+# prior to sending it.
+#
 class Client
 
 	attr_accessor :local_host, :local_port, :peer_host, :peer_port
 	attr_accessor :threads, :context, :server_sock, :client_sock
 	attr_accessor :local_file, :remote_file, :mode, :action
-	attr_accessor :complete, :recv_tempfile
+	attr_accessor :complete, :recv_tempfile, :return_data
 
 	# Returns an array of [code, type, msg]. Data packets
 	# specifically will /not/ unpack, since that would drop any trailing spaces or nulls.
@@ -35,7 +54,7 @@ class Client
 		self.peer_host = params["PeerHost"] || (raise ArgumentError, "Need a peer host.")
 		self.peer_port = params["PeerPort"] || 69
 		self.context = params["Context"] || {}
-		self.local_file = params["LocalFile"] || (raise ArgumentError, "Need a local file.")
+		self.local_file = params["LocalFile"]
 		self.remote_file = params["RemoteFile"] || ::File.split(self.local_file).last
 		self.mode = params["Mode"] || "octet"
 		self.action = params["Action"] || (raise ArgumentError, "Need an action.")
@@ -55,7 +74,11 @@ class Client
 			yield "Started TFTP client listener on #{local_host}:#{local_port}"
 		end
 		self.threads << Rex::ThreadFactory.spawn("TFTPServerMonitor", false) {
-			monitor_server_sock {|msg| yield msg}
+			if block_given?
+				monitor_server_sock {|msg| yield msg}
+			else
+				monitor_server_sock
+			end
 		}
 	end
 
@@ -65,9 +88,19 @@ class Client
 		if res and res[0]
 			code, type, data = parse_tftp_msg(res[0])
 			if code == OpAck && self.action == :upload
-				send_data(res[1], res[2]) {|msg| yield msg}
+				if block_given?
+					yield "WRQ accepted, sending the file." if type == 0
+					self.return_data = {:write_allowed => true}
+					send_data(res[1], res[2]) {|msg| yield msg}
+				else
+					send_data(res[1], res[2])
+				end
 			elsif code == OpData && self.action == :download
-				recv_data(res[1], res[2], data) {|msg| yield msg}
+				if block_given?
+					recv_data(res[1], res[2], data) {|msg| yield msg}
+				else
+					recv_data(res[1], res[2], data)
+				end
 			else
 				yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
 				stop
@@ -107,6 +140,8 @@ class Client
 	end
 
 	def send_read_request(&block)
+		self.return_data = nil
+		self.complete = false
 		if block_given?
 			start_server_socket {|msg| yield msg}
 		else
@@ -121,8 +156,15 @@ class Client
 		)
 		self.client_sock.sendto(rrq_packet, peer_host, peer_port)
 		self.threads << Rex::ThreadFactory.spawn("TFTPClientMonitor", false) {
-			monitor_client_sock {|msg| yield msg}
+			if block_given?
+				monitor_client_sock {|msg| yield msg}
+			else
+				monitor_client_sock
+			end
 		}
+		until self.complete
+			return self.return_data
+		end
 	end
 
 	def recv_data(host, port, first_block)
@@ -132,14 +174,22 @@ class Client
 			yield "Source file: #{self.remote_file}, destination file: #{self.local_file}"
 			yield "Received and acknowledged #{first_block.size} in block #{recvd_blocks}"
 		end
-		write_and_ack_data(first_block,1,host,port) {|msg| yield msg}
+		if block_given?
+			write_and_ack_data(first_block,1,host,port) {|msg| yield msg}
+		else
+			write_and_ack_data(first_block,1,host,port)
+		end
 		current_block = first_block
 		while current_block.size == 512
 			res = self.server_sock.recvfrom(65535)
 			if res and res[0]
 				code, block_num, current_block = parse_tftp_msg(res[0])
 				if code == 3
-					write_and_ack_data(current_block,block_num,host,port) {|msg| yield msg}
+					if block_given?
+						write_and_ack_data(current_block,block_num,host,port) {|msg| yield msg}
+					else
+						write_and_ack_data(current_block,block_num,host,port)
+					end
 					recvd_blocks += 1
 				else
 					yield("Aborting, got code:%d, type:%d, message:'%s'" % [code, type, msg]) if block_given?
@@ -147,7 +197,15 @@ class Client
 				end
 			end
 		end
-		yield("Transferred #{recvd_blocks} blocks, #{self.recv_tempfile.size} bytes, download complete!")
+		if block_given?
+			yield("Transferred #{self.recv_tempfile.size} bytes in #{recvd_blocks} blocks, download complete!")
+		end
+		self.return_data = {:success => [
+			self.local_file,
+			self.remote_file,
+			self.recv_tempfile.size,
+			recvd_blocks.size]
+		}
 		self.recv_tempfile.close
 		stop
 	end
@@ -157,7 +215,7 @@ class Client
 		self.recv_tempfile.flush
 		req = ack_packet(blocknum)
 		self.server_sock.sendto(req, host, port)
-		yield "Received and acknowledged #{data.size} in block #{blocknum}"
+		yield "Received and acknowledged #{data.size} in block #{blocknum}" if block_given?
 	end
 
 	#
@@ -170,12 +228,20 @@ class Client
 		req.pack(packstr)
 	end
 
-	def blockify_file
-		data = ::File.open(self.local_file, "rb") {|f| f.read f.stat.size}
+	# Note that the local filename for uploading need not be a real filename --
+	# if it begins with DATA: it can be any old string of bytes.
+	def blockify_file_or_data
+		if self.local_file =~ /^DATA:(.*)/m
+			data = $1
+		else
+			data = ::File.open(self.local_file, "rb") {|f| f.read f.stat.size}
+		end
 		data.scan(/.{1,512}/)
 	end
 
 	def send_write_request(&block)
+		self.return_data = nil
+		self.complete = false
 		if block_given?
 			start_server_socket {|msg| yield msg}
 		else
@@ -190,18 +256,25 @@ class Client
 		)
 		self.client_sock.sendto(wrq_packet, peer_host, peer_port)
 		self.threads << Rex::ThreadFactory.spawn("TFTPClientMonitor", false) {
-			monitor_client_sock {|msg| yield msg}
+			if block_given?
+				monitor_client_sock {|msg| yield msg}
+			else
+				monitor_client_sock
+			end
 		}
+		until self.complete
+			return self.return_data
+		end
 	end
 
 	def send_data(host,port)
-		data_blocks = blockify_file()
+		data_blocks = blockify_file_or_data()
 		sent_data = 0
 		sent_blocks = 0
 		expected_blocks = data_blocks.size
 		expected_size = data_blocks.join.size
 		if block_given?
-			yield "Source file: #{self.local_file}, destination file: #{self.remote_file}"
+			yield "Source file: #{self.local_file =~ /^DATA:/ ? "(Data)" : self.remote_file}, destination file: #{self.remote_file}"
 			yield "Sending #{expected_size} bytes (#{expected_blocks} blocks)"
 		end
 		data_blocks.each_with_index do |data_block,idx|
@@ -225,10 +298,18 @@ class Client
 		end
 		if block_given?
 			if(sent_data == expected_size)
-				yield "Upload complete!"
+				yield("Transferred #{sent_data} bytes in #{sent_blocks} blocks, upload complete!")
 			else
 				yield "Upload complete, but with errors."
 			end
+		end
+		if sent_data == expected_size
+		self.return_data = {:success => [
+				self.local_file,
+				self.remote_file,
+				sent_data,
+				sent_blocks
+			] }
 		end
 	end
 
