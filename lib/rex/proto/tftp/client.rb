@@ -1,4 +1,3 @@
-# $Id$
 require 'rex/socket'
 require 'rex/proto/tftp'
 require 'tempfile'
@@ -6,7 +5,6 @@ require 'tempfile'
 module Rex
 module Proto
 module TFTP
-
 
 #
 # TFTP Client class
@@ -37,6 +35,7 @@ class Client
 	attr_accessor :threads, :context, :server_sock, :client_sock
 	attr_accessor :local_file, :remote_file, :mode, :action
 	attr_accessor :complete, :recv_tempfile, :status
+	attr_accessor :block_size # This definitely breaks spec, should only use for fuzz/sploit.
 
 	# Returns an array of [code, type, msg]. Data packets
 	# specifically will /not/ unpack, since that would drop any trailing spaces or nulls.
@@ -58,6 +57,7 @@ class Client
 		self.remote_file = params["RemoteFile"] || ::File.split(self.local_file).last
 		self.mode = params["Mode"] || "octet"
 		self.action = params["Action"] || (raise ArgumentError, "Need an action.")
+		self.block_size = params["BlockSize"] || 512
 	end
 
 	#
@@ -123,9 +123,15 @@ class Client
 
 	def stop
 		self.complete = true
-		self.server_sock.close rescue nil # might be closed already
-		self.client_sock.close rescue nil # might be closed already
-		self.threads.each {|t| t.kill}
+		begin
+			self.server_sock.close
+			self.client_sock.close
+			self.server_sock = nil
+			self.client_sock = nil
+			self.threads.each {|t| t.kill}
+		rescue
+			nil
+		end
 	end
 
 	#
@@ -242,7 +248,12 @@ class Client
 		else
 			return []
 		end
-		data.scan(/.{1,512}/)
+		data_blocks = data.scan(/.{1,#{block_size}}/m)
+		# Drop any trailing empty blocks
+		if data_blocks.size > 1 and data_blocks.last.empty?
+			data_blocks.pop
+		end
+		return data_blocks
 	end
 
 	def send_write_request(&block)

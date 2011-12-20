@@ -148,6 +148,20 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	# Run in case something untoward happend with the connection and the
+	# client object didn't get stopped on its own. This can happen with
+	# transfers that got interrupted or malformed (like sending a 0 byte
+	# file).
+	def cleanup
+		if @tftp_client and @tftp_client.respond_to? :complete
+			while not @tftp_client.complete
+				select(nil,nil,nil,1)
+				vprint_status "Cleaning up the TFTP client ports and threads."
+				@tftp_client.stop
+			end
+		end
+	end
+
 	def run_upload
 		print_status "Sending '#{file}' to #{rhost}:#{rport} as '#{remote_file}'"
 		ret = @tftp_client.send_write_request { |msg| print_tftp_status(msg) }
