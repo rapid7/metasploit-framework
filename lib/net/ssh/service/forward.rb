@@ -214,6 +214,10 @@ module Net; module SSH; module Service
           session.stop_listening_to(ch[:socket])
         end
 
+        channel.on_eof do |ch|
+          ch.close
+        end
+
         channel.on_process do |ch|
           if ch[:socket].closed?
             ch.info { "#{type} forwarded connection closed" }
