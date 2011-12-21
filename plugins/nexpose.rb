@@ -305,7 +305,7 @@ class Plugin::Nexpose < Msf::Plugin
 			opts = Rex::Parser::Arguments.new(
 				"-h"   => [ false,  "This help menu"],
 				"-t"   => [ true,   "The scan template to use (default:pentest-audit options:full-audit,exhaustive-audit,discovery,aggressive-discovery,dos-audit)"],
-				"-c"   => [ true,   "Specify credentials to use against these targets (format is type:user:pass[@host[:port]]"],
+				"-c"   => [ true,   "Specify credentials to use against these targets (format is type:user:pass"],
 				"-n"   => [ true,   "The maximum number of IPs to scan at a time (default is 32)"],
 				"-s"   => [ true,   "The directory to store the raw XML files from the Nexpose instance (optional)"],
 				"-P"   => [ false,  "Leave the scan data on the server when it completes (this counts against the maximum licensed IPs)"],
@@ -343,7 +343,7 @@ class Plugin::Nexpose < Msf::Plugin
 				when "-s"
 					opt_savexml = val
 				when "-c"
-					if (val =~ /^([^:]+):([^:]+):([^:]+)/)
+					if (val =~ /^([^:]+):([^:]+):(.+)/)
 						type, user, pass = [ $1, $2, $3 ]
 						newcreds = Nexpose::AdminCredentials.new
 						newcreds.setCredentials(type, nil, nil, user, pass, nil)
