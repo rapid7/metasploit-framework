@@ -18,13 +18,17 @@ class Metasploit3 < Msf::Auxiliary
 				This module sends a query to the port 264/TCP on CheckPoint Firewall-1
 				firewalls to obtain the firewall name and management station
 				(such as SmartCenter) name via a pre-authentication topology request.
+				Note that the SecuriTeam reference listed here is not the same vulnerabilty, but it
+				does discus the same protocol and is somewhat related to this information
+				disclosure.
 			},
 			'Author'         => [ 'patrick' ],
+			'DisclosureDate' => 'Dec 14 2011', # Looks like this module is first real reference
 			'References'     =>
 				[
 					# patrickw - None? Stumbled across, probably an old bug/feature but unsure.
-					[ 'URL', 'http://www.osisecurity.com.au/advisories/' ],
-					[ 'URL', 'http://www.securiteam.com/securitynews/5HP0D2A4UC.html' ] # Related?
+					[ 'URL', 'http://www.osisecurity.com.au/advisories/' ], # Advisory coming soon, placeholder
+					[ 'URL', 'http://www.securiteam.com/securitynews/5HP0D2A4UC.html' ] # Related-ish
 				]
 		))
 
