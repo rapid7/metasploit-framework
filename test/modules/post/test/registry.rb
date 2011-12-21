@@ -1,6 +1,6 @@
 
 ##
-# $Id$
+# $Id: registry.rb 13739 2011-09-16 20:32:22Z egypt $
 ##
 
 ##
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{ This module will test registry code used in post modules},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'kernelsmith'],
-				'Version'       => '$Revision$',
+				'Version'       => '$Revision: 13739 $',
 				'Platform'      => [ 'windows' ]
 			))
 		register_options(
@@ -108,11 +108,21 @@ class Metasploit3 < Msf::Post
 
 		print_status()
 		print_status("Running registry_getvalinfo for deleted key:#{datastore['KEY']}\\test, val:test")
-		print_status("NOTE: this OUGHT to return nil")
-		results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
-		print_status("RESULTS (Expecting nil):  #{results.class} #{results.inspect}")
-		print_error("reported failure") if results
-		print_status("nil is correct.  sweet.")  if !results
+		print_status("NOTE: this OUGHT to throw an error which this test will catch")
+		errored_out = false
+		error_type = Rex::Post::Meterpreter::RequestError
+		
+		begin
+			results = registry_getvalinfo("#{datastore['KEY']}\\test", "test")
+		rescue error_type => e
+			errored_out = true
+		end
+		
+		print_status("RESULTS (Expecting to catch #{error_type.to_s}):")
+		if errored_out
+			print_good("Good, the error was:  #{e.class} #{e.to_s}")
+		else print_error("Failed, did not catch an #{error_type.to_s}")
+		end
 		
 		print_status()
 		print_status("TESTING:  registry_enumkeys")
