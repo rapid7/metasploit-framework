@@ -50,19 +50,25 @@ module Controllers
 		def [](x)
 			# Support indexing by both names and number
 			if x.class == String
-				find_by_vmid(x)
+				find_by_hostname(x)
 			else
 				return @vms[x]
 			end
 		end
 
-		def find_by_vmid(vmid)
+		def find_by_hostname(vmid)
 			@vms.each do |vm|
 				if (vm.hostname.to_s.downcase == vmid.to_s.downcase)
 					return vm
 				end
 			end
-			return nil
+		return nil
+		end
+
+		def find_by_tag(tag_name)
+			tagged_vms = []
+		 	@vms.each { |vm| tagged_vms << vm if vm.tagged?(tag_name) }
+		return tagged_vms
 		end
 
 		def add_vm(vmid, location=nil, os=nil, tools=nil, credentials=nil, user=nil, host=nil)			
@@ -75,7 +81,7 @@ module Controllers
 		end
 
 		def remove_by_vmid(vmid)
-			@vms.delete(self.find_by_vmid(vmid))
+			@vms.delete(self.find_by_hostname(vmid))
 		end	
 
 		def from_file(file)
@@ -107,6 +113,14 @@ module Controllers
 			end
 		false
 		end
+
+		def includes_hostname?(hostname)
+			@vms.each do |vm|
+				return true if (vm.hostname == hostname)
+			end
+		false
+		end
+
 
 		def build_from_dir(driver_type, dir, clear=false)
 		
@@ -229,7 +243,7 @@ module Controllers
 
 		def running?(vmid)
 			if includes_vmid?(vmid)
-				return self.find_by_vmid(vmid).running?
+				return self.find_by_hostname(vmid).running?
 			end
 			return false 
 		end

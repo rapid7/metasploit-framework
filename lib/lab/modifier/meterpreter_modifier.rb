@@ -1,19 +1,15 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..'))
 
-module Lab
-module Modifier
-module Meterpreter
 
-end
-end
-end
+
 
 
 # This allows us to override the default way of running commands
 # Currently useful for the esx controller
 
 module Lab
-class Vm
+module Modifier
+module Meterpreter
 	
 	attr_accessor :framework
 	attr_accessor :session
@@ -165,3 +161,5 @@ class Vm
 	
 end
 end
+end
+
