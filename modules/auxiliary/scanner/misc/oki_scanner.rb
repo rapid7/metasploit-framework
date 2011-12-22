@@ -5,6 +5,8 @@
 # http://metasploit.com/framework/
 ##
 
+# TODO: Split this module into two seperate SNMP and HTTP modules.
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
@@ -14,12 +16,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'OKI Printer Scanner',
+			'Name'          => 'OKI Printer Default Login Credential Scanner',
 			'Description'   => %q{
-				Look for OKI printers on the network and try to connect to them as default
-				admin credentials. By default OKI network printers use the last six digits of
-				the MAC as admin password this addon will search for OKI printers on the network
-				and try to connect to them with the default password
+				This module scans for OKI printers via SNMP, then tries to connect to found devices
+				with vendor default administrator credentials via HTTP authentication. By default, OKI 
+				network printers use the last six digits of the MAC as admin password.
 			},
 			'Author'        => 'antr6X <anthr6x[at]gmail.com>',
 			'License'       => MSF_LICENSE
