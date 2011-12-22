@@ -116,7 +116,7 @@ class RemoteWorkstationDriver < VmDriver
 		end
 	end
 	
-	def copy_from(from, to)
+	def copy_from_guest(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
 		
@@ -133,7 +133,7 @@ class RemoteWorkstationDriver < VmDriver
 		end
 	end
 
-	def copy_to(from, to)
+	def copy_to_guest(from, to)
 	
 		from = filter_input(from)
 		to = filter_input(to)
@@ -165,9 +165,8 @@ class RemoteWorkstationDriver < VmDriver
 		directory = filter_input(directory)
 	
 		if @tools
-			emote_system_command("ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
+			remote_system_command("ssh #{@user}@#{@host} vmrun -T ws -gu #{@vm_user} -gp #{@vm_pass} " +
 					"createDirectoryInGuest \'#{@location}\' \'#{directory}\' nogui")
-			system_command(vmrunstr)
 		else
 			raise "Not Implemented - Install VmWare Tools"
 		end
@@ -178,17 +177,21 @@ class RemoteWorkstationDriver < VmDriver
 	end
 
 	def running?
-		## Get running VMs
-		running = `ssh #{@user}@#{@host} \"vmrun list nogui\"`
-		running_array = running.split("\n")
-		running_array.shift
 
-		running_array.each do |vmx|
-			if vmx.to_s == @location.to_s
-				return true
+		# Get running VMs
+		running = remote_system_command("vmrun list nogui")
+		
+		if running
+			running_array = running.split("\n")
+			running_array.shift
+
+			running_array.each do |vmx|
+				if vmx.to_s == @location.to_s
+					return true
+				end
 			end
 		end
-
+		
 		false
 	end
 

@@ -107,7 +107,6 @@ class WorkstationDriver < VmDriver
 				# Ghettohack!
 				string = File.open(output_file,"r").read
 				`rm #{output_file}`
-				
 			else
 				raise "zomgwtfbbqnotools"
 			end	
@@ -115,7 +114,7 @@ class WorkstationDriver < VmDriver
 	return string
 	end
 	
-	def copy_from(from, to)
+	def copy_from_guest(from, to)
 		from = filter_input(from)
 		to = filter_input(to)
 		if @tools
@@ -127,7 +126,8 @@ class WorkstationDriver < VmDriver
 		system_command(vmrunstr)
 	end
 
-	def copy_to(from, to)
+	def copy_to_guest(from, to)
+
 		from = filter_input(from)
 		to = filter_input(to)
 		if @tools
