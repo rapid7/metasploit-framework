@@ -15,6 +15,9 @@ module DHCP
 #
 # extended to support testing/exploiting CVE-2011-0997
 # - apconole@yahoo.com
+#
+# extended to support Mac clients
+# - snare / snare@ragequ.it
 ##
 
 class Server
@@ -94,6 +97,10 @@ class Server
 		self.pxealtconfigfile = "update0"
 		self.pxepathprefix = ""
 		self.pxereboottime = 2000
+
+		if (hash['ROOTPATH'])
+			self.root_path = hash['ROOTPATH']
+		end
 	end
 
 	def report(&block)
@@ -126,7 +133,8 @@ class Server
 		allowed_options = [
 			:serveOnce, :pxealtconfigfile, :servePXE, :relayip, :leasetime, :dnsserv,
 			:pxeconfigfile, :pxepathprefix, :pxereboottime, :router,
-			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE
+			:give_hostname, :served_hostname, :served_over, :serveOnlyPXE,
+			:vendor_class_id, :vendor_encap_opts, :root_path
 		]
 
 		opts.each_pair { |k,v|
@@ -155,6 +163,7 @@ class Server
 	attr_accessor :current_ip, :start_ip, :end_ip, :broadcasta, :netmaskn
 	attr_accessor :servePXE, :pxeconfigfile, :pxealtconfigfile, :pxepathprefix, :pxereboottime, :serveOnlyPXE
 	attr_accessor :give_hostname, :served_hostname, :served_over, :reporter
+	attr_accessor :vendor_class_id, :vendor_encap_opts, :root_path
 
 protected
 
@@ -220,6 +229,7 @@ protected
 
 		messageType = 0
 		pxeclient = false
+		resType = "Unknown"
 
 		# options parsing loop
 		spot = 240
@@ -266,6 +276,7 @@ protected
 		pkt << "\x35\x01" #Option
 
 		if messageType == DHCPDiscover  #DHCP Discover - send DHCP Offer
+			resType = "DHCP Offer"
 			pkt << [DHCPOffer].pack('C')
 			# check if already served an Ack based on hw addr (MAC address)
 			# if serveOnce & PXE, don't reply to another PXE request 
@@ -275,6 +286,7 @@ protected
 				return
 			end
 		elsif messageType == DHCPRequest #DHCP Request - send DHCP ACK
+			resType = "DHCP ACK"
 			pkt << [DHCPAck].pack('C')
 			# now we ignore their discovers (but we'll respond to requests in case a packet was lost)
 			if ( self.served_over != 0 )
@@ -302,7 +314,7 @@ protected
 			else
 				# We are handing out an IP and our PXE attack
 				if(self.reporter)
-					self.reporter.call(buf[28..43],self.ipstring)
+					self.reporter.call(buf[28..43],self.ipstring, resType)
 				end
 				pkt << dhcpoption(OpPXEConfigFile, self.pxeconfigfile)
 			end
@@ -317,6 +329,19 @@ protected
 				pkt << dhcpoption(OpHostname, send_hostname)
 			end
 		end
+
+		if (self.vendor_class_id)
+			pkt << dhcpoption(OpVendorClassID, self.vendor_class_id)
+		end
+
+		if (self.vendor_encap_opts)
+			pkt << dhcpoption(OpVendorEncapOpts, self.vendor_encap_opts)
+		end
+
+		if (self.root_path)
+			pkt << dhcpoption(OpRootPath, self.root_path)
+		end
+
 		pkt << dhcpoption(OpEnd)
 
 		pkt << ("\x00" * 32) #padding
