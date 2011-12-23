@@ -10,6 +10,8 @@
 require 'rapid7/nexpose'
 
 module Msf
+	Nexpose_yaml = "#{Msf::Config.get_config_root}/nexpose.yaml" #location of the nexpose.yml containing saved nexpose creds
+
 class Plugin::Nexpose < Msf::Plugin
 	class NexposeCommandDispatcher
 		include Msf::Ui::Console::CommandDispatcher
@@ -21,6 +23,7 @@ class Plugin::Nexpose < Msf::Plugin
 		def commands
 			{
 				'nexpose_connect'        => "Connect to a running Nexpose instance ( user:pass@host[:port] )",
+				'nexpose_save'           => "Save credentials to a  Nexpose instance",
 				'nexpose_activity'       => "Display any active scan jobs on the Nexpose instance",
 
 				'nexpose_scan'           => "Launch a Nexpose scan against a specific IP range and import the results",
@@ -62,8 +65,49 @@ class Plugin::Nexpose < Msf::Plugin
 			true
 		end
 
+		def cmd_nexpose_save(*args)
+			#if we are logged in, save session details to nexpose.yaml
+			if args[0] == "-h"
+				print_status("Usage: ")
+				print_status("       nexpose_save")
+				return
+			end
+
+			if args[0]
+				print_status("Usage: ")
+				print_status("       nexpose_save")
+				return
+			end
+
+			group = "default"
+
+			if ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
+				config = {"#{group}" => {'username' => @user, 'password' => @pass, 'server' => @host, 'port' => @port}}
+				File.open("#{Nexpose_yaml}", "w+") do |f|
+					f.puts YAML.dump(config)
+				end
+				print_good("#{Nexpose_yaml} created.")
+			else
+				print_error("Missing username/password/server/port - relogin and then try again.")
+				return
+			end
+		end
+
 		def cmd_nexpose_connect(*args)
 			return if not nexpose_verify_db
+
+			if ! args[0]
+				if File.exist?("#{Nexpose_yaml}")
+					lconfig = YAML.load_file("#{Nexpose_yaml}")
+					@user = lconfig['default']['username']
+					@pass = lconfig['default']['password']
+					@host = lconfig['default']['server']
+					@port = lconfig['default']['port']
+					@sslv = "ok"
+					nexpose_login
+					return
+				end
+			end
 
 			if(args.length == 0 or args[0].empty? or args[0] == "-h")
 				print_status("Usage: ")
@@ -73,18 +117,18 @@ class Plugin::Nexpose < Msf::Plugin
 				return
 			end
 
-			user = pass = host = port = sslv = nil
+			@user = @pass = @host = @port = @sslv = nil
 
 			case args.length
 			when 1,2
 				cred,targ = args[0].split('@', 2)
-				user,pass = cred.split(':', 2)
+				@user,@pass = cred.split(':', 2)
 				targ ||= '127.0.0.1:3780'
-				host,port = targ.split(':', 2)
+				@host,@port = targ.split(':', 2)
 				port ||= '3780'
-				sslv = args[1]
+				@sslv = args[1]
 			when 4,5
-				user,pass,host,port,sslv = args
+				@user,@pass,@host,@port,@sslv = args
 			else
 				print_status("Usage: ")
 				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
@@ -92,9 +136,12 @@ class Plugin::Nexpose < Msf::Plugin
 				print_status("       nexpose_connect username password host port <ssl-confirm>")
 				return
 			end
+			nexpose_login
+		end
 
+		def nexpose_login
 
-			if ! ((user and user.length > 0) and (host and host.length > 0) and (port and port.length > 0 and port.to_i > 0) and (pass and pass.length > 0))
+			if ! ((@user and @user.length > 0) and (@host and @host.length > 0) and (@port and @port.length > 0 and @port.to_i > 0) and (@pass and @pass.length > 0))
 				print_status("Usage: ")
 				print_status("       nexpose_connect username:password@host[:port] <ssl-confirm>")
 				print_status("        -OR- ")
@@ -102,7 +149,7 @@ class Plugin::Nexpose < Msf::Plugin
 				return
 			end
 
-			if(host != "localhost" and host != "127.0.0.1" and sslv != "ok")
+			if(@host != "localhost" and @host != "127.0.0.1" and @sslv != "ok")
 				print_error("Warning: SSL connections are not verified in this release, it is possible for an attacker")
 				print_error("         with the ability to man-in-the-middle the Nexpose traffic to capture the Nexpose")
 				print_error("         credentials. If you are running this on a trusted network, please pass in 'ok'")
@@ -119,8 +166,8 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 
 			begin
-				print_status("Connecting to Nexpose instance at #{host}:#{port} with username #{user}...")
-				nsc = ::Nexpose::Connection.new(host, user, pass, port)
+				print_status("Connecting to Nexpose instance at #{@host}:#{@port} with username #{@user}...")
+				nsc = ::Nexpose::Connection.new(@host, @user, @pass, @port)
 				nsc.login
 			rescue ::Nexpose::APIError => e
 				print_error("Connection failed: #{e.reason}")
@@ -389,7 +436,7 @@ class Plugin::Nexpose < Msf::Plugin
 			end
 
 			opt_ranges = opt_ranges.join(' ')
-			
+
 			if(opt_ranges.strip.empty?)
 				print_line("Usage: nexpose_scan [options] <Target IP Ranges>")
 				print_line(opts.usage)
@@ -555,12 +602,12 @@ class Plugin::Nexpose < Msf::Plugin
 		#
 		def nexpose_vuln_lookup(doc, vid, refs, host, serv=nil)
 			doc.elements.each("/NexposeReport/VulnerabilityDefinitions/vulnerability[@id = '#{vid}']]") do |vulndef|
-				
+
 				title = vulndef.attributes['title']
 				pciSeverity = vulndef.attributes['pciSeverity']
 				cvss_score = vulndef.attributes['cvssScore']
 				cvss_vector = vulndef.attributes['cvssVector']
-				
+
 				vulndef.elements['references'].elements.each('reference') do |ref|
 					if ref.attributes['source'] == 'BID'
 						refs[ 'BID-' + ref.text ] = true
@@ -571,20 +618,20 @@ class Plugin::Nexpose < Msf::Plugin
 						refs[ 'MSB-MS-' + ref.text ] = true
 					end
 				end
-				
+
 				refs[ 'NEXPOSE-' + vid.downcase ] = true
-				
+
 				vuln = framework.db.find_or_create_vuln(
 					:host => host,
 					:service => serv,
 					:name => 'NEXPOSE-' + vid.downcase,
 					:data => title)
-				
+
 				rids = []
 				refs.keys.each do |r|
 					rids << framework.db.find_or_create_ref(:name => r)
 				end
-				
+
 				vuln.refs << (rids - vuln.refs)
 			end
 		end
@@ -625,4 +672,3 @@ class Plugin::Nexpose < Msf::Plugin
 	end
 end
 end
-
