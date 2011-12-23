@@ -20,15 +20,14 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 **Proof of concept:** http://www.securiteam.com/exploits/5VP0D1FI0Y.html
 
-### [CVE-2008-2161](http://www.cvedetails.com/cve/CVE-2008-2161)
+### [CVE-2006-5276](http://www.cvedetails.com/cve/CVE-2006-5276)
 
-**Description:** Buffer overflow in TFTP Server SP 1.4 and 1.5 on Windows, and possibly other versions, allows remote attackers to execute arbitrary code via a long TFTP error packet. 
+**Description:** A buffer overflow in the Snort IDS DCE/RPC Reassembly preprocessor can allow remote code execution in the context of the Snort service.
 
-**Affected Software:** [Open TFTP Server](http://sourceforge.net/scm/?type=cvs&group_id=162512), versions 1.4 and 1.5. _Note: This software is proving more difficult to locate than you might expect._
+**Affected Software:** [Snort v2.6.1](http://cvs.snort.org/viewcvs.cgi/snort/?only_with_tag=SNORT_v2_6_1), SourceFire IDS versions 4.1, 4.5, and 4.6
+**Module Type:** exploits/linux/ids
 
-**Module Type:** exploits/windows/tftp (perhaps multi/tftp as it's cross-platform)
-
-**Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/29111.pl
+**Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/22616-linux.py
 
 ## Client Exploits
 
@@ -51,6 +50,17 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 **Module Type:** exploits/linux/browser
 
 **Proof of concept:** http://www.securityfocus.com/bid/32896/exploit
+
+### [CVE-2009-0388](http://www.cvedetails.com/cve/CVE-2009-0388)
+
+**Description:** Multiple signed integer bugs in both UltraVNC and TightVNC clients can allow malicious VNC servers to execute arbitrary code on a victim's client system.
+
+**Affected Software:** [UltraVNC](http://ultravnc.svn.sourceforge.net/viewvc/ultravnc/) version 1.0.2, [TightVNC](http://download.cnet.com/TightVNC/3000-7240_4-10739369.html) version 1.3.9
+
+**Module Type:** exploits/windows/vnc
+
+**Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/33568-desi.py
+
 
 ## The Usual Warnings
 
