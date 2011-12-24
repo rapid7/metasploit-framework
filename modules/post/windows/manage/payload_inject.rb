@@ -198,9 +198,9 @@ class Metasploit3 < Msf::Post
 				host_process.memory.write(mem, raw)
 				host_process.thread.create(mem, 0)
 				print_good("Successfully injected payload in to process: #{pid}")
-			rescue::Exception => e
+			rescue ::Exception => e
 				print_error("Failed to Inject Payload to #{pid}!")
-				print_error(e)
+				print_error(e.to_s)
 			end
 		end
 	end
