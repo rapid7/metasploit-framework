@@ -62,11 +62,6 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 
-		if res.body == nil
-			print_error("Bad response")
-			return
-		end
-
 		doc = REXML::Document.new		
 
 		begin
@@ -92,7 +87,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		results = elements[0]
  		
-		if (results == nil)
+		if results == nil
 			print_error("No results returned")
 			return
 		end
@@ -166,7 +161,7 @@ class Metasploit3 < Msf::Auxiliary
                 	        'headers'       => header
         	        }, 25)
 
-                	if res == nil || res.body == nil
+                	if res == nil 
 				print_error ("Server down or bad response")
 				return
 			end
@@ -191,7 +186,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			results = elements[0]
 
-			if (results == nil)
+			if results == nil
 				print_status("No results returned")
 				
 			else
@@ -242,7 +237,7 @@ class Metasploit3 < Msf::Auxiliary
                 	        'headers'       => header
                 	}, 25)
 
-			if res == nil || res.body == nil
+			if res == nil 
 				print_error("Server down or bad response")
 				return
 			end
@@ -307,7 +302,7 @@ class Metasploit3 < Msf::Auxiliary
                 	        'headers'       => header
                 	}, 25)
 
-			if res == nil || res.body == nil
+			if res == nil 
 				print_error("Server down or response broken")
 				return
 			end                	
@@ -392,7 +387,7 @@ class Metasploit3 < Msf::Auxiliary
 	                        'headers'       => header
 	                }, 25)
 
-			if res == nil || res.body == nil
+			if res == nil 
 				print_error("Server down or bad response")
 				return
 			end
@@ -479,7 +474,7 @@ class Metasploit3 < Msf::Auxiliary
 				'headers'	=> header
 			}, 25)
 
-			if res == nil || res.body == nil
+			if res == nil 
 				print_error("Server down or bad response")
 				return
 			end
@@ -555,7 +550,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		print_good("Storing loot as: company_#{datastore['CW_ID']}")
+		print_good("Storing loot as: company_#{datastore['CW_ID']}.txt")
 
 		store_loot("corpwatch_api.#{datastore['CW_ID']}_info", "text/plain", nil, loot, "company_#{datastore['CWID']}.txt", "#{datastore["CW_ID"]} Specific Information")
 

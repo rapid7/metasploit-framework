@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
                 }, 25)
 
 		if not res 
-			print_error("response or body nil")
+			print_error("Server down, bad response")
 			return
 		end
                 
