@@ -139,13 +139,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Sector: " + sector)
 			print_status("Source Type: " + source)
 
-			puts "\n"
+			print_line("")
 			print_status("Address and Location Information\n-----------------------------")
 			print_status("Full Address: " + address)
 			print_status("Country Code: " + country)
 			print_status("Subdivision: " + subdiv)
 
-			puts "\n"
+			print_line("")
 			print_status("Parent and Children Information\n---------------------------")
 			print_status("Top Parent ID: " + top_parent)
 			print_status("Number of parent companies: " + num_parents)
@@ -215,7 +215,7 @@ class Metasploit3 < Msf::Auxiliary
 					loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
 					loot << "\n\n\n"
 
-					puts "\n\n"
+					print_line("")
 					print_status("Detailed Location Information\n----------------------------------")
 					print_status("Country Code: " + country_code)
 					print_status("Subdivision: " + subdiv_code)
@@ -287,7 +287,7 @@ class Metasploit3 < Msf::Auxiliary
 					loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
 					loot << "\n\n\n"
 
-					puts "\n\n"
+					print_line("\n")
 					print_status("Detailed Name Information\n---------------------------")
 					print_status("Name: " + name)
 					print_status("Source: " + source)
@@ -362,7 +362,7 @@ class Metasploit3 < Msf::Auxiliary
 					loot << ("\nIs a filer: " + (is_filer = grab_text(e, "company_is_filer")))
 					loot << "\n\n\n"
 
-					puts "\n\n"
+					print_line("\n")
 					print_status("Detailed Filing Information\n---------------------")
 					print_status("Central Index Key: " + cik)
 					print_status("Year filed: " + year_filed)
@@ -441,7 +441,7 @@ class Metasploit3 < Msf::Auxiliary
 				        	loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
 						loot << "\n\n\n"
 
-						puts "\n\n"
+						print_line("\n")
 					        print_status("Child Information\n--------------------")
 					        print_status("CorpWatch ID: " + cwid)
 					        print_status("Central Index Key (CIK): " + cik)
@@ -451,13 +451,13 @@ class Metasploit3 < Msf::Auxiliary
 					        print_status("Sector: " + sector)
 					        print_status("Source Type: " + source)
 	
-					        puts "\n"
+					        print_line("")
 					        print_status("Address and Location Information\n-----------------------------")
 					        print_status("Full Address: " + address)
 					        print_status("Country Code: " + country)
 					        print_status("Subdivision: " + subdiv)
 	
-					        puts "\n"
+					        print_line("")
 					        print_status("Parent and Children Information\n---------------------------")
 					        print_status("Top Parent ID: " + top_parent)
 					        print_status("Number of parent companies: " + num_parents)
@@ -532,7 +532,7 @@ class Metasploit3 < Msf::Auxiliary
 					loot << "\n\n\n"
 					
 					
-					puts "\n\n"
+					print_line("\n")
 					print_status("Company History for year #{history_year}\n--------------------------------")
 					print_status("CorpWatch ID: " + cwid)
 					print_status("Central Index Key: "  + cik)

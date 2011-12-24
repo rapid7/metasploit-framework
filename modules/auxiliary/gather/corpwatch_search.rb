@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 			sector = grab_text(e, "sector_name")
 			industry = grab_text(e, "industry_name")
 
-			puts "\n\n"
+			print_line("\n")
 			print_status("Company Information\n---------------------------------")
 			print_status("CorpWatch (cw) ID): " + cwid)
 			print_status("Company Name: " + company_name)
