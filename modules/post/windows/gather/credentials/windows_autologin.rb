@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		elsif do1 != '' and  du1 != '' and dp1 != ''
 			has_al = 1
-			creds << [du1,dp1, d01]
+			creds << [du1,dp1, do1]
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		end
 
