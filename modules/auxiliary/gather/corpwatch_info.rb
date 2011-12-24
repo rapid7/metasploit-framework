@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		url = "api.corpwatch.org"
+		loot = ""
 		uri = "/"
 		header = { 'User-Agent' => "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)"}		
 
@@ -56,36 +56,79 @@ class Metasploit3 < Msf::Auxiliary
 			'method'	=> 'GET',
 			'headers'	=> header
 		}, 25)
-		
-		doc = REXML::Document.new(res.body)
-		root = doc.root
 
-		results = root.get_elements("result")[0]
-
- 		
-		if (results == nil)
-			print_status("No results returned")
+		if res == nil
+			print_error("Server down, no response.")
 			return
 		end
 
-		results = results.get_elements("companies")[0]
+		if res.body == nil
+			print_error("Bad response")
+			return
+		end
+
+		doc = REXML::Document.new		
+
+		begin
+			doc = REXML::Document.new(res.body)
+		rescue
+			print_error("Malformed XML or broken response")
+			return
+		end
+
+		root = doc.root
+
+		if doc.root == nil
+			print_error("No document root, no results returned")
+			return
+		end
+
+		elements = root.get_elements("result")
+	
+		if  elements == nil || elements.length == 0
+			print_error("No results returned")
+			return
+		end
+
+		results = elements[0]
+ 		
+		if (results == nil)
+			print_error("No results returned")
+			return
+		end
+
+		elements = results.get_elements("companies")
+
+		if elements == nil || elements.length == 0
+			print_error("No companies returned")
+			return
+		end
+
+		results = elements[0]
+
+		if results == nil || results.elements == nil
+			print_error("No results returned")
+			return
+		end
 
 		results.elements.each { |e|
-			cwid = grab_text(e, "cw_id")
-			cik = grab_text(e, "cik")
-			name = grab_text(e, "company_name")
-			irsno = grab_text(e, "irs_number")
-			sic_code = grab_text(e, "sic_code")
-			sector = grab_text(e, "sector_name")
-			source = grab_text(e, "source_type")
-			address = grab_text(e, "raw_address")
-			country = grab_text(e, "country_code")
-			subdiv = grab_text(e, "subdiv_code")
-			top_parent = grab_text(e, "top_parent_id")
-			num_parents = grab_text(e, "num_parents")
-			num_children = grab_text(e, "num_children")
-			max_year = grab_text(e, "max_year")
-			min_year = grab_text(e, "min_year")
+			loot << ("CorpWatchID: " + (cwid = grab_text(e, "cw_id")))
+			loot << ("\nCentral Index Key " + (cik = grab_text(e, "cik")))
+			loot << ("\nName: " + (name = grab_text(e, "company_name")))
+			loot << ("\nIRS Number: " + (irsno = grab_text(e, "irs_number")))
+			loot << ("\nSIC Code: " + (sic_code = grab_text(e, "sic_code")))
+			loot << ("\nSector: " + (sector = grab_text(e, "sector_name")))
+			loot << ("\nSource: " + (source = grab_text(e, "source_type")))
+			loot << ("\nAddress: " + (address = grab_text(e, "raw_address")))
+			loot << ("\nCountry: " + ( country = grab_text(e, "country_code")))
+			loot << ("\nSub-Division: " + (subdiv = grab_text(e, "subdiv_code")))
+			loot << ("\nTop Parent CW_ID: " + (top_parent = grab_text(e, "top_parent_id")))
+			loot << ("\nNumber of parents: " + (num_parents = grab_text(e, "num_parents")))
+			loot << ("\nNumber of children: " + (num_children = grab_text(e, "num_children")))
+			loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
+			loot << ("\nMinimum searchable year: "+ (min_year = grab_text(e, "min_year")))
+			loot << "\n\n\n"
+			
 
 			print_status("Basic Information\n--------------------")
 			print_status("CorpWatch ID: " + cwid)
@@ -114,19 +157,39 @@ class Metasploit3 < Msf::Auxiliary
 
 		
 
-		if datastore['GET_LOCATIONS'] == true
+		if datastore['GET_LOCATIONS']
+
 
                 	res = send_request_raw({
                         	'uri'           => uri + "/locations.xml",
                         	'method'        => 'GET',
                 	        'headers'       => header
         	        }, 25)
-                
-	                doc = REXML::Document.new(res.body)
+
+                	if res == nil || res.body == nil
+				print_error ("Server down or bad response")
+				return
+			end
+
+			doc = REXML::Document.new
+
+			begin
+				doc = REXML::Document.new(res.body)
+			rescue
+				print_error("Query returned bad or poorly formatted data.")
+				return
+			end
 
 			root = doc.root
 			
-			results = root.get_elements("result")[0]
+			elements = root.get_elements("result")
+				
+			if elements == nil || elements.length == 0
+				print_error("no results returned")
+				return
+			end
+
+			results = elements[0]
 
 			if (results == nil)
 				print_status("No results returned")
@@ -137,20 +200,21 @@ class Metasploit3 < Msf::Auxiliary
 
 
 				results.elements.each { |e|
-					cwid = grab_text(e, "cw_id")
-					country_code = grab_text(e, "country_code")
-					subdiv_code = grab_text(e, "subdiv_code")
-					type = grab_text(e, "type")
-					full_address = grab_text(e, "raw_address")
-					street1 = grab_text(e, "street_1")
-					street2 = grab_text(e, "street_2")
-					city = grab_text(e, "city")
-					state = grab_text(e, "state")
-					zip = grab_text(e, "postal_code")
-					date_valid = grab_text(e, "date")
-					max_year = grab_text(e, "max_year")
-					min_year = grab_text(e, "min_year")
-				
+					loot << ("CorpWatch ID: " + (cwid = grab_text(e, "cw_id")))
+					loot << ("\nCountry code: " + (country_code = grab_text(e, "country_code"))
+					loot << ("\nSubdivision code: " + (subdiv_code = grab_text(e, "subdiv_code")))
+					loot << ("\nType: " + (type = grab_text(e, "type")))
+					loot << ("\nFull address: " + full_address = grab_text(e, "raw_address")))
+					loot << ("\nStreet 1: " + (street1 = grab_text(e, "street_1")))
+					loot << ("\nStreet 2: " + (street2 = grab_text(e, "street_2")))
+					loot << ("\nCity: " + (city = grab_text(e, "city")))
+					loot << ("\nState: " + (state = grab_text(e, "state")))
+					loot << ("\nZIP: " + (zip = grab_text(e, "postal_code")))
+					loot << ("\nDate valid: " + (date_valid = grab_text(e, "date")))
+					loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
+					loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
+					loot << "\n\n\n"
+
 					puts "\n\n"
 					print_status("Detailed Location Information\n----------------------------------")
 					print_status("Country Code: " + country_code)
@@ -170,35 +234,58 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		if datastore['GET_NAMES'] == true
+		if datastore['GET_NAMES']
 
                 	res = send_request_raw({
                 	        'uri'           => uri + "/names.xml",
                 	        'method'        => 'GET',
                 	        'headers'       => header
                 	}, 25)
-                	
-                	doc = REXML::Document.new(res.body)
+
+			if res == nil || res.body == nil
+				print_error("Server down or bad response")
+				return
+			end
+		
+			doc = REXML::Document.new
+			
+			begin                	
+                		doc = REXML::Document.new(res.body)
+			rescue
+				print_error("Query returned bad or poorly formatted XML")
+				return
+			end
 			
 			root = doc.root
+		
+			if root == nil
+				print_error("document root nil")
+				return
+			end
 
-			results = root.get_elements("result")[0]
+			elements = root.get_elements("result")
 
+			if elements == nil || elements.length == 0
+				print_error("Returned no or broken results")
+				return
+			end
 
-			if (results == nil)
+			results = elements[0]
+
+			if results == nil
 				print_status("No results returned")
-			
+				
 			else
 	
 				results = results.get_elements("names")[0]
 
 				results.elements.each { |e|
-					name = grab_text(e, "company_name")
-					source = grab_text(e, "source")
-					date = grab_text(e, "date")
-					max_year = grab_text(e, "max_year")
-					min_year = grab_text(e, "min_year")
-			
+					loot << ("Name: " + (name = grab_text(e, "company_name")))
+					loot << ("\nSource: " + (source = grab_text(e, "source")))
+					loot << ("\nDate: " + (date = grab_text(e, "date")))
+					loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
+					loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
+					loot << "\n\n\n"
 
 					puts "\n\n"
 					print_status("Detailed Name Information\n---------------------------")
@@ -212,25 +299,52 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		if datastore['GET_FILINGS'] == true
+		if datastore['GET_FILINGS']
 
                 	res = send_request_raw({
                 	        'uri'           => uri + "/filings.xml",
                 	        'method'        => 'GET',
                 	        'headers'       => header
                 	}, 25)
-                	
-                	doc = REXML::Document.new(res.body)
+
+			if res == nil || res.body == nil
+				print_error("Server down or response broken")
+				return
+			end                	
+
+			doc = REXML::Document.new
+	
+			begin
+                		doc = REXML::Document.new(res.body)
+			rescue
+				print_error("Query return bad or broken data")
+				return
+			end
+
 			root = doc.root
-			
-			results = root.get_elements("result")[0]
+
+			elements = root.get_elements("result")			
+
+			if elements == nil || elements.length == 0
+				print_error("Results were either broken or not returned")
+				return
+			end
+
+			results = elements[0]
 
 			if results == nil
 				print_status("No results returned")
 			
 			else
 
-			results = results.get_elements("filings")[0]
+			elements = results.get_elements("filings")
+
+			if elements == nil
+				print_error("Results broken or not returned")
+				return
+			end
+
+			results = elements[0]
 
 			if results == nil
 				print_status("No filings found")
@@ -238,14 +352,15 @@ class Metasploit3 < Msf::Auxiliary
 			else
 
 				results.elements.each { |e|
-					cik = grab_text(e, "cik")
-					year_filed = grab_text(e, "year")
-					quarter_filed = grab_text(e, "quarter")
-					report_period = grab_text(e, "period_of_report")
-					filing_date = grab_text(e, "filing_date")
-					form10k = grab_text(e, "form_10K_url")
-					sec21 = grab_text(e, "sec_21_url")
-					is_filer = grab_text(e, "company_is_filer")
+					loot << ("Central Index Key: " + (cik = grab_text(e, "cik")))
+					loot << ("\nYear filed: " + (year_filed = grab_text(e, "year")))
+					loot << ("\nQuarter filed: " + (quarter_filed = grab_text(e, "quarter")))
+					loot << ("\nReport period: " + (report_period = grab_text(e, "period_of_report")))
+					loot << ("\nFiling date: " + (filing_date = grab_text(e, "filing_date")))
+					loot << ("\nForm 10k: " + (form10k = grab_text(e, "form_10K_url")))
+					loot << ("\nSEC21: " + (sec21 = grab_text(e, "sec_21_url")))
+					loot << ("\nIs a filer: " + (is_filer = grab_text(e, "company_is_filer")))
+					loot << "\n\n\n"
 
 					puts "\n\n"
 					print_status("Detailed Filing Information\n---------------------")
@@ -276,12 +391,26 @@ class Metasploit3 < Msf::Auxiliary
 	                        'method'        => 'GET',
 	                        'headers'       => header
 	                }, 25)
-	                
-	                doc = REXML::Document.new(res.body)
+
+			if res == nil || res.body == nil
+				print_error("Server down or bad response")
+				return
+			end
+		
+			doc = REXML::Document.new	                
+
+			begin
+	                	doc = REXML::Document.new(res.body)
+			rescue
+				print_error("Query return bad or broken data")
+				return
+			end
 
 			root = doc.root
 
-			results = root.get_elements("result")[0]
+			elements = root.get_elements("result")
+
+			results = elements[0]
 
 			if results == nil
 				print_status("No results were returned.")
@@ -295,45 +424,46 @@ class Metasploit3 < Msf::Auxiliary
 				else
 
 					results.elements.each { |e|
-				        cwid = grab_text(e, "cw_id")
-				        cik = grab_text(e, "cik")
-				        name = grab_text(e, "company_name")
-				        irsno = grab_text(e, "irs_number")
-				        sic_code = grab_text(e, "sic_code")
-				        sector = grab_text(e, "sector_name")
-				        source = grab_text(e, "source_type")
-				        address = grab_text(e, "raw_address")
-				        country = grab_text(e, "country_code")
-				        subdiv = grab_text(e, "subdiv_code")
-				        top_parent = grab_text(e, "top_parent_id")
-				        num_parents = grab_text(e, "num_parents")
-				        num_children = grab_text(e, "num_children")
-				        max_year = grab_text(e, "max_year")
-				        min_year = grab_text(e, "min_year")
-			
-					puts "\n\n"
-				        print_status("Child Information\n--------------------")
-				        print_status("CorpWatch ID: " + cwid)
-				        print_status("Central Index Key (CIK): " + cik)
-				        print_status("Full Name: " + name)
-				        print_status("IRS Number: " + irsno)
-				        print_status("SIC Code: " + sic_code)
-				        print_status("Sector: " + sector)
-				        print_status("Source Type: " + source)
+				        	loot << ("CorpWatch ID: " + (cwid = grab_text(e, "cw_id")))
+				        	loot << ("\nCentral Index Key: " + (cik = grab_text(e, "cik")))
+				        	loot << ("\nCompany Name: " + (name = grab_text(e, "company_name")))
+				        	loot << ("\nIRS number: " + (irsno = grab_text(e, "irs_number")))
+				        	loot << ("\nSIC Code: " + (sic_code = grab_text(e, "sic_code")))
+				        	loot << ("\nSector: " + (sector = grab_text(e, "sector_name")))
+				        	loot << ("\nSource: " + (source = grab_text(e, "source_type")))
+				        	loot << ("\nAddress: " + (address = grab_text(e, "raw_address")))
+				        	loot << ("\nCountry: " + (country = grab_text(e, "country_code")))
+				        	loot << ("\nSubdivision: " + (subdiv = grab_text(e, "subdiv_code")))
+				        	loot << ("\nTop parent: " + (top_parent = grab_text(e, "top_parent_id")))
+				        	loot << ("\nNumber of parents: " + (num_parents = grab_text(e, "num_parents")))
+				        	loot << ("\nNumber of children: " + (num_children = grab_text(e, "num_children")))
+				        	loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
+				        	loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
+						loot << "\n\n\n"
 
-				        puts "\n"
-				        print_status("Address and Location Information\n-----------------------------")
-				        print_status("Full Address: " + address)
-				        print_status("Country Code: " + country)
-				        print_status("Subdivision: " + subdiv)
-
-				        puts "\n"
-				        print_status("Parent and Children Information\n---------------------------")
-				        print_status("Top Parent ID: " + top_parent)
-				        print_status("Number of parent companies: " + num_parents)
-				        print_status("Number of child companies: " + num_children)
-				        print_status("Max lookup year: " + max_year)
-				        print_status("Min lookup year: " + min_year)
+						puts "\n\n"
+					        print_status("Child Information\n--------------------")
+					        print_status("CorpWatch ID: " + cwid)
+					        print_status("Central Index Key (CIK): " + cik)
+					        print_status("Full Name: " + name)
+					        print_status("IRS Number: " + irsno)
+					        print_status("SIC Code: " + sic_code)
+					        print_status("Sector: " + sector)
+					        print_status("Source Type: " + source)
+	
+					        puts "\n"
+					        print_status("Address and Location Information\n-----------------------------")
+					        print_status("Full Address: " + address)
+					        print_status("Country Code: " + country)
+					        print_status("Subdivision: " + subdiv)
+	
+					        puts "\n"
+					        print_status("Parent and Children Information\n---------------------------")
+					        print_status("Top Parent ID: " + top_parent)
+					        print_status("Number of parent companies: " + num_parents)
+					        print_status("Number of child companies: " + num_children)
+					        print_status("Max lookup year: " + max_year)
+					        print_status("Min lookup year: " + min_year)
 
 					}
 				end
@@ -341,14 +471,38 @@ class Metasploit3 < Msf::Auxiliary
 			end				
 		end
 	
-		if datastore['GET_HISTORY'] == true
-			response, data = client.get2(uri + "/history.xml", header)
+		if datastore['GET_HISTORY']
+
+			res = send_request_raw({
+				'uri'		=> uri + "/history.xml",
+				'method'	=> 'GET',
+				'headers'	=> header
+			}, 25)
+
+			if res == nil || res.body == nil
+				print_error("Server down or bad response")
+				return
+			end
 			
-			doc = Document.new(data)
-	
+			doc = REXML::Document.new
+			
+			begin
+				doc = REXML::Document.new(res.body)
+			rescue
+				print_error("Query return bad or broken data")
+				return
+			end
+
 			root = doc.root
 
-			results = root.get_elements("result")[0]
+			elements = root.get_elements("result")
+
+			if elements == nil || elements.length == 0
+				print_error("No results.")
+				return
+			end
+
+			results = elements[0]
 
 			if results == nil
 				print_status("No results returned.")
@@ -358,25 +512,26 @@ class Metasploit3 < Msf::Auxiliary
 				results = results.get_elements("companies")[0]
 
 				results.elements.each { |e|
-					cwid = grab_text(e, "cw_id")
-					cik = grab_text(e, "cik")
-					irsno = grab_text(e, "irs_number")
-					sic_code = grab_text(e, "sic_code")
-					industry = grab_text(e, "industry_name")
-					sector = grab_text(e, "sector_name")
-					sic_sector = grab_text(e, "sic_sector")
-					source = grab_text(e, "source_type")
-					address = grab_text(e, "raw_address")
-					country_code = grab_text(e, "country_code")
-					subdiv_code = grab_text(e, "subdiv_code")
-					top_parent = grab_text(e, "top_parent_id")
-					num_parents = grab_text(e, "num_parents")
-					num_children = grab_text(e, "num_children")
-					max_year = grab_text(e, "max_year")
-					min_year = grab_text(e, "min_year")
-					history_year = grab_text(e, "year")
-
-
+					loot << ("CorpWatch ID: " + (cwid = grab_text(e, "cw_id")))
+					loot << ("\nCentral Index Key: " + (cik = grab_text(e, "cik")))
+					loot << ("\nIRS Number: " + (irsno = grab_text(e, "irs_number")))
+					loot << ("\nSIC Code: " + (sic_code = grab_text(e, "sic_code")))
+					loot << ("\nIndustry: " + (industry = grab_text(e, "industry_name")))
+					loot << ("\nSector: " + (sector = grab_text(e, "sector_name")))
+					loot << ("\nSIC Sector: " + (sic_sector = grab_text(e, "sic_sector")))
+					loot << ("\nSource: " + (source = grab_text(e, "source_type")))
+					loot << ("\nAddress: " + (address = grab_text(e, "raw_address")))
+					loot << ("\nCountry: " + (country_code = grab_text(e, "country_code")))
+					loot << ("\nSub-division Code: " + (subdiv_code = grab_text(e, "subdiv_code")))
+					loot << ("\nTop parent ID: " + (top_parent = grab_text(e, "top_parent_id")))
+					loot << ("\nNumber of parents: " + (num_parents = grab_text(e, "num_parents")))
+					loot << ("\nNumber of children: " + (num_children = grab_text(e, "num_children")))
+					loot << ("\nMax searchable year: " + (max_year = grab_text(e, "max_year")))
+					loot << ("\nMin searchable year: " + (min_year = grab_text(e, "min_year")))
+					loot << ("\nHistory year: " + (history_year = grab_text(e, "year")))
+					loot << "\n\n\n"
+					
+					
 					puts "\n\n"
 					print_status("Company History for year #{history_year}\n--------------------------------")
 					print_status("CorpWatch ID: " + cwid)
@@ -399,6 +554,10 @@ class Metasploit3 < Msf::Auxiliary
 
 			end
 		end
+
+		print_good("Storing loot as: company_#{datastore['CW_ID']}")
+
+		store_loot("corpwatch_api.#{datastore['CW_ID']}_info", "text/plain", nil, loot, "company_#{datastore['CWID']}.txt", "#{datastore["CW_ID"]} Specific Information")
 
 	end
 

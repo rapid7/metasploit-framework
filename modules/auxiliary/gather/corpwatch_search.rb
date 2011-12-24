@@ -55,19 +55,51 @@ class Metasploit3 < Msf::Auxiliary
                         'method'        => 'GET',
                         'headers'       => header
                 }, 25)
+
+		if not res 
+			print_error("response or body nil")
+			return
+		end
                 
-                doc = REXML::Document.new(res.body)
+		begin
+                	doc = REXML::Document.new(res.body)
+
+		rescue
+			print_error("Body not well formed XML")
+			return
+		end
 
 		root = doc.root
-		
-		results = root.get_elements("result")[0]
 
-		if (results == nil)
-			print_status("No results returned")
+		if not root
+			print_error("document root nil")
+			return
+		end
+
+		elements = root.get_elements("result")
+
+		if not elements
+			print_error("Document root has no results")
+			return
+		end
+		
+		results = elements[0]
+
+		if not results
+			print_error("No results returned, try another search")
 			return	
 		end
 
-		results = results.get_elements("companies")[0]
+		elements = results.get_elements("companies")
+
+		if not elements
+			print_error("No companies returned")
+			return
+		end
+
+		results = elements[0]
+		
+		return if not results.elements || results.elements.length == 0
 
 		results.elements.each { |e|
 
