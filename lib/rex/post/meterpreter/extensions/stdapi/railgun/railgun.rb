@@ -61,9 +61,9 @@ class Railgun
 	# definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
 	# Naming is important and should follow convention.  For example, if your
 	# dll's name was "my_dll"
-	# file name::   def_my_dll.rb
-	# class name::  Def_my_dll
-	# entry below:: 'my_dll'
+	# file name:    def_my_dll.rb
+	# class name:   Def_my_dll
+	# entry below: 'my_dll'
 	#
 	BUILTIN_DLLS = [
 		'kernel32',
@@ -102,6 +102,10 @@ class Railgun
 	def initialize(client)
 		self.client = client
 		self.dlls = {}
+	end
+
+	def self.builtin_dlls
+		BUILTIN_DLLS
 	end
 
 	#
