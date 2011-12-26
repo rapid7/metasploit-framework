@@ -213,12 +213,12 @@ class Metasploit3 < Msf::Post
 	
 			elsif os_sp =~ /(Windows 7)/
 				cmdis = nil
-					### 64bit vuln KB list matches 32 bit vul kb list :)
+
 					if os_sp =~ /(Service Pack 1)/
-						sstr = 'w7_64_sp1_kb'
+						sstr = 'w7_sp1_kb'
 						inkb = get_kblist(sstr)
 					elsif os_sp !=~ /(Service Pack)/  #no service pack
-						sstr = 'w7_64_nosp_kb'
+						sstr = 'w7_nosp_kb'
 						inkb = get_kblist(sstr)
 					end
 	
@@ -260,15 +260,15 @@ class Metasploit3 < Msf::Post
 	
 			elsif os_sp =~ /(Windows Vista)/
 			cmdis = nil
-					### 64 bit  have same vuln list as 32 bit :)
+
 					if os_sp =~ /(Service Pack 1)/
-						sstr = 'vs_sp1_kb'
+						sstr = 'vs_64sp1_kb'
 						inkb = get_kblist(sstr)
 					elsif os_sp =~ /(Service Pack 2)/
-						sstr = 'vs_sp2_kb'
+						sstr = 'vs_64sp2_kb'
 						inkb = get_kblist(sstr)
 					elsif os_sp !=~ /(Service Pack)/  #no service pack
-						sstr = 'vs_nosp_kb'
+						sstr = 'vs_64nosp_kb'
 						inkb = get_kblist(sstr)
 					end
 	
@@ -285,12 +285,11 @@ class Metasploit3 < Msf::Post
 						inkb = get_kblist(sstr)
 					end
 				else
-					#### yes its same as 32bit kb list ####
 					if os_sp !=~ /(Service Pack)/
-						sstr = 'w2k8_nosp_kb'
+						sstr = 'w2k8_64nosp_kb'
 						inkb = get_kblist(sstr)
 					elsif os_sp =~ /(Service Pack 2)/
-						sstr = 'w2k8_sp2_kb'
+						sstr = 'w2k8_64sp2_kb'
 						inkb = get_kblist(sstr)
 					end
 				end
