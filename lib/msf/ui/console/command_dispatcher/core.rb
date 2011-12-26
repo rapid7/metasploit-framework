@@ -88,6 +88,7 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
+			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
 			"makerc"   => "Save commands entered since start to a file",
@@ -118,6 +119,8 @@ class Core
 
 		@dscache = {}
 		@cache_payloads = nil
+		@previous_module = nil
+		@module_stack = []
 	end
 
 	#
@@ -2127,8 +2130,9 @@ class Core
 				return false
 		end
 
-		# If there's currently an active module, go back
+		# If there's currently an active module, enqueque it and go back
 		if (active_module)
+			@previous_module = active_module
 			cmd_back()
 		end
 
@@ -2151,6 +2155,27 @@ class Core
 		prompt = framework.datastore['Prompt'] || "%undmsf%clr "
 		prompt_char = framework.datastore['PromptChar'] || ">"
 		driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+	end
+
+	#
+	# Command to take to the previously active module
+	#
+	def cmd_previous()
+		if @previous_module
+			self.cmd_use(@previous_module.fullname)
+		else
+			print_error("There isn't a previous module at the moment")
+		end
+	end
+
+	#
+	# Help for the 'previous' command
+	#
+	def cmd_previous_help
+		print_line "Usage: previous"
+		print_line
+		print_line "Set the previously loaded module as the current module"
+		print_line
 	end
 
 	#
