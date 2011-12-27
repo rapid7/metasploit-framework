@@ -10,6 +10,8 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 ## Server exploits
 
+Server exploits are "classic" exploits -- the target is a network service on a remote server.
+
 ### [CVE-2006-5276](http://www.cvedetails.com/cve/CVE-2006-5276)
 
 **Description:** A buffer overflow in the Snort IDS DCE/RPC Reassembly preprocessor can allow remote code execution in the context of the Snort service.
@@ -20,6 +22,8 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 **Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/22616-linux.py
 
 ## Client Exploits
+
+Client exploits typically run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page.
 
 ### [CVE-2005-1790](http://www.cvedetails.com/cve/CVE-2005-1790)
 
@@ -52,6 +56,8 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 **Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/33568-desi.py
 
 ## Privilege Escalation Exploits
+
+Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as post modules.
 
 ### [CVE-2005-0058](http://www.cvedetails.com/cve/CVE-2005-0058)
 
