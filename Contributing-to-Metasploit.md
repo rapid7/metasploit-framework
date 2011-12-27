@@ -8,17 +8,7 @@ This page will attempt to keep a very short list of relatively straightforward, 
 
 As modules for these vulnerabilities get written and committed, new ones will take their place, so don't worry too much about duplicating effort. This list should stay pretty fresh no matter when you happen to look at it.
 
-## Server Exploits
-
-### [CVE-2005-0058](http://www.cvedetails.com/cve/CVE-2005-0058)
-
-**Description:** Buffer overflow in the Telephony Application Programming Interface (TAPI) for Microsoft Windows 98, Windows 98 SE, Windows ME, Windows 2000, Windows XP, and Windows Server 2003 allows attackers elevate privileges or execute arbitrary code via a crafted message.
-
-**Affected Software:** Microsoft Windows 2000, 2003, and XP
-
-**Module Type:** exploits/windows/dcerpc
-
-**Proof of concept:** http://www.securiteam.com/exploits/5VP0D1FI0Y.html
+## Server exploits
 
 ### [CVE-2006-5276](http://www.cvedetails.com/cve/CVE-2006-5276)
 
@@ -60,6 +50,19 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 **Module Type:** exploits/windows/vnc
 
 **Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/33568-desi.py
+
+## Privilege Escalation Exploits
+
+### [CVE-2005-0058](http://www.cvedetails.com/cve/CVE-2005-0058)
+
+**Description:** Buffer overflow in the Telephony Application Programming Interface (TAPI) for Microsoft Windows 98, Windows 98 SE, Windows ME, Windows 2000, Windows XP, and Windows Server 2003 allows attackers elevate privileges or execute arbitrary code via a crafted message.
+
+**Affected Software:** Microsoft Windows 2000, 2003, and XP
+
+**Module Type:** exploits/windows/dcerpc
+
+**Proof of concept:** http://www.exploit-db.com/exploits/1584/
+
 
 
 ## The Usual Warnings
