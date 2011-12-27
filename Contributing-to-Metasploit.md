@@ -23,7 +23,7 @@ Server exploits are "classic" exploits -- the target is a network service on a r
 
 ## Client Exploits
 
-Client exploits typically run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page.
+Client exploits generally run as an "evil service" that a remote client will connect to. They nearly always require some kind of user interaction to trigger, such a viewing a web page, downloading a file, or otherwise connecting to the service controlled by the attacker.
 
 ### [CVE-2005-1790](http://www.cvedetails.com/cve/CVE-2005-1790)
 
@@ -57,7 +57,7 @@ Client exploits typically run as an "evil service" that a remote client will con
 
 ## Privilege Escalation Exploits
 
-Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as post modules.
+Privilege escalation exploits tend to require the attacker already have an account on a target computer. They are nearly always going to be implemented as Metasploit post modules.
 
 ### [CVE-2005-0058](http://www.cvedetails.com/cve/CVE-2005-0058)
 
