@@ -281,22 +281,6 @@ class Railgun
 	def const(str)
 		return constant_manager.parse(str)
 	end
-	
-	#
-	# Return an array of windows constants names matching +winconst+
-	#
-	
-	def const_reverse_lookup(winconst,filter_regex=nil)
-		return constant_manager.rev_lookup(winconst,filter_regex)
-	end
-	
-	#
-	# Returns an array of windows error code names for a given windows error code matching +err_code+ 
-	#
-	
-	def error_lookup (err_code,filter_regex=/^ERROR_/)
-		return constant_manager.rev_lookup(err_code,filter_regex)
-	end
 
 	#
 	# The multi-call shorthand (["kernel32", "ExitProcess", [0]])
