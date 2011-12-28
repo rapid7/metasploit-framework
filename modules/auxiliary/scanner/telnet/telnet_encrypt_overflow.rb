@@ -100,7 +100,7 @@ class Metasploit3 < Msf::Auxiliary
 					end			
 
 					#
-					# Second round to force the fucntion to be called
+					# Second round to force the function to be called
 					#
 					sock.put(buff_long)
 					data = sock.get_once(-1, 5)
