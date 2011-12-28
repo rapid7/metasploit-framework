@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
 			print_error "Unsupported platform #{session.platform}"
 			return
 		end
-		if paths.empty?
+		if paths.nil? or paths.empty?
 			print_status("No users found with a .purple directory")
 			return
 		end

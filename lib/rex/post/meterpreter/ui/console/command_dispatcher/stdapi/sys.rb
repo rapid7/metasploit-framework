@@ -153,12 +153,21 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Drop into a system shell as specified by %COMSPEC% or
 	# as appropriate for the host.
 	def cmd_shell(*args)
-		if client.platform =~/win/
+		case client.platform
+		when /win/
 			path = client.fs.file.expand_path("%COMSPEC%")
 			path = (path and not path.empty?) ? path : "cmd.exe"
 			cmd_execute("-f", path, "-c", "-H", "-i", "-t")
+		when /linux/
+			# Don't expand_path() this because it's literal anyway
+			path = "/bin/sh"
+			cmd_execute("-f", path, "-c", "-i")
 		else
-			path = client.fs.file.expand_path("/bin/bash")
+			# Then this is a multi-platform meterpreter (php or java), which
+			# must special-case COMSPEC to return the system-specific shell.
+			path = client.fs.file.expand_path("%COMSPEC%")
+			# If that failed for whatever reason, guess it's unix
+			path = (path and not path.empty?) ? path : "/bin/sh"
 			cmd_execute("-f", path, "-c", "-i")
 		end
 	end

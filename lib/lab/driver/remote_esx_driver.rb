@@ -102,7 +102,7 @@ class RemoteEsxDriver < VmDriver
 		raise "Not Implemented"
 	end
 	
-	def copy_from(from, to)
+	def copy_from_guest(from, to)
 		if @os == "linux"
 			scp_from(from, to)
 		else
@@ -110,7 +110,7 @@ class RemoteEsxDriver < VmDriver
 		end
 	end
 
-	def copy_to(from, to)
+	def copy_to_guest(from, to)
 		if @os == "linux"
 			scp_to(from, to)
 		else

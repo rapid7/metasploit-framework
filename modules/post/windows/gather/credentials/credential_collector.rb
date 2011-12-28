@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Post
 
 		# Record hashes to the running db instance
 		print_good "Collecting hashes..."
+
 		hashes.each do |hash|
 			data = {}
 			data[:host]  = addr
@@ -63,7 +64,9 @@ class Metasploit3 < Msf::Post
 			data[:user]  = hash.user_name
 			data[:pass]  = hash.lanman + ":" + hash.ntlm
 			data[:type]  = "smb_hash"
-			data[:source_id] = session.db_record.id,
+			if not session.db_record.nil?
+				data[:source_id] = session.db_record.id
+			end
 			data[:source_type] = "exploit",
 			data[:active] = true
 
