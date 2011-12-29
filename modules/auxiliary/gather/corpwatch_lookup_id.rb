@@ -520,7 +520,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		p = store_loot("corpwatch_api.#{datastore['CW_ID']}_info","text/plain",nil,loot,"company_#{datastore['CWID']}.txt","#{datastore["CW_ID"]} Specific Information")
+		p = store_loot("corpwatch_api.#{datastore['CW_ID']}_info","text/plain",nil,loot,"company_#{datastore['CW_ID']}.txt","#{datastore["CW_ID"]} Specific Information")
 
 		print_line()
 		print_status("Saved in: #{p}")
