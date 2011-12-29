@@ -15,14 +15,18 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'DuckDuckGo Password Hash Search',
 			'Description'    => %q{
-				This module scrapes the DuckDuckGo search engine for instances of the given hash.
-				It is not required to state the format of the hash, but generally, MD5, SHA1, NTLM,
-				MySQL, and other common hash formats will tend to return good results. 
+				This module scrapes the DuckDuckGo search engine for appearances of the given hash.
+				When a hash is mentioned on the Internet, it is usually accompanied by the plaintext
+				version of the password. Good news for the attacker, bad news for the user.
+
+				Note that this module almost certainly violates the Terms of Service of DuckDuckGo,
+				which is a shame, and relegates this to a proof of concept trick until a combination
+				of search engine, TOS, and a useful API surfaces.
 			},
 			'Author'         => [ 'todb' ],
 			'References'     =>
 				[
-					[ 'URL', 'http://duckduckgo.com/' ]
+					[ 'URL', 'http://duckduckgo.com/' ] # I heart DDG and feel bad for abusing them :/
 				]
 		))
 
@@ -92,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 			append_to_loot(existing_loot,loot_line,url)
 		else
 			loot_file = [loot_header,loot_line].join("\n")
-			p = store_loot("internet.hashes","text/plain",nil,loot_file,"internet_hashes.csv") 
+			p = store_loot("internet.hashes","text/plain",nil,loot_file,"internet_hashes.csv","Internet-Searchable Hashes") 
 			print_status("Saved hash and URL to #{p}")
 		end
 	end
