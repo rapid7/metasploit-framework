@@ -23,6 +23,14 @@ module Auxiliary::Report
 		@myworkspace = framework.db.find_workspace(self.workspace)
 	end
 
+	def inside_workspace_boundary?(ip)
+		return if not framework.db.active
+		allowed = myworkspace.allow_actions_on?(ip)
+		return allowed
+	end
+
+
+
 	#
 	# Report a host's liveness and attributes such as operating system and service pack
 	#

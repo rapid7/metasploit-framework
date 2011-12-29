@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		@results.keys.each do |ip|
-			next unless myworkspace.allow_actions_on?(ip)
+			next unless inside_workspace_boundary?(ip)
 			host = @results[ip]
 			user = ""
 			os   = "Windows"
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			inf << maddr
-			if myworkspace.allow_actions_on?(addr)
+			if inside_workspace_boundary?(addr)
 				report_service(
 					:host  => addr,
 					:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
