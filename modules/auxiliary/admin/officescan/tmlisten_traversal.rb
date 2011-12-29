@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'BID', '31531' ],
 					[ 'URL', 'http://www.trendmicro.com/ftp/documentation/readme/OSCE_7.3_Win_EN_CriticalPatch_B1372_Readme.txt' ],
 				],
-			'Author'      => [ 'Anshul Pandey <anshul999@gmail.com>', 'patrick' ],
+			'Author'      => [ 'Anshul Pandey <anshul999[at]gmail.com>', 'patrick' ],
 			'License'     => MSF_LICENSE
 		)
 

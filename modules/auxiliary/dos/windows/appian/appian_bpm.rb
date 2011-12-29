@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				Enterprise Business Suite service.
 			},
 
-			'Author'         => [ 'guiness.stout <guinness.stout@gmail.com>' ],
+			'Author'         => [ 'guiness.stout <guinness.stout[at]gmail.com>' ],
 			'License'        => BSD_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>
