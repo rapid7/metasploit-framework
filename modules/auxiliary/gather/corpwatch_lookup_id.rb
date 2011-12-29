@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				info for a given CorpWatch ID of the company.  If you don't know the
 				CorpWatch ID, please use the corpwatch_lookup_name module first.
 			},
-			'Author'         => [ 'Brandon Perry' ],
+			'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
 			'References'     =>
 				[
 					[ 'URL', 'http://api.corpwatch.org/' ]
