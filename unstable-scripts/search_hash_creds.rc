@@ -1,4 +1,6 @@
-# Not for distribution
+# Not for distribution -- just an example of looping through creds to do things
+# with them. However, duckduck_password and this script should certainly just
+# be combined into one plugin, rather than a module.
 
 use auxiliary/gather/duckduck_password
 <ruby>

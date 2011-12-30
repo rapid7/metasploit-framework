@@ -5,6 +5,10 @@
 # http://metasploit.com/framework/
 ##
 
+# The most useful and interesting feature of this module is the way the 
+# loot file gets appended to, rather than rewritten. Might be use for
+# this technique in other modules that gather loot.
+
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
