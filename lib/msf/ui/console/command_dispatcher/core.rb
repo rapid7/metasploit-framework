@@ -88,6 +88,9 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
+			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"pushm"    => "Pushes the active or list of modules onto the module stack",
+			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
 			"makerc"   => "Save commands entered since start to a file",
@@ -118,6 +121,8 @@ class Core
 
 		@dscache = {}
 		@cache_payloads = nil
+		@previous_module = nil
+		@module_name_stack = []
 	end
 
 	#
@@ -2127,8 +2132,9 @@ class Core
 				return false
 		end
 
-		# If there's currently an active module, go back
+		# If there's currently an active module, enqueque it and go back
 		if (active_module)
+			@previous_module = active_module
 			cmd_back()
 		end
 
@@ -2151,6 +2157,94 @@ class Core
 		prompt = framework.datastore['Prompt'] || "%undmsf%clr "
 		prompt_char = framework.datastore['PromptChar'] || ">"
 		driver.update_prompt("#{prompt} #{mod.type}(%bld%red#{mod.shortname}%clr) ", prompt_char, true)
+	end
+
+	#
+	# Command to take to the previously active module
+	#
+	def cmd_previous()
+		if @previous_module
+			self.cmd_use(@previous_module.fullname)
+		else
+			print_error("There isn't a previous module at the moment")
+		end
+	end
+
+	#
+	# Help for the 'previous' command
+	#
+	def cmd_previous_help
+		print_line "Usage: previous"
+		print_line
+		print_line "Set the previously loaded module as the current module"
+		print_line
+	end
+	
+	#
+	# Command to enqueque a module on the module stack
+	#
+	def cmd_pushm(*args)
+		# could check if each argument is a valid module, but for now let them hang themselves
+		if args.count > 0
+			args.each do |arg|
+				@module_name_stack.push(arg)
+				# Note new modules are appended to the array and are only module (full)names
+			end
+		else #then just push the active module 
+			if active_module
+				#print_status "Pushing the active module"
+				@module_name_stack.push(active_module.fullname)
+			else
+				print_error("There isn't an active module and you didn't specify a module to push")
+				return self.cmd_pushm_help
+			end
+		end
+	end
+	
+	#
+	# Help for the 'pushm' command
+	#
+	def cmd_pushm_help
+		print_line "Usage: pushm [module1 [,module2, module3...]]"
+		print_line
+		print_line "push current active module or specified modules onto the module stack"
+		print_line
+	end
+	
+	#
+	# Command to dequeque a module from the module stack
+	#
+	def cmd_popm(*args)
+		if (args.count > 1 or not args[0].respond_to?("to_i"))
+			return self.cmd_popm_help
+		elsif args.count == 1
+			# then pop 'n' items off the stack, but don't change the active module
+			if args[0].to_i >= @module_name_stack.count
+				# in case they pass in a number >= the length of @module_name_stack
+				@module_name_stack = []
+				print_status("The module stack is empty")
+			else
+				@module_name_stack.pop[args[0]]
+			end
+		else #then just pop the array and make that the active module
+			pop = @module_name_stack.pop
+			if pop
+				return self.cmd_use(pop)
+			else
+				print_error("There isn't anything to pop, the module stack is empty")
+			end
+		end
+	end
+
+	#
+	# Help for the 'popm' command
+	#
+	def cmd_popm_help
+		print_line "Usage: popm [n]"
+		print_line
+		print_line "pop the latest module off of the module stack and make it the active module"
+		print_line "or pop n modules off the stack, but don't change the active module"
+		print_line
 	end
 
 	#
