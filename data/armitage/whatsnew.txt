@@ -1,6 +1,41 @@
 Armitage Changelog
 ==================
 
+30 Dec 11 - last release of the year?
+---------
+- Hosts -> Clear Database now clears the sessions and clients tables 
+- Fixed a bug preventing dynamic workspace port/session filter from 
+  working on a fresh database. This was a fun one. This only affected 
+  folks with a completely fresh database and because Hosts -> Clear 
+  Database didn't clear everything, this went unnoticed until now.
+- Added various reverse shell payloads to payload helper dialog.
+- Added file chooser helper for SigningCert and SigningKey options.
+- Added hack to return correct route info when setting up pivoting through
+  Java meterpreter.
+- Armitage now posts a note to the event log when a user starts a browser 
+  exploit or a server module.
+- Armitage now supports dragging and dropping a module onto a host in graph
+  and table view. This action opens the module launcher configured to work
+  with that host.
+- Drastically rewrote MSF Scans. MSF Scans now intelligently builds a list
+  of ports to scan based on what Metasploit can do. After an initial port
+  scan, MSF Scans runs discovery modules against relevant hosts. As a bonus
+  you will see all of the output of these scans. 
+- Enhanced the Windows heuristic used to guess which OS image to display
+- The deconfliction server throttle is now less draconian about how long it
+  throttles a call.
+- Armitage no longer posts to the event log from the UI thread (this will
+  prevent the UI from blocking in some cases)
+- Command shell now handles interaction with d-server in a separate thread
+  from the UI thread. This will prevent UI blocking in some cases.
+- Added Ping Sweep... option for non-Windows meterpreter sessions. Now Java
+  meterpreter users have a quick host discovery option.
+- Change Host OS option now matches new Metasploit database schema.
+- Deconfliction server now sets LHOST to the IP address you provided. Also,
+  Armitage clients do not overwrite LHOST once it is set.
+- Interacting with a shell in team mode no longer blocks UI to communicate
+  with d-server.
+
 12 Dec 11
 ---------
 - Armitage teaming mode now downloads the resulting file for any fileformat
