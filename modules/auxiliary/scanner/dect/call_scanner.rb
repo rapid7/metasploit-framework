@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'DECT Call Scanner',
 			'Version'        => '$Revision$',
 			'Description'    => 'This module scans for active DECT calls',
-			'Author'         => [ 'DK <privilegedmode@gmail.com>' ],
+			'Author'         => [ 'DK <privilegedmode[at]gmail.com>' ],
 			'License'        => MSF_LICENSE,
 			'References'     => [ ['URL', 'http://www.dedected.org'] ]
 		)

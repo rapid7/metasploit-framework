@@ -19,7 +19,6 @@ module Auxiliary::Report
 	end
 
 	def myworkspace
-		return @myworkspace if @myworkspace
 		@myworkspace = framework.db.find_workspace(self.workspace)
 	end
 
