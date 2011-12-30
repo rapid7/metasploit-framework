@@ -25,6 +25,8 @@ require 'packetfu'
 require 'uri'
 require 'tmpdir'
 
+require "msf_models"
+
 module Msf
 
 ###
