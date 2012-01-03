@@ -1,0 +1,20 @@
+Brocade,root\x00fibranne\x01admin\x00password\x01admin\x00brocade1
+Buffalo,root\x00
+Cisco,cisco\x00cisco\x01enable\x00cisco\x01admin\x00admin\x01Administrator\x00admin\x01root\x00cisco\x01admin\x00default\x01admin\x00diamond\x01\x00changeme\x01\x00changeit\x01\x00cisco\x01\x00letmein
+Dedicated Micros,dm\x00web
+Dell,admin\x00admin\x01admin\x00password\x01root\x00calvin
+Digi,root\x00dbps
+HP,\x00\x01admin\x00!admin\x01admin\x00admin
+Kyocera,admin\x00admin\x01admin\x00
+MediaPointe,admin\x00MediaPOINTE
+Motorola,cablecom\x00router\x01service\x00smile\x01admin\x00password\x01setup\x00
+QLogic,admin\x00config
+Okilan,admin\x00OkiLAN
+Patton,root\x00root\x01superuser\x00superuser\x01monitor\x00monitor
+Pelco,Administrator\x001234
+Polycom,\x00
+Printronix,root\x00
+Ricoh,admin\x00\x01admin\x00password
+Sharp,admin\x00Sharp\x01admin\x00admin
+Shoretel,anonymous\x00ShoreTel
+Sun,root\x00changeme\x01admin\x00admin
