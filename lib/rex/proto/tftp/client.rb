@@ -54,7 +54,7 @@ class Client
 		self.peer_port = params["PeerPort"] || 69
 		self.context = params["Context"] || {}
 		self.local_file = params["LocalFile"]
-		self.remote_file = params["RemoteFile"] || ::File.split(self.local_file).last
+		self.remote_file = params["RemoteFile"] || (::File.split(self.local_file).last if self.local_file)
 		self.mode = params["Mode"] || "octet"
 		self.action = params["Action"] || (raise ArgumentError, "Need an action.")
 		self.block_size = params["BlockSize"] || 512

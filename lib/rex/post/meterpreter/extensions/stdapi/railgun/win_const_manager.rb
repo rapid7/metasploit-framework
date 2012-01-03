@@ -70,6 +70,30 @@ class WinConstManager
 	def is_parseable(s)
 		return parse(s) != nil
 	end
+	
+	# looks up a windows constant (integer or hex) and returns an array of matching winconstant names
+	#
+	# this function will NOT throw an exception but return "nil" if it can't find an error code
+	def rev_lookup(winconst, filter_regex=nil)
+		c = winconst.to_i # this is what we're gonna reverse lookup
+		arr = [] # results array
+		@consts.each_pair do |k,v|
+			arr << k if v == c
+		end
+		if filter_regex # this is how we're going to filter the results
+			# in case we get passed a string instead of a Regexp
+			filter_regex = Regexp.new(filter_regex) unless filter_regex.class == Regexp
+			# do the actual filtering
+			arr.select! do |item|
+				item if item =~ filter_regex
+			end
+		end
+		return arr
+	end
+
+	def is_parseable(s)
+		return parse(s) != nil
+	end	
 end
 
 end; end; end; end; end; end

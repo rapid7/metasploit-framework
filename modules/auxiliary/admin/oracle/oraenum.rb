@@ -262,7 +262,7 @@ class Metasploit3 < Msf::Auxiliary
 			query = %Q|
 				SELECT limit
 				FROM dba_profiles
-				WHERE resource_name = 'FAILED_LOGIN_ATTEMPTS'
+				WHERE resource_name = 'PASSWORD_GRACE_TIME'
 				AND profile         = 'DEFAULT'
 			|
 			grace_time = prepare_exec(query)

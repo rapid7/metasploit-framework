@@ -60,7 +60,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def remote_file
-		datastore['REMOTE_FILENAME'] || ::File.split(datastore['FILENAME']).last
+		return datastore['REMOTE_FILENAME'] if datastore['REMOTE_FILENAME']
+		return ::File.split(datastore['FILENAME']).last if datastore['FILENAME']
 	end
 
 	def rport
@@ -138,8 +139,24 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run
-		run_upload()   if action.name == 'Upload'
-		run_download() if action.name == 'Download'
+		case action.name
+		when 'Upload'
+			if file
+				run_upload()
+			else
+				print_error "Need at least a local file name or file data to upload."
+				return
+			end
+		when 'Download'
+			if remote_file
+				run_download()
+			else
+				print_error "Need at least a remote file name to download."
+				return
+			end
+		else
+			print_error "Unknown action: '#{action.name}'"
+		end
 		while not @tftp_client.complete
 			select(nil,nil,nil,1)
 			print_status [rtarget,"TFTP transfer operation complete."].join

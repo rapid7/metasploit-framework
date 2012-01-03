@@ -1,3 +1,4 @@
+require 'shellwords'
 module Msf
 class DBManager
 
@@ -111,6 +112,27 @@ class Workspace < ActiveRecord::Base
 			forms.reject!{|f| not addrs.include?( f.web_site.service.host.address ) }
 		end
 		forms
+	end
+
+		#
+	# If limit_to_network is disabled, this will always return true.
+	# Otherwise, return true only if all of the given IPs are within the project
+	# boundaries.
+	#
+	def allow_actions_on?(ips)
+		return true unless limit_to_network
+		return true unless boundary
+		return true if boundary.empty?
+		boundaries = Shellwords.split(boundary)
+		return true if boundaries.empty? # It's okay if there is no boundary range after all
+		given_range = Rex::Socket::RangeWalker.new(ips)
+		return false unless given_range # Can't do things to nonexistant IPs
+		allowed = false
+		boundaries.each do |boundary_range|
+			ok_range = Rex::Socket::RangeWalker.new(boundary)
+			allowed = true if ok_range.include_range? given_range
+		end
+		return allowed
 	end
 
 end
