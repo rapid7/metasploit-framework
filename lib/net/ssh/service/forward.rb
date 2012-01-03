@@ -253,7 +253,7 @@ module Net; module SSH; module Service
              'MsfExploit' => session.options[:msfmodule]
           }
         )
-        options[:msfmodule].add_socket(client) if session.options[:msfmodule]
+        session.options[:msfmodule].add_socket(client) if session.options[:msfmodule]
 
         info { "connected #{connected_address}:#{connected_port} originator #{originator_address}:#{originator_port}" }
 

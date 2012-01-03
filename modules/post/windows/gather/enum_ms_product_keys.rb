@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather Product Key',
 				'Description'   => %q{ This module will enumerate the OS license key },
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Brandon Perry'],
+				'Author'        => [ 'Brandon Perry <bperry.volatile[at]gmail.com>'],
 				'Version'         => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

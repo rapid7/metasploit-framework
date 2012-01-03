@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 				acknolwdge the limitations of the data CorpWatch provides, and should always
 				verify the information with the official SEC filings before taking any action.
 			},
-			'Author'         => [ 'Brandon Perry' ],
+			'Author'         => [ 'Brandon Perry <bperry.volatile[at]gmail.com>' ],
 			'References'     =>
 				[
 					[ 'URL', 'http://api.corpwatch.org/' ]

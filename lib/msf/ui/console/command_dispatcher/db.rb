@@ -948,6 +948,27 @@ class Db
 					end
 				end
 			end
+
+			# Handle hostless loot
+			if host_ranges.compact.empty? # Wasn't a host search
+				hostless_loot = framework.db.loots.find_all_by_host_id(nil)
+				hostless_loot.each do |loot|
+					row = []
+					row.push("")
+					row.push("")
+					row.push(loot.ltype)
+					row.push(loot.name || "")
+					row.push(loot.content_type)
+					row.push(loot.info || "")
+					row.push(loot.path)
+					tbl << row
+					if (mode == :delete)
+						loot.destroy
+						delete_count += 1
+					end
+				end
+			end
+
 			print_line
 			print_line tbl.to_s
 			print_status "Deleted #{delete_count} loots" if delete_count > 0

@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'        =>
 					[
 						'sid', # Original POC
-						'TheLightCosine <thelightcosine@gmail.com>' # msf module
+						'TheLightCosine <thelightcosine[at]gmail.com>' # msf module
 					],
 			'License'       => MSF_LICENSE,
 			'Version'       => '$Revision$',

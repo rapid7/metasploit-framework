@@ -6,7 +6,7 @@ require 'rex/exploitation/jsobfu'
 module Rex
 module Exploitation
 
-# 
+#
 # Provides several javascript functions for determining the OS and browser versions of a client.
 #
 # getVersion():  returns an object with the following properties
@@ -26,7 +26,7 @@ module Exploitation
 # ua_ver_eq(a, b):  returns true if a == b
 #
 class JavascriptOSDetect < JSObfu
-	
+
 	def initialize(custom_js = '', opts = {})
 		clients = ::Msf::HttpClients
 		oses    = ::Msf::OperatingSystems
@@ -37,7 +37,7 @@ class JavascriptOSDetect < JSObfu
  * presence of a spoofed User-Agent.  OS detection is more fragile and
  * requires truthful navigator.appVersion and navigator.userAgent strings in
  * order to be accurate for more than just IE on Windows.
- **/ 
+ **/
 function getVersion(){
 	//Default values:
 	var os_name;
@@ -66,7 +66,7 @@ function getVersion(){
 		ua_version = opera.version();
 		if (!os_name) {
 			// The 'inconspicuous' argument is there to give us a real value on
-			// Opera 6 where, without it, the return value is supposedly 
+			// Opera 6 where, without it, the return value is supposedly
 			// 'Hm, were you only as smart as Bjorn Vermo...'
 			// though I have not verfied this claim.
 			switch (opera.buildNumber('inconspicuous')) {
@@ -154,7 +154,7 @@ function getVersion(){
 		// implement window.getComputedStyle now.  For some reason, checking for
 		// taintEnabled seems to cause IE 6 to stop parsing, so make sure this
 		// isn't IE first.
-		// 
+		//
 		// Then this is a Gecko derivative, assume Firefox since that's the
 		// only one we have sploits for.  We may need to revisit this in the
 		// future.  This works for multi/browser/mozilla_compareto against
@@ -189,7 +189,7 @@ function getVersion(){
 			arch = "#{ARCH_X86_64}";
 		}
 		if (version.match(/Windows/)) {
-			os_name = "#{oses::WINDOWS}"; 
+			os_name = "#{oses::WINDOWS}";
 			switch(version) {
 				case "Windows NT 5.0": os_flavor = "2000"; break;
 				case "Windows NT 5.1": os_flavor = "XP"; break;
@@ -594,7 +594,7 @@ function getVersion(){
 				// IE 6.0.2600.0000, XP SP0 English
 				// IE 6.0.2800.1106, XP SP1 English
 				ua_version = "6.0";
-				os_flavor = "XP"; 
+				os_flavor = "XP";
 				os_sp = "SP0";
 				break;
 			case "568515":
@@ -698,7 +698,7 @@ function getVersion(){
 					// but not IE8, regardless of mode
 					ua_version = "7.0";
 				}
-			} else if (document.compatMode) { 
+			} else if (document.compatMode) {
 				ua_version = "6.0";
 			} else if (window.createPopup) {
 				ua_version = "5.5";
@@ -726,7 +726,7 @@ function getVersion(){
 		// Then this is Gecko and we can get at least os_name without the
 		// useragent
 		version = navigator.oscpu.toLowerCase();
-	} else { 
+	} else {
 		// All we have left is the useragent and we know it's lying, so don't bother
 		version = " ";
 	}
@@ -756,9 +756,9 @@ function getVersion(){
 		else if (version.indexOf("fedora") != -1)  { os_flavor = "Fedora";  }
 		else if (version.indexOf("android") != -1) { os_flavor = "Android"; }
 	}
-	
+
 	//--
-	// Language 
+	// Language
 	//--
 	if (navigator.systemLanguage) {
 		// ie
@@ -768,12 +768,12 @@ function getVersion(){
 		os_lang = navigator.language;
 	} else {
 		// some other browser and we don't know how to get the language, so
-		// just guess english 
+		// just guess english
 		os_lang = "en";
 	}
 
 	//--
-	// Architecture 
+	// Architecture
 	//--
 	if (typeof(navigator.cpuClass) != 'undefined') {
 		// Then this is IE or Opera9+ and we can grab the arch directly
@@ -791,7 +791,7 @@ function getVersion(){
 		// platform
 		version = navigator.platform;
 		//document.write(version + "\\n");
-		// IE 8 does a bit of wacky user-agent switching for "Compatibility View"; 
+		// IE 8 does a bit of wacky user-agent switching for "Compatibility View";
 		// 64-bit client on Windows 7, 64-bit:
 		//     Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Win64; x64; Trident/4.0)
 		// 32-bit client on Windows 7, 64-bit:
@@ -817,10 +817,10 @@ function searchVersion(needle, haystack) {
 	var found_version;
 	if (index == -1) { return; }
 	found_version = haystack.substring(index+needle.length+1);
-	if (found_version.indexOf(' ') != -1) { 
+	if (found_version.indexOf(' ') != -1) {
 		// Strip off any junk at the end such as a CLR declaration
 		found_version = found_version.substring(0,found_version.indexOf(' '));
-	} 
+	}
 	return found_version;
 }
 
@@ -849,7 +849,7 @@ function ua_ver_cmp(ver_a, ver_b) {
 		b_rest = b[i].substr(b_int.toString().length);
 		if (a_int < b_int) {
 			return -1;
-		} else if (a_int > b_int) { 
+		} else if (a_int > b_int) {
 			return 1;
 		} else { // ==
 			// Then we need to deal with the stuff after the ints, e.g.:
@@ -863,7 +863,7 @@ function ua_ver_cmp(ver_a, ver_b) {
 			// Just give up and try a lexicographical comparison
 			if (a_rest < b_rest) {
 				return -1;
-			} else if (a_rest > b_rest) { 
+			} else if (a_rest > b_rest) {
 				return 1;
 			}
 		}
