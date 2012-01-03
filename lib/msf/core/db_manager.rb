@@ -12,6 +12,9 @@ module Msf
 ###
 
 class DBManager
+	# Provide access to ActiveRecord models
+	include MsfModels
+
 
 	# Provides :framework and other accessors
 	include Framework::Offspring
@@ -62,10 +65,6 @@ class DBManager
 
 		# Load ActiveRecord if it is available
 		begin
-			require 'rubygems'
-			require 'active_record'
-			require 'msf/core/db_objects'
-			require 'msf/core/model'
 
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
