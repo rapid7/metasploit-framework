@@ -44,6 +44,10 @@ class Metasploit3 < Msf::Post
 			print_error("This module requires admin privs to run")
 			return
 		end
+		if is_uac_enabled?
+			print_error("This module requires UAC to be bypassed first")
+			return
+		end
 		unless start_vss
 			return
 		end
