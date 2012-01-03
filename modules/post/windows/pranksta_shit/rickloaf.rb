@@ -175,7 +175,7 @@ class Metasploit3 < Msf::Post
 			# registry_setvaldata("#{key}\\Control\ Panel\\Colors\\","Background","#{bgcolor}","REG_SZ") 
 
 			registry_setvaldata("#{key}\\Control\ Panel\\Desktop\\","TileWallpaper","0","REG_SZ")
-			print_status("Set Wallpaper to #{tempdir}#{wallpaper}")
+			print_status("Set Wallpaper to #{tempdir}"+"\\"+"#{wallpaper}")
 		else
 			print_status("Error: failed to open the registry key for writing")
 		end
