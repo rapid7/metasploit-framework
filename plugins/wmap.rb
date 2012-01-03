@@ -1363,9 +1363,7 @@ class Plugin::Wmap < Msf::Plugin
 				#print_status "aaa"
 				#print_status framework.db.workspace.name
 
-				#sites = serv.web_sites.find(:all, :conditions => ['vhost = ? or vhost = ?', vhost, host.address])
-
-				sites = serv.web_sites.find(:all)
+				sites = serv.web_sites.all
 
 				sites.each do |site|
 
@@ -1450,16 +1448,10 @@ class Plugin::Wmap < Msf::Plugin
 					next
 				end
 
-				#print_status "aaa"
-				#print_status framework.db.workspace.name
+				sites = serv.web_sites.where('vhost = ? or vhost = ?', vhost, host.address)
 
-				sites = serv.web_sites.find(:all, :conditions => ['vhost = ? or vhost = ?', vhost, host.address])
-
-				#sites = serv.web_sites.find(:all)
 
 				sites.each do |site|
-					#site.vhost
-					#site.web_forms.find_all_by_path(target.path).each do |form|
 					t = load_tree(site)
 					print_tree(t,md,ld)
 					print_line("\n")
