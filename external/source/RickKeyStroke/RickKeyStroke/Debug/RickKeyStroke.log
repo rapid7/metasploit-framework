@@ -1,0 +1,28 @@
+﻿Build started 1/4/2012 2:44:38 AM.
+Project "C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\RickKeyStroke\RickKeyStroke.vcxproj" on node 2 (build target(s)).
+InitializeBuildStatus:
+  Creating "Debug\RickKeyStroke.unsuccessfulbuild" because "AlwaysCreate" was specified.
+ClCompile:
+  All outputs are up-to-date.
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\RickKeyStroke.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt RickKeyStroke.cpp
+  RickKeyStroke.cpp
+ManifestResourceCompile:
+  All outputs are up-to-date.
+Link:
+  C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Debug\RickKeyStroke.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /ManifestFile:"Debug\RickKeyStroke.exe.intermediate.manifest" /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /DEBUG /PDB:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Debug\RickKeyStroke.pdb" /SUBSYSTEM:WINDOWS /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Debug\RickKeyStroke.lib" /MACHINE:X86 Debug\RickKeyStroke.exe.embed.manifest.res
+  Debug\RickKeyStroke.obj
+  Debug\stdafx.obj
+Manifest:
+  C:\Program Files\Microsoft SDKs\Windows\v7.0A\bin\mt.exe /nologo /verbose /out:"Debug\RickKeyStroke.exe.embed.manifest" /manifest Debug\RickKeyStroke.exe.intermediate.manifest
+  All outputs are up-to-date.
+LinkEmbedManifest:
+  All outputs are up-to-date.
+  RickKeyStroke.vcxproj -> C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\Debug\RickKeyStroke.exe
+FinalizeBuildStatus:
+  Deleting file "Debug\RickKeyStroke.unsuccessfulbuild".
+  Touching "Debug\RickKeyStroke.lastbuildstate".
+Done Building Project "C:\Users\tester\documents\visual studio 2010\Projects\RickKeyStroke\RickKeyStroke\RickKeyStroke.vcxproj" (build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:03.10
