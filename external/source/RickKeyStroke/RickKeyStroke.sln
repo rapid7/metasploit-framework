@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RickKeyStroke", "RickKeyStroke\RickKeyStroke.vcxproj", "{799487E6-50D0-4C07-96D0-05C01314D363}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{799487E6-50D0-4C07-96D0-05C01314D363}.Debug|Win32.ActiveCfg = Debug|Win32
+		{799487E6-50D0-4C07-96D0-05C01314D363}.Debug|Win32.Build.0 = Debug|Win32
+		{799487E6-50D0-4C07-96D0-05C01314D363}.Release|Win32.ActiveCfg = Release|Win32
+		{799487E6-50D0-4C07-96D0-05C01314D363}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
