@@ -48,6 +48,10 @@ module Railgun
 	def railgun
 		client.railgun
 	end
+
+	def pointer_size
+		railgun.pointer_size
+	end
 end
 end
 end
