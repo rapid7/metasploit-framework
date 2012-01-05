@@ -1,3 +1,5 @@
+require 'rex/post/meterpreter/extensions/stdapi/railgun/type/platform_util'
+
 module Rex
 module Post
 module Meterpreter
@@ -7,12 +9,9 @@ module Railgun
 module Type
 module PointerUtil
 
-	X86_64 = :x86_64
-	X86_32 = :x86_32
-
 	ARCH_POINTER_SIZE = {
-		X86_64 => 8,
-		X86_32 => 4
+		PlatformUtil::X86_64 => 8,
+		PlatformUtil::X86_32 => 4
 	}.freeze
 
 	# Returns the pointer size for this architecture. Should accept client or platform or arch
@@ -41,10 +40,10 @@ module PointerUtil
 	# Given a packed pointer, unpack it according to architecture
 	def self.unpack_pointer(packed_pointer, platform)
 		case platform
-		when X86_64
+		when PlatformUtil::X86_64
 			# XXX: Only works if attacker and victim are like-endianed 
 			packed_pointer.unpack('Q').first
-		when X86_32
+		when PlatformUtil::X86_32
 			packed_pointer.unpack('V').first
 		else
 			raise "platform symbol #{platform.to_s} not supported"

@@ -3,6 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..','..','..','..','..', '..', '..', 'lib')) 
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/type/platform_util'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/mock_magic'
 require 'test/unit'
 
@@ -39,8 +40,8 @@ class PointerUtil::UnitTest < Test::Unit::TestCase
 	X86_64_NULL_POINTER = "\x00\x00\x00\x00\x00\x00\x00\x00"
 	X86_32_NULL_POINTER = "\x00\x00\x00\x00"
 
-	X86_64 = :x86_64
-	X86_32 = :x86_32
+	X86_64 = PlatformUtil::X86_64
+	X86_32 = PlatformUtil::X86_32
 
 	def test_unpack_pointer
 		X86_64_POINTERS.each_pair do |packed, unpacked|
