@@ -50,7 +50,7 @@ module Railgun
 	end
 
 	def pointer_size
-		railgun.pointer_size
+		railgun.util.pointer_size
 	end
 end
 end

@@ -1,4 +1,3 @@
-
 module Rex
 module Post
 module Meterpreter
