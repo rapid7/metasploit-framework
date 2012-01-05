@@ -1,6 +1,39 @@
 Armitage Changelog
 ==================
 
+5 Jan 12
+--------
+- Armitage d-server now transmits hosts, service, and session state only 
+  when something has changed. This makes teaming much snappier.
+- Uploading an imported hosts file now shows a progress dialog.
+- File browser upload function no longer blocks the user interface in team
+  mode. A progress dialog is shown for uploading larger files. 
+- Removed Ctrl+R refresh hosts shortcut from graph view (it's no longer 
+  necessary)
+- Armitage now exits if it was unable to connect to the collaboration server.
+- Hosts -> NMap Scans and Hosts -> MSF Scans dialogs are now populated with 
+  the selected values from the target area by default.
+- You may now interact with a Windows command shell through Java meterpreter.
+- Armitage no longer shows Webcam Shot option through Java meterpreter.
+- Armitage now detects when it does not have read permissions for the database
+  YAML file and prompts with something helpful. Before it would just freeze
+  with a blank dialog. Not helpful. :)
+- Armitage now only shows services that are open. 
+- View -> Reporting -> Export Data now has the capability of dumping the whole
+  database (not just the current workspace).
+- Added a dialog to View -> Reporting Export Data. Now you have the ability to
+  dump all hosts or choose to dump one of the dynamic workspaces. This gives
+  you a lot of flexibility with which hosts are included.
+- Cleaned up exported output of vulnerabilities in the Metasploit database:
+  -- duplicate entries are collapsed to one (this was the fault of my query)
+  -- refs column contains references separated by a comma and a space
+  -- added info and module columns. The module column indicates the appropriate
+     Metasploit module
+  -- Metasploit modules now populate name, info, and module in an appropriate
+     way.
+- Values exported to TSV are cleaned up such that newlines are replaced with a
+  literal \n and tabs are converted to three spaces.
+
 30 Dec 11 - last release of the year?
 ---------
 - Hosts -> Clear Database now clears the sessions and clients tables 
