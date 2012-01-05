@@ -4,3 +4,6 @@ admin 1234
 cisco cisco
 cisco sanfran
 private private
+wampp xampp
+newuser wampp
+xampp-dav-unsecure ppmax2011 
