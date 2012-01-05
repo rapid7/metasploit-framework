@@ -121,10 +121,16 @@ module Net
           end
 
           key_data.each do |data|
-            private_key = KeyFactory.load_data_private_key(data)
-            key = private_key.send(:public_key)
-            known_identities[key] = { :from => :key_data, :data => data, :key => private_key }
-            yield key
+            if @options[:skip_private_keys]
+              key = KeyFactory.load_data_public_key(data)
+              known_identities[key] = { :from => :key_data, :data => data }
+	          yield key
+            else
+              private_key = KeyFactory.load_data_private_key(data)
+              key = private_key.send(:public_key)
+              known_identities[key] = { :from => :key_data, :data => data, :key => private_key }
+              yield key
+            end
           end
 
           self
@@ -165,6 +171,7 @@ module Net
 
         # Identifies whether the ssh-agent will be used or not.
         def use_agent?
+          return false if @options[:disable_agent]
           @use_agent
         end
 

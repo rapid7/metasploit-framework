@@ -54,6 +54,15 @@ module Net
 
               case message.type
                 when USERAUTH_PK_OK
+                  debug { "publickey will be accepted (#{identity.fingerprint})" }
+
+                  # The key is accepted by the server, trigger a callback if set
+                  if session.accepted_key_callback
+                    session.accepted_key_callback.call({ :user => username, :fingerprint => identity.fingerprint, :key => identity.dup })
+                  end 
+
+                  return false if session.skip_private_keys
+                  
                   buffer = build_request(identity, username, next_service, true)
                   sig_data = Net::SSH::Buffer.new
                   sig_data.write_string(session_id)
