@@ -103,12 +103,15 @@ class Vm
 		# modifiers are properly used with the correct VM image.
 		@modifiers = config['modifiers']
 		
-		if @modifiers	
-			begin
-	 			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
-			rescue Exception => e
-				# modifier likely didn't exist
-			end 		
+		if @modifiers
+			@modifiers.each do |modifier|
+				begin
+					self.class.send(:include, eval("Lab::Modifier::#{modifier}"))
+				rescue Exception => e
+					#puts "WARNING: Unable to load: #{modifier}"
+					#puts "Exception: #{e}"
+				end
+			end
 		end
 
 		# Consume all tags
@@ -206,11 +209,9 @@ class Vm
 	end
 
 	def to_yaml
-		
-		# TODO - push this down to the drivers.
-		
 		# Standard configuration options
 		out =  " - vmid: #{@vmid}\n"
+		out =  "   hostname: #{@hostname}\n"
 		out += "   driver: #{@driver_type}\n"
 		out += "   location: #{@location}\n"
 		out += "   type: #{@type}\n"
