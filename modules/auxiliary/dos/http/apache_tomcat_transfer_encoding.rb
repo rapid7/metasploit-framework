@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				sock.put(sploit + "\r\n\r\n")
 				disconnect
-				
+
 				print_status("DoS packet unsuccessful.")
 			rescue ::Rex::ConnectionRefused
 				print_status("Unable to connect to #{rhost}:#{rport}.")

@@ -62,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		open_pcap
-		
+
 		p = PacketFu::TCPPacket.new
 		p.ip_daddr = rhost
 		p.ip_saddr = shost

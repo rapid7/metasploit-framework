@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 				] ,
 			'License'         => MSF_LICENSE  # JtR itself is GPLv2, but this wrapper is MSF (BSD)
 		)
-		
+
 		register_options(
 			[
 				OptBool.new('Crypt',[false, 'Try crypt() format hashes(Very Slow)', false])
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
 				begin
-					usf = File.open(myloot.path)
+					usf = File.open(myloot.path, "rb")
 				rescue Exception => e
 					print_error("Unable to read #{myloot.path} \n #{e}")
 				end
@@ -148,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Seed the wordlist with usernames, passwords, and hostnames
 
 		myworkspace.hosts.find(:all).each {|o| seed << john_expand_word( o.name ) if o.name }
-		myworkspace.creds.each do |o| 
+		myworkspace.creds.each do |o|
 			seed << john_expand_word( o.user ) if o.user
 			seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
 		end
@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 		john_cracked_passwords.values {|v| seed << v }
 
 		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "r")
+		john = File.open(john_wordlist_path, "rb")
 		john.each_line{|line| seed << line.chomp}
 
 		unless seed.empty?

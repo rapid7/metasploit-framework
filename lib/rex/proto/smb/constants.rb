@@ -732,8 +732,8 @@ SMB_NTTRANS_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 	[ 'uint32v',  'DataCount',           0 ],
 	[ 'uint32v',  'DataOffset',          0 ],
 	[ 'uint8',    'SetupCount',          0 ],
-	[ 'string',   'SetupData', nil,     '' ],
 	[ 'uint16v',  'Subcommand',          0 ],
+	[ 'string',   'SetupData', nil,     '' ],
 	[ 'uint16v',  'ByteCount',           0 ],
 	[ 'string',   'Payload', nil,       '' ]
 ).create_restraints(

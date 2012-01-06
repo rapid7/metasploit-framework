@@ -13,7 +13,7 @@ class ThreadManager < Array
 	include Framework::Offspring
 
 	attr_accessor :monitor
-	
+
 	#
 	# Initializes the thread manager.
 	#
@@ -21,14 +21,14 @@ class ThreadManager < Array
 		self.framework = framework
 		self.monitor   = spawn_monitor
 	end
-	
+
 	#
 	# Spawns a monitor thread for removing dead threads
 	#
 	def spawn_monitor
 		::Thread.new do
 			begin
-			
+
 			::Thread.current[:tm_name] = "Thread Monitor"
 			::Thread.current[:tm_crit] = true
 
@@ -39,8 +39,8 @@ class ThreadManager < Array
 					self[i] = nil if not state
 				end
 				self.delete(nil)
-			end	
-			
+			end
+
 			rescue ::Exception => e
 				elog("thread monitor: #{e} #{e.backtrace} source:#{self[:tm_call].inspect}")
 			end
@@ -52,14 +52,14 @@ class ThreadManager < Array
 	#
 	def spawn(name, crit, *args, &block)
 		t = nil
-	
+
 		if block
 			t = ::Thread.new(name, crit, caller, block, *args) do |*argv|
 				::Thread.current[:tm_name] = argv.shift.to_s
 				::Thread.current[:tm_crit] = argv.shift
 				::Thread.current[:tm_call] = argv.shift
-				::Thread.current[:tm_time] = Time.now				
-				
+				::Thread.current[:tm_time] = Time.now
+
 				begin
 					argv.shift.call(*argv)
 				rescue ::Exception => e
@@ -74,13 +74,13 @@ class ThreadManager < Array
 				::Thread.current[:tm_crit] = argv.shift
 				::Thread.current[:tm_call] = argv.shift
 				::Thread.current[:tm_time] = Time.now
-			end		
+			end
 		end
 
 		self << t
 		t
 	end
-	
+
 	#
 	# Registers an existing thread
 	#
@@ -88,11 +88,11 @@ class ThreadManager < Array
 		t[:tm_name] = name
 		t[:tm_crit] = crit
 		t[:tm_call] = caller
-		t[:tm_time] = Time.now		
+		t[:tm_time] = Time.now
 		self << t
 		t
 	end
-	
+
 	#
 	# Updates an existing thread
 	#
@@ -106,7 +106,7 @@ class ThreadManager < Array
 				break
 			end
 		end
-		
+
 		t = self[ti]
 		if not t
 			raise RuntimeError, "Thread not found"
@@ -115,7 +115,7 @@ class ThreadManager < Array
 		t[:tm_name] = name
 		t[:tm_crit] = crit
 		t
-	end	
+	end
 
 	#
 	# Kills a thread by index
@@ -123,7 +123,7 @@ class ThreadManager < Array
 	def kill(idx)
 		self[idx].kill rescue false
 	end
-	
+
 end
 
 end

@@ -12,13 +12,13 @@
 require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
-	
+
 	#
 	# This module acts as an compromised webserver distributing PII Data
 	#
 	include Msf::Exploit::Remote::HttpServer::HTML
 	include Msf::Auxiliary::PII
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'VSploit Web PII',

@@ -130,7 +130,7 @@ class DBManager
 			ip_x = ip.to_x
 			ip_i = ip.to_i
 		when "String"
-			if ipv4_validator(ip)
+			if ipv46_validator(ip)
 				ip_x = ip
 				ip_i = Rex::Socket.addr_atoi(ip)
 			else
@@ -154,9 +154,17 @@ class DBManager
 		return false
 	end
 
+	def ipv46_validator(addr)
+		ipv4_validator(addr) or ipv6_validator(addr)
+	end
+
 	def ipv4_validator(addr)
 		return false unless addr.kind_of? String
-		addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/
+		Rex::Socket.is_ipv4?(addr)
+	end
+
+	def ipv6_validator(addr)
+		Rex::Socket.is_ipv6?(addr)
 	end
 
 	# Takes a space-delimited set of ips and ranges, and subjects
@@ -164,7 +172,7 @@ class DBManager
 	def validate_ips(ips)
 		ret = true
 		begin
-			ips.split(' ').each {|ip|
+			ips.split(/\s+/).each {|ip|
 				unless Rex::Socket::RangeWalker.new(ip).ranges
 					ret = false
 					break
@@ -227,6 +235,8 @@ class DBManager
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
+		
+		address, scope = address.split('%', 2)
 		return wspace.hosts.find_by_address(address)
 	end
 
@@ -251,6 +261,7 @@ class DBManager
 	#	:os_lang    -- something like "English", "French", or "en-US"
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
+	#	:scope      -- interface identifier for link-local IPv6
 	#
 	def report_host(opts)
 
@@ -267,7 +278,10 @@ class DBManager
 
 		if not addr.kind_of? Host
 			addr = normalize_host(addr)
-			unless ipv4_validator(addr)
+			addr, scope = addr.split('%', 2)
+			opts[:scope] = scope if scope
+			 
+			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
 
@@ -305,7 +319,7 @@ class DBManager
 		host.state       = HostState::Alive if not host.state
 		host.comm        = ''        if not host.comm
 		host.workspace   = wspace    if not host.workspace
-
+		
 		if host.changed?
 			msf_import_timestamps(opts,host)
 			host.save!
@@ -368,6 +382,11 @@ class DBManager
 			addr = host.address
 		else
 			host = report_host(hopts)
+		end
+
+		if opts[:port].to_i.zero?
+			dlog("Skipping port zero for service '%s' on host '%s'" % [opts[:name],host.address])
+			return nil
 		end
 
 		ret  = {}
@@ -968,13 +987,39 @@ class DBManager
 
 		ret = {}
 
+		#Check to see if the creds already exist. We look also for a downcased username with the
+		#same password because we can fairly safely assume they are not in fact two seperate creds.
+		#this allows us to hedge against duplication of creds in the DB.
+
+		if duplicate_ok
 		# If duplicate usernames are okay, find by both user and password (allows
 		# for actual duplicates to get modified updated_at, sources, etc)
-		if duplicate_ok
-			cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+			if token[0].nil? or token[0].empty?
+				cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+			else
+				cred = service.creds.find_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+				unless cred
+					dcu = token[0].downcase
+					cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
+					unless cred
+						cred = service.creds.find_or_initialize_by_user_and_ptype_and_pass(token[0] || "", ptype, token[1] || "")
+					end
+				end
+			end
 		else
 			# Create the cred by username only (so we can change passwords)
-			cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+			if token[0].nil? or token[0].empty?
+				cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+			else
+				cred = service.creds.find_by_user_and_ptype(token[0] || "", ptype)
+				unless cred
+					dcu = token[0].downcase
+					cred = service.creds.find_by_user_and_ptype_and_pass( dcu || "", ptype, token[1] || "")
+					unless cred
+						cred = service.creds.find_or_initialize_by_user_and_ptype(token[0] || "", ptype)
+					end
+				end
+			end
 		end
 
 		# Update with the password
@@ -1183,6 +1228,7 @@ class DBManager
 	# Deletes a host and associated data matching this address/comm
 	#
 	def del_host(wspace, address, comm='')
+		address, scope = address.split('%', 2)
 		host = wspace.hosts.find_by_address_and_comm(address, comm)
 		host.destroy if host
 	end
@@ -1216,6 +1262,7 @@ class DBManager
 	# Look for an address across all comms
 	#
 	def has_host?(wspace,addr)
+		address, scope = addr.split('%', 2)
 		wspace.hosts.find_by_address(addr)
 	end
 
@@ -1451,7 +1498,7 @@ class DBManager
 			end
 
 			# Force addr to be the address and not hostname
-			addr = Rex::Socket.getaddress(addr)
+			addr = Rex::Socket.getaddress(addr, true)
 		end
 
 		ret = {}
@@ -2184,7 +2231,7 @@ class DBManager
 			# then it's an amap log
 			@import_filedata[:type] = "Amap Log"
 			return :amap_log
-		elsif (firstline =~ /^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)
+		elsif ipv46_validator(firstline)
 			# then its an IP list
 			@import_filedata[:type] = "IP Address List"
 			return :ip_list
@@ -2233,7 +2280,7 @@ class DBManager
 				next if port.to_i == 0
 				uri = URI.parse(host.attributes['sitename']) rescue nil
 				next unless uri and uri.scheme
-				# Collect and report scan descriptions. 
+				# Collect and report scan descriptions.
 				host.elements.each do |item|
 					if item.elements['description']
 						desc_text = item.elements['description'].text
@@ -2255,16 +2302,16 @@ class DBManager
 						if item.attributes['osvdbid'].to_i != 0
 							desc_data[:refs] = ["OSVDB-#{item.attributes['osvdbid']}"]
 							desc_data[:name] = "NIKTO-#{item.attributes['id']}"
-							desc_data.delete(:data) 
+							desc_data.delete(:data)
 							desc_data.delete(:type)
 							desc_data.delete(:update)
 							report_vuln(desc_data)
 						end
 					end
-				end				
+				end
 			end
 		end
-	end		
+	end
 
 	def import_libpcap_file(args={})
 		filename = args[:filename]
@@ -2508,7 +2555,7 @@ class DBManager
 			end
 
 			next unless [addr,port,user,pass].compact.size == 4
-			next unless ipv4_validator(addr) # Skip Malformed addrs
+			next unless ipv46_validator(addr) # Skip Malformed addrs
 			next unless port[/^[0-9]+$/] # Skip malformed ports
 			if bl.include? addr
 				next
@@ -2622,7 +2669,7 @@ class DBManager
 				target_data = ::File.open(target) {|f| f.read 1024}
 				if import_filetype_detect(target_data) == :msf_xml
 					@import_filedata[:zip_extracted_xml] = target
-					break
+					#break
 				end
 			end
 		end
@@ -4200,7 +4247,7 @@ class DBManager
 		when "http-proxy";                  "http"
 		when "iiimsf";                      "db2"
 		when "oracle-tns";                  "oracle"
-		when "quickbooksrds";               "metasploit"		
+		when "quickbooksrds";               "metasploit"
 		when /^dns-(udp|tcp)$/;             "dns"
 		when /^dce[\s+]rpc$/;               "dcerpc"
 		else
@@ -4271,7 +4318,7 @@ class DBManager
 			data = r[6]
 
 			# If there's no resolution, or if it's malformed, skip it.
-			next unless ipv4_validator(addr)
+			next unless ipv46_validator(addr)
 
 			if bl.include? addr
 				next
@@ -4376,7 +4423,7 @@ class DBManager
 				hname = host.elements['HostName'].text
 			end
 			addr ||= host.elements['HostName'].text
-			next unless ipv4_validator(addr) # Skip resolved names and SCAN-ERROR.
+			next unless ipv46_validator(addr) # Skip resolved names and SCAN-ERROR.
 			if bl.include? addr
 				next
 			else
@@ -4446,7 +4493,7 @@ class DBManager
 			hobj = nil
 			addr = host['addr'] || host['hname']
 
-			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			next unless ipv46_validator(addr) # Catches SCAN-ERROR, among others.
 
 			if bl.include? addr
 				next
@@ -4760,7 +4807,7 @@ class DBManager
 			hobj = nil
 			addr = host['addr'] || host['hname']
 
-			next unless ipv4_validator(addr) # Catches SCAN-ERROR, among others.
+			next unless ipv46_validator(addr) # Catches SCAN-ERROR, among others.
 
 			if bl.include? addr
 				next
@@ -5181,8 +5228,9 @@ class DBManager
 		norm_host = nil
 
 		if (host.kind_of? String)
-			# If it's an IPv4 addr with a host on the end, strip the port
-			if host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
+		
+			# If it's an IPv4 addr with a port on the end, strip the port
+			if Rex::Socket.is_ipv4?(host) and host =~ /((\d{1,3}\.){3}\d{1,3}):\d+/
 				norm_host = $1
 			else
 				norm_host = host

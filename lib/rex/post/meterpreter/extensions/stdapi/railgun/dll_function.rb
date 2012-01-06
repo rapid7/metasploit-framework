@@ -50,7 +50,7 @@ class DLLFunction
 	@@directions = ["in", "out", "inout", "return"].freeze
 
 	attr_reader :return_type,  :params, :windows_name
-	
+
 	def initialize(return_type, params, windows_name)
 		check_return_type(return_type) # we do error checking as early as possible so the library is easier to use
 		check_params(params)
@@ -58,9 +58,9 @@ class DLLFunction
 		@params = params
 		@windows_name = windows_name
 	end
-	
+
 	private
-	
+
 	def check_type_exists (type)
 		if not @@allowed_datatypes.has_key?(type)
 			raise ArgumentError, "Type unknown: #{type}. Allowed types: #{PP.pp(@@allowed_datatypes.keys, "")}"
@@ -85,16 +85,16 @@ class DLLFunction
 
 			# Only our set of predefined directions are valid
 			unless @@directions.include?(direction)
-				raise ArgumentError, "invalid direction: #{direction}" 
+				raise ArgumentError, "invalid direction: #{direction}"
 			end
 
 			# 'return' is not a valid direction in this context
 			unless direction != "return"
-				raise "direction 'return' is only for the return value of the function." 
+				raise "direction 'return' is only for the return value of the function."
 			end
 		end
 	end
-	
+
 end
 
 end; end; end; end; end; end

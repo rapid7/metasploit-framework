@@ -710,7 +710,7 @@ class Metasploit3 < Msf::Auxiliary
 			'xp_IsNTAdmin',
 			'xp_mapdown_bitmap'
 		]
-		
+
 		query = <<-EOS
 SELECT CAST(SYSOBJECTS.NAME AS CHAR) FROM SYSOBJECTS, SYSPROTECTS WHERE SYSPROTECTS.UID = 0 AND XTYPE IN ('X','P')
 AND SYSOBJECTS.ID = SYSPROTECTS.ID

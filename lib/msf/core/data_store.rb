@@ -223,7 +223,7 @@ class DataStore < Hash
 		end
 		list.each(&block)
 	end
-	
+
 protected
 
 	#

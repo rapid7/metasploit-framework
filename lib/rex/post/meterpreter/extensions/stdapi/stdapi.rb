@@ -43,7 +43,7 @@ class Stdapi < Extension
 		# can be directly referenced
 		client.register_extension_aliases(
 			[
-				{ 
+				{
 					'name' => 'fs',
 					'ext'  => ObjectAliases.new(
 						{
@@ -70,7 +70,7 @@ class Stdapi < Extension
 							'config'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Config.new(client),
 							'socket'   => Rex::Post::Meterpreter::Extensions::Stdapi::Net::Socket.new(client)
 						})
-				},	
+				},
 				{
 					'name' => 'railgun',
 					'ext'  => Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.new(client)

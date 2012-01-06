@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Terminal Server Client Connection Information Dumper',
-			'Description'   => %q{ 
+			'Description'   => %q{
 				This module dumps MRU and connection data for RDP sessions
 			},
 			'License'       => MSF_LICENSE,
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
 			begin
 				tmpkey = session.sys.registry.open_key(root_key, base_key, KEY_READ)
 				tmpkey_values = tmpkey.enum_key
-				if tmpkey_values.include?('Default') 
+				if tmpkey_values.include?('Default')
 					defaultkey = session.sys.registry.open_key(root_key, base_key + '\\Default', KEY_READ)
 					print_good('Systems connected to:')
 					(defaultkey.enum_value).each do |x|
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Post
 						print_good("#{hostval} is connected to as #{hostvalkey.query_value('UsernameHint').data}")
 					end
 				end
-                        rescue Rex::Post::Meterpreter::RequestError => e
+			rescue Rex::Post::Meterpreter::RequestError => e
 			end
 		end
 		unload_our_hives(userhives)

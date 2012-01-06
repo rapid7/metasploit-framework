@@ -56,79 +56,75 @@
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
                           <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="descriptionBox" alignment="0" min="-2" max="-2" attributes="0"/>
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="generateButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="displayButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="saveButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="handleButton" min="-2" max="-2" attributes="0"/>
-                                      <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="handleConsoleButton" min="-2" max="-2" attributes="0"/>
-                                  </Group>
-                              </Group>
-                              <EmptySpace min="-2" pref="500" max="-2" attributes="0"/>
+                              <Component id="descriptionBox" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="1394" max="-2" attributes="0"/>
                           </Group>
-                          <Group type="102" alignment="0" attributes="0">
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Group type="102" alignment="0" attributes="0">
-                                      <Component id="outputScrollPane" min="-2" pref="691" max="-2" attributes="0"/>
-                                      <EmptySpace pref="26" max="-2" attributes="0"/>
+                          <Group type="102" attributes="0">
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Component id="outputPathLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="encoderLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="outputLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="timesLabel" min="-2" max="-2" attributes="1"/>
+                                  <Component id="addCodeLabel" alignment="1" min="-2" max="-2" attributes="1"/>
+                                  <Component id="badcharsLabel" alignment="1" min="-2" max="-2" attributes="1"/>
+                                  <Component id="archLabel" alignment="1" min="-2" max="-2" attributes="1"/>
+                                  <Component id="templateLabel" alignment="1" min="-2" max="-2" attributes="1"/>
+                              </Group>
+                              <EmptySpace type="separate" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" attributes="0">
+                                  <Group type="102" alignment="1" attributes="0">
+                                      <Component id="outputPathField" pref="853" max="32767" attributes="1"/>
+                                      <EmptySpace max="-2" attributes="0"/>
+                                      <Component id="choosePathButton" min="-2" pref="91" max="-2" attributes="0"/>
                                   </Group>
+                                  <Component id="archField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="badcharsField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="timesField" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="outputCombo" alignment="0" pref="950" max="32767" attributes="1"/>
+                                  <Component id="encoderCombo" alignment="0" min="-2" pref="540" max="-2" attributes="1"/>
                                   <Group type="102" alignment="0" attributes="0">
-                                      <Group type="103" groupAlignment="0" attributes="0">
-                                          <Group type="103" alignment="0" groupAlignment="0" max="-2" attributes="0">
-                                              <Component id="encoderLabel" alignment="0" max="32767" attributes="1"/>
-                                              <Component id="outputLabel" alignment="0" max="32767" attributes="1"/>
-                                              <Component id="timesLabel" alignment="0" max="32767" attributes="1"/>
-                                              <Component id="outputPathLabel" alignment="0" min="-2" max="-2" attributes="1"/>
-                                              <Component id="addCodeLabel" alignment="0" max="32767" attributes="1"/>
-                                          </Group>
-                                          <Component id="templateLabel" min="-2" max="-2" attributes="1"/>
-                                          <Component id="archLabel" min="-2" pref="177" max="-2" attributes="1"/>
+                                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                          <Component id="addCodeField" max="32767" attributes="1"/>
+                                          <Component id="templateField" alignment="0" pref="447" max="32767" attributes="1"/>
                                       </Group>
                                       <EmptySpace max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="1" attributes="0">
-                                          <Component id="archField" alignment="0" pref="310" max="32767" attributes="1"/>
-                                          <Component id="timesField" alignment="0" pref="310" max="32767" attributes="1"/>
-                                          <Component id="outputCombo" alignment="0" pref="310" max="32767" attributes="1"/>
-                                          <Component id="encoderCombo" alignment="0" pref="310" max="32767" attributes="1"/>
-                                          <Group type="102" alignment="0" attributes="0">
-                                              <Component id="outputPathField" min="-2" pref="213" max="-2" attributes="1"/>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Component id="choosePathButton" min="-2" pref="91" max="-2" attributes="0"/>
-                                          </Group>
-                                          <Group type="102" alignment="1" attributes="0">
-                                              <Group type="103" groupAlignment="1" attributes="0">
-                                                  <Component id="addCodeField" alignment="0" pref="217" max="32767" attributes="0"/>
-                                                  <Component id="templateField" alignment="1" pref="217" max="32767" attributes="1"/>
-                                              </Group>
-                                              <EmptySpace max="-2" attributes="0"/>
-                                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                                                  <Component id="addCodeButton" max="32767" attributes="1"/>
-                                                  <Component id="templateButton" alignment="0" pref="87" max="32767" attributes="1"/>
-                                              </Group>
-                                          </Group>
+                                          <Component id="addCodeButton" pref="497" max="32767" attributes="1"/>
+                                          <Component id="templateButton" alignment="0" pref="497" max="32767" attributes="1"/>
                                       </Group>
-                                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
-                                      <Component id="templateWorkingCheck" min="-2" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
-                              <EmptySpace min="-2" pref="349" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="templateWorkingCheck" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace min="-2" pref="115" max="-2" attributes="0"/>
                           </Group>
                       </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Group type="102" alignment="0" attributes="0">
+                              <Component id="generateButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="displayButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="saveButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="handleButton" min="-2" max="-2" attributes="0"/>
+                              <EmptySpace max="-2" attributes="0"/>
+                              <Component id="handleConsoleButton" min="-2" max="-2" attributes="0"/>
+                          </Group>
+                          <Component id="outputScrollPane" alignment="0" min="-2" pref="691" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace min="-2" pref="795" max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="54" max="-2" attributes="0"/>
+                  <Group type="102" alignment="1" attributes="0">
+                      <EmptySpace min="-2" pref="119" max="-2" attributes="0"/>
                       <Component id="descriptionBox" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="78" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="generateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="displayButton" alignment="3" min="-2" max="-2" attributes="0"/>
@@ -137,47 +133,52 @@
                           <Component id="handleConsoleButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="outputScrollPane" max="32767" attributes="0"/>
-                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="outputScrollPane" pref="12" max="32767" attributes="0"/>
+                      <EmptySpace min="-2" pref="6" max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="outputPathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="outputPathField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="outputPathLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="choosePathButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="encoderLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="encoderCombo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="encoderLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="outputLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="outputCombo" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="outputLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="timesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="timesField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="timesLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="archLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="badcharsField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="badcharsLabel" alignment="3" min="-2" pref="23" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="3" attributes="0">
                           <Component id="archField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="archLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="templateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="templateField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="templateLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="templateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="templateWorkingCheck" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="addCodeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="addCodeField" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="addCodeLabel" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="addCodeButton" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace min="-2" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -406,6 +407,17 @@
               <Events>
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addCodeButtonActionPerformed"/>
               </Events>
+            </Component>
+            <Component class="javax.swing.JLabel" name="badcharsLabel">
+              <Properties>
+                <Property name="text" type="java.lang.String" resourceKey="badcharsLabel.text"/>
+                <Property name="name" type="java.lang.String" value="badcharsLabel" noResource="true"/>
+              </Properties>
+            </Component>
+            <Component class="javax.swing.JTextField" name="badcharsField">
+              <Properties>
+                <Property name="name" type="java.lang.String" value="badcharsField" noResource="true"/>
+              </Properties>
             </Component>
           </SubComponents>
         </Container>

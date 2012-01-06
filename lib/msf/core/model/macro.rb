@@ -4,7 +4,7 @@ class DBManager
 class Macro < ActiveRecord::Base
 	include DBSave
 	serialize :actions
-	serialize :prefs	
+	serialize :prefs
 end
 
 end

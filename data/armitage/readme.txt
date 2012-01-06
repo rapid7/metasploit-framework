@@ -69,7 +69,10 @@ See section 8 for more information.
 lib/jgraphx.jar is used here within the terms of the BSD license offered by
 JGraphX Ltd. http://www.jgraphx.com/
 -
-Code in src/msf/* comes from msfgui by scriptjunkie. 
+lib/msgpack-0.5.1-devel.jar and lib/postgresql-9.1-901.jdbc4.jar are both 
+BSD licensed libraries.
+-
+Some code in src/msf/* comes from msfgui by scriptjunkie. 
 -
 This project uses the LGPL Sleep scripting language with no modifications. 
 Sleep's source is available at: http://sleep.dashnine.org/

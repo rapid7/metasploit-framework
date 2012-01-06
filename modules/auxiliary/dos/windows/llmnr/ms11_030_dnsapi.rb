@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# counts
 		pkt << [1,0,0,0].pack('n*')
-		
+
 		if str[0,1] == "."
 			pkt << [str.length].pack('C')
 		end

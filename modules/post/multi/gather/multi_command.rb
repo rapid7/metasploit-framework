@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 		if not ::File.exists?(datastore['RESOURCE'])
 			raise "Resource File does not exists!"
 		else
-			::File.open(datastore['RESOURCE'], "br").each_line do |cmd|
+			::File.open(datastore['RESOURCE'], "rb").each_line do |cmd|
 				next if cmd.strip.length < 1
 				next if cmd[0,1] == "#"
 				begin

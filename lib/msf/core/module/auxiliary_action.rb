@@ -11,7 +11,7 @@ class Msf::Module::AuxiliaryAction
 	#
 	# Serialize from an array to an Action instance.
 	#
-	def self.from_a(ary)		
+	def self.from_a(ary)
 		return nil if ary.nil?
 		self.new(*ary)
 	end

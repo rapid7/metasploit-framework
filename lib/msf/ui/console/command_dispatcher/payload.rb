@@ -40,7 +40,7 @@ class Payload
 	#
 	def commands
 		super.update({
-			"generate" => "Generates a payload",	
+			"generate" => "Generates a payload",
 		})
 	end
 
@@ -68,7 +68,7 @@ class Payload
 		template     = nil
 		plat         = nil
 		keep         = false
-		
+
 		@@generate_opts.parse(args) { |opt, idx, val|
 			case opt
 				when '-b'

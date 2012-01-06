@@ -98,7 +98,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				shosts_range.each{|shost| if is_ipv4? shost then @shosts.push shost end}
 			end
-			
+
 			if datastore['BROADCAST']
 				broadcast_spoof
 			else
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			if capture and @spoofing and not datastore['BROADCAST']
 				print_status("RE-ARPing the victims...")
-				3.times do 					
+				3.times do
 					@dsthosts_cache.keys.sort.each do |dhost|
 						dmac = @dsthosts_cache[dhost]
 						if datastore['BIDIRECTIONAL']
@@ -197,7 +197,7 @@ class Metasploit3 < Msf::Auxiliary
 					@dsthosts_cache[reply.arp_saddr_ip] = reply.arp_saddr_mac
 				end
 			end
-			
+
 		end
 		#Wait some few seconds for last packets
 		etime = Time.now.to_f + datastore['TIMEOUT']
@@ -221,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
 				if @dsthosts_cache.has_key? shost
 					if datastore['VERBOSE']
 						print_status("Adding #{shost} from destination cache")
-					end		
+					end
 					@srchosts_cache[shost] = @dsthosts_cache[shost]
 					next
 				end
@@ -269,7 +269,7 @@ class Metasploit3 < Msf::Auxiliary
 		@spoofing = true
 		while(true)
 			if datastore['AUTO_ADD']
-				@mutex_cache.lock			
+				@mutex_cache.lock
 				if @dsthosts_autoadd_cache.length > 0
 					@dsthosts_cache.merge!(@dsthosts_autoadd_cache)
 					@dsthosts_autoadd_cache = {}
@@ -330,6 +330,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	#copy paste from rex::socket cause we need only ipv4
+	#NOTE: Breaks msftidy's rule on long lines, should be refactored for readability.
 	def is_ipv4?(addr)
 		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end
@@ -366,7 +367,7 @@ class Metasploit3 < Msf::Auxiliary
 		return unless pkt.arp_opcode == 2
 		pkt
 	end
-	
+
 	def start_listener(dsthosts_cache, srchosts_cache)
 
 		if datastore['BIDIRECTIONAL']
@@ -386,8 +387,8 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					args[:shosts].each {|address| liste_src_ips.push address}
 				end
-				liste_dst_ips = []	
-				args[:dhosts].each_key {|address| liste_dst_ips.push address}	
+				liste_dst_ips = []
+				args[:dhosts].each_key {|address| liste_dst_ips.push address}
 				localip = args[:localip]
 
 				listener_capture = ::Pcap.open_live(@interface, 68, true, 0)
@@ -419,7 +420,7 @@ class Metasploit3 < Msf::Auxiliary
 										@srchosts_autoadd_cache[pkt.arp_saddr_ip] = pkt.arp_saddr_mac
 										liste_src_ips.push pkt.arp_saddr_ip
 										@mutex_cache.unlock
-									end			
+									end
 								end
 							end
 						end

@@ -53,6 +53,18 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
+		print_status("Verifying login exists at #{target_url}")
+		begin
+			res = send_request_cgi({
+					'method'  => 'GET',
+					'uri'     => datastore['URI']
+				}, 20)
+		rescue
+			print_error("The Axis2 login page does not exist at #{target_url}")
+			return
+		end
+
 		print_status "#{target_url} - Apache Axis - Attempting authentication"
 
 		each_user_pass { |user, pass|
@@ -81,7 +93,8 @@ class Metasploit3 < Msf::Auxiliary
 					:user   => user,
 					:pass   => pass,
 					:proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",
-					:source_type => "user supplied",
+					:source_type => "user_supplied",
+					:duplicate_ok => true,
 					:active => true
 				)
 

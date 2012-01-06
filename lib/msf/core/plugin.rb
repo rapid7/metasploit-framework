@@ -10,12 +10,12 @@ module Msf
 # them during the course of a framework's lifetime.  For instance, a plugin
 # could be loaded to alter the default behavior of new sessions, such as by
 # scripting meterpreter sessions that are created.  The possiblities are
-# endless! 
+# endless!
 #
 # All plugins must exist under the Msf::Plugin namespace.  Plugins are
 # reference counted to allow them to be loaded more than once if they're a
 # singleton.
-# 
+#
 ###
 class Plugin
 

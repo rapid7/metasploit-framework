@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Enumerate Domain Tokens',
-				'Description'   => %q{ 
+				'Description'   => %q{
 						This module will enumerate tokens present on a system that are part of the
 						domain the target host is part of, will also enumerate users in the local
 						Administrators, Users and Backup Operator groups to identify Domain members.
@@ -111,7 +111,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Impersonation Tokens with Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Token Type",
 				"Account Type",
 				"Name",
@@ -122,7 +122,7 @@ class Metasploit3 < Msf::Post
 		user_tokens = client.incognito.incognito_list_tokens(0)
 		user_delegation = user_tokens["delegation"].split("\n")
 		user_impersonation = user_tokens["impersonation"].split("\n")
-		
+
 		group_tokens = client.incognito.incognito_list_tokens(1)
 		group_delegation = group_tokens["delegation"].split("\n")
 		group_impersonation = group_tokens["impersonation"].split("\n")
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Account in Local Groups with Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Group",
 				"Member",
 				"Domain Admin"
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Processes under Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Name",
 				"PID",
 				"Arch",

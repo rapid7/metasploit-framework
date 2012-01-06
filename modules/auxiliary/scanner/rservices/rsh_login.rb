@@ -170,6 +170,9 @@ class Metasploit3 < Msf::Auxiliary
 		buf = sock.get_once(1)
 		if buf != "\x00"
 			buf = sock.get_once(-1)
+			if buf.nil?
+				return :failed
+			end
 			result = buf.gsub(/[[:space:]]+/, ' ')
 			vprint_error("Result: #{result}")
 			return :skip_user if result =~ /locuser too long/
@@ -233,7 +236,7 @@ class Metasploit3 < Msf::Auxiliary
 			:user	=> user,
 			:luser => luser,
 			:proof  => proof,
-			:source_type => "user supplied",
+			:source_type => "user_supplied",
 			:active => true
 		)
 

@@ -25,7 +25,7 @@ module Basic
 	def type
 		"basic"
 	end
-	
+
 protected
 
 	#

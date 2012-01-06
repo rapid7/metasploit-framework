@@ -40,7 +40,7 @@ module Railgun
 class MultiCaller
 
 		include DLLHelper
-		
+
 		def initialize( client, parent )
 			@parent = parent
 			@client = client
@@ -102,7 +102,7 @@ class MultiCaller
 							args[param_idx] = 8
 							buffer_size = args[param_idx]
 						end
-						
+
 						if( @native == 'Q' )
 							raise "Please pass 8 for 'out' PDWORDS, since they require a buffer of size 8" unless buffer_size == 8
 						elsif( @native == 'V' )
@@ -299,11 +299,11 @@ class MultiCaller
 			function_results
 		end
 		# process_multi_function_call
-	
+
 	protected
-	
+
 	attr_accessor :win_consts
-	
+
 end # MultiCall
-	
+
 end; end; end; end; end; end

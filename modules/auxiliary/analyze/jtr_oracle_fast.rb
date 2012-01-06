@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		@wordlist = Rex::Quickfile.new("jtrtmp")
 
-		@wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )	
+		@wordlist.write( build_seed().flatten.uniq.join("\n") + "\n" )
 		@wordlist.close
 		crack("oracle")
 		crack("oracle11g")
@@ -69,7 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		myworkspace.hosts.find(:all).each {|o| seed << john_expand_word( o.name ) if o.name }
-		myworkspace.creds.each do |o| 
+		myworkspace.creds.each do |o|
 			seed << john_expand_word( o.user ) if o.user
 			seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
 		end
@@ -78,14 +78,14 @@ class Metasploit3 < Msf::Auxiliary
 		john_cracked_passwords.values {|v| seed << v }
 
 		#Grab the default John Wordlist
-		john = File.open(john_wordlist_path, "r")
+		john = File.open(john_wordlist_path, "rb")
 		john.each_line{|line| seed << line.chomp}
 
 		return seed
 
 	end
-	
-	
+
+
 	def crack(format)
 
 		hashlist = Rex::Quickfile.new("jtrtmp")
@@ -116,8 +116,8 @@ class Metasploit3 < Msf::Auxiliary
 
 			cracked = john_show_passwords(hashlist.path, format)
 
-			print_status("#{cracked[:cracked]} hashes were cracked!")	
-			cracked[:users].each_pair do |k,v|	
+			print_status("#{cracked[:cracked]} hashes were cracked!")
+			cracked[:users].each_pair do |k,v|
 				print_good("Host: #{v[1]} Port: #{v[2]} User: #{k} Pass: #{v[0]}")
 				report_auth_info(
 					:host  => v[1],

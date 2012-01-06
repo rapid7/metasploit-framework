@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 		wordlist = Rex::Quickfile.new("jtrtmp")
 		hashlist = Rex::Quickfile.new("jtrtmp")
-		
+
 		begin
 			# Seed the wordlist with usernames, passwords, and hostnames
 			seed = []
@@ -47,42 +47,42 @@ class Metasploit3 < Msf::Auxiliary
 				seed << john_expand_word( o.user ) if o.user
 				seed << john_expand_word( o.pass ) if (o.pass and o.ptype !~ /hash/)
 			end
-			
+
 			# Grab any known passwords out of the john.pot file
 			john_cracked_passwords.values {|v| seed << v }
-	
+
 			# Write the seed file
 			wordlist.write( seed.flatten.uniq.join("\n") + "\n" )
-			
+
 			print_status("Seeded the password database with #{seed.length} words...")
-			
+
 			# Append the standard JtR wordlist as well
 			::File.open(john_wordlist_path, "rb") do |fd|
 				wordlist.write fd.read(fd.stat.size)
 			end
 
-			# Close the wordlist to prevent sharing violations (windows)			
+			# Close the wordlist to prevent sharing violations (windows)
 			wordlist.close
-	
+
 			# Create a PWDUMP style input file for SMB Hashes
 			smb_hashes = myworkspace.creds.select{|x| x.ptype == "smb_hash" }
 			smb_hashes.each do |cred|
 				hashlist.write( "cred_#{cred[:id]}:#{cred[:id]}:#{cred[:pass]}:::\n" )
 			end
 			hashlist.close
-			
+
 			if smb_hashes.length > 0
 				cracked_ntlm = {}
 				cracked_lm   = {}
 				added        = []
-				
+
 				# Crack this in LANMAN format using wordlist mode with tweaked rules
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'lm')
 
 				# Crack this in LANMAN format using various incremntal modes
 				john_crack(hashlist.path, :incremental => "All4", :format => 'lm')
 				john_crack(hashlist.path, :incremental => "Digits5", :format => 'lm')
-								
+
 				# Parse cracked passwords and permute LANMAN->NTLM as needed
 				cracked = john_show_passwords(hashlist.path, 'lm')
 				cracked[:users].each_pair do |k,v|
@@ -90,52 +90,52 @@ class Metasploit3 < Msf::Auxiliary
 					next if (v[0,7] == "???????" or v[7,7] == "???????")
 					next if not k =~ /^cred_(\d+)/m
 					cid  = $1.to_i
-					
+
 					cracked_lm[k] = v
-					
+
 					cred_find = smb_hashes.select{|x| x[:id] == cid}
 					next if cred_find.length == 0
-					
+
 					cred = cred_find.first
 					ntlm = cred.pass.split(":", 2).last
 					done = john_lm_upper_to_ntlm(v, ntlm)
 					cracked_ntlm[k] = done if done
 				end
-				
+
 				# Append any cracked values to the wordlist
 				tfd = ::File.open(wordlist.path, "ab")
 				cracked_lm.values.each   {|w| if not added.include?(w); tfd.write( w + "\n" ); added << w; end }
 				cracked_ntlm.values.each {|w| if not added.include?(w); tfd.write( w + "\n" ); added << w; end }
 				tfd.close
-				
+
 				# Crack this in NTLM format
 				john_crack(hashlist.path, :wordlist => wordlist.path, :rules => 'single', :format => 'nt')
-				
+
 				# Crack this in NTLM format using various incremntal modes
 				john_crack(hashlist.path, :incremental => "All4", :format => 'nt')
 				john_crack(hashlist.path, :incremental => "Digits5", :format => 'nt')
-								
+
 				# Parse cracked passwords
 				cracked = john_show_passwords(hashlist.path, 'nt')
 				cracked[:users].each_pair do |k,v|
 					next if cracked_ntlm[k]
-					cracked_ntlm[k] = v			
+					cracked_ntlm[k] = v
 				end
-				
+
 				# Append any cracked values to the wordlist
 				tfd = ::File.open(wordlist.path, "ab")
 				cracked_ntlm.values.each {|w| if not added.include?(w); tfd.write( w + "\n" ); added << w; end }
 				tfd.close
-				
+
 				# Store the cracked results based on user_id => cred.id
 				cracked_ntlm.each_pair do |k,v|
 					next if not k =~ /^cred_(\d+)/m
 					cid = $1.to_i
-					
+
 					cred_find = smb_hashes.select{|x| x[:id] == cid}
 					next if cred_find.length == 0
 					cred = cred_find.first
-					
+
 					print_good("Cracked: #{cred.user}:#{v} (#{cred.service.host.address}:#{cred.service.port})")
 					report_auth_info(
 						:host  => cred.service.host,
@@ -148,9 +148,9 @@ class Metasploit3 < Msf::Auxiliary
 					)
 				end
 			end
-			
+
 			# XXX: Enter other hash types here (shadow, etc)
-		
+
 		rescue ::Timeout::Error
 		ensure
 			wordlist.close rescue nil

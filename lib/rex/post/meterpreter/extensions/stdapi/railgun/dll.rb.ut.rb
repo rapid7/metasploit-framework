@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib')) 
+$:.unshift(File.join(File.dirname(__FILE__), '..', '..', '..','..','..','..','..', 'lib'))
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/dll'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/mock_magic'

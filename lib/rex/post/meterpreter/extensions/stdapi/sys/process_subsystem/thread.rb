@@ -97,7 +97,7 @@ class Thread
 		request.add_tlv(TLV_TYPE_CREATION_FLAGS, creation_flags)
 
 		# Transmit the request
-		response = process.client.send_request(request)	
+		response = process.client.send_request(request)
 
 
 		thread_id     = response.get_tlv_value(TLV_TYPE_THREAD_ID)

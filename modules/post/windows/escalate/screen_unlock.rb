@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Post
 					[ 'URL', 'http://www.storm.net.nz/projects/16' ]
 				]
 		))
-		
+
 		register_options([
 			OptBool.new('REVERT', [false, "Enable this option to revert the in-memory patch and enable locking again", false])
 		], self.class)

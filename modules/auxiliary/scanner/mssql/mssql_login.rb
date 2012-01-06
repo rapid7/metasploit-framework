@@ -62,9 +62,9 @@ class Metasploit3 < Msf::Auxiliary
 					:host => rhost,
 					:port => rport,
 					:sname => 'mssql',
-					:user => user,
+					:user => user.downcase,
 					:pass => pass,
-					:source_type => "user supplied",
+					:source_type => "user_supplied",
 					:active => true
 				)
 				return :next_user

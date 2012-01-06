@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				}
 				print_good("#{ip} Found Users: #{@users.uniq.sort.join(", ")} ")
-				
+
 				@users.each do |user|
 					report_note(
 					:host => rhost,

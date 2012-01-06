@@ -56,6 +56,14 @@ class Metasploit3 < Msf::Post
 	end
 
 	def check_dir(dir, token)
+		# If path doesn't exist, do not continue
+		begin
+			session.fs.dir.entries(dir)
+		rescue
+			print_error("Path seems invalid: #{dir}")
+			return nil
+		end
+
 		adv =  session.railgun.advapi32
 		si = "OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION"
 		result = ""
@@ -74,14 +82,12 @@ class Metasploit3 < Msf::Post
 		len = a["PrivilegeSetLength"]
 
 		r = adv.AccessCheck(sd, token, "ACCESS_READ", gen_map, len, len, 4, 8)
-		if !r["return"] then return "Failed" end
+		if !r["return"] then return nil end
 		if r["GrantedAccess"] > 0 then result << "R" end
 
 		w = adv.AccessCheck(sd, token, "ACCESS_WRITE", gen_map, len, len, 4, 8)
-		if !w["return"] then return "Failed" end
+		if !w["return"] then return nil end
 		if w["GrantedAccess"] > 0 then result << "W" end
-
-		return result
 	end
 
 	def enum_subdirs(dpath, maxdepth, token)
@@ -128,11 +134,11 @@ class Metasploit3 < Msf::Post
 			print_status("Got token...")
 			print_status("Checking directory permissions from: " + path)
 
-			#check staring directory
-			print_status(check_dir(path, t) + "\t" + path)
-
-			#call recursive function to loop through and check all sub directories
-			enum_subdirs(path, depth, t)
+			is_path_valid = check_dir(path, t)
+			if not is_path_valid.nil?
+				#call recursive function to loop through and check all sub directories
+				enum_subdirs(path, depth, t)
+			end
 		end
 	end
 end

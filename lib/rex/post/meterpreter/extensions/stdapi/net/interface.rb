@@ -46,8 +46,8 @@ class Interface
 				"Hardware MAC: %02x:%02x:%02x:%02x:%02x:%02x\n" +
 				"IP Address  : %s\n" +
 				"Netmask     : %s\n" +
-				"\n", 
-				macocts[0], macocts[1], macocts[2], macocts[3], 
+				"\n",
+				macocts[0], macocts[1], macocts[2], macocts[3],
 				macocts[4], macocts[5], ip, netmask)
 	end
 

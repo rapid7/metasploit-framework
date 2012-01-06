@@ -24,7 +24,7 @@ class Def_netapi32
 
 		return dll
 	end
-	
+
 end
 
 end; end; end; end; end; end; end

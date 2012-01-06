@@ -121,7 +121,7 @@ class Metasploit3 < Msf::Post
 
 		@chrome_files.map{ |e| e[:in_file] }.uniq.each do |f|
 			remote_path = chrome_path + '\\' + f
-			
+
 			#Verify the path before downloading the file
 			begin
 				x = session.fs.file.stat(remote_path)

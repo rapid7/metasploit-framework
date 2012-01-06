@@ -94,7 +94,7 @@ class Metasploit3 < Msf::Auxiliary
 							parse_reply(r)
 						end
 					end
-					
+
 					idx += 1
 
 				end
@@ -187,7 +187,7 @@ class Metasploit3 < Msf::Auxiliary
 						:pass   => comm,
 						:duplicate_ok => true,
 						:active => true,
-						:source_type => "user supplied",
+						:source_type => "user_supplied",
 						:type   => "password"
 					)
 				end
@@ -202,7 +202,7 @@ class Metasploit3 < Msf::Auxiliary
 						:pass   => comm,
 						:duplicate_ok => true,
 						:active => true,
-						:source_type => "user supplied",
+						:source_type => "user_supplied",
 						:type   => "password_ro"
 					)
 				end
@@ -245,10 +245,10 @@ class Metasploit3 < Msf::Auxiliary
 		if(pkt[1] =~ /^::ffff:/)
 			pkt[1] = pkt[1].sub(/^::ffff:/, '')
 		end
-		
+
 		asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
 		return if not asn
-		
+
 		snmp_error = asn.value[0].value rescue nil
 		snmp_comm  = asn.value[1].value rescue nil
 		snmp_data  = asn.value[2].value[3].value[0] rescue nil
@@ -260,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		inf = snmp_info
 		com = snmp_comm
-		
+
 		if(com)
 			@found[pkt[1]]||={}
 			if(not @found[pkt[1]][com])

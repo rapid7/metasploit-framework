@@ -339,7 +339,7 @@ class Module
 	end
 
 	#
-	# Return the module's version information.
+	# Return the module's legacy version information.
 	#
 	def version
 		module_info['Version'].split(/,/).map { |ver|
@@ -601,7 +601,15 @@ class Module
 	def debugging?
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
-
+	
+	#
+	# Indicates whether the module supports IPv6. This is true by default,
+	# but certain modules require additional work to be compatible or are
+	# hardcoded in terms of application support and should be skipped.
+	#
+	def support_ipv6?
+		true
+	end
 
 	#
 	# This provides a standard set of search filters for every module.

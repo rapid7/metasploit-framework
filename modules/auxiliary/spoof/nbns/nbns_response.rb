@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 					machine to an IP of the attacker's choosing. Combined with auxiliary/capture/server/smb or
 					capture/server/http_ntlm it is a highly effective means of collecting crackable hashes on
 					common networks.
-					
+
 					This module must be run as root and will bind to tcp/137 on all interfaces.
 			},
 			'Author'     => [ 'Tim Medin <tim@securitywhole.com>' ],

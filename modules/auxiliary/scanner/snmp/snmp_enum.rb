@@ -953,7 +953,7 @@ class Metasploit3 < Msf::Auxiliary
 			disconnect_snmp
 
 		rescue SNMP::RequestTimeout
-			print_status("#{ip}, SNMP request timeout.")
+			vprint_status("#{ip}, SNMP request timeout.")
 		rescue Errno::ECONNREFUSED
 			print_status("#{ip}, Connection refused.")
 		rescue SNMP::InvalidIpAddress

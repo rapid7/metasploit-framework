@@ -8,7 +8,7 @@
 #    http://msu-nftc.org
 
 class Metasploit3 < Msf::Post
-	
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows Gather Physical Drives and Logical Volumes',

@@ -49,11 +49,11 @@ class Metasploit3 < Msf::Auxiliary
 			'SPECIAL',
 			'TEMPORARY'
 		]
-		
+
 		if val > (stypes.length - 1)
 			return 'UNKNOWN'
 		end
-		
+
 		stypes[val]
 	end
 

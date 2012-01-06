@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("There was an error reading the MySQL User Table")
 			return
 		end
-		
+
 		this_service = report_service(
 					:host  => datastore['RHOST'],
 					:port => datastore['RPORT'],
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		#create a table to store data
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'MysQL Server Hashes',
-			'Ident'   => 1,
+			'Indent'   => 1,
 			'Columns' => ['Username', 'Hash']
 		)
 
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 				next if row[0]== "test"
 				mysql_schema[row[0]]= get_tbl_names(row[0])
 			end
-		end	
+		end
 		report_other_data(mysql_schema)
 	end
 

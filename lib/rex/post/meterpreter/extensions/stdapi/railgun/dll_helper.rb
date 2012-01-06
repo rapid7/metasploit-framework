@@ -32,7 +32,7 @@ module Railgun
 #
 # shared functions
 #
-# 
+#
 module DLLHelper
 
 	# converts ruby string to zero-terminated ASCII string
@@ -133,7 +133,7 @@ module DLLHelper
 					blob += buffer
 					# sf: force 8 byte alignment to satisfy x64, wont matter on x86.
 					while( blob.length % 8 != 0 )
-						blob += "\x00" 
+						blob += "\x00"
 					end
 					#puts "   heap blob size now #{blob.length}"
 				end
@@ -142,7 +142,7 @@ module DLLHelper
 		#puts "  built buffer: #{direction}"
 		return [layout, blob]
 	end
-	
+
 end
 
-end; end; end; end; end; end; 
+end; end; end; end; end; end;

@@ -3,12 +3,12 @@ module RPC
 class RPC_Db < RPC_Base
 
 private
-	def db 
+	def db
 		self.framework.db.active
 	end
 
 	def find_workspace(wspace = nil)
-	 	if(wspace and wspace != "")
+		if(wspace and wspace != "")
 			return self.framework.db.find_workspace(wspace) || error(500, "Invalid workspace")
 		end
 		self.framework.db.workspace
@@ -23,7 +23,7 @@ private
 	end
 
 	def opts_to_hosts(opts)
-		wspace = find_workspace(opts[:workspace]) 
+		wspace = find_workspace(opts[:workspace])
 		hosts  = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
@@ -42,7 +42,7 @@ private
 	end
 
 	def opts_to_services(hosts,opts)
-		wspace = find_workspace(opts[:workspace]) 
+		wspace = find_workspace(opts[:workspace])
 		services = []
 		if opts[:host] or opts[:address] or opts[:addresses]
 			return services if hosts.count < 1
@@ -69,7 +69,7 @@ private
 		end
 		return services
 	end
-	
+
 	def db_check
 		error(500, "Database Not Loaded") if not db
 	end
@@ -95,12 +95,11 @@ public
 
 		ret = {}
 		ret[:hosts] = []
-		wspace.hosts.all(:conditions => conditions, :order => :address, 
+		wspace.hosts.all(:conditions => conditions, :order => :address,
 				:limit => limit, :offset => offset).each do |h|
 			host = {}
 			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
-			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
 			host[:name] = h.name.to_s
 			host[:state] = h.state.to_s
@@ -135,7 +134,7 @@ public
 				:limit => limit, :offset => offset).each do |s|
 			service = {}
 			host = s.host
-			service[:host] = host.address || host.address6 || "unknown"
+			service[:host] = host.address || "unknown"
 			service[:created_at] = s[:created_at].to_i
 			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
@@ -164,7 +163,7 @@ public
 		wspace.vulns.all(:include => :service, :conditions => conditions, :limit => limit, :offset => offset).each do |v|
 			vuln = {}
 			reflist = v.refs.map { |r| r.name }
-			if(v.service)	
+			if(v.service)
 				vuln[:port] = v.service.port
 				vuln[:proto] = v.service.proto
 			else
@@ -172,7 +171,7 @@ public
 				vuln[:proto] = nil
 			end
 			vuln[:time] = v.created_at.to_i
-			vuln[:host] = v.host.address || v.host.address6 || nil	
+			vuln[:host] = v.host.address || nil
 			vuln[:name] = v.name
 			vuln[:refs] = reflist.join(',')
 			ret[:vulns] << vuln
@@ -252,7 +251,7 @@ public
 
 	def rpc_get_host(xopts)
 		opts, wspace = init_db_opts_workspace(xopts)
-		
+
 		ret = {}
 		ret[:host] = []
 		opts = fix_options(xopts)
@@ -261,7 +260,6 @@ public
 			host = {}
 			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
-			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
 			host[:name] = h.name.to_s
 			host[:state] = h.state.to_s
@@ -274,7 +272,7 @@ public
 			host[:info] = h.info.to_s
 			ret[:host] << host
 		end
-		ret	
+		ret
 	end
 
 	def rpc_report_host(xopts)
@@ -283,7 +281,7 @@ public
 		res = self.framework.db.report_host(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
-		
+
 	end
 
 	def rpc_report_service(xopts)
@@ -320,11 +318,11 @@ public
 		services << sret if sret.class == Msf::DBManager::Service
 		services |= sret if sret.class == Array
 
-		
+
 		services.each do |s|
 			service = {}
 			host = s.host
-			service[:host] = host.address || host.address6 || "unknown"
+			service[:host] = host.address || "unknown"
 			service[:created_at] = s[:created_at].to_i
 			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
@@ -371,7 +369,7 @@ public
 		notes.each do |n|
 			note = {}
 			host = n.host
-			note[:host] = host.address || host.address6 || "unknown"
+			note[:host] = host.address || "unknown"
 			if n.service
 				note[:port] = n.service.port
 				note[:proto] = n.service.proto
@@ -423,7 +421,7 @@ public
 			service = host.services.find_by_proto_and_port(opts[:proto],opts[:port]) if host.services.count > 0
 			opts[:service] = service if service
 		end
-			
+
 		res = self.framework.db.report_note(opts)
 		return { :result => 'success' } if(res)
 		{ :result => 'failed' }
@@ -443,13 +441,13 @@ public
 
 		ret = {}
 		ret[:notes] = []
-		wspace.notes.all(:include => [:host, :service], :conditions => conditions, 
+		wspace.notes.all(:include => [:host, :service], :conditions => conditions,
 				:limit => limit, :offset => offset).each do |n|
 			note = {}
 			note[:time] = n.created_at.to_i
 			note[:host] = ""
 			note[:service] = ""
-			note[:host] = n.host.address || n.host.address6 if(n.host)
+			note[:host] = n.host.address if(n.host)
 			note[:service] = n.service.name || n.service.port  if(n.service)
 			note[:type ] = n.ntype.to_s
 			note[:data] = n.data.inspect
@@ -475,7 +473,7 @@ public
 			i.each do |k,v|
 				info[k.to_sym] = v
 			end
-			ret[:auth_info] << info	
+			ret[:auth_info] << info
 		end
 		ret
 	end
@@ -490,7 +488,7 @@ public
 		hosts  = []
 		services = []
 		vulns = []
-			
+
 		if opts[:host] or opts[:address] or opts[:addresses]
 			hosts = opts_to_hosts(opts)
 		end
@@ -546,10 +544,10 @@ public
 			dent[:proto] = v.service.proto if v.service
 			dent[:name] = v.name
 			deleted << dent
-			v.destroy	
+			v.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def rpc_del_note(xopts)
@@ -557,7 +555,7 @@ public
 		hosts  = []
 		services = []
 		notes = []
-			
+
 		if opts[:host] or opts[:address] or opts[:addresses]
 			hosts = opts_to_hosts(opts)
 		end
@@ -612,10 +610,10 @@ public
 			dent[:proto] = n.service.proto if n.service
 			dent[:ntype] = n.ntype
 			deleted << dent
-			n.destroy	
+			n.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def rpc_del_service(xopts)
@@ -658,7 +656,7 @@ public
 			services << sret if sret and sret.class == Msf::DBManager::Service
 			services |= sret if sret and sret.class == Array
 		end
-		
+
 		deleted = []
 		services.each do |s|
 			dent = {}
@@ -666,16 +664,16 @@ public
 			dent[:port] = s.port
 			dent[:proto] = s.proto
 			deleted << dent
-			s.destroy	
+			s.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def rpc_del_host(xopts)
 		db_check
 		opts = fix_options(xopts)
-		wspace = find_workspace(opts[:workspace]) 
+		wspace = find_workspace(opts[:workspace])
 		hosts  = []
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
@@ -693,10 +691,10 @@ public
 		deleted = []
 		hosts.each do |h|
 			deleted << h.address.to_s
-			h.destroy	
+			h.destroy
 		end
-			
-		return { :result => 'success', :deleted => deleted } 
+
+		return { :result => 'success', :deleted => deleted }
 	end
 
 	def rpc_report_vuln(xopts)
@@ -718,18 +716,18 @@ public
 
 		wspace.events.all(:limit => limit, :offset => offset).each do |e|
 			event = {}
-			event[:host] = e.host.address || e.host.address6 if(e.host)
+			event[:host] = e.host.address if(e.host)
 			event[:created_at] = e.created_at.to_i
 			event[:updated_at] = e.updated_at.to_i
 			event[:name] = e.name
-			event[:critical] = e.critical if(e.critical)	
-			event[:username] = e.username if(e.username)	
+			event[:critical] = e.critical if(e.critical)
+			event[:username] = e.username if(e.username)
 			event[:info] = e.info
 			ret[:events] << event
 		end
 		ret
 	end
-	
+
 	def rpc_report_event(xopts)
 		opts, wspace = init_db_opts_workspace(xopts)
 		res = self.framework.db.report_event(opts)
@@ -757,7 +755,7 @@ public
 		ret[:loots] = []
 		wspace.loots.all(:limit => limit, :offset => offset).each do |l|
 			loot = {}
-			loot[:host] = l.host.address || l.host.address6 if(l.host)
+			loot[:host] = l.host.address if(l.host)
 			loot[:service] = l.service.name || n.service.port  if(n.service)
 			loot[:ltype] = l.ltype
 			loot[:ctype] = l.ctype
@@ -778,7 +776,7 @@ public
 		return { :result => 'success' } if res
 		{ :result => 'failed' }
 	end
-	
+
 	#right now workspace is the only option supported
 	def rpc_creds(xopts)
 		opts, wspace = init_db_opts_workspace(xopts)
@@ -787,10 +785,10 @@ public
 
 		ret = {}
 		ret[:creds] = []
-		DBManager::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?", 
+		DBManager::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
 				framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
 			cred = {}
-			cred[:host] = c.service.host.address || c.service.host.address6 if(c.service.host)
+			cred[:host] = c.service.host.address if(c.service.host)
 			cred[:updated_at] = c.updated_at.to_i
 			cred[:port] = c.service.port
 			cred[:proto] = c.service.proto
@@ -803,7 +801,7 @@ public
 		end
 		ret
 	end
-	
+
 	def rpc_import_data(xopts)
 		opts, wspace = init_db_opts_workspace(xopts)
 		self.framework.db.import(opts)
@@ -827,7 +825,7 @@ public
 			return ret if sret == nil
 			services << sret if sret.class == Msf::DBManager::Service
 			services |= sret if sret.class == Array
-			
+
 			services.each do |s|
 				vulns |= s.vulns
 			end
@@ -836,11 +834,11 @@ public
 		end
 
 		return ret if (not vulns)
-		
+
 		vulns.each do |v|
 			vuln= {}
 			host= v.host
-			vuln[:host] = host.address || host.address6 || "unknown"
+			vuln[:host] = host.address || "unknown"
 			if v.service
 				vuln[:port] = v.service.port
 				vuln[:proto] = v.service.proto
@@ -852,12 +850,12 @@ public
 			vuln[:refs] = []
 			v.refs.each do |r|
 				vuln[:refs] << r.name
-			end	
+			end
 			ret[:vuln] << vuln
 		end
 		ret
 	end
-	
+
 	def rpc_clients(xopts)
 		opts, wspace = init_db_opts_workspace(xopts)
 		limit = opts.delete(:limit) || 100
@@ -888,7 +886,7 @@ public
 	def rpc_del_client(xopts)
 		db_check
 		opts = fix_options(xopts)
-		wspace = find_workspace(opts[:workspace]) 
+		wspace = find_workspace(opts[:workspace])
 		hosts = []
 		clients = []
 
@@ -900,7 +898,7 @@ public
 
 		hosts.each do |h|
 			cret = nil
-			if opts[:ua_name] or opts[:ua_ver]	
+			if opts[:ua_name] or opts[:ua_ver]
 				conditions = {}
 				conditions[:ua_name] = opts[:ua_name] if opts[:ua_name]
 				conditions[:ua_ver] = opts[:ua_ver] if opts[:ua_ver]
@@ -919,10 +917,10 @@ public
 			dent[:address] = c.host.address.to_s
 			dent[:ua_string] = c.ua_string
 			deleted << dent
-			c.destroy	
+			c.destroy
 		end
 
-		{ :result => 'success', :deleted => deleted } 	
+		{ :result => 'success', :deleted => deleted }
 	end
 
 	def rpc_driver(xopts)
@@ -954,7 +952,7 @@ public
 				return { :result => 'failed' }
 			end
 		end
-		
+
 		driver = self.framework.db.driver
 
 		case driver
@@ -963,19 +961,19 @@ public
 		else
 			return { :result => 'failed' }
 		end
-	
-		if (not self.framework.db.connect(opts))		
+
+		if (not self.framework.db.connect(opts))
 			return { :result => 'failed' }
 		end
 		return { :result => 'success' }
-		
+
 	end
 
 	def rpc_status
 		if (not self.framework.db.driver)
 			return {:driver => 'None' }
 		end
-		
+
 		cdb = ""
 		if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
 			if ActiveRecord::Base.connection.respond_to? :current_database
@@ -989,7 +987,7 @@ public
 		end
 		{:driver => 'None' }
 	end
-	
+
 	def rpc_disconnect
 		if (self.framework.db)
 			self.framework.db.disconnect()

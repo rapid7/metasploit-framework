@@ -49,13 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 				OptPath.new('PASS_FILE',  [ false, "File containing passwords, one per line",
 					File.join(Msf::Config.install_root, "data", "wordlists", "http_default_pass.txt") ]),
 				OptString.new('AUTH_URI', [ false, "The URI to authenticate against (default:auto)" ]),
-				OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth (default:GET)", "GET" ])
+				OptString.new('REQUESTTYPE', [ false, "Use HTTP-GET or HTTP-PUT for Digest-Auth, PROPFIND for WebDAV (default:GET)", "GET" ])
 			], self.class)
 		register_autofilter_ports([ 80, 443, 8080, 8081, 8000, 8008, 8443, 8444, 8880, 8888 ])
 	end
 
 	def find_auth_uri_and_scheme
-		
+
 		path_and_scheme = []
 		if datastore['AUTH_URI'] and datastore['AUTH_URI'].length > 0
 			paths = [datastore['AUTH_URI']]
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 				/Management.asp
 			}
 		end
-		
+
 		paths.each do |path|
 			res = send_request_cgi({
 				'uri'     => path,
@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		
+
 		if ( datastore['REQUESTTYPE'] == "PUT" ) and (datastore['AUTH_URI'] == "")
 			print_error("You need need to set AUTH_URI when using PUT Method !")
 			return
@@ -142,7 +142,7 @@ class Metasploit3 < Msf::Auxiliary
 		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		proof   = ""
-		
+
 		ret  = do_http_login(user,pass,@scheme)
 		return :abort if ret == :abort
 		if ret == :success
@@ -183,7 +183,7 @@ class Metasploit3 < Msf::Auxiliary
 				:user   => user,
 				:pass   => pass,
 				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",
-				:source_type => "user supplied",
+				:source_type => "user_supplied",
 				:active => true
 			)
 
@@ -264,7 +264,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		return :fail
 	end
-	
+
 	def do_http_auth_digest(user,pass,requesttype)
 		path = datastore['AUTH_URI'] || "/"
 		begin
@@ -277,6 +277,16 @@ class Metasploit3 < Msf::Auxiliary
 					'DigestAuthUser' => user,
 					'DigestAuthPassword' => pass
 				}, 25)
+			elsif requesttype == "PROPFIND"
+				res,c = send_digest_request_cgi({
+					'uri'     => path,
+					'method'  => requesttype,
+					'data'	=> '<?xml version="1.0" encoding="utf-8"?><D:propfind xmlns:D="DAV:"><D:allprop/></D:propfind>',
+					#'DigestAuthIIS' => false,
+					'DigestAuthUser' => user,
+					'DigestAuthPassword' => pass,
+					'headers' => { 'Depth' => '0'}
+				}, 25)
 			else
 				res,c = send_digest_request_cgi({
 					'uri'     => path,
@@ -284,17 +294,17 @@ class Metasploit3 < Msf::Auxiliary
 					#'DigestAuthIIS' => false,
 					'DigestAuthUser' => user,
 					'DigestAuthPassword' => pass
-				}, 25)				
+				}, 25)
 			end
 
 			unless (res.kind_of? Rex::Proto::Http::Response)
 				vprint_error("#{target_url} not responding")
 				return :abort
 			end
-			
+
 			return :abort if (res.code == 404)
 
-			if (res.code == 200) or (res.code == 201)
+			if (res.code == 200) or (res.code == 201) 
 				if ((res.code == 201) and (requesttype == "PUT"))
 					print_good("Trying to delete #{path}")
 					del_res,c = send_digest_request_cgi({
@@ -307,6 +317,11 @@ class Metasploit3 < Msf::Auxiliary
 						print_error("#{path} could be created, but not deleted again. This may have been noisy ...")
 					end
 				end
+				@proof   = res
+				return :success
+			end
+
+			if (res.code == 207) and (requesttype == "PROPFIND")
 				@proof   = res
 				return :success
 			end

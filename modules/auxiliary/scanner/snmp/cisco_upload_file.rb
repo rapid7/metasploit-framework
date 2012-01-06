@@ -45,20 +45,20 @@ class Metasploit3 < Msf::Auxiliary
 	# Start the TFTP Server
 	#
 	def setup
-	
+
 		@path     = datastore['SOURCE']
 		@filename = @path.split(/[\/\\]/)[-1] #/
-		
+
 		# Setup is called only once
 		print_status("Starting TFTP server...")
 		@tftp = Rex::Proto::TFTP::Server.new(69, '0.0.0.0', { 'Msf' => framework, 'MsfExploit' => self })
-		
+
 		# Register our file name and data
 		::File.open(@path, "rb") do |fd|
 			buff = fd.read(fd.stat.size)
 			@tftp.register_file(@filename, buff)
 		end
-			
+
 		@tftp.start
 		add_socket(@tftp.sock)
 

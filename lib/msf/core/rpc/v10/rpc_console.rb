@@ -46,7 +46,7 @@ class RPC_Console < RPC_Base
 			"data"   => @console_driver.read_console(cid)    || '',
 			"prompt" => @console_driver.consoles[cid].prompt || '',
 			"busy"   => @console_driver.consoles[cid].busy   || false
-		 }
+		}
 	end
 
 	def rpc_write(cid, data)
@@ -56,20 +56,20 @@ class RPC_Console < RPC_Base
 	end
 
 	def rpc_tabs(cid, line)
-		cid = cid.to_s	
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		{ "tabs" => @console_driver.consoles[cid].tab_complete(line) }
 	end
 
 	def rpc_session_kill(cid)
-		cid = cid.to_s	
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		@console_driver.consoles[cid].session_kill
 		{ 'result' => 'success' }
 	end
 
 	def rpc_session_detach(cid)
-		cid = cid.to_s	
+		cid = cid.to_s
 		return { 'result' => 'failure' } if not @console_driver.consoles[cid]
 		@console_driver.consoles[cid].session_detach
 		{ 'result' => 'success' }

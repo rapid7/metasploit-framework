@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Post
 
 			creds = Rex::Ui::Text::Table.new(
 				'Header'  => 'Trillian versions 4-5 Instant Messenger Credentials',
-				'Ident'	=> 1,
+				'Indent'	=> 1,
 				'Columns' =>
 				[
 					'User',
@@ -84,10 +84,10 @@ class Metasploit3 < Msf::Post
 			print_status("Storing data...")
 			path = store_loot(
 				'trillian.user.creds',
-				'text/plain',
+				'text/csv',
 				session,
-				creds,
-				'trillian_user_creds.txt',
+				creds.to_csv,
+				'trillian_user_creds.csv',
 				'Trillian Instant Messenger User Credentials'
 				)
 

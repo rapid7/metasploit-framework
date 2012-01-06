@@ -2,7 +2,7 @@ require 'msf/core'
 
 module Msf::Payload::Java
 
-	# 
+	#
 	# Used by stages; all java stages need to define +@stage_class_files+ as an
 	# array of .class files located in data/java/
 	#

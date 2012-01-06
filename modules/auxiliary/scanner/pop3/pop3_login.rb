@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("POP3 server does not appear to be running")
 				return :abort
 			end
-		
+
 			vprint_status("#{target} - Trying user:'#{user}' with password:'#{pass}'")
 			cmd = "USER #{user}\r\n"
 			pop3_send(cmd,!@connected)
@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => 'pop3',
 						:user => user,
 						:pass => pass,
-						:source_type => "user supplied",
+						:source_type => "user_supplied",
 						:active => true
 					)
 					disconnect

@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 	def neighbor_discovery(neighs)
 		print_status("Discovering IPv6 addresses for IPv4 nodes...")
 		print_status("")
-		
+
 		smac  = datastore['SMAC']
 		open_pcap({'SNAPLEN' => 68, 'FILTER' => "icmp6"})
 
