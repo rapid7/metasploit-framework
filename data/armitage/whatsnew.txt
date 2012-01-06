@@ -1,6 +1,74 @@
 Armitage Changelog
 ==================
 
+5 Jan 12
+--------
+- Armitage d-server now transmits hosts, service, and session state only 
+  when something has changed. This makes teaming much snappier.
+- Uploading an imported hosts file now shows a progress dialog.
+- File browser upload function no longer blocks the user interface in team
+  mode. A progress dialog is shown for uploading larger files. 
+- Removed Ctrl+R refresh hosts shortcut from graph view (it's no longer 
+  necessary)
+- Armitage now exits if it was unable to connect to the collaboration server.
+- Hosts -> NMap Scans and Hosts -> MSF Scans dialogs are now populated with 
+  the selected values from the target area by default.
+- You may now interact with a Windows command shell through Java meterpreter.
+- Armitage no longer shows Webcam Shot option through Java meterpreter.
+- Armitage now detects when it does not have read permissions for the database
+  YAML file and prompts with something helpful. Before it would just freeze
+  with a blank dialog. Not helpful. :)
+- Armitage now only shows services that are open. 
+- View -> Reporting -> Export Data now has the capability of dumping the whole
+  database (not just the current workspace).
+- Added a dialog to View -> Reporting Export Data. Now you have the ability to
+  dump all hosts or choose to dump one of the dynamic workspaces. This gives
+  you a lot of flexibility with which hosts are included.
+- Cleaned up exported output of vulnerabilities in the Metasploit database:
+  -- duplicate entries are collapsed to one (this was the fault of my query)
+  -- refs column contains references separated by a comma and a space
+  -- added info and module columns. The module column indicates the appropriate
+     Metasploit module
+  -- Metasploit modules now populate name, info, and module in an appropriate
+     way.
+- Values exported to TSV are cleaned up such that newlines are replaced with a
+  literal \n and tabs are converted to three spaces.
+
+30 Dec 11 - last release of the year?
+---------
+- Hosts -> Clear Database now clears the sessions and clients tables 
+- Fixed a bug preventing dynamic workspace port/session filter from 
+  working on a fresh database. This was a fun one. This only affected 
+  folks with a completely fresh database and because Hosts -> Clear 
+  Database didn't clear everything, this went unnoticed until now.
+- Added various reverse shell payloads to payload helper dialog.
+- Added file chooser helper for SigningCert and SigningKey options.
+- Added hack to return correct route info when setting up pivoting through
+  Java meterpreter.
+- Armitage now posts a note to the event log when a user starts a browser 
+  exploit or a server module.
+- Armitage now supports dragging and dropping a module onto a host in graph
+  and table view. This action opens the module launcher configured to work
+  with that host.
+- Drastically rewrote MSF Scans. MSF Scans now intelligently builds a list
+  of ports to scan based on what Metasploit can do. After an initial port
+  scan, MSF Scans runs discovery modules against relevant hosts. As a bonus
+  you will see all of the output of these scans. 
+- Enhanced the Windows heuristic used to guess which OS image to display
+- The deconfliction server throttle is now less draconian about how long it
+  throttles a call.
+- Armitage no longer posts to the event log from the UI thread (this will
+  prevent the UI from blocking in some cases)
+- Command shell now handles interaction with d-server in a separate thread
+  from the UI thread. This will prevent UI blocking in some cases.
+- Added Ping Sweep... option for non-Windows meterpreter sessions. Now Java
+  meterpreter users have a quick host discovery option.
+- Change Host OS option now matches new Metasploit database schema.
+- Deconfliction server now sets LHOST to the IP address you provided. Also,
+  Armitage clients do not overwrite LHOST once it is set.
+- Interacting with a shell in team mode no longer blocks UI to communicate
+  with d-server.
+
 12 Dec 11
 ---------
 - Armitage teaming mode now downloads the resulting file for any fileformat

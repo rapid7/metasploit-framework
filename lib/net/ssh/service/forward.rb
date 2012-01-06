@@ -249,11 +249,11 @@ module Net; module SSH; module Service
           'PeerHost' => remote.host,
           'PeerPort' => remote.port,
           'Context'  => {
-             'Msf'        => options[:msframework],
-             'MsfExploit' => options[:msfmodule]
+             'Msf'        => session.options[:msframework],
+             'MsfExploit' => session.options[:msfmodule]
           }
         )
-        options[:msfmodule].add_socket(client) if options[:msfmodule]
+        session.options[:msfmodule].add_socket(client) if session.options[:msfmodule]
 
         info { "connected #{connected_address}:#{connected_port} originator #{originator_address}:#{originator_port}" }
 

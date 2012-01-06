@@ -12,3 +12,6 @@ user
 system
 sys
 none
+xampp
+wampp
+ppmax2011 

@@ -27,8 +27,8 @@ class Metasploit3 < Msf::Auxiliary
 				ChangeCipherspec Datagram before a ClientHello.
 			},
 			'Author'	=> [
-						'Jon Oberheide <jon@oberheide.org>', #original code
-						'TheLightCosine <thelightcosine@gmail.com>' # metasploit module
+						'Jon Oberheide <jon[at]oberheide.org>', #original code
+						'TheLightCosine <thelightcosine[at]gmail.com>' # metasploit module
 						],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',

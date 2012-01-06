@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			without SP1 does not seem affected by this flaw.
 			},
 
-			'Author'         => [ 'laurent.gaffie[at]gmail.com', 'hdm' ],
+			'Author'         => [ 'Laurent Gaffie <laurent.gaffie[at]gmail.com>', 'hdm' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$',
 			'References' =>
