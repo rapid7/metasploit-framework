@@ -141,7 +141,7 @@ module Meterpreter
 	#	run_script(script,options)
 	#end
 	
-	def copy_to(local,remote)
+	def copy_to_guest(local,remote)
 		setup_session
 		if @session.type == "meterpreter"
 			@session.run_cmd("upload #{local} #{remote}")
@@ -150,7 +150,7 @@ module Meterpreter
 		end
 	end
 	
-	def copy_from(local, remote)
+	def copy_from_guest(local, remote)
 		setup_session
 		if @session.type == "meterpreter"
 			@session.run_cmd("download #{local} #{remote}")

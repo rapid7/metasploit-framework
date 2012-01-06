@@ -383,7 +383,9 @@ class Plugin::Lab < Msf::Plugin
 
 			local_path = args[args.count-2]
 			vm_path = args[args.count-1]
-	
+
+			print_line "Copying from #{local_path} to #{vm_path} on #{args[0]}"
+
 			if args[0] == "all"
 					@controller.each do |vm|
 						if vm.running?

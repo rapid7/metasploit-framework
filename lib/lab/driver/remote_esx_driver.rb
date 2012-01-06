@@ -131,9 +131,9 @@ class RemoteEsxDriver < VmDriver
 	end
 
 	def running?
-		power_status_string = `ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.getstate #{@vmid}\"`
-		return true if power_status_string =~ /Powered on/
-	false
+		#power_status_string = `ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.getstate #{@vmid}\"`
+		#return true if power_status_string =~ /Powered on/
+		true
 	end 
 
 	def get_snapshots
