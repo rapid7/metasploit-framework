@@ -190,7 +190,7 @@ class Core
 			cmd_resource_help
 			return false
 		end
-		
+
 		args.each do |res|
 			good_res = nil
 			if (File.file? res and File.readable? res)
@@ -201,7 +201,7 @@ class Core
 					::Msf::Config.script_directory + File::SEPARATOR + "resource",
 					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
 				].each do |dir|
-					res_path = dir + File::SEPARATOR + res 
+					res_path = dir + File::SEPARATOR + res
 					if (File.file?(res_path) and File.readable?(res_path))
 						good_res = res_path
 						break
@@ -216,7 +216,7 @@ class Core
 			end
 		end
 	end
-	
+
 	#
 	# Tab completion for the resource command
 	#
@@ -227,7 +227,7 @@ class Core
 			# then you are probably specifying a full path so let's just use normal file completion
 			return tab_complete_filenames(str,words)
 		elsif (not words[1] or not words[1].match(/^\//))
-			# then let's start tab completion in the scripts/resource directories 
+			# then let's start tab completion in the scripts/resource directories
 			begin
 				[
 					::Msf::Config.script_directory + File::SEPARATOR + "resource",
@@ -2179,7 +2179,7 @@ class Core
 		print_line "Set the previously loaded module as the current module"
 		print_line
 	end
-	
+
 	#
 	# Command to enqueque a module on the module stack
 	#
@@ -2190,7 +2190,7 @@ class Core
 				@module_name_stack.push(arg)
 				# Note new modules are appended to the array and are only module (full)names
 			end
-		else #then just push the active module 
+		else #then just push the active module
 			if active_module
 				#print_status "Pushing the active module"
 				@module_name_stack.push(active_module.fullname)
@@ -2214,7 +2214,7 @@ class Core
 		print_line "push current active module or specified modules onto the module stack"
 		print_line
 	end
-	
+
 	#
 	# Command to dequeque a module from the module stack
 	#
