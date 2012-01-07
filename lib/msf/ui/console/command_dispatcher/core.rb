@@ -2200,7 +2200,11 @@ class Core
 			end
 		end
 	end
-	
+
+	def cmd_pushm_tabs(str, words)
+		tab_complete_module(str, words)
+	end
+
 	#
 	# Help for the 'pushm' command
 	#
@@ -2251,17 +2255,9 @@ class Core
 	# Tab completion for the use command
 	#
 	def cmd_use_tabs(str, words)
-		res = []
-		return res if words.length > 1
+		return [] if words.length > 1
 
-		framework.modules.module_types.each do |mtyp|
-			mset = framework.modules.module_names(mtyp)
-			mset.each do |mref|
-				res << mtyp + '/' + mref
-			end
-		end
-
-		return res.sort
+		tab_complete_module(str, words)
 	end
 
 	#
@@ -2275,6 +2271,22 @@ class Core
 
 		return true
 	end
+
+	#
+	# Tab complete module names
+	#
+	def tab_complete_module(str, words)
+		res = []
+		framework.modules.module_types.each do |mtyp|
+			mset = framework.modules.module_names(mtyp)
+			mset.each do |mref|
+				res << mtyp + '/' + mref
+			end
+		end
+
+		return res.sort
+	end
+
 
 	#
 	# Provide tab completion for option values
