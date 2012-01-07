@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Check if remote host is available or appears vulnerable
 		if not check(enum_uri)
-			print_error("#{ip} does not appera to be vulnerable, will not continue")
+			print_error("#{ip} does not appear to be vulnerable, will not continue")
 			return
 		end
 
