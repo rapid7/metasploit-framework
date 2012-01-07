@@ -1,4 +1,4 @@
-require 'rex/post/meterpreter/extensions/stdapi/railgun/type/platform_util'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/platform_util'
 
 module Rex
 module Post

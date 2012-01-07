@@ -3,7 +3,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', '..','..','..','..','..', '..', '..', 'lib')) 
 
 require 'rex/post/meterpreter/extensions/stdapi/railgun/type/pointer_util'
-require 'rex/post/meterpreter/extensions/stdapi/railgun/type/platform_util'
+require 'rex/post/meterpreter/extensions/stdapi/railgun/platform_util'
 require 'rex/post/meterpreter/extensions/stdapi/railgun/mock_magic'
 require 'test/unit'
 

@@ -4,7 +4,6 @@ module Meterpreter
 module Extensions
 module Stdapi
 module Railgun
-module Type
 module PlatformUtil
 
 	X86_64 = :x86_64
@@ -15,7 +14,6 @@ module PlatformUtil
 	end
 
 end # PlatformUtil
-end # Type
 end # Railgun
 end # Stdapi
 end # Extensions
