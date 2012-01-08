@@ -20,17 +20,15 @@ module PointerUtil
 	end
 
 	def self.pack_pointer(pointer, platform)
-
-		# TODO: Ensure the correct size
-		unless pointer.kind_of?(Fixnum)
-			return nil
+		if pointer.nil?
+			return pack_pointer(0, platform)
 		end
 
 		case platform
-		when X86_64
+		when PlatformUtil::X86_64
 			# XXX: Only works if attacker and victim are like-endianed 
 			[pointer].pack('Q')
-		when X86_32
+		when PlatformUtil::X86_32
 			[pointer].pack('V')
 		else
 			raise "platform symbol #{platform.to_s} not supported"
@@ -69,28 +67,28 @@ module PointerUtil
 		
 		return pointer.nil? || pointer == 0
 	end
-
-	def self.is_unpacked_pointer?(pointer, platform)
-		# TODO also check that the integer size is appropriate for the platform
-		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer < 
-			return false
-		end
-
-		packed_pointer = pack_pointer(pointer, platform)
-		if !packed_pointer.nil? and packed_pointer.length == pointer_size(platform)
-			return true
-		end
-
-		return false
-	end
-
+#
+#	def self.is_unpacked_pointer?(pointer, platform)
+#		# TODO also check that the integer size is appropriate for the platform
+#		unless pointer.kind_of?(Fixnum) and pointer > 0 # and pointer < 
+#			return false
+#		end
+#
+#		packed_pointer = pack_pointer(pointer, platform)
+#		if !packed_pointer.nil? and packed_pointer.length == pointer_size(platform)
+#			return true
+#		end
+#
+#		return false
+#	end
+#
 	# Returns true if the data type is a pointer, false otherwise
 	def self.is_pointer_type?(type)
 		if type == :pointer
 			return true
 		end
 
-		if type.kind_of?(String) && type =~ /^P/
+		if type.kind_of?(String) && type =~ /^L?P/
 			return true
 		end
 
