@@ -83,8 +83,8 @@ class WinConstManager
 		
 		# Filter matches by name if a filter has been provided
 		unless filter_regex.nil?
-			matches.select! do |name|
-				name =~ filter_regex
+			matches.reject! do |name|
+				name !~ filter_regex
 			end
 		end
 
