@@ -6,7 +6,7 @@ module Windows
 module Railgun
 
 	# Go through each dll and add a corresponding convenience method of the same name
-	Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun.builtin_dlls.each do |api|
+	Rex::Post::Meterpreter::Extensions::Stdapi::Railgun::Railgun::BUILTIN_DLLS.each do |api|
 		# We will be interpolating within an eval. We exercise due paranoia.
 		unless api.to_s =~ /^\w+$/
 			print_error 'Something is seriously wrong with Railgun.BUILTIN_DLLS list'
@@ -27,14 +27,16 @@ module Railgun
 	# Return an array of windows constants names matching +winconst+
 	#
 	def select_const_names(winconst, filter_regex=nil)
-		return railgun.constant_manager.select_const_names(winconst, filter_regex)
+		railgun.constant_manager.select_const_names(winconst, filter_regex)
 	end
 
 	#
 	# Returns an array of windows error code names for a given windows error code matching +err_code+ 
 	#
-	def error_lookup (err_code)
-		return select_const_names(err_code, /^ERROR_/)
+	def lookup_error (err_code, filter_regex=nil)
+		select_const_names(err_code, /^ERROR_/).select do |name|
+			name =~ filter_regex
+		end
 	end
 
 	def memread(address, length)
