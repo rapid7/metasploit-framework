@@ -40,6 +40,13 @@ class Cred < ActiveRecord::Base
 	def ssh_keys
 		(self.ssh_private_keys | self.ssh_public_keys)
 	end
+	
+	def ssh_key_matches?(other_cred)
+		return false unless self.ptype == "ssh_key"
+		return false unless other_cred.ptype == self.ptype
+		matches = self.ssh_private_keys
+		matches.include?(self) and matches.include?(other_cred)
+	end
 
 end
 
