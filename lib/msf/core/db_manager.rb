@@ -2,6 +2,9 @@ require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 
+# Provide access to ActiveRecord models shared w/ commercial versions
+require "msf_models"
+
 module Msf
 
 ###
@@ -12,7 +15,6 @@ module Msf
 ###
 
 class DBManager
-	# Provide access to ActiveRecord models
 	include MsfModels
 
 
@@ -62,10 +64,7 @@ class DBManager
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
-
-		# Load ActiveRecord if it is available
 		begin
-
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
