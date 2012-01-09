@@ -120,6 +120,14 @@ class Railgun::UnitTest < Test::Unit::TestCase
 
 			assert(!unfrozen_dll.frozen?,
 				"add_function should create a local unfrozen instance that get_dll can then access")
+
+			railgun2 = Railgun.new(make_mock_client())
+
+			assert(!railgun2.get_dll(dll_name).functions.has_key?('__lolz'),
+				"functions added to one instance of railgun should not be accessible to others")
+
+			assert_not_same(!railgun2.get_dll(dll_name).functions, unfrozen_dll.functions,
+				"function hash should have been duplicated during unfreeze")
 		end
 	end
 
