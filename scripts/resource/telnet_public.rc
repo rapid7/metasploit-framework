@@ -3,6 +3,8 @@
 hosts = {}
 host_id_to_ip = {}			# mapping of host id to host ip
 
+filter = '.+'				# if you want to restrict the targets to a particular IP network, set this (its a REGEXP)
+
 # list of telnet banners to a vendor
 @fingerprints = CSV.read(File.join(Msf::Config.install_root, 'data', 'wordlists', 'telnet_default_fingerprints.csv'))
 
@@ -39,12 +41,14 @@ end
 begin
 # get a mapping of host_ids to IP addresses for populating targets
 	framework.db.hosts.each do |host|
-		host_id_to_ip[host.id] = host.address
+		if(host.address =~ /#{filter}/)
+			host_id_to_ip[host.id] = host.address
+		end
 	end
-	# uncomment if you want to reconnect if it fails
-#	rescue ActiveRecord::ConnectionNotEstablished
-#		puts "DB not connected...trying to connect"
-#		self.run_single('db_connect <db>')
+	rescue ActiveRecord::ConnectionNotEstablished
+		puts "DB not connected...Database connection must be established prior to running this script"
+# uncomment if you want to auto connect
+#		self.run_single('db_connect <credentials>')
 #		puts "trying again..."
 #		retry
 end
@@ -62,6 +66,7 @@ framework.db.services.each do |service|
 	end
 end
 
+# setup the telnet_login module
 self.run_single("use auxiliary/scanner/telnet/telnet_login")
 self.run_single("set VERBOSE false")
 self.run_single("set USER_AS_PASS false")
@@ -73,7 +78,7 @@ vendor_ip_lists = {}
 hosts.each do |rhost|
 # for each host, check the vendor, combine like vendor into an IP target list (to take advantage of scanner threading)
 		vendor_list = checkVendor(rhost[1])
-		if(vendor_list != nil )
+		if(vendor_list != nil)
 			vendor_list.each do |x|
 				if (vendor_ip_lists[x] == nil)
 					vendor_ip_lists[x] = "#{rhost[0]} "
@@ -82,9 +87,7 @@ hosts.each do |rhost|
 				end
 			end
 		else
-			if(not rhost[1] =~ /YOU ARE ACCESSING A U\.S\. GOVERNMENT/)
-				puts "********** No vendor for #{rhost[0]} / #{rhost[1]}..."
-			end
+
 			if(vendor_ip_lists['none'] == nil)
 				vendor_ip_lists['none'] = "#{rhost[0]} "
 			else
@@ -99,13 +102,21 @@ vendor_ip_lists.each do |vendor, list|
 	users = vendorToUsers(vendor)
 	self.run_single("set RHOSTS #{list}")
 	if(users == nil)
+		# Don't have any users to try
+		# try blank first
 		self.run_single('unset PASSWORD')
 		self.run_single('unset USERNAME')
 		self.run_single('exploit')
+
+		if(vendor == "none")
+			# use default list
+			self.run_single("unset PASSWORD")
+			self.run_single("unset USERNAME")
+			self.run_single("set USERPASS_FILE " << File.join(Msf::Config.install_root, 'data', 'wordlists', 'root_userpass.txt'))
+			self.run_single('exploit')
+		end			
 	else
 		users.each do |c|
-
-#	print "For vendor #{vendor} would try #{users.inspect} against #{list.inspect}"
 			u,p = c.split(/\\x00/)
 			if("#{p}" != '')
 				self.run_single("set PASSWORD #{p}")
