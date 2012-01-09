@@ -19,7 +19,7 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'          => 'OSX Execute Calculator.app',
 			'Version'       => '$Revision$',
-			'Description'   => 'Executes Calculator.app',
+			'Description'   => 'Execute Calculator.app',
 			'Author'        => 'argp <argp[at]census-labs.com>',
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'osx',
