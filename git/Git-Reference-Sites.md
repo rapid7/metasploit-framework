@@ -13,6 +13,7 @@ The following sites are great references for Git padawans and jedi alike:
 * [The Git Parable](http://tom.preston-werner.com/2009/05/19/the-git-parable.html): A story by GitHub founder Tom Preston-Werner that reveals the underlying principles behind Git's construction. A great starting point for understanding the nature of Git.
 * [Git is Easier Than You Think](http://nfarina.com/post/9868516270/git-is-simpler): A nice tutorial that breaks down one Git user's experience switching from Subversion.
 * [PeepCode: Git](http://peepcode.com/products/git): A one-hour (not-free) screencast covering Git basics. Well-made and easy to follow.
+* [Git - The Simple Guide](http://rogerdudler.github.com/git-guide/): A simple introductory guide to getting up and running with Git.
 * [GitHub Flow](http://scottchacon.com/2011/08/31/github-flow.html): Another great post from Scott Chacon describing a GitHub-based workflow for projects.
 
 
