@@ -1,28 +1,51 @@
+PacketShaper ,Bluecoat
 Fabric OS,Brocade
 BUFFALO INC,Buffalo
 User Access Verification,Cisco
+Cisco Systems Console,Cisco
+^Username:,Cisco
+Cyclades,Cyclades
 Welcome to the DS2 command line processor,Dedicated Micros
+Connected to :,Dell
 Welcome to Pinon Debug Terminal,Dell
 login:,Digi
+EPSON,Epson
+HauteSpot,HauteSpot
 Configuration Login:,HP
+HP Printer,HP
 JetDirect,HP
 ProCurve Switch,HP
+Login Name:,HP
+IP Address: .+Enter Password:,Inter-Tel
 IRIX,generic
+KONICA MINOLTA,Konica Minolta
 KYOCERA,Kyocera
 MediaPOINTE,MediaPOINTE
+MikroTik,MikroTik
 Motorola,Motorola
+NPort \d+,Moxa
+Welcome to the MRV Communications,MRV Communications
 Data ONTAP,NetApp
+Telnet session,Nortel
+pSOSystem,Nortel
 \)switch login:,QLogic
 Patton Electronics,Patton
 PelcoNet,Pelco
 SAVIN Maintenance,Ricoh
-Network Printer Server Version,Printronix
 OkiLAN,Okilan
 Welcome to ViewStation,Polycom
+Welcome to the Accordent Capture Station,Polycom
+Please input your password,Polycom
+ConnectUPS,Powerware
+Network Printer Server Version,Printronix
+\[QB 11.+Please enter password:,QB11
 Red Hat Linux,generic
 RICOH,Ricoh
 SHARP,Sharp
 Sun\(tm\) Advanced Lights Out Manager,Sun
-MKS Telnet,TODO
+Remote Graphic Terminal Server,Sutron
+TANDBERG,Tandberg
+MKS Telnet,none
+Tut Systems,Tut Systems
 VxWorks login:,Shoretel
 VxWorks login:,Cisco

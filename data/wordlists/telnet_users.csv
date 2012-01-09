@@ -1,20 +1,35 @@
+Bluecoat,admin\x00admin
 Brocade,root\x00fibranne\x01admin\x00password\x01admin\x00brocade1
 Buffalo,root\x00
 Cisco,cisco\x00cisco\x01enable\x00cisco\x01admin\x00admin\x01Administrator\x00admin\x01root\x00cisco\x01admin\x00default\x01admin\x00diamond\x01\x00changeme\x01\x00changeit\x01\x00cisco\x01\x00letmein
+Cyclades,root\x00tslinux\x01root\x00\x01super\x00surt
 Dedicated Micros,dm\x00web
 Dell,admin\x00admin\x01admin\x00password\x01root\x00calvin
 Digi,root\x00dbps
-HP,\x00\x01admin\x00!admin\x01admin\x00admin
+Epson,\x00\x01\x000000\x01Epson
+HauteSpot,admin\x00
+HP,\x00\x01admin\x00!admin\x01admin\x00admin\x01oper\x00oper
+Inter-Tel,\x00iptpassw
+Konica Minolta,\x000000\x01\x00MagiMFP
 Kyocera,admin\x00admin\x01admin\x00
 MediaPointe,admin\x00MediaPOINTE
+MikroTek,admin\x00
 Motorola,cablecom\x00router\x01service\x00smile\x01admin\x00password\x01setup\x00
+Moxa,\x00
+MRV Communications,InReach\x00access
+Nortel,ro\x00ro\x01rw\x00rw\x01rwa\x00rwa\x01l2\x00l2\x01l3\x00l3\x01administrator\x00PlsChgMe!\x01supervisor\x00visor\x01admin\x00setup\x01ccrusr\x00ccrusr\x01service\x00smile\x01mlusr\x00mlusr\x01maint\x00maint\x01trmcnfg\x00trmcnfg\x01disttech\x004tas\x01disttech\x00etas\x01login\x000000\x01spcl\x000000\x01login\x000\x01admin\x00root\x01sysadmin\x00nortel\x01admin\x00admin
 QLogic,admin\x00config
 Okilan,admin\x00OkiLAN
 Patton,root\x00root\x01superuser\x00superuser\x01monitor\x00monitor
 Pelco,Administrator\x001234
-Polycom,\x00
+Polycom,\x00\x01Polycom\x00456\x01Polycom\x00SpIp
+Powerware,\x00admin
 Printronix,root\x00
+QB11,\x00public
 Ricoh,admin\x00\x01admin\x00password
 Sharp,admin\x00Sharp\x01admin\x00admin
 Shoretel,anonymous\x00ShoreTel
 Sun,root\x00changeme\x01admin\x00admin
+Sutron,\x00
+Tandberg,\x00TANDBERG
+Tut Systems,admin\x00\x01user\x00
