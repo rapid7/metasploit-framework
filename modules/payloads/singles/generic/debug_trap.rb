@@ -23,7 +23,7 @@ module Metasploit3
 			'Name'          => 'Generic x86 Debug Trap',
 			'Version'       => '$Revision$',
 			'Description'   => 'Generate a debug trap in the target process',
-			'Author'        => 'robert <robertmetasploit [at] gmail.com>',
+			'Author'        => 'robert <robertmetasploit[at]gmail.com>',
 			'Platform'	=> [ 'win', 'linux', 'bsd', 'solaris', 'bsdi', 'osx' ],
 			'License'       => MSF_LICENSE,
 			'Arch'		=> ARCH_X86,
