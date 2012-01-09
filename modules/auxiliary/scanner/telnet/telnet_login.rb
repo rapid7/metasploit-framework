@@ -66,7 +66,8 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			each_user_pass do |user, pass|
 				Timeout.timeout(overall_timeout) do
-					try_user_pass(user, pass)
+					res = try_user_pass(user, pass)
+					start_telnet_session(rhost,rport,user,pass) if res == :next_user
 				end
 			end
 		rescue ::Rex::ConnectionError, ::EOFError, ::Timeout::Error
@@ -112,11 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 			report_telnet(user,pass,@trace)
-		else
-			if login_succeeded?
-				start_telnet_session(rhost,rport,user,pass)
-				return :next_user
-			end
+			return :next_user
 		end
 	end
 
@@ -237,6 +234,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def start_telnet_session(host, port, user, pass)
+		print_status "Attempting to start session #{host}:#{port} with #{user}:#{pass}"
 		merge_me = {
 			'USERPASS_FILE' => nil,
 			'USER_FILE'     => nil,
