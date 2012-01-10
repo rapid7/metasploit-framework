@@ -5,6 +5,8 @@ require 'test/unit'
 require 'rex'
 
 require 'railgun/api_constants.rb.ut'
+require 'railgun/type/pointer_util.rb.ut'
+require 'railgun/platform_util.rb.ut'
 require 'railgun/buffer_item.rb.ut'
 require 'railgun/dll_function.rb.ut'
 require 'railgun/dll_helper.rb.ut'

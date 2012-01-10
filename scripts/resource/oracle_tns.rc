@@ -1,0 +1,28 @@
+# oracle_tns.rc
+# Author: nebulus
+
+<ruby>
+
+hosts = [
+'10.1.1.0/24',
+'10.1.2.1',
+'192.168.0.0/16'
+]
+
+ports = ['1521', '1522', '1526']
+
+self.run_single("use auxiliary/scanner/oracle/tnslsnr_version")
+
+hosts.each do |net|
+	ports.each do |port|
+		self.run_single("set RHOSTS #{net}")
+		self.run_single("set THREADS 128")
+		self.run_single("set RPORT #{port}")
+		self.run_single('set ConnectTimeout 5')
+		self.run_single('set VERBOSE false')
+		self.run_single('run')
+		sleep 1
+	end
+end
+</ruby>
+

@@ -12,6 +12,26 @@ module Extensions
 module Stdapi
 module Railgun
 class WinConstManager::UnitTest < Test::Unit::TestCase
+
+	def test_select_const_names
+		const_manager = WinConstManager.new
+
+		names = %w(W WW WWW)
+
+		names.each do |name|
+			const_manager.add_const(name, 23)
+		end
+
+		assert(const_manager.select_const_names(23).sort == names,
+			'select_const_names should return all names for given value')
+
+		const_manager.add_const('Skidoo!', 23)
+
+		assert(const_manager.select_const_names(23, /^\w{1,3}$/).sort == names,
+			'select_const_names should filter names with provided regex')
+		
+	end
+
 	def test_is_parseable
 		const_manager = WinConstManager.new
 

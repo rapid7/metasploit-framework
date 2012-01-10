@@ -1,3 +1,6 @@
+# run_all_post.rc
+# Author: mubix
+
 # This is a sample resource script demonstrating a technique of running
 # a single post module against several active sessions at once. The post
 # module should be the currently active module, with sessions from other

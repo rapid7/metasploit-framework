@@ -97,26 +97,6 @@ class RemoteEsxDriver < VmDriver
 	def delete_all_snapshots
 		remote_system_command("vim-cmd vmsvc/snapshot.removeall #{@vmid}")
 	end
-		
-	def run_command(command)
-		raise "Not Implemented"
-	end
-	
-	def copy_from_guest(from, to)
-		if @os == "linux"
-			scp_from(from, to)
-		else
-			raise "Unimplemented"
-		end
-	end
-
-	def copy_to_guest(from, to)
-		if @os == "linux"
-			scp_to(from, to)
-		else
-			raise "Unimplemented"
-		end
-	end
 
 	def check_file_exists(file)
 		raise "Not Implemented"
@@ -126,15 +106,136 @@ class RemoteEsxDriver < VmDriver
 		raise "Not Implemented"
 	end
 
-	def cleanup
+	def run_command(command, timeout=60)
+		
+		setup_session
+		#puts "Using session #{@session}"
+		
+		# TODO: pass the timeout down
+	
+		if @session
+			if @session.type == "shell"
+				#puts "Running command via shell: #{command}"
+				@session.shell_command_token(command, timeout)
+			elsif @session.type == "meterpreter" 
+				#puts "Running command via meterpreter: #{command}"
+				@session.shell_command(command)
+			end
+		else
+			raise "No session"
+		end
+	end
 
+	def copy_to_guest(local,remote)
+		setup_session
+		if @session.type == "meterpreter"
+			@session.run_cmd("upload #{local} #{remote}")
+		else
+			@driver.copy_to(local,remote)
+		end
+	end
+	
+	def copy_from_guest(local, remote)
+		setup_session
+		if @session.type == "meterpreter"
+			@session.run_cmd("download #{local} #{remote}")
+		else
+			@driver.copy_from(local,remote)
+		end
+	end
+
+	def cleanup
 	end
 
 	def running?
 		power_status_string = `ssh #{@user}@#{@host} \"vim-cmd vmsvc/power.getstate #{@vmid}\"`
 		return true if power_status_string =~ /Powered on/
-	false
 	end 
+
+private
+
+	def create_framework
+		return if @framework
+		@framework	= Msf::Simple::Framework.create
+	end
+
+	# perform the setup only once
+	def setup_session
+		return if @session
+
+		# require the framework (assumes this sits in lib/lab/modifiers)
+		require 'msf/base'
+
+		create_framework # TODO - this should use a single framework for all hosts, not one-per-host
+
+		@session = nil
+		@session_input	= Rex::Ui::Text::Input::Buffer.new
+		@session_output	= Rex::Ui::Text::Output::Buffer.new
+	
+		if @os == "windows"
+			exploit_name = 'windows/smb/psexec'
+
+			# TODO - check for x86, choose the appropriate payload
+
+			payload_name = 'windows/meterpreter/bind_tcp'
+			options = {	
+				"RHOST"		=> @hostname, 
+				"SMBUser"	=> @vm_user, 
+				"SMBPass"	=> @vm_pass}
+
+			#puts "DEBUG: using options #{options}"
+
+			# Initialize the exploit instance
+			exploit = @framework.exploits.create(exploit_name)
+
+			begin
+				# Fire it off.
+				@session = exploit.exploit_simple(
+					'Payload'     	=> payload_name,
+					'Options'     	=> options,
+					'LocalInput'  	=> @session_input,
+					'LocalOutput' 	=> @session_output)
+				@session.load_stdapi
+				
+				#puts "DEBUG: Generated session: #{@session}"
+				
+			rescue  Exception => e 
+					#puts "DEBUG: Unable to exploit"
+					#puts e.to_s
+			end
+		else
+			module_name = 'scanner/ssh/ssh_login'
+
+			# TODO - check for x86, choose the appropriate payload
+			
+			payload_name = 'linux/x86/shell_bind_tcp'
+			options = {	"RHOSTS"		=> @hostname, 
+					"USERNAME" 		=> @vm_user, 
+					"PASSWORD" 		=> @vm_pass, 
+					"BLANK_PASSWORDS" 	=> false, 
+					"USER_AS_PASS" 		=> false, 
+					"VERBOSE" 		=> false}
+
+			# Initialize the module instance
+			aux = @framework.auxiliary.create(module_name)
+
+			#puts "DEBUG: created module: #{aux}"
+
+			begin 
+				# Fire it off.
+				aux.run_simple(
+					'Payload'     => payload_name,
+					'Options'     => options,
+					'LocalInput'  => @session_input,
+					'LocalOutput' => @session_output)
+
+				@session = @framework.sessions.first.last
+			rescue Exception => e 
+				#puts "DEBUG: Unable to exploit"
+				#puts e.to_s
+			end
+		end
+	end
 
 	def get_snapshots
 		# Command take the format: 
@@ -147,7 +248,7 @@ class RemoteEsxDriver < VmDriver
 		#  ... 
 		snapshots = []
 		
-		# Use these to keep track of the parsing...		
+		# Use these to keep track of the parsing...
 		current_tree = -1
 		current_num = 0
 		count = 0

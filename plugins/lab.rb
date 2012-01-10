@@ -383,7 +383,7 @@ class Plugin::Lab < Msf::Plugin
 
 			local_path = args[args.count-2]
 			vm_path = args[args.count-1]
-	
+
 			if args[0] == "all"
 					@controller.each do |vm|
 						if vm.running?
@@ -393,7 +393,7 @@ class Plugin::Lab < Msf::Plugin
 					end
 			else
 				args[0..-2].each do |vmid_arg|
-					next unless @controller.includes_vmid? vmid_arg
+					next unless @controller.includes_hostname? vmid_arg
 					if @controller[vmid_arg].running?
 						print_line "Copying from #{local_path} to #{vm_path} on #{vmid_arg}"
 						@controller[vmid_arg].copy_to_guest(local_path, vm_path)

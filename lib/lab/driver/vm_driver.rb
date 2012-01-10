@@ -86,11 +86,11 @@ class VmDriver
 	def run_command(command)	
 		raise "Command not Implemented"
 	end
-	
+
 	def copy_from_guest(from, to)
 		raise "Command not Implemented"
 	end
-	
+
 	def copy_to_guest(from, to)
 		raise "Command not Implemented"
 	end
@@ -117,7 +117,6 @@ private
 		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 		#	scp.upload!(from,to)
 		#end	
-
 		system_command("scp #{local} #{@vm_user}@#{@hostname}:#{remote}")
 	end
 	
@@ -127,17 +126,13 @@ private
 		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 		#	scp.download!(from,to)
 		#end
-		
 		system_command("scp #{@vm_user}@#{@hostname}:#{remote} #{local}")
-
 	end
-	
+
 	def ssh_exec(command)
-		
 		::Net::SSH.start(@hostname, @vm_user, :password => @vm_pass) do |ssh|
 			result = ssh.exec!(command)
 		end
-		
 		`scp #{@vm_user}@#{@hostname} from to`
 	end
 
@@ -148,7 +143,6 @@ private
 		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
-
 	string
 	end
 
@@ -159,18 +153,17 @@ private
 		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
-
 	string
 	end
-	
+
 	# The only reason we don't filter here is because we need
 	# the ability to still run clean (controlled entirely by us)
 	# command lines.
 	def system_command(command)
 		`#{command}`
 	end
-	
-	
+
+
 	def remote_system_command(command)
 		system_command("ssh #{@user}@#{@host} \"#{command}\"")
 	end

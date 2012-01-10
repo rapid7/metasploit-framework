@@ -8,3 +8,6 @@ security
 user
 system
 sys
+wampp
+newuser
+xampp-dav-unsecure

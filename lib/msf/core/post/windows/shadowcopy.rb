@@ -5,9 +5,11 @@ module Msf
 class Post
 module Windows
 
+# Based on the research from Tim Tomes and Mark Baggett, at
+# http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html
 module ShadowCopy
-	include Msf::Post::Windows::WindowsServices
 
+	include Msf::Post::Windows::WindowsServices
 
 	def get_vss_device(id)
 		result = get_sc_param(id,'DeviceObject')

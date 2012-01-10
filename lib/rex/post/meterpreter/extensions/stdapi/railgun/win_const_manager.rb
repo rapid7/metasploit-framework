@@ -33,6 +33,7 @@ module Railgun
 # Manages our library of windows constants
 #
 class WinConstManager
+	attr_reader :consts
 
 	def initialize(initial_consts = {})
 		@consts = {}
@@ -40,12 +41,10 @@ class WinConstManager
 		initial_consts.each_pair do |name, value|
 			add_const(name, value)
 		end
-
-		# Load utility
 	end
 
 	def add_const(name, value)
-		@consts[name] = value
+		consts[name] = value
 	end
 
 	# parses a string constaining constants and returns an integer
@@ -59,41 +58,38 @@ class WinConstManager
 		return_value = 0
 		for one_const in s.split('|')
 			one_const = one_const.strip()
-			if not @consts.has_key? one_const
+			if not consts.has_key? one_const
 				return nil # at least one "Constant" is unknown to us
 			end
-			return_value |= @consts[one_const]
+			return_value |= consts[one_const]
 		end
 		return return_value
 	end
 
 	def is_parseable(s)
-		return parse(s) != nil
-	end
-	
-	# looks up a windows constant (integer or hex) and returns an array of matching winconstant names
-	#
-	# this function will NOT throw an exception but return "nil" if it can't find an error code
-	def rev_lookup(winconst, filter_regex=nil)
-		c = winconst.to_i # this is what we're gonna reverse lookup
-		arr = [] # results array
-		@consts.each_pair do |k,v|
-			arr << k if v == c
-		end
-		if filter_regex # this is how we're going to filter the results
-			# in case we get passed a string instead of a Regexp
-			filter_regex = Regexp.new(filter_regex) unless filter_regex.class == Regexp
-			# do the actual filtering
-			arr.select! do |item|
-				item if item =~ filter_regex
-			end
-		end
-		return arr
+		return !parse(s).nil?
 	end
 
-	def is_parseable(s)
-		return parse(s) != nil
-	end	
+	#
+	# Returns an array of constant names that have a value matching "winconst"
+	# and (optionally) a name that matches "filter_regex"
+	# 
+	def select_const_names(winconst, filter_regex=nil)
+		matches = []
+
+		consts.each_pair do |name, value|
+			matches << name if value == winconst
+		end
+		
+		# Filter matches by name if a filter has been provided
+		unless filter_regex.nil?
+			matches.reject! do |name|
+				name !~ filter_regex
+			end
+		end
+
+		return matches
+	end
 end
 
 end; end; end; end; end; end

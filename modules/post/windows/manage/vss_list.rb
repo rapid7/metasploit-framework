@@ -33,7 +33,10 @@ class Metasploit3 < Msf::Post
 			'License'              => MSF_LICENSE,
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
-			'Author'               => ['thelightcosine <thelightcosine[at]metasploit.com']
+			'Author'               => ['thelightcosine <thelightcosine[at]metasploit.com'],
+			'References'    => [
+				[ 'URL', 'http://pauldotcom.com/2011/11/safely-dumping-hashes-from-liv.html' ]
+			]
 		))
 	end
 
@@ -41,6 +44,10 @@ class Metasploit3 < Msf::Post
 	def run
 		unless is_admin?
 			print_error("This module requires admin privs to run")
+			return
+		end
+		if is_uac_enabled?
+			print_error("This module requires UAC to be bypassed first")
 			return
 		end
 		unless start_vss
