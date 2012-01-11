@@ -145,7 +145,7 @@ end
 def get_windows_messenger_information
 	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
 		contact_list_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NET Messenger Service")
-		file_transfers_information_key = @hive.realtive_query("\\Software\\Microsoft\\Messenger Service - FtReceiveFolder")
+		file_transfers_information_key = @hive.relative_query("\\Software\\Microsoft\\Messenger Service - FtReceiveFolder")
 		last_user_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NET Messenger Service - IdentityName")
 
 		print_all(contact_list_information_key)
