@@ -34,6 +34,15 @@ module File
 	end
 
 	#
+	# Returns a MD5 checksum of a given remote file
+	#
+
+	def file_remote_digestmd5(file2md5)
+		chksum = Digest::MD5.hexdigest(read_file(file2md5))
+		return chksum
+	end
+
+	#
 	# Returns a SHA1 checksum of a given local file
 	#
 	def file_local_digestsha1(file2sha1)
@@ -48,6 +57,15 @@ module File
 	end
 
 	#
+	# Returns a SHA1 checksum of a given remote file
+	#
+
+	def file_remote_digestsha1(file2sha1)
+		chksum = Digest::SHA1.hexdigest(read_file(file2sha1))
+		return chksum
+	end
+
+	#
 	# Returns a SHA256 checksum of a given local file
 	#
 	def file_local_digestsha2(file2sha2)
@@ -59,6 +77,15 @@ module File
 			chksum = Digest::SHA256.hexdigest(::File.open(file2sha2, "rb") { |f| f.read})
 			return chksum
 		end
+	end
+
+	#
+	# Returns a SHA2 checksum of a given remote file
+	#
+
+	def file_remote_digestsha2(file2sha2)
+		chksum = Digest::SHA256.hexdigest(read_file(file2sha2))
+		return chksum
 	end
 
 	#
