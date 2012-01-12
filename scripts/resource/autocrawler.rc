@@ -1,8 +1,9 @@
 # autocrawler.rc
 # Author: m-1-k-3 (Web: http://www.s3cur1ty.de / Twitter: @s3cur1ty_de)
 
-# this Metasploit RC-File could be used to crawl webapps automatically
+# This Metasploit RC-File could be used to crawl webapps automatically
 # it uses the allready discovered webservers - "services -s http" / "services -s https"
+# you could use db_nmap or http_version for discovering the werbservers
 # some basic jobhandling to not kill our own machine is included - check the maxjobs and threadspercrawler variables
 
 <ruby>
