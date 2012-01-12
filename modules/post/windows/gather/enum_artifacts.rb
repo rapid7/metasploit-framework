@@ -9,7 +9,6 @@
 # http://metasploit.com/framework/
 ##
 
-require 'digest/md5'
 require 'rex'
 require 'msf/core'
 require 'msf/core/post/file'
@@ -63,7 +62,7 @@ class Metasploit3 < Msf::Post
 				if line =~ /^reg/
 					type, reg_key, val, data = line.split("|")
 					reg_data = registry_getvaldata(reg_key, val)
-				        if reg_data.to_s == data
+			        if reg_data.to_s == data
 						found << "Matching registry entry: #{reg_key}\\#{val}"
 					end
 				end
@@ -98,26 +97,5 @@ class Metasploit3 < Msf::Post
 		end
 	end
 
-    def get_base(str)
-        case str
-        when "HKEY_CLASSES_ROOT"
-            return HKEY_CLASSES_ROOT
-        when "HKEY_CURRENT_USER" 
-            return HKEY_CURRENT_USER
-        when "HKEY_LOCAL_MACHINE"
-            return HKEY_LOCAL_MACHINE
-        when "HKEY_USERS"
-            return HKEY_USERS
-        when "HKEY_PERFORMANCE_DATA"
-            return HKEY_PERFORMANCE_DATA
-        when "HKEY_CURRENT_CONFIG"
-            return HKEY_CURRENT_CONFIG
-        when "HKEY_DYN_DATA"
-            return HKEY_DYN_DATA
-        else
-            print_error "Unrecognized base key #{str}"
-            return nil
-        end
-    end
 end
 
