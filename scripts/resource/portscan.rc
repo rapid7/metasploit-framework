@@ -6,7 +6,6 @@
 # RHOSTS is used from the global datastore
 
 <ruby>
-
 if (framework.datastore['RHOSTS'] == nil)
         print_status("you have to set RHOSTS globally ... exiting")
         return
