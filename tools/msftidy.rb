@@ -3,7 +3,7 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck
+# by jduck and friends
 #
 
 ##
@@ -82,6 +82,7 @@ def check_single_file(dparts, fparts, f_rel)
 	spaces = 0
 	bi = []
 	ll = []
+	bc = []
 	cr = 0
 	url_ok = true
 	nbo = 0 # non-bin open
@@ -113,6 +114,9 @@ def check_single_file(dparts, fparts, f_rel)
 		src_ended = true if ln =~ /^__END__$/
 		next if src_ended
 
+		if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
+			bc << [ idx, ln.inspect]
+		end
 
 		if (ln.length > LONG_LINE_LENGTH)
 			ll << [ idx, ln ]
@@ -153,6 +157,14 @@ def check_single_file(dparts, fparts, f_rel)
 		ll.each { |el|
 			el[1] = el[1].inspect
 			puts '  %8d: %s' % el
+		}
+	end
+
+	if bc.length > 0
+		puts "%s ... probably has unicode: %u" % [f, bc.length]
+		bc.each { |ec|
+			ec[1] = ec[1].inspect
+			puts '  %8d: %s' % ec
 		}
 	end
 

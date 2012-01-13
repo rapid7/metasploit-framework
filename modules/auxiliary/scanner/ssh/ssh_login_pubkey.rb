@@ -178,6 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 				:msfmodule    => self,
 				:port         => port,
 				:key_data     => key_data,
+				:disable_agent => true,
 				:record_auth_info => true
 			}
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
@@ -247,8 +248,9 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_report(ip,user,port,proof)
+		return unless framework.db.active
 		store_keyfile_b64_loot(ip,user,self.good_key)
-		report_auth_info(
+		cred_hash = {
 			:host => ip,
 			:port => datastore['RPORT'],
 			:sname => 'ssh',
@@ -257,7 +259,8 @@ class Metasploit3 < Msf::Auxiliary
 			:type => "ssh_key",
 			:proof => "KEY=#{self.good_key}, PROOF=#{proof}",
 			:active => true
-		)
+		}
+		this_cred = report_auth_info(cred_hash)
 	end
 
 	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's

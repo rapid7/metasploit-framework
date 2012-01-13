@@ -63,11 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_login(ip,user,pass,port)
 		opt_hash = {
-			:auth_methods => ['password','keyboard-interactive'],
-			:msframework  => framework,
-			:msfmodule    => self,
-			:port         => port,
-			:password     => pass
+			:auth_methods  => ['password','keyboard-interactive'],
+			:msframework   => framework,
+			:msfmodule     => self,
+			:port          => port,
+			:disable_agent => true,
+			:password      => pass
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']

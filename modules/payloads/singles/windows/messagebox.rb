@@ -24,7 +24,7 @@ module Metasploit3
 			'Description'   => 'Spawns a dialog via MessageBox using a customizable title, text & icon',
 			'Author'        =>
 				[
-					'corelanc0d3r', # original payload module
+					'corelanc0d3r <peter.ve[at]corelan.be>', # original payload module
 					'jduck'         # some ruby factoring
 				],
 			'License'       => MSF_LICENSE,

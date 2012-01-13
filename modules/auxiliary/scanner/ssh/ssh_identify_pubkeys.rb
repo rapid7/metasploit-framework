@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -11,6 +7,7 @@
 
 require 'msf/core'
 require 'net/ssh'
+require 'sshkey' # TODO: Actually include this!
 
 class Metasploit3 < Msf::Auxiliary
 
@@ -21,7 +18,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'SSH Public Key Acceptance Scanner',
-			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module can determine what public keys are configured for
 				key-based authentication across a range of machines, users, and
@@ -101,7 +97,6 @@ class Metasploit3 < Msf::Auxiliary
 				keys << line
 				next
 			end
-		
 			in_key = true if(line =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----/)
 			this_key << line if in_key
 			if(line =~ /^-----END [RD]SA (PRIVATE|PUBLIC) KEY-----/)
@@ -116,13 +111,17 @@ class Metasploit3 < Msf::Auxiliary
 		return validate_keys(keys)
 	end
 
-	# Validates that the key isn't total garbage. Also throws out SSH2 keys --
-	# can't use 'em for Net::SSH.
+	# Validates that the key isn't total garbage, and converts PEM formatted
+	# keys to SSH formatted keys.
 	def validate_keys(keys)
 		keepers = []
 		keys.each do |key|
 			if key =~ /ssh-(dss|rsa)/
 				keepers << key
+				next
+			else # Use the mighty SSHKey library from James Miller to convert them on the fly.
+				ssh_version = SSHKey.new(key).ssh_public_key rescue nil
+				keepers << ssh_version if ssh_version
 				next
 			end
 			
@@ -189,7 +188,7 @@ class Metasploit3 < Msf::Auxiliary
 		cleartext_keys.each_with_index do |key_data,key_idx|
 			key_info  = ""
 			
-			if key_data =~ /ssh\-(rsa|dsa)\s+([^\s]+)\s+(.*)/
+			if key_data =~ /ssh\-(rsa|dss)\s+([^\s]+)\s+(.*)/
 				key_info = "- #{$3.strip}"
 			end
 			
@@ -246,22 +245,66 @@ class Metasploit3 < Msf::Auxiliary
 			
 			accepted.each do |key|
 				print_good "#{ip}:#{rport} SSH - Accepted: '#{user}' with key '#{key[:fingerprint]}' #{key_info}"
-				do_report(ip, rport, user, key)
+				do_report(ip, rport, user, key, key_data)
 			end
 		end
 	end
 
-	def do_report(ip, port, user, key)
-		report_note(
-			:host     => ip, 
-			:type     => 'ssh.authorized_key', 
-			:port     => port, 
-			:protocol => 'tcp', 
-			:data     => {:username => user, :fingerprint => key[:fingerprint] },
-			:insert   => :unique_data
-		)
-	end		
-		
+	def do_report(ip, port, user, key, key_data)
+		return unless framework.db.active
+		store_keyfile_b64_loot(ip,user,key[:fingerprint])
+		cred_hash = {
+			:host => ip,
+			:port => rport,
+			:sname => 'ssh',
+			:user => user,
+			:pass => @keyfile_path,
+			:source_type => "user_supplied",
+			:type => 'ssh_pubkey',
+			:proof => "KEY=#{key[:fingerprint]}",
+			:duplicate_ok => true,
+			:active => true
+		}
+		this_cred = report_auth_info(cred_hash)
+	end
+
+	# Checks if any existing privkeys matches the named key's
+	# key id. If so, assign that other key's cred.id to this
+	# one's proof section, and vice-versa.
+	def cross_check_privkeys(key_id)
+		return unless framework.db.active
+		other_cred = nil
+		framework.db.creds.each do |cred|
+			next unless cred.ptype == "ssh_key"
+			next unless cred.proof =~ /#{key_id}/
+				other_cred = cred
+			break
+		end
+		return other_cred
+	end
+
+	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's
+	# good, then store it as loot for this user@host, unless we
+	# already have it in loot.
+	def store_keyfile_b64_loot(ip,user,key_id)
+		return unless db
+		return if @keyfile_path
+		return if datastore["SSH_KEYFILE_B64"].to_s.empty?
+		keyfile = datastore["SSH_KEYFILE_B64"].unpack("m*").first
+		keyfile = keyfile.strip + "\n"
+		ktype_match = keyfile.match(/ssh-(rsa|dss)/)
+		return unless ktype_match
+		ktype = ktype_match[1].downcase
+		ktype = "dsa" if ktype == "dss" # Seems sensible to recast it
+		ltype = "host.unix.ssh.#{user}_#{ktype}_public"
+		# Assignment and comparison here, watch out!
+		if loot = Msf::DBManager::Loot.find_by_ltype_and_workspace_id(ltype,myworkspace.id)
+			if loot.info.include? key_id
+				@keyfile_path = loot.path
+			end
+		end
+		@keyfile_path ||= store_loot(ltype, "application/octet-stream", ip, keyfile.strip, nil, key_id)
+	end
 
 	def run_host(ip) 
 		# Since SSH collects keys and tries them all on one authentication session, it doesn't

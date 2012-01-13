@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         =>
 				[
 					'Justin Klein Keane', #Original Discovery
-					'Robin François <rof[at]navixia.com>'
+					'Robin Francois <rof[at]navixia.com>'
 				],
 			'License'        => MSF_LICENSE,
 			'References'     =>

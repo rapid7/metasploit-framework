@@ -32,6 +32,12 @@ class Host < ActiveRecord::Base
 	def validate_fingerprint_data(fp)
 		if fp.data.kind_of?(Hash) and !fp.data.empty?
 			return true
+		elsif fp.ntype == "postgresql.fingerprint"
+			# Special case postgresql.fingerprint; it's always a string,
+			# and should not be used for OS fingerprinting (yet), so
+			# don't bother logging it. TODO: fix os fingerprint finding, this
+			# name collision seems silly.
+			return false
 		else
 			dlog("Could not validate fingerprint data: #{fp.inspect}")
 			return false
