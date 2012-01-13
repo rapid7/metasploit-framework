@@ -314,7 +314,7 @@ class ReadableText
 
 			val_display = opt.display_value(mod.datastore[name] || opt.default)
 
-			tbl << [ name, val_dislay, opt.required? ? "yes" : "no", opt.desc ]
+			tbl << [ name, val_display, opt.required? ? "yes" : "no", opt.desc ]
 		}
 
 		return tbl.to_s
