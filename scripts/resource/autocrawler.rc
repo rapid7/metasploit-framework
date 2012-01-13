@@ -7,7 +7,10 @@
 # some basic jobhandling to not kill our own machine is included - check the maxjobs and threadspercrawler variables
 
 <ruby>
-verbose = "true"
+if (framework.datastore['VERBOSE'] == "true")
+	verbose = "true"
+end
+
 threadspercrawler = "4"
 
 def jobwaiting()	#thread handling for poor guys ...
@@ -25,16 +28,11 @@ framework.db.workspace.hosts.each do |host|
 		next if (serv.name !~ /http/)
 		
 		if(verbose == "true")
-			print_status("")
-                        print_status("====================================")
-			print_status("Host: #{serv.host[:address]}")
-			print_status("Servicename: #{serv.name}")
-			print_status("Service Port: #{serv.port.to_i}")
-			print_status("Service Protocol: #{serv.proto}")
-			print_status("OS: #{host.os_name}")
-			print_status("IP: #{host.address}")
-                        print_status("====================================")
-			print_status("")
+			print_line("IP: #{host.address}")
+			print_line("OS: #{host.os_name}")
+			print_line("Servicename: #{serv.name}")
+			print_line("Service Port: #{serv.port.to_i}")
+			print_line("Service Protocol: #{serv.proto}")
 		end
 		run_single("use auxiliary/scanner/http/crawler")
 		run_single("set MAX_THREADS #{threadspercrawler}")
