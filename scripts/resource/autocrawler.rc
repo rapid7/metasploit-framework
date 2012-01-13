@@ -7,8 +7,10 @@
 # some basic jobhandling to not kill our own machine is included - check the maxjobs and threadspercrawler variables
 
 <ruby>
-if (framework.datastore['VERBOSE'] == "true")
+if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
 	verbose = "true"
+else
+	verbose = "false"
 end
 
 threadspercrawler = "4"
