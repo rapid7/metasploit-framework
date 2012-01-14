@@ -8,12 +8,12 @@
 
 <ruby>
 if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
-	verbose = "true"
+	verbose = 1 #true
 else
-	verbose = "false"
+	verbose = 0
 end
 
-threadspercrawler = "4"
+threadspercrawler = "4"	#check this ... now its default
 
 def jobwaiting()	#thread handling for poor guys ...
         maxjobs=15      #throttling if we get too much jobs
@@ -29,7 +29,7 @@ framework.db.workspace.hosts.each do |host|
 		next if (serv.state != ServiceState::Open)
 		next if (serv.name !~ /http/)
 		
-		if(verbose == "true")
+		if(verbose == 1)
 			print_line("IP: #{host.address}")
 			print_line("OS: #{host.os_name}")
 			print_line("Servicename: #{serv.name}")
@@ -45,7 +45,7 @@ framework.db.workspace.hosts.each do |host|
 		else
 			run_single("set SSL false")
 		end
-		if(verbose == "true")
+		if(verbose == 1)
                        	run_single("set VERBOSE true")
                         run_single("run -j")
                 else
