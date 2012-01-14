@@ -46,6 +46,15 @@ module Text
 	Iconv_EBCDIC = ["\x00", "\x01", "\x02", "\x03", "7", "-", ".", "/", "\x16", "\x05", "%", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "<", "=", "2", "&", "\x18", "\x19", "?", "'", "\x1C", "\x1D", "\x1E", "\x1F", "@", "Z", "\x7F", "{", "[", "l", "P", "}", "M", "]", "\\", "N", "k", "`", "K", "a", "\xF0", "\xF1", "\xF2", "\xF3", "\xF4", "\xF5", "\xF6", "\xF7", "\xF8", "\xF9", "z", "^", "L", "~", "n", "o", "|", "\xC1", "\xC2", "\xC3", "\xC4", "\xC5", "\xC6", "\xC7", "\xC8", "\xC9", "\xD1", "\xD2", "\xD3", "\xD4", "\xD5", "\xD6", "\xD7", "\xD8", "\xD9", "\xE2", "\xE3", "\xE4", "\xE5", "\xE6", "\xE7", "\xE8", "\xE9", nil, "\xE0", nil, nil, "m", "y", "\x81", "\x82", "\x83", "\x84", "\x85", "\x86", "\x87", "\x88", "\x89", "\x91", "\x92", "\x93", "\x94", "\x95", "\x96", "\x97", "\x98", "\x99", "\xA2", "\xA3", "\xA4", "\xA5", "\xA6", "\xA7", "\xA8", "\xA9", "\xC0", "O", "\xD0", "\xA1", "\a", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 	Iconv_ASCII  = ["\x00", "\x01", "\x02", "\x03", "\x04", "\x05", "\x06", "\a", "\b", "\t", "\n", "\v", "\f", "\r", "\x0E", "\x0F", "\x10", "\x11", "\x12", "\x13", "\x14", "\x15", "\x16", "\x17", "\x18", "\x19", "\x1A", "\e", "\x1C", "\x1D", "\x1E", "\x1F", " ", "!", "\"", "#", "$", "%", "&", "'", "(", ")", "*", "+", ",", "-", ".", "/", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ":", ";", "<", "=", ">", "?", "@", "A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", nil, "\\", nil, nil, "_", "`", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", "{", "|", "}", "~", "\x7F", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil]
 
+	#
+	# Most 100 common surnames, male/female names in the U.S. (http://names.mongabay.com/)
+	#
+	Surnames = ["adams", "alexander", "allen", "anderson", "bailey", "baker", "barnes", "bell", "bennett", "brooks", "brown", "bryant", "butler", "campbell", "carter", "clark", "coleman", "collins", "cook", "cooper", "cox", "davis", "diaz", "edwards", "evans", "flores", "foster", "garcia", "gonzales", "gonzalez", "gray", "green", "griffin", "hall", "harris", "hayes", "henderson", "hernandez", "hill", "howard", "hughes", "jackson", "james", "jenkins", "johnson", "jones", "kelly", "king", "lee", "lewis", "long", "lopez", "martin", "martinez", "miller", "mitchell", "moore", "morgan", "morris", "murphy", "nelson", "parker", "patterson", "perez", "perry", "peterson", "phillips", "powell", "price", "ramirez", "reed", "richardson", "rivera", "roberts", "robinson", "rodriguez", "rogers", "ross", "russell", "sanchez", "sanders", "scott", "simmons", "smith", "stewart", "taylor", "thomas", "thompson", "torres", "turner", "walker", "ward", "washington", "watson", "white", "williams", "wilson", "wood", "wright", "young"]
+
+	NamesMale = ["aaron", "adam", "alan", "albert", "andrew", "anthony", "antonio", "arthur", "benjamin", "billy", "bobby", "brandon", "brian", "bruce", "carl", "carlos", "charles", "chris", "christopher", "clarence", "craig", "daniel", "david", "dennis", "donald", "douglas", "earl", "edward", "eric", "ernest", "eugene", "frank", "fred", "gary", "george", "gerald", "gregory", "harold", "harry", "henry", "howard", "jack", "james", "jason", "jeffrey", "jeremy", "jerry", "jesse", "jimmy", "joe", "john", "johnny", "jonathan", "jose", "joseph", "joshua", "juan", "justin", "keith", "kenneth", "kevin", "larry", "lawrence", "louis", "mark", "martin", "matthew", "michael", "nicholas", "patrick", "paul", "peter", "philip", "phillip", "ralph", "randy", "raymond", "richard", "robert", "roger", "ronald", "roy", "russell", "ryan", "samuel", "scott", "sean", "shawn", "stephen", "steve", "steven", "terry", "thomas", "timothy", "todd", "victor", "walter", "wayne", "william", "willie"]
+
+	NamesFemale = ["alice", "amanda", "amy", "andrea", "angela", "ann", "anna", "anne", "annie", "ashley", "barbara", "betty", "beverly", "bonnie", "brenda", "carol", "carolyn", "catherine", "cheryl", "christina", "christine", "cynthia", "deborah", "debra", "denise", "diana", "diane", "donna", "doris", "dorothy", "elizabeth", "emily", "evelyn", "frances", "gloria", "heather", "helen", "irene", "jacqueline", "jane", "janet", "janice", "jean", "jennifer", "jessica", "joan", "joyce", "judith", "judy", "julia", "julie", "karen", "katherine", "kathleen", "kathryn", "kathy", "kelly", "kimberly", "laura", "lillian", "linda", "lisa", "lois", "lori", "louise", "margaret", "maria", "marie", "marilyn", "martha", "mary", "melissa", "michelle", "mildred", "nancy", "nicole", "norma", "pamela", "patricia", "paula", "phyllis", "rachel", "rebecca", "robin", "rose", "ruby", "ruth", "sandra", "sara", "sarah", "sharon", "shirley", "stephanie", "susan", "tammy", "teresa", "theresa", "tina", "virginia", "wanda"]
+
 	##
 	#
 	# Serialization
@@ -1083,6 +1092,43 @@ module Text
 	# Generate a state
 	def self.rand_state()
 		States[rand(States.size)]
+	end
+
+	# Generate a surname
+	def self.rand_surname
+		Surnames[rand(Surnames.size)]
+	end
+
+	# Generate a name
+	def self.rand_name
+		if rand(10) % 2 == 0
+			NamesMale[rand(NamesMale.size)]
+		else
+			NamesFemale[rand(NamesFemale.size)]
+		end
+	end
+
+	# Generate a male name
+	def self.rand_name_male
+		NamesMale[rand(NamesMale.size)]
+	end
+
+	# Generate a female name
+	def self.rand_name_female
+		NamesFemale[rand(NamesFemale.size)]
+	end
+
+	# Generate a random mail address
+	def self.rand_mail_address
+		mail = []
+		mail.push(Rex::Text.rand_name)
+		mail.push('.')
+		mail.push(Rex::Text.rand_surname)
+		mail.push('@')
+		mail.push(Rex::Text.rand_text_alpha(rand(5) + 4).downcase)
+		mail.push('.')
+		d = ['com', 'net', 'org', 'gov']
+		mail.push(d[rand(d.size)])
 	end
 
 
