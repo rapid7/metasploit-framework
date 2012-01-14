@@ -24,6 +24,8 @@ class Hive
 		current_child = nil
 		paths = path.split("\\")
 
+		return if !@root_key.lf_record
+		
 		@root_key.lf_record.children.each do |child|			
 			next if child.name.downcase != paths[1].downcase
 
@@ -40,7 +42,7 @@ class Hive
 					current_child.full_path = path
 					return current_child
 				else
-					if current_child.lf_record
+					if current_child.lf_record && current_child.lf_record.children
 						current_child.lf_record.children.each do |c|
 							next if c.name.downcase != paths[i].downcase
 							
@@ -54,6 +56,8 @@ class Hive
 			end
 		end
 
+		return if !current_child
+
 		current_child.full_path = path
 		return current_child
 	end
@@ -64,7 +68,9 @@ class Hive
 		end
 	
 		paths = path.split("\\")
-
+		
+		return if !@root_key.lf_record
+		
 		@root_key.lf_record.children.each do |root_child|
 			next if root_child.name.downcase != paths[1].downcase
 

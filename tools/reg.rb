@@ -20,13 +20,16 @@ def print_all(nodekey)
 end
 
 def print_all_keys(nodekey)
+
+	return if !nodekey
+	
 	table = Rex::Ui::Text::Table.new(
         	'Header'  => "Child Keys for #{nodekey.full_path}",
         	'Indent'  => '    '.length,
         	'Columns' => [ 'Name', 'Last Edited', 'Subkey Count', 'Value Count' ]
 	)
 
-        if nodekey.lf_record && nodekey.lf_record.children.length > 0
+        if nodekey.lf_record && nodekey.lf_record.children && nodekey.lf_record.children.length > 0
                 nodekey.lf_record.children.each do |key|
                         table << [key.name, key.readable_timestamp, key.subkeys_count, key.value_count]
                 end
@@ -36,6 +39,8 @@ def print_all_keys(nodekey)
 end
 
 def print_all_values(nodekey)
+
+	return if !nodekey
 
 	table = Rex::Ui::Text::Table.new(
 		'Header' => "Values in key #{nodekey.full_path}",
@@ -56,19 +61,19 @@ def get_system_information
 		mounted_devices_info_key = @hive.relative_query("\\MountedDevices")
 
 		current_control_set_key = @hive.value_query('\Select\Default')
-		current_control_set = "ControlSet00" + current_control_set_key.value.data.unpack('c').first.to_s
+		current_control_set = "ControlSet00" + current_control_set_key.value.data.unpack('c').first.to_s if current_control_set_key
 	
-		computer_name_key = @hive.value_query("\\" + current_control_set + "\\Control\\ComputerName\\ComputerName")
-		computer_name = computer_name_key.value.data.to_s
+		computer_name_key = @hive.value_query("\\" + current_control_set + "\\Control\\ComputerName\\ComputerName") if current_control_set
+		computer_name = computer_name_key.value.data.to_s if computer_name_key
 		
-		event_log_info_key = @hive.relative_query("\\" + current_control_set + "\\Services\\EventLog")
+		event_log_info_key = @hive.relative_query("\\" + current_control_set + "\\Services\\EventLog") if current_control_set
 	
-		puts "Computer Name: " + computer_name
+		puts "Computer Name: " + computer_name if computer_name
 	
-		print_all_values(event_log_info_key)
+		print_all_values(event_log_info_key) if event_log_info_key
 		puts "-----------------------------------------"
 
-		print_all_values(mounted_devices_info_key)
+		print_all_values(mounted_devices_info_key) if mounted_devices_info_key
 		puts "-----------------------------------------"
 
 	elsif @hive.hive_regf.hive_name =~ /SOFTWARE/
@@ -84,13 +89,15 @@ def get_system_information
 end
 
 def get_user_information
+
+		
 	local_groups_info_key = @hive.relative_query("\\SAM\\Domains\\Builtin\\Aliases\\Names")
 	local_users_info_key = @hive.relative_query("\\SAM\\Domains\\Account\\Users\\Names")	
 
-	print_all_keys(local_groups_info_key)
+	print_all(local_groups_info_key)
 	puts "------------------------------------------------"
 
-	print_all_keys(local_users_info_key)
+	print_all(local_users_info_key)
 	puts "------------------------------------------------"
 end
 
@@ -98,6 +105,7 @@ def dump_creds
 end
 
 def get_boot_key
+	@hive.rip_boot_key if @hive.root_key.lf_record
 end
 
 def list_applications
@@ -155,14 +163,14 @@ def get_windows_messenger_information
 end
 
 def get_icq_information
-	if @hive.hive_regf.hive_name != /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
 		general_information_key = @hive.relative_query("\\Software\\Mirabalis\\ICQ")
 		
 		print_all(general_information_key)
-	elsif @hive.hive_regf.hive_name != /SOFTWARE/
-		owner_number_key = @hive.value_query("\\Software\\Mirabalis\\ICQ\\Owner")
-
-		puts "Owner UIN: #{owner_number_key.value.data.to_s}"
+	elsif @hive.hive_regf.hive_name =~ /SOFTWARE/
+		owner_number_key = @hive.relative_query("\\Software\\Mirabalis\\ICQ\\Owner")
+	
+		print_all(owner_number_key)
 	end
 end
 
@@ -215,9 +223,6 @@ end
 
 def get_networking_information
 	
-end
-
-def get_user_information
 end
 
 def get_user_application_information
@@ -315,16 +320,25 @@ elsif ARGV[0] == "get_everything"
 
 		@hive = Rex::Registry::Hive.new(ARGV[1] + "/" + file)
 
-		if @hive.hive_regf.hive_name =~ /SYSTEM$/
-			
+		next if !@hive.hive_regf
+		next if !@hive.hive_regf.hive_name
+		
+			puts "I am a #{@hive.hive_regf.hive_name} hive"
+		
+		if @hive.hive_regf.hive_name =~ /SYSTEM/
+
+			puts "Found a SYSTEM hive..."			
+
 			list_drivers
 			get_boot_key
 			get_system_information
 			get_networking_information
 			get_user_information
 
-		elsif @hive.hive_regf.hive_name =~ /SOFTWARE$/
-			
+		elsif @hive.hive_regf.hive_name =~ /SOFTWARE/
+
+			puts "Found a SOFTWARE hive..."			
+
 			list_applications
 			get_icq_information
 			get_system_information
@@ -332,16 +346,22 @@ elsif ARGV[0] == "get_everything"
 			get_user_information
 			get_user_application_information
 			
-		elsif @hive.hive_regf.hive_name =~ /SAM$/
+		elsif @hive.hive_regf.hive_name =~ /SAM/
+
+			puts "Found a SAM hive..."
 
 			get_networking_information
 			get_user_information
 
-		elsif @hive.hive_regf.hive_name =~ /SECURITY$/
+		elsif @hive.hive_regf.hive_name =~ /SECURITY/
+
+			puts "Found a SECURITY hive..."
 
 			get_user_information
 
-		elsif @hive.hive_regf_hive_name =~ /NTUSER[.]dat$/i
+		elsif @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+
+			puts "Found a NTUSER.dat hive..."
 
 			get_aol_instant_messenger_information
 			get_icq_information
@@ -443,6 +463,7 @@ elsif ARGV[0] == "get_user_information"
 		puts "I need a SAM hive. Not a #{@hive.hive_regf.hive_name}."
 	else
 		get_user_information
+	
 	end
 elsif ARGV[0] == "get_user_application_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
