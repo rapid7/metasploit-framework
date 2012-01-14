@@ -19,7 +19,6 @@ class NodeKey
 		nk_type = hive[offset+0x02, 2]
 
 		if nk_header !~ /nk/ 
-			puts "nodekey broken"
 			return
 		end
 	

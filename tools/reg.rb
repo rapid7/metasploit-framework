@@ -22,6 +22,9 @@ end
 def print_all_keys(nodekey)
 
 	return if !nodekey
+	return if !nodekey.lf_record
+	return if !nodekey.lf_record.children
+	return if nodekey.lf_record.children.length == 0
 	
 	table = Rex::Ui::Text::Table.new(
         	'Header'  => "Child Keys for #{nodekey.full_path}",
@@ -40,7 +43,10 @@ end
 
 def print_all_values(nodekey)
 
-	return if !nodekey
+	return if !nodekey 
+	return if !nodekey.lf_record 
+	return if !nodekey.lf_record.children
+	return if nodekey.lf_record.children.length == 0
 
 	table = Rex::Ui::Text::Table.new(
 		'Header' => "Values in key #{nodekey.full_path}",
@@ -71,20 +77,20 @@ def get_system_information
 		puts "Computer Name: " + computer_name if computer_name
 	
 		print_all_values(event_log_info_key) if event_log_info_key
-		puts "-----------------------------------------"
+		puts "-----------------------------------------" if event_log_info_key
 
 		print_all_values(mounted_devices_info_key) if mounted_devices_info_key
-		puts "-----------------------------------------"
+		puts "-----------------------------------------" if mounted_devices_info_key
 
 	elsif @hive.hive_regf.hive_name =~ /SOFTWARE/
 		current_version_info_key = @hive.relative_query("\\Microsoft\\Windows NT\\CurrentVersion")
 		login_info_key = @hive.relative_query("\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon")
 
 		print_all_values(current_version_info_key)
-		puts "-----------------------------------------"
+		puts "-----------------------------------------" if current_version_info_key
 
 		print_all_values(login_info_key)
-		puts "-----------------------------------------"
+		puts "-----------------------------------------" if login_info_key
 	end
 end
 
@@ -95,10 +101,10 @@ def get_user_information
 	local_users_info_key = @hive.relative_query("\\SAM\\Domains\\Account\\Users\\Names")	
 
 	print_all(local_groups_info_key)
-	puts "------------------------------------------------"
+	puts "------------------------------------------------" if local_groups_info_key && local_groups_info_key.lf_record.children
 
 	print_all(local_users_info_key)
-	puts "------------------------------------------------"
+	puts "------------------------------------------------" if local_users_info_key && local_groups_info_key.lf_record.children
 end
 
 def dump_creds
@@ -322,9 +328,7 @@ elsif ARGV[0] == "get_everything"
 
 		next if !@hive.hive_regf
 		next if !@hive.hive_regf.hive_name
-		
-			puts "I am a #{@hive.hive_regf.hive_name} hive"
-		
+			
 		if @hive.hive_regf.hive_name =~ /SYSTEM/
 
 			puts "Found a SYSTEM hive..."			
