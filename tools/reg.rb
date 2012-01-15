@@ -111,7 +111,43 @@ def dump_creds
 end
 
 def get_boot_key
-	@hive.rip_boot_key if @hive.root_key.lf_record
+		puts "Getting boot key"
+		puts "Root key: " + @hive.root_key.name
+		
+		default_control_set = @hive.value_query('\Select\Default').value.data.unpack("c").first
+			
+		puts "Default ControlSet: ControlSet00#{default_control_set}"
+
+		bootkey = ""
+		basekey = "\\ControlSet00#{default_control_set}\\Control\\Lsa"
+
+		%W{JD Skew1 GBG Data}.each do |k|
+			ok = @hive.relative_query(basekey + "\\" + k)
+			return nil if not ok
+
+			puts ok.class_name_data.unpack("M")
+			
+			#puts ok.class_name_data.to_i(16)
+			bootkey << [ok.class_name_data.unpack("M")].pack('s')
+
+			
+		end
+		
+		p bootkey
+		
+		keybytes    = bootkey.unpack("C*")
+
+		p keybytes
+		descrambled = ""
+	#	descrambler = [ 0x08, 0x05, 0x04, 0x02, 0x0b, 0x09, 0x0d, 0x03, 0x00, 0x06, 0x01, 0x0c, 0x0e, 0x0a, 0x0f, 0x07 ]
+		descrambler = [ 0x0b, 0x06, 0x07, 0x01, 0x08, 0x0a, 0x0e, 0x00, 0x03, 0x05, 0x02, 0x0f, 0x0d, 0x09, 0x0c, 0x04 ]
+
+		0.upto(keybytes.length-1) do |x|
+			descrambled << [ keybytes[ descrambler[x] ] ].pack("C")
+		end
+
+
+		puts descrambled.unpack("H*")
 end
 
 def list_applications
