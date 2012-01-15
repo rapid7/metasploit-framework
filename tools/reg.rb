@@ -124,20 +124,20 @@ def get_boot_key
 		%W{JD Skew1 GBG Data}.each do |k|
 			ok = @hive.relative_query(basekey + "\\" + k)
 			return nil if not ok
-
-			puts ok.class_name_data.unpack("M")
 			
-			#puts ok.class_name_data.to_i(16)
-			bootkey << [ok.class_name_data.unpack("M")].pack('s')
+			tmp = ""
+			0.upto(ok.class_name_length - 1) do |i|
+				next if i%2 == 1
+	
+				tmp << ok.class_name_data[i,1]
+			end			
 
-			
+			bootkey << [tmp.to_i(16)].pack('V')
 		end
 		
-		p bootkey
 		
 		keybytes    = bootkey.unpack("C*")
 
-		p keybytes
 		descrambled = ""
 	#	descrambler = [ 0x08, 0x05, 0x04, 0x02, 0x0b, 0x09, 0x0d, 0x03, 0x00, 0x06, 0x01, 0x0c, 0x0e, 0x0a, 0x0f, 0x07 ]
 		descrambler = [ 0x0b, 0x06, 0x07, 0x01, 0x08, 0x0a, 0x0e, 0x00, 0x03, 0x05, 0x02, 0x0f, 0x0d, 0x09, 0x0c, 0x04 ]
