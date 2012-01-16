@@ -146,7 +146,6 @@ def get_boot_key
 			descrambled << [ keybytes[ descrambler[x] ] ].pack("C")
 		end
 
-
 		puts descrambled.unpack("H*")
 end
 
@@ -158,7 +157,7 @@ end
 
 def get_aol_instant_messenger_information
 	
-	if @hive.hive_regf.hive_name != /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name != /NTUSER\.dat/i
 		users_list_key = @hive.relative_query('\Software\America Online\AOL Instant Messenger(TM)\CurrentVersion\Users')
                 last_logged_in_user_key = @hive.relative_query("\\Software\\America Online\\AOL Instant Messenger(TM)\\CurrentVersion\\Login - Screen Name")
 
@@ -181,7 +180,7 @@ end
 
 def get_msn_messenger_information
 
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		general_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NETMessengerService\\")
 		file_sharing_information_key = @hive.relative_query("\\Software\\Microsoft\\MSNMessenger\\FileSharing - Autoshare")
 		file_transfers_information_key = @hive.relative_query("\\Software\\Microsoft\\MSNMessenger\\ - FTReceiveFolder")
@@ -193,7 +192,7 @@ def get_msn_messenger_information
 end
 
 def get_windows_messenger_information
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		contact_list_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NET Messenger Service")
 		file_transfers_information_key = @hive.relative_query("\\Software\\Microsoft\\Messenger Service - FtReceiveFolder")
 		last_user_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NET Messenger Service - IdentityName")
@@ -205,7 +204,7 @@ def get_windows_messenger_information
 end
 
 def get_icq_information
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		general_information_key = @hive.relative_query("\\Software\\Mirabalis\\ICQ")
 		
 		print_all(general_information_key)
@@ -217,7 +216,7 @@ def get_icq_information
 end
 
 def get_ie_information
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		stored_logon_information_key = @hive.relative_query("\\Software\\Microsoft\\Protected Storage System Provider\\SID\\Internet Explorer\\Internet Explorer - URL:StringData")
 		stored_search_terms_information_key = @hive.relative_quety("\\Software\\Microsoft\\Protected Storage SystemProvider\\SID\\Internet Explorer\\Internet Explorer - q:SearchIndex")
 		ie_setting_information_key = @hive.relative_query("\\Software\\Microsoft\\Internet Explorer\\Main")
@@ -240,7 +239,7 @@ def get_ie_information
 end
 
 def get_outlook_information
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		account_information_key = @hive.relative_query("\\Software\\Microsoft\\Protected Storage System Provider\\SID\\Identification\\INETCOMM Server Passwords")
 		
 		print_all(account_information_key)
@@ -248,7 +247,7 @@ def get_outlook_information
 end
 
 def get_yahoo_messenger_information
-	if @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 		profiles_key = @hive.relative_query("\\Software\\Yahoo\\Pager\\profiles")
 
 		print_all(profiles_key)
@@ -358,7 +357,7 @@ elsif ARGV[0] == "list_drivers"
 
 elsif ARGV[0] == "get_everything"
 	Dir.foreach(ARGV[1]) do |file|
-		next if file =~ /^[.]/
+		next if file =~ /^\./
 
 		@hive = Rex::Registry::Hive.new(ARGV[1] + "/" + file)
 
@@ -399,7 +398,7 @@ elsif ARGV[0] == "get_everything"
 
 			get_user_information
 
-		elsif @hive.hive_regf.hive_name =~ /NTUSER[.]dat/i
+		elsif @hive.hive_regf.hive_name =~ /NTUSER\.dat/i
 
 			puts "Found a NTUSER.dat hive..."
 
@@ -420,7 +419,7 @@ elsif ARGV[0] == "get_everything"
 elsif ARGV[0] == "get_aol_instant_messenger_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]DAT/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.DAT/i
 		puts "I need the NTUSER.dat hive, not #{@hive.hive_regf.hive_name}."
 	else
 		get_aol_instant_messenger_information
@@ -429,7 +428,7 @@ elsif ARGV[0] == "get_aol_instant_messenger_information"
 elsif ARGV[0] == "get_icq_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i && @hive.hive_regf.hive_name !~ /SOFTWARE/
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i && @hive.hive_regf.hive_name !~ /SOFTWARE/
 		puts "I need either a SOFTWARE or NTUSER.dat hive, not #{@hive.hive_regf.hive_name}."
 	else
 		get_icq_information
@@ -437,7 +436,7 @@ elsif ARGV[0] == "get_icq_information"
 elsif ARGV[0] == "get_ie_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 	
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need an NTUSER.dat hive, not #{@hive.hive_regf.hive_name}."
 	else
 		get_ie_information
@@ -446,7 +445,7 @@ elsif ARGV[0] == "get_ie_information"
 elsif ARGV[0] == "get_msn_messenger_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 	
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need an NTUSER.dat hive, not #{@hive.hive_regf.hive_name}."
 	else
 		get_msn_messenger_information
@@ -455,7 +454,7 @@ elsif ARGV[0] == "get_msn_messenger_information"
 elsif ARGV[0] == "get_outlook_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need an NTUSER.dat hive, not #{@hive.hive_regf.hive_name}."
 	else
 		get_outlook_information
@@ -464,7 +463,7 @@ elsif ARGV[0] == "get_outlook_information"
 elsif ARGV[0] == "get_windows_messenger_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need an NTUSER.dat hive, not a #{@hive.hive_regf.hive_name}."
 	else
 		get_windows_messenger_information
@@ -473,7 +472,7 @@ elsif ARGV[0] == "get_windows_messenger_information"
 elsif ARGV[0] == "get_yahoo_messenger_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 	
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need an NTUSER.dat hive, not a #{@hive.hive_regf.hive_name}."
 	else
 		get_yahoo_messenger_information
@@ -490,7 +489,7 @@ elsif ARGV[0] == "get_system_information"
 elsif ARGV[0] == "get_networking_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 
-	if @hive.hive_regf.hive_name !~ /SAM/ && @hive.hive_regf.hive_name !~ /SYSTEM/ && @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i
+	if @hive.hive_regf.hive_name !~ /SAM/ && @hive.hive_regf.hive_name !~ /SYSTEM/ && @hive.hive_regf.hive_name !~ /NTUSER\.dat/i
 		puts "I need either a SAM, SYSTEM, or NTUSER.dat hive, not a #{@hive.hive_regf.hive_name}."
 	else
 		get_networking_information
@@ -508,7 +507,7 @@ elsif ARGV[0] == "get_user_information"
 elsif ARGV[0] == "get_user_application_information"
 	@hive = Rex::Registry::Hive.new(ARGV[ARGV.length - 1])
 	
-	if @hive.hive_regf.hive_name !~ /NTUSER[.]dat/i && @hive.hive_regf.hive_name !~ /SOFTWARE/
+	if @hive.hive_regf.hive_name !~ /NTUSER\.dat/i && @hive.hive_regf.hive_name !~ /SOFTWARE/
 		puts "I need either an NTUSER.dat or SOFTWARE hive, not a #{@hive.hive_regf.hive_name}."
 	else
 		get_user_application_information
