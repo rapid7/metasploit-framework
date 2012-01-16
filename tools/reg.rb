@@ -111,6 +111,10 @@ def dump_creds
 end
 
 def get_boot_key
+
+		return if !@hive.root_key
+		return if !@hive.root_key.name
+
 		puts "Getting boot key"
 		puts "Root key: " + @hive.root_key.name
 		
