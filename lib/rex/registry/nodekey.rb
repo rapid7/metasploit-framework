@@ -19,7 +19,6 @@ class NodeKey
 		nk_type = hive[offset+0x02, 2]
 
 		if nk_header !~ /nk/ 
-			puts "nodekey broken"
 			return
 		end
 	
@@ -43,7 +42,9 @@ class NodeKey
 
 		@lf_record = LFBlock.new(hive, @lf_record_offset + 0x1000) if @lf_record_offset != -1	
 		@value_list = ValueList.new(hive, @value_list_offset + 0x1000, @value_count) if @value_list_offset != -1
-		@class_name_data = hive[@class_name_offset + 0x1000, @class_name_length]
+		
+		@class_name_data = hive[@class_name_offset + 0x04 + 0x1000, @class_name_length]
+
 	end
 
 end
