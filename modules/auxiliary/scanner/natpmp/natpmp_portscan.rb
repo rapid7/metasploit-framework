@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(Rex::Proto::NATPMP::DefaultPort),
 				OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"]),
-				OptString.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
+				OptString.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
 				Opt::CHOST,
 			], self.class)
 	end
@@ -36,13 +36,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP" if (datastore['VERBOSE'])
 
-		case datastore['PROTOCOL']
-		when 'UDP'
-			protocol = 1
-		when 'TCP'
-			protocol = 2
-		end
-
 		begin
 			# first, send a request to get the external address
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
@@ -54,13 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("External address of #{host} is #{external_address}")
 			Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
 				# send one request to clear the mapping if *we've* created it before
-				clear_req = Rex::Proto::NATPMP.map_port_request(port, port, protocol, 0)
+				clear_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
 				udp_sock.sendto(clear_req, host, datastore['RPORT'].to_i, 0)
 				while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
 				end
 
 				# now try the real mapping
-				map_req = Rex::Proto::NATPMP.map_port_request(port, port, protocol, 1)
+				map_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
 				udp_sock.sendto(map_req, host, datastore['RPORT'].to_i, 0)
 				while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
 					handle_reply(host, external_address, r)
@@ -95,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 			# is different, that means that someone else already has it open
 			if (int != ext)
 				state = "open"
-				print_status("#{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports") if (datastore['VERBOSE'])
+				print_status("#{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with unmatched ports")
 			else
 				state = "closed"
 				print_status("#{external_addr} - #{int}/#{protocol} #{state} because of successful mapping with matched ports") if (datastore['DEBUG'])
@@ -111,11 +104,13 @@ class Metasploit3 < Msf::Auxiliary
 			:proto  => protocol,
 			:state => state
 		)
+
 		report_service(
-			:host   => host,
-			:port   => int,
-			:proto  => protocol,
-			:state => 'unknown'
+			:host 	=> host,
+			:port 	=> pkt[2],
+			:name 	=> 'natpmp',
+			:proto 	=> 'udp',
+			:state	=> 'open'
 		)
 	end
 end

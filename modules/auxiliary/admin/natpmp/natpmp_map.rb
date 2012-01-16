@@ -46,23 +46,17 @@ class Metasploit3 < Msf::Auxiliary
 				(ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
 			end
 
-			# now map
 			print_status "#{host} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
-
-			case datastore['PROTOCOL']
-			when "UDP"
-				protocol = 1
-			when "TCP"
-				protocol = 2
-			end
-
+			# build the mapping request
 			req = Rex::Proto::NATPMP.map_port_request(
 					datastore['LPORT'].to_i, datastore['RPORT'].to_i,
-					protocol, datastore['LIFETIME']
+					Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), datastore['LIFETIME']
 			)
+			# send it
 			udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
+			# handle the reply
 			while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
-				handle_reply(host, external_address, r)
+				handle_reply(Rex::Socket.source_address(host), host, external_address, r)
 			end
 		rescue ::Interrupt
 			raise $!
@@ -73,7 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def handle_reply(host, external_address, pkt)
+	def handle_reply(map_target, host, external_address, pkt)
 		return if not pkt[1]
 
 		if(pkt[1] =~ /^::ffff:/)
@@ -85,25 +79,13 @@ class Metasploit3 < Msf::Auxiliary
 		if (result == 0)
 			if (datastore['RPORT'].to_i != external_port)
 				print_status(	"#{external_address} " +
-								"#{datastore['RPORT']}/#{datastore['PROTOCOL']} -> " +
-								"#{datastore['LHOST']} couldn't be forwarded")
+								"#{datastore['RPORT']}/#{datastore['PROTOCOL']} -> #{map_target} " +
+								"#{internal_port}/#{datastore['PROTOCOL']} couldn't be forwarded")
 			end
 			print_status(	"#{external_address} " +
-							"#{external_port}/#{datastore['PROTOCOL']} -> #{datastore['LHOST']} " +
+							"#{external_port}/#{datastore['PROTOCOL']} -> #{map_target} " +
 							"#{internal_port}/#{datastore['PROTOCOL']} forwarded")
 		end
-
-		# report the host we scanned as alive
-		report_host(
-			:host   => host,
-			:state => "alive"
-		)
-
-		# also report its external address as alive
-		report_host(
-			:host   => external_address,
-			:state => "alive"
-		)
 
 		# report NAT-PMP as being open
 		report_service(
