@@ -2264,10 +2264,14 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		ver = "$Revision: 14065 $"
-
-		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
-		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
+		svn_console_version = "$Revision: 14065 $"
+		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
+		if svn_metasploit_version
+			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
+		else
+			print_line("Framework: #{Msf::Framework::Version}")
+		end
+		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
 
 		return true
 	end
