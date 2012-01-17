@@ -81,7 +81,7 @@ module Rex
 		def report_vulns(host_object)
 			vuln_count = 0
 			block = @block
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? Msm::Host
 			return unless @report_data[:vulns]
 			@report_data[:vulns].each do |vuln|
 				if vuln[:refs]
@@ -243,7 +243,7 @@ module Rex
 		end
 
 		def report_host_fingerprint(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Msm::Host
 			return unless @report_data[:host_fingerprint].kind_of? Hash
 			@report_data[:host_fingerprint].reject! {|k,v| v.nil? || v.empty?}
 			return if @report_data[:host_fingerprint].empty?
@@ -312,7 +312,7 @@ module Rex
 		end
 
 		def report_services(host_object)
-			return unless host_object.kind_of? ::Msf::DBManager::Host
+			return unless host_object.kind_of? ::Msm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			reported = []

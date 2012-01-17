@@ -457,7 +457,7 @@ class DBManager
 		addr   = opts[:addr] || opts[:address] || opts[:host] || return
 		host = get_host(:workspace => wspace, :host => addr)
 		time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
-		Msf::DBManager::Session.find_by_host_id_and_opened_at(host.id, time)
+		Msm::Session.find_by_host_id_and_opened_at(host.id, time)
 	end
 
 	# Record a new session in the database
@@ -517,7 +517,7 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
-		s = Msf::DBManager::Session.new(sess_data)
+		s = Msm::Session.new(sess_data)
 		s.save!
 
 		if opts[:session]
@@ -549,7 +549,7 @@ class DBManager
 	# Record a session event in the database
 	#
 	# opts MUST contain one of:
-	# +:session+:: the Msf::Session OR the Msf::DBManager::Session we are reporting
+	# +:session+:: the Msf::Session OR the Msm::Session we are reporting
 	# +:etype+::   event type, enum: command, output, upload, download, filedelete
 	#
 	# opts may contain
@@ -588,7 +588,7 @@ class DBManager
 			event_data[attr] = opts[attr] if opts[attr]
 		end
 
-		s = Msf::DBManager::SessionEvent.create(event_data)
+		s = Msm::SessionEvent.create(event_data)
 	end
 
 	def report_session_route(session, route)

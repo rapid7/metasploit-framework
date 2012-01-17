@@ -165,7 +165,7 @@ class Db
 			host_ranges = []
 
 			output = nil
-			default_columns = ::Msf::DBManager::Host.column_names.sort
+			default_columns = ::Msm::Host.column_names.sort
 			virtual_columns = [ 'svcs', 'vulns', 'workspace' ]
 
 			col_search = [ 'address', 'mac', 'name', 'os_name', 'os_flavor', 'os_sp', 'purpose', 'info', 'comments']
@@ -311,7 +311,7 @@ class Db
 			output_file = nil
 			set_rhosts = nil
 			col_search = ['port', 'proto', 'name', 'state', 'info']
-			default_columns = ::Msf::DBManager::Service.column_names.sort
+			default_columns = ::Msm::Service.column_names.sort
 			default_columns.delete_if {|v| (v[-2,2] == "id")}
 
 			host_ranges = []
@@ -1134,7 +1134,7 @@ class Db
 			end
 
 			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-			exporter = Msf::DBManager::Export.new(framework.db.workspace)
+			exporter = Msm::Export.new(framework.db.workspace)
 
 			exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
 				if mtype == :status

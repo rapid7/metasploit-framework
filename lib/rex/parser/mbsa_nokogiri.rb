@@ -75,7 +75,7 @@ module Rex
 		end
 		
 		def report_fingerprint(host_object)
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? Msm::Host
 			return unless @report_data[:os_fingerprint]
 			fp_note = @report_data[:os_fingerprint].merge(
 				{
@@ -95,7 +95,7 @@ module Rex
 		end
 
 		def report_vulns(host_object, &block)
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? Msm::Host
 			return unless @report_data[:vulns]
 			return if @report_data[:vulns].empty?
 			@report_data[:vulns].each do |vuln|
