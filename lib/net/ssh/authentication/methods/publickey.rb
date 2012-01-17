@@ -61,7 +61,15 @@ module Net
                     session.accepted_key_callback.call({ :user => username, :fingerprint => identity.fingerprint, :key => identity.dup })
                   end 
 
-                  return false if session.skip_private_keys
+                  if session.skip_private_keys
+					  if session.options[:record_auth_info]
+						session.auth_info[:method] = "publickey"
+						session.auth_info[:user] = username
+						session.auth_info[:pubkey_data] = identity.inspect
+						session.auth_info[:pubkey_id] = identity.fingerprint
+					  end        
+                    return true
+                  end
                   
                   buffer = build_request(identity, username, next_service, true)
                   sig_data = Net::SSH::Buffer.new

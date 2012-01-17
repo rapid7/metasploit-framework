@@ -40,17 +40,18 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 		info = mssql_ping(2)
-		if (info['ServerName'])
-			print_status("SQL Server information for #{ip}:")
-			info.each_pair { |k,v|
-				print_status("   #{k + (" " * (15-k.length))} = #{v}")
-			}
-			if info['tcp']
-				report_mssql_service(ip,info)
+		print_status info.inspect
+		if info and not info.empty?
+			info.each do |instance|
+				if (instance['ServerName'])
+					print_status("SQL Server information for #{ip}:")
+					instance.each_pair {|k,v| print_good("   #{k + (" " * (15-k.length))} = #{v}")}
+					if instance['tcp']
+						report_mssql_service(ip,instance)
+					end
+				end
 			end
-
 		end
-
 
 		rescue ::Rex::ConnectionError
 		end

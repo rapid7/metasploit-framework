@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname  => 'HTTP',
 							:port   => rport,
 							:type   => wdtype,
-							:data   => 'enabled'
+							:data   => datastore['PATH']
 						})
 
 				else

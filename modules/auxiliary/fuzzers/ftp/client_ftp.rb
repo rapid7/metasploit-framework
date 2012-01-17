@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module will serve an FTP server and perform FTP client interaction fuzzing
 			},
-			'Author'         => [ 'corelanc0d3r' ],
+			'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => "$Revision$",
 			'References'     =>

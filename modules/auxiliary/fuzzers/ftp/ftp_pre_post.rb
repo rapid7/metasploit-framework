@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module will connect to a FTP server and perform pre- and post-authentication fuzzing
 			},
-			'Author'         => [ 'corelanc0d3r', 'jduck' ],
+			'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>', 'jduck' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
 			)

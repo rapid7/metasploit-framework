@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.cisco.com/warp/public/707/cisco-sa-20111005-nac.shtml' ],
 					[ 'URL', 'http://dev.metasploit.com/redmine/issues/5673' ]
 				],
-			'Author'      => [ 'nenad' ],
+			'Author'      => [ 'Nenad Stojanovski <nenad.stojanovski[at]gmail.com>' ],
 			'License'     => MSF_LICENSE
 		)
 
