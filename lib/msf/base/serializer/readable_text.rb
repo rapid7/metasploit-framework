@@ -312,9 +312,9 @@ class ReadableText
 			next if (opt.advanced?)
 			next if (opt.evasion?)
 
-			val_display = opt.display_value(mod.datastore[name] || opt.default)
+			val = mod.datastore[name] || opt.default.to_s
 
-			tbl << [ name, val_display, opt.required? ? "yes" : "no", opt.desc ]
+			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
 		}
 
 		return tbl.to_s
