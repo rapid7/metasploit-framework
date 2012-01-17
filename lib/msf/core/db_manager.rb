@@ -2,6 +2,8 @@ require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
 
+require "bundler/setup"
+
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "msf_models"
 
