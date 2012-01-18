@@ -45,7 +45,7 @@ class Metasploit4 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('APIKEY', [true, "The SHODAN API key"]),
+				OptString.new('SHODAN_APIKEY', [true, "The SHODAN API key"]),
 				OptString.new('QUERY', [true, "Keywords you want to search for"]),
 				OptString.new('OUTFILE', [false, "A filename to store the list of IPs"]),
 				OptBool.new('DATABASE', [false, "Add search results to the database", false]),
@@ -89,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run
 		# create our Shodan request parameters
 		query = datastore['QUERY']
-		apikey = datastore['APIKEY']
+		apikey = datastore['SHODAN_APIKEY']
 
 		@res = Net::DNS::Resolver.new()
 		dns_query = @res.query("#{datastore['VHOST']}", "A")
