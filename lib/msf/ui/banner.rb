@@ -261,8 +261,23 @@ In swapper task - not syncing
                      #   #   ###  #   #   ##
                      ########################
                       ##     ##   ##     ##
-%clr
-'
+%clr',
+%Q{
+                           %grnMETASPLOIT%clr
+                            %red """"%clr
+    Never gonna             (\'0 0            Never gonna
+    give you up            %dyel__%clr\\ o/%dyel_%clr     /     let you down
+                         %dyel /  \\  / \\  //
+                         //|  || |\\\\//
+                        // |  || | \\/
+                       //  |  || |
+                      %clr/%dyel\'   |  || |
+                          /   ||  \\
+                         /    | \\  \\
+                        /___ /-- \\__\\
+                           %blu|_|    \\_\\
+%clr___________________________%yel[%clr_%yel]%clr_____%yel[%clr__%yel\\%clr____________________
+%clr},
 		]
 
 
@@ -277,6 +292,8 @@ In swapper task - not syncing
 				when 1
 					Logos[5]
 			end
+		elsif ENV['GORICK']
+			Logos[12]	
 		else
 			Logos[rand(Logos.length)]
 		end
