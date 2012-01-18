@@ -1285,6 +1285,7 @@ class Core
 			"name"     => "Modules with a matching descriptive name",
 			"path"     => "Modules with a matching path or reference name",
 			"platform" => "Modules affecting this platform",
+			"port"     => "Modules with a matching remote port",
 			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
 			"app"      => "Modules that are client or server attacks",
 			"author"   => "Modules written by this author",
