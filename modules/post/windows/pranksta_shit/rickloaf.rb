@@ -103,14 +103,14 @@ class Metasploit3 < Msf::Post
 
 	def launch_video
 		path = ::File.join(Msf::Config.install_root, "data", "post")
-		rick_video_filename = "rick.avi"
+		rick_video_filename = "rick.wmv"
 		rick_avi = ::File.join(path, rick_video_filename)
 
 		print_status("Uploading video")
 		mediaplayer = "\"C:\\Program Files\\Windows Media Player\\wmplayer.exe\""
 		
 		tempdir = client.fs.file.expand_path("%TEMP%")
-		temp_video = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".avi"
+		temp_video = tempdir + "\\" + Rex::Text.rand_text_alpha((rand(8)+6)) + ".wmv"
 		print_status "Uploading to => " + temp_video
 		session.fs.file.upload_file("#{temp_video}", rick_avi)
 
