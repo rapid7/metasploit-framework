@@ -15,12 +15,12 @@ class Metasploit3 < Msf::Post
 	include Msf::Auxiliary::Report
 	include Msf::Post::File
 	include Msf::Post::Windows::Registry
-	
+
 	def initialize(info={})
 		super( update_info( info,
 			'Name'          => 'Windows File and Registry Artifacts Enumeration',
 			'Description'   => %q{
-				This module will check the file system and registry for particular artifacts. The 
+				This module will check the file system and registry for particular artifacts. The
 				list of artifacts is read from data/post/artifacts or a user specified file. Any
 				matches are written to the loot. },
 			'License'       => MSF_LICENSE,
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
 
 		# Start enumerating
 		print_status("Processing artifacts file...")
-		file = ::File.open(filename, "r")
+		file = ::File.open(filename, "rb")
 		file.each_line do |line|
 			line.strip!
 			next if line.length < 1
