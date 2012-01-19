@@ -32,9 +32,6 @@ information on connecting Armitage to Metasploit and using it.
 
 To get started, see the manual at http://www.fastandeasyhacking.com
 
-To update Armitage, type 'svn update .' to get the latest archive from the
-subversion server. I recommend doing this regularly (once a week). 
-
 4. Source Code
    -----------
 
@@ -63,7 +60,7 @@ sure you peruse the FAQ and Manual first.
 7. License
    -------
 
-(c) 2010-2011 Raphael Mudge. This project is licensed under the BSD license. 
+(c) 2010-2012 Raphael Mudge. This project is licensed under the BSD license. 
 See section 8 for more information.
 
 lib/jgraphx.jar is used here within the terms of the BSD license offered by
