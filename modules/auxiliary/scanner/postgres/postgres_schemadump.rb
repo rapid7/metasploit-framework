@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'Postgres Schema Dump',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-					This module extracts the schema information from a 
+					This module extracts the schema information from a
 					Postgres server.
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
@@ -117,7 +117,6 @@ class Metasploit3 < Msf::Auxiliary
 		when :complete
 			return res[:complete].rows
 		end
-		
 	end
 
 

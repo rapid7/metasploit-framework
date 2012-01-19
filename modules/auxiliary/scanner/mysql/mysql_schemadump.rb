@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'MYSQL Schema Dump',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-					This module extracts the schema information from a 
+					This module extracts the schema information from a
 					MySQL DB server.
 			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 						unless tmp_clmnames.nil? or tmp_clmnames.empty?
 							tmp_clmnames.each do |column|
 								tmp_column = {}
-								tmp_column['ColumnName'] = column[0] 
+								tmp_column['ColumnName'] = column[0]
 								tmp_column['ColumnType'] = column[1]
 								tmp_tbl['Columns'] << tmp_column
 							end
