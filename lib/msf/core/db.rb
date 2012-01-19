@@ -195,22 +195,22 @@ class DBManager
 
 
 	def default_workspace
-		Workspace.default
+		Msm::Workspace.default
 	end
 
 	def find_workspace(name)
-		Workspace.find_by_name(name)
+		Msm::Workspace.find_by_name(name)
 	end
 
 	#
 	# Creates a new workspace in the database
 	#
 	def add_workspace(name)
-		Workspace.find_or_create_by_name(name)
+		Msm::Workspace.find_or_create_by_name(name)
 	end
 
 	def workspaces
-		Workspace.find(:all)
+		Msm::Workspace.find(:all)
 	end
 
 	#
@@ -733,7 +733,7 @@ class DBManager
 	end
 
 	#
-	# Report a Note to the database.  Notes can be tied to a Workspace, Host, or Service.
+	# Report a Note to the database.  Notes can be tied to a Msm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
 	# +:data+::  whatever it is you're making a note of
