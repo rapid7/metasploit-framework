@@ -1,6 +1,36 @@
 Armitage Changelog
 ==================
 
+19 Jan 12
+---------
+- Data export now includes a sessions file. This lists all of the Metasploit
+  sessions you had in your database. There's some neat data here including
+  which exploit was used, which payload, start time, and close time. You can
+  calculate how much time you spent on your client's boxes. Cool stuff.
+- Fixed a potential dead-lock caused by mouse enter/exit events firing code
+  that required a lock. Nice landmine to defuse.
+- Fixed a weird condition with d-server detection. Sometimes (rarely)
+  Armitage wouldn't detect the d-server even when it's present.
+- Added check to d-server allowing one lock per/client. Client won't reobtain
+  a lock until it lets it go. This prevents you from opening two shell tabs
+  for a shell session in team mode.
+- Fixed an infinite loop condition when some Windows shell commands would
+  return output with no newlines (e.g., net stop [some service]). Thanks
+  Jesse for pointing me to this one.
+- Data export now includes a timeline file. This file documents all of the
+  major engagement events seen by Armitage. Included with each of these 
+  events is the source ip of the attack system and the user who carried out
+  the action (when teaming is setup).
+- Data export now exports timestamps with current timezone (not GMT)
+- Fixed a nasty bug that's been with Armitage since the beginning! I wasn't
+  freeing edges properly in the graph view. If you had pivots setup in graph
+  view and used Armitage long enough--eventually Armitage would slow down until 
+  the program became unusable. At least it's fixed now.
+- Adjusted the d-server state identity hash combination algorithm to better
+  avoid collissions.
+- Armitage now displays 'shell session' below a host if the host info is just
+  the Windows shell banner.
+
 5 Jan 12
 --------
 - Armitage d-server now transmits hosts, service, and session state only 
