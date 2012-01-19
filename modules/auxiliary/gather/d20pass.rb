@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 				TFTP readable configurations with plaintext passwords.  This module
 				retrieves the username, password, and authentication level list.
 			},
-			'Author'         => [ 'K. Reid Wightman <wightman@digitalbond.com>' ],
+			'Author'         => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision: 1 $',
 			'DisclosureDate' => 'Jan 19 2012',
