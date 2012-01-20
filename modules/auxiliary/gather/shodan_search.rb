@@ -151,7 +151,7 @@ class Metasploit4 < Msf::Auxiliary
 		page = 1
 		my_filter = datastore['FILTER']
 		for i in page..tpages
-			next if results[i].nil?
+			next if results[i].nil? or results[i]['matches'].nil?
 			results[i]['matches'].each { |host|
 
 				city = host['city'] || 'N/A'
