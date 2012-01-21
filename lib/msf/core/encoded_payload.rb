@@ -107,6 +107,10 @@ class EncodedPayload
 		if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
 			encoders = pinst.compatible_encoders
 
+			# Fix encoding issue
+			if reqs['Encoder']
+				reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
+			end
 			# If the caller had a preferred encoder, use this encoder only
 			if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
 				encoders = [ [reqs['Encoder'], preferred] ]
