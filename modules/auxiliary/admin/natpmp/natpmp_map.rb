@@ -8,9 +8,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'NAT-PMP External address scanner',
+			'Name'        => 'NAT-PMP port mapper',
 			'Version'     => '1',
-			'Description' => 'Scan for NAT devices for their external address using NAT-PMP',
+			'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',
 			'Author'      => 'jhart@spoofed.org',
 			'License'     => MSF_LICENSE
 		)

@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'NAT-PMP External address scanner',
 			'Version'     => '1',
-			'Description' => 'Scan for NAT devices for their external address using NAT-PMP',
+			'Description' => 'Scan NAT devices for their external address using NAT-PMP',
 			'Author'      => 'jhart@spoofed.org',
 			'License'     => MSF_LICENSE
 		)
@@ -26,34 +26,25 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(host)
 		begin
+			udp_sock = Rex::Socket::Udp.create(
+				{   'LocalHost' => datastore['CHOST'] || nil,
+					'Context' => {'Msf' => framework, 'MsfExploit' => self}
+			})
+			add_socket(udp_sock)
+			print_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
 
-		udp_sock = Rex::Socket::Udp.create(
-			{   'LocalHost' => datastore['CHOST'] || nil,
-				'Context' => {'Msf' => framework, 'MsfExploit' => self}
-		})
-		add_socket(udp_sock)
-
-		print_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
-
-		begin
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
+			while (r = udp_sock.recvfrom(12, 0.25) and r[1])
+				handle_reply(host, r)
+			end
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 			nil
-		end
-
-		while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
-			handle_reply(host, r)
-		end
-
-		rescue ::Interrupt
-			raise $!
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e}")
 		end
-
-		end
+	end
 
 	def handle_reply(host, pkt)
 		return if not pkt[1]

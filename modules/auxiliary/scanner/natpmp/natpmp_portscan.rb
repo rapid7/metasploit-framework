@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'NAT-PMP External port scanner',
 			'Version'     => '1',
-			'Description' => 'Scan for NAT devices for their external listening ports using NAT-PMP',
+			'Description' => 'Scan NAT devices for their external listening ports using NAT-PMP',
 			'Author'      => 'jhart@spoofed.org',
 			'License'     => MSF_LICENSE
 			)
@@ -21,52 +21,53 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(Rex::Proto::NATPMP::DefaultPort),
 				OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-1000"]),
-				OptString.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
+				OptEnum.new('PROTOCOL', [true, "Protocol to scan", 'TCP', %w(TCP UDP)]),
 				Opt::CHOST,
 			], self.class)
 	end
 
 	def run_host(host)
 		begin
-		udp_sock = Rex::Socket::Udp.create(
-			{	'LocalHost' => datastore['CHOST'] || nil,
-				'Context' => {'Msf' => framework, 'MsfExploit' => self} }
-		)
-		add_socket(udp_sock)
+			udp_sock = Rex::Socket::Udp.create(
+				{	'LocalHost' => datastore['CHOST'] || nil,
+					'Context' => {'Msf' => framework, 'MsfExploit' => self} }
+			)
+			add_socket(udp_sock)
+			print_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP" if (datastore['VERBOSE'])
 
-		print_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP" if (datastore['VERBOSE'])
-
-		begin
 			# first, send a request to get the external address
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
 			external_address = nil
-			while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
+			while (r = udp_sock.recvfrom(12, 0.25) and r[1])
 				(ver,op,result,epoch,external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
 			end
 
-			print_status("External address of #{host} is #{external_address}")
+			if (external_address)
+				print_status("External address of #{host} is #{external_address}")
+			else
+				print_error("Didn't get a response for #{host}'s external address")
+				return
+			end
+
 			Rex::Socket.portspec_crack(datastore['PORTS']).each do |port|
 				# send one request to clear the mapping if *we've* created it before
 				clear_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
 				udp_sock.sendto(clear_req, host, datastore['RPORT'].to_i, 0)
-				while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
+				while (r = udp_sock.recvfrom(16, 0.25) and r[1])
 				end
 
 				# now try the real mapping
 				map_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
 				udp_sock.sendto(map_req, host, datastore['RPORT'].to_i, 0)
-				while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
+				while (r = udp_sock.recvfrom(16, 0.25) and r[1])
 					handle_reply(host, external_address, r)
 				end
 			end
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 			nil
-		end
-
-		rescue ::Interrupt
-			raise $!
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e}")
 		end
