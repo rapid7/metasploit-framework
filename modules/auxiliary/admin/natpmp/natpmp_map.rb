@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT,
 				OptInt.new('NATPMPPORT', [true, "NAT-PMP port to use", Rex::Proto::NATPMP::DefaultPort]),
 				OptInt.new('LIFETIME', [true, "Time in ms to keep this port forwarded", 3600000]),
-				OptString.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
+				OptEnum.new('PROTOCOL', [true, "Protocol to forward", 'TCP', %w(TCP UDP)]),
 				Opt::CHOST,
 			],
 			self.class
@@ -42,11 +42,11 @@ class Metasploit3 < Msf::Auxiliary
 			req = Rex::Proto::NATPMP.external_address_request
 			udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
 			external_address = nil
-			while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
+			while (r = udp_sock.recvfrom(12, 0.25) and r[1])
 				(ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
 			end
 
-			print_status "#{host} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
+			print_status "#{host} - NATPMP - Sending mapping request" if (datastore['VERBOSE'])
 			# build the mapping request
 			req = Rex::Proto::NATPMP.map_port_request(
 					datastore['LPORT'].to_i, datastore['RPORT'].to_i,
@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			# send it
 			udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
 			# handle the reply
-			while (r = udp_sock.recvfrom(65535, 0.25) and r[1])
+			while (r = udp_sock.recvfrom(16, 0.25) and r[1])
 				handle_reply(Rex::Socket.source_address(host), host, external_address, r)
 			end
 		rescue ::Interrupt
