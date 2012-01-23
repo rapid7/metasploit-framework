@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Indent' => 1,
 					'Columns' => ["Type", "User Name", "Password"])
 
-		0.upto(numentries -1).each |i|
+		0.upto(numentries -1).each do |i|
 			f.seek(dstart + headerlen + i * entrylen)
 			accounttype = makeword(f.read(2))
 			f.seek(dstart + headerlen + i * entrylen + 2)
