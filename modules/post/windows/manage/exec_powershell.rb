@@ -133,7 +133,7 @@ class Metasploit3 < Msf::Post
 			script.gsub!(set[0],set[1])
 		end
 		if datastore['VERBOSE']
-			print_status("Final Script: ")
+			print_good("Final Script: ")
 			script.each_line {|l| print_status("\t#{l}")}
 		end
 
@@ -267,7 +267,7 @@ class Metasploit3 < Msf::Post
 		while (line = cmd_out.channel.read())
 			if (line.sub!(/#{@eof}/, ''))
 				fd.write(line)
-				print_status("\t#{line}") if datastore['VERBOSE']
+				vprint_good("\t#{line}")
 				cmd_out.channel.close()
 				break
 			end
