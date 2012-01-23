@@ -17,13 +17,15 @@ CFLAGS+= -fPIC -Os
 CFLAGS+= -I../../source/extensions/networkpug -lc -lpcap -lsupport -lmetsrv_main
 CFLAGS+= -I.
 
+CFLAGS+= -march=i386
+
 objects = sniffer.o
 
 all: ext_server_sniffer.so
 
 
 ext_server_sniffer.so: $(objects)
-	$(CC) -shared $(CFLAGS) $(objects) -lpcap -o $@
+	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lpcap -lssl -o $@
 
 .PHONY: clean
 clean:
