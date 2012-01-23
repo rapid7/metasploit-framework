@@ -109,7 +109,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		# Execute file upion request
+		# Execute file upon request
 		if exec
 			begin
 				cmd = outpath + ' ' + exec_string
