@@ -15,6 +15,8 @@ CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
 CFLAGS+= -fPIC -Os 
 CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport -lmetsrv_main -lpcap
 
+CFLAGS+= -march=i386
+
 #LDFLAGS= -fPIC -Bshareable -lc
 
 ifeq ($(OSNAME), FreeBSD)
