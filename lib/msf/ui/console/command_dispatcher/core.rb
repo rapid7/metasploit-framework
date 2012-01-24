@@ -363,8 +363,8 @@ class Core
 			avdwarn << ""
 		end
 
-		#play rick astley if env var is set
-		if ENV['GORICK']
+		#play rick astley if env var is set or Apr. 1
+		if ENV['GORICK'] or (Time.now.month == 4 and Time.now.day == 1)
 			rick_thread = Thread.new {
 				path = ::File.join(Msf::Config.install_root, "data", "sounds")
 				path = ::File.join(path, "default", "nevergonna.wav")
