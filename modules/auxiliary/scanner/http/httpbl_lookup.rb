@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def support_ipv6?
 		false
 	end
-	
+
 	def resolve(ip)
 		results = ''
 		apikey = datastore['HTTPBL_APIKEY']

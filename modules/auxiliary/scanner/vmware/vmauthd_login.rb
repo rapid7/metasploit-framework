@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module will test vmauthd logins on a range of machines and
-				report successful logins. 
+				report successful logins.
 			},
 			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>

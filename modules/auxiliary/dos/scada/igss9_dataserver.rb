@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => '7-Technologies IGSS 9 IGSSdataServer.exe DoS',
 			'Description'    => %q{
-				The 7-Technologies SCADA IGSS Data Server (IGSSdataServer.exe) <= 9.0.0.10306 can be 
+				The 7-Technologies SCADA IGSS Data Server (IGSSdataServer.exe) <= 9.0.0.10306 can be
 				brought down by sending a crafted TCP packet to port 12401.  This should also work
 				for version <= 9.0.0.1120, but that version hasn't been tested.
 			},
