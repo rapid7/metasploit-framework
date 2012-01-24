@@ -363,9 +363,18 @@ class Core
 			avdwarn << ""
 		end
 
+		#play rick astley if env var is set
+		if ENV['GORICK']
+			rick_thread = Thread.new {
+				path = ::File.join(Msf::Config.install_root, "data", "sounds")
+				path = ::File.join(path, "default", "nevergonna.wav")
+				Rex::Compat.play_sound(path)
+			}
+		end
+
 		# Display the banner
 		print_line(banner)
-
+		
 		if(oldwarn)
 			oldwarn.map{|line| print_line(line) }
 		end
@@ -373,7 +382,6 @@ class Core
 		if(avdwarn)
 			avdwarn.map{|line| print_error(line) }
 		end
-
 	end
 
 	def cmd_connect_help
