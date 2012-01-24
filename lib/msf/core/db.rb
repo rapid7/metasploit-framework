@@ -190,7 +190,7 @@ class DBManager
 	# Determines if the database is functional
 	#
 	def check
-		res = Host.find(:first)
+		res = Msm::Host.find(:first)
 	end
 
 
@@ -769,7 +769,7 @@ class DBManager
 		addr = nil
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Host
+			if opts[:host].kind_of? Msm::Host
 				host = opts[:host]
 			else
 				addr = normalize_host(opts[:host])
@@ -950,7 +950,7 @@ class DBManager
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-		if (not opts[:host].kind_of?(Host)) and (not validate_ips(opts[:host]))
+		if (not opts[:host].kind_of?(Msm::Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
@@ -1114,7 +1114,7 @@ class DBManager
 
 		host = nil
 		addr = nil
-		if opts[:host].kind_of? Host
+		if opts[:host].kind_of? Msm::Host
 			host = opts[:host]
 		else
 			host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -1268,11 +1268,11 @@ class DBManager
 		return if not wspace # Temp fix?
 		uname  = opts.delete(:username)
 
-		if ! opts[:host].kind_of? Host and opts[:host]
+		if ! opts[:host].kind_of? Msm::Host and opts[:host]
 			opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
 		end
 
-		Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
+		Msm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
 	end
 
 	#
@@ -1305,7 +1305,7 @@ class DBManager
 
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Host
+			if opts[:host].kind_of? Msm::Host
 				host = opts[:host]
 			else
 				host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -5224,7 +5224,7 @@ class DBManager
 	# address
 	#
 	def normalize_host(host)
-		return host if host.kind_of? Host
+		return host if host.kind_of? Msm::Host
 		norm_host = nil
 
 		if (host.kind_of? String)
