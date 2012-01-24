@@ -18,9 +18,11 @@ class Metasploit3 < Msf::Auxiliary
 
         def initialize(info = {})
                 super(update_info(info,
-			'Name'           => 'HTML Frame Proxy',
+			'Name'           => 'HTML Frame Payload',
 			'Description'    => %q{
-					This auxiliary module acts a HTTP proxy.
+					This auxiliary module serves a payload via HTML frame.
+					It serves a full browser frame to appear to be at a
+					legit website and loads the payload in an unseen frame.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         =>  ['Marcus J. Carey <mjc[at]threatagent.com>'],
