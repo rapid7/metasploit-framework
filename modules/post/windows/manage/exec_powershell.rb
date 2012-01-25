@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Post
 			'Platform'             => ['windows'],
 			'SessionTypes'         => ['meterpreter'],
 			'Author'               => [
-				'nick[at]executionflow.org', # original meterpreter script
+				'Nicholas Nam (nick[at]executionflow.org)', # original meterpreter script
 				'RageLtMan' # post module
 				]
 		))
