@@ -74,10 +74,11 @@ class Metasploit3 < Msf::Post
 
 		# check/set vars
 		subs = process_subs(datastore['SUBSTITUTIONS'])
-		script_file = read_script(datastore['SCRIPT'])
+		script_in = read_script(datastore['SCRIPT'])
+		print_status(script_in)
 
 		# Make substitutions in script if needed
-		script_in = make_subs(script_file, subs) unless subs.empty?
+		script_in = make_subs(script_in, subs) unless subs.empty?
 
 		# Get target's computer name
 		computer_name = session.sys.config.sysinfo['Computer']
@@ -87,14 +88,14 @@ class Metasploit3 < Msf::Post
 		::FileUtils.mkdir_p(log_dir)
 
 		# Define log filename
-		script_ext  = ::File.extname(script_file)
-		script_base = ::File.basename(script_file, script_ext)
+		script_ext  = ::File.extname(datastore['SCRIPT'])
+		script_base = ::File.basename(datastore['SCRIPT'], script_ext)
 		time_stamp  = ::Time.now.strftime('%Y%m%d:%H%M%S')
 		log_file    = ::File.join(log_dir,"#{script_base}-#{time_stamp}.txt")
 
 		# Compress
 		print_status('Compressing script contents:')
-		compressed_script = compress_script(script_file, eof)
+		compressed_script = compress_script(script_in, eof)
 
 		# If the compressed size is > 8100 bytes, launch stager
 		if (compressed_script.size > 8100)
@@ -112,7 +113,7 @@ class Metasploit3 < Msf::Post
 
 		# Execute the powershell script
 		print_status('Executing the script.')
-		cmd_out, running_pids, open_channels = *execute_script(script)
+		cmd_out, running_pids, open_channels = execute_script(script)
 
 		# Write output to log
 		print_status("Logging output to #{log_file}.")
@@ -120,7 +121,7 @@ class Metasploit3 < Msf::Post
 
 		# Clean up
 		print_status('Cleaning up residual objects and processes.')
-		clean_up(script_file, eof, running_pids, open_channels, env_suffix)
+		clean_up(datastore['SCRIPT'], eof, running_pids, open_channels, env_suffix)
 
 		# That's it
 		print_good('Finished!')

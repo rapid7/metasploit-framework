@@ -165,6 +165,7 @@ module Powershell
 				break
 			end
 			fd.write(line)
+			vprint_good("\t#{line}")
 		end
 
 		# Close log file
