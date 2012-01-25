@@ -130,9 +130,10 @@ class Metasploit3 < Msf::Post
 					@data_out += get_showwnd(hdr)
 					@data_out += get_lnk_MAC(hdr)
 
+					# advance the file & offset
+					offset += 0x4c
+
 					if shell_item_id_list(hdr)
-						# advance the file & offset
-						offset += 0x4c
 						lnk_file.sysseek(offset, ::IO::SEEK_SET)
 						record = lnk_file.sysread(2)
 						offset += record.unpack('v')[0] + 2
