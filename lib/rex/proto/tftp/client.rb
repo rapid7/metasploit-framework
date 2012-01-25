@@ -52,7 +52,7 @@ class Client
 		self.local_port = params["LocalPort"] || (1025 + rand(0xffff-1025))
 		self.peer_host = params["PeerHost"] || (raise ArgumentError, "Need a peer host.")
 		self.peer_port = params["PeerPort"] || 69
-		self.context = params["Context"] || {}
+		self.context = params["Context"] || {'Msf' => framework, 'MsfExploit' => self}
 		self.local_file = params["LocalFile"]
 		self.remote_file = params["RemoteFile"] || (::File.split(self.local_file).last if self.local_file)
 		self.mode = params["Mode"] || "octet"

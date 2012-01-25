@@ -1,4 +1,3 @@
-
 ##
 # $Id$
 ##
@@ -12,8 +11,11 @@
 
 require 'msf/core'
 require 'rex'
+require 'msf/core/post/windows/railgun'
 
 class Metasploit3 < Msf::Post
+
+	include Msf::Post::Windows::Railgun
 
 	def initialize(info={})
 		super( update_info( info,
@@ -28,26 +30,25 @@ class Metasploit3 < Msf::Post
 		[
 				OptInt.new("ERR_CODE" , [true, "Error code to reverse lookup", 0x420]),
 				OptInt.new("WIN_CONST", [true, "Windows constant to reverse lookup", 4]),
-				OptString.new("WCREGEX", [false,"Regexp to apply to constant rev lookup", "^SERVICE"]),
-				OptString.new("ECREGEX", [false,"Regexp to apply to error code lookup", "^ERROR_SERVICE_"]),
+				OptRegexp.new("WCREGEX", [false,"Regexp to apply to constant rev lookup", '^SERVICE']),
+				OptRegexp.new("ECREGEX", [false,"Regexp to apply to error code lookup", '^ERROR_SERVICE_']),
 			], self.class)
 
 	end
 
 	def run
+		print_debug datastore['ECREGEX']
 		print_status("Running against session #{datastore["SESSION"]}")
 		print_status("Session type is #{session.type}")
 
-		@rg = session.railgun
-
 		print_status()
-		print_status("TESTING:  const_reverse_lookup on #{datastore['WIN_CONST']} filtering by #{datastore['WCREGEX'].to_s}")
-		results = @rg.const_reverse_lookup(datastore['WIN_CONST'],datastore['WCREGEX'])
+		print_status("TESTING:  select_const_names on #{datastore['WIN_CONST']} filtering by #{datastore['WCREGEX'].to_s}")
+		results = select_const_names(datastore['WIN_CONST'],datastore['WCREGEX'])
 		print_status("RESULTS:  #{results.class} #{results.pretty_inspect}")
 		
 		print_status()
 		print_status("TESTING:  error_lookup on #{datastore['ERR_CODE']} filtering by #{datastore['ECREGEX'].to_s}")
-		results = @rg.error_lookup(datastore['ERR_CODE'],datastore['ECREGEX'])
+		results = lookup_error(datastore['ERR_CODE'],datastore['ECREGEX'])
 		print_status("RESULTS:  #{results.class} #{results.inspect}")
 		
 		print_status()

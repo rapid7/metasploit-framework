@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'         => [ 'K. Reid Wightman <wightman[at]digitalbond.com>' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision: 1 $',
-			'DisclosureDate' => 'Jan 19 2012',
+			'DisclosureDate' => 'Jan 19 2012'
 			))
 
 		register_options(
@@ -197,11 +197,11 @@ class Metasploit3 < Msf::Auxiliary
 		f.seek(userentryptr + 40) # sorry decimal
 		entrylen = makeword(f.read(2)) # sorry this is decimal
 		logins = Rex::Ui::Text::Table.new(
-					'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
-					'Indent' => 1,
-					'Columns' => ["Type", "User Name", "Password"])
-		range = Range.new(0, numentries - 1)
-		range.each do |i|
+			'Header' => "D20 usernames, passwords, and account levels\n(use for TELNET authentication)",
+			'Indent' => 1,
+			'Columns' => ["Type", "User Name", "Password"])
+
+		0.upto(numentries -1).each do |i|
 			f.seek(dstart + headerlen + i * entrylen)
 			accounttype = makeword(f.read(2))
 			f.seek(dstart + headerlen + i * entrylen + 2)
@@ -241,7 +241,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def parse(fh)
 		print_status("Parsing file")
-		f = File.open(fh, 'rb')
+		f = File.open(fh.path, 'rb')
 		used = f.read(4)
 		if used != "USED"
 			print_error "Invalid Configuration File!"
