@@ -51,6 +51,10 @@ class Metasploit3 < Msf::Post
 			change_loading_screen
 		elsif datastore["COMMAND"].eql? "reaction"
 			record_reactions
+		elsif datastore["COMMAND"].eql? "animatedbackground"
+			create_animated_background
+		elsif datastore["COMMAND"].eql? "gadget"
+			create_gadgets
 		elsif datastore["COMMAND"].eql? "music" and not datastore["PATH"].nil? 
 			change_music
 		else
@@ -348,6 +352,12 @@ class Metasploit3 < Msf::Post
 	
 	def record_reactions
 		#TODO figure out how espia works or how to call it
+	end
+
+	def create_animated_background
+	end
+
+	def create_gadgets
 	end
 
 end
