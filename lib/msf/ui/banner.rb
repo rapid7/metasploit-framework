@@ -285,6 +285,7 @@ In swapper task - not syncing
   %whi| %red|(@)(@)"""**|(@)(@)**|(@) %whi|    %yel"       %grn||       %yel"     %whi|
   %whi|  %yel= = = = = = = = = = = =  %whi|     %yel'--------------'      %whi|
   %whi+---------------------------+---------------------------+%clr
+  %clr
 },]
 
 
