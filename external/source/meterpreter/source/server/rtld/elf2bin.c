@@ -60,7 +60,7 @@ int main(int argc, char **argv)
 	ehdr = (Elf32_Ehdr *)data;
 	phdr = (Elf32_Phdr *)(data + ehdr->e_phoff);
 	
-	printf("data @ %08x, mapping @ %08x\n", data, mapping);
+	printf("data @ %p, mapping @ %p\n", data, mapping);
 
 	for(i = 0; i < ehdr->e_phnum; i++, phdr++) {
 		if(phdr->p_type == PT_LOAD) {
@@ -71,7 +71,7 @@ int main(int argc, char **argv)
 			source = data + (phdr->p_offset & ~4095);
 			dest = mapping + ((phdr->p_vaddr - base) & ~4095);
 			len = phdr->p_filesz + (phdr->p_vaddr & 4095);	
-			printf("memcpy(%08x, %08x, %08x)\n", dest, source, len);
+			printf("memcpy(%p, %p, %08x)\n", dest, source, len);
 			memcpy(dest, source, len);
 			
 			used += (phdr->p_memsz + (phdr->p_vaddr & 4095) + 4095) & ~4095 ;

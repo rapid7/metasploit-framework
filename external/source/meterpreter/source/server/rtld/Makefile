@@ -3,7 +3,7 @@ CFLAGS=-I${PWD}/hack
 CFLAGS+= -I ../../bionic/libc/include -I ../../bionic/libc/kernel/common/linux/ -I ../../bionic/libc/kernel/common/ -I ../../bionic/libc/arch-x86/include/
 CFLAGS+= -I ../../bionic/libc/kernel/arch-x86/ -I../../source/server/elf/headers -I../../bionic/libc/private -fPIC -DPIC
 CFLAGS+= -nostdinc -nostdlib -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t" -DANDROID_X86_LINKER
-CFLAGS+= -ggdb
+#CFLAGS+= -ggdb
 CFLAGS+= -DMETSRV_RTLD -D_BYTE_ORDER=_LITTLE_ENDIAN
 
 CFLAGS+= -march=i386
@@ -14,6 +14,7 @@ all: msflinker msflinker.bin rtldtest
 
 msflinker: $(OBJ)
 	gcc -Wl,-script=script -Wl,--hash-style=sysv $(CFLAGS) -o msflinker $(OBJ) -lgcc
+	strip msflinker
 
 msflinker.bin: msflinker elf2bin.c
 	gcc -o elf2bin elf2bin.c
@@ -61,5 +62,5 @@ rtldtest: rtldtest.c msflinker
 clean:
 	rm -f libmetsrv_main.h  libssl.h  libcrypto.h  libm.h  libc.h libsupport.h 
 	rm -f *.o 
-	rm -f msflinker msflinker.so
+	rm -f msflinker msflinker.bin msflinker.so
 	rm -f rtldtest elf2bin
