@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Post
 		super( update_info(info,
 			'Name'           => 'Multi Gather VMWare VM Identification',
 			'Description'    => %q{ 
-								This module will attempt to find any VMWare virtual machines stored on the target.
-								},
+				This module will attempt to find any VMWare virtual machines stored on the target.
+			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'Version'        => '$Revision$',
