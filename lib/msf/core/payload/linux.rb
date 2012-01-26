@@ -138,7 +138,7 @@ module Msf::Payload::Linux
 						 "\x89\xd9"             +#   movl   %ebx,%ecx                   #
 						 "\x58"                 +#   popl   %eax                        #
 						 "\xcd\x80"              #   int     $0x80                      #
-                          `echo "foo size: #{pre.size}" > /tmp/dupa`
+
 			end
 
 			# Append
@@ -293,8 +293,8 @@ module Msf::Payload::Linux
 				# exit(0)
 			if (datastore['AppendExit'])
                                 app << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                app << "\x48\x89\xf8"         #    mov     rax,rdi                   #
-                                pre << "\xb0\x3c"             #    mov     al,0x69                   #
+                                pre << "\x6a\x3c"             #    push    0x53                      #
+                                pre << "\x58"                 #    pop     rax                       #
                                 app << "\x0f\x05"             #    syscall                           #
                         end
 		end
