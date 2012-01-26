@@ -43,7 +43,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run_host(ip)
-		connect
+		begin
+			connect
+		rescue
+			print_error "Could not connect to #{ip}:#{datastore['RPORT']}"
+			return
+		end
+		
 		banner = sock.get_once.chomp
 		print_status "Banner: #{banner}"
 
