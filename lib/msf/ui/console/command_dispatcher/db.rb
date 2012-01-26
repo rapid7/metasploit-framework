@@ -990,7 +990,15 @@ class Db
 		end
 
 		def cmd_db_import_help
-			print_line "Usage: db_import <filename> [file2...]"
+			print_line "Usage: db_import [-s >integer>] <filename> [file2...]"
+			print_line
+			print_line "Options :"
+			print_line "    -h : Displays this help"
+			print_line "    -s : Minimum severity level of vuln to import"
+			print_line "          - 0 : Note"
+			print_line "          - 1 : Low"
+			print_line "          - 2 : Medium"
+			print_line "          - 3 : High"
 			print_line
 			print_line "Filenames can be globs like *.xml, or **/*.xml which will search recursively"
 			print_line "Currently supported file types include:"
@@ -1025,6 +1033,14 @@ class Db
 				cmd_db_import_help
 				return
 			end
+           
+            # Takes all vulns by default 
+            severityLimit=0
+            if args[0]=='-s'
+                args.shift
+                severityLimit=args.shift
+            end
+
 			args.each { |glob|
 				files = ::Dir.glob(::File.expand_path(glob))
 				if files.empty?
@@ -1038,7 +1054,7 @@ class Db
 					end
 					begin
 						warnings = 0
-						framework.db.import_file(:filename => filename) do |type,data|
+						framework.db.import_file(:filename => filename, :severityLimit => severityLimit) do |type,data|
 							case type
 							when :debug
 								print_error("DEBUG: #{data.inspect}")
