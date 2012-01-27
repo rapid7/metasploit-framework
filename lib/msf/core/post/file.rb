@@ -38,7 +38,11 @@ module File
 	#
 
 	def file_remote_digestmd5(file2md5)
-		chksum = Digest::MD5.hexdigest(read_file(file2md5))
+		data = read_file(file2md5)
+		chksum = nil
+		if data
+			chksum = Digest::MD5.hexdigest(data)
+		end
 		return chksum
 	end
 
@@ -61,7 +65,11 @@ module File
 	#
 
 	def file_remote_digestsha1(file2sha1)
-		chksum = Digest::SHA1.hexdigest(read_file(file2sha1))
+		data = read_file(file2sha1)
+		chksum = nil
+		if data
+			chksum = Digest::SHA1.hexdigest(data)
+		end
 		return chksum
 	end
 
@@ -84,7 +92,11 @@ module File
 	#
 
 	def file_remote_digestsha2(file2sha2)
-		chksum = Digest::SHA256.hexdigest(read_file(file2sha2))
+		data = read_file(file2sha2)
+		chksum = nil
+		if data
+			chksum = Digest::SHA256.hexdigest(data)
+		end
 		return chksum
 	end
 
