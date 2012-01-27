@@ -37,15 +37,13 @@ class Metasploit3 < Msf::Post
 						true,
 						'Full path to artifacts file.',
 						::File.join(Msf::Config.data_directory, 'post', 'enum_artifacts_list.txt')
-					]),
-				OptString.new( 'VERBOSE', [false, "Show verbose output", false] )
+					])
 			], self.class)
 	end
 
 	def run
 		# Store any found artifacts so they can be written to loot
 		evidence = {}
-		if datastore['VERBOSE'] == 'true' then verbose = true end
 
 		# Check artifacts file path
 		filename = datastore['ARTIFACTS']
@@ -64,9 +62,7 @@ class Metasploit3 < Msf::Post
 			found = []
 
 			# Process file entries
-			if verbose 
-				print_status("Processing #{files.length.to_s} file entries for #{key}.")
-			end
+			vprint_status("Processing #{files.length.to_s} file entries for #{key}.")
 
 			files.each do |file|
 				digest = file_remote_digestmd5(file['name'])
@@ -76,9 +72,7 @@ class Metasploit3 < Msf::Post
 			end
 			
 			# Process registry entries
-			if verbose
-				print_status("Processing #{regs.length.to_s} registry entries for #{key}.")
-			end
+			vprint_status("Processing #{regs.length.to_s} registry entries for #{key}.")
 
 			regs.each do |reg|
 				rdata = registry_getvaldata(reg['key'], reg['val'])
@@ -92,7 +86,7 @@ class Metasploit3 < Msf::Post
 			if found.empty?
 				print_status("No artifacts of #{key} found.")
 			else
-				print_error("Artifacts of #{key} found.")
+				print_status("Artifacts of #{key} found.")
 				evidence[key] = found
 			end
 		end
