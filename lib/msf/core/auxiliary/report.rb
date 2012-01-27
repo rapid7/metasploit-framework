@@ -23,7 +23,7 @@ module Auxiliary::Report
 	end
 
 	def inside_workspace_boundary?(ip)
-		return if not framework.db.active
+		return true if not framework.db.active
 		allowed = myworkspace.allow_actions_on?(ip)
 		return allowed
 	end
