@@ -40,11 +40,25 @@ external/source/meterpreter/source/bionic/compiled/libcrypto.so: tmp/openssl-0.9
 external/source/meterpreter/source/bionic/compiled/libssl.so: tmp/openssl-0.9.8o/libssl.so
 	cp tmp/openssl-0.9.8o/libssl.so external/source/meterpreter/source/bionic/compiled/libssl.so
 
+LIBC=$(PWD)/external/source/meterpreter/source/bionic/libc
+LIBM=$(PWD)/external/source/meterpreter/source/bionic/libm
+COMPILED=$(PWD)/external/source/meterpreter/source/bionic/compiled
+MSF_CFLAGS=-Os -Wl,--hash-style=sysv -march=i386 -m32 -nostdinc -nostdlib -fno-builtin -fpic -I $(LIBC)/include -I $(LIBC)/kernel/common/linux/ -I $(LIBC)/kernel/common/ -I $(LIBC)/arch-x86/include/ -I $(LIBC)/kernel/arch-x86/  -I$(LIBC)/private -I$(LIBM)/include -DPIC -Dwchar_t='char' -D_SIZE_T_DECLARED -DElf_Size='u_int32_t' -D_BYTE_ORDER=_LITTLE_ENDIAN -L$(COMPILED) -lc
+
 tmp/openssl-0.9.8o/libssl.so:
 	[ -d tmp ] || mkdir tmp 
-	[ -d tmp/openssl-0.9.8o ] || wget -O tmp/openssl-0.9.8o.tar.gz http://openssl.org/source/openssl-0.9.8o.tar.gz && tar -C tmp/ -xzf tmp/openssl-0.9.8o.tar.gz
-	(cd tmp/openssl-0.9.8o && ./Configure threads no-zlib no-krb5 386 --prefix=/tmp/out linux-elf shared)
-	(cd tmp/openssl-0.9.8o && make CC="gcc -Os -Wl,--hash-style=sysv -I${PWD}/external/source/meterpreter/source/bionic/libc/include -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/linux/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/ -I${PWD}/external/source/meterpreter/source/bionic/libc/arch-x86/include/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/arch-x86/  -I${PWD}/external/source/meterpreter/source/bionic/libc/private -fPIC -DPIC -nostdinc -nostdlib -Dwchar_t='char' -fno-builtin -D_SIZE_T_DECLARED -DElf_Size='u_int32_t' -I${PWD}/external/source/meterpreter/source/bionic/libm/include  -L${PWD}/external/source/meterpreter/source/bionic/compiled  -D_BYTE_ORDER=_LITTLE_ENDIAN -lc" depend all ; [ -f libssl.so.0.9.8 -a -f libcrypto.so.0.9.8 ] )
+	[ -d tmp/openssl-0.9.8o ] || wget -O tmp/openssl-0.9.8o.tar.gz http://openssl.org/source/openssl-0.9.8o.tar.gz
+	[ -f tmp/openssl-0.9.8o/Configure ] || tar -C tmp/ -xzf tmp/openssl-0.9.8o.tar.gz
+	(cd tmp/openssl-0.9.8o &&                                                       \
+		cat Configure | grep -v 'linux-msf' | \
+		sed -e 's#my %table=(#my %table=(     \
+			"linux-msf", "gcc:$(MSF_CFLAGS) -DL_ENDIAN -DTERMIO -Wall::$(MSF_CFLAGS) -D_REENTRANT::$(MSF_CFLAGS) -ldl:BN_LLONG $${x86_gcc_des} $${x86_gcc_opts}:$${x86_elf_asm}:dlfcn:linux-shared:$(MSF_CFLAGS) -fPIC::.so.\\$$\\$$(SHLIB_MAJOR).\\$$\\$$(SHLIB_MINOR)",\
+		#;' > Configure-msf;\
+		cp Configure-msf Configure && chmod +x Configure && \
+		grep linux-msf Configure && \
+		./Configure --prefix=/tmp/out threads shared no-hw no-dlfcn no-zlib no-krb5 no-idea 386 linux-msf \
+	)
+	(cd tmp/openssl-0.9.8o && make CC="gcc -march=i386 -m32 -Os -Wl,--hash-style=sysv -I${PWD}/external/source/meterpreter/source/bionic/libc/include -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/linux/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/ -I${PWD}/external/source/meterpreter/source/bionic/libc/arch-x86/include/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/arch-x86/  -I${PWD}/external/source/meterpreter/source/bionic/libc/private -fPIC -DPIC -nostdinc -nostdlib -Dwchar_t='char' -fno-builtin -D_SIZE_T_DECLARED -DElf_Size='u_int32_t' -I${PWD}/external/source/meterpreter/source/bionic/libm/include  -L${PWD}/external/source/meterpreter/source/bionic/compiled  -D_BYTE_ORDER=_LITTLE_ENDIAN -lc" depend all ; [ -f libssl.so.0.9.8 -a -f libcrypto.so.0.9.8 ] )
 	cp tmp/openssl-0.9.8o/libssl.so* tmp/openssl-0.9.8o/libcrypto.so* external/source/meterpreter/source/openssl/lib/linux/i386/
 
 external/source/meterpreter/source/bionic/compiled/libpcap.so: tmp/libpcap-1.1.1/libpcap.so.1.1.1
@@ -53,7 +67,7 @@ external/source/meterpreter/source/bionic/compiled/libpcap.so: tmp/libpcap-1.1.1
 tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	[ -d tmp ] || mkdir tmp
 	[ -f tmp/libpcap-1.1.1.tar.gz ] || wget -O tmp/libpcap-1.1.1.tar.gz http://www.tcpdump.org/release/libpcap-1.1.1.tar.gz
-	tar -C tmp -xzf tmp/libpcap-1.1.1.tar.gz
+	[ -f tmp/libpcap-1.1.1/configure  ] || tar -C tmp -xzf tmp/libpcap-1.1.1.tar.gz
 	(cd tmp/libpcap-1.1.1 && ./configure --disable-bluetooth --without-bluetooth --without-usb --disable-usb --without-can --disable-can --without-usb-linux --disable-usb-linux)
 	echo '#undef HAVE_DECL_ETHER_HOSTTON' >> tmp/libpcap-1.1.1/config.h
 	echo '#undef HAVE_SYS_BITYPES_H' >> tmp/libpcap-1.1.1/config.h
@@ -63,7 +77,7 @@ tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	echo '#define _STDLIB_H this_works_around_malloc_definition_in_grammar_dot_c' >> tmp/libpcap-1.1.1/config.h
 	(cd tmp/libpcap-1.1.1 && patch --dry-run -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff && patch -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff)
 	sed -i -e s/pcap-usb-linux.c//g -e s/fad-getad.c/fad-gifc.c/g tmp/libpcap-1.1.1/Makefile
-	sed -i -e s^"CC = gcc"^"CC = gcc -Wl,--hash-style=sysv -fno-stack-protector -nostdinc -nostdlib -fPIC -DPIC -g -Wall -D_UNIX -D__linux__  -I${PWD}/external/source/meterpreter/source/bionic/libc/include -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/linux/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/ -I${PWD}/external/source/meterpreter/source/bionic/libc/arch-x86/include/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/arch-x86/ -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t" -D_BYTE_ORDER=_LITTLE_ENDIAN -lgcc -L${PWD}/external/source/meterpreter/source/bionic/compiled -gstabs+ -fPIC -Os -lc"^g tmp/libpcap-1.1.1/Makefile
+	sed -i -e s^"CC = gcc"^"CC = gcc -march=i386 -m32 -Wl,--hash-style=sysv -fno-stack-protector -nostdinc -nostdlib -fPIC -DPIC -g -Wall -D_UNIX -D__linux__  -I${PWD}/external/source/meterpreter/source/bionic/libc/include -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/linux/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/common/ -I${PWD}/external/source/meterpreter/source/bionic/libc/arch-x86/include/ -I${PWD}/external/source/meterpreter/source/bionic/libc/kernel/arch-x86/ -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t" -D_BYTE_ORDER=_LITTLE_ENDIAN -lgcc -L${PWD}/external/source/meterpreter/source/bionic/compiled -gstabs+ -fPIC -Os -lc"^g tmp/libpcap-1.1.1/Makefile
 	(cd tmp/libpcap-1.1.1 && make)
 
 

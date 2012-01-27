@@ -6,7 +6,7 @@ CFLAGS+= -nostdinc -nostdlib -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -D
 #CFLAGS+= -ggdb
 CFLAGS+= -DMETSRV_RTLD -D_BYTE_ORDER=_LITTLE_ENDIAN
 
-CFLAGS+= -march=i386
+CFLAGS+= -march=i386 -m32
 
 OBJ=msflinker.o basic_libc.o syscall.o linker_format.o dlfcn.o zlib.o metsrv_rtld.o
 

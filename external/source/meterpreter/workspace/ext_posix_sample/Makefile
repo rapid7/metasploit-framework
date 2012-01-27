@@ -15,7 +15,7 @@ CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
 CFLAGS+= -fPIC -Os 
 CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport
 
-CFLAGS+= -march=i386
+CFLAGS+= -march=i386 -m32
 
 objects = test.o
 
