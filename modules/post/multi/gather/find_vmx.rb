@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 			output << "\n"
 		end
 		print_good output
-		store_loot('vmware_vms', "text/plain", session, output, "#{datastore['RHOST']}vmware_vms.txt", "VMWare Virtual Machines")
+		store_loot('vmware_vms', "text/plain", session, output, "vmware_vms.txt", "VMWare Virtual Machines")
 	end
 
 
