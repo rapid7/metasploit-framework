@@ -17,4 +17,4 @@ gcc -Wl,--hash-style=sysv -nostdinc -nostdlib -shared -o libbionic.so flood/*.o 
 
 rm -rf flood >/dev/null
 
-
+exit 0
