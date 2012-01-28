@@ -112,16 +112,16 @@ class Metasploit3 < Msf::Auxiliary
 				info << "Name: #{data[:name]} "
 			end
 			
-			if data[:status]
-				info << "- #{data[:status]} "
+			if data[:stat]
+				info << "- #{data[:stat]} "
 			end
 
 			if data[:caps]
-				info << " (  #{data[:caps]} ) "
+				info << "( #{data[:caps]} ) "
 			end			
 
-			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pca-discover", :info => info)
-			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pca-discover", :update => :unique, :ntype => "pcanywhere.status", :data => data )
+			report_service(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :info => info)
+			report_note(:host => ip, :port => rport, :proto => 'udp', :name => "pcanywhere", :update => :unique, :ntype => "pcanywhere.status", :data => data )
 			print_status("#{ip}:#{rport} #{info}")
 		end
 	end
@@ -154,7 +154,7 @@ class Metasploit3 < Msf::Auxiliary
 			@results[addr] ||= {}
 			buff = $1.dup
 			stat = 'Unknown'
-			
+						
 			if buff[2,1].unpack("C")[0] == 67
 				stat = "Available"
 			end
@@ -164,7 +164,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			
 			@results[addr][:stat] = stat
-			
 		else
 			print_error("#{addr} Unknown: #{data.inspect}")
 		end
