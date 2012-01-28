@@ -53,7 +53,9 @@ class Metasploit3 < Msf::Auxiliary
 			res = sock.get_once(-1, 15)	
 			print_status(Rex::Text.to_hex_dump(res))
 =end		
+			
 			report_service(:host => rhost, :port => rport, :name => "pcanywhere", :info => "")
+			print_status("#{rhost}:#{rport} pcAnywhere")
 			
 		rescue ::Rex::ConnectionError
 		rescue ::Exception => e
