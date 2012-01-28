@@ -56,10 +56,10 @@ class Metasploit3 < Msf::Auxiliary
 			
 			report_service(:host => rhost, :port => rport, :name => "pcanywhere", :info => "")
 			print_status("#{rhost}:#{rport} pcAnywhere")
-			
-		rescue ::Rex::ConnectionError
+		
+		rescue ::Rex::ConnectionError, ::EOFError
 		rescue ::Exception => e
-			print_error("#{rhost}:#{rhost} Error: #{e} #{e.backtrace}")
+			print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")
 		end
 	end
 end

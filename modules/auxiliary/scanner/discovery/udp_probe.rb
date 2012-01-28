@@ -174,8 +174,8 @@ class Metasploit3 < Msf::Auxiliary
 				when /^NR(........................)(........)/
 					name = $1.dup
 					caps = $2.dup		
-					name.gsub!(/_+$/, '').gsub("\x00", '').strip
-					caps.gsub!(/_+$/, '').gsub("\x00", '').strip
+					name = gsub(/_+$/, '').gsub("\x00", '').strip
+					caps = gsub(/_+$/, '').gsub("\x00", '').strip	
 					data[:name] = name
 					data[:caps] = caps
 			
