@@ -21,7 +21,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 	LPSTR expanded = NULL, tempFile = NULL;
 	DWORD tempFileSize = 0;
 	LPSTR baseDirectory = NULL;
-	struct stat buf;
+	struct meterp_stat buf;
 
 	directory = packet_get_tlv_value_string(packet, TLV_TYPE_DIRECTORY_PATH);
 
@@ -150,7 +150,7 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 					tempFile);
 
 			// Stat the file to get more information about it.
-			if (stat(tempFile, &buf) >= 0)
+			if (fs_stat(tempFile, &buf) >= 0)
 				packet_add_tlv_raw(response, TLV_TYPE_STAT_BUF, &buf,
 						sizeof(buf));
 
