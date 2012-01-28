@@ -9,6 +9,7 @@ require 'rex'
 require 'msf/core'
 require 'msf/core/post/file'
 require 'msf/core/post/windows/registry'
+require 'yaml'
 
 class Metasploit3 < Msf::Post
 
@@ -21,7 +22,7 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'Windows File and Registry Artifacts Enumeration',
 			'Description'   => %q{
 				This module will check the file system and registry for particular artifacts. The
-				list of artifacts is read from data/post/artifacts or a user specified file. Any
+				list of artifacts is read from data/post/enum_artifacts_list.txt or a user specified file. Any
 				matches are written to the loot. },
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'averagesecurityguy <stephen[at]averagesecurityguy.info>' ],
@@ -42,8 +43,7 @@ class Metasploit3 < Msf::Post
 
 	def run
 		# Store any found artifacts so they can be written to loot
-		files_found = []
-		reg_found   = []
+		evidence = {}
 
 		# Check artifacts file path
 		filename = datastore['ARTIFACTS']
@@ -52,55 +52,59 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		# Start enumerating
-		print_status("Processing artifacts file...")
-		file = ::File.open(filename, "rb")
-		file.each_line do |line|
-			line.strip!
-			next if line.length < 1
-			next if line[0,1] == "#"
+		# Load artifacts from yaml file. Artifacts are organized by what they
+		# are evidence of.
+		yaml = YAML::load_file(filename)
+		yaml.each_key do |key|
+			print_status("Searching for artifacts of #{key}")
+			files = yaml[key]['files']
+			regs = yaml[key]['reg_entries']
+			found = []
 
-			# Check registry
-			if line =~ /^reg/
-				type, reg_key, val, data = line.split("|")
-				reg_data = registry_getvaldata(reg_key, val)
-				if reg_data.to_s == data
-					reg_found << "#{reg_key}\\#{val}"
+			# Process file entries
+			vprint_status("Processing #{files.length.to_s} file entries for #{key}.")
+
+			files.each do |file|
+				digest = file_remote_digestmd5(file['name'])
+				# if the file doesn't exist then digest will be nil
+				next if digest == nil
+				if digest == file['csum'] then found << file['name'] end
+			end
+			
+			# Process registry entries
+			vprint_status("Processing #{regs.length.to_s} registry entries for #{key}.")
+
+			regs.each do |reg|
+				rdata = registry_getvaldata(reg['key'], reg['val'])
+				if rdata.to_s == reg['data']
+					found << reg['key'] + '\\' + reg['val']
 				end
 			end
-
-			# Check file
-			if line =~ /^file/
-				type, file, hash = line.split("|")
-				digest = file_remote_digestmd5(file)
-				if digest == hash
-					files_found << file
-				end
+			
+			# Did we find anything? If so store it in the evidence hash to be
+			# saved in the loot.
+			if found.empty?
+				print_status("No artifacts of #{key} found.")
+			else
+				print_status("Artifacts of #{key} found.")
+				evidence[key] = found
 			end
 		end
 
-		# Reporting.  In case the user wants to separte artifact types (file vs registry),
-		# we've already done it at this point.
-		if files_found.empty?
-			print_status("No file artifacts found")
-		else
-			save(files_found, "Enumerated File Artifacts")
-		end
-
-		if reg_found.empty?
-			print_status("No registry artifacts found")
-		else
-			save(reg_found, "Enumerated Registry Artifacts")
-		end
+		save(evidence, "Enumerated Artifacts")
 	end
 
 	def save(data, name)
-		f = store_loot('enumerated.artifacts', 'text/plain', session, data.join("\n"), name)
+		str = ""
+		data.each_pair do |key, val|
+			str << "Evidence of #{key} found.\n"
+			val.each do |v|
+				str << "\t" + v + "\n"
+			end
+		end
+
+		f = store_loot('enumerated.artifacts', 'text/plain', session, str, name)
 		print_status("#{name} stored in: #{f}")
 	end
 
 end
-
-=begin
-To-do: Use CSV or yaml format to store enum_artifacts_list.txt
-=end

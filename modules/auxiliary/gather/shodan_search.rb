@@ -49,7 +49,7 @@ class Metasploit4 < Msf::Auxiliary
 				OptString.new('QUERY', [true, "Keywords you want to search for"]),
 				OptString.new('OUTFILE', [false, "A filename to store the list of IPs"]),
 				OptBool.new('DATABASE', [false, "Add search results to the database", false]),
-				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1000]),
+				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1]),
 				OptString.new('FILTER', [false, 'Search for a specific IP/City/Country/Hostname']),
 				OptString.new('VHOST', [true, 'The virtual host name to use in requests', 'www.shodanhq.com']),
 			], self.class)
@@ -151,7 +151,7 @@ class Metasploit4 < Msf::Auxiliary
 		page = 1
 		my_filter = datastore['FILTER']
 		for i in page..tpages
-			next if results[i].nil?
+			next if results[i].nil? or results[i]['matches'].nil?
 			results[i]['matches'].each { |host|
 
 				city = host['city'] || 'N/A'

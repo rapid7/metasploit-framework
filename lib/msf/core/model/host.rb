@@ -21,6 +21,10 @@ class Host < ActiveRecord::Base
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id
 
+	def is_vm?
+		!!self.virtual_host
+	end
+
 	def attribute_locked?(attr)
 		n = notes.find_by_ntype("host.updated.#{attr}")
 		n && n.data[:locked]

