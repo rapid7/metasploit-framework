@@ -45,9 +45,11 @@ LPSTR fs_expand_path(LPCSTR regular)
  */
 int fs_stat(LPCSTR filename, struct meterp_stat *buf) {
 	struct stat sbuf;
+	int ret;
 
-    dprintf("Called fs_stat\n");
-	if (stat(filename, &sbuf)) {
+	ret = stat(filename, &sbuf);
+
+	if (ret == 0) {
         buf->st_dev   = sbuf.st_dev;
         buf->st_ino   = sbuf.st_ino;
         buf->st_mode  = sbuf.st_mode;
@@ -59,9 +61,8 @@ int fs_stat(LPCSTR filename, struct meterp_stat *buf) {
         buf->st_atime = (unsigned long long)sbuf.st_atime;
         buf->st_mtime = (unsigned long long)sbuf.st_mtime;
         buf->st_ctime = (unsigned long long)sbuf.st_ctime;
+		return 0;
     } else {
-        return 0;
+        return ret;
     }
-
-    return -1;
 }
