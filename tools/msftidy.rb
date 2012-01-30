@@ -47,12 +47,12 @@ def check_single_file(dparts, fparts, f_rel)
 
 	# check for executable
 	f_exec = File.executable?(f_rel)
-	show_missing(f, "is executable", !f_exec)
+	show_missing(f, "WARNING: is executable", !f_exec)
 
 	# check all installed rubies
 	
 	old_rubies = test_old_rubies(f_rel)
-	show_missing(f, "fails alternate Ruby version check", old_rubies)
+	show_missing(f, "ERROR: fails alternate Ruby version check", old_rubies)
 
 
 	# check various properties based on content
@@ -66,8 +66,8 @@ def check_single_file(dparts, fparts, f_rel)
 		has_rank = true if content =~ /Rank =/
 		has_dd = true if content =~ /DisclosureDate/
 
-		show_missing(f, 'missing exploit ranking', has_rank)
-		show_missing(f, 'missing disclosure date', has_dd)
+		show_missing(f, 'ERROR: missing exploit ranking', has_rank)
+		show_missing(f, 'ERROR: missing disclosure date', has_dd)
 	end
 
 	bad_term = true
@@ -75,7 +75,7 @@ def check_single_file(dparts, fparts, f_rel)
 		bad_term = false
 	end
 
-	show_missing(f, 'contains "stack overflow"', bad_term)
+	show_missing(f, 'WARNING: contains "stack overflow"', bad_term)
 
 
 	# check criteria based on individual lines
@@ -143,7 +143,7 @@ def check_single_file(dparts, fparts, f_rel)
 	}
 
 	# report information for this file
-	show_count(f, 'spaces at EOL', spaces)
+	show_count(f, 'WARNING: spaces at EOL', spaces)
 	if bi.length > 0
 		puts '%s ... bad indent: %u' % [f, bi.length]
 		bi.each { |el|
@@ -153,7 +153,7 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	if ll.length > 0
-		puts "%s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
+		puts "WARNING: %s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
 		ll.each { |el|
 			el[1] = el[1].inspect
 			puts '  %8d: %s' % el
@@ -161,17 +161,17 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	if bc.length > 0
-		puts "%s ... probably has unicode: %u" % [f, bc.length]
+		puts "ERROR: %s ... probably has unicode: %u" % [f, bc.length]
 		bc.each { |ec|
 			ec[1] = ec[1].inspect
 			puts '  %8d: %s' % ec
 		}
 	end
 
-	show_count(f, 'carriage return EOL', cr)
-	show_missing(f, 'incorrect URL to framework site', url_ok)
-	show_missing(f, 'writes to stdout', no_stdio)
-	show_count(f, 'File.open without binary mode', nbo)
+	show_count(f, 'WARNING: carriage return EOL', cr)
+	show_missing(f, 'WARNING: incorrect URL to framework site', url_ok)
+	show_missing(f, 'ERROR: writes to stdout', no_stdio)
+	show_count(f, 'WARNING: File.open without binary mode', nbo)
 end
 
 
