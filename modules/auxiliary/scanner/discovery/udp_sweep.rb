@@ -71,7 +71,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_batch(batch)
-
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
 		begin
@@ -97,7 +96,8 @@ class Metasploit3 < Msf::Auxiliary
 
 					if (idx % 30 == 0)
 						while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-							parse_reply(r)
+							reply_addr = r[1].split(':').last
+							parse_reply(r) if batch.include? reply_addr
 						end
 					end
 
@@ -109,7 +109,8 @@ class Metasploit3 < Msf::Auxiliary
 			del = 10
 			sts = Time.now.to_i
 			while (r = udp_sock.recvfrom(65535, del) and r[1])
-				parse_reply(r)
+				reply_addr = r[1].split(':').last
+				parse_reply(r) if batch.include? reply_addr
 
 				# Prevent an indefinite loop if the targets keep replying
 				cnt += 1
@@ -126,7 +127,8 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Errno::ENOBUFS
 			print_status("Socket buffers are full, waiting for them to flush...")
 			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-				parse_reply(r)
+				reply_addr = r[1].split(':').last
+				parse_reply(r) if batch.include? reply_addr
 			end
 			select(nil, nil, nil, 0.25)
 			retry
@@ -140,7 +142,6 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
-
 		@results ||= {}
 
 		# Ignore "empty" packets

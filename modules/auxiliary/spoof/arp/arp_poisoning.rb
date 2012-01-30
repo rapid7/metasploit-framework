@@ -83,20 +83,20 @@ class Metasploit3 < Msf::Auxiliary
 			@interface = get_interface_guid(@interface)
 			@smac = datastore['SMAC']
 			@smac ||= get_mac(@interface) if @netifaces
-			raise RuntimeError ,'Source Mac should be defined' unless @smac
-			raise RuntimeError ,'Source Mac is not in correct format' unless is_mac?(@smac)
+			raise RuntimeError ,'SMAC is not defined and can not be guessed' unless @smac
+			raise RuntimeError ,'Source MAC is not in correct format' unless is_mac?(@smac)
 
 			@sip = datastore['LOCALSIP']
 			@sip ||= Pcap.lookupaddrs(@interface)[0] if @netifaces
-			raise "LOCALIP is not defined and can not be guessed" unless @sip
-			raise "LOCALIP is not an ipv4 address" unless is_ipv4? @sip
+			raise "LOCALSIP is not defined and can not be guessed" unless @sip
+			raise "LOCALSIP is not an ipv4 address" unless Rex::Socket.is_ipv4?(@sip)
 
 			shosts_range  = Rex::Socket::RangeWalker.new(datastore['SHOSTS'])
 			@shosts = []
 			if datastore['BIDIRECTIONAL']
-				shosts_range.each{|shost| if is_ipv4? shost and shost != @sip then @shosts.push shost end}
+				shosts_range.each{|shost| if Rex::Socket.is_ipv4?(shost) and shost != @sip then @shosts.push shost end}
 			else
-				shosts_range.each{|shost| if is_ipv4? shost then @shosts.push shost end}
+				shosts_range.each{|shost| if Rex::Socket.is_ipv4?(shost) then @shosts.push shost end}
 			end
 
 			if datastore['BROADCAST']
@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
 		@dhosts = []
-		dhosts_range.each{|dhost| if is_ipv4? dhost and dhost != @sip then @dhosts.push(dhost) end}
+		dhosts_range.each{|dhost| if Rex::Socket.is_ipv4?(dhost) and dhost != @sip then @dhosts.push(dhost) end}
 
 		#Build the local dest hosts cache
 		print_status("Building the destination hosts cache...")
@@ -327,12 +327,6 @@ class Metasploit3 < Msf::Auxiliary
 	def is_mac?(mac)
 		if mac =~ /^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/ then true
 		else false end
-	end
-
-	#copy paste from rex::socket cause we need only ipv4
-	#NOTE: Breaks msftidy's rule on long lines, should be refactored for readability.
-	def is_ipv4?(addr)
-		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end
 
 	def buildprobe(shost, smac, dhost)
