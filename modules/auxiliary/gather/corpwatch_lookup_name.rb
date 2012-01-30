@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('COMPANY_NAME', [ true, "Search for companies with this name", ""]),
 				OptString.new('YEAR', [ false, "Limit results to a specific year", ""]),
 				OptString.new('LIMIT', [ true, "Limit the number of results returned", "5"]),
-				OptString.new('API_KEY', [ false, "Use this API key when getting the data", ""]),
+				OptString.new('CORPWATCH_APIKEY', [ false, "Use this API key when getting the data", ""]),
 			], self.class)
 
 		deregister_options('RHOST', 'RPORT', 'Proxies', 'VHOST')
@@ -63,11 +63,11 @@ class Metasploit3 < Msf::Auxiliary
 		{
 			'uri'      => uri,
 			'method'   => 'GET',
-			'vars_get' => 
+			'vars_get' =>
 			{
 				'company_name' => datastore['COMPANY_NAME'],
 				'limit'        => datastore['LIMIT'],
-				'key'          => datastore['API_KEY']
+				'key'          => datastore['CORPWATCH_APIKEY']
 			}
 		}, 25)
 
@@ -132,8 +132,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def grab_text(e, name)
-		(e.get_elements(name) && e.get_elements(name)[0] && 
-		e.get_elements(name)[0].get_text ) ? 
+		(e.get_elements(name) && e.get_elements(name)[0] &&
+		e.get_elements(name)[0].get_text ) ?
 		e.get_elements(name)[0].get_text.to_s  : ""
 	end
 

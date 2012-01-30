@@ -105,23 +105,17 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		begin
-			# Samba has two interesting behaviors:
-			# 1) Invalid users receive a guest login
-			# 2) Valid users return a STATUS_LOGON_FAILURE
-			unless(smb_peer_os == 'Unix')
-				# Print the guest login message only for non-Samba
-				guest = true
-				@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
-				report_note(
-					:host	=> rhost,
-					:proto => 'tcp',
-					:sname	=> 'smb',
-					:port   =>  datastore['RPORT'],
-					:type   => 'smb.account.info',
-					:data   => 'accepts guest login from any account',
-					:update => :unique_data
-				)
-			end
+			guest = true
+			@accepts_guest_logins['rhost'] ||=[] unless @accepts_guest_logins.include?(rhost)
+			report_note(
+				:host	=> rhost,
+				:proto => 'tcp',
+				:sname	=> 'smb',
+				:port   =>  datastore['RPORT'],
+				:type   => 'smb.account.info',
+				:data   => 'accepts guest login from any account',
+				:update => :unique_data
+			)
 		end unless(simple.client.auth_user)
 
 		disconnect()
@@ -255,16 +249,11 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(simple.client.auth_user)
+			print_status("Auth-User: #{simple.client.auth_user.inspect}")
 			print_good("#{smbhost} - SUCCESSFUL LOGIN (#{smb_peer_os}) '#{splitname(user)}' : '#{pass}'")
 		else
-			# Samba has two interesting behaviors:
-			# 1) Invalid users receive a guest login
-			# 2) Valid users return a STATUS_LOGON_FAILURE
-			unless(smb_peer_os == 'Unix')
-				# Print the guest login message only for non-Samba
-				print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass}")
-				@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
-			end
+			print_status("#{rhost} - GUEST LOGIN (#{smb_peer_os}) #{splitname(user)} : #{pass}")
+			@accepts_guest_logins[rhost] = [user, pass] unless datastore['RECORD_GUEST']
 		end
 
 		disconnect()

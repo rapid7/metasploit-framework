@@ -13,6 +13,8 @@ CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t"
 CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
 CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
 
+CFLAGS+= -march=i386
+
 OS=posix
 OSVPATH=../../source/common/arch/$(OS):../../source/server/linux/
 ARCHVPATH=$(OSVPATH)/$(RARCH):$(ELFARCHPATH)

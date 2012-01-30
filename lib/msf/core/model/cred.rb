@@ -42,9 +42,16 @@ class Cred < ActiveRecord::Base
 	end
 	
 	def ssh_key_matches?(other_cred)
-		return false unless self.ptype == "ssh_key"
-		return false unless other_cred.ptype == self.ptype
-		matches = self.ssh_private_keys
+		return false unless other_cred.kind_of? self.class
+		return false unless self.ptype == other_cred.ptype
+		case self.ptype
+		when "ssh_key"
+			matches = self.ssh_private_keys
+		when "ssh_pubkey"
+			matches = self.ssh_public_keys
+		else
+			false
+		end
 		matches.include?(self) and matches.include?(other_cred)
 	end
 

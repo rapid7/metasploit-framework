@@ -1,0 +1,14 @@
+# This file contains a list of artifacts used by the enum_artifacts post module
+# Artifacts should be listed one per line and use the following formats:
+# File entries
+#	file|path/to/file|md5sum
+#
+# Registry entries
+#	reg|hive|key|value
+# 
+# Happy hunting
+
+file|c:\ntdetect.com|b2de3452de03674c6cec68b8c8ce7c78
+file|c:\boot.ini|fa579938b0733b87066546afe951082c
+reg|HKEY_LOCAL_MACHINE\SYSTEM\Select|Current|1
+reg|HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ACPI|DisplayName|Microsoft ACPI Driver

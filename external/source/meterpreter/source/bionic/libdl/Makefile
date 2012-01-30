@@ -3,6 +3,7 @@ CFLAGS+= -I../libc/include -I../libc/private -I../libc/bionic -I../libc/kernel/a
 CFLAGS+= -I../libc/kernel/common/linux/ -I../libc/arch-x86/include/ -I../libc/kernel/common/
 CFLAGS+= -Os
 
+CFLAGS+= -march=i386
 
 all:
 	gcc -Wl,--hash-style=sysv -shared -o libdl.so $(CFLAGS) libdl.c

@@ -45,11 +45,11 @@ class Metasploit4 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('APIKEY', [true, "The SHODAN API key"]),
+				OptString.new('SHODAN_APIKEY', [true, "The SHODAN API key"]),
 				OptString.new('QUERY', [true, "Keywords you want to search for"]),
 				OptString.new('OUTFILE', [false, "A filename to store the list of IPs"]),
 				OptBool.new('DATABASE', [false, "Add search results to the database", false]),
-				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1000]),
+				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1]),
 				OptString.new('FILTER', [false, 'Search for a specific IP/City/Country/Hostname']),
 				OptString.new('VHOST', [true, 'The virtual host name to use in requests', 'www.shodanhq.com']),
 			], self.class)
@@ -89,7 +89,7 @@ class Metasploit4 < Msf::Auxiliary
 	def run
 		# create our Shodan request parameters
 		query = datastore['QUERY']
-		apikey = datastore['APIKEY']
+		apikey = datastore['SHODAN_APIKEY']
 
 		@res = Net::DNS::Resolver.new()
 		dns_query = @res.query("#{datastore['VHOST']}", "A")
@@ -151,7 +151,7 @@ class Metasploit4 < Msf::Auxiliary
 		page = 1
 		my_filter = datastore['FILTER']
 		for i in page..tpages
-			next if results[i].nil?
+			next if results[i].nil? or results[i]['matches'].nil?
 			results[i]['matches'].each { |host|
 
 				city = host['city'] || 'N/A'
