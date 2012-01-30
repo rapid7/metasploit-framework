@@ -940,7 +940,7 @@ class Core
 
 		# Parse any extra options that should be passed to the plugin
 		args.each { |opt|
-			k, v = opt.split(/=/)
+			k, v = opt.split(/\=/)
 
 			opts[k] = v if (k and v)
 		}
@@ -973,8 +973,9 @@ class Core
 	# Tab completion for the load command
 	#
 	def cmd_load_tabs(str, words)
-			tabs = []
-           if (not words[1] or not words[1].match(/^\//))
+		tabs = []
+
+		if (not words[1] or not words[1].match(/^\//))
 			# then let's start tab completion in the scripts/resource directories
 			begin
 				[
@@ -992,7 +993,7 @@ class Core
 		else
 			tabs += tab_complete_filenames(str,words)
 		end
-        return tabs.map{|e| e.sub(/.rb/, '')}
+		return tabs.map{|e| e.sub(/.rb/, '')}
 
 	end
 
