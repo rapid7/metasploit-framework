@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'UNIX Gather credentials saved in .netrc files',
 				'Description'   => %q{Post Module to obtain credentials saved for FTP and other services in .netrc},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Jon Hart <jhart@spoofed.org>' ],
+				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>' ],
 				'Platform'      => [ 'bsd', 'linux', 'osx', 'unix' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
