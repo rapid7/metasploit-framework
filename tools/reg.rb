@@ -278,24 +278,24 @@ if ARGV.length == 0 || ARGV[0] == "help"
 Usage: reg.rb <command> <opts> <hivepath>
 
 Available commands:
-	query_key								Query for more information about a specific node key
-	query_value								Query for the value of a specific value key
-	get_boot_key							Extract the boot key from the SYSTEM hive
-	dump_creds								Dump the usernames and password hashes of the users from the SAM hive
-	list_applications						List all the applications installed via the SOFTWARE hive
-	list_drivers							List all the devices and their respective drivers and driver versions from SYSTEM hive
-	get_everything							When pointed to a directory with hives, it will run all commands on all available hives
-	get_aol_instant_messenger_information	Get credentials and general information on AOL Instant Messenger users from NTUSER.dat
-	get_msn_messenger_information			Get credentials and general information on MSN Messenger users from NTUSER.dat
-	get_windows_messenger_information		Get credentials and general information on Windows Messenger users from NTUSER.dat
-	get_icq_information						Get credentials and general information on ICQ users from NTUSER.dat
-	get_ie_information						Get stored credentials, typed history, search terms, and general settings from NTUSER.dat
-	get_outlook_information					Gets outlook and outlook express stored credentials and general information from NTUSER.dat
-	get_yahoo_messenger_information			Gets credentials and general information on Yahoo! Messenger users from NTUSER.dat
-	get_system_information					Gets general system administration from both SOFTWARE and SYSTEM hives
-	get_networking_information				Gets networing information from the SAM, SYSTEM, and NTUSER.dat hives
-	get_user_information					Gets general user information from the SYSTEM, SECURITY, SAM, and NTUSER.dat hives
-	get_user_application_information		Gets user-specific application information from the NTUSER.DAT and SOFTWARE hives
+	query_key                               Query for more information about a specific node key
+	query_value                             Query for the value of a specific value key
+	get_boot_key                            Extract the boot key from the SYSTEM hive
+	dump_creds                              Dump the usernames and password hashes of the users from the SAM hive
+	list_applications                       List all the applications installed via the SOFTWARE hive
+	list_drivers                            List all the devices and their respective drivers and driver versions from SYSTEM hive
+	get_everything                          When pointed to a directory with hives, it will run all commands on all available hives
+	get_aol_instant_messenger_information   Get credentials and general information on AOL Instant Messenger users from NTUSER.dat
+	get_msn_messenger_information           Get credentials and general information on MSN Messenger users from NTUSER.dat
+	get_windows_messenger_information       Get credentials and general information on Windows Messenger users from NTUSER.dat
+	get_icq_information                     Get credentials and general information on ICQ users from NTUSER.dat
+	get_ie_information                      Get stored credentials, typed history, search terms, and general settings from NTUSER.dat
+	get_outlook_information                 Gets outlook and outlook express stored credentials and general information from NTUSER.dat
+	get_yahoo_messenger_information         Gets credentials and general information on Yahoo! Messenger users from NTUSER.dat
+	get_system_information                  Gets general system administration from both SOFTWARE and SYSTEM hives
+	get_networking_information              Gets networing information from the SAM, SYSTEM, and NTUSER.dat hives
+	get_user_information                    Gets general user information from the SYSTEM, SECURITY, SAM, and NTUSER.dat hives
+	get_user_application_information        Gets user-specific application information from the NTUSER.DAT and SOFTWARE hives
 	}
 
 	puts no_args
