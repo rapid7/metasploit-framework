@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Post
 			next unless k.include? "S-1-5-21"
 			next if k.include? "_Classes"
 
-			print_status("Looking at Key #{k}") if datastore['VERBOSE']
+			vprint_status("Looking at Key #{k}")
 			subkeys = registry_enumkeys("HKU\\#{k}\\Software\\Nimbuzz\\")
 
 			if subkeys == nil or subkeys == ""
