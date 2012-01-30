@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Linux Gather credentials saved for mount.smbfs',
 				'Description'   => %q{Post Module to obtain credentials saved for mount.smbfs in /etc/fstab on a Linux system},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Jon Hart <jhart@spoofed.org>'],
+				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>'],
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
 			))
