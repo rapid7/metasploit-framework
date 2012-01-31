@@ -48,33 +48,32 @@ class Hive
 		return if !@root_key.lf_record
 
 		@root_key.lf_record.children.each do |child|
-		next if child.name.downcase != paths[1].downcase
+			next if child.name.downcase != paths[1].downcase
 
-		current_child = child
+			current_child = child
 
-		if paths.length == 2
-			current_child.full_path = path
-			return current_child
-		end
+			if paths.length == 2
+				current_child.full_path = path
+				return current_child
+			end
 
-		2.upto(paths.length) do |i|
+			2.upto(paths.length) do |i|
 
-		if i == paths.length
-			current_child.full_path = path
-			return current_child
-		else
-			if current_child.lf_record && current_child.lf_record.children
-				current_child.lf_record.children.each do |c|
-					next if c.name.downcase != paths[i].downcase
+				if i == paths.length
+					current_child.full_path = path
+					return current_child
+				else
+					if current_child.lf_record && current_child.lf_record.children
+						current_child.lf_record.children.each do |c|
+							next if c.name.downcase != paths[i].downcase
 
-					current_child = c
+							current_child = c
 
-					break
+							break
+						end
+					end
 				end
 			end
-		end
-
-		end
 		end
 
 		return if !current_child
@@ -93,38 +92,37 @@ class Hive
 		return if !@root_key.lf_record
 
 		@root_key.lf_record.children.each do |root_child|
-		next if root_child.name.downcase != paths[1].downcase
+			next if root_child.name.downcase != paths[1].downcase
 
-		current_child = root_child
+			current_child = root_child
 
-		if paths.length == 2
-			return nil
-		end
+			if paths.length == 2
+				return nil
+			end
 
-		2.upto(paths.length - 1) do |i|
-			next if !current_child.lf_record
+			2.upto(paths.length - 1) do |i|
+				next if !current_child.lf_record
 
-			current_child.lf_record.children.each do |c|
-				next if c.name != paths[i]
-				current_child = c
+				current_child.lf_record.children.each do |c|
+					next if c.name != paths[i]
+					current_child = c
 
-				break
+					break
+				end
+			end
+
+			if !current_child.value_list || current_child.value_list.values.length == 0
+				return nil
+			end
+
+			current_child.value_list.values.each do |value|
+				next if value.name.downcase != paths[paths.length - 1].downcase
+
+				value.full_path = path
+				return value
 			end
 		end
-
-		if !current_child.value_list || current_child.value_list.values.length == 0
-			return nil
-		end
-
-		current_child.value_list.values.each do |value|
-			next if value.name.downcase != paths[paths.length - 1].downcase
-
-			value.full_path = path
-			return value
-			end
-			end
-		end
-
+	end
 end
 
 end
