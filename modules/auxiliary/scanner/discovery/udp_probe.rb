@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_host(ip)
-
+		@results = {}
 		@thost = ip
 
 		begin
@@ -140,8 +140,6 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
-
-		@results ||= {}
 		
 		# Ignore "empty" packets
 		return if not pkt[1]
