@@ -11,7 +11,7 @@ for i in $BAD_FILES ; do
 	rm flood/$i >/dev/null
 done
 
-gcc -Wl,--hash-style=sysv -nostdinc -nostdlib -shared -o libbionic.so flood/*.o -lgcc
+gcc -Wl,--hash-style=sysv -nostdinc -nostdlib -shared -o libbionic.so flood/*.o -lgcc -march=i386 -m32
 
 [ ! -f libc.so ] && ln -s ${PWD}/libbionic.so libc.so
 

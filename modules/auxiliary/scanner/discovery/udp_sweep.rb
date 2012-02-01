@@ -73,6 +73,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_batch(batch)
+		@results = {}
+		
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
 		begin
@@ -171,7 +173,6 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
-		@results ||= {}
 
 		# Ignore "empty" packets
 		return if not pkt[1]

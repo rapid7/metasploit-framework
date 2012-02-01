@@ -150,7 +150,7 @@ class Metasploit3 < Msf::Post
 
 			# report the goods!
 			report_auth_info(
-				:host  => session,
+				:host  => session.sock.peerhost,
 				:port => config['ftp_port'],
 				:sname => 'ftp',
 				:proto => 'tcp',
