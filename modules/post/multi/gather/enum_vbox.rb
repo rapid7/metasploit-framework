@@ -22,10 +22,10 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Multi Gather VirtualBox VM Enumeration',
-			'Description'    => %q{ 
+			'Description'    => %q{
 								This module will attempt to enumerate any VirtualBox VMs on the target machine.
 								Due to the nature of VirtualBox, this module can only enumerate VMs registered
-								for the current user. So this module needs to be invoked form a user context.
+								for the current user, thereforce, this module needs to be invoked from a user context.
 								},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],

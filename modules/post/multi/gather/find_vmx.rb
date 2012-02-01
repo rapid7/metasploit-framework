@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info(info,
 			'Name'           => 'Multi Gather VMWare VM Identification',
-			'Description'    => %q{ 
+			'Description'    => %q{
 				This module will attempt to find any VMWare virtual machines stored on the target.
 			},
 			'License'        => MSF_LICENSE,
@@ -65,13 +65,13 @@ class Metasploit3 < Msf::Post
 
 
 	def nix_shell_search
-		vms = [] 
+		vms = []
 		res = session.shell_command('find / -name "*.vmx" -type f -print 2>/dev/null')
 		res.each_line do |filename|
 			next unless filename.start_with? '/'
 			begin
 				parse = session.shell_command("cat #{filename}")
-				vms << parse_vmx(parse,filename) 
+				vms << parse_vmx(parse,filename)
 			rescue
 				print_error "Could not read #{filename} properly"
 			end
