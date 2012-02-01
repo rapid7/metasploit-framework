@@ -5,6 +5,7 @@
  * Determine the interfaces MAC address by interface name. It seems that libpcap does not
  * support this natively?
  */
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
 
 DWORD get_interface_mac_addr(char *interface, unsigned char *mac)
 {
@@ -115,7 +116,7 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	if (table)
 		free(table);
 
-#else
+#elif 0
 	Tlv entries[5]; // xxx, we can probably support more. ip aliases, etc.
 	char errbuf[PCAP_ERRBUF_SIZE+4];
 	pcap_if_t *interfaces, *iter;
@@ -200,10 +201,135 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 
 	dprintf("[%s] and done!", __FUNCTION__);
 
+#else
+	// List of TLVs used for each interface.  Will contain name, mac addr, ip addr, netmask
+	Tlv entries[5];
+
+	struct ifconf ifc = {0};
+	struct ifreq *ifr = NULL;
+	char buf[1024] = {0};
+	int  sck = 0;
+	int  i = 0;
+	unsigned int num_ifaces = 0;
+
+	do {
+		/* Get a socket handle. */
+		sck = socket(PF_INET, SOCK_DGRAM, 0);
+		if(sck < 0) {
+			dprintf("socket: %d: %s", errno, strerror(errno));
+			result = errno;
+			break;
+		}
+
+		/* Query available interfaces. */
+		ifc.ifc_len = sizeof(buf);
+		ifc.ifc_buf = buf;
+		if(ioctl(sck, SIOCGIFCONF, &ifc) < 0) {
+			dprintf("ioctl SIOCGIFCONF: %d: %s", errno, strerror(errno));
+			result = errno;
+			break;
+		}
+
+		/* Iterate through the list of interfaces. */
+		ifr = ifc.ifc_req;
+		num_ifaces = ifc.ifc_len / sizeof(struct ifreq);
+
+		for(i = 0; i < num_ifaces; i++)
+		{
+			struct ifreq *item = &ifr[i];
+			struct sockaddr *addr = &(item->ifr_addr);
+			unsigned int entryCount = 0;
+			unsigned int addr_size;
+
+			switch (addr->sa_family) {
+				case AF_INET:
+					addr_size = 4;
+					entries[entryCount].buffer = malloc(addr_size);
+					memcpy(entries[entryCount].buffer, ((PUCHAR)&(((struct sockaddr_in*)addr)->sin_addr)), addr_size);
+					break;
+				case AF_INET6:
+					addr_size = 16;
+					entries[entryCount].buffer = malloc(addr_size);
+					memcpy(entries[entryCount].buffer, &(((struct sockaddr_in6*)addr)->sin6_addr), addr_size);
+					break;
+			}
+			entries[entryCount].header.length = addr_size;
+			entries[entryCount].header.type   = TLV_TYPE_IP;
+			entryCount++;
+
+			entries[entryCount].header.length = strlen(item->ifr_name)+1;
+			entries[entryCount].header.type   = TLV_TYPE_MAC_NAME;
+			entries[entryCount].buffer        = (PUCHAR)malloc(strlen(item->ifr_name)+1);
+			memcpy(entries[entryCount].buffer, item->ifr_name, strlen(item->ifr_name)+1);
+			entryCount++;
+
+			/* Get the MAC address */
+			if(ioctl(sck, SIOCGIFHWADDR, item) < 0) {
+				dprintf("ioctl SIOCGIFHWADDR: %d: %s", errno, strerror(errno));
+				result = errno;
+				break;
+			}
+			entries[entryCount].header.length = 6;
+			entries[entryCount].header.type   = TLV_TYPE_MAC_ADDR;
+			entries[entryCount].buffer        = malloc(6);
+			memcpy(entries[entryCount].buffer, &(item->ifr_hwaddr.sa_data), 6);
+			entryCount++;
+
+			/* Get the netmask */
+			if(ioctl(sck, SIOCGIFNETMASK, item) < 0) {
+				dprintf("ioctl SIOCGIFNETMASK: %d: %s", errno, strerror(errno));
+				result = errno;
+				break;
+			}
+			entries[entryCount].header.length = addr_size;
+			entries[entryCount].header.type   = TLV_TYPE_NETMASK;
+			entries[entryCount].buffer        = malloc(addr_size);
+			switch (addr->sa_family) {
+				case AF_INET:
+					memcpy(entries[entryCount].buffer, &((struct sockaddr_in*)&(item->ifr_netmask))->sin_addr, addr_size);
+					break;
+				case AF_INET6:
+					memcpy(entries[entryCount].buffer, &((struct sockaddr_in6*)&(item->ifr_netmask))->sin6_addr, addr_size);
+					break;
+			}
+			entryCount++;
+
+			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, entryCount);
+
+		}
+	} while (0);
+
 #endif
 
 	// Transmit the response if valid
 	packet_transmit_response(result, remote, response);
+	dprintf("after transmit");
+
+	for (i = 0; i < entryCount; i++) {
+
+	}
 
 	return result;
+}
+
+
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen)
+{
+	switch(sa->sa_family) {
+		case AF_INET:
+			inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr),
+					s, maxlen);
+			break;
+
+		case AF_INET6:
+			inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr),
+					s, maxlen);
+			break;
+
+		default:
+			strncpy(s, "Unknown AF", maxlen);
+			return NULL;
+	}
+
+	return s;
 }
