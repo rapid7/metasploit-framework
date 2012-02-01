@@ -42,21 +42,21 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			end
 
-=begin		
+=begin
 			sock.put( "\x6f\x06\xfe" )
 			res = sock.get_once(-1, 15)
-			
+
 			sock.put("\x6f\x61\xff\x09\x00\x07\x00\x00\x01\xff\x00\x00\x07\x00")
-			res = sock.get_once(-1, 15)			
+			res = sock.get_once(-1, 15)
 
 			sock.put("\x6f\x62\x00\x02\x00\x00\x00")
-			res = sock.get_once(-1, 15)	
+			res = sock.get_once(-1, 15)
 			print_status(Rex::Text.to_hex_dump(res))
-=end		
-			
+=end
+
 			report_service(:host => rhost, :port => rport, :name => "pcanywhere", :info => "")
 			print_status("#{rhost}:#{rport} pcAnywhere")
-		
+
 		rescue ::Rex::ConnectionError, ::EOFError, ::Errno::ECONNRESET
 		rescue ::Exception => e
 			print_error("#{rhost}:#{rport} Error: #{e.class} #{e} #{e.backtrace}")

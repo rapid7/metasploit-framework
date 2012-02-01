@@ -15,12 +15,13 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize(info={})
 		super(update_info(info,
 				'Name'          => 'Ektron CMS400.NET Default Password Scanner',
-				'Description'   => %q{ 
-					 Ektron CMS400.NET is a web content management system based on .NET.
-					 This module tests for installations that are utilizing default
-					 passwords set by the vendor.  Additionally, it has the ability
-					 to brute force user accounts however is not enabled by default to
-					 prevent account lockouts.
+				'Description'   => %q{
+					Ektron CMS400.NET is a web content management system based on .NET.
+					This module tests for installations that are utilizing default
+					passwords set by the vendor. Additionally, it has the ability
+					to brute force user accounts. Note that Ektron CMS400.NET, by
+					default, enforces account lockouts for regular user account
+					after a number of failed attempts.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        => ['Justin Cacak']
@@ -55,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 			"#{proto}://#{rhost}:#{rport}#{datastore['URI'].to_s}"
 		end
 	end
-	
+
 	def run_host(ip)
 		begin
 			res = send_request_cgi(
@@ -92,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_error("Ektron CMS400.NET login page not found at #{target_url}. May need to set VHOST or RPORT.  [HTTP #{res.code}]")
 			end
-		
+
 		rescue
 			print_error ("Ektron CMS400.NET login page not found at #{target_url}  [HTTP #{res.code}]")
 			return
