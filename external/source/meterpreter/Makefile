@@ -128,7 +128,11 @@ clean:
 	(cd $(workspace) && make clean)
 
 clean-pcap:
-	(cd tmp/libpcap-1.1.1/ && make clean)
+	#(cd tmp/libpcap-1.1.1/ && make clean)
+	# This avoids the pcap target trying to patch the same file more than once.
+	# It's a pretty small tar, so untar'ing goes pretty quickly anyway, in
+	# contrast to openssl.
+	rm -r tmp/libpcap-1.1.1 || true
 
 clean-ssl:
 	(cd tmp/openssl-0.9.8o/ && make clean)
