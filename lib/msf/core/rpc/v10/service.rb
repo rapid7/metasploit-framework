@@ -213,7 +213,7 @@ class Service
 		if not self.tokens[token]
 
 			begin
-				if framework.db.active and Msm::ApiKey.find_by_token(token)
+				if framework.db.active and Mdm::ApiKey.find_by_token(token)
 					return true
 				end
 			rescue ::Exception => e

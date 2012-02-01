@@ -5,7 +5,7 @@ require 'msf/core/task_manager'
 require "bundler/setup"
 
 # Provide access to ActiveRecord models shared w/ commercial versions
-require "msf_models"
+require "metasploit_data_models"
 
 module Msf
 
@@ -17,7 +17,7 @@ module Msf
 ###
 
 class DBManager
-	include MsfModels
+	include MetasploitDataModels
 
 
 	# Provides :framework and other accessors

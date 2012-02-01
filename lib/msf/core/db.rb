@@ -190,27 +190,27 @@ class DBManager
 	# Determines if the database is functional
 	#
 	def check
-		res = Msm::Host.find(:first)
+		res = Mdm::Host.find(:first)
 	end
 
 
 	def default_workspace
-		Msm::Workspace.default
+		Mdm::Workspace.default
 	end
 
 	def find_workspace(name)
-		Msm::Workspace.find_by_name(name)
+		Mdm::Workspace.find_by_name(name)
 	end
 
 	#
 	# Creates a new workspace in the database
 	#
 	def add_workspace(name)
-		Msm::Workspace.find_or_create_by_name(name)
+		Mdm::Workspace.find_or_create_by_name(name)
 	end
 
 	def workspaces
-		Msm::Workspace.find(:all)
+		Mdm::Workspace.find(:all)
 	end
 
 	#
@@ -457,7 +457,7 @@ class DBManager
 		addr   = opts[:addr] || opts[:address] || opts[:host] || return
 		host = get_host(:workspace => wspace, :host => addr)
 		time = opts[:opened_at] || opts[:created_at] || opts[:time] || return
-		Msm::Session.find_by_host_id_and_opened_at(host.id, time)
+		Mdm::Session.find_by_host_id_and_opened_at(host.id, time)
 	end
 
 	# Record a new session in the database
@@ -517,7 +517,7 @@ class DBManager
 			sess_data[:desc] = sess_data[:desc][0,255]
 		end
 
-		s = Msm::Session.new(sess_data)
+		s = Mdm::Session.new(sess_data)
 		s.save!
 
 		if opts[:session]
@@ -549,7 +549,7 @@ class DBManager
 	# Record a session event in the database
 	#
 	# opts MUST contain one of:
-	# +:session+:: the Msf::Session OR the Msm::Session we are reporting
+	# +:session+:: the Msf::Session OR the Mdm::Session we are reporting
 	# +:etype+::   event type, enum: command, output, upload, download, filedelete
 	#
 	# opts may contain
@@ -588,7 +588,7 @@ class DBManager
 			event_data[attr] = opts[attr] if opts[attr]
 		end
 
-		s = Msm::SessionEvent.create(event_data)
+		s = Mdm::SessionEvent.create(event_data)
 	end
 
 	def report_session_route(session, route)
@@ -733,7 +733,7 @@ class DBManager
 	end
 
 	#
-	# Report a Note to the database.  Notes can be tied to a Msm::Workspace, Host, or Service.
+	# Report a Note to the database.  Notes can be tied to a Mdm::Workspace, Host, or Service.
 	#
 	# opts MUST contain
 	# +:data+::  whatever it is you're making a note of
@@ -769,7 +769,7 @@ class DBManager
 		addr = nil
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Msm::Host
+			if opts[:host].kind_of? Mdm::Host
 				host = opts[:host]
 			else
 				addr = normalize_host(opts[:host])
@@ -950,7 +950,7 @@ class DBManager
 		raise ArgumentError.new("Missing required option :host") if opts[:host].nil?
 		raise ArgumentError.new("Missing required option :port") if (opts[:port].nil? and opts[:service].nil?)
 
-		if (not opts[:host].kind_of?(Msm::Host)) and (not validate_ips(opts[:host]))
+		if (not opts[:host].kind_of?(Mdm::Host)) and (not validate_ips(opts[:host]))
 			raise ArgumentError.new("Invalid address or object for :host (#{opts[:host].inspect})")
 		end
 
@@ -1114,7 +1114,7 @@ class DBManager
 
 		host = nil
 		addr = nil
-		if opts[:host].kind_of? Msm::Host
+		if opts[:host].kind_of? Mdm::Host
 			host = opts[:host]
 		else
 			host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -1268,11 +1268,11 @@ class DBManager
 		return if not wspace # Temp fix?
 		uname  = opts.delete(:username)
 
-		if ! opts[:host].kind_of? Msm::Host and opts[:host]
+		if ! opts[:host].kind_of? Mdm::Host and opts[:host]
 			opts[:host] = report_host(:workspace => wspace, :host => opts[:host])
 		end
 
-		Msm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
+		Mdm::Event.create(opts.merge(:workspace_id => wspace[:id], :username => uname))
 	end
 
 	#
@@ -1305,7 +1305,7 @@ class DBManager
 
 		# Report the host so it's there for the Proc to use below
 		if opts[:host]
-			if opts[:host].kind_of? Msm::Host
+			if opts[:host].kind_of? Mdm::Host
 				host = opts[:host]
 			else
 				host = report_host({:workspace => wspace, :host => opts[:host]})
@@ -5224,7 +5224,7 @@ class DBManager
 	# address
 	#
 	def normalize_host(host)
-		return host if host.kind_of? Msm::Host
+		return host if host.kind_of? Mdm::Host
 		norm_host = nil
 
 		if (host.kind_of? String)
