@@ -101,9 +101,13 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 		  goto out;
 		}
 		data = readdir(ctx);
+		if (!(baseDirectory = _strdup(directory)))
+		{
+			result = ERROR_NOT_ENOUGH_MEMORY;
+			goto out;
+		}
 	      
  #define DF_NAME data->d_name
-
 #endif
 
 		do
@@ -138,7 +142,11 @@ DWORD request_fs_ls(Remote *remote, Packet *packet)
 
 			// Build the full path
 			if (baseDirectory)
+#ifdef _WIN32
 				sprintf(tempFile, "%s\\%s", baseDirectory, DF_NAME);
+#else
+				sprintf(tempFile, "%s/%s", baseDirectory, DF_NAME);
+#endif
 			else
 				sprintf(tempFile, "%s", DF_NAME);
 
@@ -211,9 +219,6 @@ again:
 
 #ifdef _WIN32
 		if (!(realSize = GetCurrentDirectory(directorySize, directory)))
-#else
-		if (!(realSize = getcwd(directory, directorySize)))
-#endif
 		{
 			result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
@@ -221,11 +226,25 @@ again:
 		else if (realSize > directorySize)
 		{
 			free(directory);
-
 			directorySize = realSize;
-
 			goto again;
 		}
+#else
+		if (!getcwd(directory, directorySize))
+		{
+			if (errno == ERANGE && directorySize > 0)
+			{
+				// Then we didn't allocate enough to hold the whole path,
+				// increase the size and try again.
+				free(directory);
+				directorySize = directorySize * 2;
+				goto again;
+			} else {
+				dprintf("getcwd failed with errno %d", errno);
+				break;
+			}
+		}
+#endif
 
 		packet_add_tlv_string(response, TLV_TYPE_DIRECTORY_PATH,
 				directory);
