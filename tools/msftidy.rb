@@ -64,7 +64,7 @@ def check_single_file(dparts, fparts, f_rel)
 		has_dd = false
 
 		has_rank = true if content =~ /Rank =/
-		has_dd = true if content =~ /DisclosureDate/
+		has_dd = true if content =~ /DisclosureDate/ or content =~ /Generic Payload Handler/
 
 		show_missing(f, 'ERROR: missing exploit ranking', has_rank)
 		show_missing(f, 'ERROR: missing disclosure date', has_dd)
