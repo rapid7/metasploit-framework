@@ -1,3 +1,3 @@
 source "http://rubygems.org"
 
-gem 'msf_models', :path => "../msf_models"
+gem 'metasploit_data_models', :path => "../metasploit_data_models"
