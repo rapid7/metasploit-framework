@@ -95,11 +95,16 @@ class Metasploit3 < Msf::Post
 					#Decrypt our password, and report on results
 					pass= decrypt_password(password, user+host)
 					print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => host,
 						:port => portnum,
 						:sname => proto,
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass
@@ -162,11 +167,16 @@ class Metasploit3 < Msf::Post
 						# Decrypt the password and report on all of the results
 						pass= decrypt_password(ini[group]['Password'], user+host)
 						print_status("Host: #{host}  Port: #{portnum} Protocol: #{proto}  Username: #{user}  Password: #{pass}")
+						if session.db_record
+							source_id = session.db_record.id
+						else
+							source_id = nil
+						end
 						report_auth_info(
 							:host  => host,
 							:port => portnum,
 							:sname => proto,
-							:source_id => session.db_record.id,
+							:source_id => source_id,
 							:source_type => "exploit",
 							:user => user,
 							:pass => pass

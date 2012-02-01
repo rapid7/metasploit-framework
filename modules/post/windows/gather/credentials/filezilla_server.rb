@@ -148,6 +148,12 @@ class Metasploit3 < Msf::Post
 		creds.each do |cred|
 			credentials << [cred['host'], cred['port'], cred['user'], cred['password'], cred['ssl']]
 
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
+
 			# report the goods!
 			report_auth_info(
 				:host  => session.sock.peerhost,
@@ -157,7 +163,7 @@ class Metasploit3 < Msf::Post
 				:user => cred['user'],
 				:pass => cred['password'],
 				:ptype => "MD5 hash",
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:target_host => config['ftp_bindip'],
 				:target_port => config['ftp_port']
@@ -182,7 +188,11 @@ class Metasploit3 < Msf::Post
 
 		configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'],
 			config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
-
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			# report the goods!
 			report_auth_info(
 				:host  => session,
@@ -192,7 +202,7 @@ class Metasploit3 < Msf::Post
 				:user => 'admin',
 				:pass => config['admin_pass'],
 				:type => "password",
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:target_host => config['admin_bindip'],
 				:target_port => config['admin_port']
