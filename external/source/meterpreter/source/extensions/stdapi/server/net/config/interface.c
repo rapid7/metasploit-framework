@@ -1,38 +1,182 @@
 #include "precomp.h"
 
+
 #ifndef _WIN32
+
+struct iface {
+	unsigned char *name;
+	unsigned int addr_size;
+	unsigned char *addr;
+	unsigned char *netmask;
+	unsigned char *hwaddr;
+	int sa_family;
+};
+
 /*
- * Determine the interfaces MAC address by interface name. It seems that libpcap does not
- * support this natively?
+ * Frees an ifaces array returned by get_ifaces
  */
-char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen);
+void free_ifaces(struct iface *ifaces, int count) {
+	int i;
 
-DWORD get_interface_mac_addr(char *interface, unsigned char *mac)
-{
-	struct ifreq ifr;
-	int fd = -1;
-	DWORD result = ERROR_NOT_SUPPORTED;
+	if (!ifaces) {
+		return;
+	}
 
-	memset(mac, 0, 6);
-	memset(&ifr, 0, sizeof(struct ifreq));
-	strncpy(ifr.ifr_name, interface, sizeof(ifr.ifr_name)-1);
-	
-	do {
-		fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		if(fd == -1) break;	
+	dprintf("Freeing %d interfaces", count);
 
-		if(ioctl(fd, SIOCGIFHWADDR, &ifr) == -1) {
-			if(errno) result = errno;
+	for (i = 0; i < count; i++) {
+		if (ifaces[i].name) {
+			free(ifaces[i].name);
+		}
+		if (ifaces[i].addr) {
+			free(ifaces[i].addr);
+		}
+		if (ifaces[i].netmask) {
+			free(ifaces[i].netmask);
+		}
+		if (ifaces[i].hwaddr) {
+			free(ifaces[i].hwaddr);
+		}
+	}
+	free(ifaces);
+	return;
+}
+
+/*
+ * Populates +ifaces+ with an array of iface structs
+ *
+ * This is very Linux-specific, but hopefully the idea is generic enough that
+ * adding support for BSD and other Unixes will at least be possible in the
+ * future.
+ *
+ * Returns 0 on success or an errno if something went wrong.
+ * 
+ */
+int get_ifaces(struct iface **ifaces, int *count) {
+	int result;
+	struct ifconf ifc = {0};
+	struct ifreq *ifr = NULL;
+	char buf[1024] = {0};
+	int  sck = 0;
+	int  i = 0;
+
+	unsigned int num_ifaces = 0;
+
+	/* Get a socket handle to use with all the IOCTL magic below. */
+	sck = socket(PF_INET, SOCK_DGRAM, 0);
+	if(sck < 0) {
+		dprintf("socket: %d: %s", errno, strerror(errno));
+		result = errno;
+		goto fail;
+	}
+
+	/* Query available interfaces. */
+	ifc.ifc_len = sizeof(buf);
+	ifc.ifc_buf = buf;
+	if(ioctl(sck, SIOCGIFCONF, &ifc) < 0) {
+		dprintf("ioctl SIOCGIFCONF: %d: %s", errno, strerror(errno));
+		result = errno;
+		goto fail;
+	}
+
+	/* Iterate through the list of interfaces. */
+	ifr = ifc.ifc_req;
+	num_ifaces = ifc.ifc_len / sizeof(struct ifreq);
+	*ifaces = calloc(num_ifaces, sizeof(struct iface));
+
+	*count = num_ifaces;
+
+	for (i = 0; i < num_ifaces; i++) {
+		struct ifreq *item = &ifr[i];
+		struct sockaddr *addr = &(item->ifr_addr);
+		unsigned int addr_size;
+		struct iface *iface = &(*ifaces)[i];
+
+		iface->name = malloc(strlen(item->ifr_name)+1);
+		memcpy(iface->name, item->ifr_name, strlen(item->ifr_name)+1);
+
+		/*
+		 * SIOCGIFCONF will have gotten the name and ip addr, store them
+		 */
+		switch (addr->sa_family) {
+			case AF_INET:
+				addr_size = 4;
+				iface->addr = malloc(addr_size);
+				memcpy(iface->addr, &(((struct sockaddr_in*)addr)->sin_addr), addr_size);
+				break;
+			case AF_INET6:
+				addr_size = 16;
+				iface->addr = malloc(addr_size);
+				memcpy(iface->addr, &(((struct sockaddr_in6*)addr)->sin6_addr), addr_size);
+				break;
+			default:
+				/* We don't know how to display this thing, it doesn't have an
+				 * address, give up.  This will likely result in bogus info in
+				 * uninitialized memory being used for the remainder of the
+				 * list.
+				 *
+				 * XXX Should we free this one and try to continue with the rest?
+				 */
+				result = ENOTSUP;
+				goto fail;
+		}
+		iface->addr_size = addr_size;
+
+		/* Get the MAC address */
+		if(ioctl(sck, SIOCGIFHWADDR, item) < 0) {
+			dprintf("ioctl SIOCGIFHWADDR: %d: %s", errno, strerror(errno));
+			result = errno;
 			break;
 		}
+		iface->hwaddr = malloc(6);
+		memcpy(iface->hwaddr, &(item->ifr_hwaddr.sa_data), 6);
 
-		memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
-		result = 0;
-	} while(0);
+		/* Get the netmask */
+		if(ioctl(sck, SIOCGIFNETMASK, item) < 0) {
+			dprintf("ioctl SIOCGIFNETMASK: %d: %s", errno, strerror(errno));
+			result = errno;
+			break;
+		}
+		iface->netmask = malloc(addr_size);
+		switch (addr->sa_family) {
+			case AF_INET:
+				memcpy(iface->netmask, &((struct sockaddr_in*)&(item->ifr_netmask))->sin_addr, addr_size);
+				break;
+			case AF_INET6:
+				memcpy(iface->netmask, &((struct sockaddr_in6*)&(item->ifr_netmask))->sin6_addr, addr_size);
+				break;
+		}
 
-	if(fd != -1) close(fd);
+	}
 
+	return 0;
+
+fail:
 	return result;
+}
+
+/*
+ * mainly for debugging
+ */
+char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen)
+{
+	switch(sa->sa_family) {
+		case AF_INET:
+			inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr),
+					s, maxlen);
+			break;
+
+		case AF_INET6:
+			inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr),
+					s, maxlen);
+			break;
+
+		default:
+			strncpy(s, "Unknown AF", maxlen);
+			return NULL;
+	}
+
+	return s;
 }
 
 #endif
@@ -116,220 +260,50 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	if (table)
 		free(table);
 
-#elif 0
-	Tlv entries[5]; // xxx, we can probably support more. ip aliases, etc.
-	char errbuf[PCAP_ERRBUF_SIZE+4];
-	pcap_if_t *interfaces, *iter;
-	pcap_addr_t *addresses; 
-	unsigned char mac[6];
+#else
+	struct iface *ifaces;
+	int count;
+	int i;
+	int if_error;
+	Tlv entries[4];
 
-	interfaces = iter = NULL;
+	if_error = get_ifaces(&ifaces, &count);
 
-	memset(entries, 0, sizeof(entries));
+	if (if_error) {
+		result = if_error;
+	} else {
+		for (i = 0; i < count; i++) {
 
-	do {
-		if(pcap_findalldevs(&interfaces, errbuf) == -1) {
-			result = ENOMEM; // xxx, send errbuf to remote 
-			break;
-		}
+			entries[0].header.length = strlen(ifaces[i].name)+1;
+			entries[0].header.type   = TLV_TYPE_MAC_NAME;
+			entries[0].buffer        = (PUCHAR)ifaces[i].name;
 
-		for(iter = interfaces; iter != NULL ; iter = iter->next ) {
-			entryCount = 0;
+			entries[1].header.length = 6;
+			entries[1].header.type   = TLV_TYPE_MAC_ADDR;
+			entries[1].buffer        = (PUCHAR)ifaces[i].hwaddr;
 
-			if(strcmp(iter->name, "any") == 0) continue;
+			entries[2].header.length = ifaces[i].addr_size;
+			entries[2].header.type   = TLV_TYPE_IP;
+			entries[2].buffer        = (PUCHAR)ifaces[i].addr;
 
-			dprintf("[%s] Processing %s", __FUNCTION__, iter->name);
-
-			entries[entryCount].header.length = strlen(iter->name)+1;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_NAME;
-			entries[entryCount].buffer        = (PUCHAR)iter->name;
-			entryCount++;
-
-			for(addresses = iter->addresses ; addresses != NULL ; addresses = addresses->next) {
-				struct sockaddr_in *sin;
-
-				dprintf("[%s/%s] addr = %p, netmask = %p, broadaddr = %p, dstaddr = %p", __FUNCTION__, iter->name);
-				dprintf("[%s/%s] addresses->addr.sa_family = %d", __FUNCTION__, iter->name, addresses->addr->sa_family);				
-
-				if(addresses->addr == NULL) {
-					dprintf("[%s/%s] addresses->addr = NULL ?", __FUNCTION__, iter->name);
-					break;
-				}
-
-				if(addresses->addr->sa_family == AF_INET) {
-					sin = (struct sockaddr_in *)(addresses->addr);
-
-					entries[entryCount].header.length = sizeof(DWORD);
-					entries[entryCount].header.type   = TLV_TYPE_IP;
-					entries[entryCount].buffer	  = (PUCHAR)&sin->sin_addr.s_addr;
-					entryCount++;
-
-					if(addresses->netmask) {
-						sin = (struct sockaddr_in *)(addresses->netmask);
-						entries[entryCount].header.length = sizeof(DWORD);
-						entries[entryCount].header.type   = TLV_TYPE_NETMASK;
-						entries[entryCount].buffer        = (PUCHAR)&sin->sin_addr.s_addr;
-						entryCount++;
-					}
-
-
-
-					break;
-				}
-
-			}
+			entries[3].header.length = ifaces[i].addr_size;
+			entries[3].header.type   = TLV_TYPE_NETMASK;
+			entries[3].buffer        = (PUCHAR)ifaces[i].netmask;
 			
-			get_interface_mac_addr(iter->name, mac);
-
-			entries[entryCount].header.length = 6;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_ADDR;
-			entries[entryCount].buffer        = (PUCHAR)(mac);
-			entryCount++;
-			
-
-			dprintf("[%s] adding response with %d entries", __FUNCTION__, entryCount);
-			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, entryCount);
-			dprintf("[%s] done with adding", __FUNCTION__);
+			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, 4);
 		}
-		
-	} while(0);
-
-	if(interfaces) {
-		dprintf("[%s] calling pcap_freealldevs()", __FUNCTION__);
-		pcap_freealldevs(interfaces);
 	}
 
-	dprintf("[%s] and done!", __FUNCTION__);
-
-#else
-	// List of TLVs used for each interface.  Will contain name, mac addr, ip addr, netmask
-	Tlv entries[5];
-
-	struct ifconf ifc = {0};
-	struct ifreq *ifr = NULL;
-	char buf[1024] = {0};
-	int  sck = 0;
-	int  i = 0;
-	unsigned int num_ifaces = 0;
-
-	do {
-		/* Get a socket handle. */
-		sck = socket(PF_INET, SOCK_DGRAM, 0);
-		if(sck < 0) {
-			dprintf("socket: %d: %s", errno, strerror(errno));
-			result = errno;
-			break;
-		}
-
-		/* Query available interfaces. */
-		ifc.ifc_len = sizeof(buf);
-		ifc.ifc_buf = buf;
-		if(ioctl(sck, SIOCGIFCONF, &ifc) < 0) {
-			dprintf("ioctl SIOCGIFCONF: %d: %s", errno, strerror(errno));
-			result = errno;
-			break;
-		}
-
-		/* Iterate through the list of interfaces. */
-		ifr = ifc.ifc_req;
-		num_ifaces = ifc.ifc_len / sizeof(struct ifreq);
-
-		for(i = 0; i < num_ifaces; i++)
-		{
-			struct ifreq *item = &ifr[i];
-			struct sockaddr *addr = &(item->ifr_addr);
-			unsigned int entryCount = 0;
-			unsigned int addr_size;
-
-			switch (addr->sa_family) {
-				case AF_INET:
-					addr_size = 4;
-					entries[entryCount].buffer = malloc(addr_size);
-					memcpy(entries[entryCount].buffer, ((PUCHAR)&(((struct sockaddr_in*)addr)->sin_addr)), addr_size);
-					break;
-				case AF_INET6:
-					addr_size = 16;
-					entries[entryCount].buffer = malloc(addr_size);
-					memcpy(entries[entryCount].buffer, &(((struct sockaddr_in6*)addr)->sin6_addr), addr_size);
-					break;
-			}
-			entries[entryCount].header.length = addr_size;
-			entries[entryCount].header.type   = TLV_TYPE_IP;
-			entryCount++;
-
-			entries[entryCount].header.length = strlen(item->ifr_name)+1;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_NAME;
-			entries[entryCount].buffer        = (PUCHAR)malloc(strlen(item->ifr_name)+1);
-			memcpy(entries[entryCount].buffer, item->ifr_name, strlen(item->ifr_name)+1);
-			entryCount++;
-
-			/* Get the MAC address */
-			if(ioctl(sck, SIOCGIFHWADDR, item) < 0) {
-				dprintf("ioctl SIOCGIFHWADDR: %d: %s", errno, strerror(errno));
-				result = errno;
-				break;
-			}
-			entries[entryCount].header.length = 6;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_ADDR;
-			entries[entryCount].buffer        = malloc(6);
-			memcpy(entries[entryCount].buffer, &(item->ifr_hwaddr.sa_data), 6);
-			entryCount++;
-
-			/* Get the netmask */
-			if(ioctl(sck, SIOCGIFNETMASK, item) < 0) {
-				dprintf("ioctl SIOCGIFNETMASK: %d: %s", errno, strerror(errno));
-				result = errno;
-				break;
-			}
-			entries[entryCount].header.length = addr_size;
-			entries[entryCount].header.type   = TLV_TYPE_NETMASK;
-			entries[entryCount].buffer        = malloc(addr_size);
-			switch (addr->sa_family) {
-				case AF_INET:
-					memcpy(entries[entryCount].buffer, &((struct sockaddr_in*)&(item->ifr_netmask))->sin_addr, addr_size);
-					break;
-				case AF_INET6:
-					memcpy(entries[entryCount].buffer, &((struct sockaddr_in6*)&(item->ifr_netmask))->sin6_addr, addr_size);
-					break;
-			}
-			entryCount++;
-
-			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, entryCount);
-
-		}
-	} while (0);
-
+	if (ifaces)
+		free_ifaces(ifaces, count);
 #endif
 
 	// Transmit the response if valid
 	packet_transmit_response(result, remote, response);
-	dprintf("after transmit");
-
-	for (i = 0; i < entryCount; i++) {
-
-	}
 
 	return result;
 }
 
 
-char *get_ip_str(const struct sockaddr *sa, char *s, size_t maxlen)
-{
-	switch(sa->sa_family) {
-		case AF_INET:
-			inet_ntop(AF_INET, &(((struct sockaddr_in *)sa)->sin_addr),
-					s, maxlen);
-			break;
 
-		case AF_INET6:
-			inet_ntop(AF_INET6, &(((struct sockaddr_in6 *)sa)->sin6_addr),
-					s, maxlen);
-			break;
 
-		default:
-			strncpy(s, "Unknown AF", maxlen);
-			return NULL;
-	}
-
-	return s;
-}
