@@ -15,13 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Man-in-the-middle JavaScript Keylogger',
 			'Description'    => %q{
-<<<<<<< HEAD
-				This modules runs a HTTP Server to serve as a remote keylog listener
-				to capture web page keystrokes.
-=======
 					This modules runs a HTTP Server to serve as a remote keylog listener
 					to capture web page keystrokes.
->>>>>>> f45528ec68ca338a36da6c3bbc0217489596bd26
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Marcus J. Carey <mjc[at]threatagent.com>'],
