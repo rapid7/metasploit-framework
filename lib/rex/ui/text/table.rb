@@ -191,6 +191,8 @@ class Table
 				1 
 			elsif Rex::Socket.dotted_ip?(a[index]) and Rex::Socket.dotted_ip?(b[index])
 				Rex::Socket::addr_atoi(a[index]) <=> Rex::Socket::addr_atoi(b[index])
+			elsif a[index] =~ /^[0-9]+$/ and b[index] =~ /^[0-9]+$/
+				a[index].to_i <=> b[index].to_i
 			else
 				a[index] <=> b[index] # assumes otherwise comparable.
 			end
