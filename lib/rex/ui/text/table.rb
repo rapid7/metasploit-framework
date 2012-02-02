@@ -68,6 +68,8 @@ class Table
 		self.postfix  = opts['Postfix'] || ''
 		self.colprops = []
 
+		self.sort_index  = opts['SortIndex'] || 0
+
 		# Default column properties
 		self.columns.length.times { |idx|
 			self.colprops[idx] = {}
@@ -100,7 +102,7 @@ class Table
 		str << columns_to_s || ''
 		str << hr_to_s || ''
 
-		sort_rows(0)
+		sort_rows
 		rows.each { |row|
 			if (is_hr(row))
 				str << hr_to_s
@@ -180,7 +182,7 @@ class Table
 	# If the supplied index is an IPv4 address, handle it differently, but
 	# avoid actually resolving domain names.
 	#	
-	def sort_rows(index=0)
+	def sort_rows(index=sort_index)
 		return unless rows
 		rows.sort! do |a,b| 
 			if a[index].nil? 
@@ -208,6 +210,7 @@ class Table
 	attr_accessor :columns, :rows, :colprops # :nodoc:
 	attr_accessor :width, :indent, :cellpad # :nodoc:
 	attr_accessor :prefix, :postfix # :nodoc:
+	attr_accessor :sort_index # :nodoc:
 
 protected
 
