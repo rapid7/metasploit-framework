@@ -16,7 +16,7 @@ CFLAGS+= -lgcc -L../../source/bionic/compiled -gstabs+
 CFLAGS+= -fPIC -Os 
 CFLAGS+= -I../../source/extensions/networkpug -lc -lpcap -lsupport -lmetsrv_main
 
-CFLAGS+= -march=i386
+CFLAGS+= -march=i386 -m32
 
 #LDFLAGS= -fPIC -Bshareable -lc
 

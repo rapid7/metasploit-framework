@@ -262,6 +262,7 @@ class DBManager
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
 	#	:scope      -- interface identifier for link-local IPv6
+	#	:virtual_host -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
 	#
 	def report_host(opts)
 

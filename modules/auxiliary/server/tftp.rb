@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 			select(nil, nil, nil, 2)
 		end
 
-		print_status("Stopping TFTP server") if datastore['VERBOSE']
+		vprint_status("Stopping TFTP server")
 		@tftp.stop
 	end
 

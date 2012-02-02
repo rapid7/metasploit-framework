@@ -730,6 +730,17 @@ function register_stream($stream, $ipaddr=null, $port=null) {
 function connect($ipaddr, $port, $proto='tcp') {
     my_print("Doing connect($ipaddr, $port)");
     $sock = false;
+
+    # IPv6 requires brackets around the address in some cases, but not all.
+    # Keep track of the un-bracketed address for the functions that don't like
+    # brackets, specifically socket_connect and socket_sendto.
+    $ipf = AF_INET;
+    $raw_ip = $ipaddr;
+    if (FALSE !== strpos($ipaddr, ":")) {
+        $ipf = AF_INET6;
+        $ipaddr = "[". $raw_ip ."]";
+    }
+
     # Prefer the stream versions so we don't have to use both select functions
     # unnecessarily, but fall back to socket_create if they aren't available.
     if (is_callable('stream_socket_client')) {
@@ -759,16 +770,17 @@ function connect($ipaddr, $port, $proto='tcp') {
             if (!$sock) { return false; }
             register_stream($sock, $ipaddr, $port);
         }
-    } elseif (is_callable('socket_create')) {
+    } else
+    if (is_callable('socket_create')) {
         my_print("socket_create");
         if ($proto == 'tcp') {
-            $sock = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-            $res = socket_connect($sock, $ipaddr, $port);
+            $sock = socket_create($ipf, SOCK_STREAM, SOL_TCP);
+            $res = socket_connect($sock, $raw_ip, $port);
             if (!$res) { return false; }
             register_socket($sock);
         } elseif ($proto == 'udp') {
-            $sock = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-            register_socket($sock, $ipaddr, $port);
+            $sock = socket_create($ipf, SOCK_DGRAM, SOL_UDP);
+            register_socket($sock, $raw_ip, $port);
         }
     }
 
@@ -1066,10 +1078,6 @@ if (!isset($GLOBALS['msgsock'])) {
     $ipaddr = '127.0.0.1';
     $port = 4444;
     my_print("Don't have a msgsock, trying to connect($ipaddr, $port)");
-    if (FALSE !== strpos($ipaddr,":")) {
-        # ipv6 requires brackets around the address
-        $ipaddr = "[".$ipaddr."]";
-    }
     $msgsock = connect($ipaddr, $port);
     if (!$msgsock) { die(); }
 } else {

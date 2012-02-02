@@ -113,10 +113,15 @@ class Metasploit3 < Msf::Post
 			pass = decrypt(epassword)
 
 			print_good("HOST: #{host} PORT: #{port} USER: #{user} PASS: #{pass}")
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 						:host  => host,
 						:port => port,
-						:source_id => session.db_record.id,
+						:source_id => ssource_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass
