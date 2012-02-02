@@ -212,7 +212,7 @@ EOS
 			send_response(cli, content, {'Content-Type'=> content_type})
 			request_timestamp(cli,request)
 		
-		# JavaScript HTTP Image GET Request is used for sending the keystrokes over network.
+		# JavaScript XML HTTP GET Request is used for sending the keystrokes over network.
 		elsif request.uri =~ /#{@random_text}/
 			content_type = "text/plain"
 				send_response(cli, @random_text, {'Content-Type'=> content_type})
