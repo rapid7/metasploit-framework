@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
                 super(update_info(info,
 			'Name'           => 'Metasploit JavaScript Keylogger',
 			'Description'    => %q{
-					This modules runs a HTTP Server to serves as a remote keylog listener
+					This modules runs a HTTP Server to serve as a remote keylog listener
 					to capture web page keystrokes.
 			},
 			'License'        => MSF_LICENSE,
