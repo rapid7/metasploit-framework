@@ -433,6 +433,9 @@ when /exe/i
 	$stdout.write exe
 when /exe-small/i
 when /vba/i
+	vba = Msf::Util::EXE.to_vba($framework, payload_raw)
+	$stdout.puts vba
+when /vba-exe/i
 	exe = Msf::Util::EXE.to_win32pe($framework, payload_raw)
 	vba = Msf::Util::EXE.to_exe_vba(exe)
 	$stdout.puts vba

@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 					fq_pass = [ip,pass]
 					next if @tried.include? fq_pass
 					@tried << fq_pass
-					print_status "#{ip}:#{datastore['RPORT']} - SNMP - Trying #{(pass.nil? || pass.empty?) ? "<BLANK>" : pass}..." if datastore['VERBOSE']
+					vprint_status "#{ip}:#{datastore['RPORT']} - SNMP - Trying #{(pass.nil? || pass.empty?) ? "<BLANK>" : pass}..."
 
 					begin
 						udp_sock.sendto(data1, ip, datastore['RPORT'].to_i, 0)

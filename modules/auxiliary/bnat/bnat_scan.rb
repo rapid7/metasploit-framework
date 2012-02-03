@@ -13,15 +13,16 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Scanner
+	include Msf::Exploit::Capture
 
 	def initialize
 		super(
 			'Name'         => 'BNAT Scanner',
 			'Version'      => '$Revision$',
 			'Description'  => %q{
-					This module is a scanner which can detect Bad NAT (network address translation)
+					This module is a scanner which can detect Broken NAT (network address translation)
 				implementations, which could result in a inability to reach ports on remote
-				machines. Typically, these ports will appear in nmap scans as 'filtered'.
+				machines. Typically, these ports will appear in nmap scans as 'filtered'/'closed'.
 				},
 			'Author'       =>
 				[
@@ -35,68 +36,72 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
 				]
 		)
+		
 		register_options(
 				[
-					OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "1-10000"]),
-					OptString.new('INTERFACE', [true, 'The interface connected to the network', 'eth0']),
+					OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "21,22,23,80,443"]),
+					OptString.new('INTERFACE', [true, "The name of the interface", "eth0"]),
+					OptInt.new('TIMEOUT', [true, "The reply read timeout in milliseconds", 500])
 				],self.class)
+
+		deregister_options('FILTER','PCAPFILE','RHOST','SNAPLEN')
+
+	end
+
+	def probe_reply(pcap, to)
+                reply = nil
+                begin
+                        Timeout.timeout(to) do
+                                pcap.each do |r|
+                                        pkt = PacketFu::Packet.parse(r)
+                                        next unless pkt.is_tcp?
+                                        reply = pkt
+                                        break
+                                end
+                        end
+                rescue Timeout::Error
+                end
+                return reply
+	end
+
+	def generate_probe(ip)
+                ftypes = %w{windows, linux, freebsd}
+                @flavor = ftypes[rand(ftypes.length)]
+                config = PacketFu::Utils.whoami?(:iface => datastore['INTERFACE'])
+                p = PacketFu::TCPPacket.new(:config => config)
+                p.ip_daddr = ip
+                p.tcp_flags.syn = 1
+		return p
 	end
 
 	def run_host(ip)
-		synack_hash  = {}
-		synack_array = []
-		ftypes = %w{windows, linux, freebsd}
-		@flavor = ftypes[rand(ftypes.length)] # we can randomize our flavor
+		
+		open_pcap
+		
+		to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
-		#Start Capture for !IP
-		pcap = PacketFu::Capture.new(
-		:iface => datastore['INTERFACE'],
-		:start => true,
-		:filter => "tcp and not host #{ip} and tcp[13] == 18")
+		p = generate_probe(ip)
+		pcap = self.capture
 
-		scan = Thread.new do
-			iface = PacketFu::Utils.whoami?(:iface => datastore['INTERFACE'])
-			ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-
-			tcp_pkt = PacketFu::TCPPacket.new(:config => iface, :timeout => 0.1, :flavor => @flavor)
-			tcp_pkt.ip_daddr = ip
-			tcp_pkt.tcp_flags.syn = 1
-
-			#tcp_pkt.tcp_win = 14600
-			# should be handled by the flavor config option
-			#tcp_pkt.tcp_options = "MSS:1460,SACKOK,TS:3853;0,NOP,WS:5"
-
-			ports.each do |port|
-				tcp_pkt.tcp_src = rand(64511)+1024
-				tcp_pkt.tcp_dst = port
-				tcp_pkt.recalc
-				tcp_pkt.to_w
-				select(nil, nil, nil, 0.075)
-				tcp_pkt.to_w
-			end
-		end
-
-		analyze = Thread.new do
-			loop do
-				pcap.stream.each do |pkt|
-					packet = PacketFu::Packet.parse(pkt)
-					synack_hash = { :ip => packet.ip_saddr.to_s, :port => packet.tcp_sport.to_s}
-					synack_array.push(synack_hash)
-				end
-			end
-		end
-
-		# Wait for the scan to complete
-		scan.join
-		select(nil, nil, nil, 0.05)
-		analyze.terminate
-
-		# Clean up any duplicate responses received
-		synack_array = synack_array.uniq
-
-		synack_array.each do |synack|
-			print_status "[BNAT Response] Request: #{ip} Response: #{synack[:ip]} Port: #{synack[:port]}"
-		end
+		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
+		
+		ports.each_with_index do |port,i|
+			p.tcp_dst = port
+			p.tcp_src = rand(64511)+1024
+			p.tcp_seq = rand(64511)+1024
+			p.recalc
+			
+			ackbpf = "tcp [8:4] == 0x#{(p.tcp_seq + 1).to_s(16)}"
+			pcap.setfilter("tcp and tcp[13] == 18 and not host #{ip} and src port #{p.tcp_dst} and dst port #{p.tcp_src} and #{ackbpf}")
+			capture_sendto(p, ip)
+			reply = probe_reply(pcap, to)
+			next if reply.nil?
+			
+			print_status("[BNAT RESPONSE] Requested IP: #{ip} Responding IP: #{reply.ip_saddr} Port: #{reply.tcp_src}")
+    end
+	
+		close_pcap		
+	
 	end
 end
 

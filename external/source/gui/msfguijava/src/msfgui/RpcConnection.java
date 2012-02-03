@@ -84,7 +84,7 @@ public abstract class RpcConnection {
 		String message = "";
 		try {
 			connect();
-			Map results = exec("auth.login",new Object[]{username, this.password});
+			Map results = (Map)exec("auth.login",new Object[]{username, this.password});
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
 		} catch (MsfException xre) {
@@ -211,11 +211,11 @@ public abstract class RpcConnection {
 	}
 
 	/** Method that handles synchronization and error handling for calls */
-	private Map exec (String methname, Object[] params) throws MsfException{
+	private Object exec (String methname, Object[] params) throws MsfException{
 		synchronized(lockObject){ //Only one method call at a time!
 			try{
 				writeCall(methname, params);
-				return (Map)readResp();
+				return readResp();
 			}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
 				try{
 					if(ex instanceof java.net.SocketTimeoutException) 

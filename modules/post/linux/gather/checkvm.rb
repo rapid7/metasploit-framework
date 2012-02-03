@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{
 					This module attempts to determine whether the system is running
 					inside of a virtual environment and if so, which one. This
-					module supports detectoin of Hyper-V, VMWare, VirtualBox, Xen,
+					module supports detection of Hyper-V, VMWare, VirtualBox, Xen,
 					and QEMU/KVM.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -164,12 +164,11 @@ class Metasploit3 < Msf::Post
 
 		if vm
 			print_good("This appears to be a #{vm} Virtual Machine")
+			report_vm(vm)
 		else
 			print_status("This appears to be a Physical Machine")
 		end
 
 	end
-
-
 
 end

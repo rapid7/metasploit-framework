@@ -46,4 +46,3 @@ module Metasploit3
 		met
 	end
 end
-

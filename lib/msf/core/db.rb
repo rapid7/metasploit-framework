@@ -262,6 +262,7 @@ class DBManager
 	#	:arch       -- one of the ARCH_* constants
 	#	:mac        -- the host's MAC address
 	#	:scope      -- interface identifier for link-local IPv6
+	#	:virtual_host -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
 	#
 	def report_host(opts)
 
@@ -1474,6 +1475,7 @@ class DBManager
 	#
 	# opts can contain
 	# +:options+:: a hash of options for accessing this particular web site
+	# +:info+:: if present, report the service with this info
 	#
 	# Duplicate records for a given host, port, vhost combination will be overwritten
 	#
@@ -1486,6 +1488,7 @@ class DBManager
 		port = nil
 		name = nil
 		serv = nil
+		info = nil
 
 		if opts[:service] and opts[:service].kind_of?(Service)
 			serv = opts[:service]
@@ -1493,6 +1496,7 @@ class DBManager
 			addr = opts[:host]
 			port = opts[:port]
 			name = opts[:ssl] ? 'https' : 'http'
+			info = opts[:info]
 			if not (addr and port)
 				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
 			end
@@ -1527,8 +1531,12 @@ class DBManager
 		if opts.keys.include?(:ssl) or serv.name.to_s.empty?
 			name = opts[:ssl] ? 'https' : 'http'
 			serv.name = name
-			serv.save!
 		end
+		# Add the info if it's there.
+		unless info.to_s.empty?
+			serv.info = info
+		end
+		serv.save! if serv.changed?
 =begin
 		host.updated_at = host.created_at
 		host.state      = HostState::Alive

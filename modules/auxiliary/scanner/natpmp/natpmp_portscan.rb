@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'NAT-PMP External port scanner',
 			'Description' => 'Scan NAT devices for their external listening ports using NAT-PMP',
-			'Author'      => 'jhart@spoofed.org',
+			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
 			)
 
