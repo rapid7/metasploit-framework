@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: ssl.rb 14319 2011-11-28 23:21:04Z rapid7 $
 ##
 
 ##
@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanSSL
+	include Msf::Auxiliary::WmapScanSSL
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate Information',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14319 $',
 			'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
 			'Author'      =>
 				[

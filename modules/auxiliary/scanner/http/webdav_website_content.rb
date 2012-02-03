@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: webdav_website_content.rb 14067 2011-10-25 18:32:02Z sinn3r $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP WebDAV Website Content Scanner',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14067 $',
 			'Description' => 'Detect webservers disclosing its content though WebDAV',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

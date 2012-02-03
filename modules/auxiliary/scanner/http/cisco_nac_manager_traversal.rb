@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: cisco_nac_manager_traversal.rb 14532 2012-01-10 02:16:04Z rapid7 $
 ##
 
 ##
@@ -14,13 +14,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'Cisco Network Access Manager Directory Traversal Vulnerability',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14532 $',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in versions of Cisco Network Access Manager 4.8.x You may wish to change

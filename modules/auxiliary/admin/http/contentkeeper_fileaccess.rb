@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: contentkeeper_fileaccess.rb 14288 2011-11-20 02:15:04Z rapid7 $
 ##
 
 ##
@@ -14,13 +14,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'ContentKeeper Web Appliance mimencode File Access',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14288 $',
 			'Description' => %q{
 				This module abuses the 'mimencode' binary present within
 				ContentKeeper Web filtering appliances to retrieve arbitrary

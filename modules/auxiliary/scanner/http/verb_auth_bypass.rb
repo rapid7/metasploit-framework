@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: verb_auth_bypass.rb 11796 2011-02-22 20:49:44Z jduck $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et [at] metasploit.com' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$'))
+			'Version'		=> '$Revision: 11796 $'))
 
 		register_options(
 			[
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				'HEAD',
 				'TRACE',
 				'TRACK',
-				'WMAP'
+				'Wmap'
 			]
 
 

@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: lucky_punch.rb 10394 2010-09-20 08:06:27Z jduck $
 ##
 
 ##
@@ -17,7 +17,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
 
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'et' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision$'))
+			'Version'        => '$Revision: 10394 $'))
 
 		register_options(
 			[

@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: http_version.rb 14597 2012-01-23 17:26:03Z rapid7 $
 ##
 
 ##
@@ -17,19 +17,23 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'HTTP Version Detection',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14597 $',
 			'Description' => 'Display version information about each system',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-
+		
+		register_wmap_options({
+				'OrderID' => 0,
+				'Require' => {},
+			})
 	end
 
 	# Fingerprint a single host

@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: ms09_020_webdav_unicode_bypass.rb 14034 2011-10-23 11:56:13Z jduck $
 ##
 
 ##
@@ -16,7 +16,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
-			'Version'		=> '$Revision$',
+			'Version'		=> '$Revision: 14034 $',
 			'License'		=> MSF_LICENSE,
 			'References'   =>
 				[

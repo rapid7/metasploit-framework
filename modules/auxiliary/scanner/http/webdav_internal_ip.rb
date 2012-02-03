@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: webdav_internal_ip.rb 14137 2011-11-01 17:57:11Z sinn3r $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP WebDAV Internal IP Scanner',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14137 $',
 			'Description' => 'Detect webservers internal IPs though WebDAV',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

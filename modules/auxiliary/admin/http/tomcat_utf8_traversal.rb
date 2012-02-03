@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: tomcat_utf8_traversal.rb 14288 2011-11-20 02:15:04Z rapid7 $
 ##
 
 ##
@@ -14,13 +14,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'Tomcat UTF-8 Directory Traversal Vulnerability',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14288 $',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in versions of Apache Tomcat 4.1.0 - 4.1.37, 5.5.0 - 5.5.26 and 6.0.0
