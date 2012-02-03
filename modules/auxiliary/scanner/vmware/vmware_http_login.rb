@@ -83,6 +83,7 @@ class Metasploit3 < Msf::Auxiliary
 			if res
 				fp = http_fingerprint({ :response => res })
 				if fp =~ /VMWare/
+					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => fp)
 					return true
 				else
 					vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
