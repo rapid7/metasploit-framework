@@ -6,7 +6,7 @@ Having your editor take care of formatting for you can save headaches during the
 
 Adding the following settings to your .vimrc will make conforming to the [HACKING](https://github.com/rapid7/metasploit-framework/blob/master/HACKING) and [msftidy.rb](https://github.com/rapid7/metasploit-framework/blob/master/tools/msftidy.rb) guidelines considerably easier.
 
-    set shiftwidth=4 tabstop=4 softabstop=4
+    set shiftwidth=4 tabstop=4 softtabstop=4
     " textwidth affects `gq` which is handy for formatting comments
     set textwidth=78
     " Metasploit generally requires hard tabs instead of spaces
@@ -25,7 +25,7 @@ If you'd rather these settings only apply to ruby files, you can use an autogrou
     if !exists("au_loaded")
         let au_loaded = 1
         augroup rb
-            au FileType ruby set shiftwidth=4 tabstop=4 softabstop=4 textwidth=78
+            au FileType ruby set shiftwidth=4 tabstop=4 softtabstop=4 textwidth=78
             au FileType ruby set noexpandtab
             au FileType ruby hi BogusWhitespace ctermbg=darkgreen guibg=darkgreen
             au FileType ruby match BogusWhitespace /\s\+$\|^\t\+ \+\|^ \+\t*/
