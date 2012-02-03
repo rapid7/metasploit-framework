@@ -15,11 +15,10 @@ require 'rex/proto/ntlm/message'
 
 
 class Metasploit3 < Msf::Auxiliary
-
+	include Msf::Exploit::Remote::VIMSoap
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
-
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -45,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 
 		each_user_pass { |user, pass|
-			result = do_login(user, pass)
+			result = vim_do_login(user, pass)
 			case result
 			when :success
 				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
@@ -64,28 +63,6 @@ class Metasploit3 < Msf::Auxiliary
 		}
 	end
 
-	def do_login(user, pass)
-		soap_data = '<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">
-    <SOAP-ENV:Body>
-        <Login xmlns="urn:vim25">
-            <_this type="SessionManager">ha-sessionmgr</_this>
-            <userName>' + user + '</userName>
-            <password>' + pass + '</password>
-        </Login>
-    </SOAP-ENV:Body>
-</SOAP-ENV:Envelope>'
-		res = send_request_cgi({
-				'uri'     => '/sdk',
-				'method'  => 'POST',
-				'agent'   => 'VMware VI Client',
-				'data' => soap_data
-				}, 25)
-		if res.code == 200
-			return :success
-		else
-			return :fail
-		end
-	end
 
 
 

@@ -44,13 +44,8 @@ class Metasploit3 < Msf::Auxiliary
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
 			output = "VMWare Host at #{ip} details\n"
 			output << "-----------------------------\n"
-			host_summary = vim_get_host_summary
+			host_summary = vim_get_all_host_summary(datastore['HW_DETAILS'])
 			output << YAML.dump(host_summary)
-			if datastore['HW_DETAILS']
-				output << "\n--------HARDWARE----------\n"
-				hw_details = vim_get_host_hw
-				output << YAML.dump(hw_details)
-			end
 			print_good output
 			store_loot('vmware_host_details', "text/plain", datastore['RHOST'], output, "#{datastore['RHOST']}_vmware_host.txt", "VMWare Host Details")
 		else
