@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: robots_txt.rb 13183 2011-07-15 15:33:35Z egypt $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Robots.txt Content Scanner',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 13183 $',
 			'Description' => 'Detect robots.txt files and analize its content',
 			'Author'       => ['et'],
 			'License'     => MSF_LICENSE

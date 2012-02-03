@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: open_proxy.rb 14316 2011-11-28 20:08:03Z rapid7 $
 ##
 
 ##
@@ -15,13 +15,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'        => 'HTTP Open Proxy Detection',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14316 $',
 			'Description' => %q{
 					Checks if an HTTP proxy is open. False positive are avoided
 				verifing the HTTP return code and matching a pattern.
@@ -54,6 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('RIPE_ADDRESS', [ true, 'www.ripe.net IP address', '193.0.6.139' ]),
 			], self.class)
+			
+		register_wmap_options({
+				'OrderID' => 1,
+				'Require' => {},
+			})		
 	end
 
 	def run_host(target_host)
@@ -75,7 +80,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		target_ports.each do |target_port|
 			datastore['RPORT'] = target_port
-			check_host(target_host,target_port,site,user_agent)
+			if target_host == site
+				print_error("Target is the same as proxy site.")
+			else	
+				check_host(target_host,target_port,site,user_agent)
+			end
 		end
 
 	end
@@ -203,7 +212,11 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host   => target_host,
 				:port   => target_port,
-				:method => 'GET'
+				:method => 'GET',
+				:proto => 'tcp',
+				:sname	=> 'HTTP',
+				:type  	=> 'OPEN PROXY',
+				:data   => 'Open proxy'
 			)
 
 			if (datastore['VERIFY_CONNECT'])

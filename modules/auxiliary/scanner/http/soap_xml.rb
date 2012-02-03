@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: soap_xml.rb 14560 2012-01-17 02:20:04Z rapid7 $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'patrick' ],
 			'License'		=> MSF_LICENSE,
-			'Version'		=> '$Revision$'))
+			'Version'		=> '$Revision: 14560 $'))
 
 		register_options(
 			[

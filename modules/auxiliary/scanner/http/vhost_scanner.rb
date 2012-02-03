@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: vhost_scanner.rb 13183 2011-07-15 15:33:35Z egypt $
 ##
 
 ##
@@ -22,7 +22,7 @@ require 'cgi'
 	class Metasploit3 < Msf::Auxiliary
 
 		include Msf::Exploit::Remote::HttpClient
-		include Msf::Auxiliary::WMAPScanServer
+		include Msf::Auxiliary::WmapScanServer
 		include Msf::Auxiliary::Scanner
 		include Msf::Auxiliary::Report
 
@@ -37,7 +37,7 @@ require 'cgi'
 					},
 				'Author' 		=> [ 'et [at] cyberspace.org' ],
 				'License'		=> BSD_LICENSE,
-				'Version'		=> '$Revision$'))
+				'Version'		=> '$Revision: 13183 $'))
 
 			register_options(
 			[
