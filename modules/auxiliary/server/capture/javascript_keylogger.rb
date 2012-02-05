@@ -19,15 +19,15 @@ class Metasploit3 < Msf::Auxiliary
 				to capture web page keystrokes.
 			},
 			'License'        => MSF_LICENSE,
-			'Author'         => ['Marcus J. Carey <mjc[at]threatagent.com>'],
+			'Author'         => ['Marcus J. Carey <mjc[at]threatagent.com>']
 	))
 
 	register_options(
 		[
-			OptString.new('SRVHOST', [true, "Local HTTP Server IP Address", "#{Rex::Socket.source_address}"]),	
+			OptString.new('SRVHOST', [true, "Local HTTP Server IP Address", "#{Rex::Socket.source_address}"]),
 			OptInt.new('SRVPORT', [true, "Local HTTP Server Port",80]),
 			OptBool.new('DEMO', [true, "Create a Demo Keylogger Page",false]),
-			OptString.new('URIPATH', [true, "Recommended value is \"\/\"","/"]),
+			OptString.new('URIPATH', [true, "Recommended value is \"\/\"","/"])
 		], self.class)
 	end
 
