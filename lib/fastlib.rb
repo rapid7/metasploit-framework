@@ -37,7 +37,7 @@ require "find"
 #
 class FastLib
 
-	VERSION = "0.0.6"
+	VERSION = "0.0.8"
 
 	FLAG_COMPRESS = 0x01
 	FLAG_ENCRYPT  = 0x02
@@ -249,22 +249,31 @@ class FastLib
 	
 	#
 	# This is a stub crypto handler that performs a basic XOR
-	# operation against a fixed one byte key
+	# operation against a fixed one byte key. The two usable IDs
+	# are 12345600 and 00000000
 	#
 	def self.encrypt_12345600(data)
-		data.unpack("C*").map{ |c| c ^ 0x90 }.pack("C*")
+		encrypt_00000000(data)
 	end
 	
 	def self.decrypt_12345600(data)
-		encrypt_12345600(data)
+		encrypt_00000000(data)
 	end
 	
+	def self.encrypt_00000000(data)
+		data.unpack("C*").map{ |c| c ^ 0x90 }.pack("C*")
+	end
+	
+	def self.decrypt_00000000(data)
+		encrypt_00000000(data)
+	end
+		
+	#
+	# Expose the cache to callers
+	#
 	def self.cache
 		@@cache
-	end
-	
-
-	
+	end	
 end
 
 
@@ -330,6 +339,7 @@ end
 
 	4 bytes: "FAST"
 	4 bytes: NBO header length
+	4 bytes: NBO flags (24-bit crypto ID, 8 bit modes)
 	[
 		4 bytes: name length (0 = End of Names)
 		4 bytes: data offset
@@ -343,6 +353,12 @@ end
 
 module Kernel #:nodoc:all
 	alias :fastlib_original_require :require
+	
+	#
+	# Store the CWD when were initially loaded
+	# required for resolving relative paths
+	#
+	@@fastlib_base_cwd = ::Dir.pwd
 
 	#
 	# This method hooks the original Kernel.require to support
@@ -360,22 +376,16 @@ module Kernel #:nodoc:all
 		return false if fastlib_already_loaded?(name)
 		return false if fastlib_already_tried?(name)
 
-		# TODO: Implement relative path $: checks and adjust the
-		#       search path within archives to match.
-		
-		$:.map{ |path| ::Dir["#{path}/*.fastlib"] }.flatten.uniq.each do |lib|
+		# XXX Implement relative search paths within archives 
+		$:.map{ |path| 
+			(path =~ /^([A-Za-z]\:|\/)/ ) ? path : ::File.expand_path( ::File.join(@@fastlib_base_cwd, path) )
+		}.map{  |path| ::Dir["#{path}/*.fastlib"] }.flatten.uniq.each do |lib|
 			data = FastLib.load(lib, name)
 			next if not data
 			$" << name
 			
-			begin
-				Object.class_eval(data)
-			rescue ::Exception => e
-				opath,oerror = e.backtrace.shift.split(':', 2)
-				e.backtrace.unshift("#{lib}::#{name}:#{oerror}")
-				raise e
-			end
-			
+			Object.class_eval(data, lib + "::" + name)
+
 			return true
 		end
 		
