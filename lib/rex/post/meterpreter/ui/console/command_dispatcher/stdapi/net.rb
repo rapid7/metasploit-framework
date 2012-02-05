@@ -77,9 +77,9 @@ class Console::CommandDispatcher::Stdapi::Net
 		if (ifaces.length == 0)
 			print_line("No interfaces were found.")
 		else
-			client.net.config.each_interface { |iface|
+			ifaces.each do |iface|
 				print("\n" + iface.pretty + "\n")
-			}
+			end
 		end
 	end
 
