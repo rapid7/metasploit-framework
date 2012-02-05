@@ -86,13 +86,16 @@ def check_single_file(dparts, fparts, f_rel)
 		end
 	end
 
+	# If an exploit module mentinos the word "stack overflow", chances are they mean "stack buffer overflow".
+	# "stack overflow" means "stack exhaustion".  See explanation:
+	# http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
+	# However, we will avoid flagging this term in auxiliary modules for now, because it might be a DoS attack.
+	# In that case, they might really mean stack exhaustion.
 	bad_term = true
-	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+	if content =~ /class Metasploit\d < Msf::Exploit::Remote/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
 		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow"', bad_term)
 	end
-
-	show_missing(f, 'WARNING: contains "stack overflow"', bad_term)
-
 
 	# check criteria based on individual lines
 	spaces = 0
