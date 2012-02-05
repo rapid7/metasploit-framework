@@ -22,20 +22,24 @@ end
 if (framework.datastore['NMAPOPTS'] != nil)
 	nmapopts = framework.datastore['NMAPOPTS']
 else
-	nmapopts = "-PN -P0 -O -sSV"		#default-settings
+	#default-settings
+	nmapopts = "-PN -P0 -O -sSV"
 end
 
-if (framework.datastore['VERBOSE'] == "true")   #we look in the global datastore for a global VERBOSE option and use it
-	verbose = 1 #true
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
+	verbose = 1
 else
 	verbose = 0
 end
 
-if (framework.datastore['THREADS'] == nil)      #default to 15 Threads
+#default to 15 Threads
+if (framework.datastore['THREADS'] == nil)
 	run_single("setg THREADS 15")
 end
 
-if (framework.datastore['NMAP'] == nil or framework.datastore['NMAP'] == "true")                #default usage of nmap as portscanner
+#default usage of nmap as portscanner
+if (framework.datastore['NMAP'] == nil or framework.datastore['NMAP'] == "true")
 	nmap = 1
 else
 	nmap = 0
@@ -122,7 +126,7 @@ framework.db.workspace.hosts.each do |host|
 					jobwaiting(maxjobs,verbose)
 				end
 			end
-			
+
 			print_line("Module: smb2")
 			run_single("use auxiliary/scanner/smb/smb2")
 			if(verbose == 1)
@@ -137,7 +141,7 @@ framework.db.workspace.hosts.each do |host|
 				run_single("run -j -q")
 			end
 			jobwaiting(maxjobs,verbose)
-	
+
 			print_line("Module: nbname")
 			run_single("use auxiliary/scanner/netbios/nbname")
 			if(verbose == 1)
@@ -152,7 +156,7 @@ framework.db.workspace.hosts.each do |host|
 				run_single("run -j -q")
 			end
 			jobwaiting(maxjobs,verbose)
-	
+
 			print_line("Module: smb_enumshares")
 			run_single("use auxiliary/scanner/smb/smb_enumshares")
 			if(verbose == 1)
@@ -167,7 +171,7 @@ framework.db.workspace.hosts.each do |host|
 				run_single("run -j -q")
 			end
 			jobwaiting(maxjobs,verbose)
-	
+
 			print_line("Module: smb_enumusers")
 			run_single("use auxiliary/scanner/smb/smb_enumusers")
 			if(verbose == 1)
@@ -182,7 +186,7 @@ framework.db.workspace.hosts.each do |host|
 				run_single("run -j -q")
 			end
 			jobwaiting(maxjobs,verbose)
-	
+
 			print_line("Module: smb_enumusers_domain")
 			run_single("use auxiliary/scanner/smb/smb_enumusers_domain")
 			if(verbose == 1)
@@ -197,7 +201,7 @@ framework.db.workspace.hosts.each do |host|
 				run_single("run -j -q")
 			end
 			jobwaiting(maxjobs,verbose)
-	
+
 			print_line("Module: smb_lookupsid")
 			run_single("use auxiliary/scanner/smb/smb_lookupsid")
 			if(verbose == 1)
@@ -348,7 +352,7 @@ framework.db.workspace.hosts.each do |host|
 				end
 				jobwaiting(maxjobs,verbose)
 			end
-	
+
 			print_line("Module: telnet_encrypt_overflow")
 			run_single("use auxiliary/scanner/telnet/telnet_encrypt_overflow")
 			if(verbose == 1)
@@ -651,7 +655,7 @@ framework.db.workspace.hosts.each do |host|
 				jobwaiting(maxjobs,verbose)
 			end
 		end
-			
+
 		if (serv.name =~ /mysql/ or serv.port == 3306)
 			if(versionscanners == 1 or serv.name == nil)
 				print_line("Module: mysql_version")

@@ -19,10 +19,12 @@ end
 if (framework.datastore['NMAPOPTS'] != nil)
 	nmapopts = framework.datastore['NMAPOPTS']
 else
-	nmapopts = "-PN -P0 -O -sSV"		#default-settings
+	#default-settings
+	nmapopts = "-PN -P0 -O -sSV"
 end
 
-if (framework.datastore['VERBOSE'] == "true")   #we look in the global datastore for a global VERBOSE option and use it
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
 	verbose = 1 #true
 else
 	verbose = 0
@@ -32,7 +34,8 @@ if (framework.datastore['THREADS'] == nil)	#default to 100 Threads
 	run_single("setg THREADS 100")
 end
 
-if (framework.datastore['NMAP'] == nil or framework.datastore['NMAP'] == "true")		#default usage of nmap as portscanner
+#default usage of nmap as portscanner
+if (framework.datastore['NMAP'] == nil or framework.datastore['NMAP'] == "true")
 	nmap = 1 
 else
 	nmap = 0 
