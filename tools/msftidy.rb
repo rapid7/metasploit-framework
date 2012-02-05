@@ -70,6 +70,22 @@ def check_single_file(dparts, fparts, f_rel)
 		show_missing(f, 'ERROR: missing disclosure date', has_dd)
 	end
 
+	# Check disclosure date format
+	if content =~ /'DisclosureDate' => '(.+)'/
+		d = $1  #Captured date
+		# Flag if overall format is wrong
+		if d =~ /^... \d{1,2} \d{4}/
+			# Flag if month format is wrong
+			m = d.split[0]
+			months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			if months.index(m).nil?
+				show_missing(f, 'WARNING: incorrect disclosure month format', false)
+			end
+		else
+			show_missing(f, 'WARNING: incorrect disclosure date format', false)
+		end
+	end
+
 	bad_term = true
 	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
 		bad_term = false
