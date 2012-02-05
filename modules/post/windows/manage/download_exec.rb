@@ -88,8 +88,8 @@ class Metasploit3 < Msf::Post
 		end
 
 		outpath = path + '\\' + filename
-		exec = datastore["EXECUTE"]
-		exec_string = datastore["EXEC_STRING"] || ''
+		exec = datastore['EXECUTE']
+		exec_string = datastore['EXEC_STRING'] || ''
 		output = datastore['OUTPUT']
 		remove = datastore['DELETE']
 
@@ -112,11 +112,11 @@ class Metasploit3 < Msf::Post
 		# Execute file upon request
 		if exec
 			begin
-				cmd = outpath + ' ' + exec_string
+				cmd = "#{outpath} #{exec_string}"
 
 				# If we don't have the following gsub, we get this error in Windows:
 				# "Operation failed: The system cannot find the file specified"
-				cmd = cmd.gsub(/\\/, '\\\\\\')
+				cmd = cmd.gsub(/\\/, '\\\\\\').gsub(/\s/, '\ ')
 
 				print_status("Executing file: #{cmd}")
 				res = cmd_exec(cmd)
