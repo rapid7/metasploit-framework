@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 		register_advanced_options(
 			[
 				OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
+        OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
 				OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
 			], self.class)
 
@@ -119,7 +120,7 @@ class Metasploit3 < Msf::Post
 				cmd = cmd.gsub(/\\/, '\\\\\\').gsub(/\s/, '\ ')
 
 				print_status("Executing file: #{cmd}")
-				res = cmd_exec(cmd)
+				res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
 				print_good(res) if output and not res.empty?
 			rescue ::Exception => e
 				print_error("Unable to execute: #{e.message}")
