@@ -1822,7 +1822,7 @@ $#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)
 			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
 
 		when 'psh-net'
-			output = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+			output = Msf::Util::EXE.to_win32pe_psh_net(framework, code, exeopts)
 
 		end
 
