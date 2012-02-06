@@ -41,8 +41,43 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def run_host(ip)
+	# Mostly taken from the Apache Tomcat service validator
+	def check(ip)
+		datastore['URI'] ||= "/sdk"
+		user = Rex::Text.rand_text_alpha(8)
+		pass = Rex::Text.rand_text_alpha(8)
+		begin
+			res = send_request_cgi({
+				'uri'     => datastore['URI'],
+				'method'  => 'POST',
+				'agent'   => 'VMware VI Client',
+				'data' => gen_soap_data(user,pass)
+			}, 25)
+			if res
+				fp = http_fingerprint({ :response => res })
+				if fp =~ /VMWare/
+					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => fp)
+					return true
+				else
+					vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
+					return false
+				end
+			else
+				vprint_error("http://#{ip}:#{rport} - No response")
+			end
+		rescue ::Rex::ConnectionError => e
+			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
+			return false
+		rescue
+			vprint_error("Skipping #{ip} due to error - #{e}")
+			return false
+		end
+	end
 
+
+
+	def run_host(ip)
+		return unless check(ip)
 		each_user_pass { |user, pass|
 			result = vim_do_login(user, pass)
 			case result
