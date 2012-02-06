@@ -70,13 +70,33 @@ def check_single_file(dparts, fparts, f_rel)
 		show_missing(f, 'ERROR: missing disclosure date', has_dd)
 	end
 
-	bad_term = true
-	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
-		bad_term = false
+	# Check disclosure date format
+	if content =~ /'DisclosureDate' => '(.+)'/
+		d = $1  #Captured date
+		# Flag if overall format is wrong
+		if d =~ /^... \d{1,2} \d{4}/
+			# Flag if month format is wrong
+			m = d.split[0]
+			months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			if months.index(m).nil?
+				show_missing(f, 'WARNING: incorrect disclosure month format', false)
+			end
+		else
+			show_missing(f, 'WARNING: incorrect disclosure date format', false)
+		end
 	end
 
-	show_missing(f, 'WARNING: contains "stack overflow"', bad_term)
-
+	# If an exploit module mentinos the word "stack overflow", chances are they mean "stack buffer overflow".
+	# "stack overflow" means "stack exhaustion".  See explanation:
+	# http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
+	bad_term = true
+	if content =~ /class Metasploit\d < Msf::Exploit::Remote/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack buffer overflow"?', bad_term)
+	elsif content =~ /class Metasploit\d < Msf::Auxiliary/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
+	end
 
 	# check criteria based on individual lines
 	spaces = 0
