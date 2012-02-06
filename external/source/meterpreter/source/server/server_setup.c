@@ -133,7 +133,7 @@ static VOID server_socket_flush( Remote * remote )
 			break;
 
 		ret = recv(fd, buff, sizeof(buff), 0);
-		dprintf("[SERVER] Flushed %d bytes from the buffer");
+		dprintf("[SERVER] Flushed %d bytes from the buffer", ret);
 
 		// The socket closed while we waited
 		if(ret == 0) {

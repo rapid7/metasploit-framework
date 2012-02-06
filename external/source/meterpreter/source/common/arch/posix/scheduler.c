@@ -58,8 +58,8 @@ DWORD scheduler_destroy( VOID )
 			polltable = NULL;
 			nentries = ntableentries = 0;
 		}
-		
-		dprintf("[%s] Now for the fun part, iterating through list and removing items");
+
+		dprintf("[%s] Now for the fun part, iterating through list and removing items", __FUNCTION__);
 
 		LIST_FOREACH_SAFE(current, &WEHead, link, tmp)
 		{
@@ -84,7 +84,7 @@ DWORD scheduler_destroy( VOID )
 DWORD scheduler_initialize( Remote * remote )
 {
 	if(scheduler_thread) {
-		dprintf("[%s] Hmmm. scheduler_initialize() called twice?");
+		dprintf("[%s] Hmmm. scheduler_initialize() called twice?", __FUNCTION__);
 		return ERROR_SUCCESS;
 	}
 
