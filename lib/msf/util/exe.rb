@@ -95,6 +95,10 @@ require 'digest/sha1'
 			if (plat.index(Msf::Module::Platform::Linux))
 				return to_linux_x64_elf(framework, code, opts)
 			end
+
+			if (plat.index(Msf::Module::Platform::OSX))
+				return to_osx_x64_macho(framework, code)
+			end
 		end
 
 		if(arch.index(ARCH_ARMLE))
@@ -573,6 +577,22 @@ require 'digest/sha1'
 		mo[bo, code.length] = code
 
 		return mo
+	end
+
+	def self.to_osx_x64_macho(framework, code, opts={})
+		set_template_default(opts, "template_x64_darwin.bin")
+
+		macho = ''
+
+		File.open(opts[:template], 'rb') { |fd|
+			macho = fd.read(fd.stat.size)
+		}
+
+		bin = macho.index('PAYLOAD:')
+		raise RuntimeError, "Invalid Mac OS X x86_64 Mach-O template: missing \"PAYLOAD:\" tag" if not bin
+		macho[bin, code.length] = code
+
+		return macho
 	end
 
 	#
@@ -1700,7 +1720,13 @@ End Sub
 			end
 
 		when 'macho'
-			output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
+			if (not arch or (arch.index(ARCH_X86)))
+				output = Msf::Util::EXE.to_osx_x86_macho(framework, code, exeopts)
+			end
+
+			if (arch and (arch.index(ARCH_X86_64) or arch.index(ARCH_X64)))
+				output = Msf::Util::EXE.to_osx_x64_macho(framework, code, exeopts)
+			end
 
 		when 'vba'
 			output = Msf::Util::EXE.to_vba(framework, code, exeopts)
