@@ -144,7 +144,7 @@ int netlink_parse(int fd, int seq, netlink_cb_t callback, void *data)
 
 			if(nh->nlmsg_type == NLMSG_ERROR) {
 				struct nlmsgerr *me = (struct nlmsgerr *) NLMSG_DATA (nh);
-				dprintf("[%s] in NLMSG_ERROR handling.. me = %p", __FUNCTION__);
+				dprintf("[%s] in NLMSG_ERROR handling.. me = %p", __FUNCTION__, me);
 				dprintf("[%s] me->error = %d", __FUNCTION__, me->error);
 				if(me->error) {
 					dprintf("[%s] so, we have: nlmsg_len: %d, nlmsg_type: %d, nlmsg_flags: %d, nlmsg_seq: %d, nlmsg_pid: %d", 
