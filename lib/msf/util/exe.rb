@@ -579,7 +579,7 @@ require 'digest/sha1'
 		return mo
 	end
 
-	def self.to_osx_x86_macho(framework, code, opts={})
+	def self.to_osx_x64_macho(framework, code, opts={})
 		set_template_default(opts, "template_x64_darwin.bin")
 
 		macho = ''
