@@ -198,6 +198,11 @@ class Service
 	def authenticate(token)
 		stale = []
 
+		 
+		if not (token and token.kind_of?(::String))
+			return false
+		end
+
 		# Force the encoding to ASCII-8BIT
 		token = token.unpack("C*").pack("C*")
 
