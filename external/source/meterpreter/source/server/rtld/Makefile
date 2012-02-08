@@ -53,7 +53,7 @@ metsrv_rtld.o: libc.h libm.h libcrypto.h libssl.h libmetsrv_main.h libsupport.h 
 rtldtest: rtldtest.c msflinker
 	gcc -march=i386 -m32 -o rtldtest rtldtest.c -DEP=`objdump -f msflinker | grep start | awk '{ print $$3 }'`
 
-.s.o:
+.S.o:
 	gcc $(CFLAGS) -c $<
 
 .c.o:
