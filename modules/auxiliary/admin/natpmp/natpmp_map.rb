@@ -8,7 +8,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'NAT-PMP port mapper',
+			'Name'        => 'NAT-PMP Port Mapper',
 			'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',
 			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
@@ -30,9 +30,9 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(host)
 		begin
 
-			udp_sock = Rex::Socket::Udp.create(
-				{   'LocalHost' => datastore['CHOST'] || nil,
-					'Context' => {'Msf' => framework, 'MsfExploit' => self}
+			udp_sock = Rex::Socket::Udp.create({
+				'LocalHost' => datastore['CHOST'] || nil,
+				'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 			})
 			add_socket(udp_sock)
 
@@ -96,11 +96,13 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		# report the external port as being open
-		report_service(
-			:host   => external_address,
-			:port   => external_port,
-			:proto  => datastore['PROTOCOL'].to_s.downcase,
-			:state => Msf::ServiceState::Open
-		)
+		if inside_workspace_boundary(external_address)
+			report_service(
+				:host   => external_address,
+				:port   => external_port,
+				:proto  => datastore['PROTOCOL'].to_s.downcase,
+				:state => Msf::ServiceState::Open
+			)
+		end
 	end
 end

@@ -8,7 +8,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'NAT-PMP External address scanner',
+			'Name'        => 'NAT-PMP External Address Scanner',
 			'Description' => 'Scan NAT devices for their external address using NAT-PMP',
 			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
@@ -25,15 +25,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(host)
 		begin
-			udp_sock = Rex::Socket::Udp.create(
-				{   'LocalHost' => datastore['CHOST'] || nil,
-					'Context' => {'Msf' => framework, 'MsfExploit' => self}
+			udp_sock = Rex::Socket::Udp.create({
+				'LocalHost' => datastore['CHOST'] || nil,
+				'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 			})
 			add_socket(udp_sock)
 			print_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
 
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
-			while (r = udp_sock.recvfrom(12, 0.25) and r[1])
+			while (r = udp_sock.recvfrom(12, 1.0) and r[1])
 				handle_reply(host, r)
 			end
 		rescue ::Interrupt
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Rex::HostUnreachable, ::Rex::ConnectionTimeout, ::Rex::ConnectionRefused
 			nil
 		rescue ::Exception => e
-			print_error("Unknown error: #{e.class} #{e}")
+			print_error("#{host}:#{datastore['RPORT']} Unknown error: #{e.class} #{e}")
 		end
 	end
 
@@ -65,18 +65,20 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		# also report its external address as alive
-		report_host(
-			:host   => external_address,
-			:state => Msf::HostState::Alive
-		)
+		if inside_workspace_boundary(external_address)
+			report_host(
+				:host   => external_address,
+				:state => Msf::HostState::Alive
+			)
+		end
 
 		# report NAT-PMP as being open
 		report_service(
 			:host   => host,
 			:port   => pkt[2],
 			:proto  => 'udp',
-			:name  => 'natpmp',
-			:state => Msf::ServiceState::Open
+			:name   => 'natpmp',
+			:state  => Msf::ServiceState::Open
 		)
 	end
 end
