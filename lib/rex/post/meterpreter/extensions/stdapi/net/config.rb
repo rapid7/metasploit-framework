@@ -62,7 +62,11 @@ class Config
 					iface.get_tlv_value(TLV_TYPE_IP),
 					iface.get_tlv_value(TLV_TYPE_NETMASK),
 					iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
-					iface.get_tlv_value(TLV_TYPE_MAC_NAME))
+					iface.get_tlv_value(TLV_TYPE_MAC_NAME),
+					iface.get_tlv_value(TLV_TYPE_IP6),
+					iface.get_tlv_value(TLV_TYPE_NETMASK6),
+					iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
+					iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS))
 		}
 
 		return ifaces
@@ -89,6 +93,7 @@ class Config
 	def get_routes
 		request = Packet.create_request('stdapi_net_config_get_routes')
 		routes  = []
+		routes6 = []
 
 		response = client.send_request(request)
 
@@ -97,10 +102,21 @@ class Config
 			routes << Route.new(
 					route.get_tlv_value(TLV_TYPE_SUBNET),
 					route.get_tlv_value(TLV_TYPE_NETMASK),
-					route.get_tlv_value(TLV_TYPE_GATEWAY))
+					route.get_tlv_value(TLV_TYPE_GATEWAY),
+					route.get_tlv_value(TLV_TYPE_STRING),
+					route.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
 		}
 
-		return routes
+		# Build out the array of IPv6 routes
+		response.each(TLV_TYPE_NETWORK_ROUTE6) { |route6|
+			routes6 << Route.new(
+					route6.get_tlv_value(TLV_TYPE_SUBNET6),
+					route6.get_tlv_value(TLV_TYPE_NETMASK6),
+					route6.get_tlv_value(TLV_TYPE_GATEWAY6),
+					route6.get_tlv_value(TLV_TYPE_STRING),
+					route6.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
+		}
+		return routes, routes6
 	end
 
 	alias routes get_routes

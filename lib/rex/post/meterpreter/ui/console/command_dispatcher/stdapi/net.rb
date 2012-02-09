@@ -77,7 +77,7 @@ class Console::CommandDispatcher::Stdapi::Net
 		if (ifaces.length == 0)
 			print_line("No interfaces were found.")
 		else
-			ifaces.each do |iface|
+			ifaces.sort{|a,b| a.mac_name <=> b.mac_name}.each do |iface|
 				print("\n" + iface.pretty + "\n")
 			end
 		end
@@ -112,23 +112,46 @@ class Console::CommandDispatcher::Stdapi::Net
 		# Process the commands
 		case cmd
 			when "list"
-				routes = client.net.config.routes
+				routes,routes6 = client.net.config.routes
 
 				if (routes.length == 0)
-					print_line("No routes were found.")
+					print_line("No IPv4 routes were found.")
 				else
 					tbl = Rex::Ui::Text::Table.new(
-						'Header'  => "Network routes",
+						'Header'  => "IPv4 network routes",
 						'Indent'  => 4,
 						'Columns' =>
 							[
 								"Subnet",
 								"Netmask",
-								"Gateway"
+								"Gateway",
+								"Metric",
+								"Interface"
 							])
 
 					routes.each { |route|
-						tbl << [ route.subnet, route.netmask, route.gateway ]
+						tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+					}
+
+					print("\n" + tbl.to_s + "\n")
+				end
+				if (routes6.length == 0)
+					print_line("No IPv6 routes were found.")
+				else
+					tbl = Rex::Ui::Text::Table.new(
+						'Header'  => "IPv6 network routes",
+						'Indent'  => 4,
+						'Columns' =>
+							[
+								"Subnet",
+								"Netmask",
+								"Gateway",
+								"Metric",
+								"Interface"
+							])
+
+					routes6.each { |route6|
+						tbl << [ route6.subnet, route6.netmask, route6.gateway, route6.metric, route6.interface ]
 					}
 
 					print("\n" + tbl.to_s + "\n")
