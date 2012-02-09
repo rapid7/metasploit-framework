@@ -53,12 +53,6 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-		#Initialize Railgun 'gethostbyaddr' call'
-		session.railgun.add_function('ws2_32', 'gethostbyaddr', 'DWORD', [
-				['PCHAR', 'addr', 'in'],
-				['DWORD','len','in'],
-				['DWORD','type','in']])
-
 		#Generates IP list based on RHOSTS - RangeWalker rocks....
 		iplist = Rex::Socket::RangeWalker.new(datastore['RHOSTS'])
 

@@ -25,32 +25,6 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		#structure
-=begin
-		NET_API_STATUS NetServerEnum(
-		  __in_opt     LPCWSTR servername,
-		  __in         DWORD level,
-		  __out        LPBYTE *bufptr,
-		  __in         DWORD prefmaxlen,
-		  __out        LPDWORD entriesread,
-		  __out        LPDWORD totalentries,
-		  __in         DWORD servertype,
-		  __in_opt     LPCWSTR domain,
-		  __inout_opt  LPDWORD resume_handle
-		);
-=end
-
-		client.railgun.add_function('netapi32', 'NetServerEnum', 'DWORD',[
-		['PWCHAR','servername','in'],
-		['DWORD','level','in'],
-		['PDWORD','bufptr','out'],
-		['DWORD','prefmaxlen','in'],
-		['PDWORD','entriesread','out'],
-		['PDWORD','totalentries','out'],
-		['DWORD','servertype','in'],
-		['PWCHAR','domain','in'],
-		['PDWORD','resume_handle','inout']
-		])
 
 		domain_enum = 2147483648 # SV_TYPE_DOMAIN_ENUM =  hex 80000000
 		buffersize = 500
