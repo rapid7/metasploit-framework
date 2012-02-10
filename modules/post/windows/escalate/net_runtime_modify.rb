@@ -124,16 +124,10 @@ class Metasploit3 < Msf::Post
 
 	def init_railgun
 		begin
-		# load the dlls we need
-			if session.railgun.get_dll("advapi32").nil?
-				print_status("Loading advapi.dll...")
-				session.railgun.add_dll("advapi32", 'C:\\WINDOWS\\system32\\advapi32.dll')
-			end
-
-			if session.railgun.advapi32.functions['DeleteService'].nil?
-				session.railgun.add_function( 'advapi32', 'DeleteService','BOOL',[
-				[ "DWORD", "hService", "in" ]])
-			end
+		rg = session.railgun
+		if (!rg.get_dll('advapi32'))
+			rg.add_dll('advapi32')
+		end
 		rescue Exception => e
 			print_error("Could not initalize railgun")
 			print_error("Railgun Error: #{e}")
