@@ -132,6 +132,14 @@ class Metasploit3 < Msf::Auxiliary
 					next if not addr
 
 					print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
+						report_note(
+							:host   => addr[:ipv4],
+							:proto  => 'IP',
+							:sname  => 'all',
+							:type   => 'IPv4 to IPv6 mapping',
+							:data   => "system with IPv4 address #{addr[:ipv4]} matches to IPv6 address #{addr[:ipv6]}"
+						)	# with this we have the results in our database
+
 				end
 			end
 
