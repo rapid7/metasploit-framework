@@ -110,12 +110,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		#attempt to make new service
-		client.railgun.kernel32.LoadLibraryA("advapi32.dll")
-		client.railgun.get_dll('advapi32')
-		client.railgun.add_function( 'advapi32', 'DeleteService','BOOL',[
-			[ "DWORD", "hService", "in" ]
-		])
-
+		
 		#SERVICE_NO_CHANGE 0xffffffff for DWORDS or NULL for pointer values leaves the current config
 
 		print_status("Trying to add a new service...")

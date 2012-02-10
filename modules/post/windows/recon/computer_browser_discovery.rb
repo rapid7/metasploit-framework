@@ -68,47 +68,6 @@ class Metasploit3 < Msf::Post
 		### MAIN ###
 		client = session
 
-=begin
-NET_API_STATUS NetUserEnum(
-  __in     LPCWSTR servername,
-  __in     DWORD level,
-  __in     DWORD filter,
-  __out    LPBYTE *bufptr,
-  __in     DWORD prefmaxlen,
-  __out    LPDWORD entriesread,
-  __out    LPDWORD totalentries,
-  __inout  LPDWORD resume_handle
-);
-
-client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
-["PWCHAR","servername","in"],
-["DWORD","level","in"],
-["DWORD","filter","in"],
-["PDWORD","bufptr","out"],
-["DWORD","prefmaxlen","in"],
-["PDWORD","entriesread","out"],
-["PDWORD","totalentries","out"],
-["PDWORD","resume_handle","inout"]])
-
-=end
-
-		client.railgun.add_function(
-			'netapi32', 'NetServerEnum', 'DWORD',
-			[
-				["PBLOB","servername","in"], ["DWORD","level","in"], ["PDWORD","bufptr","out"],
-				["DWORD","prefmaxlen","in"], ["PDWORD","entriesread","out"], ["PDWORD","totalentries","out"],
-				["DWORD","servertype","in"], ["PWCHAR","domain","in"], ["DWORD","resume_handle","inout"]
-			]
-		)
-
-		client.railgun.add_function(
-			'ws2_32', 'getaddrinfo', 'DWORD',
-			[
-				["PCHAR","pNodeName","in"], ["PCHAR","pServiceName","in"],
-				["PDWORD","pHints","in"], ["PDWORD","ppResult","out"]
-			]
-		)
-
 		domain = nil
 
 		# Default = SV_TYPE_NT

