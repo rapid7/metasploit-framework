@@ -16,19 +16,25 @@ EnableDelayLoadMetSrv();
 
 DWORD request_sample_ping(Remote *remote, Packet *packet)
 {
-	LPCSTR message="Just a ping from me to you";
-	DWORD dwResult    = ERROR_SUCCESS;
+	
+	LPCSTR ping_value;
+	char * reply;
+	DWORD dwResult    = ERROR_SUCCESS;	
 	// Initialise response packet
 	Packet * response = NULL;
+	ping_value= packet_get_tlv_value_string(packet,TLV_TYPE_SAMPLE_PING);
+	reply=(char *)malloc(1024); // UNSAFE!
+	sprintf(reply,"You said: %s",ping_value);
+	//printf("Enter\n");
 	response = packet_create_response( packet );
-	packet_add_tlv_string(packet,TLV_TYPE_SAMPLE_PING,message);
+	packet_add_tlv_string(response,TLV_TYPE_SAMPLE_PONG,reply);
 	packet_transmit_response( dwResult, remote, response );
 	return dwResult;
 }
 
 Command customCommands[] =
 {
-	{ "sample",
+	{ "sample_ping",
 	  { request_sample_ping,                                    { 0 }, 0 },
 	  { EMPTY_DISPATCH_HANDLER                                      },
 	},

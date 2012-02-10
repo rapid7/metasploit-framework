@@ -3,10 +3,15 @@
 #include "../../common/common.h"
 
 #define TLV_TYPE_EXTENSION_SAMPLE	0
-#define TLV_TYPE_SAMPLE_PING	\
+#define TLV_TYPE_SAMPLE_PONG	\
 		MAKE_CUSTOM_TLV(							\
 				TLV_META_TYPE_STRING,				\
 				TLV_TYPE_EXTENSION_SAMPLE,		\
 				TLV_EXTENSIONS + 671)
 
+#define TLV_TYPE_SAMPLE_PING	\
+		MAKE_CUSTOM_TLV(							\
+				TLV_META_TYPE_STRING,				\
+				TLV_TYPE_EXTENSION_SAMPLE,		\
+				TLV_EXTENSIONS + 672)
 #endif
