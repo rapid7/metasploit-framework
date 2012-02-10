@@ -1,0 +1,19 @@
+# Not for distribution -- just an example of looping through creds to do things
+# with them. However, duckduck_password and this script should certainly just
+# be combined into one plugin, rather than a module.
+
+use auxiliary/gather/duckduck_password
+<ruby>
+framework.db.creds.select {|c| c.ptype == "smb_hash"}.each do |cred|
+	lm,ntlm = cred.pass.split(":")
+	run_single("set HASH #{lm}")
+	print_status "#{cred.service.host.address}:#{cred.service.port}:#{cred.user} Checking LM hash..."
+	run_single("run")
+	select(nil,nil,nil,1)
+	run_single("set HASH #{ntlm}") if ntlm
+	print_status "#{cred.service.host.address}:#{cred.service.port}:#{cred.user} Checking NTLM hash..."
+	run_single("run")
+	select(nil,nil,nil,1)
+end
+</ruby>
+
