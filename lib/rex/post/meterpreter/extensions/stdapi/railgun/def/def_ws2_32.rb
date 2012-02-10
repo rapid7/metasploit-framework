@@ -18,6 +18,12 @@ class Def_ws2_32
 			["PDWORD","ppResult","out"]
 			])
 
+		dll.add_function('gethostbyaddr', 'DWORD', [
+			['PCHAR', 'addr', 'in'],
+			['DWORD','len','in'],
+			['DWORD','type','in']
+			])
+
 		dll.add_function('WSAAccept', 'DWORD',[
 			["DWORD","s","in"],
 			["PBLOB","addr","inout"],

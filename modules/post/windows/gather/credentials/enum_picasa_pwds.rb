@@ -45,18 +45,6 @@ class Metasploit3 < Msf::Post
 		if (!rg.get_dll('crypt32'))
 			rg.add_dll('crypt32')
 		end
-
-		if (!rg.crypt32.functions["CryptUnprotectData"])
-			rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
-					["PBLOB","pDataIn", "in"],
-					["PWCHAR", "szDataDescr", "out"],
-					["PBLOB", "pOptionalEntropy", "in"],
-					["PDWORD", "pvReserved", "in"],
-					["PBLOB", "pPromptStruct", "in"],
-					["DWORD", "dwFlags", "in"],
-					["PBLOB", "pDataOut", "out"]
-				])
-		end
 	end
 
 

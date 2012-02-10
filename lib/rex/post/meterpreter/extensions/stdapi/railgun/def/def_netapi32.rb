@@ -21,6 +21,17 @@ class Def_netapi32
 			["PDWORD","lpNameBugger","out"],
 			["PDWORD","BufferType","out"]
 			])
+		dll.add_function('NetServerEnum', 'DWORD',[
+			["PWCHAR","servername","in"],
+			["DWORD","level","in"],
+			["PDWORD","bufptr","out"],
+			["DWORD","prefmaxlen","in"],
+			["PDWORD","entriesread","out"],
+			["PDWORD","totalentries","out"],
+			["DWORD","servertype","in"],
+			["PWCHAR","domain","in"],
+			["DWORD","resume_handle","inout"]
+		])
 
 		return dll
 	end
