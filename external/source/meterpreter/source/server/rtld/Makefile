@@ -28,12 +28,12 @@ debug: CFLAGS+=-ggdb
 debug: all
 
 %.h: $(compiled)/%.so
-	[ "$(DEBUG)" = "true" ] && strip --strip-debug $< || true
+	[ "$(DEBUG)" != "true" ] && strip --strip-debug $<
 	(export SO=$<; perl ../../../tools/so2h.pl $< $$(basename $${SO%.so}))
 
 msflinker: $(OBJ)
 	$(CC) -Wl,-script=script -Wl,--hash-style=sysv $(CFLAGS) -o msflinker $(OBJ) -lgcc
-	[ "$(DEBUG)" = "true" ] && strip $@ || true
+	[ "$(DEBUG)" != "true" ] && strip $@
 
 # elf2bin only has to run on the build machine, don't bother with CFLAGS
 msflinker.bin: msflinker elf2bin.c
