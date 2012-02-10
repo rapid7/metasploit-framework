@@ -24,9 +24,13 @@ objects = sniffer.o
 all: ext_server_sniffer.so
 
 
+debug: CFLAGS+= -ggdb
+debug: all
+
+
 ext_server_sniffer.so: $(objects)
 	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lpcap -lssl -o $@
 
-.PHONY: clean
+.PHONY: clean debug
 clean:
 	rm -f *.o *.so *~; rm -f $(objects)

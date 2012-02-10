@@ -25,6 +25,9 @@ objects+= server_setup.o remote_dispatch_common.o remote_dispatch.o netlink.o
 
 all:  libmetsrv_main.so 
 
+debug: CFLAGS+=-ggdb
+debug: all
+
 libmetsrv_main.so: $(objects)
 	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) -o $@ $(objects) -export-dynamic -lc -lcrypto -lssl -lgcc -ldl -lsupport
 

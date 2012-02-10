@@ -11,6 +11,7 @@ OBJ=msflinker.o basic_libc.o syscall.o linker_format.o dlfcn.o zlib.o metsrv_rtl
 
 compiled=../../bionic/compiled
 
+# These are all generated from their .so counterparts below
 HEADERS=libc.h       \
 	libm.h           \
 	libcrypto.h      \
@@ -22,9 +23,12 @@ HEADERS=libc.h       \
 
 all: msflinker msflinker.bin rtldtest
 
+debug: CFLAGS+=-ggdb
+debug: all
+
 %.h: $(compiled)/%.so
 	[ "$(DEBUG)" = "true" ] && strip --strip-debug $< || true
-	(export so=$<; perl ../../../tools/so2h.pl $< $$(basename $${so%.so}))
+	(export SO=$<; perl ../../../tools/so2h.pl $< $$(basename $${SO%.so}))
 
 msflinker: $(OBJ)
 	$(CC) -Wl,-script=script -Wl,--hash-style=sysv $(CFLAGS) -o msflinker $(OBJ) -lgcc
@@ -47,7 +51,7 @@ rtldtest: rtldtest.c msflinker
 	$(CC) $(CFLAGS) -c $<
 
 clean:
-	rm -f libmetsrv_main.h  libssl.h  libcrypto.h  libm.h  libc.h libsupport.h 
+	rm -f $(HEADERS)
 	rm -f *.o 
 	rm -f msflinker msflinker.bin msflinker.so
 	rm -f rtldtest elf2bin
