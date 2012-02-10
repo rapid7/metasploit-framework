@@ -23,6 +23,7 @@ HEADERS=libc.h       \
 
 all: msflinker msflinker.bin rtldtest
 
+debug: DEBUG=true
 debug: CFLAGS+=-ggdb
 debug: all
 
