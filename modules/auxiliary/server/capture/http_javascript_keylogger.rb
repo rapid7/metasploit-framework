@@ -198,7 +198,6 @@ EOS
 		@cleanup_has_run = false
 		@keystrokes_log = {} 
 		detect_http_mode
-		@raw_log = ""
 		script_source = "#{@http_mode}#{datastore['SRVHOST']}:#{datastore['SRVPORT']}/#{datastore['URIPATH']}.js"
 
 		# Prints Demo Page
