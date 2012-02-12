@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 
 		info = mssql_ping(2)
-		print_status info.inspect
+		#print_status info.inspect
 		if info and not info.empty?
 			info.each do |instance|
 				if (instance['ServerName'])
