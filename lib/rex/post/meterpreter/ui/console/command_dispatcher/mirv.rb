@@ -43,12 +43,15 @@ class Console::CommandDispatcher::Mirv
 		else
 			payload="return _VERSION"
 		end
+		if not payload.start_with? "return" then
+			payload = "return " + payload
+		end
 		#print "Sending #{payload}\n for execution by Lua"		
 				
 		
 
 		p=client.Mirv.mirv_luado(payload)
-		print p
+		print p+"\n"
 
 		return true
 	end
