@@ -18,16 +18,16 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'UNIX Gather credentials saved in .fetchmailrc files',
-				'Description'   => %q{
-					Post Module to obtain credentials saved for IMAP, POP and other mail
-					retrieval protocols in fetchmail's .fetchmailrc
-				},
-				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>' ],
-				'Platform'      => [ 'bsd', 'linux', 'osx', 'unix' ],
-				'SessionTypes'  => [ 'shell' ]
-			))
+			'Name'          => 'UNIX Gather credentials saved in .fetchmailrc files',
+			'Description'   => %q{
+				Post Module to obtain credentials saved for IMAP, POP and other mail
+				retrieval protocols in fetchmail's .fetchmailrc
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => [ 'Jon Hart <jhart[at]spoofed.org>' ],
+			'Platform'      => [ 'bsd', 'linux', 'osx', 'unix' ],
+			'SessionTypes'  => [ 'shell' ]
+		))
 	end
 
 	def run
