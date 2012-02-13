@@ -24,7 +24,6 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'           => 'VMWare Enumerate Virtual Machines',
-			'Version'        => '$Revision$',
 			'Description'    => %Q{
 							This module attempts to discover virtual machines on any VMWare instance
 							running the web interface. This would include ESX/ESXi and VMWare Server.},
@@ -55,6 +54,26 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp',
 					:update => :unique_data
 				)
+				next unless datastore['SCREENSHOT'] and vm['runtime']['powerState'] == 'poweredOn'
+				print_status "Attempting to take screenshot of #{vm['name']}...."
+				screenshot = vim_take_screenshot(vm, datastore['USERNAME'], datastore['PASSWORD'] )
+				case screenshot
+				when :error
+					print_error "Screenshot failed"
+					next
+				when :expired
+					vim_do_login(datastore['USERNAME'], datastore['PASSWORD'])
+					retry_result = vim_take_screenshot(vm, datastore['USERNAME'], datastore['PASSWORD'] )
+					if retry_result == :error or retry_result == :expired
+						print_error "Screenshot failed"
+					else
+						ss_path = store_loot("VMWare Screenshot", "image/png", datastore['RHOST'], retry_result, "#{vm['name']}_screenshot.png", "Screenshot of VM #{vm['name']}")
+						print_good "Screenshot Saved to #{ss_path}"
+					end
+				else
+					ss_path = store_loot("VMWare Screenshot", "image/png", datastore['RHOST'], screenshot, "screenshot.png", "Screenshot of VM #{vm['name']}")
+					print_good "Screenshot Saved to #{ss_path}"
+				end
 			end
 			store_loot('ESX_virtualmachines', "text/plain", datastore['RHOST'], YAML.dump(virtual_machines) , "#{datastore['RHOST']}_esx_vms.txt", "VMWare ESX Virtual Machines")
 		else
