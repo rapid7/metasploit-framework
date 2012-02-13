@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'MnageEngine ServiceDesk database/AD account disclosure',
+			'Name'           => 'ManageEngine ServiceDesk database/AD account disclosure',
 			'Description'    => %q{
 					The vulnerability is found in FileDownload.jsp script that allows
 					users to load files from remote server. The vulnerability allows
