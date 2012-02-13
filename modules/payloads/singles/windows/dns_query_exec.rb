@@ -68,7 +68,6 @@ module Metasploit3
 			# DNS_QUERY_RETURN_MESSAGE (0x200)
 			# DNS_QUERY_BYPASS_CACHE (0x08)
 			# DNS_QUERY_NO_HOSTS_FILE (0x40)
-		end
 
 		bufferreg 	= "edi"
 
