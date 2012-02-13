@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module extracts the usernames and encrypted password
 				hashes from a Postgres server and stores them for later cracking.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
 		register_options([

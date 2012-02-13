@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'NAT-PMP port mapper',
 			'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',
-			'Author'      => 'jhart@spoofed.org',
+			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
 		)
 

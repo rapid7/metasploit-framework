@@ -17,7 +17,7 @@ CFLAGS+= -fPIC -Os
 CFLAGS+= -I../../source/extensions/networkpug -lc -lpcap -lsupport -lmetsrv_main
 CFLAGS+= -I.
 
-CFLAGS+= -march=i386
+CFLAGS+= -march=i386 -m32
 
 objects = sniffer.o
 

@@ -46,6 +46,18 @@ public class PayloadPopup extends ModuleInfoWindow {
 			encoderCombo.setSelectedIndex(defaultEncoder);
 		}catch(MsfException xre){
 		}
+		//get formats
+		try{
+			Object[] formats = ((List)rpcConn.execute("module.encode_formats")).toArray();
+			int defaultFormat = 0;
+			for(int i = 0; i < formats.length; i++)
+				if(formats[i].toString().equals("exe"))
+					defaultFormat = i;
+			outputCombo.setModel(new DefaultComboBoxModel(formats));
+			outputCombo.setSelectedIndex(defaultFormat);
+		}catch(MsfException xre){
+			xre.printStackTrace();
+		}
 		mainScrollPane.getVerticalScrollBar().setUnitIncrement(40);
 	}
 

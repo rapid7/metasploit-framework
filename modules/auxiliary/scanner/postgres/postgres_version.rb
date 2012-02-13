@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Auxiliary
 			elsif result[:preauth]
 				print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
 			else # It's something we don't know yet
-				print_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}" if datastore['VERBOSE']
+				vprint_status "#{rhost}:#{rport} Postgres - Authentication Error Fingerprint: #{result[:unknown]}"
 				print_status "#{rhost}:#{rport} Postgres - Version Unknown (Pre-Auth)"
 			end
 
@@ -113,7 +113,7 @@ class Metasploit3 < Msf::Auxiliary
 			postgres_logout
 
 		rescue Rex::ConnectionError
-			print_error "#{rhost}:#{rport} Connection Error: #{$!}" if datastore['VERBOSE']
+			vprint_error "#{rhost}:#{rport} Connection Error: #{$!}"
 			return :done
 		end
 

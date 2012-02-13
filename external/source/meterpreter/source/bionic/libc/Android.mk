@@ -443,7 +443,11 @@ else # !arm
 
     # Enable recent IA friendly memory routines (such as for Atom)
     # These will not work on the earlier x86 machines
-    libc_common_cflags += -mtune=i686 -DUSE_SSSE3 -DUSE_SSE2
+    #libc_common_cflags += -mtune=i686 -DUSE_SSSE3 -DUSE_SSE2
+
+	# egypt: compile for 386 so meterpreter will have a chance of working on
+	# older processors
+    libc_common_cflags += -march=i386
   endif # x86
 endif # !arm
 

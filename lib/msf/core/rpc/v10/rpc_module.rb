@@ -149,6 +149,11 @@ class RPC_Module < RPC_Base
 
 	end
 
+	def rpc_encode_formats
+		# Supported formats
+		Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats
+	end
+
 	def rpc_encode(data, encoder, options)
 		# Load supported formats
 		supported_formats = Msf::Simple::Buffer.transform_formats + Msf::Util::EXE.to_executable_fmt_formats

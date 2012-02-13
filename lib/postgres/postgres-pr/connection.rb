@@ -171,7 +171,7 @@ class Connection
     case u.scheme
     when 'tcp'
       @conn = Rex::Socket.create(
-		  'PeerHost' => (u.host || DEFAULT_HOST),
+		  'PeerHost' => (u.host || DEFAULT_HOST).gsub(/[\[\]]/, ''),  # Strip any brackets off (IPv6)
 		  'PeerPort' => (u.port || DEFAULT_PORT),
 		  'proto' => 'tcp'
 	  )
