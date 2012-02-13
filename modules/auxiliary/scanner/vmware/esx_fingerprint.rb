@@ -11,39 +11,33 @@
 
 
 require 'msf/core'
-require 'rex/proto/ntlm/message'
+require 'msf/core/exploit/vim_soap'
 
 
 class Metasploit3 < Msf::Auxiliary
-	include Msf::Exploit::Remote::VIMSoap
+
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
+	include Msf::Exploit::Remote::VIMSoap
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
-			'Name'           => 'VMWare Web Login Scanner',
+			'Name'           => 'VMWare Screenshot Stealer',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service 
-							 for VmWare Server, ESX, and ESXI',
+			'Description'    => %Q{
+							This module accesses the web API interfaces for VMware ESX/ESXi servers
+							and attempts to identify version information for that server.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0502'] # Weak password
-				],
 			'License'        => MSF_LICENSE
 		)
 
-		register_options(
-			[
-				Opt::RPORT(443)
-			], self.class)
+		register_options([Opt::RPORT(443)], self.class)
 	end
 
-	# Mostly taken from the Apache Tomcat service validator
-	def check(ip)
-		soap_data = 
+
+	def run_host(ip)
+				soap_data = 
 			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<env:Body>
 			<RetrieveServiceContent xmlns="urn:vim25">
@@ -66,11 +60,14 @@ class Metasploit3 < Msf::Auxiliary
 				os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
 				ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
 				build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
-				full_match = res.body.match(/<name>([\w\s\.\-]+)<\/name>/)
-				if os_match and ver_match and build_match
-					report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+				full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
+				if os_match and ver_match and build_match 
+					unless os_match[1].include? "Server"
+						report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+					end
 				end
 				if full_match
+					print_good "Identified #{full_match[1]}"
 					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
 					return true
 				else
@@ -88,31 +85,6 @@ class Metasploit3 < Msf::Auxiliary
 			return false
 		end
 	end
-
-
-
-	def run_host(ip)
-		return unless check(ip)
-		each_user_pass { |user, pass|
-			result = vim_do_login(user, pass)
-			case result
-			when :success
-				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
-				report_auth_info(
-					:host   => rhost,
-					:port   => rport,
-					:user   => user,
-					:pass   => pass,
-					:source_type => "user_supplied",
-					:active => true
-				)
-				return if datastore['STOP_ON_SUCCESS']
-			when :fail
-				print_error "#{ip}:#{rport} - Login Failure (#{user}:#{pass})"
-			end
-		}
-	end
-
 
 
 
