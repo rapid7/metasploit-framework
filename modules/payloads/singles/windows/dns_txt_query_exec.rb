@@ -73,11 +73,11 @@ module Metasploit3
 		wTypeOffset	= 0x1c
 		nr_of_recs	= "%d" % datastore['PARTS']
 
-		queryoptions	= 0x24a
+		queryoptions	= 0x248
 			# DNS_QUERY_RETURN_MESSAGE (0x200)
 			# DNS_QUERY_BYPASS_CACHE (0x08)
 			# DNS_QUERY_NO_HOSTS_FILE (0x40)
-			# DNS_QUERY_ONLY_TCP (0x02)
+			# DNS_QUERY_ONLY_TCP (0x02) <- not used atm
 
 		bufferreg 	= "edi"
 
