@@ -222,7 +222,7 @@ alloc_space:
 	push 0x40		; RWX
 	mov ah,0x10
 	push eax		; MEM_COMMIT 0x1000
-	mov ah,0x20
+	mov ah,0x40
 	push eax		; dwSize
 	push 0x0		; target
 	push 0xE553A458        	; kernel32.dll!VirtualAlloc
