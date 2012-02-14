@@ -11,24 +11,29 @@
 # WARNING: You could lock out users with this resource script!
 
 <ruby>
-maxjobs = 8			#throttling if we get too much jobs
+#throttling if we get too much jobs
+maxjobs = 8
 
 wordlistpath = "#{Msf::Config.install_root}/data/wordlists"
 
 if (framework.datastore['USER_FILE'] == nil)
-	run_single("setg USER_FILE #{wordlistpath}/unix_users.txt")	# we are using the default unix wordlists
+	# we are using the default unix wordlists
+	run_single("setg USER_FILE #{wordlistpath}/unix_users.txt")
 end
 
-if (framework.datastore['PASS_FILE'] == nil)	
-	run_single("setg PASS_FILE #{wordlistpath}/unix_passwords.txt")	# we are using the default unix wordlists
+if (framework.datastore['PASS_FILE'] == nil)
+	# we are using the default unix wordlists
+	run_single("setg PASS_FILE #{wordlistpath}/unix_passwords.txt")
 end
 
 if (framework.datastore['THREADS'] == nil)
-	run_single("setg THREADS 10")		#default to 10 Threads
+	#default to 10 Threads
+	run_single("setg THREADS 10")
 end
 
-if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
-	verbose = 1 #true
+if (framework.datastore['VERBOSE'] == "true")
+	#we look in the global datastore for a global VERBOSE option and use it
+	verbose = 1
 else
 	verbose = 0
 end
@@ -37,7 +42,9 @@ def jobwaiting(maxjobs,verbose)	#thread handling for poor guys
 	while(framework.jobs.keys.length >= maxjobs)
 		::IO.select(nil, nil, nil, 2.5)
 		if(verbose == 1)
-			print_error("waiting for finishing some modules... active jobs: #{framework.jobs.keys.length} / threads: #{framework.threads.length}")
+			jobs_len    = framework.jobs.keys.length
+			threads_len = framework.threads.length
+			print_error("Waiting... active jobs: #{jobs_len} / threads: #{threads_len}")
 		end
 	end
 end
@@ -58,18 +65,18 @@ framework.db.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
 		next if (serv.state != ServiceState::Open)
-		
+
 		# for now we only brute force these services, you can add some more ...
-		next if not (serv.name =~ /smb/ or 
-		             serv.name =~ /microsoft-ds/ or 
-		             serv.name =~ /netbios-ssn/ or 
-		             serv.name =~ /ftp/ or 
-		             serv.name =~ /ssh/ or 
-		             serv.name =~ /telnet/ or 
-		             serv.name =~ /mysql/ or 
-		             serv.name =~ /vnc/ or 
-		             serv.name =~ /mssql/ or 
-		             serv.name =~ /pop3/ or 
+		next if not (serv.name =~ /smb/ or
+		             serv.name =~ /microsoft-ds/ or
+		             serv.name =~ /netbios-ssn/ or
+		             serv.name =~ /ftp/ or
+		             serv.name =~ /ssh/ or
+		             serv.name =~ /telnet/ or
+		             serv.name =~ /mysql/ or
+		             serv.name =~ /vnc/ or
+		             serv.name =~ /mssql/ or
+		             serv.name =~ /pop3/ or
 		             serv.name =~ /postgres/)
 
 		xport = serv.port.to_i
@@ -78,11 +85,11 @@ framework.db.hosts.each do |host|
 		oname = host.os_name
 		xhost = host.address
 
-		if(xname =~ /smb/ or xname =~ /microsoft-ds/ or xname =~ /netbios-ssn/) 
+		if(xname =~ /smb/ or xname =~ /microsoft-ds/ or xname =~ /netbios-ssn/)
 			if(verbose == 1)
 				infos(serv,host)
 			end
-			
+
 			print_line("smb_login")
 			run_single("use auxiliary/scanner/smb/smb_login")
 			run_single("set RHOSTS #{xhost}")
@@ -95,7 +102,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /ftp/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -124,7 +131,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /ssh/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -141,7 +148,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /telnet/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -155,10 +162,10 @@ framework.db.hosts.each do |host|
 				run_single("run -j")
 			else
 				run_single("run -j -q")
-			end		
+			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /mysql/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -175,7 +182,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /vnc/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -193,7 +200,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /mssql/ or xname =~ /ms-sql/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -211,7 +218,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /pop3/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -230,7 +237,7 @@ framework.db.hosts.each do |host|
 			end
 			run_single("back")
 			jobwaiting(maxjobs,verbose)
-			
+
 		elsif(xname =~ /postgres/)
 			if(verbose == 1)
 				infos(serv,host)
@@ -256,5 +263,3 @@ framework.db.hosts.each do |host|
 end #framework.db.hosts.each loop
 </ruby>
 jobs
-
-
