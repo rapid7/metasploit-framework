@@ -7,7 +7,8 @@
 # you could add your own post exploitation modules into them
 
 <ruby>
-if (framework.datastore['VERBOSE'] == "true")	#we look in the global datastore for a global VERBOSE option and use it
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
 	verbose = 1 #true
 else
 	verbose = 0
@@ -15,7 +16,8 @@ end
 
 meterpreter_commands = Array.new
 
-if (framework.datastore['METER_AUTO_COM'] != nil)	#we look in the global datastore for a global METER_AUTO_COM option and use it
+if (framework.datastore['METER_AUTO_COM'] != nil)
+	#we look in the global datastore for a global METER_AUTO_COM option and use it
 	meterpreter_commands = framework.datastore['METER_AUTO_COM'].split(" ")
 else
 	meterpreter_commands = [
@@ -27,7 +29,8 @@ else
 	]
 end
 
-if (framework.datastore['MOD_WIN'] != nil)	#we look in the global datastore for a global METER_AUTO_COM option and use it
+if (framework.datastore['MOD_WIN'] != nil)
+	#we look in the global datastore for a global METER_AUTO_COM option and use it
 	modules_win = framework.datastore['MOD_WIN'].split(" ")
 else
 	modules_win = [
@@ -54,7 +57,8 @@ else
 	]	# add some more modules or comment some out ...
 end
 
-if (framework.datastore['MOD_LIN'] != nil)	#we look in the global datastore for a global METER_AUTO_COM option and use it
+if (framework.datastore['MOD_LIN'] != nil)
+	#we look in the global datastore for a global METER_AUTO_COM option and use it
 	modules_lin = framework.datastore['MOD_LIN'].split(" ")
 else
 	modules_lin = [
@@ -69,7 +73,8 @@ else
 	]
 end
 
-if (framework.datastore['MOD_MULTI'] != nil)	#we look in the global datastore for a global METER_AUTO_COM option and use it
+if (framework.datastore['MOD_MULTI'] != nil)
+	#we look in the global datastore for a global METER_AUTO_COM option and use it
 	modules_multi = framework.datastore['MOD_MULTI'].split(" ")
 else
 	modules_multi = [
@@ -78,7 +83,8 @@ else
 	]
 end
 
-if (framework.sessions.length > 0)		# lets start if we have a session
+# lets start if we have a session
+if (framework.sessions.length > 0)
 	print_status("starting with post exploitation stuff")
 	framework.sessions.each_key do |sid|
 		session = framework.sessions[sid]
@@ -100,8 +106,9 @@ if (framework.sessions.length > 0)		# lets start if we have a session
 		session = framework.sessions[sid]
 		ips = session.tunnel_peer.split(":")
 		print_status("Session ID: #{sid.to_i} - IP: #{ips[0]}")
-		
-		modules_multi.each { |modul|		# multi -> all sessions
+
+		# multi -> all sessions
+		modules_multi.each { |modul|
 				run_single("use #{modul}")
 				run_single("set SESSION #{sid}")
 				if (verbose == 1)
@@ -110,7 +117,9 @@ if (framework.sessions.length > 0)		# lets start if we have a session
 					run_single("run -j -q")
 				end
 		}
-		if(session.platform =~ /win/)		# windows sessions
+
+		# windows sessions
+		if(session.platform =~ /win/)
 			modules_win.each { |modul|
 				run_single("use #{modul}")
 				run_single("set SESSION #{sid}")
@@ -120,7 +129,8 @@ if (framework.sessions.length > 0)		# lets start if we have a session
 					run_single("run -j -q")
 				end
 			}
-		else							# all other sessions -> typical some linux or unix based systems
+		else
+			# all other sessions -> typical some linux or unix based systems
 			modules_lin.each { |modul|
 				run_single("use #{modul}")
 				run_single("set SESSION #{sid}")
