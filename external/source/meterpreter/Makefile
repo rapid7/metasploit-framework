@@ -130,11 +130,13 @@ data/meterpreter/ext_server_networkpug.lso: $(workspace)/ext_server_networkpug/e
 
 clean:
 	rm -f $(objects)
+	(cd external/source/meterpreter/source/server/rtld/ && make clean)
+	(cd $(workspace) && make clean)
+
+depclean:
 	rm -f external/source/meterpreter/source/bionic/lib*/*.o
 	find external/source/meterpreter/source/bionic/ -name '*.a' -print0 | xargs -0 rm -f 2>/dev/null
 	rm -f external/source/meterpreter/source/bionic/lib*/*.so
-	(cd external/source/meterpreter/source/server/rtld/ && make clean)
-	(cd $(workspace) && make clean)
 
 clean-pcap:
 	#(cd tmp/libpcap-1.1.1/ && make clean)
@@ -146,7 +148,7 @@ clean-pcap:
 clean-ssl:
 	(cd tmp/openssl-0.9.8o/ && make clean)
 
-really-clean: clean clean-ssl clean-pcap
+really-clean: clean clean-ssl clean-pcap depclean
 
 
 .PHONY: clean clean-ssl clean-pcap really-clean debug
