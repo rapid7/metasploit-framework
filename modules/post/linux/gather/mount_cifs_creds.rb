@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Gather credentials saved for mount.cifs/mount.smbfs',
+				'Name'          => 'Linux Gather Saved mount.cifs/mount.smbfs Credentials',
 				'Description'   => %q{
 					Post Module to obtain credentials saved for mount.cifs/mount.smbfs in
 					/etc/fstab on a Linux system.
