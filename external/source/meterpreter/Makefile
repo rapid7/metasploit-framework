@@ -87,7 +87,7 @@ tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	(cd tmp/libpcap-1.1.1 && patch --dry-run -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff && patch -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff)
 	sed -i -e s/pcap-usb-linux.c//g -e s/fad-getad.c/fad-gifc.c/g tmp/libpcap-1.1.1/Makefile
 	sed -i -e s^"CC = gcc"^"CC = gcc $(PCAP_CFLAGS)"^g tmp/libpcap-1.1.1/Makefile
-	$(MAKE) -C tmp/libpcap-1.1.1
+	make -C tmp/libpcap-1.1.1
 
 
 data/meterpreter/msflinker_linux_x86.bin: external/source/meterpreter/source/server/rtld/msflinker.bin
