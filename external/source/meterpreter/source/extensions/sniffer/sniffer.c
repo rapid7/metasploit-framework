@@ -74,7 +74,7 @@ char *get_interface_name_by_index(unsigned int fidx)
 	interfaces = int_iter = NULL;
 
 	if(pcap_findalldevs(&interfaces, errbuf) == -1) {
-		dprintf("[%s] Hmm, out of memory? (errno = %d, but probably not useful)", __FUNCTION__, errno);
+		dprintf("[%s] Hmm, out of memory? (errno = %d, but probably not useful)", errno);
 		return NULL;
 	} 
 
@@ -399,7 +399,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 
 	pkt = calloc(sizeof(PeterPacket) + h->caplen, 1);
 	if(! pkt) {
-		dprintf("[%s] ho hum, no memory. maybe a pcap_breakloop / stop running?", __FUNCTION__);
+		dprintf("[%s] ho hum, no memory. maybe a pcap_breakloop / stop running?");
 		return;
 	}
 
@@ -412,7 +412,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	// could be interesting to try and find a lockless way of implementing it.
 	// though the j->idx_pkts >= j->max_pkts is annoying :p
 	
-	lock_release(snifferm);	
+	lock_acquire(snifferm);	
 
 	j->cur_pkts ++;
 	j->cur_bytes += h->caplen;	
