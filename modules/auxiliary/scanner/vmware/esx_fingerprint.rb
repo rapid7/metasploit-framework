@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'VMWare Screenshot Stealer',
+			'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
 							This module accesses the web API interfaces for VMware ESX/ESXi servers
