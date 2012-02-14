@@ -4882,19 +4882,11 @@ class DBManager
 			next unless vuln.elements['QID'] && vuln.elements['QID'].first
 			qid = vuln.elements['QID'].first.to_s
 			vuln_refs[qid] ||= []
-			if vuln.elements["CVE_ID_LIST/CVE_ID/ID"]
-				vuln.elements["CVE_ID_LIST/CVE_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^C..-[0-9\-]{9}/]
-					vuln_refs[qid] << ref.to_s.gsub(/^C../, "CVE")
-				end
+			vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
+				vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
 			end
-			if vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"]
-				vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^[0-9]{1,9}/]
-					vuln_refs[qid] << "BID-#{ref}"
-				end
+			vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
+				vuln_refs[qid].push('BID-' + ref.elements['ID'].text.to_s)
 			end
 		end
 		return vuln_refs
