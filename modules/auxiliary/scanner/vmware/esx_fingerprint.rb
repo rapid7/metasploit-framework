@@ -66,35 +66,42 @@ class Metasploit3 < Msf::Auxiliary
 		fingerprint_vmware(ip,res)
 	end
 
+	# Takes an ip address and a response, and just checks the response
+	# to pull out version info. If it's ESX, report the OS as ESX (since
+	# it's a hypervisor deal then). Otherwise, just report the service.
+	# XXX: report_service is stomping on the report_host OS. This is le suck.
 	def fingerprint_vmware(ip,res)
-		if res
-			return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
-			os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
-			ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
-			build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
-			full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
-			this_host = nil
-			if os_match and ver_match and build_match and full_match 
-				if os_match[1] =~ /ESX/
-					this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
-				end
-			end
-			if full_match
-				framework.db.sync if this_host
-				print_good "Identified #{full_match[1]}"
-				report_service(:host => ip, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
-				return true
-			else
-				vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
-				return false
-			end
-		else
+		unless res
 			vprint_error("http://#{ip}:#{rport} - No response")
+			return false
+		end
+		return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
+		os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
+		ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
+		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
+		full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
+		this_host = nil
+		if os_match and ver_match and build_match
+			if os_match[1] =~ /ESX/
+				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+				print_debug this_host.inspect
+			end
+		end
+		if full_match
+			print_good "Identified #{full_match[1]}"
+			report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
+			print_debug this_host if this_host
+			return true
+		else
+			vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
+			return false
 		end
 
 	end
 
-
+	def cleanup()
+		print_debug framework.db.hosts.inspect
+	end
 
 end
 
