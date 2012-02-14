@@ -98,6 +98,15 @@ def check_single_file(dparts, fparts, f_rel)
 		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
 	end
 
+	# If a function has more than 6 arguments, it should use a hash instead
+	functions = content.scan(/def (\w+)\(*(.+)\)*/)
+	functions.each do |func_name, args|
+		args_length = args.split(",").length
+		if args_length > 6
+			show_missing(f, "WARNING: Poorly designed argument list in '#{func_name}'. Try a hash.", false)
+		end
+	end
+
 	# check criteria based on individual lines
 	spaces = 0
 	bi = []
