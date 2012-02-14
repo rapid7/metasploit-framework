@@ -46,8 +46,6 @@ class Metasploit3 < Msf::Auxiliary
 			</env:Body>
 			</env:Envelope>|
 		datastore['URI'] ||= "/sdk"
-		user = Rex::Text.rand_text_alpha(8)
-		pass = Rex::Text.rand_text_alpha(8)
 		res = nil
 		begin
 			res = send_request_cgi({
@@ -81,26 +79,20 @@ class Metasploit3 < Msf::Auxiliary
 		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
 		full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
 		this_host = nil
-		if os_match and ver_match and build_match
-			if os_match[1] =~ /ESX/
-				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
-				print_debug this_host.inspect
-			end
-		end
 		if full_match
 			print_good "Identified #{full_match[1]}"
 			report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
-			print_debug this_host if this_host
+		end
+		if os_match and ver_match and build_match
+			if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
+				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+			end
 			return true
 		else
 			vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
 			return false
 		end
 
-	end
-
-	def cleanup()
-		print_debug framework.db.hosts.inspect
 	end
 
 end
