@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'UNIX Gather credentials saved in .fetchmailrc files',
+			'Name'          => 'UNIX Gather .fetchmailrc Credentials',
 			'Description'   => %q{
 				Post Module to obtain credentials saved for IMAP, POP and other mail
 				retrieval protocols in fetchmail's .fetchmailrc

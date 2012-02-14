@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'UNIX Gather credentials saved in .netrc files',
+				'Name'          => 'UNIX Gather .netrc Credentials',
 				'Description'   => %q{
 					Post Module to obtain credentials saved for FTP and other services in .netrc
 				},
