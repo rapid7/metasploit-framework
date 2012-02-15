@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
-			Shellwords.split(datastore['KEY']).each do |key|
+			Shellwords.split(datastore['KEYS']).each do |key|
 				result = vim_terminate_session(key)
 				case result
 				when :notfound
