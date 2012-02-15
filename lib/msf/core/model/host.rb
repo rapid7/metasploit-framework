@@ -728,7 +728,9 @@ class Host < ActiveRecord::Base
 			best_match[:os_flavor] = best_match[:os_flavor].gsub(best_match[:os_name], '')
 		end
 
-		best_match[:os_name] ||= 'Unknown'
+		# If we didn't get anything, use whatever the host already has.
+		# Failing that, fallback to "Unknown"
+		best_match[:os_name] ||= host[:os_name] || 'Unknown'
 		best_match[:purpose] ||= 'device'
 
 		[:os_name, :purpose, :os_flavor, :os_sp, :arch, :name, :os_lang].each do |host_attr|
