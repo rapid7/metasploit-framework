@@ -52,8 +52,6 @@ class Metasploit3 < Msf::Auxiliary
 			</env:Body>
 			</env:Envelope>|
 		datastore['URI'] ||= "/sdk"
-		user = Rex::Text.rand_text_alpha(8)
-		pass = Rex::Text.rand_text_alpha(8)
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URI'],
@@ -62,31 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 				'data' =>  soap_data
 			}, 25)
 			if res
-				return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
-				os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
-				ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
-				build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
-				full_match = res.body.match(/<name>([\w\s\.\-]+)<\/name>/)
-				if os_match and ver_match and build_match
-					report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
-				end
-				if full_match
-					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
-					return true
-				else
-					vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
-					return false
-				end
+				fingerprint_vmware(ip,res)
 			else
 				vprint_error("http://#{ip}:#{rport} - No response")
 			end
-		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
-			return false
-		rescue
-			vprint_error("Skipping #{ip} due to error - #{e}")
-			return false
-		end
+
 	end
 
 
@@ -113,7 +91,32 @@ class Metasploit3 < Msf::Auxiliary
 		}
 	end
 
+	def fingerprint_vmware(ip,res)
+		unless res
+			vprint_error("http://#{ip}:#{rport} - No response")
+			return false
+		end
+		return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
+		os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
+		ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
+		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
+		full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
+		this_host = nil
+		if full_match
+			print_good "Identified #{full_match[1]}"
+			report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
+		end
+		if os_match and ver_match and build_match
+			if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
+				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+			end
+			return true
+		else
+			vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
+			return false
+		end
 
+	end
 
 
 end
