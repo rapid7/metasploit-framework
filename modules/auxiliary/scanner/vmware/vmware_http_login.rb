@@ -64,7 +64,13 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				vprint_error("http://#{ip}:#{rport} - No response")
 			end
-
+		rescue ::Rex::ConnectionError => e
+			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
+			return false
+		rescue
+			vprint_error("Skipping #{ip} due to error - #{e}")
+			return false
+		end
 	end
 
 
