@@ -336,14 +336,14 @@ get_filename_return:
 download_prep:
 	xchg eax, ebx          	; place the file handle in ebx
 	xor eax,eax		; zero eax
-	mov ax,0x104		; we'll download 0x100 bytes at a time
+	mov ax,0x304		; we'll download 0x300 bytes at a time
 	sub esp,eax		; reserve space on stack
 
 download_more:
 	push esp               	; &bytesRead
 	lea ecx,[esp+0x8]	; target buffer
 	xor eax,eax
-	mov ah,0x01		; eax => 100
+	mov ah,0x03		; eax => 300
 	push eax              	; read length
 	push ecx		; target buffer on stack
 	push esi               	; hRequest
