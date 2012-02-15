@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare Terminate ESX Login Sessions',
 			'Description'    => %Q{
 							This module will log into the Web API of VMWare and try to terminate
-							a user's login session as specified by the session key.},
+							user login sessions as specified by the session keys.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -35,21 +35,23 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(443),
 				OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
-				OptString.new('KEY', [true, "The session key to terminate"])
+				OptString.new('KEYS', [true, "The session key to terminate"])
 			], self.class)
 	end
 
 	def run
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
-			result = vim_terminate_session(datastore['KEY'])
-			case result
-			when :notfound
-				print_error "The specified Session was not found. Check your key"
-			when :success
-				print_good "The supplied session was terminated successfully."
-			when :error
-				print_error "There was an error encountered."
+			Shellwords.split(datastore['KEY']).each do |key|
+				result = vim_terminate_session(key)
+				case result
+				when :notfound
+					print_error "The specified Session was not found. Check your key: #{key}"
+				when :success
+					print_good "The supplied session was terminated successfully: #{key}"
+				when :error
+					print_error "There was an error encountered terminating: #{key}"
+				end
 			end
 		else
 			print_error "Login Failure on #{ip}"
