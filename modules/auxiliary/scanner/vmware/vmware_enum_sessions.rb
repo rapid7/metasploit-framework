@@ -58,6 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 				output = ''
 				vim_sessions.each do |vsession| 
 					tmp_line = "Name: #{vsession['fullName']} \n\t"
+					tmp_line << "Active: #{vim_session_is_active(vsession['key'],vsession['userName'])} \n\t"
 					tmp_line << "Username: #{vsession['userName']}\n\t"
 					tmp_line << "Session Key: #{vsession['key']}\n\t"
 					tmp_line << "Locale: #{vsession['locale']}\n\t"
