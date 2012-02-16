@@ -159,11 +159,16 @@ class Metasploit3 < Msf::Post
 			end
 			creds.each do |cred|
 				cred.each do |loot|
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => loot['host'],
 						:port => loot['port'],
 						:sname => 'FTP',
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => loot['user'],
 						:pass => loot['password'])

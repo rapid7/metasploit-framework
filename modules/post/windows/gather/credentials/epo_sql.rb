@@ -142,13 +142,18 @@ class Metasploit3 < Msf::Post
 
 		if (db_ip)
 			# submit to reports
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 				:host => db_ip,
 				:port => port,
 				:sname => 'mssql',
 				:user => full_user,
 				:pass => plaintext_passwd,
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:active => true
 			)

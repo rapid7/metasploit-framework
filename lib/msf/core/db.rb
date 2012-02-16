@@ -1475,6 +1475,7 @@ class DBManager
 	#
 	# opts can contain
 	# +:options+:: a hash of options for accessing this particular web site
+	# +:info+:: if present, report the service with this info
 	#
 	# Duplicate records for a given host, port, vhost combination will be overwritten
 	#
@@ -1487,6 +1488,7 @@ class DBManager
 		port = nil
 		name = nil
 		serv = nil
+		info = nil
 
 		if opts[:service] and opts[:service].kind_of?(Service)
 			serv = opts[:service]
@@ -1494,6 +1496,7 @@ class DBManager
 			addr = opts[:host]
 			port = opts[:port]
 			name = opts[:ssl] ? 'https' : 'http'
+			info = opts[:info]
 			if not (addr and port)
 				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
 			end
@@ -1528,8 +1531,12 @@ class DBManager
 		if opts.keys.include?(:ssl) or serv.name.to_s.empty?
 			name = opts[:ssl] ? 'https' : 'http'
 			serv.name = name
-			serv.save!
 		end
+		# Add the info if it's there.
+		unless info.to_s.empty?
+			serv.info = info
+		end
+		serv.save! if serv.changed?
 =begin
 		host.updated_at = host.created_at
 		host.state      = HostState::Alive
@@ -4875,19 +4882,11 @@ class DBManager
 			next unless vuln.elements['QID'] && vuln.elements['QID'].first
 			qid = vuln.elements['QID'].first.to_s
 			vuln_refs[qid] ||= []
-			if vuln.elements["CVE_ID_LIST/CVE_ID/ID"]
-				vuln.elements["CVE_ID_LIST/CVE_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^C..-[0-9\-]{9}/]
-					vuln_refs[qid] << ref.to_s.gsub(/^C../, "CVE")
-				end
+			vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
+				vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
 			end
-			if vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"]
-				vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^[0-9]{1,9}/]
-					vuln_refs[qid] << "BID-#{ref}"
-				end
+			vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
+				vuln_refs[qid].push('BID-' + ref.elements['ID'].text.to_s)
 			end
 		end
 		return vuln_refs
