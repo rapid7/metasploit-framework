@@ -22,10 +22,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'VMWare Terminate ESX Login Sessions',
+			'Name'           => 'VMWare Tag Virtual Machine',
 			'Description'    => %Q{
-							This module will log into the Web API of VMWare and try to terminate
-							user login sessions as specified by the session keys.},
+							This module will log into the Web API of VMWare and 
+							'tag' a specified Virtual Machine. It does this by 
+							logging a user event with user supplied text},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -35,29 +36,36 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(443),
 				OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
-				OptString.new('KEYS', [true, "The session key to terminate"])
+				OptString.new('VM', [true, "The VM to try to Power On"]),
+				OptString.new('MSG', [true, "The message to put in the log", 'Pwned by Metasploit'])
 			], self.class)
 	end
 
 	def run
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
-			Shellwords.split(datastore['KEYS']).each do |key|
-				result = vim_terminate_session(key)
+			vm_ref = vim_find_vm_by_name(datastore['VM'])
+			if vm_ref 
+				result = vim_log_event_vm(vm_ref, datastore['MSG'])
 				case result
-				when :notfound
-					print_error "The specified Session was not found. Check your key: #{key}"
-				when :success
-					print_good "The supplied session was terminated successfully: #{key}"
+				when :noresponse
+					print_error "Recieved no Response"
+				when :expired
+					print_error "The login session appears to have expired"
 				when :error
-					print_error "There was an error encountered terminating: #{key}"
+					print_error "An error occured"
+				else
+					print_good "User Event logged"
 				end
+			else
+				print_error "Could not locate VM #{datastore['VM']}"
 			end
 		else
 			print_error "Login Failure on #{datastore['RHOST']}"
 			return
 		end
 	end
+
 
 
 

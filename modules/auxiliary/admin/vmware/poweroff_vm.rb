@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error "Could not locate VM #{datastore['VM']}"
 			end
 		else
-			print_error "Login Failure on #{ip}"
+			print_error "Login Failure on #{datastore['RHOST']}"
 			return
 		end
 	end
