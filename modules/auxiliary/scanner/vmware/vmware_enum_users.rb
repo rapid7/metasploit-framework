@@ -76,9 +76,9 @@ class Metasploit3 < Msf::Auxiliary
 						end
 					end
 					print_good tmp_groups.to_s
-					store_loot('VMware Groups', "text/plain", datastore['RHOST'], tmp_groups.to_csv , "#{datastore['RHOST']}_esx_groups.txt", "VMWare ESX User Groups")
+					store_loot('host.vmware.groups', "text/plain", datastore['RHOST'], tmp_groups.to_csv , "#{datastore['RHOST']}_esx_groups.txt", "VMWare ESX User Groups")
 					print_good tmp_users.to_s
-					store_loot('VMware Users', "text/plain", datastore['RHOST'], tmp_users.to_csv , "#{datastore['RHOST']}_esx_users.txt", "VMWare ESX Users")
+					store_loot('host.vmware.users', "text/plain", datastore['RHOST'], tmp_users.to_csv , "#{datastore['RHOST']}_esx_users.txt", "VMWare ESX Users")
 				end
 			end
 
@@ -125,9 +125,9 @@ class Metasploit3 < Msf::Auxiliary
 							end
 						end
 						print_good tmp_dgroups.to_s
-						store_loot('VMware Domain Groups', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_groups.txt", "VMWare ESX #{domain} Domain User Groups")
+						store_loot('domain.groups', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_groups.txt", "VMWare ESX #{domain} Domain User Groups")
 						print_good tmp_dusers.to_s
-						store_loot('VMware Domain Users', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_users.txt", "VMWare ESX #{domain} Domain Users")
+						store_loot('domain.users', "text/plain", datastore['RHOST'], tmp_dgroups.to_csv , "#{domain}_esx_users.txt", "VMWare ESX #{domain} Domain Users")
 					end
 				end
 			end

@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 			@vim_cookie = res.headers['Set-Cookie']
 			if res.code == 200
 				img = res.body
-				ss_path = store_loot("VMWare Screenshot", "image/png", datastore['RHOST'], img, name , "Screenshot of VM #{name}")
+				ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], img, name , "Screenshot of VM #{name}")
 				print_status "Screenshot saved to #{ss_path}"
 			else
 				print_error "Failed to retrieve screenshot at #{path} HTTP Response code #{res.code} "

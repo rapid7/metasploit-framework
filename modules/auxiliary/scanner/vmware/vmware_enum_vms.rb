@@ -67,15 +67,15 @@ class Metasploit3 < Msf::Auxiliary
 					if retry_result == :error or retry_result == :expired
 						print_error "Screenshot failed"
 					else
-						ss_path = store_loot("VMWare Screenshot", "image/png", datastore['RHOST'], retry_result, "#{vm['name']}_screenshot.png", "Screenshot of VM #{vm['name']}")
+						ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], retry_result, "#{vm['name']}_screenshot.png", "Screenshot of VM #{vm['name']}")
 						print_good "Screenshot Saved to #{ss_path}"
 					end
 				else
-					ss_path = store_loot("VMWare Screenshot", "image/png", datastore['RHOST'], screenshot, "screenshot.png", "Screenshot of VM #{vm['name']}")
+					ss_path = store_loot("host.vmware.screenshot", "image/png", datastore['RHOST'], screenshot, "screenshot.png", "Screenshot of VM #{vm['name']}")
 					print_good "Screenshot Saved to #{ss_path}"
 				end
 			end
-			store_loot('ESX_virtualmachines', "text/plain", datastore['RHOST'], YAML.dump(virtual_machines) , "#{datastore['RHOST']}_esx_vms.txt", "VMWare ESX Virtual Machines")
+			store_loot('host.vmware.vms', "text/plain", datastore['RHOST'], YAML.dump(virtual_machines) , "#{datastore['RHOST']}_esx_vms.txt", "VMWare ESX Virtual Machines")
 		else
 			print_error "Login Failure on #{ip}"
 			return
