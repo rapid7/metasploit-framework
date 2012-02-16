@@ -1,5 +1,6 @@
 #include "precomp.h"
 #include "fs.h"
+#include <sys/stat.h>
 
 /*
  * Returns an expanded file path that must be freed
