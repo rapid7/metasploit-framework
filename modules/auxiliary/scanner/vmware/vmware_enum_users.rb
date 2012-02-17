@@ -29,10 +29,6 @@ class Metasploit3 < Msf::Auxiliary
 							all the user accounts. If the VMware instance is connected to one or
 							more domains, it will try to enumerate domain users as well.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0502'] # Weak password
-				],
 			'License'        => MSF_LICENSE
 		)
 
