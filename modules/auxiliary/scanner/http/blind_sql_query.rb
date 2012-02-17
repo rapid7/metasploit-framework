@@ -48,6 +48,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
+		# Force http verb to be upper-case, because otherwise some web servers such as
+		# Apache might throw you a 501
+		http_method = datastore['METHOD'].upcase
+
 		gvars = nil
 		pvars = nil
 		cvars = nil
@@ -101,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			normalres = send_request_cgi({
 				'uri'  		=> datastore['PATH'],
 				'vars_get' 	=> gvars,
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'cookie'    => datastore['COOKIE'],
 				'data'      => datastore['DATA']
@@ -145,7 +149,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => datastore['DATA']
@@ -175,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => datastore['DATA']
@@ -242,7 +246,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => pvarstr
@@ -280,7 +284,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => pvarstr
