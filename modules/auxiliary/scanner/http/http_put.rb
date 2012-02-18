@@ -179,7 +179,7 @@ class Metasploit4 < Msf::Auxiliary
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
-					:sname        => (ssl ? "https" : "http"),
+					:sname => (ssl ? 'https' : 'http'),
 					:name         => self.fullname,
 					:info         => "DELETE ENABLED",
 					:refs         => self.references,

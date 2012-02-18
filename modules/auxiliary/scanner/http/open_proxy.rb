@@ -214,7 +214,7 @@ class Metasploit3 < Msf::Auxiliary
 				:port   => target_port,
 				:method => 'GET',
 				:proto => 'tcp',
-				:sname	=> 'HTTP',
+				:sname => (ssl ? 'https' : 'http'),
 				:type  	=> 'OPEN PROXY',
 				:data   => 'Open proxy'
 			)
