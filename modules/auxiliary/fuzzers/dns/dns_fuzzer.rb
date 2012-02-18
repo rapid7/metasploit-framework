@@ -27,30 +27,31 @@ class Metasploit3 < Msf::Auxiliary
 		'Author'         => [ 'pello <fropert[at]packetfault.org>' ],
 		'License'        => MSF_LICENSE
 		)
+
 		register_options([
-										Opt::RPORT(53),
-										OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize.",0]),
-										OptInt.new('ENDSIZE', [ false, "Max Fuzzing string size. (L2 Frame size)",500]),
-										OptInt.new('STEPSIZE', [ false, "Increment fuzzing string each attempt.",100]),
-										OptInt.new('ERRORHDR', [ false, "Introduces byte error in the DNS header.", 0]),
-										OptBool.new('CYCLIC', [ false, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
-										OptInt.new("ITERATIONS", [true, "Number of iterations to run by test case", 5]),
-										OptString.new('DOMAIN', [ false, "Force DNS zone domain name."]),
-										OptString.new('IMPORTENUM', [ false, "Import dns_enum database output and automatically use existing RR."]),
-										OptString.new('METHOD', [ false, "Underlayer protocole to use (UDP, TCP or AUTO).", "UDP"]),
-										OptBool.new('DNSSEC', [ false, "Add DNSsec to each question (UDP payload size, EDNS0, ...)",false]),
-										OptBool.new('TRAILINGNUL', [ false, "NUL byte terminate DNS names",true]),
-										OptBool.new('RAWPADDING', [ false, "Generate totally random data from STARTSIZE to ENDSIZE",false]),
-										OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz. Leave empty to fuzz all fields.",'' ]),
-										# OPCODE accepted values: QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE
-										OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz. Leave empty to fuzz all fields.",'' ]),
-										# CLASS accepted values: IN,CH,HS,NONE,ANY
-										OptString.new('RR', [ false, "Comma separated list of requests to fuzz. Leave empty to fuzz all fields.",'' ])
-										# RR accepted values: A,CNAME,MX,PTR,TXT,AAAA,HINFO,SOA,NS,WKS,RRSIG,DNSKEY,DS,NSEC,NSEC3,NSEC3PARAM
-										# RR accepted values: AFSDB,ISDN,RP,RT,X25,PX,SRV,NAPTR,MD,MF,MB,MG,MR,NULL,MINFO,NSAP,NSAP-PTR,SIG
-										# RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
-										# RR accepted values: DHCID,HIP,NINFO,RKEY,TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,IXFR,AXFR,MAILB
-										# RR accepted values: MAIL,*,TA,DLV,RESERVED
+			Opt::RPORT(53),
+			OptInt.new('STARTSIZE', [ false, "Fuzzing string startsize.",0]),
+			OptInt.new('ENDSIZE', [ false, "Max Fuzzing string size. (L2 Frame size)",500]),
+			OptInt.new('STEPSIZE', [ false, "Increment fuzzing string each attempt.",100]),
+			OptInt.new('ERRORHDR', [ false, "Introduces byte error in the DNS header.", 0]),
+			OptBool.new('CYCLIC', [ false, "Use Cyclic pattern instead of A's (fuzzing payload).",true]),
+			OptInt.new("ITERATIONS", [true, "Number of iterations to run by test case", 5]),
+			OptString.new('DOMAIN', [ false, "Force DNS zone domain name."]),
+			OptString.new('IMPORTENUM', [ false, "Import dns_enum database output and automatically use existing RR."]),
+			OptString.new('METHOD', [ false, "Underlayer protocole to use (UDP, TCP or AUTO).", "UDP"]),
+			OptBool.new('DNSSEC', [ false, "Add DNSsec to each question (UDP payload size, EDNS0, ...)",false]),
+			OptBool.new('TRAILINGNUL', [ false, "NUL byte terminate DNS names",true]),
+			OptBool.new('RAWPADDING', [ false, "Generate totally random data from STARTSIZE to ENDSIZE",false]),
+			OptString.new('OPCODE', [ false, "Comma separated list of opcodes to fuzz. Leave empty to fuzz all fields.",'' ]),
+			# OPCODE accepted values: QUERY,IQUERY,STATUS,UNASSIGNED,NOTIFY,UPDATE
+			OptString.new('CLASS', [ false, "Comma separated list of classes to fuzz. Leave empty to fuzz all fields.",'' ]),
+			# CLASS accepted values: IN,CH,HS,NONE,ANY
+			OptString.new('RR', [ false, "Comma separated list of requests to fuzz. Leave empty to fuzz all fields.",'' ])
+			# RR accepted values: A,CNAME,MX,PTR,TXT,AAAA,HINFO,SOA,NS,WKS,RRSIG,DNSKEY,DS,NSEC,NSEC3,NSEC3PARAM
+			# RR accepted values: AFSDB,ISDN,RP,RT,X25,PX,SRV,NAPTR,MD,MF,MB,MG,MR,NULL,MINFO,NSAP,NSAP-PTR,SIG
+			# RR accepted values: KEY,GPOS,LOC,NXT,EID,NIMLOC,ATMA,KX,CERT,A6,DNAME,SINK,OPT,APL,SSHFP,IPSECKEY
+			# RR accepted values: DHCID,HIP,NINFO,RKEY,TALINK,SPF,UINFO,UID,GID,UNSPEC,TKEY,TSIG,IXFR,AXFR,MAILB
+			# RR accepted values: MAIL,*,TA,DLV,RESERVED
 		], self.class)
 	end
 
