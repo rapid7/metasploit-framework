@@ -340,7 +340,10 @@ class Plugin::Wmap < Msf::Plugin
 			eprofile = []
 			using_p = false
 			using_m = false
+			usinginipath = false
+			
 			mname = ''
+			inipathname = '/'
 
 			args.push("-h") if args.length == 0
 
@@ -383,12 +386,22 @@ class Plugin::Wmap < Msf::Plugin
 						print_status("Using module #{mname}.")
 					end
 					using_m = true
+				when '-p'
+					mode |= wmap_expl
+
+					inipathname = args.shift
+
+					if inipathname
+						print_status("Using initial path #{inipathname}.")
+					end
+					usinginipath = true	
 
 				when '-h'
 					print_status("Usage: wmap_run [options]")
 					print_line("\t-h                        Display this help text")
 					print_line("\t-t                        Show all enabled modules")
 					print_line("\t-m [regex]                Launch only modules that name match provided regex.")
+					print_line("\t-p [regex]                Only test path defined by regex.")
 					print_line("\t-e [/path/to/profile]     Launch profile modules against all matched targets.")
 					print_line("\t                          (No profile file runs all enabled modules.)")
 					print_line("")
@@ -457,7 +470,7 @@ class Plugin::Wmap < Msf::Plugin
 
 				# OPTIONS
 				opt_str = nil
-				jobify  = true
+				jobify  = false
 				
 				# This will be clean later
 				load_wmap_modules(false)
@@ -521,7 +534,7 @@ class Plugin::Wmap < Msf::Plugin
 					end
 					
 					# Module not part of profile or not match 
-					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p)	
+					if ( using_p and eprofile.include? xref[0].split('/').last ) or (using_m and xref[0].to_s.match(mname)) or (not using_m and not using_p) 	
 						idx += 1
 
 						begin
@@ -748,31 +761,35 @@ class Plugin::Wmap < Msf::Plugin
 											end
 
 											if not strpath.match(excludefilestr)
+												if (not usinginipath) or (usinginipath and strpath.match(inipathname)) 
+													modopts['PATH'] = strpath
+													print_status("Path: #{strpath}")
+
+													begin
+														if execmod
+															rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
+														end
+													rescue ::Exception
+														print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+													end	
+												end
+											end
+										end
+									when :wmap_dir
+										if not node.is_leaf? or node.is_root?
+											if (not usinginipath) or (usinginipath and strpath.match(inipathname)) 		
+										
 												modopts['PATH'] = strpath
 												print_status("Path: #{strpath}")
 
 												begin
 													if execmod
-														rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
+														rpcnode = rpc_round_exec(xref[0],xref[1], modopts, njobs)
 													end
 												rescue ::Exception
 													print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-												end	
-										
-											end
-										end
-									when :wmap_dir
-										if not node.is_leaf? or node.is_root?
-											modopts['PATH'] = strpath
-											print_status("Path: #{strpath}")
-
-											begin
-												if execmod
-													rpcnode = rpc_round_exec(xref[0],xref[1], modopts, njobs)
 												end
-											rescue ::Exception
-												print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-											end	
+											end
 										end
 									end
 								end
@@ -873,8 +890,9 @@ class Plugin::Wmap < Msf::Plugin
 													#TODO add value based on param name
 													pv = "aaa"
 												end
-							
-												temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
+												
+												#temparr << pn.to_s + "=" + Rex::Text.uri_encode(pv.to_s)
+												temparr << pn.to_s + "=" + pv.to_s
 											end
 										else
 											print_error("Blank parameter name. Form #{form.path}")	
@@ -900,22 +918,23 @@ class Plugin::Wmap < Msf::Plugin
 										#
 										# TODO: Add headers, etc.
 										#
-
-										print_status "Path #{form.path}"
-										#print_status("Unique PATH #{modopts['PATH']}")
-										#print_status("Unique GET #{modopts['QUERY']}")
-										#print_status("Unique POST #{modopts['DATA']}")
-										#print_status("Unique TYPES #{typestr}")
-
-										begin
-											if execmod
-												rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
-											end	
-											utest_query[signature(form.path,datastr)]=1
-										rescue ::Exception
-											print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
-										end
+										if (not usinginipath) or (usinginipath and form.path.match(inipathname)) 
 										
+											print_status "Path #{form.path}"
+											#print_status("Unique PATH #{modopts['PATH']}")
+											#print_status("Unique GET #{modopts['QUERY']}")
+											#print_status("Unique POST #{modopts['DATA']}")
+											#print_status("MODOPTS: #{modopts}")
+
+											begin
+												if execmod
+													rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
+												end	
+												utest_query[signature(form.path,datastr)]=1
+											rescue ::Exception
+												print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
+											end
+										end
 									else
 										#print_status("Already tested")
 									end
@@ -1011,7 +1030,8 @@ class Plugin::Wmap < Msf::Plugin
 													#TODO add value based on param name
 													pv = "aaa"
 												end
-												temparr << Rex::Text.uri_encode(pn.to_s) + "=" + Rex::Text.uri_encode(pv.to_s)
+												#temparr << pn.to_s + "=" + Rex::Text.uri_encode(pv.to_s)
+												temparr << pn.to_s + "=" + pv.to_s
 											end
 										else
 											print_error("Blank parameter name. Form #{req.path}")	
@@ -1032,19 +1052,21 @@ class Plugin::Wmap < Msf::Plugin
 									#
 									# TODO: Add method, headers, etc.
 									#
+									if (not usinginipath) or (usinginipath and req.path.match(inipathname)) 
+									
+										print_status "Path #{req.path}"
+										#print_status("Query PATH #{modopts['PATH']}")
+										#print_status("Query GET #{modopts['QUERY']}")
+										#print_status("Query POST #{modopts['DATA']}")
+										#print_status("Query TYPES #{typestr}")
 
-									print_status "Path #{req.path}"
-									#print_status("Query PATH #{modopts['PATH']}")
-									#print_status("Query GET #{modopts['QUERY']}")
-									#print_status("Query POST #{modopts['DATA']}")
-									#print_status("Query TYPES #{typestr}")
-
-									begin
-										if execmod
-											rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
+										begin
+											if execmod
+												rpcnode = rpc_round_exec(xref[0],xref[1], modopts, self.njobs)
+											end
+										rescue ::Exception
+											print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
 										end
-									rescue ::Exception
-										print_status(" >> Exception during launch from #{xref[0]}: #{$!}")
 									end	
 								end
 							end
@@ -1650,6 +1672,8 @@ class Plugin::Wmap < Msf::Plugin
 						'RunAsJob' => jobify,
 						'Options'  => opts
 					})
+				else
+					print_error("Wrong mtype.")
 			end
 			
 			if sess
@@ -2154,11 +2178,11 @@ class Plugin::Wmap < Msf::Plugin
 
 		color = true
 		
-		wmapversion = '1.5'
+		wmapversion = '1.5.1'
 		
-		wmapbanner =  "%blu\n.-.-.-..-.-.-..---..---.%clr\n"
-		wmapbanner += "%blu| | | || | | || | || |-'%clr\n"
-		wmapbanner += "%blu`-----'`-'-'-'`-^-'`-'%clr\n" 
+		wmapbanner =  "%red\n.-.-.-..-.-.-..---..---.%clr\n"
+		wmapbanner += "%red| | | || | | || | || |-'%clr\n"
+		wmapbanner += "%red`-----'`-'-'-'`-^-'`-'%clr\n" 
 		wmapbanner += "[WMAP #{wmapversion}] ===  et [  ] metasploit.com 2012\n"
 		
 		if not @stdio
