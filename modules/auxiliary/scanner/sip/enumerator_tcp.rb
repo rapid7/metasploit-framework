@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptInt.new('MINEXT',   [true, 'Starting extension',0]),
 			OptInt.new('MAXEXT',   [true, 'Ending extension', 9999]),
 			OptInt.new('PADLEN',   [true, 'Cero padding maximum length', 4]),
-			OptString.new('METHOD', [true, 'Enumeration method to use OPTIONS/REGISTER','REGISTER']),
+			OptEnum.new('METHOD',  [true, 'Enumeration method', 'REGISTER', ['OPTIONS', 'REGISTER']]),
 			Opt::RPORT(5060)
 		], self.class)
 	end
