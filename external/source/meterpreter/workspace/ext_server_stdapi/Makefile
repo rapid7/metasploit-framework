@@ -8,11 +8,11 @@ CFLAGS=-fno-stack-protector -nostdinc -nostdlib -fPIC -DPIC -Wall
 CFLAGS+=-D_UNIX -D__linux__
 CFLAGS+=-I${COMMON} -I${SERVER} -I${OPENSSL}
 CFLAGS+= -I ../../source/bionic/libc/include -I ../../source/bionic/libc/kernel/common/linux/ -I ../../source/bionic/libc/kernel/common/ -I ../../source/bionic/libc/arch-x86/include/
-CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/ -I../../source/libpcap
+CFLAGS+= -I ../../source/bionic/libc/kernel/arch-x86/
 CFLAGS+= -Dwchar_t="char" -fno-builtin -D_SIZE_T_DECLARED -DElf_Size="u_int32_t"
 CFLAGS+= -D_BYTE_ORDER=_LITTLE_ENDIAN
 CFLAGS+= -lgcc -L../../source/bionic/compiled
-CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport -lmetsrv_main -lpcap
+CFLAGS+= -I../../source/extensions/stdapi/server -lc -lsupport -lmetsrv_main
 
 CFLAGS+= -march=i386 -m32 -Os
 
@@ -53,10 +53,11 @@ debug: CFLAGS+=-ggdb
 debug: all
 
 ext_server_stdapi.so: output_dirs $(objects)
-	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lpcap -lcrypto -o $@
+	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lcrypto -o $@
 
 
 .PHONY: clean debug output_dirs
 clean:
-	rm -f *.o *.so *~; rm -f $(objects)
+	rm -f *.o *.so *~
+	rm -f $(objects) ext_server_stdapi.so
 
