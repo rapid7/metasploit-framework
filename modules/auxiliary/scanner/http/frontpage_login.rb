@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: frontpage_login.rb 12623 2011-05-15 22:19:00Z todb $
 ##
 
 ##
@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'FrontPage Server Extensions Login Utility',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 12623 $',
 			'Description' => 'This module queries the FrontPage Server Extensions and determines whether anonymous access is allowed.',
 			'References'  =>
 				[

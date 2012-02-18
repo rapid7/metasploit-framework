@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: tomcat_administration.rb 13394 2011-07-28 22:57:47Z egypt $
 ##
 
 ##
@@ -14,13 +14,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'Tomcat Administration Tool Default Access',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 13394 $',
 			'Description' => 'Detect the Tomcat administration interface.',
 			'References'  =>
 				[

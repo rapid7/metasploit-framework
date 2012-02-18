@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: dir_webdav_unicode_bypass.rb 14034 2011-10-23 11:56:13Z jduck $
 ##
 
 ##
@@ -16,7 +16,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '54555' ],
 					[ 'BID', '34993' ],
 				],
-			'Version'		=> '$Revision$'))
+			'Version'		=> '$Revision: 14034 $'))
 
 		register_options(
 			[

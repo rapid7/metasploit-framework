@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: cert.rb 11796 2011-02-22 20:49:44Z jduck $
 ##
 
 ##
@@ -14,14 +14,14 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanSSL
+	include Msf::Auxiliary::WmapScanSSL
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate Checker',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 11796 $',
 			'Author'      => 'nebulus',
 			'License'     => MSF_LICENSE,
 			'Description' => %q{

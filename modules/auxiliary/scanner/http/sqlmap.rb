@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: sqlmap.rb 14252 2011-11-13 08:30:02Z rapid7 $
 ##
 
 ##
@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	    => [ 'Bernardo Damele A. G. <bernardo.damele[at]gmail.com>' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision$',
+			'Version'		=> '$Revision: 14252 $',
 			'References'	=>
 				[
 					['URL', 'http://sqlmap.sourceforge.net'],

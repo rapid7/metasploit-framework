@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: trendmicro_dlp_traversal.rb 14288 2011-11-20 02:15:04Z rapid7 $
 ##
 
 ##
@@ -14,13 +14,13 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-			'Version'     => '$Revision$',
+			'Version'     => '$Revision: 14288 $',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.
