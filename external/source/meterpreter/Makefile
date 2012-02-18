@@ -77,7 +77,7 @@ tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	[ -d tmp ] || mkdir tmp
 	[ -f tmp/libpcap-1.1.1.tar.gz ] || wget -O tmp/libpcap-1.1.1.tar.gz http://www.tcpdump.org/release/libpcap-1.1.1.tar.gz
 	[ -f tmp/libpcap-1.1.1/configure  ] || tar -C tmp -xzf tmp/libpcap-1.1.1.tar.gz
-	(cd tmp/libpcap-1.1.1 && ./configure --disable-bluetooth --without-bluetooth --without-usb --disable-usb --without-can --disable-can --without-usb-linux --disable-usb-linux)
+	(cd tmp/libpcap-1.1.1 && ./configure --disable-bluetooth --without-bluetooth --without-usb --disable-usb --without-can --disable-can --without-usb-linux --disable-usb-linux --without-libnl)
 	echo '#undef HAVE_DECL_ETHER_HOSTTON' >> tmp/libpcap-1.1.1/config.h
 	echo '#undef HAVE_SYS_BITYPES_H' >> tmp/libpcap-1.1.1/config.h
 	echo '#undef PCAP_SUPPORT_CAN' >> tmp/libpcap-1.1.1/config.h
