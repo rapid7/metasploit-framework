@@ -56,9 +56,6 @@ class Metasploit3 < Msf::Auxiliary
 					data = create_probe(ip,testext,'REGISTER')
 				when 'OPTIONS'
 					data = create_probe(ip,testext,'OPTIONS')
-				else
-					print_error("Method not found.")
-					return
 				end
 
 				begin
