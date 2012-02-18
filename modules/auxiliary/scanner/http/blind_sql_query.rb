@@ -46,10 +46,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-
 		# Force http verb to be upper-case, because otherwise some web servers such as
 		# Apache might throw you a 501
 		http_method = datastore['METHOD'].upcase
+ 
 		gvars = Hash.new()
 		pvars = Hash.new()
 		cvars = Hash.new()
