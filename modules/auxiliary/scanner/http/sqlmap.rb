@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap' ]),
-				OptString.new('METHOD', [ true,  "HTTP Method", 'GET' ]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST']]),
 				OptString.new('PATH', [ true,  "The path/file to test for SQL injection", 'index.php' ]),
 				OptString.new('QUERY', [ false, "HTTP GET query", 'id=1' ]),
 				OptString.new('DATA', [ false, "The data string to be sent through POST" ]),
