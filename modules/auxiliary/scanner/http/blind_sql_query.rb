@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'   		=> 'HTTP Blind SQL Injection GET QUERY Scanner',
 			'Description'	=> %q{
 				This module identifies the existence of Blind SQL injection issues
-				in GET Query parameters values.
+				in GET/POST Query parameters values.
 
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('METHOD', [true, "HTTP Method","GET"]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET','POST'] ]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false, "HTTP Body Data", '']),
@@ -47,7 +47,11 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-
+	
+		# Force http verb to be upper-case, because otherwise some web servers such as
+		# Apache might throw you a 501
+		http_method = datastore['METHOD'].upcase
+ 
 		gvars = Hash.new()
 		pvars = Hash.new()
 		cvars = Hash.new()
