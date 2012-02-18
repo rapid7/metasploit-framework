@@ -1,5 +1,5 @@
 ##
-# $Id: blind_sql_query.rb 11796 2011-02-22 20:49:44Z jduck $
+# $Id: blind_sql_query.rb 14735 2012-02-17 09:36:04Z rapid7 $
 ##
 
 ##
@@ -33,7 +33,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
-			'Version'		=> '$Revision: 11796 $'))
+			'Version'		=> '$Revision: 14735 $'))
 
 		register_options(
 			[
@@ -48,9 +48,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		gvars = nil
-		pvars = nil
-		cvars = nil
+		gvars = Hash.new()
+		pvars = Hash.new()
+		cvars = Hash.new()
 
 		rnum=rand(10000)
 
@@ -96,12 +96,13 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		#SEND NORMAL REQUEST
-
+		
+	
 		begin
 			normalres = send_request_cgi({
 				'uri'  		=> datastore['PATH'],
 				'vars_get' 	=> gvars,
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'cookie'    => datastore['COOKIE'],
 				'data'      => datastore['DATA']
@@ -119,7 +120,6 @@ class Metasploit3 < Msf::Auxiliary
 				return
 			else
 				sigtxt = normalres.body
-				#print_status("#{sigtxt}")
 			end
 		else
 			print_error("No response")
@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => datastore['DATA']
@@ -175,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => datastore['DATA']
@@ -242,7 +242,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => pvarstr
@@ -280,7 +280,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => pvarstr
@@ -300,7 +300,6 @@ class Metasploit3 < Msf::Auxiliary
 									report_note(
 										:host	=> ip,
 										:proto => 'tcp',
-										:sname	=> 'HTTP',
 										:port	=> rport,
 										:type	=> 'BLIND_SQL_INJECTION',
 										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
