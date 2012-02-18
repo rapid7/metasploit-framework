@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'HTTP Blind SQL Injection QUERY Scanner',
+			'Name'   		=> 'HTTP Blind SQL Injection Scanner',
 			'Description'	=> %q{
 				This module identifies the existence of Blind SQL injection issues
 				in GET/POST Query parameters values.
