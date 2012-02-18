@@ -37,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('METHOD', [true, "HTTP Method","GET"]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET'] ]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false, "HTTP Body Data", '']),
