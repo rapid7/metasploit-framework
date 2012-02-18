@@ -98,12 +98,25 @@ def check_single_file(dparts, fparts, f_rel)
 		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
 	end
 
-	# If a function has more than 6 arguments, it should use a hash instead
+	# Check function naming style and arg length
 	functions = content.scan(/def (\w+)\(*(.+)\)*/)
 	functions.each do |func_name, args|
+		# Check Ruby variable naming style
+		if func_name =~ /[a-z][A-Z]/ or func_name =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor function naming style for: '#{func_name}'", false)
+		end
+
+		# Check argument length
 		args_length = args.split(",").length
 		if args_length > 6
 			show_missing(f, "WARNING: Poorly designed argument list in '#{func_name}'. Try a hash.", false)
+		end
+	end
+
+	vars = content.scan(/(\w+) \=\~* [\'|\"]*\w[\'|\"]*/).flatten
+	vars.each do |v|
+		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
 		end
 	end
 
