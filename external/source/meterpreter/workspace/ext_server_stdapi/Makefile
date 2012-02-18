@@ -42,13 +42,21 @@ objects = \
 
 all: ext_server_stdapi.so
 
+output_dirs:
+	mkdir -p server/fs
+	mkdir -p server/net/config
+	mkdir -p server/net/socket
+	mkdir -p server/sys/config
+	mkdir -p server/sys/process
+
 debug: CFLAGS+=-ggdb
 debug: all
 
-ext_server_stdapi.so: $(objects)
+ext_server_stdapi.so: output_dirs $(objects)
 	$(CC) -Wl,--hash-style=sysv -shared $(CFLAGS) $(objects) -lpcap -lcrypto -o $@
 
 
-.PHONY: clean debug
+.PHONY: clean debug output_dirs
 clean:
 	rm -f *.o *.so *~; rm -f $(objects)
+
