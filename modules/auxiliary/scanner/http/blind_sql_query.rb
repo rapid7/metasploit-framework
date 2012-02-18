@@ -25,11 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'HTTP Blind SQL Injection GET QUERY Scanner',
+			'Name'   		=> 'HTTP Blind SQL Injection QUERY Scanner',
 			'Description'	=> %q{
 				This module identifies the existence of Blind SQL injection issues
-				in GET Query parameters values.
-
+				in GET/POST Query parameters values.
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET'] ]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST'] ]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false, "HTTP Body Data", '']),
