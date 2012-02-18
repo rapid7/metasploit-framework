@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
-				:sname  => 'http',
+				:sname => (ssl ? 'https' : 'http'),
 				:user   => user,
 				:pass   => pass,
 				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",

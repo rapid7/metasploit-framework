@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 						{
 							:host   => target_host,
 							:proto  => 'tcp',
-							:sname  => 'HTTP',
+							:sname => (ssl ? 'https' : 'http'),
 							:port   => rport,
 							:type   => wdtype,
 							:data   => datastore['PATH']

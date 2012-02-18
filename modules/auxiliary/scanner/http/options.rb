@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> target_host,
 					:proto => 'tcp',
-					:sname	=> 'HTTP',
+					:sname => (ssl ? 'https' : 'http'),
 					:port	=> rport,
 					:type	=> 'HTTP_OPTIONS',
 					:data	=> res.headers['Allow']
@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 						:host	=> target_host,
 						:port	=> rport,
 						:proto => 'tcp',
-						:sname	=> 'http',
+						:sname => (ssl ? 'https' : 'http'),
 						:name	=> self.fullname,
 						:info	=> res.headers['Allow'],
 						:refs   => self.references,

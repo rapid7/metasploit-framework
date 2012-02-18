@@ -66,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> ip,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
+						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'WWW_AUTHENTICATE',
 						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}"
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'AUTH_BYPASS_VERB',
 									:data	=> "#{datastore['PATH']} Verb: #{tv}"
