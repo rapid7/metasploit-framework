@@ -15,19 +15,18 @@ require 'rex/proto/ntlm/message'
 
 
 class Metasploit3 < Msf::Auxiliary
-
+	include Msf::Exploit::Remote::VIMSoap
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::AuthBrute
-
 	include Msf::Auxiliary::Scanner
 
 	def initialize
 		super(
 			'Name'           => 'VMWare Web Login Scanner',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
-							for VMWare Server, ESX, and ESXi',
+			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service 
+							 for VmWare Server, ESX, and ESXI',
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>
 				[
@@ -42,53 +41,26 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-	def run_host(ip)
-
-		return unless check(ip)
-
-		each_user_pass { |user, pass|
-			result = do_login(user, pass)
-			case result
-			when :success
-				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
-				report_auth_info(
-					:host   => rhost,
-					:port   => rport,
-					:user   => user,
-					:pass   => pass,
-					:proto  => 'tcp',
-					:sname  => 'https',
-					:source_type => "user_supplied",
-					:active => true
-				)
-				return if datastore['STOP_ON_SUCCESS']
-			when :fail
-				print_error "#{ip}:#{rport} - Login Failure (#{user}:#{pass})"
-			end
-		}
-	end
-
 	# Mostly taken from the Apache Tomcat service validator
 	def check(ip)
+		soap_data = 
+			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<env:Body>
+			<RetrieveServiceContent xmlns="urn:vim25">
+				<_this type="ServiceInstance">ServiceInstance</_this>
+			</RetrieveServiceContent>
+			</env:Body>
+			</env:Envelope>|
 		datastore['URI'] ||= "/sdk"
-		user = Rex::Text.rand_text_alpha(8)
-		pass = Rex::Text.rand_text_alpha(8)
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URI'],
 				'method'  => 'POST',
 				'agent'   => 'VMware VI Client',
-				'data' => gen_soap_data(user,pass)
+				'data' =>  soap_data
 			}, 25)
 			if res
-				fp = http_fingerprint({ :response => res })
-				if fp =~ /VMWare/
-					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => fp)
-					return true
-				else
-					vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
-					return false
-				end
+				fingerprint_vmware(ip,res)
 			else
 				vprint_error("http://#{ip}:#{rport} - No response")
 			end
@@ -101,33 +73,57 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def gen_soap_data(user,pass)
-		soap_data = []
-		soap_data << '<SOAP-ENV:Envelope SOAP-ENV:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/" xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/">'
-		soap_data << '    <SOAP-ENV:Body>'
-		soap_data << '        <Login xmlns="urn:vim25">'
-		soap_data << '            <_this type="SessionManager">ha-sessionmgr</_this>'
-		soap_data << '            <userName>' + user.to_s + '</userName>'
-		soap_data << '            <password>' + pass.to_s + '</password>'
-		soap_data << '        </Login>'
-		soap_data << '    </SOAP-ENV:Body>'
-		soap_data << '</SOAP-ENV:Envelope>'
-		soap_data.join
+
+
+	def run_host(ip)
+		return unless check(ip)
+		each_user_pass { |user, pass|
+			result = vim_do_login(user, pass)
+			case result
+			when :success
+				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
+				report_auth_info(
+					:host   => rhost,
+					:port   => rport,
+					:user   => user,
+					:pass   => pass,
+					:source_type => "user_supplied",
+					:active => true
+				)
+				return if datastore['STOP_ON_SUCCESS']
+			when :fail
+				print_error "#{ip}:#{rport} - Login Failure (#{user}:#{pass})"
+			end
+		}
 	end
 
-	def do_login(user, pass)
-		res = send_request_cgi({
-			'uri'     => '/sdk',
-			'method'  => 'POST',
-			'agent'   => 'VMware VI Client',
-			'data' => gen_soap_data(user,pass)
-		}, 25)
-		if res.code == 200
-			return :success
-		else
-			return :fail
+	def fingerprint_vmware(ip,res)
+		unless res
+			vprint_error("http://#{ip}:#{rport} - No response")
+			return false
 		end
+		return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
+		os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
+		ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
+		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
+		full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
+		this_host = nil
+		if full_match
+			print_good "Identified #{full_match[1]}"
+			report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
+		end
+		if os_match and ver_match and build_match
+			if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
+				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+			end
+			return true
+		else
+			vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
+			return false
+		end
+
 	end
+
 
 end
 
