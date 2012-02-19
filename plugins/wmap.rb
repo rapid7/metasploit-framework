@@ -1163,7 +1163,7 @@ class Plugin::Wmap < Msf::Plugin
 						end
 					end
 			
-					print_line("Analysis completed in #{(Time.now.to_f - stamp)} seconds.")
+					print_line("Launch completed in #{(Time.now.to_f - stamp)} seconds.")
 					print_line "+" * sizeline
 				end
 				
@@ -1757,7 +1757,11 @@ class Plugin::Wmap < Msf::Plugin
 					#print_status(">>>#{res} #{mod}")
 							
 					if res
-						return
+						if res.has_key?("job_id")
+							return
+						else
+							print_error("Unable to execute module in node #{k} #{res}") 
+						end
 					end
 				else
 					#print_status("Max number of jobs #{nmaxjobs} reached in node #{k}") 
@@ -1905,10 +1909,16 @@ class Plugin::Wmap < Msf::Plugin
 								[
 									'Id',
 									'Job name',
+									'RHOST',
+									'VHOST',
+									'RPORT',
+									'PATH',
 								])
 					
 						n.each do |id,name|
-							tbl << [ id.to_s, name]
+							jinfo = rpccon.call('job.info',id) 
+							dstore = jinfo['datastore']
+							tbl << [ id.to_s, name,dstore['RHOST'],dstore['VHOST'],dstore['RPORT'],dstore['PATH']]
 						end
 					
 						print_status tbl.to_s + "\n"
