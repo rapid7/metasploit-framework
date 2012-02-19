@@ -776,7 +776,7 @@ class Plugin::Wmap < Msf::Plugin
 											end
 										end
 									when :wmap_dir
-										if not node.is_leaf? or node.is_root?
+										if (node.is_leaf? and not strpath.include? ".") or node.is_root? or not node.is_leaf?
 											if (not usinginipath) or (usinginipath and strpath.match(inipathname)) 		
 										
 												modopts['PATH'] = strpath
