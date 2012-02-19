@@ -24,9 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'VMWare Authentication Daemon Login Scanner',
 			'Version'     => '$Revision$',
-			'Description' => %q{
-				This module will test vmauthd logins on a range of machines and
-				report successful logins.
+			'Description' => %q{This module will test vmauthd logins on a range of machines and
+								report successful logins.
 			},
 			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>
