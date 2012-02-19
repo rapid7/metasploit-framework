@@ -171,6 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 		if datastore['TRIGGER'].empty?
 			# Found trigger using fuzz()
 			found = true if trigger
+			uri = datastore['PATH'] + trigger
 		else
 			# Manual check. meh.
 			if datastore['FILE'].empty?
@@ -188,15 +189,21 @@ class Metasploit3 < Msf::Auxiliary
 		# Reporting
 		if found
 			print_good("Directory traversal found: #{trigger}")
+
 			report_web_vuln({
-				:host   => rhost,
-				:port   => rport,
-				:vhost  => datastore['VHOST'],
-				:ssl    => false,
-				:proof  => trigger,
-				:name   => "lfi",
-				:method => datastore['METHOD']
+				:host     => rhost,
+				:port     => rport,
+				:vhost    => datastore['VHOST'],
+				:path     => uri,
+				:params   => datastore['PATH'],
+				:pname    => trigger,
+				:risk     => 3,
+				:proof    => trigger,
+				:name     => self.fullname,
+				:category => "web",
+				:method   => datastore['METHOD']
 			})
+
 		else
 			print_error("No directory traversal detected")
 		end
