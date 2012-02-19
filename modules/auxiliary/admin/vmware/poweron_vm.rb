@@ -43,7 +43,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
 			vm_ref = vim_find_vm_by_name(datastore['VM'])
-			if vm_ref 
+			case vm_ref 
+			when String
 				return_state = vim_powerON_vm(vm_ref)
 				case return_state 
 				when 'success'
@@ -53,7 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					print_error "The server returned an unexpected status #{return_state}"
 				end
-			else
+			when :noresponse
+				print_error "The request timed out"
+			when :error
+				print_error @vim_soap_error
+			when nil
 				print_error "Could not locate VM #{datastore['VM']}"
 			end
 		else

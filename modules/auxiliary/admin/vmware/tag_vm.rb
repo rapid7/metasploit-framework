@@ -45,7 +45,8 @@ class Metasploit3 < Msf::Auxiliary
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
 			vm_ref = vim_find_vm_by_name(datastore['VM'])
-			if vm_ref 
+			case vm_ref 
+			when String
 				result = vim_log_event_vm(vm_ref, datastore['MSG'])
 				case result
 				when :noresponse
@@ -57,8 +58,12 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					print_good "User Event logged"
 				end
-			else
-				print_error "Could not locate VM #{datastore['VM']}"
+			when :noresponse
+				print_error "Recieved no Response"
+			when :expired
+				print_error "The login session appears to have expired"
+			when :error
+				print_error @vim_soap_error
 			end
 		else
 			print_error "Login Failure on #{datastore['RHOST']}"
