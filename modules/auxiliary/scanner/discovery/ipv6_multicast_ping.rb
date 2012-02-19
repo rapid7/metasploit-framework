@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id: ipv6_multicast_ping.rb 13962 2011-10-17 02:42:01Z todb $
 ##
 
 require 'msf/core'
@@ -13,7 +13,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 		'Name'        => 'IPv6 Link Local/Node Local Ping Discovery',
-		'Version'     => '$Revision$',
+		'Version'     => '$Revision: 13962 $',
 		'Description' => %q{
 				Send a ICMPv6 ping request to all default multicast addresses, and wait to see who responds.
 		},
@@ -69,10 +69,19 @@ class Metasploit3 < Msf::Auxiliary
 		# Figure out our source address by the link-local interface
 		shost = ipv6_link_address
 
-		ping6("FF01::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF01::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF02::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
-		ping6("FF02::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})
+		# m-1-k-3: added some more multicast addresses from wikipedia: https://en.wikipedia.org/wiki/Multicast_address#IPv6
+		ping6("FF01::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #node-local all nodes
+		ping6("FF01::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #node-local all routers
+		ping6("FF02::1", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #All nodes on the local network segment
+		ping6("FF02::2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #All routers on the local network segment
+		ping6("FF02::5", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #OSPFv3 AllSPF routers
+		ping6("FF02::6", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #OSPFv3 AllDR routers
+		ping6("FF02::9", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #RIP routers
+		ping6("FF02::a", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #EIGRP routers
+		ping6("FF02::d", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})    #PIM routers
+		ping6("FF02::16", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})   #MLDv2 reports (defined in RFC 3810)
+		ping6("ff02::1:2", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})  #All DHCP servers and relay agents on the local network site (defined in RFC 3315)
+		ping6("ff05::1:3", {"DMAC" => dmac, "SHOST" => shost, "WAIT" => false})  #All DHCP servers on the local network site (defined in RFC 3315)
 
 		# Listen for host advertisments
 		print_status("Listening for responses...")

@@ -160,13 +160,18 @@ class Metasploit3 < Msf::Post
 			ip_add= gethost(host)
 
 			unless ip_add.nil?
+				if session.db_record
+					source_id = session.db_record.id
+				else
+					source_id = nil
+				end
 				auth = {
 					:host => ip_add,
 					:port => port,
 					:user => cred["username"],
 					:pass => cred["password"],
 					:type => 'password',
-					:source_id => session.db_record.id,
+					:source_id => source_id,
 					:source_type => "exploit",
 					:active => true
 				}

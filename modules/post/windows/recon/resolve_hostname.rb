@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Post
 
 	def run
 		### MAIN ###
-		client.railgun.add_function( 'ws2_32', 'getaddrinfo', 'DWORD',[["PCHAR","pNodeName","in"],["PCHAR","pServiceName","in"],["PDWORD","pHints","in"],["PDWORD","ppResult","out"]])
 
 		if client.platform =~ /^x64/
 			size = 64

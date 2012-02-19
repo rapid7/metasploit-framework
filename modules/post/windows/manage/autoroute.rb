@@ -117,7 +117,7 @@ class Metasploit3 < Msf::Post
 				end
 				tbl << [ route.subnet, route.netmask, gw ]
 			}
-			print tbl.to_s
+			print_line tbl.to_s
 		else
 			print_status "No routes have been added yet"
 		end

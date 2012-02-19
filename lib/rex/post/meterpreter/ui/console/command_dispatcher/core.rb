@@ -83,6 +83,7 @@ class Console::CommandDispatcher::Core
 	end
 
 	def cmd_background
+		print_status "Backgrounding session #{client.name}..."
 		client.interacting = false
 	end
 

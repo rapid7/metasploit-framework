@@ -940,7 +940,7 @@ class Core
 
 		# Parse any extra options that should be passed to the plugin
 		args.each { |opt|
-			k, v = opt.split(/=/)
+			k, v = opt.split(/\=/)
 
 			opts[k] = v if (k and v)
 		}
@@ -973,17 +973,28 @@ class Core
 	# Tab completion for the load command
 	#
 	def cmd_load_tabs(str, words)
-		return [] if words.length > 1
+		tabs = []
 
-		begin
-			return Dir.new(Msf::Config.plugin_directory).find_all { |e|
-				path = Msf::Config.plugin_directory + File::SEPARATOR + e
-				File.file?(path) and File.readable?(path)
-			}.map { |e|
-				e.sub!(/\.rb$/, '')
-			}
-		rescue Exception
+		if (not words[1] or not words[1].match(/^\//))
+			# then let's start tab completion in the scripts/resource directories
+			begin
+				[
+					Msf::Config.user_plugin_directory,
+					Msf::Config.plugin_directory
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + File::SEPARATOR + e
+						::File.file?(path) and File.readable?(path)
+					}
+				end
+			rescue Exception
+			end
+		else
+			tabs += tab_complete_filenames(str,words)
 		end
+		return tabs.map{|e| e.sub(/.rb/, '')}
+
 	end
 
 	def cmd_route_help
@@ -1285,6 +1296,7 @@ class Core
 			"name"     => "Modules with a matching descriptive name",
 			"path"     => "Modules with a matching path or reference name",
 			"platform" => "Modules affecting this platform",
+			"port"     => "Modules with a matching remote port",
 			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
 			"app"      => "Modules that are client or server attacks",
 			"author"   => "Modules written by this author",
@@ -2264,10 +2276,14 @@ class Core
 	# Returns the revision of the framework and console library
 	#
 	def cmd_version(*args)
-		ver = "$Revision: 14065 $"
-
-		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
-		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
+		svn_console_version = "$Revision: 14065 $"
+		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
+		if svn_metasploit_version
+			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
+		else
+			print_line("Framework: #{Msf::Framework::Version}")
+		end
+		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
 
 		return true
 	end

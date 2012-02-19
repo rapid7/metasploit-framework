@@ -12,6 +12,10 @@ end
 
 	def rpc_login_noauth(user,pass)
 
+		if not (user.kind_of?(::String) and pass.kind_of?(::String))
+			error(401, "Login Failed")
+		end
+
 		# handle authentication here
 		fail = true
 		self.users.each do |u|

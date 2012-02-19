@@ -690,6 +690,8 @@ class Module
 							if not match and self.respond_to?(:targets) and self.targets
 								match = [t,w] if self.targets.map{|x| x.name}.any? { |t| t =~ r }
 							end
+						when 'port'
+							match = [t,w] if self.datastore['RPORT'].to_s =~ r
 						when 'type'
 							match = [t,w] if (w == "exploit" and is_exploit)
 							match = [t,w] if (w == "auxiliary" and is_auxiliary)

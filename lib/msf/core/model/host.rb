@@ -21,6 +21,10 @@ class Host < ActiveRecord::Base
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id
 
+	def is_vm?
+		!!self.virtual_host
+	end
+
 	def attribute_locked?(attr)
 		n = notes.find_by_ntype("host.updated.#{attr}")
 		n && n.data[:locked]
@@ -61,7 +65,6 @@ class Host < ActiveRecord::Base
 		warch = {} # arch      == x86, PPC, SPARC, MIPS, ''
 		wlang = {} # os_lang   == English, ''
 		whost = {} # hostname
-		wtype = {} # purpose
 
 		# Note that we're already restricting the query to this host by using
 		# host.notes instead of Note, so don't need a host_id in the
@@ -716,7 +719,9 @@ class Host < ActiveRecord::Base
 		best_match[:name]      = whost.keys.sort{|a,b| whost[b] <=> whost[a]}[0]
 		best_match[:os_lang]   = wlang.keys.sort{|a,b| wlang[b] <=> wlang[a]}[0]
 
-		best_match[:os_flavor] ||= ""
+		# If service tests were inconclusive, use whatever the host already
+		# has, if anything.
+		best_match[:os_flavor] ||= host[:os_flavor] || ""
 		if best_match[:os_name]
 			# Handle cases where the flavor contains the base name
 			# Don't use gsub!() here because the string was a hash key in a
@@ -724,7 +729,9 @@ class Host < ActiveRecord::Base
 			best_match[:os_flavor] = best_match[:os_flavor].gsub(best_match[:os_name], '')
 		end
 
-		best_match[:os_name] ||= 'Unknown'
+		# As with os_flavor above, if we didn't get anything, use whatever the
+		# host already has.  Failing that, fallback to "Unknown"
+		best_match[:os_name] ||= host[:os_name] || 'Unknown'
 		best_match[:purpose] ||= 'device'
 
 		[:os_name, :purpose, :os_flavor, :os_sp, :arch, :name, :os_lang].each do |host_attr|

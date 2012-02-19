@@ -25,11 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'   		=> 'HTTP Blind SQL Injection GET QUERY Scanner',
+			'Name'   		=> 'HTTP Blind SQL Injection QUERY Scanner',
 			'Description'	=> %q{
 				This module identifies the existence of Blind SQL injection issues
-				in GET Query parameters values.
-
+				in GET/POST Query parameters values.
 			},
 			'Author' 		=> [ 'et [at] cyberspace.org' ],
 			'License'		=> BSD_LICENSE,
@@ -37,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('METHOD', [true, "HTTP Method","GET"]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST'] ]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/index.asp']),
 				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false, "HTTP Body Data", '']),
@@ -47,6 +46,10 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
+		# Force http verb to be upper-case, because otherwise some web servers such as
+		# Apache might throw you a 501
+		http_method = datastore['METHOD'].upcase
 
 		gvars = nil
 		pvars = nil
@@ -101,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 			normalres = send_request_cgi({
 				'uri'  		=> datastore['PATH'],
 				'vars_get' 	=> gvars,
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'cookie'    => datastore['COOKIE'],
 				'data'      => datastore['DATA']
@@ -145,7 +148,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => datastore['DATA']
@@ -175,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => datastore['DATA']
@@ -242,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
 					trueres = send_request_cgi({
 						'uri'  		=>  datastore['PATH'],
 						'vars_get' 	=>  gvars,
-						'method'   	=>  datastore['METHOD'],
+						'method'   	=>  http_method,
 						'ctype'		=> 'application/x-www-form-urlencoded',
 						'cookie'    => datastore['COOKIE'],
 						'data'      => pvarstr
@@ -280,7 +283,7 @@ class Metasploit3 < Msf::Auxiliary
 							falseres = send_request_cgi({
 								'uri'  		=>  datastore['PATH'],
 								'vars_get' 	=>  gvars,
-								'method'   	=>  datastore['METHOD'],
+								'method'   	=>  http_method,
 								'ctype'		=> 'application/x-www-form-urlencoded',
 								'cookie'    => datastore['COOKIE'],
 								'data'      => pvarstr

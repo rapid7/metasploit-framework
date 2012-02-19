@@ -49,7 +49,6 @@ class Metasploit3 < Msf::Auxiliary
 			OptAddress.new('RHOST',    [true, "The remote TFTP server"]),
 			OptPort.new(   'LPORT',    [false, "The local port the TFTP client should listen on (default is random)" ]),
 			OptAddress.new('LHOST',    [false, "The local address the TFTP client should bind to"]),
-			OptBool.new(   'VERBOSE',  [false, "Display verbose details about the transfer", false]),
 			OptString.new( 'MODE',     [false, "The TFTP mode; usual choices are netascii and octet.", "octet"]),
 			Opt::RPORT(69)
 		], self.class)

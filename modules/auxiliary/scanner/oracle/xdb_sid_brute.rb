@@ -37,7 +37,6 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 				[
 					OptString.new('CSVFILE', [ false, 'The file that contains a list of default accounts.', File.join(Msf::Config.install_root, 'data', 'wordlists', 'oracle_default_passwords.csv')]),
-					OptBool.new('VERBOSE', [ false, 'Enable verbose console output.', false]),
 					Opt::RPORT(8080),
 				], self.class)
 		deregister_options('DBUSER','DBPASS')
@@ -100,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
 				users.push(user_pass)
 			else
-				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
+				vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
 			end
 		end #fd.each
 

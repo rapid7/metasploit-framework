@@ -73,12 +73,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_pkt
 		buf = sock.get
-		print_status("[in ] #{buf.inspect}") if datastore['VERBOSE']
+		vprint_status("[in ] #{buf.inspect}")
 		buf
 	end
 
 	def send_pkt(pkt, get_resp = false)
-		print_status("[out] #{pkt.inspect}") if datastore['VERBOSE']
+		vprint_status("[out] #{pkt.inspect}")
 		sock.put(pkt)
 		get_pkt if get_resp
 	end

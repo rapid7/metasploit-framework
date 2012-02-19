@@ -224,7 +224,7 @@ int dlsocket(void *libc)
 		fd = libc_socket(AF_INET, SOCK_STREAM, 0);
 		if(fd == -1) break;
 
-		sin.sin_addr.s_addr = libc_inet_addr("127.0.0.1");
+		sin.sin_addr.s_addr = libc_inet_addr("127.1.1.1");
 		sin.sin_port = htons(4444);
 		sin.sin_family = AF_INET;
 
