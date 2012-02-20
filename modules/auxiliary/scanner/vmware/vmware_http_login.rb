@@ -50,7 +50,7 @@ class Metasploit3 < Msf::Auxiliary
 			result = do_login(user, pass)
 			case result
 			when :success
-				print_good "#{rhost}:#{rport} - Successful Login! (#{user}:#{pass})"
+				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
 				report_auth_info(
 					:host   => rhost,
 					:port   => rport,
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return if datastore['STOP_ON_SUCCESS']
 			when :fail
-				print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
+				print_error "#{ip}:#{rport} - Login Failure (#{user}:#{pass})"
 			end
 		}
 	end
@@ -86,17 +86,17 @@ class Metasploit3 < Msf::Auxiliary
 					report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => fp)
 					return true
 				else
-					vprint_error("#{rhost}:#{rport} - Could not identify as VMWare")
+					vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
 					return false
 				end
 			else
-				vprint_error("https://#{rhost}:#{rport} - No response")
+				vprint_error("http://#{ip}:#{rport} - No response")
 			end
 		rescue ::Rex::ConnectionError => e
-			vprint_error("https://#{rhost}:#{rport}#{datastore['URI']} - #{e}")
+			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
 			return false
 		rescue
-			vprint_error("https://#{rhost}:#{rport}#{datastore['URI']} - skipping due to error: #{e}")
+			vprint_error("Skipping #{ip} due to error - #{e}")
 			return false
 		end
 	end
