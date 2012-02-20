@@ -11,7 +11,6 @@
 
 
 require 'msf/core'
-require 'msf/core/exploit/vim_soap'
 
 
 class Metasploit3 < Msf::Auxiliary

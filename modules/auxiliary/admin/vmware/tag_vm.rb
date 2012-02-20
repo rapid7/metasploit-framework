@@ -11,7 +11,6 @@
 
 
 require 'msf/core'
-require 'msf/core/exploit/vim_soap'
 
 
 class Metasploit3 < Msf::Auxiliary
@@ -24,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Tag Virtual Machine',
 			'Description'    => %Q{
-							This module will log into the Web API of VMWare and 
-							'tag' a specified Virtual Machine. It does this by 
+							This module will log into the Web API of VMWare and
+							'tag' a specified Virtual Machine. It does this by
 							logging a user event with user supplied text},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
@@ -45,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if vim_do_login(datastore['USERNAME'], datastore['PASSWORD']) == :success
 			vm_ref = vim_find_vm_by_name(datastore['VM'])
-			case vm_ref 
+			case vm_ref
 			when String
 				result = vim_log_event_vm(vm_ref, datastore['MSG'])
 				case result
