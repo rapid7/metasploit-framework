@@ -16,35 +16,32 @@ class Metasploit3 < Msf::Auxiliary
 	include Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
-	include Msf::Auxiliary::AuthBrute
 
 	@@cached_rsa_key = nil
 
 	def initialize
 		super(
-			'Name'        => 'VMWare Authentication Daemon Login Scanner',
+			'Name'        => 'VMWare Authentication Daemon Version Scanner',
 			'Version'     => '$Revision$',
-			'Description' => %q{This module will test vmauthd logins on a range of machines and
-								report successful logins.
+			'Description' => %q{
+				This module will identify information about a host through the
+			vmauthd service.
 			},
-			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
-			'References'     =>
-				[
-					[ 'CVE', '1999-0502'] # Weak password
-				],
+			'Author'      => ['TheLightCosine <thelightcosine[at]metasploit.com>', 'hdm'],
 			'License'     => MSF_LICENSE
 		)
 
 		register_options([Opt::RPORT(902)])
 
 	end
-	
+
+
+
 	def run_host(ip)
 		begin
 		
 		connect rescue nil
 		if not self.sock
-			print_error "#{rhost}:#{rport} Could not connect to vmauthd"
 			return
 		end
 		
@@ -55,39 +52,34 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		
 		banner = banner.strip
-		print_status "#{rhost}:#{rport} Banner: #{banner}"
 
 		unless banner =~ /VMware Authentication Daemon/
 			print_error "#{rhost}:#{rport} This does not appear to be a vmauthd service"
 			return
 		end
 
+		cert = nil
+		
 		if banner =~ /SSL/
 			print_status("#{rhost}:#{rport} Switching to SSL connection...")
 			swap_sock_plain_to_ssl
+			cert = self.sock.peer_cert
 		end
-
-		each_user_pass do |user, pass|
-			result = do_login(user, pass)
-			case result
-			when :failed
-				print_error("#{rhost}:#{rport} vmauthd login FAILED - #{user}:#{pass}")
-			when :success
-				print_good("#{rhost}:#{rport} vmauthd login SUCCESS - #{user}:#{pass}")
-				report_auth_info(
-					:host   => rhost,
-					:port   => rport,
-					:sname  => 'vmauthd',
-					:user   => user,
-					:pass   => pass,
-					:source_type => "user_supplied",
-					:active => true
-				)
-				return if datastore['STOP_ON_SUCCESS']
-			else
-				print_error("#{rhost}:#{rport} Error: #{res}")
-			end
+		
+		if cert
+			banner << " Certificate:#{cert.subject.to_s}"
 		end
+		
+		print_status "#{rhost}:#{rport} Banner: #{banner}"
+		
+		report_service(
+			:host  => rhost,
+			:port  => rport,
+			:sname => 'vmauthd',
+			:info  => banner,
+			:proto => 'tcp'
+		)
+		
 		
 		rescue ::Interrupt
 			raise $!
