@@ -1195,7 +1195,7 @@ class Plugin::Wmap < Msf::Plugin
 					])
 
 			self.targets.each_with_index { |t, idx|
-				tbl << [ idx.to_s, t[1][:vhost], t[1][:host], t[1][:port], t[1][:ssl], t[1][:path].to_s ]
+				tbl << [ idx.to_s, t[1][:vhost], t[1][:host], t[1][:port], t[1][:ssl], "\t"+t[1][:path].to_s ]
 			}
 
 			print_status tbl.to_s + "\n"
@@ -1909,16 +1909,14 @@ class Plugin::Wmap < Msf::Plugin
 								[
 									'Id',
 									'Job name',
-									'RHOST',
-									'VHOST',
-									'RPORT',
+									'Target',
 									'PATH',
 								])
 					
 						n.each do |id,name|
 							jinfo = rpccon.call('job.info',id) 
 							dstore = jinfo['datastore']
-							tbl << [ id.to_s, name,dstore['RHOST'],dstore['VHOST'],dstore['RPORT'],dstore['PATH']]
+							tbl << [ id.to_s, name,dstore['VHOST']+":"+dstore['RPORT'],dstore['PATH']]
 						end
 					
 						print_status tbl.to_s + "\n"
