@@ -227,7 +227,7 @@ class Metasploit3 < Msf::Auxiliary
 			if res.to_s =~ datastore['PATTERN']
 				# We assume the string followed by the last '/' is our file name
 				fname = f.split("/")[-1].chop
-				loot = store_loot(fname,"text/plain",rhost, res.body,"LFIDOWNLOADER")
+				loot = store_loot("lfi.data","text/plain",rhost, res.body,fname)
 				print_good("File #{fname} downloaded to: #{loot}")
 				counter += 1
 			end
