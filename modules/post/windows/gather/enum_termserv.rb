@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Terminal Server Client Connection Information Dumper',
+			'Name'          => 'Windows Gather Terminal Server Client Connection Information Dumper',
 			'Description'   => %q{
 				This module dumps MRU and connection data for RDP sessions
 			},

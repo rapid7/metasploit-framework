@@ -16,7 +16,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'            => "Windows Credential Store Enumeration and Decryption Module",
+			'Name'            => "Windows Gather Credential Store Enumeration and Decryption Module",
 			'Description'     => %q{
 					This module will enumerate the Microsoft Credential Store and decrypt the
 				credentials. This module can only access credentials created by the user the

@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Host File Entry Removal',
+			'Name'          => 'Windows Manage Host File Entry Removal',
 			'Description'   => %q{
 				This module allows the attacker to remove an entry from the Windows hosts file.
 			},

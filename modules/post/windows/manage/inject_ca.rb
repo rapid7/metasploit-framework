@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Windows Certificate Authority Injection',
+			'Name'          => 'Windows Manage Certificate Authority Injection',
 			'Description'   => %q{
 				This module allows the attacker to insert an arbitrary CA certificate
 				into the victim's Trusted Root store.

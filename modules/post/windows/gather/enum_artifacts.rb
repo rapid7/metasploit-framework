@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows File and Registry Artifacts Enumeration',
+			'Name'          => 'Windows Gather File and Registry Artifacts Enumeration',
 			'Description'   => %q{
 				This module will check the file system and registry for particular artifacts. The
 				list of artifacts is read from data/post/enum_artifacts_list.txt or a user specified file. Any
