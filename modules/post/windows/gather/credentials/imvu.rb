@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Post Windows Gather Credentials IMVU Game Client',
+			'Name'           => 'Windows Gather Credentials IMVU Game Client',
 			'Description'    => %q{
 				This module extracts account username & password from the IMVU game client
 				and stores it as loot.
