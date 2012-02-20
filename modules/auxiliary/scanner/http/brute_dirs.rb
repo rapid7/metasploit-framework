@@ -35,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('PATH', [ true,  "The path to identify directories", '/']),
-				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'aaa'])
+				OptString.new('FORMAT', [ true,  "The expected directory format (a alpha, d digit, A upperalpha)", 'a,aa,aaa'])
 			], self.class)
 
 		register_advanced_options(
@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# You may add multiple formats in the array
 		forma = []
-		forma << datastore['FORMAT']
+		forma = datastore['FORMAT'].split(',')
 
 		ecode = datastore['ErrorCode'].to_i
 		extens.each do |exte|

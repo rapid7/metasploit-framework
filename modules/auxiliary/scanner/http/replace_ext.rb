@@ -64,13 +64,16 @@ class Metasploit3 < Msf::Auxiliary
 			'.tmp',
 			'.old',
 			'.htm',
+			'.ini',
+			'.cfg',
 			'.html',
 			'.php',
 			'.temp',
 			'.tmp',
 			'.java',
 			'.doc',
-			'.log'
+			'.log',
+			'.xml'
 		]
 
 

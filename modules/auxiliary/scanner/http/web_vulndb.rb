@@ -48,6 +48,11 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 	end
+	
+	# Modify to true if you have sqlmap installed.
+	def wmap_enabled
+		false
+	end
 
 	def run_host(ip)
 		conn = false
