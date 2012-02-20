@@ -113,11 +113,15 @@ Or how every other scanner works but in wmap fancy terms.
 0. Gather data from (See Crawlers,proxies and other clients) 
    targets      
 1. Load the scanner (Load wmap plugin. See "4. Wmap Plugin")
-2. Define nodes     (Use 'wmap_nodes'. See "Wmap Nodes")
+2. Optional: Define nodes     (Use 'wmap_nodes'. See "6. Wmap Nodes")
 3. Define targets   (Use 'wmap_sites' and 'wmap_targets'.See "5. Wmap Targets")
 4. Configure        (Lots of things here)
-5. Launch           (Use 'wmap_run'. See "6. Launch a scan") 
+5. Launch           (Use 'wmap_run'. See "7. Launch a scan") 
 6. Enjoy WTF Moments(Priceless...)
+
+Note: Step 2 is optional as Wmap allows you to perform distributed scans 
+using multiple nodes. If no nodes are configured the scan runs as usual
+running all tests from the local host.
 
 =[ 4. Wmap Plugin ]-----------------------------------------------------------
 
@@ -145,8 +149,8 @@ Wmap Commands
 =[ 5. Wmap Targets ]----------------------------------------------------------
 
 The targets are selected from the sites already stored in the database. For 
-example after crawling a site (See "2. Crawlers,proxies and other clients") 
-now we can use the command 'wmap_sites' to list them:
+example after crawling a site (See "2. Crawlers,proxies and other clients"). 
+Now we can use the command 'wmap_sites' to list them:
 
 msf > wmap_sites
 [*] Usage: wmap_sites [options]
@@ -166,7 +170,7 @@ msf > wmap_sites -l
      2   10.1.2.2     nah.test.com   443   https  1        0
      3   10.4.3.10    test.abcd.com  80    http   1        1  
 
-Note 1: Metasploit/wmap supports multiple Vhosts/IPs.
+Note 1: Metasploit/Wmap supports multiple Vhosts/IPs. 
 
 Note 2: If you want to check the web site structure use the '-s site_id' flag 
 like this (also especify an optional level to display):
@@ -315,7 +319,8 @@ msf > wmap_run
 [*] Usage: wmap_run [options]
         -h                    Display this help text
         -t                    Show all enabled modules
-        -m [regex]            Launch only modules that match provided regex.
+        -m [regex]            Launch only modules that match provided regex
+        -p [regex]            Only test path defined by regex..
         -e [/path/to/profile] Launch profile modules against all targets.
                               No file runs all enabled modules.
 
@@ -355,22 +360,24 @@ commands to see the results.
 To view detailed job information on each node use the 'wmap_nodes' (-j) flag:
 
 msf >wmap_nodes -j
-[*] [Node #0: 127.0.0.1 Port:55553 SSL:true User:msf3]
+[*] [Node #0: 127.0.0.1 Port:55553 SSL:true User:msf]
 [*] Jobs
     ====
 
-     Id  Job name
-     --  --------
-     42  Auxiliary: scanner/http/brute_dirs
+     Id  Job name                             Target          PATH
+     --  --------                             ------          ----
+     0   Auxiliary: scanner/http/dir_scanner  192.168.0.1:80  /
+     ...
 
 
-[*] [Node #1: 127.0.0.1 Port:80 SSL:true User:msf]
+[*] [Node #1: 127.0.0.1 Port:55555 SSL:true User:msf]
 [*] Jobs
     ====
 
-     Id  Job name
-     --  --------
-     22  Auxiliary: scanner/http/files_dir
+     Id  Job name                             Target          PATH
+     --  --------                             ------          ----
+     2   Auxiliary: scanner/http/dir_scanner  192.168.0.2:80  /
+     ...
 
 Also you can kill especific jobs or all jobs from one or all nodes:
 
@@ -402,7 +409,7 @@ module and use the correct type).
 
     Example:
 
-    include Auxiliary::WMAPScanFile
+    include Auxiliary::WmapScanFile
 
 The following are the types of modules implemented at this time and they are
 listed in the order WMAP runs them:
@@ -417,6 +424,8 @@ WmapScanQuery       - Runs for every query found in each request to the target
 WmapScanGeneric     - Modules to be run after all tests complete.Good place to
                       perform passive analysis of responses, analysis of test
                       results to launch other modules (i.e. exploits). 
+
+Note: Multiple mixins can be included in a module if needed.
 
 The execution order not only is handled by the wmap type but also it can be 
 adjusted across all modules by defining a wmap orderid number using the 
@@ -487,9 +496,31 @@ contribute more modules and improvements. If you dont contribute , you dont
 have the right to complain. The only key issues to consider are:
 
  + The module should follow metasploit guidelines
- + Add the right mixin
+ + Add the right mixin(s)
  + The module should store the right data and results in the database
- + The module has to have a clear purpose!
+ + The module has to have a clear purpose!!!! 
+   Is better to have multiple modules with simple tasks/objectives that 
+   one that does everything. 
+ + The variables/options used in the datastore have to be the same between 
+   wmap and the module so wmap can pass the right information to it.
+   Usually this is the naming convention to use for the options:
+
+   OptString:
+
+   'VHOST'  = HTTP Virtual Host
+   'METHOD' = HTTP Method
+   'PATH'   = HTTP URI Path.
+   'QUERY'  = HTTP URI Query usually in the param1=value1& form.
+   'DATA'   = HTTP Data. In a POST request is the body of the request.
+              Usually in the param1=value1& form.
+   'HEADERS'= HTTP headers (header1=value1;..)
+   
+   OptBool:
+   
+   'VERBOSE'= Verbose flag.	 
+
+   Note: This naming convention may change. However if this naming 
+   convention is used any changes can be implemented easily.
 
 - Also if you want to take the big task of developing a ruby MITM proxy for 
 metasploit that will be very helpfull for the project. 
