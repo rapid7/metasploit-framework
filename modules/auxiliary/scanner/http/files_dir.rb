@@ -67,6 +67,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.exe',
 			'.html',
 			'.htm',
+			'.ini',
 			'.log',
 			'.old',
 			'.orig',

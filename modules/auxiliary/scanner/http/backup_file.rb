@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 			'.backup',
 			'.bak',
 			'.copy',
+			'.copia',
 			'.old',
 			'.orig',
 			'.temp',

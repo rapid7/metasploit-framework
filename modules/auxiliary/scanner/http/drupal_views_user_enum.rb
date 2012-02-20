@@ -10,6 +10,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -35,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('URIPATH', [true, "Drupal Path", "/"]),
+				OptString.new('PATH', [true, "Drupal Path", "/"]),
 			], self.class)
 	end
 
@@ -70,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Check if remote host is available or appears vulnerable
 		if not check(enum_uri)
-			print_error("#{ip} does not appear to be vulnerable, will not continue")
+			print_status("#{ip} does not appear to be vulnerable, will not continue")
 			return
 		end
 
