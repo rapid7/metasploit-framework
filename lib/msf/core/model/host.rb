@@ -685,6 +685,16 @@ class Host < ActiveRecord::Base
 					wtype['server'] = wtype['server'].to_i + points
 				end # End of s.info for SMTP
 
+			when 'https'
+				points = 101
+				case s.info
+				when /(VMware\s(ESXi?)).*\s([\d\.]+)/
+					# Very reliable fingerprinting from our own esx_fingerprint module
+					wname[$1] = wname[$1].to_i + (points * 5)
+					wflav[$3] = wflav[$3].to_i + (points * 5)
+					wtype['device'] = wtype['device'].to_i + points
+				end # End of s.info for HTTPS
+
 			when 'netbios'
 				points = 201
 				case s.info
