@@ -17,7 +17,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
