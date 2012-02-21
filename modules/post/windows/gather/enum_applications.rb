@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -76,7 +76,8 @@ class Metasploit3 < Msf::Post
 
 		print_line("\n" + results + "\n")
 
-		store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
+		p = store_loot("host.applications", "text/plain", session, results, "applications.txt", "Installed Applications")
+		print_status("Results stored in: #{p}")
 	end
 
 	def run

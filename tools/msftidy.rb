@@ -71,7 +71,7 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	# Check disclosure date format
-	if content =~ /'DisclosureDate' => '(.+)'/
+	if content =~ /'DisclosureDate' => ['|\"](.+)['|\"]/
 		d = $1  #Captured date
 		# Flag if overall format is wrong
 		if d =~ /^... \d{1,2} \d{4}/
@@ -115,7 +115,8 @@ def check_single_file(dparts, fparts, f_rel)
 
 	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
 	vars.each do |v|
-		next if v =~ /^var/
+		v = v.strip
+		next if v =~ /^var/ or v =~ /^Rank/
 		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
 			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
 		end
