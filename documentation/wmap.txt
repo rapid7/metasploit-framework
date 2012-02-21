@@ -46,7 +46,7 @@ The new architecture:
 
 
 Wmap is a Metasploit plugin and will interact with the database, reading all
-gathered traffic from any client you have configured/adapted or duck taped to
+gathered traffic from any client you have configured/adapted or duct taped to
 store web sites, requests, responses and forms in the Metasploit DB. 
 
 The test performed are all Metasploit modules which WMAP execute in a 
@@ -145,6 +145,7 @@ Wmap Commands
     wmap_sites    Manage sites
     wmap_targets  Manage targets
     wmap_modules  Manage wmap modules
+    wmap_vulns    Display web vulns
 
 =[ 5. Wmap Targets ]----------------------------------------------------------
 
@@ -489,7 +490,19 @@ If you see a Reauth message in WMAP is because the XMLRPC token is not valid
 and a reauthentication to the nodes is required. But dont worry wmap does that
 automaticaly for you.
   
-=[ 10. TO DO ]----------------------------------------------------------------
+=[ 10. Results ]--------------------------------------------------------------
+
+Modules may report results as notes (notes) , vulnerabilities (vulns) and/or
+web vulnerabilities (web vulns). As notes and general vulnerabilities can be
+displayed using the metasploit commands 'notes' and 'vulns', Wmap implements
+'wmap_vulns' to display the results stored in the web_vulns db table. The 
+reporting is basic at this time , however the Metasploit database can be
+easily accessed to fullfill your reporting needs.
+
+Note: Always check 'notes', 'vulns' and 'wmap_vulns' for results.
+  
+
+=[ 11. TO DO ]----------------------------------------------------------------
 
 - The quality of the scan depends on the quality of the modules. So please 
 contribute more modules and improvements. If you dont contribute , you dont 
@@ -498,6 +511,8 @@ have the right to complain. The only key issues to consider are:
  + The module should follow metasploit guidelines
  + Add the right mixin(s)
  + The module should store the right data and results in the database
+ + Always use report_vuln or report_web_vuln to report output from a 
+   module as report_note overwrites results if 'type' is the same.
  + The module has to have a clear purpose!!!! 
    Is better to have multiple modules with simple tasks/objectives that 
    one that does everything. 
