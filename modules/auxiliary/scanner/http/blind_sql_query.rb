@@ -196,13 +196,20 @@ class Metasploit3 < Msf::Auxiliary
 								if reltruesize > relfalsesize
 									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 
-									report_note(
+									report_web_vuln(
 										:host	=> ip,
-										:proto => 'tcp',
-										:sname => (ssl ? 'https' : 'http'),
 										:port	=> rport,
-										:type	=> 'BLIND_SQL_INJECTION',
-										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
+										:vhost  => vhost,
+										:ssl    => ssl,
+										:path	=> "#{datastore['PATH']}",
+										:method => http_method,
+										:pname  => "#{key}",
+										:proof  => "blind sql inj.",
+										:risk   => 2,
+										:confidence   => 50,
+										:category     => 'SQL injection',
+										:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+										:name   => 'Blind SQL injection'
 									)
 								else
 									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
@@ -301,12 +308,20 @@ class Metasploit3 < Msf::Auxiliary
 								if reltruesize > relfalsesize
 									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 
-									report_note(
+									report_web_vuln(
 										:host	=> ip,
-										:proto => 'tcp',
 										:port	=> rport,
-										:type	=> 'BLIND_SQL_INJECTION',
-										:data	=> "#{datastore['PATH']} Parameter: #{key} Type: #{tarr[0]}"
+										:vhost  => vhost,
+										:ssl    => ssl,
+										:path	=> "#{datastore['PATH']}",
+										:method => http_method,
+										:pname  => "#{key}",
+										:proof  => "blind sql inj.",
+										:risk   => 2,
+										:confidence   => 50,
+										:category     => 'SQL injection',
+										:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+										:name   => 'Blind SQL injection'
 									)
 
 								else

@@ -98,13 +98,20 @@ class Metasploit3 < Msf::Auxiliary
 				if (res and res.code >= 200 and res.code < 300)
 					print_status("Found #{wmap_base_url}#{tpath}#{testfext}")
 
-					report_note(
+					report_web_vuln(
 						:host	=> ip,
-						:proto => 'tcp',
-						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
-						:type	=> 'FILE',
-						:data	=> "#{tpath}#{testfext} Code: #{res.code}"
+						:vhost  => vhost,
+						:ssl    => ssl,
+						:path	=> "#{tpath}#{testfext}",
+						:method => 'GET',
+						:pname  => "",
+						:proof  => "Res code: #{res.code.to_s}",
+						:risk   => 0,
+						:confidence   => 100,
+						:category     => 'file',
+						:description  => 'File found.',
+						:name   => 'file'
 					)
 
 				else

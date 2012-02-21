@@ -58,16 +58,16 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		# Make sure the URIPATH begins with '/'
-		if datastore['URIPATH'][0] != '/'
-			datastore['URIPATH'] = '/' + datastore['URIPATH']
+		if datastore['PATH'][0] != '/'
+			datastore['PATH'] = '/' + datastore['PATH']
 		end
 
 		# Make sure the URIPATH ends with /
-		if datastore['URIPATH'][-1] != '/'
-			datastore['URIPATH'] = datastore['URIPATH'] + '/'
+		if datastore['PATH'][-1] != '/'
+			datastore['PATH'] = datastore['PATH'] + '/'
 		end
 
-		enum_uri = datastore['URIPATH'] + "?q=admin/views/ajax/autocomplete/user/"
+		enum_uri = datastore['PATH'] + "?q=admin/views/ajax/autocomplete/user/"
 
 		# Check if remote host is available or appears vulnerable
 		if not check(enum_uri)
