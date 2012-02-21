@@ -109,7 +109,7 @@ class Console::CommandDispatcher::Core
 	# Performs operations on the supplied channel.
 	#
 	def cmd_channel(*args)
-		if args.include?("-h") or args.include?("--help")
+		if args.empty? or args.include?("-h") or args.include?("--help")
 			cmd_channel_help
 			return
 		end
@@ -180,14 +180,35 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_channel_tabs(str, words)
+		case words.length
+		when 1
+			@@channel_opts.fmt.keys
+		when 2
+			case words[1]
+			when "-c", "-i", "-r", "-w"
+				tab_complete_channels
+			else
+				[]
+			end
+		else
+			[]
+		end
+	end
+
+	def cmd_close_help
+		print_line "Usage: close <channel_id>"
+		print_line
+		print_line "Closes the supplied channel."
+		print_line
+	end
+
 	#
 	# Closes a supplied channel.
 	#
 	def cmd_close(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: close channel_id\n\n" +
-				"Closes the supplied channel.")
+			cmd_close_help
 			return true
 		end
 
@@ -204,6 +225,12 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	def cmd_close_tabs(str, words)
+		return [] if words.length > 1
+
+		return tab_complete_channels
+	end
+
 	#
 	# Terminates the meterpreter session.
 	#
@@ -215,6 +242,17 @@ class Console::CommandDispatcher::Core
 	end
 
 	alias cmd_quit cmd_exit
+
+	def cmd_detach_help
+		print_line "Detach from the victim. Only possible for non-stream sessions (http/https)"
+		print_line
+		print_line "The victim will continue to attempt to call back to the handler until it"
+		print_line "successfully connects (which may happen immediately if you have a handler"
+		print_line "running in the background), or reaches its expiration."
+		print_line
+		print_line "This session may #{client.passive_service ? "" : "NOT"} be detached."
+		print_line
+	end
 
 	#
 	# Disconnects the session
@@ -228,14 +266,19 @@ class Console::CommandDispatcher::Core
 		shell.stop
 	end
 
+	def cmd_interact_help
+		print_line "Usage: interact <channel_id>"
+		print_line
+		print_line "Interacts with the supplied channel."
+		print_line
+	end
+
 	#
 	# Interacts with a channel.
 	#
 	def cmd_interact(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: interact channel_id\n\n" +
-				"Interacts with the supplied channel.")
+			cmd_info_help
 			return true
 		end
 
@@ -251,6 +294,8 @@ class Console::CommandDispatcher::Core
 		end
 	end
 
+	alias cmd_interact_tabs cmd_close_tabs
+
 	#
 	# Runs the IRB scripting shell
 	#
@@ -261,15 +306,20 @@ class Console::CommandDispatcher::Core
 		Rex::Ui::Text::IrbShell.new(binding).run
 	end
 
+	def cmd_migrate_help
+		print_line "Usage: migrate <pid>"
+		print_line
+		print_line "Migrates the server instance to another process."
+		print_line "NOTE: Any open channels or other dynamic state will be lost."
+		print_line
+	end
+
 	#
 	# Migrates the server to the supplied process identifier.
 	#
 	def cmd_migrate(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: migrate pid\n\n" +
-				"Migrates the server instance to another process.\n" +
-				"Note: Any open channels or other dynamic state will be lost.")
+			cmd_migrate_help
 			return true
 		end
 
@@ -371,14 +421,19 @@ class Console::CommandDispatcher::Core
 	alias cmd_use_help cmd_load_help
 	alias cmd_use_tabs cmd_load_tabs
 
+	def cmd_read_help
+		print_line "Usage: read <channel_id> [length]"
+		print_line
+		print_line "Reads data from the supplied channel."
+		print_line
+	end
+
 	#
 	# Reads data from a channel.
 	#
 	def cmd_read(*args)
 		if (args.length == 0)
-			print_line(
-				"Usage: read channel_id [length]\n\n" +
-				"Reads data from the supplied channel.")
+			cmd_read_help
 			return true
 		end
 
@@ -401,6 +456,8 @@ class Console::CommandDispatcher::Core
 
 		return true
 	end
+
+	alias cmd_read_tabs cmd_close_tabs
 
 	def cmd_run_help
 		print_line "Usage: run <script> [arguments]"
@@ -669,17 +726,15 @@ class Console::CommandDispatcher::Core
 		return true
 	end
 
-	def cmd_resource_tabs(str, words)
-		return [] if words.length > 1
-
-		tab_complete_filenames(str, words)
+	def cmd_resource_help
+		print_line "Usage: resource <path1> [path2 ...]"
+		print_line
+		print_line "Run the commands stored in the supplied files."
+		print_line
 	end
 
 	def cmd_resource(*args)
 		if args.empty?
-			print(
-				"Usage: resource path1 path2" +
-				  "Run the commands stored in the supplied files.\n")
 			return false
 		end
 		args.each do |glob|
@@ -708,6 +763,12 @@ class Console::CommandDispatcher::Core
 				end
 			end
 		end
+	end
+
+	def cmd_resource_tabs(str, words)
+		return [] if words.length > 1
+
+		tab_complete_filenames(str, words)
 	end
 
 	def cmd_enable_unicode_encoding
@@ -797,6 +858,10 @@ protected
 
 		# nils confuse readline
 		tabs.compact
+	end
+
+	def tab_complete_channels
+		client.channels.keys.map { |k| k.to_s }
 	end
 
 end
