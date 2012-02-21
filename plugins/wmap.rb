@@ -41,8 +41,32 @@ class Plugin::Wmap < Msf::Plugin
 				"wmap_nodes" => "Manage nodes",
 				"wmap_run"   => "Test targets",
 				"wmap_modules"  => "Manage wmap modules",
+				"wmap_vulns"  => "Display web vulns",
 			}
 		end
+		
+		def cmd_wmap_vulns(*args)
+			args.push("-h") if args.length == 0
+
+			while (arg = args.shift)
+				case arg
+				when '-l'
+					view_vulns
+					return
+				when '-h'
+					print_status("Usage: wmap_vulns [options]")
+					print_line("\t-h 		Display this help text")
+					print_line("\t-l 		Display web vulns table")
+
+					print_line("")
+					return
+				else
+					print_error("Unknown flag.")
+					return
+				end
+			end
+		end
+
 		
 		def cmd_wmap_modules(*args)
 			args.push("-h") if args.length == 0
@@ -2170,6 +2194,20 @@ class Plugin::Wmap < Msf::Plugin
 				end
 				print_status("#{idx} wmap enabled modules loaded.")
 			end	
+		end
+		
+		def view_vulns
+			framework.db.hosts.each do |host|
+				host.services.each do |serv|	
+					serv.web_sites.each do |site|
+						site.web_vulns.each do |wv|
+							print_status("+ [#{host.address}] (#{site.vhost}): #{wv.category} #{wv.path}")
+							print_status("\t#{wv.name} #{wv.description}")
+							print_status("\t#{wv.method} #{wv.proof}")
+						end
+					end	
+				end
+			end
 		end
 	end
 
