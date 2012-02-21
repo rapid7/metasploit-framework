@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Disconnect Wireless Connection ',
+			'Name'          => 'Windows Disconnect Wireless Connection',
 			'Description'   => %q{
 				This module disconnects the current wireless network connection
 				on the specified interface.

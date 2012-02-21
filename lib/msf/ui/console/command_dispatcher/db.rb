@@ -28,7 +28,6 @@ class Db
 		#
 		def commands
 			base = {
-				"db_driver"     => "Specify a database driver",
 				"db_connect"    => "Connect to an existing database",
 				"db_disconnect" => "Disconnect from the current database instance",
 				"db_status"     => "Show the current database status",
@@ -1260,44 +1259,6 @@ class Db
 			else
 				print_status("No driver selected")
 			end
-		end
-
-		def cmd_db_driver(*args)
-
-			if(args[0])
-				if(args[0] == "-h" || args[0] == "--help")
-					print_status("Usage: db_driver [driver-name]")
-					return
-				end
-
-				if(framework.db.drivers.include?(args[0]))
-					framework.db.driver = args[0]
-					print_status("Using database driver #{args[0]}")
-				else
-					print_error("Invalid driver specified")
-				end
-				return
-			end
-
-			if(framework.db.driver)
-				print_status("   Active Driver: #{framework.db.driver}")
-			else
-				print_status("No Active Driver")
-			end
-			print_status("       Available: #{framework.db.drivers.join(", ")}")
-			print_line("")
-
-			if ! framework.db.drivers.include?('postgresql')
-				print_status("    DB Support: Enable the postgresql driver with the following command:")
-				print_status("                  * This requires libpq-dev and a build environment")
-				print_status("                $ gem install postgres")
-				print_status("                $ gem install pg # is an alternative that may work")
-				print_line("")
-			end
-		end
-
-		def cmd_db_driver_tabs(str, words)
-			return framework.db.drivers
 		end
 
 		def cmd_db_connect_help
