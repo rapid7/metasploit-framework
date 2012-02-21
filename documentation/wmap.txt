@@ -67,7 +67,7 @@ nodes have been configured and will run the modules from the local host.
 
 =[ 2. Crawlers,proxies and other clients ] -----------------------------------
 
-At this time Metasploit have 3 components that may be used as clients 
+At this time Metasploit have 4 components that may be used as clients 
 to store web sites in the database: 
 
 (1) If you have configured your database properly and use the 
@@ -84,6 +84,25 @@ auxiliary/scanner/http/http_version module)
 will add a site to the database that can be selected as a target in Wmap,
 however the only path you will be storing will be the root path of the 
 website '/'.
+
+(4) Metasploit has the awesome 'db_import' command that allows to import
+multiple scan results from many sources. For tools like Acunetix,
+Burp and Appscan the results contains web_pages and forms. For the rest 
+(at this time) the results will import services (no web sites, pages or 
+forms associated to them). 
+
+    msf > db_import
+    Usage: db_import <filename> [file2...]
+
+    Filenames can be globs like *.xml, or **/*.xml which will search recursively
+    Currently supported file types include:
+    Acunetix XML
+    Amap Log
+    Amap Log -m
+    Appscan XML
+    Burp Session XML
+    ... 
+
 
 Or you can add a site manually to the database using the 'wmap_sites -a' 
 command (after loading the wmap plugin. See '4. Wmap Plugin'):
