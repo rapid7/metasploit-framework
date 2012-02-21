@@ -171,14 +171,21 @@ class Metasploit3 < Msf::Auxiliary
 							else
 								print_status("Found #{wmap_base_url}#{teststr} #{res.code.to_i}")
 
-								report_note(
+								report_web_vuln(
 									:host	=> ip,
-									:proto => 'tcp',
-									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
-									:type	=> 'DIRECTORY',
-									:data	=> "#{teststr}"
-								)
+									:vhost  => vhost,
+									:ssl    => ssl,
+									:path	=> "#{teststr}",
+									:method => 'GET',
+									:pname  => "",
+									:proof  => "Res code: #{res.code.to_s}",
+									:risk   => 0,
+									:confidence   => 100,
+									:category     => 'directory',
+									:description  => 'Directory found.',
+									:name   => 'directory'
+									)
 
 							end
 						end
