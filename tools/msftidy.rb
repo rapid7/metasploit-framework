@@ -115,6 +115,7 @@ def check_single_file(dparts, fparts, f_rel)
 
 	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
 	vars.each do |v|
+		v = v.strip
 		next if v =~ /^var/ or v =~ /^Rank/
 		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
 			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
