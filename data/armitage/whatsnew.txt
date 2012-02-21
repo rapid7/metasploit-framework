@@ -1,6 +1,14 @@
 Armitage Changelog
 ==================
 
+21 Feb 12
+---------
+- Added Cut/Copy/Paste menu to table cell editor.
+- Module browser search field now treats spaces as a wildcard. You may type:
+  "win meterp" and Armitage will treat it as "win*meterp"
+- Hovering over an edge in graph view no longer reports a "null" tooltip
+- Fixed parsing of ps output for the process dialog (it's much much better now)
+
 14 Feb 12
 ---------
 - Added ports 5631 (pc anywhere) and 902 (vmauthd) to the MSF Scans feature.
