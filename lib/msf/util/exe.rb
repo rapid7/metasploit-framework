@@ -1065,7 +1065,6 @@ End Sub
 		source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
 		source << "\t\t#{var_proc}.Start();\r\n"
 		source << "\r\n"
-		source << "\t\tResponse.Write(#{var_basedir});\r\n"
 		source << "\t}\r\n"
 		source << "</script>\r\n"
 		source
