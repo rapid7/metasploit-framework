@@ -68,15 +68,23 @@ class Metasploit3 < Msf::Auxiliary
 
 			result.each do |u|
 				print_status("[#{target_host}] #{tpath} [#{u}]")
-				report_note(
+				
+				report_web_vuln(
 					:host	=> target_host,
 					:port	=> rport,
-					:proto => 'tcp',
-					:sname	=> (ssl ? 'https' : 'http'),
-					:type	=> 'SCRAPER',
-					:data	=> "#{u}",
-					:update => :unique_data
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> "#{tpath}",
+					:method => 'GET',
+					:pname  => "",
+					:proof  => "#{u}",
+					:risk   => 0,
+					:confidence   => 100,
+					:category     => 'scraper',
+					:description  => 'Scraper',
+					:name   => 'scraper'
 				)
+
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

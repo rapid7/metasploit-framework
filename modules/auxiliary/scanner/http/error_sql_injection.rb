@@ -153,14 +153,21 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{wmap_target_host}] Error string appears in the normal response, unable to test")
 				print_error("[#{wmap_target_host}] Error string: '#{inje}'")
 				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
-
-				report_note(
+			
+				report_web_vuln(
 					:host	=> ip,
-					:proto  => 'tcp',
-					:sname => (ssl ? 'https' : 'http'),
 					:port	=> rport,
-					:type	=> 'DATABASE_ERROR',
-					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> datastore['PATH'],
+					:method => datastore['METHOD'],
+					:pname  => "",
+					:proof  => "Error: #{inje}",
+					:risk   => 2,
+					:confidence   => 50,
+					:category     => 'Database error',
+					:description  => "Error string appears in the normal response #{inje} #{dbt}",
+					:name   => 'Database error'
 				)
 
 				return
@@ -242,13 +249,20 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("[#{wmap_target_host}] Error string: '#{inje}' Test Value: #{qvars[key]}")
 							print_status("[#{wmap_target_host}] Vuln query parameter: #{key} DB TYPE: #{dbt}, Error type '#{injt}'")
 
-							report_note(
+							report_web_vuln(
 								:host	=> ip,
-								:proto  => 'tcp',
-								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
-								:type	=> 'SQL_INJECTION',
-								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
+								:vhost  => vhost,
+								:ssl    => ssl,
+								:path	=> datastore['PATH'],
+								:method => datastore['METHOD'],
+								:pname  => "#{key}",
+								:proof  => "#{istr}",
+								:risk   => 2,
+								:confidence   => 50,
+								:category     => 'SQL injection',
+								:description  => "Error string appears in the normal response #{inje} #{dbt}",
+								:name   => 'SQL injection'
 							)
 
 							return

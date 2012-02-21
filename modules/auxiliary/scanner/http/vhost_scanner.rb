@@ -128,7 +128,8 @@ require 'cgi'
 								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'VHOST',
-								:data	=> "#{thost}"
+								:data	=> "#{thost}",
+								:update => :unique_data
 							)
 
 						else

@@ -70,7 +70,8 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'WWW_AUTHENTICATE',
-						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}"
+						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}",
+						:update => :unique_data
 					)
 
 					verbs.each do |tv|
@@ -83,15 +84,19 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("Testing verb #{tv} resp code: [#{resauth.code}]")
 							if resauth.code != auth_code and resauth.code <= 302
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
-
+								
+								# Unable to use report_web_vuln as method is not in list of allowed methods.
+								
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
 									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'AUTH_BYPASS_VERB',
-									:data	=> "#{datastore['PATH']} Verb: #{tv}"
+									:data	=> "#{datastore['PATH']} Verb: #{tv}",
+									:update => :unique_data
 								)
+								
 							end
 						end
 					end

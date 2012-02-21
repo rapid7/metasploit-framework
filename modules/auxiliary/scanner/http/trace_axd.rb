@@ -66,7 +66,8 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'TRACE_AXD',
-						:data	=> "trace.axd"
+						:data	=> "#{tpath}trace.axd",
+						:update => :unique_data
 					)
 
 				if datastore['TRACE_DETAILS']
