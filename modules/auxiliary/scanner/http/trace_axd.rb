@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
+						:sname => (ssl ? "https" : "http"),
 						:port	=> rport,
 						:type	=> 'TRACE_AXD',
 						:data	=> "trace.axd"

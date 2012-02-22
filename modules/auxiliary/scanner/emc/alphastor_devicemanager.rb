@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'EMC AlphaStor Device Manager Service',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module querys the remote host for the EMC Alphastor Device Management Service.',
+			'Description'    => 'This module queries the remote host for the EMC Alphastor Device Management Service.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE
 		)
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if ( data and data =~ /rrobotd:rrobotd/ )
 				print_status("Host #{ip} is running the EMC AlphaStor Device Manager.")
-				report_service(:host => rhost, :port => rport, :name => "EMC AlphaStor Device Manager", :info => data)
+				report_service(:host => rhost, :port => rport, :name => "emc-manager", :info => data)
 		else
 				print_error("Host #{ip} is not running the service...")
 		end

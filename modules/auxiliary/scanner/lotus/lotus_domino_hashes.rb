@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host        => rhost,
 						:port        => rport,
-						:sname       => 'http',
+						:sname       => (ssl ? "https" : "http"),
 						:user        => short_name,
 						:pass        => pass_hash,
 						:ptype       => "domino_hash",

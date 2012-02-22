@@ -39,18 +39,18 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 		begin
-		
+
 		connect rescue nil
 		if not self.sock
 			return
 		end
-		
+
 		banner = sock.get_once(-1, 10)
 		if not banner
 			print_error "#{rhost}:#{rport} No banner received from vmauthd"
 			return
 		end
-		
+
 		banner = banner.strip
 
 		unless banner =~ /VMware Authentication Daemon/
@@ -59,19 +59,19 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		cert = nil
-		
+
 		if banner =~ /SSL/
 			print_status("#{rhost}:#{rport} Switching to SSL connection...")
 			swap_sock_plain_to_ssl
 			cert = self.sock.peer_cert
 		end
-		
+
 		if cert
 			banner << " Certificate:#{cert.subject.to_s}"
 		end
-		
+
 		print_status "#{rhost}:#{rport} Banner: #{banner}"
-		
+
 		report_service(
 			:host  => rhost,
 			:port  => rport,
@@ -79,8 +79,8 @@ class Metasploit3 < Msf::Auxiliary
 			:info  => banner,
 			:proto => 'tcp'
 		)
-		
-		
+
+
 		rescue ::Interrupt
 			raise $!
 		ensure

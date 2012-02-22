@@ -263,7 +263,7 @@ class Metasploit3 < Msf::Auxiliary
 					:host_name => (hname) ? hname.downcase : nil,
 					:port  => pkt[2],
 					:proto => 'udp',
-					:name  => 'NetBIOS',
+					:name  => 'netbios',
 					:info  => inf
 				)
 			end

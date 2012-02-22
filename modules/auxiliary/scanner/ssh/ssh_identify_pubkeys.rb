@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				authentication request. To use this module, a text file containing
 				one or more SSH keys should be provided. These can be private or
 				public, so long as no passphrase is set on the private keys.
-								
+
 				If you have loaded a database plugin and connected to a database
 				this module will record authorized public keys and hosts so you can
 				track your process.
@@ -232,7 +232,7 @@ class Metasploit3 < Msf::Auxiliary
 			rescue Net::SSH::Exception => e
 				return [:fail,nil] # For whatever reason.
 			end
-			
+
 			if accepted.length == 0
 				if @key_files
 					print_brute :level => :verror, :msg =>  "User #{user} does not accept key #{@key_files[key_idx+1]} #{key_info}"
@@ -240,7 +240,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_brute :level => :verror, :msg => "User #{user} does not accept key #{key_idx+1} #{key_info}"
 				end
 			end
-			
+
 			accepted.each do |key|
 				print_brute :level => :good, :msg => "Accepted: '#{user}' with key '#{key[:fingerprint]}' #{key_info}"
 				do_report(ip, rport, user, key, key_data)

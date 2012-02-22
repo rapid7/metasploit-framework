@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 			hhead = $1
 			nport = $2.to_i
 		end
-		
+
 		@myport = nport || 80
 
 
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => cli.peerhost,
 				:port      => @myport,
-				:sname     => 'http',
+				:sname     => (ssl ? "https" : "http"),
 				:user      => user,
 				:pass      => pass,
 				:source_type => "captured",

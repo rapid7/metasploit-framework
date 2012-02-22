@@ -167,7 +167,7 @@ class Metasploit3 < Msf::Post
 					report_auth_info(
 						:host  => loot['host'],
 						:port => loot['port'],
-						:sname => 'FTP',
+						:sname => 'ftp',
 						:source_id => source_id,
 						:source_type => "exploit",
 						:user => loot['user'],

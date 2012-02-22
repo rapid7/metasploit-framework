@@ -317,7 +317,7 @@ class Metasploit3 < Msf::Post
 					report_auth_info(
 						:host  => smtp_server,
 						:port => smtp_port,
-						:sname => "SMTP",
+						:sname => "smtp",
 						:source_id => source_id,
 						:source_type => "exploit",
 						:user => smtp_user,

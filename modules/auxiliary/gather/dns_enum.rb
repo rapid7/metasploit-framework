@@ -99,7 +99,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Domain: #{target} IP Address: #{rr.address} Record: A ")
 				report_note(:host => rr.address.to_s,
 					:proto => 'udp',
-					:sname => 'DNS',
+					:sname => 'dns',
 					:port => 53 ,
 					:type => 'DNS_ENUM',
 					:data => "#{rr.address.to_s},#{target},A")
@@ -114,7 +114,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Start of Authority: #{rr.mname} IP Address: #{ip.address} Record: SOA")
 						report_note(:host => ip.address.to_s,
 							:proto => 'udp',
-							:sname => 'DNS',
+							:sname => 'dns',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
 							:data => "#{ip.address.to_s},#{rr.mname},SOA")
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Name Server: #{rr.nsdname} IP Address: #{ip.address} Record: NS")
 						report_note(:host => ip.address.to_s,
 							:proto => 'udp',
-							:sname => 'DNS',
+							:sname => 'dns',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
 							:data => "#{ip.address.to_s},#{rr.nsdname},NS")
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
 				report_note(:host => @nsinuse.to_s,
 					:proto => 'udp',
-					:sname => 'DNS',
+					:sname => 'dns',
 					:port => 53 ,
 					:type => 'DNS_ENUM',
 					:data => "#{rr.exchange},MX")
@@ -158,7 +158,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_status("Text: #{rr.txt}, TXT")
 				report_note(:host => @nsinuse.to_s,
 					:proto => 'udp',
-					:sname => 'DNS',
+					:sname => 'dns',
 					:port => 53 ,
 					:type => 'DNS_ENUM',
 					:data => "#{rr.txt},TXT")
@@ -207,7 +207,7 @@ class Metasploit3 < Msf::Auxiliary
 					print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
 					report_note(:host => rr.address.to_s,
 						:proto => 'udp',
-						:sname => 'DNS',
+						:sname => 'dns',
 						:port => 53,
 						:type => 'DNS_ENUM',
 						:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
@@ -233,7 +233,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Host Name: #{line.chomp}.#{target} IP Address: #{rr.address.to_s}")
 						report_note(:host => rr.address.to_s,
 							:proto => 'udp',
-							:sname => 'DNS',
+							:sname => 'dns',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Host Name: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
 						report_note(:host => rr.address.to_s,
 							:proto => 'udp',
-							:sname => 'DNS',
+							:sname => 'dns',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
@@ -295,7 +295,7 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("Host Name: #{addresstp} IP Address: #{tip.to_s}")
 							report_note(:host => tip,
 								:proto => 'udp',
-								:sname => 'DNS',
+								:sname => 'dns',
 								:port => 53 ,
 								:type => 'DNS_ENUM',
 								:data => "#{addresstp},#{tip},A")
@@ -368,7 +368,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Zone Transfer Successful")
 						report_note(:host => nsip.address.to_s,
 							:proto => 'udp',
-							:sname => 'DNS',
+							:sname => 'dns',
 							:port => 53 ,
 							:type => 'DNS_ENUM',
 							:data => "Zone Transfer Successful")
@@ -379,7 +379,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Name: #{rr.name} IP Address: #{rr.address} Record: A ")
 								report_note(:host => rr.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.address.to_s},#{rr.name},A")
@@ -387,7 +387,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Name: #{rr.mname} Record: SOA")
 								report_note(:host => nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.name},SOA")
@@ -395,7 +395,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
 								report_note(:host => nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.exchange},MX")
@@ -403,7 +403,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Name: #{rr.cname} Record: CNAME")
 								report_note(:host => nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.cname},CNAME")
@@ -411,7 +411,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
 								report_note(:host => nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
@@ -419,7 +419,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("IPv6 Address: #{rr.address} Record: AAAA")
 								report_note(:host => rr.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.address.to_s}, AAAA")
@@ -427,7 +427,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Name: #{rr.nsdname} Record: NS")
 								report_note(:host =>  nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.nsdname},NS")
@@ -435,7 +435,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Text: #{rr.txt} Record: TXT")
 								report_note(:host =>  nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.txt},TXT")
@@ -443,7 +443,7 @@ class Metasploit3 < Msf::Auxiliary
 								print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
 								report_note(:host =>  nsip.address.to_s,
 									:proto => 'udp',
-									:sname => 'DNS',
+									:sname => 'dns',
 									:port => 53 ,
 									:type => 'DNS_ENUM',
 									:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")

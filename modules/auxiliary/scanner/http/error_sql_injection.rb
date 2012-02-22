@@ -157,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> ip,
 					:proto  => 'tcp',
-					:sname	=> 'HTTP',
+					:sname => (ssl ? "https" : "http"),
 					:port	=> rport,
 					:type	=> 'DATABASE_ERROR',
 					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
@@ -245,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> ip,
 								:proto  => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? "https" : "http"),
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"

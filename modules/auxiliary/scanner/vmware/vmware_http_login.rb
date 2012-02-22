@@ -25,8 +25,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Web Login Scanner',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service 
-							 for VmWare Server, ESX, and ESXI',
+			'Description'    => 'This module attempts to authenticate to the VMWare HTTP service
+				for VmWare Server, ESX, and ESXI',
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'References'     =>
 				[
@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Mostly taken from the Apache Tomcat service validator
 	def check
-		soap_data = 
+		soap_data =
 			%Q|<env:Envelope xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:env="http://schemas.xmlsoap.org/soap/envelope/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 			<env:Body>
 			<RetrieveServiceContent xmlns="urn:vim25">
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Auxiliary
 			</RetrieveServiceContent>
 			</env:Body>
 			</env:Envelope>|
-		
+
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URI'],
@@ -84,13 +84,13 @@ class Metasploit3 < Msf::Auxiliary
 				'agent'   => 'VMware VI Client',
 				'data'    => soap_data
 			}, 25)
-			
+
 			if res
 				fingerprint_vmware(res)
 			else
 				vprint_error("#{rhost}:#{rport} Error: no response")
 			end
-			
+
 		rescue ::Rex::ConnectionError => e
 			vprint_error("#{rhost}:#{rport} Error: could not connect")
 			return false
@@ -99,14 +99,14 @@ class Metasploit3 < Msf::Auxiliary
 			return false
 		end
 	end
-	
+
 	def fingerprint_vmware(res)
 		unless res
 			vprint_error("#{rhost}:#{rport} Error: no response")
 			return false
 		end
 		return false unless res.body.include?('<vendor>VMware, Inc.</vendor>')
-		
+
 		os_match = res.body.match(/<name>([\w\s]+)<\/name>/)
 		ver_match = res.body.match(/<version>([\w\s\.]+)<\/version>/)
 		build_match = res.body.match(/<build>([\w\s\.\-]+)<\/build>/)
@@ -116,7 +116,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_good "#{rhost}:#{rport} - Identified #{full_match[1]}"
 			report_service(:host => rhost, :port => rport, :proto => 'tcp', :sname => 'https', :info => full_match[1])
 		end
-		
+
 		if os_match and ver_match and build_match
 			if os_match[1] =~ /ESX/ or os_match[1] =~ /vCenter/
 				this_host = report_host( :host => rhost, :os_name => os_match[1], :os_flavor => ver_match[1], :os_sp => "Build #{build_match[1]}" )
