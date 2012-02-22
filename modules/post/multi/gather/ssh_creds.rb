@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Post
 				next if sshfile =~ /No such file/i
 
 				print_status("Found .ssh directory for: #{id}")
-				return sshfile
+				return [sshfile]
 			end
 			return
 		end
