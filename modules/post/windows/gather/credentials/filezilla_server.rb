@@ -197,7 +197,7 @@ class Metasploit3 < Msf::Post
 			report_auth_info(
 				:host  => session,
 				:port => config['admin_port'],
-				:sname => 'filezilla-server-admin-interface',
+				:sname => 'filezilla-admin',
 				:proto => 'tcp',
 				:user => 'admin',
 				:pass => config['admin_pass'],
