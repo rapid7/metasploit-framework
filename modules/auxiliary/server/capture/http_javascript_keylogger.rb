@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 				
 			},
 			'License'	=> MSF_LICENSE,
-			'Author'	=> ['Marcus J. Carey <mjc[at]threatagent.com>', 'hdm'],
+			'Author'	=> ['Marcus J. Carey <mjc[at]threatagent.com>', 'hdm']
 	))
 
 	register_options(
