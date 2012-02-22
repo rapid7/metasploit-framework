@@ -85,7 +85,7 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return if datastore['STOP_ON_SUCCESS']
 			else
-				print_error("#{rhost}:#{rport} Error: #{res}")
+				print_error("#{rhost}:#{rport} Error: #{result}")
 			end
 		end
 		
