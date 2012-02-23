@@ -97,7 +97,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def shell_read(length=nil, timeout=1)
 		shell_init
 
-		length = nil if length < 0
+		length = nil if length.nil? or length < 0
 		begin
 			rv = nil
 			# Meterpreter doesn't offer a way to timeout on the victim side, so
