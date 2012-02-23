@@ -447,11 +447,21 @@ class Metasploit3 < Msf::Auxiliary
 				tl= truer.body.length
 				fl= falser.body.length
 				
+				if nl == 0
+					nl = 1
+				end
+				if tl == 0
+					tl = 1
+				end
+				if fl == 0
+					fl = 1
+				end
+				
 				ntmax = [ nl,tl ].max
 				ntmin = [ nl,tl ].min
 				diff_nt_perc = ((ntmax - ntmin)*100)/(ntmax)
-				diff_nt_f_perc = ((ntmax - fl)*100)/(ntmax)
-								
+				diff_nt_f_perc = ((ntmax - fl)*100)/(ntmax)		
+				
 				if diff_nt_perc <= max_diff_perc and diff_nt_f_perc > min_diff_perc
 					print_status("Detected by test D")
 					return true
