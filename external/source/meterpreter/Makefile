@@ -68,6 +68,7 @@ tmp/openssl-0.9.8o/libssl.so:
 		./Configure --prefix=/tmp/out threads shared no-hw no-dlfcn no-zlib no-krb5 no-idea 386 linux-msf \
 	)
 	(cd tmp/openssl-0.9.8o && make depend all ; [ -f libssl.so.0.9.8 -a -f libcrypto.so.0.9.8 ] )
+	mkdir -p external/source/meterpreter/source/openssl/lib/linux/i386/
 	cp tmp/openssl-0.9.8o/libssl.so* tmp/openssl-0.9.8o/libcrypto.so* external/source/meterpreter/source/openssl/lib/linux/i386/
 
 external/source/meterpreter/source/bionic/compiled/libpcap.so: tmp/libpcap-1.1.1/libpcap.so.1.1.1
