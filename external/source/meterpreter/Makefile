@@ -68,6 +68,7 @@ tmp/openssl-0.9.8o/libssl.so:
 		./Configure --prefix=/tmp/out threads shared no-hw no-dlfcn no-zlib no-krb5 no-idea 386 linux-msf \
 	)
 	(cd tmp/openssl-0.9.8o && make depend all ; [ -f libssl.so.0.9.8 -a -f libcrypto.so.0.9.8 ] )
+	mkdir external/source/meterpreter/source/openssl/lib/linux/i386/
 	cp tmp/openssl-0.9.8o/libssl.so* tmp/openssl-0.9.8o/libcrypto.so* external/source/meterpreter/source/openssl/lib/linux/i386/
 
 external/source/meterpreter/source/bionic/compiled/libpcap.so: tmp/libpcap-1.1.1/libpcap.so.1.1.1
@@ -115,6 +116,11 @@ data/meterpreter/ext_server_sniffer.lso: $(workspace)/ext_server_sniffer/ext_ser
 	cp $(workspace)/ext_server_sniffer/ext_server_sniffer.so data/meterpreter/ext_server_sniffer.lso
 
 $(workspace)/ext_server_stdapi/ext_server_stdapi.so:
+	mkdir -p external/source/meterpreter/workspace/ext_server_stdapi/server/fs 
+	mkdir -p external/source/meterpreter/workspace/ext_server_stdapi/server/net/config 
+	mkdir -p external/source/meterpreter/workspace/ext_server_stdapi/server/net/socket 
+	mkdir -p external/source/meterpreter/workspace/ext_server_stdapi/server/sys/config 
+	mkdir -p external/source/meterpreter/workspace/ext_server_stdapi/server/sys/process 
 	$(MAKE) -C $(workspace)/ext_server_stdapi
 
 data/meterpreter/ext_server_stdapi.lso: $(workspace)/ext_server_stdapi/ext_server_stdapi.so
