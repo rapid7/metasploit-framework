@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Windows Gather RazorSQL Credentials',
 			'Description'   => %q{
-					This module stores username, password, type, host, port, database (and name) 
+					This module stores username, password, type, host, port, database (and name)
 				collected from profiles.txt of RazorSQL.
 			},
 			'License'       => MSF_LICENSE,

@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Post
 				report_auth_info(
 					:host  => host,
 					:port => port,
-					:sname => 'FTP',
+					:sname => 'ftp',
 					:source_id => source_id,
 					:source_type => "exploit",
 					:user => username,

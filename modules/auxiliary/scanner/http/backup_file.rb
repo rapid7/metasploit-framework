@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> rhost,
 					:proto => 'tcp',
-					:sname	=> 'HTTP',
+					:sname => (ssl ? "https" : "http"),
 					:port	=> rport,
 					:type	=> 'BACKUP_FILE',
 					:data	=> "#{file}"

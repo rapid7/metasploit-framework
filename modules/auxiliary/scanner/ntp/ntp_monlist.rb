@@ -104,7 +104,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host  => k,
 				:proto => 'udp',
 				:port  => datastore['RPORT'].to_i,
-				:name  => 'NTP'
+				:name  => 'ntp'
 			)
 
 			report_note(

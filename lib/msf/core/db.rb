@@ -364,7 +364,8 @@ class DBManager
 	# +:proto+:: the transport layer protocol (e.g. tcp, udp)
 	#
 	# opts may contain
-	# +:name+:: the application layer protocol (e.g. ssh, mssql, smb)
+	# +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
+	# +:sname+:: an alias for the above
 	#
 	def report_service(opts)
 		return if not active
@@ -377,6 +378,13 @@ class DBManager
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
+
+		# Other report_* methods take :sname to mean the service name, so we
+		# map it here to ensure it ends up in the right place despite not being
+		# a real column.
+		if opts[:sname]
+			opts[:name] = opts.delete(:sname)
+		end
 
 		if addr.kind_of? Host
 			host = addr

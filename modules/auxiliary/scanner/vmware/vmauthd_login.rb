@@ -38,22 +38,22 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([Opt::RPORT(902)])
 
 	end
-	
+
 	def run_host(ip)
 		begin
-		
+
 		connect rescue nil
 		if not self.sock
 			print_error "#{rhost}:#{rport} Could not connect to vmauthd"
 			return
 		end
-		
+
 		banner = sock.get_once(-1, 10)
 		if not banner
 			print_error "#{rhost}:#{rport} No banner received from vmauthd"
 			return
 		end
-		
+
 		banner = banner.strip
 		print_status "#{rhost}:#{rport} Banner: #{banner}"
 
@@ -85,10 +85,10 @@ class Metasploit3 < Msf::Auxiliary
 				)
 				return if datastore['STOP_ON_SUCCESS']
 			else
-				print_error("#{rhost}:#{rport} Error: #{res}")
+				print_error("#{rhost}:#{rport} Error: #{result}")
 			end
 		end
-		
+
 		rescue ::Interrupt
 			raise $!
 		ensure

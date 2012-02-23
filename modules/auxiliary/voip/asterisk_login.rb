@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host   => rhost,
 						:port   => rport,
-						:sname  => 'Asterisk Manager',
+						:sname  => 'asterisk_manager',
 						:user   => user,
 						:pass   => pass,
 						:active => true,

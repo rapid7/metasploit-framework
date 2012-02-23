@@ -71,7 +71,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.current',
 							:data => server1.strip
@@ -120,7 +120,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.releasenotes',
 							:data => server2.strip
@@ -155,7 +155,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> ip,
 							:proto => 'tcp',
-							:sname => 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type => 'lotusdomino.version.base',
 							:data => server3.strip
