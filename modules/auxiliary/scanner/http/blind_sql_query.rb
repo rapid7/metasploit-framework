@@ -219,10 +219,18 @@ class Metasploit3 < Msf::Auxiliary
 					rescue ::Timeout::Error, ::Errno::EPIPE
 					end		
 	
-					pinj = detection_a(normalres,trueres,falseres,tarr)
+					pinja = false
+					pinjb = false
+					pinjc = false
+					pinjd = false
 					
-					if pinj
-						print_error("(A) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+					pinja = detection_a(normalres,trueres,falseres,tarr)
+					pinjb = detection_b(normalres,trueres,falseres,tarr)
+					pinjc = detection_c(normalres,trueres,falseres,tarr)
+					pinjd = detection_d(normalres,trueres,falseres,tarr)
+					
+					if pinja or pinjb or pinjc  or pinjd
+						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 						print_error("[#{t}]")
 						
 						report_web_vuln(
@@ -240,33 +248,6 @@ class Metasploit3 < Msf::Auxiliary
 							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
 							:name   => 'Blind SQL injection'
 						)
-						pinj = false
-					else
-						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
-					end
-					
-					pinj = detection_b(normalres,trueres,falseres,tarr)
-					
-					if pinj
-						print_error("(B) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
-						
-						report_web_vuln(
-							:host	=> ip,
-							:port	=> rport,
-							:vhost  => vhost,
-							:ssl    => ssl,
-							:path	=> "#{datastore['PATH']}",
-							:method => http_method,
-							:pname  => "#{key}",
-							:proof  => "blind sql inj.",
-							:risk   => 2,
-							:confidence   => 50,
-							:category     => 'SQL injection',
-							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-							:name   => 'Blind SQL injection'
-						)
-						pinj = false
 					else
 						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
 					end
@@ -329,10 +310,18 @@ class Metasploit3 < Msf::Auxiliary
 					rescue ::Timeout::Error, ::Errno::EPIPE
 					end	
 
-					pinj = detection_a(normalres,trueres,falseres,tarr)
+					pinja = false
+					pinjb = false
+					pinjc = false
+					pinjd = false
 					
-					if pinj
-						print_error("(A) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
+					pinja = detection_a(normalres,trueres,falseres,tarr)
+					pinjb = detection_b(normalres,trueres,falseres,tarr)
+					pinjc = detection_c(normalres,trueres,falseres,tarr)
+					pinjd = detection_d(normalres,trueres,falseres,tarr)
+					
+					if pinja or pinjb or pinjc or pinjd
+						print_error("Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
 						print_error("[#{t}]")
 						
 						report_web_vuln(
@@ -350,33 +339,6 @@ class Metasploit3 < Msf::Auxiliary
 							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
 							:name   => 'Blind SQL injection'
 						)
-						pinj = false
-					else
-						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
-					end
-					
-					pinj = detection_b(normalres,trueres,falseres,tarr)
-					
-					if pinj
-						print_error("(B) Possible #{tarr[0]} Blind SQL Injection Found  #{datastore['PATH']} #{key}")
-						print_error("[#{t}]")
-						
-						report_web_vuln(
-							:host	=> ip,
-							:port	=> rport,
-							:vhost  => vhost,
-							:ssl    => ssl,
-							:path	=> "#{datastore['PATH']}",
-							:method => http_method,
-							:pname  => "#{key}",
-							:proof  => "blind sql inj.",
-							:risk   => 2,
-							:confidence   => 50,
-							:category     => 'SQL injection',
-							:description  => "Blind sql injection of type #{tarr[0]} in param #{key}",
-							:name   => 'Blind SQL injection'
-						)
-						pinj = false
 					else
 						vprint_status("NOT Vulnerable #{datastore['PATH']} parameter #{key}")
 					end
@@ -405,6 +367,7 @@ class Metasploit3 < Msf::Auxiliary
 					#print_status("falsesize #{relfalsesize}")	
 					
 					if reltruesize > relfalsesize
+						print_status("Detected by test A")
 						return true
 					else
 						return false
@@ -433,9 +396,11 @@ class Metasploit3 < Msf::Auxiliary
 				#print_status("N: #{normalr.body.length} T: #{truer.body.length} F: #{falser.body.length} T1: #{tarr[1].length}  F2: #{tarr[2].length} #{tarr[1].length+tarr[2].length}")
 			
 				if (truer.body.length-tarr[1].length) != normalr.body.length and (falser.body.length-tarr[2].length) == normalr.body.length
+					print_status("Detected by test B")
 					return true
 				end
 				if (truer.body.length-tarr[1].length) == normalr.body.length and (falser.body.length-tarr[2].length) != normalr.body.length
+					print_status("Detected by test B")
 					return true
 				end
 			end
@@ -453,9 +418,11 @@ class Metasploit3 < Msf::Auxiliary
 		if normalr and truer 
 			if falser
 				if truer.code.to_i != normalr.code.to_i and falser.code.to_i == normalr.code.to_i
+					print_status("Detected by test C")
 					return true
 				end
 				if truer.code.to_i == normalr.code.to_i and falser.code.to_i != normalr.code.to_i
+					print_status("Detected by test C")
 					return true
 				end
 			end
@@ -463,4 +430,46 @@ class Metasploit3 < Msf::Auxiliary
 		
 		return false
 	end
+	
+	def detection_d(normalr,truer,falser,tarr)
+		# print_status("D")
+			
+		# DETECTION D
+		# Variance PERCENTAGE MIN MAX on res body
+		
+		# 2% 50%
+		max_diff_perc = 2 
+ 		min_diff_perc = 50 
+		
+		if normalr and truer 
+			if falser
+				nl= normalr.body.length
+				tl= truer.body.length
+				fl= falser.body.length
+				
+				ntmax = [ nl,tl ].max
+				ntmin = [ nl,tl ].min
+				diff_nt_perc = ((ntmax - ntmin)*100)/(ntmax)
+				diff_nt_f_perc = ((ntmax - fl)*100)/(ntmax)
+								
+				if diff_nt_perc <= max_diff_perc and diff_nt_f_perc > min_diff_perc
+					print_status("Detected by test D")
+					return true
+				end
+				
+				nfmax = [ nl,fl ].max
+				nfmin = [ nl,fl ].min
+				diff_nf_perc = ((nfmax - nfmin)*100)/(nfmax)
+				diff_nf_t_perc = ((nfmax - tl)*100)/(nfmax)
+				
+				if diff_nf_perc <= max_diff_perc and diff_nf_t_perc > min_diff_perc
+					print_status("Detected by test D")
+					return true
+				end
+			end
+		end
+		
+		return false
+	end
+	
 end
