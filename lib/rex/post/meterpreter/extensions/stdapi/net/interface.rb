@@ -27,14 +27,14 @@ class Interface
 	# Returns a logical interface and initializes it to the supplied
 	# parameters.
 	#
-	def initialize(index, ip, netmask, mac_addr, mac_name, ip6=nil, netmask6=nil, mtu=0, flags=nil)
+	def initialize(index, ip, netmask, mac_addr, mac_name, ip6=nil, netmask6=nil, mtu=nil, flags=nil)
 		self.index    = index
-		self.ip       = IPAddr.ntop(ip)
-		self.netmask  = IPAddr.ntop(netmask)
+		self.ip       = (ip ? IPAddr.ntop(ip) : nil)
+		self.netmask  = (netmask ? IPAddr.ntop(netmask) : nil)
 		self.mac_addr = mac_addr
 		self.mac_name = mac_name
-		self.ip6      = (ip6!=nil) ? IPAddr.new_ntoh(ip6).to_s : ""
-		self.netmask6 = (netmask6!=nil) ? IPAddr.new_ntoh(netmask6).to_s : ""
+		self.ip6      = (ip6 ? IPAddr.new_ntoh(ip6).to_s : nil)
+		self.netmask6 = (netmask6 ? IPAddr.new_ntoh(netmask6).to_s : nil)
 		self.mtu      = mtu
 		self.flags    = flags
 	end
@@ -46,33 +46,33 @@ class Interface
 		macocts = []
 		mac_addr.each_byte { |o| macocts << o }
 		macocts += [0] * (6 - macocts.size) if macocts.size < 6
-		# no ip6 received or NULL addr
-		if ip6 != "" and ip6 != "::"
-			ipv6_conf  = sprintf("IPv6 Address : %s\n" +
-							 	 "Netmask      : %s\n", 
-								  ip6, netmask6)
-		else
-			ipv6_conf = ""
-		end
-		if flags != nil
-			flags_str =  sprintf("Flags        : %s\n", flags)
-		else	
-			flags_str = ""
-		end
-		return sprintf(
+
+		info = {
+			"Name"         => mac_name,
+			"Hardware MAC" => sprintf("%02x:%02x:%02x:%02x:%02x:%02x",
+				macocts[0], macocts[1], macocts[2],
+				macocts[3], macocts[4], macocts[5]),
+			"MTU"          => mtu,
+			"Flags"        => flags,
+			"IPv4 Address" => ((ip and ip != "0.0.0.0") ? ip : nil),
+			"IPv4 Netmask" => netmask,
+			"IPv6 Address" => ((ip6 and ip6 != "::") ? ip6 : nil),
+			"IPv6 Netmask" => netmask6,
+		}
+		pad = info.keys.max_by{|k|k.length}.length
+
+		ret = sprintf(
 				"Interface %2d\n" +
-				"============\n"+
-				"Name         : %s\n" +
-				"Hardware MAC : %02x:%02x:%02x:%02x:%02x:%02x\n" +
-				"MTU          : %d\n" +
-				"%s" +
-				"IP Address   : %s\n" +
-				"Netmask      : %s\n" +
-				"%s" + 
-				"\n",
-				index, mac_name,
-				macocts[0], macocts[1], macocts[2], macocts[3],
-				macocts[4], macocts[5], mtu, flags_str, ip, netmask, ipv6_conf)
+				"============\n",
+				index
+			)
+
+		info.map {|k,v|
+			next if v.nil?
+			ret << k.ljust(pad) + " : #{v}\n"
+		}
+
+		ret
 	end
 
 	#
