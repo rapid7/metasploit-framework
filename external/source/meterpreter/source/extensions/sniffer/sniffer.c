@@ -412,7 +412,7 @@ void packet_handler(u_char *user, const struct pcap_pkthdr *h, const u_char *byt
 	// could be interesting to try and find a lockless way of implementing it.
 	// though the j->idx_pkts >= j->max_pkts is annoying :p
 
-	lock_release(snifferm);
+	lock_acquire(snifferm);
 
 	j->cur_pkts ++;
 	j->cur_bytes += h->caplen;
