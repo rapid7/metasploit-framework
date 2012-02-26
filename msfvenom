@@ -390,9 +390,12 @@ end
 case opts[:format]
 when /ruby|rb|perl|pl|bash|sh|c|js_le|raw/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
-when /asp/
+when /asp$/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
 	$stdout.puts asp
+when /aspx/
+	aspx = Msf::Util::EXE.to_win32pe_aspx($framework, payload_raw, exeopts)
+	$stdout.puts aspx
 when /js_be/i
 	if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
 		print_error("Big endian format selected for a non big endian payload")
