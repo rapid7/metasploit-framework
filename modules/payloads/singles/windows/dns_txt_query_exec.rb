@@ -247,8 +247,8 @@ copy_piece_to_heap:
 	push edi		; save target for next copy
 	dec ebx			; decrement counter
 	cmp bl,0		; are we done yet ?
-	je jump_to_payload	; nope
-	jmp find_next_part	; yes, find the next piece
+	je jump_to_payload	; yes
+	jmp find_next_part	; nope, find the next piece
 
 jump_to_payload:
 	pop #{bufferreg}
