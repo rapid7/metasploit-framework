@@ -25,7 +25,7 @@ class Metasploit3 < Msf::Post
 			))
 		register_options(
 			[
-				OptAddressRange.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
+				OptAddress.new("LHOST", [ true, "Host listening for incoming SMB/WebDAV traffic", nil]),
 				OptString.new("LNKFILENAME", [ true, "Shortcut's filename", "Words.lnk"]),
 				OptString.new("SHARENAME", [ true, "Share name on LHOST", "share1"]),
 				OptString.new("ICONFILENAME", [ true, "File name on LHOST's share", "icon.png"])
