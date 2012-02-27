@@ -29,6 +29,12 @@ class Console::CommandDispatcher::Stdapi::Fs
 	@@upload_opts = Rex::Parser::Arguments.new(
 		"-h" => [ false, "Help banner." ],
 		"-r" => [ false, "Upload recursively." ])
+	#
+	# Options for the ls command
+	#
+	@@ls_opts = Rex::Parser::Arguments.new(
+		"-h" => [ false, "Help banner." ],
+		"-S" => [ true, "Search string." ])
 
 	#
 	# List of supported commands.
@@ -65,18 +71,18 @@ class Console::CommandDispatcher::Stdapi::Fs
 	# Search for files.
 	#
 	def cmd_search( *args )
-	
+
 		root    = nil
 		glob    = nil
 		recurse = true
-		
+
 		opts = Rex::Parser::Arguments.new(
 			"-h" => [ false, "Help Banner." ],
 			"-d" => [ true,  "The directory/drive to begin searching from. Leave empty to search all drives. (Default: #{root})" ],
 			"-f" => [ true,  "The file pattern glob to search for. (e.g. *secret*.doc?)" ],
 			"-r" => [ true,  "Recursivly search sub directories. (Default: #{recurse})" ]
 		)
-		
+
 		opts.parse(args) { | opt, idx, val |
 			case opt
 				when "-h"
@@ -92,14 +98,14 @@ class Console::CommandDispatcher::Stdapi::Fs
 					recurse = false if( val =~ /^(f|n|0)/i )
 			end
 		}
-		
+
 		if( not glob )
 			print_error( "You must specify a valid file glob to search for, e.g. >search -f *.doc" )
 			return
 		end
-		
+
 		files = client.fs.file.search( root, glob, recurse )
-		
+
 		if( not files.empty? )
 			print_line( "Found #{files.length} result#{ files.length > 1 ? 's' : '' }..." )
 			files.each do | file |
@@ -112,9 +118,9 @@ class Console::CommandDispatcher::Stdapi::Fs
 		else
 			print_line( "No files matching your search were found." )
 		end
-		
+
 	end
-	
+
 	#
 	# Reads the contents of a file and prints them to the screen.
 	#
@@ -165,7 +171,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		return true
 	end
-	
+
 	#
 	# Delete the specified file.
 	#
@@ -179,7 +185,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		return true
 	end
-	
+
 	alias :cmd_del :cmd_rm
 
 	def cmd_download_help
@@ -188,7 +194,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		print_line "Downloads remote files and directories to the local machine."
 		print_line @@download_opts.usage
 	end
-	
+
 	#
 	# Downloads a file or directory from the remote machine to the local
 	# machine.
@@ -246,7 +252,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 				}
 			end
 		}
-		
+
 		return true
 	end
 
@@ -298,13 +304,33 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 	alias cmd_getlwd cmd_lpwd
 
+	def cmd_ls_help
+		print_line "Usage: ls [options]"
+		print_line
+		print_line "Lists contents of directory or file info, searchable"
+		print_line @@ls_opts.usage
+	end
+
 	#
 	# Lists files
 	#
 	# TODO: make this more useful
 	#
 	def cmd_ls(*args)
-		path = args[0] || client.fs.dir.getwd
+		search_term = ''
+		path = client.fs.dir.getwd
+		@@ls_opts.parse(args) { |opt, idx, val|
+			case opt
+			when "-S"
+				search_term = val
+			when "-h"
+				cmd_ls_help
+				return 0
+			when nil
+				path = val
+			end
+		}
+		
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => "Listing: #{path}",
 			'SortIndex' => 4,
@@ -319,9 +345,14 @@ class Console::CommandDispatcher::Stdapi::Fs
 
 		items = 0
 
+print_good("Search term:\n#{search_term}") unless search_term.empty?
+
 		# Enumerate each item...
 		# No need to sort as Table will do it for us
+		# Skip entries not maching our search term
 		client.fs.dir.entries_with_info(path).each { |p|
+
+			next unless p['FileName'] and p['FileName'].downcase.match(search_term)
 
 			tbl <<
 				[
@@ -446,7 +477,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 				}
 			end
 		}
-		
+
 		return true
 	end
 
@@ -462,3 +493,4 @@ end
 end
 end
 end
+

@@ -43,6 +43,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 		"-v" => [ true,  "The registry value name (E.g. Stuff)."                   ],
 		"-r" => [ true,  "The remote machine name to connect to (with current process credentials" ],
 		"-w" => [ false,  "Set KEY_WOW64 flag, valid values [32|64]."               ])
+	#
+	# Options used by the 'ps' command.
+	#
+	@@ps_opts = Rex::Parser::Arguments.new(
+		"-S, --search" => [ true,  "String to search for (converts to regex)"                ],
+		"-h, --help" =>   [ false, "Help menu."                                              ])
 
 	#
 	# List of supported commands.
@@ -229,6 +235,30 @@ class Console::CommandDispatcher::Stdapi::Sys
 	#
 	def cmd_ps(*args)
 		processes = client.sys.process.get_processes
+		# Init vars
+		search_term = ''
+
+		# Parse opts
+		@@execute_opts.parse(args) { |opt, idx, val|
+			case opt
+			when '-S', '--search'
+				search_term = val
+				if search_term.empty?
+					print_error("Enter a search term")
+				else
+					search_term = search_term.downcase
+				end
+			when '-h', '--help'
+				print_line "Usage: ps [ options ]"
+				print_line
+				print_line "OPTIONS:"
+				print_line " -S, --search       Search string to filter by"
+				print_line " -h, --help 		This help menu"
+				print_line
+				return 0
+			end
+		end
+
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Process list",
 			'Indent'  => 1,
@@ -241,6 +271,12 @@ class Console::CommandDispatcher::Stdapi::Sys
 					"User",
 					"Path"
 				])
+		# Strip procs to search constraints
+		begin 
+		processes.keep_if { |ent|
+			ent.any? { |k, v| v.to_s.downcase.match(/#{search_term}/) }
+			}
+		end unless search_term.empty?
 
 		processes.each { |ent|
 
@@ -308,7 +344,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						"    queryclass Queries the class of the supplied key [-k <key>]\n" +
 						"    setval     Set a registry value [-k <key> -v <val> -d <data>]\n" +
 						"    deleteval  Delete the supplied registry value [-k <key> -v <val>]\n" +
-						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n") 
+						"    queryval   Queries the data contents of a value [-k <key> -v <val>]\n\n")
 					return false
 				when "-k"
 					key   = val
@@ -342,7 +378,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 			# Rock it
 			case cmd
 				when "enumkey"
-				
+
 					open_key = nil
 					if not rem
 						open_key = client.sys.registry.open_key(root_key, base_key, KEY_READ + wowflag)
@@ -392,7 +428,7 @@ class Console::CommandDispatcher::Stdapi::Sys
 						if remote_key
 							open_key = remote_key.create_key(base_key, KEY_WRITE + wowflag)
 						end
-					end				
+					end
 
 					print_line("Successfully created key: #{key}")
 
