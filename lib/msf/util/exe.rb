@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id:$
 ##
 
 ###
@@ -82,6 +82,14 @@ require 'digest/sha1'
 
 			if(plat.index(Msf::Module::Platform::OSX))
 				return to_osx_x86_macho(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::BSD))
+				return to_bsd_x86_elf(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::Solaris))
+				return to_solaris_x86_elf(framework, code)
 			end
 
 			# XXX: Add remaining x86 systems here
@@ -593,6 +601,44 @@ require 'digest/sha1'
 		macho[bin, code.length] = code
 
 		return macho
+	end
+
+	# Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+	def self.to_bsd_x86_elf(framework, code, opts={})
+		set_template_default(opts, "template_x86_bsd.bin")
+		
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
+
+		# Append shellcode
+		elf << code
+
+		# modify size
+		elf[0x44,4] = [elf.length].pack('V')
+		elf[0x48,4] = [elf.length].pack('V')
+
+		return elf
+	end
+
+	# Create a 32-bit Solaris ELF containing the payload provided in +code+
+	def self.to_solaris_x86_elf(framework, code, opts={})
+		set_template_default(opts, "template_x86_solaris.bin")
+		
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
+
+		# Append shellcode
+		elf << code
+
+		# modify size
+		elf[0x44,4] = [elf.length + code.length].pack('V')
+		elf[0x48,4] = [elf.length + code.length].pack('V')
+
+		return elf
 	end
 
 	#
