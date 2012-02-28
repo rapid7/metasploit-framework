@@ -389,7 +389,7 @@ class DBManager
 		end
 		
 		if info['Architecture']
-			res[:arch] = info['Architecture']
+			res[:arch] = info['Architecture'].split(/\s+/).first
 		end
 		
 		if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
