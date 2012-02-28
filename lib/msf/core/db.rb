@@ -337,13 +337,13 @@ class DBManager
 	#
 	# Update a host's attributes via semi-standardized sysinfo hash (Meterpreter)
 	#
-	# The opts hash must contain the following entries
+	# The opts parameter MUST contain the following entries
 	# +:host+::           -- the host's ip address
 	# +:info+::           -- the information hash 
-	#   'Computer'        -- the host name
-	#   'OS'              -- the operating system string
-	#   'Architecture'    -- the hardware architecture
-	#   'System Language' -- the system language
+	# * 'Computer'        -- the host name
+	# * 'OS'              -- the operating system string
+	# * 'Architecture'    -- the hardware architecture
+	# * 'System Language' -- the system language
 	#
 	# The opts parameter can contain:
 	# +:workspace+::      -- the workspace for this host
