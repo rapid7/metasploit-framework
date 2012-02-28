@@ -285,6 +285,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def load_session_info()
 		begin
 			::Timeout.timeout(60) do
+				# Gather username/system information
+				username  = self.sys.config.getuid
+				sysinfo   = self.sys.config.sysinfo
+
+				safe_info = "#{username} @ #{sysinfo['Computer']}"
+				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
+				# Should probably be using Rex::Text.ascii_safe_hex but leave
+				# this as is for now since "\xNN" is arguably uglier than "_"
+				# showing up in various places in the UI.
+				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
+				self.info = safe_info
 			
 				# Enumerate network interfaces to detect IP
 				ifaces   = self.net.config.get_interfaces().flatten rescue []
@@ -327,17 +338,6 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 					self.session_host = nhost
 				end
 	
-				# Gather username/system information
-				username  = self.sys.config.getuid
-				sysinfo   = self.sys.config.sysinfo
-
-				safe_info = "#{username} @ #{sysinfo['Computer']}"
-				safe_info.force_encoding("ASCII-8BIT") if safe_info.respond_to?(:force_encoding)
-				# Should probably be using Rex::Text.ascii_safe_hex but leave
-				# this as is for now since "\xNN" is arguably uglier than "_"
-				# showing up in various places in the UI.
-				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
-				self.info = safe_info
 
 				# The rest of this requires a database, so bail if it's not
 				# there
