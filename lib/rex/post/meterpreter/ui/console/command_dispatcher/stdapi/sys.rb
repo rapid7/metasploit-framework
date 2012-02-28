@@ -47,8 +47,8 @@ class Console::CommandDispatcher::Stdapi::Sys
 	# Options used by the 'ps' command.
 	#
 	@@ps_opts = Rex::Parser::Arguments.new(
-		"-S, --search" => [ true,  "String to search for (converts to regex)"                ],
-		"-h, --help" =>   [ false, "Help menu."                                              ])
+		"-S" => [ true,  "String to search for (converts to regex)"                ],
+		"-h" => [ false, "Help menu."                                              ])
 
 	#
 	# List of supported commands.
@@ -239,25 +239,25 @@ class Console::CommandDispatcher::Stdapi::Sys
 		search_term = ''
 
 		# Parse opts
-		@@execute_opts.parse(args) { |opt, idx, val|
+		@@ps_opts.parse(args) { |opt, idx, val|
 			case opt
-			when '-S', '--search'
-				search_term = val
-				if search_term.empty?
-					print_error("Enter a search term")
-				else
-					search_term = search_term.downcase
-				end
-			when '-h', '--help'
-				print_line "Usage: ps [ options ]"
-				print_line
-				print_line "OPTIONS:"
-				print_line " -S, --search       Search string to filter by"
-				print_line " -h, --help 		This help menu"
-				print_line
-				return 0
+				when '-S', '--search'
+					search_term = val
+					if search_term.empty?
+						print_error("Enter a search term")
+					else
+						search_term = search_term.downcase
+					end
+				when '-h', '--help'
+					print_line "Usage: ps [ options ]"
+					print_line
+					print_line "OPTIONS:"
+					print_line " -S, --search       Search string to filter by"
+					print_line " -h, --help 		This help menu"
+					print_line
+					return 0
 			end
-		end
+		}
 
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => "Process list",
@@ -272,11 +272,11 @@ class Console::CommandDispatcher::Stdapi::Sys
 					"Path"
 				])
 		# Strip procs to search constraints
-		begin 
-		processes.keep_if { |ent|
-			ent.any? { |k, v| v.to_s.downcase.match(/#{search_term}/) }
+		if not search_term.empty?
+			processes.keep_if { |ent|
+				ent.any? { |k, v| v.to_s.downcase.match(/#{search_term}/) }
 			}
-		end unless search_term.empty?
+		end
 
 		processes.each { |ent|
 
