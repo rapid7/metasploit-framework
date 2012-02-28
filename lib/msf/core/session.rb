@@ -339,7 +339,7 @@ module Session
 	# The framework instance that created this session.
 	#
 	attr_accessor :framework
-	#/work/metasploit-framework/lib/rex/post/meterpreter/extensions/stdapi/net/config.rb:
+	#
 	# The session unique identifier.
 	#
 	attr_accessor :sid
