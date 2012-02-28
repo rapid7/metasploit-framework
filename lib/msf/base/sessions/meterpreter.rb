@@ -292,7 +292,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				shost    = self.session_host
 				
 				# Try to match our visible IP to a real interface
-				found    = ifaces.select {|i| i.ip == shost }.length == 0 ? true : false
+				found    = ifaces.select {|i| i.ip == shost }.length == 0 ? false : true
 				nhost    = nil
 				hobj     = nil
 				
