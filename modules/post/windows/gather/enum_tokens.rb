@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		print_status("Scanning session #{session.sid} / #{session.tunnel_peer}")
+		print_status("Scanning session #{session.sid} / #{session.session_host}")
 
 		# get system, if requested.
 		get_system if (session.sys.config.getuid() !~ /SYSTEM/ and datastore['GETSYSTEM'])
@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Post
 		session.core.use("incognito") if(! session.incognito)
 
 		if(! session.incognito)
-			print_error("Failed to load incognito on #{session.sid} / #{session.tunnel_peer}")
+			print_error("Failed to load incognito on #{session.sid} / #{session.session_host}")
 			return
 		end
 

