@@ -36,7 +36,7 @@ opts.parse(args) { |opt, idx, val|
 
 #-------------------------------------------------------------------------------
 
-host,port = @client.tunnel_peer.split(':')
+host,port = @client.session_host, @client.session_port
 info = @client.sys.config.sysinfo
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")

@@ -200,7 +200,7 @@ class Metasploit3 < Msf::Post
 		# Automatically migrate to explorer.exe
 		migrate_success = migrate if datastore["MIGRATE"]
 
-		host = session.tunnel_peer.split(':')[0]
+		host = session.session_host
 
 		#Get Google Chrome user data path
 		sysdrive = session.fs.file.expand_path("%SYSTEMDRIVE%")

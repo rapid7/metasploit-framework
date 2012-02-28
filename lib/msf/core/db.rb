@@ -908,7 +908,10 @@ class DBManager
 		raise DBImportError.new("Missing required option :addr") unless addr
 		wspace = opts.delete(:wspace)
 		raise DBImportError.new("Missing required option :wspace") unless wspace
-
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+		
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
@@ -5248,15 +5251,9 @@ class DBManager
 			end
 		elsif host.kind_of? Session
 			norm_host = host.host
-		elsif host.respond_to?(:target_host)
-			# Then it's an Msf::Session object with a target but target_host
-			# won't be set in some cases, so try tunnel_peer as well
-			thost = host.target_host
-			if host.tunnel_peer and (!thost or thost.empty?)
-				# tunnel_peer is of the form ip:port, so strip off the port to
-				# get the addr by itself
-				thost = host.tunnel_peer.split(":")[0]
-			end
+		elsif host.respond_to?(:session_host)
+			# Then it's an Msf::Session object
+			thost = host.session_host
 			norm_host = thost
 		end
 

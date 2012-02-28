@@ -104,8 +104,8 @@ if (framework.sessions.length > 0)
 	# lets start with post exploitation modules
 	framework.sessions.each_key do |sid|
 		session = framework.sessions[sid]
-		ips = session.tunnel_peer.split(":")
-		print_status("Session ID: #{sid.to_i} - IP: #{ips[0]}")
+		ips = session.session_host
+		print_status("Session ID: #{sid.to_i} - IP: #{ips}")
 
 		# multi -> all sessions
 		modules_multi.each { |modul|

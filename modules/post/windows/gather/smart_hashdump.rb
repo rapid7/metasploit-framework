@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 
 	def read_hashdump
-		host,port = session.tunnel_peer.split(":")
+		host,port = session.session_host, session.session_port
 		collected_hashes = ""
 		begin
 

@@ -143,7 +143,55 @@ module Session
 	#
 	def tunnel_peer
 	end
+	
+	#
+	# Returns the host associated with the session
+	#
+	def session_host
+		# Prefer the overridden session host or target_host
+		host = @session_host || target_host
+		return host if host
+		
+		# Fallback to the tunnel_peer (contains port)
+		peer = tunnel_peer
+		return if not peer
 
+		# Pop off the trailing port number
+		bits = peer.split(':')
+		bits.pop
+		bits.join(':')
+	end
+	
+	#
+	# Override the host associated with this session
+	#
+	def session_host=(v)
+		@session_host = v
+	end
+	
+	#
+	# Returns the port associated with the session
+	#
+	def session_port
+		port = @session_port || target_port
+		return port if port
+		# Fallback to the tunnel_peer (contains port)
+		peer = tunnel_peer
+		return if not peer
+
+		# Pop off the trailing port number
+		bits = peer.split(':')
+		port = bits.pop
+		port.to_i
+	end
+	
+	#
+	# Override the host associated with this session
+	#
+	def session_port=(v)
+		@session_port = v
+	end
+	
 	#
 	# Returns a pretty representation of the tunnel.
 	#
@@ -164,7 +212,7 @@ module Session
 		dt = Time.now
 
 		dstr  = sprintf("%.4d%.2d%.2d", dt.year, dt.mon, dt.mday)
-		rhost = (tunnel_peer || 'unknown').split(':')[0]
+		rhost = session_host
 
 		"#{dstr}_#{rhost}_#{type}"
 	end
@@ -214,6 +262,7 @@ module Session
 		self.via['Payload'] = ('payload/' + m.datastore['PAYLOAD'].to_s) if m.datastore['PAYLOAD']
 
 		self.target_host = m.target_host
+		self.target_port = m.target_port
 		self.workspace   = m.workspace
 		self.username    = m.owner
 		self.exploit_datastore = m.datastore
@@ -290,7 +339,7 @@ module Session
 	# The framework instance that created this session.
 	#
 	attr_accessor :framework
-	#
+	#/work/metasploit-framework/lib/rex/post/meterpreter/extensions/stdapi/net/config.rb:
 	# The session unique identifier.
 	#
 	attr_accessor :sid
@@ -306,6 +355,10 @@ module Session
 	# The original target host address
 	#
 	attr_accessor :target_host
+	#
+	# The original target port if applicable
+	#
+	attr_accessor :target_port
 	#
 	# The datastore of the exploit that created this session
 	#
