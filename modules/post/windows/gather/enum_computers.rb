@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Post
 		print_line("\n" + results + "\n")
 
 		report_note(
-			:host => session.tunnel_peer,
+			:host => session,
 			:type => 'domain.hosts',
 			:data => tbl.to_csv
 		)
