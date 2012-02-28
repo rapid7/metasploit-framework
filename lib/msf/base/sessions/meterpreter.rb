@@ -18,10 +18,10 @@ module Sessions
 ###
 class Meterpreter < Rex::Post::Meterpreter::Client
 
+	include Msf::Session
 	#
 	# The meterpreter session is interactive
 	#
-	include Msf::Session
 	include Msf::Session::Interactive
 	include Msf::Session::Comm
 
@@ -81,6 +81,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		self.class.type
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
+	#
+	# Create a channelized shell process on the target
+	#
 	def shell_init
 		return true if @shell
 
@@ -91,6 +96,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Read from the command shell.
 	#
@@ -116,6 +123,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		end
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
 	#
 	# Write to the command shell.
 	#
@@ -133,6 +142,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		len
 	end
 
+	##
+	# :category: Msf::Session::Provider::SingleCommandShell implementors
+	#
+	# Terminate the shell channel
+	#
 	def shell_close
 		@shell.close
 		@shell = nil
@@ -167,11 +181,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	end
 
 	##
-	#
-	# Msf::Session overrides
-	#
-	##
-
+	# :category: Msf::Session overrides
 	#
 	# Cleans up the meterpreter client session.
 	#
@@ -181,6 +191,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		super
 	end
 
+	##
+	# :category: Msf::Session overrides
 	#
 	# Returns the session description.
 	#
@@ -190,11 +202,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Scriptable implementors
-	#
-	##
-
+	# :category: Msf::Session::Scriptable implementors
 	#
 	# Runs the meterpreter script in the context of a script container
 	#
@@ -205,11 +213,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Interactive implementors
-	#
-	##
-
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Initializes the console's I/O handles.
 	#
@@ -222,6 +226,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		super
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Resets the console's I/O handles.
 	#
@@ -249,6 +255,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		console.queue_cmd(cmd)
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Explicitly runs a command in the meterpreter console.
 	#
@@ -316,6 +324,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				end
 			end
 		rescue ::Interrupt
+			dlog("Interrupt while loading sysinfo: #{e.class}: #{e}")
 			raise $!
 		rescue ::Exception => e
 			# Log the error but otherwise ignore it so we don't kill the
@@ -325,6 +334,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 		end
 	end
 
+	##
+	# :category: Msf::Session::Interactive implementors
 	#
 	# Interacts with the meterpreter client at a user interface level.
 	#
@@ -343,11 +354,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 
 	##
-	#
-	# Msf::Session::Comm implementors
-	#
-	##
-
+	# :category: Msf::Session::Comm implementors
 	#
 	# Creates a connection based on the supplied parameters and returns it to
 	# the caller.  The connection is created relative to the remote machine on
