@@ -296,17 +296,17 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				# showing up in various places in the UI.
 				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				self.info = safe_info
-			
+
 				# Enumerate network interfaces to detect IP
 				ifaces   = self.net.config.get_interfaces().flatten rescue []
 				routes   = self.net.config.get_routes().flatten rescue []
 				shost    = self.session_host
-				
+
 				# Try to match our visible IP to a real interface
 				found    = ifaces.select {|i| i.ip == shost }.length == 0 ? false : true
 				nhost    = nil
 				hobj     = nil
-				
+
 				if Rex::Socket.is_ipv4?(shost) and not found
 
 					# Try to find an interface with a default route
@@ -318,11 +318,11 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 							if rang and rang.include?( r.gateway )
 								nhost = i.ip
 								break
-							end							
+							end
 						end
 						break if nhost
 					end
-					
+
 					# Find the first non-loopback address
 					if not nhost
 						iface = ifaces.select{|i| t.ip != "127.0.0.1" }
@@ -331,20 +331,20 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 						end
 					end
 				end
-						
+
 				# If we found a better IP address for this session, change it up
 				# only handle cases where the DB is not connected here
 				if  not (framework.db and framework.db.active)
 					self.session_host = nhost
 				end
-	
+
 
 				# The rest of this requires a database, so bail if it's not
 				# there
 				return if not (framework.db and framework.db.active)
-				
+
 				wspace = framework.db.find_workspace(workspace)
-				
+
 				# Account for finding ourselves on a different host
 				if nhost and self.db_record
 					# Create or switch to a new host in the database
@@ -352,7 +352,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 					if hobj
 						self.session_host = nhost
 						self.db_record.host_id = hobj[:id]
-					end				
+					end
 				end
 
 				framework.db.report_note({
@@ -370,10 +370,10 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 					self.db_record.desc = safe_info
 					self.db_record.save!
 				end
-				
+
 				framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
 
-				if nhost				
+				if nhost
 					framework.db.report_note({
 						:type      => "host.nat.server",
 						:host      => shost,
@@ -382,7 +382,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 						:update    => :unique_data
 					})
 					framework.db.report_host(:host => shost, :purpose => 'firewall' )
-					
+
 					framework.db.report_note({
 						:type      => "host.nat.client",
 						:host      => nhost,
@@ -390,9 +390,9 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 						:data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
 						:update    => :unique_data
 					})
-					framework.db.report_host(:host => nhost, :purpose => 'client' )					
+					framework.db.report_host(:host => nhost, :purpose => 'client' )
 				end
-				
+
 			end
 		rescue ::Interrupt
 			raise $!
