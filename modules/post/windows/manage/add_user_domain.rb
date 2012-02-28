@@ -189,7 +189,7 @@ class Metasploit3 < Msf::Post
 					end
 					if ndom == domain and da_user == nusr
 						sid = session.sid
-						peer = session.tunnel_peer
+						peer = session.session_host
 						print_good("Found Domain Admin Token: #{sid} - #{peer} - #{nusr} (Delegation Token)")
 						return true,nusr,false
 					end
@@ -201,7 +201,7 @@ class Metasploit3 < Msf::Post
 				if ( x['user'] == "#{domain}\\#{da_user}")
 					target_pid = x['pid']
 					sid = session.sid
-					peer = session.tunnel_peer
+					peer = session.session_host
 					report_note(
 						:host   => session,
 						:type   => 'domain.token.pid',
