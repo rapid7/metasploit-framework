@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user, password)
-		vprint_status("user: #{user}, password: #{password}")
+		vprint_status("Trying user: #{user}, password: #{password}")
 		nonce = get_nonce
 		status = auth(user, password, nonce)
 		return status
