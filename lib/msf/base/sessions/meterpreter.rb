@@ -334,7 +334,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 					# Find the first non-loopback address
 					if not nhost
-						iface = ifaces.select{|i| t.ip != "127.0.0.1" }
+						iface = ifaces.select{|i| i.ip != "127.0.0.1" }
 						if iface.length > 0
 							nhost = iface.first.ip
 						end

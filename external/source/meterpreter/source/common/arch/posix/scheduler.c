@@ -243,6 +243,10 @@ scheduler_run(THREAD *thread)
 			//	&scheduler_cond, LIST_EMPTY(&WEHead), polltable == NULL);
 
 			pthread_cond_wait(&scheduler_cond, &scheduler_mutex);
+
+			// pthread_cond_wait still chews CPU in some cases, usleep to yield
+			// processor so we don't just spin.
+			usleep(1000);
 		}
 
 		LIST_FOREACH(current, &WEHead, link) {
