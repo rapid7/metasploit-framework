@@ -278,7 +278,14 @@ class ModuleDataStore < DataStore
 	# Same as fetch
 	#
 	def [](key)
-		self.fetch(key)
+		key = find_key_case(key)
+		val = nil
+		val = super if(@imported_by[key] != 'self')
+		if (val.nil? and @_module and @_module.framework)
+			val = @_module.framework.datastore[key]
+		end
+		val = super if val.nil?
+		val
 	end
 
 
@@ -290,7 +297,7 @@ class ModuleDataStore < DataStore
 	#
 	def update_value(k, v)
 		k = find_key_case(k)
-		if @imported_by[k] =='self' and @_module and @_module.framework)
+		if default?(k) and @_module and @_module.framework
 			@_module.framework.datastore.update_value(k,v)
 		else
 			super(k,v)
