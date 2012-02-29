@@ -303,7 +303,8 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				shost    = self.session_host
 
 				# Try to match our visible IP to a real interface
-				found    = ifaces.select {|i| i.ip == shost }.length == 0 ? false : true
+				# TODO: Deal with IPv6 addresses
+				found    = ifaces.find {|i| i.ip == shost }
 				nhost    = nil
 				hobj     = nil
 
