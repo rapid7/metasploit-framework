@@ -4,6 +4,9 @@
 # This Metasploit RC-File could be used to analyse webapps automatically
 # first you should use the crawler module or autocrawler resource file
 # for learning the application
+# you could define WMAP_PROFILE to a wmap profile or you could use the 
+# keyword "profile" to use the wmap sample profile. If you are not defining
+# WMAP_PROFILE no profile is in use
 
 <ruby>
 if (framework.datastore['WMAP_PROFILE'] == nil)
@@ -16,7 +19,7 @@ else
 	#define a file in our .msf4 directory which we use for our webaudits
 	profile = framework.datastore['WMAP_PROFILE']
 end
-print_line("Profile: #{profile}")
+
 #default to 50 Threads
 if (framework.datastore['THREADS'] == nil)
 	run_single("setg THREADS 50")
