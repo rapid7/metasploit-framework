@@ -349,7 +349,11 @@ class Rex::Socket::Comm::Local
 		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'http'
-			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
+			if port == 443
+				setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
+			else
+				return
+			end
 			size = sock.put(setup)
 			if (size != setup.length)
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
