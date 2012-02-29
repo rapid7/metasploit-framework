@@ -377,6 +377,21 @@ class Module
 	end
 
 	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
+		end
+
+		nil
+	end
+	
+	#
 	# Returns the current workspace
 	#
 	def workspace

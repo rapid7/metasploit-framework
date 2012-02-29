@@ -7,7 +7,7 @@
 require 'sqlite3'
 @client = client
 kill_frfx = false
-host,port = session.tunnel_peer.split(':')
+host,port = session.session_host, session.session_port
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
 

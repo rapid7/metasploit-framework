@@ -266,7 +266,7 @@ class Metasploit3 < Msf::Post
 	#-------------------------------------------------------------------------------
 
 	def read_hashdump
-		host,port = session.tunnel_peer.split(":")
+		host,port = session.session_host, session.session_port
 		collected_hashes = ""
 		begin
 
@@ -314,7 +314,7 @@ class Metasploit3 < Msf::Post
 
 	def inject_hashdump
 		collected_hashes = ""
-		host,port = session.tunnel_peer.split(":")
+		host,port = session.session_host, session.session_port
 		# Load priv extension
 		session.core.use("priv")
 		# dump hashes
