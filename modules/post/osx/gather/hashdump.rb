@@ -140,7 +140,7 @@ class Metasploit3 < Msf::Post
 		print_status("Dumping Hashes")
 		users = []
 		nt_hash = nil
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 
 		# Path to files with hashes
 		nt_file = ::File.join(log_folder,"nt_hash.txt")

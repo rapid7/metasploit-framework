@@ -70,7 +70,7 @@ module Metasploit3
 		end
 
 		# Extract the host and port
-		host,port = session.tunnel_peer.split(':')
+		host = session.session_host
 
 		# Create a directory for the images
 		base = File.join(Msf::Config.config_directory, 'logs', 'isight')

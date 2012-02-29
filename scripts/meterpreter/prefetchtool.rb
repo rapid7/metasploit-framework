@@ -9,7 +9,7 @@ require 'net/http'
 require 'digest/sha1'
 
 @session = client
-@host,@port = @session.tunnel_peer.split(':')
+@host,@port = @session.session_host, session.session_port
 
 # Script Options
 @@exec_opts = Rex::Parser::Arguments.new(
