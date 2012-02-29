@@ -42,6 +42,9 @@ module Payload
 	#
 	def self.generate_simple(payload, opts)
 
+		# Clone the module to prevent changes to the original instance
+		payload = payload.replicant
+
 		# Import any options we may need
 		payload._import_extra_options(opts)
 		framework = payload.framework
