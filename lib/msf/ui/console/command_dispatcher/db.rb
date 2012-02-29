@@ -1276,7 +1276,6 @@ class Db
 				file = args[1] || ::File.join(Msf::Config.get_config_root, "database.yml")
 				if (::File.exists? ::File.expand_path(file))
 					db = YAML.load(::File.read(file))['production']
-					cmd_db_driver(db['adapter'])
 					framework.db.connect(db)
 					return
 				end
