@@ -28,7 +28,7 @@ class Interface
 	# parameters.
 	#
 	def initialize(index, ip, netmask, mac_addr, mac_name, ip6=nil, netmask6=nil, mtu=nil, flags=nil)
-		self.index    = index
+		self.index    = index || -1
 		self.ip       = (ip ? IPAddr.ntop(ip) : nil)
 		self.netmask  = (netmask ? IPAddr.ntop(netmask) : nil)
 		self.mac_addr = mac_addr
