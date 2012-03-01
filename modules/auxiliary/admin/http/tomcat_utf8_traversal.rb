@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'Tomcat UTF-8 Directory Traversal Vulnerability',
-			'Version'     => '$Revision: 14288 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in versions of Apache Tomcat 4.1.0 - 4.1.37, 5.5.0 - 5.5.26 and 6.0.0

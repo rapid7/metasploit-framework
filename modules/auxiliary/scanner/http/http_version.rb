@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP Version Detection',
-			'Version'     => '$Revision: 14597 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Display version information about each system',
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE

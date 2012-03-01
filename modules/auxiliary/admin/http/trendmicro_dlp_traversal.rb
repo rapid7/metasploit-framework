@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'TrendMicro Data Loss Prevention 5.5 Directory Traversal',
-			'Version'     => '$Revision: 14288 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module tests whether a directory traversal vulnerablity is present
 				in Trend Micro DLP (Data Loss Prevention) Appliance v5.5 build <= 1294.

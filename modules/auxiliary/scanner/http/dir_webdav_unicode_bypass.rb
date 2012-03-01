@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '54555' ],
 					[ 'BID', '34993' ],
 				],
-			'Version'		=> '$Revision: 14034 $'))
+			'Version'		=> '$Revision$'))
 
 		register_options(
 			[

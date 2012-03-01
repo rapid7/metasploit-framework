@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				requires either Basic, Digest or NTLM authentication.
 			},
 			'Author' 		=> [ 'et', 'patrick' ],
-			'Version'		=> '$Revision: 14034 $',
+			'Version'		=> '$Revision$',
 			'License'		=> MSF_LICENSE,
 			'References'   =>
 				[

@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'ContentKeeper Web Appliance mimencode File Access',
-			'Version'     => '$Revision: 14288 $',
+			'Version'     => '$Revision$',
 			'Description' => %q{
 				This module abuses the 'mimencode' binary present within
 				ContentKeeper Web filtering appliances to retrieve arbitrary

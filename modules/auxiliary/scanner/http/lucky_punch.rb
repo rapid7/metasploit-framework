@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'         => [ 'et' ],
 			'License'        => BSD_LICENSE,
-			'Version'        => '$Revision: 10394 $'))
+			'Version'        => '$Revision$'))
 
 		register_options(
 			[

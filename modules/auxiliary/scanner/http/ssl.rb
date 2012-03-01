@@ -23,7 +23,7 @@ class Metasploit4 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate Information',
-			'Version'     => '$Revision: 14319 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Parse the server SSL certificate to obtain the common name and signature algorithm',
 			'Author'      =>
 				[

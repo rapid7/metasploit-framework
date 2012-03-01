@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP trace.axd Content Scanner',
-			'Version'     => '$Revision: 11796 $',
+			'Version'     => '$Revision$',
 			'Description' => 'Detect trace.axd files and analize its content',
 			'Author'       => ['c4an'],
 			'License'     => MSF_LICENSE

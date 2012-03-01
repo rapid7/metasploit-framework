@@ -21,7 +21,7 @@ class Metasploit3 < Msf::Auxiliary
 	def initialize
 		super(
 			'Name'        => 'HTTP SSL Certificate Checker',
-			'Version'     => '$Revision: 11796 $',
+			'Version'     => '$Revision$',
 			'Author'      => 'nebulus',
 			'License'     => MSF_LICENSE,
 			'Description' => %q{
