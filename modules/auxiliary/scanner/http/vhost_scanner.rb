@@ -1,5 +1,5 @@
 ##
-# $Id: vhost_scanner.rb 13183 2011-07-15 15:33:35Z egypt $
+# $Id$
 ##
 
 ##

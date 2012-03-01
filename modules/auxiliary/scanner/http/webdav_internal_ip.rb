@@ -1,5 +1,5 @@
 ##
-# $Id: webdav_internal_ip.rb 14137 2011-11-01 17:57:11Z sinn3r $
+# $Id$
 ##
 
 ##

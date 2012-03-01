@@ -1,5 +1,5 @@
 ##
-# $Id: dir_webdav_unicode_bypass.rb 14034 2011-10-23 11:56:13Z jduck $
+# $Id$
 ##
 
 ##

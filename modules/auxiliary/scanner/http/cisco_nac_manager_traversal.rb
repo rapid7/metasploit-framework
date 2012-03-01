@@ -1,5 +1,5 @@
 ##
-# $Id: cisco_nac_manager_traversal.rb 14532 2012-01-10 02:16:04Z rapid7 $
+# $Id$
 ##
 
 ##

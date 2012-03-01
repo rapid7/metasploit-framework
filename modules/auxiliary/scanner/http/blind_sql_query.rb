@@ -1,5 +1,5 @@
 ##
-# $Id: blind_sql_query.rb 14735 2012-02-17 09:36:04Z rapid7 $
+# $Id$
 ##
 
 ##

@@ -1,5 +1,5 @@
 ##
-# $Id: contentkeeper_fileaccess.rb 14288 2011-11-20 02:15:04Z rapid7 $
+# $Id$
 ##
 
 ##

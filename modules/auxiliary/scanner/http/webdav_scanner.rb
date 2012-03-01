@@ -1,5 +1,5 @@
 ##
-# $Id: webdav_scanner.rb 14527 2012-01-09 16:36:03Z rapid7 $
+# $Id$
 ##
 
 ##

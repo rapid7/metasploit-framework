@@ -1,5 +1,5 @@
 ##
-# $Id: webdav_website_content.rb 14067 2011-10-25 18:32:02Z sinn3r $
+# $Id$
 ##
 
 ##

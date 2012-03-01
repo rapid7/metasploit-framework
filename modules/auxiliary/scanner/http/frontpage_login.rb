@@ -1,5 +1,5 @@
 ##
-# $Id: frontpage_login.rb 12623 2011-05-15 22:19:00Z todb $
+# $Id$
 ##
 
 ##
