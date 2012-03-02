@@ -323,7 +323,7 @@ class Rex::Socket::Comm::Local
 					|proxy, i|
 					next_hop = chain[i + 1]
 					if next_hop
-						proxy(sock, proxy[0], next_hop[1], next_hop[2])
+						proxy(sock, proxy[0], next_hop[1], next_hop[2], param.ssl)
 					end
 				}
 			end
@@ -344,12 +344,12 @@ class Rex::Socket::Comm::Local
 		sock
 	end
 
-	def self.proxy(sock, type, host, port)
+	def self.proxy(sock, type, host, port, ssl)
 
 		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'http'
-			if port == 443
+			if ssl
 				setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			else
 				return

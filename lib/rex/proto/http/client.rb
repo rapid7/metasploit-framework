@@ -669,8 +669,8 @@ class Client
 			prefix << '/%20HTTP/1.0/../../'
 		end
 
-		if (self.port != 443 and proxies)
-			prefix << "http://#{hostname}"
+		if (self.ssl == false and proxies)
+			prefix << "http://#{hostname}:#{port}"
 		end
 
 		prefix
