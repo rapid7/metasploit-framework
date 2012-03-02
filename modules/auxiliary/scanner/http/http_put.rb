@@ -66,7 +66,7 @@ class Metasploit4 < Msf::Auxiliary
 					'uri'    => path,
 					'method' => 'GET',
 					'ctype'  => 'text/plain',
-					'data'   => data,
+					'data'   => '',
 				}, 20
 			).to_s
 		rescue ::Exception => e
