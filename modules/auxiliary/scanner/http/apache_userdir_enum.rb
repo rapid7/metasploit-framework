@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 				:host => rhost,
 				:port => rport,
 				:proto => 'tcp',
-				:sname => (ssl ? "https" : "http"),
+				:sname => (ssl ? 'https' : 'http'),
 				:type => 'users',
 				:data => {:users =>  @users_found.keys.join(", ")}
 			)

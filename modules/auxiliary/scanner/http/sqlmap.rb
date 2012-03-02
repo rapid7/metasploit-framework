@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})

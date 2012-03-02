@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 
 	def initialize(info = {})
 		super(update_info(info,

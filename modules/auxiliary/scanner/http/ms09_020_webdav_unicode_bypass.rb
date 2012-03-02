@@ -16,7 +16,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
