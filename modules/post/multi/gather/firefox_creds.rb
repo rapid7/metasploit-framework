@@ -211,7 +211,8 @@ class Metasploit3 < Msf::Post
 						fd = session.fs.file.new(file)
 						begin
 							until fd.eof?
-								loot << fd.read
+								data = fd.read
+								loot << data if not data.nil?
 							end
 						rescue EOFError
 						ensure
