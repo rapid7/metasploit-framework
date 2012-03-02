@@ -38,7 +38,7 @@ typedef struct ___u128 {
 }__u128;
 
 struct iface_entry {
-	unsigned char name[IFNAMSIZ+1];
+	char name[IFNAMSIZ+1];
 	__u32 addr;
 	__u32 netmask;
 	unsigned char hwaddr[6];
@@ -46,7 +46,7 @@ struct iface_entry {
 	__u128 netmask6;
 	uint32_t mtu;
 	uint32_t index;
-	unsigned char flags[FLAGS_LEN+1];
+	char flags[FLAGS_LEN+1];
 };
 
 struct ifaces_list {
@@ -58,16 +58,16 @@ struct ipv4_route_entry {
 	__u32 dest;
 	__u32 netmask;
 	__u32 nexthop;
-    unsigned char interface[IFNAMSIZ+1];
-    __u32 metric;
+	char interface[IFNAMSIZ+1];
+	__u32 metric;
 };
 
 struct ipv6_route_entry {
 	__u128 dest6;
 	__u128 netmask6;
 	__u128 nexthop6;
-    unsigned char interface[IFNAMSIZ+1];
-    __u32 metric;
+	char interface[IFNAMSIZ+1];
+	__u32 metric;
 };
 
 struct ipv4_routing_table {
