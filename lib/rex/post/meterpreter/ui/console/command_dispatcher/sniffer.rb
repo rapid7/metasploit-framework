@@ -33,6 +33,7 @@ class Console::CommandDispatcher::Sniffer
 			"sniffer_stop"  => "Stop packet capture on a specific interface",
 			"sniffer_stats" => "View statistics of an active capture",
 			"sniffer_dump"  => "Retrieve captured packet data to PCAP file",
+			"sniffer_release" => "Free captured packets on a specific interface instead of downloading them",
 		}
 	end
 
@@ -70,19 +71,21 @@ class Console::CommandDispatcher::Sniffer
 	end
 	
 	def cmd_sniffer_stop(*args)
-	   intf = args[0].to_i
+		intf = args[0].to_i
 		if (intf == 0)
 			print_error("Usage: sniffer_stop [interface-id]")
 			return
 		end
 		
-		client.sniffer.capture_stop(intf)
+		res = client.sniffer.capture_stop(intf)
 		print_status("Capture stopped on interface #{intf}")
+		print_status("There are #{res[:packets]} packets (#{res[:bytes]} bytes) remaining")
+		print_status("Download or release them using 'sniffer_dump' or 'sniffer_release'")
 		return true
 	end
 	
 	def cmd_sniffer_stats(*args)
-	   intf = args[0].to_i
+		intf = args[0].to_i
 		if (intf == 0)
 			print_error("Usage: sniffer_stats [interface-id]")
 			return
@@ -96,9 +99,22 @@ class Console::CommandDispatcher::Sniffer
 		
 		return true		
 	end
+
+	def cmd_sniffer_release(*args)
+		intf = args[0].to_i
+		if (intf == 0)
+			print_error("Usage: sniffer_stats [interface-id]")
+			return
+		end
+		
+		res = client.sniffer.capture_release(intf)
+		print_status("Flushed #{res[:packets]} packets (#{res[:bytes]} bytes) from interface #{intf}")
+		
+		return true		
+	end
 	
 	def cmd_sniffer_dump(*args)
-	   intf = args[0].to_i
+		intf = args[0].to_i
 		if (intf == 0 or not args[1])
 			print_error("Usage: sniffer_dump [interface-id] [pcap-file]")
 			return
