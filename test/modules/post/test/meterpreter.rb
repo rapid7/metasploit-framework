@@ -6,6 +6,7 @@ $:.push "test/lib" unless $:.include? "test/lib"
 #require 'module_test'
 load 'test/lib/module_test.rb'
 
+load 'lib/rex/post/meterpreter/extensions/stdapi/fs/dir.rb'
 
 class Metasploit3 < Msf::Post
 
@@ -25,12 +26,11 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		blab = datastore['VERBOSE']
 		print_status("Running against session #{datastore["SESSION"]}")
 		print_status("Session type is #{session.type}")
 
-		#test_sys_config
-		#test_net_config
+		test_sys_config
+		test_net_config
 		test_fs
 
 		print_status("Testing complete.")
@@ -59,7 +59,7 @@ class Metasploit3 < Msf::Post
 	def test_fs
 
 		it "should return the current working directory" do
-			wd = session.fs.dir.getwd
+			wd = session.fs.dir.pwd
 			vprint_status("CWD: #{wd}")
 
 			true
@@ -69,15 +69,15 @@ class Metasploit3 < Msf::Post
 			session.fs.dir.entries
 		end
 
+		it "should stat a directory" do
+			session.fs.file.stat(session.fs.dir.pwd).directory?
+		end
+
 		it "should create and remove a dir" do
-			res = true
-			session.fs.dir.mkdir("meterpreter-test")
-			entries = session.fs.dir.entries
-			res = entries.include?("meterpreter-test")
+			res = create_directory("meterpreter-test")
 			if (res)
-				vprint_status("Directory created successfully")
 				session.fs.dir.rmdir("meterpreter-test")
-				res = !session.fs.dir.entries.include?("meterpreter-test")
+				res &&= !session.fs.dir.entries.include?("meterpreter-test")
 				vprint_status("Directory removed successfully")
 			end
 
@@ -85,25 +85,64 @@ class Metasploit3 < Msf::Post
 		end
 
 		it "should change directories" do
-			res = true
-			session.fs.dir.mkdir("meterpreter-test")
-			entries = session.fs.dir.entries
-			res = entries.include?("meterpreter-test")
-			if (res)
-				vprint_status("Directory created successfully")
+			res = create_directory("meterpreter-test")
+
+			old_wd = session.fs.dir.pwd
+			vprint_status("Old CWD: #{old_wd}")
+
+			if res
 				session.fs.dir.chdir("meterpreter-test")
-				wd = session.fs.dir.getwd
-				vprint_status("New CWD: #{wd}")
-				session.fs.dir.chdir("..")
-				vprint_status("Back to old CWD: #{wd}")
-				session.fs.dir.rmdir("meterpreter-test")
-				res = !session.fs.dir.entries.include?("meterpreter-test")
-				vprint_status("Directory removed successfully")
+				new_wd = session.fs.dir.pwd
+				vprint_status("New CWD: #{new_wd}")
+				res &&= (new_wd =~ /meterpreter-test$/)
+
+				if res
+					session.fs.dir.chdir("..")
+					wd = session.fs.dir.pwd
+					vprint_status("Back to old CWD: #{wd}")
+				end
 			end
+			session.fs.dir.rmdir("meterpreter-test")
+			res &&= !session.fs.dir.entries.include?("meterpreter-test")
+			vprint_status("Directory removed successfully")
 
 			res
 		end
 
+		it "should create and remove files" do
+			res = true
+			fd = session.fs.file.new("meterpreter-test", "wb")
+			fd.write("test")
+			fd.close
+
+			vprint_status("Wrote to meterpreter-test, checking contents")
+			fd = session.fs.file.new("meterpreter-test", "rb")
+			contents = fd.read
+			vprint_status("Wrote #{contents}")
+			p fd
+			res &&= (contents == "test")
+			fd.close
+
+			session.fs.file.rm("meterpreter-test")
+			res &&= !session.fs.dir.entries.include?("meterpreter-test")
+
+			res
+		end
+
+	end
+
+	def create_directory(name)
+		res = true
+
+		session.fs.dir.mkdir(name)
+		entries = session.fs.dir.entries
+		res &&= entries.include?(name)
+		res &&= session.fs.file.stat(name).directory?
+		if res
+			vprint_status("Directory created successfully")
+		end
+
+		res
 	end
 
 end
