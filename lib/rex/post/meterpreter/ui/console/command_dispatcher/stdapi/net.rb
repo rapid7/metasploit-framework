@@ -112,50 +112,58 @@ class Console::CommandDispatcher::Stdapi::Net
 		# Process the commands
 		case cmd
 			when "list"
-				routes,routes6 = client.net.config.routes
+				routes = client.net.config.routes
 
-				if (routes.length == 0)
+				# IPv4
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv4 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
+
+				routes.select {|route|
+					Rex::Socket.is_ipv4?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
+
+				if tbl.rows.length > 0
+					print("\n" + tbl.to_s + "\n")
+				else
 					print_line("No IPv4 routes were found.")
-				else
-					tbl = Rex::Ui::Text::Table.new(
-						'Header'  => "IPv4 network routes",
-						'Indent'  => 4,
-						'Columns' =>
-							[
-								"Subnet",
-								"Netmask",
-								"Gateway",
-								"Metric",
-								"Interface"
-							])
-
-					routes.each { |route|
-						tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
-					}
-
-					print("\n" + tbl.to_s + "\n")
 				end
-				if (routes6.length == 0)
+
+				# IPv6
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv6 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
+
+				routes.select {|route|
+					Rex::Socket.is_ipv6?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
+
+				if tbl.rows.length > 0
+					print("\n" + tbl.to_s + "\n")
+				else
 					print_line("No IPv6 routes were found.")
-				else
-					tbl = Rex::Ui::Text::Table.new(
-						'Header'  => "IPv6 network routes",
-						'Indent'  => 4,
-						'Columns' =>
-							[
-								"Subnet",
-								"Netmask",
-								"Gateway",
-								"Metric",
-								"Interface"
-							])
-
-					routes6.each { |route6|
-						tbl << [ route6.subnet, route6.netmask, route6.gateway, route6.metric, route6.interface ]
-					}
-
-					print("\n" + tbl.to_s + "\n")
 				end
+
 			when "add"
                         	# Satisfy check to see that formatting is correct
                                 unless Rex::Socket::RangeWalker.new(args[0]).length == 1
