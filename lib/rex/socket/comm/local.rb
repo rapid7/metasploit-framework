@@ -323,7 +323,7 @@ class Rex::Socket::Comm::Local
 					|proxy, i|
 					next_hop = chain[i + 1]
 					if next_hop
-						proxy(sock, proxy[0], next_hop[1], next_hop[2], param.ssl)
+						proxy(sock, proxy[0], next_hop[1], next_hop[2])
 					end
 				}
 			end
@@ -344,16 +344,14 @@ class Rex::Socket::Comm::Local
 		sock
 	end
 
-	def self.proxy(sock, type, host, port, ssl)
+	def self.proxy(sock, type, host, port)
 
 		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'httponly'
+			return
 		when 'http'
-			if ssl
-				setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
-			else
-				return
-			end
+			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)
 			if (size != setup.length)
 				raise Rex::ConnectionProxyError.new(host, port, type, "Failed to send the entire request to the proxy"), caller
