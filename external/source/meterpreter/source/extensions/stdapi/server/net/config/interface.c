@@ -97,54 +97,79 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	int i;
 	int if_error;
 	uint32_t interface_index_bigendian, mtu_bigendian;
-	Tlv entries[9];
+	// wild guess, should probably malloc
+	Tlv entries[19];
 
+	dprintf("Grabbing interfaces");
 	if_error = netlink_get_interfaces(&ifaces);
+	dprintf("Got 'em");
 
 	if (if_error) {
 		result = if_error;
 	} else {
 		for (i = 0; i < ifaces->entries; i++) {
+			int tlv_cnt = 0;
+			int j = 0;
+			dprintf("Building TLV for iface %d", i);
 
-			entries[0].header.length = strlen(ifaces->ifaces[i].name)+1;
-			entries[0].header.type   = TLV_TYPE_MAC_NAME;
-			entries[0].buffer        = (PUCHAR)ifaces->ifaces[i].name;
+			entries[tlv_cnt].header.length = strlen(ifaces->ifaces[i].name)+1;
+			entries[tlv_cnt].header.type   = TLV_TYPE_MAC_NAME;
+			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].name;
+			tlv_cnt++;
 
-			entries[1].header.length = 6;
-			entries[1].header.type   = TLV_TYPE_MAC_ADDR;
-			entries[1].buffer        = (PUCHAR)ifaces->ifaces[i].hwaddr;
+			entries[tlv_cnt].header.length = 6;
+			entries[tlv_cnt].header.type   = TLV_TYPE_MAC_ADDR;
+			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].hwaddr;
+			tlv_cnt++;
 
-			entries[2].header.length = sizeof(__u32);
-			entries[2].header.type   = TLV_TYPE_IP;
-			entries[2].buffer        = (PUCHAR)&ifaces->ifaces[i].addr;
+			for (j = 0; j < ifaces->ifaces[i].addr_count; j++) {
+				if (ifaces->ifaces[i].addr_list[j].family == AF_INET) {
+					dprintf("ip addr for %s", ifaces->ifaces[i].name);
+					entries[tlv_cnt].header.length = sizeof(__u32);
+					entries[tlv_cnt].header.type   = TLV_TYPE_IP;
+					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].ip.addr;
+					tlv_cnt++;
 
-			entries[3].header.length = sizeof(__u32);
-			entries[3].header.type   = TLV_TYPE_NETMASK;
-			entries[3].buffer        = (PUCHAR)&ifaces->ifaces[i].netmask;
+					//dprintf("netmask for %s", ifaces->ifaces[i].name);
+					entries[tlv_cnt].header.length = sizeof(__u32);
+					entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
+					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].nm.netmask;
+					tlv_cnt++;
+				} else {
+					dprintf("-- ip six addr for %s", ifaces->ifaces[i].name);
+					entries[tlv_cnt].header.length = sizeof(__u128);
+					entries[tlv_cnt].header.type   = TLV_TYPE_IP6;
+					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].ip.addr6;
+					tlv_cnt++;
 
-			entries[4].header.length = sizeof(__u128);
-			entries[4].header.type   = TLV_TYPE_IP6;
-			entries[4].buffer        = (PUCHAR)&ifaces->ifaces[i].addr6;
-
-			entries[5].header.length = sizeof(__u128);
-			entries[5].header.type   = TLV_TYPE_NETMASK6;
-			entries[5].buffer        = (PUCHAR)&ifaces->ifaces[i].netmask6;
+					//dprintf("netmask6 for %s", ifaces->ifaces[i].name);
+					entries[tlv_cnt].header.length = sizeof(__u128);
+					entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK6;
+					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].nm.netmask6;
+					tlv_cnt++;
+				}
+			}
 
 			mtu_bigendian            = htonl(ifaces->ifaces[i].mtu);
-			entries[6].header.length = sizeof(uint32_t);
-			entries[6].header.type   = TLV_TYPE_INTERFACE_MTU;
-			entries[6].buffer        = (PUCHAR)&mtu_bigendian;
+			entries[tlv_cnt].header.length = sizeof(uint32_t);
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_MTU;
+			entries[tlv_cnt].buffer        = (PUCHAR)&mtu_bigendian;
+			tlv_cnt++;
 
-			entries[7].header.length = strlen(ifaces->ifaces[i].flags)+1;
-			entries[7].header.type   = TLV_TYPE_INTERFACE_FLAGS;
-			entries[7].buffer        = (PUCHAR)ifaces->ifaces[i].flags;
+			entries[tlv_cnt].header.length = strlen(ifaces->ifaces[i].flags)+1;
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_FLAGS;
+			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].flags;
+			tlv_cnt++;
 
 			interface_index_bigendian = htonl(ifaces->ifaces[i].index);
-			entries[8].header.length = sizeof(uint32_t);
-			entries[8].header.type   = TLV_TYPE_INTERFACE_INDEX;
-			entries[8].buffer        = (PUCHAR)&interface_index_bigendian;
-			
-			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, 9);
+			entries[tlv_cnt].header.length = sizeof(uint32_t);
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_INDEX;
+			entries[tlv_cnt].buffer        = (PUCHAR)&interface_index_bigendian;
+			tlv_cnt++;
+
+			dprintf("Adding TLV to group");
+			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, tlv_cnt);
+			dprintf("done Adding TLV to group");
 		}
 	}
 

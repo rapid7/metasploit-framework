@@ -158,8 +158,8 @@ int netlink_parse(int fd, int seq, netlink_cb_t callback, void *data)
 		}
 
 		for(nh = (struct nlmsghdr *)(buf); NLMSG_OK(nh, len); nh = (struct nlmsghdr *) NLMSG_NEXT(nh, len)) {
-			dprintf("buf = %p, nh = %p", buf, nh);
-			dprintf("nh->nlmsg_type = %d", nh->nlmsg_type);
+			//dprintf("buf = %p, nh = %p", buf, nh);
+			//dprintf("nh->nlmsg_type = %d", nh->nlmsg_type);
 
 			if(nh->nlmsg_type == NLMSG_DONE) {
                 end = 1;
@@ -168,12 +168,12 @@ int netlink_parse(int fd, int seq, netlink_cb_t callback, void *data)
 
 			if(nh->nlmsg_type == NLMSG_ERROR) {
 				struct nlmsgerr *me = (struct nlmsgerr *) NLMSG_DATA (nh);
-				dprintf("in NLMSG_ERROR handling.. me = %p");
-				dprintf("me->error = %d", me->error);
+				//dprintf("in NLMSG_ERROR handling.. me = %p", me);
+				//dprintf("me->error = %d", me->error);
 				if(me->error) {
-					dprintf("so, we have: nlmsg_len: %d, nlmsg_type: %d, nlmsg_flags: %d, nlmsg_seq: %d, nlmsg_pid: %d", 
-						me->msg.nlmsg_len, me->msg.nlmsg_type, me->msg.nlmsg_flags,
-						me->msg.nlmsg_seq, me->msg.nlmsg_pid);
+					//dprintf("so, we have: nlmsg_len: %d, nlmsg_type: %d, nlmsg_flags: %d, nlmsg_seq: %d, nlmsg_pid: %d", 
+					//	me->msg.nlmsg_len, me->msg.nlmsg_type, me->msg.nlmsg_flags,
+					//	me->msg.nlmsg_seq, me->msg.nlmsg_pid);
 
 					if(me->msg.nlmsg_seq == seq) {
 						dprintf("Hum. kernel doesn't like our message :~(");
@@ -188,7 +188,7 @@ int netlink_parse(int fd, int seq, netlink_cb_t callback, void *data)
 
 			// 
 
-			dprintf("[%s] dispatching into callback", __FUNCTION__);
+			dprintf("dispatching into callback");
 
 			status = callback(nh, data);
 
@@ -262,7 +262,7 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
 		dprintf("Adjusted rm at +4");
 	}
 	
-	dprintf("rtm_family : 0x%x , rtm_dst_len : 0x%x, rtm_src_len : 0x%x",rm->rtm_family, rm->rtm_dst_len, rm->rtm_src_len);
+	//dprintf("rtm_family : 0x%x , rtm_dst_len : 0x%x, rtm_src_len : 0x%x",rm->rtm_family, rm->rtm_dst_len, rm->rtm_src_len);
 	// print directly connected routes
 	if(rm->rtm_type != RTN_UNICAST && rm->rtm_type != RTN_LOCAL) {
 		dprintf("got %d instead of RTN_UNICAST (%d) or RTN_LOCAL (%d)", rm->rtm_type, RTN_UNICAST,RTN_LOCAL);	
@@ -289,7 +289,7 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
     else
         is_ipv6 = 1;
 
-	dprintf("nh->nlmsg_len: %d, NLMSG_LENGTH(sizeof(..)): %d, is_ipv6 : %d", nh->nlmsg_len, NLMSG_LENGTH(sizeof(struct rtmsg)),is_ipv6);
+	//dprintf("nh->nlmsg_len: %d, NLMSG_LENGTH(sizeof(..)): %d, is_ipv6 : %d", nh->nlmsg_len, NLMSG_LENGTH(sizeof(struct rtmsg)),is_ipv6);
 
 	len = nh->nlmsg_len - NLMSG_LENGTH (sizeof(struct rtmsg));
 	if(len <= 0) {
@@ -297,12 +297,12 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
 		return 0;
 	}
 
-	dprintf("RTA_DST=%d, RTA_SRC=%d, RTA_GATEWAY=%d, RTA_PREFSRC=%d, RTA_OIF=%d, RTA_PRIORITY=%d", RTA_DST, RTA_SRC, RTA_GATEWAY, RTA_PREFSRC,RTA_OIF, RTA_PRIORITY);		
+	//dprintf("RTA_DST=%d, RTA_SRC=%d, RTA_GATEWAY=%d, RTA_PREFSRC=%d, RTA_OIF=%d, RTA_PRIORITY=%d", RTA_DST, RTA_SRC, RTA_GATEWAY, RTA_PREFSRC,RTA_OIF, RTA_PRIORITY);		
 
 
-	dprintf("rtm_table : %d, RT_TABLE_UNSPEC=%d,  RT_TABLE_DEFAULT =%d, RT_TABLE_MAIN=%d,RT_TABLE_LOCAL=%d", rm->rtm_table,RT_TABLE_UNSPEC,  RT_TABLE_DEFAULT , RT_TABLE_MAIN, RT_TABLE_LOCAL);
+	//dprintf("rtm_table : %d, RT_TABLE_UNSPEC=%d,  RT_TABLE_DEFAULT =%d, RT_TABLE_MAIN=%d,RT_TABLE_LOCAL=%d", rm->rtm_table,RT_TABLE_UNSPEC,  RT_TABLE_DEFAULT , RT_TABLE_MAIN, RT_TABLE_LOCAL);
 
-	dprintf("rtm_type : %d, RTN_UNICAST=%d,  RTN_LOCAL=%d", rm->rtm_type,RTN_UNICAST, RTN_LOCAL);
+	//dprintf("rtm_type : %d, RTN_UNICAST=%d,  RTN_LOCAL=%d", rm->rtm_type,RTN_UNICAST, RTN_LOCAL);
 	// okay, so.
 	// 
 
@@ -310,11 +310,11 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
 	{
         if (is_ipv6) {
             what6 = (unsigned char *) RTA_DATA(ra);
-		    dprintf("ra @ %p, type = %d, length = %d, payload = %d, payload data = %08x %08x %08x %08x", ra, ra->rta_type, ra->rta_len, RTA_PAYLOAD(ra), *(__u32 *)what6, *(__u32 *)(what6+4), *(__u32 *)(what6+8), *(__u32 *)(what6+12));
+		    //dprintf("ra @ %p, type = %d, length = %d, payload = %d, payload data = %08x %08x %08x %08x", ra, ra->rta_type, ra->rta_len, RTA_PAYLOAD(ra), *(__u32 *)what6, *(__u32 *)(what6+4), *(__u32 *)(what6+8), *(__u32 *)(what6+12));
         }
         else {
 		    what = (__u32 *) RTA_DATA(ra);
-		    dprintf("ra @ %p, type = %d, length = %d, payload = %d, payload data = %08x", ra, ra->rta_type, ra->rta_len, RTA_PAYLOAD(ra), *what);
+		    //dprintf("ra @ %p, type = %d, length = %d, payload = %d, payload data = %08x", ra, ra->rta_type, ra->rta_len, RTA_PAYLOAD(ra), *what);
         }
 
 		switch(ra->rta_type) {
@@ -341,7 +341,7 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
 		}
 	}
 
-	dprintf("and while you're here, rtm_dst_len = %d", rm->rtm_dst_len);
+	//dprintf("and while you're here, rtm_dst_len = %d", rm->rtm_dst_len);
 
 	if (is_ipv6) {
 		// if netmask is FFFFFFFF FFFFFFFF 00000000 00000000 (/64), netmask6.a1 and netmask6.a2 == 0xffffffff, and nestmask6.a3 and .a4 == 0
@@ -387,11 +387,11 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
    
         strncpy(re6->interface, int_name, IFNAMSIZ);
 		re6->metric = metric;
-		dprintf("re6->dest6 = %08x %08x %08x %08x, re6->netmask6 = %08x %08x %08x %08x, re6->nexthop6 = %08x %08x %08x %08x, interface = %s, metric = %d", 
-		re6->dest6.a1,re6->dest6.a2,re6->dest6.a3,re6->dest6.a4,
-		re6->netmask6.a1,re6->netmask6.a2,re6->netmask6.a3,re6->netmask6.a4,
-		re6->nexthop6.a1,re6->nexthop6.a2,re6->nexthop6.a3,re6->nexthop6.a4,
-		re6->interface,re6->metric);
+		//dprintf("re6->dest6 = %08x %08x %08x %08x, re6->netmask6 = %08x %08x %08x %08x, re6->nexthop6 = %08x %08x %08x %08x, interface = %s, metric = %d", 
+		//	re6->dest6.a1,re6->dest6.a2,re6->dest6.a3,re6->dest6.a4,
+		//	re6->netmask6.a1,re6->netmask6.a2,re6->netmask6.a3,re6->netmask6.a4,
+		//	re6->nexthop6.a1,re6->nexthop6.a2,re6->nexthop6.a3,re6->nexthop6.a4,
+		//	re6->interface,re6->metric);
 		tmp6->entries++;
 
 		*table_v6 = tmp6;
@@ -414,7 +414,7 @@ int netlink_parse_routing_table(struct nlmsghdr *nh, void *data)
         strncpy(re->interface, int_name, IFNAMSIZ);
         re->metric = metric;
 
-	    dprintf("re->dest = %08x, re->netmask = %08x, re->nexthop = %08x, interface = %s, metric = %d", re->dest, re->netmask, re->nexthop,re->interface,re->metric);
+	    //dprintf("re->dest = %08x, re->netmask = %08x, re->nexthop = %08x, interface = %s, metric = %d", re->dest, re->netmask, re->nexthop,re->interface,re->metric);
 	    tmp->entries++;
 
 	    *table_v4 = tmp;
@@ -531,7 +531,7 @@ int netlink_parse_interface_link(struct nlmsghdr *nh, void *data)
 		iface = (unsigned char *)iface + 4;
 		dprintf("Adjusted iface at +4");
 	}
-	dprintf("ifi_family : 0x%x , ifi_type : 0x%x, ifi_index : 0x%x",iface->ifi_family, iface->ifi_type, iface->ifi_index);
+	//dprintf("ifi_family : 0x%x , ifi_type : 0x%x, ifi_index : 0x%x",iface->ifi_family, iface->ifi_type, iface->ifi_index);
 	len = nh->nlmsg_len - NLMSG_LENGTH(sizeof(*iface));
 	memset(&iface_tmp, 0, sizeof(iface_tmp));
 
@@ -643,7 +643,7 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 	struct ifaces_list ** iface_list = ( struct ifaces_list **) data;
 	struct iface_entry * iff;
 	struct iface_entry * iff_tmp;
-	struct ifaces_list  *tmp;
+	struct ifaces_list * iface_list_tmp;
 	struct iface_entry iface_tmp;
 
 	struct ifaddrmsg *iaddr;
@@ -652,6 +652,11 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 	uint32_t newsize;
 	unsigned char is_ipv6;
 
+	struct iface_address *addr_tmp;
+
+	// strictly for debugging
+	char addr_str[64];
+
 	iaddr = NLMSG_DATA(nh);
 	// stumbled upon an old system with 4 bytes padding between nlmsghdr and ifaddrmsg, try to detect it
 	if (!likely_ifaddrmsg(iaddr)) {
@@ -659,7 +664,6 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 		dprintf("Adjusted iaddr at +4");
 	}
 
-	dprintf("ifa_family : 0x%x , ifa_prefixlen : 0x%x, ifa_flags : 0x%x, ifa_scope : 0x%x",iaddr->ifa_family, iaddr->ifa_prefixlen, iaddr->ifa_flags, iaddr->ifa_scope);
 	len = nh->nlmsg_len - NLMSG_LENGTH(sizeof(*iaddr));
 
 	if (iaddr->ifa_family == AF_INET6)
@@ -667,115 +671,120 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 	else if (iaddr->ifa_family == AF_INET)
 		is_ipv6 = 0;
 	else {
-		dprintf("Got iaddr->ifa_family : %d which is unknown (iaddr->ifa_index : %d)", iaddr->ifa_family, iaddr->ifa_index);
+		//dprintf("Got iaddr->ifa_family : %d which is unknown (iaddr->ifa_index : %d)", iaddr->ifa_family, iaddr->ifa_index);
 		return 0;
 	}
 
 	memset(&iface_tmp, 0, sizeof(iface_tmp));
+	iface_tmp.index = iaddr->ifa_index;
+
+	dprintf("-------------------------------------");
 	for (attribute = IFA_RTA(iaddr); RTA_OK(attribute, len); attribute = RTA_NEXT(attribute, len))
 	{
+		dprintf("Start of loop, attribute->rta_type = %d", attribute->rta_type);
 		switch(attribute->rta_type)
 		{
 			case IFA_ADDRESS:
+				// Make room for a new address
+				iface_tmp.addr_count++;
+				iface_tmp.addr_list = realloc(iface_tmp.addr_list, sizeof(struct iface_address) * iface_tmp.addr_count);
+				addr_tmp = &iface_tmp.addr_list[iface_tmp.addr_count-1];
 				if (is_ipv6)
-					memcpy(&iface_tmp.addr6, (unsigned char *) RTA_DATA(attribute), sizeof(__u128));
-				else
-					iface_tmp.addr = *(__u32 *) RTA_DATA(attribute);	
+				{
+					addr_tmp->family = AF_INET6;
+					memcpy(&addr_tmp->ip.addr6, (unsigned char *) RTA_DATA(attribute), sizeof(__u128));
+					//inet_ntop(AF_INET6, &addr_tmp->ip, addr_str, sizeof(addr_str));
+					//dprintf("Interface: %s", addr_str);
+				} else {
+					addr_tmp->family = AF_INET;
+					addr_tmp->ip.addr = *(__u32 *) RTA_DATA(attribute);
+					//inet_ntop(AF_INET, &addr_tmp->ip, addr_str, sizeof(addr_str));
+					//dprintf("Interface: %s", addr_str);
+				}
+				address_calculate_netmask(addr_tmp, iaddr->ifa_prefixlen);
+
+				inet_ntop(addr_tmp->family, &addr_tmp->ip, addr_str, sizeof(addr_str));
+				dprintf("Interface: %s", addr_str);
+				inet_ntop(addr_tmp->family, &addr_tmp->nm, addr_str, sizeof(addr_str));
+				dprintf("Netmask: %s", addr_str);
 				break;
 
 			case IFA_LABEL:
 				strncpy(iface_tmp.name, (unsigned char *) RTA_DATA(attribute), IFNAMSIZ);
+				dprintf("Copied name %s", iface_tmp.name);
 	      		break;
 			default:
 				break;
 		}
+		dprintf("-------------------------------------");
 	}
-
-	dprintf("and while you're here, iaddr->ifa_prefixlen = %d", iaddr->ifa_prefixlen);
-
-	if (is_ipv6) {
-		// if netmask is FFFFFFFF FFFFFFFF 00000000 00000000 (/64), netmask6.a1 and netmask6.a2 == 0xffffffff, and nestmask6.a3 and .a4 == 0
-		// netmask6 is set to 0 at the beginning of the function, no need to reset the values to 0 if it is needed
-		// XXX really ugly, but works
-		if (iaddr->ifa_prefixlen >= 96) {
-			iface_tmp.netmask6.a4 = (1 << (iaddr->ifa_prefixlen-96))-1;
-			iface_tmp.netmask6.a1 = iface_tmp.netmask6.a2 = iface_tmp.netmask6.a3 =  0xffffffff;
-		}
-		else if (iaddr->ifa_prefixlen >= 64) {
-			iface_tmp.netmask6.a3 = (1 << (iaddr->ifa_prefixlen-64))-1;
-			iface_tmp.netmask6.a1 = iface_tmp.netmask6.a2 =  0xffffffff;
-		}
-		else if (iaddr->ifa_prefixlen >= 32) {
-			iface_tmp.netmask6.a2 = (1 << (iaddr->ifa_prefixlen-32))-1;
-			iface_tmp.netmask6.a1 =  0xffffffff;
-		}
-		else
-			iface_tmp.netmask6.a1 = (1 << iaddr->ifa_prefixlen)-1;
-	}
-	else {
-		if (iaddr->ifa_prefixlen == 32)
-			iface_tmp.netmask = 0xffffffff;
-		else
-			iface_tmp.netmask = ((1 << iaddr->ifa_prefixlen) - 1);
-
-	}
+	dprintf("Exited loop");
 
 	/*
  	 * try to find the iface by index and name
-	 * an IP alias (eth0:0 for instance) will have the same index but not the same name/label
-	 * no alias when getting IPv6 address, so just search using the index
+	 * An IP alias (eth0:0 for instance) will have the same index but not the
+	 * same name/label.  There are no aliases when getting IPv6 address, so
+	 * just search using the index
 	 */
 	if (is_ipv6) {
-		iff = find_iface_by_index(*iface_list, iaddr->ifa_index);
+		iff = find_iface_by_index(*iface_list, iface_tmp.index);
 		if (iff == NULL) {
-			dprintf("Cannot find iface with index %d", iaddr->ifa_index);
+			dprintf("Cannot find iface with index %d", iface_tmp.index);
 			return 0;
 		}
 	}
 	else
-		iff = find_iface_by_index_and_name(*iface_list, iaddr->ifa_index, iface_tmp.name);
+		iff = find_iface_by_index_and_name(*iface_list, iface_tmp.index, iface_tmp.name);
+
 	if (iff == NULL) {
-		dprintf("[%s] %s an alias?", __FUNCTION__, iface_tmp.name);
-		// didn't find this name, probably an alias such as eth0:0
-		iff = find_iface_by_index(*iface_list, iaddr->ifa_index);
+		// Now we're dealing with an IPv4 alias such as eth0:0.  With a regular
+		// interface, the mac address, mtu, flags, etc. would already have been
+		// initialized when we did the RTM_GETLINK request.  Since an alias
+		// doesn't count as a physical interface, that didn't happen, so copy
+		// all of the parent interface's info to this one.
+		dprintf("%s an alias?", iface_tmp.name);
+		iff = find_iface_by_index(*iface_list, iface_tmp.index);
 		if (iff == NULL) {
-			dprintf("Cannot find iface with index %d", iaddr->ifa_index);
+			dprintf("Cannot find iface with index %d", iface_tmp.index);
 			return 0;
 		}
-		// found it, copy the data to save it
-		// old MAC addr and MTU
 		memcpy(iface_tmp.hwaddr, iff->hwaddr, 6);
 		iface_tmp.mtu = iff->mtu;
-		iface_tmp.index = iff->index;
-		memcpy(&iface_tmp.addr6, &iff->addr6, sizeof(__u128));
-		memcpy(&iface_tmp.netmask6, &iff->netmask6, sizeof(__u128));
+		//memcpy(&iface_tmp.addr6, &iff->addr6, sizeof(__u128));
+		//memcpy(&iface_tmp.netmask6, &iff->netmask6, sizeof(__u128));
 		strncpy(iface_tmp.flags, iff->flags, FLAGS_LEN);
-		// allocate new one
+
+		// expand the list to accomodate the new one
 		newsize  = sizeof(struct ifaces_list);
 		newsize += ((*iface_list)->entries + 1) * sizeof(struct iface_entry);
+		iface_list_tmp = realloc(*iface_list, newsize);
 
-		tmp = realloc(*iface_list, newsize);
-
-		if(tmp == NULL) {
+		if(iface_list_tmp == NULL) {
 			return ENOMEM;
 		}
 
-		iff = &(tmp->ifaces[tmp->entries]);
+		iff = &(iface_list_tmp->ifaces[iface_list_tmp->entries]);
 		memset(iff, 0, sizeof(struct iface_entry));
 		// copy back saved data in new iface_entry
 		memcpy(iff->hwaddr, iface_tmp.hwaddr, 6);
 		iff->mtu = iface_tmp.mtu;
 		iff->index = iface_tmp.index;
-		memcpy(&iff->addr6, &iface_tmp.addr6, sizeof(__u128));
-		memcpy(&iff->netmask6, &iface_tmp.netmask6, sizeof(__u128));
+		//memcpy(&iff->addr6, &iface_tmp.addr6, sizeof(__u128));
+		//memcpy(&iff->netmask6, &iface_tmp.netmask6, sizeof(__u128));
 		strncpy(iff->flags, iface_tmp.flags, FLAGS_LEN);
 		// copy new name
 		strncpy(iff->name, iface_tmp.name, IFNAMSIZ);
 
-		tmp->entries++;
-		*iface_list = tmp;
+		iface_list_tmp->entries++;
+		*iface_list = iface_list_tmp;
 	}
+
+	iff->addr_list = iface_tmp.addr_list;
+	dprintf("iff->addr_count = %d; iface_tmp.addr_count = %d", iff->addr_count = iface_tmp.addr_count);
+	iff->addr_count = iface_tmp.addr_count;
+
 	//now, iff points to a iface_entry, just copy add/addr6 and netmask/netmask6
+#if 0
 	if (is_ipv6) {
 		memcpy(&iff->addr6, &iface_tmp.addr6, sizeof(__u128));
 		memcpy(&iff->netmask6, &iface_tmp.netmask6, sizeof(__u128));
@@ -784,10 +793,11 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 		iff->addr = iface_tmp.addr;
 		iff->netmask = iface_tmp.netmask;
 	}
+#endif
 
-	dprintf("iff->index = %d, iff->name = %s, iff->addr = %08x, iff->netmask = %08x, iff->addr6 = %08x %08x %08x %08x, iff->netmask6 = %08x %08x %08x %08x", 
-	iff->index, iff->name, iff->addr, iff->netmask,	
-	iff->addr6.a1,iff->addr6.a2,iff->addr6.a3,iff->addr6.a4, iff->netmask6.a1,iff->netmask6.a2,iff->netmask6.a3,iff->netmask6.a4);
+	//dprintf("iff->index = %d, iff->name = %s, iff->addr = %08x, iff->netmask = %08x, iff->addr6 = %08x %08x %08x %08x, iff->netmask6 = %08x %08x %08x %08x", 
+	//	iff->index, iff->name, iff->addr, iff->netmask,	
+	//	iff->addr6.a1,iff->addr6.a2,iff->addr6.a3,iff->addr6.a4, iff->netmask6.a1,iff->netmask6.a2,iff->netmask6.a3,iff->netmask6.a4);
 
 	return 0;
 }
@@ -836,7 +846,7 @@ int netlink_get_interfaces(struct ifaces_list **iface_list)
 		return ERROR_NOT_SUPPORTED;
 	}
 	// for each interface created before, will get the IPv4 / IPv6 addr
-	status = netlink_parse(fd, seq,  netlink_parse_interface_address, iface_list);
+	status = netlink_parse(fd, seq, netlink_parse_interface_address, iface_list);
 	close(fd);
 	if(status != 0) {
         if (*iface_list)
@@ -848,3 +858,35 @@ int netlink_get_interfaces(struct ifaces_list **iface_list)
 	return status;
 
 }
+
+void address_calculate_netmask(struct iface_address *address, int ifa_prefixlen) {
+
+	if (address->family == AF_INET6) {
+		// if netmask is FFFFFFFF FFFFFFFF 00000000 00000000 (/64), netmask6.a1 and netmask6.a2 == 0xffffffff, and nestmask6.a3 and .a4 == 0
+		// netmask6 is set to 0 at the beginning of the function, no need to reset the values to 0 if it is needed
+		// XXX really ugly, but works
+		if (ifa_prefixlen >= 96) {
+			address->nm.netmask6.a4 = (1 << (ifa_prefixlen-96))-1;
+			address->nm.netmask6.a1 = address->nm.netmask6.a2 = address->nm.netmask6.a3 =  0xffffffff;
+		}
+		else if (ifa_prefixlen >= 64) {
+			address->nm.netmask6.a3 = (1 << (ifa_prefixlen-64))-1;
+			address->nm.netmask6.a1 = address->nm.netmask6.a2 =  0xffffffff;
+		}
+		else if (ifa_prefixlen >= 32) {
+			address->nm.netmask6.a2 = (1 << (ifa_prefixlen-32))-1;
+			address->nm.netmask6.a1 =  0xffffffff;
+		}
+		else
+			address->nm.netmask6.a1 = (1 << ifa_prefixlen)-1;
+	}
+	else {
+		if (ifa_prefixlen == 32)
+			address->nm.netmask = 0xffffffff;
+		else
+			address->nm.netmask = ((1 << ifa_prefixlen) - 1);
+	}
+}
+
+
+
