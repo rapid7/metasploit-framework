@@ -98,7 +98,7 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	int if_error;
 	uint32_t interface_index_bigendian, mtu_bigendian;
 	// wild guess, should probably malloc
-	Tlv entries[19];
+	Tlv entries[39];
 
 	dprintf("Grabbing interfaces");
 	if_error = netlink_get_interfaces(&ifaces);

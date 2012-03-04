@@ -642,7 +642,6 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 {
 	struct ifaces_list ** iface_list = ( struct ifaces_list **) data;
 	struct iface_entry * iff;
-	struct iface_entry * iff_tmp;
 	struct ifaces_list * iface_list_tmp;
 	struct iface_entry iface_tmp;
 
@@ -693,13 +692,9 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 				{
 					addr_tmp->family = AF_INET6;
 					memcpy(&addr_tmp->ip.addr6, (unsigned char *) RTA_DATA(attribute), sizeof(__u128));
-					//inet_ntop(AF_INET6, &addr_tmp->ip, addr_str, sizeof(addr_str));
-					//dprintf("Interface: %s", addr_str);
 				} else {
 					addr_tmp->family = AF_INET;
 					addr_tmp->ip.addr = *(__u32 *) RTA_DATA(attribute);
-					//inet_ntop(AF_INET, &addr_tmp->ip, addr_str, sizeof(addr_str));
-					//dprintf("Interface: %s", addr_str);
 				}
 				address_calculate_netmask(addr_tmp, iaddr->ifa_prefixlen);
 
@@ -724,7 +719,7 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
  	 * try to find the iface by index and name
 	 * An IP alias (eth0:0 for instance) will have the same index but not the
 	 * same name/label.  There are no aliases when getting IPv6 address, so
-	 * just search using the index
+	 * just search using the index.
 	 */
 	if (is_ipv6) {
 		iff = find_iface_by_index(*iface_list, iface_tmp.index);
@@ -737,11 +732,12 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 		iff = find_iface_by_index_and_name(*iface_list, iface_tmp.index, iface_tmp.name);
 
 	if (iff == NULL) {
-		// Now we're dealing with an IPv4 alias such as eth0:0.  With a regular
-		// interface, the mac address, mtu, flags, etc. would already have been
-		// initialized when we did the RTM_GETLINK request.  Since an alias
-		// doesn't count as a physical interface, that didn't happen, so copy
-		// all of the parent interface's info to this one.
+		/* Now we're dealing with an IPv4 alias such as eth0:0.  With a regular
+		 * interface, the mac address, mtu, flags, etc. would already have been
+		 * initialized when we did the RTM_GETLINK request.  Since an alias
+		 * doesn't count as a physical interface, that didn't happen, so copy
+		 * all of the parent interface's info to this one.
+		 */
 		dprintf("%s an alias?", iface_tmp.name);
 		iff = find_iface_by_index(*iface_list, iface_tmp.index);
 		if (iff == NULL) {
@@ -750,8 +746,6 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 		}
 		memcpy(iface_tmp.hwaddr, iff->hwaddr, 6);
 		iface_tmp.mtu = iff->mtu;
-		//memcpy(&iface_tmp.addr6, &iff->addr6, sizeof(__u128));
-		//memcpy(&iface_tmp.netmask6, &iff->netmask6, sizeof(__u128));
 		strncpy(iface_tmp.flags, iff->flags, FLAGS_LEN);
 
 		// expand the list to accomodate the new one
@@ -769,35 +763,18 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 		memcpy(iff->hwaddr, iface_tmp.hwaddr, 6);
 		iff->mtu = iface_tmp.mtu;
 		iff->index = iface_tmp.index;
-		//memcpy(&iff->addr6, &iface_tmp.addr6, sizeof(__u128));
-		//memcpy(&iff->netmask6, &iface_tmp.netmask6, sizeof(__u128));
+
 		strncpy(iff->flags, iface_tmp.flags, FLAGS_LEN);
-		// copy new name
 		strncpy(iff->name, iface_tmp.name, IFNAMSIZ);
 
 		iface_list_tmp->entries++;
 		*iface_list = iface_list_tmp;
 	}
 
-	iff->addr_list = iface_tmp.addr_list;
-	dprintf("iff->addr_count = %d; iface_tmp.addr_count = %d", iff->addr_count = iface_tmp.addr_count);
-	iff->addr_count = iface_tmp.addr_count;
-
-	//now, iff points to a iface_entry, just copy add/addr6 and netmask/netmask6
-#if 0
-	if (is_ipv6) {
-		memcpy(&iff->addr6, &iface_tmp.addr6, sizeof(__u128));
-		memcpy(&iff->netmask6, &iface_tmp.netmask6, sizeof(__u128));
-	}
-	else {
-		iff->addr = iface_tmp.addr;
-		iff->netmask = iface_tmp.netmask;
-	}
-#endif
-
-	//dprintf("iff->index = %d, iff->name = %s, iff->addr = %08x, iff->netmask = %08x, iff->addr6 = %08x %08x %08x %08x, iff->netmask6 = %08x %08x %08x %08x", 
-	//	iff->index, iff->name, iff->addr, iff->netmask,	
-	//	iff->addr6.a1,iff->addr6.a2,iff->addr6.a3,iff->addr6.a4, iff->netmask6.a1,iff->netmask6.a2,iff->netmask6.a3,iff->netmask6.a4);
+	inet_ntop(addr_tmp->family, &addr_tmp->ip, addr_str, sizeof(addr_str));
+	dprintf("Appending: %s", addr_str);
+	iface_entry_append_address(iff, &iface_tmp.addr_list[0]);
+	dprintf("iff->addr_count = %d; iface_tmp.addr_count = %d", iff->addr_count, iface_tmp.addr_count);
 
 	return 0;
 }
@@ -889,4 +866,11 @@ void address_calculate_netmask(struct iface_address *address, int ifa_prefixlen)
 }
 
 
+void iface_entry_append_address(struct iface_entry *iface, struct iface_address *address) {
+	iface->addr_count++;
+	iface->addr_list = realloc(iface->addr_list, sizeof(struct iface_address) * iface->addr_count);
+	dprintf("Realloc'd %p", iface->addr_list);
+
+	memcpy(&iface->addr_list[iface->addr_count-1], address, sizeof(struct iface_address));
+}
 
