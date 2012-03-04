@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 
@@ -29,7 +29,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-
+		
+		register_wmap_options({
+				'OrderID' => 0,
+				'Require' => {},
+			})
 	end
 
 	# Fingerprint a single host

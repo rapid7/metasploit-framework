@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Post
 
 	# Run enumeration commands for when privilege level is 7 or 15
 	def enum_priv(prompt)
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 		priv_commands = [
 			{
 				"cmd"  => "show run",

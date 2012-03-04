@@ -62,7 +62,7 @@ end
 
 
 # Extract the host and port
-host,port = client.tunnel_peer.split(':')
+host,port = client.session_host, client.session_port
 
 print_status("New session on #{host}:#{port}...")
 

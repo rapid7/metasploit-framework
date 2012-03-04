@@ -275,6 +275,10 @@ class DBManager
 		end
 
 		wspace = opts.delete(:workspace) || workspace
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+				
 		ret = { }
 
 		if not addr.kind_of? Host
@@ -329,6 +333,117 @@ class DBManager
 		host
 	end
 
+
+	#
+	# Update a host's attributes via semi-standardized sysinfo hash (Meterpreter)
+	#
+	# The opts parameter MUST contain the following entries
+	# +:host+::           -- the host's ip address
+	# +:info+::           -- the information hash 
+	# * 'Computer'        -- the host name
+	# * 'OS'              -- the operating system string
+	# * 'Architecture'    -- the hardware architecture
+	# * 'System Language' -- the system language
+	#
+	# The opts parameter can contain:
+	# +:workspace+::      -- the workspace for this host
+	#
+	def update_host_via_sysinfo(opts)
+
+		return if not active
+		addr = opts.delete(:host) || return
+		info = opts.delete(:info) || return
+
+		# Sometimes a host setup through a pivot will see the address as "Remote Pipe"
+		if addr.eql? "Remote Pipe"
+			return
+		end
+
+		wspace = opts.delete(:workspace) || workspace
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+
+		if not addr.kind_of? Host
+			addr = normalize_host(addr)
+			addr, scope = addr.split('%', 2)
+			opts[:scope] = scope if scope
+			 
+			unless ipv46_validator(addr)
+				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+			end
+
+			if opts[:comm] and opts[:comm].length > 0
+				host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+			else
+				host = wspace.hosts.find_or_initialize_by_address(addr)
+			end
+		else
+			host = addr
+		end
+		
+		res = {}
+		
+		if info['Computer']
+			res[:name] = info['Computer']
+		end
+		
+		if info['Architecture']
+			res[:arch] = info['Architecture'].split(/\s+/).first
+		end
+		
+		if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
+			res[:os_name]   = "Microsoft Windows"
+			res[:os_flavor] = $1.strip
+			build = $2.strip
+			
+			if build =~ /Service Pack (\d+)/
+				res[:os_sp] = "SP" + $1
+			else
+				res[:os_sp] = "SP0"
+			end
+		end
+		
+		if info["System Language"]
+			case info["System Language"]
+				when /^en_/
+					res[:os_lang] = "English"
+			end
+		end
+		
+
+		# Truncate the info field at the maximum field length
+		if res[:info]
+			res[:info] = res[:info][0,65535]
+		end
+
+		# Truncate the name field at the maximum field length
+		if res[:name]
+			res[:name] = res[:name][0,255]
+		end
+		
+		res.each { |k,v|
+
+			if (host.attribute_names.include?(k.to_s))
+				unless host.attribute_locked?(k.to_s)
+					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
+				end
+			else
+				dlog("Unknown attribute for Host: #{k}")
+			end
+		}
+		
+		# Set default fields if needed
+		host.state       = HostState::Alive if not host.state
+		host.comm        = ''        if not host.comm
+		host.workspace   = wspace    if not host.workspace
+		
+		if host.changed?
+			host.save!
+		end
+
+		host
+	end
 	#
 	# Iterates over the hosts table calling the supplied block with the host
 	# instance of each entry.
@@ -908,7 +1023,10 @@ class DBManager
 		raise DBImportError.new("Missing required option :addr") unless addr
 		wspace = opts.delete(:wspace)
 		raise DBImportError.new("Missing required option :wspace") unless wspace
-
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+		
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
@@ -5248,15 +5366,9 @@ class DBManager
 			end
 		elsif host.kind_of? Session
 			norm_host = host.host
-		elsif host.respond_to?(:target_host)
-			# Then it's an Msf::Session object with a target but target_host
-			# won't be set in some cases, so try tunnel_peer as well
-			thost = host.target_host
-			if host.tunnel_peer and (!thost or thost.empty?)
-				# tunnel_peer is of the form ip:port, so strip off the port to
-				# get the addr by itself
-				thost = host.tunnel_peer.split(":")[0]
-			end
+		elsif host.respond_to?(:session_host)
+			# Then it's an Msf::Session object
+			thost = host.session_host
 			norm_host = thost
 		end
 

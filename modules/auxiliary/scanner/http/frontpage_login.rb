@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 	include Msf::Auxiliary::Scanner
 
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (fpversion = res.match(/FPVersion="(.*)"/))
 				fpversion = $1
 				print_status("#{info} FrontPage Version: #{fpversion}")
-				report_service(:host => target_host, :port => port, :name => "http", :info => "#{server_version} FrontPage Version: #{fpversion}")
+				
 				if (fpauthor = res.match(/FPAuthorScriptUrl="([^"]*)/))
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
-						:sname	=> (ssl ? "https" : "http"),
+						:sname => (ssl ? 'https' : 'http'),
 						:port	=> port,
 						:type	=> 'FrontPage Author',
 						:data	=> "#{info}#{fpauthor}"

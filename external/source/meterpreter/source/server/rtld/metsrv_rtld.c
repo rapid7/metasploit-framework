@@ -67,7 +67,7 @@ void perform_fd_cleanup(int *fd);
 #define OPT_DEBUG_ENABLE	(1 << 0)
 #define OPT_NO_FD_CLEANUP	(1 << 1)
 
-global_debug = 0;
+int global_debug = 0;
 
 /*
  * Map in libraries, and hand off execution to the meterpreter server
