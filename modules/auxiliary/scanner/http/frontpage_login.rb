@@ -75,6 +75,12 @@ class Metasploit3 < Msf::Auxiliary
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
 					# Add Report
+					# Fix for Bug #6354.
+					# Check if port is "" or if it begins with ":".
+					if port == ""
+						port = "N/A"
+					else
+						port.slice!(0)
 					report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
