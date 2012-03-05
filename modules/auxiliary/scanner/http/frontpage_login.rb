@@ -81,6 +81,7 @@ class Metasploit3 < Msf::Auxiliary
 						port = "N/A"
 					else
 						port.slice!(0)
+					end
 					report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
