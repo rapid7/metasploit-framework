@@ -346,7 +346,6 @@ class Rex::Socket::Comm::Local
 
 	def self.proxy(sock, type, host, port)
 
-		#$stdout.print("PROXY\n")
 		case type.downcase
 		when 'httponly'
 			return
