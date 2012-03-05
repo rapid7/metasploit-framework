@@ -15,9 +15,11 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'         => 'AFP Info Fatcher',
+			'Name'         => 'Apple Filing Protocol Info Enumerator',
 			'Description'  => %q{
 				This module fetch AFP server information.
+				Including Server name, network address, supported AFP versions,
+				signature, machine type ,and server flags.
 			},
 			'References'     =>
 				[
@@ -45,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 			raise $!
 		rescue ::Rex::ConnectionError, ::IOError, ::Errno::ECONNRESET, ::Errno::ENOPROTOOPT
 		rescue ::Exception
-			print_error("#{rhost}:#{rport} #{$!.class} #{$!} #{$!.backtrace}")
+			print_error("#{rhost}:#{rport} #{$!.class} #{$!}")
 		ensure
 			disconnect
 		end
@@ -60,7 +62,7 @@ class Metasploit3 < Msf::Auxiliary
 		packet << "\x00\x00\x00\x00" #Reserved
 
 		sock.put(packet)
-		response = sock.recv(1024)
+		response = sock.timed_read(1024)
 		parse_response(response)
 	end
 
@@ -80,11 +82,13 @@ class Metasploit3 < Msf::Auxiliary
 		uam_count_offset = body[4..5]
 		icon_offset = body[6..7]
 		flags = body[8..9]
-		server_name_length = body[10]
 
+		server_name_length = body[10]
+		server_name_length = server_name_length.unpack("C").first if server_name_length.is_a?(String)
 		server_name = read_pascal_string(body, 10)
 
 		pos = 10 + server_name_length + 1
+		pos += 1 if pos % 2 != 0 #padding
 
 		server_signature_offset = body[pos..pos + 1]
 		network_addresses_count_offset = body[pos + 2..pos + 3]
@@ -97,7 +101,6 @@ class Metasploit3 < Msf::Auxiliary
 
 		num_signature_offset = server_signature_offset.unpack('n').first
 		server_signature = body[num_signature_offset..num_signature_offset + 15]
-
 		directories = read_array(body, directory_names_count_offset)
 		utf8_server_name = read_utf8_pascal_string(body, utf8_server_name_offset)
 
@@ -108,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 		#report
 		report_info = "Server Flags: 0x#{flags.unpack('H*').first}\n" +
 		format_flags_report(parsed_flags) +
-		" Server Name: #{server_name.unpack('C*').pack('U*')} \n" +
+		" Server Name: #{server_name} \n" +
 		" Machine Type: #{machine_type} \n" +
 		" AFP Versions: #{versions.join(', ')} \n" +
 		" UAMs: #{uams.join(', ')}\n" +
@@ -122,13 +125,22 @@ class Metasploit3 < Msf::Auxiliary
 			:proto => 'TCP',
 			:port => datastore['RPORT'],
 			:type => 'afp_server_info',
-			:data => report_info)
+			:data => {
+				:server_name => Iconv.conv("UTF-8//IGNORE", "US-ASCII", server_name),
+				:flags => { :raw => "0x#{flags.unpack('H*').first}", :parsed => parsed_flags },
+				:machine_type => machine_type,
+				:afp_versions => versions,
+				:uams         => uams,
+				:server_signature => server_signature.unpack("H*").first.to_s,
+				:network_addresses => parsed_network_addresses,
+				:utf8_server_name  => utf8_server_name
+				})
 	end
 
 	def parse_network_addresses(network_addresses)
 		parsed_addreses = []
 		network_addresses.each do |address|
-			case address[0]
+			case address[0].is_a?(String) ? address[0].unpack('C').first : address[0]
 			when 0 #Reserved
 				next
 			when 1 # Four-byte IP address
@@ -144,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 			when 6 # IPv6 address (16 bytes)
 				parsed_addreses << "[#{IPAddr.ntop(address[1..16])}]"
 			when 7 # IPv6 address (16 bytes) followed by a two-byte port number
-				parsed_addreses << "[#{IPAddr.ntop(address[1..16])}]:#{address[17..18].unpack("n")}"
+				parsed_addreses << "[#{IPAddr.ntop(address[1..16])}]:#{address[17..18].unpack("n").first}"
 			else   # Something wrong?
 				raise "Error pasing network addresses"
 			end
@@ -163,7 +175,7 @@ class Metasploit3 < Msf::Auxiliary
 		result['Server Notifications'] = flags[9,1] == '1' ? true : false
 		result['TCP/IP'] = flags[10,1] == '1' ? true : false
 		result['Server Signature'] = flags[11,1] == '1' ? true : false
-		result['ServerMessages'] = flags[12,1] == '1' ? true : false
+		result['Server Messages'] = flags[12,1] == '1' ? true : false
 		result['Password Saving Prohibited'] = flags[13,1] == '1' ? true : false
 		result['Password Changing'] = flags[14,1] == '1' ? true : false
 		result['Copy File'] = flags[5,1] == '1' ? true : false
@@ -179,18 +191,21 @@ class Metasploit3 < Msf::Auxiliary
 	def read_pascal_string(str, offset)
 		offset = offset.unpack("n").first if offset.is_a?(String)
 		length = str[offset]
+		length = length.unpack("C").first if length.is_a?(String)
 		return str[offset + 1..offset + length]
 	end
 
 	def read_array(str, offset, afp_network_address=false)
+
 		offset = offset.unpack("n").first if offset.is_a?(String)
 		size = str[offset]
+		size = size.unpack("C").first if size.is_a?(String)
 		pos = offset + 1
 
 		result = []
 		size.times do
 			result << read_pascal_string(str, pos)
-			pos += str[pos]
+			pos += str[pos].is_a?(String) ? str[pos].unpack('C').first : str[pos]
 			pos += 1 unless afp_network_address
 		end
 		return result
