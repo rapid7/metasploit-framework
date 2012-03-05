@@ -1,6 +1,36 @@
 Armitage Changelog
 ==================
 
+21 Feb 12
+---------
+- Added Cut/Copy/Paste menu to table cell editor.
+- Module browser search field now treats spaces as a wildcard. You may type:
+  "win meterp" and Armitage will treat it as "win*meterp"
+- Hovering over an edge in graph view no longer reports a "null" tooltip
+- Fixed parsing of ps output for the process dialog (it's much much better now)
+
+14 Feb 12
+---------
+- Added ports 5631 (pc anywhere) and 902 (vmauthd) to the MSF Scans feature.
+- Several cosmetic tweaks to the spacing in Armitage tables.
+- Moved table render code from Sleep to Java to avoid potential lock conflicts
+- Added support for vba-exe payload output type.
+- Payload generation dialog now sets more appropriate default options for the
+  vba output type when it is selected.
+- Meterp command shell "read more stuff?" heuristic now accounts for Yes/No/All
+- Fixed ExitOnSession showing up twice when setting advanced options for a 
+  client-side exploit
+- You may now import multiple files through Hosts -> Import again.
+- Added 5s timeout to d-server connect attempt.
+- Added a --client [connect.properties] to specify which Metasploit server to 
+  connect to. The connect.properties file is a Java properties file that looks
+  like this (without the leading whitespace):
+
+  host=127.0.0.1
+  port=55553
+  user=msf
+  pass=test
+
 19 Jan 12
 ---------
 - Data export now includes a sessions file. This lists all of the Metasploit

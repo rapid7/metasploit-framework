@@ -10,22 +10,25 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 	Packet *response = packet_create_response(packet);
 	DWORD result = ERROR_SUCCESS;
 	DWORD index;
+	DWORD metric_bigendian;
 
 #ifdef _WIN32
-	PMIB_IPFORWARDTABLE table = NULL;
+	PMIB_IPFORWARDTABLE table_ipv4 = NULL;
+	PMIB_IPFORWARDTABLE table_ipv6 = NULL;
 	DWORD tableSize = sizeof(MIB_IPFORWARDROW) * 96;
+	unsigned char int_name[20];
 
 	do
 	{
 		// Allocate storage for the routing table
-		if (!(table = (PMIB_IPFORWARDTABLE)malloc(tableSize)))
+		if (!(table_ipv4 = (PMIB_IPFORWARDTABLE)malloc(tableSize)))
 		{
 			result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
 		}
 
 		// Get the routing table
-		if (GetIpForwardTable(table, &tableSize, TRUE) != NO_ERROR)
+		if (GetIpForwardTable(table_ipv4, &tableSize, TRUE) != NO_ERROR)
 		{
 			result = GetLastError();
 			break;
@@ -33,56 +36,109 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 
 		// Enumerate it
 		for (index = 0;
-		     index < table->dwNumEntries;
+		     index < table_ipv4->dwNumEntries;
 		     index++)
 		{
-			Tlv route[3];
-
+			Tlv route[5];
+			memset(int_name, 0, 20);
+			
 			route[0].header.type   = TLV_TYPE_SUBNET;
 			route[0].header.length = sizeof(DWORD);
-			route[0].buffer        = (PUCHAR)&table->table[index].dwForwardDest;
+			route[0].buffer        = (PUCHAR)&table_ipv4->table[index].dwForwardDest;
 			route[1].header.type   = TLV_TYPE_NETMASK;
 			route[1].header.length = sizeof(DWORD);
-			route[1].buffer        = (PUCHAR)&table->table[index].dwForwardMask;
+			route[1].buffer        = (PUCHAR)&table_ipv4->table[index].dwForwardMask;
 			route[2].header.type   = TLV_TYPE_GATEWAY;
 			route[2].header.length = sizeof(DWORD);
-			route[2].buffer        = (PUCHAR)&table->table[index].dwForwardNextHop;
+			route[2].buffer        = (PUCHAR)&table_ipv4->table[index].dwForwardNextHop;
+
+			// we just get the interface index, not the name, because names can be __long__
+            _itoa(table_ipv4->table[index].dwForwardIfIndex, int_name, 10);
+    		route[3].header.type   = TLV_TYPE_STRING;
+			route[3].header.length = strlen(int_name)+1;
+			route[3].buffer        = (PUCHAR)int_name;
+
+			metric_bigendian = htonl(table_ipv4->table[index].dwForwardMetric1);
+			route[4].header.type   = TLV_TYPE_ROUTE_METRIC;
+			route[4].header.length = sizeof(DWORD);
+			route[4].buffer        = (PUCHAR)&metric_bigendian;
 
 			packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE,
-					route, 3);
+					route, 5);
 		}
 
 	} while (0);
 
 #else 
-	struct ipv4_routing_table *table = NULL;
+	struct ipv4_routing_table *table_ipv4 = NULL;
+	struct ipv6_routing_table *table_ipv6 = NULL;
 
-	dprintf("[%s] getting routing table", __FUNCTION__);
-	result = netlink_get_ipv4_routing_table(&table);
-	dprintf("[%s] result = %d, table = %p", __FUNCTION__, result, table);
+	dprintf("getting routing table");
+	result = netlink_get_routing_table(&table_ipv4, &table_ipv6);
+	dprintf("result = %d, table_ipv4 = %p, table_ipv6=%p", result, table_ipv4,table_ipv6);
 
-	for(index = 0; index < table->entries; index++) {
-		Tlv route[3];
+	for(index = 0; index < table_ipv4->entries; index++) {
+		Tlv route[5];
 
 		route[0].header.type	= TLV_TYPE_SUBNET;
 		route[0].header.length 	= sizeof(DWORD);
-		route[0].buffer 	= (PUCHAR)&table->routes[index].dest;
+		route[0].buffer 		= (PUCHAR)&table_ipv4->routes[index].dest;
 	
 		route[1].header.type	= TLV_TYPE_NETMASK;
 		route[1].header.length	= sizeof(DWORD);
-		route[1].buffer		= (PUCHAR)&table->routes[index].netmask;
+		route[1].buffer			= (PUCHAR)&table_ipv4->routes[index].netmask;
 		
 		route[2].header.type	= TLV_TYPE_GATEWAY;
 		route[2].header.length	= sizeof(DWORD);
-		route[2].buffer		= (PUCHAR)&table->routes[index].nexthop;
+		route[2].buffer			= (PUCHAR)&table_ipv4->routes[index].nexthop;
+
+		route[3].header.type   = TLV_TYPE_STRING;
+		route[3].header.length = strlen((PUCHAR)table_ipv4->routes[index].interface)+1;
+		route[3].buffer        = (PUCHAR)table_ipv4->routes[index].interface;
+
+		metric_bigendian 	   = htonl(table_ipv4->routes[index].metric);
+		route[4].header.type   = TLV_TYPE_ROUTE_METRIC;
+		route[4].header.length = sizeof(DWORD);
+		route[4].buffer        = (PUCHAR)&metric_bigendian;
 		
-		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE, route, 3);
+		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE, route, 5);
 	}
+	dprintf("sent %d IPv4 routes", table_ipv4->entries);
+	// IPv6 routing table
+	for(index = 0; index < table_ipv6->entries; index++) {
+		Tlv route6[5];
+
+		route6[0].header.type	= TLV_TYPE_SUBNET6;
+		route6[0].header.length = sizeof(__u128);
+		route6[0].buffer 		= (PUCHAR)&table_ipv6->routes[index].dest6;
+	
+		route6[1].header.type	= TLV_TYPE_NETMASK6;
+		route6[1].header.length	= sizeof(__u128);
+		route6[1].buffer		= (PUCHAR)&table_ipv6->routes[index].netmask6;
+		
+		route6[2].header.type	= TLV_TYPE_GATEWAY6;
+		route6[2].header.length	= sizeof(__u128);
+		route6[2].buffer		= (PUCHAR)&table_ipv6->routes[index].nexthop6;
+
+		route6[3].header.type   = TLV_TYPE_STRING;
+		route6[3].header.length = strlen((PUCHAR)table_ipv6->routes[index].interface)+1;
+		route6[3].buffer        = (PUCHAR)table_ipv6->routes[index].interface;
+
+		metric_bigendian 	    = htonl(table_ipv6->routes[index].metric);
+		route6[4].header.type   = TLV_TYPE_ROUTE_METRIC;
+		route6[4].header.length = sizeof(DWORD);
+		route6[4].buffer        = (PUCHAR)&metric_bigendian;
+		
+		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE6, route6, 5);
+	}
+	dprintf("sent %d IPv6 routes", table_ipv6->entries);
 
 #endif
 
-	if(table) 
-		free(table);
+	if(table_ipv4) 
+		free(table_ipv4);
+	if(table_ipv6) 
+		free(table_ipv6);
 
 	packet_transmit_response(result, remote, response);
 

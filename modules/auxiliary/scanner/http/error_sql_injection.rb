@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -36,9 +36,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('METHOD', [ true, "HTTP Method",'GET']),
+				OptEnum.new('METHOD', [true, 'HTTP Request Method', 'GET', ['GET', 'POST']]),
 				OptString.new('PATH', [ true,  "The path/file to test SQL injection", '/default.aspx']),
-				OptString.new('QUERY', [ false,  "HTTP URI Query", '']),
+				OptString.new('QUERY',[ false,  "HTTP URI Query", '']),
 				OptString.new('DATA', [ false,  "HTTP Body/Data Query", ''])
 			], self.class)
 
@@ -50,6 +50,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
+
+		http_method = datastore['METHOD'].upcase
 
 		qvars = nil
 
@@ -82,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Dealing with empty query/data and making them hashes.
 		#
 
-		if  datastore['METHOD'] =='GET'
+		if  http_method =='GET'
 			if not datastore['QUERY'].empty?
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash
 			else
@@ -102,12 +104,12 @@ class Metasploit3 < Msf::Auxiliary
 		#
 		#
 
-		if datastore['METHOD'] == 'POST'
+		if http_method == 'POST'
 			reqinfo = {
 				'uri'  		=> datastore['PATH'],
 				'query' 	=> datastore['QUERY'],
 				'data' 		=> datastore['DATA'],
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'encode'	=> false
 			}
@@ -115,7 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 			reqinfo = {
 				'uri'  		=> datastore['PATH'],
 				'query' 	=> datastore['QUERY'],
-				'method'   	=> datastore['METHOD'],
+				'method'   	=> http_method,
 				'ctype'		=> 'application/x-www-form-urlencoded',
 				'encode'	=> false
 			}
@@ -155,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> ip,
 					:proto  => 'tcp',
-					:sname	=> 'HTTP',
+					:sname => (ssl ? "https" : "http"),
 					:port	=> rport,
 					:type	=> 'DATABASE_ERROR',
 					:data	=> "#{datastore['PATH']} Error: #{inje} DB: #{dbt}"
@@ -182,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 
 				qvars.each do |key,value|
-					if datastore['METHOD'] == 'POST'
+					if http_method == 'POST'
 						qvars = queryparse(datastore['DATA']) #Now its a Hash
 					else
 						qvars = queryparse(datastore['QUERY']) #Now its a Hash
@@ -198,12 +200,12 @@ class Metasploit3 < Msf::Auxiliary
 						fstr += var+"="+val+"&"
 					end
 
-					if datastore['METHOD'] == 'POST'
+					if http_method == 'POST'
 						reqinfo = {
 							'uri'  		=> datastore['PATH'],
 							'query'		=> datastore['QUERY'],
 							'data' 		=> fstr,
-							'method'   	=> datastore['METHOD'],
+							'method'   	=> http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'encode'	=> false
 						}
@@ -211,7 +213,7 @@ class Metasploit3 < Msf::Auxiliary
 						reqinfo = {
 							'uri'  		=> datastore['PATH'],
 							'query' 	=> fstr,
-							'method'   	=> datastore['METHOD'],
+							'method'   	=> http_method,
 							'ctype'		=> 'application/x-www-form-urlencoded',
 							'encode'	=> false
 						}
@@ -243,7 +245,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> ip,
 								:proto  => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? "https" : "http"),
 								:port	=> rport,
 								:type	=> 'SQL_INJECTION',
 								:data	=> "#{datastore['PATH']} Location: QUERY Parameter: #{key} Value: #{istr} Error: #{inje} DB: #{dbt}"
@@ -258,7 +260,7 @@ class Metasploit3 < Msf::Auxiliary
 				end
 			end
 
-			if datastore['METHOD'] == 'POST'
+			if http_method == 'POST'
 				qvars = queryparse(datastore['DATA']) #Now its a Hash
 			else
 				qvars = queryparse(datastore['QUERY']) #Now its a Hash

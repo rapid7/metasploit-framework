@@ -68,6 +68,7 @@ tmp/openssl-0.9.8o/libssl.so:
 		./Configure --prefix=/tmp/out threads shared no-hw no-dlfcn no-zlib no-krb5 no-idea 386 linux-msf \
 	)
 	(cd tmp/openssl-0.9.8o && make depend all ; [ -f libssl.so.0.9.8 -a -f libcrypto.so.0.9.8 ] )
+	mkdir -p external/source/meterpreter/source/openssl/lib/linux/i386/
 	cp tmp/openssl-0.9.8o/libssl.so* tmp/openssl-0.9.8o/libcrypto.so* external/source/meterpreter/source/openssl/lib/linux/i386/
 
 external/source/meterpreter/source/bionic/compiled/libpcap.so: tmp/libpcap-1.1.1/libpcap.so.1.1.1
@@ -77,7 +78,7 @@ tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	[ -d tmp ] || mkdir tmp
 	[ -f tmp/libpcap-1.1.1.tar.gz ] || wget -O tmp/libpcap-1.1.1.tar.gz http://www.tcpdump.org/release/libpcap-1.1.1.tar.gz
 	[ -f tmp/libpcap-1.1.1/configure  ] || tar -C tmp -xzf tmp/libpcap-1.1.1.tar.gz
-	(cd tmp/libpcap-1.1.1 && ./configure --disable-bluetooth --without-bluetooth --without-usb --disable-usb --without-can --disable-can --without-usb-linux --disable-usb-linux)
+	(cd tmp/libpcap-1.1.1 && ./configure --disable-bluetooth --without-bluetooth --without-usb --disable-usb --without-can --disable-can --without-usb-linux --disable-usb-linux --without-libnl)
 	echo '#undef HAVE_DECL_ETHER_HOSTTON' >> tmp/libpcap-1.1.1/config.h
 	echo '#undef HAVE_SYS_BITYPES_H' >> tmp/libpcap-1.1.1/config.h
 	echo '#undef PCAP_SUPPORT_CAN' >> tmp/libpcap-1.1.1/config.h
@@ -87,7 +88,7 @@ tmp/libpcap-1.1.1/libpcap.so.1.1.1:
 	(cd tmp/libpcap-1.1.1 && patch --dry-run -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff && patch -p0 < ../../external/source/meterpreter/source/libpcap/pcap_nametoaddr_fix.diff)
 	sed -i -e s/pcap-usb-linux.c//g -e s/fad-getad.c/fad-gifc.c/g tmp/libpcap-1.1.1/Makefile
 	sed -i -e s^"CC = gcc"^"CC = gcc $(PCAP_CFLAGS)"^g tmp/libpcap-1.1.1/Makefile
-	$(MAKE) -C tmp/libpcap-1.1.1
+	make -C tmp/libpcap-1.1.1
 
 
 data/meterpreter/msflinker_linux_x86.bin: external/source/meterpreter/source/server/rtld/msflinker.bin
@@ -130,11 +131,13 @@ data/meterpreter/ext_server_networkpug.lso: $(workspace)/ext_server_networkpug/e
 
 clean:
 	rm -f $(objects)
+	(cd external/source/meterpreter/source/server/rtld/ && make clean)
+	(cd $(workspace) && make clean)
+
+depclean:
 	rm -f external/source/meterpreter/source/bionic/lib*/*.o
 	find external/source/meterpreter/source/bionic/ -name '*.a' -print0 | xargs -0 rm -f 2>/dev/null
 	rm -f external/source/meterpreter/source/bionic/lib*/*.so
-	(cd external/source/meterpreter/source/server/rtld/ && make clean)
-	(cd $(workspace) && make clean)
 
 clean-pcap:
 	#(cd tmp/libpcap-1.1.1/ && make clean)
@@ -146,7 +149,7 @@ clean-pcap:
 clean-ssl:
 	(cd tmp/openssl-0.9.8o/ && make clean)
 
-really-clean: clean clean-ssl clean-pcap
+really-clean: clean clean-ssl clean-pcap depclean
 
 
 .PHONY: clean clean-ssl clean-pcap really-clean debug

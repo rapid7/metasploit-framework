@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -127,7 +127,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> target_host,
 					:proto => 'tcp',
-					:sname	=> 'HTTP',
+					:sname	=> (ssl ? "https" : "http"),
 					:port	=> rport,
 					:type	=> 'SVN_ENTRIES',
 					:data	=> "#{turl}"
@@ -166,7 +166,7 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> target_host,
 							:proto => 'tcp',
-							:sname	=> 'HTTP',
+							:sname => (ssl ? "https" : "http"),
 							:port	=> rport,
 							:type	=> 'USERNAME',
 							:data	=> "#{slastauthor}"
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? "https" : "http"),
 								:port	=> rport,
 								:type	=> 'DIRECTORY',
 								:data	=> "#{sname}"
@@ -190,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname	=> 'HTTP',
+								:sname => (ssl ? "https" : "http"),
 								:port	=> rport,
 								:type	=> 'FILE',
 								:data	=> "#{sname}"
@@ -217,7 +217,7 @@ class Metasploit3 < Msf::Auxiliary
 										report_note(
 											:host	=> target_host,
 											:proto => 'tcp',
-											:sname	=> 'HTTP',
+											:sname => (ssl ? "https" : "http"),
 											:port	=> rport,
 											:type	=> 'SOURCE_CODE',
 											:data	=> "#{sname} Code: #{srcres.body}"

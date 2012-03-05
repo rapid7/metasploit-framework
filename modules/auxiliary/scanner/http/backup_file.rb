@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host	=> rhost,
 					:proto => 'tcp',
-					:sname	=> 'HTTP',
+					:sname => (ssl ? "https" : "http"),
 					:port	=> rport,
 					:type	=> 'BACKUP_FILE',
 					:data	=> "#{file}"

@@ -251,18 +251,18 @@ class DBManager
 	# Report a host's attributes such as operating system and service pack
 	#
 	# The opts parameter MUST contain
-	#	:host       -- the host's ip address
+	# +:host+::         -- the host's ip address
 	#
 	# The opts parameter can contain:
-	#	:state      -- one of the Msf::HostState constants
-	#	:os_name    -- one of the Msf::OperatingSystems constants
-	#	:os_flavor  -- something like "XP" or "Gentoo"
-	#	:os_sp      -- something like "SP2"
-	#	:os_lang    -- something like "English", "French", or "en-US"
-	#	:arch       -- one of the ARCH_* constants
-	#	:mac        -- the host's MAC address
-	#	:scope      -- interface identifier for link-local IPv6
-	#	:virtual_host -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
+	# +:state+::        -- one of the Msf::HostState constants
+	# +:os_name+::      -- one of the Msf::OperatingSystems constants
+	# +:os_flavor+::    -- something like "XP" or "Gentoo"
+	# +:os_sp+::        -- something like "SP2"
+	# +:os_lang+::      -- something like "English", "French", or "en-US"
+	# +:arch+::         -- one of the ARCH_* constants
+	# +:mac+::          -- the host's MAC address
+	# +:scope+::        -- interface identifier for link-local IPv6
+	# +:virtual_host+:: -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
 	#
 	def report_host(opts)
 
@@ -364,7 +364,8 @@ class DBManager
 	# +:proto+:: the transport layer protocol (e.g. tcp, udp)
 	#
 	# opts may contain
-	# +:name+:: the application layer protocol (e.g. ssh, mssql, smb)
+	# +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
+	# +:sname+:: an alias for the above
 	#
 	def report_service(opts)
 		return if not active
@@ -377,6 +378,13 @@ class DBManager
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
+
+		# Other report_* methods take :sname to mean the service name, so we
+		# map it here to ensure it ends up in the right place despite not being
+		# a real column.
+		if opts[:sname]
+			opts[:name] = opts.delete(:sname)
+		end
 
 		if addr.kind_of? Host
 			host = addr
@@ -747,8 +755,8 @@ class DBManager
 	# +:workspace+::  the workspace to associate with this Note
 	# +:host+::       an IP address or a Host object to associate with this Note
 	# +:service+::    a Service object to associate with this Note
-	# +:port+::       along with :host and proto, a service to associate with this Note
-	# +:proto+::      along with :host and port, a service to associate with this Note
+	# +:port+::       along with +:host+ and +:proto+, a service to associate with this Note
+	# +:proto+::      along with +:host+ and +:port+, a service to associate with this Note
 	# +:update+::     what to do in case a similar Note exists, see below
 	#
 	# The +:update+ option can have the following values:
@@ -927,6 +935,9 @@ class DBManager
 		tag.save! if tag.changed?
 	end
 
+	#
+	# Store a set of credentials in the database.
+	#
 	# report_auth_info used to create a note, now it creates
 	# an entry in the creds table. It's much more akin to
 	# report_vuln() now.

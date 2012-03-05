@@ -71,7 +71,7 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	# Check disclosure date format
-	if content =~ /'DisclosureDate' => '(.+)'/
+	if content =~ /'DisclosureDate' => ['|\"](.+)['|\"]/
 		d = $1  #Captured date
 		# Flag if overall format is wrong
 		if d =~ /^... \d{1,2} \d{4}/
@@ -96,6 +96,30 @@ def check_single_file(dparts, fparts, f_rel)
 	elsif content =~ /class Metasploit\d < Msf::Auxiliary/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
 		bad_term = false
 		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
+	end
+
+	# Check function naming style and arg length
+	functions = content.scan(/def (\w+)\(*(.+)\)*/)
+	functions.each do |func_name, args|
+		# Check Ruby variable naming style
+		if func_name =~ /[a-z][A-Z]/ or func_name =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor function naming style for: '#{func_name}'", false)
+		end
+
+		# Check argument length
+		args_length = args.split(",").length
+		if args_length > 6
+			show_missing(f, "WARNING: Poorly designed argument list in '#{func_name}'. Try a hash.", false)
+		end
+	end
+
+	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
+	vars.each do |v|
+		v = v.strip
+		next if v =~ /^var/ or v =~ /^Rank/
+		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
+		end
 	end
 
 	# check criteria based on individual lines

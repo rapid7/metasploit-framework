@@ -44,10 +44,10 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			break;
 		}
 
-		dprintf("[%s] targetPath: %s", __FUNCTION__, targetPath);
+		dprintf("targetPath: %s", targetPath);
 
 		library = dlopenbuf(targetPath, dataTlv.buffer, dataTlv.header.length );
-		dprintf("[%s] dlopenbuf(%s): %08x / %s", __FUNCTION__, targetPath, library, dlerror());
+		dprintf("dlopenbuf(%s): %08x / %s", targetPath, library, dlerror());
 		if(! library) {
 			res = ERROR_NOT_FOUND;
 			break;
@@ -61,7 +61,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			init = dlsym(library, "InitServerExtension" );
 			// Call the init routine in the library
 			if( init ) {
-				dprintf("[%s] calling InitServerExtension", __FUNCTION__);
+				dprintf("calling InitServerExtension");
 				res = init(remote);
 			}
 		}

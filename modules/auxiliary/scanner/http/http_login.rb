@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
-				:sname  => 'http',
+				:sname => (ssl ? "https" : "http"),
 				:user   => user,
 				:pass   => pass,
 				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",
@@ -219,7 +219,7 @@ class Metasploit3 < Msf::Auxiliary
 			c.close
 			return :abort if (resp.code == 404)
 
-			if resp.code == 200
+			if [200, 301, 302].include?(resp.code)
 				@proof   = resp
 				return :success
 			end
@@ -252,7 +252,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :abort if (res.code == 404)
 
-			if res.code == 200
+			if [200, 301, 302].include?(res.code)
 				@proof   = res
 				return :success
 			end
@@ -304,7 +304,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :abort if (res.code == 404)
 
-			if (res.code == 200) or (res.code == 201) 
+			if ( [200, 301, 302].include?(res.code) ) or (res.code == 201) 
 				if ((res.code == 201) and (requesttype == "PUT"))
 					print_good("Trying to delete #{path}")
 					del_res,c = send_digest_request_cgi({

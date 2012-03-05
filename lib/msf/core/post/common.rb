@@ -33,7 +33,7 @@ module Common
 	def report_vm(vm)
 		return unless session
 		return unless vm
-		vm_normal = vm.to_s.lstrip.strip
+		vm_normal = vm.to_s.strip
 		return if vm_normal.empty?
 		vm_data = {
 			:host => session.target_host,

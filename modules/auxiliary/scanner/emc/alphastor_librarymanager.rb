@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'EMC AlphaStor Library Manager Service',
 			'Version'        => '$Revision$',
-			'Description'    => 'This module querys the remote host for the EMC Alphastor Library Management Service.',
+			'Description'    => 'This module queries the remote host for the EMC Alphastor Library Management Service.',
 			'Author'         => 'MC',
 			'License'        => MSF_LICENSE
 		)
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		if ( data and data =~ /robotd~robotd~CLIENT/ )
 				print_status("Host #{ip} is running the EMC AlphaStor Library Manager.")
-				report_service(:host => rhost, :port => rport, :name => "EMC AlphaStor Library Manager", :info => data)
+				report_service(:host => rhost, :port => rport, :name => "emc-library", :info => data)
 		else
 				print_error("Host #{ip} is not running the service...")
 		end

