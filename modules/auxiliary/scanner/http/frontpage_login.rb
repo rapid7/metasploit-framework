@@ -77,19 +77,15 @@ class Metasploit3 < Msf::Auxiliary
 					# Add Report
 					# Fix for Bug #6354.
 					# Check if port is "" or if it begins with ":".
-					if port == ""
-						port = "0"
-					else
-						port.slice!(0)
-					end
-					report_note(
-						:host	=> target_host,
+					opts = {
+						:host  => target_host,
 						:proto => 'tcp',
 						:sname => (ssl ? 'https' : 'http'),
-						:port	=> port,
-						:type	=> 'FrontPage Author',
-						:data	=> "#{info}#{fpauthor}"
-					)
+						:type  => 'FrontPage Author',
+						:data  => "#{info}#{fpauthor}"
+					}
+					opts[:port] = port.slice!(0) if not port.empty?
+					report_note(opts)
 				end
 				check_account(info, fpversion, target_host)
 			end
