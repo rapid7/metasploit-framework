@@ -162,7 +162,7 @@ class Db
 			delete_count = 0
 
 			host_ranges = []
-			search_term = ''
+			search_term = nil
 
 			output = nil
 			default_columns = ::Msf::DBManager::Host.column_names.sort
@@ -199,7 +199,7 @@ class Db
 					set_rhosts = true
 					rhosts = []
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 
 				when '-h','--help'
 					print_line "Usage: hosts [ options ] [addr1 addr2 ...]"
@@ -256,13 +256,12 @@ class Db
 
 			# Sentinal value meaning all
 			host_ranges.push(nil) if host_ranges.empty?
-			search_term = '.' if search_term.empty?
 
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, onlyup, host_search).each do |host|
-					next unless host.attribute_names.any? {
-						|a| host[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-					}
+					if search_term
+						next unless host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term) }
+					end
 					columns = col_names.map do |n|
 						# Deal with the special cases
 						if virtual_columns.include?(n)
@@ -324,7 +323,7 @@ class Db
 			host_ranges = []
 			port_ranges = []
 			delete_count = 0
-			search_term = ''
+			search_term = nil
 
 			# option parsing
 			while (arg = args.shift)
@@ -377,7 +376,7 @@ class Db
 					set_rhosts = true
 					rhosts = []
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 
 				when '-h','--help'
 					print_line
@@ -447,17 +446,17 @@ class Db
 			# Sentinal value meaning all
 			host_ranges.push(nil) if host_ranges.empty?
 			ports = nil if ports.empty?
-			search_term = '.' if search_term.empty?
 
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.services(framework.db.workspace, onlyup, proto, host_search, ports, names).each do |service|
 
 					host = service.host
-					next unless host.attribute_names.any? {
-						|a| host[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-					} or service.attribute_names.any? {
-						|a| service[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-					}
+					if search_term
+						next unless(
+							host.attribute_names.any? { |a| host[a.intern].to_s.match(search_term)} or
+							service.attribute_names.any? { |a| service[a.intern].to_s.match(search_term)}
+						)
+					end
 
 					columns = [host.address] + col_names.map { |n| service[n].to_s || "" }
 					tbl << columns
@@ -513,7 +512,7 @@ class Db
 			host_ranges = []
 			port_ranges = []
 			svcs        = []
-			search_term = ''
+			search_term = nil
 
 			# Short-circuit help
 			if args.delete "-h"
@@ -543,7 +542,7 @@ class Db
 					end
 					svcs = service.split(/[\s]*,[\s]*/)
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 				else
 					# Anything that wasn't an option is a host to search for
 					unless (arg_host_range(arg, host_ranges))
@@ -556,16 +555,16 @@ class Db
 			host_ranges.push(nil) if host_ranges.empty?
 			ports = port_ranges.flatten.uniq
 			svcs.flatten!
-			search_term = '.' if search_term.empty?
 
 			each_host_range_chunk(host_ranges) do |host_search|
 				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
 					host.vulns.each do |vuln|
-						next unless vuln.attribute_names.any? {
-							|a| vuln[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-						} or vuln.host.attribute_names.any? {
-							|a| vuln.host[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-						}
+						if search_term
+							next unless(
+								vuln.host.attribute_names.any? { |a| vuln.host[a.intern].to_s.match(search_term) } or
+								vuln.attribute_names.any? { |a| vuln[a.intern].to_s.match(search_term) }
+							)
+						end
 						reflist = vuln.refs.map { |r| r.name }
 						if(vuln.service)
 							# Skip this one if the user specified a port and it
@@ -627,7 +626,7 @@ class Db
 			host_ranges = []
 			port_ranges = []
 			svcs        = []
-			search_term = ''
+			search_term = nil
 
 			user = nil
 
@@ -681,7 +680,7 @@ class Db
 					set_rhosts = true
 					rhosts = []
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 				when "-u","--user"
 					user = args.shift
 					if (!user)
@@ -731,7 +730,6 @@ class Db
 			# normalize
 			ports = port_ranges.flatten.uniq
 			svcs.flatten!
-			search_term = '.' if search_term.empty?
 
 			tbl = Rex::Ui::Text::Table.new({
 					'Header'  => "Credentials",
@@ -743,9 +741,9 @@ class Db
 			framework.db.each_cred(framework.db.workspace) do |cred|
 				# skip if it's inactive and user didn't ask for all
 				next unless (cred.active or inactive_ok)
-				next unless cred.attribute_names.any? {
-						|a| cred[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-					}
+				if search_term
+					next unless cred.attribute_names.any? { |a| cred[a.intern].to_s.match(search_term) }
+				end
 				# Also skip if the user is searching for something and this
 				# one doesn't match
 				includes = false
@@ -818,7 +816,7 @@ class Db
 			set_rhosts = false
 
 			host_ranges = []
-			search_term = ''
+			search_term = nil
 
 			while (arg = args.shift)
 				case arg
@@ -843,7 +841,7 @@ class Db
 					set_rhosts = true
 					rhosts = []
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 				when '-h','--help'
 					cmd_notes_help
 					return
@@ -875,10 +873,9 @@ class Db
 			end
 
 			note_list = []
-			search_term = '.' if search_term.empty?
 			delete_count = 0
 			if host_ranges.empty? # No host specified - collect all notes
-				note_list = framework.db.notes
+				note_list = framework.db.notes.dup
 			else # Collect notes of specified hosts
 				each_host_range_chunk(host_ranges) do |host_search|
 					framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
@@ -886,10 +883,9 @@ class Db
 					end
 				end
 			end
-			note_list.keep_if {|n| n.attribute_names.any? {
-					|a| n[a.to_sym].to_s.downcase =~ /#{search_term.downcase}/
-				}
-			}
+			if search_term
+				# TODO: Actually select notes based on a criteria. Can't use keep_if since that's a 1.9.2 thing.
+			end
 			# Now display them
 			note_list.each do |note|
 				next if(types and types.index(note.ntype).nil?)
@@ -936,7 +932,7 @@ class Db
 			host_ranges = []
 			types = nil
 			delete_count = 0
-			search_term = ''
+			search_term = nil
 
 			while (arg = args.shift)
 				case arg
@@ -950,7 +946,7 @@ class Db
 					end
 					types = typelist.strip().split(",")
 				when '-S', '--search'
-					search_term = args.shift
+					search_term = /#{args.shift}/nmi
 				when '-h','--help'
 					cmd_loot_help
 					return
@@ -974,11 +970,12 @@ class Db
 				framework.db.hosts(framework.db.workspace, false, host_search).each do |host|
 					host.loots.each do |loot|
 						next if(types and types.index(loot.ltype).nil?)
-						next unless loot.attribute_names.any? {
-							|a| loot[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-						} or loot.host.attribute_names.any? {
-							|a| loot.host[a.to_sym].to_s.downcase.match(/#{search_term.downcase}/)
-						}
+						if search_term
+						next unless(
+							loot.attribute_names.any? { |a| loot[a.intern].to_s.match(search_term) } or
+							loot.host.attribute_names.any? { |a| loot.host[a.intern].to_s.match(search_term) }
+						)
+						end
 						row = []
 						row.push( (loot.host ? loot.host.address : "") )
 						if (loot.service)
