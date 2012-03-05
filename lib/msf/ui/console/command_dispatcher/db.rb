@@ -884,7 +884,9 @@ class Db
 				end
 			end
 			if search_term
-				# TODO: Actually select notes based on a criteria. Can't use keep_if since that's a 1.9.2 thing.
+				note_list.delete_if do |n|
+					!!n.attribute_names.any? { |a| n[a.intern].to_s.match(search_term) }
+				end
 			end
 			# Now display them
 			note_list.each do |note|
