@@ -75,14 +75,15 @@ class Metasploit3 < Msf::Auxiliary
 					fpauthor = $1
 					print_status("#{info} FrontPage Author: #{info}#{fpauthor}")
 					# Add Report
-					report_note(
-						:host	=> target_host,
+					opts = {
+						:host  => target_host,
 						:proto => 'tcp',
 						:sname => (ssl ? 'https' : 'http'),
-						:port	=> port,
-						:type	=> 'FrontPage Author',
-						:data	=> "#{info}#{fpauthor}"
-					)
+						:type  => 'FrontPage Author',
+						:data  => "#{info}#{fpauthor}"
+					}
+					opts[:port] = datastore['RPORT'] if not port.empty?
+					report_note(opts)
 				end
 				check_account(info, fpversion, target_host)
 			end
