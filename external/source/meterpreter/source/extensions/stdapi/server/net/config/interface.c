@@ -138,13 +138,13 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 				} else {
 					dprintf("-- ip six addr for %s", ifaces->ifaces[i].name);
 					entries[tlv_cnt].header.length = sizeof(__u128);
-					entries[tlv_cnt].header.type   = TLV_TYPE_IP6;
+					entries[tlv_cnt].header.type   = TLV_TYPE_IP;
 					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].ip.addr6;
 					tlv_cnt++;
 
 					//dprintf("netmask6 for %s", ifaces->ifaces[i].name);
 					entries[tlv_cnt].header.length = sizeof(__u128);
-					entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK6;
+					entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
 					entries[tlv_cnt].buffer        = (PUCHAR)&ifaces->ifaces[i].addr_list[j].nm.netmask6;
 					tlv_cnt++;
 				}
