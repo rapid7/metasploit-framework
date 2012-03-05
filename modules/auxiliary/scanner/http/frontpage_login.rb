@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 					# Fix for Bug #6354.
 					# Check if port is "" or if it begins with ":".
 					if port == ""
-						port = "N/A"
+						port = "0"
 					else
 						port.slice!(0)
 					end
