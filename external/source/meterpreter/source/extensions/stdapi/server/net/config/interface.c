@@ -1,5 +1,8 @@
 #include "precomp.h"
+
+#ifdef _WIN32
 #include <ws2ipdef.h>
+#endif
 
 /*
  * Returns zero or more local interfaces to the requestor
