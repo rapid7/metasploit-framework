@@ -27,16 +27,13 @@ class Interface
 	# Returns a logical interface and initializes it to the supplied
 	# parameters.
 	#
-	def initialize(index, ip, netmask, mac_addr, mac_name, ip6=nil, netmask6=nil, mtu=nil, flags=nil)
-		self.index    = index || -1
-		self.ip       = (ip ? IPAddr.ntop(ip) : nil)
-		self.netmask  = (netmask ? IPAddr.ntop(netmask) : nil)
-		self.mac_addr = mac_addr
-		self.mac_name = mac_name
-		self.ip6      = (ip6 ? IPAddr.new_ntoh(ip6).to_s : nil)
-		self.netmask6 = (netmask6 ? IPAddr.new_ntoh(netmask6).to_s : nil)
-		self.mtu      = mtu
-		self.flags    = flags
+	def initialize(opts={})
+		self.index    = opts[:index] || -1
+		self.mac_addr = opts[:mac_addr]
+		self.mac_name = opts[:mac_name]
+		self.mtu      = opts[:mtu]
+		self.flags    = opts[:flags]
+		self.addrs    = opts[:addrs]
 	end
 
 	#
@@ -54,11 +51,15 @@ class Interface
 				macocts[3], macocts[4], macocts[5])],
 			["MTU"          , mtu       ],
 			["Flags"        , flags     ],
-			["IPv4 Address" , ((ip and ip != "0.0.0.0") ? ip : nil) ],
-			["IPv4 Netmask" , netmask   ],
-			["IPv6 Address" , ((ip6 and ip6 != "::") ? ip6 : nil) ],
-			["IPv6 Netmask" , ((netmask6 and netmask6 != "::") ? netmask6 : nil) ],
 		]
+
+		addrs.select { |a| Rex::Socket.is_ipv4?(a) }.each { |a|
+			info << [ "IPv4 Address", a ]
+		}
+		addrs.select { |a| Rex::Socket.is_ipv6?(a) }.each { |a|
+			info << [ "IPv6 Address", a ]
+		}
+
 		pad = info.map{|i| i[0] }.max_by{|k|k.length}.length
 
 		ret = sprintf(
@@ -76,17 +77,20 @@ class Interface
 	end
 
 	#
-	# The indedx of the interface.
+	# The first address associated with this Interface
+	#
+	def ip
+		addrs.first
+	end
+
+	#
+	# The index of the interface.
 	#
 	attr_accessor :index
 	#
-	# The IP address bound to the interface.
+	# An Array of IP addresses bound to the Interface.
 	#
-	attr_accessor :ip
-	#
-	# The subnet mask associated with the interface.
-	#
-	attr_accessor :netmask
+	attr_accessor :addrs
 	#
 	# The physical (MAC) address of the NIC.
 	#
@@ -95,10 +99,6 @@ class Interface
 	# The name of the interface.
 	#
 	attr_accessor :mac_name
-	#
-	# The IPv6 address bound to the interface.
-	#
-	attr_accessor :ip6
 	#
 	# The subnet mask associated with the IPv6 interface.
 	#

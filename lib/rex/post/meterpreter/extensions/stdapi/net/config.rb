@@ -58,16 +58,18 @@ class Config
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_NETWORK_INTERFACE) { |iface|
+			addrs = []
+			while (a = iface.get_tlv_value(TLV_TYPE_IP, addrs.length))
+				addrs << Rex::Socket.addr_ntoa(a)
+			end
 			ifaces << Interface.new(
-					iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
-					iface.get_tlv_value(TLV_TYPE_IP),
-					iface.get_tlv_value(TLV_TYPE_NETMASK),
-					iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
-					iface.get_tlv_value(TLV_TYPE_MAC_NAME),
-					iface.get_tlv_value(TLV_TYPE_IP6),
-					iface.get_tlv_value(TLV_TYPE_NETMASK6),
-					iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
-					iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS))
+					:index    => iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
+					:mac_addr => iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
+					:mac_name => iface.get_tlv_value(TLV_TYPE_MAC_NAME),
+					:mtu      => iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
+					:flags    => iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS),
+					:addrs    => addrs
+				)
 		}
 
 		return ifaces
