@@ -28,12 +28,23 @@ class Mirv < Extension
 			])
 	end
 
-	def mirv_luado(payload)
+	def mirv_luado(payload,inthread=false)
+		print "PAYLOAD: '#{payload}'
+		if payload.start_with? "@" then
+			payload=IO::File.new(payload,"r").read
+		end
 		request = Packet.create_request('mirv_exec_lua')
 		request.add_tlv(TLV_TYPE_LUA_CODE, payload)
+		request.add_tlv(TLV_TYPE_MIRV_NEWTHREAD,inthread)
 		response = client.send_request(request)
+		print response
 		#print(response) # DEBUG
-		return response.get_tlv_value(TLV_TYPE_MIRV_LUA_RETMSG);		
+		if (inthread) then
+		
+			return response.get_tlv_value(TLV_TYPE_MIRV_RET_THREADID)
+		else
+			return response.get_tlv_value(TLV_TYPE_MIRV_LUA_RETMSG)	
+		end
 	end
 	
 

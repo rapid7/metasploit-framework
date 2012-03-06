@@ -28,7 +28,8 @@ class Console::CommandDispatcher::Mirv
 	#
 	def commands
 		{
-			"luado" => "Do lua code",		
+			"luado" => "Do lua code",	
+			"luathread" => "Do lua code in thread"
 		}
 	end
 	
@@ -51,6 +52,25 @@ class Console::CommandDispatcher::Mirv
 		
 
 		p=client.Mirv.mirv_luado(payload)
+		print p+"\n"
+
+		return true
+	end
+	
+	def cmd_luathread(*args)
+		if args.length then
+			payload=args.join(" ")
+		else
+			payload="return _VERSION"
+		end
+		if not payload.start_with? "return" then
+			payload = "return " + payload
+		end
+		#print "Sending #{payload}\n for execution by Lua"		
+				
+		
+
+		p=client.Mirv.mirv_luado(payload,true)
 		print p+"\n"
 
 		return true
