@@ -26,11 +26,13 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'   => %q{
 				A misconfigured Squid proxy can allow an attacker to make requests on their behalf.
 					This may give the attacker information about devices that they cannot reach but the
-					squid proxy can. For example, an attacker can make requests for internal IP addresses
-					against a misconfigurated open squid proxy exposed to the Internet therefore performing
+					Squid proxy can. For example, an attacker can make requests for internal IP addresses
+					against a misconfigurated open Squid proxy exposed to the Internet therefore performing
 					an internal port scan. The error messages returned by the proxy are used to determine
-					if the port is open or not. Many squid proxies use custom error codes so your mileage
-					may vary.
+					if the port is open or not. Many Squid proxies use custom error codes so your mileage
+					may vary. The open_proxy module can be used to test for open proxies though a Squid proxy
+					does not have to be open in order to allow for pivoting (e.g. an Intranet Squid proxy which allows
+					the attack to pivot to another part of the network).
 			},
 			'Author'	       => ['willis'],
 			'Version'       => '$Revision$',
@@ -44,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('RANGE', [true, "IPs to scan through squid proxy", '']),
+				OptString.new('RANGE', [true, "IPs to scan through Squid proxy", '']),
 				OptString.new('PORTS', [true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100"]),
 				OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true])
 			], self.class)
@@ -56,32 +58,34 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 				iplist = Rex::Socket::RangeWalker.new(datastore['RANGE'])
 				dead = false
-				vprint_status("#{iplist.length} total IPs")
 				portlist = Rex::Socket.portspec_crack(datastore['PORTS'])
 
+				vprint_status("[#{rhost}] Verifying manual testing is not required...")
+
+				manual = false
+				#request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
+				res_test = send_request_cgi({
+					'uri'          => "http://127.0.11.1:80",
+					'method'       => 'GET',
+					'data'  =>      '',
+					'version' => '1.0',
+					'vhost' => ''
+				}, 10)
+
+				if res_test and res_test.body and (res_test.code == 200)
+					print_error("#{rhost} likely answers positively to every request, check it manually.")
+					print_error("\t\t Proceeding with the scan may increase false positives.")
+					manual = true
+				end
+
+
 				iplist.each do |target|
+					next if manual and datastore['MANUAL_CHECK']
+
 					portlist.each do |port|
 						next if dead
 
-						vprint_status("[#{rhost}] Running test check")
-						#request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
-						res = send_request_cgi({
-							'uri'          => "http://127.0.11.1:80",
-							'method'       => 'GET',
-							'data'  =>      '',
-							'version' => '1.0',
-							'vhost' => ''
-						}, 10)
-
-						if res and res.body and (res.code == 200)
-							print_error("#{rhost} likely answers positively to every request, check it manually.")
-							print_error("\t\t Proceeding with the scan may increase false positives.")
-							manual = true
-						end
-
-						next if manual and datastore['MANUAL_CHECK']
-
-						vprint_status("[#{rhost}] Checking #{target}:#{port}")
+						vprint_status("[#{rhost}] Requesting #{target}:#{port}")
 						if port==443
 							res = send_request_cgi({
 								'uri'          => "https://#{target}:#{port}",
