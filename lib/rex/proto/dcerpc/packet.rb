@@ -46,6 +46,9 @@ require 'rex/text'
 
 	# Create an obfuscated DCERPC BIND request packet
 	def self.make_bind_fake_multi(uuid, vers, bind_head=0, bind_tail=0)
+		# Enforce typing
+		bind_head = bind_head.to_i
+		bind_tail = bind_tail.to_i
 		
 		bind_head = rand(6)+10 if bind_head == 0
 		bind_tail = rand(4)+1 if bind_head == 0
@@ -55,8 +58,6 @@ require 'rex/text'
 		# Process the version strings ("1.0", 1.0, "1", 1)
 		bind_vers_maj, bind_vers_min = UUID.vers_to_nums(vers)
 		xfer_vers_maj, xfer_vers_min = UUID.vers_to_nums(UUID.xfer_syntax_vers)
-		bind_head = bind_head.to_i # added by Rodrigo
-		bind_tail = bind_tail.to_i # added by Rodrigo
 		bind_total = bind_head + bind_tail + 1
 		bind_size  = (bind_total * 44) + 28
 		real_ctx, ctx = 0, 0
@@ -208,16 +209,17 @@ require 'rex/text'
 	# Used to create standard DCERPC REQUEST packet(s)
 	def self.make_request(opnum=0, data="", size=data.length, ctx=0, object_id = '')
 
-		size = size.to_i # Added by Rodrigo
+		opnum = opnum.to_i
+		size = size.to_i
+		ctx = ctx.to_i
 	
 		if size > 4000
 			size = 4000
 		end
-		
+
 		chunks, frags = [], []
 		ptr = 0
 
-				
 		# Break the request into fragments of 'size' bytes
 		while ptr < data.length
 			chunks.push( data[ ptr, size ] )
