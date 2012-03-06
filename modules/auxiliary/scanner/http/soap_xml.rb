@@ -151,9 +151,7 @@ class Metasploit3 < Msf::Auxiliary
 					data_parts << nil
 					data = data_parts.join("\r\n")
 
-					if (datastore['VERBOSE'])
-						print_status("Sending request #{datastore['PATH']}/#{v}#{n} to #{wmap_target_host}:#{datastore['RPORT']}")
-					end
+					vprint_status("Sending request #{datastore['PATH']}/#{v}#{n} to #{wmap_target_host}:#{datastore['RPORT']}")
 
 					res = send_request_raw({
 						'uri'     => datastore['PATH'] + '/' + v + n,

@@ -61,7 +61,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_version(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("Identifying SAP BusinessObjects on #{rhost}:#{rport}")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'

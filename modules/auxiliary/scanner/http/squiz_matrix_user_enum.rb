@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (datastore['VERBOSE'])
 				if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
-					else
+				else
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}'")
 				end
 			end

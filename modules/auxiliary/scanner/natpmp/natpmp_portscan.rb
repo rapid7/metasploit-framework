@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 				'Context'   => {'Msf' => framework, 'MsfExploit' => self} }
 			)
 			add_socket(udp_sock)
-			print_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP" if (datastore['VERBOSE'])
+			vprint_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP"
 
 			# first, send a request to get the external address
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)

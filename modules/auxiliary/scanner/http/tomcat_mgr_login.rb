@@ -102,7 +102,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='tomcat', pass='tomcat')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		srvhdr = '?'
