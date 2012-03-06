@@ -2199,6 +2199,7 @@ class DBManager
 	def import_file(args={}, &block)
 		filename = args[:filename] || args['filename']
 		wspace = args[:wspace] || args['wspace'] || workspace
+        severityLimit = args[:severityLimit] || args['severityLimit']
 		@import_filedata            = {}
 		@import_filedata[:filename] = filename
 
@@ -2228,6 +2229,7 @@ class DBManager
 	def import(args={}, &block)
 		data = args[:data] || args['data']
 		wspace = args[:wspace] || args['wspace'] || workspace
+        severityLimit = args[:severityLimit] || args['severityLimit']
 		ftype = import_filetype_detect(data)
 		yield(:filetype, @import_filedata[:type]) if block
 		self.send "import_#{ftype}".to_sym, args, &block
@@ -4422,6 +4424,7 @@ class DBManager
 	def import_nessus_nbe(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
+        severityLimit = args[:severityLimit]
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		nbe_copy = data.dup
@@ -4491,7 +4494,10 @@ class DBManager
 
 			next if nasl.to_s.strip.empty?
 			plugin_name = nil # NBE doesn't ever populate this
-			handle_nessus(wspace, hobj_map[ addr ], port, nasl, plugin_name, severity, data)
+
+            if severity == nil || severity >= severityLimit
+			    handle_nessus(wspace, hobj_map[ addr ], port, nasl, plugin_name, severity, data)
+            end
 		end
 	end
 
@@ -4527,6 +4533,7 @@ class DBManager
 	def import_nessus_xml_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
+        severityLimit = args[:severityLimit]
 
 		data = ""
 		::File.open(filename, 'rb') do |f|
@@ -4543,6 +4550,7 @@ class DBManager
 	def import_nessus_xml(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
+        severityLimit = args[:severityLimit]
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		doc = rexmlify(data)
@@ -4596,8 +4604,10 @@ class DBManager
 				port = item.elements['port'].text
 				data = item.elements['data'].text
 				severity = item.elements['severity'].text
-
-				handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
+                
+                if severity >= severityLimit
+    				handle_nessus(wspace, hobj, port, nasl, plugin_name, severity, data)
+                end
 			end
 		end
 	end
@@ -4605,6 +4615,7 @@ class DBManager
 	def import_nessus_xml_v2(args={}, &block)
 		data = args[:data]
 		wspace = args[:wspace] || workspace
+        severityLimit = args[:severityLimit] || args['severityLimit']
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
 
 		#@host = {
@@ -4684,7 +4695,9 @@ class DBManager
 
 				yield(:port,port) if block
 
-				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf)
+                if severity == nil || severity >= severityLimit
+    				handle_nessus_v2(wspace, hobj, port, proto, sname, nasl, nasl_name, severity, description, cve, bid, xref, msf)
+                end
 
 			end
 			yield(:end,hname) if block
