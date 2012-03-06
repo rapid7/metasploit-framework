@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include <ws2ipdef.h>
 
 /*
  * Returns zero or more local interfaces to the requestor
@@ -18,47 +19,70 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	DWORD interface_index_bigendian;
 	MIB_IFROW iface;
 
+	ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_SKIP_DNS_SERVER;
+	LPSOCKADDR sockaddr;
+
+	ULONG family = AF_UNSPEC;
+	IP_ADAPTER_ADDRESSES *pAdapters = NULL;
+	IP_ADAPTER_ADDRESSES *pCurr = NULL;
+	ULONG outBufLen = 0;
+
+	IP_ADAPTER_UNICAST_ADDRESS_LH *pAddr;
+	LPSOCKADDR foo;
+
+	// Call once with a length of 0 to get how much we need to allocate
+	GetAdaptersAddresses(family, flags, NULL, pAdapters, &outBufLen);
+
 	do
 	{
 		// Allocate memory for reading addresses into
-		if (!(table = (PMIB_IPADDRTABLE)malloc(tableSize)))
+		if (!(pAdapters = (IP_ADAPTER_ADDRESSES *)malloc(outBufLen)))
 		{
 			result = ERROR_NOT_ENOUGH_MEMORY;
 			break;
 		}
 
 		// Get the IP address table
-		if (GetIpAddrTable(table, &tableSize, TRUE) != NO_ERROR)
+		if (GetAdaptersAddresses(family, flags, NULL, pAdapters, &outBufLen))
 		{
 			result = GetLastError();
 			break;
 		}
 
 		// Enumerate the entries
-		for (index = 0;
-		     index < table->dwNumEntries;
-		     index++)
+		for (pCurr = pAdapters; pCurr; pCurr = pCurr->Next)
 		{
 			entryCount = 0;
 
-			interface_index_bigendian = htonl(table->table[index].dwIndex);
+			interface_index_bigendian = htonl(pCurr->IfIndex);
 			entries[entryCount].header.length = sizeof(DWORD);
 			entries[entryCount].header.type   = TLV_TYPE_INTERFACE_INDEX;
 			entries[entryCount].buffer        = (PUCHAR)&interface_index_bigendian;
 			entryCount++;
 
-			entries[entryCount].header.length = sizeof(DWORD);
-			entries[entryCount].header.type   = TLV_TYPE_IP;
-			entries[entryCount].buffer        = (PUCHAR)&table->table[index].dwAddr;
-			entryCount++;
+			for (pAddr = (void*)pCurr->FirstUnicastAddress; pAddr; pAddr = (void*)pAddr->Next)
+			{
+				foo = pAddr->Address.lpSockaddr;
+				if (foo->sa_family == AF_INET) {
+					entries[entryCount].header.length = 4;
+					entries[entryCount].header.type   = TLV_TYPE_IP;
+					entries[entryCount].buffer        = (PUCHAR)&(((struct sockaddr_in *)foo)->sin_addr);
+				} else {
+					entries[entryCount].header.length = 16;
+					entries[entryCount].header.type   = TLV_TYPE_IP;
+					entries[entryCount].buffer        = (PUCHAR)&(((struct sockaddr_in6 *)foo)->sin6_addr);
+				}
+				entryCount++;
 
-			entries[entryCount].header.length = sizeof(DWORD);
-			entries[entryCount].header.type   = TLV_TYPE_NETMASK;
-			entries[entryCount].buffer        = (PUCHAR)&table->table[index].dwMask;
-			entryCount++;
+#if 0
+				entries[entryCount].header.length = sizeof(DWORD);
+				entries[entryCount].header.type   = TLV_TYPE_NETMASK;
+				entries[entryCount].buffer        = (PUCHAR)&;
+				entryCount++;
+#endif
+			}
 
-			iface.dwIndex = table->table[index].dwIndex;
-
+#if 0
 			// If interface information can get gotten, use it.
 			if (GetIfEntry(&iface) == NO_ERROR)
 			{
@@ -81,6 +105,7 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 					entryCount++;
 				}
 			}
+#endif
 
 			// Add the interface group
 			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE,
