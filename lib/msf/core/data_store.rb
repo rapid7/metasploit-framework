@@ -287,22 +287,6 @@ class ModuleDataStore < DataStore
 		val = super if val.nil?
 		val
 	end
-
-
-	#
-	# Updates a value in the datastore with the specified name, k, to the
-	# specified value, v.  This update does not alter the imported status of
-	# the value. This will directly update the global framework datastore if
-	# the value is still default in the local store.
-	#
-	def update_value(k, v)
-		k = find_key_case(k)
-		if default?(k) and @_module and @_module.framework
-			@_module.framework.datastore.update_value(k,v)
-		else
-			super(k,v)
-		end
-	end
 	
 	#
 	# Was this entry actually set or just using its default
