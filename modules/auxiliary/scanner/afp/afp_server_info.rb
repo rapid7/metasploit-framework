@@ -17,9 +17,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'         => 'Apple Filing Protocol Info Enumerator',
 			'Description'  => %q{
-				This module fetch AFP server information.
-				Including Server name, network address, supported AFP versions,
-				signature, machine type ,and server flags.
+				This module fetches AFP server information, including server name,
+				network address, supported AFP versions, signature, machine type,
+				and server flags.
 			},
 			'References'     =>
 				[
