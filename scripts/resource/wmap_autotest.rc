@@ -14,7 +14,8 @@ if (framework.datastore['THREADS'] == nil)      #default to 50 Threads
         run_single("setg THREADS 50")
 end
 
-if (framework.datastore['VERBOSE'] == "true")   #we look in the global datastore for a global VERBOSE option and use it
+#we look in the global datastore for a global VERBOSE option and use it
+if (framework.datastore['VERBOSE'] == "true")
         verbose = 1 
 else
         verbose = 0 
@@ -25,11 +26,19 @@ if (framework.plugins.to_s !~ /Wmap/)
 	run_single("load wmap")
 end
 
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
 framework.db.hosts.each do |host|
 	host.services.each do |serv|
 		next if not serv.host
 		next if (serv.state != ServiceState::Open)
-                next if (serv.name !~ /http/)
+		next if (serv.name !~ /http/)
 
 		if(verbose == 1)
 			print_line("")
@@ -56,7 +65,7 @@ framework.db.hosts.each do |host|
 		end
 		run_single("wmap_targets -c")
 		print_line("")
-		print_line("finished analysing the webservern on IP #{host.address}, Port: #{serv.port.to_i}")
+		print_line("finished analysing the webservern on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
 		print_line("")
 	end
 end

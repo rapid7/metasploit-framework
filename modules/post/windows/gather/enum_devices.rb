@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -76,7 +76,7 @@ class Metasploit3 < Msf::Post
 				1.upto(3) do
 					t << framework.threads.spawn("Module(#{self.refname})", false, devices.shift) do |device|
 						next if device.nil?
-						print_status("Enumerating #{device}") if datastore['VERBOSE']
+						vprint_status("Enumerating #{device}")
 
 						infos = registry_enumkeys(key + "\\" + device)
 						next if infos.nil?
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		results = tbl.to_s
-		print_line("\n" + results) if datastore['VERBOSE']
+		vprint_line("\n" + results)
 
 		path = store_loot("host.hardware", "text/plain", session, results, "hardware.txt", "Host Hardware")
 		print_status("Results saved in: #{path}")

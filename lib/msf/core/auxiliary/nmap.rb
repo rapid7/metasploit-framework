@@ -33,21 +33,6 @@ def initialize(info = {})
 	@nmap_bin = nmap_binary_path
 end
 
-def vprint_status(msg='')
-	return if not datastore['VERBOSE']
-	print_status(msg)
-end
-
-def vprint_error(msg='')
-	return if not datastore['VERBOSE']
-	print_error(msg)
-end
-
-def vprint_good(msg='')
-	return if not datastore['VERBOSE']
-	print_good(msg)
-end
-
 def rports
 	datastore['RPORTS']
 end

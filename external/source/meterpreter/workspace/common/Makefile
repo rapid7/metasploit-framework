@@ -18,7 +18,7 @@ CFLAGS+= -lgcc -L../../source/bionic/compiled
 CFLAGS+= -D_UNIX -I$(SOURCEPATH) -I$(MALLOC_PATH) -I$(XOR_PATH) -DMALLOC_PRODUCTION -DPIC -I$(SSLPATH) -I$(STDLIBPATH) -I$(ZLIB_PATH)
 CFLAGS+= -g -fPIC -Os -D_POSIX_C_SOURCE=200809 -D__BSD_VISIBLE=1 -D__XSI_VISIBLE=1
 
-CFLAGS+= -march=i386
+CFLAGS+= -march=i386 -m32
 
 
 CC=gcc
@@ -54,6 +54,10 @@ CFLAGS+= -I$(ARCHVPATH)
 
 
 all: libsupport.so
+
+debug: CFLAGS+=-ggdb
+debug: all
+
 
 libsupport.so: $(objects)
 	# Specify that we only want sysv aka DT_HASH hash tables, not DT_GNU_HASH,

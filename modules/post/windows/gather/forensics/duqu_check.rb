@@ -1,8 +1,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Post
 					print_good("#{sysinfo['Computer']}: #{path}\\#{query} found in registry.")
 					match += 1
 					report_vuln(
-						:host          => target_host,
+						:host          => session.session_host,
 						:name          => self.fullname,
 						:info          => "#{path}\\#{query} possible CVE-2011-3402 exploitation [Duqu] artifact.",
 						:refs          => self.references,

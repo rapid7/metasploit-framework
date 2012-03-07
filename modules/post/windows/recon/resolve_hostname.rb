@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -12,7 +12,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Post Windows Recon Resolve Hostname',
+				'Name'          => 'Windows Recon Resolve Hostname',
 				'Description'   => %q{ This module resolves a hostname to IP address via the victim, similiar to the Unix dig command},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Rob Fuller <mubix[at]hak5.org>'],
@@ -28,7 +28,6 @@ class Metasploit3 < Msf::Post
 
 	def run
 		### MAIN ###
-		client.railgun.add_function( 'ws2_32', 'getaddrinfo', 'DWORD',[["PCHAR","pNodeName","in"],["PCHAR","pServiceName","in"],["PDWORD","pHints","in"],["PDWORD","ppResult","out"]])
 
 		if client.platform =~ /^x64/
 			size = 64

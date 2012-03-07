@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -16,9 +16,9 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows Gather RazorSQL credentials',
+			'Name'          => 'Windows Gather RazorSQL Credentials',
 			'Description'   => %q{
-					This module stores username, password, type, host, port, database (and name) 
+					This module stores username, password, type, host, port, database (and name)
 				collected from profiles.txt of RazorSQL.
 			},
 			'License'       => MSF_LICENSE,

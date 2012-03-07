@@ -22,7 +22,7 @@ exploit -j
 	print_status("Waiting on an incoming sessions...")
 	while (true)
 		framework.sessions.each_pair do |sid,s|
-			thost = s.tunnel_peer.split(":")[0]
+			thost = s.session_host
 
 			# Ensure that stdapi has been loaded before running
 			if s.ext.aliases['stdapi']

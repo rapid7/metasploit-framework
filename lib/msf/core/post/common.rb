@@ -30,6 +30,18 @@ module Common
 		return o
 	end
 
+	def report_vm(vm)
+		return unless session
+		return unless vm
+		vm_normal = vm.to_s.strip
+		return if vm_normal.empty?
+		vm_data = {
+			:host => session.target_host,
+			:virtual_host => vm_normal
+		}
+		report_host(vm_data)
+	end
+
 end
 end
 end

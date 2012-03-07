@@ -252,17 +252,18 @@ class DBManager
 	# Report a host's attributes such as operating system and service pack
 	#
 	# The opts parameter MUST contain
-	#	:host       -- the host's ip address
+	# +:host+::         -- the host's ip address
 	#
 	# The opts parameter can contain:
-	#	:state      -- one of the Msf::HostState constants
-	#	:os_name    -- one of the Msf::OperatingSystems constants
-	#	:os_flavor  -- something like "XP" or "Gentoo"
-	#	:os_sp      -- something like "SP2"
-	#	:os_lang    -- something like "English", "French", or "en-US"
-	#	:arch       -- one of the ARCH_* constants
-	#	:mac        -- the host's MAC address
-	#	:scope      -- interface identifier for link-local IPv6
+	# +:state+::        -- one of the Msf::HostState constants
+	# +:os_name+::      -- one of the Msf::OperatingSystems constants
+	# +:os_flavor+::    -- something like "XP" or "Gentoo"
+	# +:os_sp+::        -- something like "SP2"
+	# +:os_lang+::      -- something like "English", "French", or "en-US"
+	# +:arch+::         -- one of the ARCH_* constants
+	# +:mac+::          -- the host's MAC address
+	# +:scope+::        -- interface identifier for link-local IPv6
+	# +:virtual_host+:: -- the name of the VM host software, eg "VMWare", "QEMU", "Xen", etc.
 	#
 	def report_host(opts)
 
@@ -275,6 +276,10 @@ class DBManager
 		end
 
 		wspace = opts.delete(:workspace) || workspace
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+				
 		ret = { }
 
 		if not addr.kind_of? Host
@@ -329,6 +334,117 @@ class DBManager
 		host
 	end
 
+
+	#
+	# Update a host's attributes via semi-standardized sysinfo hash (Meterpreter)
+	#
+	# The opts parameter MUST contain the following entries
+	# +:host+::           -- the host's ip address
+	# +:info+::           -- the information hash 
+	# * 'Computer'        -- the host name
+	# * 'OS'              -- the operating system string
+	# * 'Architecture'    -- the hardware architecture
+	# * 'System Language' -- the system language
+	#
+	# The opts parameter can contain:
+	# +:workspace+::      -- the workspace for this host
+	#
+	def update_host_via_sysinfo(opts)
+
+		return if not active
+		addr = opts.delete(:host) || return
+		info = opts.delete(:info) || return
+
+		# Sometimes a host setup through a pivot will see the address as "Remote Pipe"
+		if addr.eql? "Remote Pipe"
+			return
+		end
+
+		wspace = opts.delete(:workspace) || workspace
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+
+		if not addr.kind_of? Host
+			addr = normalize_host(addr)
+			addr, scope = addr.split('%', 2)
+			opts[:scope] = scope if scope
+			 
+			unless ipv46_validator(addr)
+				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
+			end
+
+			if opts[:comm] and opts[:comm].length > 0
+				host = wspace.hosts.find_or_initialize_by_address_and_comm(addr, opts[:comm])
+			else
+				host = wspace.hosts.find_or_initialize_by_address(addr)
+			end
+		else
+			host = addr
+		end
+		
+		res = {}
+		
+		if info['Computer']
+			res[:name] = info['Computer']
+		end
+		
+		if info['Architecture']
+			res[:arch] = info['Architecture'].split(/\s+/).first
+		end
+		
+		if info['OS'] =~ /^Windows\s*([^\(]+)\(([^\)]+)\)/i
+			res[:os_name]   = "Microsoft Windows"
+			res[:os_flavor] = $1.strip
+			build = $2.strip
+			
+			if build =~ /Service Pack (\d+)/
+				res[:os_sp] = "SP" + $1
+			else
+				res[:os_sp] = "SP0"
+			end
+		end
+		
+		if info["System Language"]
+			case info["System Language"]
+				when /^en_/
+					res[:os_lang] = "English"
+			end
+		end
+		
+
+		# Truncate the info field at the maximum field length
+		if res[:info]
+			res[:info] = res[:info][0,65535]
+		end
+
+		# Truncate the name field at the maximum field length
+		if res[:name]
+			res[:name] = res[:name][0,255]
+		end
+		
+		res.each { |k,v|
+
+			if (host.attribute_names.include?(k.to_s))
+				unless host.attribute_locked?(k.to_s)
+					host[k] = v.to_s.gsub(/[\x00-\x1f]/, '')
+				end
+			else
+				dlog("Unknown attribute for Host: #{k}")
+			end
+		}
+		
+		# Set default fields if needed
+		host.state       = HostState::Alive if not host.state
+		host.comm        = ''        if not host.comm
+		host.workspace   = wspace    if not host.workspace
+		
+		if host.changed?
+			host.save!
+		end
+
+		host
+	end
 	#
 	# Iterates over the hosts table calling the supplied block with the host
 	# instance of each entry.
@@ -364,7 +480,8 @@ class DBManager
 	# +:proto+:: the transport layer protocol (e.g. tcp, udp)
 	#
 	# opts may contain
-	# +:name+:: the application layer protocol (e.g. ssh, mssql, smb)
+	# +:name+::  the application layer protocol (e.g. ssh, mssql, smb)
+	# +:sname+:: an alias for the above
 	#
 	def report_service(opts)
 		return if not active
@@ -377,6 +494,13 @@ class DBManager
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
+
+		# Other report_* methods take :sname to mean the service name, so we
+		# map it here to ensure it ends up in the right place despite not being
+		# a real column.
+		if opts[:sname]
+			opts[:name] = opts.delete(:sname)
+		end
 
 		if addr.kind_of? Host
 			host = addr
@@ -743,8 +867,8 @@ class DBManager
 	# +:workspace+::  the workspace to associate with this Note
 	# +:host+::       an IP address or a Host object to associate with this Note
 	# +:service+::    a Service object to associate with this Note
-	# +:port+::       along with :host and proto, a service to associate with this Note
-	# +:proto+::      along with :host and port, a service to associate with this Note
+	# +:port+::       along with +:host+ and +:proto+, a service to associate with this Note
+	# +:proto+::      along with +:host+ and +:port+, a service to associate with this Note
 	# +:update+::     what to do in case a similar Note exists, see below
 	#
 	# The +:update+ option can have the following values:
@@ -896,7 +1020,10 @@ class DBManager
 		raise DBImportError.new("Missing required option :addr") unless addr
 		wspace = opts.delete(:wspace)
 		raise DBImportError.new("Missing required option :wspace") unless wspace
-
+		if wspace.kind_of? String
+			wspace = find_workspace(wspace)
+		end
+		
 		host = nil
 		report_host(:workspace => wspace, :address => addr)
 
@@ -918,6 +1045,9 @@ class DBManager
 		tag.save! if tag.changed?
 	end
 
+	#
+	# Store a set of credentials in the database.
+	#
 	# report_auth_info used to create a note, now it creates
 	# an entry in the creds table. It's much more akin to
 	# report_vuln() now.
@@ -1466,6 +1596,7 @@ class DBManager
 	#
 	# opts can contain
 	# +:options+:: a hash of options for accessing this particular web site
+	# +:info+:: if present, report the service with this info
 	#
 	# Duplicate records for a given host, port, vhost combination will be overwritten
 	#
@@ -1478,6 +1609,7 @@ class DBManager
 		port = nil
 		name = nil
 		serv = nil
+		info = nil
 
 		if opts[:service] and opts[:service].kind_of?(Service)
 			serv = opts[:service]
@@ -1485,6 +1617,7 @@ class DBManager
 			addr = opts[:host]
 			port = opts[:port]
 			name = opts[:ssl] ? 'https' : 'http'
+			info = opts[:info]
 			if not (addr and port)
 				raise ArgumentError, "report_web_site requires service OR host/port/ssl"
 			end
@@ -1519,8 +1652,12 @@ class DBManager
 		if opts.keys.include?(:ssl) or serv.name.to_s.empty?
 			name = opts[:ssl] ? 'https' : 'http'
 			serv.name = name
-			serv.save!
 		end
+		# Add the info if it's there.
+		unless info.to_s.empty?
+			serv.info = info
+		end
+		serv.save! if serv.changed?
 =begin
 		host.updated_at = host.created_at
 		host.state      = HostState::Alive
@@ -4874,19 +5011,11 @@ class DBManager
 			next unless vuln.elements['QID'] && vuln.elements['QID'].first
 			qid = vuln.elements['QID'].first.to_s
 			vuln_refs[qid] ||= []
-			if vuln.elements["CVE_ID_LIST/CVE_ID/ID"]
-				vuln.elements["CVE_ID_LIST/CVE_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^C..-[0-9\-]{9}/]
-					vuln_refs[qid] << ref.to_s.gsub(/^C../, "CVE")
-				end
+			vuln.elements.each('CVE_ID_LIST/CVE_ID') do |ref|
+				vuln_refs[qid].push('CVE-' + /C..-([0-9\-]{9})/.match(ref.elements['ID'].text.to_s)[1])
 			end
-			if vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"]
-				vuln.elements["BUGTRAQ_ID_LIST/BUGTRAQ_ID/ID"].each do |ref|
-					next unless ref
-					next unless ref.to_s[/^[0-9]{1,9}/]
-					vuln_refs[qid] << "BID-#{ref}"
-				end
+			vuln.elements.each('BUGTRAQ_ID_LIST/BUGTRAQ_ID') do |ref|
+				vuln_refs[qid].push('BID-' + ref.elements['ID'].text.to_s)
 			end
 		end
 		return vuln_refs
@@ -5237,15 +5366,9 @@ class DBManager
 			end
 		elsif host.kind_of? Session
 			norm_host = host.host
-		elsif host.respond_to?(:target_host)
-			# Then it's an Msf::Session object with a target but target_host
-			# won't be set in some cases, so try tunnel_peer as well
-			thost = host.target_host
-			if host.tunnel_peer and (!thost or thost.empty?)
-				# tunnel_peer is of the form ip:port, so strip off the port to
-				# get the addr by itself
-				thost = host.tunnel_peer.split(":")[0]
-			end
+		elsif host.respond_to?(:session_host)
+			# Then it's an Msf::Session object
+			thost = host.session_host
 			norm_host = thost
 		end
 

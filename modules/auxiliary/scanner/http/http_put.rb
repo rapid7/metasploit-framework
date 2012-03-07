@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,6 +14,7 @@ require 'msf/core'
 class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -49,8 +50,9 @@ class Metasploit4 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('PATH', [true,  "The path to attempt to write or delete", "/msf_http_put_test.txt"]),
-				OptString.new('DATA', [false, "The data to upload into the file", "msf test file"]),
+				OptString.new('PATH', [true,  "The path to attempt to write or delete", "/"]),
+				OptString.new('FILENAME', [true,  "The file to attempt to write or delete", "msf_http_put_test.txt"]),
+				OptString.new('FILEDATA', [false, "The data to upload into the file", "msf test file"]),
 				OptString.new('ACTION', [true, "PUT or DELETE", "PUT"])
 			], self.class)
 	end
@@ -123,10 +125,16 @@ class Metasploit4 < Msf::Auxiliary
 	#
 	def run_host(ip)
 		path   = datastore['PATH']
-		data   = datastore['DATA']
+		data   = datastore['FILEDATA']
 
 		#Add "/" if necessary
 		path = "/#{path}" if path[0,1] != '/'
+		
+		if path[-1,1] != '/'
+			path += '/'
+		end
+		
+		path += datastore['FILENAME']  
 
 		case action.name
 		when 'PUT'
@@ -179,7 +187,7 @@ class Metasploit4 < Msf::Auxiliary
 					:host         => ip,
 					:port         => rport,
 					:proto        => 'tcp',
-					:sname        => 'http',
+					:sname => (ssl ? 'https' : 'http'),
 					:name         => self.fullname,
 					:info         => "DELETE ENABLED",
 					:refs         => self.references,

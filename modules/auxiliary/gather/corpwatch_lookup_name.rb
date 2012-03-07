@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -63,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
 		{
 			'uri'      => uri,
 			'method'   => 'GET',
-			'vars_get' => 
+			'vars_get' =>
 			{
 				'company_name' => datastore['COMPANY_NAME'],
 				'limit'        => datastore['LIMIT'],
@@ -132,8 +132,8 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def grab_text(e, name)
-		(e.get_elements(name) && e.get_elements(name)[0] && 
-		e.get_elements(name)[0].get_text ) ? 
+		(e.get_elements(name) && e.get_elements(name)[0] &&
+		e.get_elements(name)[0].get_text ) ?
 		e.get_elements(name)[0].get_text.to_s  : ""
 	end
 

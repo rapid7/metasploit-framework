@@ -59,10 +59,15 @@ class Config
 
 		response.each(TLV_TYPE_NETWORK_INTERFACE) { |iface|
 			ifaces << Interface.new(
+					iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
 					iface.get_tlv_value(TLV_TYPE_IP),
 					iface.get_tlv_value(TLV_TYPE_NETMASK),
 					iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
-					iface.get_tlv_value(TLV_TYPE_MAC_NAME))
+					iface.get_tlv_value(TLV_TYPE_MAC_NAME),
+					iface.get_tlv_value(TLV_TYPE_IP6),
+					iface.get_tlv_value(TLV_TYPE_NETMASK6),
+					iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
+					iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS))
 		}
 
 		return ifaces
@@ -93,11 +98,14 @@ class Config
 		response = client.send_request(request)
 
 		# Build out the array of routes
+		# Note: This will include both IPv4 and IPv6 routes
 		response.each(TLV_TYPE_NETWORK_ROUTE) { |route|
 			routes << Route.new(
 					route.get_tlv_value(TLV_TYPE_SUBNET),
 					route.get_tlv_value(TLV_TYPE_NETMASK),
-					route.get_tlv_value(TLV_TYPE_GATEWAY))
+					route.get_tlv_value(TLV_TYPE_GATEWAY),
+					route.get_tlv_value(TLV_TYPE_STRING),
+					route.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
 		}
 
 		return routes

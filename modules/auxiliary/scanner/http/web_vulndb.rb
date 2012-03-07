@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -15,7 +15,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -47,6 +47,11 @@ class Metasploit3 < Msf::Auxiliary
 				OptInt.new('TestThreads', [ true, "Number of test threads", 25])
 			], self.class)
 
+	end
+	
+	# Modify to true if you have sqlmap installed.
+	def wmap_enabled
+		false
 	end
 
 	def run_host(ip)
@@ -152,7 +157,7 @@ class Metasploit3 < Msf::Auxiliary
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"
@@ -166,7 +171,7 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'FILE',
 									:data	=> "#{tpath}#{testfvuln} Code: #{res.code}"

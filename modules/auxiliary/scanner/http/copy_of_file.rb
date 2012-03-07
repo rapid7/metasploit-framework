@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -17,7 +17,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanFile
+	include Msf::Auxiliary::WmapScanFile
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -143,13 +143,20 @@ class Metasploit3 < Msf::Auxiliary
 						else
 							print_status("[#{wmap_target_host}] Found #{wmap_base_url}#{filec} [#{res.code.to_i}]")
 
-							report_note(
+							report_web_vuln(
 								:host	=> ip,
-								:proto => 'tcp',
-								:sname	=> 'HTTP',
 								:port	=> rport,
-								:type	=> 'COPY_FILE',
-								:data	=> "#{filec}"
+								:vhost  => vhost,
+								:ssl    => ssl,
+								:path	=> "#{filec}",
+								:method => 'GET',
+								:pname  => "",
+								:proof  => "Res code: #{res.code.to_s}",
+								:risk   => 0,
+								:confidence   => 100,
+								:category     => 'file',
+								:description  => 'Copy file found.',
+								:name   => 'copy of file'
 							)
 						end
 					end

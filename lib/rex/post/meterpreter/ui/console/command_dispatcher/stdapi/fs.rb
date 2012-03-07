@@ -307,6 +307,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 		path = args[0] || client.fs.dir.getwd
 		tbl  = Rex::Ui::Text::Table.new(
 			'Header'  => "Listing: #{path}",
+			'SortIndex' => 4,
 			'Columns' =>
 				[
 					'Mode',
@@ -319,7 +320,8 @@ class Console::CommandDispatcher::Stdapi::Fs
 		items = 0
 
 		# Enumerate each item...
-		client.fs.dir.entries_with_info(path).sort { |a,b| a['FileName'] <=> b['FileName'] }.each { |p|
+		# No need to sort as Table will do it for us
+		client.fs.dir.entries_with_info(path).each { |p|
 
 			tbl <<
 				[

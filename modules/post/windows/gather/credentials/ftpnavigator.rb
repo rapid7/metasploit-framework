@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -74,12 +74,16 @@ class Metasploit3 < Msf::Post
 			end
 
 			print_good("Host: #{server} Port: #{port} User: #{username} Pass: #{dpass}")
-
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			report_auth_info(
 				:host  => server,
 				:port => port,
 				:sname => 'ftp',
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:user => username,
 				:pass => dpass

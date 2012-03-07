@@ -758,7 +758,7 @@ public
 			loot[:host] = l.host.address if(l.host)
 			loot[:service] = l.service.name || n.service.port  if(n.service)
 			loot[:ltype] = l.ltype
-			loot[:ctype] = l.ctype
+			loot[:ctype] = l.content_type
 			loot[:data] = l.data
 			loot[:created_at] = l.created_at.to_i
 			loot[:updated_at] = l.updated_at.to_i
