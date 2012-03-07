@@ -44,6 +44,7 @@ module Payload
 
 		# Clone the module to prevent changes to the original instance
 		payload = payload.replicant
+		Msf::Simple::Framework.simplify_module(payload)
 
 		# Import any options we may need
 		payload._import_extra_options(opts)
