@@ -27,6 +27,7 @@ def initialize(info = {})
 		OptBool.new('ShowProgress', [true, 'Display progress messages during a scan', true]),
 		OptInt.new('ShowProgressPercent', [true, 'The interval in percent that progress should be shown', 10])
 	], Auxiliary::Scanner)
+
 end
 
 
@@ -223,6 +224,7 @@ def seppuko!
 end
 
 def scanner_progress
+	return 0 unless @range_done and @range_count
 	pct = (@range_done / @range_count.to_f) * 100
 end
 
