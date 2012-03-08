@@ -106,6 +106,7 @@ class Db
 				end
 				framework.db.workspace = workspace
 			elsif deleting and names
+				switched = false
 				# Delete workspaces
 				names.each do |name|
 					workspace = framework.db.find_workspace(name)
@@ -117,12 +118,16 @@ class Db
 						print_status("Deleted and recreated the default workspace")
 					else
 						# switch to the default workspace if we're about to delete the current one
-						framework.db.workspace = framework.db.default_workspace if framework.db.workspace.name == workspace.name
+						if framework.db.workspace.name == workspace.name
+							framework.db.workspace = framework.db.default_workspace
+							switched = true
+						end
 						# now destroy the named workspace
 						workspace.destroy
 						print_status("Deleted workspace: #{name}")
 					end
 				end
+				print_status("Switched workspace: #{framework.db.workspace.name}") if switched
 			elsif renaming
 				if names.length != 2
 					print_error("Wrong number of arguments to rename")
