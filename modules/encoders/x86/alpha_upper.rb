@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Encoder::Alphanum
 				Encodes payloads as alphanumeric uppercase text.  This encoder uses
 				SkyLined's Alpha2 encoding suite.
 			},
-			'Author'           => [ 'pusscat' 'skylined' ],
+			'Author'           => [ 'pusscat', 'skylined' ],
 			'Arch'             => ARCH_X86,
 			'License'          => BSD_LICENSE,
 			'EncoderType'      => Msf::Encoder::Type::AlphanumUpper,

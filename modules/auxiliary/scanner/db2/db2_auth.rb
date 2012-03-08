@@ -53,7 +53,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user=nil,pass=nil,db=nil)
-		verbose = datastore['VERBOSE']
 		datastore['USERNAME'] = user
 		datastore['PASSWORD'] = pass
 		vprint_status("#{rhost}:#{rport} - DB2 - Trying username:'#{user}' with password:'#{pass}'")

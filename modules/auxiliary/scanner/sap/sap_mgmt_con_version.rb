@@ -65,7 +65,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def enum_version(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'
@@ -75,7 +74,7 @@ class Metasploit4 < Msf::Auxiliary
 		ns1='ns1:GetVersionInfo'
 
 		data = '<?xml version="1.0" encoding="utf-8"?>' + "\r\n"
-		data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' +	 soapenv + '"  xmlns:xsi="' + xsi + '" xmlns:xs="' + xs + '">' + "\r\n"
+		data << '<SOAP-ENV:Envelope xmlns:SOAP-ENV="' + soapenv + '"  xmlns:xsi="' + xsi + '" xmlns:xs="' + xs + '">' + "\r\n"
 		data << '<SOAP-ENV:Header>' + "\r\n"
 		data << '<sapsess:Session xlmns:sapsess="' +  sapsess + '">' + "\r\n"
 		data << '<enableSession>true</enableSession>' + "\r\n"

@@ -264,6 +264,7 @@ class ModuleDataStore < DataStore
 	# if we can't directly find it
 	#
 	def fetch(key)
+		key = find_key_case(key)
 		val = nil
 		val = super if(@imported_by[key] != 'self')
 		if (val.nil? and @_module and @_module.framework)
@@ -277,6 +278,7 @@ class ModuleDataStore < DataStore
 	# Same as fetch
 	#
 	def [](key)
+		key = find_key_case(key)
 		val = nil
 		val = super if(@imported_by[key] != 'self')
 		if (val.nil? and @_module and @_module.framework)
@@ -285,7 +287,7 @@ class ModuleDataStore < DataStore
 		val = super if val.nil?
 		val
 	end
-
+	
 	#
 	# Was this entry actually set or just using its default
 	#

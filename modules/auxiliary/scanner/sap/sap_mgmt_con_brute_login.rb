@@ -89,7 +89,6 @@ class Metasploit4 < Msf::Auxiliary
 			pass = pass.gsub("<SAPSID>", datastore["SAP_SID"])
 		end
 
-		verbose = datastore['VERBOSE']
 		print_status("#{rhost}:#{rport} - Trying username:'#{user}' password:'#{pass}'")
 		success = false
 

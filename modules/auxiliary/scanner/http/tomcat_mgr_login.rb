@@ -102,7 +102,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='tomcat', pass='tomcat')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		srvhdr = '?'
@@ -141,7 +140,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host => rhost,
 				:port => rport,
-				:sname => (ssl ? "https" : "http"),
+				:sname => (ssl ? 'https' : 'http'),
 				:user => user,
 				:pass => pass,
 				:proof => "WEBAPP=\"Tomcat Application Manager\"",

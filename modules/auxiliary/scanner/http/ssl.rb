@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit4 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
-	include Msf::Auxiliary::WMAPScanSSL
+	include Msf::Auxiliary::WmapScanSSL
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 

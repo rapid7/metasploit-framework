@@ -231,7 +231,8 @@ class Core
 			begin
 				[
 					::Msf::Config.script_directory + File::SEPARATOR + "resource",
-					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
+					"."
 				].each do |dir|
 					next if not ::File.exist? dir
 					tabs += ::Dir.new(dir).find_all { |e|

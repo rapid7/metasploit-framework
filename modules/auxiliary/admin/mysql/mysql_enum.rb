@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module allows for simple enumeration of MySQL Database Server
 					provided proper credentials to connect remotely.
 				},
-				'Author'        => [ 'Carlos Perez. <carlos_perez[at]darkoperator.com>' ],
+				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 				'License'       => MSF_LICENSE,
 				'Version'       => '$Revision$',
 				'References'    =>

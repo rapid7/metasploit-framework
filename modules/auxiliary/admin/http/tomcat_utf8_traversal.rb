@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 				@files_found << files
 				break
 			elsif (res and res.code)
-				print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+				vprint_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
 			end
 		end
 	end

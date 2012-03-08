@@ -22,7 +22,7 @@ require 'cgi'
 	class Metasploit3 < Msf::Auxiliary
 
 		include Msf::Exploit::Remote::HttpClient
-		include Msf::Auxiliary::WMAPScanServer
+		include Msf::Auxiliary::WmapScanServer
 		include Msf::Auxiliary::Scanner
 		include Msf::Auxiliary::Report
 
@@ -125,10 +125,11 @@ require 'cgi'
 							report_note(
 								:host	=> ip,
 								:proto => 'tcp',
-								:sname	=> (ssl ? "https" : "http"),
+								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'VHOST',
-								:data	=> "#{thost}"
+								:data	=> "#{thost}",
+								:update => :unique_data
 							)
 
 						else
