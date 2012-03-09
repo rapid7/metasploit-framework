@@ -1,6 +1,7 @@
 require 'resolv'
 require 'msf/core'
 require 'rex/socket'
+require 'uri'
 
 module Msf
 
@@ -134,6 +135,7 @@ end
 #
 # Core option types.  The core supported option types are:
 #
+# OptUri     - A URI object
 # OptString  - Multi-byte character string
 # OptRaw     - Multi-byte raw string
 # OptBool    - Boolean true or false indication
@@ -147,6 +149,33 @@ end
 # OptRegexp  - Valid Ruby regular expression
 #
 ###
+
+###
+#
+# URI object
+#
+###
+class OptUri < OptBase
+	def type
+		return 'uri'
+	end
+
+	def normalize(value)
+		return false if empty_required_value?(value)
+		begin
+			value = URI(value)
+		rescue
+			value = nil
+		end
+		value
+	end
+
+	def valid?(value=self.value)
+		value = normalize(value)
+		return false if empty_required_value?(value)
+		return super
+	end
+end
 
 ###
 #
