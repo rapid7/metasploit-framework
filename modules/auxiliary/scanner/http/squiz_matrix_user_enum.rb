@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			:host => rhost,
 			:port => rport,
 			:proto => 'tcp',
-			:sname => (ssl ? "https" : "http"),
+			:sname => (ssl ? 'https' : 'http'),
 			:type => 'users',
 			:vhost => vhost,
 			:data => {:users =>  @users_found.keys.join(", ")}
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_auth_info(
 				:host => rhost,
-				:sname => (ssl ? "https" : "http"),
+				:sname => (ssl ? 'https' : 'http'),
 				:user => user,
 				:port => rport,
 				:proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")

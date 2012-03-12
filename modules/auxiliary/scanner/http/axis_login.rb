@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_auth_info(
 					:host   => rhost,
 					:port   => rport,
-					:sname  => (ssl ? "https" : "http"),
+					:sname => (ssl ? 'https' : 'http'),
 					:user   => user,
 					:pass   => pass,
 					:proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",

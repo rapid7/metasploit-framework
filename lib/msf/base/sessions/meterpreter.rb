@@ -293,6 +293,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 	def load_session_info()
 		begin
 			::Timeout.timeout(60) do
+				# Gather username/system information
 				username  = self.sys.config.getuid
 				sysinfo   = self.sys.config.sysinfo
 
@@ -304,24 +305,103 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 				safe_info.gsub!(/[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]+/n,"_")
 				self.info = safe_info
 
+				# Enumerate network interfaces to detect IP
+				ifaces   = self.net.config.get_interfaces().flatten rescue []
+				routes   = self.net.config.get_routes().flatten rescue []
+				shost    = self.session_host
+
+				# Try to match our visible IP to a real interface
+				# TODO: Deal with IPv6 addresses
+				found    = ifaces.find {|i| i.ip == shost }
+				nhost    = nil
+				hobj     = nil
+
+				if Rex::Socket.is_ipv4?(shost) and not found
+
+					# Try to find an interface with a default route
+					default_routes = routes.select{ |r| r.subnet == "0.0.0.0" }
+					default_routes.each do |r|
+						ifaces.each do |i|
+							cidr = Rex::Socket.net2bitmask( i.netmask ) rescue "/32"
+							rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{cidr}" ) rescue nil
+							if rang and rang.include?( r.gateway )
+								nhost = i.ip
+								break
+							end
+						end
+						break if nhost
+					end
+
+					# Find the first non-loopback address
+					if not nhost
+						iface = ifaces.select{|i| i.ip != "127.0.0.1" }
+						if iface.length > 0
+							nhost = iface.first.ip
+						end
+					end
+				end
+
+				# If we found a better IP address for this session, change it up
+				# only handle cases where the DB is not connected here
+				if  not (framework.db and framework.db.active)
+					self.session_host = nhost
+				end
+
+
 				# The rest of this requires a database, so bail if it's not
 				# there
 				return if not (framework.db and framework.db.active)
 
+				wspace = framework.db.find_workspace(workspace)
+
+				# Account for finding ourselves on a different host
+				if nhost and self.db_record
+					# Create or switch to a new host in the database
+					hobj = framework.db.report_host(:workspace => wspace, :host => nhost)
+					if hobj
+						self.session_host = nhost
+						self.db_record.host_id = hobj[:id]
+					end
+				end
+
 				framework.db.report_note({
 					:type => "host.os.session_fingerprint",
 					:host => self,
-					:workspace => workspace,
+					:workspace => wspace,
 					:data => {
 						:name => sysinfo["Computer"],
 						:os => sysinfo["OS"],
 						:arch => sysinfo["Architecture"],
 					}
 				})
+
 				if self.db_record
 					self.db_record.desc = safe_info
 					self.db_record.save!
 				end
+
+				framework.db.update_host_via_sysinfo(:host => self, :workspace => wspace, :info => sysinfo)
+
+				if nhost
+					framework.db.report_note({
+						:type      => "host.nat.server",
+						:host      => shost,
+						:workspace => wspace,
+						:data      => { :info   => "This device is acting as a NAT gateway for #{nhost}", :client => nhost },
+						:update    => :unique_data
+					})
+					framework.db.report_host(:host => shost, :purpose => 'firewall' )
+
+					framework.db.report_note({
+						:type      => "host.nat.client",
+						:host      => nhost,
+						:workspace => wspace,
+						:data      => { :info => "This device is traversing NAT gateway #{shost}", :server => shost },
+						:update    => :unique_data
+					})
+					framework.db.report_host(:host => nhost, :purpose => 'client' )
+				end
+
 			end
 		rescue ::Interrupt
 			dlog("Interrupt while loading sysinfo: #{e.class}: #{e}")

@@ -92,6 +92,7 @@ class Console::CommandDispatcher::Core
 	#
 	@@channel_opts = Rex::Parser::Arguments.new(
 		"-c" => [ true,  "Close the given channel." ],
+		"-k" => [ true,  "Close the given channel." ],
 		"-i" => [ true,  "Interact with the given channel." ],
 		"-l" => [ false, "List active channels." ],
 		"-r" => [ true,  "Read from the given channel." ],
@@ -123,7 +124,7 @@ class Console::CommandDispatcher::Core
 			case opt
 			when "-l"
 				mode = :list
-			when "-c"
+			when "-c", "-k"
 				mode = :close
 				chan = val
 			when "-i"
@@ -186,7 +187,7 @@ class Console::CommandDispatcher::Core
 			@@channel_opts.fmt.keys
 		when 2
 			case words[1]
-			when "-c", "-i", "-r", "-w"
+			when "-k", "-c", "-i", "-r", "-w"
 				tab_complete_channels
 			else
 				[]

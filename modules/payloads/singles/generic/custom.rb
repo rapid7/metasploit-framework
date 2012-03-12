@@ -23,7 +23,7 @@ module Metasploit3
 			'Version'       => '$Revision$',
 			'Description'   => 'Use custom string or file as payload. Set either PAYLOADFILE or
 								PAYLOADSTR.',
-			'Author'        => 'scriptjunkie <scriptjunkie  at  scriptjunkie  us>',
+			'Author'        => 'scriptjunkie <scriptjunkie[at]scriptjunkie.us>',
 			'License'       => MSF_LICENSE,
 			'Payload'	    =>
 				{

@@ -87,7 +87,7 @@ class Metasploit3 < Msf::Post
 		encoder = datastore['ENCODER']
 		iterations = datastore['ITERATIONS']
 		@clean_up_rc = ""
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 		payload = "windows/meterpreter/reverse_tcp"
 
 		if  datastore['ACTION'] == 'TEMPLATE'

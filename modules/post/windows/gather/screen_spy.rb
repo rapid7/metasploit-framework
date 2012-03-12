@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Post
 	end
 
 	def run
-		host = session.tunnel_peer.split(':')[0]
+		host = session.session_host
 		screenshot = Msf::Config.install_root + "/data/" + host + ".jpg"
 
 		migrate_explorer

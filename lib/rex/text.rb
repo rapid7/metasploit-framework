@@ -1214,6 +1214,26 @@ protected
 		@@codepage_map_cache = map
 	end
 
+	def self.checksum8(str)
+		str.unpack("C*").inject(:+) % 0x100
+	end
+	
+	def self.checksum16_le(str)
+		str.unpack("v*").inject(:+) % 0x10000
+	end
+
+	def self.checksum16_be(str)
+		str.unpack("n*").inject(:+) % 0x10000
+	end
+
+	def self.checksum32_le(str)
+		str.unpack("V*").inject(:+) % 0x100000000
+	end
+
+	def self.checksum32_be(str)
+		str.unpack("N*").inject(:+) % 0x100000000
+	end
+
 end
 end
 

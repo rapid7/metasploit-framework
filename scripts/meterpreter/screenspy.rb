@@ -59,7 +59,7 @@ session = client
 
 
 
-host,port = session.tunnel_peer.split(':')
+host,port = session.session_host, session.session_port
 
 print_status("New session on #{host}:#{port}...")
 
