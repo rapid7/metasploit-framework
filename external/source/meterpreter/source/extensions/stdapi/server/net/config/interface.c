@@ -237,18 +237,16 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 int get_interfaces_linux(Remote *remote, Packet *response) {
 	struct ifaces_list *ifaces = NULL;
 	int i;
-	int if_error;
+	int result;
 	uint32_t interface_index_bigendian, mtu_bigendian;
 	// wild guess, should probably malloc
 	Tlv entries[39];
 
 	dprintf("Grabbing interfaces");
-	if_error = netlink_get_interfaces(&ifaces);
+	result = netlink_get_interfaces(&ifaces);
 	dprintf("Got 'em");
 
-	if (if_error) {
-		result = if_error;
-	} else {
+	if (!result) {
 		for (i = 0; i < ifaces->entries; i++) {
 			int tlv_cnt = 0;
 			int j = 0;
@@ -318,6 +316,7 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 	if (ifaces)
 		free(ifaces);
 
+	return result;
 }
 #endif
 
