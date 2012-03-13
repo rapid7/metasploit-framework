@@ -144,6 +144,9 @@ class EncodedPayload
 						'core', LEV_1)
 					next
 				end
+				
+				# Import the datastore from payload (and likely exploit by proxy)
+				self.encoder.share_datastore(pinst.datastore)
 
 				# If we have any encoder options, import them into the datastore
 				# of the encoder.
