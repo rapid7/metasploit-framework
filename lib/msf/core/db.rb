@@ -2654,6 +2654,7 @@ class DBManager
          :workspace => wspace,
          :host      => ip,
          :os_name   => os,
+         :name      => name
        }
 
        host = report_host(conf)
