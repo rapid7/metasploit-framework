@@ -355,6 +355,26 @@
 				TLV_META_TYPE_GROUP,       \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1423)
+#define TLV_TYPE_SUBNET6               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1424)
+#define TLV_TYPE_NETMASK6              \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1425)
+#define TLV_TYPE_GATEWAY6              \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_RAW,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1426)
+#define TLV_TYPE_NETWORK_ROUTE6        \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_GROUP,       \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1427)
 #define TLV_TYPE_IP                    \
 		MAKE_CUSTOM_TLV(                 \
 				TLV_META_TYPE_RAW,         \
@@ -375,9 +395,9 @@
 				TLV_META_TYPE_GROUP,       \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1433)
-#define TLV_TYPE_IP6_SCOPE     \
+#define TLV_TYPE_IP6                   \
 		MAKE_CUSTOM_TLV(                 \
-				TLV_META_TYPE_RAW,       \
+				TLV_META_TYPE_RAW,         \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1434)
 

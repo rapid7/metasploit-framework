@@ -37,26 +37,16 @@ typedef struct ___u128 {
     __u32 a4;
 }__u128;
 
-struct iface_address {
-	int family;
-	union {
-		__u32  addr;
-		__u128 addr6;
-	} ip;
-	union {
-		__u32  netmask;
-		__u128 netmask6;
-	} nm;
-};
-
 struct iface_entry {
 	unsigned char name[IFNAMSIZ+1];
+	__u32 addr;
+	__u32 netmask;
 	unsigned char hwaddr[6];
+	__u128 addr6;
+	__u128 netmask6;
 	uint32_t mtu;
 	uint32_t index;
 	unsigned char flags[FLAGS_LEN+1];
-	int addr_count;
-	struct iface_address *addr_list;
 };
 
 struct ifaces_list {

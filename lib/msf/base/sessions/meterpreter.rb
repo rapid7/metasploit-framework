@@ -312,18 +312,18 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 				# Try to match our visible IP to a real interface
 				# TODO: Deal with IPv6 addresses
-				found    = !!(ifaces.find {|i| i.addrs.find {|a| p a; a == shost } })
+				found    = ifaces.find {|i| i.ip == shost }
 				nhost    = nil
 				hobj     = nil
 
 				if Rex::Socket.is_ipv4?(shost) and not found
 
 					# Try to find an interface with a default route
-					default_routes = routes.select{ |r| r.subnet == "0.0.0.0" || r.subnet == "::" }
+					default_routes = routes.select{ |r| r.subnet == "0.0.0.0" }
 					default_routes.each do |r|
 						ifaces.each do |i|
-							bits = Rex::Socket.net2bitmask( i.netmask ) rescue 32
-							rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{bits}" ) rescue nil
+							cidr = Rex::Socket.net2bitmask( i.netmask ) rescue "/32"
+							rang = Rex::Socket::RangeWalker.new( "#{i.ip}/#{cidr}" ) rescue nil
 							if rang and rang.include?( r.gateway )
 								nhost = i.ip
 								break
