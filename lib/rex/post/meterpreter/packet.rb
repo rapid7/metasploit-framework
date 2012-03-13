@@ -1,7 +1,5 @@
 #!/usr/bin/env ruby
 
-require 'rex/post/meterpreter/extensions/stdapi/tlv'
-
 module Rex
 module Post
 module Meterpreter
@@ -55,6 +53,7 @@ TLV_TYPE_METHOD             = TLV_META_TYPE_STRING |   1
 TLV_TYPE_REQUEST_ID         = TLV_META_TYPE_STRING |   2
 TLV_TYPE_EXCEPTION          = TLV_META_TYPE_GROUP  |   3
 TLV_TYPE_RESULT             = TLV_META_TYPE_UINT   |   4
+
 
 TLV_TYPE_STRING             = TLV_META_TYPE_STRING |  10
 TLV_TYPE_UINT               = TLV_META_TYPE_UINT   |  11
@@ -178,15 +177,15 @@ class Tlv
 			when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
 			when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
 
-			when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
-			when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
-			when Extensions::Stdapi::TLV_TYPE_NETMASK; 'netmask'
-			when Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS; 'mac-address'
-			when Extensions::Stdapi::TLV_TYPE_MAC_NAME; 'interface-name'
-			when Extensions::Stdapi::TLV_TYPE_IP6_SCOPE; 'address-scope'
-			when Extensions::Stdapi::TLV_TYPE_INTERFACE_MTU; 'interface-mtu'
-			when Extensions::Stdapi::TLV_TYPE_INTERFACE_FLAGS; 'interface-flags'
-			when Extensions::Stdapi::TLV_TYPE_INTERFACE_INDEX; 'interface-index'
+			#when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
+			#when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
+			#when Extensions::Stdapi::TLV_TYPE_NETMASK; 'netmask'
+			#when Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS; 'mac-address'
+			#when Extensions::Stdapi::TLV_TYPE_MAC_NAME; 'interface-name'
+			#when Extensions::Stdapi::TLV_TYPE_IP6_SCOPE; 'address-scope'
+			#when Extensions::Stdapi::TLV_TYPE_INTERFACE_MTU; 'interface-mtu'
+			#when Extensions::Stdapi::TLV_TYPE_INTERFACE_FLAGS; 'interface-flags'
+			#when Extensions::Stdapi::TLV_TYPE_INTERFACE_INDEX; 'interface-index'
 
 			else; "unknown-#{type}"
 			end
