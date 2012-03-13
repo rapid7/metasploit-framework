@@ -68,7 +68,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def listfiles(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("[SAP] Connecting to SAP Management Console SOAP Interface on #{rhost}:#{rport}")
 		success = false
 		soapenv = 'http://schemas.xmlsoap.org/soap/envelope/'

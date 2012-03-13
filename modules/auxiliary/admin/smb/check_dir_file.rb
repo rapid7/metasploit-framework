@@ -56,58 +56,38 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(ip)
 
-		if (datastore['VERBOSE'])
-			print_status("Connecting to the server...")
-		end
+		vprint_status("Connecting to the server...")
 
 		begin
 		connect()
 		smb_login()
 
-		if (datastore['VERBOSE'])
-			print_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
-		end
+		vprint_status("Mounting the remote share \\\\#{datastore['RHOST']}\\#{datastore['SMBSHARE']}'...")
 		self.simple.connect("\\\\#{rhost}\\#{datastore['SMBSHARE']}")
 
-		if (datastore['VERBOSE'])
-			print_status("Checking for file/folder #{datastore['RPATH']}...")
-		end
+		vprint_status("Checking for file/folder #{datastore['RPATH']}...")
 
 		if (fd = simple.open("\\#{datastore['RPATH']}", 'o')) # mode is open only - do not create/append/write etc
 			print_good("File FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
 			fd.close
 		end
 		rescue ::Rex::HostUnreachable
-			if (datastore['VERBOSE'])
-				print_error("Host #{rhost} offline.")
-			end
+			vprint_error("Host #{rhost} offline.")
 		rescue ::Rex::Proto::SMB::Exceptions::LoginError
-			if (datastore['VERBOSE'])
-				print_error("Host #{rhost} login error.")
-			end
+			vprint_error("Host #{rhost} login error.")
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			if e.get_error(e.error_code) == "STATUS_FILE_IS_A_DIRECTORY"
 				print_good("Directory FOUND: \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']}")
 			elsif e.get_error(e.error_code) == "STATUS_OBJECT_NAME_NOT_FOUND"
-				if (datastore['VERBOSE'])
-					print_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-				end
+				vprint_error("Object \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
 			elsif e.get_error(e.error_code) == "STATUS_OBJECT_PATH_NOT_FOUND"
-				if (datastore['VERBOSE'])
-					print_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
-				end
+				vprint_error("Object PATH \\\\#{rhost}\\#{datastore['SMBSHARE']}\\#{datastore['RPATH']} NOT found!")
 			elsif e.get_error(e.error_code) == "STATUS_ACCESS_DENIED"
-				if (datastore['VERBOSE'])
-					print_error("Host #{rhost} reports access denied.")
-				end
+				vprint_error("Host #{rhost} reports access denied.")
 			elsif e.get_error(e.error_code) == "STATUS_BAD_NETWORK_NAME"
-				if (datastore['VERBOSE'])
-					print_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
-				end
+				vprint_error("Host #{rhost} is NOT connected to #{datastore['SMBDomain']}!")
 			elsif e.get_error(e.error_code) == "STATUS_INSUFF_SERVER_RESOURCES"
-				if (datastore['VERBOSE'])
-					print_error("Host #{rhost} rejected with insufficient resources!")
-				end
+				vprint_error("Host #{rhost} rejected with insufficient resources!")
 			else
 				raise e
 			end

@@ -24,7 +24,11 @@ end
 
 #we look in the global datastore for a global VERBOSE option and use it
 if (framework.datastore['VERBOSE'] == "true")
+<<<<<<< HEAD
 	verbose = 1 
+=======
+        verbose = 1 
+>>>>>>> 1a364df37e9e9302f22cdc857fd0a99cea174481
 else
 	verbose = 0 
 end
@@ -34,6 +38,14 @@ if (framework.plugins.to_s =~ /[Ww]map/)
 else
 	print_line("loading the wmap plugin ...")
 	run_single("load wmap")
+end
+
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
 end
 
 framework.db.hosts.each do |host|
@@ -67,7 +79,7 @@ framework.db.hosts.each do |host|
 		end
 		run_single("wmap_targets -c")
 		print_line("")
-		print_line("finished analysing the webservern on IP #{host.address}, Port: #{serv.port.to_i}")
+		print_line("finished analysing the webservern on IP #{host.address.to_s}, Port: #{serv.port.to_s}")
 		print_line("")
 	end
 end

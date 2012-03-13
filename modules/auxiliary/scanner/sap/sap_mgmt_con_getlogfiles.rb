@@ -70,7 +70,6 @@ class Metasploit4 < Msf::Auxiliary
 	end
 
 	def gettfiles(rhost)
-		verbose = datastore['VERBOSE']
 		print_status("#{rhost}:#{rport} [SAP] Connecting to SAP Management Console SOAP Interface")
 		success = false
 

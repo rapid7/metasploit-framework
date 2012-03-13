@@ -41,7 +41,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-		verbose = datastore['VERBOSE']
 		begin
 
 			info = db2_probe(to)

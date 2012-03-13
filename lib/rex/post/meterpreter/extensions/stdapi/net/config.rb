@@ -94,11 +94,11 @@ class Config
 	def get_routes
 		request = Packet.create_request('stdapi_net_config_get_routes')
 		routes  = []
-		routes6 = []
 
 		response = client.send_request(request)
 
 		# Build out the array of routes
+		# Note: This will include both IPv4 and IPv6 routes
 		response.each(TLV_TYPE_NETWORK_ROUTE) { |route|
 			routes << Route.new(
 					route.get_tlv_value(TLV_TYPE_SUBNET),
@@ -108,16 +108,7 @@ class Config
 					route.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
 		}
 
-		# Build out the array of IPv6 routes
-		response.each(TLV_TYPE_NETWORK_ROUTE6) { |route6|
-			routes6 << Route.new(
-					route6.get_tlv_value(TLV_TYPE_SUBNET6),
-					route6.get_tlv_value(TLV_TYPE_NETMASK6),
-					route6.get_tlv_value(TLV_TYPE_GATEWAY6),
-					route6.get_tlv_value(TLV_TYPE_STRING),
-					route6.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
-		}
-		return routes, routes6
+		return routes
 	end
 
 	alias routes get_routes

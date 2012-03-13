@@ -52,7 +52,6 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run
 		ret = postgres_read_textfile(datastore['RFILE'])
-		verbose = datastore['VERBOSE']
 		case ret.keys[0]
 		when :conn_error
 			print_error "#{rhost}:#{rport} Postgres - Authentication failure, could not connect."
@@ -60,15 +59,15 @@ class Metasploit3 < Msf::Auxiliary
 			case ret[:sql_error]
 			when /^C58P01/
 				print_error "#{rhost}:#{rport} Postgres - No such file or directory."
-				print_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}" if verbose
+				vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 			when /^C42501/
 				print_error "#{rhost}:#{rport} Postgres - Insufficent file permissions."
-				print_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}" if verbose
+				vprint_status "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 			else
 				print_error "#{rhost}:#{rport} Postgres - #{ret[:sql_error]}"
 			end
 		when :complete
-			print_good  "#{rhost}:#{rport} Postgres - Command complete." if verbose
+			vprint_good  "#{rhost}:#{rport} Postgres - Command complete."
 		end
 		postgres_logout if self.postgres_conn
 	end

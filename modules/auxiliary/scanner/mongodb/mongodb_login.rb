@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'         => 'MongoDB Login Utility',
 			'Description'  => %q{
-				This module scans for MongoDB server. By default MongoDB has no auth. If auth
-				is used, it is then possible to execute a brute force attack on the server.
+				This module attempts to brute force authentication credentials for MongoDB.
+				Note that, by default, MongoDB does not require authentication.
 			},
 			'References'     =>
 				[

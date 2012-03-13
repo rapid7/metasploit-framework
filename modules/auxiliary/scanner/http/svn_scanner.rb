@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -124,13 +124,20 @@ class Metasploit3 < Msf::Auxiliary
 			else
 				print_status("[#{target_host}] SVN Entries file found.")
 
-				report_note(
+				report_web_vuln(
 					:host	=> target_host,
-					:proto => 'tcp',
-					:sname	=> (ssl ? "https" : "http"),
 					:port	=> rport,
-					:type	=> 'SVN_ENTRIES',
-					:data	=> "#{turl}"
+					:vhost  => vhost,
+					:ssl    => ssl,
+					:path	=> "#{turl}",
+					:method => 'GET',
+					:pname  => "",
+					:proof  => "Res code: #{res.code.to_s}",
+					:risk   => 0,
+					:confidence   => 100,
+					:category     => 'file',
+					:description  => 'SVN Entry found.',
+					:name   => 'file'
 				)
 
 				vers = res.body[0..1].chomp.to_i
@@ -166,10 +173,11 @@ class Metasploit3 < Msf::Auxiliary
 						report_note(
 							:host	=> target_host,
 							:proto => 'tcp',
-							:sname => (ssl ? "https" : "http"),
+							:sname => (ssl ? 'https' : 'http'),
 							:port	=> rport,
 							:type	=> 'USERNAME',
-							:data	=> "#{slastauthor}"
+							:data	=> "#{slastauthor}",
+							:update => :unique_data
 						)
 
 					end
@@ -179,10 +187,11 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname => (ssl ? "https" : "http"),
+								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'DIRECTORY',
-								:data	=> "#{sname}"
+								:data	=> "#{sname}",
+								:update => :unique_data
 							)
 						end
 
@@ -190,10 +199,11 @@ class Metasploit3 < Msf::Auxiliary
 							report_note(
 								:host	=> target_host,
 								:proto => 'tcp',
-								:sname => (ssl ? "https" : "http"),
+								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'FILE',
-								:data	=> "#{sname}"
+								:data	=> "#{sname}",
+								:update => :unique_data
 							)
 
 							if datastore['GET_SOURCE']
@@ -217,10 +227,11 @@ class Metasploit3 < Msf::Auxiliary
 										report_note(
 											:host	=> target_host,
 											:proto => 'tcp',
-											:sname => (ssl ? "https" : "http"),
+											:sname => (ssl ? 'https' : 'http'),
 											:port	=> rport,
 											:type	=> 'SOURCE_CODE',
-											:data	=> "#{sname} Code: #{srcres.body}"
+											:data	=> "#{sname} Code: #{srcres.body}",
+											:update => :unique_data
 										)
 									end
 								rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

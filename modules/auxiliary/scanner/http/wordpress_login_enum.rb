@@ -119,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("#{target_url} - WordPress Enumeration- Username: '#{user}' - is VALID")
 				report_auth_info(
 					:host => rhost,
-					:sname => (ssl ? "https" : "http"),
+					:sname => (ssl ? 'https' : 'http'),
 					:user => user,
 					:port => rport,
 					:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}"
@@ -156,7 +156,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host => rhost,
 						:port => rport,
-						:sname => (ssl ? "https" : "http"),
+						:sname => (ssl ? 'https' : 'http'),
 						:user => user,
 						:pass => pass,
 						:proof => "WEBAPP=\"Wordpress\", VHOST=#{vhost}, COOKIE=#{res.headers['Set-Cookie']}",

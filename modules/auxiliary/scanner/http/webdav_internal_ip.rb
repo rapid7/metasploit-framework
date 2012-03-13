@@ -17,7 +17,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> target_host,
 						:proto => 'tcp',
-						:sname => (ssl ? "https" : "http"),
+						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'INTERNAL_IP',
 						:data	=> "#{addr}"

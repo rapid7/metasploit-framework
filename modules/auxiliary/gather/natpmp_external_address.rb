@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 			})
 			add_socket(udp_sock)
-			print_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
+			vprint_status "#{host}:#{datastore['RPORT']} - NATPMP - Probing for external address"
 
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
 			while (r = udp_sock.recvfrom(12, 1.0) and r[1])

@@ -108,15 +108,15 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 	for(index = 0; index < table_ipv6->entries; index++) {
 		Tlv route6[5];
 
-		route6[0].header.type	= TLV_TYPE_SUBNET6;
+		route6[0].header.type	= TLV_TYPE_SUBNET;
 		route6[0].header.length = sizeof(__u128);
 		route6[0].buffer 		= (PUCHAR)&table_ipv6->routes[index].dest6;
 	
-		route6[1].header.type	= TLV_TYPE_NETMASK6;
+		route6[1].header.type	= TLV_TYPE_NETMASK;
 		route6[1].header.length	= sizeof(__u128);
 		route6[1].buffer		= (PUCHAR)&table_ipv6->routes[index].netmask6;
 		
-		route6[2].header.type	= TLV_TYPE_GATEWAY6;
+		route6[2].header.type	= TLV_TYPE_GATEWAY;
 		route6[2].header.length	= sizeof(__u128);
 		route6[2].buffer		= (PUCHAR)&table_ipv6->routes[index].nexthop6;
 
@@ -129,7 +129,7 @@ DWORD request_net_config_get_routes(Remote *remote, Packet *packet)
 		route6[4].header.length = sizeof(DWORD);
 		route6[4].buffer        = (PUCHAR)&metric_bigendian;
 		
-		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE6, route6, 5);
+		packet_add_tlv_group(response, TLV_TYPE_NETWORK_ROUTE, route6, 5);
 	}
 	dprintf("sent %d IPv6 routes", table_ipv6->entries);
 

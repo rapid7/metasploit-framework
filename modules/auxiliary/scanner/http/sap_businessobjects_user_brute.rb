@@ -62,7 +62,6 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def enum_user(user='administrator', pass='pass')
-		verbose = datastore['VERBOSE']
 		vprint_status("#{rhost}:#{rport} - Trying username:'#{user}' password:'#{pass}'")
 		success = false
 		soapenv='http://schemas.xmlsoap.org/soap/envelope/'

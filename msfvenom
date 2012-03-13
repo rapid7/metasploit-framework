@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #
-# $Id$
-# $Revision$
+# $Id: msfvenom 14815 2012-02-27 02:12:04Z rapid7 $
+# $Revision: 14815 $
 #
 msfbase = __FILE__
 while File.symlink?(msfbase)
@@ -94,6 +94,10 @@ def parse_args
 
 	opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
 		opts[:inject] = true
+	end
+	
+	opt.on('-o', '--options', 'List the payload\'s standard options') do 
+		opts[:list_options] = true
 	end
 
 	opt.on_tail('-h', '--help', 'Show this message') do
@@ -273,6 +277,11 @@ if opts[:payload]
 		payload = $framework.payloads.create(opts[:payload])
 		if payload.nil?
 			print_error("Invalid payload: #{opts[:payload]}")
+			exit
+		end
+		if opts[:list_options]
+			print_status("Options for #{payload.fullname}\n\n" + 
+				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
 			exit
 		end
 	end
