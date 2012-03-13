@@ -273,6 +273,9 @@ class EncodedPayload
 			nops.each { |nopname, nopmod|
 				# Create an instance of the nop module
 				self.nop = nopmod.new
+				
+				# Propagate options from the payload and possibly exploit
+				self.nop.share_datastore(pinst.datastore)
 
 				# The list of save registers
 				save_regs = (reqs['SaveRegisters'] || []) + (pinst.save_registers || [])
