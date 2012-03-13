@@ -59,8 +59,16 @@ class Config
 
 		response.each(TLV_TYPE_NETWORK_INTERFACE) { |iface|
 			addrs = []
+			netmasks = []
 			while (a = iface.get_tlv_value(TLV_TYPE_IP, addrs.length))
+				# Netmasks aren't tightly associated with addresses, they're
+				# just thrown all together in the interface TLV ordered to
+				# match up. This could be done better by creating another
+				# GroupTlv type for addresses containing an address, a netmask,
+				# and possibly a scope.
+				n = iface.get_tlv_value(TLV_TYPE_NETMASK, addrs.length)
 				addrs << Rex::Socket.addr_ntoa(a)
+				netmasks << Rex::Socket.addr_ntoa(n) if n
 			end
 			ifaces << Interface.new(
 					:index    => iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
@@ -68,7 +76,8 @@ class Config
 					:mac_name => iface.get_tlv_value(TLV_TYPE_MAC_NAME),
 					:mtu      => iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
 					:flags    => iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS),
-					:addrs    => addrs
+					:addrs    => addrs,
+					:netmasks => netmasks
 				)
 		}
 

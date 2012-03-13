@@ -34,6 +34,7 @@ class Interface
 		self.mtu      = opts[:mtu]
 		self.flags    = opts[:flags]
 		self.addrs    = opts[:addrs]
+		self.netmasks = opts[:netmasks]
 	end
 
 	#
@@ -53,11 +54,18 @@ class Interface
 			["Flags"        , flags     ],
 		]
 
-		addrs.select { |a| Rex::Socket.is_ipv4?(a) }.each { |a|
-			info << [ "IPv4 Address", a ]
+		# If all went as planned, addrs and netmasks will have the same number
+		# of elements and be properly ordered such that they match up
+		# correctly.
+		addr_masks = addrs.zip(netmasks)
+
+		addr_masks.select { |a| Rex::Socket.is_ipv4?(a[0]) }.each { |a|
+			info << [ "IPv4 Address", a[0] ]
+			info << [ "IPv4 Netmask", a[1] ]
 		}
-		addrs.select { |a| Rex::Socket.is_ipv6?(a) }.each { |a|
-			info << [ "IPv6 Address", a ]
+		addr_masks.select { |a| Rex::Socket.is_ipv6?(a[0]) }.each { |a|
+			info << [ "IPv6 Address", a[0] ]
+			info << [ "IPv6 Netmask", a[1] ]
 		}
 
 		pad = info.map{|i| i[0] }.max_by{|k|k.length}.length
@@ -111,6 +119,7 @@ class Interface
 	# The flags associated with the interface.
 	#
 	attr_accessor :flags
+	attr_accessor :netmasks
 end
 
 end; end; end; end; end; end
