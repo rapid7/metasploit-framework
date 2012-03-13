@@ -45,6 +45,14 @@ else
 	nmap = 0
 end
 
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
 def jobwaiting(maxjobs,verbose)	#thread handling for poor guys
 	while(framework.jobs.keys.length >= maxjobs)
 		::IO.select(nil, nil, nil, 2.5)
