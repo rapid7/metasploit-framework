@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 
+require 'rex/post/meterpreter/extensions/stdapi/tlv'
+
 module Rex
 module Post
 module Meterpreter
@@ -129,13 +131,14 @@ class Tlv
 
 	def inspect
 		utype = type ^ TLV_META_TYPE_COMPRESSED
+		group = false
 		meta = case (utype & TLV_META_MASK)
 			when TLV_META_TYPE_STRING; "STRING"
 			when TLV_META_TYPE_UINT; "INT"
 			when TLV_META_TYPE_RAW; "RAW"
 			when TLV_META_TYPE_BOOL; "BOOL"
 			when TLV_META_TYPE_QWORD; "QWORD"
-			when TLV_META_TYPE_GROUP; "GROUP"
+			when TLV_META_TYPE_GROUP; group=true; "GROUP"
 			when TLV_META_TYPE_COMPLEX; "COMPLEX"
 			else; 'unknown-meta-type'
 			end
@@ -175,16 +178,33 @@ class Tlv
 			when TLV_TYPE_MIGRATE_PAYLOAD; "MIGRATE-PAYLOAD"
 			when TLV_TYPE_MIGRATE_ARCH; "MIGRATE-ARCH"
 
-			# Extension classes don't exist yet, so can't use their constants
-			# here.
-			#when Extensions::Stdapi::TLV_TYPE_IP;           'ip-address'
+			when Extensions::Stdapi::TLV_TYPE_NETWORK_INTERFACE; 'network-interface'
+			when Extensions::Stdapi::TLV_TYPE_IP; 'ip-address'
+			when Extensions::Stdapi::TLV_TYPE_NETMASK; 'netmask'
+			when Extensions::Stdapi::TLV_TYPE_MAC_ADDRESS; 'mac-address'
+			when Extensions::Stdapi::TLV_TYPE_MAC_NAME; 'interface-name'
+			when Extensions::Stdapi::TLV_TYPE_IP6_SCOPE; 'address-scope'
+			when Extensions::Stdapi::TLV_TYPE_INTERFACE_MTU; 'interface-mtu'
+			when Extensions::Stdapi::TLV_TYPE_INTERFACE_FLAGS; 'interface-flags'
+			when Extensions::Stdapi::TLV_TYPE_INTERFACE_INDEX; 'interface-index'
+
 			else; "unknown-#{type}"
 			end
 		val = value.inspect
 		if val.length > 50
 			val = val[0,50] + ' ..."'
 		end
-		"#<#{self.class} type=#{stype} #{self.class.to_s =~ /Packet/ ? "tlvs=#{@tlvs.inspect}" : "meta=#{meta} value=#{val}"} >"
+		group ||= (self.class.to_s =~ /Packet/)
+		if group
+			tlvs_inspect = "tlvs=[\n"
+			@tlvs.each { |t|
+				tlvs_inspect << "  #{t.inspect}\n"
+			}
+			tlvs_inspect << "]"
+		else
+			tlvs_inspect = "meta=#{meta} value=#{val}"
+		end
+		"#<#{self.class} type=#{stype} #{tlvs_inspect}>"
 	end
 
 	##
