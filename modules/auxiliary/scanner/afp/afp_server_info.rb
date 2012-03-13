@@ -64,10 +64,19 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{rhost}:#{rport} APF:\n #{report_info}")
 
 		report_note(:host => datastore['RHOST'],
-			:proto => 'TCP',
+			:proto => 'tcp',
 			:port => datastore['RPORT'],
 			:type => 'afp_server_info',
 			:data => response)
+
+			report_service(
+				:host => datastore['RHOST'],
+				:port => datastore['RPORT'],
+				:proto => 'tcp',
+				:name => "afp",
+				:info => "AFP name: #{response[:utf8_server_name]}, Versions: #{response[:versions].join(', ')}"
+			)
+
 	end
 
 	def format_flags_report(parsed_flags)
