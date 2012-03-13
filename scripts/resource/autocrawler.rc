@@ -15,6 +15,14 @@ end
 
 threadspercrawler = "4"	#check this ... now its default
 
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
 def jobwaiting()	#thread handling for poor guys ...
         maxjobs=15      #throttling if we get too much jobs
         while(framework.jobs.keys.length >= maxjobs)

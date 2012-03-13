@@ -16,7 +16,7 @@ else
 	#define a file in our .msf4 directory which we use for our webaudits
 	profile = framework.datastore['WMAP_PROFILE']
 end
-print_line("Profile: #{profile}")
+
 #default to 50 Threads
 if (framework.datastore['THREADS'] == nil)
         run_single("setg THREADS 50")
@@ -24,11 +24,7 @@ end
 
 #we look in the global datastore for a global VERBOSE option and use it
 if (framework.datastore['VERBOSE'] == "true")
-<<<<<<< HEAD
 	verbose = 1 
-=======
-        verbose = 1 
->>>>>>> 1a364df37e9e9302f22cdc857fd0a99cea174481
 else
 	verbose = 0 
 end
