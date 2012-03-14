@@ -341,6 +341,18 @@ class Client
 	#
 	def register_extension_alias(name, ext)
 		self.ext_aliases.aliases[name] = ext
+		# Whee!  Syntactic sugar, where art thou?
+		#
+		# Create an instance method on this object called +name+ that returns
+		# +ext+.  We have to do it this way instead of simply
+		# self.class.class_eval so that other meterpreter sessions don't get
+		# extension methods when this one does
+		(class << self; self; end).class_eval do
+			define_method(name.to_sym) do
+				ext
+			end
+		end
+		ext
 	end
 
 	#
