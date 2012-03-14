@@ -18,7 +18,11 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'NetDecision NOCVision Server Directory Traversal',
 			'Description'    => %q{
 					This module exploits a directory traversal bug in NetDecision's
+<<<<<<< HEAD
 				TrafficGrapherServer.exe service.  This is done by using "...\" in
+=======
+				TrafficGrapherServer.exe service.  This is doen by using "...\" in
+>>>>>>> Add OSVDB-79863 NetDecision Directory Traversal
 				the path to retrieve a file on a vulnerable machine.
 			},
 			'References'     =>
@@ -32,7 +36,11 @@ class Metasploit3 < Msf::Auxiliary
 					'sinn3r'
 				],
 			'License'        => MSF_LICENSE,
+<<<<<<< HEAD
 			'DisclosureDate' => "Mar 07 2012"
+=======
+			'DisclosureDate' => "Mar 07 2012",
+>>>>>>> Add OSVDB-79863 NetDecision Directory Traversal
 		))
 
 		register_options(
@@ -77,4 +85,8 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("File saved in: #{path}")
 		end
 	end
+<<<<<<< HEAD
 end
+=======
+end
+>>>>>>> Add OSVDB-79863 NetDecision Directory Traversal
