@@ -64,11 +64,10 @@ else
 	modules_lin = [
 		'post/linux/gather/hashdump',
 		'post/osx/gather/hashdump',
+		'post/linux/gather/enum_network',
+		'post/linux/gather/enum_system',
+		'post/linux/gather/enum_users_history',
 		'post/linux/gather/checkvm',
-		'post/linux/gather/enum_cron',
-		'post/linux/gather/enum_linux',
-		'post/linux/gather/enum_packages',
-		'post/linux/gather/enum_services',
 		'post/osx/gather/enum_osx'
 	]
 end
