@@ -128,10 +128,6 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 			);
 		if (!gaa) {
 			result = get_interfaces_windows_mib(remote, response);
-
-			// --- DEBUG --- 
-			packet_add_tlv_uint(response, TLV_TYPE_EXIT_CODE, 666);
-			// --- END DEBUG ---
 			break;
 		}
 
@@ -190,12 +186,6 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 					entries[tlv_cnt].header.type   = TLV_TYPE_IP;
 					entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in *)sockaddr)->sin_addr);
 					if (pCurr->Length > 68) {
-						
-		// --- DEBUG --- 
-		packet_add_tlv_uint(response, TLV_TYPE_EXIT_CODE, 1337);
-		// --- END DEBUG ---
-
-
 						tlv_cnt++;
 						entries[tlv_cnt].header.length = 4;
 						entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
