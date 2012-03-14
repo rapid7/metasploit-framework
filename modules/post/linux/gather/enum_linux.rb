@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{
 						This module gathers basic system information from Linux systems.
 						It enumerates users, hashes, services, network config, routing table, installed packages,
-						screenshot, and bash_history.
+						active network connections, listening ports, iwconfig, screenshot, and bash_history.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
