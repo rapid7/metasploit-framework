@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -24,18 +21,20 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Linux Gather System & User Information',
-				'Description'   => %q{ This module gathers system information. We collect
-							installed packages, installed services, mount information,
-							user list, user bash history and cron jobs
-							},
+				'Name'          => 'Linux Gather System and User Information',
+				'Description'   => %q{
+					This module gathers system information. We collect
+					installed packages, installed services, mount information,
+					user list, user bash history and cron jobs
+				},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 
-						    'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
-						    'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
-						    'sinn3r', # Testing and modification of original enum_linux
-						    'ohdae <bindshell@live.com>', # Combined separate mods, modifications and testing
-						    ],
+				'Author'        =>
+					[
+						'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
+						'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
+						'sinn3r', # Testing and modification of original enum_linux
+						'ohdae <bindshell[at]live.com>', # Combined separate mods, modifications and testing
+					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
@@ -46,7 +45,13 @@ class Metasploit3 < Msf::Post
 	# Run Method for when run command is issued
 	def run
 		distro = get_sysinfo
-		store_loot("linux.version", "text/plain", session, "Distro: #{distro[:distro]}, Version: #{distro[:version]}, Kernel: #{distro[:kernel]}", "linux_info.txt", "Linux Version")
+		store_loot(
+			"linux.version",
+			"text/plain",
+			session,
+			"Distro: #{distro[:distro]},Version: #{distro[:version]}, Kernel: #{distro[:kernel]}",
+			"linux_info.txt",
+			"Linux Version")
 
 		# Print the info
 		print_good("Info:")
@@ -154,8 +159,8 @@ class Metasploit3 < Msf::Post
 						cron_data += "*****Listing cron jobs for #{u}*****\n"
 						cron_data += execute("crontab -u #{u} -l") + "\n\n"
 					end
-				end		
-			end		
+				end
+			end
 		else
 			vprint_status("Enumerating as #{user}")
 			cron_data = "***** Listing cron jobs for #{user} *****\n\n"
