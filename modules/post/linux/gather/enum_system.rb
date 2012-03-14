@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 						    'Carlos Perez <carlos_perez[at]darkoperator.com>', # get_packages and get_services
 						    'Stephen Haywood <averagesecurityguy[at]gmail.com>', # get_cron and original enum_linux
 						    'sinn3r', # Testing and modification of original enum_linux
-						    'ohdae <bindshell@live.com>', # Combining separate mods, modifications and testing
+						    'ohdae <bindshell@live.com>', # Combined separate mods, modifications and testing
 						    ],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],

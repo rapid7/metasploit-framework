@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Post
 					ports, active network connections, DNS information and SSH information.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 
-				                    'ohdae <bindshell@live.com>', # minor additions, modifications and testing
+				                    'ohdae <bindshell@live.com>', # minor additions, modifications & testing
 						    'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux						
 						   ],
 				'Version'       => '$Revision$',
