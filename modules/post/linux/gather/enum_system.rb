@@ -1,8 +1,8 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
 ##
 
 require 'msf/core'
@@ -42,7 +42,6 @@ class Metasploit3 < Msf::Post
 
 	end
 
-	# Run Method for when run command is issued
 	def run
 		distro = get_sysinfo
 		store_loot(
@@ -68,13 +67,12 @@ class Metasploit3 < Msf::Post
 		crons = get_crons(users, user)
 		diskspace = execute("/bin/df -ahT")
 		disks = (mount +"\n\/"+ diskspace)
-		
+
 		save("Linux version", distro)
 		save("User accounts", users)
 		save("Installed Packages", installed_pkg)
 		save("Running Services", installed_svc)
 		save("Cron jobs", crons)
-		#save("Mount", mount)
 		save("Disk info", disks)
 
 	end
