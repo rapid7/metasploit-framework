@@ -677,10 +677,8 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 	memset(&iface_tmp, 0, sizeof(iface_tmp));
 	iface_tmp.index = iaddr->ifa_index;
 
-	dprintf("-------------------------------------");
 	for (attribute = IFA_RTA(iaddr); RTA_OK(attribute, len); attribute = RTA_NEXT(attribute, len))
 	{
-		dprintf("Start of loop, attribute->rta_type = %d", attribute->rta_type);
 		switch(attribute->rta_type)
 		{
 			case IFA_ADDRESS:
@@ -711,9 +709,7 @@ int netlink_parse_interface_address(struct nlmsghdr *nh, void *data)
 			default:
 				break;
 		}
-		dprintf("-------------------------------------");
 	}
-	dprintf("Exited loop");
 
 	/*
  	 * try to find the iface by index and name
