@@ -105,8 +105,8 @@ class Metasploit3 < Msf::Post
 		print_status("Checking for Filezilla directory in: #{filezilladir}")
 		session.fs.dir.foreach(filezilladir) do |dir|
 			if dir =~ /FileZilla/
-				print_status("Found #{filezilladir}#{dir}")
-				return "#{filezilladir}#{dir}"
+				print_status("Found #{filezilladir}\\#{dir}")
+				return "#{filezilladir}\\#{dir}"
 			end
 		end
 		return nil
