@@ -108,7 +108,7 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 	DWORD interface_index_bigendian;
 
 	ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_SKIP_DNS_SERVER;
-	
+
 	LPSOCKADDR sockaddr;
 
 	ULONG family = AF_UNSPEC;
@@ -120,7 +120,7 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 	// Use the larger version so we're guaranteed to have a large enough struct
 	IP_ADAPTER_UNICAST_ADDRESS_LH *pAddr;
 
-	
+
 	do
 	{
 		gaa = (DWORD (WINAPI *)(DWORD,DWORD,void*,void*,void*))GetProcAddress(
@@ -170,12 +170,12 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 			entries[tlv_cnt].buffer        = (PUCHAR)&mtu_bigendian;
 			tlv_cnt++;
 
-			
+
 			for (pAddr = (void*)pCurr->FirstUnicastAddress; pAddr; pAddr = (void*)pAddr->Next)
 			{
 				// This loop can add up to three Tlv's - one for address, one for scope_id, one for netmask.
 				// Go ahead and allocate enough room for all of them.
- 				if (allocd_entries < tlv_cnt+3) {
+				if (allocd_entries < tlv_cnt+3) {
 					entries = realloc(entries, sizeof(Tlv) * (tlv_cnt+3));
 					allocd_entries += 3;
 				}
@@ -207,7 +207,7 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 						entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
 						entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_addr);
 					}
-				
+
 				}
 				tlv_cnt++;
 			}
@@ -219,6 +219,8 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 
 	if (entries)
 		free(entries);
+	if (pAdapters)
+		free(pAdapters);
 
 	return result;
 }
@@ -229,8 +231,8 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 	int i;
 	int result;
 	uint32_t interface_index_bigendian, mtu_bigendian;
-	// wild guess, should probably malloc
-	Tlv entries[39];
+	DWORD allocd_entries = 10;
+	Tlv *entries = (Tlv *)malloc(sizeof(Tlv) * 10);
 
 	dprintf("Grabbing interfaces");
 	result = netlink_get_interfaces(&ifaces);
@@ -252,7 +254,28 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].hwaddr;
 			tlv_cnt++;
 
+			mtu_bigendian            = htonl(ifaces->ifaces[i].mtu);
+			entries[tlv_cnt].header.length = sizeof(uint32_t);
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_MTU;
+			entries[tlv_cnt].buffer        = (PUCHAR)&mtu_bigendian;
+			tlv_cnt++;
+
+			entries[tlv_cnt].header.length = strlen(ifaces->ifaces[i].flags)+1;
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_FLAGS;
+			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].flags;
+			tlv_cnt++;
+
+			interface_index_bigendian = htonl(ifaces->ifaces[i].index);
+			entries[tlv_cnt].header.length = sizeof(uint32_t);
+			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_INDEX;
+			entries[tlv_cnt].buffer        = (PUCHAR)&interface_index_bigendian;
+			tlv_cnt++;
+
 			for (j = 0; j < ifaces->ifaces[i].addr_count; j++) {
+				if (allocd_entries < tlv_cnt+3) {
+					entries = realloc(entries, sizeof(Tlv) * (tlv_cnt+3));
+					allocd_entries += 3;
+				}
 				if (ifaces->ifaces[i].addr_list[j].family == AF_INET) {
 					dprintf("ip addr for %s", ifaces->ifaces[i].name);
 					entries[tlv_cnt].header.length = sizeof(__u32);
@@ -280,23 +303,6 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 				}
 			}
 
-			mtu_bigendian            = htonl(ifaces->ifaces[i].mtu);
-			entries[tlv_cnt].header.length = sizeof(uint32_t);
-			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_MTU;
-			entries[tlv_cnt].buffer        = (PUCHAR)&mtu_bigendian;
-			tlv_cnt++;
-
-			entries[tlv_cnt].header.length = strlen(ifaces->ifaces[i].flags)+1;
-			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_FLAGS;
-			entries[tlv_cnt].buffer        = (PUCHAR)ifaces->ifaces[i].flags;
-			tlv_cnt++;
-
-			interface_index_bigendian = htonl(ifaces->ifaces[i].index);
-			entries[tlv_cnt].header.length = sizeof(uint32_t);
-			entries[tlv_cnt].header.type   = TLV_TYPE_INTERFACE_INDEX;
-			entries[tlv_cnt].buffer        = (PUCHAR)&interface_index_bigendian;
-			tlv_cnt++;
-
 			dprintf("Adding TLV to group");
 			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, tlv_cnt);
 			dprintf("done Adding TLV to group");
@@ -305,6 +311,9 @@ int get_interfaces_linux(Remote *remote, Packet *response) {
 
 	if (ifaces)
 		free(ifaces);
+	if (entries)
+		free(entries);
+
 
 	return result;
 }
