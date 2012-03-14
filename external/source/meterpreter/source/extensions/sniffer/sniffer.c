@@ -523,6 +523,8 @@ DWORD sniffer_thread(THREAD *thread)
 		select(fd+1, &rfds, NULL, NULL, &tv);
 
 		count = pcap_dispatch(j->pcap, 100, packet_handler, (u_char *)(j));
+		if (-1 == count)
+			dprintf("pcap error: %s", pcap_geterr(j->pcap));
 
 		if(count <= 0) continue;
 		if(count) dprintf("dispatched %d packets", count);
@@ -605,7 +607,7 @@ DWORD request_sniffer_capture_start(Remote *remote, Packet *packet) {
 			break;
 		}
 
-		j->pcap = pcap_open_live(name, 1514, 1, 1000, errbuf);
+		j->pcap = pcap_open_live(name, 65535, 1, 1000, errbuf);
 		if(! j->pcap) {
 			result = EACCES;
 			break;
