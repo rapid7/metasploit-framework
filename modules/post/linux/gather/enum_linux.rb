@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Post
 		connections = execute("/usr/bin/lsof -nPi")
 		wireless = execute("/sbin/iwconfig")
 		open_ports = execute("/bin/netstat -tulpn")
-		updown = execute("ls -R /etc/network")		
+		updown = execute("/bin/ls -R /etc/network")		
 		
 		screenshot = get_screenshot
 		ssh_keys = get_ssh_keys
