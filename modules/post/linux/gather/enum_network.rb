@@ -1,6 +1,3 @@
-# $Id$
-##
-
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
@@ -30,10 +27,11 @@ class Metasploit3 < Msf::Post
 					IPTables rules, interfaces, wireless information, open and listening
 					ports, active network connections, DNS information and SSH information.},
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 
-				                    'ohdae <bindshell@live.com>', # minor additions, modifications & testing
-						    'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux						
-						   ],
+				'Author'        =>
+					[
+						'ohdae <bindshell[at]live.com>', # minor additions, modifications & testing
+						'Stephen Haywood <averagesecurityguy[at]gmail.com>', # enum_linux
+					],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
@@ -66,8 +64,8 @@ class Metasploit3 < Msf::Post
 		connections = execute("/usr/bin/lsof -nPi")
 		wireless = execute("/sbin/iwconfig")
 		open_ports = execute("/bin/netstat -tulpn")
-		updown = execute("ls -R /etc/network")		
-		
+		updown = execute("ls -R /etc/network")
+
 		ssh_keys = get_ssh_keys
 
 		# Save Enumerated data
@@ -82,7 +80,6 @@ class Metasploit3 < Msf::Post
 		save("Wireless information", wireless)
 		save("Listening ports", open_ports)
 		save("If-Up/If-Down", updown)
-		
 
 	end
 
@@ -147,5 +144,3 @@ class Metasploit3 < Msf::Post
 		return keys
 	end
 end
-
-
