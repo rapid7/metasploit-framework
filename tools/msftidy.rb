@@ -113,11 +113,14 @@ def check_single_file(dparts, fparts, f_rel)
 
 	# Check function naming style and arg length
 	functions = content.scan(/def (\w+)\(*(.+)\)*/)
+
 	functions.each do |func_name, args|
+=begin
 		# Check Ruby variable naming style
 		if func_name =~ /[a-z][A-Z]/ or func_name =~ /[A-Z][a-z]/
 			show_missing(f, "WARNING: Poor function naming style for: '#{func_name}'", false)
 		end
+=end
 
 		# Check argument length
 		args_length = args.split(",").length
@@ -126,6 +129,7 @@ def check_single_file(dparts, fparts, f_rel)
 		end
 	end
 
+=begin
 	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
 	vars.each do |v|
 		v = v.strip
@@ -134,6 +138,7 @@ def check_single_file(dparts, fparts, f_rel)
 			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
 		end
 	end
+=end
 
 	# check criteria based on individual lines
 	spaces = 0
