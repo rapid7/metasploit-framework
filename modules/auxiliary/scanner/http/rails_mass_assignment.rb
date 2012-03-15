@@ -18,8 +18,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'			=> 'Ruby On Rails Attributes Mass Assignment scaner',
-			'Description'	=> %q{
+			'Name'          => 'Ruby On Rails Attributes Mass Assignment scaner',
+			'Description'   => %q{
 				This module scans Ruby On Rails sites for
 				models with attributes not protected by attr_protected or attr_accessible.
 				After attempt to assing nonexistent field in model
@@ -79,22 +79,22 @@ class Metasploit3 < Msf::Auxiliary
 			query.merge!(test_param)
 
 			resp = send_request_cgi({
-				'uri'		=> datastore['PATH'],
-				'vars_get'	=> datastore['METHOD'] == 'POST' ? queryparse(datastore['QUERY'].to_s) : query,
-				'method'	=> datastore['METHOD'],
-				'ctype'		=> 'application/x-www-form-urlencoded',
-				'cookie'	=> datastore['COOKIE'],
-				'data'		=> datastore['METHOD'] == 'POST' ? query.to_query : datastore['DATA']
+				'uri'       => datastore['PATH'],
+				'vars_get'  => datastore['METHOD'] == 'POST' ? queryparse(datastore['QUERY'].to_s) : query,
+				'method'    => datastore['METHOD'],
+				'ctype'     => 'application/x-www-form-urlencoded',
+				'cookie'    => datastore['COOKIE'],
+				'data'      => datastore['METHOD'] == 'POST' ? query.to_query : datastore['DATA']
 			}, 20)
 
 			if resp.code == 500
 				print_good("Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
 				report_web_vuln(
-					:host	=> rhost,
-					:port	=> rport,
+					:host   => rhost,
+					:port   => rport,
 					:vhost  => vhost,
 					:ssl    => ssl,
-					:path	=> "#{datastore['PATH']}",
+					:path   => "#{datastore['PATH']}",
 					:method => datastore['METHOD'],
 					:pname  => param,
 					:proof  => "rails mass assignment",
