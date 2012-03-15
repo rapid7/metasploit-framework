@@ -92,8 +92,7 @@ class Metasploit3 < Msf::Post
 		apps.each do |a|
 			output = which("#{a}")
 			if output
-				found = (output + "\n")
-				installed << found
+				installed = puts [output].join("\n")
 			end
 		end
 		save("Installed applications:", installed) unless installed.empty?
