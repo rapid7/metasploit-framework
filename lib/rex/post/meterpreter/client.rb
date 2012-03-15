@@ -281,6 +281,7 @@ class Client
 	# if a matching extension alias exists for the supplied symbol.
 	#
 	def method_missing(symbol, *args)
+		#$stdout.puts("method_missing: #{symbol}")
 		self.ext_aliases.aliases[symbol.to_s]
 	end
 
@@ -294,7 +295,8 @@ class Client
 	# Loads the client half of the supplied extension and initializes it as a
 	# registered extension that can be reached through client.ext.[extension].
 	#
-	def add_extension(name)
+	def add_extension(name, commands=[])
+		puts commands.join"\n"
 		# Check to see if this extension has already been loaded.
 		if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
 			old = Rex::Post::Meterpreter::Extensions.constants

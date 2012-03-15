@@ -114,6 +114,11 @@ class ClientCore < Extension
 		# Transmit the request and wait the default timeout seconds for a response
 		response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
+		commands = []
+		response.each(TLV_META_TYPE_STRING) { |c|
+			commands << c.value
+		}
+
 		# No response?
 		if (response == nil)
 			raise RuntimeError, "No response was received to the core_loadlib request.", caller
@@ -121,7 +126,7 @@ class ClientCore < Extension
 			raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
 		end
 
-		return true
+		return commands
 	end
 
 	#
@@ -150,13 +155,12 @@ class ClientCore < Extension
 		path = ::File.expand_path(path)
 
 		# Load the extension DLL
-		if (load_library(
+		commands = load_library(
 				'LibraryFilePath' => path,
 				'UploadLibrary'   => true,
 				'Extension'       => true,
-				'SaveToDisk'      => opts['LoadFromDisk']))
-			client.add_extension(mod)
-		end
+				'SaveToDisk'      => opts['LoadFromDisk'])
+		client.add_extension(mod, commands)
 
 		return true
 	end
