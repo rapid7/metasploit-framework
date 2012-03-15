@@ -103,7 +103,7 @@ class Console::CommandDispatcher::Sniffer
 	def cmd_sniffer_release(*args)
 		intf = args[0].to_i
 		if (intf == 0)
-			print_error("Usage: sniffer_stats [interface-id]")
+			print_error("Usage: sniffer_release [interface-id]")
 			return
 		end
 		
