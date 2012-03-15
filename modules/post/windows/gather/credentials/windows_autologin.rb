@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -81,7 +81,7 @@ class Metasploit3 < Msf::Post
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		elsif do1 != '' and  du1 != '' and dp1 != ''
 			has_al = 1
-			creds << [du1,dp1, d01]
+			creds << [du1,dp1, do1]
 			print_good("DefaultDomain=#{do1}, DefaultUser=#{du1}, DefaultPassword=#{dp1}")
 		end
 
@@ -92,7 +92,7 @@ class Metasploit3 < Msf::Post
 			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		elsif do2 != '' and  du2 != '' and dp2 != ''
 			has_al = 1
-			creds << [du2,dp2,d02]
+			creds << [du2,dp2,do2]
 			print_good("AltDomain=#{do2}, AltUser=#{du2}, AltPassword=#{dp2}")
 		end
 

@@ -514,7 +514,7 @@ module Auxiliary::AuthBrute
 	# name of the module, assuming the name is sensible like ssh_login or
 	# smb_auth.
 	def proto_from_fullname
-		File.split(self.fullname).last.match(/^(.*)_(login|auth)/)[1].upcase rescue nil
+		File.split(self.fullname).last.match(/^(.*)_(login|auth|identify)/)[1].upcase rescue nil
 	end
 
 	# Legacy vprint

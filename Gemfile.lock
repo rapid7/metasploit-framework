@@ -1,0 +1,47 @@
+PATH
+  remote: ../metasploit_data_models
+  specs:
+    metasploit_data_models (0.0.1)
+      activerecord
+      activesupport
+      pg
+      pry
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activemodel (3.1.3)
+      activesupport (= 3.1.3)
+      builder (~> 3.0.0)
+      i18n (~> 0.6)
+    activerecord (3.1.3)
+      activemodel (= 3.1.3)
+      activesupport (= 3.1.3)
+      arel (~> 2.2.1)
+      tzinfo (~> 0.3.29)
+    activesupport (3.1.3)
+      multi_json (~> 1.0)
+    arel (2.2.1)
+    builder (3.0.0)
+    coderay (0.9.8)
+    i18n (0.6.0)
+    method_source (0.6.7)
+      ruby_parser (>= 2.3.1)
+    multi_json (1.0.4)
+    pg (0.12.2)
+    pry (0.9.7.4)
+      coderay (~> 0.9.8)
+      method_source (~> 0.6.7)
+      ruby_parser (>= 2.3.1)
+      slop (~> 2.1.0)
+    ruby_parser (2.3.1)
+      sexp_processor (~> 3.0)
+    sexp_processor (3.0.10)
+    slop (2.1.0)
+    tzinfo (0.3.31)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  metasploit_data_models!

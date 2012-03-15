@@ -18,7 +18,9 @@ class Vm
 	attr_accessor :host
 	attr_accessor :os
 	attr_accessor :arch
-
+	attr_accessor :tags 
+	attr_accessor :type
+	
 	## Initialize takes a vm configuration hash of the form
 	##  - vmid (unique identifier)
 	##    driver (vm technology)
@@ -75,8 +77,6 @@ class Vm
 		#Only fog systems need this
 		@fog_config = config['fog_config']
 
-		#puts "Passing driver config: #{config}"
-
 		# Process the correct driver
 		if @driver_type == "workstation"
 			@driver = Lab::Drivers::WorkstationDriver.new(config)
@@ -101,17 +101,26 @@ class Vm
 		# Load in a list of modifiers. These provide additional methods
 		# Currently it is up to the user to verify that 
 		# modifiers are properly used with the correct VM image.
-		#
-		# If not, the results are likely to be disasterous.
 		@modifiers = config['modifiers']
 		
-		if @modifiers	
-			begin
-	 			@modifiers.each { |modifier|  self.class.send(:include, eval("Lab::Modifier::#{modifier}"))}
-			rescue Exception => e
-				# modifier likely didn't exist
-			end 		
+		if @modifiers
+			@modifiers.each do |modifier|
+				begin
+					self.class.send(:include, eval("Lab::Modifier::#{modifier}"))
+				rescue Exception => e
+					#puts "WARNING: Unable to load: #{modifier}"
+					#puts "Exception: #{e}"
+				end
+			end
 		end
+
+		# Consume all tags
+		@tags = config['tags']
+	end
+	
+	def tagged?(tag_name)
+		return false unless @tags
+		return true if @tags.include?(tag_name)
 	end
 	
 	def running?
@@ -163,12 +172,12 @@ class Vm
 		@driver.start
 	end
 
-	def copy_to(from,to)
-		@driver.copy_to(from,to)
+	def copy_to_guest(from,to)
+		@driver.copy_to_guest(from,to)
 	end
 	
-	def copy_from(from,to)
-		@driver.copy_from(from,to)
+	def copy_from_guest(from,to)
+		@driver.copy_from_guest(from,to)
 	end
 	
 	def run_command(command)
@@ -196,15 +205,13 @@ class Vm
 	end
 
 	def to_s
-		return "#{@vmid}"
+		return "#{@hostname}"
 	end
 
 	def to_yaml
-		
-		# TODO - push this down to the drivers.
-		
 		# Standard configuration options
 		out =  " - vmid: #{@vmid}\n"
+		out =  "   hostname: #{@hostname}\n"
 		out += "   driver: #{@driver_type}\n"
 		out += "   location: #{@location}\n"
 		out += "   type: #{@type}\n"

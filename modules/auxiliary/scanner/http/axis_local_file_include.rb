@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -101,7 +101,7 @@ class Metasploit3 < Msf::Auxiliary
 					report_auth_info(
 						:host => rhost,
 						:port => rport,
-						:sname => 'http',
+						:sname => (ssl ? 'https' : 'http'),
 						:user => username,
 						:pass => password,
 						:proof => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",

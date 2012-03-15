@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 #
 ##
 
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		seed = []
 		#Seed the wordlist with Database , Table, and Instance Names
-		schemas = myworkspace.notes.find(:all, :conditions => ['ntype like ?', '%.schema%'])
+		schemas = myworkspace.notes.where('ntype like ?', '%.schema%')
 		unless schemas.nil? or schemas.empty?
 			schemas.each do |anote|
 				anote.data.each do |key,value|
@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		instances = myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename'])
+    instances = myworkspace.notes.where('ntype=?', 'mssql.instancename')
 		unless instances.nil? or instances.empty?
 			instances.each do |anote|
 				seed << anote.data['InstanceName']
@@ -90,7 +90,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		hashlist = Rex::Quickfile.new("jtrtmp")
 		ltype= "#{format}.hashes"
-		myloots = myworkspace.loots.find(:all, :conditions => ['ltype=?', ltype])
+		myloots = myworkspace.loots.where('ltype=?', ltype)
 		unless myloots.nil? or myloots.empty?
 			myloots.each do |myloot|
 				begin

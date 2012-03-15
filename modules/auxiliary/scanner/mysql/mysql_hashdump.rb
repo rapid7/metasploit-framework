@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 					This module extracts the usernames and encrypted password
 				hashes from a MySQL server and stores them for later cracking.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
 	end
@@ -69,21 +69,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		report_hashes(tbl.to_csv, this_service) unless tbl.rows.empty?
 
-		#Recursively grab the schema for the entire DB server
-		mysql_schema={}
-		res = mysql_query("show databases")
-		if res.size > 0
-			res.each do |row|
-				next if row[0].nil?
-				next if row[0].empty?
-				next if row[0]== "information_schema"
-				next if row[0]== "mysql"
-				next if row[0]== "performance_schema"
-				next if row[0]== "test"
-				mysql_schema[row[0]]= get_tbl_names(row[0])
-			end
-		end
-		report_other_data(mysql_schema)
+
 	end
 
 	#Stores the Hash Table as Loot for Later Cracking
@@ -95,37 +81,5 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	#Gets all of the Tables names inside the given Database
-	def get_tbl_names(dbname)
-
-		tables=[]
-		res = mysql_query("SHOW tables from #{dbname}")
-		if res.size > 0
-			res.each do |row|
-				next if row[0].nil?
-				next if row[0].empty?
-				tables<<row[0]
-			end
-		end
-		return tables
-
-	end
-
-	#Saves the Database Schema as Notes for later use.
-	#Will be used for seeding wordlists when cracking
-	def report_other_data(mysql_schema)
-
-		unless mysql_schema.nil?
-			report_note(
-				:host  => rhost,
-				:type  => "mysql.schema",
-				:data  => mysql_schema,
-				:port  => rport,
-				:proto => 'tcp',
-				:update => :unique_data
-			)
-		end
-
-	end
 
 end

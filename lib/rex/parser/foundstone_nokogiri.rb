@@ -232,7 +232,7 @@ module Rex
 
 		def report_services(host_object)
 			return unless in_tag("HostData")
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? Mdm::Host
 			return unless @report_data[:ports]
 			return if @report_data[:ports].empty?
 			@report_data[:ports].each do |svc|
@@ -242,7 +242,7 @@ module Rex
 
 		def report_vulns(host_object)
 			return unless in_tag("HostData")
-			return unless host_object.kind_of? Msf::DBManager::Host
+			return unless host_object.kind_of? Mdm::Host
 			return unless @report_data[:vulns]
 			return if @report_data[:vulns].empty?
 			@report_data[:vulns].each do |vuln|

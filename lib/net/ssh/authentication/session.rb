@@ -33,6 +33,12 @@ module Net; module SSH; module Authentication
 
     # when a successful auth is made, note the auth info if session.options[:record_auth_info]
     attr_accessor :auth_info
+    
+    # when a public key is accepted (even if not used), trigger a callback
+    attr_accessor :accepted_key_callback
+    
+    # when we only want to test a key and not login
+    attr_accessor :skip_private_keys
 
     # Instantiates a new Authentication::Session object over the given
     # transport layer abstraction.
@@ -43,8 +49,10 @@ module Net; module SSH; module Authentication
       @auth_methods = options[:auth_methods] || %w(publickey hostbased password keyboard-interactive)
       @options = options
 
-      @allowed_auth_methods = @auth_methods
-      @auth_info = {}
+      @allowed_auth_methods  = @auth_methods
+      @skip_private_keys     = options[:skip_private_keys] || false
+      @accepted_key_callback = options[:accepted_key_callback]     
+      @auth_info = {}      
     end
 
     # Attempts to authenticate the given user, in preparation for the next

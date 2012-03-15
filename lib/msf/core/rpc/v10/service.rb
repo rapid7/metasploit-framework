@@ -145,7 +145,7 @@ class Service
 				end
 			end
 
-			::Timeout.timeout(self.dispatcher_timeout) { self.handlers[group].send(mname, *msg) }
+			::Timeout.timeout(self.dispatcher_timeout) { puts "Group: #{group} Mname: #{mname}";self.handlers[group].send(mname, *msg) }
 
 		rescue ::Exception => e
 			elog("RPC Exception: #{e.class} #{e.to_s} #{e.backtrace} #{msg.inspect} #{req.inspect}")
@@ -198,6 +198,11 @@ class Service
 	def authenticate(token)
 		stale = []
 
+		 
+		if not (token and token.kind_of?(::String))
+			return false
+		end
+
 		# Force the encoding to ASCII-8BIT
 		token = token.unpack("C*").pack("C*")
 
@@ -213,7 +218,7 @@ class Service
 		if not self.tokens[token]
 
 			begin
-				if framework.db.active and Msf::DBManager::ApiKey.find_by_token(token)
+				if framework.db.active and Mdm::ApiKey.find_by_token(token)
 					return true
 				end
 			rescue ::Exception => e

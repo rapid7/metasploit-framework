@@ -377,7 +377,7 @@ DEFINES  = USE_LOCKS
            ANDROID
            ;
 
-CFLAGS_x86 = -Iprivate -Ibionic -Ikernel/arch-x86 -Ikernel/common -I../libm/include -fno-stack-protector -fno-pie -DPIC -ffreestanding -fno-tree-scev-cprop ;
+CFLAGS_x86 = -m32 -march=i386 -Iprivate -Ibionic -Ikernel/arch-x86 -Ikernel/common -I../libm/include -fno-stack-protector -fno-pie -DPIC -ffreestanding -fno-tree-scev-cprop ;
 
 
 for arch in $(ARCH)

@@ -1,4 +1,4 @@
-Copyright (C) 2006-2011, Rapid7 LLC
+Copyright (C) 2006-2012, Rapid7 LLC
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -48,11 +48,15 @@ This license does not apply to the following components:
  - The Ruby-Lorcon library located under external/ruby-lorcon
  - The SNMP library located under lib/snmp
  - The Zip library located under lib/zip
+ - The SSHKey library located under lib/sshkey
 
 The latest version of this software is available from http://metasploit.com/
 
 Bug tracking and development information can be found at:
  https://dev.metasploit.com/redmine/projects/framework/
+
+The public GitHub source repository can be found at:
+ https://github.com/rapid7/metasploit-framework
 
 Questions and suggestions can be sent to:
  msfdev[at]metasploit.com

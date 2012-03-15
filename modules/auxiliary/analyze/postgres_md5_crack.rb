@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 #
 ##
 
@@ -49,7 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		print_status("Wordlist length: #{@seed.length}")
 
-		myloots = myworkspace.loots.find(:all, :conditions => ['ltype=?', 'postgres.hashes'])
+		myloots = myworkspace.loots.where('ltype=?', 'postgres.hashes')
 		unless myloots.nil?
 			myloots.each do |myloot|
 				begin
@@ -95,7 +95,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		seed = []
 		#Seed the wordlist with Database , Table, and Instance Names
-		schemas = myworkspace.notes.find(:all, :conditions => ['ntype like ?', '%.schema%'])
+		schemas = myworkspace.notes.where('ntype like ?', '%.schema%')
 		unless schemas.nil? or schemas.empty?
 			schemas.each do |anote|
 				anote.data.each do |key,value|
@@ -105,7 +105,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		end
 
-		instances = myworkspace.notes.find(:all, :conditions => ['ntype=?', 'mssql.instancename'])
+		instances = myworkspace.notes.where('ntype=?', 'mssql.instancename')
 		unless instances.nil? or instances.empty?
 			instances.each do |anote|
 				seed << anote.data['InstanceName']

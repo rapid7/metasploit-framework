@@ -61,9 +61,9 @@ class Railgun
 	# definition class 'rex/post/meterpreter/extensions/stdapi/railgun/def/'.
 	# Naming is important and should follow convention.  For example, if your
 	# dll's name was "my_dll"
-	# file name::   def_my_dll.rb
-	# class name::  Def_my_dll
-	# entry below:: 'my_dll'
+	# file name:    def_my_dll.rb
+	# class name:   Def_my_dll
+	# entry below: 'my_dll'
 	#
 	BUILTIN_DLLS = [
 		'kernel32',
@@ -102,6 +102,10 @@ class Railgun
 	def initialize(client)
 		self.client = client
 		self.dlls = {}
+	end
+
+	def self.builtin_dlls
+		BUILTIN_DLLS
 	end
 
 	#
@@ -184,8 +188,8 @@ class Railgun
 
 		# For backwards compatibility, we ensure the dll is thawed
 		if dll.frozen?
-			# dup will copy values, but not the frozen status
-			dll = dll.dup
+			# Duplicate not only the dll, but its functions as well. Frozen status will be lost
+			dll = Marshal.load(Marshal.dump(dll))
 
 			# Update local dlls with the modifiable duplicate
 			dlls[dll_name] = dll

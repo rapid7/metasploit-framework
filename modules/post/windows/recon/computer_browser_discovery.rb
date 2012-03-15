@@ -6,8 +6,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Post Windows Recon Computer Browser Discovery',
+				'Name'          => 'Windows Recon Computer Browser Discovery',
 				'Description'   => %q{ This module uses railgun to discover hostnames and IPs on the network.
 					LTYPE should be set to one of the following values: WK (all workstations), SVR (all servers),
 					SQL (all SQL servers), DC (all Domain Controllers), DCBKUP (all Domain Backup Servers),
@@ -67,47 +67,6 @@ class Metasploit3 < Msf::Post
 	def run
 		### MAIN ###
 		client = session
-
-=begin
-NET_API_STATUS NetUserEnum(
-  __in     LPCWSTR servername,
-  __in     DWORD level,
-  __in     DWORD filter,
-  __out    LPBYTE *bufptr,
-  __in     DWORD prefmaxlen,
-  __out    LPDWORD entriesread,
-  __out    LPDWORD totalentries,
-  __inout  LPDWORD resume_handle
-);
-
-client.railgun.add_function( 'netapi32', 'NetUserEnum', 'DWORD',[
-["PWCHAR","servername","in"],
-["DWORD","level","in"],
-["DWORD","filter","in"],
-["PDWORD","bufptr","out"],
-["DWORD","prefmaxlen","in"],
-["PDWORD","entriesread","out"],
-["PDWORD","totalentries","out"],
-["PDWORD","resume_handle","inout"]])
-
-=end
-
-		client.railgun.add_function(
-			'netapi32', 'NetServerEnum', 'DWORD',
-			[
-				["PBLOB","servername","in"], ["DWORD","level","in"], ["PDWORD","bufptr","out"],
-				["DWORD","prefmaxlen","in"], ["PDWORD","entriesread","out"], ["PDWORD","totalentries","out"],
-				["DWORD","servertype","in"], ["PWCHAR","domain","in"], ["DWORD","resume_handle","inout"]
-			]
-		)
-
-		client.railgun.add_function(
-			'ws2_32', 'getaddrinfo', 'DWORD',
-			[
-				["PCHAR","pNodeName","in"], ["PCHAR","pServiceName","in"],
-				["PDWORD","pHints","in"], ["PDWORD","ppResult","out"]
-			]
-		)
 
 		domain = nil
 

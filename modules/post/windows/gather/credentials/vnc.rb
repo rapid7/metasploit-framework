@@ -7,8 +7,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -226,24 +226,34 @@ class Metasploit3 < Msf::Post
 					e[:port] = 5900
 				end
 				print_good("#{e[:name]} => #{e[:hash]} => #{e[:pass]} on port: #{e[:port]}")
+				if session.db_record
+					source_id = session.db_record.id
+				else
+					source_id = nil
+				end
 				report_auth_info(
 					:host  => session.sock.peerhost,
 					:sname => 'vnc',
 					:pass  => "#{e[:pass]}",
 					:port => "#{e[:port]}",
-					:source_id => session.db_record.id,
+					:source_id => source_id,
 					:source_type => "exploit",
 					:type => 'password'
 				)
 			end
 			if e[:viewonly_pass] != nil
 				print_good("VIEW ONLY: #{e[:name]} => #{e[:viewonly_hash]} => #{e[:viewonly_pass]} on port: #{e[:port]}")
+				if session.db_record
+					source_id = session.db_record.id
+				else
+					source_id = nil
+				end
 				report_auth_info(
 					:host  => session.sock.peerhost,
 					:sname => 'vnc',
 					:viewonly_pass  => "#{e[:viewonly_pass]}",
 					:port => "#{e[:port]}",
-					:source_id => session.db_record.id,
+					:source_id => source_id,
 					:source_type => "exploit",
 					:type => 'password_ro'
 				)

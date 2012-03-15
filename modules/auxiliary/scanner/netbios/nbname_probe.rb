@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -109,6 +109,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		@results.keys.each do |ip|
+			next unless inside_workspace_boundary?(ip)
 			host = @results[ip]
 			user = ""
 			os   = "Windows"
@@ -255,15 +256,17 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			inf << maddr
 
-			report_service(
-				:host  => addr,
-				:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
-				:host_name => (hname) ? hname.downcase : nil,
-				:port  => pkt[2],
-				:proto => 'udp',
-				:name  => 'NetBIOS',
-				:info  => inf
-			)
+			if inside_workspace_boundary?(addr)
+				report_service(
+					:host  => addr,
+					:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
+					:host_name => (hname) ? hname.downcase : nil,
+					:port  => pkt[2],
+					:proto => 'udp',
+					:name  => 'netbios',
+					:info  => inf
+				)
+			end
 		when 0x20
 			1.upto(rlen / 6.0) do
 				tflag = buff.slice!(0,2).unpack('n')[0]

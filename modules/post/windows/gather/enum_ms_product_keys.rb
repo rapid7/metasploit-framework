@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Post
 				'Name'          => 'Windows Gather Product Key',
 				'Description'   => %q{ This module will enumerate the OS license key },
 				'License'       => MSF_LICENSE,
-				'Author'        => [ 'Brandon Perry'],
+				'Author'        => [ 'Brandon Perry <bperry.volatile[at]gmail.com>'],
 				'Version'         => '$Revision$',
 				'Platform'      => [ 'windows' ],
 				'SessionTypes'  => [ 'meterpreter' ]

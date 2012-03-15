@@ -64,6 +64,12 @@ module OperatingSystems
 	FREEBSD = "FreeBSD"
 	NETBSD  = "NetBSD"
 	OPENBSD = "OpenBSD"
+	VMWARE  = "VMware"
+
+	module VmwareVersions
+		ESX   = "ESX"
+		ESXI  = "ESXi"
+	end
 
 	module WindowsVersions
 		NT    = "NT"

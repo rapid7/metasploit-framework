@@ -377,6 +377,21 @@ class Module
 	end
 
 	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
+		end
+
+		nil
+	end
+	
+	#
 	# Returns the current workspace
 	#
 	def workspace
@@ -690,6 +705,8 @@ class Module
 							if not match and self.respond_to?(:targets) and self.targets
 								match = [t,w] if self.targets.map{|x| x.name}.any? { |t| t =~ r }
 							end
+						when 'port'
+							match = [t,w] if self.datastore['RPORT'].to_s =~ r
 						when 'type'
 							match = [t,w] if (w == "exploit" and is_exploit)
 							match = [t,w] if (w == "auxiliary" and is_auxiliary)

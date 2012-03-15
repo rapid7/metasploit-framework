@@ -1,41 +1,5 @@
 #include "precomp.h"
 
-#ifndef _WIN32
-/*
- * Determine the interfaces MAC address by interface name. It seems that libpcap does not
- * support this natively?
- */
-
-DWORD get_interface_mac_addr(char *interface, unsigned char *mac)
-{
-	struct ifreq ifr;
-	int fd = -1;
-	DWORD result = ERROR_NOT_SUPPORTED;
-
-	memset(mac, 0, 6);
-	memset(&ifr, 0, sizeof(struct ifreq));
-	strncpy(ifr.ifr_name, interface, sizeof(ifr.ifr_name)-1);
-	
-	do {
-		fd = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-		if(fd == -1) break;	
-
-		if(ioctl(fd, SIOCGIFHWADDR, &ifr) == -1) {
-			if(errno) result = errno;
-			break;
-		}
-
-		memcpy(mac, ifr.ifr_hwaddr.sa_data, 6);
-		result = 0;
-	} while(0);
-
-	if(fd != -1) close(fd);
-
-	return result;
-}
-
-#endif
-
 /*
  * Returns zero or more local interfaces to the requestor
  */
@@ -46,11 +10,12 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 	DWORD entryCount;
 
 #ifdef _WIN32
-	Tlv entries[5];
+	Tlv entries[6];
 	PMIB_IPADDRTABLE table = NULL;
 	DWORD tableSize = sizeof(MIB_IPADDRROW) * 33;
 	DWORD index;
-
+	DWORD mtu_bigendian;
+	DWORD interface_index_bigendian;
 	MIB_IFROW iface;
 
 	do
@@ -76,6 +41,12 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 		{
 			entryCount = 0;
 
+			interface_index_bigendian = htonl(table->table[index].dwIndex);
+			entries[entryCount].header.length = sizeof(DWORD);
+			entries[entryCount].header.type   = TLV_TYPE_INTERFACE_INDEX;
+			entries[entryCount].buffer        = (PUCHAR)&interface_index_bigendian;
+			entryCount++;
+
 			entries[entryCount].header.length = sizeof(DWORD);
 			entries[entryCount].header.type   = TLV_TYPE_IP;
 			entries[entryCount].buffer        = (PUCHAR)&table->table[index].dwAddr;
@@ -94,6 +65,12 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 				entries[entryCount].header.length = iface.dwPhysAddrLen;
 				entries[entryCount].header.type   = TLV_TYPE_MAC_ADDR;
 				entries[entryCount].buffer        = (PUCHAR)iface.bPhysAddr;
+				entryCount++;
+
+				mtu_bigendian = htonl(iface.dwMtu);
+				entries[entryCount].header.length = sizeof(DWORD);
+				entries[entryCount].header.type   = TLV_TYPE_INTERFACE_MTU;
+				entries[entryCount].buffer        = (PUCHAR)&mtu_bigendian;
 				entryCount++;
 
 				if (iface.bDescr)
@@ -116,90 +93,63 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 		free(table);
 
 #else
-	Tlv entries[5]; // xxx, we can probably support more. ip aliases, etc.
-	char errbuf[PCAP_ERRBUF_SIZE+4];
-	pcap_if_t *interfaces, *iter;
-	pcap_addr_t *addresses; 
-	unsigned char mac[6];
+	struct ifaces_list *ifaces = NULL;
+	int i;
+	int if_error;
+	uint32_t interface_index_bigendian, mtu_bigendian;
+	Tlv entries[9];
 
-	interfaces = iter = NULL;
+	if_error = netlink_get_interfaces(&ifaces);
 
-	memset(entries, 0, sizeof(entries));
+	if (if_error) {
+		result = if_error;
+	} else {
+		for (i = 0; i < ifaces->entries; i++) {
 
-	do {
-		if(pcap_findalldevs(&interfaces, errbuf) == -1) {
-			result = ENOMEM; // xxx, send errbuf to remote 
-			break;
-		}
+			entries[0].header.length = strlen(ifaces->ifaces[i].name)+1;
+			entries[0].header.type   = TLV_TYPE_MAC_NAME;
+			entries[0].buffer        = (PUCHAR)ifaces->ifaces[i].name;
 
-		for(iter = interfaces; iter != NULL ; iter = iter->next ) {
-			entryCount = 0;
+			entries[1].header.length = 6;
+			entries[1].header.type   = TLV_TYPE_MAC_ADDR;
+			entries[1].buffer        = (PUCHAR)ifaces->ifaces[i].hwaddr;
 
-			if(strcmp(iter->name, "any") == 0) continue;
+			entries[2].header.length = sizeof(__u32);
+			entries[2].header.type   = TLV_TYPE_IP;
+			entries[2].buffer        = (PUCHAR)&ifaces->ifaces[i].addr;
 
-			dprintf("[%s] Processing %s", __FUNCTION__, iter->name);
+			entries[3].header.length = sizeof(__u32);
+			entries[3].header.type   = TLV_TYPE_NETMASK;
+			entries[3].buffer        = (PUCHAR)&ifaces->ifaces[i].netmask;
 
-			entries[entryCount].header.length = strlen(iter->name)+1;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_NAME;
-			entries[entryCount].buffer        = (PUCHAR)iter->name;
-			entryCount++;
+			entries[4].header.length = sizeof(__u128);
+			entries[4].header.type   = TLV_TYPE_IP6;
+			entries[4].buffer        = (PUCHAR)&ifaces->ifaces[i].addr6;
 
-			for(addresses = iter->addresses ; addresses != NULL ; addresses = addresses->next) {
-				struct sockaddr_in *sin;
+			entries[5].header.length = sizeof(__u128);
+			entries[5].header.type   = TLV_TYPE_NETMASK6;
+			entries[5].buffer        = (PUCHAR)&ifaces->ifaces[i].netmask6;
 
-				dprintf("[%s/%s] addr = %p, netmask = %p, broadaddr = %p, dstaddr = %p", __FUNCTION__, iter->name);
-				dprintf("[%s/%s] addresses->addr.sa_family = %d", __FUNCTION__, iter->name, addresses->addr->sa_family);				
+			mtu_bigendian            = htonl(ifaces->ifaces[i].mtu);
+			entries[6].header.length = sizeof(uint32_t);
+			entries[6].header.type   = TLV_TYPE_INTERFACE_MTU;
+			entries[6].buffer        = (PUCHAR)&mtu_bigendian;
 
-				if(addresses->addr == NULL) {
-					dprintf("[%s/%s] addresses->addr = NULL ?", __FUNCTION__, iter->name);
-					break;
-				}
+			entries[7].header.length = strlen(ifaces->ifaces[i].flags)+1;
+			entries[7].header.type   = TLV_TYPE_INTERFACE_FLAGS;
+			entries[7].buffer        = (PUCHAR)ifaces->ifaces[i].flags;
 
-				if(addresses->addr->sa_family == AF_INET) {
-					sin = (struct sockaddr_in *)(addresses->addr);
-
-					entries[entryCount].header.length = sizeof(DWORD);
-					entries[entryCount].header.type   = TLV_TYPE_IP;
-					entries[entryCount].buffer	  = (PUCHAR)&sin->sin_addr.s_addr;
-					entryCount++;
-
-					if(addresses->netmask) {
-						sin = (struct sockaddr_in *)(addresses->netmask);
-						entries[entryCount].header.length = sizeof(DWORD);
-						entries[entryCount].header.type   = TLV_TYPE_NETMASK;
-						entries[entryCount].buffer        = (PUCHAR)&sin->sin_addr.s_addr;
-						entryCount++;
-					}
-
-
-
-					break;
-				}
-
-			}
+			interface_index_bigendian = htonl(ifaces->ifaces[i].index);
+			entries[8].header.length = sizeof(uint32_t);
+			entries[8].header.type   = TLV_TYPE_INTERFACE_INDEX;
+			entries[8].buffer        = (PUCHAR)&interface_index_bigendian;
 			
-			get_interface_mac_addr(iter->name, mac);
-
-			entries[entryCount].header.length = 6;
-			entries[entryCount].header.type   = TLV_TYPE_MAC_ADDR;
-			entries[entryCount].buffer        = (PUCHAR)(mac);
-			entryCount++;
-			
-
-			dprintf("[%s] adding response with %d entries", __FUNCTION__, entryCount);
-			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, entryCount);
-			dprintf("[%s] done with adding", __FUNCTION__);
+			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE, entries, 9);
 		}
-		
-	} while(0);
-
-	if(interfaces) {
-		dprintf("[%s] calling pcap_freealldevs()", __FUNCTION__);
-		pcap_freealldevs(interfaces);
 	}
 
-	dprintf("[%s] and done!", __FUNCTION__);
-
+	if (ifaces)
+		free(ifaces);
 #endif
 
 	// Transmit the response if valid
@@ -207,3 +157,7 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 
 	return result;
 }
+
+
+
+

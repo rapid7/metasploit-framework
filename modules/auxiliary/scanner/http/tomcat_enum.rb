@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 				Opt::RPORT(8080),
 				OptString.new('URI', [true, 'The path of the Apache Tomcat Administration page', '/admin/j_security_check']),
 				OptPath.new('USER_FILE',  [ true, "File containing users, one per line",
-					File.join(Msf::Config.install_root, "data", "wordlists", "unix_users.txt") ]),
+					File.join(Msf::Config.install_root, "data", "wordlists", "tomcat_mgr_default_users.txt") ]),
 			], self.class)
 
 		deregister_options('PASSWORD','PASS_FILE','USERPASS_FILE','STOP_ON_SUCCESS','BLANK_PASSWORDS','USERNAME')

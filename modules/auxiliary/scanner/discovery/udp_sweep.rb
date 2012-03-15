@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -52,7 +52,9 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_sentinel'
 		@probes << 'probe_pkt_db2disco'
 		@probes << 'probe_pkt_citrix'
-
+		@probes << 'probe_pkt_pca_st'
+		@probes << 'probe_pkt_pca_nq'
+		
 	end
 
 	def setup
@@ -71,7 +73,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Fingerprint a single host
 	def run_batch(batch)
-
+		@results = {}
+		
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
 		begin
@@ -97,7 +100,8 @@ class Metasploit3 < Msf::Auxiliary
 
 					if (idx % 30 == 0)
 						while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-							parse_reply(r)
+							reply_addr = r[1].split(':').last
+							parse_reply(r) if batch.include? reply_addr
 						end
 					end
 
@@ -109,7 +113,8 @@ class Metasploit3 < Msf::Auxiliary
 			del = 10
 			sts = Time.now.to_i
 			while (r = udp_sock.recvfrom(65535, del) and r[1])
-				parse_reply(r)
+				reply_addr = r[1].split(':').last
+				parse_reply(r) if batch.include? reply_addr
 
 				# Prevent an indefinite loop if the targets keep replying
 				cnt += 1
@@ -126,13 +131,41 @@ class Metasploit3 < Msf::Auxiliary
 		rescue ::Errno::ENOBUFS
 			print_status("Socket buffers are full, waiting for them to flush...")
 			while (r = udp_sock.recvfrom(65535, 0.1) and r[1])
-				parse_reply(r)
+				reply_addr = r[1].split(':').last
+				parse_reply(r) if batch.include? reply_addr
 			end
 			select(nil, nil, nil, 0.25)
 			retry
 		rescue ::Exception => e
 			print_error("Unknown error: #{e.class} #{e}")
 		end
+		
+		@results.each_key do |k|
+			next if not @results[k].respond_to?('keys')
+			data = @results[k]
+			
+			next unless inside_workspace_boundary?(data[:host])
+			
+			conf = {
+				:host  => data[:host],
+				:port  => data[:port],
+				:proto => 'udp',
+				:name  => data[:app],
+				:info  => data[:info]
+			}
+			
+			if data[:hname]
+				conf[:host_name] = data[:hname].downcase
+			end
+
+			if data[:mac]
+				conf[:mac] = data[:mac].downcase
+			end
+			
+			report_service(conf)
+			print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
+		end
+				
 	end
 
 
@@ -140,8 +173,6 @@ class Metasploit3 < Msf::Auxiliary
 	# The response parsers
 	#
 	def parse_reply(pkt)
-
-		@results ||= {}
 
 		# Ignore "empty" packets
 		return if not pkt[1]
@@ -152,12 +183,67 @@ class Metasploit3 < Msf::Auxiliary
 
 		# Ignore duplicates
 		hkey = "#{pkt[1]}:#{pkt[2]}"
-		return if @results[hkey]
+
 
 		app = 'unknown'
 		inf = ''
 		maddr = nil
 		hname = nil
+		
+		
+		# Work with protocols that return different data in different packets
+		# These are reported at the end of the scanning loop to build state
+		case pkt[2]
+			when 5632
+
+				@results[hkey] ||= {}
+				data = @results[hkey]
+							
+				data[:app]  = "pcAnywhere"
+				data[:port] = pkt[2]
+				data[:host] = pkt[1]
+
+				case pkt[0]
+				
+				when /^NR(........................)(........)/
+					name = $1.dup
+					caps = $2.dup		
+					name = name.gsub(/_+$/, '').gsub("\x00", '').strip
+					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
+					data[:name] = name
+					data[:caps] = caps
+			
+				when /^ST(.+)/
+					buff = $1.dup
+					stat = 'Unknown'
+			
+					if buff[2,1].unpack("C")[0] == 67
+						stat = "Available"
+					end
+			
+					if buff[2,1].unpack("C")[0] == 11
+						stat = "Busy"
+					end
+			
+					data[:stat] = stat
+				end	
+				
+				if data[:name]
+					inf << "Name: #{data[:name]} "
+				end
+			
+				if data[:stat]
+					inf << "- #{data[:stat]} "
+				end
+
+				if data[:caps]
+					inf << "( #{data[:caps]} ) "
+				end	
+				data[:info] = inf			
+		end
+		
+		# Ignore duplicates
+		return if @results[hkey]
 
 		case pkt[2]
 
@@ -174,6 +260,8 @@ class Metasploit3 < Msf::Auxiliary
 
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
+				
+				@results[hkey] = true
 
 			when 137
 				app = 'NetBIOS'
@@ -218,6 +306,8 @@ class Metasploit3 < Msf::Auxiliary
 						hname = names[0][0]
 					end
 				end
+				
+				@results[hkey] = true
 
 			when 111
 				app = 'Portmap'
@@ -238,6 +328,8 @@ class Metasploit3 < Msf::Auxiliary
 					)
 				end
 				inf = svc.join(", ")
+				
+				@results[hkey] = true
 
 			when 123
 				app = 'NTP'
@@ -248,6 +340,8 @@ class Metasploit3 < Msf::Auxiliary
 				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
+				
+				@results[hkey] = true
 
 			when 1434
 				app = 'MSSQL'
@@ -255,6 +349,8 @@ class Metasploit3 < Msf::Auxiliary
 					inf += k+'='+v+' '
 				}
 
+				@results[hkey] = true
+				
 			when 161
 				app = 'SNMP'
 				asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
@@ -272,20 +368,25 @@ class Metasploit3 < Msf::Auxiliary
 				inf = snmp_info
 				com = snmp_comm
 
+				@results[hkey] = true				
+
 			when 5093
 				app = 'Sentinel'
-
+				@results[hkey] = true
+				
 			when 523
-
 				app = 'ibm-db2'
 				inf = db2disco_parse(pkt[0])
-
+				@results[hkey] = true
+				
 			when 1604
 				app = 'citrix-ica'
 				return unless citrix_parse(pkt[0])
+				@results[hkey] = true				
 
 		end
 
+		return unless inside_workspace_boundary?(pkt[1])
 		report_service(
 			:host  => pkt[1],
 			:mac   => (maddr and maddr != '00:00:00:00:00:00') ? maddr : nil,
@@ -298,7 +399,6 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		print_status("Discovered #{app} on #{pkt[1]}:#{pkt[2]} (#{inf})")
-
 	end
 
 	#
@@ -447,7 +547,14 @@ class Metasploit3 < Msf::Auxiliary
 			"\x00\x00\x00\x00"
 		return [data, 1604]
 	end
-
+	
+	def probe_pkt_pca_st(ip)
+		return ["ST", 5632]
+	end
+	
+	def probe_pkt_pca_nq(ip)
+		return ["NQ", 5632]
+	end	
 
 end
 

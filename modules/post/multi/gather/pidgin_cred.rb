@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -54,6 +54,7 @@ class Metasploit3 < Msf::Post
 			@platform = :osx
 			paths = enum_users_unix
 		when /win/
+			@platform = :win
 			profiles = grab_user_profiles()
 			profiles.each do |user|
 				next if user['AppData'] == nil
@@ -64,7 +65,7 @@ class Metasploit3 < Msf::Post
 			print_error "Unsupported platform #{session.platform}"
 			return
 		end
-		if paths.empty?
+		if paths.nil? or paths.empty?
 			print_status("No users found with a .purple directory")
 			return
 		end
@@ -111,14 +112,22 @@ class Metasploit3 < Msf::Post
 
 
 	def check_pidgin(purpledir)
+        path = ""
 		print_status("Checking for Pidgin profile in: #{purpledir}")
 		session.fs.dir.foreach(purpledir) do |dir|
 			if dir =~ /\.purple/
-				print_status("Found #{purpledir}#{dir}")
-				return "#{purpledir}#{dir}"
+				if @platform == :win
+					print_status("Found #{purpledir}\\#{dir}")
+					path = "#{purpledir}\\#{dir}"
+				else
+					print_status("Found #{purpledir}/#{dir}")
+					path = "#{purpledir}/#{dir}"
+				end
+				return path
 			end
 		end
 		return nil
+		endreturn nil
 	end
 
 	def get_pidgin_creds(paths)
