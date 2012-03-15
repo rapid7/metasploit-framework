@@ -35,7 +35,7 @@ module Metasploit3
 				{
 					'Offsets' =>
 						{
-							'CPORT' => [ 29, 'n' ],
+							'CPORT' => [ 32, 'n' ],
 						},
 
                                         'Assembly' => <<EOS
@@ -49,8 +49,8 @@ find_port:
        push 0x34     ; getpeername
        pop rax
        syscall
-       cmp word [rsi+2],0x4142
        inc rdi
+       cmp word [rsi+2],0x4142
        jne find_port
        dec rdi
        push 2
