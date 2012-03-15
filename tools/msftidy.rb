@@ -86,6 +86,19 @@ def check_single_file(dparts, fparts, f_rel)
 		end
 	end
 
+	# Check title format
+	if content =~ /'Name'\s+=>\s[\x22\x27](.+)[\x22\x27],\s*$/
+		name = $1
+		words = $1.split
+		[words.first, words.last].each do |word|
+			if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
+				next if word =~ /php[A-Z]/
+				next if %w{iseemedia activePDF freeFTPd osCommerce myBB}.include? word
+				show_missing(f, "WARNING: bad capitalization in module title: #{word}", false)
+			end
+		end
+	end
+
 	# If an exploit module mentinos the word "stack overflow", chances are they mean "stack buffer overflow".
 	# "stack overflow" means "stack exhaustion".  See explanation:
 	# http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
