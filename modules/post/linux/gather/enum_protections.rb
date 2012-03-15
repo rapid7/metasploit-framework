@@ -32,8 +32,9 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        =>
 				[
-					'ohdae <bindshell[at]live.com>'
+					'ohdae <bindshell[at]live.com>',
 				],
+			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux' ],
 			'SessionTypes'  => [ 'shell' ]
 		))
@@ -42,13 +43,12 @@ class Metasploit3 < Msf::Post
 	def run
 		distro = get_sysinfo
 		h = get_host
-
 		print_status("Running module against #{h}")
 		print_status("Info:")
 		print_status("\t#{distro[:version]}")
 		print_status("\t#{distro[:kernel]}")
-
-		print_status("Finding installed applications...")
+		
+		vprint_status("Finding installed applications...")
 		find_apps
 	end
 
@@ -63,11 +63,13 @@ class Metasploit3 < Msf::Post
 		return host
 	end
 
-	def which(env_paths, cmd)
-		for path in env_paths
-			if "#{cmd}" == cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
-				return "#{path}/#{cmd}"
-			end
+	def which(cmd)
+		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
+		ENV['PATH'].split(::File::PATH_SEPARATOR).each do |path|
+			exts.each { |ext|
+				exe = "#{path}/#{cmd}#{ext}"
+				return exe if ::File.executable? exe
+			}
 		end
 		return nil
 	end
@@ -77,19 +79,17 @@ class Metasploit3 < Msf::Post
 			"truecrypt", "bulldog", "ufw", "iptables", "logrotate", "logwatch",
 			"chkrootkit", "clamav", "snort", "tiger", "firestarter", "avast", "lynis",
 			"rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
-			"psad", "wireshark", "nagios", "nagios", "apparmor", "honeyd", "thpot"
+			"psad", "wireshark", "nagios", "nagios", "apparmor"
 		]
 
-		env_paths = cmd_exec("echo $PATH").split(":")
-
 		apps.each do |a|
-			output = which(env_paths, a)
+			output = which("#{a}")
  			if output
 				print_good("#{a} found: #{output}")
 
 				report_note(
 					:host_name => get_host,
-					:type      => "linux.protection",
+					:type      => "protection",
 					:data      => output,
 					:update    => :unique_data
 				)
