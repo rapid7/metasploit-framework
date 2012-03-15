@@ -31,7 +31,11 @@ class Metasploit3 < Msf::Auxiliary
 			'License'        => MSF_LICENSE
 		)
 
-		register_options([Opt::RPORT(443)], self.class)
+		register_options([Opt::RPORT(443),
+			OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
+		], self.class)
+		
+		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
 
@@ -44,14 +48,13 @@ class Metasploit3 < Msf::Auxiliary
 			</RetrieveServiceContent>
 			</env:Body>
 			</env:Envelope>|
-		datastore['URI'] ||= "/sdk"
-		res = nil
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URI'],
 				'method'  => 'POST',
 				'agent'   => 'VMware VI Client',
-				'data' =>  soap_data
+				'data' =>  soap_data,
+				'headers' => { 'SOAPAction' => @soap_action}
 			}, 25)
 		rescue ::Rex::ConnectionError => e
 			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
