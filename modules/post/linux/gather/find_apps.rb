@@ -90,10 +90,12 @@ class Metasploit3 < Msf::Post
                	"rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
 		 "psad", "wireshark", "nagios", "nagios", "apparmor"]
 
-		for items in apps
-			output = which(items)
-			installed += [output] unless [output] == nil
-
+		apps.each do |a|
+			output = which("#{a}")
+			if output
+				found = (output + "\n")
+				installed << found
+			end
 		end
 		save("Installed applications:", installed) unless installed == nil
 	end
