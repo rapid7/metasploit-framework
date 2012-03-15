@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'NetDecision NOCVision Server Directory Traversal',
 			'Description'    => %q{
 					This module exploits a directory traversal bug in NetDecision's
-				TrafficGrapherServer.exe service.  This is doen by using "...\" in
+				TrafficGrapherServer.exe service.  This is done by using "...\" in
 				the path to retrieve a file on a vulnerable machine.
 			},
 			'References'     =>
