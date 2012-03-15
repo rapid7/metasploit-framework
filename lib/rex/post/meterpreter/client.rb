@@ -104,6 +104,7 @@ class Client
 		self.alive        = true
 		self.target_id    = opts[:target_id]
 		self.capabilities = opts[:capabilities] || {}
+		self.commands     = []
 
 
 		self.conn_id      = opts[:conn_id]
@@ -296,7 +297,8 @@ class Client
 	# registered extension that can be reached through client.ext.[extension].
 	#
 	def add_extension(name, commands=[])
-		puts commands.join"\n"
+		self.commands |= commands
+
 		# Check to see if this extension has already been loaded.
 		if ((klass = self.class.check_ext_hash(name.downcase)) == nil)
 			old = Rex::Post::Meterpreter::Extensions.constants
@@ -459,10 +461,15 @@ class Client
 	# Flag indicating whether to hex-encode UTF-8 file names and other strings
 	#
 	attr_accessor :encode_unicode
+	#
+	# A list of the commands
+	#
+	attr_reader :commands
 
 protected
 	attr_accessor :parser, :ext_aliases # :nodoc:
 	attr_writer   :ext, :sock # :nodoc:
+	attr_writer   :commands # :nodoc:
 end
 
 end; end; end
