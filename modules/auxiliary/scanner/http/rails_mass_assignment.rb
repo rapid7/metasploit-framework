@@ -18,13 +18,13 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'          => 'Ruby On Rails Attributes Mass Assignment scaner',
+			'Name'          => 'Ruby On Rails Attributes Mass Assignment Scanner',
 			'Description'   => %q{
 				This module scans Ruby On Rails sites for
 				models with attributes not protected by attr_protected or attr_accessible.
-				After attempt to assing nonexistent field in model
-				default rails + active_record setup will raise ActiveRecord::UnknownAttributeError
-				exeption and answer with HTTP code 500.
+				After attempting to assign a non-existent field, the default rails with
+				active_record setup will raise an ActiveRecord::UnknownAttributeError
+				exeption, and reply with HTTP code 500.
 			},
 
 			'References'     =>
@@ -55,11 +55,11 @@ class Metasploit3 < Msf::Auxiliary
 		data_base_params = get_base_params(parsed_data)
 
 		if data_base_params.blank?
-			vprint_error('Non-standart rails params schema (maybe not a RoR website)')
+			vprint_error("#{ip} - Non-standart rails params schema (maybe not a RoR website)")
 			return
 		end
 
-		check_data(parsed_data, data_base_params)
+		check_data(ip, parsed_data, data_base_params)
 	end
 
 	def get_base_params(parsed_query_string)
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 		return base_params_names.uniq
 	end
 
-	def check_data(parsed_data, base_params)
+	def check_data(ip, parsed_data, base_params)
 		base_params.each do |param|
 			query = parsed_data.dup
 			test_param = { param + "[#{Rex::Text.rand_text_alpha(10)}]" => Rex::Text.rand_text_alpha(10) }
@@ -88,7 +88,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, 20)
 
 			if resp.code == 500
-				print_good("Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
+				print_good("#{ip} - Possible attributes mass assignment in attribute #{param}[...] at #{datastore['PATH']}")
 				report_web_vuln(
 					:host   => rhost,
 					:port   => rport,
