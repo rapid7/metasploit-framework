@@ -41,13 +41,12 @@ class Metasploit3 < Msf::Post
 	def run
 		distro = get_sysinfo
 
+		get_host
 		print_good("Info:")
 		print_good("\t#{distro[:version]}")
 		print_good("\t#{distro[:kernel]}")
 		
-		#vprint_status("Finding installed applications...")
-		#ruby = which('ruby')
-		#save("Location", ruby)
+		vprint_status("Finding installed applications...")
 		find_apps		
 	
 	end
