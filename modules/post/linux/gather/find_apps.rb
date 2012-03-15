@@ -96,6 +96,6 @@ class Metasploit3 < Msf::Post
 				installed << found
 			end
 		end
-		save("Installed applications:", installed) unless installed == nil
+		save("Installed applications:", installed) unless installed.empty?
 	end
 end
