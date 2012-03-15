@@ -21,16 +21,14 @@ class Metasploit3 < Msf::Post
 	def initialize(info={})
 		super( update_info( info,
 				'Name'          => 'Linux Find Installed AV, Firewalls, Etc',
-				'Description'   => %q{
-					This module tries to find certain installed applications.
-					We are looking for anti-virus, rootkit detection, IDS/IPS,
-					firewalls and other protection mechanisms.
-				},
+				'Description'   => %q{ This module tries to find certain installed applications.
+						       We are looking for anti-virus, rootkit detection, IDS/IPS,
+					               firewalls and other protection mechanisms.
+						     },
 				'License'       => MSF_LICENSE,
-				'Author'        =>
-					[
+				'Author'        => [
 						'ohdae <bindshell[at]live.com>',
-					],
+					           ],
 				'Version'       => '$Revision$',
 				'Platform'      => [ 'linux' ],
 				'SessionTypes'  => [ 'shell' ]
@@ -49,12 +47,6 @@ class Metasploit3 < Msf::Post
 		vprint_status("Finding installed applications...")
 		find_apps		
 	
-	end
-
-	def save(msg, data, ctype="text/plain")
-		ltype = "linux.find.apps"
-		loot = store_loot(ltype, ctype, session, data, nil, msg)
-		print_status("#{msg} stored in #{loot.to_s}")
 	end
 
 	def get_host
@@ -88,13 +80,17 @@ class Metasploit3 < Msf::Post
                	"chkrootkit", "clamav", "snort", "tiger", "firestarter", "avast", "lynis",
                	"rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
 		 "psad", "wireshark", "nagios", "nagios", "apparmor"]
-
+		
 		apps.each do |a|
 			output = which("#{a}")
-			if output
-				installed = puts [output].join("\n")
+ 			if output
+				installed << ("#{a} found: " + output + "\n")
 			end
 		end
-		save("Installed applications:", installed) unless installed.empty?
+		report_note(:host_name => get_host,
+	                :type => "installed_av",
+			:data => installed
+		)
+		print_status("Installed applications saved to notes.")
 	end
 end
