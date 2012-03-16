@@ -24,9 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Enumerate Virtual Machines',
 			'Description'    => %Q{
-				This module attempts to discover virtual machines on any VMWare instance
-				running the web interface. This would include ESX/ESXi and VMWare Server.
-			},
+							This module attempts to discover virtual machines on any VMWare instance
+							running the web interface. This would include ESX/ESXi and VMWare Server.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -38,7 +37,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
 				OptBool.new('SCREENSHOT', [true, "Wheter or not to try to take a screenshot", true])
 			], self.class)
-
+			
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -84,4 +83,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+
+
+
+
 end
+

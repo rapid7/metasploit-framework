@@ -40,7 +40,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('URI', [true, "The default URI to login with", "/sdk"]),
 				Opt::RPORT(443)
 			], self.class)
-
+			
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -133,3 +133,4 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
+

@@ -25,10 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare Enumerate User Accounts',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-				This module will log into the Web API of VMWare and try to enumerate
-				all the user accounts. If the VMware instance is connected to one or
-				more domains, it will try to enumerate domain users as well.
-			},
+							This module will log into the Web API of VMWare and try to enumerate
+							all the user accounts. If the VMware instance is connected to one or
+							more domains, it will try to enumerate domain users as well.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -39,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
 			], self.class)
-
+			
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -136,4 +135,8 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+
+
+
 end
+
