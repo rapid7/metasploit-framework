@@ -6,7 +6,7 @@ $:.push "test/lib" unless $:.include? "test/lib"
 #require 'module_test'
 load 'test/lib/module_test.rb'
 
-class Metasploit3 < Msf::Post
+class Metasploit4 < Msf::Post
 
 	include Msf::ModuleTest::PostTest
 

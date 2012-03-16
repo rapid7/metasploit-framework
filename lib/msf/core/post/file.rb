@@ -4,6 +4,34 @@ class Post
 
 module File
 
+	def file_exist?(file)
+		if session.type == "meterpreter"
+			stat = session.fs.file.stat(file) rescue nil
+			return false unless stat
+			return stat.file?
+		else
+			if session.platform =~ /win/
+				# XXX
+			else
+				f = cmd_exec("test -f '#{file}' && echo true")
+				return false if f.nil? or f.empty?
+				return true
+			end
+		end
+	end
+
+	def file_rm(file)
+		if session.type == "meterpreter"
+			session.fs.file.rm(file)
+		else
+			if session.platform =~ /win/
+				session.shell_command_token("del \"#{file}\"")
+			else
+				session.shell_command_token("rm -f '#{file}'")
+			end
+		end
+	end
+
 	#
 	# Writes a given string to a file specified
 	#
@@ -109,7 +137,7 @@ module File
 		if session.type == "meterpreter"
 			data = read_file_meterpreter(file_name)
 		elsif session.type == "shell"
-			if session.platform == "windows"
+			if session.platform =~ /win/
 				data = session.shell_command_token("type \"#{file_name}\"")
 			else
 				data = session.shell_command_token("cat \'#{file_name}\'")
@@ -129,7 +157,7 @@ module File
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			if session.platform == "windows"
+			if session.platform =~ /win/
 				session.shell_command_token("echo #{data} > \"#{file_name}\"")
 			else
 				session.shell_command_token("echo \'#{data}\' > \'#{file_name}\'")
@@ -149,7 +177,7 @@ module File
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
-			if session.platform == "windows"
+			if session.platform =~ /win/
 				session.shell_command_token("echo #{data} >> \"#{file_name}\"")
 			else
 				session.shell_command_token("echo \'#{data}\' >> \'#{file_name}\'")
