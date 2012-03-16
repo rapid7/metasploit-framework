@@ -845,12 +845,9 @@ protected
 	end
 
 	def tab_complete_postmods
-		# XXX This might get slow with a large number of post
-		# modules.  The proper solution is probably to implement a
-		# Module::Post#session_compatible?(session_object_or_int) method
 		tabs = client.framework.modules.post.map { |name,klass|
 			mod = klass.new
-			if mod.compatible_sessions.include?(client.sid)
+			if mod.session_compatible?(client)
 				mod.fullname.dup
 			else
 				nil
