@@ -37,6 +37,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
 			], self.class)
+			
+		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
 
@@ -54,7 +56,12 @@ class Metasploit3 < Msf::Auxiliary
 				output = ''
 				vim_sessions.each do |vsession| 
 					tmp_line = "Name: #{vsession['fullName']} \n\t"
-					tmp_line << "Active: #{vim_session_is_active(vsession['key'],vsession['userName'])} \n\t"
+					is_active = vim_session_is_active(vsession['key'],vsession['userName'])
+					if is_active == :error
+						tmp_line << "Active: N/A \n\t"
+					else
+						tmp_line << "Active: #{is_active} \n\t"
+					end
 					tmp_line << "Username: #{vsession['userName']}\n\t"
 					tmp_line << "Session Key: #{vsession['key']}\n\t"
 					tmp_line << "Locale: #{vsession['locale']}\n\t"

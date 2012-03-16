@@ -38,6 +38,8 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
 				OptBool.new('HW_DETAILS', [true, "Enumerate the Hardware on the system as well?", false])
 			], self.class)
+			
+		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
 	def run_host(ip)
