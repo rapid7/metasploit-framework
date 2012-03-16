@@ -20,12 +20,17 @@ class Metasploit4 < Msf::Post
 
 	def test_file
 		it "should test for existence" do
-			case session.platform
-			when /win/
-				file_exist?("c:\\boot.ini")
-			else
-				file_exist?("/etc/passwd")
-			end
+			ret = false
+			[
+				"c:\\boot.ini",
+				"c:\\pagefile.sys",
+				"/etc/passwd",
+				"/etc/master.passwd"
+			].each { |file|
+				ret = true if file_exist?(file)
+			}
+
+			ret
 		end
 
 		it "should create files" do
