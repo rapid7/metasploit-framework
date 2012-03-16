@@ -164,6 +164,9 @@ class Metasploit4 < Msf::Post
 			if res
 				session.fs.file.download(remote, remote)
 				res &&= ::File.file? remote
+				downloaded_contents = ::File.read(remote)
+				original_contents = ::File.read(local)
+				res &&= !!(downloaded_contents == original_contents)
 				::File.unlink remote
 			end
 

@@ -8,8 +8,8 @@ class Metasploit4 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-				'Name'          => 'Testing meterpreter stuff',
-				'Description'   => %q{ This module will test meterpreter API methods },
+				'Name'          => 'Testing remote file manipulation',
+				'Description'   => %q{ This module will test Post::File API methods },
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'egypt'],
 				'Version'       => '$Revision$',
@@ -34,19 +34,30 @@ class Metasploit4 < Msf::Post
 		end
 
 		it "should create files" do
-			write_file("foo", "pwned")
+			write_file("pwned", "foo")
 
-			file_exist?("foo")
+			file_exist?("pwned")
 		end
 
 		it "should read files" do
-			read_file("foo") == "pwned"
+			read_file("pwned") == "foo"
+		end
+
+		it "should append files" do
+			ret = true
+			append_file("pwned", "bar")
+
+			ret &&= read_file("pwned") == "foobar"
+			append_file("pwned", "baz")
+			ret &&= read_file("pwned") == "foobarbaz"
+
+			ret
 		end
 
 		it "should delete files" do
-			file_rm("foo")
+			file_rm("pwned")
 
-			not file_exist?("foo")
+			not file_exist?("pwned")
 		end
 
 	end
