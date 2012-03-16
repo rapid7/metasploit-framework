@@ -91,7 +91,6 @@ module File
 	#
 	# Returns a SHA1 checksum of a given remote file
 	#
-
 	def file_remote_digestsha1(file2sha1)
 		data = read_file(file2sha1)
 		chksum = nil
@@ -118,7 +117,6 @@ module File
 	#
 	# Returns a SHA2 checksum of a given remote file
 	#
-
 	def file_remote_digestsha2(file2sha2)
 		data = read_file(file2sha2)
 		chksum = nil
@@ -173,7 +171,7 @@ module File
 	#
 	def append_file(file_name, data)
 		if session.type == "meterpreter"
-			fd = session.fs.file.new(file_name, "wab")
+			fd = session.fs.file.new(file_name, "ab")
 			fd.write(data)
 			fd.close
 		elsif session.respond_to? :shell_command_token
