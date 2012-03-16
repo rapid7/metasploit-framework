@@ -385,7 +385,7 @@ class GroupTlv < Tlv
 	# Synonym for each.
 	#
 	def each_tlv(type = TLV_TYPE_ANY, &block)
-		each(type, block)
+		each(type, &block)
 	end
 
 	#
