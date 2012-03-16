@@ -50,9 +50,8 @@ class Metasploit4 < Msf::Post
 			ifaces = session.net.config.get_interfaces
 			res = !!(ifaces and ifaces.length > 0)
 
-			p session.session_host
 			res &&= !! ifaces.find { |iface|
-				iface.ip == session.session_host || iface.ip6 == session.session_host
+				iface.ip == session.session_host
 			}
 
 			res
@@ -61,7 +60,7 @@ class Metasploit4 < Msf::Post
 		it "should return network routes" do
 			routes = session.net.config.get_routes
 
-			routes[0] and routes[0].length > 0
+			routes and routes.length > 0
 		end
 
 	end
@@ -168,6 +167,7 @@ class Metasploit4 < Msf::Post
 				::File.unlink remote
 			end
 
+			session.fs.file.rm(remote)
 			res
 		end
 

@@ -51,7 +51,11 @@ module ModuleTest::PostTest
 		run_all_tests
 
 		vprint_status("Testing complete.")
-		print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		if (@failures > 0)
+			print_error("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		else
+			print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		end
 	end
 end
 
