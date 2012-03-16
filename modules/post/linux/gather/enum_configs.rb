@@ -24,6 +24,7 @@ class Metasploit3 < Msf::Post
 				applications and services. We are looking for web-servers, SQL servers,
 				authentication platforms, security applications and others.
 				We will check the default locations for these configurations.
+				The conf files that are found will be stored in your loot location.
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        =>
