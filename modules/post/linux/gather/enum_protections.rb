@@ -43,12 +43,13 @@ class Metasploit3 < Msf::Post
 	def run
 		distro = get_sysinfo
 		h = get_host
+
 		print_status("Running module against #{h}")
 		print_status("Info:")
 		print_status("\t#{distro[:version]}")
 		print_status("\t#{distro[:kernel]}")
-		
-		vprint_status("Finding installed applications...")
+
+		print_status("Finding installed applications...")
 		find_apps
 	end
 
@@ -63,13 +64,18 @@ class Metasploit3 < Msf::Post
 		return host
 	end
 
+	def execute(cmd)
+		vprint_status("Execute: #{cmd}")
+		output = cmd_exec(cmd)
+		return output
+	end
+
 	def which(cmd)
-		exts = ENV['PATHEXT'] ? ENV['PATHEXT'].split(';') : ['']
-		ENV['PATH'].split(::File::PATH_SEPARATOR).each do |path|
-			exts.each { |ext|
-				exe = "#{path}/#{cmd}#{ext}"
-				return exe if ::File.executable? exe
-			}
+		paths = execute("echo $PATH").split(':')
+		for path in paths
+			if "#{cmd}" == execute("ls #{path} | grep '#{cmd}'")
+				return "#{path}/#{cmd}"			
+			end
 		end
 		return nil
 	end
@@ -79,7 +85,7 @@ class Metasploit3 < Msf::Post
 			"truecrypt", "bulldog", "ufw", "iptables", "logrotate", "logwatch",
 			"chkrootkit", "clamav", "snort", "tiger", "firestarter", "avast", "lynis",
 			"rkhunter", "tcpdump", "webmin", "jailkit", "pwgen", "proxychains", "bastille",
-			"psad", "wireshark", "nagios", "nagios", "apparmor"
+			"psad", "wireshark", "nagios", "nagios", "apparmor", "honeyd", "thpot"
 		]
 
 		apps.each do |a|
