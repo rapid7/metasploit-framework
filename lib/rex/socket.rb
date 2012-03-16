@@ -494,10 +494,15 @@ module Socket
 
 	#
 	# Converts a bitmask (28) into a netmask (255.255.255.240)
-	# TODO: IPv6 (use is ambiguous right now)
 	#
-	def self.bit2netmask(bitmask)
-		[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
+	def self.bit2netmask(bitmask, ipv6=false)
+		if bitmask > 32 or ipv6
+			i = ((~((2 ** (128 - bitmask)) - 1)) & (2**128-1))
+			n = Rex::Socket.addr_iton(i, true)
+			return Rex::Socket.addr_ntoa(n)
+		else
+			[ (~((2 ** (32 - bitmask)) - 1)) & 0xffffffff ].pack('N').unpack('CCCC').join('.')
+		end
 	end
 
 
