@@ -221,6 +221,9 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 					// return IPv6 addresses. Older versions (e.g. NT4, 2k)
 					// don't have GetAdapterAddresses, so they will have fallen
 					// through earlier to the MIB implementation.
+					free(entries);
+					free(pAdapters);
+					return get_interfaces_windows_mib(remote, response);
 				}
 
 				if (prefixes[prefixes_cnt]) {
