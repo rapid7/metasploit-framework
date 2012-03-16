@@ -126,7 +126,7 @@ class Metasploit3 < Msf::Post
 					sql_hist = cat_file("/home/#{u}/.mysql_history")
 				end
 
-				save("History for #{u}", hist) unless sql_hist =~ /No such file or directory/
+				save("History for #{u}", sql_hist) unless sql_hist =~ /No such file or directory/
 			end
 		else
 			vprint_status("Extracting SQL history for #{user}")
