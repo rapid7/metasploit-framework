@@ -208,9 +208,9 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 				if (pAddr->Length > 44) {
 					// Then this is Vista+ and the OnLinkPrefixLength member
 					// will be populated
-					pPrefix = NULL;
 					prefixes[prefixes_cnt] = htonl(pAddr->OnLinkPrefixLength);
-				} else if (pPrefix) {
+				}
+				if (pPrefix && 0 == prefixes[prefixes_cnt]) {
 					// Otherwise, we have to walk the FirstPrefix linked list
 					prefixes[prefixes_cnt] = htonl(pPrefix->PrefixLength);
 					pPrefix = pPrefix->Next;
@@ -222,7 +222,6 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 					// don't have GetAdapterAddresses, so they will have fallen
 					// through earlier to the MIB implementation.
 				}
-				packet_add_tlv_uint(response, TLV_TYPE_EXIT_CODE, prefixes[prefixes_cnt]);
 
 				if (prefixes[prefixes_cnt]) {
 					entries[tlv_cnt].header.length = 4;
