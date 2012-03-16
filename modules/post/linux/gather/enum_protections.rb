@@ -73,7 +73,7 @@ class Metasploit3 < Msf::Post
 	def which(cmd)
 		paths = execute("echo $PATH").split(':')
 		for path in paths
-			if "#{cmd}" == execute("ls #{path} | grep '#{cmd}'")
+			if "#{cmd}" == execute("/bin/ls #{path} | /bin/grep '#{cmd}'")
 				return "#{path}/#{cmd}"			
 			end
 		end
