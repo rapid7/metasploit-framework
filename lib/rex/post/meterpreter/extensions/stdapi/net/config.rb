@@ -60,6 +60,7 @@ class Config
 		response.each(TLV_TYPE_NETWORK_INTERFACE) { |iface|
 			addrs = []
 			netmasks = []
+			scopes = []
 			while (a = iface.get_tlv_value(TLV_TYPE_IP, addrs.length))
 				# Netmasks aren't tightly associated with addresses, they're
 				# just thrown all together in the interface TLV ordered to
@@ -67,8 +68,20 @@ class Config
 				# GroupTlv type for addresses containing an address, a netmask,
 				# and possibly a scope.
 				n = iface.get_tlv_value(TLV_TYPE_NETMASK, addrs.length)
+				if (n.nil?)
+					# Some systems can't report a netmask, only a network
+					# prefix, so figure out the netmask from that.
+					n = iface.get_tlv_value(TLV_TYPE_IP_PREFIX, addrs.length)
+					if n
+						n = Rex::Socket.bit2netmask(n, !!(a.length == 16))
+					end
+				else
+					n = Rex::Socket.addr_ntoa(n)
+				end
+				s = iface.get_tlv_value(TLV_TYPE_IP6_SCOPE, addrs.length)
+				scopes[addrs.length] = s if s
+				netmasks[addrs.length] = n if n
 				addrs << Rex::Socket.addr_ntoa(a)
-				netmasks << Rex::Socket.addr_ntoa(n) if n
 			end
 			ifaces << Interface.new(
 					:index    => iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
@@ -77,7 +90,8 @@ class Config
 					:mtu      => iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
 					:flags    => iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS),
 					:addrs    => addrs,
-					:netmasks => netmasks
+					:netmasks => netmasks,
+					:scopes   => scopes
 				)
 		}
 

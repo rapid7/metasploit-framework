@@ -1,6 +1,7 @@
 #include "precomp.h"
 
 #ifdef _WIN32
+#include <iptypes.h>
 #include <ws2ipdef.h>
 #endif
 
@@ -101,13 +102,18 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 	//   index, name (description), MAC addr, mtu, flags, IP addr, netmask, maybe scope id
 	// In some cases, the interface will have multiple addresses, so we'll realloc
 	// this when necessary, but this will cover the common case.
-	DWORD allocd_entries = 10;
-	Tlv *entries = (Tlv *)malloc(sizeof(Tlv) * 10);
+	DWORD allocd_entries = 20;
+	Tlv *entries = (Tlv *)malloc(sizeof(Tlv) * 20);
+	int prefixes[30];
+	int prefixes_cnt = 0;
 
 	DWORD mtu_bigendian;
 	DWORD interface_index_bigendian;
 
-	ULONG flags = GAA_FLAG_INCLUDE_PREFIX | GAA_FLAG_SKIP_DNS_SERVER;
+	ULONG flags = GAA_FLAG_INCLUDE_PREFIX
+		| GAA_FLAG_SKIP_DNS_SERVER
+		| GAA_FLAG_SKIP_MULTICAST
+		| GAA_FLAG_SKIP_ANYCAST;
 
 	LPSOCKADDR sockaddr;
 
@@ -117,9 +123,15 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 	ULONG outBufLen = 0;
 	DWORD (WINAPI *gaa)(DWORD, DWORD, void *, void *, void *);
 
-	// Use the larger version so we're guaranteed to have a large enough struct
-	IP_ADAPTER_UNICAST_ADDRESS_LH *pAddr;
-
+	// Use the newer version so we're guaranteed to have a large enough struct.
+	// Unfortunately, using these probably means it won't compile on older
+	// versions of Visual Studio.  =(
+	IP_ADAPTER_UNICAST_ADDRESS_LH *pAddr = NULL;
+	IP_ADAPTER_UNICAST_ADDRESS_LH *pPref = NULL;
+	// IP_ADAPTER_PREFIX is only defined if NTDDI_VERSION > NTDDI_WINXP
+	// Since we request older versions of things, we have to be explicit
+	// when using newer structs.
+	IP_ADAPTER_PREFIX_XP *pPrefix = NULL;
 
 	do
 	{
@@ -170,46 +182,74 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 			entries[tlv_cnt].buffer        = (PUCHAR)&mtu_bigendian;
 			tlv_cnt++;
 
+			if (pCurr->Length > 68) {
+				// Then this is a Longhorn struct version and it contains the
+				// FirstPrefix member, save it for later in case we don't have
+				// an OnLinkPrefixLength
+				pPrefix = pCurr->FirstPrefix;
+			}
 
 			for (pAddr = (void*)pCurr->FirstUnicastAddress; pAddr; pAddr = (void*)pAddr->Next)
 			{
-				// This loop can add up to three Tlv's - one for address, one for scope_id, one for netmask.
-				// Go ahead and allocate enough room for all of them.
+				sockaddr = pAddr->Address.lpSockaddr;
+				if (AF_INET != sockaddr->sa_family && AF_INET6 != sockaddr->sa_family) {
+					// Skip interfaces that aren't IP
+					continue;
+				}
+
+				// This loop can add up to three Tlv's - one for address, one
+				// for scope_id, one for netmask.  Go ahead and allocate enough
+				// room for all of them.
 				if (allocd_entries < tlv_cnt+3) {
 					entries = realloc(entries, sizeof(Tlv) * (tlv_cnt+3));
 					allocd_entries += 3;
 				}
 
-				sockaddr = pAddr->Address.lpSockaddr;
+				if (pAddr->Length > 44) {
+					// Then this is Vista+ and the OnLinkPrefixLength member
+					// will be populated
+					pPrefix = NULL;
+					prefixes[prefixes_cnt] = htonl(pAddr->OnLinkPrefixLength);
+				} else if (pPrefix) {
+					// Otherwise, we have to walk the FirstPrefix linked list
+					prefixes[prefixes_cnt] = htonl(pPrefix->PrefixLength);
+					pPrefix = pPrefix->Next;
+				} else {
+					// This is XP SP0 and as far as I can tell, we have no way
+					// of determining the netmask short of bailing on
+					// this method and falling back to MIB, which doesn't
+					// return IPv6 addresses. Older versions (e.g. NT4, 2k)
+					// don't have GetAdapterAddresses, so they will have fallen
+					// through earlier to the MIB implementation.
+				}
+				packet_add_tlv_uint(response, TLV_TYPE_EXIT_CODE, prefixes[prefixes_cnt]);
+
+				if (prefixes[prefixes_cnt]) {
+					entries[tlv_cnt].header.length = 4;
+					entries[tlv_cnt].header.type = TLV_TYPE_IP_PREFIX;
+					entries[tlv_cnt].buffer = (PUCHAR)&prefixes[prefixes_cnt];
+					tlv_cnt++;
+					prefixes_cnt++;
+				}
+
 				if (sockaddr->sa_family == AF_INET) {
 					entries[tlv_cnt].header.length = 4;
-					entries[tlv_cnt].header.type   = TLV_TYPE_IP;
-					entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in *)sockaddr)->sin_addr);
-					if (pCurr->Length > 68) {
-						tlv_cnt++;
-						entries[tlv_cnt].header.length = 4;
-						entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
-						entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in *)sockaddr)->sin_addr);
-					}
+					entries[tlv_cnt].header.type = TLV_TYPE_IP;
+					entries[tlv_cnt].buffer = (PUCHAR)&(((struct sockaddr_in *)sockaddr)->sin_addr);
+					tlv_cnt++;
+
 				} else {
 					entries[tlv_cnt].header.length = 16;
-					entries[tlv_cnt].header.type   = TLV_TYPE_IP;
-					entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_addr);
-
+					entries[tlv_cnt].header.type = TLV_TYPE_IP;
+					entries[tlv_cnt].buffer = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_addr);
 					tlv_cnt++;
+
 					entries[tlv_cnt].header.length = sizeof(DWORD);
-					entries[tlv_cnt].header.type   = TLV_TYPE_IP6_SCOPE;
-					entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_scope_id);
-
-					if (pCurr->Length > 68) {
-						tlv_cnt++;
-						entries[tlv_cnt].header.length = 16;
-						entries[tlv_cnt].header.type   = TLV_TYPE_NETMASK;
-						entries[tlv_cnt].buffer        = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_addr);
-					}
-
+					entries[tlv_cnt].header.type = TLV_TYPE_IP6_SCOPE;
+					entries[tlv_cnt].buffer = (PUCHAR)&(((struct sockaddr_in6 *)sockaddr)->sin6_scope_id);
+					tlv_cnt++;
 				}
-				tlv_cnt++;
+
 			}
 			// Add the interface group
 			packet_add_tlv_group(response, TLV_TYPE_NETWORK_INTERFACE,
@@ -225,7 +265,7 @@ DWORD get_interfaces_windows(Remote *remote, Packet *response) {
 	return result;
 }
 
-#else
+#else /* _WIN32 */
 int get_interfaces_linux(Remote *remote, Packet *response) {
 	struct ifaces_list *ifaces = NULL;
 	int i;
@@ -339,5 +379,7 @@ DWORD request_net_config_get_interfaces(Remote *remote, Packet *packet)
 
 	return result;
 }
+
+
 
 
