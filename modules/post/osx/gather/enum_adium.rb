@@ -1,12 +1,13 @@
 ##
-# This file is part of the Metasploit Framework and may be subject to
+# ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-#   http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
+
 require 'msf/core/post/common'
 require 'msf/core/post/file'
 
@@ -58,9 +59,8 @@ class Metasploit3 < Msf::Post
 	end
 
 	#
-	# Collect logs files.
-	# Enumerate all the xml files (logs), filter out the ones we want, and then
-	# save each in a hash.
+	# Collect logs files. We'll copy all the log files to a folder, zip it,
+	# and then download it in order to avoid an IOError exception
 	#
 	def get_chatlogs(base)
 		base = "#{base}Logs/"
@@ -224,21 +224,14 @@ class Metasploit3 < Msf::Post
 	# and retry under certain conditions.
 	#
 	def exec(cmd)
-		tries = 0
 		begin
 			out = cmd_exec(cmd).chomp
 		rescue ::Timeout::Error => e
-			tries += 1
-			if tries < 3
-				vprint_error("#{@peer} - #{e.message} - retrying...")
-				retry 
-			end
+			vprint_error("#{@peer} - #{e.message} - retrying...")
+			retry
 		rescue EOFError => e
-			tries += 1
-			if tries < 3
-				vprint_error("#{@peer} - #{e.message} - retrying...")
-				retry
-			end
+			vprint_error("#{@peer} - #{e.message} - retrying...")
+			retry
 		end
 	end
 
