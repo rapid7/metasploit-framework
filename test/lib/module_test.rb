@@ -38,6 +38,10 @@ module ModuleTest
 
 		print_good("#{msg}")
 	end
+
+	def pending(msg="", &block)
+		print_status("PENDING: #{msg}")
+	end
 end
 
 module ModuleTest::PostTest
@@ -51,7 +55,11 @@ module ModuleTest::PostTest
 		run_all_tests
 
 		vprint_status("Testing complete.")
-		print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		if (@failures > 0)
+			print_error("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		else
+			print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		end
 	end
 end
 
