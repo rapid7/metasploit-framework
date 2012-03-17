@@ -1,13 +1,12 @@
 ##
-# ## This file is part of the Metasploit Framework and may be subject to
+# This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
 ##
 
 require 'msf/core'
 require 'rex'
-
 require 'msf/core/post/common'
 require 'msf/core/post/file'
 
