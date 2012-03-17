@@ -17,7 +17,11 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 				'Name'          => 'Check for Linux Kernel Privilege Escalations',
 				'Description'   => %q{
-					This module does stuff
+					This module checks the remote host for the presence of possible
+					local privilege escalation vulnerabilities. We compare the hosts
+					kernel version against a list of known public exploits and then
+					show any results found. The list of known exploits is held within
+					a YAML file in the data directory.
 				},
 				'License'       => MSF_LICENSE,
 				'Author'        =>
@@ -50,22 +54,16 @@ class Metasploit3 < Msf::Post
 #			"linux_info.txt",
 #			"Linux Version")
 
-		# Print the info
 		print_good("Info:")
 		print_good("\t#{info[:version]}")
 		print_good("\t#{kernel}")
 
-		# clean up kernel so it's just the version info
-		# turns out, it's actually easier to just run our own uname (rather than parse get_sysinfo), 
-		# and clean that up
 		kernel_ver = cleanup_kernel_version(session.shell_command_token("uname -r").chomp)
-		#kernel_ver = cleanup_kernel_version("2.4.1") # <--- for testing
 
     	print_status "Checking for exploits for local kernel version #{kernel_ver}"
 		poss_exploits = check_for_exploits(kernel_ver)
 		if ! poss_exploits.empty?
     		print_status "Possible exploits that might work:\n"
-			# A table to display findings
 			exploit_table = Rex::Ui::Text::Table.new(
 				'Header'    => "Possible Exploits",
 				'Indent'    => 1,
@@ -105,19 +103,14 @@ class Metasploit3 < Msf::Post
 	end
 	
 	def check_version(kernel,version_range)
-		#print_good "Comparing #{kernel} against the range #{version_range}"
-		# we assume the kernel version has been cleaned up, handle your bidness
-		# now we convert all the parts of the version to integer so we can properly compare
+		print_good "Comparing #{kernel} against the range #{version_range}"
 		min,max = version_range.split("-") # if no "-" found, max becomes nil
-		max = min unless max # make the max same as the min if no range was given
+		max = min unless max
 		min_arr = convert_to_int_array(min)
 		max_arr = convert_to_int_array(max)
 		kernel_arr = convert_to_int_array(kernel)
-		# now do the actual comparison, comparing each part of the version as an integer
 		good_version = true
 		kernel_arr.each_with_index do |item,idx|
-			# TODO:  What to do if array lengths don't match like 2.4.0.4 against 2.4.0-2.4.22
-			# for now let's punt and call that a success and stop comparing
 			break if min_arr[idx].nil? or max_arr[idx].nil?
 			good_version = false if item < min_arr[idx] or item > max_arr[idx]
 			break unless good_version
@@ -126,13 +119,11 @@ class Metasploit3 < Msf::Post
 	end
 	
 	def convert_to_int_array(kernel_ver)
-		#print_good "Converting #{kernel_ver} to an int array"
 		arr = kernel_ver.split(".")
-		#TODO:  What to do with input like 2.6.32-30, for now, just keep the first part (32)
 		arr.each_with_index do |item,idx|
 			arr[idx] = item.split("-").first.to_i
 		end
-		#print_good "Array is #{arr.inspect}"
+
 		arr
 	end
 end
