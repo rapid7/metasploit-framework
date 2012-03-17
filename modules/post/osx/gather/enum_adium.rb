@@ -58,8 +58,9 @@ class Metasploit3 < Msf::Post
 	end
 
 	#
-	# Collect logs files. We'll copy all the log files to a folder, zip it,
-	# and then download it in order to avoid an IOError exception
+	# Collect logs files.
+	# Enumerate all the xml files (logs), filter out the ones we want, and then
+	# save each in a hash.
 	#
 	def get_chatlogs(base)
 		base = "#{base}Logs/"
