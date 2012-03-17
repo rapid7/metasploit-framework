@@ -32,9 +32,8 @@ class Metasploit3 < Msf::Post
 			'License'       => MSF_LICENSE,
 			'Author'        =>
 				[
-					'ohdae <bindshell[at]live.com>',
+					'ohdae <bindshell[at]live.com>'
 				],
-			'Version'       => '$Revision$',
 			'Platform'      => [ 'linux' ],
 			'SessionTypes'  => [ 'shell' ]
 		))
@@ -64,11 +63,10 @@ class Metasploit3 < Msf::Post
 		return host
 	end
 
-	def which(cmd)
-		paths = cmd_exec("echo $PATH").split(':')
-		for path in paths
+	def which(env_paths, cmd)
+		for path in env_paths
 			if "#{cmd}" == cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
-				return "#{path}/#{cmd}"			
+				return "#{path}/#{cmd}"
 			end
 		end
 		return nil
@@ -82,14 +80,16 @@ class Metasploit3 < Msf::Post
 			"psad", "wireshark", "nagios", "nagios", "apparmor", "honeyd", "thpot"
 		]
 
+		env_paths = cmd_exec("echo $PATH").split(":")
+
 		apps.each do |a|
-			output = which("#{a}")
+			output = which(env_paths, a)
  			if output
 				print_good("#{a} found: #{output}")
 
 				report_note(
 					:host_name => get_host,
-					:type      => "protection",
+					:type      => "linux.protection",
 					:data      => output,
 					:update    => :unique_data
 				)
@@ -99,4 +99,3 @@ class Metasploit3 < Msf::Post
 		print_status("Installed applications saved to notes.")
 	end
 end
-
