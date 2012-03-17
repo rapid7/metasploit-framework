@@ -1,9 +1,11 @@
-require 'module_test'
+#require 'module_test'
+load 'test/lib/module_test.rb'
 load 'lib/msf/core/post/file.rb'
 
 class Metasploit4 < Msf::Post
 
 	include Msf::ModuleTest::PostTest
+	include Msf::Post::Common
 	include Msf::Post::File
 
 	def initialize(info={})
@@ -40,7 +42,9 @@ class Metasploit4 < Msf::Post
 		end
 
 		it "should read files" do
-			read_file("pwned") == "foo"
+			f = read_file("pwned")
+
+			"foo" == f
 		end
 
 		it "should append files" do
@@ -59,6 +63,43 @@ class Metasploit4 < Msf::Post
 
 			not file_exist?("pwned")
 		end
+
+	end
+
+	def test_binary_files
+
+		binary_data = "\x00\xff\"'$"
+		pending "should write binary data" do
+			write_file("binary", binary_data)
+
+			file_exist?("binary")
+		end
+		pending "should read binary data" do
+			bin = read_file("binary")
+
+			bin == binary_data
+		end
+		pending "should delete binary files" do
+			file_rm("pwned")
+
+			not file_exist?("pwned")
+		end
+	end
+
+	def test_large_files
+		[ 1024, 2048, 4096, 8192, 16384, 32768, 65536 ].each { |count|
+			pending "should write #{count} bytes" do
+				bytes = "A"*count
+				write_file("pwned", bytes)
+
+				ret = file_exist?("pwned")
+				remote = read_file("pwned")
+				ret &&= !!(remote == bytes)
+				#file_rm("pwned")
+
+				ret
+			end
+		}
 
 	end
 

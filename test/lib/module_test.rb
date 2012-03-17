@@ -38,6 +38,10 @@ module ModuleTest
 
 		print_good("#{msg}")
 	end
+
+	def pending(msg="", &block)
+		print_status("PENDING: #{msg}")
+	end
 end
 
 module ModuleTest::PostTest
