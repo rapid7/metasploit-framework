@@ -7,7 +7,7 @@ require 'rex/socket'
 #
 ###
 class Rex::Socket::Parameters
-
+     
 	##
 	#
 	# Factory
@@ -208,6 +208,15 @@ class Rex::Socket::Parameters
 	
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
+
+                if (hash['SSLKey'] and ::File.file?(hash['SSLCert']))
+			begin
+				self.ssl_key = ::File.read(hash['SSLKey'])
+			rescue ::Exception => e
+				elog("Failed to read key file: #{e.class}: #{e}", LogSource)
+			end
+		end
+
 	end
 
 	##
@@ -347,8 +356,12 @@ class Rex::Socket::Parameters
 
 
 	attr_accessor :proxies
-
-
+        
+        #
+        # The SSL private key, in pem format, stored as string
+        #
+        
+        attr_accessor :ssl_key
 	##
 	#
 	# Synonyms
