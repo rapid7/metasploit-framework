@@ -64,16 +64,10 @@ class Metasploit3 < Msf::Post
 		return host
 	end
 
-	def execute(cmd)
-		vprint_status("Execute: #{cmd}")
-		output = cmd_exec(cmd)
-		return output
-	end
-
 	def which(cmd)
-		paths = execute("echo $PATH").split(':')
+		paths = cmd_exec("echo $PATH").split(':')
 		for path in paths
-			if "#{cmd}" == execute("/bin/ls #{path} | /bin/grep '#{cmd}'")
+			if "#{cmd}" == cmd_exec("/bin/ls #{path} | /bin/grep '#{cmd}'")
 				return "#{path}/#{cmd}"			
 			end
 		end
