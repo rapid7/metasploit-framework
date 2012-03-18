@@ -25,9 +25,10 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare Screenshot Stealer',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-							This module uses supplied login credentials to connect to VMWare via
-							the web interface. It then searches through the datastores looking for screenshots.
-							It will downlaod any screenshots it finds and save them as loot.},
+				This module uses supplied login credentials to connect to VMWare via
+				the web interface. It then searches through the datastores looking for screenshots.
+				It will downlaod any screenshots it finds and save them as loot.
+			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -38,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('USERNAME', [ true, "The username to Authenticate with.", 'root' ]),
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ])
 			], self.class)
-			
+
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -105,8 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			print_error "Failed to retrieve screenshot: there was no reply"
 		end
-	
+
 	end
 
 end
-
