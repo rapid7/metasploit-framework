@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
 							:port	=> datastore['RPORT'],
 							:proto	=> 'tcp',
 							:type	=> 'oracle_sid',
-							:data	=> "#{sid}",
+							:data	=> sid,
 							:update => :unique_data
 					)
 					print_status("Discovered SID: '#{sid}' for host #{ip}")

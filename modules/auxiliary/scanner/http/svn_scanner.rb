@@ -129,7 +129,7 @@ class Metasploit3 < Msf::Auxiliary
 					:port	=> rport,
 					:vhost  => vhost,
 					:ssl    => ssl,
-					:path	=> "#{turl}",
+					:path	=> turl,
 					:method => 'GET',
 					:pname  => "",
 					:proof  => "Res code: #{res.code.to_s}",
@@ -176,7 +176,7 @@ class Metasploit3 < Msf::Auxiliary
 							:sname => (ssl ? 'https' : 'http'),
 							:port	=> rport,
 							:type	=> 'USERNAME',
-							:data	=> "#{slastauthor}",
+							:data	=> slastauthor,
 							:update => :unique_data
 						)
 
@@ -190,7 +190,7 @@ class Metasploit3 < Msf::Auxiliary
 								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'DIRECTORY',
-								:data	=> "#{sname}",
+								:data	=> sname,
 								:update => :unique_data
 							)
 						end
@@ -202,7 +202,7 @@ class Metasploit3 < Msf::Auxiliary
 								:sname => (ssl ? 'https' : 'http'),
 								:port	=> rport,
 								:type	=> 'FILE',
-								:data	=> "#{sname}",
+								:data	=> sname,
 								:update => :unique_data
 							)
 
@@ -221,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
 
 									if srcres and srcres.body.length > 0
 										if datastore['SHOW_SOURCE']
-											print_status("#{srcres.body}")
+											print_status(srcres.body)
 										end
 
 										report_note(

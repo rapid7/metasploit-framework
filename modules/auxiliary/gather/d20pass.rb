@@ -65,7 +65,7 @@ class Metasploit3 < Msf::Auxiliary
 		if (ip or rhost) and rport
 			[(ip || rhost),rport].map {|x| x.to_s}.join(":") << " "
 		elsif (ip or rhost)
-			"#{rhost}"
+			rhost
 		else
 			""
 		end

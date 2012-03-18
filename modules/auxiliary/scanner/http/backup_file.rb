@@ -77,7 +77,7 @@ class Metasploit3 < Msf::Auxiliary
 					:port	=> rport,
 					:vhost  => vhost,
 					:ssl    => ssl,
-					:path	=> "#{file}",
+					:path	=> file,
 					:method => 'GET',
 					:pname  => "",
 					:proof  => "Res code: #{res.code.to_s}",

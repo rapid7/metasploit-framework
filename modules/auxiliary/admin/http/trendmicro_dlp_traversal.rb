@@ -102,7 +102,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("File(s) found:")
 
 				@files_found.each do |f|
-					print_good("#{f}")
+					print_good(f)
 				end
 			else
 				print_good("No File(s) found")
