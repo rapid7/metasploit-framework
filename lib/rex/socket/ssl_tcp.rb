@@ -82,11 +82,11 @@ begin
 
                 # Set client cert and key
 
-           
-          if (params.ssl_key and params.ssl_cert)
-                self.sslctx.key = OpenSSL::PKey::RSA.new params.ssl_key
-                self.sslctx.cert = OpenSSL::X509::Certificate.new params.ssl_cert
-          end
+	   
+	  if (params.ssl_key and params.ssl_cert)
+		self.sslctx.key = OpenSSL::PKey::RSA.new params.ssl_key
+		self.sslctx.cert = OpenSSL::X509::Certificate.new params.ssl_cert
+	  end
 		# Set the verification callback
 		self.sslctx.verify_callback = Proc.new do |valid, store|
 			self.peer_verified = valid
