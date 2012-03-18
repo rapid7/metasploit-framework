@@ -479,4 +479,3 @@ class Metasploit3 < Msf::Exploit::Remote
 		return buf
 	end
 end
-

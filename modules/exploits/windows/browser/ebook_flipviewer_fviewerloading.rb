@@ -111,4 +111,3 @@ for (#{var_i} = 0; #{var_i} < 1324; #{var_i}++) { #{rand8} = #{rand8} + unescape
 	end
 
 end
-

@@ -115,4 +115,3 @@ class Metasploit3 < Msf::Auxiliary
 		frame[16,6] = eton(addr) if addr
 	end
 end
-

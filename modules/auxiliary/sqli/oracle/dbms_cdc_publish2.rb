@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'CVE', '2010-0870' ],
 					[ 'OSVDB', '63772'],
-					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2010.html' ],
+					[ 'URL', 'http://www.oracle.com/technology/deploy/security/critical-patch-updates/cpuapr2010.html' ]
 				],
 			'DisclosureDate' => 'Apr 26 2010'))
 

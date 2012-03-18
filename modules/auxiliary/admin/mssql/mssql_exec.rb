@@ -42,4 +42,3 @@ class Metasploit3 < Msf::Auxiliary
 		mssql_xpcmdshell(datastore['CMD'], true) if mssql_login_datastore
 	end
 end
-

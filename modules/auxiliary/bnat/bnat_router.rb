@@ -153,4 +153,3 @@ class Metasploit3 < Msf::Auxiliary
 		return target_mac
 	end
 end
-

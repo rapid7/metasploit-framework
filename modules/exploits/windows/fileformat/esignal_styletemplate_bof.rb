@@ -100,4 +100,3 @@ class Metasploit3 < Msf::Exploit::Remote
 		file_create(file)
 	end
 end
-

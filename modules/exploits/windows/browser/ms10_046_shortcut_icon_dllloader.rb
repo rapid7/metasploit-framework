@@ -453,4 +453,3 @@ class Metasploit3 < Msf::Exploit::Remote
 		super
 	end
 end
-

@@ -58,7 +58,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_wmap_options({
 				'OrderID' => 1,
 				'Require' => {},
-			})		
+			})
 	end
 
 	def run_host(target_host)
@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 			datastore['RPORT'] = target_port
 			if target_host == site
 				print_error("Target is the same as proxy site.")
-			else	
+			else
 				check_host(target_host,target_port,site,user_agent)
 			end
 		end

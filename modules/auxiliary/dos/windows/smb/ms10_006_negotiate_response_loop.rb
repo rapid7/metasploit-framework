@@ -67,4 +67,3 @@ class Metasploit3 < Msf::Auxiliary
 		client.close
 	end
 end
-

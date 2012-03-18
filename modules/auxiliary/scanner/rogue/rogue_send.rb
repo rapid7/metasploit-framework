@@ -81,4 +81,3 @@ class Metasploit3 < Msf::Auxiliary
 		p.recalc
 	end
 end
-

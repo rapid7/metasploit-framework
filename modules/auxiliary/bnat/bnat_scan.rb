@@ -6,7 +6,7 @@
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # web site for more information on licensing and terms of use.
-#   http://metasploit.com/
+#	http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'URL', 'http://www.slideshare.net/claudijd/dc-skytalk-bnat-hijacking-repairing-broken-communication-channels'],
 				]
 		)
-		
+
 		register_options(
 				[
 					OptString.new('PORTS', [true, "Ports to scan (e.g. 22-25,80,110-900)", "21,22,23,80,443"]),
@@ -49,42 +49,41 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def probe_reply(pcap, to)
-                reply = nil
-                begin
-                        Timeout.timeout(to) do
-                                pcap.each do |r|
-                                        pkt = PacketFu::Packet.parse(r)
-                                        next unless pkt.is_tcp?
-                                        reply = pkt
-                                        break
-                                end
-                        end
-                rescue Timeout::Error
-                end
-                return reply
+		reply = nil
+		begin
+			Timeout.timeout(to) do
+				pcap.each do |r|
+					pkt = PacketFu::Packet.parse(r)
+					next unless pkt.is_tcp?
+					reply = pkt
+					break
+				end
+			end
+			rescue Timeout::Error
+		end
+		return reply
 	end
 
 	def generate_probe(ip)
-                ftypes = %w{windows, linux, freebsd}
-                @flavor = ftypes[rand(ftypes.length)]
-                config = PacketFu::Utils.whoami?(:iface => datastore['INTERFACE'])
-                p = PacketFu::TCPPacket.new(:config => config)
-                p.ip_daddr = ip
-                p.tcp_flags.syn = 1
+		ftypes = %w{windows, linux, freebsd}
+		@flavor = ftypes[rand(ftypes.length)]
+		config = PacketFu::Utils.whoami?(:iface => datastore['INTERFACE'])
+		p = PacketFu::TCPPacket.new(:config => config)
+		p.ip_daddr = ip
+		p.tcp_flags.syn = 1
 		return p
 	end
 
 	def run_host(ip)
-		
 		open_pcap
-		
+
 		to = (datastore['TIMEOUT'] || 500).to_f / 1000.0
 
 		p = generate_probe(ip)
 		pcap = self.capture
 
 		ports = Rex::Socket.portspec_crack(datastore['PORTS'])
-		
+
 		ports.each_with_index do |port,i|
 			p.tcp_dst = port
 			p.tcp_src = rand(64511)+1024
@@ -96,12 +95,11 @@ class Metasploit3 < Msf::Auxiliary
 			capture_sendto(p, ip)
 			reply = probe_reply(pcap, to)
 			next if reply.nil?
-			
-			print_status("[BNAT RESPONSE] Requested IP: #{ip} Responding IP: #{reply.ip_saddr} Port: #{reply.tcp_src}")
-    end
-	
-		close_pcap		
-	
-	end
-end
 
+			print_status("[BNAT RESPONSE] Requested IP: #{ip} Responding IP: #{reply.ip_saddr} Port: #{reply.tcp_src}")
+		end
+
+		close_pcap
+	end
+
+end

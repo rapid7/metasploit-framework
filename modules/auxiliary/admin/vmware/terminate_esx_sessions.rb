@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Terminate ESX Login Sessions',
 			'Description'    => %Q{
-							This module will log into the Web API of VMWare and try to terminate
-							user login sessions as specified by the session keys.},
+				This module will log into the Web API of VMWare and try to terminate
+				user login sessions as specified by the session keys.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -60,8 +60,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
-
 end
-

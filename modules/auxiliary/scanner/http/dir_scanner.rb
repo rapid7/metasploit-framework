@@ -178,7 +178,7 @@ class Metasploit3 < Msf::Auxiliary
 								:data	=> "#{tpath}#{testfdir} Auth: #{res.headers['WWW-Authenticate']}",
 								:update => :unique_data
 							)
-							
+
 						end
 					end
 
@@ -188,4 +188,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

@@ -97,4 +97,3 @@ module Metasploit3
 		20
 	end
 end
-

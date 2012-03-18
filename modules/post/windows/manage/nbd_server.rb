@@ -101,4 +101,3 @@ class Metasploit3 < Msf::Post
 		client.railgun.kernel32.CloseHandle(handle)
 	end
 end
-

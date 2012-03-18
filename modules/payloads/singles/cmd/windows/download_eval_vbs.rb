@@ -70,4 +70,3 @@ module Metasploit3
 		command << "#{vbsname}.vbs"
 	end
 end
-

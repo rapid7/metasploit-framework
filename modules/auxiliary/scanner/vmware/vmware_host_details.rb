@@ -25,8 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare Enumerate Host Details',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-								This module attempts to enumerate information about the host systems through the VMWare web API.
-								This can include information about the hardware installed on the host machine.},
+				This module attempts to enumerate information about the host systems through the VMWare web API.
+				This can include information about the hardware installed on the host machine.
+			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -38,7 +39,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptString.new('PASSWORD', [ true, "The password to Authenticate with.", 'password' ]),
 				OptBool.new('HW_DETAILS', [true, "Enumerate the Hardware on the system as well?", false])
 			], self.class)
-			
+
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -57,9 +58,4 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-
-
-
-
 end
-

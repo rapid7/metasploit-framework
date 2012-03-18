@@ -304,4 +304,3 @@ class Metasploit3 < Msf::Auxiliary
 		return data
 	end
 end
-

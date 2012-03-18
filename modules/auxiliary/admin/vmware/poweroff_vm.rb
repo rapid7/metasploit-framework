@@ -23,8 +23,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'VMWare Power Off Virtual Machine',
 			'Description'    => %Q{
-							This module will log into the Web API of VMWare and try to power off
-							a specified Virtual Machine.},
+				This module will log into the Web API of VMWare and try to power off
+				a specified Virtual Machine.},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -66,10 +66,4 @@ class Metasploit3 < Msf::Auxiliary
 			return
 		end
 	end
-
-
-
-
-
 end
-

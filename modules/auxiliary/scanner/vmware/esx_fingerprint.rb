@@ -25,8 +25,9 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-							This module accesses the web API interfaces for VMware ESX/ESXi servers
-							and attempts to identify version information for that server.},
+				This module accesses the web API interfaces for VMware ESX/ESXi servers
+				and attempts to identify version information for that server.
+			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
@@ -34,7 +35,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options([Opt::RPORT(443),
 			OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
 		], self.class)
-		
+
 		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
@@ -98,4 +99,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

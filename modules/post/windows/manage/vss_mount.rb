@@ -59,11 +59,9 @@ class Metasploit3 < Msf::Post
 		unless start_vss
 			return
 		end
-		
+
 		r = session.sys.process.execute("cmd.exe /C mklink /D #{datastore['DEVICE']} #{datastore['PATH']}", nil, {'Hidden' => true})
-		
+
 	end
-
-
 
 end

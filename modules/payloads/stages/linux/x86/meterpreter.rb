@@ -130,4 +130,3 @@ module Metasploit3
 		return met
 	end
 end
-

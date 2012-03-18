@@ -303,7 +303,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			return :abort if (res.code == 404)
 
-			if ( [200, 301, 302].include?(res.code) ) or (res.code == 201) 
+			if ( [200, 301, 302].include?(res.code) ) or (res.code == 201)
 				if ((res.code == 201) and (requesttype == "PUT"))
 					print_good("Trying to delete #{path}")
 					del_res,c = send_digest_request_cgi({
@@ -334,4 +334,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

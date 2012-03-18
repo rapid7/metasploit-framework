@@ -134,7 +134,7 @@ class Metasploit4 < Msf::Auxiliary
 			path += '/'
 		end
 		
-		path += datastore['FILENAME']  
+		path += datastore['FILENAME']
 
 		case action.name
 		when 'PUT'

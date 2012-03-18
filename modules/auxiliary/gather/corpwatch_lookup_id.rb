@@ -351,7 +351,7 @@ class Metasploit3 < Msf::Auxiliary
 						print_status("Filing Date: " + filing_date)
 						print_status("10K Filing Form: " + form10k)
 						print_status("SEC 21 Form: " + sec21)
-						print_status("Company is active filer: " + (is_filer == "1" ? "true" : "false")) 
+						print_status("Company is active filer: " + (is_filer == "1" ? "true" : "false"))
 					}
 				end
 			end
