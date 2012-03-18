@@ -7,7 +7,7 @@ require 'rex/socket'
 #
 ###
 class Rex::Socket::Parameters
-     
+
 	##
 	#
 	# Factory
@@ -81,8 +81,8 @@ class Rex::Socket::Parameters
 	#
 	# Comm
 	#
-	# 	The underlying Comm class to use to create the socket for this parameter
-	# 	set.
+	#	The underlying Comm class to use to create the socket for this parameter
+	#	set.
 	#
 	# Context
 	#
@@ -91,11 +91,11 @@ class Rex::Socket::Parameters
 	#
 	# Retries
 	#
-	# 	The number of times a connection should be retried.
+	#	The number of times a connection should be retried.
 	#
 	# Timeout
 	#
-	# 	The number of seconds before a connection should time out
+	#	The number of seconds before a connection should time out
 	#
 	
 	def initialize(hash)
@@ -209,7 +209,7 @@ class Rex::Socket::Parameters
 		# Whether to force IPv6 addressing
 		self.v6        = hash['IPv6'] || false
 
-                if (hash['SSLKey'] and ::File.file?(hash['SSLCert']))
+		if (hash['SSLKey'] and ::File.file?(hash['SSLKey']))
 			begin
 				self.ssl_key = ::File.read(hash['SSLKey'])
 			rescue ::Exception => e
@@ -356,19 +356,19 @@ class Rex::Socket::Parameters
 
 
 	attr_accessor :proxies
-        
-        #
-        # The SSL private key, in pem format, stored as string
-        #
-        
-        attr_accessor :ssl_key
+	
+	#
+	# The SSL private key, in pem format, stored as string
+	#
+	
+	attr_accessor :ssl_key
 	##
 	#
 	# Synonyms
 	#
 	##
 	
-	alias peeraddr  peerhost
+	alias peeraddr	peerhost
 	alias localaddr localhost
 
 end
