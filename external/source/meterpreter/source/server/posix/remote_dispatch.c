@@ -69,7 +69,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 			}
 			if (response) {
 				for (command = extension_commands; command != first; command = command->next) {
-					packet_add_tlv_string(response, TLV_META_TYPE_STRING, command->method);
+					packet_add_tlv_string(response, TLV_TYPE_METHOD, command->method);
 				}
 			}
 		}

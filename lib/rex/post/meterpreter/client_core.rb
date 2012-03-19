@@ -115,7 +115,7 @@ class ClientCore < Extension
 		response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
 		commands = []
-		response.each(TLV_META_TYPE_STRING) { |c|
+		response.each(TLV_TYPE_METHOD) { |c|
 			commands << c.value
 		}
 
