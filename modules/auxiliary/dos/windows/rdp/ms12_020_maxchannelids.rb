@@ -9,6 +9,7 @@ require 'msf/core'
 
 class Metasploit3 < Msf::Auxiliary
 
+	include Msf::Auxiliary::Report
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Dos
 
@@ -48,6 +49,17 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(3389)
 			], self.class)
+	end
+
+	def is_rdp_up
+		begin
+			connect
+			return true
+		rescue Rex::ConnectionRefused
+			return false
+		rescue Rex::ConnectionTimeout
+			return false
+		end
 	end
 
 	def run
@@ -132,6 +144,19 @@ class Metasploit3 < Msf::Auxiliary
 		select(nil, nil, nil, 3)
 		disconnect
 		print_status("#{rhost}:#{rport} - #{pkt.length.to_s} bytes sent")
+
+		print_status("#{rhost}:#{rport} - Checking RDP status...")
+		if not is_rdp_up
+			print_good("#{rhost}:#{rport} seems down")
+			report_vuln({
+				:host => rhost,
+				:port => rport,
+				:name => self.fullname,
+				:refs => self.references
+			})
+		else
+			print_status("#{rhost}:#{rport} is still up")
+		end
 	end
 
 end
