@@ -48,13 +48,13 @@ module ModuleTest::PostTest
 	include ModuleTest
 	def run
 		print_status("Running against session #{datastore["SESSION"]}")
-		print_status("Session type is #{session.type}")
-		print_status("Session platform is #{session.platform}")
+		print_status("Session type is #{session.type} and platform is #{session.platform}")
 
+		t = Time.now
 		@tests = 0; @failures = 0
 		run_all_tests
 
-		vprint_status("Testing complete.")
+		vprint_status("Testing complete in #{Time.now - t}")
 		if (@failures > 0)
 			print_error("Passed: #{@tests - @failures}; Failed: #{@failures}")
 		else

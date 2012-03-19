@@ -35,19 +35,19 @@ class Metasploit4 < Msf::Post
 			ret
 		end
 
-		it "should create files" do
+		it "should create text files" do
 			write_file("pwned", "foo")
 
 			file_exist?("pwned")
 		end
 
-		it "should read files" do
+		it "should read text files" do
 			f = read_file("pwned")
 
 			"foo" == f
 		end
 
-		it "should append files" do
+		it "should append text files" do
 			ret = true
 			append_file("pwned", "bar")
 
@@ -58,7 +58,7 @@ class Metasploit4 < Msf::Post
 			ret
 		end
 
-		it "should delete files" do
+		it "should delete text files" do
 			file_rm("pwned")
 
 			not file_exist?("pwned")
@@ -68,38 +68,37 @@ class Metasploit4 < Msf::Post
 
 	def test_binary_files
 
-		binary_data = "\x00\xff\"'$"
-		pending "should write binary data" do
-			write_file("binary", binary_data)
+		binary_data = ::File.read("/bin/ls")
+		#binary_data = "\x00\xff\"'$\nasdfjkl;`foo"*10
+		it "should write binary data" do
+			vprint_status "Writing #{binary_data.length} bytes"
+			t = Time.now
+			write_file("pwned", binary_data)
+			vprint_status("Finished in #{Time.now - t}")
 
-			file_exist?("binary")
+			file_exist?("pwned")
 		end
-		pending "should read binary data" do
-			bin = read_file("binary")
+
+		it "should read binary data" do
+			bin = read_file("pwned")
 
 			bin == binary_data
 		end
-		pending "should delete binary files" do
+
+		it "should delete binary files" do
 			file_rm("pwned")
 
 			not file_exist?("pwned")
 		end
-	end
 
-	def test_large_files
-		[ 1024, 2048, 4096, 8192, 16384, 32768, 65536 ].each { |count|
-			pending "should write #{count} bytes" do
-				bytes = "A"*count
-				write_file("pwned", bytes)
+		it "should append binary data" do
+			write_file("pwned", "\xde\xad")
+			append_file("pwned", "\xbe\xef")
+			bin = read_file("pwned")
+			file_rm("pwned")
 
-				ret = file_exist?("pwned")
-				remote = read_file("pwned")
-				ret &&= !!(remote == bytes)
-				#file_rm("pwned")
-
-				ret
-			end
-		}
+			bin == "\xde\xad\xbe\xef"
+		end
 
 	end
 
