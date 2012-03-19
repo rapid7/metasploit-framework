@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module exploits the MS12-002 RDP vulnerability originally discovered and
 				reported by Luigi Auriemma.  The flaw can be found in the way the T.125
 				ConnectMCSPDU packet is handled in the maxChannelIDs field, which will result
-				an invalid pointer being used, therefore causing a denail-of-service condition.
+				an invalid pointer being used, therefore causing a denial-of-service condition.
 				Code execution may seem possible, but at this point it's not yet proven.
 			},
 			'References'     =>
