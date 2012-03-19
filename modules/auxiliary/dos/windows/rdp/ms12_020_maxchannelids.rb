@@ -14,7 +14,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'MS12-002 Microsoft Remote Desktop Use-After-Free Vulnerability',
+			'Name'           => 'MS12-002 Microsoft Remote Desktop Use-After-Free DoS',
 			'Description'    => %q{
 				This module exploits the MS12-002 RDP vulnerability originally discovered and
 				reported by Luigi Auriemma.  The flaw can be found in the way the T.125
