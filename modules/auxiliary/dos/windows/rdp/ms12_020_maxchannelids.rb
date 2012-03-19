@@ -21,7 +21,6 @@ class Metasploit3 < Msf::Auxiliary
 				reported by Luigi Auriemma.  The flaw can be found in the way the T.125
 				ConnectMCSPDU packet is handled in the maxChannelIDs field, which will result
 				an invalid pointer being used, therefore causing a denial-of-service condition.
-				Code execution may seem possible, but at this point it's not yet proven.
 			},
 			'References'     =>
 				[
@@ -39,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 					'Daniel Godas-Lopez',  # Entirely based on Daniel's pastie
 					'Alex Ionescu',
 					'jduck',
-					'#ms12-020'
+					'#ms12-020' # Freenode IRC
 				],
 			'License'        => MSF_LICENSE,
 			'DisclosureDate' => "Mar 16 2012"
