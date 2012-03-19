@@ -1,7 +1,7 @@
 #include <dlfcn.h>
 #include "metsrv.h"
 
-extern Command *extensionList;
+extern Command *extension_commands;
 
 DWORD
 request_core_loadlib(Remote *remote, Packet *packet)
@@ -14,7 +14,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 	PCHAR targetPath;
 	int local_error = 0;
 	Command *command;
-	Command *first = extensionList;
+	Command *first = extension_commands;
 
 	do
 	{
@@ -68,7 +68,7 @@ request_core_loadlib(Remote *remote, Packet *packet)
 				res = init(remote);
 			}
 			if (response) {
-				for (command = extensionList; command != first; command = command->next) {
+				for (command = extension_commands; command != first; command = command->next) {
 					packet_add_tlv_string(response, TLV_META_TYPE_STRING, command->method);
 				}
 			}
