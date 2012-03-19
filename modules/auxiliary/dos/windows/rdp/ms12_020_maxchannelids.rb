@@ -41,7 +41,7 @@ class Metasploit3 < Msf::Auxiliary
 					'#ms12-020'
 				],
 			'License'        => MSF_LICENSE,
-			'DisclosureDate' => "Feb 25 2012"
+			'DisclosureDate' => "Mar 16 2012"
 		))
 
 		register_options(
