@@ -185,7 +185,7 @@ class Metasploit4 < Msf::Post
 			return
 		end
 
-		it "should list interfaces" do
+		it "should list interfaces for sniffing" do
 			session.sniffer.interfaces.kind_of? Array
 		end
 
