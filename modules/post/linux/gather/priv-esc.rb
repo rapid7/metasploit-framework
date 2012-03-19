@@ -75,8 +75,17 @@ class Metasploit3 < Msf::Post
 				])
     		poss_exploits.each do |e|
     			exploit_table << [e["name"],e["cve"],e["versions"],e["exploits"]]
+    			report_note(
+				:type      => "priv-esc",
+				:update    => :unique_data,
+				:data      => { :name => [e["name"],
+						:cve => e["cve"],
+						:ver => e["versions"]],
+						}
+				)
     		end
     		print_line exploit_table.to_s
+    		print_status "Possible exploits saved in notes."
 		else
 			print_status "Nothing found"
 		end
