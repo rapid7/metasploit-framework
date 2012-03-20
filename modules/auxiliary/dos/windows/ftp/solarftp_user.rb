@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Version'        => '$Revision$',
 			'References'     =>
 			[
-				[ 'URL', 'http://www.exploit-db.com/exploits/16204/' ],
+				[ 'EDB', 16204 ],
 			],
 			'DisclosureDate' => 'Feb 22 2011'))
 
