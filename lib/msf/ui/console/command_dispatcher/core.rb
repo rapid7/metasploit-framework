@@ -1303,7 +1303,7 @@ class Core
 			"author"   => "Modules written by this author",
 			"cve"      => "Modules with a matching CVE ID",
 			"bid"      => "Modules with a matching Bugtraq ID",
-			"osvdb"    => "Modules with a matching OSVDB ID"
+			"osvdb"    => "Modules with a matching OSVDB ID",
 			"edb"      => "Modules with a matching Exploit-DB ID"
 		}.each_pair do |keyword, description|
 			print_line "  #{keyword.ljust 10}:  #{description}"
