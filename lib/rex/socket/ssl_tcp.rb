@@ -81,11 +81,17 @@ begin
 		self.sslctx.verify_mode = OpenSSL::SSL::VERIFY_PEER
 		self.sslctx.options = OpenSSL::SSL::OP_ALL
 
+		# Set client cert and key
+		if (params.ssl_key and params.ssl_cert)
+			self.sslctx.key = OpenSSL::PKey::RSA.new params.ssl_key
+			self.sslctx.cert = OpenSSL::X509::Certificate.new params.ssl_cert
+		end
 		# Set the verification callback
 		self.sslctx.verify_callback = Proc.new do |valid, store|
 			self.peer_verified = valid
 			true
 		end
+
 
 		# Tie the context to a socket
 		self.sslsock = OpenSSL::SSL::SSLSocket.new(self, self.sslctx)

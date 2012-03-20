@@ -168,8 +168,9 @@ TRANS2_OPEN2 = 0
 TRANS2_FIND_FIRST2 = 1
 TRANS2_FIND_NEXT2 = 2
 TRANS2_QUERY_FS_INFO = 3
+TRANS2_QUERY_PATH_INFO = 5
 TRANS2_SET_PATH_INFO = 6
-
+TRANS2_QUERY_FILE_INFO = 7
 TRANS2_CREATE_DIRECTORY = 13
 
 # SMB_COM_TRANSACTION2 QUERY_FS_INFO information levels
@@ -619,6 +620,21 @@ SMB_TREE_CONN_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
 )
 SMB_TREE_CONN_RES_PKT = self.make_nbs(SMB_TREE_CONN_RES_HDR_PKT)
 
+# A SMB template for SMB Tree Connect response with extented  information
+SMB_TREE_CONN_EXT_RES_HDR_PKT = Rex::Struct2::CStructTemplate.new(
+	[ 'template', 'SMB',		     SMB_HDR ],
+	[ 'uint8',   'AndX',		     0 ],
+	[ 'uint8',   'Reserved1',	     0 ],
+	[ 'uint16v', 'AndXOffset',	     0 ],
+	[ 'uint16v', 'OptionalSupport',	     0 ],
+	['uint32v','MaximalShareAccessRights',0],
+	[ 'uint32v','GuestMaximalShareAccessRights', 0 ],
+	[ 'uint16v', 'ByteCount',	     0 ],
+	[ 'string',  'Payload', nil,	    '' ]
+).create_restraints(
+	[ 'Payload', 'ByteCount',  nil, true ]
+)
+SMB_TREE_CONN_EXT_RES_PKT = self.make_nbs(SMB_TREE_CONN_EXT_RES_HDR_PKT)
 
 # A SMB template for SMB Tree Disconnect requests
 SMB_TREE_DISCONN_HDR_PKT = Rex::Struct2::CStructTemplate.new(
