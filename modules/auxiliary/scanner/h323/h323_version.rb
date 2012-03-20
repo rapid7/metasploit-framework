@@ -309,7 +309,7 @@ class Metasploit3 < Msf::Auxiliary
 	@@H323_STATUS_SETUP_ACK         = 0x0D
 	@@H323_STATUS_CONNECT           = 0x07
 	@@H323_STATUS_RELEASE_COMPLETE  = 0x5a
-	@@H323_STATUS_FACILITY          = 0x1c
+	@@H323_STATUS_FACILITY          = 0x62
 
 
 	def encap_tpkt(ver,data)

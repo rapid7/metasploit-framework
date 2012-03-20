@@ -64,6 +64,10 @@ int fs_stat(LPCSTR filename, struct meterp_stat *buf) {
 		buf->st_ctime = (unsigned long long)sbuf.st_ctime;
 		return 0;
 	} else {
-		return ret;
+#ifdef _WIN32
+		return GetLastError();
+#else
+		return errno;
+#endif
 	}
 }

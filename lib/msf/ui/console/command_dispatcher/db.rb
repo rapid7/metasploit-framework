@@ -73,6 +73,7 @@ class Db
 			print_line "    workspace [name]           Switch workspace"
 			print_line "    workspace -a [name] ...    Add workspace(s)"
 			print_line "    workspace -d [name] ...    Delete workspace(s)"
+			print_line "    workspace -r <old> <new>   Rename workspace"
 			print_line "    workspace -h               Show this help information"
 			print_line
 		end
@@ -88,6 +89,8 @@ class Db
 					adding = true
 				when '-d','--del'
 					deleting = true
+				when '-r','--rename'
+					renaming = true
 				else
 					names ||= []
 					names << arg
@@ -103,6 +106,7 @@ class Db
 				end
 				framework.db.workspace = workspace
 			elsif deleting and names
+				switched = false
 				# Delete workspaces
 				names.each do |name|
 					workspace = framework.db.find_workspace(name)
@@ -114,12 +118,36 @@ class Db
 						print_status("Deleted and recreated the default workspace")
 					else
 						# switch to the default workspace if we're about to delete the current one
-						framework.db.workspace = framework.db.default_workspace if framework.db.workspace.name == workspace.name
+						if framework.db.workspace.name == workspace.name
+							framework.db.workspace = framework.db.default_workspace
+							switched = true
+						end
 						# now destroy the named workspace
 						workspace.destroy
 						print_status("Deleted workspace: #{name}")
 					end
 				end
+				print_status("Switched workspace: #{framework.db.workspace.name}") if switched
+			elsif renaming
+				if names.length != 2
+					print_error("Wrong number of arguments to rename")
+					return
+				end
+				old, new = names
+
+				workspace = framework.db.find_workspace(old)
+				if workspace.nil?
+					print_error("Workspace not found: #{name}")
+					return
+				end
+
+				if framework.db.find_workspace(new)
+					print_error("Workspace exists: #{new}")
+					return
+				end
+
+				workspace.name = new
+				workspace.save!
 			elsif names
 				name = names.last
 				# Switch workspace
@@ -135,7 +163,7 @@ class Db
 				# List workspaces
 				framework.db.workspaces.each do |s|
 					pad = (s.name == framework.db.workspace.name) ? "* " : "  "
-					print_line(pad + s.name)
+					print_line("#{pad}#{s.name}")
 				end
 			end
 		end

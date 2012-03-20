@@ -14,6 +14,14 @@ else
 	verbose = 0
 end
 
+# Test and see if we have a database connected
+begin
+	framework.db.hosts
+rescue ::ActiveRecord::ConnectionNotEstablished
+	print_error("Database connection isn't established")
+	return
+end
+
 def jobwaiting(verbose)
 		maxjobs=15  #throtteling if we get too much jobs
 		while(framework.jobs.keys.length >= maxjobs)

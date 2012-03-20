@@ -2282,6 +2282,9 @@ class DBManager
 		elsif (firstline.index("<NexposeReport"))
 			@import_filedata[:type] = "NeXpose XML Report"
 			return :nexpose_rawxml
+		elsif (firstline.index("Name,Manufacturer,Device Type,Model,IP Address,Serial Number,Location,Operating System"))
+			@import_filedata[:type] = "Spiceworks CSV Export"
+			return :spiceworks_csv
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
@@ -2625,6 +2628,37 @@ class DBManager
 				# That's all we want to know from this service.
 				return :something_significant
 			end
+		end
+	end
+
+	def import_spiceworks_csv(args={}, &block)
+		data = args[:data]
+		wspace = args[:wspace] || workspace
+		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+
+		data.each_line do |line|
+			next if line =~ /^Name,Manufacturer,Device/ #header
+
+			split = line.split(',')
+	
+			name = split[0]
+			manufacturer = split[1]
+			device = split[2]
+			model = split[3]
+			ip = split[4]
+			serialno = split[5]
+			location = split[6]
+			os = split[7]
+	
+			conf = {
+			:workspace => wspace,
+			:host      => ip,
+			:os_name   => os,
+			:name      => name
+			}
+	
+			host = report_host(conf)
+			report_import_note(wspace, host)
 		end
 	end
 
@@ -5180,6 +5214,7 @@ class DBManager
 					refs = []
 					qid = vuln.attributes['number']
 					severity = vuln.attributes['severity']
+					title = vuln.elements['TITLE'].text.to_s
 					vuln.elements.each('VENDOR_REFERENCE_LIST/VENDOR_REFERENCE') do |ref|
 						refs.push(ref.elements['ID'].text.to_s)
 					end
@@ -5190,7 +5225,7 @@ class DBManager
 						refs.push('BID-' + ref.elements['ID'].text.to_s)
 					end
 
-					handle_qualys(wspace, hobj, port, protocol, qid, severity, refs)
+					handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, nil,title)
 				end
 			end
 		end
@@ -5603,7 +5638,7 @@ protected
 	#
 	# Qualys report parsing/handling
 	#
-	def handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, name=nil)
+	def handle_qualys(wspace, hobj, port, protocol, qid, severity, refs, name=nil, title=nil)
 		addr = hobj.address
 		port = port.to_i if port
 
@@ -5629,14 +5664,14 @@ protected
 		end
 
 		return if qid == 0
-
+		title = 'QUALYS-' + qid if title.nil? or title.empty?
 		if addr
 			report_vuln(
 				:workspace => wspace,
 				:host => hobj,
 				:port => port,
 				:proto => protocol,
-				:name => 'QUALYS-' + qid,
+				:name =>  title,
 				:refs => fixed_refs
 			)
 		end
