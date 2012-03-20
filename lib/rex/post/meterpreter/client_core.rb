@@ -114,17 +114,17 @@ class ClientCore < Extension
 		# Transmit the request and wait the default timeout seconds for a response
 		response = self.client.send_packet_wait_response(request, self.client.response_timeout)
 
-		commands = []
-		response.each(TLV_TYPE_METHOD) { |c|
-			commands << c.value
-		}
-
 		# No response?
 		if (response == nil)
 			raise RuntimeError, "No response was received to the core_loadlib request.", caller
 		elsif (response.result != 0)
 			raise RuntimeError, "The core_loadlib request failed with result: #{response.result}.", caller
 		end
+
+		commands = []
+		response.each(TLV_TYPE_METHOD) { |c|
+			commands << c.value
+		}
 
 		return commands
 	end
