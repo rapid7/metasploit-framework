@@ -42,7 +42,6 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
-
 	def run_host(ip)
 		return unless check
 		each_user_pass { |user, pass|
@@ -64,7 +63,6 @@ class Metasploit3 < Msf::Auxiliary
 			end
 		}
 	end
-
 
 	# Mostly taken from the Apache Tomcat service validator
 	def check
@@ -128,7 +126,5 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 	end
-
-
 end
 

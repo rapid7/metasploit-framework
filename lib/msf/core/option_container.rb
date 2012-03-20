@@ -658,7 +658,14 @@ class OptionContainer < Hash
 				errors << name
 			# If the option is valid, normalize its format to the correct type.
 			elsif ((val = option.normalize(datastore[name])) != nil)
-				datastore.update_value(name, val)
+				# This *will* result in a module that previously used the 
+				# global datastore to have its local datastore set, which
+				# means that changing the global datastore and re-running
+				# the same module will now use the newly-normalized local
+				# datastore value instead. This is mostly mitigated by
+				# forcing a clone through mod.replicant, but can break
+				# things in corner cases.
+				datastore[name] = val
 			end
 		}
 
