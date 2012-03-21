@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 
 	def locate_chicken
 		dir("/Applications/").each do |folder|
-			m = folder.match(/(Chicken \d+\.\d+)$/)
+			m = folder.match(/Chicken of the VNC\.app/)
 			return true
 		end
 
