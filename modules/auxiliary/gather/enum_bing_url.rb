@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module uses Bing to enumerate URLs from a specified range of IP addresses.
 			},
 			'Author' => [ 'Royce Davis <royce.davis[at]cliftonlarsonallen.com>' ],
-			'License' => MSF_LICENSE,
+			'License' => MSF_LICENSE
 		))
 	
 		deregister_options('RHOST','RPORT','VHOST')
