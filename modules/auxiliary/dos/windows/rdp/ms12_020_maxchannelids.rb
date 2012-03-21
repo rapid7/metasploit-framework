@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'           => 'MS12-002 Microsoft Remote Desktop Use-After-Free DoS',
+			'Name'           => 'MS12-020 Microsoft Remote Desktop Use-After-Free DoS',
 			'Description'    => %q{
-				This module exploits the MS12-002 RDP vulnerability originally discovered and
+				This module exploits the MS12-020 RDP vulnerability originally discovered and
 				reported by Luigi Auriemma.  The flaw can be found in the way the T.125
 				ConnectMCSPDU packet is handled in the maxChannelIDs field, which will result
 				an invalid pointer being used, therefore causing a denial-of-service condition.
