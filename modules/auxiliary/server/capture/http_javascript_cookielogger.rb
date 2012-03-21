@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'			=> 'Capture: HTTP looging of cookies',
 			'Description'	=> %q{
-					This modules runs a webserver that captures cookies from clients 
-				a website vunlerable to cross site scripting. In an attemt 
+					This modules runs a webserver that captures cookies from clients of 
+				a website vulnerable to cross site scripting. In an attemt 
 				to evads IDS this module has an option to obfuscate the generated javascript.
 				To use this script, the following javascript must be injected on the XSS vunlerable
 				site:
