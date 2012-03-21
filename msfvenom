@@ -399,7 +399,7 @@ if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf/i
 end
 
 case opts[:format]
-when /ruby|rb|perl|pl|bash|sh|^c$|js_le|raw/i
+when /ruby|rb|perl|pl|bash|^sh$|^c$|js_le|raw/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
 when /asp$/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
@@ -478,10 +478,14 @@ when /war/i
 		exe = Msf::Util::EXE.to_jsp_war(exe)
 	end
   $stdout.write exe
-when 'psh'
-  psh = Msf::Util::EXE.to_win32pe_psh(framework, code, exeopts)
+when /psh/i
+  psh = Msf::Util::EXE.to_win32pe_psh($framework, payload_raw, exeopts)
 
 	$stdout.write psh
+when /psh-net/i
+  psh = Msf::Util::EXE.to_win32pe_psh_net($framework, payload_raw, exeopts)
+
+        $stdout.write psh
 else
 	print_error("Unsupported format")
 	exit
