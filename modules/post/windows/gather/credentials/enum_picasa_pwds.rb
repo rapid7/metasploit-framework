@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -44,18 +44,6 @@ class Metasploit3 < Msf::Post
 		rg = session.railgun
 		if (!rg.get_dll('crypt32'))
 			rg.add_dll('crypt32')
-		end
-
-		if (!rg.crypt32.functions["CryptUnprotectData"])
-			rg.add_function("crypt32", "CryptUnprotectData", "BOOL", [
-					["PBLOB","pDataIn", "in"],
-					["PWCHAR", "szDataDescr", "out"],
-					["PBLOB", "pOptionalEntropy", "in"],
-					["PDWORD", "pvReserved", "in"],
-					["PBLOB", "pPromptStruct", "in"],
-					["DWORD", "dwFlags", "in"],
-					["PBLOB", "pDataOut", "out"]
-				])
 		end
 	end
 

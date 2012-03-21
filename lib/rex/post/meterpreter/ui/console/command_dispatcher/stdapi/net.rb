@@ -56,6 +56,7 @@ class Console::CommandDispatcher::Stdapi::Net
 	def commands
 		{
 			"ipconfig" => "Display interfaces",
+			"ifconfig" => "Display interfaces",
 			"route"    => "View and modify the routing table",
 			"portfwd"  => "Forward a local port to a remote service",
 		}
@@ -77,11 +78,13 @@ class Console::CommandDispatcher::Stdapi::Net
 		if (ifaces.length == 0)
 			print_line("No interfaces were found.")
 		else
-			ifaces.each do |iface|
+			ifaces.sort{|a,b| a.index <=> b.index}.each do |iface|
 				print("\n" + iface.pretty + "\n")
 			end
 		end
 	end
+
+	alias :cmd_ifconfig :cmd_ipconfig
 
 	#
 	# Displays or modifies the routing table on the remote machine.
@@ -114,25 +117,56 @@ class Console::CommandDispatcher::Stdapi::Net
 			when "list"
 				routes = client.net.config.routes
 
-				if (routes.length == 0)
-					print_line("No routes were found.")
-				else
-					tbl = Rex::Ui::Text::Table.new(
-						'Header'  => "Network routes",
-						'Indent'  => 4,
-						'Columns' =>
-							[
-								"Subnet",
-								"Netmask",
-								"Gateway"
-							])
+				# IPv4
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv4 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
 
-					routes.each { |route|
-						tbl << [ route.subnet, route.netmask, route.gateway ]
-					}
+				routes.select {|route|
+					Rex::Socket.is_ipv4?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
 
+				if tbl.rows.length > 0
 					print("\n" + tbl.to_s + "\n")
+				else
+					print_line("No IPv4 routes were found.")
 				end
+
+				# IPv6
+				tbl = Rex::Ui::Text::Table.new(
+					'Header'  => "IPv6 network routes",
+					'Indent'  => 4,
+					'Columns' =>
+						[
+							"Subnet",
+							"Netmask",
+							"Gateway",
+							"Metric",
+							"Interface"
+						])
+
+				routes.select {|route|
+					Rex::Socket.is_ipv6?(route.netmask)
+				}.each { |route|
+					tbl << [ route.subnet, route.netmask, route.gateway, route.metric, route.interface ]
+				}
+
+				if tbl.rows.length > 0
+					print("\n" + tbl.to_s + "\n")
+				else
+					print_line("No IPv6 routes were found.")
+				end
+
 			when "add"
                         	# Satisfy check to see that formatting is correct
                                 unless Rex::Socket::RangeWalker.new(args[0]).length == 1

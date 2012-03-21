@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -54,7 +54,7 @@ class Metasploit3 < Msf::Auxiliary
 		@probes << 'probe_pkt_citrix'
 		@probes << 'probe_pkt_pca_st'
 		@probes << 'probe_pkt_pca_nq'
-		
+
 	end
 
 	def setup
@@ -74,7 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_batch(batch)
 		@results = {}
-		
+
 		print_status("Sending #{@probes.length} probes to #{batch[0]}->#{batch[-1]} (#{batch.length} hosts)")
 
 		begin
@@ -143,9 +143,9 @@ class Metasploit3 < Msf::Auxiliary
 		@results.each_key do |k|
 			next if not @results[k].respond_to?('keys')
 			data = @results[k]
-			
+
 			next unless inside_workspace_boundary?(data[:host])
-			
+
 			conf = {
 				:host  => data[:host],
 				:port  => data[:port],
@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 				:name  => data[:app],
 				:info  => data[:info]
 			}
-			
+
 			if data[:hname]
 				conf[:host_name] = data[:hname].downcase
 			end
@@ -161,11 +161,11 @@ class Metasploit3 < Msf::Auxiliary
 			if data[:mac]
 				conf[:mac] = data[:mac].downcase
 			end
-			
+
 			report_service(conf)
 			print_status("Discovered #{data[:app]} on #{k} (#{data[:info]})")
 		end
-				
+
 	end
 
 
@@ -189,8 +189,7 @@ class Metasploit3 < Msf::Auxiliary
 		inf = ''
 		maddr = nil
 		hname = nil
-		
-		
+
 		# Work with protocols that return different data in different packets
 		# These are reported at the end of the scanning loop to build state
 		case pkt[2]
@@ -198,21 +197,21 @@ class Metasploit3 < Msf::Auxiliary
 
 				@results[hkey] ||= {}
 				data = @results[hkey]
-							
+
 				data[:app]  = "pcAnywhere"
 				data[:port] = pkt[2]
 				data[:host] = pkt[1]
 
 				case pkt[0]
-				
+
 				when /^NR(........................)(........)/
 					name = $1.dup
-					caps = $2.dup		
+					caps = $2.dup
 					name = name.gsub(/_+$/, '').gsub("\x00", '').strip
 					caps = caps.gsub(/_+$/, '').gsub("\x00", '').strip
 					data[:name] = name
 					data[:caps] = caps
-			
+
 				when /^ST(.+)/
 					buff = $1.dup
 					stat = 'Unknown'
@@ -224,14 +223,14 @@ class Metasploit3 < Msf::Auxiliary
 					if buff[2,1].unpack("C")[0] == 11
 						stat = "Busy"
 					end
-			
+
 					data[:stat] = stat
 				end	
-				
+
 				if data[:name]
 					inf << "Name: #{data[:name]} "
 				end
-			
+
 				if data[:stat]
 					inf << "- #{data[:stat]} "
 				end
@@ -239,9 +238,9 @@ class Metasploit3 < Msf::Auxiliary
 				if data[:caps]
 					inf << "( #{data[:caps]} ) "
 				end	
-				data[:info] = inf			
+				data[:info] = inf
 		end
-		
+
 		# Ignore duplicates
 		return if @results[hkey]
 
@@ -260,7 +259,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				ver = pkt[0].unpack('H*')[0] if not ver
 				inf = ver if ver
-				
+
 				@results[hkey] = true
 
 			when 137
@@ -306,7 +305,7 @@ class Metasploit3 < Msf::Auxiliary
 						hname = names[0][0]
 					end
 				end
-				
+
 				@results[hkey] = true
 
 			when 111
@@ -328,7 +327,7 @@ class Metasploit3 < Msf::Auxiliary
 					)
 				end
 				inf = svc.join(", ")
-				
+
 				@results[hkey] = true
 
 			when 123
@@ -340,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 				ver = 'NTP v4 (unsynchronized)' if (ver =~ /^e40/)
 				ver = 'Microsoft NTP'           if (ver =~ /^dc00|^dc0f/)
 				inf = ver if ver
-				
+
 				@results[hkey] = true
 
 			when 1434
@@ -350,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 				}
 
 				@results[hkey] = true
-				
+
 			when 161
 				app = 'SNMP'
 				asn = OpenSSL::ASN1.decode(pkt[0]) rescue nil
@@ -368,7 +367,7 @@ class Metasploit3 < Msf::Auxiliary
 				inf = snmp_info
 				com = snmp_comm
 
-				@results[hkey] = true				
+				@results[hkey] = true
 
 			when 5093
 				app = 'Sentinel'
@@ -382,7 +381,7 @@ class Metasploit3 < Msf::Auxiliary
 			when 1604
 				app = 'citrix-ica'
 				return unless citrix_parse(pkt[0])
-				@results[hkey] = true				
+				@results[hkey] = true
 
 		end
 
@@ -547,14 +546,13 @@ class Metasploit3 < Msf::Auxiliary
 			"\x00\x00\x00\x00"
 		return [data, 1604]
 	end
-	
+
 	def probe_pkt_pca_st(ip)
 		return ["ST", 5632]
 	end
-	
+
 	def probe_pkt_pca_nq(ip)
 		return ["NQ", 5632]
-	end	
+	end
 
 end
-

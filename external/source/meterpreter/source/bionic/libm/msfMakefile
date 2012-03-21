@@ -224,6 +224,9 @@ SOBJ=$(OBJ:.S=.o)
 all: $(OBJ) ${SOBJ}
 	gcc ${CFLAGS} -shared -nostdinc -nostdlib -o libm.so *.o
 
+debug: CFLAGS+=-ggdb
+debug: all
+
 .S.o:
 	gcc ${CFLAGS} -nostdinc -nostdlib -c $<
 .c.o:

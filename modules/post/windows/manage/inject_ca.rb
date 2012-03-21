@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super(update_info(info,
-			'Name'          => 'Windows Certificate Authority Injection',
+			'Name'          => 'Windows Manage Certificate Authority Injection',
 			'Description'   => %q{
 				This module allows the attacker to insert an arbitrary CA certificate
 				into the victim's Trusted Root store.

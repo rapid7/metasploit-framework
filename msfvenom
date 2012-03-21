@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 #
-# $Id$
-# $Revision$
+# $Id: msfvenom 14909 2012-03-10 06:50:03Z rapid7 $
+# $Revision: 14909 $
 #
 msfbase = __FILE__
 while File.symlink?(msfbase)
 	msfbase = File.expand_path(File.readlink(msfbase), File.dirname(msfbase))
 end
 
-$:.unshift(File.join(File.dirname(msfbase), 'lib'))
+$:.unshift(File.expand_path(File.join(File.dirname(msfbase), 'lib')))
 require 'fastlib'
 
 
@@ -95,6 +95,10 @@ def parse_args
 	opt.on('-k', '--keep', 'Preserve the template behavior and inject the payload as a new thread') do
 		opts[:inject] = true
 	end
+	
+	opt.on('-o', '--options', 'List the payload\'s standard options') do 
+		opts[:list_options] = true
+	end
 
 	opt.on_tail('-h', '--help', 'Show this message') do
 		$stderr.puts opt
@@ -103,6 +107,7 @@ def parse_args
 
 	begin
 		opt.parse!
+		
 	rescue OptionParser::InvalidOption, OptionParser::MissingArgument
 		puts "Invalid option, try -h for usage"
 		exit(1)
@@ -275,6 +280,11 @@ if opts[:payload]
 			print_error("Invalid payload: #{opts[:payload]}")
 			exit
 		end
+		if opts[:list_options]
+			print_status("Options for #{payload.fullname}\n\n" + 
+				::Msf::Serializer::ReadableText.dump_options(payload,'    '))
+			exit
+		end
 	end
 end
 
@@ -288,10 +298,10 @@ else
 	opts[:arch] ||= "x86"
 	opts[:platform] ||= Msf::Module::PlatformList.transform("Windows")
 end
+
 opts[:format]   ||= 'ruby'
 opts[:encoder]  ||= nil
 opts[:encode]   ||= !(opts[:badchars].nil? or opts[:badchars].empty?)
-
 
 if opts[:encoder].nil?
 	fmt = 'raw'
@@ -383,16 +393,20 @@ if opts[:nopsled]
 end
 
 $stdout.binmode
+
 if opts[:format] !~/ruby|rb|perl|pl|bash|sh|c|js|dll|elf/i
 	exe = Msf::Util::EXE.to_executable_fmt($framework, opts[:arch], opts[:platform], payload_raw, opts[:format], exeopts)
 end
 
 case opts[:format]
-when /ruby|rb|perl|pl|bash|sh|c|js_le|raw/i
+when /ruby|rb|perl|pl|bash|sh|^c$|js_le|raw/i
 	$stdout.write Msf::Simple::Buffer.transform(payload_raw, opts[:format])
-when /asp/
+when /asp$/
 	asp = Msf::Util::EXE.to_win32pe_asp($framework, payload_raw, exeopts)
 	$stdout.puts asp
+when /aspx/
+	aspx = Msf::Util::EXE.to_win32pe_aspx($framework, payload_raw, exeopts)
+	$stdout.puts aspx
 when /js_be/i
 	if Rex::Arch.endian(payload.arch) != ENDIAN_BIG
 		print_error("Big endian format selected for a non big endian payload")
@@ -421,6 +435,20 @@ when /elf/i
 		exit
 	end
 	$stdout.write elf
+when /macho/i
+	if opts[:arch] =~ /x64/
+		bin = Msf::Util::EXE.to_osx_x64_macho($framework, payload_raw, exeopts)
+	elsif opts[:arch] =~ /x86/
+		bin = Msf::Util::EXE.to_osx_x86_macho($framework, payload_raw, exeopts)
+	elsif opts[:arch] =~ /arm/
+		bin = Msf::Util::EXE.to_osx_arm_macho($framework, payload_raw, exeopts)
+	elsif opts[:arch] =~ /ppc/
+		bin = Msf::Util::EXE.to_osx_ppc_macho($framework, payload_raw, exeopts)
+	else
+		print_error("This format does not support that architecture")
+		exit
+	end
+	$stdout.write bin
 when /dll/i
 	if opts[:arch] == "x86"
 		dll = Msf::Util::EXE.to_win32pe_dll($framework, payload_raw)

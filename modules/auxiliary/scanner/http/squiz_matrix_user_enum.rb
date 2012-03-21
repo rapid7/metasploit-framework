@@ -4,8 +4,8 @@
 
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -79,7 +79,7 @@ class Metasploit3 < Msf::Auxiliary
 			:host => rhost,
 			:port => rport,
 			:proto => 'tcp',
-			:sname  => 'HTTP',
+			:sname => (ssl ? 'https' : 'http'),
 			:type => 'users',
 			:vhost => vhost,
 			:data => {:users =>  @users_found.keys.join(", ")}
@@ -97,7 +97,7 @@ class Metasploit3 < Msf::Auxiliary
 			if (datastore['VERBOSE'])
 				if (res and res.code = 403 and res.body and res.body =~ /You do not have permission to access <i>(\w+)<\/i>/)
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}' title '#{$1}'")
-					else
+				else
 					print_status("#{target_url}?a=#{asset} - Trying Asset: '#{asset}'")
 				end
 			end
@@ -130,7 +130,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				report_auth_info(
 				:host => rhost,
-				:sname => 'http',
+				:sname => (ssl ? 'https' : 'http'),
 				:user => user,
 				:port => rport,
 				:proof => "WEBAPP=\"Squiz Matrix\", VHOST=#{vhost}")

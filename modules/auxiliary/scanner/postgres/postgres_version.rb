@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(ip)
 		user = datastore['USERNAME']
 		pass = postgres_password
-		do_fingerprint(user,pass,datastore['DATABASE'],datastore['VERBOSE'])
+		do_fingerprint(user,pass,datastore['DATABASE'])
 	end
 
 	# Alias for RHOST
@@ -57,18 +57,18 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['RPORT']
 	end
 
-	def do_fingerprint(user=nil,pass=nil,database=nil,verbose=false)
+	def do_fingerprint(user=nil,pass=nil,database=nil)
 		begin
 			msg = "#{rhost}:#{rport} Postgres -"
 			password = pass || postgres_password
-			print_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'") if verbose
+			vprint_status("#{msg} Trying username:'#{user}' with password:'#{password}' against #{rhost}:#{rport} on database '#{database}'")
 			result = postgres_fingerprint(
 				:db => database,
 				:username => user,
 				:password => password
 			)
 			if result[:auth]
-				print_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'" if verbose
+				vprint_good "#{rhost}:#{rport} Postgres - Logged in to '#{database}' with '#{user}':'#{password}'"
 				print_status "#{rhost}:#{rport} Postgres - Version #{result[:auth]} (Post-Auth)"
 			elsif result[:preauth]
 				print_status "#{rhost}:#{rport} Postgres - Version #{result[:preauth]} (Pre-Auth)"
@@ -120,4 +120,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

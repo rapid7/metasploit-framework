@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -173,7 +173,7 @@ class Metasploit3 < Msf::Auxiliary
 			hhead = $1
 			nport = $2.to_i
 		end
-		
+
 		@myport = nport || 80
 
 
@@ -196,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => cli.peerhost,
 				:port      => @myport,
-				:sname     => 'http',
+				:sname     => (ssl ? "https" : "http"),
 				:user      => user,
 				:pass      => pass,
 				:source_type => "captured",

@@ -10,7 +10,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'NAT-PMP External port scanner',
+			'Name'        => 'NAT-PMP External Port Scanner',
 			'Description' => 'Scan NAT devices for their external listening ports using NAT-PMP',
 			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
@@ -27,12 +27,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def run_host(host)
 		begin
-			udp_sock = Rex::Socket::Udp.create(
-				{	'LocalHost' => datastore['CHOST'] || nil,
-					'Context' => {'Msf' => framework, 'MsfExploit' => self} }
+			udp_sock = Rex::Socket::Udp.create({
+				'LocalHost' => datastore['CHOST'] || nil,
+				'Context'   => {'Msf' => framework, 'MsfExploit' => self} }
 			)
 			add_socket(udp_sock)
-			print_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP" if (datastore['VERBOSE'])
+			vprint_status "Scanning #{datastore['PROTOCOL']} ports #{datastore['PORTS']} on #{host} using NATPMP"
 
 			# first, send a request to get the external address
 			udp_sock.sendto(Rex::Proto::NATPMP.external_address_request, host, datastore['RPORT'].to_i, 0)
@@ -52,13 +52,13 @@ class Metasploit3 < Msf::Auxiliary
 				# send one request to clear the mapping if *we've* created it before
 				clear_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 0)
 				udp_sock.sendto(clear_req, host, datastore['RPORT'].to_i, 0)
-				while (r = udp_sock.recvfrom(16, 0.25) and r[1])
+				while (r = udp_sock.recvfrom(16, 1.0) and r[1])
 				end
 
 				# now try the real mapping
 				map_req = Rex::Proto::NATPMP.map_port_request(port, port, Rex::Proto::NATPMP.const_get(datastore['PROTOCOL']), 1)
 				udp_sock.sendto(map_req, host, datastore['RPORT'].to_i, 0)
-				while (r = udp_sock.recvfrom(16, 0.25) and r[1])
+				while (r = udp_sock.recvfrom(16, 1.0) and r[1])
 					handle_reply(host, external_address, r)
 				end
 			end
@@ -98,12 +98,14 @@ class Metasploit3 < Msf::Auxiliary
 			print_status("#{external_addr} - #{int}/#{protocol} #{state} because of code #{result} response") if (datastore['DEBUG'])
 		end
 
-		report_service(
-			:host   => external_addr,
-			:port   => int,
-			:proto  => protocol,
-			:state => state
-		)
+		if inside_workspace_boundary(external_addr)
+			report_service(
+				:host   => external_addr,
+				:port   => int,
+				:proto  => protocol,
+				:state => state
+			)
+		end
 
 		report_service(
 			:host 	=> host,

@@ -8,7 +8,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'        => 'NAT-PMP port mapper',
+			'Name'        => 'NAT-PMP Port Mapper',
 			'Description' => 'Map (forward) TCP and UDP ports on NAT devices using NAT-PMP',
 			'Author'      => 'Jon Hart <jhart[at]spoofed.org>',
 			'License'     => MSF_LICENSE
@@ -30,14 +30,14 @@ class Metasploit3 < Msf::Auxiliary
 	def run_host(host)
 		begin
 
-			udp_sock = Rex::Socket::Udp.create(
-				{   'LocalHost' => datastore['CHOST'] || nil,
-					'Context' => {'Msf' => framework, 'MsfExploit' => self}
+			udp_sock = Rex::Socket::Udp.create({
+				'LocalHost' => datastore['CHOST'] || nil,
+				'Context'   => {'Msf' => framework, 'MsfExploit' => self}
 			})
 			add_socket(udp_sock)
 
 			# get the external address first
-			print_status "#{host} - NATPMP - Probing for external address" if (datastore['VERBOSE'])
+			vprint_status "#{host} - NATPMP - Probing for external address"
 			req = Rex::Proto::NATPMP.external_address_request
 			udp_sock.sendto(req, host, datastore['NATPMPPORT'], 0)
 			external_address = nil
@@ -45,7 +45,7 @@ class Metasploit3 < Msf::Auxiliary
 				(ver, op, result, epoch, external_address) = Rex::Proto::NATPMP.parse_external_address_response(r[0])
 			end
 
-			print_status "#{host} - NATPMP - Sending mapping request" if (datastore['VERBOSE'])
+			vprint_status "#{host} - NATPMP - Sending mapping request"
 			# build the mapping request
 			req = Rex::Proto::NATPMP.map_port_request(
 					datastore['LPORT'].to_i, datastore['RPORT'].to_i,
@@ -96,11 +96,13 @@ class Metasploit3 < Msf::Auxiliary
 		)
 
 		# report the external port as being open
-		report_service(
-			:host   => external_address,
-			:port   => external_port,
-			:proto  => datastore['PROTOCOL'].to_s.downcase,
-			:state => Msf::ServiceState::Open
-		)
+		if inside_workspace_boundary(external_address)
+			report_service(
+				:host   => external_address,
+				:port   => external_port,
+				:proto  => datastore['PROTOCOL'].to_s.downcase,
+				:state => Msf::ServiceState::Open
+			)
+		end
 	end
 end

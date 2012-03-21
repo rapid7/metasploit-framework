@@ -47,6 +47,8 @@ require 'rex/text'
 	# Create an obfuscated DCERPC BIND request packet
 	def self.make_bind_fake_multi(uuid, vers, bind_head=0, bind_tail=0)
 
+		bind_head = bind_head.to_i
+		bind_tail = bind_tail.to_i
 		bind_head = rand(6)+10 if bind_head == 0
 		bind_tail = rand(4)+1 if bind_head == 0
 
@@ -175,6 +177,10 @@ require 'rex/text'
 
 	# Used to create a piece of a DCERPC REQUEST packet
 	def self.make_request_chunk(flags=3, opnum=0, data="", ctx=0, object_id = '')
+	
+		flags = flags.to_i
+		opnum = opnum.to_i
+		ctx   = ctx.to_i
 
 		dlen = data.length
 		flen = dlen + 24
@@ -207,10 +213,10 @@ require 'rex/text'
 
 	# Used to create standard DCERPC REQUEST packet(s)
 	def self.make_request(opnum=0, data="", size=data.length, ctx=0, object_id = '')
-
-		if size > 4000
-			size = 4000
-		end
+	
+		opnum = opnum.to_i
+		size  = [4000, size.to_i].min
+		ctx   = ctx.to_i
 
 		chunks, frags = [], []
 		ptr = 0

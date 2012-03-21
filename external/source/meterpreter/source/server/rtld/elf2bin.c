@@ -25,7 +25,7 @@ int main(int argc, char **argv)
 	int used = 0;
 	unsigned char *source, *dest;
 	int len;
-	Elf32_Addr base = NULL;
+	Elf32_Addr base = (Elf32_Addr)NULL;
 
 	if(argc < 3) {
 		printf("elf2bin [input file] [output file]\n");

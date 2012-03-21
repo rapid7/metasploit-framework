@@ -70,13 +70,75 @@ def check_single_file(dparts, fparts, f_rel)
 		show_missing(f, 'ERROR: missing disclosure date', has_dd)
 	end
 
-	bad_term = true
-	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
-		bad_term = false
+	# Check disclosure date format
+	if content =~ /'DisclosureDate' => ['|\"](.+)['|\"]/
+		d = $1  #Captured date
+		# Flag if overall format is wrong
+		if d =~ /^... \d{1,2} \d{4}/
+			# Flag if month format is wrong
+			m = d.split[0]
+			months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			if months.index(m).nil?
+				show_missing(f, 'WARNING: incorrect disclosure month format', false)
+			end
+		else
+			show_missing(f, 'WARNING: incorrect disclosure date format', false)
+		end
 	end
 
-	show_missing(f, 'WARNING: contains "stack overflow"', bad_term)
+	# Check title format
+	if content =~ /'Name'\s+=>\s[\x22\x27](.+)[\x22\x27],\s*$/
+		name = $1
+		words = $1.split
+		[words.first, words.last].each do |word|
+			if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
+				next if word =~ /php[A-Z]/
+				next if %w{iseemedia activePDF freeFTPd osCommerce myBB}.include? word
+				show_missing(f, "WARNING: bad capitalization in module title: #{word}", false)
+			end
+		end
+	end
 
+	# If an exploit module mentinos the word "stack overflow", chances are they mean "stack buffer overflow".
+	# "stack overflow" means "stack exhaustion".  See explanation:
+	# http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
+	bad_term = true
+	if content =~ /class Metasploit\d < Msf::Exploit::Remote/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack buffer overflow"?', bad_term)
+	elsif content =~ /class Metasploit\d < Msf::Auxiliary/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
+	end
+
+	# Check function naming style and arg length
+	functions = content.scan(/def (\w+)\(*(.+)\)*/)
+
+	functions.each do |func_name, args|
+=begin
+		# Check Ruby variable naming style
+		if func_name =~ /[a-z][A-Z]/ or func_name =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor function naming style for: '#{func_name}'", false)
+		end
+=end
+
+		# Check argument length
+		args_length = args.split(",").length
+		if args_length > 6
+			show_missing(f, "WARNING: Poorly designed argument list in '#{func_name}'. Try a hash.", false)
+		end
+	end
+
+=begin
+	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
+	vars.each do |v|
+		v = v.strip
+		next if v =~ /^var/ or v =~ /^Rank/
+		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
+		end
+	end
+=end
 
 	# check criteria based on individual lines
 	spaces = 0

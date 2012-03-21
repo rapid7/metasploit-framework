@@ -36,7 +36,7 @@ opts.parse(args) { |opt, idx, val|
 
 #-------------------------------------------------------------------------------
 
-host,port = @client.tunnel_peer.split(':')
+host,port = @client.session_host, @client.session_port
 info = @client.sys.config.sysinfo
 # Create Filename info to be appended to downloaded files
 filenameinfo = "_" + ::Time.now.strftime("%Y%m%d.%M%S")
@@ -428,7 +428,7 @@ end
 #-------------------------------------------------------------------------------
 #Dumping and Downloading the Registry of the target machine
 def regdump(pathoflogs,filename)
-	host,port = @client.tunnel_peer.split(':')
+	host,port = @client.session_host, @client.session_port
 	#This variable will only contain garbage, it is to make sure that the channel is not closed while the reg is being dumped and compress
 	garbage = ''
 	hives = %w{HKCU HKLM HKCC HKCR HKU}

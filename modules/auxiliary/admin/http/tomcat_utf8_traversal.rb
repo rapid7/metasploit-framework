@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Scanner
 
 	def initialize
@@ -80,7 +80,7 @@ class Metasploit3 < Msf::Auxiliary
 				@files_found << files
 				break
 			elsif (res and res.code)
-				print_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
+				vprint_error("Attempt ##{level} returned HTTP error #{res.code} on #{rhost}:#{rport}:file->#{files}")
 			end
 		end
 	end
@@ -106,7 +106,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_good("File(s) found:")
 
 				@files_found.each do |f|
-					print_good("#{f}")
+					print_good(f)
 				end
 			else
 				print_good("No File(s) found")

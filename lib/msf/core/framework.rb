@@ -16,7 +16,7 @@ class Framework
 	#
 
 	Major    = 4
-	Minor    = 2
+	Minor    = 3
 	Point    = 0
 	Release  = "-dev"
 
@@ -286,16 +286,10 @@ class FrameworkEventSubscriber
 	# Generic handler for session events
 	#
 	def session_event(name, session, opts={})
-		address = nil
-
-		if session.respond_to? :peerhost and session.peerhost.to_s.length > 0
-			address = session.peerhost
-		elsif session.respond_to? :tunnel_peer and session.tunnel_peer.to_s.length > 0
-			address = session.tunnel_peer[0, session.tunnel_peer.rindex(":") || session.tunnel_peer.length ]
-		elsif session.respond_to? :target_host and session.target_host.to_s.length > 0
-			address = session.target_host
-		else
-			elog("Session with no peerhost/tunnel_peer")
+		address = session.session_host
+		
+		if not (address and address.length > 0)
+			elog("Session with no session_host/target_host/tunnel_peer")
 			dlog("#{session.inspect}", LEV_3)
 			return
 		end

@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex'
@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Post
 
 	def initialize(info={})
 		super( update_info( info,
-			'Name'          => 'Windows File and Registry Artifacts Enumeration',
+			'Name'          => 'Windows Gather File and Registry Artifacts Enumeration',
 			'Description'   => %q{
 				This module will check the file system and registry for particular artifacts. The
 				list of artifacts is read from data/post/enum_artifacts_list.txt or a user specified file. Any
@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
 				next if digest == nil
 				if digest == file['csum'] then found << file['name'] end
 			end
-			
+
 			# Process registry entries
 			vprint_status("Processing #{regs.length.to_s} registry entries for #{key}.")
 

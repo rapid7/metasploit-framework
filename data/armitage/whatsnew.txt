@@ -1,6 +1,85 @@
 Armitage Changelog
 ==================
 
+8 Mar 12 1.43-dev
+--------
+- Armitage now uses session_host to determine which host a session is associated
+  with. This value is grabbed directly from the OS itself. You'll no longer have
+  20 meterpreter sessions associated with a NAT/firewall device.
+- Armitage now spins up a new listener for each client-side attack (no longer
+  relying on the random default listener created on startup). Of course you can
+  change this... double-click the PAYLOAD option to set it to something else.
+- Token stealing dialog now disables refresh button while grabbing tokens. Enables
+  it again when done.
+- Armitage now talks to Metasploit every two minutes to prevent auth timeout.
+- Armitage now displays a firewall icon for hosts with no OS marked as a firewall
+  by MSF.
+- Armitage now selects an IPv6 bind payload when attacking IPv6 hosts.
+- Armitage now explicitly sets RPORT for different MSF Scan options and psexec.
+- Updated the about dialog to include a version number and release date.
+- Added a ./teamserver [external IP] [shared pass] script to the UNIX distro of 
+  Armitage. This script makes it much easier to startup Armitage's team server mode.
+
+2 Mar 12 - Catching up to a few MSF 4.3.0-dev changes...
+--------
+- Added a tab rename feature.
+- Hosts that self report as .NET server now display an XP/2003 era icon.
+- Updated route command parser to conform to Metasploit 4.3.0's output for it
+- "Check all credentials" feature now works when running the deconfliction 
+  server AND client from the same folder.
+- [host] -> Host -> Operating System -> * now clears notes related to host
+  before updating OS. This allows future scans to trigger MSF normalization
+  code and update the OS to something else (e.g., from Unknown to X)
+
+29 Feb 12
+---------
+- Armitage now displays a VMWare icon for hosts flagged as ESX/ESXi servers
+- Overhauled token stealing user experience--this is the cadillac version. You
+  now get a nice list of the available tokens (from the post module), click to
+  impersonate, refresh, rev2self, and getuid. 
+- Improved file browser responsiveness
+- Table view now allows individual hosts to be deselected in an interveral 
+  (Armitage will no longer reselect these hosts for you)
+- Dynamic workspaces no longer requires a comma and a space between entries (a
+  comma is good enough)
+- Improved the [Host] -> Remove menu option
+- Deconfliction server now returns the previous 100 events to new clients.
+- File browser directory up button is now more obvious
+- Keyboard accelerators when you right-click in the graph view are now correct.
+- Adjusted the graph view scrolling increments to something sane.
+- Added a slight delay between commands issued to a console to prevent them 
+  from executing out of order.
+
+21 Feb 12
+---------
+- Added Cut/Copy/Paste menu to table cell editor.
+- Module browser search field now treats spaces as a wildcard. You may type:
+  "win meterp" and Armitage will treat it as "win*meterp"
+- Hovering over an edge in graph view no longer reports a "null" tooltip
+- Fixed parsing of ps output for the process dialog (it's much much better now)
+
+14 Feb 12
+---------
+- Added ports 5631 (pc anywhere) and 902 (vmauthd) to the MSF Scans feature.
+- Several cosmetic tweaks to the spacing in Armitage tables.
+- Moved table render code from Sleep to Java to avoid potential lock conflicts
+- Added support for vba-exe payload output type.
+- Payload generation dialog now sets more appropriate default options for the
+  vba output type when it is selected.
+- Meterp command shell "read more stuff?" heuristic now accounts for Yes/No/All
+- Fixed ExitOnSession showing up twice when setting advanced options for a 
+  client-side exploit
+- You may now import multiple files through Hosts -> Import again.
+- Added 5s timeout to d-server connect attempt.
+- Added a --client [connect.properties] to specify which Metasploit server to 
+  connect to. The connect.properties file is a Java properties file that looks
+  like this (without the leading whitespace):
+
+  host=127.0.0.1
+  port=55553
+  user=msf
+  pass=test
+
 19 Jan 12
 ---------
 - Data export now includes a sessions file. This lists all of the Metasploit

@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -474,7 +474,7 @@ class Metasploit3 < Msf::Post
 		print_status("Dumping Hashes")
 		users = []
 		nt_hash = nil
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 
 		# Path to files with hashes
 		nt_file = ::File.join(log_folder,"nt_hash.txt")

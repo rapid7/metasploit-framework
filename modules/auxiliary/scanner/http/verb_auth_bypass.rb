@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -17,7 +17,8 @@ class Metasploit3 < Msf::Auxiliary
 
 	# Exploit mixins should be called first
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanDir
+	include Msf::Auxiliary::WmapScanFile
 	# Scanner mixin should be near last
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
@@ -46,7 +47,7 @@ class Metasploit3 < Msf::Auxiliary
 				'HEAD',
 				'TRACE',
 				'TRACK',
-				'WMAP'
+				'Wmap'
 			]
 
 
@@ -66,10 +67,11 @@ class Metasploit3 < Msf::Auxiliary
 					report_note(
 						:host	=> ip,
 						:proto => 'tcp',
-						:sname	=> 'HTTP',
+						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'WWW_AUTHENTICATE',
-						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}"
+						:data	=> "#{datastore['PATH']} Realm: #{res.headers['WWW-Authenticate']}",
+						:update => :unique_data
 					)
 
 					verbs.each do |tv|
@@ -83,14 +85,18 @@ class Metasploit3 < Msf::Auxiliary
 							if resauth.code != auth_code and resauth.code <= 302
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
 
+								# Unable to use report_web_vuln as method is not in list of allowed methods.
+
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
-									:sname	=> 'HTTP',
+									:sname => (ssl ? 'https' : 'http'),
 									:port	=> rport,
 									:type	=> 'AUTH_BYPASS_VERB',
-									:data	=> "#{datastore['PATH']} Verb: #{tv}"
+									:data	=> "#{datastore['PATH']} Verb: #{tv}",
+									:update => :unique_data
 								)
+
 							end
 						end
 					end

@@ -58,11 +58,41 @@ class Config
 		response = client.send_request(request)
 
 		response.each(TLV_TYPE_NETWORK_INTERFACE) { |iface|
+			addrs = []
+			netmasks = []
+			scopes = []
+			while (a = iface.get_tlv_value(TLV_TYPE_IP, addrs.length))
+				# Netmasks aren't tightly associated with addresses, they're
+				# just thrown all together in the interface TLV ordered to
+				# match up. This could be done better by creating another
+				# GroupTlv type for addresses containing an address, a netmask,
+				# and possibly a scope.
+				n = iface.get_tlv_value(TLV_TYPE_NETMASK, addrs.length)
+				if (n.nil?)
+					# Some systems can't report a netmask, only a network
+					# prefix, so figure out the netmask from that.
+					n = iface.get_tlv_value(TLV_TYPE_IP_PREFIX, addrs.length)
+					if n
+						n = Rex::Socket.bit2netmask(n, !!(a.length == 16))
+					end
+				else
+					n = Rex::Socket.addr_ntoa(n)
+				end
+				s = iface.get_tlv_value(TLV_TYPE_IP6_SCOPE, addrs.length)
+				scopes[addrs.length] = s if s
+				netmasks[addrs.length] = n if n
+				addrs << Rex::Socket.addr_ntoa(a)
+			end
 			ifaces << Interface.new(
-					iface.get_tlv_value(TLV_TYPE_IP),
-					iface.get_tlv_value(TLV_TYPE_NETMASK),
-					iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
-					iface.get_tlv_value(TLV_TYPE_MAC_NAME))
+					:index    => iface.get_tlv_value(TLV_TYPE_INTERFACE_INDEX),
+					:mac_addr => iface.get_tlv_value(TLV_TYPE_MAC_ADDRESS),
+					:mac_name => iface.get_tlv_value(TLV_TYPE_MAC_NAME),
+					:mtu      => iface.get_tlv_value(TLV_TYPE_INTERFACE_MTU),
+					:flags    => iface.get_tlv_value(TLV_TYPE_INTERFACE_FLAGS),
+					:addrs    => addrs,
+					:netmasks => netmasks,
+					:scopes   => scopes
+				)
 		}
 
 		return ifaces
@@ -93,11 +123,14 @@ class Config
 		response = client.send_request(request)
 
 		# Build out the array of routes
+		# Note: This will include both IPv4 and IPv6 routes
 		response.each(TLV_TYPE_NETWORK_ROUTE) { |route|
 			routes << Route.new(
 					route.get_tlv_value(TLV_TYPE_SUBNET),
 					route.get_tlv_value(TLV_TYPE_NETMASK),
-					route.get_tlv_value(TLV_TYPE_GATEWAY))
+					route.get_tlv_value(TLV_TYPE_GATEWAY),
+					route.get_tlv_value(TLV_TYPE_STRING),
+					route.get_tlv_value(TLV_TYPE_ROUTE_METRIC))
 		}
 
 		return routes

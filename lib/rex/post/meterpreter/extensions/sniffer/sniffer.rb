@@ -59,12 +59,27 @@ class Sniffer < Extension
 	def capture_stop(intf)
 		request = Packet.create_request('sniffer_capture_stop')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
-		response = client.send_request(request)	
+		response = client.send_request(request)
+		{
+			:packets => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
+			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+		}
 	end
 	
 	# Retrieve stats about a current capture
 	def capture_stats(intf)
 		request = Packet.create_request('sniffer_capture_stats')
+		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
+		response = client.send_request(request)
+		{
+			:packets => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
+			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+		}
+	end
+
+	# Release packets from a current capture
+	def capture_release(intf)
+		request = Packet.create_request('sniffer_capture_release')
 		request.add_tlv(TLV_TYPE_SNIFFER_INTERFACE_ID, intf.to_i)
 		response = client.send_request(request)
 		{
