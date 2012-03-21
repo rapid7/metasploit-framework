@@ -96,6 +96,7 @@ class Sniffer < Extension
 		{
 			:packets => response.get_tlv_value(TLV_TYPE_SNIFFER_PACKET_COUNT),
 			:bytes   => response.get_tlv_value(TLV_TYPE_SNIFFER_BYTE_COUNT),
+			:linktype => response.get_tlv_value(TLV_TYPE_SNIFFER_INTERFACE_ID),
 		}
 	end
 	
