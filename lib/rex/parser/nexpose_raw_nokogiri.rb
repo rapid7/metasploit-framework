@@ -23,13 +23,18 @@ module Rex
 			when "node"
 				record_host(attrs)
 			when "name"
-				@state[:has_text] = true
+				if in_tag("malware")
+					@state[:has_text] = true
+					record_malware if @text != nil
+					@text = nil
+				end
 			when "endpoint"
 				record_service(attrs)
 			when "service"
 				record_service_info(attrs)
 			when "fingerprint"
-				record_service_fingerprint(attrs)
+				record_service_fingerprint(attrs) if in_tag("service")
+				record_software_fingerprint(attrs) if in_tag("software")
 			when "os"
 				record_os_fingerprint(attrs)
 			when "test" # All the vulns tested for
@@ -37,6 +42,12 @@ module Rex
 				record_service_test(attrs)
 			when "vulnerability"
 				record_vuln(attrs)
+			when "exploit"
+				if in_tag("vulnerability")
+					if in_tag("exploits")
+						record_exploit(attrs)
+					end
+				end
 			when "reference"
 				@state[:has_text] = true
 				record_reference(attrs)
@@ -74,6 +85,26 @@ module Rex
 				@text = nil
 			end
 			@state[:current_tag].delete name
+		end
+
+		def record_exploit(exploit)
+			return unless in_tag("vulnerability")
+			return unless in_tag("exploits")
+			return unless @state[:vuln]
+			vuln = @state[:vuln]
+			vuln[:exploits] ||= []
+			vuln[:exploits] << exploit
+			@report_data[:vuln] = vuln
+		end
+
+		def record_malware
+			return unless in_tag("vulnerability")
+			return unless in_tag("malware")
+			return unless @state[:vuln]
+			vuln = @state[:vuln]
+			vuln[:malware] ||= []
+			vuln[:malware] << @text
+			@report_data[:vuln] = vuln
 		end
 
 		def collect_reference
@@ -210,6 +241,14 @@ module Rex
 			return unless in_tag("service")
 			return unless in_tag("fingerprint")
 			@state[:service_fingerprint] = attr_hash(attrs)
+		end
+
+		def record_software_fingerprint(attrs)
+			return unless in_tag("nodes")
+			return unless in_tag("node")
+			return unless in_tag("software")
+			return unless in_tag("fingerprint")
+			@state[:software_fingerprint] = attr_hash(attrs)
 		end
 
 		def record_service_info(attrs)
