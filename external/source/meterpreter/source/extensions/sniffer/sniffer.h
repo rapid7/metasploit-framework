@@ -35,7 +35,7 @@ typedef struct capturejob
 	unsigned char *dbuf;
 	unsigned int dlen;
 	unsigned int didx;
-	unsigned int capture_linktype; //current capture link type that we want to save, ie. LINKTYPE_ETHERNET
+	int capture_linktype; //current capture link type that we want to save, ie. LINKTYPE_ETHERNET
 #ifndef _WIN32
 	THREAD *thread;
 	pcap_t *pcap;
