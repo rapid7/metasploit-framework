@@ -120,13 +120,6 @@ class Metasploit3 < Msf::Auxiliary
 		base << get_resource
 	end
 
-	def process_data(cli, request, data)
-
-		#TODO: Log to file!
-
-	end
-
-
 	#Generation and obfuscation of javascript
 	def generate_js(base_url)
 		code = ::Rex::Exploitation::JSObfu.new %Q|
