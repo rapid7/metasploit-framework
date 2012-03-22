@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -27,7 +27,7 @@ class Metasploit3 < Msf::Auxiliary
 					from Oracle given the proper Credentials and SID.
 					These are then stored as loot for later cracking.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
 	end
@@ -99,32 +99,9 @@ class Metasploit3 < Msf::Auxiliary
 		end
 		print_status("Hash table :\n #{tbl}")
 		report_hashes(tbl.to_csv, is_11g, ip, this_service)
-
-		schema= get_schema()
-		unless schema.nil? or schema.empty?
-			report_other_data(schema,ip)
-		end
-
 	end
 
-	def get_schema
-		#Grabs the Database and table names for storage
-		#These names will be sued later to seed wordlists for cracking
-		query= 'SELECT DISTINCT owner FROM all_tables'
-		databases=  prepare_exec(query)
-		schema={}
-		unless databases.empty?
-			databases.each do |db|
-				query= "SELECT table_name FROM all_tables where owner=\'#{db}\'"
-				tables = prepare_exec(query)
-				unless tables.empty?
-					schema[db]= tables
-				end
-			end
 
-		end
-		return schema
-	end
 
 	def report_hashes(hash_loot, is_11g, ip, service)
 		#reports the hashes slightly differently depending on the version
@@ -140,20 +117,7 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
-	def report_other_data(oracle_schema,ip)
 
-		unless oracle_schema.nil?
-			report_note(
-				:host  => ip,
-				:type  => "oracle.schema",
-				:data  => oracle_schema,
-				:port  => datastore['RPORT'],
-				:proto => 'tcp',
-				:update => :unique_data
-			)
-		end
-
-	end
 
 
 end

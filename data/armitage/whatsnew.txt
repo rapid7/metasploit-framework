@@ -1,6 +1,235 @@
 Armitage Changelog
 ==================
 
+8 Mar 12 1.43-dev
+--------
+- Armitage now uses session_host to determine which host a session is associated
+  with. This value is grabbed directly from the OS itself. You'll no longer have
+  20 meterpreter sessions associated with a NAT/firewall device.
+- Armitage now spins up a new listener for each client-side attack (no longer
+  relying on the random default listener created on startup). Of course you can
+  change this... double-click the PAYLOAD option to set it to something else.
+- Token stealing dialog now disables refresh button while grabbing tokens. Enables
+  it again when done.
+- Armitage now talks to Metasploit every two minutes to prevent auth timeout.
+- Armitage now displays a firewall icon for hosts with no OS marked as a firewall
+  by MSF.
+- Armitage now selects an IPv6 bind payload when attacking IPv6 hosts.
+- Armitage now explicitly sets RPORT for different MSF Scan options and psexec.
+- Updated the about dialog to include a version number and release date.
+- Added a ./teamserver [external IP] [shared pass] script to the UNIX distro of 
+  Armitage. This script makes it much easier to startup Armitage's team server mode.
+
+2 Mar 12 - Catching up to a few MSF 4.3.0-dev changes...
+--------
+- Added a tab rename feature.
+- Hosts that self report as .NET server now display an XP/2003 era icon.
+- Updated route command parser to conform to Metasploit 4.3.0's output for it
+- "Check all credentials" feature now works when running the deconfliction 
+  server AND client from the same folder.
+- [host] -> Host -> Operating System -> * now clears notes related to host
+  before updating OS. This allows future scans to trigger MSF normalization
+  code and update the OS to something else (e.g., from Unknown to X)
+
+29 Feb 12
+---------
+- Armitage now displays a VMWare icon for hosts flagged as ESX/ESXi servers
+- Overhauled token stealing user experience--this is the cadillac version. You
+  now get a nice list of the available tokens (from the post module), click to
+  impersonate, refresh, rev2self, and getuid. 
+- Improved file browser responsiveness
+- Table view now allows individual hosts to be deselected in an interveral 
+  (Armitage will no longer reselect these hosts for you)
+- Dynamic workspaces no longer requires a comma and a space between entries (a
+  comma is good enough)
+- Improved the [Host] -> Remove menu option
+- Deconfliction server now returns the previous 100 events to new clients.
+- File browser directory up button is now more obvious
+- Keyboard accelerators when you right-click in the graph view are now correct.
+- Adjusted the graph view scrolling increments to something sane.
+- Added a slight delay between commands issued to a console to prevent them 
+  from executing out of order.
+
+21 Feb 12
+---------
+- Added Cut/Copy/Paste menu to table cell editor.
+- Module browser search field now treats spaces as a wildcard. You may type:
+  "win meterp" and Armitage will treat it as "win*meterp"
+- Hovering over an edge in graph view no longer reports a "null" tooltip
+- Fixed parsing of ps output for the process dialog (it's much much better now)
+
+14 Feb 12
+---------
+- Added ports 5631 (pc anywhere) and 902 (vmauthd) to the MSF Scans feature.
+- Several cosmetic tweaks to the spacing in Armitage tables.
+- Moved table render code from Sleep to Java to avoid potential lock conflicts
+- Added support for vba-exe payload output type.
+- Payload generation dialog now sets more appropriate default options for the
+  vba output type when it is selected.
+- Meterp command shell "read more stuff?" heuristic now accounts for Yes/No/All
+- Fixed ExitOnSession showing up twice when setting advanced options for a 
+  client-side exploit
+- You may now import multiple files through Hosts -> Import again.
+- Added 5s timeout to d-server connect attempt.
+- Added a --client [connect.properties] to specify which Metasploit server to 
+  connect to. The connect.properties file is a Java properties file that looks
+  like this (without the leading whitespace):
+
+  host=127.0.0.1
+  port=55553
+  user=msf
+  pass=test
+
+19 Jan 12
+---------
+- Data export now includes a sessions file. This lists all of the Metasploit
+  sessions you had in your database. There's some neat data here including
+  which exploit was used, which payload, start time, and close time. You can
+  calculate how much time you spent on your client's boxes. Cool stuff.
+- Fixed a potential dead-lock caused by mouse enter/exit events firing code
+  that required a lock. Nice landmine to defuse.
+- Fixed a weird condition with d-server detection. Sometimes (rarely)
+  Armitage wouldn't detect the d-server even when it's present.
+- Added check to d-server allowing one lock per/client. Client won't reobtain
+  a lock until it lets it go. This prevents you from opening two shell tabs
+  for a shell session in team mode.
+- Fixed an infinite loop condition when some Windows shell commands would
+  return output with no newlines (e.g., net stop [some service]). Thanks
+  Jesse for pointing me to this one.
+- Data export now includes a timeline file. This file documents all of the
+  major engagement events seen by Armitage. Included with each of these 
+  events is the source ip of the attack system and the user who carried out
+  the action (when teaming is setup).
+- Data export now exports timestamps with current timezone (not GMT)
+- Fixed a nasty bug that's been with Armitage since the beginning! I wasn't
+  freeing edges properly in the graph view. If you had pivots setup in graph
+  view and used Armitage long enough--eventually Armitage would slow down until 
+  the program became unusable. At least it's fixed now.
+- Adjusted the d-server state identity hash combination algorithm to better
+  avoid collissions.
+- Armitage now displays 'shell session' below a host if the host info is just
+  the Windows shell banner.
+
+5 Jan 12
+--------
+- Armitage d-server now transmits hosts, service, and session state only 
+  when something has changed. This makes teaming much snappier.
+- Uploading an imported hosts file now shows a progress dialog.
+- File browser upload function no longer blocks the user interface in team
+  mode. A progress dialog is shown for uploading larger files. 
+- Removed Ctrl+R refresh hosts shortcut from graph view (it's no longer 
+  necessary)
+- Armitage now exits if it was unable to connect to the collaboration server.
+- Hosts -> NMap Scans and Hosts -> MSF Scans dialogs are now populated with 
+  the selected values from the target area by default.
+- You may now interact with a Windows command shell through Java meterpreter.
+- Armitage no longer shows Webcam Shot option through Java meterpreter.
+- Armitage now detects when it does not have read permissions for the database
+  YAML file and prompts with something helpful. Before it would just freeze
+  with a blank dialog. Not helpful. :)
+- Armitage now only shows services that are open. 
+- View -> Reporting -> Export Data now has the capability of dumping the whole
+  database (not just the current workspace).
+- Added a dialog to View -> Reporting Export Data. Now you have the ability to
+  dump all hosts or choose to dump one of the dynamic workspaces. This gives
+  you a lot of flexibility with which hosts are included.
+- Cleaned up exported output of vulnerabilities in the Metasploit database:
+  -- duplicate entries are collapsed to one (this was the fault of my query)
+  -- refs column contains references separated by a comma and a space
+  -- added info and module columns. The module column indicates the appropriate
+     Metasploit module
+  -- Metasploit modules now populate name, info, and module in an appropriate
+     way.
+- Values exported to TSV are cleaned up such that newlines are replaced with a
+  literal \n and tabs are converted to three spaces.
+
+30 Dec 11 - last release of the year?
+---------
+- Hosts -> Clear Database now clears the sessions and clients tables 
+- Fixed a bug preventing dynamic workspace port/session filter from 
+  working on a fresh database. This was a fun one. This only affected 
+  folks with a completely fresh database and because Hosts -> Clear 
+  Database didn't clear everything, this went unnoticed until now.
+- Added various reverse shell payloads to payload helper dialog.
+- Added file chooser helper for SigningCert and SigningKey options.
+- Added hack to return correct route info when setting up pivoting through
+  Java meterpreter.
+- Armitage now posts a note to the event log when a user starts a browser 
+  exploit or a server module.
+- Armitage now supports dragging and dropping a module onto a host in graph
+  and table view. This action opens the module launcher configured to work
+  with that host.
+- Drastically rewrote MSF Scans. MSF Scans now intelligently builds a list
+  of ports to scan based on what Metasploit can do. After an initial port
+  scan, MSF Scans runs discovery modules against relevant hosts. As a bonus
+  you will see all of the output of these scans. 
+- Enhanced the Windows heuristic used to guess which OS image to display
+- The deconfliction server throttle is now less draconian about how long it
+  throttles a call.
+- Armitage no longer posts to the event log from the UI thread (this will
+  prevent the UI from blocking in some cases)
+- Command shell now handles interaction with d-server in a separate thread
+  from the UI thread. This will prevent UI blocking in some cases.
+- Added Ping Sweep... option for non-Windows meterpreter sessions. Now Java
+  meterpreter users have a quick host discovery option.
+- Change Host OS option now matches new Metasploit database schema.
+- Deconfliction server now sets LHOST to the IP address you provided. Also,
+  Armitage clients do not overwrite LHOST once it is set.
+- Interacting with a shell in team mode no longer blocks UI to communicate
+  with d-server.
+
+12 Dec 11
+---------
+- Armitage teaming mode now downloads the resulting file for any fileformat
+  exploit.
+- Armitage -> Set Exploit Rank and Set Target View now show a * next to an 
+  item to indicate the current setting.
+- Shift+click on Launch in a module launch dialog will not close the module
+  launch dialog. One use case for this: set up a payload multi/handler, 
+  shift+click Launch to do it, then change output type to exe, click Launch
+  and you're all set.
+- Dynamic Workspace editor now trims whitespace from your entries. Errant
+  whitespace causes Armitage to reject the entry and your workspace never
+  acivates.
+- Updated the "msfrpcd died" troubleshooting dialog. The new one takes folks
+  to a website with detailed information. 
+- Armitage now uses "load" to load a meterpreter module instead of "use"
+- Key logger event log announcement now notes the session ID. This is so 
+  your teammates will know not to migrate that session since it's recording
+  key strokes.
+- Right-click X in tab -> Save Screenshot now displays filename without the
+  path.
+- Deconfliction server now detects when database is not available and offers
+  troubleshooting steps. 
+- Loot/Downloads viewer now has a right-click menu to Copy selected text.
+
+22 Nov 11 - A big improvement...
+---------
+- Services refresh is now set to 30s (vs. 60s before)
+- Workspaces -> Manage now opens as a tab and shows all data about workspaces
+- Fixed a bug with Edit Workspace not auto-checking session box when set.
+- Meterpreter -> Access -> Escalate Privileges now highlights the priv esc
+  options in the post module true. This is viable now that getsystem is a   
+  module.
+- Payload module launcher now lets you set Template, Iterations, Encoder, and
+  KeepTemplateWorking for any Windows payload. Also, payload is generated and
+  saved locally without opening a tab. 
+- sessions -i ## trap is now smarter and opens a shell tab for shell sessions,
+  a meterpreter tab for meterpreter sessions, and offers an error when you
+  try to interact with a session that doesn't exist.
+- Armitage no longer shows a host until it receives a db.hosts reply.
+- Right-click a module and select Relevant Targets to create a dynamic 
+  workspace that shows only targets that meet the host/port criteria for that
+  module. Use Ctrl+A to select all of those hosts and rock'n'roll. :)
+- Hosts -> Import Hosts now works when the folder/file has spaces in it.
+- Dynamic workspaces are now local to the current Armitage client. They no
+  longer have a global effect in teaming mode.
+- Added an Activate button to workspace management dialog.
+- Fixed a bug with sessions only dyn workspace sometimes showing hosts that
+  do not have sessions.
+- You may now highlight multiple jobs in View -> Jobs and select Kill to get
+  rid of all them at once.
+
 11.17.11 - All the things I wanted to do, but didn't have time
 --------
 Release Note 1: if you use Armitage teaming, things changed. You have to start 

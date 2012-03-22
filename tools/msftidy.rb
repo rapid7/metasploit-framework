@@ -3,7 +3,7 @@
 # Check (recursively) for style compliance violations and other
 # tree inconsistencies.
 #
-# by jduck
+# by jduck and friends
 #
 
 ##
@@ -13,6 +13,12 @@
 ##
 
 LONG_LINE_LENGTH = 200 # From 100 to 200 which is stupidly long
+CHECK_OLD_RUBIES = !!ENV['MSF_CHECK_OLD_RUBIES']
+
+if CHECK_OLD_RUBIES
+	require 'rvm'
+	warn "This is going to take a while, depending on the number of Rubies you have installed."
+end
 
 def show_count(f, txt, num)
 	puts "%s ... %s: %u" % [f, txt, num] if num > 0
@@ -20,6 +26,16 @@ end
 
 def show_missing(f, txt, val)
 	puts '%s ... %s' % [f, txt] if not val
+end
+
+# This check is only enabled if the environment variable MSF_CHECK_OLD_RUBIES is set
+def test_old_rubies(f_rel)
+	return true unless CHECK_OLD_RUBIES
+	return true unless Object.const_defined? :RVM
+	puts "Checking syntax for #{f_rel}."
+	@rubies ||= RVM.list_strings
+	res = %x{rvm all do ruby -c #{f_rel}}.split("\n").select {|msg| msg =~ /Syntax OK/}
+	@rubies.size == res.size
 end
 
 
@@ -31,7 +47,13 @@ def check_single_file(dparts, fparts, f_rel)
 
 	# check for executable
 	f_exec = File.executable?(f_rel)
-	show_missing(f, "is executable", !f_exec)
+	show_missing(f, "WARNING: is executable", !f_exec)
+
+	# check all installed rubies
+	
+	old_rubies = test_old_rubies(f_rel)
+	show_missing(f, "ERROR: fails alternate Ruby version check", old_rubies)
+
 
 	# check various properties based on content
 	content = File.open(f_rel, "rb").read
@@ -42,24 +64,87 @@ def check_single_file(dparts, fparts, f_rel)
 		has_dd = false
 
 		has_rank = true if content =~ /Rank =/
-		has_dd = true if content =~ /DisclosureDate/
+		has_dd = true if content =~ /DisclosureDate/ or content =~ /Generic Payload Handler/
 
-		show_missing(f, 'missing exploit ranking', has_rank)
-		show_missing(f, 'missing disclosure date', has_dd)
+		show_missing(f, 'ERROR: missing exploit ranking', has_rank)
+		show_missing(f, 'ERROR: missing disclosure date', has_dd)
 	end
 
+	# Check disclosure date format
+	if content =~ /'DisclosureDate' => ['|\"](.+)['|\"]/
+		d = $1  #Captured date
+		# Flag if overall format is wrong
+		if d =~ /^... \d{1,2} \d{4}/
+			# Flag if month format is wrong
+			m = d.split[0]
+			months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+			if months.index(m).nil?
+				show_missing(f, 'WARNING: incorrect disclosure month format', false)
+			end
+		else
+			show_missing(f, 'WARNING: incorrect disclosure date format', false)
+		end
+	end
+
+	# Check title format
+	if content =~ /'Name'\s+=>\s[\x22\x27](.+)[\x22\x27],\s*$/
+		name = $1
+		words = $1.split
+		[words.first, words.last].each do |word|
+			if word[0,1] =~ /[a-z]/ and word[1,1] !~ /[A-Z0-9]/
+				next if word =~ /php[A-Z]/
+				next if %w{iseemedia activePDF freeFTPd osCommerce myBB}.include? word
+				show_missing(f, "WARNING: bad capitalization in module title: #{word}", false)
+			end
+		end
+	end
+
+	# If an exploit module mentinos the word "stack overflow", chances are they mean "stack buffer overflow".
+	# "stack overflow" means "stack exhaustion".  See explanation:
+	# http://blogs.technet.com/b/srd/archive/2009/01/28/stack-overflow-stack-exhaustion-not-the-same-as-stack-buffer-overflow.aspx
 	bad_term = true
-	if content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+	if content =~ /class Metasploit\d < Msf::Exploit::Remote/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
 		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack buffer overflow"?', bad_term)
+	elsif content =~ /class Metasploit\d < Msf::Auxiliary/ and content.gsub("\n", "") =~ /stack[[:space:]]+overflow/i
+		bad_term = false
+		show_missing(f, 'WARNING: contains "stack overflow" You mean "stack exhaustion"?', bad_term)
 	end
 
-	show_missing(f, 'contains "stack overflow"', bad_term)
+	# Check function naming style and arg length
+	functions = content.scan(/def (\w+)\(*(.+)\)*/)
 
+	functions.each do |func_name, args|
+=begin
+		# Check Ruby variable naming style
+		if func_name =~ /[a-z][A-Z]/ or func_name =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor function naming style for: '#{func_name}'", false)
+		end
+=end
+
+		# Check argument length
+		args_length = args.split(",").length
+		if args_length > 6
+			show_missing(f, "WARNING: Poorly designed argument list in '#{func_name}'. Try a hash.", false)
+		end
+	end
+
+=begin
+	vars = content.scan(/([\x20|\w]+) \= [\'|\"]*\w[\'|\"]*/).flatten
+	vars.each do |v|
+		v = v.strip
+		next if v =~ /^var/ or v =~ /^Rank/
+		if v =~ /[a-z][A-Z]/ or v =~ /[A-Z][a-z]/
+			show_missing(f, "WARNING: Poor variable naming style for: '#{v}'", false)
+		end
+	end
+=end
 
 	# check criteria based on individual lines
 	spaces = 0
 	bi = []
 	ll = []
+	bc = []
 	cr = 0
 	url_ok = true
 	nbo = 0 # non-bin open
@@ -91,6 +176,9 @@ def check_single_file(dparts, fparts, f_rel)
 		src_ended = true if ln =~ /^__END__$/
 		next if src_ended
 
+		if ln =~ /[\x00-\x08\x0b\x0c\x0e-\x19\x7f-\xff]/
+			bc << [ idx, ln.inspect]
+		end
 
 		if (ln.length > LONG_LINE_LENGTH)
 			ll << [ idx, ln ]
@@ -103,7 +191,7 @@ def check_single_file(dparts, fparts, f_rel)
 		cr += 1 if ln =~ /\r$/
 		url_ok = false if ln =~ /\.com\/projects\/Framework/
 		if ln =~ /File\.open/ and ln =~ /[\"\'][arw]/
-			if not ln =~ /[\"\'][wra]b\+?[\"\']/
+			if not ln =~ /[\"\'][wra]\+?b\+?[\"\']/
 				nbo += 1
 			end
 		end
@@ -117,7 +205,7 @@ def check_single_file(dparts, fparts, f_rel)
 	}
 
 	# report information for this file
-	show_count(f, 'spaces at EOL', spaces)
+	show_count(f, 'WARNING: spaces at EOL', spaces)
 	if bi.length > 0
 		puts '%s ... bad indent: %u' % [f, bi.length]
 		bi.each { |el|
@@ -127,17 +215,25 @@ def check_single_file(dparts, fparts, f_rel)
 	end
 
 	if ll.length > 0
-		puts "%s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
+		puts "WARNING: %s ... lines longer than #{LONG_LINE_LENGTH} columns: %u" % [f, ll.length]
 		ll.each { |el|
 			el[1] = el[1].inspect
 			puts '  %8d: %s' % el
 		}
 	end
 
-	show_count(f, 'carriage return EOL', cr)
-	show_missing(f, 'incorrect URL to framework site', url_ok)
-	show_missing(f, 'writes to stdout', no_stdio)
-	show_count(f, 'File.open without binary mode', nbo)
+	if bc.length > 0
+		puts "ERROR: %s ... probably has unicode: %u" % [f, bc.length]
+		bc.each { |ec|
+			ec[1] = ec[1].inspect
+			puts '  %8d: %s' % ec
+		}
+	end
+
+	show_count(f, 'WARNING: carriage return EOL', cr)
+	show_missing(f, 'WARNING: incorrect URL to framework site', url_ok)
+	show_missing(f, 'ERROR: writes to stdout', no_stdio)
+	show_count(f, 'WARNING: File.open without binary mode', nbo)
 end
 
 

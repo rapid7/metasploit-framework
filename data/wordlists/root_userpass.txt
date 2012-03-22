@@ -47,3 +47,4 @@ root letmein
 root powerapp
 root dbps
 root ibm
+root monitor

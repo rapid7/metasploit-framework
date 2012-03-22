@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -161,7 +161,7 @@ class Metasploit3 < Msf::Post
 
 	# Run enumeration commands for when privilege level is 7 or 15
 	def enum_priv(prompt)
-		host,port = session.tunnel_peer.split(':')
+		host,port = session.session_host, session.session_port
 		priv_commands = [
 			{
 				"cmd"  => "show run",

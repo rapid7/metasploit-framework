@@ -21,6 +21,10 @@ class Host < ActiveRecord::Base
 	validates_exclusion_of :address, :in => ['127.0.0.1']
 	validates_uniqueness_of :address, :scope => :workspace_id
 
+	def is_vm?
+		!!self.virtual_host
+	end
+
 	def attribute_locked?(attr)
 		n = notes.find_by_ntype("host.updated.#{attr}")
 		n && n.data[:locked]
@@ -32,6 +36,12 @@ class Host < ActiveRecord::Base
 	def validate_fingerprint_data(fp)
 		if fp.data.kind_of?(Hash) and !fp.data.empty?
 			return true
+		elsif fp.ntype == "postgresql.fingerprint"
+			# Special case postgresql.fingerprint; it's always a string,
+			# and should not be used for OS fingerprinting (yet), so
+			# don't bother logging it. TODO: fix os fingerprint finding, this
+			# name collision seems silly.
+			return false
 		else
 			dlog("Could not validate fingerprint data: #{fp.inspect}")
 			return false
@@ -55,7 +65,6 @@ class Host < ActiveRecord::Base
 		warch = {} # arch      == x86, PPC, SPARC, MIPS, ''
 		wlang = {} # os_lang   == English, ''
 		whost = {} # hostname
-		wtype = {} # purpose
 
 		# Note that we're already restricting the query to this host by using
 		# host.notes instead of Note, so don't need a host_id in the
@@ -676,6 +685,16 @@ class Host < ActiveRecord::Base
 					wtype['server'] = wtype['server'].to_i + points
 				end # End of s.info for SMTP
 
+			when 'https'
+				points = 101
+				case s.info
+				when /(VMware\s(ESXi?)).*\s([\d\.]+)/
+					# Very reliable fingerprinting from our own esx_fingerprint module
+					wname[$1] = wname[$1].to_i + (points * 5)
+					wflav[$3] = wflav[$3].to_i + (points * 5)
+					wtype['device'] = wtype['device'].to_i + points
+				end # End of s.info for HTTPS
+
 			when 'netbios'
 				points = 201
 				case s.info
@@ -710,7 +729,9 @@ class Host < ActiveRecord::Base
 		best_match[:name]      = whost.keys.sort{|a,b| whost[b] <=> whost[a]}[0]
 		best_match[:os_lang]   = wlang.keys.sort{|a,b| wlang[b] <=> wlang[a]}[0]
 
-		best_match[:os_flavor] ||= ""
+		# If service tests were inconclusive, use whatever the host already
+		# has, if anything.
+		best_match[:os_flavor] ||= host[:os_flavor] || ""
 		if best_match[:os_name]
 			# Handle cases where the flavor contains the base name
 			# Don't use gsub!() here because the string was a hash key in a
@@ -718,7 +739,9 @@ class Host < ActiveRecord::Base
 			best_match[:os_flavor] = best_match[:os_flavor].gsub(best_match[:os_name], '')
 		end
 
-		best_match[:os_name] ||= 'Unknown'
+		# As with os_flavor above, if we didn't get anything, use whatever the
+		# host already has.  Failing that, fallback to "Unknown"
+		best_match[:os_name] ||= host[:os_name] || 'Unknown'
 		best_match[:purpose] ||= 'device'
 
 		[:os_name, :purpose, :os_flavor, :os_sp, :arch, :name, :os_lang].each do |host_attr|

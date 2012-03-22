@@ -341,24 +341,10 @@ class Module
 	#
 	# Return the module's legacy version information.
 	#
-	def legacy_version
+	def version
 		module_info['Version'].split(/,/).map { |ver|
 			ver.gsub(/\$Rev.s.on:\s+|\s+\$$/, '')
 		}.join(',')
-	end
-
-	#
-	# Calculate the version information using SVN's all-wcprops entries file.
-	# If it's not present (always get case for github checkouts), fall back to the
-	# old in-module method instead. TODO: Completely deprecate in-module versions.
-	#
-	def version
-		svn_all_wcprops = ::File.join(::File.split(self.file_path).first,".svn","all-wcprops")
-		return legacy_version unless ::File.readable?(svn_all_wcprops)
-		mod_pathname = refname + ".rb"
-		prop_info = ::File.readlines(svn_all_wcprops,"rb").select {|line| line =~ /#{mod_pathname}$/}.first
-		prop_version = prop_info.match(/!svn[\x5c\x2f]ver[\x5c\x2f]([0-9]+)/)
-		(prop_version and prop_version[1]) ? prop_version[1] : legacy_version
 	end
 
 	#
@@ -390,6 +376,21 @@ class Module
 		nil
 	end
 
+	#
+	# Returns the address of the last target port (rough estimate)
+	#
+	def target_port
+		if(self.respond_to?('rport'))
+			return rport()
+		end
+
+		if(self.datastore['RPORT'])
+			return self.datastore['RPORT']
+		end
+
+		nil
+	end
+	
 	#
 	# Returns the current workspace
 	#
@@ -615,7 +616,15 @@ class Module
 	def debugging?
 		(datastore['DEBUG'] || '') =~ /^(1|t|y)/i
 	end
-
+	
+	#
+	# Indicates whether the module supports IPv6. This is true by default,
+	# but certain modules require additional work to be compatible or are
+	# hardcoded in terms of application support and should be skipped.
+	#
+	def support_ipv6?
+		true
+	end
 
 	#
 	# This provides a standard set of search filters for every module.
@@ -696,6 +705,8 @@ class Module
 							if not match and self.respond_to?(:targets) and self.targets
 								match = [t,w] if self.targets.map{|x| x.name}.any? { |t| t =~ r }
 							end
+						when 'port'
+							match = [t,w] if self.datastore['RPORT'].to_s =~ r
 						when 'type'
 							match = [t,w] if (w == "exploit" and is_exploit)
 							match = [t,w] if (w == "auxiliary" and is_auxiliary)

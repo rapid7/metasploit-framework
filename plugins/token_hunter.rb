@@ -63,14 +63,14 @@ class Plugin::TokenHunter < Msf::Plugin
 				session = framework.sessions[sid]
 				next if session.type != "meterpreter"
 
-				print_status(">> Scanning session #{session.sid} / #{session.tunnel_peer}")
+				print_status(">> Scanning session #{session.sid} / #{session.session_host}")
 
 				if(! session.incognito)
 					session.core.use("incognito")
 				end
 
 				if(! session.incognito)
-					print_status("!! Failed to load incognito on #{session.sid} / #{session.tunnel_peer}")
+					print_status("!! Failed to load incognito on #{session.sid} / #{session.session_host}")
 					next
 				end
 
@@ -87,14 +87,14 @@ class Plugin::TokenHunter < Msf::Plugin
 							end
 
 							if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
-								print_status("FOUND: #{session.sid} - #{session.tunnel_peer} - #{user} (delegation)")
+								print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
 								next
 							end
 
 							fdom,fusr = user.split("\\")
 
 							if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
-								print_status("FOUND: #{session.sid} - #{session.tunnel_peer} - #{user} (delegation)")
+								print_status("FOUND: #{session.sid} - #{session.session_host} - #{user} (delegation)")
 							end
 						end
 
@@ -113,13 +113,13 @@ class Plugin::TokenHunter < Msf::Plugin
 							end
 
 							if(not user.nil? and ndom and user.strip.downcase == needle.strip.downcase)
-								print_status(">> Found #{session.sid} - #{session.tunnel_peer} - #{user} (impersonation)")
+								print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
 								next
 							end
 
 							fdom,fusr = user.split("\\")
 							if (not fusr.nil? and ! ndom and fusr.strip.downcase == nusr.strip.downcase)
-								print_status(">> Found #{session.sid} - #{session.tunnel_peer} - #{user} (impersonation)")
+								print_status(">> Found #{session.sid} - #{session.session_host} - #{user} (impersonation)")
 							end
 						end
 

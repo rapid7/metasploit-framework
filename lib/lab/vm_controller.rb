@@ -50,19 +50,25 @@ module Controllers
 		def [](x)
 			# Support indexing by both names and number
 			if x.class == String
-				find_by_vmid(x)
+				find_by_hostname(x)
 			else
 				return @vms[x]
 			end
 		end
 
-		def find_by_vmid(vmid)
+		def find_by_hostname(vmid)
 			@vms.each do |vm|
 				if (vm.hostname.to_s.downcase == vmid.to_s.downcase)
 					return vm
 				end
 			end
-			return nil
+		return nil
+		end
+
+		def find_by_tag(tag_name)
+			tagged_vms = []
+		 	@vms.each { |vm| tagged_vms << vm if vm.tagged?(tag_name) }
+		return tagged_vms
 		end
 
 		def add_vm(vmid, location=nil, os=nil, tools=nil, credentials=nil, user=nil, host=nil)			
@@ -75,7 +81,7 @@ module Controllers
 		end
 
 		def remove_by_vmid(vmid)
-			@vms.delete(self.find_by_vmid(vmid))
+			@vms.delete(self.find_by_hostname(vmid))
 		end	
 
 		def from_file(file)
@@ -107,6 +113,14 @@ module Controllers
 			end
 		false
 		end
+
+		def includes_hostname?(hostname)
+			@vms.each do |vm|
+				return true if (vm.hostname == hostname)
+			end
+		false
+		end
+
 
 		def build_from_dir(driver_type, dir, clear=false)
 		
@@ -144,12 +158,12 @@ module Controllers
 			case driver_type.intern
 				when :workstation
 					vm_list = ::Lab::Controllers::WorkstationController::running_list
-					
+
 					vm_list.each do |item|
-			
+
 						## Name the VM
 						index = @vms.count + 1
-	
+
 						## Add it to the vm list
 						@vms << Vm.new( {	'vmid' => "vm_#{index}",
 									'driver' => driver_type, 
@@ -157,8 +171,6 @@ module Controllers
 									'user' => user,
 									'host' => host } )
 					end
-					
-					
 				when :virtualbox
 					vm_list = ::Lab::Controllers::VirtualBoxController::running_list
 					vm_list.each do |item|
@@ -175,10 +187,10 @@ module Controllers
 					vm_list = ::Lab::Controllers::RemoteWorkstationController::running_list(user, host)
 					
 					vm_list.each do |item|
-			
+
 						## Name the VM
 						index = @vms.count + 1
-	
+
 						## Add it to the vm list
 						@vms << Vm.new( {	'vmid' => "vm_#{index}",
 									'driver' => driver_type, 
@@ -188,7 +200,6 @@ module Controllers
 					end
 				when :remote_esx
 					vm_list = ::Lab::Controllers::RemoteEsxController::running_list(user,host)
-					
 					vm_list.each do |item|
 						@vms << Vm.new( {	'vmid' => "#{item[:id]}",
 									'name' => "#{item[:name]}",
@@ -196,12 +207,11 @@ module Controllers
 									'user' => user,
 									'host' => host } )
 					end
-						
 				else
 					raise TypeError, "Unsupported VM Type"
 				end
 
-		end	
+		end
 
 		def build_from_config(driver_type=nil, user=nil, host=nil, clear=false)
 			if clear
@@ -220,18 +230,17 @@ module Controllers
 									'user' => user,
 									'host' => host } )
 					end
-						
 				else
 					raise TypeError, "Unsupported VM Type"
 				end
 
-		end	
+		end
 
 		def running?(vmid)
 			if includes_vmid?(vmid)
-				return self.find_by_vmid(vmid).running?
+				return self.find_by_hostname(vmid).running?
 			end
-			return false 
+			return false
 		end
 	end
 end

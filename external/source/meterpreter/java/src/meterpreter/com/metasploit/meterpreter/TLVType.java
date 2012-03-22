@@ -62,16 +62,22 @@ public interface TLVType {
 	// Net
 	public static final int TLV_TYPE_HOST_NAME = TLVPacket.TLV_META_TYPE_STRING | 1400;
 	public static final int TLV_TYPE_PORT = TLVPacket.TLV_META_TYPE_UINT | 1401;
+	public static final int TLV_TYPE_MTU = TLVPacket.TLV_META_TYPE_UINT | 1402;
 
 	public static final int TLV_TYPE_SUBNET = TLVPacket.TLV_META_TYPE_RAW | 1420;
 	public static final int TLV_TYPE_NETMASK = TLVPacket.TLV_META_TYPE_RAW | 1421;
 	public static final int TLV_TYPE_GATEWAY = TLVPacket.TLV_META_TYPE_RAW | 1422;
 	public static final int TLV_TYPE_NETWORK_ROUTE = TLVPacket.TLV_META_TYPE_GROUP | 1423;
+	public static final int TLV_TYPE_SUBNET6 = TLVPacket.TLV_META_TYPE_RAW | 1424;
+	public static final int TLV_TYPE_NETMASK6 = TLVPacket.TLV_META_TYPE_RAW | 1425;
+	public static final int TLV_TYPE_GATEWAY6 = TLVPacket.TLV_META_TYPE_RAW | 1426;
+	public static final int TLV_TYPE_NETWORK_ROUTE6 = TLVPacket.TLV_META_TYPE_GROUP | 1427;
 
 	public static final int TLV_TYPE_IP = TLVPacket.TLV_META_TYPE_RAW | 1430;
 	public static final int TLV_TYPE_MAC_ADDRESS = TLVPacket.TLV_META_TYPE_RAW | 1431;
 	public static final int TLV_TYPE_MAC_NAME = TLVPacket.TLV_META_TYPE_STRING | 1432;
 	public static final int TLV_TYPE_NETWORK_INTERFACE = TLVPacket.TLV_META_TYPE_GROUP | 1433;
+	public static final int TLV_TYPE_IP6 = TLVPacket.TLV_META_TYPE_RAW | 1434;
 
 	public static final int TLV_TYPE_SUBNET_STRING = TLVPacket.TLV_META_TYPE_STRING | 1440;
 	public static final int TLV_TYPE_NETMASK_STRING = TLVPacket.TLV_META_TYPE_STRING | 1441;

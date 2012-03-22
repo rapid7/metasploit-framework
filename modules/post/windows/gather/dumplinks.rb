@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -130,9 +130,10 @@ class Metasploit3 < Msf::Post
 					@data_out += get_showwnd(hdr)
 					@data_out += get_lnk_MAC(hdr)
 
+					# advance the file & offset
+					offset += 0x4c
+
 					if shell_item_id_list(hdr)
-						# advance the file & offset
-						offset += 0x4c
 						lnk_file.sysseek(offset, ::IO::SEEK_SET)
 						record = lnk_file.sysread(2)
 						offset += record.unpack('v')[0] + 2

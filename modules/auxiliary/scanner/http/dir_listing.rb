@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -16,7 +16,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanDir
+	include Msf::Auxiliary::WmapScanDir
 	include Msf::Auxiliary::Scanner
 	include Msf::Auxiliary::Report
 
@@ -56,13 +56,20 @@ class Metasploit3 < Msf::Auxiliary
 				if res.to_s.include? "<title>Index of /" and res.to_s.include? "<h1>Index of /"
 					print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
-					report_note(
+					report_web_vuln(
 						:host	=> ip,
-						:proto => 'tcp',
-						:sname	=> 'HTTP',
 						:port	=> rport,
-						:type	=> 'DIR_LISTING',
-						:data	=> "#{tpath}"
+						:vhost  => vhost,
+						:ssl    => ssl,
+						:path	=> "#{tpath}",
+						:method => 'GET',
+						:pname  => "",
+						:proof  => "Res code: #{res.code.to_s}",
+						:risk   => 0,
+						:confidence   => 100,
+						:category     => 'directory',
+						:description  => 'Directoy found allowing liting of its contents.',
+						:name   => 'directory listing'
 					)
 
 				end
@@ -70,13 +77,20 @@ class Metasploit3 < Msf::Auxiliary
 				if res.to_s.include? "[To Parent Directory]</A>" and res.to_s.include? "#{tpath}</H1><hr>"
 					print_status("Found Directory Listing #{wmap_base_url}#{tpath}")
 
-					report_note(
+					report_web_vuln(
 						:host	=> ip,
-						:proto => 'tcp',
-						:sname	=> 'HTTP',
 						:port	=> rport,
-						:type	=> 'DIR_LISTING',
-						:data	=> "#{tpath}"
+						:vhost  => vhost,
+						:ssl    => ssl,
+						:path	=> "#{tpath}",
+						:method => 'GET',
+						:pname  => "",
+						:proof  => "Res code: #{res.code.to_s}",
+						:risk   => 0,
+						:confidence   => 100,
+						:category     => 'directory',
+						:description  => 'Directory found allowing listing of its contents.',
+						:name   => 'directory listing'
 					)
 
 				end

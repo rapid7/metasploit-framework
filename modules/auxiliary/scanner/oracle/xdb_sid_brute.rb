@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -22,7 +22,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'        => 'Oracle XML DB SID Discovery via Brute Force',
 			'Description' => %q{
 					This module attempts to retrieve the sid from the Oracle XML DB httpd server,
-					utilizing Pete Finnigan s default oracle password list.
+					utilizing Pete Finnigan's default oracle password list.
 			},
 			'Version'     => '$Revision$',
 			'References'  =>
@@ -88,11 +88,18 @@ class Metasploit3 < Msf::Auxiliary
 					res.body = res.bufq
 				end
 				sid = res.body.scan(/<GLOBAL_NAME>(\S+)<\/GLOBAL_NAME>/)[0]
-				report_note(:host => ip, :proto	=> 'tcp', :port => datastore['RPORT'], :type => 'SERVICE_NAME', :data => "#{sid}", :update => :unique_data)
+				report_note(
+					:host => ip,
+					:proto	=> 'tcp',
+					:port => datastore['RPORT'],
+					:type => 'SERVICE_NAME',
+					:data => sid,
+					:update => :unique_data
+				)
 				print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
 				users.push(user_pass)
 			else
-				print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
+				vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
 			end
 		end #fd.each
 
@@ -125,7 +132,15 @@ class Metasploit3 < Msf::Auxiliary
 						p = e.elements['PRODUCT'].get_text
 						v = e.elements['VERSION'].get_text
 						s = e.elements['STATUS'].get_text
-						report_note(:host => datastore['RHOST'], :sname => 'XDB', :proto => 'tcp', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{p}#{v}", :update => :unique_data)
+						report_note(
+							:host => datastore['RHOST'],
+							:sname => 'xdb',
+							:proto => 'tcp',
+							:port => datastore['RPORT'],
+							:type => 'ORA_ENUM',
+							:data => "Component Version: #{p}#{v}",
+							:update => :unique_data
+						)
 						print_good("\t#{p}\t\t#{v}\t(#{s})")
 
 					end
@@ -155,7 +170,15 @@ class Metasploit3 < Msf::Auxiliary
 					doc.elements.each('ALL_REGISTRY_BANNERS/ROW') do |e|
 						next if e.elements['BANNER'] == nil
 						b = e.elements['BANNER'].get_text
-						report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Component Version: #{b}", :update => :unique_data)
+						report_note(
+							:host => datastore['RHOST'],
+							:proto => 'tcp',
+							:sname => 'xdb',
+							:port => datastore['RPORT'],
+							:type => 'ORA_ENUM',
+							:data => "Component Version: #{b}",
+							:update => :unique_data
+						)
 						print_good("\t#{b}")
 					end
 				end
@@ -195,7 +218,15 @@ class Metasploit3 < Msf::Auxiliary
 
 						if(sid and sid != "")
 							print_good("\tLink: #{d}\t#{us}\@#{h[0]}/#{sid[0]}")
-							report_note(:host => h[0], :proto => 'tcp', :port => datastore['RPORT'], :sname => 'XDB', :type => 'oracle_sid', :data => "#{sid}", :update => :unique_data)
+							report_note(
+								:host => h[0],
+								:proto => 'tcp',
+								:port => datastore['RPORT'],
+								:sname => 'xdb',
+								:type => 'oracle_sid',
+								:data => sid,
+								:update => :unique_data
+							)
 						else
 							print_good("\tLink: #{d}\t#{us}\@#{h}")
 						end
@@ -233,9 +264,25 @@ class Metasploit3 < Msf::Auxiliary
 					print_good("\t#{us}:#{h}:#{as}")
 					good = true
 					if(as.to_s == "OPEN")
-						report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Active Account #{u}:#{h}:#{as}", :update => :unique_data)
+						report_note(
+							:host => datastore['RHOST'],
+							:proto => 'tcp',
+							:sname => 'xdb',
+							:port => datastore['RPORT'],
+							:type => 'ORA_ENUM',
+							:data => "Active Account #{u}:#{h}:#{as}",
+							:update => :unique_data
+						)
 					else
-						report_note(:host => datastore['RHOST'], :proto => 'tcp', :sname => 'XDB', :port => datastore['RPORT'], :type => 'ORA_ENUM', :data => "Disabled Account #{u}:#{h}:#{as}", :update => :unique_data)
+						report_note(
+							:host => datastore['RHOST'],
+							:proto => 'tcp',
+							:sname => 'xdb',
+							:port => datastore['RPORT'],
+							:type => 'ORA_ENUM',
+							:data => "Disabled Account #{u}:#{h}:#{as}",
+							:update => :unique_data
+						)
 					end
 				end
 			end
@@ -292,7 +339,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Password Maximum Reuse Time: #{prm}",
@@ -301,7 +348,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Password Reuse Time: #{prt}",
@@ -310,7 +357,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Password Life Time: #{plit}",
@@ -319,7 +366,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account Fail Logins Permitted: #{fla}",
@@ -328,7 +375,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account Lockout Time: #{plot}",
@@ -337,7 +384,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_note(
 					:host => datastore['RHOST'],
 					:proto => 'tcp',
-					:sname => 'XDB',
+					:sname => 'xdb',
 					:port => datastore['RPORT'],
 					:type => 'ORA_ENUM',
 					:data => "Account Password Grace Time: #{pgt}",

@@ -24,6 +24,7 @@ class VmDriver
 		@location = filter_command(config["location"])
 		@credentials = config["credentials"] || []
 		@tools = filter_input(config["tools"])
+
 		@os = filter_input(config["os"])
 		@hostname = filter_input(config["hostname"]) || filter_input(config["vmid"].to_s)
 
@@ -85,12 +86,12 @@ class VmDriver
 	def run_command(command)	
 		raise "Command not Implemented"
 	end
-	
-	def copy_from(from, to)
+
+	def copy_from_guest(from, to)
 		raise "Command not Implemented"
 	end
-	
-	def copy_to(from, to)
+
+	def copy_to_guest(from, to)
 		raise "Command not Implemented"
 	end
 
@@ -116,7 +117,6 @@ private
 		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 		#	scp.upload!(from,to)
 		#end	
-
 		system_command("scp #{local} #{@vm_user}@#{@hostname}:#{remote}")
 	end
 	
@@ -126,28 +126,23 @@ private
 		#::Net::SCP.start(@hostname, @vm_user, :password => @vm_pass) do |scp|
 		#	scp.download!(from,to)
 		#end
-		
 		system_command("scp #{@vm_user}@#{@hostname}:#{remote} #{local}")
-
 	end
-	
+
 	def ssh_exec(command)
-		
 		::Net::SSH.start(@hostname, @vm_user, :password => @vm_pass) do |ssh|
 			result = ssh.exec!(command)
 		end
-		
 		`scp #{@vm_user}@#{@hostname} from to`
 	end
 
 	def filter_input(string)
 		return "" unless string # nil becomes empty string
-		return unless string.class == String # Allow other types unmodified
+		return string unless string.class == String # Allow other types unmodified
 		
 		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\):!]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
-
 	string
 	end
 
@@ -158,19 +153,17 @@ private
 		unless /^[\d\w\s\[\]\{\}\/\\\.\-\"\(\)]*$/.match string
 			raise "WARNING! Invalid character in: #{string}"
 		end
-
 	string
 	end
-	
+
 	# The only reason we don't filter here is because we need
 	# the ability to still run clean (controlled entirely by us)
 	# command lines.
 	def system_command(command)
-		#puts "DEBUG: system command #{command}"
-		system(command)
+		`#{command}`
 	end
-	
-	
+
+
 	def remote_system_command(command)
 		system_command("ssh #{@user}@#{@host} \"#{command}\"")
 	end

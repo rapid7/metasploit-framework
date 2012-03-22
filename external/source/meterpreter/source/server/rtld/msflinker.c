@@ -837,7 +837,7 @@ static int reserve_mem_region(soinfo *si)
               (unsigned int)(base));
         return -1;
     } 
-    si->base = base; 
+    si->base = (unsigned int)base;
 
 #if 0
     if(si->base && (base != (void *)si->base)) {
@@ -2053,7 +2053,7 @@ static int link_image(soinfo *si, unsigned wr_offset)
                         si->wrprotect_end = _end;
                 }
             } else if (phdr->p_type == PT_DYNAMIC) {
-                if (si->dynamic != (unsigned *)-1 && si->dynamic != (si->base + phdr->p_vaddr)) {
+                if (si->dynamic != (unsigned *)-1 && si->dynamic != (unsigned *)(si->base + phdr->p_vaddr)) {
                     DL_ERR("%5d multiple PT_DYNAMIC segments found in '%s'. "
                           "Segment at 0x%08x, previously one found at 0x%08x",
                           pid, si->name, si->base + phdr->p_vaddr,

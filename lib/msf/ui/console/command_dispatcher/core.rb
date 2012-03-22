@@ -88,6 +88,9 @@ class Core
 			"kill"     => "Kill a job",
 			"load"     => "Load a framework plugin",
 			"loadpath" => "Searches for and loads modules from a path",
+			"popm"     => "Pops the latest module off of the module stack and makes it active",
+			"pushm"    => "Pushes the active or list of modules onto the module stack",
+			"previous" => "Sets the previously loaded module as the current module",
 			"quit"     => "Exit the console",
 			"resource" => "Run the commands stored in a file",
 			"makerc"   => "Save commands entered since start to a file",
@@ -118,6 +121,8 @@ class Core
 
 		@dscache = {}
 		@cache_payloads = nil
+		@previous_module = nil
+		@module_name_stack = []
 	end
 
 	#
@@ -185,19 +190,62 @@ class Core
 			cmd_resource_help
 			return false
 		end
+
 		args.each do |res|
-			if not File.file? res
+			good_res = nil
+			if (File.file? res and File.readable? res)
+				good_res = res
+			elsif
+				# let's check to see if it's in the scripts/resource dir (like when tab completed)
+				[
+					::Msf::Config.script_directory + File::SEPARATOR + "resource",
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource"
+				].each do |dir|
+					res_path = dir + File::SEPARATOR + res
+					if (File.file?(res_path) and File.readable?(res_path))
+						good_res = res_path
+						break
+					end
+				end
+			end
+			if good_res
+				driver.load_resource(good_res)
+			else
 				print_error("#{res} is not a valid resource file")
 				next
 			end
-			driver.load_resource(res)
 		end
 	end
 
+	#
+	# Tab completion for the resource command
+	#
 	def cmd_resource_tabs(str, words)
-		return [] if words.length > 1
-
-		tab_complete_filenames(str, words)
+		tabs = []
+		#return tabs if words.length > 1
+		if ( str and str =~ /^#{Regexp.escape(File::SEPARATOR)}/ )
+			# then you are probably specifying a full path so let's just use normal file completion
+			return tab_complete_filenames(str,words)
+		elsif (not words[1] or not words[1].match(/^\//))
+			# then let's start tab completion in the scripts/resource directories
+			begin
+				[
+					::Msf::Config.script_directory + File::SEPARATOR + "resource",
+					::Msf::Config.user_script_directory + File::SEPARATOR + "resource",
+					"."
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + File::SEPARATOR + e
+						::File.file?(path) and File.readable?(path)
+					}
+				end
+			rescue Exception
+			end
+		else
+			tabs += tab_complete_filenames(str,words)
+		end
+		return tabs
 	end
 
 	def cmd_makerc_help
@@ -893,7 +941,7 @@ class Core
 
 		# Parse any extra options that should be passed to the plugin
 		args.each { |opt|
-			k, v = opt.split(/=/)
+			k, v = opt.split(/\=/)
 
 			opts[k] = v if (k and v)
 		}
@@ -902,7 +950,7 @@ class Core
 		if (path !~ /#{File::SEPARATOR}/)
 			plugin_file_name = path
 
-			# If the plugin isn't in the user direcotry (~/.msf3/plugins/), use the base
+			# If the plugin isn't in the user directory (~/.msf3/plugins/), use the base
 			path = Msf::Config.user_plugin_directory + File::SEPARATOR + plugin_file_name
 			if not File.exists?( path  + ".rb" )
 				# If the following "path" doesn't exist it will be caught when we attempt to load
@@ -926,17 +974,28 @@ class Core
 	# Tab completion for the load command
 	#
 	def cmd_load_tabs(str, words)
-		return [] if words.length > 1
+		tabs = []
 
-		begin
-			return Dir.new(Msf::Config.plugin_directory).find_all { |e|
-				path = Msf::Config.plugin_directory + File::SEPARATOR + e
-				File.file?(path) and File.readable?(path)
-			}.map { |e|
-				e.sub!(/\.rb$/, '')
-			}
-		rescue Exception
+		if (not words[1] or not words[1].match(/^\//))
+			# then let's start tab completion in the scripts/resource directories
+			begin
+				[
+					Msf::Config.user_plugin_directory,
+					Msf::Config.plugin_directory
+				].each do |dir|
+					next if not ::File.exist? dir
+					tabs += ::Dir.new(dir).find_all { |e|
+						path = dir + File::SEPARATOR + e
+						::File.file?(path) and File.readable?(path)
+					}
+				end
+			rescue Exception
+			end
+		else
+			tabs += tab_complete_filenames(str,words)
 		end
+		return tabs.map{|e| e.sub(/.rb/, '')}
+
 	end
 
 	def cmd_route_help
@@ -1238,6 +1297,7 @@ class Core
 			"name"     => "Modules with a matching descriptive name",
 			"path"     => "Modules with a matching path or reference name",
 			"platform" => "Modules affecting this platform",
+			"port"     => "Modules with a matching remote port",
 			"type"     => "Modules of a specific type (exploit, auxiliary, or post)",
 			"app"      => "Modules that are client or server attacks",
 			"author"   => "Modules written by this author",
@@ -1437,7 +1497,7 @@ class Core
 					end
 					sessions.each do |s|
 						session = framework.sessions.get(s)
-						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.tunnel_peer})")
+						print_status("Running '#{cmd}' on #{session.type} session #{s} (#{session.session_host})")
 
 						if (session.type == "meterpreter")
 							# If session.sys is nil, dont even try..
@@ -1539,7 +1599,7 @@ class Core
 				sessions.each do |s|
 					if ((session = framework.sessions.get(s)))
 						if (script_paths[session.type])
-							print_status("Session #{s} (#{session.tunnel_peer}):")
+							print_status("Session #{s} (#{session.session_host}):")
 							begin
 								session.execute_file(script_paths[session.type], extra)
 							rescue ::Exception => e
@@ -2085,8 +2145,9 @@ class Core
 				return false
 		end
 
-		# If there's currently an active module, go back
+		# If there's currently an active module, enqueque it and go back
 		if (active_module)
+			@previous_module = active_module
 			cmd_back()
 		end
 
@@ -2112,12 +2173,127 @@ class Core
 	end
 
 	#
+	# Command to take to the previously active module
+	#
+	def cmd_previous()
+		if @previous_module
+			self.cmd_use(@previous_module.fullname)
+		else
+			print_error("There isn't a previous module at the moment")
+		end
+	end
+
+	#
+	# Help for the 'previous' command
+	#
+	def cmd_previous_help
+		print_line "Usage: previous"
+		print_line
+		print_line "Set the previously loaded module as the current module"
+		print_line
+	end
+
+	#
+	# Command to enqueque a module on the module stack
+	#
+	def cmd_pushm(*args)
+		# could check if each argument is a valid module, but for now let them hang themselves
+		if args.count > 0
+			args.each do |arg|
+				@module_name_stack.push(arg)
+				# Note new modules are appended to the array and are only module (full)names
+			end
+		else #then just push the active module
+			if active_module
+				#print_status "Pushing the active module"
+				@module_name_stack.push(active_module.fullname)
+			else
+				print_error("There isn't an active module and you didn't specify a module to push")
+				return self.cmd_pushm_help
+			end
+		end
+	end
+
+	def cmd_pushm_tabs(str, words)
+		tab_complete_module(str, words)
+	end
+
+	#
+	# Help for the 'pushm' command
+	#
+	def cmd_pushm_help
+		print_line "Usage: pushm [module1 [,module2, module3...]]"
+		print_line
+		print_line "push current active module or specified modules onto the module stack"
+		print_line
+	end
+
+	#
+	# Command to dequeque a module from the module stack
+	#
+	def cmd_popm(*args)
+		if (args.count > 1 or not args[0].respond_to?("to_i"))
+			return self.cmd_popm_help
+		elsif args.count == 1
+			# then pop 'n' items off the stack, but don't change the active module
+			if args[0].to_i >= @module_name_stack.count
+				# in case they pass in a number >= the length of @module_name_stack
+				@module_name_stack = []
+				print_status("The module stack is empty")
+			else
+				@module_name_stack.pop[args[0]]
+			end
+		else #then just pop the array and make that the active module
+			pop = @module_name_stack.pop
+			if pop
+				return self.cmd_use(pop)
+			else
+				print_error("There isn't anything to pop, the module stack is empty")
+			end
+		end
+	end
+
+	#
+	# Help for the 'popm' command
+	#
+	def cmd_popm_help
+		print_line "Usage: popm [n]"
+		print_line
+		print_line "pop the latest module off of the module stack and make it the active module"
+		print_line "or pop n modules off the stack, but don't change the active module"
+		print_line
+	end
+
+	#
 	# Tab completion for the use command
 	#
 	def cmd_use_tabs(str, words)
-		res = []
-		return res if words.length > 1
+		return [] if words.length > 1
 
+		tab_complete_module(str, words)
+	end
+
+	#
+	# Returns the revision of the framework and console library
+	#
+	def cmd_version(*args)
+		svn_console_version = "$Revision: 14065 $"
+		svn_metasploit_version = Msf::Framework::Revision.match(/ (.+?) \$/)[1] rescue nil
+		if svn_metasploit_version
+			print_line("Framework: #{Msf::Framework::Version}.#{svn_metasploit_version}")
+		else
+			print_line("Framework: #{Msf::Framework::Version}")
+		end
+		print_line("Console  : #{Msf::Framework::Version}.#{svn_console_version.match(/ (.+?) \$/)[1]}")
+
+		return true
+	end
+
+	#
+	# Tab complete module names
+	#
+	def tab_complete_module(str, words)
+		res = []
 		framework.modules.module_types.each do |mtyp|
 			mset = framework.modules.module_names(mtyp)
 			mset.each do |mref|
@@ -2128,17 +2304,6 @@ class Core
 		return res.sort
 	end
 
-	#
-	# Returns the revision of the framework and console library
-	#
-	def cmd_version(*args)
-		ver = "$Revision$"
-
-		print_line("Framework: #{Msf::Framework::Version}.#{Msf::Framework::Revision.match(/ (.+?) \$/)[1]}")
-		print_line("Console  : #{Msf::Framework::Version}.#{ver.match(/ (.+?) \$/)[1]}")
-
-		return true
-	end
 
 	#
 	# Provide tab completion for option values

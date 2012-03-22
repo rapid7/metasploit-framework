@@ -4,8 +4,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Post
 				'Description'   => %q{
 					This module attempts to determine whether the system is running
 					inside of a virtual environment and if so, which one. This
-					module supports detectoin of Hyper-V, VMWare, VirtualBox, Xen,
+					module supports detection of Hyper-V, VMWare, VirtualBox, Xen,
 					and QEMU/KVM.},
 				'License'       => MSF_LICENSE,
 				'Author'        => [ 'Carlos Perez <carlos_perez[at]darkoperator.com>'],
@@ -44,6 +44,7 @@ class Metasploit3 < Msf::Post
 		print_status("Gathering System info ....")
 		vm = nil
 		dmi_info = nil
+		ls_pci_data = nil
 
 		if is_root?
 			dmi_info = cmd_exec("/usr/sbin/dmidecode")
@@ -68,7 +69,7 @@ class Metasploit3 < Msf::Post
 		# Check Modules
 		if not vm
 			loaded_modules = cmd_exec("/sbin/lsmod")
-			case loaded_modules.gsub("\n", " ")
+			case loaded_modules.to_s.gsub("\n", " ")
 			when /vboxsf|vboxguest/i
 				vm = "VirtualBox"
 			when /vmw_ballon|vmxnet|vmw/i
@@ -88,7 +89,7 @@ class Metasploit3 < Msf::Post
 			case proc_scsi.gsub("\n", " ")
 			when /vmware/i
 				vm = "VMware"
-			when /vbox/
+			when /vbox/i
 				vm = "VirtualBox"
 			end
 		end
@@ -102,7 +103,7 @@ class Metasploit3 < Msf::Post
 				vm = "VMware"
 			when /qemu/i
 				vm = "Qemu/KVM"
-			when /virtual (hd|cd)/i
+			when /virtual [vc]d/i
 				vm = "Hyper-V/Virtual PC"
 			end
 		end
@@ -110,7 +111,7 @@ class Metasploit3 < Msf::Post
 		# Check using lspci
 		if not vm
 			case get_sysinfo[:distro]
-			when /oralce|centos|suse|redhat|mandrake|slackware|fedora/
+			when /oracle|centos|suse|redhat|mandrake|slackware|fedora/i
 				lspci_data = cmd_exec("/sbin/lspci")
 			when /debian|ubuntu/
 				lspci_data = cmd_exec("/usr/bin/lspci")
@@ -118,7 +119,7 @@ class Metasploit3 < Msf::Post
 				lspci_data = cmd_exec("lspci")
 			end
 
-			case lspci_data.gsub("\n", " ")
+			case lspci_data.to_s.gsub("\n", " ")
 			when /vmware/i
 				vm = "VMware"
 			when /virtualbox/i
@@ -128,7 +129,7 @@ class Metasploit3 < Msf::Post
 
 		# Xen bus check
 		if not vm
-			if cmd_exec("ls -1 /sys/bus").split("\n").include?("xen")
+			if cmd_exec("ls -1 /sys/bus").to_s.split("\n").include?("xen")
 				vm = "Xen"
 			end
 		end
@@ -136,11 +137,11 @@ class Metasploit3 < Msf::Post
 		# Check using lscpu
 		if not vm
 			case cmd_exec("lscpu")
-			when /Xen/
+			when /Xen/i
 				vm = "Xen"
-			when /KVM/
+			when /KVM/i
 				vm = "KVM"
-			when /Microsoft/
+			when /Microsoft/i
 				vm = "MS Hyper-V"
 			end
 		end
@@ -149,27 +150,26 @@ class Metasploit3 < Msf::Post
 		if not vm
 			dmesg = cmd_exec("dmesg")
 			case dmesg
-			when /vboxbios|vboxcput|vboxfacp|vboxxsdt|(vbox cd-rom)|(vbox harddisk)/i
+			when /vboxbios|vboxcput|vboxfacp|vboxxsdt|vbox cd-rom|vbox harddisk/i
 				vm = "VirtualBox"
-			when /(vmware virtual ide)|(vmware pvscsi)|(vmware virtual platform)/i
+			when /vmware virtual ide|vmware pvscsi|vmware virtual platform/i
 				vm = "VMware"
-			when /(xen_mem)|(xen-vbd)/i
+			when /xen_mem|xen-vbd/i
 				vm =  "Xen"
-			when /(qemu virtual cpu version)/i
+			when /qemu virtual cpu version/i
 				vm = "Qemu/KVM"
-			when %r{/dev/vmnet}
-				print_good("This appears to be a VMware %bldHost%clr")
+			when /\/dev\/vmnet/
+				vm = "VMware"
 			end
 		end
 
 		if vm
-			print_good("This appears to be a #{vm} Virtual Machine")
+			print_good("This appears to be a '#{vm}' virtual machine")
+			report_vm(vm)
 		else
-			print_status("This appears to be a Physical Machine")
+			print_status("This does not appear to be a virtual machine")
 		end
 
 	end
-
-
 
 end

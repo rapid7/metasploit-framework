@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -42,7 +42,7 @@ class Metasploit3 < Msf::Post
 		if not ::File.exists?(datastore['RESOURCE'])
 			raise "Resource File does not exists!"
 		else
-			::File.open(datastore['RESOURCE'], "br").each_line do |cmd|
+			::File.open(datastore['RESOURCE'], "rb").each_line do |cmd|
 				next if cmd.strip.length < 1
 				next if cmd[0,1] == "#"
 				begin

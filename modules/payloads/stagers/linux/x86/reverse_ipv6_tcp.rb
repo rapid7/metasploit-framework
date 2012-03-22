@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -48,7 +48,7 @@ module Metasploit3
 			))
 
 		register_options([
-			OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses"])
+			OptInt.new('SCOPEID', [false, "IPv6 scope ID, for link-local addresses", 0])
 		])
 	end
 

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -61,6 +61,11 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 	end
 
+	# Not compatible today
+	def support_ipv6?
+		false
+	end
+	
 	def run
 		@formsdir = datastore['FORMSDIR']
 		@template = datastore['TEMPLATE']
@@ -157,13 +162,19 @@ class Metasploit3 < Msf::Auxiliary
 		os_name ||= 'Unknown'
 
 		mysrc = Rex::Socket.source_address(cli.peerhost)
-		hhead = (req['Host'] || @myhost).split(':', 2)[0]
+		hhead = (req['Host'] || @myhost)
 
-		if (req.resource =~ /^http\:\/+([^\/]+)(\/*.*)/)
+		if req.resource =~ /^http\:\/+([^\/]+)(\/*.*)/
+			hhead = $1
 			req.resource = $2
-			hhead, nport = $1.split(":", 2)[0]
-			@myport = nport || 80
 		end
+
+		if hhead =~ /^(.*):(\d+)\s*$/
+			hhead = $1
+			nport = $2.to_i
+		end
+
+		@myport = nport || 80
 
 
 		cookies = req['Cookie'] || ''
@@ -185,7 +196,7 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(
 				:host      => cli.peerhost,
 				:port      => @myport,
-				:sname     => 'http',
+				:sname     => (ssl ? "https" : "http"),
 				:user      => user,
 				:pass      => pass,
 				:source_type => "captured",

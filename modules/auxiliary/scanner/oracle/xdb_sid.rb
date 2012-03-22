@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Auxiliary
 			}, 5)
 
 				if( not res )
-					print_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...") if datastore['VERBOSE']
+					vprint_error("Unable to retrieve SID for #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}...")
 					return
 				end
 
@@ -72,7 +72,7 @@ class Metasploit3 < Msf::Auxiliary
 							:port => datastore['RPORT'],
 							:proto	=> 'tcp',
 							:type	=> 'oracle_sid',
-							:data	=> "#{sid}",
+							:data	=> sid,
 							:update => :unique_data
 						)
 					print_status("Discovered SID: '#{sid}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")

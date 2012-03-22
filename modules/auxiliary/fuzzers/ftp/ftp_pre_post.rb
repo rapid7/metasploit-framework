@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -23,7 +23,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 				This module will connect to a FTP server and perform pre- and post-authentication fuzzing
 			},
-			'Author'         => [ 'corelanc0d3r', 'jduck' ],
+			'Author'         => [ 'corelanc0d3r <peter.ve[at]corelan.be>', 'jduck' ],
 			'License'        => MSF_LICENSE,
 			'Version'        => '$Revision$'
 			)
@@ -73,12 +73,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def get_pkt
 		buf = sock.get
-		print_status("[in ] #{buf.inspect}") if datastore['VERBOSE']
+		vprint_status("[in ] #{buf.inspect}")
 		buf
 	end
 
 	def send_pkt(pkt, get_resp = false)
-		print_status("[out] #{pkt.inspect}") if datastore['VERBOSE']
+		vprint_status("[out] #{pkt.inspect}")
 		sock.put(pkt)
 		get_pkt if get_resp
 	end

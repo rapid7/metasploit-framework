@@ -100,7 +100,6 @@ public
 			host = {}
 			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
-			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
 			host[:name] = h.name.to_s
 			host[:state] = h.state.to_s
@@ -135,7 +134,7 @@ public
 				:limit => limit, :offset => offset).each do |s|
 			service = {}
 			host = s.host
-			service[:host] = host.address || host.address6 || "unknown"
+			service[:host] = host.address || "unknown"
 			service[:created_at] = s[:created_at].to_i
 			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
@@ -172,7 +171,7 @@ public
 				vuln[:proto] = nil
 			end
 			vuln[:time] = v.created_at.to_i
-			vuln[:host] = v.host.address || v.host.address6 || nil
+			vuln[:host] = v.host.address || nil
 			vuln[:name] = v.name
 			vuln[:refs] = reflist.join(',')
 			ret[:vulns] << vuln
@@ -261,7 +260,6 @@ public
 			host = {}
 			host[:created_at] = h.created_at.to_i
 			host[:address] = h.address.to_s
-			host[:address6] = h.address6.to_s
 			host[:mac] = h.mac.to_s
 			host[:name] = h.name.to_s
 			host[:state] = h.state.to_s
@@ -324,7 +322,7 @@ public
 		services.each do |s|
 			service = {}
 			host = s.host
-			service[:host] = host.address || host.address6 || "unknown"
+			service[:host] = host.address || "unknown"
 			service[:created_at] = s[:created_at].to_i
 			service[:updated_at] = s[:updated_at].to_i
 			service[:port] = s[:port]
@@ -371,7 +369,7 @@ public
 		notes.each do |n|
 			note = {}
 			host = n.host
-			note[:host] = host.address || host.address6 || "unknown"
+			note[:host] = host.address || "unknown"
 			if n.service
 				note[:port] = n.service.port
 				note[:proto] = n.service.proto
@@ -449,7 +447,7 @@ public
 			note[:time] = n.created_at.to_i
 			note[:host] = ""
 			note[:service] = ""
-			note[:host] = n.host.address || n.host.address6 if(n.host)
+			note[:host] = n.host.address if(n.host)
 			note[:service] = n.service.name || n.service.port  if(n.service)
 			note[:type ] = n.ntype.to_s
 			note[:data] = n.data.inspect
@@ -718,7 +716,7 @@ public
 
 		wspace.events.all(:limit => limit, :offset => offset).each do |e|
 			event = {}
-			event[:host] = e.host.address || e.host.address6 if(e.host)
+			event[:host] = e.host.address if(e.host)
 			event[:created_at] = e.created_at.to_i
 			event[:updated_at] = e.updated_at.to_i
 			event[:name] = e.name
@@ -757,10 +755,10 @@ public
 		ret[:loots] = []
 		wspace.loots.all(:limit => limit, :offset => offset).each do |l|
 			loot = {}
-			loot[:host] = l.host.address || l.host.address6 if(l.host)
+			loot[:host] = l.host.address if(l.host)
 			loot[:service] = l.service.name || n.service.port  if(n.service)
 			loot[:ltype] = l.ltype
-			loot[:ctype] = l.ctype
+			loot[:ctype] = l.content_type
 			loot[:data] = l.data
 			loot[:created_at] = l.created_at.to_i
 			loot[:updated_at] = l.updated_at.to_i
@@ -790,7 +788,7 @@ public
 		DBManager::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
 				framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
 			cred = {}
-			cred[:host] = c.service.host.address || c.service.host.address6 if(c.service.host)
+			cred[:host] = c.service.host.address if(c.service.host)
 			cred[:updated_at] = c.updated_at.to_i
 			cred[:port] = c.service.port
 			cred[:proto] = c.service.proto
@@ -840,7 +838,7 @@ public
 		vulns.each do |v|
 			vuln= {}
 			host= v.host
-			vuln[:host] = host.address || host.address6 || "unknown"
+			vuln[:host] = host.address || "unknown"
 			if v.service
 				vuln[:port] = v.service.port
 				vuln[:proto] = v.service.proto

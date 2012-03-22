@@ -257,7 +257,7 @@ DWORD request_fs_separator(Remote *remote, Packet *packet)
 DWORD request_fs_stat(Remote *remote, Packet *packet)
 {
 	Packet *response = packet_create_response(packet);
-	struct stat buf;
+	struct meterp_stat buf;
 	LPCSTR filePath;
 	LPSTR expanded = NULL;
 	DWORD result = ERROR_SUCCESS;
@@ -271,11 +271,8 @@ DWORD request_fs_stat(Remote *remote, Packet *packet)
 		result = ERROR_NOT_ENOUGH_MEMORY;
 	else
 	{
-		// Stat the file using the Microsoft stat wrapper so that we don't have to
-		// do translations
-		if (stat(expanded, &buf) < 0)
-			result = GetLastError();
-		else
+		result = fs_stat(expanded, &buf);
+		if (0 == result)
 			packet_add_tlv_raw(response, TLV_TYPE_STAT_BUF, &buf,
 					sizeof(buf));
 	}
@@ -288,7 +285,7 @@ DWORD request_fs_stat(Remote *remote, Packet *packet)
 	if (expanded)
 		free(expanded);
 
-	return ERROR_SUCCESS;
+	return result;
 }
 
 /*

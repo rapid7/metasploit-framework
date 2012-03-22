@@ -46,28 +46,33 @@ class Export
 		report_file.write "#" * 40; report_file.write "\n"
 
 		count = count_credentials("smb_hash",creds)
+		scount = creds.has_key?("smb_hash") ? creds["smb_hash"].size : 0
 		yield(:status, "start", "LM/NTLM Hash dump") if block_given?
-		report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [creds["smb_hash"].size, count]
+		report_file.write "# LM/NTLM Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_hash",creds,report_file)
 
 		count = count_credentials("smb_netv1_hash",creds)
+		scount = creds.has_key?("smb_netv1_hash") ? creds["smb_netv1_hash"].size : 0
 		yield(:status, "start", "NETLMv1/NETNTLMv1 Hash dump") if block_given?
-		report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [creds["smb_netv1_hash"].size, count]
+		report_file.write "# NETLMv1/NETNTLMv1 Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_netv1_hash",creds,report_file)
 
 		count = count_credentials("smb_netv2_hash",creds)
+		scount = creds.has_key?("smb_netv2_hash") ? creds["smb_netv2_hash"].size : 0
 		yield(:status, "start", "NETLMv2/NETNTLMv2 Hash dump") if block_given?
-		report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [creds["smb_netv2_hash"].size, count]
+		report_file.write "# NETLMv2/NETNTLMv2 Hashes (%d services, %d hashes)\n" % [scount, count]
 		write_credentials("smb_netv2_hash",creds,report_file)
 
 		count = count_credentials("ssh_key",creds)
+		scount = creds.has_key?("ssh_key") ? creds["ssh_key"].size : 0
 		yield(:status, "start", "SSH Key dump") if block_given?
-		report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [creds["ssh_key"].size, count]
+		report_file.write "# SSH Private Keys (%d services, %d keys)\n" % [scount, count]
 		write_credentials("ssh_key",creds,report_file)
 
 		count = count_credentials("text",creds)
+		scount = creds.has_key?("text") ? creds["text"].size : 0
 		yield(:status, "start", "Plaintext Credential dump") if block_given?
-		report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [creds["text"].size, count]
+		report_file.write "# Plaintext Credentials (%d services, %d credentials)\n" % [scount, count]
 		write_credentials("text",creds,report_file)
 
 		report_file.flush

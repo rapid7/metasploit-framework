@@ -5,8 +5,8 @@
 ##
 # ## This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -179,7 +179,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Account in Local Groups with Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Group",
 				"Member",
 				"Domain Admin"
@@ -228,7 +228,7 @@ class Metasploit3 < Msf::Post
 			'Header'  => "Processes under Domain Context",
 			'Indent'  => 1,
 			'Columns' =>
-			  [
+			[
 				"Name",
 				"PID",
 				"Arch",

@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -132,6 +132,12 @@ class Metasploit3 < Msf::Auxiliary
 					next if not addr
 
 					print_status(sprintf("  %16s maps to %s",addr[:ipv4], addr[:ipv6]))
+					report_note(
+						:host   => addr[:ipv4],
+						:type   => 'host.ipv4.ipv6.mapping',
+						:data   => "system with IPv4 address #{addr[:ipv4]} matches to IPv6 address #{addr[:ipv6]}"
+					)	# with this we have the results in our database
+
 				end
 			end
 

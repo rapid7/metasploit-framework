@@ -27,10 +27,9 @@ import org.jdesktop.application.Task;
  * @author scriptjunkie
  */
 public abstract class RpcConnection {
-	public String type = "msg";
 	protected String rpcToken;
 	protected Map callCache = new HashMap();
-	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1", defaultType = "msg";
+	public static String defaultUser = "msf",defaultPass = null, defaultHost = "127.0.0.1";
 	public static int defaultPort = 55553;
 	public static boolean defaultSsl = false;
 	public static boolean disableDb = false;
@@ -56,12 +55,8 @@ public abstract class RpcConnection {
 	 * @return A new RPC connection
 	 * @throws MsfException
 	 */
-	public static RpcConnection getConn(String type, String username, char[] password, String host, int port, boolean ssl) throws MsfException{
-		RpcConnection conn;
-		if(type.toLowerCase().equals("xml"))
-			conn = new XmlRpc();
-		else
-			conn = new MsgRpc();
+	public static RpcConnection getConn(String username, char[] password, String host, int port, boolean ssl) throws MsfException{
+		RpcConnection conn = new MsgRpc();
 		conn.setup(username, password, host, port, ssl);
 		return conn;
 	}
@@ -89,7 +84,7 @@ public abstract class RpcConnection {
 		String message = "";
 		try {
 			connect();
-			Map results = exec("auth.login",new Object[]{username, this.password});
+			Map results = (Map)exec("auth.login",new Object[]{username, this.password});
 			rpcToken=results.get("token").toString();
 			haveRpcd=results.get("result").equals("success");
 		} catch (MsfException xre) {
@@ -109,7 +104,6 @@ public abstract class RpcConnection {
 		root.put("port", port);
 		root.put("ssl", ssl);
 		root.put("disableDb", disableDb);
-		root.put("type", type);
 		MsfguiApp.savePreferences();
 	}
 
@@ -169,7 +163,6 @@ public abstract class RpcConnection {
 
 	public String toString(){
 		return "RPC connection "
-				+ "\ntype: "+type
 				+ "\nusername: "+username
 				+ "\npassword: " + password
 				+ "\nhost: " + host
@@ -218,11 +211,11 @@ public abstract class RpcConnection {
 	}
 
 	/** Method that handles synchronization and error handling for calls */
-	private Map exec (String methname, Object[] params) throws MsfException{
+	private Object exec (String methname, Object[] params) throws MsfException{
 		synchronized(lockObject){ //Only one method call at a time!
 			try{
 				writeCall(methname, params);
-				return (Map)readResp();
+				return readResp();
 			}catch(Exception ex){ //any weirdness gets wrapped in a MsfException
 				try{
 					if(ex instanceof java.net.SocketTimeoutException) 
@@ -265,10 +258,8 @@ public abstract class RpcConnection {
 
 				// Don't fork cause we'll check if it dies
 				String rpcType = "Basic";
-				if(defaultType.toLowerCase().equals("msg"))
-					rpcType = "Msg";
 				java.util.List args = new java.util.ArrayList(java.util.Arrays.asList(new String[]{
-						"msfrpcd","-f","-P",defaultPass,"-t",rpcType,"-U",defaultUser,"-a","127.0.0.1"}));
+						"msfrpcd","-f","-P",defaultPass,"-t","Msg","-U",defaultUser,"-a","127.0.0.1"}));
 				if(!defaultSsl)
 					args.add("-S");
 				if(disableDb)
@@ -296,7 +287,7 @@ public abstract class RpcConnection {
 					} //Nope. We're good.
 
 					try {
-						myRpcConn = RpcConnection.getConn(defaultType, defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
+						myRpcConn = RpcConnection.getConn(defaultUser, defaultPass.toCharArray(), "127.0.0.1", defaultPort, defaultSsl);
 						connected = true;
 						break;
 					} catch (MsfException mex) {

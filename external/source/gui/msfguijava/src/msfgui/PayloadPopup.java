@@ -46,6 +46,18 @@ public class PayloadPopup extends ModuleInfoWindow {
 			encoderCombo.setSelectedIndex(defaultEncoder);
 		}catch(MsfException xre){
 		}
+		//get formats
+		try{
+			Object[] formats = ((List)rpcConn.execute("module.encode_formats")).toArray();
+			int defaultFormat = 0;
+			for(int i = 0; i < formats.length; i++)
+				if(formats[i].toString().equals("exe"))
+					defaultFormat = i;
+			outputCombo.setModel(new DefaultComboBoxModel(formats));
+			outputCombo.setSelectedIndex(defaultFormat);
+		}catch(MsfException xre){
+			xre.printStackTrace();
+		}
 		mainScrollPane.getVerticalScrollBar().setUnitIncrement(40);
 	}
 
@@ -540,23 +552,14 @@ public class PayloadPopup extends ModuleInfoWindow {
 			hash.put("Encoder", "generic/none");
 			Map data = (Map) rpcConn.execute("module.execute", "payload", fullName,hash);
 			//Basic info
-			byte[] buffer;
-			String rawHex;
-			if(rpcConn.type.equals("msg")){
-				buffer = (byte[])data.get("payload");
-			}else{
-				rawHex = data.get("payload").toString();
-				buffer = new byte[rawHex.length() / 2];
-				for (int i = 0; i < rawHex.length(); i += 2)
-					buffer[i/2] = (byte)Integer.parseInt(rawHex.substring(i, i + 2),16);
-			}
+			byte[] buffer = (byte[])data.get("payload");
 
 			if(saveButton.isSelected()){ //Encode and output
 				hash.put("format", outputCombo.getSelectedItem().toString());
 				if(timesField.getText().length() > 0)
 					hash.put("ecount", timesField.getText());
 				if(badcharsField.getText().length() > 0){
-					StringBuffer badbinary = new StringBuffer();
+					StringBuilder badbinary = new StringBuilder();
 					for(String s : badcharsField.getText().split("\\\\x"))
 						if(s.length() > 0)
 							badbinary.append((char)Integer.parseInt(s, 16));
@@ -574,10 +577,7 @@ public class PayloadPopup extends ModuleInfoWindow {
 				if(!outputCombo.getSelectedItem().toString().equals("jar")){ //jars don't get encoded
 					Map encoded = (Map) rpcConn.execute("module.encode", buffer,
 							encoderCombo.getSelectedItem().toString(),hash);
-					if(rpcConn.type.equals("msg"))
-						buffer = (byte[])encoded.get("encoded");
-					else
-						buffer = Base64.decode(encoded.get("encoded").toString());
+					buffer = (byte[])encoded.get("encoded");
 				}
 				FileOutputStream fout = new FileOutputStream(outputPathField.getText());
 				fout.write(buffer);

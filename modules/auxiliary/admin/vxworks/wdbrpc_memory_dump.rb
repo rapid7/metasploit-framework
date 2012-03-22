@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -71,9 +71,14 @@ class Metasploit3 < Msf::Auxiliary
 
 		lfd = nil
 		if offset != 0
-			# Turns out ruby's implementation of seek with "ab" mode is all kind of busted.
-			lfd = ::File.open(datastore['LPATH'], "r+b")
-			lfd.seek(offset)
+			begin
+				# Turns out ruby's implementation of seek with "ab" mode is all kind of busted.
+				lfd = ::File.open(datastore['LPATH'], "r+b")
+				lfd.seek(offset)
+			rescue Errno::ENOENT
+				print_error("Unable to open existing dump!  Writing a new file instead of resuming...")
+				lfd = ::File.open(datastore['LPATH'], "wb")
+			end
 		else
 			lfd = ::File.open(datastore['LPATH'], "wb")
 		end
@@ -111,4 +116,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

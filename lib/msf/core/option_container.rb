@@ -82,6 +82,13 @@ class OptBase
 	end
 
 	#
+	# Returns a string representing a user-friendly display of the chosen value
+	#
+	def display_value(value)
+		value.to_s
+	end
+	
+	#
 	# The name of the option.
 	#
 	attr_reader   :name
@@ -137,6 +144,7 @@ end
 # OptEnum    - Select from a set of valid values
 # OptAddressRange - A subnet or range of addresses
 # OptSession - A session identifier
+# OptRegexp  - Valid Ruby regular expression
 #
 ###
 
@@ -320,7 +328,7 @@ class OptAddress < OptBase
 
 		if (value != nil and value.empty? == false)
 			begin
-				::Rex::Socket.getaddress(value)
+				::Rex::Socket.getaddress(value, true)
 			rescue
 				return false
 			end
@@ -351,8 +359,7 @@ class OptAddressRange < OptBase
 			ret = ''
 			count.times {
 				ret << " " if not ret.empty?
-				ip = "%u.%u.%u.%u" % [1+rand(0xfe),1+rand(0xfe),1+rand(0xfe),1+rand(0xfe)]
-				ret << ip
+				ret << [ rand(0x100000000) ].pack("N").unpack("C*").map{|x| x.to_s }.join(".")
 			}
 			return ret
 		end
@@ -441,6 +448,44 @@ class OptInt < OptBase
 	end
 end
 
+###
+#
+# Regexp option
+#
+###
+class OptRegexp < OptBase
+	def type
+		return 'regexp'
+	end
+
+	def valid?(value)
+		unless super
+			return false
+		end
+
+		begin
+			Regexp.compile(value)
+
+			return true
+		rescue RegexpError => e
+			return false
+		end
+	end
+
+	def normalize(value)
+		return Regexp.compile(value)
+	end
+
+	def display_value(value)
+		if value.kind_of?(Regexp)
+			return value.source
+		elsif value.kind_of?(String)
+			return display_value(normalize(value))
+		end
+
+		return super
+	end
+end
 
 ###
 #
@@ -613,7 +658,14 @@ class OptionContainer < Hash
 				errors << name
 			# If the option is valid, normalize its format to the correct type.
 			elsif ((val = option.normalize(datastore[name])) != nil)
-				datastore.update_value(name, val)
+				# This *will* result in a module that previously used the 
+				# global datastore to have its local datastore set, which
+				# means that changing the global datastore and re-running
+				# the same module will now use the newly-normalized local
+				# datastore value instead. This is mostly mitigated by
+				# forcing a clone through mod.replicant, but can break
+				# things in corner cases.
+				datastore[name] = val
 			end
 		}
 

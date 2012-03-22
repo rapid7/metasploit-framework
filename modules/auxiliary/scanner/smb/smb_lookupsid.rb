@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -35,6 +35,13 @@ class Metasploit3 < Msf::Auxiliary
 			'DefaultOptions' => {
 				'DCERPC::fake_bind_multi' => false
 			}
+		)
+
+		register_options(
+			[
+				OptInt.new('MaxRID', [ false, "Maximum RID to check", 4000 ])
+			],
+			self.class
 		)
 
 		deregister_options('RPORT', 'RHOST')
@@ -205,7 +212,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			# Brute force through a common RID range
-			500.upto(4000) do |rid|
+			500.upto(datastore['MaxRID'].to_i) do |rid|
 
 				stub =
 					phandle +
@@ -276,4 +283,3 @@ class Metasploit3 < Msf::Auxiliary
 
 
 end
-

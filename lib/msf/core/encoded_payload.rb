@@ -107,6 +107,10 @@ class EncodedPayload
 		if reqs['BadChars'] or reqs['Encoder'] or reqs['ForceEncode']
 			encoders = pinst.compatible_encoders
 
+			# Fix encoding issue
+			if reqs['Encoder']
+				reqs['Encoder'] = reqs['Encoder'].encode(framework.encoders.keys[0].encoding)
+			end
 			# If the caller had a preferred encoder, use this encoder only
 			if ((reqs['Encoder']) and (preferred = framework.encoders[reqs['Encoder']]))
 				encoders = [ [reqs['Encoder'], preferred] ]
@@ -140,6 +144,9 @@ class EncodedPayload
 						'core', LEV_1)
 					next
 				end
+				
+				# Import the datastore from payload (and likely exploit by proxy)
+				self.encoder.share_datastore(pinst.datastore)
 
 				# If we have any encoder options, import them into the datastore
 				# of the encoder.
@@ -266,6 +273,9 @@ class EncodedPayload
 			nops.each { |nopname, nopmod|
 				# Create an instance of the nop module
 				self.nop = nopmod.new
+				
+				# Propagate options from the payload and possibly exploit
+				self.nop.share_datastore(pinst.datastore)
 
 				# The list of save registers
 				save_regs = (reqs['SaveRegisters'] || []) + (pinst.save_registers || [])

@@ -312,9 +312,9 @@ class ReadableText
 			next if (opt.advanced?)
 			next if (opt.evasion?)
 
-			val = mod.datastore[name] || opt.default.to_s
+			val_display = opt.display_value(mod.datastore[name] || opt.default)
 
-			tbl << [ name, val.to_s, opt.required? ? "yes" : "no", opt.desc ]
+			tbl << [ name, val_display, opt.required? ? "yes" : "no", opt.desc ]
 		}
 
 		return tbl.to_s
@@ -416,7 +416,7 @@ class ReadableText
 		framework.sessions.each_sorted { |k|
 			session = framework.sessions[k]
 
-			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s ]
+			row = [ session.sid.to_s, session.type.to_s, session.info.to_s, session.tunnel_to_s + " (#{session.session_host})" ]
 			if session.respond_to? :platform
 				row[1] += " " + session.platform
 			end

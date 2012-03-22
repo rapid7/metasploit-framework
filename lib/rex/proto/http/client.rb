@@ -99,16 +99,22 @@ class Client
 	#
 	def set_config(opts = {})
 		opts.each_pair do |var,val|
+			# Default type is string
 			typ = self.config_types[var] || 'string'
 
+			# These are enum types
 			if(typ.class.to_s == 'Array')
 				if not typ.include?(val)
 					raise RuntimeError, "The specified value for #{var} is not one of the valid choices"
 				end
 			end
 
+			# The caller should have converted these to proper ruby types, but
+			# take care of the case where they didn't before setting the
+			# config.
+
 			if(typ == 'bool')
-				val = (val =~ /^(t|y|1)$/i ? true : false)
+				val = (val =~ /^(t|y|1)$/i ? true : false || val === true)
 			end
 
 			if(typ == 'integer')
@@ -678,9 +684,20 @@ class Client
 	#
 	# Return the HTTP Host header
 	#
-	def set_host_header(host)
+	def set_host_header(host=nil)
 		return "" if self.config['uri_full_url']
 		host ||= self.config['vhost']
+		
+		# IPv6 addresses must be placed in brackets
+		if Rex::Socket.is_ipv6?(host)
+			host = "[#{host}]"
+		end
+		
+		# The port should be appended if non-standard
+		if not [80,443].include?(self.port)
+			host = host + ":#{port}"
+		end
+		
 		set_formatted_header("Host", host)
 	end
 

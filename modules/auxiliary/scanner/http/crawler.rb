@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'rex/proto/http'
@@ -143,7 +143,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		# This is an application that uses PATH_INFO for parameters:
 		# ex:  /index.php/Main_Page/Article01
-		if not form[:path] and page.url.path.to_s =~ /(.*\/[a-z09A-Z]{3,256}\.[a-z09A-Z]{2,8})(\/.*)/
+		if not form[:path] and page.url.path.to_s =~ /(.*\/[a-z0-9A-Z]{3,256}\.[a-z0-9A-Z]{2,8})(\/.*)/
 			path_base = $1
 			path_info = $2
 			form[:method] = 'PATH'
@@ -214,4 +214,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

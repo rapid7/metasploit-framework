@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -63,11 +63,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def do_login(ip,user,pass,port)
 		opt_hash = {
-			:auth_methods => ['password','keyboard-interactive'],
-			:msframework  => framework,
-			:msfmodule    => self,
-			:port         => port,
-			:password     => pass
+			:auth_methods  => ['password','keyboard-interactive'],
+			:msframework   => framework,
+			:msfmodule     => self,
+			:port          => port,
+			:disable_agent => true,
+			:password      => pass
 		}
 
 		opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
@@ -181,4 +182,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

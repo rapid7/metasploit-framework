@@ -5,17 +5,19 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/registry'
+require 'msf/core/post/common'
 
 class Metasploit3 < Msf::Post
 
 	include Msf::Post::Windows::Registry
+	include Msf::Post::Common
 
 	def initialize(info={})
 		super( update_info( info,
@@ -64,8 +66,10 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-		print_status("This is a Hyper-V Virtual Machine") if vm
-		return vm
+		if vm
+			print_status("This is a Hyper-V Virtual Machine")
+			return "MS Hyper-V"
+		end
 	end
 
 	# Method for checking if it is a VMware VM
@@ -109,9 +113,10 @@ class Metasploit3 < Msf::Post
 				end
 			end
 		end
-		print_status("This is a VMware Virtual Machine") if vm
-		return vm
-
+		if vm
+			print_status("This is a VMware Virtual Machine")
+			return "VMWare"
+		end
 	end
 
 	# Method for checking if it is a Virtual PC VM
@@ -144,8 +149,10 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-		print_status("This is a VirtualPC Virtual Machine") if vm
-		return vm
+		if vm
+			print_status("This is a VirtualPC Virtual Machine")
+			return "VirtualPC"
+		end
 	end
 
 	# Method for checking if it is a VirtualBox VM
@@ -227,8 +234,10 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-		print_status("This is a Sun VirtualBox Virtual Machine") if vm
-		return vm
+		if vm
+			print_status("This is a Sun VirtualBox Virtual Machine") 
+			return "VirtualBox"
+		end
 	end
 
 	# Method for checking if it is a Xen VM
@@ -293,8 +302,10 @@ class Metasploit3 < Msf::Post
 			rescue
 			end
 		end
-		print_status("This is a Xen Virtual Machine") if vm
-		return vm
+		if vm
+			print_status("This is a Xen Virtual Machine")
+			return "Xen"
+		end
 	end
 
 	def qemuchk(session)
@@ -320,18 +331,25 @@ class Metasploit3 < Msf::Post
 			end
 		end
 
-		return vm
+		if vm
+			return "Qemu/KVM"
+		end
 	end
 
 	# run Method
 	def run
 		print_status("Checking if #{sysinfo['Computer']} is a Virtual Machine .....")
 		found = hypervchk(session)
-		found = vmwarechk(session) if not found
-		found = checkvrtlpc(session) if not found
-		found = vboxchk(session) if not found
-		found = xenchk(session) if not found
-		found = qemuchk(session) if not found
-		print_status("It appears to be a physical host.") if not found
+		found ||= vmwarechk(session)
+		found ||= checkvrtlpc(session)
+		found ||= vboxchk(session)
+		found ||= xenchk(session)
+		found ||= qemuchk(session)
+		if found
+			report_vm(found)
+		else
+			print_status("#{sysinfo['Computer']} appears to be a Physical Machine")
+		end
 	end
+
 end

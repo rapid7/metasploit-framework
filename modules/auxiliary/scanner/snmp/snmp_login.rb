@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -78,7 +78,7 @@ class Metasploit3 < Msf::Auxiliary
 					fq_pass = [ip,pass]
 					next if @tried.include? fq_pass
 					@tried << fq_pass
-					print_status "#{ip}:#{datastore['RPORT']} - SNMP - Trying #{(pass.nil? || pass.empty?) ? "<BLANK>" : pass}..." if datastore['VERBOSE']
+					vprint_status "#{ip}:#{datastore['RPORT']} - SNMP - Trying #{(pass.nil? || pass.empty?) ? "<BLANK>" : pass}..."
 
 					begin
 						udp_sock.sendto(data1, ip, datastore['RPORT'].to_i, 0)
@@ -313,4 +313,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

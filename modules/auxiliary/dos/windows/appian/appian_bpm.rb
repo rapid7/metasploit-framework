@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 
@@ -26,7 +26,7 @@ class Metasploit3 < Msf::Auxiliary
 				Enterprise Business Suite service.
 			},
 
-			'Author'         => [ 'guiness.stout <guinness.stout@gmail.com>' ],
+			'Author'         => [ 'guiness.stout <guinness.stout[at]gmail.com>' ],
 			'License'        => BSD_LICENSE,
 			'Version'        => '$Revision$',
 			'References'     =>

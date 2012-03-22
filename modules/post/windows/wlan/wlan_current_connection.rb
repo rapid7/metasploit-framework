@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -38,6 +38,11 @@ class Metasploit3 < Msf::Post
 
 		wlan_connections= "Wireless LAN Active Connections: \n"
 		wlan_handle = open_handle()
+		unless wlan_handle
+			print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
+			print_error("On Windows XP this could also mean the Wireless Zero Configuration Service is turned off")
+			return
+		end
 		wlan_iflist = enum_interfaces(wlan_handle)
 
 		wlan_iflist.each do |interface|
@@ -75,7 +80,6 @@ class Metasploit3 < Msf::Post
 		begin
 			wlhandle = @wlanapi.WlanOpenHandle(2,nil,4,4)
 		rescue
-			print_error("Couldn't open WlanAPI Handle. WLAN API may not be installed on target")
 			return nil
 		end
 		return wlhandle['phClientHandle']

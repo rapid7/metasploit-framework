@@ -19,9 +19,16 @@ module Auxiliary::Report
 	end
 
 	def myworkspace
-		return @myworkspace if @myworkspace
 		@myworkspace = framework.db.find_workspace(self.workspace)
 	end
+
+	def inside_workspace_boundary?(ip)
+		return true if not framework.db.active
+		allowed = myworkspace.allow_actions_on?(ip)
+		return allowed
+	end
+
+
 
 	#
 	# Report a host's liveness and attributes such as operating system and service pack
@@ -253,10 +260,10 @@ module Auxiliary::Report
 			ext ||= "bin"
 		end
 
-		fname.gsub!(/[^a-z0-9\.\_]+/i, '')
+		fname.gsub!(/[^a-z0-9\.\_\-]+/i, '')
 		fname << ".#{ext}"
 
-		ltype.gsub!(/[^a-z0-9\.\_]+/i, '')
+		ltype.gsub!(/[^a-z0-9\.\_\-]+/i, '')
 
 		path = File.join(Msf::Config.local_directory, fname)
 		full_path = ::File.expand_path(path)

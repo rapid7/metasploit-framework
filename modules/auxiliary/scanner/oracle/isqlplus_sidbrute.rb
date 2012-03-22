@@ -5,7 +5,7 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
+# web site for more information on licensing and terms of use.
 # http://metasploit.com/Framework/
 ##
 
@@ -234,5 +234,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-
-

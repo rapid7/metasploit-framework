@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -15,7 +15,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::Tcp
 	include Msf::Auxiliary::Scanner
-	include Msf::Auxiliary::WMAPScanServer
+	include Msf::Auxiliary::WmapScanServer
 	include Msf::Auxiliary::Report
 
 	def initialize(info = {})
@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptBool.new('VERIFY_CONNECT', [ false, 'Enable test for CONNECT method', false ]),
 				OptBool.new('VERIFY_HEAD', [ false, 'Enable test for HEAD method', false ]),
 				OptBool.new('LOOKUP_PUBLIC_ADDRESS', [ false, 'Enable test for retrieve public IP address via RIPE.net', false ]),
-				OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', '209.85.135.147' ]),
+				OptString.new('SITE', [ true, 'The web site to test via alleged web proxy (default is www.google.com)', '209.85.148.147' ]),
 				OptString.new('ValidCode', [ false, "Valid HTTP code for a successfully request", '200,302' ]),
 				OptString.new('ValidPattern', [ false, "Valid HTTP server header for a successfully request", 'server: gws' ]),
 				OptString.new('UserAgent', [ true, 'The HTTP User-Agent sent in the request', 'Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)' ]),
@@ -54,6 +54,11 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('RIPE_ADDRESS', [ true, 'www.ripe.net IP address', '193.0.6.139' ]),
 			], self.class)
+			
+		register_wmap_options({
+				'OrderID' => 1,
+				'Require' => {},
+			})
 	end
 
 	def run_host(target_host)
@@ -75,7 +80,11 @@ class Metasploit3 < Msf::Auxiliary
 
 		target_ports.each do |target_port|
 			datastore['RPORT'] = target_port
-			check_host(target_host,target_port,site,user_agent)
+			if target_host == site
+				print_error("Target is the same as proxy site.")
+			else
+				check_host(target_host,target_port,site,user_agent)
+			end
 		end
 
 	end
@@ -203,7 +212,11 @@ class Metasploit3 < Msf::Auxiliary
 			report_note(
 				:host   => target_host,
 				:port   => target_port,
-				:method => 'GET'
+				:method => 'GET',
+				:proto => 'tcp',
+				:sname => (ssl ? 'https' : 'http'),
+				:type  	=> 'OPEN PROXY',
+				:data   => 'Open proxy'
 			)
 
 			if (datastore['VERIFY_CONNECT'])

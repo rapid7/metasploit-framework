@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -14,7 +14,7 @@ require 'msf/core'
 class Metasploit3 < Msf::Auxiliary
 
 	include Msf::Exploit::Remote::HttpClient
-	include Msf::Auxiliary::WMAPScanUniqueQuery
+	include Msf::Auxiliary::WmapScanUniqueQuery
 	include Msf::Auxiliary::Scanner
 
 	def initialize(info = {})
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptPath.new('SQLMAP_PATH', [ true,  "The sqlmap >= 0.6.1 full path ", '/sqlmap' ]),
-				OptString.new('METHOD', [ true,  "HTTP Method", 'GET' ]),
+				OptEnum.new('METHOD', [true, 'HTTP Method', 'GET', ['GET', 'POST']]),
 				OptString.new('PATH', [ true,  "The path/file to test for SQL injection", 'index.php' ]),
 				OptString.new('QUERY', [ false, "HTTP GET query", 'id=1' ]),
 				OptString.new('DATA', [ false, "The data string to be sent through POST" ]),
@@ -109,4 +109,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

