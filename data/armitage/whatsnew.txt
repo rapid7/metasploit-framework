@@ -28,6 +28,10 @@ Armitage Changelog
 - Improved reverse payload selection logic (now it includes rev php meterpreter)
 - Armitage now sets a different LPORT for each exploit launched with a rev payload
 
+10:30am
+- Changed algorithm for determining which edges to highlight in graph view. If there
+  is a pivot and both sides have a session, then the edge is highlighted.
+
 8 Mar 12 1.43-dev
 --------
 - Armitage now uses session_host to determine which host a session is associated
