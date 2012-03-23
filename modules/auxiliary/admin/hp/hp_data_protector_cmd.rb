@@ -15,8 +15,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'HP Data Protector 6.1 EXEC_CMD Command Execution',
 			'Description'    => %q{
-				This module is specifically made for exploiting HP Data Protector's omniinet
-				process.  When an EXEC_CMD packet is sent, omniinet.exe will attempt to look
+				This module exploits HP Data Protector's omniinet process, specifically
+				against a Windows setup.
+
+				When an EXEC_CMD packet is sent, omniinet.exe will attempt to look
 				for that user-supplied filename with kernel32!FindFirstFileW().  If the file
 				is found, the process will then go ahead execute it with CreateProcess().
 				under a new thread.  If the filename isn't found, FindFirstFileW() will throw
@@ -38,9 +40,9 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'Author'         =>
 				[
-					'ch0ks',    # poc
-					'c4an',     # msf poc (linux)
-					'wireghoul' # Improved msf (linux)
+					'ch0ks',     # poc
+					'c4an',      # msf poc (linux)
+					'wireghoul', # Improved msf (linux)
 					'sinn3r'
 				],
 			'License'        => MSF_LICENSE,
