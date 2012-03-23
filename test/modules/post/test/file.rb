@@ -92,7 +92,6 @@ class Metasploit4 < Msf::Post
 		it "should read the binary data we just wrote" do
 			bin = read_file("pwned")
 			vprint_status "Read #{bin.length} bytes"
-			::File.open("wtf", "wb") { |fd| fd.write bin }
 
 			bin == binary_data
 		end
