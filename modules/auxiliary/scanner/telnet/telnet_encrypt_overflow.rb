@@ -28,7 +28,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['BID', '51182'],
 					['CVE', '2011-4862'],
-					['URL', 'http://www.exploit-db.com/exploits/18280/']
+					['EDB', 18280]
 				]
 		)
 		register_options(
