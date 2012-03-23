@@ -32,7 +32,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					[ 'OSVDB', '71420'],
 					[ 'URL', 'http://www.zerodayinitiative.com/advisories/ZDI-11-113/' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/17078/' ],
+					[ 'EDB', 17078 ],
 				],
 			'DisclosureDate' => 'Mar 28 2011'))
 

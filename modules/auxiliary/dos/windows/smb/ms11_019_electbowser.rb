@@ -43,7 +43,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'BID', '46360' ],
 					[ 'OSVDB', '70881' ],
 					[ 'MSB', 'MS11-019' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/16166/' ],
+					[ 'EDB', 16166 ],
 					[ 'URL', 'http://seclists.org/fulldisclosure/2011/Feb/285' ]
 				],
 			'Author'         => [ 'Cupidon-3005', 'jduck' ],
