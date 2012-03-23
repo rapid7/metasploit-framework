@@ -36,11 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 
-	# This is the module's main runtime method
 	def run
-		@client_cache = {}
-
-		# Starts Web Server
 		exploit
 	end
 
