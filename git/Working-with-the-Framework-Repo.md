@@ -7,7 +7,7 @@ First things first, if you haven't already, you'll need to [fork the Metasploit 
 Now you just need to clone your copy of the framework code to your local machine and add a remote reference back to the upstream repo to pull in new commits.
 
 ```console
-$ git clone git@github.com:techpeace/metasploit-framework.git
+$ git clone git@github.com:[YOUR_USERNAME]/metasploit-framework.git
 Cloning into 'metasploit-framework'...
 remote: Counting objects: 117417, done.
 remote: Compressing objects: 100% (29898/29898), done.
