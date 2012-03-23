@@ -54,12 +54,39 @@ class Console::CommandDispatcher::Stdapi::Net
 	# List of supported commands.
 	#
 	def commands
-		{
+		all = {
 			"ipconfig" => "Display interfaces",
 			"ifconfig" => "Display interfaces",
 			"route"    => "View and modify the routing table",
 			"portfwd"  => "Forward a local port to a remote service",
 		}
+		reqs = {
+			"ipconfig" => [ "stdapi_net_config_get_interfaces" ],
+			"ifconfig" => [ "stdapi_net_config_get_interfaces" ],
+			"route"    => [
+				# Also uses these, but we don't want to be unable to list them
+				# just because we can't alter them.
+				#"stdapi_net_config_add_route",
+				#"stdapi_net_config_remove_route",
+				"stdapi_net_config_get_routes"
+			],
+			# Only creates tcp channels, which is something whose availability
+			# we can't check directly at the moment.
+			"portfwd"  => [ ],
+		}
+
+		all.delete_if do |cmd, desc|
+			del = false
+			reqs[cmd].each do |req|
+				next if client.commands.include? req
+				del = true
+				break
+			end
+
+			del
+		end
+
+		all
 	end
 
 	#
