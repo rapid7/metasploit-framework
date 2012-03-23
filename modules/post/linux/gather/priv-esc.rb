@@ -75,6 +75,12 @@ class Metasploit3 < Msf::Post
 				])
     		poss_exploits.each do |e|
     			exploit_table << [e["name"],e["cve"],e["versions"],e["exploits"]]
+			report_note(
+				:host_name => get_host,
+				:type      => "priv-esc",
+				:data      => found_exploits,
+				:update    => :unique_data
+				)
     		end
     		print_line exploit_table.to_s
 		else
