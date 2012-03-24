@@ -24,15 +24,16 @@ public class stdapi_net_config_get_interfaces_V1_4 extends stdapi_net_config_get
 				ifaceTLV.add(TLVType.TLV_TYPE_IP, new byte[4]);
 				ifaceTLV.add(TLVType.TLV_TYPE_NETMASK, new byte[4]);
 			}
-			try {
-				ifaceTLV.add(TLVType.TLV_TYPE_MTU, iface.getMTU());
-			} catch (NoSuchMethodError e) { }
-
+			addMTU(ifaceTLV, iface);
 			ifaceTLV.add(TLVType.TLV_TYPE_MAC_ADDRESS, info[2]);
 			ifaceTLV.add(TLVType.TLV_TYPE_MAC_NAME, iface.getName() + " - " + iface.getDisplayName());
 			response.addOverflow(TLVType.TLV_TYPE_NETWORK_INTERFACE, ifaceTLV);
 		}
 		return ERROR_SUCCESS;
+	}
+
+	protected void addMTU(TLVPacket ifaceTLV, NetworkInterface iface) throws IOException {
+		// not supported before 1.6
 	}
 
 	/**

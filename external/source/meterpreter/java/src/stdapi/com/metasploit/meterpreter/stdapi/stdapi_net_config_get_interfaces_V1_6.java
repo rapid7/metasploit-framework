@@ -6,6 +6,9 @@ import java.net.NetworkInterface;
 import java.util.Iterator;
 import java.util.List;
 
+import com.metasploit.meterpreter.TLVPacket;
+import com.metasploit.meterpreter.TLVType;
+
 public class stdapi_net_config_get_interfaces_V1_6 extends stdapi_net_config_get_interfaces_V1_4 {
 
 	public byte[][] getInformation(NetworkInterface iface) throws IOException {
@@ -36,5 +39,9 @@ public class stdapi_net_config_get_interfaces_V1_6 extends stdapi_net_config_get
 		if (mac == null)
 			mac = new byte[6];
 		return new byte[][] { ip, netmask, mac };
+	}
+	
+	protected void addMTU(TLVPacket ifaceTLV, NetworkInterface iface) throws IOException {
+		ifaceTLV.add(TLVType.TLV_TYPE_MTU, iface.getMTU());
 	}
 }
