@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Post
 					[ 'CVE', '2010-3338' ],
 					[ 'BID', '44357' ],
 					[ 'MSB', 'MS10-092' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/15589/' ]
+					[ 'EDB', 15589 ]
 				],
 			'DisclosureDate'=> 'Sep 13 2010'
 		))

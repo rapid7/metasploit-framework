@@ -1,6 +1,37 @@
 Armitage Changelog
 ==================
 
+22 Mar 12
+---------
+- Updated Armitage NMap profiles with the following:
+	-T4 (instead of -T5) [wait longer for open services to reply]
+	-n  [forces NMap to not resolve the hostname of IP addresses]
+	--min-hostgroup 96 [allows more parallelism when scanning hosts]
+- Armitage now intercepts screenshot and webcam_snap commands from meterpreter 
+  shell and performs the appropriate action with them.
+- View -> Creds -> Export button now works in team mode.
+- Doh! Armitage now properly shows VMWare icon when OS is set to a VMWare ESXi
+- Armitage "is command finished?" heuristic now accounts for commands like
+  del /S which prompt with a (Y/N)? - you can safely use these commands again.
+- Armitage now detects whether a client connecting to the team server is out 
+  dated or not. It rejects old clients. They will get a message indicating they
+  need to update and then their client won't do anything else. You'll see a
+  message printed to STDOUT where the team server ran about the rejection.
+- Added a * indicator to the active workspace in the workspaces menu.
+- Added Hosts -> DNS Enumerate, this menu launches a Metasploit module that will
+  attempt to discover hosts by querying a name server in different ways.
+- Added a file chooser helper to WORDLIST option.
+- Armitage now displays a pivot relationship between a compromised host and the
+  NAT/proxy device it is connected through.
+- Added a Copy button to services tab. This button copies the highlighted hosts
+  to the clipboard. I found myself needing this several times recently.
+- Improved reverse payload selection logic (now it includes rev php meterpreter)
+- Armitage now sets a different LPORT for each exploit launched with a rev payload
+
+10:30am
+- Changed algorithm for determining which edges to highlight in graph view. If there
+  is a pivot and both sides have a session, then the edge is highlighted.
+
 8 Mar 12 1.43-dev
 --------
 - Armitage now uses session_host to determine which host a session is associated

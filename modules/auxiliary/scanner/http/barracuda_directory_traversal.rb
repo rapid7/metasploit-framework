@@ -31,7 +31,7 @@ class Metasploit3 < Msf::Auxiliary
 				[
 					['OSVDB', '68301'],
 					['URL', 'http://secunia.com/advisories/41609/'],
-					['URL', 'http://www.exploit-db.com/exploits/15130/']
+					['EDB', 15130]
 				],
 			'Author'         =>
 				[

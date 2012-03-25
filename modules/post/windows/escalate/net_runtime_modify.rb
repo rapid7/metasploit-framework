@@ -34,7 +34,7 @@ class Metasploit3 < Msf::Post
 			'References'    =>
 				[
 					[ 'OSVDB', '71013' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/16940/' ]
+					[ 'EDB', 16940 ]
 				]
 		))
 
