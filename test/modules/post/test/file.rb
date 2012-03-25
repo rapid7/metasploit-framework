@@ -1,5 +1,6 @@
 #require 'module_test'
 load 'test/lib/module_test.rb'
+#load 'lib/rex/text.rb'
 load 'lib/msf/core/post/file.rb'
 
 class Metasploit4 < Msf::Post
@@ -41,10 +42,14 @@ class Metasploit4 < Msf::Post
 			file_exist?("pwned")
 		end
 
-		it "should read text files" do
+		it "should read the text we just wrote" do
 			f = read_file("pwned")
+			ret = ("foo" == f)
+			unless ret
+				print_error("Didn't read what we wrote, actual file on target: #{f}")
+			end
 
-			"foo" == f
+			ret
 		end
 
 		it "should append text files" do
@@ -53,7 +58,11 @@ class Metasploit4 < Msf::Post
 
 			ret &&= read_file("pwned") == "foobar"
 			append_file("pwned", "baz")
-			ret &&= read_file("pwned") == "foobarbaz"
+			final_contents = read_file("pwned")
+			ret &&= final_contents == "foobarbaz"
+			unless ret
+				print_error("Didn't read what we wrote, actual file on target: #{final_contents}")
+			end
 
 			ret
 		end
@@ -68,8 +77,9 @@ class Metasploit4 < Msf::Post
 
 	def test_binary_files
 
-		binary_data = ::File.read("/bin/ls")
-		#binary_data = "\x00\xff\"'$\nasdfjkl;`foo"*10
+		#binary_data = ::File.read("/bin/ls")
+		binary_data = ::File.read("/bin/echo")
+		#binary_data = "\xff\x00\xff\xfe\xff\`$(echo blha)\`"
 		it "should write binary data" do
 			vprint_status "Writing #{binary_data.length} bytes"
 			t = Time.now
@@ -79,8 +89,9 @@ class Metasploit4 < Msf::Post
 			file_exist?("pwned")
 		end
 
-		it "should read binary data" do
+		it "should read the binary data we just wrote" do
 			bin = read_file("pwned")
+			vprint_status "Read #{bin.length} bytes"
 
 			bin == binary_data
 		end
