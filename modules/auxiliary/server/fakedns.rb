@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 				OptPort.new('SRVPORT',      [ true, "The local port to listen on.", 53 ]),
 				OptAddress.new('TARGETHOST', [ false, "The address that all names should resolve to", nil ]),
 				OptString.new('TARGETDOMAIN', [ true, "The list of target domain names we want to fully resolver (bypass) or fake resolve (fake)", 'www.google.com']),
-                                OptString.new('TARGETACTION', [ true, "Action for TARGETDOMAIN (fake|bypass)", 'BYPASS']),
+				OptString.new('TARGETACTION', [ true, "Action for TARGETDOMAIN (fake|bypass)", 'BYPASS']),
 			], self.class)
 
 		register_advanced_options(
@@ -88,13 +88,14 @@ class Metasploit3 < Msf::Auxiliary
 		@sock.setsockopt(::Socket::SOL_SOCKET, ::Socket::SO_REUSEADDR, 1)
 		@sock.bind(datastore['SRVHOST'], @port)
 		@run = true
-		@domain_target_list = datastore['DOMAINTARGET'].split
+		@domain_target_list = datastore['TARGETDOMAIN'].split
 		@bypass = ( datastore['TARGETACTION'].upcase == "BYPASS" )
 
 		print_status("DNS server started")
 		begin
 
 		while @run
+			@error_resolving = false
 			packet, addr = @sock.recvfrom(65535)
 			break if packet.length == 0
 
@@ -139,37 +140,36 @@ class Metasploit3 < Msf::Auxiliary
 
 					# Identify potential domain exceptions
 					@match_target = false
-                                        @match_name = ""
-                                        @domain_target_list.each do |ex|
-                                                escaped = Regexp.escape(ex).gsub('\*','.*?')
-                                                regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
-                                                #if ( ex == name.to_s )
-                                                if ( name.to_s =~ regex )
-                                                        @match_target = true
-                                                        @match_name = ex
-                                                end
-                                        end
+					@match_name = name.to_s
+					@domain_target_list.each do |ex|
+						escaped = Regexp.escape(ex).gsub('\*','.*?')
+						regex = Regexp.new "^#{escaped}$", Regexp::IGNORECASE
+						if ( name.to_s =~ regex )
+							@match_target = true
+							@match_name = ex
+						end
+					end
 
-                                        if (@match_target and not @bypass) or (not @match_target and @bypass)
-                                                # Resolve FAKE response
-                                                if (@log_console)
-                                                        print_status("DNS target domain found: #{@match_name}")
-                                                        print_status("DNS target domain #{@match_name} faked")
-                                                end
-                                        else
-                                                # Resolve the exception domain
-                                                begin
-                                                ip = Resolv::DNS.new().getaddress(name).to_s
-                                                answer = Resolv::DNS::Resource::IN::A.new( ip )
-                                                rescue ::Exception => e
-                                                        print_error("Error resolving #{name.to_s}")
-                                                        next
-                                                end
-                                                if (@log_console)
-                                                        print_status("DNS bypass domain found: #{@match_name}")
-                                                        print_status("DNS bypass domain #{@match_name} resolved #{ip}")
-                                                end
-                                        end
+					if (@match_target and not @bypass) or (not @match_target and @bypass)
+						# Resolve FAKE response
+						if (@log_console)
+							print_status("DNS target domain found: #{@match_name}")
+							print_status("DNS target domain #{name.to_s} faked")
+						end
+					else
+						# Resolve the exception domain
+						begin
+						ip = Resolv::DNS.new().getaddress(name).to_s
+						answer = Resolv::DNS::Resource::IN::A.new( ip )
+						rescue ::Exception => e
+							@error_resolving = true
+							next
+						end
+						if (@log_console)
+							print_status("DNS bypass domain found: #{@match_name}")
+							print_status("DNS bypass domain #{name.to_s} resolved #{ip}")
+						end
+					end
 
 
 					request.add_answer(name, 60, answer)
@@ -209,7 +209,11 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			if(@log_console)
-				print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+				if(@error_resolving)
+					print_error("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")}) - Error resolving")
+				else
+					print_status("DNS #{addr[3]}:#{addr[1]} XID #{request.id} (#{lst.join(", ")})")
+				end
 			end
 
 			if(@log_database)
