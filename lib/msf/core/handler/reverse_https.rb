@@ -61,18 +61,18 @@ module ReverseHttps
 		
 		uri_match
 	end
-	
+
 	#
 	# Create a URI that matches a given checksum
 	#
 	def generate_uri_checksum(sum)
-		0.upto(1000) do 
-			uri = Rex::Text.rand_text_alphanumeric(4)
-			return uri if Rex::Text.checksum8(uri) == sum
+		uri = Rex::Text.rand_text_alphanumeric(3)
+		("a".."z").sort_by {rand}.each do |x|
+			return(uri + x) if Rex::Text.checksum8(uri + x)
 		end
 		raise RuntimeError, "Unable to generate a string with checksum #{sum}"
 	end
-	
+
 	#
 	# Initializes the HTTP SSL tunneling handler.
 	#
