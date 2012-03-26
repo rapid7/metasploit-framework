@@ -19,10 +19,9 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'		   => 'DNS Record Scanner and Enumerator ',
 			'Description'	=> %q{
-				This module can be used to enumerate various types of information
-				about a domain from a specific DNS server by performing various
-				DNS queries such as zone transfers, reverse lookups, SRV record
-				bruteforcing, and other techniques.
+				This module can be used to gather information about a domain from a
+				given DNS server by performing various DNS queries such as zone
+				transfers, reverse lookups, SRV record bruteforcing, and other techniques.
 
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
