@@ -14,8 +14,8 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'DNS TXT Record Payload Download Execution',
-			'Description'   => 'Performs a TXT query against a series of DNS record(s) & executes the returning payload',
+			'Name'          => 'DNS TXT Record Payload Download and Execution',
+			'Description'   => 'Performs a TXT query against a series of DNS record(s) and executes the returned payload',
 			'Author'        =>
 				[
 					'corelanc0d3r <peter.ve[at]corelan.be>'
