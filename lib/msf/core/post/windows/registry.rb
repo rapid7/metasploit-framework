@@ -429,7 +429,7 @@ protected
 			deleted = session.sys.registry.delete_key(root_key, base_key)
 			return deleted
 		rescue Rex::Post::Meterpreter::RequestError => e
-			print_status "curses, foiled again"
+			return nil
 		end
 	end
 
