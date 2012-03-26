@@ -66,13 +66,10 @@ module ReverseHttps
 	# Create a URI that matches a given checksum
 	#
 	def generate_uri_checksum(sum)
-		urix = nil
 		uri = Rex::Text.rand_text_alphanumeric(3)
 		("a".."z").sort_by {rand}.each do |x|
-			urix = (uri + x) if Rex::Text.checksum8(uri + x)
-			break if urix
+			return(uri + x) if Rex::Text.checksum8(uri + x)
 		end
-		return urix if urix
 		raise RuntimeError, "Unable to generate a string with checksum #{sum}"
 	end
 
