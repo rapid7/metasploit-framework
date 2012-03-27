@@ -12,7 +12,6 @@
 require 'msf/core'
 require 'rex'
 require 'msf/core/post/windows/railgun'
-load 'lib/rex/post/meterpreter/extensions/stdapi/railgun/win_const_manager.rb'
 
 class Metasploit3 < Msf::Post
 
