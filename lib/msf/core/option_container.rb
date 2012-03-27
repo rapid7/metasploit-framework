@@ -462,6 +462,7 @@ class OptRegexp < OptBase
 		unless super
 			return false
 		end
+		return true if (not required? and value.nil?)
 
 		begin
 			Regexp.compile(value)
@@ -473,6 +474,7 @@ class OptRegexp < OptBase
 	end
 
 	def normalize(value)
+		return nil if value.nil?
 		return Regexp.compile(value)
 	end
 

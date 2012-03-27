@@ -8,7 +8,7 @@
 require 'msf/core'
 require 'msf/core/post/common'
 require 'msf/core/post/file'
-require 'msf/core/post/unix/enum_user_dirs'
+require 'msf/core/post/unix'
 
 class Metasploit3 < Msf::Post
 
