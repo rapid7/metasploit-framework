@@ -7,7 +7,6 @@
 
 require 'msf/core'
 require 'msf/core/post/common'
-require 'rexml/document'
 
 class Metasploit3 < Msf::Post
 
