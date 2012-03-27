@@ -151,7 +151,9 @@ static VALUE Lorcon_create(int argc, VALUE *argv, VALUE self) {
 	obj = Data_Make_Struct(cDevice, struct rldev, 0, Lorcon_free, rld);
 
 	rld->context = lorcon_create(intf, dri);
-	lorcon_set_timeout(rld->context, 100);
+	
+	// Obsolete: XXX
+	// lorcon_set_timeout(rld->context, 100);
 		
 	if (rld->context == NULL) {
 		rb_raise(rb_eRuntimeError,
