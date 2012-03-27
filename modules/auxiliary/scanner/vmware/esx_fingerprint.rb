@@ -25,13 +25,18 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'           => 'VMWare ESX/ESXi Fingerprint Scanner',
 			'Version'        => '$Revision$',
 			'Description'    => %Q{
-							This module accesses the web API interfaces for VMware ESX/ESXi servers
-							and attempts to identify version information for that server.},
+				This module accesses the web API interfaces for VMware ESX/ESXi servers
+				and attempts to identify version information for that server.
+			},
 			'Author'         => ['TheLightCosine <thelightcosine[at]metasploit.com>'],
 			'License'        => MSF_LICENSE
 		)
 
-		register_options([Opt::RPORT(443)], self.class)
+		register_options([Opt::RPORT(443),
+			OptString.new('URI', [false, 'The uri path to test against' , '/sdk'])
+		], self.class)
+
+		register_advanced_options([OptBool.new('SSL', [ false, 'Negotiate SSL for outgoing connections', true]),])
 	end
 
 
@@ -44,14 +49,13 @@ class Metasploit3 < Msf::Auxiliary
 			</RetrieveServiceContent>
 			</env:Body>
 			</env:Envelope>|
-		datastore['URI'] ||= "/sdk"
-		res = nil
 		begin
 			res = send_request_cgi({
 				'uri'     => datastore['URI'],
 				'method'  => 'POST',
 				'agent'   => 'VMware VI Client',
-				'data' =>  soap_data
+				'data' =>  soap_data,
+				'headers' => { 'SOAPAction' => @soap_action}
 			}, 25)
 		rescue ::Rex::ConnectionError => e
 			vprint_error("http://#{ip}:#{rport}#{datastore['URI']} - #{e}")
@@ -95,4 +99,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

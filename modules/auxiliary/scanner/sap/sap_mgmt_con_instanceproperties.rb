@@ -166,58 +166,58 @@ class Metasploit4 < Msf::Auxiliary
 			end
 			if sapsystem
 				print_good("#{rhost}:#{rport} [SAP] SAP System Number: #{sapsystem}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.sapsystem',
 							:data => {:proto => "soap", :sapsystem => sapsystem})
 			end
 			if sapsystemname
 				print_good("#{rhost}:#{rport} [SAP] SAP System Name: #{sapsystemname}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.systemname',
 							:data => {:proto => "soap", :sapsystemname => sapsystemname})
 			end
 			if saplocalhost
 				print_good("#{rhost}:#{rport} [SAP] SAP Localhost: #{saplocalhost}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.localhost',
 							:data => {:proto => "soap", :saplocalhost => saplocalhost})
 			end
 			if instancename
 				print_good("#{rhost}:#{rport} [SAP] Instance Name: #{instancename}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.instancename',
 							:data => {:proto => "soap", :instancename => instancename})
 			end
 			if icmurl
 				print_good("#{rhost}:#{rport} [SAP] ICM URL: #{icmurl}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.icm.url',
 							:data => {:proto => "soap", :icmurl => icmurl})
 			end
 			if igsurl
 				print_good("#{rhost}:#{rport} [SAP] IGS URL: #{igsurl}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.igs.url',
 							:data => {:proto => "soap", :igsurl => igsurl})
 			end
 			if dbstring
 				dbstring = CGI.unescapeHTML(dbstring)
 				print_good("#{rhost}:#{rport} [SAP] ABAP DATABASE: #{dbstring}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.dbstring',
 							:data => {:proto => "soap", :dbstring => dbstring},
 							:update => :unique_data )
@@ -225,9 +225,9 @@ class Metasploit4 < Msf::Auxiliary
 			if j2eedbstring
 				j2eedbstring = CGI.unescapeHTML(j2eedbstring)
 				print_good("#{rhost}:#{rport} [SAP] J2EE DATABASE: #{j2eedbstring}")
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.j2eedbstring',
 							:data => {:proto => "soap", :j2eedbstring => j2eedbstring},
 							:update => :unique_data )
@@ -238,9 +238,9 @@ class Metasploit4 < Msf::Auxiliary
 				protectedweb_arr.each do | pweb |
 					print_status("#{pweb}")
 				end
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.protected.web.methods',
 							:data => {:proto => "soap", :protectedweb => protectedweb},
 							:update => :unique_data )
@@ -252,9 +252,9 @@ class Metasploit4 < Msf::Auxiliary
 					# Only print webmethods not found in protectedweb_arr
 					print_status("#{webm}") if not protectedweb_arr.include?(webm)
 				end
-				report_note(:host => "#{rhost}",
+				report_note(:host => rhost,
 							:proto => 'tcp',
-							:port => "#{rport}",
+							:port => rport,
 							:type => 'sap.web.methods',
 							:data => {:proto => "soap", :webmethods => webmethods},
 							:update => :unique_data )

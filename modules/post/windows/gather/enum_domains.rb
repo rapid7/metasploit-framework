@@ -91,4 +91,3 @@ class Metasploit3 < Msf::Post
 		end
 	end
 end
-

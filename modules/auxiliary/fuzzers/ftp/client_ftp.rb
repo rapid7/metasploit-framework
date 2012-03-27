@@ -48,13 +48,13 @@ class Metasploit3 < Msf::Auxiliary
 			OptBool.new('EXTRALINE', [ true, "Add extra CRLF's in response to LIST",true])
 			], self.class)
 	end
-	
-	
+
+
 	# Not compatible today
 	def support_ipv6?
 		false
 	end
-	
+
 
 	#---------------------------------------------------------------------------------
 	def setup

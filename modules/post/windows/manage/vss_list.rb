@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 		unless start_vss
 			return
 		end
-		
+
 		list = ""
 		shadow_copies = vss_list
 		unless shadow_copies.empty?
@@ -77,7 +77,5 @@ class Metasploit3 < Msf::Post
 			)
 		end
 	end
-
-
 
 end

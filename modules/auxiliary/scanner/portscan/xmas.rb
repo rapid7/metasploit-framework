@@ -44,7 +44,7 @@ class Metasploit3 < Msf::Auxiliary
 	def support_ipv6?
 		false
 	end
-	
+
 	def run_batch_size
 		datastore['BATCHSIZE'] || 256
 	end
@@ -142,4 +142,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

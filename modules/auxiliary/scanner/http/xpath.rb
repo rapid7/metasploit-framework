@@ -260,5 +260,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Done.")
 	end
 end
-
-

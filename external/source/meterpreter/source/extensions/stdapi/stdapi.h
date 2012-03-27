@@ -355,6 +355,12 @@
 				TLV_META_TYPE_GROUP,       \
 				TLV_TYPE_EXTENSION_STDAPI, \
 				1423)
+#define TLV_TYPE_IP_PREFIX               \
+		MAKE_CUSTOM_TLV(                 \
+				TLV_META_TYPE_UINT,         \
+				TLV_TYPE_EXTENSION_STDAPI, \
+				1424)
+
 #define TLV_TYPE_IP                    \
 		MAKE_CUSTOM_TLV(                 \
 				TLV_META_TYPE_RAW,         \

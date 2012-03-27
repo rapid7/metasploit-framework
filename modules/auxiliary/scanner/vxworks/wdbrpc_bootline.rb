@@ -193,4 +193,3 @@ class Metasploit3 < Msf::Auxiliary
 		wdbrpc_request_connect(ip)
 	end
 end
-

@@ -78,10 +78,10 @@ class Metasploit3 < Msf::Auxiliary
 				select(nil,nil,nil,0.4)
 			end
 			@connected=true
-			sock.put("#{data}")
+			sock.put(data)
 			@result=sock.get_once
 		rescue ::Exception => err
-			print_error("Error: #{err}")
+			print_error("Error: #{err.to_s}")
 		end
 	end
 

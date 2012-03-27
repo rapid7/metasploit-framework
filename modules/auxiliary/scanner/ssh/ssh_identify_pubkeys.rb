@@ -124,7 +124,7 @@ class Metasploit3 < Msf::Auxiliary
 				keepers << ssh_version if ssh_version
 				next
 			end
-			
+
 			# Needs a beginning
 			next unless key =~ /^-----BEGIN [RD]SA (PRIVATE|PUBLIC) KEY-----\x0d?\x0a/m
 			# Needs an end
@@ -177,20 +177,20 @@ class Metasploit3 < Msf::Auxiliary
 		else
 			return :missing_keyfile
 		end
-		
+
 		unless @alerted_with_msg
 			print_status msg
 			@alerted_with_msg = true
 		end
-		
+
 		cleartext_keys.each_with_index do |key_data,key_idx|
 			key_info  = ""
-			
+
 			if key_data =~ /ssh\-(rsa|dss)\s+([^\s]+)\s+(.*)/
 				key_info = "- #{$3.strip}"
 			end
-			
-			
+
+
 			accepted = []
 			opt_hash = {
 				:auth_methods => ['publickey'],
@@ -203,27 +203,27 @@ class Metasploit3 < Msf::Auxiliary
 				:skip_private_keys => true,
 				:accepted_key_callback => Proc.new {|key| accepted << key }
 			}
-			
+
 			opt_hash.merge!(:verbose => :debug) if datastore['SSH_DEBUG']
-			
+
 			begin
 				ssh_socket = Net::SSH.start(ip, user, opt_hash)
-				
+
 				if datastore['SSH_BYPASS']
 					data = nil
-					
+
 					print_status("#{ip}:#{rport} SSH - User #{user} is being tested for authentication bypass...")
-					
+
 					begin
 						::Timeout.timeout(5) { data = ssh_socket.exec!("help\nid\nuname -a").to_s }
 					rescue ::Exception
 					end
-					
+
 					print_brute(:level => :good, :msg => "User #{user} successfully bypassed authentication: #{data.inspect} ") if data
 				end
-				
+
 				::Timeout.timeout(1) { ssh_socket.close } rescue nil
-				
+
 			rescue Rex::ConnectionError, Rex::AddressInUse
 				return :connection_error
 			rescue Net::SSH::Disconnect, ::EOFError
@@ -261,7 +261,7 @@ class Metasploit3 < Msf::Auxiliary
 			:type => 'ssh_pubkey',
 			:proof => "KEY=#{key[:fingerprint]}",
 			:duplicate_ok => true,
-				:active => true
+			:active => true
 		}
 		this_cred = report_auth_info(cred_hash)
 	end
@@ -313,4 +313,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

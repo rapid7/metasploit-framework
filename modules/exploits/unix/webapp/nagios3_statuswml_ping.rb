@@ -111,4 +111,3 @@ class Metasploit3 < Msf::Exploit::Remote
 	end
 
 end
-

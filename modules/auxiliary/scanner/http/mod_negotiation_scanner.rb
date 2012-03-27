@@ -64,7 +64,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			# Sheck for alternates header
 			if(res.code == 406)
-				print_status("#{ip}")
+				print_status(ip.to_s)
 			end
 
 		rescue ::Rex::ConnectionRefused, ::Rex::HostUnreachable, ::Rex::ConnectionTimeout

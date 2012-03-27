@@ -6,7 +6,7 @@ $:.push "test/lib" unless $:.include? "test/lib"
 #require 'module_test'
 load 'test/lib/module_test.rb'
 
-class Metasploit3 < Msf::Post
+class Metasploit4 < Msf::Post
 
 	include Msf::ModuleTest::PostTest
 
@@ -50,9 +50,8 @@ class Metasploit3 < Msf::Post
 			ifaces = session.net.config.get_interfaces
 			res = !!(ifaces and ifaces.length > 0)
 
-			p session.session_host
 			res &&= !! ifaces.find { |iface|
-				iface.ip == session.session_host || iface.ip6 == session.session_host
+				iface.ip == session.session_host
 			}
 
 			res
@@ -61,7 +60,7 @@ class Metasploit3 < Msf::Post
 		it "should return network routes" do
 			routes = session.net.config.get_routes
 
-			routes[0] and routes[0].length > 0
+			routes and routes.length > 0
 		end
 
 	end
@@ -165,9 +164,13 @@ class Metasploit3 < Msf::Post
 			if res
 				session.fs.file.download(remote, remote)
 				res &&= ::File.file? remote
+				downloaded_contents = ::File.read(remote)
+				original_contents = ::File.read(local)
+				res &&= !!(downloaded_contents == original_contents)
 				::File.unlink remote
 			end
 
+			session.fs.file.rm(remote)
 			res
 		end
 
@@ -182,7 +185,7 @@ class Metasploit3 < Msf::Post
 			return
 		end
 
-		it "should list interfaces" do
+		it "should list interfaces for sniffing" do
 			session.sniffer.interfaces.kind_of? Array
 		end
 

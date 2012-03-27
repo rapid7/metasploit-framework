@@ -63,4 +63,3 @@ module Metasploit3
 		true
 	end
 end
-

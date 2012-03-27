@@ -56,7 +56,7 @@ class Metasploit3 < Msf::Auxiliary
 		begin
 			res = send_request_raw({
 				'method'  => 'GET',
-				'uri'     => "#{uri}",
+				'uri'     => uri,
 			}, 25)
 
 			if (res and res.code == 200)

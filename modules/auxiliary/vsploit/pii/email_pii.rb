@@ -53,4 +53,3 @@ class Metasploit3 < Msf::Auxiliary
 		resp = send_message(msg.to_s)
 	end
 end
-

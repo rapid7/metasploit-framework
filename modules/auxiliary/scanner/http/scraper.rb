@@ -68,16 +68,16 @@ class Metasploit3 < Msf::Auxiliary
 
 			result.each do |u|
 				print_status("[#{target_host}] #{tpath} [#{u}]")
-				
+
 				report_web_vuln(
 					:host	=> target_host,
 					:port	=> rport,
 					:vhost  => vhost,
 					:ssl    => ssl,
-					:path	=> "#{tpath}",
+					:path	=> tpath,
 					:method => 'GET',
 					:pname  => "",
-					:proof  => "#{u}",
+					:proof  => u,
 					:risk   => 0,
 					:confidence   => 100,
 					:category     => 'scraper',
@@ -92,4 +92,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

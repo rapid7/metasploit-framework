@@ -84,9 +84,9 @@ class Metasploit3 < Msf::Auxiliary
 							print_status("Testing verb #{tv} resp code: [#{resauth.code}]")
 							if resauth.code != auth_code and resauth.code <= 302
 								print_status("Possible authentication bypass with verb #{tv} code #{resauth.code}")
-								
+
 								# Unable to use report_web_vuln as method is not in list of allowed methods.
-								
+
 								report_note(
 									:host	=> ip,
 									:proto => 'tcp',
@@ -96,7 +96,7 @@ class Metasploit3 < Msf::Auxiliary
 									:data	=> "#{datastore['PATH']} Verb: #{tv}",
 									:update => :unique_data
 								)
-								
+
 							end
 						end
 					end

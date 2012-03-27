@@ -44,4 +44,3 @@ class Metasploit3 < Msf::Auxiliary
 		disconnect_udp
 	end
 end
-

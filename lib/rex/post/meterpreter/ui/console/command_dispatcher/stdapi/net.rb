@@ -56,6 +56,7 @@ class Console::CommandDispatcher::Stdapi::Net
 	def commands
 		{
 			"ipconfig" => "Display interfaces",
+			"ifconfig" => "Display interfaces",
 			"route"    => "View and modify the routing table",
 			"portfwd"  => "Forward a local port to a remote service",
 		}
@@ -82,6 +83,8 @@ class Console::CommandDispatcher::Stdapi::Net
 			end
 		end
 	end
+
+	alias :cmd_ifconfig :cmd_ipconfig
 
 	#
 	# Displays or modifies the routing table on the remote machine.

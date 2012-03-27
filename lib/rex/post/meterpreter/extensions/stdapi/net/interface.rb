@@ -35,6 +35,7 @@ class Interface
 		self.flags    = opts[:flags]
 		self.addrs    = opts[:addrs]
 		self.netmasks = opts[:netmasks]
+		self.scopes   = opts[:scopes]
 	end
 
 	#
@@ -108,10 +109,6 @@ class Interface
 	#
 	attr_accessor :mac_name
 	#
-	# The subnet mask associated with the IPv6 interface.
-	#
-	attr_accessor :netmask6
-	#
 	# The MTU associated with the interface.
 	#
 	attr_accessor :mtu
@@ -119,7 +116,14 @@ class Interface
 	# The flags associated with the interface.
 	#
 	attr_accessor :flags
+	#
+	# An Array of netmasks. This will have the same number of elements as #addrs
+	#
 	attr_accessor :netmasks
+	#
+	# An Array of IPv6 address scopes. This will have the same number of elements as #addrs
+	#
+	attr_accessor :scopes
 end
 
 end; end; end; end; end; end

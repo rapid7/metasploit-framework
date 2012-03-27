@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Name'          => 'OKI Printer Default Login Credential Scanner',
 			'Description'   => %q{
 				This module scans for OKI printers via SNMP, then tries to connect to found devices
-				with vendor default administrator credentials via HTTP authentication. By default, OKI 
+				with vendor default administrator credentials via HTTP authentication. By default, OKI
 				network printers use the last six digits of the MAC as admin password.
 			},
 			'Author'        => 'antr6X <anthr6x[at]gmail.com>',

@@ -24,6 +24,7 @@ require 'zip'
 require 'packetfu'
 require 'uri'
 require 'tmpdir'
+require 'csv'
 
 
 module Msf
@@ -2635,27 +2636,32 @@ class DBManager
 		data = args[:data]
 		wspace = args[:wspace] || workspace
 		bl = validate_ips(args[:blacklist]) ? args[:blacklist].split : []
+		CSV.parse(data) do |row|
+			next unless (["Name", "Manufacturer", "Device Type"] & row).empty? #header
+			name = row[0]
+			manufacturer = row[1]
+			device = row[2]
+			model = row[3]
+			ip = row[4]
+			serialno = row[5]
+			location = row[6]
+			os = row[7]
 
-		data.each_line do |line|
-			next if line =~ /^Name,Manufacturer,Device/ #header
-
-			split = line.split(',')
-	
-			name = split[0]
-			manufacturer = split[1]
-			device = split[2]
-			model = split[3]
-			ip = split[4]
-			serialno = split[5]
-			location = split[6]
-			os = split[7]
+			next unless ip
+			next if bl.include? ip
 	
 			conf = {
 			:workspace => wspace,
 			:host      => ip,
-			:os_name   => os,
 			:name      => name
 			}
+
+			conf[:os_name] = os if os
+
+			info = []
+			info << "Serial Number: #{serialno}" unless (serialno.blank? or serialno == name)
+			info << "Location: #{location}" unless location.blank?
+			conf[:info] = info.join(", ") unless info.empty?
 	
 			host = report_host(conf)
 			report_import_note(wspace, host)

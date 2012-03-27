@@ -184,7 +184,7 @@ class Metasploit3 < Msf::Auxiliary
 							:data	=> "#{tpath}%c0%af#{testfdir} Code: #{res.code}",
 							:update => :unique_data
 						)
-						
+
 					end
 				end
 
@@ -195,4 +195,3 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 end
-

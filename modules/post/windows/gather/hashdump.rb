@@ -272,4 +272,3 @@ class Metasploit3 < Msf::Post
 		d1o + d2o
 	end
 end
-

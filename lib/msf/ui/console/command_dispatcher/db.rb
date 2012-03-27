@@ -1318,7 +1318,7 @@ class Db
 
 		def db_check_driver
 			if(not framework.db.driver)
-				print_error("No database driver has been specified")
+				print_error("No database driver installed. Try 'gem install pg'")
 				return false
 			end
 			true
@@ -1328,17 +1328,14 @@ class Db
 		# Is everything working?
 		#
 		def cmd_db_status(*args)
-			if framework.db.driver
-				if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
-					if ActiveRecord::Base.connection.respond_to? :current_database
-						cdb = ActiveRecord::Base.connection.current_database
-					end
-					print_status("#{framework.db.driver} connected to #{cdb}")
-				else
-					print_status("#{framework.db.driver} selected, no connection")
+			return if not db_check_driver
+			if ActiveRecord::Base.connected? and ActiveRecord::Base.connection.active?
+				if ActiveRecord::Base.connection.respond_to? :current_database
+					cdb = ActiveRecord::Base.connection.current_database
 				end
+				print_status("#{framework.db.driver} connected to #{cdb}")
 			else
-				print_status("No driver selected")
+				print_status("#{framework.db.driver} selected, no connection")
 			end
 		end
 

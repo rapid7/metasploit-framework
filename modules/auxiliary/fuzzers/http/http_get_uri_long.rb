@@ -93,4 +93,3 @@ class Metasploit3 < Msf::Auxiliary
 		datastore['URIBASE']
 	end
 end
-

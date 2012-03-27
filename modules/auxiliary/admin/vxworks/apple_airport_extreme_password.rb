@@ -114,4 +114,3 @@ class Metasploit3 < Msf::Auxiliary
 		wdbrpc_client_disconnect
 	end
 end
-

@@ -1964,7 +1964,7 @@ class Plugin::Wmap < Msf::Plugin
 		def rpc_mon_nodes()
 			# Pretty monitor
 			
-			color = true
+			color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 			
 			colors = [ 
 			           '%grn', 
@@ -2212,7 +2212,7 @@ class Plugin::Wmap < Msf::Plugin
 	def initialize(framework, opts)
 		super
 
-		color = true
+		color = self.opts["ConsoleDriver"].output.supports_color? rescue false
 		
 		wmapversion = '1.5.1'
 		

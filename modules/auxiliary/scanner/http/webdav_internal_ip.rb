@@ -68,7 +68,7 @@ class Metasploit3 < Msf::Auxiliary
 						:sname => (ssl ? 'https' : 'http'),
 						:port	=> rport,
 						:type	=> 'INTERNAL_IP',
-						:data	=> "#{addr}"
+						:data	=> addr
 					)
 				end
 			end
@@ -78,4 +78,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

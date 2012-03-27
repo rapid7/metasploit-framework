@@ -59,4 +59,3 @@ class Metasploit3 < Msf::Auxiliary
 		print_status("Avahi should be down now")
 	end
 end
-

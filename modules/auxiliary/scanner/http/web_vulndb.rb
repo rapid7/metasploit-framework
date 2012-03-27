@@ -48,7 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			], self.class)
 
 	end
-	
+
 	# Modify to true if you have sqlmap installed.
 	def wmap_enabled
 		false
@@ -189,4 +189,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

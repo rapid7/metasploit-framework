@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Author'      => 'hdm',
 			'License'     => MSF_LICENSE
 		)
-		
+
 		register_wmap_options({
 				'OrderID' => 0,
 				'Require' => {},
@@ -46,4 +46,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

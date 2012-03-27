@@ -74,4 +74,3 @@ class Metasploit3 < Msf::Auxiliary
 		close_pcap
 	end
 end
-

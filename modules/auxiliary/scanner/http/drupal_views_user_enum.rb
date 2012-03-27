@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		register_options(
 			[
-				OptString.new('PATH', [true, "Drupal Path", "/"]),
+				OptString.new('PATH', [true, "Drupal Path", "/"])
 			], self.class)
 	end
 

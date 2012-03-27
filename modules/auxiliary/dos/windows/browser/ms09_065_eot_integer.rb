@@ -165,4 +165,3 @@ bf87c9d9 0f82cf000000    jb      win32k!bComputeIDs+0x1be (bf87caae)
 bf87c9df 8a6702          mov     ah,byte ptr [edi+2]  <--- the crash above
 
 =end
-

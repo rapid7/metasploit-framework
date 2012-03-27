@@ -40,4 +40,3 @@ module Metasploit3
 		File.join(Msf::Config.install_root, "data", "vncdll.dll")
 	end
 end
-

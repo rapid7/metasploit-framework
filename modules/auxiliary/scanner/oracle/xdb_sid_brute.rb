@@ -93,7 +93,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto	=> 'tcp',
 					:port => datastore['RPORT'],
 					:type => 'SERVICE_NAME',
-					:data => "#{sid}",
+					:data => sid,
 					:update => :unique_data
 				)
 				print_good("Discovered SID: '#{sid[0]}' for host #{ip}:#{datastore['RPORT']} with #{datastore['DBUSER']} / #{datastore['DBPASS']}")
@@ -224,7 +224,7 @@ class Metasploit3 < Msf::Auxiliary
 								:port => datastore['RPORT'],
 								:sname => 'xdb',
 								:type => 'oracle_sid',
-								:data => "#{sid}",
+								:data => sid,
 								:update => :unique_data
 							)
 						else

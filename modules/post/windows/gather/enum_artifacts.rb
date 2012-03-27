@@ -70,7 +70,7 @@ class Metasploit3 < Msf::Post
 				next if digest == nil
 				if digest == file['csum'] then found << file['name'] end
 			end
-			
+
 			# Process registry entries
 			vprint_status("Processing #{regs.length.to_s} registry entries for #{key}.")
 

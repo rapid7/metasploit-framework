@@ -82,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'tcp',
 					:sname	=> (ssl ? 'https' : 'http'),
 					:type	=> 'ROBOTS_TXT',
-					:data	=> "#{u}",
+					:data	=> u,
 					:update => :unique_data
 				)
 			end
@@ -92,4 +92,3 @@ class Metasploit3 < Msf::Auxiliary
 		end
 	end
 end
-

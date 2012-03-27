@@ -153,7 +153,7 @@ class Metasploit3 < Msf::Auxiliary
 				print_error("[#{wmap_target_host}] Error string appears in the normal response, unable to test")
 				print_error("[#{wmap_target_host}] Error string: '#{inje}'")
 				print_error("[#{wmap_target_host}] DB TYPE: #{dbt}, Error type '#{injt}'")
-			
+
 				report_web_vuln(
 					:host	=> ip,
 					:port	=> rport,
@@ -256,8 +256,8 @@ class Metasploit3 < Msf::Auxiliary
 								:ssl    => ssl,
 								:path	=> datastore['PATH'],
 								:method => datastore['METHOD'],
-								:pname  => "#{key}",
-								:proof  => "#{istr}",
+								:pname  => key,
+								:proof  => istr,
 								:risk   => 2,
 								:confidence   => 50,
 								:category     => 'SQL injection',

@@ -131,4 +131,3 @@ for (#{var_i}=0;#{var_i}<1285;#{var_i}++) #{var_memory}[#{var_i}]=#{var_bk}+#{va
 		handler(cli)
 	end
 end
-

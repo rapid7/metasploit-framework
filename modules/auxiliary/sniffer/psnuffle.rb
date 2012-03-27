@@ -212,4 +212,3 @@ class BaseProtocolParser
 	end
 
 end
-

@@ -38,20 +38,28 @@ module ModuleTest
 
 		print_good("#{msg}")
 	end
+
+	def pending(msg="", &block)
+		print_status("PENDING: #{msg}")
+	end
 end
 
 module ModuleTest::PostTest
 	include ModuleTest
 	def run
 		print_status("Running against session #{datastore["SESSION"]}")
-		print_status("Session type is #{session.type}")
-		print_status("Session platform is #{session.platform}")
+		print_status("Session type is #{session.type} and platform is #{session.platform}")
 
+		t = Time.now
 		@tests = 0; @failures = 0
 		run_all_tests
 
-		vprint_status("Testing complete.")
-		print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		vprint_status("Testing complete in #{Time.now - t}")
+		if (@failures > 0)
+			print_error("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		else
+			print_status("Passed: #{@tests - @failures}; Failed: #{@failures}")
+		end
 	end
 end
 

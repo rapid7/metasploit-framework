@@ -312,7 +312,7 @@ class Meterpreter < Rex::Post::Meterpreter::Client
 
 				# Try to match our visible IP to a real interface
 				# TODO: Deal with IPv6 addresses
-				found    = !!(ifaces.find {|i| i.addrs.find {|a| p a; a == shost } })
+				found    = !!(ifaces.find {|i| i.addrs.find {|a| a == shost } })
 				nhost    = nil
 				hobj     = nil
 

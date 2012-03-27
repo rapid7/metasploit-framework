@@ -328,4 +328,3 @@ MsgBox "Welcome!  Press F1 to dismiss this dialog.", ,"Welcome!", "#{unc}", 1
 	end
 
 end
-

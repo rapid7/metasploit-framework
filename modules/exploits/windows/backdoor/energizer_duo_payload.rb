@@ -124,4 +124,3 @@ class Metasploit3 < Msf::Exploit::Remote
 		disconnect
 	end
 end
-

@@ -639,7 +639,7 @@ class Metasploit3 < Msf::Auxiliary
 				accts = {}
 				returnedstring.each do |record|
 					user,pass = record.split(",")
-					accts["#{pass.chomp}"] = "#{user}"
+					accts["#{pass.chomp}"] = user
 				end
 				::File.open(ordfltpss, "rb").each_line do  |l|
 					accrcrd =  l.split(",")

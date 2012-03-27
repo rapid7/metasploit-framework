@@ -284,7 +284,7 @@ class Metasploit3 < Msf::Auxiliary
 		keyfile_path = store_loot(
 			ltype,
 			"application/octet-stream", # Text, but always want to mime-type attach it
-			ip, 
+			ip,
 			(key_data + "\n"),
 			"#{safe_username}_#{ktype}.key",
 			key_id
@@ -321,4 +321,3 @@ class Metasploit3 < Msf::Auxiliary
 	end
 
 end
-

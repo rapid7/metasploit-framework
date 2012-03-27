@@ -201,9 +201,9 @@ class Tlv
 			}
 			tlvs_inspect << "]"
 		else
-			tlvs_inspect = "meta=#{meta} value=#{val}"
+			tlvs_inspect = "meta=#{meta.ljust 10} value=#{val}"
 		end
-		"#<#{self.class} type=#{stype} #{tlvs_inspect}>"
+		"#<#{self.class} type=#{stype.ljust 15} #{tlvs_inspect}>"
 	end
 
 	##
@@ -385,7 +385,7 @@ class GroupTlv < Tlv
 	# Synonym for each.
 	#
 	def each_tlv(type = TLV_TYPE_ANY, &block)
-		each(type, block)
+		each(type, &block)
 	end
 
 	#

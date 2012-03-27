@@ -55,7 +55,7 @@ class Metasploit3 < Msf::Auxiliary
 			begin
 				connect
 			rescue => e
-				print_error("#{e}")
+				print_error(e.to_s)
 				disconnect
 				return
 			end

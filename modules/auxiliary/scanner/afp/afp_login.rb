@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'         => 'Apple Filing Protocol Login Utility',
 			'Description'  => %q{
-				This module attempts to brute force authentication credentials for AFP.
+				This module attempts to bruteforce authentication credentials for AFP.
 			},
 			'References'     =>
 				[
