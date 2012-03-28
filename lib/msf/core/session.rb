@@ -260,7 +260,7 @@ module Session
 	def set_from_exploit(m)
 		self.via = { 'Exploit' => m.fullname }
 		self.via['Payload'] = ('payload/' + m.datastore['PAYLOAD'].to_s) if m.datastore['PAYLOAD']
-		self.target_host = m.target_host if (m.target_host.to_s.strip.length > 0)
+		self.target_host = Rex::Socket.getaddress(m.target_host) if (m.target_host.to_s.strip.length > 0)
 		self.target_port = m.target_port if (m.target_port.to_i != 0)
 		self.workspace   = m.workspace
 		self.username    = m.owner
