@@ -346,8 +346,9 @@ class Rex::Socket::Comm::Local
 
 	def self.proxy(sock, type, host, port)
 
-		#$stdout.print("PROXY\n")
 		case type.downcase
+		when 'httponly'
+			return
 		when 'http'
 			setup = "CONNECT #{host}:#{port} HTTP/1.0\r\n\r\n"
 			size = sock.put(setup)

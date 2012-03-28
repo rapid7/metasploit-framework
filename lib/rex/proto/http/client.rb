@@ -669,6 +669,10 @@ class Client
 			prefix << '/%20HTTP/1.0/../../'
 		end
 
+		if (self.proxies.split(':')[0] == 'httponly')
+			prefix << "http://#{hostname}:#{port}"
+		end
+
 		prefix
 	end
 
