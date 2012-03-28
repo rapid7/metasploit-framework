@@ -112,7 +112,7 @@ class Metasploit3 < Msf::Auxiliary
 							end
 							if res.body =~ /No route to host/
 								dead = true
-								print_bad("[#{rhost}] #{target} is DEAD")
+								print_error("[#{rhost}] #{target} is DEAD")
 							end
 
 							print_status("[#{rhost}] #{target}:#{port} blocked by ACL") if res.body =~ /Access control/
