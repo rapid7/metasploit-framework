@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+28 Mar 12
+---------
+- Team server now delivers chat messages in batches vs. one line at a time. 
+  This will make syncing on reconnect much better (in theory)
+- Several optimizations to prevent unnecessary reads/calls to deconfliction
+  server when in team mode. This will primarily affect high latency situations.
+- Use Shift+Click to close all tabs with the same name. This feature now closes
+  all tabs in the same group (e.g., all screenshots, file browsers, command 
+  shells, etc.)
+- Armitage now logs launches of the enum_dns module.
+- Hosts -> DNS Enumerate now populates NS field with highlighted host.
+- Armitage now adds a tooltip to tabs associated with a session. Hover your 
+  mouse over a tab X button to see which host the tab is associated with.
+- Fixed a potential exception caused when listing downloads.
+- Created a queue to process certain commands meant for Metasploit in order and
+  in a throttled manner. Started moving some Armitage calls to it. Now you can
+  fire an exploit at 1,000 hosts and Armitage won't blink. It might take awhile
+  before that exploit finishes firing against all of the hosts though :)
+- The file browser now has a "List Drives" button. It's only available on 
+  Windows sessions. Click it to see which drives are available.
+- File browser can now navigate to folders with apostrophes in their name.
+- Made some major internal changes to how Armitage interacts with Metasploit. The
+  goal is to make a more robust and faster hacking experience for you.
+
 22 Mar 12
 ---------
 - Updated Armitage NMap profiles with the following:

@@ -20,7 +20,7 @@ class Metasploit3 < Msf::Auxiliary
 
 				When an EXEC_CMD packet is sent, omniinet.exe will attempt to look
 				for that user-supplied filename with kernel32!FindFirstFileW().  If the file
-				is found, the process will then go ahead execute it with CreateProcess().
+				is found, the process will then go ahead execute it with CreateProcess()
 				under a new thread.  If the filename isn't found, FindFirstFileW() will throw
 				an error (0x03), and then bails early without triggering CreateProcess().
 
@@ -46,7 +46,7 @@ class Metasploit3 < Msf::Auxiliary
 					'sinn3r'
 				],
 			'License'        => MSF_LICENSE,
-			'DisclosureDate' => "Feb 7 2011",
+			'DisclosureDate' => "Feb 7 2011"
 		))
 
 		register_options(

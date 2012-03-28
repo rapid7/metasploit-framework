@@ -17,10 +17,12 @@ class Metasploit3 < Msf::Auxiliary
 
 	def initialize(info = {})
 		super(update_info(info,
-			'Name'		   => 'DNS Enumeration Module',
+			'Name'		   => 'DNS Record Scanner and Enumerator ',
 			'Description'	=> %q{
-					This module can be used to enumerate various types of information
-				about a domain from a specific DNS server.
+				This module can be used to gather information about a domain from a
+				given DNS server by performing various DNS queries such as zone
+				transfers, reverse lookups, SRV record bruteforcing, and other techniques.
+
 			},
 			'Author'		=> [ 'Carlos Perez <carlos_perez[at]darkoperator.com>' ],
 			'License'		=> MSF_LICENSE,
@@ -35,17 +37,17 @@ class Metasploit3 < Msf::Auxiliary
 		register_options(
 			[
 				OptString.new('DOMAIN', [ true, "The target domain name"]),
-				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone Transfer against each NS record', true]),
-				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing TLD and testing against IANA TLD list', false]),
+				OptBool.new('ENUM_AXFR', [ true, 'Initiate a zone transfer against each NS record', true]),
+				OptBool.new('ENUM_TLD', [ true, 'Perform a top-level domain expansion by replacing the TLD and testing against IANA TLD list', false]),
 				OptBool.new('ENUM_STD', [ true, 'Enumerate standard record types (A,MX,NS,TXT and SOA)', true]),
-				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via wordlist', false]),
+				OptBool.new('ENUM_BRT', [ true, 'Brute force subdomains and hostnames via the supplied wordlist', false]),
 				OptBool.new('ENUM_IP6', [ true, 'Brute force hosts with IPv6 AAAA records',false]),
 				OptBool.new('ENUM_RVL', [ true, 'Reverse lookup a range of IP addresses', false]),
 				OptBool.new('ENUM_SRV', [ true, 'Enumerate the most common SRV records', true]),
-				OptPath.new('WORDLIST', [ false, "Wordlist file for domain name brute force.", File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
-				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries, otherwise use the system DNS" ]),
+				OptPath.new('WORDLIST', [ false, "Wordlist for domain name bruteforcing", ::File.join(Msf::Config.install_root, "data", "wordlists", "namelist.txt")]),
+				OptAddress.new('NS', [ false, "Specify the nameserver to use for queries (default is system DNS)" ]),
 				OptAddressRange.new('IPRANGE', [false, "The target address range or CIDR identifier"]),
-				OptBool.new('STOP_WLDCRD', [ true, 'Stops Brute Force Enumeration if wildcard resolution is detected', false])
+				OptBool.new('STOP_WLDCRD', [ true, 'Stops bruteforce enumeration if wildcard resolution is detected', false])
 			], self.class)
 
 		register_advanced_options(
@@ -80,7 +82,7 @@ class Metasploit3 < Msf::Auxiliary
 		rendsub = rand(10000).to_s
 		query = @res.query("#{rendsub}.#{target}", "A")
 		if query.answer.length != 0
-			print_status("This Domain has Wildcards Enabled!!")
+			print_status("This domain has wildcards enabled!!")
 			query.answer.each do |rr|
 				print_status("Wildcard IP for #{rendsub}.#{target} is: #{rr.address.to_s}") if rr.class != Net::DNS::RR::CNAME
 			end
@@ -91,17 +93,17 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	#---------------------------------------------------------------------------------
 	def genrcd(target)
-		print_status("Retrieving General DNS Records")
+		print_status("Retrieving general DNS records")
 		query = @res.search(target)
 		if (query)
 			query.answer.each do |rr|
 				next unless rr.class == Net::DNS::RR::A
-				print_status("Domain: #{target} IP Address: #{rr.address} Record: A ")
+				print_status("Domain: #{target} IP address: #{rr.address} Record: A ")
 				report_note(:host => rr.address.to_s,
 					:proto => 'udp',
 					:sname => 'dns',
 					:port => 53 ,
-					:type => 'DNS_ENUM',
+					:type => 'dns.enum',
 					:data => "#{rr.address.to_s},#{target},A")
 			end
 		end
@@ -111,12 +113,12 @@ class Metasploit3 < Msf::Auxiliary
 				query1 = @res.search(rr.mname)
 				if (query1)
 					query1.answer.each do |ip|
-						print_status("Start of Authority: #{rr.mname} IP Address: #{ip.address} Record: SOA")
+						print_status("Start of Authority: #{rr.mname} IP address: #{ip.address} Record: SOA")
 						report_note(:host => ip.address.to_s,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
-							:type => 'DNS_ENUM',
+							:type => 'dns.enum',
 							:data => "#{ip.address.to_s},#{rr.mname},SOA")
 					end
 				end
@@ -129,12 +131,12 @@ class Metasploit3 < Msf::Auxiliary
 				if (query1)
 					query1.answer.each do |ip|
 						next unless ip.class == Net::DNS::RR::A
-						print_status("Name Server: #{rr.nsdname} IP Address: #{ip.address} Record: NS")
+						print_status("Name Server: #{rr.nsdname} IP address: #{ip.address} Record: NS")
 						report_note(:host => ip.address.to_s,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
-							:type => 'DNS_ENUM',
+							:type => 'dns.enum',
 							:data => "#{ip.address.to_s},#{rr.nsdname},NS")
 					end
 				end
@@ -148,7 +150,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'udp',
 					:sname => 'dns',
 					:port => 53 ,
-					:type => 'DNS_ENUM',
+					:type => 'dns.enum',
 					:data => "#{rr.exchange},MX")
 			end
 		end
@@ -160,7 +162,7 @@ class Metasploit3 < Msf::Auxiliary
 					:proto => 'udp',
 					:sname => 'dns',
 					:port => 53 ,
-					:type => 'DNS_ENUM',
+					:type => 'dns.enum',
 					:data => "#{rr.txt},TXT")
 			end
 		end
@@ -172,7 +174,6 @@ class Metasploit3 < Msf::Auxiliary
 		if not nssrv.nil?
 			@res.nameserver=(nssrv)
 		end
-		print_status("Performing Top Level Domain Expansion")
 		i, a = 0, []
 		tlds = [
 			"com", "org", "net", "edu", "mil", "gov", "uk", "af", "al", "dz",
@@ -199,17 +200,18 @@ class Metasploit3 < Msf::Auxiliary
 			"ug", "ua", "ae", "gb", "us", "um", "uy", "uz", "vu", "ve", "vn",
 			"vg", "vi", "wf", "eh", "ye", "yu", "za", "zr", "zm", "zw", "int",
 			"gs", "info", "biz", "su", "name", "coop", "aero" ]
+		print_status("Performing Top Level Domain expansion using #{tlds.size} TLDs")
 
 		tlds.each do |tld|
 			query1 = @res.search("#{target}.#{tld}")
 			if (query1)
 				query1.answer.each do |rr|
-					print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP Address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
+					print_status("Domain: #{target}.#{tld} Name: #{rr.name} IP address: #{rr.address} Record: A ") if rr.class == Net::DNS::RR::A
 					report_note(:host => rr.address.to_s,
 						:proto => 'udp',
 						:sname => 'dns',
 						:port => 53,
-						:type => 'DNS_ENUM',
+						:type => 'dns.enum',
 						:data => "#{rr.address.to_s},#{target}.#{tld},A") if rr.class == Net::DNS::RR::A
 				end
 			end
@@ -219,7 +221,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#-------------------------------------------------------------------------------
 	def dnsbrute(target, wordlist, nssrv)
-		print_status("Running Brute Force against Domain #{target}")
+		print_status("Running bruteforce against domain #{target}")
 		arr = []
 		i, a = 0, []
 		::File.open(wordlist, "rb").each_line do |line|
@@ -230,12 +232,12 @@ class Metasploit3 < Msf::Auxiliary
 			if (query1)
 				query1.answer.each do |rr|
 					if rr.class == Net::DNS::RR::A
-						print_status("Host Name: #{line.chomp}.#{target} IP Address: #{rr.address.to_s}")
+						print_status("Hostname: #{line.chomp}.#{target} IP address: #{rr.address.to_s}")
 						report_note(:host => rr.address.to_s,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
-							:type => 'DNS_ENUM',
+							:type => 'dns.enum',
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},A")
 						next unless rr.class == Net::DNS::RR::CNAME
 					end
@@ -246,7 +248,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#-------------------------------------------------------------------------------
 	def bruteipv6(target, wordlist, nssrv)
-		print_status("Brute Forcing IPv6 addresses against Domain #{target}")
+		print_status("Bruteforcing IPv6 addresses against domain #{target}")
 		arr = []
 		i, a = 0, []
 		arr = IO.readlines(wordlist)
@@ -258,12 +260,12 @@ class Metasploit3 < Msf::Auxiliary
 			if (query1)
 				query1.answer.each do |rr|
 					if rr.class == Net::DNS::RR::AAAA
-						print_status("Host Name: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
+						print_status("Hostname: #{line.chomp}.#{target} IPv6 Address: #{rr.address.to_s}")
 						report_note(:host => rr.address.to_s,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
-							:type => 'DNS_ENUM',
+							:type => 'dns.enum',
 							:data => "#{rr.address.to_s},#{line.chomp}.#{target},AAAA")
 						next unless rr.class == Net::DNS::RR::CNAME
 					end
@@ -277,7 +279,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	#-------------------------------------------------------------------------------
 	def reverselkp(iprange,nssrv)
-		print_status("Running Reverse Lookup against ip range #{iprange}")
+		print_status("Running reverse lookup against IP range #{iprange}")
 		if not nssrv.nil?
 			@res.nameserver = (nssrv)
 		end
@@ -292,12 +294,12 @@ class Metasploit3 < Msf::Auxiliary
 					begin
 						query = @res.query(tip)
 						query.each_ptr do |addresstp|
-							print_status("Host Name: #{addresstp} IP Address: #{tip.to_s}")
+							print_status("Hostname: #{addresstp} IP address: #{tip.to_s}")
 							report_note(:host => tip,
 								:proto => 'udp',
 								:sname => 'dns',
 								:port => 53 ,
-								:type => 'DNS_ENUM',
+								:type => 'dns.enum',
 								:data => "#{addresstp},#{tip},A")
 						end
 					rescue ::Interrupt
@@ -320,7 +322,7 @@ class Metasploit3 < Msf::Auxiliary
 	#-------------------------------------------------------------------------------
 	#SRV Record Enumeration
 	def srvqry(dom,nssrv)
-		print_status("Enumerating SRV Records for #{dom}")
+		print_status("Enumerating SRV records for #{dom}")
 		i, a = 0, []
 		#Most common SRV Records
 		srvrcd = [
@@ -347,7 +349,7 @@ class Metasploit3 < Msf::Auxiliary
 	#-------------------------------------------------------------------------------
 	#For Performing Zone Transfers
 	def axfr(target, nssrv)
-		print_status("Performing Zone Transfer against all nameservers in #{target}")
+		print_status("Performing zone transfer against all nameservers in #{target}")
 		if not nssrv.nil?
 			@res.nameserver=(nssrv)
 		end
@@ -355,7 +357,7 @@ class Metasploit3 < Msf::Auxiliary
 		query = @res.query(target, "NS")
 		if (query.answer.length != 0)
 			(query.answer.select { |i| i.class == Net::DNS::RR::NS}).each do |nsrcd|
-				print_status("Testing Nameserver: #{nsrcd.nsdname}")
+				print_status("Testing nameserver: #{nsrcd.nsdname}")
 				nssrvquery = @res.query(nsrcd.nsdname, "A")
 				begin
 					nssrvip = nssrvquery.answer[0].address.to_s
@@ -365,23 +367,23 @@ class Metasploit3 < Msf::Auxiliary
 					if zone.answer.length != 0
 						namesrvips = @res.query(nsrcd.nsdname,"A")
 						nsip = namesrvips.answer[0]
-						print_status("Zone Transfer Successful")
+						print_status("Zone transfer successful")
 						report_note(:host => nsip.address.to_s,
 							:proto => 'udp',
 							:sname => 'dns',
 							:port => 53 ,
-							:type => 'DNS_ENUM',
-							:data => "Zone Transfer Successful")
+							:type => 'dns.enum',
+							:data => "Zone transfer successful")
 						#Prints each record according to its type
 						zone.answer.each do |rr|
 							case rr.type
 							when "A"
-								print_status("Name: #{rr.name} IP Address: #{rr.address} Record: A ")
+								print_status("Name: #{rr.name} IP address: #{rr.address} Record: A ")
 								report_note(:host => rr.address.to_s,
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.address.to_s},#{rr.name},A")
 							when "SOA"
 								print_status("Name: #{rr.mname} Record: SOA")
@@ -389,7 +391,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.name},SOA")
 							when "MX"
 								print_status("Name: #{rr.exchange} Preference: #{rr.preference} Record: MX")
@@ -397,7 +399,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.exchange},MX")
 							when "CNAME"
 								print_status("Name: #{rr.cname} Record: CNAME")
@@ -405,7 +407,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.cname},CNAME")
 							when "HINFO"
 								print_status("CPU: #{rr.cpu} OS: #{rr.os} Record: HINFO")
@@ -413,7 +415,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "CPU:#{rr.cpu},OS:#{rr.os},HINFO")
 							when "AAAA"
 								print_status("IPv6 Address: #{rr.address} Record: AAAA")
@@ -421,7 +423,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.address.to_s}, AAAA")
 							when "NS"
 								print_status("Name: #{rr.nsdname} Record: NS")
@@ -429,7 +431,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.nsdname},NS")
 							when "TXT"
 								print_status("Text: #{rr.txt} Record: TXT")
@@ -437,7 +439,7 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.txt},TXT")
 							when "SRV"
 								print_status("Host: #{rr.host} Port: #{rr.port} Priority: #{rr.priority} Record: SRV")
@@ -445,15 +447,15 @@ class Metasploit3 < Msf::Auxiliary
 									:proto => 'udp',
 									:sname => 'dns',
 									:port => 53 ,
-									:type => 'DNS_ENUM',
+									:type => 'dns.enum',
 									:data => "#{rr.host},#{rr.port},#{rr.priority},SRV")
 							end
 						end
 					else
-						print_error("Zone Transfer Failed")
+						print_error("Zone transfer failed")
 					end
 				rescue
-					print_error("Zone Transfer Failed")
+					print_error("Zone transfer failed")
 				end
 			end
 
@@ -479,15 +481,15 @@ class Metasploit3 < Msf::Auxiliary
 		end
 
 		if(datastore['ENUM_BRT'])
-			if wldcrd & datastore['STOP_WLDCRD']
-				print_status("Wildcard Record Found!")
+			if wldcrd and datastore['STOP_WLDCRD']
+				print_error("Wildcard record found!")
 			else
 				dnsbrute(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
 			end
 		end
 
 		if(datastore['ENUM_IP6'])
-			if wldcrd & datastore['STOP_WLDCRD']
+			if wldcrd and datastore['STOP_WLDCRD']
 				print_status("Wildcard Record Found!")
 			else
 				bruteipv6(datastore['DOMAIN'],datastore['WORDLIST'],datastore['NS'])
