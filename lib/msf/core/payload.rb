@@ -528,11 +528,17 @@ protected
 		end
 
 		# Assemble the payload from the assembly
-		sc = Metasm::Shellcode.assemble(Metasm::Ia32.new, asm).encoded
+                cpu = case module_info['Arch']
+                       when ARCH_X86    then Metasm::Ia32.new
+                       when ARCH_X86_64 then Metasm::X86_64.new
+                       when ARCH_PPC    then Metasm::PowerPC.new
+                       when ARCH_ARMLE  then Metasm::ARM.new
+                      end
+		sc = Metasm::Shellcode.assemble(cpu, asm).encoded
 
 		# Calculate the actual offsets now that it's been built
 		off.each_pair { |option, val|
-			off[option] = [ sc.offset_of_reloc(option), val[1] ]
+			off[option] = [ sc.offset_of_reloc(option) || val[0], val[1] ]
 		}
 
 		# Cache the payload blob

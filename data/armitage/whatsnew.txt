@@ -1,6 +1,11 @@
 Armitage Changelog
 ==================
 
+29 Mar 12
+---------
+- Fixed a bug that affects first-time users. Armitage was not initializing a
+  console before trying to connect to the database. 
+
 28 Mar 12
 ---------
 - Team server now delivers chat messages in batches vs. one line at a time. 
