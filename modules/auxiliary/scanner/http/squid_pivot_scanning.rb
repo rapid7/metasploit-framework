@@ -48,7 +48,8 @@ class Metasploit3 < Msf::Auxiliary
 			[
 				OptString.new('RANGE', [true, "IPs to scan through Squid proxy", '']),
 				OptString.new('PORTS', [true, "Ports to scan; must be TCP", "21,80,139,443,445,1433,1521,1723,3389,8080,9100"]),
-				OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true])
+				OptBool.new('MANUAL_CHECK',[true,"Stop the scan if server seems to answer positively to every request",true]),
+				OptString.new('CANARY_IP',[true,"The IP to check if the proxy always answers positively; the IP should not respond.","1.2.3.4"])
 			], self.class)
 
 	end
@@ -65,7 +66,7 @@ class Metasploit3 < Msf::Auxiliary
 				manual = false
 				#request a non-existent page first to make sure the server doesn't respond with a 200 to everything.
 				res_test = send_request_cgi({
-					'uri'          => "http://127.0.11.1:80",
+					'uri'          => "http://{datastore['CANARY_IP']}:80",
 					'method'       => 'GET',
 					'data'  =>      '',
 					'version' => '1.0',
