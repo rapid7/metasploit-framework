@@ -74,6 +74,10 @@ module Payload
 		len = e.encoded.length
 
 
+		if arch.index(ARCH_JAVA) and fmt == 'war'
+			return e.encoded_war.pack
+		end
+
 		output = Msf::Util::EXE.to_executable_fmt(framework, arch, plat, e.encoded, fmt, exeopts)
 
 		if not output
