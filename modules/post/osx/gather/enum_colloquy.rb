@@ -20,12 +20,12 @@ class Metasploit3 < Msf::Post
 			'Name'          => 'OSX Gather Colloquy Enumeration',
 			'Description'   => %q{
 					This module will collect Colloquy's info plist file and chat logs from the
-				victim's machine.  There are three actions you may choose:  INFO, and CHATS, and
-				ALL.  Please note that the CHAT action may time a long time depending on the
+				victim's machine.  There are three actions you may choose:  INFO, CHATS, and
+				ALL.  Please note that the CHAT action may take a long time depending on the
 				victim machine, therefore we suggest to set the regex 'PATTERN' option in order
 				to search for certain log names (which consists of the contact's name, and a
 				timestamp).  The default 'PATTERN' is configured as "^alien" as an example
-				to search for any chatlogs associated with the name "alien".
+				to search for any chat logs associated with the name "alien".
 			},
 			'License'       => MSF_LICENSE,
 			'Author'        => [ 'sinn3r'],
