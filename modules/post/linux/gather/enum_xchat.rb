@@ -48,14 +48,18 @@ class Metasploit3 < Msf::Post
 			buf = read_file(file)
 			buf = '' if buf =~ /No such file or directory/
 		rescue ::Timeout::Error => e
-			vprint_error("#{@peer} - #{e.message} - retrying...")
 			tries += 1
-			retry if tries < 3
+			if tries < 3
+				vprint_error("#{@peer} - #{e.message} - retrying...")
+				retry
+			end
 			buf = ''
 		rescue EOFError => e
-			vprint_error("#{@peer} - #{e.message} - retrying...")
 			tries += 1
-			retry if tries < 3
+			if tries < 3
+				vprint_error("#{@peer} - #{e.message} - retrying...")
+				retry
+			end
 			buf = ''
 		end
 
