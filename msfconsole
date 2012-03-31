@@ -71,6 +71,11 @@ class OptsConsole
 				options['DatabaseYAML'] = m
 			end
 
+			opts.on("-M", "--migration-path <dir>", "Specify a directory containing additional DB migrations") do |m|
+				options['DatabaseMigrationPaths'] ||= []
+				options['DatabaseMigrationPaths'] << m
+			end
+			
 			opts.on("-e", "--environment <production|development>", "Specify the database environment to load from the YAML") do |m|
 				options['DatabaseEnv'] = m
 			end
