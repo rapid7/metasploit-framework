@@ -18,7 +18,7 @@ class Metasploit3 < Msf::Post
 		super( update_info( info,
 			'Name'          => 'Linux Gather XChat Enumeration',
 			'Description'   => %q{
-					This module will collect X-Chat's config files and chat logs from the victim's
+					This module will collect XChat's config files and chat logs from the victim's
 				machine.  There are three actions you may choose: CONFIGS, CHATS, and ALL.  The
 				CONFIGS option can be used to collect information such as channel settings,
 				channel/server passwords, etc.  The CHATS option will simply download all the
