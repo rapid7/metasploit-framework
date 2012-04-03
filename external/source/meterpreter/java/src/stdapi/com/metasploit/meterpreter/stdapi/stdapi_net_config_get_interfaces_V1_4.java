@@ -3,7 +3,9 @@ package com.metasploit.meterpreter.stdapi;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 
 import com.metasploit.meterpreter.Meterpreter;
 import com.metasploit.meterpreter.TLVPacket;
@@ -13,52 +15,56 @@ import com.metasploit.meterpreter.command.Command;
 public class stdapi_net_config_get_interfaces_V1_4 extends stdapi_net_config_get_interfaces implements Command {
 
 	public int execute(Meterpreter meterpreter, TLVPacket request, TLVPacket response) throws Exception {
+		int index = 0;
 		for (Enumeration ifaces = NetworkInterface.getNetworkInterfaces(); ifaces.hasMoreElements();) {
 			NetworkInterface iface = (NetworkInterface) ifaces.nextElement();
 			TLVPacket ifaceTLV = new TLVPacket();
-			byte[][] info = getInformation(iface);
-			if (info[0] != null) {
-				ifaceTLV.add(TLVType.TLV_TYPE_IP, info[0]);
-				ifaceTLV.add(TLVType.TLV_TYPE_NETMASK, info[1]);
-			} else {
-				ifaceTLV.add(TLVType.TLV_TYPE_IP, new byte[4]);
-				ifaceTLV.add(TLVType.TLV_TYPE_NETMASK, new byte[4]);
+			ifaceTLV.add(TLVType.TLV_TYPE_INTERFACE_INDEX, ++index);
+			Address[] addresses = getAddresses(iface);
+			for (int i = 0; i < addresses.length; i++) {
+				ifaceTLV.addOverflow(TLVType.TLV_TYPE_IP, addresses[i].address);
+				ifaceTLV.addOverflow(TLVType.TLV_TYPE_IP_PREFIX, new Integer(addresses[i].prefixLength));
+				if (addresses[i].scopeId != null) {
+					ifaceTLV.addOverflow(TLVType.TLV_TYPE_IP6_SCOPE, addresses[i].scopeId);
+				}
 			}
-			try {
-				ifaceTLV.add(TLVType.TLV_TYPE_MTU, iface.getMTU());
-			} catch (NoSuchMethodError e) { }
-
-			ifaceTLV.add(TLVType.TLV_TYPE_MAC_ADDRESS, info[2]);
+			addMTU(ifaceTLV, iface);
+			byte[] mac = getMacAddress(iface);
+			if (mac != null) {
+				ifaceTLV.add(TLVType.TLV_TYPE_MAC_ADDRESS, mac);
+			} else {
+				// seems that Meterpreter does not like interfaces without
+				// mac address
+				ifaceTLV.add(TLVType.TLV_TYPE_MAC_ADDRESS, new byte[0]);
+			}
 			ifaceTLV.add(TLVType.TLV_TYPE_MAC_NAME, iface.getName() + " - " + iface.getDisplayName());
 			response.addOverflow(TLVType.TLV_TYPE_NETWORK_INTERFACE, ifaceTLV);
 		}
 		return ERROR_SUCCESS;
 	}
 
+	protected void addMTU(TLVPacket ifaceTLV, NetworkInterface iface) throws IOException {
+		// not supported before 1.6
+	}
+
+	protected byte[] getMacAddress(NetworkInterface iface) throws IOException {
+		return null;
+	}
+
 	/**
-	 * Return information of this interface that cannot be determined the same way for all Java versions. Currently this includes ip, network mask and MAC address.
+	 * Return address information of this interface that cannot be determined
+	 * the same way for all Java versions.
 	 * 
 	 * @param iface
-	 * @return ip, network mask and MAC address
+	 * @return Array of {@link Interface}
 	 */
-	public byte[][] getInformation(NetworkInterface iface) throws IOException {
-		byte[] ip = null;
+	public Address[] getAddresses(NetworkInterface iface) throws IOException {
+		List/* <Address> */result = new ArrayList();
 		for (Enumeration en = iface.getInetAddresses(); en.hasMoreElements();) {
 			InetAddress addr = (InetAddress) en.nextElement();
-			if (addr.getAddress().length == 4) {
-				ip = addr.getAddress();
-				break;
-			}
-		}
-		if (ip == null) {
-			for (Enumeration en = iface.getInetAddresses(); en.hasMoreElements();) {
-				InetAddress addr = (InetAddress) en.nextElement();
-				ip = addr.getAddress();
-				break;
-			}
-		}
-		byte[] netmask = null;
-		if (ip != null) {
+			byte[] ip = addr.getAddress();
+			if (ip == null)
+				continue;
 			int prefixLength = 0;
 			if (ip.length == 4) {
 				// guess netmask by network class...
@@ -70,17 +76,24 @@ public class stdapi_net_config_get_interfaces_V1_4 extends stdapi_net_config_get
 					prefixLength = 24;
 				}
 			}
-			netmask = createNetworkMask(ip.length, prefixLength);
+			result.add(new Address(ip, prefixLength, null));
 		}
-		return new byte[][] { ip, netmask, new byte[6] };
+		return (Address[]) result.toArray(new Address[result.size()]);
 	}
 
-	protected static byte[] createNetworkMask(int length, int prefixLength) {
-		byte[] netmask = new byte[length];
-		for (int i = 0; i < prefixLength; i++) {
-			netmask[i / 8] |= (1 << (7 - (i % 8)));
+	/**
+	 * An IP address associated to an interface, together with a prefix length
+	 * and optionally a scope.
+	 */
+	protected static class Address {
+		public final byte[] address;
+		public final int prefixLength;
+		public final byte[] scopeId;
+
+		public Address(byte[] address, int prefixLength, byte[] scopeId) {
+			this.address = address;
+			this.prefixLength = prefixLength;
+			this.scopeId = scopeId;
 		}
-		return netmask;
 	}
 }
-
