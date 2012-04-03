@@ -1,6 +1,7 @@
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
+require 'fileutils'
 
 module Msf
 
@@ -39,11 +40,16 @@ class DBManager
 
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
+	
+	# Array of additional migration paths
+	attr_accessor :migration_paths
 
 	def initialize(framework, opts = {})
 
 		self.framework = framework
 		self.migrated  = false
+		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
+		
 		@usable = false
 
 		# Don't load the database if the user said they didn't need it.
@@ -225,16 +231,37 @@ class DBManager
 	# Migrate database to latest schema version
 	#
 	def migrate(verbose=false)
+	
+		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
+		::FileUtils.rm_rf(temp_dir)
+		::FileUtils.mkdir_p(temp_dir)
+		
+		self.migration_paths.each do |mpath|
+			dir = Dir.new(mpath) rescue nil
+			if not dir
+				elog("Could not access migration path #{mpath}")
+				next
+			end
+			
+			dir.entries.each do |ent|
+				next unless ent =~ /^\d+.*\.rb$/
+				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
+			end
+		end
+		
+		success = true
 		begin
-			migrate_dir = ::File.join(Msf::Config.install_root, "data", "sql", "migrate")
 			ActiveRecord::Migration.verbose = verbose
-			ActiveRecord::Migrator.migrate(migrate_dir, nil)
+			ActiveRecord::Migrator.migrate(temp_dir, nil)
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.migrate threw an exception: #{e}")
 			dlog("Call stack:\n#{e.backtrace.join "\n"}")
-			return false
+			success = false
 		end
+		
+		::FileUtils.rm_rf(temp_dir)
+		
 		return true
 	end
 

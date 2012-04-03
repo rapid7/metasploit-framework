@@ -145,7 +145,7 @@ class Metasploit3 < Msf::Auxiliary
 
 			while (::Time.now.to_f < etime)
 				while(adv = getadvertisement())
-					next if not adv[:icmpv6]
+					next if not adv
 
 					addr = map_neighbor(neighs, adv)
 					next if not addr

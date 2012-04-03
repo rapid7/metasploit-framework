@@ -174,6 +174,12 @@ class Driver < Msf::Ui::Driver
 
 		# Parse any specified database.yml file
 		if framework.db.usable and not opts['SkipDatabaseInit']
+		
+			# Append any migration paths necessary to bring the database online
+			if opts['DatabaseMigrationPaths']
+				opts['DatabaseMigrationPaths'].each {|m| framework.db.migrations_paths << m }
+			end
+		
 			# Look for our database configuration in the following places, in order:
 			#	command line arguments
 			#	environment variable
