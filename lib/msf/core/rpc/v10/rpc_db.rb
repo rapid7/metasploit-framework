@@ -208,7 +208,7 @@ public
 			w = {}
 			w[:name] = wspace.name
 			w[:created_at] = wspace.created_at.to_i
-			w[:modified_at] = wspace.modified_at.to_i
+			w[:updated_at] = wspace.updated_at.to_i
 			ret[:workspace] << w
 		end
 		ret
