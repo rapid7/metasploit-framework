@@ -158,7 +158,7 @@ module BindTcp
 	end
 
 	def wrap_aes_socket(sock)
-		if (datastore["AESPassword"] || "") == ""
+		if datastore["PAYLOAD"] !~ /java\// or (datastore["AESPassword"] || "") == ""
 			return sock
 		end
 		
