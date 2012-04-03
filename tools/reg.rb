@@ -172,9 +172,9 @@ def get_aol_instant_messenger_information
 		users_list_key = @hive.relative_query('\Software\America Online\AOL Instant Messenger(TM)\CurrentVersion\Users')
 		last_logged_in_user_key = @hive.relative_query("\\Software\\America Online\\AOL Instant Messenger(TM)\\CurrentVersion\\Login - Screen Name")
 
-		print_all_keys(user_list_key)
+		print_all_keys(users_list_key)
 
-		user_list_key.lf_record.children.each do |screenname|
+		users_list_key.lf_record.children.each do |screenname|
 			away_messages_key = @hive.relative_query("\\Software\\America Online\\AOL Instant Messenger(TM)\\CurrentVersion\\Users\\#{screenname.name}\\IAmGoneList")
 			file_xfer_settings_key = @hive.relative_query("\\Software\\America Online\\AOL Instant Messenger(TM)\\CurrentVersion\\Users\\#{screenname.name}\\Xfer")
 			profile_info_key = @hive.relative_query("\\Software\\America Online\\AOL Instant Messenger(TM)\\CurrentVersion\\Users\\#{screenname.name}\\DirEntry")
@@ -209,7 +209,7 @@ def get_windows_messenger_information
 		last_user_information_key = @hive.relative_query("\\Software\\Microsoft\\MessengerService\\ListCache\\.NET Messenger Service - IdentityName")
 
 		print_all(contact_list_information_key)
-		print_all(file_transers_information_key)
+		print_all(file_transfers_information_key)
 		print_all(last_user_information_key)
 	end
 end
@@ -228,7 +228,7 @@ end
 def get_ie_information
 	if @hive.hive_name =~ /NTUSER\.dat/i
 		stored_logon_information_key = @hive.relative_query("\\Software\\Microsoft\\Protected Storage System Provider\\SID\\Internet Explorer\\Internet Explorer - URL:StringData")
-		stored_search_terms_information_key = @hive.relative_quety("\\Software\\Microsoft\\Protected Storage SystemProvider\\SID\\Internet Explorer\\Internet Explorer - q:SearchIndex")
+		stored_search_terms_information_key = @hive.relative_query("\\Software\\Microsoft\\Protected Storage SystemProvider\\SID\\Internet Explorer\\Internet Explorer - q:SearchIndex")
 		ie_setting_information_key = @hive.relative_query("\\Software\\Microsoft\\Internet Explorer\\Main")
 		history_length_value_key = @hive.value_query("\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\\URL History - DaysToKeep")
 		typed_urls_information_key = @hive.relative_query("\\Software\\Microsoft\\Internet Explorer\\Typed URLs")
@@ -238,13 +238,13 @@ def get_ie_information
 
 		print_all(stored_logon_information_key)
 		print_all(stored_search_terms_information_key)
-		print_all(ie_settings_information_key)
-		print_all(type_urls_information_key)
+		print_all(ie_setting_information_key)
+		print_all(typed_urls_information_key)
 		print_all(intelliforms_information_key)
 		print_all(autocomplete_web_addresses_key)
 		print_all(default_download_dir)
 
-		puts "Days saved in history: " + history_length_value_key.value.data.to_s
+		puts "Days saved in history: " + history_length_value_key.value.data.to_s if !history_length_value_key.kind_of? Array
 	end
 end
 
@@ -266,7 +266,7 @@ def get_yahoo_messenger_information
 			file_transfers_information_key = @hive.relative_query("\\Software\\Yahoo\\Pager\\profiles\\#{child.name}\\FileTransfer")
 			message_archiving_information_key = @hive.relative_query("\\Software\\Yahoo\\Pager\\profiles\\#{child.name}\\Archive")
 
-			print_all(file_transfer_information_key)
+			print_all(file_transfers_information_key)
 			print_all(message_archiving_information_key)
 		end
 	end
@@ -375,6 +375,7 @@ when "list_drivers"
 when "get_everything"
 	Dir.foreach(ARGV[1]) do |file|
 	next if file =~ /^\./
+  next if ::File.directory?(ARGV[1] + "/" + file)
 
 	@hive = Rex::Registry::Hive.new(ARGV[1] + "/" + file)
 
