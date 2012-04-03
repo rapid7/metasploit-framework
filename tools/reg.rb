@@ -375,7 +375,7 @@ when "list_drivers"
 when "get_everything"
 	Dir.foreach(ARGV[1]) do |file|
 	next if file =~ /^\./
-  next if ::File.directory?(ARGV[1] + "/" + file)
+	next if ::File.directory?(ARGV[1] + "/" + file)
 
 	@hive = Rex::Registry::Hive.new(ARGV[1] + "/" + file)
 
