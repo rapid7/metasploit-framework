@@ -15,8 +15,8 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'Author'	=>
 				[
-					'Alessandro Tanasi <alessandro[at]tanasi.it>'
-					'Aram Verstegen <aram.verstegen[at]gmail.com>'
+					'Alessandro Tanasi <alessandro[at]tanasi.it>',
+					'Aram Verstegen <aram.verstegen[at]gmail.com>',
 				],
 			'License'	=> MSF_LICENSE,
 			'Version'	=> '$Revision$',
@@ -48,10 +48,14 @@ class Metasploit3 < Msf::Auxiliary
 		wmap_target_host = datastore['RHOST'] || ip
 		target = Resolv.getaddress(wmap_target_host)
 		host = self.framework.db.workspace.hosts.find_or_create_by_address(target)
-		service_ports = host.services.find(:all, :conditions => {:proto => 'tcp', :port => [80, 8080, 443]})
+		service_ports = host.services.find(:all, :conditions => {:proto => 'tcp', :name => ['http', 'https']})
 		if service_ports.empty?
-			# If no website has been found yet, create a dummy website to associate vhosts to
-			service_ports = [host.services.create(:proto => 'tcp', :port => 80, :name => 'http')]
+			# If no web services have been found yet, try to find common web wervice ports
+			service_ports = host.services.find(:all, :conditions => {:proto => 'tcp', :port => [80, 8080, 443]})
+			if service_ports.empty?
+				# If no website has been found yet, create a dummy website to associate vhosts to
+				service_ports = [host.services.create(:proto => 'tcp', :port => 80, :name => 'http')]
+			end
 		end
 
 		print_status "Starting Hostmap scan on (#{target}). Aware of HTTP on ports #{service_ports.map{|x| x.port}}"
@@ -68,13 +72,13 @@ class Metasploit3 < Msf::Auxiliary
 				if not host.web_sites.find_by_vhost(hostname)
 					service_ports.each do |service|
 						vhost = service.web_sites.find_or_create_by_vhost(hostname)
+						vhost.service.host = host
 						vhost.save
 					end
 				end
 				print_status "Found and added hostname #{hostname}"
 			end
 		end
-		host.save
 	end
 
 end
