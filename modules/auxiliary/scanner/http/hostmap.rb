@@ -54,11 +54,12 @@ class Metasploit3 < Msf::Auxiliary
 			service_ports = host.services.find(:all, :conditions => {:proto => 'tcp', :port => [80, 8080, 443]})
 			if service_ports.empty?
 				# If no website has been found yet, create a dummy website to associate vhosts to
+				print_status "Adding a dummy HTTP service at port 80 to associate vhosts to as no HTTP services were found"
 				service_ports = [host.services.create(:proto => 'tcp', :port => 80, :name => 'http')]
 			end
 		end
 
-		print_status "Starting Hostmap scan on (#{target}). Aware of HTTP on ports #{service_ports.map{|x| x.port}}"
+		print_status "Starting Hostmap scan on #{target} - aware of HTTP on ports #{service_ports.map{|x| x.port}}"
 		cmd = [ hostmap, datastore['OPTS'] ]
 		cmd << '--without-bruteforce' if not datastore['BRUTE_FORCING'] 
 		cmd += [ '-t', target ]
