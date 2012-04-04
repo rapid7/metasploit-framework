@@ -552,7 +552,6 @@ class Metasploit3 < Msf::Auxiliary
 				response = create_response()
 				response.body = "#{js_debug("'Please wait'")}"
 			else
-				print_status("Responding with exploits")
 				response = build_script_response(cli, request)
 			end
 			response["Expires"] = "0"
@@ -571,7 +570,6 @@ class Metasploit3 < Msf::Auxiliary
 				response = create_response()
 				response.body = "Please wait"
 			else
-				print_status("Responding with non-javascript exploits")
 				response = build_noscript_response(cli, request)
 			end
 
@@ -603,6 +601,7 @@ class Metasploit3 < Msf::Auxiliary
 		client_info = get_client(:host => cli.peerhost, :ua_string => request['User-Agent'])
 		body = ""
 
+		sploit_cnt = 0
 		@noscript_tests.each { |browser, sploits|
 			next if sploits.length == 0
 
@@ -611,7 +610,9 @@ class Metasploit3 < Msf::Auxiliary
 			sploits.each do |s|
 				body << html_for_exploit( s, client_info )
 			end
+			sploit_cnt += 1
 		}
+		print_status("Responding with #{sploit_cnt} non-javascript exploits")
 		body
 	end
 
@@ -742,6 +743,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 		ENDJS
 
+		sploit_cnt = 0
 		# if we have no client_info, this will add all tests. Otherwise tries
 		# to only send tests for exploits that target the client's detected
 		# browser.
@@ -774,6 +776,7 @@ class Metasploit3 < Msf::Auxiliary
 					js << "  'resource':'#{res}'\n"
 					js << "};\n"
 				end
+				sploit_cnt += 1
 			end
 		}
 
@@ -796,6 +799,7 @@ class Metasploit3 < Msf::Auxiliary
 					# check for in javascript, throw it on the pile.
 					noscript_html << html_for_exploit(s, client_info)
 				end
+				sploit_cnt += 1
 			end
 		}
 
@@ -816,6 +820,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		response.body = "#{js}"
 
+		print_status("Responding with #{sploit_cnt} exploits")
 		return response
 	end
 
