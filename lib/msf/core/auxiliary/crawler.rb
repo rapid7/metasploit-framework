@@ -262,6 +262,7 @@ module Auxiliary::HttpCrawler
 		opts[:framework]           = framework
 		opts[:module]              = self
 		opts[:timeout]             = get_connection_timeout
+		opts[:proxies]		= datastore['Proxies']
 
 		if (t[:headers] and t[:headers].length > 0)
 			opts[:inject_headers] = t[:headers]
