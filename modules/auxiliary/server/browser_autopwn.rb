@@ -612,7 +612,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			sploit_cnt += 1
 		}
-		print_status("Responding with #{sploit_cnt} non-javascript exploits")
+		print_status("#{cli.peerhost.ljust 16} Responding with #{sploit_cnt} non-javascript exploits")
 		body
 	end
 
@@ -820,7 +820,7 @@ class Metasploit3 < Msf::Auxiliary
 
 		response.body = "#{js}"
 
-		print_status("Responding with #{sploit_cnt} exploits")
+		print_status("#{cli.peerhost.ljust 16} Responding with #{sploit_cnt} exploits")
 		return response
 	end
 
