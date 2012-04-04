@@ -631,6 +631,13 @@ function getVersion(){
 				os_flavor = "XP";
 				os_sp = "SP2";
 				break;
+			case "5716599":
+				// IE 6.0.2900.5512, XP Professional SP3 English
+				// IE 6.0.2900.5512, XP Professional SP3 Spanish
+				ua_version = "6.0";
+				os_flavor = "XP";
+				os_sp = "SP3";
+				break;
 			case "575730":
 				// IE 7.0.5730.13, Server 2003 Standard SP2 English
 				// IE 7.0.5730.13, Server 2003 Standard SP1 English
@@ -640,8 +647,6 @@ function getVersion(){
 				ua_version = "7.0";
 				os_sp = "SP2";
 				break;
-			case "5716599":
-				// IE 7.0.5730.13, XP Professional SP3 English
 			case "5718066":
 				// IE 7.0.5730.13, XP Professional SP3 English
 				ua_version = "7.0";
@@ -654,10 +659,10 @@ function getVersion(){
 				os_flavor = "Vista";
 				os_sp = "SP0";
 				break;
-			case "5822960":
-				// IE 8.0.6001.18702, XP Professional SP3 Greek
 			case "5818702":
 				// IE 8.0.6001.18702, XP Professional SP3 English
+			case "5822960":
+				// IE 8.0.6001.18702, XP Professional SP3 Greek
 				ua_version = "8.0";
 				os_flavor = "XP";
 				os_sp = "SP3";
@@ -680,9 +685,15 @@ function getVersion(){
 				os_flavor = "7";
 				os_sp = "SP0";
 				break;
+			case "9016441":
+				// IE 9.0.8112.16421, Windows 7 32-bit English
+				ua_version = "9.0";
+				os_flavor = "7";
+				os_sp = "SP1";
+				break;
 
 			//default:
-			//	document.writeln(version);
+			//	alert(version);
 			//	break;
 		}
 
