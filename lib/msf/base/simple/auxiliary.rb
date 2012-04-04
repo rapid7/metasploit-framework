@@ -44,7 +44,7 @@ module Auxiliary
 
 		# Clone the module to prevent changes to the original instance
 		mod = omod.replicant
-		Msf::Simple::Framework.simplify_module(mod)
+		Msf::Simple::Framework.simplify_module( mod, false )
 
 		# Import options from the OptionStr or Option hash.
 		mod._import_extra_options(opts)

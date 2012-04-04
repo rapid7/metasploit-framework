@@ -36,7 +36,7 @@ class Metasploit3 < Msf::Auxiliary
 					[ 'OSVDB', '73447' ],
 					[ 'CVE', '2008-2938' ],
 					[ 'URL', 'http://www.securityfocus.com/archive/1/499926' ],
-					[ 'URL', 'http://www.exploit-db.com/exploits/17388' ],
+					[ 'EDB', 17388 ],
 					[ 'BID', '48225' ],
 				],
 			'Author'      => [ 'patrick' ],

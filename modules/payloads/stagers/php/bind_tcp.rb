@@ -32,14 +32,8 @@ module Metasploit3
 			))
 	end
 	def generate
-		if (datastore['LPORT'] and not datastore['LPORT'].empty?)
-			lport = datastore['LPORT']
-		else
-			lport = '4444'
-		end
-
 		bind = File.read(File.join(Msf::Config::InstallRoot, 'data', 'php', 'bind_tcp.php'))
-		bind.gsub!("4444", lport)
+		bind.gsub!("4444", "#{datastore["LPORT"]}")
 
 		return super + bind
 	end

@@ -29,7 +29,7 @@ class Metasploit3 < Msf::Auxiliary
 			},
 			'References'     =>
 				[
-					['URL', 'http://www.exploit-db.com/exploits/12721/'],
+					['EDB', 12721],
 					['OSVDB', '59001'],
 				],
 			'Author'         =>
