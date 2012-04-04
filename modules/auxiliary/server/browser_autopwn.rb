@@ -223,7 +223,7 @@ class Metasploit3 < Msf::Auxiliary
 			}
 
 			function bodyOnLoad() {
-				var detected_version = getVersion();
+				var detected_version = window.os_detect.getVersion();
 				//#{js_debug('detected_version')}
 				report_and_get_exploits(detected_version);
 			} // function bodyOnLoad
@@ -240,7 +240,11 @@ class Metasploit3 < Msf::Auxiliary
 						return str;
 					}
 					function debug(msg) {
-						document.body.innerHTML += (msg + "<br />\\n");
+						foo = document.getElementById("foo");
+						bar = document.createTextNode(msg);
+						foo.appendChild(bar);
+						bar = document.createElement("br");
+						foo.appendChild(bar);
 					}
 				}
 			ENDJS
@@ -257,6 +261,7 @@ class Metasploit3 < Msf::Auxiliary
 		@init_html << %Q|<!-- \n #{@init_js} //-->|
 		@init_html << %Q|</script> </head> |
 		@init_html << %Q|<body onload="#{@init_js.sym("bodyOnLoad")}()"> |
+		@init_html << %Q|<div id="foo"></div> |
 		@init_html << %Q|<noscript> \n|
 		# Don't use build_iframe here because it will break detection in
 		# DefangedDetection mode when the target has js disabled.
