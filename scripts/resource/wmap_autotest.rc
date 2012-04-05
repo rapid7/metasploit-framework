@@ -65,6 +65,7 @@ framework.db.hosts.each do |host|
 		run_single("wmap_sites -l")
 		print_line("site which will get analyzed:")
 		run_single("wmap_sites -s #{host.address}:#{serv.port}")
+		run_single("wmap_targets -t #{host.address}:#{serv.port}")
 		serv.web_sites.each do |site|
 			run_single("wmap_targets -t #{site.vhost},#{host.address}:#{serv.port}")
 		end
