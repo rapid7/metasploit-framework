@@ -208,7 +208,7 @@ public
 			w = {}
 			w[:name] = wspace.name
 			w[:created_at] = wspace.created_at.to_i
-			w[:modified_at] = wspace.modified_at.to_i
+			w[:updated_at] = wspace.updated_at.to_i
 			ret[:workspace] << w
 		end
 		ret
@@ -756,7 +756,7 @@ public
 		wspace.loots.all(:limit => limit, :offset => offset).each do |l|
 			loot = {}
 			loot[:host] = l.host.address if(l.host)
-			loot[:service] = l.service.name || n.service.port  if(n.service)
+			loot[:service] = l.service.name || l.service.port  if(l.service)
 			loot[:ltype] = l.ltype
 			loot[:ctype] = l.content_type
 			loot[:data] = l.data

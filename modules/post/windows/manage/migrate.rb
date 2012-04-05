@@ -57,7 +57,7 @@ class Metasploit3 < Msf::Post
 			print_good("Successfully migrated to process #{target_pid}")
 		rescue ::Exception => e
 			print_error("Could not migrate in to process.")
-			print_error(e)
+			print_error("Exception: #{e.class} : #{e}")
 		end
 
 		if datastore['KILL']

