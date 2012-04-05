@@ -38,7 +38,7 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					[ 'URL', 'http://www.digitalbond.com/tools/basecamp/metasploit-modules/' ]
-				],
+				]
 		)
 
 		register_options(
