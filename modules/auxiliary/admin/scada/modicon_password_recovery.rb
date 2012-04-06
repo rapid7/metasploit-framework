@@ -6,7 +6,6 @@
 ##
 
 require 'msf/core'
-require 'net/ftp' # TODO: Update this with a proper FTP server implementation
 
 class Metasploit3 < Msf::Auxiliary
 	include Msf::Exploit::Remote::Ftp
@@ -50,8 +49,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	end
 
-	# FIXME: This is required since there's no Rex Socket yet (will be
-	# part of a full FTP client implementation)
+	# Thinking this should be a standard alias for all aux
 	def ip
 		Rex::Socket.resolv_to_dotted(datastore['RHOST'])
 	end
