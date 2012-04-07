@@ -80,8 +80,6 @@ class Metasploit3 < Msf::Auxiliary
             end
             @metadata = datastore['METADATA']
             @filter = 'tcp and #{SRVPORT}'
-            @promisc = datastore['PROMISC'] || false
-            @cloak = datastore['CLOAK'].downcase || 'linux'
 
             exploit()
 
