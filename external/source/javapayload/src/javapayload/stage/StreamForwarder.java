@@ -1,7 +1,7 @@
 /*
  * Java Payloads.
  * 
- * Copyright (c) 2010, Michael 'mihi' Schierl
+ * Copyright (c) 2010, 2011 Michael 'mihi' Schierl
  * All rights reserved.
  * 
  * Redistribution and use in source and binary forms, with or without
@@ -41,6 +41,10 @@ import java.io.PrintStream;
 
 public class StreamForwarder extends Thread {
 	public static void forward(InputStream in, OutputStream out) throws IOException {
+		forward(in, out, true);
+	}
+	
+	public static void forward(InputStream in, OutputStream out, boolean closeOut) throws IOException {
 		try {
 			final byte[] buf = new byte[4096];
 			int length;
@@ -54,7 +58,8 @@ public class StreamForwarder extends Thread {
 			}
 		} finally {
 			in.close();
-			out.close();
+			if (closeOut)
+				out.close();
 		}
 	}
 
@@ -62,18 +67,33 @@ public class StreamForwarder extends Thread {
 	private final OutputStream out;
 
 	private final OutputStream stackTraceOut;
+	private final boolean closeOut;
 
 	public StreamForwarder(InputStream in, OutputStream out, OutputStream stackTraceOut) {
+		this(in,out,stackTraceOut,true);
+	}
+	public StreamForwarder(InputStream in, OutputStream out, OutputStream stackTraceOut, boolean closeOut) {
 		this.in = in;
 		this.out = out;
 		this.stackTraceOut = stackTraceOut;
+		this.closeOut = closeOut;
 	}
 
 	public void run() {
 		try {
-			forward(in, out);
+			forward(in, out, closeOut);
 		} catch (final Throwable ex) {
-			ex.printStackTrace(new PrintStream(stackTraceOut));
+			if (stackTraceOut == null)
+				throwWrapped(ex);
+			ex.printStackTrace(new PrintStream(stackTraceOut, true));
+		}
+	}
+	
+	private static void throwWrapped(Throwable ex) {
+		/* #JDK1.4 */try {
+			throw new RuntimeException(ex);
+		} catch (NoSuchMethodError ex2) /**/{
+			throw new RuntimeException(ex.toString());
 		}
 	}
 }
