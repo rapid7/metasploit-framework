@@ -1689,6 +1689,10 @@ class Plugin::Wmap < Msf::Plugin
 						'Options'  => opts
 					})
 				when 'exploit'
+					if not opts['PAYLOAD']
+						opts['PAYLOAD'] = WmapCommandDispatcher::Exploit.choose_payload(modinst, opts['TARGET'])
+					end
+
 					sess = Msf::Simple::Exploit.exploit_simple(modinst, {
 						'Payload'  => opts['PAYLOAD'],
 						'Target'   => opts['TARGET'],
