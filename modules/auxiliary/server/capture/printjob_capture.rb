@@ -50,12 +50,7 @@ class Metasploit3 < Msf::Auxiliary
             OptBool.new('FORWARD',      [ true, 'Forward print jobs to another host', false ]),
             OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
             OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
-            OptBool.new('METADATA',      [ true, 'Display Metadata from printjobs', true ]),
-        ], self.class)
-
-        register_advanced_options([
-            OptString.new('CLOAK',      [false, 'Create packets using a specific OS fingerprint (windows, linux, freebsd)', 'linux']),
-            OptBool.new('PROMISC',      [false, 'Enable/Disable promiscuous mode', false]),
+            OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
         ], self.class)
 
         deregister_options('SSL', 'SSLVersion', 'SSLCert')
@@ -87,11 +82,6 @@ class Metasploit3 < Msf::Auxiliary
             @filter = 'tcp and #{SRVPORT}'
             @promisc = datastore['PROMISC'] || false
             @cloak = datastore['CLOAK'].downcase || 'linux'
-
-
-            if @promisc
-                 print_status("Warning: Promiscuous mode enabled. This may cause issues!")
-            end
 
             exploit()
 
