@@ -766,7 +766,12 @@ class Metasploit3 < Msf::Auxiliary
 		@js_tests.each { |browser, sploits|
 			next unless client_matches_browser(client_info, browser)
 
-			if (client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
+			# Send all the generics regardless of what the client is. If the
+			# client is nil, then we don't know what it really is, so just err
+			# on the side of shells and send everything. Otherwise, send only
+			# if the client is using the browser associated with this set of
+			# exploits.
+			if (browser == "generic" || client_info.nil? || [nil, browser].include?(client_info[:ua_name]))
 				sploits.each do |s|
 					if s[:vuln_test].nil? or s[:vuln_test].empty?
 						test = "is_vuln = true"
@@ -783,7 +788,10 @@ class Metasploit3 < Msf::Auxiliary
 						# victim. Note that host_info comes from javascript OS
 						# detection, NOT the database.
 						if host_info[:os_name] != "undefined"
-							next unless s[:os_name].include?(host_info[:os_name])
+							unless s[:os_name].include?(host_info[:os_name])
+								vprint_status("Rejecting #{s[:name]} for non-matching OS")
+								next
+							end
 						end
 					end
 					js << "global_exploit_list[global_exploit_list.length] = {\n"
@@ -881,6 +889,7 @@ class Metasploit3 < Msf::Auxiliary
 	def client_matches_browser(client_info, browser)
 		if client_info and browser and client_info[:ua_name]
 			if browser != "generic" and  client_info[:ua_name] != browser
+				vprint_status("Rejecting exploits for #{browser}")
 				return false
 			end
 		end
