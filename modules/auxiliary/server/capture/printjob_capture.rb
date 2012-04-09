@@ -70,7 +70,6 @@ class Metasploit3 < Msf::Auxiliary
 
             @srvhost = datastore['SRVHOST']
             @srvport = datastore['SRVPORT'] || 9100
-            print_status("#{name}: Starting Print Server on %s:%s" % [@srvhost, @srvport])
 
             if datastore['FORWARD']
                 @forward = datastore['FORWARD']
@@ -85,6 +84,8 @@ class Metasploit3 < Msf::Auxiliary
             end
             @metadata = datastore['METADATA']
             @verbose = datastore['VERBOSE']
+
+            print_status("#{name}: Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
 
             exploit()
 
