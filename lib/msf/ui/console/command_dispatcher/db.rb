@@ -526,6 +526,7 @@ class Db
 			print_line "  -p,--port <portspec>  List vulns matching this port spec"
 			print_line "  -s <svc names>        List vulns matching these service names"
 			print_line "  -S,--search           Search string to filter by"
+			print_line "  -i,--info             Display Vuln Info"
 			print_line
 			print_line "Examples:"
 			print_line "  vulns -p 1-65536          # only vulns with associated services"
@@ -541,6 +542,7 @@ class Db
 			port_ranges = []
 			svcs        = []
 			search_term = nil
+			show_info   = false
 
 			# Short-circuit help
 			if args.delete "-h"
@@ -571,6 +573,8 @@ class Db
 					svcs = service.split(/[\s]*,[\s]*/)
 				when '-S', '--search'
 					search_term = /#{args.shift}/nmi
+				when '-i', '--info'
+					show_info = true
 				else
 					# Anything that wasn't an option is a host to search for
 					unless (arg_host_range(arg, host_ranges))
@@ -600,11 +604,12 @@ class Db
 							next unless ports.empty? or ports.include? vuln.service.port
 							# Same for service names
 							next unless svcs.empty? or svcs.include?(vuln.service.name)
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} port=#{vuln.service.port} proto=#{vuln.service.proto} name=#{vuln.name} refs=#{reflist.join(',')}")
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{show_info ? "info=#{vuln.info}" : ""}")
+
 						else
 							# This vuln has no service, so it can't match
 							next unless ports.empty? and svcs.empty?
-							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')}")
+							print_status("Time: #{vuln.created_at} Vuln: host=#{host.address} name=#{vuln.name} refs=#{reflist.join(',')} #{show_info ? "info=#{vuln.info}" : ""}")
 						end
 					end
 				end
