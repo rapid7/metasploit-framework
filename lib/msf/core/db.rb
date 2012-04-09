@@ -2205,14 +2205,20 @@ class DBManager
 
 		data = ""
 		::File.open(filename, 'rb') do |f|
-			data = f.read(f.stat.size)
+			data = f.read(4)
 		end
 
 		case data[0,4]
 		when "PK\x03\x04"
 			data = Zip::ZipFile.open(filename)
 		when "\xd4\xc3\xb2\xa1", "\xa1\xb2\xc3\xd4"
-			data = PacketFu::PcapFile.new.readfile(filename)
+			data = PacketFu::PcapFile.new(:filename => filename)
+		else
+			::File.open(filename, 'rb') do |f|
+				sz = f.stat.size
+				print_status("Reading in #{sz} bytes")
+				data = f.read(sz)
+			end
 		end
 		if block
 			import(args.merge(:data => data)) { |type,data| yield type,data }
@@ -2260,7 +2266,10 @@ class DBManager
 		end
 
 		if data and data.kind_of? PacketFu::PcapFile
-			raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
+			# Don't check for emptiness here because unlike other formats, we
+			# haven't read any actual data in yet, only magic bytes to discover
+			# that this is indeed a pcap file.
+			#raise DBImportError.new("The pcap file provided is empty.") if data.body.empty?
 			@import_filedata ||= {}
 			@import_filedata[:type] = "Libpcap Packet Capture"
 			return :libpcap
@@ -2458,7 +2467,7 @@ class DBManager
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
 
-		data = PacketFu::PcapFile.new.readfile(filename)
+		data = PacketFu::PcapFile.new(:filename => filename)
 		import_libpcap(args.merge(:data => data))
 	end
 
@@ -2478,7 +2487,7 @@ class DBManager
 		seen_hosts = {}
 		decoded_packets = 0
 		last_count = 0
-		data.body.map {|p| p.data}.each do |p|
+		data.read_packet_bytes do |p|
 			if (decoded_packets >= last_count + 1000) and block
 				yield(:pcap_count, decoded_packets)
 				last_count = decoded_packets
