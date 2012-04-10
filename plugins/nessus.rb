@@ -112,6 +112,7 @@ module Msf
 
 			def cmd_nessus_save(*args)
 				#if we are logged in, save session details to nessus.yaml
+				@nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
 				if args[0] == "-h"
 					print_status("Usage: ")
 					print_status("       nessus_save")
@@ -319,7 +320,8 @@ module Msf
 			end
 
 			def cmd_nessus_connect(*args)
-
+				# Check if config file exists and load it
+				@nessus_yaml = "#{Msf::Config.get_config_root}/nessus.yaml"
 				if ! args[0]
 					if File.exist?("#{@nessus_yaml}")
 						lconfig = YAML.load_file("#{@nessus_yaml}")
