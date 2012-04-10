@@ -42,7 +42,10 @@
 			<fileset dir="extensions/tmp" includes="**/*"/>
 		</touch>
 		<delete file="extensions/meterpreter.jar" />
-		<zip destfile="extensions/meterpreter.jar" basedir="extensions/tmp"/>
+		<zip destfile="extensions/meterpreter.jar">
+			<fileset dir="extensions/tmp" includes="META-INF/**" />
+			<fileset dir="extensions/tmp" excludes="META-INF/**" />
+		</zip>
 		<delete dir="extensions/tmp"/>
 
 		<mkdir dir="extensions/tmp"/>
@@ -51,7 +54,10 @@
 			<fileset dir="extensions/tmp" includes="**/*"/>
 		</touch>
 		<delete file="extensions/ext_server_stdapi.jar" />
-		<zip destfile="extensions/ext_server_stdapi.jar" basedir="extensions/tmp"/>
+		<zip destfile="extensions/ext_server_stdapi.jar">
+			<fileset dir="extensions/tmp" includes="META-INF/**" />
+			<fileset dir="extensions/tmp" excludes="META-INF/**" />
+		</zip>
 		<delete dir="extensions/tmp"/>
 	</target>
 
