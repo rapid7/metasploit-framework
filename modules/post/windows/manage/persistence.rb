@@ -60,7 +60,7 @@ class Metasploit3 < Msf::Post
 				OptString.new('TEMPLATE', [false, 'Alternate template Windows PE File to use.']),
 				OptString.new('REXE',[false, 'The remote executable to use.','']),
 				OptString.new('REXENAME',[false, 'The name to call exe on remote system','']),
-				OptString.new('ACTION',[true, 'Use TEMPLATE or REXE mode.','TEMPLATE']),
+				OptEnum.new('ACTION',[true, 'Use TEMPLATE or REXE mode.','TEMPLATE', ['TEMPLATE', 'REXE']]),
 				OptEnum.new('PAYLOAD_TYPE', [true, 'Meterpreter Payload Type.', 'TCP',['TCP','HTTP','HTTPS']])
 			], self.class)
 
