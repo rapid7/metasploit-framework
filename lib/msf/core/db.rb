@@ -2216,7 +2216,6 @@ class DBManager
 		else
 			::File.open(filename, 'rb') do |f|
 				sz = f.stat.size
-				print_status("Reading in #{sz} bytes")
 				data = f.read(sz)
 			end
 		end
