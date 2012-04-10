@@ -10,17 +10,7 @@ As modules for these vulnerabilities get written and committed, new ones will ta
 
 ## Server exploits
 
-Server exploits are "classic" exploits -- the target is a network service on a remote server.
-
-### [CVE-2006-5276](http://www.cvedetails.com/cve/CVE-2006-5276)
-
-**Description:** A buffer overflow in the Snort IDS DCE/RPC Reassembly preprocessor can allow remote code execution in the context of the Snort service.
-
-**Affected Software:** [Snort v2.6.1](http://cvs.snort.org/viewcvs.cgi/snort/?only_with_tag=SNORT_v2_6_1), SourceFire IDS versions 4.1, 4.5, and 4.6
-
-**Module Type:** exploits/linux/ids
-
-**Proof of concept:** http://downloads.securityfocus.com/vulnerabilities/exploits/22616-linux.py
+... to be updated ...
 
 ## Client Exploits
 
