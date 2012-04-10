@@ -132,7 +132,7 @@ class Metasploit3 < Msf::Auxiliary
 
 	def crc16(buf, crc=0)
 		buf.each_byte{|x| crc = ((crc << 8) ^ @@CCITT_16[( crc >> 8) ^ x]) & 0xffff }
-		[crc].pack("n")
+		[crc].pack("v")
 	end
 
 	def unlock_check
@@ -164,7 +164,7 @@ class Metasploit3 < Msf::Auxiliary
 		header = "HAP"
 		header += "\xe5\x01" # random session ID
 		header += crc16(data)
-		header += [data.length].pack("n")
+		header += [data.length].pack("v")
 		authpacket = header + data
 
 		@udp_sock.sendto(authpacket, rhost, rport.to_i)
