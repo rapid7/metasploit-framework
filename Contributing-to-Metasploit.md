@@ -66,7 +66,11 @@ Privilege escalation exploits tend to require the attacker already have an accou
 
 You probably shouldn't run proof of concept exploit code you find on the Internet on a machine you care about in a network you care about. That is generally considered a Bad Idea. You also probably shouldn't use your usual computer as a target for exploit development, since you are intentionally inducing unstable behavior.
 
-If you intend to submit your shiny new modules for old crusty bugs to Metasploit, please take a peek at our guides on using git, and our acceptance guidelines for new modules, here: https://github.com/rapid7/metasploit-framework/wiki
+Our preferred method of module submission is via a git pull request.  You can learn how to create one here:
+https://github.com/rapid7/metasploit-framework/wiki/Landing-a-Pull-Request
+
+Also, please take a peek at our guides on using git, and our acceptance guidelines for new modules in case you're not familiar with them:
+https://github.com/rapid7/metasploit-framework/wiki
 
 If you get stuck, try to explain your specific problem as best you can on our Freenode IRC channel, #metasploit, and someone should be able to lend a hand. Apparently, some of those people never sleep.
 
