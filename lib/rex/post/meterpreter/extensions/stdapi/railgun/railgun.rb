@@ -265,6 +265,7 @@ class Railgun
 	#
 	def method_missing(dll_symbol, *args)
 		dll_name = dll_symbol.to_s
+                dll_name << '.so' if client.platform =~ /linux/
 
 		unless known_dll_names.include? dll_name
 			raise "DLL #{dll_name} not found. Known DLLs: #{PP.pp(known_dll_names, '')}"
