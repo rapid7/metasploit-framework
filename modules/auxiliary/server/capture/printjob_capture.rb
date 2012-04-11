@@ -138,51 +138,35 @@ class Metasploit3 < Msf::Auxiliary
 
         #extract print data and Metadata from @data
         begin
-            if @data.include?("%!PS-Adobe")
+            # postscript data
+            if @data =~ /%!PS-Adobe/i
                 @prn_type = "Postscript"
-                # extract PostScript data
-                @raw_data = @data.scan(/%!PS-Adobe.*%%EOF/im).first
-
-                # extract Postsript Metadata
-                @prn_metadata = @data.scan(/^%%(.*)$/i)
                 print_good("#{name}: Printjob intercepted - type #{@prn_type}")
-                @prn_metadata.each do | meta |
-                    if meta[0] =~ /^Title|^Creat(or|ionDate)|^For|^Target|^Language/i
-                        @meta_output << meta[0].to_s
-                    end
-                    if meta[0] =~/^Title/i
-                        @prn_title = meta[0].strip
-                    end
-                end
+                # extract PostScript data including header and EOF marker
+                @raw_data = @data.scan(/%!PS-Adobe.*%%EOF/im).first
+            end
 
-            elsif Rex::Text.to_hex(@data).include?('\x1b\x45\x1b\x26')
+            # pcl data
+            if Rex::Text.to_hex(@data) =~ /\\x1b\\x45\\x1b\\x26/
                 @prn_type = "PCL"
+                print_good("#{name}: Printjob intercepted - type #{@prn_type}")
                 # extract everything between PCL start and end markers
                 @raw_data = @data.unpack("H*")[0].scan(/1b451b26.*0c1b45/i).pack("H*")
+            end
 
-                # extract PJL Metadata
-                @prn_metadata = @data.scan(/^@PJL\s(JOB=|SET\s|COMMENT\s)(.*)$/i)
-                print_good("#{name}: Printjob intercepted - type #{@prn_type}")
-                @prn_metadata.each do | meta |
-                    if meta[0] =~ /^COMMENT/i
-                        @meta_output << meta[0].to_s + meta[1].to_s
-                    end
-                    if meta[1] =~ /^NAME|^STRINGCODESET|^RESOLUTION|^USERNAME|^JOBNAME|^JOBATTR/i
-                        @meta_output << meta[1].to_s
-                    end
-                    if meta[1] =~ /^NAME/i
-                        @prn_title = meta[1].strip
-                    elsif meta[1] =~/^JOBNAME/i
-                        @prn_title = meta[1].strip
-                    end
-                end
+            # extract Postsript Metadata
+            metadata_ps if @data =~ /^%%/i
 
-            # TODO: INSERT IPP SPECIFIC CODE
-            #elsif IPP
+            # extract PJL Metadata
+            metadata_pjl if @data =~ /@PJL/i
 
-            else
+            # extract IPP Metdata
+            metadata_ipp if  @data =~ /POST \/ipp/i or @data =~ /application\/ipp/i
+
+            if not @prn_type
                 print_error("#{name}: Unable to detect printjob type, dumping complete output")
                 @prn_type = "Unknown Type"
+                @raw_data = @data
             end
 
             # output discovered Metadata if set
@@ -190,6 +174,8 @@ class Metasploit3 < Msf::Auxiliary
                 @meta_output.sort.each do | out |
                     print_status("#{out}")
                 end
+            else
+                print_status("#{name}: No metadata gathered from printjob")
             end
 
             # set name to unknown if not discovered via Metadata
@@ -205,6 +191,58 @@ class Metasploit3 < Msf::Auxiliary
 
         rescue  =>  ex
             print_error(ex.message)
+        end
+    end
+
+    def metadata_pjl
+        # extract PJL Metadata
+
+        @prn_metadata = @data.scan(/^@PJL\s(JOB=|SET\s|COMMENT\s)(.*)$/i)
+        print_good("#{name}: Extracting PJL Metadata")
+        @prn_metadata.each do | meta |
+            if meta[0] =~ /^COMMENT/i
+                @meta_output << meta[0].to_s + meta[1].to_s
+            end
+            if meta[1] =~ /^NAME|^STRINGCODESET|^RESOLUTION|^USERNAME|^JOBNAME|^JOBATTR/i
+                @meta_output << meta[1].to_s
+            end
+            if meta[1] =~ /^NAME/i
+                @prn_title = meta[1].strip
+            elsif meta[1] =~/^JOBNAME/i
+                @prn_title = meta[1].strip
+            end
+        end
+    end
+
+    def metadata_ps
+        # extract Postsript Metadata
+
+        @prn_metadata = @data.scan(/^%%(.*)$/i)
+        print_good("#{name}: Extracting PostScript Metadata")
+        @prn_metadata.each do | meta |
+            if meta[0] =~ /^Title|^Creat(or|ionDate)|^For|^Target|^Language/i
+                @meta_output << meta[0].to_s
+            end
+            if meta[0] =~/^Title/i
+                @prn_title = meta[0].strip
+            end
+        end
+    end
+
+    def metadata_ipp
+        # extract IPP Metadata
+
+        @prn_metadata = @data
+        print_good("#{name}: Extracting IPP Metadata")
+        case @prn_metadata
+        when /User-Agent:/i
+            @meta_output << @prn_metdata.scan(/^User-Agent:.*&/i)
+        when /Server:/i
+            @meta_output << @prn_metdata.scan(/^Server:.*&/i)
+        when /printer-uri..ipp:\/\/.*\/ipp\//i
+            @meta_output << @prn_metdata.scan(/printer-uri..ipp:\/\/.*\/ipp\//i)
+        when /requesting-user-name..\w+/i
+            @meta_output << @prn_metadata.scan(/requesting-user-name..\w+/i)
         end
     end
 
