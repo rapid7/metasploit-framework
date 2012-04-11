@@ -124,7 +124,7 @@ class Console::CommandDispatcher::Stdapi::Fs
 			return true
 		end
 
-		if (client.fs.stat(args[0]).directory?)
+		if (client.fs.file.stat(args[0]).directory?)
 			print_error("#{args[0]} is a directory")
 		else
 			fd = client.fs.file.new(args[0], "rb")
