@@ -909,6 +909,11 @@ module Text
 		rand_base(len, bad, *foo )
 	end
 
+	# Generate a random GUID, of the form {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+	def self.rand_guid
+		"{#{[8,4,4,4,12].map {|a| rand_text_hex(a) }.join("-")}}"
+	end
+
 	#
 	# Creates a pattern that can be used for offset calculation purposes.  This
 	# routine is capable of generating patterns using a supplied set and a
