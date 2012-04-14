@@ -2289,9 +2289,9 @@ class DBManager
 		elsif (firstline.index("<scanJob>"))
 			@import_filedata[:type] = "Retina XML"
 			return :retina_xml
-    elsif (firstline.index("<get_reports_response"))
-      @import_filedata[:type] = "OpenVAS XML"
-      return :openvas_new_xml
+		elsif (firstline.index("<get_reports_response"))
+			@import_filedata[:type] = "OpenVAS XML"
+			return :openvas_new_xml
 		elsif (firstline.index("<NessusClientData>"))
 			@import_filedata[:type] = "Nessus XML (v1)"
 			return :nessus_xml
@@ -2457,81 +2457,80 @@ class DBManager
 		end
 	end
 
-  def import_openvas_new_xml(args={})
-    data = args[:data]
-    wspace = args[:wspace]
+	def import_openvas_new_xml(args={})
+		data = args[:data]
+		wspace = args[:wspace]
 
-    doc = REXML::Document.new(data)
+		doc = REXML::Document.new(data)
 
-    hosts = []
+		hosts = []
 
-    doc.elements.each('/get_reports_response/report/report/ports') do |element|
-      element.elements.each do |port|
-        port.elements.each do |port_info|
-          if port_info.name == "host"
-            hosts << port_info.text
-          end
-        end
-      end
-    end
+		doc.elements.each('/get_reports_response/report/report/ports') do |element|
+			element.elements.each do |port|
+				port.elements.each do |port_info|
+					if port_info.name == "host"
+						hosts << port_info.text
+					end
+				end
+			end
+		end
 
-    hosts.uniq!
-    hosts_hash = {}
+		hosts.uniq!
+		hosts_hash = {}
 
-    hosts.each do |host|
-      report_host({ :workspace => wspace, :host => host});
-      hosts_hash[host] = {}
-      hosts_hash[host][:vulns] = []
-    end
+		hosts.each do |host|
+			report_host({ :workspace => wspace, :host => host});
+			hosts_hash[host] = {}
+			hosts_hash[host][:vulns] = []
+		end
 
-    doc.elements.each('get_reports_response/report/report/results') do |element|
-      element.elements.each do |result|
-        vuln = nvt = {}
-        host = subnet = port = cve = bid = threat = description = ''
-
-        result.elements.each do |re|
-          if re.name == "subnet"
-            subnet = re.text
-          elsif re.name == "host"
-            host = re.text
-          elsif re.name == "port"
-            port = re.text
-          elsif re.name == "cve"
-            cve = re.text
-          elsif re.name == "bid"
-            bid = re.text
-          elsif re.name == "threat"
-            threat = re.text
-          elsif re.name == "description"
-            description = re.text
-          elsif re.name == "nvt"
-            oid = re.attributes.get_attribute("oid").value
-            nvt[oid] = {}
-            re.elements.each do |ele|
-              if ele.name == "name"
-                nvt[oid][:name] = ele.text
-              elsif ele.name == "cvss_base"
-                nvt[oid][:cvss_base] = ele.text
-              elsif ele.name == "risk_factor"
-                nvt[oid][:risk_factor] = ele.text
-              end
-            end
-          end
-        end
-
-        vuln[:subnet] = subnet
-        vuln[:port] = port
-        vuln[:threat] = threat
-        vuln[:description] = description
-        vuln[:nvt] = nvt
-        vuln[:bid] = bid
-        vuln[:cve] = cve.split(',')
-
-        hosts_hash[host][:vulns] << vuln
-      end
-    end
-  end
-
+		doc.elements.each('get_reports_response/report/report/results') do |element|
+			element.elements.each do |result|
+				vuln = nvt = {}
+				host = subnet = port = cve = bid = threat = description = ''
+	
+				result.elements.each do |re|
+					if re.name == "subnet"
+						subnet = re.text
+					elsif re.name == "host"
+						host = re.text
+					elsif re.name == "port"
+						port = re.text
+					elsif re.name == "cve"
+						cve = re.text
+					elsif re.name == "bid"
+						bid = re.text
+					elsif re.name == "threat"
+						threat = re.text
+					elsif re.name == "description"
+						description = re.text
+					elsif re.name == "nvt"
+						oid = re.attributes.get_attribute("oid").value
+						nvt[oid] = {}
+						re.elements.each do |ele|
+							if ele.name == "name"
+								nvt[oid][:name] = ele.text
+							elsif ele.name == "cvss_base"
+								nvt[oid][:cvss_base] = ele.text
+							elsif ele.name == "risk_factor"
+								nvt[oid][:risk_factor] = ele.text
+							end
+						end
+					end
+				end
+		
+				vuln[:subnet] = subnet
+				vuln[:port] = port
+				vuln[:threat] = threat
+				vuln[:description] = description
+				vuln[:nvt] = nvt
+				vuln[:bid] = bid
+				vuln[:cve] = cve.split(',')
+			
+				hosts_hash[host][:vulns] << vuln
+			end
+		end
+	end
 	def import_libpcap_file(args={})
 		filename = args[:filename]
 		wspace = args[:wspace] || workspace
