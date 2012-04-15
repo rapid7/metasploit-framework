@@ -1,6 +1,30 @@
 Armitage Changelog
 ==================
 
+16 Apr 12
+---------
+- The search field in the module browser now updates results in real time.
+  Start typing and Armitage will start filtering the module tree for you. 
+  Clear the field to reset it to the default state.
+- Added keyboard shortcuts to switch dynamic workspaces...
+	Ctrl+1 = first workspace
+	Ctrl+2 = second workspace
+	....
+	Ctrl+0 = show all 
+- Added keyboard shortcuts:
+	Ctrl+N = new console
+	Ctrl+O = open preferences
+- Armitage's Meterpreter -> Access -> Dump Hashes -> lsass method is now 
+  much better about grabbing all of the hashdump output and adding it to 
+  the creds table. The hashdump command returns output as an arbitrary
+  number of chunks. I now use a different read strategy for determining when
+  the output is complete.
+- You may now use Ctrl+Alt to deselect highlighted items in a range in the
+  Jobs and Workspaces table views (most other table views that do multi
+  selection should allow this already).
+- Added Shell -> Pass Session for *NIX shell sessions. Uses the system_session
+  module to pass a shell session elsewhere (or duplicate the current shell)
+
 29 Mar 12
 ---------
 - Fixed a bug that affects first-time users. Armitage was not initializing a
