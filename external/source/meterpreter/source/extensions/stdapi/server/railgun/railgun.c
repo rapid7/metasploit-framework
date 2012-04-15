@@ -114,19 +114,12 @@ DWORD railgun_call( RAILGUN_INPUT * pInput, RAILGUN_OUTPUT * pOutput )
 
 
 		// get address of function
-#ifdef __linux__
-		hDll = dlopen( pInput->cpDllName, 2 ) ;
-#else
-		hDll = LoadLibraryA( pInput->cpDllName ); // yes this increases the counter. lib should never be released. maybe the user just did a WSAStartup etc.
-#endif
-		if( !hDll )
-			BREAK_ON_ERROR( "[RAILGUN] railgun_call: LoadLibraryA Failed." );
 
-#ifdef __linux__
-		pFuncAddr = dlsym(hDll, pInput->cpFuncName );
-#else
-		pFuncAddr = (VOID *)GetProcAddress( hDll, pInput->cpFuncName );
-#endif
+		LOAD_DLL( pInput->cpDllName ); // yes this increases the counter. lib should never be released. maybe the user just did a WSAStartup etc.
+		if( !hDll )
+		        BREAK_ON_ERROR( "[RAILGUN] railgun_call: LoadLibraryA Failed." );
+
+		LOAD_FUN( hDll, pInput->cpFuncName );
 		if( !pFuncAddr )
 			BREAK_ON_ERROR( "[RAILGUN] railgun_call: GetProcAddress Failed." );
 

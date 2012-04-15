@@ -29,6 +29,9 @@ typedef unsigned long ULONG_PTR;
 
 #define GetLastError() (errno)
 
+#define LOAD_DLL(__name) do { hDll = dlopen(__name,2); } while(0);
+#define LOAD_FUN(__hDll,__name) do { pFuncAddr = dlsym(__hDll,__name); }while(0);
+
 #define	__try
 #define	__except(x)	if (0)
 
@@ -41,6 +44,8 @@ typedef unsigned long ULONG_PTR;
 
 #ifdef _WIN32 || _WIN64
 #define __fundecl __stdcall
+#define LOAD_DLL(__name) do { hDll = LoadLibraryA(__name); } while(0);
+#define LOAD_FUN(__hDll,__name) do { pFuncAddr = GetProcAddress(__hDll,__name); } while(0);
 #endif
 
 
