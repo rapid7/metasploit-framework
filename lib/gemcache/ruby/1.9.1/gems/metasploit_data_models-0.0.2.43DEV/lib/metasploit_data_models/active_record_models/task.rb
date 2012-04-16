@@ -15,8 +15,12 @@ module MetasploitDataModels::ActiveRecordModels::Task
       private
 
       def delete_file
-        c = Pro::Client.get
-        c.task_delete_log(self[:id])
+				c = Pro::Client.get rescue nil
+				if c
+					c.task_delete_log(self[:id]) if c
+				else
+					::File.unlink(self.path) rescue nil
+				end
       end
     }
   end
