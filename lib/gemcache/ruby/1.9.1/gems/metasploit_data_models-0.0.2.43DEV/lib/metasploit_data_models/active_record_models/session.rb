@@ -18,7 +18,7 @@ module MetasploitDataModels::ActiveRecordModels::Session
       private
 
       def stop
-        c = Pro::Client.get
+				c = Pro::Client.get rescue nil 
         c.session_stop(self.local_id) rescue nil # ignore exceptions (XXX - ideally, stopped an already-stopped session wouldn't throw XMLRPCException)
       end
     }

@@ -13,8 +13,8 @@ module MetasploitDataModels::ActiveRecordModels::Loot
       private
 
       def delete_file
-        c = Pro::Client.get
-        c.loot_delete_file(self[:id])
+				c = Pro::Client.get rescue nil
+        c.loot_delete_file(self[:id]) if c
       end
     }
   end
