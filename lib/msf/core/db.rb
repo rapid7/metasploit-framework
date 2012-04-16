@@ -287,7 +287,7 @@ class DBManager
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
-			 
+
 			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
@@ -370,7 +370,7 @@ class DBManager
 			addr = normalize_host(addr)
 			addr, scope = addr.split('%', 2)
 			opts[:scope] = scope if scope
-			 
+
 			unless ipv46_validator(addr)
 				raise ::ArgumentError, "Invalid IP address in report_host(): #{addr}"
 			end
@@ -491,7 +491,7 @@ class DBManager
 		hmac  = opts.delete(:mac)
 		host  = nil
 		wspace = opts.delete(:workspace) || workspace
-    opts[:info] = '' unless opts[:info]
+		opts[:info] = '' unless opts[:info]
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
@@ -830,7 +830,7 @@ class DBManager
 	# This methods returns a list of all credentials in the database
 	#
 	def creds(wspace=workspace)
-    Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
+		Mdm::Cred.includes({:service => :host}).where("hosts.workspace_id = ?", wspace.id)
 	end
 
 	#
@@ -1034,7 +1034,7 @@ class DBManager
 		summary = opts.delete(:summary)
 		detail = opts.delete(:detail)
 		crit = opts.delete(:crit)
-    possible_tag = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("id DESC").limit(1)
+		possible_tag = Mdm::Tag.includes(:hosts).where("hosts.workspace_id = ? and tags.name = ?", wspace.id, name).order("tags.id DESC").limit(1)
 
 		tag = possible_tag.blank? || Mdm::Tag.new
 		tag.name = name
@@ -1310,7 +1310,7 @@ class DBManager
 		raise RuntimeError, "Not workspace safe: #{caller.inspect}"
 		vuln = nil
 		if (service)
-			vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("id DESC").first()
+			vuln = ::Mdm::Vuln.find.where("name = ? and service_id = ? and host_id = ?", name, service.id, host.id).order("vulns.id DESC").first()
 		else
 			vuln = ::Mdm::Vuln.find.where("name = ? and host_id = ?", name, host.id).first()
 		end
@@ -1955,7 +1955,7 @@ class DBManager
 	# Selected port
 	#
 	def selected_port
-    selected_wmap_target.port
+		selected_wmap_target.port
 	end
 
 	#
@@ -1963,7 +1963,7 @@ class DBManager
 	# Selected ssl
 	#
 	def selected_ssl
-    selected_wmap_target.ssl
+		selected_wmap_target.ssl
 	end
 
 	#
@@ -1971,7 +1971,7 @@ class DBManager
 	# Selected id
 	#
 	def selected_id
-    selected_wmap_target.object_id
+		selected_wmap_target.object_id
 	end
 
 	#
@@ -2852,7 +2852,7 @@ class DBManager
 			::File.unlink target if ::File.exists?(target) # Yep. Deleted.
 			data.extract(e,target)
 			if target =~ /^.*.xml$/
-				target_data = ::File.open(target) {|f| f.read 1024}
+				target_data = ::File.open(target, "rb") {|f| f.read 1024}
 				if import_filetype_detect(target_data) == :msf_xml
 					@import_filedata[:zip_extracted_xml] = target
 					#break
@@ -3562,8 +3562,6 @@ class DBManager
 					vstruct.refs.push('MSB-' + ref["value"])
 				elsif ref['source'] == 'URL'
 					vstruct.refs.push('URL-' + ref["value"])
-					#else
-					#	$stdout.puts("Unknown source: #{ref["source"]}")
 				end
 			end
 			ret.push vstruct
@@ -3611,7 +3609,7 @@ class DBManager
 			h["notes"].each do |v,k|
 				note[:data][v] ||= []
 				next if note[:data][v].include? k
-			 	note[:data][v] << k
+				note[:data][v] << k
 			end
 			report_note(note)
 		end
@@ -4930,7 +4928,7 @@ class DBManager
 
 		base = ::File.join(Msf::Config.config_directory, "data", "ncircle")
 		::FileUtils.mkdir_p(base)
-		::File.open(::File.join(base, "ip360.aspl"), "w") do |fd|
+		::File.open(::File.join(base, "ip360.aspl"), "wb") do |fd|
 			fd.write(data)
 		end
 		yield(:notice, "Saved the IP360 ASPL database to #{base}...")
@@ -4976,12 +4974,6 @@ class DBManager
 			@asplhash = asplh
 		}
 		REXML::Document.parse_stream(aspl, parser)
-
-		#@host = {'hname' => nil, 'addr' => nil, 'mac' => nil, 'os' => nil, 'hid' => nil,
-                #         'vulns' => ['vuln' => {'vulnid' => nil, 'port' => nil, 'proto' => nil	} ],
-                #         'apps' => ['app' => {'appid' => nil, 'svcid' => nil, 'port' => nil, 'proto' => nil } ],
-                #         'shares' => []
-                #        }
 
 		# nCircle has some quotes escaped which causes the parser to break
 		# we don't need these lines so just replace \" with "
@@ -5447,12 +5439,6 @@ class DBManager
 	# Used by the SAX parsers.
 	def emit(sym,data,&block)
 		yield(sym,data)
-	end
-
-	# Debug logger
-	def xxx(desc,thing)
-		$stderr.puts "**** #{desc} ****"
-		$stderr.puts thing.inspect
 	end
 
 protected
