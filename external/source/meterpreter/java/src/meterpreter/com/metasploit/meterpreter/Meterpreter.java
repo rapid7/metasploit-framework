@@ -268,6 +268,15 @@ public class Meterpreter {
 	}
 
 	/**
+	 * Return the length of the currently buffered error stream content, or <code>-1</code> if no buffering is active.
+	 */
+	public int getErrorBufferLength() {
+		if (errBuffer == null)
+			return -1;
+		return errBuffer.size();
+	}
+	
+	/**
 	 * Return the currently buffered error stream content, or <code>null</code> if no buffering is active.
 	 */
 	public byte[] getErrorBuffer() {
