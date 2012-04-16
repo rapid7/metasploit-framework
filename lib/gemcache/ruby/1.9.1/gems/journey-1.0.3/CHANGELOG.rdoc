@@ -1,0 +1,10 @@
+Wed Feb 15 11:49:41 2012  Aaron Patterson <aaron@tenderlovemaking.com>
+
+	* lib/journey/formatter.rb: reject non-truthy parameters parts.
+          Fixes rails ticket #4587
+
+Mon Jan 23 17:07:53 2012  Aaron Patterson <aaron@tenderlovemaking.com>
+
+	* Added symbol? and literal? predicate methods to the ast nodes for
+        easier AST traversal.
+        * Made the dummy node a real class.

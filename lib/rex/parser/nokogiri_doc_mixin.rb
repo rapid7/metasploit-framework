@@ -142,13 +142,13 @@ module Parser
 		def db_valid_attributes(table)
 			case table.to_s.to_sym
 			when :host
-				Msf::DBManager::Host.new.attribute_names.map {|x| x.to_sym} |
+				::Mdm::Host.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :workspace]
 			when :service
-				Msf::DBManager::Service.new.attribute_names.map {|x| x.to_sym} |
+				::Mdm::Service.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :host_name, :mac, :workspace]
 			when :vuln
-				Msf::DBManager::Vuln.new.attribute_names.map {|x| x.to_sym} |
+				::Mdm::Vuln.new.attribute_names.map {|x| x.to_sym} |
 					[:host, :refs, :workspace, :port, :proto]
 			when :note, :web_site, :web_page, :web_form, :web_vuln
 				# These guys don't complain

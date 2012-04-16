@@ -1,0 +1,17 @@
+*image/pjpeg :base64 =Fixes a bug with IE6 and progressive JPEGs
+image/x-bmp @bmp
+image/x-cmu-raster @ras
+image/x-paintshoppro @psp,pspimage :base64
+image/x-pict
+image/x-portable-anymap @pnm :base64
+image/x-portable-bitmap @pbm :base64
+image/x-portable-graymap @pgm :base64
+image/x-portable-pixmap @ppm :base64
+image/x-rgb @rgb :base64
+image/x-targa @tga
+image/x-vnd.dgn @dgn
+image/x-win-bmp
+image/x-xbitmap @xbm :7bit
+image/x-xbm @xbm :7bit
+image/x-xpixmap @xpm :8bit
+image/x-xwindowdump @xwd :base64

@@ -1,0 +1,102 @@
+<html><head><link href="./screen.css" rel="stylesheet" type="text/css" />
+          <script src="http://www.google-analytics.com/urchin.js" type="text/javascript">
+          </script>
+          <script type="text/javascript">
+          _uacct = "UA-3418876-1";
+          urchinTracker();
+          </script>
+        </head><body><div id="top"><div id="main_navigation"><ul><li><a href="syntactic_recognition.html">Documentation</a></li><li><a href="contribute.html">Contribute</a></li><li>Home</li></ul></div></div><div id="middle"><div id="main_content"><p class="intro_text">
+
+Treetop is a language for describing languages. Combining the elegance of Ruby with cutting-edge <em>parsing expression grammars</em>, it helps you analyze syntax with revolutionary ease.
+
+</p>
+
+
+<pre><code>sudo gem install treetop
+</code></pre>
+
+<h1>Intuitive Grammar Specifications</h1>
+
+<p>Parsing expression grammars (PEGs) are simple to write and easy to maintain. They are a simple but powerful generalization of regular expressions that are easier to work with than the LALR or LR-1 grammars of traditional parser generators. There's no need for a tokenization phase, and <em>lookahead assertions</em> can be used for a limited degree of context-sensitivity. Here's an extremely simple Treetop grammar that matches a subset of arithmetic, respecting operator precedence:</p>
+
+<pre><code>grammar Arithmetic
+  rule additive
+    multitive ( '+' multitive )*
+  end
+
+  rule multitive
+    primary ( [*/%] primary )*
+  end
+
+  rule primary
+    '(' additive ')' / number
+  end
+
+  rule number
+    '-'? [1-9] [0-9]*
+  end
+end
+</code></pre>
+
+<h1>Syntax-Oriented Programming</h1>
+
+<p>Rather than implementing semantic actions that construct parse trees, Treetop lets you define methods on trees that it constructs for you automatically. You can define these methods directly within the grammar...</p>
+
+<pre><code>grammar Arithmetic
+  rule additive
+    multitive a:( '+' multitive )* {
+      def value
+        a.elements.inject(multitive.value) { |sum, e|
+          sum+e.multitive.value
+        }
+      end
+    }
+  end
+
+  # other rules below ...
+end
+</code></pre>
+
+<p>...or associate rules with classes of nodes you wish your parsers to instantiate upon matching a rule.</p>
+
+<pre><code>grammar Arithmetic
+  rule additive
+    multitive ('+' multitive)* &lt;AdditiveNode&gt;
+  end
+
+  # other rules below ...
+end
+</code></pre>
+
+<h1>Reusable, Composable Language Descriptions</h1>
+
+<p>Because PEGs are closed under composition, Treetop grammars can be treated like Ruby modules. You can mix them into one another and override rules with access to the <code>super</code> keyword. You can break large grammars down into coherent units or make your language's syntax modular. This is especially useful if you want other programmers to be able to reuse your work.</p>
+
+<pre><code>grammar RubyWithEmbeddedSQL
+  include SQL
+
+  rule string
+    quote sql_expression quote / super
+  end
+end
+</code></pre>
+
+<h1>Acknowledgements</h1>
+
+<p><a href="http://pivotallabs.com"><img id="pivotal_logo" src="./images/pivotal.gif"></a></p>
+
+<p>First, thank you to my employer Rob Mee of <a href="http://pivotallabs.com"/>Pivotal Labs</a> for funding a substantial portion of Treetop's development. He gets it.</p>
+
+<p>I'd also like to thank:</p>
+
+<ul>
+<li>Damon McCormick for several hours of pair programming.</li>
+<li>Nick Kallen for lots of well-considered feedback and a few afternoons of programming.</li>
+<li>Brian Takita for a night of pair programming.</li>
+<li>Eliot Miranda for urging me rewrite as a compiler right away rather than putting it off.</li>
+<li>Ryan Davis and Eric Hodel for hurting my code.</li>
+<li>Dav Yaginuma for kicking me into action on my idea.</li>
+<li>Bryan Ford for his seminal work on Packrat Parsers.</li>
+<li>The editors of Lambda the Ultimate, where I discovered parsing expression grammars.</li>
+</ul>
+</div></div><div id="bottom"></div></body></html>

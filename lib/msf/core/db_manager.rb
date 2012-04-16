@@ -1,6 +1,13 @@
+require "active_record"
+
 require 'msf/core'
 require 'msf/core/db'
 require 'msf/core/task_manager'
+require 'fileutils'
+
+# Provide access to ActiveRecord models shared w/ commercial versions
+require "metasploit_data_models"
+
 require 'fileutils'
 
 module Msf
@@ -13,6 +20,8 @@ module Msf
 ###
 
 class DBManager
+	include MetasploitDataModels
+
 
 	# Provides :framework and other accessors
 	include Framework::Offspring
@@ -62,17 +71,17 @@ class DBManager
 	end
 
 	#
+	# Add additional migration paths
+	#
+	def add_migration_path(path)
+		self.migration_paths.push(path)
+	end
+	
+	#
 	# Do what is necessary to load our database support
 	#
 	def initialize_database_support
-
-		# Load ActiveRecord if it is available
 		begin
-			require 'rubygems'
-			require 'active_record'
-			require 'msf/core/db_objects'
-			require 'msf/core/model'
-
 			# Database drivers can reset our KCODE, do not let them
 			$KCODE = 'NONE' if RUBY_VERSION =~ /^1\.8\./
 
