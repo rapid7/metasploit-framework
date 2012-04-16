@@ -105,6 +105,9 @@ public class Payload extends ClassLoader {
 			classFile.getParentFile().mkdirs();
 			// load ourselves via the class loader (works both on disk and from Jar)
 			writeEmbeddedFile(clazz, clazzFile, classFile);
+			if(props.getProperty("URL", "").startsWith("https:")) {
+				writeEmbeddedFile(clazz, "metasploit/PayloadTrustManager.class", new File(classFile.getParentFile(), "PayloadTrustManager.class"));
+			}
 			FileOutputStream fos = new FileOutputStream(propFile);
 			props.store(fos, "");
 			fos.close();
