@@ -1,0 +1,3 @@
+<% world do -%>
+Hello
+<% end -%>

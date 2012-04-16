@@ -1,0 +1,32 @@
+#!ruby -w
+
+require 'diff/lcs'
+require 'diff/lcs/htmldiff'
+
+begin
+  require 'text/format'
+rescue LoadError
+  Diff::LCS::HTMLDiff.can_expand_tabs = false
+end
+
+if ARGV.size < 2 or ARGV.size > 3
+  $stderr.puts "usage: #{File.basename($0)} old new [output.html]"
+  $stderr.puts "       #{File.basename($0)} old new > output.html"
+  exit 127
+end
+
+left = IO.read(ARGV[0]).split($/)
+right = IO.read(ARGV[1]).split($/)
+
+options = { :title => "diff #{ARGV[0]} #{ARGV[1]}" }
+
+htmldiff = Diff::LCS::HTMLDiff.new(left, right, options)
+
+if ARGV[2]
+  File.open(ARGV[2], "w") do |f|
+    htmldiff.options[:output] = f
+    htmldiff.run
+  end
+else
+  htmldiff.run
+end

@@ -1,0 +1,6 @@
+$ erubis -xE BiPattern bipattern-example.rhtml
+_buf = ''; for item in list 
+ _buf << '  <b>'; _buf << ( item ).to_s; _buf << '</b>
+  <b>'; _buf << Erubis::XmlHelper.escape_xml( item ); _buf << '</b>
+'; end 
+_buf.to_s

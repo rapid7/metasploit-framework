@@ -29,7 +29,7 @@ private
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
 			return hosts if hent == nil
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 			hosts |= hent if hent.class == Array
 		elsif opts[:addresses]
 			return hosts if opts[:addresses].class != Array
@@ -54,7 +54,7 @@ private
 					sret = h.services.all(:conditions => conditions)
 					next if sret == nil
 					services |= sret if sret.class == Array
-					services << sret if sret.class == Msf::DBManager::Service
+					services << sret if sret.class == ::Mdm::Service
 				else
 					services |= h.services
 				end
@@ -65,7 +65,7 @@ private
 			conditions[:proto] = opts[:proto] if opts[:proto]
 			sret = wspace.services.all(:conditions => conditions)
 			services |= sret if sret.class == Array
-			services << sret if sret.class == Msf::DBManager::Service
+			services << sret if sret.class == ::Mdm::Service
 		end
 		return services
 	end
@@ -315,7 +315,7 @@ public
 			sret = host.services
 		end
 		return ret if sret == nil
-		services << sret if sret.class == Msf::DBManager::Service
+		services << sret if sret.class == ::Mdm::Service
 		services |= sret if sret.class == Array
 
 
@@ -349,7 +349,7 @@ public
 			services = []
 			nret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
 			return ret if nret == nil
-			services << nret if nret.class == Msf::DBManager::Service
+			services << nret if nret.class == ::Mdm::Service
 			services |= nret if nret.class == Array
 
 			services.each do |s|
@@ -360,7 +360,7 @@ public
 					nret = s.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		else
@@ -510,7 +510,7 @@ public
 					vret = s.vulns
 				end
 				next if vret == nil
-				vulns << vret if vret.class == Msf::DBManager::Vuln
+				vulns << vret if vret.class == ::Mdm::Vuln
 				vulns |= vret if vret.class == Array
 			end
 		elsif opts[:address] or opts[:host] or opts[:addresses]
@@ -522,7 +522,7 @@ public
 					vret = h.vulns
 				end
 				next if vret == nil
-				vulns << vret if vret.class == Msf::DBManager::Vuln
+				vulns << vret if vret.class == ::Mdm::Vuln
 				vulns |= vret if vret.class == Array
 			end
 		else
@@ -532,7 +532,7 @@ public
 			else
 				vret = wspace.vulns
 			end
-			vulns << vret if vret.class == Msf::DBManager::Vuln
+			vulns << vret if vret.class == ::Mdm::Vuln
 			vulns |= vret if vret.class == Array
 		end
 
@@ -577,7 +577,7 @@ public
 					nret = s.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		elsif opts[:address] or opts[:host] or opts[:addresses]
@@ -589,7 +589,7 @@ public
 					nret = h.notes
 				end
 				next if nret == nil
-				notes << nret if nret.class == Msf::DBManager::Note
+				notes << nret if nret.class == ::Mdm::Note
 				notes |= nret if nret.class == Array
 			end
 		else
@@ -599,7 +599,7 @@ public
 			else
 				nret = wspace.notes
 			end
-			notes << nret if nret.class == Msf::DBManager::Note
+			notes << nret if nret.class == ::Mdm::Note
 			notes |= nret if nret.class == Array
 		end
 		deleted = []
@@ -623,7 +623,7 @@ public
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
-			return { :result => 'failed' } if hent == nil or hent.class != Msf::DBManager::Host
+			return { :result => 'failed' } if hent == nil or hent.class != ::Mdm::Host
 			hosts << hent
 		elsif opts[:addresses]
 			return { :result => 'failed' } if opts[:addresses].class != Array
@@ -631,7 +631,7 @@ public
 			hent = wspace.hosts.all(:conditions => conditions)
 			return { :result => 'failed' } if hent == nil
 			hosts |= hent if hent.class == Array
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 		end
 		if opts[:addresses] or opts[:address] or opts[:host]
 			hosts.each do |h|
@@ -642,7 +642,7 @@ public
 					conditions[:proto] = opts[:proto] if opts[:proto]
 					sret = h.services.all(:conditions => conditions)
 					next if sret == nil
-					services << sret if sret.class == Msf::DBManager::Service
+					services << sret if sret.class == ::Mdm::Service
 					services |= sret if sret.class == Array
 				else
 					services |= h.services
@@ -653,7 +653,7 @@ public
 			conditions[:port] = opts[:port] if opts[:port]
 			conditions[:proto] = opts[:proto] if opts[:proto]
 			sret = wspace.services.all(:conditions => conditions)
-			services << sret if sret and sret.class == Msf::DBManager::Service
+			services << sret if sret and sret.class == ::Mdm::Service
 			services |= sret if sret and sret.class == Array
 		end
 
@@ -678,7 +678,7 @@ public
 		if opts[:host] or opts[:address]
 			host = opts[:host] || opts[:address]
 			hent = wspace.hosts.find_by_address(host)
-			return { :result => 'failed' } if hent == nil or hent.class != Msf::DBManager::Host
+			return { :result => 'failed' } if hent == nil or hent.class != ::Mdm::Host
 			hosts << hent
 		elsif opts[:addresses]
 			return { :result => 'failed' } if opts[:addresses].class != Array
@@ -686,7 +686,7 @@ public
 			hent = wspace.hosts.all(:conditions => conditions)
 			return { :result => 'failed' } if hent == nil
 			hosts |= hent if hent.class == Array
-			hosts << hent if hent.class == Msf::DBManager::Host
+			hosts << hent if hent.class == ::Mdm::Host
 		end
 		deleted = []
 		hosts.each do |h|
@@ -785,7 +785,7 @@ public
 
 		ret = {}
 		ret[:creds] = []
-		DBManager::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
+		::Mdm::Cred.find(:all, :include => {:service => :host}, :conditions => ["hosts.workspace_id = ?",
 				framework.db.workspace.id ], :limit => limit, :offset => offset).each do |c|
 			cred = {}
 			cred[:host] = c.service.host.address if(c.service.host)
@@ -823,7 +823,7 @@ public
 			services = []
 			sret = host.services.find_by_proto_and_port(opts[:proto], opts[:port])
 			return ret if sret == nil
-			services << sret if sret.class == Msf::DBManager::Service
+			services << sret if sret.class == ::Mdm::Service
 			services |= sret if sret.class == Array
 
 			services.each do |s|
@@ -907,7 +907,7 @@ public
 				cret = h.clients
 			end
 			next if cret == nil
-			clients << cret if cret.class == Msf::DBManager::Client
+			clients << cret if cret.class == ::Mdm::Client
 			clients |= cret if cret.class == Array
 		end
 

@@ -1,0 +1,362 @@
+/* rack-cache.css
+ *---------------------------------------------------------------------------
+ * Copyright (C) 2005-08 Ryan Tomayko <r@tomayko.com>
+ */
+
+
+/* 18px base font size / 25px baseline */
+body {
+	font-size:112.5%;   /* 18px (probably) */
+	line-height:1.3888; /* 25px */
+	letter-spacing:-0.02em;
+	margin:0 10px;
+	font-family: 'lucida sans unicode', 'lucida grande',
+		helvetica, 'bitstream vera sans', sans-serif;
+	color:#556;
+	background-color:#fff;
+}
+
+#container {
+	max-width:45em;
+	margin:0 auto;
+}
+
+h1, h2, h3 {
+	font-family:georgia, 'bitstream vera sans serif', 'lucida grande',
+		helvetica, verdana, sans-serif;
+	font-weight:normal;
+	letter-spacing:-0.05em;
+	color:#000;
+}
+i, em {
+	font-style:italic;
+}
+b, strong {
+	font-weight:normal;
+	color:#000;
+}
+blockquote {
+	color:#555;
+}
+blockquote em {
+	color:#333;
+	font-style:italic;
+}
+blockquote strong {
+	color:#333;
+	font-weight: normal;
+}
+dt {
+	font-weight:bold;
+	color:#000;
+}
+tt, pre, code, samp, kbd {
+	font-family: consolas, 'lucida console', 'bitstream vera sans mono',
+		'courier new', monospace;
+	color: #000;
+}
+pre {
+	color:#333;
+	background-color:#f9f9f9;
+}
+code {
+	color:#007A00;
+}
+pre code {
+	color:#333;
+}
+pre.license {
+	border:0;
+	background:#fff;
+	padding:0;
+	font-size:1.1em;
+}
+a, a:link {
+	color:#023;
+	background:#eef;
+}
+a:visited {
+	color:#345;
+	background:#fff;
+}
+a:hover {
+	background:#ccf;
+	color:#000;
+	text-decoration:none;
+}
+
+
+/* TYPOGRAPHY */
+
+p, ul, ol, dl, pre, blockquote, table, form {
+	margin:1em 0;
+}
+dl {
+	margin-left:2em;
+}
+hr {
+	color:#eee;
+	background-color:#ccc;
+	border:0;
+	height:1px;
+	margin:1.5em 0;
+}
+blockquote {
+	font-size:0.83333em;  /* 15px */
+	line-height:1.66666;   /* 25px */
+	margin:1.2em 3em;
+	padding:0;
+}
+tt, pre, code, samp, kbd {
+	font-size: 16px;
+	line-height:1.1;
+}
+pre {
+	margin:1.5em 0;
+	padding:6px 4px 4px 6px;
+	border:1px solid #eee;
+	border-left-width:20px;
+	overflow:auto;
+}
+h1 {
+	font-size:2.3333em;      /* 42px */
+	line-height:1.1904;      /* 50px */
+	margin:0.5952em 0;       /* 25px */
+}
+h2 {
+	font-size:1.66666667em;  /* 30px */
+	line-height:1.2;         /* 36px */
+	margin:1em 0;
+}
+h3 {
+	font-size:1.33333333em;  /* 22px */
+	line-height:1.13636363;  /* 25px */
+	margin:1em 0;
+}
+h3 code{
+	font-size:0.95em;
+	color:#000;
+}
+h4 {
+	font-size:1em;
+	font-weight:bold;
+	line-height:1.5;
+	margin:1em 0;
+}
+p small {
+	font-size:0.8333;       /* 15px */
+	line-height:1.2;
+}
+
+/* Tables
+--------------------------------------------------------------------------- */
+
+table {
+	width:100%;
+	border-style:none;
+	border-color:#ddd;
+	padding:0;
+}
+
+th, td {
+	padding: 4px 10px 4px 5px;
+	border-style:solid;
+	border-color:#fff;
+}
+
+th {
+	font-weight: bold;
+	background: #eef;
+}
+
+td {
+	background: #f9f9f9;
+}
+
+tfoot {
+	font-style: italic;
+}
+
+caption {
+	background: #eee;
+}
+
+/* Header / Titling
+--------------------------------------------------------------------------- */
+
+#header {
+	text-align:left;
+	margin:1.5em auto 2em;
+	float:left;
+	width:100%;
+	padding-bottom:1.5em;
+	border-bottom:1px solid #777;
+}
+#header h1 {
+	font-family: 'lucida sans unicode', 'lucida grande',
+		helvetica, 'bitstream vera sans', sans-serif;
+	font-size:5em;
+	font-weight:bold;
+	line-height:1;
+	margin:0;
+	float:left;
+	color:#000;
+	letter-spacing:-0.08em;
+}
+#header h1 a, #header h1 a:link, #header h1 a:visited, #header h1 a:hover {
+	color:#000;
+	text-decoration:none;
+	background:transparent;
+}
+#header p {
+	margin: 0;
+	line-height:1.8;
+	color: #777;
+	text-transform:capitalize;
+	font-variant:small-caps;
+	float:right;
+}
+#header a, #header a:link, #header a:visited {
+	color:#445;
+	background:#fff;
+}
+#header a:hover {
+	background:#ccf;
+	color:#000;
+	text-decoration:none;
+}
+#content {
+	clear:both;
+}
+
+/* FOOTER */
+
+#footer {
+	clear:both;
+	color:#555;
+	font-size:0.88888888em;
+	line-height:1.5625;
+	border-top:1px solid #ddd;
+	padding:19px 0 0 0;
+	margin:40px 0 20px 0;
+	text-align:center;
+}
+#footer p {
+	margin:0;
+}
+#footer form {
+	float:right;
+}
+#footer input{
+	font-size:10px;
+}
+
+/* MISC HELPER STYLES */
+
+ul.clean, ol.clean {
+	list-style-type: none;
+	padding-left: 0;
+}
+.caps {
+	font-variant:small-caps;
+}
+.clear {
+	clear:both;
+}
+.left{
+	float:left;
+}
+.right{
+	float:right;
+}
+.center{
+	text-align:center;
+}
+.intro {
+	font-size:0.833333em;  /* 15px */
+	line-height:1.666667;  /* 25px */
+	border:1px solid #ccc;
+	padding:0.5em;
+	font-style:italic;
+	color:#555;
+}
+a.hash,
+a.hash:link,
+a.hash:visited {
+	display:block;
+	float:right;
+	background:#fff;
+	font-size:0.8em;
+	text-decoration:none;
+	line-height:2;
+	color:#999;
+}
+a.hash:hover {
+	color:MediumOrchid;
+}
+
+/* PRINT */
+
+@media print {
+	html, body, #container {
+		margin:0;
+	}
+	#container {
+		width:100%;
+		max-width:100%;
+	}
+	#header {
+		margin-top:0;
+	}
+	#header p {
+		display:none;
+	}
+	#footer {
+		display:none;
+	}
+	a, a:link, a:visited {
+		color:#000;
+		background:#fff;
+		text-decoration:none;
+	}
+	pre.license {
+		font-size:0.95em;
+	}
+	@page {
+		size:8.5in 11in;
+	}
+}
+
+/* PRETTIFICATION OF SOURCE CODE */
+
+.str { color: #181; font-style:italic; }
+.kwd { color: #369; }
+.com { color: #666; }
+.typ { color: #c40; }
+.lit { color: #900; }
+.pun { color: #000; font-weight: bold; }
+.pln { color: #333; }
+.tag { color: #369; font-weight: bold; }
+.atn { color: #939; font-weight: bold }
+.atv { color: #181; }
+.dec { color: #606; }
+
+@media print {
+	.str { color: #060; }
+	.kwd { color: #006; font-weight: bold; }
+	.com { color: #600; font-style: italic; }
+	.typ { color: #404; font-weight: bold; }
+	.lit { color: #044; }
+	.pun { color: #440; }
+	.pln { color: #000; }
+	.tag { color: #006; font-weight: bold; }
+	.atn { color: #404; }
+	.atv { color: #060; }
+}
+
+/* FUCKING IE */
+
+* html body{width:40em}
+* html div.index{width:34.5em}
+
+/* vim: set ft=css ts=4 sw=4 noexpandtab: */
