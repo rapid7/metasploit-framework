@@ -17,7 +17,11 @@ module MetasploitDataModels::ActiveRecordModels::Report
 
       def delete_file
 				c = Pro::Client.get rescue nil
-        c.report_delete_file(self[:id]) if c
+				if c
+					c.report_delete_file(self[:id]) 
+				else
+					::File.unlink(self.path) rescue nil
+				end
       end
     }
   end
