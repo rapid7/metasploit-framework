@@ -246,7 +246,7 @@ def nmap_hosts(&block)
 	nmap_data = fh.read(fh.stat.size)
 	# fh.unlink
 	if Rex::Parser.nokogiri_loaded
-		wspace = ::Mdm::Workspace.find_by_name(datastore['WORKSPACE'])
+		wspace = framework.db.find_workspace(datastore['WORKSPACE'])
 		wspace ||= framework.db.workspace
 		import_args = { :data => nmap_data, :wspace => wspace }
 		framework.db.import_nmap_noko_stream(import_args) { |type, data| yield type, data }
