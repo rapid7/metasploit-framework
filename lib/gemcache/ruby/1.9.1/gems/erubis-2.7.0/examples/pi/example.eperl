@@ -1,0 +1,16 @@
+<?perl
+   my $user = 'Erubis';
+   my @list = ('<aaa>', 'b&b', '"ccc"');
+?>
+<p>Hello @{$user}@!</p>
+<table>
+  <tbody>
+    <?perl $i = 0; ?>
+    <?perl for $item (@list) { ?>
+    <tr bgcolor=@!{++$i % 2 == 0 ? '#FFCCCC' : '#CCCCFF'}@">
+      <td>@!{$i}@</td>
+      <td>@{$item}@</td>
+    </tr>
+    <?perl } ?>
+  </tbody>
+</table>

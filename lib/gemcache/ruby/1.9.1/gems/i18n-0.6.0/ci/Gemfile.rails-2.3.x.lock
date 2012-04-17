@@ -1,0 +1,23 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    activesupport (2.3.10)
+    ffi (0.6.3)
+      rake (>= 0.8.7)
+    mocha (0.9.9)
+      rake
+    rake (0.8.7)
+    rufus-tokyo (1.0.7)
+    sqlite3-ruby (1.3.2)
+    test_declarative (0.0.4)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  activesupport (~> 2.3)
+  ffi
+  mocha
+  rufus-tokyo
+  sqlite3-ruby
+  test_declarative

@@ -1,0 +1,8 @@
+# -*- ruby -*-
+
+require 'autotest/restart'
+
+Autotest.add_hook :initialize do |at|
+  at.testlib          = 'minitest/autorun'
+  at.find_directories = ARGV unless ARGV.empty?
+end

@@ -28,7 +28,7 @@ if (RUBY_VERSION =~ /^1\.9\.0/)
 	exit(0)
 end
 
-if(RUBY_VERSION =~ /^1\.9\./)
+if(RUBY_VERSION =~ /^(1\.9|2\.0)\./)
 	# Load rubygems before changing default_internal, otherwise we may get
 	# Encoding::UndefinedConversionError as the gemspec files are loaded
 	require 'rubygems'
@@ -52,6 +52,8 @@ if(RUBY_PLATFORM == 'java')
 	trap Signal::list['INT'] do
 		Thread.main.raise Interrupt.new
 	end
+	
+	s.close
 end
 
 # Check for OpenSSL and print a warning if it is not installed

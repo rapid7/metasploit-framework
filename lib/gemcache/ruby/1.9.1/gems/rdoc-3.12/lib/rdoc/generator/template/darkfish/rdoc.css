@@ -1,0 +1,543 @@
+/*
+ * "Darkfish" Rdoc CSS
+ * $Id: rdoc.css 54 2009-01-27 01:09:48Z deveiant $
+ *
+ * Author: Michael Granger <ged@FaerieMUD.org>
+ *
+ */
+
+/* Base Green is: #6C8C22 */
+
+* { padding: 0; margin: 0; }
+
+body {
+  background: #efefef;
+  font: 14px "Helvetica Neue", Helvetica, Tahoma, sans-serif;
+  margin-left: 40px;
+}
+body.file-popup {
+  font-size: 90%;
+  margin-left: 0;
+}
+
+h1 {
+  font-size: 300%;
+  text-shadow: rgba(135,145,135,0.65) 2px 2px 3px;
+  color: #6C8C22;
+}
+h2,h3,h4 { margin-top: 1.5em; }
+
+:link,
+:visited {
+  color: #6C8C22;
+  text-decoration: none;
+}
+:link:hover,
+:visited:hover {
+  border-bottom: 1px dotted #6C8C22;
+}
+
+pre {
+  background: #ddd;
+  padding: 0.5em 0;
+}
+
+/* @group Generic Classes */
+
+.initially-hidden {
+  display: none;
+}
+
+#search-field {
+  width: 98%;
+  background: #eee;
+  border: none;
+  height: 1.5em;
+  -webkit-border-radius: 4px;
+}
+#search-field:focus {
+  background: #f1edba;
+}
+#search-field:-moz-placeholder,
+#search-field::-webkit-input-placeholder {
+  font-weight: bold;
+  color: #666;
+}
+
+.missing-docs {
+  font-size: 120%;
+  background: white url(images/wrench_orange.png) no-repeat 4px center;
+  color: #ccc;
+  line-height: 2em;
+  border: 1px solid #d00;
+  opacity: 1;
+  padding-left: 20px;
+  text-indent: 24px;
+  letter-spacing: 3px;
+  font-weight: bold;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+}
+
+.target-section {
+  border: 2px solid #dcce90;
+  border-left-width: 8px;
+  padding: 0 1em;
+  background: #fff3c2;
+}
+
+/* @end */
+
+/* @group Index Page, Standalone file pages */
+.indexpage ul {
+  line-height: 160%;
+  list-style: none;
+}
+.indexpage ul :link,
+.indexpage ul :visited {
+  font-size: 16px;
+}
+
+.indexpage li {
+  padding-left: 20px;
+}
+
+.indexpage ul > li {
+  background: url(images/bullet_black.png) no-repeat left 4px;
+}
+.indexpage li.method {
+  background: url(images/plugin.png) no-repeat left 4px;
+}
+.indexpage li.module {
+  background: url(images/package.png) no-repeat left 4px;
+}
+.indexpage li.class {
+  background: url(images/ruby.png) no-repeat left 4px;
+}
+.indexpage li.file {
+  background: url(images/page_white_text.png) no-repeat left 4px;
+}
+.indexpage li li {
+  background: url(images/tag_blue.png) no-repeat left 4px;
+}
+.indexpage li .toc-toggle {
+  width: 16px;
+  height: 16px;
+  background: url(images/add.png) no-repeat;
+}
+
+.indexpage li .toc-toggle.open {
+  background: url(images/delete.png) no-repeat;
+}
+
+/* @end */
+
+/* @group Top-Level Structure */
+
+#metadata {
+  float: left;
+  width: 260px;
+}
+
+#documentation {
+  margin: 2em 1em 5em 300px;
+  min-width: 340px;
+}
+
+#validator-badges {
+  clear: both;
+  margin: 1em 1em 2em;
+  font-size: smaller;
+}
+
+/* @end */
+
+/* @group Metadata Section */
+#metadata .section {
+  background-color: #dedede;
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  border: 1px solid #aaa;
+  margin: 0 8px 8px;
+  font-size: 90%;
+  overflow: hidden;
+}
+#metadata h3.section-header {
+  margin: 0;
+  padding: 2px 8px;
+  background: #ccc;
+  color: #666;
+  -moz-border-radius-topleft: 4px;
+  -moz-border-radius-topright: 4px;
+  -webkit-border-top-left-radius: 4px;
+  -webkit-border-top-right-radius: 4px;
+  border-bottom: 1px solid #aaa;
+}
+#metadata #home-section h3.section-header {
+  border-bottom: 0;
+}
+
+#metadata ul,
+#metadata dl,
+#metadata p {
+  padding:  8px;
+  list-style: none;
+}
+
+#file-metadata {
+  margin-top: 2em;
+}
+
+#file-metadata ul {
+  padding-left: 28px;
+  list-style-image: url(images/page_green.png);
+}
+
+dl.svninfo {
+  color: #666;
+  margin: 0;
+}
+dl.svninfo dt {
+  font-weight: bold;
+}
+
+ul.link-list li {
+  white-space: nowrap;
+}
+ul.link-list .type {
+  font-size: 8px;
+  text-transform: uppercase;
+  color: white;
+  background: #969696;
+  padding: 2px 4px;
+  -webkit-border-radius: 5px;
+}
+
+/* @end */
+
+/* @group Class Metadata Section */
+#class-metadata {
+  margin-top: 2em;
+}
+/* @end */
+
+/* @group Project Metadata Section */
+#project-metadata {
+  margin-top: 2em;
+}
+
+#project-metadata .section {
+  border: 1px solid #aaa;
+}
+#project-metadata h3.section-header {
+  border-bottom: 1px solid #aaa;
+  position: relative;
+}
+
+#project-metadata form {
+  color: #777;
+  background: #ccc;
+}
+
+/* @end */
+
+/* @group Documentation Section */
+.description {
+  font-size: 100%;
+  color: #333;
+}
+
+.description p {
+  margin: 1em 0.4em;
+}
+
+.description li p {
+  margin: 0;
+}
+
+.description ol,
+.description ul {
+  margin-left: 1.5em;
+}
+.description ol li,
+.description ul li {
+  line-height: 1.4em;
+}
+
+.note-list {
+  margin: 8px 0;
+}
+
+.label-list {
+  margin: 8px 1.5em;
+  border: 1px solid #ccc;
+}
+.description .label-list {
+  font-size: 14px;
+}
+
+.note-list dt {
+  font-weight: bold;
+}
+.note-list dd {
+  padding: 0 12px;
+}
+
+.label-list dt {
+  padding: 2px 4px;
+  font-weight: bold;
+  background: #ddd;
+}
+.label-list dd {
+  padding: 2px 12px;
+}
+.label-list dd + dt,
+.note-list dd + dt {
+  margin-top: 0.7em;
+}
+
+#documentation .section {
+  font-size: 90%;
+}
+
+#documentation h2.section-header {
+  margin-top: 1em;
+  padding: 0.25em 0.5em;
+  background: #ccc;
+  color: #333;
+  font-size: 175%;
+  border: 1px solid #bbb;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+.documentation-section-title {
+  position: relative;
+}
+.documentation-section-title .section-click-top {
+  position: absolute;
+  top: 6px;
+  right: 12px;
+  font-size: 10px;
+  color: #9b9877;
+  visibility: hidden;
+  padding-right: 0.5px;
+}
+
+.documentation-section-title:hover .section-click-top {
+  visibility: visible;
+}
+
+#documentation h3.section-header {
+  margin-top: 1em;
+  padding: 0.25em 0.5em;
+  background-color: #dedede;
+  color: #333;
+  font-size: 150%;
+  border: 1px solid #bbb;
+  -moz-border-radius: 3px;
+  -webkit-border-radius: 3px;
+}
+
+#constants-list > dl,
+#attributes-list > dl {
+  margin: 1em 0 2em;
+  border: 0;
+}
+#constants-list > dl dt,
+#attributes-list > dl dt {
+  padding-left: 0;
+  font-weight: bold;
+  font-family: Monaco, "Andale Mono";
+  background: inherit;
+}
+#constants-list > dl dt a,
+#attributes-list > dl dt a {
+  color: inherit;
+}
+#constants-list > dl dd,
+#attributes-list > dl dd {
+  margin: 0 0 1em 0;
+  padding: 0;
+  color: #666;
+}
+
+.documentation-section h2 {
+  position: relative;
+}
+
+.documentation-section h2 a {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 12px;
+  color: #9b9877;
+  visibility: hidden;
+}
+
+.documentation-section h2:hover a {
+  visibility: visible;
+}
+
+/* @group Method Details */
+
+#documentation .method-source-code {
+  display: none;
+}
+
+#documentation .method-detail {
+  margin: 0.5em 0;
+  padding: 0.5em 0;
+  cursor: pointer;
+}
+#documentation .method-detail:hover {
+  background-color: #f1edba;
+}
+#documentation .method-heading {
+  position: relative;
+  padding: 2px 4px 0 20px;
+  font-size: 125%;
+  font-weight: bold;
+  color: #333;
+  background: url(images/brick.png) no-repeat left bottom;
+}
+#documentation .method-heading :link,
+#documentation .method-heading :visited {
+  color: inherit;
+}
+#documentation .method-click-advice {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  font-size: 10px;
+  color: #9b9877;
+  visibility: hidden;
+  padding-right: 20px;
+  line-height: 20px;
+  background: url(images/zoom.png) no-repeat right top;
+}
+#documentation .method-heading:hover .method-click-advice {
+  visibility: visible;
+}
+
+#documentation .method-alias .method-heading {
+  color: #666;
+  background: url(images/brick_link.png) no-repeat left bottom;
+}
+
+#documentation .method-description,
+#documentation .aliases {
+  margin: 0 20px;
+  color: #666;
+}
+
+#documentation .method-description p,
+#documentation .aliases p {
+  line-height: 1.2em;
+}
+
+#documentation .aliases {
+  padding-top: 4px;
+  font-style: italic;
+  cursor: default;
+}
+#documentation .method-description p {
+  margin-bottom: 0.5em;
+}
+#documentation .method-description ul {
+  margin-left: 1.5em;
+}
+pre {
+  margin: 0.5em 0;
+}
+
+#documentation .attribute-method-heading {
+  background: url(images/tag_green.png) no-repeat left bottom;
+}
+#documentation #attribute-method-details .method-detail:hover {
+  background-color: transparent;
+  cursor: default;
+}
+#documentation .attribute-access-type {
+  font-size: 60%;
+  text-transform: uppercase;
+  vertical-align: super;
+  padding: 0 2px;
+}
+/* @end */
+
+/* @end */
+
+/* @group Source Code */
+
+pre {
+  overflow: auto;
+  background: #262626;
+  color: white;
+  border: 1px dashed #999;
+  padding: 0.5em;
+}
+
+.description pre {
+  margin: 0 0.4em;
+}
+
+.ruby-constant   { color: #7fffd4; background: transparent; }
+.ruby-keyword    { color: #00ffff; background: transparent; }
+.ruby-ivar       { color: #eedd82; background: transparent; }
+.ruby-operator   { color: #00ffee; background: transparent; }
+.ruby-identifier { color: #ffdead; background: transparent; }
+.ruby-node       { color: #ffa07a; background: transparent; }
+.ruby-comment    { color: #dc0000; font-weight: bold; background: transparent; }
+.ruby-regexp     { color: #ffa07a; background: transparent; }
+.ruby-value      { color: #7fffd4; background: transparent; }
+
+/* @end */
+
+
+/* @group search results */
+#search-results h1 {
+  font-size: 1em;
+  font-weight: normal;
+  text-shadow: none;
+}
+
+#search-results .current {
+  background: #ccc;
+  border-bottom: 1px solid transparent;
+}
+
+#search-results li {
+  list-style: none;
+  border-bottom: 1px solid #aaa;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  border-radius: 4px;
+  margin-bottom: 0.5em;
+}
+
+#search-results li:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+#search-results li p {
+  padding: 0;
+  margin: 0.5em;
+}
+
+#search-results .search-namespace {
+  font-weight: bold;
+}
+
+#search-results li em {
+  background: yellow;
+  font-style: normal;
+}
+
+#search-results pre {
+  margin: 0.5em;
+}
+
+/* @end */
+
