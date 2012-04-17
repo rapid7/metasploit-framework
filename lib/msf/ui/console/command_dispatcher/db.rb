@@ -1219,7 +1219,7 @@ class Db
 			end
 
 			print_status("Starting export of workspace #{framework.db.workspace.name} to #{output} [ #{format} ]...")
-			exporter = ::Mdm::Export.new(framework.db.workspace)
+			exporter = ::Msf::DBManager::Export.new(framework.db.workspace)
 
 			exporter.send("to_#{format}_file".intern,output) do |mtype, mstatus, mname|
 				if mtype == :status
