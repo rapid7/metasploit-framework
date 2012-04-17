@@ -280,7 +280,7 @@ class DBManager
 		if wspace.kind_of? String
 			wspace = find_workspace(wspace)
 		end
-				
+
 		ret = { }
 
 		if not addr.kind_of? ::Mdm::Host

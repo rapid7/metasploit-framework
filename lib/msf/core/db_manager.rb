@@ -49,7 +49,7 @@ class DBManager
 
 	# Flag to indicate database migration has completed
 	attr_accessor :migrated
-	
+
 	# Array of additional migration paths
 	attr_accessor :migration_paths
 
@@ -58,7 +58,7 @@ class DBManager
 		self.framework = framework
 		self.migrated  = false
 		self.migration_paths = [ ::File.join(Msf::Config.install_root, "data", "sql", "migrate") ]
-		
+
 		@usable = false
 
 		# Don't load the database if the user said they didn't need it.
@@ -76,7 +76,7 @@ class DBManager
 	def add_migration_path(path)
 		self.migration_paths.push(path)
 	end
-	
+
 	#
 	# Do what is necessary to load our database support
 	#
@@ -240,24 +240,24 @@ class DBManager
 	# Migrate database to latest schema version
 	#
 	def migrate(verbose=false)
-	
+
 		temp_dir = ::File.expand_path(::File.join( Msf::Config.config_directory, "schema", "#{Time.now.to_i}_#{$$}" ))
 		::FileUtils.rm_rf(temp_dir)
 		::FileUtils.mkdir_p(temp_dir)
-		
+
 		self.migration_paths.each do |mpath|
 			dir = Dir.new(mpath) rescue nil
 			if not dir
 				elog("Could not access migration path #{mpath}")
 				next
 			end
-			
+
 			dir.entries.each do |ent|
 				next unless ent =~ /^\d+.*\.rb$/
 				::FileUtils.cp( ::File.join(mpath, ent), ::File.join(temp_dir, ent) )
 			end
 		end
-		
+
 		success = true
 		begin
 			ActiveRecord::Migration.verbose = verbose
@@ -268,9 +268,9 @@ class DBManager
 			dlog("Call stack:\n#{e.backtrace.join "\n"}")
 			success = false
 		end
-		
+
 		::FileUtils.rm_rf(temp_dir)
-		
+
 		return true
 	end
 
