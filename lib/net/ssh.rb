@@ -181,11 +181,7 @@ module Net
         end
       end
 
-      transport = nil
-      (@@mutex ||= ::Mutex.new).synchronize do
-        transport = Transport::Session.new(host, options)
-      end
-
+      transport = Transport::Session.new(host, options)
       auth = Authentication::Session.new(transport, options)
 
       user = options.fetch(:user, user)

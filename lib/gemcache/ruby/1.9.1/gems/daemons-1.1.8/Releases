@@ -1,0 +1,190 @@
+= Daemons Release History
+
+== Release 1.1.8: February 7, 2012
+
+* rename to daemonization.rb to daemonize.rb (and Daemonization to Daemonize) to 
+  ensure compatibility.
+
+== Release 1.1.7: February 6, 2012
+
+* start_proc: Write out the PID file in the newly created proc to avoid race conditions.
+* daemonize.rb: remove to simplify licensing (replaced by daemonization.rb).
+
+== Release 1.1.6: January 18, 2012
+
+* Add the :app_name option for the "call" daemonization mode.
+
+== Release 1.1.5: December 19, 2011
+
+* Catch the case where the pidfile is empty but not deleted 
+  and restart the app (thanks to Rich Healey)
+
+== Release 1.1.4: June 17, 2011
+
+* Do not change the umask to 0000 when daemonizing anymore, just leave it as it 
+  was (thanks to Jon Botelho).
+
+== Release 1.1.3: April 14, 2011
+
+* Fixed a bug in Application.stop: the cached pid number needs to
+  be used to check for the status of a killed process (thanks to Jimmy Sieben).
+  
+== Release 1.1.2: March 29, 2011
+
+* Fixed gemspec to include all needed files.
+  
+== Release 1.1.1: March 29, 2011
+
+* Make the logging facilities work in :mode => :none (i.e. when calling 
+  Daemons.daemonize) (thanks to the input from Peter Hegedus).
+  
+== Release 1.1.0: June 20, 2010
+
+* Honour the options[:app_name] in Daemons.daemonize (thanks to Ryan Tecco).
+* Included a new option :stop_proc to specify a proc that will be called when a 
+  daemonized process receives a request to stop (thanks to Dave Dupre).
+* Only delete the pidfile if the current pid is the original pid (ghazel).
+* Start when restart but no application running (pcreux).
+* Silently continue if there is no pidfile (ghazel).
+* We now per default wait for processes to stop and
+  kill them automatically it if they do not stop within a given time 
+  (force_kill_waittime). Use the option --no_wait to not wait for processes to 
+  stop.
+* Set log files mode to 0644 (mikehale).
+* Set pid file permissions to 0644 (mikehale).
+* Added ability to change process uid/gid (mikehale).
+* Fix for: If you happen to start a daemon from a process that has open file 
+  descriptors these will stay open. As it is daemonize.rb only closes ruby IO 
+  objects (thanks to Han Holl).
+* New reload command (SIGHUP) (thanks to Michael Schuerig).
+
+== Release 1.0.10: March 21, 2008
+
+* By default, we now delete stray pid-files (i.e. pid-files which result for 
+  example from a killed daemon) automatically. This function can be deactivated 
+  by passing :keep_pid_files => true as an option.
+* All pid files of :multiple daemons new get deleted correctly upon exit of the 
+  daemons (reported by Han Holl).
+* Use the signal 'KILL' instead of 'TERM' on Windows platforms.
+* Use exit! in trap('TERM') instead of exit when option :hard_exit is given 
+  (thanks to Han Holl).
+* Did some clarification on the exception log.
+
+== Release 1.0.9: October 29, 2007
+
+* fixed a severe bug in the new Pid.running? function: function returned true if
+  the process did not exist (thanks to Jeremy Lawler).
+
+== Release 1.0.8: September 24, 2007
+
+* new Pid.running? function. Checking whether a process exists by sending 
+  signal '0' (thanks to Dru Nelson).
+
+== Release 1.0.7: July 7, 2007
+
+* Patch to fix wrong ARGV when using :exec (in def start_exec: 
+  Kernel.exec(script(), *(@app_argv || []))) (thanks to Alex McGuire).
+
+== Release 1.0.6: Mai 8, 2007
+
+* New option to pass an ARGV-style array to run and run_proc (thanks to Marc Evans).
+* Additional patches for '/var/log' (thanks to Marc Evans).
+
+== Release 1.0.5: February 24, 2007
+
+* Applied patch that makes daemons to use '/var/log' as logfile 
+  directory if you use :dir_mode = :system (thanks to Han Holl).
+* Daemons should now work with Ruby 1.9 (at least the basic features).
+
+== Release 1.0.4: January 17, 2007
+
+* Document the :log_output option (thanks to Andrew Kuklewicz).
+* Set STDOUT.sync = true when redirecting to a logfile (thanks to Andrew Kuklewicz).
+* Should now run also correctly when there is no working 'ps ax' on the system 
+  (thanks to Daniel Kehoe).
+
+== Release 1.0.3: November 1, 2006
+
+* Set the app_name correctly also for the monitor process (thanks to Ilya Novoselov).
+
+== Release 1.0.2: September 26, 2006
+
+* Changed the 'ps -ax' call back to 'ps ax'.
+* Fixed the documentation for the :normal :dir_mode.
+* As a default for Daemons.run_proc, the pid file is now saved in the current directory.
+* In :ontop mode for running a proc (this is equal to calling something like 'ruby ctrl_proc.rb run'), 
+  the proc now runs directly in the calling script, not in a forked process anymore (thanks to Paul Butcher).
+* Set $0 to app_name in the daemons (thanks to Ilya Novoselov).
+
+== Release 1.0.1: August 30, 2006
+
+* Fixed a regex for parsing the 'ps ax' system call. (thanks to Garance Alistair Drosehn)
+
+== Release 1.0.0: August 29, 2006
+
+* Fix the parsing of the 'ps ax' system call. (thanks to Garance Alistair Drosehn)
+
+== Release 0.4.4: February 14, 2006
+
+* Several fixes that allow us to use the Daemons::Controller 
+  with a proc instead of wrapping a script file. This gives us all the
+  PID file management, monitoring, command line options, etc. without having
+  to specify a path to our script which can be tricky, especially when using
+  RubyGems. (thanks to John-Mason Shackelford)
+
+== Release 0.4.3: November 29, 2005
+
+* New Option: You can specify the name of the application with :app_name
+  on calling Daemons.run. This will be used to contruct the name of the pid files
+  and log files. Defaults to the basename of the script. (thanks to Stephen R. Veit)
+
+* Bugfix: Handle the case where no controller options are given when calling Daemons, 
+  just options after "--". (thanks to Stephen R. Veit)
+
+
+== Release 0.4.2: November 15, 2005
+
+* Bugfix for problem with :normal pid-file directory mode (pid.rb), fixed (thanks to Stephen R. Veit)
+
+
+== Release 0.4.1: September 11, 2005
+
+* Bugfix for 'run' command line mode: didn't work anymore in 0.4.0, fixed
+
+
+== Release 0.4.0: July 30, 2005
+
+* Two completely new operation modes:
+  1. Call a block as a daemon (<tt>Daemons.call { my_daemon_code }</tt>)
+     and control it from the parent process.
+  2. Daemonize the currently running process (<tt>Daemons.daemonize</tt>)
+  plus the already existing mode to control your scripts (<tt>Daemons.run("script.rb")</tt>)
+* Improved documentation (for example "How does the daemonization process work?")
+* Improved "simulation mode" (<tt>:ontop</tt> option)
+* Some minor bugfixes
+
+
+== Release 0.3.0: April 21, 2005
+
+* New monitor functionality: automatic restarting of your applications if they crash
+* 'restart' command fixed
+* '--force' command modifier (please refer to the documentation)
+* Some more bugfixes and improvements
+
+
+== Release 0.2.1: Mar 21, 2005
+
+* Bugfix for a problem with the 'status' command
+
+
+== Release 0.2.0: Mar 21, 2005
+
+* Exception backtrace functionality added
+* Exec functionality added
+* More examples added
+* New commands: status, zap
+
+
+== Release 0.0.1: Feb 8, 2005
+
+* Initial release

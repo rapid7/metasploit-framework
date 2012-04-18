@@ -1,0 +1,15 @@
+module Mail
+  grammar PhraseLists
+
+    include RFC2822
+
+    rule primary_phrase
+      phrase_list {
+        def phrases
+          [first_phrase] + other_phrases.elements.map { |o| o.phrase_value }
+        end
+      }
+    end
+
+  end
+end

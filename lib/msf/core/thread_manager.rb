@@ -67,6 +67,9 @@ class ThreadManager < Array
 					elog("Call Stack\n#{e.backtrace.join("\n")}")
 					raise e
 				end
+				if framework.db and framework.db.active
+					::ActiveRecord::Base.connection.close if ActiveRecord::Base.connection
+				end				
 			end
 		else
 			t = ::Thread.new(name, crit, caller, *args) do |*argv|

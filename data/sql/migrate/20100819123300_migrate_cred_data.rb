@@ -4,7 +4,7 @@ class MigrateCredData < ActiveRecord::Migration
 		begin # Wrap the whole thing in a giant rescue.
 		skipped_notes = []
 		new_creds = []
-		Msf::DBManager::Note.find(:all).each do |note|
+		Mdm::Note.find(:all).each do |note|
 			next unless note.ntype[/^auth\.(.*)/]
 			service_name = $1
 			if !service_name
@@ -46,7 +46,7 @@ class MigrateCredData < ActiveRecord::Migration
 					if candidate_services.size == 1
 						svc_id = candidate_services.first.id
 					elsif candidate_services.empty?
-						Msf::DBManager::Service.new do |svc|
+						Mdm::Service.new do |svc|
 							svc.host_id = note.host.id
 							svc.port = default_port
 							svc.proto = 'tcp'
@@ -115,7 +115,7 @@ class MigrateCredData < ActiveRecord::Migration
 
 		say "Migrating #{new_creds.size} credentials."
 		new_creds.uniq.each do |note|
-			Msf::DBManager::Cred.new do |cred|
+			Mdm::Cred.new do |cred|
 				cred.service_id = note[0]
 				cred.user = note[2]
 				cred.pass = note[3]
@@ -126,7 +126,7 @@ class MigrateCredData < ActiveRecord::Migration
 
 		say "Migrating #{skipped_notes.size} notes."
 		skipped_notes.uniq.each do |note|
-			Msf::DBManager::Note.new do |new_note|
+			Mdm::Note.new do |new_note|
 				new_note.host_id = note.host_id
 				new_note.ntype = "migrated_auth"
 				new_note.data = note.data.merge(:migrated_auth_type => note.ntype)
@@ -135,7 +135,7 @@ class MigrateCredData < ActiveRecord::Migration
 		end
 
 		say "Deleting migrated auth notes."
-		Msf::DBManager::Note.find(:all).each do |note|
+		Mdm::Note.find(:all).each do |note|
 			next unless note.ntype[/^auth\.(.*)/]
 			note.delete
 		end

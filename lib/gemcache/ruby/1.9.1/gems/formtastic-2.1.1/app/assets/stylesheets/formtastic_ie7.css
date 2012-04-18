@@ -1,0 +1,23 @@
+/* additional stylesheets only for IE7, if you wish to support it */
+
+/* legend labels apper to have a left margin or padding I couldn't get rid of cleanly in main stylesheet */
+.formtastic .input fieldset legend.label {
+  margin-left:-7px;
+}
+
+/* checkbox and radio inputs appear to have a margin around them that I couldn't remove in main stylesheet */
+.formtastic .choice label input,
+.formtastic .boolean label input {
+  position:relative;
+  left:-4px;
+  right:-4px;
+  size:15px;
+  margin-left:0;
+  margin-right:0;
+}
+
+.formtastic .buttons,
+.formtastic .inputs,
+.formtastic .input {
+  zoom:1;
+}

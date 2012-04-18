@@ -1,0 +1,15 @@
+$ erubis -xE NoCode notext-example.eruby
+<h3>List</h3>
+
+<p>not found.</p>
+
+<table>
+  <tbody>
+
+    <tr bgcolor="">
+      <td></td>
+    </tr>
+
+  </tbody>
+</table>
+

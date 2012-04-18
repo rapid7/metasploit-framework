@@ -1,0 +1,9 @@
+== Not really in any order:
+
+* Add multibyte handling to fields, if they get a multibyte string, try encoding it into 
+  UTF-8 B first, if this fails, throw an error.
+
+* Cleanup the treetop parsers......... do I _really_ need that many entrance files?
+
+* Simplify the relationship of Headers and Fields.  Doing too much of the Field work
+  in the Header class on instantiating fields.  Header should just say "Field, do it!"

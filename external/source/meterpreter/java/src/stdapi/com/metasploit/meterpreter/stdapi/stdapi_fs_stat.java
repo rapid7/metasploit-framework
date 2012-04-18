@@ -14,6 +14,13 @@ public class stdapi_fs_stat implements Command {
 
 	public int execute(Meterpreter meterpreter, TLVPacket request, TLVPacket response) throws Exception {
 		String path = request.getStringValue(TLVType.TLV_TYPE_FILE_PATH);
+		if (path.equals("...")) {
+			long length = meterpreter.getErrorBufferLength();
+			if (length != -1) {
+				response.add(TLVType.TLV_TYPE_STAT_BUF, stat(0444 | 0100000, length, System.currentTimeMillis()));
+				return ERROR_SUCCESS;
+			}
+		}
 		File file = new File(path);
 		if (!file.exists())
 			file = Loader.expand(path);
@@ -24,24 +31,28 @@ public class stdapi_fs_stat implements Command {
 	}
 
 	public byte[] stat(File file) throws IOException {
+		int mode = (file.canRead() ? 0444 : 0) | (file.canWrite() ? 0222 : 0) | (canExecute(file) ? 0110 : 0) | (file.isHidden() ? 1 : 0) | (file.isDirectory() ? 040000 : 0) | (file.isFile() ? 0100000 : 0);
+		return stat(mode, file.length(), file.lastModified());
+	}
+	
+	private byte[] stat(int mode, long length, long lastModified) throws IOException {
 		ByteArrayOutputStream statbuf = new ByteArrayOutputStream();
 		DataOutputStream dos = new DataOutputStream(statbuf);
 		dos.writeInt(le(0)); // dev
 		dos.writeShort(short_le(0)); // ino
-		int mode = (file.canRead() ? 0444 : 0) | (file.canWrite() ? 0222 : 0) | (canExecute(file) ? 0110 : 0) | (file.isHidden() ? 1 : 0) | (file.isDirectory() ? 040000 : 0) | (file.isFile() ? 0100000 : 0);
 		dos.writeShort(short_le(mode)); // mode
 		dos.writeShort(short_le(1)); // nlink
 		dos.writeShort(short_le(65535)); // uid
 		dos.writeShort(short_le(65535)); // gid
 		dos.writeShort(short_le(0)); // padding
 		dos.writeInt(le(0)); // rdev
-		dos.writeInt(le((int) file.length())); // size
-		int mtime = (int) (file.lastModified() / 1000);
+		dos.writeInt(le((int) length)); // size
+		int mtime = (int) (lastModified / 1000);
 		dos.writeInt(le(mtime)); // atime
 		dos.writeInt(le(mtime)); // mtime
 		dos.writeInt(le(mtime)); // ctime
 		dos.writeInt(le(1024)); // blksize
-		dos.writeInt(le((int) ((file.length() + 1023) / 1024))); // blocks
+		dos.writeInt(le((int) ((length + 1023) / 1024))); // blocks
 		return statbuf.toByteArray();
 	}
 

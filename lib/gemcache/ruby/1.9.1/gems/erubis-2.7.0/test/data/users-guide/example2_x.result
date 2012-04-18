@@ -1,0 +1,10 @@
+$ erubis -x example2.eruby
+_buf = ''; _buf << '<ul>
+';   for item in list 
+ _buf << '  <li>
+    '; _buf << ( item ).to_s; _buf << '
+'; _buf << '  </li>
+';   end 
+ _buf << '</ul>
+';
+_buf.to_s
