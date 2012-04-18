@@ -922,19 +922,30 @@ class Metasploit3 < Msf::Auxiliary
 					note_data[:arch]      = arch      if arch != "undefined"
 					print_status("#{cli.peerhost.ljust 16} Reporting: #{note_data.inspect}")
 
-					report_note({
-						:host => cli.peerhost,
-						:type => 'javascript_fingerprint',
-						:data => note_data,
-						:update => :unique_data,
-					})
-					client_info = ({
-						:host      => cli.peerhost,
-						:ua_string => request['User-Agent'],
-						:ua_name   => ua_name,
-						:ua_ver    => ua_ver
-					})
-					report_client(client_info)
+					# Reporting stuff isn't really essential since we store all
+					# the target information locally.  Make sure any exception
+					# raised from the report_* methods doesn't prevent us from
+					# sending exploits.  This is really only an issue for
+					# connections from localhost where we end up with
+					# ActiveRecord::RecordInvalid errors because 127.0.0.1 is
+					# blacklisted in the Host validations.
+					begin
+						report_note({
+							:host => cli.peerhost,
+							:type => 'javascript_fingerprint',
+							:data => note_data,
+							:update => :unique_data,
+						})
+						client_info = {
+							:host      => cli.peerhost,
+							:ua_string => request['User-Agent'],
+							:ua_name   => ua_name,
+							:ua_ver    => ua_ver
+						}
+						report_client(client_info)
+					rescue => e
+						elog("Reporting failed: #{e.class} : #{e.message}")
+					end
 				end
 			end
 		end
