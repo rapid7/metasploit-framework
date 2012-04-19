@@ -19,7 +19,7 @@ class Metasploit3 < Msf::Auxiliary
 			'Description'    => %q{
 					This module attempts to authenticate to an English-based V-CMS login interface.
 				It should only work against version v1.1 or older, because these versions do not
-				have any default protections against brute-forcing.
+				have any default protections against bruteforcing.
 			},
 			'Author'         => [ 'sinn3r' ],
 			'License'        => MSF_LICENSE
