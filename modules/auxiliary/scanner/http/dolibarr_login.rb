@@ -17,10 +17,10 @@ class Metasploit3 < Msf::Auxiliary
 		super(update_info(info,
 			'Name'           => 'Dolibarr ERP & CRM 3 Login Utility',
 			'Description'    => %q{
-				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web intarface, 
+				This module attempts to authenticate to a Dolibarr ERP/CRM's admin web interface, 
 				and should only work against version 3.1.1 or older, because these versions do not
-				have any default protections against brute-forcing. 
-			},                                                                                      #'
+				have any default protections against bruteforcing.
+			},
 			'Author'         => [ 'sinn3r' ],
 			'License'        => MSF_LICENSE
 		))
