@@ -1381,7 +1381,7 @@ class Plugin::Wmap < Msf::Plugin
 				#print_status "aaa"
 				#print_status framework.db.workspace.name
 
-        serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
+				sites = serv.web_sites.where('vhost = ? and service_id = ?', vhost, serv.id)
 
 				sites.each do |site|
 					# Initial defaul path
