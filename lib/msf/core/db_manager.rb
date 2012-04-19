@@ -44,7 +44,8 @@ class DBManager
 	# Returns true if we are ready to load/store data
 	def active
 		return false if not @usable
-		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection.active? && migrated) rescue false
+		# We have established a connection, some connection is active, and we have run migrations
+		(ActiveRecord::Base.connected? && ActiveRecord::Base.connection_pool.connected? && migrated)# rescue false
 	end
 
 	# Returns true if the prerequisites have been installed
@@ -175,7 +176,8 @@ class DBManager
 			nopts['port'] = nopts['port'].to_i
 		end
 
-		nopts['pool'] = 75
+		# Prefer the config file's pool setting
+		nopts['pool'] ||= 75
 
 		begin
 			self.migrated = false
@@ -221,7 +223,10 @@ class DBManager
 				# Try to force a connection to be made to the database, if it succeeds
 				# then we know we don't need to create it :)
 				ActiveRecord::Base.establish_connection(opts)
-				conn = ActiveRecord::Base.connection
+				# Do the checkout, checkin dance here to make sure this thread doesn't
+				# hold on to a connection we don't need
+				conn = ActiveRecord::Base.connection_pool.checkout
+				ActiveRecord::Base.connection_pool.checkin(conn)
 			end
 		rescue ::Exception => e
 			errstr = e.to_s
@@ -275,8 +280,11 @@ class DBManager
 
 		success = true
 		begin
-			ActiveRecord::Migration.verbose = verbose
-			ActiveRecord::Migrator.migrate(temp_dir, nil)
+
+			::ActiveRecord::Base.connection_pool.with_connection {
+				ActiveRecord::Migration.verbose = verbose
+				ActiveRecord::Migrator.migrate(temp_dir, nil)
+			}
 		rescue ::Exception => e
 			self.error = e
 			elog("DB.migrate threw an exception: #{e}")
