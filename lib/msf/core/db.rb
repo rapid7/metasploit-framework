@@ -506,7 +506,7 @@ class DBManager
 	#
 	def report_service(opts)
 		return if not active
-	#::ActiveRecord::Base.connection_pool.with_connection { |conn|
+	::ActiveRecord::Base.connection_pool.with_connection { |conn|
 		addr  = opts.delete(:host) || return
 		hname = opts.delete(:host_name)
 		hmac  = opts.delete(:mac)
@@ -555,14 +555,15 @@ class DBManager
 				dlog("Unknown attribute for Service: #{k}")
 			end
 		}
-		service.state = ServiceState::Open if service.state.nil?
-		service.info = "" if service.info.nil?
+		service.state ||= ServiceState::Open
+		service.info  ||= ""
+
 		if (service and service.changed?)
 			msf_import_timestamps(opts,service)
 			service.save!
 		end
 		ret[:service] = service
-	#}
+	}
 	end
 
 	def get_service(wspace, host, proto, port)
@@ -1805,6 +1806,7 @@ class DBManager
 
 	def report_web_page(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -1846,6 +1848,7 @@ class DBManager
 		page.save!
 
 		ret[:web_page] = page
+	}
 
 	end
 
@@ -1871,6 +1874,7 @@ class DBManager
 
 	def report_web_form(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -1924,6 +1928,7 @@ class DBManager
 		msf_import_timestamps(opts, form)
 		form.save!
 		ret[:web_form] = form
+	}
 	end
 
 
@@ -1953,6 +1958,7 @@ class DBManager
 
 	def report_web_vuln(opts)
 		return if not active
+	::ActiveRecord::Base.connection_pool.with_connection {
 		wspace = opts.delete(:workspace) || workspace
 
 		path    = opts[:path]
@@ -2024,6 +2030,7 @@ class DBManager
 		vuln.save!
 
 		ret[:web_vuln] = vuln
+	}
 	end
 
 	#
@@ -2031,12 +2038,14 @@ class DBManager
 	# Selected host
 	#
 	def selected_host
+	::ActiveRecord::Base.connection_pool.with_connection {
 		selhost = ::Mdm::WmapTarget.where("selected != 0").first()
 		if selhost
 			return selhost.host
 		else
 			return
 		end
+	}
 	end
 
 	#
@@ -2044,7 +2053,9 @@ class DBManager
 	# Selected target
 	#
 	def selected_wmap_target
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapTarget.find.where("selected != 0")
+	}
 	end
 
 	#
@@ -2088,7 +2099,9 @@ class DBManager
 	# This method wiil be remove on second phase of db merging.
 	#
 	def request_distinct_targets
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapRequest.select('DISTINCT host,address,port,ssl')
+	}
 	end
 
 	#
@@ -2146,7 +2159,9 @@ class DBManager
 	# This method returns a list of all requests from target
 	#
 	def target_requests(extra_condition)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}",selected_host,selected_port)
+	}
 	end
 
 	#
@@ -2165,7 +2180,9 @@ class DBManager
 	# This method allows to query directly the requests table. To be used mainly by modules
 	#
 	def request_sql(host,port,extra_condition)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapRequest.where("wmap_requests.host = ? AND wmap_requests.port = ? #{extra_condition}", host , port)
+	}
 	end
 
 	#
@@ -2173,7 +2190,9 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def requests
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapRequest.find(:all)
+	}
 	end
 
 	#
@@ -2192,7 +2211,9 @@ class DBManager
 	# This methods returns a list of all targets in the database
 	#
 	def targets
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapTarget.find(:all)
+	}
 	end
 
 	#
@@ -2200,7 +2221,9 @@ class DBManager
 	# This methods deletes all targets from targets table in the database
 	#
 	def delete_all_targets
+	::ActiveRecord::Base.connection_pool.with_connection {
 		::Mdm::WmapTarget.delete_all
+	}
 	end
 
 	#
@@ -2208,8 +2231,10 @@ class DBManager
 	# Find a target matching this id
 	#
 	def get_target(id)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		target = ::Mdm::WmapTarget.where("id = ?", id).first()
 		return target
+	}
 	end
 
 	#
@@ -2217,6 +2242,7 @@ class DBManager
 	# Create a target
 	#
 	def create_target(host,port,ssl,sel)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		tar = ::Mdm::WmapTarget.create(
 				:host => host,
 				:address => host,
@@ -2225,6 +2251,7 @@ class DBManager
 				:selected => sel
 			)
 		#framework.events.on_db_target(rec)
+	}
 	end
 
 
@@ -2233,6 +2260,7 @@ class DBManager
 	# Create a request (by hand)
 	#
 	def create_request(host,port,ssl,meth,path,headers,query,body,respcode,resphead,response)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		req = ::Mdm::WmapRequest.create(
 				:host => host,
 				:address => host,
@@ -2248,6 +2276,7 @@ class DBManager
 				:response => response
 			)
 		#framework.events.on_db_request(rec)
+	}
 	end
 
 	#
@@ -2255,7 +2284,9 @@ class DBManager
 	# Quick way to query the database (used by wmap_sql)
 	#
 	def sql_query(sqlquery)
+	::ActiveRecord::Base.connection_pool.with_connection {
 		ActiveRecord::Base.connection.select_all(sqlquery)
+	}
 	end
 
 
