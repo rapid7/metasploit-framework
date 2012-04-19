@@ -491,7 +491,6 @@ class DBManager
 		hmac  = opts.delete(:mac)
 		host  = nil
 		wspace = opts.delete(:workspace) || workspace
-		opts[:info] = '' unless opts[:info]
 		hopts = {:workspace => wspace, :host => addr}
 		hopts[:name] = hname if hname
 		hopts[:mac]  = hmac  if hmac
@@ -535,9 +534,8 @@ class DBManager
 				dlog("Unknown attribute for Service: #{k}")
 			end
 		}
-		if (service.state == nil)
-			service.state = ServiceState::Open
-		end
+		service.state = ServiceState::Open if service.state.nil?
+		service.info = "" if service.info.nil?
 		if (service and service.changed?)
 			msf_import_timestamps(opts,service)
 			service.save!
