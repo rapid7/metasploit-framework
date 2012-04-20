@@ -1,6 +1,12 @@
 Armitage Changelog
 ==================
 
+17 Apr 12
+---------
+- Modified how Armitage determines a console command is complete to stay 
+  compat with behavior changes in a recent Metasploit update.
+- Armitage now queues console commands to prevent out of order execution.
+
 16 Apr 12
 ---------
 - The search field in the module browser now updates results in real time.
