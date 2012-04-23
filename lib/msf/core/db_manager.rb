@@ -8,6 +8,10 @@ require 'fileutils'
 # Provide access to ActiveRecord models shared w/ commercial versions
 require "metasploit_data_models"
 
+# Patches issues with ActiveRecord
+require "msf/core/patches/active_record"
+
+
 require 'fileutils'
 
 module Msf
