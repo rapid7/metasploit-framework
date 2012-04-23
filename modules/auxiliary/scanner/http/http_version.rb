@@ -39,17 +39,11 @@ class Metasploit3 < Msf::Auxiliary
 	# Fingerprint a single host
 	def run_host(ip)
 		begin
-			connect(opts)
-			uri = opts[:uri] || '/'
-			method = opts[:method] || 'GET'
+			connect
 			
-			res = send_request_raw(
-				{
-					'uri'     => uri,
-					'method'  => method
-				})
-				
+			res = send_request_raw({'uri' => '/', 'method' => 'GET' })
 			return if not res
+			
 			fp = http_fingerprint(:response => res) 
 			print_status("#{ip}:#{rport} #{fp}") if fp
 		rescue ::Timeout::Error, ::Errno::EPIPE
