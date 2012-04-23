@@ -24,6 +24,8 @@ class Metasploit3 < Msf::Post
 					I borrowed heavily from bannedit's BitCoin Jacker:
 						- Credit for what works:  bannedit
 						- Credit for what doesn't: JonValt
+					Usage: run /path/to/module/grab-skype username="foo.bar"
+						will pull the main.db file for skype user "foo.bar"
 
 				},
 				'License'       => MSF_LICENSE,
@@ -40,7 +42,7 @@ class Metasploit3 < Msf::Post
 	end
 
 
-#todo: Automagically get all users' databases
+#todo: Automagically get all users' databases and eliminate username Option requirement
 
 	def run
 		print_status("Version 04-12-2012 1226 at your service, Sir!")
