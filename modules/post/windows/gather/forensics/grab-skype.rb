@@ -45,7 +45,6 @@ class Metasploit3 < Msf::Post
 #todo: Automagically get all users' databases and eliminate username Option requirement
 
 	def run
-		print_status("Version 04-12-2012 1226 at your service, Sir!")
 		skype_username = datastore['username']
 		print_status("Finding User Folder...")
 		grab_user_profiles().each do |user|
