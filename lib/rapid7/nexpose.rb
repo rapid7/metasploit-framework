@@ -663,8 +663,8 @@ class Connection
 		http.use_ssl = true
 		http.verify_mode = OpenSSL::SSL::VERIFY_NONE            # XXX: security issue
 		headers = {'Cookie' => "nexposeCCSessionID=#{@session_id}"}
-		resp, data = http.get(uri.path, headers)
-		data
+		resp = http.get(uri.path, headers)
+		resp ? resp.body : nil
 	end
 end
 
