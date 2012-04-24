@@ -195,6 +195,42 @@ module File
 		return true
 	end
 
+  #
+  # Returns a hash containing the output of "stat" on a remote file
+  #
+  def stat_file(file_name)
+    data = []
+    stat = {}
+
+    if session.type == "meterpreter"
+      raise "I think you can do this with session.fs.file.stat"
+    elsif session.respond_to? :shell_command_token
+      print_debug("platform is #{session.platform}")
+    case session.platform
+      when /windows/
+        raise "Windows platform not supported"
+      when /linux/
+        #  make stat output *almost* like OSX - some of these are just guessed or padded
+        stat_cmd = "/usr/bin/stat -c \"%d %i %A %h %U %G %s %t %X %X %Y %Z %b %d %D %n\""
+      when /osx/
+        # OSX stat gives us less options so we make Linux like this
+        stat_cmd = "/usr/bin/stat -t %s"
+      end
+    end
+
+    data = session.shell_command_token("#{stat_cmd} \'#{file_name}\'").split
+    stat = { 'file_name' => data[15],
+      'user' => data[4],
+      'group' => data[5],
+      'inode' => data[1],
+      'a_time' => data[9],
+      'm_time' => data[10],
+      'c_time' => data[11]
+    }
+    stat 
+  end
+
+
 
 protected
 	#
