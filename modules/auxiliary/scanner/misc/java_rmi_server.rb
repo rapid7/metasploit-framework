@@ -21,8 +21,8 @@ class Metasploit3 < Msf::Auxiliary
 		super(
 			'Name'        => 'Java RMI Server Endpoint Scanner',
 			'Version'     => '$Revision$',
-			'Description' => 'Detect RMI endpoints',
-			'Author'      => 'hdm',
+			'Description' => 'Detect Java RMI endpoints',
+			'Authors'     => ['mihi', 'hdm'],
 			'License'     => MSF_LICENSE,
 			'References'     =>
 				[
@@ -47,12 +47,13 @@ class Metasploit3 < Msf::Auxiliary
 
 			if res and res =~ /^\x4e..([^\x00]+)\x00\x00/
 				info = $1
-				print_good("#{rhost}:#{rport} RMI Endpoint: #{info}")
-				report_service(:host => rhost, :port => rport, :name => "rmi", :info => info)
+				print_good("#{rhost}:#{rport} Java RMI Endpoint Detected (identified us as '#{info}')")
+				report_service(:host => rhost, :port => rport, :name => "rmi", :info => "Java RMI Endpoint (identified us as #{info})")
 				report_vuln(
 					:host          => rhost,
 					:name          => self.fullname,
-					:info          => "Identified RMI Endpoint: #{info}",
+					:port          => rport,
+					:info          => "Identified Java RMI Endpoint",
 					:refs          => self.references
 				)				
 			end
