@@ -27,14 +27,14 @@ class Metasploit3 < Msf::Auxiliary
 			'References'     =>
 				[
 					# RMI protocol specification
-					[ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html'],
+					[ 'URL', 'http://download.oracle.com/javase/1.3/docs/guide/rmi/spec/rmi-protocol.html']
 				],
-			'DisclosureDate' => 'Oct 15 2011',			
+			'DisclosureDate' => 'Oct 15 2011'
 		)
 
 		register_options(
 			[
-				Opt::RPORT(1099),
+				Opt::RPORT(1099)
 			], self.class)
 	end
 

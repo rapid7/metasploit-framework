@@ -24,8 +24,8 @@ class Metasploit3 < Msf::Auxiliary
 				format: 001122334455, which is translated to "0x001122334455" in binary.
 				Note that this should be either 4 or 6 bytes long.
 			},
-			'Author'         => [ 'sinn3r' ],
 			'License'        => MSF_LICENSE,
+			'Author'         => [ 'sinn3r' ]
 		))
 
 		register_options(
