@@ -25,7 +25,7 @@ h1. Metasploit Combined Installers
 | "metasploit-4.1.0-linux-installer.run":http://downloads.metasploit.com/data/releases/archive/metasploit-4.1.0-linux-installer.run | Linux 32-bit | 006993ce00999bf3f721a19618b4d3c3fed875f0 | "PGP":http://downloads.metasploit.com/data/releases/archive/metasploit-4.1.0-linux-installer.run.asc|
 
 
-h1. Metasploit Framework Installers
+h1. Metasploit Framework Downloads
 
 |Download Link|File Type|SHA1|PGP|
 | "framework-4.3.0.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2 | Source Code | b9d6dbe54b23448da9a939cf3e1f95cb7dc0e363 | "PGP":http://downloads.metasploit.com/data/releases/archive/framework-4.3.0.tar.bz2.asc|
