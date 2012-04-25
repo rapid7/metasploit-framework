@@ -115,4 +115,3 @@ h1. Metasploit Framework Downloads
 | "framework-3.2-lite.tar.bz2":http://downloads.metasploit.com/data/releases/archive/framework-3.2-lite.tar.bz2 | Source Code | 243d7b9b97093a53b5a214b553f41930c61ee2b2 | |
 | "framework-3.1.exe":http://downloads.metasploit.com/data/releases/archive/framework-3.1.exe | Windows | a2efa1580fecf85e253267ba2ceb4aead6cc48b4 | |
 | "framework-3.0.exe":http://downloads.metasploit.com/data/releases/archive/framework-3.0.exe | Windows | aac9f86bd68914959dad9e8d19c891a9c0a56541 | |
-root@updates:/home/data/releases/archive# 
