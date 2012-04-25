@@ -519,7 +519,7 @@ class Metasploit3 < Msf::Auxiliary
 	# Main dispatcher method for when we get a request
 	#
 	def on_request_uri(cli, request)
-		print_status("#{cli.peerhost.ljust 16} Browser Autopwn request '#{request.uri}'")
+		print_status("Handling '#{request.uri}'")
 
 		case request.uri
 		when self.get_resource
@@ -553,7 +553,7 @@ class Metasploit3 < Msf::Auxiliary
 			# detection, which is kind of a bummer since it's so easy for the
 			# ua string to lie.  It probably doesn't matter that much because
 			# most of our exploits require javascript anyway.
-			print_status("#{cli.peerhost.ljust 16} Browser has javascript disabled, trying exploits that don't need it")
+			print_status("Browser has javascript disabled, trying exploits that don't need it")
 			record_detection(cli, request)
 			if (action.name == "DefangedDetection")
 				response = create_response()
@@ -566,7 +566,7 @@ class Metasploit3 < Msf::Auxiliary
 			response["Cache-Control"] = "must-revalidate"
 			cli.send_response(response)
 		else
-			print_status("#{cli.peerhost.ljust 16} 404ing #{request.uri}")
+			print_status("404ing #{request.uri}")
 			send_not_found(cli)
 			return false
 		end
@@ -601,7 +601,7 @@ class Metasploit3 < Msf::Auxiliary
 			end
 			sploit_cnt += 1
 		}
-		print_status("#{cli.peerhost.ljust 16} Responding with #{sploit_cnt} non-javascript exploits")
+		print_status("Responding with #{sploit_cnt} non-javascript exploits")
 		body
 	end
 
@@ -832,9 +832,9 @@ class Metasploit3 < Msf::Auxiliary
 
 		response.body = "#{js}"
 
-		print_status("#{cli.peerhost.ljust 16} Responding with #{sploit_cnt} exploits")
+		print_status("Responding with #{sploit_cnt} exploits")
 		sploits_for_this_client.each do |name|
-			vprint_status("#{cli.peerhost.ljust 16} - #{name}")
+			vprint_status("* #{name}")
 		end
 		return response
 	end
@@ -903,14 +903,14 @@ class Metasploit3 < Msf::Auxiliary
 			# roughly the same as the javascript version on non-IE
 			# browsers because it does most everything with
 			# navigator.userAgent
-			print_status("#{cli.peerhost.ljust 16} Recording detection from User-Agent: #{request['User-Agent']}")
+			print_status("Recording detection from User-Agent: #{request['User-Agent']}")
 			report_user_agent(cli.peerhost, request)
 		else
 			data_offset += 'sessid='.length
 			detected_version = request.uri[data_offset, request.uri.length]
 			if (0 < detected_version.length)
 				detected_version = Rex::Text.decode_base64(Rex::Text.uri_decode(detected_version))
-				print_status("#{cli.peerhost.ljust 16} JavaScript Report: #{detected_version}")
+				print_status("JavaScript Report: #{detected_version}")
 				(os_name, os_flavor, os_sp, os_lang, arch, ua_name, ua_ver) = detected_version.split(':')
 
 				if framework.db.active
@@ -920,7 +920,7 @@ class Metasploit3 < Msf::Auxiliary
 					note_data[:os_sp]     = os_sp     if os_sp != "undefined"
 					note_data[:os_lang]   = os_lang   if os_lang != "undefined"
 					note_data[:arch]      = arch      if arch != "undefined"
-					print_status("#{cli.peerhost.ljust 16} Reporting: #{note_data.inspect}")
+					print_status("Reporting: #{note_data.inspect}")
 
 					# Reporting stuff isn't really essential since we store all
 					# the target information locally.  Make sure any exception

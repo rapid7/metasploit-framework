@@ -90,7 +90,7 @@ EOS
 	def on_request_uri(cli,request)
 		# Transmit the response to the client
 		res = create_page()
-		print_status("Leaking PII to #{cli.peerhost}:#{cli.peerport}")
+		print_status("Leaking PII...")
 		send_response(cli, res, { 'Content-Type' => 'text/html' })
 	end
 
