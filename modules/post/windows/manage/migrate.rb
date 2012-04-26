@@ -53,7 +53,7 @@ class Metasploit3 < Msf::Post
 		elsif datastore['NAME']
 			target_pid = session.sys.process[datstore['NAME']]
 		end
-		
+
 		if not target_pid
 			print_error("Process or PID not found")
 			return
