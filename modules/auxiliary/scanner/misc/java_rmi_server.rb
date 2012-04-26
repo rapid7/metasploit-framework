@@ -55,9 +55,9 @@ class Metasploit3 < Msf::Auxiliary
 					:port          => rport,
 					:info          => "Identified Java RMI Endpoint",
 					:refs          => self.references
-				)				
+				)
 			end
-			
+
 		rescue ::Interrupt
 			raise $!
 		rescue ::Rex::ConnectionError, ::IOError
