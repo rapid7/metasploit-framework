@@ -48,14 +48,7 @@ class Metasploit3 < Msf::Auxiliary
 			if res and res =~ /^\x4e..([^\x00]+)\x00\x00/
 				info = $1
 				print_good("#{rhost}:#{rport} Java RMI Endpoint Detected (identified us as '#{info}')")
-				report_service(:host => rhost, :port => rport, :name => "rmi", :info => "Java RMI Endpoint (identified us as #{info})")
-				report_vuln(
-					:host          => rhost,
-					:name          => self.fullname,
-					:port          => rport,
-					:info          => "Identified Java RMI Endpoint",
-					:refs          => self.references
-				)
+				report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Java RMI Endpoint")			
 			end
 
 		rescue ::Interrupt
