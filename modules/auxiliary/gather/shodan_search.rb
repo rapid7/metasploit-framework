@@ -47,6 +47,7 @@ class Metasploit4 < Msf::Auxiliary
 			[
 				OptString.new('SHODAN_APIKEY', [true, "The SHODAN API key"]),
 				OptString.new('QUERY', [true, "Keywords you want to search for"]),
+				OptBool.new('BANNER', [false, "Print banner with output.", false]),
 				OptString.new('OUTFILE', [false, "A filename to store the list of IPs"]),
 				OptBool.new('DATABASE', [false, "Add search results to the database", false]),
 				OptInt.new('MAXPAGE', [true, "Max amount of pages to collect", 1]),
@@ -144,7 +145,7 @@ class Metasploit4 < Msf::Auxiliary
 		tbl = Rex::Ui::Text::Table.new(
 			'Header'  => 'IP Results',
 			'Indent'  => 1,
-			'Columns' => ['IP', 'City', 'Country', 'Hostname']
+			'Columns' => ['IP', 'City', 'Country', 'Hostname', 'Data']
 		)
 
 		# Organize results and put them into the table
@@ -159,7 +160,11 @@ class Metasploit4 < Msf::Auxiliary
 				port = host['port'] || ''
 				country = host['country_name'] || 'N/A'
 				hostname = host['hostnames'][0]
-				data = host['data']
+				if datastore['BANNER']
+ 					data = host['data'].gsub("\015", "").gsub(/[\n]+/, "")
+ 				else
+ 					data = ""
+				end			
 
 				if  ip =~ /#{my_filter}/ or
 					city =~ /#{my_filter}/i or
@@ -168,7 +173,7 @@ class Metasploit4 < Msf::Auxiliary
 					data =~ /#{my_filter}/i
 					# Unfortunately we cannot display the banner properly,
 					# because it messes with our output format
-					tbl << ["#{ip}:#{port}", city, country, hostname]
+					tbl << ["#{ip}:#{port}", city, country, hostname, data]
 				end
 			}
 		end
