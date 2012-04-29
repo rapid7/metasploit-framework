@@ -41,7 +41,23 @@ class Metasploit3 < Msf::Auxiliary
 	end
 	
 	def setup
-		@pkt = "JRMI" + [2,0x4b,0,0].pack("nCnN") + gen_rmi_loader_packet
+		buf = gen_rmi_loader_packet
+		
+		jar = Rex::Text.rand_text_alpha(rand(8)+1) + '.jar'
+		old_url = "file:./rmidummy.jar"
+		new_url = "file:RMIClassLoaderSecurityTest/" + jar
+
+		# Java strings in serialized data are prefixed with a 2-byte, big endian length
+		# (at least, as long as they are shorter than 65536 bytes)
+		find_me = [old_url.length].pack("n") + old_url
+		
+		idx = buf.index(find_me)
+		len = [new_url.length].pack("n")
+		
+		# Now replace it with the new url
+		buf[idx, find_me.length] = len + new_url
+		
+		@pkt = "JRMI" + [2,0x4b,0,0].pack("nCnN") + buf
 	end
 
 	def run_host(target_host)
@@ -50,24 +66,34 @@ class Metasploit3 < Msf::Auxiliary
 			connect
 			sock.put("\x4a\x52\x4d\x49\0\x02\x4b")
 			res = sock.get_once
+			disconnect
 
 			if res and res =~ /^\x4e..([^\x00]+)\x00\x00/
 				info = $1
-
-				# Determine if the instance allows remote class loading
-				sock.put(@pkt)
+				
+				begin
+					# Determine if the instance allows remote class loading
+					connect
+					sock.put(@pkt) rescue nil
 	
-				buf = ""
-				1.upto(6) do
-					res = sock.get_once(-1, 5) rescue nil
-					break if not res
-					buf << res
+					buf = ""
+					1.upto(6) do
+						res = sock.get_once(-1, 5) rescue nil
+						break if not res
+						buf << res
+					end
+				
+				rescue ::Interrupt
+					raise $!
+				rescue ::Exception
+				ensure
+					disconnect
 				end
-
+	
 				if buf =~ /RMI class loader disabled/
-					print_status("#{rhost}:#{rport} Java RMI Endpoint Detected")
+					print_status("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Disabled")
 					report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Disabled")
-				else
+				elsif buf.length > 0
 					print_good("#{rhost}:#{rport} Java RMI Endpoint Detected: Class Loader Enabled")
 					report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "Class Loader: Enabled")
 					report_vuln(
@@ -79,6 +105,9 @@ class Metasploit3 < Msf::Auxiliary
 						:info         => "Class Loader: Enabled",
 						:refs         => self.references
 					)
+				else
+					print_status("#{rhost}:#{rport} Java RMI Endpoint Detected")
+					report_service(:host => rhost, :port => rport, :name => "java-rmi", :info => "")
 				end
 
 			end
