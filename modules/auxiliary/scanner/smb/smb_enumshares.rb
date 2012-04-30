@@ -75,7 +75,7 @@ class Metasploit3 < Msf::Auxiliary
 		)
 		rescue ::Rex::Proto::SMB::Exceptions::ErrorCode => e
 			#STATUS_NOT_SUPPORTED
-			if( e.error_code == 0xC00000BB ) 
+			if( e.error_code == 0xC00000BB )
 				srvsvc_netshareenum
 				return
 			end
@@ -108,11 +108,16 @@ class Metasploit3 < Msf::Auxiliary
 
 		simple.connect("IPC$")
 		handle = dcerpc_handle('4b324fc8-1670-01d3-1278-5a47bf6ee188', '3.0', 'ncacn_np', ["\\srvsvc"])
-		dcerpc_bind(handle)
+		begin
+			dcerpc_bind(handle)
+		rescue Rex::Proto::SMB::Exceptions::ErrorCode => e
+			print_error("#{rhost} : #{e.message}")
+			return
+		end
 
 		stubdata =
 			NDR.uwstring("\\\\#{rhost}") +
-			NDR.long(1)  	#level
+			NDR.long(1)  #level
 
 		ref_id = stubdata[0,4].unpack("V")[0]
 		ctr = [1, ref_id + 4 , 0, 0].pack("VVVV")
@@ -132,9 +137,9 @@ class Metasploit3 < Msf::Auxiliary
 		share_count = res.slice!(0, 4).unpack("V")[0]
 		res.slice!(0,4) # Reference ID of CTR1
 		share_max_count = res.slice!(0, 4).unpack("V")[0]
-		
+
 		raise "Dce/RPC error : Unknow situation encountered count != count max (#{share_count}/#{share_max_count})" if share_max_count != share_count
-		
+
 		types = res.slice!(0, share_count * 12).scan(/.{12}/n).map{|a| a[4,2].unpack("v")[0]}  # RerenceID / Type / ReferenceID of Comment
 
 		share_count.times do |t|
